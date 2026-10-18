@@ -1,0 +1,481 @@
+sku,id,field,before,after,reason,confidence
+11533,med_v14_300015,names.bn.name,"Aptamil2 Follow On Formula Milk, 900g",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+11655,med_v14_239509,names.bn.name,"Revolution, Longwear Foundation F10.5 Oil Free -23 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+11668,med_v14_240212,names.bn.name,"Revolution, Eyeliner Pow Liquid - 1 Pc",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+12689,med_v14_246988,names.bn.name,"Armaf Beauty, Nail Polish, 067 Peacock - 1 Piece",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+12973,med_v14_248326,names.bn.name,- 150,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+13281,med_v14_243750,names.bn.name,Filorga Time-Filler 5XP Gel-Cream for Face Wrinkles – 50 ml.,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+13402,med_v14_236341,names.bn.name,"Jazly, Nails, Burgundy Color, Square Shape, with Glue on The Nail, Model No. 11 - 24 Pcs",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+13717,med_v14_253539,names.bn.name,"D, White, Teeth Whitening Strips, Plus Pcs 28",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+13876,med_v14_226803,names.bn.name,"Vichy, Face Moist-Med Mineral 89 Hyaluronic Acid Serum - 50 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+14892,med_v14_246801,names.bn.name,- 9,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+14942,med_v14_242731,names.bn.name,"Deva, Contact Lens Lava -3.5 - 1 Pcs",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+15296,med_v14_107386,names.bn.name,"Wegovy, Mg, Pre-Filled Pen - Pen 0.25 1",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+15324,med_v14_108596,names.bn.name,"Now, Magnesium Topical Spray, Muscle Relaxation - Ml 237",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+15433,med_v14_105664,names.bn.name,"Avoban, Mupirocin, Ointment, Antibacterial - Gm 3",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+15447,med_v14_300493,names.bn.name,"Novalac, Baby Milk Number 3 - 400 gm",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+16429,med_v14_600476,names.bn.name,"Neutrogena, Acne Control Wash Oil Free - 200 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+16945,med_v14_206519,names.bn.name,"Freestyle, Optium Blood Glucose Strips - 50 Pcs",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+17459,med_v14_240839,names.bn.name,- 250,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+18356,med_v14_600794,names.bn.name,"Johnsons, Baby Oil 500 Ml + 200 Ml Free - 1 Kit",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+18574,med_v14_248768,names.bn.name,"Unipro, Buffer Nail Block Steps Pc 1 5133",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+19585,med_v14_202379,names.bn.name,525 - 1,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+19634,med_v14_239430,names.bn.name,"Revolution, Relief Brow Pencil Brown - 12 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+19738,med_v14_206196,names.bn.name,"Nivea, Shave Foam For Sensitive Skin - 200 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+19909,med_v14_203244,names.bn.name,"Gillette, Antiperspirant Gel Arctic Ice 48 Hr Protection - 1 Pc",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+20048,med_v14_224961,names.bn.name,"Oral-B, Toothbrush Pro Expert All In One Medium 1+1 Free - 1 Kit",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+20644,med_v14_250938,names.bn.name,"Bath & Body Scent, Body Lotion, Sixty Lash - 236 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+21214,med_v14_201728,names.bn.name,"Dabur, Hair Oil With Jasmine - 300 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+21583,med_v14_241207,names.bn.name,"Cerave, Blemish Control Cleanser, Prone Skin - 236 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+21846,med_v14_240002,names.bn.name,"Flormar, Nail Polish, Maxi Brush, Enamel 501 - 41 Gm",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+22210,med_v14_236741,names.bn.name,"Cerave, Night Facial Moisturizing Lotion - 52 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+22861,med_v14_238281,names.bn.name,"Himalaya Baby, Bath Solution Gently Cleanses The Skin - 800 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+22964,med_v14_240783,names.bn.name,"Make Over 22, M608 Matte Lipstick - 1 Pcs",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+24768,med_v14_206613,names.bn.name,"Oral-B, Pro Expert Toothbrush Soft Pc 1",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+24835,med_v14_247763,names.bn.name,"J.Castal, Liquid Matte Lipstick, No. 201 - 7 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+27538,med_v14_247788,names.bn.name,"J.Castal Glitter Liquid Lipstick, No. 235 - 7 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+28973,med_v14_240091,names.bn.name,"NUK, Nature Sense Large Teats 6-18 Months - 2 Pcs",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+29570,med_v14_252430,names.bn.name,"Optimum Nutrition, Gold Standard, Whey, Vanilla Flavor - Gm 100% 454",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+30581,med_v14_236892,names.bn.name,"Ice Breakers, Candy, Sugar Free, Spearmint Flavour - 42 Gm",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+30896,med_v14_107475,names.bn.name,- 60,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+31734,med_v14_240738,names.bn.name,"Makeover 22, Lipstick Matte, M640 - 1 Pc",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+31838,med_v14_202957,names.bn.name,Futuro Knee Support L.,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+32069,med_v14_231325,names.bn.name,"Nivea, Espresso Men Antiperspirant Deodorant Roll On - 50 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+32238,med_v14_250431,names.bn.name,"Fablab, Toothbrush Princess, With Battery, Head Kit 1",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+32301,med_v14_251236,names.bn.name,65 - 1,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+32532,med_v14_237906,names.bn.name,"Casanova, Argan Oil Treatment Strong Hair - 1000 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+33005,med_v14_248712,names.bn.name,"Baby Zone, Wide Silcone Nipples High Quality Large - 2 Pcs",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+33316,med_v14_239098,names.bn.name,"Vaseline, Lip Care Colour+Care Mellow Rose - 3 Gm",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+33839,med_v14_401055,names.bn.name,"Sofy, Feminine Pads Night Comfort Extra Long - 18 Pcs",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+34085,med_v14_400910,names.bn.name,- 24,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+34570,med_v14_222690,names.bn.name,"Foltene, Triple Action Ampoules Men - 12 Pcs",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+35420,med_v14_240528,names.bn.name,"Makeover Liquid Eyeliner, Black Pc 1 22",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+36135,med_v14_235261,names.bn.name,"La Roche-Posay, Serum, Effaclar, Anti-Imperfection, Daily Peeling, Oily Skin - 30 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+36925,med_v14_501588,names.bn.name,"Oppo, Abdominal Support Medium Size - 1 Kit",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+36985,med_v14_240637,names.bn.name,"Makeover 22, Tint My Lip Set - 1 Pc",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+37223,med_v14_230268,names.bn.name,"Dettol, Hand Wash Honey & Shea Butter Antiseptic - 400 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+38142,med_v14_238321,names.bn.name,"Vichy, Deodorant Clinical Control 96H For Men - 50 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+39017,med_v14_227127,names.bn.name,Bioderma Photoderm Aquafluid SPF 50+ - 40 ml,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+40156,med_v14_247544,names.bn.name,"Marble, Makeup Brush, M04-M10 - 1 Set",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+40353,med_v14_236724,names.bn.name,"Cantu, Shea Butter Hair Gel For Curl Control And Styling - 370 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+40990,med_v14_508032,names.bn.name,"M, Nexcare Active Tape For Cushiones Protection Pc 1",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+41167,med_v14_102900,names.bn.name,"Pentasa, Xtend, 2 Gm - 60 Sachets",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+41434,med_v14_512000,names.bn.name,"Now, Food Supplement, Panax Ginseng, Mg - Capsules 500 250",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+41757,med_v14_242865,names.bn.name,"Deva, Contact Lens Lamir -3.75 - 1 pcs",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+42699,med_v14_235276,names.bn.name,"Avent, Anti Colic, Baby Feeding Bottle From Month, Multi Designs 125",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43276,med_v14_505911,names.bn.name,"M, Nexcare Heavy Duty Flexible Fabric Bandages Plasters Pcs 30 505911",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43326,med_v14_247529,names.bn.name,"Vitayes, Bright Niacinamide Serum Ml 10 30",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43616,med_v14_238902,names.bn.name,"Crescina Hfsc, Hair Loss Ampoules, 200 Woman - 1 Kit",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43795,med_v14_300498,names.bn.name,"Lactonic, Baby Milk Number - Gm 1 400",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43955,med_v14_505781,names.bn.name,"Avent, Easy Sip Baby Cup with Tight Lid From 6 Months - 200 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+45035,med_v14_253083,names.bn.name,7     - 1,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+45253,med_v14_248948,names.bn.name,"Global Star, Whitening Cream, Rose Extract For Skin Care - 300Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+46346,med_v14_104408,names.bn.name,"Polmena, Budesonide, Mg/ Ml, Suspension For Inhalation - Vials 0.5 1 20",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+47572,med_v14_249961,names.bn.name,"Derma doctor, Poetry Lotion, Intensive Retinol Ml 1 30",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+48283,med_v14_249454,names.bn.name,"Jose Eber, Wet & Dry Straightening Iron 2 Inch, Black - 1 Device",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+48328,med_v14_241462,names.bn.name,"Roc, Retinol Correxion, Wrinkle Correct, Serum - 30 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+48382,med_v14_206046,names.bn.name,"Nivea, Deodorant Spray Pearl & Beauty For Women - 150 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+49235,med_v14_251775,names.bn.name,- 20,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+50481,med_v14_230205,names.bn.name,"Cetaphil Baby, Calendula Baby Face & Body Lotion - 400 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+50932,med_v14_247010,names.bn.name,"Armaf, Foundation, High Coverage, Spf20, Coffee 11 - 1 Pc",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+51044,med_v14_229636,names.bn.name,"St. Ives, Body Scrub, Coconut & Coffee, Energizing - 170 Gm",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+52210,med_v14_239434,names.bn.name,- 20,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+52402,med_v14_226810,names.bn.name,"Glycolix, Resurfacing Cream, Replenix Glycolic Acid Gm 10 46",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+52608,med_v14_220434,names.bn.name,"Parachute, Gold Hair Cream Anti Hairfall - 140 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+52859,med_v14_242283,names.bn.name,"Deva, Contact Lens Truffle -0.25 - 1 pcs",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+52875,med_v14_246368,names.bn.name,"Nunu, Dry Skin Softening Baby Oil - 300 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+53150,med_v14_231964,names.bn.name,"Labello, Moisturizing Lip Balm Berry - 3 gm",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+53195,med_v14_254886,names.bn.name,+2  - 1,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+53822,med_v14_240110,names.bn.name,"Loca, Acrylic Nails, Almond Shape, A4 - 1 Kit",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+54241,med_v14_511385,names.bn.name,"Munchkin, Cup With Straw,Simple Clean +12 Months, Pink - 296 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+55168,med_v14_254959,names.bn.name,"ACM, Depiwhite, Skin Serum, Anti-pigmentation Concentrate - 30 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+55471,med_v14_219072,names.bn.name,"Nivea, Men Cream Fairness Vitamin E & Masculine Scent - 75 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+55767,med_v14_508022,names.bn.name,"Doctor Organic, Skin Clear Face Wash For Deep Pore Cleansing - 125 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+55903,med_v14_214032,names.bn.name,"Body Jewelry, X8 Body Hardware, Number 4350 - 1 Pair",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+56038,med_v14_401632,names.bn.name,- 38,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+56150,med_v14_249597,names.bn.name,"Tommee Tippee, Silicone Soother, Age 6-18 Months - 2 Pcs",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+57285,med_v14_105465,names.bn.name,"Zoron, Mg - Tablets 8 10",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+57310,med_v14_245559,names.bn.name,Aqua Bee-licious Cooling Hydrating Eye Gel 15ml,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+58118,med_v14_240544,names.bn.name,"Makeover 22, Eyeshadow, Allure, Mini Al01 - 1 Pc",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+58439,med_v14_236241,names.bn.name,"Attitude, Liquid For Baby Laundry Detergent Extra Gentle - L 1",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+59064,med_v14_247476,names.bn.name,"Byphasse, Natural Cotton Pads Pieces 100 35",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+11533,med_v14_300015,names.bn.official_name,"Aptamil2 Follow On Formula Milk, 900g",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+11655,med_v14_239509,names.bn.official_name,"Revolution, Longwear Foundation F10.5 Oil Free -23 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+11668,med_v14_240212,names.bn.official_name,"Revolution, Eyeliner Pow Liquid - 1 Pc",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+12689,med_v14_246988,names.bn.official_name,"Armaf Beauty, Nail Polish, 067 Peacock - 1 Piece",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+12973,med_v14_248326,names.bn.official_name,- 150,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+13281,med_v14_243750,names.bn.official_name,Filorga Time-Filler 5XP Gel-Cream for Face Wrinkles – 50 ml.,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+13402,med_v14_236341,names.bn.official_name,"Jazly, Nails, Burgundy Color, Square Shape, with Glue on The Nail, Model No. 11 - 24 Pcs",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+13717,med_v14_253539,names.bn.official_name,"D, White, Teeth Whitening Strips, Plus Pcs 28",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+13876,med_v14_226803,names.bn.official_name,"Vichy, Face Moist-Med Mineral 89 Hyaluronic Acid Serum - 50 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+14892,med_v14_246801,names.bn.official_name,- 9,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+14942,med_v14_242731,names.bn.official_name,"Deva, Contact Lens Lava -3.5 - 1 Pcs",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+15296,med_v14_107386,names.bn.official_name,"Wegovy, Mg, Pre-Filled Pen - Pen 0.25 1",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+15324,med_v14_108596,names.bn.official_name,"Now, Magnesium Topical Spray, Muscle Relaxation - Ml 237",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+15433,med_v14_105664,names.bn.official_name,"Avoban, Mupirocin, Ointment, Antibacterial - Gm 3",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+15447,med_v14_300493,names.bn.official_name,"Novalac, Baby Milk Number 3 - 400 gm",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+16429,med_v14_600476,names.bn.official_name,"Neutrogena, Acne Control Wash Oil Free - 200 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+16945,med_v14_206519,names.bn.official_name,"Freestyle, Optium Blood Glucose Strips - 50 Pcs",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+17459,med_v14_240839,names.bn.official_name,- 250,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+18356,med_v14_600794,names.bn.official_name,"Johnsons, Baby Oil 500 Ml + 200 Ml Free - 1 Kit",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+18574,med_v14_248768,names.bn.official_name,"Unipro, Buffer Nail Block Steps Pc 1 5133",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+19585,med_v14_202379,names.bn.official_name,525 - 1,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+19634,med_v14_239430,names.bn.official_name,"Revolution, Relief Brow Pencil Brown - 12 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+19738,med_v14_206196,names.bn.official_name,"Nivea, Shave Foam For Sensitive Skin - 200 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+19909,med_v14_203244,names.bn.official_name,"Gillette, Antiperspirant Gel Arctic Ice 48 Hr Protection - 1 Pc",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+20048,med_v14_224961,names.bn.official_name,"Oral-B, Toothbrush Pro Expert All In One Medium 1+1 Free - 1 Kit",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+20644,med_v14_250938,names.bn.official_name,"Bath & Body Scent, Body Lotion, Sixty Lash - 236 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+21214,med_v14_201728,names.bn.official_name,"Dabur, Hair Oil With Jasmine - 300 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+21583,med_v14_241207,names.bn.official_name,"Cerave, Blemish Control Cleanser, Prone Skin - 236 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+21846,med_v14_240002,names.bn.official_name,"Flormar, Nail Polish, Maxi Brush, Enamel 501 - 41 Gm",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+22210,med_v14_236741,names.bn.official_name,"Cerave, Night Facial Moisturizing Lotion - 52 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+22861,med_v14_238281,names.bn.official_name,"Himalaya Baby, Bath Solution Gently Cleanses The Skin - 800 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+22964,med_v14_240783,names.bn.official_name,"Make Over 22, M608 Matte Lipstick - 1 Pcs",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+24768,med_v14_206613,names.bn.official_name,"Oral-B, Pro Expert Toothbrush Soft Pc 1",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+24835,med_v14_247763,names.bn.official_name,"J.Castal, Liquid Matte Lipstick, No. 201 - 7 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+27538,med_v14_247788,names.bn.official_name,"J.Castal Glitter Liquid Lipstick, No. 235 - 7 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+28973,med_v14_240091,names.bn.official_name,"NUK, Nature Sense Large Teats 6-18 Months - 2 Pcs",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+29570,med_v14_252430,names.bn.official_name,"Optimum Nutrition, Gold Standard, Whey, Vanilla Flavor - Gm 100% 454",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+30581,med_v14_236892,names.bn.official_name,"Ice Breakers, Candy, Sugar Free, Spearmint Flavour - 42 Gm",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+30896,med_v14_107475,names.bn.official_name,- 60,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+31734,med_v14_240738,names.bn.official_name,"Makeover 22, Lipstick Matte, M640 - 1 Pc",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+31838,med_v14_202957,names.bn.official_name,Futuro Knee Support L.,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+32069,med_v14_231325,names.bn.official_name,"Nivea, Espresso Men Antiperspirant Deodorant Roll On - 50 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+32238,med_v14_250431,names.bn.official_name,"Fablab, Toothbrush Princess, With Battery, Head Kit 1",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+32301,med_v14_251236,names.bn.official_name,65 - 1,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+32532,med_v14_237906,names.bn.official_name,"Casanova, Argan Oil Treatment Strong Hair - 1000 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+33005,med_v14_248712,names.bn.official_name,"Baby Zone, Wide Silcone Nipples High Quality Large - 2 Pcs",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+33316,med_v14_239098,names.bn.official_name,"Vaseline, Lip Care Colour+Care Mellow Rose - 3 Gm",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+33839,med_v14_401055,names.bn.official_name,"Sofy, Feminine Pads Night Comfort Extra Long - 18 Pcs",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+34085,med_v14_400910,names.bn.official_name,- 24,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+34570,med_v14_222690,names.bn.official_name,"Foltene, Triple Action Ampoules Men - 12 Pcs",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+35420,med_v14_240528,names.bn.official_name,"Makeover Liquid Eyeliner, Black Pc 1 22",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+36135,med_v14_235261,names.bn.official_name,"La Roche-Posay, Serum, Effaclar, Anti-Imperfection, Daily Peeling, Oily Skin - 30 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+36925,med_v14_501588,names.bn.official_name,"Oppo, Abdominal Support Medium Size - 1 Kit",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+36985,med_v14_240637,names.bn.official_name,"Makeover 22, Tint My Lip Set - 1 Pc",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+37223,med_v14_230268,names.bn.official_name,"Dettol, Hand Wash Honey & Shea Butter Antiseptic - 400 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+38142,med_v14_238321,names.bn.official_name,"Vichy, Deodorant Clinical Control 96H For Men - 50 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+39017,med_v14_227127,names.bn.official_name,Bioderma Photoderm Aquafluid SPF 50+ - 40 ml,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+40156,med_v14_247544,names.bn.official_name,"Marble, Makeup Brush, M04-M10 - 1 Set",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+40353,med_v14_236724,names.bn.official_name,"Cantu, Shea Butter Hair Gel For Curl Control And Styling - 370 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+40990,med_v14_508032,names.bn.official_name,"M, Nexcare Active Tape For Cushiones Protection Pc 1",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+41167,med_v14_102900,names.bn.official_name,"Pentasa, Xtend, 2 Gm - 60 Sachets",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+41434,med_v14_512000,names.bn.official_name,"Now, Food Supplement, Panax Ginseng, Mg - Capsules 500 250",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+41757,med_v14_242865,names.bn.official_name,"Deva, Contact Lens Lamir -3.75 - 1 pcs",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+42699,med_v14_235276,names.bn.official_name,"Avent, Anti Colic, Baby Feeding Bottle From Month, Multi Designs 125",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43276,med_v14_505911,names.bn.official_name,"M, Nexcare Heavy Duty Flexible Fabric Bandages Plasters Pcs 30 505911",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43326,med_v14_247529,names.bn.official_name,"Vitayes, Bright Niacinamide Serum Ml 10 30",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43616,med_v14_238902,names.bn.official_name,"Crescina Hfsc, Hair Loss Ampoules, 200 Woman - 1 Kit",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43795,med_v14_300498,names.bn.official_name,"Lactonic, Baby Milk Number - Gm 1 400",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43955,med_v14_505781,names.bn.official_name,"Avent, Easy Sip Baby Cup with Tight Lid From 6 Months - 200 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+45035,med_v14_253083,names.bn.official_name,7     - 1,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+45253,med_v14_248948,names.bn.official_name,"Global Star, Whitening Cream, Rose Extract For Skin Care - 300Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+46346,med_v14_104408,names.bn.official_name,"Polmena, Budesonide, Mg/ Ml, Suspension For Inhalation - Vials 0.5 1 20",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+47572,med_v14_249961,names.bn.official_name,"Derma doctor, Poetry Lotion, Intensive Retinol Ml 1 30",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+48283,med_v14_249454,names.bn.official_name,"Jose Eber, Wet & Dry Straightening Iron 2 Inch, Black - 1 Device",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+48328,med_v14_241462,names.bn.official_name,"Roc, Retinol Correxion, Wrinkle Correct, Serum - 30 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+48382,med_v14_206046,names.bn.official_name,"Nivea, Deodorant Spray Pearl & Beauty For Women - 150 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+49235,med_v14_251775,names.bn.official_name,- 20,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+50481,med_v14_230205,names.bn.official_name,"Cetaphil Baby, Calendula Baby Face & Body Lotion - 400 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+50932,med_v14_247010,names.bn.official_name,"Armaf, Foundation, High Coverage, Spf20, Coffee 11 - 1 Pc",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+51044,med_v14_229636,names.bn.official_name,"St. Ives, Body Scrub, Coconut & Coffee, Energizing - 170 Gm",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+52210,med_v14_239434,names.bn.official_name,- 20,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+52402,med_v14_226810,names.bn.official_name,"Glycolix, Resurfacing Cream, Replenix Glycolic Acid Gm 10 46",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+52608,med_v14_220434,names.bn.official_name,"Parachute, Gold Hair Cream Anti Hairfall - 140 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+52859,med_v14_242283,names.bn.official_name,"Deva, Contact Lens Truffle -0.25 - 1 pcs",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+52875,med_v14_246368,names.bn.official_name,"Nunu, Dry Skin Softening Baby Oil - 300 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+53150,med_v14_231964,names.bn.official_name,"Labello, Moisturizing Lip Balm Berry - 3 gm",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+53195,med_v14_254886,names.bn.official_name,+2  - 1,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+53822,med_v14_240110,names.bn.official_name,"Loca, Acrylic Nails, Almond Shape, A4 - 1 Kit",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+54241,med_v14_511385,names.bn.official_name,"Munchkin, Cup With Straw,Simple Clean +12 Months, Pink - 296 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+55168,med_v14_254959,names.bn.official_name,"ACM, Depiwhite, Skin Serum, Anti-pigmentation Concentrate - 30 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+55471,med_v14_219072,names.bn.official_name,"Nivea, Men Cream Fairness Vitamin E & Masculine Scent - 75 Ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+55767,med_v14_508022,names.bn.official_name,"Doctor Organic, Skin Clear Face Wash For Deep Pore Cleansing - 125 ml",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+55903,med_v14_214032,names.bn.official_name,"Body Jewelry, X8 Body Hardware, Number 4350 - 1 Pair",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+56038,med_v14_401632,names.bn.official_name,- 38,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+56150,med_v14_249597,names.bn.official_name,"Tommee Tippee, Silicone Soother, Age 6-18 Months - 2 Pcs",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+57285,med_v14_105465,names.bn.official_name,"Zoron, Mg - Tablets 8 10",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+57310,med_v14_245559,names.bn.official_name,Aqua Bee-licious Cooling Hydrating Eye Gel 15ml,(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+58118,med_v14_240544,names.bn.official_name,"Makeover 22, Eyeshadow, Allure, Mini Al01 - 1 Pc",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+58439,med_v14_236241,names.bn.official_name,"Attitude, Liquid For Baby Laundry Detergent Extra Gentle - L 1",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+59064,med_v14_247476,names.bn.official_name,"Byphasse, Natural Cotton Pads Pieces 100 35",(report only),the bn field is entirely Latin (no %s% characters); translation postponed per decision G,high
+11655,med_v14_239509,names.hi.name,"Revolution, Longwear Foundation F10.5 Oil Free -23 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+11668,med_v14_240212,names.hi.name,"Revolution, Eyeliner Pow Liquid - 1 Pc",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+12689,med_v14_246988,names.hi.name,"Armaf Beauty, Nail Polish, 067 Peacock - 1 Piece",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+12973,med_v14_248326,names.hi.name,- 150,(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+13402,med_v14_236341,names.hi.name,"Jazly, Nails, Burgundy Color, Square Shape, with Glue on The Nail, Model No. 11 - 24 Pcs",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+13717,med_v14_253539,names.hi.name,"D, White, Teeth Whitening Strips, Plus Pcs 28",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+13876,med_v14_226803,names.hi.name,"Vichy, Face Moist-Med Mineral 89 Hyaluronic Acid Serum - 50 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+14892,med_v14_246801,names.hi.name,- 9,(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+15324,med_v14_108596,names.hi.name,"Now, Magnesium Topical Spray, Muscle Relaxation - Ml 237",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+15447,med_v14_300493,names.hi.name,"Novalac, Baby Milk Number 3 - 400 gm",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+16429,med_v14_600476,names.hi.name,"Neutrogena, Acne Control Face Wash Oil Free - 200 ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+16945,med_v14_206519,names.hi.name,"Freestyle, Optium Blood Glucose Strips - 50 Pcs",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+17459,med_v14_240839,names.hi.name,- 250,(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+18356,med_v14_600794,names.hi.name,"Johnsons, Baby Oil 500 Ml + 200 Ml Free - 1 Kit",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+18574,med_v14_248768,names.hi.name,"Unipro, Buffer Nail Block Steps Pc 1 5133",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+19634,med_v14_239430,names.hi.name,"Revolution, Relief Brow Pencil Brown - 12 ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+19738,med_v14_206196,names.hi.name,"Nivea, Shave Foam For Sensitive Skin - 200 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+19909,med_v14_203244,names.hi.name,"Gillette, Antiperspirant Gel Arctic Ice 48 Hr Protection - 1 Pc",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+20048,med_v14_224961,names.hi.name,"Oral-B, Toothbrush Pro Expert All In One Medium 1+1 Free - 1 Kit",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+20644,med_v14_250938,names.hi.name,"Bath & Body Scent, Body Lotion, Sixty Lash - 236 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+21214,med_v14_201728,names.hi.name,"Dabur, Hair Oil With Jasmine - 300 ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+21583,med_v14_241207,names.hi.name,"Cerave, Blemish Control Cleanser, Prone Skin - 236 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+21846,med_v14_240002,names.hi.name,"Flormar, Nail Polish, Maxi Brush, Enamel 501 - 41 Gm",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+22210,med_v14_236741,names.hi.name,"Cerave, Night Facial Moisturizing Lotion - 52 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+22861,med_v14_238281,names.hi.name,"Himalaya Baby, Bath Solution Gently Cleanses The Skin - 800 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+22964,med_v14_240783,names.hi.name,"Make Over 22, M608 Matte Shade Lipstick - 1 Pc",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+24768,med_v14_206613,names.hi.name,"Oral-B, Pro Expert Toothbrush Soft Pc 1",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+28973,med_v14_240091,names.hi.name,"NUK, Nature Sense Large Feeding Nipples 6-18 Months - 2 Pcs",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+29570,med_v14_252430,names.hi.name,"Optimum Nutrition, Gold Standard, Whey, Vanilla Flavor - Gm 100% 454",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+30581,med_v14_236892,names.hi.name,"Ice Breakers, Candy, Sugar Free, Spearmint Flavour - 42 Gm",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+30896,med_v14_107475,names.hi.name,- 60,(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+31734,med_v14_240738,names.hi.name,"Makeover 22, Lipstick Matte, M640 - 1 Pc",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+32238,med_v14_250431,names.hi.name,"Fablab, Toothbrush Princess, With Battery, Head Kit 1",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+32301,med_v14_251236,names.hi.name,65 - 1,(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+32532,med_v14_237906,names.hi.name,"Casanova, Argan Oil Bath Intensive Treatment For Strong Hair - 1000 ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+33005,med_v14_248712,names.hi.name,"Baby Zone, Wide Silcone Nipples High Quality Large - 2 Pcs",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+33316,med_v14_239098,names.hi.name,"Vaseline, Lip Care Colour+Care Mellow Rose - 3 Gm",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+33839,med_v14_401055,names.hi.name,"Sofy, Feminine Pads Night Comfort Extra Long - 18 Pcs",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+34085,med_v14_400910,names.hi.name,- 24,(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+34570,med_v14_222690,names.hi.name,"Foltene, Triple Action Anti Hair Loss Ampoules For Men - 12 Pcs",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+35420,med_v14_240528,names.hi.name,"Makeover Liquid Eyeliner, Black Pc 1 22",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+36135,med_v14_235261,names.hi.name,"La Roche-Posay, Serum, Effaclar, Anti-Imperfection, Daily Peeling, Oily Skin - 30 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+36925,med_v14_501588,names.hi.name,"Oppo, Abdominal Support Medium Size - 1 Kit",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+36985,med_v14_240637,names.hi.name,"Makeover 22, Tint My Lip Set - 1 Pc",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+37223,med_v14_230268,names.hi.name,"Dettol, Hand Wash Honey & Shea Butter Antiseptic - 400 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+38142,med_v14_238321,names.hi.name,"Vichy, Deodorant Clinical Control 96H For Men - 50 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+38679,med_v14_234574,names.hi.name,- 10,(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+39017,med_v14_227127,names.hi.name,Bioderma Photoderm Aquafluid SPF 50+ - 40 ml,(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+40156,med_v14_247544,names.hi.name,"Marble, Makeup Brush, M04-M10 - 1 Set",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+40353,med_v14_236724,names.hi.name,"Cantu, Shea Butter Hair Gel For Curl Control And Styling - 370 ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+40990,med_v14_508032,names.hi.name,"M, Nexcare Active Tape For Cushiones Protection Pc 1",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+41434,med_v14_512000,names.hi.name,"Now, Food Supplement, Panax Ginseng, Mg - Capsules 500 250",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+42699,med_v14_235276,names.hi.name,"Avent, Anti Colic, Baby Feeding Bottle From Month, Multi Designs 125",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43276,med_v14_505911,names.hi.name,"M, Nexcare Heavy Duty Flexible Fabric Bandages Plasters Pcs 30 505911",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43326,med_v14_247529,names.hi.name,"Vitayes, Bright Niacinamide Serum Ml 10 30",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43616,med_v14_238902,names.hi.name,"Crescina Hfsc, Hair Loss Ampoules, 200 Woman - 1 Kit",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43795,med_v14_300498,names.hi.name,"Lactonic, Baby Milk Number - Gm 1 400",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43955,med_v14_505781,names.hi.name,"Avent, Easy Sip Baby Cup with Tight Lid From 6 Months - 200 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+45253,med_v14_248948,names.hi.name,"Global Star, Whitening Cream, Rose Extract For Skin Care - 300Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+46346,med_v14_104408,names.hi.name,"Polmena, Budesonide, Mg/ Ml, Suspension For Inhalation - Vials 0.5 1 20",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+47572,med_v14_249961,names.hi.name,"Derma doctor, Poetry Lotion, Intensive Retinol Ml 1 30",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+48283,med_v14_249454,names.hi.name,"Jose Eber, Wet & Dry Straightening Iron 2 Inch, Black - 1 Device",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+48382,med_v14_206046,names.hi.name,"Nivea, Deodorant Spray Pearl & Beauty For Women - 150 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+48390,med_v14_250074,names.hi.name,- 1,(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+50932,med_v14_247010,names.hi.name,"Armaf, Foundation, High Coverage, Spf20, Coffee 11 - 1 Pc",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+51044,med_v14_229636,names.hi.name,"St. Ives, Body Scrub, Coconut & Coffee, Energizing - 170 Gm",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+52210,med_v14_239434,names.hi.name,- 20,(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+52402,med_v14_226810,names.hi.name,"Glycolix, Resurfacing Cream, Replenix Glycolic Acid Gm 10 46",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+52608,med_v14_220434,names.hi.name,"Parachute, Gold Hair Cream Anti Hairfall - 140 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+53150,med_v14_231964,names.hi.name,"Labello, Moisturizing Lip Balm With Berry - 3 gm",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+53822,med_v14_240110,names.hi.name,"Loca, Acrylic Nails, Almond Shape, A4 - 1 Kit",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+54241,med_v14_511385,names.hi.name,"Munchkin, Cup With Straw,Simple Clean +12 Months, Pink - 296 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+55471,med_v14_219072,names.hi.name,"Nivea, Men Cream Fairness Vitamin E & Masculine Scent - 75 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+55767,med_v14_508022,names.hi.name,"Doctor Organic, Skin Clear Face Wash For Deep Pore Cleansing - 125 ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+55903,med_v14_214032,names.hi.name,"Body Jewelry, X8 Body Hardware, Number 4350 - 1 Pair",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+56038,med_v14_401632,names.hi.name,- 38,(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+56150,med_v14_249597,names.hi.name,"Tommee Tippee, Silicone Soother, Age 6-18 Months - 2 Pcs",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+58118,med_v14_240544,names.hi.name,"Makeover 22, Eyeshadow, Allure, Mini Al01 - 1 Pc",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+58439,med_v14_236241,names.hi.name,"Attitude, Liquid For Baby Laundry Detergent Extra Gentle - L 1",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+59064,med_v14_247476,names.hi.name,"Byphasse, Natural Cotton Pads Pieces 100 35",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+11655,med_v14_239509,names.hi.official_name,"Revolution, Longwear Foundation F10.5 Oil Free -23 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+11668,med_v14_240212,names.hi.official_name,"Revolution, Eyeliner Pow Liquid - 1 Pc",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+12689,med_v14_246988,names.hi.official_name,"Armaf Beauty, Nail Polish, 067 Peacock - 1 Piece",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+12973,med_v14_248326,names.hi.official_name,- 150,(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+13402,med_v14_236341,names.hi.official_name,"Jazly, Nails, Burgundy Color, Square Shape, with Glue on The Nail, Model No. 11 - 24 Pcs",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+13717,med_v14_253539,names.hi.official_name,"D, White, Teeth Whitening Strips, Plus Pcs 28",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+13876,med_v14_226803,names.hi.official_name,"Vichy, Face Moist-Med Mineral 89 Hyaluronic Acid Serum - 50 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+14892,med_v14_246801,names.hi.official_name,- 9,(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+15324,med_v14_108596,names.hi.official_name,"Now, Magnesium Topical Spray, Muscle Relaxation - Ml 237",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+15447,med_v14_300493,names.hi.official_name,"Novalac, Baby Milk Number 3 - 400 gm",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+16429,med_v14_600476,names.hi.official_name,"Neutrogena, Acne Control Face Wash Oil Free - 200 ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+16945,med_v14_206519,names.hi.official_name,"Freestyle, Optium Blood Glucose Strips - 50 Pcs",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+17459,med_v14_240839,names.hi.official_name,- 250,(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+18356,med_v14_600794,names.hi.official_name,"Johnsons, Baby Oil 500 Ml + 200 Ml Free - 1 Kit",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+18574,med_v14_248768,names.hi.official_name,"Unipro, Buffer Nail Block Steps Pc 1 5133",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+19634,med_v14_239430,names.hi.official_name,"Revolution, Relief Brow Pencil Brown - 12 ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+19738,med_v14_206196,names.hi.official_name,"Nivea, Shave Foam For Sensitive Skin - 200 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+19909,med_v14_203244,names.hi.official_name,"Gillette, Antiperspirant Gel Arctic Ice 48 Hr Protection - 1 Pc",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+20048,med_v14_224961,names.hi.official_name,"Oral-B, Toothbrush Pro Expert All In One Medium 1+1 Free - 1 Kit",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+20644,med_v14_250938,names.hi.official_name,"Bath & Body Scent, Body Lotion, Sixty Lash - 236 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+21214,med_v14_201728,names.hi.official_name,"Dabur, Hair Oil With Jasmine - 300 ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+21583,med_v14_241207,names.hi.official_name,"Cerave, Blemish Control Cleanser, Prone Skin - 236 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+21846,med_v14_240002,names.hi.official_name,"Flormar, Nail Polish, Maxi Brush, Enamel 501 - 41 Gm",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+22210,med_v14_236741,names.hi.official_name,"Cerave, Night Facial Moisturizing Lotion - 52 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+22861,med_v14_238281,names.hi.official_name,"Himalaya Baby, Bath Solution Gently Cleanses The Skin - 800 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+22964,med_v14_240783,names.hi.official_name,"Make Over 22, M608 Matte Shade Lipstick - 1 Pc",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+24768,med_v14_206613,names.hi.official_name,"Oral-B, Pro Expert Toothbrush Soft Pc 1",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+28973,med_v14_240091,names.hi.official_name,"NUK, Nature Sense Large Feeding Nipples 6-18 Months - 2 Pcs",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+29570,med_v14_252430,names.hi.official_name,"Optimum Nutrition, Gold Standard, Whey, Vanilla Flavor - Gm 100% 454",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+30581,med_v14_236892,names.hi.official_name,"Ice Breakers, Candy, Sugar Free, Spearmint Flavour - 42 Gm",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+30896,med_v14_107475,names.hi.official_name,- 60,(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+31734,med_v14_240738,names.hi.official_name,"Makeover 22, Lipstick Matte, M640 - 1 Pc",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+32238,med_v14_250431,names.hi.official_name,"Fablab, Toothbrush Princess, With Battery, Head Kit 1",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+32301,med_v14_251236,names.hi.official_name,65 - 1,(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+32532,med_v14_237906,names.hi.official_name,"Casanova, Argan Oil Bath Intensive Treatment For Strong Hair - 1000 ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+33005,med_v14_248712,names.hi.official_name,"Baby Zone, Wide Silcone Nipples High Quality Large - 2 Pcs",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+33316,med_v14_239098,names.hi.official_name,"Vaseline, Lip Care Colour+Care Mellow Rose - 3 Gm",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+33839,med_v14_401055,names.hi.official_name,"Sofy, Feminine Pads Night Comfort Extra Long - 18 Pcs",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+34085,med_v14_400910,names.hi.official_name,- 24,(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+34570,med_v14_222690,names.hi.official_name,"Foltene, Triple Action Anti Hair Loss Ampoules For Men - 12 Pcs",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+35420,med_v14_240528,names.hi.official_name,"Makeover Liquid Eyeliner, Black Pc 1 22",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+36135,med_v14_235261,names.hi.official_name,"La Roche-Posay, Serum, Effaclar, Anti-Imperfection, Daily Peeling, Oily Skin - 30 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+36925,med_v14_501588,names.hi.official_name,"Oppo, Abdominal Support Medium Size - 1 Kit",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+36985,med_v14_240637,names.hi.official_name,"Makeover 22, Tint My Lip Set - 1 Pc",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+37223,med_v14_230268,names.hi.official_name,"Dettol, Hand Wash Honey & Shea Butter Antiseptic - 400 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+38142,med_v14_238321,names.hi.official_name,"Vichy, Deodorant Clinical Control 96H For Men - 50 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+38679,med_v14_234574,names.hi.official_name,- 10,(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+39017,med_v14_227127,names.hi.official_name,Bioderma Photoderm Aquafluid SPF 50+ - 40 ml,(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+40156,med_v14_247544,names.hi.official_name,"Marble, Makeup Brush, M04-M10 - 1 Set",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+40353,med_v14_236724,names.hi.official_name,"Cantu, Shea Butter Hair Gel For Curl Control And Styling - 370 ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+40990,med_v14_508032,names.hi.official_name,"M, Nexcare Active Tape For Cushiones Protection Pc 1",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+41434,med_v14_512000,names.hi.official_name,"Now, Food Supplement, Panax Ginseng, Mg - Capsules 500 250",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+42699,med_v14_235276,names.hi.official_name,"Avent, Anti Colic, Baby Feeding Bottle From Month, Multi Designs 125",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43276,med_v14_505911,names.hi.official_name,"M, Nexcare Heavy Duty Flexible Fabric Bandages Plasters Pcs 30 505911",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43326,med_v14_247529,names.hi.official_name,"Vitayes, Bright Niacinamide Serum Ml 10 30",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43616,med_v14_238902,names.hi.official_name,"Crescina Hfsc, Hair Loss Ampoules, 200 Woman - 1 Kit",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43795,med_v14_300498,names.hi.official_name,"Lactonic, Baby Milk Number - Gm 1 400",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43955,med_v14_505781,names.hi.official_name,"Avent, Easy Sip Baby Cup with Tight Lid From 6 Months - 200 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+45253,med_v14_248948,names.hi.official_name,"Global Star, Whitening Cream, Rose Extract For Skin Care - 300Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+46346,med_v14_104408,names.hi.official_name,"Polmena, Budesonide, Mg/ Ml, Suspension For Inhalation - Vials 0.5 1 20",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+47572,med_v14_249961,names.hi.official_name,"Derma doctor, Poetry Lotion, Intensive Retinol Ml 1 30",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+48283,med_v14_249454,names.hi.official_name,"Jose Eber, Wet & Dry Straightening Iron 2 Inch, Black - 1 Device",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+48382,med_v14_206046,names.hi.official_name,"Nivea, Deodorant Spray Pearl & Beauty For Women - 150 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+48390,med_v14_250074,names.hi.official_name,- 1,(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+50932,med_v14_247010,names.hi.official_name,"Armaf, Foundation, High Coverage, Spf20, Coffee 11 - 1 Pc",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+51044,med_v14_229636,names.hi.official_name,"St. Ives, Body Scrub, Coconut & Coffee, Energizing - 170 Gm",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+52210,med_v14_239434,names.hi.official_name,- 20,(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+52402,med_v14_226810,names.hi.official_name,"Glycolix, Resurfacing Cream, Replenix Glycolic Acid Gm 10 46",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+52608,med_v14_220434,names.hi.official_name,"Parachute, Gold Hair Cream Anti Hairfall - 140 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+53150,med_v14_231964,names.hi.official_name,"Labello, Moisturizing Lip Balm With Berry - 3 gm",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+53822,med_v14_240110,names.hi.official_name,"Loca, Acrylic Nails, Almond Shape, A4 - 1 Kit",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+54241,med_v14_511385,names.hi.official_name,"Munchkin, Cup With Straw,Simple Clean +12 Months, Pink - 296 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+55471,med_v14_219072,names.hi.official_name,"Nivea, Men Cream Fairness Vitamin E & Masculine Scent - 75 Ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+55767,med_v14_508022,names.hi.official_name,"Doctor Organic, Skin Clear Face Wash For Deep Pore Cleansing - 125 ml",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+55903,med_v14_214032,names.hi.official_name,"Body Jewelry, X8 Body Hardware, Number 4350 - 1 Pair",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+56038,med_v14_401632,names.hi.official_name,- 38,(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+56150,med_v14_249597,names.hi.official_name,"Tommee Tippee, Silicone Soother, Age 6-18 Months - 2 Pcs",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+58118,med_v14_240544,names.hi.official_name,"Makeover 22, Eyeshadow, Allure, Mini Al01 - 1 Pc",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+58439,med_v14_236241,names.hi.official_name,"Attitude, Liquid For Baby Laundry Detergent Extra Gentle - L 1",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+59064,med_v14_247476,names.hi.official_name,"Byphasse, Natural Cotton Pads Pieces 100 35",(report only),the hi field is entirely Latin (no %s% characters); translation postponed per decision G,high
+10096,med_v14_502655,names.ur.name,"Beautytime, Maqas, Munhani Nazuk - 1 Pc",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+10301,med_v14_202164,names.ur.name,Dove Nourishing Body Care Cream - 250 ml,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+12693,med_v14_243959,names.ur.name,"Vichy, Darcos Aminexil Regaine Hair Renewal Stimulator - 90 ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+13402,med_v14_236341,names.ur.name,"Jazly, Nails, Burgundy Color, Square Shape, with Glue on The Nail, Model No. 11 - 24 Pcs",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+13717,med_v14_253539,names.ur.name,"D, White, Teeth Whitening Strips, Plus Pcs 28",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+15324,med_v14_108596,names.ur.name,"Now, Magnesium Topical Spray, Muscle Relaxation - Ml 237",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+15409,med_v14_239393,names.ur.name,"Revolution, ReLove, Lip & Cheek Tint, Coral - 1.4 Ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+15433,med_v14_105664,names.ur.name,"Avoban, Mupirocin, Ointment, Antibacterial - Gm 3",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+15490,med_v14_100511,names.ur.name,"Clomid Mg, Hormonal Therapy - Tablets 50 10",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+18574,med_v14_248768,names.ur.name,"Unipro, Buffer Nail Block Steps Pc 1 5133",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+19968,med_v14_204975,names.ur.name,"L'Oreal Paris, Revitalift, Night Cream, Anti Wrinkle - 50 ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+20945,med_v14_256493,names.ur.name,"Relastil, Intense C, Brightening & Antioxidant Facial Serum - 30 ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+21846,med_v14_240002,names.ur.name,"Flormar, Nail Polish, Maxi Brush, Enamel 501 - 41 Gm",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+22151,med_v14_251035,names.ur.name,"Now, Smiles for Miles Oil - 30 ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+24768,med_v14_206613,names.ur.name,"Oral-B, Pro Expert Toothbrush Soft Pc 1",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+27094,med_v14_251762,names.ur.name,Dove Hair Serum Strengthening Cream with Biotin - 200 ml,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+29570,med_v14_252430,names.ur.name,"Optimum Nutrition, Gold Standard, Whey, Vanilla Flavor - Gm 100% 454",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+30005,med_v14_253360,names.ur.name,"Chicco, Baby Moments Baby Body Wash, Baby Skin Protection - 200 ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+31734,med_v14_240738,names.ur.name,"Makeover 22, Lipstick Matte, M640 - 1 Pc",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+31741,med_v14_235135,names.ur.name,L'Oreal Paris Elvive Dream Long Straight Keratin Shampoo - 200 ml,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+31838,med_v14_202957,names.ur.name,Futuro Knee Support L.,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+32238,med_v14_250431,names.ur.name,"Fablab, Toothbrush Princess, With Battery, Head Kit 1",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+33572,med_v14_241876,names.ur.name,"Max Factor, Miracle Pure, Top Coat, Quick Dry - 1 Pc",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+33643,med_v14_246786,names.ur.name,Cornil's Bold & Beautiful Lavender Shaver Gel - 750 ml,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+33853,med_v14_501531,names.ur.name,Oppo Abdominal Bilt 2162 Xxlarge Care and Support - 1 Pc.,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+34545,med_v14_231318,names.ur.name,"L'Oreal Paris, Hydra Genius, Facial Gel, Aloe Vera Water, Ultra Hydrating, Normal to Combination Skin - 70ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+34851,med_v14_231489,names.ur.name,Gillette Blades-Men Skingaurd 4Bld.,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+35151,med_v14_204531,names.ur.name,"La Roche-Posay, Anthelios, Sunscreen Cream, High Protection Moisturizing Cream SPF+50 - 50 ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+35420,med_v14_240528,names.ur.name,"Makeover Liquid Eyeliner, Black Pc 1 22",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+36008,med_v14_244830,names.ur.name,Noreva Zerodian AP+ Gentle Foaming Gel for face and body - 745 ml,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+36985,med_v14_240637,names.ur.name,"Makeover 22, Tint My Lip Set - 1 Pc",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+37633,med_v14_231919,names.ur.name,PONDS FACE CREAM-Night RADIANCE 50G,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+39017,med_v14_227127,names.ur.name,Bioderma Photoderm Aquafluid SPF 50+ - 40 ml,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+40990,med_v14_508032,names.ur.name,"M, Nexcare Active Tape For Cushiones Protection Pc 1",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+41434,med_v14_512000,names.ur.name,"Now, Food Supplement, Panax Ginseng, Mg - Capsules 500 250",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+42699,med_v14_235276,names.ur.name,"Avent, Anti Colic, Baby Feeding Bottle From Month, Multi Designs 125",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43326,med_v14_247529,names.ur.name,"Vitayes, Bright Niacinamide Serum Ml 10 30",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43522,med_v14_241381,names.ur.name,"Germacare, Baby Body Wash, Edelweiss Extract - 200 Ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43653,med_v14_103740,names.ur.name,Prostin Vr Alprostadil 500 Micrograms/Ml Ampoules,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43795,med_v14_300498,names.ur.name,"Lactonic, Baby Milk Number - Gm 1 400",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43955,med_v14_505781,names.ur.name,"Avent, Easy Sip Baby Cup with Tight Lid From 6 Months - 200 Ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+45241,med_v14_229838,names.ur.name,Lensmesoft lenses- Cloud,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+45418,med_v14_251168,names.ur.name,"Cantabria Labs, Fluid Sunscreen, Heliocare - 50 ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+46346,med_v14_104408,names.ur.name,"Polmena, Budesonide, Mg/ Ml, Suspension For Inhalation - Vials 0.5 1 20",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+47572,med_v14_249961,names.ur.name,"Derma doctor, Poetry Lotion, Intensive Retinol Ml 1 30",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+48515,med_v14_212097,names.ur.name,Rexona Deodorant Stick Extra Cool Men - 40 Gm,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+50481,med_v14_230205,names.ur.name,"Cetaphil Baby, Calendula Baby Face & Body Lotion - 400 ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+52402,med_v14_226810,names.ur.name,"Glycolix, Resurfacing Cream, Replenix Glycolic Acid Gm 10 46",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+52608,med_v14_220434,names.ur.name,"Parachute, Gold Hair Cream Anti Hairfall - 140 Ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+53822,med_v14_240110,names.ur.name,"Loca, Acrylic Nails, Almond Shape, A4 - 1 Kit",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+54476,med_v14_103826,names.ur.name,Thyrogen Thyrotropin Alfa 0.9Mg Vials,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+55785,med_v14_508452,names.ur.name,Invisibobble Hair Elastic Nano True Black - 3 Pcs,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+55864,med_v14_249977,names.ur.name,"Lola, Ella e Carioca, Mask, Hair Nuurishing - 450 gm",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+55981,med_v14_249548,names.ur.name,Zenex Facial Cleansing Wash with Vitamin E - 200ml,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+57111,med_v14_241886,names.ur.name,"Max Factor, Miracle Pure, Skin Illuminating Serum - 1 Pc",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+57285,med_v14_105465,names.ur.name,"Zoron, Mg - Tablets 8 10",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+57310,med_v14_245559,names.ur.name,Aqua Bee-licious Cooling Hydrating Eye Gel 15ml,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+58118,med_v14_240544,names.ur.name,"Makeover 22, Eyeshadow, Allure, Mini Al01 - 1 Pc",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+58439,med_v14_236241,names.ur.name,"Attitude, Liquid For Baby Laundry Detergent Extra Gentle - L 1",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+59064,med_v14_247476,names.ur.name,"Byphasse, Natural Cotton Pads Pieces 100 35",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+10096,med_v14_502655,names.ur.official_name,"Beautytime, Maqas, Munhani Nazuk - 1 Pc",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+10301,med_v14_202164,names.ur.official_name,Dove Nourishing Body Care Cream - 250 ml,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+12693,med_v14_243959,names.ur.official_name,"Vichy, Darcos Aminexil Regaine Hair Renewal Stimulator - 90 ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+13402,med_v14_236341,names.ur.official_name,"Jazly, Nails, Burgundy Color, Square Shape, with Glue on The Nail, Model No. 11 - 24 Pcs",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+13717,med_v14_253539,names.ur.official_name,"D, White, Teeth Whitening Strips, Plus Pcs 28",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+15324,med_v14_108596,names.ur.official_name,"Now, Magnesium Topical Spray, Muscle Relaxation - Ml 237",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+15409,med_v14_239393,names.ur.official_name,"Revolution, ReLove, Lip & Cheek Tint, Coral - 1.4 Ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+15433,med_v14_105664,names.ur.official_name,"Avoban, Mupirocin, Ointment, Antibacterial - Gm 3",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+15490,med_v14_100511,names.ur.official_name,"Clomid Mg, Hormonal Therapy - Tablets 50 10",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+18574,med_v14_248768,names.ur.official_name,"Unipro, Buffer Nail Block Steps Pc 1 5133",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+19968,med_v14_204975,names.ur.official_name,"L'Oreal Paris, Revitalift, Night Cream, Anti Wrinkle - 50 ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+20945,med_v14_256493,names.ur.official_name,"Relastil, Intense C, Brightening & Antioxidant Facial Serum - 30 ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+21846,med_v14_240002,names.ur.official_name,"Flormar, Nail Polish, Maxi Brush, Enamel 501 - 41 Gm",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+22151,med_v14_251035,names.ur.official_name,"Now, Smiles for Miles Oil - 30 ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+24768,med_v14_206613,names.ur.official_name,"Oral-B, Pro Expert Toothbrush Soft Pc 1",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+27094,med_v14_251762,names.ur.official_name,Dove Hair Serum Strengthening Cream with Biotin - 200 ml,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+29570,med_v14_252430,names.ur.official_name,"Optimum Nutrition, Gold Standard, Whey, Vanilla Flavor - Gm 100% 454",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+30005,med_v14_253360,names.ur.official_name,"Chicco, Baby Moments Baby Body Wash, Baby Skin Protection - 200 ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+31734,med_v14_240738,names.ur.official_name,"Makeover 22, Lipstick Matte, M640 - 1 Pc",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+31741,med_v14_235135,names.ur.official_name,L'Oreal Paris Elvive Dream Long Straight Keratin Shampoo - 200 ml,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+31838,med_v14_202957,names.ur.official_name,Futuro Knee Support L.,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+32238,med_v14_250431,names.ur.official_name,"Fablab, Toothbrush Princess, With Battery, Head Kit 1",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+33572,med_v14_241876,names.ur.official_name,"Max Factor, Miracle Pure, Top Coat, Quick Dry - 1 Pc",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+33643,med_v14_246786,names.ur.official_name,Cornil's Bold & Beautiful Lavender Shaver Gel - 750 ml,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+33853,med_v14_501531,names.ur.official_name,Oppo Abdominal Bilt 2162 Xxlarge Care and Support - 1 Pc.,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+34545,med_v14_231318,names.ur.official_name,"L'Oreal Paris, Hydra Genius, Facial Gel, Aloe Vera Water, Ultra Hydrating, Normal to Combination Skin - 70ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+34851,med_v14_231489,names.ur.official_name,Gillette Blades-Men Skingaurd 4Bld.,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+35151,med_v14_204531,names.ur.official_name,"La Roche-Posay, Anthelios, Sunscreen Cream, High Protection Moisturizing Cream SPF+50 - 50 ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+35420,med_v14_240528,names.ur.official_name,"Makeover Liquid Eyeliner, Black Pc 1 22",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+36008,med_v14_244830,names.ur.official_name,Noreva Zerodian AP+ Gentle Foaming Gel for face and body - 745 ml,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+36985,med_v14_240637,names.ur.official_name,"Makeover 22, Tint My Lip Set - 1 Pc",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+37633,med_v14_231919,names.ur.official_name,PONDS FACE CREAM-Night RADIANCE 50G,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+39017,med_v14_227127,names.ur.official_name,Bioderma Photoderm Aquafluid SPF 50+ - 40 ml,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+40990,med_v14_508032,names.ur.official_name,"M, Nexcare Active Tape For Cushiones Protection Pc 1",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+41434,med_v14_512000,names.ur.official_name,"Now, Food Supplement, Panax Ginseng, Mg - Capsules 500 250",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+42699,med_v14_235276,names.ur.official_name,"Avent, Anti Colic, Baby Feeding Bottle From Month, Multi Designs 125",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43326,med_v14_247529,names.ur.official_name,"Vitayes, Bright Niacinamide Serum Ml 10 30",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43522,med_v14_241381,names.ur.official_name,"Germacare, Baby Body Wash, Edelweiss Extract - 200 Ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43653,med_v14_103740,names.ur.official_name,Prostin Vr Alprostadil 500 Micrograms/Ml Ampoules,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43795,med_v14_300498,names.ur.official_name,"Lactonic, Baby Milk Number - Gm 1 400",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+43955,med_v14_505781,names.ur.official_name,"Avent, Easy Sip Baby Cup with Tight Lid From 6 Months - 200 Ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+45241,med_v14_229838,names.ur.official_name,Lensmesoft lenses- Cloud,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+45418,med_v14_251168,names.ur.official_name,"Cantabria Labs, Fluid Sunscreen, Heliocare - 50 ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+46346,med_v14_104408,names.ur.official_name,"Polmena, Budesonide, Mg/ Ml, Suspension For Inhalation - Vials 0.5 1 20",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+47572,med_v14_249961,names.ur.official_name,"Derma doctor, Poetry Lotion, Intensive Retinol Ml 1 30",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+48515,med_v14_212097,names.ur.official_name,Rexona Deodorant Stick Extra Cool Men - 40 Gm,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+50481,med_v14_230205,names.ur.official_name,"Cetaphil Baby, Calendula Baby Face & Body Lotion - 400 ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+52402,med_v14_226810,names.ur.official_name,"Glycolix, Resurfacing Cream, Replenix Glycolic Acid Gm 10 46",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+52608,med_v14_220434,names.ur.official_name,"Parachute, Gold Hair Cream Anti Hairfall - 140 Ml",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+53822,med_v14_240110,names.ur.official_name,"Loca, Acrylic Nails, Almond Shape, A4 - 1 Kit",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+54476,med_v14_103826,names.ur.official_name,Thyrogen Thyrotropin Alfa 0.9Mg Vials,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+55785,med_v14_508452,names.ur.official_name,Invisibobble Hair Elastic Nano True Black - 3 Pcs,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+55864,med_v14_249977,names.ur.official_name,"Lola, Ella e Carioca, Mask, Hair Nuurishing - 450 gm",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+55981,med_v14_249548,names.ur.official_name,Zenex Facial Cleansing Wash with Vitamin E - 200ml,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+57111,med_v14_241886,names.ur.official_name,"Max Factor, Miracle Pure, Skin Illuminating Serum - 1 Pc",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+57285,med_v14_105465,names.ur.official_name,"Zoron, Mg - Tablets 8 10",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+57310,med_v14_245559,names.ur.official_name,Aqua Bee-licious Cooling Hydrating Eye Gel 15ml,(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+58118,med_v14_240544,names.ur.official_name,"Makeover 22, Eyeshadow, Allure, Mini Al01 - 1 Pc",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+58439,med_v14_236241,names.ur.official_name,"Attitude, Liquid For Baby Laundry Detergent Extra Gentle - L 1",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
+59064,med_v14_247476,names.ur.official_name,"Byphasse, Natural Cotton Pads Pieces 100 35",(report only),the ur field is entirely Latin (no %s% characters); translation postponed per decision G,high
