@@ -25,7 +25,8 @@ def chunk(kind, data):
 
 
 def png(text=None):
-    raw = b''.join(b'\x00\xff\x00' for _ in range(64))
+    # 8 rows of 8 RGB pixels, each row led by its filter byte (0 = none)
+    raw = b''.join(b'\x00' + b'\xff\x00\x00' * 8 for _ in range(8))
     parts = [b'\x89PNG\r\n\x1a\n', chunk(b'IHDR', struct.pack('>IIBBBBB', 8, 8, 8, 2, 0, 0, 0))]
     if text:
         parts.append(chunk(b'tEXt', b'Comment\0' + text))
