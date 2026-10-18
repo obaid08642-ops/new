@@ -6,14 +6,14 @@ Checked on the RAW document in the journey database (health_db.find_raw), the wa
   - the stored value starts with 'enc:' and does not contain the key;
   - a legacy plaintext row (written straight to the database) is still readable and masked from the real key;
   - the admin view shows has_key and a preview of the end of the real key, never the key, never the ciphertext tail;
-  - role admin without settings.edit cannot save a key.
+  - an anonymous caller cannot save or read keys (the gate admin holds settings.edit, so it is not a negative case).
 Stack: backend :8002 started by start-backend.sh (AI_KEYS_ENC_KEY is set there).
 """
 import json
 import os
 import subprocess
 
-from lib import step, journey
+from lib import Client, step, journey
 from health_db import find_raw, BACKEND, MONGO, DB
 
 OWNER_EMAIL = os.environ.get('LIVE_OWNER_EMAIL', 'owner@nabd.test')
@@ -37,11 +37,13 @@ def row(view, key):
 
 def run():
     import j_admin
-    gate_web, _ = j_admin.login()
 
-    journey('16.1 a role admin without settings.edit cannot save a key')
-    r = gate_web.post('/ai/admin/gateway/provider/deepseek', {'api_key': KEY})
-    step('role admin is refused (403)', r.status == 403, r)
+    journey('16.1 an anonymous caller cannot save or list provider keys')
+    anon = Client()
+    r = anon.post('/ai/admin/gateway/provider/deepseek', {'api_key': KEY})
+    step('anonymous save is refused (401)', r.status == 401, r)
+    r = anon.get('/ai/admin/gateway')
+    step('anonymous list is refused (401)', r.status == 401, r)
 
     owner, _ = j_admin.login(OWNER_EMAIL, OWNER_PASSWORD)
 
