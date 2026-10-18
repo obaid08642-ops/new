@@ -72,3 +72,13 @@ a.item:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nab
   .media :global(.nabd-ficon__glyphbox) { inline-size: 64px; block-size: 64px; }
   .rx { margin-block-start: var(--nabd-space-sm); }
 }
+
+/* 17.3: recent and trending terms (tap to search again). */
+.terms { display: grid; gap: .6rem; margin: 1rem 0; }
+.termsHead { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+.termsTitle { margin: 0; font-size: .95rem; font-weight: 800; }
+.termsAction { min-height: 2.5rem; padding: .25rem .5rem; border: 0; background: none; color: var(--brand-deep); font-weight: 700; }
+.termList { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0; padding: 0; list-style: none; }
+.termChip { min-height: 2.5rem; padding: .4rem .85rem; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); font-weight: 600; }
+.termChip:hover { border-color: var(--brand); }
+.termChip:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color, currentColor); outline-offset: 2px; }

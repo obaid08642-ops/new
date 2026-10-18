@@ -1331,7 +1331,11 @@
     "kindLabPackage": "टेस्ट पैकेज",
     "kindRadiology": "रेडियोलॉजी",
     "kindNursing": "नर्सिंग",
-    "kindArticle": "लेख"
+    "kindArticle": "लेख",
+    "recentTitle": "हाल की खोजें",
+    "recentClear": "साफ़ करें",
+    "trendingTitle": "अभी ट्रेंडिंग",
+    "tryTitle": "इनमें से कोई आज़माएँ"
   },
   "SearchSuggest": {
     "listLabel": "खोज सुझाव",
