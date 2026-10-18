@@ -18,6 +18,10 @@ export interface LogContext {
   requestId?: string;
   userId?: string;
   role?: string;
+  /** Where the request came from; used by the medical access log (16.9), never written to ordinary log lines. */
+  ip?: string;
+  userAgent?: string;
+  deviceId?: string;
 }
 
 /** One context per async flow, so a log line knows which request it belongs to. */

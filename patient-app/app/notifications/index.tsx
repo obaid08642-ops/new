@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { optimistic } from '../../src/utils/optimistic';
+import { useNotice } from '../../src/hooks/useNotice';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { router, type Href } from 'expo-router';
@@ -104,7 +106,8 @@ function FeedSkeleton() {
 }
 
 export default function NotificationsScreen() {
-  const { theme, t, c, dir, tr, lang } = useScreenUi();
+  const { theme, t, c, dir, tr, lang, k } = useScreenUi();
+  const notice = useNotice(theme);
   const dispatch = useDispatch();
   const [filter, setFilter] = useState<NotifGroup | 'all'>('all');
   const [notifs, setNotifs] = useState<Notif[]>([]);
@@ -144,19 +147,25 @@ export default function NotificationsScreen() {
   }, [filter, groups]);
   const feed = useMemo(() => buildFeed(filter === 'all' ? notifs : notifs.filter((n) => n.group === filter)), [notifs, filter]);
 
-  const markAllRead = async () => {
-    setNotifs((p) => p.map((n) => ({ ...n, read: true })));
-    try {
-      await apiFetch('/notifications/read-all', { method: 'POST' });
-    } catch {
-      void load(true); // put the real state back when the server refused
-    }
+  const markAllRead = () => {
+    const before = notifs;
+    // 15.3: read at once; unread again, with a message, when the server refused
+    return optimistic({
+      apply: () => setNotifs((p) => p.map((n) => ({ ...n, read: true }))),
+      request: () => apiFetch('/notifications/read-all', { method: 'POST' }),
+      rollback: () => setNotifs(before),
+      onFail: () => notice.show(k('common.optimisticUndone')),
+    });
   };
 
   const openNotif = (n: Notif) => {
     if (!n.read) {
-      setNotifs((p) => p.map((x) => (x.id === n.id ? { ...x, read: true } : x)));
-      apiFetch(`/notifications/${n.id}/read`, { method: 'POST' }).catch(() => {});
+      void optimistic({
+        apply: () => setNotifs((p) => p.map((x) => (x.id === n.id ? { ...x, read: true } : x))),
+        request: () => apiFetch(`/notifications/${n.id}/read`, { method: 'POST' }),
+        rollback: () => setNotifs((p) => p.map((x) => (x.id === n.id ? { ...x, read: false } : x))),
+        onFail: () => notice.show(k('common.optimisticUndone')),
+      });
     }
     // Backend routes use the server vocabulary (/tracking/lab/:id, /orders/:id ...): translate them to app paths,
     // pushing them raw would land on an unmatched route.
@@ -243,6 +252,7 @@ export default function NotificationsScreen() {
           }
         />
       )}
+      {notice.node}
     </Screen>
   );
 }
