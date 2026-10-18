@@ -13,6 +13,8 @@ import { GeoSelect } from "./geo-select";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import forms from "@/components-next/consult/consult.module.css";
 import styles from "@/components-next/settings/settings.module.css";
+import { ConfirmDialog } from "@/components-next/confirm/confirm-dialog";
+import { Toast } from "@/components-next/feedback/toast";
 
 export type PatientAddress = AddressRecord;
 
@@ -91,6 +93,7 @@ export function AddressList({ addresses, locale }: { addresses: PatientAddress[]
   const [mode, setMode] = useState<{ id: string; kind: RowMode } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<"remove" | "save" | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
   const [form, setForm] = useState<AddressForm>(EMPTY_ADDRESS_FORM);
 
   const modeOf = (id: string): RowMode => (mode?.id === id ? mode.kind : "view");
@@ -109,6 +112,7 @@ export function AddressList({ addresses, locale }: { addresses: PatientAddress[]
       if (!res.ok) setError("remove");
       else {
         setMode(null);
+        setToast(t("removedToast"));
         router.refresh();
       }
     } catch {
@@ -148,6 +152,7 @@ export function AddressList({ addresses, locale }: { addresses: PatientAddress[]
 
   return (
     <>
+      <Toast message={toast} onDone={() => setToast(null)} />
       <ul className={rx.list} aria-label={t("listLabel")}>
         {addresses.map((address) => {
           const lines = [[address.line1, address.line2], [address.district, address.city]].map((parts) => parts.filter(Boolean).join("، ")).filter(Boolean);
@@ -168,13 +173,17 @@ export function AddressList({ addresses, locale }: { addresses: PatientAddress[]
                   </>
                 ) : null}
               </div>
-              {rowMode === "confirmRemove" ? (
-                <div role="alertdialog" aria-label={t("removeConfirmTitle")} className={styles.stack}>
-                  <p className={forms.body}>{t("removeConfirm", { name: address.label || t("unnamed") })}</p>
-                  <Button label={busy ? t("removing") : t("removeConfirmYes")} size="sm" loading={busy} disabled={busy} onClick={() => void remove(address.id)} />
-                  <Button label={t("cancel")} variant="outline" size="sm" disabled={busy} onClick={() => open(address, "view")} />
-                </div>
-              ) : null}
+              <ConfirmDialog
+                open={rowMode === "confirmRemove"}
+                title={t("removeConfirmTitle")}
+                body={t("removeConfirm", { name: address.label || t("unnamed") })}
+                confirmLabel={busy ? t("removing") : t("removeConfirmYes")}
+                cancelLabel={t("cancel")}
+                destructive
+                busy={busy}
+                onConfirm={() => void remove(address.id)}
+                onCancel={() => open(address, "view")}
+              />
               {rowMode === "edit" ? (
                 <form onSubmit={(event) => void save(event, address)} className={styles.stack} aria-label={t("editTitle")}>
                   <h2 className={rx.h2}>{t("editTitle")}</h2>

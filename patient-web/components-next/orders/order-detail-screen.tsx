@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { CoreShell } from "@/components-next/core/core-shell";
+import { CopyTextButton } from "@/components-next/copy-text-button";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
 import { RetryLinkErrorState } from "@/components-next/pharmacy-checkout/state-views";
@@ -71,6 +72,7 @@ export async function OrderDetailScreen({ locale, orderId }: { locale: Locale; o
             <h2 className={rx.rowTitle}>{t("pharmacyOrder")}</h2>
             <span className={styles.orderMeta}>
               <bdi>{t("orderRef", { number: orderNumber(detail.id) })}</bdi>
+              <CopyTextButton text={orderNumber(detail.id)} />
               {detail.createdAt ? <> · <LocalDate iso={detail.createdAt} locale={locale} /></> : null}
             </span>
           </div>
