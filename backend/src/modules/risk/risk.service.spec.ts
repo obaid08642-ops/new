@@ -26,7 +26,7 @@ describe('Phase 22.11 risk scoring', () => {
   });
   afterAll(async () => { await conn.close(); await mongo.stop(); });
   beforeEach(async () => {
-    for (const n of ['risk_origins', 'risk_scores', 'pharmacy_orders', 'moyasar_payments', 'coupon_redemptions', 'fraud_alerts', 'system_configs']) {
+    for (const n of ['risk_origins', 'risk_scores', 'pharmacy_orders', 'moyasar_payments', 'coupon_redemptions', 'fraud_alerts', 'system_configs', 'pharmacy_allocations', 'risk_locks']) {
       if (!(await conn.db!.collections()).some((c) => c.collectionName === n)) await conn.createCollection(n).catch(() => undefined);
       await col(n).deleteMany({});
     }
@@ -121,6 +121,15 @@ describe('Phase 22.11 risk scoring', () => {
       expect(types(await risk.evaluate('u-three', { force: true }))).toEqual([]);
     });
 
+    it('COD abuse is found where the pharmacy records "out for delivery": the allocation timeline', async () => {
+      await col('pharmacy_orders').insertMany([1, 2].map((i) => ({
+        id: `ca${i}`, patient_account_id: 'u-cod-alloc', status: 'cancelled', payment_method: 'cod', createdAt: new Date(Date.now() - 5 * 24 * HOUR),
+        timeline: [{ ts: new Date(), event: 'cancelled_by_patient' }],
+      })));
+      await col('pharmacy_allocations').insertMany([1, 2].map((i) => ({ order_id: `ca${i}`, timeline: [{ ts: new Date(), event: 'out_for_delivery', by: 'pharmacist' }] })));
+      expect(types(await risk.evaluate('u-cod-alloc', { force: true }))).toEqual(['cod_abuse']);
+    });
+
     it('cash-on-delivery orders cancelled after they were on the way, twice in a month, are COD abuse', async () => {
       await col('pharmacy_orders').insertMany([1, 2].map((i) => ({
         id: `c${i}`, patient_account_id: 'u-cod', status: 'cancelled', payment_method: 'cod', createdAt: new Date(Date.now() - 5 * 24 * HOUR),
@@ -188,6 +197,39 @@ describe('Phase 22.11 risk scoring', () => {
       const alerts = await col('fraud_alerts').find({ userId: 'h1', flagType: 'risk_high' }).toArray();
       expect(alerts).toHaveLength(1);
       expect(alerts[0]).toMatchObject({ severity: 'high', status: 'pending', details: { score: 85 } });
+    });
+
+    it('a resolved alert is not raised again while the person stays high (only the move into high raises one)', async () => {
+      for (const u of ['t1', 't2', 't3']) await origin(u, 'register', 'dev-t', null);
+      for (let i = 1; i <= 4; i++) await col('pharmacy_orders').insertOne({ id: `to${i}`, patient_account_id: 't1', status: 'cancelled', createdAt: new Date(Date.now() - 30 * HOUR), timeline: [{ ts: new Date(Date.now() - 29 * HOUR), event: 'cancelled_by_patient' }] });
+      await risk.evaluate('t1', { force: true });
+      await col('fraud_alerts').updateMany({ userId: 't1' }, { $set: { status: 'resolved' } });
+      await risk.evaluate('t1', { force: true });
+      expect(await col('fraud_alerts').countDocuments({ userId: 't1', flagType: 'risk_high' })).toBe(1);
+    });
+
+    it('a device match on an older registration is not hidden by a shared address on the newest one', async () => {
+      await origin('p1', 'register', 'dev-p', '203.0.113.50');
+      await origin('p2', 'register', 'dev-p', '203.0.113.51');
+      for (const i of [1, 2, 3, 4]) await origin(`q${i}`, 'register', `dev-q${i}`, '203.0.113.60');
+      await origin('p3', 'register', 'dev-p', '203.0.113.60'); // 5 accounts on one address, and the 3rd on the device
+      const s = (await risk.evaluate('p3', { force: true }))!;
+      expect(s.signals[0].evidence).toMatchObject({ by: 'device' });
+      expect(s.level).toBe('medium');
+    });
+
+    it('the nightly job also rescores people already flagged, so a quiet person\'s score can fall; one run per day', async () => {
+      await col('risk_scores').insertOne({ user_id: 'old', score: 45, level: 'medium', signals: [{ type: 'account_farm', weight: 45, evidence: {} }], computed_at: new Date(Date.now() - 30 * 24 * HOUR), first_seen_at: new Date(Date.now() - 30 * 24 * HOUR) });
+      expect(await risk.rescoreRecent()).toBe(1);
+      expect(await col('risk_scores').findOne({ user_id: 'old' })).toMatchObject({ score: 0, level: 'low' }); // nothing backs the old signal any more
+      expect(await risk.rescoreRecent()).toBe(0); // today's run is taken
+    });
+
+    it('a failed evaluation does not hold off the retry', async () => {
+      const spy = jest.spyOn(risk as any, 'compute').mockRejectedValueOnce(new Error('mongo hiccup'));
+      await expect(risk.evaluate('retry-me')).rejects.toThrow('mongo hiccup');
+      spy.mockRestore();
+      expect(await risk.evaluate('retry-me')).not.toBeNull();
     });
 
     it('the admin changes the rules in system_configs; a bad number falls back to its default', async () => {

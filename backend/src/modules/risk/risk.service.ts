@@ -63,7 +63,8 @@ export class RiskService {
 
   private hash(kind: 'ip' | 'device', value?: string): string | null {
     if (!value) return null;
-    const key = process.env.RISK_HASH_KEY || process.env.JWT_SECRET || 'risk-dev-key';
+    const key = process.env.RISK_HASH_KEY || process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' ? '' : 'risk-dev-key');
+    if (!key) return null; // production without a secret: store nothing rather than guessable hashes
     return createHmac('sha256', key).update(`${kind}:${value}`).digest('hex').slice(0, 32);
   }
 
@@ -76,6 +77,9 @@ export class RiskService {
       await origins.createIndex({ user_id: 1, at: -1 }).catch(() => undefined);
       await this.col('risk_scores').createIndex({ user_id: 1 }, { unique: true }).catch(() => undefined);
       await this.col('risk_scores').createIndex({ score: -1 }).catch(() => undefined);
+      await this.col('risk_scores').createIndex({ level: 1, score: -1, computed_at: -1 }).catch(() => undefined);
+      await this.col('risk_scores').createIndex({ 'signals.type': 1 }).catch(() => undefined);
+      await this.col('risk_locks').createIndex({ at: 1 }, { expireAfterSeconds: 2 * 3600 }).catch(() => undefined);
     })().catch(() => { this.indexReady = null; }));
   }
 
@@ -95,29 +99,25 @@ export class RiskService {
 
   /* ---------------- signals ---------------- */
 
-  private async accountFarm(userId: string, r: RiskRules, now: number): Promise<Signal[]> {
+  private async accountFarm(userId: string, r: RiskRules): Promise<Signal[]> {
     const mine = await this.col('risk_origins').find({ user_id: userId, kind: 'register' }).sort({ at: -1 }).limit(5).toArray();
-    const out: Signal[] = [];
+    const window = (o: Record<string, unknown>) => ({ $gte: new Date(new Date(o.at as Date).getTime() - r.farm_window_hours * HOUR), $lte: new Date(new Date(o.at as Date).getTime() + r.farm_window_hours * HOUR) });
+    // a device match on any of the registrations is the strong signal: look for it first, then for a shared address
     for (const o of mine) {
-      const from = new Date(new Date(o.at).getTime() - r.farm_window_hours * HOUR);
-      const to = new Date(new Date(o.at).getTime() + r.farm_window_hours * HOUR);
-      if (o.device_h) {
-        const accounts = await this.col('risk_origins').distinct('user_id', { kind: 'register', device_h: o.device_h, at: { $gte: from, $lte: to } });
-        if (accounts.length >= r.farm_device_accounts) {
-          out.push({ type: 'account_farm', weight: r.weights.account_farm, evidence: { by: 'device', accounts: accounts.length, window_hours: r.farm_window_hours, user_ids: accounts.slice(0, 20) } });
-          return out;
-        }
-      }
-      if (o.ip_h) {
-        const accounts = await this.col('risk_origins').distinct('user_id', { kind: 'register', ip_h: o.ip_h, at: { $gte: from, $lte: to } });
-        if (accounts.length >= r.farm_ip_accounts) {
-          out.push({ type: 'account_farm', weight: Math.min(r.farm_ip_weight, r.weights.account_farm), evidence: { by: 'address', accounts: accounts.length, window_hours: r.farm_window_hours, user_ids: accounts.slice(0, 20) } });
-          return out;
-        }
+      if (!o.device_h) continue;
+      const accounts = await this.col('risk_origins').distinct('user_id', { kind: 'register', device_h: o.device_h, at: window(o) });
+      if (accounts.length >= r.farm_device_accounts) {
+        return [{ type: 'account_farm', weight: r.weights.account_farm, evidence: { by: 'device', accounts: accounts.length, window_hours: r.farm_window_hours, user_ids: accounts.slice(0, 20) } }];
       }
     }
-    void now;
-    return out;
+    for (const o of mine) {
+      if (!o.ip_h) continue;
+      const accounts = await this.col('risk_origins').distinct('user_id', { kind: 'register', ip_h: o.ip_h, at: window(o) });
+      if (accounts.length >= r.farm_ip_accounts) {
+        return [{ type: 'account_farm', weight: Math.min(r.farm_ip_weight, r.weights.account_farm), evidence: { by: 'address', accounts: accounts.length, window_hours: r.farm_window_hours, user_ids: accounts.slice(0, 20) } }];
+      }
+    }
+    return [];
   }
 
   private async deviceSharing(userId: string, r: RiskRules, now: number): Promise<Signal[]> {
@@ -149,8 +149,16 @@ export class RiskService {
 
   private async codAbuse(userId: string, r: RiskRules, now: number): Promise<Signal[]> {
     const since = new Date(now - r.cod_window_days * DAY);
-    const orders: any[] = await this.col('pharmacy_orders').find({ patient_account_id: userId, payment_method: 'cod', status: 'cancelled', createdAt: { $gte: since } }, { projection: { timeline: 1 } }).limit(200).toArray();
-    const late = orders.filter((o) => (o.timeline || []).some((t: any) => ['out_for_delivery', 'dispatched'].includes(String(t?.event)) || /out_for_delivery/.test(String(t?.event))));
+    const orders: any[] = await this.col('pharmacy_orders').find({ patient_account_id: userId, payment_method: 'cod', status: 'cancelled', createdAt: { $gte: since } }, { projection: { id: 1, timeline: 1 } }).limit(200).toArray();
+    const dispatched = (t: any) => /out_for_delivery|dispatched/.test(String(t?.event));
+    // the pharmacy marks "out for delivery" on its allocation (the order's own timeline can carry it too)
+    const viaAllocation = new Set<string>();
+    const ids = orders.map((o) => o.id).filter(Boolean);
+    if (ids.length) {
+      const allocs: any[] = await this.col('pharmacy_allocations').find({ order_id: { $in: ids }, 'timeline.event': { $in: ['out_for_delivery', 'dispatched'] } }, { projection: { order_id: 1 } }).limit(500).toArray();
+      for (const a of allocs) viaAllocation.add(String(a.order_id));
+    }
+    const late = orders.filter((o) => (o.timeline || []).some(dispatched) || viaAllocation.has(String(o.id)));
     return late.length >= r.cod_cancelled_after_dispatch
       ? [{ type: 'cod_abuse', weight: r.weights.cod_abuse, evidence: { cancelled_after_dispatch: late.length, window_days: r.cod_window_days } }]
       : [];
@@ -205,10 +213,19 @@ export class RiskService {
     if (!opts.force && now - last < RiskService.MIN_GAP_MS) return null;
     this.recent.set(userId, now);
     if (this.recent.size > 5000) this.recent.clear();
+    try {
+      return await this.compute(userId, now);
+    } catch (e) {
+      this.recent.delete(userId); // a failed evaluation must not hold off the next try
+      throw e;
+    }
+  }
+
+  private async compute(userId: string, now: number): Promise<RiskScore | null> {
     await this.ensureIndexes();
     const r = await this.rules();
     const parts = await Promise.all([
-      this.accountFarm(userId, r, now), this.deviceSharing(userId, r, now), this.fakeOrders(userId, r, now), this.codAbuse(userId, r, now),
+      this.accountFarm(userId, r), this.deviceSharing(userId, r, now), this.fakeOrders(userId, r, now), this.codAbuse(userId, r, now),
       this.cardTesting(userId, r, now), this.promoAbuse(userId, r), this.detectorAlerts(userId, r, now),
     ]);
     const signals = parts.flat();
@@ -216,7 +233,7 @@ export class RiskService {
     const level = levelOf(score, r.levels);
     const doc: RiskScore = { user_id: userId, score, level, signals, computed_at: new Date(now) };
     const prev: any = await this.col('risk_scores').findOneAndUpdate({ user_id: userId }, { $set: doc as any, $setOnInsert: { first_seen_at: new Date(now) } }, { upsert: true, returnDocument: 'before' });
-    if (level === 'high' && prev?.value?.level !== 'high') await this.raiseAlert(doc);
+    if (level === 'high' && prev?.level !== 'high') await this.raiseAlert(doc);
     return doc;
   }
 
@@ -256,13 +273,21 @@ export class RiskService {
     try { await fn(); } catch (e: any) { this.logger.warn(`risk evaluation failed: ${e?.message}`); }
   }
 
-  /** The people with activity in the last two days are rescored every night: windows move even when nothing happens. */
+  /**
+   * Every night: the people with activity in the last two days, and everyone already flagged (medium/high), so a flagged
+   * person who went quiet sees their score fall when the windows move. One replica runs it (a lock row per day).
+   */
   @Cron(CronExpression.EVERY_DAY_AT_3AM)
   async rescoreRecent(): Promise<number> {
+    await this.ensureIndexes();
+    try {
+      await this.col('risk_locks').insertOne({ _id: `rescore:${new Date().toISOString().slice(0, 10)}` as never, at: new Date() });
+    } catch { return 0; } // another replica has today's run
     const since = new Date(Date.now() - 2 * DAY);
     const ids = new Set<string>();
     for (const id of await this.col('risk_origins').distinct('user_id', { at: { $gte: since } })) ids.add(String(id));
     for (const id of await this.col('pharmacy_orders').distinct('patient_account_id', { updatedAt: { $gte: since } })) ids.add(String(id));
+    for (const id of await this.col('risk_scores').distinct('user_id', { level: { $in: ['medium', 'high'] } })) ids.add(String(id));
     let n = 0;
     for (const id of [...ids].slice(0, 5000)) { await this.safe(() => this.evaluate(id, { force: true })); n += 1; }
     return n;
