@@ -43,10 +43,22 @@ Sources for each item: `docs/audit/02_AGENT_EXECUTION_PLAN.md` (Do / Verify per 
 5. **Phase 13**: R4 location privacy, R17 website badge, R19 one product id in all six locales.
 6. **Phase 17**: 17.1 navigation (skip link, back-to-top), 17.2 feedback (confirm dialogs, toasts), 17.3 recent/trending searches and the no-results page, 17.4 content helpers, 17.8 accessibility (axe in CI).
 7. **Phase 15**: 15.1 one API client per app, 15.5 nothing crashes to a blank screen.
-8. **Web/app parity gaps** from the parity audit (#1618), the "broken" and "wrong" rows first, then "missing", then "different".
-9. **Open GitHub issues** (23 open on 2026-10-17): after item 8, list them (`repos/obaid08642-ops/new/issues?state=open`), verify each against `main` (close with evidence when already done), fix the rest one PR each; hand any about payments, insurance, booking, security or accounts to session S by commenting on the issue.
-10. **Phase 22 other items**: 22.1 refill, 22.2 stock/price alerts, 22.3 bundles and alternatives, 22.4 delivery promise, 22.6 appointment quality, 22.7 reviews from real orders, 22.8 help centre, 22.9 documents, 22.10 experiments, 22.12 provider quality, 22.13 release discipline, 22.14 safety, 22.15 growth tools, 22.16 city operations.
-11. **Ordering model, H half (owner 2026-10-18)**: M1 provider item model + migration + declaration screens, M2 the doctor's structured medical order + "My medical orders", M8 instant consultation broadcast; M6 (the UI of M1–M5) once the design session has delivered the M0 boards. Plan: `docs/product/ORDERING_MODEL_2026-10-16.md` on main. Start each only when its acceptance spec is posted. Anything that moves money or an order's paid state belongs to Session S: stop and write `BLOCKED: needs S` instead.
+8. **Web/app parity gaps**: MOVED to Session F (the fix session) on 2026-10-18; see below.
+9. **Open GitHub issues**: MOVED to Session F on 2026-10-18; see below.
+10. **Phase 22 other items**: MOVED to Session B (the build session) on 2026-10-18; see below.
+11. **Ordering model, H half (owner 2026-10-18)**: M1 provider item model + migration + declaration screens, M2 the doctor's structured medical order + "My medical orders", M8 instant consultation broadcast; M6 (the UI of M1–M5) is the design session's (below). Plan: `docs/product/ORDERING_MODEL_2026-10-16.md` on main. Start each only when its acceptance spec is posted. Anything that moves money or an order's paid state belongs to Session S: stop and write `BLOCKED: needs S` instead.
+
+## Session F (the fix session): moved from H on 2026-10-18, in this order
+Rules 1–7 above apply, 3b first. To keep clear of H: F does not change the shared navigation and feedback components that H builds in Phase 17 (`patient-web/components-next/navigation/*`, the confirm dialog and toast components). Where a parity fix needs one of them, F uses it as it is on `main`, or writes `BLOCKED: waits for H 17.x` and moves on. Branches `f/<item>`.
+1. **Web/app parity gaps** from the parity audit (#1618), the "broken" and "wrong" rows first, then "missing", then "different".
+2. **Open GitHub issues** (23 open on 2026-10-17): after item 8, list them (`repos/obaid08642-ops/new/issues?state=open`), verify each against `main` (close with evidence when already done), fix the rest one PR each; hand any about payments, insurance, booking, security or accounts to session S by commenting on the issue.
+
+## Session B (the build and deploy session): moved from H on 2026-10-18
+Rules 1–7 above apply, 3b first. Branches `b/<item>`. B does not touch the ordering-model files (M1–M8 belong to H and S).
+1. **Phase 22 other items**: 22.1 refill, 22.2 stock/price alerts, 22.3 bundles and alternatives, 22.4 delivery promise, 22.6 appointment quality, 22.7 reviews from real orders, 22.8 help centre, 22.9 documents, 22.10 experiments, 22.12 provider quality, 22.13 release discipline, 22.14 safety, 22.15 growth tools, 22.16 city operations.
+
+## Design session: M6 (owner 2026-10-18)
+M6, the web and app screens of M1–M5, built from the merged M0 boards (`docs/design/canvas/Ord*`). The open questions are answered on #1700. Build each screen once its backend phase (M1, M2, M3…) is merged; until then, only the parts whose endpoints exist on `main`. Rules 1–7 above apply, 3b first. Branches `design/ordering-m6-<screen>`.
 
 ## Not in either queue
 - Phase 20 (alerts/SLOs, status page, scheduled journeys, restore drill, safe deploys, capacity review) and the Mailjet 401 diagnosis stay with the build session.
