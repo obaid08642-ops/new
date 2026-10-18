@@ -740,9 +740,9 @@ export class PharmacyOrderService {
     // 22.5: a draft is always editable; a submitted order only until a pharmacy is chosen (no selected offer, no allocation)
     const draft = order.status === PharmacyOrderState.DRAFT;
     if (!draft) {
-      if (!EDITABLE_AFTER_SUBMIT.has(order.status)) throw new BadRequestException(`not_editable_in_${order.status}`);
       const taken = order.selected_offer_id || (await this.allocs.findOne({ order_id: id }, { id: 1 }).lean());
       if (taken) throw new BadRequestException('not_editable_after_offer_selected');
+      if (!EDITABLE_AFTER_SUBMIT.has(order.status)) throw new BadRequestException(`not_editable_in_${order.status}`);
     }
     if (body.items) {
       const sanitize = (str: any) => String(str || '').replace(/[<>]/g, '').trim();
@@ -831,7 +831,7 @@ export class PharmacyOrderService {
     const remaining = unfilledItems(order, allocs);
     if (!remaining.length) throw new BadRequestException('nothing_to_split');
     // one winner: whoever flips the marker creates the child
-    const claim: any = await this.orders.updateOne({ id, patient_account_id: user.id, split_child_order_id: { $exists: false } }, { $set: { split_child_order_id: 'pending' } });
+    const claim: any = await this.orders.updateOne({ id, patient_account_id: user.id, $or: [{ split_child_order_id: { $exists: false } }, { split_child_order_id: null }] }, { $set: { split_child_order_id: 'pending' } });
     if (!(claim?.modifiedCount ?? claim?.nModified ?? 0)) {
       const again: any = await this.orders.findOne({ id }).lean();
       if (again?.split_child_order_id && again.split_child_order_id !== 'pending') return { ok: true, existing: true, child_order_id: again.split_child_order_id };
