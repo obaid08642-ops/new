@@ -14,6 +14,7 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 import { ProviderErasureService } from './provider-erasure.service';
 
 import { ownerEmail } from '../../common/effective-permissions';
+import { enforcePasswordPolicy } from '../../common/password-security.service';
 /** Provider roles an admin may create accounts for (never staff/admin roles). */
 const PROVIDER_CREATABLE_ROLES = [
   UserRole.DOCTOR, UserRole.PHARMACY, UserRole.HOSPITAL, UserRole.LAB,
@@ -356,7 +357,9 @@ export class AdminController {
     if (!name) throw new BadRequestException('full_name_required');
     const exists = await this.userModel.findOne({ email });
     if (exists) throw new BadRequestException('email_already_registered');
-    const password = body?.password && String(body.password).length >= 8
+    // 16.2: a password the admin types follows the same rule as everyone's; with none, a strong one is generated.
+    if (body?.password) await enforcePasswordPolicy(body.password);
+    const password = body?.password
       ? String(body.password)
       : randomBytes(9).toString('base64url') + '@1';
     const permissions = Array.isArray(body?.permissions)
@@ -438,7 +441,9 @@ export class AdminController {
     if (!email && !phone) throw new BadRequestException('email_or_phone_required');
     if (email && await this.userModel.findOne({ email })) throw new BadRequestException('email_already_registered');
     if (phone && await this.userModel.findOne({ phone })) throw new BadRequestException('phone_already_registered');
-    const password = body?.password && String(body.password).length >= 8
+    // 16.2: a password the admin types follows the same rule as everyone's; with none, a strong one is generated.
+    if (body?.password) await enforcePasswordPolicy(body.password);
+    const password = body?.password
       ? String(body.password)
       : randomBytes(9).toString('base64url') + '@1';
     const doc = await this.userModel.create({
