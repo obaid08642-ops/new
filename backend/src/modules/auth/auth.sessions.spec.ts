@@ -68,6 +68,14 @@ describe('AuthService sessions (21.7)', () => {
     expect(a.sid).toMatch(/^[0-9a-f-]{36}$/);
   });
 
+  it('a sign-in path that is not handed a device id takes the one on the request (password login)', async () => {
+    const tokens = runWithRequestMeta({ userAgent: CHROME, ip: '10.9.9.9', deviceId: 'dev-from-header-000001' }, () => service.signToken(user));
+    await new Promise((r) => setImmediate(r));
+    expect((jwt.decode(tokens.accessToken) as any).dev).toBe('dev-from-header-000001');
+    const list = await service.listSessions(user.id, { deviceId: 'dev-from-header-000001' });
+    expect(list[0]).toMatchObject({ device_id: 'dev-from-header-000001', current: true });
+  });
+
   it('lists the signed-in devices with a readable label, a masked address, and marks the caller\'s own', async () => {
     const phone = await signIn(IPHONE, '10.1.2.3', 'dev-iphone-0000000001');
     const laptop = await signIn(CHROME, '192.168.5.9');

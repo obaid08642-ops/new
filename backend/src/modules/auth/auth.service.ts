@@ -87,7 +87,9 @@ export class AuthService {
     }
   }
 
-  signToken(user: any, deviceId?: string, session?: { sid?: string; created?: number }) {
+  signToken(user: any, deviceIdIn?: string, session?: { sid?: string; created?: number }) {
+    // 21.7: a sign-in path that was not handed a device id (password login, register, social) uses the one on the request
+    const deviceId = deviceIdIn ?? currentRequestMeta().deviceId;
     // The access token carries its own id: the guest merge burns that jti so a
     // captured guest token cannot be replayed (21.2). Without it, single-use
     // could not be enforced.
