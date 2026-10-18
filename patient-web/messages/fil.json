@@ -21,7 +21,9 @@
     "footerMap": "Mapa",
     "skipToContent": "Lumaktaw sa nilalaman",
     "backToTop": "Bumalik sa itaas",
-    "readingProgress": "Progreso ng pagbabasa"
+    "readingProgress": "Progreso ng pagbabasa",
+    "dialogCancel": "Kanselahin",
+    "dialogConfirm": "Kumpirmahin"
   },
   "CoreShell": {
     "back": "Bumalik",

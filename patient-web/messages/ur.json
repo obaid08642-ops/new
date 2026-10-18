@@ -21,7 +21,9 @@
     "footerMap": "نقشہ",
     "skipToContent": "مواد پر جائیں",
     "backToTop": "صفحے کے اوپر جائیں",
-    "readingProgress": "پڑھنے کی پیش رفت"
+    "readingProgress": "پڑھنے کی پیش رفت",
+    "dialogCancel": "منسوخ کریں",
+    "dialogConfirm": "تصدیق کریں"
   },
   "CoreShell": {
     "back": "واپس",

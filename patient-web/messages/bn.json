@@ -21,7 +21,9 @@
     "footerMap": "মানচিত্র",
     "skipToContent": "বিষয়বস্তুতে যান",
     "backToTop": "পৃষ্ঠার শুরুতে ফিরুন",
-    "readingProgress": "পড়ার অগ্রগতি"
+    "readingProgress": "পড়ার অগ্রগতি",
+    "dialogCancel": "বাতিল করুন",
+    "dialogConfirm": "নিশ্চিত করুন"
   },
   "CoreShell": {
     "back": "ফিরে যান",

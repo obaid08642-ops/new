@@ -21,7 +21,9 @@
     "footerMap": "मानचित्र",
     "skipToContent": "सामग्री पर जाएं",
     "backToTop": "पेज के ऊपर जाएं",
-    "readingProgress": "पढ़ने की प्रगति"
+    "readingProgress": "पढ़ने की प्रगति",
+    "dialogCancel": "रद्द करें",
+    "dialogConfirm": "पुष्टि करें"
   },
   "CoreShell": {
     "back": "वापस",

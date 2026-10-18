@@ -21,7 +21,9 @@
     "footerMap": "الخريطة",
     "skipToContent": "انتقل إلى المحتوى",
     "backToTop": "العودة إلى أعلى الصفحة",
-    "readingProgress": "تقدم القراءة"
+    "readingProgress": "تقدم القراءة",
+    "dialogCancel": "إلغاء",
+    "dialogConfirm": "تأكيد"
   },
   "CoreShell": {
     "back": "رجوع",

@@ -21,7 +21,9 @@
     "footerMap": "Map",
     "skipToContent": "Skip to content",
     "backToTop": "Back to top",
-    "readingProgress": "Reading progress"
+    "readingProgress": "Reading progress",
+    "dialogCancel": "Cancel",
+    "dialogConfirm": "Confirm"
   },
   "CoreShell": {
     "back": "Back",
