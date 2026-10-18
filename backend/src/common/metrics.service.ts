@@ -14,7 +14,7 @@
 import { Injectable } from '@nestjs/common';
 
 /** Latency buckets in milliseconds, matching the plan's p50/p95/p99 need. */
-const LATENCY_BUCKETS = [5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000];
+export const LATENCY_BUCKETS = [5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000];
 
 interface RouteStat {
   count: number;
@@ -23,6 +23,15 @@ interface RouteStat {
   buckets: number[];
   totalMs: number;
   maxMs: number;
+}
+
+/**
+ * Gauges other modules register (20.10): name, help and a function read at scrape time, e.g. the realtime gateway's
+ * open socket count. Process-wide so a module needs no constructor change to publish one.
+ */
+const registeredGauges = new Map<string, { help: string; read: () => number }>();
+export function registerGauge(name: string, help: string, read: () => number): void {
+  registeredGauges.set(name, { help, read });
 }
 
 @Injectable()
@@ -103,6 +112,11 @@ export class MetricsService {
     push('nabd_event_loop_lag_ms', 'gauge', 'How late the event loop timer fires.', this.eventLoopLagMs);
     push('nabd_heap_used_bytes', 'gauge', 'Heap bytes in use.', mem.heapUsed);
     push('nabd_rss_bytes', 'gauge', 'Resident set size.', mem.rss);
+    for (const [name, g] of registeredGauges) {
+      let v = 0;
+      try { v = Number(g.read()) || 0; } catch { /* a broken gauge must not break the scrape */ }
+      push(name, 'gauge', g.help, v);
+    }
 
     // One HELP/TYPE per metric name, then one series per route. Declaring the
     // type per series instead would be invalid exposition.
@@ -163,9 +177,32 @@ export class MetricsService {
     };
   }
 
+  /**
+   * A copy of the cumulative counters, for the SLO evaluator (20.5): it diffs two snapshots to get the requests, errors
+   * and latency histogram of the last N minutes. Copied, so later requests do not change a snapshot already taken.
+   */
+  snapshot(): MetricsSnapshot {
+    const routes: MetricsSnapshot['routes'] = {};
+    for (const [route, s] of this.routes) routes[route] = { count: s.count, errors: s.errors, buckets: [...s.buckets] };
+    return { routes, eventLoopLagMs: this.eventLoopLagMs };
+  }
+
   reset() {
     this.routes.clear();
   }
+}
+
+export interface MetricsSnapshot {
+  routes: Record<string, { count: number; errors: number; buckets: number[] }>;
+  eventLoopLagMs: number;
+}
+
+/** The p-th percentile (upper bucket edge, as in `percentile`) of cumulative bucket counts. */
+export function percentileFromBuckets(buckets: number[], count: number, p: number): number {
+  if (count <= 0) return 0;
+  const target = count * (p / 100);
+  for (let i = 0; i < buckets.length; i += 1) if (buckets[i] >= target) return LATENCY_BUCKETS[i];
+  return LATENCY_BUCKETS[LATENCY_BUCKETS.length - 1];
 }
 
 /**

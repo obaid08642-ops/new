@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { optimistic } from '../../src/utils/optimistic';
+import { useNotice } from '../../src/hooks/useNotice';
 import { FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 
@@ -68,6 +70,7 @@ function Row({ item, onRemove, onAdd, onOpen }: { item: Med; onRemove: (m: Med) 
 
 export default function WishlistScreen() {
   const { theme, c, dir, k } = useScreenUi();
+  const notice = useNotice(theme);
   const addToCart = useAddMedToCart();
   const [items, setItems] = useState<Med[]>([]);
   const [loading, setLoading] = useState(true);
@@ -94,14 +97,15 @@ export default function WishlistScreen() {
     void load();
   }, [load]);
 
-  const remove = async (m: Med) => {
+  const remove = (m: Med) => {
     const before = items;
-    setItems((p) => p.filter((i) => i.id !== m.id));
-    try {
-      await apiFetch(`/users/me/wishlist/${m.id}`, { method: 'POST' });
-    } catch {
-      setItems(before); // put it back when the server refused
-    }
+    // 15.3: removed at once; put back, with a message, when the server refused
+    return optimistic({
+      apply: () => setItems((p) => p.filter((i) => i.id !== m.id)),
+      request: () => apiFetch(`/users/me/wishlist/${m.id}`, { method: 'POST' }),
+      rollback: () => setItems(before),
+      onFail: () => notice.show(k('common.optimisticUndone')),
+    });
   };
 
   const back = () => {
@@ -144,6 +148,7 @@ export default function WishlistScreen() {
           />
         )}
       />
+      {notice.node}
     </Screen>
   );
 }

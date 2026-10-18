@@ -35,6 +35,7 @@ jest.mock('../../context/AppContext', () => ({ useApp: () => ({ isDark: false, l
 jest.mock('../../context/CartContext', () => ({ useCart: () => mockCart }));
 jest.mock('../../utils/selectedAddress', () => ({ resolveEffectiveAddress: jest.fn(async () => mockAddress.current) }));
 jest.mock('../../components/LocalizedAlert', () => ({ showLocalizedAlert: jest.fn() }));
+jest.mock('../../utils/onReconnect', () => ({ onReconnect: jest.fn(() => () => undefined) }));
 jest.mock('../../utils/isOffline', () => ({ isOffline: jest.fn(async () => false) }));
 jest.mock('../../utils/logger', () => ({ logError: jest.fn() }));
 jest.mock('../../utils/api', () => ({ BASE_URL: 'https://api.example.test/api/v1', R2_PUBLIC_URL: 'https://cdn.example.test', apiFetch: jest.fn(), newIdempotencyKey: jest.fn(() => 'app-test-nonce-0001') }));
