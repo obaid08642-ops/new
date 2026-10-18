@@ -9,12 +9,15 @@ import time
 from lib import Client, journey, step, mail_code, phone
 import j_accounts
 
+# The lock is per identifier and caller; the route throttle (10 a minute per address) is not what is under test,
+# so the known and the unknown account each sign in from their own address and stay under ten calls there.
 CALLER = {'X-Forwarded-For': f'203.0.113.{random.randint(1, 254)}'}
+GHOST_CALLER = {'X-Forwarded-For': f'198.51.100.{random.randint(1, 254)}'}
 anon = Client()
 
 
-def login(identifier, password):
-    return anon.post('/auth/login', headers=CALLER, b={'identifier': identifier, 'password': password})
+def login(identifier, password, caller=CALLER):
+    return anon.post('/auth/login', headers=caller, b={'identifier': identifier, 'password': password})
 
 
 def run(acct):
@@ -24,12 +27,12 @@ def run(acct):
 
     journey('passwords: a known and an unknown account get the same answer')
     known = login(acct['email'], 'definitely-wrong-1')
-    unknown = login(ghost, 'definitely-wrong-1')
+    unknown = login(ghost, 'definitely-wrong-1', GHOST_CALLER)
     step('a wrong password and an unknown e-mail are both 401 "Invalid credentials"',
          known.status == 401 and unknown.status == 401 and known.get('message') == unknown.get('message'), (known.status, known.body, unknown.status, unknown.body))
 
-    journey('passwords: ten wrong passwords are slowed, then locked')
-    statuses = [known.status] + [login(acct['email'], f'definitely-wrong-{i}').status for i in range(2, 11)]
+    journey('passwords: wrong passwords are slowed, then locked')
+    statuses = [known.status] + [login(acct['email'], f'definitely-wrong-{i}').status for i in range(2, 9)]
     step('the first four wrong passwords are plain 401s', statuses[:4] == [401] * 4, statuses)
     step('from the fifth on the sign-in is locked (429)', all(s == 429 for s in statuses[5:]), statuses)
     locked = login(acct['email'], acct['password'])
@@ -37,9 +40,9 @@ def run(acct):
          locked.status == 429 and 'login_locked' in str(locked.body) and (locked.get('retry_after_seconds') or 0) > 0, locked)
 
     journey('passwords: an unknown account is locked the same way')
-    ghost_seen = [login(ghost, f'definitely-wrong-{i}').status for i in range(10)]
+    ghost_seen = [login(ghost, f'definitely-wrong-{i}', GHOST_CALLER).status for i in range(2, 9)]
     step('an unknown e-mail is locked at the same point (four 401s, then 429s)', ghost_seen[:4] == [401] * 4 and all(s == 429 for s in ghost_seen[5:]), ghost_seen)
-    step('and answers with the same lock message', 'login_locked' in str(login(ghost, 'x-wrong-passphrase').body))
+    step('and answers with the same lock message', 'login_locked' in str(login(ghost, 'x-wrong-passphrase', GHOST_CALLER).body))
 
     journey('passwords: the lock is per caller; the owner on another network signs in')
     other = Client().post('/auth/login', headers={'X-Forwarded-For': f'203.0.114.{random.randint(1, 254)}'}, b={'identifier': acct['email'], 'password': acct['password']})
