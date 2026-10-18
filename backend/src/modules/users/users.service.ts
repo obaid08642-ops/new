@@ -1,4 +1,5 @@
 import { Injectable, Optional, NotFoundException, ForbiddenException, UnauthorizedException, BadRequestException, Inject } from '@nestjs/common';
+import { describeClient, maskIp } from '../../common/request-meta';
 import { MEDIA_RELEASE, mediaRefId } from '../media/media-cleanup.service';
 import { escapeRegex } from '../../common/slug.util';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -398,9 +399,17 @@ export class UsersService {
         const raw = await client.get(`refresh:${jti}`);
         if (!raw) continue; // expired or revoked
         let device: string | null = null;
-        try { device = JSON.parse(raw)?.d ?? null; } catch { /* keep null */ }
+        let rec: any = {};
+        try { rec = JSON.parse(raw) ?? {}; device = rec.d ?? null; } catch { /* keep null */ }
         const ttl = await client.ttl(`refresh:${jti}`);
-        sessions.push({ id: jti, device, expires_in_seconds: ttl, is_current: !!currentDev && !!device && String(device).slice(0, 32) === String(currentDev).slice(0, 32) });
+        const who = describeClient(rec.ua);
+        sessions.push({
+          id: jti, device, expires_in_seconds: ttl,
+          is_current: !!currentDev && !!device && String(device).slice(0, 32) === String(currentDev).slice(0, 32),
+          // 21.7: what a person recognises their device by (never the raw user agent or the full address)
+          session_id: rec.s ?? jti, label: who.label, platform: who.platform, ip: maskIp(rec.ip),
+          created_at: rec.c ? new Date(rec.c).toISOString() : null, last_seen_at: rec.l ? new Date(rec.l).toISOString() : null,
+        });
       }
       return sessions;
     } catch {
@@ -414,6 +423,11 @@ export class UsersService {
     if (!client) throw new BadRequestException('sessions unavailable');
     const isMember = await client.sismember(`refresh_user:${id}`, jti);
     if (!isMember) throw new NotFoundException('session not found');
+    // 21.7: through the one place sessions end, so the access token stops at once and the device's push tokens go
+    if (this.auth) {
+      await this.auth.revokeSessionByJti(id, jti);
+      return { ok: true };
+    }
     await client.del(`refresh:${jti}`);
     await client.srem(`refresh_user:${id}`, jti);
     return { ok: true };

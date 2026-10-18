@@ -170,6 +170,20 @@ export class JwtAuthGuard implements CanActivate {
         throw new UnauthorizedException('session_revoked');
       }
     }
+    // 21.7: a sign-in that was ended ("sign out other devices", sign-out, logout-all) refuses its access tokens at once,
+    // not when the 1 h token expires. A lookup failure degrades to "not revoked", like the version check above.
+    if (payload?.sid && subjectId) {
+      const ended = await (async () => {
+        try { return await this.connection.collection('revoked_sessions').findOne({ sid: payload.sid }, { projection: { _id: 1 } }); } catch { return null; }
+      })();
+      if (ended) {
+        if (isPublic) {
+          req.user = undefined;
+          return true;
+        }
+        throw new UnauthorizedException('session_revoked');
+      }
+    }
     // C2: Admin device allow-list — MANDATORY for every admin/super_admin JWT.
     // Device-bound, never IP-bound (mobile IPs rotate). Any admin API call from
     // an unregistered device is rejected. The device-management endpoints and
