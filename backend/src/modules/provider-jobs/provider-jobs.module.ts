@@ -200,7 +200,8 @@ export class ProviderJobsService {
     // Accepting a home visit commits the provider to a paid job: card must be paid; insurance is decided
     // through the coverage decision (POST /home-care/bookings/:id/coverage-decision), not here.
     if (kind === 'nursing' && target === ServiceState.CONFIRMED) {
-      if (entity.payment_method === 'insurance') throw new BadRequestException('insurance_booking_requires_coverage_decision');
+      // The insurance request engine marks the visit approved once the insurer covers it or the copay is paid.
+      if (entity.payment_method === 'insurance' && entity.insurance_status !== 'approved') throw new BadRequestException('insurance_booking_requires_coverage_decision');
       if (entity.payment_method === 'card' && entity.payment_status !== 'paid') throw new BadRequestException('card_payment_not_completed');
     }
     // Map universal target → domain literal that the entity understands.
