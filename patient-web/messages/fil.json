@@ -18,7 +18,10 @@
     "footerPrivacy": "Pagkapribado",
     "footerSupport": "Suporta",
     "footerArticles": "Mga Artikulo",
-    "footerMap": "Mapa"
+    "footerMap": "Mapa",
+    "skipToContent": "Lumaktaw sa nilalaman",
+    "backToTop": "Bumalik sa itaas",
+    "readingProgress": "Progreso ng pagbabasa"
   },
   "CoreShell": {
     "back": "Bumalik",
@@ -2964,6 +2967,12 @@
     "bookingNotSentBody": "Hindi pa nagpapadala ng booking ang window na ito, kaya walang appointment na ginawa at walang bayad na kinuha. Buksan ang pahina ng nursing para mag-book ng pagbisita.",
     "bookingNotSentCta": "Pumunta sa nursing",
     "bookingNotSentClose": "Isara"
+  },
+  "OrderContext": {
+    "hint": "Agad na nag-a-update ang presyo at coverage kapag may binago",
+    "addAddress": "Idagdag ang address mo",
+    "addInsurance": "Idagdag ang insurance mo",
+    "insuranceSub": "Mula sa naka-save mong profile. Tinatayang coverage hanggang maaprubahan"
   },
   "NursingWeb": {
     "hubTitle": "Pangangalaga sa bahay",

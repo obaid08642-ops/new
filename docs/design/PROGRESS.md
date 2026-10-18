@@ -26,6 +26,10 @@ Merged on main (batch 1010b, #1287): claims removal, owner UI items, Urdu Nastal
 3. **Open for the design session:** `pharmacy_name_ar/en` fields and the 13 "Refs" screens of #1255/#1256 once the backend fields merge; web `/onboarding/permissions` (#436) after the owner decision.
 4. Final pass done on e768aa5c: `FINAL_PASS_2026-10-10.md` (one table per app, baselines unchanged).
 
+## Ordering M6 (screens from the M0 boards)
+- Ord01 context bar, web diagnostics hub: replaces the place and payment filters; reads `/users/me/addresses` and `/users/me/insurance` on the server. Done on `design/ordering-m6`.
+- Not started: app Ord01 (no existing filter to replace; additive), Ord02-Ord11 (need the M1-M5 backend; see the "needs-backend" column in `ordering-m0-*.md`).
+
 ## Process
 - Lean v2 (rules in `/AGENTS.md`): design only, templates first, audit via `audit-table.mjs`, Needs-review with file:line (never delete lines by hand: it shifts the `nr-key` the issues reference), no committed screenshots. Binding: identity, tokens-only colours, six languages (provider-app and admin: ar/en and ar), real data only.
 
