@@ -32,6 +32,10 @@ export S3_ACCESS_KEY_ID="${S3_ACCESS_KEY_ID:-live}" S3_SECRET_ACCESS_KEY="${S3_S
 export SES_SMTP_HOST=127.0.0.1 SES_SMTP_PORT=2525 SES_SMTP_USER=live SES_SMTP_PASS=live SES_FROM=no-reply@nabd.test
 # SES is only in the chain when it is ordered (owner spec 2026-10-16); the live stack orders it so mail reaches smtp_sink.
 # j_mail_rotation starts its own backends with Resend/Brevo/Mailjet pointed at tools/live/fake_mail.py.
+# 19.7: Saudi Post National Address lookups go to tools/live/fake_spl.py (RRRD2929 and JEDA1234 exist).
+# (the template is kept in a variable: a literal {code} inside ${VAR:-...} ends the expansion at the first "}" in bash)
+SPL_DEFAULT_URL='http://127.0.0.1:9102/address?shortaddress={code}&api_key={key}'
+export SPL_API_URL="${SPL_API_URL:-$SPL_DEFAULT_URL}" SPL_API_KEY="${SPL_API_KEY:-live}"
 # 16.5: every upload is scanned; tools/live/fake_clamd.py stands in for ClamAV (it flags the EICAR test string).
 export CLAMD_HOST="${CLAMD_HOST:-127.0.0.1}" CLAMD_PORT="${CLAMD_PORT:-3311}" UPLOAD_SCAN="${UPLOAD_SCAN:-required}"
 # Every workflow that starts a backend this way (live gate, scale rehearsal, capacity, schemathesis ...) needs the stand-in running:

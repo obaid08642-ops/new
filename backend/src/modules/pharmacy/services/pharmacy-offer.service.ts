@@ -87,6 +87,8 @@ export class PharmacyOfferService {
     };
     const out = rows.map((o) => ({
       id: o.id, order_id: o.order_id, version: o.version, status: o.status, view_status: view(o),
+      // 22.5: the patient edited the order after this quote: it is a draft again and must be requoted
+      requote_required: o.requote_required === true,
       totals: o.totals, items_count: Array.isArray(o.items) ? o.items.length : 0,
       quote_expires_at: o.quote_expires_at, estimated_preparation_minutes: o.estimated_preparation_minutes ?? null,
       allocation_id: o.allocation_id ?? null, created_at: o.createdAt, updated_at: o.updatedAt,
@@ -384,6 +386,7 @@ export class PharmacyOfferService {
       patient_account_id: order.patient_account_id,
       pharmacy_account_id: user.id,
       status: 'draft',
+      requote_required: false,
       version: Number(prior?.version || 0) + 1,
       items: quote.items,
       totals: quote.totals,
@@ -655,6 +658,8 @@ export class PharmacyOfferService {
     const hasAboveCatalogue = (offer.items || []).some((item: any) => item.above_catalogue_price === true);
     return {
       id: offer.id, order_id: offer.order_id, status: offer.status, version: offer.version,
+      // 22.5: true while the patient's edit of the order is waiting for a new quote from this pharmacy
+      requote_required: offer.requote_required === true,
       items: offer.items, totals: offer.totals, quote_expires_at: offer.quote_expires_at,
       estimated_preparation_minutes: offer.estimated_preparation_minutes, fulfillment: offer.fulfillment || { policy_status: 'unavailable_read_only' }, pricing_source: offer.pricing_source,
       // D-12: a code the provider app translates (no sentence in one language).

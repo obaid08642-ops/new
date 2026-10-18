@@ -9,6 +9,16 @@ d4cb6b03ed4bedd33f6161386f81afacb66667d7:deploy/.env.production.example:generic-
 a08ec88ebcbdc46c5f150578995946620a3205aa:tools/perf/isr-disk/coturn-writes.sh:generic-api-key:10
 # - live mail-rotation journey: the local test-only JWT fallback (same value as tools/live/start-backend.sh); replaced by a per-run random secret since
 9e4e8c6f429252943a9656f970fc2a1a01d1cc47:tools/live/j_mail_rotation.py:generic-api-key:55
+# - 16.2 (#1666): test passwords in three e2e specs, made 10+ characters for the new password rule. A throw-away value used only
+#   against an in-memory database; the specs now generate them per run (randomBytes) so no literal is left. The commit stays in history.
+b3c1b6fba7d9334c78967bc0dab280ae5a12d63f:backend/test/journeys/provider-onboarding.e2e-spec.ts:generic-api-key:138
+b3c1b6fba7d9334c78967bc0dab280ae5a12d63f:backend/test/journeys/provider-onboarding.e2e-spec.ts:generic-api-key:155
+b3c1b6fba7d9334c78967bc0dab280ae5a12d63f:backend/test/journeys/provider-onboarding.e2e-spec.ts:generic-api-key:166
+b3c1b6fba7d9334c78967bc0dab280ae5a12d63f:backend/test/journeys/provider-onboarding.e2e-spec.ts:generic-api-key:168
+b3c1b6fba7d9334c78967bc0dab280ae5a12d63f:backend/test/security/p3-credential-rotation.e2e-spec.ts:generic-api-key:102
+b3c1b6fba7d9334c78967bc0dab280ae5a12d63f:backend/test/security/p3-credential-rotation.e2e-spec.ts:generic-api-key:135
+b3c1b6fba7d9334c78967bc0dab280ae5a12d63f:backend/test/security/p3-credential-rotation.e2e-spec.ts:generic-api-key:146
+b3c1b6fba7d9334c78967bc0dab280ae5a12d63f:backend/test/security/p3-provider-credential.e2e-spec.ts:generic-api-key:171
 # - 21.5 cash-on-delivery spec: a test-only idempotency key literal (not a credential; the spec now builds it from parts). The scan range still includes the first commit.
 82c6ca1500ea7b136fd7d1257dcf4d1e48adb90e:backend/src/modules/pharmacy/services/pharmacy-cod-contact.spec.ts:generic-api-key:15
 6295b27996de25740493080ec57d5f5b44413d15:deploy/cloudflare/status-worker/journeys.test.mjs:generic-api-key:10

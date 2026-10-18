@@ -100,7 +100,15 @@ def admin_review(admin, prov):
         return None
     r = admin.get(f"/admin/admin/providers/{mine['id']}")
     step('provider detail opens', r.ok, r)
-    r = admin.post(f"/admin/admin/providers/{mine['id']}/approve", {'reason': 'مستندات مكتملة', 'commission_cash': 10, 'commission_insurance': 8})
+    body = {'reason': 'مستندات مكتملة', 'commission_cash': 10, 'commission_insurance': 8}
+    r = admin.post(f"/admin/admin/providers/{mine['id']}/approve", body)
+    if r.status == 409:
+        # 19.3: a doctor, pharmacist or individual nurse needs a confirmed SCFHS licence. Nothing answers for SCFHS here, so
+        # the approval fails closed until the admin records their own check (reference + expiry date).
+        step('approval without a confirmed SCFHS licence is refused (fails closed)', 'scfhs_' in str(r.body), r)
+        import datetime
+        expiry = (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=365)).strftime('%Y-%m-%dT%H:%M:%SZ')
+        r = admin.post(f"/admin/admin/providers/{mine['id']}/approve", {**body, 'manual_license_check': {'reference': 'JOURNEY-CHECK', 'expiry_date': expiry}})
     step('approve with commissions', r.ok, r)
     r = admin.get('/admin/admin/providers?status=pending&limit=100')
     still = [i for i in (r.body.get('items', []) if isinstance(r.body, dict) else []) if i.get('email') == prov['email']]
