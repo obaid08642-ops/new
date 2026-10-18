@@ -89,3 +89,4 @@ j_telehealth_consent
 j_admin_roles_restrictive
 j_security_headers
 j_business_rules
+j_guest_matrix

@@ -426,6 +426,7 @@ export class AuthController {
   }
 
   /** 21.3 — what a guest may do, as the server sees it right now. */
+  @Public()
   @Get('guest/capabilities')
   async guestCapabilities() {
     return { capabilities: await this.guestMatrix.matrix() };
