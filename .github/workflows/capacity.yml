@@ -101,7 +101,7 @@ jobs:
           python3 tools/perf/k6/fanout.py | tee /tmp/k6-ladder/fanout.json
           { echo; echo "Campaign fan-out: \`$(cat /tmp/k6-ladder/fanout.json)\`"; } >> "$GITHUB_STEP_SUMMARY"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: capacity-${{ github.run_id }}
