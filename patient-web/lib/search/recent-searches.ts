@@ -46,3 +46,8 @@ function safeStorage(): Storage | null {
     return null;
   }
 }
+
+/** Sign-out: the searches of this device go with the session (a shared tablet must not show the last person's terms). */
+export function forgetRecentSearches(storage: Pick<Storage, "setItem" | "removeItem"> | null | undefined = safeStorage()) {
+  writeRecentSearches([], storage);
+}

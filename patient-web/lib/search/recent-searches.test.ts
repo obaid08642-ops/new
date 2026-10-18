@@ -1,7 +1,7 @@
 // 17.3: the device's recent searches. Only real terms are kept, the newest is first, a repeat moves to the front, and a
 // blocked storage or a corrupt value gives an empty list instead of an error.
 import { describe, expect, it } from "vitest";
-import { RECENT_SEARCHES_KEY, RECENT_SEARCHES_LIMIT, readRecentSearches, rememberSearch, writeRecentSearches } from "./recent-searches";
+import { RECENT_SEARCHES_KEY, RECENT_SEARCHES_LIMIT, forgetRecentSearches, readRecentSearches, rememberSearch, writeRecentSearches } from "./recent-searches";
 
 function memoryStorage(initial: Record<string, string> = {}) {
   const data = new Map(Object.entries(initial));
@@ -51,6 +51,14 @@ describe("readRecentSearches and writeRecentSearches", () => {
   it("removes the key when the list is emptied", () => {
     const storage = memoryStorage({ [RECENT_SEARCHES_KEY]: '["iron"]' });
     writeRecentSearches([], storage);
+    expect(storage.data.has(RECENT_SEARCHES_KEY)).toBe(false);
+  });
+});
+
+describe("forgetRecentSearches", () => {
+  it("removes the stored list", () => {
+    const storage = memoryStorage({ [RECENT_SEARCHES_KEY]: '["iron"]' });
+    forgetRecentSearches(storage);
     expect(storage.data.has(RECENT_SEARCHES_KEY)).toBe(false);
   });
 });
