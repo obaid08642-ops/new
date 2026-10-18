@@ -6,7 +6,7 @@ NOW = 1_000_000
 
 
 def sl(f, t, modified, fi=0, ti=0):
-    return {"key": "oplog/oplog_%d.%d_%d.%d.bson.gz.enc" % (f, fi, t, ti), "modified": modified}
+    return {"key": "oplog/oplog_%d.%d_%d.%d.bson.gz.gpg" % (f, fi, t, ti), "modified": modified}
 
 
 class DrPlan(unittest.TestCase):

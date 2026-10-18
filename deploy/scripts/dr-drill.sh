@@ -31,7 +31,7 @@ print(json.dumps([{"key":o["Key"],"modified":int(datetime.datetime.fromisoformat
 
 ERR=$(private_bucket_error)
 [ -z "$ERR" ] || fail "$ERR"
-[ -n "${BACKUP_ENCRYPTION_KEY:-}" ] || fail "BACKUP_ENCRYPTION_KEY not set, the oplog slices cannot be decrypted"
+backup_encryption_enabled || fail "BACKUP_ENCRYPTION_PASSPHRASE_FILE not set, the oplog slices cannot be decrypted"
 
 # ── 1. Plan: which dump + which oplog slices ────────────────────────────────
 DUMPS=$(list mongodb/) || fail "cannot list mongodb/ in the private bucket"
@@ -57,13 +57,13 @@ echo "[dr-drill] dump $DUMP_KEY, oplog slices: $(pl slices | wc -w), replay up t
 # ── 2. Download and decrypt ─────────────────────────────────────────────────
 backup_aws s3 cp "s3://$BACKUP_S3_BUCKET/$DUMP_KEY" "$TMP/dump.raw" --only-show-errors >/dev/null 2>&1 || fail "dump download failed"
 case "$DUMP_KEY" in
-  *.enc) decrypt_stream < "$TMP/dump.raw" > "$TMP/dump.gz" || fail "dump decryption failed (wrong BACKUP_ENCRYPTION_KEY?)" ;;
+  *.gpg) backup_decrypt "$TMP/dump.raw" > "$TMP/dump.gz" || fail "dump decryption failed (wrong passphrase?)" ;;
   *) mv "$TMP/dump.raw" "$TMP/dump.gz" ;;
 esac
 : > "$TMP/oplog.bson"
 for k in $(pl slices); do
-  backup_aws s3 cp "s3://$BACKUP_S3_BUCKET/$k" "$TMP/slice.enc" --only-show-errors >/dev/null 2>&1 || fail "download failed: $k"
-  decrypt_stream < "$TMP/slice.enc" | gzip -dc >> "$TMP/oplog.bson" || fail "slice decryption failed: $k"
+  backup_aws s3 cp "s3://$BACKUP_S3_BUCKET/$k" "$TMP/slice.gpg" --only-show-errors >/dev/null 2>&1 || fail "download failed: $k"
+  backup_decrypt "$TMP/slice.gpg" | gzip -dc >> "$TMP/oplog.bson" || fail "slice decryption failed: $k"
 done
 
 # ── 3. Throwaway mongod, no network ─────────────────────────────────────────

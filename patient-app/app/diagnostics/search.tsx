@@ -9,11 +9,17 @@ import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { normalizeLabList, type CatalogItem } from '../../src/utils/labMappers';
+import { useApp } from '../../src/context/AppContext';
+import { useSearchSuggest } from '../../src/hooks/useSearchSuggest';
+import { SearchSuggestList } from '../../src/components/search/SearchSuggestList';
+import { suggestionRoute } from '../../src/utils/searchSuggest';
 
 /** Search of the lab tests: the field, and a row per test that opens its page (board Search). */
 export default function DiagnosticsSearch() {
   const { theme, k } = useScreenUi();
+  const { lang } = useApp();
   const [q, setQ] = useState('');
+  const suggest = useSearchSuggest(q, lang);
   const [tests, setTests] = useState<CatalogItem[]>([]);
   const [status, setStatus] = useState<'loading' | 'error' | 'offline' | 'ready'>('loading');
 
@@ -40,7 +46,23 @@ export default function DiagnosticsSearch() {
       testID="diagnostics-search"
       title={k('diag.search.title')}
       onBack={goBackDiag}
-      top={<Search theme={theme} variant="page" value={q} onChange={setQ} onClear={() => setQ('')} clearLabel={k('diag.clear')} placeholder={k('diag.search.placeholder')} label={k('diag.search.placeholder')} />}
+      top={
+        <>
+          <Search theme={theme} variant="page" value={q} onChange={setQ} onClear={() => setQ('')} clearLabel={k('diag.clear')} placeholder={k('diag.search.placeholder')} label={k('diag.search.placeholder')} />
+          {suggest.open ? (
+            <SearchSuggestList
+              items={suggest.items}
+              query={q}
+              onPick={(item) => {
+                const route = suggestionRoute(item);
+                if (!route) return;
+                suggest.close();
+                router.push({ pathname: route.pathname, params: route.params } as unknown as Href);
+              }}
+            />
+          ) : null}
+        </>
+      }
       data={shown}
       status={status}
       onRetry={() => void load()}

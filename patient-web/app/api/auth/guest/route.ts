@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { setSessionCookies } from "@/lib/auth/cookies";
+import { authCookieNames, setSessionCookies } from "@/lib/auth/cookies";
 import { callPatientApi } from "@/lib/api/upstream";
 import { boundedUpstreamError } from "@/lib/api/error-response";
 
@@ -15,7 +15,12 @@ function tokenPair(data: unknown) {
  * sensitive areas (insurance, family) exactly like the mobile app.
  */
 export async function POST(request: Request) {
-  const deviceId = request.headers.get("x-nabd-device-id") || crypto.randomUUID();
+  // 21.1: the device id is the identity of the guest. The browser sends it in a header (localStorage), and the BFF also keeps it
+  // in an HttpOnly cookie, so a call without the header (a second tab, a cleared storage) still reaches the SAME guest instead of
+  // opening a new one every time.
+  const cookieDevice = (request.headers.get("cookie") || "").match(new RegExp(`(?:^|;\\s*)${authCookieNames.device}=([^;]+)`))?.[1];
+  const plain = (v: string | null | undefined) => (v && /^[A-Za-z0-9._:-]{8,128}$/.test(v) ? v : "");
+  const deviceId = plain(request.headers.get("x-nabd-device-id")) || plain(cookieDevice && decodeURIComponent(cookieDevice)) || crypto.randomUUID();
   const upstream = await callPatientApi("/auth/guest", {
     method: "POST",
     headers: { "content-type": "application/json", "x-device-id": deviceId },

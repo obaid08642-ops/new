@@ -5,12 +5,12 @@ oplog slices, the slices to replay, and the recovery point objective the chain a
 Input (JSON on stdin): {"now": <epoch s>, "dumps": [{"key","base":"S I"}], "slices": [{"key","modified": <epoch s>}],
 "target": <epoch s, optional: restore to this moment>, "window": <seconds, default 86400>}
 Output (JSON): {"ok", "dump", "base", "slices": [keys in replay order], "end": "S I", "rpo_seconds", "error"}
-Slice keys look like oplog/oplog_<fromSec>.<fromInc>_<toSec>.<toInc>.bson.gz.enc"""
+Slice keys look like oplog/oplog_<fromSec>.<fromInc>_<toSec>.<toInc>.bson.gz.gpg"""
 import json
 import re
 import sys
 
-NAME = re.compile(r"oplog_(\d+)\.(\d+)_(\d+)\.(\d+)\.bson\.gz\.enc$")
+NAME = re.compile(r"oplog_(\d+)\.(\d+)_(\d+)\.(\d+)\.bson\.gz\.gpg$")
 
 
 def parse(entries):

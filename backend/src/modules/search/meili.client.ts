@@ -34,7 +34,8 @@ export function meiliSettings() {
   return {
     searchableAttributes: ['names.ar', 'names.en', 'names.ur', 'names.hi', 'names.bn', 'names.fil', 'text'],
     filterableAttributes: ['type', 'section'],
-    displayedAttributes: ['key', 'id', 'type', 'section', 'names', 'slug', 'price', 'specialty', 'code', 'requires_prescription', 'online_exclusive'],
+    // `boost` is returned (never used as a rule): suggestions break ties on it, as the MongoDB fallback does.
+    displayedAttributes: ['key', 'id', 'type', 'section', 'names', 'boost', 'slug', 'price', 'specialty', 'code', 'requires_prescription', 'online_exclusive'],
     rankingRules: ['words', 'typo', 'proximity', 'attribute', 'exactness'],
     typoTolerance: { enabled: true, minWordSizeForTypos: { oneTypo: 4, twoTypos: 8 } },
     synonyms: meiliSynonyms(),
@@ -80,6 +81,16 @@ export class MeiliClient {
 
   async clear(): Promise<void> {
     await this.req('DELETE', `/indexes/${MEILI_INDEX}/documents`);
+  }
+
+  /**
+   * Instant suggestions (issue 1544): one prefix search over every type. Meilisearch's prefix search answers the last
+   * word as it is typed, and its typo tolerance (typoTolerance in meiliSettings) finds a misspelt name. The tiers and the
+   * highlights are computed by the caller (suggest-rank.ts), not by Meilisearch's own ranking.
+   */
+  async suggest(q: string, limit: number): Promise<MeiliHit[]> {
+    const r = await this.req('POST', `/indexes/${MEILI_INDEX}/search`, { q, limit });
+    return Array.isArray(r?.hits) ? r.hits : [];
   }
 
   /** One query per type (home groups, or the types of one section), in one round trip. */

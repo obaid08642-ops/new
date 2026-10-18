@@ -1,10 +1,10 @@
 #!/bin/bash
 # ═══ Oplog slice backup for point-in-time recovery (20.8, RPO <= 15 min) ═══
 # Every 10 minutes (deploy/cron/nabd-backups) this dumps the oplog entries written since the previous slice, encrypts them
-# (AES-256, BACKUP_ENCRYPTION_KEY) and uploads them to the PRIVATE bucket under oplog/. Together with the nightly dump
+# (gpg AES-256, the same BACKUP_ENCRYPTION_PASSPHRASE_FILE as the nightly dump, 16.9) and uploads them to the PRIVATE bucket under oplog/. Together with the nightly dump
 # (backup.sh records where the oplog stood when it started) a restore can replay the database to any moment, and at most
 # one slice interval of writes is ever at risk. The slice name carries its bounds, so the chain can be checked for gaps:
-#   oplog/oplog_<fromSec>.<fromInc>_<toSec>.<toInc>.bson.gz.enc
+#   oplog/oplog_<fromSec>.<fromInc>_<toSec>.<toInc>.bson.gz.gpg
 # The first run starts a chain at "now"; a later run whose start is no longer in the oplog (it rolled over) reports a gap
 # and starts a new chain, so the next nightly dump becomes the base again. Reported to the admin page as kind "oplog".
 # Filtered to the application database plus transaction commits (admin.$cmd applyOps); no-ops are skipped.
@@ -19,7 +19,9 @@ fail() { echo "[$(date)] FAIL oplog slice: $1"; report oplog false "" "$1"; exit
 
 ERR=$(private_bucket_error)
 [ -z "$ERR" ] || fail "$ERR"
-[ -n "${BACKUP_ENCRYPTION_KEY:-}" ] || fail "BACKUP_ENCRYPTION_KEY not set (oplog slices contain every write and are never uploaded in the clear)"
+backup_encryption_enabled || fail "BACKUP_ENCRYPTION_PASSPHRASE_FILE not set (oplog slices contain every write and are never uploaded in the clear)"
+ENCERR=$(BACKUP_REQUIRE_ENCRYPTION=1 backup_encryption_error)
+[ -z "$ENCERR" ] || fail "$ENCERR"
 mkdir -p "$BACKUP_DIR"
 
 HEAD=$(oplog_head)
@@ -36,7 +38,7 @@ else
   exit 0
 fi
 
-NAME="oplog_${FROM_S}.${FROM_I}_${TO_S}.${TO_I}.bson.gz.enc"
+NAME="oplog_${FROM_S}.${FROM_I}_${TO_S}.${TO_I}.bson.gz.gpg"
 QUERY=$(printf '{"ts":{"$gt":{"$timestamp":{"t":%s,"i":%s}},"$lte":{"$timestamp":{"t":%s,"i":%s}}},"op":{"$ne":"n"},"$or":[{"ns":{"$regex":"^%s\\\\."}},{"ns":"admin.$cmd","o.applyOps":{"$exists":true}}]}' \
   "$FROM_S" "$FROM_I" "$TO_S" "$TO_I" "$DB_NAME")
 ARGS=()
@@ -52,7 +54,7 @@ if [ -n "${OLD_S:-}" ] && { [ "$OLD_S" -gt "$FROM_S" ] || { [ "$OLD_S" -eq "$FRO
 fi
 
 docker exec "$MONGO_CONTAINER" mongodump --quiet "${ARGS[@]}" --db=local --collection=oplog.rs --query="$QUERY" --out - \
-  | gzip -c | encrypt_stream > "$TMP/$NAME" || fail "mongodump of the oplog failed"
+  | gzip -c | backup_encrypt_stream > "$TMP/$NAME" || fail "mongodump of the oplog failed"
 [ -s "$TMP/$NAME" ] || fail "the oplog slice is empty (encryption failed)"
 SIZE=$(stat -c %s "$TMP/$NAME")
 

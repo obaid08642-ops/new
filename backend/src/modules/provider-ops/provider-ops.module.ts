@@ -1,3 +1,4 @@
+import { protectHealthDoc } from '../../common/health-fields';
 import { PROVIDER_ROLES } from '../../common/enums';
 import { escapeRegex } from '../../common/slug.util';
 /**
@@ -615,19 +616,19 @@ export class ProviderOpsService {
     if (!r.matchedCount) throw new NotFoundException('appointment not found');
     // Store consultation notes if provided
     if (body.notes || body.diagnosis) {
-      await this.conn.collection('consultationnotes').insertOne({
+      await this.conn.collection('consultationnotes').insertOne(protectHealthDoc('consultationnotes', {
         id: `note_${Date.now()}`, appointment_id: appointmentId, doctor_id: user.id,
         notes: body.notes || null, diagnosis: body.diagnosis || null, createdAt: now,
-      });
+      }));
     }
     // Store e-prescription if provided
     const appt: any = await this.conn.collection('doctor_appointments').findOne({ id: appointmentId });
     if (Array.isArray(body.prescription) && body.prescription.length) {
-      await this.conn.collection('prescriptions').insertOne({
+      await this.conn.collection('prescriptions').insertOne(protectHealthDoc('prescriptions', {
         id: `rx_${Date.now()}`, appointment_id: appointmentId, doctor_id: user.id,
         patient_id: appt?.patient_id || body.patient_id || null,
-        items: body.prescription, state: 'CREATED_BY_DOCTOR', createdAt: now,
-      });
+        items: body.prescription.map((i: any) => ({ ...i })), state: 'CREATED_BY_DOCTOR', createdAt: now,
+      }));   // 16.9: raw write, so the health fields are encrypted here
     }
     // LJ-09: earnings are credited by the unified service.completed listener.
     return { ok: true, state: 'completed' };

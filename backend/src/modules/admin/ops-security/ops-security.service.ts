@@ -3,7 +3,8 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { randomBytes } from 'crypto';
 import { MailService, escapeHtml } from '../../mail/mail.module';
-import { FieldEncryptionService } from '../../../common/pdpl-compliance.module';
+import { FieldEncryptionService, medicalAccessLogRetentionDays } from '../../../common/pdpl-compliance.module';
+import { HEALTH_FIELDS } from '../../../common/health-fields';
 
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
@@ -202,6 +203,12 @@ export class OpsSecurityService implements OnModuleInit {
       this.coll('medical_access_logs').find({}).sort({ created_at: -1 }).limit(200).toArray().catch(() => []),
     ]);
     return {
+      // 16.9: the state of the protection itself - the owner must see when health data is NOT encrypted
+      data_protection: {
+        field_encryption_enabled: this.crypto.isEnabled(),
+        encrypted_collections: Object.keys(HEALTH_FIELDS),
+        access_log_retention_days: medicalAccessLogRetentionDays(),
+      },
       requests: (requests as any[]).map((r) => ({
         id: r.id,
         type: r.type,

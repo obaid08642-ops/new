@@ -2,6 +2,7 @@ import { Controller, Get, HttpCode, Module, Post, Query, UseGuards } from '@nest
 import { IsIn, IsOptional, IsString, Matches, MaxLength } from 'class-validator';
 import { JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { PublicCache } from '../../common/public-cache.decorator';
 import { SEARCH_LOCALES, SEARCH_SECTIONS, SearchLocale, SearchSection } from './search-documents';
 import { SearchService } from './search.service';
 
@@ -12,6 +13,9 @@ export class SearchQueryDto {
   @IsOptional() @IsIn([...SEARCH_LOCALES]) locale?: SearchLocale;
   @IsOptional() @IsString() @Matches(/^\d{1,2}$/) limit?: string;
 }
+
+/** Owner spec (issue 1544): a suggestion may be reused for 5 minutes by the browser and for an hour at the edge. */
+export const SUGGEST_CACHE_CONTROL = 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400';
 
 export class SuggestQueryDto {
   @IsOptional() @IsString() @MaxLength(60) q?: string;
@@ -28,7 +32,13 @@ export class SearchController {
     return this.svc.search(dto.q || '', { section: dto.section, locale: dto.locale, limit: dto.limit ? Number(dto.limit) : undefined });
   }
 
-  @Public() @Get('suggest')
+  /**
+   * Anonymous answers are shared at the edge for an hour and purged by the `search` tag when the catalogue changes
+   * (SearchService.schedulePurge). A signed-in request gets `private, no-store` (CacheControlInterceptor).
+   */
+  @Public()
+  @PublicCache(3600, ['search'], { cacheControl: SUGGEST_CACHE_CONTROL })
+  @Get('suggest')
   suggest(@Query() dto: SuggestQueryDto) {
     return this.svc.suggest(dto.q || '', dto.locale);
   }

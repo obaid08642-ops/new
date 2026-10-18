@@ -9,7 +9,7 @@ S=deploy/scripts
 W=$(mktemp -d)
 export NABD_ENV_FILE=/dev/null BACKUP_DIR="$W/backups" DB_NAME=nabd_nestjs MONGO_CONTAINER=nabdah-mongodb
 export BACKUP_S3_ENDPOINT=http://127.0.0.1:5555 BACKUP_S3_BUCKET=nabd-backups-test BACKUP_S3_ACCESS_KEY_ID=bk-test BACKUP_S3_SECRET_ACCESS_KEY=bk-secret-test BACKUP_S3_REGION=us-east-1
-export BACKUP_ENCRYPTION_KEY=$(openssl rand -hex 32)
+openssl rand -hex 32 > "$W/pass"; chmod 400 "$W/pass"; export BACKUP_ENCRYPTION_PASSPHRASE_FILE="$W/pass"
 export BACKUP_REPORT_URL=http://127.0.0.1:5556 BACKUP_REPORT_TOKEN=$(openssl rand -hex 24)
 unset MONGO_ROOT_USER MONGO_ROOT_PASSWORD S3_BUCKET S3_ACCESS_KEY_ID
 n=0; bad=0
@@ -38,10 +38,10 @@ sh "const d=db.getSiblingDB('nabd_nestjs'); d.users.insertMany(Array.from({lengt
 bash $S/oplog-backup.sh >"$W/o0.log" 2>&1; check "oplog chain starts" $?
 sleep 2
 bash $S/backup.sh >"$W/b.log" 2>&1; check "nightly backup (dump + oplog start + encrypted off-site copy)" $?
-aws_b s3 ls "s3://$BACKUP_S3_BUCKET/mongodb/" | grep -q '\.gz\.enc$'; check "off-site dump is .enc" $?
-aws_b s3 ls "s3://$BACKUP_S3_BUCKET/mongodb/" | grep -q '\.gz\.enc\.oplogts$'; check "dump has its oplog start marker" $?
-aws_b s3 cp "s3://$BACKUP_S3_BUCKET/mongodb/$(aws_b s3 ls "s3://$BACKUP_S3_BUCKET/mongodb/" | awk '/\.gz\.enc$/{print $4}' | head -1)" "$W/enc" >/dev/null
-! gzip -dc "$W/enc" 2>/dev/null | grep -aq SECRET-MARKER; check "off-site dump is not readable without the key" $?
+aws_b s3 ls "s3://$BACKUP_S3_BUCKET/mongodb/" | grep -q '\.gz\.gpg$'; check "off-site dump is .gpg" $?
+aws_b s3 ls "s3://$BACKUP_S3_BUCKET/mongodb/" | grep -q '\.gz\.gpg\.oplogts$'; check "dump has its oplog start marker" $?
+aws_b s3 cp "s3://$BACKUP_S3_BUCKET/mongodb/$(aws_b s3 ls "s3://$BACKUP_S3_BUCKET/mongodb/" | awk '/\.gz\.gpg$/{print $4}' | head -1)" "$W/enc" >/dev/null
+! gzip -dc "$W/enc" 2>/dev/null | grep -aq SECRET-MARKER; check "off-site dump is not readable without the passphrase" $?
 
 # writes after the dump: slice 1
 sleep 2
@@ -53,12 +53,12 @@ sh "const s=db.getMongo().startSession(); s.startTransaction(); const d=s.getDat
 sh "db.getSiblingDB('nabd_nestjs').orders.insertOne({_id:'o-last'})" >/dev/null
 sleep 2
 bash $S/oplog-backup.sh >"$W/o2.log" 2>&1; check "oplog slice 2 (with a transaction)" $?
-aws_b s3 ls "s3://$BACKUP_S3_BUCKET/oplog/" | grep -c 'oplog_.*\.bson\.gz\.enc' | grep -q '^2$'; check "two encrypted slices off-site" $?
+aws_b s3 ls "s3://$BACKUP_S3_BUCKET/oplog/" | grep -c 'oplog_.*\.bson\.gz\.gpg' | grep -q '^2$'; check "two encrypted slices off-site" $?
 
 LIVE=$(counts); echo "live:     $LIVE"
 
 # the oplog backup refuses to run without a key (never uploads in the clear)
-( unset BACKUP_ENCRYPTION_KEY; bash $S/oplog-backup.sh >"$W/nokey.log" 2>&1 ); [ $? -ne 0 ]; check "no key -> oplog backup fails" $?
+( unset BACKUP_ENCRYPTION_PASSPHRASE_FILE; bash $S/oplog-backup.sh >"$W/nokey.log" 2>&1 ); [ $? -ne 0 ]; check "no passphrase -> oplog backup fails" $?
 
 bash $S/dr-drill.sh >"$W/drill.log" 2>&1; rc=$?; cat "$W/drill.log"
 check "DR drill passes from the off-site copies" $rc
@@ -77,7 +77,7 @@ check "dr_drill report carries RPO <= 900 s and RTO <= 3600 s" $?
 docker ps --format '{{.Names}}' | grep -q nabd-dr-drill; [ $? -ne 0 ]; check "throwaway mongod removed" $?
 
 # a wrong key fails the drill and reports it
-( BACKUP_ENCRYPTION_KEY=$(openssl rand -hex 32) bash $S/dr-drill.sh >"$W/wrongkey.log" 2>&1 ); [ $? -ne 0 ]; check "wrong key -> drill fails" $?
+( openssl rand -hex 32 > "$W/wrong"; BACKUP_ENCRYPTION_PASSPHRASE_FILE="$W/wrong" bash $S/dr-drill.sh >"$W/wrongkey.log" 2>&1 ); [ $? -ne 0 ]; check "wrong passphrase -> drill fails" $?
 tail -1 "$W/reports.jsonl" | grep -q '"kind":"dr_drill","ok":false'; check "failed drill is reported ok=false" $?
 
 # a hole in the chain: remove slice 1 -> no unbroken chain from the dump -> drill fails

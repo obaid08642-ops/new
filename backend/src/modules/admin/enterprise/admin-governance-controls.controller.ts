@@ -1,4 +1,7 @@
-import { BadRequestException, Body, Controller, Get, Optional, Post, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Logger, Optional, Post, Query, UseGuards } from '@nestjs/common';
+import { PurgeBus } from '../../../common/purge-bus';
+import { KILLSWITCH_FEATURES } from '../../../common/killswitches/killswitches.helper';
+import { SEARCH_CACHE_TAG } from '../../search/search-documents';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { HotCache } from '../../redis/hot-cache.service';
@@ -26,7 +29,10 @@ export class AdminGovernanceControlsController {
     @InjectConnection() private readonly conn: Connection,
     private readonly audit: AdminAuditService,
     @Optional() private readonly hotCache?: HotCache,
+    @Optional() private readonly purgeBus?: PurgeBus,
   ) {}
+
+  private readonly log = new Logger('AdminGovernanceControls');
 
   @Get('home-curation')
   @RequirePermissions(Permission.CMS_EDIT)
@@ -114,6 +120,15 @@ export class AdminGovernanceControlsController {
       this.conn.collection('featureflags').updateOne({ key }, { $set: doc, $setOnInsert: { createdAt: new Date() } }, { upsert: true }),
     ]);
     await this.audit.write({ action: 'feature_flag_update', actor: me, target_type: 'feature_flag', target_id: key, reason, before: before ? { enabled: before.enabled, rollout_percentage: before.rollout_percentage } : null, after: { enabled: doc.enabled, rollout_percentage: doc.rollout_percentage } });
+    // The suggestions are shared at the edge for an hour: a switch change (either way) purges them now, so a stale
+    // "off" (or a stale list) is not served. Fail-open: a failed purge is logged, the flag write stands.
+    if (key === KILLSWITCH_FEATURES.searchSuggestions) {
+      try {
+        await this.purgeBus?.purge([SEARCH_CACHE_TAG]);
+      } catch (error) {
+        this.log.warn(`purge ${SEARCH_CACHE_TAG} after ${key} failed: ${(error as Error)?.message ?? error}`);
+      }
+    }
     return doc;
   }
 
