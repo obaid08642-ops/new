@@ -184,6 +184,7 @@ import { ProviderProfileRepository } from './seo-repositories/providerprofile.re
 import { ArticleRepository } from './seo-repositories/article.repository';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { NOT_PROMOTABLE_FILTER } from '../medicines/promotion-rules';
 /** Orders of the public catalogue (#816); anything else is the default popularity order. */
 export const CATALOGUE_SORTS = ['popular', 'price_asc', 'price_desc', 'newest'] as const;
 export type CatalogueSort = (typeof CATALOGUE_SORTS)[number];
@@ -560,7 +561,7 @@ export class SeoSearchService {
     let equivalentIds: string[] = [];
     if (pattern) {
       const candidates: EquivalentRow[] = await col.find(
-        { ...this.publicProductFilter(), id: { $ne: id }, active_ingredient: { $regex: pattern, $options: 'i' }, price: { $gt: 0 } } as any,
+        { ...this.publicProductFilter(), ...NOT_PROMOTABLE_FILTER, id: { $ne: id }, active_ingredient: { $regex: pattern, $options: 'i' }, price: { $gt: 0 } } as any,
         { projection: { _id: 0, id: 1, active_ingredient: 1, strength: 1, form: 1, usage_count: 1, price: 1 } } as any,
       ).limit(500).toArray() as any;
       equivalentIds = rankEquivalents(med, candidates, max).map((r) => r.id);
@@ -577,7 +578,7 @@ export class SeoSearchService {
     for (const scope of scopes) {
       if (similarIds.length >= max) break;
       const rows: any[] = await col.find(
-        { ...this.publicProductFilter(), ...scope, id: { $nin: [id, ...similarIds] }, price: { $gt: 0 } } as any,
+        { ...this.publicProductFilter(), ...NOT_PROMOTABLE_FILTER, ...scope, id: { $nin: [id, ...similarIds] }, price: { $gt: 0 } } as any,
         { projection: { _id: 0, id: 1 } } as any,
       ).sort({ usage_count: -1, id: 1 }).limit(max - similarIds.length).toArray();
       similarIds.push(...rows.map((r) => r.id));
@@ -1090,25 +1091,25 @@ export class SeoSearchService {
     const queries: Array<Promise<any>> = [];
     // 1) Same active ingredient (strongest)
     if (med.active_ingredient) {
-      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ active_ingredient: med.active_ingredient, ...PUBLIC_MEDICINE } as any, { projection: card } as any).limit(20).toArray()
+      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ active_ingredient: med.active_ingredient, ...PUBLIC_MEDICINE, ...NOT_PROMOTABLE_FILTER } as any, { projection: card } as any).limit(20).toArray()
         .then(rows => rows.forEach(r => add(r, 50, 'نفس المادة الفعالة'))));
     }
     // 2) Same strength/dosage (within ingredient match)
     if (med.active_ingredient && med.strength) {
-      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ active_ingredient: med.active_ingredient, strength: med.strength, ...PUBLIC_MEDICINE } as any, { projection: card } as any).limit(10).toArray()
+      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ active_ingredient: med.active_ingredient, strength: med.strength, ...PUBLIC_MEDICINE, ...NOT_PROMOTABLE_FILTER } as any, { projection: card } as any).limit(10).toArray()
         .then(rows => rows.forEach(r => add(r, 15, 'نفس التركيز'))));
     }
     // 3) Same category + sub_category (usage similarity)
-    queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ category: med.category, sub_category: med.sub_category, ...PUBLIC_MEDICINE } as any, { projection: card } as any).limit(20).toArray()
+    queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ category: med.category, sub_category: med.sub_category, ...PUBLIC_MEDICINE, ...NOT_PROMOTABLE_FILTER } as any, { projection: card } as any).limit(20).toArray()
       .then(rows => rows.forEach(r => add(r, med.active_ingredient ? 10 : 30, 'نفس الفئة والاستخدام'))));
     // 4) Same brand/manufacturer
     const brand = med.brand || med.manufacturer;
     if (brand) {
-      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ $or: [{ brand }, { manufacturer: brand }], ...PUBLIC_MEDICINE } as any, { projection: card } as any).limit(15).toArray()
+      queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ $or: [{ brand }, { manufacturer: brand }], ...PUBLIC_MEDICINE, ...NOT_PROMOTABLE_FILTER } as any, { projection: card } as any).limit(15).toArray()
         .then(rows => rows.forEach(r => add(r, 8, 'نفس البراند'))));
     }
     // 5) Popularity boost (usage_count percentile)
-    queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ category: med.category, ...PUBLIC_MEDICINE } as any, { projection: card } as any).sort({ usage_count: -1 }).limit(10).toArray()
+    queries.push(this.conn.collection(CATALOG_COLLECTIONS.medicines).find({ category: med.category, ...PUBLIC_MEDICINE, ...NOT_PROMOTABLE_FILTER } as any, { projection: card } as any).sort({ usage_count: -1 }).limit(10).toArray()
       .then(rows => rows.forEach(r => add(r, Math.min(12, (r.usage_count || 0) / 10), 'الأكثر رواجاً'))));
     await Promise.all(queries);
 

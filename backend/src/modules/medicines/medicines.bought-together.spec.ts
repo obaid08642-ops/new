@@ -40,6 +40,17 @@ describe('MedicinesService promotion (22.3)', () => {
     expect(out[0].warnings.map((w) => w.code)).toEqual(['bleeding_risk']);
   });
 
+  it('shows only pairings seen in at least 3 orders, most frequent first, sorted before the limit', async () => {
+    const { svc, aggregate } = build({ source: paracetamol, pairs: [], candidates: [] });
+    await svc.frequentlyBoughtTogether('m-para');
+    const pipeline = (aggregate.mock.calls[0] as any[])[0] as Array<Record<string, any>>;
+    expect(pipeline).toContainEqual({ $match: { orders: { $gte: 3 } } });
+    const sortAt = pipeline.findIndex((st) => '$sort' in st);
+    const limitAt = pipeline.findIndex((st) => '$limit' in st);
+    expect(sortAt).toBeGreaterThanOrEqual(0);
+    expect(sortAt).toBeLessThan(limitAt);
+  });
+
   it('alternatives also exclude prescription and controlled items', async () => {
     const findFilter = jest.fn((..._args: any[]) => ({ limit: async () => [] }));
     const svc: any = Object.assign(Object.create(MedicinesService.prototype), {

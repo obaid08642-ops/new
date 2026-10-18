@@ -1269,6 +1269,9 @@ export class MedicinesService {
       { $match: { 'items.medicine_id': { $type: 'string', $ne: id } } },
       { $group: { _id: '$items.medicine_id', orders: { $addToSet: '$_id' } } },
       { $project: { orders: { $size: '$orders' } } },
+      // a pairing seen in fewer than MIN_CO_PURCHASE_ORDERS orders is not shown: one order must not be identifiable
+      { $match: { orders: { $gte: MIN_CO_PURCHASE_ORDERS } } },
+      { $sort: { orders: -1 } },
       { $limit: 50 },
     ]).toArray()) as unknown as { _id: string; orders: number }[];
     if (!pairs.length) return [];
@@ -2212,6 +2215,9 @@ export class MedicinesService {
     return { ok: true, updated: Object.keys({ ...clean, ...extra }), requires_reapproval: requiresReapproval };
   }
 }
+
+/** A pairing shown to anyone must come from at least this many orders. */
+const MIN_CO_PURCHASE_ORDERS = 3;
 
 function medicineNames(m: any): string[] {
   return [m.active_ingredient, m.generic_name, m.name_en, m.name_ar].filter((n) => typeof n === 'string' && n.length > 0);

@@ -103,6 +103,7 @@ export class EntityGraphService implements OnModuleInit {
       alternatives = await medCol
         .find({
           ...PUBLIC_MEDICINE,
+          ...NOT_PROMOTABLE_FILTER,
           active_ingredient: activeIng,
           _id: { $ne: medicine._id },
         })
