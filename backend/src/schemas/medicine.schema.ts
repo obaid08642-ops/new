@@ -110,6 +110,11 @@ export class Medicine {
   @Prop() country_of_origin?: string;
   @Prop({ default: false }) translation_conflict: boolean; // source flagged a translation inconsistency
   @Prop() review_reason?: string;
+  // ============ VARIANTS (owner decision D, issue 1556) ============
+  // One product with a picker: records that differ only by lens power, colour or shade share a variant_group, set by
+  // scripts/migrations/2026-10-catalogue-variant-groups.ts from the English name (variant-grouping.ts). Never deleted.
+  @Prop({ index: true, sparse: true }) variant_group?: string;
+  @Prop({ type: Object, default: undefined }) variant?: { kind: string; power?: number; colour?: string; shade?: string; position: number; source: string };
 }
 export type MedicineDocument = Medicine & Document;
 export const MedicineSchema = SchemaFactory.createForClass(Medicine);

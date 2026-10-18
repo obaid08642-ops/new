@@ -153,6 +153,15 @@ import { resolveMedicinePublicDto, productLocaleToDb, PUBLIC_CATALOG_LOCALES } f
 import { toPublicMedicine, toPublicProductCard } from '../medicines/public-medicine';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { EquivalentRow, ingredientCandidatePattern, ingredientParts, rankEquivalents } from './product-equivalents';
+import { comparePower } from '../medicines/variant-grouping';
+
+/** What a variant row of the picker needs (decision D): names and slugs per locale, price, availability, pictures. */
+const VARIANT_PROJECTION: Record<string, 0 | 1> = {
+  _id: 0, id: 1, sku: 1, slug: 1, name_ar: 1, name_en: 1, price: 1, old_price: 1, requires_prescription: 1, is_rx: 1,
+  online_exclusive: 1, availability_status: 1, images: 1, image: 1, image_1: 1, image_2: 1, image_3: 1, image_4: 1, image_5: 1,
+  variant: 1, variant_group: 1,
+  ...Object.fromEntries(['ar', 'en', 'ur', 'hi', 'bn', 'tl'].flatMap((l) => [[`translations.${l}.name`, 1], [`translations.${l}.slug`, 1]])),
+};
 // P5.3: merged from SeoModule (seo/ → seo-search/)
 import { MedicineSchema } from '../../schemas/medicine.schema';
 import { LabServiceSchema } from '../../schemas/lab.schema';
@@ -426,6 +435,36 @@ export class SeoSearchService {
     );
     if (!med) throw new NotFoundException('product_not_found');
     return resolveMedicinePublicDto(med, locale);
+  }
+
+  /**
+   * Decision D (issue 1556): the variants of a product (one product in several powers, colours or shades), each its
+   * own published record with its own SKU, price and picture. Same visibility as the product page (publicProductFilter)
+   * and the same per-locale projection (resolveMedicinePublicDto). Sorted for the picker: colour or shade, then power
+   * (plano, minus from −0.25 down, then plus), then the stored order.
+   */
+  async publicProductVariants(locale: string, id: string) {
+    const col = this.conn.collection(CATALOG_COLLECTIONS.medicines);
+    const med: any = await col.findOne({ ...this.publicProductFilter(), id }, { projection: { _id: 0, id: 1, variant_group: 1 } });
+    if (!med) throw new NotFoundException('product_not_found');
+    if (!med.variant_group) return { id, variant_group: null, kind: null, variants: [] };
+    const rows: any[] = await col
+      .find({ ...this.publicProductFilter(), variant_group: med.variant_group }, { projection: VARIANT_PROJECTION } as any)
+      .limit(1000)
+      .toArray();
+    const variants = rows.map((m) => {
+      const dto = resolveMedicinePublicDto(m, locale);
+      return {
+        id: dto.id, sku: dto.sku, slug: dto.slug, name: dto.name, price: dto.price, old_price: dto.old_price, currency: dto.currency,
+        is_rx: dto.is_rx, online_exclusive: dto.online_exclusive, available: dto.available, availability_status: dto.availability_status,
+        image: dto.image, variant: dto.variant,
+      };
+    }).filter((v) => v.variant);
+    variants.sort((a, b) => String(a.variant!.colour || a.variant!.shade || '').localeCompare(String(b.variant!.colour || b.variant!.shade || ''))
+      || comparePower(a.variant!.power ?? undefined, b.variant!.power ?? undefined)
+      || a.variant!.position - b.variant!.position);
+    const kinds = new Set(variants.map((v) => v.variant!.kind));
+    return { id, variant_group: med.variant_group, kind: kinds.size === 1 ? [...kinds][0] : 'colour_power', variants };
   }
 
   /** Strict per-locale public product DTO by canonical SKU (AI-commerce lookup). */
@@ -1279,6 +1318,14 @@ export class SeoSearchController {
   publicProductById(@Param('locale') locale: string, @Param('id') id: string) {
     if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
     return this.svc.publicProductById(locale, id);
+  }
+
+  /** Decision D (issue 1556): the variants (powers, colours, shades) of a published product, for the picker. */
+  @Public()
+  @Get('public/product-variants/:locale/:id')
+  publicProductVariants(@Param('locale') locale: string, @Param('id') id: string) {
+    if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
+    return this.svc.publicProductVariants(locale, String(id || '').slice(0, 120));
   }
 
   /** AI-commerce: canonical SKU lookup. */
