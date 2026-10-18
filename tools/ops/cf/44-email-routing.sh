@@ -32,6 +32,8 @@ names() { echo "$1" | jq -r '.result[] | "\(.type) \(.name)"' | sort; }
 # ---------------------------------------------------------------- 1. before
 spf_ok "$D0" && say "SPF before: one record with brevo, mailjet and amazonses" || { say "BLOCKED SPF is not in the expected shape before the change ($(spfcount "$D0") record(s)); fix SPF first (cf:41-mail-verify)"; exit 1; }
 FOREIGN=$(echo "$D0" | jq -r --arg d "$DOMAIN" '[.result[] | select(.type == "MX" and .name == $d and (.content | test("mx.cloudflare.net$") | not))] | length')
+# the mail server names (public DNS data, no secret) of every apex MX, so the owner can tell what receives mail today
+echo "$D0" | jq -r --arg d "$DOMAIN" '.result[] | select(.type == "MX" and .name == $d) | "cf: email apex MX \(.priority // "-") \(.content)"'
 [ "$FOREIGN" = 0 ] || { say "BLOCKED $FOREIGN apex MX record(s) of another mail provider exist on $DOMAIN: routing would take over the mailbox. Nothing changed"; exit 1; }
 CFMX=$(echo "$D0" | jq -r --arg d "$DOMAIN" '[.result[] | select(.type == "MX" and .name == $d)] | length')
 say "apex MX records now: $CFMX (Cloudflare's)"
