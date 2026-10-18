@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { cdnImage, getPublicEquivalents, readPublicProduct, type PublicProduct, type PublicProductCard } from "@/lib/api/public-products-server";
+import { cdnImage, getPublicEquivalents, getPublicVariants, readPublicProduct, type PublicProduct, type PublicProductCard } from "@/lib/api/public-products-server";
 import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
 import { JsonLd } from "@/components-next/json-ld";
 import { isLocale, locales } from "@/lib/i18n";
@@ -17,7 +17,8 @@ import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { CatalogSearch } from "@/components-next/pharmacy/catalog-search";
 import { ChipLink } from "@/components-next/pharmacy/chip-link";
-import { BuyActions, BuyBar, BuyProvider } from "@/components-next/pharmacy/product-buy";
+import { BuyActions, BuyBar, BuyPrice, BuyProvider, type BuyVariant } from "@/components-next/pharmacy/product-buy";
+import { VariantGallery, VariantPicker } from "@/components-next/pharmacy/variant-picker";
 import { ProductGallery } from "@/components-next/pharmacy/product-gallery";
 import { ProductGrid, type GridProduct } from "@/components-next/pharmacy/product-grid";
 import { productCardImageSrc } from "@/components-next/pharmacy/catalog-image";
@@ -202,6 +203,13 @@ export default async function PublicProductPage({ params }: Props) {
   const crossedPrice = promoOldPrice(product, product.price, product.old_price);
   const money = formatPrice(locale, product.price);
 
+  // Decision D (issue 1556): the product's variants (powers, colours, shades), each its own record with its own SKU and price.
+  const variants: BuyVariant[] = (await getPublicVariants(locale, product)).map((v) => ({
+    id: v.id, sku: v.sku, slug: v.slug, name: v.name || name, price: v.price, image: cdnImage(v.image) || null,
+    available: v.available && v.price > 0, power: v.variant.power, colour: v.variant.colour, shade: v.variant.shade, kind: v.variant.kind,
+  }));
+  const hasVariants = variants.length > 1;
+
   // Issue 1547: equivalents by the normalized active ingredient (same strength first), or, when there is none, similar
   // products of the same therapeutic class / category. Both empty: no section and no heading.
   const related = await getPublicEquivalents(locale, product.id);
@@ -263,6 +271,7 @@ export default async function PublicProductPage({ params }: Props) {
   return (
     <BuyProvider
       locale={locale}
+      variants={hasVariants ? variants : undefined}
       product={{
         id: product.id,
         name,
@@ -308,7 +317,11 @@ export default async function PublicProductPage({ params }: Props) {
           </nav>
 
           <section className={styles.hero}>
-            <ProductGallery name={name} images={images} itemId={product.id} locale={locale} badge={percent > 0 ? t("discount", { percent: formatNumber(locale, percent) }) : undefined} />
+            {hasVariants ? (
+              <VariantGallery name={name} images={images} pageProductId={product.id} locale={locale} badge={percent > 0 ? t("discount", { percent: formatNumber(locale, percent) }) : undefined} />
+            ) : (
+              <ProductGallery name={name} images={images} itemId={product.id} locale={locale} badge={percent > 0 ? t("discount", { percent: formatNumber(locale, percent) }) : undefined} />
+            )}
 
             <div className={styles.info}>
               <div className={styles.chipsRow}>
@@ -338,7 +351,14 @@ export default async function PublicProductPage({ params }: Props) {
               </div>
 
               <Card elevation="card" padding="lg">
-                {hasPrice ? (
+                {hasVariants ? <VariantPicker locale={locale} /> : null}
+                {hasPrice && hasVariants ? (
+                  <div className={styles.priceBlock}>
+                    {/* each variant has its own price: drawn for the chosen one (no crossed-out price across variants) */}
+                    <BuyPrice locale={locale} className={styles.priceRow} amountClassName={styles.price} currencyClassName={styles.currency} />
+                    <div className={styles.priceNote}>{b("taxIncluded")}</div>
+                  </div>
+                ) : hasPrice ? (
                   <div className={styles.priceBlock}>
                     <div className={styles.priceRow}>
                       <strong className={styles.price}>{money.amount}</strong>

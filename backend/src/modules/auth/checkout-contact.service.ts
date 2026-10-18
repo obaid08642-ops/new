@@ -11,6 +11,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { parsePhoneNumberFromString, CountryCode } from 'libphonenumber-js';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { randomUUID } from 'crypto';
 
 export interface NormalizedPhone {
   e164: string;
@@ -27,10 +28,55 @@ export interface CodLimits {
 
 export type CodGate = { allowed: true; limits: CodLimits } | { allowed: false; code: string; limits: CodLimits };
 
-const DEFAULT_COD_LIMITS: CodLimits = {
-  max_value: Number(process.env.GUEST_COD_MAX_VALUE || 500),
-  max_open_orders: Number(process.env.GUEST_COD_MAX_OPEN_ORDERS || 2),
-};
+/** Statuses of a pharmacy order that is still open on cash on delivery (PharmacyOrderState values). */
+const OPEN_COD_STATES = ['cod_due_on_delivery', 'confirmed', 'in_fulfillment', 'out_for_delivery'];
+
+/**
+ * The limits for an unverified phone. The admin sets them in `system_configs.payment_rules`
+ * (`unverified_cod_max_sar`, `unverified_cod_max_open_orders`); the env values are the fallback.
+ */
+async function readCodLimits(db: Connection): Promise<CodLimits> {
+  const doc: any = await db.collection('system_configs').findOne({ key: 'payment_rules' });
+  const value = Number(doc?.value?.unverified_cod_max_sar);
+  const open = Number(doc?.value?.unverified_cod_max_open_orders);
+  return {
+    max_value: value > 0 ? value : Number(process.env.GUEST_COD_MAX_VALUE || 500),
+    max_open_orders: open > 0 ? Math.floor(open) : Number(process.env.GUEST_COD_MAX_OPEN_ORDERS || 2),
+  };
+}
+
+/** The phone number is verified only when a channel confirmed it (a code, or the provider after a call). */
+export async function isPhoneVerified(db: Connection, accountId: string): Promise<boolean> {
+  const user: any = await db.collection('users').findOne({ id: accountId }, { projection: { phone_verified: 1 } });
+  return user?.phone_verified === true;
+}
+
+/** True when the account has a phone the provider can call: the profile's own, or the one saved at checkout. */
+export async function hasContactPhone(db: Connection, accountId: string): Promise<boolean> {
+  const user: any = await db.collection('users').findOne({ id: accountId }, { projection: { phone: 1 } });
+  if (typeof user?.phone === 'string' && user.phone.trim()) return true;
+  const saved: any = await db.collection('patient_addresses').findOne({ user_id: accountId, kind: 'checkout_contact' }, { projection: { phone_e164: 1 } });
+  return typeof saved?.phone_e164 === 'string' && saved.phone_e164.length > 0;
+}
+
+/**
+ * 21.5 — the cash-on-delivery limit for a customer whose phone was never verified: a cap on the value and on the
+ * open cash orders. A verified phone, and every card payment, is out of its reach. `exceptOrderId` is the order being
+ * registered, so it never counts against itself.
+ */
+export async function assertUnverifiedCodAllowed(db: Connection, accountId: string, amount: number, exceptOrderId?: string): Promise<void> {
+  if (!Number.isFinite(amount) || amount <= 0) throw new BadRequestException('order_amount_invalid');
+  if (await isPhoneVerified(db, accountId)) return;
+  const limits = await readCodLimits(db);
+  const open = await db.collection('pharmacy_orders').countDocuments({
+    patient_account_id: accountId,
+    payment_method: 'cod',
+    status: { $in: OPEN_COD_STATES },
+    ...(exceptOrderId ? { id: { $ne: exceptOrderId } } : {}),
+  });
+  if (open >= limits.max_open_orders) throw new BadRequestException('cod_limit_reached_for_unverified_customer');
+  if (amount > limits.max_value) throw new BadRequestException('cod_value_limit_for_unverified_customer');
+}
 
 /** Arabic-Indic (٠-٩) and Eastern Arabic-Indic (۰-۹) to Latin. */
 export function normalizeDigits(input: string): string {
@@ -85,41 +131,48 @@ export class CheckoutContactService {
       },
       { upsert: true },
     );
+    const line = (dto.address ?? '').trim();
+    if (line) await this.saveProfileAddress(accountId, line, dto.label);
     const existing = await this.connection.collection('users').findOne({ id: accountId }, { projection: { phone_verified: 1 } });
     return {
       phone,
       phone_verified: existing?.phone_verified === true,
-      address_stored: Boolean(dto.address && dto.address.trim()),
+      address_stored: Boolean(line),
     };
   }
 
-  /**
-   * The risk control: cash on delivery is limited for a new, unverified
-   * customer (a cap on value and on open orders). Card payment is never
-   * limited by this rule.
-   */
-  async cashOnDeliveryLimits(accountId: string): Promise<CodGate> {
-    const user = await this.connection.collection('users').findOne({ id: accountId });
-    const verified = user?.phone_verified === true;
-    const orders = await this.connection
-      .collection('pharmacy_orders')
-      .countDocuments({ patient_id: accountId, payment_method: 'cash', state: { $in: ['pending', 'accepted', 'preparing', 'dispatched'] } });
-    if (verified || orders < DEFAULT_COD_LIMITS.max_open_orders) {
-      return { allowed: true, limits: DEFAULT_COD_LIMITS };
-    }
-    return { allowed: false, code: 'cod_limit_reached_for_unverified_customer', limits: DEFAULT_COD_LIMITS };
+  /** The address goes to the profile's address book (what the app and the website list), once per identical line. */
+  private async saveProfileAddress(accountId: string, line: string, label?: string): Promise<void> {
+    const profiles = this.connection.collection('patient_profiles');
+    const profile: any = await profiles.findOne({ user_id: accountId }, { projection: { addresses: 1 } });
+    const book: any[] = Array.isArray(profile?.addresses) ? profile.addresses : [];
+    if (book.some((a) => (a?.street || a?.line1) === line)) return;
+    // The mobile app reads `street`, the website `line1`: both are stored, as POST /users/me/addresses does.
+    const entry = { id: randomUUID(), label: label ?? 'checkout', street: line, line1: line, is_default: book.length === 0 };
+    await profiles.updateOne({ user_id: accountId }, { $push: { addresses: entry } as any, $setOnInsert: { user_id: accountId } }, { upsert: true });
+  }
+
+  /** The limits that apply to this account right now (the app shows them before the patient picks cash). */
+  async cashOnDeliveryLimits(accountId: string): Promise<CodGate & { phone_verified: boolean; open_cod_orders: number }> {
+    const limits = await readCodLimits(this.connection);
+    const verified = await isPhoneVerified(this.connection, accountId);
+    const open = await this.connection.collection('pharmacy_orders').countDocuments({ patient_account_id: accountId, payment_method: 'cod', status: { $in: OPEN_COD_STATES } });
+    const allowed = verified || open < limits.max_open_orders;
+    return allowed
+      ? { allowed: true, limits, phone_verified: verified, open_cod_orders: open }
+      : { allowed: false, code: 'cod_limit_reached_for_unverified_customer', limits, phone_verified: verified, open_cod_orders: open };
+  }
+
+  /** Enforce both cash limits for an unverified customer. Card payment never calls this. */
+  assertCashOrderAllowed(accountId: string, amount: number, exceptOrderId?: string): Promise<void> {
+    return assertUnverifiedCodAllowed(this.connection, accountId, amount, exceptOrderId);
   }
 
   /**
-   * Enforce both cash limits for an unverified customer. Card payment never
-   * calls this, so card orders are unaffected.
+   * A channel confirmed the phone (a WhatsApp/SMS code when enabled, or the provider after calling the patient).
+   * Nothing else sets the flag.
    */
-  async assertCashOrderAllowed(accountId: string, amount: number): Promise<void> {
-    if (!Number.isFinite(amount) || amount <= 0) throw new BadRequestException('order_amount_invalid');
-    const user = await this.connection.collection('users').findOne({ id: accountId });
-    if (user?.phone_verified === true) return;
-    const gate = await this.cashOnDeliveryLimits(accountId);
-    if (gate.allowed === false) throw new BadRequestException(gate.code);
-    if (amount > gate.limits.max_value) throw new BadRequestException('cod_value_limit_for_unverified_customer');
+  async markPhoneVerified(accountId: string, source: 'otp' | 'provider_call'): Promise<void> {
+    await this.connection.collection('users').updateOne({ id: accountId }, { $set: { phone_verified: true, phone_verified_at: new Date(), phone_verified_by: source } });
   }
 }

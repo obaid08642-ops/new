@@ -1,6 +1,7 @@
 import { HttpClient } from '../src/services/HttpClient';
 import { STORAGE_KEYS } from '../src/constants';
 import { secureDelete, secureGet, secureSet } from '../src/utils/security';
+import { ensureInstallChecked } from '../src/utils/installCheck';
 
 /**
  * M1-01 — REAL network client (replaces the former in-memory mock that returned
@@ -21,6 +22,7 @@ import { secureDelete, secureGet, secureSet } from '../src/utils/security';
 const TOKEN_KEYS = [STORAGE_KEYS.AUTH_TOKEN, 'userToken'];
 
 async function getStoredToken(): Promise<string | null> {
+  await ensureInstallChecked();   // 21.1: a reinstall must not reopen the previous install's session from the Keychain
   for (const key of TOKEN_KEYS) {
     try {
       const token = await secureGet(key);

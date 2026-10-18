@@ -155,7 +155,7 @@ export class PharmacyOrder extends Document {
   }>;
 
   @Prop({ type: Object }) delivery_address?: {
-    city?: string; district?: string; street?: string;
+    city?: string; district?: string; street?: string; short_address?: string;
     geo?: { lat: number; lng: number }; notes?: string;
   };
   @Prop() patient_notes?: string;
@@ -232,6 +232,14 @@ export class PharmacyOrder extends Document {
 
   @Prop({ type: [Object], default: [] }) timeline: Array<{ ts: Date; event: string; by?: string; meta?: any }>;
   @Prop() cancellation_reason?: string;
+  /** 22.5 — counts edits after the order was sent to pharmacies (1 = never edited); offers quoted for an older version must be requoted. */
+  @Prop({ default: 1 }) edit_revision?: number;
+  /** 22.5 — an order split off this one when the chosen pharmacy could not fill everything (and the other way round). */
+  @Prop() split_child_order_id?: string;
+  /** 22.5 — set by whoever is creating the split order, so only one request does. */
+  @Prop() split_claim?: Date;
+  @Prop() parent_order_id?: string;
+  @Prop() split_from_offer_id?: string;
 }
 export const PharmacyOrderSchema = SchemaFactory.createForClass(PharmacyOrder);
 PharmacyOrderSchema.index({ patient_account_id: 1, status: 1, createdAt: -1 });
@@ -423,6 +431,8 @@ export class PharmacyOffer extends Document {
   @Prop({ maxlength: 500 }) provider_note?: string;
   @Prop({ required: true, index: true }) quote_expires_at: Date;
   @Prop() expired_at?: Date;
+  /** 22.5 — the patient edited the order after this quote was made: it is a draft again and must be requoted before it can be chosen. */
+  @Prop() requote_required?: boolean;
   /** Short fencing lease used by a durable command when a quote becomes due. */
   @Prop({ type: Object }) expiry_claim?: { token: string; claimed_at: Date; lease_expires_at: Date };
   @Prop() estimated_preparation_minutes?: number;

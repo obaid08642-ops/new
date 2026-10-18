@@ -1,0 +1,56 @@
+name: SBOM (CycloneDX)
+
+# Phase 16.7: a software bill of materials per app and per release. Trivy reads every lockfile (package-lock.json,
+# pnpm-lock.yaml) and writes CycloneDX JSON, so what shipped can be searched when a new advisory is published.
+# On a published release the files are attached to the release; on a pull request that touches a lockfile they are
+# generated and validated (non-empty, CycloneDX, every runtime dependency listed) so the release job cannot fail late.
+
+on:
+  release:
+    types: [published]
+  pull_request:
+    paths:
+      - '**/package-lock.json'
+      - 'patient-web/pnpm-lock.yaml'
+      - '.github/workflows/sbom.yml'
+      - 'tools/audit/check_sbom.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sbom:
+    name: SBOM (${{ matrix.app }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # attach the file to the release
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [backend, admin, patient-web, patient-app, provider-app]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.12'
+      - name: Generate the CycloneDX SBOM from the lockfile
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: ${{ matrix.app }}
+          format: cyclonedx
+          output: sbom-${{ matrix.app }}.cdx.json
+          skip-dirs: node_modules
+      - name: The SBOM is CycloneDX and lists every runtime dependency of package.json
+        run: python3 tools/audit/check_sbom.py ${{ matrix.app }} sbom-${{ matrix.app }}.cdx.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: sbom-${{ matrix.app }}
+          path: sbom-${{ matrix.app }}.cdx.json
+          retention-days: 365
+      - name: Attach to the release
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ github.event.release.tag_name }}" "sbom-${{ matrix.app }}.cdx.json" --clobber

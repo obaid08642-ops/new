@@ -1,3 +1,4 @@
+import { MedicalAccessLogService, logMedicalRead } from '../../common/pdpl-compliance.module';
 import { escapeRegex } from '../../common/slug.util';
 import { pickAttribution } from '../../common/attribution';
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException, Logger, Inject, Optional } from '@nestjs/common';
@@ -44,6 +45,7 @@ export class AppointmentsService {
     private insurance: InsuranceFlowService,
     @Optional() private locks?: SlotLocksService,
     @Optional() private readonly killSwitches?: KillSwitchesService,
+    @Optional() private readonly accessLog?: MedicalAccessLogService,
   ) {}
 
   /**
@@ -707,14 +709,18 @@ export class AppointmentsService {
     if (!appt.summary || !(appt.summary.diagnosis || appt.summary.notes || (appt.summary.prescription || []).length)) {
       throw new NotFoundException('summary not available yet');
     }
+    // 16.9: the consultation summary is a medical record: a row for every read
+    await logMedicalRead(this.accessLog, user, [{ kind: 'consultation_summary', id: String(id), action: 'read', subject_id: appt.patient_id }]);
+    // a plain object (getters applied: the summary text is ciphertext in the database), not the Mongoose subdocument
+    const summary: any = typeof (appt as any).toObject === 'function' ? ((appt as any).toObject().summary ?? appt.summary) : appt.summary;
     // 660: backfill catalogue ids for legacy lines; 661/683: attach outcome referrals.
     const prescription: any[] = [];
-    for (const line of appt.summary.prescription || []) {
+    for (const line of summary.prescription || []) {
       const medicineId = line?.medicine_id || await this.resolvePrescriptionMedicineId(line?.name);
       prescription.push({ ...line, medicine_id: medicineId, ...(await this.orderLinkForMedicine(medicineId)) });
     }
     const referrals = await this.outcomeReferrals(appt);
-    const out: any = { doctor_id: appt.doctor_id, ...appt.summary, prescription };
+    const out: any = { doctor_id: appt.doctor_id, ...summary, prescription };
     if (referrals) {
       out.referrals = referrals;
       const actions: any = {};
@@ -734,10 +740,10 @@ export class AppointmentsService {
       }
       if (Object.keys(actions).length > 0) out.referral_actions = actions;
     }
-    if (appt.summary.follow_up_recommended && appt.doctor_id) {
+    if (summary.follow_up_recommended && appt.doctor_id) {
       const seg = encodeURIComponent(String(appt.doctor_id));
       out.follow_up_action = {
-        action: { type: 'book_followup', doctor_id: appt.doctor_id, window_days: appt.summary.follow_up_window_days ?? null },
+        action: { type: 'book_followup', doctor_id: appt.doctor_id, window_days: summary.follow_up_window_days ?? null },
         deep_link: `nabdplus://consultations/doctor/${seg}`,
         web_path: `/ar/consultations/book/${seg}`,
       };

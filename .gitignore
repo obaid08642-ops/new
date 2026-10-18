@@ -57,3 +57,4 @@ deploy/coturn/turnserver.rendered.conf
 !**/.env.example
 !.env.*.example
 !**/.env.*.example
+__pycache__/

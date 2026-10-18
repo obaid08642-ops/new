@@ -26,6 +26,8 @@ const patientReadRoutes = [
   new RegExp("^/insurance/requests/my$", "i"),
   new RegExp(`^/insurance/requests/${orderId}$`, "i"),
   new RegExp("^/users/me/addresses$", "i"),
+  // 19.7 components-next/account/address-book: a Saudi National Address short code looked up at Saudi Post.
+  new RegExp("^/national-address/lookup\\?code=[A-Za-z0-9 %-]{1,40}$", "i"),
   // components-next/account/geo-select: regions, cities and districts through the proxy (needs-review issue 780).
   new RegExp("^/locations/(regions|cities)$", "i"),
   new RegExp("^/locations/districts\\?city=[^&#]{1,120}$", "i"),

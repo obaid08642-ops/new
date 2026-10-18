@@ -32,6 +32,18 @@ export S3_ACCESS_KEY_ID="${S3_ACCESS_KEY_ID:-live}" S3_SECRET_ACCESS_KEY="${S3_S
 export SES_SMTP_HOST=127.0.0.1 SES_SMTP_PORT=2525 SES_SMTP_USER=live SES_SMTP_PASS=live SES_FROM=no-reply@nabd.test
 # SES is only in the chain when it is ordered (owner spec 2026-10-16); the live stack orders it so mail reaches smtp_sink.
 # j_mail_rotation starts its own backends with Resend/Brevo/Mailjet pointed at tools/live/fake_mail.py.
+# 19.7: Saudi Post National Address lookups go to tools/live/fake_spl.py (RRRD2929 and JEDA1234 exist).
+# (the template is kept in a variable: a literal {code} inside ${VAR:-...} ends the expansion at the first "}" in bash)
+SPL_DEFAULT_URL='http://127.0.0.1:9102/address?shortaddress={code}&api_key={key}'
+export SPL_API_URL="${SPL_API_URL:-$SPL_DEFAULT_URL}" SPL_API_KEY="${SPL_API_KEY:-live}"
+# 16.5: every upload is scanned; tools/live/fake_clamd.py stands in for ClamAV (it flags the EICAR test string).
+export CLAMD_HOST="${CLAMD_HOST:-127.0.0.1}" CLAMD_PORT="${CLAMD_PORT:-3311}" UPLOAD_SCAN="${UPLOAD_SCAN:-required}"
+# Every workflow that starts a backend this way (live gate, scale rehearsal, capacity, schemathesis ...) needs the stand-in running:
+# start it here when nothing answers on its port, so no workflow has to remember (a missing scanner is a 503 on every upload).
+if [[ "$CLAMD_HOST" == 127.0.0.1 && "$CLAMD_PORT" == 3311 ]] && ! (exec 3<>/dev/tcp/127.0.0.1/3311) 2>/dev/null; then
+  nohup python3 "$(dirname "$0")/fake_clamd.py" > /tmp/clamd.log 2>&1 &
+  for _ in 1 2 3 4 5 6 7 8 9 10; do (exec 3<>/dev/tcp/127.0.0.1/3311) 2>/dev/null && break; sleep 0.5; done
+fi
 export MAIL_PROVIDER_ORDER="${MAIL_PROVIDER_ORDER:-ses}"
 export ALLOWED_ORIGINS="${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3001,http://localhost:8081,http://localhost:8082}"
 export CORS_ORIGINS="$ALLOWED_ORIGINS"
@@ -61,6 +73,11 @@ export NABD_ADMIN_DEVICE="${NABD_ADMIN_DEVICE:-live-gate-owner-macbook-01}"
 # A catalogue write purges the website's cached product pages (PurgeBus -> POST /api/revalidate, tag `medicines`). The gate
 # serves the website on :3100 (start-web.sh gets the same secret), so a journey can edit a product and read the new page.
 export NEXT_REVALIDATE_URL="${NEXT_REVALIDATE_URL:-http://127.0.0.1:${PATIENT_WEB_PORT:-3100}/api/revalidate}" NEXT_REVALIDATE_SECRET="${NEXT_REVALIDATE_SECRET:-live-gate-revalidate-secret}"
+# 16.9: health fields are encrypted in the live stack too. One key per gate run, kept in a file so a restarted backend (the gate
+# restarts it) can still read what the previous process wrote; nothing secret is committed.
+KEYFILE="${FIELD_KEY_FILE:-/tmp/nabd-live-field-key}"
+[[ -s "$KEYFILE" ]] || { umask 077; openssl rand -base64 32 > "$KEYFILE"; }
+export FIELD_ENCRYPTION_KEY="${FIELD_ENCRYPTION_KEY:-$(cat "$KEYFILE")}"
 LOG="${BACKEND_LOG:-/tmp/nabd-backend.log}"
 nohup node --max-old-space-size=1500 dist/main.js > "$LOG" 2>&1 &
 echo $! > "$LOG.pid"

@@ -10,6 +10,7 @@ import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { AccountScreen, ToggleRow, useFlags } from './AccountKit';
+import { isStorageItemKey, type StorageItemKey } from './serverText';
 
 /**
  * Privacy and data (merge map section 3): three sections in one screen, `?tab=privacy|data|delete`.
@@ -53,13 +54,15 @@ function PrivacyTab() {
   );
 }
 
-interface StorageItem { label?: string; val?: string; pct?: number }
+interface StorageItem { key?: unknown; val?: string; pct?: number }
+type KeyedStorageItem = StorageItem & { key: StorageItemKey };
 
 function DataTab() {
   const { k, theme, t, c, flow } = useScreenUi();
   const storage = useRemote(async () => {
     const body = bodyOf<{ items?: unknown; total?: string }>(await apiFetch('/users/me/storage'));
-    return { items: rowsOf<StorageItem>(body.items), total: typeof body.total === 'string' ? body.total : '' };
+    // issue 1585: items arrive by stable key and are named from the locale files.
+    return { items: rowsOf<StorageItem>(body.items).filter((item): item is KeyedStorageItem => isStorageItemKey(item.key)), total: typeof body.total === 'string' ? body.total : '' };
   }, [], 'settings:storage');
   const [exporting, setExporting] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -96,12 +99,12 @@ function DataTab() {
             <Card theme={theme}>
               <View style={{ gap: 14 }}>
                 {items.map((item, i) => (
-                  <View key={`${item.label}-${i}`} style={{ gap: 6 }}>
+                  <View key={`${item.key}-${i}`} style={{ gap: 6 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
-                      <Text style={{ ...scale(t, 'small', 'medium'), color: c.text.primary, flexShrink: 1, ...flow }}>{item.label}</Text>
+                      <Text style={{ ...scale(t, 'small', 'medium'), color: c.text.primary, flexShrink: 1, ...flow }}>{k(`set.data.item.${item.key}`)}</Text>
                       <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary }}>{item.val}</Text>
                     </View>
-                    <View accessibilityRole="progressbar" accessibilityLabel={item.label} accessibilityValue={{ min: 0, max: 100, now: Math.max(0, Math.min(100, Number(item.pct) || 0)) }} style={{ height: 8, borderRadius: 4, backgroundColor: c.border.hairline, overflow: 'hidden' }}>
+                    <View accessibilityRole="progressbar" accessibilityLabel={k(`set.data.item.${item.key}`)} accessibilityValue={{ min: 0, max: 100, now: Math.max(0, Math.min(100, Number(item.pct) || 0)) }} style={{ height: 8, borderRadius: 4, backgroundColor: c.border.hairline, overflow: 'hidden' }}>
                       <View style={{ width: `${Math.max(0, Math.min(100, Number(item.pct) || 0))}%`, height: 8, borderRadius: 4, backgroundColor: c.action.primary.bg }} />
                     </View>
                   </View>

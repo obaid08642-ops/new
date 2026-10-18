@@ -39,6 +39,10 @@ export class AddAddressDto {
   @IsOptional() @IsString() @MaxLength(80) city?: string;
   @IsOptional() @IsString() @MaxLength(80) district?: string;
   @IsOptional() @IsString() @MaxLength(80) region?: string;
+
+  // 19.7: the Saudi National Address short code (four letters, four digits). The server validates and looks it up;
+  // an empty string on update removes it.
+  @IsOptional() @IsString() @MaxLength(20) short_address?: string;
 }
 
 export class UpdateAddressDto {
@@ -80,4 +84,8 @@ export class UpdateAddressDto {
   @IsOptional() @IsString() @MaxLength(80) city?: string;
   @IsOptional() @IsString() @MaxLength(80) district?: string;
   @IsOptional() @IsString() @MaxLength(80) region?: string;
+
+  // 19.7: the Saudi National Address short code (four letters, four digits). The server validates and looks it up;
+  // an empty string on update removes it.
+  @IsOptional() @IsString() @MaxLength(20) short_address?: string;
 }

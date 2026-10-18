@@ -1,7 +1,26 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { BaseExceptionFilter } from '@nestjs/core';
 import * as Sentry from '@sentry/nestjs';
+import { v4 as uuidv4 } from 'uuid';
 import { ERROR_CATALOG, type PlatformErrorCode } from './error-catalog';
+import { logEvent } from './structured-logger';
+
+/** What a client sees for any server fault in production (16.6): no stack, no driver text, no internal detail. */
+export const GENERIC_SERVER_ERROR = 'Internal server error';
+
+/**
+ * 16.6 — the body of a 5xx answer. The error id is the request id (`X-Correlation-ID`), so the number a user quotes finds
+ * the full line, with its stack, in /admin/logs. In production the message is always the generic one; the machine code of a
+ * deliberate HttpException (e.g. `UPLOAD_SCANNER_UNAVAILABLE`) is kept because clients switch on it and it carries no detail.
+ */
+export function serverErrorBody(exception: unknown, status: number, errorId: string, production: boolean) {
+  const response = exception instanceof HttpException ? exception.getResponse() : null;
+  const shaped = response && typeof response === 'object' ? (response as Record<string, unknown>) : null;
+  const code = shaped && typeof shaped.code === 'string' && /^[A-Za-z0-9_.-]{1,64}$/.test(shaped.code) ? shaped.code : 'INTERNAL_ERROR';
+  let message: unknown = GENERIC_SERVER_ERROR;
+  if (!production && exception instanceof HttpException) message = shaped?.message ?? (typeof response === 'string' ? response : GENERIC_SERVER_ERROR);
+  return { statusCode: status, code, message, error_id: errorId };
+}
 
 @Catch()
 export class SentryExceptionFilter extends BaseExceptionFilter {
@@ -30,9 +49,29 @@ export class SentryExceptionFilter extends BaseExceptionFilter {
     // Report only server-side errors (500+) to keep Sentry clean of validation/auth (4xx) noise
     if (status >= 500) {
       Sentry.captureException(exception);
+      this.answerServerError(exception, status, request, ctx.getResponse());
+      return;
     }
 
     super.catch(exception, host);
+  }
+
+  /** 16.6 — log the real error (stack included, PII masked) under the request id, answer with the error id only. */
+  private answerServerError(exception: unknown, status: number, request: any, response: unknown) {
+    const errorId: string = request?.correlationId ? String(request.correlationId) : uuidv4();
+    const err = exception as { message?: unknown; name?: unknown; stack?: unknown };
+    logEvent('error', 'exception', {
+      module: 'http',
+      request_id: errorId,
+      error_id: errorId,
+      status,
+      error_name: String(err?.name ?? 'Error'),
+      message: String(err?.message ?? exception).slice(0, 2000),
+      stack: String(err?.stack ?? '').split('\n').slice(0, 8).join('\n'),
+    });
+    const body = serverErrorBody(exception, status, errorId, process.env.NODE_ENV === 'production');
+    if (this.applicationRef) this.applicationRef.reply(response, body, status);
+    else (response as { status: (n: number) => { json: (b: unknown) => void } }).status(status).json(body);
   }
 }
 

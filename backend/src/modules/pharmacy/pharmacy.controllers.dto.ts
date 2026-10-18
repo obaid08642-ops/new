@@ -14,6 +14,8 @@ export class DeliveryAddressDto {
   @IsOptional() @IsString() @MaxLength(300) street?: string;
   @IsOptional() @IsString() @MaxLength(80) city?: string;
   @IsOptional() @IsString() @MaxLength(80) district?: string;
+  /** 19.7: the Saudi National Address short code of a saved address; the courier and the pharmacy see it with the street. */
+  @IsOptional() @IsString() @MaxLength(20) short_address?: string;
   @IsOptional() @IsString() @MaxLength(32) phone?: string;
   @IsOptional() @IsNumber() lat?: number;
   @IsOptional() @IsNumber() lng?: number;
@@ -100,9 +102,10 @@ export class CreateDto {
 }
 
 export class UpdateDto {
-  @IsDefined()
+  /** Optional since 22.5: a sent order may be edited by its address, delivery mode or note alone. */
+  @IsOptional()
   @IsArray()
-  items: any[];
+  items?: any[];
 
   /** D-10: a prescription attached after the draft was created. */
   @IsOptional()
