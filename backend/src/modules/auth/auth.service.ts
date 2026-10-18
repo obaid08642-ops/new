@@ -331,7 +331,7 @@ export class AuthService {
   async revokeOtherSessions(userId: string, current: { sid?: string; deviceId?: string }) {
     if (!current.sid && !current.deviceId) throw new BadRequestException('current_session_unknown');
     const r = await this.endSessions(userId, (m) => (current.sid ? m.sid !== current.sid : m.device !== current.deviceId));
-    this.events.emit('auth.session_ended', { user_id: userId, scope: 'other_devices', sessions: r.revoked });
+    if (r.revoked > 0) this.events.emit('auth.session_ended', { user_id: userId, scope: 'other_devices', sessions: r.revoked });
     return { ok: true, sessions_revoked: r.revoked, push_tokens_removed: r.push_removed };
   }
 
@@ -343,7 +343,6 @@ export class AuthService {
   async revokeSessionByJti(userId: string, jti: string) {
     const r = await this.endSessions(userId, (m) => m.jti === jti);
     if (!r.revoked) throw new NotFoundException('session_not_found');
-    this.events.emit('auth.session_ended', { user_id: userId, scope: 'one_device', sessions: r.revoked });
     return { ok: true, sessions_revoked: r.revoked, push_tokens_removed: r.push_removed };
   }
 
@@ -351,7 +350,6 @@ export class AuthService {
   async revokeSession(userId: string, sessionId: string) {
     const r = await this.endSessions(userId, (m) => m.sid === sessionId);
     if (!r.revoked) throw new NotFoundException('session_not_found');
-    this.events.emit('auth.session_ended', { user_id: userId, scope: 'one_device', sessions: r.revoked });
     return { ok: true, sessions_revoked: r.revoked, push_tokens_removed: r.push_removed };
   }
 

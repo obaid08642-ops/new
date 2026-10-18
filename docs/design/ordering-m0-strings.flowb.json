@@ -1,0 +1,2506 @@
+{
+ "ordering.when.title": {
+  "ar": "اختر الموعد",
+  "en": "Choose a time",
+  "ur": "وقت چنیں",
+  "hi": "समय चुनें",
+  "bn": "সময় বেছে নিন",
+  "tl": "Pumili ng oras"
+ },
+ "ordering.ctx.valHome": {
+  "ar": "البيت · النرجس",
+  "en": "Home · Al Narjis",
+  "ur": "گھر · النرجس",
+  "hi": "घर · अल नरजिस",
+  "bn": "বাসা · আল নারজিস",
+  "tl": "Bahay · Al Narjis",
+  "_layout": "cell truncates with an ellipsis; the whole bar opens the sheet"
+ },
+ "ordering.ctx.valIns": {
+  "ar": "بوبا · ذهبي",
+  "en": "Bupa · Gold",
+  "ur": "بوپا · گولڈ",
+  "hi": "बुपा · गोल्ड",
+  "bn": "বুপা · গোল্ড",
+  "tl": "Bupa · Gold"
+ },
+ "ordering.ctx.valMe": {
+  "ar": "أنا",
+  "en": "Me",
+  "ur": "میں",
+  "hi": "मैं",
+  "bn": "আমি",
+  "tl": "Ako"
+ },
+ "ordering.ctx.aria": {
+  "ar": "سياق الطلب: المكان والدفع ولمن",
+  "en": "Order context: place, payment, for whom",
+  "ur": "آرڈر کا سیاق: جگہ، ادائیگی، کس کے لیے",
+  "hi": "ऑर्डर संदर्भ: जगह, भुगतान, किसके लिए",
+  "bn": "অর্ডারের প্রেক্ষাপট: স্থান, পেমেন্ট, কার জন্য",
+  "tl": "Konteksto ng order: lugar, bayad, para kanino"
+ },
+ "ordering.ctx.lblWhere": {
+  "ar": "المكان",
+  "en": "Where",
+  "ur": "جگہ",
+  "hi": "जगह",
+  "bn": "স্থান",
+  "tl": "Saan"
+ },
+ "ordering.ctx.lblPay": {
+  "ar": "الدفع",
+  "en": "Payment",
+  "ur": "ادائیگی",
+  "hi": "भुगतान",
+  "bn": "পেমেন্ট",
+  "tl": "Bayad"
+ },
+ "ordering.ctx.lblWho": {
+  "ar": "لمن",
+  "en": "For",
+  "ur": "کس کے لیے",
+  "hi": "किसके लिए",
+  "bn": "কার জন্য",
+  "tl": "Para kanino"
+ },
+ "ordering.when.tabHome": {
+  "ar": "في المنزل · {n} بنود",
+  "en": "At home · {n} items",
+  "ur": "گھر پر · {n} آئٹمز",
+  "hi": "घर पर · {n} आइटम",
+  "bn": "বাসায় · {n}টি আইটেম",
+  "tl": "Sa bahay · {n} item",
+  "_layout": "two bookings, two tabs; tab text wraps to two lines in long languages"
+ },
+ "ordering.when.tabCentre": {
+  "ar": "في المركز · بند واحد",
+  "en": "At the centre · 1 item",
+  "ur": "مرکز میں · 1 آئٹم",
+  "hi": "केंद्र पर · 1 आइटम",
+  "bn": "কেন্দ্রে · ১টি আইটেম",
+  "tl": "Sa sentro · 1 item"
+ },
+ "ordering.when.homeTitle": {
+  "ar": "موعد الزيارة المنزلية",
+  "en": "Home-visit time",
+  "ur": "گھر پر وزٹ کا وقت",
+  "hi": "घर पर विज़िट का समय",
+  "bn": "বাসায় ভিজিটের সময়",
+  "tl": "Oras ng pagbisita sa bahay"
+ },
+ "ordering.when.homeSub": {
+  "ar": "اختر نافذة من ساعتين، ويصل الفني خلالها.",
+  "en": "Pick a 2-hour window; the technician arrives within it.",
+  "ur": "2 گھنٹے کی ونڈو چنیں، ٹیکنیشن اسی میں پہنچے گا۔",
+  "hi": "2 घंटे की विंडो चुनें; तकनीशियन उसी में पहुँचेगा।",
+  "bn": "২ ঘণ্টার একটি সময়সীমা বেছে নিন; টেকনিশিয়ান এর মধ্যেই পৌঁছাবেন।",
+  "tl": "Pumili ng 2-oras na window; darating ang technician sa loob nito."
+ },
+ "ordering.when.d1": {
+  "ar": "اليوم",
+  "en": "Today",
+  "ur": "آج",
+  "hi": "आज",
+  "bn": "আজ",
+  "tl": "Ngayon"
+ },
+ "ordering.when.d1date": {
+  "ar": "18 أكتوبر",
+  "en": "18 Oct",
+  "ur": "18 اکتوبر",
+  "hi": "18 अक्टू.",
+  "bn": "১৮ অক্টো.",
+  "tl": "Okt 18"
+ },
+ "ordering.when.d2": {
+  "ar": "غدًا",
+  "en": "Tomorrow",
+  "ur": "کل",
+  "hi": "कल",
+  "bn": "আগামীকাল",
+  "tl": "Bukas"
+ },
+ "ordering.when.d2date": {
+  "ar": "19 أكتوبر",
+  "en": "19 Oct",
+  "ur": "19 اکتوبر",
+  "hi": "19 अक्टू.",
+  "bn": "১৯ অক্টো.",
+  "tl": "Okt 19"
+ },
+ "ordering.when.d3": {
+  "ar": "الثلاثاء",
+  "en": "Tuesday",
+  "ur": "منگل",
+  "hi": "मंगलवार",
+  "bn": "মঙ্গলবার",
+  "tl": "Martes"
+ },
+ "ordering.when.d3date": {
+  "ar": "20 أكتوبر",
+  "en": "20 Oct",
+  "ur": "20 اکتوبر",
+  "hi": "20 अक्टू.",
+  "bn": "২০ অক্টো.",
+  "tl": "Okt 20"
+ },
+ "ordering.when.w1": {
+  "ar": "8 – 10 ص",
+  "en": "8 – 10 AM",
+  "ur": "صبح 8 – 10",
+  "hi": "सुबह 8 – 10",
+  "bn": "সকাল ৮ – ১০",
+  "tl": "8 – 10 AM"
+ },
+ "ordering.when.w2": {
+  "ar": "10 ص – 12 م",
+  "en": "10 AM – 12 PM",
+  "ur": "صبح 10 – دوپہر 12",
+  "hi": "सुबह 10 – दोपहर 12",
+  "bn": "সকাল ১০ – দুপুর ১২",
+  "tl": "10 AM – 12 PM"
+ },
+ "ordering.when.w3": {
+  "ar": "12 – 2 م",
+  "en": "12 – 2 PM",
+  "ur": "دوپہر 12 – 2",
+  "hi": "दोपहर 12 – 2",
+  "bn": "দুপুর ১২ – ২",
+  "tl": "12 – 2 PM"
+ },
+ "ordering.when.full": {
+  "ar": "ممتلئة",
+  "en": "Full",
+  "ur": "بھری ہوئی",
+  "hi": "भरी हुई",
+  "bn": "পূর্ণ",
+  "tl": "Puno"
+ },
+ "ordering.when.w4": {
+  "ar": "2 – 4 م",
+  "en": "2 – 4 PM",
+  "ur": "دوپہر 2 – 4",
+  "hi": "दोपहर 2 – 4",
+  "bn": "বিকাল ২ – ৪",
+  "tl": "2 – 4 PM"
+ },
+ "ordering.when.w5": {
+  "ar": "4 – 6 م",
+  "en": "4 – 6 PM",
+  "ur": "شام 4 – 6",
+  "hi": "शाम 4 – 6",
+  "bn": "বিকাল ৪ – ৬",
+  "tl": "4 – 6 PM"
+ },
+ "ordering.when.w6": {
+  "ar": "6 – 8 م",
+  "en": "6 – 8 PM",
+  "ur": "شام 6 – 8",
+  "hi": "शाम 6 – 8",
+  "bn": "সন্ধ্যা ৬ – ৮",
+  "tl": "6 – 8 PM"
+ },
+ "ordering.when.asapTitle": {
+  "ar": "في أقرب وقت ممكن",
+  "en": "As soon as possible",
+  "ur": "جلد از جلد",
+  "hi": "जितनी जल्दी हो सके",
+  "bn": "যত দ্রুত সম্ভব",
+  "tl": "Sa lalong madaling panahon"
+ },
+ "ordering.when.asapSub": {
+  "ar": "نرسل طلبك إلى المزوّدين القريبين الذين يقبلون فورًا.",
+  "en": "We send your request to nearby providers who accept instantly.",
+  "ur": "ہم آپ کی درخواست قریبی فراہم کنندگان کو بھیجتے ہیں جو فوراً قبول کرتے ہیں۔",
+  "hi": "हम आपका अनुरोध पास के उन प्रदाताओं को भेजते हैं जो तुरंत स्वीकार करते हैं।",
+  "bn": "আমরা কাছের যে প্রদানকারীরা সঙ্গে সঙ্গে গ্রহণ করেন তাঁদের কাছে অনুরোধ পাঠাই।",
+  "tl": "Ipinapadala namin ang request mo sa mga kalapit na provider na agad tumatanggap."
+ },
+ "ordering.when.asapHold": {
+  "ar": "نحجز المبلغ على بطاقتك ولا نخصمه إلا عند قبول مزوّد.",
+  "en": "We hold the amount on your card and charge it only when a provider accepts.",
+  "ur": "ہم رقم آپ کے کارڈ پر روکتے ہیں اور فراہم کنندہ کے قبول کرنے پر ہی کاٹتے ہیں۔",
+  "hi": "हम राशि आपके कार्ड पर रोकते हैं और प्रदाता के स्वीकार करने पर ही काटते हैं।",
+  "bn": "আমরা টাকা কার্ডে আটকে রাখি, প্রদানকারী গ্রহণ করলেই কাটা হয়।",
+  "tl": "Hinahawakan namin ang halaga sa card mo at sisingilin lang kapag may tumanggap."
+ },
+ "ordering.when.asapBtn": {
+  "ar": "ابحث الآن",
+  "en": "Search now",
+  "ur": "ابھی تلاش کریں",
+  "hi": "अभी खोजें",
+  "bn": "এখন খুঁজুন",
+  "tl": "Maghanap ngayon"
+ },
+ "ordering.when.fastHint": {
+  "ar": "أحد فحوصاتك يحتاج صيامًا 8 ساعات، فالأفضل موعد صباحي.",
+  "en": "One of your tests needs 8 hours of fasting, so a morning time is best.",
+  "ur": "آپ کے ایک ٹیسٹ کے لیے 8 گھنٹے روزہ ضروری ہے، لہٰذا صبح کا وقت بہتر ہے۔",
+  "hi": "आपकी एक जाँच के लिए 8 घंटे उपवास चाहिए, इसलिए सुबह का समय बेहतर है।",
+  "bn": "আপনার একটি পরীক্ষায় ৮ ঘণ্টা উপবাস লাগে, তাই সকালের সময়ই ভালো।",
+  "tl": "Kailangan ng 8 oras na pag-aayuno ang isa sa mga test mo, kaya mas mainam ang umaga."
+ },
+ "ordering.when.insHome": {
+  "ar": "الزيارة المنزلية مع التأمين تُرسَل بعد موافقة شركة التأمين.",
+  "en": "With insurance, the home visit is dispatched after the insurer approves.",
+  "ur": "انشورنس کے ساتھ گھر کی وزٹ بیمہ کمپنی کی منظوری کے بعد بھیجی جاتی ہے۔",
+  "hi": "बीमा के साथ घर की विज़िट बीमा कंपनी की मंज़ूरी के बाद भेजी जाती है।",
+  "bn": "বিমা থাকলে বিমা কোম্পানির অনুমোদনের পরই বাসায় ভিজিট পাঠানো হয়।",
+  "tl": "Sa insurance, ipapadala ang home visit pagkatapos aprubahan ng insurer."
+ },
+ "ordering.when.sumTitle": {
+  "ar": "ملخص الحجز",
+  "en": "Booking summary",
+  "ur": "بکنگ کا خلاصہ",
+  "hi": "बुकिंग सारांश",
+  "bn": "বুকিংয়ের সারাংশ",
+  "tl": "Buod ng booking"
+ },
+ "ordering.when.sumProv": {
+  "ar": "المزوّد",
+  "en": "Provider",
+  "ur": "فراہم کنندہ",
+  "hi": "प्रदाता",
+  "bn": "প্রদানকারী",
+  "tl": "Provider"
+ },
+ "ordering.match.pA": {
+  "ar": "مختبر البرج الطبي",
+  "en": "Al Burj Medical Lab",
+  "ur": "البرج میڈیکل لیب",
+  "hi": "अल बुर्ज मेडिकल लैब",
+  "bn": "আল বুর্জ মেডিকেল ল্যাব",
+  "tl": "Al Burj Medical Lab"
+ },
+ "ordering.when.sumPlace": {
+  "ar": "المكان",
+  "en": "Place",
+  "ur": "جگہ",
+  "hi": "जगह",
+  "bn": "স্থান",
+  "tl": "Lugar"
+ },
+ "ordering.when.sumWhen": {
+  "ar": "الموعد",
+  "en": "Time",
+  "ur": "وقت",
+  "hi": "समय",
+  "bn": "সময়",
+  "tl": "Oras"
+ },
+ "ordering.basket.sumItems": {
+  "ar": "الفحوصات ({n})",
+  "en": "Tests ({n})",
+  "ur": "ٹیسٹ ({n})",
+  "hi": "जाँचें ({n})",
+  "bn": "পরীক্ষা ({n})",
+  "tl": "Mga test ({n})"
+ },
+ "ordering.common.sar": {
+  "ar": "ر.س",
+  "en": "SAR",
+  "ur": "SAR",
+  "hi": "SAR",
+  "bn": "SAR",
+  "tl": "SAR"
+ },
+ "ordering.basket.sumTotal": {
+  "ar": "الإجمالي التقديري",
+  "en": "Estimated total",
+  "ur": "تخمینی کل",
+  "hi": "अनुमानित कुल",
+  "bn": "আনুমানিক মোট",
+  "tl": "Tinatayang kabuuan"
+ },
+ "ordering.basket.cashNote": {
+  "ar": "الباقات ورسوم الزيارة نقدًا ما لم توافق شركة التأمين",
+  "en": "Packages and the visit fee are cash unless the insurer approves",
+  "ur": "پیکیجز اور وزٹ فیس نقد ہیں جب تک بیمہ کمپنی منظور نہ کرے",
+  "hi": "पैकेज और विज़िट शुल्क नकद हैं जब तक बीमा कंपनी मंज़ूर न करे",
+  "bn": "বিমা কোম্পানি অনুমোদন না করলে প্যাকেজ ও ভিজিট ফি নগদে",
+  "tl": "Cash ang package at bayad sa pagbisita maliban kung aprubahan ng insurer"
+ },
+ "ordering.when.toPay": {
+  "ar": "متابعة إلى التأكيد والدفع",
+  "en": "Continue to confirm and pay",
+  "ur": "تصدیق اور ادائیگی کی طرف جائیں",
+  "hi": "पुष्टि और भुगतान पर जाएँ",
+  "bn": "নিশ্চিত ও পেমেন্টে যান",
+  "tl": "Magpatuloy sa kumpirmasyon at bayad",
+  "_layout": "long label: button grows to two lines"
+ },
+ "ordering.common.brand": {
+  "ar": "نبض",
+  "en": "Nabd",
+  "ur": "نبض",
+  "hi": "नब्ज़",
+  "bn": "নাবদ",
+  "tl": "Nabd"
+ },
+ "ordering.nav.search": {
+  "ar": "ابحث عن دواء، طبيب، تحليل…",
+  "en": "Search medicine, doctor, test…",
+  "ur": "دوا، ڈاکٹر، ٹیسٹ تلاش کریں…",
+  "hi": "दवा, डॉक्टर, जाँच खोजें…",
+  "bn": "ওষুধ, ডাক্তার, পরীক্ষা খুঁজুন…",
+  "tl": "Maghanap ng gamot, doktor, test…"
+ },
+ "ordering.nav.pharmacy": {
+  "ar": "الصيدلية",
+  "en": "Pharmacy",
+  "ur": "فارمیسی",
+  "hi": "फ़ार्मेसी",
+  "bn": "ফার্মেসি",
+  "tl": "Parmasya",
+  "_layout": "web nav: wraps to a menu below 1100px"
+ },
+ "ordering.nav.doctors": {
+  "ar": "الأطباء",
+  "en": "Doctors",
+  "ur": "ڈاکٹرز",
+  "hi": "डॉक्टर",
+  "bn": "ডাক্তার",
+  "tl": "Mga doktor"
+ },
+ "ordering.nav.lab": {
+  "ar": "المختبر",
+  "en": "Lab",
+  "ur": "لیب",
+  "hi": "लैब",
+  "bn": "ল্যাব",
+  "tl": "Laboratoryo"
+ },
+ "ordering.nav.radiology": {
+  "ar": "الأشعة",
+  "en": "Radiology",
+  "ur": "ریڈیالوجی",
+  "hi": "रेडियोलॉजी",
+  "bn": "রেডিওলজি",
+  "tl": "Radiolohiya"
+ },
+ "ordering.nav.nursing": {
+  "ar": "التمريض",
+  "en": "Nursing",
+  "ur": "نرسنگ",
+  "hi": "नर्सिंग",
+  "bn": "নার্সিং",
+  "tl": "Nursing"
+ },
+ "ordering.common.basket": {
+  "ar": "السلة",
+  "en": "Basket",
+  "ur": "ٹوکری",
+  "hi": "टोकरी",
+  "bn": "ঝুড়ি",
+  "tl": "Basket"
+ },
+ "ordering.common.account": {
+  "ar": "الحساب",
+  "en": "Account",
+  "ur": "اکاؤنٹ",
+  "hi": "खाता",
+  "bn": "অ্যাকাউন্ট",
+  "tl": "Account"
+ },
+ "ordering.when.srchTitle": {
+  "ar": "نبحث عن أقرب فنّي",
+  "en": "Looking for the nearest technician",
+  "ur": "قریب ترین ٹیکنیشن تلاش کر رہے ہیں",
+  "hi": "सबसे नज़दीकी तकनीशियन खोज रहे हैं",
+  "bn": "নিকটতম টেকনিশিয়ান খোঁজা হচ্ছে",
+  "tl": "Hinahanap ang pinakamalapit na technician"
+ },
+ "ordering.when.left": {
+  "ar": "المتبقي في هذه المرحلة",
+  "en": "Left in this stage",
+  "ur": "اس مرحلے میں باقی",
+  "hi": "इस चरण में शेष",
+  "bn": "এই ধাপে বাকি",
+  "tl": "Natitira sa yugtong ito"
+ },
+ "ordering.when.st1": {
+  "ar": "المرحلة 1 · ضمن 3 كم",
+  "en": "Stage 1 · within 3 km",
+  "ur": "مرحلہ 1 · 3 کلومیٹر کے اندر",
+  "hi": "चरण 1 · 3 किमी के भीतर",
+  "bn": "ধাপ ১ · ৩ কিমির মধ্যে",
+  "tl": "Yugto 1 · sa loob ng 3 km"
+ },
+ "ordering.when.stDone": {
+  "ar": "انتهت",
+  "en": "Done",
+  "ur": "مکمل",
+  "hi": "पूरा",
+  "bn": "শেষ",
+  "tl": "Tapos na"
+ },
+ "ordering.when.st2": {
+  "ar": "المرحلة 2 · ضمن 5 كم",
+  "en": "Stage 2 · within 5 km",
+  "ur": "مرحلہ 2 · 5 کلومیٹر کے اندر",
+  "hi": "चरण 2 · 5 किमी के भीतर",
+  "bn": "ধাপ ২ · ৫ কিমির মধ্যে",
+  "tl": "Yugto 2 · sa loob ng 5 km"
+ },
+ "ordering.when.st3": {
+  "ar": "المرحلة 3 · ضمن 8 كم",
+  "en": "Stage 3 · within 8 km",
+  "ur": "مرحلہ 3 · 8 کلومیٹر کے اندر",
+  "hi": "चरण 3 · 8 किमी के भीतर",
+  "bn": "ধাপ ৩ · ৮ কিমির মধ্যে",
+  "tl": "Yugto 3 · sa loob ng 8 km"
+ },
+ "ordering.when.stWait": {
+  "ar": "بعد قليل",
+  "en": "Next",
+  "ur": "اگلا",
+  "hi": "अगला",
+  "bn": "পরবর্তী",
+  "tl": "Susunod"
+ },
+ "ordering.when.tmrw8": {
+  "ar": "غدًا 8 – 10 ص",
+  "en": "Tomorrow 8 – 10 AM",
+  "ur": "کل صبح 8 – 10",
+  "hi": "कल सुबह 8 – 10",
+  "bn": "আগামীকাল সকাল ৮ – ১০",
+  "tl": "Bukas 8 – 10 AM"
+ },
+ "ordering.when.asapEnd": {
+  "ar": "إن لم يقبل أحد خلال 9 دقائق كحدّ أقصى نعرض عليك أقرب نافذة ({w}) ويُفرَج عن المبلغ المحجوز فورًا.",
+  "en": "If nobody accepts within 9 minutes at most, we offer the earliest window ({w}) and release the held amount at once.",
+  "ur": "اگر زیادہ سے زیادہ 9 منٹ میں کوئی قبول نہ کرے تو ہم قریب ترین ونڈو ({w}) پیش کرتے ہیں اور روکی گئی رقم فوراً جاری کر دی جاتی ہے۔",
+  "hi": "यदि अधिकतम 9 मिनट में कोई स्वीकार न करे तो हम सबसे जल्दी वाली विंडो ({w}) देते हैं और रोकी गई राशि तुरंत मुक्त हो जाती है।",
+  "bn": "৯ মিনিটের মধ্যে কেউ গ্রহণ না করলে আমরা সবচেয়ে আগের সময় ({w}) দেখাই এবং আটকে রাখা টাকা সঙ্গে সঙ্গে ছেড়ে দেওয়া হয়।",
+  "tl": "Kung walang tumanggap sa loob ng 9 minuto, iaalok namin ang pinakamaagang window ({w}) at agad na ilalabas ang hinawakang halaga."
+ },
+ "ordering.when.sumNone": {
+  "ar": "لم تختر موعدًا بعد",
+  "en": "No time chosen yet",
+  "ur": "ابھی وقت منتخب نہیں ہوا",
+  "hi": "अभी समय नहीं चुना",
+  "bn": "এখনও সময় বেছে নেওয়া হয়নি",
+  "tl": "Wala pang napiling oras"
+ },
+ "ordering.when.centreTitle": {
+  "ar": "موعد في المركز",
+  "en": "Time at the centre",
+  "ur": "مرکز میں وقت",
+  "hi": "केंद्र पर समय",
+  "bn": "কেন্দ্রে সময়",
+  "tl": "Oras sa sentro"
+ },
+ "ordering.match.pC": {
+  "ar": "مركز الأمل للتشخيص",
+  "en": "Al Amal Diagnostic Centre",
+  "ur": "الامل ڈائیگناسٹک سینٹر",
+  "hi": "अल अमल डायग्नोस्टिक सेंटर",
+  "bn": "আল আমাল ডায়াগনস্টিক সেন্টার",
+  "tl": "Al Amal Diagnostic Centre"
+ },
+ "ordering.when.s1": {
+  "ar": "9:00 ص",
+  "en": "9:00 AM",
+  "ur": "صبح 9:00",
+  "hi": "सुबह 9:00",
+  "bn": "সকাল ৯:০০",
+  "tl": "9:00 AM"
+ },
+ "ordering.when.s2": {
+  "ar": "9:30 ص",
+  "en": "9:30 AM",
+  "ur": "صبح 9:30",
+  "hi": "सुबह 9:30",
+  "bn": "সকাল ৯:৩০",
+  "tl": "9:30 AM"
+ },
+ "ordering.when.s3": {
+  "ar": "10:00 ص",
+  "en": "10:00 AM",
+  "ur": "صبح 10:00",
+  "hi": "सुबह 10:00",
+  "bn": "সকাল ১০:০০",
+  "tl": "10:00 AM"
+ },
+ "ordering.when.s4": {
+  "ar": "11:30 ص",
+  "en": "11:30 AM",
+  "ur": "صبح 11:30",
+  "hi": "सुबह 11:30",
+  "bn": "সকাল ১১:৩০",
+  "tl": "11:30 AM"
+ },
+ "ordering.when.s5": {
+  "ar": "1:00 م",
+  "en": "1:00 PM",
+  "ur": "دوپہر 1:00",
+  "hi": "दोपहर 1:00",
+  "bn": "দুপুর ১:০০",
+  "tl": "1:00 PM"
+ },
+ "ordering.when.s6": {
+  "ar": "4:00 م",
+  "en": "4:00 PM",
+  "ur": "شام 4:00",
+  "hi": "शाम 4:00",
+  "bn": "বিকাল ৪:০০",
+  "tl": "4:00 PM"
+ },
+ "ordering.when.slotsNote": {
+  "ar": "يمكنك حجز موعد المركز أثناء انتظار موافقة التأمين.",
+  "en": "You can book the centre slot while the insurance approval is pending.",
+  "ur": "بیمہ کی منظوری کے انتظار میں آپ مرکز کا سلاٹ بُک کر سکتے ہیں۔",
+  "hi": "बीमा मंज़ूरी के इंतज़ार में भी आप केंद्र का स्लॉट बुक कर सकते हैं।",
+  "bn": "বিমা অনুমোদনের অপেক্ষায় থাকলেও আপনি কেন্দ্রের স্লট বুক করতে পারেন।",
+  "tl": "Maaari kang mag-book ng slot sa sentro habang hinihintay ang approval ng insurance."
+ },
+ "ordering.when.walkTitle": {
+  "ar": "تعال دون موعد",
+  "en": "Come without an appointment",
+  "ur": "بغیر اپائنٹمنٹ آئیں",
+  "hi": "बिना अपॉइंटमेंट आएँ",
+  "bn": "অ্যাপয়েন্টমেন্ট ছাড়াই আসুন",
+  "tl": "Pumunta nang walang appointment"
+ },
+ "ordering.when.walkSub": {
+  "ar": "أظهر هذا الرمز عند الاستقبال.",
+  "en": "Show this code at reception.",
+  "ur": "استقبالیہ پر یہ کوڈ دکھائیں۔",
+  "hi": "रिसेप्शन पर यह कोड दिखाएँ।",
+  "bn": "রিসেপশনে এই কোড দেখান।",
+  "tl": "Ipakita ang code na ito sa reception."
+ },
+ "ordering.when.qrCap": {
+  "ar": "رمز الدخول صالح اليوم",
+  "en": "Entry code valid today",
+  "ur": "داخلے کا کوڈ آج کے لیے درست",
+  "hi": "प्रवेश कोड आज के लिए मान्य",
+  "bn": "প্রবেশের কোড আজকের জন্য বৈধ",
+  "tl": "Valid ang entry code ngayong araw"
+ },
+ "ordering.when.hours": {
+  "ar": "ساعات العمل",
+  "en": "Opening hours",
+  "ur": "اوقاتِ کار",
+  "hi": "खुलने का समय",
+  "bn": "খোলার সময়",
+  "tl": "Oras ng pagbubukas"
+ },
+ "ordering.when.hoursWeek": {
+  "ar": "السبت – الخميس",
+  "en": "Saturday – Thursday",
+  "ur": "ہفتہ – جمعرات",
+  "hi": "शनिवार – गुरुवार",
+  "bn": "শনিবার – বৃহস্পতিবার",
+  "tl": "Sabado – Huwebes"
+ },
+ "ordering.when.hoursWeekV": {
+  "ar": "7:00 ص – 10:00 م",
+  "en": "7:00 AM – 10:00 PM",
+  "ur": "صبح 7:00 – رات 10:00",
+  "hi": "सुबह 7:00 – रात 10:00",
+  "bn": "সকাল ৭:০০ – রাত ১০:০০",
+  "tl": "7:00 AM – 10:00 PM"
+ },
+ "ordering.when.hoursFri": {
+  "ar": "الجمعة",
+  "en": "Friday",
+  "ur": "جمعہ",
+  "hi": "शुक्रवार",
+  "bn": "শুক্রবার",
+  "tl": "Biyernes"
+ },
+ "ordering.when.hoursFriV": {
+  "ar": "4:00 م – 10:00 م",
+  "en": "4:00 PM – 10:00 PM",
+  "ur": "شام 4:00 – رات 10:00",
+  "hi": "शाम 4:00 – रात 10:00",
+  "bn": "বিকাল ৪:০০ – রাত ১০:০০",
+  "tl": "4:00 PM – 10:00 PM"
+ },
+ "ordering.when.openNow": {
+  "ar": "مفتوح الآن · يغلق 10:00 م",
+  "en": "Open now · closes 10:00 PM",
+  "ur": "ابھی کھلا ہے · رات 10:00 بجے بند",
+  "hi": "अभी खुला · रात 10:00 बजे बंद",
+  "bn": "এখন খোলা · রাত ১০:০০টায় বন্ধ",
+  "tl": "Bukas ngayon · magsasara 10:00 PM"
+ },
+ "ordering.common.back": {
+  "ar": "رجوع",
+  "en": "Back",
+  "ur": "واپس",
+  "hi": "वापस",
+  "bn": "ফিরে যান",
+  "tl": "Bumalik"
+ },
+ "ordering.when.asapNoOpt": {
+  "ar": "أو اختر نافذة أدناه",
+  "en": "Or pick a window below",
+  "ur": "یا نیچے سے ونڈو چنیں",
+  "hi": "या नीचे से विंडो चुनें",
+  "bn": "অথবা নিচ থেকে একটি সময় বেছে নিন",
+  "tl": "O pumili ng window sa ibaba"
+ },
+ "ordering.when.selected": {
+  "ar": "موعدك: {w}",
+  "en": "Your time: {w}",
+  "ur": "آپ کا وقت: {w}",
+  "hi": "आपका समय: {w}",
+  "bn": "আপনার সময়: {w}",
+  "tl": "Oras mo: {w}"
+ },
+ "ordering.when.nextBooking": {
+  "ar": "التالي: موعد المركز",
+  "en": "Next: the centre time",
+  "ur": "اگلا: مرکز کا وقت",
+  "hi": "अगला: केंद्र का समय",
+  "bn": "পরবর্তী: কেন্দ্রের সময়",
+  "tl": "Susunod: oras sa sentro"
+ },
+ "ordering.when.srchOr": {
+  "ar": "اختر أقرب نافذة الآن",
+  "en": "Take the earliest window now",
+  "ur": "ابھی قریب ترین ونڈو لیں",
+  "hi": "अभी सबसे जल्दी वाली विंडो लें",
+  "bn": "এখনই সবচেয়ে আগের সময় নিন",
+  "tl": "Kunin na ang pinakamaagang window"
+ },
+ "ordering.when.srchCancel": {
+  "ar": "إلغاء البحث",
+  "en": "Cancel search",
+  "ur": "تلاش منسوخ کریں",
+  "hi": "खोज रद्द करें",
+  "bn": "খোঁজা বাতিল করুন",
+  "tl": "Kanselahin ang paghahanap"
+ },
+ "ordering.when.modeSlots": {
+  "ar": "موعد محجوز",
+  "en": "Booked slot",
+  "ur": "بک شدہ سلاٹ",
+  "hi": "बुक किया स्लॉट",
+  "bn": "বুক করা স্লট",
+  "tl": "Naka-book na slot"
+ },
+ "ordering.when.modeWalk": {
+  "ar": "بدون موعد",
+  "en": "Walk-in",
+  "ur": "بغیر وقت",
+  "hi": "बिना अपॉइंटमेंट",
+  "bn": "ওয়াক-ইন",
+  "tl": "Walk-in"
+ },
+ "ordering.when.loading": {
+  "ar": "نحمّل المواعيد المتاحة…",
+  "en": "Loading available times…",
+  "ur": "دستیاب اوقات لوڈ ہو رہے ہیں…",
+  "hi": "उपलब्ध समय लोड हो रहे हैं…",
+  "bn": "উপলব্ধ সময় লোড হচ্ছে…",
+  "tl": "Nilo-load ang mga available na oras…"
+ },
+ "ordering.when.noWin": {
+  "ar": "لا توجد نوافذ متاحة اليوم.",
+  "en": "No windows left today.",
+  "ur": "آج کوئی ونڈو باقی نہیں۔",
+  "hi": "आज कोई विंडो बाकी नहीं।",
+  "bn": "আজ আর কোনো সময় নেই।",
+  "tl": "Wala nang window ngayon."
+ },
+ "ordering.when.noWinBtn": {
+  "ar": "اعرض غدًا (أقرب: 8 – 10 ص)",
+  "en": "Show tomorrow (earliest: 8 – 10 AM)",
+  "ur": "کل دکھائیں (قریب ترین: صبح 8 – 10)",
+  "hi": "कल दिखाएँ (सबसे जल्दी: सुबह 8 – 10)",
+  "bn": "আগামীকাল দেখুন (সবচেয়ে আগে: সকাল ৮ – ১০)",
+  "tl": "Ipakita ang bukas (pinakamaaga: 8 – 10 AM)"
+ },
+ "ordering.when.err": {
+  "ar": "تعذّر تحميل المواعيد.",
+  "en": "Could not load the times.",
+  "ur": "اوقات لوڈ نہیں ہو سکے۔",
+  "hi": "समय लोड नहीं हो सके।",
+  "bn": "সময় লোড করা যায়নি।",
+  "tl": "Hindi ma-load ang mga oras."
+ },
+ "ordering.common.retry": {
+  "ar": "أعد المحاولة",
+  "en": "Try again",
+  "ur": "دوبارہ کوشش کریں",
+  "hi": "फिर कोशिश करें",
+  "bn": "আবার চেষ্টা করুন",
+  "tl": "Subukan muli",
+  "_layout": "button grows with text; min height 44"
+ },
+ "ordering.pay.title": {
+  "ar": "تأكيد الحجز والدفع",
+  "en": "Confirm and pay",
+  "ur": "تصدیق اور ادائیگی",
+  "hi": "पुष्टि और भुगतान",
+  "bn": "নিশ্চিত ও পেমেন্ট",
+  "tl": "Kumpirmahin at bayaran"
+ },
+ "ordering.pay.b1": {
+  "ar": "حجز 1 · زيارة منزلية",
+  "en": "Booking 1 · home visit",
+  "ur": "بکنگ 1 · گھر پر وزٹ",
+  "hi": "बुकिंग 1 · घर पर विज़िट",
+  "bn": "বুকিং ১ · বাসায় ভিজিট",
+  "tl": "Booking 1 · pagbisita sa bahay"
+ },
+ "ordering.pay.edit": {
+  "ar": "تعديل",
+  "en": "Edit",
+  "ur": "ترمیم",
+  "hi": "बदलें",
+  "bn": "সম্পাদনা",
+  "tl": "I-edit"
+ },
+ "ordering.home.t.cbc": {
+  "ar": "صورة دم كاملة (CBC)",
+  "en": "Complete blood count (CBC)",
+  "ur": "مکمل خون کی گنتی (CBC)",
+  "hi": "पूर्ण रक्त गणना (CBC)",
+  "bn": "সম্পূর্ণ রক্ত গণনা (CBC)",
+  "tl": "Complete blood count (CBC)"
+ },
+ "ordering.item.cov.yes": {
+  "ar": "مغطّى",
+  "en": "Covered",
+  "ur": "کور شدہ",
+  "hi": "कवर्ड",
+  "bn": "কভারড",
+  "tl": "Sakop"
+ },
+ "ordering.home.t.hba1c": {
+  "ar": "السكر التراكمي",
+  "en": "HbA1c",
+  "ur": "HbA1c (تین ماہ کی شوگر)",
+  "hi": "HbA1c (तीन माह की शुगर)",
+  "bn": "HbA1c (তিন মাসের সুগার)",
+  "tl": "HbA1c"
+ },
+ "ordering.item.cov.likely": {
+  "ar": "مغطّى غالبًا، يحتاج موافقة",
+  "en": "Likely covered, needs approval",
+  "ur": "غالباً کور، منظوری درکار",
+  "hi": "संभवतः कवर्ड, मंज़ूरी चाहिए",
+  "bn": "সম্ভবত কভারড, অনুমোদন লাগবে",
+  "tl": "Malamang sakop, kailangan ng approval",
+  "_layout": "chip wraps to 2 lines in long languages"
+ },
+ "ordering.home.t.vitd": {
+  "ar": "فيتامين د",
+  "en": "Vitamin D",
+  "ur": "وٹامن ڈی",
+  "hi": "विटामिन डी",
+  "bn": "ভিটামিন ডি",
+  "tl": "Bitamina D"
+ },
+ "ordering.item.cov.no": {
+  "ar": "غير مغطّى",
+  "en": "Not covered",
+  "ur": "کور نہیں",
+  "hi": "कवर्ड नहीं",
+  "bn": "কভারড নয়",
+  "tl": "Hindi sakop"
+ },
+ "ordering.pay.place": {
+  "ar": "المكان",
+  "en": "Place",
+  "ur": "جگہ",
+  "hi": "जगह",
+  "bn": "স্থান",
+  "tl": "Lugar"
+ },
+ "ordering.pay.address": {
+  "ar": "البيت · حي النرجس، الرياض",
+  "en": "Home · Al Narjis, Riyadh",
+  "ur": "گھر · النرجس، ریاض",
+  "hi": "घर · अल नरजिस, रियाद",
+  "bn": "বাসা · আল নারজিস, রিয়াদ",
+  "tl": "Bahay · Al Narjis, Riyadh"
+ },
+ "ordering.pay.when1": {
+  "ar": "غدًا · 2 – 4 م",
+  "en": "Tomorrow · 2 – 4 PM",
+  "ur": "کل · دوپہر 2 – 4",
+  "hi": "कल · दोपहर 2 – 4",
+  "bn": "আগামীকাল · বিকাল ২ – ৪",
+  "tl": "Bukas · 2 – 4 PM"
+ },
+ "ordering.pay.prep": {
+  "ar": "التحضير",
+  "en": "Preparation",
+  "ur": "تیاری",
+  "hi": "तैयारी",
+  "bn": "প্রস্তুতি",
+  "tl": "Paghahanda"
+ },
+ "ordering.pay.prepFast": {
+  "ar": "صيام 8 ساعات قبل الزيارة (ماء فقط). نذكّرك الليلة وصباح الموعد.",
+  "en": "Fast for 8 hours before the visit (water only). We remind you tonight and on the morning.",
+  "ur": "ملاقات سے 8 گھنٹے پہلے روزہ (صرف پانی)۔ ہم آج رات اور صبح یاد دلائیں گے۔",
+  "hi": "विज़िट से 8 घंटे पहले उपवास (केवल पानी)। हम आज रात और सुबह याद दिलाएँगे।",
+  "bn": "ভিজিটের ৮ ঘণ্টা আগে উপবাস (শুধু পানি)। আমরা আজ রাতে ও সকালে মনে করিয়ে দেব।",
+  "tl": "Mag-ayuno ng 8 oras bago ang pagbisita (tubig lang). Ipapaalala namin ngayong gabi at sa umaga."
+ },
+ "ordering.pay.gender": {
+  "ar": "تفضيل جنس الفنّي",
+  "en": "Technician gender preference",
+  "ur": "ٹیکنیشن کی جنس کی ترجیح",
+  "hi": "तकनीशियन के लिंग की पसंद",
+  "bn": "টেকনিশিয়ানের লিঙ্গ পছন্দ",
+  "tl": "Gender preference ng technician"
+ },
+ "ordering.pay.gAny": {
+  "ar": "بلا تفضيل",
+  "en": "No preference",
+  "ur": "کوئی ترجیح نہیں",
+  "hi": "कोई पसंद नहीं",
+  "bn": "কোনো পছন্দ নেই",
+  "tl": "Walang preference"
+ },
+ "ordering.pay.gF": {
+  "ar": "طاقم نسائي",
+  "en": "Female staff",
+  "ur": "خواتین عملہ",
+  "hi": "महिला स्टाफ़",
+  "bn": "নারী কর্মী",
+  "tl": "Babaeng staff"
+ },
+ "ordering.pay.gM": {
+  "ar": "طاقم رجالي",
+  "en": "Male staff",
+  "ur": "مرد عملہ",
+  "hi": "पुरुष स्टाफ़",
+  "bn": "পুরুষ কর্মী",
+  "tl": "Lalaking staff"
+ },
+ "ordering.pay.b2": {
+  "ar": "حجز 2 · في المركز",
+  "en": "Booking 2 · at the centre",
+  "ur": "بکنگ 2 · مرکز میں",
+  "hi": "बुकिंग 2 · केंद्र पर",
+  "bn": "বুকিং ২ · কেন্দ্রে",
+  "tl": "Booking 2 · sa sentro"
+ },
+ "ordering.home.r.mri": {
+  "ar": "رنين مغناطيسي للركبة",
+  "en": "Knee MRI",
+  "ur": "گھٹنے کا ایم آر آئی",
+  "hi": "घुटने का एमआरआई",
+  "bn": "হাঁটুর এমআরআই",
+  "tl": "MRI ng tuhod"
+ },
+ "ordering.pay.centreAddr": {
+  "ar": "مركز الأمل للتشخيص · حي الملقا",
+  "en": "Al Amal Diagnostic Centre · Al Malqa",
+  "ur": "الامل ڈائیگناسٹک سینٹر · الملقا",
+  "hi": "अल अमल डायग्नोस्टिक सेंटर · अल मलका",
+  "bn": "আল আমাল ডায়াগনস্টিক সেন্টার · আল মালকা",
+  "tl": "Al Amal Diagnostic Centre · Al Malqa"
+ },
+ "ordering.pay.when2": {
+  "ar": "غدًا · 9:30 ص",
+  "en": "Tomorrow · 9:30 AM",
+  "ur": "کل · صبح 9:30",
+  "hi": "कल · सुबह 9:30",
+  "bn": "আগামীকাল · সকাল ৯:৩০",
+  "tl": "Bukas · 9:30 AM"
+ },
+ "ordering.pay.prepMri": {
+  "ar": "انزع المعادن والمجوهرات قبل الفحص. أخبر المركز إن كان لديك جهاز مزروع.",
+  "en": "Remove metal and jewellery before the scan. Tell the centre if you have an implant.",
+  "ur": "اسکین سے پہلے دھات اور زیورات اتار دیں۔ امپلانٹ ہو تو مرکز کو بتائیں۔",
+  "hi": "स्कैन से पहले धातु और गहने उतार दें। इम्प्लांट हो तो केंद्र को बताएँ।",
+  "bn": "স্ক্যানের আগে ধাতু ও গয়না খুলে ফেলুন। ইমপ্ল্যান্ট থাকলে কেন্দ্রকে জানান।",
+  "tl": "Alisin ang metal at alahas bago ang scan. Sabihin sa sentro kung may implant ka."
+ },
+ "ordering.pay.order": {
+  "ar": "طلب الطبيب",
+  "en": "Doctor’s order",
+  "ur": "ڈاکٹر کا آرڈر",
+  "hi": "डॉक्टर का ऑर्डर",
+  "bn": "ডাক্তারের আদেশ",
+  "tl": "Order ng doktor"
+ },
+ "ordering.pay.orderOk": {
+  "ar": "مرفق تلقائيًا: د. سارة العتيبي · صالح حتى 30 أكتوبر",
+  "en": "Attached automatically: Dr. Sara Al Otaibi · valid until 30 Oct",
+  "ur": "خود بخود منسلک: ڈاکٹر سارہ العتیبی · 30 اکتوبر تک درست",
+  "hi": "अपने-आप संलग्न: डॉ. सारा अल ओतैबी · 30 अक्टू. तक मान्य",
+  "bn": "স্বয়ংক্রিয়ভাবে সংযুক্ত: ডা. সারা আল ওতাইবি · ৩০ অক্টো. পর্যন্ত বৈধ",
+  "tl": "Awtomatikong nakalakip: Dr. Sara Al Otaibi · valid hanggang Okt 30"
+ },
+ "ordering.pay.lines": {
+  "ar": "ملخص السعر",
+  "en": "Price summary",
+  "ur": "قیمت کا خلاصہ",
+  "hi": "मूल्य सारांश",
+  "bn": "মূল্যের সারাংশ",
+  "tl": "Buod ng presyo"
+ },
+ "ordering.pay.lItems": {
+  "ar": "الفحوصات (4)",
+  "en": "Tests (4)",
+  "ur": "ٹیسٹ (4)",
+  "hi": "जाँचें (4)",
+  "bn": "পরীক্ষা (৪)",
+  "tl": "Mga test (4)"
+ },
+ "ordering.pay.lFee": {
+  "ar": "رسوم الزيارة المنزلية",
+  "en": "Home-visit fee",
+  "ur": "گھر پر وزٹ کی فیس",
+  "hi": "घर पर विज़िट शुल्क",
+  "bn": "বাসায় ভিজিটের ফি",
+  "tl": "Bayad sa home visit"
+ },
+ "ordering.pay.lIns": {
+  "ar": "حصة التأمين (تقديرية)",
+  "en": "Insurance share (estimated)",
+  "ur": "بیمہ کا حصہ (تخمینی)",
+  "hi": "बीमा हिस्सा (अनुमानित)",
+  "bn": "বিমার অংশ (আনুমানিক)",
+  "tl": "Bahagi ng insurance (tinatayang)"
+ },
+ "ordering.pay.lTotal": {
+  "ar": "المبلغ المستحق الآن",
+  "en": "Amount due now",
+  "ur": "ابھی واجب الادا رقم",
+  "hi": "अभी देय राशि",
+  "bn": "এখন প্রদেয় অংশ",
+  "tl": "Babayaran ngayon"
+ },
+ "ordering.pay.estNote": {
+  "ar": "الحصة تقديرية. تصلك الحصة النهائية مع موافقة التأمين، وتختار من جديد إن تغيّرت.",
+  "en": "The share is an estimate. The final share comes with the insurer’s approval, and you choose again if it changes.",
+  "ur": "حصہ تخمینی ہے۔ حتمی حصہ بیمہ کی منظوری کے ساتھ آتا ہے اور بدلنے پر آپ دوبارہ انتخاب کرتے ہیں۔",
+  "hi": "हिस्सा अनुमानित है। अंतिम हिस्सा बीमा मंज़ूरी के साथ आता है, और बदलने पर आप फिर से चुनते हैं।",
+  "bn": "অংশটি আনুমানিক। চূড়ান্ত অংশ বিমা অনুমোদনের সঙ্গে আসে, বদলালে আপনি আবার বেছে নেন।",
+  "tl": "Tinatayang bahagi ito. Kasama ng approval ng insurer ang pinal na bahagi, at pipili ka ulit kung magbago."
+ },
+ "ordering.pay.cashNote": {
+  "ar": "الباقات والفحوصات الشاملة ورسوم الزيارة تُدفع من جيبك ما لم توافق شركة التأمين.",
+  "en": "Packages, checkups and the home fee are self-paid unless the insurer approves them.",
+  "ur": "پیکجز، چیک اپ اور وزٹ فیس آپ خود ادا کرتے ہیں جب تک بیمہ کمپنی منظور نہ کرے۔",
+  "hi": "पैकेज, चेकअप और विज़िट शुल्क आप स्वयं देते हैं, जब तक बीमा कंपनी मंज़ूर न करे।",
+  "bn": "প্যাকেজ, চেকআপ ও ভিজিট ফি বিমা কোম্পানি অনুমোদন না করলে আপনাকে নিজে দিতে হবে।",
+  "tl": "Ang mga package, checkup at bayad sa pagbisita ay sarili mong babayaran maliban kung aprubahan ng insurer."
+ },
+ "ordering.pay.dispatch": {
+  "ar": "الزيارة المنزلية تُرسَل بعد موافقة التأمين، وموعد المركز محجوز أثناء الانتظار.",
+  "en": "The home visit is dispatched after the insurer approves; the centre slot is held while you wait.",
+  "ur": "گھر کی وزٹ بیمہ کی منظوری کے بعد بھیجی جاتی ہے، انتظار میں مرکز کا سلاٹ محفوظ رہتا ہے۔",
+  "hi": "घर की विज़िट बीमा मंज़ूरी के बाद भेजी जाती है; इंतज़ार में केंद्र का स्लॉट सुरक्षित रहता है।",
+  "bn": "বিমা অনুমোদনের পর বাসায় ভিজিট পাঠানো হয়; অপেক্ষার সময় কেন্দ্রের স্লট রাখা থাকে।",
+  "tl": "Ipapadala ang home visit pagkatapos aprubahan ng insurer; nakalaan ang slot sa sentro habang naghihintay."
+ },
+ "ordering.pay.locked": {
+  "ar": "السعر مثبّت عند الحجز. إن لم يؤكد المزوّد خلال 5 دقائق أو رفض، نُرجع المبلغ كاملًا تلقائيًا.",
+  "en": "The price is locked at booking. If the provider does not confirm within 5 minutes or declines, we refund in full automatically.",
+  "ur": "قیمت بکنگ پر مقفل ہو جاتی ہے۔ اگر فراہم کنندہ 5 منٹ میں تصدیق نہ کرے یا انکار کرے تو پوری رقم خود بخود واپس ہو جاتی ہے۔",
+  "hi": "कीमत बुकिंग पर तय हो जाती है। यदि प्रदाता 5 मिनट में पुष्टि न करे या मना कर दे, तो पूरी राशि अपने-आप लौटा दी जाती है।",
+  "bn": "বুকিংয়ের সময় দাম নির্দিষ্ট হয়ে যায়। প্রদানকারী ৫ মিনিটে নিশ্চিত না করলে বা প্রত্যাখ্যান করলে পুরো টাকা স্বয়ংক্রিয়ভাবে ফেরত দেওয়া হয়।",
+  "tl": "Naka-lock ang presyo sa booking. Kung hindi kumpirmahin ng provider sa loob ng 5 minuto o tumanggi, awtomatikong ibabalik ang buong bayad."
+ },
+ "ordering.pay.method": {
+  "ar": "طريقة الدفع",
+  "en": "Payment method",
+  "ur": "ادائیگی کا طریقہ",
+  "hi": "भुगतान का तरीका",
+  "bn": "পেমেন্ট পদ্ধতি",
+  "tl": "Paraan ng pagbabayad"
+ },
+ "ordering.pay.card": {
+  "ar": "بطاقة مدى ••4242",
+  "en": "mada card ••4242",
+  "ur": "مدی کارڈ ••4242",
+  "hi": "मदा कार्ड ••4242",
+  "bn": "মাদা কার্ড ••৪২৪২",
+  "tl": "mada card ••4242"
+ },
+ "ordering.pay.change": {
+  "ar": "تغيير",
+  "en": "Change",
+  "ur": "تبدیل کریں",
+  "hi": "बदलें",
+  "bn": "পরিবর্তন",
+  "tl": "Palitan"
+ },
+ "ordering.pay.secure": {
+  "ar": "الدفع الآمن عبر Moyasar",
+  "en": "Secure payment by Moyasar",
+  "ur": "Moyasar کے ذریعے محفوظ ادائیگی",
+  "hi": "Moyasar द्वारा सुरक्षित भुगतान",
+  "bn": "Moyasar-এর মাধ্যমে নিরাপদ পেমেন্ট",
+  "tl": "Ligtas na bayad sa pamamagitan ng Moyasar"
+ },
+ "ordering.pay.btn": {
+  "ar": "ادفع 425 ر.س",
+  "en": "Pay 425 SAR",
+  "ur": "425 SAR ادا کریں",
+  "hi": "425 SAR चुकाएँ",
+  "bn": "৪২৫ SAR পরিশোধ করুন",
+  "tl": "Bayaran ang 425 SAR",
+  "_layout": "button grows to two lines in long languages"
+ },
+ "ordering.pay.cancelFree": {
+  "ar": "إلغاء مجاني قبل تأكيد المزوّد",
+  "en": "Free cancellation before the provider confirms",
+  "ur": "فراہم کنندہ کی تصدیق سے پہلے مفت منسوخی",
+  "hi": "प्रदाता की पुष्टि से पहले मुफ़्त रद्द करना",
+  "bn": "প্রদানকারী নিশ্চিত করার আগে বিনামূল্যে বাতিল",
+  "tl": "Libreng kanselasyon bago kumpirmahin ng provider"
+ },
+ "ordering.pay.orderReq": {
+  "ar": "مطلوب مع التأمين: أرفق طلب الطبيب لإكمال الحجز.",
+  "en": "Required with insurance: attach the doctor’s order to continue.",
+  "ur": "بیمہ کے ساتھ ضروری: جاری رکھنے کے لیے ڈاکٹر کا آرڈر منسلک کریں۔",
+  "hi": "बीमा के साथ ज़रूरी: आगे बढ़ने के लिए डॉक्टर का ऑर्डर संलग्न करें।",
+  "bn": "বিমার সঙ্গে প্রয়োজন: চালিয়ে যেতে ডাক্তারের আদেশ সংযুক্ত করুন।",
+  "tl": "Kailangan sa insurance: ilakip ang order ng doktor para magpatuloy."
+ },
+ "ordering.pay.orderPick": {
+  "ar": "اختر من طلباتي الطبية",
+  "en": "Choose from my medical orders",
+  "ur": "میرے طبی آرڈرز سے چنیں",
+  "hi": "मेरे चिकित्सा ऑर्डर से चुनें",
+  "bn": "আমার মেডিকেল অর্ডার থেকে বেছে নিন",
+  "tl": "Pumili sa mga medical order ko"
+ },
+ "ordering.pay.orderPhoto": {
+  "ar": "صوّر الطلب الورقي",
+  "en": "Photograph the paper order",
+  "ur": "کاغذی آرڈر کی تصویر لیں",
+  "hi": "कागज़ी ऑर्डर की फ़ोटो लें",
+  "bn": "কাগজের আদেশের ছবি তুলুন",
+  "tl": "Kunan ng litrato ang papel na order"
+ },
+ "ordering.pay.orderFile": {
+  "ar": "ارفع ملفًا",
+  "en": "Upload a file",
+  "ur": "فائل اپ لوڈ کریں",
+  "hi": "फ़ाइल अपलोड करें",
+  "bn": "ফাইল আপলোড করুন",
+  "tl": "Mag-upload ng file"
+ },
+ "ordering.pay.btnOff": {
+  "ar": "أرفق طلب الطبيب أولًا",
+  "en": "Attach the doctor’s order first",
+  "ur": "پہلے ڈاکٹر کا آرڈر منسلک کریں",
+  "hi": "पहले डॉक्टर का ऑर्डर संलग्न करें",
+  "bn": "আগে ডাক্তারের আদেশ সংযুক্ত করুন",
+  "tl": "Ilakip muna ang order ng doktor"
+ },
+ "ordering.pay.sheetTitle": {
+  "ar": "بيانات البطاقة",
+  "en": "Card details",
+  "ur": "کارڈ کی تفصیلات",
+  "hi": "कार्ड विवरण",
+  "bn": "কার্ডের তথ্য",
+  "tl": "Detalye ng card"
+ },
+ "ordering.pay.fNo": {
+  "ar": "رقم البطاقة",
+  "en": "Card number",
+  "ur": "کارڈ نمبر",
+  "hi": "कार्ड नंबर",
+  "bn": "কার্ড নম্বর",
+  "tl": "Numero ng card"
+ },
+ "ordering.pay.fExp": {
+  "ar": "الانتهاء",
+  "en": "Expiry",
+  "ur": "میعاد ختم",
+  "hi": "समाप्ति",
+  "bn": "মেয়াদ",
+  "tl": "Expiry"
+ },
+ "ordering.pay.fCvc": {
+  "ar": "رمز الأمان",
+  "en": "Security code",
+  "ur": "سیکیورٹی کوڈ",
+  "hi": "सुरक्षा कोड",
+  "bn": "নিরাপত্তা কোড",
+  "tl": "Security code"
+ },
+ "ordering.pay.fName": {
+  "ar": "الاسم على البطاقة",
+  "en": "Name on card",
+  "ur": "کارڈ پر نام",
+  "hi": "कार्ड पर नाम",
+  "bn": "কার্ডে নাম",
+  "tl": "Pangalan sa card"
+ },
+ "ordering.pay.processing": {
+  "ar": "نؤكد الدفع مع البنك…",
+  "en": "Confirming the payment with your bank…",
+  "ur": "بینک کے ساتھ ادائیگی کی تصدیق ہو رہی ہے…",
+  "hi": "आपके बैंक से भुगतान की पुष्टि हो रही है…",
+  "bn": "ব্যাংকের সঙ্গে পেমেন্ট নিশ্চিত করা হচ্ছে…",
+  "tl": "Kinukumpirma ang bayad sa bangko mo…"
+ },
+ "ordering.pay.processingSub": {
+  "ar": "لا تغلق الصفحة. لن نخصم المبلغ مرتين.",
+  "en": "Do not close the page. We will not charge you twice.",
+  "ur": "صفحہ بند نہ کریں۔ رقم دو بار نہیں کاٹی جائے گی۔",
+  "hi": "पेज बंद न करें। राशि दो बार नहीं कटेगी।",
+  "bn": "পেজ বন্ধ করবেন না। দুইবার টাকা কাটা হবে না।",
+  "tl": "Huwag isara ang page. Hindi ka namin sisingilin nang dalawang beses."
+ },
+ "ordering.pay.failTitle": {
+  "ar": "لم تنجح عملية الدفع",
+  "en": "The payment did not go through",
+  "ur": "ادائیگی مکمل نہیں ہوئی",
+  "hi": "भुगतान पूरा नहीं हुआ",
+  "bn": "পেমেন্ট সম্পন্ন হয়নি",
+  "tl": "Hindi natuloy ang bayad"
+ },
+ "ordering.pay.failSub": {
+  "ar": "لم نخصم أي مبلغ. جرّب بطاقة أخرى أو أعد المحاولة، وحجزك محفوظ 10 دقائق.",
+  "en": "Nothing was charged. Try another card or try again; your booking is held for 10 minutes.",
+  "ur": "کوئی رقم نہیں کاٹی گئی۔ دوسرا کارڈ آزمائیں یا دوبارہ کوشش کریں؛ آپ کی بکنگ 10 منٹ محفوظ ہے۔",
+  "hi": "कुछ नहीं कटा। दूसरा कार्ड आज़माएँ या फिर कोशिश करें; आपकी बुकिंग 10 मिनट सुरक्षित है।",
+  "bn": "কিছু কাটা হয়নি। অন্য কার্ড চেষ্টা করুন বা আবার চেষ্টা করুন; আপনার বুকিং ১০ মিনিট রাখা আছে।",
+  "tl": "Walang nasingil. Subukan ang ibang card o ulitin; nakalaan ang booking mo sa loob ng 10 minuto."
+ },
+ "ordering.pay.otherCard": {
+  "ar": "استخدم بطاقة أخرى",
+  "en": "Use another card",
+  "ur": "دوسرا کارڈ استعمال کریں",
+  "hi": "दूसरा कार्ड इस्तेमाल करें",
+  "bn": "অন্য কার্ড ব্যবহার করুন",
+  "tl": "Gumamit ng ibang card"
+ },
+ "ordering.ctx.valCash": {
+  "ar": "نقدًا",
+  "en": "Cash",
+  "ur": "نقد",
+  "hi": "नकद",
+  "bn": "নগদ",
+  "tl": "Cash"
+ },
+ "ordering.pay.orderOpt": {
+  "ar": "طلب الطبيب اختياري للدفع الشخصي.",
+  "en": "The doctor’s order is optional when you pay yourself.",
+  "ur": "خود ادائیگی میں ڈاکٹر کا آرڈر لازمی نہیں۔",
+  "hi": "स्वयं भुगतान में डॉक्टर का ऑर्डर वैकल्पिक है।",
+  "bn": "নিজে পরিশোধ করলে ডাক্তারের আদেশ ঐচ্ছিক।",
+  "tl": "Opsyonal ang order ng doktor kung ikaw ang magbabayad."
+ },
+ "ordering.pay.cashLine": {
+  "ar": "لا حصة تأمين: تدفع السعر كاملًا",
+  "en": "No insurance share: you pay the full price",
+  "ur": "بیمہ کا حصہ نہیں: آپ پوری قیمت ادا کرتے ہیں",
+  "hi": "बीमा हिस्सा नहीं: आप पूरी कीमत देते हैं",
+  "bn": "বিমার অংশ নেই: আপনি পুরো দাম দেন",
+  "tl": "Walang bahagi ng insurance: buong presyo ang babayaran mo"
+ },
+ "ordering.pay.btnCash": {
+  "ar": "ادفع 165 ر.س",
+  "en": "Pay 165 SAR",
+  "ur": "165 SAR ادا کریں",
+  "hi": "165 SAR चुकाएँ",
+  "bn": "১৬৫ SAR পরিশোধ করুন",
+  "tl": "Bayaran ang 165 SAR"
+ },
+ "ordering.wait.sumH": {
+  "ar": "حجز 1 · زيارة منزلية",
+  "en": "Booking 1 · home visit",
+  "ur": "بکنگ 1 · گھر پر وزٹ",
+  "hi": "बुकिंग 1 · घर पर विज़िट",
+  "bn": "বুকিং ১ · বাসায় ভিজিট",
+  "tl": "Booking 1 · pagbisita sa bahay"
+ },
+ "ordering.wait.pLeft": {
+  "ar": "الوقت المتبقي للتأكيد",
+  "en": "Time left to confirm",
+  "ur": "تصدیق کے لیے باقی وقت",
+  "hi": "पुष्टि के लिए शेष समय",
+  "bn": "নিশ্চিত করার বাকি সময়",
+  "tl": "Natitirang oras para kumpirmahin"
+ },
+ "ordering.wait.minLeft": {
+  "ar": "03:42",
+  "en": "03:42",
+  "ur": "03:42",
+  "hi": "03:42",
+  "bn": "03:42",
+  "tl": "03:42"
+ },
+ "ordering.wait.pEnd": {
+  "ar": "إن انتهى الوقت دون تأكيد: نُرجع لك المبلغ كاملًا تلقائيًا ونعرض عليك أفضل مزوّد بديل.",
+  "en": "If time runs out without confirmation: we refund you in full automatically and offer the next best provider.",
+  "ur": "وقت ختم ہونے پر تصدیق نہ ہو تو: ہم پوری رقم خود بخود واپس کرتے ہیں اور اگلا بہترین فراہم کنندہ پیش کرتے ہیں۔",
+  "hi": "समय खत्म होने पर पुष्टि न हो तो: हम पूरी राशि अपने-आप लौटाते हैं और अगला सबसे अच्छा प्रदाता दिखाते हैं।",
+  "bn": "সময় শেষে নিশ্চিত না হলে: আমরা পুরো টাকা স্বয়ংক্রিয়ভাবে ফেরত দিই এবং পরবর্তী সেরা প্রদানকারী দেখাই।",
+  "tl": "Kung maubos ang oras nang walang kumpirmasyon: awtomatiko naming ibabalik ang buong bayad at ihahandog ang susunod na pinakamahusay na provider."
+ },
+ "ordering.wait.paid": {
+  "ar": "تم الدفع 425 ر.س · إلغاء مجاني الآن",
+  "en": "Paid 425 SAR · free cancellation now",
+  "ur": "425 SAR ادا ہو گئے · ابھی مفت منسوخی",
+  "hi": "425 SAR चुकाए · अभी मुफ़्त रद्द करें",
+  "bn": "৪২৫ SAR পরিশোধিত · এখন বিনামূল্যে বাতিল",
+  "tl": "Bayad na 425 SAR · libreng kanselasyon ngayon"
+ },
+ "ordering.wait.st1": {
+  "ar": "تم الدفع",
+  "en": "Paid",
+  "ur": "ادا ہو گیا",
+  "hi": "भुगतान हुआ",
+  "bn": "পরিশোধিত",
+  "tl": "Bayad na"
+ },
+ "ordering.wait.st2": {
+  "ar": "تأكيد المزوّد",
+  "en": "Provider confirms",
+  "ur": "فراہم کنندہ تصدیق کرتا ہے",
+  "hi": "प्रदाता पुष्टि करता है",
+  "bn": "প্রদানকারী নিশ্চিত করেন",
+  "tl": "Kinukumpirma ng provider"
+ },
+ "ordering.wait.st3": {
+  "ar": "موافقة التأمين",
+  "en": "Insurance approval",
+  "ur": "بیمہ کی منظوری",
+  "hi": "बीमा मंज़ूरी",
+  "bn": "বিমা অনুমোদন",
+  "tl": "Approval ng insurance"
+ },
+ "ordering.wait.st4": {
+  "ar": "الزيارة",
+  "en": "Visit",
+  "ur": "وزٹ",
+  "hi": "विज़िट",
+  "bn": "ভিজিট",
+  "tl": "Pagbisita"
+ },
+ "ordering.wait.cancel": {
+  "ar": "إلغاء الحجز",
+  "en": "Cancel booking",
+  "ur": "بکنگ منسوخ کریں",
+  "hi": "बुकिंग रद्द करें",
+  "bn": "বুকিং বাতিল করুন",
+  "tl": "Kanselahin ang booking"
+ },
+ "ordering.wait.title": {
+  "ar": "حالة الحجز",
+  "en": "Booking status",
+  "ur": "بکنگ کی حالت",
+  "hi": "बुकिंग की स्थिति",
+  "bn": "বুকিংয়ের অবস্থা",
+  "tl": "Katayuan ng booking"
+ },
+ "ordering.wait.aTitle": {
+  "ar": "ننتظر موافقة شركة التأمين",
+  "en": "Waiting for the insurer’s approval",
+  "ur": "بیمہ کمپنی کی منظوری کا انتظار",
+  "hi": "बीमा कंपनी की मंज़ूरी का इंतज़ार",
+  "bn": "বিমা কোম্পানির অনুমোদনের অপেক্ষা",
+  "tl": "Naghihintay sa approval ng insurer"
+ },
+ "ordering.wait.aLeft": {
+  "ar": "المدة المتوقعة للرد",
+  "en": "Expected time for a reply",
+  "ur": "جواب کا متوقع وقت",
+  "hi": "उत्तर का अनुमानित समय",
+  "bn": "উত্তরের সম্ভাব্য সময়",
+  "tl": "Inaasahang oras ng sagot"
+ },
+ "ordering.wait.hLeft": {
+  "ar": "22 س 40 د",
+  "en": "22 h 40 min",
+  "ur": "22 گھنٹے 40 منٹ",
+  "hi": "22 घं. 40 मि.",
+  "bn": "২২ ঘ. ৪০ মি.",
+  "tl": "22 oras 40 min"
+ },
+ "ordering.wait.aEnd": {
+  "ar": "عند الرد نخبرك فورًا، وإن رُفض الطلب نُرجع المبلغ ونعرض البدائل.",
+  "en": "We notify you as soon as it replies; if it is declined we refund and show alternatives.",
+  "ur": "جواب آتے ہی ہم آپ کو بتاتے ہیں؛ مسترد ہونے پر ہم رقم واپس کرتے ہیں اور متبادل دکھاتے ہیں۔",
+  "hi": "उत्तर आते ही हम आपको बताते हैं; अस्वीकार होने पर हम राशि लौटाते हैं और विकल्प दिखाते हैं।",
+  "bn": "উত্তর এলেই আমরা জানাই; প্রত্যাখ্যাত হলে টাকা ফেরত দিই ও বিকল্প দেখাই।",
+  "tl": "Aabisuhan ka namin sa sandaling sumagot; kung tanggihan, ibabalik namin ang bayad at ipapakita ang mga alternatibo."
+ },
+ "ordering.wait.aHome": {
+  "ar": "الزيارة المنزلية لن تُرسَل قبل الموافقة.",
+  "en": "The home visit will not be dispatched before approval.",
+  "ur": "منظوری سے پہلے گھر کی وزٹ نہیں بھیجی جائے گی۔",
+  "hi": "मंज़ूरी से पहले घर की विज़िट नहीं भेजी जाएगी।",
+  "bn": "অনুমোদনের আগে বাসায় ভিজিট পাঠানো হবে না।",
+  "tl": "Hindi ipapadala ang home visit bago ang approval."
+ },
+ "ordering.wait.aCentre": {
+  "ar": "موعد المركز محجوز أثناء الانتظار: غدًا 9:30 ص.",
+  "en": "The centre slot is held while you wait: tomorrow 9:30 AM.",
+  "ur": "انتظار کے دوران مرکز کا سلاٹ محفوظ ہے: کل صبح 9:30۔",
+  "hi": "इंतज़ार में केंद्र का स्लॉट सुरक्षित है: कल सुबह 9:30।",
+  "bn": "অপেক্ষার সময় কেন্দ্রের স্লট রাখা আছে: আগামীকাল সকাল ৯:৩০।",
+  "tl": "Nakalaan ang slot sa sentro habang naghihintay: bukas 9:30 AM."
+ },
+ "ordering.wait.aWarn": {
+  "ar": "تنتهي الموافقة قبل موعد الزيارة المنزلية (غدًا 2 – 4 م). أعد الحجز في موعد أبكر.",
+  "en": "The approval would expire before the home visit (tomorrow 2 – 4 PM). Rebook for an earlier time.",
+  "ur": "منظوری گھر کی وزٹ (کل دوپہر 2 – 4) سے پہلے ختم ہو جائے گی۔ پہلے وقت پر دوبارہ بُک کریں۔",
+  "hi": "मंज़ूरी घर की विज़िट (कल दोपहर 2 – 4) से पहले खत्म हो जाएगी। पहले समय पर दोबारा बुक करें।",
+  "bn": "অনুমোদন বাসায় ভিজিটের (আগামীকাল বিকাল ২ – ৪) আগেই শেষ হবে। আগের সময়ে আবার বুক করুন।",
+  "tl": "Mag-e-expire ang approval bago ang home visit (bukas 2 – 4 PM). Mag-rebook sa mas maagang oras."
+ },
+ "ordering.wait.rebook": {
+  "ar": "أعد الحجز في موعد أبكر",
+  "en": "Rebook for an earlier time",
+  "ur": "پہلے وقت پر دوبارہ بُک کریں",
+  "hi": "पहले समय पर दोबारा बुक करें",
+  "bn": "আগের সময়ে আবার বুক করুন",
+  "tl": "Mag-rebook sa mas maagang oras"
+ },
+ "ordering.wait.sTitle": {
+  "ar": "نبحث عن أقرب مزوّد يقبل الآن",
+  "en": "Looking for the nearest provider who accepts now",
+  "ur": "قریب ترین فراہم کنندہ تلاش کر رہے ہیں جو ابھی قبول کرے",
+  "hi": "सबसे नज़दीकी प्रदाता खोज रहे हैं जो अभी स्वीकार करे",
+  "bn": "নিকটতম যে প্রদানকারী এখন গ্রহণ করবেন তাঁকে খোঁজা হচ্ছে",
+  "tl": "Hinahanap ang pinakamalapit na provider na tatanggap ngayon"
+ },
+ "ordering.wait.sNotified": {
+  "ar": "أُرسل الطلب إلى 6 مزوّدين",
+  "en": "Sent to 6 providers",
+  "ur": "6 فراہم کنندگان کو بھیجا گیا",
+  "hi": "6 प्रदाताओं को भेजा गया",
+  "bn": "৬ জন প্রদানকারীকে পাঠানো হয়েছে",
+  "tl": "Ipinadala sa 6 na provider"
+ },
+ "ordering.wait.sLeft": {
+  "ar": "المتبقي من 9 دقائق",
+  "en": "Left of 9 minutes",
+  "ur": "9 منٹ میں سے باقی",
+  "hi": "9 मिनट में से शेष",
+  "bn": "৯ মিনিটের মধ্যে বাকি",
+  "tl": "Natitira sa 9 minuto"
+ },
+ "ordering.wait.sRadius": {
+  "ar": "نطاق البحث الآن: ضمن 5 كم",
+  "en": "Search range now: within 5 km",
+  "ur": "تلاش کا دائرہ: 5 کلومیٹر کے اندر",
+  "hi": "खोज का दायरा: 5 किमी के भीतर",
+  "bn": "এখনকার খোঁজ: ৫ কিমির মধ্যে",
+  "tl": "Saklaw ng paghahanap: sa loob ng 5 km"
+ },
+ "ordering.wait.sHold": {
+  "ar": "المبلغ محجوز على بطاقتك (425 ر.س) ولم يُخصم بعد.",
+  "en": "425 SAR is held on your card and has not been charged yet.",
+  "ur": "425 SAR آپ کے کارڈ پر روکے گئے ہیں اور ابھی کاٹے نہیں گئے۔",
+  "hi": "425 SAR आपके कार्ड पर रोके गए हैं, अभी कटे नहीं हैं।",
+  "bn": "৪২৫ SAR কার্ডে আটকানো আছে, এখনও কাটা হয়নি।",
+  "tl": "Hawak sa card mo ang 425 SAR at hindi pa nasisingil."
+ },
+ "ordering.wait.sEnd": {
+  "ar": "بعد انتهاء الوقت نعرض أقرب نافذة (غدًا 8 – 10 ص) ويُفرَج عن المبلغ المحجوز.",
+  "en": "When time is up we offer the earliest window (tomorrow 8 – 10 AM) and release the held amount.",
+  "ur": "وقت ختم ہونے پر ہم قریب ترین ونڈو (کل صبح 8 – 10) پیش کرتے ہیں اور روکی گئی رقم جاری ہو جاتی ہے۔",
+  "hi": "समय खत्म होने पर हम सबसे जल्दी वाली विंडो (कल सुबह 8 – 10) देते हैं और रोकी गई राशि मुक्त हो जाती है।",
+  "bn": "সময় শেষে আমরা সবচেয়ে আগের সময় (আগামীকাল সকাল ৮ – ১০) দেখাই এবং আটকানো টাকা ছেড়ে দেওয়া হয়।",
+  "tl": "Pagkatapos ng oras, iaalok namin ang pinakamaagang window (bukas 8 – 10 AM) at ilalabas ang hinawakang halaga."
+ },
+ "ordering.wait.eTitle": {
+  "ar": "لم يؤكد المزوّد في الوقت المحدد",
+  "en": "The provider did not confirm in time",
+  "ur": "فراہم کنندہ نے وقت پر تصدیق نہیں کی",
+  "hi": "प्रदाता ने समय पर पुष्टि नहीं की",
+  "bn": "প্রদানকারী সময়মতো নিশ্চিত করেননি",
+  "tl": "Hindi nakumpirma ng provider sa oras"
+ },
+ "ordering.wait.eRefund": {
+  "ar": "بدأ استرداد 425 ر.س كاملًا إلى بطاقتك. تستغرق الاستردادات على البطاقات بضعة أيام.",
+  "en": "A full refund of 425 SAR has started to your card. Card refunds take a few days.",
+  "ur": "425 SAR کی مکمل واپسی آپ کے کارڈ پر شروع ہو گئی۔ کارڈ ریفنڈ میں چند دن لگتے ہیں۔",
+  "hi": "425 SAR की पूरी वापसी आपके कार्ड पर शुरू हो गई है। कार्ड रिफ़ंड में कुछ दिन लगते हैं।",
+  "bn": "৪২৫ SAR-এর পূর্ণ ফেরত আপনার কার্ডে শুরু হয়েছে। কার্ড রিফান্ডে কয়েক দিন লাগে।",
+  "tl": "Nagsimula na ang buong refund na 425 SAR sa card mo. Ilang araw ang refund sa card."
+ },
+ "ordering.wait.eDone": {
+  "ar": "تم الاسترداد تلقائيًا",
+  "en": "Refunded automatically",
+  "ur": "خود بخود واپس کر دیا گیا",
+  "hi": "अपने-आप लौटाया गया",
+  "bn": "স্বয়ংক্রিয়ভাবে ফেরত",
+  "tl": "Awtomatikong naibalik"
+ },
+ "ordering.wait.refundTime": {
+  "ar": "يصل المبلغ خلال بضعة أيام",
+  "en": "The amount arrives within a few days",
+  "ur": "رقم چند دن میں پہنچ جاتی ہے",
+  "hi": "राशि कुछ दिनों में पहुँचती है",
+  "bn": "টাকা কয়েক দিনের মধ্যে পৌঁছায়",
+  "tl": "Darating ang halaga sa loob ng ilang araw"
+ },
+ "ordering.wait.eAlt": {
+  "ar": "بديل مقترح بالسعر نفسه تقريبًا",
+  "en": "A suggested alternative at about the same price",
+  "ur": "تقریباً اسی قیمت پر تجویز کردہ متبادل",
+  "hi": "लगभग उसी कीमत पर सुझाया विकल्प",
+  "bn": "প্রায় একই দামে প্রস্তাবিত বিকল্প",
+  "tl": "Iminumungkahing alternatibo sa halos parehong presyo"
+ },
+ "ordering.match.pB": {
+  "ar": "مختبرات الصفوة",
+  "en": "Al Safwa Labs",
+  "ur": "الصفوہ لیبز",
+  "hi": "अल सफ़वा लैब्स",
+  "bn": "আল সাফওয়া ল্যাবস",
+  "tl": "Al Safwa Labs"
+ },
+ "ordering.match.rating": {
+  "ar": "{r} ({n} تقييمًا)",
+  "en": "{r} ({n} reviews)",
+  "ur": "{r} ({n} جائزے)",
+  "hi": "{r} ({n} समीक्षाएँ)",
+  "bn": "{r} ({n}টি রিভিউ)",
+  "tl": "{r} ({n} review)"
+ },
+ "ordering.match.tomorrow9": {
+  "ar": "غدًا 9:00 ص",
+  "en": "tomorrow 9:00 AM",
+  "ur": "کل صبح 9:00",
+  "hi": "कल सुबह 9:00",
+  "bn": "আগামীকাল সকাল ৯:০০",
+  "tl": "bukas 9:00 AM"
+ },
+ "ordering.match.earliest": {
+  "ar": "أقرب موعد: {w}",
+  "en": "Earliest: {w}",
+  "ur": "قریب ترین وقت: {w}",
+  "hi": "सबसे जल्दी: {w}",
+  "bn": "সবচেয়ে আগে: {w}",
+  "tl": "Pinakamaaga: {w}"
+ },
+ "ordering.wait.eBook": {
+  "ar": "احجز عند هذا المزوّد",
+  "en": "Book with this provider",
+  "ur": "اس فراہم کنندہ سے بُک کریں",
+  "hi": "इस प्रदाता से बुक करें",
+  "bn": "এই প্রদানকারীর কাছে বুক করুন",
+  "tl": "Mag-book sa provider na ito"
+ },
+ "ordering.wait.eEarly": {
+  "ar": "أو خذ أقرب نافذة عند المزوّد نفسه",
+  "en": "Or take the earliest window with the same provider",
+  "ur": "یا اسی فراہم کنندہ کے ساتھ قریب ترین ونڈو لیں",
+  "hi": "या उसी प्रदाता के साथ सबसे जल्दी वाली विंडो लें",
+  "bn": "অথবা একই প্রদানকারীর সবচেয়ে আগের সময় নিন",
+  "tl": "O kunin ang pinakamaagang window sa parehong provider"
+ },
+ "ordering.wait.eOther": {
+  "ar": "عرض مزوّدين آخرين",
+  "en": "See other providers",
+  "ur": "دوسرے فراہم کنندگان دیکھیں",
+  "hi": "अन्य प्रदाता देखें",
+  "bn": "অন্য প্রদানকারী দেখুন",
+  "tl": "Tingnan ang ibang provider"
+ },
+ "ordering.part.title": {
+  "ar": "قرار شركة التأمين",
+  "en": "Insurer’s decision",
+  "ur": "بیمہ کمپنی کا فیصلہ",
+  "hi": "बीमा कंपनी का निर्णय",
+  "bn": "বিমা কোম্পানির সিদ্ধান্ত",
+  "tl": "Desisyon ng insurer"
+ },
+ "ordering.part.head": {
+  "ar": "وافقت بوبا على جزء من الطلب",
+  "en": "Bupa approved part of the request",
+  "ur": "بوپا نے درخواست کا کچھ حصہ منظور کیا",
+  "hi": "बुपा ने अनुरोध का एक हिस्सा मंज़ूर किया",
+  "bn": "বুপা অনুরোধের একটি অংশ অনুমোদন করেছে",
+  "tl": "Inaprubahan ng Bupa ang bahagi ng request"
+ },
+ "ordering.part.headSub": {
+  "ar": "حصتك النهائية تغيّرت عن التقدير. اختر كيف تكمل. لن تدفع الجزء المؤمَّن مرتين.",
+  "en": "Your final share differs from the estimate. Choose how to continue. You never pay the insured part twice.",
+  "ur": "آپ کا حتمی حصہ تخمینے سے مختلف ہے۔ آگے بڑھنے کا طریقہ چنیں۔ بیمہ شدہ حصہ دو بار ادا نہیں کریں گے۔",
+  "hi": "आपका अंतिम हिस्सा अनुमान से अलग है। आगे का तरीका चुनें। बीमा वाला हिस्सा आप दो बार नहीं देंगे।",
+  "bn": "আপনার চূড়ান্ত অংশ অনুমানের চেয়ে আলাদা। কীভাবে এগোবেন বেছে নিন। বিমার অংশ আপনি দুইবার দেবেন না।",
+  "tl": "Ang pinal na bahagi mo ay iba sa tantiya. Piliin kung paano magpapatuloy. Hindi mo babayaran nang dalawang beses ang sakop ng insurance."
+ },
+ "ordering.part.dApproved": {
+  "ar": "موافَق عليه",
+  "en": "Approved",
+  "ur": "منظور",
+  "hi": "मंज़ूर",
+  "bn": "অনুমোদিত",
+  "tl": "Aprubado"
+ },
+ "ordering.part.colIns": {
+  "ar": "التأمين يدفع",
+  "en": "Insurer pays",
+  "ur": "بیمہ ادا کرے گا",
+  "hi": "बीमा देगा",
+  "bn": "বিমা দেবে",
+  "tl": "Babayaran ng insurer"
+ },
+ "ordering.part.colYou": {
+  "ar": "تدفع أنت",
+  "en": "You pay",
+  "ur": "آپ ادا کریں گے",
+  "hi": "आप देंगे",
+  "bn": "আপনি দেবেন",
+  "tl": "Babayaran mo"
+ },
+ "ordering.part.dRejected": {
+  "ar": "مرفوض",
+  "en": "Rejected",
+  "ur": "مسترد",
+  "hi": "अस्वीकृत",
+  "bn": "প্রত্যাখ্যাত",
+  "tl": "Tinanggihan"
+ },
+ "ordering.part.dNot": {
+  "ar": "غير مغطّى",
+  "en": "Not covered",
+  "ur": "شامل نہیں",
+  "hi": "कवर नहीं",
+  "bn": "কভার নয়",
+  "tl": "Hindi sakop"
+ },
+ "ordering.part.dPartial": {
+  "ar": "موافقة جزئية",
+  "en": "Partly approved",
+  "ur": "جزوی منظوری",
+  "hi": "आंशिक मंज़ूरी",
+  "bn": "আংশিক অনুমোদন",
+  "tl": "Bahagyang aprubado"
+ },
+ "ordering.part.fee": {
+  "ar": "رسوم الزيارة المنزلية",
+  "en": "Home-visit fee",
+  "ur": "گھر پر وزٹ کی فیس",
+  "hi": "घर पर विज़िट शुल्क",
+  "bn": "বাসায় ভিজিটের ফি",
+  "tl": "Bayad sa home visit"
+ },
+ "ordering.part.finalShare": {
+  "ar": "حصتك النهائية",
+  "en": "Your final share",
+  "ur": "آپ کا حتمی حصہ",
+  "hi": "आपका अंतिम हिस्सा",
+  "bn": "আপনার চূড়ান্ত অংশ",
+  "tl": "Pinal na bahagi mo"
+ },
+ "ordering.part.paid": {
+  "ar": "دفعتَ سابقًا",
+  "en": "Already paid",
+  "ur": "پہلے ادا کیا",
+  "hi": "पहले चुकाया",
+  "bn": "আগে পরিশোধিত",
+  "tl": "Nabayaran na"
+ },
+ "ordering.part.expires": {
+  "ar": "يجب اختيارك قبل 23 س لتبقى المواعيد محجوزة.",
+  "en": "Choose within 23 hours to keep your times reserved.",
+  "ur": "اوقات محفوظ رکھنے کے لیے 23 گھنٹے میں انتخاب کریں۔",
+  "hi": "समय सुरक्षित रखने के लिए 23 घंटे में चुनें।",
+  "bn": "সময় রাখতে ২৩ ঘণ্টার মধ্যে বেছে নিন।",
+  "tl": "Pumili sa loob ng 23 oras para manatiling nakalaan ang mga oras."
+ },
+ "ordering.part.o1": {
+  "ar": "ادفع الفرق وأكمل كل البنود",
+  "en": "Pay the difference and keep all items",
+  "ur": "فرق ادا کریں اور تمام آئٹمز رکھیں",
+  "hi": "अंतर चुकाएँ और सभी आइटम रखें",
+  "bn": "পার্থক্য দিন ও সব আইটেম রাখুন",
+  "tl": "Bayaran ang kulang at panatilihin ang lahat ng item"
+ },
+ "ordering.part.o1s": {
+  "ar": "تدفع الآن 70 ر.س إضافية، وتبقى المواعيد كما هي.",
+  "en": "You pay 70 SAR more now; the times stay as they are.",
+  "ur": "آپ ابھی 70 SAR مزید ادا کرتے ہیں، اوقات وہی رہتے ہیں۔",
+  "hi": "आप अभी 70 SAR और देते हैं; समय वही रहते हैं।",
+  "bn": "আপনি এখন আরও ৭০ SAR দেন; সময় আগের মতোই থাকে।",
+  "tl": "Magbabayad ka ng 70 SAR pa ngayon; mananatili ang mga oras."
+ },
+ "ordering.part.o2": {
+  "ar": "أكمل المغطّى فقط",
+  "en": "Continue with covered items only",
+  "ur": "صرف شامل آئٹمز جاری رکھیں",
+  "hi": "केवल कवर वाले आइटम जारी रखें",
+  "bn": "শুধু কভার করা আইটেম চালিয়ে যান",
+  "tl": "Ituloy ang sakop lang"
+ },
+ "ordering.part.o2s": {
+  "ar": "نبقي صورة الدم الكاملة والرنين، ونُرجع 25 ر.س إلى بطاقتك.",
+  "en": "We keep the CBC and the MRI, and refund 25 SAR to your card.",
+  "ur": "ہم CBC اور MRI رکھتے ہیں اور 25 SAR آپ کے کارڈ پر واپس کرتے ہیں۔",
+  "hi": "हम CBC और MRI रखते हैं और 25 SAR आपके कार्ड पर लौटाते हैं।",
+  "bn": "আমরা CBC ও MRI রাখি এবং ২৫ SAR কার্ডে ফেরত দিই।",
+  "tl": "Pananatilihin namin ang CBC at MRI, at ibabalik ang 25 SAR sa card mo."
+ },
+ "ordering.part.o3": {
+  "ar": "ألغِ مجانًا",
+  "en": "Cancel for free",
+  "ur": "مفت منسوخ کریں",
+  "hi": "मुफ़्त रद्द करें",
+  "bn": "বিনামূল্যে বাতিল করুন",
+  "tl": "Kanselahin nang libre"
+ },
+ "ordering.part.o3s": {
+  "ar": "نُرجع 425 ر.س كاملة ولا رسوم إلغاء.",
+  "en": "We refund all 425 SAR with no cancellation fee.",
+  "ur": "ہم پورے 425 SAR واپس کرتے ہیں، منسوخی کی کوئی فیس نہیں۔",
+  "hi": "हम पूरे 425 SAR लौटाते हैं, रद्द करने का कोई शुल्क नहीं।",
+  "bn": "আমরা পুরো ৪২৫ SAR ফেরত দিই, বাতিলের কোনো ফি নেই।",
+  "tl": "Ibabalik namin ang buong 425 SAR nang walang bayad sa kanselasyon."
+ },
+ "ordering.part.confirm1": {
+  "ar": "ادفع 70 ر.س وأكمل",
+  "en": "Pay 70 SAR and continue",
+  "ur": "70 SAR ادا کریں اور جاری رکھیں",
+  "hi": "70 SAR चुकाएँ और जारी रखें",
+  "bn": "৭০ SAR পরিশোধ করে চালিয়ে যান",
+  "tl": "Bayaran ang 70 SAR at magpatuloy",
+  "_layout": "button grows to two lines"
+ },
+ "ordering.part.confirm3": {
+  "ar": "ألغِ واسترد 425 ر.س",
+  "en": "Cancel and refund 425 SAR",
+  "ur": "منسوخ کریں اور 425 SAR واپس لیں",
+  "hi": "रद्द करें और 425 SAR वापस पाएँ",
+  "bn": "বাতিল করে ৪২৫ SAR ফেরত নিন",
+  "tl": "Kanselahin at i-refund ang 425 SAR"
+ },
+ "ordering.part.sheetTitle": {
+  "ar": "تأكيد الإلغاء المجاني",
+  "en": "Confirm free cancellation",
+  "ur": "مفت منسوخی کی تصدیق",
+  "hi": "मुफ़्त रद्द करने की पुष्टि",
+  "bn": "বিনামূল্যে বাতিলের নিশ্চিতকরণ",
+  "tl": "Kumpirmahin ang libreng kanselasyon"
+ },
+ "ordering.part.sheetBody": {
+  "ar": "سيُلغى الحجزان ويبدأ استرداد 425 ر.س فورًا إلى بطاقتك. تستغرق الاستردادات على البطاقات بضعة أيام.",
+  "en": "Both bookings are cancelled and a refund of 425 SAR starts at once to your card. Card refunds take a few days.",
+  "ur": "دونوں بکنگ منسوخ ہو جاتی ہیں اور 425 SAR کی واپسی فوراً آپ کے کارڈ پر شروع ہوتی ہے۔ کارڈ ریفنڈ میں چند دن لگتے ہیں۔",
+  "hi": "दोनों बुकिंग रद्द होती हैं और 425 SAR की वापसी तुरंत आपके कार्ड पर शुरू होती है। कार्ड रिफ़ंड में कुछ दिन लगते हैं।",
+  "bn": "দুটি বুকিংই বাতিল হয় এবং ৪২৫ SAR ফেরত সঙ্গে সঙ্গে আপনার কার্ডে শুরু হয়। কার্ড রিফান্ডে কয়েক দিন লাগে।",
+  "tl": "Kakanselahin ang dalawang booking at agad magsisimula ang refund na 425 SAR sa card mo. Ilang araw ang refund sa card."
+ },
+ "ordering.part.keep": {
+  "ar": "لا، أبقِ الحجز",
+  "en": "No, keep the booking",
+  "ur": "نہیں، بکنگ رکھیں",
+  "hi": "नहीं, बुकिंग रखें",
+  "bn": "না, বুকিং রাখুন",
+  "tl": "Hindi, panatilihin ang booking"
+ },
+ "ordering.part.doneTitle": {
+  "ar": "تم تحديث حجزك",
+  "en": "Your booking is updated",
+  "ur": "آپ کی بکنگ اپ ڈیٹ ہو گئی",
+  "hi": "आपकी बुकिंग अपडेट हो गई",
+  "bn": "আপনার বুকিং আপডেট হয়েছে",
+  "tl": "Na-update ang booking mo"
+ },
+ "ordering.part.doneBody": {
+  "ar": "ستبقى الفحوصات المغطّاة، وبدأ استرداد 25 ر.س. تصلك رسالة بالموعد النهائي.",
+  "en": "The covered tests stay and a refund of 25 SAR has started. You will get a message with the final time.",
+  "ur": "شامل ٹیسٹ برقرار رہتے ہیں اور 25 SAR کی واپسی شروع ہو گئی۔ آپ کو حتمی وقت کا پیغام ملے گا۔",
+  "hi": "कवर वाली जाँचें बनी रहती हैं और 25 SAR की वापसी शुरू हो गई। आपको अंतिम समय का संदेश मिलेगा।",
+  "bn": "কভার করা পরীক্ষা থাকছে এবং ২৫ SAR ফেরত শুরু হয়েছে। চূড়ান্ত সময়ের বার্তা পাবেন।",
+  "tl": "Mananatili ang mga sakop na test at nagsimula na ang refund na 25 SAR. Makakatanggap ka ng mensahe ng pinal na oras."
+ },
+ "ordering.part.refund25": {
+  "ar": "سيُرجَع 25 ر.س",
+  "en": "25 SAR will be refunded",
+  "ur": "25 SAR واپس کیے جائیں گے",
+  "hi": "25 SAR लौटाए जाएँगे",
+  "bn": "২৫ SAR ফেরত দেওয়া হবে",
+  "tl": "Ibabalik ang 25 SAR"
+ },
+ "ordering.part.viewBooking": {
+  "ar": "عرض الحجز",
+  "en": "View booking",
+  "ur": "بکنگ دیکھیں",
+  "hi": "बुकिंग देखें",
+  "bn": "বুকিং দেখুন",
+  "tl": "Tingnan ang booking"
+ },
+ "ordering.part.removes": {
+  "ar": "يُزال: السكر التراكمي، فيتامين د، رسوم الزيارة",
+  "en": "Removed: HbA1c, Vitamin D, home-visit fee",
+  "ur": "ہٹایا جائے گا: HbA1c، وٹامن ڈی، وزٹ فیس",
+  "hi": "हटाया जाएगा: HbA1c, विटामिन डी, विज़िट शुल्क",
+  "bn": "বাদ যাবে: HbA1c, ভিটামিন ডি, ভিজিট ফি",
+  "tl": "Aalisin: HbA1c, Vitamin D, bayad sa pagbisita"
+ },
+ "ordering.part.confirm2": {
+  "ar": "أكمل المغطّى فقط",
+  "en": "Continue with covered items only",
+  "ur": "صرف شامل آئٹمز جاری رکھیں",
+  "hi": "केवल कवर वाले आइटम जारी रखें",
+  "bn": "শুধু কভার করা আইটেম চালিয়ে যান",
+  "tl": "Ituloy ang sakop lang"
+ },
+ "ordering.part.applying": {
+  "ar": "نطبّق اختيارك…",
+  "en": "Applying your choice…",
+  "ur": "آپ کا انتخاب لاگو ہو رہا ہے…",
+  "hi": "आपका चुनाव लागू हो रहा है…",
+  "bn": "আপনার পছন্দ প্রয়োগ হচ্ছে…",
+  "tl": "Inilalapat ang pinili mo…"
+ },
+ "ordering.track.onWay": {
+  "ar": "الفنّي في الطريق إليك",
+  "en": "The technician is on the way",
+  "ur": "ٹیکنیشن آپ کی طرف آ رہا ہے",
+  "hi": "तकनीशियन आपकी ओर आ रहा है",
+  "bn": "টেকনিশিয়ান আপনার দিকে আসছেন",
+  "tl": "Papunta na sa iyo ang technician"
+ },
+ "ordering.track.eta": {
+  "ar": "يصل خلال 18 دقيقة · النافذة 2 – 4 م",
+  "en": "Arrives in 18 minutes · window 2 – 4 PM",
+  "ur": "18 منٹ میں پہنچے گا · ونڈو دوپہر 2 – 4",
+  "hi": "18 मिनट में पहुँचेगा · विंडो दोपहर 2 – 4",
+  "bn": "১৮ মিনিটে পৌঁছাবেন · সময়সীমা বিকাল ২ – ৪",
+  "tl": "Darating sa loob ng 18 minuto · window 2 – 4 PM"
+ },
+ "ordering.track.mapNote": {
+  "ar": "موقع الفنّي يظهر هنا أثناء الطريق فقط",
+  "en": "The technician’s position shows here only while on the way",
+  "ur": "ٹیکنیشن کی لوکیشن صرف راستے میں یہاں دکھائی دیتی ہے",
+  "hi": "तकनीशियन की लोकेशन केवल रास्ते में यहाँ दिखती है",
+  "bn": "টেকনিশিয়ানের অবস্থান শুধু পথে থাকাকালীন এখানে দেখা যায়",
+  "tl": "Makikita rito ang posisyon ng technician habang papunta lang"
+ },
+ "ordering.track.s1": {
+  "ar": "تم تأكيد الحجز",
+  "en": "Booking confirmed",
+  "ur": "بکنگ کی تصدیق ہو گئی",
+  "hi": "बुकिंग की पुष्टि हुई",
+  "bn": "বুকিং নিশ্চিত",
+  "tl": "Nakumpirma ang booking"
+ },
+ "ordering.track.s2": {
+  "ar": "تمت موافقة التأمين",
+  "en": "Insurance approved",
+  "ur": "بیمہ منظور",
+  "hi": "बीमा मंज़ूर",
+  "bn": "বিমা অনুমোদিত",
+  "tl": "Naaprubahan ang insurance"
+ },
+ "ordering.track.s3": {
+  "ar": "الفنّي في الطريق",
+  "en": "Technician on the way",
+  "ur": "ٹیکنیشن راستے میں",
+  "hi": "तकनीशियन रास्ते में",
+  "bn": "টেকনিশিয়ান পথে",
+  "tl": "Papunta ang technician"
+ },
+ "ordering.track.s4": {
+  "ar": "وصل الفنّي (بالرمز)",
+  "en": "Technician arrived (by code)",
+  "ur": "ٹیکنیشن پہنچ گیا (کوڈ سے)",
+  "hi": "तकनीशियन पहुँचा (कोड से)",
+  "bn": "টেকনিশিয়ান পৌঁছেছেন (কোডে)",
+  "tl": "Dumating ang technician (sa code)"
+ },
+ "ordering.track.s5": {
+  "ar": "أُخذت العيّنات",
+  "en": "Samples collected",
+  "ur": "نمونے لے لیے گئے",
+  "hi": "नमूने लिए गए",
+  "bn": "নমুনা সংগ্রহ হয়েছে",
+  "tl": "Nakuha ang mga sample"
+ },
+ "ordering.track.s6": {
+  "ar": "النتائج جاهزة",
+  "en": "Results ready",
+  "ur": "نتائج تیار",
+  "hi": "नतीजे तैयार",
+  "bn": "ফলাফল প্রস্তুত",
+  "tl": "Handa na ang resulta"
+ },
+ "ordering.track.name": {
+  "ar": "خالد المطيري",
+  "en": "Khalid Al Mutairi",
+  "ur": "خالد المطیری",
+  "hi": "खालिद अल मुतैरी",
+  "bn": "খালিদ আল মুতাইরি",
+  "tl": "Khalid Al Mutairi"
+ },
+ "ordering.track.role": {
+  "ar": "فنّي مختبر · مختبر البرج الطبي",
+  "en": "Lab technician · Al Burj Medical Lab",
+  "ur": "لیب ٹیکنیشن · البرج میڈیکل لیب",
+  "hi": "लैब तकनीशियन · अल बुर्ज मेडिकल लैब",
+  "bn": "ল্যাব টেকনিশিয়ান · আল বুর্জ মেডিকেল ল্যাব",
+  "tl": "Lab technician · Al Burj Medical Lab"
+ },
+ "ordering.track.licence": {
+  "ar": "رخصة الهيئة السعودية للتخصصات الصحية: 18-123456",
+  "en": "SCFHS licence: 18-123456",
+  "ur": "سعودی کمیشن برائے ہیلتھ اسپیشلٹیز لائسنس: 18-123456",
+  "hi": "SCFHS लाइसेंस: 18-123456",
+  "bn": "SCFHS লাইসেন্স: ১৮-১২৩৪৫৬",
+  "tl": "Lisensya ng SCFHS: 18-123456"
+ },
+ "ordering.track.langs": {
+  "ar": "يتحدث العربية والإنجليزية",
+  "en": "Speaks Arabic and English",
+  "ur": "عربی اور انگریزی بولتے ہیں",
+  "hi": "अरबी और अंग्रेज़ी बोलते हैं",
+  "bn": "আরবি ও ইংরেজি বলেন",
+  "tl": "Nagsasalita ng Arabic at English"
+ },
+ "ordering.track.codeTitle": {
+  "ar": "رمز الوصول",
+  "en": "Arrival code",
+  "ur": "آمد کا کوڈ",
+  "hi": "आगमन कोड",
+  "bn": "আগমনের কোড",
+  "tl": "Code ng pagdating"
+ },
+ "ordering.track.codeHint": {
+  "ar": "أعطِ هذا الرمز للفنّي عند وصوله ليكتبه في تطبيقه. لا تعطه لأحد قبل ذلك.",
+  "en": "Give this code to the technician on arrival so they can type it in their app. Do not share it before.",
+  "ur": "پہنچنے پر یہ کوڈ ٹیکنیشن کو دیں تاکہ وہ اپنی ایپ میں درج کرے۔ اس سے پہلے کسی کو نہ دیں۔",
+  "hi": "पहुँचने पर यह कोड तकनीशियन को दें ताकि वे अपने ऐप में डालें। उससे पहले किसी को न दें।",
+  "bn": "পৌঁছালে এই কোড টেকনিশিয়ানকে দিন যাতে তিনি অ্যাপে লেখেন। তার আগে কাউকে দেবেন না।",
+  "tl": "Ibigay ang code na ito sa technician pagdating para i-type niya sa app niya. Huwag ibigay bago iyon."
+ },
+ "ordering.track.chat": {
+  "ar": "مراسلة داخل التطبيق",
+  "en": "Message in the app",
+  "ur": "ایپ میں پیغام",
+  "hi": "ऐप में संदेश",
+  "bn": "অ্যাপে বার্তা",
+  "tl": "Mensahe sa app"
+ },
+ "ordering.track.call": {
+  "ar": "اتصال داخل التطبيق",
+  "en": "Call in the app",
+  "ur": "ایپ میں کال",
+  "hi": "ऐप में कॉल",
+  "bn": "অ্যাপে কল",
+  "tl": "Tawag sa app"
+ },
+ "ordering.track.inApp": {
+  "ar": "الرسائل والمكالمات داخل التطبيق فقط، دون أرقام هواتف.",
+  "en": "Messages and calls stay in the app, with no phone numbers.",
+  "ur": "پیغامات اور کالز صرف ایپ میں ہوتے ہیں، فون نمبر کے بغیر۔",
+  "hi": "संदेश और कॉल केवल ऐप में होते हैं, फ़ोन नंबर के बिना।",
+  "bn": "বার্তা ও কল শুধু অ্যাপের ভেতরে, ফোন নম্বর ছাড়াই।",
+  "tl": "Nasa app lang ang mga mensahe at tawag, walang numero ng telepono."
+ },
+ "ordering.track.sos": {
+  "ar": "طوارئ",
+  "en": "Emergency",
+  "ur": "ایمرجنسی",
+  "hi": "आपातकाल",
+  "bn": "জরুরি",
+  "tl": "Emergency"
+ },
+ "ordering.track.title": {
+  "ar": "متابعة الحجز",
+  "en": "Track your booking",
+  "ur": "بکنگ کی نگرانی",
+  "hi": "बुकिंग ट्रैक करें",
+  "bn": "বুকিং ট্র্যাক করুন",
+  "tl": "Subaybayan ang booking"
+ },
+ "ordering.track.bookings": {
+  "ar": "حجوزاتك",
+  "en": "Your bookings",
+  "ur": "آپ کی بکنگز",
+  "hi": "आपकी बुकिंग",
+  "bn": "আপনার বুকিং",
+  "tl": "Mga booking mo"
+ },
+ "ordering.track.open": {
+  "ar": "فتح",
+  "en": "Open",
+  "ur": "کھولیں",
+  "hi": "खोलें",
+  "bn": "খুলুন",
+  "tl": "Buksan"
+ },
+ "ordering.track.bkHome": {
+  "ar": "زيارة منزلية · غدًا 2 – 4 م",
+  "en": "Home visit · tomorrow 2 – 4 PM",
+  "ur": "گھر پر وزٹ · کل دوپہر 2 – 4",
+  "hi": "घर पर विज़िट · कल दोपहर 2 – 4",
+  "bn": "বাসায় ভিজিট · আগামীকাল বিকাল ২ – ৪",
+  "tl": "Home visit · bukas 2 – 4 PM"
+ },
+ "ordering.track.stWaitIns": {
+  "ar": "بانتظار موافقة التأمين",
+  "en": "Waiting for insurance approval",
+  "ur": "بیمہ کی منظوری کا انتظار",
+  "hi": "बीमा मंज़ूरी का इंतज़ार",
+  "bn": "বিমা অনুমোদনের অপেক্ষা",
+  "tl": "Naghihintay sa approval ng insurance"
+ },
+ "ordering.track.bkCentre": {
+  "ar": "في المركز · غدًا 9:30 ص",
+  "en": "At the centre · tomorrow 9:30 AM",
+  "ur": "مرکز میں · کل صبح 9:30",
+  "hi": "केंद्र पर · कल सुबह 9:30",
+  "bn": "কেন্দ্রে · আগামীকাল সকাল ৯:৩০",
+  "tl": "Sa sentro · bukas 9:30 AM"
+ },
+ "ordering.track.stConfirmed": {
+  "ar": "مؤكَّد",
+  "en": "Confirmed",
+  "ur": "تصدیق شدہ",
+  "hi": "पुष्टि हुई",
+  "bn": "নিশ্চিত",
+  "tl": "Kumpirmado"
+ },
+ "ordering.track.separate": {
+  "ar": "لكل حجز حالته واسترداده المستقل.",
+  "en": "Each booking has its own status and its own refund.",
+  "ur": "ہر بکنگ کی اپنی حالت اور اپنی واپسی ہے۔",
+  "hi": "हर बुकिंग की अपनी स्थिति और अपनी वापसी है।",
+  "bn": "প্রতিটি বুকিংয়ের নিজস্ব অবস্থা ও রিফান্ড আছে।",
+  "tl": "May sariling katayuan at refund ang bawat booking."
+ },
+ "ordering.track.cancelOne": {
+  "ar": "إلغاء هذا الحجز فقط",
+  "en": "Cancel this booking only",
+  "ur": "صرف یہ بکنگ منسوخ کریں",
+  "hi": "केवल यह बुकिंग रद्द करें",
+  "bn": "শুধু এই বুকিং বাতিল করুন",
+  "tl": "Kanselahin ang booking na ito lang"
+ },
+ "ordering.track.remTitle": {
+  "ar": "تذكيرات التحضير",
+  "en": "Preparation reminders",
+  "ur": "تیاری کی یاد دہانیاں",
+  "hi": "तैयारी के रिमाइंडर",
+  "bn": "প্রস্তুতির অনুস্মারক",
+  "tl": "Mga paalala sa paghahanda"
+ },
+ "ordering.track.rem1t": {
+  "ar": "الليلة 10:00 م",
+  "en": "Tonight 10:00 PM",
+  "ur": "آج رات 10:00",
+  "hi": "आज रात 10:00",
+  "bn": "আজ রাত ১০:০০",
+  "tl": "Ngayong gabi 10:00 PM"
+ },
+ "ordering.track.rem1": {
+  "ar": "صيام 8 ساعات قبل الزيارة: لا طعام بعد 6:00 ص غدًا، والماء مسموح.",
+  "en": "Fast 8 hours before the visit: no food after 6:00 AM tomorrow; water is fine.",
+  "ur": "ملاقات سے 8 گھنٹے پہلے روزہ: کل صبح 6:00 کے بعد کھانا نہیں، پانی ٹھیک ہے۔",
+  "hi": "विज़िट से 8 घंटे पहले उपवास: कल सुबह 6:00 के बाद भोजन नहीं, पानी ठीक है।",
+  "bn": "ভিজিটের ৮ ঘণ্টা আগে উপবাস: আগামীকাল সকাল ৬:০০-এর পর খাবার নয়, পানি চলবে।",
+  "tl": "Mag-ayuno 8 oras bago ang pagbisita: walang pagkain pagkatapos ng 6:00 AM bukas; puwede ang tubig."
+ },
+ "ordering.track.rem2t": {
+  "ar": "غدًا 6:00 ص",
+  "en": "Tomorrow 6:00 AM",
+  "ur": "کل صبح 6:00",
+  "hi": "कल सुबह 6:00",
+  "bn": "আগামীকাল সকাল ৬:০০",
+  "tl": "Bukas 6:00 AM"
+ },
+ "ordering.track.rem2": {
+  "ar": "يبدأ الصيام الآن. زيارة الفنّي بين 2 و4 م.",
+  "en": "Fasting starts now. The technician visits between 2 and 4 PM.",
+  "ur": "روزہ ابھی شروع ہوتا ہے۔ ٹیکنیشن دوپہر 2 سے 4 کے درمیان آئے گا۔",
+  "hi": "उपवास अभी शुरू होता है। तकनीशियन दोपहर 2 से 4 के बीच आएगा।",
+  "bn": "উপবাস এখন শুরু। টেকনিশিয়ান বিকাল ২ থেকে ৪টার মধ্যে আসবেন।",
+  "tl": "Magsisimula na ang pag-aayuno. Darating ang technician sa pagitan ng 2 at 4 PM."
+ },
+ "ordering.track.rem3t": {
+  "ar": "غدًا 8:30 ص",
+  "en": "Tomorrow 8:30 AM",
+  "ur": "کل صبح 8:30",
+  "hi": "कल सुबह 8:30",
+  "bn": "আগামীকাল সকাল ৮:৩০",
+  "tl": "Bukas 8:30 AM"
+ },
+ "ordering.track.rem3": {
+  "ar": "موعد الرنين 9:30 ص: انزع المعادن والمجوهرات قبل الفحص.",
+  "en": "MRI at 9:30 AM: remove metal and jewellery before the scan.",
+  "ur": "MRI صبح 9:30: اسکین سے پہلے دھات اور زیورات اتار دیں۔",
+  "hi": "MRI सुबह 9:30: स्कैन से पहले धातु और गहने उतार दें।",
+  "bn": "MRI সকাল ৯:৩০: স্ক্যানের আগে ধাতু ও গয়না খুলুন।",
+  "tl": "MRI 9:30 AM: alisin ang metal at alahas bago ang scan."
+ },
+ "ordering.track.dTitle": {
+  "ar": "رفض المزوّد حجز المنزل",
+  "en": "The provider declined the home booking",
+  "ur": "فراہم کنندہ نے گھر کی بکنگ سے انکار کیا",
+  "hi": "प्रदाता ने घर की बुकिंग से मना किया",
+  "bn": "প্রদানকারী বাসার বুকিং প্রত্যাখ্যান করেছেন",
+  "tl": "Tinanggihan ng provider ang home booking"
+ },
+ "ordering.track.stDeclined": {
+  "ar": "رفض المزوّد",
+  "en": "Declined by provider",
+  "ur": "فراہم کنندہ نے انکار کیا",
+  "hi": "प्रदाता ने मना किया",
+  "bn": "প্রদানকারী প্রত্যাখ্যান করেছেন",
+  "tl": "Tinanggihan ng provider"
+ },
+ "ordering.track.dRefund": {
+  "ar": "بدأ استرداد 165 ر.س لهذا الحجز وحده. حجز المركز لم يتأثر.",
+  "en": "A refund of 165 SAR started for this booking only. The centre booking is unaffected.",
+  "ur": "صرف اس بکنگ کے 165 SAR کی واپسی شروع ہو گئی۔ مرکز کی بکنگ متاثر نہیں ہوئی۔",
+  "hi": "केवल इसी बुकिंग के 165 SAR की वापसी शुरू हुई। केंद्र की बुकिंग पर असर नहीं।",
+  "bn": "শুধু এই বুকিংয়ের ১৬৫ SAR ফেরত শুরু হয়েছে। কেন্দ্রের বুকিং প্রভাবিত হয়নি।",
+  "tl": "Nagsimula ang refund na 165 SAR para sa booking na ito lang. Hindi apektado ang booking sa sentro."
+ },
+ "ordering.track.dNext": {
+  "ar": "اقتراح تلقائي: مختبرات الصفوة · 165 ر.س · غدًا 2 – 4 م",
+  "en": "Automatic suggestion: Al Safwa Labs · 165 SAR · tomorrow 2 – 4 PM",
+  "ur": "خودکار تجویز: الصفوہ لیبز · 165 SAR · کل دوپہر 2 – 4",
+  "hi": "स्वचालित सुझाव: अल सफ़वा लैब्स · 165 SAR · कल दोपहर 2 – 4",
+  "bn": "স্বয়ংক্রিয় প্রস্তাব: আল সাফওয়া ল্যাবস · ১৬৫ SAR · আগামীকাল বিকাল ২ – ৪",
+  "tl": "Awtomatikong mungkahi: Al Safwa Labs · 165 SAR · bukas 2 – 4 PM"
+ },
+ "ordering.track.dBook": {
+  "ar": "احجز عندهم",
+  "en": "Book with them",
+  "ur": "ان کے ساتھ بُک کریں",
+  "hi": "उनके साथ बुक करें",
+  "bn": "তাঁদের কাছে বুক করুন",
+  "tl": "Mag-book sa kanila"
+ },
+ "ordering.track.dOther": {
+  "ar": "اختر مزوّدًا آخر",
+  "en": "Choose another provider",
+  "ur": "دوسرا فراہم کنندہ چنیں",
+  "hi": "दूसरा प्रदाता चुनें",
+  "bn": "অন্য প্রদানকারী বেছে নিন",
+  "tl": "Pumili ng ibang provider"
+ },
+ "ordering.track.stOnWay": {
+  "ar": "في الطريق",
+  "en": "On the way",
+  "ur": "راستے میں",
+  "hi": "रास्ते में",
+  "bn": "পথে",
+  "tl": "Papunta"
+ },
+ "ordering.track.sosTitle": {
+  "ar": "هل أنت في خطر أو تحتاج إسعافًا؟",
+  "en": "Are you in danger or need an ambulance?",
+  "ur": "کیا آپ خطرے میں ہیں یا ایمبولینس چاہیے؟",
+  "hi": "क्या आप खतरे में हैं या एम्बुलेंस चाहिए?",
+  "bn": "আপনি কি বিপদে আছেন বা অ্যাম্বুলেন্স দরকার?",
+  "tl": "Nasa panganib ka ba o kailangan ng ambulansya?"
+ },
+ "ordering.track.sosBody": {
+  "ar": "نرسل موقعك إلى فريق نبض ونوقف الزيارة فورًا.",
+  "en": "We send your location to the Nabd team and stop the visit at once.",
+  "ur": "ہم آپ کی لوکیشن نبض ٹیم کو بھیجتے ہیں اور وزٹ فوراً روک دیتے ہیں۔",
+  "hi": "हम आपकी लोकेशन नब्ज़ टीम को भेजते हैं और विज़िट तुरंत रोक देते हैं।",
+  "bn": "আমরা আপনার অবস্থান নাবদ দলকে পাঠাই এবং ভিজিট সঙ্গে সঙ্গে থামাই।",
+  "tl": "Ipinapadala namin ang lokasyon mo sa Nabd team at agad na ihihinto ang pagbisita."
+ },
+ "ordering.track.sosBtn": {
+  "ar": "اطلب الإسعاف وأبلغ نبض",
+  "en": "Call an ambulance and alert Nabd",
+  "ur": "ایمبولینس بلائیں اور نبض کو اطلاع دیں",
+  "hi": "एम्बुलेंस बुलाएँ और नब्ज़ को सूचित करें",
+  "bn": "অ্যাম্বুলেন্স ডাকুন ও নাবদকে জানান",
+  "tl": "Tumawag ng ambulansya at i-alert ang Nabd"
+ },
+ "ordering.track.sosCancel": {
+  "ar": "أنا بخير، رجوع",
+  "en": "I am fine, go back",
+  "ur": "میں ٹھیک ہوں، واپس",
+  "hi": "मैं ठीक हूँ, वापस",
+  "bn": "আমি ঠিক আছি, ফিরে যান",
+  "tl": "Ayos lang ako, bumalik"
+ },
+ "ordering.track.mapErr": {
+  "ar": "تعذّر تحميل الخريطة، المتابعة بالنص تعمل.",
+  "en": "The map could not load; text tracking still works.",
+  "ur": "نقشہ لوڈ نہیں ہوا، متن کے ذریعے نگرانی جاری ہے۔",
+  "hi": "मानचित्र लोड नहीं हुआ; टेक्स्ट ट्रैकिंग चालू है।",
+  "bn": "মানচিত্র লোড হয়নি; লেখায় ট্র্যাকিং চলছে।",
+  "tl": "Hindi na-load ang mapa; gumagana pa ang text tracking."
+ },
+ "ordering.track.loading": {
+  "ar": "نحدّث حالة الحجز…",
+  "en": "Updating the booking status…",
+  "ur": "بکنگ کی حالت اپ ڈیٹ ہو رہی ہے…",
+  "hi": "बुकिंग की स्थिति अपडेट हो रही है…",
+  "bn": "বুকিংয়ের অবস্থা হালনাগাদ হচ্ছে…",
+  "tl": "Ina-update ang katayuan ng booking…"
+ },
+ "ordering.res.ready": {
+  "ar": "النتائج جاهزة · مختبر البرج الطبي · اليوم 6:10 م",
+  "en": "Results ready · Al Burj Medical Lab · today 6:10 PM",
+  "ur": "نتائج تیار · البرج میڈیکل لیب · آج شام 6:10",
+  "hi": "नतीजे तैयार · अल बुर्ज मेडिकल लैब · आज शाम 6:10",
+  "bn": "ফলাফল প্রস্তুত · আল বুর্জ মেডিকেল ল্যাব · আজ সন্ধ্যা ৬:১০",
+  "tl": "Handa na ang resulta · Al Burj Medical Lab · ngayong 6:10 PM"
+ },
+ "ordering.res.summary": {
+  "ar": "4 قيم: قيمتان ضمن المرجع وقيمتان خارجه",
+  "en": "4 values: two in range and two outside it",
+  "ur": "4 اقدار: دو حد میں اور دو حد سے باہر",
+  "hi": "4 मान: दो सीमा में और दो सीमा से बाहर",
+  "bn": "৪টি মান: দুটি সীমার মধ্যে ও দুটি বাইরে",
+  "tl": "4 na halaga: dalawa sa saklaw at dalawa sa labas"
+ },
+ "ordering.res.share": {
+  "ar": "مشاركة",
+  "en": "Share",
+  "ur": "شیئر کریں",
+  "hi": "साझा करें",
+  "bn": "শেয়ার",
+  "tl": "Ibahagi"
+ },
+ "ordering.res.pdf": {
+  "ar": "تنزيل التقرير",
+  "en": "Download report",
+  "ur": "رپورٹ ڈاؤن لوڈ کریں",
+  "hi": "रिपोर्ट डाउनलोड करें",
+  "bn": "রিপোর্ট ডাউনলোড",
+  "tl": "I-download ang ulat"
+ },
+ "ordering.res.hb": {
+  "ar": "الهيموغلوبين",
+  "en": "Haemoglobin",
+  "ur": "ہیموگلوبن",
+  "hi": "हीमोग्लोबिन",
+  "bn": "হিমোগ্লোবিন",
+  "tl": "Hemoglobin"
+ },
+ "ordering.res.inRange": {
+  "ar": "ضمن المرجع",
+  "en": "In range",
+  "ur": "حد میں",
+  "hi": "सीमा में",
+  "bn": "সীমার মধ্যে",
+  "tl": "Nasa saklaw"
+ },
+ "ordering.res.unit.hb": {
+  "ar": "غ/ديسيلتر",
+  "en": "g/dL",
+  "ur": "g/dL",
+  "hi": "g/dL",
+  "bn": "g/dL",
+  "tl": "g/dL"
+ },
+ "ordering.res.ref": {
+  "ar": "المرجع: {a} – {b}",
+  "en": "Reference: {a} – {b}",
+  "ur": "حوالہ: {a} – {b}",
+  "hi": "संदर्भ: {a} – {b}",
+  "bn": "রেফারেন্স: {a} – {b}",
+  "tl": "Reference: {a} – {b}"
+ },
+ "ordering.res.wbc": {
+  "ar": "كريات الدم البيضاء",
+  "en": "White blood cells",
+  "ur": "سفید خون کے خلیے",
+  "hi": "श्वेत रक्त कोशिकाएँ",
+  "bn": "শ্বেত রক্তকণিকা",
+  "tl": "White blood cells"
+ },
+ "ordering.res.unit.wbc": {
+  "ar": "×10³/ميكرولتر",
+  "en": "×10³/µL",
+  "ur": "×10³/µL",
+  "hi": "×10³/µL",
+  "bn": "×10³/µL",
+  "tl": "×10³/µL"
+ },
+ "ordering.res.high": {
+  "ar": "أعلى من المرجع",
+  "en": "Above range",
+  "ur": "حد سے اوپر",
+  "hi": "सीमा से ऊपर",
+  "bn": "সীমার উপরে",
+  "tl": "Higit sa saklaw"
+ },
+ "ordering.res.unit.pct": {
+  "ar": "٪",
+  "en": "%",
+  "ur": "%",
+  "hi": "%",
+  "bn": "%",
+  "tl": "%"
+ },
+ "ordering.res.low": {
+  "ar": "أقل من المرجع",
+  "en": "Below range",
+  "ur": "حد سے نیچے",
+  "hi": "सीमा से नीचे",
+  "bn": "সীমার নিচে",
+  "tl": "Mas mababa sa saklaw"
+ },
+ "ordering.res.unit.vit": {
+  "ar": "نانوغرام/مل",
+  "en": "ng/mL",
+  "ur": "ng/mL",
+  "hi": "ng/mL",
+  "bn": "ng/mL",
+  "tl": "ng/mL"
+ },
+ "ordering.res.privacy": {
+  "ar": "نتائجك تظهر لك فقط ولمن تشاركه أنت.",
+  "en": "Your results are visible only to you and whoever you share them with.",
+  "ur": "آپ کے نتائج صرف آپ کو اور اس کو دکھائی دیتے ہیں جس کے ساتھ آپ شیئر کریں۔",
+  "hi": "आपके नतीजे केवल आपको और उसे दिखते हैं जिसके साथ आप साझा करें।",
+  "bn": "আপনার ফলাফল শুধু আপনি ও যাঁর সঙ্গে শেয়ার করেন তিনিই দেখেন।",
+  "tl": "Ikaw lang at ang pinagbahagian mo ang makakakita ng resulta mo."
+ },
+ "ordering.res.trend": {
+  "ar": "الاتجاه عبر نتائجك",
+  "en": "Trend across your results",
+  "ur": "آپ کے نتائج میں رجحان",
+  "hi": "आपके नतीजों में रुझान",
+  "bn": "আপনার ফলাফলে প্রবণতা",
+  "tl": "Trend sa mga resulta mo"
+ },
+ "ordering.res.down": {
+  "ar": "ينخفض",
+  "en": "Falling",
+  "ur": "گھٹ رہا ہے",
+  "hi": "घट रहा है",
+  "bn": "কমছে",
+  "tl": "Bumababa"
+ },
+ "ordering.res.dt1": {
+  "ar": "فبراير 2026",
+  "en": "Feb 2026",
+  "ur": "فروری 2026",
+  "hi": "फ़रवरी 2026",
+  "bn": "ফেব্রুয়ারি ২০২৬",
+  "tl": "Peb 2026"
+ },
+ "ordering.res.dt2": {
+  "ar": "مايو 2026",
+  "en": "May 2026",
+  "ur": "مئی 2026",
+  "hi": "मई 2026",
+  "bn": "মে ২০২৬",
+  "tl": "May 2026"
+ },
+ "ordering.res.dt3": {
+  "ar": "اليوم",
+  "en": "Today",
+  "ur": "آج",
+  "hi": "आज",
+  "bn": "আজ",
+  "tl": "Ngayon"
+ },
+ "ordering.res.vitNote": {
+  "ar": "قيمتك أقل من المرجع وتنخفض منذ فبراير. هذه معلومة وليست تشخيصًا؛ الطبيب يفسّرها معك.",
+  "en": "Your value is below range and has fallen since February. This is information, not a diagnosis; a doctor interprets it with you.",
+  "ur": "آپ کی قدر حد سے نیچے ہے اور فروری سے کم ہو رہی ہے۔ یہ معلومات ہیں، تشخیص نہیں؛ ڈاکٹر آپ کے ساتھ اس کی وضاحت کرتا ہے۔",
+  "hi": "आपका मान सीमा से नीचे है और फ़रवरी से घट रहा है। यह जानकारी है, निदान नहीं; डॉक्टर आपके साथ इसकी व्याख्या करते हैं।",
+  "bn": "আপনার মান সীমার নিচে এবং ফেব্রুয়ারি থেকে কমছে। এটি তথ্য, রোগনির্ণয় নয়; ডাক্তার আপনার সঙ্গে ব্যাখ্যা করেন।",
+  "tl": "Mas mababa sa saklaw ang halaga mo at bumababa mula Pebrero. Impormasyon ito, hindi diagnosis; ipapaliwanag ito ng doktor."
+ },
+ "ordering.res.discuss": {
+  "ar": "ناقش النتيجة مع طبيب",
+  "en": "Discuss with a doctor",
+  "ur": "ڈاکٹر سے بات کریں",
+  "hi": "डॉक्टर से चर्चा करें",
+  "bn": "ডাক্তারের সঙ্গে আলোচনা করুন",
+  "tl": "Talakayin sa doktor"
+ },
+ "ordering.res.title": {
+  "ar": "نتائجك",
+  "en": "Your results",
+  "ur": "آپ کے نتائج",
+  "hi": "आपके नतीजे",
+  "bn": "আপনার ফলাফল",
+  "tl": "Mga resulta mo"
+ },
+ "ordering.res.rateTitle": {
+  "ar": "كيف كانت تجربتك؟",
+  "en": "How was your experience?",
+  "ur": "آپ کا تجربہ کیسا رہا؟",
+  "hi": "आपका अनुभव कैसा रहा?",
+  "bn": "আপনার অভিজ্ঞতা কেমন ছিল?",
+  "tl": "Kumusta ang karanasan mo?"
+ },
+ "ordering.res.rateLab": {
+  "ar": "المختبر",
+  "en": "The lab",
+  "ur": "لیب",
+  "hi": "लैब",
+  "bn": "ল্যাব",
+  "tl": "Ang lab"
+ },
+ "ordering.res.rateTech": {
+  "ar": "الفنّي خالد",
+  "en": "Technician Khalid",
+  "ur": "ٹیکنیشن خالد",
+  "hi": "तकनीशियन खालिद",
+  "bn": "টেকনিশিয়ান খালিদ",
+  "tl": "Technician Khalid"
+ },
+ "ordering.res.tag1": {
+  "ar": "في الموعد",
+  "en": "On time",
+  "ur": "وقت پر",
+  "hi": "समय पर",
+  "bn": "সময়মতো",
+  "tl": "Nasa oras"
+ },
+ "ordering.res.tag2": {
+  "ar": "محترف",
+  "en": "Professional",
+  "ur": "پیشہ ور",
+  "hi": "पेशेवर",
+  "bn": "পেশাদার",
+  "tl": "Propesyonal"
+ },
+ "ordering.res.tag3": {
+  "ar": "نتيجة سريعة",
+  "en": "Fast result",
+  "ur": "تیز نتیجہ",
+  "hi": "तेज़ नतीजा",
+  "bn": "দ্রুত ফলাফল",
+  "tl": "Mabilis na resulta"
+ },
+ "ordering.res.tag4": {
+  "ar": "سعر عادل",
+  "en": "Fair price",
+  "ur": "مناسب قیمت",
+  "hi": "उचित कीमत",
+  "bn": "ন্যায্য দাম",
+  "tl": "Patas na presyo"
+ },
+ "ordering.res.comment": {
+  "ar": "أضف تعليقًا (اختياري)",
+  "en": "Add a comment (optional)",
+  "ur": "تبصرہ شامل کریں (اختیاری)",
+  "hi": "टिप्पणी जोड़ें (वैकल्पिक)",
+  "bn": "মন্তব্য যোগ করুন (ঐচ্ছিক)",
+  "tl": "Magdagdag ng komento (opsyonal)"
+ },
+ "ordering.res.send": {
+  "ar": "أرسل التقييم",
+  "en": "Send rating",
+  "ur": "ریٹنگ بھیجیں",
+  "hi": "रेटिंग भेजें",
+  "bn": "রেটিং পাঠান",
+  "tl": "Ipadala ang rating"
+ },
+ "ordering.res.thanks": {
+  "ar": "شكرًا، تقييمك يساعد غيرك على الاختيار.",
+  "en": "Thank you, your rating helps others choose.",
+  "ur": "شکریہ، آپ کی ریٹنگ دوسروں کو انتخاب میں مدد دیتی ہے۔",
+  "hi": "धन्यवाद, आपकी रेटिंग दूसरों को चुनने में मदद करती है।",
+  "bn": "ধন্যবাদ, আপনার রেটিং অন্যদের বেছে নিতে সাহায্য করে।",
+  "tl": "Salamat, tinutulungan ng rating mo ang iba na pumili."
+ },
+ "ordering.res.discussTitle": {
+  "ar": "استشارة فورية مع النتيجة",
+  "en": "Instant consultation with the result",
+  "ur": "نتیجے کے ساتھ فوری مشاورت",
+  "hi": "नतीजे के साथ तुरंत परामर्श",
+  "bn": "ফলাফলসহ তাৎক্ষণিক পরামর্শ",
+  "tl": "Instant na konsultasyon kasama ang resulta"
+ },
+ "ordering.res.discussBody": {
+  "ar": "نرسل طلبك إلى أطباء الباطنة المتصلين الآن، وترفق النتائج بالاستشارة. يظهر السعر قبل أن تدفع.",
+  "en": "We send your request to internal-medicine doctors who are online now and attach the results to the consultation. The price shows before you pay.",
+  "ur": "ہم آپ کی درخواست اس وقت آن لائن جنرل میڈیسن ڈاکٹروں کو بھیجتے ہیں اور نتائج مشاورت کے ساتھ منسلک کرتے ہیں۔ ادائیگی سے پہلے قیمت دکھائی دیتی ہے۔",
+  "hi": "हम आपका अनुरोध अभी ऑनलाइन आंतरिक चिकित्सा डॉक्टरों को भेजते हैं और नतीजे परामर्श के साथ संलग्न करते हैं। भुगतान से पहले कीमत दिखती है।",
+  "bn": "আমরা এখন অনলাইনে থাকা অন্তর্বিভাগীয় চিকিৎসকদের কাছে অনুরোধ পাঠাই এবং ফলাফল পরামর্শের সঙ্গে যুক্ত করি। পেমেন্টের আগে দাম দেখানো হয়।",
+  "tl": "Ipinapadala namin ang request mo sa mga internal-medicine na doktor na online ngayon at ikinakabit ang mga resulta. Makikita ang presyo bago ka magbayad."
+ },
+ "ordering.res.attached": {
+  "ar": "المرفق: السكر التراكمي، فيتامين د، صورة الدم الكاملة",
+  "en": "Attached: HbA1c, Vitamin D, CBC",
+  "ur": "منسلک: HbA1c، وٹامن ڈی، CBC",
+  "hi": "संलग्न: HbA1c, विटामिन डी, CBC",
+  "bn": "সংযুক্ত: HbA1c, ভিটামিন ডি, CBC",
+  "tl": "Nakalakip: HbA1c, Vitamin D, CBC"
+ },
+ "ordering.res.start": {
+  "ar": "ابدأ الاستشارة",
+  "en": "Start consultation",
+  "ur": "مشاورت شروع کریں",
+  "hi": "परामर्श शुरू करें",
+  "bn": "পরামর্শ শুরু করুন",
+  "tl": "Simulan ang konsultasyon"
+ },
+ "ordering.res.later": {
+  "ar": "لاحقًا",
+  "en": "Later",
+  "ur": "بعد میں",
+  "hi": "बाद में",
+  "bn": "পরে",
+  "tl": "Mamaya"
+ },
+ "ordering.res.pendTitle": {
+  "ar": "النتائج قيد المعالجة",
+  "en": "Results are being processed",
+  "ur": "نتائج پر کارروائی جاری ہے",
+  "hi": "नतीजों पर काम चल रहा है",
+  "bn": "ফলাফল প্রক্রিয়াধীন",
+  "tl": "Pinoproseso ang mga resulta"
+ },
+ "ordering.home.ta.24": {
+  "ar": "النتيجة خلال 24 ساعة",
+  "en": "Result within 24 hours",
+  "ur": "نتیجہ 24 گھنٹوں میں",
+  "hi": "नतीजा 24 घंटे में",
+  "bn": "ফল ২৪ ঘণ্টার মধ্যে",
+  "tl": "Resulta sa loob ng 24 oras"
+ },
+ "ordering.res.pendLeft": {
+  "ar": "المتوقع خلال",
+  "en": "Expected within",
+  "ur": "متوقع",
+  "hi": "अपेक्षित",
+  "bn": "প্রত্যাশিত",
+  "tl": "Inaasahan sa loob ng"
+ },
+ "ordering.res.pendTime": {
+  "ar": "9 س 15 د",
+  "en": "9 h 15 min",
+  "ur": "9 گھنٹے 15 منٹ",
+  "hi": "9 घं. 15 मि.",
+  "bn": "৯ ঘ. ১৫ মি.",
+  "tl": "9 oras 15 min"
+ },
+ "ordering.res.pendNote": {
+  "ar": "نخبرك بإشعار حين تجهز. إن تأخر المزوّد عن الموعد نعلمك بالبدائل.",
+  "en": "We notify you when they are ready. If the provider is late we tell you the options.",
+  "ur": "تیار ہونے پر ہم اطلاع دیتے ہیں۔ فراہم کنندہ دیر کرے تو ہم آپ کو اختیارات بتاتے ہیں۔",
+  "hi": "तैयार होने पर हम सूचना देते हैं। प्रदाता देर करे तो हम विकल्प बताते हैं।",
+  "bn": "প্রস্তুত হলে আমরা জানাই। প্রদানকারী দেরি করলে বিকল্প জানাই।",
+  "tl": "Aabisuhan ka namin kapag handa na. Kung maantala ang provider, sasabihin namin ang mga opsyon."
+ },
+ "ordering.res.mri": {
+  "ar": "تقرير الرنين المغناطيسي للركبة",
+  "en": "Knee MRI report",
+  "ur": "گھٹنے کی MRI رپورٹ",
+  "hi": "घुटने की MRI रिपोर्ट",
+  "bn": "হাঁটুর MRI রিপোর্ট",
+  "tl": "Ulat ng MRI ng tuhod"
+ },
+ "ordering.res.mriSt": {
+  "ar": "بعد الفحص غدًا",
+  "en": "After tomorrow’s scan",
+  "ur": "کل کے اسکین کے بعد",
+  "hi": "कल के स्कैन के बाद",
+  "bn": "আগামীকালের স্ক্যানের পর",
+  "tl": "Pagkatapos ng scan bukas"
+ },
+ "ordering.res.err": {
+  "ar": "تعذّر تحميل النتائج.",
+  "en": "Could not load the results.",
+  "ur": "نتائج لوڈ نہیں ہو سکے۔",
+  "hi": "नतीजे लोड नहीं हो सके।",
+  "bn": "ফলাফল লোড করা যায়নি।",
+  "tl": "Hindi ma-load ang mga resulta."
+ }
+}
