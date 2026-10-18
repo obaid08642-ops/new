@@ -40,6 +40,7 @@ import { backgroundImports, backgroundProviders } from './common/process-role';
 import { WorkerHeartbeatService } from './common/worker-heartbeat.service';
 import { BullModule } from '@nestjs/bullmq';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { GracefulDrain } from './common/graceful-drain';
 import { LoadSheddingGuard } from './common/load-shedding.guard';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
@@ -306,6 +307,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
   ],
   controllers: [HealthController, HealthDashboardController, ProviderPayoutsController],
   providers: [
+    GracefulDrain,
     ImpersonationSessionService,
     ...backgroundProviders([WorkerHeartbeatService]),
     { provide: APP_GUARD, useClass: JwtAuthGuard },
