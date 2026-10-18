@@ -1,0 +1,43 @@
+name: dr-drill
+# 20.8 backups and disaster recovery. The scripts that run on the server (deploy/scripts: backup.sh, oplog-backup.sh,
+# dr-drill.sh) run here against a REAL MongoDB 7 replica set with a moto S3 as the private bucket (test data only):
+# restore from the encrypted off-site copies alone, to the newest state, with RPO and RTO measured and reported.
+on:
+  pull_request:
+    paths:
+      - 'deploy/scripts/*backup*'
+      - 'deploy/scripts/dr*'
+      - 'deploy/scripts/test_dr_plan.py'
+      - 'deploy/cron/nabd-backups'
+      - 'tools/ops/dr-rehearsal/**'
+      - '.github/workflows/dr-drill.yml'
+  workflow_dispatch:
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Recovery plan logic (unit tests)
+        run: cd deploy/scripts && python3 -m unittest test_dr_plan -v
+      - name: Shell syntax
+        run: for f in deploy/scripts/*.sh tools/ops/dr-rehearsal/run.sh; do bash -n "$f"; done
+  real-mongo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: MongoDB 7 replica set named like production (nabdah-mongodb)
+        run: |
+          docker run -d --name nabdah-mongodb mongo:7.0 mongod --replSet rs0 --bind_ip_all
+          for i in $(seq 1 30); do docker exec nabdah-mongodb mongosh --quiet --eval 'db.adminCommand("ping").ok' 2>/dev/null | tail -1 | grep -q '^1$' && break; sleep 1; done
+          docker exec nabdah-mongodb mongosh --quiet --eval 'rs.initiate({_id:"rs0",members:[{_id:0,host:"127.0.0.1:27017"}]}).ok'
+          for i in $(seq 1 30); do docker exec nabdah-mongodb mongosh --quiet --eval 'db.hello().isWritablePrimary' 2>/dev/null | tail -1 | grep -q true && break; sleep 1; done
+      - name: moto as the private bucket (own venv, as ops-rehearsal does)
+        run: |
+          python3 -m venv /tmp/motoenv && /tmp/motoenv/bin/pip install -q 'moto[server]==5.2.3'
+          (/tmp/motoenv/bin/moto_server -H 127.0.0.1 -p 5555 > moto.log 2>&1 &)
+          for i in $(seq 1 30); do curl -s http://127.0.0.1:5555 >/dev/null && break; sleep 1; done
+          curl -s -o /dev/null -w 'moto: %{http_code}\n' http://127.0.0.1:5555 || cat moto.log
+      - name: Backup, oplog slices, disaster recovery drill, negative cases
+        run: bash tools/ops/dr-rehearsal/run.sh

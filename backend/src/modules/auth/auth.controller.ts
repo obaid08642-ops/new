@@ -296,21 +296,34 @@ export class AuthController {
   }
 
   /**
-   * 21.7 — sign out of this device: the refresh sessions bound to it are revoked
-   * and its push token is removed, so a shared phone stops receiving this
-   * account's notifications.
+   * 21.7 — sign out of this device: its sign-in ends (the access token stops working at once) and its push tokens are
+   * removed, so a shared phone stops receiving this account's notifications. Other devices stay signed in.
    */
   @Post('logout-device')
   @UseGuards(JwtAuthGuard)
   async logoutDevice(@CurrentUser() user: any, @Headers('x-device-id') deviceId?: string) {
-    return this.auth.logoutDevice(user.id, deviceId);
+    return this.auth.logoutDevice(user.id, { sid: user.sid, deviceId: deviceId || user.dev });
   }
 
-  /** 21.7 — the signed-in devices the user can revoke. */
+  /** 21.7 — the signed-in devices of the account; the caller's own is marked `current`. */
   @Get('sessions')
   @UseGuards(JwtAuthGuard)
-  async sessions(@CurrentUser() user: any) {
-    return { devices: await this.auth.listSessions(user.id) };
+  async sessions(@CurrentUser() user: any, @Headers('x-device-id') deviceId?: string) {
+    return { devices: await this.auth.listSessions(user.id, { sid: user.sid, deviceId: deviceId || user.dev }) };
+  }
+
+  /** 21.7 — "sign out other devices": every sign-in except this one. */
+  @Post('sessions/revoke-others')
+  @UseGuards(JwtAuthGuard)
+  async revokeOtherSessions(@CurrentUser() user: any, @Headers('x-device-id') deviceId?: string) {
+    return this.auth.revokeOtherSessions(user.id, { sid: user.sid, deviceId: deviceId || user.dev });
+  }
+
+  /** 21.7 — sign out one listed device. */
+  @Delete('sessions/:id')
+  @UseGuards(JwtAuthGuard)
+  async revokeSession(@CurrentUser('id') userId: string, @Param('id') sessionId: string) {
+    return this.auth.revokeSession(userId, sessionId);
   }
 
   @Post('consent')
