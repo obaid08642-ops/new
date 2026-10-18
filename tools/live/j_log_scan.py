@@ -49,8 +49,8 @@ def main():
     step('no phone number, e-mail address or national id in any line', not dirty,
          [(i, f, lines[i][:160]) for i, f in dirty[:3]])
     errors = [r for r in records if r['level'] == 'error' and r['event'] == 'exception']
-    step('every logged exception carries the error id that was answered', all((r.get('details') or {}).get('error_id') == r['request_id'] for r in errors),
-         errors[:1])
+    mismatched = [r for r in errors if (r.get('details') or {}).get('error_id') != r['request_id']]
+    step('every logged exception carries the error id that was answered', not mismatched, mismatched[:1])
 
 
 if __name__ == '__main__':
