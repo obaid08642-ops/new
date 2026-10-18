@@ -374,6 +374,8 @@ export class TracingMiddleware implements NestMiddleware {
   }
 }
 
+export const HSTS_VALUE = 'max-age=63072000; includeSubDomains; preload';
+
 /** Minimal helmet-style header hardening WITHOUT adding the helmet dependency. */
 @Injectable()
 export class SecurityHeadersMiddleware implements NestMiddleware {
@@ -382,8 +384,12 @@ export class SecurityHeadersMiddleware implements NestMiddleware {
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     res.setHeader('X-DNS-Prefetch-Control', 'off');
-    res.setHeader('Strict-Transport-Security', 'max-age=15552000; includeSubDomains');
+    // 16.4: two years, every subdomain, preload-eligible (the owner submits the domain to hstspreload.org).
+    res.setHeader('Strict-Transport-Security', HSTS_VALUE);
     res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
+    // The API is JSON: no page of it may use a camera, microphone, position or payment sheet, or share a window group.
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
     next();
   }
 }
