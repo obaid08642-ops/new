@@ -7,10 +7,11 @@
 import { Module } from '@nestjs/common';
 import { ObservabilityController } from './observability.controller';
 import { MetricsService } from '../../common/metrics.service';
+import { SloAlertsService } from './slo-alerts.service';
 
 @Module({
   controllers: [ObservabilityController],
-  providers: [MetricsService],
-  exports: [MetricsService],
+  providers: [MetricsService, SloAlertsService],
+  exports: [MetricsService, SloAlertsService],
 })
 export class ObservabilityModule {}
