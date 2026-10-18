@@ -117,6 +117,7 @@ jobs:
           CF: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CFE: ${{ secrets.CLOUDFLARE_EMAIL }}   # set when CF holds a Global API Key (tools/ops/cf/_auth.sh)
           Z: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          EMAIL_ROUTING_DEST: ${{ secrets.OPS_FORWARD_EMAIL }}   # cf/44-email-routing-*.sh: where security@, support@, customer@ go (never printed)
           BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}           # cf/41-mail-verify.sh: Brevo's domain status
           MAILJET_API_KEY: ${{ secrets.MAILJET_API_KEY }}       # and Mailjet's
           MAILJET_SECRET_KEY: ${{ secrets.MAILJET_SECRET_KEY }}
