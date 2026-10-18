@@ -25,7 +25,7 @@ import { THEME_INIT_SCRIPT } from "@/app/theme";
 import { ModuleRouteGate, ModulesProvider } from "@/components-next/modules/modules-provider";
 import { getDisabledModules } from "@/lib/api/public-config-server";
 import { isPathHidden } from "@/lib/modules";
-import { BackToTop } from "@/components-next/navigation/back-to-top";
+import { BackToTopLoader } from "@/components-next/navigation/back-to-top-loader";
 import "@/components-next/navigation/navigation.css";
 
 type Props = Readonly<{ children: React.ReactNode; params: Promise<{ locale: string }> }>;
@@ -163,7 +163,7 @@ export default async function LocaleLayout({ children, params }: Props) {
                 <Link href={`/${typedLocale}/map`}>{t("footerMap")}</Link>
               </nav>
             </footer>
-            <BackToTop label={t("backToTop")} />
+            <BackToTopLoader label={t("backToTop")} />
             {/*
               Owner decision 43 a (issue 427): the server writes the theme on <html> from the visitor's cookie (the nonce
               server, server/nonce-transform.mjs stampTheme), so this script is only the fallback for a page that came
