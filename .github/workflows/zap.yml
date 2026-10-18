@@ -1,0 +1,137 @@
+name: OWASP ZAP
+
+# Phase 16.8: dynamic testing. A throw-away copy of the whole stack (built from this commit, a fresh database, test doubles)
+# is scanned with OWASP ZAP:
+#   api  - zap-api-scan.py over the backend's OpenAPI document, signed in as a patient (the unauthenticated 401s alone
+#          would test nothing behind the login), with ZAP's active rules;
+#   web  - zap-baseline.py (spider + passive rules) over the patient website and the admin sign-in page.
+# tools/security/zap/zap_gate.py fails the job on any High finding that is not listed, with a reason, in
+# tools/security/zap/accepted.json, and on a report that is missing or empty. Medium findings are printed for the review.
+# It never attacks staging or production: pointing it there is the owner's decision (workflow_dispatch input below).
+on:
+  schedule:
+    - cron: '15 3 * * *'
+  pull_request:
+    paths:
+      - '.github/workflows/zap.yml'
+      - 'tools/security/zap/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: zap-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ZAP_IMAGE: ghcr.io/zaproxy/zaproxy:2.17.0
+
+jobs:
+  gate-tests:
+    name: ZAP gate self-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.12'
+      - run: python3 -m unittest tools/security/zap/test_zap_gate.py -v
+
+  scan:
+    name: ZAP (${{ matrix.target }})
+    needs: gate-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [api, web]
+    services:
+      redis:
+        image: redis:7
+        ports: ['6379:6379']
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            admin/package-lock.json
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.12'
+
+      - name: MongoDB replica set
+        run: |
+          docker run -d --name mongo -p 27017:27017 mongo:7 --replSet rs0 --bind_ip_all
+          for i in $(seq 1 30); do docker exec mongo mongosh --quiet --eval 'db.runCommand({ping:1})' && break; sleep 2; done
+          docker exec mongo mongosh --quiet --eval 'rs.initiate({_id:"rs0",members:[{_id:0,host:"127.0.0.1:27017"}]})'
+          for i in $(seq 1 30); do docker exec mongo mongosh --quiet --eval 'rs.status().ok' | grep -q 1 && break; sleep 2; done
+
+      - name: Test doubles (S3, SMTP sink for the OTP mail)
+        run: |
+          pip install 'moto[server]==5.*' boto3 aiosmtpd
+          nohup moto_server -p 9000 > /tmp/moto.log 2>&1 &
+          nohup python3 tools/live/smtp_sink.py > /tmp/smtp.log 2>&1 &
+          for i in $(seq 1 30); do curl -s -o /dev/null http://127.0.0.1:9000 && break; sleep 1; done
+          python3 -c "import boto3; boto3.client('s3', endpoint_url='http://127.0.0.1:9000', aws_access_key_id='live', aws_secret_access_key='live-secret', region_name='us-east-1').create_bucket(Bucket='nabd-live')"
+
+      - name: Backend
+        working-directory: backend
+        run: |
+          npm ci
+          npm run build
+          node ../tools/live/seed_admin.js
+          bash ../tools/live/start-backend.sh
+
+      - name: Admin panel (BFF) and patient website
+        if: matrix.target == 'web'
+        run: |
+          (cd admin && npm ci && npx next build && ADMIN_GATE_TOKEN=live-gate-token ADMIN_BACKEND_URL=http://127.0.0.1:8002 NODE_ENV=production nohup npx next start -p 3001 -H 127.0.0.1 > /tmp/admin.log 2>&1 &)
+          corepack enable
+          cd patient-web && pnpm install --frozen-lockfile
+          NABD_API_BASE_URL=http://127.0.0.1:8002/api/v1 INTERNAL_API_BASE_URL=http://127.0.0.1:8002/api/v1 NEXT_PUBLIC_SITE_ORIGIN=http://127.0.0.1:3100 NEXT_TELEMETRY_DISABLED=1 pnpm run build
+          PATIENT_WEB_PORT=3100 PATIENT_WEB_ORIGIN=http://127.0.0.1:3100 bash ../tools/live/start-web.sh patient-web
+          for i in $(seq 1 60); do curl -s -o /dev/null http://127.0.0.1:3001/ && break; sleep 2; done
+
+      - name: Scan the API (signed in as a patient)
+        if: matrix.target == 'api'
+        run: |
+          mkdir -p zap-out && chmod 777 zap-out
+          TOKEN="$(python3 tools/security/zap/patient_token.py)"
+          curl -fsS http://127.0.0.1:8002/api/docs-json -o zap-out/openapi.json
+          python3 -c "import json; d = json.load(open('zap-out/openapi.json')); print('operations in the OpenAPI document:', sum(len(v) for v in d['paths'].values()))"
+          # ZAP adds this header to every request it sends (the packaged scans read ZAP_AUTH_HEADER_VALUE)
+          docker run --rm --network host -e ZAP_AUTH_HEADER=Authorization -e ZAP_AUTH_HEADER_VALUE="Bearer ${TOKEN}" \
+            -v "$PWD/zap-out:/zap/wrk:rw" "$ZAP_IMAGE" zap-api-scan.py \
+            -t openapi.json -f openapi -O http://127.0.0.1:8002 -r api.html -J api.json -I
+
+      - name: Baseline scan of the website and the admin sign-in
+        if: matrix.target == 'web'
+        run: |
+          mkdir -p zap-out && chmod 777 zap-out
+          docker run --rm --network host -v "$PWD/zap-out:/zap/wrk:rw" "$ZAP_IMAGE" zap-baseline.py \
+            -t http://127.0.0.1:3100/en -r web.html -J web.json -I
+          docker run --rm --network host -v "$PWD/zap-out:/zap/wrk:rw" "$ZAP_IMAGE" zap-baseline.py \
+            -t http://127.0.0.1:3001/ -r admin.html -J admin.json -I
+
+      - name: Gate - 0 high findings
+        run: |
+          if [ "${{ matrix.target }}" = api ]; then python3 tools/security/zap/zap_gate.py zap-out/api.json
+          else python3 tools/security/zap/zap_gate.py zap-out/web.json zap-out/admin.json; fi
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: zap-report-${{ matrix.target }}
+          path: zap-out/*.html
+          retention-days: 30
+
+      - name: Logs on failure
+        if: failure()
+        run: |
+          tail -n 120 /tmp/nabd-backend.log || true
+          tail -n 40 /tmp/admin.log || true

@@ -120,6 +120,33 @@ describe('Notifications screen (board Notifications)', () => {
     await waitFor(() => expect(screen.queryByLabelText('قراءة الكل')).toBeNull());
   });
 
+  // 15.3: optimistic only where it is safe — a forced 500 rolls the screen back and says so
+  const UNDONE = 'تعذّر حفظ التغيير فأُلغي. حاول مرة أخرى.';
+  const failPosts = () => (apiFetch as jest.Mock).mockImplementation(async (_path: string, init?: { method?: string }) => {
+    if (init?.method === 'POST') throw Object.assign(new Error('Internal Server Error'), { status: 500 });
+    return FEED;
+  });
+
+  it('15.3: "Read all" refused by the server (500) puts the unread rows back and explains', async () => {
+    failPosts();
+    await render(ui);
+    await waitFor(() => expect(store.getState().notifications.unreadCount).toBe(2));
+    await fireEvent.press(screen.getByLabelText('قراءة الكل'));
+    await waitFor(() => expect(screen.getByText(UNDONE)).toBeTruthy());
+    expect(screen.getByLabelText('قراءة الكل')).toBeTruthy();
+    expect(store.getState().notifications.unreadCount).toBe(2);
+  });
+
+  it('15.3: a row whose "read" the server refused is unread again, with a message, and the route still opens', async () => {
+    failPosts();
+    await render(ui);
+    await waitFor(() => expect(screen.getByText('طلبك في الطريق')).toBeTruthy());
+    await fireEvent.press(screen.getByText('طلبك في الطريق'));
+    await waitFor(() => expect(screen.getByText(UNDONE)).toBeTruthy());
+    expect(screen.getByLabelText(/طلبك في الطريق\. صيدلية النور · يصل خلال 12 دقيقة\. منذ 5 دقيقة\. .+/)).toBeTruthy();
+    expect(mockRouter.push).toHaveBeenCalledWith({ pathname: '/pharmacy/order-tracking', params: { orderId: 'o1' } });
+  });
+
   it('an empty feed shows the empty state, not a blank list', async () => {
     (apiFetch as jest.Mock).mockResolvedValue([]);
     await render(ui);

@@ -1,0 +1,15 @@
+# file rule — violations that predate the expand/contract rule (20.9). Only shrinks.
+2026-09-drop-dead-collections.ts contract
+2026-09-merge-auditlogs.ts contract
+2026-09-strip-facility-ratings.ts contract
+2026-09-survey-dupe-collections.ts apply-flag
+2026-09-unify-catalog-collections.ts contract
+2026-10-archive-ambulance.ts contract
+2026-10-archive-community.ts contract
+2026-10-archive-crisis-contacts.ts contract
+2026-10-archive-skin-checks.ts contract
+2026-10-backfill-provider-geopoint.ts contract
+2026-10-services-dedupe.ts contract
+2026-10-unify-lab-list.ts contract
+20260827-pharmacy-expiry-indexes.js apply-flag
+20260827-pharmacy-payment-evidence-indexes.js apply-flag

@@ -77,6 +77,9 @@ def main():
             page = browser.new_context(viewport={'width': 390, 'height': 844}).new_page()
             res = page.goto(f'{WEB}/{loc}/p/{slug}', wait_until='load', timeout=60000)
             page.locator('h1').first.wait_for(timeout=30000)
+            # While the page streams in, React briefly holds a hidden copy of the heading block (two English lines); read
+            # the page once it has settled to at most one copy (the page draws the line in one place only).
+            page.wait_for_function("() => document.querySelectorAll('[data-testid=\"english-name\"]').length <= 1", timeout=30000)
             en = page.get_by_test_id('english-name')
             # What the page drew, kept for the failure message: the status and cache headers of the copy, the h1 and the
             # English line(s) as read, and the answer the backend gives for the same slug right now. A failure then says

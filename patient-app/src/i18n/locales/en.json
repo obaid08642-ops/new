@@ -3364,5 +3364,6 @@
   "pharmacy.barcode.matchesNote": "Read as: {name}. Pick the medicine that matches your pack.",
   "pharmacy.barcode.noMatchTitle": "No close match found",
   "pharmacy.barcode.noMatchBody": "We could not match this photo to a medicine in the catalogue.",
-  "pharmacy.barcode.busy": "Too many scans in a minute. Wait a moment and try again."
+  "pharmacy.barcode.busy": "Too many scans in a minute. Wait a moment and try again.",
+  "common.optimisticUndone": "We couldn't save that change, so it was undone. Please try again."
 }

@@ -110,7 +110,7 @@ if [ "${MONITOR_SKIP_SERVICES:-0}" != 1 ]; then
     DAYS=$(( ( $(date -d "$(openssl x509 -enddate -noout -in "$pem" | cut -d= -f2)" +%s) - $(date +%s) ) / 86400 ))
     [ "$DAYS" -lt 14 ] && alert "cert-$name" "ssl cert $name expires in ${DAYS}d"
   done
-  LAST=$(ls -t /opt/nabdah/backups/nabd_*.gz 2>/dev/null | head -1)
+  LAST=$(ls -t /opt/nabdah/backups/nabd_*.gz* 2>/dev/null | head -1)
   if [ -z "$LAST" ]; then
     alert backup "no backups found"
   else
