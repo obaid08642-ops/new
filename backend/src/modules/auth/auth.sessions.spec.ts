@@ -127,7 +127,9 @@ describe('AuthService sessions (21.7)', () => {
     expect(pushRemoved[0].sids.sort()).toEqual([laptop.sid, tablet.sid].sort());
     expect(pushRemoved[0].devices).toEqual(['dev-laptop-0000000002']);
     await expect(service.refreshToken(mine.refreshToken, 'dev-iphone-0000000001')).resolves.toBeDefined(); // mine still works
-    await expect(service.refreshToken(laptop.refreshToken, 'dev-laptop-0000000002')).rejects.toBeInstanceOf(UnauthorizedException);
+    await expect(service.refreshToken(laptop.refreshToken, 'dev-laptop-0000000002')).rejects.toThrow('refresh_token_revoked');
+    // the ended device trying again is not theft: the sign-in the person kept stays
+    expect((await service.listSessions(user.id)).map((d) => d.session_id)).toEqual([mine.sid]);
   });
 
   it('signing out this device removes its push token and leaves the others signed in', async () => {

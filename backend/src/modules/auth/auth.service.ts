@@ -146,6 +146,9 @@ export class AuthService {
         // Two requests of one client can present the same token a moment apart (two tabs, a retry): within seconds of
         // the rotation that is a lost race, not theft, so only this call fails.
         if (await client.get(`refresh_rotated:${payload.jti}`).catch(() => null)) throw new UnauthorizedException('refresh_token_rotated');
+        // A sign-in the person ended on purpose ("sign out other devices", sign-out): its token is dead, but presenting it
+        // again is not theft, and must not end the sign-ins they kept.
+        if (await client.get(`refresh_revoked:${payload.jti}`).catch(() => null)) throw new UnauthorizedException('refresh_token_revoked');
         // Reuse of a rotated/unknown token — possible theft: kill the whole family
         if (payload.sub) await this.endAllSessions(payload.sub);
         throw new UnauthorizedException('refresh_token_reused_or_revoked');
@@ -267,6 +270,7 @@ export class AuthService {
       const entry = { jti, sid: String(rec.s || jti), device: (rec.d as string | null) ?? null };
       if (!match(entry)) continue;
       await client.del(`refresh:${jti}`);
+      await client.set(`refresh_revoked:${jti}`, '1', 'EX', 14 * 24 * 3600).catch(() => undefined);
       await client.srem(`refresh_user:${userId}`, jti);
       revoked += 1;
       sids.add(entry.sid);
