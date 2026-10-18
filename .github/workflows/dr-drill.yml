@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Recovery plan logic (unit tests)
         run: cd deploy/scripts && python3 -m unittest test_dr_plan -v
       - name: Shell syntax
@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: MongoDB 7 replica set named like production (nabdah-mongodb)
         run: |
           docker run -d --name nabdah-mongodb mongo:7.0 mongod --replSet rs0 --bind_ip_all
