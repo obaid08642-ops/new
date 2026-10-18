@@ -1,11 +1,15 @@
 import { IsBoolean, IsIn, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class EraseAccountDto {
-  /** The patient re-enters their password to prove the erasure request is theirs. */
+  /**
+   * The patient re-enters their password to prove the erasure request is theirs. A guest has no password: the guest
+   * session itself is the proof (21.8), so the field is optional here and the service refuses a real account without it.
+   */
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   @MaxLength(200)
-  password: string;
+  password?: string;
 
   @IsOptional()
   @IsString()

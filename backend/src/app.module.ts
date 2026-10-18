@@ -115,6 +115,7 @@ import { FacilityOpsModule } from './modules/facility-ops/facility-ops.module';
 import { ProviderProductionModule } from './modules/provider-production/provider-production.module';
 import { ImpersonationSessionService } from './common/impersonation-session.service';
 import { CommonModule } from './common/common.module';
+import { GuestChatListInterceptor, GuestPolicyGuard } from './modules/auth/guest-policy';
 import { PdplComplianceModule } from './common/pdpl-compliance.module';
 import { HealthController } from './health.controller';
 import { HealthDashboardController } from './modules/health/health-dashboard.controller';
@@ -311,12 +312,14 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     ImpersonationSessionService,
     ...backgroundProviders([WorkerHeartbeatService]),
     { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: GuestPolicyGuard },          // 21.3: the guest permission matrix, after the caller is known
     { provide: APP_GUARD, useClass: WriteGuard },
     { provide: APP_GUARD, useClass: RateLimitAuditGuard },
     { provide: APP_GUARD, useClass: AdminGateGuard },
     { provide: APP_GUARD, useClass: LoadSheddingGuard },
     { provide: APP_GUARD, useClass: StepUpGuard },
     StepUpService,
+    { provide: APP_INTERCEPTOR, useClass: GuestChatListInterceptor },
     { provide: APP_INTERCEPTOR, useClass: AuditLogInterceptor },
     { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },
     { provide: APP_INTERCEPTOR, useClass: AdaptiveConcurrencyInterceptor },

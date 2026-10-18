@@ -17,7 +17,8 @@
  * 21.8 Account deletion also covers guest data, and inactive guests with no
  *      orders are removed after a configurable window.
  */
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, Optional, UnauthorizedException } from '@nestjs/common';
+import { PdplService } from '../users/pdpl.service';
 import { InjectConnection } from '@nestjs/mongoose';
 import { ClientSession, Connection } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
@@ -61,6 +62,8 @@ export class GuestService {
     @InjectConnection() private readonly connection: Connection,
     private readonly jwt: JwtService,
     private readonly redis: RedisService,
+    // 21.8: the account-deletion erasure, reused for guests (null in unit tests that only exercise the merge)
+    @Optional() private readonly pdpl?: PdplService,
   ) {}
 
   /** A guest account id is a UUID, never the phone and never the IP. */
@@ -286,45 +289,66 @@ export class GuestService {
   }
 
   /**
-   * 21.8 Guest data lifecycle. An inactive guest with no orders is deleted
-   * after `guestRetentionMonths` (default 12). Guests that ordered keep their
-   * orders and invoices: the row is anonymised, never dropped.
+   * 21.8 Guest data lifecycle. A guest who has done nothing for `GUEST_RETENTION_MONTHS` (default 12) loses their data:
+   *  - no orders: the personal data and the account row are deleted, with the device binding;
+   *  - orders: the law requires the order and the invoice, not the identity — the order rows are kept without identity
+   *    fields (the same erasure as an account deletion), the personal data is deleted and the account row stays only as
+   *    a shell the orders can still point at.
+   * "Nothing" means no sign-in, refresh or reopening of the app: the latest of the creation time, `last_active_at` (set
+   * when a guest session is used) and the device binding's `last_seen_at`. A guest who is still using the app is never
+   * purged, however old the account is. `retentionDays` overrides the window for one run (the admin's manual cleanup).
    */
-  async purgeInactiveGuests(now: Date = new Date()): Promise<{ anonymised: number; deleted: number }> {
+  async purgeInactiveGuests(now: Date = new Date(), opts: { retentionDays?: number; limit?: number } = {}): Promise<{ anonymised: number; deleted: number }> {
     const months = Number(process.env.GUEST_RETENTION_MONTHS || 12);
     if (!Number.isFinite(months) || months <= 0) throw new Error('GUEST_RETENTION_MONTHS must be a positive number');
     const cutoff = new Date(now);
-    cutoff.setMonth(cutoff.getMonth() - months);
+    if (opts.retentionDays && opts.retentionDays > 0) cutoff.setDate(cutoff.getDate() - opts.retentionDays);
+    else cutoff.setMonth(cutoff.getMonth() - months);
 
     const users = this.connection.collection('users');
-    const stale = await users
-      .find({ is_guest: true, merged_into: { $exists: false }, createdAt: { $lt: cutoff } })
+    const bindings = this.connection.collection('guest_devices');
+    // the cheap filters run in the database; the binding is checked per candidate (it is optional)
+    const candidates = await users
+      .find({
+        is_guest: true,
+        merged_into: { $exists: false },
+        anonymised_at: { $exists: false },
+        createdAt: { $lt: cutoff },
+        $or: [{ last_active_at: { $exists: false } }, { last_active_at: { $lt: cutoff } }],
+      })
+      .limit(opts.limit ?? 500)
       .toArray();
 
     let anonymised = 0;
     let deleted = 0;
-    const orderCollections = ['pharmacy_orders', 'orders', 'transactions'];
-    for (const guest of stale) {
-      const hasOrders = await this.hasOrders(guest.id as string, orderCollections);
+    const orderCollections = ['pharmacy_orders', 'orders', 'transactions', 'appointments', 'diagnostic_orders', 'lab_bookings', 'radiology_bookings', 'home_care_bookings', 'nursing_services'];
+    for (const guest of candidates) {
+      const guestId = String(guest.id);
+      const binding: any = await bindings.findOne({ guest_id: guestId }, { projection: { last_seen_at: 1 } });
+      if (binding?.last_seen_at && new Date(binding.last_seen_at) >= cutoff) continue; // reopened the app lately
+
+      const hasOrders = await this.hasOrders(guestId, orderCollections);
+      // the same erasure as an account deletion: personal rows deleted, order/invoice/medical rows kept without identity
+      if (this.pdpl) await this.pdpl.erasePatientData(guestId, { reason: 'guest_inactivity', retention: true });
+      await bindings.deleteMany({ guest_id: guestId });
+      await this.connection.collection('audit_logs').insertOne({
+        id: require('crypto').randomUUID(),
+        action: hasOrders ? 'account.guest_anonymised' : 'account.guest_purged',
+        user_id: guestId,
+        role: 'patient',
+        resource_kind: 'account',
+        resource_id: guestId,
+        severity: 'info',
+        details: { retention_months: months, cutoff: cutoff.toISOString() },
+      });
       if (hasOrders) {
-        // The law requires the order and the invoice; the identity does not.
         await users.updateOne(
-          { id: guest.id },
+          { id: guestId },
           { $set: { full_name: 'deleted guest', phone: null, email: null, is_guest: true, anonymised_at: now } },
         );
         anonymised += 1;
       } else {
-        await this.connection.collection('audit_logs').insertOne({
-          id: require('crypto').randomUUID(),
-          action: 'account.guest_purged',
-          user_id: guest.id,
-          role: 'patient',
-          resource_kind: 'account',
-          resource_id: guest.id,
-          severity: 'info',
-          details: { retention_months: months },
-        });
-        await users.deleteOne({ id: guest.id });
+        await users.deleteOne({ id: guestId });
         deleted += 1;
       }
     }
