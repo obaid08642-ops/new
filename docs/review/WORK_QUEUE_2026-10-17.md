@@ -33,7 +33,7 @@ Sources for each item: `docs/audit/02_AGENT_EXECUTION_PLAN.md` (Do / Verify per 
 5. **Phase 23**: 23.2 covered events (sign-up, login, OTP, order and booking events), 23.6 user-facing history.
 6. **Phase 15**: 15.3 optimistic updates only where safe (never for payment/booking state), 15.8 recovery from interruptions (payment and booking first).
 7. **Phase 22 sensitive items**: 22.5 order changes, 22.11 fraud.
-8. **Ordering model M1–M8** (docs/product/ORDERING_MODEL_2026-10-16.md), only after the owner approves PR #1626 and the design session delivers the M0 boards; until then skip it.
+8. **Ordering model, sensitive half (owner approved #1626 on 2026-10-18; plan: `docs/product/ORDERING_MODEL_2026-10-16.md` on main)**: M3 ordering engine (split, payer, matching, time, confirm and pay), M4 ASAP/photo broadcast with auto-accept, M5 insurance per item (after D-30), M7 safeguards (confirm deadline, auto-refund, alternative). Start each only when the review session has posted its acceptance spec (`*/acceptance/ordering-m<n>*`); the non-sensitive half (M1, M2, M8) is Session H's.
 
 ## Session H (Haiku 5.5): everything else, in this order
 1. **Gate list without conflicts**: make `tools/live/run_gate.sh` discover journeys (e.g. every `tools/live/j_*.py` that defines `main`, with an explicit skip list and a fixed order file), so parallel PRs stop conflicting on the JOURNEYS line. Keep the special caps (`j_web_call` 60 min) and `j_admin_clicks`.
@@ -46,6 +46,7 @@ Sources for each item: `docs/audit/02_AGENT_EXECUTION_PLAN.md` (Do / Verify per 
 8. **Web/app parity gaps** from the parity audit (#1618), the "broken" and "wrong" rows first, then "missing", then "different".
 9. **Open GitHub issues** (23 open on 2026-10-17): after item 8, list them (`repos/obaid08642-ops/new/issues?state=open`), verify each against `main` (close with evidence when already done), fix the rest one PR each; hand any about payments, insurance, booking, security or accounts to session S by commenting on the issue.
 10. **Phase 22 other items**: 22.1 refill, 22.2 stock/price alerts, 22.3 bundles and alternatives, 22.4 delivery promise, 22.6 appointment quality, 22.7 reviews from real orders, 22.8 help centre, 22.9 documents, 22.10 experiments, 22.12 provider quality, 22.13 release discipline, 22.14 safety, 22.15 growth tools, 22.16 city operations.
+11. **Ordering model, H half (owner 2026-10-18)**: M1 provider item model + migration + declaration screens, M2 the doctor's structured medical order + "My medical orders", M8 instant consultation broadcast; M6 (the UI of M1–M5) once the design session has delivered the M0 boards. Plan: `docs/product/ORDERING_MODEL_2026-10-16.md` on main. Start each only when its acceptance spec is posted. Anything that moves money or an order's paid state belongs to Session S: stop and write `BLOCKED: needs S` instead.
 
 ## Not in either queue
 - Phase 20 (alerts/SLOs, status page, scheduled journeys, restore drill, safe deploys, capacity review) and the Mailjet 401 diagnosis stay with the build session.
