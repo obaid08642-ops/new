@@ -69,6 +69,11 @@ export NABD_ADMIN_DEVICE="${NABD_ADMIN_DEVICE:-live-gate-owner-macbook-01}"
 # A catalogue write purges the website's cached product pages (PurgeBus -> POST /api/revalidate, tag `medicines`). The gate
 # serves the website on :3100 (start-web.sh gets the same secret), so a journey can edit a product and read the new page.
 export NEXT_REVALIDATE_URL="${NEXT_REVALIDATE_URL:-http://127.0.0.1:${PATIENT_WEB_PORT:-3100}/api/revalidate}" NEXT_REVALIDATE_SECRET="${NEXT_REVALIDATE_SECRET:-live-gate-revalidate-secret}"
+# 16.9: health fields are encrypted in the live stack too. One key per gate run, kept in a file so a restarted backend (the gate
+# restarts it) can still read what the previous process wrote; nothing secret is committed.
+KEYFILE="${FIELD_KEY_FILE:-/tmp/nabd-live-field-key}"
+[[ -s "$KEYFILE" ]] || { umask 077; openssl rand -base64 32 > "$KEYFILE"; }
+export FIELD_ENCRYPTION_KEY="${FIELD_ENCRYPTION_KEY:-$(cat "$KEYFILE")}"
 LOG="${BACKEND_LOG:-/tmp/nabd-backend.log}"
 nohup node --max-old-space-size=1500 dist/main.js > "$LOG" 2>&1 &
 echo $! > "$LOG.pid"

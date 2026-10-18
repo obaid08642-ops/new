@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException, BadRequestException, ConflictException, ForbiddenException, Inject } from '@nestjs/common';
+import { MedicalAccessLogService, logMedicalRead } from '../../common/pdpl-compliance.module';
+import { Optional, Injectable, NotFoundException, BadRequestException, ConflictException, ForbiddenException, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -19,6 +20,7 @@ export class PrescriptionsService {
     private events: EventEmitter2,
     @InjectModel(Appointment.name) private appointments: Model<AppointmentDocument>,
     @InjectModel(ProviderProfile.name) private providers: Model<ProviderProfileDocument>,
+    @Optional() private readonly accessLog?: MedicalAccessLogService,
   ) {}
 
   private isPrivilegedAdmin(user: any) {
@@ -341,20 +343,26 @@ export class PrescriptionsService {
   /** Active prescriptions for the patient — everything not dispensed/archived.
    * Q-10: lists never carry the base64 photo; the image comes from GET :id/image. */
   async activeForPatient(user: any) {
-    return this.model.find(
+    return this.logged(user, 'list_active', await this.model.find(
       { patient_id: user.id, state: { $nin: [PrescriptionState.DISPENSED, PrescriptionState.ARCHIVED] } },
       { _id: 0, __v: 0, upload_image: 0 },
-    ).sort({ createdAt: -1 }).limit(100);
+    ).sort({ createdAt: -1 }).limit(100));
   }
 
   async listMine(patient_id: string) {
-    return this.model.find({ patient_id }, { _id: 0, __v: 0, upload_image: 0 }).sort({ createdAt: -1 }).limit(100);
+    return this.logged({ id: patient_id, role: 'patient' }, 'list', await this.model.find({ patient_id }, { _id: 0, __v: 0, upload_image: 0 }).sort({ createdAt: -1 }).limit(100));
   }
   async listForDoctor(doctor_id: string) {
-    return this.model.find({ doctor_id }, { _id: 0, __v: 0, upload_image: 0 }).sort({ createdAt: -1 }).limit(200);
+    return this.logged({ id: doctor_id, role: 'doctor' }, 'list', await this.model.find({ doctor_id }, { _id: 0, __v: 0, upload_image: 0 }).sort({ createdAt: -1 }).limit(200));
   }
   async listForPharmacy(pharmacy_id: string) {
-    return this.model.find({ pharmacy_id, state: { $in: [PrescriptionState.SENT_TO_PHARMACY, PrescriptionState.PARTIALLY_EDITED, PrescriptionState.APPROVED] } }, { _id: 0, __v: 0, upload_image: 0 }).sort({ createdAt: -1 }).limit(200);
+    return this.logged({ id: pharmacy_id, role: 'pharmacy' }, 'list', await this.model.find({ pharmacy_id, state: { $in: [PrescriptionState.SENT_TO_PHARMACY, PrescriptionState.PARTIALLY_EDITED, PrescriptionState.APPROVED] } }, { _id: 0, __v: 0, upload_image: 0 }).sort({ createdAt: -1 }).limit(200));
+  }
+
+  /** 16.9: a list that shows a prescription's diagnosis and notes is a read of each prescription in it. */
+  private async logged<T extends any[]>(user: { id?: string; role?: string }, action: string, rows: T): Promise<T> {
+    await logMedicalRead(this.accessLog, user, rows.map((r: any) => ({ kind: 'prescription', id: String(r.id), action, subject_id: r.patient_id })));
+    return rows;
   }
 
   /** Q-10: owner-checked photo fetch — only a participant (or privileged admin) gets the bytes. */
@@ -407,6 +415,7 @@ export class PrescriptionsService {
     const hasPrivilegedAdminRole = roles.includes(UserRole.ADMIN) || roles.includes(UserRole.SUPER_ADMIN);
     const isParticipant = [rx.patient_id, rx.doctor_id, rx.pharmacy_id].filter(Boolean).includes(user?.id);
     if (!hasPrivilegedAdminRole && !isParticipant) throw new NotFoundException();
+    await logMedicalRead(this.accessLog, user, [{ kind: 'prescription', id: String(rx.id), action: 'read', subject_id: rx.patient_id }]);
     return this.toPatientWebDto(rx);
   }
 }
