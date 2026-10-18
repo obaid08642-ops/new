@@ -17,8 +17,8 @@ export class GuestLifecycleService {
   constructor(private readonly guests: GuestService) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_4AM)
-  async purgeInactiveGuests(): Promise<{ anonymised: number; deleted: number }> {
-    const result = await this.guests.purgeInactiveGuests();
+  async purgeInactiveGuests(opts: { retentionDays?: number } = {}): Promise<{ anonymised: number; deleted: number }> {
+    const result = await this.guests.purgeInactiveGuests(new Date(), opts);
     if (result.anonymised || result.deleted) {
       this.logger.log(`guest lifecycle: ${result.anonymised} anonymised, ${result.deleted} deleted`);
     }

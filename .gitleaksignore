@@ -9,4 +9,6 @@ d4cb6b03ed4bedd33f6161386f81afacb66667d7:deploy/.env.production.example:generic-
 a08ec88ebcbdc46c5f150578995946620a3205aa:tools/perf/isr-disk/coturn-writes.sh:generic-api-key:10
 # - live mail-rotation journey: the local test-only JWT fallback (same value as tools/live/start-backend.sh); replaced by a per-run random secret since
 9e4e8c6f429252943a9656f970fc2a1a01d1cc47:tools/live/j_mail_rotation.py:generic-api-key:55
+# - 21.5 cash-on-delivery spec: a test-only idempotency key literal (not a credential; the spec now builds it from parts). The scan range still includes the first commit.
+82c6ca1500ea7b136fd7d1257dcf4d1e48adb90e:backend/src/modules/pharmacy/services/pharmacy-cod-contact.spec.ts:generic-api-key:15
 6295b27996de25740493080ec57d5f5b44413d15:deploy/cloudflare/status-worker/journeys.test.mjs:generic-api-key:10

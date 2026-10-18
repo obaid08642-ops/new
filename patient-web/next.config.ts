@@ -91,7 +91,7 @@ const nextConfig: NextConfig = {
     const everyResponse = [
       { key: "X-Content-Type-Options", value: "nosniff" },
       { key: "Cross-Origin-Resource-Policy", value: "same-site" },
-      ...(process.env.NODE_ENV === "production" ? [{ key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" }] : []),
+      ...(process.env.NODE_ENV === "production" ? [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" }] : []),
     ];
     // F82: these govern a document (framing, its CSP, its referrer, the features it may use, its browsing context group) and
     // do nothing on a hashed script, stylesheet or font, where they only added about 1 KB of headers to each of the 15-20

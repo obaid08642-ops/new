@@ -1,3 +1,4 @@
+import { UserRateLimit, UserRateLimitGuard } from '../../common/user-rate-limit';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -469,7 +470,10 @@ export class StorageService {
 @UseGuards(JwtAuthGuard)
 export class StorageController {
   constructor(private readonly svc: StorageService) {}
+  // 16.12: an account may store 60 files an hour (USER_RATE_LIMIT_UPLOAD=<limit>/<seconds> tunes it)
   @Post('upload')
+  @UseGuards(UserRateLimitGuard)
+  @UserRateLimit('upload', 60, 3600)
   async upload(@Body() body: UploadDto, @CurrentUser() user: any) {
     if (!user?.id) throw new ForbiddenException('authenticated_upload_required');
     // Storage backend, object key, and visibility are server policy. The client
@@ -505,6 +509,8 @@ export class StorageController {
    */
   @Public()
   @Post('upload-suggestion-image')
+  @UseGuards(UserRateLimitGuard)
+  @UserRateLimit('upload_suggestion', 10, 3600)   // 16.12: a visitor is counted by address, so a few a hour
   async uploadSuggestionImage(@Body() body: UploadSuggestionImageDto, @CurrentUser() user: any) {
     const IMAGE_MIME = new Set(['image/jpeg', 'image/png', 'image/webp']);
     if (!IMAGE_MIME.has(body?.mime)) throw new BadRequestException('image mime only (jpeg/png/webp)');
