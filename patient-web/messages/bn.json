@@ -18,7 +18,10 @@
     "footerPrivacy": "গোপনীয়তা",
     "footerSupport": "সহায়তা",
     "footerArticles": "নিবন্ধ",
-    "footerMap": "মানচিত্র"
+    "footerMap": "মানচিত্র",
+    "skipToContent": "বিষয়বস্তুতে যান",
+    "backToTop": "পৃষ্ঠার শুরুতে ফিরুন",
+    "readingProgress": "পড়ার অগ্রগতি"
   },
   "CoreShell": {
     "back": "ফিরে যান",
@@ -2964,6 +2967,12 @@
     "bookingNotSentBody": "এই উইন্ডো এখনও বুকিং পাঠায় না, তাই কোনো অ্যাপয়েন্টমেন্ট তৈরি হয়নি এবং কোনো পেমেন্ট নেওয়া হয়নি। ভিজিট বুক করতে নার্সিং পেজ খুলুন।",
     "bookingNotSentCta": "নার্সিং পেজে যান",
     "bookingNotSentClose": "বন্ধ করুন"
+  },
+  "OrderContext": {
+    "hint": "কিছু বদলালেই দাম ও কভারেজ সঙ্গে সঙ্গে হালনাগাদ হয়",
+    "addAddress": "আপনার ঠিকানা যোগ করুন",
+    "addInsurance": "আপনার বিমা যোগ করুন",
+    "insuranceSub": "আপনার সংরক্ষিত প্রোফাইল থেকে। অনুমোদন পর্যন্ত কভারেজ আনুমানিক"
   },
   "NursingWeb": {
     "hubTitle": "বাসায় যত্ন",

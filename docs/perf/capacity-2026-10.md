@@ -16,4 +16,4 @@ Not evaluated: no samples. Step 1 is the current state; no step is claimed to be
 ## Actions
 1. Install the cron line for `capacity-sample.sh` (server-ops task, needs the owner's Approve) and set `METRICS_SCRAPE_TOKEN` (already in the env example; the sampler skips the API block without it).
 2. After 7 days, run `review.py` on the copied `samples.jsonl` and replace this note with `capacity-2026-11.md`.
-3. Owner decisions pending from the cost table: the GitHub Actions minutes for the 5-minute probe, and the R2 size of the backup bucket now that oplog slices are added.
+3. The R2 size of the backup bucket now that oplog slices are added (owner decision pending). The GitHub Actions minutes are settled: the probe stays at 5 minutes because the repository is public (owner, 2026-10-18).

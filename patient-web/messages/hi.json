@@ -18,7 +18,10 @@
     "footerPrivacy": "गोपनीयता",
     "footerSupport": "सहायता",
     "footerArticles": "लेख",
-    "footerMap": "मानचित्र"
+    "footerMap": "मानचित्र",
+    "skipToContent": "सामग्री पर जाएं",
+    "backToTop": "पेज के ऊपर जाएं",
+    "readingProgress": "पढ़ने की प्रगति"
   },
   "CoreShell": {
     "back": "वापस",
@@ -2964,6 +2967,12 @@
     "bookingNotSentBody": "यह विंडो अभी बुकिंग नहीं भेजती, इसलिए कोई अपॉइंटमेंट नहीं बना और कोई भुगतान नहीं लिया गया। विज़िट बुक करने के लिए नर्सिंग पेज खोलें।",
     "bookingNotSentCta": "नर्सिंग पेज पर जाएँ",
     "bookingNotSentClose": "बंद करें"
+  },
+  "OrderContext": {
+    "hint": "कुछ भी बदलते ही कीमतें और कवरेज तुरंत अपडेट होते हैं",
+    "addAddress": "अपना पता जोड़ें",
+    "addInsurance": "अपना बीमा जोड़ें",
+    "insuranceSub": "आपकी सहेजी प्रोफ़ाइल से। मंज़ूरी तक कवरेज अनुमानित है"
   },
   "NursingWeb": {
     "hubTitle": "घरेलू देखभाल",

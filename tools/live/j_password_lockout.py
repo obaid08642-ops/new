@@ -57,10 +57,12 @@ def run(acct):
     for password, code in (('Short1!', 'password_too_short'), ('letmein123', 'password_compromised')):
         email = f'weak-{random.randint(10**8, 10**9)}@nabd.test'
         t0 = time.time()
-        anon.post('/auth/send-otp', {'email': email, 'purpose': 'register'})
+        # its own address: the OTP route is throttled per address and the journeys before this one send many from 127.0.0.1
+        fresh = {'X-Forwarded-For': f'203.0.116.{random.randint(1, 254)}'}
+        anon.post('/auth/send-otp', {'email': email, 'purpose': 'register'}, headers=fresh)
         otp = mail_code(email, t0)
-        anon.post('/auth/verify-otp', {'email': email, 'code': otp})
-        r = anon.post('/auth/register', {'full_name': 'اختبار', 'phone': phone(), 'email': email, 'password': password})
+        anon.post('/auth/verify-otp', {'email': email, 'code': otp}, headers=fresh)
+        r = anon.post('/auth/register', {'full_name': 'اختبار', 'phone': phone(), 'email': email, 'password': password}, headers=fresh)
         step(f'registering with "{password}" is refused ({code})', r.status == 400 and code in str(r.body), r)
 
 

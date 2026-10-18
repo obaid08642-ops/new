@@ -18,7 +18,10 @@
     "footerPrivacy": "رازداری",
     "footerSupport": "مدد",
     "footerArticles": "مضامین",
-    "footerMap": "نقشہ"
+    "footerMap": "نقشہ",
+    "skipToContent": "مواد پر جائیں",
+    "backToTop": "صفحے کے اوپر جائیں",
+    "readingProgress": "پڑھنے کی پیش رفت"
   },
   "CoreShell": {
     "back": "واپس",
@@ -2964,6 +2967,12 @@
     "bookingNotSentBody": "یہ ونڈو ابھی بکنگ نہیں بھیجتی، اس لیے کوئی ملاقات طے نہیں ہوئی اور کوئی ادائیگی نہیں لی گئی۔ وزٹ بک کرنے کے لیے نرسنگ کا صفحہ کھولیں۔",
     "bookingNotSentCta": "نرسنگ کے صفحے پر جائیں",
     "bookingNotSentClose": "بند کریں"
+  },
+  "OrderContext": {
+    "hint": "کچھ بھی بدلنے پر قیمتیں اور کوریج فوراً اپ ڈیٹ ہوتی ہیں",
+    "addAddress": "اپنا پتہ شامل کریں",
+    "addInsurance": "اپنا بیمہ شامل کریں",
+    "insuranceSub": "آپ کی محفوظ پروفائل سے۔ منظوری تک کوریج تخمینی ہے"
   },
   "NursingWeb": {
     "hubTitle": "گھریلو نگہداشت",

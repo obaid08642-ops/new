@@ -18,7 +18,10 @@
     "footerPrivacy": "الخصوصية",
     "footerSupport": "الدعم",
     "footerArticles": "المقالات",
-    "footerMap": "الخريطة"
+    "footerMap": "الخريطة",
+    "skipToContent": "انتقل إلى المحتوى",
+    "backToTop": "العودة إلى أعلى الصفحة",
+    "readingProgress": "تقدم القراءة"
   },
   "CoreShell": {
     "back": "رجوع",
@@ -2964,6 +2967,12 @@
     "bookingNotSentBody": "هذه النافذة لا ترسل الحجز بعد، لذلك لم يُنشأ أي موعد ولم يُسحب أي مبلغ. افتح صفحة التمريض لحجز زيارة.",
     "bookingNotSentCta": "إلى صفحة التمريض",
     "bookingNotSentClose": "إغلاق"
+  },
+  "OrderContext": {
+    "hint": "تتحدّث الأسعار والتغطية فور أي تغيير",
+    "addAddress": "أضف عنوانك",
+    "addInsurance": "أضف تأمينك",
+    "insuranceSub": "من ملفك المحفوظ. التغطية تقديرية حتى الموافقة"
   },
   "NursingWeb": {
     "hubTitle": "الرعاية المنزلية",
