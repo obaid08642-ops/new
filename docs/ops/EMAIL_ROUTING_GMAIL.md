@@ -1,6 +1,6 @@
 # Receiving and answering support mail (2026-10-18)
 
-Goal: `security@`, `support@` and `customer@` nabd.plus arrive in the owner's Gmail, and the owner can answer **as** those addresses
+Goal: `info@`, `support@`, `security@`, `customer@` and `doctor@` nabd.plus arrive in the owner's Gmail, and the owner can answer **as** those addresses
 from Gmail, through Brevo. Outgoing app mail (Resend, Brevo, Mailjet, SES) must not change.
 
 ## 1. Receiving: Cloudflare Email Routing (ops tasks, need the owner's Approve)
@@ -30,7 +30,7 @@ Do section 1 first (Gmail sends a confirmation code to the address, and it must 
    - Name: for example `Nabd Plus Support`; Email: `support@nabd.plus`; keep *Treat as an alias* ticked → *Next step*.
    - SMTP Server: `smtp-relay.brevo.com`; Port: `587`; Username: the Brevo SMTP login; Password: the SMTP key; **Secured connection using TLS** → *Add Account*.
 3. Gmail e-mails a **confirmation code** to `support@nabd.plus`; Email Routing forwards it to your inbox. Enter the code (or click the link).
-4. Repeat for `security@nabd.plus` and `customer@nabd.plus` (same SMTP details).
+4. Repeat for `info@nabd.plus`, `security@nabd.plus`, `customer@nabd.plus` and `doctor@nabd.plus` (same SMTP details).
 5. In the same Gmail page set *When replying to a message* → **Reply from the same address the message was sent to**.
 6. Test: send yourself a mail from each address; in Gmail *Show original* should show `SPF: PASS` and `DKIM: PASS` for `nabd.plus`.
 
