@@ -32,7 +32,7 @@ Guardrails the note also lists (a month with one is not "fine"): disk > 80 %, RA
 | Server | CPU, RAM, disk of the one host (steps 2–3 add servers) | sampler | one host |
 | Cloudflare Workers KV (status page) | Free plan: 1,000 writes a day | `docs/ops/status-page.md` | 720 a day with the journeys (see that doc); move history to D1 before raising the cadence |
 | Cloudflare R2 (backups, archive, media) | storage and operations; backups expire after 30 days (lifecycle) | R2 dashboard; the oplog adds 144 uploads a day plus about 30 days of slices (20.8) | check the bucket size each month |
-| GitHub Actions minutes | the external uptime probe (`.github/workflows/uptime.yml`) runs every 5 minutes: about 8,600 runs a month, each billed at least 1 minute; a private repository on the Free plan has 2,000 minutes | repository Settings → Billing | **owner decision:** slow the probe to every 15 minutes (about 2,900 a month), pay for minutes, or keep only the Cloudflare vantage |
+| GitHub Actions minutes | the external uptime probe (`.github/workflows/uptime.yml`) runs every 15 minutes since 2026-10-18 (was 5): about 2,900 runs a month, each billed at least 1 minute; a private repository on the Free plan has 2,000 minutes | repository Settings → Billing | **owner decision 2026-10-18:** slowed to 15 minutes. If minutes still run out, go to 30 (about 1,450 a month) or keep only the Cloudflare vantage |
 | Mail | Resend / Brevo / Mailjet free tiers have daily caps; the fallback chain uses them in order | provider dashboards | check the monthly volume against the cap |
 | Sentry (20.4) | events per month on the plan | Sentry usage page | sample rate in `SENTRY_*` env |
 

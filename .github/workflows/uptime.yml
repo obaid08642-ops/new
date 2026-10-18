@@ -5,7 +5,7 @@ name: uptime
 # GitHub may delay a scheduled run under load; the status page counts a report as fresh for 15 minutes.
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '*/15 * * * *'
   workflow_dispatch:
   pull_request:
     paths:

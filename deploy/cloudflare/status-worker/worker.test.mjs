@@ -157,3 +157,9 @@ test("the cron probes both targets and records them as the cloudflare vantage", 
   assert.equal(componentStatus(state, "api", T), "down");
   assert.equal(typeof worker.scheduled, "function");
 });
+
+test("the 15-minute GitHub probe stays fresh for 35 minutes, the Cloudflare vantage for 15", () => {
+  const s = applyReport(applyReport(null, "cloudflare", [ok("website")], T), "github-actions", [ok("website")], T);
+  assert.equal(componentStatus(s, "website", T + 20 * MIN), "up", "20 min later only the GitHub vantage is fresh and it says up");
+  assert.equal(componentStatus(s, "website", T + 36 * MIN), "unknown", "after 35 minutes nobody is fresh");
+});

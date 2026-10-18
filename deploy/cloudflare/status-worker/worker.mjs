@@ -24,6 +24,9 @@ const MESSAGES = { ar, en, ur, hi, bn, fil };
 const LOCALES = Object.keys(MESSAGES);
 const RTL = new Set(["ar", "ur"]);
 const FRESH_MS = 15 * 60_000;
+/** The GitHub Actions probe runs every 15 minutes (Actions minutes cost money, docs/perf/CAPACITY_REVIEW.md): it stays fresh for two runs and a delay. */
+const FRESH_MS_BY_VANTAGE = { "github-actions": 35 * 60_000 };
+const freshMs = (name) => FRESH_MS_BY_VANTAGE[name] ?? FRESH_MS;
 const SLOW_MS = 3000;
 const KEEP_DAYS = 90;
 const MAX_INCIDENTS = 30;
@@ -67,7 +70,7 @@ export function applyReport(prev, vantage, results, now) {
 
 /** up | degraded | down | unknown for a component, from the vantages that reported in the last 15 minutes. */
 export function componentStatus(state, component, now) {
-  const fresh = Object.values(state.vantages || {}).filter((v) => now - v.at <= FRESH_MS && v.results[component]).map((v) => v.results[component]);
+  const fresh = Object.entries(state.vantages || {}).filter(([name, v]) => now - v.at <= freshMs(name) && v.results[component]).map(([, v]) => v.results[component]);
   if (!fresh.length) return "unknown";
   const ok = fresh.filter((r) => r.ok);
   if (!ok.length) return "down";
@@ -100,7 +103,7 @@ export function uptime(state, component, days, now) {
 }
 
 export function vantageCount(state, now) {
-  return Object.values(state.vantages || {}).filter((v) => now - v.at <= FRESH_MS).length;
+  return Object.entries(state.vantages || {}).filter(([name, v]) => now - v.at <= freshMs(name)).length;
 }
 
 // ---------------------------------------------------------------------------------------------------- probing
