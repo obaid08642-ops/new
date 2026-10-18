@@ -139,3 +139,8 @@ a.row:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd
   .rail { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; overflow: visible; margin-inline: 0; padding: 0; }
   .rail .cell { flex: none; }
 }
+
+/* A wishlist row with its two actions beside it (parity audit /wishlist). */
+.rowWrap { display: flex; align-items: center; gap: 8px; }
+.rowWrap > .row { flex: 1 1 auto; min-inline-size: 0; }
+.rowActions { flex: none; display: flex; align-items: center; gap: 6px; }
