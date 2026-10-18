@@ -6,9 +6,9 @@ import { Public } from '../../common/auth.guard';
 /**
  * Provider embed badge (organic backlink engine).
  * Public endpoint returning a copy-paste dofollow anchor snippet pointing
- * at the provider's canonical page. ONLY active/approved providers get a
- * badge — suspended/pending providers return 404 (status-gated per §19,
- * never advertise unverified providers).
+ * at the provider's canonical page. Only a provider that is active, approved
+ * by medical review AND published (public_eligibility) gets a badge; any other
+ * provider returns 404 (never advertise unverified or unpublished providers).
  */
 @Controller('providers')
 export class ProviderBadgeController {
@@ -20,7 +20,8 @@ export class ProviderBadgeController {
     const p: any = await this.conn.collection('provider_profiles').findOne({
       $or: [{ id }, { account_id: id }, { slug: id }],
     } as any);
-    if (!p || p.status !== 'active') throw new NotFoundException('badge_not_available');
+    const verified = p?.status === 'active' && p?.medical_review_status === 'approved' && p?.public_eligibility === true;
+    if (!verified) throw new NotFoundException('badge_not_available');
     const slug = p.slug || p.id;
     const url = `https://www.nabd.plus/ar/doctor/${encodeURIComponent(slug)}`;
     const name = p.display_name_ar || p.name_ar || p.name_en || 'مقدم خدمة معتمد';
