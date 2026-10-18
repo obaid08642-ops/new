@@ -6,10 +6,15 @@ import { Button } from "@/components-next/ui-generated/components/Button";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/consult/consult.module.css";
 
+/** A date as the value of a datetime-local field: the reader's local time, not UTC (toISOString is UTC). */
+export function localDateTimeValue(date: Date): string {
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
+}
+
 type Labels = { title:string; date:string; reason:string; submit:string; cancel:string; conflict:string; failed:string; unavailable:string; invalid:string };
 export function AppointmentRescheduleForm({ appointmentId, labels }: { appointmentId:string; labels:Labels }) {
   const router=useRouter(); const [open,setOpen]=useState(false); const [scheduledAt,setScheduledAt]=useState(""); const [reason,setReason]=useState(""); const [error,setError]=useState<string|null>(null); const [busy,setBusy]=useState(false); const key=useRef<string|null>(null);
-  const min=new Date(Date.now()+60_000).toISOString().slice(0,16);
+  const min=localDateTimeValue(new Date(Date.now()+60_000));
   function start(){ key.current=crypto.randomUUID(); setOpen(true); setError(null); }
   async function submit(){ if(busy)return; if(!scheduledAt){setError(labels.invalid);return;} setBusy(true);setError(null);try{const response=await fetch(`/api/appointments/${appointmentId}/reschedule`,{method:"PATCH",headers:{"content-type":"application/json","idempotency-key":key.current||crypto.randomUUID()},body:JSON.stringify({scheduled_at:new Date(scheduledAt).toISOString(),...(reason.trim()?{reason:reason.trim()}: {})})});if(!response.ok){setError(response.status===409?labels.conflict:labels.failed);return;}setOpen(false);router.refresh();}catch{setError(labels.unavailable)}finally{setBusy(false)}}
   return (
