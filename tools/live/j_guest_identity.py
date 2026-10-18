@@ -34,8 +34,9 @@ def main():
     t = guest(d3, {'phone': patient['phone']})
     step('a guest call with a registered patient\'s phone does not return that patient',
          t.ok and t.get('user', 'id') != victim_id and t.get('user', 'phone') != patient['phone'], t)
-    gp = Client(t.get('token', 'accessToken') or t.get('token'), 'guest').get('/users/me')
-    step('the session it did get is a guest, not the patient', gp.ok and gp.get('id') != victim_id, gp)
+    gp = Client(t.get('token', 'accessToken') or t.get('token'), 'guest').get('/auth/me')
+    gp_id = gp.get('id') or gp.get('user', 'id')
+    step('the session it did get is a guest, not the patient', gp.ok and gp_id and gp_id != victim_id, gp)
     reg = Client(None, 'anon').post('/auth/login', {'identifier': patient['email'], 'password': patient['password']})
     step('and the patient can still sign in', reg.ok, reg)
 
