@@ -2968,6 +2968,12 @@
     "bookingNotSentCta": "نرسنگ کے صفحے پر جائیں",
     "bookingNotSentClose": "بند کریں"
   },
+  "OrderContext": {
+    "hint": "کچھ بھی بدلنے پر قیمتیں اور کوریج فوراً اپ ڈیٹ ہوتی ہیں",
+    "addAddress": "اپنا پتہ شامل کریں",
+    "addInsurance": "اپنا بیمہ شامل کریں",
+    "insuranceSub": "آپ کی محفوظ پروفائل سے۔ منظوری تک کوریج تخمینی ہے"
+  },
   "NursingWeb": {
     "hubTitle": "گھریلو نگہداشت",
     "hubLinks": "گھریلو نگہداشت کے شارٹ کٹ",

@@ -2968,6 +2968,12 @@
     "bookingNotSentCta": "Pumunta sa nursing",
     "bookingNotSentClose": "Isara"
   },
+  "OrderContext": {
+    "hint": "Agad na nag-a-update ang presyo at coverage kapag may binago",
+    "addAddress": "Idagdag ang address mo",
+    "addInsurance": "Idagdag ang insurance mo",
+    "insuranceSub": "Mula sa naka-save mong profile. Tinatayang coverage hanggang maaprubahan"
+  },
   "NursingWeb": {
     "hubTitle": "Pangangalaga sa bahay",
     "hubLinks": "Mga shortcut ng pangangalaga sa bahay",

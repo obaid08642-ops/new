@@ -2968,6 +2968,12 @@
     "bookingNotSentCta": "إلى صفحة التمريض",
     "bookingNotSentClose": "إغلاق"
   },
+  "OrderContext": {
+    "hint": "تتحدّث الأسعار والتغطية فور أي تغيير",
+    "addAddress": "أضف عنوانك",
+    "addInsurance": "أضف تأمينك",
+    "insuranceSub": "من ملفك المحفوظ. التغطية تقديرية حتى الموافقة"
+  },
   "NursingWeb": {
     "hubTitle": "الرعاية المنزلية",
     "hubLinks": "اختصارات الرعاية المنزلية",
