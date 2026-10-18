@@ -8,6 +8,8 @@ import { apiFetch } from '../../src/utils/api';
 import { dateLocaleFor } from '../../src/utils/dates';
 import { logError } from '../../src/utils/logger';
 import { readPaymentResult, readResultParams, type PaymentResult } from '../../src/utils/pharmacyCheckout';
+import { clearPayment, rememberPayment } from '../../src/utils/paymentInFlight';
+import { onReconnect } from '../../src/utils/onReconnect';
 
 /**
  * The result of a payment — the Success board's state (a check on its ring, the amount, the reference) and the board's
@@ -84,6 +86,8 @@ export default function PaymentResultRoute() {
   useEffect(() => {
     alive.current = true;
     attempts.current = 0;
+    // 15.8: remember that this payment is under way, so a killed app or a switched-off phone lands back here on reopening
+    void rememberPayment({ transactionId, gatewayId, bookingKind: p.bookingKind, bookingId: p.bookingId });
     // the services that start a payment elsewhere (diagnostics, nursing, insurance co-pay) hand the hosted page over here
     if (paymentUrl && !opened.current) {
       opened.current = true;
@@ -98,7 +102,23 @@ export default function PaymentResultRoute() {
       sub.remove();
       if (timer.current) clearTimeout(timer.current);
     };
-  }, [check, paymentUrl]);
+  }, [check, paymentUrl, transactionId, gatewayId, p.bookingKind, p.bookingId]);
+
+  // 15.8: a payment that came back with no network is settled by the server meanwhile; the moment the phone is online
+  // again the screen asks again (it does not wait for the next tap)
+  useEffect(() => {
+    if (!hasTarget) return undefined;
+    return onReconnect(() => {
+      if (!alive.current) return;
+      attempts.current = 0;
+      void check();
+    });
+  }, [check, hasTarget]);
+
+  // 15.8: once the server has settled the payment (paid, failed, cancelled, refunded) nothing is left to resume
+  useEffect(() => {
+    if (result && result.phase !== 'pending' && result.phase !== 'unknown') void clearPayment(transactionId ?? gatewayId);
+  }, [result, transactionId, gatewayId]);
 
   const again = () => {
     attempts.current = 0;
