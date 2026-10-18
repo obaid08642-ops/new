@@ -212,7 +212,10 @@
   "NotFound": {
     "title": "पृष्ठ उपलब्ध नहीं है",
     "body": "यह पेज नहीं खुल सकता, या आपके पास इसकी अनुमति नहीं है।",
-    "returnHome": "मुख्य पृष्ठ पर लौटें"
+    "returnHome": "मुख्य पृष्ठ पर लौटें",
+    "searchLabel": "Nabd में खोजें",
+    "searchButton": "खोजें",
+    "popularTitle": "लोकप्रिय अनुभाग"
   },
   "RouteState": {
     "loadingCode": "लोड हो रहा है",

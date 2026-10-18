@@ -212,7 +212,10 @@
   "NotFound": {
     "title": "صفحہ دستیاب نہیں",
     "body": "یہ صفحہ نہیں کھل سکتا، یا آپ کو اس تک رسائی نہیں ہے۔",
-    "returnHome": "ہوم پر واپس جائیں"
+    "returnHome": "ہوم پر واپس جائیں",
+    "searchLabel": "نبض میں تلاش کریں",
+    "searchButton": "تلاش کریں",
+    "popularTitle": "مقبول حصے"
   },
   "RouteState": {
     "loadingCode": "لوڈ ہو رہا ہے",

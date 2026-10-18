@@ -833,7 +833,10 @@
   "NotFound": {
     "title": "الصفحة غير متاحة",
     "body": "لا يمكن فتح هذه الصفحة، أو ليس لديك صلاحية للوصول إليها.",
-    "returnHome": "العودة إلى البداية"
+    "returnHome": "العودة إلى البداية",
+    "searchLabel": "ابحث في نبض",
+    "searchButton": "بحث",
+    "popularTitle": "أقسام شائعة"
   },
   "RouteState": {
     "loadingCode": "جارٍ التحميل",
