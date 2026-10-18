@@ -1,0 +1,17 @@
+# P20.6 public status page (deploy/cloudflare/status-worker/worker.mjs). Deployed by the build session through ops with the
+# owner's approval (docs/ops/status-page.md). INGEST_SECRET is set with `wrangler secret put`; it is never in this file.
+name = "nabd-status"
+main = "worker.mjs"
+compatibility_date = "2026-09-01"
+workers_dev = false
+
+# status.nabd.plus is served by this worker (Cloudflare creates the proxied DNS record for a custom domain).
+routes = [{ pattern = "status.nabd.plus", custom_domain = true }]
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+# The id is filled in at rollout (`wrangler kv namespace create STATUS`).
+[[kv_namespaces]]
+binding = "STATUS"
+id = "REPLACE_AT_ROLLOUT"
