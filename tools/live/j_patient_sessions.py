@@ -86,7 +86,7 @@ def run():
     r = laptop_c.get('/auth/me')
     step('baseline: the laptop access token works', r.ok, r)
     r = phone_c.post('/auth/sessions/revoke-others', None, headers={'x-device-id': phone_dev})
-    step('revoke-others answers how many it ended', r.ok and r.get('sessions_revoked', 0) >= 1, r)
+    step('revoke-others answers how many it ended', r.ok and (r.get('sessions_revoked') or 0) >= 1, r)
     r = laptop_c.get('/auth/me')
     step('the laptop access token is refused at once (401 session_revoked)', r.status == 401, r)
     r = anon.post('/auth/refresh', {'refresh_token': laptop['refreshToken']}, headers={'x-device-id': laptop_dev})
