@@ -100,9 +100,10 @@ export class CreateDto {
 }
 
 export class UpdateDto {
-  @IsDefined()
+  /** Optional since 22.5: a sent order may be edited by its address, delivery mode or note alone. */
+  @IsOptional()
   @IsArray()
-  items: any[];
+  items?: any[];
 
   /** D-10: a prescription attached after the draft was created. */
   @IsOptional()
