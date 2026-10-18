@@ -96,6 +96,13 @@ jobs:
           NABD_API_BASE_URL=http://127.0.0.1:8002/api/v1 INTERNAL_API_BASE_URL=http://127.0.0.1:8002/api/v1 NEXT_PUBLIC_SITE_ORIGIN=http://127.0.0.1:3100 NEXT_TELEMETRY_DISABLED=1 pnpm run build
           PATIENT_WEB_PORT=3100 PATIENT_WEB_ORIGIN=http://127.0.0.1:3100 bash ../tools/live/start-web.sh patient-web
 
+      # 17.8: axe-core (WCAG 2.x A and AA) on the 20 main public pages, in the browser the R7-1 step installed. It fails on a
+      # serious or critical violation; minor findings are printed and left for the backlog (tools/a11y/axe-pages.py).
+      - name: Accessibility (axe-core, 20 public pages)
+        run: |
+          npm install --prefix /tmp/axe axe-core@4.10.3
+          A11Y_BASE=http://127.0.0.1:3100 AXE_JS=/tmp/axe/node_modules/axe-core/axe.min.js python3 tools/a11y/axe-pages.py
+
       - name: Journeys
         run: bash tools/live/run_gate.sh
 
