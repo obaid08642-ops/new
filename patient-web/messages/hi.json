@@ -18,7 +18,10 @@
     "footerPrivacy": "गोपनीयता",
     "footerSupport": "सहायता",
     "footerArticles": "लेख",
-    "footerMap": "मानचित्र"
+    "footerMap": "मानचित्र",
+    "skipToContent": "सामग्री पर जाएं",
+    "backToTop": "पेज के ऊपर जाएं",
+    "readingProgress": "पढ़ने की प्रगति"
   },
   "CoreShell": {
     "back": "वापस",

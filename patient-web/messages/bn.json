@@ -18,7 +18,10 @@
     "footerPrivacy": "গোপনীয়তা",
     "footerSupport": "সহায়তা",
     "footerArticles": "নিবন্ধ",
-    "footerMap": "মানচিত্র"
+    "footerMap": "মানচিত্র",
+    "skipToContent": "বিষয়বস্তুতে যান",
+    "backToTop": "পৃষ্ঠার শুরুতে ফিরুন",
+    "readingProgress": "পড়ার অগ্রগতি"
   },
   "CoreShell": {
     "back": "ফিরে যান",

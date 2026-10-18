@@ -18,7 +18,10 @@
     "footerPrivacy": "رازداری",
     "footerSupport": "مدد",
     "footerArticles": "مضامین",
-    "footerMap": "نقشہ"
+    "footerMap": "نقشہ",
+    "skipToContent": "مواد پر جائیں",
+    "backToTop": "صفحے کے اوپر جائیں",
+    "readingProgress": "پڑھنے کی پیش رفت"
   },
   "CoreShell": {
     "back": "واپس",

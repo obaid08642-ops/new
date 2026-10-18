@@ -18,7 +18,10 @@
     "footerPrivacy": "الخصوصية",
     "footerSupport": "الدعم",
     "footerArticles": "المقالات",
-    "footerMap": "الخريطة"
+    "footerMap": "الخريطة",
+    "skipToContent": "انتقل إلى المحتوى",
+    "backToTop": "العودة إلى أعلى الصفحة",
+    "readingProgress": "تقدم القراءة"
   },
   "CoreShell": {
     "back": "رجوع",

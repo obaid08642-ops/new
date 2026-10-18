@@ -18,7 +18,10 @@
     "footerPrivacy": "Privacy",
     "footerSupport": "Support",
     "footerArticles": "Articles",
-    "footerMap": "Map"
+    "footerMap": "Map",
+    "skipToContent": "Skip to content",
+    "backToTop": "Back to top",
+    "readingProgress": "Reading progress"
   },
   "CoreShell": {
     "back": "Back",
