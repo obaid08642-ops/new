@@ -88,6 +88,7 @@ export default async function ServiceCityPage({ params }: Props) {
   }
 
   const t = await getTranslations("PublicLanding");
+  const shared = await getTranslations({ locale, namespace: "Shared" });
   const services = data.services;
   const decService = readSegment(serviceSlug);
   const decCity = readSegment(citySlug);
@@ -95,7 +96,19 @@ export default async function ServiceCityPage({ params }: Props) {
   const pageTitle = t("services.title", vars);
 
   return (
-    <LandingPage locale={locale} title={pageTitle} intro={t("services.intro", vars)} backHref={`/${locale}`}>
+    <LandingPage
+      locale={locale}
+      title={pageTitle}
+      intro={t("services.intro", vars)}
+      backHref={`/${locale}`}
+      crumbsLabel={shared("breadcrumbLabel")}
+      crumbs={[
+        { label: shared("navHome"), href: `/${locale}` },
+        { label: t("ld.crumbServices"), href: `/${locale}/services` },
+        { label: decService, href: `/${locale}/services/${serviceSlug}` },
+        { label: decCity },
+      ]}
+    >
       {/* // i18n-ok: structured data is kept exactly as published (SEO) */}
       <JsonLd
         data={[

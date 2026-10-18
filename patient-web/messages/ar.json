@@ -21,7 +21,8 @@
     "footerMap": "الخريطة",
     "skipToContent": "انتقل إلى المحتوى",
     "backToTop": "العودة إلى أعلى الصفحة",
-    "readingProgress": "تقدم القراءة"
+    "readingProgress": "تقدم القراءة",
+    "breadcrumbLabel": "مسار التنقل"
   },
   "CoreShell": {
     "back": "رجوع",
@@ -30,7 +31,15 @@
     "cart": "السلة",
     "mainNav": "التنقل الرئيسي",
     "sections": "الأقسام",
-    "cartCount": "السلة ({n, number})"
+    "cartCount": "السلة ({n, number})",
+    "menuOpen": "القائمة",
+    "menuClose": "إغلاق القائمة",
+    "menuProfile": "حسابي",
+    "menuOrders": "طلباتي",
+    "menuFamily": "العائلة",
+    "menuArticles": "المقالات",
+    "menuSettings": "الإعدادات",
+    "menuHelp": "المساعدة"
   },
   "Home": {
     "eyebrow": "بوابة المريض الرقمية",

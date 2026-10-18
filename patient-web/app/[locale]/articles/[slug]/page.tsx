@@ -109,7 +109,13 @@ export default async function ArticlePage({ params }: Props) {
   if (published) facts.push({ label: t("published"), value: <time dateTime={publishedAt ?? undefined}>{published}</time>, icon: "calendar-dots", tone: ARTICLE_TONE });
 
   return (
-    <ConsultPage locale={locale} title={title} backHref={back}>
+    <ConsultPage
+      locale={locale}
+      title={title}
+      backHref={back}
+      crumbsLabel={shared("breadcrumbLabel")}
+      crumbs={[{ label: shared("navHome"), href: `/${locale}` }, { label: t("title"), href: back }, { label: title }]}
+    >
       <ReadingProgress label={shared("readingProgress")} />
       <JsonLd
         data={[

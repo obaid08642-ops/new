@@ -1,0 +1,45 @@
+.nav {
+  margin-bottom: .75rem;
+  font-size: .85rem;
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  min-width: 0;
+}
+
+.link {
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.link:focus-visible {
+  outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color, currentColor);
+  outline-offset: 2px;
+}
+
+.text {
+  color: var(--muted);
+}
+
+.current {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.sep {
+  color: var(--muted);
+}
