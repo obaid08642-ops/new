@@ -18,7 +18,10 @@
     "footerPrivacy": "Pagkapribado",
     "footerSupport": "Suporta",
     "footerArticles": "Mga Artikulo",
-    "footerMap": "Mapa"
+    "footerMap": "Mapa",
+    "skipToContent": "Lumaktaw sa nilalaman",
+    "backToTop": "Bumalik sa itaas",
+    "readingProgress": "Progreso ng pagbabasa"
   },
   "CoreShell": {
     "back": "Bumalik",

@@ -18,6 +18,7 @@ import { ConsultState } from "@/components-next/consult/consult-state";
 import { Actions, CONSULT, Facts, Notice, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { SaveArticleButton } from "@/components-next/articles/save-article-button";
+import { ReadingProgress } from "@/components-next/navigation/reading-progress";
 import { ARTICLE_TONE, CategoryPill, articleExcerpt, articleTitle } from "@/components-next/articles/article-kit";
 import styles from "@/components-next/articles/articles.module.css";
 
@@ -78,6 +79,7 @@ export default async function ArticlePage({ params }: Props) {
   if (!isLocale(locale) || !articleSlug(slug)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("Articles");
+  const shared = await getTranslations({ locale, namespace: "Shared" });
   const rs = await getTranslations("RouteState");
   const back = `/${locale}/articles`;
   const response = await getPublicArticle(slug);
@@ -108,6 +110,7 @@ export default async function ArticlePage({ params }: Props) {
 
   return (
     <ConsultPage locale={locale} title={title} backHref={back}>
+      <ReadingProgress label={shared("readingProgress")} />
       <JsonLd
         data={[
           {
