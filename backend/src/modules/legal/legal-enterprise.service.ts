@@ -265,7 +265,7 @@ export class LegalEnterpriseService {
         // Expired → auto-suspend + notify
         await this.conn.collection('provider_profiles').updateOne(
           { _id: p._id },
-          { $set: { status: 'suspended', suspended_reason: 'license_expired', suspended_at: new Date() } },
+          { $set: { status: 'suspended', suspended_reason: 'license_expired', suspended_at: new Date(), public_eligibility: false, indexing_eligibility: false, license_verified: false, license_status: 'expired' } },
         );
         await this.notify(p.user_id || p.account_id, 'تعليق الحساب — انتهاء الترخيص',
           'تم تعليق حسابك تلقائياً لانتهاء الترخيص المهني. يرجى تجديد الترخيص ورفعه لإعادة التفعيل.',

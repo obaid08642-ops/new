@@ -10,7 +10,7 @@ describe('ProvidersService.myProfile', () => {
     const publication = { refresh: jest.fn() };
     const connection = { db: { collection: jest.fn().mockReturnValue({ findOne: jest.fn().mockResolvedValue(null) }) } };
     return {
-      service: new ProvidersService(userRepository as any, providerRepository as any, branchModel as any, events as any, publication as any, connection as any),
+      service: new ProvidersService(userRepository as any, providerRepository as any, branchModel as any, events as any, publication as any, connection as any, {} as any),
       providerRepository,
     };
   };
@@ -59,7 +59,7 @@ describe('REVIEW-P3: provider phone lookups pin the value with $eq', () => {
   it('apply + adminCreate never pass a raw phone value into the query', async () => {
     const filters: any[] = [];
     const userRepository = { findOne: jest.fn(async (f: any) => { filters.push(f); return { id: 'exists' }; }) };
-    const service = new ProvidersService(userRepository as any, {} as any, {} as any, {} as any, { refresh: jest.fn() } as any, {} as any);
+    const service = new ProvidersService(userRepository as any, {} as any, {} as any, {} as any, { refresh: jest.fn() } as any, {} as any, {} as any);
     await expect(service.apply({ phone: '+966500000000', type: 'doctor' } as any)).rejects.toThrow();
     await expect(service.adminCreate({ phone: '+966500000001', type: 'doctor' }, {})).rejects.toThrow();
     expect(filters).toEqual([{ phone: { $eq: '+966500000000' } }, { phone: { $eq: '+966500000001' } }]);
@@ -72,7 +72,7 @@ describe('REVIEW-P3: generated provider passwords are unguessable', () => {
     const created: any[] = [];
     const userRepository = { findOne: jest.fn(async () => null), create: jest.fn(async (u: any) => { created.push(u); return { ...u, id: 'u1', toObject: () => u }; }) };
     const providerRepository = { create: jest.fn(async (p: any) => ({ ...p, toObject: () => p })) };
-    const service = new ProvidersService(userRepository as any, providerRepository as any, {} as any, { emit: jest.fn() } as any, { refresh: jest.fn() } as any, {} as any);
+    const service = new ProvidersService(userRepository as any, providerRepository as any, {} as any, { emit: jest.fn() } as any, { refresh: jest.fn() } as any, {} as any, {} as any);
     const r: any = await service.adminCreate({ phone: '+966500000009', type: 'doctor', full_name: 'x', name_ar: 'x' }, {}).catch((e: any) => ({ err: e }));
     expect(r.err).toBeUndefined();
     expect(r.generated_password).toMatch(/^[A-Za-z0-9_-]{16,}$/);
@@ -85,7 +85,7 @@ describe('REVIEW-P3: generated provider passwords are unguessable', () => {
       create: jest.fn(async (u: any) => { created.push(u); return { ...u, id: 'staff1' }; }),
     };
     const branchModel = { findById: jest.fn(async () => ({ _id: 'b1', doctors_roster: [], save: jest.fn() })) };
-    const service = new ProvidersService(userRepository as any, { create: jest.fn() } as any, branchModel as any, {} as any, {} as any, {} as any);
+    const service = new ProvidersService(userRepository as any, { create: jest.fn() } as any, branchModel as any, {} as any, {} as any, {} as any, {} as any);
     const r: any = await service.createBranchStaffAccount('adm', 'b1', { fullName: 'S', role: 'receptionist' });
     expect(await bcrypt.compare('Temp123!', created[0].password_hash)).toBe(false);
     expect(r.generated_password).toMatch(/^[A-Za-z0-9_-]{16,}$/);
