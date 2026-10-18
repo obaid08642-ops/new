@@ -101,6 +101,9 @@ jobs:
       - name: Accessibility (axe-core, 20 public pages)
         run: |
           npm install --prefix /tmp/axe axe-core@4.10.3
+          # The policy pages answer 404 until their texts are published (the gate seeds them before its journeys, which run
+          # after this step), so the same idempotent seed runs first here.
+          (cd tools/live && python3 seed_legal.py)
           A11Y_BASE=http://127.0.0.1:3100 AXE_JS=/tmp/axe/node_modules/axe-core/axe.min.js python3 tools/a11y/axe-pages.py
 
       - name: Journeys
