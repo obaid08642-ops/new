@@ -63,7 +63,6 @@ export default async function RecordsPage({ params, searchParams }: Props) {
     response = new Response(null, { status: 503 });
   }
   if (response.status === 401) redirect(`/${locale}/login`);
-  if (response.status === 403 || response.status === 404) notFound();
   if (!response.ok) return frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
   const payload = await response.json().catch(() => null);
 
