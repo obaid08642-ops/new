@@ -104,7 +104,8 @@ export default async function ServiceCityPage({ params }: Props) {
       crumbsLabel={shared("breadcrumbLabel")}
       crumbs={[
         { label: shared("navHome"), href: `/${locale}` },
-        { label: t("ld.crumbServices"), href: `/${locale}/services` },
+        // /services itself answers with the home page, so the trail names the section without linking to it
+        { label: t("ld.crumbServices") },
         { label: decService, href: `/${locale}/services/${serviceSlug}` },
         { label: decCity },
       ]}
