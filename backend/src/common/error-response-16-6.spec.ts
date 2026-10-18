@@ -57,6 +57,12 @@ describe('16.6 production errors', () => {
     expect(lines.join('\n')).not.toMatch(/966501234567|a@b\.sa/);
   });
 
+  it('an id made of UUID text is not redacted even with a long run of digits, a phone number in text still is', () => {
+    const id = '2fdde932-bd73-48fc-8bac-123456789012';
+    expect(maskPii({ error_id: id })).toEqual({ error_id: id });
+    expect(JSON.stringify(maskPii({ message: 'call +966512345678 now' }))).not.toContain('966512345678');
+  });
+
   it('a 4xx is untouched', () => {
     const replies: any[] = [];
     const filter = new SentryExceptionFilter({ reply: (_r: unknown, body: any, status: number) => replies.push({ body, status }), isHeadersSent: () => false } as any);
