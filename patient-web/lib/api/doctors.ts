@@ -93,3 +93,11 @@ export type DoctorSlots = { date: string; serviceType: "clinic" | "video" | "hom
 export function extractDoctorSlots(payload: unknown): DoctorSlots | null { if (!payload || typeof payload !== "object" || Array.isArray(payload)) return null; const p=payload as Record<string, unknown>; if(typeof p.date!=="string" || !["clinic","video","home"].includes(String(p.service_type))) return null; const slots=Array.isArray(p.slots)?p.slots.flatMap((s)=>{ if(!s||typeof s!=="object") return []; const x=s as Record<string,unknown>; if(typeof x.start!=="string"||typeof x.end!=="string"||typeof x.label!=="string"||typeof x.available!=="boolean") return []; return [{start:x.start,end:x.end,label:x.label,available:x.available}]; }):[]; return {date:p.date,serviceType:p.service_type as DoctorSlots["serviceType"],slots,reason:typeof p.reason==="string"?p.reason:undefined}; }
 export function doctorSlotsQuery(input: { id: string; date: string; serviceType: "clinic" | "video" | "home" }) { return `/care/doctors/${encodeURIComponent(input.id)}/slots?date=${encodeURIComponent(input.date)}&service_type=${input.serviceType}`; }
 export function parseDoctorId(value: string) { return doctorId.safeParse(value); }
+
+/** The visit type a doctor's page opens on when the link names none: clinic when offered, else the first mode offered. */
+export function defaultVisitType(doctor: Pick<DoctorRow, "clinic" | "online" | "home">): "clinic" | "video" | "home" {
+  if (doctor.clinic) return "clinic";
+  if (doctor.online) return "video";
+  if (doctor.home) return "home";
+  return "video";
+}
