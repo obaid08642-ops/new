@@ -2982,6 +2982,12 @@
     "bookingNotSentCta": "Go to nursing",
     "bookingNotSentClose": "Close"
   },
+  "OrderContext": {
+    "hint": "Prices and coverage update at once when you change anything",
+    "addAddress": "Add your address",
+    "addInsurance": "Add your insurance",
+    "insuranceSub": "From your saved profile. Coverage is an estimate until approval"
+  },
   "NursingWeb": {
     "hubTitle": "Home care",
     "hubLinks": "Home care shortcuts",

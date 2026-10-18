@@ -12,6 +12,11 @@ permissions:
   contents: read
   pull-requests: read
 
+# A newer push to the same PR replaces the older run (it would be thrown away anyway); pushes to main and scheduled runs are never cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   gitleaks:
     name: Gitleaks secret scan (full history)
