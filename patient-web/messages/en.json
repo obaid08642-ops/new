@@ -835,7 +835,10 @@
   "NotFound": {
     "title": "Page unavailable",
     "body": "This page can't be opened, or you don't have access to it.",
-    "returnHome": "Return home"
+    "returnHome": "Return home",
+    "searchLabel": "Search Nabd",
+    "searchButton": "Search",
+    "popularTitle": "Popular sections"
   },
   "RouteState": {
     "loadingCode": "Loading",

@@ -214,7 +214,10 @@
   "NotFound": {
     "title": "Hindi available ang pahina",
     "body": "Hindi mabuksan ang pahinang ito, o wala kang access dito.",
-    "returnHome": "Bumalik sa home"
+    "returnHome": "Bumalik sa home",
+    "searchLabel": "Maghanap sa Nabd",
+    "searchButton": "Maghanap",
+    "popularTitle": "Mga sikat na seksyon"
   },
   "RouteState": {
     "loadingCode": "Nilo-load",
