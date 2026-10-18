@@ -16,11 +16,46 @@ import styles from "@/components-next/settings/settings.module.css";
 
 export type PatientAddress = AddressRecord;
 
+/** Shown in the hint and the error, so the translated text carries no Latin letters of its own. */
+const SHORT_ADDRESS_EXAMPLE = "RRRD2929";
+
 /** The fields of an address, shared by the add form and the edit form. */
 function AddressFields({ form, onChange, locale }: { form: AddressForm; onChange: (patch: Partial<AddressForm>) => void; locale: string }) {
   const t = useTranslations("Addresses");
+  const [finding, setFinding] = useState(false);
+  const [codeNote, setCodeNote] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
+
+  /** 19.7: GET /national-address/lookup answers the street, district and city of a short address from Saudi Post. */
+  async function findShortAddress() {
+    setFinding(true);
+    setCodeNote(null);
+    try {
+      const res = await fetch(`/api/patient/national-address/lookup?code=${encodeURIComponent(form.short_address.trim())}`);
+      if (res.ok) {
+        const found = (await res.json()) as { short_address: string; street?: string; district?: string; city?: string };
+        const line = [found.street, found.district, found.city].filter(Boolean).join("، ");
+        onChange({ short_address: found.short_address, ...(line ? { line1: line.slice(0, 160) } : {}) });
+        setCodeNote({ kind: "ok", text: t("shortAddressFound") });
+      } else {
+        const body = (await res.json().catch(() => null)) as { message?: string } | null;
+        const code = String(body?.message ?? "");
+        setCodeNote({ kind: "error", text: t(code.includes("short_address_invalid") ? "shortAddressInvalid" : code.includes("short_address_not_found") ? "shortAddressNotFound" : "shortAddressUnavailable", { example: SHORT_ADDRESS_EXAMPLE }) });
+      }
+    } catch {
+      setCodeNote({ kind: "error", text: t("shortAddressUnavailable") });
+    } finally {
+      setFinding(false);
+    }
+  }
+
   return (
     <>
+      <label className={forms.field}>
+        <span className={forms.label}>{t("shortAddress")}</span>
+        <input className={forms.control} value={form.short_address} onChange={(event) => onChange({ short_address: event.target.value })} placeholder={t("shortAddressPlaceholder", { example: SHORT_ADDRESS_EXAMPLE })} maxLength={20} dir="ltr" autoCapitalize="characters" autoComplete="off" />
+      </label>
+      <Button label={finding ? t("shortAddressFinding") : t("shortAddressFind")} variant="outline" size="sm" loading={finding} disabled={finding || !form.short_address.trim()} onClick={() => void findShortAddress()} />
+      {codeNote ? <p className={codeNote.kind === "ok" ? forms.ok : forms.error} role={codeNote.kind === "ok" ? "status" : "alert"}>{codeNote.text}</p> : null}
       <label className={forms.field}>
         <span className={forms.label}>{t("label")}</span>
         <input className={forms.control} value={form.label} onChange={(event) => onChange({ label: event.target.value })} required maxLength={80} />

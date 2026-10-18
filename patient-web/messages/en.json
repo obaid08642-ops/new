@@ -1456,7 +1456,15 @@
     "cancel": "Cancel",
     "removeConfirmTitle": "Confirm removing the address",
     "removeConfirm": "Remove the address “{name}”? This can’t be undone.",
-    "removeConfirmYes": "Yes, remove"
+    "removeConfirmYes": "Yes, remove",
+    "shortAddress": "National Address short code (optional)",
+    "shortAddressPlaceholder": "For example: {example}",
+    "shortAddressFind": "Find the address",
+    "shortAddressFinding": "Searching…",
+    "shortAddressFound": "Found. The address line is filled in from the National Address.",
+    "shortAddressInvalid": "A short address is four letters and four digits, for example {example}.",
+    "shortAddressNotFound": "No address was found for this code. Check it and try again.",
+    "shortAddressUnavailable": "Saudi Post is not answering now. You can still save the address with the details you typed."
   },
   "ShareReport": {
     "title": "Share Reports",

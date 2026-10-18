@@ -155,7 +155,7 @@ export class PharmacyOrder extends Document {
   }>;
 
   @Prop({ type: Object }) delivery_address?: {
-    city?: string; district?: string; street?: string;
+    city?: string; district?: string; street?: string; short_address?: string;
     geo?: { lat: number; lng: number }; notes?: string;
   };
   @Prop() patient_notes?: string;
