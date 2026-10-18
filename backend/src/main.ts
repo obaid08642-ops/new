@@ -165,6 +165,8 @@ async function bootstrap() {
     // The policy above is set explicitly, per request, with a nonce.
     contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false,
+    // 16.4: the same HSTS the security middleware sets (two years, every subdomain, preload-eligible).
+    strictTransportSecurity: { maxAge: 63072000, includeSubDomains: true, preload: true },
   }));
   // P14.25: behind nginx (gzip on, gzip_proxied any) compression belongs at the edge, not on the API's event loop;
   // HTTP_COMPRESSION=edge (production compose) turns it off here. Without a proxy (dev) Node still compresses.

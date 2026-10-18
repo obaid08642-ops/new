@@ -1,0 +1,26 @@
+name: Status worker
+
+# P20.6: the public status page worker (deploy/cloudflare/status-worker): component status from vantage points, incidents, uptime,
+# signed ingest, the page in six languages with a strict CSP and token colours.
+on:
+  pull_request:
+    paths:
+      - 'deploy/cloudflare/status-worker/**'
+      - 'patient-web/messages/**'
+      - 'packages/design-tokens/tokens.json'
+      - '.github/workflows/status-worker.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - run: node --test deploy/cloudflare/status-worker/worker.test.mjs deploy/cloudflare/status-worker/journeys.test.mjs

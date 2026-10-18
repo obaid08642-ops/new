@@ -1,4 +1,5 @@
 import { Injectable, ForbiddenException, NotFoundException, BadRequestException, ConflictException, Inject, Optional } from '@nestjs/common';
+import { assertUnverifiedCodAllowed, hasContactPhone } from '../../auth/checkout-contact.service';
 import { KillSwitchesService } from '../../kill-switches/kill-switches.service';
 import { Connection, Model } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -652,6 +653,9 @@ export class PharmacyOrderService {
       { projection: { _id: 1 } },
     );
     if (!returning) throw new BadRequestException('cod_first_order_not_allowed');
+    // 21.5: the provider calls before dispatch, so a phone is needed; an unverified phone also has a value and open-order cap.
+    if (!(await hasContactPhone(db, patientId))) throw new BadRequestException('contact_phone_required');
+    await assertUnverifiedCodAllowed(db, patientId, total, order.id);
     let pharmacyId: string | undefined = order.pharmacy_account_id;
     if (!pharmacyId && order.selected_offer_id) {
       const offer: any = await db.collection('pharmacy_offers').findOne({ id: order.selected_offer_id }, { projection: { pharmacy_account_id: 1 } });

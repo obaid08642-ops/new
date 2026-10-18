@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
+import { makeAppendOnly } from '../../../common/append-only';
 import { OperatorPermission, OperatorRole, ProviderAccountStatus, ProviderDocumentType, ProviderType } from '../provider.enums';
 
 // ===================== ACCOUNT =====================
@@ -204,6 +205,8 @@ export class ProviderAuditLog extends Document {
   @Prop() user_agent?: string;
 }
 export const ProviderAuditLogSchema = SchemaFactory.createForClass(ProviderAuditLog);
+/** 16.6 — the provider audit log is append-only. */
+makeAppendOnly(ProviderAuditLogSchema, 'provider_audit_logs');
 ProviderAuditLogSchema.index({ provider_account_id: 1, createdAt: -1 });
 
 // ===================== DELTA / SETTINGS GUARD =====================

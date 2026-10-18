@@ -24,6 +24,12 @@ RUN npm ci --only=production
 # Copy built artifacts from the builder stage
 COPY --from=builder /usr/src/app/dist ./dist
 
+# 16.7: security updates of the base image (OpenSSL had fixes), and no npm/corepack/yarn at run time: `node` starts the API, and the
+# packages bundled with npm (tar, minimatch, brace-expansion ...) carried advisories (Trivy image scan).
+RUN apk upgrade --no-cache \
+  && rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack /opt/yarn-* \
+  && rm -f /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack /usr/local/bin/yarn /usr/local/bin/yarnpkg
+
 # Create a non-root user for security
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nestjs -u 1001
