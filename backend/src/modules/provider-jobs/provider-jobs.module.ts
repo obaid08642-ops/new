@@ -20,6 +20,7 @@ import { BookingAttachmentSchema } from '../unified-bookings/booking-ops.module'
 import { ServiceState, ServiceDomain, UserRole } from '../../common/enums';
 import { toUniversal, domainStatesFor, WorkflowEngineService, WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
 import { AcceptDto, RejectDto, StartDto, CompleteDto, InsuranceDto, ArrivedDto } from './provider-jobs.dto';
+import { withholdBeforeAcceptance } from './provider-job-privacy';
 
 type JobStatus = 'incoming' | 'active' | 'completed';
 
@@ -164,7 +165,7 @@ export class ProviderJobsService {
     const userMap = new Map<string, any>(users.map((u: any) => [u.id, u]));
     const attMap = new Map<string, number>(attachmentCounts.map((a: any) => [a._id, a.n]));
     const profileMap = new Map<string, any>(profiles.map((p: any) => [p.user_id, p]));
-    return combined.map((c: any) => ({
+    return combined.map((c: any) => withholdBeforeAcceptance({
       ...c,
       patient_name: userMap.get(c.patient_id)?.full_name || null,
       patient_phone: userMap.get(c.patient_id)?.phone || null,
