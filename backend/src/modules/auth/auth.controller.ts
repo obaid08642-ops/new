@@ -447,6 +447,6 @@ export class AuthController {
   @RequirePermissions(Permission.OPS_CRONS_RUN)
   @Post('guest/cleanup')
   async cleanupGuests(@Body() dto: GuestCleanupDto) {
-    return this.guestLifecycle.purgeInactiveGuests();
+    return this.guestLifecycle.purgeInactiveGuests({ retentionDays: dto.retention_days });
   }
 }

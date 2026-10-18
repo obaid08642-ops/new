@@ -149,7 +149,16 @@ export class AuthService {
 
     const u = await this.userModel.findOne({ id: payload.sub });
     if (!u || u.active === false) throw new UnauthorizedException('User not found or disabled');
+    // 21.8: a guest who keeps using the app is not inactive; written at most once a day
+    if (u.is_guest === true) await this.touchGuestActivity(u);
     return this.signToken(u, boundDevice || deviceId);
+  }
+
+  /** 21.8: the guest was active now (at most one write a day). Failure never blocks the refresh. */
+  private async touchGuestActivity(u: any): Promise<void> {
+    const last = u.last_active_at ? new Date(u.last_active_at).getTime() : 0;
+    if (Date.now() - last < 24 * 3600 * 1000) return;
+    try { await this.userModel.updateOne({ id: u.id }, { $set: { last_active_at: new Date() } }); } catch { /* best effort */ }
   }
 
   /** Revoke every refresh session of a user (logout-all / theft response). */

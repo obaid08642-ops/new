@@ -155,7 +155,7 @@ export class PdplService {
    * (invoices, audit trail, financial ledger) are anonymised so the platform
    * keeps its obligations while the person is no longer identifiable.
    */
-  async erasePatientData(userId: string, opts?: { reason?: string; password?: string }) {
+  async erasePatientData(userId: string, opts?: { reason?: string; password?: string; guestSession?: boolean; retention?: boolean }) {
     if (!userId) throw new BadRequestException('user_id_required');
     const user: any = await this.userModel.findOne({ id: { $eq: String(userId) } }).lean();
     if (!user) throw new BadRequestException('user_not_found');
@@ -169,7 +169,10 @@ export class PdplService {
     // patients with `password_hash: ''` (auth.service social callback), so those
     // accounts could be erased with no proof at all — exactly the attack the check
     // exists to stop. Missing proof now fails closed in both directions.
-    if (!user.password_hash) {
+    // 21.8: a guest has no password. The guest session (or the retention job) proves the request, and only for a stored
+    // account that really is a guest — a real account always goes through the password check below.
+    const guestProof = (opts?.guestSession === true || opts?.retention === true) && user.is_guest === true;
+    if (!guestProof && !user.password_hash) {
       // No password on file means the password cannot prove anything. Self-service
       // erasure is refused rather than silently allowed; the account needs a
       // password set (or a verified channel) first.
@@ -179,8 +182,8 @@ export class PdplService {
         detail: 'This account signs in with a social provider and has no password, so erasure cannot be authorised by password alone.',
       });
     }
-    if (!opts?.password) throw new BadRequestException('password_required');
-    {
+    if (!guestProof && !opts?.password) throw new BadRequestException('password_required');
+    if (!guestProof) {
       // bcryptjs, like the rest of the backend. This was `require('bcrypt')`, and
       // bcrypt is neither declared nor installed, so the moment a patient supplied
       // a password the check threw "Cannot find module 'bcrypt'" and erasure 500'd
@@ -232,6 +235,22 @@ export class PdplService {
       }
       const res = await this.conn.collection(collection).deleteMany(filter).catch(() => null);
       if (res?.deletedCount) deleted[collection] = (deleted[collection] || 0) + res.deletedCount;
+    }
+
+    // 21.8: guest data goes with the account — the device bindings of this account and of the guests merged into it, and
+    // the emptied shells those guests left behind (the merge moved everything they held onto this account).
+    const guestIds = [String(userId)];
+    if (present.has('users')) {
+      const shells = await this.conn.collection('users').find({ merged_into: { $eq: String(userId) } }, { projection: { id: 1 } }).toArray().catch(() => []);
+      guestIds.push(...shells.map((x: any) => String(x.id)));
+      if (shells.length) {
+        const res = await this.conn.collection('users').deleteMany({ merged_into: { $eq: String(userId) }, is_guest: false } as any).catch(() => null);
+        if (res?.deletedCount) deleted['merged_guest_shells'] = res.deletedCount;
+      }
+    }
+    if (present.has('guest_devices')) {
+      const res = await this.conn.collection('guest_devices').deleteMany({ guest_id: { $in: guestIds } } as any).catch(() => null);
+      if (res?.deletedCount) deleted['guest_devices'] = res.deletedCount;
     }
 
     // Sessions and tokens must die immediately, not in 30 days.
