@@ -1,3 +1,4 @@
+import { revealHealthDocs } from '../../common/health-fields';
 import { Injectable, NotFoundException, BadRequestException, ConflictException, ForbiddenException, ServiceUnavailableException, Inject, forwardRef, Optional } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -700,7 +701,8 @@ export class HealthService {
   async listPrescriptions(user: any) {
     const rows = await this.conn.db.collection('prescriptions')
       .find({ patient_id: user.id }, { projection: { upload_image: 0 } })
-      .sort({ createdAt: -1 }).limit(50).toArray();
+      .sort({ createdAt: -1 }).limit(50).toArray()
+      .then((r: any[]) => revealHealthDocs('prescriptions', r));   // 16.9: raw read, so the health fields are decrypted here
     const doctorIds = [...new Set(rows.map((r: any) => r.doctor_id).filter(Boolean))];
     const doctors = doctorIds.length
       ? await this.conn.db.collection('users').find({ id: { $in: doctorIds } }, { projection: { id: 1, full_name: 1, name: 1 } }).toArray()

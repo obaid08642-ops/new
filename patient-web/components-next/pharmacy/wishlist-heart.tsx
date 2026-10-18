@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { IconButton } from "@/components-next/ui-generated/components/Button";
 import { extractWishlist } from "@/lib/api/wishlist";
 import { newIdempotencyKey } from "@/lib/pharmacy/broadcast";
+import { requestWishlistToggle } from "@/lib/pharmacy/wishlist-toggle";
 import styles from "./product-detail.module.css";
 
 /**
@@ -43,22 +44,19 @@ export function WishlistHeart({ itemId, locale }: { itemId: string; locale: stri
     running.current = true;
     setBusy(true);
     setFailed(false);
-    try {
-      const response = await fetch(`/api/patient/users/me/wishlist/${encodeURIComponent(itemId)}`, {
-        method: "POST",
-        credentials: "same-origin",
-        headers: { "idempotency-key": newIdempotencyKey() },
-      });
-      if (response.status === 401) return setSignedIn(false);
-      if (!response.ok) return setFailed(true);
-      const body = (await response.json().catch(() => null)) as { in_wishlist?: unknown } | null;
-      setInList(typeof body?.in_wishlist === "boolean" ? body.in_wishlist : !inList);
-    } catch {
-      setFailed(true);
-    } finally {
-      running.current = false;
-      setBusy(false);
+    // 15.3: optimistic (a wishlist is safe to show at once): the heart changes now and goes back, with the message, when the
+    // server refuses or cannot be reached
+    const was = inList;
+    setInList(!was);
+    const result = await requestWishlistToggle(itemId, was, newIdempotencyKey());
+    if (result.state === "ok") setInList(result.inList);
+    else {
+      setInList(was);
+      if (result.state === "signed_out") setSignedIn(false);
+      else setFailed(true);
     }
+    running.current = false;
+    setBusy(false);
   }
 
   return (

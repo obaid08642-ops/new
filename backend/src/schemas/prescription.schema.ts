@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { PrescriptionState } from '../common/enums';
 import { v4 as uuid } from 'uuid';
+import { healthFieldsPlugin } from '../common/health-fields';
 
 @Schema({ _id: false })
 export class PrescriptionItem {
@@ -54,3 +55,5 @@ export class Prescription {
 }
 export type PrescriptionDocument = Prescription & Document;
 export const PrescriptionSchema = SchemaFactory.createForClass(Prescription);
+// 16.9: diagnosis, notes and the dosing instructions are ciphertext at rest
+PrescriptionSchema.plugin(healthFieldsPlugin, { registry: 'prescriptions' });

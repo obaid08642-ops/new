@@ -110,6 +110,7 @@ services:
       dockerfile: ../deploy/docker/Dockerfile.backend
       network: host
     container_name: nabdah-backend
+    stop_grace_period: 40s   # 20.9: SIGTERM drain before SIGKILL (rolling deploys stop the old container with docker stop -t)
     restart: unless-stopped
     env_file: .env.production
     environment:
@@ -118,6 +119,7 @@ services:
       PORT: "8002"
       # P14.26: HTTP and sockets only; cron jobs, queue consumers and the search sync run in `worker` below
       PROCESS_ROLE: api
+      SHUTDOWN_DRAIN_MS: ${SHUTDOWN_DRAIN_MS:-6000}   # 20.9: keep serving with Connection: close this long after SIGTERM
       # 20.3: debug|info|warn|error. info in production (stdout, capped 20m x 3); warn and error are also stored in
       # Mongo `app_logs` (30-day TTL, size-capped) and shown in the admin dashboard > Logs. Set it in .env.production to change it.
       LOG_LEVEL: ${LOG_LEVEL:-info}
@@ -159,6 +161,7 @@ services:
       dockerfile: ../deploy/docker/Dockerfile.backend
       network: host
     container_name: nabdah-worker
+    stop_grace_period: 60s   # 20.9: SIGTERM drain before SIGKILL (rolling deploys stop the old container with docker stop -t)
     restart: unless-stopped
     env_file: .env.production
     environment:
@@ -226,6 +229,7 @@ services:
       context: ../Napd-admin/web-admin
       dockerfile: ../../deploy/docker/Dockerfile.admin-web
     container_name: nabdah-admin-web
+    stop_grace_period: 30s   # 20.9: SIGTERM drain before SIGKILL (rolling deploys stop the old container with docker stop -t)
     restart: unless-stopped
     environment:
       NEXT_PUBLIC_API_URL: https://api.nabd.plus
@@ -323,6 +327,7 @@ services:
   patient-web:
     image: nabdah-patient-web:v50
     container_name: nabdah-patient-web
+    stop_grace_period: 30s   # 20.9: SIGTERM drain before SIGKILL (rolling deploys stop the old container with docker stop -t)
     restart: unless-stopped
     environment:
       NABD_API_BASE_URL: http://backend:8002/api/v1

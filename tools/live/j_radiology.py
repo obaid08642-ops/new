@@ -156,6 +156,17 @@ def run(pat, center, other_center=None, admin=None):
                 step('request shows the copay paid', state == 'COPAY_PAID', state)
                 step('radiology booking CONFIRMED after copay', str(b.get('state')).upper() == 'CONFIRMED', b.get('state'))
 
+    if rid_bid:
+        # 19.11: full approval (nothing owed) and rejection (the patient pays in full), each with both notifications
+        for outcome, scan_i, hour in (('approve_full', 1, 15), ('reject', 2, 16)):
+            rb2 = pat.post('/radiology/bookings', {'service_id': scans[scan_i % len(scans)]['id'], 'scheduled_at': tomorrow_at(hour),
+                                                   'location_type': 'facility', 'payment_method': 'insurance', 'provider_account_id': center_id})
+            bid2 = rb2.get('id')
+            step(f'radiology {outcome}: insurance booking created', rb2.ok and bid2, rb2)
+            if bid2:
+                j_insurance.engine_flow(pat, center, 'radiology', bid2, outcome,
+                                        lambda b=bid2: str(pat.get(f'/radiology/bookings/{b}').get('state')).upper() == 'CONFIRMED', f'radiology {outcome}')
+
     journey('radiology screens: every tab loads')
     for path in RAD_SCREEN_GETS:
         r = center.get(path)
