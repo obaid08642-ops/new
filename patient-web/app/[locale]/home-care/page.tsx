@@ -59,6 +59,7 @@ export default async function HomeCarePage({ params }: Props) {
             return (
               <li key={booking.id}>
                 <RowCard
+                  href={`/${locale}/nursing/visits/${encodeURIComponent(booking.id)}`}
                   icon={serviceIcon(booking.serviceNameAr, booking.serviceNameEn)}
                   tone={NURSING.tone}
                   title={name}
