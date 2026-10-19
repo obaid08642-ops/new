@@ -78,6 +78,10 @@ export NEXT_REVALIDATE_URL="${NEXT_REVALIDATE_URL:-http://127.0.0.1:${PATIENT_WE
 KEYFILE="${FIELD_KEY_FILE:-/tmp/nabd-live-field-key}"
 [[ -s "$KEYFILE" ]] || { umask 077; openssl rand -base64 32 > "$KEYFILE"; }
 export FIELD_ENCRYPTION_KEY="${FIELD_ENCRYPTION_KEY:-$(cat "$KEYFILE")}"
+# 16.1: AI provider keys are wrapped at rest, so the live stack needs a wrapping key too (same per-run file approach).
+AIKEYFILE="${AI_KEYS_KEY_FILE:-/tmp/nabd-live-ai-keys-key}"
+[[ -s "$AIKEYFILE" ]] || { umask 077; openssl rand -base64 32 > "$AIKEYFILE"; }
+export AI_KEYS_ENC_KEY="${AI_KEYS_ENC_KEY:-$(cat "$AIKEYFILE")}"
 LOG="${BACKEND_LOG:-/tmp/nabd-backend.log}"
 nohup node --max-old-space-size=1500 dist/main.js > "$LOG" 2>&1 &
 echo $! > "$LOG.pid"
