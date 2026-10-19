@@ -12,7 +12,7 @@ const doctorSchema = z.object({
   consultation_fee: z.number().nonnegative().optional().nullable(), price: z.number().nonnegative().optional().nullable(), price_clinic: z.number().nonnegative().optional().nullable(), price_online: z.number().nonnegative().optional().nullable(), price_home: z.number().nonnegative().optional().nullable(), average_wait: z.number().nonnegative().optional().nullable(), years_experience: z.number().int().nonnegative().optional().nullable(), experience_years: z.number().int().nonnegative().optional().nullable(),
   offers_online: z.boolean().optional().nullable(), offers_clinic: z.boolean().optional().nullable(), offers_home: z.boolean().optional().nullable(), accepts_insurance: z.boolean().optional().nullable(), verified: z.boolean().optional().nullable(), scfhs_license_no: z.string().max(80).optional().nullable(), photo_url: z.string().max(400).optional().nullable(), clinicPhotos: z.array(z.string().max(400)).max(20).optional().nullable(), facility_name: z.string().max(180).optional().nullable(), clinic_name: z.string().max(180).optional().nullable(), hospital: z.string().max(180).optional().nullable(), next_available_slot: z.string().max(80).optional().nullable(), next_available_at: z.string().max(80).optional().nullable(), consultation_modes: z.array(z.string().max(24)).max(8).optional().nullable(),
 }).strip();
-export type DoctorRow = { id: string; name?: string; nameAr?: string; nameEn?: string; degree?: string; specialty?: string; rating?: number; reviews?: number; price?: number; waitMinutes?: number; experienceYears?: number; online: boolean; clinic: boolean; home: boolean; acceptsInsurance: boolean; facility?: string; nextSlot?: string; /** Admin-approved and licence-verified (`verified`, Q-20/D-17): the seal is drawn only when true. */ verified: boolean; licenseNo?: string; /** The doctor's photo and clinic photos as website addresses (2-web#3); none when the doctor has not added one. */ photo?: string; clinicPhotos?: string[] };
+export type DoctorRow = { id: string; /** The fee of each visit type the doctor offers (positive prices only). */ prices?: { clinic?: number; video?: number; home?: number }; name?: string; nameAr?: string; nameEn?: string; degree?: string; specialty?: string; rating?: number; reviews?: number; price?: number; waitMinutes?: number; experienceYears?: number; online: boolean; clinic: boolean; home: boolean; acceptsInsurance: boolean; facility?: string; nextSlot?: string; /** Admin-approved and licence-verified (`verified`, Q-20/D-17): the seal is drawn only when true. */ verified: boolean; licenseNo?: string; /** The doctor's photo and clinic photos as website addresses (2-web#3); none when the doctor has not added one. */ photo?: string; clinicPhotos?: string[] };
 function rowsFrom(payload: unknown): unknown[] { if (Array.isArray(payload)) return payload; if (payload && typeof payload === "object" && !Array.isArray(payload)) { const root=payload as Record<string,unknown>; for (const key of ["data","items","doctors","results"]) if (Array.isArray(root[key])) return root[key]; } return []; }
 /** Positive prices only: the backend sends 0 / null for a mode the doctor does not offer. */
 function firstPrice(...values: Array<number | null | undefined>) { return values.find((value): value is number => typeof value === "number" && value > 0); }
@@ -50,6 +50,7 @@ export function extractDoctors(payload: unknown): DoctorRow[] {
       rating: d.rating ?? undefined,
       reviews: d.review_count ?? d.reviews_count ?? undefined,
       price: firstPrice(d.price_clinic, d.price_online, d.price_home, d.consultation_fee, d.price),
+      prices: { clinic: firstPrice(d.price_clinic), video: firstPrice(d.price_online), home: firstPrice(d.price_home) },
       waitMinutes: d.average_wait ?? undefined,
       experienceYears: d.years_experience ?? d.experience_years ?? undefined,
       online: Boolean(d.offers_online) || modes.some((mode) => mode === "video" || mode === "online"),
@@ -100,4 +101,7 @@ export function defaultVisitType(doctor: Pick<DoctorRow, "clinic" | "online" | "
   if (doctor.online) return "video";
   if (doctor.home) return "home";
   return "video";
+/** The fee of one visit type: that type's own price (not the first price of any type); none when the doctor has no price for it. */
+export function priceForVisit(doctor: Pick<DoctorRow, "prices">, type: "clinic" | "video" | "home"): number | undefined {
+  return doctor.prices?.[type];
 }

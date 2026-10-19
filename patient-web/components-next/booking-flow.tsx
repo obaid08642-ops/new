@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { specialtyLabel } from "@/lib/specialties";
 import type { ReactNode } from "react";
-import { doctorDisplayName, type DoctorRow } from "@/lib/api/doctors";
+import { doctorDisplayName, priceForVisit, type DoctorRow } from "@/lib/api/doctors";
 import type { Locale } from "@/lib/i18n";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { Input, Select } from "@/components-next/ui-generated/components/Inputs";
@@ -189,7 +189,9 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
     }
   }
 
-  const price = doctor?.price != null ? formatPrice(locale, doctor.price) : null;
+  // The fee of the visit type chosen, not one price whatever the visit type.
+  const fee = doctor ? priceForVisit(doctor, visitType) : undefined;
+  const price = fee != null ? formatPrice(locale, fee) : null;
   const submitButton = (
     <Button fullWidth size="lg" label={submitting ? t("submitting") : t("submit")} loading={submitting} disabled={!selectedSlot} onClick={() => void submit()} />
   );
