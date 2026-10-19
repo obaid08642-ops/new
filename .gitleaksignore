@@ -22,3 +22,4 @@ b3c1b6fba7d9334c78967bc0dab280ae5a12d63f:backend/test/security/p3-provider-crede
 # - 21.5 cash-on-delivery spec: a test-only idempotency key literal (not a credential; the spec now builds it from parts). The scan range still includes the first commit.
 82c6ca1500ea7b136fd7d1257dcf4d1e48adb90e:backend/src/modules/pharmacy/services/pharmacy-cod-contact.spec.ts:generic-api-key:15
 6295b27996de25740493080ec57d5f5b44413d15:deploy/cloudflare/status-worker/journeys.test.mjs:generic-api-key:10
+0e2237c8fc5ccb9c0a93007a3f7b1f49e60d3fad:tools/live/j_ai_keys_at_rest.py:generic-api-key:21

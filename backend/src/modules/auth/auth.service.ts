@@ -260,6 +260,7 @@ export class AuthService {
     }
     if (payload?.type !== 'refresh' || !payload.jti || !payload.sub) return false;
     const ended = await this.endSessions(payload.sub, (m) => m.jti === payload.jti);
+    if (ended.revoked > 0) this.events.emit('auth.session_ended', { user_id: payload.sub, scope: 'this_device', sessions: ended.revoked });
     return ended.revoked > 0;
   }
 
@@ -267,6 +268,7 @@ export class AuthService {
     // Real revocation: every sign-in ends, its access tokens stop at once and its push tokens go
     await this.endAllSessions(userId);
     this.events.emit('USER_LOGGED_OUT_ALL', { user_id: userId });
+    this.events.emit('auth.session_ended', { user_id: userId, scope: 'all_devices' });
     return { ok: true, message: 'Logged out from all devices' };
   }
 
@@ -321,6 +323,7 @@ export class AuthService {
     if (!current.sid && !current.deviceId) throw new BadRequestException('current_session_unknown');
     const r = await this.endSessions(userId, (m) => (current.sid ? m.sid === current.sid : m.device === current.deviceId));
     this.events.emit('USER_LOGGED_OUT', { user_id: userId, device_id: current.deviceId ?? null });
+    this.events.emit('auth.session_ended', { user_id: userId, scope: 'this_device', sessions: r.revoked });
     return { ok: true, sessions_revoked: r.revoked, push_tokens_removed: r.push_removed };
   }
 
@@ -328,6 +331,7 @@ export class AuthService {
   async revokeOtherSessions(userId: string, current: { sid?: string; deviceId?: string }) {
     if (!current.sid && !current.deviceId) throw new BadRequestException('current_session_unknown');
     const r = await this.endSessions(userId, (m) => (current.sid ? m.sid !== current.sid : m.device !== current.deviceId));
+    if (r.revoked > 0) this.events.emit('auth.session_ended', { user_id: userId, scope: 'other_devices', sessions: r.revoked });
     return { ok: true, sessions_revoked: r.revoked, push_tokens_removed: r.push_removed };
   }
 
@@ -545,6 +549,7 @@ export class AuthService {
     const user = await this.userModel.findOne(normalized.includes('@') ? { email: normalized } : { phone: normalized });
     if (!user || user.active === false) return this.opaqueOtpResponse(normalized);
 
+    this.events.emit('auth.otp_requested', { user_id: user.id, purpose: 'login', channel: normalized.includes('@') ? 'email' : 'phone' });
     const code = require('crypto').randomInt(100000, 1000000).toString();
     await this.redisService.setJson(
       this.patientOtpKey(normalized),
@@ -709,6 +714,7 @@ export class AuthService {
     await user.save();
     // P3.0a: reset ends every session (access + refresh, patient + provider).
     await this.revokeAfterCredentialChange(user.id);
+    this.events.emit('auth.password_changed', { user_id: user.id, role: user.role, how: 'reset_link' });
     return { reset: true };
   }
 
@@ -770,6 +776,7 @@ export class AuthService {
     const now = new Date();
     for (const c of consents) {
       await col.insertOne({ user_id: userId, policy_key: c.policy_id, version: c.version, timestamp: now });
+      this.events.emit('legal.accepted', { user_id: userId, role: 'patient', policy_key: c.policy_id, version: c.version });
     }
   }
 
@@ -929,6 +936,11 @@ export class AuthService {
     return { user: this.publicUser(u), token: this.signToken(u) };
   }
 
+  /** 23.2: a failed sign-in is an audit event (the identifier is only ever stored hashed, by the audit handler). */
+  private auditLoginFailed(identifier: string, userId: string | undefined, reason: string, ctx?: { ua?: string; ip?: string }) {
+    this.events.emit('auth.login_failed', { phone: identifier, user_id: userId, reason, ip: ctx?.ip, user_agent: ctx?.ua });
+  }
+
   async login(identifier: string, password: string, ctx?: { deviceToken?: string; ua?: string; ip?: string }, guestToken?: string) {
     AuthService.assertString(identifier, 'identifier');
     AuthService.assertString(password, 'password');
@@ -941,17 +953,22 @@ export class AuthService {
       // The same bcrypt work as a real check, so the answer does not come back faster for an unknown account.
       await bcrypt.compare(password, await dummyPasswordHash());
       if (u) await this.adminLoginAlert(u, false, ctx); // C5: known account, bad secret
+      this.auditLoginFailed(identifier, u?.id, u ? 'no_password' : 'unknown_account', ctx);
       await this.loginLock?.recordFailure(identifier, ctx?.ip);
       throw new UnauthorizedException('Invalid credentials');
     }
     const ok = await bcrypt.compare(password, u.password_hash);
     if (!ok) {
       await this.adminLoginAlert(u, false, ctx); // C5: failed admin login attempt
+      this.auditLoginFailed(identifier, u.id, 'wrong_password', ctx);
       await this.loginLock?.recordFailure(identifier, ctx?.ip);
       throw new UnauthorizedException('Invalid credentials');
     }
     await this.loginLock?.recordSuccess(identifier, ctx?.ip);
-    if (u.active === false) throw new UnauthorizedException('Account disabled');
+    if (u.active === false) {
+      this.auditLoginFailed(identifier, u.id, 'account_disabled', ctx);
+      throw new UnauthorizedException('Account disabled');
+    }
 
     // Check 2FA requirement
     if (u.role === UserRole.SUPER_ADMIN || u.role === UserRole.ADMIN) {
@@ -1185,7 +1202,9 @@ export class AuthService {
 
   async revokeTrustedDevice(userId: string, deviceId: string) {
     if (!this.deviceTrust) throw new BadRequestException('device_trust_unavailable');
-    return this.deviceTrust.revoke(userId, deviceId);
+    const revoked = await this.deviceTrust.revoke(userId, deviceId);
+    this.events.emit('auth.device_changed', { user_id: userId, change: 'revoked' });
+    return revoked;
   }
 
   async deviceHeartbeat(userId: string, deviceToken: string | undefined, ua?: string, ip?: string) {
@@ -1410,6 +1429,7 @@ export class AuthService {
     // /auth/register requires (the code goes to the identifier itself).
     const u: any = existing || { id: null, email: isEmail ? normalized : undefined, phone: isEmail ? undefined : normalized };
 
+    this.events.emit('auth.otp_requested', { user_id: u.id ?? undefined, purpose: purpose || 'login', channel: isEmail ? 'email' : 'phone' });
     const code = require('crypto').randomInt(100000, 1000000).toString();
     // Store only a bcrypt hash. The plaintext code must never persist in Redis or logs.
     await this.redisService.setJson(
@@ -1513,6 +1533,7 @@ export class AuthService {
     await u.save();
     // P3.0a: a reset must not leave stolen access/refresh tokens alive.
     await this.revokeAfterCredentialChange(u.id);
+    this.events.emit('auth.password_changed', { user_id: u.id, role: u.role, how: 'reset_code' });
     return { ok: true };
   }
 

@@ -21,7 +21,10 @@
     "footerMap": "الخريطة",
     "skipToContent": "انتقل إلى المحتوى",
     "backToTop": "العودة إلى أعلى الصفحة",
-    "readingProgress": "تقدم القراءة"
+    "readingProgress": "تقدم القراءة",
+    "dialogCancel": "إلغاء",
+    "dialogConfirm": "تأكيد",
+    "breadcrumbLabel": "مسار التنقل"
   },
   "CoreShell": {
     "back": "رجوع",
@@ -30,7 +33,15 @@
     "cart": "السلة",
     "mainNav": "التنقل الرئيسي",
     "sections": "الأقسام",
-    "cartCount": "السلة ({n, number})"
+    "cartCount": "السلة ({n, number})",
+    "menuOpen": "القائمة",
+    "menuClose": "إغلاق القائمة",
+    "menuProfile": "حسابي",
+    "menuOrders": "طلباتي",
+    "menuFamily": "العائلة",
+    "menuArticles": "المقالات",
+    "menuSettings": "الإعدادات",
+    "menuHelp": "المساعدة"
   },
   "Home": {
     "eyebrow": "بوابة المريض الرقمية",
@@ -833,7 +844,10 @@
   "NotFound": {
     "title": "الصفحة غير متاحة",
     "body": "لا يمكن فتح هذه الصفحة، أو ليس لديك صلاحية للوصول إليها.",
-    "returnHome": "العودة إلى البداية"
+    "returnHome": "العودة إلى البداية",
+    "searchLabel": "ابحث في نبض",
+    "searchButton": "بحث",
+    "popularTitle": "أقسام شائعة"
   },
   "RouteState": {
     "loadingCode": "جارٍ التحميل",
@@ -922,7 +936,13 @@
     "unsave": "إزالة من المحفوظات",
     "saveFailed": "تعذر تحديث المقالات المحفوظة. حاول مجددًا.",
     "signInToSave": "سجّل الدخول لحفظ المقالات",
-    "bodyTitle": "نص المقال"
+    "bodyTitle": "نص المقال",
+    "updated": "آخر تحديث",
+    "shareTitle": "شارك هذا المقال",
+    "shareCopy": "نسخ الرابط",
+    "shareCopied": "تم النسخ",
+    "shareWhatsapp": "واتساب",
+    "shareX": "إكس"
   },
   "ChatDetail": {
     "eyebrow": "محادثة خاصة",
@@ -1329,7 +1349,11 @@
     "kindLabPackage": "باقة تحاليل",
     "kindRadiology": "أشعة",
     "kindNursing": "تمريض",
-    "kindArticle": "مقال"
+    "kindArticle": "مقال",
+    "recentTitle": "عمليات البحث الأخيرة",
+    "recentClear": "مسح",
+    "trendingTitle": "الأكثر بحثًا الآن",
+    "tryTitle": "جرّب أحد هذه"
   },
   "SearchSuggest": {
     "listLabel": "اقتراحات البحث",
@@ -1467,7 +1491,8 @@
     "shortAddressFound": "تم العثور على العنوان. عُبّئ سطر العنوان من العنوان الوطني.",
     "shortAddressInvalid": "العنوان المختصر أربعة أحرف وأربعة أرقام، مثل {example}.",
     "shortAddressNotFound": "لم نجد عنواناً لهذا الرمز. تأكد منه وحاول مرة أخرى.",
-    "shortAddressUnavailable": "خدمة البريد السعودي لا تستجيب الآن. يمكنك حفظ العنوان بالتفاصيل التي كتبتها."
+    "shortAddressUnavailable": "خدمة البريد السعودي لا تستجيب الآن. يمكنك حفظ العنوان بالتفاصيل التي كتبتها.",
+    "removedToast": "تم حذف العنوان."
   },
   "ShareReport": {
     "title": "مشاركة التقارير",
@@ -2507,6 +2532,9 @@
       "confirmed": "مؤكد",
       "scheduled": "مجدول",
       "checked_in": "تم تسجيل الوصول",
+      "rescheduled": "أُعيد جدولته",
+      "en_route": "في الطريق",
+      "arrived": "وصل",
       "in_progress": "جارٍ الآن",
       "completed": "مكتمل",
       "cancelled": "ملغى",
@@ -2673,6 +2701,8 @@
     "emergencyTitle": "جهات الطوارئ",
     "emergencySub": "من تتصل به في الطوارئ",
     "unavailableTitle": "تعذر تحميل العائلة",
+    "notSharedTitle": "السجلات غير مشتركة",
+    "notShared": "لم يشارك هذا الفرد سجلاته معك.",
     "unavailable": "يرجى المحاولة مرة أخرى لاحقًا.",
     "noGroupTitle": "إنشاء مجموعة عائلية",
     "noGroupBody": "لا توجد مجموعة عائلية بعد. أنشئ واحدة لدعوة أقاربك ومشاركة الرعاية.",
@@ -2748,7 +2778,9 @@
     "medsLastMissed": "آخر جرعة فائتة:",
     "medsEditReminder": "تعديل التذكير",
     "medsAddReminder": "إضافة تذكير دواء",
-    "close": "إغلاق"
+    "close": "إغلاق",
+    "removeConfirmTitle": "إزالة هذا الفرد من العائلة؟",
+    "removeConfirmBody": "لن يظهر في قائمة العائلة بعد الآن."
   },
   "DiagWeb": {
     "retry": "حاول مرة أخرى",
@@ -2967,6 +2999,12 @@
     "bookingNotSentBody": "هذه النافذة لا ترسل الحجز بعد، لذلك لم يُنشأ أي موعد ولم يُسحب أي مبلغ. افتح صفحة التمريض لحجز زيارة.",
     "bookingNotSentCta": "إلى صفحة التمريض",
     "bookingNotSentClose": "إغلاق"
+  },
+  "OrderContext": {
+    "hint": "تتحدّث الأسعار والتغطية فور أي تغيير",
+    "addAddress": "أضف عنوانك",
+    "addInsurance": "أضف تأمينك",
+    "insuranceSub": "من ملفك المحفوظ. التغطية تقديرية حتى الموافقة"
   },
   "NursingWeb": {
     "hubTitle": "الرعاية المنزلية",
@@ -3601,8 +3639,9 @@
       "service": "نوع الخدمة",
       "svc": {
         "consultation": "استشارة طبية",
-        "pharmacy": "أدوية",
-        "lab": "تحاليل"
+        "labs": "تحاليل",
+        "radiology": "الأشعة",
+        "nursing": "التمريض المنزلي"
       },
       "check": "عرض التغطية",
       "result": "التغطية المسجّلة",
@@ -4273,7 +4312,9 @@
     "openBooking": "افتح الطلب لعرض ملف التقرير",
     "empty": "لا توجد تفاصيل أخرى في هذه النتيجة.",
     "discuss": "ناقش النتيجة مع طبيب",
-    "rangeText": "المعدل الطبيعي {range}"
+    "rangeText": "المعدل الطبيعي {range}",
+    "trendTitle": "الاتجاه",
+    "trendNote": "نتائج سابقة لنفس التحليل"
   },
   "Offline": {
     "title": "أنت غير متصل",

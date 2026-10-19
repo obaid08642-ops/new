@@ -114,7 +114,7 @@ def run(pat, center, other_center=None, admin=None):
 
     journey('radiology matrix: insurance (request -> decide -> copay -> CONFIRMED)')
     import j_insurance
-    j_insurance.add_policy(pat, j_insurance.admin_adds_company(admin) if admin else None)
+    j_insurance.add_policy(pat, j_insurance.admin_adds_company(admin) if admin else None, providers=[center])
     rb = pat.post('/radiology/bookings', {'service_id': scans[0]['id'], 'scheduled_at': tomorrow_at(14),
                                           'location_type': 'facility', 'payment_method': 'insurance', 'provider_account_id': center_id})
     rid_bid = rb.get('id')

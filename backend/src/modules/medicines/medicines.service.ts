@@ -16,11 +16,25 @@ import { RedisService } from '../redis/redis.service';
 import { HotCache } from '../redis/hot-cache.service';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
 import { AutoEntitySeoPipelineService } from '../events/auto-entity-seo-pipeline.service';
+import { NOT_PROMOTABLE_FILTER } from './promotion-rules';
+import { InteractionHit, pairInteractions } from '../ai/interaction-rules';
 import { publicMedicineFilter } from './public-medicine-filter';
 import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, PUBLIC_CATALOG_LOCALES } from './med-i18n';
 import { normalizeRankingSort, ProductRankingService } from '../product-ranking/product-ranking.service';
 import { ManualBoostsService } from '../product-ranking/manual-boosts.service';
 import { escapeRegex } from '../../common/slug.util';
+
+/** A trending term needs at least this many searches in the week before it is shown to everyone. */
+export const TRENDING_MIN_SEARCHES = Number(process.env.TRENDING_MIN_SEARCHES) || 5;
+
+/** A term that may be published as trending: 2 to 40 characters, no e-mail address and no run of 5+ digits (a phone or id). */
+export function isPublishableTrendingTerm(term: unknown): boolean {
+  if (typeof term !== 'string') return false;
+  const t = term.trim();
+  if (t.length < 2 || t.length > 40) return false;
+  if (t.includes('@')) return false;
+  return !/[0-9٠-٩۰-۹]{5,}/.test(t);
+}
 
 @Injectable()
 export class MedicinesService {
@@ -470,21 +484,29 @@ export class MedicinesService {
     return pool;
   }
 
-  /** Trending searches (last 7 days) — powers the "trending now" row in apps. */
+  /**
+   * Trending searches (last 7 days) — powers the "trending now" row in apps and on the web (public).
+   * The list is everyone's searches, so a term is only shown once enough searches made it common: a term typed by one or two
+   * people (a name, a rare condition) is never published, nor anything that looks like contact data. The cache key carries
+   * the size, so one caller's size is not served to the others.
+   */
   async trendingSearches(limit = 10) {
-    const cacheKey = 'med:trending';
+    const size = Math.min(Math.max(Math.trunc(limit) || 10, 1), 20);
+    const cacheKey = `med:trending:v2:${size}`;
     const cached = await this.redis.getJson<any[]>(cacheKey);
     if (cached) return cached;
     const since = new Date(Date.now() - 7 * 24 * 3600 * 1000);
     const rows = await this.conn.collection('search_queries').aggregate([
-      { $match: { createdAt: { $gte: since } } },
+      { $match: { createdAt: { $gte: since }, term_lc: { $type: 'string' } } },
       { $group: { _id: '$term_lc', searches: { $sum: 1 } } },
+      { $match: { searches: { $gte: TRENDING_MIN_SEARCHES } } },
       { $sort: { searches: -1 } },
-      { $limit: limit },
+      { $limit: size * 3 },
       { $project: { _id: 0, term: '$_id', searches: 1 } },
     ]).toArray();
-    await this.redis.setJson(cacheKey, rows, 900); // 15min
-    return rows;
+    const shown = rows.filter((r: any) => isPublishableTrendingTerm(r.term)).slice(0, size);
+    await this.redis.setJson(cacheKey, shown, 900); // 15min
+    return shown;
   }
 
   /** Recently viewed products for the user ("أكمل من حيث توقفت"). */
@@ -1174,7 +1196,7 @@ export class MedicinesService {
     const [alts, stock] = await Promise.all([
       med.active_ingredient
         ? this.model.find(
-            { active_ingredient: med.active_ingredient, id: { $ne: id }, ...this.publicCatalogFilter() },
+            { active_ingredient: med.active_ingredient, id: { $ne: id }, ...this.publicCatalogFilter(), ...NOT_PROMOTABLE_FILTER },
             // Needs-review issue 460: the alternative cards also need a picture, the pack and the name in every language.
             {
               _id: 0, id: 1, name_ar: 1, name_en: 1, price: 1, manufacturer: 1, requires_prescription: 1, online_exclusive: 1,
@@ -1248,9 +1270,53 @@ export class MedicinesService {
     const med = await this.getPublicById(id);
     if (!med.active_ingredient) return [];
     return this.model.find(
-      { active_ingredient: med.active_ingredient, id: { $ne: id }, ...this.publicCatalogFilter() },
+      { active_ingredient: med.active_ingredient, id: { $ne: id }, ...this.publicCatalogFilter(), ...NOT_PROMOTABLE_FILTER },
       { _id: 0, __v: 0 },
     ).limit(20);
+  }
+
+  /**
+   * 22.3: items that patients bought with this one, counted from delivered or completed orders (counts only, no
+   * patient data). Never a prescription or controlled item, and a prescription item itself suggests nothing.
+   * Each suggestion carries the known interaction warnings against this item.
+   */
+  async frequentlyBoughtTogether(id: string, limit = 6): Promise<{ med: any; warnings: InteractionHit[] }[]> {
+    const source: any = await this.getPublicById(id);
+    if (source.requires_prescription === true || source.controlled === true || source.is_rx === true) return [];
+    // public and unauthenticated: the scan of the orders runs at most once an hour per item, not once per visitor
+    const cacheKey = `med:fbt:v1:${id}:${limit}`;
+    const cachedIds = this.redis ? await this.redis.getJson<{ id: string; orders: number }[]>(cacheKey).catch(() => null) : null;
+    const pairs: { _id: string; orders: number }[] = cachedIds ? cachedIds.map((p) => ({ _id: p.id, orders: Number(p.orders) })) : await this.coPurchasePairs(id);
+    if (!cachedIds && this.redis) await this.redis.setJson(cacheKey, pairs.map((p) => ({ id: String(p._id), orders: p.orders })), 3600).catch(() => undefined);
+    if (!pairs.length) return [];
+    const counts = new Map<string, number>(pairs.map((p) => [String(p._id), p.orders]));
+    const rows: any[] = await this.model.find(
+      {
+        id: { $in: [...counts.keys()] }, ...this.publicCatalogFilter(), ...NOT_PROMOTABLE_FILTER,
+        active: { $ne: false }, availability_status: { $ne: 'discontinued' },
+      },
+      { _id: 0, __v: 0 },
+    ).limit(50);
+    const sourceNames = medicineNames(source);
+    return rows
+      .sort((a, b) => (counts.get(String(b.id)) ?? 0) - (counts.get(String(a.id)) ?? 0))
+      .slice(0, limit)
+      .map((med) => ({ med, warnings: pairInteractions(sourceNames, medicineNames(med)) }));
+  }
+
+  /** 22.3: medicine ids bought in the same delivered or completed orders as `id`, with how many orders (counts only). */
+  private async coPurchasePairs(id: string): Promise<{ _id: string; orders: number }[]> {
+    return (await this.conn.collection('pharmacy_orders').aggregate([
+      { $match: { 'items.medicine_id': id, status: { $in: ['delivered', 'completed'] } } },
+      { $unwind: '$items' },
+      { $match: { 'items.medicine_id': { $type: 'string', $ne: id } } },
+      { $group: { _id: '$items.medicine_id', orders: { $addToSet: '$_id' } } },
+      { $project: { orders: { $size: '$orders' } } },
+      // a pairing seen in fewer than MIN_CO_PURCHASE_ORDERS orders is not shown: one order must not be identifiable
+      { $match: { orders: { $gte: MIN_CO_PURCHASE_ORDERS } } },
+      { $sort: { orders: -1 } },
+      { $limit: 50 },
+    ]).toArray()) as unknown as { _id: string; orders: number }[];
   }
 
   // RULE: Manual entries from patient/doctor/pharmacy are operational immediately.
@@ -2177,4 +2243,11 @@ export class MedicinesService {
     await this.invalidateCache();
     return { ok: true, updated: Object.keys({ ...clean, ...extra }), requires_reapproval: requiresReapproval };
   }
+}
+
+/** A pairing shown to anyone must come from at least this many orders. */
+const MIN_CO_PURCHASE_ORDERS = 3;
+
+function medicineNames(m: any): string[] {
+  return [m.active_ingredient, m.generic_name, m.name_en, m.name_ar].filter((n) => typeof n === 'string' && n.length > 0);
 }

@@ -9,6 +9,7 @@ import { HealthScreen, Pill, bodyOf, useRemote } from '../../src/components/heal
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
 import { pickLocalized } from '../../src/utils/localize';
+import { trendFor, type TrendPoint } from '../../src/utils/result-trend';
 
 /** One measured value of the result, as the lab entered it (POST /lab-results); `flag` is the server's (normal, high, low, critical). */
 interface Entry { name?: string; value?: string | number; unit?: string; ref_low?: number; ref_high?: number; range?: string; flag?: string }
@@ -30,10 +31,17 @@ export default function LabResultScreen() {
   const { k, theme, t, c, flow } = useScreenUi();
   const fmt = useConsultFormat();
   const { id } = useLocalSearchParams<{ id?: string }>();
-  const { status, data: result, reload } = useRemote(async () => {
+  // Ord11: the same test's earlier values come from GET /lab-results/mine; a failed history read only hides the trend.
+  const { status, data: loaded, reload } = useRemote(async () => {
     if (!id) throw new Error('missing_id');
-    return bodyOf<LabResult>(await apiFetch(`/lab-results/${encodeURIComponent(String(id))}`));
+    const [body, history] = await Promise.all([
+      apiFetch(`/lab-results/${encodeURIComponent(String(id))}`).then((raw) => bodyOf<LabResult>(raw)),
+      apiFetch('/lab-results/mine').catch(() => null),
+    ]);
+    return { result: body, history };
   }, [id], 'diagnostics:lab-result');
+  const result = loaded?.result;
+  const history = loaded?.history;
   const entries = Array.isArray(result?.entries) ? result.entries.filter((e) => e && e.name) : [];
   const title = result ? pickLocalized(result.service_name_ar, result.service_name_en) || result.name || k('diag.result.title') : '';
   const range = (e: Entry) => (e.ref_low !== undefined && e.ref_high !== undefined ? k('diag.result.range', { low: fmt.num(e.ref_low), high: fmt.num(e.ref_high) }) : e.range ? k('diag.result.rangeText', { range: e.range }) : '');
@@ -86,6 +94,24 @@ export default function LabResultScreen() {
                 </Card>
               </Section>
             ) : null}
+            {entries.map((e) => {
+              const points: TrendPoint[] = e.name ? trendFor(history, e.name) : [];
+              const current = typeof e.value === 'number' || (typeof e.value === 'string' && e.value.trim() !== '') ? Number(e.value) : NaN;
+              if (!e.name || points.length === 0 || !Number.isFinite(current)) return null;
+              const series = [...points.filter((p) => p.id !== result.id), { id: result.id ?? '', at: result.reported_at ?? '', value: current, unit: e.unit, flag: e.flag }];
+              return (
+                <Section key={`trend-${e.name}`} title={`${k('diag.result.trendTitle')} · ${e.name}`}>
+                  <Card theme={theme}>
+                    <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('diag.result.trendNote')}</Text>
+                    {series.map((p) => (
+                      <Text key={`${p.id}-${p.at}`} style={{ ...scale(t, 'small', 'regular'), color: c.text.primary, ...flow }}>
+                        {`${fmt.date(p.at, false)} · ${fmt.num(p.value)}${p.unit ? ` ${p.unit}` : ''}`}
+                      </Text>
+                    ))}
+                  </Card>
+                </Section>
+              );
+            })}
             {text(k('diag.result.findings'), result.findings)}
             {text(k('diag.result.impression'), result.impression)}
             {text(k('health.report.recommendations'), result.recommendations)}

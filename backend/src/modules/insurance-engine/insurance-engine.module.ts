@@ -10,7 +10,7 @@ import { PROVIDER_ROLES } from '../../common/enums';
  * BR-1 (payment matrix): online/video/audio/home/delivery = online payment only;
  * clinic = online or pay-at-clinic. Enforced server-side via /bookings/quote.
  */
-import { Module, Controller, Injectable, Get, Post, Body, Param, Query, UseGuards, NotFoundException, BadRequestException, ForbiddenException, Optional, Logger } from '@nestjs/common';
+import { Module, Controller, Injectable, Get, Post, Body, Param, Query, UseGuards, NotFoundException, BadRequestException, ForbiddenException, ConflictException, Optional, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectConnection, InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
@@ -21,6 +21,8 @@ import { StepUp } from '../../common/step-up.guard';
 import { JwtAuthGuard, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
 import { InsuranceCompanySchema, InsuranceCompanyDocument } from '../../schemas/insurance.schema';
 import { PatientProfileSchema } from '../../schemas/patient-profile.schema';
+import { ProviderProfileSchema } from '../../schemas/provider-profile.schema';
+import { hasInsuranceContract, policyClass, policyCompanyKeys } from '../../common/insurance-policy';
 import { FraudService, RefundExecutor } from '../finance-engine/finance-engine.module';
 import { TransactionSchema } from '../../schemas/transaction.schema';
 import { OrderSchema } from '../../schemas/order.schema';
@@ -255,6 +257,7 @@ export class InsuranceFlowService {
     @InjectModel('InsuranceServiceRequest') private requests: Model<any>,
     @InjectModel('InsuranceCompany') private companies: Model<InsuranceCompanyDocument>,
     @InjectModel('PatientProfile') private patients: Model<any>,
+    @InjectModel('ProviderProfile') private providerModel: Model<any>,
     private events: EventEmitter2,
     @InjectModel('Transaction') private transactions: Model<any>,
     @InjectModel('Order') private orders: Model<any>,
@@ -414,8 +417,21 @@ export class InsuranceFlowService {
     if (!Number.isFinite(price) || price <= 0) throw new BadRequestException('booking_price_not_ready');
     const { has_policy, policy } = await this.myPolicy(user);
     if (!has_policy) throw new BadRequestException('NO_INSURANCE_POLICY'); // patient app redirects to add-policy then deep-returns (BR-2.2)
+
+    // A retry or a poll of a request that already exists returns it, even if the provider's contracts changed since.
     const existing = await this.requests.findOne({ patient_id: user.id, booking_kind: kind, booking_id: bookingId, state: { $in: ['PENDING_PROVIDER_REVIEW', 'COPAY_PENDING', 'APPROVED_FULL', 'COPAY_PAID'] } }).lean();
     if (existing) return existing;
+    // D-30: the provider must hold an active contract for the patient's company AND class. Fails closed:
+    // a policy without a company or a class, or a provider without contracts, is refused.
+    const companyKeys = policyCompanyKeys(policy);
+    const policyCls = policyClass(policy);
+    if (!companyKeys.length || !policyCls) throw new BadRequestException('insurance_class_required');
+    // A booking names its provider by profile id or by account id, depending on the service.
+    const providerProfile: any = await this.providerModel.findOne({
+      $or: [{ id: { $eq: providerId } }, { user_id: { $eq: providerId } }, { account_id: { $eq: providerId } }],
+    }).lean();
+    if (!hasInsuranceContract(providerProfile?.insurance_class_contracts, companyKeys, policyCls)) throw new ConflictException('insurance_not_accepted_by_provider');
+
     const doc = await this.requests.create({
       patient_id: user.id, patient_name: user.full_name,
       provider_id: providerId,
@@ -1109,6 +1125,7 @@ export class FinanceCoreController {
       { name: 'CommissionRule', schema: CommissionRuleSchema },
       { name: 'InsuranceCompany', schema: InsuranceCompanySchema },
       { name: 'PatientProfile', schema: PatientProfileSchema },
+      { name: 'ProviderProfile', schema: ProviderProfileSchema },
       { name: 'Transaction', schema: TransactionSchema },
       { name: 'Order', schema: OrderSchema },
       { name: 'LabBooking', schema: LabBookingSchema },

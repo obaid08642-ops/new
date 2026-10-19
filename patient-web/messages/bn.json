@@ -21,7 +21,10 @@
     "footerMap": "মানচিত্র",
     "skipToContent": "বিষয়বস্তুতে যান",
     "backToTop": "পৃষ্ঠার শুরুতে ফিরুন",
-    "readingProgress": "পড়ার অগ্রগতি"
+    "readingProgress": "পড়ার অগ্রগতি",
+    "dialogCancel": "বাতিল করুন",
+    "dialogConfirm": "নিশ্চিত করুন",
+    "breadcrumbLabel": "নেভিগেশন পথ"
   },
   "CoreShell": {
     "back": "ফিরে যান",
@@ -30,7 +33,15 @@
     "cart": "কার্ট",
     "mainNav": "প্রধান নেভিগেশন",
     "sections": "বিভাগসমূহ",
-    "cartCount": "কার্ট ({n, number})"
+    "cartCount": "কার্ট ({n, number})",
+    "menuOpen": "মেনু",
+    "menuClose": "মেনু বন্ধ করুন",
+    "menuProfile": "আমার অ্যাকাউন্ট",
+    "menuOrders": "আমার অর্ডার",
+    "menuFamily": "পরিবার",
+    "menuArticles": "নিবন্ধ",
+    "menuSettings": "সেটিংস",
+    "menuHelp": "সহায়তা"
   },
   "Home": {
     "eyebrow": "ডিজিটাল রোগী পোর্টাল",
@@ -212,7 +223,10 @@
   "NotFound": {
     "title": "পৃষ্ঠা উপলব্ধ নয়",
     "body": "এই পেজটি খোলা যাচ্ছে না, অথবা এতে আপনার অনুমতি নেই।",
-    "returnHome": "হোমে ফিরুন"
+    "returnHome": "হোমে ফিরুন",
+    "searchLabel": "সাইটে খুঁজুন",
+    "searchButton": "খুঁজুন",
+    "popularTitle": "জনপ্রিয় বিভাগ"
   },
   "RouteState": {
     "loadingCode": "লোড হচ্ছে",
@@ -922,7 +936,13 @@
     "unsave": "সংরক্ষিত থেকে সরান",
     "saveFailed": "সংরক্ষিত নিবন্ধ আপডেট করা যায়নি। আবার চেষ্টা করুন।",
     "signInToSave": "নিবন্ধ সংরক্ষণ করতে সাইন ইন করুন",
-    "bodyTitle": "নিবন্ধের লেখা"
+    "bodyTitle": "নিবন্ধের লেখা",
+    "updated": "সর্বশেষ হালনাগাদ",
+    "shareTitle": "এই নিবন্ধটি শেয়ার করুন",
+    "shareCopy": "লিংক কপি করুন",
+    "shareCopied": "কপি হয়েছে",
+    "shareWhatsapp": "হোয়াটসঅ্যাপ",
+    "shareX": "X"
   },
   "ChatDetail": {
     "eyebrow": "ব্যক্তিগত কথোপকথন",
@@ -1329,7 +1349,11 @@
     "kindLabPackage": "টেস্ট প্যাকেজ",
     "kindRadiology": "রেডিওলজি",
     "kindNursing": "নার্সিং",
-    "kindArticle": "নিবন্ধ"
+    "kindArticle": "নিবন্ধ",
+    "recentTitle": "সাম্প্রতিক অনুসন্ধান",
+    "recentClear": "মুছুন",
+    "trendingTitle": "এখন জনপ্রিয়",
+    "tryTitle": "এর যেকোনো একটি চেষ্টা করুন"
   },
   "SearchSuggest": {
     "listLabel": "খোঁজার পরামর্শ",
@@ -1467,7 +1491,8 @@
     "shortAddressFound": "ঠিকানা পাওয়া গেছে। ঠিকানার লাইন জাতীয় ঠিকানা থেকে পূরণ করা হয়েছে।",
     "shortAddressInvalid": "সংক্ষিপ্ত ঠিকানা চারটি অক্ষর ও চারটি সংখ্যার, যেমন {example}।",
     "shortAddressNotFound": "এই কোডের কোনো ঠিকানা পাওয়া যায়নি। কোডটি দেখে আবার চেষ্টা করুন।",
-    "shortAddressUnavailable": "সৌদি পোস্ট এখন সাড়া দিচ্ছে না। আপনার লেখা বিবরণসহ ঠিকানাটি তবুও সংরক্ষণ করতে পারেন।"
+    "shortAddressUnavailable": "সৌদি পোস্ট এখন সাড়া দিচ্ছে না। আপনার লেখা বিবরণসহ ঠিকানাটি তবুও সংরক্ষণ করতে পারেন।",
+    "removedToast": "ঠিকানাটি সরানো হয়েছে।"
   },
   "ShareReport": {
     "title": "রিপোর্ট শেয়ার করুন",
@@ -2507,6 +2532,9 @@
       "confirmed": "নিশ্চিত",
       "scheduled": "নির্ধারিত",
       "checked_in": "চেক-ইন হয়েছে",
+      "rescheduled": "পুনঃনির্ধারিত",
+      "en_route": "পথে",
+      "arrived": "পৌঁছে গেছে",
       "in_progress": "চলছে",
       "completed": "সম্পন্ন",
       "cancelled": "বাতিল",
@@ -2673,6 +2701,8 @@
     "emergencyTitle": "জরুরি যোগাযোগ",
     "emergencySub": "জরুরি অবস্থায় কাকে ডাকবেন",
     "unavailableTitle": "পরিবার লোড করা যায়নি",
+    "notSharedTitle": "রেকর্ড শেয়ার করা হয়নি",
+    "notShared": "এই সদস্য তাঁদের রেকর্ড আপনার সঙ্গে শেয়ার করেননি।",
     "unavailable": "অনুগ্রহ করে পরে আবার চেষ্টা করুন।",
     "noGroupTitle": "পারিবারিক গ্রুপ তৈরি করুন",
     "noGroupBody": "এখনও কোনো পারিবারিক গ্রুপ নেই। আত্মীয়দের আমন্ত্রণ জানাতে ও যত্ন ভাগ করতে একটি তৈরি করুন।",
@@ -2748,7 +2778,9 @@
     "medsLastMissed": "সর্বশেষ বাদ পড়া ডোজ:",
     "medsEditReminder": "রিমাইন্ডার সম্পাদনা",
     "medsAddReminder": "ওষুধের রিমাইন্ডার যোগ করুন",
-    "close": "বন্ধ করুন"
+    "close": "বন্ধ করুন",
+    "removeConfirmTitle": "এই সদস্যকে পরিবার থেকে সরাবেন?",
+    "removeConfirmBody": "এই সদস্য আর পরিবারের তালিকায় দেখা যাবে না।"
   },
   "DiagWeb": {
     "retry": "আবার চেষ্টা করুন",
@@ -2967,6 +2999,12 @@
     "bookingNotSentBody": "এই উইন্ডো এখনও বুকিং পাঠায় না, তাই কোনো অ্যাপয়েন্টমেন্ট তৈরি হয়নি এবং কোনো পেমেন্ট নেওয়া হয়নি। ভিজিট বুক করতে নার্সিং পেজ খুলুন।",
     "bookingNotSentCta": "নার্সিং পেজে যান",
     "bookingNotSentClose": "বন্ধ করুন"
+  },
+  "OrderContext": {
+    "hint": "কিছু বদলালেই দাম ও কভারেজ সঙ্গে সঙ্গে হালনাগাদ হয়",
+    "addAddress": "আপনার ঠিকানা যোগ করুন",
+    "addInsurance": "আপনার বিমা যোগ করুন",
+    "insuranceSub": "আপনার সংরক্ষিত প্রোফাইল থেকে। অনুমোদন পর্যন্ত কভারেজ আনুমানিক"
   },
   "NursingWeb": {
     "hubTitle": "বাসায় যত্ন",
@@ -3601,8 +3639,9 @@
       "service": "সেবার ধরন",
       "svc": {
         "consultation": "চিকিৎসা পরামর্শ",
-        "pharmacy": "ওষুধ",
-        "lab": "ল্যাব পরীক্ষা"
+        "labs": "ল্যাব পরীক্ষা",
+        "radiology": "রেডিওলজি",
+        "nursing": "বাড়িতে নার্সিং"
       },
       "check": "কভারেজ দেখান",
       "result": "রেকর্ডে থাকা কভারেজ",
@@ -4273,7 +4312,9 @@
     "openBooking": "রিপোর্ট ফাইল দেখতে বুকিং খুলুন",
     "empty": "এই ফলাফলে আর কোনো বিবরণ নেই।",
     "discuss": "ফলাফল নিয়ে ডাক্তারের সঙ্গে কথা বলুন",
-    "rangeText": "স্বাভাবিক সীমা {range}"
+    "rangeText": "স্বাভাবিক সীমা {range}",
+    "trendTitle": "প্রবণতা",
+    "trendNote": "একই পরীক্ষার আগের ফলাফল"
   },
   "Offline": {
     "title": "আপনি অফলাইনে আছেন",

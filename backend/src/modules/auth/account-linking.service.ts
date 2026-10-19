@@ -15,6 +15,7 @@
  * Confirmation also requires the caller to be the target account, and each
  * proof is single-use and time-limited.
  */
+import { recordAudit } from '../../common/audit-record';
 import { BadRequestException, ConflictException, ForbiddenException, HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -202,8 +203,7 @@ export class AccountLinkingService {
       { id: callerAccountId, $or: [{ email: { $exists: false } }, { email: null }, { email: '' }] },
       { $set: { email: link.provider_email } },
     );
-    await this.connection.collection('audit_logs').insertOne({
-      id: randomUUID(),
+    await recordAudit(this.connection, {
       action: 'account.linked',
       user_id: callerAccountId,
       role: 'patient',

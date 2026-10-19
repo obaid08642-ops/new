@@ -4,6 +4,7 @@
  * legal_acceptances: { user_id, policy_key, version, timestamp, device, ip, platform }
  * finance_config: commissions per service type + per provider + payout rules (DB-driven)
  */
+import { recordAudit } from '../../common/audit-record';
 import { Module, Injectable, Controller, Get, Post, Put, Body, Param, Query, Req, UseGuards, BadRequestException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -108,6 +109,8 @@ export class LegalService {
       platform: (req.headers['x-app-platform'] as string) || (req.headers['user-agent']?.includes('okhttp') ? 'android' : req.headers['user-agent']?.includes('iPhone') ? 'ios' : 'web'),
       user_agent: req.headers['user-agent'] || null,
     });
+    // 23.2: consent and policy acceptance are in the audit trail (version, time, device and origin come with the row)
+    await recordAudit(this.conn, { action: 'policy_accepted', user_id: user.id, role: user.role, resource_kind: 'legal_policy', resource_id: key, details: { version: policy.version } });
     // Immutable PDF-ready archive with SHA256 (legally traceable)
     const archive = await this.enterprise.snapshotAcceptance(user, policy, {
       ip: (req as any).ip || null,

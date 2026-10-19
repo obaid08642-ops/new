@@ -21,7 +21,10 @@
     "footerMap": "Mapa",
     "skipToContent": "Lumaktaw sa nilalaman",
     "backToTop": "Bumalik sa itaas",
-    "readingProgress": "Progreso ng pagbabasa"
+    "readingProgress": "Progreso ng pagbabasa",
+    "dialogCancel": "Kanselahin",
+    "dialogConfirm": "Kumpirmahin",
+    "breadcrumbLabel": "Landas ng pahina"
   },
   "CoreShell": {
     "back": "Bumalik",
@@ -30,7 +33,15 @@
     "cart": "Cart",
     "mainNav": "Pangunahing nabigasyon",
     "sections": "Mga seksyon",
-    "cartCount": "Laman ng cart ({n, number})"
+    "cartCount": "Laman ng cart ({n, number})",
+    "menuOpen": "Listahan",
+    "menuClose": "Isara ang menu",
+    "menuProfile": "Aking account",
+    "menuOrders": "Mga order ko",
+    "menuFamily": "Pamilya",
+    "menuArticles": "Mga artikulo",
+    "menuSettings": "Mga setting",
+    "menuHelp": "Tulong"
   },
   "Home": {
     "eyebrow": "Digital na portal ng pasyente",
@@ -212,7 +223,10 @@
   "NotFound": {
     "title": "Hindi available ang pahina",
     "body": "Hindi mabuksan ang pahinang ito, o wala kang access dito.",
-    "returnHome": "Bumalik sa home"
+    "returnHome": "Bumalik sa home",
+    "searchLabel": "Maghanap sa Nabd",
+    "searchButton": "Maghanap",
+    "popularTitle": "Mga sikat na seksyon"
   },
   "RouteState": {
     "loadingCode": "Nilo-load",
@@ -922,7 +936,13 @@
     "unsave": "Alisin sa naka-save",
     "saveFailed": "Hindi ma-update ang mga naka-save na artikulo. Subukan muli.",
     "signInToSave": "Mag-sign in para mag-save ng mga artikulo",
-    "bodyTitle": "Teksto ng artikulo"
+    "bodyTitle": "Teksto ng artikulo",
+    "updated": "Huling na-update",
+    "shareTitle": "Ibahagi ang artikulong ito",
+    "shareCopy": "Kopyahin ang link",
+    "shareCopied": "Nakopya",
+    "shareWhatsapp": "WhatsApp",
+    "shareX": "X"
   },
   "ChatDetail": {
     "eyebrow": "Pribadong conversation",
@@ -1329,7 +1349,11 @@
     "kindLabPackage": "Pakete ng test",
     "kindRadiology": "Radyolohiya",
     "kindNursing": "Pag-aalaga",
-    "kindArticle": "Artikulo"
+    "kindArticle": "Artikulo",
+    "recentTitle": "Mga kamakailang paghahanap",
+    "recentClear": "I-clear",
+    "trendingTitle": "Trending ngayon",
+    "tryTitle": "Subukan ang isa sa mga ito"
   },
   "SearchSuggest": {
     "listLabel": "Mga mungkahi sa paghahanap",
@@ -1467,7 +1491,8 @@
     "shortAddressFound": "Nahanap. Napunan na ang linya ng address mula sa National Address.",
     "shortAddressInvalid": "Ang maikling address ay apat na letra at apat na numero, gaya ng {example}.",
     "shortAddressNotFound": "Walang nahanap na address para sa code na ito. Suriin ito at subukan muli.",
-    "shortAddressUnavailable": "Hindi sumasagot ngayon ang Saudi Post. Maaari mo pa ring i-save ang address kasama ang mga detalyeng itinype mo."
+    "shortAddressUnavailable": "Hindi sumasagot ngayon ang Saudi Post. Maaari mo pa ring i-save ang address kasama ang mga detalyeng itinype mo.",
+    "removedToast": "Naalis ang address."
   },
   "ShareReport": {
     "title": "Ibahagi ang mga Ulat",
@@ -2507,6 +2532,9 @@
       "confirmed": "Kumpirmado",
       "scheduled": "Naka-iskedyul",
       "checked_in": "Naka-check in na",
+      "rescheduled": "Muling naka-iskedyul",
+      "en_route": "Papunta na",
+      "arrived": "Dumating na",
       "in_progress": "Isinasagawa",
       "completed": "Nakumpleto",
       "cancelled": "Kinansela",
@@ -2673,6 +2701,8 @@
     "emergencyTitle": "Mga emergency contact",
     "emergencySub": "Sino ang tatawagan sa emergency",
     "unavailableTitle": "Hindi na-load ang pamilya",
+    "notSharedTitle": "Hindi ibinahagi ang mga rekord",
+    "notShared": "Hindi pa ibinabahagi ng miyembrong ito ang kanyang mga rekord sa iyo.",
     "unavailable": "Pakisubukang muli mamaya.",
     "noGroupTitle": "Gumawa ng grupo ng pamilya",
     "noGroupBody": "Wala pang grupo ng pamilya. Gumawa ng isa upang mag-imbita ng kamag-anak at magbahagi ng pangangalaga.",
@@ -2748,7 +2778,9 @@
     "medsLastMissed": "Huling nalaktawang dosis:",
     "medsEditReminder": "I-edit ang paalala",
     "medsAddReminder": "Magdagdag ng paalala sa gamot",
-    "close": "Isara"
+    "close": "Isara",
+    "removeConfirmTitle": "Alisin ang miyembrong ito sa pamilya?",
+    "removeConfirmBody": "Hindi na siya lalabas sa listahan ng pamilya."
   },
   "DiagWeb": {
     "retry": "Subukan muli",
@@ -2967,6 +2999,12 @@
     "bookingNotSentBody": "Hindi pa nagpapadala ng booking ang window na ito, kaya walang appointment na ginawa at walang bayad na kinuha. Buksan ang pahina ng nursing para mag-book ng pagbisita.",
     "bookingNotSentCta": "Pumunta sa nursing",
     "bookingNotSentClose": "Isara"
+  },
+  "OrderContext": {
+    "hint": "Agad na nag-a-update ang presyo at coverage kapag may binago",
+    "addAddress": "Idagdag ang address mo",
+    "addInsurance": "Idagdag ang insurance mo",
+    "insuranceSub": "Mula sa naka-save mong profile. Tinatayang coverage hanggang maaprubahan"
   },
   "NursingWeb": {
     "hubTitle": "Pangangalaga sa bahay",
@@ -3601,8 +3639,9 @@
       "service": "Uri ng serbisyo",
       "svc": {
         "consultation": "Konsultasyong medikal",
-        "pharmacy": "Mga gamot",
-        "lab": "Mga lab test"
+        "labs": "Mga lab test",
+        "radiology": "Radiolohiya",
+        "nursing": "Pag-aalaga sa bahay"
       },
       "check": "Ipakita ang saklaw",
       "result": "Saklaw na nakatala",
@@ -4273,7 +4312,9 @@
     "openBooking": "Buksan ang booking para makita ang report file",
     "empty": "Wala nang ibang detalye ang resultang ito.",
     "discuss": "Pag-usapan ang resulta kasama ang doktor",
-    "rangeText": "Normal na saklaw {range}"
+    "rangeText": "Normal na saklaw {range}",
+    "trendTitle": "Pagbabago",
+    "trendNote": "Mga naunang resulta ng parehong test"
   },
   "Offline": {
     "title": "Offline ka",

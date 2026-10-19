@@ -54,7 +54,7 @@ describe('RxConsultController', () => {
     await expect(c.setMapping({ map: { Antibiotics: 'internal_medicine', Empty: '' }, default: 'general_practice' }, { id: 'adm', role: 'admin' }))
       .resolves.toEqual({ map: { Antibiotics: 'internal_medicine' }, default: 'general_practice' });
     expect(conn.store.audits).toHaveLength(1);
-    expect(conn.store.audits[0]).toEqual(expect.objectContaining({ action: 'rx_consult_specialties_update', actor_account_id: 'adm' }));
+    expect(conn.store.audits[0]).toEqual(expect.objectContaining({ action: 'rx_consult_specialties_update', user_id: 'adm', role: 'admin' }));
   });
 
   it('the admin view lists the Rx categories to map and the specialties', async () => {

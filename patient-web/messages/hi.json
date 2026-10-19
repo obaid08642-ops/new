@@ -21,7 +21,10 @@
     "footerMap": "मानचित्र",
     "skipToContent": "सामग्री पर जाएं",
     "backToTop": "पेज के ऊपर जाएं",
-    "readingProgress": "पढ़ने की प्रगति"
+    "readingProgress": "पढ़ने की प्रगति",
+    "dialogCancel": "रद्द करें",
+    "dialogConfirm": "पुष्टि करें",
+    "breadcrumbLabel": "नेविगेशन पथ"
   },
   "CoreShell": {
     "back": "वापस",
@@ -30,7 +33,15 @@
     "cart": "कार्ट",
     "mainNav": "मुख्य नेविगेशन",
     "sections": "अनुभाग",
-    "cartCount": "कार्ट ({n, number})"
+    "cartCount": "कार्ट ({n, number})",
+    "menuOpen": "मेनू",
+    "menuClose": "मेनू बंद करें",
+    "menuProfile": "मेरा खाता",
+    "menuOrders": "मेरे ऑर्डर",
+    "menuFamily": "परिवार",
+    "menuArticles": "लेख",
+    "menuSettings": "सेटिंग्स",
+    "menuHelp": "सहायता"
   },
   "Home": {
     "eyebrow": "डिजिटल मरीज़ पोर्टल",
@@ -212,7 +223,10 @@
   "NotFound": {
     "title": "पृष्ठ उपलब्ध नहीं है",
     "body": "यह पेज नहीं खुल सकता, या आपके पास इसकी अनुमति नहीं है।",
-    "returnHome": "मुख्य पृष्ठ पर लौटें"
+    "returnHome": "मुख्य पृष्ठ पर लौटें",
+    "searchLabel": "Nabd में खोजें",
+    "searchButton": "खोजें",
+    "popularTitle": "लोकप्रिय अनुभाग"
   },
   "RouteState": {
     "loadingCode": "लोड हो रहा है",
@@ -922,7 +936,13 @@
     "unsave": "सहेजे गए से हटाएँ",
     "saveFailed": "सहेजे गए लेख अपडेट नहीं हो सके। फिर कोशिश करें।",
     "signInToSave": "लेख सहेजने के लिए साइन इन करें",
-    "bodyTitle": "लेख का पाठ"
+    "bodyTitle": "लेख का पाठ",
+    "updated": "अंतिम अपडेट",
+    "shareTitle": "यह लेख साझा करें",
+    "shareCopy": "लिंक कॉपी करें",
+    "shareCopied": "कॉपी हो गया",
+    "shareWhatsapp": "व्हाट्सऐप",
+    "shareX": "X"
   },
   "ChatDetail": {
     "eyebrow": "निजी बातचीत",
@@ -1329,7 +1349,11 @@
     "kindLabPackage": "टेस्ट पैकेज",
     "kindRadiology": "रेडियोलॉजी",
     "kindNursing": "नर्सिंग",
-    "kindArticle": "लेख"
+    "kindArticle": "लेख",
+    "recentTitle": "हाल की खोजें",
+    "recentClear": "साफ़ करें",
+    "trendingTitle": "अभी ट्रेंडिंग",
+    "tryTitle": "इनमें से कोई आज़माएँ"
   },
   "SearchSuggest": {
     "listLabel": "खोज सुझाव",
@@ -1467,7 +1491,8 @@
     "shortAddressFound": "पता मिल गया। पते की पंक्ति राष्ट्रीय पते से भर दी गई है।",
     "shortAddressInvalid": "संक्षिप्त पता चार अक्षरों और चार अंकों का होता है, जैसे {example}।",
     "shortAddressNotFound": "इस कोड के लिए कोई पता नहीं मिला। कोड जाँचकर फिर कोशिश करें।",
-    "shortAddressUnavailable": "सऊदी पोस्ट अभी जवाब नहीं दे रही। आप अपने लिखे विवरण के साथ पता फिर भी सहेज सकते हैं।"
+    "shortAddressUnavailable": "सऊदी पोस्ट अभी जवाब नहीं दे रही। आप अपने लिखे विवरण के साथ पता फिर भी सहेज सकते हैं।",
+    "removedToast": "पता हटा दिया गया।"
   },
   "ShareReport": {
     "title": "रिपोर्ट साझा करें",
@@ -2507,6 +2532,9 @@
       "confirmed": "पुष्ट",
       "scheduled": "निर्धारित",
       "checked_in": "चेक-इन हो गया",
+      "rescheduled": "पुनर्निर्धारित",
+      "en_route": "रास्ते में",
+      "arrived": "पहुँच गए",
       "in_progress": "जारी है",
       "completed": "पूर्ण",
       "cancelled": "रद्द",
@@ -2673,6 +2701,8 @@
     "emergencyTitle": "आपातकालीन संपर्क",
     "emergencySub": "आपात स्थिति में किससे संपर्क करें",
     "unavailableTitle": "परिवार लोड नहीं हो सका",
+    "notSharedTitle": "रिकॉर्ड साझा नहीं",
+    "notShared": "इस सदस्य ने अपने रिकॉर्ड आपके साथ साझा नहीं किए हैं।",
     "unavailable": "कृपया बाद में फिर से कोशिश करें।",
     "noGroupTitle": "पारिवारिक समूह बनाएं",
     "noGroupBody": "अभी कोई पारिवारिक समूह नहीं। रिश्तेदारों को आमंत्रित करने और देखभाल साझा करने के लिए एक बनाएं।",
@@ -2748,7 +2778,9 @@
     "medsLastMissed": "आख़िरी छूटी खुराक:",
     "medsEditReminder": "रिमाइंडर बदलें",
     "medsAddReminder": "दवा रिमाइंडर जोड़ें",
-    "close": "बंद करें"
+    "close": "बंद करें",
+    "removeConfirmTitle": "इस सदस्य को परिवार से हटाएँ?",
+    "removeConfirmBody": "यह सदस्य अब परिवार की सूची में नहीं दिखेगा।"
   },
   "DiagWeb": {
     "retry": "फिर से कोशिश करें",
@@ -2967,6 +2999,12 @@
     "bookingNotSentBody": "यह विंडो अभी बुकिंग नहीं भेजती, इसलिए कोई अपॉइंटमेंट नहीं बना और कोई भुगतान नहीं लिया गया। विज़िट बुक करने के लिए नर्सिंग पेज खोलें।",
     "bookingNotSentCta": "नर्सिंग पेज पर जाएँ",
     "bookingNotSentClose": "बंद करें"
+  },
+  "OrderContext": {
+    "hint": "कुछ भी बदलते ही कीमतें और कवरेज तुरंत अपडेट होते हैं",
+    "addAddress": "अपना पता जोड़ें",
+    "addInsurance": "अपना बीमा जोड़ें",
+    "insuranceSub": "आपकी सहेजी प्रोफ़ाइल से। मंज़ूरी तक कवरेज अनुमानित है"
   },
   "NursingWeb": {
     "hubTitle": "घरेलू देखभाल",
@@ -3601,8 +3639,9 @@
       "service": "सेवा का प्रकार",
       "svc": {
         "consultation": "चिकित्सा परामर्श",
-        "pharmacy": "दवाइयाँ",
-        "lab": "लैब जाँच"
+        "labs": "लैब जाँच",
+        "radiology": "रेडियोलॉजी",
+        "nursing": "घर पर नर्सिंग"
       },
       "check": "कवरेज दिखाएँ",
       "result": "रिकॉर्ड में कवरेज",
@@ -4273,7 +4312,9 @@
     "openBooking": "रिपोर्ट फ़ाइल देखने के लिए बुकिंग खोलें",
     "empty": "इस परिणाम में और विवरण नहीं है।",
     "discuss": "परिणाम पर डॉक्टर से बात करें",
-    "rangeText": "सामान्य सीमा {range}"
+    "rangeText": "सामान्य सीमा {range}",
+    "trendTitle": "प्रवृत्ति",
+    "trendNote": "इसी जाँच के पिछले परिणाम"
   },
   "Offline": {
     "title": "आप ऑफ़लाइन हैं",

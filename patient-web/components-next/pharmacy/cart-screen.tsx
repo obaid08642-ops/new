@@ -157,6 +157,9 @@ export function CartScreen({ locale, signedIn }: { locale: Locale; signedIn: boo
                       {item.onlineOnly ? <StatusChip label={t("onlineOnly")} tone="mint" /> : null}
                     </div>
                     <div className={cs.end}>
+                      <button type="button" className={cs.removeLine} aria-label={t("remove", { name: item.name })} onClick={() => changeQty(item, 0)}>
+                        <FIcon icon="trash" tone={PHARMACY_TONE} size={32} chip="none" />
+                      </button>
                       <Stepper
                         value={item.qty}
                         onChange={(next) => changeQty(item, next)}

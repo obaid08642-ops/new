@@ -21,7 +21,10 @@
     "footerMap": "نقشہ",
     "skipToContent": "مواد پر جائیں",
     "backToTop": "صفحے کے اوپر جائیں",
-    "readingProgress": "پڑھنے کی پیش رفت"
+    "readingProgress": "پڑھنے کی پیش رفت",
+    "dialogCancel": "منسوخ کریں",
+    "dialogConfirm": "تصدیق کریں",
+    "breadcrumbLabel": "راستہ"
   },
   "CoreShell": {
     "back": "واپس",
@@ -30,7 +33,15 @@
     "cart": "کارٹ",
     "mainNav": "مرکزی نیویگیشن",
     "sections": "سیکشنز",
-    "cartCount": "کارٹ ({n, number})"
+    "cartCount": "کارٹ ({n, number})",
+    "menuOpen": "مینو",
+    "menuClose": "مینو بند کریں",
+    "menuProfile": "میرا اکاؤنٹ",
+    "menuOrders": "میرے آرڈر",
+    "menuFamily": "خاندان",
+    "menuArticles": "مضامین",
+    "menuSettings": "ترتیبات",
+    "menuHelp": "مدد"
   },
   "Home": {
     "eyebrow": "ڈیجیٹل مریض پورٹل",
@@ -212,7 +223,10 @@
   "NotFound": {
     "title": "صفحہ دستیاب نہیں",
     "body": "یہ صفحہ نہیں کھل سکتا، یا آپ کو اس تک رسائی نہیں ہے۔",
-    "returnHome": "ہوم پر واپس جائیں"
+    "returnHome": "ہوم پر واپس جائیں",
+    "searchLabel": "نبض میں تلاش کریں",
+    "searchButton": "تلاش کریں",
+    "popularTitle": "مقبول حصے"
   },
   "RouteState": {
     "loadingCode": "لوڈ ہو رہا ہے",
@@ -922,7 +936,13 @@
     "unsave": "محفوظ شدہ سے ہٹائیں",
     "saveFailed": "محفوظ کردہ مضامین اپ ڈیٹ نہیں ہو سکے۔ دوبارہ کوشش کریں۔",
     "signInToSave": "مضامین محفوظ کرنے کے لیے سائن اِن کریں",
-    "bodyTitle": "مضمون کا متن"
+    "bodyTitle": "مضمون کا متن",
+    "updated": "آخری تازہ کاری",
+    "shareTitle": "یہ مضمون شیئر کریں",
+    "shareCopy": "لنک کاپی کریں",
+    "shareCopied": "کاپی ہو گیا",
+    "shareWhatsapp": "واٹس ایپ",
+    "shareX": "ایکس"
   },
   "ChatDetail": {
     "eyebrow": "نجی گفتگو",
@@ -1329,7 +1349,11 @@
     "kindLabPackage": "ٹیسٹ پیکج",
     "kindRadiology": "ریڈیالوجی",
     "kindNursing": "نرسنگ",
-    "kindArticle": "مضمون"
+    "kindArticle": "مضمون",
+    "recentTitle": "حالیہ تلاش",
+    "recentClear": "صاف کریں",
+    "trendingTitle": "ابھی مقبول تلاشیں",
+    "tryTitle": "ان میں سے کوئی آزمائیں"
   },
   "SearchSuggest": {
     "listLabel": "تلاش کی تجاویز",
@@ -1467,7 +1491,8 @@
     "shortAddressFound": "پتہ مل گیا۔ پتے کی لائن قومی پتے سے بھر دی گئی ہے۔",
     "shortAddressInvalid": "مختصر پتہ چار حروف اور چار ہندسوں پر مشتمل ہوتا ہے، جیسے {example}۔",
     "shortAddressNotFound": "اس کوڈ کا کوئی پتہ نہیں ملا۔ کوڈ چیک کر کے دوبارہ کوشش کریں۔",
-    "shortAddressUnavailable": "سعودی پوسٹ اس وقت جواب نہیں دے رہی۔ آپ اپنی لکھی ہوئی تفصیلات کے ساتھ پتہ پھر بھی محفوظ کر سکتے ہیں۔"
+    "shortAddressUnavailable": "سعودی پوسٹ اس وقت جواب نہیں دے رہی۔ آپ اپنی لکھی ہوئی تفصیلات کے ساتھ پتہ پھر بھی محفوظ کر سکتے ہیں۔",
+    "removedToast": "پتا حذف ہو گیا۔"
   },
   "ShareReport": {
     "title": "رپورٹس شیئر کریں",
@@ -2507,6 +2532,9 @@
       "confirmed": "تصدیق شدہ",
       "scheduled": "طے شدہ",
       "checked_in": "چیک ان ہو گیا",
+      "rescheduled": "دوبارہ شیڈول",
+      "en_route": "راستے میں",
+      "arrived": "پہنچ گئے",
       "in_progress": "جاری ہے",
       "completed": "مکمل",
       "cancelled": "منسوخ",
@@ -2673,6 +2701,8 @@
     "emergencyTitle": "ہنگامی رابطے",
     "emergencySub": "ہنگامی صورت میں کس سے رابطہ کریں",
     "unavailableTitle": "خاندان لوڈ نہیں ہو سکا",
+    "notSharedTitle": "ریکارڈ شیئر نہیں",
+    "notShared": "اس رکن نے اپنا ریکارڈ آپ کے ساتھ شیئر نہیں کیا۔",
     "unavailable": "براہ کرم بعد میں دوبارہ کوشش کریں۔",
     "noGroupTitle": "فیملی گروپ بنائیں",
     "noGroupBody": "ابھی کوئی فیملی گروپ نہیں۔ رشتہ داروں کو مدعو کرنے اور دیکھ بھال بانٹنے کے لیے ایک بنائیں۔",
@@ -2748,7 +2778,9 @@
     "medsLastMissed": "آخری چھوٹی ہوئی خوراک:",
     "medsEditReminder": "یاد دہانی میں ترمیم",
     "medsAddReminder": "دوا کی یاد دہانی شامل کریں",
-    "close": "بند کریں"
+    "close": "بند کریں",
+    "removeConfirmTitle": "اس فرد کو خاندان سے نکالیں؟",
+    "removeConfirmBody": "یہ فرد اب خاندان کی فہرست میں نہیں دکھائی دے گا۔"
   },
   "DiagWeb": {
     "retry": "دوبارہ کوشش کریں",
@@ -2967,6 +2999,12 @@
     "bookingNotSentBody": "یہ ونڈو ابھی بکنگ نہیں بھیجتی، اس لیے کوئی ملاقات طے نہیں ہوئی اور کوئی ادائیگی نہیں لی گئی۔ وزٹ بک کرنے کے لیے نرسنگ کا صفحہ کھولیں۔",
     "bookingNotSentCta": "نرسنگ کے صفحے پر جائیں",
     "bookingNotSentClose": "بند کریں"
+  },
+  "OrderContext": {
+    "hint": "کچھ بھی بدلنے پر قیمتیں اور کوریج فوراً اپ ڈیٹ ہوتی ہیں",
+    "addAddress": "اپنا پتہ شامل کریں",
+    "addInsurance": "اپنا بیمہ شامل کریں",
+    "insuranceSub": "آپ کی محفوظ پروفائل سے۔ منظوری تک کوریج تخمینی ہے"
   },
   "NursingWeb": {
     "hubTitle": "گھریلو نگہداشت",
@@ -3601,8 +3639,9 @@
       "service": "سروس کی قسم",
       "svc": {
         "consultation": "طبی مشاورت",
-        "pharmacy": "ادویات",
-        "lab": "لیب ٹیسٹ"
+        "labs": "لیب ٹیسٹ",
+        "radiology": "ریڈیالوجی",
+        "nursing": "گھر پر نرسنگ"
       },
       "check": "کوریج دکھائیں",
       "result": "ریکارڈ میں کوریج",
@@ -4273,7 +4312,9 @@
     "openBooking": "رپورٹ فائل دیکھنے کے لیے بکنگ کھولیں",
     "empty": "اس نتیجے میں مزید تفصیل نہیں۔",
     "discuss": "نتیجے پر ڈاکٹر سے بات کریں",
-    "rangeText": "نارمل حد {range}"
+    "rangeText": "نارمل حد {range}",
+    "trendTitle": "رجحان",
+    "trendNote": "اسی ٹیسٹ کے پچھلے نتائج"
   },
   "Offline": {
     "title": "آپ آف لائن ہیں",

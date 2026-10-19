@@ -10,6 +10,11 @@ on:
     paths: ['deploy/nginx/**', 'deploy/docker-compose.production.yml', 'tools/perf/nginx-microcache/**', '.github/workflows/nginx-cache.yml']
 permissions:
   contents: read
+# A newer push to the same PR replaces the older run (it would be thrown away anyway); pushes to main and scheduled runs are never cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   microcache:
     runs-on: ubuntu-latest

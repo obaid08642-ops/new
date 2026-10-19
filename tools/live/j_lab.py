@@ -158,6 +158,9 @@ def run(pat, lab, other_lab=None, admin=None):
         step('console lists the lab booking with status and amount', r.ok and row and row.get('status') == 'REPORTED' and row.get('amount', 0) > 0, row or r.status)
         d = admin.get(f'/admin/admin/orders/lab/{bid}')
         step('console detail opens with its timeline', d.ok and len(d.get('timeline') or []) >= 4, d)
+        # 23.2: the booking's story in the tamper-evident audit trail, in order
+        import j_audit_events
+        j_audit_events.check_chain(admin, 'lab booking', ['service.requested', 'service.confirmed', 'lab_report_uploaded'], resource_id=bid)
     matrix_payment_location(pat, lab, admin, other_lab)
     return bid
 
@@ -187,7 +190,7 @@ def matrix_payment_location(pat, lab, admin=None, other_lab=None):
         import j_insurance
         from j_insurance import insured_lab
         journey('lab matrix: home x insurance')
-        j_insurance.add_policy(pat, j_insurance.admin_adds_company(admin))
+        j_insurance.add_policy(pat, j_insurance.admin_adds_company(admin), providers=[lab])
         if other_lab is not None:
             insured_lab(pat, lab, other_lab, location='home')
         else:

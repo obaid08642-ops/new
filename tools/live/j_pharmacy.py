@@ -1,7 +1,7 @@
 """Journey: pharmacy order, patient-app -> pharmacy (provider-app) -> patient -> delivery -> admin.
 Payloads copied from patient-app app/pharmacy/{checkout,broadcast-status,final-quote}.tsx,
 src/utils/pharmacy-draft.ts and provider-app screens/pharmacy/PharmacyDashboard.tsx."""
-import json, uuid, urllib.parse
+import json, time, uuid, urllib.parse
 from lib import Client, journey, step
 from j_nursing import card_payment
 
@@ -214,6 +214,14 @@ def run(pat, pharm, admin=None, meds=None):
     step('allocation detail', det.ok, det)
     for action in ('confirm', 'preparing', 'ready'):
         r = pharm.post(f'/provider/pharmacy/allocations/{aid}/{action}', {})
+        # The payment evidence is recorded by an asynchronous handler right after the payment is verified, so on a busy
+        # runner the first action can arrive a moment before it. The refusal is the right answer until then: ask again.
+        for _ in range(15):
+            if paid_by_card and not r.ok and 'payment_confirmation_required' in json.dumps(r.body, ensure_ascii=False):
+                time.sleep(1)
+                r = pharm.post(f'/provider/pharmacy/allocations/{aid}/{action}', {})
+            else:
+                break
         step(f'pharmacy: {action}', r.ok, r)
     r = pharm.post(f'/provider/pharmacy/allocations/{aid}/out-for-delivery', {'courier_name': 'مندوب', 'courier_phone': '+966500000555'})
     step('pharmacy: out for delivery', r.ok, r)
@@ -236,6 +244,10 @@ def run(pat, pharm, admin=None, meds=None):
     pharmacy_screens(pharm, oid, total)
     if admin:
         admin_console(admin, oid)
+        # 23.2: the order's story in the tamper-evident audit trail, in order (card payment on a first order, D-25)
+        import j_audit_events
+        chain = ['service.requested', 'service.matched', 'pharmacy.offer.submitted', 'pharmacy.offer.selected']
+        j_audit_events.check_chain(admin, 'pharmacy order', chain + (['payment_completed'] if paid_by_card else []) + ['service.completed'], resource_id=oid)
     return oid
 
 

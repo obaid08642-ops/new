@@ -19,6 +19,7 @@ import { Actions, CONSULT, Facts, Notice, SectionCard, type FactRow } from "@/co
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { SaveArticleButton } from "@/components-next/articles/save-article-button";
 import { ReadingProgress } from "@/components-next/navigation/reading-progress";
+import { ArticleShare } from "@/components-next/articles/article-share";
 import { ARTICLE_TONE, CategoryPill, articleExcerpt, articleTitle } from "@/components-next/articles/article-kit";
 import styles from "@/components-next/articles/articles.module.css";
 
@@ -107,9 +108,20 @@ export default async function ArticlePage({ params }: Props) {
   const facts: FactRow[] = [];
   if (authorName) facts.push({ label: t("author"), value: <bdi>{authorTitle ? `${authorName} — ${authorTitle}` : authorName}</bdi>, icon: CONSULT.icon, tone: CONSULT.tone });
   if (published) facts.push({ label: t("published"), value: <time dateTime={publishedAt ?? undefined}>{published}</time>, icon: "calendar-dots", tone: ARTICLE_TONE });
+  // 17.4: "last updated" only when the text was changed after it was first published (the same day is not an update).
+  const updatedAt = article.updatedAt || null;
+  const updated = updatedAt && updatedAt.slice(0, 10) !== publishedAt?.slice(0, 10) ? formatDate(locale, updatedAt) : null;
+  if (updated) facts.push({ label: t("updated"), value: <time dateTime={updatedAt ?? undefined}>{updated}</time>, icon: "calendar-dots", tone: ARTICLE_TONE });
+  const canonical = localizedUrl(locale, path);
 
   return (
-    <ConsultPage locale={locale} title={title} backHref={back}>
+    <ConsultPage
+      locale={locale}
+      title={title}
+      backHref={back}
+      crumbsLabel={shared("breadcrumbLabel")}
+      crumbs={[{ label: shared("navHome"), href: `/${locale}` }, { label: t("title"), href: back }, { label: title }]}
+    >
       <ReadingProgress label={shared("readingProgress")} />
       <JsonLd
         data={[
@@ -125,6 +137,7 @@ export default async function ArticlePage({ params }: Props) {
             publisher: { "@type": "Organization", name: "Nabd Plus", url: siteOrigin() }, // i18n-ok: brand name in structured data
             speakable: { "@type": "SpeakableSpecification", cssSelector: ["h1", ".nabd-direct-answer"] },
             ...(publishedAt ? { datePublished: publishedAt } : {}),
+            ...(updated && updatedAt ? { dateModified: updatedAt } : {}),
             ...(authorName ? { author: { "@type": "Person", name: authorName, ...(authorTitle ? { jobTitle: authorTitle } : {}) } } : {}),
           },
           medicalWebPage({ title, description: excerpt ?? null, locale, path }),
@@ -148,6 +161,11 @@ export default async function ArticlePage({ params }: Props) {
         authorTitle={authorTitle}
         publishedAt={publishedAt}
         locale={locale}
+      />
+      <ArticleShare
+        url={canonical}
+        title={title}
+        labels={{ heading: t("shareTitle"), copy: t("shareCopy"), copied: t("shareCopied"), whatsapp: t("shareWhatsapp"), x: t("shareX") }}
       />
       <Actions>
         <SaveArticleButton slug={slug} locale={locale} />

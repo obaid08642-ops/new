@@ -21,6 +21,7 @@ import { getDirection, type Locale } from "@/lib/i18n";
 import { useCart } from "@/lib/context/CartContext";
 import { formatNumber } from "@/lib/format-price";
 import styles from "./core.module.css";
+import { PhoneMenu } from "@/components-next/core/phone-menu";
 
 /**
  * The screen frame of the Batch 0 core screens (search, notifications, notification settings),
@@ -139,6 +140,21 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
           </nav>
         </>
       )}
+
+      {!search ? (
+        <PhoneMenu
+          labels={{ open: shell("menuOpen"), close: shell("menuClose") }}
+          items={[
+            { label: shell("menuProfile"), href: `/${locale}/profile` },
+            { label: shell("menuOrders"), href: `/${locale}/orders` },
+            { label: shell("menuFamily"), href: `/${locale}/family` },
+            { label: shell("menuArticles"), href: `/${locale}/articles` },
+            { label: shell("notifications"), href: `/${locale}/notifications` },
+            { label: shell("menuSettings"), href: `/${locale}/settings` },
+            { label: shell("menuHelp"), href: `/${locale}/settings/help` },
+          ].filter((item) => !isPathHidden(item.href, disabled))}
+        />
+      ) : null}
 
       {/* pages without the tab bar (the product page, canvas/ProductFull) carry the cart in the phone header */}
       {hideTabs && !search ? cartLink(`${styles.phoneOnly} ${styles.phoneCart}`) : null}

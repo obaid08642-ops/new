@@ -183,9 +183,43 @@ export class AiGatewayService {
   private get settings() { return this.conn.collection('featureflags'); }
 
   // ── Registry bootstrap: seed env keys into DB once ──────────────────────
+  private legacyKeysRetryAt = 0;
+
+  /**
+   * 16.1: rows saved before P13-R21 (or seeded without AI_KEYS_ENC_KEY) hold
+   * the key in plaintext. Wrap each one; the filter matches the exact old
+   * value so a concurrent admin save is never overwritten. Best effort: a
+   * failure is logged and never stops the registry load. Without the
+   * encryption key nothing changes and the check is retried every 10 minutes.
+   */
+  private async migrateLegacyKeys(): Promise<void> {
+    if (Date.now() < this.legacyKeysRetryAt) return;
+    try {
+      const rows = (await this.providers
+        .find({ api_key: { $type: 'string', $not: /^(enc:|$)/ } })
+        .sort({ priority: 1 })
+        .toArray()) as unknown as Array<{ key: string; api_key?: string }>;
+      const legacy = rows.filter((r) => r.api_key && !String(r.api_key).startsWith(ENC_PREFIX));
+      for (const r of legacy) {
+        let wrapped: string;
+        try { wrapped = encryptApiKey(String(r.api_key)); }
+        catch {
+          this.legacyKeysRetryAt = Date.now() + 10 * 60_000;
+          this.logger.warn('AI_KEYS_ENC_KEY missing — plaintext provider keys left unencrypted');
+          return;
+        }
+        await this.providers.updateOne({ key: r.key, api_key: r.api_key }, { $set: { api_key: wrapped } });
+      }
+      if (legacy.length) this.logger.log(`encrypted ${legacy.length} legacy AI provider key(s) at rest`);
+    } catch (e) {
+      this.legacyKeysRetryAt = Date.now() + 60_000;
+      this.logger.warn(`legacy AI key encryption failed: ${(e as Error).message}`);
+    }
+  }
+
   private async ensureRegistry() {
     const count = await this.providers.countDocuments({});
-    if (count > 0) return;
+    if (count > 0) { await this.migrateLegacyKeys(); return; }
     const envKeys: Record<string, string> = {
       gemini: process.env.GEMINI_API_KEY || '',
       openai: process.env.OPENAI_API_KEY || '',
@@ -449,10 +483,12 @@ export class AiGatewayService {
   }
 
   // ── Admin management API ────────────────────────────────────────────────
-  private maskKey(stored: string): { has_key: boolean; key_preview: string | null } {
+  private maskKey(stored: string): { has_key: boolean; key_preview: string | null; key_unreadable?: true } {
     if (!stored) return { has_key: false, key_preview: null };
-    const tail = String(stored).replace(/^enc:/, '').slice(-4);
-    return { has_key: true, key_preview: `••••${tail}` };
+    // The preview is the end of the real key, never the end of the ciphertext.
+    let plain: string;
+    try { plain = decryptApiKey(String(stored)); } catch { return { has_key: true, key_preview: null, key_unreadable: true }; }
+    return { has_key: true, key_preview: plain.length >= 8 ? `••••${plain.slice(-4)}` : null };
   }
 
   async listProviders() {
@@ -498,7 +534,7 @@ export class AiGatewayService {
           error_rate_24h: st.calls ? Math.round((st.failures / st.calls) * 1000) / 1000 : 0,
           avg_ms_24h: st.avg_ms != null ? Math.round(st.avg_ms) : null,
           calls_24h: st.calls || 0,
-          has_key: masked.has_key, key_preview: masked.key_preview, note: p.note,
+          has_key: masked.has_key, key_preview: masked.key_preview, ...(masked.key_unreadable ? { key_unreadable: true } : {}), note: p.note,
         };
       }),
     };

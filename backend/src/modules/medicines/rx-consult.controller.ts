@@ -1,4 +1,5 @@
 import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Put, UseGuards } from '@nestjs/common';
+import { recordAudit } from '../../common/audit-record';
 import { InjectConnection } from '@nestjs/mongoose';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { IsObject, IsOptional, IsString } from 'class-validator';
@@ -121,15 +122,14 @@ export class RxConsultController {
       { $set: { key: RX_CONSULT_KEY, value: { map, default: def }, updated_at: now, updated_by: admin?.id ?? null }, $setOnInsert: { created_at: now } },
       { upsert: true },
     );
-    await this.conn.collection('audit_logs').insertOne({
-      id: `rx_consult_${now.getTime()}`,
+    await recordAudit(this.conn, {
       action: 'rx_consult_specialties_update',
       resource_kind: 'system_config',
       resource_id: `system_config:${RX_CONSULT_KEY}`,
-      actor_account_id: admin?.id,
-      actor_role: admin?.role,
-      metadata: { before, after: { map, default: def } },
-      created_at: now,
+      user_id: admin?.id,
+      role: admin?.role,
+      changes: { before: { value: before }, after: { value: { map, default: def } } },
+      severity: 'warn',
     });
     return this.config();
   }
