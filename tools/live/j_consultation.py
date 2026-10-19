@@ -215,7 +215,7 @@ def book_variant(pat, doctor, service_type, payment, provider=None):
 def matrix_visit_types(pat, doctor, admin):
     """P8 matrix (R7-5): every visit type x payment path the backend allows."""
     import j_insurance
-    j_insurance.add_policy(pat, j_insurance.admin_adds_company(admin))
+    j_insurance.add_policy(pat, j_insurance.admin_adds_company(admin), providers=[doctor])
     doctor_publishes_hours(doctor, admin, ('video', 'home'))
     book_variant(pat, doctor, 'video', 'card')
     book_variant(pat, doctor, 'home', 'card')

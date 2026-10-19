@@ -114,7 +114,14 @@ def admin_adds_company(admin):
     return code
 
 
-def add_policy(pat, code=None):
+def accept_insurance(provider, company, classes=('A',)):
+    """D-30: a provider records the company AND classes it contracts (provider-app availability); an order or booking
+    on insurance reaches only providers contracted for the patient's company and class."""
+    r = provider.patch('/provider/profile/availability', {'accepted_insurance': [{'company_id': company.get('id'), 'classes': list(classes), 'active': True}]})
+    step('the provider records its insurance contract (company and class)', r.ok, r)
+
+
+def add_policy(pat, code=None, providers=()):
     journey('insurance: patient adds a policy (add-policy.tsx)')
     r = pat.get('/insurance/companies')
     comps = rows(r)
@@ -125,7 +132,7 @@ def add_policy(pat, code=None):
         return None
     c = comps[0]
     # add-policy.tsx sends company_id: compObj.code and provider: the localized name
-    r = pat.post('/insurance/save-policy', {'provider': c.get('name_ar') or c.get('name_en') or c.get('code'), 'company_id': c.get('code'),
+    r = pat.post('/insurance/save-policy', {'provider': c.get('name_ar') or c.get('name_en') or c.get('code'), 'company_id': c.get('code'), 'class': 'A',
                                             'policy_number': f'POL-{uuid.uuid4().hex[:8].upper()}', 'expiry_date': '2027-12-31',
                                             'member_name': 'مريض تأمين', 'national_id': '1098765432', 'verified': False, 'ocr_extracted': False})
     step('save-policy with the add-policy payload', r.ok, r)
@@ -140,6 +147,8 @@ def add_policy(pat, code=None):
     step('hub shows the policy', r.ok and 'POL-' in str(r.body), r)
     r = pat.get('/insurance/coverage-check?service_type=consultation')
     step('coverage-check answers for the policy', r.ok and r.get('eligible'), r)
+    for provider in providers:
+        accept_insurance(provider, c)
     return c
 
 
@@ -322,7 +331,7 @@ def insured_lab_outcome(pat, lab, outcome):
 
 
 def run(pat, doctor, admin, labs=None):
-    add_policy(pat, admin_adds_company(admin))
+    add_policy(pat, admin_adds_company(admin), providers=[doctor, *(labs[:1] if labs else [])])
     for path in PATIENT_GETS:
         r = pat.get(path)
         step(f'GET {path}', r.ok, r)

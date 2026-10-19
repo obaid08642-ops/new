@@ -888,6 +888,10 @@ export class PharmacyOrderService {
     await enforceRxRules(this.conn, user.id, checked);
     order.items = checked.items;
     order.markModified('items');
+    // Set coverage_mode based on payment_method for broadcast filtering
+    if (!order.coverage_mode) {
+      order.coverage_mode = order.payment_method === 'insurance' ? 'insurance' : 'cash';
+    }
     return await this.engine.transition({
       kind: 'pharmacy', entity_id: order.id, from_domain: order.status, to_domain: PharmacyOrderState.READY_FOR_SPLIT,
       actor_account_id: user.id, actor_role: 'patient', patient_account_id: order.patient_account_id, reason: 'patient_submitted',
