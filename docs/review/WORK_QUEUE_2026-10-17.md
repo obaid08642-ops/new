@@ -64,3 +64,9 @@ M6, the web and app screens of M1–M5, built from the merged M0 boards (`docs/d
 - Phase 20 (alerts/SLOs, status page, scheduled journeys, restore drill, safe deploys, capacity review) and the Mailjet 401 diagnosis stay with the build session.
 - Fix-session PRs #1568, #1591, #1593 stay with the fix session.
 - Server and Cloudflare changes go through the server-ops workflow with the owner's Approve; the Cloudflare cache rule for `/api/search/suggest` is prepared by the review session.
+
+## Owner decisions (2026-10-19), binding for Session B (build)
+1. **Prescription validity:** the prescriber sets `valid_until` and `refills_remaining` when the prescription is written; a pharmacist may lower them, never raise them. Until a writer exists, refill of a prescription item stays refused (`prescription_validity_unknown`).
+2. **Refill and insurance:** a refill checks that the insurance policy is still active; otherwise it is refused with a clear error and self-pay is offered.
+3. **Price-drop alert:** measured from the price the patient saw when the item was added to the wishlist (keep the hourly sweep and the 5% threshold).
+4. **Delivery promise (22.4):** each pharmacy sets its own delivery time; the courier's location is sent only while an order is out for delivery and is deleted 24 hours after delivery; proof of delivery is a 4-digit code the patient gives the courier; the list of refrigerated medicines comes from the pharmacist (B builds the server side of 4 and 5 first, as the note on 22.4 says).
