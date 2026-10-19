@@ -117,6 +117,8 @@
   "errors.codeRequired": "تصدیقی کوڈ درج کریں",
   "errors.offline": "انٹرنیٹ کنکشن نہیں ہے۔ اپنا نیٹ ورک چیک کریں۔",
   "errors.server": "سرور میں خرابی ہوئی۔ بعد میں دوبارہ کوشش کریں۔",
+  "errors.crashTitle": "کچھ غلط ہو گیا",
+  "errors.crashBody": "دوبارہ کوشش کریں۔ اگر یہ جاری رہے تو ایپ دوبارہ کھولیں۔",
   "errors.notFound": "مطلوبہ چیز نہیں ملی",
   "auth.login": "لاگ ان",
   "auth.createAccount": "اکاؤنٹ بنائیں",

@@ -29,6 +29,9 @@ import { initSentry } from '../src/utils/sentry';
 import { SyncManager } from '../src/data/sync/SyncManager';
 import { BackgroundSynchronizer } from '../src/data/sync/BackgroundSynchronizer';
 import { DatabaseManager } from '../src/data/database/core/DatabaseManager';
+// 15.5: a crash anywhere in the tree shows the translated card with Retry, never a blank screen.
+import { AppErrorBoundary } from '../src/services/ErrorHandler';
+import { AppCrashFallback } from '../src/components/AppCrashFallback';
 
 I18nManager.allowRTL(true);
 I18nManager.forceRTL(true);
@@ -88,6 +91,7 @@ function RootLayout() {
   if (!loaded && !error) return null;
 
   return (
+    <AppErrorBoundary fallback={(_error, reset) => <AppCrashFallback onRetry={reset} />}>
     <Provider store={store}>
       <AppProvider>
         <ModulesProvider>
@@ -126,6 +130,7 @@ function RootLayout() {
         </ModulesProvider>
         </AppProvider>
     </Provider>
+    </AppErrorBoundary>
   );
 }
 
