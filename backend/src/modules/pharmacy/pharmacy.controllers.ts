@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { UserRole, isProviderRole } from '../../common/enums';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { PharmacyOrderService } from './services/pharmacy-order.service';
+import { PharmacyRefillService } from './services/pharmacy-refill.service';
 import { PharmacyAllocationService } from './services/pharmacy-allocation.service';
 import { PharmacyInventoryExtService } from './services/pharmacy-inventory-ext.service';
 import { PharmacySeedService } from './services/pharmacy-seed.service';
@@ -28,7 +29,7 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.PATIENT)
 export class PatientPharmacyController {
-  constructor(private orders: PharmacyOrderService, private offers: PharmacyOfferService, private insurance: PharmacyInsuranceDecisionService, private cardPayments: PaymentsService, @Optional() private allocations?: PharmacyAllocationService) {}
+  constructor(private orders: PharmacyOrderService, private offers: PharmacyOfferService, private insurance: PharmacyInsuranceDecisionService, private cardPayments: PaymentsService, private refills: PharmacyRefillService, @Optional() private allocations?: PharmacyAllocationService) {}
   // Order roots are state-changing: keys are mandatory (P0-01). The global
   // IdempotencyInterceptor then guarantees replay-safety (24h cache +
   // in-progress lock + body-hash mismatch guard). Mobile + web BFF already send keys.
@@ -39,6 +40,7 @@ export class PatientPharmacyController {
   // 22.5: the lines a chosen pharmacy could not fill become a new draft order of their own
   @Post('orders/:id/split-remaining') @RequireIdempotency() splitRemaining(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.splitRemaining(u, id); }
   @Post('orders/:id/submit') @RequireIdempotency() submit(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.submit(u, id); }
+  @Post('orders/:id/refill') @RequireIdempotency() refill(@CurrentUser() u: any, @Param('id') id: string) { return this.refills.refill(u, id); }
   @Post('orders/:id/cancel') @RequireIdempotency() cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelDto) { return this.orders.cancel(u, id, b?.reason || ''); }
   @Post('orders/:id/insurance-rejection/cancel') cancelRejectedInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelRejectedInsuranceDto, @Headers('idempotency-key') idemHeader?: string) { return this.insurance.cancelRejectedByPatient(u, id, b?.idempotency_key || idemHeader); }
   // A-2: ?include=closed also returns the expired, withdrawn and earlier offers, each with its offer_state.

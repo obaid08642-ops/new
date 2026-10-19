@@ -52,6 +52,10 @@ export class Prescription {
   /** Pharmacist verification (F19): set when a pharmacist reviews the Rx lines. */
   @Prop() verified_by?: string;
   @Prop() verified_at?: Date;
+  /** 22.1: last day the prescription can be used for a refill (set by the prescriber or the pharmacist). Unset = unknown. */
+  @Prop() valid_until?: Date;
+  /** 22.1: how many more refills the prescription allows. Unset = unknown; a refill is refused until both are set. */
+  @Prop() refills_remaining?: number;
 }
 export type PrescriptionDocument = Prescription & Document;
 export const PrescriptionSchema = SchemaFactory.createForClass(Prescription);
