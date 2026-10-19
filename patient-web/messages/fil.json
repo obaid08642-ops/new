@@ -23,7 +23,8 @@
     "backToTop": "Bumalik sa itaas",
     "readingProgress": "Progreso ng pagbabasa",
     "dialogCancel": "Kanselahin",
-    "dialogConfirm": "Kumpirmahin"
+    "dialogConfirm": "Kumpirmahin",
+    "breadcrumbLabel": "Landas ng pahina"
   },
   "CoreShell": {
     "back": "Bumalik",
@@ -32,7 +33,15 @@
     "cart": "Cart",
     "mainNav": "Pangunahing nabigasyon",
     "sections": "Mga seksyon",
-    "cartCount": "Laman ng cart ({n, number})"
+    "cartCount": "Laman ng cart ({n, number})",
+    "menuOpen": "Listahan",
+    "menuClose": "Isara ang menu",
+    "menuProfile": "Aking account",
+    "menuOrders": "Mga order ko",
+    "menuFamily": "Pamilya",
+    "menuArticles": "Mga artikulo",
+    "menuSettings": "Mga setting",
+    "menuHelp": "Tulong"
   },
   "Home": {
     "eyebrow": "Digital na portal ng pasyente",
@@ -927,7 +936,13 @@
     "unsave": "Alisin sa naka-save",
     "saveFailed": "Hindi ma-update ang mga naka-save na artikulo. Subukan muli.",
     "signInToSave": "Mag-sign in para mag-save ng mga artikulo",
-    "bodyTitle": "Teksto ng artikulo"
+    "bodyTitle": "Teksto ng artikulo",
+    "updated": "Huling na-update",
+    "shareTitle": "Ibahagi ang artikulong ito",
+    "shareCopy": "Kopyahin ang link",
+    "shareCopied": "Nakopya",
+    "shareWhatsapp": "WhatsApp",
+    "shareX": "X"
   },
   "ChatDetail": {
     "eyebrow": "Pribadong conversation",
@@ -1476,7 +1491,8 @@
     "shortAddressFound": "Nahanap. Napunan na ang linya ng address mula sa National Address.",
     "shortAddressInvalid": "Ang maikling address ay apat na letra at apat na numero, gaya ng {example}.",
     "shortAddressNotFound": "Walang nahanap na address para sa code na ito. Suriin ito at subukan muli.",
-    "shortAddressUnavailable": "Hindi sumasagot ngayon ang Saudi Post. Maaari mo pa ring i-save ang address kasama ang mga detalyeng itinype mo."
+    "shortAddressUnavailable": "Hindi sumasagot ngayon ang Saudi Post. Maaari mo pa ring i-save ang address kasama ang mga detalyeng itinype mo.",
+    "removedToast": "Naalis ang address."
   },
   "ShareReport": {
     "title": "Ibahagi ang mga Ulat",
@@ -2762,7 +2778,9 @@
     "medsLastMissed": "Huling nalaktawang dosis:",
     "medsEditReminder": "I-edit ang paalala",
     "medsAddReminder": "Magdagdag ng paalala sa gamot",
-    "close": "Isara"
+    "close": "Isara",
+    "removeConfirmTitle": "Alisin ang miyembrong ito sa pamilya?",
+    "removeConfirmBody": "Hindi na siya lalabas sa listahan ng pamilya."
   },
   "DiagWeb": {
     "retry": "Subukan muli",

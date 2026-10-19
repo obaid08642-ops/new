@@ -23,7 +23,8 @@
     "backToTop": "পৃষ্ঠার শুরুতে ফিরুন",
     "readingProgress": "পড়ার অগ্রগতি",
     "dialogCancel": "বাতিল করুন",
-    "dialogConfirm": "নিশ্চিত করুন"
+    "dialogConfirm": "নিশ্চিত করুন",
+    "breadcrumbLabel": "নেভিগেশন পথ"
   },
   "CoreShell": {
     "back": "ফিরে যান",
@@ -32,7 +33,15 @@
     "cart": "কার্ট",
     "mainNav": "প্রধান নেভিগেশন",
     "sections": "বিভাগসমূহ",
-    "cartCount": "কার্ট ({n, number})"
+    "cartCount": "কার্ট ({n, number})",
+    "menuOpen": "মেনু",
+    "menuClose": "মেনু বন্ধ করুন",
+    "menuProfile": "আমার অ্যাকাউন্ট",
+    "menuOrders": "আমার অর্ডার",
+    "menuFamily": "পরিবার",
+    "menuArticles": "নিবন্ধ",
+    "menuSettings": "সেটিংস",
+    "menuHelp": "সহায়তা"
   },
   "Home": {
     "eyebrow": "ডিজিটাল রোগী পোর্টাল",
@@ -927,7 +936,13 @@
     "unsave": "সংরক্ষিত থেকে সরান",
     "saveFailed": "সংরক্ষিত নিবন্ধ আপডেট করা যায়নি। আবার চেষ্টা করুন।",
     "signInToSave": "নিবন্ধ সংরক্ষণ করতে সাইন ইন করুন",
-    "bodyTitle": "নিবন্ধের লেখা"
+    "bodyTitle": "নিবন্ধের লেখা",
+    "updated": "সর্বশেষ হালনাগাদ",
+    "shareTitle": "এই নিবন্ধটি শেয়ার করুন",
+    "shareCopy": "লিংক কপি করুন",
+    "shareCopied": "কপি হয়েছে",
+    "shareWhatsapp": "হোয়াটসঅ্যাপ",
+    "shareX": "X"
   },
   "ChatDetail": {
     "eyebrow": "ব্যক্তিগত কথোপকথন",
@@ -1476,7 +1491,8 @@
     "shortAddressFound": "ঠিকানা পাওয়া গেছে। ঠিকানার লাইন জাতীয় ঠিকানা থেকে পূরণ করা হয়েছে।",
     "shortAddressInvalid": "সংক্ষিপ্ত ঠিকানা চারটি অক্ষর ও চারটি সংখ্যার, যেমন {example}।",
     "shortAddressNotFound": "এই কোডের কোনো ঠিকানা পাওয়া যায়নি। কোডটি দেখে আবার চেষ্টা করুন।",
-    "shortAddressUnavailable": "সৌদি পোস্ট এখন সাড়া দিচ্ছে না। আপনার লেখা বিবরণসহ ঠিকানাটি তবুও সংরক্ষণ করতে পারেন।"
+    "shortAddressUnavailable": "সৌদি পোস্ট এখন সাড়া দিচ্ছে না। আপনার লেখা বিবরণসহ ঠিকানাটি তবুও সংরক্ষণ করতে পারেন।",
+    "removedToast": "ঠিকানাটি সরানো হয়েছে।"
   },
   "ShareReport": {
     "title": "রিপোর্ট শেয়ার করুন",
@@ -2762,7 +2778,9 @@
     "medsLastMissed": "সর্বশেষ বাদ পড়া ডোজ:",
     "medsEditReminder": "রিমাইন্ডার সম্পাদনা",
     "medsAddReminder": "ওষুধের রিমাইন্ডার যোগ করুন",
-    "close": "বন্ধ করুন"
+    "close": "বন্ধ করুন",
+    "removeConfirmTitle": "এই সদস্যকে পরিবার থেকে সরাবেন?",
+    "removeConfirmBody": "এই সদস্য আর পরিবারের তালিকায় দেখা যাবে না।"
   },
   "DiagWeb": {
     "retry": "আবার চেষ্টা করুন",

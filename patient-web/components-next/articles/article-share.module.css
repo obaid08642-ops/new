@@ -1,0 +1,42 @@
+.share {
+  display: grid;
+  gap: .6rem;
+}
+
+.heading {
+  margin: 0;
+  font-size: .95rem;
+  font-weight: 800;
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
+  padding: .4rem .85rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.link:hover {
+  border-color: var(--brand);
+}
+
+.link:focus-visible {
+  outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color, currentColor);
+  outline-offset: 2px;
+}

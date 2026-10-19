@@ -23,7 +23,8 @@
     "backToTop": "पेज के ऊपर जाएं",
     "readingProgress": "पढ़ने की प्रगति",
     "dialogCancel": "रद्द करें",
-    "dialogConfirm": "पुष्टि करें"
+    "dialogConfirm": "पुष्टि करें",
+    "breadcrumbLabel": "नेविगेशन पथ"
   },
   "CoreShell": {
     "back": "वापस",
@@ -32,7 +33,15 @@
     "cart": "कार्ट",
     "mainNav": "मुख्य नेविगेशन",
     "sections": "अनुभाग",
-    "cartCount": "कार्ट ({n, number})"
+    "cartCount": "कार्ट ({n, number})",
+    "menuOpen": "मेनू",
+    "menuClose": "मेनू बंद करें",
+    "menuProfile": "मेरा खाता",
+    "menuOrders": "मेरे ऑर्डर",
+    "menuFamily": "परिवार",
+    "menuArticles": "लेख",
+    "menuSettings": "सेटिंग्स",
+    "menuHelp": "सहायता"
   },
   "Home": {
     "eyebrow": "डिजिटल मरीज़ पोर्टल",
@@ -927,7 +936,13 @@
     "unsave": "सहेजे गए से हटाएँ",
     "saveFailed": "सहेजे गए लेख अपडेट नहीं हो सके। फिर कोशिश करें।",
     "signInToSave": "लेख सहेजने के लिए साइन इन करें",
-    "bodyTitle": "लेख का पाठ"
+    "bodyTitle": "लेख का पाठ",
+    "updated": "अंतिम अपडेट",
+    "shareTitle": "यह लेख साझा करें",
+    "shareCopy": "लिंक कॉपी करें",
+    "shareCopied": "कॉपी हो गया",
+    "shareWhatsapp": "व्हाट्सऐप",
+    "shareX": "X"
   },
   "ChatDetail": {
     "eyebrow": "निजी बातचीत",
@@ -1476,7 +1491,8 @@
     "shortAddressFound": "पता मिल गया। पते की पंक्ति राष्ट्रीय पते से भर दी गई है।",
     "shortAddressInvalid": "संक्षिप्त पता चार अक्षरों और चार अंकों का होता है, जैसे {example}।",
     "shortAddressNotFound": "इस कोड के लिए कोई पता नहीं मिला। कोड जाँचकर फिर कोशिश करें।",
-    "shortAddressUnavailable": "सऊदी पोस्ट अभी जवाब नहीं दे रही। आप अपने लिखे विवरण के साथ पता फिर भी सहेज सकते हैं।"
+    "shortAddressUnavailable": "सऊदी पोस्ट अभी जवाब नहीं दे रही। आप अपने लिखे विवरण के साथ पता फिर भी सहेज सकते हैं।",
+    "removedToast": "पता हटा दिया गया।"
   },
   "ShareReport": {
     "title": "रिपोर्ट साझा करें",
@@ -2762,7 +2778,9 @@
     "medsLastMissed": "आख़िरी छूटी खुराक:",
     "medsEditReminder": "रिमाइंडर बदलें",
     "medsAddReminder": "दवा रिमाइंडर जोड़ें",
-    "close": "बंद करें"
+    "close": "बंद करें",
+    "removeConfirmTitle": "इस सदस्य को परिवार से हटाएँ?",
+    "removeConfirmBody": "यह सदस्य अब परिवार की सूची में नहीं दिखेगा।"
   },
   "DiagWeb": {
     "retry": "फिर से कोशिश करें",

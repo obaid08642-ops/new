@@ -24,6 +24,12 @@ export function DiagnosticsCheckoutForm({
   labId: string;
   initialLocation: "home" | "facility";
 }) {
+  // The ordered tests leave both carts: the server's cart and the website cart in localStorage (diagnostics-cart-client.tsx).
+  async function clearCart() {
+    await fetch("/api/diagnostics/cart", { method: "DELETE" }).catch(() => null);
+    try { localStorage.removeItem("nabd-diagnostics-cart"); } catch { /* storage unavailable */ }
+  }
+
   const t = useTranslations("DiagWeb");
   const router = useRouter();
   const days = useMemo(() => {
@@ -127,15 +133,15 @@ export function DiagnosticsCheckoutForm({
         }
         const checkoutUrl = (payData as { checkout_url?: string })?.checkout_url;
         if (checkoutUrl) {
+          // The order exists now, so its tests leave the cart before the page goes to the payment provider.
+          await clearCart();
           window.location.href = checkoutUrl;
           return;
         }
       }
 
-      // Clear cart only after payment success (or immediately for cash/insurance)
-      await fetch("/api/diagnostics/cart", { method: "DELETE" }).catch(() => null);
-      // The website cart lives in localStorage (diagnostics-cart-client.tsx): clear it too, or the ordered tests stay in the cart.
-      try { localStorage.removeItem("nabd-diagnostics-cart"); } catch { /* storage unavailable */ }
+      // Cash and insurance orders: the cart is cleared now.
+      await clearCart();
       router.push(diagnosticOrderNextHref(locale, order));
       router.refresh();
     } catch {

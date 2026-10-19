@@ -42,3 +42,7 @@ a.name:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nab
   .layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: var(--nabd-space-lg); align-items: start; }
   .side { position: sticky; inset-block-start: calc(var(--nabd-shell-top-h) + var(--nabd-space-sm)); }
 }
+
+/* Per-line remove (parity audit /cart: a trash button on every line, as in the app). */
+.removeLine { min-inline-size: 44px; min-block-size: 44px; display: inline-flex; align-items: center; justify-content: center; background: none; border: 0; padding: 0; cursor: pointer; border-radius: 12px; }
+.removeLine:focus-visible { outline: 2px solid var(--nabd-color-text-primary); outline-offset: 2px; }

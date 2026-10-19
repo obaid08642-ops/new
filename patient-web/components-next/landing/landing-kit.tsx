@@ -11,6 +11,7 @@ import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import type { FillIconName, ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { getDirection, type Locale } from "@/lib/i18n";
 import styles from "./landing.module.css";
+import type { Crumb } from "@/components-next/navigation/breadcrumbs";
 
 /**
  * The frame of the public directory and detail pages (Batch 13: doctors by specialty and city, facilities, conditions, home
@@ -21,9 +22,9 @@ import styles from "./landing.module.css";
 
 /** The page: the shell with its top bar, the page title (the phone header and, from 768, the h1) and a one-line intro.
  *  `introIsAnswer`: the intro is the entity's own answer text (AEO), marked for the JSON-LD speakable selector. */
-export function LandingPage({ locale, title, intro, introIsAnswer = false, backHref, children }: { locale: Locale; title: string; intro?: string; introIsAnswer?: boolean; backHref?: string; children: ReactNode }) {
+export function LandingPage({ locale, title, intro, introIsAnswer = false, backHref, crumbs, crumbsLabel, children }: { locale: Locale; title: string; intro?: string; introIsAnswer?: boolean; backHref?: string; crumbs?: Crumb[]; crumbsLabel?: string; children: ReactNode }) {
   return (
-    <ConsultPage locale={locale} title={title} backHref={backHref} width="wide">
+    <ConsultPage locale={locale} title={title} backHref={backHref} width="wide" crumbs={crumbs} crumbsLabel={crumbsLabel}>
       {intro ? <p className={introIsAnswer ? `${DIRECT_ANSWER_CLASS} ${rx.lead}` : rx.lead}>{intro}</p> : null}
       {children}
     </ConsultPage>

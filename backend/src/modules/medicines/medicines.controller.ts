@@ -447,6 +447,15 @@ export class MedicinesController {
     return (rows as Array<Record<string, unknown>>).map((m) => toPublicProductCard(m, loc));
   }
 
+  /** 22.3: items bought with this one, never prescription or controlled items, each with its interaction warnings. */
+  @Public()
+  @Get(':id/frequently-bought-together')
+  async boughtTogether(@Param('id') id: string, @Query('locale') locale?: string) {
+    const loc = (PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale || '') ? locale! : 'ar';
+    const rows = await this.svc.frequentlyBoughtTogether(id);
+    return rows.map(({ med, warnings }) => ({ ...toPublicProductCard(med, loc), interaction_warnings: warnings }));
+  }
+
   @RequirePermissions(Permission.CATALOG_CREATE)
   @Post('manual-entry')
   createManual(@Body() body: ManualEntryDto, @CurrentUser() user: any) {

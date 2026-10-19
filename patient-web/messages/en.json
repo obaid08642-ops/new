@@ -23,7 +23,8 @@
     "backToTop": "Back to top",
     "readingProgress": "Reading progress",
     "dialogCancel": "Cancel",
-    "dialogConfirm": "Confirm"
+    "dialogConfirm": "Confirm",
+    "breadcrumbLabel": "Breadcrumb"
   },
   "CoreShell": {
     "back": "Back",
@@ -32,7 +33,15 @@
     "cart": "Cart",
     "mainNav": "Main navigation",
     "sections": "Sections",
-    "cartCount": "Cart ({n, number})"
+    "cartCount": "Cart ({n, number})",
+    "menuOpen": "Menu",
+    "menuClose": "Close menu",
+    "menuProfile": "My account",
+    "menuOrders": "My orders",
+    "menuFamily": "Family",
+    "menuArticles": "Articles",
+    "menuSettings": "Settings",
+    "menuHelp": "Help"
   },
   "Home": {
     "eyebrow": "Digital patient portal",
@@ -927,7 +936,13 @@
     "unsave": "Remove from saved",
     "saveFailed": "Couldn't update your saved articles. Try again.",
     "signInToSave": "Sign in to save articles",
-    "bodyTitle": "Article text"
+    "bodyTitle": "Article text",
+    "updated": "Last updated",
+    "shareTitle": "Share this article",
+    "shareCopy": "Copy link",
+    "shareCopied": "Copied",
+    "shareWhatsapp": "WhatsApp",
+    "shareX": "X"
   },
   "ChatDetail": {
     "eyebrow": "Private conversation",
@@ -1476,7 +1491,8 @@
     "shortAddressFound": "Found. The address line is filled in from the National Address.",
     "shortAddressInvalid": "A short address is four letters and four digits, for example {example}.",
     "shortAddressNotFound": "No address was found for this code. Check it and try again.",
-    "shortAddressUnavailable": "Saudi Post is not answering now. You can still save the address with the details you typed."
+    "shortAddressUnavailable": "Saudi Post is not answering now. You can still save the address with the details you typed.",
+    "removedToast": "The address was removed."
   },
   "ShareReport": {
     "title": "Share Reports",
@@ -2762,7 +2778,9 @@
     "medsLastMissed": "Last missed dose:",
     "medsEditReminder": "Edit reminder",
     "medsAddReminder": "Add a medicine reminder",
-    "close": "Close"
+    "close": "Close",
+    "removeConfirmTitle": "Remove this member from your family?",
+    "removeConfirmBody": "They will no longer appear in your family list."
   },
   "DiagWeb": {
     "retry": "Try again",

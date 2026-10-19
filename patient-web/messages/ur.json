@@ -23,7 +23,8 @@
     "backToTop": "صفحے کے اوپر جائیں",
     "readingProgress": "پڑھنے کی پیش رفت",
     "dialogCancel": "منسوخ کریں",
-    "dialogConfirm": "تصدیق کریں"
+    "dialogConfirm": "تصدیق کریں",
+    "breadcrumbLabel": "راستہ"
   },
   "CoreShell": {
     "back": "واپس",
@@ -32,7 +33,15 @@
     "cart": "کارٹ",
     "mainNav": "مرکزی نیویگیشن",
     "sections": "سیکشنز",
-    "cartCount": "کارٹ ({n, number})"
+    "cartCount": "کارٹ ({n, number})",
+    "menuOpen": "مینو",
+    "menuClose": "مینو بند کریں",
+    "menuProfile": "میرا اکاؤنٹ",
+    "menuOrders": "میرے آرڈر",
+    "menuFamily": "خاندان",
+    "menuArticles": "مضامین",
+    "menuSettings": "ترتیبات",
+    "menuHelp": "مدد"
   },
   "Home": {
     "eyebrow": "ڈیجیٹل مریض پورٹل",
@@ -927,7 +936,13 @@
     "unsave": "محفوظ شدہ سے ہٹائیں",
     "saveFailed": "محفوظ کردہ مضامین اپ ڈیٹ نہیں ہو سکے۔ دوبارہ کوشش کریں۔",
     "signInToSave": "مضامین محفوظ کرنے کے لیے سائن اِن کریں",
-    "bodyTitle": "مضمون کا متن"
+    "bodyTitle": "مضمون کا متن",
+    "updated": "آخری تازہ کاری",
+    "shareTitle": "یہ مضمون شیئر کریں",
+    "shareCopy": "لنک کاپی کریں",
+    "shareCopied": "کاپی ہو گیا",
+    "shareWhatsapp": "واٹس ایپ",
+    "shareX": "ایکس"
   },
   "ChatDetail": {
     "eyebrow": "نجی گفتگو",
@@ -1476,7 +1491,8 @@
     "shortAddressFound": "پتہ مل گیا۔ پتے کی لائن قومی پتے سے بھر دی گئی ہے۔",
     "shortAddressInvalid": "مختصر پتہ چار حروف اور چار ہندسوں پر مشتمل ہوتا ہے، جیسے {example}۔",
     "shortAddressNotFound": "اس کوڈ کا کوئی پتہ نہیں ملا۔ کوڈ چیک کر کے دوبارہ کوشش کریں۔",
-    "shortAddressUnavailable": "سعودی پوسٹ اس وقت جواب نہیں دے رہی۔ آپ اپنی لکھی ہوئی تفصیلات کے ساتھ پتہ پھر بھی محفوظ کر سکتے ہیں۔"
+    "shortAddressUnavailable": "سعودی پوسٹ اس وقت جواب نہیں دے رہی۔ آپ اپنی لکھی ہوئی تفصیلات کے ساتھ پتہ پھر بھی محفوظ کر سکتے ہیں۔",
+    "removedToast": "پتا حذف ہو گیا۔"
   },
   "ShareReport": {
     "title": "رپورٹس شیئر کریں",
@@ -2762,7 +2778,9 @@
     "medsLastMissed": "آخری چھوٹی ہوئی خوراک:",
     "medsEditReminder": "یاد دہانی میں ترمیم",
     "medsAddReminder": "دوا کی یاد دہانی شامل کریں",
-    "close": "بند کریں"
+    "close": "بند کریں",
+    "removeConfirmTitle": "اس فرد کو خاندان سے نکالیں؟",
+    "removeConfirmBody": "یہ فرد اب خاندان کی فہرست میں نہیں دکھائی دے گا۔"
   },
   "DiagWeb": {
     "retry": "دوبارہ کوشش کریں",

@@ -117,6 +117,8 @@
   "errors.codeRequired": "Ilagay ang verification code",
   "errors.offline": "Walang koneksyon sa internet. Suriin ang iyong network.",
   "errors.server": "May error sa server. Subukan muli mamaya.",
+  "errors.crashTitle": "May nagkamali",
+  "errors.crashBody": "Subukan muli. Kung patuloy ito, i-restart ang app.",
   "errors.notFound": "Hindi nahanap ang hinihiling na item",
   "auth.login": "Mag-log in",
   "auth.createAccount": "Gumawa ng account",

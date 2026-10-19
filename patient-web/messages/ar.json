@@ -23,7 +23,8 @@
     "backToTop": "العودة إلى أعلى الصفحة",
     "readingProgress": "تقدم القراءة",
     "dialogCancel": "إلغاء",
-    "dialogConfirm": "تأكيد"
+    "dialogConfirm": "تأكيد",
+    "breadcrumbLabel": "مسار التنقل"
   },
   "CoreShell": {
     "back": "رجوع",
@@ -32,7 +33,15 @@
     "cart": "السلة",
     "mainNav": "التنقل الرئيسي",
     "sections": "الأقسام",
-    "cartCount": "السلة ({n, number})"
+    "cartCount": "السلة ({n, number})",
+    "menuOpen": "القائمة",
+    "menuClose": "إغلاق القائمة",
+    "menuProfile": "حسابي",
+    "menuOrders": "طلباتي",
+    "menuFamily": "العائلة",
+    "menuArticles": "المقالات",
+    "menuSettings": "الإعدادات",
+    "menuHelp": "المساعدة"
   },
   "Home": {
     "eyebrow": "بوابة المريض الرقمية",
@@ -927,7 +936,13 @@
     "unsave": "إزالة من المحفوظات",
     "saveFailed": "تعذر تحديث المقالات المحفوظة. حاول مجددًا.",
     "signInToSave": "سجّل الدخول لحفظ المقالات",
-    "bodyTitle": "نص المقال"
+    "bodyTitle": "نص المقال",
+    "updated": "آخر تحديث",
+    "shareTitle": "شارك هذا المقال",
+    "shareCopy": "نسخ الرابط",
+    "shareCopied": "تم النسخ",
+    "shareWhatsapp": "واتساب",
+    "shareX": "إكس"
   },
   "ChatDetail": {
     "eyebrow": "محادثة خاصة",
@@ -1476,7 +1491,8 @@
     "shortAddressFound": "تم العثور على العنوان. عُبّئ سطر العنوان من العنوان الوطني.",
     "shortAddressInvalid": "العنوان المختصر أربعة أحرف وأربعة أرقام، مثل {example}.",
     "shortAddressNotFound": "لم نجد عنواناً لهذا الرمز. تأكد منه وحاول مرة أخرى.",
-    "shortAddressUnavailable": "خدمة البريد السعودي لا تستجيب الآن. يمكنك حفظ العنوان بالتفاصيل التي كتبتها."
+    "shortAddressUnavailable": "خدمة البريد السعودي لا تستجيب الآن. يمكنك حفظ العنوان بالتفاصيل التي كتبتها.",
+    "removedToast": "تم حذف العنوان."
   },
   "ShareReport": {
     "title": "مشاركة التقارير",
@@ -2762,7 +2778,9 @@
     "medsLastMissed": "آخر جرعة فائتة:",
     "medsEditReminder": "تعديل التذكير",
     "medsAddReminder": "إضافة تذكير دواء",
-    "close": "إغلاق"
+    "close": "إغلاق",
+    "removeConfirmTitle": "إزالة هذا الفرد من العائلة؟",
+    "removeConfirmBody": "لن يظهر في قائمة العائلة بعد الآن."
   },
   "DiagWeb": {
     "retry": "حاول مرة أخرى",

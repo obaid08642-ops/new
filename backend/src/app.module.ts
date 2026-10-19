@@ -53,6 +53,7 @@ import { I18nCoreModule } from './modules/i18n/i18n.module';
 import { AiModule } from './modules/ai/ai.module';
 import { ScannerModule } from './modules/scanner/scanner.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { PriceAlertsModule } from './modules/price-alerts/price-alerts.module';
 import { EventsModule } from './modules/events/events.module';
 import { SeedModule } from './modules/seed/seed.module';
 import { CareModule } from './modules/care/care.module';
@@ -239,6 +240,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     AiModule,
     ScannerModule,
     NotificationsModule,
+    PriceAlertsModule,
     EventsModule,
     RealtimeModule,
     SeedModule,

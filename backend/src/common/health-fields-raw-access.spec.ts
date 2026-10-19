@@ -25,6 +25,7 @@ const REVIEWED: Record<string, Record<string, number>> = {
   'modules/ops/ops.controller.ts': { appointments: 2 },                              // counts
   'modules/pharmacy/services/pharmacy-order.service.ts': { prescriptions: 2 },       // ownership check, projection id
   'modules/pharmacy/services/rx-rules.ts': { prescriptions: 1 },                     // existence check
+  'modules/pharmacy/services/pharmacy-refill.service.ts': { prescriptions: 3 },       // refill: projection id/valid_until/refills_remaining only; the refill counter is a non-health update
   'modules/provider-ops/provider-ops.module.ts': { consultationnotes: 1, prescriptions: 1 }, // both writes protected
   'modules/provider-production/provider-production.module.ts': { appointments: 1 },  // ownership check
   'modules/provider/provider-facility.controller.ts': { appointments: 2 },           // schedule list, distinct patient ids
