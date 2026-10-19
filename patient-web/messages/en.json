@@ -927,7 +927,13 @@
     "unsave": "Remove from saved",
     "saveFailed": "Couldn't update your saved articles. Try again.",
     "signInToSave": "Sign in to save articles",
-    "bodyTitle": "Article text"
+    "bodyTitle": "Article text",
+    "updated": "Last updated",
+    "shareTitle": "Share this article",
+    "shareCopy": "Copy link",
+    "shareCopied": "Copied",
+    "shareWhatsapp": "WhatsApp",
+    "shareX": "X"
   },
   "ChatDetail": {
     "eyebrow": "Private conversation",

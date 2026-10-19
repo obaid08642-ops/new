@@ -927,7 +927,13 @@
     "unsave": "सहेजे गए से हटाएँ",
     "saveFailed": "सहेजे गए लेख अपडेट नहीं हो सके। फिर कोशिश करें।",
     "signInToSave": "लेख सहेजने के लिए साइन इन करें",
-    "bodyTitle": "लेख का पाठ"
+    "bodyTitle": "लेख का पाठ",
+    "updated": "अंतिम अपडेट",
+    "shareTitle": "यह लेख साझा करें",
+    "shareCopy": "लिंक कॉपी करें",
+    "shareCopied": "कॉपी हो गया",
+    "shareWhatsapp": "व्हाट्सऐप",
+    "shareX": "X"
   },
   "ChatDetail": {
     "eyebrow": "निजी बातचीत",

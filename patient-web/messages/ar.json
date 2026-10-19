@@ -927,7 +927,13 @@
     "unsave": "إزالة من المحفوظات",
     "saveFailed": "تعذر تحديث المقالات المحفوظة. حاول مجددًا.",
     "signInToSave": "سجّل الدخول لحفظ المقالات",
-    "bodyTitle": "نص المقال"
+    "bodyTitle": "نص المقال",
+    "updated": "آخر تحديث",
+    "shareTitle": "شارك هذا المقال",
+    "shareCopy": "نسخ الرابط",
+    "shareCopied": "تم النسخ",
+    "shareWhatsapp": "واتساب",
+    "shareX": "إكس"
   },
   "ChatDetail": {
     "eyebrow": "محادثة خاصة",

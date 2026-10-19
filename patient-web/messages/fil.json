@@ -927,7 +927,13 @@
     "unsave": "Alisin sa naka-save",
     "saveFailed": "Hindi ma-update ang mga naka-save na artikulo. Subukan muli.",
     "signInToSave": "Mag-sign in para mag-save ng mga artikulo",
-    "bodyTitle": "Teksto ng artikulo"
+    "bodyTitle": "Teksto ng artikulo",
+    "updated": "Huling na-update",
+    "shareTitle": "Ibahagi ang artikulong ito",
+    "shareCopy": "Kopyahin ang link",
+    "shareCopied": "Nakopya",
+    "shareWhatsapp": "WhatsApp",
+    "shareX": "X"
   },
   "ChatDetail": {
     "eyebrow": "Pribadong conversation",
