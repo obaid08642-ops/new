@@ -1476,7 +1476,8 @@
     "shortAddressFound": "تم العثور على العنوان. عُبّئ سطر العنوان من العنوان الوطني.",
     "shortAddressInvalid": "العنوان المختصر أربعة أحرف وأربعة أرقام، مثل {example}.",
     "shortAddressNotFound": "لم نجد عنواناً لهذا الرمز. تأكد منه وحاول مرة أخرى.",
-    "shortAddressUnavailable": "خدمة البريد السعودي لا تستجيب الآن. يمكنك حفظ العنوان بالتفاصيل التي كتبتها."
+    "shortAddressUnavailable": "خدمة البريد السعودي لا تستجيب الآن. يمكنك حفظ العنوان بالتفاصيل التي كتبتها.",
+    "removedToast": "تم حذف العنوان."
   },
   "ShareReport": {
     "title": "مشاركة التقارير",
@@ -2762,7 +2763,9 @@
     "medsLastMissed": "آخر جرعة فائتة:",
     "medsEditReminder": "تعديل التذكير",
     "medsAddReminder": "إضافة تذكير دواء",
-    "close": "إغلاق"
+    "close": "إغلاق",
+    "removeConfirmTitle": "إزالة هذا الفرد من العائلة؟",
+    "removeConfirmBody": "لن يظهر في قائمة العائلة بعد الآن."
   },
   "DiagWeb": {
     "retry": "حاول مرة أخرى",

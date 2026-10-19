@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
+import { ConfirmDialog } from "@/components-next/confirm/confirm-dialog";
 import { usePharmacyAction } from "./use-pharmacy-action";
 import styles from "./offers.module.css";
 
@@ -29,19 +30,17 @@ export function CancelOrder({ orderId, after, rules = [] }: { orderId: string; a
   return (
     <>
       {!confirming ? <Button label={t("cancelOrder")} variant="outline" size="lg" fullWidth disabled={action.pending} onClick={() => setConfirming(true)} /> : null}
-      {confirming ? (
-        <div className={`${styles.notice} ${styles.noticeWarn}`} role="group" aria-labelledby={`cancel-title-${orderId}`}>
-          <div className={styles.actions}>
-            <p className={styles.panelTitle} id={`cancel-title-${orderId}`}>{t("cancelConfirmTitle")}</p>
-            <p className={styles.note}>{t("cancelConfirmBody")}</p>
-            {rules.map((rule) => <p key={rule} className={styles.note}>{rule}</p>)}
-            <div className={styles.actionsRow}>
-              <Button label={action.pending ? t("processing") : t("cancelConfirmYes")} variant="danger" size="md" loading={action.pending} onClick={cancel} />
-              <Button label={t("cancelKeep")} variant="secondary" size="md" disabled={action.pending} onClick={() => { setConfirming(false); action.reset(); }} />
-            </div>
-          </div>
-        </div>
-      ) : null}
+      <ConfirmDialog
+        open={confirming}
+        title={t("cancelConfirmTitle")}
+        body={[t("cancelConfirmBody"), ...rules].join(" ")}
+        confirmLabel={action.pending ? t("processing") : t("cancelConfirmYes")}
+        cancelLabel={t("cancelKeep")}
+        destructive
+        busy={action.pending}
+        onConfirm={() => void cancel()}
+        onCancel={() => { setConfirming(false); action.reset(); }}
+      />
       {action.error ? <p className={styles.errorText} role="alert">{t(`errors.${action.error}`)}</p> : null}
     </>
   );
