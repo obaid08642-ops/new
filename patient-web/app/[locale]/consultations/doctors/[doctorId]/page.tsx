@@ -7,7 +7,7 @@ import { isLocale, locales } from "@/lib/i18n";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { specialtyLabel } from "@/lib/specialties";
-import { doctorDisplayName, extractDoctor, extractDoctorSlots, type DoctorSlots } from "@/lib/api/doctors";
+import { defaultVisitType, doctorDisplayName, extractDoctor, extractDoctorSlots, type DoctorSlots } from "@/lib/api/doctors";
 import { getPublicDoctor, getPublicDoctorSlots } from "@/lib/api/doctors-server";
 import { AppointmentBookingForm } from "@/components-next/appointment-booking-form";
 import { formatPrice, formatNumber } from "@/lib/format-price";
@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: { params: Promise<{ doctorId:
 
 export default async function DoctorDetailPage({ params, searchParams }: Props) {
   const { locale, doctorId } = await params; if (!isLocale(locale)) notFound(); setRequestLocale(locale);
-  const query = await searchParams; const date = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(query.date ?? "") ? query.date! : today(); const serviceType = serviceTypes.includes(query.service_type as typeof serviceTypes[number]) ? query.service_type as typeof serviceTypes[number] : "video";
+  const query = await searchParams; const date = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(query.date ?? "") ? query.date! : today(); const requestedType = serviceTypes.includes(query.service_type as typeof serviceTypes[number]) ? query.service_type as typeof serviceTypes[number] : undefined;
   const t = await getTranslations("Doctors");
   const c = await getTranslations("ConsultWeb");
   const names = await getTranslations("SpecialtyNames");
@@ -65,6 +65,8 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
   if (!doctor) {
     notFound();
   }
+  // Without a visit type in the link, the page opens on the first mode the doctor offers (clinic first), not always video.
+  const serviceType = requestedType ?? defaultVisitType(doctor);
 
   let slots: DoctorSlots | null = null;
   try {
