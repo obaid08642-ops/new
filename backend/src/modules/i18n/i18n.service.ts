@@ -371,6 +371,8 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   // ============ Notifications ============
   'notif.order_created.title': { ar: 'تم إنشاء طلبك', en: 'Order Created', ur: 'آرڈر بن گیا' },
   'notif.order_created.body': { ar: 'جاري إرساله للصيدلية', en: 'Sending to pharmacy', ur: 'فارمیسی بھیج رہے ہیں' },
+  'notif.price_drop.title': { ar: 'انخفض سعر دواء في قائمتك', en: 'A medicine on your wishlist is cheaper', ur: 'آپ کی فہرست کی ایک دوا سستی ہو گئی ہے' },
+  'notif.price_drop.body': { ar: 'انخفض سعره. اطّلع عليه الآن', en: 'The price went down. Take a look now', ur: 'قیمت کم ہوئی ہے۔ ابھی دیکھیں' },
   'notif.new_order.title': { ar: 'طلب جديد', en: 'New Order', ur: 'نیا آرڈر' },
   'pharmacy.new_allocation.title': { ar: 'تم اختيار عرضك', en: 'Your offer was chosen', ur: 'آپ کی پیشکش منتخب ہو گئی' },
   'pharmacy.new_allocation.body': { ar: 'اختار المريض عرضك ({items_count} صنف). جهّز الطلب.', en: 'The patient chose your offer ({items_count} items). Prepare the order.', ur: 'مریض نے آپ کی پیشکش منتخب کی ({items_count} اشیاء)۔ آرڈر تیار کریں۔' },
