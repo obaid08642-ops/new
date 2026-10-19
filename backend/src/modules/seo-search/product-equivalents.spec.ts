@@ -84,11 +84,10 @@ describe('GET public/product-equivalents/:locale/:id (MongoDB)', () => {
     expect(out.equivalents[0]).toEqual(expect.objectContaining({ slug: 'p4', price: 10, is_rx: false }));
   });
 
-  it('without equivalents: similar products of the therapeutic class, then the sub-category; Rx keeps no old price', async () => {
+  it('without equivalents: a prescription product promotes no similar product (22.3: Rx items are never promoted)', async () => {
     const out = await svc.publicProductEquivalents('en', 'rx1');
     expect(out.equivalents).toEqual([]);
-    expect(out.similar.map((c) => c.id)).toEqual(['rx2', 'rx3']);
-    expect(out.similar.every((c) => c.is_rx === true && !c.old_price)).toBe(true);
+    expect(out.similar).toEqual([]);
   });
 
   it('nothing at all when there is no equivalent and no other product in the category', async () => {

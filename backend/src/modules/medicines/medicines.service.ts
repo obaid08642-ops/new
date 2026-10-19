@@ -16,6 +16,8 @@ import { RedisService } from '../redis/redis.service';
 import { HotCache } from '../redis/hot-cache.service';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
 import { AutoEntitySeoPipelineService } from '../events/auto-entity-seo-pipeline.service';
+import { NOT_PROMOTABLE_FILTER } from './promotion-rules';
+import { InteractionHit, pairInteractions } from '../ai/interaction-rules';
 import { publicMedicineFilter } from './public-medicine-filter';
 import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, PUBLIC_CATALOG_LOCALES } from './med-i18n';
 import { normalizeRankingSort, ProductRankingService } from '../product-ranking/product-ranking.service';
@@ -1194,7 +1196,7 @@ export class MedicinesService {
     const [alts, stock] = await Promise.all([
       med.active_ingredient
         ? this.model.find(
-            { active_ingredient: med.active_ingredient, id: { $ne: id }, ...this.publicCatalogFilter() },
+            { active_ingredient: med.active_ingredient, id: { $ne: id }, ...this.publicCatalogFilter(), ...NOT_PROMOTABLE_FILTER },
             // Needs-review issue 460: the alternative cards also need a picture, the pack and the name in every language.
             {
               _id: 0, id: 1, name_ar: 1, name_en: 1, price: 1, manufacturer: 1, requires_prescription: 1, online_exclusive: 1,
@@ -1268,9 +1270,44 @@ export class MedicinesService {
     const med = await this.getPublicById(id);
     if (!med.active_ingredient) return [];
     return this.model.find(
-      { active_ingredient: med.active_ingredient, id: { $ne: id }, ...this.publicCatalogFilter() },
+      { active_ingredient: med.active_ingredient, id: { $ne: id }, ...this.publicCatalogFilter(), ...NOT_PROMOTABLE_FILTER },
       { _id: 0, __v: 0 },
     ).limit(20);
+  }
+
+  /**
+   * 22.3: items that patients bought with this one, counted from delivered or completed orders (counts only, no
+   * patient data). Never a prescription or controlled item, and a prescription item itself suggests nothing.
+   * Each suggestion carries the known interaction warnings against this item.
+   */
+  async frequentlyBoughtTogether(id: string, limit = 6): Promise<{ med: any; warnings: InteractionHit[] }[]> {
+    const source: any = await this.getPublicById(id);
+    if (source.requires_prescription === true || source.controlled === true) return [];
+    const pairs = (await this.conn.collection('pharmacy_orders').aggregate([
+      { $match: { 'items.medicine_id': id, status: { $in: ['delivered', 'completed'] } } },
+      { $unwind: '$items' },
+      { $match: { 'items.medicine_id': { $type: 'string', $ne: id } } },
+      { $group: { _id: '$items.medicine_id', orders: { $addToSet: '$_id' } } },
+      { $project: { orders: { $size: '$orders' } } },
+      // a pairing seen in fewer than MIN_CO_PURCHASE_ORDERS orders is not shown: one order must not be identifiable
+      { $match: { orders: { $gte: MIN_CO_PURCHASE_ORDERS } } },
+      { $sort: { orders: -1 } },
+      { $limit: 50 },
+    ]).toArray()) as unknown as { _id: string; orders: number }[];
+    if (!pairs.length) return [];
+    const counts = new Map(pairs.map((p) => [String(p._id), p.orders]));
+    const rows: any[] = await this.model.find(
+      {
+        id: { $in: [...counts.keys()] }, ...this.publicCatalogFilter(), ...NOT_PROMOTABLE_FILTER,
+        active: { $ne: false }, availability_status: { $ne: 'discontinued' },
+      },
+      { _id: 0, __v: 0 },
+    ).limit(50);
+    const sourceNames = medicineNames(source);
+    return rows
+      .sort((a, b) => (counts.get(String(b.id)) ?? 0) - (counts.get(String(a.id)) ?? 0))
+      .slice(0, limit)
+      .map((med) => ({ med, warnings: pairInteractions(sourceNames, medicineNames(med)) }));
   }
 
   // RULE: Manual entries from patient/doctor/pharmacy are operational immediately.
@@ -2197,4 +2234,11 @@ export class MedicinesService {
     await this.invalidateCache();
     return { ok: true, updated: Object.keys({ ...clean, ...extra }), requires_reapproval: requiresReapproval };
   }
+}
+
+/** A pairing shown to anyone must come from at least this many orders. */
+const MIN_CO_PURCHASE_ORDERS = 3;
+
+function medicineNames(m: any): string[] {
+  return [m.active_ingredient, m.generic_name, m.name_en, m.name_ar].filter((n) => typeof n === 'string' && n.length > 0);
 }
