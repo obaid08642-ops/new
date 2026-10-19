@@ -3269,6 +3269,8 @@
   "diag.result.error": "تعذّر تحميل النتيجة",
   "diag.result.by": "أصدرها",
   "diag.result.values": "القيم",
+  "diag.result.trendTitle": "الاتجاه",
+  "diag.result.trendNote": "نتائج سابقة لنفس التحليل",
   "diag.result.range": "المعدل الطبيعي {low} – {high}",
   "diag.result.flag.normal": "طبيعي",
   "diag.result.flag.high": "مرتفع",

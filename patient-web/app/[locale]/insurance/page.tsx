@@ -112,12 +112,15 @@ export default async function InsurancePage({ params, searchParams }: Props) {
     // Network: the providers of the insurer on the profile (as the old page did); without a saved policy there is nothing to list.
     const profile = await read(() => callPatientApi("/users/me/profile", {}, token));
     if (profile?.status === 401) redirect(`/${locale}/login`);
-    const insurance = (profile?.body as { insurance?: { company_id?: string } } | null)?.insurance;
+    const insurance = (profile?.body as { insurance?: { company_id?: string; network?: string; class?: string } } | null)?.insurance;
     const companyId = insurance?.company_id || "";
     const q = (sp.q || "").trim();
     let providers: ReturnType<typeof parseProviders> | null = [];
     if (companyId) {
       const qs = new URLSearchParams({ insurance_company: companyId });
+      // The patient's network and class narrow the list the same way the app's network tab does.
+      if (insurance?.network) qs.set("insurance_network", insurance.network);
+      if (insurance?.class) qs.set("insurance_class", insurance.class);
       if (sp.type && sp.type !== "all") qs.set("type", sp.type);
       if (q) qs.set("q", q);
       const res = await read(() => callPatientApi(`/providers?${qs.toString()}`, {}, token));

@@ -78,7 +78,7 @@ export default async function FamilyMemberPage({ params, searchParams }: Props) 
 
   const recordsResponse = await getPatientFamilyMemberRecords(token, member.id);
   if (recordsResponse.status === 401) redirect(`/${locale}/login`);
-  if (recordsResponse.status === 403 || recordsResponse.status === 404) notFound();
+  if (recordsResponse.status === 403) return frame(<ConsultState kind="empty" icon="file-text" title={t("notSharedTitle")} body={t("notShared")} />);
   if (!recordsResponse.ok) return frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
 
   const records = parseMemberRecords(await recordsResponse.json().catch(() => null));

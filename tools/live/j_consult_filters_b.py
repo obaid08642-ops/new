@@ -96,7 +96,8 @@ def main():
         # SectionCard puts the id on its heading. While the page streams in, React briefly holds a hidden copy of the
         # section (two matches); wait for the settled page, as j_web_call does, before reading it.
         page.wait_for_function("() => document.querySelectorAll('section[aria-labelledby=\"article-body\"]').length === 1", timeout=30000)
-        section = page.locator('section[aria-labelledby="article-body"]')
+        # the count can flip back to two for a moment after the wait (a late streamed chunk): read the visible copy only
+        section = page.locator('section[aria-labelledby="article-body"]:visible').first
         text = section.inner_text()
         step('the page shows the heading, paragraphs and list', f'نوم صحي {tag}' in text and 'نم ثماني ساعات كل ليلة.' in text and 'أطفئ الشاشات' in text and 'اشرب الماء' in text, text[:300])
         step('nothing in the body ran or stayed markup', page.evaluate(f'() => window.__pwned_{tag} === undefined') and section.locator('script, img, [onclick]').count() == 0, '')

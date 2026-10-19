@@ -3269,6 +3269,8 @@
   "diag.result.error": "परिणाम लोड नहीं हो सका",
   "diag.result.by": "जारीकर्ता",
   "diag.result.values": "मान",
+  "diag.result.trendTitle": "प्रवृत्ति",
+  "diag.result.trendNote": "इसी जाँच के पिछले परिणाम",
   "diag.result.range": "सामान्य सीमा {low} – {high}",
   "diag.result.flag.normal": "सामान्य",
   "diag.result.flag.high": "अधिक",

@@ -52,7 +52,10 @@ describe("search screen", () => {
     expect(doctor).toContain('href="/ar/consultations/doctors/doc-1"');
     expect(doctor).toContain("price:150");
     const lab = renderToStaticMarkup(<ResultItem locale="ar" query="" result={{ id: "x", type: "Lab", typeEn: "Lab", name: "CBC", sub: "whole_body", price: "0" }} />);
-    expect(lab).not.toContain("<a ");
+    // a lab test has its detail page (#1706); a code-like subtitle and a zero price are still hidden
+    expect(lab).toContain('href="/ar/diagnostics/test-detail?testId=x"');
+    const pkg = renderToStaticMarkup(<ResultItem locale="ar" query="" result={{ id: "p", type: "LabPackage", typeEn: "LabPackage", name: "Pack" }} />);
+    expect(pkg).not.toContain("<a ");
     expect(lab).not.toContain("whole_body");
     expect(lab).not.toContain("price:");
   });

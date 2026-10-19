@@ -73,7 +73,7 @@ export default async function SpecialtySelectPage({ params, searchParams }: Prop
             return (
               <li key={specialty.slug ?? `${name}-${index}`}>
                 <RowCard
-                  href={`/${locale}/consultations/doctors?specialty=${encodeURIComponent(specialty.nameAr ?? specialty.nameEn ?? "")}`}
+                  href={specialty.slug ? `/${locale}/consultations/doctors?specialty=${encodeURIComponent(specialty.slug)}` : undefined}
                   tone={TONES[index % TONES.length]}
                   title={name ?? ""}
                   sub={specialty.count !== undefined ? t("doctorCount", { count: specialty.count }) : undefined}

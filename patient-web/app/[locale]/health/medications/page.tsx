@@ -52,7 +52,6 @@ export default async function MedicationsPage({ params, searchParams }: Props) {
   let response: Response;
   try { response = await (tab === "chronic" ? getPatientChronicMedications(token) : getPatientMedicationReminders(token)); } catch { response = new Response(null, { status: 503 }); }
   if (response.status === 401) redirect(`/${locale}/login`);
-  if (response.status === 403 || response.status === 404) notFound();
   const payload = response.ok ? await response.json().catch(() => null) : null;
   const reminders = response.ok && tab !== "chronic" ? extractMedicationReminderSummaries(payload) : [];
   const editing = editId ? reminders.find((reminder) => reminder.id === editId) : undefined;

@@ -25,6 +25,8 @@ import { THEME_INIT_SCRIPT } from "@/app/theme";
 import { ModuleRouteGate, ModulesProvider } from "@/components-next/modules/modules-provider";
 import { getDisabledModules } from "@/lib/api/public-config-server";
 import { isPathHidden } from "@/lib/modules";
+import { BackToTopLoader } from "@/components-next/navigation/back-to-top-loader";
+import "@/components-next/navigation/navigation.css";
 
 type Props = Readonly<{ children: React.ReactNode; params: Promise<{ locale: string }> }>;
 
@@ -120,6 +122,8 @@ export default async function LocaleLayout({ children, params }: Props) {
           <OfflineSupport />
           <WebVitalsReporter locale={typedLocale} />
           <div className={`shell ${fontVariables}`} lang={typedLocale} dir={getDirection(typedLocale)}>
+            {/* 17.1: the first Tab stop, so a keyboard user can jump past the header to the page. */}
+            <a className="skip-link" href="#main-content">{t("skipToContent")}</a>
             {/* P15.4: the offline banner with the time this page was made ("last updated"). For a static/ISR page this
                 render is the cached copy, so the time is that copy's, not the visit's. Early in the document so it is read
                 first; the banner itself is fixed at the bottom edge. */}
@@ -137,6 +141,8 @@ export default async function LocaleLayout({ children, params }: Props) {
                 <SessionActions locale={typedLocale} accountLabel={t("account")} signOutLabel={t("signOut")} />
               </div>
             </header>
+            {/* 17.1: the skip link's target. A sibling, not a wrapper: the :has(> .nabd-…) rules in globals.css need the page root to stay a direct child of .shell. */}
+            <span id="main-content" tabIndex={-1} />
             <PresenceBeacon />
             {/* The cart (lib/context/CartContext) was written but never mounted: every "add to cart" on the product pages
                 was a no-op. It keeps its items in this browser only, so mounting it here costs no request. */}
@@ -157,6 +163,7 @@ export default async function LocaleLayout({ children, params }: Props) {
                 <Link href={`/${typedLocale}/map`}>{t("footerMap")}</Link>
               </nav>
             </footer>
+            <BackToTopLoader label={t("backToTop")} />
             {/*
               Owner decision 43 a (issue 427): the server writes the theme on <html> from the visitor's cookie (the nonce
               server, server/nonce-transform.mjs stampTheme), so this script is only the fallback for a page that came

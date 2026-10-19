@@ -19,12 +19,23 @@ _Updated 2026-10-10._
 
 ## Next
 
-Merged on main (batch 1010b, #1287): claims removal, owner UI items, Urdu Nastaliq font (ur only), legal texts from the backend, admin module switches (`modules.manage`, super admin only), single emergency screen (`UrgentHelpView`, number from `GET /mental-health/urgent-help`), `HospitalDispatchScreen` gone from provider-app, nearby filters, Rx rules C10-C11.
+1. **Ordering M6 (screens from the M0 boards, `design/ordering-m0` boards #1700):**
+   - Done (one PR each): Ord01 web (#1704, context bar on the diagnostics hub, replaces the place/pay filters); Ord11 web (#1727) and app (#1730), value trends from `GET /lab-results/mine`.
+   - **BLOCKED: waits for M3** (ordering engine: items, split, matching, price lock): Ord02 service home ("from X SAR" by area), Ord03 item page (coverage per item), Ord04 basket split, Ord05 Best match, Ord06 time picker (windows and slots for the provider), Ord07 confirm and pay.
+   - **BLOCKED: waits for M4** (ASAP and broadcast): Ord06 ASAP stage timer, Ord08 waiting states.
+   - **BLOCKED: waits for M5** (insurance per item): Ord09 partial approval, Ord08 approval clock.
+   - **BLOCKED: waits for M2** (doctor's structured order): Ord20 My medical orders, Ord21 order detail, Ord22 doctor's composer.
+   - **BLOCKED: waits for M7** (arrival code, staff profile for labs and radiology): Ord10 tracking.
+   - **BLOCKED: waits for M8** (instant consultation): the "Discuss with a doctor" part of Ord11.
+   - **BLOCKED: waits for M1** (provider item model and declaration): Ord30-Ord33 (provider-app declaration screens).
+   - **Open question (app Ord01):** the app has no lab screen with a place/payment choice to put the bar on. Where should it go? Not built until the owner answers.
+2. **Refs (#1255/#1256):** the `pharmacy_name_ar/en` fields are on main and read by the clients (order detail, offers, tracking, final quote, fixed #1317): done. **Question:** the "13 Refs screens" are not identified in the repo (no list in `needs-review` or `docs/review`). Which screens are they?
+3. **Reviewer:** close the 50 stale Needs-review lines, regenerate the audit files once. Real-device checks: Urdu font, voice notes, first launch.
+4. **On hold:** D-12 price notice and C12 (waits for OpenCode D-12); web `/onboarding/permissions` (#436) after the owner decision.
 
-1. **On hold:** D-12 price notice and C12 (price ceiling in the offer composer) wait for OpenCode D-12. Design work is otherwise done; admin community moderation is replaced by `/admin/article-review` (doctor articles: list, open, approve, reject; old path redirects).
-2. **Reviewer:** close the 50 stale Needs-review lines (files deleted by the SOS removal, cart/orders merges, admin directory removal), then regenerate the needs-review and provider/admin audit files once (regenerating shifts `nr-key`). Real-device checks: Urdu font, voice notes, first launch.
-3. **Open for the design session:** `pharmacy_name_ar/en` fields and the 13 "Refs" screens of #1255/#1256 once the backend fields merge; web `/onboarding/permissions` (#436) after the owner decision.
-4. Final pass done on e768aa5c: `FINAL_PASS_2026-10-10.md` (one table per app, baselines unchanged).
+## Ordering M6 (screens from the M0 boards)
+- Ord01 context bar, web diagnostics hub: replaces the place and payment filters; reads `/users/me/addresses` and `/users/me/insurance` on the server. Done on `design/ordering-m6`.
+- Not started: app Ord01 (no existing filter to replace; additive), Ord02-Ord11 (need the M1-M5 backend; see the "needs-backend" column in `ordering-m0-*.md`).
 
 ## Process
 - Lean v2 (rules in `/AGENTS.md`): design only, templates first, audit via `audit-table.mjs`, Needs-review with file:line (never delete lines by hand: it shifts the `nr-key` the issues reference), no committed screenshots. Binding: identity, tokens-only colours, six languages (provider-app and admin: ar/en and ar), real data only.

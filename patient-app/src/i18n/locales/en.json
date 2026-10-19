@@ -3269,6 +3269,8 @@
   "diag.result.error": "The result could not be loaded",
   "diag.result.by": "Issued by",
   "diag.result.values": "Values",
+  "diag.result.trendTitle": "Trend",
+  "diag.result.trendNote": "Earlier results of the same test",
   "diag.result.range": "Normal range {low} – {high}",
   "diag.result.flag.normal": "Normal",
   "diag.result.flag.high": "High",
