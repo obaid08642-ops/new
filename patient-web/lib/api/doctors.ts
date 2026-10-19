@@ -101,6 +101,8 @@ export function defaultVisitType(doctor: Pick<DoctorRow, "clinic" | "online" | "
   if (doctor.online) return "video";
   if (doctor.home) return "home";
   return "video";
+}
+
 /** The fee of one visit type: that type's own price (not the first price of any type); none when the doctor has no price for it. */
 export function priceForVisit(doctor: Pick<DoctorRow, "prices">, type: "clinic" | "video" | "home"): number | undefined {
   return doctor.prices?.[type];
