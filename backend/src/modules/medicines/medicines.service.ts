@@ -1282,20 +1282,14 @@ export class MedicinesService {
    */
   async frequentlyBoughtTogether(id: string, limit = 6): Promise<{ med: any; warnings: InteractionHit[] }[]> {
     const source: any = await this.getPublicById(id);
-    if (source.requires_prescription === true || source.controlled === true) return [];
-    const pairs = (await this.conn.collection('pharmacy_orders').aggregate([
-      { $match: { 'items.medicine_id': id, status: { $in: ['delivered', 'completed'] } } },
-      { $unwind: '$items' },
-      { $match: { 'items.medicine_id': { $type: 'string', $ne: id } } },
-      { $group: { _id: '$items.medicine_id', orders: { $addToSet: '$_id' } } },
-      { $project: { orders: { $size: '$orders' } } },
-      // a pairing seen in fewer than MIN_CO_PURCHASE_ORDERS orders is not shown: one order must not be identifiable
-      { $match: { orders: { $gte: MIN_CO_PURCHASE_ORDERS } } },
-      { $sort: { orders: -1 } },
-      { $limit: 50 },
-    ]).toArray()) as unknown as { _id: string; orders: number }[];
+    if (source.requires_prescription === true || source.controlled === true || source.is_rx === true) return [];
+    // public and unauthenticated: the scan of the orders runs at most once an hour per item, not once per visitor
+    const cacheKey = `med:fbt:v1:${id}:${limit}`;
+    const cachedIds = this.redis ? await this.redis.getJson<{ id: string; orders: number }[]>(cacheKey).catch(() => null) : null;
+    const pairs: { _id: string; orders: number }[] = cachedIds ? cachedIds.map((p) => ({ _id: p.id, orders: Number(p.orders) })) : await this.coPurchasePairs(id);
+    if (!cachedIds && this.redis) await this.redis.setJson(cacheKey, pairs.map((p) => ({ id: String(p._id), orders: p.orders })), 3600).catch(() => undefined);
     if (!pairs.length) return [];
-    const counts = new Map(pairs.map((p) => [String(p._id), p.orders]));
+    const counts = new Map<string, number>(pairs.map((p) => [String(p._id), p.orders]));
     const rows: any[] = await this.model.find(
       {
         id: { $in: [...counts.keys()] }, ...this.publicCatalogFilter(), ...NOT_PROMOTABLE_FILTER,
@@ -1308,6 +1302,21 @@ export class MedicinesService {
       .sort((a, b) => (counts.get(String(b.id)) ?? 0) - (counts.get(String(a.id)) ?? 0))
       .slice(0, limit)
       .map((med) => ({ med, warnings: pairInteractions(sourceNames, medicineNames(med)) }));
+  }
+
+  /** 22.3: medicine ids bought in the same delivered or completed orders as `id`, with how many orders (counts only). */
+  private async coPurchasePairs(id: string): Promise<{ _id: string; orders: number }[]> {
+    return (await this.conn.collection('pharmacy_orders').aggregate([
+      { $match: { 'items.medicine_id': id, status: { $in: ['delivered', 'completed'] } } },
+      { $unwind: '$items' },
+      { $match: { 'items.medicine_id': { $type: 'string', $ne: id } } },
+      { $group: { _id: '$items.medicine_id', orders: { $addToSet: '$_id' } } },
+      { $project: { orders: { $size: '$orders' } } },
+      // a pairing seen in fewer than MIN_CO_PURCHASE_ORDERS orders is not shown: one order must not be identifiable
+      { $match: { orders: { $gte: MIN_CO_PURCHASE_ORDERS } } },
+      { $sort: { orders: -1 } },
+      { $limit: 50 },
+    ]).toArray()) as unknown as { _id: string; orders: number }[];
   }
 
   // RULE: Manual entries from patient/doctor/pharmacy are operational immediately.
