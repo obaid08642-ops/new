@@ -23,7 +23,8 @@
     "backToTop": "पेज के ऊपर जाएं",
     "readingProgress": "पढ़ने की प्रगति",
     "dialogCancel": "रद्द करें",
-    "dialogConfirm": "पुष्टि करें"
+    "dialogConfirm": "पुष्टि करें",
+    "breadcrumbLabel": "नेविगेशन पथ"
   },
   "CoreShell": {
     "back": "वापस",
@@ -32,7 +33,15 @@
     "cart": "कार्ट",
     "mainNav": "मुख्य नेविगेशन",
     "sections": "अनुभाग",
-    "cartCount": "कार्ट ({n, number})"
+    "cartCount": "कार्ट ({n, number})",
+    "menuOpen": "मेनू",
+    "menuClose": "मेनू बंद करें",
+    "menuProfile": "मेरा खाता",
+    "menuOrders": "मेरे ऑर्डर",
+    "menuFamily": "परिवार",
+    "menuArticles": "लेख",
+    "menuSettings": "सेटिंग्स",
+    "menuHelp": "सहायता"
   },
   "Home": {
     "eyebrow": "डिजिटल मरीज़ पोर्टल",

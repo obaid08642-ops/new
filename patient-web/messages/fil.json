@@ -23,7 +23,8 @@
     "backToTop": "Bumalik sa itaas",
     "readingProgress": "Progreso ng pagbabasa",
     "dialogCancel": "Kanselahin",
-    "dialogConfirm": "Kumpirmahin"
+    "dialogConfirm": "Kumpirmahin",
+    "breadcrumbLabel": "Landas ng pahina"
   },
   "CoreShell": {
     "back": "Bumalik",
@@ -32,7 +33,15 @@
     "cart": "Cart",
     "mainNav": "Pangunahing nabigasyon",
     "sections": "Mga seksyon",
-    "cartCount": "Laman ng cart ({n, number})"
+    "cartCount": "Laman ng cart ({n, number})",
+    "menuOpen": "Listahan",
+    "menuClose": "Isara ang menu",
+    "menuProfile": "Aking account",
+    "menuOrders": "Mga order ko",
+    "menuFamily": "Pamilya",
+    "menuArticles": "Mga artikulo",
+    "menuSettings": "Mga setting",
+    "menuHelp": "Tulong"
   },
   "Home": {
     "eyebrow": "Digital na portal ng pasyente",

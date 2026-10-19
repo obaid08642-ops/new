@@ -23,7 +23,8 @@
     "backToTop": "صفحے کے اوپر جائیں",
     "readingProgress": "پڑھنے کی پیش رفت",
     "dialogCancel": "منسوخ کریں",
-    "dialogConfirm": "تصدیق کریں"
+    "dialogConfirm": "تصدیق کریں",
+    "breadcrumbLabel": "راستہ"
   },
   "CoreShell": {
     "back": "واپس",
@@ -32,7 +33,15 @@
     "cart": "کارٹ",
     "mainNav": "مرکزی نیویگیشن",
     "sections": "سیکشنز",
-    "cartCount": "کارٹ ({n, number})"
+    "cartCount": "کارٹ ({n, number})",
+    "menuOpen": "مینو",
+    "menuClose": "مینو بند کریں",
+    "menuProfile": "میرا اکاؤنٹ",
+    "menuOrders": "میرے آرڈر",
+    "menuFamily": "خاندان",
+    "menuArticles": "مضامین",
+    "menuSettings": "ترتیبات",
+    "menuHelp": "مدد"
   },
   "Home": {
     "eyebrow": "ڈیجیٹل مریض پورٹل",

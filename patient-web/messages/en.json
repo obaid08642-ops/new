@@ -23,7 +23,8 @@
     "backToTop": "Back to top",
     "readingProgress": "Reading progress",
     "dialogCancel": "Cancel",
-    "dialogConfirm": "Confirm"
+    "dialogConfirm": "Confirm",
+    "breadcrumbLabel": "Breadcrumb"
   },
   "CoreShell": {
     "back": "Back",
@@ -32,7 +33,15 @@
     "cart": "Cart",
     "mainNav": "Main navigation",
     "sections": "Sections",
-    "cartCount": "Cart ({n, number})"
+    "cartCount": "Cart ({n, number})",
+    "menuOpen": "Menu",
+    "menuClose": "Close menu",
+    "menuProfile": "My account",
+    "menuOrders": "My orders",
+    "menuFamily": "Family",
+    "menuArticles": "Articles",
+    "menuSettings": "Settings",
+    "menuHelp": "Help"
   },
   "Home": {
     "eyebrow": "Digital patient portal",

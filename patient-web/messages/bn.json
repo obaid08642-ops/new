@@ -23,7 +23,8 @@
     "backToTop": "পৃষ্ঠার শুরুতে ফিরুন",
     "readingProgress": "পড়ার অগ্রগতি",
     "dialogCancel": "বাতিল করুন",
-    "dialogConfirm": "নিশ্চিত করুন"
+    "dialogConfirm": "নিশ্চিত করুন",
+    "breadcrumbLabel": "নেভিগেশন পথ"
   },
   "CoreShell": {
     "back": "ফিরে যান",
@@ -32,7 +33,15 @@
     "cart": "কার্ট",
     "mainNav": "প্রধান নেভিগেশন",
     "sections": "বিভাগসমূহ",
-    "cartCount": "কার্ট ({n, number})"
+    "cartCount": "কার্ট ({n, number})",
+    "menuOpen": "মেনু",
+    "menuClose": "মেনু বন্ধ করুন",
+    "menuProfile": "আমার অ্যাকাউন্ট",
+    "menuOrders": "আমার অর্ডার",
+    "menuFamily": "পরিবার",
+    "menuArticles": "নিবন্ধ",
+    "menuSettings": "সেটিংস",
+    "menuHelp": "সহায়তা"
   },
   "Home": {
     "eyebrow": "ডিজিটাল রোগী পোর্টাল",
