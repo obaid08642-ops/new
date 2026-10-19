@@ -73,8 +73,8 @@ describe('Phase 21.8 guest data lifecycle (real erasure)', () => {
     expect(r).toEqual({ anonymised: 0, deleted: 1 });
     expect(await col('users').countDocuments({ id: 'g-idle' })).toBe(0);
     expect(await personalRows('g-idle')).toBe(0);
-    const audit = await col('audit_logs').findOne({ resource_id: 'g-idle' });
-    expect(audit?.action).toBe('account.guest_purged');
+    // the erasure itself is also in the trail (23.2 data_erasure); the lifecycle row says why it happened
+    expect(await col('audit_logs').findOne({ resource_id: 'g-idle', action: 'account.guest_purged' })).toBeTruthy();
   });
 
   it('keeps the order of a guest who bought, without identity data; the personal data and the binding go', async () => {
@@ -94,7 +94,7 @@ describe('Phase 21.8 guest data lifecycle (real erasure)', () => {
     expect(kept).toMatchObject({ full_name: 'deleted guest', phone: null, email: null });
     expect(kept.anonymised_at).toBeTruthy();
     expect(await personalRows('g-bought')).toBe(0);
-    expect((await col('audit_logs').findOne({ resource_id: 'g-bought' }))?.action).toBe('account.guest_anonymised');
+    expect(await col('audit_logs').findOne({ resource_id: 'g-bought', action: 'account.guest_anonymised' })).toBeTruthy();
     // the next run leaves the shell alone
     expect(await guests.purgeInactiveGuests()).toEqual({ anonymised: 0, deleted: 0 });
   });

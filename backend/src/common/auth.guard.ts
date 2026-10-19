@@ -129,7 +129,7 @@ export class JwtAuthGuard implements CanActivate {
     // durable session on every request, so revoke/expiry takes effect immediately.
     req.user = payload;
     // 20.3: every log line of this request now carries the account id (id only)
-    setLogUser((payload as any)?.id ?? (payload as any)?.sub, (payload as any)?.role);
+    setLogUser((payload as any)?.id ?? (payload as any)?.sub, (payload as any)?.role, (payload as any)?.impersonator?.id);
     // F09 session revocation: login access tokens carry `tv` (token_version).
     // Ban, suspend, password change and role change bump the stored version,
     // so stale tokens 401 on their next request. On public routes a stale

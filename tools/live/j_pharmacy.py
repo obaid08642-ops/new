@@ -236,6 +236,10 @@ def run(pat, pharm, admin=None, meds=None):
     pharmacy_screens(pharm, oid, total)
     if admin:
         admin_console(admin, oid)
+        # 23.2: the order's story in the tamper-evident audit trail, in order (card payment on a first order, D-25)
+        import j_audit_events
+        chain = ['service.requested', 'service.matched', 'pharmacy.offer.submitted', 'pharmacy.offer.selected']
+        j_audit_events.check_chain(admin, 'pharmacy order', chain + (['payment_completed'] if paid_by_card else []) + ['service.completed'], resource_id=oid)
     return oid
 
 
