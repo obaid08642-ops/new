@@ -1143,6 +1143,7 @@
     "service_video": "Video",
     "service_clinic": "Clinic",
     "service_home": "Home visit",
+    "homeBookWithAddress": "Choose an address and time",
     "slotsForDate": "Slots for {date}",
     "available": "Available",
     "unavailable": "Booked",
