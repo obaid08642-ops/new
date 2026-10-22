@@ -79,7 +79,8 @@ export class SmsService {
           body: text,
           sender: 'Nabdah'
         }, {
-          headers: { Authorization: `Bearer ${process.env.TAQNYAT_API_KEY}` }
+          headers: { Authorization: `Bearer ${process.env.TAQNYAT_API_KEY}` },
+          timeout: 8000, // sent once: a repeat could text twice
         });
         return res.status === 200 || res.status === 201;
       }

@@ -23,6 +23,10 @@ import { Cron } from '@nestjs/schedule';
 import { Connection } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Resend } from 'resend';
+import { timedFetch } from '../../common/external-call';
+
+/** Mail provider API calls: 8 s, sent once (a repeat could mail twice); a timeout is a 504 `mail_gateway_timeout` that the mail queue treats as a failed send. */
+const MAIL_FETCH = { timeoutMs: 8000, label: 'mail-api', timeoutCode: 'mail_gateway_timeout' } as const;
 import * as nodemailer from 'nodemailer';
 
 export type MailProvider = 'resend' | 'ses' | 'brevo' | 'mailjet';
@@ -334,7 +338,7 @@ export class MailService {
   /** Brevo transactional email REST API (POST /v3/smtp/email, header api-key). */
   private async sendViaBrevo(to: string, subject: string, html: string, text?: string, attachment?: Attachment): Promise<void> {
     if (!this.isConfigured('brevo')) throw new ServiceUnavailableException('brevo_not_configured');
-    const res = await fetch(`${apiBase('BREVO_API_BASE', 'https://api.brevo.com/v3')}/smtp/email`, {
+    const res = await timedFetch(`${apiBase('BREVO_API_BASE', 'https://api.brevo.com/v3')}/smtp/email`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'api-key': String(process.env.BREVO_API_KEY) },
       body: JSON.stringify({
@@ -345,7 +349,7 @@ export class MailService {
         ...(text ? { textContent: text } : {}),
         ...(attachment ? { attachment: [{ name: attachment.filename, content: Buffer.from(attachment.content, 'utf-8').toString('base64') }] } : {}),
       }),
-    });
+    }, MAIL_FETCH);
     if (!res.ok) throw new BadGatewayException(`brevo_http_${res.status}`);
   }
 
@@ -355,7 +359,7 @@ export class MailService {
     const f = parseFrom(process.env.MAILJET_FROM || this.fromAddress);
     const from = f.name ? { Email: f.email, Name: f.name } : { Email: f.email };
     const auth = Buffer.from(`${process.env.MAILJET_API_KEY}:${process.env.MAILJET_SECRET_KEY}`).toString('base64');
-    const res = await fetch(`${apiBase('MAILJET_API_BASE', 'https://api.mailjet.com/v3.1')}/send`, {
+    const res = await timedFetch(`${apiBase('MAILJET_API_BASE', 'https://api.mailjet.com/v3.1')}/send`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Basic ${auth}` },
       body: JSON.stringify({
@@ -368,7 +372,7 @@ export class MailService {
           ...(attachment ? { Attachments: [{ ContentType: 'text/csv', Filename: attachment.filename, Base64Content: Buffer.from(attachment.content, 'utf-8').toString('base64') }] } : {}),
         }],
       }),
-    });
+    }, MAIL_FETCH);
     if (!res.ok) throw new BadGatewayException(`mailjet_http_${res.status}`);
     const body = (await res.json().catch(() => null)) as { Messages?: Array<{ Status?: string }> } | null;
     if (body?.Messages?.[0]?.Status !== 'success') throw new BadGatewayException('mailjet_error');
