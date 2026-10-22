@@ -43,7 +43,7 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with: { node-version: 20 }
+        with: { node-version: 22 }
       - name: Stand-in API (test data)
         run: (node tools/perf/isr-disk/stub-api.mjs 4010 0.0.0.0 > /tmp/stub.log 2>&1 &) && sleep 1 && curl -s localhost:4010/api/v1/public/product/ar/p-1 | head -c 100
       - name: Build the production image of patient-web (Dockerfile.patient-web, default build args)
