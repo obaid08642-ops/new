@@ -37,6 +37,8 @@ export function mergeWeights(raw: unknown): RankingWeights {
   return out;
 }
 
+/** Distance score is 1 / (1 + d / scale): 0.5 at 10 km. */
+const DISTANCE_SCALE_KM = 10;
 const R = 6371;
 export function haversineKm(aLat: number, aLng: number, bLat: number, bLng: number): number {
   const rad = (d: number) => (d * Math.PI) / 180;
@@ -68,14 +70,14 @@ function relative(values: number[], v: number, lowerIsBetter: boolean): number {
 export function rank(cands: Candidate[], catalogIds: string[], mode: Mode, payer: 'cash' | 'insurance', weights: RankingWeights): Array<{ c: Candidate; total: number; score: number }> {
   if (!cands.length) return [];
   const totals = cands.map((c) => totalOf(c, catalogIds, mode));
-  const dists = cands.map((c) => c.distance_km);
   const speeds = cands.map((c) => c.earliest_at.getTime() + (c.turnaround_hours ?? 24) * 3_600_000);
   const sum = Object.values(weights).reduce((a, b) => a + b, 0) || 1;
   return cands.map((c, i) => {
     const parts = {
       coverage: 1,
       network: payer === 'insurance' ? (c.in_network ? 1 : 0) : 1,
-      distance: relative(dists, c.distance_km, true),
+      // absolute, not relative to the other candidates: 1 km of difference must not outweigh a provider's record
+      distance: 1 / (1 + c.distance_km / DISTANCE_SCALE_KM),
       speed: relative(speeds, speeds[i], true),
       rating: c.rating == null ? 0.5 : Math.max(0, Math.min(1, c.rating / 5)),
       reliability: c.reliability == null ? 0.5 : Math.max(0, Math.min(1, c.reliability)),
@@ -168,4 +170,16 @@ export function isOfferedWindow(now: Date, start: unknown, end: unknown): boolea
 /** About 1 km: coverage gaps are counted per cell, never per person. */
 export function areaKey(lat: number, lng: number): string {
   return `${lat.toFixed(2)},${lng.toFixed(2)}`;
+}
+
+/** Rates of a provider's record, each 0..1. With no history the benefit of the doubt applies (the ranking treats "no record" separately). */
+export function reliabilityRates(r: { offered?: number; accepted?: number; completed?: number; on_time?: number; cancellations?: number } | null | undefined) {
+  const n = (v: unknown) => (typeof v === 'number' && v > 0 ? v : 0);
+  const ratio = (a: number, b: number, empty: number) => (b > 0 ? Math.max(0, Math.min(1, a / b)) : empty);
+  const offered = n(r?.offered), accepted = n(r?.accepted), completed = n(r?.completed), onTime = n(r?.on_time), cancelled = n(r?.cancellations);
+  return {
+    acceptance_rate: round2(ratio(accepted, offered, 1)),
+    on_time_rate: round2(ratio(onTime, completed, 1)),
+    cancellation_rate: round2(ratio(cancelled, cancelled + completed, 0)),
+  };
 }
