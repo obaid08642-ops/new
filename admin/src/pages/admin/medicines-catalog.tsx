@@ -30,6 +30,7 @@ const EMPTY_FORM: any = {
   manufacturer: '', brand: '', category: '', sub_category: '',
   form: '', strength: '', package_size: '', barcode: '',
   price: '', requires_prescription: false, controlled: false,
+  covered_by_insurance: [],
   images: '', image: '',
   description_ar: '', description_en: '',
   usage_instructions_ar: '', usage_instructions_en: '',
@@ -79,6 +80,8 @@ export default function MedicinesCatalogPage() {
   // form (create / edit)
   const [formMode, setFormMode] = useState<'closed' | 'create' | 'edit'>('closed');
   const [form, setForm] = useState<any>(EMPTY_FORM);
+  // #456 / #1601: the insurance companies that cover the item (the product page's "covered by <company>" row reads them)
+  const [companies, setCompanies] = useState<Array<{ id: string; name_ar?: string; name_en?: string }>>([]);
   const [editId, setEditId] = useState<string | null>(null);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [imgBusy, setImgBusy] = useState(false);
@@ -168,6 +171,16 @@ export default function MedicinesCatalogPage() {
     setPage(1);
     setScanNote(`لا يوجد صنف بالباركود ${code}.`);
   }, []);
+
+  useEffect(() => {
+    if (formMode === 'closed' || companies.length) return;
+    apiFetch('/insurance/companies/all')
+      .then((r: any) => {
+        const rows = Array.isArray(r) ? r : (r?.items || r?.data || []);
+        setCompanies(rows.filter((c: any) => c && c.id && c.is_active !== false && c.active !== false));
+      })
+      .catch(() => setCompanies([]));
+  }, [formMode, companies.length]);
 
   const openCreate = () => { setForm(EMPTY_FORM); setImageUrls([]); setEditId(null); setFormMode('create'); };
   // Decision 12: a pharmacy line with no catalogue match becomes a new catalogue item; the admin completes the form.
@@ -410,6 +423,29 @@ export default function MedicinesCatalogPage() {
                       صنف مراقب (لا يُطلب أونلاين)
                     </label>
                   </div>
+                  {companies.length > 0 && (
+                    <div className="col-span-2" data-testid="covered-by-insurance">
+                      <label className="block text-sm font-bold text-slate-700 mb-2">شركات التأمين التي تغطي هذا الصنف</label>
+                      <div className="flex flex-wrap gap-3">
+                        {companies.map((c) => {
+                          const on = Array.isArray(form.covered_by_insurance) && form.covered_by_insurance.includes(c.id);
+                          return (
+                            <label key={c.id} className="flex items-center gap-2 text-sm text-slate-700">
+                              <input
+                                type="checkbox"
+                                checked={on}
+                                onChange={(e) => {
+                                  const cur: string[] = Array.isArray(form.covered_by_insurance) ? form.covered_by_insurance : [];
+                                  setForm({ ...form, covered_by_insurance: e.target.checked ? [...cur, c.id] : cur.filter((x) => x !== c.id) });
+                                }}
+                              />
+                              {c.name_ar || c.name_en || c.id}
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                   <div className="col-span-2">
                     <label className="block text-sm font-bold text-slate-700 mb-2">صور الدواء (حد أقصى {MAX_IMAGES} — تُرفع على التخزين مباشرة)</label>
                     <div className="flex flex-wrap items-center gap-3">

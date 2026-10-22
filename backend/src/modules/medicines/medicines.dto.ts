@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength, Min } from 'class-validator';
+import { ArrayMaxSize, IsArray, IsBoolean, IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength, Min } from 'class-validator';
 
 export class SuggestChangeDto {
   @IsOptional()
@@ -105,6 +105,8 @@ export class CatalogMedicineFieldsDto {
   @IsOptional() @IsArray() @IsString({ each: true }) precautions_ar?: string[];
   @IsOptional() @IsArray() @IsString({ each: true }) precautions_en?: string[];
   @IsOptional() @IsArray() @IsString({ each: true }) interactions?: string[];
+  /** Insurance company ids that cover this medicine (admin only; each must be an active company of the catalogue). */
+  @IsOptional() @IsArray() @ArrayMaxSize(100) @IsString({ each: true }) @MaxLength(100, { each: true }) covered_by_insurance?: string[];
   // audit note (price history / change log)
   @IsOptional() @IsString() @MaxLength(500) reason?: string;
 }

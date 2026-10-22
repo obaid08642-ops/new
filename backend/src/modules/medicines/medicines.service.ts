@@ -1,3 +1,4 @@
+import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { Injectable, NotFoundException, Inject, BadRequestException, Logger, Optional } from '@nestjs/common';
 import { Permission } from '../../common/permissions';
 import { hasEffectivePermission } from '../../common/effective-permissions';
@@ -1811,6 +1812,27 @@ export class MedicinesService {
 
   static readonly CHANGE_TYPES = ['field_edit', 'image_remove', 'shortage_badge', 'duplicate_remove', 'new_item', 'other'];
 
+  /** Fields only an admin edit may set: they are commercial claims, never accepted from a pharmacy's suggestion (#456, #1601). */
+  static readonly ADMIN_ONLY_FIELDS = ['covered_by_insurance'] as const;
+
+  /** The editable fields plus the admin-only ones; `covered_by_insurance` is normalised and validated by `normaliseInsurers`. */
+  private pickAdminEditable(obj: any): any {
+    const out = this.pickEditable(obj);
+    for (const f of MedicinesService.ADMIN_ONLY_FIELDS) if (obj && obj[f] !== undefined) out[f] = obj[f];
+    return out;
+  }
+
+  /** Company ids that cover the medicine: unique, each an active company of the catalogue; anything else is refused. */
+  private async normaliseInsurers(obj: any): Promise<void> {
+    if (!obj || obj.covered_by_insurance === undefined) return;
+    const ids = [...new Set((Array.isArray(obj.covered_by_insurance) ? obj.covered_by_insurance : []).map((x: unknown) => String(x).trim()).filter(Boolean))] as string[];
+    if (ids.length) {
+      const found = await this.conn.collection(CATALOG_COLLECTIONS.insurance_companies).find({ id: { $in: ids }, $and: [{ active: { $ne: false } }, { is_active: { $ne: false } }] }, { projection: { id: 1 } }).toArray();
+      if (found.length !== ids.length) throw new BadRequestException('insurance_company_not_found');
+    }
+    obj.covered_by_insurance = ids;
+  }
+
   private pickEditable(obj: any): any {
     const out: any = {};
     for (const f of MedicinesService.EDITABLE_FIELDS) {
@@ -1993,7 +2015,8 @@ export class MedicinesService {
 
   /** Admin: create a brand-new catalog item (all editable fields accepted). */
   async adminCreateCatalog(body: any, adminId: string) {
-    const clean = this.pickEditable(body);
+    await this.normaliseInsurers(body);
+    const clean = this.pickAdminEditable(body);
     if (!clean.name_ar && !clean.name_en) throw new BadRequestException('name_ar أو name_en مطلوب');
     const id = require('crypto').randomUUID();
     const doc = {
@@ -2123,7 +2146,8 @@ export class MedicinesService {
     const published = med.public_eligibility === true || med.indexing_eligibility === true || med.medical_review_status === 'approved';
     if (!published || await this.canApproveCatalog(adminId)) return this.applyCatalogEdit(medicineId, patch, adminId);
 
-    const clean = this.pickEditable(patch);
+    await this.normaliseInsurers(patch);
+    const clean = this.pickAdminEditable(patch);
     const changes: Record<string, unknown> = { ...clean };
     if (patch?.availability_status !== undefined) changes.availability_status = patch.availability_status;
     if (patch?.image !== undefined) changes.image = patch.image;
@@ -2156,7 +2180,9 @@ export class MedicinesService {
     // refresh below then ran with an undefined id -> 404 to the admin after the edit was already saved.
     const found: any = await this.getById(medicineId);
     const med: any = typeof found?.toObject === 'function' ? found.toObject() : found;
-    if (!med) throw new NotFoundException('الصنف غير موجود');    const clean = this.pickEditable(patch);
+    if (!med) throw new NotFoundException('الصنف غير موجود');
+    await this.normaliseInsurers(patch);
+    const clean = this.pickAdminEditable(patch);
     const extra: any = {};
     if (clean.price !== undefined && Number(clean.price) !== Number(med.price || 0)) {
       const priceReason = String(patch?.reason || '').trim();
