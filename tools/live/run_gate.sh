@@ -76,6 +76,8 @@ for j in "${JOURNEYS[@]}"; do
   out=$(run_step "$tmo" python3 "$j.py" 2>&1)
   line=$(grep -E '^##### ' <<<"$out" | tail -1)
   echo "$j: ${line:-no summary (crashed)}"
+  # NOTE lines are diagnostics a journey prints on purpose (e.g. a hidden duplicate element); shown even when it passes
+  grep -E '^\s+NOTE ' <<<"$out" | head -5
   if [[ -z $line || ! $line =~ ", 0 failed" ]]; then
     fail=1
     grep -E '^\s+FAIL|Traceback|Error' <<<"$out" | head -20
@@ -91,6 +93,8 @@ for j in "${TAIL_JOURNEYS[@]}"; do
   out=$(run_step 1800 python3 "$j.py" 2>&1)
   line=$(grep -E '^##### ' <<<"$out" | tail -1)
   echo "$j: ${line:-no summary (crashed)}"
+  # NOTE lines are diagnostics a journey prints on purpose (e.g. a hidden duplicate element); shown even when it passes
+  grep -E '^\s+NOTE ' <<<"$out" | head -5
   if [[ -z $line || ! $line =~ ", 0 failed" ]]; then
     fail=1
     grep -E '^\s+FAIL|Traceback|Error' <<<"$out" | head -20
