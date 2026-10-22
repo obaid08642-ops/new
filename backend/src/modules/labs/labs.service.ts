@@ -464,6 +464,17 @@ export class LabsService {
     return b.toObject();
   }
 
+  /** M7: a booking the provider did not confirm in time is cancelled by the system. Returns false when it is already past that point. */
+  async cancelUnconfirmed(id: string): Promise<boolean> {
+    const b = await this.bkgModel.findOne({ id });
+    if (!b) throw new NotFoundException();
+    if (![LabBookingState.NEW_REQUEST, LabBookingState.PENDING_INSURANCE].includes(b.state)) return false;
+    b.status = 'cancelled_unconfirmed';
+    await this.moveOrdering(b, LabBookingState.CANCELLED, 'confirm_deadline_passed', 'system');
+    this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id });
+    return true;
+  }
+
   private async moveOrdering(b: any, to: LabBookingState, note: string, by: string, user?: any) {
     if (b.state === to || !(LAB_BOOKING_TRANSITIONS[b.state as LabBookingState] || []).includes(to)) { await b.save(); return b.toObject(); }
     return this.engine.apply({

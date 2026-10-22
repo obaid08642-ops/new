@@ -9,7 +9,7 @@ import { LabsService } from '../labs/labs.service';
 import { MedicalOrdersService } from '../medical-orders/medical-orders.service';
 import { CreateOrderingBookingDto, QuoteDto, WindowsQueryDto } from './ordering.dto';
 import {
-  areaKey, Candidate, haversineKm, homeWindows, isOfferedWindow, Mode, mergeWeights, rank, round1, round2, sortCompare, suggestSplit, totalOf,
+  reliabilityRates, areaKey, Candidate, haversineKm, homeWindows, isOfferedWindow, Mode, mergeWeights, rank, round1, round2, sortCompare, suggestSplit, totalOf,
 } from './ordering-engine';
 
 // M3 ordering engine API (docs/product/ORDERING_MODEL_2026-10-16.md, phase M3). Quote -> windows -> one booking group.
@@ -22,6 +22,7 @@ type Coverage = 'covered' | 'needs_approval' | 'not_covered';
 const QUOTES = 'ordering_quotes';
 const GROUPS = 'order_groups';
 const GAPS = 'coverage_gaps';
+export const LIFECYCLE = 'ordering_lifecycle';
 const SETTINGS = 'provider_ordering_settings';
 const ITEMS = 'provider_ordering_items';
 export const KIND_CATALOG: Record<Kind, string> = {
@@ -59,6 +60,9 @@ export class OrderingService implements OnModuleInit {
     await g.createIndex({ id: 1 }, { unique: true, name: 'order_group_id_unique' });
     await g.createIndex({ quote_id: 1 }, { unique: true, name: 'order_group_quote_unique' });
     await g.createIndex({ patient_id: 1, created_at: -1 }, { name: 'order_group_patient' });
+    const lc = this.conn.collection(LIFECYCLE);
+    await lc.createIndex({ booking_id: 1 }, { unique: true, name: 'lifecycle_booking_unique' });
+    await lc.createIndex({ confirm_deadline_at: 1 }, { name: 'lifecycle_due' });
     await this.conn.collection(GAPS).createIndex({ service_kind: 1, mode: 1, area_key: 1 }, { unique: true, name: 'coverage_gap_cell_unique' });
   }
 
@@ -94,7 +98,7 @@ export class OrderingService implements OnModuleInit {
     const sections: any[] = [];
     const stored: QuoteGroup[] = [];
     for (const step of plan) {
-      const found = await this.findCandidates(kind, step.mode, step.ids, context, policy, now);
+      const found = await this.findCandidates(kind, step.mode, step.ids, context, policy, now);  // context carries staff_gender
       const full = found.cands.filter((c) => step.ids.every((id) => c.prices[id] != null));
       const ranked = rank(full, step.ids, step.mode, context.payer, weights);
       // every mode-eligible provider is listed: full coverers first (ranked), then the partial ones, flagged with what they lack
@@ -187,6 +191,41 @@ export class OrderingService implements OnModuleInit {
     return { success: true, verified: false };
   }
 
+  async confirmDeadlineSeconds(): Promise<number> {
+    const v = (await this.conn.collection('system_configs').findOne({ key: 'ordering_confirm_deadline_seconds' }))?.value;
+    return typeof v === 'number' && v >= 1 && v <= 86_400 ? v : 900;
+  }
+
+  /** The booking's lifecycle record: the confirm deadline (none for an insured booking, which waits for the approval), the arrival code, the lock. */
+  async registerLifecycle(bookingId: string, patientId: string, providerAccountId: string, quoteId: string, deadline: Date | null, confirmed = false) {
+    await this.conn.collection(LIFECYCLE).updateOne(
+      { booking_id: bookingId },
+      { $setOnInsert: { booking_id: bookingId, patient_id: patientId, provider_account_id: providerAccountId, quote_id: quoteId, confirm_deadline_at: deadline, confirmed_at: confirmed ? new Date() : null, created_at: new Date() } },
+      { upsert: true },
+    );
+  }
+
+  /** Reliability 0..1 per provider from its record (acceptance, on time, cancellations); a provider with no record has none yet. */
+  async reliabilityOf(accounts: string[]): Promise<Map<string, number>> {
+    const out = new Map<string, number>();
+    if (!accounts.length) return out;
+    const rows = await this.conn.collection('provider_reliability').find({ provider_account_id: { $in: accounts } }).toArray() as any[];
+    for (const r of rows) {
+      const rates = reliabilityRates(r);
+      out.set(r.provider_account_id, round2(0.4 * rates.acceptance_rate + 0.4 * rates.on_time_rate + 0.2 * (1 - rates.cancellation_rate)));
+    }
+    return out;
+  }
+
+  /** One counter of a provider's record moves; the record is created on first use. */
+  async bump(accountId: string, field: 'offered' | 'accepted' | 'completed' | 'on_time' | 'cancellations') {
+    try {
+      await this.conn.collection('provider_reliability').updateOne({ provider_account_id: accountId }, { $inc: { [field]: 1 }, $set: { updated_at: new Date() }, $setOnInsert: { provider_account_id: accountId } }, { upsert: true });
+    } catch (e) {
+      this.logger.warn(`reliability not updated: ${(e as Error).message}`);
+    }
+  }
+
   async shareRate(): Promise<number> {
     const v = (await this.conn.collection('system_configs').findOne({ key: 'ordering_insurance_share_rate' }))?.value;
     return typeof v === 'number' && v >= 0 && v <= 1 ? v : DEFAULT_INSURANCE_RATE;
@@ -203,9 +242,10 @@ export class OrderingService implements OnModuleInit {
   }
 
   /** Providers that declared the mode, are live, and (home) cover the patient's point; with their prices for the given items. */
-  async findCandidates(kind: Kind, mode: Mode, ids: string[] | null, ctx: { lat: number; lng: number; payer: 'cash' | 'insurance' }, policy: { keys: string[]; cls: string } | null, now: Date) {
+  async findCandidates(kind: Kind, mode: Mode, ids: string[] | null, ctx: { lat: number; lng: number; payer: 'cash' | 'insurance'; staff_gender?: 'female' | 'male' }, policy: { keys: string[]; cls: string } | null, now: Date) {
     const settings = await this.conn.collection(SETTINGS).find({ modes: mode }).toArray() as any[];
     const accounts = settings.map((s) => s.provider_account_id as string);
+    const reliability = await this.reliabilityOf(accounts);
     if (!accounts.length) return { cands: [] as Candidate[], snapshot: {} as Record<string, Snapshot> };
     const [profiles, approved, rows] = await Promise.all([
       this.conn.collection('provider_profiles').find({ account_id: { $in: accounts }, status: { $in: ['active', 'ACTIVE'] }, public_eligibility: true }).toArray() as Promise<any[]>,
@@ -224,6 +264,7 @@ export class OrderingService implements OnModuleInit {
       const lat = p.geo?.lat ?? p.location?.lat;
       const lng = p.geo?.lng ?? p.location?.lng;
       if (!s || typeof lat !== 'number' || typeof lng !== 'number') continue;
+      if (ctx.staff_gender && !(Array.isArray(s.staff_genders) && s.staff_genders.includes(ctx.staff_gender))) continue;
       const distance = haversineKm(ctx.lat, ctx.lng, lat, lng);
       if (mode === 'home' && !(typeof s.home_radius_km === 'number' && distance <= s.home_radius_km)) continue;
       const prices: Record<string, number> = {};
@@ -246,7 +287,7 @@ export class OrderingService implements OnModuleInit {
       const homeFee = mode === 'home' && typeof s.home_fee === 'number' ? s.home_fee : 0;
       cands.push({
         provider_id: p.id, name_ar: p.name_ar ?? null, name_en: p.name_en ?? null,
-        rating: typeof p.rating === 'number' ? p.rating : null, reliability: typeof p.reliability_score === 'number' ? p.reliability_score : null,
+        rating: typeof p.rating === 'number' ? p.rating : null, reliability: reliability.get(p.account_id) ?? null,
         distance_km: distance, in_network: inNetwork, prices, home_fee: homeFee, turnaround_hours: turnaround, earliest_at: now, coverage,
       });
       snapshot[p.id] = {
@@ -379,6 +420,11 @@ export class OrderingService implements OnModuleInit {
       // nothing half-made stays claimed: the patient can retry the same quote
       await this.conn.collection(GROUPS).deleteOne({ id: groupId, patient_id: user.id, status: 'creating' });
       throw e;
+    }
+    const deadline = await this.confirmDeadlineSeconds();
+    for (let i = 0; i < created.length; i++) {
+      await this.registerLifecycle(created[i].id, user.id, plan[i].snap.account_id, quote.id, insured ? null : new Date(now.getTime() + deadline * 1000));
+      await this.bump(plan[i].snap.account_id, 'offered');
     }
     const amount = round2(created.reduce((s, c) => s + c.total, 0));
     const payment = { amount, status: 'pending' as const, method: dto.payment_method };
