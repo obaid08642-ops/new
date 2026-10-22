@@ -120,7 +120,7 @@ describe("context", () => {
 describe("windows and bookings", () => {
   it("reads the three window answers", () => {
     expect(parseWindows({ windows: [{ asap: true }, { start: "a", end: "b" }] })).toEqual({ kind: "home", asap: true, windows: [{ start: "a", end: "b" }] });
-    expect(parseWindows({ walk_in: true, qr: true })).toEqual({ kind: "walk_in" });
+    expect(parseWindows({ walk_in: true, qr: true })).toEqual({ kind: "walk_in", qr: true });
     expect(parseWindows({ date: "2026-10-23", slots: [{ id: "s1", start: "a", end: "b" }, { id: "" }] })).toEqual({ kind: "slots", date: "2026-10-23", slots: [{ id: "s1", start: "a", end: "b" }] });
     expect(parseWindows({})).toBeNull();
   });
