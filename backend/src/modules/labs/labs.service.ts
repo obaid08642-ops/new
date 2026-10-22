@@ -439,6 +439,8 @@ export class LabsService {
     const b = await this.bkgModel.findOne({ id, patient_id: user.id });
     if (!b) throw new NotFoundException();
     if (c.choice === 'cancel_free') {
+      // a cancel that the lifecycle refuses is an error, never a half-cancelled booking
+      if (b.state !== LabBookingState.CANCELLED && !(LAB_BOOKING_TRANSITIONS[b.state as LabBookingState] || []).includes(LabBookingState.CANCELLED)) throw new BadRequestException(`invalid transition ${b.state} → ${LabBookingState.CANCELLED}`);
       b.status = 'cancelled';
       await this.moveOrdering(b, LabBookingState.CANCELLED, 'insurance_choice_cancel_free', 'patient', user);
       this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id });
