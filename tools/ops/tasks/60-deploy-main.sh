@@ -19,7 +19,7 @@
 # REHEARSE_FAIL_AT=<step> forces a failure; REHEARSE_MISSING_IMAGE=<service> treats
 # that service's running image as gone from the host, as patient-web's is in production (rehearsal only).
 set -u
-SHA=${OPS_RELEASE_SHA:-ce53c57f79e7a59fac0aae8ed905cbceaf262cdd}
+SHA=${OPS_RELEASE_SHA:-79a3d84bd665e52fafc1928b61c8382f58098c06}
 S8=${SHA:0:8}
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}
@@ -34,6 +34,9 @@ COMPOSE_OLD="$DK compose -f $D/docker-compose.production.yml --project-directory
 COMPOSE="$DK compose -f $D/docker-compose.production.yml -f $D/docker-compose.release.yml --project-directory $D --env-file $ENVF"
 H_API='Host: api.nabd.plus'
 echo "## deploy-main ${S8}"
+# what runs now (written by the last deploy of this task; absent if the stack was deployed another way)
+echo "status: deploy running_before=$(sudo -n cat $D/RELEASE 2>/dev/null | awk '{print substr($1,1,12)}' || true) images=$(for c in backend patient-web admin-web; do printf '%s:%s ' $c "$($DK inspect -f '{{.Config.Image}}' nabdah-$c 2>/dev/null | sed 's/.*://')"; done)"
+echo "status: deploy disk_before=$(df -P / | awk 'NR==2{print $5}')"
 
 health() { $DK inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$1" 2>/dev/null; }
 wait_healthy() { local s; for i in $(seq 1 "$2"); do s=$(health "$1"); [ "$s" = healthy ] && return 0; sleep 5; done; echo "deploy: $1 health=$s"; return 1; }
@@ -150,8 +153,12 @@ echo "deploy: release images loaded"
 # after the backup and before any new container starts, in the release's migrations image on the internal network.
 # Credentials only in a mode-600 env file that is removed; output is counts, with e-mails and numbers masked.
 # A failure rolls the deploy back; rows already inserted stay (insert-only, and the old code does not read them).
-MIGRATIONS="2026-09-catalog-json-to-db 2026-10-feature-flags-collection 2026-09-sync-profile-type-geo 2026-10-backfill-provider-geopoint"
-$DK image inspect nabdah-migrations:$S8 >/dev/null 2>&1 || rollback "image nabdah-migrations:$S8 not loaded"
+# Release 79a3d84b (2026-10-22, urgent: next 16.4.2 security fix): no script migration runs. The four above ran on
+# 2026-10-15; the new data scripts (catalogue images/ingredients/variant groups, insurance official/orphan networks,
+# services content/dedupe, unify lab list) change data and get their own reviewed run. The audit-collection move (#1758)
+# runs by itself at backend start (copy with $setOnInsert, rename only after every row is copied; safe to repeat).
+MIGRATIONS=""
+[ -z "$MIGRATIONS" ] || $DK image inspect nabdah-migrations:$S8 >/dev/null 2>&1 || rollback "image nabdah-migrations:$S8 not loaded"
 MNET=$($DK inspect nabdah-mongodb -f '{{range $k,$v := .NetworkSettings.Networks}}{{$k}} {{end}}' | awk '{print $1}')
 MDB=$(sudo -n grep -E '^DB_NAME=' $ENVF | cut -d= -f2); MDB=${MDB:-nabd_nestjs}
 MEF=$(mktemp); chmod 600 $MEF
@@ -254,5 +261,8 @@ echo "deploy: X-Cache-Status on $C: first=${C1:-none} second=${C2:-none} with Au
   || echo "deploy: WARNING cache statuses not as expected (not rolled back: no answer was shared across callers)"
 
 echo "$SHA $TS" | sudo -n tee $D/RELEASE >/dev/null
+# dangling images and build cache older than 72 h only (never volumes, never tagged images: the rollback tags stay)
+$DK image prune -f --filter "until=72h" >/dev/null 2>&1; $DK builder prune -f --filter "until=72h" >/dev/null 2>&1
+echo "status: deploy disk_after=$(df -P / | awk 'NR==2{print $5}') release=$S8 health=ok"
 echo "deploy: DONE main@$S8 live; rollback images nabdah-*:rollback-$TS; backup $(basename $DUMP)"
 echo "## deploy-main done"

@@ -1,2 +1,4 @@
-# 2026-10-22 owner (lead reviewer): run 9, one task. OWNER_ALERT_EMAIL copied on the server from OPS_ALERT_EMAIL when missing; status: lines only.
-86-owner-alert-email
+# 2026-10-22 owner (lead reviewer): run 10, urgent security deploy of main@79a3d84b (next 16.4.2, @sentry/nextjs 10.76.2).
+# 60-deploy-main: backup first, rollback point, no script migrations, automatic rollback on any failure.
+release:79a3d84bd665e52fafc1928b61c8382f58098c06
+60-deploy-main
