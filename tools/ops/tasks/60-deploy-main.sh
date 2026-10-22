@@ -219,6 +219,17 @@ echo "deploy: files from main written ($NEW); env names added:${ADDED:- none}"
 $COMPOSE config -q >/dev/null 2>&1 || rollback "compose config invalid"
 
 # ---------------------------------------------------------------- 5. up (named services only, no dependency restarts)
+# 16.5: the backend refuses every upload while ClamAV cannot answer (UPLOAD_SCAN=required), so the scanner is up and
+# healthy before the new backend starts. Its first start downloads the signatures (a few minutes) and it needs ~1.2 GB
+# of memory: with less available the deploy stops here and rolls back rather than starve the running services.
+if [ "$(health nabdah-clamav)" != healthy ]; then
+  MEMAV=$(awk '/^MemAvailable:/{print int($2/1024)}' /proc/meminfo)
+  echo "status: deploy clamav=starting mem_available_mb=$MEMAV"
+  [ "${MEMAV:-0}" -ge 1500 ] || rollback "not enough memory for clamav (${MEMAV} MB available)"
+  $COMPOSE up -d --no-build --no-deps clamav >/dev/null 2>&1 || rollback "clamav up"
+  wait_healthy nabdah-clamav 120 || rollback "clamav health"
+fi
+echo "status: deploy clamav=healthy"
 $COMPOSE up -d --no-build --no-deps meilisearch >/dev/null 2>&1 || rollback "meilisearch up"
 wait_healthy nabdah-meilisearch 24 || rollback "meilisearch health"
 $COMPOSE up -d --no-build --no-deps backend worker >/dev/null 2>&1 || rollback "backend/worker up"
