@@ -66,14 +66,14 @@ const order = (over: Record<string, unknown> = {}) => ({
 
 beforeEach(() => { server.api.mockReset(); });
 
-/** The order center reads five services; `answers` maps a path to its response, every other service answers an empty list. */
+/** The order center reads six services; `answers` maps a path to its response, every other service answers an empty list. */
 const centerApi = (answers: Record<string, Response | (() => Response)>) =>
   server.api.mockImplementation(async (path: string) => {
     const answer = answers[path];
     return answer ? (typeof answer === "function" ? answer() : answer.clone()) : json([]);
   });
 const PHARMACY = "/patient/pharmacy/orders";
-const labels: CenterLabels = { orders: (k, v) => `${k}${v ? JSON.stringify(v) : ""}`, offers: (k) => k, consult: (k) => k, appointments: (k) => k, diagWeb: (k) => k, diagnostics: (k) => k, nursing: (k) => k };
+const labels: CenterLabels = { orders: (k, v) => `${k}${v ? JSON.stringify(v) : ""}`, offers: (k) => k, consult: (k) => k, appointments: (k) => k, diagWeb: (k) => k, diagnostics: (k) => k, nursing: (k) => k, returns: (k) => k };
 
 describe("reading what the API sends", () => {
   it("a list row carries the server's status and the price of the selected offer only; a zero total is no price", () => {
@@ -219,7 +219,7 @@ describe("/orders", () => {
       "/care/appointments": json([{ id: APPT, status: "confirmed", service_type: "video", slot_start: ts(11), doctor_name: "Dr Test" }]),
       "/labs/bookings/mine": json([{ id: LAB, state: "REPORT_READY", scheduled_at: ts(9), items: [{ name_en: "CBC" }] }]),
       "/radiology/bookings/mine": json([{ id: SCAN, state: "CANCELLED", scheduled_at: ts(7), scan_name_en: "Chest X-ray" }]),
-      "/nursing/visits": json([{ id: "visit-1", status: "NURSE_EN_ROUTE", scheduled_at: ts(10), service_name: "Wound care" }]),
+      "/nursing/bookings/mine": json([{ id: "visit-1", state: "NURSE_EN_ROUTE", scheduled_at: ts(10), service_name_en: "Wound care" }]),
     });
     const html = render(await OrdersScreen({ locale: "en" }));
     for (const href of [`/en/appointments/${APPT}`, `/en/orders/${ORDER}`, `/en/nursing/visits/visit-1`]) expect(html).toContain(`href="${href}"`);
@@ -229,6 +229,19 @@ describe("/orders", () => {
     expect(html).not.toContain("Chest X-ray");
     expect(html.indexOf("Dr Test")).toBeLessThan(html.indexOf("Wound care")); // 11:00 before 10:00
     expect(html.indexOf("Wound care")).toBeLessThan(html.indexOf("Pharmacy order")); // 10:00 before 08:00
+  });
+
+  it("lists the pharmacy returns too, as the app does (owner decision 31), each opening its own page", async () => {
+    const RET = "0a1b2c3d-4444-4222-8333-444455556666";
+    centerApi({
+      [PHARMACY]: json([{ id: ORDER, status: "out_for_delivery", createdAt: ts(8) }]),
+      "/pharmacy/returns": json([{ id: RET, status: "processing", reason: "Damaged box", refund_amount: 12.5, createdAt: ts(9) }]),
+    });
+    const html = render(await OrdersScreen({ locale: "en" }));
+    expect(server.api).toHaveBeenCalledWith("/pharmacy/returns", {}, TOKEN);
+    expect(html).toContain(`href="/en/returns/${RET}"`);
+    for (const text of ["Damaged box", "Return request", "SAR 12.50"]) expect(html).toContain(text);
+    expect(html.indexOf("Damaged box")).toBeLessThan(html.indexOf("Pharmacy order")); // 09:00 before 08:00
   });
 
   it("keeps the other services when one does not answer, and says so", async () => {
@@ -343,6 +356,15 @@ describe("/pharmacy/reorder", () => {
     expect(cartItemsFor(addable, { i1: { on: true, qty: 0 } }, false)[0].qty).toBe(1);
     expect(cartItemsFor(addable, { i1: { on: false, qty: 2 } }, false)).toEqual([]);
     expect(cartItemsFor(addable, {}, false)).toEqual([]);
+  });
+
+  it("keeps the catalogue's online-only flag (online_exclusive) on the cart line (decision 11)", () => {
+    const online = parseOrderDetail(order({ items: [{ id: "i1", name_en: "Vitamin D", qty: 1, matched_sku: "sku-9", online_exclusive: true }, { id: "i3", name_en: "Zinc", qty: 1, matched_sku: "sku-8", online_exclusive: false }] }), "en")!;
+    const { addable } = reorderLines(online);
+    expect(cartItemsFor(addable, { i1: { on: true, qty: 1 }, i3: { on: true, qty: 1 } }, false)).toEqual([
+      { id: "sku-9", name: "Vitamin D", rx: false, onlineOnly: true, qty: 1 },
+      { id: "sku-8", name: "Zinc", rx: false, qty: 1 },
+    ]);
   });
 
   it("draws the lines with their quantities, says how many were not added, and has a prescription note only when the order used one", () => {

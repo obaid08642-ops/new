@@ -65,6 +65,11 @@ const SESSION_ESTABLISHING = /^\/auth\/(login|register|social-login|session\/exc
  * guest's cart and orders. The backend verifies this token's signature and
  * burns it for the merge.
  */
+/** Whether a signed-in session token is stored (no network call). */
+export async function hasSession(): Promise<boolean> {
+  return (await getToken()) !== null;
+}
+
 export async function currentGuestToken(): Promise<string | null> {
   try {
     const token = await SecureStore.getItemAsync(STORAGE_KEYS.AUTH_TOKEN);
@@ -88,6 +93,16 @@ export const isPublicAuthEndpoint = (endpoint: string): boolean =>
 export function newIdempotencyKey(): string {
   const uuid = (globalThis as any).crypto?.randomUUID?.();
   return `app-${uuid || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`}`;
+}
+
+/**
+ * Saves a protected file (a lab booking's report) to the cache with the session token and returns its local uri, or
+ * null when the server refuses it. The file is never fetched from a raw CDN url found in a payload.
+ */
+export async function downloadProtected(endpoint: string, filename: string): Promise<string | null> {
+  const token = await getToken();
+  const { fileManager } = await import('../services/FileManager');
+  return fileManager.downloadFile(`${BASE_URL}${endpoint}`, filename, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
 }
 
 export async function apiFetch<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {

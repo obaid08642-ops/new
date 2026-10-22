@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Put, UseGuards, BadRequestException } from '@nestjs/common';
+import { recordAudit } from '../../common/audit-record';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
@@ -6,6 +7,7 @@ import { UserRole } from '../../common/enums';
 import { DEFAULT_REFUND_POLICY } from './refund-policy.defaults';
 
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @Controller('refund-policy')
 export class PublicRefundPolicyController {
   constructor(@InjectConnection() private readonly conn: Connection) {}
@@ -30,6 +32,7 @@ export class AdminRefundPolicyController {
     return doc?.value || DEFAULT_REFUND_POLICY;
   }
 
+  @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Put()
   async set(@CurrentUser() u: any, @Body() body: any): Promise<any> {
     const policy = body || {};
@@ -63,10 +66,7 @@ export class AdminRefundPolicyController {
       { $set: { value: clean, updated_by: u?.id, updatedAt: now }, $setOnInsert: { key: 'refund_policy', createdAt: now } },
       { upsert: true },
     );
-    await this.conn.collection('audit_logs').insertOne({
-      id: `refund_policy_${now.getTime()}`, actor_id: u?.id, actor_role: 'admin',
-      action: 'refund_policy.set', after: clean, createdAt: now,
-    });
+    await recordAudit(this.conn, { action: 'refund_policy.set', user_id: u?.id, role: 'admin', resource_kind: 'system_config', resource_id: 'system_config:refund_policy', changes: { after: clean as Record<string, any> }, severity: 'warn' });
     return { ok: true, policy: clean };
   }
 }

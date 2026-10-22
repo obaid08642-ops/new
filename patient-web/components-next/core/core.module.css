@@ -13,6 +13,15 @@
   display: inline-grid; place-items: center; text-decoration: none;
   background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-onGlass); color: var(--nabd-color-icon-primary);
 }
+/* the cart's count (canvas/ProductFull: the action colour on the icon's corner) */
+.cartLink { position: relative; }
+.cartBadge {
+  position: absolute; inset-block-start: -2px; inset-inline-end: -2px; min-inline-size: 18px; block-size: 18px; padding-inline: 4px;
+  box-sizing: border-box; border-radius: var(--nabd-radius-pill); display: inline-grid; place-items: center;
+  background: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg);
+  font-size: var(--nabd-font-size-micro); font-weight: 700; line-height: 1;
+}
+.phoneCart { margin-inline-start: auto; }
 .iconLink:focus-visible, .section:focus-visible, .cancel:focus-visible, .brand:focus-visible {
   outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px;
 }
@@ -77,3 +86,19 @@
   .root :global(.nabd-sticky-footer) > * { max-inline-size: 720px; margin-inline: auto; }
   .page { padding-block-end: var(--nabd-space-5xl); }
 }
+
+/* 17.1: the phone menu (components-next/core/phone-menu.tsx). Tokens only; the panel sits under the header button. */
+.menuWrap { position: relative; }
+.menuPanel {
+  position: absolute; inset-block-start: calc(100% + 8px); inset-inline-end: 0; z-index: 60;
+  min-inline-size: 14rem; padding: .5rem;
+  border: 1px solid var(--nabd-color-border-subtle); border-radius: 12px;
+  background: var(--nabd-color-bg-surface); box-shadow: var(--nabd-shadow-raised);
+}
+.menuList { display: grid; gap: .25rem; margin: 0; padding: 0; list-style: none; }
+.menuLink {
+  display: flex; align-items: center; min-block-size: 44px; padding: .5rem .75rem; border-radius: 8px;
+  color: var(--nabd-color-text-primary); font-weight: 600; text-decoration: none;
+}
+.menuLink:hover { background: var(--nabd-color-bg-sunken); }
+.menuLink:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color, currentColor); outline-offset: 2px; }

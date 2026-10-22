@@ -6,9 +6,11 @@ import { CoturnModule } from './modules/coturn/coturn.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { MailModule } from './modules/mail/mail.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { NewsletterModule } from './modules/newsletter/newsletter.module';
 import { ApiSecurityModule } from './modules/api-security/api-security.module';
 import { DeviceTrustModule } from './modules/device-trust/device-trust.module';
 import { SeoSearchModule } from './modules/seo-search/seo-search.module';
+import { DeferredLinksModule } from './modules/deferred-links/deferred-links.module';
 import { LocationModule } from './modules/location/location.module';
 import { SearchIntentModule } from './modules/search-intent/search-intent.module';
 import { SearchModule } from './modules/search/search.controller';
@@ -24,17 +26,21 @@ import { OpsModule } from './modules/ops/ops.module';
 import { FeatureFlagsModule } from './modules/feature-flags/feature-flags.module';
 import { MediaModule } from './modules/media/media.module';
 import { ModuleSwitchesModule } from './modules/module-switches/module-switches.module';
+import { KillSwitchesModule } from './modules/kill-switches/kill-switches.module';
 import { MoyasarModule } from './modules/moyasar/moyasar.module';
 import { FinanceEngineModule } from './modules/finance-engine/finance-engine.module';
 import { ConfigModule } from '@nestjs/config';
 import { validateEnvironment } from './config/env.validation';
 import { MongooseModule } from '@nestjs/mongoose';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { RateLimitAuditGuard } from './modules/admin/ops-security/rate-limit-audit.guard'; // D-34: 429s counted for the ops page
+import { RedisThrottlerStorage } from './modules/redis/throttler-redis.storage';
 import { backgroundImports, backgroundProviders } from './common/process-role';
 import { WorkerHeartbeatService } from './common/worker-heartbeat.service';
 import { BullModule } from '@nestjs/bullmq';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { GracefulDrain } from './common/graceful-drain';
 import { LoadSheddingGuard } from './common/load-shedding.guard';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
@@ -45,7 +51,9 @@ import { EmergencyModule } from './modules/emergency/emergency.module';
 import { RealtimeModule } from './modules/realtime/realtime.module';
 import { I18nCoreModule } from './modules/i18n/i18n.module';
 import { AiModule } from './modules/ai/ai.module';
+import { ScannerModule } from './modules/scanner/scanner.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { PriceAlertsModule } from './modules/price-alerts/price-alerts.module';
 import { EventsModule } from './modules/events/events.module';
 import { SeedModule } from './modules/seed/seed.module';
 import { CareModule } from './modules/care/care.module';
@@ -89,6 +97,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { SlotLocksModule } from './modules/slot-locks/slot-locks.module';
 import { PushModule } from './modules/push/push.module';
 import { SecurityModule } from './modules/security/security.module';
+import { RiskModule } from './modules/risk/risk.module';
 import { RealtimeSseModule } from './modules/realtime/realtime.sse';
 import { ProviderOpsModule } from './modules/provider-ops/provider-ops.module';
 import { PatientUxModule } from './modules/patient-ux/patient-ux.module';
@@ -108,6 +117,7 @@ import { FacilityOpsModule } from './modules/facility-ops/facility-ops.module';
 import { ProviderProductionModule } from './modules/provider-production/provider-production.module';
 import { ImpersonationSessionService } from './common/impersonation-session.service';
 import { CommonModule } from './common/common.module';
+import { GuestChatListInterceptor, GuestPolicyGuard } from './modules/auth/guest-policy';
 import { PdplComplianceModule } from './common/pdpl-compliance.module';
 import { HealthController } from './health.controller';
 import { HealthDashboardController } from './modules/health/health-dashboard.controller';
@@ -134,12 +144,17 @@ import { BillingModule } from './modules/billing/billing.module';
 import { ArticlesModule } from './modules/articles/articles.module';
 
 import { CorrelationMiddleware } from './common/correlation.middleware';
+import { RequestMetaMiddleware } from './common/request-meta';
+import { ObservabilityModule } from './modules/observability/observability.module';
+import { LogsModule } from './modules/logs/logs.module';
+import { RumModule } from './modules/rum/rum.module';
 import { DoctorsModule } from './modules/doctors/doctors.module';
 import { WriteGuard } from './common/write-guard';
 import { AdminGateGuard } from './common/admin-gate.guard';
 import { StepUpGuard, StepUpService } from './common/step-up.guard';
 import { ProductRankingModule } from './modules/product-ranking/product-ranking.module';
 import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
+import { mongoDirectConnection } from './common/database/mongo-uri';
 
 @Module({
   imports: [
@@ -154,9 +169,11 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     RedisModule,
     MailModule,
     AnalyticsModule,
+    NewsletterModule,
     ApiSecurityModule,
     DeviceTrustModule,
     SeoSearchModule,
+    DeferredLinksModule,
     LocationModule,
     SearchIntentModule,
     SearchModule,
@@ -171,12 +188,13 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     FeatureFlagsModule,
     MediaModule,
     ModuleSwitchesModule,
+    KillSwitchesModule,
     ConfigModule.forRoot({ isGlobal: true, validate: validateEnvironment }),
     MongooseModule.forRootAsync({
       useFactory: () => ({
         uri: process.env.MONGO_URL || 'mongodb://localhost:27017',
         dbName: process.env.DB_NAME || 'nabd_nestjs',
-        directConnection: true,
+        directConnection: mongoDirectConnection(process.env.MONGO_URL),
         // ── High-concurrency connection pool (default Mongoose pool = 5, insufficient) ──
         maxPoolSize: parseInt(process.env.MONGO_MAX_POOL_SIZE || '200', 10),
         minPoolSize: parseInt(process.env.MONGO_MIN_POOL_SIZE || '20', 10),
@@ -197,7 +215,21 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     EventEmitterModule.forRoot({ wildcard: true, maxListeners: 50 }),
     // P14.26: cron jobs run only in the worker role (or `all`), never once per API cluster worker
     ...backgroundImports(),
-    ThrottlerModule.forRoot([{ ttl: 60_000, limit: process.env.THROTTLER_LIMIT ? parseInt(process.env.THROTTLER_LIMIT, 10) : 200 }]),
+    ThrottlerModule.forRootAsync({
+      inject: [RedisThrottlerStorage],
+      useFactory: (storage: RedisThrottlerStorage) => ({
+        storage,
+        throttlers: [
+          {
+            ttl: 60_000,
+            limit: process.env.THROTTLER_LIMIT ? parseInt(process.env.THROTTLER_LIMIT, 10) : 200,
+          },
+        ],
+      }),
+    }),
+    ObservabilityModule,
+    LogsModule,
+    RumModule,
     I18nCoreModule,
     AuthModule,
     UsersModule,
@@ -206,7 +238,9 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     OrdersModule,
     EmergencyModule,
     AiModule,
+    ScannerModule,
     NotificationsModule,
+    PriceAlertsModule,
     EventsModule,
     RealtimeModule,
     SeedModule,
@@ -241,6 +275,7 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
     FinanceEngineModule,
     SlotLocksModule,
     PushModule,
+    RiskModule,
     SecurityModule,
     RealtimeSseModule,
     ProviderOpsModule,
@@ -278,15 +313,18 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
   ],
   controllers: [HealthController, HealthDashboardController, ProviderPayoutsController],
   providers: [
+    GracefulDrain,
     ImpersonationSessionService,
     ...backgroundProviders([WorkerHeartbeatService]),
     { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: GuestPolicyGuard },          // 21.3: the guest permission matrix, after the caller is known
     { provide: APP_GUARD, useClass: WriteGuard },
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: RateLimitAuditGuard },
     { provide: APP_GUARD, useClass: AdminGateGuard },
     { provide: APP_GUARD, useClass: LoadSheddingGuard },
     { provide: APP_GUARD, useClass: StepUpGuard },
     StepUpService,
+    { provide: APP_INTERCEPTOR, useClass: GuestChatListInterceptor },
     { provide: APP_INTERCEPTOR, useClass: AuditLogInterceptor },
     { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },
     { provide: APP_INTERCEPTOR, useClass: AdaptiveConcurrencyInterceptor },
@@ -295,6 +333,6 @@ import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(BansMiddleware, CorrelationMiddleware).forRoutes('*');
+    consumer.apply(BansMiddleware, CorrelationMiddleware, RequestMetaMiddleware).forRoutes('*');
   }
 }

@@ -20,6 +20,7 @@ import { BookingAttachmentSchema } from '../unified-bookings/booking-ops.module'
 import { ServiceState, ServiceDomain, UserRole } from '../../common/enums';
 import { toUniversal, domainStatesFor, WorkflowEngineService, WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
 import { AcceptDto, RejectDto, StartDto, CompleteDto, InsuranceDto, ArrivedDto } from './provider-jobs.dto';
+import { withholdBeforeAcceptance } from './provider-job-privacy';
 
 type JobStatus = 'incoming' | 'active' | 'completed';
 
@@ -164,7 +165,7 @@ export class ProviderJobsService {
     const userMap = new Map<string, any>(users.map((u: any) => [u.id, u]));
     const attMap = new Map<string, number>(attachmentCounts.map((a: any) => [a._id, a.n]));
     const profileMap = new Map<string, any>(profiles.map((p: any) => [p.user_id, p]));
-    return combined.map((c: any) => ({
+    return combined.map((c: any) => withholdBeforeAcceptance({
       ...c,
       patient_name: userMap.get(c.patient_id)?.full_name || null,
       patient_phone: userMap.get(c.patient_id)?.phone || null,
@@ -199,7 +200,8 @@ export class ProviderJobsService {
     // Accepting a home visit commits the provider to a paid job: card must be paid; insurance is decided
     // through the coverage decision (POST /home-care/bookings/:id/coverage-decision), not here.
     if (kind === 'nursing' && target === ServiceState.CONFIRMED) {
-      if (entity.payment_method === 'insurance') throw new BadRequestException('insurance_booking_requires_coverage_decision');
+      // The insurance request engine marks the visit approved once the insurer covers it or the copay is paid.
+      if (entity.payment_method === 'insurance' && entity.insurance_status !== 'approved') throw new BadRequestException('insurance_booking_requires_coverage_decision');
       if (entity.payment_method === 'card' && entity.payment_status !== 'paid') throw new BadRequestException('card_payment_not_completed');
     }
     // Map universal target → domain literal that the entity understands.
@@ -270,7 +272,7 @@ export class ProviderJobsService {
 }
 
 @Controller('provider/jobs')
-@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class ProviderJobsController {
   constructor(private svc: ProviderJobsService) {}

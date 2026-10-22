@@ -39,6 +39,7 @@ const ABORT_REASONS = [
 // ══════ NAVIGATOR ══════
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens, withAlpha } from '../../theme/tokens';
+import { fmtDateTime } from '../../utils/dates';
 const Stack = createNativeStackNavigator();
 
 export function RadiologyDashboardNavigator({ onLogout }: { onLogout: () => void }) {
@@ -145,7 +146,7 @@ function RadiologyInboxList({ orders, loading, emptyTitle, onOpen }: { orders: R
               {!order.preparation_confirmed && order.state === 'CONFIRMED' && <View style={{ backgroundColor: withAlpha(tokens.warning, 0.20), borderRadius: R.sm, paddingHorizontal: 6, paddingVertical: 2 }}><Text style={{ fontSize: 9, color: tokens.warning }}>{AR ? 'التحضير: غير مؤكد' : 'Prep: Not Confirmed'}</Text></View>}
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{order.scheduled_at ? new Date(order.scheduled_at).toLocaleString('ar-SA-u-ca-gregory') : '—'}</Text>
+              <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{order.scheduled_at ? fmtDateTime(order.scheduled_at, AR) : '—'}</Text>
               <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: tokens.mintDeep }}>{order.total || 0} {AR ? 'ر.س' : 'SAR'}</Text>
             </View>
           </NCard>
@@ -285,6 +286,15 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
     } catch (e: any) { show(e.message, 'error'); } finally { setLoading(false); }
   };
 
+  // opened without an order (a deep link or a stale notification): say so instead of throwing and blanking the app
+  if (!currentOrder) {
+    return (
+      <View style={{ flex: 1, backgroundColor: theme.bg }}>
+        <NHeader title={AR ? 'الطلب' : 'Order'} onBack={onBack} />
+        <NEmpty title={AR ? 'الطلب غير موجود' : 'Order not found'} sub={AR ? 'ارجع إلى القائمة وافتح الطلب من جديد.' : 'Go back to the list and open the order again.'} />
+      </View>
+    );
+  }
   const sq = currentOrder.safety_questionnaire || {};
   const meta = STATE_LABELS[currentOrder.state] || STATE_LABELS.NEW_REQUEST;
 
@@ -301,7 +311,7 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
           </View>
         </View>
         <View style={{ backgroundColor: theme.surface2, borderRadius: R.md, padding: SP.md }}>
-          <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{AR ? 'الموعد:' : 'Scheduled:'} {currentOrder.scheduled_at ? new Date(currentOrder.scheduled_at).toLocaleString('ar-SA-u-ca-gregory') : '—'}</Text>
+          <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{AR ? 'الموعد:' : 'Scheduled:'} {currentOrder.scheduled_at ? fmtDateTime(currentOrder.scheduled_at, AR) : '—'}</Text>
           <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginTop: 4 }}>{AR ? 'الدفع:' : 'Payment:'} {currentOrder.payment_method || 'cash'} | {currentOrder.total || 0} {AR ? 'ر.س' : 'SAR'}</Text>
         </View>
       </NCard>

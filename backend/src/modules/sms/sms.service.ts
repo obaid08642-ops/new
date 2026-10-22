@@ -32,7 +32,28 @@ export class SmsService {
     return process.env.SMS_ENABLED === 'true';
   }
 
+  /**
+   * P17-17.9: OTP autofill. When SMS_WEBOTP_HASH is configured (the app's
+   * SMS-Retriever app hash from the Play Console signing cert), the body uses
+   * the WebOTP format (`<#>` prefix + `@domain #hash` suffix) so Android
+   * fills the code without interrupting the user; iOS fills from the numeric
+   * code via the client's `one-time-code` field either way. Without a
+   * configured hash the previous body is kept byte-identical (clients pin it).
+   */
+  otpBody(otp: string): string {
+    const code = String(otp || '').trim();
+    const hash = String(process.env.SMS_WEBOTP_HASH || '').trim();
+    const domain = String(process.env.SMS_WEBOTP_DOMAIN || 'nabd.plus').trim() || 'nabd.plus';
+    if (!hash) return `Your Nabd+ OTP is: ${code}`;
+    return `<#>\nYour Nabd+ OTP is: ${code}\n@${domain} #${hash}`;
+  }
+
   async sendOtp(phone: string, otp: string): Promise<boolean> {
+    return this.sendText(phone, this.otpBody(otp));
+  }
+
+  /** One text message (an OTP, a password-reset link), through the same switch, chaos drill and provider as the OTP. */
+  async sendText(phone: string, text: string): Promise<boolean> {
     // 15.11 chaos drill: force the documented fallback (false, i.e. email+push)
     // before the enabled-check and before any provider HTTP call, so the drill
     // asserts the real degraded path rather than a provider error. Never in
@@ -55,10 +76,11 @@ export class SmsService {
         // Taqnyat Integration
         const res = await axios.post('https://api.taqnyat.sa/v1/messages', {
           recipients: [phone],
-          body: `Your Nabd+ OTP is: ${otp}`,
+          body: text,
           sender: 'Nabdah'
         }, {
-          headers: { Authorization: `Bearer ${process.env.TAQNYAT_API_KEY}` }
+          headers: { Authorization: `Bearer ${process.env.TAQNYAT_API_KEY}` },
+          timeout: 8000, // sent once: a repeat could text twice
         });
         return res.status === 200 || res.status === 201;
       }

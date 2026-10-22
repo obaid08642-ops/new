@@ -1,6 +1,7 @@
 import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsInt, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min, ValidateNested } from 'class-validator';
 import { AllocationItemAction } from './schemas/pharmacy.schema';
 import { Type } from 'class-transformer';
+import { AttributionDto } from '../../common/attribution';
 
 /** Delivery address as the apps send it (patient-app pharmacy-draft.ts, patient-web checkout-flow.tsx). */
 export class GeoPointDto {
@@ -13,6 +14,8 @@ export class DeliveryAddressDto {
   @IsOptional() @IsString() @MaxLength(300) street?: string;
   @IsOptional() @IsString() @MaxLength(80) city?: string;
   @IsOptional() @IsString() @MaxLength(80) district?: string;
+  /** 19.7: the Saudi National Address short code of a saved address; the courier and the pharmacy see it with the street. */
+  @IsOptional() @IsString() @MaxLength(20) short_address?: string;
   @IsOptional() @IsString() @MaxLength(32) phone?: string;
   @IsOptional() @IsNumber() lat?: number;
   @IsOptional() @IsNumber() lng?: number;
@@ -27,6 +30,19 @@ export class ManualRequestDto {
   @IsOptional()
   @IsString()
   details?: string;
+
+  /** Journeys 74 (decision 12): how many boxes the patient wants. */
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(99)
+  qty?: number;
+
+  /** Journeys 74: a photo of the box (an image the patient uploaded through POST /storage/upload). */
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  photo_id?: string;
 }
 
 export class CreateDto {
@@ -78,12 +94,18 @@ export class CreateDto {
   @IsString()
   delivery_address_id?: string;
 
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AttributionDto)
+  attribution?: AttributionDto;
+
 }
 
 export class UpdateDto {
-  @IsDefined()
+  /** Optional since 22.5: a sent order may be edited by its address, delivery mode or note alone. */
+  @IsOptional()
   @IsArray()
-  items: any[];
+  items?: any[];
 
   /** D-10: a prescription attached after the draft was created. */
   @IsOptional()
@@ -335,6 +357,13 @@ export class OfferItemDto {
   @IsString()
   substitute_inventory_item_id?: string;
 
+  /** provider-journeys 1: a national catalogue item (search row with source "catalogue") when the line is priced from the
+   *  catalogue; the server adds it to the pharmacy's inventory. For a substitute it is the substitute item. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  medicine_id?: string;
+
   @IsOptional()
   @IsNumber()
   unit_price_override?: number;
@@ -405,22 +434,31 @@ export class RejectDto {
 
 }
 
+/**
+ * Issues 479/480: the pharmacy attaches a substitute from its own inventory to a chat message. Only the inventory row is
+ * sent; the server reads its sku, name and price and checks it against the prescription (issue 1440), so nothing typed
+ * by the pharmacy reaches the patient as a substitute.
+ */
 export class SubstituteOfferDto {
-  @IsOptional()
   @IsString()
-  sku?: string;
+  @MaxLength(128)
+  inventory_item_id: string;
 
   @IsOptional()
   @IsString()
-  name?: string;
-
-  @IsOptional()
-  @IsString()
+  @MaxLength(500)
   notes?: string;
+}
 
-  @IsOptional()
-  @IsNumber()
-  price?: number;
+/** Issues 479/480: the pharmacy opens (or gets) the negotiation of one line of an order it is part of. */
+export class OpenChatThreadDto {
+  @IsString()
+  @MaxLength(128)
+  order_id: string;
+
+  @IsString()
+  @MaxLength(128)
+  order_item_id: string;
 }
 
 export class PostDto {
@@ -538,4 +576,10 @@ export class PaymentRulesDto {
 /** D-25: PUT /provider/pharmacy/cod (the pharmacy switches its own cash on delivery). */
 export class PharmacyCodSettingDto {
   @IsBoolean() enabled: boolean;
+}
+
+/** D-12 (issue 331): the admin closes a price review: the catalogue price was updated, or the offered price was confirmed. */
+export class ResolvePriceReviewDto {
+  @IsIn(['catalogue_updated', 'price_confirmed']) resolution: 'catalogue_updated' | 'price_confirmed';
+  @IsOptional() @IsString() @MaxLength(500) note?: string;
 }

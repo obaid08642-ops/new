@@ -13,14 +13,15 @@ permissions:
 
 concurrency:
   group: patient-production-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  # a newer push to the same PR replaces the older run; runs on main are never cancelled
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   policy:
     name: Policy and source guard
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
       - name: Verify release governance documents
@@ -58,8 +59,8 @@ jobs:
       run:
         working-directory: backend
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
@@ -85,11 +86,11 @@ jobs:
       run:
         working-directory: packages/design-tokens
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         # locale-parity --base origin/main reads en.json from main: needs the full history, not depth 1.
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
       # The generated artefacts are committed so every client can import them
@@ -180,12 +181,12 @@ jobs:
     needs: [design-system]
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       # patient-web is a pnpm project (no package-lock.json), installed exactly like its own job.
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
         with:
           version: 10.4.1
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: pnpm
@@ -202,9 +203,24 @@ jobs:
       - name: Build
         working-directory: patient-web
         run: pnpm build
-      - name: Start
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          NABD_API_BASE_URL: https://api.nabd.plus/api/v1
+          NEXT_PUBLIC_SITE_ORIGIN: http://localhost:3999
+      # F68: production starts through the nonce server (the public pages carry a placeholder nonce that it stamps per
+      # response); `next start` alone never answers them. Same start as .github/workflows/lighthouse.yml.
+      - name: Start (standalone, through the nonce server)
         working-directory: patient-web
-        run: NODE_ENV=production pnpm exec next start --port 3999 &
+        env:
+          NABD_API_BASE_URL: https://api.nabd.plus/api/v1
+          NEXT_PUBLIC_SITE_ORIGIN: http://localhost:3999
+          PORT: 3999
+          HOSTNAME: 127.0.0.1
+        run: |
+          cp -r .next/static .next/standalone/.next/static
+          [ -d public ] && cp -r public .next/standalone/public || true
+          cp -r server .next/standalone/server
+          (node .next/standalone/server/nonce-server.mjs &> /tmp/next.log &)
       - name: Wait for the server
         run: |
           for i in $(seq 1 60); do
@@ -212,6 +228,7 @@ jobs:
             sleep 2
           done
           echo "server did not come up" >&2
+          tail -100 /tmp/next.log >&2 || true
           exit 1
       - name: No new unreadable text (ratchet)
         timeout-minutes: 15
@@ -228,8 +245,8 @@ jobs:
       run:
         working-directory: packages/brand
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
       # Same rule as the tokens: dist/ is committed, so this fails if anyone
@@ -249,8 +266,8 @@ jobs:
       run:
         working-directory: packages/ui
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
       # Same rule as the tokens and the brand: the generated icon sheets and the
@@ -261,8 +278,8 @@ jobs:
       # also compiles ../ui-native, so both packages are installed before anything runs.
       - name: Install the web and native design systems
         run: |
-          npm install --ignore-scripts --no-audit --no-fund
-          npm --prefix ../ui-native install --ignore-scripts --no-audit --no-fund
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm --prefix ../ui-native ci --ignore-scripts --no-audit --no-fund
       - name: Generated icon sheets and preview are in sync with the geometry
         run: npm test
       # The artwork is checked, not just generated: the generator refuses to emit
@@ -280,8 +297,8 @@ jobs:
     name: Component contract and conformance (12.A7)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
       # `tsc` here is not a formality. `packages/ui/components/conformance.ts`
@@ -294,8 +311,8 @@ jobs:
       # needs its react / react-native types: install both before the first tsc.
       - name: Install the web and native design systems
         run: |
-          npm --prefix packages/ui install --ignore-scripts --no-audit --no-fund
-          npm --prefix packages/ui-native install --ignore-scripts --no-audit --no-fund
+          npm --prefix packages/ui ci --ignore-scripts --no-audit --no-fund
+          npm --prefix packages/ui-native ci --ignore-scripts --no-audit --no-fund
       - name: The two renderers implement one contract
         working-directory: packages/ui
         run: npx tsc --noEmit -p tsconfig.json
@@ -320,8 +337,8 @@ jobs:
       run:
         working-directory: packages/shared-contracts
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
       - name: Install compiler
@@ -340,11 +357,11 @@ jobs:
       run:
         working-directory: patient-web
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
         with:
           version: 10.4.1
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: pnpm
@@ -365,8 +382,8 @@ jobs:
       run:
         working-directory: patient-app
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
@@ -377,8 +394,8 @@ jobs:
       # their own dependencies must be present for tsc, jest and the export.
       - name: Install the shared design packages
         run: |
-          npm install --ignore-scripts --no-audit --no-fund --prefix ../packages/ui-native
-          npm install --ignore-scripts --no-audit --no-fund --prefix ../packages/ui
+          npm ci --ignore-scripts --no-audit --no-fund --prefix ../packages/ui-native
+          npm ci --ignore-scripts --no-audit --no-fund --prefix ../packages/ui
       - name: Type check
         run: npm run typecheck
       - name: Run tests
@@ -393,6 +410,8 @@ jobs:
           node scripts/verify-jest-result.mjs /tmp/mobile-jest-result.json "$jest_exit"
       - name: Export web bundle
         run: npm run export:web
+      - name: Android bundle size budget (P14.24)
+        run: node scripts/bundle-size.mjs
 
   provider-app:
     name: Provider App typecheck and tests
@@ -401,8 +420,8 @@ jobs:
       run:
         working-directory: provider-app
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
@@ -422,8 +441,8 @@ jobs:
       run:
         working-directory: admin
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm

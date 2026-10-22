@@ -4,7 +4,7 @@
  *  BR-1 quote (server decides allowed payment methods),
  *  Refund policy windows (>24h = 100% / 4–24h = 50% / <4h = 0%).
  */
-import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { InsuranceFlowService, RefundService, QuoteController } from '../insurance-engine.module';
 
 const makeDoc = (obj: any) => {
@@ -24,12 +24,14 @@ describe('InsuranceFlowService', () => {
   let requests: any;
   let transactions: any;
   let orders: any;
+  let providers: any;
 
   beforeEach(() => {
     requests = { findOne: jest.fn(), create: jest.fn(async (data) => makeDoc(data)) };
     transactions = { findOne: jest.fn() };
     orders = { findOne: jest.fn() };
-    service = new InsuranceFlowService(requests, {} as any, {} as any, events, transactions, orders, {} as any, {} as any, {} as any, {} as any);
+    providers = { findOne: jest.fn(() => ({ lean: async () => ({ insurance_class_contracts: [{ company_id: 'company-1', classes: ['A'], active: true }] }) })) };
+    service = new InsuranceFlowService(requests, {} as any, {} as any, providers, events, transactions, orders, {} as any, {} as any, {} as any, {} as any);
     jest.clearAllMocks();
   });
 
@@ -46,13 +48,71 @@ describe('InsuranceFlowService', () => {
   it('derives insurance request price and provider from the owned booking, not the client body', async () => {
     orders.findOne.mockReturnValue({ lean: async () => ({ id: 'order-1', patient_id: 'pat-1', pharmacy_id: 'pharmacy-real', total: 120 }) });
     requests.findOne.mockReturnValue({ lean: async () => null });
-    service.myPolicy = jest.fn(async () => ({ has_policy: true, policy: { company_id: 'company-1' } }));
+    service.myPolicy = jest.fn(async () => ({ has_policy: true, policy: { company_id: 'company-1', class: 'A' } }));
     const result = await service.createRequest({ id: 'pat-1', full_name: 'Patient' }, {
       booking_id: 'order-1', booking_kind: 'pharmacy', provider_id: 'forged-provider', price: 1,
     });
     expect(result.provider_id).toBe('pharmacy-real');
     expect(result.price).toBe(120);
     expect(requests.create).toHaveBeenCalledWith(expect.objectContaining({ booking_id: 'order-1', booking_kind: 'pharmacy', provider_id: 'pharmacy-real', price: 120 }));
+  });
+
+  describe('createRequest contract check (D-30)', () => {
+    const booking = { booking_id: 'order-1', booking_kind: 'pharmacy' };
+    const patient = { id: 'pat-1', full_name: 'Patient' };
+    beforeEach(() => {
+      orders.findOne.mockReturnValue({ lean: async () => ({ id: 'order-1', patient_id: 'pat-1', pharmacy_id: 'pharmacy-real', total: 120 }) });
+      requests.findOne.mockReturnValue({ lean: async () => null });
+    });
+    const withPolicy = (policy: any) => { service.myPolicy = jest.fn(async () => ({ has_policy: true, policy })); };
+
+    it('refuses a provider that is contracted for the company but not the patient\'s class', async () => {
+      withPolicy({ company_id: 'company-1', class: 'B' });
+      await expect(service.createRequest(patient, booking)).rejects.toBeInstanceOf(ConflictException);
+      expect(requests.create).not.toHaveBeenCalled();
+    });
+
+    it('refuses a provider with a different company, an inactive contract, or no contracts', async () => {
+      withPolicy({ company_id: 'company-2', class: 'A' });
+      await expect(service.createRequest(patient, booking)).rejects.toBeInstanceOf(ConflictException);
+      withPolicy({ company_id: 'company-1', class: 'A' });
+      providers.findOne.mockReturnValue({ lean: async () => ({ insurance_class_contracts: [{ company_id: 'company-1', classes: ['A'], active: false }] }) });
+      await expect(service.createRequest(patient, booking)).rejects.toBeInstanceOf(ConflictException);
+      providers.findOne.mockReturnValue({ lean: async () => ({ accepted_insurance: ['company-1'] }) });
+      await expect(service.createRequest(patient, booking)).rejects.toBeInstanceOf(ConflictException);
+      providers.findOne.mockReturnValue({ lean: async () => null });
+      await expect(service.createRequest(patient, booking)).rejects.toBeInstanceOf(ConflictException);
+      expect(requests.create).not.toHaveBeenCalled();
+    });
+
+    it('a request that already exists is returned on retry even after the provider changed its contracts', async () => {
+      withPolicy({ company_id: 'company-1', class: 'A' });
+      const existing = makeDoc({ id: 'req-old', state: 'PENDING_PROVIDER_REVIEW' });
+      requests.findOne.mockReturnValue({ lean: async () => existing });
+      providers.findOne.mockReturnValue({ lean: async () => ({ insurance_class_contracts: [] }) });
+      await expect(service.createRequest(patient, booking)).resolves.toBe(existing);
+      expect(requests.create).not.toHaveBeenCalled();
+    });
+
+    it('fails closed when the saved policy has no class or no company', async () => {
+      withPolicy({ company_id: 'company-1' });
+      await expect(service.createRequest(patient, booking)).rejects.toThrow('insurance_class_required');
+      withPolicy({ class: 'A', policy_number: 'P-1' });
+      await expect(service.createRequest(patient, booking)).rejects.toThrow('insurance_class_required');
+      expect(requests.create).not.toHaveBeenCalled();
+    });
+
+    it('reads the policy that /insurance/save-policy writes (company id and code, plan_class)', async () => {
+      withPolicy({ company_id: 'uuid-1', company_code: 'company-1', provider: 'Company One', plan_class: 'A' });
+      await service.createRequest(patient, booking);
+      expect(requests.create).toHaveBeenCalled();
+    });
+
+    it('accepts a legacy policy that keeps the company in `provider`', async () => {
+      withPolicy({ provider: 'company-1', class: 'A' });
+      await service.createRequest(patient, booking);
+      expect(requests.create).toHaveBeenCalled();
+    });
   });
 
   describe('decide', () => {
@@ -64,6 +124,30 @@ describe('InsuranceFlowService', () => {
       expect(res.copay_amount).toBe(0);
       expect(req.save).toHaveBeenCalled();
       expect(events.emit).toHaveBeenCalledWith('insurance.decided', expect.objectContaining({ request_id: 'req-1', state: 'APPROVED_FULL' }));
+    });
+
+    it('approve_full confirms the service booking (nothing is owed) and names the provider in the decided event', async () => {
+      const req = pendingReq();
+      req.booking_kind = 'radiology';
+      req.booking_id = 'rad-1';
+      requests.findOne.mockResolvedValue(req);
+      const radiology = { updateOne: jest.fn(async () => undefined) };
+      (service as any).radiology = radiology;
+      await service.decide({ id: 'prov-1', role: 'doctor' }, 'req-1', { decision: 'approve_full', approval_ref: 'APR-TEST' });
+      expect(radiology.updateOne).toHaveBeenCalledWith({ id: { $eq: 'rad-1' }, state: { $in: ['NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY'] } }, { $set: { state: 'CONFIRMED', insurance_status: 'approved' } });
+      expect(events.emit).toHaveBeenCalledWith('insurance.decided', expect.objectContaining({ provider_id: 'prov-1', state: 'APPROVED_FULL' }));
+    });
+
+    it('approve_partial and reject do not confirm the booking', async () => {
+      const radiology = { updateOne: jest.fn(async () => undefined) };
+      (service as any).radiology = radiology;
+      for (const body of [{ decision: 'approve_partial', approval_ref: 'A', copay_percent: 20 }, { decision: 'reject', reason: 'not covered' }]) {
+        const req = pendingReq();
+        req.booking_kind = 'radiology';
+        requests.findOne.mockResolvedValue(req);
+        await service.decide({ id: 'prov-1', role: 'doctor' }, 'req-1', body);
+      }
+      expect(radiology.updateOne).not.toHaveBeenCalled();
     });
 
     it('approve_partial computes copay = price × percent', async () => {
@@ -136,7 +220,7 @@ describe('InsuranceFlowService', () => {
       requests.findOne.mockResolvedValue(req);
       const res = await service.payCopay({ id: 'pat-1' }, 'req-1', {});
       expect(res.state).toBe('COPAY_PAID');
-      expect(events.emit).toHaveBeenCalledWith('insurance.copay.paid', expect.objectContaining({ request_id: 'req-1' }));
+      expect(events.emit).toHaveBeenCalledWith('insurance.copay.paid', expect.objectContaining({ request_id: 'req-1', covered_in_full: true }));
     });
 
     it('COPAY_PENDING requires a payment id that is verified against the owned insurance request', async () => {
@@ -211,7 +295,7 @@ describe('QuoteController (BR-1)', () => {
     expect(q.allowed_methods).toContain('online');
   });
 
-  it.each(['online', 'video', 'audio', 'chat', 'home', 'home_visit', 'delivery', 'nursing', 'physiotherapy', 'ambulance'])(
+  it.each(['online', 'video', 'audio', 'chat', 'home', 'home_visit', 'delivery', 'nursing', 'physiotherapy'])(
     'channel "%s" is online-only (no clinic_pay)',
     (channel) => {
       const q = ctl.quote({ channel, price: '200' });

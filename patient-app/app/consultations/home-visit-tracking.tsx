@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Button, Card, FIcon, Timeline } from '../../../packages/ui-native/src';
@@ -8,12 +8,14 @@ import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKi
 import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
+import MapView, { Marker, PROVIDER_DEFAULT } from '../../src/components/MapPrimitives';
 
 /**
  * Home visit tracking — board OrderTracking (canvas/OrderTracking.dc.html) for a home-visit appointment: the doctor, the
  * waiting time when the server states one, and the steps of the visit. Everything is GET /care/appointments/:id: a step
- * is reached when the appointment's status says so, and shows a time only when the status history recorded it. There is
- * no live map: the backend has no doctor position to draw.
+ * is reached when the appointment's status says so, and shows a time only when the status history recorded it. While the
+ * doctor is on the way the server shares the doctor's last position (2-app#3), drawn on a map with the visit address; the
+ * screen reads it again every 30 seconds.
  */
 
 interface Appt {
@@ -24,7 +26,11 @@ interface Appt {
   status?: string;
   wait_time?: number;
   state_history?: Array<{ state?: string; at?: string }>;
+  doctor_position?: { lat?: number; lng?: number; at?: string };
+  visit_location?: { lat?: number; lng?: number; address?: string };
 }
+
+const coord = (v: unknown): number | null => (typeof v === 'number' && Number.isFinite(v) ? v : null);
 
 const REACHED = {
   confirmed: ['CONFIRMED', 'EN_ROUTE', 'CHECKED_IN', 'ARRIVED', 'IN_PROGRESS', 'COMPLETED'],
@@ -61,6 +67,14 @@ export default function HomeVisitTrackingScreen() {
     void load();
   }, [load]);
 
+  // while the doctor is on the way, follow the position the server shares
+  const enRouteNow = String(data?.status ?? '').toUpperCase() === 'EN_ROUTE';
+  useEffect(() => {
+    if (!enRouteNow) return;
+    const timer = setInterval(() => void load(), 30_000);
+    return () => clearInterval(timer);
+  }, [enRouteNow, load]);
+
   const current = String(data?.status ?? '').toUpperCase();
   const cancelled = current === 'CANCELLED' || current === 'NO_SHOW';
   const at = (state: string): string | undefined => {
@@ -75,6 +89,10 @@ export default function HomeVisitTrackingScreen() {
     { id: 'arrived', label: k('consult.track.arrived'), time: at('ARRIVED') ?? at('CHECKED_IN') },
     { id: 'done', label: k('consult.track.done'), time: at('COMPLETED') },
   ].map((s, i) => ({ ...s, state: (flags[i] ? 'done' : i === firstOpen ? 'current' : 'upcoming') as 'done' | 'current' | 'upcoming' }));
+  const docLat = enRouteNow ? coord(data?.doctor_position?.lat) : null;
+  const docLng = enRouteNow ? coord(data?.doctor_position?.lng) : null;
+  const homeLat = coord(data?.visit_location?.lat);
+  const homeLng = coord(data?.visit_location?.lng);
   const st = appointmentStatus(data?.status);
   const bookingId = data?.id || data?.appointment_id || (appointmentId ? String(appointmentId) : '');
 
@@ -111,7 +129,16 @@ export default function HomeVisitTrackingScreen() {
                 <StatusTag label={k('consult.status.cancelled')} tone="danger" />
               </View>
             ) : (
-              <View style={{ marginTop: 12 }}>
+              <View style={{ marginTop: 12, gap: 12 }}>
+                {docLat !== null && docLng !== null ? (
+                  <View style={{ height: 220, borderRadius: 16, overflow: 'hidden' }} accessibilityLabel={k('consult.track.mapLabel')}>
+                    <MapView provider={PROVIDER_DEFAULT} style={StyleSheet.absoluteFill} region={{ latitude: docLat, longitude: docLng, latitudeDelta: 0.03, longitudeDelta: 0.03 }}>
+                      <Marker coordinate={{ latitude: docLat, longitude: docLng }} title={k('consult.track.pinDoctor')} pinColor={c.status.info.fg} />
+                      {homeLat !== null && homeLng !== null ? <Marker coordinate={{ latitude: homeLat, longitude: homeLng }} title={k('consult.track.pinHome')} pinColor={c.status.danger.fg} /> : null}
+                    </MapView>
+                  </View>
+                ) : null}
+                {docLat !== null && data.doctor_position?.at ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.track.positionAt', { time: clock(data.doctor_position.at) })}</Text> : null}
                 <Timeline label={k('consult.track.title')} steps={steps} theme={theme} />
               </View>
             )}

@@ -9,15 +9,20 @@ on:
 permissions:
   contents: read
 
+# A newer push to the same PR replaces the older run (it would be thrown away anyway); pushes to main and scheduled runs are never cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   lighthouse:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
         with:
           version: 10.4.1
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 20
           cache: pnpm
@@ -52,14 +57,17 @@ jobs:
           done
           echo "server not ready"; tail -100 /tmp/next.log; exit 1
       - name: Audit key routes
-        uses: treosh/lighthouse-ci-action@v12
+        uses: treosh/lighthouse-ci-action@3e7e23fb74242897f95c0ba9cabad3d0227b9b18 # v12
         with:
           urls: |
             http://localhost:3000/ar
-            http://localhost:3000/ar/pharmacy
+            http://localhost:3000/ar/c
             http://localhost:3000/ar/consultations/doctors
           budgetPath: ./patient-web/.github/lighthouse-budget.json
           # QUALITY_STANDARDS §2/§3: performance >= 90, accessibility >= 95, LCP < 2.5 s, CLS < 0.1, TBT <= 200 ms
+          # Owner decision 45 (issue 427): applied (devtools) throttling, the median of 3 runs per page, thresholds unchanged.
+          # The catalogue is audited at its own address (/ar/c, the nav's link); /ar/pharmacy is an old alias that redirects.
           configPath: ./patient-web/.lighthouserc.json
+          runs: 3
           uploadArtifacts: true
           temporaryPublicStorage: true

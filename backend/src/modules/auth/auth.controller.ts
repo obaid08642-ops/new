@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Header, Headers, Logger, Optional, Param, Post, Put, UseGuards, Req, Res, BadRequestException } from '@nestjs/common';
-import { AuthLoginDto, AuthVerify2faDto, RefreshDto, RecordConsentDto, SendOtpDto, VerifyOtpDto, ResetPasswordDto, SocialLoginDto, HeartbeatDto, LinkAccountDto, ConfirmAccountLinkDto, CheckoutContactDto, GuestCleanupDto, GuestCapabilitiesDto } from './auth.dto';
+import { AuthLoginDto, AuthVerify2faDto, RefreshDto, LogoutDto, RecordConsentDto, SendOtpDto, VerifyOtpDto, ResetPasswordDto, SocialLoginDto, HeartbeatDto, LinkAccountDto, ConfirmAccountLinkDto, CheckoutContactDto, GuestCleanupDto, GuestCapabilitiesDto } from './auth.dto';
 import { PresenceService } from '../presence/presence.service';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
@@ -53,6 +53,7 @@ import { JwtAuthGuard, Public, CurrentUser, SelfService, Roles } from '../../com
 import { IsString, IsOptional, MinLength } from 'class-validator';
 import { UserRole } from '../../common/enums';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 class RegisterDto {
   // Legacy registration payload.
   @IsOptional() @IsString() full_name?: string;
@@ -152,6 +153,7 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // S-6 password-reset ceiling
   @Post('password/reset')
   patientResetPassword(@Body() dto: PatientResetPasswordDto) {
     return this.auth.resetPatientPassword(dto.reset_token, dto.new_password);
@@ -294,21 +296,34 @@ export class AuthController {
   }
 
   /**
-   * 21.7 — sign out of this device: the refresh sessions bound to it are revoked
-   * and its push token is removed, so a shared phone stops receiving this
-   * account's notifications.
+   * 21.7 — sign out of this device: its sign-in ends (the access token stops working at once) and its push tokens are
+   * removed, so a shared phone stops receiving this account's notifications. Other devices stay signed in.
    */
   @Post('logout-device')
   @UseGuards(JwtAuthGuard)
   async logoutDevice(@CurrentUser() user: any, @Headers('x-device-id') deviceId?: string) {
-    return this.auth.logoutDevice(user.id, deviceId);
+    return this.auth.logoutDevice(user.id, { sid: user.sid, deviceId: deviceId || user.dev });
   }
 
-  /** 21.7 — the signed-in devices the user can revoke. */
+  /** 21.7 — the signed-in devices of the account; the caller's own is marked `current`. */
   @Get('sessions')
   @UseGuards(JwtAuthGuard)
-  async sessions(@CurrentUser() user: any) {
-    return { devices: await this.auth.listSessions(user.id) };
+  async sessions(@CurrentUser() user: any, @Headers('x-device-id') deviceId?: string) {
+    return { devices: await this.auth.listSessions(user.id, { sid: user.sid, deviceId: deviceId || user.dev }) };
+  }
+
+  /** 21.7 — "sign out other devices": every sign-in except this one. */
+  @Post('sessions/revoke-others')
+  @UseGuards(JwtAuthGuard)
+  async revokeOtherSessions(@CurrentUser() user: any, @Headers('x-device-id') deviceId?: string) {
+    return this.auth.revokeOtherSessions(user.id, { sid: user.sid, deviceId: deviceId || user.dev });
+  }
+
+  /** 21.7 — sign out one listed device. */
+  @Delete('sessions/:id')
+  @UseGuards(JwtAuthGuard)
+  async revokeSession(@CurrentUser('id') userId: string, @Param('id') sessionId: string) {
+    return this.auth.revokeSession(userId, sessionId);
   }
 
   @Post('consent')
@@ -321,15 +336,21 @@ export class AuthController {
     return { ok: true, message: 'consent_recorded' };
   }
 
+  /**
+   * Sign out: the refresh session of the token sent here is revoked, so a copied refresh token stops working (issue 440).
+   * Public: holding the refresh token is what proves the right to end its session, also once the access token expired.
+   */
+  @Public()
   @Post('logout')
-  logout(@Res({ passthrough: true }) res: Response) {
+  async logout(@Body() body: LogoutDto, @Res({ passthrough: true }) res: Response) {
     res.clearCookie('nabd_admin_token', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       path: '/'
     });
-    return { success: true };
+    const session_revoked = body?.refresh_token ? await this.auth.revokeRefreshSession(body.refresh_token) : false;
+    return { success: true, session_revoked };
   }
 
   // P5.4: legacy names — distinct generic-OTP flow (not aliases of otp/*);
@@ -366,7 +387,7 @@ export class AuthController {
   }
 
   @Public()
-  @Throttle({ default: { limit: 20, ttl: 60000 } })
+  @Throttle({ default: { limit: 10, ttl: 60000 } }) // S-6 sign-in ceiling
   @Post('social-login')
   socialLogin(@Body() body: SocialLoginDto, @Req() req: Request) {
     return this.auth.socialLogin(body, guestMergeToken(req));
@@ -418,6 +439,7 @@ export class AuthController {
   }
 
   /** 21.3 — what a guest may do, as the server sees it right now. */
+  @Public()
   @Get('guest/capabilities')
   async guestCapabilities() {
     return { capabilities: await this.guestMatrix.matrix() };
@@ -425,6 +447,7 @@ export class AuthController {
 
   /** 21.3 — the admin edits the matrix; it applies on the next request, no deploy. */
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Put('admin/guest/capabilities')
   setGuestCapabilities(@CurrentUser('id') adminId: string, @Body() dto: GuestCapabilitiesDto) {
     return this.guestMatrix.setCapabilities(dto.capabilities as Record<GuestCapability, boolean>, adminId);
@@ -435,8 +458,9 @@ export class AuthController {
    * anyone trigger the deletion of guest rows.
    */
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.OPS_CRONS_RUN)
   @Post('guest/cleanup')
   async cleanupGuests(@Body() dto: GuestCleanupDto) {
-    return this.guestLifecycle.purgeInactiveGuests();
+    return this.guestLifecycle.purgeInactiveGuests({ retentionDays: dto.retention_days });
   }
 }

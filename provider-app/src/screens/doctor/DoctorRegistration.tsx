@@ -15,6 +15,7 @@ import { Validate } from '../../security/Security';
 import { SP, R, FS, FW, DEGREES } from '../../constants';
 import { I, I as NIcon } from '../../components/icons';
 import { LocationPickerModal } from '../../components/LocationPickerModal';
+import * as Location from 'expo-location';
 import { GeoPicker } from '../../components/GeoPicker';
 import * as ImagePicker from 'expo-image-picker';
 import MapView, { Marker } from '../../components/PlatformMap';
@@ -52,7 +53,7 @@ interface DoctorRegData {
   // Step 6 - Insurance & Location
   cashOnly: boolean; insuranceClinic?: boolean; insuranceVideo?: boolean; insuranceHome?: boolean; languages?: string[];
   acceptedInsurance: { companyId: string; plans: string[] }[];
-  region: string; city: string; district: string; location: any; /* {lat,lng} from the picker, {latitude,longitude} from the inline map: see needs-review */ address: string; clinicName: string;
+  region: string; city: string; district: string; location: { lat: number; lng: number } | null; /* the clinic, {lat,lng} as step2 reads it */ address: string; clinicName: string;
   // Step 8 - Signature
   signatureData: string; signerName: string; signerRole: string;
 }
@@ -71,7 +72,7 @@ const INITIAL: DoctorRegData = {
   videoDays:[], videoStart:'', videoEnd:'', videoShift:'both',
   homeDays:[], homeStart:'', homeEnd:'', homeShift:'both',
   vacationDate:'',
-  cashOnly:false, acceptedInsurance:[], region:'', city:'', district:'', location: {lat: 0, lng: 0}, address:'', clinicName:'', signatureData:'', signerName:'', signerRole:''
+  cashOnly:false, acceptedInsurance:[], region:'', city:'', district:'', location: null, address:'', clinicName:'', signatureData:'', signerName:'', signerRole:''
 };
 
 const WORK_DAYS = [
@@ -188,7 +189,8 @@ async function sendDoctor(data: DoctorRegData, uploads: Uploader): Promise<void>
     region: (data as any).region,
     city: data.city,
     district: (data as any).district,
-    location: data.location,
+    // {lat,lng}; a draft saved before this change may hold the map's {latitude,longitude}.
+    ...(clinicLocation(data.location) ? { location: clinicLocation(data.location) } : {}),
     address: data.address,
     accepts_cash: data.cashOnly,
     bio: data.bio,
@@ -239,6 +241,8 @@ const DOCTOR_WIZARD: WizardConfig<DoctorRegData> = {
       ar: 'بالتوقيع أدناه، أقر بأن جميع البيانات المدخلة صحيحة وأتحمل مسؤوليتها القانونية، وأوافق على شروط نبض بلس لاستخدام المنصة.',
       en: 'By signing below, I acknowledge that all provided data is correct, and I agree to Nabd+ terms of use.',
     },
+    // owner decision B25 (2026-10-14): all six provider types accept the terms before submitting
+    agree: { ar: 'أوافق على شروط وأحكام نبض بلس وسياسة الخصوصية، وأقر بصحة البيانات.', en: 'I agree to Nabd+ Terms & Conditions and Privacy Policy, and confirm all data is accurate.' },
     signatureTitle: { ar: 'التوقيع', en: 'Signature' },
     submitLabel: { ar: 'تأكيد وإرسال الطلب للإدارة', en: 'Submit for Admin Approval' },
     contractPricing: (d) => [
@@ -619,6 +623,12 @@ function Step4PricingAndLocation({ data, update, submitRef }: StepProps<DoctorRe
   );
 }
 
+/** The clinic point as step2 reads it ({lat,lng}); none when it was never set. */
+function clinicLocation(loc: any): { lat: number; lng: number } | null {
+  const lat = Number(loc?.lat ?? loc?.latitude), lng = Number(loc?.lng ?? loc?.longitude);
+  return Number.isFinite(lat) && Number.isFinite(lng) && (lat !== 0 || lng !== 0) ? { lat, lng } : null;
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 function Step5Schedule({ data, update, submitRef }: StepProps<DoctorRegData>) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
@@ -785,6 +795,18 @@ function Step6Insurance({ data, update, submitRef }: StepProps<DoctorRegData>) {
  const insuranceCatalog = useInsuranceCatalog();
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
 
+  // The clinic pin at the device's position (it used to drop a fixed Riyadh point).
+  const useMyLocation = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') { show(AR ? 'اسمح بالوصول إلى الموقع أو اختر النقطة على الخريطة' : 'Allow location access or tap the clinic on the map', 'error'); return; }
+      const here = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      update({ location: { lat: here.coords.latitude, lng: here.coords.longitude } });
+    } catch {
+      show(AR ? 'تعذر تحديد موقعك، اختر النقطة على الخريطة' : 'Could not find your location; tap the clinic on the map', 'error');
+    }
+  };
+
   const toggleCompany = (coId: string) => {
     const current = data.acceptedInsurance || [];
     const index = current.findIndex(c => c.companyId === coId);
@@ -902,13 +924,13 @@ function Step6Insurance({ data, update, submitRef }: StepProps<DoctorRegData>) {
         <MapView
           style={{ flex: 1 }}
           initialRegion={{ latitude: 24.7136, longitude: 46.6753, latitudeDelta: 0.05, longitudeDelta: 0.05 }}
-          onPress={(e) => update({ location: e.nativeEvent.coordinate })}
+          onPress={(e) => update({ location: { lat: e.nativeEvent.coordinate.latitude, lng: e.nativeEvent.coordinate.longitude } })}
         >
-          {data.location && <Marker coordinate={data.location} />}
+          {data.location && <Marker coordinate={{ latitude: data.location.lat, longitude: data.location.lng }} />}
         </MapView>
         <TouchableOpacity 
           style={{ position: 'absolute', bottom: SP.md, right: SP.md, backgroundColor: theme.card, padding: SP.sm, borderRadius: R.full, elevation: 4, shadowColor: theme.text, shadowOpacity: 0.2, shadowRadius: 4, shadowOffset: {width:0, height:2} }}
-          onPress={() => update({ location: { latitude: 24.7136, longitude: 46.6753 } })} // Simulating My Location
+          onPress={() => void useMyLocation()}
         >
           <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.primary }}>{AR ? 'موقعي الحالي' : 'My Location'}</Text>
         </TouchableOpacity>

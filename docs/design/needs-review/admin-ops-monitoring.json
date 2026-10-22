@@ -7,7 +7,8 @@
     "file": "admin/src/pages/admin/appointments-oversight.tsx",
     "line": 16,
     "found": "[backend] 1 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/appointments/:param/cancel): every admin role, including a custom restricted one, can run them. (backend: backend/src/modules/care/appointments.controller.ts:98)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1215 (issue #957)"
   },
   {
     "batch": "admin",
@@ -17,7 +18,8 @@
     "file": "admin/src/pages/admin/approvals.tsx",
     "line": 37,
     "found": "[client] Endpoint is UNRESOLVED (path is not a literal the tool can resolve): the call fails or hits nothing.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1426"
   },
   {
     "batch": "admin",
@@ -27,7 +29,8 @@
     "file": "admin/src/pages/admin/approvals.tsx",
     "line": 32,
     "found": "[client] Page has no client permission (AdminGuard ROUTE_PERMISSIONS) but 1 call(s) need permissions the backend checks (GET /medicines/admin/shortage-reports); any admin sees the page and gets 403s inside it. (backend: backend/src/modules/medicines/medicines.controller.ts:131)",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1426"
   },
   {
     "batch": "admin",
@@ -37,7 +40,8 @@
     "file": "admin/src/pages/admin/approvals.tsx",
     "line": 1,
     "found": "[client] Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1426"
   },
   {
     "batch": "admin",
@@ -47,7 +51,8 @@
     "file": "admin/src/pages/admin/approvals.tsx",
     "line": 18,
     "found": "[backend] No endpoint returns all pending approvals with counts, so the page asks nine existing list endpoints (providers, provider edits, withdrawals, refunds, returns, medicine change requests, shortage reports, image suggestions, catalogue medical review) and shows each count or a retry. The maker-checker lists GET /admin/finance-engine/approvals and GET /approval-workflow/requests/pending are not included (no page uses them yet). (backend: backend/src/modules/finance-engine/finance-engine.module.ts:1058)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "not-a-problem: the approvals page counts each queue from its own list with a retry per row; one endpoint would be an optimisation"
   },
   {
     "batch": "admin",
@@ -57,7 +62,8 @@
     "file": "admin/src/pages/admin/command-center.tsx",
     "line": 31,
     "found": "[backend] 1 call(s): Page requires \"command.center.view\" but GET /admin/analytics-suite/online requires analytics.read; an admin role with the page permission only gets a 403 on thi (backend: backend/src/modules/admin/enterprise/admin-analytics.controller.ts:28)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "not-a-problem: Checked: by design. (issue #958)"
   },
   {
     "batch": "admin",
@@ -67,7 +73,8 @@
     "file": "admin/src/pages/admin/dashboard.tsx",
     "line": 37,
     "found": "[backend] 2 call(s) hit backend routes with no role/permission guard (GET /api/admin/system-health/liveness; GET /api/admin/system-health/readiness): any signed-in user passes JwtAuthGuard. (backend: backend/src/modules/admin/web-core/controllers/system-health.controller.ts:6)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1215 #1256 (issue #959)"
   },
   {
     "batch": "admin",
@@ -77,7 +84,8 @@
     "file": "admin/src/pages/admin/dashboard.tsx",
     "line": 1,
     "found": "[client] Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1229 #1256 (issue #960)"
   },
   {
     "batch": "admin",
@@ -87,7 +95,8 @@
     "file": "admin/src/pages/admin/health-dashboard.tsx",
     "line": 1,
     "found": "[client] Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1229 (issue #961)"
   },
   {
     "batch": "admin",
@@ -97,7 +106,8 @@
     "file": "admin/src/pages/admin/order-detail.tsx",
     "line": 1,
     "found": "[client] Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "not-a-problem: Checked: not a problem. (issue #962)"
   },
   {
     "batch": "admin",
@@ -107,7 +117,8 @@
     "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
     "line": 51,
     "found": "[backend] 1 call(s): Page requires \"order.read\" but POST /admin/orders/:param/:param/:param requires order.cancel; an admin role with the page permission only gets a 403 on this cal (backend: backend/src/modules/admin/enterprise/admin-orders.controller.ts:62)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "not-a-problem: Checked: by design, not a problem. (issue #963)"
   },
   {
     "batch": "admin",
@@ -117,7 +128,8 @@
     "file": "admin/src/components/AdminGuard.tsx",
     "line": 21,
     "found": "[client] client permission \"users.view\" is not in backend Permission enum: the page/nav link is hidden or locked for every role.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "not-a-problem: fixed earlier on main, the /admin/search nav item requires user.read, which is in the Permission enum (issue #1232)"
   },
   {
     "batch": "admin",
@@ -127,7 +139,8 @@
     "file": "admin/src/pages/admin/today.tsx",
     "line": 49,
     "found": "[client] Page has no client permission (AdminGuard ROUTE_PERMISSIONS) but 1 call(s) need permissions the backend checks (GET /api/admin/admin/command-center-v2); any admin sees the page and gets 403s inside it. (backend: backend/src/modules/admin/enterprise/command-center-v2.controller.ts:70)",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1426 (issue #1233)"
   },
   {
     "batch": "admin",
@@ -137,7 +150,8 @@
     "file": "admin/src/pages/admin/today.tsx",
     "line": 1,
     "found": "[client] Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1426 (issue #1234)"
   },
   {
     "batch": "admin",
@@ -147,7 +161,8 @@
     "file": "admin/src/pages/admin/today.tsx",
     "line": 101,
     "found": "[backend] The screen shows what the existing endpoints can say (SLA breaches, stuck orders, failed payments). There is no admin notification inbox or bell, no push to the admin's phone (devices are enrolled for security only) and no rule for what is urgent, so nothing reaches an admin who has the screen closed. SOS is left out on purpose (ambulance removal, decision 14). (backend: backend/src/modules/ops/ops.controller.ts:39)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1517 (issue #1235)"
   },
   {
     "batch": "admin",
@@ -157,6 +172,7 @@
     "file": "admin/src/pages/admin/today.tsx",
     "line": 144,
     "found": "[backend] The orders list has no stuck / failed-payment / SLA-breach / refund-pending filter, so this screen lists only the stuck orders from ops/alerts (5 kinds, 30 minute threshold) and links each to its order page; failed payments link to finance because transactions carry a booking_kind that is not always an order kind. (backend: backend/src/modules/admin/enterprise/admin-orders.controller.ts:20)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1461"
   }
 ]

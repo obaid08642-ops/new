@@ -1,4 +1,5 @@
 import { copayRefundable, findCopayTransaction } from '../../common/copay-transaction';
+import { riyadhDayRange, riyadhMonthStart } from '../../common/riyadh-clock';
 import { ModuleRef } from '@nestjs/core';
 /**
  * EPIC 1 — FINANCE & MARKETPLACE ENGINE
@@ -31,7 +32,10 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { v4 as uuid } from 'uuid';
 import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { Permission, RequirePermissions } from '../../common/permissions';
 import { moyasarBase } from '../../common/moyasar-base';
+import { timedFetch } from '../../common/external-call';
+import { settlementDelayDefault } from '../../common/commission-defaults';
 
 export const LEDGER_TYPES = [
   'provider_earning', 'provider_debit', 'payout', 'refund', 'commission',
@@ -53,6 +57,8 @@ const DEFAULTS = {
   payment_velocity_failed_1h: 5,
   coupon_abuse_failed_1h: 10,
 };
+/** Read-only view of the finance defaults for other modules (admin urgent-alert rule defaults). */
+export const FINANCE_DEFAULTS: Readonly<typeof DEFAULTS> = DEFAULTS;
 
 const round2 = (n: number) => Math.round((Number(n) || 0) * 100) / 100;
 
@@ -149,7 +155,7 @@ export class LedgerService {
 
   async settlementDelayDays(serviceType?: string): Promise<number> {
     const cfg: any = await this.conn.collection('finance_config').findOne({ key: 'commissions' } as any);
-    return cfg?.settlement?.delay_days?.[serviceType || 'default'] ?? cfg?.settlement?.delay_days?.default ?? DEFAULTS.settlement_delay_days;
+    return cfg?.settlement?.delay_days?.[serviceType || 'default'] ?? cfg?.settlement?.delay_days?.default ?? settlementDelayDefault();
   }
 }
 
@@ -241,6 +247,21 @@ export class CommissionResolver {
 // ═══════════════════════════════════════════════════════════════════════════
 // CouponService — full promo rules engine (EPIC S13)
 // ═══════════════════════════════════════════════════════════════════════════
+export interface CouponContext {
+  order_total: number;
+  /** SAR value of the prescription-only lines of the cart (16.12 / D-10): they are never discounted. */
+  rx_total?: number;
+  provider_id?: string;
+  categories?: string[];
+}
+
+/** What a coupon (or a points redemption) may discount: the cart without its prescription-only lines. */
+export function couponEligibleTotal(ctx: { order_total: number; rx_total?: number }): number {
+  const total = Number(ctx.order_total);
+  const rx = Math.max(0, Number(ctx.rx_total) || 0);
+  return Number.isFinite(total) ? Math.max(0, round2(total - rx)) : 0;
+}
+
 @Injectable()
 export class CouponService {
   constructor(@InjectConnection() private readonly conn: Connection) {}
@@ -253,8 +274,22 @@ export class CouponService {
    * Checks: active, expiry window, max uses, per-user single use, min order,
    * max discount cap, provider scope, category scope, first-order only.
    */
-  async validate(userId: string, code: string, ctx: { order_total: number; provider_id?: string; categories?: string[] }): Promise<{ valid: boolean; discount: number; reason?: string; coupon?: any }> {
+  async validate(userId: string, code: string, ctx: CouponContext): Promise<{ valid: boolean; discount: number; reason?: string; coupon?: any }> {
+    const result = await this.evaluate(userId, code, ctx);
+    // 16.12: every refused attempt is counted; ten in an hour stop further guessing for that account
+    if (!result.valid && result.reason !== 'code_required' && result.reason !== 'too_many_attempts') {
+      await this.conn.collection('coupon_failures').insertOne({ user_id: userId, code: String(code).toUpperCase().slice(0, 40), reason: result.reason, at: new Date() } as any).catch(() => undefined);
+    }
+    return result;
+  }
+
+  private async evaluate(userId: string, code: string, ctx: CouponContext): Promise<{ valid: boolean; discount: number; reason?: string; coupon?: any }> {
     if (!code) return { valid: false, discount: 0, reason: 'code_required' };
+    const failures = await this.conn.collection('coupon_failures').countDocuments({ user_id: userId, at: { $gte: new Date(Date.now() - 3600 * 1000) } } as any);
+    if (failures >= DEFAULTS.coupon_abuse_failed_1h) return { valid: false, discount: 0, reason: 'too_many_attempts' };
+    // 16.12 / D-10: a coupon never discounts a prescription-only line. What it can discount is the rest of the cart.
+    const eligibleTotal = couponEligibleTotal(ctx);
+    if (!(eligibleTotal > 0)) return { valid: false, discount: 0, reason: 'rx_only_cart' };
     const c: any = await this.coupons.findOne({ code: String(code).toUpperCase() } as any);
     if (!c) return { valid: false, discount: 0, reason: 'not_found' };
     if (c.active === false) return { valid: false, discount: 0, reason: 'inactive' };
@@ -268,7 +303,7 @@ export class CouponService {
     const myUses = await this.usages.countDocuments({ code: c.code, user_id: userId } as any);
     if (myUses >= perUserLimit) return { valid: false, discount: 0, reason: 'already_used' };
 
-    if (c.min_order != null && ctx.order_total < Number(c.min_order)) {
+    if (c.min_order != null && eligibleTotal < Number(c.min_order)) {
       return { valid: false, discount: 0, reason: `min_order_${c.min_order}` };
     }
     if (c.provider_id && ctx.provider_id && c.provider_id !== ctx.provider_id) {
@@ -288,10 +323,10 @@ export class CouponService {
     }
 
     let discount = 0;
-    if (Number(c.discount_percent) > 0) discount = (ctx.order_total * Number(c.discount_percent)) / 100;
+    if (Number(c.discount_percent) > 0) discount = (eligibleTotal * Number(c.discount_percent)) / 100;
     else if (Number(c.discount_amount) > 0) discount = Number(c.discount_amount);
     if (Number(c.max_discount) > 0) discount = Math.min(discount, Number(c.max_discount));
-    discount = Math.min(round2(discount), round2(ctx.order_total));
+    discount = Math.min(round2(discount), round2(eligibleTotal));
     if (!(discount > 0)) return { valid: false, discount: 0, reason: 'no_discount' };
     return { valid: true, discount, coupon: { code: c.code, discount_percent: c.discount_percent, discount_amount: c.discount_amount } };
   }
@@ -300,7 +335,7 @@ export class CouponService {
    * Apply a coupon to an order — atomic usage recording.
    * The $inc guard on used_count < max_uses prevents race-condition overuse.
    */
-  async apply(userId: string, code: string, orderId: string, ctx: { order_total: number; provider_id?: string; categories?: string[] }) {
+  async apply(userId: string, code: string, orderId: string, ctx: CouponContext) {
     const v = await this.validate(userId, code, ctx);
     if (!v.valid) throw new BadRequestException(`coupon_invalid: ${v.reason}`);
     const c: any = await this.coupons.findOne({ code: String(code).toUpperCase() } as any);
@@ -360,8 +395,10 @@ export class LoyaltyRedeemService {
   }
 
   /** How many points may be applied to this order, and their SAR value. */
-  async quote(userId: string, orderTotal: number) {
+  async quote(userId: string, orderTotal: number, rxTotal = 0) {
     const cfg = await this.config();
+    // 16.12 / D-10: points are redeemed against the part of the cart that is not prescription-only
+    orderTotal = couponEligibleTotal({ order_total: orderTotal, rx_total: rxTotal });
     const acc: any = await this.conn.collection('loyalty_accounts').findOne({ user_id: userId } as any);
     const balance = Number(acc?.points ?? acc?.balance ?? 0);
     const capSar = round2((orderTotal * cfg.max_redeem_percent) / 100);
@@ -382,13 +419,13 @@ export class LoyaltyRedeemService {
    * max_redeem_percent of the order total (EPIC S12 — no full-order points
    * purchases). Atomic balance guard prevents negative balances.
    */
-  async redeem(userId: string, orderId: string, points: number, orderTotal: number) {
+  async redeem(userId: string, orderId: string, points: number, orderTotal: number, rxTotal = 0) {
     const cfg = await this.config();
     if (!cfg.enabled) throw new BadRequestException('loyalty_redemption_disabled');
     const pts = Math.floor(Number(points));
     if (!(pts > 0)) throw new BadRequestException('points_must_be_positive');
 
-    const q = await this.quote(userId, orderTotal);
+    const q = await this.quote(userId, orderTotal, rxTotal);
     if (pts > q.max_points_for_order) {
       throw new BadRequestException(`points_exceed_cap: max ${q.max_points_for_order} (${cfg.max_redeem_percent}% of order)`);
     }
@@ -650,11 +687,14 @@ export class RefundExecutor {
     // 1) Gateway refund (real money back to the card)
     if (paidPayment && paidPayment.moyasar_id && !String(paidPayment.moyasar_id).startsWith('sandbox_')) {
       const key = this.moyasarKey();
-      const resp = await fetch(`${moyasarBase()}/payments/${paidPayment.moyasar_id}/refund`, {
+      // Sent once (no idempotency key, so a repeat could refund twice). On a timeout the refund is NOT recorded here:
+      // the gateway may or may not have done it, so the 504 tells the operator to check the payment's status first
+      // (syncPaymentStatus reads `refunded` from Moyasar) before asking again.
+      const resp = await timedFetch(`${moyasarBase()}/payments/${paidPayment.moyasar_id}/refund`, {
         method: 'POST',
         headers: { Authorization: `Basic ${Buffer.from(`${key}:`).toString('base64')}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: Math.round(amount * 100), reason: opts.reason?.slice(0, 255) || 'refund' }),
-      });
+      }, { label: 'finance.refund', timeoutCode: 'refund_gateway_timeout' });
       const data: any = await resp.json().catch(() => ({}));
       if (!resp.ok) {
         this.logger.error(`Moyasar refund failed for ${paidPayment.moyasar_id}: ${data?.message || resp.status}`);
@@ -945,8 +985,9 @@ export class ReportsService {
     let from: Date;
     if (fromQ) from = new Date(fromQ);
     else if (period === 'weekly') from = new Date(now.getTime() - 7 * 24 * 3600 * 1000);
-    else if (period === 'monthly') from = new Date(now.getFullYear(), now.getMonth(), 1);
-    else from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    // the day and the month of the report are Riyadh's (the server clock is UTC)
+    else if (period === 'monthly') from = riyadhMonthStart(now);
+    else from = riyadhDayRange(undefined, now)!.start;
     const to = toQ ? new Date(toQ) : now;
     const dateQ = { createdAt: { $gte: from, $lte: to } };
 
@@ -1145,6 +1186,7 @@ export class AdminFinanceEngineController {
   }
 
   /** Commission rules with overrides + effective dates + versioning (S11). */
+  @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Post('commission-rules')
   setCommissionRule(@CurrentUser() u: any, @Body() b: SetCommissionRuleDto) {
     return this.commissions.setRule(u.id, { ...b });
@@ -1155,6 +1197,7 @@ export class AdminFinanceEngineController {
     return this.commissions.history();
   }
 
+  @RequirePermissions(Permission.FINANCE_READ)
   @Post('commission-rules/resolve')
   resolveCommission(@Body() b: ResolveCommissionDto) {
     return this.commissions.resolve(String(b?.service_type || ''), {
@@ -1168,11 +1211,13 @@ export class AdminFinanceEngineController {
     return this.approvals.listPending();
   }
 
+  @RequirePermissions(Permission.FINANCE_PAYOUT_APPROVE)
   @Post('approvals/request')
   requestApproval(@CurrentUser() u: any, @Body() b: RequestApprovalDto) {
     return this.approvals.request(b?.type, b?.payload || {}, u.id, b?.reason);
   }
 
+  @RequirePermissions(Permission.FINANCE_PAYOUT_APPROVE)
   @Post('approvals/:id/decide')
   async decideApproval(@CurrentUser() u: any, @Param('id') id: string, @Body() b: DecideApprovalDto) {
     const executors: Record<string, (payload: any) => Promise<any>> = {
@@ -1201,6 +1246,7 @@ export class AdminFinanceEngineController {
   }
 
   /** Execute an APPROVED refund request (S4/S14). Large amounts need maker-checker. */
+  @RequirePermissions(Permission.ORDER_REFUND)
   @Post('refunds/:id/execute')
   async executeRefund(@CurrentUser() u: any, @Param('id') id: string) {
     const req: any = await this.conn.collection('refundrequests').findOne({ id } as any);

@@ -23,11 +23,15 @@ import { ConsultationsProvider } from '../src/context/ConsultationsContext';
 import NotificationHandler from '../src/components/NotificationHandler';
 import OfflineBanner from '../src/components/OfflineBanner';
 import AppGate from '../src/components/AppGate';
+import PaymentResume from '../src/components/PaymentResume';
 import { ModuleRouteGate, ModulesProvider } from '../src/context/ModulesContext';
 import { initSentry } from '../src/utils/sentry';
 import { SyncManager } from '../src/data/sync/SyncManager';
 import { BackgroundSynchronizer } from '../src/data/sync/BackgroundSynchronizer';
 import { DatabaseManager } from '../src/data/database/core/DatabaseManager';
+// 15.5: a crash anywhere in the tree shows the translated card with Retry, never a blank screen.
+import { AppErrorBoundary } from '../src/services/ErrorHandler';
+import { AppCrashFallback } from '../src/components/AppCrashFallback';
 
 I18nManager.allowRTL(true);
 I18nManager.forceRTL(true);
@@ -87,6 +91,7 @@ function RootLayout() {
   if (!loaded && !error) return null;
 
   return (
+    <AppErrorBoundary fallback={(_error, reset) => <AppCrashFallback onRetry={reset} />}>
     <Provider store={store}>
       <AppProvider>
         <ModulesProvider>
@@ -101,6 +106,7 @@ function RootLayout() {
                       <NotificationHandler />
                       <OfflineBanner />
                       <AppGate>
+                      <PaymentResume />
                       <ModuleRouteGate>
                       <Stack 
                         screenOptions={{ headerShown: false, animation: 'fade_from_bottom', animationDuration: 250 }}
@@ -124,6 +130,7 @@ function RootLayout() {
         </ModulesProvider>
         </AppProvider>
     </Provider>
+    </AppErrorBoundary>
   );
 }
 

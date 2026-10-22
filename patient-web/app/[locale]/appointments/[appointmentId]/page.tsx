@@ -6,10 +6,9 @@ import { callPatientApi } from "@/lib/api/upstream";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { isDone, isOpen, MODE_VISUAL, modeOf, statusKey, statusTone } from "@/lib/consult/appointment-view";
-import { AppointmentActions } from "@/components-next/appointment-actions";
 import { PrescriptionClient } from "@/components-next/prescription-client";
-import { AppointmentRescheduleForm } from "@/components-next/appointment-reschedule-form";
 import { CallTokenLauncher } from "@/components-next/call-token-launcher";
+import { readTelehealthConsent } from "@/lib/legal/telehealth-consent";
 import { PolicyCard, policyLines } from "@/components-next/consult/policy-lines";
 import { getCancellationPolicy } from "@/lib/consult/cancellation-policy";
 import { ConsultationPaymentAction } from "@/components-next/consultation-payment-action";
@@ -188,18 +187,14 @@ export default async function AppointmentDetailPage({ params }: Props) {
 
       {open ? (
         <>
-          <AppointmentActions
-            appointmentId={appointmentId}
-            labels={{ actionsTitle: t("actionsTitle"), cancelAppointment: t("cancelAppointment"), cancelConfirm: t("cancelConfirm"), cancelReason: t("cancelReason"), keepAppointment: t("keepAppointment"), confirmCancel: t("confirmCancel"), cancelConflict: t("cancelConflict"), cancelFailed: t("cancelFailed"), cancelUnavailable: t("cancelUnavailable") }}
-          />
-          <AppointmentRescheduleForm
-            appointmentId={appointmentId}
-            labels={{ title: t("rescheduleTitle"), date: t("rescheduleDate"), reason: t("rescheduleReason"), submit: t("rescheduleSubmit"), cancel: t("rescheduleCancel"), conflict: t("rescheduleConflict"), failed: t("rescheduleFailed"), unavailable: t("rescheduleUnavailable"), invalid: t("rescheduleInvalid") }}
-          />
+          {/* journeys#42: one place to cancel or reschedule, as the app (the policy, a new time and the cancellation). */}
+          <ActionLinks actions={[{ href: `/${locale}/consultations/cancel-reschedule?appointmentId=${id}`, label: c("actionEdit"), variant: "outline" }]} />
           {appointment.serviceType === "video" ? (
             <CallTokenLauncher
               appointmentId={appointmentId}
               joinHref={`/${locale}/consultations/video-call?appointmentId=${id}`}
+              locale={locale}
+              consent={await readTelehealthConsent(locale)}
               labels={{ title: t("callTitle"), join: t("callJoin"), loading: t("callLoading"), ready: t("callReady"), unavailable: t("callUnavailable"), notReady: t("callDiscard"), open: t("callOpen") }}
             />
           ) : null}

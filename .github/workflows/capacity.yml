@@ -1,0 +1,113 @@
+name: Capacity (k6)
+
+# P14.27: the capacity report's numbers, re-run after each scale step (docs/perf/load-test-2026-10-16.md).
+# One runner holds the whole local test stack (backend as one process, like production's CLUSTER_MODE=false, MongoDB
+# replica set, Redis, the test doubles, LiveKit) next to k6, so the ceiling is this runner's, not production's: it is
+# for comparing one step with the next. Test data only (seed-perf-data.js, fixtures.py); nothing leaves the runner.
+# A pull request touching the scripts runs a short ladder as a smoke check; the full ladder is manual.
+on:
+  pull_request:
+    paths:
+      - 'tools/perf/k6/**'
+      - '.github/workflows/capacity.yml'
+  workflow_dispatch:
+    inputs:
+      steps:
+        description: 'VU steps of the ladder'
+        default: '5 10 15 20 30 40 60'
+      duration:
+        description: 'seconds per step (k6 duration)'
+        default: '60s'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: capacity-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  capacity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    services:
+      redis:
+        image: redis:7
+        ports: ['6379:6379']
+    env:
+      DB_NAME: nabd_perf
+      MOYASAR_WEBHOOK_SECRET: perf-webhook-secret-test-only
+      WEBHOOK_SECRET: perf-webhook-secret-test-only
+      ALLOW_WRITES: '1'
+      STEPS: ${{ github.event.inputs.steps || '5 10 20' }}
+      DURATION: ${{ github.event.inputs.duration || '30s' }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.12'
+
+      - name: k6 (pinned release, checked)
+        run: |
+          curl -sSfL -o /tmp/k6.tgz https://github.com/grafana/k6/releases/download/v1.3.0/k6-v1.3.0-linux-amd64.tar.gz
+          echo "84d26fc1f7bc03e02f2e016b3b1b20c032e05dfe461fca82de4e3a6ebe72ddbd  /tmp/k6.tgz" | sha256sum -c -
+          tar -xzf /tmp/k6.tgz -C /tmp && sudo install /tmp/k6-v1.3.0-linux-amd64/k6 /usr/local/bin/k6 && k6 version
+
+      - name: MongoDB replica set
+        run: |
+          docker run -d --name mongo -p 27017:27017 mongo:7 --replSet rs0 --bind_ip_all
+          for i in $(seq 1 30); do docker exec mongo mongosh --quiet --eval 'db.runCommand({ping:1})' && break; sleep 2; done
+          docker exec mongo mongosh --quiet --eval 'rs.initiate({_id:"rs0",members:[{_id:0,host:"127.0.0.1:27017"}]})'
+          for i in $(seq 1 30); do docker exec mongo mongosh --quiet --eval 'rs.status().ok' | grep -q 1 && break; sleep 2; done
+
+      - name: Test doubles (S3, SMTP sink, Moyasar) and LiveKit
+        run: |
+          pip install 'moto[server]==5.*' boto3 aiosmtpd
+          nohup moto_server -p 9000 > /tmp/moto.log 2>&1 &
+          nohup python3 tools/live/smtp_sink.py > /tmp/smtp.log 2>&1 &
+          nohup python3 tools/live/fake_moyasar.py > /tmp/moyasar.log 2>&1 &
+          for i in $(seq 1 30); do curl -s -o /dev/null http://127.0.0.1:9000 && break; sleep 1; done
+          python3 -c "import boto3; boto3.client('s3', endpoint_url='http://127.0.0.1:9000', aws_access_key_id='live', aws_secret_access_key='live-secret', region_name='us-east-1').create_bucket(Bucket='nabd-live')"
+          bash tools/live/start-livekit.sh
+
+      - name: Backend and test data
+        working-directory: backend
+        run: |
+          npm ci
+          npm run build
+          node ../tools/live/seed_admin.js
+          node ../tools/perf/k6/seed-perf-data.js 21000 20000
+          bash ../tools/live/start-backend.sh
+
+      - name: Fixtures (doctor, patients, paid booking, chat thread, call session)
+        run: python3 tools/perf/k6/fixtures.py > /tmp/k6-fixtures.json
+
+      - name: Ceiling ladder
+        run: |
+          mkdir -p /tmp/k6-ladder
+          set -o pipefail
+          OUT=/tmp/k6-ladder FIXTURES=/tmp/k6-fixtures.json bash tools/perf/k6/ladder.sh | tee /tmp/k6-ladder/report.md
+          { echo "## Capacity ladder (test data, one runner: $(nproc) vCPU)"; echo; sed -n '/^|/,$p' /tmp/k6-ladder/report.md; } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Campaign fan-out
+        run: |
+          python3 tools/perf/k6/fanout.py | tee /tmp/k6-ladder/fanout.json
+          { echo; echo "Campaign fan-out: \`$(cat /tmp/k6-ladder/fanout.json)\`"; } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: capacity-${{ github.run_id }}
+          path: /tmp/k6-ladder/
+          retention-days: 30
+
+      - name: Logs on failure
+        if: failure()
+        run: tail -n 200 /tmp/nabd-backend.log || true

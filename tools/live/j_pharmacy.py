@@ -1,7 +1,7 @@
 """Journey: pharmacy order, patient-app -> pharmacy (provider-app) -> patient -> delivery -> admin.
 Payloads copied from patient-app app/pharmacy/{checkout,broadcast-status,final-quote}.tsx,
 src/utils/pharmacy-draft.ts and provider-app screens/pharmacy/PharmacyDashboard.tsx."""
-import json, uuid, urllib.parse
+import json, time, uuid, urllib.parse
 from lib import Client, journey, step
 from j_nursing import card_payment
 
@@ -22,24 +22,62 @@ def patient_address(pat):
 MEDS = [('بنادول اكسترا 500 ملغ', 'Panadol Extra 500mg', 12.5), ('فيتامين سي 1000 ملغ', 'Vitamin C 1000mg', 25.0)]
 
 
-def admin_adds_medicines(admin):
+def catalog_body(ar, en, price):
     # admin/src/pages/admin/medicines-catalog.tsx saveForm (create)
+    return {'name_ar': ar, 'name_en': en, 'active_ingredient': 'paracetamol', 'generic_name': 'paracetamol',
+            'manufacturer': 'GSK', 'brand': 'Panadol', 'category': 'pain', 'sub_category': '', 'form': 'tablet', 'strength': '500mg',
+            'package_size': '24', 'barcode': '', 'price': price, 'requires_prescription': False, 'images': [], 'image': '',
+            'description_ar': 'مسكن', 'description_en': 'pain relief', 'usage_instructions_ar': '', 'usage_instructions_en': '',
+            'indications_ar': ['صداع'], 'indications_en': ['headache'], 'contraindications_ar': [], 'contraindications_en': [],
+            'warnings_ar': [], 'warnings_en': [], 'side_effects_ar': [], 'side_effects_en': [], 'precautions_ar': [], 'precautions_en': [],
+            'reason': 'إنشاء صنف جديد عبر واجهة الإدارة'}
+
+
+def admin_approves(admin, mid, label):
+    # admin medicines-catalog.tsx decideItem(m, true): the medical review that makes a new item public
+    r = admin.post(f'/medicines/admin/catalog/{mid}/approve', {'approve': True})
+    step(f'admin approves "{label}" (medical review)', r.ok and r.get('medical_review_status') == 'approved', r)
+
+
+def admin_adds_medicines(admin):
+    # A new catalogue item starts in medical review (not public); the admin approves it before patients can find it.
     journey('catalog: admin adds medicines')
     ids = []
     for ar, en, price in MEDS:
         tag = uuid.uuid4().hex[:6]
-        body = {'name_ar': f'{ar} {tag}', 'name_en': f'{en} {tag}', 'active_ingredient': 'paracetamol', 'generic_name': 'paracetamol',
-                'manufacturer': 'GSK', 'brand': 'Panadol', 'category': 'pain', 'sub_category': '', 'form': 'tablet', 'strength': '500mg',
-                'package_size': '24', 'barcode': '', 'price': price, 'requires_prescription': False, 'images': [], 'image': '',
-                'description_ar': 'مسكن', 'description_en': 'pain relief', 'usage_instructions_ar': '', 'usage_instructions_en': '',
-                'indications_ar': ['صداع'], 'indications_en': ['headache'], 'contraindications_ar': [], 'contraindications_en': [],
-                'warnings_ar': [], 'warnings_en': [], 'side_effects_ar': [], 'side_effects_en': [], 'precautions_ar': [], 'precautions_en': [],
-                'reason': 'إنشاء صنف جديد عبر واجهة الإدارة'}
+        body = catalog_body(f'{ar} {tag}', f'{en} {tag}', price)
         r = admin.post('/medicines/admin/catalog', body)
         mid = r.get('id')
         step(f'admin creates "{en}"', r.ok and mid, r)
+        if mid:
+            admin_approves(admin, mid, en)
         ids.append({'id': mid, 'name_ar': body['name_ar'], 'name_en': body['name_en'], 'price': price})
     return ids
+
+
+def pending_medicine_not_public(admin, pat):
+    # Medical governance: GET /medicines?q= (patient-app and patient-web search) never shows an item still in review,
+    # also when no approved item matches the query (the typo-tolerant fallback used to skip the public gate).
+    journey('catalog governance: a medicine in medical review is not public until approved')
+    tag = uuid.uuid4().hex[:6]
+    body = catalog_body(f'دواء قيد المراجعة {tag}', f'Review Pending Drug {tag}', 15.0)
+    r = admin.post('/medicines/admin/catalog', body)
+    mid = r.get('id')
+    step('admin creates a new item (medical review pending)', r.ok and mid, r)
+    if not mid:
+        return
+    guest = Client()
+    hits = lambda c, q: [x.get('id') for x in c.get('/medicines?q=' + urllib.parse.quote(q) + '&limit=50').items()]
+    for q in (body['name_ar'], body['name_en']):
+        step(f'patient search for "{q}" does not show the pending item', mid not in hits(pat, q), q)
+        step(f'guest search for "{q}" does not show the pending item', mid not in hits(guest, q), q)
+    r = guest.get(f'/medicines/{mid}')
+    step('the pending item page is not public (404)', r.status == 404, r)
+    admin_approves(admin, mid, body['name_en'])
+    for q in (body['name_ar'], body['name_en']):
+        step(f'after approval the patient finds it searching "{q}"', mid in hits(pat, q), q)
+    r = guest.get(f'/medicines/{mid}')
+    step('after approval the item page is public', r.ok and r.get('id') == mid, r)
 
 
 def pharmacy_prices_items(pharm, admin, meds):
@@ -57,6 +95,20 @@ def pharmacy_prices_items(pharm, admin, meds):
     r = pharm.get('/provider/capabilities/pharmacy')
     live = [x for x in (r.body if isinstance(r.body, list) else r.items()) if x.get('sku') in {m['id'] for m in meds}]
     step('items are live in the pharmacy inventory (with id, price, stock)', len(live) == len(meds) and all(x.get('id') and x.get('price') and x.get('stock') for x in live), live)
+
+
+def public_page(pharm):
+    # provider-app PharmacyQRMenuScreen and the profile editor's "Public page": https://nabd.plus/<locale>/pharmacy/<slug>
+    # from the pharmacy's own profile slug; the website page reads /entity-graph/related/pharmacy/<slug> (issue 1198)
+    journey('pharmacy public page: the QR link opens the pharmacy on the website')
+    prof = pharm.get('/provider/profile')
+    p = prof.body.get('data', prof.body) if isinstance(prof.body, dict) else {}
+    slug = p.get('slug')
+    step('the approved pharmacy has a public slug in its profile', prof.ok and bool(slug), prof)
+    if slug:
+        r = Client().get(f'/entity-graph/related/pharmacy/{urllib.parse.quote(str(slug))}')
+        ent = (r.body.get('entity') if isinstance(r.body, dict) else None) or {}
+        step('the website resolves that slug to this pharmacy', r.ok and bool(ent.get('name_ar') or ent.get('name_en')), r)
 
 
 def run(pat, pharm, admin=None, meds=None):
@@ -162,6 +214,14 @@ def run(pat, pharm, admin=None, meds=None):
     step('allocation detail', det.ok, det)
     for action in ('confirm', 'preparing', 'ready'):
         r = pharm.post(f'/provider/pharmacy/allocations/{aid}/{action}', {})
+        # The payment evidence is recorded by an asynchronous handler right after the payment is verified, so on a busy
+        # runner the first action can arrive a moment before it. The refusal is the right answer until then: ask again.
+        for _ in range(15):
+            if paid_by_card and not r.ok and 'payment_confirmation_required' in json.dumps(r.body, ensure_ascii=False):
+                time.sleep(1)
+                r = pharm.post(f'/provider/pharmacy/allocations/{aid}/{action}', {})
+            else:
+                break
         step(f'pharmacy: {action}', r.ok, r)
     r = pharm.post(f'/provider/pharmacy/allocations/{aid}/out-for-delivery', {'courier_name': 'مندوب', 'courier_phone': '+966500000555'})
     step('pharmacy: out for delivery', r.ok, r)
@@ -184,6 +244,10 @@ def run(pat, pharm, admin=None, meds=None):
     pharmacy_screens(pharm, oid, total)
     if admin:
         admin_console(admin, oid)
+        # 23.2: the order's story in the tamper-evident audit trail, in order (card payment on a first order, D-25)
+        import j_audit_events
+        chain = ['service.requested', 'service.matched', 'pharmacy.offer.submitted', 'pharmacy.offer.selected']
+        j_audit_events.check_chain(admin, 'pharmacy order', chain + (['payment_completed'] if paid_by_card else []) + ['service.completed'], resource_id=oid)
     return oid
 
 
@@ -413,6 +477,104 @@ def cancellations(pat, pharm, admin, meds):
     r = pat.post(f'/patient/pharmacy/orders/{oid}/cancel', {'reason': 'patient_requested'}, headers={'Idempotency-Key': KEY('pharmacy-cancel')})
     step('second cancel is refused, not a 500', r.status == 400, r)
 
+def _draft_body(meds, qty=1, count=None):
+    return [{'raw_name': m['name_ar'], 'qty': qty, 'sku': m['id'], 'intake_source': 'cart'} for m in (meds if count is None else meds[:count])]
+
+
+def _send_order(pat, pharm, meds, addr, items=None):
+    """Draft + submit; returns (order id, the pharmacy's broadcast row)."""
+    draft = {'items': items or _draft_body(meds),
+             'delivery_address': {'label': 'المنزل', 'street': addr.get('street') or '', 'city': addr.get('city') or '',
+                                  'lat': float(addr.get('lat') or 0), 'lng': float(addr.get('lng') or 0)}, 'prescription_attachments': []}
+    k = KEY('order-changes')
+    oid = pat.post('/patient/pharmacy/orders', draft, headers={'Idempotency-Key': k}).get('id')
+    pat.post(f'/patient/pharmacy/orders/{oid}/submit', {}, headers={'Idempotency-Key': k + '-submit'})
+    bl = pharm.get('/provider/pharmacy/broadcasts')
+    return oid, next((x for x in bl.items() if x.get('order_id') == oid), None)
+
+
+def _quote(pharm, oid, broadcast, unavailable=()):
+    """The pharmacy drafts and submits an offer; lines in `unavailable` (by position) are left out."""
+    rows = broadcast.get('items') or broadcast.get('medicines') or []
+    its = [{'order_item_id': str(m.get('id') or m.get('order_item_id') or ''),
+            'availability': 'unavailable' if i in unavailable else 'available',
+            **({} if i in unavailable else {'qty_offered': int(m.get('qty_requested') or m.get('qty') or m.get('quantity') or 1)})}
+           for i, m in enumerate(rows)]
+    d = pharm.post(f'/provider/pharmacy/broadcasts/{oid}/offers/draft', {'items': its})
+    sub = pharm.post(f"/provider/pharmacy/broadcasts/{oid}/offers/{d.get('id')}/submit") if d.ok else d
+    return d, sub
+
+
+def order_changes(pat, pharm, meds):
+    """22.5: edit a sent order before a pharmacy is chosen (quotes must be requoted), and split off what the chosen
+    pharmacy could not fill."""
+    addr = (pat.get('/users/me/profile').get('addresses') or [{}])[0]
+    journey('order changes: edit a sent order before a pharmacy is chosen')
+    oid, b = _send_order(pat, pharm, meds, addr)
+    step('the pharmacy sees the broadcast', b, oid)
+    if not b:
+        return
+    d, sub = _quote(pharm, oid, b)
+    step('the pharmacy quotes it', d.ok and sub.ok, f'{d} / {sub}')
+    offers = pat.get(f'/patient/pharmacy/orders/{oid}/offers').items()
+    step('the patient sees the quote', len(offers) >= 1, offers)
+    det = pat.get(f'/patient/pharmacy/orders/{oid}')
+    order = det.body.get('data', det.body) if isinstance(det.body, dict) else {}
+    step('the order says it can still be edited', order.get('editable') is True, order.get('editable'))
+    items = [dict(it, qty=2) for it in (order.get('items') or [])]
+    r = pat.req('PATCH', f'/patient/pharmacy/orders/{oid}', {'items': [{'id': it['id'], 'raw_name': it.get('raw_name') or it.get('name_ar') or 'x', 'qty': 2, 'sku': it.get('matched_sku'), 'intake_source': 'cart'} for it in items]},
+                headers={'Idempotency-Key': KEY('order-edit')})
+    step('the patient edits the quantities after sending', r.ok, r)
+    det = pat.get(f'/patient/pharmacy/orders/{oid}')
+    order = det.body.get('data', det.body) if isinstance(det.body, dict) else {}
+    step('the order carries the new quantities and a new revision', all(int(it.get('qty') or 0) == 2 for it in order.get('items') or []) and order.get('edit_revision') == 2, order.get('edit_revision'))
+    offers = pat.get(f'/patient/pharmacy/orders/{oid}/offers').items()
+    step('the old quote can no longer be chosen (the patient sees none)', len(offers) == 0, offers)
+    mine = [x for x in pharm.get('/provider/pharmacy/offers').items() if x.get('order_id') == oid]
+    step('the pharmacy sees its quote back as a draft that must be requoted', mine and mine[0].get('status') == 'draft' and mine[0].get('requote_required') is True, mine)
+    b2 = next((x for x in pharm.get('/provider/pharmacy/broadcasts').items() if x.get('order_id') == oid), b)
+    d, sub = _quote(pharm, oid, b2)
+    step('the pharmacy requotes the edited order', d.ok and sub.ok and d.get('requote_required') is False, f'{d} / {sub}')
+    offers = pat.get(f'/patient/pharmacy/orders/{oid}/offers').items()
+    step('the patient sees the new quote', len(offers) == 1, offers)
+    r = pat.post(f"/patient/pharmacy/orders/{oid}/offers/{offers[0].get('id') or offers[0].get('offer_id')}/select", {'coverage_mode': 'cash'}, headers={'Idempotency-Key': KEY('offer')}) if offers else None
+    step('the patient chooses it', r is not None and r.ok, r)
+    r = pat.req('PATCH', f'/patient/pharmacy/orders/{oid}', {'patient_notes': 'too late'}, headers={'Idempotency-Key': KEY('order-edit-late')})
+    step('after the choice an edit is refused (400 not_editable_after_offer_selected)', r.status == 400 and 'not_editable_after_offer_selected' in json.dumps(r.body), r)
+
+    journey('order changes: split off what the chosen pharmacy could not fill')
+    if len(meds) < 2:
+        step('two medicines are needed for the split journey', False, len(meds))
+        return
+    oid2, b = _send_order(pat, pharm, meds, addr)
+    step('the pharmacy sees the second broadcast', b, oid2)
+    if not b:
+        return
+    d, sub = _quote(pharm, oid2, b, unavailable=(1,))
+    step('the pharmacy quotes only the first line', d.ok and sub.ok, f'{d} / {sub}')
+    offers = pat.get(f'/patient/pharmacy/orders/{oid2}/offers').items()
+    r = pat.post(f"/patient/pharmacy/orders/{oid2}/offers/{offers[0].get('id') or offers[0].get('offer_id')}/select", {'coverage_mode': 'cash'}, headers={'Idempotency-Key': KEY('offer')}) if offers else None
+    step('the patient chooses the partial quote', r is not None and r.ok, r)
+    det = pat.get(f'/patient/pharmacy/orders/{oid2}')
+    order = det.body.get('data', det.body) if isinstance(det.body, dict) else {}
+    step('the order says one line is still unfilled', (order.get('split') or {}).get('unfilled_items') == 1, order.get('split'))
+    r = pat.post(f'/patient/pharmacy/orders/{oid2}/split-remaining', {}, headers={'Idempotency-Key': KEY('split')})
+    child = r.get('child_order_id')
+    step('splitting creates a new order for the missing line', r.ok and child and r.get('items') == 1, r)
+    r2 = pat.post(f'/patient/pharmacy/orders/{oid2}/split-remaining', {}, headers={'Idempotency-Key': KEY('split-again')})
+    step('asking again returns the same child (one split per order)', r2.ok and r2.get('child_order_id') == child and r2.get('existing') is True, r2)
+    if child:
+        cd = pat.get(f'/patient/pharmacy/orders/{child}')
+        corder = cd.body.get('data', cd.body) if isinstance(cd.body, dict) else {}
+        step('the child is a draft with only the missing medicine, linked to the parent',
+             corder.get('status') == 'draft' and len(corder.get('items') or []) == 1 and corder.get('parent_order_id') == oid2
+             and meds[1]['name_ar'] in json.dumps(corder.get('items'), ensure_ascii=False), corder)
+        det = pat.get(f'/patient/pharmacy/orders/{oid2}')
+        order = det.body.get('data', det.body) if isinstance(det.body, dict) else {}
+        step('the parent points to the child', (order.get('split') or {}).get('child_order_id') == child, order.get('split'))
+        r = pat.post(f'/patient/pharmacy/orders/{child}/submit', {}, headers={'Idempotency-Key': KEY('split-child-submit')})
+        step('the child is sent to pharmacies like any other order', r.ok, r)
+
 
 if __name__ == '__main__':
     import j_admin, j_accounts, j_onboarding
@@ -423,10 +585,13 @@ if __name__ == '__main__':
     j_onboarding.provider_after_approval(p)
     pat = j_accounts.app_signup(label='buyer')
     meds = admin_adds_medicines(admin)
+    pending_medicine_not_public(admin, Client(pat['token'], 'patient'))
     ph = Client(p['token'], 'pharmacy')
     pharmacy_prices_items(ph, admin, meds)
+    public_page(ph)
     pc = Client(pat['token'], 'patient')
     run(pc, ph, admin, meds)
     matrix_pharmacy(pc, ph, meds, patient_address(pc), admin)
     cancellations(pc, ph, admin, meds)
+    order_changes(pc, ph, meds)
     summary()

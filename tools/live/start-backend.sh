@@ -4,19 +4,23 @@
 # Mail goes to tools/live/smtp_sink.py on :2525 so OTP/email flows can be completed end to end.
 set -euo pipefail
 cd "$(dirname "$0")/../../backend"
-# Kill every previous backend (macOS xargs has no -r; pkill covers all).
-# SIGTERM alone left the process alive here, so escalate to SIGKILL — otherwise
-# the "restart" silently kept serving the previous dist.
-pkill -f "dist/main.js" 2>/dev/null || true
-for i in 1 2 3 4 5; do
-  pgrep -f "dist/main.js" >/dev/null 2>&1 || break
+# KEEP_OTHER_BACKENDS=1 starts one more node next to the running ones (tools/perf/scale-rehearsal: two API nodes
+# and a worker on other ports, BACKEND_LOG per node); by default every previous backend is stopped first.
+if [[ "${KEEP_OTHER_BACKENDS:-}" != 1 ]]; then
+  # Kill every previous backend (macOS xargs has no -r; pkill covers all).
+  # SIGTERM alone left the process alive here, so escalate to SIGKILL — otherwise
+  # the "restart" silently kept serving the previous dist.
+  pkill -f "dist/main.js" 2>/dev/null || true
+  for i in 1 2 3 4 5; do
+    pgrep -f "dist/main.js" >/dev/null 2>&1 || break
+    sleep 1
+    pkill -9 -f "dist/main.js" 2>/dev/null || true
+  done
+  if pgrep -f "dist/main.js" >/dev/null 2>&1; then
+    echo "old backend still running — kill it manually"; exit 1
+  fi
   sleep 1
-  pkill -9 -f "dist/main.js" 2>/dev/null || true
-done
-if pgrep -f "dist/main.js" >/dev/null 2>&1; then
-  echo "old backend still running — kill it manually"; exit 1
 fi
-sleep 1
 export NODE_ENV="${NODE_ENV:-development}" PORT="${PORT:-8002}"
 export JWT_SECRET="${JWT_SECRET:-live-test-secret-0123456789abcdef-0123456789}"
 export MONGO_URL="${MONGO_URL:-mongodb://127.0.0.1:27017/?replicaSet=rs0&directConnection=true}"
@@ -26,22 +30,63 @@ export REDIS_URL="${REDIS_URL:-redis://127.0.0.1:6379}" REDIS_HOST=127.0.0.1 RED
 export S3_ENDPOINT="${S3_ENDPOINT:-http://127.0.0.1:9000}" S3_BUCKET="${S3_BUCKET:-nabd-live}" S3_REGION="${S3_REGION:-us-east-1}"
 export S3_ACCESS_KEY_ID="${S3_ACCESS_KEY_ID:-live}" S3_SECRET_ACCESS_KEY="${S3_SECRET_ACCESS_KEY:-live-secret}"
 export SES_SMTP_HOST=127.0.0.1 SES_SMTP_PORT=2525 SES_SMTP_USER=live SES_SMTP_PASS=live SES_FROM=no-reply@nabd.test
+# SES is only in the chain when it is ordered (owner spec 2026-10-16); the live stack orders it so mail reaches smtp_sink.
+# j_mail_rotation starts its own backends with Resend/Brevo/Mailjet pointed at tools/live/fake_mail.py.
+# 19.7: Saudi Post National Address lookups go to tools/live/fake_spl.py (RRRD2929 and JEDA1234 exist).
+# (the template is kept in a variable: a literal {code} inside ${VAR:-...} ends the expansion at the first "}" in bash)
+SPL_DEFAULT_URL='http://127.0.0.1:9102/address?shortaddress={code}&api_key={key}'
+export SPL_API_URL="${SPL_API_URL:-$SPL_DEFAULT_URL}" SPL_API_KEY="${SPL_API_KEY:-live}"
+# 16.5: every upload is scanned; tools/live/fake_clamd.py stands in for ClamAV (it flags the EICAR test string).
+export CLAMD_HOST="${CLAMD_HOST:-127.0.0.1}" CLAMD_PORT="${CLAMD_PORT:-3311}" UPLOAD_SCAN="${UPLOAD_SCAN:-required}"
+# Every workflow that starts a backend this way (live gate, scale rehearsal, capacity, schemathesis ...) needs the stand-in running:
+# start it here when nothing answers on its port, so no workflow has to remember (a missing scanner is a 503 on every upload).
+if [[ "$CLAMD_HOST" == 127.0.0.1 && "$CLAMD_PORT" == 3311 ]] && ! (exec 3<>/dev/tcp/127.0.0.1/3311) 2>/dev/null; then
+  nohup python3 "$(dirname "$0")/fake_clamd.py" > /tmp/clamd.log 2>&1 &
+  for _ in 1 2 3 4 5 6 7 8 9 10; do (exec 3<>/dev/tcp/127.0.0.1/3311) 2>/dev/null && break; sleep 0.5; done
+fi
+export MAIL_PROVIDER_ORDER="${MAIL_PROVIDER_ORDER:-ses}"
 export ALLOWED_ORIGINS="${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3001,http://localhost:8081,http://localhost:8082}"
 export CORS_ORIGINS="$ALLOWED_ORIGINS"
 # The live suite drives many logins/OTPs from one IP; the limiter itself is covered by its own test.
 export DISABLE_RATE_LIMIT="${DISABLE_RATE_LIMIT:-true}" THROTTLER_LIMIT="${THROTTLER_LIMIT:-1000000}"
 # Same reason for the per-identifier OTP issue cap (the fixed admin account signs in on every journey run).
 export OTP_ISSUE_LIMIT="${OTP_ISSUE_LIMIT:-1000}"
+# Every payout takes both admin approvals in the live env, so the two-person path is exercised (j_payouts).
+export PAYOUT_DUAL_APPROVAL_SAR="${PAYOUT_DUAL_APPROVAL_SAR:-1}"
+# No escrow hold and a 1 SAR minimum in the live env, so a payout completes in one run (production keeps 3 days and
+# 100 SAR unless the super admin sets them in the finance suite).
+export SETTLEMENT_DELAY_DAYS="${SETTLEMENT_DELAY_DAYS:-0}" PAYOUT_MINIMUM_SAR="${PAYOUT_MINIMUM_SAR:-1}"
 # Card payments go to tools/live/fake_moyasar.py (:9100); /__pay/<id> plays the patient completing checkout.
 export MOYASAR_API_KEY="${MOYASAR_API_KEY:-sk_test_live_journeys}" MOYASAR_API_BASE="${MOYASAR_API_BASE:-http://127.0.0.1:9100/v1}"
 # 7C-C3: the backend network-gate check requires this header on /api/v1/admin/*.
 # The harness sends it (NABD_ADMIN_GATE_TOKEN, same default); keep both in sync.
 export ADMIN_GATE_TOKEN="${ADMIN_GATE_TOKEN:-live-gate-token}"
 export NABD_ADMIN_GATE_TOKEN="${NABD_ADMIN_GATE_TOKEN:-$ADMIN_GATE_TOKEN}"
+# Owner decision 29: admin roles are restrictive, so an admin holds only the permissions of their roles. The designated
+# owner is the seeded super_admin (tools/live/seed_admin.js, LIVE_OWNER_EMAIL); the gate admin holds a custom role.
+export ADMIN_PASSKEY_EMAIL="${ADMIN_PASSKEY_EMAIL:-${LIVE_OWNER_EMAIL:-owner@nabd.test}}"
+# Video calls (decision 4, 2026-10-14): the local LiveKit dev server of tools/live/start-livekit.sh (dev key/secret),
+# unless the caller already points the backend at another LiveKit.
+export LIVEKIT_URL="${LIVEKIT_URL:-http://127.0.0.1:${LIVEKIT_PORT:-7880}}"
+export LIVEKIT_API_KEY="${LIVEKIT_API_KEY:-devkey}" LIVEKIT_API_SECRET="${LIVEKIT_API_SECRET:-secret}"
 export NABD_ADMIN_DEVICE="${NABD_ADMIN_DEVICE:-live-gate-owner-macbook-01}"
-nohup node --max-old-space-size=1500 dist/main.js > /tmp/nabd-backend.log 2>&1 &
+# A catalogue write purges the website's cached product pages (PurgeBus -> POST /api/revalidate, tag `medicines`). The gate
+# serves the website on :3100 (start-web.sh gets the same secret), so a journey can edit a product and read the new page.
+export NEXT_REVALIDATE_URL="${NEXT_REVALIDATE_URL:-http://127.0.0.1:${PATIENT_WEB_PORT:-3100}/api/revalidate}" NEXT_REVALIDATE_SECRET="${NEXT_REVALIDATE_SECRET:-live-gate-revalidate-secret}"
+# 16.9: health fields are encrypted in the live stack too. One key per gate run, kept in a file so a restarted backend (the gate
+# restarts it) can still read what the previous process wrote; nothing secret is committed.
+KEYFILE="${FIELD_KEY_FILE:-/tmp/nabd-live-field-key}"
+[[ -s "$KEYFILE" ]] || { umask 077; openssl rand -base64 32 > "$KEYFILE"; }
+export FIELD_ENCRYPTION_KEY="${FIELD_ENCRYPTION_KEY:-$(cat "$KEYFILE")}"
+# 16.1: AI provider keys are wrapped at rest, so the live stack needs a wrapping key too (same per-run file approach).
+AIKEYFILE="${AI_KEYS_KEY_FILE:-/tmp/nabd-live-ai-keys-key}"
+[[ -s "$AIKEYFILE" ]] || { umask 077; openssl rand -base64 32 > "$AIKEYFILE"; }
+export AI_KEYS_ENC_KEY="${AI_KEYS_ENC_KEY:-$(cat "$AIKEYFILE")}"
+LOG="${BACKEND_LOG:-/tmp/nabd-backend.log}"
+nohup node --max-old-space-size=1500 dist/main.js > "$LOG" 2>&1 &
+echo $! > "$LOG.pid"
 for i in $(seq 1 90); do
   curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/api/v1/health/liveness" 2>/dev/null | grep -q 200 && { echo "backend up (db=$DB_NAME)"; exit 0; }
   sleep 2
 done
-echo "backend did not start"; tail -40 /tmp/nabd-backend.log; exit 1
+echo "backend did not start"; tail -40 "$LOG"; exit 1

@@ -1,4 +1,4 @@
-import { BadGatewayException, BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { I18nService } from '../i18n/i18n.service';
 import { Model } from 'mongoose';
 import { NotFoundException } from '@nestjs/common';
@@ -17,6 +17,12 @@ import { MailService } from '../mail/mail.module';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import axios from 'axios';
+import { PushService } from '../push/push.module';
+
+/** The patient's notification category of each type (Settings > Notifications; users.service NOTIFICATION_CATEGORIES). */
+const NOTIFICATION_CATEGORY: Record<string, string> = {
+  order: 'orders', appointment: 'appointments', prescription: 'health', labs: 'health', medication: 'health', promo: 'marketing',
+};
 
 @Injectable()
 export class NotificationsService {
@@ -29,7 +35,27 @@ export class NotificationsService {
     private mail: MailService,
     @InjectQueue('notifications-delivery') private queue: Queue,
     private readonly i18n: I18nService,
+    @Optional() private readonly push?: PushService,
   ) {}
+
+  /**
+   * batch-0-web#16: the patient's own switches (Settings > Notifications, stored on the patient profile). A category
+   * turned off, or a channel turned off, stops that push/email; the in-app list keeps every notification. Emergencies
+   * and account/security notices always go out.
+   */
+  private async deliveryPrefs(n: any): Promise<{ push: boolean; email: boolean }> {
+    const all = { push: true, email: true };
+    if (!n.user_id || n.type === NotificationType.EMERGENCY || n.priority === NotificationPriority.CRITICAL) return all;
+    let settings: any = null;
+    try {
+      const profile: any = await this.model.db.collection('patient_profiles').findOne({ user_id: n.user_id }, { projection: { notification_settings: 1 } });
+      settings = profile?.notification_settings || null;
+    } catch { return all; }
+    if (!settings) return all;
+    const category = String(n.title_key || '').startsWith('notif.chat_') ? 'chat' : NOTIFICATION_CATEGORY[String(n.type)] ?? null;
+    if (category && settings.categories?.[category] === false) return { push: false, email: false };
+    return { push: settings.channels?.push !== false, email: settings.channels?.email !== false };
+  }
 
   async create(data: {
     user_id?: string; role?: string;
@@ -151,12 +177,15 @@ export class NotificationsService {
     } catch { /* default language */ }
     const text = await this.resolveNotificationText(n.toObject ? n.toObject() : n, lang);
     n = { ...(n.toObject ? n.toObject() : n), title: text.title, body: text.body };
+    const prefs = await this.deliveryPrefs(n);
     // Push
-    try { const sent = await this.sendPush(n); delivery.push = bump('push', sent !== false); }
-    catch (e: any) { delivery.push = bump('push', false, e.message); }
+    if (prefs.push) {
+      try { const sent = await this.sendPush(n); delivery.push = bump('push', sent !== false); }
+      catch (e: any) { delivery.push = bump('push', false, e.message); }
+    }
     // User-targeted channels. Email must be sent at most once per delivery: users
     // with both phone and email otherwise get the same message twice.
-    let emailSent = false;
+    let emailSent = !prefs.email; // the patient turned email off (or the category): no email
     if (n.user_id) {
       try {
         const user = (await this.model.db.model('User').findOne({ id: n.user_id }).lean()) as any;
@@ -302,6 +331,11 @@ export class NotificationsService {
       if (fcmTokens.length > 0) {
         sent = (await this.sendFcmPush(fcmTokens, n, dataPayload)) || sent;
       }
+      // batch-0-web#9: the browsers the patient turned web push on in; a tap opens the web page of the target.
+      if (this.push) {
+        const target = resolveNotificationTarget(n.action?.route);
+        sent = (await this.push.sendWebToUser(n.user_id, n.title || n.title_key, n.body || n.body_key, { ...dataPayload, url: target?.web_path || '/' }).catch(() => false)) || sent;
+      }
     } else if (n.role) {
       sent = (await this.sendFcmPush(null, n, dataPayload, n.role)) || sent;
     }
@@ -351,6 +385,7 @@ export class NotificationsService {
       }));
       const res = await axios.post('https://exp.host/--/api/v2/push/send', messages, {
         headers: { 'Content-Type': 'application/json' },
+        timeout: 8000,
       });
       const receipts = Array.isArray(res.data?.data) ? res.data.data : [];
       return receipts.some((r: any) => r.status === 'ok');
@@ -394,7 +429,7 @@ export class NotificationsService {
           to: phone,
           content: { templateName: n.title_key, templateData: { body: { placeholders: [n.body_key] } }, language: 'ar' }
         }]
-      }, { headers: { Authorization: `App ${process.env.INFOBIP_API_KEY}` } });
+      }, { headers: { Authorization: `App ${process.env.INFOBIP_API_KEY}` }, timeout: 8000 });
     } catch(e) {
       this.logger.error('Failed to send WhatsApp', e.message);
     }
@@ -435,12 +470,15 @@ export class NotificationsService {
   }
 
   async markRead(id: string, user: any) {
-    const result: any = await this.model.updateOne(
+    // S-7: the ownership filter and the write are one atomic operation. The
+    // repository's updateOne returns the document (not a write result), so the
+    // only honest "did it match" signal is whether a document came back.
+    const updated: any = await this.model.findOneAndUpdate(
       { id, $or: [{ user_id: user.id }, { role: user.role }, { role: 'all' }] },
       { $addToSet: { read_by: user.id } },
+      { new: true },
     );
-    const matched = result?.matchedCount ?? result?.nMatched;
-    if (matched === 0) throw new NotFoundException('notification_not_found');
+    if (!updated) throw new NotFoundException('notification_not_found');
     return { ok: true };
   }
 
@@ -499,15 +537,69 @@ export class NotificationsService {
     });
   }
 
+  /** 19.3: the provider is told why it disappeared from the app, and what to do. */
+  @OnEvent('provider.license_lapsed')
+  async onProviderLicenseLapsed(p: any) {
+    if (!p?.provider_id) return;
+    const expired = p.outcome === 'expired';
+    await this.notifyProviderAccount(String(p.provider_id), {
+      type: 'booking_update',
+      title_ar: expired ? 'انتهت صلاحية ترخيص هيئة التخصصات الصحية' : 'تعذّر التحقق من ترخيص هيئة التخصصات الصحية',
+      title_en: expired ? 'Your SCFHS licence has expired' : 'Your SCFHS licence could not be verified',
+      body_ar: 'أُخفي حسابك من التطبيق إلى أن يُجدَّد الترخيص ويراجعه فريق نبض بلس.',
+      body_en: 'Your account is hidden from the app until the licence is renewed and the Nabd Plus team reviews it.',
+      related_id: p.profile_id ? String(p.profile_id) : undefined, related_type: 'provider_license',
+    });
+  }
+
+  /** 19.11 step 6: the copay is paid, or the insurer covered everything, so the provider is told the service continues. */
+  private async tellProviderInsuranceReady(p: any, coveredInFull: boolean) {
+    if (!p?.request_id) return;
+    const accountId = await this.resolveProviderAccount(p.provider_id);
+    if (!accountId) return;
+    const short = String(p.request_id).slice(0, 8);
+    await this.notifyProviderAccount(accountId, {
+      type: 'booking_update',
+      title_ar: coveredInFull ? 'التأمين يغطي الخدمة بالكامل' : 'تم دفع تحمّل المريض',
+      title_en: coveredInFull ? 'Insurance covers the service in full' : 'The patient paid the copay',
+      body_ar: `طلب التأمين ${short}: يمكن متابعة الخدمة`, body_en: `Insurance request ${short}: the service can continue`,
+      // its own type: the bell keeps one row per (type, id), and the request already has its "new request" row
+      related_id: String(p.request_id), related_type: 'insurance_request_ready',
+    });
+  }
+
+  @OnEvent('insurance.copay.paid')
+  async onInsuranceCopayPaidTargeted(p: any) {
+    // A full approval already told the provider when it was decided; the zero-copay confirmation is not a second news item.
+    if (p?.covered_in_full) return;
+    await this.tellProviderInsuranceReady(p, false);
+  }
+
+  @OnEvent('insurance.decided')
+  async onInsuranceDecidedProviderTargeted(p: any) {
+    if (p?.state === 'APPROVED_FULL') await this.tellProviderInsuranceReady(p, true);
+  }
+
   @OnEvent('chat.message_sent')
   async onChatMessageTargeted(p: any) {
     const threadId = p?.thread_id || p?.meta?.thread_id;
     const sender = p?.sender_id || p?.actor_account_id;
     const participants: string[] = p?.participant_ids || p?.meta?.participant_ids || [];
     if (!threadId || !sender) return;
+    let thread: any = undefined;
     for (const participant of participants.filter((id: string) => id && id !== sender)) {
       const accountId = await this.resolveProviderAccount(participant).catch(() => null);
-      if (!accountId) continue;
+      if (!accountId) {
+        // The patient of a consultation hears that the doctor wrote (the "chat" switch of Settings > Notifications).
+        if (thread === undefined) thread = await this.model.db.model('ChatThread').findOne({ id: { $eq: String(threadId) } }, { type: 1, booking_kind: 1, booking_id: 1 }).lean().catch(() => null);
+        if (thread?.type === 'booking' && thread.booking_kind === 'consultation' && thread.booking_id) {
+          await this.create({
+            user_id: participant, title_key: 'notif.chat_doctor.title', body_key: 'notif.chat_doctor.body', type: NotificationType.INFO,
+            action: { route: `/consultations/appointments/${thread.booking_id}` },
+          }).catch(() => null);
+        }
+        continue;
+      }
       await this.notifyProviderAccount(accountId, {
         type: 'booking_update',
         title_ar: 'رسالة جديدة من مريض', title_en: 'New patient message',
@@ -769,15 +861,22 @@ export class NotificationsService {
     const key = ({
       PROVIDER_ASSIGNED: 'assigned', IN_TRANSIT: 'transit', ARRIVED: 'arrived',
       CARE_IN_PROGRESS: 'care', COMPLETED: 'completed', CANCELLED: 'cancelled', NO_SHOW: 'no_show',
+      ESCALATED_EMERGENCY: 'emergency',
     } as any)[p.state] || 'state';
     await this.create({
       user_id: p.patient_id,
       title_key: `notif.homecare_${key}.title`,
       body_key: `notif.homecare_${key}.body`,
       type: NotificationType.INFO,
-      priority: ['ARRIVED', 'COMPLETED', 'CANCELLED'].includes(p.state) ? NotificationPriority.HIGH : NotificationPriority.NORMAL,
+      priority: ['ARRIVED', 'COMPLETED', 'CANCELLED', 'ESCALATED_EMERGENCY'].includes(p.state) ? NotificationPriority.HIGH : NotificationPriority.NORMAL,
       action: { route: `/nursing/tracking/${p.booking_id}` },
     });
+  }
+  /** The referring doctor hears that the home-nursing visit report is ready (home-care.controller completeVisit). */
+  @OnEvent('homecare.report_for_doctor')
+  async onHomecareReportForDoctor(p: any) {
+    if (!p.doctor_id) return;
+    await this.create({ user_id: p.doctor_id, title_key: 'notif.homecare_report_doctor.title', body_key: 'notif.homecare_report_doctor.body', type: NotificationType.INFO });
   }
 
   // ============ RADIOLOGY Lifecycle ============
@@ -797,6 +896,21 @@ export class NotificationsService {
     const uid = await this.resolveUserId(p.patientId || p.patient_id);
     if (!uid) return;
     await this.create({ user_id: uid, title_key: 'notif.rad_booked.title', body_key: 'notif.rad_booked.body', type: NotificationType.INFO });
+  }
+  /** Preparation reminders before a confirmed scan (radiology-reminder.cron: 24, 12 and 2 hours before). */
+  @OnEvent('radiology.prep_reminder')
+  async onRadPrepReminder(p: any) {
+    if (![24, 12, 2].includes(p.hours)) return;
+    const uid = await this.resolveUserId(p.patient_id);
+    if (!uid) return;
+    await this.create({
+      user_id: uid,
+      title_key: 'notif.rad_reminder.title',
+      body_key: `notif.rad_reminder_${p.hours}h.body`,
+      type: NotificationType.APPOINTMENT,
+      priority: NotificationPriority.HIGH,
+      action: { route: `/diagnostics/results-history` },
+    });
   }
   @OnEvent('radiology.state_changed')
   async onRadState(p: any) {
@@ -897,12 +1011,16 @@ export class NotificationsService {
     if (!p.patient_id) return;
     await this.create({
       user_id: p.patient_id,
-      title_key: 'notif.lab_result_ready.title',
-      body_key: 'notif.lab_result_ready.body',
-      params: { tracking_id: p.tracking_id, result_id: p.result_id },
+      title_key: p.critical ? 'notif.lab_result_critical.title' : 'notif.lab_result_ready.title',
+      body_key: p.critical ? 'notif.lab_result_critical.body' : 'notif.lab_result_ready.body',
+      params: { tracking_id: p.tracking_id, result_id: p.report_id },
       type: NotificationType.INFO,
-      priority: NotificationPriority.HIGH,
-      action: { route: `/labs/bookings/${p.booking_id}` },
+      priority: p.critical ? NotificationPriority.CRITICAL : NotificationPriority.HIGH,
+      // decision 19 (issue 338): the push opens this result (GET /lab-results/:id resolves a report uploaded on the
+      // booking too) and offers "discuss with a doctor", as lab.result_ready does
+      action: p.report_id
+        ? { route: `/health/results/${p.report_id}`, payload: { result_id: p.report_id, booking_id: p.booking_id, discuss: { route: '/consultations/book' } }, discuss: { route: '/consultations/book' } }
+        : { route: `/labs/bookings/${p.booking_id}` },
     });
   }
 
@@ -1164,7 +1282,18 @@ export class NotificationsService {
       body_key: 'notif.payment_received.body',
       params: p.amount != null ? { amount: p.amount } : {},
       type: NotificationType.INFO,
-      action: { route: '/wallet/hub' },
+      // 416: the patient has no wallet; the row opens what was paid for (the apps translate these tracking routes).
+      action: paidForRoute(p.booking_kind || p.kind, p.booking_id || p.id),
     });
   }
+}
+
+/** The tracking route of what a payment paid for, or the notifications inbox when the kind has no screen of its own. */
+export function paidForRoute(kind: unknown, id: unknown): { route: string } {
+  const ref = typeof id === 'string' && id ? encodeURIComponent(id) : '';
+  const k = String(kind || '');
+  if (ref && k === 'pharmacy') return { route: `/orders/${ref}` };
+  if (ref && (k === 'consultation' || k === 'appointment' || k === 'doctor')) return { route: `/tracking/consultation/${ref}` };
+  if (ref && (k === 'lab' || k === 'radiology' || k === 'nursing')) return { route: `/tracking/${k}/${ref}` };
+  return { route: '/notifications' };
 }

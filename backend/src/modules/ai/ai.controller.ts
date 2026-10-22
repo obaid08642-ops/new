@@ -5,11 +5,12 @@ import { AiService } from './ai.service';
 import { AiGatewayService } from './ai-gateway.service';
 import { JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
-import { TriageDto, SetModeDto, SetPurposeDto, VoiceDto, OcrDto, CopilotSuggestDto, OcrTranslateDto, MedicineImageSearchDto, BarcodeLookupDto, AnalyzeMealDto, GenerateExercisePlanDto, GenerateDietPlanDto, UpdateAiConfigDto, UpdateAiProviderDto} from './ai.dto';
+import { TriageDto, SetModeDto, SetPurposeDto, VoiceDto, OcrDto, CopilotSuggestDto, OcrTranslateDto, MedicineImageSearchDto, BarcodeLookupDto, AnalyzeMealDto, GenerateExercisePlanDto, GenerateDietPlanDto, UpdateAiConfigDto, UpdateAiProviderDto, TestAiProviderKeyDto } from './ai.dto';
 import { AssistantDto } from './assistant.service';
 import { AssistantService } from './assistant.service';
 import { AiProviderName } from './ai-gateway.service';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @Controller('ai')
 @SelfService()
 @UseGuards(JwtAuthGuard)
@@ -22,6 +23,7 @@ export class AiController {
     return this.svc.getAiConfig();
   }
 
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Post('config')
   @Roles(UserRole.ADMIN)
   updateConfig(@Body() body: UpdateAiConfigDto) {
@@ -36,13 +38,23 @@ export class AiController {
   }
 
   /** Admin: enable/disable/rekey/re-model/re-priority a provider. */
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Post('admin/gateway/provider/:key')
   @Roles(UserRole.ADMIN)
   updateProvider(@Param('key') key: AiProviderName, @Body() body: UpdateAiProviderDto) {
     return this.gateway.updateProvider(key, body || {});
   }
 
+  /** Admin: probe a candidate key live without storing it. */
+  @RequirePermissions(Permission.SETTINGS_EDIT)
+  @Post('admin/gateway/provider/:key/test')
+  @Roles(UserRole.ADMIN)
+  testProviderKey(@Param('key') key: AiProviderName, @Body() body: TestAiProviderKeyDto) {
+    return this.gateway.testKey(key, body?.api_key || '');
+  }
+
   /** Admin: auto fallback & round-robin OR manual pinned provider. */
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Post('admin/gateway/mode')
   @Roles(UserRole.ADMIN)
   setMode(@Body() body: SetModeDto) {
@@ -50,6 +62,7 @@ export class AiController {
   }
 
   /** Admin: pin one provider for a single feature (null clears; fallback preserved). */
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Post('admin/gateway/purpose')
   @Roles(UserRole.ADMIN)
   setPurpose(@Body() body: SetPurposeDto) {
@@ -136,16 +149,19 @@ export class AiController {
     return this.svc.ocrTranslate(body.image_base64 || '', body.target_lang || 'ar');
   }
 
+  @Throttle({ default: { limit: 20, ttl: 60000 } }) // S-6 paid-service ceiling
   @Post('medicine-image-search')
   medicineImageSearch(@Body() body: MedicineImageSearchDto) {
     return this.svc.medicineImageSearch(body.image_base64);
   }
 
+  @Throttle({ default: { limit: 20, ttl: 60000 } }) // S-6 paid-service ceiling
   @Post('barcode-lookup')
   barcodeLookup(@Body() body: BarcodeLookupDto) {
     return this.svc.barcodeLookup(body.code);
   }
 
+  @Throttle({ default: { limit: 20, ttl: 60000 } }) // S-6 paid-service ceiling
   @Post('analyze-meal')
   analyzeMeal(@Body() body: AnalyzeMealDto) {
     return this.svc.analyzeMeal(body.query || '', body.image_base64);
@@ -155,17 +171,20 @@ export class AiController {
    * Automated clinical report interpretation is intentionally unavailable until
    * a clinician-governed review workflow is introduced.
    */
+  @Throttle({ default: { limit: 20, ttl: 60000 } }) // S-6 paid-service ceiling
   @Post('analyze-report')
   analyzeReport() {
     return this.svc.analyzeReportForPatient();
   }
 
   /** EPIC4/S21: AI weekly exercise plan (goal/level/days/location). */
+  @Throttle({ default: { limit: 20, ttl: 60000 } }) // S-6 paid-service ceiling
   @Post('generate-exercise-plan')
   generateExercisePlan(@Body() body: GenerateExercisePlanDto) {
     return this.svc.generateExercisePlan(body || {});
   }
 
+  @Throttle({ default: { limit: 20, ttl: 60000 } }) // S-6 paid-service ceiling
   @Post('generate-diet-plan')
   generateDietPlan(@Body() body: GenerateDietPlanDto) {
     return this.svc.generateDietPlan(body);

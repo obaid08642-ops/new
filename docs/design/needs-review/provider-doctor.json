@@ -7,7 +7,8 @@
     "file": "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx",
     "line": 144,
     "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provider-ops.module.ts:743)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1206 (issue #1108)"
   },
   {
     "batch": "provider",
@@ -17,7 +18,8 @@
     "file": "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx",
     "line": 75,
     "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provider-ops.module.ts:755)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1206 (issue #1112)"
   },
   {
     "batch": "provider",
@@ -27,7 +29,8 @@
     "file": "provider-app/src/screens/doctor/doctor/EPrescriptionScreen.tsx",
     "line": 295,
     "found": "[client] Button \"{t.titleAr} {t.drugs.length}\" shows a success message without sending a request.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1504"
   },
   {
     "batch": "provider",
@@ -37,7 +40,8 @@
     "file": "provider-app/src/screens/doctor/doctor/EPrescriptionScreen.tsx",
     "line": 59,
     "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provider-ops.module.ts:667)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1206 (issue #1116)"
   },
   {
     "batch": "provider",
@@ -47,7 +51,8 @@
     "file": "provider-app/src/screens/doctor/doctor/PatientFileScreen.tsx",
     "line": 68,
     "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/provider-ops/provider-ops.module.ts:678)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1206 (issue #1117)"
   },
   {
     "batch": "provider",
@@ -57,6 +62,7 @@
     "file": "provider-app/src/screens/doctor/doctor/_shared.tsx",
     "line": 48,
     "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/livekit/livekit.controller.ts:15)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1206 (issue #1118)"
   }
 ]

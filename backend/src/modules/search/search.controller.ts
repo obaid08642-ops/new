@@ -1,16 +1,22 @@
+import { UserRateLimit, UserRateLimitGuard } from '../../common/user-rate-limit';
 import { Controller, Get, HttpCode, Module, Post, Query, UseGuards } from '@nestjs/common';
 import { IsIn, IsOptional, IsString, Matches, MaxLength } from 'class-validator';
 import { JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { PublicCache } from '../../common/public-cache.decorator';
 import { SEARCH_LOCALES, SEARCH_SECTIONS, SearchLocale, SearchSection } from './search-documents';
 import { SearchService } from './search.service';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 export class SearchQueryDto {
   @IsOptional() @IsString() @MaxLength(120) q?: string;
   @IsOptional() @IsIn([...SEARCH_SECTIONS]) section?: SearchSection;
   @IsOptional() @IsIn([...SEARCH_LOCALES]) locale?: SearchLocale;
   @IsOptional() @IsString() @Matches(/^\d{1,2}$/) limit?: string;
 }
+
+/** Owner spec (issue 1544): a suggestion may be reused for 5 minutes by the browser and for an hour at the edge. */
+export const SUGGEST_CACHE_CONTROL = 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400';
 
 export class SuggestQueryDto {
   @IsOptional() @IsString() @MaxLength(60) q?: string;
@@ -22,12 +28,23 @@ export class SuggestQueryDto {
 export class SearchController {
   constructor(private readonly svc: SearchService) {}
 
+  // 16.12: search hits the search engine; an account (a visitor: an address) gets 120 searches and 600 suggestions a minute
   @Public() @Get()
+  @UseGuards(UserRateLimitGuard)
+  @UserRateLimit('search', 120, 60)
   search(@Query() dto: SearchQueryDto) {
     return this.svc.search(dto.q || '', { section: dto.section, locale: dto.locale, limit: dto.limit ? Number(dto.limit) : undefined });
   }
 
-  @Public() @Get('suggest')
+  /**
+   * Anonymous answers are shared at the edge for an hour and purged by the `search` tag when the catalogue changes
+   * (SearchService.schedulePurge). A signed-in request gets `private, no-store` (CacheControlInterceptor).
+   */
+  @Public()
+  @PublicCache(3600, ['search'], { cacheControl: SUGGEST_CACHE_CONTROL })
+  @Get('suggest')
+  @UseGuards(UserRateLimitGuard)
+  @UserRateLimit('search_suggest', 600, 60)
   suggest(@Query() dto: SuggestQueryDto) {
     return this.svc.suggest(dto.q || '', dto.locale);
   }
@@ -40,6 +57,7 @@ export class SearchAdminController {
   constructor(private readonly svc: SearchService) {}
 
   /** Rebuilds the search index from MongoDB (the source of truth). */
+  @RequirePermissions(Permission.OPS_CRONS_RUN)
   @Post('reindex') @HttpCode(200)
   reindex() {
     return this.svc.rebuild();

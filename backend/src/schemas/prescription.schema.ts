@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { PrescriptionState } from '../common/enums';
 import { v4 as uuid } from 'uuid';
+import { healthFieldsPlugin } from '../common/health-fields';
 
 @Schema({ _id: false })
 export class PrescriptionItem {
@@ -51,6 +52,12 @@ export class Prescription {
   /** Pharmacist verification (F19): set when a pharmacist reviews the Rx lines. */
   @Prop() verified_by?: string;
   @Prop() verified_at?: Date;
+  /** 22.1: last day the prescription can be used for a refill (set by the prescriber or the pharmacist). Unset = unknown. */
+  @Prop() valid_until?: Date;
+  /** 22.1: how many more refills the prescription allows. Unset = unknown; a refill is refused until both are set. */
+  @Prop() refills_remaining?: number;
 }
 export type PrescriptionDocument = Prescription & Document;
 export const PrescriptionSchema = SchemaFactory.createForClass(Prescription);
+// 16.9: diagnosis, notes and the dosing instructions are ciphertext at rest
+PrescriptionSchema.plugin(healthFieldsPlugin, { registry: 'prescriptions' });

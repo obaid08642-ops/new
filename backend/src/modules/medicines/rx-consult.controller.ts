@@ -1,4 +1,5 @@
 import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Put, UseGuards } from '@nestjs/common';
+import { recordAudit } from '../../common/audit-record';
 import { InjectConnection } from '@nestjs/mongoose';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { IsObject, IsOptional, IsString } from 'class-validator';
@@ -6,6 +7,7 @@ import { Connection } from 'mongoose';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { SPECIALTY_MASTER, UserRole } from '../../common/enums';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 /** system_configs key: which specialty the "استشر طبيب" button opens for an Rx item (owner decision 10). */
 export const RX_CONSULT_KEY = 'rx_consult_specialties';
 
@@ -22,6 +24,15 @@ export class RxConsultSpecialtiesDto {
 }
 
 const bySlug = new Map(SPECIALTY_MASTER.map((s) => [s.slug, s]));
+
+/** $group key of an Rx medicine in the admin mapping: a non-empty string sub_category, else the category. */
+export const RX_CATEGORY_KEY = {
+  $cond: [
+    { $and: [{ $eq: [{ $type: '$sub_category' }, 'string'] }, { $ne: ['$sub_category', ''] }] },
+    '$sub_category',
+    '$category',
+  ],
+};
 
 /**
  * D-10: an Rx item in the cart offers "استشر طبيب", which opens consultations filtered to a suitable
@@ -76,7 +87,9 @@ export class RxConsultController {
     const cfg = await this.config();
     const categories = await this.conn.collection('medicines').aggregate([
       { $match: { requires_prescription: true } },
-      { $group: { _id: { $ifNull: ['$sub_category', '$category'] }, count: { $sum: 1 } } },
+      // The key the patient lookup tries first: the sub-category, or the category when the sub-category is missing or
+      // empty (the admin catalogue form saves '' for "none"; $ifNull alone kept '' and the category was never listed).
+      { $group: { _id: RX_CATEGORY_KEY, count: { $sum: 1 } } },
       { $sort: { count: -1 } },
       { $limit: 300 },
     ]).toArray();
@@ -88,6 +101,7 @@ export class RxConsultController {
   }
 
   /** PUT /api/v1/admin/pharmacy/rx-consult-specialties — admin, every slug checked, audit-logged. */
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Put('admin/pharmacy/rx-consult-specialties')
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)
@@ -108,15 +122,14 @@ export class RxConsultController {
       { $set: { key: RX_CONSULT_KEY, value: { map, default: def }, updated_at: now, updated_by: admin?.id ?? null }, $setOnInsert: { created_at: now } },
       { upsert: true },
     );
-    await this.conn.collection('audit_logs').insertOne({
-      id: `rx_consult_${now.getTime()}`,
+    await recordAudit(this.conn, {
       action: 'rx_consult_specialties_update',
       resource_kind: 'system_config',
       resource_id: `system_config:${RX_CONSULT_KEY}`,
-      actor_account_id: admin?.id,
-      actor_role: admin?.role,
-      metadata: { before, after: { map, default: def } },
-      created_at: now,
+      user_id: admin?.id,
+      role: admin?.role,
+      changes: { before: { value: before }, after: { value: { map, default: def } } },
+      severity: 'warn',
     });
     return this.config();
   }

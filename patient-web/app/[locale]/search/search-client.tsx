@@ -8,16 +8,38 @@ import { visibleItems } from "@/lib/modules";
 import { Chip, SectionHeader, ServiceTile } from "@/components-next/ui-generated/components/Surfaces";
 import { EmptyState, ErrorState } from "@/components-next/ui-generated/components/Feedback";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
-import { Search } from "@/components-next/ui-generated/components/Inputs";
+import { SearchSuggest, useSearchSuggest } from "@/components-next/search/search-suggest";
+import { SuggestSearchField } from "@/components-next/search/search-suggest-field";
 import { SERVICE_ICONS, type FillIconName, type ServiceName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { extractGroupedResults, intentRedirect, truncateQuery, type SearchResult } from "@/lib/api/search";
 import { specialtyLabel, type SpecialtySlug } from "@/lib/specialties";
 import { isLocale, type Locale } from "@/lib/i18n";
+import { readRecentSearches, rememberSearch, writeRecentSearches } from "@/lib/search/recent-searches";
 import styles from "./search.module.css";
 
 type Tab = "all" | "medicines" | "doctors" | "labs" | "radiology" | "other";
+
+/** 17.3: adds a search the patient opened a result of to this device's list, reading the stored list first (another tab may have written it). */
+function persistRecent(term: string): string[] {
+  const next = rememberSearch(readRecentSearches(), term);
+  writeRecentSearches(next);
+  return next;
+}
+
+/** 17.3: the trending searches of the last week, as the server answers them (a missing or failed answer hides the row). */
+async function loadTrending(signal: AbortSignal): Promise<string[]> {
+  try {
+    const response = await fetch("/api/search/trending?limit=8", { cache: "no-store", signal });
+    if (!response.ok) return [];
+    const data: unknown = await response.json().catch(() => null);
+    if (!Array.isArray(data)) return [];
+    return data.flatMap((row) => (row && typeof row === "object" && typeof (row as { term?: unknown }).term === "string" ? [(row as { term: string }).term] : []));
+  } catch {
+    return [];
+  }
+}
 
 /**
  * What a result is, from the search API's type (D-29, mapped to a kind by `extractGroupedResults`): its group
@@ -30,7 +52,7 @@ const KINDS: Record<string, { group: Exclude<Tab, "all">; icon: FillIconName; to
   Medicine: { group: "medicines", icon: "pill", tone: toneOf("pharmacy"), label: "kindMedicine", href: (id, l) => `/${l}/medicines/${encodeURIComponent(id)}` }, // i18n-ok: label is a Search message key
   Doctor: { group: "doctors", icon: "stethoscope", tone: toneOf("consult"), label: "kindDoctor", href: (id, l) => `/${l}/consultations/doctors/${encodeURIComponent(id)}` }, // i18n-ok: label is a Search message key
   Specialty: { group: "doctors", icon: "stethoscope", tone: toneOf("consult"), label: "kindSpecialty", href: (code, l) => `/${l}/consultations/doctors?specialty=${encodeURIComponent(code)}` }, // i18n-ok: label is a Search message key
-  Lab: { group: "labs", icon: "test-tube", tone: toneOf("lab"), label: "kindLab" }, // i18n-ok: label is a Search message key
+  Lab: { group: "labs", icon: "test-tube", tone: toneOf("lab"), label: "kindLab", href: (id, l) => `/${l}/diagnostics/test-detail?testId=${encodeURIComponent(id)}` }, // i18n-ok: label is a Search message key
   LabPackage: { group: "labs", icon: "test-tube", tone: toneOf("lab"), label: "kindLabPackage" }, // i18n-ok: label is a Search message key
   Radiology: { group: "radiology", icon: "scan", tone: toneOf("radiology"), label: "kindRadiology", href: (id, l) => `/${l}/diagnostics/radiology/${encodeURIComponent(id)}` }, // i18n-ok: label is a Search message key
   Nursing: { group: "other", icon: SERVICE_ICONS.nursing.icon, tone: toneOf("nursing"), label: "kindNursing", href: (id, l) => `/${l}/home-care/services/${encodeURIComponent(id)}` }, // i18n-ok: label is a Search message key
@@ -60,8 +82,9 @@ function Highlighted({ text, query }: { text: string; query: string }) {
   return <>{parts.map((part, i) => (i % 2 === 1 ? <mark key={i} className={styles.mark}>{part}</mark> : <Fragment key={i}>{part}</Fragment>))}</>;
 }
 
-export function ResultItem({ result, locale, query }: { result: SearchResult; locale: string; query: string }) {
+export function ResultItem({ result, locale, query, onOpen }: { result: SearchResult; locale: string; query: string; onOpen?: () => void }) {
   const t = useTranslations("Search");
+  const product = useTranslations("PublicProduct");
   const kind = kindOf(result);
   const route = KINDS[result.typeEn || ""]?.href;
   const href = route ? route(result.id, locale) : undefined;
@@ -83,12 +106,33 @@ export function ResultItem({ result, locale, query }: { result: SearchResult; lo
         {price ? <span className={styles.price}>{t("price", { value: price })}</span> : null}
         {rate ? <span className={styles.rate}>{t("rating", { value: rate })}</span> : null}
         {"label" in kind ? <StatusChip label={t(kind.label)} tone={kind.tone} /> : null}
+        {result.requiresPrescription === true ? <StatusChip label={product("rxRequired")} tone="amber" /> : null}
+        {result.onlineOnly === true ? <StatusChip label={product("onlineOnly")} tone="mint" /> : null}
       </span>
     </span>
   </>;
   return href
-    ? <Link href={href} className={styles.item}>{body}</Link>
+    ? <Link href={href} className={styles.item} onClick={onOpen}>{body}</Link>
     : <div className={styles.item}>{body}</div>;
+}
+
+/** A row of search terms the patient can tap to search again (recent, trending, or suggested after an empty result). */
+function TermRow({ title, terms, onPick, action }: { title: string; terms: string[]; onPick: (term: string) => void; action?: { label: string; onClick: () => void } }) {
+  return (
+    <section className={styles.terms} aria-label={title}>
+      <div className={styles.termsHead}>
+        <h2 className={styles.termsTitle}>{title}</h2>
+        {action ? <button type="button" className={styles.termsAction} onClick={action.onClick}>{action.label}</button> : null}
+      </div>
+      <ul className={styles.termList}>
+        {terms.map((term) => (
+          <li key={term}>
+            <button type="button" className={styles.termChip} onClick={() => onPick(term)}>{term}</button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
 }
 
 export function SearchClient({ locale, initialQuery = "" }: { locale: string; initialQuery?: string }) {
@@ -98,13 +142,31 @@ export function SearchClient({ locale, initialQuery = "" }: { locale: string; in
   const routeState = useTranslations("RouteState");
   const shellLocale: Locale = isLocale(locale) ? locale : "ar";
   const [query, setQuery] = useState(initialQuery);
+  // issue 1544: instant suggestions under the field while typing (the results below follow the query too)
+  const suggest = useSearchSuggest(shellLocale);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [state, setState] = useState<"idle" | "loading" | "error">(initialQuery.trim().length >= 2 ? "loading" : "idle");
   const [tab, setTab] = useState<Tab>("all");
   const [attempt, setAttempt] = useState(0);
+  // 17.3: this device's recent searches (kept in its storage only) and the server's trending terms.
+  const [recent, setRecent] = useState<string[]>([]);
+  const [trending, setTrending] = useState<string[]>([]);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const q = query.trim();
   const searching = q.length >= 2;
+
+  useEffect(() => {
+    setRecent(readRecentSearches());
+    const controller = new AbortController();
+    void loadTrending(controller.signal).then(setTrending);
+    return () => controller.abort();
+  }, []);
+
+  function search(term: string) {
+    const next = truncateQuery(term);
+    setQuery(next);
+    suggest.controller.input(next);
+  }
 
   useEffect(() => {
     if (timer.current) clearTimeout(timer.current);
@@ -113,7 +175,7 @@ export function SearchClient({ locale, initialQuery = "" }: { locale: string; in
       setState("loading");
       try {
         // D-29: the grouped home search; the API returns each name in the page's locale.
-        const response = await fetch(`/api/patient/search?q=${encodeURIComponent(q)}&locale=${encodeURIComponent(shellLocale)}&limit=10`, { cache: "no-store" });
+        const response = await fetch(`/api/search/public?q=${encodeURIComponent(q)}&locale=${encodeURIComponent(shellLocale)}&limit=10`, { cache: "no-store" });
         if (!response.ok) throw new Error("search_unavailable");
         const found = extractGroupedResults(await response.json().catch(() => null));
         // F71: one request per query. Only a query that found NOTHING asks the intent parser, and a confident intent
@@ -163,20 +225,27 @@ export function SearchClient({ locale, initialQuery = "" }: { locale: string; in
 
   let content: React.ReactNode;
   if (!searching) {
-    content = <section className={styles.browse} aria-label={t("browseTitle")}>
+    content = <>
+      {recent.length > 0 ? <TermRow title={t("recentTitle")} terms={recent} onPick={search} action={{ label: t("recentClear"), onClick: () => { setRecent([]); writeRecentSearches([]); } }} /> : null}
+      {trending.length > 0 ? <TermRow title={t("trendingTitle")} terms={trending} onPick={search} /> : null}
+    <section className={styles.browse} aria-label={t("browseTitle")}>
       <SectionHeader title={t("browseTitle")} />
       <ul className={styles.tiles}>
         {visibleItems(BROWSE, (b) => b.path, disabled).map((b) => (
           <li key={b.name}><Link href={`/${locale}${b.path}`} className={styles.tileLink}><ServiceTile name={b.name} label={t(b.label)} /></Link></li>
         ))}
       </ul>
-    </section>;
+    </section>
+    </>;
   } else if (state === "loading") {
     content = <p role="status" className={styles.status}>{t("searching")}</p>;
   } else if (state === "error") {
     content = <ErrorState title={t("error")} retryLabel={routeState("retry")} onRetry={() => setAttempt((n) => n + 1)} />;
   } else if (results.length === 0) {
-    content = <EmptyState icon="magnifying-glass" tone={toneOf("consult")} title={t("empty")} body={t("emptyHint")} />;
+    content = <>
+      <EmptyState icon="magnifying-glass" tone={toneOf("consult")} title={t("empty")} body={t("emptyHint")} />
+      {trending.length > 0 ? <TermRow title={t("tryTitle")} terms={trending} onPick={search} /> : null}
+    </>;
   } else {
     content = <>
       <div className={styles.summary}>
@@ -194,7 +263,7 @@ export function SearchClient({ locale, initialQuery = "" }: { locale: string; in
         return <section key={section.id} className={styles.group} data-single={tab === "all" ? undefined : "true"} aria-label={section.title}>
           <div className={styles.groupHead}><SectionHeader title={section.title} /></div>
           <div className={styles.items}>
-            {items.map((r) => <ResultItem key={`${r.typeEn}-${r.id}`} result={r} locale={locale} query={q} />)}
+            {items.map((r) => <ResultItem key={`${r.typeEn}-${r.id}`} result={r} locale={locale} query={q} onOpen={() => setRecent(persistRecent(q))} />)}
           </div>
         </section>;
       })}
@@ -209,7 +278,21 @@ export function SearchClient({ locale, initialQuery = "" }: { locale: string; in
     <CoreShell
       locale={shellLocale}
       cancelHref={`/${locale}`}
-      search={<Search variant="page" value={query} onChange={(value) => setQuery(truncateQuery(value))} placeholder={t("placeholder")} label={t("title")} onClear={() => setQuery("")} clearLabel={t("clear")} />}
+      search={<SearchSuggest
+        state={suggest.state}
+        controller={suggest.controller}
+        renderField={(combobox) => (
+          <SuggestSearchField
+            combobox={combobox}
+            value={query}
+            onChange={(value) => { const next = truncateQuery(value); setQuery(next); suggest.controller.input(next); }}
+            onClear={() => { setQuery(""); suggest.controller.input(""); }}
+            placeholder={t("placeholder")}
+            label={t("title")}
+            clearLabel={t("clear")}
+          />
+        )}
+      />}
     >
       {searching && state === "idle" && results.length > 0 ? null : <h1 className={styles.srOnly}>{t("title")}</h1>}
       {content}

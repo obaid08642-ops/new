@@ -1,0 +1,22 @@
+name: ops-monitor
+# deploy/scripts/monitor.sh: the disk alert (under 20% free) and its e-mail rule, with fake df readings.
+on:
+  pull_request:
+    paths: ['deploy/scripts/monitor.sh', 'tools/ops/monitor/**', '.github/workflows/ops-monitor.yml']
+  push:
+    branches: [main]
+    paths: ['deploy/scripts/monitor.sh', 'tools/ops/monitor/**', '.github/workflows/ops-monitor.yml']
+permissions:
+  contents: read
+# A newer push to the same PR replaces the older run (it would be thrown away anyway); pushes to main and scheduled runs are never cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - run: bash -n deploy/scripts/monitor.sh && bash tools/ops/monitor/test-monitor.sh

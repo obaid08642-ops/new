@@ -1,0 +1,41 @@
+name: next-multi-instance
+# P14.10 Verify: two patient-web instances behind nginx, one Redis ISR cache (patient-web/cache-handler.cjs), serve
+# the same revalidated content with the same Cache-Control. Test data from a stand-in API (tools/perf/next-multi-instance).
+on:
+  pull_request:
+    paths: ['patient-web/cache-handler.cjs', 'patient-web/next.config.ts', 'patient-web/package.json', 'tools/perf/next-multi-instance/**', '.github/workflows/next-multi-instance.yml']
+  workflow_dispatch:
+# A newer push to the same PR replaces the older run (it would be thrown away anyway); pushes to main and scheduled runs are never cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  two-instances:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with: { version: 10.4.1 }
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with: { node-version: 20, cache: pnpm, cache-dependency-path: patient-web/pnpm-lock.yaml }
+      - name: Stand-in API (test data)
+        run: (node tools/perf/next-multi-instance/stub-api.mjs 4010 > /tmp/stub.log 2>&1 &) && sleep 1 && curl -s localhost:4010/api/v1/public/product/ar/rehearsal-product | head -c 120
+      - name: Build with the shared cache handler
+        working-directory: patient-web
+        env:
+          NEXT_CACHE_HANDLER: redis
+          NEXT_TELEMETRY_DISABLED: 1
+          NABD_API_BASE_URL: http://127.0.0.1:4010/api/v1
+          NEXT_PUBLIC_SITE_ORIGIN: http://localhost:8088
+        run: corepack enable && pnpm install --frozen-lockfile && pnpm run build
+      - name: Two instances + nginx + one Redis
+        run: sudo apt-get install -y -qq redis-tools >/dev/null && bash tools/perf/next-multi-instance/run.sh
+      - name: Logs on failure
+        if: failure()
+        run: tail -40 /tmp/web-3101.log /tmp/web-3102.log /tmp/stub.log

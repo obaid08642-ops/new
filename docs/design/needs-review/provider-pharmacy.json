@@ -7,7 +7,8 @@
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
     "line": 560,
     "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/returns/returns.controller.ts:25)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1206 (issue #1192)"
   },
   {
     "batch": "provider",
@@ -17,6 +18,7 @@
     "file": "provider-app/src/screens/pharmacy/PharmacyDashboard.tsx",
     "line": 1724,
     "found": "[backend] Runtime check: a seeded PATIENT session gets 200 on this provider endpoint; verify its role guard (leads, not verdicts). (backend: backend/src/modules/pharmacy/pharmacy.controllers.ts:277)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "not-a-problem: By design: /pharmacy/chat/threads is the shared pharmacy-chat inbox and patients read their own threads through it, so it stays open to patients (the role guard (issue #1193)"
   }
 ]

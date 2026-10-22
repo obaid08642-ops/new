@@ -7,7 +7,8 @@
     "file": "admin/src/pages/admin/approvals.tsx",
     "line": 35,
     "found": "[client] The path is built from a variable, so the inventory cannot check it (UNRESOLVED x1).",
-    "suspect": "Client-side: write the path as a literal or add it to the wrapper table."
+    "suspect": "Client-side: write the path as a literal or add it to the wrapper table.",
+    "review_status": "not-a-problem: admin/src/pages/admin/approvals.tsx builds each row's call from a literal admin route; a retry per row"
   },
   {
     "batch": "final-2",
@@ -17,7 +18,8 @@
     "file": "provider-app/src/api/catalogs.ts",
     "line": 117,
     "found": "[client] client.get(SVC_ENDPOINT[type]) is built from a map, so the call is not resolved by the inventory (1 site).",
-    "suspect": "Client-side: no defect seen; list the map in the inventory tool."
+    "suspect": "Client-side: no defect seen; list the map in the inventory tool.",
+    "review_status": "not-a-problem: provider-app/src/api/catalogs.ts:117 picks one of a fixed map of literal catalogue routes (SVC_ENDPOINT)"
   },
   {
     "batch": "final-2",
@@ -27,7 +29,8 @@
     "file": "patient-app/src/components/orders/OrderList.tsx",
     "line": 73,
     "found": "[client] 4 call sites forward a variable path (also core/data/HttpRemoteDataSource.ts:80, data/repositories/sources/RemoteDataSource.ts:38 and :47); the runtime check passed for the seeded flows.",
-    "suspect": "Reviewer: confirm RemoteDataSource is used by no live screen."
+    "suspect": "Reviewer: confirm RemoteDataSource is used by no live screen.",
+    "review_status": "not-a-problem: apiFetch(path) / RemoteDataSource are generic wrappers; each caller's literal path is resolved at the caller"
   },
   {
     "batch": "final-2",
@@ -37,6 +40,7 @@
     "file": "docs/design/needs-review/final-pass.json",
     "line": 1,
     "found": "[client] 50 older lines have no file or point to files deleted by the SOS removal, the cart/orders merges and the admin directory removal (the first two lines of this file are the SOS ones, fixed in #1270). They are kept unchanged so no nr-key shifts.",
-    "suspect": "Reviewer: close the matching issues, then regenerate the needs-review files once."
+    "suspect": "Reviewer: close the matching issues, then regenerate the needs-review files once.",
+    "review_status": "not-a-problem: the older lines are kept unchanged on purpose so no nr-key shifts"
   }
 ]

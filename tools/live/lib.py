@@ -21,11 +21,55 @@ ADMIN_GATE_TOKEN = (os.environ.get('NABD_ADMIN_GATE_TOKEN')
                     or 'live-gate-token')
 
 
-def enroll_admin_device(admin):
-    """Enroll the gate run's device id for the admin user (C2). Idempotent."""
+def enroll_admin_device(admin, email=None):
+    """Enroll the gate run's device id for the admin user (C2). Idempotent.
+
+    D-35: enrollment is a flow, not a single call. A fresh (first) device gets
+    a 202 pending request plus an e-mailed code; confirming with that code
+    enrols it (no approval exists yet for the first device). An
+    already-enrolled device answers already_enrolled.
+    """
+    t0 = time.time()
     r = admin.post('/admin/devices/enroll', {'device_id': ADMIN_DEVICE_ID, 'name': 'gate-run-owner-macbook'})
+    if r.status == 202 and r.get('status') == 'pending_approval' and email:
+        code = mail_code(email, t0)
+        step('enrollment code emailed to the admin (D-35)', bool(code), 'no mail')
+        rc = admin.post(f"/admin/devices/requests/{r.get('request_id')}/confirm", {'code': code or ''})
+        step('new admin device confirmed with the e-mailed code (D-35)', rc.ok, rc)
+        return rc.ok
     step('admin device enrolled for the gate run (C2)', r.ok, r)
     return r.ok
+
+
+def enroll_device_flow(admin, device_id, email, name):
+    """D-35: enroll one admin device end to end — request, approve from the
+    caller's enrolled device, e-mailed code, confirm as the new device.
+    Returns True when the device is usable. Already-enrolled ids are a no-op.
+    Shared by the python-requests journeys (j_admin) and the Playwright
+    journey (j_admin_clicks), so both enroll the same way."""
+    import time as _time
+    if not device_id or len(device_id) < 16:
+        step(f'{name} present for enrollment (D-35)', False, 'no device id')
+        return False
+    t0 = _time.time()
+    r = admin.post('/admin/devices/enroll', {'device_id': device_id, 'name': name})
+    if r.get('status') == 'already_enrolled':
+        step(f'{name} already enrolled (D-35)', True, '')
+        return True
+    if not (r.status == 202 and r.get('status') == 'pending_approval'):
+        step(f'{name} enrollment requested (D-35)', False, r)
+        return False
+    request_id = r.get('request_id')
+    ra = admin.post(f'/admin/devices/requests/{request_id}/approve')
+    step(f'{name} enrollment approved from the enrolled device (D-35)', ra.ok, ra)
+    if not ra.ok:
+        return False
+    code = mail_code(email, t0)
+    step(f'{name} enrollment code emailed (D-35)', bool(code), 'no mail')
+    rc = admin.post(f'/admin/devices/requests/{request_id}/confirm', {'code': code or ''},
+                    headers={'x-admin-device': device_id})
+    step(f'{name} confirmed with the e-mailed code (D-35)', rc.ok, rc)
+    return rc.ok
 RESULTS = []  # {journey, step, ok, detail}
 _journey = ['?']
 
@@ -202,6 +246,15 @@ class WebClient(Client):
                 raw, status, hdrs = resp.read(), resp.status, dict(resp.headers)
         except urllib.error.HTTPError as e:
             raw, status, hdrs = e.read(), e.code, dict(e.headers)
+        if status == 429 and not getattr(self, '_retrying', False) and os.environ.get('NABD_LIVE_WAIT_429', '1') == '1':
+            # Same as Client.req: the BFF's sign-in reaches the per-IP login throttle (every journey signs in from this
+            # one machine); wait the window out once instead of failing the journey.
+            self._retrying = True
+            try:
+                time.sleep(62)
+                return self.req(method, path, body, headers, idem)
+            finally:
+                self._retrying = False
         for c in self.jar:  # production cookies are Secure; the local run is plain http on localhost
             c.secure = False
         txt = raw.decode('utf8', 'replace')
@@ -230,3 +283,15 @@ class AdminWeb(WebClient):
         elif not path.startswith('/api/') and not path.startswith('http'):
             path = '/api/admin' + path
         return super().req(method, path, body, h, idem)
+
+
+def web_login(ctx, base, identifier, password, path='/api/auth/login'):
+    """A browser sign-in through a website's BFF (a Playwright request context, so the cookies land in the browser).
+    Like Client.req, a 429 from the per-IP login throttle (every journey signs in from this one machine) is waited out
+    once instead of failing the journey."""
+    url = base.rstrip('/') + path
+    r = ctx.request.post(url, data={'identifier': identifier, 'password': password})
+    if r.status == 429 and os.environ.get('NABD_LIVE_WAIT_429', '1') == '1':
+        time.sleep(62)
+        r = ctx.request.post(url, data={'identifier': identifier, 'password': password})
+    return r

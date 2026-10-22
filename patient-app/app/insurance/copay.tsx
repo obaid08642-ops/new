@@ -17,10 +17,10 @@ interface CopayRequest extends Pick<InsuranceCopayRequest, 'approval_code' | 'co
 
 /**
  * Pay the co-pay (board Insurance; payment screen, owner decision 25). It reads the newest COPAY_PENDING request of
- * GET /insurance/requests/my and creates the payment intent POST /payments/intent/insurance/:id exactly as before, then
- * hands over to the hosted checkout. It is not merged into the request page: that page reads one request by id and asks
- * the server which payment methods are open, this one picks the request from the list and sends no method (one
- * Needs-review line). The amount is the request's own; nothing is marked paid here.
+ * GET /insurance/requests/my and creates the payment intent POST /payments/intent/insurance/:id, then
+ * hands over to the hosted checkout, the same payment path as the request page (issue 820): the server's capabilities for
+ * the request first (GET /insurance/requests/:id/capabilities), then the intent for the card. The amount is the request's
+ * own; nothing is marked paid here.
  */
 export default function InsuranceCopayScreen() {
   const { k, theme } = useScreenUi();
@@ -50,8 +50,11 @@ export default function InsuranceCopayScreen() {
     setLoading(true);
     setError('');
     try {
-      // Create a payment intent for the copay amount via the payments gateway.
-      const txn = await apiFetch<{ id?: string; checkout_url?: string; amount?: number }>(`/payments/intent/insurance/${request.id}`, { method: 'POST', headers: paymentIntentHeaders('insurance', request.id) });
+      // issue 820: one payment path for a co-pay, as the request page (InsuranceRequestView): the server says which methods
+      // are open for this request, and the intent names the card
+      const capabilities = await apiFetch<{ methods?: { id?: string }[] }>(`/insurance/requests/${encodeURIComponent(request.id)}/capabilities`);
+      if (!capabilities?.methods?.some((item) => item?.id === 'card')) throw new Error('card_unavailable');
+      const txn = await apiFetch<{ id?: string; checkout_url?: string; amount?: number }>(`/payments/intent/insurance/${encodeURIComponent(request.id)}`, { method: 'POST', headers: paymentIntentHeaders('insurance', request.id), body: JSON.stringify({ method: 'card' }) });
       if (!txn?.id) throw new Error('payment_intent_failed');
       // The hosted checkout / verified payment event is the only path that can settle COPAY_PENDING. Never mark a service paid from a client-held transaction id.
       router.replace({ pathname: '/payments/processing', params: { moyasarId: txn.id, paymentUrl: txn.checkout_url || '', bookingId: request.id, bookingKind: 'insurance', amount: String(txn.amount ?? request.copay_amount ?? 0) } } as unknown as Href);

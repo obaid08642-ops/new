@@ -27,6 +27,11 @@ import { I18nService } from '../i18n/i18n.service';
 import { runsBackgroundWork } from '../../common/process-role';
 
 
+import { Permission, RequirePermissions } from '../../common/permissions';
+import { timedFetch } from '../../common/external-call';
+
+/** FCM / Expo / Google oauth: 8 s per attempt, sent once (a repeat could notify twice). The callers already treat a failure as `failed`, never as a failed request. */
+const pushFetch = (url: string, init?: RequestInit) => timedFetch(url, init, { timeoutMs: 8000, label: 'push', timeoutCode: 'push_gateway_timeout' });
 // ── Schema ────────────────────────────────────────────────────────────
 
 @Schema({ timestamps: true })
@@ -36,6 +41,8 @@ export class PushToken {
   @Prop({ default: 'expo', enum: ['expo', 'fcm', 'apns', 'webpush'] }) provider: string;
   @Prop({ enum: ['ios', 'android', 'web'] }) platform: string;
   @Prop() device_id?: string;
+  /** 21.7: the sign-in (JWT `sid`) this token was registered from, so signing it out removes the token. */
+  @Prop({ index: true }) session_id?: string;
   @Prop() device_name?: string;
   @Prop({ default: true }) active: boolean;
   @Prop() last_seen_at?: Date;
@@ -148,7 +155,7 @@ export class PushService implements OnModuleInit {
 
       const assertion = `${signatureInput}.${signature}`;
 
-      const resp = await fetch('https://oauth2.googleapis.com/token', {
+      const resp = await pushFetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${assertion}`,
@@ -305,6 +312,13 @@ export class PushService implements OnModuleInit {
     }
   }
 
+  /** The browsers this user turned web push on in (patient-web settings); true when one received it. */
+  async sendWebToUser(userId: string, title: string, body: string, data: any = {}): Promise<boolean> {
+    const results = { sent: 0, failed: 0, errors: [] as string[] };
+    await this.deliverWebPush(userId, title, body, data, results);
+    return results.sent > 0;
+  }
+
   /** Client engagement events (received/opened/clicked) → campaign analytics */
   async trackEngagement(userId: string, body: { event: string; notification_id?: string; campaign_id?: string; data?: any }) {
     if (!['received', 'opened', 'clicked'].includes(body?.event)) return { ok: false };
@@ -369,7 +383,9 @@ export class PushService implements OnModuleInit {
           token: body.token,
           provider: body.provider || 'expo',
           platform: body.platform,
-          device_id: body.device_id,
+          device_id: body.device_id ?? user.dev,
+          // 21.7: the sign-in this token was registered from, so signing that device out removes it
+          ...(user.sid ? { session_id: user.sid } : {}),
           device_name: body.device_name,
           active: true,
           last_seen_at: new Date(),
@@ -379,6 +395,19 @@ export class PushService implements OnModuleInit {
       { upsert: true, new: true },
     );
     return { ok: true };
+  }
+
+  /**
+   * 21.7 — sign-out removes the push tokens of the signed-out device: those registered from the ended sign-ins, and
+   * (tokens registered before sign-ins were tracked) those of the same device id. Returns how many were removed.
+   */
+  async removeForSessions(userId: string, sessionIds: string[], deviceIds: string[] = []): Promise<number> {
+    const or: Record<string, unknown>[] = [];
+    if (sessionIds.length) or.push({ session_id: { $in: sessionIds } });
+    if (deviceIds.length) or.push({ device_id: { $in: deviceIds }, session_id: { $exists: false } });
+    if (!or.length) return 0;
+    const res = await this.tokens.deleteMany({ user_id: { $eq: userId }, $or: or });
+    return res.deletedCount ?? 0;
   }
 
   async unregister(userId: string, token: string) {
@@ -428,6 +457,19 @@ export class PushService implements OnModuleInit {
     } catch {
       return { title: String(titleKey || ''), body: String(bodyKey || '') };
     }
+  }
+
+  /**
+   * P14.4: many notifications in one round trip (a campaign page). `jobId` makes a re-queued item (a resumed
+   * fan-out) a no-op while the earlier job is still kept by the queue.
+   */
+  async queueNotifications(items: { userId: string; title: string; body: string; data?: any; jobId: string }[], priority: 'high' | 'normal' = 'normal') {
+    if (!items.length) return;
+    await this.queue.addBulk(items.map((x) => ({
+      name: 'send',
+      data: { userId: x.userId, title: x.title, body: x.body, data: x.data || {}, priority },
+      opts: { jobId: x.jobId, attempts: 3, backoff: { type: 'exponential', delay: 2000 }, removeOnComplete: { count: 1000 }, removeOnFail: { count: 5000 } },
+    })));
   }
 
   /** Queue a notification for reliable delivery */
@@ -523,7 +565,7 @@ export class PushService implements OnModuleInit {
             categoryId: data?.type === 'call' ? 'call_actions' : data?.type === 'chat' ? 'chat_actions' : 'default',
             badge: 1,
           }));
-          const resp = await fetch(this.EXPO_URL, {
+          const resp = await pushFetch(this.EXPO_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'Accept-Encoding': 'gzip, deflate' },
             body: JSON.stringify(messages),
@@ -565,7 +607,7 @@ export class PushService implements OnModuleInit {
           let resp: Response;
           if (accessToken && projectId) {
             // Send via FCM v1 HTTP API
-            resp = await fetch(`https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`, {
+            resp = await pushFetch(`https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`, {
               method: 'POST',
               headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -614,7 +656,7 @@ export class PushService implements OnModuleInit {
                     apns: { payload: { aps: { sound: 'default', badge: 1 } } },
                   },
                 });
-                resp = await fetch(`https://fcm.googleapis.com/v1/projects/${altProject}/messages:send`, {
+                resp = await pushFetch(`https://fcm.googleapis.com/v1/projects/${altProject}/messages:send`, {
                   method: 'POST',
                   headers: { Authorization: `Bearer ${altToken}`, 'Content-Type': 'application/json' },
                   body: payloadStr,
@@ -623,7 +665,7 @@ export class PushService implements OnModuleInit {
             }
           } else if (process.env.FCM_SERVER_KEY) {
             // Fallback: Send via Legacy FCM HTTP API
-            resp = await fetch('https://fcm.googleapis.com/fcm/send', {
+            resp = await pushFetch('https://fcm.googleapis.com/fcm/send', {
               method: 'POST',
               headers: {
                 Authorization: `key=${process.env.FCM_SERVER_KEY}`,
@@ -817,6 +859,7 @@ export class PushController {
   track(@CurrentUser() u: any, @Body() b: TrackDto) { return this.svc.trackEngagement(u.id, b); }
 
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.NOTIFICATIONS_SEND)
   @Post('admin/campaign')
   @Roles(UserRole.ADMIN)
   async sendCampaign(@Body() b: SendCampaignDto) {

@@ -593,3 +593,15 @@ body { background: var(--nabd-color-bg-canvas); }
 /* Route-level error / not-found (components-next/core/route-state.tsx): the board's state card plus the way home. */
 .nabd-route-state { display: grid; gap: 12px; width: 100%; max-width: 440px; margin-inline: auto; }
 .nabd-route-state .nabd-state__text-action { justify-self: center; text-decoration: none; }
+
+/* 17.4: print. The chrome (top bar, footer, tab bar, floating controls, dialogs) is left out; the content prints full width,
+   and a link in the text shows its address so a printed page still says where it points. */
+@page { margin: 16mm; }
+@media print {
+  .topbar, .site-footer, .skip-link, .back-to-top, .reading-progress, [data-print-hide], button, .nabd-modal { display: none !important; }
+  body { background: none !important; color: inherit !important; font-size: 11pt; }
+  main { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; }
+  article a[href^="http"]::after, main a[href^="http"]::after { content: " (" attr(href) ")"; font-size: .85em; }
+  h1, h2, h3 { break-after: avoid; }
+  img, figure, table { break-inside: avoid; }
+}

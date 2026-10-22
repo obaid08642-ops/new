@@ -1,22 +1,29 @@
 import type { ReactNode } from "react";
+import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { requirePatientAccess } from "@/lib/auth/session";
+import { getOptionalPatientAccessToken } from "@/lib/auth/session";
+import { signInHref } from "@/lib/services/guest";
+import { GuestSpecialtyPage } from "@/components-next/guest/guest-specialty-page";
 import { callPatientApi } from "@/lib/api/upstream";
 import { formatDate } from "@/lib/format-date";
 import { getDirection, isLocale } from "@/lib/i18n";
 import { pickTab } from "@/lib/health/view";
 import { cycleWindow, parseMaternity, trimesterOf, type MaternityView } from "@/lib/maternity/view";
+import { articleTitle, parseMaternityContent, pickWeekText, type MaternityContentView } from "@/lib/maternity/week";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { Notice, RowCard } from "@/components-next/consult/consult-parts";
 import { CareHero, RecordRow } from "@/components-next/care/care-kit";
 import { HealthTabs, RowsCard, SectionHead } from "@/components-next/health/health-kit";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { ARTICLE_TONE } from "@/components-next/articles/article-kit";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import rx from "@/components-next/pharmacy/rx.module.css";
+import { QuickLogForm } from "@/components-next/health/quick-log-form";
 import styles from "@/components-next/health/health.module.css";
+import care from "@/components-next/care/care.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string | string[] }> };
 const TABS = ["pregnancy", "baby", "ovulation"] as const;
@@ -26,8 +33,10 @@ const MATERNITY = SERVICE_ICONS.maternity;
  * Maternity (canvas/CareHub; merge map 2 section 8): one screen with three tabs, `?tab=pregnancy|baby|ovulation`, absorbing the
  * old tracker, baby-growth and ovulation pages. All three read the one GET /maternity/profile. Pregnancy shows the week ring, the
  * trimester, the due date and the logged kicks and contractions; Baby growth the growth entries; Ovulation the estimate computed
- * from the last period and the cycle length (always labelled an estimate). The weekly articles and the fetal-week image of the
- * board are not drawn: GET /maternity/content returns no content yet and the images belong on the CDN (Needs review).
+ * from the last period and the cycle length (always labelled an estimate). Under the pregnancy week, GET /maternity/content gives
+ * the admin's entry for that week (the baby's size line, a short development text and an image on the CDN; issues #849, #861)
+ * and "Read this week" (published articles tagged with the week, linking to /articles/:slug). A week the admin has not filled
+ * shows an honest empty line; nothing is bundled or invented.
  */
 export default async function MaternityPage({ params, searchParams }: Props) {
   const { locale } = await params;
@@ -36,8 +45,27 @@ export default async function MaternityPage({ params, searchParams }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("MaternityWeb");
   const rs = await getTranslations("RouteState");
-  const token = await requirePatientAccess(locale);
+  const token = await getOptionalPatientAccessToken();
   const base = `/${locale}/maternity`;
+  if (!token) {
+    // Issue 1550: a guest sees what the service is and its doctors; the profile and the logs are read only with a session.
+    const g = await getTranslations("GuestServices");
+    return (
+      <GuestSpecialtyPage
+        locale={locale}
+        title={t("title")}
+        tone={MATERNITY.tone}
+        icon={MATERNITY.icon}
+        heroTitle={g("maternity.heroTitle")}
+        heroBody={g("maternity.heroBody")}
+        specialty="gynecology"
+        doctorsTitle={g("maternity.doctorsTitle")}
+        action={{ id: "maternity-sign-in", title: g("maternity.actionTitle"), body: g("maternity.actionBody"), label: g("maternity.action"), next: `${base}/maternity-setup` }}
+      >
+        <Notice warn>{t("notice")}</Notice>
+      </GuestSpecialtyPage>
+    );
+  }
   const caret = getDirection(locale) === "rtl" ? "caret-left" : "caret-right";
 
   const frame = (body: ReactNode, tab?: (typeof TABS)[number]) => (
@@ -59,7 +87,7 @@ export default async function MaternityPage({ params, searchParams }: Props) {
   } catch {
     return frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
   }
-  if (response.status === 401) redirect(`/${locale}/login`);
+  if (response.status === 401) redirect(signInHref(locale, base));
   if (!response.ok) return frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
 
   const profile = parseMaternity(await response.json().catch(() => null));
@@ -70,6 +98,12 @@ export default async function MaternityPage({ params, searchParams }: Props) {
   const tab = pickTab(query.tab, TABS, profile.pregnant ? "pregnancy" : "ovulation");
   const number = new Intl.NumberFormat(locale);
   const date = (value: string | null) => formatDate(locale, value);
+  // The week content is read only for the pregnancy tab of a pregnancy profile; null means it could not be loaded.
+  let content: MaternityContentView | null = null;
+  if (tab === "pregnancy" && profile.pregnant) {
+    const contentResponse = await callPatientApi("/maternity/content", {}, token);
+    content = contentResponse.ok ? parseMaternityContent(await contentResponse.json().catch(() => null), locale) : null;
+  }
 
   return frame(
     <>
@@ -77,7 +111,7 @@ export default async function MaternityPage({ params, searchParams }: Props) {
         <span />
         <ButtonLink href={`${base}/maternity-setup`} label={t("updateProfile")} size="md" variant="outline" />
       </div>
-      {tab === "pregnancy" ? <PregnancyTab t={t} profile={profile} number={number} date={date} /> : null}
+      {tab === "pregnancy" ? <PregnancyTab t={t} profile={profile} number={number} date={date} locale={locale} content={content} caret={caret} /> : null}
       {tab === "baby" ? <BabyTab t={t} profile={profile} number={number} date={date} /> : null}
       {tab === "ovulation" ? <OvulationTab t={t} profile={profile} locale={locale} /> : null}
       <RowCard href={`/${locale}/consultations/doctors?specialty=gynecology`} icon="stethoscope" tone="blue" title={t("consultTitle")} sub={t("consultSub")} caret={<Icon name={caret} size={16} tone="secondary" />} />
@@ -91,7 +125,7 @@ export default async function MaternityPage({ params, searchParams }: Props) {
 type Tr = Awaited<ReturnType<typeof getTranslations>>;
 type TabProps = { t: Tr; profile: MaternityView; number: Intl.NumberFormat; date: (value: string | null) => string | null };
 
-function PregnancyTab({ t, profile, number, date }: TabProps) {
+function PregnancyTab({ t, profile, number, date, locale, content, caret }: TabProps & { locale: string; content: MaternityContentView | null; caret: "caret-left" | "caret-right" }) {
   if (!profile.pregnant) {
     return <ConsultState kind="empty" icon={MATERNITY.icon} tone={MATERNITY.tone} title={t("notPregnantTitle")} body={t("notPregnantBody")} />;
   }
@@ -110,6 +144,12 @@ function PregnancyTab({ t, profile, number, date }: TabProps) {
       ) : due ? (
         <CareHero tone={MATERNITY.tone} icon={MATERNITY.icon} label={t("tabPregnancy")} title={t("tabPregnancy")} lines={[t("dueOn", { date: due })]} />
       ) : null}
+      {profile.week !== null ? <WeekContent t={t} locale={locale} content={content} number={number} caret={caret} /> : null}
+      {/* issue 862: kicks and contractions are logged on the website too (POST /maternity/kicks, /maternity/contractions) */}
+      <SectionHead id="log-kicks" title={t("kicksTitle")} />
+      <QuickLogForm kind="kicks" />
+      <SectionHead id="log-contractions" title={t("contractionsTitle")} />
+      <QuickLogForm kind="contractions" />
       {profile.kicks.length ? (
         <>
           <SectionHead id="kicks" title={t("kicksTitle")} />
@@ -148,12 +188,63 @@ function PregnancyTab({ t, profile, number, date }: TabProps) {
   );
 }
 
+/** The week's entry of the admin catalogue and "Read this week" (GET /maternity/content), each with an honest empty line. */
+function WeekContent({ t, locale, content, number, caret }: { t: Tr; locale: string; content: MaternityContentView | null; number: Intl.NumberFormat; caret: "caret-left" | "caret-right" }) {
+  if (content === null) {
+    return (
+      <>
+        <SectionHead id="this-week" title={t("weekTitle")} />
+        <p className={rx.note} role="status">{t("weekUnavailable")}</p>
+      </>
+    );
+  }
+  const entry = content.entry;
+  return (
+    <>
+      <SectionHead id="this-week" title={t("weekTitle")} />
+      {entry ? (
+        <section className={care.week} aria-labelledby="this-week">
+          {entry.image ? (
+            <span className={care.weekMedia}>
+              <Image src={entry.image} alt={t("weekImageAlt", { week: number.format(entry.week) })} fill sizes="96px" />
+            </span>
+          ) : null}
+          <div className={care.weekBody}>
+            <p className={care.weekSize}>{entry.size}</p>
+            <p className={care.weekText}>{entry.development}</p>
+          </div>
+        </section>
+      ) : (
+        <p className={rx.note} role="status">{t("weekEmpty")}</p>
+      )}
+      <SectionHead id="read-this-week" title={t("readThisWeek")} />
+      {content.articles.length ? (
+        <ul className={care.list} aria-labelledby="read-this-week">
+          {content.articles.flatMap((article) => {
+            const title = articleTitle(locale, article);
+            return title ? [
+              <li key={article.slug}>
+                <RowCard href={`/${locale}/articles/${encodeURIComponent(article.slug)}`} icon="file-text" tone={ARTICLE_TONE} title={title} sub={pickWeekText(locale, article.excerptAr, article.excerptEn) ?? undefined} caret={<Icon name={caret} size={16} tone="secondary" />} />
+              </li>,
+            ] : [];
+          })}
+        </ul>
+      ) : (
+        <p className={rx.note} role="status">{t("readEmpty")}</p>
+      )}
+    </>
+  );
+}
+
 function BabyTab({ t, profile, number, date }: TabProps) {
+  // issue 862: the baby's growth is logged on the website too (POST /maternity/infant-growth)
+  const form = <QuickLogForm kind="growth" />;
   if (profile.growth.length === 0) {
-    return <ConsultState kind="empty" icon="chart-line-up" tone="mint" title={t("growthTitle")} body={t("growthEmpty")} />;
+    return <>{form}<ConsultState kind="empty" icon="chart-line-up" tone="mint" title={t("growthTitle")} body={t("growthEmpty")} /></>;
   }
   return (
     <>
+      {form}
       <SectionHead id="growth" title={t("growthTitle")} />
       <RowsCard label={t("growthTitle")}>
         {profile.growth.map((entry) => (

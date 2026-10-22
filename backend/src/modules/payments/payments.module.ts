@@ -1,4 +1,4 @@
-import { Module, Injectable, Controller, Post, Get, Body, Param, Logger, BadRequestException, BadGatewayException, NotFoundException, ServiceUnavailableException, UseGuards, UseInterceptors, Req, HttpCode, Headers, Optional } from '@nestjs/common';
+import { Module, Injectable, Controller, Post, Get, Body, Param, Logger, BadRequestException, BadGatewayException, ForbiddenException, NotFoundException, ServiceUnavailableException, UseGuards, UseInterceptors, Req, HttpCode, Headers, Optional } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -18,11 +18,12 @@ import { RealtimeModule } from '../realtime/realtime.module';
 import { FraudService } from '../finance-engine/finance-engine.module';
 import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
 import { CircuitBreakerService } from '../../common/circuit-breaker.service';
-import { externalFetch, externalUnavailable, runExternalCall } from '../../common/external-call';
+import { externalFetch, externalUnavailable, runExternalCall, timedFetch } from '../../common/external-call';
 import * as crypto from 'crypto';
 import { Request } from 'express';
 import { UserRole } from '../../common/enums';
 import { moyasarBase } from '../../common/moyasar-base';
+import { isMoyasarWebhookAuthenticated } from '../../common/moyasar-webhook-auth';
 import {
   CreateIntentRequest,
   PaymentGateway,
@@ -32,6 +33,7 @@ import {
   selectGateway,
 } from './payment-gateway';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 /**
  * Fallback for a failed or short-circuited payment-gateway operation.
  *
@@ -222,15 +224,35 @@ export class PaymentsService {
   }
 
   private assertBookingOwnerOrAdmin(user: any, booking: any) {
-    if (!user?.id || (booking.patient_id !== user.id && user.role !== 'admin')) {
+    // issue 684: a family member who booked on the patient's behalf (booked_by_user_id) pays for it too
+    if (!user?.id || (booking.patient_id !== user.id && booking.booked_by_user_id !== user.id && user.role !== 'admin')) {
       throw new BadRequestException('not_authorized');
     }
   }
 
   private assertTransactionVerifier(user: any, transaction: any) {
-    if (!user?.id || (transaction.patient_id !== user.id && !['admin', 'system'].includes(user.role))) {
-      throw new BadRequestException('not_authorized');
+    if (!user?.id || (transaction.patient_id !== user.id && transaction.payer_id !== user.id && !['admin', 'system'].includes(user.role))) {
+      // S-7: another patient's payment is none of this caller's business — 403,
+      // never a 400 that tells them the record exists and is merely off-limits.
+      throw new ForbiddenException('not_authorized');
     }
+  }
+
+  /**
+   * S-5: a gateway "paid" settles only when the gateway's own record carries
+   * the amount AND currency the server asked for. A "paid" for less is not a
+   * payment — it is recorded as failed so it can never confirm the booking.
+   */
+  private gatewayAmountMatches(t: any, raw: any): boolean {
+    const expectedHalalas = Math.round(Number(t.amount || 0) * 100);
+    const expectedCurrency = String(t.currency || 'SAR').toUpperCase();
+    if (!Number.isFinite(expectedHalalas) || expectedHalalas <= 0) return false;
+    if (String(raw?.currency || '').toUpperCase() !== expectedCurrency) return false;
+    const rawAmount = Number(raw?.amount);
+    if (!Number.isFinite(rawAmount)) return false;
+    // Moyasar and Stripe report minor units (halalas/cents); Tap reports major units.
+    const actualHalalas = this.adapter.name === 'tap' ? Math.round(rawAmount * 100) : Math.round(rawAmount);
+    return actualHalalas === expectedHalalas;
   }
 
   /**
@@ -261,7 +283,7 @@ export class PaymentsService {
     const id = String(ref || '').trim();
     if (!/^[A-Za-z0-9_-]{1,128}$/.test(id)) throw new NotFoundException('txn_not_found');
     const t: any = await this.txns.findOne({ $or: [{ id: { $eq: id } }, { gateway_intent_id: { $eq: id } }, { gateway_charge_id: { $eq: id } }] }).lean();
-    if (!t || (t.patient_id !== user?.id && !['admin', 'super_admin'].includes(user?.role))) throw new NotFoundException('txn_not_found');
+    if (!t || (t.patient_id !== user?.id && t.payer_id !== user?.id && !['admin', 'super_admin'].includes(user?.role))) throw new NotFoundException('txn_not_found');
     return this.publicTxn(t);
   }
 
@@ -327,7 +349,7 @@ export class PaymentsService {
   async getConsultationCapabilities(user: any, appointmentId: string) {
     const appt: any = await this.appts.findOne({ id: appointmentId }).lean();
     if (!appt) throw new NotFoundException('booking_not_found');
-    if (appt.patient_id !== user?.id && user?.role !== 'admin') throw new BadRequestException('not_authorized');
+    if (appt.patient_id !== user?.id && appt.booked_by_user_id !== user?.id && user?.role !== 'admin') throw new BadRequestException('not_authorized');
     if (appt.payment_status === 'paid') throw new BadRequestException('booking_already_paid');
     if (appt.payment_method && appt.payment_method !== 'card') throw new BadRequestException('card_payment_not_applicable');
     const amount = Math.round(Number(appt.total_price ?? 0) * 100) / 100;
@@ -391,7 +413,9 @@ export class PaymentsService {
       { id: order.id },
       { $set: set },
     );
-    this.events.emit('moyasar.payment.paid', {
+    // Awaited: the fulfilment gate reads this evidence, so verify answers only once it is written. A listener error is
+    // logged and never fails the payment, which is already recorded above.
+    await this.events.emitAsync('moyasar.payment.paid', {
       id: String(t.gateway_charge_id || t.gateway_intent_id || t.id),
       event_id: `txn_${t.id}`,
       amount_halalas: Math.round(Number(t.amount) * 100),
@@ -403,7 +427,7 @@ export class PaymentsService {
         quote_snapshot_hash: String(order.pricing_snapshot?.hash || ''),
         payer_account_id: order.patient_account_id,
       },
-    });
+    }).catch((e: any) => this.logger.error(`pharmacy payment evidence not written order=${order.id} txn=${t.id}: ${e?.message}`));
     return true;
   }
 
@@ -468,7 +492,7 @@ export class PaymentsService {
     // live gateway intent for the same booking during an in-flight request.
     let txn: any;
     try {
-      txn = await this.txns.create({ booking_kind: kind, booking_id: id, patient_id: booking.patient_id || booking.patient_account_id, amount, gateway: this.adapter.name, method: normalizedMethod, status: 'initiating', idempotency_key: requestKey });
+      txn = await this.txns.create({ booking_kind: kind, booking_id: id, patient_id: booking.patient_id || booking.patient_account_id, ...(user?.id && user.id !== (booking.patient_id || booking.patient_account_id) ? { payer_id: user.id } : {}), amount, gateway: this.adapter.name, method: normalizedMethod, status: 'initiating', idempotency_key: requestKey });
     } catch (error: any) {
       if (error?.code === 11000) {
         const active: any = await this.txns.findOne({ booking_kind: kind, booking_id: { $eq: id }, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
@@ -511,15 +535,25 @@ export class PaymentsService {
     // drives booking confirmation, wallet and ledger listeners.
     if (t.status === 'paid') return this.publicTxn(t);
     const result = await this.adapter.verify(t.gateway_intent_id);
-    t.status = result.status;
+    const settled = result.status === 'paid' && this.gatewayAmountMatches(t, result.raw);
+    if (result.status === 'paid' && !settled) {
+      t.status = 'failed';
+      t.failure_reason = 'gateway_amount_mismatch';
+    } else {
+      t.status = result.status;
+    }
     if (result.charge_id) t.gateway_charge_id = result.charge_id;
-    if (result.status === 'paid') {
+    if (settled) {
       t.paid_at = new Date();
       if (!(t.booking_kind === 'pharmacy' && await this.finalizeGovernedPharmacyPaid(t))) {
       await this.modelFor(t.booking_kind).updateOne({ id: { $eq: t.booking_id } }, { $set: { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } });
       }
       // F74: a paid diagnostics parent confirms every child booking too.
       if (t.booking_kind === 'diagnostics') await this.confirmDiagnosticChildren(t).catch(() => null);
+      // Persist the paid state before announcing it: listeners (insurance copay settlement) re-read the
+      // transaction as status 'paid' and silently skip it while the save is still in flight.
+      t.webhook_payload = result.raw;
+      await t.save();
       // For online/home services we emit an event so the workflow engine (provider-jobs / booking-flow)
       // can transition CONFIRMED when payment is required pre-confirmation.
       this.events.emit('payment.completed', {
@@ -534,8 +568,8 @@ export class PaymentsService {
       this.realtime.emitToUser(t.patient_id, 'payment.updated', { transaction_id: t.id, status: 'paid', booking_id: t.booking_id });
       // E1 S15: a second PAID payment for the same booking is a double charge — alert admins
       await this.fraud.detectDuplicatePayments(t.booking_id).catch(() => null);
-    } else if (result.status === 'failed') {
-      t.failure_reason = (result.raw as any)?.last_payment_error?.message || 'gateway_failure';
+    } else if (t.status === 'failed') {
+      t.failure_reason = t.failure_reason || (result.raw as any)?.last_payment_error?.message || 'gateway_failure';
       this.events.emit('payment.failed', {
         kind: t.booking_kind,
         id: t.booking_id,
@@ -616,11 +650,12 @@ export class PaymentsService {
     if (t.gateway !== 'moyasar') throw new BadRequestException('capture_supported_for_moyasar_only');
     const key = process.env.MOYASAR_SECRET_KEY || process.env.MOYASAR_SECRET || process.env.MOYASAR_API_KEY;
     if (!key) throw new BadRequestException('payment_gateway_not_configured');
-    const r = await fetch(`${moyasarBase()}/payments/${t.gateway_intent_id}/capture`, {
+    // Sent once; on a timeout the transaction stays `authorized` and a later verify/reconciliation reads the real status.
+    const r = await timedFetch(`${moyasarBase()}/payments/${t.gateway_intent_id}/capture`, {
       method: 'POST',
       headers: { Authorization: `Basic ${Buffer.from(`${key}:`).toString('base64')}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({}),
-    });
+    }, { label: 'payments.capture', timeoutCode: 'payment_gateway_timeout' });
     const j: any = await r.json().catch(() => ({}));
     if (!r.ok) {
       t.webhook_payload = j;
@@ -656,11 +691,19 @@ export class PaymentsService {
   }
 
   async handleWebhook(provider: string, payload: any, signature?: string, rawBody?: string) {
-    if (!this.verifyWebhookSignature(provider, signature, rawBody ?? JSON.stringify(payload))) {
+    const raw = rawBody ?? JSON.stringify(payload);
+    // S-5: Moyasar documents no signature header — its body secret_token is the
+    // proof. The older HMAC path still works; anything with neither is refused.
+    const authenticated = provider === 'moyasar'
+      ? isMoyasarWebhookAuthenticated(payload, signature, raw)
+      : this.verifyWebhookSignature(provider, signature, raw);
+    if (!authenticated) {
       throw new BadRequestException('invalid_webhook_signature');
     }
-    // Look up by gateway_intent_id or gateway_charge_id present in payload
-    const intentId = payload.data?.object?.id || payload.id || payload.payment_intent;
+    // Look up by gateway_intent_id or gateway_charge_id present in payload.
+    // Moyasar's native body nests the payment id in data.id (payload.id is the
+    // event id); the Stripe shape nests it in data.object.id.
+    const intentId = payload.data?.id || payload.data?.object?.id || payload.id || payload.payment_intent;
     if (!intentId) return { ok: false, reason: 'no_intent_id' };
     const t = await this.txns.findOne({ gateway_intent_id: { $eq: intentId } });
     if (!t) return { ok: false, reason: 'no_match' };
@@ -701,8 +744,10 @@ export class PaymentsController {
   @UseInterceptors(IdempotencyInterceptor)
   retry(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Headers('idempotency-key') key: string) { return this.svc.retryPayment(u, t, id, key); }
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.ORDER_REFUND)
   @Post('refund/:txn') refund(@CurrentUser() u: any, @Param('txn') txn: string, @Body() b: RefundPaymentDto) { return this.svc.refundPayment(u, txn, b.amount, b.reason); }
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.FINANCE_PAYOUT_APPROVE)
   @Post('capture/:txn') capture(@CurrentUser() u: any, @Param('txn') txn: string) { return this.svc.capturePayment(u, txn); }
   @Get('pharmacy/:orderId/capabilities') pharmacyCapabilities(@CurrentUser() u: any, @Param('orderId') orderId: string) { return this.svc.getPharmacyCapabilities(u, orderId); }
   @Get('consultation/:id/capabilities') consultationCapabilities(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.getConsultationCapabilities(u, id); }

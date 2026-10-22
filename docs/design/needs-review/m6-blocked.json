@@ -1,0 +1,167 @@
+[
+  {
+    "batch": "m6-blocked",
+    "app": "patient-web",
+    "screen": "/diagnostics (Ord02 service home)",
+    "element": "\"from X SAR\" by area, provider count, order entry",
+    "file": "patient-web/app/[locale]/diagnostics/page.tsx",
+    "line": 59,
+    "found": "[backend] waits for M3: the area price and provider count need the ordering engine.",
+    "suspect": "M3 is not on main: only the red acceptance specs (#1749, #1750).",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "patient-app",
+    "screen": "/diagnostics/test-detail (Ord03 item page)",
+    "element": "coverage per item for the patient class (estimated), prep and turnaround",
+    "file": "patient-app/app/diagnostics/test-detail.tsx",
+    "line": 17,
+    "found": "[backend] waits for M5: coverage per item needs the insurance-per-item model.",
+    "suspect": "M5 is not on main: only the red acceptance specs (#1749, #1750).",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "patient-web",
+    "screen": "/diagnostics/test-detail (Ord03 item page)",
+    "element": "coverage per item and estimated share",
+    "file": "patient-web/app/[locale]/diagnostics/test-detail/page.tsx",
+    "line": 13,
+    "found": "[backend] waits for M5: coverage per item needs the insurance-per-item model.",
+    "suspect": "M5 is not on main: only the red acceptance specs (#1749, #1750).",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "patient-web",
+    "screen": "/diagnostics/cart (Ord04 basket split)",
+    "element": "basket split at home / at the centre, alternatives",
+    "file": "patient-web/app/[locale]/diagnostics/cart/page.tsx",
+    "line": 13,
+    "found": "[backend] waits for M3: split rule and alternatives come from the engine.",
+    "suspect": "M3 is not on main: only the red acceptance specs (#1749, #1750).",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "patient-web",
+    "screen": "/diagnostics/lab-comparison (Ord05 best match)",
+    "element": "best match, compare list, split suggestion",
+    "file": "patient-web/app/[locale]/diagnostics/lab-comparison/page.tsx",
+    "line": 15,
+    "found": "[backend] waits for M3: ranking and split suggestion come from the engine.",
+    "suspect": "M3 is not on main: only the red acceptance specs (#1749, #1750).",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "patient-web",
+    "screen": "/diagnostics/book-sample (Ord06 time picker)",
+    "element": "ASAP with stage timer; walk-in QR",
+    "file": "patient-web/app/[locale]/diagnostics/book-sample/page.tsx",
+    "line": 8,
+    "found": "[backend] waits for M4: ASAP broadcast and stage timer are M4; slots are M3.",
+    "suspect": "Acceptance specs for M4: #1749/#1750; not on main.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "patient-web",
+    "screen": "/diagnostics/checkout (Ord07 confirm and pay)",
+    "element": "price lock, split bookings, estimate, medical order attach",
+    "file": "patient-web/app/[locale]/diagnostics/checkout/page.tsx",
+    "line": 14,
+    "found": "[backend] waits for M3: booking draft with price lock is M3.",
+    "suspect": "M3 is not on main: only the red acceptance specs (#1749, #1750).",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "patient-web",
+    "screen": "/diagnostics/insurance-approval (Ord08 and Ord09)",
+    "element": "approval clock, partial-approval choice",
+    "file": "patient-web/app/[locale]/diagnostics/insurance-approval/page.tsx",
+    "line": 18,
+    "found": "[backend] waits for M5: per-item approval result and choice endpoint are M5.",
+    "suspect": "Acceptance specs for M5 are red on main.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "patient-web",
+    "screen": "/diagnostics/sample-tracking (Ord10 tracking)",
+    "element": "arrival code (4 digits), staff photo, licence, rating",
+    "file": "patient-web/app/[locale]/diagnostics/sample-tracking/page.tsx",
+    "line": 13,
+    "found": "[backend] waits for M7: arrival code and staff profile do not exist; grep finds none on main.",
+    "suspect": "M7 acceptance specs are red on main.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "patient-app",
+    "screen": "/diagnostics/sample-tracking (Ord10 tracking)",
+    "element": "arrival code, staff photo, licence",
+    "file": "patient-app/app/diagnostics/sample-tracking.tsx",
+    "line": 27,
+    "found": "[backend] waits for M7: arrival code and staff profile do not exist on main.",
+    "suspect": "M7 acceptance specs are red on main.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "patient-web",
+    "screen": "/diagnostics/results/[resultId] (Ord11 discuss)",
+    "element": "\"Discuss with a doctor\" opens an instant consultation with the result",
+    "file": "patient-web/app/[locale]/diagnostics/results/[resultId]/page.tsx",
+    "line": 128,
+    "found": "[backend] waits for M8: instant consultation broadcast does not exist; the button opens the doctors list.",
+    "suspect": "M8 acceptance specs are red on main.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "patient-web",
+    "screen": "/prescriptions (Ord20, Ord21 My medical orders)",
+    "element": "structured medical order list, per-group Order button, validity",
+    "file": "patient-web/app/[locale]/prescriptions/page.tsx",
+    "line": 30,
+    "found": "[backend] waits for M2: no patient read endpoint for structured orders; provider.controllers.ts:275 only emits an event.",
+    "suspect": "M2 acceptance specs are red on main.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "provider-app",
+    "screen": "Doctor order composer (Ord22)",
+    "element": "structured medical order composer",
+    "file": "provider-app/src/screens/shared/shared/DrugIndexDetail.tsx",
+    "line": 1,
+    "found": "[backend] waits for M2: no composer exists; this is the nearest medicine screen, not the target.",
+    "suspect": "M2 acceptance specs are red on main.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "provider-app",
+    "screen": "Provider declaration (Ord30 to Ord33)",
+    "element": "onboarding wizard, items, bulk tools, completeness",
+    "file": "provider-app/src/screens/facility/FacilityDashboard.tsx",
+    "line": 1,
+    "found": "[backend] waits for M1: the provider item model does not exist on main.",
+    "suspect": "M1 acceptance specs are red on main.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-blocked",
+    "app": "patient-app",
+    "screen": "/diagnostics/search (Ord01 context bar)",
+    "element": "context bar with place and payment",
+    "file": "patient-app/app/diagnostics/search.tsx",
+    "line": 18,
+    "found": "[backend] waits for M3: owner decision (2026-10-18): app Ord01 waits for M3.",
+    "suspect": "Decided; no open question.",
+    "review_status": "open"
+  }
+]

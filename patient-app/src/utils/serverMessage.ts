@@ -14,7 +14,7 @@ const KNOWN: ReadonlyArray<readonly [RegExp, string]> = [
   [/invalid otp code|otp_invalid/i, 'errors.otpInvalid'],
   [/too many otp requests|otp_rate_limited|password_reset_rate_limited/i, 'errors.otpRateLimited'],
   [/too many (otp verification|invalid) attempts|otp_locked/i, 'errors.otpLocked'],
-  [/too many requests|throttl/i, 'errors.tooManyRequests'],
+  [/too many requests|throttl|login_locked/i, 'errors.tooManyRequests'],
   [/email already registered/i, 'errors.emailRegistered'],
   [/phone already registered/i, 'errors.phoneRegistered'],
   [/identifier_already_registered/i, 'errors.accountRegistered'],

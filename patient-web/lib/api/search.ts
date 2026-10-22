@@ -13,6 +13,9 @@ export interface SearchResult {
   subEn: string | undefined;
   rate: string | undefined;
   price: string | undefined;
+  /** A medicine row: needs a prescription (decision 10), sold online only (decision 11). Absent for other kinds. */
+  requiresPrescription?: boolean;
+  onlineOnly?: boolean;
 }
 
 /** A required field: a non-empty string, or the row is not a result. */
@@ -102,7 +105,10 @@ export function extractGroupedResults(payload: unknown): SearchResult[] {
       if (!kind || id === null || name === null) return [];
       const price = typeof row.price === "number" && Number.isFinite(row.price) && row.price > 0 ? String(row.price) : undefined;
       const sub = kind === "Doctor" ? required(row.specialty) ?? undefined : undefined;
-      return [{ id, type: kind, typeEn: kind, name, nameEn: undefined, sub, subEn: undefined, rate: undefined, price }];
+      const medicine = kind === "Medicine"
+        ? { requiresPrescription: row.requires_prescription === true, onlineOnly: row.online_exclusive === true }
+        : {};
+      return [{ id, type: kind, typeEn: kind, name, nameEn: undefined, sub, subEn: undefined, rate: undefined, price, ...medicine }];
     });
   });
 }

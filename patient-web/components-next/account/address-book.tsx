@@ -13,14 +13,51 @@ import { GeoSelect } from "./geo-select";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import forms from "@/components-next/consult/consult.module.css";
 import styles from "@/components-next/settings/settings.module.css";
+import { ConfirmDialog } from "@/components-next/confirm/confirm-dialog";
+import { Toast } from "@/components-next/feedback/toast";
 
 export type PatientAddress = AddressRecord;
+
+/** Shown in the hint and the error, so the translated text carries no Latin letters of its own. */
+const SHORT_ADDRESS_EXAMPLE = "RRRD2929";
 
 /** The fields of an address, shared by the add form and the edit form. */
 function AddressFields({ form, onChange, locale }: { form: AddressForm; onChange: (patch: Partial<AddressForm>) => void; locale: string }) {
   const t = useTranslations("Addresses");
+  const [finding, setFinding] = useState(false);
+  const [codeNote, setCodeNote] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
+
+  /** 19.7: GET /national-address/lookup answers the street, district and city of a short address from Saudi Post. */
+  async function findShortAddress() {
+    setFinding(true);
+    setCodeNote(null);
+    try {
+      const res = await fetch(`/api/patient/national-address/lookup?code=${encodeURIComponent(form.short_address.trim())}`);
+      if (res.ok) {
+        const found = (await res.json()) as { short_address: string; street?: string; district?: string; city?: string };
+        const line = [found.street, found.district, found.city].filter(Boolean).join("، ");
+        onChange({ short_address: found.short_address, ...(line ? { line1: line.slice(0, 160) } : {}) });
+        setCodeNote({ kind: "ok", text: t("shortAddressFound") });
+      } else {
+        const body = (await res.json().catch(() => null)) as { message?: string } | null;
+        const code = String(body?.message ?? "");
+        setCodeNote({ kind: "error", text: t(code.includes("short_address_invalid") ? "shortAddressInvalid" : code.includes("short_address_not_found") ? "shortAddressNotFound" : "shortAddressUnavailable", { example: SHORT_ADDRESS_EXAMPLE }) });
+      }
+    } catch {
+      setCodeNote({ kind: "error", text: t("shortAddressUnavailable") });
+    } finally {
+      setFinding(false);
+    }
+  }
+
   return (
     <>
+      <label className={forms.field}>
+        <span className={forms.label}>{t("shortAddress")}</span>
+        <input className={forms.control} value={form.short_address} onChange={(event) => onChange({ short_address: event.target.value })} placeholder={t("shortAddressPlaceholder", { example: SHORT_ADDRESS_EXAMPLE })} maxLength={20} dir="ltr" autoCapitalize="characters" autoComplete="off" />
+      </label>
+      <Button label={finding ? t("shortAddressFinding") : t("shortAddressFind")} variant="outline" size="sm" loading={finding} disabled={finding || !form.short_address.trim()} onClick={() => void findShortAddress()} />
+      {codeNote ? <p className={codeNote.kind === "ok" ? forms.ok : forms.error} role={codeNote.kind === "ok" ? "status" : "alert"}>{codeNote.text}</p> : null}
       <label className={forms.field}>
         <span className={forms.label}>{t("label")}</span>
         <input className={forms.control} value={form.label} onChange={(event) => onChange({ label: event.target.value })} required maxLength={80} />
@@ -56,6 +93,7 @@ export function AddressList({ addresses, locale }: { addresses: PatientAddress[]
   const [mode, setMode] = useState<{ id: string; kind: RowMode } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<"remove" | "save" | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
   const [form, setForm] = useState<AddressForm>(EMPTY_ADDRESS_FORM);
 
   const modeOf = (id: string): RowMode => (mode?.id === id ? mode.kind : "view");
@@ -74,6 +112,7 @@ export function AddressList({ addresses, locale }: { addresses: PatientAddress[]
       if (!res.ok) setError("remove");
       else {
         setMode(null);
+        setToast(t("removedToast"));
         router.refresh();
       }
     } catch {
@@ -113,6 +152,7 @@ export function AddressList({ addresses, locale }: { addresses: PatientAddress[]
 
   return (
     <>
+      <Toast message={toast} onDone={() => setToast(null)} />
       <ul className={rx.list} aria-label={t("listLabel")}>
         {addresses.map((address) => {
           const lines = [[address.line1, address.line2], [address.district, address.city]].map((parts) => parts.filter(Boolean).join("، ")).filter(Boolean);
@@ -133,13 +173,17 @@ export function AddressList({ addresses, locale }: { addresses: PatientAddress[]
                   </>
                 ) : null}
               </div>
-              {rowMode === "confirmRemove" ? (
-                <div role="alertdialog" aria-label={t("removeConfirmTitle")} className={styles.stack}>
-                  <p className={forms.body}>{t("removeConfirm", { name: address.label || t("unnamed") })}</p>
-                  <Button label={busy ? t("removing") : t("removeConfirmYes")} size="sm" loading={busy} disabled={busy} onClick={() => void remove(address.id)} />
-                  <Button label={t("cancel")} variant="outline" size="sm" disabled={busy} onClick={() => open(address, "view")} />
-                </div>
-              ) : null}
+              <ConfirmDialog
+                open={rowMode === "confirmRemove"}
+                title={t("removeConfirmTitle")}
+                body={t("removeConfirm", { name: address.label || t("unnamed") })}
+                confirmLabel={busy ? t("removing") : t("removeConfirmYes")}
+                cancelLabel={t("cancel")}
+                destructive
+                busy={busy}
+                onConfirm={() => void remove(address.id)}
+                onCancel={() => open(address, "view")}
+              />
               {rowMode === "edit" ? (
                 <form onSubmit={(event) => void save(event, address)} className={styles.stack} aria-label={t("editTitle")}>
                   <h2 className={rx.h2}>{t("editTitle")}</h2>

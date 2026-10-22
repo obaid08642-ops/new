@@ -55,7 +55,9 @@ export default async function NursingInsuranceStatusPage({ params, searchParams 
 
   const state = typeof booking.state === "string" ? booking.state : typeof booking.status === "string" ? booking.status : "";
   const status = nursingStatus(state);
-  const decisionRaw = typeof booking.decision === "string" ? booking.decision : null;
+  // The decision is the booking's insurance_decision (or coverage_decision), read as the app does: its outcome or decision.
+  const decisionRecord = asRecord(booking.insurance_decision ?? booking.coverage_decision);
+  const decisionRaw = decisionRecord ? (typeof decisionRecord.outcome === "string" ? decisionRecord.outcome : typeof decisionRecord.decision === "string" ? decisionRecord.decision : null) : null;
   const decision = decisionRaw ? nursingStatus(decisionRaw) : null;
   const copayRaw = booking.copay_amount ?? booking.patient_share;
   const copay = typeof copayRaw === "number" ? copayRaw : Number(copayRaw);

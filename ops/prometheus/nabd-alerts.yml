@@ -1,0 +1,41 @@
+# Phase 20.5 — alerts, kept in the repo as code.
+# Each alert carries the runbook link declared in slo-targets.ts, so the number
+# that fires and the page you are sent to cannot drift apart.
+groups:
+  - name: nabd-api
+    rules:
+      - alert: ApiAvailabilitySLOBurn
+        expr: |
+          (sum(rate(nabd_http_errors_total[5m]))
+            / clamp_min(sum(rate(nabd_http_requests_total[5m])), 0.001)) > (1 - 0.999)
+        for: 10m
+        labels: { severity: critical, slo: api_availability }
+        annotations:
+          summary: "API availability is burning the 99.9% error budget"
+          runbook_url: "docs/runbooks/api-availability.md"
+
+      - alert: CheckoutSuccessRateLow
+        expr: |
+          sum(rate(nabd_http_errors_total{route=~".*checkout.*"}[15m]))
+            / clamp_min(sum(rate(nabd_http_requests_total{route=~".*checkout.*"}[15m])), 0.001) > 0.01
+        for: 15m
+        labels: { severity: critical, slo: checkout_success }
+        annotations:
+          summary: "Checkout success rate is under the 99% target"
+          runbook_url: "docs/runbooks/checkout-failures.md"
+
+      - alert: SlowRoutes
+        expr: nabd_http_p95_ms > 500
+        for: 15m
+        labels: { severity: warning, slo: p95_latency }
+        annotations:
+          summary: "p95 latency over 500ms on {{ $labels.route }}"
+          runbook_url: "docs/runbooks/slow-api.md"
+
+      - alert: EventLoopLag
+        expr: nabd_event_loop_lag_ms > 100
+        for: 5m
+        labels: { severity: warning, slo: event_loop_lag }
+        annotations:
+          summary: "Event-loop delay over 100ms"
+          runbook_url: "docs/runbooks/slow-api.md"

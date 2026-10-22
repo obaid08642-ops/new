@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Image, Modal, Pressable, ScrollView, Share, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, Share, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Button, Card, FIcon } from '../../../../packages/ui-native/src';
@@ -10,6 +11,7 @@ import { step as scale, tint, useScreenUi } from '../../../src/components/screen
 import { apiFetch } from '../../../src/utils/api';
 import { isOffline } from '../../../src/utils/isOffline';
 import { logError } from '../../../src/utils/logger';
+import { apiMediaUri } from '../../../src/utils/mediaUri';
 import { pickLocalized } from '../../../src/utils/localize';
 
 /**
@@ -186,7 +188,7 @@ export default function DoctorProfile() {
   };
 
   const name = pickLocalized(doc?.name_ar, doc?.name_en) || doc?.n || '';
-  const photo = doc?.img || doc?.photo_url;
+  const photo = apiMediaUri(doc?.img || doc?.photo_url);
   const facilityName = pickLocalized(doc?.facility?.name_ar, doc?.hospital);
   const place = [[doc?.district, doc?.city].filter(Boolean).join('، '), doc?.address].filter(Boolean).join(' · ');
   const bio = doc?.bio || doc?.biography || '';
@@ -235,7 +237,7 @@ export default function DoctorProfile() {
               <View style={{ alignItems: 'center', gap: 8 }}>
                 {photo ? (
                   <Pressable accessibilityRole="imagebutton" accessibilityLabel={name} onPress={() => setPhotoOpen(true)}>
-                    <Image accessibilityIgnoresInvertColors source={{ uri: photo }} resizeMode="cover" style={{ width: 120, height: 120, borderRadius: 40, backgroundColor: c.bg.media }} />
+                    <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: photo }} contentFit="cover" style={{ width: 120, height: 120, borderRadius: 40, backgroundColor: c.bg.media }} />
                   </Pressable>
                 ) : (
                   <FIcon icon={look.icon} tone={look.tone} size={96} theme={theme} />
@@ -302,7 +304,7 @@ export default function DoctorProfile() {
             ) : null}
 
             {[
-              { key: 'clinic', title: k('consult.doc.clinicPhotos'), urls: doc.clinic_images ?? doc.clinicPhotos, w: 180 },
+              { key: 'clinic', title: k('consult.doc.clinicPhotos'), urls: (doc.clinic_images ?? doc.clinicPhotos ?? []).map((u) => apiMediaUri(u)).filter((u): u is string => Boolean(u)), w: 180 },
               { key: 'facility', title: k('consult.doc.facilityPhotos'), urls: doc.facility_images, w: 200 },
             ]
               .filter((g) => Array.isArray(g.urls) && g.urls.length > 0)
@@ -310,7 +312,7 @@ export default function DoctorProfile() {
                 <Section key={g.key} title={g.title}>
                   <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
                     {(g.urls ?? []).map((uri) => (
-                      <Image key={uri} accessibilityIgnoresInvertColors accessibilityLabel={g.title} source={{ uri }} resizeMode="cover" style={{ width: g.w, height: 130, borderRadius: 16, backgroundColor: c.bg.media }} />
+                      <Image cachePolicy="memory-disk" key={uri} accessibilityIgnoresInvertColors accessibilityLabel={g.title} source={{ uri }} contentFit="cover" style={{ width: g.w, height: 130, borderRadius: 16, backgroundColor: c.bg.media }} />
                     ))}
                   </ScrollView>
                 </Section>
@@ -361,7 +363,7 @@ export default function DoctorProfile() {
 
             <Modal visible={photoOpen} transparent animationType="fade" onRequestClose={() => setPhotoOpen(false)}>
               <View style={{ flex: 1, backgroundColor: tint(c.bg.inverse, 0.9), justifyContent: 'center', alignItems: 'center' }}>
-                {photo ? <Image accessibilityIgnoresInvertColors accessibilityLabel={name} source={{ uri: photo }} style={{ width: '100%', height: 400 }} resizeMode="contain" /> : null}
+                {photo ? <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors accessibilityLabel={name} source={{ uri: photo }} style={{ width: '100%', height: 400 }} contentFit="contain" /> : null}
                 <View style={{ position: 'absolute', top: 48, end: 16 }}>
                   <Button label={k('consult.close')} variant="secondary" size="md" onPress={() => setPhotoOpen(false)} theme={theme} />
                 </View>

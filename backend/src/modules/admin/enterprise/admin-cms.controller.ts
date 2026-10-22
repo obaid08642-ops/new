@@ -50,6 +50,7 @@ export class AdminCmsController {
   }
 
   /** Create or full-edit; returns the updated document. */
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post('articles')
   async upsert(@Body() b: UpsertDto, @CurrentUser() me: any): Promise<any> {
     let reason: string;
@@ -61,6 +62,7 @@ export class AdminCmsController {
       if (b[f] !== undefined) $set[f] = String(b[f] ?? '');
     }
     if (Array.isArray(b.tags)) $set.tags = b.tags.map(String).slice(0, 12);
+    if (b.pregnancy_week !== undefined) $set.pregnancy_week = b.pregnancy_week ?? null;
     if (b.slug !== undefined && String(b.slug).trim()) $set.slug = String(b.slug).trim().toLowerCase().replace(/\s+/g, '-').slice(0, 80);
 
     let id = b?.id;
@@ -109,6 +111,7 @@ export class AdminCmsController {
   }
 
   /** Schedule a future publish — the cron flips it when due. */
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post(':id/schedule')
   async schedule(@Param('id') id: string, @Body() b: ScheduleDto, @CurrentUser() me: any) {
     let reason: string;

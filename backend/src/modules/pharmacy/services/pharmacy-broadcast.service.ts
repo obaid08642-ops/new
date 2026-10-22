@@ -4,6 +4,7 @@
  * If no FULL_ACCEPT exists, runs the Best Partial Match ranking algorithm.
  * Exposes reject/decline broadcast logging rejections to the Shortage Engine.
  */
+import { hasInsuranceContract, policyClass, policyCompanyKeys } from '../../../common/insurance-policy';
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException, ServiceUnavailableException, Logger, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -113,6 +114,8 @@ export class PharmacyBroadcastService {
         matched_sku: item.matched_sku || null,
         // Needs-review issue 541: the patient's line note reaches the pharmacy that prices it.
         notes: typeof item.notes === 'string' && item.notes.trim() ? item.notes : null,
+        // Journeys 74: the patient's photo of the box (a manual request); this pharmacy may open it (storage rule).
+        photo_uri: typeof item.photo_uri === 'string' && item.photo_uri ? item.photo_uri : null,
       })),
       patient_notes: typeof order?.patient_notes === 'string' && order.patient_notes.trim() ? order.patient_notes : null,
     };
@@ -172,6 +175,8 @@ export class PharmacyBroadcastService {
       return existing;
     }
     
+    const insurance = await this.insuranceOf(order);
+    
     const stages = await this.getBroadcastStages();
     const round1 = stages[0];
     const startedAt = new Date();
@@ -190,7 +195,7 @@ export class PharmacyBroadcastService {
       timeline: [{ ts: startedAt, event: 'broadcast_started', meta: { radius: round1.radius_km, round_expires_at: roundDeadline } }],
     });
     
-    await this.broadcastRound(bc, order);
+    await this.broadcastRound(bc, order, insurance);
     order.status = PharmacyOrderState.BROADCASTING;
     order.timeline.push({ ts: new Date(), event: 'broadcasting_round_1', meta: { radius: round1.radius_km } });
     await order.save();
@@ -203,11 +208,11 @@ export class PharmacyBroadcastService {
    * Persist recipient membership and one notification intent per pharmacy. A later
    * dispatcher may send it; this request never sends push/socket directly.
    */
-  private async broadcastRound(bc: PharmacyBroadcast, order: PharmacyOrder) {
+  private async broadcastRound(bc: PharmacyBroadcast, order: PharmacyOrder, insurance?: { companyKeys: string[]; cls: string }) {
     const center = order.delivery_address?.geo;
     // F73: pickup orders filter pharmacies to a 15 km radius (patient travels).
     const radius = (order as any).fulfillment === 'pickup' ? Math.min(Number(bc.current_radius_km) || 15, 15) : bc.current_radius_km;
-    const pharms = await this.findEligiblePharmaciesWithin(center, radius, { extended: Boolean((bc as any).extended_stage) });
+    const pharms = await this.findEligiblePharmaciesWithin(center, radius, { extended: Boolean((bc as any).extended_stage), insurance });
     const alreadyNotified = new Set<string>(Array.isArray(bc.notified_pharmacies) ? bc.notified_pharmacies : []);
     const candidates = pharms.map((pharmacy: any) => String(pharmacy.account_id)).filter((id: string) => id && !alreadyNotified.has(id));
     const now = new Date();
@@ -301,6 +306,8 @@ export class PharmacyBroadcastService {
       throw new BadRequestException('broadcast_round_not_due');
     }
     
+    const insurance = await this.insuranceOf(await this.orders.findOne({ id: order_id }));
+    
     const stages = await this.getBroadcastStages();
     const nextIdx = bc.current_round; // 1-based round index
     
@@ -321,7 +328,7 @@ export class PharmacyBroadcastService {
         bc.round_expires_at = extendedDeadline;
         bc.timeline.push({ ts: extendedAt, event: isPickup ? 'extended_round_self_pickup_15km' : 'extended_round_own_delivery', meta: { round: bc.current_round, radius: extendedRadius, round_expires_at: extendedDeadline } });
         await bc.save();
-        await this.broadcastRound(bc, orderForExtended);
+        await this.broadcastRound(bc, orderForExtended, insurance);
         return bc.toObject();
       }
       // No more rounds → trigger Best Partial Match algorithm
@@ -342,7 +349,7 @@ export class PharmacyBroadcastService {
     await bc.save();
     
     const order = await this.orders.findOne({ id: order_id });
-    if (order) await this.broadcastRound(bc, order);
+    if (order) await this.broadcastRound(bc, order, insurance);
     
     // broadcastRound persisted recipient intents; no direct best-effort event is emitted.
     return bc.toObject();
@@ -384,9 +391,19 @@ export class PharmacyBroadcastService {
     return { order_id, selection_required: true, reason: 'automatic_split_disabled' };
   }
 
+  /** The patient's saved company and class for an insurance order; undefined for any other order (no filter). */
+  private async insuranceOf(order: any): Promise<{ companyKeys: string[]; cls: string } | undefined> {
+    if (order?.coverage_mode !== 'insurance') return undefined;
+    const profile: any = await (this.profiles as any).db.collection('patient_profiles').findOne(
+      { user_id: order.patient_account_id },
+      { projection: { insurance: 1 } },
+    );
+    return { companyKeys: policyCompanyKeys(profile?.insurance), cls: policyClass(profile?.insurance) };
+  }
+
   // ============== INTERNAL: geo filter ==============
   /** Eligible, approved and available recipient set computed server-side for a given round. */
-  async findEligiblePharmaciesWithin(center: any, radius_km: number, opts?: { extended?: boolean }) {
+  async findEligiblePharmaciesWithin(center: any, radius_km: number, opts?: { extended?: boolean; insurance?: { companyKeys: string[]; cls: string } }) {
     const accs = await (this.profiles as any).db.collection('provider_accounts').find({ provider_type: 'pharmacy', status: { $in: ['approved', 'active'] } }).project({ id: 1 }).toArray();
     if (!accs.length || !Number.isFinite(Number(center?.lat)) || !Number.isFinite(Number(center?.lng)) || !Number.isFinite(Number(radius_km)) || Number(radius_km) <= 0) return [];
     const ids = accs.map((a: any) => a.id);
@@ -402,6 +419,9 @@ export class PharmacyBroadcastService {
       const pharm = p as any;
       const d = this.geo.distanceKm({ lat: Number(p.geo.lat), lng: Number(p.geo.lng) }, center);
       if (!Number.isFinite(d)) continue;
+      // An insurance order reaches only pharmacies contracted for the patient's company AND class (fails closed
+      // when the patient's policy has no company or class).
+      if (opts?.insurance && !hasInsuranceContract(pharm.insurance_class_contracts, opts.insurance.companyKeys, opts.insurance.cls)) continue;
       const hasOwnDelivery = Boolean(pharm.has_own_delivery || pharm.has_own_drivers);
       const ownRadius = Number(pharm.delivery_radius_km ?? pharm.max_delivery_radius_km);
       let qualifies = false;

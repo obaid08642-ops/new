@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
+import { recordAudit } from '../../common/audit-record';
 import { InjectConnection } from '@nestjs/mongoose';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Connection } from 'mongoose';
@@ -6,6 +7,7 @@ import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guar
 import { UserRole } from '../../common/enums';
 import { UrgentHelpDto } from './mental-health.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 /** system_configs key of the one "Need urgent help?" number (owner decision 8). Never hard-coded: null until the admin sets it. */
 export const URGENT_HELP_KEY = 'mental_health_urgent_help';
 
@@ -29,6 +31,7 @@ export class MentalHealthUrgentHelpController {
   }
 
   /** PUT /api/v1/admin/mental-health/urgent-help — admin only, audited. */
+  @RequirePermissions(Permission.CMS_EDIT)
   @Put('admin/mental-health/urgent-help')
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)
@@ -42,15 +45,14 @@ export class MentalHealthUrgentHelpController {
       { $set: { key: URGENT_HELP_KEY, value: { phone }, updated_at: now, updated_by: admin?.id ?? null }, $setOnInsert: { created_at: now } },
       { upsert: true },
     );
-    await this.conn.collection('audit_logs').insertOne({
-      id: `urgent_help_${now.getTime()}`,
+    await recordAudit(this.conn, {
       action: 'mental_health_urgent_help_update',
       resource_kind: 'system_config',
       resource_id: `system_config:${URGENT_HELP_KEY}`,
-      actor_account_id: admin?.id,
-      actor_role: admin?.role,
-      metadata: { before: before.phone, after: phone },
-      created_at: now,
+      user_id: admin?.id,
+      role: admin?.role,
+      changes: { before: { phone: before.phone }, after: { phone } },
+      severity: 'warn',
     });
     return this.read();
   }

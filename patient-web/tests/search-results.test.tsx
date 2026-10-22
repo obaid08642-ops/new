@@ -36,8 +36,25 @@ describe("search: doctor sub-line", () => {
     expect(lab).not.toContain("cardiology");
   });
 
+  it("links a lab test to its detail page by id", () => {
+    const html = renderToStaticMarkup(<ResultItem locale="en" query="" result={{ id: "lab-42", type: "Lab", typeEn: "Lab", name: "CBC" }} />);
+    expect(html).toContain('href="/en/diagnostics/test-detail?testId=lab-42"');
+  });
+
   it("keeps the fallback words the backend sends for a doctor without a specialty", () => {
     expect(renderToStaticMarkup(<ResultItem locale="en" query="" result={doctor("Doctor")} />)).toContain(">Doctor<");
+  });
+});
+
+describe("search: a medicine row says needs-a-prescription and online-only (rx-rules)", () => {
+  it("shows the chips from the row's flags and nothing for a plain row", () => {
+    const med = (over: object) => ({ id: "m1", type: "Medicine", typeEn: "Medicine", name: "Panadol", ...over });
+    const both = renderToStaticMarkup(<ResultItem locale="en" query="" result={med({ requiresPrescription: true, onlineOnly: true })} />);
+    expect(both).toContain(createTranslator("en", "PublicProduct")("rxRequired"));
+    expect(both).toContain(createTranslator("en", "PublicProduct")("onlineOnly"));
+    const plain = renderToStaticMarkup(<ResultItem locale="en" query="" result={med({ requiresPrescription: false, onlineOnly: false })} />);
+    expect(plain).not.toContain(createTranslator("en", "PublicProduct")("rxRequired"));
+    expect(plain).not.toContain(createTranslator("en", "PublicProduct")("onlineOnly"));
   });
 });
 

@@ -7,6 +7,7 @@ import { Button } from "@/components-next/ui-generated/components/Button";
 import { TextField } from "@/components-next/care/care-fields";
 import { Notice } from "@/components-next/consult/consult-parts";
 import { copyText } from "@/lib/copy-text";
+import { ConfirmDialog } from "@/components-next/confirm/confirm-dialog";
 import styles from "./loyalty.module.css";
 
 /**
@@ -20,10 +21,11 @@ export function RedeemReward({ rewardId, title, cost, disabled }: { rewardId: st
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ tone: "ok" | "bad"; text: string } | null>(null);
+  const [asking, setAsking] = useState(false);
+  const shared = useTranslations("Shared");
 
   async function redeem() {
     if (busy || disabled) return;
-    if (!window.confirm(t("confirmRedeem", { cost, title }))) return;
     setBusy(true);
     setMessage(null);
     try {
@@ -42,12 +44,22 @@ export function RedeemReward({ rewardId, title, cost, disabled }: { rewardId: st
       setMessage({ tone: "bad", text: t("redeemFailed") });
     } finally {
       setBusy(false);
+      setAsking(false);
     }
   }
 
   return (
     <span className={styles.pad}>
-      <Button label={disabled ? t("notEnough") : t("redeem")} size="sm" variant={disabled ? "outline" : "primary"} disabled={disabled} loading={busy} onClick={redeem} />
+      <Button label={disabled ? t("notEnough") : t("redeem")} size="sm" variant={disabled ? "outline" : "primary"} disabled={disabled} loading={busy} onClick={() => setAsking(true)} />
+      <ConfirmDialog
+        open={asking}
+        title={t("confirmRedeem", { points: cost, title })}
+        busy={busy}
+        confirmLabel={shared("dialogConfirm")}
+        cancelLabel={shared("dialogCancel")}
+        onConfirm={() => void redeem()}
+        onCancel={() => setAsking(false)}
+      />
       {message ? <span role={message.tone === "bad" ? "alert" : "status"}><Notice warn={message.tone === "bad"}>{message.text}</Notice></span> : null}
     </span>
   );

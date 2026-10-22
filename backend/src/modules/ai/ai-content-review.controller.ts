@@ -4,6 +4,7 @@ import { UserRole } from '../../common/enums';
 import { AiContentReviewService } from './ai-content-review.service';
 import { AiContentReviewDecisionDto } from './dto/ai-content-review-decision.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 /**
  * Phase 10 medical safety: the human side of the AI content review queue.
  *
@@ -23,6 +24,7 @@ export class AiContentReviewController {
     return this.review.list(status, Number(limit) || 50);
   }
 
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post(':id/decision')
   decide(
     @CurrentUser() user: any,

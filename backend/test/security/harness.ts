@@ -23,7 +23,9 @@ import { JwtAuthGuard } from '../../src/common/auth.guard';
 import { WriteGuard } from '../../src/common/write-guard';
 import { RedisCacheInterceptor } from '../../src/common/redis-cache.interceptor';
 import { ImpersonationSessionService } from '../../src/common/impersonation-session.service';
+import { LedgerService } from '../../src/modules/finance-engine/finance-engine.module';
 import request from 'supertest';
+import { ownerEmail } from '../../src/common/effective-permissions';
 
 // Nest app boots (module compile + DI graph) routinely take 20–40s on CI;
 // the default 5s hook timeout flakes full-directory runs. Set per-file.
@@ -38,12 +40,30 @@ export function signToken(payload: Record<string, unknown>): string {
 export const patientToken = () => signToken({ id: 'patient-1', role: 'patient' });
 export const tokenFor = (id: string, role: string) => signToken({ id, role });
 
+// Owner decision 29: admin roles are restrictive, so the specs' admin principal ('admin-1') is the owner account
+// (the designated owner email), which holds every admin permission. Any other admin id has no role and no grant.
+const OWNER_ADMIN_ID = 'admin-1';
 const connectionStub = {
   collection: (name: string) => ({
-    findOne: async () => (name === 'admin_devices' ? { device_hash: 'enrolled', revoked: false } : null),
+    findOne: async (q?: { id?: { $eq?: string } }) => {
+      if (name === 'admin_devices') return { device_hash: 'enrolled', revoked: false };
+      if (name === 'users' && q?.id?.$eq === OWNER_ADMIN_ID) return { id: OWNER_ADMIN_ID, email: ownerEmail() };
+      return null;
+    },
     insertOne: async () => ({}),
   }),
   model: () => null,
+};
+
+const ledgerStub = {
+  providerBalance: async (providerId: string) => ({
+    earned_cleared: 0,
+    earned_pending: 0,
+    debits: 0,
+    paid: 0,
+    locked: 0,
+    available: 0,
+  }),
 };
 
 export async function buildSecurityApp(
@@ -59,6 +79,7 @@ export async function buildSecurityApp(
       Reflector,
       { provide: getConnectionToken(), useValue: connectionStub },
       { provide: ImpersonationSessionService, useValue: {} },
+      { provide: LedgerService, useValue: ledgerStub },
       { provide: APP_GUARD, useClass: JwtAuthGuard },
       { provide: APP_GUARD, useClass: WriteGuard },
     ],

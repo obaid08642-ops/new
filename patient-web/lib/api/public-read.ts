@@ -1,4 +1,5 @@
 import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
+import { publicReadSignal } from "@/lib/api/public-timeout";
 
 /**
  * F82-3: one public read for the static/ISR entity pages (doctor, specialty and city pages). No credential, no cookie: the
@@ -12,7 +13,7 @@ import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
 export async function readPublicEntity<T>(url: string, revalidate: number): Promise<T | null> {
   let res: Response;
   try {
-    res = await fetch(url, { headers: { Accept: "application/json" }, next: { revalidate } });
+    res = await fetch(url, { headers: { Accept: "application/json" }, next: { revalidate }, signal: publicReadSignal() });
   } catch {
     throw new PublicDataUnavailableError(url);
   }

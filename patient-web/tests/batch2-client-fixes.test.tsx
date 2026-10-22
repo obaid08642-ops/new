@@ -74,7 +74,7 @@ describe("the doctor entity read (F82)", () => {
     await real.getPublicDoctorEntity("dr sara");
     const [url, init] = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
     expect(String(url)).toMatch(/\/entity-graph\/related\/doctor\/dr%20sara$/);
-    expect(init.next).toEqual({ revalidate: 3600 });
+    expect(init.next).toEqual({ revalidate: 3600, tags: ["providers"] }); // issue 1541: tagged so a provider delete purges the page
     expect(init.cache).toBeUndefined();
     expect(init.headers).toEqual({ Accept: "application/json" });
     expect(getPublicDoctorEntity).toBe(doctors.entity);

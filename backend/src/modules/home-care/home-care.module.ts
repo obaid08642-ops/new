@@ -1,11 +1,9 @@
-import { Module, OnModuleInit, Logger } from '@nestjs/common';
-import { MongooseModule, InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
 import { NursingController, HomeCareContractController } from './home-care.controller';
 import { HomeCareTrackingController } from './controllers/home-care-tracking.controller';
 import { HomeCareSvc } from './home-care.service';
 import { HomeCareBookingSchema, NursingVisitReportSchema, MedicalSupplyRequestSchema, NurseProviderSchema, HomeCarePackageSchema, HomeCareServiceSchema, CarePlanSchema } from '../../schemas/home-care.schema';
-import { HOME_CARE_SEED } from './home-care.seed';
 import { WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
 import { CarePlanRepository } from "./repositories/careplan.repository";
 import { HomeCareCompatController, NursingOpsController, ChatAliasController } from './home-care-compat.module';
@@ -19,11 +17,13 @@ import { HomeCarePackagesController } from './home-care-packages.controller';
 import { NursingCompatController } from './nursing-compat.controller';
 import { PatientHomeCareController } from './patient-home-care.controller';
 import { PatientNurseProfileController } from './nurse-profile.controller';
+import { InsuranceEngineModule } from '../insurance-engine/insurance-engine.module';
 
 @Module({
   imports: [
     WorkflowEngineModule,
     ChatModule,
+    InsuranceEngineModule,
     MongooseModule.forFeature([
       { name: 'HomeCareService', schema: HomeCareServiceSchema },
       { name: 'NurseProvider', schema: NurseProviderSchema },
@@ -41,45 +41,5 @@ import { PatientNurseProfileController } from './nurse-profile.controller';
   providers: [HomeCareSvc, { provide: 'CarePlanRepository', useClass: CarePlanRepository }, { provide: 'HomeCareBookingRepository', useClass: HomeCareBookingRepository }, { provide: 'HomeCareServiceRepository', useClass: HomeCareServiceRepository }, { provide: 'MedicalSupplyRequestRepository', useClass: MedicalSupplyRequestRepository }, { provide: 'NursingVisitReportRepository', useClass: NursingVisitReportRepository }],
   exports: [HomeCareSvc],
 })
-export class HomeCareModule implements OnModuleInit {
-  private readonly logger = new Logger('HomeCareSeed');
-  constructor(@InjectModel('HomeCareService') private readonly svcModel: Model<any>) {}
-  async onModuleInit() {
-    setImmediate(() =>
-      this.seed().catch((e: any) => this.logger.warn(`Background home-care seed failed: ${e?.message}`)),
-    );
-  }
-
-  private async seed() {
-    const existing = await this.svcModel.countDocuments({ id: { $ne: null } });
-    if (existing >= HOME_CARE_SEED.length) return;
-    // Idempotent per-doc upsert — $setOnInsert never overwrites admin edits
-    let ok = 0;
-    for (const x of HOME_CARE_SEED as any[]) {
-      try {
-        const doc = {
-          id: x.id || require('uuid').v4(),
-          name_ar: x.title?.ar,
-          name_en: x.title?.en,
-          description_ar: x.description?.ar,
-          description_en: x.description?.en,
-          category: x.category,
-          price: x.basePrice,
-          duration: 'hour',
-          duration_value: Math.max(1, Math.round((x.estimatedDurationMins || 60) / 60)),
-          icon: x.iconName || 'general',
-          active: true,
-        };
-        await this.svcModel.updateOne(
-          { name_en: doc.name_en, category: doc.category },
-          { $setOnInsert: doc },
-          { upsert: true },
-        );
-        ok++;
-      } catch (e: any) {
-        this.logger.error(`seed_doc_failed (${x?.title?.en}): ${e?.message?.slice(0, 120)}`);
-      }
-    }
-    this.logger.log(`Seeded ${ok}/${HOME_CARE_SEED.length} home-care services`);
-  }
-}
+// #1556 F: nursing_services is seeded from catalogs/seed-data/nursing.json only (one source, no duplicate rows).
+export class HomeCareModule {}

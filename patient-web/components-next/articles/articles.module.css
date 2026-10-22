@@ -10,3 +10,8 @@
 .meta { margin: 0; color: var(--nabd-color-text-secondary); font-size: var(--nabd-font-size-label); overflow-wrap: anywhere; }
 .pill { align-self: flex-start; padding: 2px var(--nabd-space-sm); border-radius: var(--nabd-radius-pill); background: var(--nabd-color-status-info-bg); color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-caption); font-weight: 700; }
 .summary { margin: 0; color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-control); line-height: 1.7; overflow-wrap: anywhere; white-space: pre-line; }
+/* 10-web#2: the article's full text (plain-text blocks) */
+.articleBody { display: flex; flex-direction: column; gap: var(--nabd-space-sm); min-inline-size: 0; }
+.articleHeading { margin: var(--nabd-space-sm) 0 0; color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-h3); font-weight: 700; overflow-wrap: anywhere; }
+.articleSubheading { margin: var(--nabd-space-xs) 0 0; color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-h4); font-weight: 700; overflow-wrap: anywhere; }
+.articleList { margin: 0; padding-inline-start: var(--nabd-space-lg); color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-control); line-height: 1.7; overflow-wrap: anywhere; }

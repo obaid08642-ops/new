@@ -13,6 +13,7 @@ import { Appointment, AppointmentDocument } from '../../schemas/appointment.sche
 import { getWebSocketCorsOptions } from '../../config/websocket-cors';
 import { ChatService } from '../chat/chat.service';
 import { LiveKitService } from '../livekit/livekit.service';
+import { registerGauge } from '../../common/metrics.service';
 
 @WebSocketGateway({ cors: getWebSocketCorsOptions(), namespace: '/', transports: ['websocket', 'polling'] })
 export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -35,6 +36,8 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
 
   afterInit(server: Server) {
     this.realtime.setServer(server);
+    // 20.10: step 4 of SCALE_ARCHITECTURE.md §6 is triggered by the number of open sockets (this process)
+    registerGauge('nabd_ws_connections', 'Open realtime (Socket.IO) connections in this process.', () => (server as any)?.engine?.clientsCount ?? 0);
     this.logger.log('WebSocket Gateway initialized');
   }
 

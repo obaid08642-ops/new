@@ -1,3 +1,6 @@
+"use client";
+// Browser-only: every importer is a client screen (its fetches go to the patient proxy with the session cookie).
+
 import { parseDeliveryAddresses, toBroadcastAddress, type DeliveryAddress } from "./delivery-address";
 // no zod here: this module is in the client bundle of every sending screen, and zod probes for `eval`, which the page's CSP reports as a violation
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -47,41 +50,51 @@ export type BroadcastCartLine = { name: string; qty: number; sku?: string };
 
 export type BroadcastRequest =
   /** A named medicine the catalogue does not have (backend `manual_request`). */
-  | { kind: "manual"; name: string; details: string }
+  | { kind: "manual"; name: string; details: string; qty?: number; photoId?: string }
   /** The medicines of a saved prescription (backend `prescription_id`); quantity is the pharmacy's to confirm. */
-  | { kind: "prescription"; prescriptionId: string; names: string[] }
+  | { kind: "prescription"; prescriptionId: string; names: string[]; fulfillment?: "delivery" | "pickup" }
   /**
-   * The cart of this browser (checkout). `paymentMode` and `fulfillment` are the draft's own fields (`payment_mode`,
-   * `fulfillment`): how the patient really pays is decided when an offer is selected, so no price, policy number or
-   * identity number is sent here. A prescription medicine is ordered with the saved prescription that covers it.
+   * The cart of this browser (checkout). `paymentMode` and `fulfillment` are the draft's own fields (`payment_mode` and
+   * `payment_method`, `fulfillment`): insurance or self-pay is chosen before sending (decision 30) and the offer is selected
+   * with it; no price, policy number or identity number is sent here. A prescription medicine is ordered with the saved prescription that covers it.
+   * `rxNames`: the medicines of the prescription the patient picked in rx-order (decision 39), sent before the cart's lines.
    */
-  | { kind: "cart"; lines: BroadcastCartLine[]; paymentMode: "cash" | "insurance"; fulfillment: "delivery" | "pickup"; prescriptionId?: string };
+  | { kind: "cart"; lines: BroadcastCartLine[]; paymentMode: "cash" | "insurance"; fulfillment: "delivery" | "pickup"; prescriptionId?: string; rxNames?: string[] };
 
 const MAX_LINE_QTY = 99;
 
 export function buildBroadcastBody(request: BroadcastRequest, address: DeliveryAddress & { lat: number; lng: number }) {
-  const base = { delivery_address: toBroadcastAddress(address), fulfillment: "delivery", payment_mode: "cash" };
+  const base = { delivery_address: toBroadcastAddress(address), fulfillment: "delivery", payment_mode: "cash", payment_method: "cash" };
   if (request.kind === "cart") {
     return {
       ...base,
       fulfillment: request.fulfillment,
       payment_mode: request.paymentMode,
-      items: request.lines.map((line) => ({
-        raw_name: line.name.slice(0, 240),
-        qty: Math.min(MAX_LINE_QTY, Math.max(1, Math.trunc(line.qty) || 1)),
-        intake_source: "cart",
-        ...(line.sku ? { sku: line.sku.slice(0, 120) } : {}),
-      })),
+      // decision 30: the choice made before sending; the broadcast reads payment_method (D-30 contract)
+      payment_method: request.paymentMode === "insurance" ? "insurance" : "cash",
+      items: [
+        ...(request.rxNames ?? []).map((name) => ({ raw_name: name.slice(0, 240), qty: 1, intake_source: "prescription" })),
+        ...request.lines.map((line) => ({
+          raw_name: line.name.slice(0, 240),
+          qty: Math.min(MAX_LINE_QTY, Math.max(1, Math.trunc(line.qty) || 1)),
+          intake_source: "cart",
+          ...(line.sku ? { sku: line.sku.slice(0, 120) } : {}),
+        })),
+      ],
       ...(request.prescriptionId ? { prescription_id: request.prescriptionId, prescription_attachments: [request.prescriptionId] } : {}),
     };
   }
   if (request.kind === "manual") {
     const name = request.name.trim().slice(0, 200);
     const details = request.details.trim().slice(0, 500);
-    return { ...base, manual_request: { name, details: details || null } };
+    // journeys 74: how many boxes and the photo of the box (decision 12)
+    const qty = Math.min(MAX_LINE_QTY, Math.max(1, Math.trunc(request.qty ?? 1) || 1));
+    return { ...base, manual_request: { name, details: details || null, qty, ...(request.photoId ? { photo_id: request.photoId } : {}) } };
   }
   return {
     ...base,
+    // journeys#23: delivered or picked up at the pharmacy, as the cart checkout asks
+    fulfillment: request.fulfillment === "pickup" ? "pickup" : "delivery",
     items: request.names.map((name) => ({ raw_name: name.slice(0, 240), qty: 1, intake_source: "prescription" })),
     prescription_id: request.prescriptionId,
     prescription_attachments: [request.prescriptionId],

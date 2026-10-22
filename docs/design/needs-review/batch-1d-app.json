@@ -7,7 +7,8 @@
     "file": "backend/src/modules/pharmacy/services/pharmacy-order.service.ts",
     "line": 116,
     "found": "governedView keeps FINAL_QUOTE_ACCEPTED (cash) or INSURANCE_DECISION_READY (co-pay) after the gateway confirmed the payment; finalizeGovernedPharmacyPaid only writes payment_status/transaction_id/paid_at on the order and the evidence record, the status does not move.",
-    "suspect": "Backend should derive a governed state for \"paid\" and \"co-pay accepted\" (or document payment_status and patient_acceptance as the contract)."
+    "suspect": "Backend should derive a governed state for \"paid\" and \"co-pay accepted\" (or document payment_status and patient_acceptance as the contract).",
+    "review_status": "fixed #1255 (issue #530)"
   },
   {
     "batch": 1,
@@ -17,7 +18,8 @@
     "file": "backend/src/modules/payments/payments.module.ts",
     "line": 309,
     "found": "POST /payments/intent/pharmacy/:id ignores the body (`method` is not read); the transaction is created with method = order.payment_method (so \"cash\" or \"insurance\" for an order paid online) and the hosted page offers whatever the gateway offers.",
-    "suspect": "Fixed on design/backend-fields: the backend honours the chosen method (payments.module.ts:378-386) and capabilities advertise card, apple-pay and google-pay; the payment screen lists them and sends the pick. (was: Backend should either honour the chosen method (and advertise the real ones) or the board should drop the list; owner decision.)"
+    "suspect": "Fixed on design/backend-fields: the backend honours the chosen method (payments.module.ts:378-386) and capabilities advertise card, apple-pay and google-pay; the payment screen lists them and sends the pick. (was: Backend should either honour the chosen method (and advertise the real ones) or the board should drop the list; owner decision.)",
+    "review_status": "fixed #1255 #1262 (issue #531)"
   },
   {
     "batch": 1,
@@ -27,7 +29,8 @@
     "file": "backend/src/modules/payments/payments.module.ts",
     "line": 444,
     "found": "retryPayment reads the legacy orders collection (modelFor(type)), so POST /payments/retry/pharmacy/:id answers booking_not_found for an order of the governed flow.",
-    "suspect": "Backend: make retry/replace work for governed orders, or let the intent call replace a stale pending transaction."
+    "suspect": "Backend: make retry/replace work for governed orders, or let the intent call replace a stale pending transaction.",
+    "review_status": "fixed #1323 (issue #532)"
   },
   {
     "batch": 1,
@@ -37,7 +40,8 @@
     "file": "backend/src/modules/moyasar/moyasar.module.ts",
     "line": 487,
     "found": "The result is asked with POST /payments/verify/:transaction (the transaction id the app holds; it also finalizes the governed order) or, for the id in the gateway redirect (?id=pay_...&status=...), GET /moyasar/payments/sync/:id, which refreshes the Moyasar record only and does not finalize a pharmacy order (only verify or the webhook does).",
-    "suspect": "Reviewer (single Moyasar path): one status endpoint by transaction or gateway id that also finalizes, and a return URL the app opens."
+    "suspect": "Reviewer (single Moyasar path): one status endpoint by transaction or gateway id that also finalizes, and a return URL the app opens.",
+    "review_status": "fixed #1401 (issue #533)"
   },
   {
     "batch": 1,
@@ -47,7 +51,8 @@
     "file": "backend/src/modules/payments/payments.module.ts",
     "line": 393,
     "found": "There is no read-only payment status for the patient; verifyPayment calls the gateway, may mark the order paid, emits events and rewrites the transaction on every call.",
-    "suspect": "Backend: a GET status that reads the stored status, with verify as the explicit refresh."
+    "suspect": "Backend: a GET status that reads the stored status, with verify as the explicit refresh.",
+    "review_status": "fixed #1401 (issue #534)"
   },
   {
     "batch": 1,
@@ -57,7 +62,8 @@
     "file": "backend/src/modules/payments/payments.module.ts",
     "line": 212,
     "found": "The local test backend has no gateway key, so GET /payments/pharmacy/:id/capabilities for a quoted order would advertise no methods, and no hosted page, redirect or paid transaction could be produced; there is also no accepted quote on the seeded orders (both are draft / ready_for_split).",
-    "suspect": "Reviewer: run the payment once end to end on a sandbox gateway with a seeded accepted quote."
+    "suspect": "Reviewer: run the payment once end to end on a sandbox gateway with a seeded accepted quote.",
+    "review_status": "not-a-problem: Not a code defect: it records that the local test backend has no gateway key, so the payment step could not run there. (issue #535)"
   },
   {
     "batch": 1,
@@ -67,7 +73,8 @@
     "file": "patient-app/app/payments/result.tsx",
     "line": 1,
     "found": "The old screen embedded the hosted page in a WebView when the package was present, drew \"paid\" from the redirect (?status=success) and offered a client-written receipt text, the service name and amount from the address.",
-    "suspect": "Owner: confirm the system browser instead of the WebView; backend/owner: a receipt (PDF or page) if one is wanted."
+    "suspect": "Owner: confirm the system browser instead of the WebView; backend/owner: a receipt (PDF or page) if one is wanted.",
+    "review_status": "not-a-problem: Not a problem: the note records what the old result screen did wrong and that it was replaced; (issue #536)"
   },
   {
     "batch": 1,
@@ -77,7 +84,8 @@
     "file": "patient-app/app/insurance/approval-pending.tsx",
     "line": 103,
     "found": "approval-pending.tsx:103,177 push /payments/processing with no params; the result screen now says it cannot confirm (old screen spun forever). copay, diagnostics and nursing pass moyasarId/paymentUrl, still read.",
-    "suspect": "Batch 7 (insurance): pass the transaction id from the intent call to the result screen."
+    "suspect": "Batch 7 (insurance): pass the transaction id from the intent call to the result screen.",
+    "review_status": "fixed 731ecad38 (verified on main: every caller that reaches /payments/result passes our transaction id: diagnostics/checkout.tsx:126, nursing/nurse-profile.tsx:140, insurance/copay.tsx:57 via /payments/processing; readResultParams pharmacyCheckout.ts:380 reads it; consultation and the insurance request show the server's status on their own screens) (issue #537)"
   },
   {
     "batch": 1,
@@ -87,7 +95,8 @@
     "file": "backend/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts",
     "line": 181,
     "found": "acceptByPatient stores payment_method (default card) in insurance_decision.patient_acceptance and nothing reads it; the intent call decides the method.",
-    "suspect": "Backend: drop the field or use it."
+    "suspect": "Backend: drop the field or use it.",
+    "review_status": "fixed #1403 (issue #538)"
   },
   {
     "batch": 1,
@@ -97,7 +106,8 @@
     "file": "backend/src/modules/pharmacy/pharmacy.controllers.ts",
     "line": 44,
     "found": "POST orders/:id/insurance-rejection/cancel takes b.idempotency_key and ignores the Idempotency-Key header (the other mutations accept both).",
-    "suspect": "Backend: accept the header like the neighbouring routes."
+    "suspect": "Backend: accept the header like the neighbouring routes.",
+    "review_status": "fixed #1217 (issue #539)"
   },
   {
     "batch": 1,
@@ -107,7 +117,8 @@
     "file": "backend/src/modules/pharmacy/services/pharmacy-offer.service.ts",
     "line": 369,
     "found": "The draft (shared with the web, and the same on the app) sends prescription_attachments: [prescriptionId] (a string) and prescription_id.",
-    "suspect": "Backend: resolve prescription_id to the stored prescription image for the broadcast and the insurance rule (or the DTO should refuse the string form)."
+    "suspect": "Backend: resolve prescription_id to the stored prescription image for the broadcast and the insurance rule (or the DTO should refuse the string form).",
+    "review_status": "not-a-problem: Not a problem: the draft sends prescription_id and the same id in prescription_attachments; (issue #540)"
   },
   {
     "batch": 1,
@@ -117,7 +128,8 @@
     "file": "backend/src/modules/pharmacy/services/pharmacy-broadcast.service.ts",
     "line": 95,
     "found": "CreateDto stores patient_notes and item notes but the pharmacy-facing broadcast (name, qty, matched_sku) never includes them, so a note field would be a placebo; not drawn.",
-    "suspect": "Backend: include the notes in what pharmacies receive, then the field can be added."
+    "suspect": "Backend: include the notes in what pharmacies receive, then the field can be added.",
+    "review_status": "fixed #1222 (issue #541)"
   },
   {
     "batch": 1,
@@ -127,7 +139,8 @@
     "file": "backend/src/modules/prescriptions/prescriptions.service.ts",
     "line": 1,
     "found": "GET /prescriptions/:id sends items as {name, dose, frequency, duration} (see the 1b entry), so the request sends quantity 1 and the name only, and the screen says the pharmacy confirms the quantities.",
-    "suspect": "Backend: send quantity and medicine_id with the prescription items."
+    "suspect": "Backend: send quantity and medicine_id with the prescription items.",
+    "review_status": "fixed #1217 (issue #542)"
   },
   {
     "batch": 1,
@@ -137,7 +150,8 @@
     "file": "docs/design/canvas/CheckoutV2.dc.html",
     "line": 1,
     "found": "CheckoutV2 draws \"[pharmacy name] - arrives within [time] - to [address]\", a points discount row and \"Tax: included\".",
-    "suspect": "Backend: pharmacy name and delivery estimate on the order, a tax flag on the quote, and a points preview."
+    "suspect": "Backend: pharmacy name and delivery estimate on the order, a tax flag on the quote, and a points preview.",
+    "review_status": "not-a-problem: Decision (reviewer, as delegated by the owner on 2026-10-14) on the board rows that have no data: - **Points discount:** not offered on pharmacy broadcast order (issue #543)"
   },
   {
     "batch": 1,
@@ -147,7 +161,8 @@
     "file": "patient-app/app/pharmacy/checkout.tsx",
     "line": 100,
     "found": "If the delivery mode or location changes after the order was created, a second order is created and the first stays a draft in the list (PATCH cannot change fulfillment).",
-    "suspect": "Backend: let the draft update fulfillment/address, or let the client cancel the abandoned draft."
+    "suspect": "Backend: let the draft update fulfillment/address, or let the client cancel the abandoned draft.",
+    "review_status": "fixed #1404 (issue #544)"
   },
   {
     "batch": 1,
@@ -157,7 +172,8 @@
     "file": "backend/src/modules/pharmacy/pharmacy.controllers.ts",
     "line": 20,
     "found": "The patient endpoints are patient-role only: a guest session answers 403 Insufficient role on create (shown as \"sign in to send a request\").",
-    "suspect": "None for the backend; listed so the reviewer sees what was and was not run."
+    "suspect": "None for the backend; listed so the reviewer sees what was and was not run.",
+    "review_status": "not-a-problem: Not a defect. (issue #545)"
   },
   {
     "batch": 1,
@@ -167,7 +183,8 @@
     "file": "patient-app/app/pharmacy/order-history.tsx",
     "line": 13,
     "found": "GET /patient/pharmacy/orders returns the stored orders without the derived governed_state (only GET /orders/:id adds it), and governed_state is null until an offer is selected (live check: status ready_for_split, governed_state null).",
-    "suspect": "Slice 1e: use orderRoute() in order-history, reorder and tracking."
+    "suspect": "Slice 1e: use orderRoute() in order-history, reorder and tracking.",
+    "review_status": "fixed #1227 (issue #546)"
   },
   {
     "batch": 1,
@@ -177,17 +194,19 @@
     "file": "patient-app/app/pharmacy/order-confirm.tsx",
     "line": 1,
     "found": "BookingConfirm is the consultation review; the pharmacy route of that name only opens the right step of an order. The review-and-send step is /pharmacy/checkout.",
-    "suspect": "Owner: confirm that no separate pharmacy confirmation page is wanted."
+    "suspect": "Owner: confirm that no separate pharmacy confirmation page is wanted.",
+    "review_status": "not-a-problem: Not a problem: the note explains the route mapping (review-and-send is /pharmacy/checkout); (issue #547)"
   },
   {
     "batch": 1,
     "app": "patient-app",
     "screen": "/payments/result",
     "element": "Success board colours and confetti not drawn",
-    "file": "docs/design/canvas/Success.dc.html",
-    "line": 1,
+    "file": "patient-app/app/payments/result.tsx",
+    "line": 154,
     "found": "The Success board is a dark full-bleed page with lime (#D7FF00) and confetti colours that are not tokens.",
-    "suspect": "Owner: decide whether the celebratory page should be added as a token set."
+    "suspect": "Owner: decide whether the celebratory page should be added as a token set.",
+    "review_status": "fixed #1533 (issue #548)"
   },
   {
     "batch": 1,
@@ -197,6 +216,7 @@
     "file": "backend/src/modules/payments/payments.module.ts",
     "line": 191,
     "found": "pharmacyDueAmount rounds to two decimals and returns the quote total (cash) or the accepted co-pay share (insurance); the screen shows exactly that number as \"Total due now\" and in the Pay button, and the rows above it are the snapshot's subtotal, delivery fee and the insurer share, never added or subtracted by the app.",
-    "suspect": "None; recorded so the reviewer can verify the rule."
+    "suspect": "None; recorded so the reviewer can verify the rule.",
+    "review_status": "not-a-problem: Not a problem: the note describes correct behaviour (the screen shows the server's due amount and snapshot rows without client arithmetic). (issue #549)"
   }
 ]

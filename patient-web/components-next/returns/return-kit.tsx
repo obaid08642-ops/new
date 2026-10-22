@@ -19,6 +19,11 @@ const TONES: Record<ReturnStatus, ServiceTone> = {
   other: "ink",
 };
 
+/** The tone of a return request's status (the chip, and the order center row). */
+export function returnTone(status: ReturnStatus): ServiceTone {
+  return TONES[status];
+}
+
 /** The status chip of a return request; `label` is the translated name of `status`. */
 export function ReturnStatusChip({ status, label }: { status: ReturnStatus; label: string }) {
   return <StatusChip label={label} tone={TONES[status]} />;

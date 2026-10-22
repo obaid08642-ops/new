@@ -13,6 +13,7 @@ import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
+import { WishlistRowActions } from "@/components-next/pharmacy/wishlist-row-actions";
 import styles from "@/components-next/pharmacy/pharmacy.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -23,6 +24,7 @@ export default async function WishlistPage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("Wishlist");
   const routeState = await getTranslations("RouteState");
+  const product = await getTranslations("PublicProduct");
   const token = await requirePatientAccess(locale);
   const response = await getPatientWishlist(token);
   if (response.status === 401) redirect(`/${locale}/login`);
@@ -49,7 +51,7 @@ export default async function WishlistPage({ params }: Props) {
             {items.map((item) => {
               const name = locale === "ar" ? item.nameAr || item.nameEn || t("untitled") : item.nameEn || item.nameAr || t("untitled");
               return (
-                <li key={item.id}>
+                <li key={item.id} className={styles.rowWrap}>
                   <Link className={styles.row} href={`/${locale}/medicines/${item.id}`}>
                     <span className={styles.rowMedia}><FIcon icon="pill" tone={PHARMACY_TONE} size={48} /></span>
                     <span className={styles.rowBody}>
@@ -59,10 +61,12 @@ export default async function WishlistPage({ params }: Props) {
                         {item.price !== undefined ? <span className={styles.rowPrice}>{formatPrice(locale, item.price).text}</span> : null}
                         {item.inStock === false ? <StatusChip label={t("outOfStock")} tone={PHARMACY_TONE} /> : item.inStock === true ? <StatusChip label={t("inStock")} tone="mint" /> : null}
                         {item.requiresPrescription === true ? <StatusChip label={t("needsRx")} tone="amber" /> : null}
+                        {item.onlineOnly === true ? <StatusChip label={product("onlineOnly")} tone="mint" /> : null}
                       </span>
                     </span>
                     <span className={styles.rowEnd}><Icon name={caret} size={16} tone="secondary" /></span>
                   </Link>
+                  <WishlistRowActions locale={locale} itemId={item.id} name={name} rx={item.requiresPrescription === true} onlineOnly={item.onlineOnly === true} />
                 </li>
               );
             })}

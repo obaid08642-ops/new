@@ -5,6 +5,7 @@ import { Connection } from 'mongoose';
 import { validateReason, MIN_FINANCIAL_REASON_LENGTH, ReasonError } from '../../../common/rbac';
 import { AdminAuditService } from './audit.service';
 import { RefundExecutor } from '../../finance-engine/finance-engine.module';
+import { STUCK_STATES, stuckMinutes } from '../../ops/stuck-orders';
 
 /**
  * Unified order-kind registry. Every lifecycle surface (list/detail/actions)
@@ -87,6 +88,7 @@ export function getKindSpec(kind: string): OrderKindSpec {
   return getKindSpecs(kind)[0];
 }
 
+const PROBLEMS = ['stuck', 'sla_breach', 'failed_payment', 'refund_pending'];
 const isCancelled = (spec: OrderKindSpec, state: unknown) => spec.cancelledStates.includes(String(state));
 
 @Injectable()
@@ -130,10 +132,33 @@ export class OrdersConsoleService {
    * For kind=all each collection contributes up to page*limit newest rows and
    * the merge happens in memory before slicing — deterministic and index-backed.
    */
+  /**
+   * Issue 1236: the orders the admin Today screen counts, as a filter of the list (all of them, paginated).
+   * stuck: an in-flight state past the stuck threshold (ops/stuck-orders.ts); sla_breach: an open order past sla_due_at;
+   * failed_payment: a failed or cancelled card transaction; refund_pending: a refund request waiting (REQUESTED/FAILED).
+   * Returns the extra match for one collection, or null when that collection cannot hold such orders.
+   */
+  private async problemMatch(problem: string, spec: OrderKindSpec): Promise<Record<string, unknown> | null> {
+    const kinds = spec.kind === 'nursing' ? ['nursing', 'home_care', 'homecare'] : [spec.kind];
+    if (problem === 'stuck') {
+      const s = STUCK_STATES[spec.kind];
+      if (!s || s.collection !== spec.collection) return null;
+      return { [spec.stateField]: { $in: s.states }, createdAt: { $lt: new Date(Date.now() - (await stuckMinutes(this.conn)) * 60000) } };
+    }
+    if (problem === 'sla_breach') {
+      return { sla_due_at: { $lt: new Date() }, [spec.stateField]: { $nin: [...spec.cancelledStates, ...spec.completedStates] } };
+    }
+    const ids = problem === 'failed_payment'
+      ? await this.conn.collection('transactions').distinct('booking_id', { booking_kind: { $in: kinds }, status: { $in: ['failed', 'cancelled'] } }).catch(() => [])
+      : await this.conn.collection('refundrequests').distinct('booking_id', { booking_kind: { $in: kinds }, state: { $in: ['REQUESTED', 'FAILED'] } }).catch(() => []);
+    return { id: { $in: (ids as unknown[]).filter((v): v is string => typeof v === 'string') } };
+  }
+
   async list(opts: {
     kind?: string; q?: string; status?: string; from?: string; to?: string;
-    page?: number; limit?: number; sort?: string;
+    page?: number; limit?: number; sort?: string; problem?: string;
   }) {
+    if (opts.problem && !PROBLEMS.includes(opts.problem)) throw new BadRequestException('problem must be one of ' + PROBLEMS.join(', '));
     const page = Math.max(1, opts.page || 1);
     const limit = Math.min(100, Math.max(1, opts.limit || 25));
     const kinds = opts.kind && opts.kind !== 'all' ? getKindSpecs(opts.kind) : ORDER_KINDS;
@@ -157,6 +182,11 @@ export class OrdersConsoleService {
         const or: any[] = [{ id: rx }, ...(spec.patientNameField ? [{ [spec.patientNameField]: rx }] : [])];
         if (spec.patientField) or.push({ [spec.patientField]: rx });
         match.$or = or;
+      }
+      if (opts.problem) {
+        const extra = await this.problemMatch(opts.problem, spec);
+        if (!extra) continue;
+        Object.assign(match, extra);
       }
       const col = this.conn.collection(spec.collection);
       const [count] = await col.aggregate([{ $match: match }, { $count: 'n' }]).toArray().catch(() => [{ n: 0 }]);
@@ -233,7 +263,7 @@ export class OrdersConsoleService {
    * callers receive an explicit truncation header and can use scheduled reports
    * for larger ranges.
    */
-  async exportCsv(opts: { kind?: string; q?: string; status?: string; from?: string; to?: string }) {
+  async exportCsv(opts: { kind?: string; q?: string; status?: string; from?: string; to?: string; problem?: string }) {
     const maxRows = Math.max(1, Math.min(10_000, Number(process.env.ADMIN_EXPORT_MAX_ROWS || 10_000)));
     const first = await this.list({ ...opts, page: 1, limit: 100 });
     const rows = [...first.data];

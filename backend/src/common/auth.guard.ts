@@ -13,6 +13,7 @@ import { adminGateSatisfied } from './admin-gate.guard';
 import { resolveEffectivePermissions } from './effective-permissions';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { setLogUser } from './structured-logger';
 
 /**
  * Compatibility hook for RBAC mutation handlers. Effective permissions are no
@@ -81,6 +82,17 @@ export class JwtAuthGuard implements CanActivate {
     @Optional() private adminIdle?: AdminSessionService,
   ) {}
 
+  /** D-34: count requests refused by a security guard. Observes only — never throws. */
+  private async auditBlocked(userId: unknown, path: string, message: string): Promise<void> {
+    try {
+      await (this.connection?.collection?.('security_events') as any)?.insertOne?.({
+        type: 'blocked_request', at: new Date(), user_id: userId ?? null, path, message,
+      });
+    } catch {
+      // Observability must never break auth on DB hiccups.
+    }
+  }
+
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(PUBLIC_KEY, [ctx.getHandler(), ctx.getClass()]);
     const req = ctx.switchToHttp().getRequest<Request & { user?: any; impersonator?: any; impersonationSession?: any; auditInfo?: any }>();
@@ -116,6 +128,8 @@ export class JwtAuthGuard implements CanActivate {
     // Attach original user payload to request. Support tokens are validated against
     // durable session on every request, so revoke/expiry takes effect immediately.
     req.user = payload;
+    // 20.3: every log line of this request now carries the account id (id only)
+    setLogUser((payload as any)?.id ?? (payload as any)?.sub, (payload as any)?.role, (payload as any)?.impersonator?.id);
     // F09 session revocation: login access tokens carry `tv` (token_version).
     // Ban, suspend, password change and role change bump the stored version,
     // so stale tokens 401 on their next request. On public routes a stale
@@ -156,6 +170,20 @@ export class JwtAuthGuard implements CanActivate {
         throw new UnauthorizedException('session_revoked');
       }
     }
+    // 21.7: a sign-in that was ended ("sign out other devices", sign-out, logout-all) refuses its access tokens at once,
+    // not when the 1 h token expires. A lookup failure degrades to "not revoked", like the version check above.
+    if (payload?.sid && subjectId) {
+      const ended = await (async () => {
+        try { return await this.connection.collection('revoked_sessions').findOne({ sid: payload.sid }, { projection: { _id: 1 } }); } catch { return null; }
+      })();
+      if (ended) {
+        if (isPublic) {
+          req.user = undefined;
+          return true;
+        }
+        throw new UnauthorizedException('session_revoked');
+      }
+    }
     // C2: Admin device allow-list — MANDATORY for every admin/super_admin JWT.
     // Device-bound, never IP-bound (mobile IPs rotate). Any admin API call from
     // an unregistered device is rejected. The device-management endpoints and
@@ -168,7 +196,11 @@ export class JwtAuthGuard implements CanActivate {
       if (isAdminRole && !isPublic) {
         // C3: an admin token is only honoured when it came through the admin gate (the BFF),
         // on EVERY path, not just /api/v1/admin/* (96 admin routes live elsewhere).
-        if (!adminGateSatisfied(req.headers as any)) throw new ForbiddenException('admin_gate_required');
+        if (!adminGateSatisfied(req.headers as any)) {
+          // D-34: count requests refused by a security guard (blocked_requests on the ops page).
+          await this.auditBlocked(payload?.id || payload?.sub, path, 'admin_gate_required').catch(() => undefined);
+          throw new ForbiddenException('admin_gate_required');
+        }
       }
       if (isAdminRole && !isDeviceEndpoint && !isPublic) {
         const uid = payload?.id || payload?.sub;
@@ -178,7 +210,11 @@ export class JwtAuthGuard implements CanActivate {
           const dev = devId.length >= 16 && await this.connection.collection('admin_devices').findOne(
             { user_id: uid, device_hash: createHash('sha256').update(devId).digest('hex'), revoked: { $ne: true } },
           ).catch(() => null);
-          if (!dev) throw new ForbiddenException('device_not_enrolled');
+          if (!dev) {
+            // D-34: count requests refused by a security guard (blocked_requests on the ops page).
+            await this.auditBlocked(uid, path, 'device_not_enrolled').catch(() => undefined);
+            throw new ForbiddenException('device_not_enrolled');
+          }
           // C5: sliding 15-minute idle window for admin sessions.
           if (this.adminIdle) {
             if (await this.adminIdle.isIdleExpired(uid)) {

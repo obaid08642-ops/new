@@ -6,6 +6,7 @@ import { UserRole } from '../../common/enums';
 import { ManualBoost, ManualBoostDocument } from './manual-boost.schema';
 import { CreateManualBoostDto } from './manual-boost.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 /** R77: governed manual boosts — ADMIN only, time-boxed, labeled, never ranked. */
 @Controller('admin/manual-boosts')
 @UseGuards(JwtAuthGuard)
@@ -18,6 +19,7 @@ export class ManualBoostsController {
     return this.boosts.find({}, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(200).lean();
   }
 
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post()
   async create(@Body() dto: CreateManualBoostDto) {
     const { entity_type, entity_id, weight, reason, starts_at, ends_at } = dto || {};
@@ -26,6 +28,7 @@ export class ManualBoostsController {
     return this.boosts.create({ entity_type, entity_id, weight: Number(weight) || 1, reason, starts_at: new Date(starts_at), ends_at: new Date(ends_at), status: 'active' });
   }
 
+  @RequirePermissions(Permission.CMS_EDIT)
   @Post(':id/revoke')
   async revoke(@Param('id') id: string) {
     const r = await this.boosts.updateOne({ _id: id } as any, { $set: { status: 'revoked' } });

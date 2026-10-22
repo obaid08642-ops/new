@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { Platform } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from '../constants';
@@ -96,8 +96,13 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       socketInstance = io(SOCKET_URL, {
         auth: { token, client: 'patient-app' },
         transports: ['websocket'],
-        reconnectionAttempts: 10,
+        // P14.21: never give up (it stopped after 10 tries, about a minute, and live updates were gone until the app was
+        // restarted); back off from 1 s to 30 s with jitter, so a server restart is not met by every phone at once.
+        reconnection: true,
+        reconnectionAttempts: Infinity,
         reconnectionDelay: 1000,
+        reconnectionDelayMax: 30000,
+        randomizationFactor: 0.5,
       });
 
       socketInstance.on('connect', () => {
@@ -157,6 +162,12 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
     initSocket();
 
+    // P14.21: back in the foreground with the socket down (the OS suspends it in the background): reconnect at once rather
+    // than wait for the next backoff step. Screens resync on `connect` (the chat reloads its thread on isConnected).
+    const appState = AppState.addEventListener('change', (state) => {
+      if (state === 'active' && socketInstance && !socketInstance.connected) socketInstance.connect();
+    });
+
     // Heartbeat loop every 20s
     const heartbeatInterval = setInterval(() => {
       if (socketInstance && socketInstance.connected) {
@@ -166,6 +177,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       active = false;
+      appState.remove();
       clearInterval(heartbeatInterval);
       if (socketInstance) {
         socketInstance.disconnect();

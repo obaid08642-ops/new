@@ -1,4 +1,6 @@
-import { Injectable, ForbiddenException, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException, BadRequestException, ConflictException, Inject, Optional } from '@nestjs/common';
+import { assertUnverifiedCodAllowed, hasContactPhone } from '../../auth/checkout-contact.service';
+import { KillSwitchesService } from '../../kill-switches/kill-switches.service';
 import { Connection, Model } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
 import { enforceRxRules } from './rx-rules';
@@ -8,6 +10,7 @@ import { SmartSplitService } from './smart-split.service';
 import { PharmacyNotificationService } from './pharmacy-notification.service';
 import { PharmacyBroadcastService } from './pharmacy-broadcast.service';
 import { EventBusService } from '../../events/event-bus.service';
+import { pickAttribution } from '../../../common/attribution';
 import { WorkflowEngineService } from '../../workflow-engine/workflow-engine.module';
 
 import { PharmacyAllocationState } from '../schemas/pharmacy.schema';
@@ -18,6 +21,39 @@ function assertPatient(u: any) { if (!u || u.role !== 'patient') throw new Forbi
 
 /** A-4: governed states in which a card payment may be retried (no COD, owner decision 25). */
 const PAYMENT_RETRY_STATES = ['PAYMENT_PENDING', 'FINAL_QUOTE_ACCEPTED'];
+
+/** 22.5: states in which a submitted order may still be edited (no pharmacy has been chosen yet). */
+const EDITABLE_AFTER_SUBMIT = new Set<string>([
+  PharmacyOrderState.READY_FOR_SPLIT, PharmacyOrderState.BROADCASTING,
+  PharmacyOrderState.AWAITING_FULL_ACCEPTANCE, PharmacyOrderState.OFFER_SELECTION_PENDING,
+]);
+
+/** 22.5: whether PATCH /orders/:id would be accepted now (a draft, or a sent order before any pharmacy is chosen). */
+export function draftOrEditable(order: any, allocations: any[]): boolean {
+  if (order?.status === PharmacyOrderState.DRAFT) return true;
+  return EDITABLE_AFTER_SUBMIT.has(String(order?.status)) && !order?.selected_offer_id && !(allocations || []).length;
+}
+
+/**
+ * 22.5: what the chosen pharmacy(ies) did not cover — per order line, the quantity requested minus the quantity offered
+ * across the allocations that are still alive. A cancelled, rejected or expired allocation covers nothing.
+ */
+export function unfilledItems(order: any, allocations: any[]): Array<{ order_item_id: string; remaining: number }> {
+  const offered = new Map<string, number>();
+  for (const a of allocations || []) {
+    if (['cancelled', 'rejected', 'expired'].includes(String(a?.status))) continue;
+    for (const it of a?.items || []) {
+      if (it?.action === 'unavailable') continue;
+      offered.set(String(it.order_item_id), (offered.get(String(it.order_item_id)) || 0) + Math.max(0, Number(it.qty_offered ?? it.qty_requested ?? 0)));
+    }
+  }
+  const out: Array<{ order_item_id: string; remaining: number }> = [];
+  for (const it of order?.items || []) {
+    const remaining = Math.max(0, Number(it.qty || 1) - (offered.get(String(it.id)) || 0));
+    if (remaining > 0) out.push({ order_item_id: String(it.id), remaining });
+  }
+  return out;
+}
 
 @Injectable()
 export class PharmacyOrderService {
@@ -30,6 +66,7 @@ export class PharmacyOrderService {
     private bus: EventBusService,
     private engine: WorkflowEngineService,
     @InjectConnection() private readonly conn: Connection,
+    @Optional() private readonly killSwitches?: KillSwitchesService,
   ) {}
 
   /**
@@ -98,14 +135,27 @@ export class PharmacyOrderService {
     // Manual free-text request (web manual form): a named item the pharmacy
     // matches during broadcast, same as a typed unknown item.
     const manual = body.manual_request && typeof body.manual_request === 'object' ? body.manual_request : null;
+    // Journeys 74 (decision 12): the quantity and a photo of the box. The photo must be the patient's own uploaded image;
+    // the pharmacies asked about this order may open it (StorageService.orderPharmacyMayRead).
+    const manualQty = Number.isInteger(manual?.qty) && manual.qty >= 1 && manual.qty <= 99 ? manual.qty : 1;
+    let manualPhotoUri: string | undefined;
+    if (manual && typeof manual.photo_id === 'string' && manual.photo_id.trim()) {
+      const photo: any = await this.conn.collection('storage_objects').findOne(
+        { id: { $eq: manual.photo_id.trim() }, owner_account_id: { $eq: user.id }, deleted: { $ne: true } },
+        { projection: { _id: 0, id: 1, mime: 1 } },
+      );
+      if (!photo || !String(photo.mime || '').toLowerCase().startsWith('image/')) throw new BadRequestException('manual_photo_invalid');
+      manualPhotoUri = `/api/v1/storage/${encodeURIComponent(photo.id)}`;
+    }
     if (!items.length && manual && String(manual.name || '').trim()) {
       items.push({
         id: uuidv4(),
         raw_name: sanitize(manual.name),
-        qty: 1,
+        qty: manualQty,
         match_status: OrderItemMatchStatus.MANUAL,
         intake_source: 'manual',
         notes: typeof manual.details === 'string' ? sanitize(manual.details).slice(0, 500) : undefined,
+        ...(manualPhotoUri ? { photo_uri: manualPhotoUri } : {}),
       });
     }
     if (!items.length && !body.prescription_id) throw new BadRequestException('items_required');
@@ -122,7 +172,7 @@ export class PharmacyOrderService {
       delivery_address: normalizedAddress,
       patient_notes: body.patient_notes,
       prescription_id: typeof body.prescription_id === 'string' ? body.prescription_id : attachments.prescriptionId,
-      manual_request: manual ? { name: sanitize(manual.name).slice(0, 200), details: typeof manual.details === 'string' ? sanitize(manual.details).slice(0, 500) : null } : undefined,
+      manual_request: manual ? { name: sanitize(manual.name).slice(0, 200), details: typeof manual.details === 'string' ? sanitize(manual.details).slice(0, 500) : null, qty: manualQty, ...(manualPhotoUri ? { photo_uri: manualPhotoUri } : {}) } : undefined,
       payment_method: typeof body.payment_method === 'string' ? body.payment_method : 'cash',
       // F73: draft fulfillment + payment mode (validated by DTO enums).
       fulfillment: body.fulfillment === 'pickup' ? 'pickup' : 'delivery',
@@ -131,6 +181,8 @@ export class PharmacyOrderService {
       delivery_address_id: typeof body.delivery_address_id === 'string' ? body.delivery_address_id : undefined,
       prescription_attachments: attachments.files,
       totals: { subtotal: 0, delivery_fee: 0, total: 0, currency: 'SAR' },
+      // P17-17.5: campaign attribution for the campaign report.
+      attribution: pickAttribution(body) ?? undefined,
       timeline: [{ ts: new Date(), event: 'created' }],
     });
     await this.engine.announceCreated({ kind: 'pharmacy', entity_id: order.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { items: items.length, intake_source: 'broadcast' } });
@@ -183,9 +235,9 @@ export class PharmacyOrderService {
       // Enrich items with catalogue flags and unit_price
       const offerPriceMap = offerItemsMap.get(order.id) || new Map();
       const itemsWithFlags = (order.items || []).map((it: any) => {
-        const flags = catalogueFlags.get(it.id) || { requires_prescription: false, controlled: false };
+        const flags = catalogueFlags.get(it.id) || { requires_prescription: false, controlled: false, online_exclusive: false };
         const unitPrice = offerPriceMap.get(it.id);
-        return { ...it, requires_prescription: flags.requires_prescription, controlled: flags.controlled, ...(unitPrice !== undefined ? { unit_price: unitPrice } : {}) };
+        return { ...it, requires_prescription: flags.requires_prescription, controlled: flags.controlled, online_exclusive: flags.online_exclusive, ...(unitPrice !== undefined ? { unit_price: unitPrice } : {}) };
       });
 
       // Courier fields from allocation delivery
@@ -277,8 +329,8 @@ export class PharmacyOrderService {
     // D-10: enrich order items with requires_prescription and controlled from catalogue
     const catalogueFlags = await this.enrichItemsWithCatalogueFlags(order.items || []);
     const itemsWithFlags = (order.items || []).map((it: any) => {
-      const flags = catalogueFlags.get(it.id) || { requires_prescription: false, controlled: false };
-      return { ...it, requires_prescription: flags.requires_prescription, controlled: flags.controlled };
+      const flags = catalogueFlags.get(it.id) || { requires_prescription: false, controlled: false, online_exclusive: false };
+      return { ...it, requires_prescription: flags.requires_prescription, controlled: flags.controlled, online_exclusive: flags.online_exclusive };
     });
 
     // Courier fields from allocation delivery (when assigned)
@@ -330,6 +382,13 @@ export class PharmacyOrderService {
       courier_phone: courierPhone,
       search: searchState,
       cancellation: { refund_now: cancelRefundNow },
+      // 22.5: what an edit or a split can still do for this order
+      editable: draftOrEditable(order, allocs),
+      split: {
+        unfilled_items: order.selected_offer_id && !['cancelled', 'delivered', 'completed'].includes(String(order.status)) ? unfilledItems(order, allocs).length : 0,
+        child_order_id: order.split_child_order_id && order.split_child_order_id !== 'pending' ? order.split_child_order_id : null,
+        parent_order_id: order.parent_order_id ?? null,
+      },
       ...view,
     };
   }
@@ -353,12 +412,12 @@ export class PharmacyOrderService {
   }
 
   /**
-   * Fetch requires_prescription and controlled flags for order items by matching
-   * medicine_id, sku, or name with the medicines catalogue (D-10).
-   * Returns a map of item id -> { requires_prescription: boolean, controlled: boolean }
+   * Fetch requires_prescription, controlled and online_exclusive flags for order items by matching
+   * medicine_id, sku, or name with the medicines catalogue (D-10; decision 11: a reordered line keeps "online only").
+   * Returns a map of item id -> { requires_prescription, controlled, online_exclusive }
    */
-  private async enrichItemsWithCatalogueFlags(items: any[]): Promise<Map<string, { requires_prescription: boolean; controlled: boolean }>> {
-    const result = new Map<string, { requires_prescription: boolean; controlled: boolean }>();
+  private async enrichItemsWithCatalogueFlags(items: any[]): Promise<Map<string, { requires_prescription: boolean; controlled: boolean; online_exclusive: boolean }>> {
+    const result = new Map<string, { requires_prescription: boolean; controlled: boolean; online_exclusive: boolean }>();
     if (!items?.length) return result;
 
     const ids = [...new Set(items.map((it) => (typeof it?.medicine_id === 'string' ? it.medicine_id.trim() : '')).filter(Boolean))];
@@ -382,7 +441,7 @@ export class PharmacyOrderService {
     if (!or.length) return result;
 
     const meds: any[] = await this.conn.collection('medicines')
-      .find({ $or: or }, { projection: { _id: 0, id: 1, sku: 1, name_ar: 1, name_en: 1, requires_prescription: 1, controlled: 1 } })
+      .find({ $or: or }, { projection: { _id: 0, id: 1, sku: 1, name_ar: 1, name_en: 1, requires_prescription: 1, controlled: 1, online_exclusive: 1 } })
       .toArray();
 
     for (const it of items) {
@@ -396,6 +455,7 @@ export class PharmacyOrderService {
       result.set(it.id, {
         requires_prescription: med?.requires_prescription === true,
         controlled: med?.controlled === true,
+        online_exclusive: med?.online_exclusive === true,
       });
     }
     return result;
@@ -593,6 +653,9 @@ export class PharmacyOrderService {
       { projection: { _id: 1 } },
     );
     if (!returning) throw new BadRequestException('cod_first_order_not_allowed');
+    // 21.5: the provider calls before dispatch, so a phone is needed; an unverified phone also has a value and open-order cap.
+    if (!(await hasContactPhone(db, patientId))) throw new BadRequestException('contact_phone_required');
+    await assertUnverifiedCodAllowed(db, patientId, total, order.id);
     let pharmacyId: string | undefined = order.pharmacy_account_id;
     if (!pharmacyId && order.selected_offer_id) {
       const offer: any = await db.collection('pharmacy_offers').findOne({ id: order.selected_offer_id }, { projection: { pharmacy_account_id: 1 } });
@@ -678,7 +741,13 @@ export class PharmacyOrderService {
     const order = await this.orders.findOne({ id });
     if (!order) throw new NotFoundException('order_not_found');
     if (order.patient_account_id !== user.id) throw new ForbiddenException('not_yours');
-    if (order.status !== PharmacyOrderState.DRAFT) throw new BadRequestException(`not_editable_in_${order.status}`);
+    // 22.5: a draft is always editable; a submitted order only until a pharmacy is chosen (no selected offer, no allocation)
+    const draft = order.status === PharmacyOrderState.DRAFT;
+    if (!draft) {
+      const taken = order.selected_offer_id || (await this.allocs.findOne({ order_id: id }, { id: 1 }).lean());
+      if (taken) throw new BadRequestException('not_editable_after_offer_selected');
+      if (!EDITABLE_AFTER_SUBMIT.has(order.status)) throw new BadRequestException(`not_editable_in_${order.status}`);
+    }
     if (body.items) {
       const sanitize = (str: any) => String(str || '').replace(/[<>]/g, '').trim();
       order.items = body.items.map((it: any) => ({
@@ -707,14 +776,104 @@ export class PharmacyOrderService {
       if (typeof body.prescription_id !== 'string' && attachments.prescriptionId) order.prescription_id = attachments.prescriptionId;
     }
     if (typeof body.prescription_id === 'string') order.prescription_id = body.prescription_id;
-    order.timeline.push({ ts: new Date(), event: 'edited' });
+    // What a pharmacy prices: the lines, the address, the delivery mode and the prescription. A note alone changes no quote.
+    const material = !!body.items || !!body.delivery_address || body.fulfillment === 'delivery' || body.fulfillment === 'pickup'
+      || typeof body.delivery_address_id === 'string' || Array.isArray(body.prescription_attachments) || typeof body.prescription_id === 'string';
+    if (!draft && material) {
+      // the same prescription rule as sending the order: an edit never lets a prescription item through without one (D-10)
+      const checked: any = { items: order.items, prescription_attachments: order.prescription_attachments, prescription_id: order.prescription_id };
+      await enforceRxRules(this.conn, user.id, checked);
+      order.items = checked.items;
+      order.markModified('items');
+      order.edit_revision = Number(order.edit_revision || 1) + 1;
+    }
+    order.timeline.push({ ts: new Date(), event: draft ? 'edited' : 'edited_after_submit', ...(draft ? {} : { meta: { revision: order.edit_revision, material } }) });
     await order.save();
+    if (!draft && material) await this.requoteOffers(order, user.id);
     return order.toObject();
+  }
+
+  /**
+   * 22.5: the order changed under quotes that were already made. Every quote for it goes back to a draft that must be
+   * requoted (it can no longer be chosen), and the pharmacies see `requote_required` on it. The broadcast stays open.
+   */
+  private async requoteOffers(order: any, actorId: string) {
+    const now = new Date();
+    const res: any = await this.conn.collection('pharmacy_offers').updateMany(
+      { order_id: { $eq: order.id }, status: { $in: ['submitted', 'draft'] } },
+      {
+        $set: { status: 'draft', requote_required: true, updatedAt: now },
+        $unset: { submitted_at: '' },
+        $push: { timeline: { ts: now, event: 'order_edited_requote_required', by: actorId, meta: { revision: order.edit_revision } } } as any,
+      },
+    );
+    this.bus.emit({
+      type: 'pharmacy.order.edited', entity_type: 'order', entity_id: order.id, actor_account_id: actorId, actor_role: 'patient',
+      patient_account_id: order.patient_account_id, reason_code: 'patient_edited_before_selection',
+      meta: { revision: order.edit_revision, offers_to_requote: res?.modifiedCount ?? 0 },
+    }).catch(() => null);
+  }
+
+  /**
+   * 22.5 — split an order when the chosen pharmacy could not fill everything. The lines (or the part of a line's
+   * quantity) the chosen offer left out become a NEW draft order of their own, linked to this one, which the patient
+   * sends to other pharmacies as usual (offers, prescription rules and payment are the normal ones). One split per
+   * order: asking again returns the same child.
+   */
+  async splitRemaining(user: any, id: string) {
+    assertPatient(user);
+    const order: any = await this.orders.findOne({ id, patient_account_id: user.id }).lean();
+    if (!order) throw new NotFoundException('order_not_found');
+    if (order.split_child_order_id && order.split_child_order_id !== 'pending') {
+      return { ok: true, existing: true, child_order_id: order.split_child_order_id };
+    }
+    if (!order.selected_offer_id) throw new BadRequestException('select_an_offer_first');
+    if ([PharmacyOrderState.CANCELLED, PharmacyOrderState.DELIVERED, PharmacyOrderState.COMPLETED].includes(order.status)) {
+      throw new BadRequestException(`cannot_split_in_${order.status}`);
+    }
+    const allocs: any[] = await this.allocs.find({ order_id: id }).lean();
+    const remaining = unfilledItems(order, allocs);
+    if (!remaining.length) throw new BadRequestException('nothing_to_split');
+    // one winner: whoever sets the claim creates the child (a field of its own, so no older value of the pointer can block it)
+    const claim: any = await this.orders.updateOne({ id, split_claim: { $exists: false } }, { $set: { split_claim: new Date() } });
+    // the order repository's updateOne is a findOneAndUpdate: it answers the updated order, or null when nothing matched
+    if (!claim) {
+      const again: any = await this.orders.findOne({ id }).lean();
+      if (again?.split_child_order_id && again.split_child_order_id !== 'pending') return { ok: true, existing: true, child_order_id: again.split_child_order_id };
+      throw new ConflictException('split_in_progress');
+    }
+    try {
+      const byId = new Map<string, any>((order.items || []).map((it: any) => [it.id, it]));
+      const child: any = await this.create(user, {
+        items: remaining.map((r) => { const it = byId.get(r.order_item_id) || {}; return { ...it, qty: r.remaining, sku: it.matched_sku, intake_source: 'split' }; }),
+        delivery_address: order.delivery_address,
+        delivery_address_id: order.delivery_address_id,
+        fulfillment: order.fulfillment,
+        payment_mode: order.payment_mode,
+        insurance_policy_id: order.insurance_policy_id,
+        patient_notes: order.patient_notes,
+        prescription_id: order.prescription_id,
+      });
+      // the same prescription files travel with the lines; the prescription rules run again when the child is sent
+      await this.orders.updateOne({ id: child.id }, { $set: { parent_order_id: id, split_from_offer_id: order.selected_offer_id, prescription_attachments: order.prescription_attachments || [], ...(order.prescription_id ? { prescription_id: order.prescription_id } : {}) } });
+      const now = new Date();
+      await this.orders.updateOne({ id }, { $set: { split_child_order_id: child.id }, $push: { timeline: { ts: now, event: 'split_remaining_created', by: user.id, meta: { child_order_id: child.id, items: remaining.length } } } as any });
+      this.bus.emit({
+        type: 'pharmacy.order.split', entity_type: 'order', entity_id: id, actor_account_id: user.id, actor_role: 'patient',
+        patient_account_id: user.id, reason_code: 'chosen_pharmacy_could_not_fill_everything', meta: { child_order_id: child.id, items: remaining.length },
+      }).catch(() => null);
+      return { ok: true, existing: false, child_order_id: child.id, items: remaining.length };
+    } catch (e) {
+      await this.orders.updateOne({ id, split_child_order_id: { $in: [null, ''] } }, { $unset: { split_claim: '' } }).catch(() => undefined);
+      throw e;
+    }
   }
 
   /** Patient submits the draft → triggers Smart Split. */
   async submit(user: any, id: string): Promise<any> {
     assertPatient(user);
+    // Issue 955: the admin kill switch stops sending orders to pharmacies; the order stays a draft, nothing changes.
+    await this.killSwitches?.assertOn('pharmacy_broadcast');
     const order = await this.orders.findOne({ id });
     if (!order) throw new NotFoundException('order_not_found');
     if (order.patient_account_id !== user.id) throw new ForbiddenException('not_yours');
@@ -729,6 +888,10 @@ export class PharmacyOrderService {
     await enforceRxRules(this.conn, user.id, checked);
     order.items = checked.items;
     order.markModified('items');
+    // Set coverage_mode based on payment_method for broadcast filtering
+    if (!order.coverage_mode) {
+      order.coverage_mode = order.payment_method === 'insurance' ? 'insurance' : 'cash';
+    }
     return await this.engine.transition({
       kind: 'pharmacy', entity_id: order.id, from_domain: order.status, to_domain: PharmacyOrderState.READY_FOR_SPLIT,
       actor_account_id: user.id, actor_role: 'patient', patient_account_id: order.patient_account_id, reason: 'patient_submitted',

@@ -22,6 +22,9 @@ import { FormSheet } from "@/components-next/health/form-sheet";
 import { HealthTabs, RowsCard } from "@/components-next/health/health-kit";
 import { DeleteReminderButton, RefillButton } from "@/components-next/health/reminder-actions";
 import { ReminderForm } from "@/components-next/health/reminder-form";
+import { getPatientFamilyGroup, getPatientFamilyMembers } from "@/lib/api/family-server";
+import { extractFamilyMembers } from "@/lib/api/family";
+import { manageableMembers } from "@/lib/family/view";
 import styles from "@/components-next/health/health.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string | string[]; add?: string | string[]; edit?: string | string[] }> };
@@ -49,17 +52,21 @@ export default async function MedicationsPage({ params, searchParams }: Props) {
   let response: Response;
   try { response = await (tab === "chronic" ? getPatientChronicMedications(token) : getPatientMedicationReminders(token)); } catch { response = new Response(null, { status: 503 }); }
   if (response.status === 401) redirect(`/${locale}/login`);
-  if (response.status === 403 || response.status === 404) notFound();
   const payload = response.ok ? await response.json().catch(() => null) : null;
   const reminders = response.ok && tab !== "chronic" ? extractMedicationReminderSummaries(payload) : [];
   const editing = editId ? reminders.find((reminder) => reminder.id === editId) : undefined;
+  // journeys 67: "for whom" lists the family members this patient may write reminders for (none without a family)
+  const [groupRes, membersRes] = await Promise.all([getPatientFamilyGroup(token).catch(() => null), getPatientFamilyMembers(token).catch(() => null)]);
+  const familyMembers = groupRes?.ok && membersRes?.ok
+    ? manageableMembers(await groupRes.json().catch(() => null), extractFamilyMembers(await membersRes.json().catch(() => null)), t("reminderMemberFallback"))
+    : [];
 
   const frame = (body: ReactNode) => (
     <ConsultPage locale={locale} title={t("medicationsTitle")} backHref={`/${locale}/health`}>
       <div className={styles.toolbar}>
         <span />
         <FormSheet title={t("reminderAdd")} triggerLabel={t("reminderAdd")} closeLabel={t("close")} defaultOpen={isFlag(query.add) && !editing} closeHref={here}>
-          <ReminderForm />
+          <ReminderForm members={familyMembers} />
         </FormSheet>
         {editing ? (
           <FormSheet title={t("reminderEdit")} triggerLabel={t("reminderEdit")} closeLabel={t("close")} defaultOpen closeHref={here} hideTrigger>

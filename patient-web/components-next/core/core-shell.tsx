@@ -18,7 +18,10 @@ import { SignOutButton } from "@/components-next/sign-out-button";
 import { shellSectionHrefs } from "@/components-next/shell-links";
 import { ThemeToggle } from "@/components-next/theme-toggle";
 import { getDirection, type Locale } from "@/lib/i18n";
+import { useCart } from "@/lib/context/CartContext";
+import { formatNumber } from "@/lib/format-price";
 import styles from "./core.module.css";
+import { PhoneMenu } from "@/components-next/core/phone-menu";
 
 /**
  * The screen frame of the Batch 0 core screens (search, notifications, notification settings),
@@ -67,6 +70,19 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
   // a switched-off module has no section and no tab (#953)
   const disabled = useDisabledModules();
   const rtl = getDirection(locale) === "rtl";
+  // issue 1547: the cart's count on its icon, read from the cart of this browser, so an add shows at once
+  const { itemCount } = useCart();
+  const cartLink = (extra = "") => (
+    <Link
+      href={`/${locale}/cart`}
+      className={`${styles.iconLink} ${styles.cartLink}${extra ? ` ${extra}` : ""}`}
+      data-testid="cart-link"
+      aria-label={itemCount > 0 ? shell("cartCount", { n: itemCount }) : shell("cart")}
+    >
+      <Icon name="cart" size={20} tone="currentColor" />
+      {itemCount > 0 ? <span className={styles.cartBadge} aria-hidden="true" data-testid="cart-badge">{formatNumber(locale, itemCount)}</span> : null}
+    </Link>
+  );
 
   const allTabs: Array<BottomTabItem & { href: string }> = [
     { id: "home", label: nav("navHome"), icon: "house", href: `/${locale}` },
@@ -88,7 +104,7 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
 
   const sections = allSections.filter((s) => !isPathHidden(s.href, disabled));
 
-  // The tabs are buttons that call router.push, which Next never prefetches: fetch their pages once the page is idle.
+  // The tabs are buttons that call router.push, which Next never prefetches: fetch a tab's page when it is reached.
   // This frame does not know whether a session exists, so it assumes one: the diagnostics hub lists the patient's own
   // bookings then and is left out of the full prefetch (the public sections are not affected).
   useRoutePrefetch(tabs.map((t) => t.href), { signedIn: true });
@@ -119,11 +135,29 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
           {topBarSearch ? <div className={styles.topSearch}>{topBarSearch}</div> : null}
           <nav className={styles.sections} aria-label={shell("mainNav")}>
             {sections.map((s) => (
-              <NavLink key={s.id} href={s.href} className={styles.section} prefetch="viewport" signedIn>{s.label}</NavLink>
+              <NavLink key={s.id} href={s.href} className={styles.section} signedIn>{s.label}</NavLink>
             ))}
           </nav>
         </>
       )}
+
+      {!search ? (
+        <PhoneMenu
+          labels={{ open: shell("menuOpen"), close: shell("menuClose") }}
+          items={[
+            { label: shell("menuProfile"), href: `/${locale}/profile` },
+            { label: shell("menuOrders"), href: `/${locale}/orders` },
+            { label: shell("menuFamily"), href: `/${locale}/family` },
+            { label: shell("menuArticles"), href: `/${locale}/articles` },
+            { label: shell("notifications"), href: `/${locale}/notifications` },
+            { label: shell("menuSettings"), href: `/${locale}/settings` },
+            { label: shell("menuHelp"), href: `/${locale}/settings/help` },
+          ].filter((item) => !isPathHidden(item.href, disabled))}
+        />
+      ) : null}
+
+      {/* pages without the tab bar (the product page, canvas/ProductFull) carry the cart in the phone header */}
+      {hideTabs && !search ? cartLink(`${styles.phoneOnly} ${styles.phoneCart}`) : null}
 
       <div className={`${styles.tools} ${styles.wideOnly}`}>
         <LocaleSelector current={locale} label={shell("language")} />
@@ -131,9 +165,7 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
         <Link href={`/${locale}/notifications`} className={styles.iconLink} aria-label={shell("notifications")}>
           <Icon name="bell" size={20} tone="currentColor" />
         </Link>
-        <Link href={`/${locale}/cart`} className={styles.iconLink} aria-label={shell("cart")}>
-          <Icon name="cart" size={20} tone="currentColor" />
-        </Link>
+        {cartLink()}
         <Link href={`/${locale}/profile`} className={styles.iconLink} aria-label={shared("account")}>
           <Icon name="user" size={20} tone="currentColor" />
         </Link>

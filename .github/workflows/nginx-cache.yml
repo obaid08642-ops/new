@@ -1,20 +1,25 @@
 name: nginx-cache
 # P14.11: the API micro-cache (deploy/nginx/snippets/api-microcache.conf + the skip map in deploy/nginx/nginx.conf)
-# runs in nginx:1.27 in front of a counting stub: no stampede on the backend, and no shared answer for a caller
+# runs in the nginx image compose pins, in front of a counting stub: no stampede on the backend, and no shared answer for a caller
 # with Authorization or a cookie.
 on:
   pull_request:
-    paths: ['deploy/nginx/**', 'tools/perf/nginx-microcache/**', '.github/workflows/nginx-cache.yml']
+    paths: ['deploy/nginx/**', 'deploy/docker-compose.production.yml', 'tools/perf/nginx-microcache/**', '.github/workflows/nginx-cache.yml']
   push:
     branches: [main]
-    paths: ['deploy/nginx/**', 'tools/perf/nginx-microcache/**', '.github/workflows/nginx-cache.yml']
+    paths: ['deploy/nginx/**', 'deploy/docker-compose.production.yml', 'tools/perf/nginx-microcache/**', '.github/workflows/nginx-cache.yml']
 permissions:
   contents: read
+# A newer push to the same PR replaces the older run (it would be thrown away anyway); pushes to main and scheduled runs are never cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   microcache:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Micro-cache check
         run: bash tools/perf/nginx-microcache/run.sh

@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException, NotFoundException, BadRequestException, ServiceUnavailableException, Inject, Logger } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException, BadRequestException, ConflictException, ServiceUnavailableException, Inject, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { PharmacyOrder, PharmacyOrderState, PharmacyAllocation, PharmacyAllocationState, ALLOCATION_TRANSITIONS, ORDER_TRANSITIONS, AllocationItemAction } from '../schemas/pharmacy.schema';
@@ -11,8 +11,32 @@ import { PharmacyAllocationRepository } from "./repositories/pharmacyallocation.
 import { PharmacyOrderRepository } from "./repositories/pharmacyorder.repository";
 import { PharmacyInventoryItemRepository } from "./repositories/pharmacyinventoryitem.repository";
 import { isProviderRole } from '../../../common/enums';
+import { settlementDelayDefault } from '../../../common/commission-defaults';
+import { assertSubstituteInsidePrescription } from './rx-rules';
 
 function assertProvider(u: any) { if (!u || !isProviderRole(u.role)) throw new ForbiddenException('provider_scope_required'); }
+function assertPatient(u: any) { if (!u || u.role !== 'patient') throw new ForbiddenException('patient_scope_required'); }
+
+/** P13-R2: totals are always derived from the decided items, never from a pending proposal. */
+export function recalcAllocationTotals(a: any) {
+  a.totals.subtotal = a.items.filter((i: any) => i.action === AllocationItemAction.AVAILABLE || i.action === AllocationItemAction.SUBSTITUTE).reduce((s: number, i: any) => s + (i.unit_price || 0) * (i.qty_offered || 0), 0);
+  a.totals.total = a.totals.subtotal + (a.totals.delivery_fee || 0);
+}
+
+/** P13-R2: fulfilment must wait until the patient decided every proposal. */
+export function pendingSubstituteProposals(a: any): any[] {
+  return (a.items || []).filter((i: any) => i?.substitute_status === 'proposed');
+}
+
+/** P13-R2: deterministic snapshot hash, identical to the one stored at offer selection. */
+export function buildQuoteHash(offer_id: string, offer_version: number, totals: any): string {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const crypto = require('crypto');
+  return crypto.createHash('sha256').update(JSON.stringify({ offer_id, offer_version, totals })).digest('hex');
+}
+
+type AllocationRow = { id: string; order_id: string; offer_id?: string; status: string } & Record<string, unknown>;
+type PendingOrderRow = { id: string; selected_allocation_id?: string; selected_offer_id?: string };
 
 @Injectable()
 export class PharmacyAllocationService {
@@ -55,7 +79,24 @@ export class PharmacyAllocationService {
   async listForProvider(user: any, status?: string) {    assertProvider(user);
     const q: any = { pharmacy_account_id: user.id };
     if (status) q.status = status;
-    return this.allocs.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100).lean();
+    const rows: AllocationRow[] = await this.allocs.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100).lean();
+    // Each row says whether its order waits for this pharmacy to record the insurer's
+    // decision (relay only, owner decision 35), so the Orders card can open that form inline.
+    // The rule matches PharmacyInsuranceDecisionService.decide: the selected allocation of an
+    // order in insurance_decision_pending, no decision recorded yet, still before fulfilment.
+    const orderIds = [...new Set(rows.map((r) => r.order_id).filter(Boolean))];
+    const pending: PendingOrderRow[] = orderIds.length
+      ? await this.orders.find(
+        { id: { $in: orderIds }, status: PharmacyOrderState.INSURANCE_DECISION_PENDING, insurance_decision: { $exists: false } },
+        { _id: 0, id: 1, selected_allocation_id: 1, selected_offer_id: 1 },
+      ).lean()
+      : [];
+    const awaiting = new Set<string>(pending.map((o) => `${o.id}|${o.selected_allocation_id}|${o.selected_offer_id}`));
+    const decidable: string[] = [PharmacyAllocationState.PENDING_REVIEW, PharmacyAllocationState.PARTIALLY_CONFIRMED];
+    return rows.map((r) => ({
+      ...r,
+      awaits_insurance_decision: !!r.offer_id && decidable.includes(r.status) && awaiting.has(`${r.order_id}|${r.id}|${r.offer_id}`),
+    }));
   }
 
   /** Locate the calling pharmacy's allocation for a given order (used by order-level Blueprint endpoints). */
@@ -97,7 +138,11 @@ export class PharmacyAllocationService {
     const prevAction = item.action;
     const prevQty = item.qty_offered;
     const prevInvId = item.inventory_id;
-    item.action = body.action;
+    // P13-R2: SUBSTITUTE never applies at once; it stores a proposal the
+    // patient decides (decideSubstitute). Other actions apply immediately.
+    if (body.action !== AllocationItemAction.SUBSTITUTE) {
+      item.action = body.action;
+    }
     item.notes = body.notes || item.notes;
     item.updated_at = new Date();
 
@@ -105,28 +150,24 @@ export class PharmacyAllocationService {
       if (!body.substitute_sku) throw new BadRequestException('substitute_sku_required');
       const subInv = await this.inv.findOne({ provider_account_id: user.id, sku: body.substitute_sku, available: true });
       if (!subInv) throw new BadRequestException('substitute_not_in_inventory');
+      const order: any = await this.orders.findOne({ id: a.order_id });
+      await assertSubstituteInsidePrescription(this.orders.db, order?.items?.find((i: any) => i.id === item.order_item_id), subInv);
       const tracking = await this.split.holdsStock(a);
       if (tracking && subInv.stock < (body.qty_offered || item.qty_requested)) throw new BadRequestException('substitute_insufficient_stock');
-      // Release previous reservation if any
-      if (tracking && prevAction === AllocationItemAction.AVAILABLE && prevInvId && prevQty) {
-        await this.inv.updateOne({ id: prevInvId, provider_account_id: user.id }, { $inc: { stock: prevQty } });
-      }
-      // Reserve new substitute stock
+      // P13-R2: never automatic. Store the proposal; sku, price, stock and
+      // totals change only when the patient accepts (decideSubstitute). Any
+      // reservation the original line holds stays until that decision.
       const qty = body.qty_offered || item.qty_requested;
-      if (tracking) {
-        const reserved = await this.inv.findOneAndUpdate(
-          { id: subInv.id, provider_account_id: user.id, stock: { $gte: qty } },
-          { $inc: { stock: -qty } },
-        );
-        if (!reserved) throw new BadRequestException('substitute_stock_race');
-      }
-      item.substitute_for_sku = item.sku;
-      item.substitute_reason = body.substitute_reason;
-      item.inventory_id = subInv.id;
-      item.sku = subInv.sku;
-      item.name = subInv.name_ar || subInv.name_en;
-      item.qty_offered = qty;
-      item.unit_price = subInv.price;
+      item.substitute_status = 'proposed';
+      item.substitute_proposal = {
+        sku: subInv.sku,
+        name: subInv.name_ar || subInv.name_en,
+        unit_price: subInv.price,
+        qty_offered: qty,
+        reason: body.substitute_reason,
+      };
+      item.notes = body.notes || item.notes;
+      item.updated_at = new Date();
     } else if (body.action === AllocationItemAction.UNAVAILABLE) {
       // Release any reservation
       if (prevAction === AllocationItemAction.AVAILABLE && prevInvId && prevQty && await this.split.holdsStock(a)) {
@@ -153,9 +194,8 @@ export class PharmacyAllocationService {
       }
     }
 
-    // Recalculate totals
-    a.totals.subtotal = a.items.filter(i => i.action === AllocationItemAction.AVAILABLE || i.action === AllocationItemAction.SUBSTITUTE).reduce((s, i) => s + (i.unit_price || 0) * (i.qty_offered || 0), 0);
-    a.totals.total = a.totals.subtotal + (a.totals.delivery_fee || 0);
+    // Recalculate totals (a pending proposal changes nothing until accepted)
+    recalcAllocationTotals(a);
     a.timeline.push({ ts: new Date(), event: 'item_action', by: user.id, meta: { item_id: allocItemId, action: body.action } });
     a.markModified('items');
     await a.save();
@@ -164,7 +204,145 @@ export class PharmacyAllocationService {
     if (body.action === AllocationItemAction.UNAVAILABLE) {
       await this.notif.notifyPatientItemUnavailable(a, item);
     }
+    if (body.action === AllocationItemAction.SUBSTITUTE) {
+      await this.notif.notifyPatientSubstituteProposed(a, item);
+    }
     return a.toObject();
+  }
+
+  /**
+   * P13-R2: the patient decides a proposed substitute, per item. Accept swaps
+   * the line and updates the order total (and its pricing snapshot, so the
+   * fulfilment gate keeps holding); reject removes the line. A price
+   * difference against an already-confirmed payment fails closed downstream
+   * (payment_confirmation_required) — settling it is payments territory.
+   */
+  /**
+   * Once the order is paid, a substitute may not change what the line costs: the paid amount is bound to the quote
+   * (pharmacy_payment_evidence.quote_snapshot_hash), so a new total would neither be charged nor refunded and the order
+   * could not be fulfilled. The pharmacy then cancels or refunds the line through its own flows instead.
+   */
+  private async assertNoPaidPriceChange(order: any, item: any, newUnitPrice: number, qty: number): Promise<void> {
+    const paid = await this.orders.db.collection('pharmacy_payment_evidence').findOne({ order_id: order.id, status: 'confirmed' });
+    if (!paid) return;
+    const before = Math.round(Number(item.unit_price || 0) * Number(item.qty_offered || item.qty_requested || 0) * 100);
+    const after = Math.round(Number(newUnitPrice || 0) * Number(qty || 0) * 100);
+    if (before !== after) throw new ConflictException('substitute_price_after_payment');
+  }
+
+  /**
+   * Owner decision 30: a substitute the pharmacy attached in the order chat (its own inventory row) and the patient
+   * accepted there goes through the same accept as a proposed substitute: availability, the prescription (issue 1440),
+   * the stock reservation and the paid-price rule above.
+   */
+  async acceptChatSubstitute(user: any, orderId: string, pharmacyAccountId: string, orderItemId: string, offer: { sku?: string; notes?: string }): Promise<any> {
+    const a = await this.allocs.findOne({ order_id: orderId, pharmacy_account_id: pharmacyAccountId });
+    if (!a) throw new BadRequestException('substitute_needs_selected_offer');
+    const item: any = a.items.find((i: any) => i.order_item_id === orderItemId);
+    if (!item) throw new NotFoundException('alloc_item_not_found');
+    if (!offer.sku) throw new BadRequestException('no_substitute_offer');
+    const before = { substitute_proposal: item.substitute_proposal, substitute_status: item.substitute_status };
+    item.substitute_proposal = { sku: offer.sku, qty_offered: item.qty_offered || item.qty_requested, reason: offer.notes || 'patient_accepted_in_chat' };
+    item.substitute_status = 'proposed';
+    a.markModified('items');
+    await a.save();
+    try {
+      return await this.decideSubstitute(user, a.id, item.id, 'accepted');
+    } catch (e) {
+      // A refused accept (paid order, stock, prescription) leaves the line as it was, so fulfilment never waits on it.
+      const fresh: any = await this.allocs.findOne({ id: a.id });
+      const line: any = fresh?.items?.find((i: any) => i.id === item.id);
+      if (fresh && line && line.substitute_status === 'proposed') {
+        line.substitute_proposal = before.substitute_proposal;
+        line.substitute_status = before.substitute_status;
+        fresh.markModified('items');
+        await fresh.save();
+      }
+      throw e;
+    }
+  }
+
+  async decideSubstitute(user: any, allocId: string, allocItemId: string, decision: 'accepted' | 'rejected'): Promise<any> {
+    assertPatient(user);
+    if (decision !== 'accepted' && decision !== 'rejected') throw new BadRequestException('invalid_substitute_decision');
+    const a = await this.allocs.findOne({ id: allocId });
+    if (!a) throw new NotFoundException('allocation_not_found');
+    const order: any = await this.orders.findOne({ id: a.order_id });
+    if (!order) throw new NotFoundException('order_not_found');
+    if (order.patient_account_id !== user.id) throw new ForbiddenException('not_yours');
+    const item = a.items.find((i: any) => i.id === allocItemId);
+    if (!item) throw new NotFoundException('alloc_item_not_found');
+    if (item.substitute_status !== 'proposed' || !item.substitute_proposal?.sku) {
+      throw new BadRequestException('no_substitute_proposal');
+    }
+    const now = new Date();
+    if (decision === 'accepted') {
+      const p = item.substitute_proposal;
+      const subInv = await this.inv.findOne({ provider_account_id: a.pharmacy_account_id, sku: p.sku, available: true });
+      if (!subInv) throw new BadRequestException('substitute_no_longer_available');
+      await assertSubstituteInsidePrescription(this.orders.db, order.items?.find((i: any) => i.id === item.order_item_id), subInv);
+      const tracking = await this.split.holdsStock(a);
+      const qty = p.qty_offered || item.qty_requested;
+      await this.assertNoPaidPriceChange(order, item, Number(subInv.price), qty);
+      if (tracking && subInv.stock < qty) throw new BadRequestException('substitute_insufficient_stock');
+      // Release the original line's reservation, then reserve the substitute.
+      if (tracking && item.action === AllocationItemAction.AVAILABLE && item.inventory_id && item.qty_offered) {
+        await this.inv.updateOne({ id: item.inventory_id, provider_account_id: a.pharmacy_account_id }, { $inc: { stock: item.qty_offered } });
+      }
+      if (tracking) {
+        const reserved = await this.inv.findOneAndUpdate(
+          { id: subInv.id, provider_account_id: a.pharmacy_account_id, stock: { $gte: qty } },
+          { $inc: { stock: -qty } },
+        );
+        if (!reserved) throw new BadRequestException('substitute_stock_race');
+      }
+      item.substitute_for_sku = item.sku;
+      item.substitute_reason = p.reason;
+      item.inventory_id = subInv.id;
+      item.sku = subInv.sku;
+      item.name = subInv.name_ar || subInv.name_en;
+      item.qty_offered = qty;
+      item.unit_price = subInv.price;
+      item.action = AllocationItemAction.SUBSTITUTE;
+      item.substitute_status = 'accepted';
+      item.updated_at = now;
+      recalcAllocationTotals(a);
+      a.timeline.push({ ts: now, event: 'substitute_accepted', by: user.id, meta: { item_id: allocItemId, sku: item.sku, unit_price: item.unit_price, total: a.totals?.total } });
+      await this.syncOrderTotalsToAllocation(order, a, now, 'substitute_accepted');
+    } else {
+      const tracking = await this.split.holdsStock(a);
+      if (tracking && item.action === AllocationItemAction.AVAILABLE && item.inventory_id && item.qty_offered) {
+        await this.inv.updateOne({ id: item.inventory_id, provider_account_id: a.pharmacy_account_id }, { $inc: { stock: item.qty_offered } });
+      }
+      item.action = AllocationItemAction.UNAVAILABLE;
+      item.qty_offered = 0;
+      item.inventory_id = undefined;
+      item.substitute_status = 'rejected';
+      item.updated_at = now;
+      recalcAllocationTotals(a);
+      a.timeline.push({ ts: now, event: 'substitute_rejected', by: user.id, meta: { item_id: allocItemId } });
+      await this.syncOrderTotalsToAllocation(order, a, now, 'substitute_rejected');
+    }
+    a.markModified('items');
+    await a.save();
+    await this.notif.notifyPharmacySubstituteDecided(a, item, decision);
+    await this.bus.emit({ type: decision === 'accepted' ? 'substitute.accepted' : 'substitute.rejected', entity_type: 'allocation', entity_id: a.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: order.patient_account_id, pharmacy_account_id: a.pharmacy_account_id, meta: { order_id: a.order_id, order_item_id: item.order_item_id } });
+    return { ok: true, decision, totals: a.totals };
+  }
+
+  /** P13-R2: keep the order's server-authoritative totals with the decided allocation. */
+  private async syncOrderTotalsToAllocation(order: any, a: any, now: Date, event: string) {
+    const totals = { subtotal: a.totals.subtotal, delivery_fee: a.totals.delivery_fee || 0, total: a.totals.total, currency: a.totals.currency || 'SAR' };
+    // Pre-selection composition allocations carry no offer binding yet; only
+    // bound allocations own a pricing snapshot (the fulfilment gate reads it).
+    const set: any = { totals };
+    if (a.offer_id) {
+      set.pricing_snapshot = { offer_id: a.offer_id, offer_version: a.offer_version, totals, hash: buildQuoteHash(a.offer_id, a.offer_version, totals), captured_at: now };
+    }
+    await this.orders.updateOne({ id: order.id }, {
+      $set: set,
+      $push: { timeline: { ts: now, event, meta: { allocation_id: a.id, totals } } },
+    });
   }
 
   private transition(a: PharmacyAllocation, to: PharmacyAllocationState, by?: string, meta?: any) {
@@ -239,6 +417,8 @@ export class PharmacyAllocationService {
     const a = await this.allocs.findOne({ id });
     if (!a) throw new NotFoundException();
     if (a.pharmacy_account_id !== user.id) throw new ForbiddenException();
+    // P13-R2: never fulfil past a substitute the patient has not decided.
+    if (pendingSubstituteProposals(a).length > 0) throw new BadRequestException('substitute_acceptance_required');
     await this.assertFulfillmentAuthorized(a);
     const anyUnavailable = a.items.some(i => i.action === AllocationItemAction.UNAVAILABLE);
     const anyAvailable = a.items.some(i => i.action !== AllocationItemAction.UNAVAILABLE);
@@ -377,7 +557,7 @@ export class PharmacyAllocationService {
       });
       return;
     }
-    const delayDays = Number(cfg?.settlement?.delay_days?.pharmacy ?? cfg?.settlement?.delay_days?.default ?? 3);
+    const delayDays = Number(cfg?.settlement?.delay_days?.pharmacy ?? cfg?.settlement?.delay_days?.default ?? settlementDelayDefault());
     const net = Math.round((gross - commission - vat) * 100) / 100;
     await ledger.insertOne({
       id: `earn_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
@@ -395,6 +575,8 @@ export class PharmacyAllocationService {
     const a = await this.allocs.findOne({ id });
     if (!a) throw new NotFoundException();
     if (a.pharmacy_account_id !== user.id) throw new ForbiddenException();
+    // P13-R2: never fulfil past a substitute the patient has not decided.
+    if (pendingSubstituteProposals(a).length > 0) throw new BadRequestException('substitute_acceptance_required');
     await this.assertFulfillmentAuthorized(a);
     const fromStatus = a.status;
     this.transition(a, to, user.id);

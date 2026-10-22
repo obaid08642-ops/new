@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { browserCoords, resolveNearbyPlace, savedAddressCity } from "@/lib/consult/doctor-filters";
+import { browserCoords, resolveNearbyPlace, savedAddressCity } from "@/lib/consult/doctor-filters-browser";
 import styles from "./consult.module.css";
 
 type Props = {

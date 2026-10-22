@@ -14,6 +14,7 @@ import { UserRole } from '../../common/enums';
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuid } from 'uuid';
 import { CreateDto, UpdateDto, SuspendStaffDto, ResetStaffPasswordDto } from './hospital-staff.dto';
+import { enforcePasswordPolicy } from '../../common/password-security.service';
 
 const STAFF_ROLES: UserRole[] = [UserRole.DOCTOR, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.PHARMACY];
 
@@ -44,6 +45,7 @@ export class HospitalStaffService {
     if (!STAFF_ROLES.includes(role)) throw new BadRequestException('invalid_staff_role');
     const existing = await this.users.findOne({ $or: [{ phone: body.phone.trim() }, ...(body.email ? [{ email: body.email.trim().toLowerCase() }] : [])] });
     if (existing) throw new BadRequestException('user_exists');
+    await enforcePasswordPolicy(body.password);
     const hash = await bcrypt.hash(body.password, 10);
     const u = await this.users.create({
       id: uuid(),
@@ -100,7 +102,7 @@ export class HospitalStaffService {
   }
 
   async resetPassword(user: any, staffId: string, newPassword: string) {
-    if (!newPassword || newPassword.length < 6) throw new BadRequestException('weak_password');
+    await enforcePasswordPolicy(newPassword);
     const acc = await this.getOwnerAccount(user);
     const staff = await this.users.findOne({ id: staffId });
     if (!staff) throw new NotFoundException('staff_not_found');

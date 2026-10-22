@@ -13,6 +13,8 @@ export type PatientPharmacyOfferLine = {
   unitPrice?: number;
   available?: boolean;
   alternative?: string;
+  /** Journeys 75 (decision 12): the server's check of the line's price against the catalogue price. */
+  priceStatus?: "verified" | "not_verified" | "above_catalogue";
 };
 
 export type PatientPharmacyOffer = {
@@ -56,13 +58,19 @@ function pharmacyNamesOf(source: Record<string, unknown>) {
   return ar || en ? { ar, en } : undefined;
 }
 
+/** Decision 13 (issue 332): where the server's search for a pharmacy is: still widening (round, radius, end), or over with none. */
+export type PharmacySearchState = { state: "expanding"; round?: number; radiusKm?: number; endsAt?: string } | { state: "no_pharmacy_available" };
+
 export type PatientPharmacyOrderProgress = {
+  search?: PharmacySearchState;
   /** The filling pharmacy's names (#366/#375/#514): the selected allocation's, else the order's own; absent when the server sent none. */
   pharmacyNames?: { ar?: string; en?: string };
   /** The order's own status (`draft`, `broadcasting`, `cash_card_payment_pending` ...). */
   status?: string;
   governedState?: string;
   coverageMode?: "cash" | "insurance";
+  /** Decision 30: insurance or self-pay as chosen when the request was sent (`payment_mode`, or `payment_method` insurance). */
+  paymentMode?: "cash" | "insurance";
   /** The selected offer (`selected_offer_snapshot`, `selected_offer_hash`, `selected_offer_revision`). */
   selectedQuote?: PatientPharmacyQuote;
   /** A revised final quote waiting for acceptance (`pending_final_quote_*`). */
@@ -122,6 +130,7 @@ function parseLine(value: unknown): PatientPharmacyOfferLine | undefined {
     unitPrice: numberValue(source, ["unit_price", "unitPrice"]),
     available: booleanValue(source, ["available"]),
     alternative: stringValue(source, ["alternative"]),
+    priceStatus: ((v) => (v === "verified" || v === "not_verified" || v === "above_catalogue" ? v : undefined))(stringValue(source, ["price_status"])),
   };
 }
 
@@ -205,12 +214,19 @@ export function extractPatientPharmacyOrderProgress(payload: unknown): PatientPh
   const selectedAllocation = stringValue(source, ["selected_allocation_id"]);
   const allocationRecords = Array.isArray(source.allocations_detail) ? source.allocations_detail.flatMap((value) => { const r = valueRecord(value); return r ? [r] : []; }) : [];
   const chosen = selectedAllocation ? allocationRecords.find((a) => a.id === selectedAllocation) : undefined;
+  const searchRecord = valueRecord(source.search);
+  const searchName = searchRecord ? stringValue(searchRecord, ["state"]) : undefined;
+  const search: PharmacySearchState | undefined = searchName === "no_pharmacy_available" ? { state: "no_pharmacy_available" }
+    : searchName === "expanding" ? { state: "expanding", round: numberValue(searchRecord!, ["round"]), radiusKm: numberValue(searchRecord!, ["radius_km"]), endsAt: stringValue(searchRecord!, ["ends_at"]) }
+    : undefined;
   return {
+    search,
     pharmacyNames: (chosen ? pharmacyNamesOf(chosen) : undefined) ?? pharmacyNamesOf(source),
     status: stringValue(source, ["status"]),
     items: orderItems.length ? orderItems : undefined,
     governedState: governedStep(stringValue(source, ["governed_state", "governedState"])),
     coverageMode: rawCoverageMode === "cash" || rawCoverageMode === "insurance" ? rawCoverageMode : undefined,
+    paymentMode: paymentModeOf(stringValue(source, ["payment_mode", "paymentMode"]), stringValue(source, ["payment_method", "paymentMethod"])),
     selectedQuote: parseQuote(source.selected_offer_snapshot, source.selected_offer_hash, source.selected_offer_revision),
     pendingQuote: parseQuote(source.pending_final_quote_snapshot, source.pending_final_quote_hash, source.pending_final_quote_revision),
     acceptedQuoteHash: stringValue(source, ["accepted_quote_hash", "acceptedQuoteHash"]),
@@ -226,4 +242,10 @@ export function extractPatientPharmacyOrderProgress(payload: unknown): PatientPh
       items,
     } : undefined,
   };
+}
+
+/** Decision 30: the order's start choice; undefined when the server sent neither field (no invented "cash"). */
+function paymentModeOf(mode: string | undefined, method: string | undefined): "cash" | "insurance" | undefined {
+  if (mode === "insurance" || method === "insurance") return "insurance";
+  return mode || method ? "cash" : undefined;
 }

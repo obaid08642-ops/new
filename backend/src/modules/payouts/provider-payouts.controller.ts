@@ -1,5 +1,6 @@
 /** Provider-initiated withdrawal requests with an atomic ledger reservation. */
-import { Controller, Post, Get, Body, UseGuards, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Get, Body, UseGuards, BadRequestException, Optional } from '@nestjs/common';
+import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, ClientSession } from 'mongoose';
 import { v4 as uuid } from 'uuid';
@@ -7,14 +8,19 @@ import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
 import { LedgerService } from '../finance-engine/finance-engine.module';
 import { UserRole } from '../../common/enums';
 import { RequestDto } from './provider-payouts.dto';
+import { payoutMinimumDefault } from '../../common/commission-defaults';
+
+/** A request in any of these states holds locked funds, so a second one is refused until it is paid or rejected. */
+export const OPEN_WITHDRAWAL_STATES = ['PENDING_ADMIN_APPROVAL', 'AWAITING_SECOND_APPROVAL', 'APPROVED_FOR_PAYOUT'];
 
 @Controller('provider/payouts')
-@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+@Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
 @UseGuards(JwtAuthGuard)
 export class ProviderPayoutsController {
   constructor(
     @InjectConnection() private readonly conn: Connection,
     private readonly ledger: LedgerService,
+    @Optional() private readonly killSwitches?: KillSwitchesService,
   ) {}
 
   private get withdrawals() { return this.conn.collection('providerwithdrawals'); }
@@ -47,6 +53,8 @@ export class ProviderPayoutsController {
 
   @Post('request')
   async request(@CurrentUser() user: any, @Body() body: RequestDto) {
+    // Issue 955: the admin kill switch freezes new withdrawal requests before any balance is locked.
+    await this.killSwitches?.assertOn('provider_withdrawals');
     const amount = Math.round(Number(body?.amount) * 100) / 100;
     const idempotencyKey = String(body?.idempotency_key || '').trim();
     if (!Number.isFinite(amount) || amount <= 0) throw new BadRequestException('valid_amount_required');
@@ -61,7 +69,7 @@ export class ProviderPayoutsController {
     const bank: any = await this.conn.collection('provider_bank_accounts').findOne({ account_id: user.id, review_status: 'approved' });
     if (!bank) throw new BadRequestException('verified_bank_account_required');
     const iban = this.validateIban(bank.iban);
-    const minimum = (await this.conn.collection('finance_config').findOne({ key: 'commissions' }))?.payout_schedule?.minimum_payout_sar ?? 100;
+    const minimum = await this.minimum();
     const session = await this.conn.startSession();
     try {
       let response: any;
@@ -75,7 +83,7 @@ export class ProviderPayoutsController {
         if (balance.available < 0) throw new BadRequestException('negative_balance');
         if (amount < minimum) throw new BadRequestException(`minimum_withdrawal_${minimum}`);
         if (amount > balance.available) throw new BadRequestException('insufficient_available_balance');
-        const pending = await this.withdrawals.findOne({ provider_id: user.id, state: { $in: ['PENDING_ADMIN_APPROVAL', 'APPROVED_FOR_PAYOUT'] } }, { session });
+        const pending = await this.withdrawals.findOne({ provider_id: user.id, state: { $in: OPEN_WITHDRAWAL_STATES } }, { session });
         if (pending) throw new BadRequestException('pending_withdrawal_exists');
 
         const id = `wd_${uuid()}`;
@@ -116,8 +124,13 @@ export class ProviderPayoutsController {
     return this.withdrawals.find({ provider_id: user.id }, { projection: { _id: 0 } }).sort({ createdAt: -1 }).limit(50).toArray();
   }
 
+  /** The ledger balance and the withdrawal minimum the request route enforces (finance_config), so the app never assumes one. */
   @Get('balance')
-  balance(@CurrentUser() user: any) {
-    return this.ledger.providerBalance(user.id);
+  async balance(@CurrentUser() user: any) {
+    return { ...(await this.ledger.providerBalance(user.id)), minimum_withdrawal: await this.minimum() };
+  }
+
+  private async minimum(): Promise<number> {
+    return (await this.conn.collection('finance_config').findOne({ key: 'commissions' }))?.payout_schedule?.minimum_payout_sar ?? payoutMinimumDefault();
   }
 }

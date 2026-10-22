@@ -64,7 +64,6 @@ export default async function SettingsPrivacyPage({ params, searchParams }: Prop
 
   const response = await getPatientPrivacySettings(token);
   if (response.status === 401) redirect(`/${locale}/login`);
-  if (response.status === 403 || response.status === 404) notFound();
   if (!response.ok) return failed;
   const initial = extract(await response.json().catch(() => null));
   const rows: SwitchRow[] = PRIVACY_KEYS.map((key) => ({ id: key, key, label: t(`pv.${key}`), sub: t(`pv.${key}Sub`), value: initial[key] }));
@@ -79,7 +78,6 @@ export default async function SettingsPrivacyPage({ params, searchParams }: Prop
 async function dataTab(locale: Locale, token: string, failed: React.ReactNode, t: Awaited<ReturnType<typeof getTranslations>>) {
   const response = await getPatientStorage(token);
   if (response.status === 401) redirect(`/${locale}/login`);
-  if (response.status === 403 || response.status === 404) notFound();
   if (!response.ok) return failed;
   const storage = parseStorageSummary(await response.json().catch(() => null));
   return (
@@ -94,8 +92,8 @@ async function dataTab(locale: Locale, token: string, failed: React.ReactNode, t
             </span>
           </div>
           {storage.items.map((item) => (
-            <div className={styles.itemRow} key={item.label}>
-              <span className={styles.itemText}><span className={styles.itemTitle} dir="auto">{item.label}</span></span>
+            <div className={styles.itemRow} key={item.key}>
+              <span className={styles.itemText}><span className={styles.itemTitle}>{t(`storageItem.${item.key}`)}</span></span>
               <span className={styles.itemEnd}><bdi>{item.value} · {item.percent}%</bdi></span>
             </div>
           ))}

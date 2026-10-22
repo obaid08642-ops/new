@@ -1,5 +1,6 @@
 const path = require('path');
-const { getDefaultConfig } = require('expo/metro-config');
+// P20.4: Sentry's Expo config is Expo's default plus debug ids in the bundle, so uploaded source maps match the build
+const { getSentryExpoConfig } = require('@sentry/react-native/metro');
 
 const projectRoot = __dirname;
 // The design system lives in <repo>/packages and is imported by the app
@@ -9,7 +10,7 @@ const projectRoot = __dirname;
 // `tsc` passes.
 const workspaceRoot = path.resolve(projectRoot, '..');
 
-const config = getDefaultConfig(projectRoot);
+const config = getSentryExpoConfig(projectRoot);
 
 config.watchFolders = [workspaceRoot];
 config.resolver.nodeModulesPaths = [

@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BullModule } from '@nestjs/bullmq';
 import { AdminController } from './admin.controller';
+import { ProviderErasureService } from './provider-erasure.service';
+import { SearchModule } from '../search/search.controller';
 import { User, UserSchema } from '../../schemas/user.schema';
 import { ProviderDelta, ProviderDeltaSchema } from '../provider/schemas/provider-delta.schema';
 import { AppointmentSchema } from '../../schemas/appointment.schema';
-import { EmergencyRequestSchema } from '../../schemas/emergency.schema';
 // P5.3: merged from AdminAuthorityModule (authority/ → admin/)
 import { AdminAuthorityController } from './authority/admin-authority.module';
 import { AdminAuthorityService } from './authority/admin-authority.module';
@@ -51,7 +52,6 @@ import { B2BRequest, B2BRequestSchema } from '../../schemas/b2b-request.schema';
 import {
   AdminGovernanceService,
   AdminGovernanceController as GovernanceAdminController,
-  KillSwitchesController,
   CommissionsController,
 } from './governance/admin-governance.module';
 import { B2BController } from './governance/b2b.controller';
@@ -79,12 +79,17 @@ import { Provider, ProviderSchema } from './web-core/schemas/provider.schema';
 import { SystemConfigExtended, SystemConfigExtendedSchema } from './web-core/schemas/system-config-extended.schema';
 import { WithdrawalRequest, WithdrawalRequestSchema } from './web-core/schemas/withdrawal-request.schema';
 import { AuditIngestController } from './admin-audit-ingest.controller';
+import { OpsSecurityModule } from './ops-security/ops-security.module';
+import { AdminUrgentAlertsController } from './alerts/admin-urgent-alerts.controller';
+import { AdminUrgentAlertsService } from './alerts/admin-urgent-alerts.service';
 
 @Module({
   imports: [
     ImpersonationSecurityModule,
     MailModule,
+    OpsSecurityModule,
     SeoSearchModule,
+    SearchModule,
     PresenceModule,
     BullModule.registerQueue({ name: 'notifications-delivery' }),
     WorkflowEngineModule,
@@ -94,7 +99,6 @@ import { AuditIngestController } from './admin-audit-ingest.controller';
       { name: User.name, schema: UserSchema },
       { name: ProviderDelta.name, schema: ProviderDeltaSchema },
       { name: 'Appointment', schema: AppointmentSchema },
-      { name: 'EmergencyRequest', schema: EmergencyRequestSchema },
       // P5.3: merged from AdminAuthorityModule
       { name: 'Order', schema: OrderSchema },
       { name: 'LabBooking', schema: LabBookingSchema },
@@ -146,7 +150,6 @@ import { AuditIngestController } from './admin-audit-ingest.controller';
     AdminCommandCenterV2Controller,
     // P5.3: merged from AdminGovernanceModule
     GovernanceAdminController,
-    KillSwitchesController,
     CommissionsController,
     B2BController,
     SystemConfigController,
@@ -159,9 +162,13 @@ import { AuditIngestController } from './admin-audit-ingest.controller';
     AdminConfigController,
     WebCoreGovernanceController,
     AdminExtendedOperationsController,
-    AuditIngestController
+    AuditIngestController,
+    // #1235: urgent admin alerts (bell + inbox + rules)
+    AdminUrgentAlertsController,
 ],
   providers: [
+    // issue 1541: the one list of a provider's own rows, used by the user delete and the orphan-profile delete
+    ProviderErasureService,
     // P5.3: merged from AdminAuthorityModule
     AdminAuthorityService,
     // P5.3: merged from AdminCommandCenterModule
@@ -176,6 +183,7 @@ import { AuditIngestController } from './admin-audit-ingest.controller';
     AdminGovernanceService,
     // P5.3: merged from AdminNotificationCenterModule
     AdminNotificationCenterService,
+    AdminUrgentAlertsService,
   ],
   exports: [
     AdminAuthorityService,

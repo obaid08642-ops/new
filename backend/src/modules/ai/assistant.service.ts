@@ -16,6 +16,7 @@ import { Connection } from 'mongoose';
 import { IsIn, IsString, MaxLength, MinLength } from 'class-validator';
 import { SPECIALTY_MASTER } from '../../common/enums';
 import { escapeRegex } from '../../common/slug.util';
+import { publicMedicineFilter } from '../medicines/public-medicine-filter';
 import { AiGatewayService } from './ai-gateway.service';
 
 export const ASSISTANT_LOCALES = ['ar', 'en', 'ur', 'hi', 'bn', 'fil'] as const;
@@ -148,7 +149,8 @@ export class AssistantService {
   private async nameIndex(): Promise<Array<{ id: string; names: string[] }>> {
     if (this.index && Date.now() - this.index.at < AssistantService.INDEX_TTL_MS) return this.index.rows;
     const docs: any[] = await this.medicines
-      .find({}, { projection: { _id: 0, id: 1, name_ar: 1, name_en: 1, generic_name: 1, active_ingredient: 1, 'translations.ur.name': 1, 'translations.hi.name': 1, 'translations.bn.name': 1, 'translations.tl.name': 1, 'translations.fil.name': 1, 'translations.en.name': 1, 'translations.ar.name': 1 } })
+      // Public catalogue only: a medicine in medical review (or deleted) is never answered from.
+      .find(publicMedicineFilter(), { projection: { _id: 0, id: 1, name_ar: 1, name_en: 1, generic_name: 1, active_ingredient: 1, 'translations.ur.name': 1, 'translations.hi.name': 1, 'translations.bn.name': 1, 'translations.tl.name': 1, 'translations.fil.name': 1, 'translations.en.name': 1, 'translations.ar.name': 1 } })
       .toArray();
     const rows = docs
       .filter((m) => typeof m?.id === 'string')
@@ -228,7 +230,7 @@ export class AssistantService {
     const matched = (await this.nameIndex())
       .filter(({ names }) => names.some((n) => AssistantService.mentions(message, n)))
       .sort((a, b) => Math.max(...b.names.map((n) => n.length)) - Math.max(...a.names.map((n) => n.length)));
-    const med: any = matched.length ? await this.medicines.findOne({ id: matched[0].id }) : null;
+    const med: any = matched.length ? await this.medicines.findOne({ ...publicMedicineFilter(), id: matched[0].id }) : null;
     if (med) {
       return {
         kind: 'leaflet',

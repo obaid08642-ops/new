@@ -7,6 +7,9 @@
  *   ambulance rows of provider_accounts and provider_profiles, into archive_<collection> (same _id, plus
  *   `archived_at`), then deletes only the documents that are safely in the archive. Other provider types
  *   are untouched.
+ * - `users` with the retired role `ambulance` are not archived or deleted (their payouts, audit and PDPL
+ *   history point at them): `--apply` sets `active: false` and bumps `token_version`, so they can no longer
+ *   sign in and any open session ends. The role stays a valid value in the users schema (RETIRED_USER_ROLES).
  * - Idempotent: a rerun archives nothing twice (upsert by _id).
  *
  * Run: `MONGODB_URI=... DB_NAME=... npx ts-node --transpile-only scripts/migrations/2026-10-archive-ambulance.ts [--apply]`
@@ -50,6 +53,15 @@ async function main() {
     entry.archived = await archive.countDocuments({});
     report.push(entry);
   }
+  const users = db.collection('users');
+  const RETIRED = { role: 'ambulance' };
+  const userEntry: any = { collection: 'users', role: 'ambulance', active: await users.countDocuments({ ...RETIRED, active: { $ne: false } }) };
+  if (APPLY && userEntry.active > 0) {
+    const res = await users.updateMany({ ...RETIRED, active: { $ne: false } }, { $set: { active: false }, $inc: { token_version: 1 } });
+    userEntry.deactivated = res.modifiedCount;
+  }
+  userEntry.left_active = await users.countDocuments({ ...RETIRED, active: { $ne: false } });
+  report.push(userEntry);
   console.log(JSON.stringify({ mode: APPLY ? 'apply' : 'dry-run', report }));
 }
 

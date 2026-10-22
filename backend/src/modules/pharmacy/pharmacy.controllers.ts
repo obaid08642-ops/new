@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Headers, ForbiddenException, ServiceUnavailableException, Optional, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Patch, Put, UseGuards, Query, Header, Headers, ForbiddenException, ServiceUnavailableException, Optional, BadRequestException, NotFoundException } from '@nestjs/common';
+import { recordAudit } from '../../common/audit-record';
 import { CurrentUser, JwtAuthGuard, Roles, Public } from '../../common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -6,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { UserRole, isProviderRole } from '../../common/enums';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { PharmacyOrderService } from './services/pharmacy-order.service';
+import { PharmacyRefillService } from './services/pharmacy-refill.service';
 import { PharmacyAllocationService } from './services/pharmacy-allocation.service';
 import { PharmacyInventoryExtService } from './services/pharmacy-inventory-ext.service';
 import { PharmacySeedService } from './services/pharmacy-seed.service';
@@ -18,8 +20,9 @@ import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { PharmacyInsuranceDecisionService } from './services/pharmacy-insurance-decision.service';
 import { PharmacyExpiryCommandService } from './services/pharmacy-expiry-command.service';
 import { PaymentsService } from '../payments/payments.module';
-import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto, PaymentRulesDto, PharmacyCodSettingDto } from './pharmacy.controllers.dto';
+import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, OpenChatThreadDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto, PaymentRulesDto, PharmacyCodSettingDto, ResolvePriceReviewDto } from './pharmacy.controllers.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 // =========================================================================
 //  PATIENT ENDPOINTS (/api/v2/patient/pharmacy/*)
 // =========================================================================
@@ -27,7 +30,7 @@ import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsura
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.PATIENT)
 export class PatientPharmacyController {
-  constructor(private orders: PharmacyOrderService, private offers: PharmacyOfferService, private insurance: PharmacyInsuranceDecisionService, private cardPayments: PaymentsService) {}
+  constructor(private orders: PharmacyOrderService, private offers: PharmacyOfferService, private insurance: PharmacyInsuranceDecisionService, private cardPayments: PaymentsService, private refills: PharmacyRefillService, @Optional() private allocations?: PharmacyAllocationService) {}
   // Order roots are state-changing: keys are mandatory (P0-01). The global
   // IdempotencyInterceptor then guarantees replay-safety (24h cache +
   // in-progress lock + body-hash mismatch guard). Mobile + web BFF already send keys.
@@ -35,7 +38,10 @@ export class PatientPharmacyController {
   @Get('orders') list(@CurrentUser() u: any, @Query('status') status?: string) { return this.orders.list(u, status); }
   @Get('orders/:id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.detail(u, id); }
   @Patch('orders/:id') @RequireIdempotency() update(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateDto) { return this.orders.update(u, id, b); }
+  // 22.5: the lines a chosen pharmacy could not fill become a new draft order of their own
+  @Post('orders/:id/split-remaining') @RequireIdempotency() splitRemaining(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.splitRemaining(u, id); }
   @Post('orders/:id/submit') @RequireIdempotency() submit(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.submit(u, id); }
+  @Post('orders/:id/refill') @RequireIdempotency() refill(@CurrentUser() u: any, @Param('id') id: string) { return this.refills.refill(u, id); }
   @Post('orders/:id/cancel') @RequireIdempotency() cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelDto) { return this.orders.cancel(u, id, b?.reason || ''); }
   @Post('orders/:id/insurance-rejection/cancel') cancelRejectedInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: CancelRejectedInsuranceDto, @Headers('idempotency-key') idemHeader?: string) { return this.insurance.cancelRejectedByPatient(u, id, b?.idempotency_key || idemHeader); }
   // A-2: ?include=closed also returns the expired, withdrawn and earlier offers, each with its offer_state.
@@ -67,6 +73,14 @@ export class PatientPharmacyController {
 
   @Post('orders/:id/insurance/:kind/accept') acceptInsurance(@CurrentUser() u: any, @Param('id') id: string, @Param('kind') kind: string, @Body() b: AcceptInsuranceDto, @Headers('idempotency-key') idemHeader?: string) {
     return this.insurance.acceptByPatient(u, id, kind, b?.payment_method, b?.idempotency_key || idemHeader);
+  }
+
+  // P13-R2: the patient decides a proposed substitute per item (never automatic).
+  @Post('allocations/:id/items/:itemId/accept-substitute') acceptSubstitute(@CurrentUser() u: any, @Param('id') id: string, @Param('itemId') itemId: string) {
+    return this.allocations!.decideSubstitute(u, id, itemId, 'accepted');
+  }
+  @Post('allocations/:id/items/:itemId/reject-substitute') rejectSubstitute(@CurrentUser() u: any, @Param('id') id: string, @Param('itemId') itemId: string) {
+    return this.allocations!.decideSubstitute(u, id, itemId, 'rejected');
   }
 }
 
@@ -147,7 +161,8 @@ export class ProviderPharmacyController {
 @UseGuards(JwtAuthGuard)
 export class ProviderInventoryExtController {
   constructor(private svc: PharmacyInventoryExtService) {}
-  @Get('search') search(@CurrentUser() u: any, @Query('q') q?: string, @Query('barcode') bc?: string) { return this.svc.search(u, q, bc); }
+  // provider-journeys 1: include_catalogue=1 (the offer composer) adds the national catalogue items not in the inventory yet
+  @Get('search') search(@CurrentUser() u: any, @Query('q') q?: string, @Query('barcode') bc?: string, @Query('include_catalogue') cat?: string) { return this.svc.search(u, q, bc, cat === '1' || cat === 'true'); }
   @Post(':id/restock') restock(@CurrentUser() u: any, @Param('id') id: string, @Body() b: RestockDto) { return this.svc.restock(u, id, Number(b?.qty) || 0); }
   @Get('low-stock-alerts') alerts(@CurrentUser() u: any) { return this.svc.listLowStockAlerts(u); }
   @Post('low-stock-alerts/:id/ack') ack(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.acknowledgeAlert(u, id); }
@@ -167,12 +182,48 @@ export class AdminPharmacyController {
     private broadcast: PharmacyBroadcastService,
     @InjectConnection() private readonly conn: Connection,
   ) {}
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Post('split/:orderId') async manualSplit(@Param('orderId') id: string) {
     // Backward-compat: if order is in broadcasting state, route to broadcast fallback.
     try { return await this.split.runForOrder(id); }
     catch (e: any) { if (String(e?.message || '').includes('order_not_splittable')) return this.broadcast.fallbackSplit(id); throw e; }
   }
   // Master spec: admin audit trail for provider unit-price overrides on offers.
+  // P13-R3: CSV export of the same filtered history (the JSON list below stays).
+  @Get('price-overrides/export')
+  @Header('Content-Type', 'text/csv; charset=utf-8')
+  @Header('Content-Disposition', 'attachment; filename="price-overrides.csv"')
+  async priceOverridesExport(@Query() q: any): Promise<string> {
+    const col = (this.allocs as any).orders.db.collection('pharmacy_price_override_audit');
+    const filter: any = {};
+    if (q?.order_id) filter.order_id = String(q.order_id);
+    if (q?.offer_id) filter.offer_id = String(q.offer_id);
+    if (q?.pharmacy_account_id) filter.pharmacy_account_id = String(q.pharmacy_account_id);
+    if (q?.sku) filter.sku = String(q.sku);
+    if (q?.from || q?.to) {
+      filter.changed_at = {};
+      if (q.from) filter.changed_at.$gte = new Date(String(q.from));
+      if (q.to) filter.changed_at.$lte = new Date(String(q.to));
+    }
+    const limit = Math.min(5000, Math.max(1, Number(q?.limit) || 5000));
+    const rows: any[] = await col.find(filter).sort({ changed_at: -1 }).limit(limit).toArray();
+    const header = 'id,order_id,offer_id,offer_version,pharmacy_account_id,order_item_id,sku,name_ar,name_en,catalog_price,override_price,currency,reason,changed_by,changed_at';
+    const cell = (v: any): string => {
+      if (v === null || v === undefined) return '';
+      let s = v instanceof Date ? v.toISOString() : String(v);
+      // CSV injection: a pharmacist-typed text starting with = + - @ (or a tab / CR) would run as a formula when the
+      // admin opens the file in a spreadsheet; prefix it with ' so it stays text. Numbers are written as numbers.
+      if (typeof v !== 'number' && /^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+      return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const lines = rows.map((r: any) => [
+      r.id, r.order_id, r.offer_id, r.offer_version, r.pharmacy_account_id,
+      r.order_item_id, r.sku, r.name_ar, r.name_en, r.catalog_price,
+      r.override_price, r.currency, r.reason, r.changed_by,
+      r.changed_at instanceof Date ? r.changed_at.toISOString() : r.changed_at,
+    ].map(cell).join(','));
+    return [header, ...lines].join('\n');
+  }
   @Get('price-overrides') async priceOverrides(@Query() q: any) {
     const col = (this.allocs as any).orders.db.collection('pharmacy_price_override_audit');
     const filter: any = {};
@@ -202,12 +253,72 @@ export class AdminPharmacyController {
     if (q?.reason === 'price_above_catalogue' || q?.reason === 'not_verified') filter['lines.reason'] = q.reason;
     const page = Math.max(1, Number(q?.page) || 1);
     const limit = Math.min(100, Math.max(1, Number(q?.limit) || 25));
-    const [items, total] = await Promise.all([
+    const [rows, total] = await Promise.all([
       col.find(filter, { projection: { _id: 0 } }).sort({ updatedAt: -1 }).skip((page - 1) * limit).limit(limit).toArray(),
       col.countDocuments(filter),
     ]);
+    // The admin queue (medicines-catalog "items to review") shows which pharmacy priced each line.
+    const ids = [...new Set(rows.map((r: any) => r.pharmacy_account_id).filter((v: unknown): v is string => typeof v === 'string' && v.length > 0))];
+    const profiles: any[] = ids.length
+      ? await this.conn.collection('provider_profiles')
+        .find({ account_id: { $in: ids } }, { projection: { _id: 0, account_id: 1, display_name_ar: 1, display_name_en: 1, name_ar: 1, name_en: 1, business_name: 1, legal_name: 1 } })
+        .toArray()
+      : [];
+    const names = new Map(profiles.map((p) => {
+      const registered = p.business_name || p.legal_name || null;
+      const ar = p.display_name_ar || p.name_ar || registered;
+      const en = p.display_name_en || p.name_en || registered;
+      return [p.account_id, { pharmacy_name_ar: ar || en || null, pharmacy_name_en: en || ar || null }];
+    }));
+    // A `not_verified` line either matches no catalogue item (the admin can create one from it) or matches an item
+    // that has no reference price yet (sfda_price): say which, so the queue offers "create" only for the first.
+    const lineKeys = rows.flatMap((r: any) => (Array.isArray(r.lines) ? r.lines : []).flatMap((l: any) => [l.medicine_id, l.sku]))
+      .filter((v: unknown) => (typeof v === 'string' && v.length > 0) || typeof v === 'number').map((v: unknown) => String(v));
+    const keys = [...new Set(lineKeys)];
+    const meds: any[] = keys.length
+      ? await this.conn.collection('medicines')
+        .find({ is_deleted: { $ne: true }, $or: [{ id: { $in: keys } }, { sku: { $in: [...keys, ...keys.filter((k) => /^\d+$/.test(k)).map(Number)] } }] }, { projection: { _id: 0, id: 1, sku: 1 } })
+        .toArray()
+      : [];
+    const byKey = new Map<string, string>();
+    for (const m of meds) {
+      byKey.set(String(m.id), m.id);
+      if (m.sku !== undefined && m.sku !== null) byKey.set(String(m.sku), m.id);
+    }
+    const items = rows.map((r: any) => ({
+      ...r,
+      ...(names.get(r.pharmacy_account_id) ?? { pharmacy_name_ar: null, pharmacy_name_en: null }),
+      lines: (Array.isArray(r.lines) ? r.lines : []).map((l: any) => ({
+        ...l,
+        catalogue_item_id: (l.medicine_id && byKey.get(String(l.medicine_id))) || (l.sku !== null && l.sku !== undefined ? byKey.get(String(l.sku)) : undefined) || null,
+      })),
+    }));
     return { items, total, page, limit };
   }
+
+  /**
+   * D-12 (issue 331): the admin closes an open review once the catalogue price was updated (PATCH
+   * /medicines/admin/catalog/:id { sfda_price }, audit-logged there) or the offered price was confirmed;
+   * who, when, how and the note stay on the row, and the admin notice for the offer is marked read.
+   */
+  @RequirePermissions(Permission.CATALOG_PRICE_WRITE)
+  @Post('price-review/:id/resolve') async resolvePriceReview(@CurrentUser() u: any, @Param('id') id: string, @Body() body: ResolvePriceReviewDto) {
+    const col = this.conn.collection('pharmacy_price_reviews');
+    const now = new Date();
+    const res: any = await col.findOneAndUpdate(
+      { id: { $eq: String(id) }, status: 'open' },
+      { $set: { status: 'closed', resolution: body.resolution, resolution_note: body.note?.trim() || null, resolved_by: u?.id ?? null, resolved_at: now, updatedAt: now } },
+      { returnDocument: 'after', projection: { _id: 0 } },
+    );
+    const row = res?.value ?? res;
+    if (!row?.id) {
+      const exists = await col.countDocuments({ id: { $eq: String(id) } });
+      throw exists ? new BadRequestException('price_review_already_closed') : new NotFoundException('price_review_not_found');
+    }
+    await this.conn.collection('notifications').updateMany({ role: 'admin', type: 'pharmacy_price_review', 'body.review_id': row.id }, { $set: { read: true, read_at: now } });
+    return row;
+  }
+  @RequirePermissions(Permission.OPS_CRONS_RUN)
   @Post('expire-stale-allocations') expireStale() { return this.allocs.expireStale(); }
 }
 
@@ -259,6 +370,7 @@ export class AdminFulfillmentPolicyController {
   constructor(@InjectConnection() private readonly conn: Connection) {}
   private get col() { return this.conn.collection('pharmacy_fulfillment_policies'); }
   @Get() list(): Promise<any[]> { return this.col.find({ provider_account_id: null }, { projection: { _id: 0 } }).toArray(); }
+  @RequirePermissions(Permission.SETTINGS_EDIT)
   @Put('cod') async setCod(@CurrentUser() u: any, @Body() b: SetCodPolicyDto): Promise<any> {
     const now = new Date();
     await this.col.updateOne(
@@ -267,7 +379,7 @@ export class AdminFulfillmentPolicyController {
         $setOnInsert: { id: 'platform-cod', payment_method: 'cod', provider_account_id: null, createdAt: now } },
       { upsert: true },
     );
-    await this.conn.collection('audit_logs').insertOne({ id: uuidv4(), actor_id: u?.id, actor_role: 'admin', action: 'pharmacy.cod_policy_set', after: { active: b.active === true }, createdAt: now });
+    await recordAudit(this.conn, { action: 'pharmacy.cod_policy_set', user_id: u?.id, role: 'admin', resource_kind: 'fulfillment_policy', resource_id: 'platform-cod', changes: { after: { active: b.active === true } }, severity: 'warn' });
     return this.col.findOne({ id: 'platform-cod' }, { projection: { _id: 0 } });
   }
 }
@@ -282,12 +394,16 @@ export class AdminBroadcastController {
   async list(@Query('limit') limit?: string) {
     return this.bc.adminList(Math.min(Math.max(Number(limit) || 50, 1), 200));
   }
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Post(':orderId/advance') advance() { throw new ServiceUnavailableException('manual_broadcast_advance_disabled_use_expiry_command'); }
+  @RequirePermissions(Permission.ORDER_REASSIGN)
   @Post(':orderId/fallback-split') fallback(@Param('orderId') id: string) { return this.bc.fallbackSplit(id); }
   /** Explicit privileged command; no timer, cron, queue worker, or caller-supplied clock. */
+  @RequirePermissions(Permission.OPS_CRONS_RUN)
   @Post('expire-due') expireDue(@Query('offer_cursor') offerCursor?: string, @Query('broadcast_cursor') broadcastCursor?: string, @Query('limit') limit?: string) {
     return this.expiry.expireDuePharmacyOffers(new Date(), { offer_id: offerCursor || undefined, broadcast_id: broadcastCursor || undefined }, limit ? Number(limit) : undefined);
   }
+  @RequirePermissions(Permission.OPS_CRONS_RUN)
   @Post('expire-stale') expireStale() { throw new ServiceUnavailableException('legacy_expiry_sweep_disabled_use_expire_due_command'); }
 }
 
@@ -295,6 +411,7 @@ export class AdminBroadcastController {
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
 export class AdminPharmacyInsuranceController {
+  @RequirePermissions(Permission.INSURANCE_MANAGE)
   @Post(':orderId/insurance-decision')
   decide() { throw new ServiceUnavailableException('admin_insurance_decision_disabled_selected_pharmacy_required'); }
 }
@@ -304,6 +421,9 @@ export class AdminPharmacyInsuranceController {
 export class PharmacyChatController {
   constructor(private chat: PharmacyChatService) {}
   @Get('threads') list(@CurrentUser() u: any, @Query('order_id') oid?: string) { return this.chat.listThreads(u, oid); }
+  // Issues 479/480: the pharmacy opens the negotiation of one line of an order it is part of (its offer or allocation).
+  @Roles(UserRole.PHARMACY)
+  @Post('threads') open(@CurrentUser() u: any, @Body() b: OpenChatThreadDto) { return this.chat.openForPharmacy(u, b.order_id, b.order_item_id); }
   @Get('threads/:id/messages') msgs(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.listMessages(u, id); }
   // Both sides of the substitute negotiation write; the service checks the caller is the thread's patient or pharmacy (needs-review issue 517).
   @Roles(UserRole.PHARMACY, UserRole.PATIENT, UserRole.ADMIN)
@@ -322,6 +442,7 @@ export class PharmacyChatController {
 @Roles(UserRole.ADMIN)
 export class AdminPharmacyChatController {
   constructor(private chat: PharmacyChatService) {}
+  @RequirePermissions(Permission.OPS_CRONS_RUN)
   @Post('sweep-auto-close') sweep() { return this.chat.sweepAutoClose(); }
 }
 
@@ -339,12 +460,17 @@ export class ProviderShortageController {
 @Roles(UserRole.ADMIN)
 export class AdminShortageController {
   constructor(private svc: PharmacyShortageService) {}
+  @RequirePermissions(Permission.CATALOG_SHORTAGE_DECIDE)
   @Post() create(@CurrentUser() u: any, @Body() b: CreateDto2) { return this.svc.createByAdmin(u, b); }
   @Get() list(@CurrentUser() u: any, @Query('status') st?: string) { return this.svc.list(u, st); }
   @Get('dashboard') getDashboard(@CurrentUser() u: any) { return this.svc.getShortageDashboard(u); }
+  @RequirePermissions(Permission.CATALOG_SHORTAGE_DECIDE)
   @Post(':id/mark') markShortage(@CurrentUser() u: any, @Param('id') medicineId: string, @Body() b: MarkShortageDto) { return this.svc.adminMarkShortage(u, medicineId, b); }
+  @RequirePermissions(Permission.CATALOG_SHORTAGE_DECIDE)
   @Post(':id/approve') approve(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.approve(u, id); }
+  @RequirePermissions(Permission.CATALOG_SHORTAGE_DECIDE)
   @Post(':id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() b: RejectDto5) { return this.svc.reject(u, id, b?.reason); }
+  @RequirePermissions(Permission.CATALOG_SHORTAGE_DECIDE)
   @Post(':id/resolve') resolve(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.resolve(u, id); }
 }
 
@@ -371,6 +497,7 @@ export class PaymentRulesController {
 
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.FINANCE_CONFIG_EDIT)
   @Put('admin/payment-rules')
   async setRules(@CurrentUser() u: any, @Body() b: PaymentRulesDto) {
     const cap = Number(b?.pharmacy_cod_max_sar);

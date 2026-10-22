@@ -20,6 +20,7 @@ import { ProcurementService } from './services/procurement.service';
 import { ProcurementController } from './controllers/procurement.controller';
 import { AdminProcurementController } from './controllers/admin-procurement.controller';
 import { PharmacyOrderService } from './services/pharmacy-order.service';
+import { PharmacyRefillService } from './services/pharmacy-refill.service';
 import { PharmacyAllocationService } from './services/pharmacy-allocation.service';
 import { SmartSplitService } from './services/smart-split.service';
 import { PharmacyInventoryExtService } from './services/pharmacy-inventory-ext.service';
@@ -110,6 +111,7 @@ import { B2BVoiceController } from './pharmacy-b2b-voice.controller';
   ],
   providers: [
     PharmacyOrderService,
+    PharmacyRefillService,
     // P5.3: merged from PharmacyOpsModule (pharmacy_ops/ → pharmacy/)
     PharmacyOpsService,
     PharmacyAllocationService,

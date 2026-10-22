@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { timedFetch } from '../../../common/external-call';
 import * as nodemailer from 'nodemailer';
 
 /**
@@ -27,11 +28,11 @@ class ResendAdapter implements MailerAdapter {
   constructor(private apiKey: string, private from: string) {}
   async send(msg: MailMessage) {
     try {
-      const res = await fetch('https://api.resend.com/emails', {
+      const res = await timedFetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { Authorization: `Bearer ${this.apiKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ from: this.from, to: [msg.to], subject: msg.subject, text: msg.text, html: msg.html, tags: msg.tag ? [{ name: 'tag', value: msg.tag }] : undefined }),
-      });
+      }, { timeoutMs: 8000, label: 'resend', timeoutCode: 'mail_gateway_timeout' }); // once: a repeat could mail twice
       const json: any = await res.json().catch(() => ({}));
       if (!res.ok) { this.logger.error(`Resend failed: ${res.status} ${JSON.stringify(json)}`); return { status: 'failed' as const, error: json?.message || res.statusText }; }
       return { status: 'sent' as const, id: json?.id };

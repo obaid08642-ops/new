@@ -20,6 +20,12 @@ describe("specialty names", () => {
     expect([...SPECIALTY_SLUGS].sort()).toEqual(slugs.sort());
   });
 
+  it("links each specialty to the doctors list by its slug, the only specialty the list reads", () => {
+    const source = readFileSync(resolve(process.cwd(), "app/[locale]/consultations/specialties/page.tsx"), "utf8");
+    expect(source).toContain("specialty.slug ? `/${locale}/consultations/doctors?specialty=${encodeURIComponent(specialty.slug)}` : undefined");
+    expect(source).not.toMatch(/specialty=\$\{encodeURIComponent\(specialty\.name/);
+  });
+
   it("labels a known slug in the page language and nothing for an unknown one", () => {
     const en = names("en");
     expect(specialtyLabel((key) => en[key], "cardiology")).toBe("Cardiology");

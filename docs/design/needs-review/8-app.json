@@ -7,7 +7,8 @@
     "file": "patient-app/src/components/care/MaternityViews.tsx",
     "line": 72,
     "found": "[backend] the board draws them but the app reads no week or article endpoint; hidden until one exists (fetal images stay on the CDN)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1514"
   },
   {
     "batch": 8,
@@ -17,7 +18,8 @@
     "file": "patient-app/src/components/care/MentalHealthViews.tsx",
     "line": 31,
     "found": "[backend] urgent-help number config missing: GET /system-config/public returns only cancellation_policy and returns_policy; button hidden, no number hard-coded (backend: backend/src/modules/admin/governance/system-config.controller.ts:52)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1389 (issue #850)"
   },
   {
     "batch": 8,
@@ -27,7 +29,8 @@
     "file": "patient-app/src/components/care/MentalHealthViews.tsx",
     "line": 31,
     "found": "[owner] the app never had breathing or meditation content in the hub (deferred for clinical review); GET/POST /mental-health/breathing and /meditation exist but only log history, so no Relax screen was invented",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "fixed #1455 (owner decision B18: no Relax screen; the routes redirect to the hub; backend endpoints removed) (issue #851)"
   },
   {
     "batch": 8,
@@ -37,7 +40,8 @@
     "file": "patient-app/app/emergency/index.tsx",
     "line": 6,
     "found": "[client] FIXED: the crisis view is gone; /emergency is the one urgent-help screen (tel button, number from GET /mental-health/urgent-help) and /emergency/sos, /sos-active and /tracking redirect to it (decision 14)",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1089 #1090 (issue #852)"
   },
   {
     "batch": 8,
@@ -47,7 +51,8 @@
     "file": "patient-app/src/components/care/NutritionViews.tsx",
     "line": 65,
     "found": "[backend] GET /nutrition/plan does not exist; tab hidden, no plan invented",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1395 (issue #853)"
   },
   {
     "batch": 8,
@@ -57,7 +62,8 @@
     "file": "patient-app/src/components/care/ProgramsView.tsx",
     "line": 64,
     "found": "[client] the congratulation is tied to session id 4 in the client (kept as it was); the server should say when a milestone is reached",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1220 (issue #854)"
   },
   {
     "batch": 8,
@@ -67,7 +73,8 @@
     "file": "patient-app/src/components/care/ProgramsView.tsx",
     "line": 93,
     "found": "[backend] shown as the server's own text, not as a date the app can format in the reader's language",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1393 (issue #855)"
   },
   {
     "batch": 8,
@@ -77,7 +84,8 @@
     "file": "patient-app/app/programs/active.tsx",
     "line": 7,
     "found": "[client] FIXED: the health hub now has a My programs row linking to /programs/active (was: no screen or notification linked to it)",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1247 #1254 (issue #856)"
   },
   {
     "batch": 8,
@@ -87,6 +95,7 @@
     "file": "patient-app/src/components/care/MentalHealthViews.tsx",
     "line": 32,
     "found": "[client] opens consultations without the mental-health specialty filter (the old redirect did the same); /mental-health/therapist-match still redirects there",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1307 (issue #857)"
   }
 ]

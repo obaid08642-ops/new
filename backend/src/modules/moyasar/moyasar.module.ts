@@ -1,4 +1,4 @@
-import { ServiceUnavailableException } from '@nestjs/common';
+import { GatewayTimeoutException, ServiceUnavailableException } from '@nestjs/common';
 import {
   Module,
   Injectable,
@@ -18,6 +18,7 @@ import {
   Query,
   Res,
   UseInterceptors,
+  Optional,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { RefundDto, CreateMoyasarPaymentDto } from './moyasar.dto';
@@ -29,7 +30,11 @@ import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as crypto from 'crypto';
 import { moyasarBase } from '../../common/moyasar-base';
+import { isMoyasarWebhookAuthenticated } from '../../common/moyasar-webhook-auth';
+import { PaymentsModule, PaymentsService } from '../payments/payments.module';
+import { timedFetch } from '../../common/external-call';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 // ── Schemas ──────────────────────────────────────────────────────────────────
 
 @Schema({ timestamps: true, collection: 'moyasar_payments' })
@@ -76,6 +81,7 @@ export class MoyasarService {
     private readonly paymentModel: Model<MoyasarPaymentDocument>,
     @InjectConnection() private readonly conn: Connection,
     private readonly events: EventEmitter2,
+    @Optional() private readonly payments?: PaymentsService,
   ) {
     this.apiKey = process.env.MOYASAR_API_KEY || process.env.MOYASAR_SECRET_KEY || process.env.MOYASAR_SECRET || '';
     if (!this.apiKey) {
@@ -184,11 +190,13 @@ export class MoyasarService {
 
     if (this.apiKey) {
       try {
-        const resp = await fetch(`${this.baseUrl}/payments`, {
+        // One attempt only: a POST without an idempotency key is never repeated. A timeout is a 504 and no local
+        // payment row is written; the hosted checkout charges nothing until the patient completes it.
+        const resp = await timedFetch(`${this.baseUrl}/payments`, {
           method: 'POST',
           headers: this.authHeaders(),
           body: JSON.stringify(requestBody),
-        });
+        }, { label: 'moyasar.createPayment', timeoutCode: 'payment_gateway_timeout' });
         moyasarResponse = await resp.json();
         if (!resp.ok) {
           throw new BadRequestException(
@@ -197,6 +205,7 @@ export class MoyasarService {
         }
       } catch (e: any) {
         this.logger.error('Moyasar createPayment error', e?.message);
+        if (e instanceof GatewayTimeoutException) throw e;
         throw new BadRequestException(e?.message || 'payment_create_failed');
       }
     } else {
@@ -241,9 +250,11 @@ export class MoyasarService {
     const isSandbox = !this.apiKey || moyasarId.startsWith('sandbox_');
     if (!isSandbox) {
       try {
-        const resp = await fetch(`${this.baseUrl}/payments/${encodeURIComponent(moyasarId)}`, {
+        // A read: safe to repeat (at most 2 more times). On a timeout the payment keeps its status and the
+        // next reconciliation pass asks again.
+        const resp = await timedFetch(`${this.baseUrl}/payments/${encodeURIComponent(moyasarId)}`, {
           headers: this.authHeaders(),
-        });
+        }, { label: 'moyasar.syncPaymentStatus', retries: 2, timeoutCode: 'payment_gateway_timeout' });
         const data: any = await resp.json();
 
         const statusMap: Record<string, string> = {
@@ -302,11 +313,13 @@ export class MoyasarService {
 
     try {
       const amountHalalas = amount ? Math.round(amount * 100) : undefined;
-      const resp = await fetch(`${this.baseUrl}/payments/${encodeURIComponent(moyasarId)}/refunds`, {
+      // Never repeated: a second POST could refund twice. On a timeout nothing is recorded locally; the payment
+      // stays `paid` until syncPaymentStatus reads `refunded` from Moyasar, so check it before asking again.
+      const resp = await timedFetch(`${this.baseUrl}/payments/${encodeURIComponent(moyasarId)}/refunds`, {
         method: 'POST',
         headers: this.authHeaders(),
         body: JSON.stringify(amountHalalas ? { amount: amountHalalas } : {}),
-      });
+      }, { label: 'moyasar.refund', timeoutCode: 'refund_gateway_timeout' });
       const data: any = await resp.json();
       if (!resp.ok) throw new BadRequestException(data?.message || 'refund_failed');
 
@@ -325,6 +338,7 @@ export class MoyasarService {
       return { ok: true, refund: data };
     } catch (e: any) {
       this.logger.error('Refund error', e?.message);
+      if (e instanceof GatewayTimeoutException) throw e;
       throw new BadRequestException(e?.message || 'refund_failed');
     }
   }
@@ -358,11 +372,24 @@ export class MoyasarService {
   }
 
   /** Process an inbound Moyasar webhook event */
-  async handleWebhook(payload: any): Promise<{ ok: boolean }> {
-    // Moyasar sends the payment object directly as the webhook body
-    const moyasarId: string | undefined = payload?.id ?? payload?.data?.id;
+  async handleWebhook(payload: any, signature?: string, rawBody?: string): Promise<{ ok: boolean }> {
+    // S-5: Moyasar documents no signature header — the body secret_token is the
+    // proof. The older HMAC path still works. Anything with neither is refused.
+    const raw = rawBody ?? JSON.stringify(payload);
+    if (!isMoyasarWebhookAuthenticated(payload, signature, raw)) {
+      throw new BadRequestException('invalid_signature');
+    }
+    // The native Moyasar body nests the payment in `data` (its top-level id is the event id); the
+    // older shape sends the payment object itself as the body.
+    const moyasarId: string | undefined = payload?.data?.id ?? payload?.id;
     if (moyasarId) {
       await this.syncPaymentStatus(moyasarId);
+    }
+    // S-5: this legacy receiver and the canonical /payments/webhook/moyasar must
+    // agree on what "paid" means, so a valid webhook settles the canonical
+    // transaction here too (amount and currency re-checked from the gateway).
+    if (this.payments) {
+      await this.payments.handleWebhook('moyasar', payload, signature, raw);
     }
     return { ok: true };
   }
@@ -475,6 +502,7 @@ export class MoyasarController {
    * E1-F3: previously any authenticated user (incl. patients) could refund
    * any payment by id. Patients must use POST /refunds/request (approval flow).
    */
+  @RequirePermissions(Permission.ORDER_REFUND)
   @Post('payments/:moyasarId/refund')
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)
@@ -485,16 +513,13 @@ export class MoyasarController {
     return this.svc.refundPayment(id, body.amount);
   }
 
-  /** Moyasar webhook receiver (public — authenticated via HMAC signature, E5-F1 fail-closed) */
+  /** Moyasar webhook receiver (public — body secret_token or HMAC signature, fail-closed) */
   @Public()
   @Post('webhook')
   @HttpCode(200)
   webhook(@Body() body: Record<string, unknown>, @Headers('x-moyasar-signature') signature: string, @Req() req: any) {
     const rawBody = req?.rawBody || JSON.stringify(body);
-    if (!this.svc.verifyWebhookSignature(rawBody, signature)) {
-      throw new BadRequestException('invalid_signature');
-    }
-    return this.svc.handleWebhook(body);
+    return this.svc.handleWebhook(body, signature, rawBody);
   }
 
   /**
@@ -529,6 +554,7 @@ export class MoyasarController {
     MongooseModule.forFeature([
       { name: MoyasarPayment.name, schema: MoyasarPaymentSchema },
     ]),
+    PaymentsModule,
   ],
   controllers: [MoyasarController],
   providers: [MoyasarService],

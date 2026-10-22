@@ -1,0 +1,54 @@
+name: capacity-review
+# 20.10: on the 1st of every month, one issue with the review checklist (docs/perf/CAPACITY_REVIEW.md), and the tests of
+# the sampler/review tools on changes. No data leaves the repository; no external service.
+on:
+  schedule:
+    - cron: '17 6 1 * *'
+  pull_request:
+    paths:
+      - 'tools/perf/capacity-review/**'
+      - 'deploy/scripts/capacity-sample.sh'
+      - 'docs/perf/CAPACITY_REVIEW.md'
+      - '.github/workflows/capacity-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+# A newer push to the same PR replaces the older run (it would be thrown away anyway); pushes to main and scheduled runs are never cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  tools:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - run: cd tools/perf/capacity-review && python3 -m unittest test_review -v
+      - run: bash -n deploy/scripts/capacity-sample.sh
+  remind:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Open the monthly issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          M=$(date -u +%Y-%m)
+          gh issue list --state open --search "Capacity and cost review $M in:title" --json number --jq length | grep -qx 0 || { echo "already open"; exit 0; }
+          cat > body.md <<EOF2
+          Monthly capacity and cost review for $M. Procedure: \`docs/perf/CAPACITY_REVIEW.md\`.
+
+          - [ ] Copy \`/var/lib/nabdah-capacity/samples.jsonl\` off the server (read-only server-ops task)
+          - [ ] \`python3 tools/perf/capacity-review/review.py samples.jsonl --month $M --out docs/perf/capacity-$M.md\` (add \`--step2-done\` once step 2 is done)
+          - [ ] If a scale-out step of \`docs/perf/SCALE_ARCHITECTURE.md\` §6 fired: write what to buy or move, its cost and the date
+          - [ ] Fill \`docs/perf/costs.json\` for $M from the invoices; explain any line over 20 %
+          - [ ] Check the free-tier limits table (KV writes, R2 size, Actions minutes, mail caps, Sentry events)
+          - [ ] Commit the note
+          EOF2
+          sed -i 's/^          //' body.md
+          gh issue create --title "Capacity and cost review $M" --body-file body.md

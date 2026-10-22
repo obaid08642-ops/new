@@ -7,7 +7,8 @@
     "file": "admin/src/pages/admin/analytics.tsx",
     "line": 1,
     "found": "[client] Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1229 (issue #917)"
   },
   {
     "batch": "admin",
@@ -17,7 +18,8 @@
     "file": "admin/src/pages/admin/community-moderation.tsx",
     "line": 1,
     "found": "[owner] Owner decision item 1 (2026-10-06) removes community user posts completely; this moderation page goes with them.",
-    "suspect": "Owner decision."
+    "suspect": "Owner decision.",
+    "review_status": "not-a-problem: owner decided 2026-10-14 (decision A, decision 1), main already complies: admin community-moderation page is gone (issue #918)"
   },
   {
     "batch": "admin",
@@ -27,7 +29,8 @@
     "file": "admin/src/pages/admin/content-growth.tsx",
     "line": 50,
     "found": "[client] Sensitive action (POST /api/admin/admin/cms/:param/publish) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "not-a-problem: Not a problem: `decideArticle` asks for a reason with `window.prompt` before publishing or unpublishing, and an empty or short reason cancels the action (admin/ (issue #919)"
   },
   {
     "batch": "admin",
@@ -37,7 +40,8 @@
     "file": "admin/src/pages/admin/content-growth.tsx",
     "line": 32,
     "found": "[backend] 1 call(s): Page requires \"cms.edit\" but GET /admin/coupons requires coupons.manage; an admin role with the page permission only gets a 403 on this call. (backend: backend/src/modules/admin/enterprise/admin-coupons.controller.ts:86)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1216 #1256 (issue #920)"
   },
   {
     "batch": "admin",
@@ -47,7 +51,8 @@
     "file": "admin/src/pages/admin/content-growth.tsx",
     "line": 34,
     "found": "[backend] 2 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/cms/:param/publish; PATCH /api/admin/admin/cms/:param/unpublish): every admin role, including a custom restricted one, can run them. (backend: backend/src/modules/admin/enterprise/admin-cms.controller.ts:88)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1215 (issue #921)"
   },
   {
     "batch": "admin",
@@ -57,7 +62,8 @@
     "file": "admin/src/pages/admin/crm.tsx",
     "line": 14,
     "found": "[backend] 1 call(s): Page requires \"crm.read\" but POST /admin/impersonation/start requires user.impersonate; an admin role with the page permission only gets a 403 on this call. (backend: backend/src/modules/admin/enterprise/admin-impersonation.controller.ts:23)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1216 #1256 (issue #922)"
   },
   {
     "batch": "admin",
@@ -67,7 +73,8 @@
     "file": "admin/src/pages/admin/impersonation.tsx",
     "line": 16,
     "found": "[backend] 1 call(s) hit backend routes with no role/permission guard (GET /support-session/context): any signed-in user passes JwtAuthGuard. (backend: backend/src/common/support-session-context.controller.ts:12)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "not-a-problem: Not a problem: `GET /support-session/context` throws 403 `impersonation_session_required` unless the token is an impersonation token with a live session (backen (issue #923)"
   },
   {
     "batch": "admin",
@@ -77,7 +84,8 @@
     "file": "admin/src/pages/admin/loyalty-config.tsx",
     "line": 22,
     "found": "[backend] 3 call(s) hit backend routes with no role/permission guard (GET /loyalty/config; GET /admin/loyalty/rewards; GET /admin/loyalty/challenges): any signed-in user passes JwtAuthGuard. (backend: backend/src/modules/loyalty/loyalty.controller.ts:16)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "not-a-problem: Not a problem: `AdminLoyaltyController` has a class-level `@Roles(UserRole.ADMIN)` (backend/src/modules/loyalty/loyalty.controller.ts:72), so `/admin/loyalty/re (issue #924)"
   },
   {
     "batch": "admin",
@@ -87,7 +95,8 @@
     "file": "admin/src/pages/admin/notification-center.tsx",
     "line": 95,
     "found": "[backend] 1 call(s): Page requires \"ops.queues.manage\" but GET /admin/analytics-suite/email-usage requires analytics.read; an admin role with the page permission only gets a 403 on  (backend: backend/src/modules/admin/enterprise/admin-analytics.controller.ts:49)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "not-a-problem: Checked: by design. (issue #925)"
   },
   {
     "batch": "admin",
@@ -97,7 +106,8 @@
     "file": "admin/src/pages/admin/notification-center.tsx",
     "line": 1,
     "found": "[client] Page exists but has no entry in NAV_SECTIONS: reachable only by URL or from another page.",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1229 (issue #926)"
   },
   {
     "batch": "admin",
@@ -107,7 +117,8 @@
     "file": "admin/src/pages/admin/search-intelligence.tsx",
     "line": 61,
     "found": "[backend] POST /search/intent is @Public (no auth at all) but the admin page uses it for a write. (backend: backend/src/modules/search-intent/search-intent.controller.ts:12)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "not-a-problem: Checked: not a problem. (issue #927)"
   },
   {
     "batch": "admin",
@@ -117,7 +128,8 @@
     "file": "admin/src/pages/admin/users-management.tsx",
     "line": 296,
     "found": "[client] Sensitive action (POST /api/admin/admin/users/:param/unban) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
-    "suspect": "Client-side: later batch."
+    "suspect": "Client-side: later batch.",
+    "review_status": "fixed #1229 (issue #928)"
   },
   {
     "batch": "admin",
@@ -127,7 +139,8 @@
     "file": "admin/src/pages/admin/users-management.tsx",
     "line": 115,
     "found": "[backend] 3 sensitive write(s) are role-only on the backend, no @RequirePermissions (POST /api/admin/admin/users/:param/ban; POST /api/admin/admin/users/:param/unban; POST /api/admin/admin/providers/:param/reactivate): every admin role, including a custom restricted one, can run them. (backend: backend/src/modules/admin/admin.controller.ts:460)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1215 (issue #929)"
   },
   {
     "batch": "admin",
@@ -137,6 +150,7 @@
     "file": "admin/src/components/ProviderFullDetail.tsx",
     "line": 19,
     "found": "[backend] 3 call(s) hit backend routes with no role/permission guard (GET /api/admin/storage/:param/signed-url; GET /api/admin/storage/:param; GET /api/admin/provider-onboarding/admin/contracts/:param): any signed-in user passes JwtAuthGuard. (backend: backend/src/modules/storage/storage.module.ts:386)",
-    "suspect": "Backend gap: reviewer session."
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "fixed #1215 (issue #930)"
   }
 ]

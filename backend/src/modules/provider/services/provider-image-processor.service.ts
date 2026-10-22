@@ -84,7 +84,9 @@ export class ProviderImageProcessorService {
   /** Retrieve current profile photo status */
   async getStatus(ownerId: string) {
     const meta = await this.metadataModel.findOne({ owner_id: ownerId });
-    if (!meta) throw new NotFoundException('No profile image metadata found');
+    // no photo has been processed yet is a normal state, not a missing resource: the profile editor asks on every open
+    // and every provider without a photo produced a 404 in monitoring
+    if (!meta) return { owner_id: ownerId, processingStatus: 'none' as const };
     return {
       owner_id: meta.owner_id,
       owner_type: meta.owner_type,

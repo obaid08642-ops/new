@@ -11,3 +11,11 @@ coverage
 test-results
 .tmp
 .DS_Store
+# The image is built with patient-web/ as the context (deploy/docker/Dockerfile.patient-web). Tests import
+# ../packages (design tokens), which is outside that context, and `next build` type-checks every .ts file, so they
+# fail the build; they are not part of the app.
+tests
+**/*.test.ts
+**/*.test.tsx
+vitest.config.ts
+vitest.acceptance.config.ts

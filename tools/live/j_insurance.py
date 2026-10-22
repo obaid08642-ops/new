@@ -13,6 +13,93 @@ def rows(r):
     return r.body if isinstance(r.body, list) else r.items()
 
 
+def poll(look, tries=12, delay=1.0):
+    """Notifications and the booking projection are written by events just after the call answers, so poll."""
+    import time
+    for _ in range(tries):
+        found = look()
+        if found:
+            return found
+        time.sleep(delay)
+    return None
+
+
+def patient_told(pat, rid):
+    """notifications.service onInsuranceDecided: the patient's note opens the insurance request."""
+    def look():
+        r = pat.get('/notifications?lang=en')
+        return [n for n in rows(r) if isinstance(n, dict) and isinstance(n.get('action'), dict) and n['action'].get('route') == f'/insurance/requests/{rid}']
+    return poll(look)
+
+
+def provider_told(provider, rid, title_en):
+    """The provider bell (GET /provider/notifications) holds a note about the request with this English title."""
+    def look():
+        r = provider.get('/provider/notifications?limit=100')
+        items = r.get('items') if isinstance(r.body, dict) else []
+        return [n for n in (items or []) if n.get('related_id') == rid and n.get('title_en') == title_en]
+    return poll(look)
+
+
+def accept_insurance(provider, company, classes=('A',)):
+    """D-30: a provider records the company AND classes it contracts (provider-app availability); an order or booking
+    on insurance reaches only providers contracted for the patient's company and class."""
+    r = provider.patch('/provider/profile/availability', {'accepted_insurance': [{'company_id': company.get('id'), 'classes': list(classes), 'active': True}]})
+    step('the provider records its insurance contract (company and class)', r.ok, r)
+
+
+def pay_request(pat, rid, label):
+    """Copay or full self-pay of an insurance request by card (payment-split -> hosted checkout -> verify)."""
+    r = pat.post(f'/payments/intent/insurance/{rid}', {'method': 'card'}, headers={'Idempotency-Key': f'payment-insurance-{rid}-{uuid.uuid4()}'})
+    txn = r.body.get('data', r.body) if isinstance(r.body, dict) else {}
+    step(f'{label}: checkout link is https', r.ok and str(txn.get('checkout_url', '')).startswith('https://'), r)
+    if not txn.get('gateway_intent_id'):
+        return False
+    fake_pay(txn['gateway_intent_id'])
+    r = pat.post(f"/payments/verify/{txn['id']}", {})
+    step(f'{label}: paid', r.ok and r.get('status') == 'paid', r)
+    return bool(r.ok and r.get('status') == 'paid')
+
+
+def engine_flow(pat, provider, kind, bid, decision, continues, label):
+    """19.11 for one booking of any service: the provider receives the request (and is notified), decides it on its own
+    system's outcome, the patient is notified, pays the copay (or the full price after a rejection), the provider is
+    notified, and the service continues. `continues()` is true once the booking shows it can go on."""
+    journey(f'insurance: {label} on insurance ({decision})')
+    r = pat.post('/insurance/requests', {'booking_kind': kind, 'booking_id': bid})
+    rid = r.get('id')
+    step(f'{label}: the insurance request is open', r.ok and rid, r)
+    if not rid:
+        return None
+    r = provider.get('/insurance/requests/provider/queue')
+    step(f'{label}: the request reaches the provider with the patient\'s insurance details', r.ok and rid in str(r.body), r)
+    step(f'{label}: the provider is notified of the new request', bool(provider_told(provider, rid, 'New insurance request to review')), rid)
+    body = {'decision': decision}
+    if decision in ('approve_full', 'approve_partial'):
+        body['approval_ref'] = f'APR-{rid[:8]}'  # D-37: the insurer's approval number from the provider's own system
+    if decision == 'approve_partial':
+        body['copay_percent'] = 20
+    if decision == 'reject':
+        body['reason'] = 'الخدمة غير مشمولة في فئة الوثيقة'
+    r = provider.post(f'/insurance/requests/{rid}/decide', body)
+    step(f'{label}: provider enters the outcome ({decision})', r.ok, r)
+    step(f'{label}: the patient is notified of the outcome', bool(patient_told(pat, rid)), rid)
+    if decision == 'approve_full':
+        r = pat.get(f'/insurance/requests/{rid}')
+        step(f'{label}: nothing is owed (APPROVED_FULL, copay 0)', r.ok and r.get('state') == 'APPROVED_FULL' and not r.get('copay_amount'), r)
+        step(f'{label}: the provider is told the insurer covers it in full', bool(provider_told(provider, rid, 'Insurance covers the service in full')), rid)
+    else:
+        if decision == 'reject':
+            r = pat.post(f'/insurance/requests/{rid}/accept-self-pay', {}, headers={'Idempotency-Key': f'insurance-self-pay-{rid}-{uuid.uuid4()}'})
+            step(f'{label}: the patient accepts to pay in full after the rejection', r.ok and r.get('state') == 'COPAY_PENDING' and r.get('copay_percent') == 100, r)
+        step(f'{label}: the patient pays', pay_request(pat, rid, label), rid)
+        paid = poll(lambda: pat.get(f'/insurance/requests/{rid}').get('state') == 'COPAY_PAID')
+        step(f'{label}: the request shows the payment settled', bool(paid), rid)
+        step(f'{label}: the provider is notified that the patient paid', bool(provider_told(provider, rid, 'The patient paid the copay')), rid)
+    step(f'{label}: the service continues', bool(poll(continues)), rid)
+    return rid
+
+
 def admin_adds_company(admin):
     journey('insurance: admin adds a company (insurance-companies.tsx)')
     code = f'ins{uuid.uuid4().hex[:5]}'
@@ -27,7 +114,14 @@ def admin_adds_company(admin):
     return code
 
 
-def add_policy(pat, code=None):
+def accept_insurance(provider, company, classes=('A',)):
+    """D-30: a provider records the company AND classes it contracts (provider-app availability); an order or booking
+    on insurance reaches only providers contracted for the patient's company and class."""
+    r = provider.patch('/provider/profile/availability', {'accepted_insurance': [{'company_id': company.get('id'), 'classes': list(classes), 'active': True}]})
+    step('the provider records its insurance contract (company and class)', r.ok, r)
+
+
+def add_policy(pat, code=None, providers=()):
     journey('insurance: patient adds a policy (add-policy.tsx)')
     r = pat.get('/insurance/companies')
     comps = rows(r)
@@ -38,7 +132,7 @@ def add_policy(pat, code=None):
         return None
     c = comps[0]
     # add-policy.tsx sends company_id: compObj.code and provider: the localized name
-    r = pat.post('/insurance/save-policy', {'provider': c.get('name_ar') or c.get('name_en') or c.get('code'), 'company_id': c.get('code'),
+    r = pat.post('/insurance/save-policy', {'provider': c.get('name_ar') or c.get('name_en') or c.get('code'), 'company_id': c.get('code'), 'class': 'A',
                                             'policy_number': f'POL-{uuid.uuid4().hex[:8].upper()}', 'expiry_date': '2027-12-31',
                                             'member_name': 'مريض تأمين', 'national_id': '1098765432', 'verified': False, 'ocr_extracted': False})
     step('save-policy with the add-policy payload', r.ok, r)
@@ -53,6 +147,8 @@ def add_policy(pat, code=None):
     step('hub shows the policy', r.ok and 'POL-' in str(r.body), r)
     r = pat.get('/insurance/coverage-check?service_type=consultation')
     step('coverage-check answers for the policy', r.ok and r.get('eligible'), r)
+    for provider in providers:
+        accept_insurance(provider, c)
     return c
 
 
@@ -110,6 +206,14 @@ def insured_consultation(pat, doctor, decision='approve_partial'):
     r = pat.get(f'/insurance/requests/{rid}')
     req = r.body if isinstance(r.body, dict) else {}
     step('patient sees the decision', r.ok and req.get('state') not in (None, 'PENDING', 'pending'), r)
+    step('the doctor is notified of the new request', bool(provider_told(doctor, rid, 'New insurance request to review')), rid)
+    step('the patient is notified of the decision', bool(patient_told(pat, rid)), rid)
+    if decision == 'approve_full':
+        step('full approval: nothing is owed', req.get('state') == 'APPROVED_FULL' and not req.get('copay_amount'), req)
+        step('the doctor is told the insurer covers it in full', bool(provider_told(doctor, rid, 'Insurance covers the service in full')), rid)
+        r = pat.get(f'/care/appointments/{aid}')
+        step('full approval: the appointment continues (CONFIRMED) without a payment', r.ok and str(r.get('status')).upper() == 'CONFIRMED', r)
+        return aid, rid
     kind = 'copay' if decision == 'approve_partial' else 'self-pay'
     if decision == 'reject':
         r = pat.post(f'/insurance/requests/{rid}/accept-self-pay', {}, headers={'Idempotency-Key': f'insurance-self-pay-{rid}-{uuid.uuid4()}'})
@@ -134,6 +238,7 @@ def insured_consultation(pat, doctor, decision='approve_partial'):
             break
         _time2.sleep(1.5)
     step(f'request shows {kind} paid', paid_state in ('COPAY_PAID', 'SELF_PAY_PAID'), paid_state)
+    step('the doctor is notified that the patient paid', bool(provider_told(doctor, rid, 'The patient paid the copay')), rid)
     r = pat.get(f'/care/appointments/{aid}')
     step('appointment confirmed once paid', r.ok and str(r.get('status')).upper() == 'CONFIRMED', r)
     return aid, rid
@@ -185,11 +290,48 @@ def insured_lab(pat, lab, other_lab, location='facility'):
                 break
             _time.sleep(1.5)
         step('request shows the copay paid', req_state == 'COPAY_PAID', req_state)
+        step('the lab is notified that the patient paid the copay', bool(provider_told(lab, rid, 'The patient paid the copay')), rid)
         step('the lab booking reaches CONFIRMED once the copay is paid', booking_state == 'CONFIRMED', booking_state)
 
 
+def insured_lab_outcome(pat, lab, outcome):
+    """19.11 for a lab booking: full approval (nothing owed) or rejection (the patient pays in full), with both notifications.
+    The lab enters the outcome the way LabDashboard does (PATCH /labs/bookings/:id/insurance)."""
+    import j_lab
+    label = f'lab {outcome}'
+    journey(f'insurance: {label} (lab decides -> notifications -> service continues)')
+    lab_id = lab.get('/provider/me').get('account', 'id')
+    bid, picks = j_lab.patient_books(pat, lab_id, 'facility', 'insurance', offset=8 if outcome == 'approved' else 10, hour=14 if outcome == 'approved' else 15)
+    if not bid:
+        return
+    if outcome == 'approved':
+        items = [{'service_id': p['id'], 'isCovered': True, 'cashPrice': p.get('price')} for p in picks]
+        r = lab.patch(f'/labs/bookings/{bid}/insurance', {'status': 'approved', 'totalCopay': 0, 'items': items, 'approval_ref': f'APR-{bid[:8]}'})
+    else:
+        items = [{'service_id': p['id'], 'isCovered': False, 'rejectReason': 'غير مشمول', 'cashPrice': p.get('price')} for p in picks]
+        r = lab.patch(f'/labs/bookings/{bid}/insurance', {'status': 'rejected', 'reason': 'الخدمة غير مشمولة في فئة الوثيقة', 'items': items})
+    step(f'{label}: the lab records the outcome', r.ok, r)
+    rid = r.get('insurance_request_id')
+    step(f'{label}: the booking links to the insurance request engine', bool(rid), r)
+    if not rid:
+        return
+    step(f'{label}: the lab was notified of the request', bool(provider_told(lab, rid, 'New insurance request to review')), rid)
+    step(f'{label}: the patient is notified of the outcome', bool(patient_told(pat, rid)), rid)
+    state = pat.get(f'/insurance/requests/{rid}').get('state')
+    step(f'{label}: the request state is {"APPROVED_FULL" if outcome == "approved" else "REJECTED"}', state == ('APPROVED_FULL' if outcome == 'approved' else 'REJECTED'), state)
+    if outcome == 'approved':
+        step(f'{label}: the lab is told the insurer covers it in full', bool(provider_told(lab, rid, 'Insurance covers the service in full')), rid)
+    else:
+        r = pat.post(f'/insurance/requests/{rid}/accept-self-pay', {}, headers={'Idempotency-Key': f'insurance-self-pay-{rid}-{uuid.uuid4()}'})
+        step(f'{label}: the patient accepts to pay in full', r.ok and r.get('state') == 'COPAY_PENDING' and r.get('copay_percent') == 100, r)
+        step(f'{label}: the patient pays', pay_request(pat, rid, label), rid)
+        step(f'{label}: the request shows the payment settled', bool(poll(lambda: pat.get(f'/insurance/requests/{rid}').get('state') == 'COPAY_PAID')), rid)
+        step(f'{label}: the lab is notified that the patient paid', bool(provider_told(lab, rid, 'The patient paid the copay')), rid)
+    step(f'{label}: the booking reaches CONFIRMED', bool(poll(lambda: str(pat.get(f'/labs/bookings/{bid}').get('state')).upper() == 'CONFIRMED')), bid)
+
+
 def run(pat, doctor, admin, labs=None):
-    add_policy(pat, admin_adds_company(admin))
+    add_policy(pat, admin_adds_company(admin), providers=[doctor, *(labs[:1] if labs else [])])
     for path in PATIENT_GETS:
         r = pat.get(path)
         step(f'GET {path}', r.ok, r)
@@ -198,8 +340,11 @@ def run(pat, doctor, admin, labs=None):
     if reject_out and reject_out[0]:
         claims(pat, 'consultation', reject_out[0])
     insured_consultation(pat, doctor, 'approve_partial')
+    insured_consultation(pat, doctor, 'approve_full')
     if labs:
         insured_lab(pat, labs[0], labs[1])
+        insured_lab_outcome(pat, labs[0], 'approved')
+        insured_lab_outcome(pat, labs[0], 'rejected')
     journey('insurance: admin view')
     r = admin.get('/admin/admin/insurance/requests?limit=25')
     step('admin insurance requests console loads', r.ok, r)

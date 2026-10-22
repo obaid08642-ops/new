@@ -14,6 +14,9 @@ import { ConsultState } from "@/components-next/consult/consult-state";
 import { LocalTimeLine } from "@/components-next/consult/local-time-line";
 import { Facts, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
 import { MemberPermissions } from "@/components-next/family/member-permissions";
+import { FormSheet } from "@/components-next/health/form-sheet";
+import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { ReminderForm } from "@/components-next/health/reminder-form";
 import { HealthTabs, PartUnavailable } from "@/components-next/health/health-kit";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { Avatar } from "@/components-next/ui-generated/components/Surfaces";
@@ -22,7 +25,7 @@ import rx from "@/components-next/pharmacy/rx.module.css";
 import health from "@/components-next/health/health.module.css";
 import styles from "@/components-next/family/family.module.css";
 
-type Props = { params: Promise<{ locale: string; memberRef: string }>; searchParams: Promise<{ tab?: string | string[] }> };
+type Props = { params: Promise<{ locale: string; memberRef: string }>; searchParams: Promise<{ tab?: string | string[]; add?: string | string[]; edit?: string | string[] }> };
 const TABS = ["records", "permissions"] as const;
 
 /**
@@ -75,7 +78,7 @@ export default async function FamilyMemberPage({ params, searchParams }: Props) 
 
   const recordsResponse = await getPatientFamilyMemberRecords(token, member.id);
   if (recordsResponse.status === 401) redirect(`/${locale}/login`);
-  if (recordsResponse.status === 403 || recordsResponse.status === 404) notFound();
+  if (recordsResponse.status === 403) return frame(<ConsultState kind="empty" icon="file-text" title={t("notSharedTitle")} body={t("notShared")} />);
   if (!recordsResponse.ok) return frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
 
   const records = parseMemberRecords(await recordsResponse.json().catch(() => null));
@@ -88,6 +91,8 @@ export default async function FamilyMemberPage({ params, searchParams }: Props) 
     ...(records.bloodType ? [{ label: t("bloodType"), value: <bdi>{records.bloodType}</bdi> }] : []),
   ];
   const meds = SERVICE_ICONS.pharmacy;
+  const editId = Array.isArray(query.edit) ? query.edit[0] : query.edit;
+  const editing = editId ? records.medicines.find((m) => m.id === editId && m.reminder) : undefined;
   const consult = SERVICE_ICONS.consult;
 
   return frame(
@@ -99,6 +104,7 @@ export default async function FamilyMemberPage({ params, searchParams }: Props) 
           <ul className={health.rows}>
             {records.medicines.map((item) => {
               const title = (arabicFirst ? item.nameAr ?? item.nameEn : item.nameEn ?? item.nameAr) ?? item.doctor ?? t("prescriptionFallback");
+              const lastMissed = item.reminder?.doses.find((d) => d.status === "missed");
               return (
                 <li key={item.id}>
                   <div className={health.row}>
@@ -106,13 +112,27 @@ export default async function FamilyMemberPage({ params, searchParams }: Props) 
                     <span className={health.rowBody}>
                       <span className={health.rowTitle}>{title}</span>
                       {item.dose ? <span className={health.rowSub}><bdi>{item.dose}</bdi></span> : null}
+                      {/* journeys 68: the doses of the last seven days, and the last missed one */}
+                      {item.reminder ? <span className={health.rowSub}>{t("medsWeek", { taken: item.reminder.taken7, missed: item.reminder.missed7 })}</span> : null}
+                      {lastMissed ? <span className={health.rowSub} role="note">{t("medsLastMissed")} <LocalTimeLine iso={lastMissed.at} locale={locale} /></span> : null}
                     </span>
+                    {item.reminder ? <ButtonLink href={`${base}/${memberRef}?edit=${encodeURIComponent(item.id)}`} label={t("medsEditReminder")} variant="ghost" size="sm" /> : null}
                   </div>
                 </li>
               );
             })}
           </ul>
         ) : <p className={rx.note}>{t("medsEmpty")}</p>}
+        {records.canSeeMeds ? (
+          <FormSheet title={t("medsAddReminder")} triggerLabel={t("medsAddReminder")} closeLabel={t("close")} defaultOpen={query.add === "1" && !editing} closeHref={`${base}/${memberRef}`}>
+            <ReminderForm forMember={{ id: member.id, name }} />
+          </FormSheet>
+        ) : null}
+        {editing?.reminder ? (
+          <FormSheet title={t("medsEditReminder")} triggerLabel={t("medsEditReminder")} closeLabel={t("close")} defaultOpen closeHref={`${base}/${memberRef}`} hideTrigger>
+            <ReminderForm forMember={{ id: member.id, name }} initial={{ id: editing.id, name: editing.nameAr ?? editing.nameEn ?? "", dose: editing.dose ?? "", times: editing.reminder.times.join(", "), frequency: editing.reminder.frequency ?? "daily", chronic: editing.reminder.chronic }} />
+          </FormSheet>
+        ) : null}
       </SectionCard>
 
       <SectionCard id="member-appts" title={t("apptsTitle")}>

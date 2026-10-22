@@ -1,4 +1,5 @@
 import { Injectable, Optional, NotFoundException, ForbiddenException, UnauthorizedException, BadRequestException, Inject } from '@nestjs/common';
+import { describeClient, maskIp } from '../../common/request-meta';
 import { MEDIA_RELEASE, mediaRefId } from '../media/media-cleanup.service';
 import { escapeRegex } from '../../common/slug.util';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -15,6 +16,8 @@ import { RedisService } from '../redis/redis.service';
 import { randomUUID } from 'crypto';
 import { ProductRankingEventService } from '../product-ranking/product-ranking-event.service';
 import { AuthService } from '../auth/auth.service';
+import { publicMedicineFilter } from '../medicines/public-medicine-filter';
+import { enforcePasswordPolicy } from '../../common/password-security.service';
 
 @Injectable()
 export class UsersService {
@@ -50,6 +53,8 @@ export class UsersService {
         price: Number(med?.price ?? item.price ?? 0),
         image: med?.image || item.image,
         requires_prescription: med?.requires_prescription ?? item.requires_prescription ?? false,
+        // Decision 11: the row says "online only" (and the cart line added from it keeps it).
+        online_exclusive: (med ? med.online_exclusive : item.online_exclusive) === true,
         // #464: "available" means the item is still in the public catalogue (approved, published, not withdrawn
         // or discontinued); a row that only remains in the collection is not available to order.
         available: !!med && med.is_deleted !== true && med.public_eligibility === true && med.medical_review_status === 'approved'
@@ -67,7 +72,8 @@ export class UsersService {
     } else {
       // Snapshot the medicine so the wishlist is useful even if it is later delisted.
       let medicine: any = null;
-      try { medicine = await this.conn.collection('medicines').findOne({ id: itemId } as any); } catch { /* keep bare id */ }
+      // The snapshot is taken from the public catalogue only: an item in medical review is never disclosed.
+      try { medicine = await this.conn.collection('medicines').findOne({ ...publicMedicineFilter(), id: itemId } as any); } catch { /* keep bare id */ }
       if (!profile.wishlist) profile.wishlist = [];
       profile.wishlist.push({
         id: itemId,
@@ -76,6 +82,7 @@ export class UsersService {
         price: Number(medicine?.price ?? 0),
         image: medicine?.image,
         requires_prescription: medicine?.requires_prescription ?? false,
+        online_exclusive: medicine?.online_exclusive === true,
         added_at: new Date(),
       });
       if (this.rankingEvents) {
@@ -192,6 +199,15 @@ export class UsersService {
     'addresses', 'preferred_lang', 'avatar_url', 'national_id', 'marital_status',
     'occupation', 'smoking_status', 'notes',
   ]);
+
+  /**
+   * D-30: the saved insurance policy. It is written only here, from POST /users/me/insurance (which forces `verified: false`
+   * and requires a class); it is NOT in the public-profile whitelist, so PATCH /users/me/profile can never set `verified`,
+   * a class or a company.
+   */
+  async setPatientInsurance(user_id: string, insurance: Record<string, unknown>) {
+    return this.patientRepository.updateOne({ user_id }, { $set: { insurance } }, { upsert: true, new: true, projection: { _id: 0, __v: 0 } });
+  }
 
   async updatePatientProfile(user_id: string, data: Partial<PatientProfile> & { chronic_conditions?: string[] }) {
     const mapped: any = {};
@@ -320,9 +336,11 @@ export class UsersService {
       used: fmt(usedBytes),
       total: `${LIMIT_GB} GB`,
       limit: LIMIT_GB,
+      // issue 1585: stable keys; the clients translate them. `label` stays only for app builds already installed
+      // that read it (current web and app use `key`); remove it once those builds are retired.
       items: [
-        { label: 'الوصفات المرفوعة', val: fmt(prescBytes), pct: pct(prescBytes), color: '#23B5CE' },
-        { label: 'التقارير الطبية', val: fmt(reportBytes), pct: pct(reportBytes), color: '#7A6BEA' },
+        { key: 'uploaded_prescriptions', label: 'الوصفات المرفوعة', val: fmt(prescBytes), pct: pct(prescBytes), color: '#23B5CE' },
+        { key: 'medical_reports', label: 'التقارير الطبية', val: fmt(reportBytes), pct: pct(reportBytes), color: '#7A6BEA' },
       ],
     };
   }
@@ -352,7 +370,7 @@ export class UsersService {
   async changePassword(id: string, body: any, deviceId?: string) {
     const current = String(body?.current_password || '');
     const next = String(body?.new_password || '');
-    if (next.length < 8) throw new BadRequestException('كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل');
+    await enforcePasswordPolicy(next);
     const u: any = await this.userRepository.findOne({ id });
     if (!u) throw new NotFoundException();
     if (u.password_hash) {
@@ -362,6 +380,7 @@ export class UsersService {
     const hash = await bcrypt.hash(next, 12);
     // F09: bump token_version in the same write as the new hash.
     await this.userRepository.updateOne({ id }, { $set: { password_hash: hash }, $inc: { token_version: 1 } });
+    this.events?.emit('auth.password_changed', { user_id: id, role: u.role, how: 'change' });
     if (!this.auth) return { success: true };
     const tokens = await this.auth.rotateSessionsAfterPasswordChange(id, deviceId);
     return { success: true, access_token: tokens.accessToken, refresh_token: tokens.refreshToken };
@@ -381,9 +400,17 @@ export class UsersService {
         const raw = await client.get(`refresh:${jti}`);
         if (!raw) continue; // expired or revoked
         let device: string | null = null;
-        try { device = JSON.parse(raw)?.d ?? null; } catch { /* keep null */ }
+        let rec: any = {};
+        try { rec = JSON.parse(raw) ?? {}; device = rec.d ?? null; } catch { /* keep null */ }
         const ttl = await client.ttl(`refresh:${jti}`);
-        sessions.push({ id: jti, device, expires_in_seconds: ttl, is_current: !!currentDev && !!device && String(device).slice(0, 32) === String(currentDev).slice(0, 32) });
+        const who = describeClient(rec.ua);
+        sessions.push({
+          id: jti, device, expires_in_seconds: ttl,
+          is_current: !!currentDev && !!device && String(device).slice(0, 32) === String(currentDev).slice(0, 32),
+          // 21.7: what a person recognises their device by (never the raw user agent or the full address)
+          session_id: rec.s ?? jti, label: who.label, platform: who.platform, ip: maskIp(rec.ip),
+          created_at: rec.c ? new Date(rec.c).toISOString() : null, last_seen_at: rec.l ? new Date(rec.l).toISOString() : null,
+        });
       }
       return sessions;
     } catch {
@@ -397,6 +424,11 @@ export class UsersService {
     if (!client) throw new BadRequestException('sessions unavailable');
     const isMember = await client.sismember(`refresh_user:${id}`, jti);
     if (!isMember) throw new NotFoundException('session not found');
+    // 21.7: through the one place sessions end, so the access token stops at once and the device's push tokens go
+    if (this.auth) {
+      await this.auth.revokeSessionByJti(id, jti);
+      return { ok: true };
+    }
     await client.del(`refresh:${jti}`);
     await client.srem(`refresh_user:${id}`, jti);
     return { ok: true };

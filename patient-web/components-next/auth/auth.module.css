@@ -116,7 +116,7 @@
 .guest { color: var(--nabd-color-text-primary); font-weight: 500; }
 @media (min-width: 1024px) { .foot { justify-content: space-between; } }
 .legal { margin: 0; font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); text-align: center; }
-.legal a { color: var(--nabd-color-action-primary-bg); }
+.legal a { color: var(--nabd-color-action-primary-bg); text-decoration: underline; text-underline-offset: 3px; }
 @media (min-width: 1024px) { .legal { text-align: start; } }
 .consent { display: flex; align-items: center; gap: 10px; font-size: var(--nabd-font-size-small); min-block-size: 44px; }
 .consent a { color: var(--nabd-color-action-primary-bg); }

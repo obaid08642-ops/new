@@ -9,6 +9,7 @@ import { UserRole } from '../../common/enums';
 import { LegalEnterpriseService } from './legal-enterprise.service';
 import { SetMatrixDto, SetConsentDto } from './legal-enterprise.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @Controller()
 export class LegalEnterpriseController {
   constructor(
@@ -101,6 +102,7 @@ export class LegalEnterpriseController {
 
   // ── License monitoring (manual trigger for admin) ──────────────────────
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.OPS_CRONS_RUN)
   @Post('admin/providers/license-monitor/run')
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)
@@ -112,7 +114,7 @@ export class LegalEnterpriseController {
   @UseGuards(JwtAuthGuard)
   getMatrix(@CurrentUser() user: any) { return this.svc.getProviderInsurance(user.id); }
 
-  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.AMBULANCE, UserRole.DELIVERY, UserRole.ADMIN)
+  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL, UserRole.DELIVERY, UserRole.ADMIN)
   @Put('provider/insurance-matrix')
   @UseGuards(JwtAuthGuard)
   setMatrix(@CurrentUser() user: any, @Body() body: SetMatrixDto) {

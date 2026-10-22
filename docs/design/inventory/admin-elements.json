@@ -137,7 +137,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/appointments-oversight.tsx",
-    "line": 20
+    "line": 23
    },
    {
     "kind": "button",
@@ -147,7 +147,72 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/appointments-oversight.tsx",
-    "line": 26
+    "line": 29
+   },
+   {
+    "kind": "link",
+    "label": "العودة لمركز القيادة",
+    "src": "link /admin/command-center",
+    "status": "ok",
+    "link": "/admin/command-center",
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 275,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "فتح القائمة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 284,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 296,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "إغلاق القائمة",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 315,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "ميلادي هجري",
+    "src": "navigation; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 341,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "تسجيل الخروج",
+    "src": "logout; POST /auth/logout; navigation",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 352,
+    "via": "AdminGuard"
    }
   ],
   "/admin/approvals": [
@@ -159,7 +224,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/approvals.tsx",
-    "line": 74
+    "line": 82
    },
    {
     "kind": "button",
@@ -169,7 +234,72 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/approvals.tsx",
-    "line": 88
+    "line": 96
+   },
+   {
+    "kind": "link",
+    "label": "العودة لمركز القيادة",
+    "src": "link /admin/command-center",
+    "status": "ok",
+    "link": "/admin/command-center",
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 275,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "فتح القائمة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 284,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 296,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "إغلاق القائمة",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 315,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "ميلادي هجري",
+    "src": "navigation; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 341,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "تسجيل الخروج",
+    "src": "logout; POST /auth/logout; navigation",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 352,
+    "via": "AdminGuard"
    }
   ],
   "/admin/article-review": [
@@ -460,7 +590,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 228
+    "line": 230
    },
    {
     "kind": "button",
@@ -470,7 +600,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 236
+    "line": 238
    },
    {
     "kind": "input",
@@ -478,7 +608,7 @@
     "src": "state search used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 243
+    "line": 245
    },
    {
     "kind": "input",
@@ -486,7 +616,7 @@
     "src": "state specNameAr used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 256
+    "line": 258
    },
    {
     "kind": "input",
@@ -494,7 +624,7 @@
     "src": "state specNameEn used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 257
+    "line": 259
    },
    {
     "kind": "button",
@@ -504,7 +634,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 258
+    "line": 260
    },
    {
     "kind": "button",
@@ -514,7 +644,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 264
+    "line": 266
    },
    {
     "kind": "button",
@@ -524,7 +654,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 276
+    "line": 278
    },
    {
     "kind": "button",
@@ -534,7 +664,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 277
+    "line": 279
    },
    {
     "kind": "button",
@@ -544,7 +674,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 278
+    "line": 280
    },
    {
     "kind": "input",
@@ -552,7 +682,7 @@
     "src": "state selected used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 285
+    "line": 287
    },
    {
     "kind": "button",
@@ -562,7 +692,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 294
+    "line": 296
    },
    {
     "kind": "button",
@@ -572,7 +702,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 295
+    "line": 297
    },
    {
     "kind": "button",
@@ -582,7 +712,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 296
+    "line": 298
    },
    {
     "kind": "button",
@@ -592,7 +722,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 297
+    "line": 299
    },
    {
     "kind": "action",
@@ -602,7 +732,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 306
+    "line": 308
    },
    {
     "kind": "action",
@@ -612,7 +742,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 308
+    "line": 310
    },
    {
     "kind": "input",
@@ -620,7 +750,7 @@
     "src": "state editing used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 314
+    "line": 316
    },
    {
     "kind": "input",
@@ -628,7 +758,7 @@
     "src": "state editing used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 323
+    "line": 325
    },
    {
     "kind": "input",
@@ -636,7 +766,7 @@
     "src": "state editing used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 326
+    "line": 328
    },
    {
     "kind": "input",
@@ -644,7 +774,7 @@
     "src": "state editing used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 328
+    "line": 330
    },
    {
     "kind": "button",
@@ -654,7 +784,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 336
+    "line": 338
    },
    {
     "kind": "button",
@@ -664,7 +794,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 337
+    "line": 339
    },
    {
     "kind": "button",
@@ -674,7 +804,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 418
+    "line": 420
    },
    {
     "kind": "button",
@@ -684,7 +814,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 419
+    "line": 421
    },
    {
     "kind": "link",
@@ -693,7 +823,7 @@
     "status": "ok",
     "link": "/admin/insurance-companies",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 420
+    "line": 422
    },
    {
     "kind": "button",
@@ -703,7 +833,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 430
+    "line": 432
    },
    {
     "kind": "button",
@@ -713,7 +843,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 431
+    "line": 433
    },
    {
     "kind": "button",
@@ -723,7 +853,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 432
+    "line": 434
    },
    {
     "kind": "button",
@@ -733,7 +863,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 437
+    "line": 439
    },
    {
     "kind": "action",
@@ -743,7 +873,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 445
+    "line": 447
    },
    {
     "kind": "action",
@@ -753,7 +883,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 446
+    "line": 448
    },
    {
     "kind": "input",
@@ -761,7 +891,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 448
+    "line": 450
    },
    {
     "kind": "input",
@@ -769,7 +899,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 449
+    "line": 451
    },
    {
     "kind": "input",
@@ -777,7 +907,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 450
+    "line": 452
    },
    {
     "kind": "button",
@@ -787,7 +917,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 452
+    "line": 454
    },
    {
     "kind": "button",
@@ -797,7 +927,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 453
+    "line": 455
    },
    {
     "kind": "action",
@@ -807,7 +937,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 459
+    "line": 461
    },
    {
     "kind": "action",
@@ -817,7 +947,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 460
+    "line": 462
    },
    {
     "kind": "input",
@@ -825,7 +955,7 @@
     "src": "state netForm used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 462
+    "line": 464
    },
    {
     "kind": "input",
@@ -833,7 +963,7 @@
     "src": "state netForm used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 466
+    "line": 468
    },
    {
     "kind": "input",
@@ -841,7 +971,7 @@
     "src": "state netForm used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 467
+    "line": 469
    },
    {
     "kind": "button",
@@ -851,7 +981,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 469
+    "line": 471
    },
    {
     "kind": "button",
@@ -861,7 +991,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/catalog-manager.tsx",
-    "line": 470
+    "line": 472
    },
    {
     "kind": "link",
@@ -870,7 +1000,7 @@
     "status": "ok",
     "link": "/admin/command-center",
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 267,
+    "line": 275,
     "via": "AdminGuard"
    },
    {
@@ -881,7 +1011,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 276,
+    "line": 284,
     "via": "AdminGuard"
    },
    {
@@ -892,7 +1022,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 288,
+    "line": 296,
     "via": "AdminGuard"
    },
    {
@@ -903,7 +1033,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 307,
+    "line": 315,
     "via": "AdminGuard"
    },
    {
@@ -914,7 +1044,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 333,
+    "line": 341,
     "via": "AdminGuard"
    },
    {
@@ -925,7 +1055,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 344,
+    "line": 352,
     "via": "AdminGuard"
    }
   ],
@@ -938,7 +1068,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/command-center.tsx",
-    "line": 34
+    "line": 37
    },
    {
     "kind": "link",
@@ -947,7 +1077,7 @@
     "status": "ok",
     "link": "/admin/orders",
     "file": "admin/src/pages/admin/command-center.tsx",
-    "line": 56
+    "line": 59
    },
    {
     "kind": "link",
@@ -956,7 +1086,7 @@
     "status": "ok",
     "link": "/admin/finance-suite",
     "file": "admin/src/pages/admin/command-center.tsx",
-    "line": 56
+    "line": 59
    },
    {
     "kind": "link",
@@ -965,7 +1095,7 @@
     "status": "ok",
     "link": "/admin/orders",
     "file": "admin/src/pages/admin/command-center.tsx",
-    "line": 56
+    "line": 59
    },
    {
     "kind": "link",
@@ -974,7 +1104,7 @@
     "status": "ok",
     "link": "/admin/finance-suite",
     "file": "admin/src/pages/admin/command-center.tsx",
-    "line": 56
+    "line": 59
    },
    {
     "kind": "link",
@@ -983,7 +1113,7 @@
     "status": "ok",
     "link": "/admin/system-ops",
     "file": "admin/src/pages/admin/command-center.tsx",
-    "line": 56
+    "line": 59
    },
    {
     "kind": "link",
@@ -992,7 +1122,7 @@
     "status": "ok",
     "link": "/admin/disputes",
     "file": "admin/src/pages/admin/command-center.tsx",
-    "line": 56
+    "line": 59
    },
    {
     "kind": "action",
@@ -1004,13 +1134,78 @@
     "file": "admin/src/components/DataTable.tsx",
     "line": 66,
     "via": "DataTable"
+   },
+   {
+    "kind": "link",
+    "label": "العودة لمركز القيادة",
+    "src": "link /admin/command-center",
+    "status": "ok",
+    "link": "/admin/command-center",
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 275,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "فتح القائمة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 284,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 296,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "إغلاق القائمة",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 315,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "ميلادي هجري",
+    "src": "navigation; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 341,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "تسجيل الخروج",
+    "src": "logout; POST /auth/logout; navigation",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 352,
+    "via": "AdminGuard"
    }
   ],
   "/admin/commissions": [
    {
     "kind": "button",
     "label": "تحديث",
-    "src": "load; GET /api/admin/admin/finance/ledger/summary; GET /api/admin/admin/finance/commissions",
+    "src": "load; GET /api/admin/admin/finance/ledger/summary; GET /api/admin/admin/finance/commissions/records",
     "status": "ok",
     "mutation": false,
     "confirm": false,
@@ -1754,7 +1949,7 @@
     "status": "ok",
     "link": "/admin/command-center",
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 267,
+    "line": 275,
     "via": "AdminGuard"
    },
    {
@@ -1765,7 +1960,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 276,
+    "line": 284,
     "via": "AdminGuard"
    },
    {
@@ -1776,7 +1971,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 288,
+    "line": 296,
     "via": "AdminGuard"
    },
    {
@@ -1787,7 +1982,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 307,
+    "line": 315,
     "via": "AdminGuard"
    },
    {
@@ -1798,7 +1993,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 333,
+    "line": 341,
     "via": "AdminGuard"
    },
    {
@@ -1809,7 +2004,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 344,
+    "line": 352,
     "via": "AdminGuard"
    }
   ],
@@ -1879,7 +2074,7 @@
     "status": "ok",
     "link": "/admin/command-center",
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 267,
+    "line": 275,
     "via": "AdminGuard"
    },
    {
@@ -1890,7 +2085,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 276,
+    "line": 284,
     "via": "AdminGuard"
    },
    {
@@ -1901,7 +2096,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 288,
+    "line": 296,
     "via": "AdminGuard"
    },
    {
@@ -1912,7 +2107,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 307,
+    "line": 315,
     "via": "AdminGuard"
    },
    {
@@ -1923,7 +2118,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 333,
+    "line": 341,
     "via": "AdminGuard"
    },
    {
@@ -1934,7 +2129,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 344,
+    "line": 352,
     "via": "AdminGuard"
    }
   ],
@@ -2142,7 +2337,7 @@
     "src": "state from used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 32
+    "line": 40
    },
    {
     "kind": "input",
@@ -2150,7 +2345,7 @@
     "src": "state to used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 32
+    "line": 40
    },
    {
     "kind": "input",
@@ -2158,7 +2353,7 @@
     "src": "state granularity used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 32
+    "line": 40
    },
    {
     "kind": "button",
@@ -2168,33 +2363,33 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 32
+    "line": 40
    },
    {
     "kind": "form",
-    "label": "نسب العمولات (JSON) نسبة VAT سبب التغيير حفظ وتدقيق الإعدادا",
+    "label": "نسبة العمولة المطبقة على كل خدمة (%) نسبة VAT على العمولة (%",
     "src": "saveConfig; POST /api/admin/admin/finance/commissions/config; GET /api/admin/admin/finance/revenue; GET /api/admin/admin/finance/commissions",
     "status": "ok",
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 59
-   },
-   {
-    "kind": "input",
-    "label": "textarea",
-    "src": "state ratesText used by logic/request",
-    "status": "ok",
-    "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 59
+    "line": 67
    },
    {
     "kind": "input",
     "label": "number",
-    "src": "state vatRate used by logic/request",
+    "src": "state percents used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 59
+    "line": 67
+   },
+   {
+    "kind": "input",
+    "label": "number",
+    "src": "state vatPercent used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/finance-suite.tsx",
+    "line": 67
    },
    {
     "kind": "input",
@@ -2202,7 +2397,7 @@
     "src": "state reason used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 59
+    "line": 67
    },
    {
     "kind": "button",
@@ -2210,7 +2405,7 @@
     "src": "submits the enclosing form",
     "status": "ok",
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 59,
+    "line": 67,
     "submit": true
    },
    {
@@ -2221,7 +2416,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 73
+    "line": 81
    },
    {
     "kind": "button",
@@ -2231,7 +2426,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 73
+    "line": 81
    },
    {
     "kind": "form",
@@ -2241,7 +2436,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 77
+    "line": 85
    },
    {
     "kind": "input",
@@ -2249,7 +2444,7 @@
     "src": "state providerId used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 77
+    "line": 85
    },
    {
     "kind": "button",
@@ -2257,7 +2452,7 @@
     "src": "submits the enclosing form",
     "status": "ok",
     "file": "admin/src/pages/admin/finance-suite.tsx",
-    "line": 77,
+    "line": 85,
     "submit": true
    },
    {
@@ -2270,6 +2465,71 @@
     "file": "admin/src/components/DataTable.tsx",
     "line": 66,
     "via": "DataTable"
+   },
+   {
+    "kind": "link",
+    "label": "العودة لمركز القيادة",
+    "src": "link /admin/command-center",
+    "status": "ok",
+    "link": "/admin/command-center",
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 275,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "فتح القائمة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 284,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 296,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "إغلاق القائمة",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 315,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "ميلادي هجري",
+    "src": "navigation; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 341,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "تسجيل الخروج",
+    "src": "logout; POST /auth/logout; navigation",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 352,
+    "via": "AdminGuard"
    }
   ],
   "/admin/financial-ledger": [
@@ -2281,7 +2541,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/financial-ledger.tsx",
-    "line": 169
+    "line": 172
    },
    {
     "kind": "button",
@@ -2291,7 +2551,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/financial-ledger.tsx",
-    "line": 172
+    "line": 175
    },
    {
     "kind": "button",
@@ -2301,7 +2561,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/financial-ledger.tsx",
-    "line": 245
+    "line": 248
    },
    {
     "kind": "button",
@@ -2311,7 +2571,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/financial-ledger.tsx",
-    "line": 281
+    "line": 284
    },
    {
     "kind": "input",
@@ -2320,7 +2580,7 @@
     "status": "ok",
     "untraced": true,
     "file": "admin/src/pages/admin/financial-ledger.tsx",
-    "line": 297
+    "line": 300
    },
    {
     "kind": "action",
@@ -2332,6 +2592,71 @@
     "file": "admin/src/components/DataTable.tsx",
     "line": 66,
     "via": "DataTable"
+   },
+   {
+    "kind": "link",
+    "label": "العودة لمركز القيادة",
+    "src": "link /admin/command-center",
+    "status": "ok",
+    "link": "/admin/command-center",
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 275,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "فتح القائمة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 284,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 296,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "إغلاق القائمة",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 315,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "ميلادي هجري",
+    "src": "navigation; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 341,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "تسجيل الخروج",
+    "src": "logout; POST /auth/logout; navigation",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 352,
+    "via": "AdminGuard"
    }
   ],
   "/admin/fraud-monitoring": [
@@ -2675,7 +3000,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/image-suggestions.tsx",
-    "line": 68
+    "line": 71
    },
    {
     "kind": "button",
@@ -2685,7 +3010,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/image-suggestions.tsx",
-    "line": 108
+    "line": 111
    },
    {
     "kind": "button",
@@ -2695,7 +3020,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/image-suggestions.tsx",
-    "line": 112
+    "line": 115
    },
    {
     "kind": "button",
@@ -2705,7 +3030,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/image-suggestions.tsx",
-    "line": 125
+    "line": 128
    },
    {
     "kind": "button",
@@ -2715,7 +3040,29 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/image-suggestions.tsx",
-    "line": 127
+    "line": 130
+   },
+   {
+    "kind": "button",
+    "label": "قبول",
+    "src": "POST /api/admin/admin/providers/:param/documents/:param/:param; prompt()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/components/ProviderFullDetail.tsx",
+    "line": 525,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "button",
+    "label": "رفض",
+    "src": "POST /api/admin/admin/providers/:param/documents/:param/:param; prompt()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/components/ProviderFullDetail.tsx",
+    "line": 527,
+    "via": "ProviderFullDetail"
    },
    {
     "kind": "button",
@@ -2725,7 +3072,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/ProviderFullDetail.tsx",
-    "line": 525,
+    "line": 561,
     "via": "ProviderFullDetail"
    },
    {
@@ -2734,8 +3081,73 @@
     "src": "onChange sends POST /api/admin/provider-onboarding/admin/contracts/:param/visibility",
     "status": "ok",
     "file": "admin/src/components/ProviderFullDetail.tsx",
-    "line": 535,
+    "line": 571,
     "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "link",
+    "label": "العودة لمركز القيادة",
+    "src": "link /admin/command-center",
+    "status": "ok",
+    "link": "/admin/command-center",
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 275,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "فتح القائمة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 284,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 296,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "إغلاق القائمة",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 315,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "ميلادي هجري",
+    "src": "navigation; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 341,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "تسجيل الخروج",
+    "src": "logout; POST /auth/logout; navigation",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 352,
+    "via": "AdminGuard"
    },
    {
     "kind": "action",
@@ -3133,27 +3545,27 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/legal-policies.tsx",
-    "line": 52
+    "line": 63
    },
    {
     "kind": "action",
-    "label": "تحرير: ⚠️ الحفظ يرفع رقم الإصدار تلقائياً ويجبر المستخدمين ع",
+    "label": "تحرير: الحفظ يرفع رقم الإصدار. اختر «إصدار جوهري» إذا تغيّر",
     "src": "local state",
     "status": "ok",
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/legal-policies.tsx",
-    "line": 61
+    "line": 72
    },
    {
     "kind": "action",
-    "label": "تحرير: ⚠️ الحفظ يرفع رقم الإصدار تلقائياً ويجبر المستخدمين ع",
+    "label": "تحرير: الحفظ يرفع رقم الإصدار. اختر «إصدار جوهري» إذا تغيّر",
     "src": "",
     "status": "ok",
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/legal-policies.tsx",
-    "line": 62
+    "line": 73
    },
    {
     "kind": "input",
@@ -3161,7 +3573,31 @@
     "src": "state editContent used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/legal-policies.tsx",
-    "line": 65
+    "line": 77
+   },
+   {
+    "kind": "input",
+    "label": "textarea",
+    "src": "state editContentEn used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/legal-policies.tsx",
+    "line": 84
+   },
+   {
+    "kind": "input",
+    "label": "input",
+    "src": "state note used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/legal-policies.tsx",
+    "line": 92
+   },
+   {
+    "kind": "input",
+    "label": "checkbox",
+    "src": "state major used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/legal-policies.tsx",
+    "line": 94
    },
    {
     "kind": "button",
@@ -3171,7 +3607,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/legal-policies.tsx",
-    "line": 72
+    "line": 98
    },
    {
     "kind": "button",
@@ -3181,7 +3617,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/legal-policies.tsx",
-    "line": 75
+    "line": 101
    }
   ],
   "/admin/live-chat-console": [],
@@ -3281,22 +3717,6 @@
     "src": "state config used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 99
-   },
-   {
-    "kind": "input",
-    "label": "number",
-    "src": "state config used by logic/request",
-    "status": "ok",
-    "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 100
-   },
-   {
-    "kind": "input",
-    "label": "number",
-    "src": "state config used by logic/request",
-    "status": "ok",
-    "file": "admin/src/pages/admin/loyalty-config.tsx",
     "line": 101
    },
    {
@@ -3309,7 +3729,7 @@
    },
    {
     "kind": "input",
-    "label": "checkbox",
+    "label": "number",
     "src": "state config used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/loyalty-config.tsx",
@@ -3317,11 +3737,27 @@
    },
    {
     "kind": "input",
+    "label": "number",
+    "src": "state config used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 104
+   },
+   {
+    "kind": "input",
+    "label": "checkbox",
+    "src": "state config used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 105
+   },
+   {
+    "kind": "input",
     "label": "الافتراضي",
     "src": "state config used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 110
+    "line": 112
    },
    {
     "kind": "input",
@@ -3329,37 +3765,21 @@
     "src": "state config used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 123
+    "line": 125
    },
    {
     "kind": "button",
     "label": "حفظ الإعدادات",
-    "src": "saveConfig; PUT /admin/admin/loyalty/config; GET /loyalty/config; GET /admin/loyalty/rewards; GET /admin/loyalty/challenges",
+    "src": "saveConfig; PUT /admin/admin/loyalty/config; GET /admin/admin/loyalty/config; GET /admin/admin/loyalty/rewards; GET /admin/admin/loyalty/cha",
     "status": "ok",
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 130
+    "line": 132
    },
    {
     "kind": "input",
     "label": "الاسم بالعربية",
-    "src": "state rewardDraft used by logic/request",
-    "status": "ok",
-    "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 136
-   },
-   {
-    "kind": "input",
-    "label": "Name (EN)",
-    "src": "state rewardDraft used by logic/request",
-    "status": "ok",
-    "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 137
-   },
-   {
-    "kind": "input",
-    "label": "النقاط",
     "src": "state rewardDraft used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/loyalty-config.tsx",
@@ -3367,31 +3787,47 @@
    },
    {
     "kind": "input",
-    "label": "كوبون كاشباك شارة هدية",
+    "label": "Name (EN)",
     "src": "state rewardDraft used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/loyalty-config.tsx",
     "line": 139
    },
    {
+    "kind": "input",
+    "label": "النقاط",
+    "src": "state rewardDraft used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 140
+   },
+   {
+    "kind": "input",
+    "label": "كوبون كاشباك شارة هدية",
+    "src": "state rewardDraft used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 141
+   },
+   {
     "kind": "button",
     "label": "إضافة",
-    "src": "createReward; POST /admin/admin/loyalty/rewards; GET /loyalty/config; GET /admin/loyalty/rewards; GET /admin/loyalty/challenges",
+    "src": "createReward; POST /admin/admin/loyalty/rewards; GET /admin/admin/loyalty/config; GET /admin/admin/loyalty/rewards; GET /admin/admin/loyalty",
     "status": "ok",
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 142
+    "line": 144
    },
    {
     "kind": "button",
     "label": "مفعّلة معطّلة",
-    "src": "PATCH /admin/admin/loyalty/rewards/:param; GET /loyalty/config; GET /admin/loyalty/rewards; GET /admin/loyalty/challenges",
+    "src": "PATCH /admin/admin/loyalty/rewards/:param; GET /admin/admin/loyalty/config; GET /admin/admin/loyalty/rewards; GET /admin/admin/loyalty/chall",
     "status": "ok",
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 148
+    "line": 150
    },
    {
     "kind": "input",
@@ -3399,7 +3835,7 @@
     "src": "state challengeDraft used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 158
+    "line": 160
    },
    {
     "kind": "input",
@@ -3407,7 +3843,7 @@
     "src": "state challengeDraft used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 159
+    "line": 161
    },
    {
     "kind": "input",
@@ -3415,7 +3851,7 @@
     "src": "state challengeDraft used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 160
+    "line": 162
    },
    {
     "kind": "input",
@@ -3423,7 +3859,7 @@
     "src": "state challengeDraft used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 161
+    "line": 163
    },
    {
     "kind": "input",
@@ -3431,43 +3867,43 @@
     "src": "state challengeDraft used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 162
-   },
-   {
-    "kind": "input",
-    "label": "date",
-    "src": "state challengeDraft used by logic/request",
-    "status": "ok",
-    "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 163
-   },
-   {
-    "kind": "input",
-    "label": "date",
-    "src": "state challengeDraft used by logic/request",
-    "status": "ok",
-    "file": "admin/src/pages/admin/loyalty-config.tsx",
     "line": 164
    },
    {
-    "kind": "button",
-    "label": "إضافة تحدٍ",
-    "src": "createChallenge; POST /admin/admin/loyalty/challenges; GET /loyalty/config; GET /admin/loyalty/rewards; GET /admin/loyalty/challenges",
+    "kind": "input",
+    "label": "date",
+    "src": "state challengeDraft used by logic/request",
     "status": "ok",
-    "mutation": true,
-    "confirm": false,
     "file": "admin/src/pages/admin/loyalty-config.tsx",
     "line": 165
    },
    {
+    "kind": "input",
+    "label": "date",
+    "src": "state challengeDraft used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 166
+   },
+   {
     "kind": "button",
-    "label": "مفعّل معطّل",
-    "src": "PATCH /admin/admin/loyalty/challenges/:param; GET /loyalty/config; GET /admin/loyalty/rewards; GET /admin/loyalty/challenges",
+    "label": "إضافة تحدٍ",
+    "src": "createChallenge; POST /admin/admin/loyalty/challenges; GET /admin/admin/loyalty/config; GET /admin/admin/loyalty/rewards; GET /admin/admin/l",
     "status": "ok",
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/loyalty-config.tsx",
-    "line": 171
+    "line": 167
+   },
+   {
+    "kind": "button",
+    "label": "مفعّل معطّل",
+    "src": "PATCH /admin/admin/loyalty/challenges/:param; GET /admin/admin/loyalty/config; GET /admin/admin/loyalty/rewards; GET /admin/admin/loyalty/ch",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/loyalty-config.tsx",
+    "line": 173
    }
   ],
   "/admin/medicines-catalog": [
@@ -3477,7 +3913,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 299
+    "line": 313
    },
    {
     "kind": "input",
@@ -3485,7 +3921,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 301
+    "line": 315
    },
    {
     "kind": "button",
@@ -3495,7 +3931,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 319
+    "line": 333
    },
    {
     "kind": "input",
@@ -3503,7 +3939,7 @@
     "src": "state q used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 332
+    "line": 346
    },
    {
     "kind": "button",
@@ -3513,7 +3949,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 333
+    "line": 347
    },
    {
     "kind": "input",
@@ -3521,7 +3957,7 @@
     "src": "state category used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 336
+    "line": 350
    },
    {
     "kind": "input",
@@ -3529,7 +3965,7 @@
     "src": "state includeDeleted used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 338
+    "line": 352
    },
    {
     "kind": "input",
@@ -3537,7 +3973,7 @@
     "src": "POST /medicines/admin/import-csv; GET /medicines/admin/catalog",
     "status": "ok",
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 343
+    "line": 357
    },
    {
     "kind": "button",
@@ -3547,7 +3983,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 347
+    "line": 361
    },
    {
     "kind": "input",
@@ -3556,7 +3992,7 @@
     "status": "ok",
     "untraced": true,
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 372
+    "line": 386
    },
    {
     "kind": "button",
@@ -3566,7 +4002,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 382
+    "line": 396
    },
    {
     "kind": "input",
@@ -3574,7 +4010,7 @@
     "src": "POST /storage/upload; GET /storage/:param/signed-url",
     "status": "ok",
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 390
+    "line": 404
    },
    {
     "kind": "input",
@@ -3582,7 +4018,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 423
+    "line": 437
    },
    {
     "kind": "button",
@@ -3592,7 +4028,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 427
+    "line": 441
    },
    {
     "kind": "button",
@@ -3602,7 +4038,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 430
+    "line": 444
    },
    {
     "kind": "button",
@@ -3612,7 +4048,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 459
+    "line": 474
    },
    {
     "kind": "button",
@@ -3622,7 +4058,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 469
+    "line": 484
    },
    {
     "kind": "button",
@@ -3632,7 +4068,37 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 470
+    "line": 485
+   },
+   {
+    "kind": "button",
+    "label": "تعديل بانتظار الاعتماد",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 489
+   },
+   {
+    "kind": "button",
+    "label": "نشر التعديل",
+    "src": "POST /medicines/admin/catalog/:param/approve; GET /medicines/admin/catalog; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 490
+   },
+   {
+    "kind": "button",
+    "label": "رفض التعديل",
+    "src": "POST /medicines/admin/catalog/:param/approve; GET /medicines/admin/catalog; confirm()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/pages/admin/medicines-catalog.tsx",
+    "line": 491
    },
    {
     "kind": "button",
@@ -3642,7 +4108,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 472
+    "line": 494
    },
    {
     "kind": "button",
@@ -3652,7 +4118,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 474
+    "line": 496
    },
    {
     "kind": "button",
@@ -3662,7 +4128,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 477
+    "line": 499
    },
    {
     "kind": "button",
@@ -3672,7 +4138,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 479
+    "line": 501
    },
    {
     "kind": "button",
@@ -3682,7 +4148,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 489
+    "line": 511
    },
    {
     "kind": "button",
@@ -3692,7 +4158,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 490
+    "line": 512
    },
    {
     "kind": "button",
@@ -3702,7 +4168,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 502
+    "line": 524
    },
    {
     "kind": "input",
@@ -3711,7 +4177,7 @@
     "status": "ok",
     "untraced": true,
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 542
+    "line": 564
    },
    {
     "kind": "input",
@@ -3720,7 +4186,7 @@
     "status": "ok",
     "untraced": true,
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 552
+    "line": 574
    },
    {
     "kind": "button",
@@ -3730,7 +4196,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 570
+    "line": 592
    },
    {
     "kind": "button",
@@ -3740,7 +4206,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 571
+    "line": 593
    },
    {
     "kind": "action",
@@ -3750,7 +4216,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 624
+    "line": 646
    },
    {
     "kind": "action",
@@ -3760,7 +4226,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/medicines-catalog.tsx",
-    "line": 624
+    "line": 646
    },
    {
     "kind": "action",
@@ -3882,7 +4348,7 @@
     "status": "ok",
     "link": "/admin/command-center",
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 267,
+    "line": 275,
     "via": "AdminGuard"
    },
    {
@@ -3893,7 +4359,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 276,
+    "line": 284,
     "via": "AdminGuard"
    },
    {
@@ -3904,7 +4370,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 288,
+    "line": 296,
     "via": "AdminGuard"
    },
    {
@@ -3915,7 +4381,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 307,
+    "line": 315,
     "via": "AdminGuard"
    },
    {
@@ -3926,7 +4392,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 333,
+    "line": 341,
     "via": "AdminGuard"
    },
    {
@@ -3937,7 +4403,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/components/AdminGuard.tsx",
-    "line": 344,
+    "line": 352,
     "via": "AdminGuard"
    },
    {
@@ -3947,7 +4413,7 @@
     "status": "ok",
     "untraced": true,
     "file": "admin/src/components/MedicineQuickEdit.tsx",
-    "line": 118,
+    "line": 120,
     "via": "MedicineQuickEdit"
    },
    {
@@ -3958,7 +4424,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/MedicineQuickEdit.tsx",
-    "line": 119,
+    "line": 121,
     "via": "MedicineQuickEdit"
    },
    {
@@ -3969,7 +4435,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/components/MedicineQuickEdit.tsx",
-    "line": 119,
+    "line": 121,
     "via": "MedicineQuickEdit"
    },
    {
@@ -3978,7 +4444,7 @@
     "src": "state price used by logic/request",
     "status": "ok",
     "file": "admin/src/components/MedicineQuickEdit.tsx",
-    "line": 126,
+    "line": 128,
     "via": "MedicineQuickEdit"
    },
    {
@@ -3987,7 +4453,7 @@
     "src": "state reason used by logic/request",
     "status": "ok",
     "file": "admin/src/components/MedicineQuickEdit.tsx",
-    "line": 130,
+    "line": 132,
     "via": "MedicineQuickEdit"
    },
    {
@@ -3996,7 +4462,7 @@
     "src": "state rx used by logic/request",
     "status": "ok",
     "file": "admin/src/components/MedicineQuickEdit.tsx",
-    "line": 135,
+    "line": 137,
     "via": "MedicineQuickEdit"
    },
    {
@@ -4005,7 +4471,7 @@
     "src": "state availability used by logic/request",
     "status": "ok",
     "file": "admin/src/components/MedicineQuickEdit.tsx",
-    "line": 139,
+    "line": 141,
     "via": "MedicineQuickEdit"
    },
    {
@@ -4014,7 +4480,7 @@
     "src": "submits the enclosing form",
     "status": "ok",
     "file": "admin/src/components/MedicineQuickEdit.tsx",
-    "line": 165,
+    "line": 167,
     "via": "MedicineQuickEdit",
     "submit": true
    },
@@ -4025,7 +4491,7 @@
     "status": "ok",
     "untraced": true,
     "file": "admin/src/components/MedicineQuickEdit.tsx",
-    "line": 166,
+    "line": 168,
     "via": "MedicineQuickEdit"
    },
    {
@@ -4036,7 +4502,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/components/MedicineQuickEdit.tsx",
-    "line": 171,
+    "line": 173,
     "via": "MedicineQuickEdit"
    },
    {
@@ -4047,7 +4513,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/MedicineQuickEdit.tsx",
-    "line": 171,
+    "line": 173,
     "via": "MedicineQuickEdit"
    }
   ],
@@ -4150,7 +4616,7 @@
     "src": "state title used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/notification-center.tsx",
-    "line": 218
+    "line": 221
    },
    {
     "kind": "input",
@@ -4158,7 +4624,7 @@
     "src": "state segment used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/notification-center.tsx",
-    "line": 222
+    "line": 225
    },
    {
     "kind": "input",
@@ -4166,7 +4632,7 @@
     "src": "state singleUser used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/notification-center.tsx",
-    "line": 230
+    "line": 233
    },
    {
     "kind": "input",
@@ -4174,7 +4640,7 @@
     "src": "state body used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/notification-center.tsx",
-    "line": 235
+    "line": 238
    },
    {
     "kind": "input",
@@ -4182,7 +4648,7 @@
     "src": "state deepLink used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/notification-center.tsx",
-    "line": 239
+    "line": 242
    },
    {
     "kind": "input",
@@ -4190,7 +4656,7 @@
     "src": "state asCampaign used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/notification-center.tsx",
-    "line": 244
+    "line": 247
    },
    {
     "kind": "input",
@@ -4198,7 +4664,7 @@
     "src": "state scheduledAt used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/notification-center.tsx",
-    "line": 248
+    "line": 251
    },
    {
     "kind": "button",
@@ -4208,7 +4674,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/notification-center.tsx",
-    "line": 253
+    "line": 256
    },
    {
     "kind": "button",
@@ -4218,7 +4684,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/notification-center.tsx",
-    "line": 256
+    "line": 259
    },
    {
     "kind": "input",
@@ -4226,7 +4692,7 @@
     "src": "state tplKey used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/notification-center.tsx",
-    "line": 270
+    "line": 273
    },
    {
     "kind": "input",
@@ -4234,7 +4700,7 @@
     "src": "state tplLang used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/notification-center.tsx",
-    "line": 271
+    "line": 274
    },
    {
     "kind": "input",
@@ -4242,7 +4708,7 @@
     "src": "state tplParams used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/notification-center.tsx",
-    "line": 274
+    "line": 277
    },
    {
     "kind": "button",
@@ -4252,7 +4718,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/notification-center.tsx",
-    "line": 275
+    "line": 278
    },
    {
     "kind": "input",
@@ -4260,7 +4726,7 @@
     "src": "state tplTitle used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/notification-center.tsx",
-    "line": 281
+    "line": 284
    },
    {
     "kind": "input",
@@ -4268,7 +4734,7 @@
     "src": "state tplBody used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/notification-center.tsx",
-    "line": 282
+    "line": 285
    },
    {
     "kind": "button",
@@ -4278,7 +4744,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/notification-center.tsx",
-    "line": 297
+    "line": 300
    },
    {
     "kind": "button",
@@ -4288,7 +4754,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/notification-center.tsx",
-    "line": 298
+    "line": 301
    },
    {
     "kind": "button",
@@ -4298,7 +4764,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/notification-center.tsx",
-    "line": 312
+    "line": 315
    },
    {
     "kind": "button",
@@ -4308,7 +4774,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/notification-center.tsx",
-    "line": 314
+    "line": 317
    },
    {
     "kind": "button",
@@ -4318,7 +4784,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/notification-center.tsx",
-    "line": 345
+    "line": 348
    },
    {
     "kind": "button",
@@ -4328,7 +4794,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/notification-center.tsx",
-    "line": 346
+    "line": 349
    },
    {
     "kind": "action",
@@ -4340,6 +4806,71 @@
     "file": "admin/src/components/DataTable.tsx",
     "line": 66,
     "via": "DataTable"
+   },
+   {
+    "kind": "link",
+    "label": "العودة لمركز القيادة",
+    "src": "link /admin/command-center",
+    "status": "ok",
+    "link": "/admin/command-center",
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 275,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "فتح القائمة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 284,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 296,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "إغلاق القائمة",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 315,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "ميلادي هجري",
+    "src": "navigation; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 341,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "تسجيل الخروج",
+    "src": "logout; POST /auth/logout; navigation",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 352,
+    "via": "AdminGuard"
    }
   ],
   "/admin/nursing-portal": [
@@ -4403,7 +4934,7 @@
     "status": "ok",
     "link": "/admin/orders",
     "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
-    "line": 58
+    "line": 69
    },
    {
     "kind": "button",
@@ -4413,7 +4944,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
-    "line": 58
+    "line": 69
    },
    {
     "kind": "button",
@@ -4423,7 +4954,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
-    "line": 73
+    "line": 84
    },
    {
     "kind": "input",
@@ -4431,7 +4962,7 @@
     "src": "state amount used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
-    "line": 74
+    "line": 85
    },
    {
     "kind": "input",
@@ -4439,7 +4970,7 @@
     "src": "state providerId used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
-    "line": 74
+    "line": 85
    },
    {
     "kind": "input",
@@ -4447,7 +4978,7 @@
     "src": "state hours used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
-    "line": 74
+    "line": 85
    },
    {
     "kind": "input",
@@ -4455,7 +4986,7 @@
     "src": "state note used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
-    "line": 74
+    "line": 85
    },
    {
     "kind": "input",
@@ -4463,7 +4994,7 @@
     "src": "state reason used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
-    "line": 74
+    "line": 85
    },
    {
     "kind": "button",
@@ -4473,7 +5004,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
-    "line": 74
+    "line": 85
    },
    {
     "kind": "button",
@@ -4483,7 +5014,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/orders/[kind]/[id].tsx",
-    "line": 74
+    "line": 85
    },
    {
     "kind": "action",
@@ -4495,6 +5026,71 @@
     "file": "admin/src/components/DataTable.tsx",
     "line": 66,
     "via": "DataTable"
+   },
+   {
+    "kind": "link",
+    "label": "العودة لمركز القيادة",
+    "src": "link /admin/command-center",
+    "status": "ok",
+    "link": "/admin/command-center",
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 275,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "فتح القائمة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 284,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 296,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "إغلاق القائمة",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 315,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "ميلادي هجري",
+    "src": "navigation; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 341,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "تسجيل الخروج",
+    "src": "logout; POST /auth/logout; navigation",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 352,
+    "via": "AdminGuard"
    }
   ],
   "/admin/orders": [
@@ -4960,13 +5556,35 @@
    },
    {
     "kind": "button",
+    "label": "قبول",
+    "src": "POST /api/admin/admin/providers/:param/documents/:param/:param; prompt()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/components/ProviderFullDetail.tsx",
+    "line": 525,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "button",
+    "label": "رفض",
+    "src": "POST /api/admin/admin/providers/:param/documents/:param/:param; prompt()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/components/ProviderFullDetail.tsx",
+    "line": 527,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "button",
     "label": "جاري التحميل… تحميل العقد PDF",
     "src": "downloadContract; GET /api/admin/provider-onboarding/admin/contracts/:param",
     "status": "ok",
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/ProviderFullDetail.tsx",
-    "line": 525,
+    "line": 561,
     "via": "ProviderFullDetail"
    },
    {
@@ -4975,7 +5593,7 @@
     "src": "onChange sends POST /api/admin/provider-onboarding/admin/contracts/:param/visibility",
     "status": "ok",
     "file": "admin/src/components/ProviderFullDetail.tsx",
-    "line": 535,
+    "line": 571,
     "via": "ProviderFullDetail"
    },
    {
@@ -5055,6 +5673,71 @@
     "confirm": false,
     "file": "admin/src/components/DataTable.tsx",
     "line": 66,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "link",
+    "label": "العودة لمركز القيادة",
+    "src": "link /admin/command-center",
+    "status": "ok",
+    "link": "/admin/command-center",
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 275,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "button",
+    "label": "فتح القائمة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 284,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 296,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "button",
+    "label": "إغلاق القائمة",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 315,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "button",
+    "label": "ميلادي هجري",
+    "src": "navigation; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 341,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "button",
+    "label": "تسجيل الخروج",
+    "src": "logout; POST /auth/logout; navigation",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 352,
     "via": "ProviderFullDetail"
    }
   ],
@@ -5279,7 +5962,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/scheduled-reports.tsx",
-    "line": 19
+    "line": 22
    },
    {
     "kind": "input",
@@ -5287,7 +5970,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/scheduled-reports.tsx",
-    "line": 19
+    "line": 22
    },
    {
     "kind": "input",
@@ -5295,7 +5978,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/scheduled-reports.tsx",
-    "line": 19
+    "line": 22
    },
    {
     "kind": "input",
@@ -5303,7 +5986,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/scheduled-reports.tsx",
-    "line": 19
+    "line": 22
    },
    {
     "kind": "input",
@@ -5311,7 +5994,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/scheduled-reports.tsx",
-    "line": 19
+    "line": 22
    },
    {
     "kind": "input",
@@ -5319,7 +6002,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/scheduled-reports.tsx",
-    "line": 19
+    "line": 22
    },
    {
     "kind": "button",
@@ -5327,7 +6010,7 @@
     "src": "submits the enclosing form",
     "status": "ok",
     "file": "admin/src/pages/admin/scheduled-reports.tsx",
-    "line": 19,
+    "line": 22,
     "submit": true
    },
    {
@@ -5338,7 +6021,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/scheduled-reports.tsx",
-    "line": 19
+    "line": 22
    },
    {
     "kind": "button",
@@ -5348,7 +6031,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/scheduled-reports.tsx",
-    "line": 19
+    "line": 22
    },
    {
     "kind": "button",
@@ -5358,7 +6041,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/scheduled-reports.tsx",
-    "line": 19
+    "line": 22
    },
    {
     "kind": "button",
@@ -5368,7 +6051,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/scheduled-reports.tsx",
-    "line": 19
+    "line": 22
    },
    {
     "kind": "action",
@@ -5380,6 +6063,71 @@
     "file": "admin/src/components/DataTable.tsx",
     "line": 66,
     "via": "DataTable"
+   },
+   {
+    "kind": "link",
+    "label": "العودة لمركز القيادة",
+    "src": "link /admin/command-center",
+    "status": "ok",
+    "link": "/admin/command-center",
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 275,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "فتح القائمة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 284,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 296,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "إغلاق القائمة",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 315,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "ميلادي هجري",
+    "src": "navigation; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 341,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "تسجيل الخروج",
+    "src": "logout; POST /auth/logout; navigation",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 352,
+    "via": "AdminGuard"
    }
   ],
   "/admin/search-intelligence": [
@@ -5629,7 +6377,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/shortage-reports.tsx",
-    "line": 76
+    "line": 79
    },
    {
     "kind": "button",
@@ -5639,7 +6387,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/shortage-reports.tsx",
-    "line": 118
+    "line": 121
    },
    {
     "kind": "button",
@@ -5649,7 +6397,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/shortage-reports.tsx",
-    "line": 125
+    "line": 128
    },
    {
     "kind": "button",
@@ -5659,7 +6407,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/shortage-reports.tsx",
-    "line": 135
+    "line": 138
    },
    {
     "kind": "button",
@@ -5669,7 +6417,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/shortage-reports.tsx",
-    "line": 149
+    "line": 152
    },
    {
     "kind": "button",
@@ -5679,7 +6427,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/shortage-reports.tsx",
-    "line": 151
+    "line": 154
    },
    {
     "kind": "action",
@@ -5691,6 +6439,71 @@
     "file": "admin/src/components/DataTable.tsx",
     "line": 66,
     "via": "DataTable"
+   },
+   {
+    "kind": "link",
+    "label": "العودة لمركز القيادة",
+    "src": "link /admin/command-center",
+    "status": "ok",
+    "link": "/admin/command-center",
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 275,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "فتح القائمة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 284,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 296,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "إغلاق القائمة",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 315,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "ميلادي هجري",
+    "src": "navigation; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 341,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "تسجيل الخروج",
+    "src": "logout; POST /auth/logout; navigation",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 352,
+    "via": "AdminGuard"
    }
   ],
   "/admin/support-tickets": [
@@ -5782,7 +6595,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 21
+    "line": 26
    },
    {
     "kind": "button",
@@ -5792,7 +6605,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 21
+    "line": 26
    },
    {
     "kind": "button",
@@ -5802,7 +6615,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 32
+    "line": 37
    },
    {
     "kind": "input",
@@ -5810,7 +6623,7 @@
     "src": "state lang used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 34
+    "line": 39
    },
    {
     "kind": "form",
@@ -5820,7 +6633,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 44
+    "line": 49
    },
    {
     "kind": "input",
@@ -5828,7 +6641,7 @@
     "src": "state translationKey used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 44
+    "line": 49
    },
    {
     "kind": "input",
@@ -5836,7 +6649,7 @@
     "src": "state translationValue used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 44
+    "line": 49
    },
    {
     "kind": "button",
@@ -5844,7 +6657,7 @@
     "src": "submits the enclosing form",
     "status": "ok",
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 44,
+    "line": 49,
     "submit": true
    },
    {
@@ -5855,7 +6668,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 53
+    "line": 58
    },
    {
     "kind": "link",
@@ -5864,7 +6677,7 @@
     "status": "ok",
     "link": "/admin/module-switches",
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 55
+    "line": 60
    },
    {
     "kind": "button",
@@ -5874,7 +6687,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 55
+    "line": 60
    },
    {
     "kind": "form",
@@ -5884,7 +6697,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 55
+    "line": 60
    },
    {
     "kind": "input",
@@ -5892,7 +6705,7 @@
     "src": "state flag used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 55
+    "line": 60
    },
    {
     "kind": "input",
@@ -5900,7 +6713,7 @@
     "src": "state flag used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 55
+    "line": 60
    },
    {
     "kind": "input",
@@ -5908,7 +6721,7 @@
     "src": "state flag used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 55
+    "line": 60
    },
    {
     "kind": "input",
@@ -5916,7 +6729,7 @@
     "src": "state flag used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 55
+    "line": 60
    },
    {
     "kind": "button",
@@ -5924,7 +6737,7 @@
     "src": "submits the enclosing form",
     "status": "ok",
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 55,
+    "line": 60,
     "submit": true
    },
    {
@@ -5937,6 +6750,71 @@
     "file": "admin/src/components/DataTable.tsx",
     "line": 66,
     "via": "DataTable"
+   },
+   {
+    "kind": "link",
+    "label": "العودة لمركز القيادة",
+    "src": "link /admin/command-center",
+    "status": "ok",
+    "link": "/admin/command-center",
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 275,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "فتح القائمة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 284,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 296,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "إغلاق القائمة",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 315,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "ميلادي هجري",
+    "src": "navigation; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 341,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "تسجيل الخروج",
+    "src": "logout; POST /auth/logout; navigation",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 352,
+    "via": "AdminGuard"
    }
   ],
   "/admin/today": [
@@ -5985,7 +6863,7 @@
     "src": "state searchTerm used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/users-management.tsx",
-    "line": 221
+    "line": 227
    },
    {
     "kind": "input",
@@ -5993,7 +6871,7 @@
     "src": "state roleFilter used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/users-management.tsx",
-    "line": 228
+    "line": 234
    },
    {
     "kind": "input",
@@ -6001,7 +6879,7 @@
     "src": "state statusFilter used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/users-management.tsx",
-    "line": 235
+    "line": 241
    },
    {
     "kind": "button",
@@ -6011,7 +6889,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/users-management.tsx",
-    "line": 290
+    "line": 296
    },
    {
     "kind": "button",
@@ -6021,7 +6899,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/users-management.tsx",
-    "line": 297
+    "line": 303
    },
    {
     "kind": "button",
@@ -6031,7 +6909,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/users-management.tsx",
-    "line": 305
+    "line": 311
    },
    {
     "kind": "button",
@@ -6041,7 +6919,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/users-management.tsx",
-    "line": 313
+    "line": 320
    },
    {
     "kind": "button",
@@ -6051,7 +6929,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/users-management.tsx",
-    "line": 338
+    "line": 346
    },
    {
     "kind": "button",
@@ -6061,7 +6939,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/users-management.tsx",
-    "line": 339
+    "line": 347
    },
    {
     "kind": "button",
@@ -6071,7 +6949,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/users-management.tsx",
-    "line": 352
+    "line": 360
    },
    {
     "kind": "button",
@@ -6081,7 +6959,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/users-management.tsx",
-    "line": 461
+    "line": 469
    },
    {
     "kind": "button",
@@ -6091,7 +6969,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/users-management.tsx",
-    "line": 463
+    "line": 471
    },
    {
     "kind": "button",
@@ -6101,7 +6979,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/users-management.tsx",
-    "line": 465
+    "line": 473
    },
    {
     "kind": "button",
@@ -6111,7 +6989,29 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/users-management.tsx",
-    "line": 468
+    "line": 476
+   },
+   {
+    "kind": "button",
+    "label": "قبول",
+    "src": "POST /api/admin/admin/providers/:param/documents/:param/:param; prompt()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/components/ProviderFullDetail.tsx",
+    "line": 525,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "button",
+    "label": "رفض",
+    "src": "POST /api/admin/admin/providers/:param/documents/:param/:param; prompt()",
+    "status": "ok",
+    "mutation": true,
+    "confirm": true,
+    "file": "admin/src/components/ProviderFullDetail.tsx",
+    "line": 527,
+    "via": "ProviderFullDetail"
    },
    {
     "kind": "button",
@@ -6121,7 +7021,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/ProviderFullDetail.tsx",
-    "line": 525,
+    "line": 561,
     "via": "ProviderFullDetail"
    },
    {
@@ -6130,7 +7030,7 @@
     "src": "onChange sends POST /api/admin/provider-onboarding/admin/contracts/:param/visibility",
     "status": "ok",
     "file": "admin/src/components/ProviderFullDetail.tsx",
-    "line": 535,
+    "line": 571,
     "via": "ProviderFullDetail"
    },
    {
@@ -6170,6 +7070,71 @@
     "file": "admin/src/components/DataTable.tsx",
     "line": 66,
     "via": "DataTable"
+   },
+   {
+    "kind": "link",
+    "label": "العودة لمركز القيادة",
+    "src": "link /admin/command-center",
+    "status": "ok",
+    "link": "/admin/command-center",
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 275,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "فتح القائمة",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 284,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 296,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "إغلاق القائمة",
+    "src": "closeNav; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 315,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "ميلادي هجري",
+    "src": "navigation; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 341,
+    "via": "AdminGuard"
+   },
+   {
+    "kind": "button",
+    "label": "تسجيل الخروج",
+    "src": "logout; POST /auth/logout; navigation",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/components/AdminGuard.tsx",
+    "line": 352,
+    "via": "AdminGuard"
    }
   ],
   "/login": [

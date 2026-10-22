@@ -4,6 +4,7 @@
  * legal_acceptances: { user_id, policy_key, version, timestamp, device, ip, platform }
  * finance_config: commissions per service type + per provider + payout rules (DB-driven)
  */
+import { recordAudit } from '../../common/audit-record';
 import { Module, Injectable, Controller, Get, Post, Put, Body, Param, Query, Req, UseGuards, BadRequestException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -12,22 +13,11 @@ import { JwtAuthGuard, CurrentUser, Public, Roles, SelfService } from '../../com
 import { LegalEnterpriseService } from './legal-enterprise.service';
 import { LegalEnterpriseController } from './legal-enterprise.controller';
 import { PROVIDER_ROLES, UserRole } from '../../common/enums';
-import { UpdateLegalPolicyDto, UpdateCommissionsDto } from './legal.dto';
+import { UpdateLegalPolicyDto } from './legal.dto';
+import { DEFAULT_COMMISSIONS } from '../../common/commission-defaults';
 
-const DEFAULT_COMMISSIONS = {
-  service_types: {
-    pharmacy: { percent: 10, note: 'medicine orders' },
-    doctor: { percent: 15, note: 'consultations' },
-    lab: { percent: 12, note: 'lab tests' },
-    radiology: { percent: 12, note: 'imaging' },
-    nursing: { percent: 15, note: 'home nursing' },
-    ambulance: { percent: 10, note: 'emergency rides' },
-  },
-  provider_overrides: {} as Record<string, { percent: number; note?: string }>,
-  payout_schedule: { frequency: 'weekly', day: 'sunday', minimum_payout_sar: 100, processing_days: 3 },
-  tax: { vat_percent: 15, note: 'KSA VAT applied on commission only' },
-};
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 @Injectable()
 export class LegalService {
   constructor(
@@ -119,6 +109,8 @@ export class LegalService {
       platform: (req.headers['x-app-platform'] as string) || (req.headers['user-agent']?.includes('okhttp') ? 'android' : req.headers['user-agent']?.includes('iPhone') ? 'ios' : 'web'),
       user_agent: req.headers['user-agent'] || null,
     });
+    // 23.2: consent and policy acceptance are in the audit trail (version, time, device and origin come with the row)
+    await recordAudit(this.conn, { action: 'policy_accepted', user_id: user.id, role: user.role, resource_kind: 'legal_policy', resource_id: key, details: { version: policy.version } });
     // Immutable PDF-ready archive with SHA256 (legally traceable)
     const archive = await this.enterprise.snapshotAcceptance(user, policy, {
       ip: (req as any).ip || null,
@@ -151,16 +143,6 @@ export class LegalService {
     const doc: any = await this.financeConfig.findOne({ key: 'commissions' });
     const { _id, key, ...rest } = doc;
     return rest;
-  }
-
-  async updateCommissions(adminId: string, patch: any) {
-    await this.ensureFinanceConfig();
-    const before = await this.getCommissions();
-    await this.financeConfig.updateOne({ key: 'commissions' }, { $set: { ...patch, updatedAt: new Date(), updated_by: adminId } });
-    const after = await this.getCommissions();
-    // Full history — old values never overwritten, effective-dated
-    await this.enterprise.recordCommissionChange(adminId, before, after, {});
-    return { ok: true, config: after };
   }
 
   async commissionFor(providerId: string, serviceType: string) {
@@ -198,6 +180,7 @@ export class LegalController {
     return this.svc.accept(user, key, req);
   }
 
+  @RequirePermissions(Permission.GDPR_MANAGE)
   @Put('admin/legal/policy/:key')
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)
@@ -205,17 +188,9 @@ export class LegalController {
     return this.svc.upsertPolicy(adminId, key, body);
   }
 
-  @Get('admin/finance/commissions')
-  @UseGuards(JwtAuthGuard)
-  @Roles(UserRole.ADMIN)
-  commissions() { return this.svc.getCommissions(); }
-
-  @Put('admin/finance/commissions')
-  @UseGuards(JwtAuthGuard)
-  @Roles(UserRole.ADMIN)
-  updateCommissions(@CurrentUser('id') adminId: string, @Body() body: UpdateCommissionsDto) {
-    return this.svc.updateCommissions(adminId, body);
-  }
+  // GET/PUT admin/finance/commissions lived here too and shadowed the finance suite's GET (three handlers on one
+  // route; Nest served this one, so /admin/finance-suite crashed on a shape it does not read). The commission config
+  // is read and edited only through the finance suite (admin-finance.controller), which writes the same fields.
 
   @Get('finance/commission-for')
   @UseGuards(JwtAuthGuard)

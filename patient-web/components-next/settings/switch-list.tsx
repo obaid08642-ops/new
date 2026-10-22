@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Toggle } from "@/components-next/ui-generated/components/Controls";
+import { disableWebPush, enableWebPush } from "@/lib/web-push";
 import { FlushCard } from "./settings-kit";
 import styles from "./settings.module.css";
 
@@ -20,6 +21,8 @@ async function saveSwitch(kind: SwitchKind, row: SwitchRow, next: boolean): Prom
       headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() },
       body: JSON.stringify({ [row.group ?? ""]: { [row.key]: next } }),
     });
+    // batch-0-web#9: the push switch also turns pushes to this browser on or off (the account setting is saved either way).
+    if (response.ok && row.group === "channels" && row.key === "push") await (next ? enableWebPush() : disableWebPush()).catch(() => null);
     return response.ok;
   }
   const response = await fetch("/api/settings/privacy", {

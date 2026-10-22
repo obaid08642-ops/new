@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { CoreShell } from "@/components-next/core/core-shell";
 import type { Locale } from "@/lib/i18n";
 import rx from "@/components-next/pharmacy/rx.module.css";
+import { Breadcrumbs, type Crumb } from "@/components-next/navigation/breadcrumbs";
 
 /**
  * The frame of every consultation screen: the shell (top bar, tab bar), the phone header with the title and a back
@@ -15,6 +16,8 @@ export function ConsultPage({
   width = "narrow",
   footer,
   hideTabs = false,
+  crumbs,
+  crumbsLabel,
   children,
 }: {
   locale: Locale;
@@ -23,11 +26,15 @@ export function ConsultPage({
   width?: "wide" | "narrow";
   footer?: ReactNode;
   hideTabs?: boolean;
+  /** 17.1: the visible trail above the title (Home › Section › Page), with the nav's accessible name. */
+  crumbs?: Crumb[];
+  crumbsLabel?: string;
   children: ReactNode;
 }) {
   return (
     <CoreShell locale={locale} title={title} backHref={backHref} width={width} footer={footer} hideTabs={hideTabs}>
       <div className={rx.page}>
+        {crumbs && crumbsLabel ? <Breadcrumbs label={crumbsLabel} items={crumbs} /> : null}
         <div className={rx.head}><h1 className={rx.title}>{title}</h1></div>
         {children}
       </div>

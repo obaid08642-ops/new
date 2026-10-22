@@ -17,6 +17,7 @@ import { PROVIDER_CONFIG_EDITABLE_FIELDS } from '../provider/providers.service';
 import { ServiceOwnership, ServiceOwnershipSchema } from '../service-catalog/service-catalog.module';
 import { CreateDto, DecideDto } from './approval-workflow.dto';
 
+import { Permission, RequirePermissions } from '../../common/permissions';
 export type ApprovalEntityType = 'medicine' | 'provider' | 'facility' | 'service';
 
 /**
@@ -43,7 +44,8 @@ const LAB_SERVICE_FIELDS = [
   'type', 'name_ar', 'name_en', 'short_code', 'description_ar', 'description_en',
   'category', 'sample_type', 'price', 'old_price', 'fasting_required', 'fasting_hours',
   'home_visit_supported', 'facility_visit_supported', 'turnaround_hours',
-  'preparation_ar', 'preparation_en', 'is_package', 'included_services',
+  'preparation_ar', 'preparation_en', 'preparation_ur', 'preparation_hi', 'preparation_bn', 'preparation_tl',
+  'is_package', 'included_services',
   'medical_referral_required', 'cash_availability', 'insurance_availability',
   'home_collection_availability', 'in_lab_availability', 'special_notes',
   'reference_ranges', 'image_url', 'icon',
@@ -210,7 +212,18 @@ export class ApprovalWorkflowService {
   }
 
   async listPending() {
-    return this.reqModel.find({ status: ApprovalStatus.PENDING_REVIEW }).sort({ createdAt: -1 }).lean();
+    const rows: any[] = await this.reqModel.find({ status: ApprovalStatus.PENDING_REVIEW }).sort({ createdAt: -1 }).lean();
+    // The admin review page shows who proposed it (provider_accounts display name, else the user's name).
+    const ids = [...new Set(rows.map((r) => r.submitted_by).filter(Boolean))];
+    const db = this.reqModel.db;
+    const [accounts, users] = await Promise.all([
+      db.collection('provider_accounts').find({ id: { $in: ids } }, { projection: { _id: 0, id: 1, display_name_ar: 1, display_name_en: 1, provider_type: 1 } }).toArray(),
+      db.collection('users').find({ id: { $in: ids } }, { projection: { _id: 0, id: 1, full_name: 1 } }).toArray(),
+    ]);
+    const byId = new Map<string, { name: string; provider_type?: string }>();
+    for (const u of users as any[]) byId.set(u.id, { name: u.full_name || '' });
+    for (const a of accounts as any[]) byId.set(a.id, { name: a.display_name_ar || a.display_name_en || byId.get(a.id)?.name || '', provider_type: a.provider_type });
+    return rows.map((r) => ({ ...r, submitter_name: byId.get(r.submitted_by)?.name || null, submitter_type: byId.get(r.submitted_by)?.provider_type || null }));
   }
 
   async listMyRequests(userId: string) {
@@ -314,6 +327,12 @@ export class ApprovalWorkflowService {
       } else {
         const newDoc = await model.create(finalData);
         req.entity_id = newDoc.id;
+        // provider-journeys 28/32: a test, scan or bundle a lab or radiology centre proposed belongs to it once approved,
+        // so it can price and edit it like its other catalogue items (ServiceOwnership, as service-catalog uses).
+        if (!isHomeCare && req.submitted_by) {
+          const account = await this.labModel.db.collection('provider_accounts').findOne({ id: req.submitted_by }, { projection: { id: 1 } });
+          if (account) await this.ownershipModel.create({ account_id: req.submitted_by, entity_type: isLab ? 'lab' : 'radiology', entity_id: newDoc.id, approved: true });
+        }
       }
     }
 
@@ -357,6 +376,7 @@ export class ApprovalWorkflowController {
     return this.svc.getRequestDetails(id);
   }
 
+  @RequirePermissions(Permission.CATALOG_APPROVE)
   @Post('requests/:id/decide')
   @Roles(UserRole.ADMIN)
   @Audited({ model: 'ApprovalRequest', idParam: 'id', action: 'approval_request_decide' })

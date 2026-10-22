@@ -1,2 +1,4 @@
-# 2026-10-22 owner (server ops session): one task per run. Run 3: MONGO_MAX_POOL_SIZE=40 for backend and worker, restart, connection counts before and after.
-82-mongo-pool
+# 2026-10-22 owner (server ops session): read-only status tasks in one run (Redis persistence, env presence, sharp count). Run 4.
+81-ops-redis
+83-ops-env
+84-ops-sharp

@@ -14,7 +14,13 @@ export type SearchSection = (typeof SEARCH_SECTIONS)[number];
 export type SearchType = 'medicine' | 'doctor' | 'specialty' | 'lab_test' | 'lab_package' | 'radiology' | 'nursing' | 'article';
 
 /** Home groups follow this order. Health articles are found from home only (no section owns them). */
-export const SEARCH_TYPES: SearchType[] = ['medicine', 'doctor', 'specialty', 'lab_test', 'lab_package', 'radiology', 'nursing', 'article'];
+/**
+ * The cache tag of the public suggestions (search.controller.ts) and of the search index: a catalogue write or a change of
+ * the suggestions kill switch purges it, so no edge copy outlives the change by more than the purge.
+ */
+export const SEARCH_CACHE_TAG = 'search';
+
+export const SEARCH_TYPES: SearchType[] =['medicine', 'doctor', 'specialty', 'lab_test', 'lab_package', 'radiology', 'nursing', 'article'];
 
 export const SECTION_TYPES: Record<SearchSection, SearchType[]> = {
   pharmacy: ['medicine'],
@@ -50,6 +56,8 @@ export interface SearchDocument {
   specialty?: string | null;
   code?: string | null;
   requires_prescription: boolean;
+  /** Decision 11: a medicine sold online only (the result row says so). */
+  online_exclusive: boolean;
   /**
    * Popularity used for ranking. Always 0 for prescription-only items: decision 29 says they are never
    * promoted or boosted, so neither popularity nor sponsorship can lift them.
@@ -61,7 +69,9 @@ export interface SearchDocument {
 export function sourceFilter(source: SearchSource): Record<string, unknown> {
   const governed = { is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
   switch (source) {
-    case 'medicines': return { ...governed, indexing_eligibility: true, active: { $ne: false } };
+    // 439: the site's own search shows every medicine approved for publication, as the pharmacy list does;
+    // indexing_eligibility is for search engines (sitemaps, IndexNow), not for the people on the site.
+    case 'medicines': return { ...governed, active: { $ne: false } };
     case 'provider_profiles': return { type: 'doctor', status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
     case 'specialties': return { active: { $ne: false }, is_deleted: { $ne: true } };
     case 'lab_services':
@@ -76,7 +86,7 @@ export function isVisible(source: SearchSource, raw: any): boolean {
   if (!raw || raw.is_deleted === true) return false;
   const approved = raw.public_eligibility === true && raw.medical_review_status === 'approved';
   switch (source) {
-    case 'medicines': return approved && raw.indexing_eligibility === true && raw.active !== false;
+    case 'medicines': return approved && raw.active !== false;
     case 'provider_profiles': return raw.type === 'doctor' && raw.status === 'active' && approved;
     case 'specialties': return raw.active !== false;
     case 'lab_services': return approved && raw.active === true && !isImaging(raw);
@@ -171,6 +181,7 @@ export function toSearchDocument(source: SearchSource, raw: any): SearchDocument
     specialty: str(raw?.specialty) || null,
     code: str(raw?.code) || str(raw?.short_code) || null,
     requires_prescription: rx,
+    online_exclusive: raw?.online_exclusive === true,
     boost: rx || !Number.isFinite(popularity) || popularity <= 0 ? 0 : Math.log10(1 + popularity),
   };
 }

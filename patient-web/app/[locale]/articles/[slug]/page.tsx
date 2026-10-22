@@ -7,7 +7,10 @@ import { isLocale, locales } from "@/lib/i18n";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getPublicArticle } from "@/lib/api/articles-server";
+import { isOutage } from "@/lib/api/outage";
+import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
 import { articleSlug, parseArticle } from "@/lib/api/articles";
+import { articleBlocks, articleBodyHtml, type ArticleBlock } from "@/lib/articles/body";
 import { formatDate } from "@/lib/format-date";
 import { CiteThis } from "@/components-next/cite-this";
 import { ConsultPage } from "@/components-next/consult/consult-page";
@@ -15,10 +18,20 @@ import { ConsultState } from "@/components-next/consult/consult-state";
 import { Actions, CONSULT, Facts, Notice, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { SaveArticleButton } from "@/components-next/articles/save-article-button";
+import { ReadingProgress } from "@/components-next/navigation/reading-progress";
+import { ArticleShare } from "@/components-next/articles/article-share";
 import { ARTICLE_TONE, CategoryPill, articleExcerpt, articleTitle } from "@/components-next/articles/article-kit";
 import styles from "@/components-next/articles/articles.module.css";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
+
+// F82-3: static/ISR. An article is public data only: the same HTML for everyone, generated on the first request for a slug,
+// kept for ARTICLES_REVALIDATE_SECONDS (lib/api/articles-server.ts: the same window as the read) and regenerated in the
+// background. A failed read throws, so Next keeps the last good copy (stale-if-error, issue 302).
+export const revalidate = 600;
+export function generateStaticParams() {
+  return [];
+}
 
 /** The language the article's text is shown in: articles are written in Arabic and/or English. */
 function contentLanguage(locale: string, article: { titleAr?: string; titleEn?: string }) {
@@ -67,10 +80,12 @@ export default async function ArticlePage({ params }: Props) {
   if (!isLocale(locale) || !articleSlug(slug)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("Articles");
+  const shared = await getTranslations({ locale, namespace: "Shared" });
   const rs = await getTranslations("RouteState");
   const back = `/${locale}/articles`;
   const response = await getPublicArticle(slug);
   if (response?.status === 404) notFound();
+  if (isOutage(response)) throw new PublicDataUnavailableError("article");
   if (!response || !response.ok) {
     return (
       <ConsultPage locale={locale} title={t("title")} backHref={back}>
@@ -78,8 +93,11 @@ export default async function ArticlePage({ params }: Props) {
       </ConsultPage>
     );
   }
-  const article = parseArticle(await response.json().catch(() => null));
+  const payload = await response.json().catch(() => null);
+  const article = parseArticle(payload);
   if (!article) notFound();
+  // 10-web#2: the full text, read from the HTML into plain-text blocks (never put into the page as HTML)
+  const blocks = articleBlocks(articleBodyHtml(payload, locale));
   const title = articleTitle(locale, article, t("untitled"));
   const excerpt = articleExcerpt(locale, article);
   const path = `/articles/${encodeURIComponent(slug)}`;
@@ -90,9 +108,21 @@ export default async function ArticlePage({ params }: Props) {
   const facts: FactRow[] = [];
   if (authorName) facts.push({ label: t("author"), value: <bdi>{authorTitle ? `${authorName} — ${authorTitle}` : authorName}</bdi>, icon: CONSULT.icon, tone: CONSULT.tone });
   if (published) facts.push({ label: t("published"), value: <time dateTime={publishedAt ?? undefined}>{published}</time>, icon: "calendar-dots", tone: ARTICLE_TONE });
+  // 17.4: "last updated" only when the text was changed after it was first published (the same day is not an update).
+  const updatedAt = article.updatedAt || null;
+  const updated = updatedAt && updatedAt.slice(0, 10) !== publishedAt?.slice(0, 10) ? formatDate(locale, updatedAt) : null;
+  if (updated) facts.push({ label: t("updated"), value: <time dateTime={updatedAt ?? undefined}>{updated}</time>, icon: "calendar-dots", tone: ARTICLE_TONE });
+  const canonical = localizedUrl(locale, path);
 
   return (
-    <ConsultPage locale={locale} title={title} backHref={back}>
+    <ConsultPage
+      locale={locale}
+      title={title}
+      backHref={back}
+      crumbsLabel={shared("breadcrumbLabel")}
+      crumbs={[{ label: shared("navHome"), href: `/${locale}` }, { label: t("title"), href: back }, { label: title }]}
+    >
+      <ReadingProgress label={shared("readingProgress")} />
       <JsonLd
         data={[
           {
@@ -107,6 +137,7 @@ export default async function ArticlePage({ params }: Props) {
             publisher: { "@type": "Organization", name: "Nabd Plus", url: siteOrigin() }, // i18n-ok: brand name in structured data
             speakable: { "@type": "SpeakableSpecification", cssSelector: ["h1", ".nabd-direct-answer"] },
             ...(publishedAt ? { datePublished: publishedAt } : {}),
+            ...(updated && updatedAt ? { dateModified: updatedAt } : {}),
             ...(authorName ? { author: { "@type": "Person", name: authorName, ...(authorTitle ? { jobTitle: authorTitle } : {}) } } : {}),
           },
           medicalWebPage({ title, description: excerpt ?? null, locale, path }),
@@ -121,7 +152,7 @@ export default async function ArticlePage({ params }: Props) {
       <SectionCard id="article-summary" title={t("summary")}>
         <p className={`${excerpt ? `${DIRECT_ANSWER_CLASS} ` : ""}${styles.summary}`} dir="auto">{excerpt || t("excerptUnavailable")}</p>
       </SectionCard>
-      <Notice>{t("bodyHidden")}</Notice>
+      {blocks.length ? <SectionCard id="article-body" title={t("bodyTitle")}><ArticleBody blocks={blocks} /></SectionCard> : <Notice>{t("bodyHidden")}</Notice>}
       <Notice>{t("disclaimer")}</Notice>
       <CiteThis
         title={title}
@@ -131,10 +162,35 @@ export default async function ArticlePage({ params }: Props) {
         publishedAt={publishedAt}
         locale={locale}
       />
+      <ArticleShare
+        url={canonical}
+        title={title}
+        labels={{ heading: t("shareTitle"), copy: t("shareCopy"), copied: t("shareCopied"), whatsapp: t("shareWhatsapp"), x: t("shareX") }}
+      />
       <Actions>
         <SaveArticleButton slug={slug} locale={locale} />
         <ButtonLink href={back} label={t("back")} variant="outline" size="lg" fullWidth />
       </Actions>
     </ConsultPage>
+  );
+}
+
+/** The article's text: headings, paragraphs and lists; consecutive list items form one list. */
+function ArticleBody({ blocks }: { blocks: ArticleBlock[] }) {
+  const groups: Array<ArticleBlock | ArticleBlock[]> = [];
+  for (const block of blocks) {
+    const tail = groups[groups.length - 1];
+    if (block.kind === "li" && Array.isArray(tail)) tail.push(block);
+    else groups.push(block.kind === "li" ? [block] : block);
+  }
+  return (
+    <div className={styles.articleBody} dir="auto">
+      {groups.map((group, index) => {
+        if (Array.isArray(group)) return <ul key={index} className={styles.articleList}>{group.map((item, i) => <li key={i}>{item.text}</li>)}</ul>;
+        if (group.kind === "h2") return <h2 key={index} className={styles.articleHeading}>{group.text}</h2>;
+        if (group.kind === "h3") return <h3 key={index} className={styles.articleSubheading}>{group.text}</h3>;
+        return <p key={index} className={styles.summary}>{group.text}</p>;
+      })}
+    </div>
   );
 }

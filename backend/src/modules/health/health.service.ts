@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException, BadRequestException, ConflictException, ServiceUnavailableException, Inject, forwardRef, Optional } from '@nestjs/common';
+import { revealHealthDocs } from '../../common/health-fields';
+import { Injectable, NotFoundException, BadRequestException, ConflictException, ForbiddenException, ServiceUnavailableException, Inject, forwardRef, Optional } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Connection, Model } from 'mongoose';
@@ -333,14 +334,33 @@ export class HealthService {
     return { medicine_name_ar, time_zone: timezone, times, frequency, dosage_count, duration_days, start_date, end_date, pills_remaining };
   }
 
+  /**
+   * Journeys 67: whose reminder this is. Without `for_member_id` it is the caller's own; with it, the caller must share a
+   * family group with that member and be its owner or hold the 'meds' permission (the same right that shows the member's
+   * medicines and missed-dose alerts).
+   */
+  private async reminderPatient(user: any, forMemberId?: unknown): Promise<string> {
+    const member = typeof forMemberId === 'string' ? forMemberId.trim() : '';
+    if (!member || member === user.id) return user.id;
+    const group: any = await this.conn.collection('family_groups').findOne({ is_deleted: { $ne: true }, 'members.user_id': { $all: [user.id, member] } });
+    if (!group) throw new ForbiddenException('not_a_family_member');
+    if (group.owner_id === user.id) return member;
+    const mine = (group.members || []).find((m: any) => m.user_id === user.id);
+    const perms: string[] = Array.isArray(mine?.permissions) ? mine.permissions : [];
+    if (!perms.includes('*') && !perms.includes('meds') && !perms.includes('view_health')) throw new ForbiddenException('meds_permission_required');
+    return member;
+  }
+
   async createReminder(user: any, data: any) {
+    const patientId = await this.reminderPatient(user, data?.for_member_id);
     const normalized = this.normalizeReminderInput(data);
     const dose = String(data?.dose || (data as any)?.dosage || '').trim();
     if (!dose || dose.length > 120) throw new BadRequestException('valid dose required');
     const refill_date = data?.refill_date ? new Date(data.refill_date) : undefined;
     if (refill_date && Number.isNaN(refill_date.getTime())) throw new BadRequestException('valid refill_date required');
     const r = await this.reminders.create({
-      patient_id: user.id,
+      patient_id: patientId,
+      ...(patientId !== user.id ? { created_by: user.id } : {}),
       medicine_name_ar: normalized.medicine_name_ar,
       medicine_name_en: String(data?.medicine_name_en || '').trim() || undefined,
       medicine_id: data?.medicine_id,
@@ -451,7 +471,8 @@ export class HealthService {
 
   /** Full reminder update — normalizes editable schedule fields before persisting them. */
   async updateReminder(user: any, id: string, patch: any) {
-    const current: any = await this.reminders.findOne({ id, patient_id: user.id });
+    const patientId = await this.reminderPatient(user, patch?.for_member_id);
+    const current: any = await this.reminders.findOne({ id, patient_id: patientId });
     if (!current) throw new NotFoundException();
     const source = { ...(typeof current.toObject === 'function' ? current.toObject() : current), time_zone: current.time_zone || 'UTC', ...(patch || {}) };
     const normalized = this.normalizeReminderInput(source, current);
@@ -477,7 +498,8 @@ export class HealthService {
       pills_remaining: normalized.pills_remaining,
       refill_date,
     };
-    const r = await this.reminders.findOneAndUpdate({ id, patient_id: user.id }, { $set }, { new: true });
+    const r = await this.reminders.findOneAndUpdate({ id, patient_id: patientId }, { $set }, { new: true });
+    if (!r) throw new NotFoundException();
     return r.toObject();
   }
 
@@ -679,7 +701,8 @@ export class HealthService {
   async listPrescriptions(user: any) {
     const rows = await this.conn.db.collection('prescriptions')
       .find({ patient_id: user.id }, { projection: { upload_image: 0 } })
-      .sort({ createdAt: -1 }).limit(50).toArray();
+      .sort({ createdAt: -1 }).limit(50).toArray()
+      .then((r: any[]) => revealHealthDocs('prescriptions', r));   // 16.9: raw read, so the health fields are decrypted here
     const doctorIds = [...new Set(rows.map((r: any) => r.doctor_id).filter(Boolean))];
     const doctors = doctorIds.length
       ? await this.conn.db.collection('users').find({ id: { $in: doctorIds } }, { projection: { id: 1, full_name: 1, name: 1 } }).toArray()

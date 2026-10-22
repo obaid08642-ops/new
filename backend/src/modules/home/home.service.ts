@@ -5,6 +5,7 @@ import { PromotionCampaign, PromotionCampaignDocument } from '../../schemas/prom
 import { Appointment, AppointmentDocument } from '../../schemas/appointment.schema';
 import { REQUEST } from '@nestjs/core';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
+import { publicMedicineFilter } from '../medicines/public-medicine-filter';
 
 /**
  * Needs-review #419: provider profiles have no top-level `name`; they carry display/registered names
@@ -124,7 +125,8 @@ export class HomeService {
           $or: [{ name_ar: regex }, { name_en: regex }, { specialty: regex }, { hospital: regex }],
         } as any).limit(6).toArray(),
         db.collection(CATALOG_COLLECTIONS.medicines).find({
-          verified: true,
+          // verified alone also matched admin-added items still in medical review.
+          ...publicMedicineFilter(),
           $or: [{ name_ar: regex }, { name_en: regex }, { active_ingredient: regex }],
         } as any).limit(6).toArray(),
         db.collection(CATALOG_COLLECTIONS.lab_services).find({
@@ -203,6 +205,9 @@ export class HomeService {
         ic: 'pill', c: '#FF4B55', cs: '#FFEBEC',
         price: m.price != null ? String(m.price) : null,
         priceEn: m.price != null ? String(m.price) : null,
+        // Decisions 10 and 11: the result row says "needs a prescription" / "online only", like the catalogue cards.
+        requires_prescription: m.requires_prescription === true || m.is_rx === true,
+        online_exclusive: m.online_exclusive === true,
       });
     }
 

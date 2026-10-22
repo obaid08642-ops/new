@@ -1,0 +1,11 @@
+# /etc/cron.d/nabd-backups — D-33 (owner decision 33). Server time is UTC.
+# Replaces the old root crontab line "0 3 * * * /opt/nabdah/deploy/scripts/backup.sh" (remove it when installing this).
+# m  h  dom mon dow user command
+0  3  *   *   *   root /opt/nabdah/deploy/scripts/backup.sh >> /var/log/nabd-backups.log 2>&1
+40 3  *   *   0   root /opt/nabdah/deploy/scripts/catalogue-export.sh >> /var/log/nabd-backups.log 2>&1
+10 4  2   *   *   root /opt/nabdah/deploy/scripts/restore-drill.sh >> /var/log/nabd-backups.log 2>&1
+# 20.8 point-in-time recovery: oplog slice every 10 min (RPO <= 15 min), disaster recovery drill from the off-server copies monthly
+*/10 *  *   *   *   root /opt/nabdah/deploy/scripts/oplog-backup.sh >> /var/log/nabd-backups.log 2>&1
+30 4  3   *   *   root /opt/nabdah/deploy/scripts/dr-drill.sh >> /var/log/nabd-backups.log 2>&1
+# 20.10 capacity sampler: one line of capacity signals every 15 min (deploy/scripts/capacity-sample.sh; review: docs/perf/CAPACITY_REVIEW.md)
+*/15 *  *   *   *   root /opt/nabdah/deploy/scripts/capacity-sample.sh >> /var/log/nabd-backups.log 2>&1
