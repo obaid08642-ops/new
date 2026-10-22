@@ -122,17 +122,6 @@
   },
   {
     "batch": "m6-blocked",
-    "app": "patient-web",
-    "screen": "/prescriptions (Ord20, Ord21 My medical orders)",
-    "element": "structured medical order list, per-group Order button, validity",
-    "file": "patient-web/app/[locale]/prescriptions/page.tsx",
-    "line": 30,
-    "found": "[backend] waits for M2: no patient read endpoint for structured orders; provider.controllers.ts:275 only emits an event.",
-    "suspect": "M2 acceptance specs are red on main.",
-    "review_status": "open"
-  },
-  {
-    "batch": "m6-blocked",
     "app": "patient-app",
     "screen": "/diagnostics/search (Ord01 context bar)",
     "element": "context bar with place and payment",
@@ -140,6 +129,50 @@
     "line": 18,
     "found": "[backend] waits for M3: owner decision (2026-10-18): app Ord01 waits for M3.",
     "suspect": "Decided; no open question.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-orders",
+    "app": "patient-web",
+    "screen": "/medical-orders/[orderId] (Ord21)",
+    "element": "Item names",
+    "file": "patient-web/app/[locale]/medical-orders/[orderId]/page.tsx",
+    "line": 44,
+    "found": "[backend] GET /medical-orders/:id gives catalog_id only, no test or scan name; items show their group (or sessions) instead of a name.",
+    "suspect": "Backend gap: add the catalogue name to each item in the view (medical-orders.service.ts view()).",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-orders",
+    "app": "patient-web",
+    "screen": "/medical-orders/[orderId] (Ord21, Order button)",
+    "element": "Order button prefill",
+    "file": "patient-web/app/api/medical-orders/[orderId]/items/[itemId]/[action]/route.ts",
+    "line": 38,
+    "found": "[client] The Order button calls POST …/order, which returns the prefill (service_kind, items), then sends the patient to the group hub. The lab, radiology and nursing flows do not read the prefill, so the items are not pre-ticked.",
+    "suspect": "Client: the flows must read the medical_order prefill (M3 flow).",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-orders",
+    "app": "patient-app",
+    "screen": "/medical-orders/[id] (Ord21, Order button)",
+    "element": "Order button prefill",
+    "file": "patient-app/app/medical-orders/[id].tsx",
+    "line": 41,
+    "found": "[client] Same as the web: the prefill is not read by the app flows; the patient lands on the generic flow.",
+    "suspect": "Client: the flows must read the medical_order prefill (M3 flow).",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-orders",
+    "app": "patient-web",
+    "screen": "/medical-orders/[orderId] (expired order)",
+    "element": "Renew",
+    "file": "patient-web/app/[locale]/medical-orders/[orderId]/page.tsx",
+    "line": 51,
+    "found": "[backend] POST /medical-orders/:id/renew-request exists on main; the expired note has no renew action yet (not built in this batch).",
+    "suspect": "Client: add the renew action (owner: wording and whether a doctor is asked).",
     "review_status": "open"
   }
 ]
