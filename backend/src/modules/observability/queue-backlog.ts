@@ -32,7 +32,9 @@ export function evaluateQueueBacklog(samples: QueueSample[], now: number): Queue
   const failedStart = now - QUEUE_FAILED_WINDOW_MS;
   let base: QueueSample | undefined;
   for (const s of samples) { if (s.at <= failedStart + EDGE_SLACK_MS) base = s; else break; }
-  const covered = !!base && !!newest && newest.at > base.at && newest.at - base.at >= QUEUE_FAILED_WINDOW_MS - EDGE_SLACK_MS;
+  // the newest sample must be fresh too: after read failures the last sample is old, and an old sample judges nothing
+  const fresh = !!newest && newest.at >= now - EDGE_SLACK_MS;
+  const covered = fresh && !!base && newest!.at > base.at && newest!.at - base.at >= QUEUE_FAILED_WINDOW_MS - EDGE_SLACK_MS;
   const grown = covered && newest ? newest.failed - (base as QueueSample).failed : 0;
   findings.push({
     rule: 'queue_failed', key: 'queue_failed', active: covered && grown > QUEUE_FAILED_LIMIT, value: grown, threshold: QUEUE_FAILED_LIMIT, unit: 'jobs',
@@ -41,9 +43,10 @@ export function evaluateQueueBacklog(samples: QueueSample[], now: number): Queue
 
   // waiting: every check in the last 10 minutes is above the limit, and the samples cover the whole window
   const waitStart = now - QUEUE_WAITING_WINDOW_MS;
-  const inWindow = samples.filter((s) => s.at > waitStart);
+  const inWindow = samples.filter((s) => s.at >= waitStart - EDGE_SLACK_MS);
   const oldest = inWindow[0];
-  const waitCovered = !!oldest && oldest.at <= waitStart + EDGE_SLACK_MS && inWindow.length >= 2;
+  const newestWait = inWindow[inWindow.length - 1];
+  const waitCovered = !!oldest && oldest.at <= waitStart + EDGE_SLACK_MS && inWindow.length >= 2 && !!newestWait && newestWait.at >= now - EDGE_SLACK_MS;
   const lowest = inWindow.length ? Math.min(...inWindow.map((s) => s.waiting)) : 0;
   findings.push({
     rule: 'queue_waiting', key: 'queue_waiting', active: waitCovered && lowest > QUEUE_WAITING_LIMIT, value: lowest, threshold: QUEUE_WAITING_LIMIT, unit: 'jobs',

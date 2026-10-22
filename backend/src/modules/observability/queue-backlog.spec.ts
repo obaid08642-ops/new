@@ -43,6 +43,17 @@ describe('queue rule: failed jobs', () => {
     expect(finding(samples, 'queue_failed', T0 + 25 * MIN).active).toBe(false);
   });
 
+  it('a stale newest sample (the queue stopped being read) judges nothing', () => {
+    const samples = series(20, (m) => ({ failed: m >= 5 ? 5 + (m - 5) * 2 : 5, waiting: 0 }));
+    // the last sample is 5 minutes old at the check time: the growth is no longer current
+    expect(finding(samples, 'queue_failed', T0 + 25 * MIN).active).toBe(false);
+  });
+
+  it('a stale backlog (reads failed after it) judges nothing', () => {
+    const samples = series(12, () => ({ failed: 0, waiting: 900 }));
+    expect(finding(samples, 'queue_waiting', T0 + 18 * MIN).active).toBe(false);
+  });
+
   it('gives no answer until the samples cover the window (no alert right after a restart)', () => {
     const samples = series(5, (m) => ({ failed: m * 10, waiting: 0 }));
     const f = finding(samples, 'queue_failed', T0 + 5 * MIN);
