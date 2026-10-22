@@ -1143,6 +1143,7 @@
     "service_video": "استشارة فيديو",
     "service_clinic": "عيادة",
     "service_home": "زيارة منزلية",
+    "homeBookWithAddress": "اختر العنوان والوقت",
     "slotsForDate": "المواعيد ليوم {date}",
     "available": "متاح",
     "unavailable": "محجوز",
