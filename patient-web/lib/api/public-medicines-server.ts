@@ -1,5 +1,6 @@
 import { medicineQuery, parseMedicineId } from "@/lib/api/medicines";
 import { patientApiUrl } from "@/lib/api/upstream";
+import { publicReadSignal } from "@/lib/api/public-timeout";
 
 function publicMedicinePath(path: string) {
   const listPath = /^\/medicines(?:\?(?:[A-Za-z0-9%_=&+-]+))?$/;
@@ -11,7 +12,7 @@ function publicMedicinePath(path: string) {
 /** Public catalog only: this function cannot send a patient credential or reach any private endpoint. */
 export async function getPublicMedicines(search: { q?: string; page: number; category?: string; sort?: string }): Promise<Response | null> {
   try {
-    return await fetch(patientApiUrl(publicMedicinePath(medicineQuery(search))), {
+    return await fetch(patientApiUrl(publicMedicinePath(medicineQuery(search))), { signal: publicReadSignal(),
       headers: { Accept: "application/json" },
       cache: "force-cache",
     });
@@ -23,7 +24,7 @@ export async function getPublicMedicines(search: { q?: string; page: number; cat
 export async function getPublicMedicine(medicineId: string): Promise<Response | null> {
   if (!parseMedicineId(medicineId).success) throw new Error("invalid_public_medicine_id");
   try {
-    return await fetch(patientApiUrl(publicMedicinePath(`/medicines/${medicineId}/details`)), {
+    return await fetch(patientApiUrl(publicMedicinePath(`/medicines/${medicineId}/details`)), { signal: publicReadSignal(),
       headers: { Accept: "application/json" },
       cache: "force-cache",
     });

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { locales, type Locale } from "@/lib/i18n";
 import { SITEMAP_NS, escXml, hreflangLinks, localizedUrl } from "@/lib/seo";
+import { publicReadSignal } from "@/lib/api/public-timeout";
 
 /** Sitemap protocol limit per file. */
 export const MAX_SITEMAP_URLS = 50_000;
@@ -15,7 +16,7 @@ export function backendOrigin() {
  * kept in the Next data cache for `revalidate` seconds.
  */
 export async function sitemapFeed<T>(path: string, revalidate = 21600): Promise<T> {
-  const res = await fetch(`${backendOrigin()}/api/v1${path}`, {
+  const res = await fetch(`${backendOrigin()}/api/v1${path}`, { signal: publicReadSignal(),
     // issue 1541: the backend purges "sitemap" when a provider is deleted, so its entry leaves the sitemap at once
     next: { revalidate, tags: ["sitemap"] },
     headers: { "User-Agent": "NabdPlus-Sitemap-Renderer/1.0", Accept: "application/json" },

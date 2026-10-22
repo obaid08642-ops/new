@@ -1,5 +1,6 @@
 import { callPatientApi, patientApiUrl } from "@/lib/api/upstream";
 import { parseHomeCareServiceId } from "./home-care-services";
+import { publicReadSignal } from "@/lib/api/public-timeout";
 
 function servicePath(path: string) {
   if (path === "/home-care/services") return path;
@@ -20,11 +21,11 @@ export function getPatientHomeCareService(serviceId: string, accessToken: string
 
 /** @deprecated The live contract is protected; use getPatientHomeCareServices. */
 export async function getPublicHomeCareServices(): Promise<Response | null> {
-  try { return await fetch(patientApiUrl(servicePath("/home-care/services")), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
+  try { return await fetch(patientApiUrl(servicePath("/home-care/services")), { signal: publicReadSignal(), headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
 }
 
 /** @deprecated The live contract is protected; use getPatientHomeCareService. */
 export async function getPublicHomeCareService(serviceId: string): Promise<Response | null> {
   if (!parseHomeCareServiceId(serviceId).success) throw new Error("invalid_home_care_service_id");
-  try { return await fetch(patientApiUrl(servicePath(`/home-care/services/${serviceId}`)), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
+  try { return await fetch(patientApiUrl(servicePath(`/home-care/services/${serviceId}`)), { signal: publicReadSignal(), headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
 }

@@ -5,6 +5,7 @@ import { getProductSitemap } from "@/lib/api/public-products-server";
 import { patientApiUrl } from "@/lib/api/upstream";
 import { getDisabledModules } from "@/lib/api/public-config-server";
 import { MODULE_SITEMAPS } from "@/lib/modules";
+import { publicReadSignal } from "@/lib/api/public-timeout";
 
 // Computed per request: a build-time prerender (backend unreachable during the image build) froze an
 // index with no product sitemaps. The backend count itself is cached for an hour (fetch revalidate).
@@ -34,7 +35,7 @@ export async function GET() {
     // Light count endpoint (bytes, not megabytes): total → pages.
     let pages = 0;
     try {
-      const res = await fetch(patientApiUrl(`/public/sitemaps/products-count`), {
+      const res = await fetch(patientApiUrl(`/public/sitemaps/products-count`), { signal: publicReadSignal(),
         headers: { Accept: "application/json" },
         next: { revalidate: 3600 },
       } as RequestInit);
