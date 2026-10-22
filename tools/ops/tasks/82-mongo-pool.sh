@@ -20,6 +20,8 @@ fi
 TOUCHED=0
 echo "## mongo-pool"
 health() { $DK inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$1" 2>/dev/null; }
+# the worker has its own healthcheck (healthy); a container without one reports running
+worker_ok() { local s; for i in $(seq 1 "$1"); do s=$(health nabdah-worker); case "$s" in healthy|running) return 0;; esac; sleep 5; done; echo "pool: nabdah-worker health=$s"; return 1; }
 wait_healthy() { local s; for i in $(seq 1 "$2"); do s=$(health "$1"); [ "$s" = healthy ] && return 0; sleep 5; done; echo "pool: $1 health=$s"; return 1; }
 conns() { $DK exec nabdah-mongodb sh -c 'mongosh --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --eval "JSON.stringify(db.serverStatus().connections)"' 2>&1 | tail -1; }
 # prints one status: line with the counts only (phase = before | after)
@@ -37,7 +39,7 @@ restore() {
   if [ "$TOUCHED" = 1 ]; then
     $COMPOSE up -d --no-deps --no-build --force-recreate backend worker >/dev/null 2>&1
   fi
-  if wait_healthy nabdah-backend 48 && [ "$(health nabdah-worker)" = running ]; then
+  if wait_healthy nabdah-backend 48 && worker_ok 48; then
     echo "status: mongo pool rollback=complete"
   else
     echo "status: mongo pool rollback=incomplete"
@@ -66,7 +68,7 @@ echo "pool: MONGO_MAX_POOL_SIZE set to 40 in .env.production"
 TOUCHED=1
 $COMPOSE up -d --no-deps --no-build --force-recreate backend worker >/dev/null 2>&1 || restore "recreate"
 wait_healthy nabdah-backend 48 || restore "backend_health"
-[ "$(health nabdah-worker)" = running ] || restore "worker_state"
+worker_ok 48 || restore "worker_state"
 c=$(curl -sk -o /dev/null -w '%{http_code}' --max-time 8 -H 'Host: api.nabd.plus' https://127.0.0.1/api/v1/health/liveness)
 [ "$c" = 200 ] || restore "api_liveness"
 echo "pool: backend and worker recreated, healthy, api 200"
