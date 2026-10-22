@@ -45,6 +45,8 @@ import { HomeCareBooking, HomeCareBookingSchema, NursingVisitReport, NursingVisi
 import { RadiologyBooking, RadiologyBookingSchema } from '../../schemas/radiology.schema';
 import { LeaveRequestsController } from './leave-requests.controller';
 import { ProviderBadgeController } from './provider-badge.controller';
+import { ProviderOrderingController, AdminOrderingController } from './provider-ordering.controller';
+import { ProviderOrderingService } from './services/provider-ordering.service';
 import {
   ProviderAuthController, ProviderProfileController, ProviderOperatorsController, ProviderAdminController,
   ProviderRequestsController, ProviderNotificationsController, ProviderScheduleController, ProviderDashboardController,
@@ -154,6 +156,8 @@ import { ProviderDrugIndexController } from './provider-drug-index.controller';
     // Phase 1C
     ProviderCapabilitiesController,
     ProviderZonesController,
+    ProviderOrderingController,
+    AdminOrderingController,
     ProviderScheduleSlotsController,
     ProviderScoreController,
     AdminMatchingController,
@@ -180,6 +184,7 @@ import { ProviderDrugIndexController } from './provider-drug-index.controller';
     ProviderSeedService,
     // Phase 1C
     ServiceCapabilityService,
+    ProviderOrderingService,
     GeoEngineService,
     SchedulingEngineService,
     ProviderScoringService,
