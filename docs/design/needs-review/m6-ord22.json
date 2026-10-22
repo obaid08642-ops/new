@@ -8,7 +8,7 @@
     "line": 71,
     "found": "[backend] The schedule list reads only active consultation jobs, with status 'confirmed'/'in_progress'; completed visits never reach AppointmentDetail, so the 'New medical order' button shows only for in_progress.",
     "suspect": "Doctor cannot write an order for a completed visit from the app; need a list that includes completed appointments with status and patient_id.",
-    "review_status": "open"
+    "review_status": "fixed #1778 (GET /medical-orders/visits) and this PR: the \"write an order\" list on the Schedule tab (MedicalOrderVisitsScreen.tsx)"
   },
   {
     "batch": "m6-ord22-ord30",

@@ -50,6 +50,7 @@ import { PatientFileScreen } from './PatientFileScreen';
 import { LiveConsultationScreen } from './LiveConsultationScreen';
 import { AppointmentDetailScreen } from './AppointmentDetailScreen';
 import { MedicalOrderComposer } from './MedicalOrderComposer';
+import { MedicalOrderVisitsScreen } from './MedicalOrderVisitsScreen';
 import { DoctorScheduleTab } from './DoctorScheduleTab';
 import { DoctorHomeTab } from './DoctorHomeTab';
 export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void }) {
@@ -104,6 +105,7 @@ export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void })
      <Stack.Screen name="sick_leave">{({ navigation, route }: any) => <SickLeaveScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="medical_report">{({ navigation, route }: any) => <MedicalReportScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="referral">{({ navigation, route }: any) => <ReferralScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+     <Stack.Screen name="medical_order_visits">{({ navigation }: any) => <MedicalOrderVisitsScreen onBack={() => navigation.goBack()} onOpen={(visit: any) => navigation.navigate('medical_order_composer', { param: visit })} />}</Stack.Screen>
      <Stack.Screen name="medical_order_composer">{({ navigation, route }: any) => <MedicalOrderComposer apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="request_test">{({ navigation, route }: any) => <RequestTestScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="patient_file">{({ navigation, route }: any) => <PatientFileScreen patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
