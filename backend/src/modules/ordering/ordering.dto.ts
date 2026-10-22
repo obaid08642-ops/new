@@ -284,8 +284,9 @@ export class AssignStaffDto {
 }
 
 export class ArriveDto {
+  // the shape (4 Western digits) is checked by the service, which answers with `arrival_code_invalid`
   @IsString()
-  @Matches(/^[0-9]{4}$/)
+  @MaxLength(8)
   code: string;
 }
 

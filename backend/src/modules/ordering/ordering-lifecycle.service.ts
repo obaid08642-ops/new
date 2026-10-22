@@ -209,6 +209,7 @@ export class OrderingLifecycleService implements OnModuleInit {
     const { b, lc } = await this.ownedByProvider(provider.id, id);
     if (!lc.arrival_code) throw new ConflictException('no_staff_assigned');
     if ((lc.wrong_codes ?? 0) >= MAX_WRONG_CODES) throw new HttpException('arrival_code_locked', 423);
+    if (!/^[0-9]{4}$/.test(dto.code)) throw new BadRequestException('arrival_code_invalid');
     const same = dto.code.length === lc.arrival_code.length && timingSafeEqual(Buffer.from(dto.code), Buffer.from(lc.arrival_code));
     if (!same) {
       // the counter moves atomically, so parallel guesses cannot exceed the limit
