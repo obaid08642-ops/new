@@ -27,17 +27,26 @@ import { MetricsService, MetricsSnapshot, percentileFromBuckets } from '../../co
 import { SLO_TARGETS } from '../../common/slo-targets';
 import { logEvent } from '../../common/structured-logger';
 import { processRole } from '../../common/process-role';
+import { getQueueToken } from '@nestjs/bullmq';
+import type { Queue } from 'bullmq';
+import { evaluateQueueBacklog, QueueSample, QUEUE_WAITING_WINDOW_MS, QUEUE_FAILED_WINDOW_MS } from './queue-backlog';
 
-export type AlertRuleId = 'api_availability_fast' | 'api_availability_slow' | 'checkout_success' | 'p95_latency' | 'event_loop_lag';
-export const ALERT_RULE_IDS: AlertRuleId[] = ['api_availability_fast', 'api_availability_slow', 'checkout_success', 'p95_latency', 'event_loop_lag'];
+export type AlertRuleId = 'api_availability_fast' | 'api_availability_slow' | 'checkout_success' | 'p95_latency' | 'event_loop_lag' | 'queue_failed' | 'queue_waiting';
+export const ALERT_RULE_IDS: AlertRuleId[] = ['api_availability_fast', 'api_availability_slow', 'checkout_success', 'p95_latency', 'event_loop_lag', 'queue_failed', 'queue_waiting'];
 
-interface RuleDef { id: AlertRuleId; slo: string; severity: 'critical' | 'warning'; title: string; forChecks: number }
+/** The notifications delivery queue (notifications.module.ts). */
+export const NOTIFICATIONS_QUEUE = 'notifications-delivery';
+
+interface RuleDef { id: AlertRuleId; slo: string; severity: 'critical' | 'warning'; title: string; forChecks: number; /** For a rule that has no SLO target of its own. */ runbook?: string }
 const RULES: Record<AlertRuleId, RuleDef> = {
   api_availability_fast: { id: 'api_availability_fast', slo: 'api_availability', severity: 'critical', title: 'API availability: the error budget is burning fast', forChecks: 2 },
   api_availability_slow: { id: 'api_availability_slow', slo: 'api_availability', severity: 'warning', title: 'API availability: the error budget is burning', forChecks: 5 },
   checkout_success: { id: 'checkout_success', slo: 'checkout_success', severity: 'critical', title: 'Checkout success rate is under 99%', forChecks: 3 },
   p95_latency: { id: 'p95_latency', slo: 'p95_latency', severity: 'warning', title: 'Slow route group (p95 over 500 ms)', forChecks: 3 },
   event_loop_lag: { id: 'event_loop_lag', slo: 'event_loop_lag', severity: 'warning', title: 'Event-loop delay over 100 ms', forChecks: 1 },
+  // The windows are already in the rule (15 and 10 minutes), so one breached check is enough to send.
+  queue_failed: { id: 'queue_failed', slo: 'notifications_queue', severity: 'warning', title: 'Notification queue: failed jobs are piling up', forChecks: 1, runbook: 'docs/runbooks/notifications-queue.md' },
+  queue_waiting: { id: 'queue_waiting', slo: 'notifications_queue', severity: 'warning', title: 'Notification queue: jobs are waiting too long', forChecks: 1, runbook: 'docs/runbooks/notifications-queue.md' },
 };
 
 const CLEAR_CHECKS = 3;
@@ -132,10 +141,22 @@ export function evaluateRules(history: Stamped[], lagSamples: number[]): Finding
   return findings;
 }
 
+  /** What a drill shows for each rule (a sample, not a reading). */
+const DRILL_SAMPLE: Record<AlertRuleId, { value: number; threshold: number; unit: string }> = {
+  api_availability_fast: { value: 0.05, threshold: 0.01, unit: 'ratio' },
+  api_availability_slow: { value: 0.05, threshold: 0.006, unit: 'ratio' },
+  checkout_success: { value: 0.05, threshold: 0.01, unit: 'ratio' },
+  p95_latency: { value: 650, threshold: 500, unit: 'ms' },
+  event_loop_lag: { value: 650, threshold: 100, unit: 'ms' },
+  queue_failed: { value: 25, threshold: 20, unit: 'jobs' },
+  queue_waiting: { value: 250, threshold: 200, unit: 'jobs' },
+};
+
 @Injectable()
 export class SloAlertsService implements OnModuleInit, OnModuleDestroy {
   private history: Stamped[] = [];
   private lag: number[] = [];
+  private queueSamples: QueueSample[] = [];
   private states = new Map<string, AlertState>();
   private timer?: NodeJS.Timeout;
   readonly sent: AlertEvent[] = [];     // the last events of this process (also stored in slo_alert_events)
@@ -166,7 +187,7 @@ export class SloAlertsService implements OnModuleInit, OnModuleDestroy {
     this.history.push({ at: now, snap });
     if (this.history.length > MAX_SNAPSHOTS) this.history.shift();
     this.lag.push(snap.eventLoopLagMs); if (this.lag.length > 10) this.lag.shift();
-    const findings = evaluateRules(this.history, this.lag);
+    const findings: Finding[] = [...evaluateRules(this.history, this.lag), ...(await this.queueFindings(now))];
     const events: AlertEvent[] = [];
     const repeatMs = Math.max(5, Number(process.env.SLO_ALERT_REPEAT_MINUTES) || 240) * 60_000;
     const seen = new Set<string>();
@@ -196,6 +217,29 @@ export class SloAlertsService implements OnModuleInit, OnModuleDestroy {
     return events;
   }
 
+  /**
+   * Samples the notifications queue (failed and waiting counts) and evaluates the two queue rules. A queue that cannot be
+   * read, or is not registered in this process, gives no finding (nothing is judged on a missing sample).
+   */
+  private async queueFindings(now: number): Promise<Finding[]> {
+    const queue = this.notificationsQueue();
+    if (queue) {
+      try {
+        const [failed, waiting] = await Promise.all([queue.getFailedCount(), queue.getWaitingCount()]);
+        this.queueSamples.push({ at: now, failed, waiting });
+      } catch { /* a read that fails is left out: no sample, no judgement */ }
+    }
+    const keep = Math.ceil((Math.max(QUEUE_FAILED_WINDOW_MS, QUEUE_WAITING_WINDOW_MS) + 2 * 60_000) / TICK_MS);
+    if (this.queueSamples.length > keep) this.queueSamples = this.queueSamples.slice(-keep);
+    return evaluateQueueBacklog(this.queueSamples, now);
+  }
+
+  private notificationsQueue(): Queue | undefined {
+    try {
+      return this.moduleRef?.get<Queue>(getQueueToken(NOTIFICATIONS_QUEUE), { strict: false });
+    } catch { return undefined; }
+  }
+
   /** What the admin sees: the rules, which are firing, and the latest events. */
   status() {
     return {
@@ -210,7 +254,7 @@ export class SloAlertsService implements OnModuleInit, OnModuleDestroy {
     const def = RULES[rule];
     const sample: AlertState = {
       rule, key: `${rule}:drill`, consecutiveOn: def.forChecks, consecutiveOff: 0, firing: true, since: now, lastSentAt: now,
-      value: rule === 'p95_latency' || rule === 'event_loop_lag' ? 650 : 0.05, threshold: rule === 'p95_latency' ? 500 : rule === 'event_loop_lag' ? 100 : 0.01, unit: rule === 'p95_latency' || rule === 'event_loop_lag' ? 'ms' : 'ratio',
+      value: DRILL_SAMPLE[rule].value, threshold: DRILL_SAMPLE[rule].threshold, unit: DRILL_SAMPLE[rule].unit,
       detail: 'This is a drill: nothing is wrong. It checks that this alert reaches you with its runbook link.',
     };
     return this.dispatch(sample, 'firing', true);
@@ -221,7 +265,7 @@ export class SloAlertsService implements OnModuleInit, OnModuleDestroy {
   }
 
   private runbookOf(rule: AlertRuleId): string {
-    const path = SLO_TARGETS.find((t) => t.id === RULES[rule].slo)!.runbook;
+    const path = RULES[rule].runbook ?? SLO_TARGETS.find((t) => t.id === RULES[rule].slo)!.runbook;
     const base = (process.env.RUNBOOK_BASE_URL || 'https://github.com/obaid08642-ops/new/blob/main').replace(/\/+$/, '');
     return `${base}/${path}`;
   }
