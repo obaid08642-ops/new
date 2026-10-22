@@ -1,6 +1,6 @@
 #!/bin/bash
 # Mongo connection pool (owner, 2026-10-22). Sets MONGO_MAX_POOL_SIZE=40 in .env.production (read by the backend and the
-# worker), recreates both services, and prints the MongoDB connection counts before and after. A failed health check
+# worker), recreates both services, and prints the MongoDB connection counts before and after as status: lines. A failed health check
 # restores the env file and the services. Values are never printed (only the counts and the pool size).
 set -u
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
@@ -13,8 +13,10 @@ echo "## mongo-pool"
 health() { $DK inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$1" 2>/dev/null; }
 wait_healthy() { local s; for i in $(seq 1 "$2"); do s=$(health "$1"); [ "$s" = healthy ] && return 0; sleep 5; done; echo "pool: $1 health=$s"; return 1; }
 conns() { $DK exec nabdah-mongodb sh -c 'mongosh --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --eval "JSON.stringify(db.serverStatus().connections)"' 2>&1 | tail -1; }
+# prints one status: line with the counts only (phase = before | after)
+status_conns() { local j c a; j=$(conns); c=$(echo "$j" | grep -oE '"current":[0-9]+' | grep -oE '[0-9]+'); a=$(echo "$j" | grep -oE '"available":[0-9]+' | grep -oE '[0-9]+'); echo "status: mongo connections current=${c:-n/a} available=${a:-n/a} phase=$1"; }
 
-echo "mongo: connections before: $(conns)"
+status_conns before
 sudo -n mkdir -p $B
 sudo -n cp -p $ENVF $B/env.production.pre-pool.$TS && sudo -n chmod 600 $B/env.production.pre-pool.$TS
 restore() {
@@ -40,5 +42,5 @@ c=$(curl -sk -o /dev/null -w '%{http_code}' --max-time 8 -H 'Host: api.nabd.plus
 echo "pool: backend and worker recreated, healthy, api 200"
 
 sleep 30
-echo "mongo: connections after: $(conns)"
+status_conns after
 echo "## mongo-pool done"
