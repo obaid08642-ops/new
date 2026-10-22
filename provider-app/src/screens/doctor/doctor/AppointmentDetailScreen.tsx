@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import { AppointmentStatus } from '../../../types/contracts';
+import { isVisitedStatus } from './medicalOrderLogic';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet,
  Animated, FlatList, Alert, Dimensions, Platform, Modal, TextInput,
  RefreshControl, Switch, ActivityIndicator, KeyboardAvoidingView, Linking } from 'react-native';
@@ -124,6 +125,7 @@ export function AppointmentDetailScreen({ apt, onBack, onNavigate }:
   </NCard>
   {/* the consultation screen verifies the appointment with the server before anything opens */}
   <NBtn label={AR ? 'فتح الاستشارة' : 'Open consultation'} onPress={() => onNavigate('consultation', apt)} style={{ marginTop: SP.xl }} />
+  {isVisitedStatus(apt?.status) ? <NBtn label={AR ? 'أمر طبي جديد' : 'New medical order'} variant="outline" onPress={() => onNavigate('medical_order_composer', apt)} style={{ marginTop: SP.md }} /> : null}
   {apt?.type === 'home' && apptId ? <HomeVisitTrip apptId={apptId} AR={AR} /> : null}
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md }}>
  <View style={{ flex: 1 }}><NBtn label={AR ? 'تأكيد الموعد' : 'Confirm'} loading={acting} onPress={() => doPatch('confirm')} /></View>

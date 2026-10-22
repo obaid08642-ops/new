@@ -10,6 +10,7 @@ import { IBg, I } from '../../components/icons';
 import { SP, R, FS, FW } from '../../constants';
 import { ProviderWalletScreen, WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen } from '../shared/SharedScreens';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
+import { orderingStackScreens, ORDERING_ENTRY } from '../ordering';
 
 // ══════ PILLAR 1: STATE MACHINE LABELS ══════
 const STATE_LABELS: Record<string, { ar: string; en: string; color: string }> = {
@@ -76,6 +77,7 @@ export function RadiologyDashboardNavigator({ onLogout }: { onLogout: () => void
       <Stack.Screen name="order_detail">{({ navigation, route }: any) => <OrderDetailScreen order={route.params?.param} onBack={() => navigation.goBack()} onNav={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="reporting">{({ navigation, route }: any) => <ReportingScreen order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+      {orderingStackScreens(Stack, 'radiology')}
       <Stack.Screen name="wallet">{({ navigation }: any) => <ProviderWalletScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="withdrawal_workflow">{({ navigation }: any) => <WithdrawalWorkflow onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="drug_index">{({ navigation }: any) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -641,6 +643,10 @@ function RadiologySettingsScreen({ onLogout, onNav }: { onLogout: () => void; on
       <NCard style={{ marginBottom: SP.md }}>
         <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{AR ? 'التأمين' : 'Insurance'}</Text>
         <NBtn label={AR ? 'طلبات التأمين الواردة (قرار يدوي)' : 'Inbound Insurance Requests'} variant="outline" onPress={() => onNav && onNav('insurance_requests')} />
+      </NCard>
+      <NCard style={{ marginBottom: SP.md }}>
+        <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{AR ? 'إعلان الطلبات' : 'Ordering declaration'}</Text>
+        <NBtn label={AR ? 'إعلان الطلبات' : 'Ordering declaration'} variant="outline" onPress={() => onNav && onNav(ORDERING_ENTRY)} />
       </NCard>
       <NCard style={{ marginBottom: SP.md }}>
         <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{AR ? 'الأدوية' : 'Drugs'}</Text>

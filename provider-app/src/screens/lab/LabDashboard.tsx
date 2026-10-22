@@ -11,6 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useLang, useAuth, useToast } from '../../context';
 import client from '../../api/client';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
+import { orderingStackScreens, ORDERING_ENTRY } from '../ordering';
 import { LabQcActions } from './LabQcActions';
 import {
  NBtn, NCard, NInput, NStatCard, NAvatar, NBadge,
@@ -245,6 +246,7 @@ export function LabDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
      
      <Stack.Screen name="home_service">{({ navigation }: any) => <LabHomeServiceScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+      {orderingStackScreens(Stack, 'lab')}
      <Stack.Screen name="working_hours">{({ navigation }: any) => <WorkingHoursEditorScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="password">{({ navigation }: any) => <SecurityManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="2fa">{({ navigation }: any) => <SecurityManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -1404,6 +1406,7 @@ function LabSettings({ onLogout, onNavigate }:{ onLogout:()=>void; onNavigate:(s
  <NSettingsRow icon="calendar" label={AR?'مواعيد العمل':'Working Hours'} onPress={()=>onNavigate('working_hours')} />
  <NSettingsRow icon="shield" label={AR?'إعدادات التأمين':'Insurance Settings'} onPress={()=>onNavigate('insurance_config')} />
 <NSettingsRow icon="shield" label={AR?'طلبات التأمين الواردة':'Insurance Requests'} onPress={()=>onNavigate('insurance_requests')} />
+<NSettingsRow icon="document" label={AR?'إعلان الطلبات':'Ordering declaration'} onPress={()=>onNavigate(ORDERING_ENTRY)} />
  <NSettingsRow icon="document" label={AR?'الرخص والمستندات الرسمية':'Licenses & Documents'} onPress={()=>onNavigate('certificates_config')} />
  <NSettingsRow icon="camera" label={AR?'الصور والوسائط':'Photos & Media'} onPress={()=>onNavigate('media_config')} />
  </NCard>

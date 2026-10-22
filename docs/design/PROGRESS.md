@@ -24,10 +24,9 @@ _Updated 2026-10-10._
    - **BLOCKED: waits for M3** (ordering engine: items, split, matching, price lock): Ord02 service home ("from X SAR" by area), Ord03 item page (coverage per item), Ord04 basket split, Ord05 Best match, Ord06 time picker (windows and slots for the provider), Ord07 confirm and pay.
    - **BLOCKED: waits for M4** (ASAP and broadcast): Ord06 ASAP stage timer, Ord08 waiting states.
    - **BLOCKED: waits for M5** (insurance per item): Ord09 partial approval, Ord08 approval clock.
-   - **BLOCKED: waits for M2** (doctor's structured order): Ord20 My medical orders, Ord21 order detail, Ord22 doctor's composer.
    - **BLOCKED: waits for M7** (arrival code, staff profile for labs and radiology): Ord10 tracking.
    - **BLOCKED: waits for M8** (instant consultation): the "Discuss with a doctor" part of Ord11.
-   - **BLOCKED: waits for M1** (provider item model and declaration): Ord30-Ord33 (provider-app declaration screens).
+   - **Built (`design/m6-ord22-ord30`):** Ord22 doctor's composer and Ord30–33 provider declaration (provider-app, ar/en). Open rows: `needs-review/m6-ord22.json` (5), `m6-ord30.json` (13).
    - **App Ord01: waits for M3** (owner decision 2026-10-18). Recorded in `needs-review/m6-blocked.json`.
    - **Status 2026-10-22:** no M1–M8 backend is on main, only red acceptance specs (#1749, #1750). Every open M6 screen is recorded in `needs-review/m6-blocked.json` (15 rows, file:line). No screen was built on mock data.
 2. **Refs (#1255/#1256):** the 16 reports are triaged in `docs/design/NR_REPORTS_TRIAGE.md`: 10 fixed on main, 1 owner decision (#953), the rest backend or reviewer. Done.
