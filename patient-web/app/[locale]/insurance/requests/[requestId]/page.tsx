@@ -4,7 +4,7 @@ import { getPatientInsuranceRequest } from "@/lib/api/insurance-server";
 import { parseInsuranceRequest } from "@/lib/api/insurance-request";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { parseRequestExtras, UUID } from "@/lib/insurance/view";
+import { insuranceBookingHref, parseRequestExtras, UUID } from "@/lib/insurance/view";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { InsuranceRequestView } from "@/components-next/insurance/insurance-request-view";
@@ -44,8 +44,8 @@ export default async function InsuranceRequestPage({ params }: Props) {
       </ConsultPage>
     );
   }
-  const { price, bookingId } = parseRequestExtras(payload);
-  const bookingStatusHref = bookingId ? `/${locale}/consultations/booking-status?appointmentId=${encodeURIComponent(bookingId)}` : null;
+  const { price, bookingId, bookingKind } = parseRequestExtras(payload);
+  const bookingStatusHref = bookingId ? insuranceBookingHref(locale, bookingKind, bookingId) : null;
 
   return (
     <ConsultPage locale={locale} title={t("request.pageTitle")} backHref={backHref}>
