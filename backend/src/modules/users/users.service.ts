@@ -200,6 +200,15 @@ export class UsersService {
     'occupation', 'smoking_status', 'notes',
   ]);
 
+  /**
+   * D-30: the saved insurance policy. It is written only here, from POST /users/me/insurance (which forces `verified: false`
+   * and requires a class); it is NOT in the public-profile whitelist, so PATCH /users/me/profile can never set `verified`,
+   * a class or a company.
+   */
+  async setPatientInsurance(user_id: string, insurance: Record<string, unknown>) {
+    return this.patientRepository.updateOne({ user_id }, { $set: { insurance } }, { upsert: true, new: true, projection: { _id: 0, __v: 0 } });
+  }
+
   async updatePatientProfile(user_id: string, data: Partial<PatientProfile> & { chronic_conditions?: string[] }) {
     const mapped: any = {};
     for (const [k, v] of Object.entries(data || {})) {

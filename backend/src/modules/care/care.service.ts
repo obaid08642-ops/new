@@ -1,4 +1,5 @@
 import { StorageService } from '../storage/storage.module';
+import { policyClass, policyCompanyKeys } from '../../common/insurance-policy';
 import { BadRequestException, Injectable, NotFoundException, Inject, Optional } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
@@ -93,6 +94,9 @@ export class CareService {
     facility_id?: string;
     degree?: string;
     insurance?: string;
+    insuranceClass?: string;
+    /** payment=insurance: filter by the signed-in patient's own saved company and class. */
+    paymentInsurance?: boolean;
     accepts_insurance?: boolean;
     lat?: number;
     lng?: number;
@@ -104,13 +108,34 @@ export class CareService {
     page?: number;
     limit?: number;
   } = {}) {
+    // Self-pay lists are never filtered; only payment=insurance reads the patient's saved policy.
+    let insuranceCompany = opts.insurance;
+    let insuranceKeys = insuranceCompany ? [insuranceCompany] : [];
+    let insuranceClass = opts.insuranceClass;
+    if (opts.paymentInsurance && !insuranceCompany && opts.user) {
+      const profile = await this.providerModel.db.collection('patient_profiles').findOne({ user_id: opts.user.id }, { projection: { insurance: 1 } });
+      if (policyCompanyKeys(profile?.insurance).length) {
+        insuranceKeys = policyCompanyKeys(profile.insurance);
+        insuranceCompany = insuranceKeys[0];
+        insuranceClass = policyClass(profile.insurance) || undefined;
+      }
+    }
     const q: any = { type: ProviderType.DOCTOR, ...publicProviderFilter() };
     if (opts.specialty) q.specialty = opts.specialty;
     if (opts.service_type) q.consultation_modes = { $in: [opts.service_type] };
     if (opts.city) q.city = opts.city;
     if (opts.facility_id) q.facility_id = opts.facility_id;
     if (opts.degree) q.academic_degree = opts.degree;
-    if (opts.insurance) q.accepted_insurance = { $in: [opts.insurance] };
+    // Company AND class when both are given (contracts: { company_id, classes, active } in insurance_class_contracts); a
+    // company alone also matches the older plain-id entries of accepted_insurance.
+    if (insuranceCompany && insuranceClass) {
+      q.$and = [{ insurance_class_contracts: { $elemMatch: { company_id: { $in: insuranceKeys }, classes: insuranceClass, active: { $ne: false } } } }];
+    } else if (insuranceCompany) {
+      q.$and = [{ $or: [
+        { accepted_insurance: { $in: insuranceKeys } },
+        { insurance_class_contracts: { $elemMatch: { company_id: { $in: insuranceKeys }, active: { $ne: false } } } },
+      ] }];
+    }
     if (opts.accepts_insurance !== undefined) q.accepts_insurance = opts.accepts_insurance;
     const searchRegex = publicSearchRegex(opts.q);
     if (searchRegex) {
