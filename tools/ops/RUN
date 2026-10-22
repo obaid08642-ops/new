@@ -1,2 +1,2 @@
-# 2026-10-22 owner (server ops session): run 8, one task. MONGO_MAX_POOL_SIZE=40 for backend and worker, with the release compose file; status: lines only.
-82-mongo-pool
+# 2026-10-22 owner (lead reviewer): run 9, one task. OWNER_ALERT_EMAIL copied on the server from OPS_ALERT_EMAIL when missing; status: lines only.
+86-owner-alert-email
