@@ -166,7 +166,7 @@ export class MedicalOrdersService implements OnModuleInit {
 
   /**
    * The doctor's own visits an order can be written for: in progress, or completed within the window. Only the visit id, its
-   * status, the patient id and the date leave here (no name, phone or notes).
+   * status, the patient id and name, and the date leave here (no phone or notes).
    */
   async recentVisits(user: { id: string }) {
     const now = new Date();
@@ -175,10 +175,20 @@ export class MedicalOrdersService implements OnModuleInit {
       { $or: [{ doctor_user_id: user.id }, { provider_id: user.id }], status: { $in: VISITED } },
       { projection: VISIT_FIELDS },
     ).sort({ createdAt: -1 }).limit(200).toArray() as unknown as VisitRow[];
-    return rows
+    const open = rows
       .filter((a) => a.status === 'in_progress' || this.withinWindow(a, days, now))
-      .slice(0, RECENT_VISITS_LIMIT)
-      .map((a) => ({ id: a.id, status: a.status as string, patient_id: a.patient_id, date: this.visitDate(a) }));
+      .slice(0, RECENT_VISITS_LIMIT);
+    // The patient's display name (full_name only) lets the doctor tell two visits on one day apart; the doctor already sees it
+    // in the appointment. No phone or any other field of the patient leaves here.
+    const ids = [...new Set(open.map((a) => a.patient_id).filter(Boolean))];
+    const patients = ids.length
+      ? await this.conn.collection('users').find({ id: { $in: ids } }, { projection: { _id: 0, id: 1, full_name: 1 } }).toArray() as unknown as Array<{ id: string; full_name?: string }>
+      : [];
+    const names = new Map(patients.map((u) => [u.id, typeof u.full_name === 'string' ? u.full_name : null]));
+    return open.map((a) => ({
+      id: a.id, status: a.status as string, patient_id: a.patient_id, patient_name: names.get(a.patient_id) ?? null,
+      date: this.visitDate(a)?.toISOString() ?? null,
+    }));
   }
 
   // ---------- reading ----------

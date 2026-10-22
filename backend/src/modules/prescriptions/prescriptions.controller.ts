@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { PrescriptionsService } from './prescriptions.service';
 import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { PrescriptionState, UserRole } from '../../common/enums';
@@ -70,8 +70,14 @@ export class PrescriptionsController {
 
   @Get('doctor/mine')
   @Roles(UserRole.DOCTOR)
-  doctorMine(@CurrentUser('id') id: string) {
-    return this.svc.listForDoctor(id);
+  doctorMine(@CurrentUser('id') id: string, @Query('patient_id') patientId?: unknown, @Query('appointment_id') appointmentId?: unknown) {
+    // A repeated or bracketed query parameter arrives as an array or object; only a plain id string is a filter.
+    const plain = (value: unknown): string | undefined => {
+      if (value === undefined || value === '') return undefined;
+      if (typeof value !== 'string' || value.length > 128) throw new BadRequestException('invalid_filter');
+      return value;
+    };
+    return this.svc.listForDoctor(id, { patient_id: plain(patientId), appointment_id: plain(appointmentId) });
   }
 
   @Get('pharmacy/queue')

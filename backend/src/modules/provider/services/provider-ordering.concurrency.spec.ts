@@ -2,6 +2,9 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose, { Connection } from 'mongoose';
 import { ensureOrderingIndexes, ProviderOrderingService } from './provider-ordering.service';
 
+// Starting the in-memory MongoDB can take longer than the 5 s default hook timeout on a busy machine.
+jest.setTimeout(120_000);
+
 // M1 — concurrent writes never leave two declarations for one (provider, kind, catalogue item), and the indexes exist.
 describe('provider ordering: concurrent writes keep one row', () => {
   let server: MongoMemoryServer;

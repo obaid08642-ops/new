@@ -61,3 +61,5 @@ export type PrescriptionDocument = Prescription & Document;
 export const PrescriptionSchema = SchemaFactory.createForClass(Prescription);
 // 16.9: diagnosis, notes and the dosing instructions are ciphertext at rest
 PrescriptionSchema.plugin(healthFieldsPlugin, { registry: 'prescriptions' });
+// The doctor's list filtered by appointment (GET /prescriptions/doctor/mine?appointment_id=).
+PrescriptionSchema.index({ doctor_id: 1, appointment_id: 1 });
