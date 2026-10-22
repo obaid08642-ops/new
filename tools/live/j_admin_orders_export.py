@@ -76,9 +76,22 @@ def run():
     page.wait_for_timeout(1500)
     href2 = page.locator(EXPORT).get_attribute('href')
     step('export link carries the problem filter', 'problem=stuck' in (href2 or ''), href2)
-    r2 = fetch(page, href2)
-    lines2 = [l for l in r2['text'].lstrip('\ufeff').split('\n') if l.strip()] if r2['status'] == 200 else []
-    shown2 = total_shown(page)
+    # "stuck" depends on each order's age, so an order can cross the line between the moment the table is loaded and the
+    # moment the CSV is read. Read both together again on a fresh load until they describe the same instant; a real
+    # mismatch (an export that disagrees with its table) stays a mismatch on every attempt and still fails.
+    r2, lines2, shown2 = None, [], -1
+    for attempt in range(4):
+        if attempt:
+            page.reload(wait_until='load')
+            page.wait_for_selector(EXPORT, timeout=15000)
+            page.locator('select[aria-label="مشكلة"]').select_option('stuck')
+            page.wait_for_timeout(1500)
+            href2 = page.locator(EXPORT).get_attribute('href')
+        r2 = fetch(page, href2)
+        lines2 = [l for l in r2['text'].lstrip('\ufeff').split('\n') if l.strip()] if r2['status'] == 200 else []
+        shown2 = total_shown(page)
+        if r2['status'] == 200 and shown2 >= 0 and len(lines2) - 1 == shown2:
+            break
     step('filtered CSV rows = the filtered table total', r2['status'] == 200 and shown2 >= 0 and len(lines2) - 1 == shown2, f"{r2['status']}: {len(lines2) - 1} rows vs table {shown2}")
     browser.close()
     pw.stop()
