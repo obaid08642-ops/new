@@ -33,7 +33,7 @@ def run():
     stranger = Client(j_accounts.app_signup(label='asap-stranger')['token'], 'patient')
     r = pat.post('/ordering/asap', {'service_kind': 'lab', 'items': [test_id], 'lat': LAT, 'lng': LNG, 'payer': 'cash'})
     bid = r.get('id')
-    step('the broadcast starts at stage 1 and reaches the lab', r.status == 201 and bid and r.get('status') == 'broadcasting' and r.get('providers_notified', 0) >= 1, r)
+    step('the broadcast starts at stage 1 and reaches the lab', r.status == 201 and bid and r.get('status') == 'broadcasting' and (r.get('providers_notified') or 0) >= 1, r)
     step('no contact data or account id in the answer', lab_id not in str(r.body) and p['email'] not in str(r.body), str(r.body)[:200])
     r2 = pat.post('/ordering/asap', {'service_kind': 'lab', 'items': [test_id], 'lat': LAT, 'lng': LNG, 'payer': 'cash'})
     step('a second open ASAP of the same patient is refused (409 asap_open)', r2.status == 409 and 'asap_open' in str(r2.body), r2)
