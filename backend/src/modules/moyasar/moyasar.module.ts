@@ -1,4 +1,4 @@
-import { ServiceUnavailableException } from '@nestjs/common';
+import { GatewayTimeoutException, ServiceUnavailableException } from '@nestjs/common';
 import {
   Module,
   Injectable,
@@ -32,6 +32,7 @@ import * as crypto from 'crypto';
 import { moyasarBase } from '../../common/moyasar-base';
 import { isMoyasarWebhookAuthenticated } from '../../common/moyasar-webhook-auth';
 import { PaymentsModule, PaymentsService } from '../payments/payments.module';
+import { timedFetch } from '../../common/external-call';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
 // ── Schemas ──────────────────────────────────────────────────────────────────
@@ -189,11 +190,13 @@ export class MoyasarService {
 
     if (this.apiKey) {
       try {
-        const resp = await fetch(`${this.baseUrl}/payments`, {
+        // One attempt only: a POST without an idempotency key is never repeated. A timeout is a 504 and no local
+        // payment row is written; the hosted checkout charges nothing until the patient completes it.
+        const resp = await timedFetch(`${this.baseUrl}/payments`, {
           method: 'POST',
           headers: this.authHeaders(),
           body: JSON.stringify(requestBody),
-        });
+        }, { label: 'moyasar.createPayment', timeoutCode: 'payment_gateway_timeout' });
         moyasarResponse = await resp.json();
         if (!resp.ok) {
           throw new BadRequestException(
@@ -202,6 +205,7 @@ export class MoyasarService {
         }
       } catch (e: any) {
         this.logger.error('Moyasar createPayment error', e?.message);
+        if (e instanceof GatewayTimeoutException) throw e;
         throw new BadRequestException(e?.message || 'payment_create_failed');
       }
     } else {
@@ -246,9 +250,11 @@ export class MoyasarService {
     const isSandbox = !this.apiKey || moyasarId.startsWith('sandbox_');
     if (!isSandbox) {
       try {
-        const resp = await fetch(`${this.baseUrl}/payments/${encodeURIComponent(moyasarId)}`, {
+        // A read: safe to repeat (at most 2 more times). On a timeout the payment keeps its status and the
+        // next reconciliation pass asks again.
+        const resp = await timedFetch(`${this.baseUrl}/payments/${encodeURIComponent(moyasarId)}`, {
           headers: this.authHeaders(),
-        });
+        }, { label: 'moyasar.syncPaymentStatus', retries: 2, timeoutCode: 'payment_gateway_timeout' });
         const data: any = await resp.json();
 
         const statusMap: Record<string, string> = {
@@ -307,11 +313,13 @@ export class MoyasarService {
 
     try {
       const amountHalalas = amount ? Math.round(amount * 100) : undefined;
-      const resp = await fetch(`${this.baseUrl}/payments/${encodeURIComponent(moyasarId)}/refunds`, {
+      // Never repeated: a second POST could refund twice. On a timeout nothing is recorded locally; the payment
+      // stays `paid` until syncPaymentStatus reads `refunded` from Moyasar, so check it before asking again.
+      const resp = await timedFetch(`${this.baseUrl}/payments/${encodeURIComponent(moyasarId)}/refunds`, {
         method: 'POST',
         headers: this.authHeaders(),
         body: JSON.stringify(amountHalalas ? { amount: amountHalalas } : {}),
-      });
+      }, { label: 'moyasar.refund', timeoutCode: 'refund_gateway_timeout' });
       const data: any = await resp.json();
       if (!resp.ok) throw new BadRequestException(data?.message || 'refund_failed');
 
@@ -330,6 +338,7 @@ export class MoyasarService {
       return { ok: true, refund: data };
     } catch (e: any) {
       this.logger.error('Refund error', e?.message);
+      if (e instanceof GatewayTimeoutException) throw e;
       throw new BadRequestException(e?.message || 'refund_failed');
     }
   }

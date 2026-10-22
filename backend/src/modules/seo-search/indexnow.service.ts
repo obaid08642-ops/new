@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
+import { timedFetch } from '../../common/external-call';
 import { Connection } from 'mongoose';
 
 const DEFAULT_INDEXNOW_KEY = 'nabdplusindexnowkey';
@@ -79,14 +80,14 @@ export class IndexNowService {
     let message = '';
 
     try {
-      const response = await fetch(INDEXNOW_ENDPOINT, {
+      const response = await timedFetch(INDEXNOW_ENDPOINT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'User-Agent': 'NabdPlus-IndexNow-Agent/1.0',
         },
         body: JSON.stringify(payload),
-      });
+      }, { timeoutMs: 5000, label: 'indexnow' }); // best effort: a timeout is logged below and never fails the caller
 
       statusCode = response.status;
       // 200: OK, 202: Accepted (valid key and URLs queued)

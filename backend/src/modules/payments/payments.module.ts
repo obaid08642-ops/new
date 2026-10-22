@@ -18,7 +18,7 @@ import { RealtimeModule } from '../realtime/realtime.module';
 import { FraudService } from '../finance-engine/finance-engine.module';
 import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
 import { CircuitBreakerService } from '../../common/circuit-breaker.service';
-import { externalFetch, externalUnavailable, runExternalCall } from '../../common/external-call';
+import { externalFetch, externalUnavailable, runExternalCall, timedFetch } from '../../common/external-call';
 import * as crypto from 'crypto';
 import { Request } from 'express';
 import { UserRole } from '../../common/enums';
@@ -650,11 +650,12 @@ export class PaymentsService {
     if (t.gateway !== 'moyasar') throw new BadRequestException('capture_supported_for_moyasar_only');
     const key = process.env.MOYASAR_SECRET_KEY || process.env.MOYASAR_SECRET || process.env.MOYASAR_API_KEY;
     if (!key) throw new BadRequestException('payment_gateway_not_configured');
-    const r = await fetch(`${moyasarBase()}/payments/${t.gateway_intent_id}/capture`, {
+    // Sent once; on a timeout the transaction stays `authorized` and a later verify/reconciliation reads the real status.
+    const r = await timedFetch(`${moyasarBase()}/payments/${t.gateway_intent_id}/capture`, {
       method: 'POST',
       headers: { Authorization: `Basic ${Buffer.from(`${key}:`).toString('base64')}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({}),
-    });
+    }, { label: 'payments.capture', timeoutCode: 'payment_gateway_timeout' });
     const j: any = await r.json().catch(() => ({}));
     if (!r.ok) {
       t.webhook_payload = j;

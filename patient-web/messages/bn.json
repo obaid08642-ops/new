@@ -1143,6 +1143,7 @@
     "service_video": "ভিডিও",
     "service_clinic": "ক্লিনিক",
     "service_home": "বাড়িতে ভিজিট",
+    "homeBookWithAddress": "ঠিকানা ও সময় বেছে নিন",
     "slotsForDate": "{date}-এর সময়",
     "available": "উপলব্ধ",
     "unavailable": "বুকড",
