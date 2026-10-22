@@ -35,11 +35,23 @@ export function parseRequestRows(payload: unknown): RequestRow[] {
 }
 
 /** GET /insurance/requests/:id, the fields the request page shows besides the state (the total and the booking it belongs to). */
-export function parseRequestExtras(payload: unknown): { price?: number; bookingId?: string } {
+export function parseRequestExtras(payload: unknown): { price?: number; bookingId?: string; bookingKind?: string } {
   const root = asRecord(payload);
   const rec = asRecord(root?.data) ?? root;
   const bookingId = text(rec?.booking_id);
-  return { price: num(rec?.price) ?? num(rec?.total_amount), bookingId: bookingId && UUID.test(bookingId) ? bookingId : undefined };
+  return { price: num(rec?.price) ?? num(rec?.total_amount), bookingId: bookingId && UUID.test(bookingId) ? bookingId : undefined, bookingKind: text(rec?.booking_kind) || undefined };
+}
+
+/**
+ * Where "view booking" goes for the request's booking, as the app does (InsuranceRequestView): a consultation to its status,
+ * a lab or radiology booking to its diagnostics detail, anything else to the orders list. No kind (older answers) keeps the
+ * consultation status, as before.
+ */
+export function insuranceBookingHref(locale: string, bookingKind: string | undefined, bookingId: string): string {
+  if (bookingKind === "lab") return `/${locale}/diagnostics/bookings/labs/${encodeURIComponent(bookingId)}`;
+  if (bookingKind === "radiology") return `/${locale}/diagnostics/bookings/radiology/${encodeURIComponent(bookingId)}`;
+  if (bookingKind && bookingKind !== "consultation") return `/${locale}/orders`;
+  return `/${locale}/consultations/booking-status?appointmentId=${encodeURIComponent(bookingId)}`;
 }
 
 export type BenefitRow = { key: string; noteCode?: NoteCode };

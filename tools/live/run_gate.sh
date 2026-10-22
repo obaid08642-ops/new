@@ -60,6 +60,13 @@ export LIVE_ADMIN_SESSION="$(mktemp)"; rm -f "$LIVE_ADMIN_SESSION"
 # (default :3000, where nothing runs in the gate), so its browser half always skipped: point it at the site the gate
 # serves for the j_web_* journeys (live-gate.yml, start-web.sh PATIENT_WEB_PORT=3100).
 export NABD_PATIENT_WEB="${NABD_PATIENT_WEB:-${NABD_WEB_JOURNEYS_URL:-http://127.0.0.1:3100}}"
+# In CI, a failed journey also becomes an annotation (name, summary, first failing check), so the checks API shows which
+# journey failed without downloading the job log. The log already holds the same lines.
+annotate_fail() {
+  [[ -n ${GITHUB_ACTIONS:-} ]] || return 0
+  local first; first=$(grep -E '^\s+FAIL|Traceback' <<<"$3" | head -1 | sed -E 's/^\s+//' | cut -c1-200)
+  echo "::error title=live journey failed::$1: ${2:-no summary (crashed)} ${first:+| $first}"
+}
 python3 gate_p1.py || fail=1
 for j in "${JOURNEYS[@]}"; do
   ensure_backend || fail=1
@@ -69,9 +76,12 @@ for j in "${JOURNEYS[@]}"; do
   out=$(run_step "$tmo" python3 "$j.py" 2>&1)
   line=$(grep -E '^##### ' <<<"$out" | tail -1)
   echo "$j: ${line:-no summary (crashed)}"
+  # NOTE lines are diagnostics a journey prints on purpose (e.g. a hidden duplicate element); shown even when it passes
+  grep -E '^\s+NOTE ' <<<"$out" | head -5
   if [[ -z $line || ! $line =~ ", 0 failed" ]]; then
     fail=1
     grep -E '^\s+FAIL|Traceback|Error' <<<"$out" | head -20
+    annotate_fail "$j" "$line" "$out"
   fi
 done
 # R7-1: admin click tests run in a real browser (bundled Playwright Chromium, or
@@ -83,9 +93,12 @@ for j in "${TAIL_JOURNEYS[@]}"; do
   out=$(run_step 1800 python3 "$j.py" 2>&1)
   line=$(grep -E '^##### ' <<<"$out" | tail -1)
   echo "$j: ${line:-no summary (crashed)}"
+  # NOTE lines are diagnostics a journey prints on purpose (e.g. a hidden duplicate element); shown even when it passes
+  grep -E '^\s+NOTE ' <<<"$out" | head -5
   if [[ -z $line || ! $line =~ ", 0 failed" ]]; then
     fail=1
     grep -E '^\s+FAIL|Traceback|Error' <<<"$out" | head -20
+    annotate_fail "$j" "$line" "$out"
   fi
 done
 if [[ $restarts -gt 0 ]]; then
