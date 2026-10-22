@@ -69,6 +69,7 @@ const MESSAGES: Record<string, { ar: string; en: string }> = {
   medical_order_empty: { ar: 'أضف بندًا واحدًا على الأقل قبل الإرسال', en: 'Add at least one item before sending' },
   valid_days_invalid: { ar: 'مدة الصلاحية غير صحيحة، اختر 30 أو 90 أو 180 يومًا', en: 'Invalid validity, choose 30, 90 or 180 days' },
   appointment_not_visited: { ar: 'لا يمكن كتابة أمر طبي قبل أن يتم الكشف', en: 'You can write an order only after the visit' },
+  visit_window_closed: { ar: 'انتهت المدة المسموحة لكتابة أمر طبي لهذه الزيارة', en: 'The time allowed for writing an order for this visit has ended' },
   appointment_not_found: { ar: 'الموعد غير موجود', en: 'Appointment not found' },
   not_your_appointment: { ar: 'هذا الموعد ليس لك', en: 'This appointment is not yours' },
   catalog_item_not_found: { ar: 'أحد البنود لم يعد في الكتالوج الوطني، احذفه وأعد المحاولة', en: 'An item is no longer in the national catalogue, remove it and try again' },
@@ -96,4 +97,23 @@ export function mapOrderError(err: any, AR: boolean): string {
 export function isVisitedStatus(status: unknown): boolean {
   const s = String(status ?? '').toLowerCase();
   return s === 'completed' || s === 'in_progress';
+}
+
+/** One row of GET /medical-orders/visits: the doctor's own visit an order can still be written for (no patient data beyond the id). */
+export interface VisitRow { id: string; status: string; patient_id: string; date: string | null }
+
+export function parseVisits(payload: unknown): VisitRow[] {
+  const rows = Array.isArray(payload) ? payload : Array.isArray((payload as { data?: unknown } | null)?.data) ? (payload as { data: unknown[] }).data : [];
+  const out: VisitRow[] = [];
+  for (const raw of rows) {
+    const r = (raw && typeof raw === 'object' ? raw : null) as Record<string, unknown> | null;
+    if (!r || typeof r.id !== 'string' || !r.id) continue;
+    out.push({
+      id: r.id,
+      status: typeof r.status === 'string' ? r.status : '',
+      patient_id: typeof r.patient_id === 'string' ? r.patient_id : '',
+      date: typeof r.date === 'string' && r.date ? r.date : null,
+    });
+  }
+  return out;
 }

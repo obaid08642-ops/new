@@ -1,4 +1,4 @@
-import { addUnique, buildPayload, canSend, clampInt, emptyComposer, isVisitedStatus, mapOrderError } from '../medicalOrderLogic';
+import { addUnique, buildPayload, canSend, clampInt, emptyComposer, isVisitedStatus, mapOrderError, parseVisits } from '../medicalOrderLogic';
 
 const it1 = { catalog_id: 'l1', name_ar: 'أ', name_en: 'A' };
 
@@ -34,5 +34,26 @@ describe('medicalOrderLogic', () => {
     expect(isVisitedStatus('COMPLETED')).toBe(true);
     expect(isVisitedStatus('in_progress')).toBe(true);
     expect(isVisitedStatus('scheduled')).toBe(false);
+  });
+});
+
+describe('medicalOrderLogic visits and window errors', () => {
+  const err = (message: string) => ({ response: { data: { message } } });
+
+  it('maps visit_window_closed and appointment_not_visited to clear Arabic and English messages', () => {
+    expect(mapOrderError(err('visit_window_closed'), false)).toBe('The time allowed for writing an order for this visit has ended');
+    expect(mapOrderError(err('visit_window_closed'), true)).toContain('انتهت المدة');
+    expect(mapOrderError(err('appointment_not_visited'), false)).toBe('You can write an order only after the visit');
+    expect(mapOrderError(err('appointment_not_visited'), true)).toContain('قبل أن يتم الكشف');
+  });
+
+  it('reads the visits list (array or { data }), keeps id/status/patient_id/date and drops rows without an id', () => {
+    const rows = [{ id: 'a1', status: 'in_progress', patient_id: 'p1', date: '2026-10-20T10:00:00.000Z' }, { status: 'completed' }, { id: 'a2', status: 'completed', patient_id: 'p2' }];
+    expect(parseVisits(rows)).toEqual([
+      { id: 'a1', status: 'in_progress', patient_id: 'p1', date: '2026-10-20T10:00:00.000Z' },
+      { id: 'a2', status: 'completed', patient_id: 'p2', date: null },
+    ]);
+    expect(parseVisits({ data: rows })).toHaveLength(2);
+    expect(parseVisits(null)).toEqual([]);
   });
 });
