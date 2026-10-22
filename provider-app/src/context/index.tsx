@@ -15,6 +15,7 @@ import { getTheme, TR, type ThemeMode, type Theme, type Lang, type TKey, API_BAS
 import { Vault, Tokens, SessionMgr, RateLimiter, Audit, SK, Validate, Biometric, buildHeaders, DeviceId } from '../security/Security';
 import { mapAccountStatus } from '../utils/accountStatus';
 import { apiReachable, refreshOutcome } from '../utils/session';
+import { timedFetch } from '../api/timedFetch';
 
 // ═══════════════════════════════════════
 // THEME
@@ -279,7 +280,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const headers = await buildHeaders(false);
       const customIp = await Vault.get(SK.CUSTOM_API_IP);
       const baseUrl = customIp ? `http://${customIp}:8002/api/v1` : API_BASE;
-      res = await fetch(`${baseUrl}/provider/auth/refresh`, {
+      res = await timedFetch(`${baseUrl}/provider/auth/refresh`, {
         method: 'POST',
         headers,
         body: JSON.stringify({ refresh_token: refresh, session_id: sessionId, device_identifier: deviceId })
@@ -307,7 +308,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const syncOnline = async () => {
     try {
       const headers = await buildHeaders(true);
-      const res = await fetch(`${API_BASE}/provider/ops/availability/instant`, { method: 'GET', headers });
+      const res = await timedFetch(`${API_BASE}/provider/ops/availability/instant`, { method: 'GET', headers });
       if (!res.ok) return;
       const data = await res.json();
       updateUser({ isOnline: data?.instant_available === true });
@@ -325,7 +326,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const headers = await buildHeaders(false);
       const customIp = await Vault.get(SK.CUSTOM_API_IP);
       const baseUrl = customIp ? `http://${customIp}:8002/api/v1` : API_BASE;
-      const res = await fetch(`${baseUrl}/provider/auth/login`, {
+      const res = await timedFetch(`${baseUrl}/provider/auth/login`, {
         method: 'POST',
         headers,
         body: JSON.stringify({ email: identifier, password, meta: { device_identifier: deviceId } })
@@ -386,7 +387,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const sessionId = await Tokens.getSessionId();
       if (sessionId) {
         const headers = await buildHeaders(false);
-        await fetch(`${API_BASE}/provider/auth/logout`, { method: 'POST', headers, body: JSON.stringify({ session_id: sessionId }) });
+        await timedFetch(`${API_BASE}/provider/auth/logout`, { method: 'POST', headers, body: JSON.stringify({ session_id: sessionId }) });
       }
     } catch (e) {}
     Audit.log('logout', true);
@@ -411,7 +412,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   Audit.log('toggle_online', next);
   try {
   const headers = await buildHeaders(true);
-  const res = await fetch(`${API_BASE}/provider/ops/availability/toggle-instant`, {
+  const res = await timedFetch(`${API_BASE}/provider/ops/availability/toggle-instant`, {
  method: 'POST',
  headers,
  body: JSON.stringify({ available: next }),
