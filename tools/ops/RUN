@@ -1,3 +1,2 @@
-# 2026-10-18 owner: Email Routing (security@, support@, customer@) and the search suggest cache rule. Read-only checks; the apply tasks wait for the owner's Approve. Run 47 blocked on an apex MX of another provider (names printed from this run on). Report key unchanged.
-cf:44-email-routing-check
-cf:43-search-suggest-cache-check
+# 2026-10-22 owner (server ops session): one task per run. Run 1 of 7: disk check and prune above 80%.
+80-ops-disk
