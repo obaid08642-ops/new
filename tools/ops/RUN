@@ -1,4 +1,3 @@
-# 2026-10-22 owner (server ops session): read-only status tasks in one run (Redis persistence, env presence, sharp count). Run 4.
-81-ops-redis
+# 2026-10-22 owner (server ops session): read-only, one run. Redis save-failure diagnosis and the corrected env presence check.
+85-ops-redis-diag
 83-ops-env
-84-ops-sharp
