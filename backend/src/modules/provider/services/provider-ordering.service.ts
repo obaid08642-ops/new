@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { randomUUID } from 'crypto';
 import { Connection } from 'mongoose';
@@ -66,6 +66,13 @@ const bad = (code: string) => new BadRequestException(code);
 const round2 = (n: number) => Math.round(n * 100) / 100;
 const isPrice = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v) && v >= 0;
 
+/** Indexes that make one row per (provider, kind, catalogue item) and one settings row per provider. */
+export async function ensureOrderingIndexes(conn: Connection): Promise<void> {
+  await conn.collection(ITEMS).createIndex({ provider_account_id: 1, service_kind: 1, catalog_id: 1 }, { unique: true, name: 'ordering_item_unique' });
+  await conn.collection(ITEMS).createIndex({ service_kind: 1, catalog_id: 1 }, { name: 'ordering_item_catalog' });
+  await conn.collection(SETTINGS).createIndex({ provider_account_id: 1 }, { unique: true, name: 'ordering_settings_unique' });
+}
+
 /** The provider's service kind from its token (lab, radiology or nursing). Null for every other account. */
 export function orderingKindOf(user: unknown): ServiceKind | null {
   const roles = getEffectiveRoles(user);
@@ -86,8 +93,13 @@ function reasonOf(e: unknown): string {
 }
 
 @Injectable()
-export class ProviderOrderingService {
+export class ProviderOrderingService implements OnModuleInit {
   constructor(@InjectConnection() private readonly conn: Connection) {}
+
+  /** One declaration per provider, kind and catalogue item; concurrent upserts cannot leave two rows. Idempotent. */
+  async onModuleInit() {
+    await ensureOrderingIndexes(this.conn);
+  }
 
   private settingsCol() { return this.conn.collection(SETTINGS); }
   private itemsCol() { return this.conn.collection(ITEMS); }
