@@ -1,3 +1,2 @@
-# 2026-10-22 lead reviewer: run 12, URGENT recovery. Disk 100% and no worker after the failed deploy rollback.
-# 88: remove the unused 79a3d84b release images and upload dir, dangling images, old build cache; start worker and meilisearch again on the running release.
-88-recover-disk-worker
+# 2026-10-22 lead reviewer: run 13, recovery step 2. Start worker (and meilisearch) on the running release; 88 skipped it.
+89-worker-up
