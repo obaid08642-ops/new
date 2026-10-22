@@ -116,6 +116,7 @@
   "errors.otpUnavailable": "Hindi maipadala ang code ngayon. Subukan muli mamaya.",
   "errors.codeRequired": "Ilagay ang verification code",
   "errors.offline": "Walang koneksyon sa internet. Suriin ang iyong network.",
+  "errors.timeout": "Masyadong natagalan ang kahilingan. Suriin ang iyong koneksyon at subukan muli.",
   "errors.server": "May error sa server. Subukan muli mamaya.",
   "errors.crashTitle": "May nagkamali",
   "errors.crashBody": "Subukan muli. Kung patuloy ito, i-restart ang app.",

@@ -1,3 +1,6 @@
+// The real NetInfo needs the native module; apiFetch asks it whether the phone is offline (15.1).
+jest.mock('@react-native-community/netinfo', () => require('@react-native-community/netinfo/jest/netinfo-mock.js'));
+
 jest.mock('expo-device', () => ({
   isDevice: false,
   modelName: 'Jest device',

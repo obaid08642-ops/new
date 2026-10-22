@@ -90,10 +90,11 @@ export function errorText(error: unknown): string {
  * idempotency key is sent again by the retry. After any other answer the next attempt takes a fresh key.
  */
 export function noAnswerYet(error: unknown): boolean {
-  return /offline_error|request_aborted|idempotency_request_in_progress/i.test(errorText(error));
+  return /offline_error|request_aborted|request_timeout|idempotency_request_in_progress/i.test(errorText(error));
 }
 
 const PAY_ERRORS: ReadonlyArray<readonly [RegExp, string]> = [
+  [/request_timeout/i, 'errors.timeout'],
   [/offline_error|request_aborted|network error/i, 'errors.offline'],
   [/idempotency_request_in_progress/i, 'pharmacy.pay.err.inProgress'],
   [/booking_already_paid/i, 'pharmacy.pay.err.alreadyPaid'],
@@ -115,6 +116,7 @@ export function payErrorKey(error: unknown, fallback = 'pharmacy.pay.err.generic
 }
 
 const INSURANCE_ERRORS: ReadonlyArray<readonly [RegExp, string]> = [
+  [/request_timeout/i, 'errors.timeout'],
   [/offline_error|request_aborted|network error/i, 'errors.offline'],
   [/idempotency_request_in_progress/i, 'pharmacy.pay.err.inProgress'],
   [/copay_acceptance_requires_partial_decision|self_pay_acceptance_not_applicable|insurance_decision_pending|order_has_no_insurance|invalid_insurance_acceptance_kind|insurance_acceptance_conflict|selected_quote_required/i, 'pharmacy.ins.err.state'],

@@ -1,21 +1,31 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 import { config } from '../core/config';
+import { DEFAULT_TIMEOUT_MS, MAX_RETRIES, planRetries, retryAfterTooLong, retryDelayMs, shouldRetryStatus, timeoutFor } from '../utils/requestPolicy';
 
 // Issue 410: the same base URL as the fetch client (ConfigManager's single rule), never a second resolution here.
 export const RESOLVED_BASE_URL = config.apiBaseUrl;
 
 export const HttpClient = axios.create({
   baseURL: RESOLVED_BASE_URL,
-  timeout: 15000,
+  timeout: DEFAULT_TIMEOUT_MS,
+});
+
+// 15.1: the same timeouts as apiFetch (15 s; 60 s for an upload; 45 s for the AI routes) unless the caller set one.
+HttpClient.interceptors.request.use((request) => {
+  if (request.timeout === undefined || request.timeout === DEFAULT_TIMEOUT_MS) {
+    request.timeout = timeoutFor(String(request.url || ''), request.data);
+  }
+  return request;
 });
 
 export class OfflineMutationPendingError extends Error {
   constructor() { super('offline_mutation_pending_contract'); }
 }
 
-// Retry only safe reads. A mutation is never replayed or transformed into success
-// until its server contract defines idempotency, TTL, and confirmation semantics.
+// The same retry rules as apiFetch (utils/requestPolicy): a safe read, or a write that carries the caller's own
+// idempotency key, is tried again on a timeout, a lost connection or 502/503/504; 429 is tried again for every request.
+// The wait honours `Retry-After`, else backs off exponentially with jitter. A write without a key is never replayed.
 HttpClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
@@ -25,16 +35,21 @@ HttpClient.interceptors.response.use(
     config._retryCount = config._retryCount || 0;
     const method = String(config.method || 'get').toLowerCase();
     const isSafeRead = method === 'get' || method === 'head';
-    const shouldRetry = isSafeRead && (!error.response || error.response.status >= 500);
+    const headers = config.headers as unknown as { get?: (name: string) => unknown } | undefined;
+    const callerSuppliedKey = !!headers?.get?.('Idempotency-Key');
+    const plan = planRetries(method, callerSuppliedKey);
+    const retryAfter = error.response?.headers?.['retry-after'] as string | undefined;
+    const cancelled = axios.isCancel(error);
+    const status = error.response?.status;
+    const retryable = !cancelled && (status === undefined ? plan.retryTransport : shouldRetryStatus(status, plan));
 
-    if (shouldRetry && config._retryCount < 3) {
+    if (retryable && config._retryCount < MAX_RETRIES && !retryAfterTooLong(retryAfter)) {
+      const attempt = config._retryCount;
       config._retryCount += 1;
-      const delay = Math.pow(2, config._retryCount) * 1000;
-      
-      await new Promise((resolve) => setTimeout(resolve, delay));
+      await new Promise((resolve) => setTimeout(resolve, retryDelayMs(attempt, retryAfter)));
       return HttpClient(config);
     }
-    if (!error.response && error.request && !isSafeRead) {
+    if (!error.response && error.request && !isSafeRead && !cancelled) {
       return Promise.reject(new OfflineMutationPendingError());
     }
     return Promise.reject(error);
