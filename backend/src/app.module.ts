@@ -69,6 +69,7 @@ import { TimelineModule } from './modules/timeline/timeline.module';
 import { RadiologyModule } from './modules/radiology/radiology.module';
 import { MedicalReportsModule } from './modules/medical-reports/medical-reports.module';
 import { ProviderModule } from './modules/provider/provider.module';
+import { MedicalOrdersModule } from './modules/medical-orders/medical-orders.module';
 import { InstantConsultationModule } from './modules/instant-consultation/instant-consultation.module';
 import { PharmacyModule } from './modules/pharmacy/pharmacy.module';
 import { StorageModule } from './modules/storage/storage.module';
@@ -261,6 +262,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     MedicalReportsModule,
     StorageModule,
     ProviderModule,
+    MedicalOrdersModule,
     PharmacyModule,
     ServiceCatalogModule,
     CartModule,
