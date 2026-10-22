@@ -152,7 +152,7 @@ describe('Phase 23.2 covered events', () => {
     registerAuditSink(null);
     try {
       await recordAudit(conn, { action: 'fallback_probe', user_id: 'x' });
-      expect(await conn.collection('audit_logs').countDocuments({ action: 'fallback_probe' })).toBe(1);
+      expect(await conn.collection('auditlogs').countDocuments({ action: 'fallback_probe' })).toBe(1);
       await expect(recordAudit(undefined, { action: 'nowhere' })).resolves.toBeUndefined();
     } finally {
       registerAuditSink((e) => audit.write(e));

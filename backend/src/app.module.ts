@@ -58,6 +58,7 @@ import { EventsModule } from './modules/events/events.module';
 import { SeedModule } from './modules/seed/seed.module';
 import { CareModule } from './modules/care/care.module';
 import { LabsModule } from './modules/labs/labs.module';
+import { OrderingModule } from './modules/ordering/ordering.module';
 import { HomeCareModule } from './modules/home-care/home-care.module';
 import { RefundPolicyModule } from './modules/refund-policy/refund-policy.module';
 import { HealthModule } from './modules/health/health.module';
@@ -69,6 +70,8 @@ import { TimelineModule } from './modules/timeline/timeline.module';
 import { RadiologyModule } from './modules/radiology/radiology.module';
 import { MedicalReportsModule } from './modules/medical-reports/medical-reports.module';
 import { ProviderModule } from './modules/provider/provider.module';
+import { MedicalOrdersModule } from './modules/medical-orders/medical-orders.module';
+import { InstantConsultationModule } from './modules/instant-consultation/instant-consultation.module';
 import { PharmacyModule } from './modules/pharmacy/pharmacy.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { ServiceCatalogModule } from './modules/service-catalog/service-catalog.module';
@@ -158,6 +161,8 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
 
 @Module({
   imports: [
+    // M8: registered before DoctorsModule so /doctors/instant-requests is not read as /doctors/:id
+    InstantConsultationModule,
     CommonModule,
     // 16.9: field-level encryption for health data + the medical access log.
     PdplComplianceModule,
@@ -247,6 +252,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     CareModule,
     DoctorsModule,
     LabsModule,
+    OrderingModule,
     HealthModule,
     MedicalProgramsModule,
     SystemHealthModule,
@@ -258,6 +264,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     MedicalReportsModule,
     StorageModule,
     ProviderModule,
+    MedicalOrdersModule,
     PharmacyModule,
     ServiceCatalogModule,
     CartModule,
