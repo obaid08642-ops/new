@@ -10,6 +10,7 @@ import { specialtyLabel } from "@/lib/specialties";
 import { defaultVisitType, doctorDisplayName, extractDoctor, extractDoctorSlots, type DoctorSlots } from "@/lib/api/doctors";
 import { getPublicDoctor, getPublicDoctorSlots } from "@/lib/api/doctors-server";
 import { AppointmentBookingForm } from "@/components-next/appointment-booking-form";
+import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { formatPrice, formatNumber } from "@/lib/format-price";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
@@ -107,7 +108,10 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
           options={serviceTypes.map((type) => ({ value: type, label: t(`service_${type}`), href: `${base}?date=${date}&service_type=${type}` }))}
         />
         <p className={`${styles.body} ${styles.muted}`}>{t("slotsForDate", { date: new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "UTC" }).format(new Date(`${date}T00:00:00Z`)) })}</p>
-        {slots?.slots.length ? (
+        {/* A home visit needs one of the patient's saved addresses (with its map point): the full booking page chooses it. */}
+        {serviceType === "home" ? (
+          <ButtonLink href={`/${locale}/consultations/book/${encodeURIComponent(doctor.id)}?service_type=home`} label={t("homeBookWithAddress")} fullWidth />
+        ) : slots?.slots.length ? (
           <AppointmentBookingForm locale={locale} doctorId={doctor.id} serviceType={serviceType} slots={slots.slots} consent={serviceType === "video" ? await readTelehealthConsent(locale) : null} />
         ) : (
           <Notice>{t(slots?.reason === "closed" ? "slotsClosed" : "slotsEmpty")}</Notice>
