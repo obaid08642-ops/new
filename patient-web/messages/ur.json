@@ -1143,6 +1143,7 @@
     "service_video": "ویڈیو",
     "service_clinic": "کلینک",
     "service_home": "گھر کا دورہ",
+    "homeBookWithAddress": "پتہ اور وقت منتخب کریں",
     "slotsForDate": "{date} کے اوقات",
     "available": "دستیاب",
     "unavailable": "محفوظ",
