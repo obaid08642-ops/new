@@ -11,6 +11,7 @@ export declare function stampTheme(html: string, theme: string | null): string;
 export declare function createThemeStamper(theme: string | null): { push(chunk: string): string; end(): string };
 export declare function sha256Source(text: string): string;
 export declare function tagAttributes(attrs: string): Record<string, string>;
-export declare function scriptLoader(scripts: Record<string, string>[]): string;
+export declare const LOADER_BODY: string;
+export declare function scriptLoader(attributes: Record<string, string>): string;
 export declare function hashedPage(html: string): { html: string; scriptHashes: string[]; styleHashes: string[] };
 export declare function policyWithHashes(policy: string | null | undefined, scriptHashes: string[], styleHashes: string[]): string;
