@@ -11,6 +11,9 @@ import { RowCard } from "@/components-next/consult/consult-parts";
 import { Caret, NURSING, RowList, ServiceChips, serviceIcon } from "@/components-next/nursing/nursing-parts";
 import { SearchForm, money, pickText } from "@/components-next/diagnostics/diag-parts";
 import type { Metadata } from "next";
+import { AddToBasketIcon } from "@/components-next/ordering/add-to-basket";
+import { BasketBar } from "@/components-next/ordering/basket-bar";
+import styles from "@/components-next/ordering/ordering.module.css";
 
 /**
  * The service length in the page's language (needs-review issue 1071): the server sends a value and an English unit
@@ -84,7 +87,7 @@ export default async function NursingCatalogPage({ params, searchParams }: Props
             const description = pickText(locale, item.descriptionAr, item.descriptionEn);
             const duration = localDuration(locale, item.durationValue, item.duration);
             return (
-              <li key={item.id}>
+              <li key={item.id} className={styles.rowWithAdd}>
                 <RowCard
                   href={`/${locale}/home-care/services/${encodeURIComponent(item.id)}`}
                   icon={serviceIcon(item.id, item.category, item.nameAr, item.nameEn)}
@@ -94,11 +97,13 @@ export default async function NursingCatalogPage({ params, searchParams }: Props
                   extra={<ServiceChips duration={duration || undefined} insurance={item.insuranceAvailable ? t("insurance") : undefined} />}
                   caret={caret}
                 />
+                <AddToBasketIcon kind="nursing" line={{ id: item.id, nameAr: item.nameAr, nameEn: item.nameEn }} name={name} />
               </li>
             );
           })}
         </RowList>
       )}
+      <BasketBar locale={locale} kind="nursing" place="home" pay="cash" />
     </ConsultPage>
   );
 }
