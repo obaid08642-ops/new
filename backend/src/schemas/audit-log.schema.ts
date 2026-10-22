@@ -25,6 +25,8 @@ export class AuditLog {
   @Prop() role?: string;
   /** 23.1 — set when an admin is acting as somebody else. */
   @Prop({ index: true }) impersonator_id?: string;
+  /** M1 — the account that made the write (a provider changing its own ordering declaration). */
+  @Prop({ index: true }) actor_id?: string;
 
   /* what */
   @Prop() resource_kind?: string;
