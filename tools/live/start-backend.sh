@@ -58,6 +58,8 @@ export PAYOUT_DUAL_APPROVAL_SAR="${PAYOUT_DUAL_APPROVAL_SAR:-1}"
 export SETTLEMENT_DELAY_DAYS="${SETTLEMENT_DELAY_DAYS:-0}" PAYOUT_MINIMUM_SAR="${PAYOUT_MINIMUM_SAR:-1}"
 # Card payments go to tools/live/fake_moyasar.py (:9100); /__pay/<id> plays the patient completing checkout.
 export MOYASAR_API_KEY="${MOYASAR_API_KEY:-sk_test_live_journeys}" MOYASAR_API_BASE="${MOYASAR_API_BASE:-http://127.0.0.1:9100/v1}"
+# #551: the Moyasar webhook is refused without a configured secret; journeys post it with this one (j_payment_webhook.py)
+export MOYASAR_WEBHOOK_SECRET="${MOYASAR_WEBHOOK_SECRET:-live-journeys-webhook-token}"
 # 7C-C3: the backend network-gate check requires this header on /api/v1/admin/*.
 # The harness sends it (NABD_ADMIN_GATE_TOKEN, same default); keep both in sync.
 export ADMIN_GATE_TOKEN="${ADMIN_GATE_TOKEN:-live-gate-token}"
