@@ -19,6 +19,7 @@ const REVIEWED: Record<string, Record<string, number>> = {
   'modules/compat/admin-spa.module.ts': { appointments: 5 },                         // counts, group-bys, a feed of id/status/createdAt
   'modules/family/family.service.ts': { prescriptions: 1, appointments: 1 },         // prescriptions revealed; appointments projection has no health field
   'modules/health/health.service.ts': { medicalreports: 1, prescriptions: 1 },       // reports list has no health field; prescriptions revealed
+  'modules/instant-consultation/instant-consultation.service.ts': { appointments: 1 }, // M8: inserts the visit row (no health field; no notes, no records)
   'modules/mcp/agent-tools.service.ts': { appointments: 1 },                         // state check
   'modules/medical-reports/medical-reports.controller.ts': { appointments: 1, prescriptions: 1 }, // timeline projections
   'modules/nabd-extensions/nabd-extensions.service.ts': { appointments: 1 },         // fraud aggregate
