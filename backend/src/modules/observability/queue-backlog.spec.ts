@@ -2,7 +2,7 @@
  * Phase 20.5 — the notification queue rules: a failed-job burst (more than 20 in 15 minutes) and a waiting backlog (more than
  * 200 in every check of 10 minutes). Pure rule tests, then the service path (sampling the queue and the alert it sends).
  */
-import { evaluateQueueBacklog, QueueSample, QUEUE_FAILED_LIMIT, QUEUE_WAITING_LIMIT } from './queue-backlog';
+import { evaluateQueueBacklog, evaluatesQueueRules, QueueSample, QUEUE_FAILED_LIMIT, QUEUE_WAITING_LIMIT } from './queue-backlog';
 import { SloAlertsService } from './slo-alerts.service';
 import { MetricsService } from '../../common/metrics.service';
 
@@ -125,11 +125,31 @@ describe('queue rules in the service', () => {
     expect(mail.send).not.toHaveBeenCalled();
   });
 
+  it('a second API cluster worker does not judge the queue, so the owner gets one alert, not one per CPU', async () => {
+    const queueCalls = jest.fn(async () => 900);
+    const { svc, mail } = service({ getFailedCount: async () => 0, getWaitingCount: queueCalls });
+    svc.judgesQueue = false;
+    for (let m = 0; m <= 12; m += 1) await svc.tick(T0 + m * MIN);
+    expect(queueCalls).not.toHaveBeenCalled();
+    expect(mail.send).not.toHaveBeenCalled();
+  });
+
   it('a drill of each queue rule reaches the owner with its runbook', async () => {
     const { svc } = service(null);
     const drill = await svc.drill('queue_failed');
     expect(drill.drill).toBe(true);
     expect(drill.runbook).toMatch(/notifications-queue\.md$/);
     expect(drill.unit).toBe('jobs');
+  });
+});
+
+describe('which process judges the queue', () => {
+  it('the worker role and a single process always do; an API cluster only its first worker', () => {
+    expect(evaluatesQueueRules({ role: 'all' })).toBe(true);
+    expect(evaluatesQueueRules({ role: 'worker' })).toBe(true);
+    expect(evaluatesQueueRules({ role: 'api' })).toBe(true);
+    expect(evaluatesQueueRules({ role: 'api', clusterWorkerId: 1 })).toBe(true);
+    expect(evaluatesQueueRules({ role: 'api', clusterWorkerId: 2 })).toBe(false);
+    expect(evaluatesQueueRules({ role: 'api', clusterWorkerId: 8 })).toBe(false);
   });
 });

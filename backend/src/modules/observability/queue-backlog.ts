@@ -54,3 +54,13 @@ export function evaluateQueueBacklog(samples: QueueSample[], now: number): Queue
   });
   return findings;
 }
+
+/**
+ * Which process evaluates the queue rules. The queue is shared, so a rule must see one series of samples: the API runs one
+ * process per CPU (main.ts cluster), each with its own alert service, so only one of them judges the queue. Outside a
+ * cluster (dev, tests, the worker container) the process is alone and judges it.
+ */
+export function evaluatesQueueRules(opts: { role: 'api' | 'worker' | 'all'; clusterWorkerId?: number }): boolean {
+  if (opts.role !== 'api') return true;
+  return opts.clusterWorkerId === undefined || opts.clusterWorkerId === 1;
+}

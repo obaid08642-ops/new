@@ -29,7 +29,8 @@ import { logEvent } from '../../common/structured-logger';
 import { processRole } from '../../common/process-role';
 import { getQueueToken } from '@nestjs/bullmq';
 import type { Queue } from 'bullmq';
-import { evaluateQueueBacklog, QueueSample, QUEUE_WAITING_WINDOW_MS, QUEUE_FAILED_WINDOW_MS } from './queue-backlog';
+import { evaluateQueueBacklog, evaluatesQueueRules, QueueSample, QUEUE_WAITING_WINDOW_MS, QUEUE_FAILED_WINDOW_MS } from './queue-backlog';
+import * as nodeCluster from 'node:cluster';
 
 export type AlertRuleId = 'api_availability_fast' | 'api_availability_slow' | 'checkout_success' | 'p95_latency' | 'event_loop_lag' | 'queue_failed' | 'queue_waiting';
 export const ALERT_RULE_IDS: AlertRuleId[] = ['api_availability_fast', 'api_availability_slow', 'checkout_success', 'p95_latency', 'event_loop_lag', 'queue_failed', 'queue_waiting'];
@@ -166,7 +167,14 @@ export class SloAlertsService implements OnModuleInit, OnModuleDestroy {
     @Optional() @InjectConnection() private readonly conn?: Connection,
     @Optional() private readonly mail?: MailService,
     @Optional() private readonly moduleRef?: ModuleRef,
-  ) {}
+  ) {
+    // Only one API process judges the shared queue (see evaluatesQueueRules).
+    const cluster = nodeCluster as any;
+    this.judgesQueue = evaluatesQueueRules({ role: processRole(), clusterWorkerId: cluster.isWorker ? cluster.worker?.id : undefined });
+  }
+
+  /** False in every API process but the first cluster worker: the queue is judged once, not once per CPU. */
+  judgesQueue: boolean;
 
   onModuleInit() {
     // The counters live in the process that serves requests: the API (or the single process in development).
@@ -222,6 +230,7 @@ export class SloAlertsService implements OnModuleInit, OnModuleDestroy {
    * read, or is not registered in this process, gives no finding (nothing is judged on a missing sample).
    */
   private async queueFindings(now: number): Promise<Finding[]> {
+    if (!this.judgesQueue) return [];
     const queue = this.notificationsQueue();
     if (queue) {
       try {
