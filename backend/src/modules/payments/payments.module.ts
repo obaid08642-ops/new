@@ -691,7 +691,7 @@ export class PaymentsService {
   }
 
   async handleWebhook(provider: string, payload: any, signature?: string, rawBody?: string) {
-    const raw = rawBody ?? JSON.stringify(payload);
+    const raw = rawBody ?? JSON.stringify(payload ?? {});
     // S-5: Moyasar documents no signature header — its body secret_token is the
     // proof. The older HMAC path still works; anything with neither is refused.
     const authenticated = provider === 'moyasar'

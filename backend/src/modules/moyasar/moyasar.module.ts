@@ -375,7 +375,7 @@ export class MoyasarService {
   async handleWebhook(payload: any, signature?: string, rawBody?: string): Promise<{ ok: boolean }> {
     // S-5: Moyasar documents no signature header — the body secret_token is the
     // proof. The older HMAC path still works. Anything with neither is refused.
-    const raw = rawBody ?? JSON.stringify(payload);
+    const raw = rawBody ?? JSON.stringify(payload ?? {});
     if (!isMoyasarWebhookAuthenticated(payload, signature, raw)) {
       throw new BadRequestException('invalid_signature');
     }
