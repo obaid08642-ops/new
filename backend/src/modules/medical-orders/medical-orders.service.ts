@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, ForbiddenException, GoneException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, GoneException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { randomUUID } from 'crypto';
 import { Connection } from 'mongoose';
@@ -56,8 +56,17 @@ const GROUPS: OrderGroup[] = ['labs', 'radiology', 'nursing'];
 const bad = (code: string) => new BadRequestException(code);
 
 @Injectable()
-export class MedicalOrdersService {
+export class MedicalOrdersService implements OnModuleInit {
   constructor(@InjectConnection() private readonly conn: Connection) {}
+
+  /** Indexes for the order lookups and one renew request per order and patient. Idempotent. */
+  async onModuleInit() {
+    await this.conn.collection('medical_orders').createIndex({ id: 1 }, { unique: true, name: 'medical_order_id_unique' });
+    await this.conn.collection('medical_orders').createIndex({ patient_id: 1, createdAt: -1 }, { name: 'medical_order_patient' });
+    await this.conn.collection('medical_orders').createIndex({ doctor_id: 1 }, { name: 'medical_order_doctor' });
+    await this.conn.collection('medical_order_renew_requests').createIndex({ doctor_id: 1, requested_at: -1 }, { name: 'renew_doctor' });
+    await this.conn.collection('medical_order_renew_requests').createIndex({ order_id: 1, patient_id: 1 }, { unique: true, name: 'renew_order_patient_unique' });
+  }
 
   private orders() { return this.conn.collection('medical_orders'); }
   private renewals() { return this.conn.collection('medical_order_renew_requests'); }
@@ -250,8 +259,8 @@ export class MedicalOrdersService {
     const now = new Date();
     if (!this.expired(order, now) && !this.expiresSoon(order, now)) throw bad('renew_not_needed');
     await this.renewals().updateOne(
-      { order_id: order.id },
-      { $set: { order_id: order.id, patient_id: user.id, doctor_id: order.doctor_id, requested_at: now } },
+      { order_id: order.id, patient_id: user.id },
+      { $set: { doctor_id: order.doctor_id, requested_at: now } },
       { upsert: true },
     );
     await recordAudit(this.conn, { action: 'medical_order.renew_requested', user_id: user.id, role: 'patient', resource_kind: 'medical_order', resource_id: order.id });
