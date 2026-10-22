@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { randomBytes } from 'node:crypto';
+import { upstreamFetch } from '../../../../lib/upstream';
 
 function backendBase() {
   const value = process.env.ADMIN_BACKEND_URL;
@@ -20,7 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!identifier || !code) return res.status(400).json({ code: 'identifier_and_code_required' });
 
   try {
-    const upstream = await fetch(`${backendBase()}/api/v1/auth/login/verify-2fa`, {
+    const upstream = await upstreamFetch(`${backendBase()}/api/v1/auth/login/verify-2fa`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', accept: 'application/json' },
       body: JSON.stringify({ identifier: String(identifier), code: String(code) }),
@@ -40,7 +41,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       const enrollHeaders: Record<string, string> = { 'content-type': 'application/json', authorization: `Bearer ${token}`, 'x-admin-device': deviceId };
       if (process.env.ADMIN_GATE_TOKEN) enrollHeaders['x-admin-gate-token'] = process.env.ADMIN_GATE_TOKEN;
-      await fetch(`${backendBase()}/api/v1/admin/devices/enroll`, {
+      await upstreamFetch(`${backendBase()}/api/v1/admin/devices/enroll`, {
         method: 'POST',
         headers: enrollHeaders,
         body: JSON.stringify({ device_id: deviceId, name: 'admin-browser' }),

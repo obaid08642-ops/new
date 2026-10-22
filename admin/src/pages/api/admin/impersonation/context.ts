@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { upstreamFetch } from '../../../../lib/upstream';
 
 const SUPPORT_COOKIE = 'admin_support_session';
 
@@ -22,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!supportToken) return res.status(401).json({ code: 'support_session_required' });
 
   try {
-    const upstream = await fetch(`${base()}/api/v1/support-session/context`, {
+    const upstream = await upstreamFetch(`${base()}/api/v1/support-session/context`, {
       method: 'GET',
       headers: {
         authorization: `Bearer ${supportToken}`,
