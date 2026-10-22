@@ -28,6 +28,10 @@ import { runsBackgroundWork } from '../../common/process-role';
 
 
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { timedFetch } from '../../common/external-call';
+
+/** FCM / Expo / Google oauth: 8 s per attempt, sent once (a repeat could notify twice). The callers already treat a failure as `failed`, never as a failed request. */
+const pushFetch = (url: string, init?: RequestInit) => timedFetch(url, init, { timeoutMs: 8000, label: 'push', timeoutCode: 'push_gateway_timeout' });
 // ── Schema ────────────────────────────────────────────────────────────
 
 @Schema({ timestamps: true })
@@ -151,7 +155,7 @@ export class PushService implements OnModuleInit {
 
       const assertion = `${signatureInput}.${signature}`;
 
-      const resp = await fetch('https://oauth2.googleapis.com/token', {
+      const resp = await pushFetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${assertion}`,
@@ -561,7 +565,7 @@ export class PushService implements OnModuleInit {
             categoryId: data?.type === 'call' ? 'call_actions' : data?.type === 'chat' ? 'chat_actions' : 'default',
             badge: 1,
           }));
-          const resp = await fetch(this.EXPO_URL, {
+          const resp = await pushFetch(this.EXPO_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'Accept-Encoding': 'gzip, deflate' },
             body: JSON.stringify(messages),
@@ -603,7 +607,7 @@ export class PushService implements OnModuleInit {
           let resp: Response;
           if (accessToken && projectId) {
             // Send via FCM v1 HTTP API
-            resp = await fetch(`https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`, {
+            resp = await pushFetch(`https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`, {
               method: 'POST',
               headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -652,7 +656,7 @@ export class PushService implements OnModuleInit {
                     apns: { payload: { aps: { sound: 'default', badge: 1 } } },
                   },
                 });
-                resp = await fetch(`https://fcm.googleapis.com/v1/projects/${altProject}/messages:send`, {
+                resp = await pushFetch(`https://fcm.googleapis.com/v1/projects/${altProject}/messages:send`, {
                   method: 'POST',
                   headers: { Authorization: `Bearer ${altToken}`, 'Content-Type': 'application/json' },
                   body: payloadStr,
@@ -661,7 +665,7 @@ export class PushService implements OnModuleInit {
             }
           } else if (process.env.FCM_SERVER_KEY) {
             // Fallback: Send via Legacy FCM HTTP API
-            resp = await fetch('https://fcm.googleapis.com/fcm/send', {
+            resp = await pushFetch('https://fcm.googleapis.com/fcm/send', {
               method: 'POST',
               headers: {
                 Authorization: `key=${process.env.FCM_SERVER_KEY}`,
