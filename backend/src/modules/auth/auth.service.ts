@@ -1,4 +1,4 @@
-import { NotFoundException, Injectable, BadRequestException, UnauthorizedException, ConflictException, GoneException, ForbiddenException, Inject, HttpException, HttpStatus, ServiceUnavailableException } from '@nestjs/common';
+import { NotFoundException, Injectable, BadRequestException, UnauthorizedException, ConflictException, GoneException, ForbiddenException, Inject, HttpException, HttpStatus, ServiceUnavailableException, GatewayTimeoutException } from '@nestjs/common';
 import { currentRequestMeta, describeClient, maskIp } from '../../common/request-meta';
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
@@ -24,6 +24,10 @@ import { normalizeDigits } from './checkout-contact.service';
 import { AdminSessionService } from './admin-session.service';
 import { revokeAllCredentialSessions, revokeRedisRefreshSessions, RevocationResult } from '../../common/credential-revocation';
 import { Logger } from '@nestjs/common';
+import { timedFetch } from '../../common/external-call';
+
+/** Google / Apple lookups: 5 s per attempt, a read, so up to 2 repeats; a timeout is a 504 `social_login_timeout`. */
+const SOCIAL_FETCH = { timeoutMs: 5000, retries: 2, label: 'social-login', timeoutCode: 'social_login_timeout' } as const;
 import { randomUUID } from 'crypto';
 import { GuestService } from './guest.service';
 import { AccountLinkingService } from './account-linking.service';
@@ -1609,20 +1613,22 @@ export class AuthService {
   private async verifyGoogleToken(token: string): Promise<{ email: string; full_name: string } | null> {
     const allowed = AuthService.clientIds('GOOGLE_OAUTH_CLIENT_IDS');
     try {
-      const info = await fetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(token)}`);
+      const info = await timedFetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(token)}`, undefined, SOCIAL_FETCH);
       if (!info.ok) return null;
       const p: any = await info.json();
       if (!allowed.includes(String(p.aud || '')) && !allowed.includes(String(p.azp || ''))) return null;
       if (!AuthService.emailVerified(p.email_verified) || typeof p.email !== 'string' || !p.email) return null;
       if (p.expires_in !== undefined && !(Number(p.expires_in) > 0)) return null;
       let fullName = '';
-      const profile = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { Authorization: `Bearer ${token}` } }).catch(() => null);
+      const profile = await timedFetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { Authorization: `Bearer ${token}` } }, SOCIAL_FETCH).catch(() => null);
       if (profile?.ok) {
         const u: any = await profile.json().catch(() => ({}));
         fullName = u.name || `${u.given_name || ''} ${u.family_name || ''}`.trim();
       }
       return { email: p.email.toLowerCase(), full_name: fullName };
-    } catch {
+    } catch (e) {
+      // A slow Google is not a wrong token: answer 504 so the app can offer a retry instead of "invalid token".
+      if (e instanceof GatewayTimeoutException) throw e;
       return null;
     }
   }
@@ -1633,7 +1639,7 @@ export class AuthService {
   private static async appleKey(kid: string): Promise<KeyObject | null> {
     const fresh = AuthService.appleKeys && Date.now() - AuthService.appleKeys.at < 3600_000;
     if (!fresh || !AuthService.appleKeys!.keys.has(kid)) {
-      const r = await fetch('https://appleid.apple.com/auth/keys');
+      const r = await timedFetch('https://appleid.apple.com/auth/keys', undefined, SOCIAL_FETCH);
       if (!r.ok) return null;
       const body: any = await r.json();
       const keys = new Map<string, KeyObject>();
@@ -1661,7 +1667,8 @@ export class AuthService {
       });
       if (!AuthService.emailVerified(p.email_verified) || typeof p.email !== 'string' || !p.email) return null;
       return { email: p.email.toLowerCase(), full_name: '' };
-    } catch {
+    } catch (e) {
+      if (e instanceof GatewayTimeoutException) throw e;
       return null;
     }
   }

@@ -34,6 +34,7 @@ import { JwtAuthGuard, CurrentUser, Roles, SelfService } from '../../common/auth
 import { UserRole } from '../../common/enums';
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { moyasarBase } from '../../common/moyasar-base';
+import { timedFetch } from '../../common/external-call';
 import { settlementDelayDefault } from '../../common/commission-defaults';
 
 export const LEDGER_TYPES = [
@@ -686,11 +687,14 @@ export class RefundExecutor {
     // 1) Gateway refund (real money back to the card)
     if (paidPayment && paidPayment.moyasar_id && !String(paidPayment.moyasar_id).startsWith('sandbox_')) {
       const key = this.moyasarKey();
-      const resp = await fetch(`${moyasarBase()}/payments/${paidPayment.moyasar_id}/refund`, {
+      // Sent once (no idempotency key, so a repeat could refund twice). On a timeout the refund is NOT recorded here:
+      // the gateway may or may not have done it, so the 504 tells the operator to check the payment's status first
+      // (syncPaymentStatus reads `refunded` from Moyasar) before asking again.
+      const resp = await timedFetch(`${moyasarBase()}/payments/${paidPayment.moyasar_id}/refund`, {
         method: 'POST',
         headers: { Authorization: `Basic ${Buffer.from(`${key}:`).toString('base64')}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: Math.round(amount * 100), reason: opts.reason?.slice(0, 255) || 'refund' }),
-      });
+      }, { label: 'finance.refund', timeoutCode: 'refund_gateway_timeout' });
       const data: any = await resp.json().catch(() => ({}));
       if (!resp.ok) {
         this.logger.error(`Moyasar refund failed for ${paidPayment.moyasar_id}: ${data?.message || resp.status}`);
