@@ -64,7 +64,7 @@ describe('M2 doctor medical order', () => {
         { id: 'hba1c', code: 'HBA1C', name_ar: 'سكر تراكمي', price: 60, active: true },
       ]);
       await db.collection('radiology_services').insertOne({ id: 'us-abd', name_ar: 'سونار بطن', modality: 'ultrasound', price: 150, active: true });
-      await db.collection('nursing_catalog').insertOne({ id: 'dressing', name_ar: 'تغيير جرح', price: 80, active: true });
+      await db.collection('nursing_services').insertOne({ id: 'dressing', name_ar: 'تغيير جرح', price: 80, active: true });
       const appt = (id: string, doctorId: string, patientId: string) => ({
         id, patient_id: patientId, doctor_user_id: doctorId, provider_id: doctorId, status: 'completed', service_type: 'consultation', price: 200, total: 200, createdAt: new Date(),
       });

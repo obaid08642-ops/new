@@ -77,7 +77,7 @@ describe('M1 provider item model', () => {
         { id: 'us-abd', name_ar: 'سونار بطن', modality: 'ultrasound', price: 150, portable_ultrasound: true, active: true },
         { id: 'mri-knee', name_ar: 'رنين ركبة', modality: 'mri', price: 900, portable_ultrasound: false, active: true },
       ]);
-      await db.collection('nursing_catalog').insertMany([
+      await db.collection('nursing_services').insertMany([
         { id: 'dressing', name_ar: 'تغيير جرح', name_en: 'Wound dressing', price: 80, active: true },
       ]);
       for (const [id, type] of [[LAB, 'lab'], [LAB_OLD, 'lab'], [RAD, 'radiology'], [NURSE, 'nurse']] as const) {
@@ -250,8 +250,9 @@ describe('M1 provider item model', () => {
     expect(Array.isArray(nurseScore.body.missing)).toBe(true);
   });
 
-  it('9. every ordering write leaves an audit row', async () => {
-    const n = await stack.db.collection('audit_logs').countDocuments({ action: /ordering\./, actor_id: LAB });
+  it('9. every ordering write leaves an audit row in the tamper-evident chain', async () => {
+    // The chained writer (23.2/23.3, model `AuditLog`) stores rows in `auditlogs` with `user_id` = the actor.
+    const n = await stack.db.collection('auditlogs').countDocuments({ action: /ordering\./, user_id: LAB });
     expect(n).toBeGreaterThanOrEqual(3);
   });
 
