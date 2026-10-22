@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsIn, IsLatitude, IsLongitude, IsNotEmpty, IsObject, IsOptional, IsString, Matches, MaxLength, ValidateBy, ValidateNested } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsIn, IsLatitude, IsLongitude, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, Matches, Max, MaxLength, Min, ValidateBy, ValidateNested } from 'class-validator';
 
 // Shape checks only; the rules (candidates, radius, order validity) are answered by OrderingService with stable codes.
 const ID = /^[A-Za-z0-9_.:-]{1,128}$/;
@@ -142,4 +142,72 @@ export class CreateOrderingBookingDto {
   @IsString()
   @MaxLength(500)
   notes?: string;
+}
+
+// ---------- M4: ASAP and photo-order broadcast ----------
+
+export class AsapDto {
+  @IsIn(['lab', 'radiology', 'nursing'])
+  service_kind: 'lab' | 'radiology' | 'nursing';
+
+  // an empty list is answered by the service with `asap_items_required`
+  @IsArray()
+  @ArrayMaxSize(30)
+  @IsIdList()
+  items: string[];
+
+  @IsLatitude()
+  lat: number;
+
+  @IsLongitude()
+  lng: number;
+
+  @IsIn(['cash', 'insurance'])
+  payer: 'cash' | 'insurance';
+}
+
+export class PhotoOrderDto {
+  @IsIn(['lab', 'radiology', 'nursing'])
+  service_kind: 'lab' | 'radiology' | 'nursing';
+
+  // a missing upload is answered by the service with `photo_upload_required`
+  @IsOptional()
+  @IsString()
+  @Matches(ID)
+  upload_id?: string;
+
+  @IsLatitude()
+  lat: number;
+
+  @IsLongitude()
+  lng: number;
+
+  @IsIn(['cash', 'insurance'])
+  payer: 'cash' | 'insurance';
+}
+
+export class OfferItemDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(200)
+  name: string;
+
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0.01)
+  @Max(100_000)
+  price: number;
+}
+
+export class BroadcastOfferDto {
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(30)
+  @ValidateNested({ each: true })
+  @Type(() => OfferItemDto)
+  items: OfferItemDto[];
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  note?: string;
 }

@@ -16,7 +16,7 @@ import {
 // The quote is a server-side snapshot owned by the patient: the booking is made from it, never from client-sent prices.
 // Public provider ids are the provider profile ids; account ids, phone numbers and e-mails never leave this service.
 
-type Kind = 'lab' | 'radiology' | 'nursing';
+export type Kind = 'lab' | 'radiology' | 'nursing';
 type Coverage = 'covered' | 'needs_approval' | 'not_covered';
 
 const QUOTES = 'ordering_quotes';
@@ -24,7 +24,7 @@ const GROUPS = 'order_groups';
 const GAPS = 'coverage_gaps';
 const SETTINGS = 'provider_ordering_settings';
 const ITEMS = 'provider_ordering_items';
-const KIND_CATALOG: Record<Kind, string> = {
+export const KIND_CATALOG: Record<Kind, string> = {
   lab: CATALOG_COLLECTIONS.lab_services,
   radiology: CATALOG_COLLECTIONS.radiology_services,
   nursing: CATALOG_COLLECTIONS.nursing_services,
@@ -36,7 +36,7 @@ const DEFAULT_INSURANCE_RATE = 0.8; // share of a covered item the insurer is ex
 
 const bad = (code: string) => new BadRequestException(code);
 
-interface Snapshot { account_id: string; prices: Record<string, number>; home_fee: number; in_network: boolean; coverage: Record<string, Coverage>; walk_in: boolean; staff_genders: string[] }
+export interface Snapshot { account_id: string; auto_accept: boolean; prices: Record<string, number>; home_fee: number; in_network: boolean; coverage: Record<string, Coverage>; walk_in: boolean; staff_genders: string[] }
 interface QuoteGroup { mode: Mode; items: Array<{ catalog_id: string; facility_only?: true }>; candidates: Record<string, Snapshot>; names: Record<string, { ar: string | null; en: string | null }> }
 
 @Injectable()
@@ -72,14 +72,7 @@ export class OrderingService implements OnModuleInit {
     if (items.some((id) => !byId.has(id))) throw bad('unknown_catalog_item');
     if (context.family_member_id) await this.assertFamilyMember(user.id, context.family_member_id);
 
-    let policy: { keys: string[]; cls: string } | null = null;
-    if (context.payer === 'insurance') {
-      const profile = await this.conn.collection('patient_profiles').findOne({ user_id: user.id }, { projection: { insurance: 1 } });
-      const keys = policyCompanyKeys((profile as any)?.insurance);
-      const cls = policyClass((profile as any)?.insurance);
-      if (!keys.length || !cls) throw bad('insurance_not_saved');
-      policy = { keys, cls };
-    }
+    const policy = await this.policyOf(user.id, context.payer);
     const weights = mergeWeights((await this.conn.collection('system_configs').findOne({ key: 'ordering_ranking_weights' }))?.value);
     const shareRate = await this.shareRate();
 
@@ -101,7 +94,7 @@ export class OrderingService implements OnModuleInit {
     const sections: any[] = [];
     const stored: QuoteGroup[] = [];
     for (const step of plan) {
-      const found = await this.candidates(kind, step.mode, step.ids, context, policy, now);
+      const found = await this.findCandidates(kind, step.mode, step.ids, context, policy, now);
       const full = found.cands.filter((c) => step.ids.every((id) => c.prices[id] != null));
       const ranked = rank(full, step.ids, step.mode, context.payer, weights);
       // every mode-eligible provider is listed: full coverers first (ranked), then the partial ones, flagged with what they lack
@@ -157,6 +150,16 @@ export class OrderingService implements OnModuleInit {
     };
   }
 
+  /** The patient's saved company and class for an insurance quote; null for cash. */
+  async policyOf(userId: string, payer: 'cash' | 'insurance'): Promise<{ keys: string[]; cls: string } | null> {
+    if (payer !== 'insurance') return null;
+    const profile = await this.conn.collection('patient_profiles').findOne({ user_id: userId }, { projection: { insurance: 1 } });
+    const keys = policyCompanyKeys((profile as any)?.insurance);
+    const cls = policyClass((profile as any)?.insurance);
+    if (!keys.length || !cls) throw bad('insurance_not_saved');
+    return { keys, cls };
+  }
+
   private async shareRate(): Promise<number> {
     const v = (await this.conn.collection('system_configs').findOne({ key: 'ordering_insurance_share_rate' }))?.value;
     return typeof v === 'number' && v >= 0 && v <= 1 ? v : DEFAULT_INSURANCE_RATE;
@@ -173,14 +176,14 @@ export class OrderingService implements OnModuleInit {
   }
 
   /** Providers that declared the mode, are live, and (home) cover the patient's point; with their prices for the given items. */
-  private async candidates(kind: Kind, mode: Mode, ids: string[], ctx: { lat: number; lng: number; payer: 'cash' | 'insurance' }, policy: { keys: string[]; cls: string } | null, now: Date) {
+  async findCandidates(kind: Kind, mode: Mode, ids: string[] | null, ctx: { lat: number; lng: number; payer: 'cash' | 'insurance' }, policy: { keys: string[]; cls: string } | null, now: Date) {
     const settings = await this.conn.collection(SETTINGS).find({ modes: mode }).toArray() as any[];
     const accounts = settings.map((s) => s.provider_account_id as string);
     if (!accounts.length) return { cands: [] as Candidate[], snapshot: {} as Record<string, Snapshot> };
     const [profiles, approved, rows] = await Promise.all([
       this.conn.collection('provider_profiles').find({ account_id: { $in: accounts }, status: { $in: ['active', 'ACTIVE'] }, public_eligibility: true }).toArray() as Promise<any[]>,
       this.conn.collection('provider_accounts').find({ id: { $in: accounts }, status: { $in: ['approved', 'active', 'APPROVED', 'ACTIVE'] } }, { projection: { id: 1 } }).toArray() as Promise<any[]>,
-      this.conn.collection(ITEMS).find({ provider_account_id: { $in: accounts }, service_kind: kind, catalog_id: { $in: ids }, available: { $ne: false } }).toArray() as Promise<any[]>,
+      this.conn.collection(ITEMS).find({ provider_account_id: { $in: accounts }, service_kind: kind, ...(ids ? { catalog_id: { $in: ids } } : {}), available: { $ne: false } }).toArray() as Promise<any[]>,
     ]);
     const live = new Set(approved.map((a) => a.id as string));
     const itemsBy = new Map<string, any[]>();
@@ -220,7 +223,7 @@ export class OrderingService implements OnModuleInit {
         distance_km: distance, in_network: inNetwork, prices, home_fee: homeFee, turnaround_hours: turnaround, earliest_at: now, coverage,
       });
       snapshot[p.id] = {
-        account_id: p.account_id, prices, home_fee: homeFee, in_network: inNetwork, coverage,
+        account_id: p.account_id, auto_accept: s.auto_accept === true, prices, home_fee: homeFee, in_network: inNetwork, coverage,
         walk_in: s.walk_in === true, staff_genders: Array.isArray(s.staff_genders) ? s.staff_genders : [],
       };
     }
@@ -230,7 +233,7 @@ export class OrderingService implements OnModuleInit {
   private async emptyResult(kind: Kind, mode: Mode, ids: string[], ctx: { lat: number; lng: number; payer: 'cash' | 'insurance' }, policy: { keys: string[]; cls: string } | null, now: Date) {
     const alternatives: Array<Record<string, unknown>> = [];
     if (mode === 'home') {
-      const nearby = await this.candidates(kind, 'facility', ids, ctx, policy, now);
+      const nearby = await this.findCandidates(kind, 'facility', ids, ctx, policy, now);
       const full = nearby.cands.filter((c) => ids.every((id) => c.prices[id] != null));
       if (full.length) alternatives.push({ type: 'facility_nearby', providers_count: full.length, nearest_km: round1(Math.min(...full.map((c) => c.distance_km))) });
     }
