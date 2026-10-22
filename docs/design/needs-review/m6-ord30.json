@@ -1,0 +1,156 @@
+[
+  {
+    "batch": "m6-ord22-ord30",
+    "app": "provider-app",
+    "screen": "Ord30",
+    "element": "Working hours and booking slots (step 3)",
+    "file": "provider-app/src/screens/ordering/OrderingSettingsScreen.tsx",
+    "line": 130,
+    "found": "[backend] PUT /provider/ordering/settings has no hours or slot-length fields (hours live in provider_schedule_slots); the board's hours rows and 20/30/60 min slots are not drawn.",
+    "suspect": "Backend: add hours/slot length to the ordering settings or point the wizard at the existing schedule endpoint.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord22-ord30",
+    "app": "provider-app",
+    "screen": "Ord30",
+    "element": "Insurer company id",
+    "file": "provider-app/src/api/ordering.ts",
+    "line": 81,
+    "found": "[client] catalogs.ts getInsuranceCatalog() keeps company.code as id; the ordering API validates the raw company id, so ordering.ts reads /insurance/companies itself.",
+    "suspect": "Client: expose the raw id in catalogs.ts, then drop the duplicate call.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord22-ord30",
+    "app": "provider-app",
+    "screen": "Ord30",
+    "element": "Insurance class values",
+    "file": "provider-app/src/api/ordering.ts",
+    "line": 86,
+    "found": "[backend] accepted_insurance.classes are free strings; the client sends the plan code (or English name) and the backend does not check them against the insurer's plans.",
+    "suspect": "Backend: validate classes against the insurer's networks.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord22-ord30",
+    "app": "provider-app",
+    "screen": "Ord30",
+    "element": "Walk-in vs time slots",
+    "file": "provider-app/src/screens/ordering/OrderingSettingsScreen.tsx",
+    "line": 133,
+    "found": "[backend] Settings carry only walk_in (boolean); the board's 'time slots' option has no field.",
+    "suspect": "Backend: confirm slots are derived from the schedule.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord22-ord30",
+    "app": "provider-app",
+    "screen": "Ord31",
+    "element": "Portable radiology flag",
+    "file": "provider-app/src/screens/ordering/OrderingItemsScreen.tsx",
+    "line": 118,
+    "found": "[backend] OrderingItemView has no portable flag; a radiology item is treated as centre-only when it inherits modes and shows no home. A portable item whose home was switched off by the provider is not told apart.",
+    "suspect": "Backend: add portable_home to OrderingItemView.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord22-ord30",
+    "app": "provider-app",
+    "screen": "Ord31",
+    "element": "Item list size",
+    "file": "provider-app/src/api/ordering.ts",
+    "line": 55,
+    "found": "[backend] GET /items has no pagination or search; the list and filters are applied on the device.",
+    "suspect": "Backend: page the list if providers hold thousands of items.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord22-ord30",
+    "app": "provider-app",
+    "screen": "Ord32",
+    "element": "Catalogue browse",
+    "file": "provider-app/src/api/ordering.ts",
+    "line": 70,
+    "found": "[backend] /catalogs/{labs|radiology|nursing} is capped at 500 rows and has no search; search is local and shows the first 60 matches.",
+    "suspect": "Backend: add paged search for the catalogue.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord22-ord30",
+    "app": "provider-app",
+    "screen": "Ord32",
+    "element": "Add from catalogue",
+    "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
+    "line": 63,
+    "found": "[backend] No bulk-add endpoint: one PUT /items per selected row.",
+    "suspect": "Backend: bulk add.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord22-ord30",
+    "app": "provider-app",
+    "screen": "Ord32",
+    "element": "CSV export save",
+    "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
+    "line": 80,
+    "found": "[client] Saving a file needs a new dependency (expo-file-system / sharing); the CSV is shown in a field and shared as text with the share sheet. Error file is shared the same way.",
+    "suspect": "Client: add file saving if the owner approves the dependency.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord22-ord30",
+    "app": "provider-app",
+    "screen": "Ord32",
+    "element": "Before/after preview",
+    "file": "provider-app/src/screens/ordering/OrderingBulkScreen.tsx",
+    "line": 44,
+    "found": "[client] The preview shows the first 5 items computed on the device with the same rule as the backend (round to 2 decimals); the backend returns only the count.",
+    "suspect": "Backend: dry-run flag on bulk-price.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord22-ord30",
+    "app": "provider-app",
+    "screen": "Ord33",
+    "element": "Patient preview",
+    "file": "provider-app/src/screens/ordering/OrderingCompletenessScreen.tsx",
+    "line": 78,
+    "found": "[backend] There is no patient search-card read model for a provider; the preview is built from the provider's own settings and items, without rating, distance or the patient's insurance context.",
+    "suspect": "Backend: expose the search-card preview for the provider.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord22-ord30",
+    "app": "provider-app",
+    "screen": "Ord33",
+    "element": "Photo and licence task",
+    "file": "provider-app/src/screens/ordering/OrderingCompletenessScreen.tsx",
+    "line": 36,
+    "found": "[client] The photo_licence task has no route in the ordering stack, so the row is not tappable.",
+    "suspect": "Client: link to the profile screen of each dashboard.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord22-ord30",
+    "app": "provider-app",
+    "screen": "Ord33",
+    "element": "Points per task",
+    "file": "provider-app/src/screens/ordering/logic.ts",
+    "line": 191,
+    "found": "[client] Points are derived from the weights returned by the API (share of what is missing), since the API gives no per-task points.",
+    "suspect": "Backend: return points per missing part.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord22-ord30",
+    "app": "provider-app",
+    "screen": "Ord22 and Ord30 to Ord33",
+    "element": "Render entry and board comparison",
+    "file": "provider-app/src/screens/ordering/index.tsx",
+    "line": 1,
+    "found": "[client] tools/design/render-native-screen.mjs renders patient-app screens only; provider-app has no render path, so no render entry and no board screenshot were made for these five screens.",
+    "suspect": "Tooling: add a provider-app render path, then add entries for the composer and the four ordering screens.",
+    "review_status": "open"
+  }
+]

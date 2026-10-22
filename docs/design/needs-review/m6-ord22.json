@@ -1,0 +1,57 @@
+[
+  {
+    "batch": "m6-ord22-ord30",
+    "app": "provider-app",
+    "screen": "Ord22 MedicalOrderComposer",
+    "element": "Entry point reachability",
+    "file": "provider-app/src/screens/doctor/doctor/DoctorScheduleTab.tsx",
+    "line": 71,
+    "found": "[backend] The schedule list reads only active consultation jobs, with status 'confirmed'/'in_progress'; completed visits never reach AppointmentDetail, so the 'New medical order' button shows only for in_progress.",
+    "suspect": "Doctor cannot write an order for a completed visit from the app; need a list that includes completed appointments with status and patient_id.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord22-ord30",
+    "app": "provider-app",
+    "screen": "Ord22 MedicalOrderComposer",
+    "element": "Prescription link (patient filter)",
+    "file": "provider-app/src/screens/doctor/doctor/MedicalOrderComposer.tsx",
+    "line": 57,
+    "found": "[backend] GET /prescriptions/doctor/mine returns the doctor's last 200 prescriptions for all patients; the client filters by patient_id, which the queue item may not carry (apt.patient_id / raw.patient_id).",
+    "suspect": "If patient_id is absent no prescription chips are shown; needs a per-appointment prescriptions endpoint or patient_id in the queue.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord22-ord30",
+    "app": "provider-app",
+    "screen": "Ord22 MedicalOrderComposer",
+    "element": "Catalogue search",
+    "file": "provider-app/src/screens/doctor/doctor/MedicalOrderComposer.tsx",
+    "line": 47,
+    "found": "[client] The picker filters the full GET /labs/services, /radiology/services, /nursing/catalog list locally (first 30 rows); no server-side search or prep/fasting text per row as on the board.",
+    "suspect": "Large catalogues may be truncated; board shows fasting text per row, not rendered.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord22-ord30",
+    "app": "provider-app",
+    "screen": "Ord22 MedicalOrderComposer",
+    "element": "Sessions duration and frequency fields",
+    "file": "provider-app/src/screens/doctor/doctor/MedicalOrderComposer.tsx",
+    "line": 1,
+    "found": "[backend] The board shows a duration (minutes) field for nursing; the order DTO accepts only sessions and interval_days, so duration is not sent. Only whole-day intervals are sent.",
+    "suspect": "Duration cannot be saved on the order.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord22-ord30",
+    "app": "provider-app",
+    "screen": "Ord22 MedicalOrderComposer",
+    "element": "Strings",
+    "file": "provider-app/src/screens/doctor/doctor/MedicalOrderComposer.tsx",
+    "line": 1,
+    "found": "[client] provider-app uses inline ar/en pairs (ord22.* approved wording); the other four languages exist only in ordering-m0-strings.provider.json.",
+    "suspect": "None until provider-app gets six-language i18n; owner decision.",
+    "review_status": "open"
+  }
+]

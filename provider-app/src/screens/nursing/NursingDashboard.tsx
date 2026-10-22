@@ -22,6 +22,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useLang, useAuth, useToast } from '../../context';
 import client from '../../api/client';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
+import { orderingStackScreens, ORDERING_ENTRY } from '../ordering';
 import { SignatureCanvasModal } from '../../components/SignatureCanvasModal';
 import {
  NBtn, NCard, NInput, NStatCard, NAvatar, NBadge,
@@ -207,6 +208,7 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
       <Stack.Screen name="withdrawal_workflow">{({ navigation }: any) => <WithdrawalWorkflow onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="chat">{({ navigation, route }: any) => <NursingChatScreen order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+      {orderingStackScreens(Stack, 'nursing')}
       <Stack.Screen name="working_hours">{({ navigation }: any) => <NursingScheduleScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
 
       <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -777,6 +779,7 @@ return (
  <NSettingsRow icon="calendar" label={AR?'مواعيد العمل':'Working Hours'} onPress={()=>onNav('working_hours')} />
  <NSettingsRow icon="shield" label={AR?'التأمين الصحي':'Health Insurance'} onPress={()=>onNav('insurance_config')} />
 <NSettingsRow icon="shield" label={AR?'طلبات التأمين الواردة':'Insurance Requests'} onPress={()=>onNav('insurance_requests')} />
+<NSettingsRow icon="document" label={AR?'إعلان الطلبات':'Ordering declaration'} onPress={()=>onNav(ORDERING_ENTRY)} />
  <NSettingsRow icon="document" label={AR?'الشهادات والمؤهلات':'Qualifications'} onPress={()=>onNav('certificates_config')} />
  <NSettingsRow icon="camera" label={AR?'الصور والوسائط':'Photos & Media'} onPress={()=>onNav('media_config')} />
  </NCard>

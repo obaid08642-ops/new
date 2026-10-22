@@ -21,7 +21,7 @@ _Updated 2026-10-10._
 
 1. **Ordering M6 (M1 and M2 backend on main, #1759):**
    - This batch (one PR): "My medical orders" Ord20 and Ord21, web and app. Order button per group (prefill request, then the group's flow), "later" per item, expired orders disabled. Six languages (`MedicalOrders`, `medorders.*`).
-   - **Next slices, not built yet:** Ord22 doctor's composer (provider-app, `POST /doctors/appointments/:id/medical-order`), and Ord30–33 provider declaration (provider-app, `/provider/ordering/*`). Both backends are on main.
+   - **Built in #1775 (`design/m6-ord22-ord30`):** Ord22 doctor's composer (`POST /doctors/appointments/:id/medical-order`) and Ord30–33 provider declaration (`/provider/ordering/*`), provider-app ar/en. Open rows: `needs-review/m6-ord22.json` (5), `m6-ord30.json` (13).
    - **BLOCKED: waits for M3** (ordering engine, #1750 spec): Ord02, Ord04, Ord05, Ord07, app Ord01.
    - **BLOCKED: waits for M4**: Ord06 ASAP timer, Ord08. **M5**: Ord03 coverage, Ord09. **M7**: Ord10 (arrival code, staff profile). **M8**: Ord11 "discuss with a doctor".
    - Every open row: `docs/design/needs-review/m6-blocked.json`; this batch's gaps (no item names, prefill not read by the flows, no renew action) are in the same file.
