@@ -23,3 +23,35 @@ b3c1b6fba7d9334c78967bc0dab280ae5a12d63f:backend/test/security/p3-provider-crede
 82c6ca1500ea7b136fd7d1257dcf4d1e48adb90e:backend/src/modules/pharmacy/services/pharmacy-cod-contact.spec.ts:generic-api-key:15
 6295b27996de25740493080ec57d5f5b44413d15:deploy/cloudflare/status-worker/journeys.test.mjs:generic-api-key:10
 0e2237c8fc5ccb9c0a93007a3f7b1f49e60d3fad:tools/live/j_ai_keys_at_rest.py:generic-api-key:21
+# Initial import 5c4ae4ef1 (2026-08-28): fake test tokens and Next.js build ids in committed build output and fixtures.
+# History findings only (the files are gone or hold fixtures); listed so the daily full-history scan reports NEW leaks only.
+4052505aff9248ec49d61e4c659e4ee7769f786e:lib/api/medicines-server.test.ts:generic-api-key:16
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:admin/.next/cache/.previewinfo:generic-api-key:1
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:admin/.next/cache/.rscinfo:generic-api-key:1
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:admin/.next/prerender-manifest.json:generic-api-key:7
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:admin/.next/prerender-manifest.json:generic-api-key:8
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:admin/.next/server/server-reference-manifest.json:generic-api-key:4
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:backend/e2e/boot.js:generic-api-key:31
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:backend/e2e/run-all-gates.js:generic-api-key:16
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:backend/scripts/test-extensions.ts:generic-api-key:27
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:backend/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts:generic-api-key:37
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:backend/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts:generic-api-key:43
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:backend/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts:generic-api-key:48
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:backend/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts:generic-api-key:52
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:backend/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts:generic-api-key:54
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:backend/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts:generic-api-key:64
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:patient-web/app/api/appointments/[appointmentId]/cancel/route.test.ts:generic-api-key:6
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:patient-web/app/api/appointments/[appointmentId]/cancel/route.test.ts:generic-api-key:7
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:patient-web/app/api/appointments/[appointmentId]/reschedule/route.test.ts:generic-api-key:6
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:patient-web/app/api/appointments/[appointmentId]/reschedule/route.test.ts:generic-api-key:7
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:patient-web/app/api/appointments/book/route.test.ts:generic-api-key:28
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:patient-web/app/api/appointments/book/route.test.ts:generic-api-key:9
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:patient-web/app/api/insurance/requests/[requestId]/accept-self-pay/route.test.ts:generic-api-key:10
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:patient-web/app/api/insurance/requests/[requestId]/accept-self-pay/route.test.ts:generic-api-key:6
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:patient-web/app/api/insurance/requests/[requestId]/payment-intent/route.test.ts:generic-api-key:6
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:patient-web/app/api/orders/[orderId]/order-mutations.test.ts:generic-api-key:12
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:patient-web/app/api/orders/[orderId]/order-mutations.test.ts:generic-api-key:25
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:patient-web/lib/api/appointments-server.test.ts:generic-api-key:16
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:patient-web/lib/api/appointments-server.test.ts:generic-api-key:17
+5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:patient-web/lib/api/medicines-server.test.ts:generic-api-key:16
+fdaf728472475786d03b5e3da195766579907054:lib/api/appointments-server.test.ts:generic-api-key:16
