@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { randomUUID } from 'crypto';
 import { Connection } from 'mongoose';
@@ -33,8 +33,23 @@ const DEFAULT_TIMEOUT_SECONDS = 180;
 const bad = (code: string) => new BadRequestException(code);
 
 @Injectable()
-export class InstantConsultationService {
+export class InstantConsultationService implements OnModuleInit {
   constructor(@InjectConnection() private readonly conn: Connection) {}
+
+  /**
+   * One open broadcast per patient is enforced by the database: a partial unique index on patient_id while the status is
+   * broadcasting, so two simultaneous requests cannot both be created. One availability row per doctor. Idempotent.
+   */
+  async onModuleInit() {
+    const requests = this.conn.collection('instant_consultations');
+    await requests.createIndex({ id: 1 }, { unique: true, name: 'instant_id_unique' });
+    await requests.createIndex({ specialty: 1, status: 1, expires_at: 1 }, { name: 'instant_specialty_open' });
+    await requests.createIndex(
+      { patient_id: 1 },
+      { unique: true, partialFilterExpression: { status: 'broadcasting' }, name: 'instant_one_open_per_patient' },
+    );
+    await this.availability().createIndex({ doctor_id: 1 }, { unique: true, name: 'instant_availability_doctor_unique' });
+  }
 
   private requests() { return this.conn.collection('instant_consultations'); }
   private availability() { return this.conn.collection('doctor_instant_availability'); }
@@ -87,6 +102,8 @@ export class InstantConsultationService {
     }
 
     const now = new Date();
+    // A broadcast past its timeout no longer counts as open: close it first, so the one-open index does not block the patient.
+    await this.requests().updateMany({ patient_id: user.id, status: 'broadcasting', expires_at: { $lte: now } }, { $set: { status: 'expired' } });
     const open = await this.requests().findOne({ patient_id: user.id, status: 'broadcasting', expires_at: { $gt: now } }, { projection: { _id: 1 } });
     if (open) throw new ConflictException('instant_request_open');
 
@@ -105,7 +122,13 @@ export class InstantConsultationService {
       id: randomUUID(), patient_id: user.id, family_member_id: familyMemberId, specialty, mode, status: 'broadcasting',
       expires_at: expiresAt, created_at: now, notified_doctor_ids: notified, declined_by: [],
     };
-    await this.requests().insertOne(doc as unknown as Record<string, unknown>);
+    try {
+      await this.requests().insertOne(doc as unknown as Record<string, unknown>);
+    } catch (e) {
+      // A simultaneous request from the same patient won the partial unique index.
+      if ((e as { code?: number }).code === 11000) throw new ConflictException('instant_request_open');
+      throw e;
+    }
     await recordAudit(this.conn, { action: 'instant_consultation.broadcast', user_id: user.id, role: 'patient', resource_kind: 'instant_consultation', resource_id: doc.id, details: { specialty, mode, doctors_notified: notified.length } });
     return { id: doc.id, status: 'broadcasting', expires_at: expiresAt, doctors_notified: notified.length, payment_status: 'not_charged' };
   }
