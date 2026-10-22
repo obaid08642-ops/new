@@ -58,6 +58,7 @@ import { EventsModule } from './modules/events/events.module';
 import { SeedModule } from './modules/seed/seed.module';
 import { CareModule } from './modules/care/care.module';
 import { LabsModule } from './modules/labs/labs.module';
+import { OrderingModule } from './modules/ordering/ordering.module';
 import { HomeCareModule } from './modules/home-care/home-care.module';
 import { RefundPolicyModule } from './modules/refund-policy/refund-policy.module';
 import { HealthModule } from './modules/health/health.module';
@@ -248,6 +249,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     CareModule,
     DoctorsModule,
     LabsModule,
+    OrderingModule,
     HealthModule,
     MedicalProgramsModule,
     SystemHealthModule,
