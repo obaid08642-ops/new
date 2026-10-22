@@ -42,4 +42,16 @@ describe('instant consultation: one open request per patient under concurrency',
     const open = await conn.collection('instant_consultations').countDocuments({ patient_id: PATIENT, status: 'broadcasting' });
     expect(open).toBe(1);
   });
+
+  it('an expired request nobody answered does not block a new one (201)', async () => {
+    await conn.collection('instant_consultations').insertOne({
+      id: 'expired-unread-m8', patient_id: 'pat-expired-m8', family_member_id: null, specialty: 'cardiology', mode: 'video',
+      status: 'broadcasting', expires_at: new Date(Date.now() - 60_000), created_at: new Date(Date.now() - 120_000),
+      notified_doctor_ids: [DOCTOR], declined_by: [],
+    });
+    const r = await svc.create({ id: 'pat-expired-m8' }, { specialty: 'cardiology', mode: 'video' });
+    expect(r).toMatchObject({ status: 'broadcasting', payment_status: 'not_charged' });
+    const old = await conn.collection('instant_consultations').findOne({ id: 'expired-unread-m8' });
+    expect(old?.status).toBe('expired');
+  });
 });
