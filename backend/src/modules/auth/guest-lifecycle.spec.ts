@@ -42,7 +42,7 @@ describe('Phase 21.8 guest data lifecycle (real erasure)', () => {
   afterAll(async () => { await conn.close(); await mongo.stop(); });
 
   beforeEach(async () => {
-    for (const n of ['users', 'guest_devices', 'pharmacy_orders', 'pushtokens', 'patient_profiles', 'addresses', 'notifications', 'audit_logs', 'unified_carts']) {
+    for (const n of ['users', 'guest_devices', 'pharmacy_orders', 'pushtokens', 'patient_profiles', 'addresses', 'notifications', 'auditlogs', 'unified_carts']) {
       if (!(await conn.db!.collections()).some((c) => c.collectionName === n)) await conn.createCollection(n).catch(() => undefined);
       await col(n).deleteMany({});
     }
@@ -74,7 +74,7 @@ describe('Phase 21.8 guest data lifecycle (real erasure)', () => {
     expect(await col('users').countDocuments({ id: 'g-idle' })).toBe(0);
     expect(await personalRows('g-idle')).toBe(0);
     // the erasure itself is also in the trail (23.2 data_erasure); the lifecycle row says why it happened
-    expect(await col('audit_logs').findOne({ resource_id: 'g-idle', action: 'account.guest_purged' })).toBeTruthy();
+    expect(await col('auditlogs').findOne({ resource_id: 'g-idle', action: 'account.guest_purged' })).toBeTruthy();
   });
 
   it('keeps the order of a guest who bought, without identity data; the personal data and the binding go', async () => {
@@ -94,7 +94,7 @@ describe('Phase 21.8 guest data lifecycle (real erasure)', () => {
     expect(kept).toMatchObject({ full_name: 'deleted guest', phone: null, email: null });
     expect(kept.anonymised_at).toBeTruthy();
     expect(await personalRows('g-bought')).toBe(0);
-    expect(await col('audit_logs').findOne({ resource_id: 'g-bought', action: 'account.guest_anonymised' })).toBeTruthy();
+    expect(await col('auditlogs').findOne({ resource_id: 'g-bought', action: 'account.guest_anonymised' })).toBeTruthy();
     // the next run leaves the shell alone
     expect(await guests.purgeInactiveGuests()).toEqual({ anonymised: 0, deleted: 0 });
   });

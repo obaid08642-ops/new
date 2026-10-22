@@ -25,13 +25,13 @@ describe('Phase 23.6 user-facing history', () => {
   });
   afterAll(async () => { await conn?.close(); await mongo?.stop(); });
   beforeEach(async () => {
-    for (const n of ['audit_logs', 'system_events', 'pharmacy_orders', 'pharmacy_allocations', 'labbookings', 'users']) {
+    for (const n of ['auditlogs', 'system_events', 'pharmacy_orders', 'pharmacy_allocations', 'labbookings', 'users']) {
       if (!(await conn.db!.collections()).some((c) => c.collectionName === n)) await conn.createCollection(n).catch(() => undefined);
       await col(n).deleteMany({});
     }
   });
 
-  const audit = (over: Record<string, unknown>, seq: number) => col('audit_logs').insertOne({
+  const audit = (over: Record<string, unknown>, seq: number) => col('auditlogs').insertOne({
     id: `a${seq}`, sequence: seq, createdAt: new Date(2026, 9, 1, 10, seq), hash: `h${seq}`, prev_hash: `h${seq - 1}`,
     severity: 'info', ip: '203.0.113.7', device_id: 'dev-abcdef0123456789', user_agent: 'Mozilla/5.0 (iPhone)', platform: 'ios', ...over,
   });
