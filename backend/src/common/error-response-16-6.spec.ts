@@ -98,7 +98,7 @@ describe('16.6 log masking', () => {
 
 describe('16.6 append-only audit log', () => {
   const schema = new Schema({ action: String });
-  makeAppendOnly(schema, 'audit_logs');
+  makeAppendOnly(schema, 'auditlogs');
   const Audit: Model<{ action?: string }> = model('A166', schema);
 
   it.each([

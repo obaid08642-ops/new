@@ -23,6 +23,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { ClientSession, Connection } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import { RedisService } from '../redis/redis.service';
+import { AUDIT_COLLECTION } from '../../schemas/audit-log.schema';
 import { GUEST_OWNED_COLLECTIONS, GuestOwnedCollection } from './guest-merge.registry';
 
 const REDIS_MERGE_JTI_PREFIX = 'auth:guest-merge:jti:';
@@ -171,7 +172,7 @@ export class GuestService {
 
         // Exactly one audit row records what moved (21.2).
         auditRowId = require('crypto').randomUUID();
-        await this.connection.collection('audit_logs').insertOne(
+        await this.connection.collection(AUDIT_COLLECTION).insertOne(
           {
             id: auditRowId,
             action: 'account.guest_merged',
@@ -331,7 +332,7 @@ export class GuestService {
       // the same erasure as an account deletion: personal rows deleted, order/invoice/medical rows kept without identity
       if (this.pdpl) await this.pdpl.erasePatientData(guestId, { reason: 'guest_inactivity', retention: true });
       await bindings.deleteMany({ guest_id: guestId });
-      await this.connection.collection('audit_logs').insertOne({
+      await this.connection.collection(AUDIT_COLLECTION).insertOne({
         id: require('crypto').randomUUID(),
         action: hasOrders ? 'account.guest_anonymised' : 'account.guest_purged',
         user_id: guestId,

@@ -11,6 +11,7 @@
  */
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
+import { AUDIT_COLLECTION } from '../../schemas/audit-log.schema';
 import { Connection } from 'mongoose';
 
 /** Account events a person is shown. Everything else in the chain (admin reads, retention, internal) stays admin-only. */
@@ -57,7 +58,7 @@ export function platformOf(row: { platform?: string; user_agent?: string }): str
 
 /** The data subject's own audit events, whole. A plain function so the PDPL export can use it without importing the module. */
 export async function exportAuditEvents(conn: Pick<Connection, 'collection'>, userId: string, limit = 5000) {
-  const rows = await conn.collection('audit_logs')
+  const rows = await conn.collection(AUDIT_COLLECTION)
     .find({ user_id: { $eq: userId } }).sort({ sequence: 1, createdAt: 1 }).limit(limit).toArray();
   return rows.map((r: any) => ({
     at: r.createdAt ?? r.created_at ?? null, action: r.action, role: r.role, resource_kind: r.resource_kind, resource_id: r.resource_id,
@@ -75,7 +76,7 @@ export class UserHistoryService {
     const pageN = Math.max(1, Math.floor(page) || 1);
     const limitN = Math.max(1, Math.min(100, Math.floor(limit) || 30));
     const filter = { user_id: { $eq: userId }, action: { $in: [...ACTIVITY_ACTIONS] } };
-    const col = this.conn.collection('audit_logs');
+    const col = this.conn.collection(AUDIT_COLLECTION);
     const [rows, total] = await Promise.all([
       col.find(filter).sort({ sequence: -1, createdAt: -1 }).skip((pageN - 1) * limitN).limit(limitN).toArray(),
       col.countDocuments(filter),
