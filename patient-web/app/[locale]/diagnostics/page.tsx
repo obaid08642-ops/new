@@ -27,6 +27,7 @@ import styles from "@/components-next/diagnostics/diag.module.css";
 import type { Metadata } from "next";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 import { diagnosticBookingHref } from "@/lib/diagnostics-links";
+import { publicReadSignal } from "@/lib/api/public-timeout";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string }> };
 
@@ -96,7 +97,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   const [labsRes, radRes, pkgsRes] = await Promise.all([
     getPublicLabServices().catch(() => null),
     getPublicRadiologyServices().catch(() => null),
-    fetch(patientApiUrl("/labs/packages"), { headers: { Accept: "application/json" }, cache: "no-store" }).catch(() => null),
+    fetch(patientApiUrl("/labs/packages"), { signal: publicReadSignal(), headers: { Accept: "application/json" }, cache: "no-store" }).catch(() => null),
   ]);
   const labServices = labsRes && labsRes.ok ? extractLabServices(await labsRes.json().catch(() => null)) : [];
   const radiologyServices = radRes && radRes.ok ? extractRadiologyServices(await radRes.json().catch(() => null)) : [];
