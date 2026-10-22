@@ -352,8 +352,12 @@ export class PrescriptionsService {
   async listMine(patient_id: string) {
     return this.logged({ id: patient_id, role: 'patient' }, 'list', await this.model.find({ patient_id }, { _id: 0, __v: 0, upload_image: 0 }).sort({ createdAt: -1 }).limit(100));
   }
-  async listForDoctor(doctor_id: string) {
-    return this.logged({ id: doctor_id, role: 'doctor' }, 'list', await this.model.find({ doctor_id }, { _id: 0, __v: 0, upload_image: 0 }).sort({ createdAt: -1 }).limit(200));
+  /** The doctor's own prescriptions, newest first; optionally only those for one patient and/or one appointment. */
+  async listForDoctor(doctor_id: string, filter: { patient_id?: string; appointment_id?: string } = {}) {
+    const query: Record<string, string> = { doctor_id };
+    if (filter.patient_id) query.patient_id = filter.patient_id;
+    if (filter.appointment_id) query.appointment_id = filter.appointment_id;
+    return this.logged({ id: doctor_id, role: 'doctor' }, 'list', await this.model.find(query, { _id: 0, __v: 0, upload_image: 0 }).sort({ createdAt: -1 }).limit(200));
   }
   async listForPharmacy(pharmacy_id: string) {
     return this.logged({ id: pharmacy_id, role: 'pharmacy' }, 'list', await this.model.find({ pharmacy_id, state: { $in: [PrescriptionState.SENT_TO_PHARMACY, PrescriptionState.PARTIALLY_EDITED, PrescriptionState.APPROVED] } }, { _id: 0, __v: 0, upload_image: 0 }).sort({ createdAt: -1 }).limit(200));

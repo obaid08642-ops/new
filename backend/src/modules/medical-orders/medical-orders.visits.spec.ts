@@ -2,6 +2,9 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose, { Connection } from 'mongoose';
 import { MedicalOrdersService } from './medical-orders.service';
 
+// Starting the in-memory MongoDB can take longer than the 5 s default hook timeout on a busy machine.
+jest.setTimeout(120_000);
+
 const DAY = 86_400_000;
 const DOC = 'doc-visits';
 const OTHER = 'doc-visits-other';
@@ -22,6 +25,10 @@ describe('medical orders: visits after the consultation', () => {
       id, patient_id: `pat-${id}`, doctor_user_id: doctor, provider_id: doctor, status, updatedAt, createdAt: updatedAt,
       patient_name: 'Secret Name', patient_phone: '+966500000000', summary: { diagnosis: 'secret' },
     });
+    await conn.collection('users').insertMany([
+      { id: 'pat-v-recent', full_name: 'Huda A.', phone: '+966511111111', email: 'huda@example.test' },
+      { id: 'pat-v-live', full_name: 'Omar B.', phone: '+966522222222' },
+    ]);
     await conn.collection('appointments').insertMany([
       visit('v-recent', DOC, 'completed', ago(3)),
       visit('v-old', DOC, 'completed', ago(90)),
@@ -47,14 +54,17 @@ describe('medical orders: visits after the consultation', () => {
     await expect(svc.create({ id: DOC }, 'v-other', labOrder)).rejects.toMatchObject({ response: { message: 'not_your_appointment' } });
   });
 
-  it('lists only the doctor\'s own open visits, with id, status, patient id and date and nothing else', async () => {
+  it('lists only the doctor\'s own open visits, with id, status, patient id, patient name and an ISO date, and nothing else', async () => {
     const rows = await svc.recentVisits({ id: DOC });
     expect(rows.map((r) => r.id).sort()).toEqual(['v-live', 'v-recent']);
     for (const r of rows) {
-      expect(Object.keys(r).sort()).toEqual(['date', 'id', 'patient_id', 'status']);
-      expect(r.date).toBeInstanceOf(Date);
+      expect(Object.keys(r).sort()).toEqual(['date', 'id', 'patient_id', 'patient_name', 'status']);
+      expect(typeof r.date).toBe('string');
+      expect(new Date(r.date as string).toISOString()).toBe(r.date);
     }
-    expect(JSON.stringify(rows)).not.toMatch(/Secret|966500|diagnosis/);
+    // two visits are told apart by the patient's name; a patient with no user row has no name, not an invented one
+    expect(Object.fromEntries(rows.map((r) => [r.id, r.patient_name]))).toEqual({ 'v-recent': 'Huda A.', 'v-live': 'Omar B.' });
+    expect(JSON.stringify(rows)).not.toMatch(/Secret|966500|9665[12]|huda@|diagnosis/);
     expect((await svc.recentVisits({ id: 'doc-nobody' }))).toEqual([]);
   });
 

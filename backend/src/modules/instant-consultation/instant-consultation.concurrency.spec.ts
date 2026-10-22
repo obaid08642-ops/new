@@ -2,6 +2,9 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose, { Connection } from 'mongoose';
 import { InstantConsultationService } from './instant-consultation.service';
 
+// Starting the in-memory MongoDB can take longer than the 5 s default hook timeout on a busy machine.
+jest.setTimeout(120_000);
+
 // M8 — one open broadcast per patient, however many requests arrive at once.
 describe('instant consultation: one open request per patient under concurrency', () => {
   let server: MongoMemoryServer;

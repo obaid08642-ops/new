@@ -2,6 +2,9 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose, { Connection } from 'mongoose';
 import { MedicalOrdersService } from './medical-orders.service';
 
+// Starting the in-memory MongoDB can take longer than the 5 s default hook timeout on a busy machine.
+jest.setTimeout(120_000);
+
 // M2 — indexes exist, and ten simultaneous renew requests from one patient on one order leave one row.
 describe('medical orders: indexes and concurrent renew requests', () => {
   let server: MongoMemoryServer;
