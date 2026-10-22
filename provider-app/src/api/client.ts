@@ -1,15 +1,20 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+import { DEFAULT_TIMEOUT_MS, MAX_RETRIES, pause, planRetries, retryAfterTooLong, retryDelayMs, shouldRetryStatus, timeoutFor } from './requestPolicy';
 import { API_BASE } from '../constants';
 import { buildHeaders, Tokens, Vault, SK, CryptoUtils } from '../security/Security';
 
+type RetryableConfig = { _generatedKey?: boolean; _retryCount?: number; _retry?: boolean };
+
 const client = axios.create({
   baseURL: API_BASE,
-  timeout: 60000,
+  timeout: DEFAULT_TIMEOUT_MS,
 });
 
 // Request Interceptor: Automatically inject secure headers and JWT token
 client.interceptors.request.use(
  async (config) => {
+  // 15.1: 15 s by default, 60 s for an upload, 45 s for the AI routes, unless the caller set its own.
+  if (config.timeout === undefined || config.timeout === DEFAULT_TIMEOUT_MS) config.timeout = timeoutFor(String(config.url || ''), config.data);
   try {
   if (__DEV__) {
     const customIp = await Vault.get(SK.CUSTOM_API_IP);
@@ -28,6 +33,8 @@ client.interceptors.request.use(
  const h: any = config.headers;
  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method) && !h['Idempotency-Key'] && !h['idempotency-key']) {
    h['Idempotency-Key'] = `prov-${await CryptoUtils.randomHex(16)}`;
+   // 15.1: a key made for this one call is not the caller's own, so the call is not replayed after an unknown outcome.
+   (config as RetryableConfig)._generatedKey = true;
  }
  } catch (e) {
  if (__DEV__) console.warn('[API Client Request Interceptor Error]', e);
@@ -58,6 +65,23 @@ client.interceptors.response.use(
  (response) => response,
  async (error) => {
  const originalRequest = error.config;
+
+ // 15.1: a safe read, or a write carrying the caller's own idempotency key, is tried again on a timeout, a lost connection
+ // or 502/503/504; 429 is tried again for every request. The wait honours Retry-After, else backs off with jitter.
+ if (originalRequest && !axios.isCancel(error)) {
+   const state = originalRequest as RetryableConfig;
+   const plan = planRetries(originalRequest.method, !state._generatedKey && !!(originalRequest.headers as any)?.['Idempotency-Key']);
+   const status = error.response?.status;
+   const retryAfter = error.response?.headers?.['retry-after'] as string | undefined;
+   const retryable = status === undefined ? plan.retryTransport : shouldRetryStatus(status, plan);
+   state._retryCount = state._retryCount || 0;
+   if (retryable && state._retryCount < MAX_RETRIES && !retryAfterTooLong(retryAfter)) {
+     const attempt = state._retryCount;
+     state._retryCount += 1;
+     await pause(retryDelayMs(attempt, retryAfter), originalRequest.signal as AbortSignal | undefined);
+     return client(originalRequest);
+   }
+ }
  
  // If unauthorized (401) and not already retrying, session expired
  if (error.response?.status === 401 && !originalRequest._retry) {

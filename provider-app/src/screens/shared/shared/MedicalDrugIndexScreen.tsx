@@ -33,6 +33,7 @@ import { DrugIndexCard } from './DrugIndexCard';
 import { DrugIndexHeader } from './DrugIndexHeader';
 
 import { DrugIndexDetail } from './DrugIndexDetail';
+import { timedFetch } from '../../../api/timedFetch';
 
 export function MedicalDrugIndexScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
@@ -191,7 +192,7 @@ export function MedicalDrugIndexScreen({ onBack }: { onBack: () => void }) {
    (async () => {
      try {
        const headers = await buildHeaders(true);
-       const res = await fetch(`${API_BASE}/drugs/categories`, { headers });
+       const res = await timedFetch(`${API_BASE}/drugs/categories`, { headers });
        if (res.ok) {
          const data = await res.json();
          setCategories([{ key: 'all', count: 0 }, ...(data.data || [])]);
@@ -211,7 +212,7 @@ export function MedicalDrugIndexScreen({ onBack }: { onBack: () => void }) {
        if (selectedCat !== 'all') q.append('category', selectedCat);
        q.append('limit', '100');
        const headers = await buildHeaders(true);
-       const res = await fetch(`${API_BASE}/drugs?${q.toString()}`, { headers });
+       const res = await timedFetch(`${API_BASE}/drugs?${q.toString()}`, { headers });
        if (res.ok) {
          const data = await res.json();
          if (!cancelled) setDrugs(data.data || []);
@@ -231,7 +232,7 @@ export function MedicalDrugIndexScreen({ onBack }: { onBack: () => void }) {
    (async () => {
      try {
        const headers = await buildHeaders(true);
-       const res = await fetch(`${API_BASE}/drugs/${selectedDrug.id}`, { headers });
+       const res = await timedFetch(`${API_BASE}/drugs/${selectedDrug.id}`, { headers });
        if (res.ok) {
          const data = await res.json();
          if (!data.error) setDrugDetail(data);

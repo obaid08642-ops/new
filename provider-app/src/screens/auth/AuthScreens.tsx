@@ -20,6 +20,7 @@ import { Biometric, Validate, RateLimiter, buildHeaders, Vault, SK, Tokens } fro
 import { SP, R, FS, FW, PROVIDER_TYPES, LIMITS, API_BASE } from '../../constants';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { tokens } from '../../theme/tokens';
+import { timedFetch } from '../../api/timedFetch';
 
 
 // ══════════════════════════════════════════════════════════
@@ -603,7 +604,7 @@ export function ForgotPasswordScreen({
  setErr(''); setLoading(true);
  try {
  const headers = await buildHeaders(false);
- const res = await fetch(`${API_BASE}/provider/auth/forgot-password`, {
+ const res = await timedFetch(`${API_BASE}/provider/auth/forgot-password`, {
  method: 'POST',
  headers,
  body: JSON.stringify({ email: v })
@@ -625,7 +626,7 @@ export function ForgotPasswordScreen({
  setErr(''); setLoading(true);
  try {
  const headers = await buildHeaders(false);
- const res = await fetch(`${API_BASE}/provider/auth/verify-reset-code`, {
+ const res = await timedFetch(`${API_BASE}/provider/auth/verify-reset-code`, {
  method: 'POST',
  headers,
  body: JSON.stringify({ email: target.trim(), code: otp.join('') })
@@ -647,7 +648,7 @@ export function ForgotPasswordScreen({
  setErr(''); setLoading(true);
  try {
  const headers = await buildHeaders(false);
- const res = await fetch(`${API_BASE}/provider/auth/reset-password`, {
+ const res = await timedFetch(`${API_BASE}/provider/auth/reset-password`, {
  method: 'POST',
  headers,
  body: JSON.stringify({
