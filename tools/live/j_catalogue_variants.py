@@ -21,6 +21,29 @@ BACKEND = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '
 SCRIPT = 'scripts/migrations/2026-10-catalogue-variant-groups.ts'
 
 
+# The product page sometimes holds a second, hidden copy of the picker for a moment (CI runs 39769485707 and the #1774
+# and #1771 runs: strict mode found 2; local runs and 250 ms sampling found 1). The user sees the visible one, so the
+# journey waits for that, then requires exactly ONE visible picker (a real visible duplicate still fails), and prints
+# where any hidden copy sits so the cause can be traced.
+VISIBLE_PICKER = '[data-testid="variant-picker"]:visible'
+
+
+def picker_copies(pg):
+    return pg.evaluate("""() => [...document.querySelectorAll('[data-testid="variant-picker"]')].map((el) => {
+      const hidden = el.closest('[hidden], [style*="display: none"], [aria-hidden="true"]');
+      return { visible: el.getClientRects().length > 0, hidden_by: hidden ? hidden.outerHTML.slice(0, 120) : null };
+    })""")
+
+
+def one_visible_picker(pg, label):
+    pg.locator(VISIBLE_PICKER).first.wait_for(timeout=30000)
+    pg.wait_for_timeout(500)
+    copies = picker_copies(pg)
+    if len(copies) > 1:
+        print(f'  NOTE {label}: {len(copies)} picker elements in the DOM: {json.dumps(copies)[:400]}')
+    step(f'{label}: exactly one visible picker', sum(1 for c in copies if c['visible']) == 1, copies)
+
+
 def grouping(*args):
     """Runs the grouping script on the TEST database (start-backend.sh's DB_NAME); returns its last JSON line."""
     env = {**os.environ, 'DB_NAME': os.environ.get('DB_NAME') or 'nabd_live',
@@ -112,15 +135,14 @@ def main():
         journey('decision D: the product page picker (web)')
         page = browser.new_context(locale='en-US', viewport={'width': 1280, 'height': 900}).new_page()
         page.goto(f'{WEB}/en/p/{slug}', wait_until='load', timeout=60000)
-        picker = page.get_by_test_id('variant-picker')
-        picker.wait_for(timeout=30000)
+        one_visible_picker(page, 'desktop 1280')
         step('the picker shows the colours and the chosen colour\'s powers', page.get_by_role('radio', name='Brown').count() == 1
              and page.get_by_role('radio', name='-1.00').count() == 1 and page.get_by_role('radio', name='-2.50').count() == 1)
         page.wait_for_timeout(1500)  # hydration
         page.get_by_role('radio', name='-2.50').click()
         page.wait_for_function(f'() => location.search.includes("v={ids["h-2.50"]}")', timeout=15000)
         step('choosing -2.50 puts ?v=<its id> in the URL', f'v={ids["h-2.50"]}' in page.url, page.url)
-        price_text = page.get_by_test_id('variant-price').inner_text()
+        price_text = page.locator('[data-testid="variant-price"]:visible').first.inner_text()
         step("the price is that variant's own (57.50)", '57.50' in price_text, price_text)
         page.get_by_role('button', name='Add to cart').first.click()
         page.wait_for_timeout(800)
@@ -129,8 +151,8 @@ def main():
         shared = page.url
         page2 = browser.new_context(locale='en-US', viewport={'width': 390, 'height': 844}).new_page()
         page2.goto(shared, wait_until='load', timeout=60000)
-        page2.get_by_test_id('variant-picker').wait_for(timeout=30000)
-        page2.wait_for_function('() => document.querySelector(\'[role="radio"][aria-label="-2.50"]\')?.getAttribute("aria-checked") === "true"', timeout=15000)
+        one_visible_picker(page2, 'shared URL at 390')
+        page2.wait_for_function('() => [...document.querySelectorAll(\'[role="radio"][aria-label="-2.50"]\')].some((el) => el.getClientRects().length && el.getAttribute("aria-checked") === "true")', timeout=15000)
         step('the shared URL opens with -2.50 chosen', True)
     except Exception as e:
         step('web flow', False, str(e)[:300])

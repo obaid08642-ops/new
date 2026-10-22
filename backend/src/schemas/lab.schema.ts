@@ -154,6 +154,17 @@ export class LabBooking extends Document {
   @Prop() transaction_id?: string;
   @Prop() paid_at?: Date;
   @Prop() refund_status?: string;
+
+  // M3 ordering engine: the group the booking belongs to, and the price that was shown and locked at booking.
+  @Prop({ index: true }) order_group_id?: string;
+  @Prop() price_locked_at?: Date;
+  @Prop({ type: Object }) price_lock?: { quote_id: string; items: Array<{ catalog_id: string; price: number }>; home_fee: number };
+  @Prop() medical_order_id?: string;
+  @Prop() gender_preference?: string;
+  @Prop() scheduled_asap?: boolean;
+  @Prop() scheduled_start?: Date; // visit start the approval's validity is compared with (equals scheduled_at when booked)
+  // M3/M5 presentation status of an ordering booking: pending | awaiting_approval | awaiting_patient_choice | cancelled
+  @Prop({ index: true }) status?: string;
 }
 export const LabBookingSchema = SchemaFactory.createForClass(LabBooking);
 LabBookingSchema.index({ patient_id: 1, createdAt: -1 });
