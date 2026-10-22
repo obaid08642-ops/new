@@ -1,8 +1,14 @@
 import { Type } from 'class-transformer';
-import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsIn, IsLatitude, IsLongitude, IsNotEmpty, IsObject, IsOptional, IsString, Matches, MaxLength, ValidateNested } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsIn, IsLatitude, IsLongitude, IsNotEmpty, IsObject, IsOptional, IsString, Matches, MaxLength, ValidateBy, ValidateNested } from 'class-validator';
 
 // Shape checks only; the rules (candidates, radius, order validity) are answered by OrderingService with stable codes.
 const ID = /^[A-Za-z0-9_.:-]{1,128}$/;
+
+/** Every element is a plain id string (one decorator for the list, so the array rules stay readable). */
+const IsIdList = () => ValidateBy({
+  name: 'isIdList',
+  validator: { validate: (v: unknown) => Array.isArray(v) && v.every((x) => typeof x === 'string' && ID.test(x)), defaultMessage: () => 'each id must be a plain id string' },
+});
 
 export class QuoteContextDto {
   @IsIn(['home', 'facility'])
@@ -30,8 +36,7 @@ export class QuoteDto {
   @IsArray()
   @ArrayMinSize(1)
   @ArrayMaxSize(30)
-  @IsString({ each: true })
-  @Matches(ID, { each: true })
+  @IsIdList()
   items: string[];
 
   @ValidateNested()
