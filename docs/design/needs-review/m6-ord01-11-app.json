@@ -1,0 +1,112 @@
+[
+  {
+    "batch": "M6 Ord01+Ord11",
+    "app": "patient-app",
+    "screen": "/diagnostics/discuss",
+    "element": "Result attached to the instant consultation",
+    "file": "patient-app/app/diagnostics/discuss.tsx",
+    "line": 75,
+    "found": "[backend] POST /ordering/bookings/:id/results/discuss only writes a consultation_drafts row (ordering-lifecycle.service.ts:319) and POST /consultations/instant (InstantRequestDto) has no field for draft_id / attached_result_id, so the doctor who accepts is not given the result; the app still sends both calls in order and says the result is attached.",
+    "suspect": "Add draft_id to InstantRequestDto and copy attached_result_id to the appointment.",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6 Ord01+Ord11",
+    "app": "patient-app",
+    "screen": "/diagnostics/discuss",
+    "element": "Price of the instant consultation before paying",
+    "file": "patient-app/app/diagnostics/discuss.tsx",
+    "line": 188,
+    "found": "[backend] The board says the price shows before paying, but POST/GET /consultations/instant send no price (payment_status: not_charged only; the price is set on the appointment after accept, from the doctor's price_video/price_audio). The app shows 'nothing is charged before a doctor accepts' and no number.",
+    "suspect": "Send an estimated price range per mode on create, and a payment step after accept.",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6 Ord01+Ord11",
+    "app": "patient-app",
+    "screen": "/diagnostics/discuss",
+    "element": "Accepted-by name",
+    "file": "patient-app/app/diagnostics/discuss.tsx",
+    "line": 132,
+    "found": "[backend] GET /consultations/instant/:id sends accepted_by as the doctor id only (service.ts:157), no name or photo, so the accepted state does not name the doctor.",
+    "suspect": "Add accepted_by_name to the patient view.",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6 Ord01+Ord11",
+    "app": "patient-app",
+    "screen": "/diagnostics/discuss",
+    "element": "Earliest-slot fallback",
+    "file": "patient-app/app/diagnostics/discuss.tsx",
+    "line": 158,
+    "found": "[backend] fallback.earliest_slot is always null (service.ts:159) and the 409 instant_no_online_doctors body (earliest_slot, alternatives) is not kept by apiFetch (it keeps the message string only), so the button opens the specialty list instead of the slot.",
+    "suspect": "Compute the earliest slot; the client then reads it from the 409 body.",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6 Ord01+Ord11",
+    "app": "patient-app",
+    "screen": "/diagnostics/discuss",
+    "element": "Refund fallback",
+    "file": "patient-app/app/diagnostics/discuss.tsx",
+    "line": 151,
+    "found": "[backend] The expired view lists 'refund' as an option but there is no refund endpoint for an instant request and payment_status is not_charged, so the app only states that nothing was charged.",
+    "suspect": "Drop 'refund' from fallback.options while nothing is charged, or add the endpoint.",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6 Ord01+Ord11",
+    "app": "patient-app",
+    "screen": "/diagnostics/discuss",
+    "element": "Waiting state uses polling",
+    "file": "patient-app/app/diagnostics/discuss.tsx",
+    "line": 56,
+    "found": "[client] The waiting state polls GET /consultations/instant/:id every 3 s; there is no push/socket event for acceptance.",
+    "suspect": "A push when a doctor accepts.",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6 Ord01+Ord11",
+    "app": "patient-app",
+    "screen": "/diagnostics/lab-result",
+    "element": "Discuss button for results without a booking",
+    "file": "patient-app/app/diagnostics/lab-result.tsx",
+    "line": 124,
+    "found": "[client] The button shows only for a result with source lab_booking and a booking_id (the discuss endpoint is per ordering booking); other results (uploaded reports) show no discuss action.",
+    "suspect": "Decide whether uploaded reports can start an instant consultation.",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6 Ord01+Ord11",
+    "app": "patient-app",
+    "screen": "/diagnostics/service-home",
+    "element": "Family members without a record id",
+    "file": "patient-app/src/components/ordering/ContextBar.tsx",
+    "line": 56,
+    "found": "[backend] GET /family/members sends user_id/display_name and no family_members record id; the bar offers only members that carry an id (the quote needs the record id), so most members cannot be chosen yet. Same as m6-ord02-05-app row on family members.",
+    "suspect": "GET /family/members should send the family_members id.",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6 Ord01+Ord11",
+    "app": "patient-app",
+    "screen": "/diagnostics/when",
+    "element": "Context bar not on when / confirm / booking-status",
+    "file": "patient-app/app/diagnostics/when.tsx",
+    "line": 1,
+    "found": "[owner] The bar is on the screens that hold the editable context (service home, item page, basket, compare). The time, confirm and status screens receive place/payer/member from the chosen quote (changing them would invalidate the quote and the held booking), so they show no bar.",
+    "suspect": "Owner to confirm that these three screens stay read-only for the context.",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6 Ord01+Ord11",
+    "app": "patient-app",
+    "screen": "/diagnostics/service-home",
+    "element": "First-ask for a new patient shows only on the 'set your place' gate",
+    "file": "patient-app/src/components/ordering/OrderingKit.tsx",
+    "line": 39,
+    "found": "[client] A new patient (no address, insurance or family) has no map point, so the screens show the set-place state; the first-ask sheet opens on top of it once, with Skip remembered in AsyncStorage (@nabdah_ordering_ctx_skipped_v1). Not run on a device in this session; only the pure helpers are unit-tested.",
+    "suspect": "Runtime check on a device with a fresh account.",
+    "review_status": "open"
+  }
+]

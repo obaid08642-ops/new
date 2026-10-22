@@ -118,7 +118,7 @@
     "line": 128,
     "found": "[backend] waits for M8: instant consultation broadcast does not exist; the button opens the doctors list.",
     "suspect": "M8 acceptance specs are red on main.",
-    "review_status": "open"
+    "review_status": "fixed this PR (instant consultation flow on web and app; remaining gaps in m6-ord11-web.json and m6-ord01-11-app.json)"
   },
   {
     "batch": "m6-blocked",
@@ -129,7 +129,7 @@
     "line": 18,
     "found": "[backend] waits for M3: owner decision (2026-10-18): app Ord01 waits for M3.",
     "suspect": "Decided; no open question.",
-    "review_status": "open"
+    "review_status": "fixed this PR (real context bar on the app ordering screens; gaps in m6-ord01-11-app.json)"
   },
   {
     "batch": "m6-orders",

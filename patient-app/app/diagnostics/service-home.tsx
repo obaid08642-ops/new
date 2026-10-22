@@ -5,7 +5,8 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { Button, EmptyState, Search } from '../../../packages/ui-native/src';
 import { ConsultScreen, Gate, Section, type GateStatus } from '../../src/components/consult/ConsultKit';
 import { LAB_TONE, LinkCard, ListCard, RAD_TONE, TestRow, diagLook, goBackDiag, useDiagText } from '../../src/components/diagnostics/DiagKit';
-import { ContextGate, ContextSummary } from '../../src/components/ordering/OrderingKit';
+import { ContextBar } from '../../src/components/ordering/ContextBar';
+import { ContextGate } from '../../src/components/ordering/OrderingKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
@@ -101,7 +102,7 @@ export default function ServiceHome() {
   return (
     <ConsultScreen testID={`ordering-home-${kind}`} title={title} onBack={goBackDiag} footer={footer} onRefresh={() => void load()}>
       <ContextGate ctx={ctx}>
-        <ContextSummary ctx={ctx} />
+        <ContextBar ctx={ctx} />
         <Search theme={theme} variant="inline" value={query} onChange={setQuery} onClear={() => setQuery('')} clearLabel={k('diag.clear')} placeholder={k(searchKey)} label={k(searchKey)} />
         <Gate status={status} onRetry={() => void load()}>
           {needle && shown.length === 0 ? (
