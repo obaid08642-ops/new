@@ -1,2 +1,2 @@
-# 2026-10-22 owner (server ops session): one task per run. Run 1 of 7: disk check and prune above 80%.
-80-ops-disk
+# 2026-10-22 owner (server ops session): one task per run. Run 2 of 7: Redis persistence check (read-only).
+81-ops-redis
