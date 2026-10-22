@@ -18,6 +18,7 @@ import {
   bookingErrorKey, clearDraft, createBookings, eligibleOrders, getDraft, groupsMissingPick, groupsMissingTime, paymentErrorKey, paymentMethodsFor,
   type BookingDocument, type CreatedGroup, type PaymentMethod,
 } from '../../src/utils/orderingBooking';
+import { statusHref } from '../../src/utils/orderingStatus';
 import { paymentIntentHeaders } from '../../src/utils/payment-idempotency';
 
 const DAY_OPTS: Intl.DateTimeFormatOptions = { weekday: 'short', day: 'numeric', month: 'short' };
@@ -166,7 +167,7 @@ export default function DiagnosticsConfirm() {
   // ---- created: the server's bookings and totals; card bookings are paid one by one ----
   if (created) {
     return (
-      <ConsultScreen testID="diagnostics-confirm" title={k('ordering.pay.createdTitle')} onBack={() => router.replace('/diagnostics/orders' as Href)}>
+      <ConsultScreen testID="diagnostics-confirm" title={k('ordering.pay.createdTitle')} onBack={() => router.replace(statusHref(created.bookings.map((b) => b.id)) as Href)}>
         <Notice tone="info" text={method === 'card' ? k('ordering.pay.createdCard') : k('ordering.pay.createdOther')} />
         {created.bookings.map((b) => (
           <Section key={b.id} title={b.mode === 'home' ? k('ordering.match.homeVisit') : k('ordering.match.atCentre')}>
@@ -179,7 +180,7 @@ export default function DiagnosticsConfirm() {
               {method === 'card' ? (
                 <Button theme={theme} size="lg" fullWidth loading={paying === b.id} disabled={paying !== null} label={k('ordering.pay.btnPay', { a: money(b.total) })} onPress={() => void pay(b.id)} />
               ) : null}
-              <Button theme={theme} size="md" variant="outline" label={k('ordering.pay.viewOrder')} onPress={() => router.replace({ pathname: '/diagnostics/order/[id]', params: { id: b.id } } as unknown as Href)} />
+              <Button theme={theme} size="md" variant="outline" label={k('ordering.pay.viewOrder')} onPress={() => router.replace(statusHref(created.bookings.map((x) => x.id), b.id) as Href)} />
             </Block>
           </Section>
         ))}

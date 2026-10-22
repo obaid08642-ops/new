@@ -9,24 +9,24 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 0 | 333 | 97 | 4 | 0 |
-| Other | 29 | 1 | 25 | 3 | 0 | 0 |
+| Other | 145 | 106 | 36 | 3 | 0 | 0 |
 | Admin | 99 | 0 | 65 | 34 | 0 | 0 |
 | Admin journeys | 20 | 0 | 18 | 2 | 0 | 0 |
 | Final pass | 8 | 0 | 2 | 6 | 0 | 0 |
 | Patient journeys | 87 | 0 | 85 | 2 | 0 | 0 |
 | Provider app | 31 | 0 | 27 | 4 | 0 | 0 |
 | Provider journeys | 34 | 0 | 32 | 2 | 0 | 0 |
-| **Total** | **742** | **1** | **587** | **150** | **4** | **0** |
+| **Total** | **858** | **106** | **598** | **150** | **4** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 169 | 1 | 127 | 41 | 0 | 0 |
-| owner | 100 | 0 | 57 | 42 | 1 | 0 |
-| backend | 235 | 0 | 205 | 30 | 0 | 0 |
+| client | 198 | 30 | 127 | 41 | 0 | 0 |
+| owner | 106 | 6 | 57 | 42 | 1 | 0 |
+| backend | 316 | 70 | 216 | 30 | 0 | 0 |
 | untagged | 238 | 0 | 198 | 37 | 3 | 0 |
-| **Total** | **742** | **1** | **587** | **150** | **4** | **0** |
+| **Total** | **858** | **106** | **598** | **150** | **4** | **0** |
 
 ## By file
 
@@ -87,6 +87,15 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `final-pass-2.json` | 4 | 0 | 0 | 4 | 0 | 0 |
 | `final-pass.json` | 4 | 0 | 2 | 2 | 0 | 0 |
 | `journeys.json` | 87 | 0 | 85 | 2 | 0 | 0 |
+| `m6-blocked.json` | 16 | 6 | 10 | 0 | 0 | 0 |
+| `m6-ord02-05-app.json` | 14 | 14 | 0 | 0 | 0 | 0 |
+| `m6-ord02-05-web.json` | 13 | 13 | 0 | 0 | 0 | 0 |
+| `m6-ord06-07-app.json` | 16 | 16 | 0 | 0 | 0 | 0 |
+| `m6-ord06-07-web.json` | 10 | 10 | 0 | 0 | 0 | 0 |
+| `m6-ord08-10-app.json` | 13 | 13 | 0 | 0 | 0 | 0 |
+| `m6-ord08-10-web.json` | 15 | 15 | 0 | 0 | 0 | 0 |
+| `m6-ord22.json` | 5 | 4 | 1 | 0 | 0 | 0 |
+| `m6-ord30.json` | 14 | 14 | 0 | 0 | 0 | 0 |
 | `provider-admin-ish.json` | 3 | 0 | 3 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 0 | 6 | 0 | 0 | 0 |
 | `provider-facility.json` | 7 | 0 | 7 | 0 | 0 | 0 |
@@ -100,7 +109,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 0 | 7 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 0 | 0 | 1 | 0 | 0 |
 | `tooling.json` | 13 | 0 | 12 | 1 | 0 | 0 |
-| **Total** | **742** | **1** | **587** | **150** | **4** | **0** |
+| **Total** | **858** | **106** | **598** | **150** | **4** | **0** |
 
 ## Owner decisions (4)
 
@@ -111,8 +120,113 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 3 | `batch-1a-app.json#18` `patient-app/src/i18n/locales/en.json:0` | /pharmacy Six-language strings | 177 pharmacy.* keys were added to patient-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json. The English, Urdu, Hindi, Bengali and Filipino text was written by the design session (and, for reused phrases, taken from the phr… |
 | 4 | `batch-1d-web.json#1` `backend/src/modules/payments/payments.module.ts:154` | /pharmacy/payment Payment provider not exercised | No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only against a TEST stand-in outside the repo (… |
 
-## Open and unverified (1)
+## Open and unverified (106)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
 | `ac-1-agent-oauth.json#1` | client | open | Settings > Connected AI apps List and disconnect connected AI assistants | [client] No screen yet. Backend is ready: GET /api/v1/patient/agent-connections (client_id, client_name, logo_uri, scopes, connected_at) and DELETE /api/v1/patient/agent-connectio… |
+| `m6-blocked.json#10` | backend | open | /diagnostics/results/[resultId] (Ord11 discuss) "Discuss with a doctor" opens a… | [backend] waits for M8: instant consultation broadcast does not exist; the button opens the doctors list. |
+| `m6-blocked.json#11` | backend | open | /diagnostics/search (Ord01 context bar) context bar with place and payment | [backend] waits for M3: owner decision (2026-10-18): app Ord01 waits for M3. |
+| `m6-blocked.json#12` | backend | open | /medical-orders/[orderId] (Ord21) Item names | [backend] GET /medical-orders/:id gives catalog_id only, no test or scan name; items show their group (or sessions) instead of a name. |
+| `m6-blocked.json#13` | client | open | /medical-orders/[orderId] (Ord21, Order button) Order button prefill | [client] The Order button calls POST …/order, which returns the prefill (service_kind, items), then sends the patient to the group hub. The lab, radiology and nursing flows do not… |
+| `m6-blocked.json#14` | client | open | /medical-orders/[id] (Ord21, Order button) Order button prefill | [client] Same as the web: the prefill is not read by the app flows; the patient lands on the generic flow. |
+| `m6-blocked.json#15` | backend | open | /medical-orders/[orderId] (expired order) Renew | [backend] POST /medical-orders/:id/renew-request exists on main; the expired note has no renew action yet (not built in this batch). |
+| `m6-ord02-05-app.json#0` | backend | open | /diagnostics/service-home From X SAR · n providers | [backend] No catalogue endpoint returns the area-cached from-price and provider count; the screen asks POST /ordering/quote once per featured item (4 calls, throttled 30/min), so … |
+| `m6-ord02-05-app.json#1` | backend | open | /diagnostics/service-home Nursing rows: duration, doctor's order needed, nurse … | [backend] nursing_services has duration, duration_value and requires_companion but no needs-order flag, gender preference or series hint; rows show none of ordering.home.n.* and t… |
+| `m6-ord02-05-app.json#2` | backend | open | /diagnostics/service-home Empty search: request offers / notify me | [backend] The empty state has no 'Request offers' or 'Notify me' action: POST /ordering/asap and /photo-order exist but their screens belong to Ord06+; there is no notify-me endpo… |
+| `m6-ord02-05-app.json#3` | client | open | /diagnostics/service-home Route is not linked | [client] /diagnostics/service-home?kind=lab\|radiology\|nursing is not yet opened from the hub tab or the services catalogue; the entry switch happens in the last Ord01 PR. |
+| `m6-ord02-05-app.json#4` | backend | open | /diagnostics/test-detail Sample type line | [backend] labs.json carries sample_type as a code ('blood'), no localized label, so the sample line (ordering.item.secSample) is not shown. |
+| `m6-ord02-05-app.json#5` | client | open | /diagnostics/test-detail Doctor-order items pre-ticked / Later | [client] The doctor-order block (items pre-ticked, untick = later) is not built on the item page; GET /medical-orders/mine parsing exists (utils/medicalOrders.ts) but the page doe… |
+| `m6-ord02-05-app.json#6` | backend | open | /diagnostics/package-detail Coverage and from-price of a package | [backend] POST /ordering/quote only knows ids of lab_services; a package id answers unknown_catalog_item, so the package page has no context price or coverage, and included tests … |
+| `m6-ord02-05-app.json#7` | backend | open | /diagnostics/cart Request offers from labs | [backend] The no-provider block offers only 'move to the centre'; 'Request offers' (alternative broadcast) and 'notify me' have no patient endpoint wired in this PR. |
+| `m6-ord02-05-app.json#8` | client | open | /diagnostics/cart Context not kept between screens | [client] Place/payer/for-whom are read from the profile per screen and passed to the next one as route params; the Ord01 bar will replace the stopgap ContextSummary and decide per… |
+| `m6-ord02-05-app.json#9` | client | open | /diagnostics/cart Choose a provider | [client] Mixed lab + scan baskets are quoted per service kind and continue with the lab kind first; the second kind is not offered a provider step. |
+| `m6-ord02-05-app.json#10` | client | open | /diagnostics/lab-comparison Choose this provider | [client] Goes to the existing /diagnostics/checkout with labId = ordering provider_id (provider profile id); the old checkout expects the old lab ids until Ord06-07 replace it. |
+| `m6-ord02-05-app.json#11` | client | open | /diagnostics/lab-comparison Use this split | [client] The suggested split is shown with providers and total but the 'Use this split' button is not built: booking two providers needs the When picker (Ord06). |
+| `m6-ord02-05-app.json#12` | backend | open | /diagnostics/lab-comparison Filters: home visit, open now; reliability line; re… | [backend] Compare rows carry no home-visit flag, opening hours, reliability or review count, so those filters and lines (ordering.match.fHome/fOpen/reliab/rating) are not shown; '… |
+| `m6-ord02-05-app.json#13` | backend | open | /diagnostics/lab-comparison For whom | [backend] GET /family/members lists group members (user_id, display_name); POST /ordering/quote wants a family_members record id (family_member_not_found otherwise). Only members … |
+| `m6-ord02-05-web.json#0` | backend | open | Ord02 service home 'from X SAR' and provider count per test, package and scan | [backend] The catalogue rows have no area-cached 'from' price or provider count for the patient's context; only POST /ordering/quote answers them, and only for an item list (order… |
+| `m6-ord02-05-web.json#1` | backend | open | Ord02 service home 'Photograph the paper' order entry | [backend] POST /ordering/photo-order needs an upload_id (ordering.dto.ts PhotoOrderDto) and no ordering upload endpoint was found, so the photo entry is not drawn; only 'My medica… |
+| `m6-ord02-05-web.json#2` | client | open | Ord02 service home Nursing entry: item page link | [client] The nursing catalogue rows still open the home-care service page; only the add-to-basket button was added. The nursing quote works, but nursing booking returns service_ki… |
+| `m6-ord02-05-web.json#3` | client | open | Ord03 item page Doctor's-order items pre-ticked and untickable ('later') | [client] Not built: the item page does not read the patient's medical order items for this test; the board's order block (ordering.item.ord.*) is not drawn. |
+| `m6-ord02-05-web.json#4` | backend | open | Ord03 item page Price, provider count and coverage come from a quote made on pa… | [backend] Each item-page view runs POST /ordering/quote on the server, which inserts a quote row and, for an empty result, increments a coverage-gap cell (ordering.service.ts reco… |
+| `m6-ord02-05-web.json#5` | client | open | Ord03 item page Quote needs a saved address with coordinates | [client] Without a default address that has latitude/longitude the price and coverage block shows 'add an address' and nothing else (no invented price). GET /users/me/addresses re… |
+| `m6-ord02-05-web.json#6` | backend | open | Ord04 basket 'Request offers' and 'Notify me' alternatives | [backend] The empty result lists broadcast and notify_me alternatives, but there is no items-based offer request or notify-me endpoint (POST /ordering/asap dispatches a booking, p… |
+| `m6-ord02-05-web.json#7` | client | open | Ord04 basket 'For whom' (family member) in the context | [client] The context bar still has place and payment only; the quote supports family_member_id (ordering.dto.ts QuoteContextDto) but no web control sets it, so quotes are always f… |
+| `m6-ord02-05-web.json#8` | owner | open | Ord04 basket Basket when the context changes | [owner] Open line of the board: the basket stays on the device and the quote is recomputed when place or payment changes; items that become facility-only move to the centre group … |
+| `m6-ord02-05-web.json#9` | backend | open | Ord05 providers 'Open now' filter | [backend] The quote rows carry no opening hours or open-now flag, so the board's 'Open now' filter is not drawn. 'In my network' (in_network) and 'Female staff' (staff_gender sent… |
+| `m6-ord02-05-web.json#10` | backend | open | Ord05 providers Reliability line and review count | [backend] The compare row has rating but no review count and no reliability value (reliability is used for ranking inside the engine only), so 'Confirms bookings within 5 minutes'… |
+| `m6-ord02-05-web.json#11` | backend | open | Ord05 providers 'Use this split' button | [backend] POST /ordering/bookings takes one provider per mode (ordering.dto.ts SelectionsDto), so a suggested split between two providers cannot be booked from one quote. The spli… |
+| `m6-ord02-05-web.json#12` | client | open | Ord05 providers 'Continue' goes to /labs/when | [client] The time picker route (Ord06) is in the next PR, so Continue leads to a missing page until that PR is merged. The choice is kept in sessionStorage (nabd_ordering_selectio… |
+| `m6-ord06-07-app.json#0` | backend | open | /diagnostics/when Walk-in QR code | [backend] GET /ordering/windows answers only {walk_in:true, qr:true} for a walk-in centre: no entry-code token, so no QR can be drawn; the screen shows the walk-in choice and the … |
+| `m6-ord06-07-app.json#1` | backend | open | /diagnostics/when Centre opening hours | [backend] The windows answer carries no opening hours; the opening-hours block of the board is not drawn. |
+| `m6-ord06-07-app.json#2` | backend | open | /diagnostics/when ASAP card hold text | [backend] The board says the amount is held on the card until a provider accepts; POST /ordering/asap holds nothing (no payment call), so the hold text is NOT shown. After accepta… |
+| `m6-ord06-07-app.json#3` | backend | open | /diagnostics/when ASAP in a split basket | [backend] ASAP is offered only for a home-only quote: the broadcast creates its own booking for the home items and cannot be combined with a centre booking of the same quote. |
+| `m6-ord06-07-app.json#4` | backend | open | /diagnostics/when ASAP stage timeline | [backend] GET /ordering/asap/:id returns only the current stage, radius and seconds_left, not the list of stages, so the 3/5/8 km timeline of the board shows the current stage onl… |
+| `m6-ord06-07-app.json#5` | client | open | /diagnostics/when ASAP fallback from another provider | [client] The expired answer's earliest window can belong to a provider that is not the chosen one; it is offered only when it is the chosen provider, otherwise the patient picks f… |
+| `m6-ord06-07-app.json#6` | client | open | /diagnostics/when Left ASAP search open on exit | [client] Leaving the screen while searching does not cancel the broadcast (explicit cancel only); a new search then answers asap_open until it ends. |
+| `m6-ord06-07-app.json#7` | backend | open | /diagnostics/confirm Preparation text (fasting / metal) | [backend] The quote and the booking answer carry no preparation instructions per item, so the Preparation block is not drawn. |
+| `m6-ord06-07-app.json#8` | backend | open | /diagnostics/confirm Price lines of a non-best provider | [backend] Compare rows carry only the total (no item prices, home fee or insurance share); item lines, fee and estimated share are shown only when the chosen provider is the best … |
+| `m6-ord06-07-app.json#9` | client | open | /diagnostics/confirm Home fee line | [client] The home fee is the best match total minus its item prices (same derivation as basketLines in ordering.ts); the server sends no separate fee field on the quote. |
+| `m6-ord06-07-app.json#10` | backend | open | /diagnostics/confirm Amount due now for insurance | [backend] POST /ordering/bookings returns payment.amount = sum of the booking totals even for insurance; there is no "due now" (patient share) field, and an insured booking has no… |
+| `m6-ord06-07-app.json#11` | backend | open | /diagnostics/confirm Pay a booking group | [backend] Payment is per booking (POST /payments/intent/lab/:id), there is no group intent; a split basket is paid with one button per booking and the group payment.status stays "… |
+| `m6-ord06-07-app.json#12` | backend | open | /diagnostics/confirm Retry after a lost booking answer | [backend] The quote is single-use (409 quote_already_booked) and there is no GET of a group; if the booking answer is lost the patient is sent to the orders list and cannot resume… |
+| `m6-ord06-07-app.json#13` | owner | open | /diagnostics/confirm Card sheet and other card | [owner] The board's in-app card sheet and "use another card" are not built: payment opens the shared Moyasar hosted page through /payments/result (existing app pattern). |
+| `m6-ord06-07-app.json#14` | backend | open | /diagnostics/confirm Self-pay (cash-only) items label | [backend] Only an item with coverage not_covered on the best match is labelled self-paid; packages/checkups/home fee are not flagged by the server. |
+| `m6-ord06-07-app.json#15` | backend | open | /diagnostics/confirm Cash order of radiology/nursing | [backend] POST /ordering/bookings answers service_kind_not_bookable_yet for radiology and nursing quotes; only labs can be booked, the message is shown. |
+| `m6-ord06-07-web.json#0` | backend | open | Ord06 when picker Walk-in QR code and opening hours | [backend] GET /ordering/windows answers only { walk_in: true, qr: true } for a walk-in centre (ordering.service.ts windows). There is no QR token and no opening hours, so the walk… |
+| `m6-ord06-07-web.json#1` | backend | open | Ord06 when picker ASAP card hold on the patient's card | [backend] POST /ordering/asap (ordering-broadcast.service.ts startAsap) holds no amount on a card and the web has no hold step; the board line 'we hold the amount on your card' is… |
+| `m6-ord06-07-web.json#2` | backend | open | Ord06 when picker ASAP accepted: booking created by the backend, no pay step | [backend] When a provider accepts an ASAP broadcast the backend creates the booking itself (bookAsap); this flow has no payment or confirm step for it. The screen shows 'accepted'… |
+| `m6-ord06-07-web.json#3` | backend | open | Ord06 when picker Centre slot times are the provider's hours written as UTC | [backend] slotsForProvider builds each slot from 'HH:MM' opening hours as a UTC instant (Date.UTC + hours), so a provider open 09:00 yields 09:00Z (12:00 in Riyadh). The picker sh… |
+| `m6-ord06-07-web.json#4` | owner | open | Ord06 when picker Booking-level ASAP (window.asap) is unused | [owner] POST /ordering/bookings also accepts window.asap=true (a booking created at once, no broadcast, ordering.service.ts:369) next to the broadcast. The picker uses only the br… |
+| `m6-ord06-07-web.json#5` | backend | open | Ord07 confirm and pay One payment for the whole group | [backend] POST /ordering/bookings answers one payment.amount for the group, but the only payment route is per booking (POST /payments/intent/lab/:id charges that booking's total).… |
+| `m6-ord06-07-web.json#6` | backend | open | Ord07 confirm and pay Insured payment (co-pay) is not started here | [backend] For insurance the screen creates the group (payment_method insurance) and stops: home bookings are awaiting_approval and the co-pay after approval has no group route; a … |
+| `m6-ord06-07-web.json#7` | client | open | Ord07 confirm and pay Price lines for a provider that is not the best match | [client] The quote returns item lines, home fee and insurance share only for best_match; for another chosen provider the screen shows that provider's total only (no breakdown) and… |
+| `m6-ord06-07-web.json#8` | owner | open | Ord07 confirm and pay Moyasar card sheet is the hosted page | [owner] The board draws an in-page card sheet; the existing payment pattern (diagnostics checkout, pharmacy) goes to the hosted Moyasar page (checkout_url), so the card fields, sa… |
+| `m6-ord06-07-web.json#9` | client | open | Ord07 confirm and pay Preparation only for lab items | [client] Preparation lines come from the lab catalogue (server, per item, at most 12); radiology and nursing items show none because their catalogue reads are not wired into this … |
+| `m6-ord08-10-app.json#0` | backend | open | /diagnostics/booking-status Item names | [backend] GET /ordering/bookings/:id and /approval list items by catalog_id and price only; the screen takes the name from the cart when it still has it, else prints "Test N". |
+| `m6-ord08-10-app.json#1` | backend | open | /diagnostics/booking-status Refund amount | [backend] The booking view gives refund_status only (payment.refund_status); refund_amount is stored but not returned, so the refund line has no amount. |
+| `m6-ord08-10-app.json#2` | backend | open | /diagnostics/booking-status Alternative provider | [backend] alternative = {provider_id, total, earliest_at}: no provider name and no quote, so the screen shows price and earliest time and sends the patient to pick again; there is… |
+| `m6-ord08-10-app.json#3` | backend | open | /diagnostics/booking-status Insurance reply clock | [backend] Before the insurer decides, GET .../approval has no expected-reply time or deadline; only valid_until after the decision. No countdown is drawn. |
+| `m6-ord08-10-app.json#4` | backend | open | /diagnostics/booking-status Split basket siblings | [backend] The booking view has no order_group_id and there is no GET of a group; sibling bookings are known only when the confirm screen passes their ids (route param group), so o… |
+| `m6-ord08-10-app.json#5` | owner | open | /diagnostics/booking-status In-app message and call | [owner] No in-app channel between patient and a lab technician exists in the app or backend (chat-with-doctor is for doctors); the buttons of the board are not drawn. |
+| `m6-ord08-10-app.json#6` | backend | open | /diagnostics/booking-status Technician map, ETA, on-the-way step | [backend] Nothing in /visit or the booking view gives a position, an ETA or an on-the-way state; the timeline has assigned/arrived/collected/results steps only and no map. |
+| `m6-ord08-10-app.json#7` | backend | open | /diagnostics/booking-status Technician rating and languages | [backend] /visit returns staff name, licence, photo and gender only: no rating, spoken languages or role line. |
+| `m6-ord08-10-app.json#8` | backend | open | /diagnostics/booking-status Cancel this booking | [backend] No patient cancel in the ordering API with a defined refund answer (the old POST /labs/bookings/:id/cancel has its own fee rules, not checked here), so the "Cancel booki… |
+| `m6-ord08-10-app.json#9` | backend | open | /diagnostics/booking-status Pay the share intent | [backend] After a choice the share is paid through POST /payments/intent/lab/:id; I did not verify that this intent charges insurance_copay (patient_share_total) and not the full … |
+| `m6-ord08-10-app.json#10` | backend | open | /diagnostics/booking-status Emergency stops the visit | [backend] POST /emergency only returns the number to call and files an admin alert (it neither sends the location nor stops the visit); the confirm text says only that we call and… |
+| `m6-ord08-10-app.json#11` | backend | open | /diagnostics/booking-status Provider declined vs timed out | [backend] A booking the provider declines is not distinguishable from a patient cancel: only status cancelled_unconfirmed (timeout) has its own words; other cancelled bookings sho… |
+| `m6-ord08-10-app.json#12` | client | open | /diagnostics/booking-status ASAP search clock | [client] The ASAP search clock and radius live on /diagnostics/when (previous slice); this screen starts when the broadcast is accepted (when.tsx now opens it) and has no ASAP-sea… |
+| `m6-ord08-10-web.json#0` | backend | open | Booking header and split bookings Split bookings with separate statuses | [backend] GET /ordering/bookings/:id answers no order_group_id and no sibling bookings, so the page shows only the one booking (own status, own payment, own refund). A split group… |
+| `m6-ord08-10-web.json#1` | backend | open | Partial approval items Item names | [backend] The booking and approval answers carry catalogue ids only. The page looks the name up in the public lab catalogue (page.tsx itemNames); radiology and nursing ids, or an … |
+| `m6-ord08-10-web.json#2` | backend | open | Waiting for insurer Expected time for a reply | [backend] The pending approval answer has no expected reply time or deadline, so the board's clock for the insurer is not drawn; only the estimate, the wait text and the home-visi… |
+| `m6-ord08-10-web.json#3` | client | open | Waiting for insurer Rebook for an earlier time | [client] The warning and the rebook link appear only when the server sets warning and rebook_earlier (after a decision). The link opens the labs hub because the booking has no quo… |
+| `m6-ord08-10-web.json#4` | backend | open | Auto-refund state Refunded amount | [backend] The view answers refund_status only (no refund amount), so the text says that a refund of what was paid has started, with no figure. The board shows the SAR amount. |
+| `m6-ord08-10-web.json#5` | backend | open | Auto-refund state Reason of the cancellation | [backend] The view has no cancel reason: a provider timeout, a patient "cancel for free" and any other cancel look the same. The "provider did not confirm" title is shown only whe… |
+| `m6-ord08-10-web.json#6` | backend | open | Alternative provider Book with this provider | [backend] The alternative is {provider_id, total, earliest_at}: no provider name and no quote, so the page shows price and earliest time and the "See other providers" link to the … |
+| `m6-ord08-10-web.json#7` | backend | open | Waiting states Cancel booking | [backend] The board offers "Cancel booking" with free cancellation, but the view does not say whether cancelling is free or what the fee is (POST /labs/bookings/:id/cancel exists)… |
+| `m6-ord08-10-web.json#8` | backend | open | Partial approval Pay the difference | [backend] POST partial-choice answers {choice, patient_share_total} only. The amount already paid is not in any answer, so the screen shows the server final share and does not sho… |
+| `m6-ord08-10-web.json#9` | backend | open | Tracking Message and call in the app | [backend] No booking-scoped chat or call route exists for ordering bookings (the existing chat is for consultations), so the board's Message/Call buttons are not drawn. |
+| `m6-ord08-10-web.json#10` | backend | open | Tracking On the way, ETA and map | [backend] GET visit answers status, provider, staff and arrival code only: no on-the-way state, ETA or position, so the board's ETA line and map are not drawn. |
+| `m6-ord08-10-web.json#11` | client | open | Tracking Results link | [client] The results card opens the diagnostics results list because the booking-scoped results screen (Ord11) is not part of this slice. Shown only when GET /ordering/bookings/:i… |
+| `m6-ord08-10-web.json#12` | backend | open | Tracking Preparation reminders | [backend] GET reminders answers kind and time only, so the lines are generic by kind (fasting night, fasting morning, preparation); the board's per-item texts (for example metal b… |
+| `m6-ord08-10-web.json#13` | owner | open | Tracking Emergency button | [owner] The board says the location is sent and the visit is stopped. The backend only alerts the Nabd team, returns the urgent number and dispatches nothing (D-14), so the text s… |
+| `m6-ord08-10-web.json#14` | backend | open | Declined part of a split booking Declined part with own refund and next provider | [backend] There is no provider-declined state on the booking other than the confirm-deadline cancel, so a declined part appears as a cancelled booking with its own refund line and… |
+| `m6-ord22.json#1` | backend | open | Ord22 MedicalOrderComposer Prescription link (patient filter) | [backend] GET /prescriptions/doctor/mine returns the doctor's last 200 prescriptions for all patients; the client filters by patient_id, which the queue item may not carry (apt.pa… |
+| `m6-ord22.json#2` | client | open | Ord22 MedicalOrderComposer Catalogue search | [client] The picker filters the full GET /labs/services, /radiology/services, /nursing/catalog list locally (first 30 rows); no server-side search or prep/fasting text per row as … |
+| `m6-ord22.json#3` | backend | open | Ord22 MedicalOrderComposer Sessions duration and frequency fields | [backend] The board shows a duration (minutes) field for nursing; the order DTO accepts only sessions and interval_days, so duration is not sent. Only whole-day intervals are sent. |
+| `m6-ord22.json#4` | client | open | Ord22 MedicalOrderComposer Strings | [client] provider-app uses inline ar/en pairs (ord22.* approved wording); the other four languages exist only in ordering-m0-strings.provider.json. |
+| `m6-ord30.json#0` | backend | open | Ord30 Working hours and booking slots (step 3) | [backend] PUT /provider/ordering/settings has no hours or slot-length fields (hours live in provider_schedule_slots); the board's hours rows and 20/30/60 min slots are not drawn. |
+| `m6-ord30.json#1` | client | open | Ord30 Insurer company id | [client] catalogs.ts getInsuranceCatalog() keeps company.code as id; the ordering API validates the raw company id, so ordering.ts reads /insurance/companies itself. |
+| `m6-ord30.json#2` | backend | open | Ord30 Insurance class values | [backend] accepted_insurance.classes are free strings; the client sends the plan code (or English name) and the backend does not check them against the insurer's plans. |
+| `m6-ord30.json#3` | backend | open | Ord30 Walk-in vs time slots | [backend] Settings carry only walk_in (boolean); the board's 'time slots' option has no field. |
+| `m6-ord30.json#4` | backend | open | Ord31 Portable radiology flag | [backend] OrderingItemView has no portable flag; a radiology item is treated as centre-only when it inherits modes and shows no home. A portable item whose home was switched off b… |
+| `m6-ord30.json#5` | backend | open | Ord31 Item list size | [backend] GET /items has no pagination or search; the list and filters are applied on the device. |
+| `m6-ord30.json#6` | backend | open | Ord32 Catalogue browse | [backend] /catalogs/{labs\|radiology\|nursing} is capped at 500 rows and has no search; search is local and shows the first 60 matches. |
+| `m6-ord30.json#7` | backend | open | Ord32 Add from catalogue | [backend] No bulk-add endpoint: one PUT /items per selected row. |
+| `m6-ord30.json#8` | client | open | Ord32 CSV export save | [client] Saving a file needs a new dependency (expo-file-system / sharing); the CSV is shown in a field and shared as text with the share sheet. Error file is shared the same way. |
+| `m6-ord30.json#9` | client | open | Ord32 Before/after preview | [client] The preview shows the first 5 items computed on the device with the same rule as the backend (round to 2 decimals); the backend returns only the count. |
+| `m6-ord30.json#10` | backend | open | Ord33 Patient preview | [backend] There is no patient search-card read model for a provider; the preview is built from the provider's own settings and items, without rating, distance or the patient's ins… |
+| `m6-ord30.json#11` | client | open | Ord33 Photo and licence task | [client] The photo_licence task has no route in the ordering stack, so the row is not tappable. |
+| `m6-ord30.json#12` | client | open | Ord33 Points per task | [client] Points are derived from the weights returned by the API (share of what is missing), since the API gives no per-task points. |
+| `m6-ord30.json#13` | client | open | Ord22 and Ord30 to Ord33 Render entry and board comparison | [client] tools/design/render-native-screen.mjs renders patient-app screens only; provider-app has no render path, so no render entry and no board screenshot were made for these fi… |

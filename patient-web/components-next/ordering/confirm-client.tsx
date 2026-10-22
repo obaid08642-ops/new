@@ -133,6 +133,7 @@ export function ConfirmClient({ locale, kind, place, pay, orders, prep }: Props)
                   <span className={styles.itemName}>{b.mode === "home" ? t("payB1") : t("payB2")}{result.bookings.length > 1 ? ` · ${i + 1}` : ""}</span>
                   <span className={styles.sub}>{b.status === "awaiting_approval" ? t("payStatusApproval") : t("payStatusPending")}</span>
                 </span>
+                <Link href={`/${locale}/labs/bookings/${encodeURIComponent(b.id)}`} className={`${styles.linkBtn} ${styles.removeBtn}`}>{t("trackOpen")}</Link>
                 {!insured && payableNow(b) ? <span className={styles.price}><bdi>{moneyText(locale, b.total)}</bdi></span> : null}
                 {!insured && payableNow(b) && payable.length > 1 ? (
                   <button type="button" className={`${styles.linkBtn} ${styles.cta}`} disabled={phase === "paying"} onClick={() => startPayment(b.id)}>{t("payBookingBtn")}</button>

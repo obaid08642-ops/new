@@ -104,7 +104,7 @@ export default function DiagnosticsWhen() {
 
   useEffect(() => {
     if (asap?.status === 'accepted' && asap.booking_id) {
-      router.replace({ pathname: '/diagnostics/order/[id]', params: { id: asap.booking_id } } as unknown as Href);
+      router.replace({ pathname: '/diagnostics/booking-status', params: { id: asap.booking_id } } as unknown as Href);
     }
   }, [asap]);
 

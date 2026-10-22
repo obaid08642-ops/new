@@ -62,3 +62,11 @@
 .errorBox { padding: 10px 12px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-status-danger-bg); color: var(--nabd-color-status-danger-fg); font-size: var(--nabd-font-size-label); line-height: 1.7; }
 .cta[disabled], .linkBtn[disabled] { opacity: 0.5; cursor: not-allowed; }
 .fileInput { font: inherit; font-size: var(--nabd-font-size-label); max-inline-size: 100%; }
+/* Ord08-Ord10 (waiting states, partial approval, tracking). */
+.avatar { inline-size: 56px; block-size: 56px; border-radius: var(--nabd-radius-pill); object-fit: cover; flex: none; background: var(--nabd-color-bg-media); }
+.code { margin: 0; direction: ltr; unicode-bidi: isolate; text-align: center; font-size: var(--nabd-font-size-h3); font-weight: 700; letter-spacing: 0.4em; font-variant-numeric: tabular-nums; }
+.shares { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); font-variant-numeric: tabular-nums; }
+.optionBtn { align-items: flex-start; flex-direction: column; text-align: start; justify-content: flex-start; gap: 4px; padding-block: 10px; block-size: auto; }
+.optionBtn[aria-pressed="true"] { border-color: var(--nabd-color-action-selected-bg); }
+.warnBox { padding: 10px 12px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-status-warning-bg); color: var(--nabd-color-status-warning-fg); font-size: var(--nabd-font-size-label); line-height: 1.7; }
+.danger { background: var(--nabd-color-status-danger-bg); color: var(--nabd-color-status-danger-fg); border-color: transparent; }

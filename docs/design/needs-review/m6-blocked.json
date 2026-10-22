@@ -8,7 +8,7 @@
     "line": 59,
     "found": "[backend] waits for M3: the area price and provider count need the ordering engine.",
     "suspect": "M3 is not on main: only the red acceptance specs (#1749, #1750).",
-    "review_status": "open"
+    "review_status": "fixed #1784 (Ord02 built; remaining gaps are in m6-ord02-05-web/app.json)"
   },
   {
     "batch": "m6-blocked",
@@ -19,7 +19,7 @@
     "line": 17,
     "found": "[backend] waits for M5: coverage per item needs the insurance-per-item model.",
     "suspect": "M5 is not on main: only the red acceptance specs (#1749, #1750).",
-    "review_status": "open"
+    "review_status": "fixed #1784 (Ord03 coverage built)"
   },
   {
     "batch": "m6-blocked",
@@ -30,7 +30,7 @@
     "line": 13,
     "found": "[backend] waits for M5: coverage per item needs the insurance-per-item model.",
     "suspect": "M5 is not on main: only the red acceptance specs (#1749, #1750).",
-    "review_status": "open"
+    "review_status": "fixed #1784 (Ord03 coverage built)"
   },
   {
     "batch": "m6-blocked",
@@ -41,7 +41,7 @@
     "line": 13,
     "found": "[backend] waits for M3: split rule and alternatives come from the engine.",
     "suspect": "M3 is not on main: only the red acceptance specs (#1749, #1750).",
-    "review_status": "open"
+    "review_status": "fixed #1784 (Ord04 basket split built)"
   },
   {
     "batch": "m6-blocked",
@@ -52,7 +52,7 @@
     "line": 15,
     "found": "[backend] waits for M3: ranking and split suggestion come from the engine.",
     "suspect": "M3 is not on main: only the red acceptance specs (#1749, #1750).",
-    "review_status": "open"
+    "review_status": "fixed #1784 (Ord05 best match built)"
   },
   {
     "batch": "m6-blocked",
@@ -63,7 +63,7 @@
     "line": 8,
     "found": "[backend] waits for M4: ASAP broadcast and stage timer are M4; slots are M3.",
     "suspect": "Acceptance specs for M4: #1749/#1750; not on main.",
-    "review_status": "open"
+    "review_status": "fixed #1785 (Ord06 time picker and ASAP timer built)"
   },
   {
     "batch": "m6-blocked",
@@ -74,7 +74,7 @@
     "line": 14,
     "found": "[backend] waits for M3: booking draft with price lock is M3.",
     "suspect": "M3 is not on main: only the red acceptance specs (#1749, #1750).",
-    "review_status": "open"
+    "review_status": "fixed #1785 (Ord07 confirm and pay built)"
   },
   {
     "batch": "m6-blocked",
@@ -85,7 +85,7 @@
     "line": 18,
     "found": "[backend] waits for M5: per-item approval result and choice endpoint are M5.",
     "suspect": "Acceptance specs for M5 are red on main.",
-    "review_status": "open"
+    "review_status": "fixed this PR (Ord08 and Ord09 built in booking-status)"
   },
   {
     "batch": "m6-blocked",
@@ -96,7 +96,7 @@
     "line": 13,
     "found": "[backend] waits for M7: arrival code and staff profile do not exist; grep finds none on main.",
     "suspect": "M7 acceptance specs are red on main.",
-    "review_status": "open"
+    "review_status": "fixed this PR (Ord10 tracking built; remaining gaps in m6-ord08-10-web.json)"
   },
   {
     "batch": "m6-blocked",
@@ -107,7 +107,7 @@
     "line": 27,
     "found": "[backend] waits for M7: arrival code and staff profile do not exist on main.",
     "suspect": "M7 acceptance specs are red on main.",
-    "review_status": "open"
+    "review_status": "fixed this PR (patient-app booking-status.tsx shows the arrival code and staff profile; remaining gaps in m6-ord08-10-app.json)"
   },
   {
     "batch": "m6-blocked",
