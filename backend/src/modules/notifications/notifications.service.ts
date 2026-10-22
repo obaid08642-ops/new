@@ -385,6 +385,7 @@ export class NotificationsService {
       }));
       const res = await axios.post('https://exp.host/--/api/v2/push/send', messages, {
         headers: { 'Content-Type': 'application/json' },
+        timeout: 8000,
       });
       const receipts = Array.isArray(res.data?.data) ? res.data.data : [];
       return receipts.some((r: any) => r.status === 'ok');
@@ -428,7 +429,7 @@ export class NotificationsService {
           to: phone,
           content: { templateName: n.title_key, templateData: { body: { placeholders: [n.body_key] } }, language: 'ar' }
         }]
-      }, { headers: { Authorization: `App ${process.env.INFOBIP_API_KEY}` } });
+      }, { headers: { Authorization: `App ${process.env.INFOBIP_API_KEY}` }, timeout: 8000 });
     } catch(e) {
       this.logger.error('Failed to send WhatsApp', e.message);
     }
