@@ -162,6 +162,9 @@ export class LabBooking extends Document {
   @Prop() medical_order_id?: string;
   @Prop() gender_preference?: string;
   @Prop() scheduled_asap?: boolean;
+  @Prop() scheduled_start?: Date; // visit start the approval's validity is compared with (equals scheduled_at when booked)
+  // M3/M5 presentation status of an ordering booking: pending | awaiting_approval | awaiting_patient_choice | cancelled
+  @Prop({ index: true }) status?: string;
 }
 export const LabBookingSchema = SchemaFactory.createForClass(LabBooking);
 LabBookingSchema.index({ patient_id: 1, createdAt: -1 });
