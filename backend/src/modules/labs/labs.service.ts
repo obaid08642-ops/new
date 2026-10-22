@@ -371,7 +371,7 @@ export class LabsService {
    * checks of the quote (candidate, radius, order) were made by the ordering engine before this is called.
    */
   async createPriced(user: any, input: {
-    provider_account_id: string; mode: 'home' | 'facility'; items: Array<{ service_id: string; name_ar?: string; name_en?: string; price: number }>;
+    provider_account_id: string; mode: 'home' | 'facility'; items: Array<{ service_id: string; name_ar?: string; name_en?: string; price: number; coverage?: string }>;
     home_fee: number; scheduled_at: Date; asap: boolean; payment_method: 'cash' | 'card' | 'insurance'; awaiting_approval: boolean;
     address?: { lat?: number; lng?: number }; order_group_id: string; quote_id: string; medical_order_id?: string;
     gender_preference?: string; documents?: any[]; notes?: string; patient_name?: string;
@@ -390,8 +390,10 @@ export class LabsService {
       location_type: input.mode,
       address: input.address,
       scheduled_at: input.scheduled_at,
+      scheduled_start: input.scheduled_at,
       scheduled_asap: input.asap,
       state,
+      status: input.awaiting_approval ? 'awaiting_approval' : 'pending',
       state_history: [{ from: '', to: state, by_user_id: user.id, by_role: user.role, at: now }],
       provider_account_id: input.provider_account_id,
       payment_method: input.payment_method,
@@ -400,7 +402,7 @@ export class LabsService {
       notes: input.notes,
       order_group_id: input.order_group_id,
       price_locked_at: now,
-      price_lock: { quote_id: input.quote_id, items: input.items.map((i) => ({ catalog_id: i.service_id, price: i.price })), home_fee: input.mode === 'home' ? input.home_fee : 0 },
+      price_lock: { quote_id: input.quote_id, items: input.items.map((i) => ({ catalog_id: i.service_id, price: i.price, ...(i.coverage ? { coverage: i.coverage } : {}) })), home_fee: input.mode === 'home' ? input.home_fee : 0 },
       medical_order_id: input.medical_order_id,
       gender_preference: input.gender_preference,
     });
@@ -411,6 +413,68 @@ export class LabsService {
       this.bus.emit({ type: 'insurance.pending', entity_type: 'lab_booking', entity_id: booking.id, patient_account_id: user.id, reason_code: 'ordering_quote', meta: { docs: (input.documents ?? []).length } }).catch(() => null);
     }
     return booking.toObject();
+  }
+
+  /**
+   * M5: the provider's item decisions are recorded by the ordering service; this moves the booking. An approved booking waits for
+   * the copay (the existing insurance path); a partial or rejected one stays put until the patient chooses.
+   */
+  async applyOrderingDecision(id: string, outcome: 'approved' | 'partial' | 'rejected', copay: number) {
+    const b = await this.bkgModel.findOne({ id });
+    if (!b) throw new NotFoundException();
+    b.insurance_status = outcome === 'approved' ? 'approved' : outcome === 'partial' ? 'partial_approval' : 'rejected';
+    b.insurance_copay = copay;
+    if (outcome === 'approved') {
+      b.status = 'pending';
+      await this.moveOrdering(b, LabBookingState.WAITING_COPAY, 'insurance_item_decisions', 'provider');
+    } else {
+      b.status = 'awaiting_patient_choice';
+      await b.save();
+    }
+    return b.toObject();
+  }
+
+  /** M5: the patient's answer to a partial or rejected approval. `drop` removes the rejected items and recomputes the total. */
+  async applyOrderingChoice(id: string, user: any, c: { choice: 'pay_difference' | 'covered_only' | 'cancel_free'; copay: number; drop?: string[] }) {
+    const b = await this.bkgModel.findOne({ id, patient_id: user.id });
+    if (!b) throw new NotFoundException();
+    if (c.choice === 'cancel_free') {
+      b.status = 'cancelled';
+      await this.moveOrdering(b, LabBookingState.CANCELLED, 'insurance_choice_cancel_free', 'patient', user);
+      this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id });
+      return b.toObject();
+    }
+    if (c.choice === 'covered_only' && c.drop?.length) {
+      b.items = b.items.filter((i: any) => !c.drop!.includes(i.service_id));
+      b.markModified('items');
+      if (b.price_lock) {
+        b.price_lock = { ...b.price_lock, items: b.price_lock.items.filter((i) => !c.drop!.includes(i.catalog_id)) };
+        b.markModified('price_lock');
+      }
+      const sum = Math.round(b.items.reduce((s: number, i: any) => s + (Number(i.price) || 0), 0) * 100) / 100;
+      b.service_fee = sum;
+      b.total_price = Math.round((sum + (b.home_visit_fee || 0)) * 100) / 100;
+      (b as any).total = b.total_price;
+    }
+    b.insurance_copay = c.copay;
+    b.status = 'pending';
+    await this.moveOrdering(b, LabBookingState.WAITING_COPAY, `insurance_choice_${c.choice}`, 'patient', user);
+    return b.toObject();
+  }
+
+  private async moveOrdering(b: any, to: LabBookingState, note: string, by: string, user?: any) {
+    if (b.state === to || !(LAB_BOOKING_TRANSITIONS[b.state as LabBookingState] || []).includes(to)) { await b.save(); return b.toObject(); }
+    return this.engine.apply({
+      kind: 'lab', entity_id: b.id, from_domain: b.state, to_domain: to,
+      actor_account_id: user?.id ?? b.provider_account_id, actor_role: user?.role ?? by, patient_account_id: b.patient_id, reason: note,
+      mutate: async () => {
+        b.state_history.push({ from: b.state, to, by_user_id: user?.id ?? b.provider_account_id, by_role: user?.role ?? by, at: new Date(), note });
+        b.state = to;
+        await b.save();
+        this.events.emit('lab.booking_state_changed', { booking_id: b.id, patient_id: b.patient_id, state: to, tracking_id: b.tracking_id });
+        return b.toObject();
+      },
+    });
   }
 
   async addDocument(id: string, user: any, body: { kind?: string; url_or_b64?: string; filename?: string }) {

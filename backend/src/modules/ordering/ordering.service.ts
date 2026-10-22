@@ -70,9 +70,9 @@ export class OrderingService implements OnModuleInit {
     const catalog = await this.conn.collection(KIND_CATALOG[kind]).find({ id: { $in: items } }).toArray();
     const byId = new Map(catalog.map((c: any) => [c.id as string, c]));
     if (items.some((id) => !byId.has(id))) throw bad('unknown_catalog_item');
-    if (context.family_member_id) await this.assertFamilyMember(user.id, context.family_member_id);
+    if (context.family_member_id) await this.ownMember(user.id, context.family_member_id);
 
-    const policy = await this.policyOf(user.id, context.payer);
+    const policy = await this.policyOf(user.id, context.payer, context.family_member_id);
     const weights = mergeWeights((await this.conn.collection('system_configs').findOne({ key: 'ordering_ranking_weights' }))?.value);
     const shareRate = await this.shareRate();
 
@@ -150,17 +150,44 @@ export class OrderingService implements OnModuleInit {
     };
   }
 
-  /** The patient's saved company and class for an insurance quote; null for cash. */
-  async policyOf(userId: string, payer: 'cash' | 'insurance'): Promise<{ keys: string[]; cls: string } | null> {
+  /**
+   * The saved company and class for an insurance quote; null for cash. With `memberId` it is the family member's own policy
+   * (never the account holder's: it is another person), after checking the member belongs to the caller.
+   */
+  async policyOf(userId: string, payer: 'cash' | 'insurance', memberId?: string | null): Promise<{ keys: string[]; cls: string } | null> {
     if (payer !== 'insurance') return null;
-    const profile = await this.conn.collection('patient_profiles').findOne({ user_id: userId }, { projection: { insurance: 1 } });
-    const keys = policyCompanyKeys((profile as any)?.insurance);
-    const cls = policyClass((profile as any)?.insurance);
+    let insurance: unknown;
+    if (memberId) {
+      const m: any = await this.ownMember(userId, memberId);
+      insurance = m.insurance;
+    } else {
+      insurance = ((await this.conn.collection('patient_profiles').findOne({ user_id: userId }, { projection: { insurance: 1 } })) as any)?.insurance;
+    }
+    const keys = policyCompanyKeys(insurance);
+    const cls = policyClass(insurance);
     if (!keys.length || !cls) throw bad('insurance_not_saved');
     return { keys, cls };
   }
 
-  private async shareRate(): Promise<number> {
+  private async ownMember(userId: string, id: string) {
+    const m = await this.conn.collection('family_members').findOne({ id, $or: [{ owner_id: userId }, { user_id: userId }, { patient_id: userId }] });
+    if (!m) throw new NotFoundException('family_member_not_found');
+    return m;
+  }
+
+  /** M5: a family member carries their own policy; the class is required, as for the account holder (D-30). */
+  async setMemberInsurance(userId: string, memberId: string, body: { provider?: string; class?: string; policy_number?: string }) {
+    await this.ownMember(userId, memberId);
+    if (!body.provider?.trim()) throw bad('insurance_details_required');
+    if (!body.class?.trim()) throw bad('insurance_class_required');
+    await this.conn.collection('family_members').updateOne(
+      { id: memberId },
+      { $set: { insurance: { provider: body.provider.trim(), class: body.class.trim(), policy_number: body.policy_number?.trim() ?? null, verified: false, updated_at: new Date() } } },
+    );
+    return { success: true, verified: false };
+  }
+
+  async shareRate(): Promise<number> {
     const v = (await this.conn.collection('system_configs').findOne({ key: 'ordering_insurance_share_rate' }))?.value;
     return typeof v === 'number' && v >= 0 && v <= 1 ? v : DEFAULT_INSURANCE_RATE;
   }
@@ -254,11 +281,6 @@ export class OrderingService implements OnModuleInit {
     }
   }
 
-  private async assertFamilyMember(userId: string, id: string) {
-    const m = await this.conn.collection('family_members').findOne({ id, $or: [{ user_id: userId }, { patient_id: userId }] }, { projection: { id: 1 } });
-    if (!m) throw new NotFoundException('family_member_not_found');
-  }
-
   // ---------- windows ----------
 
   async windows(q: WindowsQueryDto) {
@@ -335,14 +357,14 @@ export class OrderingService implements OnModuleInit {
       if ((e as { code?: number }).code === 11000) throw new ConflictException('quote_already_booked');
       throw e;
     }
-    const created: Array<{ id: string; mode: Mode; status: string; provider_id: string; items: Array<{ catalog_id: string; price: number }>; total: number; price_locked_at: Date }> = [];
+    const created: Array<{ id: string; mode: Mode; status: string; provider_id: string; items: Array<{ catalog_id: string; price: number; coverage?: Coverage }>; estimate?: true; total: number; price_locked_at: Date }> = [];
     try {
       for (let i = 0; i < plan.length; i++) {
         const { g, sel, snap } = plan[i];
         const awaiting = insured && g.mode === 'home';
         const b: any = await this.labs.createPriced(user, {
           provider_account_id: snap.account_id, mode: g.mode,
-          items: g.items.map((it) => ({ service_id: it.catalog_id, name_ar: g.names[it.catalog_id]?.ar ?? undefined, name_en: g.names[it.catalog_id]?.en ?? undefined, price: snap.prices[it.catalog_id] })),
+          items: g.items.map((it) => ({ service_id: it.catalog_id, name_ar: g.names[it.catalog_id]?.ar ?? undefined, name_en: g.names[it.catalog_id]?.en ?? undefined, price: snap.prices[it.catalog_id], coverage: insured ? snap.coverage[it.catalog_id] : undefined })),
           home_fee: snap.home_fee, scheduled_at: scheduled[i].at, asap: scheduled[i].asap, payment_method: dto.payment_method, awaiting_approval: awaiting,
           address: g.mode === 'home' ? { lat: quote.context.lat, lng: quote.context.lng } : undefined,
           order_group_id: groupId, quote_id: quote.id, medical_order_id: order?.id, gender_preference: dto.gender_preference,
@@ -350,7 +372,7 @@ export class OrderingService implements OnModuleInit {
         });
         created.push({
           id: b.id, mode: g.mode, status: awaiting ? 'awaiting_approval' : 'pending', provider_id: sel.provider_id,
-          items: g.items.map((it) => ({ catalog_id: it.catalog_id, price: snap.prices[it.catalog_id] })), total: b.total, price_locked_at: b.price_locked_at,
+          items: g.items.map((it) => ({ catalog_id: it.catalog_id, price: snap.prices[it.catalog_id], ...(insured ? { coverage: snap.coverage[it.catalog_id] ?? 'not_covered' } : {}) })), ...(insured ? { estimate: true } : {}), total: b.total, price_locked_at: b.price_locked_at,
         });
       }
     } catch (e) {

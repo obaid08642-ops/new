@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsIn, IsLatitude, IsLongitude, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, Matches, Max, MaxLength, Min, ValidateBy, ValidateNested } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsDateString, IsIn, IsLatitude, IsLongitude, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, Matches, Max, MaxLength, Min, ValidateBy, ValidateNested } from 'class-validator';
 
 // Shape checks only; the rules (candidates, radius, order validity) are answered by OrderingService with stable codes.
 const ID = /^[A-Za-z0-9_.:-]{1,128}$/;
@@ -210,4 +210,61 @@ export class BroadcastOfferDto {
   @IsString()
   @MaxLength(500)
   note?: string;
+}
+
+// ---------- M5: insurance per item ----------
+
+export class MemberInsuranceDto {
+  @IsString()
+  @MaxLength(100)
+  provider: string;
+
+  // a missing class is answered by the service with `insurance_class_required`
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  class?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  policy_number?: string;
+}
+
+export class ItemDecisionDto {
+  @IsString()
+  @Matches(ID)
+  catalog_id: string;
+
+  @IsIn(['approved', 'rejected'])
+  decision: 'approved' | 'rejected';
+
+  // what the patient still pays for an approved item (a rejected item is paid in full)
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  @Max(100_000)
+  patient_share?: number;
+}
+
+export class ItemDecisionsDto {
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(30)
+  @ValidateNested({ each: true })
+  @Type(() => ItemDecisionDto)
+  decisions: ItemDecisionDto[];
+
+  @IsOptional()
+  @IsBoolean()
+  home_fee_approved?: boolean;
+
+  @IsOptional()
+  @IsDateString()
+  valid_until?: string;
+}
+
+export class PartialChoiceDto {
+  @IsIn(['pay_difference', 'covered_only', 'cancel_free'])
+  choice: 'pay_difference' | 'covered_only' | 'cancel_free';
 }
