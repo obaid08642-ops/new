@@ -1,3 +1,3 @@
-# 2026-10-22 owner (server ops session): read-only, one run. Redis save-failure diagnosis and the corrected env presence check.
+# 2026-10-22 owner (server ops session): read-only, one run. Redis diagnosis with authentication (password on stdin only).
 85-ops-redis-diag
-83-ops-env
+81-ops-redis
