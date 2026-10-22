@@ -28,8 +28,9 @@ _Updated 2026-10-10._
    - **BLOCKED: waits for M7** (arrival code, staff profile for labs and radiology): Ord10 tracking.
    - **BLOCKED: waits for M8** (instant consultation): the "Discuss with a doctor" part of Ord11.
    - **BLOCKED: waits for M1** (provider item model and declaration): Ord30-Ord33 (provider-app declaration screens).
-   - **Open question (app Ord01):** the app has no lab screen with a place/payment choice to put the bar on. Where should it go? Not built until the owner answers.
-2. **Refs (#1255/#1256):** the `pharmacy_name_ar/en` fields are on main and read by the clients (order detail, offers, tracking, final quote, fixed #1317): done. **Question:** the "13 Refs screens" are not identified in the repo (no list in `needs-review` or `docs/review`). Which screens are they?
+   - **App Ord01: waits for M3** (owner decision 2026-10-18). Recorded in `needs-review/m6-blocked.json`.
+   - **Status 2026-10-22:** no M1–M8 backend is on main, only red acceptance specs (#1749, #1750). Every open M6 screen is recorded in `needs-review/m6-blocked.json` (15 rows, file:line). No screen was built on mock data.
+2. **Refs (#1255/#1256):** the 16 reports are triaged in `docs/design/NR_REPORTS_TRIAGE.md`: 10 fixed on main, 1 owner decision (#953), the rest backend or reviewer. Done.
 3. **Reviewer:** close the 50 stale Needs-review lines, regenerate the audit files once. Real-device checks: Urdu font, voice notes, first launch.
 4. **On hold:** D-12 price notice and C12 (waits for OpenCode D-12); web `/onboarding/permissions` (#436) after the owner decision.
 
