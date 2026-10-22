@@ -22,7 +22,6 @@ export interface AuditEntry {
   action: string;
   /* who */
   user_id?: string;
-  actor_id?: string;
   role?: string;
   impersonator_id?: string;
   /* what */

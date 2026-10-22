@@ -108,7 +108,7 @@ export class ProviderOrderingService {
 
   private audit(actorId: string, action: string, resourceKind: string, resourceId: string, details?: Record<string, unknown>) {
     return recordAudit(this.conn, {
-      action, user_id: actorId, actor_id: actorId, role: 'provider', resource_kind: resourceKind, resource_id: resourceId, details,
+      action, user_id: actorId, role: 'provider', resource_kind: resourceKind, resource_id: resourceId, details,
     });
   }
 
