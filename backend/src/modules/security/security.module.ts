@@ -16,6 +16,7 @@ import { randomUUID, createHash } from 'crypto';
 import { registerAuditSink } from '../../common/audit-record';
 import { currentLogContext, logEvent, runWithLogContext } from '../../common/structured-logger';
 
+import { AuditCollectionMigration } from './audit-collection-migration';
 import { Permission, RequirePermissions } from '../../common/permissions';
 /** 23.1 — the full field set the plan requires of every event. */
 export interface AuditEntry {
@@ -183,7 +184,9 @@ export class AuditService {
    */
   async verifyChain(options: { limit?: number } = {}) {
     const limit = Math.min(options.limit ?? 5000, 50_000);
-    const rows: any[] = await this.logs.find({}).sort({ sequence: 1 }).limit(limit).lean<any[]>();
+    // Rows written without the chain (the raw fallback writers, rows migrated from the old collection) carry no
+    // sequence: they are not links, and must not use up the limit ahead of the real chain.
+    const rows: any[] = await this.logs.find({ sequence: { $exists: true } }).sort({ sequence: 1 }).limit(limit).lean<any[]>();
     // Rows removed by the retention schedule leave a tombstone (sequence, hash, prev_hash, no
     // content), so a lawful deletion keeps the links intact and is not reported as tampering.
     const last = rows[rows.length - 1]?.sequence ?? 0;
@@ -590,7 +593,7 @@ export class AuditRetentionJob {
 @Module({
   imports: [MongooseModule.forFeature([{ name: 'AuditLog', schema: AuditLogSchema }])],
   controllers: [AuditController, UserHistoryController],
-  providers: [AuditService, AuditCoverageService, UserHistoryService, AuditRetentionService, AuditRetentionJob, TracingMiddleware, SecurityHeadersMiddleware],
+  providers: [AuditService, AuditCoverageService, AuditCollectionMigration, UserHistoryService, AuditRetentionService, AuditRetentionJob, TracingMiddleware, SecurityHeadersMiddleware],
   exports: [AuditService, UserHistoryService, TracingMiddleware, SecurityHeadersMiddleware],
 })
 export class SecurityModule {

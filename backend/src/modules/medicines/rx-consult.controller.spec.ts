@@ -16,7 +16,7 @@ function fakeConn(meds: any[], config: any = null) {
         findOne: async (q: any) => (q.key === RX_CONSULT_KEY && store.config ? { key: RX_CONSULT_KEY, value: store.config } : null),
         updateOne: async (_q: any, u: any) => { store.config = u.$set.value; },
       };
-      if (name === 'audit_logs') return { insertOne: async (d: any) => { store.audits.push(d); } };
+      if (name === 'auditlogs') return { insertOne: async (d: any) => { store.audits.push(d); } };
       throw new Error(`unexpected collection ${name}`);
     },
   } as any;

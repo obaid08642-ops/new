@@ -11,6 +11,7 @@
  */
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
+import { AUDIT_COLLECTION } from '../../schemas/audit-log.schema';
 import { Connection, Types } from 'mongoose';
 
 export interface RetentionPolicy {
@@ -82,7 +83,7 @@ export class AuditRetentionService {
 
       // A held row is excluded from the delete set rather than deleted and
       // reinserted, so a hold can never be lost to a partial run.
-      const candidates = await this.conn.collection('audit_logs').find(filter).project({ _id: 1, user_id: 1, resource_id: 1, sequence: 1, hash: 1, prev_hash: 1 }).toArray();
+      const candidates = await this.conn.collection(AUDIT_COLLECTION).find(filter).project({ _id: 1, user_id: 1, resource_id: 1, sequence: 1, hash: 1, prev_hash: 1 }).toArray();
       const blocked = candidates.filter((r: any) => this.isHeld(holds, r));
       const deletable = candidates.filter((r: any) => !this.isHeld(holds, r));
 
@@ -100,7 +101,7 @@ export class AuditRetentionService {
         })), { ordered: false });
       }
       const deleted = deletable.length
-        ? (await this.conn.collection('audit_logs').deleteMany({ _id: { $in: deletable.map((r: any) => r._id) } })).deletedCount
+        ? (await this.conn.collection(AUDIT_COLLECTION).deleteMany({ _id: { $in: deletable.map((r: any) => r._id) } })).deletedCount
         : 0;
       // Only 'delete' policies are applied by kind here; the 'default' (anonymise) policy has no
       // owner-approved period yet, so it is not run (nothing is anonymised silently).

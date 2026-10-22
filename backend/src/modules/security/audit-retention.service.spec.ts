@@ -22,13 +22,13 @@ describe('Phase 23.5 retention by type', () => {
     // and the failure it produces reads like a real defect.
     server = await MongoMemoryServer.create({ instance: { launchTimeout: 120_000 } });
     conn = await mongoose.createConnection(server.getUri()).asPromise();
-    await conn.collection('audit_logs').createIndex({ resource_kind: 1, createdAt: 1 }).catch(() => {});
+    await conn.collection('auditlogs').createIndex({ resource_kind: 1, createdAt: 1 }).catch(() => {});
     svc = new AuditRetentionService(conn);
   });
   afterAll(async () => { await conn?.close(); await server?.stop(); });
 
   beforeEach(async () => {
-    await conn.collection('audit_logs').deleteMany({});
+    await conn.collection('auditlogs').deleteMany({});
     await conn.collection('audit_legal_holds').deleteMany({});
     delete process.env.RETENTION_DAYS;
     delete process.env.RETENTION_DAYS_SECURITY_LOG;
@@ -39,7 +39,7 @@ describe('Phase 23.5 retention by type', () => {
 
   let seedCounter = 0;
   const seed = (kind: string, daysOld: number) =>
-    conn.collection('audit_logs').insertOne({
+    conn.collection('auditlogs').insertOne({
       action: 'x', resource_kind: kind, user_id: `u-${kind}-${(seedCounter += 1)}`,
       createdAt: new Date(Date.now() - daysOld * DAY),
     } as any);
@@ -50,13 +50,13 @@ describe('Phase 23.5 retention by type', () => {
     const out = await svc.apply();
     expect(out.summary.security_log.deleted).toBe(1);
     expect(out.summary.tax_record.deleted).toBe(0);
-    expect(await conn.collection('audit_logs').countDocuments({ resource_kind: 'tax_record' })).toBe(1);
+    expect(await conn.collection('auditlogs').countDocuments({ resource_kind: 'tax_record' })).toBe(1);
   });
 
   it('keeps a record that is still inside its period', async () => {
     await seed('security_log', 10);
     await svc.apply();
-    expect(await conn.collection('audit_logs').countDocuments()).toBe(1);
+    expect(await conn.collection('auditlogs').countDocuments()).toBe(1);
   });
 
   it('applies a different period per type', async () => {
@@ -74,7 +74,7 @@ describe('Phase 23.5 retention by type', () => {
     const out = await svc.apply();
     expect(out.summary.security_log.deleted).toBe(1);   // the other one goes
     expect(out.summary.security_log.held).toBe(1);      // the held one stays
-    expect(await conn.collection('audit_logs').countDocuments()).toBe(1);
+    expect(await conn.collection('auditlogs').countDocuments()).toBe(1);
   });
 
   it('an expired hold no longer blocks deletion', async () => {
@@ -94,14 +94,14 @@ describe('Phase 23.5 retention by type', () => {
     await svc.releaseHold(String(row._id));
     expect((await svc.listHolds()).length).toBe(0);
     await svc.apply();
-    expect(await conn.collection('audit_logs').countDocuments()).toBe(0);
+    expect(await conn.collection('auditlogs').countDocuments()).toBe(0);
   });
 
   it('the period can be shortened for a test without touching the code', async () => {
     process.env.RETENTION_DAYS_SECURITY_LOG = '1';
     await seed('security_log', 2);
     await svc.apply();
-    expect(await conn.collection('audit_logs').countDocuments()).toBe(0);
+    expect(await conn.collection('auditlogs').countDocuments()).toBe(0);
   });
 
   it('rejects a nonsense period rather than deleting everything', async () => {
@@ -110,7 +110,7 @@ describe('Phase 23.5 retention by type', () => {
     // instead of being read as "delete now".
     await seed('security_log', 100);
     await svc.apply();
-    expect(await conn.collection('audit_logs').countDocuments()).toBe(1);
+    expect(await conn.collection('auditlogs').countDocuments()).toBe(1);
     expect(svc.policyFor('security_log').days).toBe(365);
   });
 
