@@ -122,24 +122,13 @@
   },
   {
     "batch": "m6-blocked",
-    "app": "patient-web",
-    "screen": "/prescriptions (Ord20, Ord21 My medical orders)",
-    "element": "structured medical order list, per-group Order button, validity",
-    "file": "patient-web/app/[locale]/prescriptions/page.tsx",
-    "line": 30,
-    "found": "[backend] waits for M2: no patient read endpoint for structured orders; provider.controllers.ts:275 only emits an event.",
-    "suspect": "M2 acceptance specs are red on main.",
-    "review_status": "open"
-  },
-  {
-    "batch": "m6-blocked",
     "app": "provider-app",
     "screen": "Doctor order composer (Ord22)",
     "element": "structured medical order composer",
     "file": "provider-app/src/screens/shared/shared/DrugIndexDetail.tsx",
     "line": 1,
-    "found": "[backend] waits for M2: no composer exists; this is the nearest medicine screen, not the target.",
-    "suspect": "M2 acceptance specs are red on main.",
+    "found": "[backend] M2 backend is on main (POST /doctors/appointments/:id/medical-order). The composer screen is not built in this batch; the nearest file is a medicine screen, not the target.",
+    "suspect": "Open: the composer is the next slice of M6.",
     "review_status": "open"
   },
   {
@@ -149,8 +138,8 @@
     "element": "onboarding wizard, items, bulk tools, completeness",
     "file": "provider-app/src/screens/facility/FacilityDashboard.tsx",
     "line": 1,
-    "found": "[backend] waits for M1: the provider item model does not exist on main.",
-    "suspect": "M1 acceptance specs are red on main.",
+    "found": "[backend] M1 backend is on main (provider/ordering routes). The declaration screens are not built in this batch.",
+    "suspect": "Open: the next slice of M6.",
     "review_status": "open"
   },
   {
@@ -162,6 +151,50 @@
     "line": 18,
     "found": "[backend] waits for M3: owner decision (2026-10-18): app Ord01 waits for M3.",
     "suspect": "Decided; no open question.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-orders",
+    "app": "patient-web",
+    "screen": "/medical-orders/[orderId] (Ord21)",
+    "element": "Item names",
+    "file": "patient-web/app/[locale]/medical-orders/[orderId]/page.tsx",
+    "line": 44,
+    "found": "[backend] GET /medical-orders/:id gives catalog_id only, no test or scan name; items show their group (or sessions) instead of a name.",
+    "suspect": "Backend gap: add the catalogue name to each item in the view (medical-orders.service.ts view()).",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-orders",
+    "app": "patient-web",
+    "screen": "/medical-orders/[orderId] (Ord21, Order button)",
+    "element": "Order button prefill",
+    "file": "patient-web/app/api/medical-orders/[orderId]/items/[itemId]/[action]/route.ts",
+    "line": 38,
+    "found": "[client] The Order button calls POST …/order, which returns the prefill (service_kind, items), then sends the patient to the group hub. The lab, radiology and nursing flows do not read the prefill, so the items are not pre-ticked.",
+    "suspect": "Client: the flows must read the medical_order prefill (M3 flow).",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-orders",
+    "app": "patient-app",
+    "screen": "/medical-orders/[id] (Ord21, Order button)",
+    "element": "Order button prefill",
+    "file": "patient-app/app/medical-orders/[id].tsx",
+    "line": 41,
+    "found": "[client] Same as the web: the prefill is not read by the app flows; the patient lands on the generic flow.",
+    "suspect": "Client: the flows must read the medical_order prefill (M3 flow).",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-orders",
+    "app": "patient-web",
+    "screen": "/medical-orders/[orderId] (expired order)",
+    "element": "Renew",
+    "file": "patient-web/app/[locale]/medical-orders/[orderId]/page.tsx",
+    "line": 51,
+    "found": "[backend] POST /medical-orders/:id/renew-request exists on main; the expired note has no renew action yet (not built in this batch).",
+    "suspect": "Client: add the renew action (owner: wording and whether a doctor is asked).",
     "review_status": "open"
   }
 ]

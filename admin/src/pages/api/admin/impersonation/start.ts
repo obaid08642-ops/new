@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { upstreamFetch } from '../../../../lib/upstream';
 
 const ACCESS_COOKIE = 'admin_access';
 const CSRF_COOKIE = 'admin_csrf';
@@ -14,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!access) return res.status(401).json({ code: 'admin_session_required' });
   if (!csrf || req.headers['x-admin-csrf'] !== csrf) return res.status(403).json({ code: 'csrf_validation_failed' });
   try {
-    const upstream = await fetch(`${base()}/api/v1/admin/impersonation/start`, { method: WRITE, headers: { authorization: `Bearer ${access}`, 'content-type': 'application/json', 'x-admin-bff': 'support-session' }, body: JSON.stringify(req.body || {}) });
+    const upstream = await upstreamFetch(`${base()}/api/v1/admin/impersonation/start`, { method: WRITE, headers: { authorization: `Bearer ${access}`, 'content-type': 'application/json', 'x-admin-bff': 'support-session' }, body: JSON.stringify(req.body || {}) });
     const payload = await upstream.json().catch(() => ({})) as Record<string, unknown>;
     if (!upstream.ok) return res.status(upstream.status).json(payload);
     const token = typeof payload.token === 'string' ? payload.token : '';

@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { upstreamFetch } from '../../../../lib/upstream';
 
 const ACCESS_COOKIE = 'admin_access';
 const CSRF_COOKIE = 'admin_csrf';
@@ -13,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!csrf || req.headers['x-admin-csrf'] !== csrf) return res.status(403).json({ code: 'csrf_validation_failed' });
   if (!sessionId) return res.status(400).json({ code: 'session_id_required' });
   try {
-    const upstream = await fetch(`${base()}/api/v1/admin/impersonation/${encodeURIComponent(sessionId)}/revoke`, { method: 'POST', headers: { authorization: `Bearer ${access}`, 'content-type': 'application/json', 'x-admin-bff': 'support-session' }, body: JSON.stringify({ reason: req.body?.reason }) });
+    const upstream = await upstreamFetch(`${base()}/api/v1/admin/impersonation/${encodeURIComponent(sessionId)}/revoke`, { method: 'POST', headers: { authorization: `Bearer ${access}`, 'content-type': 'application/json', 'x-admin-bff': 'support-session' }, body: JSON.stringify({ reason: req.body?.reason }) });
     const payload = await upstream.json().catch(() => ({}));
     if (!upstream.ok) return res.status(upstream.status).json(payload);
     res.setHeader('set-cookie', `${SUPPORT_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`);
