@@ -19,24 +19,15 @@ _Updated 2026-10-10._
 
 ## Next
 
-1. **Ordering M6 (screens from the M0 boards, `design/ordering-m0` boards #1700):**
-   - Done (one PR each): Ord01 web (#1704, context bar on the diagnostics hub, replaces the place/pay filters); Ord11 web (#1727) and app (#1730), value trends from `GET /lab-results/mine`.
-   - **BLOCKED: waits for M3** (ordering engine: items, split, matching, price lock): Ord02 service home ("from X SAR" by area), Ord03 item page (coverage per item), Ord04 basket split, Ord05 Best match, Ord06 time picker (windows and slots for the provider), Ord07 confirm and pay.
-   - **BLOCKED: waits for M4** (ASAP and broadcast): Ord06 ASAP stage timer, Ord08 waiting states.
-   - **BLOCKED: waits for M5** (insurance per item): Ord09 partial approval, Ord08 approval clock.
-   - **BLOCKED: waits for M2** (doctor's structured order): Ord20 My medical orders, Ord21 order detail, Ord22 doctor's composer.
-   - **BLOCKED: waits for M7** (arrival code, staff profile for labs and radiology): Ord10 tracking.
-   - **BLOCKED: waits for M8** (instant consultation): the "Discuss with a doctor" part of Ord11.
-   - **BLOCKED: waits for M1** (provider item model and declaration): Ord30-Ord33 (provider-app declaration screens).
-   - **App Ord01: waits for M3** (owner decision 2026-10-18). Recorded in `needs-review/m6-blocked.json`.
-   - **Status 2026-10-22:** no M1–M8 backend is on main, only red acceptance specs (#1749, #1750). Every open M6 screen is recorded in `needs-review/m6-blocked.json` (15 rows, file:line). No screen was built on mock data.
-2. **Refs (#1255/#1256):** the 16 reports are triaged in `docs/design/NR_REPORTS_TRIAGE.md`: 10 fixed on main, 1 owner decision (#953), the rest backend or reviewer. Done.
+1. **Ordering M6 (M1 and M2 backend on main, #1759):**
+   - This batch (one PR): "My medical orders" Ord20 and Ord21, web and app. Order button per group (prefill request, then the group's flow), "later" per item, expired orders disabled. Six languages (`MedicalOrders`, `medorders.*`).
+   - **Next slices, not built yet:** Ord22 doctor's composer (provider-app, `POST /doctors/appointments/:id/medical-order`), and Ord30–33 provider declaration (provider-app, `/provider/ordering/*`). Both backends are on main.
+   - **BLOCKED: waits for M3** (ordering engine, #1750 spec): Ord02, Ord04, Ord05, Ord07, app Ord01.
+   - **BLOCKED: waits for M4**: Ord06 ASAP timer, Ord08. **M5**: Ord03 coverage, Ord09. **M7**: Ord10 (arrival code, staff profile). **M8**: Ord11 "discuss with a doctor".
+   - Every open row: `docs/design/needs-review/m6-blocked.json`; this batch's gaps (no item names, prefill not read by the flows, no renew action) are in the same file.
+2. **Refs (#1255/#1256):** triaged in `docs/design/NR_REPORTS_TRIAGE.md`: 10 fixed on main, 1 owner decision (#953), the rest backend or reviewer.
 3. **Reviewer:** close the 50 stale Needs-review lines, regenerate the audit files once. Real-device checks: Urdu font, voice notes, first launch.
 4. **On hold:** D-12 price notice and C12 (waits for OpenCode D-12); web `/onboarding/permissions` (#436) after the owner decision.
-
-## Ordering M6 (screens from the M0 boards)
-- Ord01 context bar, web diagnostics hub: replaces the place and payment filters; reads `/users/me/addresses` and `/users/me/insurance` on the server. Done on `design/ordering-m6`.
-- Not started: app Ord01 (no existing filter to replace; additive), Ord02-Ord11 (need the M1-M5 backend; see the "needs-backend" column in `ordering-m0-*.md`).
 
 ## Process
 - Lean v2 (rules in `/AGENTS.md`): design only, templates first, audit via `audit-table.mjs`, Needs-review with file:line (never delete lines by hand: it shifts the `nr-key` the issues reference), no committed screenshots. Binding: identity, tokens-only colours, six languages (provider-app and admin: ar/en and ar), real data only.

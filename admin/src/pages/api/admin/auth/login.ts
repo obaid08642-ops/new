@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { randomBytes } from 'node:crypto';
+import { upstreamFetch } from '../../../../lib/upstream';
 
 const ACCESS_COOKIE = 'admin_access';
 const REFRESH_COOKIE = 'admin_refresh';
@@ -25,7 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!body.identifier || !body.password) return res.status(400).json({ code: 'identifier_and_password_required' });
 
   try {
-    const upstream = await fetch(`${backendBase()}/api/v1/auth/login`, {
+    const upstream = await upstreamFetch(`${backendBase()}/api/v1/auth/login`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', accept: 'application/json' },
       body: JSON.stringify({

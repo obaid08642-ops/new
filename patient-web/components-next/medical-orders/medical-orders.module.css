@@ -1,0 +1,25 @@
+.form { margin: 0; }
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: 44px;
+  inline-size: 100%;
+  padding: 0 16px;
+  border-radius: var(--nabd-radius-xl);
+  border: 1px solid var(--nabd-color-border-strong);
+  background: var(--nabd-color-bg-surface);
+  color: var(--nabd-color-text-primary);
+  font: inherit;
+  font-weight: 700;
+  font-size: var(--nabd-font-size-control);
+  text-align: center;
+  white-space: normal;
+  cursor: pointer;
+}
+.button:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.button:disabled { opacity: 0.5; cursor: not-allowed; }
+.primary { background: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg); border-color: transparent; }
+.item { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-block-size: 44px; }
+.itemText { flex: 1; min-inline-size: 0; font-size: var(--nabd-font-size-control); }
+.groups { display: flex; flex-direction: column; gap: 12px; }

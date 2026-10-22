@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Readable } from 'node:stream';
+import { UpstreamError, upstreamFailure, upstreamFetch } from '../../../lib/upstream';
 
 const ACCESS_COOKIE = 'admin_access';
 const REFRESH_COOKIE = 'admin_refresh';
@@ -54,7 +55,7 @@ async function tryRefresh(req: NextApiRequest): Promise<{ accessToken: string; c
   const refreshToken = cookieValue(req, REFRESH_COOKIE);
   if (!refreshToken) return null;
   try {
-    const r = await fetch(`${upstreamBase()}/api/v1/auth/refresh`, {
+    const r = await upstreamFetch(`${upstreamBase()}/api/v1/auth/refresh`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ refresh_token: refreshToken }),
@@ -93,6 +94,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const accessToken = cookieValue(req, ACCESS_COOKIE);
   if (!accessToken) return res.status(401).json({ code: 'admin_session_required' });
 
+  // 15.1: the browser going away cancels the call to the backend, and the call has a timeout (none for an event stream).
+  const gone = new AbortController();
+  res.on('close', () => { if (!res.writableEnded) gone.abort(); });
+  const stream = String(req.headers.accept || '').includes('text/event-stream');
   try {
     const headers = new Headers();
     for (const header of FORWARDED_HEADERS) {
@@ -118,12 +123,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
     headers.set('x-admin-device', deviceId);
 
-    const response = await fetch(`${upstreamBase()}${apiPath(req)}`, {
+    const sentKey = req.headers['idempotency-key'];
+    const upstreamInit = {
       method: req.method,
       headers,
       body: incomingBody(req),
-      redirect: 'manual',
-    });
+      redirect: 'manual' as const,
+      signal: gone.signal,
+      callerKey: typeof sentKey === 'string' && !!sentKey.trim(),
+      ...(stream ? { timeoutMs: 0 } : {}),
+    };
+    const response = await upstreamFetch(`${upstreamBase()}${apiPath(req)}`, upstreamInit);
 
     copyResponseHeaders(response, res);
     if (setDeviceCookie) res.appendHeader('set-cookie', setDeviceCookie);
@@ -133,12 +143,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (refreshed) {
         for (const c of refreshed.cookies) res.appendHeader('set-cookie', c);
         headers.set('authorization', `Bearer ${refreshed.accessToken}`);
-        const retry = await fetch(`${upstreamBase()}${apiPath(req)}`, {
-          method: req.method,
-          headers,
-          body: incomingBody(req),
-          redirect: 'manual',
-        });
+        const retry = await upstreamFetch(`${upstreamBase()}${apiPath(req)}`, { ...upstreamInit, headers });
         copyResponseHeaders(retry, res);
         res.statusCode = retry.status;
         if (!retry.body) return res.end();
@@ -164,7 +169,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const bytes = Buffer.from(await response.arrayBuffer());
     return res.end(bytes);
   } catch (error) {
+    if (error instanceof UpstreamError && error.kind === 'aborted') return; // the browser left; nobody to answer
     console.error('admin_bff_upstream_error', error);
-    return res.status(502).json({ code: 'admin_backend_unavailable' });
+    const failure = upstreamFailure(error);
+    res.setHeader('retry-after', '2');
+    return res.status(failure.status).json({ code: failure.code });
   }
 }
