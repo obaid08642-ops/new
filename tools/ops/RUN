@@ -1,3 +1,2 @@
-# 2026-10-22 owner (server ops session): read-only, one run. Redis diagnosis with authentication (password on stdin only).
-85-ops-redis-diag
-81-ops-redis
+# 2026-10-22 owner (server ops session): run 7, one task. MONGO_MAX_POOL_SIZE=40 for backend and worker (env backup first, automatic rollback), status: lines only.
+82-mongo-pool

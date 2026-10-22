@@ -21,6 +21,7 @@ sudo -n mkdir -p $B
 sudo -n cp -p $ENVF $B/env.production.pre-pool.$TS && sudo -n chmod 600 $B/env.production.pre-pool.$TS
 restore() {
   echo "pool: FAILED at '$1', restoring the env file and the services"
+  echo "status: mongo pool health=fail"
   sudo -n sh -c "cat $B/env.production.pre-pool.$TS > $ENVF"
   $COMPOSE up -d --no-deps --no-build --force-recreate backend worker >/dev/null 2>&1
   wait_healthy nabdah-backend 48 && echo "pool: rollback complete" || echo "pool: ROLLBACK INCOMPLETE - needs attention"
@@ -40,6 +41,7 @@ wait_healthy nabdah-backend 48 || restore "backend health"
 c=$(curl -sk -o /dev/null -w '%{http_code}' --max-time 8 -H 'Host: api.nabd.plus' https://127.0.0.1/api/v1/health/liveness)
 [ "$c" = 200 ] || restore "api liveness $c"
 echo "pool: backend and worker recreated, healthy, api 200"
+echo "status: mongo pool health=ok"
 
 sleep 30
 status_conns after
