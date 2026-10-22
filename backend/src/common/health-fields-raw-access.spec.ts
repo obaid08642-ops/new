@@ -19,7 +19,7 @@ const REVIEWED: Record<string, Record<string, number>> = {
   'modules/compat/admin-spa.module.ts': { appointments: 5 },                         // counts, group-bys, a feed of id/status/createdAt
   'modules/family/family.service.ts': { prescriptions: 1, appointments: 1 },         // prescriptions revealed; appointments projection has no health field
   'modules/health/health.service.ts': { medicalreports: 1, prescriptions: 1 },       // reports list has no health field; prescriptions revealed
-  'modules/medical-orders/medical-orders.service.ts': { appointments: 1, prescriptions: 1 }, // M2 order: ownership + existence checks, projections carry no health field
+  'modules/medical-orders/medical-orders.service.ts': { appointments: 2, prescriptions: 1 }, // M2 order: ownership + existence checks and the doctor's recent visits; projections carry id, status, patient id and dates only
   'modules/instant-consultation/instant-consultation.service.ts': { appointments: 1 }, // M8: inserts the visit row (no health field; no notes, no records)
   'modules/mcp/agent-tools.service.ts': { appointments: 1 },                         // state check
   'modules/medical-reports/medical-reports.controller.ts': { appointments: 1, prescriptions: 1 }, // timeline projections
