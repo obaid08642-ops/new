@@ -43,6 +43,15 @@ const VALID_DAYS = [30, 90, 180];
 const EXPIRY_WARNING_DAYS = 3;
 const MAX_SESSIONS = 30;
 const VISITED = ['completed', 'in_progress'];
+/** How long after a completed visit the doctor may still write the order (SystemConfig `medical_order_after_visit_days`). */
+const DEFAULT_AFTER_VISIT_DAYS = 30;
+const MAX_AFTER_VISIT_DAYS = 365;
+const RECENT_VISITS_LIMIT = 50;
+const VISIT_FIELDS = { _id: 0, id: 1, patient_id: 1, doctor_user_id: 1, provider_id: 1, status: 1, completed_at: 1, ended_at: 1, updatedAt: 1, scheduled_at: 1, slot_start: 1, createdAt: 1 } as const;
+interface VisitRow {
+  id: string; patient_id: string; doctor_user_id?: string; provider_id?: string; status?: string;
+  completed_at?: Date; ended_at?: Date; updatedAt?: Date; scheduled_at?: Date; slot_start?: Date; createdAt?: Date;
+}
 const SERVICE_KIND: Record<OrderGroup, 'lab' | 'radiology' | 'nursing'> = { labs: 'lab', radiology: 'radiology', nursing: 'nursing' };
 const CATALOG: Record<OrderGroup, string> = {
   labs: CATALOG_COLLECTIONS.lab_services,
@@ -74,11 +83,12 @@ export class MedicalOrdersService implements OnModuleInit {
   // ---------- writing (doctor) ----------
 
   async create(user: { id: string }, appointmentId: string, body: MedicalOrderDto) {
-    const appt = await this.conn.collection('appointments').findOne({ id: appointmentId }, { projection: { _id: 0, id: 1, patient_id: 1, doctor_user_id: 1, provider_id: 1, status: 1 } }) as unknown as
-      { id: string; patient_id: string; doctor_user_id?: string; provider_id?: string; status?: string } | null;
+    const appt = await this.conn.collection('appointments').findOne({ id: appointmentId }, { projection: VISIT_FIELDS }) as unknown as VisitRow | null;
     if (!appt) throw new NotFoundException('appointment_not_found');
     if (appt.doctor_user_id !== user.id && appt.provider_id !== user.id) throw new ForbiddenException('not_your_appointment');
     if (!VISITED.includes(String(appt.status))) throw bad('appointment_not_visited');
+    // A visit in progress is always open; a completed one only for the window after it ended.
+    if (appt.status === 'completed' && !this.withinWindow(appt, await this.afterVisitDays(), new Date())) throw bad('visit_window_closed');
 
     const items: OrderItem[] = [];
     for (const g of GROUPS) {
@@ -133,6 +143,42 @@ export class MedicalOrdersService implements OnModuleInit {
     await this.orders().insertOne(doc as unknown as Record<string, unknown>);
     await recordAudit(this.conn, { action: 'medical_order.create', user_id: user.id, role: 'doctor', resource_kind: 'medical_order', resource_id: doc.id, details: { valid_days: validDays, items: items.length, prescription_id: prescriptionId } });
     return this.view(doc, now);
+  }
+
+  // ---------- visits the doctor can still write an order for ----------
+
+  private async afterVisitDays(): Promise<number> {
+    const doc = await this.conn.collection('system_configs').findOne({ key: 'medical_order_after_visit_days' }) as { value?: unknown } | null;
+    const v = doc?.value;
+    return typeof v === 'number' && Number.isInteger(v) && v >= 1 && v <= MAX_AFTER_VISIT_DAYS ? v : DEFAULT_AFTER_VISIT_DAYS;
+  }
+
+  /** The moment a visit ended: its completion time, else the last update, else when it was scheduled or created. */
+  private visitDate(a: VisitRow): Date | null {
+    const at = a.completed_at ?? a.ended_at ?? a.updatedAt ?? a.scheduled_at ?? a.slot_start ?? a.createdAt;
+    return at ? new Date(at) : null;
+  }
+
+  private withinWindow(a: VisitRow, days: number, now: Date): boolean {
+    const at = this.visitDate(a);
+    return !!at && now.getTime() - at.getTime() <= days * DAY;
+  }
+
+  /**
+   * The doctor's own visits an order can be written for: in progress, or completed within the window. Only the visit id, its
+   * status, the patient id and the date leave here (no name, phone or notes).
+   */
+  async recentVisits(user: { id: string }) {
+    const now = new Date();
+    const days = await this.afterVisitDays();
+    const rows = await this.conn.collection('appointments').find(
+      { $or: [{ doctor_user_id: user.id }, { provider_id: user.id }], status: { $in: VISITED } },
+      { projection: VISIT_FIELDS },
+    ).sort({ createdAt: -1 }).limit(200).toArray() as unknown as VisitRow[];
+    return rows
+      .filter((a) => a.status === 'in_progress' || this.withinWindow(a, days, now))
+      .slice(0, RECENT_VISITS_LIMIT)
+      .map((a) => ({ id: a.id, status: a.status as string, patient_id: a.patient_id, date: this.visitDate(a) }));
   }
 
   // ---------- reading ----------

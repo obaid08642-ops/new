@@ -23,6 +23,10 @@ export class MedicalOrdersController {
   @Get('mine') @Roles(UserRole.PATIENT)
   mine(@CurrentUser() u: any, @Query('active') active?: string) { return this.svc.mine(u, active === '1'); }
 
+  /** The doctor's own recent visits an order can still be written for (in progress, or completed within the window). */
+  @Get('visits') @Roles(UserRole.DOCTOR)
+  visits(@CurrentUser() u: any) { return this.svc.recentVisits(u); }
+
   @Get('renew-requests') @Roles(UserRole.DOCTOR)
   renewRequests(@CurrentUser() u: any) { return this.svc.renewRequests(u); }
 
