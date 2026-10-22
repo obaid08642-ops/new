@@ -253,16 +253,23 @@ export class SeoSearchService {
    * Kept 60 s in the process; concurrent misses share one count. A publish shows in the total within a minute; the
    * items themselves are always read live.
    */
-  private publicCountCache: { exp: number; val: number; pending: Promise<number> | null } = { exp: 0, val: 0, pending: null };
+  private readonly publicCountCache = new Map<string, { exp: number; val: number; pending: Promise<number> | null }>();
   private publicListingCount(filter: any): Promise<number> {
-    const c = this.publicCountCache;
-    if (Date.now() < c.exp) return Promise.resolve(c.val);
-    if (!c.pending) {
-      c.pending = this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments(filter)
-        .then((n) => { this.publicCountCache = { exp: Date.now() + 60_000, val: n, pending: null }; return n; })
-        .catch((e) => { c.pending = null; throw e; });
+    // One entry per distinct filter (category, sub-category or search term), so a category page reuses its own total.
+    const key = JSON.stringify(filter, (_k, v) => (v instanceof RegExp ? String(v) : v));
+    const now = Date.now();
+    const c = this.publicCountCache.get(key);
+    if (c && now < c.exp) return Promise.resolve(c.val);
+    if (c?.pending) return c.pending;
+    if (this.publicCountCache.size >= 500) {
+      for (const [k, v] of this.publicCountCache) if (!v.pending && v.exp <= now) this.publicCountCache.delete(k);
+      if (this.publicCountCache.size >= 500) this.publicCountCache.clear();
     }
-    return c.pending;
+    const pending = this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments(filter)
+      .then((n) => { this.publicCountCache.set(key, { exp: Date.now() + 60_000, val: n, pending: null }); return n; })
+      .catch((e) => { this.publicCountCache.delete(key); throw e; });
+    this.publicCountCache.set(key, { exp: 0, val: 0, pending });
+    return pending;
   }
 
   /**
@@ -753,6 +760,10 @@ export class SeoSearchService {
 
   /** Category cluster tree with live counts per locale. */
   async publicCategories(locale: string) {
+    // The tree is a group over the whole public catalogue (about 1.3 s); counts change slowly, so it is kept 5 minutes.
+    const cacheKey = `cattree:${locale}`;
+    const hit = this.sitemapCache.get(cacheKey);
+    if (hit && hit.exp > Date.now()) return hit.val;
     const db = productLocaleToDb(locale);
     const key = (f: string) => db === 'ar' ? f : `translations.${db}.${f === 'category' ? 'main_category' : f}`;
     const rows = await this.conn.collection(CATALOG_COLLECTIONS.medicines).aggregate([
@@ -767,7 +778,9 @@ export class SeoSearchService {
       tree[c].count += r.n;
       if (r._id?.s) tree[c].subs[r._id.s] = (tree[c].subs[r._id.s] || 0) + r.n;
     }
-    return { locale, categories: Object.values(tree) };
+    const val = { locale, categories: Object.values(tree) };
+    this.sitemapCache.set(cacheKey, { exp: Date.now() + 5 * 60 * 1000, val });
+    return val;
   }
 
   /** Paginated products inside a localized category cluster. */
@@ -876,7 +889,7 @@ export class SeoSearchService {
       .sort(sortClause)
       .skip((Math.max(page, 1) - 1) * perPage)
       .limit(perPage);
-    const [rows, total] = await Promise.all([cursor.toArray(), this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments(filter)]);
+    const [rows, total] = await Promise.all([cursor.toArray(), this.publicListingCount(filter)]);
     let items = rows.map((m: any) => {
       const dto = resolveMedicinePublicDto(m, locale);
       return {
