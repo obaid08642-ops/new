@@ -1,6 +1,9 @@
 import { BadRequestException, Injectable, Logger, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
 import axios from 'axios';
 
+/** Paymob: 10 s per call, each POST sent once (no idempotency key). */
+const PAYMOB_TIMEOUT_MS = 10_000;
+
 @Injectable()
 export class PaymobService {
   private readonly logger = new Logger(PaymobService.name);
@@ -23,7 +26,7 @@ export class PaymobService {
     // 1. Authentication Request
     const authRes = await axios.post('https://accept.paymob.com/api/auth/tokens', {
       api_key: process.env.PAYMOB_API_KEY
-    });
+    }, { timeout: PAYMOB_TIMEOUT_MS });
     const token = authRes.data.token;
 
     // 2. Order Registration
@@ -33,7 +36,7 @@ export class PaymobService {
       amount_cents: payload.amount * 100,
       currency: 'SAR',
       items: []
-    });
+    }, { timeout: PAYMOB_TIMEOUT_MS });
 
     // 3. Payment Key Generation
     const keyRes = await axios.post('https://accept.paymob.com/api/acceptance/payment_keys', {
@@ -44,7 +47,7 @@ export class PaymobService {
       billing_data: payload.billing_data,
       currency: 'SAR',
       integration_id: process.env.PAYMOB_INTEGRATION_ID
-    });
+    }, { timeout: PAYMOB_TIMEOUT_MS });
 
     return {
       client_secret: keyRes.data.token,

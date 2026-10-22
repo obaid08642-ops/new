@@ -184,6 +184,7 @@ import { ProviderProfileRepository } from './seo-repositories/providerprofile.re
 import { ArticleRepository } from './seo-repositories/article.repository';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { timedFetch } from '../../common/external-call';
 import { NOT_PROMOTABLE_FILTER } from '../medicines/promotion-rules';
 /** Orders of the public catalogue (#816); anything else is the default popularity order. */
 export const CATALOGUE_SORTS = ['popular', 'price_asc', 'price_desc', 'newest'] as const;
@@ -1503,7 +1504,7 @@ export class SeoAdminController {
     for (const p of paths) {
       const t0 = Date.now();
       try {
-        const r = await fetch(base + p, { headers: { 'User-Agent': 'NabdPlus-CacheWarmer/1.0' } });
+        const r = await timedFetch(base + p, { headers: { 'User-Agent': 'NabdPlus-CacheWarmer/1.0' } }, { timeoutMs: 5000, label: 'cache-warmer' }); // best effort: a slow page is recorded as status 0
         out.push({ path: p, status: r.status, ms: Date.now() - t0 });
         await r.arrayBuffer().catch(() => null);
       } catch {
