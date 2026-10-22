@@ -104,10 +104,16 @@ export function DoctorScheduleTab({ onNavigate }: { onNavigate: (s: string, p?: 
  <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>
  {AR ? ' المواعيد' : ' Schedule'}
  </Text>
+ <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm }}>
+ <TouchableOpacity onPress={() => onNavigate('medical_order_visits')} accessibilityRole="button" accessibilityLabel={AR ? 'اكتب أمرًا طبيًا' : 'Write a medical order'}
+ style={[styles.iconBtn, { backgroundColor: theme.surface2 }]}>
+ <I name="document" size={20} color={theme.text} />
+ </TouchableOpacity>
  <TouchableOpacity onPress={() => onNavigate('virtual_waiting_room')}
  style={[styles.iconBtn, { backgroundColor: theme.surface2 }]}>
  <I name="user-x" size={20} color={theme.text} />
  </TouchableOpacity>
+ </View>
  </View>
 
  {/* View toggles */}
