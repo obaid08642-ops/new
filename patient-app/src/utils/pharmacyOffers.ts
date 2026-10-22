@@ -278,7 +278,7 @@ export function errorMeansStale(error: unknown): boolean {
 /** A request that may have reached the server (no answer came back): its idempotency key must be sent again on retry. */
 export function mayHaveReachedServer(error: unknown): boolean {
   const raw = error instanceof Error ? error.message : String(error ?? '');
-  return /offline_error|request_aborted/i.test(raw);
+  return /offline_error|request_aborted|request_timeout/i.test(raw);
 }
 
 /**

@@ -21,6 +21,7 @@ const KNOWN: ReadonlyArray<readonly [RegExp, string]> = [
   [/user not found/i, 'errors.userNotFound'],
   [/otp_channel_unavailable/i, 'errors.otpUnavailable'],
   [/code_required|otp_required/i, 'errors.codeRequired'],
+  [/request_timeout/i, 'errors.timeout'],
   [/offline_error|network error|offline_mutation_pending/i, 'errors.offline'],
   // the Arabic fallbacks the root api helper (utils/api.ts) writes itself for 404, 429, 5xx and no connection
   [/لا يوجد اتصال/, 'errors.offline'],

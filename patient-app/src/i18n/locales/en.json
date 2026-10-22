@@ -116,6 +116,7 @@
   "errors.otpUnavailable": "The code could not be sent right now. Try again later.",
   "errors.codeRequired": "Enter the verification code",
   "errors.offline": "No internet connection. Check your network.",
+  "errors.timeout": "The request took too long. Check your connection and try again.",
   "errors.server": "A server error occurred. Try again later.",
   "errors.crashTitle": "Something went wrong",
   "errors.crashBody": "Try again. If it keeps happening, restart the app.",
