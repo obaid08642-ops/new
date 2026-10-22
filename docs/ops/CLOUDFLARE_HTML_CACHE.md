@@ -71,8 +71,10 @@ A guest's shareable copy carries **no nonce**. Its CSP is hash-based: `script-sr
 hash per inline `<script>` of that exact copy, and no `'unsafe-inline'`. The hashes are computed by the nonce server from the
 bytes it sends (`hashedPage` / `policyWithHashes` in `patient-web/server/nonce-transform.mjs`), not at build time: Next's
 inline flight scripts carry the page's data and change on every ISR revalidation, so build-time hashes would not match the
-served copy. The page's `<script src>` tags are replaced by one inline, hashed loader that inserts the same scripts (trusted
-through `'strict-dynamic'`), and `<link rel=preload as=script>` hints are dropped. Signed-in and action pages (cart,
+served copy. Each `<script src>` tag is replaced, in the same place, by an inline loader that inserts the same script (trusted
+through `'strict-dynamic'`); all loaders have the same text, so they share one hash. They stay in place because Next 16.4's
+bootstrap breaks (`Invalid URL`, the page never hydrates) when the runtime chunk is started before the inline
+`TURBOPACK.push(...)` script that follows it. `<link rel=preload as=script>` hints are dropped, and `<link rel=preload as=script>` hints are dropped. Signed-in and action pages (cart,
 checkout, sign-in, booking, orders, payments, any request with a session) keep a fresh per-request nonce and `no-store`.
 
 Stricter alternative already supported: **edge mode**. Set `NABD_EDGE_STAMP_TOKEN` on the origin and run a Worker on these
