@@ -117,7 +117,7 @@ describe("owner decision 2026-10-16: the hashed copy a shared cache keeps", () =
       '<script src="/_next/static/chunks/b.js" async=""></script></body>',
     ].join("");
     const { html } = hashedPage(page);
-    const tags = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)].map((m) => ({ attrs: m[1], body: m[2] }));
+    const tags = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script[^>]*>/gi)].map((m) => ({ attrs: m[1], body: m[2] }));
     expect(tags.map((t) => (t.body === LOADER_BODY ? "loader" : "inline"))).toEqual(["loader", "loader", "inline", "loader"]);
     expect(tags[2].body).toContain("TURBOPACK");
     // the script each loader rebuilds, in order
