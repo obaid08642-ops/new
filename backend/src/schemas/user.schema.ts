@@ -56,6 +56,8 @@ export class User {
   @Prop({ type: [String], default: [] }) permissions?: string[];
   @Prop({ type: Object }) schedule?: any;
   @Prop({ default: false }) suspended?: boolean;
+  /** Set when a facility ends the membership (soft removal): the user, their history and the audit trail stay. */
+  @Prop() removed_from_facility_at?: Date;
   @Prop({ default: false }) verified?: boolean;
   /**
    * Session version for instant revocation (F09). The JWT carries `tv`; the
