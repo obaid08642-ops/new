@@ -548,6 +548,8 @@
   "pharmacy.offers.someAvailable": "{total} में से {n} आइटम उपलब्ध",
   "pharmacy.offers.distance": "{km} किमी दूर",
   "pharmacy.offers.prep": "लगभग {min} मिनट में तैयार",
+  "pharmacy.offers.eta": "डिलीवरी {min} मिनट में",
+  "pharmacy.offers.rating": "रेटिंग {rating} ({count})",
   "pharmacy.offers.expiresIn": "ऑफ़र {time} में समाप्त होगा",
   "pharmacy.offers.expired": "ऑफ़र की अवधि समाप्त",
   "pharmacy.offers.expiredShort": "समाप्त",
