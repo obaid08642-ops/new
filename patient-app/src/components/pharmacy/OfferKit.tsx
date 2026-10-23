@@ -150,6 +150,8 @@ export function PharmacyOfferCard({ offer, now, best, selected, busy, onPick }: 
   const sub = [
     offer.distanceKm !== null ? k('pharmacy.offers.distance', { km: num(offer.distanceKm, { maximumFractionDigits: 1 }) }) : null,
     offer.prepMinutes !== null ? k('pharmacy.offers.prep', { min: num(offer.prepMinutes, { maximumFractionDigits: 0 }) }) : null,
+    offer.etaMinutes !== null ? k('pharmacy.offers.eta', { min: num(offer.etaMinutes, { maximumFractionDigits: 0 }) }) : null,
+    offer.rating !== null && (offer.ratingCount ?? 0) > 0 ? k('pharmacy.offers.rating', { rating: num(offer.rating, { minimumFractionDigits: 1, maximumFractionDigits: 1 }), count: num(offer.ratingCount ?? 0, { maximumFractionDigits: 0 }) }) : null,
   ].filter(Boolean).join(' · ');
   const total = offer.totals.total;
   const fee = offer.totals.deliveryFee;

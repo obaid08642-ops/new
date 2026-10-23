@@ -5,10 +5,9 @@ import { router, type Href } from 'expo-router';
 import { Button, Chip, EmptyState, Segmented } from '../../../packages/ui-native/src';
 import { ConsultScreen, Section } from '../../src/components/consult/ConsultKit';
 import { Block, LAB_TONE, goBackDiag } from '../../src/components/diagnostics/DiagKit';
-import { QuoteFailure, QuoteLoading } from '../../src/components/ordering/OrderingKit';
+import { QuoteFailure, QuoteLoading, TimeTile, WhenCard, useOrderDates } from '../../src/components/ordering/OrderingKit';
 import { Notice } from '../../src/components/pharmacy/OfferKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
-import { fmtDate, fmtTime } from '../../src/utils/dates';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { providerName, type OrderingMode } from '../../src/utils/ordering';
@@ -19,7 +18,6 @@ import {
 
 const WIN_OPTS: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: '2-digit' };
 const DAY_OPTS: Intl.DateTimeFormatOptions = { weekday: 'short', day: 'numeric', month: 'short' };
-const range = (s: string, e: string) => `${fmtTime(s, WIN_OPTS)} – ${fmtTime(e, WIN_OPTS)}`;
 
 /**
  * Ord06: the time of each booking. At home: the 2-hour windows of 3 days (GET /ordering/windows) or "as soon as possible" (POST
@@ -28,6 +26,8 @@ const range = (s: string, e: string) => `${fmtTime(s, WIN_OPTS)} – ${fmtTime(e
  */
 export default function DiagnosticsWhen() {
   const { theme, t, c, k, num, flow, lang } = useScreenUi();
+  const { fmtDate, fmtTime } = useOrderDates();
+  const range = (s: string, e: string) => `${fmtTime(s, WIN_OPTS)} – ${fmtTime(e, WIN_OPTS)}`;
   const [draft, setDraft] = useState<OrderingDraft | null>(() => getDraft());
   const [mode, setMode] = useState<OrderingMode>(() => getDraft()?.quote.groups[0]?.mode ?? 'home');
   const group = draft?.quote.groups.find((g) => g.mode === mode) ?? draft?.quote.groups[0];
@@ -230,22 +230,21 @@ export default function DiagnosticsWhen() {
           ) : null}
           {asap?.status === 'cancelled' ? <Notice tone="info" text={k('ordering.when.asapCancelled')} /> : null}
 
-          <Section title={k('ordering.when.homeTitle')}>
-            <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{k('ordering.when.homeSub')}</Text>
+          <WhenCard icon="house" tone="mint" title={k('ordering.when.homeTitle')} sub={k('ordering.when.homeSub')}>
             {byDay.length === 0 ? (
               <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{k('ordering.when.noWin')}</Text>
             ) : (
               <>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                   {byDay.map((d) => (
-                    <Chip key={d.day} theme={theme} label={fmtDate(d.start, DAY_OPTS)} selected={(dayWindows?.day ?? '') === d.day} onPress={() => setDay(d.day)} />
+                    <TimeTile key={d.day} kind="day" label={fmtDate(d.start, DAY_OPTS)} selected={(dayWindows?.day ?? '') === d.day} onPress={() => setDay(d.day)} />
                   ))}
                 </View>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                   {(dayWindows?.windows ?? []).map((w) => (
-                    <Chip
+                    <TimeTile
                       key={w.start}
-                      theme={theme}
+                      kind="window"
                       label={range(w.start, w.end)}
                       selected={time?.type === 'window' && time.start === w.start}
                       onPress={() => choose('home', { type: 'window', start: w.start, end: w.end })}
@@ -254,7 +253,7 @@ export default function DiagnosticsWhen() {
                 </View>
               </>
             )}
-          </Section>
+          </WhenCard>
         </>
       ) : null}
 
@@ -266,10 +265,10 @@ export default function DiagnosticsWhen() {
       ) : null}
 
       {status === 'ready' && answer?.kind === 'slots' && !home ? (
-        <Section title={k('ordering.when.centreTitle')}>
+        <WhenCard icon="hospital" tone="violet" title={k('ordering.when.centreTitle')}>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {days.map((d) => (
-              <Chip key={d.iso} theme={theme} label={fmtDate(d.at, DAY_OPTS)} selected={(day ?? days[0].iso) === d.iso} onPress={() => setDay(d.iso)} />
+              <TimeTile key={d.iso} kind="day" label={fmtDate(d.at, DAY_OPTS)} selected={(day ?? days[0].iso) === d.iso} onPress={() => setDay(d.iso)} />
             ))}
           </View>
           {answer.slots.length === 0 ? (
@@ -277,12 +276,12 @@ export default function DiagnosticsWhen() {
           ) : (
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
               {answer.slots.map((s) => (
-                <Chip key={s.id} theme={theme} label={fmtTime(s.start, WIN_OPTS)} selected={time?.type === 'slot' && time.id === s.id} onPress={() => choose('facility', { type: 'slot', id: s.id, start: s.start, end: s.end })} />
+                <TimeTile key={s.id} kind="window" label={fmtTime(s.start, WIN_OPTS)} selected={time?.type === 'slot' && time.id === s.id} onPress={() => choose('facility', { type: 'slot', id: s.id, start: s.start, end: s.end })} />
               ))}
             </View>
           )}
           {draft.payer === 'insurance' ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('ordering.when.slotsNote')}</Text> : null}
-        </Section>
+        </WhenCard>
       ) : null}
 
       <Section title={k('ordering.when.sumTitle')}>

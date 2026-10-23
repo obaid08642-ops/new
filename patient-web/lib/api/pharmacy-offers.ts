@@ -38,6 +38,11 @@ export type PatientPharmacyOffer = {
   quoteHash?: string;
   quoteRevision?: number;
   approxDistanceKm?: number;
+  /** The pharmacy's own delivery ETA (approx_delivery.eta_minutes); absent when it gave none. */
+  etaMinutes?: number;
+  /** The pharmacy's average rating and how many ratings it rests on; absent when it has none yet. */
+  rating?: number;
+  ratingCount?: number;
   providerNote?: string;
   lines: PatientPharmacyOfferLine[];
 };
@@ -164,6 +169,9 @@ export function extractPatientPharmacyOffers(payload: unknown): PatientPharmacyO
       quoteHash: stringValue(source, ["snapshot_hash", "quote_hash", "quoteHash"]),
       quoteRevision: numberValue(source, ["revision", "quote_revision", "quoteRevision"]),
       approxDistanceKm: numberValue(source, ["approx_distance_km", "approxDistanceKm"]),
+      etaMinutes: numberValue(valueRecord(source.approx_delivery) ?? {}, ["eta_minutes"]),
+      rating: numberValue(source, ["pharmacy_rating"]),
+      ratingCount: numberValue(source, ["pharmacy_rating_count"]),
       providerNote: stringValue(source, ["provider_note", "providerNote"]),
       lines: rawLines.flatMap((line) => {
         const parsed = parseLine(line);
