@@ -3195,7 +3195,15 @@
     "weekEmpty": "This week's content isn't available yet.",
     "weekUnavailable": "This week's content could not be loaded.",
     "readThisWeek": "Read this week",
-    "readEmpty": "No articles for this week yet."
+    "readEmpty": "No articles for this week yet.",
+    "pregnancyNotice": "This view uses the date you entered. It does not confirm gestational age or fetal health and does not replace medical care.",
+    "cycleNotice": "Cycle and fertility estimates are based on your entries and may not suit irregular cycles. Do not use them for contraception.",
+    "safetyNotice": "If you have severe pain, bleeding, or urgent concern, contact medical care or emergency services. Nabd+ does not diagnose.",
+    "notContraception": "Not contraception or ovulation confirmation.",
+    "dayLabel": "Day {day} of a {total}-day cycle",
+    "dayOfCycle": "Cycle day",
+    "cycleDays": "{count} days",
+    "allArticles": "All articles"
   },
   "NutritionWeb": {
     "title": "Nutrition",
@@ -3272,7 +3280,24 @@
     "planFailed": "The plan could not be created right now. Try again.",
     "planNutritionist": "Follow up with a nutritionist",
     "planNotice": "This plan is general guidance from the AI assistant, not a medical prescription. Talk to a nutritionist before any big change.",
-    "planDay": "Day {n}"
+    "planDay": "Day {n}",
+    "remaining": "Remaining: {value}",
+    "setTarget": "Set nutrition goals",
+    "protein": "Protein",
+    "carbs": "Carbohydrates",
+    "fat": "Fat",
+    "gram": "g",
+    "waterProgress": "{value} / {target} {unit}",
+    "addMl": "+{amount} ml",
+    "waterFailed": "The water could not be saved. Try again.",
+    "proteinLine": "Protein {value} g",
+    "nutritionSafety": "Meal logging supports tracking only. Nabd+ does not diagnose, prescribe a therapeutic diet, or replace a dietitian.",
+    "macro": {
+      "protein_g": "Protein (g, optional)",
+      "carbs_g": "Carbohydrates (g, optional)",
+      "fat_g": "Fat (g, optional)",
+      "fiber_g": "Fiber (g, optional)"
+    }
   },
   "MentalWeb": {
     "title": "Mental health",
@@ -3307,7 +3332,15 @@
       "bad": "Not good",
       "terrible": "Very bad"
     },
-    "urgentRowSub": "Call the urgent-help number"
+    "urgentRowSub": "Call the urgent-help number",
+    "moodTag": {
+      "calm": "Calm",
+      "tired": "Tired",
+      "stressed": "Stressed",
+      "connected": "Connected",
+      "rested": "Rested",
+      "overwhelmed": "Overwhelmed"
+    }
   },
   "ProgramsWeb": {
     "title": "My health programs",
@@ -3632,7 +3665,10 @@
       "expiry": "Expiry date (optional)",
       "submit": "Save policy",
       "invalid": "Select a company and enter a valid policy number (at least 3 characters).",
-      "failed": "Could not save the policy."
+      "failed": "Could not save the policy.",
+      "scan": "Scan the insurance card with the camera",
+      "scanned": "The visible details were read from the card. Check them before saving.",
+      "scanFailed": "The card could not be read. Enter the details by hand."
     },
     "coverage": {
       "title": "What my policy covers",
@@ -3648,7 +3684,16 @@
       "result": "Coverage on file",
       "eligible": "Listed as covered on your saved policy",
       "notEligible": "Not listed as covered on your saved policy",
-      "forService": "Service: {service}"
+      "forService": "Service: {service}",
+      "provider": "Provider name (optional)",
+      "providerHint": "Name of the doctor, hospital or pharmacy",
+      "copayTitle": "Your share",
+      "youPay": "You pay",
+      "cap": "Fixed cap on your share",
+      "finalNote": "The final amount is worked out from the provider's actual price at booking.",
+      "preAuth": "The insurer may require prior approval. The facility requests it",
+      "askSupport": "Contact support",
+      "again": "Look up another service"
     },
     "request": {
       "pageTitle": "Insurance request",
@@ -3697,7 +3742,12 @@
       "acceptFailed": "Self-pay could not be recorded. No payment was created.",
       "acceptRetry": "Self-pay could not be recorded. Try again.",
       "payFailed": "Secure online payment could not start. No payment was confirmed.",
-      "payRetry": "Online payment could not start. No payment was confirmed."
+      "payRetry": "Online payment could not start. No payment was confirmed.",
+      "insurer": "Insurer",
+      "payNow": "Go to secure payment — {amount}",
+      "missingTitle": "No insurance request",
+      "missingBody": "We found no insurance request for this booking. Open your requests from the insurance page.",
+      "back": "Go back"
     },
     "noteCode": {
       "coverage_decided_by_provider": "The provider decides the final coverage when it reviews your request.",
@@ -3711,10 +3761,36 @@
       "lab": "Laboratory",
       "radiology": "Radiology center",
       "home_care": "Home care",
-      "nursing": "Nursing"
+      "nursing": "Nursing",
+      "other": "Provider"
     },
     "memberLine": "Member number: {id}",
-    "expiryLine": "Expires on {date}"
+    "expiryLine": "Expires on {date}",
+    "policyVerified": "Reviewed",
+    "policyInReview": "In review",
+    "policyNumber": "Policy number",
+    "memberName": "Member name",
+    "nationalId": "National ID",
+    "policyNetwork": "Network",
+    "kind": {
+      "consultation": "Medical consultation",
+      "lab": "Lab tests",
+      "radiology": "Radiology",
+      "nursing": "Home nursing",
+      "pharmacy": "Medicines",
+      "other": "Service"
+    },
+    "usageRequests": "Insurance requests: {count}",
+    "usageCovered": "Covered by insurer",
+    "usagePaid": "You paid",
+    "networkType": {
+      "all": "All",
+      "doctor": "Doctors",
+      "hospital": "Hospitals",
+      "pharmacy": "Pharmacies",
+      "lab": "Labs"
+    },
+    "networkCall": "Call"
   },
   "LoyaltyHubWeb": {
     "title": "Nabd points",
@@ -4245,7 +4321,13 @@
         "good": "Good",
         "okay": "Okay",
         "bad": "Difficult",
-        "terrible": "Very difficult"
+        "terrible": "Very difficult",
+        "calm": "Calm",
+        "tired": "Tired",
+        "stressed": "Stressed",
+        "connected": "Connected",
+        "rested": "Rested",
+        "overwhelmed": "Overwhelmed"
       },
       "energy_level": "Energy (1-5, optional)",
       "stress_level": "Stress (1-5, optional)",
@@ -4257,8 +4339,10 @@
         "energy_level": "Energy is a number from 1 to 5.",
         "stress_level": "Stress is a number from 1 to 5.",
         "sleep_hours": "Hours of sleep are between 0 and 24.",
-        "notes": "The note is too long."
-      }
+        "notes": "The note is too long.",
+        "tags": "Choose tags from the list."
+      },
+      "tags": "What describes your day?"
     },
     "kicks": {
       "title": "Log baby kicks",
