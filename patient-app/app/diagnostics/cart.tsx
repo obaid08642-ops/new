@@ -5,7 +5,8 @@ import { router, type Href } from 'expo-router';
 import { Button, EmptyState, FIcon } from '../../../packages/ui-native/src';
 import { ConsultScreen, Section } from '../../src/components/consult/ConsultKit';
 import { AmountLine, Block, LAB_TONE, RAD_TONE, Tag, goBackDiag } from '../../src/components/diagnostics/DiagKit';
-import { ContextGate, ContextSummary, QuoteFailure, QuoteLoading } from '../../src/components/ordering/OrderingKit';
+import { ContextBar } from '../../src/components/ordering/ContextBar';
+import { ContextGate, QuoteFailure, QuoteLoading } from '../../src/components/ordering/OrderingKit';
 import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useDiagnosticsCart, type DiagnosticsCartItem } from '../../src/context/DiagnosticsCartContext';
@@ -81,7 +82,7 @@ export default function DiagnosticsCart() {
       onRefresh={() => { void labQ.reload(); void scanQ.reload(); }}
     >
       <ContextGate ctx={ctx}>
-        <ContextSummary ctx={ctx} />
+        <ContextBar ctx={ctx} />
         {loading ? <QuoteLoading label={k('ordering.basket.updating')} /> : null}
         {failed ? <QuoteFailure offline={failed.status === 'offline'} errorKey={failed.errorKey} onRetry={() => { void labQ.reload(); void scanQ.reload(); }} /> : null}
 

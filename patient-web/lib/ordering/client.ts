@@ -1,6 +1,7 @@
 /** Browser calls of the ordering flow, through the route handlers under /api/ordering (the access token never reaches the browser). */
 import { parseAsap, type Asap } from "./schedule";
 import { parseBookingResult, type OrderingBookingResult } from "./bookings";
+import { parseChoiceAnswer, parseEmergency, type Choice } from "./lifecycle";
 import { parseQuote, type Quote, type QuoteRequest } from "./quote";
 import { parseWindows, type WindowsAnswer } from "./windows";
 
@@ -69,4 +70,18 @@ export async function payBooking(bookingId: string, key: string): Promise<Paymen
   const r = await call(`/api/ordering/pay/${encodeURIComponent(bookingId)}`, { method: "POST", headers: { "idempotency-key": key }, body: "{}" });
   const o = r && typeof r === "object" ? (r as Record<string, unknown>) : {};
   return { checkoutUrl: typeof o.checkout_url === "string" && o.checkout_url.startsWith("https://") ? o.checkout_url : null, status: typeof o.status === "string" ? o.status : null };
+}
+
+/** POST /ordering/bookings/:id/partial-choice through our route (taken once; the server applies the choice and any refund). */
+export async function choosePartial(bookingId: string, choice: Choice): Promise<{ choice: Choice; patientShareTotal: number | null }> {
+  const a = parseChoiceAnswer(await call(`/api/ordering/bookings/${encodeURIComponent(bookingId)}/partial-choice`, { method: "POST", body: JSON.stringify({ choice }) }));
+  if (!a) throw new OrderingApiError("bad_answer", 502);
+  return a;
+}
+
+/** POST /ordering/bookings/:id/emergency through our route: the number to call. */
+export async function pressEmergency(bookingId: string): Promise<{ call: string }> {
+  const a = parseEmergency(await call(`/api/ordering/bookings/${encodeURIComponent(bookingId)}/emergency`, { method: "POST", body: "{}" }));
+  if (!a) throw new OrderingApiError("bad_answer", 502);
+  return a;
 }

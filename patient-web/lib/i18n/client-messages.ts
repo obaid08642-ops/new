@@ -54,7 +54,7 @@ export const ROUTE_GROUP_NAMESPACES: Record<string, readonly string[]> = {
   c: ["PharmacyBrowse", "PublicProduct"],
   cart: ["CartScreen", "LegalLinks", "PharmacyAddress", "PharmacyCheckout", "PharmacyFlow"],
   chat: ["ChatDetail"],
-  consultations: ["BookConsultation", "Doctors", "LegalLinks", "ShareReport", "SpecialtyNames", "TelehealthConsent"],
+  consultations: ["BookConsultation", "InstantConsult", "Doctors", "LegalLinks", "ShareReport", "SpecialtyNames", "TelehealthConsent"],
   diagnostics: ["DiagWeb", "OrderingFlow"],
   emergency: ["Emergency"],
   family: ["CameraScan", "FamilyWeb", "HealthWeb"],

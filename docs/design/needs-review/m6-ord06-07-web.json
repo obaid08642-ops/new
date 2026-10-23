@@ -31,7 +31,7 @@
     "file": "patient-web/components-next/ordering/when-client.tsx",
     "line": 253,
     "found": "[backend] When a provider accepts an ASAP broadcast the backend creates the booking itself (bookAsap); this flow has no payment or confirm step for it. The screen shows 'accepted' and links to the bookings list (/diagnostics/bookings), not to a booking page (Ord08 is not built).",
-    "suspect": "Needs the payment of an ASAP booking defined, and the Ord08 status page.",
+    "suspect": "Needs the payment of an ASAP booking defined, and the Ord08 status page. Link part resolved by m6-ord08-10 web: the accepted card now opens /labs/bookings/:id when the broadcast answers booking_id; the payment gap stays open.",
     "review_status": "open",
     "backend": "backend/src/modules/ordering/ordering-broadcast.service.ts:262"
   },
