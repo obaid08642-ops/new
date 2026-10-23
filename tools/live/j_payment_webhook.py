@@ -34,7 +34,7 @@ def book_unpaid(pat, doctor):
 
 
 def webhook(anon, gateway_id, token):
-    body = {'id': f'evt_{uuid.uuid4().hex[:12]}', 'type': 'payment_paid', 'data': {'id': gateway_id, 'status': 'paid'}}
+    body = {'id': f'evt_{uuid.uuid4().hex[:12]}', 'type': 'payment_paid', 'data': {'id': str(uuid.uuid4()), 'invoice_id': gateway_id, 'status': 'paid'}}  # a payment object: our id is its invoice_id
     if token is not None:
         body['secret_token'] = token
     return anon.post('/payments/webhook/moyasar', body)
