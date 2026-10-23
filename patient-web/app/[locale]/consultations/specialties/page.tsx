@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractSpecialties } from "@/lib/api/specialties";
 import { getPublicSpecialties } from "@/lib/api/specialties-server";
 import { isLocale } from "@/lib/i18n";
+import { specialtyLabel } from "@/lib/specialties";
 import { JsonLd } from "@/components-next/json-ld";
 import { hubMetadata } from "@/lib/seo";
 import { SERVICE_TONES, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
@@ -33,6 +34,7 @@ export default async function SpecialtySelectPage({ params, searchParams }: Prop
   setRequestLocale(locale);
   const t = await getTranslations("Specialties");
   const c = await getTranslations("ConsultWeb");
+  const names = await getTranslations("SpecialtyNames");
   const response = await getPublicSpecialties();
   const rtl = locale === "ar" || locale === "ur";
 
@@ -46,7 +48,9 @@ export default async function SpecialtySelectPage({ params, searchParams }: Prop
 
   const specialties = extractSpecialties(await response.json().catch(() => null));
   const query = q.trim().toLocaleLowerCase(locale);
-  const filtered = specialties.filter((specialty) => [specialty.nameAr, specialty.nameEn, specialty.slug].filter(Boolean).some((value) => value!.toLocaleLowerCase(locale).includes(query)));
+  // the name in the page's language is the message for the slug (six languages); the server's Arabic/English text is the fallback for a slug this build does not list
+  const nameOf = (specialty: { slug?: string; nameAr?: string; nameEn?: string }) => specialtyLabel(names, specialty.slug) ?? (rtl ? specialty.nameAr ?? specialty.nameEn : specialty.nameEn ?? specialty.nameAr);
+  const filtered = specialties.filter((specialty) => [nameOf(specialty), specialty.nameAr, specialty.nameEn, specialty.slug].filter(Boolean).some((value) => value!.toLocaleLowerCase(locale).includes(query)));
   // F82-1: the catalogues are precompiled, which does not allow arrays, so the FAQ is a keyed object.
   // (t.raw throws on precompiled messages, which made this page fail whenever the specialties loaded: the keys are read with t.has.)
   const faqs: Array<{ q: string; a: string }> = [];
@@ -69,7 +73,7 @@ export default async function SpecialtySelectPage({ params, searchParams }: Prop
       ) : (
         <ul className={styles.list} aria-label={t("title")}>
           {filtered.map((specialty, index) => {
-            const name = rtl ? specialty.nameAr ?? specialty.nameEn : specialty.nameEn ?? specialty.nameAr;
+            const name = nameOf(specialty);
             return (
               <li key={specialty.slug ?? `${name}-${index}`}>
                 <RowCard
