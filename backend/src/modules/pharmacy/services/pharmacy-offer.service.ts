@@ -549,7 +549,7 @@ export class PharmacyOfferService {
       // The pharmacy's own ETA when it gave one (null otherwise; clients hide it), next to the approximate distance above.
       approx_delivery: { eta_minutes: offer.fulfillment?.eta_minutes ?? null, label_ar: null, label_en: null },
       // The pharmacy's average rating when it has ratings (same fields as the other provider cards); null means none yet.
-      pharmacy_rating: Number(profile?.rating_count) > 0 && Number.isFinite(Number(profile?.rating_avg)) ? Number(profile.rating_avg) : null,
+      pharmacy_rating: Number(profile?.rating_count) > 0 && typeof profile?.rating_avg === 'number' && Number.isFinite(profile.rating_avg) ? profile.rating_avg : null,
       pharmacy_rating_count: Number(profile?.rating_count) > 0 ? Number(profile.rating_count) : 0,
       provider_note: typeof offer.provider_note === 'string' ? offer.provider_note : null,
     };

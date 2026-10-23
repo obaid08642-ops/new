@@ -118,6 +118,11 @@ describe('PharmacyOfferService', () => {
       expect(dto.pharmacy_rating).toBeNull();
       expect(dto.pharmacy_rating_count).toBe(0);
     });
+
+    it('never turns a missing average into a 0-star rating', async () => {
+      const dto = await read(live, { account_id: 'pharmacy-1', rating_avg: null, rating_count: 4 });
+      expect(dto.pharmacy_rating).toBeNull();
+    });
   });
 
   it('rejects a pharmacy that was not notified for the broadcast', async () => {
