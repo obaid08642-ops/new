@@ -8,7 +8,7 @@
  *
  * PROVISIONAL: the owner's field-by-field data report on issue 1556 may change these rules before the migration runs.
  */
-export const INN_TABLE_VERSION = '2026-10-16.1';
+export const INN_TABLE_VERSION = '2026-10-23.1';
 
 /** Matching form of a text: Arabic letter variants folded, diacritics removed, digits latin, lower case. */
 export function normalizeText(s: string): string {
@@ -53,7 +53,7 @@ export const INN_ENTRIES: ReadonlyArray<{ inn: string; parent?: string; aliases:
   { inn: 'codeine', aliases: ['كودايين', 'كودين', 'codeine'] },
   { inn: 'chlorzoxazone', aliases: ['كلورزوكسازون', 'chlorzoxazone'] },
   { inn: 'amoxicillin', aliases: ['اموكسيسيلين', 'اموكسيسلين', 'amoxicillin'] },
-  { inn: 'clavulanic acid', aliases: ['حمض كلافولانيك', 'حمض الكلافولانيك', 'clavulanic acid'] },
+  { inn: 'clavulanic acid', aliases: ['حمض كلافولانيك', 'حمض الكلافولانيك', 'clavulanic acid', 'clavulanate'] },
   { inn: 'omeprazole', aliases: ['اوميبرازول', 'omeprazole'] },
   { inn: 'sodium bicarbonate', aliases: ['بيكربونات الصوديوم', 'sodium bicarbonate'] },
   { inn: 'metformin', aliases: ['ميتفورمين', 'ميتفورمين هيدروكلورايد', 'ميتفورمين هيدروكلوريد', 'metformin', 'metformin hydrochloride'] },
@@ -81,6 +81,9 @@ export const INN_ENTRIES: ReadonlyArray<{ inn: string; parent?: string; aliases:
   { inn: 'dexpanthenol', aliases: ['ديكسبانثينول', 'دكسبانثينول', 'dexpanthenol'] },
   { inn: 'panthenol', aliases: ['بانثينول', 'برو فيتامين ب5', 'بروفيتامين ب5', 'بروفيتامين b5', 'provitamin b5', 'panthenol'] },
   { inn: 'chlorhexidine', aliases: ['كلورهيكسيدين', 'chlorhexidine'] },
+  // 2026-10-23.1: from the active ingredients of the test catalogue (nabd_live); the Arabic spellings are proposals for the owner's sign-off.
+  { inn: 'azithromycin', aliases: ['ازيثرومايسين', 'ازيثروميسين', 'azithromycin'] },
+  { inn: 'tramadol', aliases: ['ترامادول', 'tramadol'] },
 ];
 
 export const STRENGTH_UNITS = ['mg', 'g', 'mcg', 'iu', '%', 'mg/ml', 'mg/5ml', 'mcg/ml', 'iu/ml', 'mg/g'] as const;
