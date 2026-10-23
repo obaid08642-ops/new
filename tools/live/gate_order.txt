@@ -38,6 +38,7 @@ j_pharmacy_catalogue_lines
 j_web_compare_catalogue
 j_doctor_photos
 j_web_home_nursing
+j_web_loyalty_locales
 j_web_assistant
 j_web_offline
 j_web_offers_waiting
@@ -93,4 +94,3 @@ j_guest_matrix
 j_checkout_contact
 j_guest_lifecycle
 j_user_history
-j_web_loyalty_locales
