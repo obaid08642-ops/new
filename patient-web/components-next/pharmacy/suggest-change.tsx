@@ -37,6 +37,7 @@ export function SuggestChange({ medicineId, locale }: { medicineId: string; loca
   const [note, setNote] = useState("");
   const [phase, setPhase] = useState<Phase>("idle");
   const [missing, setMissing] = useState(false);
+  const [open, setOpen] = useState(false);
   const key = useRef(newIdempotencyKey());
 
   async function send() {
@@ -63,9 +64,9 @@ export function SuggestChange({ medicineId, locale }: { medicineId: string; loca
   }
 
   return (
-    <details className={styles.suggest}>
-      <summary className={styles.suggestSummary}>{t("suggestTitle")}</summary>
-      <div className={styles.suggestBody}>
+    <div className={styles.suggest}>
+      <button type="button" className={styles.suggestSummary} aria-expanded={open} onClick={() => setOpen((v) => !v)}>{t("suggestTitle")}</button>
+      {open ? <div className={styles.suggestBody}>
         <Select label={t("suggestTypeLabel")} value={type} onChange={(next) => setType(TYPES.find((entry) => entry === next) ?? "field_edit")} options={TYPES.map((entry) => ({ value: entry, label: t(TYPE_KEY[entry]) }))} disabled={phase === "sending"} />
         {type === "field_edit" ? (
           <>
@@ -78,7 +79,7 @@ export function SuggestChange({ medicineId, locale }: { medicineId: string; loca
         {phase === "sent" ? <p role="status" className={styles.suggestOk}><strong>{t("suggestSentTitle")}</strong> {t("suggestSentBody")}</p> : null}
         {phase === "failed" ? <p role="alert" className={styles.wishlistError}><strong>{t("suggestFailTitle")}</strong> {t("suggestFailBody")}</p> : null}
         {phase === "signedOut" ? <p role="alert" className={styles.wishlistError}>{t("suggestSignIn")} <Link href={`/${locale}/login`}>{t("suggestSignInAction")}</Link></p> : null}
-      </div>
-    </details>
+      </div> : null}
+    </div>
   );
 }
