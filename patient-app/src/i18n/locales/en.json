@@ -548,6 +548,8 @@
   "pharmacy.offers.someAvailable": "{n} of {total} items available",
   "pharmacy.offers.distance": "{km} km away",
   "pharmacy.offers.prep": "ready in about {min} min",
+  "pharmacy.offers.eta": "Delivery in {min} min",
+  "pharmacy.offers.rating": "Rating {rating} ({count})",
   "pharmacy.offers.expiresIn": "Offer ends in {time}",
   "pharmacy.offers.expired": "Offer expired",
   "pharmacy.offers.expiredShort": "Expired",

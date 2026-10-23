@@ -548,6 +548,8 @@
   "pharmacy.offers.someAvailable": "{n} من {total} أصناف متوفرة",
   "pharmacy.offers.distance": "تبعد {km} كم",
   "pharmacy.offers.prep": "جاهز خلال نحو {min} دقيقة",
+  "pharmacy.offers.eta": "التوصيل خلال {min} دقيقة",
+  "pharmacy.offers.rating": "التقييم {rating} ({count})",
   "pharmacy.offers.expiresIn": "ينتهي العرض خلال {time}",
   "pharmacy.offers.expired": "انتهت صلاحية العرض",
   "pharmacy.offers.expiredShort": "انتهى",

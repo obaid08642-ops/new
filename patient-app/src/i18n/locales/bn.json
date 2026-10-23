@@ -548,6 +548,8 @@
   "pharmacy.offers.someAvailable": "{total}টির মধ্যে {n}টি পণ্য পাওয়া যাচ্ছে",
   "pharmacy.offers.distance": "{km} কিমি দূরে",
   "pharmacy.offers.prep": "প্রায় {min} মিনিটে প্রস্তুত",
+  "pharmacy.offers.eta": "{min} মিনিটে ডেলিভারি",
+  "pharmacy.offers.rating": "রেটিং {rating} ({count})",
   "pharmacy.offers.expiresIn": "অফার শেষ হবে {time} পরে",
   "pharmacy.offers.expired": "অফারের মেয়াদ শেষ",
   "pharmacy.offers.expiredShort": "শেষ",

@@ -548,6 +548,8 @@
   "pharmacy.offers.someAvailable": "{n} sa {total} item ang available",
   "pharmacy.offers.distance": "{km} km ang layo",
   "pharmacy.offers.prep": "handa sa mga {min} min",
+  "pharmacy.offers.eta": "Darating sa loob ng {min} min",
+  "pharmacy.offers.rating": "Puntos {rating} ({count})",
   "pharmacy.offers.expiresIn": "Magtatapos ang alok sa loob ng {time}",
   "pharmacy.offers.expired": "Nag-expire na ang alok",
   "pharmacy.offers.expiredShort": "Tapos na",

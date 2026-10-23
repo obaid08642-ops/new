@@ -548,6 +548,8 @@
   "pharmacy.offers.someAvailable": "{total} میں سے {n} اشیا دستیاب ہیں",
   "pharmacy.offers.distance": "{km} کلومیٹر دور",
   "pharmacy.offers.prep": "تقریباً {min} منٹ میں تیار",
+  "pharmacy.offers.eta": "ڈیلیوری {min} منٹ میں",
+  "pharmacy.offers.rating": "ریٹنگ {rating} ({count})",
   "pharmacy.offers.expiresIn": "پیشکش {time} میں ختم ہو جائے گی",
   "pharmacy.offers.expired": "پیشکش کی مدت ختم ہو گئی",
   "pharmacy.offers.expiredShort": "ختم",
