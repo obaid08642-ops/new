@@ -37,6 +37,7 @@ import { MedicineRepository } from "./repositories/medicine.repository";
 import { isProviderRole } from '../../../common/enums';
 
 const REVIEW_TIMEOUT_MINUTES = 12;
+const DEFAULT_STOP_AFTER_OFFERS = 3;
 
 @Injectable()
 export class PharmacyBroadcastService {
@@ -157,6 +158,16 @@ export class PharmacyBroadcastService {
     );
     if (!valid) throw new ServiceUnavailableException('validated_pharmacy_broadcast_policy_required');
     return stages.map((stage: any) => ({ stage: Number(stage.stage), radius_km: Number(stage.radius_km), timeout_seconds: Number(stage.timeout_seconds) }));
+  }
+
+  /**
+   * Operational policy `pharmacy_broadcast_stop_after_offers` (SystemConfig): once this many live submitted offers exist the broadcast stops widening.
+   * Default 3; 0 = never stop. A missing or malformed value means the default, never "never stop".
+   */
+  async getStopAfterOffers(): Promise<number> {
+    const config = await this.configs.findOne({ key: 'pharmacy_broadcast_stop_after_offers' }).lean();
+    const v = config?.value;
+    return typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= 100 ? v : DEFAULT_STOP_AFTER_OFFERS;
   }
 
   /** Patient submit → starts the broadcast (round 1). */

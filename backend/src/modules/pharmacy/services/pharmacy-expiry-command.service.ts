@@ -153,6 +153,23 @@ export class PharmacyExpiryCommandService {
       }
       throw error;
     }
+    // Owner decision 2026-10-22: enough live offers → stop widening. The offers stay and the patient can still choose; the round is only
+    // re-checked after the current stage's timeout, so the broadcast widens or closes again if those offers lapse before one is chosen.
+    const stopAfter = await this.broadcastService.getStopAfterOffers();
+    if (stopAfter > 0) {
+      const live = await this.offers.countDocuments({ order_id: claimed.order_id, status: 'submitted', quote_expires_at: { $gt: now } });
+      if (live >= stopAfter) {
+        const stage = stages[Math.min(Number(claimed.current_round || 1), stages.length) - 1];
+        const recheck = new Date(now.getTime() + stage.timeout_seconds * 1000);
+        const paused = await this.broadcasts.updateOne(
+          { id: claimed.id, lock_state: 'open', 'expiry_claim.token': token, round_expires_at: { $lte: now } },
+          { $set: { round_expires_at: recheck, widening_stopped_at: claimed.widening_stopped_at ?? now }, $unset: { expiry_claim: 1 },
+            ...(claimed.widening_stopped_at ? {} : { $push: { timeline: { ts: now, event: 'widening_stopped_enough_offers', meta: { live_offers: live, stop_after: stopAfter } } } }) },
+        );
+        if (!this.modified(paused)) throw new BadRequestException('broadcast_expiry_claim_lost');
+        return { outcome: 'claimed', recipient_intents: 0 };
+      }
+    }
     const order: any = await this.orders.findOne({ id: claimed.order_id }).lean();
     let nextStage = stages[Number(claimed.current_round || 1)];
     let extendedEvent: string | null = null;

@@ -72,16 +72,57 @@ describe('PharmacyOfferService', () => {
     expect(result.fulfillment).toEqual(expect.objectContaining({ delivery_fee_source: 'platform_pricing_config' }));
   });
 
-  it('returns a server-derived preview with explicit read-only delivery policy and ignores client ETA', async () => {
+  it('returns a server-derived preview with the delivery option and fee as server policy, and keeps the pharmacy\'s own ETA', async () => {
     const svc = service();
     const result = await svc.previewQuote(
       { id: 'pharmacy-1', role: 'provider' }, 'order-1',
-      { items: [{ order_item_id: 'item-1', availability: 'available', inventory_item_id: 'inventory-1', qty_offered: 1 }], delivery_option: 'delivery', eta_minutes: 1 },
+      { items: [{ order_item_id: 'item-1', availability: 'available', inventory_item_id: 'inventory-1', qty_offered: 1 }], delivery_option: 'delivery', eta_minutes: 45 },
     );
     expect(result.totals).toEqual({ subtotal: 17.5, delivery_fee: 0, total: 17.5, currency: 'SAR' });
     expect(result.quote_ttl_seconds).toBe(600);
-    expect(result.fulfillment).toEqual(expect.objectContaining({ policy_status: 'unavailable_read_only', delivery_option: null, eta_minutes: null }));
+    expect(result.fulfillment).toEqual(expect.objectContaining({ policy_status: 'unavailable_read_only', delivery_option: null, eta_minutes: 45 }));
     expect(result.delivery_client_fields_ignored).toBe(true);
+  });
+
+  it('stores the pharmacy ETA on the draft (5..1440 whole minutes) and rejects anything else', async () => {
+    const item = { order_item_id: 'item-1', availability: 'available', inventory_item_id: 'inventory-1', qty_offered: 1 } as any;
+    const user = { id: 'pharmacy-1', role: 'provider' };
+    expect((await service().upsertDraft(user, 'order-1', { items: [item], eta_minutes: 90 })).fulfillment.eta_minutes).toBe(90);
+    expect((await service().upsertDraft(user, 'order-1', { items: [item] })).fulfillment.eta_minutes).toBeNull();
+    for (const bad of [4, 1441, 12.5, 0, -30]) {
+      await expect(service().upsertDraft(user, 'order-1', { items: [item], eta_minutes: bad })).rejects.toBeInstanceOf(BadRequestException);
+    }
+  });
+
+  describe('patient read model', () => {
+    const live = { id: 'offer-1', order_id: 'order-1', pharmacy_account_id: 'pharmacy-1', status: 'submitted', version: 1, items: [], totals: { subtotal: 10, delivery_fee: 0, total: 10, currency: 'SAR' }, quote_expires_at: new Date(Date.now() + 600_000), fulfillment: { eta_minutes: 60 } };
+    const read = async (offer: any, profile: any) => {
+      const orders = { findOne: jest.fn(() => lean({ ...order, delivery_address: { geo: { lat: 24.7, lng: 46.7 } } })) };
+      const offers = { find: jest.fn(() => ({ sort: jest.fn(() => lean([offer])) })) };
+      const collection = jest.fn((name: string) => ({ ...emptyCollection(), findOne: jest.fn().mockResolvedValue(name === 'provider_profiles' ? profile : null) }));
+      const svc = service({ orders, offers, broadcasts: { findOne: jest.fn(() => lean(broadcast)) }, connection: { startSession: jest.fn(), collection } });
+      return (await svc.listForPatient({ id: 'patient-1' }, 'order-1'))[0] as any;
+    };
+
+    it('shows the pharmacy ETA next to the approximate distance, with its average rating when it has ratings', async () => {
+      const dto = await read(live, { account_id: 'pharmacy-1', name_ar: 'صيدلية', geo: { lat: 24.71, lng: 46.7 }, rating_avg: 4.6, rating_count: 12 });
+      expect(dto.approx_delivery.eta_minutes).toBe(60);
+      expect(dto.approx_distance_km).toBeGreaterThan(0);
+      expect(dto.pharmacy_rating).toBe(4.6);
+      expect(dto.pharmacy_rating_count).toBe(12);
+    });
+
+    it('has no ETA and no rating (null, never invented) when the pharmacy gave none', async () => {
+      const dto = await read({ ...live, fulfillment: { policy_status: 'unavailable_read_only', eta_minutes: null } }, { account_id: 'pharmacy-1', rating_avg: 0, rating_count: 0 });
+      expect(dto.approx_delivery.eta_minutes).toBeNull();
+      expect(dto.pharmacy_rating).toBeNull();
+      expect(dto.pharmacy_rating_count).toBe(0);
+    });
+
+    it('never turns a missing average into a 0-star rating', async () => {
+      const dto = await read(live, { account_id: 'pharmacy-1', rating_avg: null, rating_count: 4 });
+      expect(dto.pharmacy_rating).toBeNull();
+    });
   });
 
   it('rejects a pharmacy that was not notified for the broadcast', async () => {
