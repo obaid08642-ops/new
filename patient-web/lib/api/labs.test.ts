@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { extractLabService, extractLabServices, labPaymentFits, parseLabServiceId } from "./labs";
+import { extractLabService, extractLabServices, insuranceOffered, labPaymentFits, parseLabServiceId } from "./labs";
 
 describe("labs parser", () => {
   it("keeps only public catalog fields and strips internal data", () => {
@@ -29,5 +29,12 @@ describe("decision 30: the diagnostics hub's insurance or self-pay filter (3-web
   it("insurance lists only what takes insurance; self-pay lists what the patient may pay (unmarked = yes)", () => {
     expect([both, selfOnly, insOnly, unmarked].filter((s) => labPaymentFits("insurance", s)).map((s) => s.id)).toEqual(["both", "ins"]);
     expect([both, selfOnly, insOnly, unmarked].filter((s) => labPaymentFits("self_pay", s)).map((s) => s.id)).toEqual(["both", "self", "none"]);
+  });
+  it("offers the insurance choice only when a bookable service takes insurance", () => {
+    expect(insuranceOffered([selfOnly, unmarked])).toBe(false);
+    expect(insuranceOffered([selfOnly, insOnly])).toBe(true);
+    expect(insuranceOffered([])).toBe(false);
+    const [hidden] = extractLabServices([{ id: "gone", name_en: "Gone", insurance_availability: true, unavailable: true }]);
+    expect(insuranceOffered([selfOnly, hidden])).toBe(false);
   });
 });

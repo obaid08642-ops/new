@@ -28,7 +28,7 @@ import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
-import { normalizeLabList, normalizeProviders, type CatalogItem, type LabProvider } from '../../src/utils/labMappers';
+import { insuranceOffered, normalizeLabList, normalizeProviders, type CatalogItem, type LabProvider } from '../../src/utils/labMappers';
 import { formatAddressLine, resolveEffectiveAddress } from '../../src/utils/selectedAddress';
 
 type MainTab = 'labs' | 'radiology';
@@ -125,8 +125,11 @@ export default function DiagnosticsHub() {
   const needle = query.trim().toLowerCase();
   const match = (name: string) => needle === '' || name.toLowerCase().includes(needle);
   const byPrice = (a: CatalogItem, b: CatalogItem) => (a.price ?? Infinity) - (b.price ?? Infinity);
+  // Nothing takes insurance in the loaded catalogue: the choice is not offered (no empty list behind it) and self-pay applies.
+  const anyInsurance = useMemo(() => insuranceOffered([...packages, ...tests]), [packages, tests]);
+  const effectivePay: Pay = anyInsurance ? pay : 'self_pay';
   const view = useMemo(() => {
-    const pays = (x: CatalogItem) => (pay === 'insurance' ? x.insurance : x.selfPay);
+    const pays = (x: CatalogItem) => (effectivePay === 'insurance' ? x.insurance : x.selfPay);
     let p = packages.filter((x) => match(x.name) && pays(x));
     let ts = tests.filter((x) => match(x.name) && pays(x));
     let rs = rads.filter((x) => match(x.name) && (place === 'clinic' || x.homeVisit));
@@ -144,7 +147,7 @@ export default function DiagnosticsHub() {
     if (filter === 'highest_rated') ls = [...ls].sort((a, b) => (b.rating ?? -1) - (a.rating ?? -1));
     return { p, ts, rs, ls };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [packages, tests, rads, labs, needle, place, pay, filter]);
+  }, [packages, tests, rads, labs, needle, place, effectivePay, filter]);
 
   const showPackages = filter === 'all' || filter === 'packages' || filter === 'lowest_price' || filter === 'home_visit' || filter === 'highest_rated';
   const showTests = filter !== 'packages' && filter !== 'labs';
@@ -217,7 +220,7 @@ export default function DiagnosticsHub() {
               {place === 'home' ? <PlaceRow text={addressLine} actionLabel={address ? k('diag.addr.change') : k('diag.addr.choose')} onAction={() => router.push('/profile/addresses?select=1' as Href)} /> : null}
             </View>
 
-            {isLab ? (
+            {isLab && anyInsurance ? (
               <Segmented
               theme={theme}
               label={k('diag.pay.group')}
@@ -225,7 +228,7 @@ export default function DiagnosticsHub() {
                 { value: 'self_pay', label: k('diag.pay.selfPay') },
                 { value: 'insurance', label: k('diag.pay.insurance') },
               ]}
-              value={pay}
+              value={effectivePay}
               onChange={(v) => setPay(v as Pay)}
               />
             ) : null}
