@@ -5,8 +5,8 @@
  * - Sub-user is linked back to owner via `parent_provider_account_id`
  */
 import { Module, Controller, Get, Post, Patch, Delete, Param, Body, UseGuards, ForbiddenException, BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel, MongooseModule } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectConnection, InjectModel, MongooseModule } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, Roles } from '../../common/auth.guard';
 import { User, UserSchema, UserDocument } from '../../schemas/user.schema';
 import { ProviderAccount, ProviderAccountSchema } from '../provider/schemas';
@@ -15,6 +15,7 @@ import * as bcrypt from 'bcryptjs';
 import { v4 as uuid } from 'uuid';
 import { CreateDto, UpdateDto, SuspendStaffDto, ResetStaffPasswordDto } from './hospital-staff.dto';
 import { enforcePasswordPolicy } from '../../common/password-security.service';
+import { recordAudit } from '../../common/audit-record';
 
 const STAFF_ROLES: UserRole[] = [UserRole.DOCTOR, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.PHARMACY];
 
@@ -23,7 +24,13 @@ export class HospitalStaffService {
   constructor(
     @InjectModel(User.name) private users: Model<UserDocument>,
     @InjectModel(ProviderAccount.name) private accounts: Model<any>,
+    @InjectConnection() private readonly conn: Connection,
   ) {}
+
+  /** Membership changes go in the chained audit trail: who did it, to whom, for which facility. */
+  private audit(user: any, action: string, staffId: string, facilityId: string | undefined, details: Record<string, unknown> = {}) {
+    return recordAudit(this.conn, { action, user_id: user.id, role: String(user.role), resource_kind: 'facility_staff', resource_id: staffId, details: { facility_id: facilityId ?? null, ...details } });
+  }
 
   private async getOwnerAccount(user: any) {
     if (![UserRole.HOSPITAL, UserRole.ADMIN].includes(user.role)) throw new ForbiddenException('only_hospital_owner');
@@ -66,6 +73,7 @@ export class HospitalStaffService {
       license_number: body.license_number,
       consultation_fee: body.consultation_fee || 0,
     });
+    await this.audit(user, 'facility_staff.added', u.id, acc?.id, { staff_role: role });
     const o: any = u.toObject(); delete o.password_hash; delete o._id; delete o.__v;
     return o;
   }
@@ -89,6 +97,7 @@ export class HospitalStaffService {
     if (!staff) throw new NotFoundException('staff_not_found');
     if (acc && ![staff.get('parent_provider_account_id'), staff.get('parent_account_id')].includes(acc.id) && user.role !== UserRole.ADMIN) throw new ForbiddenException('not_owner');
     await this.users.updateOne({ id: staffId }, { $set: { suspended } });
+    await this.audit(user, suspended ? 'facility_staff.suspended' : 'facility_staff.unsuspended', staffId, acc?.id);
     return { ok: true, suspended };
   }
 
@@ -97,7 +106,14 @@ export class HospitalStaffService {
     const staff = await this.users.findOne({ id: staffId });
     if (!staff) throw new NotFoundException('staff_not_found');
     if (acc && ![staff.get('parent_provider_account_id'), staff.get('parent_account_id')].includes(acc.id) && user.role !== UserRole.ADMIN) throw new ForbiddenException('not_owner');
-    await this.users.deleteOne({ id: staffId });
+    // Soft removal: only the link to the facility ends. The user, their history and the audit trail stay (a practitioner
+    // may have bookings, results and earnings of their own); they just stop appearing as this facility's staff.
+    const facilityId = staff.get('parent_provider_account_id') ?? staff.get('parent_account_id') ?? acc?.id;
+    await this.users.updateOne(
+      { id: staffId },
+      { $unset: { parent_provider_account_id: '', parent_account_id: '', assigned_branch_id: '' }, $set: { permissions: [], removed_from_facility_at: new Date() } },
+    );
+    await this.audit(user, 'facility_staff.removed', staffId, facilityId, { staff_role: String(staff.get('role')) });
     return { ok: true };
   }
 
