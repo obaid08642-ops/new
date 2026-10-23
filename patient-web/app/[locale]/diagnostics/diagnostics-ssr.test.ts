@@ -68,10 +68,11 @@ describe("diagnostics SSR boundary", () => {
 
     expect(html).toContain("CBC");
     expect(html).toContain("Wellness panel");
-    expect(html).toContain("/en/diagnostics/packages/pkg-1");
-    expect(html).toContain("/en/diagnostics/cart?add=cbc&amp;name=CBC&amp;price=20");
-    expect(html).toContain("/en/diagnostics/cart?add=tsh&amp;name=TSH");
-    expect(html).not.toContain("add=tsh&amp;name=TSH&amp;price");
+    // Ord02/Ord03: packages and tests open the ordering item page, and the "+" adds to the local basket (a button, no cart link)
+    expect(html).toContain("/en/labs/pkg-1");
+    expect(html).toContain("/en/labs/cbc");
+    expect(html).toContain("/en/labs/tsh");
+    expect(html).not.toContain("/diagnostics/cart?add=");
     expect(html).toContain("Result within 24 hours");
     expect(state.getDiagnosticBookings).not.toHaveBeenCalled();
   });
@@ -83,7 +84,7 @@ describe("diagnostics SSR boundary", () => {
     const html = await hub({ kind: "radiology", place: "facility" });
 
     expect(html).toContain("Chest X-Ray");
-    expect(html).toContain("/en/diagnostics/radiology/6a7600a27b25eeca204de283");
+    expect(html).toContain("/en/labs/6a7600a27b25eeca204de283?kind=radiology&amp;place=facility");
     expect(html).toContain("From");
     expect(html).toContain("/en/diagnostics?kind=radiology&amp;place=facility");
   });

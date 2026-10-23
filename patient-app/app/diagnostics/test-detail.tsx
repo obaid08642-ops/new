@@ -5,6 +5,7 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { Button } from '../../../packages/ui-native/src';
 import { ConsultScreen, Gate, InfoRow, Section, type GateStatus } from '../../src/components/consult/ConsultKit';
 import { Block, DetailHead, ListCard, Price, diagLook, goBackDiag, useDiagText } from '../../src/components/diagnostics/DiagKit';
+import { ItemOrderingPanel } from '../../src/components/ordering/ItemOrderingPanel';
 import { Notice } from '../../src/components/pharmacy/OfferKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
@@ -103,6 +104,7 @@ export default function TestDetail() {
                 ) : null}
               </Section>
             ) : null}
+            <ItemOrderingPanel kind={kind} catalogId={id} />
             {data.turnaroundHours !== null ? (
               <ListCard>
                 <View style={{ paddingHorizontal: 14 }}>

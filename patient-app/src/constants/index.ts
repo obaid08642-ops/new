@@ -23,6 +23,8 @@ export const STORAGE_KEYS = {
   SAVED_ADDRESSES: '@nabdah_addresses',
   HEALTH_PROFILE: '@nabdah_health_profile',
   GUEST_MODE: '@nabdah_guest_mode',
+  // Ord01: the new patient chose "skip" on the first-ask sheet of the ordering context; asked once, never again.
+  ORDERING_CTX_SKIPPED: '@nabdah_ordering_ctx_skipped_v1',
 };
 
 export const LOYALTY_TIERS = [

@@ -95,10 +95,11 @@ def main():
         step('the page shows the values', 'Hemoglobin' in body and '14.1' in body and 'Potassium' in body, body[:300])
         # while the page streams in, React briefly holds a hidden copy of the section: count on the settled page
         try:
-            page.wait_for_function('() => document.querySelectorAll(\'a[href="/ar/consultations/doctors"]\').length === 1', timeout=15000)
+            page.wait_for_function('() => document.querySelectorAll(\'a[href^="/ar/consultations/instant"]\').length === 1', timeout=15000)
         except Exception:
             pass
-        step('and "discuss the result with a doctor" opens the doctors', page.locator('a[href="/ar/consultations/doctors"]', has_text='ناقش النتيجة مع طبيب').count() == 1, page.url)
+        # M6 Ord11 (#1787): the button starts an instant consultation (M8) about this result, not the doctors list
+        step('and "discuss the result with a doctor" opens an instant consultation', page.locator('a[href^="/ar/consultations/instant"]', has_text='ناقش النتيجة مع طبيب').count() == 1, page.url)
         page.goto(f'{WEB}/ar/notifications', wait_until='load', timeout=60000)
         link = page.locator(f'a[href="/ar/diagnostics/results/{rid}"]')
         step('the notification on the website opens that result', link.count() > 0, f'{link.count()} link(s)')

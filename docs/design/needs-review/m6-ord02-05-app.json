@@ -1,0 +1,156 @@
+[
+  {
+    "batch": "M6 Ord02-05",
+    "app": "patient-app",
+    "screen": "/diagnostics/service-home",
+    "element": "From X SAR · n providers",
+    "file": "patient-app/app/diagnostics/service-home.tsx",
+    "line": 65,
+    "found": "[backend] No catalogue endpoint returns the area-cached from-price and provider count; the screen asks POST /ordering/quote once per featured item (4 calls, throttled 30/min), so only those 4 rows show it.",
+    "suspect": "A catalogue list with from_price and providers_count for the context would remove the per-item quotes.",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6 Ord02-05",
+    "app": "patient-app",
+    "screen": "/diagnostics/service-home",
+    "element": "Nursing rows: duration, doctor's order needed, nurse gender, series hint",
+    "file": "patient-app/app/diagnostics/service-home.tsx",
+    "line": 75,
+    "found": "[backend] nursing_services has duration, duration_value and requires_companion but no needs-order flag, gender preference or series hint; rows show none of ordering.home.n.* and the nursing add toggle is absent (the diagnostics cart holds labs and scans only).",
+    "suspect": "Nursing ordering has no basket in the app yet; decide with the owner.",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6 Ord02-05",
+    "app": "patient-app",
+    "screen": "/diagnostics/service-home",
+    "element": "Empty search: request offers / notify me",
+    "file": "patient-app/app/diagnostics/service-home.tsx",
+    "line": 108,
+    "found": "[backend] The empty state has no 'Request offers' or 'Notify me' action: POST /ordering/asap and /photo-order exist but their screens belong to Ord06+; there is no notify-me endpoint.",
+    "suspect": "Actions omitted, not faked.",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6 Ord02-05",
+    "app": "patient-app",
+    "screen": "/diagnostics/service-home",
+    "element": "Route is not linked",
+    "file": "patient-app/app/diagnostics/service-home.tsx",
+    "line": 35,
+    "found": "[client] /diagnostics/service-home?kind=lab|radiology|nursing is not yet opened from the hub tab or the services catalogue; the entry switch happens in the last Ord01 PR.",
+    "suspect": "Unreachable from the UI until the hub entries point to it.",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6 Ord02-05",
+    "app": "patient-app",
+    "screen": "/diagnostics/test-detail",
+    "element": "Sample type line",
+    "file": "patient-app/app/diagnostics/test-detail.tsx",
+    "line": 107,
+    "found": "[backend] labs.json carries sample_type as a code ('blood'), no localized label, so the sample line (ordering.item.secSample) is not shown.",
+    "suspect": "Needs localized sample names in the catalogue.",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6 Ord02-05",
+    "app": "patient-app",
+    "screen": "/diagnostics/test-detail",
+    "element": "Doctor-order items pre-ticked / Later",
+    "file": "patient-app/app/diagnostics/test-detail.tsx",
+    "line": 107,
+    "found": "[client] The doctor-order block (items pre-ticked, untick = later) is not built on the item page; GET /medical-orders/mine parsing exists (utils/medicalOrders.ts) but the page does not read it.",
+    "suspect": "Left for the PR that wires medical orders into the basket.",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6 Ord02-05",
+    "app": "patient-app",
+    "screen": "/diagnostics/package-detail",
+    "element": "Coverage and from-price of a package",
+    "file": "patient-app/app/diagnostics/package-detail.tsx",
+    "line": 26,
+    "found": "[backend] POST /ordering/quote only knows ids of lab_services; a package id answers unknown_catalog_item, so the package page has no context price or coverage, and included tests are names without ids.",
+    "suspect": "Packages need to be quotable (or expose test ids).",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6 Ord02-05",
+    "app": "patient-app",
+    "screen": "/diagnostics/cart",
+    "element": "Request offers from labs",
+    "file": "patient-app/app/diagnostics/cart.tsx",
+    "line": 95,
+    "found": "[backend] The no-provider block offers only 'move to the centre'; 'Request offers' (alternative broadcast) and 'notify me' have no patient endpoint wired in this PR.",
+    "suspect": "Broadcast belongs to the ASAP/photo flow (Ord06+).",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6 Ord02-05",
+    "app": "patient-app",
+    "screen": "/diagnostics/cart",
+    "element": "Context not kept between screens",
+    "file": "patient-app/src/utils/useOrderingContext.ts",
+    "line": 13,
+    "found": "[client] Place/payer/for-whom are read from the profile per screen and passed to the next one as route params; the Ord01 bar will replace the stopgap ContextSummary and decide persistence (open question in the flowa board).",
+    "suspect": "Basket recompute on context change is live; persistence undecided.",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6 Ord02-05",
+    "app": "patient-app",
+    "screen": "/diagnostics/cart",
+    "element": "Choose a provider",
+    "file": "patient-app/app/diagnostics/cart.tsx",
+    "line": 52,
+    "found": "[client] Mixed lab + scan baskets are quoted per service kind and continue with the lab kind first; the second kind is not offered a provider step.",
+    "suspect": "One basket for both kinds is a flow decision for Ord06-07.",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6 Ord02-05",
+    "app": "patient-app",
+    "screen": "/diagnostics/lab-comparison",
+    "element": "Choose this provider",
+    "file": "patient-app/app/diagnostics/lab-comparison.tsx",
+    "line": 53,
+    "found": "[client] Goes to the existing /diagnostics/checkout with labId = ordering provider_id (provider profile id); the old checkout expects the old lab ids until Ord06-07 replace it.",
+    "suspect": "Booking with the new provider id is unproven on the old checkout.",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6 Ord02-05",
+    "app": "patient-app",
+    "screen": "/diagnostics/lab-comparison",
+    "element": "Use this split",
+    "file": "patient-app/app/diagnostics/lab-comparison.tsx",
+    "line": 86,
+    "found": "[client] The suggested split is shown with providers and total but the 'Use this split' button is not built: booking two providers needs the When picker (Ord06).",
+    "suspect": "Button omitted.",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6 Ord02-05",
+    "app": "patient-app",
+    "screen": "/diagnostics/lab-comparison",
+    "element": "Filters: home visit, open now; reliability line; review count",
+    "file": "patient-app/app/diagnostics/lab-comparison.tsx",
+    "line": 116,
+    "found": "[backend] Compare rows carry no home-visit flag, opening hours, reliability or review count, so those filters and lines (ordering.match.fHome/fOpen/reliab/rating) are not shown; 'In my network' and 'Female staff' are wired (client filter / staff_gender in the quote).",
+    "suspect": "Add the fields to the quote rows if the owner wants them.",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6 Ord02-05",
+    "app": "patient-app",
+    "screen": "/diagnostics/lab-comparison",
+    "element": "For whom",
+    "file": "patient-app/src/utils/orderingContext.ts",
+    "line": 66,
+    "found": "[backend] GET /family/members lists group members (user_id, display_name); POST /ordering/quote wants a family_members record id (family_member_not_found otherwise). Only members that carry an id are offered, so others cannot be ordered for.",
+    "suspect": "Check that the two collections share ids, or expose the quote id on the member.",
+    "review_status": "open"
+  }
+]

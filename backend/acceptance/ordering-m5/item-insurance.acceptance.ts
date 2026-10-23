@@ -180,7 +180,7 @@ describe('M5 insurance per item', () => {
 
   it('8. an approval that expires before the visit warns and offers an earlier slot', async () => {
     const id = await bookInsured();
-    await stack.db.collection('lab_bookings').updateOne({ id }, { $set: { scheduled_start: new Date(Date.now() + 5 * DAY) } });
+    await stack.db.collection('labbookings').updateOne({ id }, { $set: { scheduled_start: new Date(Date.now() + 5 * DAY) } });
     await post(`/provider/ordering/bookings/${id}/item-decisions`, lab, {
       decisions: [{ catalog_id: 'cbc', decision: 'approved', patient_share: 10 }, { catalog_id: 'hba1c', decision: 'approved', patient_share: 14 }],
       valid_until: new Date(Date.now() + 1 * DAY).toISOString(),
@@ -188,5 +188,21 @@ describe('M5 insurance per item', () => {
     const a = (await get(`/ordering/bookings/${id}/approval`, patient)).body;
     expect(a.warning).toBe('approval_expires_before_visit');
     expect(a.rebook_earlier).toBe(true);
+  });
+
+  it('9. an insured facility booking waits for the decision like a home one, then needs the copay (no home fee)', async () => {
+    await put('/provider/ordering/settings', lab, { modes: ['home', 'facility'], home_fee: 30, home_radius_km: 15, walk_in: true, accepted_insurance: [{ company_id: BUPA, classes: ['A'], active: true }] });
+    const q = await post('/ordering/quote', patient, { service_kind: 'lab', items: ['cbc'], context: { mode: 'facility', ...CENTER, payer: 'insurance' } });
+    const b = await post('/ordering/bookings', patient, { quote_id: q.body.quote_id, selections: { facility: { provider_id: LAB, walk_in: true } }, payment_method: 'insurance', medical_order_id: 'mo-m5' });
+    expect(b.status).toBe(201);
+    expect(b.body.bookings[0]).toMatchObject({ mode: 'facility', status: 'awaiting_approval' });
+    const id = b.body.bookings[0].id;
+    expect((await get(`/ordering/bookings/${id}/approval`, patient)).body).toMatchObject({ status: 'pending', final: false });
+    const d = await post(`/provider/ordering/bookings/${id}/item-decisions`, lab, { decisions: [{ catalog_id: 'cbc', decision: 'approved', patient_share: 10 }] });
+    expect(d.status).toBeLessThan(300);
+    const a = (await get(`/ordering/bookings/${id}/approval`, patient)).body;
+    expect(a).toMatchObject({ status: 'approved', final: true, patient_share_total: 10 });
+    const row = (await get(`/labs/bookings/${id}`, patient)).body;
+    expect(row.state).toBe('WAITING_COPAY');
   });
 });
