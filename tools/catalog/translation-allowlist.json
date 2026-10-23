@@ -1,0 +1,15 @@
+{
+  "_doc": "Values that stay identical to the English in a non-English locale because the target language uses the term unchanged: brand names, acronyms and internationally fixed medical terms. Keyed by catalogue then by English name (or code); entries are <field>.<locale> or <field>.*. Every other identical value is a gap.",
+  "labs": {
+    "Hemoglobin": ["name.fil"], "Testosterone": ["name.fil"], "Prolactin": ["name.fil"], "Magnesium": ["name.fil"],
+    "D-Dimer": ["name.fil"], "CK-MB": ["name.fil"], "Zinc": ["name.fil"], "Cortisol": ["name.fil"],
+    "Troponin I": ["name.fil"], "Homocysteine": ["name.fil"], "Pap Smear": ["name.fil"], "Quantiferon-TB": ["name.fil"],
+    "Progesterone": ["name.fil"]
+  },
+  "radiology": {
+    "Echocardiogram": ["name.fil"], "Mammography": ["name.fil"], "PET-CT Scan": ["name.fil"]
+  },
+  "insurance": {
+    "*": ["name.*"]
+  }
+}

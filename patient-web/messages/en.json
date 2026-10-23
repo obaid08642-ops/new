@@ -2388,7 +2388,9 @@
     "searchRound": "Round {round}: searching pharmacies within {km} km",
     "showMethods": "Choose a payment method",
     "paymentUnavailable": "No online payment method is available for this order right now.",
-    "loadingMethods": "Loading the payment methods…"
+    "loadingMethods": "Loading the payment methods…",
+    "deliveryEta": "Delivery in {time}",
+    "rating": "Rating {rating} ({count})"
   },
   "PharmacyCheckout": {
     "title": "Checkout",

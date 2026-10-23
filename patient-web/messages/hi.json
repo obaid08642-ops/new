@@ -2388,7 +2388,9 @@
     "searchRound": "राउंड {round}: {km} किमी के भीतर फ़ार्मेसी खोजी जा रही हैं",
     "showMethods": "भुगतान का तरीका चुनें",
     "paymentUnavailable": "इस ऑर्डर के लिए अभी ऑनलाइन भुगतान का कोई तरीका उपलब्ध नहीं है।",
-    "loadingMethods": "भुगतान के तरीके लोड हो रहे हैं…"
+    "loadingMethods": "भुगतान के तरीके लोड हो रहे हैं…",
+    "deliveryEta": "डिलीवरी {time} में",
+    "rating": "रेटिंग {rating} ({count})"
   },
   "PharmacyCheckout": {
     "title": "चेकआउट",
