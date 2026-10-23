@@ -2,7 +2,7 @@ import { createElement, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const state = vi.hoisted(() => ({ getPatientHomeCareBookings: vi.fn(), requirePatientAccess: vi.fn() }));
+const state = vi.hoisted(() => ({ getPatientHomeCareBookings: vi.fn(), requirePatientAccess: vi.fn(), services: vi.fn(), packages: vi.fn() }));
 
 vi.mock("next/navigation", () => ({ notFound: vi.fn(), redirect: vi.fn(), useRouter: () => ({ refresh: vi.fn(), push: vi.fn() }) }));
 // the real en messages, so a missing key fails here
@@ -19,6 +19,9 @@ vi.mock("@/lib/i18n", () => ({ isLocale: () => true, getDirection: () => "ltr", 
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: state.requirePatientAccess, getOptionalPatientAccessToken: state.requirePatientAccess }));
 vi.mock("@/lib/api/home-care-server", () => ({ getPatientHomeCareBookings: state.getPatientHomeCareBookings }));
 
+vi.mock("@/lib/api/public-services-server", () => ({ readPublicHomeCareServices: state.services, readPublicHomeCareProviders: vi.fn().mockResolvedValue({ failed: true, body: null }) }));
+vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.packages }));
+
 import HomeCarePage from "./page";
 
 const bookingId = "91047ef2-ad36-422a-a184-629693e7c729";
@@ -28,6 +31,8 @@ describe("home-care SSR boundary", () => {
   beforeEach(() => {
     state.getPatientHomeCareBookings.mockReset();
     state.requirePatientAccess.mockReset().mockResolvedValue(serverToken);
+    state.services.mockReset().mockResolvedValue({ failed: false, body: [] });
+    state.packages.mockReset().mockImplementation(async () => new Response(JSON.stringify({ data: [] }), { status: 200 }));
   });
 
   it("renders approved list fields only without token, location, clinical notes, or pricing", async () => {
@@ -60,5 +65,24 @@ describe("home-care SSR boundary", () => {
     const html = renderToStaticMarkup(await HomeCarePage({ params: Promise.resolve({ locale: "en" }) }));
     expect(html).toContain("Unable to load home care");
     expect(html).toContain("Retry");
+  });
+
+  it("parity with the app hub: care packages, the services, a search and the card or insurance choice on one page", async () => {
+    state.services.mockResolvedValue({ failed: false, body: [{ id: "svc-1", name_en: "Wound care", price: 80, insurance_availability: true }, { id: "svc-2", name_en: "Vitals check", price: 40, insurance_availability: false }] });
+    state.packages.mockImplementation(async () => new Response(JSON.stringify({ data: [{ id: "pkg-1", name_en: "Weekly care", price: 300, kind: "package" }] }), { status: 200 }));
+    state.getPatientHomeCareBookings.mockResolvedValue(new Response("[]", { status: 200 }));
+    const html = renderToStaticMarkup(await HomeCarePage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({}) }));
+    expect(html).toContain("Care packages");
+    expect(html).toContain("Weekly care");
+    expect(html).toContain('href="/en/home-care/services/svc-1"');
+    expect(html).toContain("Vitals check");
+    // insurance hides what insurance does not cover and is carried to the service page
+    const insurance = renderToStaticMarkup(await HomeCarePage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ pay: "insurance" }) }));
+    expect(insurance).not.toContain("Vitals check");
+    expect(insurance).toContain('href="/en/home-care/services/svc-1?pay=insurance"');
+    // the search narrows the services
+    const found = renderToStaticMarkup(await HomeCarePage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ q: "vitals" }) }));
+    expect(found).toContain("Vitals check");
+    expect(found).not.toContain("Wound care");
   });
 });
