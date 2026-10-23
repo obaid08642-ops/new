@@ -402,7 +402,7 @@ export class OrderingService implements OnModuleInit {
     try {
       for (let i = 0; i < plan.length; i++) {
         const { g, sel, snap } = plan[i];
-        const awaiting = insured && g.mode === 'home';
+        const awaiting = insured; // every insured booking, home or in-centre, waits for the provider's item decisions before it is confirmed and paid
         const b: any = await this.labs.createPriced(user, {
           provider_account_id: snap.account_id, mode: g.mode,
           items: g.items.map((it) => ({ service_id: it.catalog_id, name_ar: g.names[it.catalog_id]?.ar ?? undefined, name_en: g.names[it.catalog_id]?.en ?? undefined, price: snap.prices[it.catalog_id], coverage: insured ? snap.coverage[it.catalog_id] : undefined })),
