@@ -11,9 +11,10 @@ import {
   type Approval, type BookingView, type Choice, type Reminder, type Visit,
 } from "@/lib/ordering/lifecycle";
 import { clock } from "@/lib/ordering/schedule";
+import type { ResultValue } from "@/lib/ordering/results";
 import styles from "./ordering.module.css";
 
-type Props = { locale: string; booking: BookingView; approval: Approval | null; visit: Visit | null; reminders: Reminder[]; resultsReady: boolean; names: Record<string, string> };
+type Props = { locale: string; booking: BookingView; approval: Approval | null; visit: Visit | null; reminders: Reminder[]; resultsReady: boolean; results: ResultValue[]; names: Record<string, string> };
 
 const REFRESH_MS = 20_000;
 const STEP_KEY = { paid: "waitSt1", confirm: "waitSt2", insurance: "waitSt3", visit: "waitSt4" } as const;
@@ -25,7 +26,7 @@ const when = (locale: string, iso: string) => new Intl.DateTimeFormat(locale, { 
  * Ord08-Ord10: one ordering booking. Every amount, state, time, name and code is read from the server (GET /ordering/bookings/:id,
  * /approval, /visit, /reminders, /results); the screen adds nothing up and estimates nothing (insurance and payment: server numbers only).
  */
-export function BookingStatusClient({ locale, booking, approval, visit, reminders, resultsReady, names }: Props) {
+export function BookingStatusClient({ locale, booking, approval, visit, reminders, resultsReady, results, names }: Props) {
   const t = useTranslations("OrderingFlow");
   const router = useRouter();
   const [now, setNow] = useState<number | null>(null);
@@ -269,7 +270,24 @@ export function BookingStatusClient({ locale, booking, approval, visit, reminder
       {resultsReady ? (
         <section className={styles.card} aria-label={t("trackResultsReady")}>
           <h2 className={styles.title}>{t("trackResultsReady")}</h2>
+          {results.length > 0 ? (
+            <ul className={styles.items}>
+              {results.map((r) => (
+                <li key={r.catalogId}>
+                  <span className={styles.itemText}>
+                    <span className={styles.itemName}>{names[r.catalogId] ?? r.name}</span>
+                    <span className={styles.sub}>
+                      <bdi>{`${new Intl.NumberFormat(locale).format(r.value)}${r.unit ? ` ${r.unit}` : ""}`}</bdi>
+                      {r.low !== null && r.high !== null ? ` · ${t("resRef", { a: new Intl.NumberFormat(locale).format(r.low), b: new Intl.NumberFormat(locale).format(r.high) })}` : ""}
+                      {` · ${t(r.flag === "low" ? "resLow" : r.flag === "high" ? "resHigh" : "resInRange")}`}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
           <Link href={`/${locale}/diagnostics/results`} className={`${styles.linkBtn} ${styles.cta}`}>{t("trackResultsOpen")}</Link>
+          <Link href={`/${locale}/consultations/instant?booking=${encodeURIComponent(booking.id)}`} className={styles.linkBtn}>{t("resDiscuss")}</Link>
         </section>
       ) : null}
 

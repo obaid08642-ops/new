@@ -405,6 +405,7 @@ function Panel({ booking, approval, stage, now, nameOf, when, shareLine, onChang
                 {v.low !== null && v.high !== null ? <Text style={meta}>{k('ordering.track.range', { l: num(v.low), h: num(v.high) })} · {k(`ordering.track.flag_${v.flag}`)}</Text> : <Text style={meta}>{k(`ordering.track.flag_${v.flag}`)}</Text>}
               </View>
             ))}
+            <Button theme={theme} size="md" label={k('ordering.res.discuss')} onPress={() => router.push({ pathname: '/diagnostics/discuss', params: { booking: booking.id } } as unknown as Href)} testID="booking-discuss" />
             <Button theme={theme} size="md" variant="outline" label={k('ordering.track.allResults')} onPress={() => router.push('/diagnostics/my-results' as Href)} />
           </Block>
         </Section>

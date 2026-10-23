@@ -8,7 +8,8 @@ import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { itemCoverage, type OrderingKind } from '../../utils/ordering';
 import { useOrderingContext } from '../../utils/useOrderingContext';
 import { useOrderingQuote } from '../../utils/useOrderingQuote';
-import { ContextGate, ContextSummary, QuoteFailure, QuoteLoading } from './OrderingKit';
+import { ContextBar } from './ContextBar';
+import { ContextGate, QuoteFailure, QuoteLoading } from './OrderingKit';
 
 /**
  * Ord03, the part of the item page that depends on the context: the lowest price among fitting providers with their count, the
@@ -27,7 +28,7 @@ export function ItemOrderingPanel({ kind, catalogId }: { kind: OrderingKind; cat
   return (
     <View style={{ gap: 16 }}>
       <ContextGate ctx={ctx}>
-        <ContextSummary ctx={ctx} />
+        <ContextBar ctx={ctx} />
         {q.status === 'loading' || q.status === 'idle' ? <QuoteLoading label={k('ordering.home.loading')} /> : null}
         {q.status === 'error' || q.status === 'offline' ? <QuoteFailure offline={q.status === 'offline'} errorKey={q.errorKey} onRetry={() => void q.reload()} /> : null}
         {q.status === 'ready' && group ? (

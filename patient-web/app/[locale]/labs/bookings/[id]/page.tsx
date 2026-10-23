@@ -10,6 +10,7 @@ import { extractLabService } from "@/lib/api/labs";
 import { getPublicLabService } from "@/lib/api/labs-server";
 import { isLocale } from "@/lib/i18n";
 import { parseApproval, parseBookingView, parseReminders, parseVisit, type Approval, type BookingView, type Reminder, type Visit } from "@/lib/ordering/lifecycle";
+import { parseResultValues } from "@/lib/ordering/results";
 import { pickName } from "@/lib/ordering/format";
 import { optionalToken } from "@/lib/ordering/server";
 
@@ -81,7 +82,7 @@ export default async function BookingStatusPage({ params }: Props) {
 
   return (
     <ConsultPage locale={locale} title={t("trackTitle")} backHref={back}>
-      <BookingStatusClient locale={locale} booking={booking} approval={appr} visit={vis} reminders={rem} resultsReady={results.status === 200} names={names} />
+      <BookingStatusClient locale={locale} booking={booking} approval={appr} visit={vis} reminders={rem} resultsReady={results.status === 200} results={results.status === 200 ? parseResultValues(results.body) : []} names={names} />
     </ConsultPage>
   );
 }
