@@ -74,6 +74,17 @@ def main():
                         step(f'/{loc}/doctors shows the facility in English ("{x.get("facility_name_en")}")', bool(x.get('facility_name_en')) and x['facility_name_en'] in body, '')
                         step(f'/{loc}/doctors does not show the Arabic facility name ("{x["hospital"]}")', x['hospital'] not in body, '')
                 step(f'/{loc}/doctors has no sideways scroll', page.evaluate('document.documentElement.scrollWidth - window.innerWidth') <= 2, '')
+                # the doctor's own page and the booking page name the facility in the page's language too
+                one = withfac[0]
+                for path in [f'/{loc}/consultations/doctors/{one["id"]}'] + ([f'/{loc}/consultations/book/{one["id"]}'] if state == 'user' else []):  # booking asks for the sign-in
+                    page.goto(f'{WEB}{path}', wait_until='load', timeout=60000)
+                    page.wait_for_timeout(1200)
+                    body = page.inner_text('main')
+                    if loc in ('ar', 'ur'):
+                        step(f'{path} shows the facility in Arabic', one['hospital'] in body, body[:100].replace('\n', ' '))
+                    else:
+                        step(f'{path} shows the facility in English ("{one.get("facility_name_en")}")', bool(one.get('facility_name_en')) and one['facility_name_en'] in body, body[:100].replace('\n', ' '))
+                        step(f'{path} does not show the Arabic facility name', one['hospital'] not in body, '')
                 ctx.close()
     except Exception as e:
         step('web consult locales flow', False, str(e)[:300])

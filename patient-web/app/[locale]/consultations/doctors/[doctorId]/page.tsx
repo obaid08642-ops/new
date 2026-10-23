@@ -7,7 +7,7 @@ import { isLocale, locales } from "@/lib/i18n";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { specialtyLabel } from "@/lib/specialties";
-import { defaultVisitType, doctorDisplayName, extractDoctor, extractDoctorSlots, type DoctorSlots } from "@/lib/api/doctors";
+import { defaultVisitType, doctorDisplayName, doctorPlace, extractDoctor, extractDoctorSlots, type DoctorSlots } from "@/lib/api/doctors";
 import { getPublicDoctor, getPublicDoctorSlots } from "@/lib/api/doctors-server";
 import { AppointmentBookingForm } from "@/components-next/appointment-booking-form";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
@@ -85,7 +85,7 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
   if (doctor.rating !== undefined) stats.push({ value: formatNumber(locale, doctor.rating), label: c("statRating") });
   if (doctor.experienceYears !== undefined) stats.push({ value: formatNumber(locale, doctor.experienceYears), label: c("statYears") });
   if (doctor.price !== undefined) stats.push({ value: formatPrice(locale, doctor.price).text, label: c("statPrice") });
-  const tags = [doctor.verified ? t("verifiedDoctor") : undefined, doctor.licenseNo ? t("licenseNumber", { number: doctor.licenseNo }) : undefined, doctor.facility, doctor.acceptsInsurance ? c("acceptsInsurance") : undefined].filter((tag): tag is string => Boolean(tag));
+  const tags = [doctor.verified ? t("verifiedDoctor") : undefined, doctor.licenseNo ? t("licenseNumber", { number: doctor.licenseNo }) : undefined, doctorPlace(doctor, locale), doctor.acceptsInsurance ? c("acceptsInsurance") : undefined].filter((tag): tag is string => Boolean(tag));
   const base = `/${locale}/consultations/doctors/${doctor.id}`;
 
   return (

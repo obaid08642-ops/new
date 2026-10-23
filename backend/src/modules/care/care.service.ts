@@ -437,6 +437,7 @@ export class CareService {
     const doc = await this.providerModel.findOne({ id, type: ProviderType.DOCTOR, ...publicProviderFilter() }, { _id: 0, __v: 0 });
     if (!doc) throw new NotFoundException('doctor_not_found');
     const obj: any = this.toPublicDoctor(doc, await this.slots.nextAvailable(doc));
+    await this.attachFacilityNames([obj]);
     if (obj.facility_id) {
       const facility = await this.facilityModel.findOne({ id: obj.facility_id, ...PUBLIC_FACILITY_FILTER }, { _id: 0, __v: 0 });
       obj.facility = facility ? this.toPublicFacility(facility) : null;
