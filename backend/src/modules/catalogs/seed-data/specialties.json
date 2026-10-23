@@ -3,184 +3,396 @@
     "id": "spec-cardiology",
     "code": "cardiology",
     "name_ar": "قلب وأوعية دموية",
-    "name_en": "cardiology",
+    "name_en": "Cardiology",
     "sort": 1,
-    "active": true
+    "active": true,
+    "name_ur": "امراض قلب",
+    "name_hi": "हृदय रोग (कार्डियोलॉजी)",
+    "name_bn": "হৃদ্‌রোগ (কার্ডিওলজি)",
+    "name_tl": "Kardyolohiya"
   },
   {
     "id": "spec-dermatology",
     "code": "dermatology",
     "name_ar": "جلدية",
-    "name_en": "dermatology",
+    "name_en": "Dermatology",
     "sort": 2,
-    "active": true
+    "active": true,
+    "name_ur": "امراض جلد",
+    "name_hi": "त्वचा रोग (डर्मेटोलॉजी)",
+    "name_bn": "চর্মরোগ (ডার্মাটোলজি)",
+    "name_tl": "Dermatolohiya"
   },
   {
     "id": "spec-pediatrics",
     "code": "pediatrics",
     "name_ar": "طب أطفال",
-    "name_en": "pediatrics",
+    "name_en": "Pediatrics",
     "sort": 3,
-    "active": true
+    "active": true,
+    "name_ur": "امراض اطفال",
+    "name_hi": "बाल रोग",
+    "name_bn": "শিশুরোগ",
+    "name_tl": "Pediatriya"
   },
   {
     "id": "spec-obgyn",
     "code": "obgyn",
     "name_ar": "نساء وولادة",
-    "name_en": "obgyn",
+    "name_en": "Obstetrics & Gynecology",
     "sort": 4,
-    "active": true
+    "active": true,
+    "name_ur": "زچہ و بچہ اور امراض نسواں",
+    "name_hi": "प्रसूति एवं स्त्री रोग",
+    "name_bn": "প্রসূতি ও স্ত্রীরোগ",
+    "name_tl": "Obstetrics at Gynecology"
   },
   {
     "id": "spec-orthopedics",
     "code": "orthopedics",
     "name_ar": "عظام",
-    "name_en": "orthopedics",
+    "name_en": "Orthopedics",
     "sort": 5,
-    "active": true
+    "active": true,
+    "name_ur": "ہڈیوں کے امراض (آرتھوپیڈکس)",
+    "name_hi": "हड्डी रोग (ऑर्थोपेडिक्स)",
+    "name_bn": "অস্থিরোগ (অর্থোপেডিকস)",
+    "name_tl": "Ortopedya"
   },
   {
     "id": "spec-neurology",
     "code": "neurology",
     "name_ar": "أعصاب",
-    "name_en": "neurology",
+    "name_en": "Neurology",
     "sort": 6,
-    "active": true
+    "active": true,
+    "name_ur": "اعصابی امراض (نیورولوجی)",
+    "name_hi": "तंत्रिका रोग (न्यूरोलॉजी)",
+    "name_bn": "স্নায়ুরোগ (নিউরোলজি)",
+    "name_tl": "Neurolohiya"
   },
   {
     "id": "spec-psychiatry",
     "code": "psychiatry",
     "name_ar": "طب نفسي",
-    "name_en": "psychiatry",
+    "name_en": "Psychiatry",
     "sort": 7,
-    "active": true
+    "active": true,
+    "name_ur": "نفسیاتی امراض",
+    "name_hi": "मनोरोग (साइकियाट्री)",
+    "name_bn": "মনোরোগ (সাইকিয়াট্রি)",
+    "name_tl": "Saykayatriya"
   },
   {
     "id": "spec-dentistry",
     "code": "dentistry",
     "name_ar": "أسنان",
-    "name_en": "dentistry",
+    "name_en": "Dentistry",
     "sort": 8,
-    "active": true
+    "active": true,
+    "name_ur": "دندان سازی",
+    "name_hi": "दंत चिकित्सा",
+    "name_bn": "দন্তচিকিৎসা",
+    "name_tl": "Dentistriya"
   },
   {
     "id": "spec-ophthalmology",
     "code": "ophthalmology",
     "name_ar": "عيون",
-    "name_en": "ophthalmology",
+    "name_en": "Ophthalmology",
     "sort": 9,
-    "active": true
+    "active": true,
+    "name_ur": "امراض چشم",
+    "name_hi": "नेत्र रोग",
+    "name_bn": "চক্ষুরোগ",
+    "name_tl": "Optalmolohiya"
   },
   {
     "id": "spec-ent",
     "code": "ent",
     "name_ar": "أنف وأذن وحنجرة",
-    "name_en": "ent",
+    "name_en": "Ear, Nose & Throat",
     "sort": 10,
-    "active": true
+    "active": true,
+    "name_ur": "ناک، کان اور گلا",
+    "name_hi": "नाक, कान और गला",
+    "name_bn": "নাক, কান ও গলা",
+    "name_tl": "Tainga, Ilong at Lalamunan (ENT)"
   },
   {
     "id": "spec-internal",
     "code": "internal",
     "name_ar": "باطنية",
-    "name_en": "internal",
+    "name_en": "Internal Medicine",
     "sort": 11,
-    "active": true
+    "active": true,
+    "name_ur": "اندرونی امراض (انٹرنل میڈیسن)",
+    "name_hi": "आंतरिक चिकित्सा",
+    "name_bn": "মেডিসিন (অভ্যন্তরীণ রোগ)",
+    "name_tl": "Panloob na Medisina"
   },
   {
     "id": "spec-family",
     "code": "family",
     "name_ar": "طب أسرة",
-    "name_en": "family",
+    "name_en": "Family Medicine",
     "sort": 12,
-    "active": true
+    "active": true,
+    "name_ur": "فیملی میڈیسن",
+    "name_hi": "पारिवारिक चिकित्सा",
+    "name_bn": "পারিবারিক চিকিৎসা",
+    "name_tl": "Medisina ng Pamilya"
   },
   {
     "id": "spec-urology",
     "code": "urology",
     "name_ar": "مسالك بولية",
-    "name_en": "urology",
+    "name_en": "Urology",
     "sort": 13,
-    "active": true
+    "active": true,
+    "name_ur": "امراض گردہ و مثانہ (یورولوجی)",
+    "name_hi": "मूत्र रोग (यूरोलॉजी)",
+    "name_bn": "মূত্ররোগ (ইউরোলজি)",
+    "name_tl": "Urolohiya"
   },
   {
     "id": "spec-gastro",
     "code": "gastro",
     "name_ar": "جهاز هضمي",
-    "name_en": "gastro",
+    "name_en": "Gastroenterology",
     "sort": 14,
-    "active": true
+    "active": true,
+    "name_ur": "معدہ و آنت کے امراض",
+    "name_hi": "पाचन तंत्र रोग (गैस्ट्रोएंटरोलॉजी)",
+    "name_bn": "পরিপাকতন্ত্রের রোগ (গ্যাস্ট্রোএন্টারোলজি)",
+    "name_tl": "Gastroenterolohiya"
   },
   {
     "id": "spec-endocrine",
     "code": "endocrine",
     "name_ar": "غدد صماء وسكري",
-    "name_en": "endocrine",
+    "name_en": "Endocrinology & Diabetes",
     "sort": 15,
-    "active": true
+    "active": true,
+    "name_ur": "غدود اور ذیابیطس",
+    "name_hi": "अंतःस्रावी रोग और डायबिटीज़",
+    "name_bn": "হরমোন ও ডায়াবেটিস",
+    "name_tl": "Endocrinology at Diabetes"
   },
   {
     "id": "spec-pulmonology",
     "code": "pulmonology",
     "name_ar": "صدرية",
-    "name_en": "pulmonology",
+    "name_en": "Pulmonology",
     "sort": 16,
-    "active": true
+    "active": true,
+    "name_ur": "امراض سینہ و پھیپھڑے",
+    "name_hi": "फेफड़ों के रोग (पल्मोनोलॉजी)",
+    "name_bn": "বক্ষব্যাধি (পালমোনোলজি)",
+    "name_tl": "Pulmonolohiya"
   },
   {
     "id": "spec-nephrology",
     "code": "nephrology",
     "name_ar": "كلى",
-    "name_en": "nephrology",
+    "name_en": "Nephrology",
     "sort": 17,
-    "active": true
+    "active": true,
+    "name_ur": "گردوں کے امراض",
+    "name_hi": "किडनी रोग (नेफ्रोलॉजी)",
+    "name_bn": "কিডনিরোগ (নেফ্রোলজি)",
+    "name_tl": "Nepolohiya"
   },
   {
     "id": "spec-oncology",
     "code": "oncology",
     "name_ar": "أورام",
-    "name_en": "oncology",
+    "name_en": "Oncology",
     "sort": 18,
-    "active": true
+    "active": true,
+    "name_ur": "سرطان کے امراض (آنکولوجی)",
+    "name_hi": "कैंसर रोग (ऑन्कोलॉजी)",
+    "name_bn": "ক্যানসার রোগ (অনকোলজি)",
+    "name_tl": "Onkolohiya"
   },
   {
     "id": "spec-rheumatology",
     "code": "rheumatology",
     "name_ar": "روماتيزم",
-    "name_en": "rheumatology",
+    "name_en": "Rheumatology",
     "sort": 19,
-    "active": true
+    "active": true,
+    "name_ur": "جوڑوں کے امراض (رومیٹولوجی)",
+    "name_hi": "गठिया रोग (रूमेटोलॉजी)",
+    "name_bn": "বাতরোগ (রিউমাটোলজি)",
+    "name_tl": "Reumatolohiya"
   },
   {
     "id": "spec-surgery",
     "code": "surgery",
     "name_ar": "جراحة عامة",
-    "name_en": "surgery",
+    "name_en": "General Surgery",
     "sort": 20,
-    "active": true
+    "active": true,
+    "name_ur": "جنرل سرجری",
+    "name_hi": "सामान्य शल्य चिकित्सा",
+    "name_bn": "সাধারণ সার্জারি",
+    "name_tl": "Pangkalahatang Operasyon"
   },
   {
     "id": "spec-physiotherapy",
     "code": "physiotherapy",
     "name_ar": "علاج طبيعي",
-    "name_en": "physiotherapy",
+    "name_en": "Physiotherapy",
     "sort": 21,
-    "active": true
+    "active": true,
+    "name_ur": "فزیوتھراپی",
+    "name_hi": "फ़िज़ियोथेरेपी",
+    "name_bn": "ফিজিওথেরাপি",
+    "name_tl": "Physical Therapy"
   },
   {
     "id": "spec-nutrition",
     "code": "nutrition",
     "name_ar": "تغذية",
-    "name_en": "nutrition",
+    "name_en": "Clinical Nutrition",
     "sort": 22,
-    "active": true
+    "active": true,
+    "name_ur": "طبی غذائیت",
+    "name_hi": "नैदानिक पोषण",
+    "name_bn": "ক্লিনিক্যাল পুষ্টি",
+    "name_tl": "Klinikal na Nutrisyon"
   },
   {
     "id": "spec-emergency",
     "code": "emergency",
     "name_ar": "طوارئ",
-    "name_en": "emergency",
+    "name_en": "Emergency Medicine",
     "sort": 23,
-    "active": true
+    "active": true,
+    "name_ur": "ایمرجنسی میڈیسن",
+    "name_hi": "आपातकालीन चिकित्सा",
+    "name_bn": "জরুরি চিকিৎসা",
+    "name_tl": "Medisina sa Emerhensiya"
+  },
+  {
+    "id": "spec-hematology",
+    "code": "hematology",
+    "name_ar": "أمراض الدم",
+    "name_en": "Hematology",
+    "sort": 24,
+    "active": true,
+    "name_ur": "خون کے امراض (ہیماٹولوجی)",
+    "name_hi": "रक्त रोग (हीमेटोलॉजी)",
+    "name_bn": "রক্তরোগ (হেমাটোলজি)",
+    "name_tl": "Hematolohiya"
+  },
+  {
+    "id": "spec-infectious_disease",
+    "code": "infectious_disease",
+    "name_ar": "الأمراض المعدية",
+    "name_en": "Infectious Diseases",
+    "sort": 25,
+    "active": true,
+    "name_ur": "متعدی امراض",
+    "name_hi": "संक्रामक रोग",
+    "name_bn": "সংক্রামক রোগ",
+    "name_tl": "Mga Nakahahawang Sakit"
+  },
+  {
+    "id": "spec-vascular_surgery",
+    "code": "vascular_surgery",
+    "name_ar": "جراحة الأوعية الدموية",
+    "name_en": "Vascular Surgery",
+    "sort": 26,
+    "active": true,
+    "name_ur": "خون کی نالیوں کی سرجری",
+    "name_hi": "संवहनी शल्य चिकित्सा (वैस्कुलर सर्जरी)",
+    "name_bn": "রক্তনালি সার্জারি",
+    "name_tl": "Operasyon sa mga Ugat at Daluyan"
+  },
+  {
+    "id": "spec-plastic_surgery",
+    "code": "plastic_surgery",
+    "name_ar": "جراحة التجميل والترميم",
+    "name_en": "Plastic & Reconstructive Surgery",
+    "sort": 27,
+    "active": true,
+    "name_ur": "پلاسٹک اور ری کنسٹرکٹو سرجری",
+    "name_hi": "प्लास्टिक और पुनर्निर्माण सर्जरी",
+    "name_bn": "প্লাস্টিক ও রিকনস্ট্রাকটিভ সার্জারি",
+    "name_tl": "Plastic at Reconstructive Surgery"
+  },
+  {
+    "id": "spec-neurosurgery",
+    "code": "neurosurgery",
+    "name_ar": "جراحة المخ والأعصاب",
+    "name_en": "Neurosurgery",
+    "sort": 28,
+    "active": true,
+    "name_ur": "دماغ اور اعصاب کی سرجری",
+    "name_hi": "न्यूरोसर्जरी",
+    "name_bn": "নিউরোসার্জারি",
+    "name_tl": "Neurosurhiya"
+  },
+  {
+    "id": "spec-allergy_immunology",
+    "code": "allergy_immunology",
+    "name_ar": "الحساسية والمناعة",
+    "name_en": "Allergy & Immunology",
+    "sort": 29,
+    "active": true,
+    "name_ur": "الرجی اور مدافعت",
+    "name_hi": "एलर्जी और इम्यूनोलॉजी",
+    "name_bn": "অ্যালার্জি ও ইমিউনোলজি",
+    "name_tl": "Allergy at Immunology"
+  },
+  {
+    "id": "spec-neonatology",
+    "code": "neonatology",
+    "name_ar": "حديثو الولادة",
+    "name_en": "Neonatology",
+    "sort": 30,
+    "active": true,
+    "name_ur": "نوزائیدہ بچوں کے امراض",
+    "name_hi": "नवजात शिशु रोग (नियोनेटोलॉजी)",
+    "name_bn": "নবজাতক রোগ (নিওনেটোলজি)",
+    "name_tl": "Neonatolohiya"
+  },
+  {
+    "id": "spec-geriatrics",
+    "code": "geriatrics",
+    "name_ar": "طب الشيخوخة",
+    "name_en": "Geriatrics",
+    "sort": 31,
+    "active": true,
+    "name_ur": "بزرگوں کے امراض (جیریاٹرکس)",
+    "name_hi": "वृद्धावस्था चिकित्सा (जेरियाट्रिक्स)",
+    "name_bn": "বার্ধক্যজনিত চিকিৎসা (জেরিয়াট্রিকস)",
+    "name_tl": "Heriyatriya"
+  },
+  {
+    "id": "spec-reproductive_medicine",
+    "code": "reproductive_medicine",
+    "name_ar": "طب الإنجاب وأطفال الأنابيب",
+    "name_en": "Reproductive Medicine & IVF",
+    "sort": 32,
+    "active": true,
+    "name_ur": "تولیدی طب اور آئی وی ایف",
+    "name_hi": "प्रजनन चिकित्सा और आईवीएफ",
+    "name_bn": "প্রজনন চিকিৎসা ও আইভিএফ",
+    "name_tl": "Reproductive Medicine at IVF"
+  },
+  {
+    "id": "spec-clinical_psychology",
+    "code": "clinical_psychology",
+    "name_ar": "علم النفس الإكلينيكي",
+    "name_en": "Clinical Psychology",
+    "sort": 33,
+    "active": true,
+    "name_ur": "کلینیکل سائیکالوجی",
+    "name_hi": "नैदानिक मनोविज्ञान",
+    "name_bn": "ক্লিনিক্যাল সাইকোলজি",
+    "name_tl": "Klinikal na Sikolohiya"
   }
 ]

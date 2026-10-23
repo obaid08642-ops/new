@@ -89,3 +89,15 @@ export function fmtDate(d: Date | string | number, opts?: Intl.DateTimeFormatOpt
 export function fmtTime(d: Date | string | number, opts?: Intl.DateTimeFormatOptions): string {
   return new Date(d).toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit', ...opts });
 }
+
+/**
+ * fmtDate / fmtTime in the language of the app (and its calendar preference), Latin digits. `fmtDate` / `fmtTime` above always format in
+ * Arabic, so a screen in English, Urdu, Hindi, Bengali or Filipino must use this instead.
+ */
+export function dateFormatterFor(lang?: string) {
+  const locale = dateLocaleFor(lang);
+  return {
+    fmtDate: (d: Date | string | number, opts?: Intl.DateTimeFormatOptions): string => new Date(d).toLocaleDateString(locale, { numberingSystem: 'latn', ...opts }),
+    fmtTime: (d: Date | string | number, opts?: Intl.DateTimeFormatOptions): string => new Date(d).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', numberingSystem: 'latn', ...opts }),
+  };
+}
