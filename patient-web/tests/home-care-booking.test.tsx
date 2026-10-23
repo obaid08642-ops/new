@@ -46,6 +46,14 @@ describe("the booking request", () => {
     expect(JSON.parse(init.body)).toEqual({ provider_id: "nurse-1", service_id: "svc-wound", scheduled_at: "2026-10-20T09:00:00.000Z", address_id: "addr-1", notes: "ring twice", payment_method: "card" });
   });
 
+  it("sends the current position instead of a saved address when the patient chose it", async () => {
+    const send = vi.fn().mockResolvedValue(json({ id: "b-2" }, 201));
+    await createHomeCareBookingAttempt(send as unknown as typeof fetch, () => "key-0000000000000002")({ ...input, addressId: "", location: { lat: 24.7, lng: 46.6 } });
+    const body = JSON.parse(send.mock.calls[0][1].body);
+    expect(body.location).toEqual({ lat: 24.7, lng: 46.6 });
+    expect(body).not.toHaveProperty("address_id");
+  });
+
   it("retries a lost connection with the same key, and takes a new key after a definite answer", async () => {
     let n = 0;
     const send = vi.fn().mockImplementation(() => (n++ === 0 ? Promise.reject(new TypeError("Network request failed")) : Promise.resolve(json({ message: "slot_taken" }, 409))));

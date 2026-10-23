@@ -155,3 +155,14 @@
   .pack, .rad, .lab, .kind { transition: none; }
   .rad:hover, .lab:hover, .pack:hover { transform: none; }
 }
+
+/* ---- hub: the filter and sort sheet (a disclosure; the choices are links that keep the URL the whole state) ---- */
+.filterSheet { display: flex; flex-direction: column; gap: 8px; min-inline-size: 0; }
+.filterSummary {
+  display: flex; align-items: center; min-block-size: 44px; padding-inline: 16px; box-sizing: border-box; cursor: pointer; list-style: none;
+  border-radius: var(--nabd-radius-lg); border: 1px solid var(--nabd-color-border-strong); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary);
+  font-size: var(--nabd-font-size-segment); font-weight: 500;
+}
+.filterSummary::-webkit-details-marker { display: none; }
+.filterSummary:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.filterSheet[open] > .filterSummary { margin-block-end: 8px; }

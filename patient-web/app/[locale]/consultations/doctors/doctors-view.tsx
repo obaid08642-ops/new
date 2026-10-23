@@ -21,11 +21,11 @@ import { ConsultState } from "@/components-next/consult/consult-state";
 import { DoctorListCard } from "@/components-next/consult/doctor-list-card";
 import { DoctorQuickFilters } from "@/components-next/consult/doctor-quick-filters";
 import { InsurerFromPolicy } from "@/components-next/consult/insurer-from-policy";
-import { effectiveType, filterPageParams, nearestApplies, parseDoctorFilters, PAYMENT_FILTERS, serverOrdersList, VISIT_TYPES, type DoctorFilters, type PaymentFilter, type VisitType } from "@/lib/consult/doctor-filters";
+import { DEGREES, effectiveType, filterPageParams, nearestApplies, parseDoctorFilters, PAYMENT_FILTERS, serverOrdersList, VISIT_TYPES, type Degree, type DoctorFilters, type PaymentFilter, type VisitType } from "@/lib/consult/doctor-filters";
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import styles from "@/components-next/consult/consult.module.css";
 
-export type DoctorsViewProps = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string; specialty?: string; sort?: "rating" | "price" | "wait"; type?: string; payment?: string; insurance?: string; insurance_class?: string; available?: string; nearest?: string; lat?: string; lng?: string; city?: string }> };
+export type DoctorsViewProps = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string; specialty?: string; sort?: "rating" | "price" | "wait"; type?: string; degree?: string; payment?: string; insurance?: string; insurance_class?: string; available?: string; nearest?: string; lat?: string; lng?: string; city?: string }> };
 type Props = DoctorsViewProps;
 
 /**
@@ -92,7 +92,8 @@ export async function DoctorsView({ params, searchParams }: Props) {
   const paymentHref = (payment: PaymentFilter) => withFilters({ payment: filters.payment === payment ? undefined : payment });
   const nearestBase = filterPageParams({ ...filters, nearest: false, place: null }, { ...text, sort: sp.sort });
   nearestBase.set("nearest", "1");
-  const filtered = Boolean(filters.type || filters.payment || filters.availableNow || filters.nearest);
+  const degreeHref = (degree: Degree) => withFilters({ degree: filters.degree === degree ? undefined : degree });
+  const filtered = Boolean(filters.type || filters.degree || filters.payment || filters.availableNow || filters.nearest);
   const typeLabels: Record<VisitType, string> = { clinic: t("service_clinic"), video: t("service_video"), home_visit: t("service_home") };
 
   return (
@@ -132,6 +133,11 @@ export async function DoctorsView({ params, searchParams }: Props) {
         label={t("visitType")}
         value={shownType ?? ""}
         options={VISIT_TYPES.map((type) => ({ value: type, label: typeLabels[type], href: typeHref(type) }))}
+      />
+      <LinkSegmented
+        label={t("gradeLabel")}
+        value={filters.degree ?? ""}
+        options={DEGREES.map((degree) => ({ value: degree, label: t(`degree_${degree}`), href: degreeHref(degree) }))}
       />
       <LinkSegmented
         label={t("paymentLabel")}

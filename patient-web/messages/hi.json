@@ -473,7 +473,7 @@
     "no": "नहीं",
     "open": "विवरण देखें",
     "back": "जाँच पर वापस",
-    "detailNotice": "यहाँ सिर्फ़ बुकिंग की स्थिति और समय दिखता है। रिपोर्ट, दस्तावेज़ और कीमतें इस पेज पर नहीं दिखतीं।",
+    "detailNotice": "यहाँ बुकिंग की स्थिति, समय और राशि दिखती है। दस्तावेज़ इस पेज पर नहीं दिखते।",
     "labs": {
       "title": "लैब बुकिंग",
       "label": "लैब बुकिंग"
@@ -1216,7 +1216,14 @@
     "faqCancelA": "हाँ। आप प्लेटफ़ॉर्म की मौजूदा नीति के अनुसार अपॉइंटमेंट विवरण से रद्द या बदल सकते हैं।",
     "faqPayQ": "कौन-से भुगतान तरीके उपलब्ध हैं?",
     "faqPayA": "ऑनलाइन परामर्श केवल कार्ड से, घर पर विज़िट कार्ड या बीमा से, और क्लिनिक में कार्ड, बीमा या नकद से।",
-    "clinicPhotoOpen": "क्लिनिक की फ़ोटो {n} पूरे आकार में खोलें"
+    "clinicPhotoOpen": "क्लिनिक की फ़ोटो {n} पूरे आकार में खोलें",
+    "gradeLabel": "श्रेणी",
+    "degree_professor": "प्रोफेसर",
+    "degree_consultant": "कंसल्टेंट",
+    "degree_senior_specialist": "वरिष्ठ विशेषज्ञ",
+    "degree_specialist": "विशेषज्ञ",
+    "degree_resident": "रेज़िडेंट",
+    "degree_general_practitioner": "सामान्य चिकित्सक"
   },
   "LabsServices": {
     "eyebrow": "प्रयोगशाला देखभाल",
@@ -3073,7 +3080,31 @@
     "approvedLabs": "मान्यता प्राप्त लैब",
     "labRating": "रेटिंग {n}",
     "labHomeTag": "घर पर सैंपल",
-    "labsAll": "सभी लैब"
+    "labsAll": "सभी लैब",
+    "bookingTotal": "कुल राशि",
+    "bookingResultsTitle": "जांच के परिणाम",
+    "resultValue": "परिणाम",
+    "resultReference": "सामान्य सीमा",
+    "resultAbnormal": "सामान्य सीमा से बाहर",
+    "radiologyStagesTitle": "स्कैन के चरण",
+    "stageScan": "स्कैन",
+    "stageReport": "रिपोर्ट",
+    "stageResult": "परिणाम",
+    "cancelBooking": "बुकिंग रद्द करें",
+    "cancelBookingConfirm": "क्या आप यह बुकिंग रद्द करना चाहते हैं?",
+    "cancelBookingBack": "वापस जाएं",
+    "cancelBookingYes": "हाँ, रद्द करें",
+    "cancelBookingFailed": "बुकिंग रद्द नहीं हो सकी। फिर कोशिश करें।",
+    "collectorPending": "जल्द ही सैंपल लेने वाला नियुक्त किया जाएगा",
+    "filterTitle": "फ़िल्टर और क्रम",
+    "filterShow": "दिखाएं",
+    "filterSort": "क्रमबद्ध करें",
+    "filterAll": "सभी",
+    "filterPackages": "केवल पैकेज",
+    "filterTests": "केवल जांचें",
+    "sortDefault": "डिफ़ॉल्ट",
+    "sortRating": "सबसे अधिक रेटिंग",
+    "sortPrice": "सबसे कम कीमत"
   },
   "OrderContext": {
     "hint": "कुछ भी बदलते ही कीमतें और कवरेज तुरंत अपडेट होते हैं",
@@ -3227,7 +3258,12 @@
     "callNurse": "नर्स को कॉल करें",
     "nurseOnMap": "नर्स को मानचित्र पर दिखाएँ",
     "insuranceNone": "अभी कोई बीमा अनुरोध नहीं",
-    "insuranceNoneBody": "जब आप बीमा के साथ विज़िट का अनुरोध करेंगे, तो उसकी मंज़ूरी यहाँ दिखेगी।"
+    "insuranceNoneBody": "जब आप बीमा के साथ विज़िट का अनुरोध करेंगे, तो उसकी मंज़ूरी यहाँ दिखेगी।",
+    "addressUseLocation": "मेरा वर्तमान स्थान उपयोग करें",
+    "addressLocating": "आपका स्थान खोजा जा रहा है...",
+    "addressLocationSet": "विज़िट के लिए आपका वर्तमान स्थान उपयोग किया जाएगा",
+    "addressUseSaved": "इसके बजाय सहेजा हुआ पता उपयोग करें",
+    "addressLocationDenied": "आपका स्थान नहीं मिल सका। स्थान की अनुमति दें या सहेजा हुआ पता चुनें।"
   },
   "MaternityWeb": {
     "title": "मातृत्व",

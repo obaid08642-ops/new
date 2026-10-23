@@ -8,8 +8,8 @@ Audit 2026-10-16, verified against main at ae6bfae1 on 2026-10-23. Status words:
 |---|---|---|---|---|
 | 1 | /diagnostics | approved labs strip | fixed now | approved labs strip from GET /providers?type=lab (8 cards: name, rating, home tag, link to the lab page) |
 | 2 | /diagnostics | payment filter (cash) | fixed (main) | hub has self-pay / insurance choice via the M6 context bar; self-pay is the cash option |
-| 3 | /diagnostics | filter button and sort sheet | open | [client] sort/filter sheet not built (not done in round 2) |
-| 4 | /diagnostics | search | open | [client] search scope unchanged (not done in round 2) |
+| 3 | /diagnostics | filter button and sort sheet | fixed now (round 2) | 'Filter and sort' disclosure: show all / packages only / tests only (labs), sort default / highest rated (approved labs strip) / lowest price (tests, packages, scans); state in the URL (show, sort); home visit is the place switch |
+| 4 | /diagnostics | search | fixed now (round 2) | the hub search filters the lists of the chosen kind in place (labs, packages, scans, approved labs) and keeps kind/place/pay/show/sort in the URL; radiology no longer lands on the labs-only search |
 | 5 | /diagnostics | address row | fixed (main) | M6 OrderContextBar shows the saved address with a change link |
 | 6 | /diagnostics | add-to-order toggle and cart bar | fixed (main) | AddToBasketIcon + BasketBar |
 | 7 | /diagnostics | compare prices shortcut | fixed now | opens /diagnostics/search (a usable list) instead of the empty comparison |
@@ -37,9 +37,9 @@ Audit 2026-10-16, verified against main at ae6bfae1 on 2026-10-23. Status words:
 | 29 | /diagnostics/insurance-approval | upload form without orderId | blocked (backend/owner) | pre-booking insurer/OCR form + booking creation not built; empty state now |
 | 30 | /diagnostics/insurance-approval | opened without orderId | fixed now | empty state with the way to the requests (no 404) |
 | 31 | /diagnostics/bookings | list: group, amount, one insurance target | fixed now | current / previous tabs and the booking total; one insurance target was already in place |
-| 32 | /diagnostics/bookings/[domain]/[bookingId] | results and report, radiology stages | open | [client] results and radiology report not built (not done in round 2) |
-| 33 | /diagnostics/bookings/[domain]/[bookingId] | technician, total, cancel | open | [client] technician, total and cancel not built (not done in round 2) |
-| 34 | /diagnostics/sample-tracking | home collection without a technician | open | [client] not changed (not done in round 2) |
+| 32 | /diagnostics/bookings/[domain]/[bookingId] | results and report, radiology stages | fixed now (partly, round 2) | radiology stage timeline (insurance, confirmed, scan, report, result); result rows drawn when the booking carries `results`; lab report already opens as a file. Blocked [backend]: lab bookings send no results[], radiology has no report file/images endpoint (see needs-review) |
+| 33 | /diagnostics/bookings/[domain]/[bookingId] | technician, total, cancel | fixed now (partly, round 2) | total row; collector block (name, arrival time, call link) for home lab bookings from /tracking; cancel button with confirmation (POST /labs|radiology/bookings/:id/cancel, allowlisted) for bookings that have not started. Radiology technician [backend] |
+| 34 | /diagnostics/sample-tracking | home collection without a technician | fixed now (round 2) | a home collection with no collector yet shows the collector card 'A collector will be assigned soon' (hidden once the booking is final) |
 | 35 | /diagnostics/book-sample | page | accepted | redirect to the cart kept (as the app's legacy route) |
 | 36 | /diagnostics/upload-rx | target | no gap now | the app itself now redirects to the lab search (journeys#59); web matches |
 | 37 | /diagnostics/radiology, [serviceId] | add action | fixed now (partly) | detail add goes to the item page (price footer, book now); list tile has no add toggle |
@@ -61,7 +61,7 @@ Audit 2026-10-16, verified against main at ae6bfae1 on 2026-10-23. Status words:
 | 11 | /home-care/services/[serviceId]/book | transport | no gap (owner decision 42) | no transport choice; the nurse always comes |
 | 12 | /home-care/services/[serviceId]/book | price estimate | fixed now (one visit) | visit price line and the amount on the button |
 | 13 | /home-care/services/[serviceId]/book | insurance details | fixed now | coverage check shows company and policy; no policy blocks sending and links to add-policy |
-| 14 | /home-care/services/[serviceId]/book | address | open | [client] still a select of saved addresses with a map point; no GPS option (not done in round 2) |
+| 14 | /home-care/services/[serviceId]/book | address | fixed now (round 2) | 'Use my current location' button (browser geolocation); the booking route accepts `location {lat,lng}` instead of address_id and sends it as the address; a note and 'use a saved address instead' replace the select while it is used |
 | 15 | /nursing/insurance-status | decision | fixed (main) | reads insurance_decision / coverage_decision |
 | 16 | /nursing/insurance-status | no booking found | fixed now | empty state with the way to the visits |
 | 17 | /nursing/insurance-status | refresh | fixed now | re-reads every 30 s while the insurer has not decided |

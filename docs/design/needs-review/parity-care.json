@@ -35,17 +35,6 @@
   {
     "batch": "parity-care",
     "app": "patient-web",
-    "screen": "/home-care/services/[serviceId]/book",
-    "element": "address choice",
-    "file": "patient-web/components-next/home-care-booking-form.tsx",
-    "line": 193,
-    "found": "[client] a select of saved addresses that have a map point; the app also offers the selected-address row and the current location",
-    "suspect": "add the GPS option on the web",
-    "review_status": "open"
-  },
-  {
-    "batch": "parity-care",
-    "app": "patient-web",
     "screen": "/nursing/visits/[visitId]",
     "element": "rate the visit",
     "file": "patient-web/app/[locale]/nursing/visits/[visitId]/page.tsx",
@@ -63,17 +52,6 @@
     "line": 99,
     "found": "[client] only an 'on the map' link is shown from current_lat/current_lng; no embedded map pin for the nurse and the home, no pick-up directions",
     "suspect": "add a map component for the visit if the owner wants it on the web",
-    "review_status": "open"
-  },
-  {
-    "batch": "parity-care",
-    "app": "patient-web",
-    "screen": "/diagnostics",
-    "element": "hub sort and filter sheet, search scope",
-    "file": "patient-web/app/[locale]/diagnostics/page.tsx",
-    "line": 147,
-    "found": "[client] the approved labs strip is built (GET /providers?type=lab); the hub still has no sort/filter sheet (rating, price, home visit) and its search still opens /diagnostics/search (labs only). Not done in round 2 (budget); labs/services already accepts highest_rated, lowest_price, home_visit",
-    "suspect": "filter and sort missing",
     "review_status": "open"
   },
   {
@@ -168,11 +146,33 @@
     "batch": "parity-care",
     "app": "patient-web",
     "screen": "/diagnostics/bookings/[domain]/[bookingId]",
-    "element": "results, radiology report, technician, total, cancel",
+    "review_status": "open",
+    "element": "lab result rows with value, reference range and abnormal flag",
     "file": "patient-web/app/[locale]/diagnostics/bookings/[domain]/[bookingId]/page.tsx",
-    "line": 56,
-    "found": "[client] no result rows with reference ranges, no radiology report or images or stages, no technician call, total or cancel",
-    "suspect": "draw them from the booking and results endpoints",
-    "review_status": "open"
+    "line": 112,
+    "found": "[backend] the client draws result rows (name, result, reference, isAbnormal) when the booking carries a `results` array, as the app does; GET /labs/bookings/:id sends no `results` (the lab booking holds only entered_metric_results, unmapped), so no rows appear for a lab booking",
+    "suspect": "GET /labs/bookings/:id (labs.service getBooking) should return results[] {name, result, reference, isAbnormal} for a reported booking"
+  },
+  {
+    "batch": "parity-care",
+    "app": "patient-web",
+    "screen": "/diagnostics/bookings/[domain]/[bookingId]",
+    "review_status": "open",
+    "element": "radiology report file and images viewer",
+    "file": "patient-web/app/[locale]/diagnostics/bookings/[domain]/[bookingId]/page.tsx",
+    "line": 69,
+    "found": "[backend] the lab report opens through GET /labs/bookings/:id/reports/:reportId; radiology has no patient endpoint for the report file or an images link (only GET /radiology/reports/mine list), so the web cannot open a radiology report",
+    "suspect": "add GET /radiology/bookings/:id/reports/:reportId (like labs) or a protected images link on GET /radiology/bookings/:id"
+  },
+  {
+    "batch": "parity-care",
+    "app": "patient-web",
+    "screen": "/diagnostics/bookings/[domain]/[bookingId]",
+    "review_status": "open",
+    "element": "radiology collector (technician) block",
+    "file": "patient-web/app/[locale]/diagnostics/bookings/[domain]/[bookingId]/page.tsx",
+    "line": 93,
+    "found": "[backend] the collector block (name, phone, arrival time) is drawn for home lab bookings from GET /labs/bookings/:id/tracking; GET /radiology/bookings/:id sends only technician_id and the web allowlist has no radiology tracking read",
+    "suspect": "GET /radiology/bookings/:id (or /tracking) should return the technician name and phone for a home scan"
   }
 ]

@@ -473,7 +473,7 @@
     "no": "Hindi",
     "open": "Tingnan ang detalye",
     "back": "Bumalik sa pagsusuri",
-    "detailNotice": "Ang status at iskedyul lang ng booking ang makikita rito. Hindi makikita sa pahinang ito ang mga ulat, dokumento at presyo.",
+    "detailNotice": "Makikita rito ang status, iskedyul at halaga ng booking. Hindi makikita sa pahinang ito ang mga dokumento.",
     "labs": {
       "title": "Mga booking sa laboratoryo",
       "label": "Booking sa laboratoryo"
@@ -1216,7 +1216,14 @@
     "faqCancelA": "Oo. Maaari mong kanselahin o baguhin ito sa detalye ng appointment ayon sa kasalukuyang patakaran ng platform.",
     "faqPayQ": "Anong mga paraan ng pagbabayad ang available?",
     "faqPayA": "Card lang para sa remote na konsultasyon, card o insurance para sa pagbisita sa bahay, at card, insurance o cash sa klinika.",
-    "clinicPhotoOpen": "Buksan ang larawan ng klinika {n} sa buong laki"
+    "clinicPhotoOpen": "Buksan ang larawan ng klinika {n} sa buong laki",
+    "gradeLabel": "Ranggo",
+    "degree_professor": "Propesor",
+    "degree_consultant": "Konsultant",
+    "degree_senior_specialist": "Senior na espesyalista",
+    "degree_specialist": "Espesyalista",
+    "degree_resident": "Residente",
+    "degree_general_practitioner": "Pangkalahatang manggagamot"
   },
   "LabsServices": {
     "eyebrow": "Pangangalaga sa laboratoryo",
@@ -3073,7 +3080,31 @@
     "approvedLabs": "Mga aprubadong lab",
     "labRating": "Marka {n}",
     "labHomeTag": "Kuha sa bahay",
-    "labsAll": "Lahat ng lab"
+    "labsAll": "Lahat ng lab",
+    "bookingTotal": "Kabuuang halaga",
+    "bookingResultsTitle": "Mga resulta ng pagsusuri",
+    "resultValue": "Resulta",
+    "resultReference": "Normal na saklaw",
+    "resultAbnormal": "Labas sa normal na saklaw",
+    "radiologyStagesTitle": "Mga yugto ng scan",
+    "stageScan": "Pag-scan",
+    "stageReport": "Ulat",
+    "stageResult": "Resulta",
+    "cancelBooking": "Kanselahin ang booking",
+    "cancelBookingConfirm": "Gusto mo bang kanselahin ang booking na ito?",
+    "cancelBookingBack": "Bumalik",
+    "cancelBookingYes": "Oo, kanselahin",
+    "cancelBookingFailed": "Hindi makansela ang booking. Subukan muli.",
+    "collectorPending": "Malapit nang magtalaga ng kukuha ng sample",
+    "filterTitle": "I-filter at ayusin",
+    "filterShow": "Ipakita",
+    "filterSort": "Ayusin ayon sa",
+    "filterAll": "Lahat",
+    "filterPackages": "Mga package lang",
+    "filterTests": "Mga pagsusuri lang",
+    "sortDefault": "Karaniwan",
+    "sortRating": "Pinakamataas ang rating",
+    "sortPrice": "Pinakamababang presyo"
   },
   "OrderContext": {
     "hint": "Agad na nag-a-update ang presyo at coverage kapag may binago",
@@ -3227,7 +3258,12 @@
     "callNurse": "Tawagan ang nars",
     "nurseOnMap": "Ipakita ang nars sa mapa",
     "insuranceNone": "Wala pang kahilingan sa insurance",
-    "insuranceNoneBody": "Kapag humiling ka ng pagbisita gamit ang insurance, lalabas dito ang pag-apruba."
+    "insuranceNoneBody": "Kapag humiling ka ng pagbisita gamit ang insurance, lalabas dito ang pag-apruba.",
+    "addressUseLocation": "Gamitin ang kasalukuyan kong lokasyon",
+    "addressLocating": "Hinahanap ang iyong lokasyon...",
+    "addressLocationSet": "Gagamitin ang kasalukuyan mong lokasyon para sa pagbisita",
+    "addressUseSaved": "Gumamit na lang ng naka-save na address",
+    "addressLocationDenied": "Hindi makuha ang iyong lokasyon. Payagan ang access sa lokasyon o pumili ng naka-save na address."
   },
   "MaternityWeb": {
     "title": "Pagbubuntis",

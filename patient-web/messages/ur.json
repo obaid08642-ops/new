@@ -473,7 +473,7 @@
     "no": "نہیں",
     "open": "تفصیلات دیکھیں",
     "back": "تشخیص پر واپس",
-    "detailNotice": "یہاں صرف بکنگ کی صورتحال اور وقت دکھایا جاتا ہے۔ رپورٹس، دستاویزات اور قیمتیں اس صفحے پر نہیں دکھائی جاتیں۔",
+    "detailNotice": "یہاں بکنگ کی صورتحال، وقت اور رقم دکھائی جاتی ہے۔ دستاویزات اس صفحے پر نہیں دکھائی جاتیں۔",
     "labs": {
       "title": "لیب بکنگ",
       "label": "لیب بکنگ"
@@ -1216,7 +1216,14 @@
     "faqCancelA": "جی ہاں۔ آپ پلیٹ فارم کی موجودہ پالیسی کے مطابق ملاقات کی تفصیلات سے منسوخ یا تبدیل کر سکتے ہیں۔",
     "faqPayQ": "ادائیگی کے کون سے طریقے دستیاب ہیں؟",
     "faqPayA": "آن لائن مشاورت صرف کارڈ سے، گھر پر ملاقات کارڈ یا بیمہ سے، اور کلینک میں کارڈ، بیمہ یا نقد سے۔",
-    "clinicPhotoOpen": "کلینک کی تصویر {n} پوری سائز میں کھولیں"
+    "clinicPhotoOpen": "کلینک کی تصویر {n} پوری سائز میں کھولیں",
+    "gradeLabel": "درجہ",
+    "degree_professor": "پروفیسر",
+    "degree_consultant": "کنسلٹنٹ",
+    "degree_senior_specialist": "سینئر ماہر",
+    "degree_specialist": "ماہر",
+    "degree_resident": "ریزیڈنٹ",
+    "degree_general_practitioner": "جنرل پریکٹیشنر"
   },
   "LabsServices": {
     "eyebrow": "لیبارٹری کیئر",
@@ -3073,7 +3080,31 @@
     "approvedLabs": "منظور شدہ لیبز",
     "labRating": "ریٹنگ {n}",
     "labHomeTag": "گھر پر نمونہ لینا",
-    "labsAll": "تمام لیبز"
+    "labsAll": "تمام لیبز",
+    "bookingTotal": "کل رقم",
+    "bookingResultsTitle": "ٹیسٹ کے نتائج",
+    "resultValue": "نتیجہ",
+    "resultReference": "نارمل رینج",
+    "resultAbnormal": "نارمل رینج سے باہر",
+    "radiologyStagesTitle": "سکین کے مراحل",
+    "stageScan": "سکین",
+    "stageReport": "رپورٹ",
+    "stageResult": "نتیجہ",
+    "cancelBooking": "بکنگ منسوخ کریں",
+    "cancelBookingConfirm": "کیا آپ یہ بکنگ منسوخ کرنا چاہتے ہیں؟",
+    "cancelBookingBack": "واپس جائیں",
+    "cancelBookingYes": "جی ہاں، منسوخ کریں",
+    "cancelBookingFailed": "بکنگ منسوخ نہیں ہو سکی۔ دوبارہ کوشش کریں۔",
+    "collectorPending": "جلد ہی نمونہ لینے والا مقرر کیا جائے گا",
+    "filterTitle": "فلٹر اور ترتیب",
+    "filterShow": "دکھائیں",
+    "filterSort": "ترتیب",
+    "filterAll": "سب",
+    "filterPackages": "صرف پیکجز",
+    "filterTests": "صرف ٹیسٹ",
+    "sortDefault": "ڈیفالٹ",
+    "sortRating": "سب سے زیادہ ریٹنگ",
+    "sortPrice": "کم سے کم قیمت"
   },
   "OrderContext": {
     "hint": "کچھ بھی بدلنے پر قیمتیں اور کوریج فوراً اپ ڈیٹ ہوتی ہیں",
@@ -3227,7 +3258,12 @@
     "callNurse": "نرس کو کال کریں",
     "nurseOnMap": "نرس کو نقشے پر دکھائیں",
     "insuranceNone": "ابھی کوئی انشورنس درخواست نہیں",
-    "insuranceNoneBody": "جب آپ انشورنس کے ساتھ وزٹ کی درخواست کریں گے تو اس کی منظوری یہاں نظر آئے گی۔"
+    "insuranceNoneBody": "جب آپ انشورنس کے ساتھ وزٹ کی درخواست کریں گے تو اس کی منظوری یہاں نظر آئے گی۔",
+    "addressUseLocation": "میری موجودہ لوکیشن استعمال کریں",
+    "addressLocating": "آپ کی لوکیشن تلاش کی جا رہی ہے...",
+    "addressLocationSet": "دورے کے لیے آپ کی موجودہ لوکیشن استعمال ہوگی",
+    "addressUseSaved": "اس کے بجائے محفوظ پتہ استعمال کریں",
+    "addressLocationDenied": "آپ کی لوکیشن حاصل نہیں ہو سکی۔ لوکیشن کی اجازت دیں یا محفوظ پتہ منتخب کریں۔"
   },
   "MaternityWeb": {
     "title": "زچگی",

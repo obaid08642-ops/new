@@ -83,8 +83,8 @@
     "element": "advanced filter: gender and price band",
     "file": "patient-web/app/[locale]/consultations/doctors/doctors-view.tsx",
     "line": 149,
-    "found": "[backend] GET /care/doctors accepts degree, insurance, sort price_asc/price_desc/experience but has no gender or price-band parameter",
-    "suspect": "the app's filter sheet cannot be matched for gender and price band (grade could be added with the existing degree parameter)",
+    "found": "[backend] GET /care/doctors has no gender or price-band parameter (GET /care/doctors?degree= is wired: the grade filter is built); it should come from the same endpoint as query parameters gender and price_min/price_max",
+    "suspect": "the app's filter sheet cannot be matched for gender and price band; client side: doctors-view.tsx:149 would add the two controls once the endpoint filters",
     "review_status": "open"
   },
   {

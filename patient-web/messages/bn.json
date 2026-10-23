@@ -473,7 +473,7 @@
     "no": "না",
     "open": "বিবরণ দেখুন",
     "back": "পরীক্ষায় ফিরে যান",
-    "detailNotice": "এখানে শুধু বুকিংয়ের অবস্থা ও সময় দেখানো হয়। রিপোর্ট, নথি ও দাম এই পেজে দেখানো হয় না।",
+    "detailNotice": "এখানে বুকিংয়ের অবস্থা, সময় ও পরিমাণ দেখানো হয়। নথি এই পেজে দেখানো হয় না।",
     "labs": {
       "title": "ল্যাব বুকিং",
       "label": "ল্যাব বুকিং"
@@ -1216,7 +1216,14 @@
     "faqCancelA": "হ্যাঁ। প্ল্যাটফর্মের বর্তমান নীতি অনুযায়ী অ্যাপয়েন্টমেন্টের বিবরণ থেকে বাতিল বা পরিবর্তন করতে পারেন।",
     "faqPayQ": "কোন কোন পেমেন্ট পদ্ধতি পাওয়া যায়?",
     "faqPayA": "অনলাইন পরামর্শ শুধু কার্ডে, বাসায় ভিজিট কার্ড বা বিমায়, আর ক্লিনিকে কার্ড, বিমা বা নগদে।",
-    "clinicPhotoOpen": "ক্লিনিকের ছবি {n} পূর্ণ আকারে খুলুন"
+    "clinicPhotoOpen": "ক্লিনিকের ছবি {n} পূর্ণ আকারে খুলুন",
+    "gradeLabel": "গ্রেড",
+    "degree_professor": "অধ্যাপক",
+    "degree_consultant": "কনসালট্যান্ট",
+    "degree_senior_specialist": "সিনিয়র বিশেষজ্ঞ",
+    "degree_specialist": "বিশেষজ্ঞ",
+    "degree_resident": "রেসিডেন্ট",
+    "degree_general_practitioner": "সাধারণ চিকিৎসক"
   },
   "LabsServices": {
     "eyebrow": "ল্যাবরেটরি কেয়ার",
@@ -3073,7 +3080,31 @@
     "approvedLabs": "অনুমোদিত ল্যাব",
     "labRating": "রেটিং {n}",
     "labHomeTag": "বাসায় নমুনা সংগ্রহ",
-    "labsAll": "সব ল্যাব"
+    "labsAll": "সব ল্যাব",
+    "bookingTotal": "মোট পরিমাণ",
+    "bookingResultsTitle": "পরীক্ষার ফলাফল",
+    "resultValue": "ফলাফল",
+    "resultReference": "স্বাভাবিক সীমা",
+    "resultAbnormal": "স্বাভাবিক সীমার বাইরে",
+    "radiologyStagesTitle": "স্ক্যানের ধাপ",
+    "stageScan": "স্ক্যান",
+    "stageReport": "রিপোর্ট",
+    "stageResult": "ফলাফল",
+    "cancelBooking": "বুকিং বাতিল করুন",
+    "cancelBookingConfirm": "আপনি কি এই বুকিং বাতিল করতে চান?",
+    "cancelBookingBack": "ফিরে যান",
+    "cancelBookingYes": "হ্যাঁ, বাতিল করুন",
+    "cancelBookingFailed": "বুকিং বাতিল করা যায়নি। আবার চেষ্টা করুন।",
+    "collectorPending": "শীঘ্রই নমুনা সংগ্রাহক নিয়োগ করা হবে",
+    "filterTitle": "ফিল্টার ও সাজানো",
+    "filterShow": "দেখান",
+    "filterSort": "সাজান",
+    "filterAll": "সব",
+    "filterPackages": "শুধু প্যাকেজ",
+    "filterTests": "শুধু পরীক্ষা",
+    "sortDefault": "ডিফল্ট",
+    "sortRating": "সর্বোচ্চ রেটিং",
+    "sortPrice": "সর্বনিম্ন মূল্য"
   },
   "OrderContext": {
     "hint": "কিছু বদলালেই দাম ও কভারেজ সঙ্গে সঙ্গে হালনাগাদ হয়",
@@ -3227,7 +3258,12 @@
     "callNurse": "নার্সকে কল করুন",
     "nurseOnMap": "নার্সকে মানচিত্রে দেখান",
     "insuranceNone": "এখনও কোনো বিমা অনুরোধ নেই",
-    "insuranceNoneBody": "বিমাসহ ভিজিট অনুরোধ করলে তার অনুমোদন এখানে দেখা যাবে।"
+    "insuranceNoneBody": "বিমাসহ ভিজিট অনুরোধ করলে তার অনুমোদন এখানে দেখা যাবে।",
+    "addressUseLocation": "আমার বর্তমান অবস্থান ব্যবহার করুন",
+    "addressLocating": "আপনার অবস্থান খোঁজা হচ্ছে...",
+    "addressLocationSet": "ভিজিটের জন্য আপনার বর্তমান অবস্থান ব্যবহার করা হবে",
+    "addressUseSaved": "এর পরিবর্তে সংরক্ষিত ঠিকানা ব্যবহার করুন",
+    "addressLocationDenied": "আপনার অবস্থান পাওয়া যায়নি। অবস্থানের অনুমতি দিন বা সংরক্ষিত ঠিকানা বেছে নিন।"
   },
   "MaternityWeb": {
     "title": "মাতৃত্ব",

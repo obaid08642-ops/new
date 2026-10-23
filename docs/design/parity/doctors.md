@@ -5,7 +5,7 @@ Audit: docs/review/walkthrough/parity-doctors.md (56 rows, checked against main 
 | # | screen | element | status | note |
 |---|---|---|---|---|
 | 1 | doctors list | specialty chips with counts | fixed | busiest 8 specialties as link chips with counts (cached 5 min read, lib/api/specialties-cached.ts); the full select stays |
-| 2 | doctors list | advanced filter sheet | blocked | gender and price band have no list parameter [backend]; grade could use degree, not built |
+| 2 | doctors list | advanced filter sheet | blocked (partly fixed) | grade filter built (round 2): link chips for the six degrees send `degree` to GET /care/doctors, kept in the URL and the /q twin; gender and price band have no list parameter [backend] |
 | 3 | doctors list | insurance company/network picker | blocked | [owner] picker vs saved-policy filter |
 | 4 | doctors list | offers row | blocked | [owner] offers row |
 | 5 | doctors list | default visit type | blocked | [owner] accepted difference |
