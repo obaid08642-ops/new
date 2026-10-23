@@ -1,4 +1,4 @@
-import { publicLabFilter } from './labs.service';
+import { publicLabFilter } from './labs-public';
 
 // Walkthrough of the website (issue 1550): the public map lists a lab by its profile id and links "Book" to /diagnostics/labs/<id>;
 // GET /labs/:id looked the lab up by account id only, so the page was a 404 for every lab.
