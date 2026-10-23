@@ -3990,5 +3990,730 @@
   ],
   "/user/insurance": {
     "provider": "تأمين تجريبي"
+  },
+  "POST /ordering/quote": {
+    "quote_id": "test-quote-1",
+    "expires_at": "@in+1800s",
+    "estimate": true,
+    "from_price": {
+      "total": 180,
+      "providers_count": 4
+    },
+    "groups": [
+      {
+        "mode": "home",
+        "items": [
+          {
+            "catalog_id": "test-lab-test",
+            "facility_only": false
+          },
+          {
+            "catalog_id": "test-lab-test-2",
+            "facility_only": false
+          }
+        ],
+        "from_price": {
+          "total": 180,
+          "providers_count": 4
+        },
+        "best_match": {
+          "provider_id": "test-prov-1",
+          "name_ar": "مختبر تجريبي ١",
+          "name_en": "مختبر تجريبي ١",
+          "total": 180,
+          "distance_km": 2.4,
+          "rating": 4.6,
+          "in_network": true,
+          "earliest_at": "@in+7200s",
+          "turnaround_hours": 24,
+          "covers_all": true,
+          "missing": [],
+          "items": [
+            {
+              "catalog_id": "test-lab-test",
+              "price": 90,
+              "coverage": "covered"
+            },
+            {
+              "catalog_id": "test-lab-test-2",
+              "price": 90,
+              "coverage": "needs_approval"
+            }
+          ],
+          "estimated_insurance_share": 120,
+          "patient_share": 60
+        },
+        "compare": [
+          {
+            "provider_id": "test-prov-1",
+            "name_ar": "مختبر تجريبي ١",
+            "name_en": "مختبر تجريبي ١",
+            "total": 180,
+            "distance_km": 2.4,
+            "rating": 4.6,
+            "in_network": true,
+            "earliest_at": "@in+7200s",
+            "turnaround_hours": 24,
+            "covers_all": true,
+            "missing": []
+          },
+          {
+            "provider_id": "test-prov-2",
+            "name_ar": "مختبر تجريبي ٢",
+            "name_en": "مختبر تجريبي ٢",
+            "total": 210,
+            "distance_km": 5.8,
+            "rating": 4.2,
+            "in_network": true,
+            "earliest_at": "@in+10800s",
+            "turnaround_hours": 24,
+            "covers_all": true,
+            "missing": []
+          },
+          {
+            "provider_id": "test-prov-4",
+            "name_ar": "مختبر تجريبي ٤",
+            "name_en": "مختبر تجريبي ٤",
+            "total": 150,
+            "distance_km": 9.0,
+            "rating": 3.9,
+            "in_network": false,
+            "earliest_at": "@in+14400s",
+            "turnaround_hours": 72,
+            "covers_all": false,
+            "missing": [
+              "test-lab-test-2"
+            ]
+          }
+        ],
+        "split_suggestion": null,
+        "empty": null
+      },
+      {
+        "mode": "facility",
+        "items": [
+          {
+            "catalog_id": "test-rad",
+            "facility_only": true
+          }
+        ],
+        "from_price": {
+          "total": 250,
+          "providers_count": 2
+        },
+        "best_match": {
+          "provider_id": "test-prov-3",
+          "name_ar": "مركز تجريبي ٣",
+          "name_en": "مركز تجريبي ٣",
+          "total": 250,
+          "distance_km": 4.1,
+          "rating": 4.3,
+          "in_network": false,
+          "earliest_at": "@in+3600s",
+          "turnaround_hours": 48,
+          "covers_all": true,
+          "missing": [],
+          "items": [
+            {
+              "catalog_id": "test-rad",
+              "price": 250,
+              "coverage": "not_covered"
+            }
+          ],
+          "estimated_insurance_share": 0,
+          "patient_share": 250
+        },
+        "compare": [
+          {
+            "provider_id": "test-prov-3",
+            "name_ar": "مركز تجريبي ٣",
+            "name_en": "مركز تجريبي ٣",
+            "total": 250,
+            "distance_km": 4.1,
+            "rating": 4.3,
+            "in_network": false,
+            "earliest_at": "@in+3600s",
+            "turnaround_hours": 48,
+            "covers_all": true,
+            "missing": []
+          },
+          {
+            "provider_id": "test-prov-5",
+            "name_ar": "مركز تجريبي ٥",
+            "name_en": "مركز تجريبي ٥",
+            "total": 270,
+            "distance_km": 7.2,
+            "rating": 4.0,
+            "in_network": true,
+            "earliest_at": "@in+5400s",
+            "turnaround_hours": 48,
+            "covers_all": true,
+            "missing": []
+          }
+        ],
+        "split_suggestion": null,
+        "empty": null
+      }
+    ]
+  },
+  "/ordering/windows?provider_id=test-prov-1&mode=home": {
+    "windows": [
+      {
+        "start": "@in+7200s",
+        "end": "@in+14400s",
+        "asap": true
+      },
+      {
+        "start": "@in+14400s",
+        "end": "@in+21600s"
+      },
+      {
+        "start": "@in+21600s",
+        "end": "@in+28800s"
+      }
+    ]
+  },
+  "/ordering/windows?provider_id=test-prov-3&mode=facility": {
+    "date": "2026-10-24",
+    "slots": [
+      {
+        "id": "test-slot-1",
+        "start": "@in+90000s",
+        "end": "@in+91800s"
+      },
+      {
+        "id": "test-slot-2",
+        "start": "@in+91800s",
+        "end": "@in+93600s"
+      },
+      {
+        "id": "test-slot-3",
+        "start": "@in+93600s",
+        "end": "@in+95400s"
+      }
+    ]
+  },
+  "/ordering/windows": {
+    "windows": [
+      {
+        "start": "@in+7200s",
+        "end": "@in+14400s",
+        "asap": true
+      },
+      {
+        "start": "@in+14400s",
+        "end": "@in+21600s"
+      },
+      {
+        "start": "@in+21600s",
+        "end": "@in+28800s"
+      }
+    ]
+  },
+  "POST /ordering/bookings": {
+    "order_group_id": "test-group-1",
+    "bookings": [
+      {
+        "id": "test-ord-wait",
+        "mode": "home",
+        "status": "pending",
+        "total": 180,
+        "items": [
+          {
+            "catalog_id": "test-lab-test",
+            "price": 90,
+            "coverage": "covered"
+          },
+          {
+            "catalog_id": "test-lab-test-2",
+            "price": 90,
+            "coverage": "needs_approval"
+          }
+        ]
+      },
+      {
+        "id": "test-ord-visit",
+        "mode": "facility",
+        "status": "pending",
+        "total": 250,
+        "items": [
+          {
+            "catalog_id": "test-rad",
+            "price": 250,
+            "coverage": "not_covered"
+          }
+        ]
+      }
+    ],
+    "payment": {
+      "amount": 430,
+      "status": "pending"
+    }
+  },
+  "/ordering/bookings/test-ord-wait": {
+    "id": "test-ord-wait",
+    "status": "pending",
+    "state": "NEW_REQUEST",
+    "mode": "home",
+    "total": 180,
+    "confirm_deadline_at": "@in+540s",
+    "items": [
+      {
+        "catalog_id": "test-lab-test",
+        "price": 90
+      },
+      {
+        "catalog_id": "test-lab-test-2",
+        "price": 90
+      }
+    ],
+    "payment": {
+      "amount": 180,
+      "status": "authorized",
+      "refund_status": null
+    }
+  },
+  "/ordering/bookings/test-ord-partial": {
+    "id": "test-ord-partial",
+    "status": "awaiting_approval",
+    "state": "PENDING_INSURANCE",
+    "mode": "home",
+    "total": 180,
+    "items": [
+      {
+        "catalog_id": "test-lab-test",
+        "price": 90
+      },
+      {
+        "catalog_id": "test-lab-test-2",
+        "price": 90
+      }
+    ],
+    "payment": {
+      "amount": 0,
+      "status": "pending",
+      "refund_status": null
+    }
+  },
+  "/ordering/bookings/test-ord-partial/approval": {
+    "status": "partial",
+    "estimate": false,
+    "final": false,
+    "items": [
+      {
+        "catalog_id": "test-lab-test",
+        "decision": "approved",
+        "price": 90,
+        "insurer_share": 72,
+        "patient_share": 18
+      },
+      {
+        "catalog_id": "test-lab-test-2",
+        "decision": "rejected",
+        "price": 90,
+        "insurer_share": 0,
+        "patient_share": 90
+      }
+    ],
+    "patient_share_total": 108,
+    "home_fee": {
+      "amount": 25,
+      "covered": false
+    },
+    "valid_until": "@in+864000s",
+    "choices": [
+      "pay_difference",
+      "covered_only",
+      "cancel_free"
+    ]
+  },
+  "/ordering/bookings/test-ord-wait/approval": {
+    "status": "pending",
+    "estimate": true,
+    "final": false,
+    "items": [],
+    "estimated_patient_share_total": 60,
+    "choices": []
+  },
+  "/ordering/bookings/test-ord-visit": {
+    "id": "test-ord-visit",
+    "status": "assigned",
+    "state": "IN_TRANSIT",
+    "mode": "home",
+    "total": 180,
+    "items": [
+      {
+        "catalog_id": "test-lab-test",
+        "price": 90
+      },
+      {
+        "catalog_id": "test-lab-test-2",
+        "price": 90
+      }
+    ],
+    "payment": {
+      "amount": 180,
+      "status": "paid",
+      "refund_status": null
+    }
+  },
+  "/ordering/bookings/test-ord-visit/approval": {
+    "status": "approved",
+    "estimate": false,
+    "final": true,
+    "items": [
+      {
+        "catalog_id": "test-lab-test",
+        "decision": "approved",
+        "price": 90,
+        "insurer_share": 72,
+        "patient_share": 18
+      }
+    ],
+    "patient_share_total": 18,
+    "choices": []
+  },
+  "/ordering/bookings/test-ord-visit/visit": {
+    "status": "assigned",
+    "provider": {
+      "name_ar": "مختبر تجريبي ١",
+      "name_en": "مختبر تجريبي ١",
+      "license": "TEST-LIC-1",
+      "photo_url": null
+    },
+    "staff": {
+      "name": "فني تجريبي",
+      "license": "TEST-STAFF-1",
+      "photo_url": null
+    },
+    "arrival_code": "4821"
+  },
+  "/ordering/bookings/test-ord-visit/reminders": {
+    "reminders": [
+      {
+        "kind": "fasting_night",
+        "at": "@in+43200s"
+      },
+      {
+        "kind": "fasting_morning",
+        "at": "@in+72000s"
+      },
+      {
+        "kind": "preparation",
+        "at": "@in+82800s"
+      }
+    ]
+  },
+  "/ordering/bookings/test-ord-result": {
+    "id": "test-ord-result",
+    "status": "completed",
+    "state": "REPORTED",
+    "mode": "home",
+    "total": 180,
+    "items": [
+      {
+        "catalog_id": "test-lab-test",
+        "price": 90
+      }
+    ],
+    "payment": {
+      "amount": 180,
+      "status": "paid",
+      "refund_status": null
+    }
+  },
+  "/ordering/bookings/test-ord-result/results": {
+    "values": [
+      {
+        "catalog_id": "test-lab-test",
+        "name": "قيمة تجريبية ١",
+        "value": 13.2,
+        "unit": "g/dL",
+        "range": {
+          "low": 12,
+          "high": 16
+        },
+        "flag": "normal"
+      },
+      {
+        "catalog_id": "test-lab-test-2",
+        "name": "قيمة تجريبية ٢",
+        "value": 7.1,
+        "unit": "mmol/L",
+        "range": {
+          "low": 3.9,
+          "high": 5.6
+        },
+        "flag": "high"
+      }
+    ]
+  },
+  "/medical-orders/mine": [
+    {
+      "id": "test-mo-1",
+      "valid_until": "@in+2592000s",
+      "expired": false,
+      "expires_soon": false,
+      "notes": "ملاحظة تجريبية من الطبيب",
+      "prescription_id": null,
+      "items": [
+        {
+          "id": "mi-1",
+          "group": "labs",
+          "catalog_id": "test-lab-test",
+          "status": "open"
+        },
+        {
+          "id": "mi-2",
+          "group": "labs",
+          "catalog_id": "test-lab-test-2",
+          "status": "later"
+        },
+        {
+          "id": "mi-3",
+          "group": "radiology",
+          "catalog_id": "test-rad",
+          "status": "ordered"
+        },
+        {
+          "id": "mi-4",
+          "group": "nursing",
+          "catalog_id": "svc-iv",
+          "status": "open",
+          "sessions": 3
+        }
+      ],
+      "groups": {
+        "labs": {
+          "items": [
+            {
+              "id": "mi-1",
+              "group": "labs",
+              "catalog_id": "test-lab-test",
+              "status": "open"
+            },
+            {
+              "id": "mi-2",
+              "group": "labs",
+              "catalog_id": "test-lab-test-2",
+              "status": "later"
+            }
+          ]
+        },
+        "radiology": {
+          "items": [
+            {
+              "id": "mi-3",
+              "group": "radiology",
+              "catalog_id": "test-rad",
+              "status": "ordered"
+            }
+          ]
+        },
+        "nursing": {
+          "items": [
+            {
+              "id": "mi-4",
+              "group": "nursing",
+              "catalog_id": "svc-iv",
+              "status": "open",
+              "sessions": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "test-mo-2",
+      "valid_until": "@in+432000s",
+      "expired": false,
+      "expires_soon": true,
+      "notes": null,
+      "prescription_id": null,
+      "items": [
+        {
+          "id": "mi-5",
+          "group": "labs",
+          "catalog_id": "test-lab-test",
+          "status": "open"
+        }
+      ],
+      "groups": {
+        "labs": {
+          "items": [
+            {
+              "id": "mi-5",
+              "group": "labs",
+              "catalog_id": "test-lab-test",
+              "status": "open"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "/medical-orders/test-mo-1": {
+    "id": "test-mo-1",
+    "valid_until": "@in+2592000s",
+    "expired": false,
+    "expires_soon": false,
+    "notes": "ملاحظة تجريبية من الطبيب",
+    "prescription_id": null,
+    "items": [
+      {
+        "id": "mi-1",
+        "group": "labs",
+        "catalog_id": "test-lab-test",
+        "status": "open"
+      },
+      {
+        "id": "mi-2",
+        "group": "labs",
+        "catalog_id": "test-lab-test-2",
+        "status": "later"
+      },
+      {
+        "id": "mi-3",
+        "group": "radiology",
+        "catalog_id": "test-rad",
+        "status": "ordered"
+      },
+      {
+        "id": "mi-4",
+        "group": "nursing",
+        "catalog_id": "svc-iv",
+        "status": "open",
+        "sessions": 3
+      }
+    ],
+    "groups": {
+      "labs": {
+        "items": [
+          {
+            "id": "mi-1",
+            "group": "labs",
+            "catalog_id": "test-lab-test",
+            "status": "open"
+          },
+          {
+            "id": "mi-2",
+            "group": "labs",
+            "catalog_id": "test-lab-test-2",
+            "status": "later"
+          }
+        ]
+      },
+      "radiology": {
+        "items": [
+          {
+            "id": "mi-3",
+            "group": "radiology",
+            "catalog_id": "test-rad",
+            "status": "ordered"
+          }
+        ]
+      },
+      "nursing": {
+        "items": [
+          {
+            "id": "mi-4",
+            "group": "nursing",
+            "catalog_id": "svc-iv",
+            "status": "open",
+            "sessions": 3
+          }
+        ]
+      }
+    }
+  },
+  "/lab-results/test-ord-result": {
+    "id": "test-ord-result",
+    "booking_id": "test-ord-result",
+    "source": "lab_booking",
+    "service_name_ar": "تحليل تجريبي ١",
+    "service_name_en": "تحليل تجريبي ١",
+    "reported_at": "@in+0s",
+    "reported_by_name": "مختبر تجريبي ١",
+    "critical": false,
+    "entries": [
+      {
+        "name": "قيمة تجريبية ١",
+        "value": 13.2,
+        "unit": "g/dL",
+        "ref_low": 12,
+        "ref_high": 16,
+        "flag": "normal"
+      },
+      {
+        "name": "قيمة تجريبية ٢",
+        "value": 7.1,
+        "unit": "mmol/L",
+        "ref_low": 3.9,
+        "ref_high": 5.6,
+        "flag": "high"
+      }
+    ],
+    "impression": "ملاحظة تجريبية من المختبر"
+  },
+  "/lab-results/mine": [
+    {
+      "id": "test-ord-old",
+      "service_name_ar": "تحليل تجريبي ١",
+      "reported_at": "2026-06-01T08:00:00Z",
+      "entries": [
+        {
+          "name": "قيمة تجريبية ٢",
+          "value": 6.2,
+          "unit": "mmol/L",
+          "flag": "high"
+        },
+        {
+          "name": "قيمة تجريبية ١",
+          "value": 12.1,
+          "unit": "g/dL",
+          "flag": "normal"
+        }
+      ]
+    },
+    {
+      "id": "test-ord-old2",
+      "service_name_ar": "تحليل تجريبي ١",
+      "reported_at": "2026-08-01T08:00:00Z",
+      "entries": [
+        {
+          "name": "قيمة تجريبية ٢",
+          "value": 6.8,
+          "unit": "mmol/L",
+          "flag": "high"
+        },
+        {
+          "name": "قيمة تجريبية ١",
+          "value": 12.9,
+          "unit": "g/dL",
+          "flag": "normal"
+        }
+      ]
+    }
+  ],
+  "POST /ordering/bookings/test-ord-result/results/discuss": {
+    "consultation_draft": true,
+    "draft_id": "test-draft-1",
+    "attached_result_id": "test-ord-result"
+  },
+  "POST /consultations/instant": {
+    "id": "test-instant-1",
+    "status": "broadcasting",
+    "expires_at": "@in+540s",
+    "seconds_left": 540,
+    "doctors_notified": 6,
+    "payment_status": "not_charged"
+  },
+  "/consultations/instant/test-instant-1": {
+    "id": "test-instant-1",
+    "status": "broadcasting",
+    "expires_at": "@in+540s",
+    "seconds_left": 540,
+    "doctors_notified": 6,
+    "payment_status": "not_charged"
   }
 }

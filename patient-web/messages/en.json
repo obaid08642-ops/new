@@ -2412,6 +2412,8 @@
     "showMethods": "Choose a payment method",
     "paymentUnavailable": "No online payment method is available for this order right now.",
     "loadingMethods": "Loading the payment methods…",
+    "deliveryEta": "Delivery in {time}",
+    "rating": "Rating {rating} ({count})",
     "lineUnnamed": "Item",
     "quoteSubstitute": "Substitute item",
     "notifAskOffers": "Turn on notifications and we will tell you as soon as pharmacies send offers.",

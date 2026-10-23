@@ -2412,6 +2412,8 @@
     "showMethods": "भुगतान का तरीका चुनें",
     "paymentUnavailable": "इस ऑर्डर के लिए अभी ऑनलाइन भुगतान का कोई तरीका उपलब्ध नहीं है।",
     "loadingMethods": "भुगतान के तरीके लोड हो रहे हैं…",
+    "deliveryEta": "डिलीवरी {time} में",
+    "rating": "रेटिंग {rating} ({count})",
     "lineUnnamed": "आइटम",
     "quoteSubstitute": "विकल्प वाला आइटम",
     "notifAskOffers": "सूचनाएँ चालू करें, ताकि फ़ार्मेसियों के ऑफ़र आते ही हम आपको बता सकें।",

@@ -112,3 +112,20 @@ describe("the quote a patient is asked to accept", () => {
     expect(progress?.items).toEqual([{ id: "l1", nameAr: "بانادول", nameEn: "Panadol", rawName: "paracetamol" }]);
   });
 });
+
+describe("pharmacy offer ETA and rating (backend #1793)", () => {
+  const base = { id: "91047ef2-ad36-422a-a184-629693e7c729", status: "open", totals: { total: 10 }, items: [] };
+
+  it("reads the pharmacy's ETA and rating with its count", () => {
+    const [offer] = extractPatientPharmacyOffers({ data: [{ ...base, approx_delivery: { eta_minutes: 45, label_ar: null, label_en: null }, pharmacy_rating: 4.6, pharmacy_rating_count: 23 }] });
+    expect(offer.etaMinutes).toBe(45);
+    expect(offer.rating).toBe(4.6);
+    expect(offer.ratingCount).toBe(23);
+  });
+
+  it("leaves them out (so the card hides them) when the server sends null", () => {
+    const [offer] = extractPatientPharmacyOffers({ data: [{ ...base, approx_delivery: { eta_minutes: null }, pharmacy_rating: null, pharmacy_rating_count: 0 }] });
+    expect(offer.etaMinutes).toBeUndefined();
+    expect(offer.rating).toBeUndefined();
+  });
+});

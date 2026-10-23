@@ -2412,6 +2412,8 @@
     "showMethods": "পরিশোধ পদ্ধতি বেছে নিন",
     "paymentUnavailable": "এই অর্ডারের জন্য এখন কোনো অনলাইন পরিশোধ পদ্ধতি নেই।",
     "loadingMethods": "পরিশোধ পদ্ধতি লোড হচ্ছে…",
+    "deliveryEta": "{time}-এর মধ্যে ডেলিভারি",
+    "rating": "রেটিং {rating} ({count})",
     "lineUnnamed": "পণ্য",
     "quoteSubstitute": "বিকল্প পণ্য",
     "notifAskOffers": "বিজ্ঞপ্তি চালু করুন, যাতে ফার্মেসির অফার আসামাত্র আমরা আপনাকে জানাতে পারি।",

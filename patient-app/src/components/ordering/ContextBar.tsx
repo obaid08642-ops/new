@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 
-import { Button, FIcon, Radio } from '../../../../packages/ui-native/src';
+import { Button, Card, FIcon, Radio, SERVICE_TONES, type ServiceTone } from '../../../../packages/ui-native/src';
 import { Sheet } from '../consult/ConsultKit';
 import { LAB_TONE } from '../diagnostics/DiagKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
@@ -13,6 +13,8 @@ import type { useOrderingContext } from '../../utils/useOrderingContext';
 type Ctx = ReturnType<typeof useOrderingContext>;
 type Open = 'where' | 'pay' | 'who' | null;
 
+/** The board draws the "for whom" mark in the person tone (the first of the service tones). */
+const WHO_TONE: ServiceTone = SERVICE_TONES[0];
 const ADDRESSES = '/profile/addresses' as Href;
 const ADD_POLICY = '/insurance/add-policy' as Href;
 const ADD_MEMBER = '/family/add' as Href;
@@ -34,18 +36,24 @@ export function ContextBar({ ctx }: { ctx: Ctx }) {
   const pick = (fn: () => void) => () => { fn(); setChanged(true); setOpen(null); };
   const go = (href: Href) => () => { setOpen(null); router.push(href); };
 
-  const chip = (key: Exclude<Open, null>, icon: 'map-pin' | 'credit-card' | 'users', label: string, value: string) => (
-    <Pressable
-      key={key}
-      accessibilityRole="button"
-      accessibilityLabel={`${label}: ${value}`}
-      onPress={() => setOpen(key)}
-      testID={`ordering-ctx-${key}`}
-      style={{ flexGrow: 1, flexBasis: 0, minWidth: 96, minHeight: 56, borderRadius: 20, borderWidth: 1, borderColor: c.border.hairline, backgroundColor: c.bg.surface, paddingHorizontal: 12, paddingVertical: 8, gap: 2, justifyContent: 'center' }}
-    >
-      <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.secondary, ...flow }}>{label}</Text>
-      <Text numberOfLines={1} style={{ ...scale(t, 'meta', 'bold'), color: c.text.primary, ...flow }}>{value}</Text>
-    </Pressable>
+  // Ord01 board: one grouped card, three segments (icon + label over value) split by hairlines; the weights are the board's 1.4 / 1.2 / 0.8
+  const chip = (key: Exclude<Open, null>, icon: 'house' | 'shield-check' | 'user', tone: ServiceTone, weight: number, label: string, value: string, first: boolean) => (
+    <React.Fragment key={key}>
+      {first ? null : <View style={{ width: 1, alignSelf: 'stretch', marginVertical: 10, backgroundColor: c.border.hairline }} />}
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`${label}: ${value}`}
+        onPress={() => setOpen(key)}
+        testID={`ordering-ctx-${key}`}
+        style={{ flexGrow: weight, flexShrink: 1, flexBasis: 0, minWidth: 0, minHeight: 56, paddingHorizontal: 8, paddingVertical: 6, flexDirection: 'row', alignItems: 'center', gap: 6 }}
+      >
+        <FIcon icon={icon} tone={tone} chip="none" size={20} theme={theme} />
+        <View style={{ flexShrink: 1, minWidth: 0, gap: 1 }}>
+          <Text numberOfLines={1} style={{ ...scale(t, 'tag', 'regular'), color: c.text.secondary, ...flow }}>{label}</Text>
+          <Text numberOfLines={1} style={{ ...scale(t, 'meta', 'bold'), color: c.text.primary, ...flow }}>{value}</Text>
+        </View>
+      </Pressable>
+    </React.Fragment>
   );
   const closeLabel = k('ordering.ctx.close');
   const section = (title: string, children: React.ReactNode) => (
@@ -57,11 +65,13 @@ export function ContextBar({ ctx }: { ctx: Ctx }) {
 
   return (
     <View accessibilityLabel={k('ordering.ctx.aria')} style={{ gap: 6 }}>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-        {chip('where', 'map-pin', k('ordering.ctx.lblWhere'), whereValue)}
-        {chip('pay', 'credit-card', k('ordering.ctx.lblPay'), payValue)}
-        {chip('who', 'users', k('ordering.ctx.lblWho'), memberName ?? k('ordering.ctx.valMe'))}
-      </View>
+      <Card theme={theme} elevation="card" padding="none">
+        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 4 }}>
+          {chip('where', 'house', 'mint', 1.4, k('ordering.ctx.lblWhere'), whereValue, true)}
+          {chip('pay', 'shield-check', 'blue', 1.2, k('ordering.ctx.lblPay'), payValue, false)}
+          {chip('who', 'user', WHO_TONE, 0.8, k('ordering.ctx.lblWho'), memberName ?? k('ordering.ctx.valMe'), false)}
+        </View>
+      </Card>
       <Text accessibilityLiveRegion="polite" style={{ ...scale(t, 'tag', 'regular'), color: c.text.secondary, ...flow }}>{changed ? k('ordering.ctx.toast') : k('ordering.ctx.hint')}</Text>
       <Sheet open={open !== null} title={k('ordering.ctx.sheetTitle')} onClose={() => setOpen(null)} closeLabel={closeLabel}>
         {open === 'where' ? section(k('ordering.ctx.secWhere'), (
