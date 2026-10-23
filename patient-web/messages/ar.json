@@ -251,7 +251,17 @@
       "returns": "طلب إرجاع"
     },
     "statusUnavailable": "الحالة غير متاحة",
-    "partialNote": "تعذّر تحميل بعض الطلبات. الباقي ظاهر أدناه، حاول مرة أخرى بعد قليل."
+    "partialNote": "تعذّر تحميل بعض الطلبات. الباقي ظاهر أدناه، حاول مرة أخرى بعد قليل.",
+    "filterLabel": "تصفية حسب الخدمة",
+    "filterAll": "الكل",
+    "filterKind": {
+      "pharmacy": "الصيدلية",
+      "consultation": "الأطباء",
+      "labs": "التحاليل",
+      "radiology": "الأشعة",
+      "nursing": "التمريض",
+      "returns": "المرتجعات والاستردادات"
+    }
   },
   "Cart": {
     "eyebrow": "سلة خاصة",
@@ -1450,7 +1460,35 @@
     "allCategories": "كل الفئات",
     "loadMore": "عرض المزيد",
     "page": "صفحة {page}",
-    "onlineOnly": "أونلاين فقط"
+    "onlineOnly": "أونلاين فقط",
+    "share": "مشاركة",
+    "suggestTitle": "اقتراح تعديل",
+    "suggestFieldEdit": "تعديل بيانات (وصف/مادة فعالة/استخدام)",
+    "suggestImageRemove": "الصورة غير صحيحة — إزالتها",
+    "suggestShortage": "الصنف ناقص في السوق",
+    "suggestDuplicate": "صنف مكرر — حذفه",
+    "suggestOther": "ملاحظة أخرى",
+    "suggestFieldDescription": "الوصف",
+    "suggestFieldIngredient": "المادة الفعالة",
+    "suggestFieldUsage": "إرشادات الاستخدام",
+    "suggestFieldDosage": "الجرعة",
+    "suggestFieldMaker": "الشركة المصنعة",
+    "suggestFieldName": "الاسم",
+    "suggestValueRequired": "اكتب القيمة الصحيحة المقترحة",
+    "suggestValuePlaceholder": "القيمة الصحيحة المقترحة",
+    "suggestNotePlaceholder": "ملاحظة إضافية (اختياري)",
+    "suggestSend": "إرسال الاقتراح",
+    "suggestSentTitle": "تم الإرسال",
+    "suggestSentBody": "وصل اقتراحك للإدارة وسيُطبَّق بعد الاعتماد. شكراً لك.",
+    "suggestFailTitle": "تعذر الإرسال",
+    "suggestFailBody": "حاول مرة أخرى لاحقاً",
+    "shareCopied": "تم نسخ الرابط",
+    "shareFailed": "تعذّرت مشاركة الرابط. حاول مرة أخرى.",
+    "suggestTypeLabel": "نوع الاقتراح",
+    "suggestFieldLabel": "البيان المراد تعديله",
+    "suggestSending": "جارٍ الإرسال…",
+    "suggestSignIn": "سجّل الدخول لإرسال اقتراحك.",
+    "suggestSignInAction": "تسجيل الدخول"
   },
   "Wallet": {
     "wallet": "المحفظة",
@@ -1871,7 +1909,8 @@
     "viaPhoto": "تصوير",
     "viaUpload": "رفع",
     "viaType": "كتابة الأسماء",
-    "errorBusy": "حاولت كثيرًا خلال وقت قصير. انتظر دقيقة ثم أعد المحاولة."
+    "errorBusy": "حاولت كثيرًا خلال وقت قصير. انتظر دقيقة ثم أعد المحاولة.",
+    "privacy": "تُحفظ الوصفة أولًا ليراجعها الصيدلي. لا يُضاف سعر أو وسيلة دفع من هذه الشاشة."
   },
   "HubSeo": {
     "privacy": {
@@ -2174,7 +2213,18 @@
     "imageCounter": "{n, number} / {total, number}",
     "previousImage": "الصورة السابقة",
     "nextImage": "الصورة التالية",
-    "inCartCta": "في السلة ({n, number})"
+    "inCartCta": "في السلة ({n, number})",
+    "hubUploadTitle": "ارفع الروشتة",
+    "hubUploadBody": "صوّرها، والصيدليات القريبة تجهّز أدويتك وتتنافس على السعر",
+    "hubFavorites": "المفضلة",
+    "hubReminders": "التذكيرات",
+    "hubOrders": "طلباتي",
+    "hubCart": "السلة",
+    "hubShortcuts": "اختصارات الصيدلية",
+    "hubOrderAgain": "أعد طلبك السابق",
+    "hubOrderAgainAction": "اطلب",
+    "hubOneItem": "صنف واحد",
+    "hubItems": "{n, number} أصناف"
   },
   "PharmacyOffers": {
     "backToOrder": "العودة إلى الطلب",
@@ -2360,7 +2410,15 @@
     "searchRound": "الجولة {round}: نبحث في الصيدليات ضمن {km} كم",
     "showMethods": "اختيار طريقة الدفع",
     "paymentUnavailable": "لا توجد طريقة دفع إلكتروني متاحة لهذا الطلب الآن.",
-    "loadingMethods": "جارٍ تحميل طرق الدفع…"
+    "loadingMethods": "جارٍ تحميل طرق الدفع…",
+    "lineUnnamed": "صنف",
+    "quoteSubstitute": "صنف بديل",
+    "notifAskOffers": "فعّل الإشعارات لنخبرك فور وصول عروض الصيدليات.",
+    "notifAskTurnOn": "تفعيل الإشعارات",
+    "checkPaymentStatus": "تحقق من حالة الدفع",
+    "quoteLinesLabel": "بنود العرض",
+    "notifAskBlocked": "الإشعارات محظورة في هذا المتصفح. اسمح بها من إعدادات الموقع في المتصفح لتصلك التنبيهات.",
+    "notifAskFailed": "تعذّر تشغيل الإشعارات. حاول مرة أخرى."
   },
   "PharmacyCheckout": {
     "title": "إتمام الطلب",
@@ -2462,7 +2520,10 @@
     "insuranceNaBody": "هذا الطلب لا ينتظر قرار تأمين.",
     "confirmTitle": "الطلب",
     "confirmNoOrderTitle": "لم يُحدَّد طلب",
-    "confirmNoOrderBody": "افتح طلبًا من طلباتي، أو ابدأ طلبًا جديدًا."
+    "confirmNoOrderBody": "افتح طلبًا من طلباتي، أو ابدأ طلبًا جديدًا.",
+    "pickupNote": "عند الاستلام من الصيدلية نستخدم موقعك أيضًا للعثور على الصيدليات القريبة منك.",
+    "orderCardTitle": "الطلب #{number}",
+    "orderPickup": "استلام من الصيدلية"
   },
   "ProductGallery": {
     "zoom": "تكبير الصورة",
@@ -2488,13 +2549,17 @@
     "callCourier": "اتصل بالمندوب",
     "liveChecking": "جارٍ التحقق من التحديثات",
     "nextCheck": "التحقق التالي بعد {time}",
-    "refreshNow": "حدّث الآن"
+    "refreshNow": "حدّث الآن",
+    "chatPharmacist": "مراسلة الصيدلاني",
+    "pickupLine": "استلام من الصيدلية",
+    "deliveryLine": "توصيل للمنزل",
+    "legacyEta": "يصل خلال حوالي {minutes, number} دقيقة"
   },
   "OrderReorder": {
     "title": "إعادة الطلب",
-    "lead": "اختر الأصناف التي تريد إضافتها إلى سلتك. ترسل الصيدليات أسعارها من جديد عند إرسال الطلب.",
+    "lead": "اختر الأصناف التي تريد طلبها مرة أخرى. ترسل الصيدليات أسعارها من جديد عند إرسال الطلب.",
     "linesLabel": "أصناف الطلب السابق",
-    "rxNote": "استُخدمت في الطلب السابق وصفة طبية، وستحتاج إليها مرة أخرى عند إتمام الطلب.",
+    "rxNote": "استخدم الطلب السابق وصفة طبية: تُرسل مع الطلب الجديد.",
     "skipped": "{count, plural, one {صنف واحد كان طلبًا مكتوبًا وليس في الكتالوج، فلا يمكن إضافته إلى السلة.} two {صنفان كانا طلبين مكتوبين وليسا في الكتالوج، فلا يمكن إضافتهما إلى السلة.} few {# أصناف كانت طلبات مكتوبة وليست في الكتالوج، فلا يمكن إضافتها إلى السلة.} many {# صنفًا كانت طلبات مكتوبة وليست في الكتالوج، فلا يمكن إضافتها إلى السلة.} other {# صنف كانت طلبات مكتوبة وليست في الكتالوج، فلا يمكن إضافتها إلى السلة.}}",
     "sendRequest": "أرسل طلبًا مكتوبًا",
     "pickOne": "اختر صنفًا واحدًا على الأقل.",

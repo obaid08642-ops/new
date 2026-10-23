@@ -304,7 +304,17 @@
       "returns": "ফেরতের অনুরোধ"
     },
     "statusUnavailable": "স্ট্যাটাস পাওয়া যায়নি",
-    "partialNote": "কিছু অর্ডার লোড করা যায়নি। বাকিগুলো নিচে দেখানো হলো, একটু পরে আবার চেষ্টা করুন।"
+    "partialNote": "কিছু অর্ডার লোড করা যায়নি। বাকিগুলো নিচে দেখানো হলো, একটু পরে আবার চেষ্টা করুন।",
+    "filterLabel": "সেবা অনুযায়ী ফিল্টার",
+    "filterAll": "সব",
+    "filterKind": {
+      "pharmacy": "ফার্মেসি",
+      "consultation": "ডাক্তার",
+      "labs": "ল্যাব টেস্ট",
+      "radiology": "রেডিওলজি",
+      "nursing": "নার্সিং",
+      "returns": "ফেরত ও রিফান্ড"
+    }
   },
   "Cart": {
     "eyebrow": "ব্যক্তিগত কার্ট",
@@ -1450,7 +1460,35 @@
     "allCategories": "সব বিভাগ",
     "loadMore": "আরও দেখুন",
     "page": "পৃষ্ঠা {page}",
-    "onlineOnly": "শুধু অনলাইনে"
+    "onlineOnly": "শুধু অনলাইনে",
+    "share": "শেয়ার করুন",
+    "suggestTitle": "সম্পাদনা প্রস্তাব করুন",
+    "suggestFieldEdit": "ডেটা সম্পাদনা (বিবরণ/সক্রিয় উপাদান/ব্যবহার)",
+    "suggestImageRemove": "ছবি ভুল — সরান",
+    "suggestShortage": "বাজারে আইটেম কম",
+    "suggestDuplicate": "সদৃশ আইটেম — মুছুন",
+    "suggestOther": "অন্য নোট",
+    "suggestFieldDescription": "বিবরণ",
+    "suggestFieldIngredient": "সক্রিয় উপাদান",
+    "suggestFieldUsage": "ব্যবহার নির্দেশনা",
+    "suggestFieldDosage": "ডোজ",
+    "suggestFieldMaker": "নির্মাতা",
+    "suggestFieldName": "নাম",
+    "suggestValueRequired": "প্রস্তাবিত সঠিক মান লিখুন",
+    "suggestValuePlaceholder": "প্রস্তাবিত সঠিক মান",
+    "suggestNotePlaceholder": "অতিরিক্ত নোট (ঐচ্ছিক)",
+    "suggestSend": "পরামর্শ পাঠান",
+    "suggestSentTitle": "পাঠানো হয়েছে",
+    "suggestSentBody": "আপনার পরামর্শ ব্যবস্থাপনার কাছে পৌঁছেছে, অনুমোদনের পর কার্যকর হবে। ধন্যবাদ।",
+    "suggestFailTitle": "পাঠানো ব্যর্থ হয়েছে",
+    "suggestFailBody": "পরে আবার চেষ্টা করুন",
+    "shareCopied": "লিঙ্ক কপি হয়েছে",
+    "shareFailed": "লিঙ্ক শেয়ার করা যায়নি। আবার চেষ্টা করুন।",
+    "suggestTypeLabel": "পরামর্শের ধরন",
+    "suggestFieldLabel": "সংশোধনের তথ্য",
+    "suggestSending": "পাঠানো হচ্ছে…",
+    "suggestSignIn": "আপনার পরামর্শ পাঠাতে সাইন ইন করুন।",
+    "suggestSignInAction": "সাইন ইন"
   },
   "Wallet": {
     "wallet": "ওয়ালেট",
@@ -1871,7 +1909,8 @@
     "viaPhoto": "ছবি তুলুন",
     "viaUpload": "আপলোড",
     "viaType": "নাম লিখুন",
-    "errorBusy": "অল্প সময়ে অনেক বেশি চেষ্টা। এক মিনিট অপেক্ষা করে আবার চেষ্টা করুন।"
+    "errorBusy": "অল্প সময়ে অনেক বেশি চেষ্টা। এক মিনিট অপেক্ষা করে আবার চেষ্টা করুন।",
+    "privacy": "প্রেসক্রিপশন আগে সংরক্ষণ করা হয় যাতে ফার্মাসিস্ট দেখতে পারেন। এই স্ক্রিন থেকে কোনো দাম বা পেমেন্ট পদ্ধতি যোগ হয় না।"
   },
   "HubSeo": {
     "privacy": {
@@ -2174,7 +2213,18 @@
     "imageCounter": "{n, number} / {total, number}",
     "previousImage": "আগের ছবি",
     "nextImage": "পরের ছবি",
-    "inCartCta": "কার্টে আছে ({n, number})"
+    "inCartCta": "কার্টে আছে ({n, number})",
+    "hubUploadTitle": "প্রেসক্রিপশন আপলোড করুন",
+    "hubUploadBody": "ছবি তুলুন, কাছের ফার্মেসিগুলো আপনার ওষুধ প্রস্তুত করবে এবং দামে প্রতিযোগিতা করবে",
+    "hubFavorites": "প্রিয়",
+    "hubReminders": "রিমাইন্ডার",
+    "hubOrders": "আমার অর্ডার",
+    "hubCart": "কার্ট",
+    "hubShortcuts": "ফার্মেসির শর্টকাট",
+    "hubOrderAgain": "আপনার আগের অর্ডার আবার করুন",
+    "hubOrderAgainAction": "অর্ডার করুন",
+    "hubOneItem": "১টি আইটেম",
+    "hubItems": "{n, number}টি আইটেম"
   },
   "PharmacyOffers": {
     "backToOrder": "অর্ডারে ফিরুন",
@@ -2360,7 +2410,15 @@
     "searchRound": "রাউন্ড {round}: {km} কিমির মধ্যে ফার্মেসি খোঁজা হচ্ছে",
     "showMethods": "পরিশোধ পদ্ধতি বেছে নিন",
     "paymentUnavailable": "এই অর্ডারের জন্য এখন কোনো অনলাইন পরিশোধ পদ্ধতি নেই।",
-    "loadingMethods": "পরিশোধ পদ্ধতি লোড হচ্ছে…"
+    "loadingMethods": "পরিশোধ পদ্ধতি লোড হচ্ছে…",
+    "lineUnnamed": "পণ্য",
+    "quoteSubstitute": "বিকল্প পণ্য",
+    "notifAskOffers": "বিজ্ঞপ্তি চালু করুন, যাতে ফার্মেসির অফার আসামাত্র আমরা আপনাকে জানাতে পারি।",
+    "notifAskTurnOn": "বিজ্ঞপ্তি চালু করুন",
+    "checkPaymentStatus": "পেমেন্টের অবস্থা দেখুন",
+    "quoteLinesLabel": "অফারের আইটেম",
+    "notifAskBlocked": "এই ব্রাউজারে বিজ্ঞপ্তি ব্লক করা আছে। অ্যালার্ট পেতে ব্রাউজারের সাইট সেটিংসে অনুমতি দিন।",
+    "notifAskFailed": "বিজ্ঞপ্তি চালু করা যায়নি। আবার চেষ্টা করুন।"
   },
   "PharmacyCheckout": {
     "title": "চেকআউট",
@@ -2462,7 +2520,10 @@
     "insuranceNaBody": "এই অর্ডার বিমার সিদ্ধান্তের অপেক্ষায় নেই।",
     "confirmTitle": "অর্ডার",
     "confirmNoOrderTitle": "কোনো অর্ডারের নাম দেওয়া হয়নি",
-    "confirmNoOrderBody": "আপনার অর্ডার থেকে একটি অর্ডার খুলুন, অথবা নতুন অনুরোধ শুরু করুন।"
+    "confirmNoOrderBody": "আপনার অর্ডার থেকে একটি অর্ডার খুলুন, অথবা নতুন অনুরোধ শুরু করুন।",
+    "pickupNote": "নিজে নিলেও আপনার কাছের ফার্মেসি খুঁজতে আমরা আপনার অবস্থান ব্যবহার করি।",
+    "orderCardTitle": "অর্ডার #{number}",
+    "orderPickup": "ফার্মেসি থেকে নিজে নেওয়া"
   },
   "ProductGallery": {
     "zoom": "ছবি বড় করুন",
@@ -2488,13 +2549,17 @@
     "callCourier": "ডেলিভারি কর্মীকে কল করুন",
     "liveChecking": "হালনাগাদ দেখা হচ্ছে",
     "nextCheck": "পরের যাচাই {time} পরে",
-    "refreshNow": "এখনই রিফ্রেশ করুন"
+    "refreshNow": "এখনই রিফ্রেশ করুন",
+    "chatPharmacist": "ফার্মাসিস্টকে বার্তা পাঠান",
+    "pickupLine": "ফার্মেসি থেকে সংগ্রহ",
+    "deliveryLine": "বাসায় ডেলিভারি",
+    "legacyEta": "প্রায় {minutes, number} মিনিটে পৌঁছাবে"
   },
   "OrderReorder": {
     "title": "আবার অর্ডার করুন",
-    "lead": "কার্টে যোগ করতে চান এমন পণ্য বেছে নিন। অনুরোধ পাঠালে ফার্মেসিগুলো আবার তাদের দাম পাঠায়।",
+    "lead": "যে আইটেমগুলো আবার অর্ডার করতে চান সেগুলো বেছে নিন। অনুরোধ পাঠালে ফার্মেসিগুলো আবার তাদের দাম পাঠায়।",
     "linesLabel": "আগের অর্ডারের পণ্য",
-    "rxNote": "আগের অর্ডারে প্রেসক্রিপশন ব্যবহার করা হয়েছিল; চেকআউটে আবার লাগবে।",
+    "rxNote": "আগের অর্ডারে প্রেসক্রিপশন ছিল: নতুন অনুরোধের সাথে সেটি পাঠানো হয়।",
     "skipped": "{count, plural, one {# পণ্য লিখে করা অনুরোধ ছিল এবং ক্যাটালগে নেই, তাই কার্টে যোগ করা যাবে না।} other {# পণ্য লিখে করা অনুরোধ ছিল এবং ক্যাটালগে নেই, তাই কার্টে যোগ করা যাবে না।}}",
     "sendRequest": "অনুরোধ পাঠান",
     "pickOne": "অন্তত একটি পণ্য বেছে নিন।",

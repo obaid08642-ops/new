@@ -304,7 +304,17 @@
       "returns": "واپسی کی درخواست"
     },
     "statusUnavailable": "اسٹیٹس دستیاب نہیں",
-    "partialNote": "کچھ آرڈرز لوڈ نہیں ہو سکے۔ باقی نیچے دکھائے گئے ہیں، تھوڑی دیر بعد دوبارہ کوشش کریں۔"
+    "partialNote": "کچھ آرڈرز لوڈ نہیں ہو سکے۔ باقی نیچے دکھائے گئے ہیں، تھوڑی دیر بعد دوبارہ کوشش کریں۔",
+    "filterLabel": "سروس کے لحاظ سے فلٹر",
+    "filterAll": "سب",
+    "filterKind": {
+      "pharmacy": "فارمیسی",
+      "consultation": "ڈاکٹر",
+      "labs": "لیب ٹیسٹ",
+      "radiology": "ریڈیولوجی",
+      "nursing": "نرسنگ",
+      "returns": "واپسی اور ریفنڈ"
+    }
   },
   "Cart": {
     "eyebrow": "نجی کارٹ",
@@ -1450,7 +1460,35 @@
     "allCategories": "تمام زمرے",
     "loadMore": "مزید دیکھیں",
     "page": "صفحہ {page}",
-    "onlineOnly": "صرف آن لائن"
+    "onlineOnly": "صرف آن لائن",
+    "share": "شیئر کریں",
+    "suggestTitle": "ترمیم تجویز کریں",
+    "suggestFieldEdit": "ڈیٹا ترمیم (تفصیل/جز/استعمال)",
+    "suggestImageRemove": "تصویر غلط — ہٹائیں",
+    "suggestShortage": "مارکیٹ میں چیز کم",
+    "suggestDuplicate": "دہرائی چیز — حذف کریں",
+    "suggestOther": "دیگر نوٹ",
+    "suggestFieldDescription": "تفصیل",
+    "suggestFieldIngredient": "فعال جز",
+    "suggestFieldUsage": "استعمال کی ہدایات",
+    "suggestFieldDosage": "خوراک",
+    "suggestFieldMaker": "کارخانہ دار",
+    "suggestFieldName": "نام",
+    "suggestValueRequired": "تجویز کردہ درست قیمت لکھیں",
+    "suggestValuePlaceholder": "تجویز کردہ درست قیمت",
+    "suggestNotePlaceholder": "اضافی نوٹ (اختیاری)",
+    "suggestSend": "تجویز بھیجیں",
+    "suggestSentTitle": "بھیج دیا گیا",
+    "suggestSentBody": "آپ کی تجویز انتظامیہ تک پہنچ گئی، منظوری کے بعد نافذ ہوگی۔ شکریہ۔",
+    "suggestFailTitle": "بھیجنا ناکام رہا",
+    "suggestFailBody": "بعد میں دوبارہ کوشش کریں",
+    "shareCopied": "لنک کاپی ہو گیا",
+    "shareFailed": "لنک شیئر نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
+    "suggestTypeLabel": "تجویز کی قسم",
+    "suggestFieldLabel": "درست کیا جانے والا ڈیٹا",
+    "suggestSending": "بھیجا جا رہا ہے…",
+    "suggestSignIn": "اپنی تجویز بھیجنے کے لیے سائن اِن کریں۔",
+    "suggestSignInAction": "سائن اِن"
   },
   "Wallet": {
     "wallet": "والٹ",
@@ -1871,7 +1909,8 @@
     "viaPhoto": "تصویر",
     "viaUpload": "اپ لوڈ",
     "viaType": "نام لکھیں",
-    "errorBusy": "مختصر وقت میں بہت زیادہ کوششیں۔ ایک منٹ انتظار کریں، پھر دوبارہ کوشش کریں۔"
+    "errorBusy": "مختصر وقت میں بہت زیادہ کوششیں۔ ایک منٹ انتظار کریں، پھر دوبارہ کوشش کریں۔",
+    "privacy": "نسخہ پہلے محفوظ ہوتا ہے تاکہ فارماسسٹ اسے دیکھ سکے۔ اس اسکرین سے کوئی قیمت یا ادائیگی کا طریقہ شامل نہیں ہوتا۔"
   },
   "HubSeo": {
     "privacy": {
@@ -2174,7 +2213,18 @@
     "imageCounter": "{n, number} / {total, number}",
     "previousImage": "پچھلی تصویر",
     "nextImage": "اگلی تصویر",
-    "inCartCta": "کارٹ میں ({n, number})"
+    "inCartCta": "کارٹ میں ({n, number})",
+    "hubUploadTitle": "نسخہ اپ لوڈ کریں",
+    "hubUploadBody": "اس کی تصویر لیں، قریبی فارمیسیاں آپ کی ادویات تیار کریں گی اور قیمت پر مقابلہ کریں گی",
+    "hubFavorites": "پسندیدہ",
+    "hubReminders": "یاد دہانیاں",
+    "hubOrders": "میرے آرڈر",
+    "hubCart": "ٹوکری",
+    "hubShortcuts": "فارمیسی کے شارٹ کٹ",
+    "hubOrderAgain": "اپنا پچھلا آرڈر دوبارہ کریں",
+    "hubOrderAgainAction": "آرڈر کریں",
+    "hubOneItem": "ایک آئٹم",
+    "hubItems": "{n, number} آئٹمز"
   },
   "PharmacyOffers": {
     "backToOrder": "آرڈر پر واپس",
@@ -2360,7 +2410,15 @@
     "searchRound": "راؤنڈ {round}: {km} کلومیٹر کے اندر فارمیسیاں تلاش ہو رہی ہیں",
     "showMethods": "ادائیگی کا طریقہ منتخب کریں",
     "paymentUnavailable": "اس آرڈر کے لیے فی الحال آن لائن ادائیگی کا کوئی طریقہ دستیاب نہیں۔",
-    "loadingMethods": "ادائیگی کے طریقے لوڈ ہو رہے ہیں…"
+    "loadingMethods": "ادائیگی کے طریقے لوڈ ہو رہے ہیں…",
+    "lineUnnamed": "شے",
+    "quoteSubstitute": "متبادل شے",
+    "notifAskOffers": "اطلاعات آن کریں تاکہ فارمیسیوں کی پیشکشیں آتے ہی ہم آپ کو بتا سکیں۔",
+    "notifAskTurnOn": "اطلاعات آن کریں",
+    "checkPaymentStatus": "ادائیگی کی حالت دیکھیں",
+    "quoteLinesLabel": "پیشکش کی اشیا",
+    "notifAskBlocked": "اس براؤزر میں اطلاعات بلاک ہیں۔ الرٹس حاصل کرنے کے لیے براؤزر کی سائٹ سیٹنگز میں انہیں اجازت دیں۔",
+    "notifAskFailed": "اطلاعات آن نہیں ہو سکیں۔ دوبارہ کوشش کریں۔"
   },
   "PharmacyCheckout": {
     "title": "چیک آؤٹ",
@@ -2462,7 +2520,10 @@
     "insuranceNaBody": "یہ آرڈر انشورنس کے فیصلے کا منتظر نہیں۔",
     "confirmTitle": "آرڈر",
     "confirmNoOrderTitle": "کوئی آرڈر نہیں بتایا گیا",
-    "confirmNoOrderBody": "اپنے آرڈرز میں سے کوئی آرڈر کھولیں، یا نئی درخواست شروع کریں۔"
+    "confirmNoOrderBody": "اپنے آرڈرز میں سے کوئی آرڈر کھولیں، یا نئی درخواست شروع کریں۔",
+    "pickupNote": "خود لینے کی صورت میں بھی ہم آپ کے قریبی فارمیسیاں تلاش کرنے کے لیے آپ کا مقام استعمال کرتے ہیں۔",
+    "orderCardTitle": "آرڈر #{number}",
+    "orderPickup": "فارمیسی سے خود لینا"
   },
   "ProductGallery": {
     "zoom": "تصویر بڑی کریں",
@@ -2488,13 +2549,17 @@
     "callCourier": "رائیڈر کو کال کریں",
     "liveChecking": "تازہ معلومات دیکھی جا رہی ہیں",
     "nextCheck": "اگلی جانچ {time} میں",
-    "refreshNow": "ابھی ریفریش کریں"
+    "refreshNow": "ابھی ریفریش کریں",
+    "chatPharmacist": "فارماسسٹ کو پیغام بھیجیں",
+    "pickupLine": "فارمیسی سے وصولی",
+    "deliveryLine": "گھر پر ڈیلیوری",
+    "legacyEta": "تقریباً {minutes, number} منٹ میں پہنچے گا"
   },
   "OrderReorder": {
     "title": "دوبارہ آرڈر کریں",
-    "lead": "وہ اشیاء چنیں جو آپ اپنے کارٹ میں شامل کرنا چاہتے ہیں۔ درخواست بھیجنے پر فارمیسیاں اپنی قیمتیں دوبارہ بھیجتی ہیں۔",
+    "lead": "جن اشیا کو دوبارہ آرڈر کرنا ہے انہیں منتخب کریں۔ درخواست بھیجنے پر فارمیسیاں اپنی قیمتیں دوبارہ بھیجتی ہیں۔",
     "linesLabel": "پچھلے آرڈر کی اشیاء",
-    "rxNote": "پچھلے آرڈر میں نسخہ استعمال ہوا تھا؛ چیک آؤٹ پر دوبارہ درکار ہوگا۔",
+    "rxNote": "پچھلے آرڈر میں نسخہ استعمال ہوا تھا: وہ نئی درخواست کے ساتھ بھیجا جاتا ہے۔",
     "skipped": "{count, plural, one {# شے تحریری درخواست تھی اور کیٹلاگ میں نہیں، اس لیے کارٹ میں شامل نہیں ہو سکتی۔} other {# اشیاء تحریری درخواستیں تھیں اور کیٹلاگ میں نہیں، اس لیے کارٹ میں شامل نہیں ہو سکتیں۔}}",
     "sendRequest": "درخواست بھیجیں",
     "pickOne": "کم از کم ایک شے چنیں۔",

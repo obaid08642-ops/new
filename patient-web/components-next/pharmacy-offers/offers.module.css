@@ -126,6 +126,8 @@
   background: var(--nabd-color-status-info-bg); color: var(--nabd-color-text-primary);
   font-size: var(--nabd-font-size-control); line-height: 1.6; overflow-wrap: anywhere;
 }
+.noticeAsk { flex-wrap: wrap; align-items: center; }
+.noticeText { margin: 0; flex: 1 1 12rem; min-inline-size: 0; }
 .noticeOk { background: var(--nabd-color-status-success-bg); }
 .noticeWarn { background: var(--nabd-color-status-warning-bg); }
 .actions { display: flex; flex-direction: column; gap: 10px; }
