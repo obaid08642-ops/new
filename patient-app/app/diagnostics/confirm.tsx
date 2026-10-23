@@ -1,16 +1,16 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { router, type Href } from 'expo-router';
 
-import { Button, Chip, EmptyState, Radio } from '../../../packages/ui-native/src';
+import { Button, Card, Chip, EmptyState, FIcon, Radio } from '../../../packages/ui-native/src';
 import { ConsultScreen, Section } from '../../src/components/consult/ConsultKit';
-import { AmountLine, Block, LAB_TONE, goBackDiag } from '../../src/components/diagnostics/DiagKit';
+import { AmountLine, Block, LAB_TONE, Price, goBackDiag } from '../../src/components/diagnostics/DiagKit';
 import { Notice } from '../../src/components/pharmacy/OfferKit';
+import { useOrderDates } from '../../src/components/ordering/OrderingKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
-import { fmtDate, fmtTime } from '../../src/utils/dates';
 import { logError } from '../../src/utils/logger';
 import { parseOrders, type MedicalOrder } from '../../src/utils/medicalOrders';
 import { providerName, type OrderingMode } from '../../src/utils/ordering';
@@ -32,6 +32,7 @@ const HOUR_OPTS: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: '2-digi
  */
 export default function DiagnosticsConfirm() {
   const { theme, t, c, k, money, flow, lang } = useScreenUi();
+  const { fmtDate, fmtTime } = useOrderDates();
   const { items: cartItems, removeItem } = useDiagnosticsCart();
   const draft = getDraft();
   const methods = draft ? paymentMethodsFor(draft.payer, draft.quote.groups) : [];
@@ -207,18 +208,37 @@ export default function DiagnosticsConfirm() {
 
   return (
     <ConsultScreen testID="diagnostics-confirm" title={k('ordering.pay.title')} onBack={goBackDiag} footer={footer}>
+      {/* Ord07 board: one card per booking, the mode tile and provider on top with "Edit", then its items, the place and the time */}
       {picks.map(({ g, p }) => (
-        <Section key={g.mode} title={g.mode === 'home' ? k('ordering.match.homeVisit') : k('ordering.match.atCentre')}>
-          <Block gap={6}>
-            <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{providerName(p.row, lang)}</Text>
-            {g.items.map((i) => (
-              <Text key={i.catalog_id} style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{nameOf(i.catalog_id) || k('ordering.pay.item')}</Text>
-            ))}
-            <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('ordering.pay.place')}: {g.mode === 'home' ? draft.placeLine ?? '' : providerName(p.row, lang)}</Text>
-            <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{when(g.mode)}</Text>
-            <Button theme={theme} size="md" variant="outline" label={k('ordering.pay.edit')} onPress={() => router.push('/diagnostics/when' as Href)} />
-          </Block>
-        </Section>
+        <Card key={g.mode} theme={theme} padding="md">
+          <View style={{ gap: 12 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: c.border.hairline }}>
+              <FIcon icon={g.mode === 'home' ? 'house' : 'hospital'} tone={g.mode === 'home' ? 'mint' : 'violet'} size={44} theme={theme} />
+              <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                <Text accessibilityRole="header" style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{g.mode === 'home' ? k('ordering.match.homeVisit') : k('ordering.match.atCentre')}</Text>
+                <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{providerName(p.row, lang)}</Text>
+              </View>
+              <Pressable accessibilityRole="button" accessibilityLabel={k('ordering.pay.edit')} onPress={() => router.push('/diagnostics/when' as Href)} style={{ minHeight: 44, minWidth: 44, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ ...scale(t, 'small', 'bold'), color: c.action.primary.bg }}>{k('ordering.pay.edit')}</Text>
+              </Pressable>
+            </View>
+            {g.items.map((i) => {
+              const line = p.items.find((l) => l.catalog_id === i.catalog_id);
+              return (
+                <View key={i.catalog_id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  <FIcon icon={g.mode === 'facility' && i.facility_only ? 'scan' : 'test-tube'} tone={g.mode === 'facility' && i.facility_only ? 'violet' : LAB_TONE} size={36} theme={theme} />
+                  <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{nameOf(i.catalog_id) || k('ordering.pay.item')}</Text>
+                  {line ? <Price amount={line.price} size="small" /> : null}
+                </View>
+              );
+            })}
+            <View style={{ gap: 2 }}>
+              <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.secondary, ...flow }}>{k('ordering.pay.place')}</Text>
+              <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{g.mode === 'home' ? draft.placeLine ?? '' : providerName(p.row, lang)}</Text>
+            </View>
+            <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{when(g.mode)}</Text>
+          </View>
+        </Card>
       ))}
 
       {hasHome ? (

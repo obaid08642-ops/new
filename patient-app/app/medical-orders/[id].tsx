@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Button, Card, FIcon } from '../../../packages/ui-native/src';
-import { Gate, InfoRow, Section, goBack, useConsultFormat } from '../../src/components/consult/ConsultKit';
+import { Gate, InfoRow, goBack, useConsultFormat } from '../../src/components/consult/ConsultKit';
 import { LAB_TONE } from '../../src/components/diagnostics/DiagKit';
 import { HealthScreen, Pill, bodyOf, useRemote } from '../../src/components/health/HealthKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
+import { GroupHeader, OrderItemLine } from '../../src/components/ordering/MedicalOrderKit';
 import { type MedicalOrderItem, type OrderGroupKey, groupFlow, parseOrder } from '../../src/utils/medicalOrders';
+import { useCatalogNames } from '../../src/utils/useCatalogNames';
 
 /**
  * M6 Ord21 "تفاصيل الأمر الطبي": the groups of one order. "Order" per group prefills the flow of that group
@@ -16,7 +18,7 @@ import { type MedicalOrderItem, type OrderGroupKey, groupFlow, parseOrder } from
  * The order carries catalogue ids, not names, so an item shows its group and its sessions (needs-review).
  */
 export default function MedicalOrderScreen() {
-  const { k, theme, t, c, flow } = useScreenUi();
+  const { k, theme, t, c, flow, num } = useScreenUi();
   const fmt = useConsultFormat();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const [busy, setBusy] = useState(false);
@@ -49,6 +51,7 @@ export default function MedicalOrderScreen() {
     }
   };
 
+  const names = useCatalogNames(useMemo(() => order?.items ?? [], [order]));
   const groups: OrderGroupKey[] = ['labs', 'radiology', 'nursing', 'prescription'];
 
   return (
@@ -78,20 +81,17 @@ export default function MedicalOrderScreen() {
               const items = block.items ?? [];
               const open = items.filter((i) => i.status === 'open');
               return (
-                <Section key={group} title={k(`medorders.group.${group}`)}>
-                  <Card theme={theme}>
-                    <View style={{ gap: 8 }}>
-                      {items.map((item) => (
-                        <View key={item.id} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, minHeight: 44 }}>
-                          <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.primary, flex: 1, ...flow }}>
-                            {item.sessions ? `${k('medorders.sessions')}: ${item.sessions}` : k(`medorders.group.${item.group}`)}
-                          </Text>
-                          {item.status === 'open' && !order.expired ? (
-                            <Button label={k('medorders.later')} variant="secondary" onPress={() => void act(item, 'defer', false)} disabled={busy} theme={theme} />
-                          ) : null}
-                        </View>
-                      ))}
-                    </View>
+                <Card key={group} theme={theme} padding="md">
+                  <View style={{ gap: 12 }}>
+                    <GroupHeader group={group} title={k(`medorders.group.${group}`)} />
+                    {items.map((item) => (
+                      <View key={item.id}>
+                        <OrderItemLine item={item} name={names[item.catalog_id] ?? k(`medorders.group.${item.group}`)} sessions={item.sessions ? `${k('medorders.sessions')}: ${num(item.sessions)}` : undefined} />
+                        {item.status === 'open' && !order.expired ? (
+                          <Button label={k('medorders.later')} variant="secondary" onPress={() => void act(item, 'defer', false)} disabled={busy} theme={theme} />
+                        ) : null}
+                      </View>
+                    ))}
                     {group === 'prescription' ? (
                       <Button
                         label={k('medorders.orderPrescription')}
@@ -111,8 +111,8 @@ export default function MedicalOrderScreen() {
                         <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('medorders.selected', { a: open.length, b: items.length })}</Text>
                       </>
                     ) : null}
-                  </Card>
-                </Section>
+                  </View>
+                </Card>
               );
             })}
             {problem ? (
