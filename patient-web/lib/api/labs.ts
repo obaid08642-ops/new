@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { textsOf, translatedColumns, type Texts } from "@/lib/i18n/localized";
+import { listsOf, type TextLists } from "@/lib/i18n/localized-lists";
 
 const labServiceIdSchema = z.string().regex(/^[A-Za-z0-9_-]{1,128}$/);
 const labServiceSchema = z.object({
@@ -8,6 +10,12 @@ const labServiceSchema = z.object({
   short_code: z.string().max(80).optional(),
   description_ar: z.string().max(2000).optional(),
   description_en: z.string().max(2000).optional(),
+  ...translatedColumns("name", 180),
+  ...translatedColumns("description", 2000),
+  preparation_ur: z.array(z.string().max(500)).max(40).optional(),
+  preparation_hi: z.array(z.string().max(500)).max(40).optional(),
+  preparation_bn: z.array(z.string().max(500)).max(40).optional(),
+  preparation_tl: z.array(z.string().max(500)).max(40).optional(),
   category: z.string().max(100).optional(),
   sample_type: z.string().max(100).optional(),
   price: z.number().nonnegative().optional(),
@@ -33,6 +41,8 @@ const labServiceSchema = z.object({
 }).strip();
 
 export type LabService = {
+  /** name, description and preparation in every language the server holds (Urdu, Hindi, Bengali, Filipino included) */
+  names: Texts; descriptions: Texts; preparations: TextLists;
   id: string; nameAr?: string; nameEn?: string; shortCode?: string;
   descriptionAr?: string; descriptionEn?: string; category?: string; sampleType?: string;
   price?: number; oldPrice?: number; fastingRequired?: boolean; fastingHours?: number;
@@ -58,7 +68,9 @@ function parseLabService(value: unknown): LabService | null {
   if (!parsed.success) return null;
   const item = parsed.data;
   if (!item.name_ar && !item.name_en) return null;
+  const row = value as Record<string, unknown>;
   return {
+    names: textsOf(row, "name"), descriptions: textsOf(row, "description"), preparations: listsOf(row, "preparation"),
     id: item.id, nameAr: item.name_ar, nameEn: item.name_en, shortCode: item.short_code,
     descriptionAr: item.description_ar, descriptionEn: item.description_en, category: item.category,
     sampleType: item.sample_type, price: item.price, oldPrice: item.old_price,

@@ -39,6 +39,16 @@ function publicProvider(p: any) {
   return { id: p.account_id, name_ar: p.name_ar ?? null, name_en: p.name_en ?? null, logo: p.logo ?? null, rating: p.rating_count > 0 ? p.rating_avg : null, rating_count: p.rating_count || 0 };
 }
 
+/**
+ * The text search of the public lab list: a test is found by its name in any of the six languages the catalogue holds
+ * (Arabic, English, and the Urdu/Hindi/Bengali/Filipino names written by the services content, Filipino stored as `tl`) or its
+ * short code. The text is escaped, so it is matched literally.
+ */
+export function labSearchClause(search: string): Array<Record<string, RegExp>> {
+  const re = new RegExp(search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+  return ['name_ar', 'name_en', 'name_ur', 'name_hi', 'name_bn', 'name_tl', 'short_code'].map((field) => ({ [field]: re }));
+}
+
 @Injectable()
 export class LabsService {
   constructor(
@@ -62,10 +72,7 @@ export class LabsService {
     if (opts.packages_only) q.is_package = true;
     // Explicitly exclude any imaging entries — those belong to the separate Radiology module.
     q.$and = [{ category: { $ne: 'imaging' } }, { sample_type: { $ne: 'imaging' } }];
-    if (opts.search) {
-      const re = new RegExp(opts.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
-      q.$or = [{ name_ar: re }, { name_en: re }, { short_code: re }];
-    }
+    if (opts.search) q.$or = labSearchClause(opts.search);
     
     let sortObj: any = { popularity: -1, name_ar: 1 };
     if (opts.highest_rated) sortObj = { rating: -1, popularity: -1 };

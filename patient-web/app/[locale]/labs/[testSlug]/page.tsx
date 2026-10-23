@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { BulletList, Facts, Hero, Notice, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
-import { LAB, RADIOLOGY, hoursText, minutesText, pickText } from "@/components-next/diagnostics/diag-parts";
+import { LAB, RADIOLOGY, hoursText, minutesText } from "@/components-next/diagnostics/diag-parts";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 import { AddToBasketButton } from "@/components-next/ordering/add-to-basket";
 import { BasketBar } from "@/components-next/ordering/basket-bar";
@@ -23,6 +23,7 @@ import { fromLab, fromNursing, fromRadiology, preparationFor, type ItemView } fr
 import { payOf, placeOf } from "@/lib/ordering/context";
 import { parseQuote, type Quote } from "@/lib/ordering/quote";
 import { kindOf, optionalToken, patientPoint } from "@/lib/ordering/server";
+import { pickTexts } from "@/lib/i18n/localized";
 
 type Props = { params: Promise<{ locale: string; testSlug: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string }> };
 
@@ -99,8 +100,8 @@ export default async function OrderingItemPage({ params, searchParams }: Props) 
     }
   }
 
-  const name = pickText(locale, item.nameAr, item.nameEn) ?? t("itemTitle");
-  const description = pickText(locale, item.descriptionAr, item.descriptionEn);
+  const name = pickTexts(locale, item.names ?? { ar: item.nameAr, en: item.nameEn }) ?? t("itemTitle");
+  const description = pickTexts(locale, item.descriptions ?? { ar: item.descriptionAr, en: item.descriptionEn });
   const prep = preparationFor(locale, item);
   const tone = kind === "radiology" ? RADIOLOGY : kind === "nursing" ? NURSING : LAB;
   const group = quote?.groups[0] ?? null;

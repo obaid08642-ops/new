@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { isLocale } from "@/lib/i18n";
 import { getPublicLabService } from "@/lib/api/labs-server";
 import { extractLabService } from "@/lib/api/labs";
-import { pickText } from "@/components-next/diagnostics/diag-parts";
+import { pickTexts } from "@/lib/i18n/localized";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ serviceId?: string }> };
 
@@ -21,6 +21,6 @@ export default async function LabBookingPage({ params, searchParams }: Props) {
   if (!response || !response.ok) notFound();
   const service = extractLabService(await response.json().catch(() => null));
   if (!service) notFound();
-  const name = pickText(locale, service.nameAr, service.nameEn) ?? "";
+  const name = pickTexts(locale, service.names) ?? "";
   redirect(`/${locale}/diagnostics/cart?add=${encodeURIComponent(service.id)}&name=${encodeURIComponent(name)}`);
 }
