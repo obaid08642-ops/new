@@ -27,9 +27,7 @@ _Updated 2026-10-10._
    - Every open row: `docs/design/needs-review/m6-blocked.json`; this batch's gaps (no item names, prefill not read by the flows, no renew action) are in the same file.
 2. **Refs (#1255/#1256):** triaged in `docs/design/NR_REPORTS_TRIAGE.md`: 10 fixed on main, 1 owner decision (#953), the rest backend or reviewer.
 3. **Reviewer:** close the 50 stale Needs-review lines, regenerate the audit files once. Real-device checks: Urdu font, voice notes, first launch.
-5. **Web = app parity (2026-10-23, one PR per service from main, not merged):** status tables in `docs/design/parity/<service>.md`, open rows in `needs-review/parity-*.json`.
-   - Pharmacy [#1806](https://github.com/obaid08642-ops/new/pull/1806) 22/38; account+settings [#1807](https://github.com/obaid08642-ops/new/pull/1807) 24/58; doctors [#1808](https://github.com/obaid08642-ops/new/pull/1808) 26/56; labs+nursing [#1809](https://github.com/obaid08642-ops/new/pull/1809) 26/58; insurance+emergency+wellness [#1810](https://github.com/obaid08642-ops/new/pull/1810) 32/42; family+health [#1811](https://github.com/obaid08642-ops/new/pull/1811) 32+4 partly/60.
-   - Next rounds: the open rows in each status file (backend gaps and owner decisions are tagged). Visual check of M6: [#1804](https://github.com/obaid08642-ops/new/pull/1804) app, [#1805](https://github.com/obaid08642-ops/new/pull/1805) web. Offers ETA/rating: [#1800](https://github.com/obaid08642-ops/new/pull/1800). Facility accounts on hold.
+5. **Web = app parity: no web-only rows left.** Round 1 (#1806–#1811), round 2 (#1814 pharmacy, #1815 account+settings, #1817 services, #1818 records), stacked on round 1 and to be retargeted to main as each merges. Status per service: `docs/design/parity/*.md`. What is left is only the rows in issue [#1819](https://github.com/obaid08642-ops/new/issues/1819) "Design parity: backend fields needed" (37 backend rows, 35 owner decisions). M6 visual check: #1804 app, #1805 web. Offers ETA/rating: #1800. Facility accounts on hold.
 6. **On hold:** D-12 price notice and C12 (waits for OpenCode D-12); web `/onboarding/permissions` (#436) after the owner decision.
 
 ## Process
