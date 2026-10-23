@@ -3257,6 +3257,8 @@
     "insAddPolicy": "Add a policy",
     "callNurse": "Call the nurse",
     "nurseOnMap": "Show the nurse on the map",
+    "nurseMapTitle": "The nurse's location on the map",
+    "nurseDirections": "Directions to the nurse",
     "insuranceNone": "No insurance request yet",
     "insuranceNoneBody": "When you request a visit with insurance, its approval appears here.",
     "addressUseLocation": "Use my current location",

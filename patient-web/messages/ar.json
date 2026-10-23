@@ -3257,6 +3257,8 @@
     "insAddPolicy": "إضافة وثيقة",
     "callNurse": "اتصل بالممرض",
     "nurseOnMap": "عرض الممرض على الخريطة",
+    "nurseMapTitle": "موقع الممرض على الخريطة",
+    "nurseDirections": "الاتجاهات إلى موقع الممرض",
     "insuranceNone": "لا يوجد طلب تأمين",
     "insuranceNoneBody": "عند طلب زيارة بالتأمين ستظهر الموافقة هنا.",
     "addressUseLocation": "استخدام موقعي الحالي",

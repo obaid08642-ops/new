@@ -19,7 +19,7 @@ Audit 2026-10-16, verified against main at ae6bfae1 on 2026-10-23. Status words:
 | 11 | /diagnostics/test-detail | footer actions | fixed now | item page has add / book now / providers |
 | 12 | /diagnostics/test-detail | loading the test | fixed now | item page reads the single service, public |
 | 13 | /diagnostics/search | sign-in | fixed (main) | public |
-| 14 | /diagnostics/packages | source and category | fixed now (partly) | reads GET /labs/packages, filters name+category in place; category stays a select built from the packages (no /labs/categories chips) |
+| 14 | /diagnostics/packages | source and category | fixed now (chips) | reads GET /labs/packages, filters name+category in place; category radio chips built from the packages, live filter |
 | 15 | /diagnostics/packages | search | fixed now | filters as you type (LiveFilter, debounced router.replace); Apply stays for no-script |
 | 16 | /diagnostics/packages/[packageId] | price footer, saving badge, cart state | fixed now (partly) | add goes to the item page (price, coverage, basket state); no saving badge on the detail itself |
 | 17 | /diagnostics/labs, /labs | tap on a test | fixed now | card opens the item page; /diagnostics/labs/book redirects to it |
@@ -66,7 +66,7 @@ Audit 2026-10-16, verified against main at ae6bfae1 on 2026-10-23. Status words:
 | 16 | /nursing/insurance-status | no booking found | fixed now | empty state with the way to the visits |
 | 17 | /nursing/insurance-status | refresh | fixed now | re-reads every 30 s while the insurer has not decided |
 | 18 | /nursing/visits/[visitId] | live updates | fixed now | re-reads every 15 s while the visit is open, with a manual refresh |
-| 19 | /nursing/visits/[visitId] | map | fixed now (link) | 'show the nurse on the map' link when the server sends coordinates; no embedded map |
+| 19 | /nursing/visits/[visitId] | map | fixed now (embedded OSM map + directions link) | 'show the nurse on the map' link when the server sends coordinates |
 | 20 | /nursing/visits/[visitId] | nurse contact and directions | fixed now (call) | call link from nurse_phone; directions for a pick-up variant not built |
 | 21 | /nursing/visits/[visitId] | completed visit rating | blocked (owner/backend) | the app's button only returns home; no nursing rating endpoint is wired |
 

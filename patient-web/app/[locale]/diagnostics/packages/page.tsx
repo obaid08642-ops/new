@@ -9,7 +9,6 @@ import { isLocale } from "@/lib/i18n";
 import { hubMetadata } from "@/lib/seo";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
-import consult from "@/components-next/consult/consult.module.css";
 import { LAB, PackageCard, SearchForm, money, pickText } from "@/components-next/diagnostics/diag-parts";
 import styles from "@/components-next/diagnostics/diag.module.css";
 
@@ -61,10 +60,14 @@ export default async function LabsPackagesPage({ params, searchParams }: Props) 
         live
         below={
           categories.length > 0 ? (
-            <select className={consult.control} name="category" defaultValue={category} aria-label={t("category")}>
-              <option value="">{t("allCategories")}</option>
-              {categories.map((item) => <option key={item} value={item}>{t(`categoryName.${item}`)}</option>)}
-            </select>
+            <div className={styles.catChips} role="radiogroup" aria-label={t("category")}>
+              {[["", t("allCategories")], ...categories.map((item) => [item, t(`categoryName.${item}`)])].map(([value, label]) => (
+                <label key={value || "all"} className={styles.catChip}>
+                  <input type="radio" name="category" value={value} defaultChecked={category.toLowerCase() === value} />
+                  <span>{label}</span>
+                </label>
+              ))}
+            </div>
           ) : undefined
         }
       />

@@ -68,17 +68,6 @@
   {
     "batch": "parity-doctors",
     "app": "patient-web",
-    "screen": "doctor detail",
-    "element": "inline booking component",
-    "file": "patient-web/components-next/appointment-booking-form.tsx",
-    "line": 1,
-    "found": "[client] no longer used by any page; kept because acceptance/d-31 (reviewer-owned) imports it",
-    "suspect": "reviewer may delete both",
-    "review_status": "open"
-  },
-  {
-    "batch": "parity-doctors",
-    "app": "patient-web",
     "screen": "doctors list",
     "element": "advanced filter: gender and price band",
     "file": "patient-web/app/[locale]/consultations/doctors/doctors-view.tsx",

@@ -46,17 +46,6 @@
   {
     "batch": "parity-care",
     "app": "patient-web",
-    "screen": "/nursing/visits/[visitId]",
-    "element": "embedded map and pick-up directions",
-    "file": "patient-web/app/[locale]/nursing/visits/[visitId]/page.tsx",
-    "line": 99,
-    "found": "[client] only an 'on the map' link is shown from current_lat/current_lng; no embedded map pin for the nurse and the home, no pick-up directions",
-    "suspect": "add a map component for the visit if the owner wants it on the web",
-    "review_status": "open"
-  },
-  {
-    "batch": "parity-care",
-    "app": "patient-web",
     "screen": "/diagnostics",
     "element": "insurance card opens the policy form",
     "file": "patient-web/app/[locale]/diagnostics/page.tsx",
@@ -74,17 +63,6 @@
     "line": 249,
     "found": "[backend] the board tile says 'from X SAR - N centres'; the scans list sends no centres count and the tile has no add toggle",
     "suspect": "add the toggle; the centres count needs a field",
-    "review_status": "open"
-  },
-  {
-    "batch": "parity-care",
-    "app": "patient-web",
-    "screen": "/diagnostics/packages",
-    "element": "categories are a select",
-    "file": "patient-web/app/[locale]/diagnostics/packages/page.tsx",
-    "line": 56,
-    "found": "[client] search now filters as you type (LiveFilter); the category is still a native select, the app uses chips from GET /labs/categories",
-    "suspect": "use chips and live filtering",
     "review_status": "open"
   },
   {

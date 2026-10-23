@@ -3257,6 +3257,8 @@
     "insAddPolicy": "Magdagdag ng polisiya",
     "callNurse": "Tawagan ang nars",
     "nurseOnMap": "Ipakita ang nars sa mapa",
+    "nurseMapTitle": "Lokasyon ng nars sa mapa",
+    "nurseDirections": "Direksyon papunta sa nars",
     "insuranceNone": "Wala pang kahilingan sa insurance",
     "insuranceNoneBody": "Kapag humiling ka ng pagbisita gamit ang insurance, lalabas dito ang pag-apruba.",
     "addressUseLocation": "Gamitin ang kasalukuyan kong lokasyon",
