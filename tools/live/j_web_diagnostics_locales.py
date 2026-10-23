@@ -76,6 +76,14 @@ def main():
                     prep = test[f'preparation_{sfx}'][0]
                     step(f'the test page lists the preparation in {loc}', prep[:25] in body, prep[:60])
                     look(f'/{loc}/diagnostics/radiology/{urllib.parse.quote(scan["id"])}', 'the scan page title', scan[f'name_{sfx}'], scan['name_en'])
+                    # the package page: the included tests and the preparation in the page's language
+                    first = next((t for t in rows if not t.get('is_package') and t.get('name_ar') == (pkg.get('included_services') or [''])[0] and t.get(f'name_{sfx}')), None)
+                    pbody = look(f'/{loc}/diagnostics/packages/{urllib.parse.quote(pkg["id"])}', 'the package page title', pkg[f'name_{sfx}'], pkg['name_en'])
+                    if first:
+                        step(f'the package page lists the included test in {loc} ("{first[f"name_{sfx}"]}")', first[f'name_{sfx}'] in pbody, pbody[-300:].replace('\n', ' '))
+                        step(f'the package page does not list the included test in Arabic ("{first["name_ar"]}")', first['name_ar'] not in pbody, '')
+                    if pkg.get(f'preparation_{sfx}'):
+                        step(f'the package page lists the preparation in {loc}', pkg[f'preparation_{sfx}'][0][:25] in pbody, pkg[f'preparation_{sfx}'][0][:60])
                     ctx.close()
         journey('web diagnostics locales: search by the translated name')
         ctx = browser.new_context(locale='hi-IN', viewport={'width': 390, 'height': 844})

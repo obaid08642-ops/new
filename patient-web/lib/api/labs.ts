@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { textsOf, translatedColumns, type Texts } from "@/lib/i18n/localized";
+import { pickTexts, textsOf, translatedColumns, type Texts } from "@/lib/i18n/localized";
 import { listsOf, type TextLists } from "@/lib/i18n/localized-lists";
 
 const labServiceIdSchema = z.string().regex(/^[A-Za-z0-9_-]{1,128}$/);
@@ -100,3 +100,19 @@ export const labPaymentFits = (pay: LabPay, service: Pick<LabService, "insurance
 /** True when at least one bookable service takes insurance; when none does, the hub does not offer the insurance choice. */
 export const insuranceOffered = (services: ReadonlyArray<Pick<LabService, "insuranceAvailable" | "cashAvailable" | "unavailable">>): boolean =>
   services.some((s) => !s.unavailable && labPaymentFits("insurance", s));
+
+/**
+ * A package stores the tests it includes as text (their Arabic names, or their codes). Each one is shown in the page's language
+ * when the lab list knows the test (by its id, its code or its name in any language); a test the list does not know stays as stored.
+ */
+export function includedTestNames(locale: string, included: readonly string[], tests: readonly LabService[]): string[] {
+  const key = (value: string) => value.trim().toLocaleLowerCase();
+  const index = new Map<string, LabService>();
+  for (const test of tests) {
+    for (const value of [test.id, test.shortCode, ...Object.values(test.names)]) if (value) index.set(key(value), test);
+  }
+  return included.map((entry) => {
+    const test = index.get(key(entry));
+    return (test && pickTexts(locale, test.names)) || entry;
+  });
+}

@@ -11,8 +11,8 @@ import { NURSING } from "@/components-next/nursing/nursing-parts";
 import { CoverageChip } from "@/components-next/ordering/quote-parts";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { moneyText } from "@/lib/ordering/format";
-import { extractLabService, parseLabServiceId } from "@/lib/api/labs";
-import { getPublicLabPackage, getPublicLabService } from "@/lib/api/labs-server";
+import { extractLabService, extractLabServices, includedTestNames, parseLabServiceId } from "@/lib/api/labs";
+import { getPublicLabPackage, getPublicLabService, getPublicLabServices } from "@/lib/api/labs-server";
 import { extractNursingCatalog } from "@/lib/api/nursing-catalog";
 import { getPublicNursingCatalog } from "@/lib/api/nursing-catalog-server";
 import { parseRadiologyService, parseRadiologyServiceId } from "@/lib/api/radiology";
@@ -103,6 +103,9 @@ export default async function OrderingItemPage({ params, searchParams }: Props) 
   const name = pickTexts(locale, item.names ?? { ar: item.nameAr, en: item.nameEn }) ?? t("itemTitle");
   const description = pickTexts(locale, item.descriptions ?? { ar: item.descriptionAr, en: item.descriptionEn });
   const prep = preparationFor(locale, item);
+  // a package stores its tests as Arabic names or codes: shown in the page's language where the lab list knows them
+  const catalogue = item.isPackage && item.included.length > 0 ? await getPublicLabServices().catch(() => null) : null;
+  const included = item.isPackage ? includedTestNames(locale, item.included, catalogue && catalogue.ok ? extractLabServices(await catalogue.json().catch(() => null)) : []) : [];
   const tone = kind === "radiology" ? RADIOLOGY : kind === "nursing" ? NURSING : LAB;
   const group = quote?.groups[0] ?? null;
   const best = group?.bestMatch ?? null;
@@ -128,7 +131,7 @@ export default async function OrderingItemPage({ params, searchParams }: Props) 
       </SectionCard>
       {facts.length > 0 ? <SectionCard id="item-facts" title={t("secFacts")}><Facts rows={facts} label={t("secFacts")} /></SectionCard> : null}
       {item.isPackage && item.included.length > 0 ? (
-        <SectionCard id="item-included" title={t("pkgCount", { n: item.included.length })}><BulletList items={item.included} /></SectionCard>
+        <SectionCard id="item-included" title={t("pkgCount", { n: item.included.length })}><BulletList items={included} /></SectionCard>
       ) : null}
 
       <SectionCard id="item-price" title={t("secPrice")}>

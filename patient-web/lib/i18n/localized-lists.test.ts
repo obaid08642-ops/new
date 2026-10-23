@@ -42,3 +42,17 @@ describe("catalogue lists in every language", () => {
     expect(preparationFor("hi", item)).toEqual(["धातु हटाएँ"]);
   });
 });
+
+describe("the tests a package includes", () => {
+  it("shows each included test in the page language, by name in any language, code or id; an unknown one stays as stored", async () => {
+    const { includedTestNames, extractLabServices } = await import("@/lib/api/labs");
+    const tests = extractLabServices([
+      { id: "t1", short_code: "CBC", name_ar: "تحليل دم شامل", name_en: "Blood count", name_hi: "रक्त गणना" },
+      { id: "t2", short_code: "FBS", name_ar: "سكر صائم", name_en: "Fasting sugar" },
+    ]);
+    const included = ["تحليل دم شامل", "FBS", "t1", "فحص غير معروف"];
+    expect(includedTestNames("hi", included, tests)).toEqual(["रक्त गणना", "Fasting sugar", "रक्त गणना", "فحص غير معروف"]);
+    expect(includedTestNames("ar", included, tests)).toEqual(["تحليل دم شامل", "سكر صائم", "تحليل دم شامل", "فحص غير معروف"]);
+    expect(includedTestNames("en", [], tests)).toEqual([]);
+  });
+});
