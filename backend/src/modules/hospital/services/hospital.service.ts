@@ -213,6 +213,8 @@ export class HospitalService {
           legal_name: (data as any).legal_name || fullName,
           parent_facility_id: hospitalObjectId, staff_role: roleKey,
           specialty: (data as any).department, scfhs_number: (data as any).scfhs,
+          // a facility never verifies a practitioner: pending licence review, not bookable until an admin approves the account
+          license_verified: false, public_eligibility: false, medical_review_status: 'pending',
           createdAt: new Date(), updatedAt: new Date(),
         });
         accountId = accId;
