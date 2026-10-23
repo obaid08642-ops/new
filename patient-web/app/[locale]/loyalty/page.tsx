@@ -68,7 +68,7 @@ export default async function LoyaltyPage({ params, searchParams }: Props) {
   const percent = new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 0 });
   const toneOf = (index: number) => TIER_TONES[index % TIER_TONES.length];
   const date = (value?: string) => formatDate(locale, value ?? null) ?? undefined;
-  const label = t as unknown as (key: string) => string;
+  const label = t as unknown as Parameters<typeof tierLabel>[0];
   const tierName = (tier: { id: string; label: string }) => tierLabel(label, tier);
   const pts = (n: number | string) => t("pointsAmount", { points: typeof n === "number" ? number.format(n) : n });
 

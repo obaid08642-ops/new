@@ -3,21 +3,20 @@
  * `earn_ways[].reason`). The pages show the code's translation in the page's language, and the server's own text only for a
  * code this build does not know (a perk added later).
  */
-export const TIER_IDS = ["bronze", "silver", "gold", "platinum"] as const;
 export const PERK_CODES = [
   "cashback_5_consult", "priority_standard", "cashback_8", "free_pharmacy_shipping", "priority_advanced", "cashback_12",
   "free_consult_monthly_1", "support_priority_24_7", "cashback_15", "free_consult_monthly_2", "personal_health_manager", "exclusive_offers",
 ] as const;
 export const EARN_REASONS = ["booking_completed", "order_delivered", "review_submitted", "referral_converted", "vitals_logged"] as const;
 
-type Translate = (key: string) => string;
+type Translate = ((key: string) => string) & { has: (key: string) => boolean };
 
-export const knownTier = (id: string): boolean => (TIER_IDS as readonly string[]).includes(id);
 export const knownPerk = (code: string | undefined): code is string => code !== undefined && (PERK_CODES as readonly string[]).includes(code);
 export const knownEarn = (reason: string | undefined): reason is string => reason !== undefined && (EARN_REASONS as readonly string[]).includes(reason);
 
 export function tierLabel(t: Translate, tier: { id: string; label: string }): string {
-  return knownTier(tier.id) ? t(`tier.${tier.id}`) : tier.label;
+  // a tier is known when the messages name it, so the tier list lives only in the translations
+  return t.has(`tier.${tier.id}`) ? t(`tier.${tier.id}`) : tier.label;
 }
 
 export function perkLabel(t: Translate, text: string, code: string | undefined): string {

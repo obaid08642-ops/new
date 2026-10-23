@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { earnLabels, perkLabel, tierLabel } from "./labels";
 
-const t = (key: string) => `T(${key})`;
+const t = Object.assign((key: string) => `T(${key})`, { has: (key: string) => !key.includes("diamond") });
 
 describe("loyalty labels", () => {
   it("shows a known tier and perk through the translation, an unknown one as the server sent it", () => {
