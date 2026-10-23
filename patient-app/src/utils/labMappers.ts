@@ -31,6 +31,8 @@ export interface CatalogItem {
   turnaroundHours: number | null;
   homeVisit: boolean;
   facilityVisit: boolean;
+  /** Radiology: a portable scan that can be done at home (`portable_ultrasound`). */
+  portable?: boolean;
   isPopular: boolean;
   /** Decision 30: the service can be booked on insurance (`insurance_availability: true`). */
   insurance: boolean;
@@ -72,6 +74,7 @@ export function normalizeLabService(raw: unknown): CatalogItem | null {
     turnaroundHours: asNumber(r.turnaround_hours),
     homeVisit: Boolean(r.home_visit_supported ?? r.homeAvailable),
     facilityVisit: Boolean(r.facility_visit_supported),
+    portable: r.portable_ultrasound === true,
     isPopular: (asNumber(r.popularity) ?? 0) >= 80,
     insurance: r.insurance_availability === true,
     selfPay: r.cash_availability !== false,

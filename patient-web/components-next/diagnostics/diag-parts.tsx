@@ -89,7 +89,7 @@ export function QuickLink({ href, icon, tone, label }: { href: string; icon: Fil
 export type Tag = { label: string; tone: ServiceTone };
 
 /** One row of a list of tests: the name (a link to its page), its tags, the price and the add button, the board's "تحاليل شائعة" row. */
-export function TestRow({ href, title, tags = [], note, price, addHref, addLabel }: { href: string; title: string; tags?: Tag[]; note?: string; price?: string; addHref?: string; addLabel?: string }) {
+export function TestRow({ href, title, tags = [], note, price, addHref, addLabel, addSlot }: { href: string; title: string; tags?: Tag[]; note?: string; price?: string; addHref?: string; addLabel?: string; addSlot?: ReactNode }) {
   return (
     <li>
       <div className={styles.test}>
@@ -103,7 +103,8 @@ export function TestRow({ href, title, tags = [], note, price, addHref, addLabel
           ) : null}
         </Link>
         {price ? <span className={styles.price}><bdi>{price}</bdi></span> : null}
-        {addHref && addLabel ? (
+        {addSlot ?? null}
+        {!addSlot && addHref && addLabel ? (
           <Link href={addHref} className={styles.addBtn} aria-label={addLabel}>
             <Icon name="plus" size={18} tone="currentColor" />
           </Link>

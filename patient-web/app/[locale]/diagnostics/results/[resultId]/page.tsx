@@ -30,7 +30,7 @@ const FLAGS = ["normal", "high", "low", "critical"] as const;
 /**
  * Decision 19 (issue 338): one lab result, opened from its "result ready" notification (route /health/results/:id).
  * GET /lab-results/:id answers the patient's own result: each value with its unit, the reference range and the server's
- * flag, and what the lab wrote. "Discuss the result with a doctor" opens the doctors list. A report file the lab uploaded
+ * flag, and what the lab wrote. "Discuss the result with a doctor" opens the instant consultation (M8) with the booking's result attached. A report file the lab uploaded
  * on the booking (the older path) is opened from the booking page.
  */
 export default async function LabResultPage({ params }: Props) {
@@ -125,7 +125,7 @@ export default async function LabResultPage({ params }: Props) {
       ) : rows.length === 0 && sections.length === 0 ? (
         <p className={`${styles.body} ${styles.muted}`}>{t("empty")}</p>
       ) : null}
-      <ButtonLink href={`/${locale}/consultations/doctors`} label={t("discuss")} fullWidth />
+      <ButtonLink href={`/${locale}/consultations/instant${row.source === "lab_booking" && bookingId ? `?booking=${encodeURIComponent(bookingId)}` : ""}`} label={t("discuss")} fullWidth />
     </ConsultPage>
   );
 }

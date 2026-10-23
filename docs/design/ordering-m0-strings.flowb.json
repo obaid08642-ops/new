@@ -74,12 +74,12 @@
   "_layout": "two bookings, two tabs; tab text wraps to two lines in long languages"
  },
  "ordering.when.tabCentre": {
-  "ar": "في المركز · بند واحد",
-  "en": "At the centre · 1 item",
-  "ur": "مرکز میں · 1 آئٹم",
-  "hi": "केंद्र पर · 1 आइटम",
-  "bn": "কেন্দ্রে · ১টি আইটেম",
-  "tl": "Sa sentro · 1 item"
+  "ar": "في المركز · {n}",
+  "en": "At the centre · {n}",
+  "ur": "مرکز پر · {n}",
+  "hi": "केंद्र पर · {n}",
+  "bn": "কেন্দ্রে · {n}",
+  "tl": "Sa sentro · {n}"
  },
  "ordering.when.homeTitle": {
   "ar": "موعد الزيارة المنزلية",
@@ -689,7 +689,7 @@
   "ur": "بغیر وقت",
   "hi": "बिना अपॉइंटमेंट",
   "bn": "ওয়াক-ইন",
-  "tl": "Walk-in"
+  "tl": "Walang appointment"
  },
  "ordering.when.loading": {
   "ar": "نحمّل المواعيد المتاحة…",
@@ -942,12 +942,12 @@
   "tl": "Buod ng presyo"
  },
  "ordering.pay.lItems": {
-  "ar": "الفحوصات (4)",
-  "en": "Tests (4)",
-  "ur": "ٹیسٹ (4)",
-  "hi": "जाँचें (4)",
-  "bn": "পরীক্ষা (৪)",
-  "tl": "Mga test (4)"
+  "ar": "الفحوصات ({n})",
+  "en": "Items ({n})",
+  "ur": "ٹیسٹ ({n})",
+  "hi": "आइटम ({n})",
+  "bn": "আইটেম ({n})",
+  "tl": "Mga item ({n})"
  },
  "ordering.pay.lFee": {
   "ar": "رسوم الزيارة المنزلية",
@@ -998,12 +998,12 @@
   "tl": "Ipapadala ang home visit pagkatapos aprubahan ng insurer; nakalaan ang slot sa sentro habang naghihintay."
  },
  "ordering.pay.locked": {
-  "ar": "السعر مثبّت عند الحجز. إن لم يؤكد المزوّد خلال 5 دقائق أو رفض، نُرجع المبلغ كاملًا تلقائيًا.",
-  "en": "The price is locked at booking. If the provider does not confirm within 5 minutes or declines, we refund in full automatically.",
-  "ur": "قیمت بکنگ پر مقفل ہو جاتی ہے۔ اگر فراہم کنندہ 5 منٹ میں تصدیق نہ کرے یا انکار کرے تو پوری رقم خود بخود واپس ہو جاتی ہے۔",
-  "hi": "कीमत बुकिंग पर तय हो जाती है। यदि प्रदाता 5 मिनट में पुष्टि न करे या मना कर दे, तो पूरी राशि अपने-आप लौटा दी जाती है।",
-  "bn": "বুকিংয়ের সময় দাম নির্দিষ্ট হয়ে যায়। প্রদানকারী ৫ মিনিটে নিশ্চিত না করলে বা প্রত্যাখ্যান করলে পুরো টাকা স্বয়ংক্রিয়ভাবে ফেরত দেওয়া হয়।",
-  "tl": "Naka-lock ang presyo sa booking. Kung hindi kumpirmahin ng provider sa loob ng 5 minuto o tumanggi, awtomatikong ibabalik ang buong bayad."
+  "ar": "يُثبَّت السعر عند الحجز. إن لم يؤكد مقدّم الخدمة أو اعتذر نردّ المبلغ كاملاً تلقائياً.",
+  "en": "The price is locked at booking. If the provider does not confirm or declines, we refund in full automatically.",
+  "ur": "قیمت بکنگ پر طے ہو جاتی ہے۔ اگر فراہم کنندہ تصدیق نہ کرے یا معذرت کرے تو پوری رقم خود بخود واپس ہو جاتی ہے۔",
+  "hi": "कीमत बुकिंग पर तय हो जाती है। यदि प्रदाता पुष्टि न करे या मना कर दे, तो पूरी राशि अपने-आप वापस हो जाती है।",
+  "bn": "বুকিংয়ের সময় দাম নির্ধারিত হয়। প্রদানকারী নিশ্চিত না করলে বা অপারগতা জানালে পুরো অঙ্ক স্বয়ংক্রিয়ভাবে ফেরত দেওয়া হয়।",
+  "tl": "Naka-lock ang presyo sa booking. Kapag hindi nagkumpirma o tumanggi ang provider, awtomatiko naming ibabalik ang buong halaga."
  },
  "ordering.pay.method": {
   "ar": "طريقة الدفع",
@@ -1030,21 +1030,20 @@
   "tl": "Palitan"
  },
  "ordering.pay.secure": {
-  "ar": "الدفع الآمن عبر Moyasar",
-  "en": "Secure payment by Moyasar",
-  "ur": "Moyasar کے ذریعے محفوظ ادائیگی",
-  "hi": "Moyasar द्वारा सुरक्षित भुगतान",
-  "bn": "Moyasar-এর মাধ্যমে নিরাপদ পেমেন্ট",
-  "tl": "Ligtas na bayad sa pamamagitan ng Moyasar"
+  "ar": "دفع آمن عبر بوابة الدفع الإلكتروني",
+  "en": "Secure payment through the payment gateway",
+  "ur": "ادائیگی کے محفوظ گیٹ وے کے ذریعے ادائیگی",
+  "hi": "सुरक्षित भुगतान गेटवे के ज़रिए भुगतान",
+  "bn": "নিরাপদ পেমেন্ট গেটওয়ের মাধ্যমে পরিশোধ",
+  "tl": "Ligtas na bayad sa pamamagitan ng payment gateway"
  },
  "ordering.pay.btn": {
-  "ar": "ادفع 425 ر.س",
-  "en": "Pay 425 SAR",
-  "ur": "425 SAR ادا کریں",
-  "hi": "425 SAR चुकाएँ",
-  "bn": "৪২৫ SAR পরিশোধ করুন",
-  "tl": "Bayaran ang 425 SAR",
-  "_layout": "button grows to two lines in long languages"
+  "ar": "ادفع {amount}",
+  "en": "Pay {amount}",
+  "ur": "{amount} ادا کریں",
+  "hi": "{amount} भुगतान करें",
+  "bn": "{amount} পরিশোধ করুন",
+  "tl": "Bayaran ang {amount}"
  },
  "ordering.pay.cancelFree": {
   "ar": "إلغاء مجاني قبل تأكيد المزوّد",
@@ -2502,5 +2501,437 @@
   "hi": "नतीजे लोड नहीं हो सके।",
   "bn": "ফলাফল লোড করা যায়নি।",
   "tl": "Hindi ma-load ang mga resulta."
+ },
+ "ordering.when.noChoiceTitle": {
+  "ar": "لم تختر مقدّم الخدمة بعد",
+  "en": "No provider chosen yet",
+  "ur": "ابھی کوئی فراہم کنندہ منتخب نہیں",
+  "hi": "अभी कोई प्रदाता नहीं चुना",
+  "bn": "এখনও কোনো প্রদানকারী বেছে নেওয়া হয়নি",
+  "tl": "Wala pang napiling provider"
+ },
+ "ordering.when.noChoiceSub": {
+  "ar": "اختر مقدّم الخدمة أولاً ثم عُد لاختيار الموعد.",
+  "en": "Choose a provider first, then come back to pick a time.",
+  "ur": "پہلے فراہم کنندہ چنیں، پھر وقت چننے کے لیے واپس آئیں۔",
+  "hi": "पहले प्रदाता चुनें, फिर समय चुनने के लिए लौटें।",
+  "bn": "আগে প্রদানকারী বেছে নিন, তারপর সময় বাছতে ফিরে আসুন।",
+  "tl": "Pumili muna ng provider, saka bumalik para pumili ng oras."
+ },
+ "ordering.when.backProviders": {
+  "ar": "اختيار مقدّم الخدمة",
+  "en": "Choose a provider",
+  "ur": "فراہم کنندہ چنیں",
+  "hi": "प्रदाता चुनें",
+  "bn": "প্রদানকারী বেছে নিন",
+  "tl": "Pumili ng provider"
+ },
+ "ordering.when.tabsAria": {
+  "ar": "الحجوزات",
+  "en": "Bookings",
+  "ur": "بکنگز",
+  "hi": "बुकिंग",
+  "bn": "বুকিং",
+  "tl": "Mga booking"
+ },
+ "ordering.when.dayAria": {
+  "ar": "اليوم",
+  "en": "Day",
+  "ur": "دن",
+  "hi": "दिन",
+  "bn": "দিন",
+  "tl": "Araw"
+ },
+ "ordering.when.windowAria": {
+  "ar": "فترات الزيارة",
+  "en": "Visit windows",
+  "ur": "وزٹ کے اوقات",
+  "hi": "विज़िट के समय",
+  "bn": "ভিজিটের সময়সীমা",
+  "tl": "Mga oras ng pagbisita"
+ },
+ "ordering.when.slotAria": {
+  "ar": "مواعيد المركز",
+  "en": "Centre times",
+  "ur": "مرکز کے اوقات",
+  "hi": "केंद्र के समय",
+  "bn": "কেন্দ্রের সময়",
+  "tl": "Mga oras sa sentro"
+ },
+ "ordering.when.noSlots": {
+  "ar": "لا مواعيد متاحة في هذا اليوم.",
+  "en": "No times are available on this day.",
+  "ur": "اس دن کوئی وقت دستیاب نہیں۔",
+  "hi": "इस दिन कोई समय उपलब्ध नहीं है।",
+  "bn": "এই দিনে কোনো সময় খালি নেই।",
+  "tl": "Walang available na oras sa araw na ito."
+ },
+ "ordering.when.stage": {
+  "ar": "المرحلة {n} · ضمن {km} كم",
+  "en": "Stage {n} · within {km} km",
+  "ur": "مرحلہ {n} · {km} کلومیٹر کے اندر",
+  "hi": "चरण {n} · {km} किमी के भीतर",
+  "bn": "ধাপ {n} · {km} কিমির মধ্যে",
+  "tl": "Yugto {n} · sa loob ng {km} km"
+ },
+ "ordering.when.stageN": {
+  "ar": "المرحلة {n}",
+  "en": "Stage {n}",
+  "ur": "مرحلہ {n}",
+  "hi": "चरण {n}",
+  "bn": "ধাপ {n}",
+  "tl": "Yugto {n}"
+ },
+ "ordering.when.asapAccepted": {
+  "ar": "قبل مقدّم الخدمة طلبك",
+  "en": "A provider accepted your request",
+  "ur": "فراہم کنندہ نے آپ کی درخواست قبول کر لی",
+  "hi": "एक प्रदाता ने आपका अनुरोध स्वीकार कर लिया",
+  "bn": "একজন প্রদানকারী আপনার অনুরোধ গ্রহণ করেছেন",
+  "tl": "May provider na tumanggap ng iyong hiling"
+ },
+ "ordering.when.asapAcceptedSub": {
+  "ar": "تم إنشاء الحجز. تجده في حجوزاتك.",
+  "en": "Your booking was created. You will find it in your bookings.",
+  "ur": "آپ کی بکنگ بن گئی ہے۔ وہ آپ کی بکنگز میں ملے گی۔",
+  "hi": "आपकी बुकिंग बन गई है। वह आपकी बुकिंग में मिलेगी।",
+  "bn": "আপনার বুকিং তৈরি হয়েছে। এটি আপনার বুকিংয়ে পাবেন।",
+  "tl": "Nagawa na ang iyong booking. Makikita mo ito sa iyong mga booking."
+ },
+ "ordering.when.asapExpired": {
+  "ar": "لم يقبل أحد الطلب في الوقت المحدد",
+  "en": "Nobody accepted in time",
+  "ur": "وقت پر کسی نے قبول نہیں کیا",
+  "hi": "समय पर किसी ने स्वीकार नहीं किया",
+  "bn": "সময়মতো কেউ গ্রহণ করেননি",
+  "tl": "Walang tumanggap sa takdang oras"
+ },
+ "ordering.when.asapFallback": {
+  "ar": "أقرب موعد متاح: {w}",
+  "en": "The earliest window is {w}",
+  "ur": "قریب ترین وقت {w} ہے",
+  "hi": "सबसे पहला समय {w} है",
+  "bn": "সবচেয়ে কাছের সময় {w}",
+  "tl": "Ang pinakamaagang oras ay {w}"
+ },
+ "ordering.when.asapNoFallback": {
+  "ar": "لا توجد فترة قريبة الآن. اختر فترة من القائمة أو أعد المحاولة.",
+  "en": "No window is available right now. Pick a window from the list or try again.",
+  "ur": "ابھی کوئی وقت دستیاب نہیں۔ فہرست سے وقت چنیں یا دوبارہ کوشش کریں۔",
+  "hi": "अभी कोई समय उपलब्ध नहीं है। सूची से समय चुनें या फिर कोशिश करें।",
+  "bn": "এখন কোনো সময় খালি নেই। তালিকা থেকে সময় বেছে নিন বা আবার চেষ্টা করুন।",
+  "tl": "Walang available na oras ngayon. Pumili sa listahan o subukan muli."
+ },
+ "ordering.when.asapAgain": {
+  "ar": "ابحث مرة أخرى",
+  "en": "Search again",
+  "ur": "دوبارہ تلاش کریں",
+  "hi": "फिर से खोजें",
+  "bn": "আবার খুঁজুন",
+  "tl": "Maghanap muli"
+ },
+ "ordering.when.openBookings": {
+  "ar": "حجوزاتي",
+  "en": "My bookings",
+  "ur": "میری بکنگز",
+  "hi": "मेरी बुकिंग",
+  "bn": "আমার বুকিং",
+  "tl": "Aking mga booking"
+ },
+ "ordering.when.walkChoose": {
+  "ar": "سأحضر دون موعد",
+  "en": "I will walk in",
+  "ur": "میں بغیر وقت کے آؤں گا",
+  "hi": "मैं बिना अपॉइंटमेंट आऊँगा",
+  "bn": "আমি সরাসরি যাব",
+  "tl": "Walk-in ako"
+ },
+ "ordering.when.walkChosen": {
+  "ar": "تم الاختيار: بدون موعد",
+  "en": "Selected: walk-in",
+  "ur": "منتخب: بغیر وقت",
+  "hi": "चुना गया: बिना अपॉइंटमेंट",
+  "bn": "বাছাই করা হয়েছে: সরাসরি যাওয়া",
+  "tl": "Napili: walk-in"
+ },
+ "ordering.when.errTitle": {
+  "ar": "تعذّر تحميل المواعيد",
+  "en": "Could not load the times",
+  "ur": "اوقات لوڈ نہیں ہو سکے",
+  "hi": "समय लोड नहीं हो सके",
+  "bn": "সময় লোড করা যায়নি",
+  "tl": "Hindi ma-load ang mga oras"
+ },
+ "ordering.pay.noTimeTitle": {
+  "ar": "لم تحدّد الموعد بعد",
+  "en": "No time chosen yet",
+  "ur": "ابھی وقت منتخب نہیں",
+  "hi": "अभी समय नहीं चुना",
+  "bn": "এখনও সময় বাছা হয়নি",
+  "tl": "Wala pang napiling oras"
+ },
+ "ordering.pay.noTimeSub": {
+  "ar": "اختر موعد كل حجز ثم عُد للتأكيد والدفع.",
+  "en": "Choose a time for each booking, then come back to confirm and pay.",
+  "ur": "ہر بکنگ کا وقت چنیں، پھر تصدیق اور ادائیگی کے لیے واپس آئیں۔",
+  "hi": "हर बुकिंग का समय चुनें, फिर पुष्टि और भुगतान के लिए लौटें।",
+  "bn": "প্রতিটি বুকিংয়ের সময় বেছে নিন, তারপর নিশ্চিত ও পরিশোধ করতে ফিরে আসুন।",
+  "tl": "Pumili ng oras para sa bawat booking, saka bumalik para kumpirmahin at magbayad."
+ },
+ "ordering.pay.backTime": {
+  "ar": "اختيار الموعد",
+  "en": "Choose a time",
+  "ur": "وقت چنیں",
+  "hi": "समय चुनें",
+  "bn": "সময় বেছে নিন",
+  "tl": "Pumili ng oras"
+ },
+ "ordering.pay.items": {
+  "ar": "الفحوصات",
+  "en": "Items",
+  "ur": "ٹیسٹ",
+  "hi": "आइटम",
+  "bn": "আইটেম",
+  "tl": "Mga item"
+ },
+ "ordering.pay.lBooking": {
+  "ar": "إجمالي هذا الحجز",
+  "en": "Booking total",
+  "ur": "اس بکنگ کا کل",
+  "hi": "इस बुकिंग का कुल",
+  "bn": "এই বুকিংয়ের মোট",
+  "tl": "Kabuuan ng booking"
+ },
+ "ordering.pay.dueNow": {
+  "ar": "المبلغ المستحق الآن",
+  "en": "Amount due now",
+  "ur": "ابھی واجب الادا رقم",
+  "hi": "अभी देय राशि",
+  "bn": "এখন প্রদেয় অঙ্ক",
+  "tl": "Halagang babayaran ngayon"
+ },
+ "ordering.pay.btnGeneric": {
+  "ar": "تأكيد ودفع",
+  "en": "Confirm and pay",
+  "ur": "تصدیق کریں اور ادا کریں",
+  "hi": "पुष्टि करें और भुगतान करें",
+  "bn": "নিশ্চিত করে পরিশোধ করুন",
+  "tl": "Kumpirmahin at magbayad"
+ },
+ "ordering.pay.confirmIns": {
+  "ar": "تأكيد الحجز",
+  "en": "Confirm booking",
+  "ur": "بکنگ کی تصدیق کریں",
+  "hi": "बुकिंग की पुष्टि करें",
+  "bn": "বুকিং নিশ্চিত করুন",
+  "tl": "Kumpirmahin ang booking"
+ },
+ "ordering.pay.createdTitle": {
+  "ar": "تم إنشاء حجزك",
+  "en": "Your booking was created",
+  "ur": "آپ کی بکنگ بن گئی",
+  "hi": "आपकी बुकिंग बन गई",
+  "bn": "আপনার বুকিং তৈরি হয়েছে",
+  "tl": "Nagawa na ang iyong booking"
+ },
+ "ordering.pay.createdSub": {
+  "ar": "أكمل الدفع بالبطاقة لتأكيد الحجز.",
+  "en": "Complete the card payment to confirm the booking.",
+  "ur": "بکنگ کی تصدیق کے لیے کارڈ سے ادائیگی مکمل کریں۔",
+  "hi": "बुकिंग की पुष्टि के लिए कार्ड से भुगतान पूरा करें।",
+  "bn": "বুকিং নিশ্চিত করতে কার্ডে পরিশোধ সম্পন্ন করুন।",
+  "tl": "Tapusin ang bayad sa card para makumpirma ang booking."
+ },
+ "ordering.pay.statusApproval": {
+  "ar": "بانتظار موافقة التأمين",
+  "en": "Waiting for insurer approval",
+  "ur": "انشورنس کی منظوری کا انتظار",
+  "hi": "बीमा की मंज़ूरी का इंतज़ार",
+  "bn": "বিমার অনুমোদনের অপেক্ষায়",
+  "tl": "Naghihintay ng pag-apruba ng insurer"
+ },
+ "ordering.pay.statusPending": {
+  "ar": "بانتظار الدفع والتأكيد",
+  "en": "Waiting for payment and confirmation",
+  "ur": "ادائیگی اور تصدیق کا انتظار",
+  "hi": "भुगतान और पुष्टि का इंतज़ार",
+  "bn": "পরিশোধ ও নিশ্চিতকরণের অপেক্ষায়",
+  "tl": "Naghihintay ng bayad at kumpirmasyon"
+ },
+ "ordering.pay.bookingBtn": {
+  "ar": "ادفع هذا الحجز",
+  "en": "Pay this booking",
+  "ur": "اس بکنگ کی ادائیگی کریں",
+  "hi": "इस बुकिंग का भुगतान करें",
+  "bn": "এই বুকিং পরিশোধ করুন",
+  "tl": "Bayaran ang booking na ito"
+ },
+ "ordering.pay.tryAgain": {
+  "ar": "حاول الدفع مرة أخرى",
+  "en": "Try the payment again",
+  "ur": "ادائیگی دوبارہ آزمائیں",
+  "hi": "भुगतान फिर से आज़माएँ",
+  "bn": "পরিশোধ আবার চেষ্টা করুন",
+  "tl": "Subukan muli ang bayad"
+ },
+ "ordering.pay.orderNone": {
+  "ar": "لا يوجد طلب طبي فعّال يغطي هذه الفحوصات. ارفع صورة أو ملفاً للطلب.",
+  "en": "No active medical order covers these items. Upload a photo or file of the order.",
+  "ur": "کوئی فعال طبی آرڈر ان ٹیسٹس کو شامل نہیں کرتا۔ آرڈر کی تصویر یا فائل اپ لوڈ کریں۔",
+  "hi": "कोई सक्रिय मेडिकल ऑर्डर इन आइटम को कवर नहीं करता। ऑर्डर की फ़ोटो या फ़ाइल अपलोड करें।",
+  "bn": "কোনো সক্রিয় মেডিকেল অর্ডার এই আইটেমগুলো কভার করে না। অর্ডারের ছবি বা ফাইল আপলোড করুন।",
+  "tl": "Walang aktibong medical order na sumasaklaw sa mga item na ito. Mag-upload ng larawan o file ng order."
+ },
+ "ordering.pay.orderValid": {
+  "ar": "طلب طبي صالح حتى {d}",
+  "en": "Medical order valid until {d}",
+  "ur": "طبی آرڈر {d} تک درست",
+  "hi": "मेडिकल ऑर्डर {d} तक मान्य",
+  "bn": "মেডিকেল অর্ডার {d} পর্যন্ত বৈধ",
+  "tl": "Medical order, valid hanggang {d}"
+ },
+ "ordering.pay.ordersErr": {
+  "ar": "تعذّر تحميل طلباتك الطبية. يمكنك رفع ملف الطلب بدلاً من ذلك.",
+  "en": "Your medical orders could not be loaded. You can upload the order file instead.",
+  "ur": "آپ کے طبی آرڈر لوڈ نہیں ہو سکے۔ آپ آرڈر کی فائل اپ لوڈ کر سکتے ہیں۔",
+  "hi": "आपके मेडिकल ऑर्डर लोड नहीं हो सके। आप इसके बजाय ऑर्डर की फ़ाइल अपलोड कर सकते हैं।",
+  "bn": "আপনার মেডিকেল অর্ডার লোড করা যায়নি। এর বদলে অর্ডারের ফাইল আপলোড করতে পারেন।",
+  "tl": "Hindi ma-load ang iyong mga medical order. Maaari kang mag-upload ng file ng order."
+ },
+ "ordering.pay.docType": {
+  "ar": "اختر صورة أو ملف PDF.",
+  "en": "Choose an image or a PDF file.",
+  "ur": "تصویر یا PDF فائل چنیں۔",
+  "hi": "कोई छवि या PDF फ़ाइल चुनें।",
+  "bn": "একটি ছবি বা PDF ফাইল বেছে নিন।",
+  "tl": "Pumili ng larawan o PDF file."
+ },
+ "ordering.pay.docRead": {
+  "ar": "تعذّرت قراءة الملف.",
+  "en": "The file could not be read.",
+  "ur": "فائل پڑھی نہیں جا سکی۔",
+  "hi": "फ़ाइल पढ़ी नहीं जा सकी।",
+  "bn": "ফাইলটি পড়া যায়নি।",
+  "tl": "Hindi mabasa ang file."
+ },
+ "ordering.pay.docSize": {
+  "ar": "الملف كبير جداً. اختر ملفاً أصغر.",
+  "en": "The file is too large. Choose a smaller file.",
+  "ur": "فائل بہت بڑی ہے۔ چھوٹی فائل چنیں۔",
+  "hi": "फ़ाइल बहुत बड़ी है। छोटी फ़ाइल चुनें।",
+  "bn": "ফাইলটি অনেক বড়। ছোট ফাইল বেছে নিন।",
+  "tl": "Masyadong malaki ang file. Pumili ng mas maliit."
+ },
+ "ordering.err.windowGone": {
+  "ar": "هذه الفترة لم تعد متاحة. اختر فترة أخرى.",
+  "en": "That window is no longer available. Pick another one.",
+  "ur": "یہ وقت اب دستیاب نہیں۔ دوسرا چنیں۔",
+  "hi": "यह समय अब उपलब्ध नहीं है। दूसरा चुनें।",
+  "bn": "এই সময়টি আর খালি নেই। অন্যটি বেছে নিন।",
+  "tl": "Hindi na available ang oras na iyon. Pumili ng iba."
+ },
+ "ordering.err.slotGone": {
+  "ar": "هذا الموعد لم يعد متاحاً. اختر موعداً آخر.",
+  "en": "That slot is no longer available. Pick another one.",
+  "ur": "یہ وقت اب دستیاب نہیں۔ دوسرا چنیں۔",
+  "hi": "यह स्लॉट अब उपलब्ध नहीं है। दूसरा चुनें।",
+  "bn": "এই স্লটটি আর খালি নেই। অন্যটি বেছে নিন।",
+  "tl": "Hindi na available ang slot na iyon. Pumili ng iba."
+ },
+ "ordering.err.modeNotOffered": {
+  "ar": "مقدّم الخدمة لا يقدّم هذا النوع من الزيارة.",
+  "en": "This provider does not offer this kind of visit.",
+  "ur": "یہ فراہم کنندہ اس قسم کی وزٹ نہیں دیتا۔",
+  "hi": "यह प्रदाता इस तरह की विज़िट नहीं देता।",
+  "bn": "এই প্রদানকারী এই ধরনের ভিজিট দেন না।",
+  "tl": "Hindi iniaalok ng provider na ito ang ganitong pagbisita."
+ },
+ "ordering.err.orderRequired": {
+  "ar": "مع التأمين يلزم إرفاق الطلب الطبي أو ملفه.",
+  "en": "With insurance, attach the medical order or its file.",
+  "ur": "انشورنس کے ساتھ طبی آرڈر یا اس کی فائل لگانا ضروری ہے۔",
+  "hi": "बीमा के साथ मेडिकल ऑर्डर या उसकी फ़ाइल जोड़ना ज़रूरी है।",
+  "bn": "বিমার সঙ্গে মেডিকেল অর্ডার বা তার ফাইল সংযুক্ত করতে হবে।",
+  "tl": "Kapag may insurance, ilakip ang medical order o ang file nito."
+ },
+ "ordering.err.orderExpired": {
+  "ar": "انتهت صلاحية الطلب الطبي.",
+  "en": "The medical order has expired.",
+  "ur": "طبی آرڈر کی میعاد ختم ہو گئی۔",
+  "hi": "मेडिकल ऑर्डर की वैधता समाप्त हो गई है।",
+  "bn": "মেডিকেল অর্ডারের মেয়াদ শেষ হয়ে গেছে।",
+  "tl": "Nag-expire na ang medical order."
+ },
+ "ordering.err.orderGone": {
+  "ar": "الطلب الطبي غير موجود أو لم يعد فعّالاً.",
+  "en": "The medical order was not found or is no longer active.",
+  "ur": "طبی آرڈر نہیں ملا یا اب فعال نہیں۔",
+  "hi": "मेडिकल ऑर्डर नहीं मिला या अब सक्रिय नहीं है।",
+  "bn": "মেডিকেল অর্ডার পাওয়া যায়নি বা আর সক্রিয় নেই।",
+  "tl": "Hindi nahanap ang medical order o hindi na ito aktibo."
+ },
+ "ordering.err.orderMismatch": {
+  "ar": "الطلب الطبي لا يشمل كل هذه الفحوصات.",
+  "en": "The medical order does not include all of these items.",
+  "ur": "طبی آرڈر میں یہ تمام ٹیسٹ شامل نہیں۔",
+  "hi": "मेडिकल ऑर्डर में ये सभी आइटम शामिल नहीं हैं।",
+  "bn": "মেডিকেল অর্ডারে এই সব আইটেম নেই।",
+  "tl": "Hindi kasama sa medical order ang lahat ng item na ito."
+ },
+ "ordering.err.genderNA": {
+  "ar": "لا يتوفر كادر بهذا الجنس لدى مقدّم الخدمة. غيّر التفضيل.",
+  "en": "This provider has no staff of that gender. Change the preference.",
+  "ur": "اس فراہم کنندہ کے پاس اس جنس کا عملہ نہیں۔ ترجیح بدلیں۔",
+  "hi": "इस प्रदाता के पास उस लिंग का स्टाफ़ नहीं है। पसंद बदलें।",
+  "bn": "এই প্রদানকারীর সেই লিঙ্গের কর্মী নেই। পছন্দ বদলান।",
+  "tl": "Walang staff ng kasarian na iyon ang provider. Baguhin ang kagustuhan."
+ },
+ "ordering.err.cashHome": {
+  "ar": "الزيارة المنزلية تُدفع بالبطاقة، لا نقداً.",
+  "en": "A home visit is paid by card, not in cash.",
+  "ur": "گھر کی وزٹ کارڈ سے ادا ہوتی ہے، نقد نہیں۔",
+  "hi": "घर की विज़िट का भुगतान कार्ड से होता है, नकद नहीं।",
+  "bn": "বাসায় ভিজিটের অর্থ কার্ডে দিতে হয়, নগদে নয়।",
+  "tl": "Sa card binabayaran ang home visit, hindi cash."
+ },
+ "ordering.err.alreadyPaid": {
+  "ar": "هذا الحجز مدفوع بالفعل.",
+  "en": "This booking is already paid.",
+  "ur": "یہ بکنگ پہلے ہی ادا ہو چکی ہے۔",
+  "hi": "इस बुकिंग का भुगतान हो चुका है।",
+  "bn": "এই বুকিং ইতিমধ্যে পরিশোধিত।",
+  "tl": "Bayad na ang booking na ito."
+ },
+ "ordering.err.payDown": {
+  "ar": "الدفع غير متاح الآن. حاول لاحقاً؛ حجزك محفوظ.",
+  "en": "Payment is not available right now. Try later; your booking is kept.",
+  "ur": "ادائیگی ابھی دستیاب نہیں۔ بعد میں کوشش کریں؛ آپ کی بکنگ محفوظ ہے۔",
+  "hi": "भुगतान अभी उपलब्ध नहीं है। बाद में कोशिश करें; आपकी बुकिंग सुरक्षित है।",
+  "bn": "পরিশোধ এখন পাওয়া যাচ্ছে না। পরে চেষ্টা করুন; আপনার বুকিং রাখা আছে।",
+  "tl": "Hindi available ang bayad ngayon. Subukan mamaya; nakatabi ang booking mo."
+ },
+ "ordering.err.asapOpen": {
+  "ar": "لديك بحث فوري مفتوح بالفعل. ألغِه أولاً أو انتظر نتيجته.",
+  "en": "You already have an open as-soon-as-possible search. Cancel it or wait for its result.",
+  "ur": "آپ کی ایک فوری تلاش پہلے سے جاری ہے۔ اسے منسوخ کریں یا نتیجے کا انتظار کریں۔",
+  "hi": "आपकी एक तुरंत खोज पहले से चल रही है। उसे रद्द करें या नतीजे का इंतज़ार करें।",
+  "bn": "আপনার একটি দ্রুত অনুসন্ধান আগে থেকেই চলছে। এটি বাতিল করুন বা ফলের অপেক্ষা করুন।",
+  "tl": "May bukas ka nang paghahanap na ASAP. Kanselahin ito o hintayin ang resulta."
+ },
+ "ordering.err.asapClosed": {
+  "ar": "هذا البحث انتهى ولا يمكن إلغاؤه.",
+  "en": "This search has ended and cannot be cancelled.",
+  "ur": "یہ تلاش ختم ہو چکی ہے اور منسوخ نہیں ہو سکتی۔",
+  "hi": "यह खोज समाप्त हो चुकी है और रद्द नहीं हो सकती।",
+  "bn": "এই অনুসন্ধান শেষ হয়েছে এবং বাতিল করা যায় না।",
+  "tl": "Tapos na ang paghahanap at hindi na maikakansela."
+ },
+ "ordering.err.busy": {
+  "ar": "طلبات كثيرة. انتظر قليلاً ثم حاول مجدداً.",
+  "en": "Too many requests. Wait a moment and try again.",
+  "ur": "بہت زیادہ درخواستیں۔ تھوڑا انتظار کر کے دوبارہ کوشش کریں۔",
+  "hi": "बहुत अधिक अनुरोध। थोड़ा रुककर फिर कोशिश करें।",
+  "bn": "অনেক বেশি অনুরোধ। একটু অপেক্ষা করে আবার চেষ্টা করুন।",
+  "tl": "Masyadong maraming hiling. Maghintay sandali at subukan muli."
  }
 }

@@ -1,0 +1,101 @@
+[
+  {
+    "batch": "M6",
+    "app": "web",
+    "screen": "ord11-discuss",
+    "element": "Result attached to the consultation",
+    "file": "backend/src/modules/instant-consultation/instant-consultation.service.ts",
+    "line": 89,
+    "found": "[backend] POST /consultations/instant takes only specialty, mode, family_member_id; the draft made by results/discuss is not linked to the request or the appointment",
+    "suspect": "The doctor never receives the result; the web shows 'attached' from the booking's own results read only",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6",
+    "app": "web",
+    "screen": "ord11-discuss",
+    "element": "Doctor who accepted (name)",
+    "file": "backend/src/modules/instant-consultation/instant-consultation.service.ts",
+    "line": 147,
+    "found": "[backend] GET /consultations/instant/:id returns accepted_by as an id only, no doctor name or photo",
+    "suspect": "The waiting screen cannot show who accepted; nothing is shown in its place",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6",
+    "app": "web",
+    "screen": "ord11-discuss",
+    "element": "Price before paying the instant consult",
+    "file": "backend/src/modules/instant-consultation/instant-consultation.service.ts",
+    "line": 132,
+    "found": "[backend] No price or payment intent for the instant consultation: payment_status is always not_charged and the appointment is created with payment_status not_charged",
+    "suspect": "The board's 'price shows before you pay' and the refund path cannot be wired; only the server's not_charged line is shown",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6",
+    "app": "web",
+    "screen": "ord11-discuss",
+    "element": "Fallback: earliest slot",
+    "file": "backend/src/modules/instant-consultation/instant-consultation.service.ts",
+    "line": 159,
+    "found": "[backend] fallback.earliest_slot and the no-doctors earliest_slot are always null (not computed yet)",
+    "suspect": "Web shows 'no early slot' text; no booking link can be built",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6",
+    "app": "web",
+    "screen": "ord11-discuss",
+    "element": "Fallback: refund",
+    "file": "backend/src/modules/instant-consultation/instant-consultation.service.ts",
+    "line": 159,
+    "found": "[backend] 'refund' is listed as a fallback option but there is no refund endpoint and nothing is charged",
+    "suspect": "Web shows only the not-charged line",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6",
+    "app": "web",
+    "screen": "ord11-discuss",
+    "element": "Specialty value match",
+    "file": "backend/src/modules/instant-consultation/instant-consultation.service.ts",
+    "line": 112,
+    "found": "[backend] create() matches provider_profiles.specialty by exact string; the web sends the catalogue slug (fallback name_en) from /care/specialties",
+    "suspect": "If profiles store another form of the specialty, no doctor is found",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6",
+    "app": "web",
+    "screen": "ord11-discuss",
+    "element": "Rating of lab and technician",
+    "file": "patient-web/components-next/ordering/booking-status-client.tsx",
+    "line": 289,
+    "found": "[backend] No rating endpoint under /ordering (grep of ordering controllers); the Ord11 rating card (rateTitle, tags, comment) is not built",
+    "suspect": "Not shown; no placeholder",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6",
+    "app": "web",
+    "screen": "ord11-discuss",
+    "element": "Trend per value on booking results card",
+    "file": "backend/src/modules/ordering/ordering-lifecycle.service.ts",
+    "line": 312,
+    "found": "[client] The booking card lists values with ranges; the trend list is on the lab result page only (existing section reused there), not on the booking card",
+    "suspect": "Board shows a trend per value on the same card",
+    "review_status": "open"
+  },
+  {
+    "batch": "M6",
+    "app": "web",
+    "screen": "ord11-discuss",
+    "element": "Lab result page booking link",
+    "file": "patient-web/app/[locale]/diagnostics/results/[resultId]/page.tsx",
+    "line": 128,
+    "found": "[client] The lab result's booking_id is passed to the instant page; if it is not an ordering booking the results read fails and the consultation starts without the result",
+    "suspect": "Verify at runtime against seeded data",
+    "review_status": "open"
+  }
+]

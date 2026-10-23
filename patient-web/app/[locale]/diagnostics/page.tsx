@@ -11,8 +11,11 @@ import { getPublicRadiologyServices } from "@/lib/api/radiology-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { callPatientApi, patientApiUrl } from "@/lib/api/upstream";
 import { OrderContextBar } from "@/components-next/ordering/order-context-bar";
+import { AddToBasketIcon } from "@/components-next/ordering/add-to-basket";
+import { BasketBar } from "@/components-next/ordering/basket-bar";
 import { defaultAddressLine, insuranceClass } from "@/components-next/ordering/order-context";
 import { isLocale, locales } from "@/lib/i18n";
+import { contextQuery } from "@/lib/ordering/context";
 import { localizedUrl } from "@/lib/seo";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
@@ -69,6 +72,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   const t = await getTranslations("DiagWeb");
   const d = await getTranslations("Diagnostics");
   const oc = await getTranslations("OrderContext");
+  const o = await getTranslations("OrderingFlow");
   const rtl = locale === "ar" || locale === "ur";
 
   // The patient's own requests (a signed-in patient only); the public catalogue below needs no session.
@@ -124,7 +128,9 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
     ...(s.homeVisitSupported ? [{ label: t("tagHome"), tone: LAB.tone } as Tag] : []),
     ...(s.fastingRequired ? [{ label: t("tagFasting"), tone: DIAG_TONES.warn } as Tag] : []),
   ];
-  const addHref = (s: LabService, name: string) => `/${locale}/diagnostics/cart?add=${encodeURIComponent(s.id)}&name=${encodeURIComponent(name)}${s.price !== undefined ? `&price=${s.price}` : ""}`;
+  const orderPlace = place === "facility" ? "facility" : "home";
+  const orderPay = pay === "insurance" ? "insurance" : "cash";
+  const itemHref = (id: string, itemKind: "lab" | "radiology") => `/${locale}/labs/${encodeURIComponent(id)}${contextQuery({ kind: itemKind, place: orderPlace, pay: orderPay })}`;
   const caret = <Icon name={rtl ? "caret-left" : "caret-right"} size={20} tone="currentColor" />;
   const mine = domains.filter((entry) => entry.bookings.length > 0);
 
@@ -173,6 +179,10 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
       {/* "Use your insurance / upload your card" opens the policy form, not the bookings list (needs-review issue 1062). */}
       <RowCard href={`/${locale}/insurance/add-policy`} icon={SERVICE_ICONS.insurance.icon} tone={SERVICE_ICONS.insurance.tone} title={t("insuranceTitle")} sub={t("insuranceSub")} caret={caret} />
 
+      {/* Ord02: order entry (a doctor's order) and the secondary provider-first path. Photographing a paper order needs an upload step that is not in this PR (needs-review). */}
+      <RowCard href={`/${locale}/medical-orders`} icon={SERVICE_ICONS.lab.icon} tone={SERVICE_ICONS.lab.tone} title={o("orderTitle")} sub={o("orderSub")} caret={caret} />
+      {kind === "labs" ? <RowCard href={`/${locale}/diagnostics/labs`} icon={LAB.icon} tone={LAB.tone} title={o("browseLab")} sub={o("browseLabSub")} caret={caret} /> : null}
+
       {catalogFailed ? (
         <ConsultState kind="error" title={t("catalogErrorTitle")} body={t("catalogErrorBody")} retryLabel={t("retry")} />
       ) : kind === "labs" ? (
@@ -186,7 +196,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
                   return (
                     <PackageCard
                       key={pkg.id}
-                      href={`/${locale}/diagnostics/packages/${encodeURIComponent(pkg.id)}`}
+                      href={itemHref(pkg.id, "lab")}
                       title={name}
                       sub={pickText(locale, pkg.descriptionAr, pkg.descriptionEn)}
                       count={pkg.includedServices?.length ? t("packageCount", { count: pkg.includedServices.length }) : undefined}
@@ -211,13 +221,12 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
                   return (
                     <TestRow
                       key={s.id}
-                      href={`/${locale}/diagnostics/test-detail?testId=${encodeURIComponent(s.id)}`}
+                      href={itemHref(s.id, "lab")}
                       title={name}
                       tags={testTags(s)}
                       note={s.turnaroundHours !== undefined ? t("resultWithin", { time: hoursText(locale, s.turnaroundHours) }) : undefined}
                       price={s.price !== undefined ? money(locale, s.price) : undefined}
-                      addHref={addHref(s, name)}
-                      addLabel={t("addToOrder", { name })}
+                      addSlot={<AddToBasketIcon kind="lab" line={{ id: s.id, nameAr: s.nameAr, nameEn: s.nameEn }} name={name} />}
                     />
                   );
                 })}
@@ -236,7 +245,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
               {scans.map((s) => (
                 <RadiologyTile
                   key={s.id}
-                  href={`/${locale}/diagnostics/radiology/${encodeURIComponent(s.id)}`}
+                  href={itemHref(s.id, "radiology")}
                   title={pickText(locale, s.nameAr, s.nameEn) ?? ""}
                   sub={s.price !== undefined ? t("fromPrice", { price: money(locale, s.price) }) : undefined}
                   imageUrl={s.imageUrl}
@@ -267,6 +276,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
           })}
         </section>
       ))}
+      <BasketBar locale={locale} kind={kind === "radiology" ? "radiology" : "lab"} place={orderPlace} pay={orderPay} />
     </ConsultPage>
   );
 }

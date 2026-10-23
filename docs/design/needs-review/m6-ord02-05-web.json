@@ -1,0 +1,145 @@
+[
+  {
+    "batch": "m6-ord02-05",
+    "app": "web",
+    "screen": "Ord02 service home",
+    "element": "'from X SAR' and provider count per test, package and scan",
+    "file": "patient-web/app/[locale]/diagnostics/page.tsx",
+    "line": 229,
+    "found": "[backend] The catalogue rows have no area-cached 'from' price or provider count for the patient's context; only POST /ordering/quote answers them, and only for an item list (ordering.service.ts quote). The hub rows show no 'from' line, and the quote is not called once per row because every call also writes a coverage-gap counter (ordering.service.ts recordGap).",
+    "suspect": "Needs a read endpoint (item ids + context -> from_price, providers_count) that does not count as demand.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord02-05",
+    "app": "web",
+    "screen": "Ord02 service home",
+    "element": "'Photograph the paper' order entry",
+    "file": "patient-web/app/[locale]/diagnostics/page.tsx",
+    "line": 183,
+    "found": "[backend] POST /ordering/photo-order needs an upload_id (ordering.dto.ts PhotoOrderDto) and no ordering upload endpoint was found, so the photo entry is not drawn; only 'My medical orders' is.",
+    "suspect": "Confirm which upload endpoint produces the upload_id, then add the entry in the Ord06-Ord07 PR or a follow-up.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord02-05",
+    "app": "web",
+    "screen": "Ord02 service home",
+    "element": "Nursing entry: item page link",
+    "file": "patient-web/app/[locale]/nursing/catalog/page.tsx",
+    "line": 100,
+    "found": "[client] The nursing catalogue rows still open the home-care service page; only the add-to-basket button was added. The nursing quote works, but nursing booking returns service_kind_not_bookable_yet (ordering.service.ts book), so the basket for nursing ends at the provider list.",
+    "suspect": "Reviewer: decide whether the nursing basket is shown before M7 makes nursing bookable.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord02-05",
+    "app": "web",
+    "screen": "Ord03 item page",
+    "element": "Doctor's-order items pre-ticked and untickable ('later')",
+    "file": "patient-web/app/[locale]/labs/[testSlug]/page.tsx",
+    "line": 118,
+    "found": "[client] Not built: the item page does not read the patient's medical order items for this test; the board's order block (ordering.item.ord.*) is not drawn.",
+    "suspect": "Wire GET /medical-orders items (group labs, status open/later) in the PR that carries the doctor-order flow.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord02-05",
+    "app": "web",
+    "screen": "Ord03 item page",
+    "element": "Price, provider count and coverage come from a quote made on page view",
+    "file": "patient-web/app/[locale]/labs/[testSlug]/page.tsx",
+    "line": 96,
+    "found": "[backend] Each item-page view runs POST /ordering/quote on the server, which inserts a quote row and, for an empty result, increments a coverage-gap cell (ordering.service.ts recordGap). Page views and re-sorting inflate the admin's gap counts.",
+    "suspect": "A read-only quote (or a flag to skip the gap counter) would remove the inflation.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord02-05",
+    "app": "web",
+    "screen": "Ord03 item page",
+    "element": "Quote needs a saved address with coordinates",
+    "file": "patient-web/lib/ordering/server.ts",
+    "line": 15,
+    "found": "[client] Without a default address that has latitude/longitude the price and coverage block shows 'add an address' and nothing else (no invented price). GET /users/me/addresses returns latitude/longitude as optional.",
+    "suspect": "Check that the address form on web saves coordinates (profile/addresses).",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord02-05",
+    "app": "web",
+    "screen": "Ord04 basket",
+    "element": "'Request offers' and 'Notify me' alternatives",
+    "file": "patient-web/components-next/ordering/basket-client.tsx",
+    "line": 95,
+    "found": "[backend] The empty result lists broadcast and notify_me alternatives, but there is no items-based offer request or notify-me endpoint (POST /ordering/asap dispatches a booking, photo-order needs an upload). Only 'facility_nearby' is drawn, with its move-to-centre link.",
+    "suspect": "Endpoints for 'request price offers' and 'notify me' are missing.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord02-05",
+    "app": "web",
+    "screen": "Ord04 basket",
+    "element": "'For whom' (family member) in the context",
+    "file": "patient-web/components-next/ordering/ordering-context.tsx",
+    "line": 12,
+    "found": "[client] The context bar still has place and payment only; the quote supports family_member_id (ordering.dto.ts QuoteContextDto) but no web control sets it, so quotes are always for the account holder.",
+    "suspect": "Add the family selector to the context bar (Ord01 follow-up).",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord02-05",
+    "app": "web",
+    "screen": "Ord04 basket",
+    "element": "Basket when the context changes",
+    "file": "patient-web/components-next/ordering/use-basket.ts",
+    "line": 34,
+    "found": "[owner] Open line of the board: the basket stays on the device and the quote is recomputed when place or payment changes; items that become facility-only move to the centre group by themselves.",
+    "suspect": "Owner to confirm this is the wanted behaviour.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord02-05",
+    "app": "web",
+    "screen": "Ord05 providers",
+    "element": "'Open now' filter",
+    "file": "patient-web/components-next/ordering/providers-client.tsx",
+    "line": 159,
+    "found": "[backend] The quote rows carry no opening hours or open-now flag, so the board's 'Open now' filter is not drawn. 'In my network' (in_network) and 'Female staff' (staff_gender sent to the quote) are wired; 'Home visit' is the group, not a filter.",
+    "suspect": "Add open_now to the compare row.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord02-05",
+    "app": "web",
+    "screen": "Ord05 providers",
+    "element": "Reliability line and review count",
+    "file": "patient-web/components-next/ordering/providers-client.tsx",
+    "line": 64,
+    "found": "[backend] The compare row has rating but no review count and no reliability value (reliability is used for ranking inside the engine only), so 'Confirms bookings within 5 minutes' and '(n reviews)' are not drawn.",
+    "suspect": "Expose reliability and rating_count on the row if they should show.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord02-05",
+    "app": "web",
+    "screen": "Ord05 providers",
+    "element": "'Use this split' button",
+    "file": "patient-web/components-next/ordering/providers-client.tsx",
+    "line": 108,
+    "found": "[backend] POST /ordering/bookings takes one provider per mode (ordering.dto.ts SelectionsDto), so a suggested split between two providers cannot be booked from one quote. The split is shown (providers, item counts, total) without the button.",
+    "suspect": "Decide how a multi-provider split becomes bookings (two quotes or a bookings change).",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord02-05",
+    "app": "web",
+    "screen": "Ord05 providers",
+    "element": "'Continue' goes to /labs/when",
+    "file": "patient-web/components-next/ordering/providers-client.tsx",
+    "line": 137,
+    "found": "[client] The time picker route (Ord06) is in the next PR, so Continue leads to a missing page until that PR is merged. The choice is kept in sessionStorage (nabd_ordering_selection_v1).",
+    "suspect": "Merge this PR together with or before Ord06-Ord07.",
+    "review_status": "open"
+  }
+]
