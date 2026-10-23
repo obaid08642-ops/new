@@ -1,15 +1,16 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Image, Linking, Text, View } from 'react-native';
+import { Image, Linking, Pressable, Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
-import { Button } from '../../../packages/ui-native/src';
+import { Button, Card, FIcon, SERVICE_TONES, type FillIconName, type ServiceTone } from '../../../packages/ui-native/src';
 import { ConsultScreen, Gate, Section, type GateStatus } from '../../src/components/consult/ConsultKit';
-import { AmountLine, Block, LAB_TONE, PersonRow, Timeline, goBackDiag } from '../../src/components/diagnostics/DiagKit';
+import { AmountLine, Block, LAB_TONE, Tag, Timeline, goBackDiag } from '../../src/components/diagnostics/DiagKit';
 import { Notice } from '../../src/components/pharmacy/OfferKit';
+import { providerName } from '../../src/utils/ordering';
+import { useOrderDates } from '../../src/components/ordering/OrderingKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
-import { fmtDate, fmtTime } from '../../src/utils/dates';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { getDraft } from '../../src/utils/orderingBooking';
@@ -28,6 +29,14 @@ const STAGE_KEY: Record<Stage, string> = {
   pay: 'ordering.track.stPay', active: 'ordering.track.stActive', results: 'ordering.track.stResults',
 };
 
+/** The board draws the person marks (arrival code, cancel choice) in the first service tone. */
+const PERSON_TONE: ServiceTone = SERVICE_TONES[0];
+const CHOICE_LOOK: Record<Choice, { icon: FillIconName; tone: ServiceTone }> = {
+  pay_difference: { icon: 'arrows-left-right', tone: 'blue' },
+  covered_only: { icon: 'check-circle', tone: 'mint' },
+  cancel_free: { icon: 'x-circle', tone: PERSON_TONE },
+};
+
 interface Loaded { booking: BookingView; approval: Approval | null }
 
 /**
@@ -38,6 +47,7 @@ interface Loaded { booking: BookingView; approval: Approval | null }
  */
 export default function BookingStatus() {
   const { theme, t, c, k, num, money, flow } = useScreenUi();
+  const { fmtDate, fmtTime } = useOrderDates();
   const params = useLocalSearchParams<{ id?: string; group?: string }>();
   const ids = Array.from(new Set([String(params.id ?? ''), ...String(params.group ?? '').split(',')].filter(Boolean)));
   const idsKey = ids.join(',');
@@ -110,7 +120,7 @@ export default function BookingStatus() {
   const shareLine = (label: string, amount: number | null, strong = false) => (amount === null ? null : <AmountLine label={label} amount={amount} strong={strong} />);
 
   return (
-    <ConsultScreen testID="diagnostics-booking-status" title={k('ordering.track.title')} onBack={goBackDiag} onRefresh={() => void load(true)}>
+    <ConsultScreen testID="diagnostics-booking-status" title={stage === 'choice' || stage === 'pay' ? k('ordering.part.title') : k('ordering.track.title')} onBack={goBackDiag} onRefresh={() => void load(true)}>
       <Gate status={status} onRetry={() => void load(false)} missingTitle={k('ordering.err.bookingGone')}>
         {ids.length > 1 ? (
           <Section title={k('ordering.track.bookings')}>
@@ -158,7 +168,7 @@ function Panel({ booking, approval, stage, now, nameOf, when, shareLine, onChang
   shareLine: (label: string, amount: number | null, strong?: boolean) => React.ReactNode;
   onChanged: () => Promise<void>; money: (n: number) => string; c: UiColors;
 }) {
-  const { theme, t, k, num, flow } = useScreenUi();
+  const { theme, t, k, num, flow, lang } = useScreenUi();
   const small = { ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow };
   const meta = { ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow };
   const cancelledUnconfirmed = booking.status === 'cancelled_unconfirmed';
@@ -248,39 +258,66 @@ function Panel({ booking, approval, stage, now, nameOf, when, shareLine, onChang
 
   const goOthers = () => router.push((getDraft() ? '/diagnostics/when' : '/diagnostics/service-home') as Href);
 
+  const providerLabel = visit ? providerName(visit.provider, lang) : '';
+  const warn = c.status.warning;
+  const modeLabel = booking.mode === 'home' ? k('ordering.match.homeVisit') : k('ordering.match.atCentre');
+  /** The amber block of the board (waiting for the provider, waiting for the insurer). */
+  const amber = (children: React.ReactNode) => (
+    <View style={{ borderRadius: 24, backgroundColor: warn.bg, padding: 16, gap: 8 }}>{children}</View>
+  );
+  const showSteps = ['confirm', 'insurance', 'active', 'results', 'pay'].includes(stage);
+  const itemTone = (d: 'approved' | 'rejected' | 'pending') => (d === 'approved' ? 'mint' : d === 'rejected' ? PERSON_TONE : 'amber') as 'mint' | 'amber' | ServiceTone;
+
   return (
     <>
-      <Block gap={6}>
-        <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{booking.mode === 'home' ? k('ordering.match.homeVisit') : k('ordering.match.atCentre')}</Text>
-        <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{k(STAGE_KEY[stage])}</Text>
-        {booking.items.map((i, n) => <AmountLine key={i.catalog_id} label={nameOf(i.catalog_id, n)} amount={i.price} />)}
-        {booking.total !== null ? <AmountLine label={k('ordering.pay.lTotal')} amount={booking.total} strong /> : null}
-        {booking.payment.status === 'paid' ? <Text style={meta}>{k('ordering.track.payPaid')}</Text> : booking.payment.status === 'pending' ? <Text style={meta}>{k('ordering.track.payPending')}</Text> : null}
-      </Block>
+      {/* the booking card of the boards: mode tile and stage on top, then its lines, the total and the payment state */}
+      <Card theme={theme} padding="md">
+        <View style={{ gap: 12 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: c.border.hairline }}>
+            <FIcon icon={booking.mode === 'home' ? 'house' : 'hospital'} tone={booking.mode === 'home' ? 'mint' : 'violet'} size={44} theme={theme} />
+            <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+              <Text accessibilityRole="header" style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{modeLabel}</Text>
+              <Text style={meta}>{k(STAGE_KEY[stage])}</Text>
+            </View>
+          </View>
+          {booking.items.map((i, n) => <AmountLine key={i.catalog_id} label={nameOf(i.catalog_id, n)} amount={i.price} />)}
+          {booking.total !== null ? <AmountLine label={k('ordering.pay.lTotal')} amount={booking.total} strong /> : null}
+          {booking.payment.status === 'paid' ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <FIcon icon="check-circle" tone="mint" chip="none" size={18} theme={theme} />
+              <Text style={meta}>{k('ordering.track.payPaid')}</Text>
+            </View>
+          ) : booking.payment.status === 'pending' ? <Text style={meta}>{k('ordering.track.payPending')}</Text> : null}
+        </View>
+      </Card>
 
       {problem ? <Notice tone="danger" text={problem} /> : null}
 
       {/* Ord08: the provider's confirmation clock */}
       {stage === 'confirm' && booking.confirmDeadlineAt ? (
-        <Section title={k('ordering.wait.confirmTitle')}>
-          <Block gap={8}>
-            <Text style={small}>{k('ordering.wait.left')}</Text>
-            <Clock seconds={secondsUntil(booking.confirmDeadlineAt, now)} />
-            <Text style={meta}>{k('ordering.wait.refundNote')}</Text>
-          </Block>
-        </Section>
+        <>
+          {amber(
+            <>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                <FIcon icon="clock-counter-clockwise" tone="amber" chip="none" size={20} theme={theme} />
+                <Text style={{ ...scale(t, 'small', 'bold'), color: warn.fg }}>{k('ordering.wait.left')}</Text>
+              </View>
+              <Clock seconds={secondsUntil(booking.confirmDeadlineAt, now)} color={warn.fg} />
+            </>,
+          )}
+          <Notice tone="warning" text={k('ordering.wait.refundNote')} />
+        </>
       ) : null}
 
       {/* Ord08: the insurer's wait */}
-      {stage === 'insurance' ? (
-        <Section title={k('ordering.wait.insTitle')}>
-          <Block gap={8}>
-            <Text style={small}>{k('ordering.wait.insBody')}</Text>
-            {booking.mode === 'home' ? <Text style={small}>{k('ordering.wait.insHome')}</Text> : null}
-            {approval?.estimate ? shareLine(k('ordering.wait.estShare'), approval.estimatedShareTotal) : null}
-            {approval?.estimate ? <Text style={meta}>{k('ordering.wait.estNote')}</Text> : null}
-          </Block>
-        </Section>
+      {stage === 'insurance' ? amber(
+        <>
+          <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: warn.fg, ...flow }}>{k('ordering.wait.insTitle')}</Text>
+          <Text style={{ ...scale(t, 'small', 'regular'), color: warn.fg, ...flow }}>{k('ordering.wait.insBody')}</Text>
+          {booking.mode === 'home' ? <Text style={{ ...scale(t, 'small', 'regular'), color: warn.fg, ...flow }}>{k('ordering.wait.insHome')}</Text> : null}
+          {approval?.estimate ? shareLine(k('ordering.wait.estShare'), approval.estimatedShareTotal) : null}
+          {approval?.estimate ? <Text style={{ ...scale(t, 'meta', 'regular'), color: warn.fg, ...flow }}>{k('ordering.wait.estNote')}</Text> : null}
+        </>,
       ) : null}
 
       {/* Ord08: cancelled by the system or the patient, the refund and the next provider */}
@@ -299,30 +336,48 @@ function Panel({ booking, approval, stage, now, nameOf, when, shareLine, onChang
         </Section>
       ) : null}
 
-      {/* Ord09: partial approval */}
+      {/* Ord09: partial approval. Head with the insurer tile, the expiry warning, the per-item decisions, the three option cards */}
       {approval && (stage === 'choice' || (done && approval.status !== 'approved')) ? (
-        <Section title={k('ordering.part.title')}>
-          <Block gap={8}>
-            <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{approval.status === 'rejected' ? k('ordering.part.headRejected') : k('ordering.part.head')}</Text>
-            {stage === 'choice' ? <Text style={small}>{k('ordering.part.headSub')}</Text> : null}
-            {approval.items.map((i, n) => (
-              <View key={i.catalog_id} style={{ gap: 2 }}>
-                <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{nameOf(i.catalog_id, n)} · {i.decision === 'approved' ? k('ordering.part.dApproved') : i.decision === 'rejected' ? k('ordering.part.dRejected') : k('ordering.part.dPending')}</Text>
-                {i.insurerShare !== null ? <AmountLine label={k('ordering.part.colIns')} amount={i.insurerShare} /> : null}
-                {i.patientShare !== null ? <AmountLine label={k('ordering.part.colYou')} amount={i.patientShare} /> : null}
-              </View>
-            ))}
-            {approval.homeFee && approval.homeFee.amount > 0 ? <AmountLine label={approval.homeFee.covered ? `${k('ordering.part.fee')} · ${k('ordering.part.dApproved')}` : k('ordering.part.fee')} amount={approval.homeFee.amount} /> : null}
-            {shareLine(k('ordering.part.finalShare'), approval.patientShareTotal, true)}
-            {approval.validUntil ? <Text style={meta}>{k('ordering.part.expires', { d: when(approval.validUntil) })}</Text> : null}
-            {approval.expiresBeforeVisit ? <Notice tone="warning" text={k('ordering.wait.warn')} actionLabel={approval.rebookEarlier ? k('ordering.wait.rebook') : undefined} onAction={approval.rebookEarlier ? goOthers : undefined} /> : null}
-          </Block>
-          {stage === 'choice' ? (
-            <Block gap={8}>
-              {approval.choices.map((ch) => (
-                <Button key={ch} theme={theme} size="md" variant={picked === ch ? 'primary' : 'outline'} label={k(`ordering.part.o_${ch}`)} onPress={() => { setPicked(ch); setConfirmCancel(false); }} />
+        <>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <FIcon icon="shield-check" tone="blue" size={44} theme={theme} />
+            <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+              <Text accessibilityRole="header" style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{approval.status === 'rejected' ? k('ordering.part.headRejected') : k('ordering.part.head')}</Text>
+              {stage === 'choice' ? <Text style={small}>{k('ordering.part.headSub')}</Text> : null}
+            </View>
+          </View>
+          {approval.validUntil ? <Notice tone="warning" text={k('ordering.part.expires', { d: when(approval.validUntil) })} /> : null}
+          {approval.expiresBeforeVisit ? <Notice tone="warning" text={k('ordering.wait.warn')} actionLabel={approval.rebookEarlier ? k('ordering.wait.rebook') : undefined} onAction={approval.rebookEarlier ? goOthers : undefined} /> : null}
+          <Card theme={theme} padding="md">
+            <View style={{ gap: 12 }}>
+              {approval.items.map((i, n) => (
+                <View key={i.catalog_id} style={{ gap: 6, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: c.border.hairline }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                    <FIcon icon="test-tube" tone={LAB_TONE} size={36} theme={theme} />
+                    <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{nameOf(i.catalog_id, n)}</Text>
+                    <Tag label={i.decision === 'approved' ? k('ordering.part.dApproved') : i.decision === 'rejected' ? k('ordering.part.dRejected') : k('ordering.part.dPending')} tone={itemTone(i.decision)} />
+                  </View>
+                  {i.insurerShare !== null ? <AmountLine label={k('ordering.part.colIns')} amount={i.insurerShare} /> : null}
+                  {i.patientShare !== null ? <AmountLine label={k('ordering.part.colYou')} amount={i.patientShare} /> : null}
+                </View>
               ))}
-              {picked ? <Text style={meta}>{k(`ordering.part.s_${picked}`)}</Text> : null}
+              {approval.homeFee && approval.homeFee.amount > 0 ? <AmountLine label={approval.homeFee.covered ? `${k('ordering.part.fee')} · ${k('ordering.part.dApproved')}` : k('ordering.part.fee')} amount={approval.homeFee.amount} /> : null}
+              {shareLine(k('ordering.part.finalShare'), approval.patientShareTotal, true)}
+            </View>
+          </Card>
+          {stage === 'choice' ? (
+            <>
+              {approval.choices.map((ch) => (
+                <OptionCard
+                  key={ch}
+                  icon={CHOICE_LOOK[ch].icon}
+                  tone={CHOICE_LOOK[ch].tone}
+                  title={k(`ordering.part.o_${ch}`)}
+                  body={k(`ordering.part.s_${ch}`)}
+                  selected={picked === ch}
+                  onPress={() => { setPicked(ch); setConfirmCancel(false); }}
+                />
+              ))}
               {picked && picked !== 'cancel_free' ? <Button theme={theme} size="lg" fullWidth loading={busy} label={busy ? k('ordering.part.applying') : k('ordering.part.confirm')} onPress={() => void submitChoice(picked)} /> : null}
               {picked === 'cancel_free' && !confirmCancel ? <Button theme={theme} size="lg" fullWidth variant="danger" label={k('ordering.part.o_cancel_free')} onPress={() => setConfirmCancel(true)} /> : null}
               {picked === 'cancel_free' && confirmCancel ? (
@@ -333,9 +388,9 @@ function Panel({ booking, approval, stage, now, nameOf, when, shareLine, onChang
                   <Button theme={theme} size="md" variant="outline" label={k('ordering.part.keep')} onPress={() => setConfirmCancel(false)} />
                 </View>
               ) : null}
-            </Block>
+            </>
           ) : null}
-        </Section>
+        </>
       ) : null}
       {done ? <Notice tone="info" text={done.choice === 'cancel_free' ? k('ordering.part.doneCancel') : k('ordering.part.doneBody')} /> : null}
 
@@ -349,38 +404,56 @@ function Panel({ booking, approval, stage, now, nameOf, when, shareLine, onChang
         </Section>
       ) : null}
 
-      {/* Ord10: tracking */}
-      {(stage === 'active' || stage === 'results' || stage === 'pay') ? (
-        <Section title={k('ordering.track.stepsTitle')}>
-          <Block gap={4}>
-            <Timeline steps={stepsOf(booking, approval).map((s, n, all) => ({ key: s.key, title: k(`ordering.track.s_${s.key}`), state: s.done ? 'done' : all.slice(0, n).every((p) => p.done) ? 'current' : 'todo' }))} />
-          </Block>
-        </Section>
+      {/* the steps of the booking (boards Ord08 and Ord10) */}
+      {showSteps ? (
+        <Block gap={4}>
+          <Timeline steps={stepsOf(booking, approval).map((s, n, all) => ({ key: s.key, title: k(`ordering.track.s_${s.key}`), state: s.done ? 'done' : all.slice(0, n).every((p) => p.done) ? 'current' : 'todo' }))} />
+        </Block>
       ) : null}
 
+      {/* Ord10: the technician and the arrival code */}
       {visit?.staff && booking.mode === 'home' && stage !== 'results' ? (
-        <Section title={k('ordering.track.staffTitle')}>
-          <Block gap={10}>
-            {visit.staff.photo_url ? (
+        <>
+          <Card theme={theme} padding="md">
+            <View style={{ gap: 12 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <Image accessibilityIgnoresInvertColors source={{ uri: visit.staff.photo_url }} style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: c.bg.surface }} />
-                <View style={{ flex: 1, minWidth: 0 }}>
-                  <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{visit.staff.name}</Text>
-                  {visit.staff.license ? <Text style={meta}>{k('ordering.track.licence', { n: visit.staff.license })}</Text> : null}
+                {visit.staff.photo_url ? (
+                  <Image accessibilityIgnoresInvertColors source={{ uri: visit.staff.photo_url }} style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: c.bg.surface }} />
+                ) : (
+                  <FIcon icon="user" tone={LAB_TONE} size={56} theme={theme} />
+                )}
+                <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                  <Text accessibilityRole="header" style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{visit.staff.name}</Text>
+                  <Text style={meta}>{k('ordering.track.staffTitle')}{providerLabel ? ` · ${providerLabel}` : ''}</Text>
                 </View>
               </View>
-            ) : (
-              <PersonRow icon="user" tone={LAB_TONE} title={visit.staff.name} line={visit.staff.license ? k('ordering.track.licence', { n: visit.staff.license }) : undefined} />
-            )}
-            {visit.arrivalCode ? (
-              <View style={{ gap: 4 }}>
-                <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{k('ordering.track.codeTitle')}</Text>
-                <Text accessibilityLabel={visit.arrivalCode.split('').join(' ')} style={{ ...scale(t, 'h2', 'bold'), color: c.text.primary, letterSpacing: 8, textAlign: 'center', writingDirection: 'ltr' }}>{visit.arrivalCode}</Text>
+              {visit.staff.license ? (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <FIcon icon="file-text" tone="blue" chip="none" size={18} theme={theme} />
+                  <Text style={{ ...small, flex: 1, minWidth: 0 }}>{k('ordering.track.licence', { n: visit.staff.license })}</Text>
+                </View>
+              ) : null}
+            </View>
+          </Card>
+          {visit.arrivalCode ? (
+            <Card theme={theme} padding="md">
+              <View style={{ gap: 12 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <FIcon icon="key" tone={PERSON_TONE} chip="none" size={20} theme={theme} />
+                  <Text accessibilityRole="header" style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{k('ordering.track.codeTitle')}</Text>
+                </View>
+                <View accessibilityLabel={visit.arrivalCode.split('').join(' ')} style={{ flexDirection: 'row', justifyContent: 'center', gap: 10, direction: 'ltr' }}>
+                  {visit.arrivalCode.split('').map((d, n) => (
+                    <View key={`${n}-${d}`} style={{ width: 56, height: 64, borderRadius: 16, borderWidth: 2, borderColor: c.text.primary, alignItems: 'center', justifyContent: 'center' }}>
+                      <Text style={{ ...scale(t, 'h2', 'bold'), color: c.text.primary }}>{d}</Text>
+                    </View>
+                  ))}
+                </View>
                 <Text style={meta}>{k('ordering.track.codeHint')}</Text>
               </View>
-            ) : null}
-          </Block>
-        </Section>
+            </Card>
+          ) : null}
+        </>
       ) : null}
 
       {reminders.length > 0 && stage === 'active' ? (
@@ -431,11 +504,34 @@ function Panel({ booking, approval, stage, now, nameOf, when, shareLine, onChang
   );
 }
 
+/** Ord09 board: a choice card, the icon tile, the title, one line of what happens and the round radio. */
+function OptionCard({ icon, tone, title, body, selected, onPress }: { icon: FillIconName; tone: ServiceTone; title: string; body: string; selected: boolean; onPress: () => void }) {
+  const { theme, t, c, flow } = useScreenUi();
+  return (
+    <Pressable
+      accessibilityRole="radio"
+      accessibilityState={{ selected }}
+      accessibilityLabel={`${title}. ${body}`}
+      onPress={onPress}
+      style={{ minHeight: 64, flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 24, borderWidth: selected ? 2 : 1, borderColor: selected ? c.text.primary : c.border.hairline, backgroundColor: c.bg.surface, padding: 14 }}
+    >
+      <View style={{ width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: selected ? c.action.primary.bg : c.border.strong, alignItems: 'center', justifyContent: 'center' }}>
+        {selected ? <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: c.action.primary.bg }} /> : null}
+      </View>
+      <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+        <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{title}</Text>
+        <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{body}</Text>
+      </View>
+      <FIcon icon={icon} tone={tone} size={40} theme={theme} />
+    </Pressable>
+  );
+}
+
 /** mm:ss (h:mm:ss beyond an hour) in the language's digits, always left-to-right. */
-function Clock({ seconds }: { seconds: number }) {
+function Clock({ seconds, color }: { seconds: number; color?: string }) {
   const { t, c, num } = useScreenUi();
   const p = clockParts(seconds);
   const two = (n: number) => num(n, { minimumIntegerDigits: 2, useGrouping: false });
   const text = p.h > 0 ? `${num(p.h)}:${two(p.m)}:${two(p.s)}` : `${two(p.m)}:${two(p.s)}`;
-  return <Text accessibilityRole="timer" style={{ ...scale(t, 'h2', 'bold'), color: c.text.primary, textAlign: 'center', writingDirection: 'ltr' }}>{text}</Text>;
+  return <Text accessibilityRole="timer" style={{ ...scale(t, 'h2', 'bold'), color: color ?? c.text.primary, textAlign: 'center', writingDirection: 'ltr' }}>{text}</Text>;
 }
