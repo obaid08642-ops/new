@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "source": "docs/catalog-audit-gaps.md (market audit): packages and nursing services listed there as duplicates. Reviewed pairs only; a pair the owner rejects is deleted from this file.",
+  "rule": "keep the older row (createdAt, else ObjectId time, else id order); move every reference to it; copy the fields only the other row has; the other row is switched off and marked merged_into, never deleted.",
+  "pairs": [
+    { "id": "pkg-general", "catalogue": "lab_services", "package": true, "names_en": ["General Wellness Package", "Comprehensive Health Package"], "names_ar": ["باقة الصحة العامة", "باقة الفحص الشامل"], "codes": ["PKG_GENERAL"] },
+    { "id": "pkg-diabetes", "catalogue": "lab_services", "package": true, "names_en": ["Diabetes Care Package"], "names_ar": ["باقة متابعة السكري"], "codes": ["PKG_DIABETES"] },
+    { "id": "pkg-heart", "catalogue": "lab_services", "package": true, "names_en": ["Heart Health Package", "Cardiac Package"], "names_ar": ["باقة صحة القلب", "باقة القلب"], "codes": ["PKG_HEART"] },
+    { "id": "nursing-mother-newborn", "catalogue": "nursing_services", "names_en": ["Mother & Newborn Care", "Newborn & Mother Care", "Mother & Newborn", "Newborn & Mother"], "names_ar": ["العناية بالأم وحديثي الولادة"], "codes": [] },
+    { "id": "nursing-iv-drip", "catalogue": "nursing_services", "names_en": ["IV Drip Therapy", "IV Drip / Fluids & Vitamins", "IV Drip/Fluids"], "names_ar": ["تركيب محلول وريدي", "محاليل وريدية وفيتامينات بالمنزل"], "codes": [] },
+    { "id": "nursing-post-surgery", "catalogue": "nursing_services", "names_en": ["Post-Surgery Care", "Post-Surgery Home Care", "Post-Surgery"], "names_ar": ["رعاية ما بعد العمليات الجراحية", "رعاية ما بعد العمليات"], "codes": [] },
+    { "id": "nursing-wound", "catalogue": "nursing_services", "names_en": ["Advanced Wound & Diabetic Foot Care", "Wound Dressing", "Advanced Wound"], "names_ar": ["العناية بالجروح العميقة والسكري", "تغيير على الجروح"], "codes": [] }
+  ]
+}
