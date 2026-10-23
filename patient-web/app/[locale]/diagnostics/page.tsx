@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractDiagnosticBookings, type DiagnosticBooking } from "@/lib/api/diagnostics";
 import { getDiagnosticBookings } from "@/lib/api/diagnostics-server";
-import { extractLabServices, labPaymentFits, type LabService } from "@/lib/api/labs";
+import { extractLabServices, insuranceOffered, labPaymentFits, type LabService } from "@/lib/api/labs";
 import { getPublicLabServices } from "@/lib/api/labs-server";
 import { extractRadiologyServices } from "@/lib/api/radiology";
 import { getPublicRadiologyServices } from "@/lib/api/radiology-server";
@@ -68,7 +68,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   const kind = query.kind === "radiology" ? "radiology" : "labs";
   const place = query.place === "facility" ? "facility" : "home";
   // Decision 30 (owner 2026-10-14, question 5): insurance or self-pay first; self-pay is the default.
-  const pay = query.pay === "insurance" ? "insurance" : "self_pay";
+  const wantedPay = query.pay === "insurance" ? "insurance" : "self_pay";
   const t = await getTranslations("DiagWeb");
   const d = await getTranslations("Diagnostics");
   const oc = await getTranslations("OrderContext");
@@ -106,6 +106,9 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   const labServices = labsRes && labsRes.ok ? extractLabServices(await labsRes.json().catch(() => null)) : [];
   const radiologyServices = radRes && radRes.ok ? extractRadiologyServices(await radRes.json().catch(() => null)) : [];
   const packages = pkgsRes && pkgsRes.ok ? extractLabServices(await pkgsRes.json().catch(() => null)) : [];
+  // Nothing takes insurance: the choice is not offered (no empty list behind it) and a pay=insurance link falls back to self-pay.
+  const anyInsurance = insuranceOffered([...labServices.filter((s) => s.isPackage !== true), ...packages]);
+  const pay = wantedPay === "insurance" && anyInsurance ? "insurance" : "self_pay";
   const catalogFailed = !(labsRes && labsRes.ok) && !(radRes && radRes.ok);
 
   const href = (over: Partial<{ kind: string; place: string; pay: string }>) => {
@@ -163,8 +166,8 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
           { value: "facility", label: kind === "labs" ? t("placeLab") : t("placeCenter"), href: href({ place: "facility" }) },
         ]}
         payLabel={t("payLabel")}
-        pay={kind === "labs" ? pay : undefined}
-        payOptions={kind === "labs" ? [{ value: "self_pay", label: t("paySelf"), href: href({ pay: "self_pay" }) }, { value: "insurance", label: t("payInsurance"), href: href({ pay: "insurance" }) }] : undefined}
+        pay={kind === "labs" && anyInsurance ? pay : undefined}
+        payOptions={kind === "labs" && anyInsurance ? [{ value: "self_pay", label: t("paySelf"), href: href({ pay: "self_pay" }) }, { value: "insurance", label: t("payInsurance"), href: href({ pay: "insurance" }) }] : undefined}
         address={address}
         insurance={insurance}
         addressHref={`/${locale}/profile/addresses`}

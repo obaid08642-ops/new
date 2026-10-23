@@ -84,3 +84,7 @@ export function extractLabService(payload: unknown) {
 export type LabPay = "insurance" | "self_pay";
 export const labPaymentFits = (pay: LabPay, service: Pick<LabService, "insuranceAvailable" | "cashAvailable">): boolean =>
   pay === "insurance" ? service.insuranceAvailable === true : service.cashAvailable !== false;
+
+/** True when at least one bookable service takes insurance; when none does, the hub does not offer the insurance choice. */
+export const insuranceOffered = (services: ReadonlyArray<Pick<LabService, "insuranceAvailable" | "cashAvailable" | "unavailable">>): boolean =>
+  services.some((s) => !s.unavailable && labPaymentFits("insurance", s));

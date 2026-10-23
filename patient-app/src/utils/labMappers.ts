@@ -81,6 +81,9 @@ export function normalizeLabService(raw: unknown): CatalogItem | null {
   };
 }
 
+/** True when at least one service in the list can be booked on insurance (`insurance_availability: true`). */
+export const insuranceOffered = (items: readonly CatalogItem[]): boolean => items.some((x) => x.insurance);
+
 /** The list inside a response: the array itself, or the `data` of an envelope; [] when it is neither. */
 export function rowsOf(res: unknown): unknown[] {
   if (Array.isArray(res)) return res;
