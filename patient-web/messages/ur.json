@@ -1743,6 +1743,7 @@
   },
   "PostCallRating": {
     "title": "اپنے مشورے کی_rating",
+    "rateTitle": "اپنے تجربے کی درجہ بندی کریں",
     "subtitle": "آپ کی رائے دیکھ بھال کے معیار کو بہتر بناتی ہے۔",
     "comment": "تبصرہ",
     "commentPh": "اپنی رائے لکھیں (اختیاری)",
@@ -2553,7 +2554,8 @@
     "chatPharmacist": "فارماسسٹ کو پیغام بھیجیں",
     "pickupLine": "فارمیسی سے وصولی",
     "deliveryLine": "گھر پر ڈیلیوری",
-    "legacyEta": "تقریباً {minutes, number} منٹ میں پہنچے گا"
+    "legacyEta": "تقریباً {minutes, number} منٹ میں پہنچے گا",
+    "rateOrder": "فارمیسی کے ساتھ اپنے تجربے کی درجہ بندی کریں"
   },
   "OrderReorder": {
     "title": "دوبارہ آرڈر کریں",

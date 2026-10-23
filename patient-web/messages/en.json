@@ -1743,6 +1743,7 @@
   },
   "PostCallRating": {
     "title": "Rate your consultation",
+    "rateTitle": "Rate your experience",
     "subtitle": "Your feedback helps us improve care quality.",
     "comment": "Comment",
     "commentPh": "Share your notes (optional)",
@@ -2553,7 +2554,8 @@
     "chatPharmacist": "Message the pharmacist",
     "pickupLine": "Pickup from the pharmacy",
     "deliveryLine": "Home delivery",
-    "legacyEta": "Arrives in about {minutes, number} min"
+    "legacyEta": "Arrives in about {minutes, number} min",
+    "rateOrder": "Rate your experience with the pharmacy"
   },
   "OrderReorder": {
     "title": "Order again",

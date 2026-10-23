@@ -174,6 +174,12 @@ export async function TrackingScreen({ locale, orderId }: { locale: Locale; orde
         </Link>
       </section>
 
+      {status === "delivered" || status === "completed" ? (
+        <div className={styles.actions}>
+          <ButtonLink href={`/${locale}/reviews?booking_kind=pharmacy&booking_id=${encodeURIComponent(orderId)}`} label={t("rateOrder")} variant="outline" fullWidth />
+        </div>
+      ) : null}
+
       {canCancelOrder(detail.status) ? <div className={styles.actions}><CancelOrder orderId={orderId} after="refresh" rules={cancelRules} /></div> : null}
     </>,
   );

@@ -6,8 +6,8 @@
     "element": "change delivery location",
     "file": "patient-web/components-next/pharmacy/address-card.tsx",
     "line": 53,
-    "found": "[client] The app's 'Change location' opens a map location picker (/shared/location-picker) and blocks the send when there is no map point; the web 'Change' opens the saved-address list (profile/addresses?select=1) and has no map picker component to reuse.",
-    "suspect": "A web map picker (search plus pin) is a new shared component; needs the owner's go-ahead and a board for it. Not built in this parity pass.",
+    "found": "[owner] The app's 'Change location' opens a map location picker (/shared/location-picker) and blocks the send when there is no map point; the web 'Change' opens the saved-address list (profile/addresses?select=1) and has no map picker component to reuse.",
+    "suspect": "Owner decision needed: approve a new shared web map picker (search plus pin) and provide its board; nothing is built until then.",
     "review_status": "open"
   },
   {
@@ -19,17 +19,6 @@
     "line": 221,
     "found": "[owner] The app marks a card and confirms from a sticky footer (pharmacy, total, cash/insurance segmented, 'no payment now'); the web selects with one button per card and takes the coverage chosen at checkout (decision 30). The app checkout also has the coverage choice, so the two flows disagree on where coverage is chosen.",
     "suspect": "Owner decision needed on one place for the coverage choice before the footer step is copied; changing it moves payment logic, which a design pass does not do.",
-    "review_status": "open"
-  },
-  {
-    "batch": "parity-pharmacy",
-    "app": "patient-web",
-    "screen": "/orders/[id]/tracking",
-    "element": "rate after delivery",
-    "file": "patient-web/components-next/orders/tracking-screen.tsx",
-    "line": 177,
-    "found": "[client] The app opens /reviews with booking_kind=pharmacy when the order is done; the web /reviews page only lists reviews (GET /patient-ux/reviews) and no screen on the web creates one for any service.",
-    "suspect": "A review-create screen is a new feature shared by every service; needs a board and an endpoint check (reviews POST). Not added here.",
     "review_status": "open"
   },
   {

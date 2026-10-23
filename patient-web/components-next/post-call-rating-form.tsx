@@ -13,11 +13,11 @@ type Labels = { rating: string; star: string; comment: string; commentPh: string
  * The body the backend reads (patient-ux `RateDto`): the booking kind and its id, the rating, and the comment if any.
  * Nothing else: the API refuses unknown fields (forbidNonWhitelisted), so no `locale`.
  */
-export function reviewBody(appointmentId: string, rating: number, comment: string) {
-  return { booking_kind: "appointment", booking_id: appointmentId, rating, comment: comment.trim() || undefined };
+export function reviewBody(bookingId: string, rating: number, comment: string, bookingKind = "appointment") {
+  return { booking_kind: bookingKind, booking_id: bookingId, rating, comment: comment.trim() || undefined };
 }
 
-export function PostCallRatingForm({ locale, appointmentId, labels }: { locale: string; appointmentId: string; labels: Labels }) {
+export function PostCallRatingForm({ locale, appointmentId, labels, bookingKind }: { locale: string; appointmentId: string; labels: Labels; bookingKind?: string }) {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
@@ -33,7 +33,7 @@ export function PostCallRatingForm({ locale, appointmentId, labels }: { locale: 
       const res = await fetch("/api/patient-ux/review", {
         method: "POST",
         headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() },
-        body: JSON.stringify(reviewBody(appointmentId, rating, comment)),
+        body: JSON.stringify(reviewBody(appointmentId, rating, comment, bookingKind)),
       });
       if (!res.ok) throw new Error("failed");
       setDone(true);

@@ -1743,6 +1743,7 @@
   },
   "PostCallRating": {
     "title": "I-rate ang konsultasyon",
+    "rateTitle": "I-rate ang karanasan mo",
     "subtitle": "Nakatutulong ang feedback mo sa kalidad ng pangangalaga.",
     "comment": "Komento",
     "commentPh": "Ibahagi ang mga tala (opsyonal)",
@@ -2553,7 +2554,8 @@
     "chatPharmacist": "Padalhan ng mensahe ang parmasyutiko",
     "pickupLine": "Kunin sa parmasya",
     "deliveryLine": "Paghahatid sa bahay",
-    "legacyEta": "Darating sa mga {minutes, number} minuto"
+    "legacyEta": "Darating sa mga {minutes, number} minuto",
+    "rateOrder": "I-rate ang karanasan mo sa parmasya"
   },
   "OrderReorder": {
     "title": "Mag-order ulit",
