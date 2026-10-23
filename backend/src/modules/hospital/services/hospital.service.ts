@@ -13,6 +13,7 @@ import { User } from '../../../schemas/user.schema';
 import { ForbiddenException } from '@nestjs/common';
 import { Appointment } from '../../../schemas/appointment.schema';
 import { getEffectiveRoles } from '../../../common/auth.guard';
+import { recordAudit } from '../../../common/audit-record';
 
 // Whitelist of permission keys a facility may grant through an invitation —
 // anything else in the payload is silently dropped (mass-assignment guard).
@@ -213,6 +214,8 @@ export class HospitalService {
           legal_name: (data as any).legal_name || fullName,
           parent_facility_id: hospitalObjectId, staff_role: roleKey,
           specialty: (data as any).department, scfhs_number: (data as any).scfhs,
+          // a facility never verifies a practitioner: pending licence review, not bookable until an admin approves the account
+          license_verified: false, public_eligibility: false, medical_review_status: 'pending',
           createdAt: new Date(), updatedAt: new Date(),
         });
         accountId = accId;
@@ -230,6 +233,7 @@ export class HospitalService {
     if (data.branch_id) staff.branch_id = this.objectId(String(data.branch_id), 'branch_id');
     if (data.department_id) staff.department_id = this.objectId(String(data.department_id), 'department_id');
     const created = await this.staffModel.create(staff);
+    await recordAudit(this.staffModel.db, { action: 'facility_staff.added', user_id: String(actor?.id ?? hospitalId), role: String(actor?.role ?? 'facility'), resource_kind: 'facility_staff', resource_id: String(created?._id ?? userObjectId), details: { facility_id: hospitalId, staff_role: String(staff.role), account_id: accountId } });
     return { staff: created, account_id: accountId, login_available: loginAvailable };
   }
 
@@ -264,6 +268,7 @@ export class HospitalService {
     if (staff.account_id) {
       await this.staffModel.db.collection('provider_accounts').updateOne({ id: staff.account_id }, { $set: { status: 'suspended', updatedAt: new Date() } });
     }
+    await recordAudit(this.staffModel.db, { action: 'facility_staff.removed', user_id: String(actor?.id ?? hospitalId), role: String(actor?.role ?? 'facility'), resource_kind: 'facility_staff', resource_id: String(staff._id), details: { facility_id: hospitalId, staff_role: String(staff.role) } });
     return { ok: true };
   }
 

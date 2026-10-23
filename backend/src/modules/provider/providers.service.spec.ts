@@ -91,4 +91,33 @@ describe('REVIEW-P3: generated provider passwords are unguessable', () => {
     expect(r.generated_password).toMatch(/^[A-Za-z0-9_-]{16,}$/);
     expect(await bcrypt.compare(r.generated_password, created[0].password_hash)).toBe(true);
   });
+  it('a doctor created by a branch admin starts pending licence verification, inactive and not verified', async () => {
+    const users: any[] = [];
+    const userRepository = {
+      findOne: jest.fn(async () => ({ id: 'adm', role: 'hospital_admin', parent_provider_account_id: 'h1' })),
+      create: jest.fn(async (u: any) => { users.push(u); return { ...u, id: 'doc1' }; }),
+    };
+    const profiles: any[] = [];
+    const providerRepository = { create: jest.fn(async (p: any) => { profiles.push(p); return { ...p, id: 'prof1' }; }) };
+    const branch = { _id: 'b1', doctors_roster: [] as string[], save: jest.fn() };
+    const events = { emit: jest.fn() };
+    const service = new ProvidersService(userRepository as any, providerRepository as any, { findById: jest.fn(async () => branch) } as any, events as any, {} as any, {} as any, {} as any);
+    const r: any = await service.createBranchStaffAccount('adm', 'b1', { fullName: 'Dr', role: 'doctor', licenseNumber: '12-3456' });
+    expect(users[0].active).toBe(false);
+    expect(profiles[0]).toMatchObject({ status: 'pending', license_verified: false, license_number: '12-3456' });
+    expect(profiles[0].approved_at).toBeUndefined();
+    expect(events.emit).toHaveBeenCalledWith('provider.pending_review', { provider_id: 'prof1', type: 'doctor' });
+    expect(branch.doctors_roster).toEqual(['doc1']);
+    expect(r.message).toContain('بانتظار اعتماد');
+  });
+
+  it('a receptionist created by a branch admin can work at once (no licence to verify)', async () => {
+    const users: any[] = [];
+    const userRepository = { findOne: jest.fn(async () => ({ id: 'adm', role: 'branch_admin', parent_provider_account_id: 'h1' })), create: jest.fn(async (u: any) => { users.push(u); return { ...u, id: 'r1' }; }) };
+    const providerRepository = { create: jest.fn() };
+    const service = new ProvidersService(userRepository as any, providerRepository as any, { findById: jest.fn(async () => ({ _id: 'b1', doctors_roster: [], save: jest.fn() })) } as any, { emit: jest.fn() } as any, {} as any, {} as any, {} as any);
+    await service.createBranchStaffAccount('adm', 'b1', { fullName: 'Rec', role: 'receptionist' });
+    expect(users[0].active).toBe(true);
+    expect(providerRepository.create).not.toHaveBeenCalled();
+  });
 });

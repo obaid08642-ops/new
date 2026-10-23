@@ -121,9 +121,21 @@ export class OrderingLifecycleService implements OnModuleInit {
     if (lc.confirmed_at || lc.cancelled_at || !lc.confirm_deadline_at || new Date(lc.confirm_deadline_at).getTime() > Date.now()) return;
     const won = await this.lc().findOneAndUpdate({ booking_id: lc.booking_id, confirmed_at: null, cancelled_at: { $exists: false } }, { $set: { cancelled_at: new Date() } });
     if (!won) return;
+    // The flag above is only a claim. It stays cancelled only if the booking really is: otherwise the provider would be locked
+    // out of a live booking (`confirm_deadline_passed`) with no refund or alternative.
     const b = await this.bookings().findOne({ id: lc.booking_id });
-    if (!b) return;
-    if (!(await this.labs.cancelUnconfirmed(lc.booking_id))) return;
+    let cancelled = false;
+    try {
+      cancelled = !!b && (await this.labs.cancelUnconfirmed(lc.booking_id));
+    } catch (e) {
+      await this.lc().updateOne({ booking_id: lc.booking_id }, { $unset: { cancelled_at: '' } }); // refused for now: the next sweep retries
+      throw e;
+    }
+    if (!cancelled) {
+      // the booking is gone or already past the point where an unconfirmed booking can be cancelled: no deadline applies any more
+      await this.lc().updateOne({ booking_id: lc.booking_id }, { $unset: { cancelled_at: '' }, $set: { confirm_deadline_at: null } });
+      return;
+    }
     await this.ordering.bump(lc.provider_account_id, 'cancellations');
     await this.startRefund(b);
     const alternative = await this.alternativeFor(b, lc).catch(() => null);
