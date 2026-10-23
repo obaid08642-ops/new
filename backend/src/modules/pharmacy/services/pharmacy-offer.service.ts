@@ -28,6 +28,7 @@ type ProviderOfferInput = {
   items: ProviderOfferItemInput[];
   /** Reserved for a server policy; client values are never accepted as authority. */
   delivery_option?: 'delivery' | 'pickup';
+  /** The pharmacy's own estimate in minutes (5-1440); the delivery option and fee stay server policy. */
   eta_minutes?: number;
   /** #507: the pharmacy's own preparation estimate in minutes (5-240), or none. */
   preparation_minutes?: number;
@@ -325,7 +326,7 @@ export class PharmacyOfferService {
     }
   }
 
-  private async serverQuote(userId: string, order: any, inputs: ProviderOfferItemInput[], preparationMinutes?: number) {
+  private async serverQuote(userId: string, order: any, inputs: ProviderOfferItemInput[], preparationMinutes?: number, etaMinutes?: number) {
     if (!Array.isArray(inputs) || inputs.length === 0) throw new BadRequestException('offer_items_required');
     const byOrderItem = new Map(inputs.map((item) => [item.order_item_id, item]));
     if (byOrderItem.size !== order.items.length || order.items.some((item: any) => !byOrderItem.has(item.id))) {
@@ -350,6 +351,10 @@ export class PharmacyOfferService {
     // patient sees no time and "fastest" sorts it last), never a number computed from the line count.
     const prep = Number(preparationMinutes);
     const estimatedPreparationMinutes = Number.isInteger(prep) && prep >= 5 && prep <= 240 ? prep : null;
+    // The ETA is the pharmacy's own figure (5-1440 minutes) or none; the patient sees nothing invented.
+    const eta = Number(etaMinutes);
+    const etaValue = etaMinutes != null && Number.isInteger(eta) && eta >= 5 && eta <= 1440 ? eta : null;
+    if (etaMinutes != null && etaValue === null) throw new BadRequestException('eta_minutes_out_of_range');
     return {
       items,
       totals: { subtotal: Math.round(subtotal * 100) / 100, delivery_fee: deliveryFee, total: Math.round((subtotal + deliveryFee) * 100) / 100, currency: 'SAR' },
@@ -357,7 +362,7 @@ export class PharmacyOfferService {
       fulfillment: {
         policy_status: 'unavailable_read_only',
         delivery_option: null,
-        eta_minutes: null,
+        eta_minutes: etaValue,
         delivery_fee_source: feeSource,
       },
     };
@@ -365,18 +370,18 @@ export class PharmacyOfferService {
 
   async previewQuote(user: any, orderId: string, body: ProviderOfferInput) {
     const { order } = await this.loadBroadcastForPharmacy(user, orderId);
-    const quote = await this.serverQuote(user.id, order, body?.items || [], body?.preparation_minutes);
+    const quote = await this.serverQuote(user.id, order, body?.items || [], body?.preparation_minutes, body?.eta_minutes);
     return {
       ...quote,
       quote_ttl_seconds: Math.floor(OFFER_TTL_MS / 1000),
       quote_generated_at: new Date(),
-      delivery_client_fields_ignored: Boolean(body?.delivery_option || body?.eta_minutes),
+      delivery_client_fields_ignored: Boolean(body?.delivery_option),
     };
   }
 
   async upsertDraft(user: any, orderId: string, body: ProviderOfferInput) {
     const { broadcast, order } = await this.loadBroadcastForPharmacy(user, orderId);
-    const quote = await this.serverQuote(user.id, order, body?.items || [], body?.preparation_minutes);
+    const quote = await this.serverQuote(user.id, order, body?.items || [], body?.preparation_minutes, body?.eta_minutes);
     const now = new Date();
     const prior: any = await this.offers.findOne({ order_id: orderId, pharmacy_account_id: user.id, status: { $in: ['draft', 'submitted'] } }).lean();
     if (prior?.status === 'submitted') throw new BadRequestException('submitted_offer_cannot_be_edited_create_new_version');
@@ -491,7 +496,7 @@ export class PharmacyOfferService {
     const pharmacyNameAr = profile?.display_name_ar || profile?.name_ar || registeredName;
     const pharmacyNameEn = profile?.display_name_en || profile?.name_en || registeredName;
     // Q-4: no constants. Insurance readiness from the profile (flag, or its accepted insurers); no cash on delivery
-    // (owner decision 25); no delivery-time source exists, so the ETA is null and the clients hide it.
+    // (owner decision 25); the ETA is the pharmacy's own figure (null when it gave none, and the clients hide it).
     const profileInsuranceReady: boolean | null = typeof profile?.insurance_ready === 'boolean' ? profile.insurance_ready
       : Array.isArray(profile?.accepted_insurance) ? profile.accepted_insurance.length > 0 : null;
     const state = this.offerState(offer, order);
@@ -541,7 +546,11 @@ export class PharmacyOfferService {
         .update(JSON.stringify({ offer_id: offer.id, offer_version: offer.version, totals: offer.totals }))
         .digest('hex'),
       approx_distance_km: approx,
-      approx_delivery: { eta_minutes: null, label_ar: null, label_en: null },
+      // The pharmacy's own ETA when it gave one (null otherwise; clients hide it), next to the approximate distance above.
+      approx_delivery: { eta_minutes: offer.fulfillment?.eta_minutes ?? null, label_ar: null, label_en: null },
+      // The pharmacy's average rating when it has ratings (same fields as the other provider cards); null means none yet.
+      pharmacy_rating: Number(profile?.rating_count) > 0 && typeof profile?.rating_avg === 'number' && Number.isFinite(profile.rating_avg) ? profile.rating_avg : null,
+      pharmacy_rating_count: Number(profile?.rating_count) > 0 ? Number(profile.rating_count) : 0,
       provider_note: typeof offer.provider_note === 'string' ? offer.provider_note : null,
     };
   }
