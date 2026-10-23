@@ -175,7 +175,8 @@
     "rateLimited": "Masyadong maraming pagsubok. Maghintay ng isang minuto at subukan muli.",
     "serverError": "May nangyaring problema sa amin. Subukan muli sa ilang sandali.",
     "guestBlocked": "Hindi mabuksan ang guest access. Mag-sign in o subukan muli sa ilang sandali.",
-    "googleUnavailable": "Hindi available ngayon ang Google sign-in. Gumamit ng ibang paraan ng pag-sign in."
+    "googleUnavailable": "Hindi available ngayon ang Google sign-in. Gumamit ng ibang paraan ng pag-sign in.",
+    "locked": "Masyadong maraming bigong pagtatangka. Subukan muli pagkalipas ng {minutes} minuto."
   },
   "Dashboard": {
     "eyebrow": "Pribadong portal",
@@ -546,7 +547,12 @@
     "earlier": "Mas maaga",
     "emptyTitle": "Wala pang abiso",
     "markAllRead": "Markahan lahat bilang nabasa",
-    "markFailed": "Hindi ma-update ang abiso. Subukan muli."
+    "markFailed": "Hindi ma-update ang abiso. Subukan muli.",
+    "filters": "I-filter ang mga notification",
+    "filterAll": "Lahat",
+    "filter_system": "Sistema",
+    "filter_medical": "Medikal",
+    "filter_promotion": "Mga alok"
   },
   "Health": {
     "eyebrow": "Pribadong kalusugan",
@@ -1354,7 +1360,8 @@
     "recentTitle": "Mga kamakailang paghahanap",
     "recentClear": "I-clear",
     "trendingTitle": "Trending ngayon",
-    "tryTitle": "Subukan ang isa sa mga ito"
+    "tryTitle": "Subukan ang isa sa mga ito",
+    "seeAll": "Tingnan lahat ({count})"
   },
   "SearchSuggest": {
     "listLabel": "Mga mungkahi sa paghahanap",
@@ -1493,7 +1500,8 @@
     "shortAddressInvalid": "Ang maikling address ay apat na letra at apat na numero, gaya ng {example}.",
     "shortAddressNotFound": "Walang nahanap na address para sa code na ito. Suriin ito at subukan muli.",
     "shortAddressUnavailable": "Hindi sumasagot ngayon ang Saudi Post. Maaari mo pa ring i-save ang address kasama ang mga detalyeng itinype mo.",
-    "removedToast": "Naalis ang address."
+    "removedToast": "Naalis ang address.",
+    "makeDefault": "Gawing default"
   },
   "ShareReport": {
     "title": "Ibahagi ang mga Ulat",
@@ -1751,7 +1759,8 @@
   "SupportTicket": {
     "title": "Support tickets",
     "back": "Bumalik",
-    "empty": "Wala pang data."
+    "empty": "Wala pang data.",
+    "newRequest": "Bagong kahilingan"
   },
   "HealthTimeline": {
     "title": "Health timeline",
@@ -1925,7 +1934,7 @@
     "identifier": "Email o mobile number",
     "hintIdentifier": "Dito namin ipapadala ang confirmation code",
     "password": "Iyong password",
-    "hintPassword": "Hindi bababa sa 8 character",
+    "hintPassword": "Hindi bababa sa 10 character",
     "agree": "Sumasang-ayon ako sa <terms>Terms</terms> at <privacy>Privacy Policy</privacy>",
     "submit": "Gumawa ng account",
     "busy": "Gumagawa ng account…",
@@ -1940,7 +1949,13 @@
     "rateLimited": "Masyadong maraming pagsubok. Maghintay ng isang minuto at subukan muli.",
     "incomplete": "Hindi nakumpleto ang pagpaparehistro. Posibleng nagawa na ang account mo: subukang mag-sign in o subukan muli sa ilang sandali.",
     "showPassword": "Ipakita ang password",
-    "hidePassword": "Itago ang password"
+    "hidePassword": "Itago ang password",
+    "errName": "Ilagay ang pangalan (hindi bababa sa 2 character).",
+    "errIdentifier": "Maglagay ng wastong email o numero ng telepono.",
+    "errPassword": "Dapat hindi bababa sa 10 character ang password.",
+    "errMismatch": "Hindi magkapareho ang dalawang password.",
+    "errAgree": "Sumang-ayon sa mga tuntunin at patakaran sa privacy para magpatuloy.",
+    "confirm": "Kumpirmahin ang password"
   },
   "Otp": {
     "title": "I-verify ang account",
@@ -1961,7 +1976,8 @@
     "resent": "Naipadala na ang bagong code.",
     "resendFailed": "Hindi naipadala ang bagong code. Subukan muli sa ilang sandali.",
     "resendLimited": "Masyadong maraming code ang hiniling mo. Subukan muli pagkalipas ng ilang minuto.",
-    "resendUnavailable": "Hindi makapagpadala ng code ngayon. Subukan muli sa ilang sandali."
+    "resendUnavailable": "Hindi makapagpadala ng code ngayon. Subukan muli sa ilang sandali.",
+    "change": "Baguhin ang email o telepono"
   },
   "ForgotPassword": {
     "title": "I-reset ang password",
@@ -1988,13 +2004,18 @@
     "back": "Bumalik sa login",
     "invalidToken": "Hindi valid o nag-expire na ang code. Humiling ng bago.",
     "mismatch": "Hindi magkatugma ang dalawang password.",
-    "requestNew": "Humiling ng bagong code"
+    "requestNew": "Humiling ng bagong code",
+    "successTitle": "Na-update ang password",
+    "signIn": "Mag-sign in",
+    "showPassword": "Ipakita ang password",
+    "hidePassword": "Itago ang password"
   },
   "Welcome": {
     "tagline": "Mas malapit ang pangangalaga",
     "guest": "Magpatuloy bilang bisita",
     "register": "Gumawa ng account",
-    "login": "Mag-log in"
+    "login": "Mag-log in",
+    "guestFailed": "Hindi makapagsimula bilang guest. Subukan muli."
   },
   "AuthFrame": {
     "back": "Bumalik",
@@ -3942,7 +3963,24 @@
     "disconnectApp": "Idiskonekta",
     "disconnectFailed": "Hindi maidiskonekta. Pakisubukang muli.",
     "rowConnectedApps": "Mga nakakonektang AI app",
-    "rowConnectedAppsSub": "Mga assistant na pinayagan mo sa iyong account"
+    "rowConnectedAppsSub": "Mga assistant na pinayagan mo sa iyong account",
+    "changePasswordTitle": "Baguhin ang password",
+    "currentPassword": "Kasalukuyang password",
+    "newPassword": "Bagong password",
+    "repeatPassword": "Ulitin ang bagong password",
+    "currentRequired": "Ilagay ang kasalukuyang password.",
+    "passwordTooShort": "Dapat hindi bababa sa 10 character ang bagong password.",
+    "passwordMismatch": "Hindi magkapareho ang dalawang password.",
+    "currentWrong": "Mali ang kasalukuyang password.",
+    "passwordChangeFailed": "Hindi mapalitan ang password. Subukan muli.",
+    "passwordChanged": "Napalitan ang password. Na-sign out ang iba mong device.",
+    "savePassword": "Baguhin ang password",
+    "sessionCurrent": "Ang device na ito",
+    "sessionLastSeen": "Huling aktibo {when}",
+    "sessionEndConfirm": "Kumpirmahin ang pag-sign out",
+    "deleteIntro": "Permanenteng made-delete nito ang iyong account at health data. Hindi na ito maibabalik.",
+    "deleteContinue": "Magpatuloy",
+    "callSupport": "Tawagan ang suporta"
   },
   "AccountWeb": {
     "profileTitle": "Aking account",
@@ -3983,7 +4021,9 @@
     "mapIdleBody": "Pumili ng pasilidad sa listahan para makita ito sa mapa kasama ang direksyon.",
     "mapIdleNote": "Mga open-source na mapa na nagpoprotekta sa iyong pagkapribado.",
     "mapUnavailable": "Hindi ma-load ang mga pasilidad. Subukang muli.",
-    "mapRetry": "Subukang muli"
+    "mapRetry": "Subukang muli",
+    "guestTitle": "Guest account ang gamit mo",
+    "guestBody": "Mag-sign in o gumawa ng account para makita ang iyong detalye, order at record."
   },
   "ReturnsWeb": {
     "newRequest": "Bagong kahilingan sa pagbabalik",

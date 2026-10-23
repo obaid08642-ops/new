@@ -175,7 +175,8 @@
     "rateLimited": "Too many attempts. Wait a minute and try again.",
     "serverError": "Something went wrong on our side. Try again in a moment.",
     "guestBlocked": "We couldn't open guest access. Sign in, or try again in a moment.",
-    "googleUnavailable": "Google sign-in isn't available right now. Use another way to sign in."
+    "googleUnavailable": "Google sign-in isn't available right now. Use another way to sign in.",
+    "locked": "Too many failed attempts. Try again in {minutes} minutes."
   },
   "NursingCatalog": {
     "eyebrow": "Verified nursing services",
@@ -493,7 +494,12 @@
     "earlier": "Earlier",
     "emptyTitle": "No notifications yet",
     "markAllRead": "Mark all as read",
-    "markFailed": "We couldn't update the notification. Try again."
+    "markFailed": "We couldn't update the notification. Try again.",
+    "filters": "Filter notifications",
+    "filterAll": "All",
+    "filter_system": "System",
+    "filter_medical": "Medical",
+    "filter_promotion": "Offers"
   },
   "Health": {
     "eyebrow": "Private health",
@@ -1354,7 +1360,8 @@
     "recentTitle": "Recent searches",
     "recentClear": "Clear",
     "trendingTitle": "Trending now",
-    "tryTitle": "Try one of these"
+    "tryTitle": "Try one of these",
+    "seeAll": "See all ({count})"
   },
   "SearchSuggest": {
     "listLabel": "Search suggestions",
@@ -1493,7 +1500,8 @@
     "shortAddressInvalid": "A short address is four letters and four digits, for example {example}.",
     "shortAddressNotFound": "No address was found for this code. Check it and try again.",
     "shortAddressUnavailable": "Saudi Post is not answering now. You can still save the address with the details you typed.",
-    "removedToast": "The address was removed."
+    "removedToast": "The address was removed.",
+    "makeDefault": "Make default"
   },
   "ShareReport": {
     "title": "Share Reports",
@@ -1751,7 +1759,8 @@
   "SupportTicket": {
     "title": "Support tickets",
     "back": "Back",
-    "empty": "No data yet."
+    "empty": "No data yet.",
+    "newRequest": "New request"
   },
   "HealthTimeline": {
     "title": "Health timeline",
@@ -1925,7 +1934,7 @@
     "identifier": "Email or mobile number",
     "hintIdentifier": "We'll send the confirmation code here",
     "password": "Password",
-    "hintPassword": "At least 8 characters",
+    "hintPassword": "At least 10 characters",
     "agree": "I agree to the <terms>Terms</terms> and <privacy>Privacy Policy</privacy>",
     "submit": "Create account",
     "busy": "Creating account…",
@@ -1940,7 +1949,13 @@
     "rateLimited": "Too many attempts. Wait a minute and try again.",
     "incomplete": "Registration could not be completed. Your account may already exist: try signing in, or try again in a moment.",
     "showPassword": "Show password",
-    "hidePassword": "Hide password"
+    "hidePassword": "Hide password",
+    "errName": "Enter your name (at least 2 characters).",
+    "errIdentifier": "Enter a valid email or phone number.",
+    "errPassword": "The password must be at least 10 characters.",
+    "errMismatch": "The two passwords don't match.",
+    "errAgree": "Agree to the terms and privacy policy to continue.",
+    "confirm": "Confirm password"
   },
   "Otp": {
     "title": "Enter the code",
@@ -1961,7 +1976,8 @@
     "resent": "A new code is on its way.",
     "resendFailed": "We couldn't send a new code. Try again in a moment.",
     "resendLimited": "You've asked for too many codes. Try again in a few minutes.",
-    "resendUnavailable": "We can't send a code right now. Try again in a moment."
+    "resendUnavailable": "We can't send a code right now. Try again in a moment.",
+    "change": "Change email or phone"
   },
   "ForgotPassword": {
     "title": "Reset your password",
@@ -1988,13 +2004,18 @@
     "back": "Back to sign in",
     "invalidToken": "That code isn't valid or has expired. Request a new one.",
     "mismatch": "The two passwords don't match.",
-    "requestNew": "Request a new code"
+    "requestNew": "Request a new code",
+    "successTitle": "Password updated",
+    "signIn": "Sign in",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   },
   "Welcome": {
     "tagline": "Your complete healthcare",
     "guest": "Continue as guest",
     "register": "Create account",
-    "login": "Log in"
+    "login": "Log in",
+    "guestFailed": "Could not start as a guest. Try again."
   },
   "AuthFrame": {
     "back": "Back",
@@ -3942,7 +3963,24 @@
     "disconnectApp": "Disconnect",
     "disconnectFailed": "Could not disconnect. Please try again.",
     "rowConnectedApps": "Connected AI apps",
-    "rowConnectedAppsSub": "Assistants you allowed into your account"
+    "rowConnectedAppsSub": "Assistants you allowed into your account",
+    "changePasswordTitle": "Change password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "repeatPassword": "Repeat new password",
+    "currentRequired": "Enter your current password.",
+    "passwordTooShort": "The new password must be at least 10 characters.",
+    "passwordMismatch": "The two passwords don't match.",
+    "currentWrong": "The current password is wrong.",
+    "passwordChangeFailed": "The password could not be changed. Try again.",
+    "passwordChanged": "Password changed. Your other devices were signed out.",
+    "savePassword": "Change password",
+    "sessionCurrent": "This device",
+    "sessionLastSeen": "Last active {when}",
+    "sessionEndConfirm": "Confirm sign-out",
+    "deleteIntro": "This permanently deletes your account and health data. This cannot be undone.",
+    "deleteContinue": "Continue",
+    "callSupport": "Call support"
   },
   "AccountWeb": {
     "profileTitle": "My account",
@@ -3983,7 +4021,9 @@
     "mapIdleBody": "Choose a facility from the list to see it on the map with directions.",
     "mapIdleNote": "Open-source maps that protect your privacy.",
     "mapUnavailable": "The facilities could not be loaded. Please try again.",
-    "mapRetry": "Try again"
+    "mapRetry": "Try again",
+    "guestTitle": "You are using a guest account",
+    "guestBody": "Sign in or create an account to see your details, orders and records."
   },
   "ReturnsWeb": {
     "newRequest": "New return request",
