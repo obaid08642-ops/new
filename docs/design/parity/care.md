@@ -6,24 +6,24 @@ Audit 2026-10-16, verified against main at ae6bfae1 on 2026-10-23. Status words:
 
 | # | screen | element | status | note |
 |---|---|---|---|---|
-| 1 | /diagnostics | approved labs strip | open | not built; needs the labs list with rating/distance (existing /labs endpoints) - see needs-review |
+| 1 | /diagnostics | approved labs strip | fixed now | approved labs strip from GET /providers?type=lab (8 cards: name, rating, home tag, link to the lab page) |
 | 2 | /diagnostics | payment filter (cash) | fixed (main) | hub has self-pay / insurance choice via the M6 context bar; self-pay is the cash option |
-| 3 | /diagnostics | filter button and sort sheet | open | no sort/filter sheet on the hub |
-| 4 | /diagnostics | search | open | submit still goes to /diagnostics/search (labs only) |
+| 3 | /diagnostics | filter button and sort sheet | open | [client] sort/filter sheet not built (not done in round 2) |
+| 4 | /diagnostics | search | open | [client] search scope unchanged (not done in round 2) |
 | 5 | /diagnostics | address row | fixed (main) | M6 OrderContextBar shows the saved address with a change link |
 | 6 | /diagnostics | add-to-order toggle and cart bar | fixed (main) | AddToBasketIcon + BasketBar |
 | 7 | /diagnostics | compare prices shortcut | fixed now | opens /diagnostics/search (a usable list) instead of the empty comparison |
 | 8 | /diagnostics | insurance card | blocked (owner) | opens add-policy on purpose (issue 1062); the pre-booking upload form is not built - see needs-review |
-| 9 | /diagnostics (radiology) | scan tile centres count and add | open / blocked | tile opens the item page (add there); centres count needs a field the list does not send |
+| 9 | /diagnostics (radiology) | scan tile centres count and add | blocked | [backend] centres count not in the scans list |
 | 10 | /diagnostics/test-detail | description, preparation, fasting, result time | fixed now | redirects to the public order item page /labs/[id]?kind=lab|radiology |
 | 11 | /diagnostics/test-detail | footer actions | fixed now | item page has add / book now / providers |
 | 12 | /diagnostics/test-detail | loading the test | fixed now | item page reads the single service, public |
 | 13 | /diagnostics/search | sign-in | fixed (main) | public |
 | 14 | /diagnostics/packages | source and category | fixed now (partly) | reads GET /labs/packages, filters name+category in place; category stays a select built from the packages (no /labs/categories chips) |
-| 15 | /diagnostics/packages | search | open | still needs the Apply button |
+| 15 | /diagnostics/packages | search | fixed now | filters as you type (LiveFilter, debounced router.replace); Apply stays for no-script |
 | 16 | /diagnostics/packages/[packageId] | price footer, saving badge, cart state | fixed now (partly) | add goes to the item page (price, coverage, basket state); no saving badge on the detail itself |
 | 17 | /diagnostics/labs, /labs | tap on a test | fixed now | card opens the item page; /diagnostics/labs/book redirects to it |
-| 18 | /diagnostics/labs/[labId] | directions, distance, branches | open | not built |
+| 18 | /diagnostics/labs/[labId] | directions, distance, branches | fixed now | directions button (map point or address search) and branches tag; distance [owner] |
 | 19 | /diagnostics/labs/[labId] | test rows locked to the lab | fixed now (superseded) | rows open the item page; the lab is chosen in the M6 providers step |
 | 20 | /diagnostics/lab-comparison | content | superseded (M6) | compare lives in /labs/providers (Ord05); legacy page kept - see needs-review |
 | 21 | /diagnostics/cart | quantity | superseded (M6) | /labs/basket is the basket; legacy cart kept |
@@ -36,10 +36,10 @@ Audit 2026-10-16, verified against main at ae6bfae1 on 2026-10-23. Status words:
 | 28 | /diagnostics/insurance-approval | continue after the decision | fixed now | continue / self-pay go to /labs/bookings/[id] (the same order); the old link carried no items |
 | 29 | /diagnostics/insurance-approval | upload form without orderId | blocked (backend/owner) | pre-booking insurer/OCR form + booking creation not built; empty state now |
 | 30 | /diagnostics/insurance-approval | opened without orderId | fixed now | empty state with the way to the requests (no 404) |
-| 31 | /diagnostics/bookings | list: group, amount, one insurance target | open | insurance-upload redirects to approval so there is one target; no grouping or amount |
-| 32 | /diagnostics/bookings/[domain]/[bookingId] | results and report, radiology stages | open | not built |
-| 33 | /diagnostics/bookings/[domain]/[bookingId] | technician, total, cancel | open | not built |
-| 34 | /diagnostics/sample-tracking | home collection without a technician | open | not changed |
+| 31 | /diagnostics/bookings | list: group, amount, one insurance target | fixed now | current / previous tabs and the booking total; one insurance target was already in place |
+| 32 | /diagnostics/bookings/[domain]/[bookingId] | results and report, radiology stages | open | [client] results and radiology report not built (not done in round 2) |
+| 33 | /diagnostics/bookings/[domain]/[bookingId] | technician, total, cancel | open | [client] technician, total and cancel not built (not done in round 2) |
+| 34 | /diagnostics/sample-tracking | home collection without a technician | open | [client] not changed (not done in round 2) |
 | 35 | /diagnostics/book-sample | page | accepted | redirect to the cart kept (as the app's legacy route) |
 | 36 | /diagnostics/upload-rx | target | no gap now | the app itself now redirects to the lab search (journeys#59); web matches |
 | 37 | /diagnostics/radiology, [serviceId] | add action | fixed now (partly) | detail add goes to the item page (price footer, book now); list tile has no add toggle |
@@ -61,7 +61,7 @@ Audit 2026-10-16, verified against main at ae6bfae1 on 2026-10-23. Status words:
 | 11 | /home-care/services/[serviceId]/book | transport | no gap (owner decision 42) | no transport choice; the nurse always comes |
 | 12 | /home-care/services/[serviceId]/book | price estimate | fixed now (one visit) | visit price line and the amount on the button |
 | 13 | /home-care/services/[serviceId]/book | insurance details | fixed now | coverage check shows company and policy; no policy blocks sending and links to add-policy |
-| 14 | /home-care/services/[serviceId]/book | address | open | still a select of saved addresses with a map point and an add link; no GPS option |
+| 14 | /home-care/services/[serviceId]/book | address | open | [client] still a select of saved addresses with a map point; no GPS option (not done in round 2) |
 | 15 | /nursing/insurance-status | decision | fixed (main) | reads insurance_decision / coverage_decision |
 | 16 | /nursing/insurance-status | no booking found | fixed now | empty state with the way to the visits |
 | 17 | /nursing/insurance-status | refresh | fixed now | re-reads every 30 s while the insurer has not decided |

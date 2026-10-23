@@ -3,17 +3,6 @@
     "batch": "parity-doctors",
     "app": "patient-web",
     "screen": "doctors list",
-    "element": "specialty chips with counts",
-    "file": "patient-web/app/[locale]/consultations/doctors/doctors-view.tsx",
-    "line": 108,
-    "found": "[client] chip row with counts not built: the static page cannot read the no-store specialties",
-    "suspect": "a cached specialties read would allow it",
-    "review_status": "open"
-  },
-  {
-    "batch": "parity-doctors",
-    "app": "patient-web",
-    "screen": "doctors list",
     "element": "available-now badge",
     "file": "patient-web/components-next/consult/doctor-list-card.tsx",
     "line": 1,
@@ -85,6 +74,105 @@
     "line": 1,
     "found": "[client] no longer used by any page; kept because acceptance/d-31 (reviewer-owned) imports it",
     "suspect": "reviewer may delete both",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-doctors",
+    "app": "patient-web",
+    "screen": "doctors list",
+    "element": "advanced filter: gender and price band",
+    "file": "patient-web/app/[locale]/consultations/doctors/doctors-view.tsx",
+    "line": 149,
+    "found": "[backend] GET /care/doctors accepts degree, insurance, sort price_asc/price_desc/experience but has no gender or price-band parameter",
+    "suspect": "the app's filter sheet cannot be matched for gender and price band (grade could be added with the existing degree parameter)",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-doctors",
+    "app": "patient-web",
+    "screen": "doctors list",
+    "element": "insurance company and network picker",
+    "file": "patient-web/app/[locale]/consultations/doctors/doctors-view.tsx",
+    "line": 142,
+    "found": "[owner] the web filters by the saved policy's insurer (decision 30); the app has a company and network picker. Decide whether the web gets the picker",
+    "suspect": "left as the saved-policy filter",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-doctors",
+    "app": "patient-web",
+    "screen": "doctors list",
+    "element": "offers row",
+    "file": "patient-web/app/[locale]/consultations/doctors/doctors-view.tsx",
+    "line": 181,
+    "found": "[owner] the app shows an offers row above the list; the web has /consultations/offers only. Decide whether the list gets the row",
+    "suspect": "not built",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-doctors",
+    "app": "patient-web",
+    "screen": "doctors list",
+    "element": "default visit type, sort choices, list length, specialty tones",
+    "file": "patient-web/app/[locale]/consultations/doctors/doctors-view.tsx",
+    "line": 160,
+    "found": "[owner] cached static list keeps no default visit type, an extra wait sort and no paging; specialty rows use one generic tone. Decide whether these differences from the app are accepted",
+    "suspect": "left",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-doctors",
+    "app": "patient-web",
+    "screen": "booking",
+    "element": "insurance provider id",
+    "file": "patient-web/components-next/booking-flow.tsx",
+    "line": 170,
+    "found": "[backend] GET /insurance/my-policy returns no insurer id, so only insurance_member_id is sent; the app also sends insurance_provider (provider_id/company_id)",
+    "suspect": "the request may lack the provider; add the company id to the policy summary",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-doctors",
+    "app": "patient-web",
+    "screen": "waiting room",
+    "element": "wait time (your turn)",
+    "file": "patient-web/app/[locale]/consultations/virtual-waiting-room/page.tsx",
+    "line": 36,
+    "found": "[backend] the web shows wait_time when the appointment sends it, but GET /care/appointments/:id never sends it",
+    "suspect": "the app's 'your turn' number cannot appear",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-doctors",
+    "app": "patient-web",
+    "screen": "waiting room",
+    "element": "one-step join",
+    "file": "patient-web/app/[locale]/consultations/virtual-waiting-room/page.tsx",
+    "line": 48,
+    "found": "[owner] the web keeps a two-step join (token check, then open) because of the telehealth consent; decide whether to merge into one step",
+    "suspect": "left",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-doctors",
+    "app": "patient-web",
+    "screen": "doctor detail",
+    "element": "share button",
+    "file": "patient-web/app/[locale]/consultations/doctors/[doctorId]/page.tsx",
+    "line": 120,
+    "found": "[owner] the app has a share button on the doctor page; not built on the web (browser share vs copy link)",
+    "suspect": "not built",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-doctors",
+    "app": "patient-web",
+    "screen": "doctor chat",
+    "element": "conversation view",
+    "file": "patient-web/app/[locale]/consultations/chat/page.tsx",
+    "line": 1,
+    "found": "[owner] layout differs from the app and attachments are hidden by decision B27; confirm",
+    "suspect": "left",
     "review_status": "open"
   }
 ]

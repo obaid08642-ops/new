@@ -4,9 +4,9 @@ import { extractDiagnosticBooking, extractDiagnosticBookings, parseDiagnosticBoo
 const bookingId = "91047ef2-ad36-422a-a184-629693e7c729";
 
 describe("diagnostic booking response guards", () => {
-  it("allows only approved booking fields and ignores patient, pricing, reports, and document fields", () => {
+  it("allows only approved booking fields (the booking total is the patient's own, shown on the list) and ignores patient, reports, and document fields", () => {
     const rows = extractDiagnosticBookings({ data: [{ id: bookingId, state: "CONFIRMED", scheduled_at: "2026-08-20T10:00:00.000Z", patient_name: "private", total_price: 500, reports: [{ url: "private" }] }] });
-    expect(rows).toEqual([{ id: bookingId, state: "CONFIRMED", scheduledAt: "2026-08-20T10:00:00.000Z", locationType: undefined, scanNameAr: undefined, scanNameEn: undefined, medicalReferralRequired: undefined, hasReport: true, reportIds: [] }]);
+    expect(rows).toEqual([{ id: bookingId, state: "CONFIRMED", scheduledAt: "2026-08-20T10:00:00.000Z", locationType: undefined, scanNameAr: undefined, scanNameEn: undefined, medicalReferralRequired: undefined, hasReport: true, reportIds: [], total: 500 }]);
   });
 
   it("lists the report ids the booking holds a file for, never a url (journeys#54)", () => {

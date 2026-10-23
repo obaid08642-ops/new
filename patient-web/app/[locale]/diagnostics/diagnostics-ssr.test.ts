@@ -62,7 +62,8 @@ describe("diagnostics SSR boundary", () => {
   it("draws the catalogue the server sent: packages, tests with their price and an add link, and never a made-up price", async () => {
     state.requirePatientAccess.mockRejectedValue(new Error("no session"));
     state.labs.mockResolvedValue(json([{ id: "cbc", name_en: "CBC", price: 20, fasting_required: true, home_visit_supported: true, turnaround_hours: 24 }, { id: "tsh", name_en: "TSH" }]));
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(json([{ id: "pkg-1", name_en: "Wellness panel", price: 120, included_services: ["cbc", "tsh"] }])));
+    // the approved labs strip reads /providers?type=lab: no labs there, so the strip stays out and the catalogue is what is checked
+    vi.stubGlobal("fetch", vi.fn().mockImplementation(async (url: unknown) => (String(url).includes("/providers") ? json([]) : json([{ id: "pkg-1", name_en: "Wellness panel", price: 120, included_services: ["cbc", "tsh"] }]))));
 
     const html = await hub();
 

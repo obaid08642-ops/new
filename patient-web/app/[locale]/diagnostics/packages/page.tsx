@@ -58,6 +58,7 @@ export default async function LabsPackagesPage({ params, searchParams }: Props) 
         placeholder={t("searchPlaceholder")}
         label={t("searchLabel")}
         submitLabel={t("apply")}
+        live
         below={
           categories.length > 0 ? (
             <select className={consult.control} name="category" defaultValue={category} aria-label={t("category")}>

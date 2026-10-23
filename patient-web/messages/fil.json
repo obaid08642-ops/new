@@ -1210,7 +1210,13 @@
     "bioTitle": "Tungkol sa doktor",
     "infoTitle": "Karagdagang impormasyon",
     "languagesLabel": "Mga wika",
-    "chooseDayTime": "Pumili ng araw at oras"
+    "chooseDayTime": "Pumili ng araw at oras",
+    "faqTitle": "Mga karaniwang tanong",
+    "faqCancelQ": "Maaari bang kanselahin o baguhin ang appointment?",
+    "faqCancelA": "Oo. Maaari mong kanselahin o baguhin ito sa detalye ng appointment ayon sa kasalukuyang patakaran ng platform.",
+    "faqPayQ": "Anong mga paraan ng pagbabayad ang available?",
+    "faqPayA": "Card lang para sa remote na konsultasyon, card o insurance para sa pagbisita sa bahay, at card, insurance o cash sa klinika.",
+    "clinicPhotoOpen": "Buksan ang larawan ng klinika {n} sa buong laki"
   },
   "LabsServices": {
     "eyebrow": "Pangangalaga sa laboratoryo",
@@ -1527,7 +1533,22 @@
     "empty": "Walang ulat na ibabahagi",
     "notice": "Tanging ligtas na in-portal na mga link ang ibinabahagi",
     "bundleHeader": "Nabd Plus — mga ibinahaging ulat medikal:",
-    "bundleTitle": "Nabd Plus"
+    "bundleTitle": "Nabd Plus",
+    "shareWithDoctor": "Ibahagi sa isang doktor",
+    "doctorSearchLabel": "Pangalan ng doktor",
+    "doctorSearchPh": "Maghanap ng doktor ayon sa pangalan",
+    "doctorSearch": "Hanapin",
+    "searching": "Naghahanap…",
+    "noDoctors": "Walang nahanap na doktor sa pangalang iyon.",
+    "shareWithThisDoctor": "Ibahagi",
+    "sharedWith": "Ibinahagi kay",
+    "notSharedYet": "Hindi naibahagi ang ulat na ito sa anumang doktor.",
+    "revoke": "Itigil ang pagbabahagi",
+    "doctorFallback": "Doktor",
+    "doctorShared": "Naibahagi na ang ulat sa doktor.",
+    "doctorShareFailed": "Hindi maibahagi. Subukan muli mamaya.",
+    "doctorRevokeFailed": "Hindi naitigil ang pagbabahagi. Subukan muli mamaya.",
+    "doctorSearchFailed": "Nabigo ang paghahanap. Subukan muli mamaya."
   },
   "BookConsultation": {
     "homeAddressRequired": "Piliin muna ang address ng pagbisita mula sa mga naka-save mong address",
@@ -1569,7 +1590,12 @@
     "duration": "Haba ng pagbisita",
     "durationValue": "{n} minuto",
     "homeAddressNone": "Magdagdag ng address na may lokasyon sa mapa para sa home visit.",
-    "homeAddressAdd": "Magdagdag o mag-edit ng address"
+    "homeAddressAdd": "Magdagdag o mag-edit ng address",
+    "bookingFor": "Pagbu-book para kay {name}",
+    "bookingForSelf": "Para sa sarili ko na lang",
+    "insuranceReady": "Ipapadala namin ang kahilingan sa pasilidad kasama ang detalye ng naka-save mong polisiya.",
+    "insuranceNotReady": "Walang aktibong polisiya na magagamit. Idagdag muna ang detalye ng iyong insurance.",
+    "manageInsurance": "Pamahalaan ang insurance"
   },
   "AiHealthReport": {
     "title": "Ang Iyong AI Health Report",
@@ -1720,7 +1746,9 @@
       "missed": "Hindi nasagot na tawag",
       "active": "Kasalukuyang tawag",
       "pending": "Nakabinbing tawag"
-    }
+    },
+    "callAgain": "Tawag muli",
+    "showMore": "Magpakita pa"
   },
   "PostCallRating": {
     "title": "I-rate ang konsultasyon",
@@ -1812,7 +1840,9 @@
     "defaultAbout": "A certified medical laboratory equipped with modern diagnostics.",
     "servicesTitle": "Available Tests",
     "price": "{value} SAR",
-    "ratingLine": "Marka {rating} sa 5 · bilang ng marka {count}"
+    "ratingLine": "Marka {rating} sa 5 · bilang ng marka {count}",
+    "directions": "Direksyon papunta sa lab",
+    "branchesCount": "{n} sangay"
   },
   "NurseDetail": {
     "title": "Nurse Profile",
@@ -2667,7 +2697,9 @@
     "copayTitle": "Dumating na ang approval",
     "copayBody": "Aprubado. Bayaran ang co-pay ({amount}) para mabuksan ang konsultasyon.",
     "copayAction": "Suriin ang insurance request at magbayad nang ligtas",
-    "actionDoctorProfile": "Tingnan ang profile"
+    "actionDoctorProfile": "Tingnan ang profile",
+    "waitingRoomYourTurn": "Ang iyong turn",
+    "waitingRoomCallsOff": "Hindi available ang mga video call ngayon."
   },
   "ConsultClient": {
     "payHeading": "Kumpletuhin ang bayad sa pamamagitan ng ligtas na gateway",
@@ -2815,7 +2847,9 @@
     "medsAddReminder": "Magdagdag ng paalala sa gamot",
     "close": "Isara",
     "removeConfirmTitle": "Alisin ang miyembrong ito sa pamilya?",
-    "removeConfirmBody": "Hindi na siya lalabas sa listahan ng pamilya."
+    "removeConfirmBody": "Hindi na siya lalabas sa listahan ng pamilya.",
+    "bookForMember": "Mag-book ng konsultasyon",
+    "bookForMemberFailed": "Hindi masimulan ang booking. Subukan muli."
   },
   "DiagWeb": {
     "retry": "Subukan muli",
@@ -3035,7 +3069,11 @@
     "bookingNotSentCta": "Pumunta sa nursing",
     "bookingNotSentClose": "Isara",
     "approvalNoOrderTitle": "Walang booking na may insurance",
-    "approvalNoOrderBody": "Nakadepende ang insurance step sa isang booking. Buksan ang isa sa mga kahilingan mo para sundan ang pag-apruba o mag-upload ng dokumento."
+    "approvalNoOrderBody": "Nakadepende ang insurance step sa isang booking. Buksan ang isa sa mga kahilingan mo para sundan ang pag-apruba o mag-upload ng dokumento.",
+    "approvedLabs": "Mga aprubadong lab",
+    "labRating": "Marka {n}",
+    "labHomeTag": "Kuha sa bahay",
+    "labsAll": "Lahat ng lab"
   },
   "OrderContext": {
     "hint": "Agad na nag-a-update ang presyo at coverage kapag may binago",
@@ -3733,7 +3771,8 @@
       "failed": "Hindi na-save ang polisiya.",
       "scan": "I-scan ang insurance card gamit ang camera",
       "scanned": "Nabasa ang mga nakikitang detalye sa card. Suriin bago i-save.",
-      "scanFailed": "Hindi nabasa ang card. Ilagay ang mga detalye nang mano-mano."
+      "scanFailed": "Hindi nabasa ang card. Ilagay ang mga detalye nang mano-mano.",
+      "network": "Network ng seguro"
     },
     "coverage": {
       "title": "Ano ang saklaw ng polisiya ko",

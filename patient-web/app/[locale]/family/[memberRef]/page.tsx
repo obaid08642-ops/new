@@ -16,6 +16,7 @@ import { Facts, SectionCard, type FactRow } from "@/components-next/consult/cons
 import { MemberPermissions } from "@/components-next/family/member-permissions";
 import { FormSheet } from "@/components-next/health/form-sheet";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { BookForMemberButton } from "@/components-next/family/book-for-member-button";
 import { ReminderForm } from "@/components-next/health/reminder-form";
 import { HealthTabs, PartUnavailable } from "@/components-next/health/health-kit";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
@@ -64,6 +65,7 @@ export default async function FamilyMemberPage({ params, searchParams }: Props) 
         { value: "records", label: t("tabRecords") },
         { value: "permissions", label: t("tabPermissions") },
       ]} />
+      <BookForMemberButton memberRef={memberRef} label={t("bookForMember")} errorLabel={t("bookForMemberFailed")} href={`/${locale}/consultations/doctors`} />
       {body}
     </ConsultPage>
   );

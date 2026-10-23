@@ -1210,7 +1210,13 @@
     "bioTitle": "عن الطبيب",
     "infoTitle": "معلومات إضافية",
     "languagesLabel": "اللغات",
-    "chooseDayTime": "اختر اليوم والوقت"
+    "chooseDayTime": "اختر اليوم والوقت",
+    "faqTitle": "أسئلة شائعة",
+    "faqCancelQ": "هل يمكن إلغاء أو تعديل الموعد؟",
+    "faqCancelA": "نعم. يمكنك الإلغاء أو التعديل من صفحة تفاصيل الموعد وفق سياسة المنصة الحالية.",
+    "faqPayQ": "ما طرق الدفع المتاحة؟",
+    "faqPayA": "الاستشارة عن بعد بالبطاقة فقط، والزيارة المنزلية بالبطاقة أو التأمين، والكشف في العيادة بالبطاقة أو التأمين أو الكاش.",
+    "clinicPhotoOpen": "فتح صورة العيادة {n} بحجم كامل"
   },
   "LabsServices": {
     "eyebrow": "الرعاية المخبرية",
@@ -1527,7 +1533,22 @@
     "empty": "لا توجد تقارير للمشاركة",
     "notice": "تُشارك روابط آمنة داخل المنصة فقط — لا تُرسل بيانات طبية حساسة في النص.",
     "bundleHeader": "نبض بلس — تقارير طبية تمت مشاركتها:",
-    "bundleTitle": "نبض بلس"
+    "bundleTitle": "نبض بلس",
+    "shareWithDoctor": "مشاركة مع طبيب",
+    "doctorSearchLabel": "اسم الطبيب",
+    "doctorSearchPh": "ابحث عن طبيب بالاسم",
+    "doctorSearch": "بحث",
+    "searching": "جارٍ البحث…",
+    "noDoctors": "لا يوجد أطباء بهذا الاسم.",
+    "shareWithThisDoctor": "مشاركة",
+    "sharedWith": "تمت المشاركة مع",
+    "notSharedYet": "لم تتم مشاركة هذا التقرير مع أي طبيب.",
+    "revoke": "إلغاء المشاركة",
+    "doctorFallback": "طبيب",
+    "doctorShared": "تمت مشاركة التقرير مع الطبيب.",
+    "doctorShareFailed": "تعذّرت المشاركة. حاول لاحقاً.",
+    "doctorRevokeFailed": "تعذّر إلغاء المشاركة. حاول لاحقاً.",
+    "doctorSearchFailed": "تعذّر البحث. حاول لاحقاً."
   },
   "BookConsultation": {
     "homeAddressRequired": "اختر عنوان الزيارة من عناوينك المحفوظة أولًا",
@@ -1569,7 +1590,12 @@
     "duration": "مدة الزيارة",
     "durationValue": "{n} دقيقة",
     "homeAddressNone": "أضف عنوانًا بموقعه على الخريطة لزيارة المنزل.",
-    "homeAddressAdd": "إضافة عنوان أو تعديله"
+    "homeAddressAdd": "إضافة عنوان أو تعديله",
+    "bookingFor": "الحجز لـ {name}",
+    "bookingForSelf": "احجز لنفسي بدلاً من ذلك",
+    "insuranceReady": "سنرسل الطلب إلى المنشأة ببيانات وثيقتك المحفوظة.",
+    "insuranceNotReady": "لا توجد وثيقة تأمين فعّالة. أضف بيانات تأمينك أولاً.",
+    "manageInsurance": "إدارة التأمين"
   },
   "AiHealthReport": {
     "title": "تقريرك الصحي الذكي",
@@ -1720,7 +1746,9 @@
       "missed": "مكالمة فائتة",
       "active": "مكالمة نشطة حالياً",
       "pending": "مكالمة معلّقة"
-    }
+    },
+    "callAgain": "اتصل مجدداً",
+    "showMore": "عرض المزيد"
   },
   "PostCallRating": {
     "title": "قيّم استشارتك",
@@ -1812,7 +1840,9 @@
     "defaultAbout": "مختبر طبي مجهز بأحدث الأجهزة والتقنيات لتقديم نتائج دقيقة.",
     "servicesTitle": "التحاليل المتوفرة",
     "price": "{value} ر.س",
-    "ratingLine": "التقييم {rating} من 5 · عدد التقييمات {count}"
+    "ratingLine": "التقييم {rating} من 5 · عدد التقييمات {count}",
+    "directions": "الاتجاهات للمختبر",
+    "branchesCount": "{n} فروع"
   },
   "NurseDetail": {
     "title": "ملف الممرض/ة",
@@ -2667,7 +2697,9 @@
     "copayTitle": "وصلت الموافقة",
     "copayBody": "تمت الموافقة. ادفع نسبة التحمل ({amount}) لفتح الاستشارة.",
     "copayAction": "عرض طلب التأمين والدفع الآمن",
-    "actionDoctorProfile": "عرض الملف"
+    "actionDoctorProfile": "عرض الملف",
+    "waitingRoomYourTurn": "دورك",
+    "waitingRoomCallsOff": "المكالمات المرئية غير متاحة حالياً."
   },
   "ConsultClient": {
     "payHeading": "أكمل الدفع من خلال بوابة آمنة",
@@ -2815,7 +2847,9 @@
     "medsAddReminder": "إضافة تذكير دواء",
     "close": "إغلاق",
     "removeConfirmTitle": "إزالة هذا الفرد من العائلة؟",
-    "removeConfirmBody": "لن يظهر في قائمة العائلة بعد الآن."
+    "removeConfirmBody": "لن يظهر في قائمة العائلة بعد الآن.",
+    "bookForMember": "احجز استشارة",
+    "bookForMemberFailed": "تعذّر بدء الحجز. حاول مرة أخرى."
   },
   "DiagWeb": {
     "retry": "حاول مرة أخرى",
@@ -3035,7 +3069,11 @@
     "bookingNotSentCta": "إلى صفحة التمريض",
     "bookingNotSentClose": "إغلاق",
     "approvalNoOrderTitle": "لا يوجد حجز لعرض التأمين",
-    "approvalNoOrderBody": "خطوة التأمين تتبع حجزًا. افتح أحد طلباتك لمتابعة الموافقة أو رفع مستند."
+    "approvalNoOrderBody": "خطوة التأمين تتبع حجزًا. افتح أحد طلباتك لمتابعة الموافقة أو رفع مستند.",
+    "approvedLabs": "مختبرات معتمدة",
+    "labRating": "تقييم {n}",
+    "labHomeTag": "سحب منزلي",
+    "labsAll": "كل المختبرات"
   },
   "OrderContext": {
     "hint": "تتحدّث الأسعار والتغطية فور أي تغيير",
@@ -3733,7 +3771,8 @@
       "failed": "تعذّر حفظ البوليصة.",
       "scan": "مسح بطاقة التأمين بالكاميرا",
       "scanned": "تم استخراج البيانات المرئية من البطاقة. راجعها قبل الحفظ.",
-      "scanFailed": "فشل التعرف على البطاقة. أدخل البيانات يدويًا."
+      "scanFailed": "فشل التعرف على البطاقة. أدخل البيانات يدويًا.",
+      "network": "الشبكة"
     },
     "coverage": {
       "title": "ما تغطيه وثيقتي",

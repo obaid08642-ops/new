@@ -5,6 +5,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SPECIALTY_SLUGS, isSpecialtySlug, specialtyLabel } from "@/lib/specialties";
 import { doctorDisplayName, extractDoctors } from "@/lib/api/doctors";
 import { getPublicDoctors } from "@/lib/api/doctors-server";
+import { getCachedSpecialties } from "@/lib/api/specialties-cached";
+import { extractSpecialties } from "@/lib/api/specialties";
 import { isOutage } from "@/lib/api/outage";
 import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
 import { isLocale, locales } from "@/lib/i18n";
@@ -70,6 +72,14 @@ export async function DoctorsView({ params, searchParams }: Props) {
     doctors = extractDoctors(await response.json().catch(() => null));
   } else failed = true;
 
+  // the busiest specialties with their doctor counts, as chips (the board's specialty row); a failed read leaves them out
+  const specialtyRes = await getCachedSpecialties();
+  const count = new Intl.NumberFormat(locale);
+  const chips = (specialtyRes?.ok ? extractSpecialties(await specialtyRes.json().catch(() => null)) : [])
+    .flatMap((row) => (row.slug && isSpecialtySlug(row.slug) && row.count ? [{ slug: row.slug, count: row.count }] : []))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8);
+
   // a specialty slug (from the pharmacy cart "Consult a doctor") filters the list and shows by its name, never as raw text in the search field
   const specialtyName = specialtyLabel(names, sp.specialty);
 
@@ -110,6 +120,13 @@ export async function DoctorsView({ params, searchParams }: Props) {
           <StatusChip label={specialtyName} tone="blue" />
           <Link className={styles.activeFilterClear} href={`/${locale}/consultations/doctors`}>{t("clearSearch")}</Link>
         </div>
+      ) : null}
+      {chips.length ? (
+        <LinkSegmented
+          label={t("specialtyLabel")}
+          value={sp.specialty ?? ""}
+          options={[{ value: "", label: t("allSpecialties"), href: pageHref(filterPageParams(filters, { q: sp.q, sort: sp.sort })) }, ...chips.map((chip) => ({ value: chip.slug, label: `${names(chip.slug)} (${count.format(chip.count)})`, href: pageHref(filterPageParams(filters, { q: sp.q, specialty: chip.slug, sort: sp.sort })) }))]}
+        />
       ) : null}
       <LinkSegmented
         label={t("visitType")}

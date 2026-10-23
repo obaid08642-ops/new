@@ -69,11 +69,11 @@
     "batch": "parity-care",
     "app": "patient-web",
     "screen": "/diagnostics",
-    "element": "approved labs strip, sort and filter sheet",
+    "element": "hub sort and filter sheet, search scope",
     "file": "patient-web/app/[locale]/diagnostics/page.tsx",
     "line": 147,
-    "found": "[client] the hub has no labs strip (rating, distance, home tag) and no sort/filter sheet; search still leaves for /diagnostics/search (labs only)",
-    "suspect": "add the strip and the sheet from existing /labs endpoints",
+    "found": "[client] the approved labs strip is built (GET /providers?type=lab); the hub still has no sort/filter sheet (rating, price, home visit) and its search still opens /diagnostics/search (labs only). Not done in round 2 (budget); labs/services already accepts highest_rated, lowest_price, home_visit",
+    "suspect": "filter and sort missing",
     "review_status": "open"
   },
   {
@@ -102,10 +102,10 @@
     "batch": "parity-care",
     "app": "patient-web",
     "screen": "/diagnostics/packages",
-    "element": "search needs Apply, categories are a select",
+    "element": "categories are a select",
     "file": "patient-web/app/[locale]/diagnostics/packages/page.tsx",
     "line": 56,
-    "found": "[client] search filters on submit only and the category is a native select; the app filters as you type with chips from GET /labs/categories",
+    "found": "[client] search now filters as you type (LiveFilter); the category is still a native select, the app uses chips from GET /labs/categories",
     "suspect": "use chips and live filtering",
     "review_status": "open"
   },
@@ -113,10 +113,10 @@
     "batch": "parity-care",
     "app": "patient-web",
     "screen": "/diagnostics/labs/[labId]",
-    "element": "directions, distance and branches",
+    "element": "distance from the patient",
     "file": "patient-web/app/[locale]/diagnostics/labs/[labId]/page.tsx",
     "line": 76,
-    "found": "[client] only rating, city/address and a phone link; no directions, distance or branches",
+    "found": "[owner] directions and branches are drawn; distance needs the patient's position (the app asks for it); decide whether the web asks for location on the lab page",
     "suspect": "add the facts and a directions link",
     "review_status": "open"
   },
@@ -162,17 +162,6 @@
     "line": 30,
     "found": "[backend] without an order the web shows an empty state; the app shows company/network pickers, capture, OCR and creates the booking",
     "suspect": "needs the backend pre-booking insurance flow and an owner decision",
-    "review_status": "open"
-  },
-  {
-    "batch": "parity-care",
-    "app": "patient-web",
-    "screen": "/diagnostics/bookings",
-    "element": "list has no grouping or amount",
-    "file": "patient-web/app/[locale]/diagnostics/bookings/page.tsx",
-    "line": 50,
-    "found": "[client] flat list without current/previous groups or the amount",
-    "suspect": "group and show the amount if the list sends it",
     "review_status": "open"
   },
   {

@@ -6,6 +6,7 @@ import { extractDiagnosticBookings, type DiagnosticBooking } from "@/lib/api/dia
 import { getDiagnosticBookings } from "@/lib/api/diagnostics-server";
 import { extractLabServices, insuranceOffered, labPaymentFits, type LabService } from "@/lib/api/labs";
 import { getPublicLabServices } from "@/lib/api/labs-server";
+import { extractLabProviders } from "@/lib/api/lab-providers";
 import { extractRadiologyServices } from "@/lib/api/radiology";
 import { getPublicRadiologyServices } from "@/lib/api/radiology-server";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -21,7 +22,7 @@ import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
-import { ReferralNote, LAB, PackageCard, QuickLink, RADIOLOGY, RadiologyTile, Rail, SearchForm, SectionHead, TestList, TestRow, hoursText, money, pickText, type Tag } from "@/components-next/diagnostics/diag-parts";
+import { ReferralNote, LabCard, LAB, PackageCard, QuickLink, RADIOLOGY, RadiologyTile, Rail, SearchForm, SectionHead, TestList, TestRow, hoursText, money, pickText, type Tag } from "@/components-next/diagnostics/diag-parts";
 import { diagStatus } from "@/components-next/diagnostics/status";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { RowCard } from "@/components-next/consult/consult-parts";
@@ -103,6 +104,9 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
     getPublicRadiologyServices().catch(() => null),
     fetch(patientApiUrl("/labs/packages"), { signal: publicReadSignal(), headers: { Accept: "application/json" }, cache: "no-store" }).catch(() => null),
   ]);
+  // the approved labs strip (GET /providers?type=lab, public); a failed read leaves the strip out
+  const providersRes = kind === "labs" ? await fetch(patientApiUrl("/providers?type=lab"), { signal: publicReadSignal(), headers: { Accept: "application/json" }, next: { revalidate: 300 } }).catch(() => null) : null;
+  const approvedLabs = providersRes && providersRes.ok ? extractLabProviders(await providersRes.json().catch(() => null)).slice(0, 8) : [];
   const labServices = labsRes && labsRes.ok ? extractLabServices(await labsRes.json().catch(() => null)) : [];
   const radiologyServices = radRes && radRes.ok ? extractRadiologyServices(await radRes.json().catch(() => null)) : [];
   const packages = pkgsRes && pkgsRes.ok ? extractLabServices(await pkgsRes.json().catch(() => null)) : [];
@@ -185,6 +189,23 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
       {/* Ord02: order entry (a doctor's order) and the secondary provider-first path. Photographing a paper order needs an upload step that is not in this PR (needs-review). */}
       <RowCard href={`/${locale}/medical-orders`} icon={SERVICE_ICONS.lab.icon} tone={SERVICE_ICONS.lab.tone} title={o("orderTitle")} sub={o("orderSub")} caret={caret} />
       {kind === "labs" ? <RowCard href={`/${locale}/diagnostics/labs`} icon={LAB.icon} tone={LAB.tone} title={o("browseLab")} sub={o("browseLabSub")} caret={caret} /> : null}
+
+      {kind === "labs" && approvedLabs.length > 0 ? (
+        <section className={styles.stack} aria-labelledby="hub-approved-labs">
+          <SectionHead id="hub-approved-labs" title={t("approvedLabs")} href={`/${locale}/diagnostics/labs`} linkLabel={t("labsAll")} />
+          <ul className={styles.labGrid} aria-label={t("approvedLabs")}>
+            {approvedLabs.map((lab) => (
+              <LabCard
+                key={lab.id}
+                href={`/${locale}/diagnostics/labs/${encodeURIComponent(lab.id)}`}
+                title={pickText(locale, lab.nameAr, lab.nameEn) ?? ""}
+                sub={lab.rating !== undefined ? t("labRating", { n: new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(lab.rating) }) : undefined}
+                tags={lab.homeVisit ? [{ label: t("labHomeTag"), tone: LAB.tone }] : []}
+              />
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {catalogFailed ? (
         <ConsultState kind="error" title={t("catalogErrorTitle")} body={t("catalogErrorBody")} retryLabel={t("retry")} />

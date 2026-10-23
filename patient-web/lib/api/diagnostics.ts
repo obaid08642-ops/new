@@ -23,6 +23,8 @@ export type DiagnosticBooking = {
   hasReport?: boolean;
   /** Lab reports the booking holds a file for, opened through GET labs/bookings/:id/reports/:reportId (journeys#54). */
   reportIds?: string[];
+  /** The booking total as the server stores it (`total` or `total_price`), when positive. */
+  total?: number;
 };
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -57,6 +59,7 @@ function bookingFrom(value: unknown): DiagnosticBooking | null {
     scanNameEn: text(record, ["scan_name_en"]),
     testNameAr: text(asRecord(Array.isArray(record.items) ? record.items[0] : null) ?? {}, ["name_ar"]),
     testNameEn: text(asRecord(Array.isArray(record.items) ? record.items[0] : null) ?? {}, ["name_en"]),
+    total: [record.total, record.total_price].map((v) => (typeof v === "number" ? v : typeof v === "string" ? Number(v) : NaN)).find((v) => Number.isFinite(v) && v > 0),
     medicalReferralRequired: typeof record.medical_referral_required === "boolean" ? record.medical_referral_required : undefined,
     hasReport: (Array.isArray(record.reports) && record.reports.length > 0) || (typeof record.signed_report_pdf_url === "string" && record.signed_report_pdf_url.trim().length > 0),
     reportIds: (Array.isArray(record.reports) ? record.reports : []).flatMap((r) => {
