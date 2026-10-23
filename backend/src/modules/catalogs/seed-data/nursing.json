@@ -27,7 +27,27 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "اہم علامات کی پیمائش",
+    "name_hi": "वाइटल साइन्स की जांच",
+    "name_bn": "ভাইটাল সাইন পরিমাপ",
+    "name_tl": "Pagsukat ng Vital Signs",
+    "description_ur": "نرس گھر پر بلڈ پریشر، نبض، درجہ حرارت، آکسیجن اور شوگر ناپ کر ریکارڈ کرتا ہے۔",
+    "preparation_ur": [
+      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔"
+    ],
+    "description_hi": "नर्स घर पर ब्लड प्रेशर, नब्ज़, तापमान, ऑक्सीजन और शुगर मापकर दर्ज करती है।",
+    "preparation_hi": [
+      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।"
+    ],
+    "description_bn": "নার্স বাড়িতে রক্তচাপ, নাড়ি, তাপমাত্রা, অক্সিজেন ও রক্তে শর্করা মেপে লিখে রাখেন।",
+    "preparation_bn": [
+      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Sinusukat at itinatala ng nurse sa bahay ang blood pressure, pulso, temperatura, oxygen at blood sugar.",
+    "preparation_tl": [
+      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot."
+    ]
   },
   {
     "category": "basic_nursing",
@@ -57,7 +77,27 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "popularity": 84
+    "popularity": 84,
+    "name_ur": "لیب کے لیے خون کا نمونہ",
+    "name_hi": "लैब के लिए खून का नमूना",
+    "name_bn": "ল্যাবের জন্য রক্তের নমুনা",
+    "name_tl": "Pagkuha ng Dugo para sa Lab",
+    "description_ur": "نرس گھر پر خون کے نمونے لے کر لیبارٹری پہنچاتا ہے۔",
+    "preparation_ur": [
+      "نرس یا لیب کو اپنی تمام دواؤں اور سپلیمنٹس کے بارے میں بتائیں۔"
+    ],
+    "description_hi": "नर्स घर पर खून के नमूने लेकर लैब तक पहुंचाती है।",
+    "preparation_hi": [
+      "आप जो भी दवाएं या सप्लीमेंट लेते हैं, उनके बारे में नर्स या लैब को बताएं।"
+    ],
+    "description_bn": "নার্স বাড়িতে রক্তের নমুনা নিয়ে ল্যাবে পৌঁছে দেন।",
+    "preparation_bn": [
+      "আপনি যে ওষুধ বা সাপ্লিমেন্ট খান, তা নার্স বা ল্যাবকে জানান।"
+    ],
+    "description_tl": "Kinukuha ng nurse ang sample ng dugo sa bahay at dinadala sa laboratoryo.",
+    "preparation_tl": [
+      "Sabihin sa nurse o sa lab ang lahat ng gamot o supplement na iniinom mo."
+    ]
   },
   {
     "name_en": "Medical Injections (IV/IM)",
@@ -88,7 +128,31 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "طبی انجیکشن (رگ/پٹھے میں)",
+    "name_hi": "चिकित्सा इंजेक्शन (नस/मांसपेशी में)",
+    "name_bn": "চিকিৎসা ইনজেকশন (শিরা/পেশিতে)",
+    "name_tl": "Mga Medikal na Iniksyon (IV/IM)",
+    "description_ur": "نرس نسخے کے مطابق گھر پر پٹھے یا رگ میں انجیکشن لگاتا ہے۔",
+    "preparation_ur": [
+      "وزٹ سے پہلے ڈاکٹر کا نسخہ اور دوائیں یا محلول تیار رکھیں۔",
+      "نرس کے کام کے لیے صاف اور روشن جگہ تیار رکھیں۔"
+    ],
+    "description_hi": "नर्स पर्चे के अनुसार घर पर मांसपेशी या नस में इंजेक्शन लगाती है।",
+    "preparation_hi": [
+      "विज़िट से पहले डॉक्टर का पर्चा और दवाएं या घोल तैयार रखें।",
+      "नर्स के काम के लिए साफ और रोशनी वाली जगह तैयार रखें।"
+    ],
+    "description_bn": "নার্স প্রেসক্রিপশন অনুযায়ী বাড়িতে পেশি বা শিরায় ইনজেকশন দেন।",
+    "preparation_bn": [
+      "ভিজিটের আগে ডাক্তারের প্রেসক্রিপশন এবং ওষুধ বা স্যালাইন প্রস্তুত রাখুন।",
+      "নার্সের কাজের জন্য পরিষ্কার ও আলোকিত জায়গা প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Nagbibigay ang nurse ng iniksyon sa kalamnan o ugat sa bahay, ayon sa reseta.",
+    "preparation_tl": [
+      "Ihanda ang reseta ng doktor at ang mga gamot o solusyon bago ang pagbisita.",
+      "Maghanda ng malinis at maliwanag na lugar para sa nurse."
+    ]
   },
   {
     "name_en": "IV Drip Therapy",
@@ -119,7 +183,35 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "آئی وی ڈرپ",
+    "name_hi": "आईवी ड्रिप",
+    "name_bn": "আইভি ড্রিপ",
+    "name_tl": "Terapiya sa IV Drip",
+    "description_ur": "نرس کینولا لگا کر گھر پر نسخے کے مطابق محلول یا دوا ڈرپ سے دیتا ہے اور اس دوران آپ کی نگرانی کرتا ہے۔",
+    "preparation_ur": [
+      "وزٹ سے پہلے ڈاکٹر کا نسخہ اور دوائیں یا محلول تیار رکھیں۔",
+      "نرس کے کام کے لیے صاف اور روشن جگہ تیار رکھیں۔",
+      "وزٹ کے دوران گھر کا کوئی بالغ فرد موجود ہونا چاہیے۔"
+    ],
+    "description_hi": "नर्स कैनुला लगाकर घर पर पर्चे के अनुसार घोल या दवा ड्रिप से देती है और इस दौरान आपकी निगरानी करती है।",
+    "preparation_hi": [
+      "विज़िट से पहले डॉक्टर का पर्चा और दवाएं या घोल तैयार रखें।",
+      "नर्स के काम के लिए साफ और रोशनी वाली जगह तैयार रखें।",
+      "विज़िट के दौरान परिवार का कोई वयस्क सदस्य मौजूद होना चाहिए।"
+    ],
+    "description_bn": "নার্স ক্যানুলা বসিয়ে বাড়িতে প্রেসক্রিপশন অনুযায়ী স্যালাইন বা ওষুধ ড্রিপে দেন এবং এ সময় আপনাকে পর্যবেক্ষণ করেন।",
+    "preparation_bn": [
+      "ভিজিটের আগে ডাক্তারের প্রেসক্রিপশন এবং ওষুধ বা স্যালাইন প্রস্তুত রাখুন।",
+      "নার্সের কাজের জন্য পরিষ্কার ও আলোকিত জায়গা প্রস্তুত রাখুন।",
+      "ভিজিটের সময় পরিবারের একজন প্রাপ্তবয়স্ক সদস্য উপস্থিত থাকা উচিত।"
+    ],
+    "description_tl": "Naglalagay ang nurse ng cannula at nagbibigay ng iniresetang fluids o gamot sa dextrose sa bahay, habang binabantayan ka.",
+    "preparation_tl": [
+      "Ihanda ang reseta ng doktor at ang mga gamot o solusyon bago ang pagbisita.",
+      "Maghanda ng malinis at maliwanag na lugar para sa nurse.",
+      "Dapat may kasamang nasa hustong gulang na kapamilya habang nagbibisita."
+    ]
   },
   {
     "name_en": "Advanced Wound & Diabetic Foot Care",
@@ -150,7 +242,31 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "گہرے زخم اور ذیابیطس کے پاؤں کی دیکھ بھال",
+    "name_hi": "गहरे घाव और डायबिटिक फ़ुट की देखभाल",
+    "name_bn": "গভীর ক্ষত ও ডায়াবেটিক ফুটের যত্ন",
+    "name_tl": "Advanced Wound at Diabetic Foot Care",
+    "description_ur": "نرس گہرے یا دیر سے بھرنے والے زخموں، بشمول ذیابیطس کے پاؤں کے زخموں، کی صفائی اور پٹی کرتا ہے۔",
+    "preparation_ur": [
+      "نرس کے کام کے لیے صاف اور روشن جگہ تیار رکھیں۔",
+      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔"
+    ],
+    "description_hi": "नर्स गहरे या धीरे भरने वाले घावों, डायबिटिक फ़ुट अल्सर समेत, की सफाई और ड्रेसिंग करती है।",
+    "preparation_hi": [
+      "नर्स के काम के लिए साफ और रोशनी वाली जगह तैयार रखें।",
+      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।"
+    ],
+    "description_bn": "নার্স গভীর বা ধীরে শুকানো ক্ষত, ডায়াবেটিক পায়ের ঘাসহ, পরিষ্কার ও ড্রেসিং করেন।",
+    "preparation_bn": [
+      "নার্সের কাজের জন্য পরিষ্কার ও আলোকিত জায়গা প্রস্তুত রাখুন।",
+      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Nililinis at binebendahan ng nurse ang malalim o mabagal gumaling na sugat, kasama ang diabetic foot ulcer.",
+    "preparation_tl": [
+      "Maghanda ng malinis at maliwanag na lugar para sa nurse.",
+      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot."
+    ]
   },
   {
     "category": "advanced_nursing",
@@ -177,7 +293,31 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "پیشاب کی نلی (کیتھیٹر) کی دیکھ بھال",
+    "name_hi": "मूत्र कैथेटर की देखभाल",
+    "name_bn": "মূত্র ক্যাথেটারের যত্ন",
+    "name_tl": "Pangangalaga sa Urinary Catheter",
+    "description_ur": "نرس گھر پر پیشاب کی نلی چیک کرتا، صاف کرتا یا بدلتا ہے۔",
+    "preparation_ur": [
+      "زیر استعمال آلات اور سامان (آکسیجن، ٹیوبیں، تھیلیاں) نرس کے معائنے کے لیے تیار رکھیں۔",
+      "نرس کے کام کے لیے صاف اور روشن جگہ تیار رکھیں۔"
+    ],
+    "description_hi": "नर्स घर पर मूत्र कैथेटर की जांच, सफाई या बदली करती है।",
+    "preparation_hi": [
+      "इस्तेमाल हो रहे उपकरण और सामान (ऑक्सीजन, ट्यूब, बैग) नर्स की जांच के लिए तैयार रखें।",
+      "नर्स के काम के लिए साफ और रोशनी वाली जगह तैयार रखें।"
+    ],
+    "description_bn": "নার্স বাড়িতে মূত্র ক্যাথেটার পরীক্ষা, পরিষ্কার বা বদল করেন।",
+    "preparation_bn": [
+      "ব্যবহৃত যন্ত্র ও সামগ্রী (অক্সিজেন, টিউব, ব্যাগ) নার্সের দেখার জন্য প্রস্তুত রাখুন।",
+      "নার্সের কাজের জন্য পরিষ্কার ও আলোকিত জায়গা প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Sinusuri, nililinis o pinapalitan ng nurse ang urinary catheter sa bahay.",
+    "preparation_tl": [
+      "Ihanda ang mga ginagamit na device at gamit (oxygen, tubo, bag) para masuri ng nurse.",
+      "Maghanda ng malinis at maliwanag na lugar para sa nurse."
+    ]
   },
   {
     "category": "advanced_nursing",
@@ -204,7 +344,35 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "ٹریکیوسٹومی کی دیکھ بھال",
+    "name_hi": "ट्रेकियोस्टॉमी की देखभाल",
+    "name_bn": "ট্র্যাকিওস্টমির যত্ন",
+    "name_tl": "Pangangalaga sa Tracheostomy",
+    "description_ur": "تربیت یافتہ نرس ٹریکیوسٹومی کی صفائی، پٹی کی تبدیلی اور رطوبتوں کی سکشن کرتا ہے۔",
+    "preparation_ur": [
+      "زیر استعمال آلات اور سامان (آکسیجن، ٹیوبیں، تھیلیاں) نرس کے معائنے کے لیے تیار رکھیں۔",
+      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔",
+      "وزٹ کے دوران گھر کا کوئی بالغ فرد موجود ہونا چاہیے۔"
+    ],
+    "description_hi": "प्रशिक्षित नर्स ट्रेकियोस्टॉमी की सफाई, ड्रेसिंग बदलना और स्राव की सक्शन करती है।",
+    "preparation_hi": [
+      "इस्तेमाल हो रहे उपकरण और सामान (ऑक्सीजन, ट्यूब, बैग) नर्स की जांच के लिए तैयार रखें।",
+      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।",
+      "विज़िट के दौरान परिवार का कोई वयस्क सदस्य मौजूद होना चाहिए।"
+    ],
+    "description_bn": "প্রশিক্ষিত নার্স ট্র্যাকিওস্টমি পরিষ্কার, ড্রেসিং বদল ও নিঃসরণ সাকশন করেন।",
+    "preparation_bn": [
+      "ব্যবহৃত যন্ত্র ও সামগ্রী (অক্সিজেন, টিউব, ব্যাগ) নার্সের দেখার জন্য প্রস্তুত রাখুন।",
+      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।",
+      "ভিজিটের সময় পরিবারের একজন প্রাপ্তবয়স্ক সদস্য উপস্থিত থাকা উচিত।"
+    ],
+    "description_tl": "Nililinis ng sanay na nurse ang tracheostomy, pinapalitan ang dressing at sinisipsip ang plema.",
+    "preparation_tl": [
+      "Ihanda ang mga ginagamit na device at gamit (oxygen, tubo, bag) para masuri ng nurse.",
+      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot.",
+      "Dapat may kasamang nasa hustong gulang na kapamilya habang nagbibisita."
+    ]
   },
   {
     "category": "advanced_nursing",
@@ -234,7 +402,31 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "popularity": 42
+    "popularity": 42,
+    "name_ur": "گھر پر آکسیجن تھراپی",
+    "name_hi": "घर पर ऑक्सीजन थेरेपी",
+    "name_bn": "বাড়িতে অক্সিজেন থেরাপি",
+    "name_tl": "Oxygen Therapy sa Bahay",
+    "description_ur": "نرس نسخے کے مطابق گھر کی آکسیجن لگاتا اور چیک کرتا ہے اور گھر والوں کو محفوظ استعمال سکھاتا ہے۔",
+    "preparation_ur": [
+      "وزٹ سے پہلے ڈاکٹر کا نسخہ اور دوائیں یا محلول تیار رکھیں۔",
+      "زیر استعمال آلات اور سامان (آکسیجن، ٹیوبیں، تھیلیاں) نرس کے معائنے کے لیے تیار رکھیں۔"
+    ],
+    "description_hi": "नर्स पर्चे के अनुसार घर की ऑक्सीजन लगाकर जांचती है और परिवार को सुरक्षित इस्तेमाल सिखाती है।",
+    "preparation_hi": [
+      "विज़िट से पहले डॉक्टर का पर्चा और दवाएं या घोल तैयार रखें।",
+      "इस्तेमाल हो रहे उपकरण और सामान (ऑक्सीजन, ट्यूब, बैग) नर्स की जांच के लिए तैयार रखें।"
+    ],
+    "description_bn": "নার্স প্রেসক্রিপশন অনুযায়ী বাড়ির অক্সিজেন বসিয়ে পরীক্ষা করেন এবং পরিবারকে নিরাপদ ব্যবহার শেখান।",
+    "preparation_bn": [
+      "ভিজিটের আগে ডাক্তারের প্রেসক্রিপশন এবং ওষুধ বা স্যালাইন প্রস্তুত রাখুন।",
+      "ব্যবহৃত যন্ত্র ও সামগ্রী (অক্সিজেন, টিউব, ব্যাগ) নার্সের দেখার জন্য প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Inaayos at sinusuri ng nurse ang iniresetang oxygen sa bahay at tinuturuan ang pamilya na gamitin ito nang ligtas.",
+    "preparation_tl": [
+      "Ihanda ang reseta ng doktor at ang mga gamot o solusyon bago ang pagbisita.",
+      "Ihanda ang mga ginagamit na device at gamit (oxygen, tubo, bag) para masuri ng nurse."
+    ]
   },
   {
     "category": "specialized_care",
@@ -261,7 +453,35 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "سرجری کے بعد کی دیکھ بھال",
+    "name_hi": "सर्जरी के बाद देखभाल",
+    "name_bn": "অস্ত্রোপচার-পরবর্তী যত্ন",
+    "name_tl": "Pangangalaga Pagkatapos ng Operasyon",
+    "description_ur": "سرجری کے بعد لمبی نرسنگ وزٹ: زخم کی جانچ، دوائیں، اہم علامات اور محفوظ حرکت میں مدد۔",
+    "preparation_ur": [
+      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔",
+      "وزٹ سے پہلے ڈاکٹر کا نسخہ اور دوائیں یا محلول تیار رکھیں۔",
+      "نرس کے کام کے لیے صاف اور روشن جگہ تیار رکھیں۔"
+    ],
+    "description_hi": "सर्जरी के बाद लंबी नर्सिंग विज़िट: घाव की जांच, दवाएं, वाइटल साइन्स और सुरक्षित चलने में मदद।",
+    "preparation_hi": [
+      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।",
+      "विज़िट से पहले डॉक्टर का पर्चा और दवाएं या घोल तैयार रखें।",
+      "नर्स के काम के लिए साफ और रोशनी वाली जगह तैयार रखें।"
+    ],
+    "description_bn": "অস্ত্রোপচারের পর দীর্ঘ নার্সিং ভিজিট: ক্ষত পরীক্ষা, ওষুধ, ভাইটাল সাইন ও নিরাপদে চলাফেরায় সাহায্য।",
+    "preparation_bn": [
+      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।",
+      "ভিজিটের আগে ডাক্তারের প্রেসক্রিপশন এবং ওষুধ বা স্যালাইন প্রস্তুত রাখুন।",
+      "নার্সের কাজের জন্য পরিষ্কার ও আলোকিত জায়গা প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Mas mahabang nursing visit pagkatapos ng operasyon: pagsuri ng sugat, gamot, vital signs at tulong sa ligtas na paggalaw.",
+    "preparation_tl": [
+      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot.",
+      "Ihanda ang reseta ng doktor at ang mga gamot o solusyon bago ang pagbisita.",
+      "Maghanda ng malinis at maliwanag na lugar para sa nurse."
+    ]
   },
   {
     "name_en": "Elderly Companion & Care",
@@ -290,7 +510,27 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "بزرگوں کی دیکھ بھال اور ساتھ",
+    "name_hi": "बुज़ुर्गों की देखभाल और साथ",
+    "name_bn": "প্রবীণদের যত্ন ও সঙ্গ",
+    "name_tl": "Pag-aalaga at Pagsama sa Matatanda",
+    "description_ur": "نگہداشت کرنے والا بزرگ کے ساتھ رہ کر روزمرہ ضروریات، بروقت دواؤں اور گھر میں حفاظت میں مدد کرتا ہے۔",
+    "preparation_ur": [
+      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔"
+    ],
+    "description_hi": "देखभालकर्ता बुज़ुर्ग के साथ रहकर रोज़ की ज़रूरतों, समय पर दवाओं और घर में सुरक्षा में मदद करता है।",
+    "preparation_hi": [
+      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।"
+    ],
+    "description_bn": "পরিচর্যাকারী প্রবীণের সঙ্গে থেকে দৈনন্দিন প্রয়োজন, সময়মতো ওষুধ ও বাড়িতে নিরাপত্তায় সাহায্য করেন।",
+    "preparation_bn": [
+      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Sinasamahan ng caregiver ang matanda para tumulong sa pang-araw-araw na pangangailangan, gamot sa tamang oras at kaligtasan sa bahay.",
+    "preparation_tl": [
+      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot."
+    ]
   },
   {
     "name_en": "Mother & Newborn Care",
@@ -318,7 +558,31 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "popularity": 75
+    "popularity": 75,
+    "name_ur": "ماں اور نوزائیدہ کی دیکھ بھال",
+    "name_hi": "मां और नवजात की देखभाल",
+    "name_bn": "মা ও নবজাতকের যত্ন",
+    "name_tl": "Pangangalaga sa Ina at Sanggol",
+    "description_ur": "نرس پیدائش کے بعد ماں اور بچے، ناف اور دودھ پلانے کی جانچ اور سوالوں کے جواب کے لیے آتا ہے۔",
+    "preparation_ur": [
+      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔",
+      "بچے کا ویکسینیشن کارڈ تیار رکھیں، اور اگر بچہ بیمار ہو یا پچھلی ویکسین پر ردعمل ہوا ہو تو نرس کو بتائیں۔"
+    ],
+    "description_hi": "नर्स जन्म के बाद मां और शिशु, नाल और दूध पिलाने की जांच और सवालों के जवाब के लिए आती है।",
+    "preparation_hi": [
+      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।",
+      "बच्चे का टीकाकरण कार्ड तैयार रखें, और अगर बच्चा बीमार है या पिछले टीके से प्रतिक्रिया हुई थी तो नर्स को बताएं।"
+    ],
+    "description_bn": "জন্মের পর নার্স মা ও শিশু, নাভি ও খাওয়ানো পরীক্ষা এবং প্রশ্নের উত্তর দিতে আসেন।",
+    "preparation_bn": [
+      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।",
+      "শিশুর টিকা কার্ড প্রস্তুত রাখুন, এবং শিশু অসুস্থ হলে বা আগের টিকায় প্রতিক্রিয়া হয়ে থাকলে নার্সকে জানান।"
+    ],
+    "description_tl": "Bumibisita ang nurse pagkatapos manganak para suriin ang ina at sanggol, pusod at pagpapasuso, at sumagot sa mga tanong.",
+    "preparation_tl": [
+      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot.",
+      "Ihanda ang vaccination card ng bata, at sabihin sa nurse kung may sakit ang bata o nagkaroon ng reaksyon sa nakaraang bakuna."
+    ]
   },
   {
     "category": "specialized_care",
@@ -347,7 +611,35 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "گھر پر انتہائی نگہداشت",
+    "name_hi": "घर पर आईसीयू देखभाल",
+    "name_bn": "বাড়িতে আইসিইউ যত্ন",
+    "name_tl": "Pangangalaga sa ICU sa Bahay",
+    "description_ur": "تربیت یافتہ نرسوں کی لمبی شفٹیں ان مریضوں کے لیے جو گھر پر وینٹی لیٹر یا فیڈنگ پمپ جیسے آلات پر انحصار کرتے ہیں۔",
+    "preparation_ur": [
+      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔",
+      "زیر استعمال آلات اور سامان (آکسیجن، ٹیوبیں، تھیلیاں) نرس کے معائنے کے لیے تیار رکھیں۔",
+      "وزٹ کے دوران گھر کا کوئی بالغ فرد موجود ہونا چاہیے۔"
+    ],
+    "description_hi": "प्रशिक्षित नर्सों की लंबी शिफ़्ट उन मरीज़ों के लिए जो घर पर वेंटिलेटर या फ़ीडिंग पंप जैसे उपकरणों पर निर्भर हैं।",
+    "preparation_hi": [
+      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।",
+      "इस्तेमाल हो रहे उपकरण और सामान (ऑक्सीजन, ट्यूब, बैग) नर्स की जांच के लिए तैयार रखें।",
+      "विज़िट के दौरान परिवार का कोई वयस्क सदस्य मौजूद होना चाहिए।"
+    ],
+    "description_bn": "বাড়িতে ভেন্টিলেটর বা ফিডিং পাম্পের মতো যন্ত্রের ওপর নির্ভরশীল রোগীদের জন্য প্রশিক্ষিত নার্সের দীর্ঘ শিফট।",
+    "preparation_bn": [
+      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।",
+      "ব্যবহৃত যন্ত্র ও সামগ্রী (অক্সিজেন, টিউব, ব্যাগ) নার্সের দেখার জন্য প্রস্তুত রাখুন।",
+      "ভিজিটের সময় পরিবারের একজন প্রাপ্তবয়স্ক সদস্য উপস্থিত থাকা উচিত।"
+    ],
+    "description_tl": "Mahabang shift ng sanay na nurse para sa pasyenteng umaasa sa medical device sa bahay, gaya ng ventilator o feeding pump.",
+    "preparation_tl": [
+      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot.",
+      "Ihanda ang mga ginagamit na device at gamit (oxygen, tubo, bag) para masuri ng nurse.",
+      "Dapat may kasamang nasa hustong gulang na kapamilya habang nagbibisita."
+    ]
   },
   {
     "name_en": "Intramuscular Injection",
@@ -378,7 +670,27 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "پٹھے میں انجیکشن",
+    "name_hi": "मांसपेशी में इंजेक्शन",
+    "name_bn": "পেশিতে ইনজেকশন",
+    "name_tl": "Iniksyon sa Kalamnan",
+    "description_ur": "نرس گھر پر نسخے کا انجیکشن پٹھے میں لگاتا ہے۔",
+    "preparation_ur": [
+      "وزٹ سے پہلے ڈاکٹر کا نسخہ اور دوائیں یا محلول تیار رکھیں۔"
+    ],
+    "description_hi": "नर्स घर पर पर्चे का इंजेक्शन मांसपेशी में लगाती है।",
+    "preparation_hi": [
+      "विज़िट से पहले डॉक्टर का पर्चा और दवाएं या घोल तैयार रखें।"
+    ],
+    "description_bn": "নার্স বাড়িতে প্রেসক্রিপশনের ইনজেকশন পেশিতে দেন।",
+    "preparation_bn": [
+      "ভিজিটের আগে ডাক্তারের প্রেসক্রিপশন এবং ওষুধ বা স্যালাইন প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Nagbibigay ang nurse ng iniresetang iniksyon sa kalamnan sa bahay.",
+    "preparation_tl": [
+      "Ihanda ang reseta ng doktor at ang mga gamot o solusyon bago ang pagbisita."
+    ]
   },
   {
     "name_en": "Intravenous Injection / Cannula",
@@ -409,7 +721,31 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "رگ میں انجیکشن / کینولا",
+    "name_hi": "नस में इंजेक्शन / कैनुला",
+    "name_bn": "শিরায় ইনজেকশন / ক্যানুলা",
+    "name_tl": "Iniksyon sa Ugat / Cannula",
+    "description_ur": "نرس گھر پر نسخے کا انجیکشن رگ میں لگاتا یا کینولا لگاتا ہے۔",
+    "preparation_ur": [
+      "وزٹ سے پہلے ڈاکٹر کا نسخہ اور دوائیں یا محلول تیار رکھیں۔",
+      "نرس کے کام کے لیے صاف اور روشن جگہ تیار رکھیں۔"
+    ],
+    "description_hi": "नर्स घर पर पर्चे का इंजेक्शन नस में लगाती या कैनुला लगाती है।",
+    "preparation_hi": [
+      "विज़िट से पहले डॉक्टर का पर्चा और दवाएं या घोल तैयार रखें।",
+      "नर्स के काम के लिए साफ और रोशनी वाली जगह तैयार रखें।"
+    ],
+    "description_bn": "নার্স বাড়িতে প্রেসক্রিপশনের ইনজেকশন শিরায় দেন বা ক্যানুলা বসান।",
+    "preparation_bn": [
+      "ভিজিটের আগে ডাক্তারের প্রেসক্রিপশন এবং ওষুধ বা স্যালাইন প্রস্তুত রাখুন।",
+      "নার্সের কাজের জন্য পরিষ্কার ও আলোকিত জায়গা প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Nagbibigay ang nurse ng iniresetang iniksyon sa ugat o naglalagay ng cannula sa bahay.",
+    "preparation_tl": [
+      "Ihanda ang reseta ng doktor at ang mga gamot o solusyon bago ang pagbisita.",
+      "Maghanda ng malinis at maliwanag na lugar para sa nurse."
+    ]
   },
   {
     "name_en": "Antibiotic IV Course",
@@ -440,7 +776,31 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "اینٹی بایوٹک آئی وی کورس",
+    "name_hi": "एंटीबायोटिक आईवी कोर्स",
+    "name_bn": "অ্যান্টিবায়োটিক আইভি কোর্স",
+    "name_tl": "Kurso ng Antibiotic sa IV",
+    "description_ur": "گھر پر رگ میں نسخے کا اینٹی بایوٹک کورس دینے کے لیے نرسنگ وزٹ۔",
+    "preparation_ur": [
+      "وزٹ سے پہلے ڈاکٹر کا نسخہ اور دوائیں یا محلول تیار رکھیں۔",
+      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔"
+    ],
+    "description_hi": "घर पर नस में पर्चे का एंटीबायोटिक कोर्स देने के लिए नर्सिंग विज़िट।",
+    "preparation_hi": [
+      "विज़िट से पहले डॉक्टर का पर्चा और दवाएं या घोल तैयार रखें।",
+      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।"
+    ],
+    "description_bn": "বাড়িতে শিরায় প্রেসক্রিপশনের অ্যান্টিবায়োটিক কোর্স দেওয়ার নার্সিং ভিজিট।",
+    "preparation_bn": [
+      "ভিজিটের আগে ডাক্তারের প্রেসক্রিপশন এবং ওষুধ বা স্যালাইন প্রস্তুত রাখুন।",
+      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Mga nursing visit para ibigay sa ugat sa bahay ang iniresetang antibiotic course.",
+    "preparation_tl": [
+      "Ihanda ang reseta ng doktor at ang mga gamot o solusyon bago ang pagbisita.",
+      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot."
+    ]
   },
   {
     "name_en": "Bedsore Care",
@@ -471,7 +831,31 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "بستر کے زخم (بیڈ سور) کی دیکھ بھال",
+    "name_hi": "बेडसोर की देखभाल",
+    "name_bn": "বেডসোরের যত্ন",
+    "name_tl": "Pangangalaga sa Bedsore",
+    "description_ur": "نرس دباؤ کے زخموں کی صفائی اور پٹی کرتا ہے اور کروٹ بدلنے اور لٹانے کا طریقہ بتاتا ہے۔",
+    "preparation_ur": [
+      "نرس کے کام کے لیے صاف اور روشن جگہ تیار رکھیں۔",
+      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔"
+    ],
+    "description_hi": "नर्स दबाव वाले घावों की सफाई और ड्रेसिंग करती है और करवट और लिटाने के तरीके बताती है।",
+    "preparation_hi": [
+      "नर्स के काम के लिए साफ और रोशनी वाली जगह तैयार रखें।",
+      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।"
+    ],
+    "description_bn": "নার্স চাপজনিত ঘা পরিষ্কার ও ড্রেসিং করেন এবং পাশ ফেরানো ও শোয়ানোর পরামর্শ দেন।",
+    "preparation_bn": [
+      "নার্সের কাজের জন্য পরিষ্কার ও আলোকিত জায়গা প্রস্তুত রাখুন।",
+      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Nililinis at binebendahan ng nurse ang pressure sore at nagpapayo sa pagbaling at posisyon.",
+    "preparation_tl": [
+      "Maghanda ng malinis at maliwanag na lugar para sa nurse.",
+      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot."
+    ]
   },
   {
     "name_en": "Diabetic Foot Care",
@@ -502,7 +886,31 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "ذیابیطس کے پاؤں کی دیکھ بھال",
+    "name_hi": "डायबिटिक फ़ुट की देखभाल",
+    "name_bn": "ডায়াবেটিক ফুটের যত্ন",
+    "name_tl": "Pangangalaga sa Paa para sa Diabetes",
+    "description_ur": "نرس ذیابیطس کے مریض کے پاؤں جانچتا ہے اور کسی زخم یا السر کی پٹی کرتا ہے۔",
+    "preparation_ur": [
+      "نرس کے کام کے لیے صاف اور روشن جگہ تیار رکھیں۔",
+      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔"
+    ],
+    "description_hi": "नर्स डायबिटीज़ वाले व्यक्ति के पैरों की जांच करती है और किसी घाव या अल्सर की ड्रेसिंग करती है।",
+    "preparation_hi": [
+      "नर्स के काम के लिए साफ और रोशनी वाली जगह तैयार रखें।",
+      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।"
+    ],
+    "description_bn": "নার্স ডায়াবেটিস রোগীর পা পরীক্ষা করেন এবং কোনো ক্ষত বা ঘা ড্রেসিং করেন।",
+    "preparation_bn": [
+      "নার্সের কাজের জন্য পরিষ্কার ও আলোকিত জায়গা প্রস্তুত রাখুন।",
+      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Sinusuri ng nurse ang paa ng may diabetes at binebendahan ang anumang sugat o ulcer.",
+    "preparation_tl": [
+      "Maghanda ng malinis at maliwanag na lugar para sa nurse.",
+      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot."
+    ]
   },
   {
     "name_en": "Suture Removal",
@@ -529,7 +937,27 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "ٹانکے نکالنا",
+    "name_hi": "टांके निकालना",
+    "name_bn": "সেলাই কাটা",
+    "name_tl": "Pagtanggal ng Tahi",
+    "description_ur": "نرس ڈاکٹر کی بتائی تاریخ پر گھر پر ٹانکے یا اسٹیپلز نکالتا ہے۔",
+    "preparation_ur": [
+      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔"
+    ],
+    "description_hi": "नर्स डॉक्टर की बताई तारीख पर घर पर टांके या स्टेपल निकालती है।",
+    "preparation_hi": [
+      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।"
+    ],
+    "description_bn": "ডাক্তারের ঠিক করা তারিখে নার্স বাড়িতে সেলাই বা স্ট্যাপল খোলেন।",
+    "preparation_bn": [
+      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Tinatanggal ng nurse ang tahi o staples sa bahay sa petsang itinakda ng doktor.",
+    "preparation_tl": [
+      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot."
+    ]
   },
   {
     "name_en": "Urinary Catheterization",
@@ -556,7 +984,31 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "پیشاب کی نلی لگانا",
+    "name_hi": "मूत्र कैथेटर लगाना",
+    "name_bn": "মূত্র ক্যাথেটার বসানো",
+    "name_tl": "Paglalagay ng Urinary Catheter",
+    "description_ur": "نرس نسخے کے مطابق گھر پر پیشاب کی نلی لگاتا یا بدلتا ہے۔",
+    "preparation_ur": [
+      "وزٹ سے پہلے ڈاکٹر کا نسخہ اور دوائیں یا محلول تیار رکھیں۔",
+      "نرس کے کام کے لیے صاف اور روشن جگہ تیار رکھیں۔"
+    ],
+    "description_hi": "नर्स पर्चे के अनुसार घर पर मूत्र कैथेटर लगाती या बदलती है।",
+    "preparation_hi": [
+      "विज़िट से पहले डॉक्टर का पर्चा और दवाएं या घोल तैयार रखें।",
+      "नर्स के काम के लिए साफ और रोशनी वाली जगह तैयार रखें।"
+    ],
+    "description_bn": "নার্স প্রেসক্রিপশন অনুযায়ী বাড়িতে মূত্র ক্যাথেটার বসান বা বদলান।",
+    "preparation_bn": [
+      "ভিজিটের আগে ডাক্তারের প্রেসক্রিপশন এবং ওষুধ বা স্যালাইন প্রস্তুত রাখুন।",
+      "নার্সের কাজের জন্য পরিষ্কার ও আলোকিত জায়গা প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Naglalagay o nagpapalit ang nurse ng urinary catheter sa bahay, ayon sa reseta.",
+    "preparation_tl": [
+      "Ihanda ang reseta ng doktor at ang mga gamot o solusyon bago ang pagbisita.",
+      "Maghanda ng malinis at maliwanag na lugar para sa nurse."
+    ]
   },
   {
     "name_en": "Feeding Tube Care",
@@ -583,7 +1035,31 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "فیڈنگ ٹیوب کی دیکھ بھال",
+    "name_hi": "फ़ीडिंग ट्यूब की देखभाल",
+    "name_bn": "ফিডিং টিউবের যত্ন",
+    "name_tl": "Pangangalaga sa Feeding Tube",
+    "description_ur": "نرس فیڈنگ ٹیوب کی جانچ، صفائی اور اس کے اردگرد کی جلد کی دیکھ بھال کرتا ہے۔",
+    "preparation_ur": [
+      "زیر استعمال آلات اور سامان (آکسیجن، ٹیوبیں، تھیلیاں) نرس کے معائنے کے لیے تیار رکھیں۔",
+      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔"
+    ],
+    "description_hi": "नर्स फ़ीडिंग ट्यूब की जांच, फ़्लश और उसके आसपास की त्वचा की देखभाल करती है।",
+    "preparation_hi": [
+      "इस्तेमाल हो रहे उपकरण और सामान (ऑक्सीजन, ट्यूब, बैग) नर्स की जांच के लिए तैयार रखें।",
+      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।"
+    ],
+    "description_bn": "নার্স ফিডিং টিউব পরীক্ষা, ফ্লাশ এবং চারপাশের ত্বকের যত্ন নেন।",
+    "preparation_bn": [
+      "ব্যবহৃত যন্ত্র ও সামগ্রী (অক্সিজেন, টিউব, ব্যাগ) নার্সের দেখার জন্য প্রস্তুত রাখুন।",
+      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Sinusuri, hinuhugasan at inaalagaan ng nurse ang feeding tube at ang balat sa paligid nito.",
+    "preparation_tl": [
+      "Ihanda ang mga ginagamit na device at gamit (oxygen, tubo, bag) para masuri ng nurse.",
+      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot."
+    ]
   },
   {
     "name_en": "Stoma Care",
@@ -610,7 +1086,31 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "اسٹوما کی دیکھ بھال",
+    "name_hi": "स्टोमा की देखभाल",
+    "name_bn": "স্টোমার যত্ন",
+    "name_tl": "Pangangalaga sa Stoma",
+    "description_ur": "نرس اسٹوما بیگ بدلتا، جلد جانچتا اور خود دیکھ بھال سکھاتا ہے۔",
+    "preparation_ur": [
+      "زیر استعمال آلات اور سامان (آکسیجن، ٹیوبیں، تھیلیاں) نرس کے معائنے کے لیے تیار رکھیں۔",
+      "نرس کے کام کے لیے صاف اور روشن جگہ تیار رکھیں۔"
+    ],
+    "description_hi": "नर्स स्टोमा बैग बदलती, त्वचा जांचती और खुद देखभाल सिखाती है।",
+    "preparation_hi": [
+      "इस्तेमाल हो रहे उपकरण और सामान (ऑक्सीजन, ट्यूब, बैग) नर्स की जांच के लिए तैयार रखें।",
+      "नर्स के काम के लिए साफ और रोशनी वाली जगह तैयार रखें।"
+    ],
+    "description_bn": "নার্স স্টোমা ব্যাগ বদলান, ত্বক পরীক্ষা করেন এবং নিজের যত্ন শেখান।",
+    "preparation_bn": [
+      "ব্যবহৃত যন্ত্র ও সামগ্রী (অক্সিজেন, টিউব, ব্যাগ) নার্সের দেখার জন্য প্রস্তুত রাখুন।",
+      "নার্সের কাজের জন্য পরিষ্কার ও আলোকিত জায়গা প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Pinapalitan ng nurse ang stoma bag, sinusuri ang balat at itinuturo ang sariling pangangalaga.",
+    "preparation_tl": [
+      "Ihanda ang mga ginagamit na device at gamit (oxygen, tubo, bag) para masuri ng nurse.",
+      "Maghanda ng malinis at maliwanag na lugar para sa nurse."
+    ]
   },
   {
     "name_en": "Elderly Daily Care",
@@ -639,7 +1139,27 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "بزرگوں کی روزانہ دیکھ بھال",
+    "name_hi": "बुज़ुर्गों की रोज़ाना देखभाल",
+    "name_bn": "প্রবীণদের দৈনিক যত্ন",
+    "name_tl": "Pang-araw-araw na Pag-aalaga sa Matatanda",
+    "description_ur": "دن کا نگہداشت کرنے والا بزرگ کی صفائی، کھانے، بروقت دواؤں اور محفوظ حرکت میں مدد کرتا ہے۔",
+    "preparation_ur": [
+      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔"
+    ],
+    "description_hi": "दिन का देखभालकर्ता बुज़ुर्ग की साफ-सफाई, भोजन, समय पर दवाओं और सुरक्षित चलने में मदद करता है।",
+    "preparation_hi": [
+      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।"
+    ],
+    "description_bn": "দিনের পরিচর্যাকারী প্রবীণকে পরিচ্ছন্নতা, খাবার, সময়মতো ওষুধ ও নিরাপদ চলাফেরায় সাহায্য করেন।",
+    "preparation_bn": [
+      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Tumutulong ang caregiver sa araw sa kalinisan, pagkain, gamot sa tamang oras at ligtas na paggalaw ng matanda.",
+    "preparation_tl": [
+      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot."
+    ]
   },
   {
     "name_en": "Elderly Overnight Care",
@@ -668,7 +1188,27 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "بزرگوں کی رات کی دیکھ بھال",
+    "name_hi": "बुज़ुर्गों की रात की देखभाल",
+    "name_bn": "প্রবীণদের রাতের যত্ন",
+    "name_tl": "Pag-aalaga sa Matatanda sa Gabi",
+    "description_ur": "رات کا نگہداشت کرنے والا بزرگ کے ساتھ رہتا ہے، رات میں مدد کرتا اور مسائل پر نظر رکھتا ہے۔",
+    "preparation_ur": [
+      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔"
+    ],
+    "description_hi": "रात का देखभालकर्ता बुज़ुर्ग के साथ रहता है, रात में मदद करता और समस्याओं पर नज़र रखता है।",
+    "preparation_hi": [
+      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।"
+    ],
+    "description_bn": "রাতের পরিচর্যাকারী প্রবীণের সঙ্গে থাকেন, রাতে সাহায্য করেন ও সমস্যার দিকে নজর রাখেন।",
+    "preparation_bn": [
+      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Nananatili ang caregiver magdamag kasama ang matanda, tumutulong sa gabi at nagbabantay sa problema.",
+    "preparation_tl": [
+      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot."
+    ]
   },
   {
     "name_en": "Child Vaccination at Home",
@@ -697,7 +1237,27 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "گھر پر بچوں کی ویکسینیشن",
+    "name_hi": "घर पर बच्चों का टीकाकरण",
+    "name_bn": "বাড়িতে শিশুর টিকা",
+    "name_tl": "Bakuna ng Bata sa Bahay",
+    "description_ur": "نرس گھر پر بچے کو قومی شیڈول کے مطابق واجب ویکسین لگاتا ہے۔",
+    "preparation_ur": [
+      "بچے کا ویکسینیشن کارڈ تیار رکھیں، اور اگر بچہ بیمار ہو یا پچھلی ویکسین پر ردعمل ہوا ہو تو نرس کو بتائیں۔"
+    ],
+    "description_hi": "नर्स घर पर बच्चे को राष्ट्रीय कार्यक्रम के अनुसार बाकी टीके लगाती है।",
+    "preparation_hi": [
+      "बच्चे का टीकाकरण कार्ड तैयार रखें, और अगर बच्चा बीमार है या पिछले टीके से प्रतिक्रिया हुई थी तो नर्स को बताएं।"
+    ],
+    "description_bn": "নার্স বাড়িতে জাতীয় সূচি অনুযায়ী শিশুর বাকি টিকা দেন।",
+    "preparation_bn": [
+      "শিশুর টিকা কার্ড প্রস্তুত রাখুন, এবং শিশু অসুস্থ হলে বা আগের টিকায় প্রতিক্রিয়া হয়ে থাকলে নার্সকে জানান।"
+    ],
+    "description_tl": "Ibinibigay ng nurse sa bahay ang mga bakunang nakatakda sa pambansang iskedyul ng bata.",
+    "preparation_tl": [
+      "Ihanda ang vaccination card ng bata, at sabihin sa nurse kung may sakit ang bata o nagkaroon ng reaksyon sa nakaraang bakuna."
+    ]
   },
   {
     "name_en": "Physiotherapy Session",
@@ -726,7 +1286,31 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "فزیوتھراپی سیشن",
+    "name_hi": "फ़िज़ियोथेरेपी सत्र",
+    "name_bn": "ফিজিওথেরাপি সেশন",
+    "name_tl": "Sesyon ng Physical Therapy",
+    "description_ur": "فزیوتھراپسٹ گھر پر حرکت بہتر بنانے اور درد کم کرنے کے لیے ورزشیں اور علاج دیتا ہے۔",
+    "preparation_ur": [
+      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔",
+      "نرس کے کام کے لیے صاف اور روشن جگہ تیار رکھیں۔"
+    ],
+    "description_hi": "फ़िज़ियोथेरेपिस्ट घर पर चलने-फिरने में सुधार और दर्द कम करने के लिए व्यायाम और उपचार देता है।",
+    "preparation_hi": [
+      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।",
+      "नर्स के काम के लिए साफ और रोशनी वाली जगह तैयार रखें।"
+    ],
+    "description_bn": "ফিজিওথেরাপিস্ট বাড়িতে চলাফেরা উন্নত ও ব্যথা কমাতে ব্যায়াম ও চিকিৎসা দেন।",
+    "preparation_bn": [
+      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।",
+      "নার্সের কাজের জন্য পরিষ্কার ও আলোকিত জায়গা প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Nagbibigay ang physiotherapist ng ehersisyo at gamutan sa bahay para gumanda ang galaw at mabawasan ang sakit.",
+    "preparation_tl": [
+      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot.",
+      "Maghanda ng malinis at maliwanag na lugar para sa nurse."
+    ]
   },
   {
     "name_en": "Elderly Mobility Rehab",
@@ -755,7 +1339,31 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "بزرگوں کی حرکت کی بحالی",
+    "name_hi": "बुज़ुर्गों की गतिशीलता पुनर्वास",
+    "name_bn": "প্রবীণদের চলাফেরার পুনর্বাসন",
+    "name_tl": "Rehab sa Paggalaw ng Matatanda",
+    "description_ur": "فزیوتھراپسٹ گھر پر بزرگوں کے ساتھ توازن، طاقت اور چلنے پر کام کرتا ہے۔",
+    "preparation_ur": [
+      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔",
+      "نرس کے کام کے لیے صاف اور روشن جگہ تیار رکھیں۔"
+    ],
+    "description_hi": "फ़िज़ियोथेरेपिस्ट घर पर बुज़ुर्गों के साथ संतुलन, ताकत और चलने पर काम करता है।",
+    "preparation_hi": [
+      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।",
+      "नर्स के काम के लिए साफ और रोशनी वाली जगह तैयार रखें।"
+    ],
+    "description_bn": "ফিজিওথেরাপিস্ট বাড়িতে প্রবীণদের ভারসাম্য, শক্তি ও হাঁটা নিয়ে কাজ করেন।",
+    "preparation_bn": [
+      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।",
+      "নার্সের কাজের জন্য পরিষ্কার ও আলোকিত জায়গা প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Nagtatrabaho ang physiotherapist kasama ang matatanda sa bahay sa balanse, lakas at paglalakad.",
+    "preparation_tl": [
+      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot.",
+      "Maghanda ng malinis at maliwanag na lugar para sa nurse."
+    ]
   },
   {
     "name_en": "Palliative Care Visit",
@@ -782,7 +1390,35 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "تسکینی نگہداشت (پیلی ایٹو کیئر) وزٹ",
+    "name_hi": "प्रशामक देखभाल (पैलिएटिव केयर) विज़िट",
+    "name_bn": "প্যালিয়েটিভ কেয়ার ভিজিট",
+    "name_tl": "Pagbisita para sa Palliative Care",
+    "description_ur": "نرس معالج ٹیم کے منصوبے کے تحت درد اور بے آرامی جیسی علامات کم کرنے اور مریض و گھر والوں کو سہارا دینے کے لیے آتا ہے۔",
+    "preparation_ur": [
+      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔",
+      "وزٹ سے پہلے ڈاکٹر کا نسخہ اور دوائیں یا محلول تیار رکھیں۔",
+      "وزٹ کے دوران گھر کا کوئی بالغ فرد موجود ہونا چاہیے۔"
+    ],
+    "description_hi": "नर्स इलाज करने वाली टीम की योजना के तहत दर्द और बेचैनी जैसे लक्षण कम करने और मरीज़ व परिवार को सहारा देने आती है।",
+    "preparation_hi": [
+      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।",
+      "विज़िट से पहले डॉक्टर का पर्चा और दवाएं या घोल तैयार रखें।",
+      "विज़िट के दौरान परिवार का कोई वयस्क सदस्य मौजूद होना चाहिए।"
+    ],
+    "description_bn": "চিকিৎসক দলের পরিকল্পনা অনুযায়ী নার্স ব্যথা ও অস্বস্তির মতো উপসর্গ কমাতে এবং রোগী ও পরিবারকে সহায়তা দিতে আসেন।",
+    "preparation_bn": [
+      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।",
+      "ভিজিটের আগে ডাক্তারের প্রেসক্রিপশন এবং ওষুধ বা স্যালাইন প্রস্তুত রাখুন।",
+      "ভিজিটের সময় পরিবারের একজন প্রাপ্তবয়স্ক সদস্য উপস্থিত থাকা উচিত।"
+    ],
+    "description_tl": "Bumibisita ang nurse para maibsan ang sintomas gaya ng sakit at hirap, at suportahan ang pasyente at pamilya, ayon sa plano ng treating team.",
+    "preparation_tl": [
+      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot.",
+      "Ihanda ang reseta ng doktor at ang mga gamot o solusyon bago ang pagbisita.",
+      "Dapat may kasamang nasa hustong gulang na kapamilya habang nagbibisita."
+    ]
   },
   {
     "name_en": "Medication Management Visit",
@@ -809,7 +1445,27 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "دواؤں کے انتظام کا وزٹ",
+    "name_hi": "दवा प्रबंधन विज़िट",
+    "name_bn": "ওষুধ ব্যবস্থাপনা ভিজিট",
+    "name_tl": "Pagbisita para sa Pamamahala ng Gamot",
+    "description_ur": "نرس آپ کے ساتھ دوائیں دیکھتا ہے، ہفتہ وار ڈبہ ترتیب دیتا ہے اور لینے کا طریقہ سمجھاتا ہے۔",
+    "preparation_ur": [
+      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔"
+    ],
+    "description_hi": "नर्स आपके साथ दवाएं देखती है, साप्ताहिक डिब्बा तैयार करती है और लेने का तरीका समझाती है।",
+    "preparation_hi": [
+      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।"
+    ],
+    "description_bn": "নার্স আপনার সঙ্গে ওষুধগুলো দেখেন, সাপ্তাহিক বাক্স সাজান এবং খাওয়ার নিয়ম বোঝান।",
+    "preparation_bn": [
+      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Sinusuri ng nurse kasama mo ang mga gamot, inaayos ang weekly organizer at ipinapaliwanag kung paano inumin.",
+    "preparation_tl": [
+      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot."
+    ]
   },
   {
     "name_en": "Nebulization Session",
@@ -836,7 +1492,27 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "نیبولائزر سیشن",
+    "name_hi": "नेबुलाइज़ेशन सत्र",
+    "name_bn": "নেবুলাইজেশন সেশন",
+    "name_tl": "Sesyon ng Nebulization",
+    "description_ur": "نرس نیبولائزر سے نسخے کی دوا سانس کے ذریعے دیتا ہے اور سانس کی جانچ کرتا ہے۔",
+    "preparation_ur": [
+      "وزٹ سے پہلے ڈاکٹر کا نسخہ اور دوائیں یا محلول تیار رکھیں۔"
+    ],
+    "description_hi": "नर्स नेबुलाइज़र से पर्चे की दवा सांस के ज़रिए देती है और सांस की जांच करती है।",
+    "preparation_hi": [
+      "विज़िट से पहले डॉक्टर का पर्चा और दवाएं या घोल तैयार रखें।"
+    ],
+    "description_bn": "নার্স নেবুলাইজারে প্রেসক্রিপশনের ওষুধ শ্বাসের মাধ্যমে দেন ও শ্বাস পরীক্ষা করেন।",
+    "preparation_bn": [
+      "ভিজিটের আগে ডাক্তারের প্রেসক্রিপশন এবং ওষুধ বা স্যালাইন প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Nagbibigay ang nurse ng iniresetang gamot na nilalanghap gamit ang nebulizer at sinusuri ang paghinga.",
+    "preparation_tl": [
+      "Ihanda ang reseta ng doktor at ang mga gamot o solusyon bago ang pagbisita."
+    ]
   },
   {
     "name_en": "Blood Pressure Follow-up Program",
@@ -865,7 +1541,27 @@
     ],
     "medical_review_status": "approved",
     "public_eligibility": true,
-    "is_active": true
+    "is_active": true,
+    "name_ur": "بلڈ پریشر کی نگرانی کا پروگرام",
+    "name_hi": "ब्लड प्रेशर फ़ॉलो-अप कार्यक्रम",
+    "name_bn": "রক্তচাপ ফলো-আপ প্রোগ্রাম",
+    "name_tl": "Programa sa Pagsubaybay ng Presyon ng Dugo",
+    "description_ur": "بلڈ پریشر ناپنے، ریڈنگ ریکارڈ کرنے اور ڈاکٹر کو بھیجنے کے لیے طے شدہ نرسنگ وزٹ۔",
+    "preparation_ur": [
+      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔"
+    ],
+    "description_hi": "ब्लड प्रेशर मापने, रीडिंग दर्ज करने और डॉक्टर को भेजने के लिए तय नर्सिंग विज़िट।",
+    "preparation_hi": [
+      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।"
+    ],
+    "description_bn": "রক্তচাপ মাপা, রিডিং লেখা ও ডাক্তারকে জানাতে নির্ধারিত নার্সিং ভিজিট।",
+    "preparation_bn": [
+      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Nakatakdang nursing visit para sukatin ang blood pressure, itala at ibahagi sa doktor mo.",
+    "preparation_tl": [
+      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot."
+    ]
   },
   {
     "code": "dialysis_home",
@@ -880,7 +1576,45 @@
     "is_active": true,
     "duration": "hour",
     "duration_value": 4,
-    "active": true
+    "active": true,
+    "name_ur": "گھر پر ڈائیلاسس سیشن",
+    "name_hi": "घर पर डायलिसिस सत्र",
+    "name_bn": "বাড়িতে ডায়ালাইসিস সেশন",
+    "name_tl": "Sesyon ng Dialysis sa Bahay",
+    "preparation_ar": [
+      "جهّز وصفة الطبيب والأدوية أو المحاليل قبل الزيارة.",
+      "جهّز الأجهزة والمستلزمات المستخدمة (الأكسجين، الأنابيب، الأكياس) ليفحصها الممرض.",
+      "جهّز تقاريرك الطبية الحديثة وقائمة أدويتك."
+    ],
+    "preparation_en": [
+      "Have the doctor's prescription and the medicines or solutions ready before the visit.",
+      "Keep the devices and supplies in use (oxygen, tubes, bags) ready for the nurse to check.",
+      "Have your recent medical reports and the list of your medicines ready."
+    ],
+    "description_ur": "ڈائیلاسس کی تربیت یافتہ نرس گردوں کی ٹیم کے نسخے کے تحت گھریلو ڈائیلاسس کی نگرانی کرتا ہے۔",
+    "preparation_ur": [
+      "وزٹ سے پہلے ڈاکٹر کا نسخہ اور دوائیں یا محلول تیار رکھیں۔",
+      "زیر استعمال آلات اور سامان (آکسیجن، ٹیوبیں، تھیلیاں) نرس کے معائنے کے لیے تیار رکھیں۔",
+      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔"
+    ],
+    "description_hi": "डायलिसिस में प्रशिक्षित नर्स किडनी टीम के पर्चे के तहत घर पर डायलिसिस की निगरानी करती है।",
+    "preparation_hi": [
+      "विज़िट से पहले डॉक्टर का पर्चा और दवाएं या घोल तैयार रखें।",
+      "इस्तेमाल हो रहे उपकरण और सामान (ऑक्सीजन, ट्यूब, बैग) नर्स की जांच के लिए तैयार रखें।",
+      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।"
+    ],
+    "description_bn": "ডায়ালাইসিসে প্রশিক্ষিত নার্স কিডনি দলের প্রেসক্রিপশন অনুযায়ী বাড়ির ডায়ালাইসিস তত্ত্বাবধান করেন।",
+    "preparation_bn": [
+      "ভিজিটের আগে ডাক্তারের প্রেসক্রিপশন এবং ওষুধ বা স্যালাইন প্রস্তুত রাখুন।",
+      "ব্যবহৃত যন্ত্র ও সামগ্রী (অক্সিজেন, টিউব, ব্যাগ) নার্সের দেখার জন্য প্রস্তুত রাখুন।",
+      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Pinangangasiwaan ng nurse na sanay sa dialysis ang home dialysis ayon sa reseta ng kidney team.",
+    "preparation_tl": [
+      "Ihanda ang reseta ng doktor at ang mga gamot o solusyon bago ang pagbisita.",
+      "Ihanda ang mga ginagamit na device at gamit (oxygen, tubo, bag) para masuri ng nurse.",
+      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot."
+    ]
   },
   {
     "code": "speech_therapy",
@@ -895,7 +1629,33 @@
     "is_active": true,
     "duration": "hour",
     "duration_value": 1,
-    "active": true
+    "active": true,
+    "name_ur": "اسپیچ تھراپی",
+    "name_hi": "स्पीच थेरेपी",
+    "name_bn": "স্পিচ থেরাপি",
+    "name_tl": "Terapiya sa Pagsasalita",
+    "preparation_ar": [
+      "جهّز تقاريرك الطبية الحديثة وقائمة أدويتك."
+    ],
+    "preparation_en": [
+      "Have your recent medical reports and the list of your medicines ready."
+    ],
+    "description_ur": "اسپیچ تھراپسٹ گھر پر بولنے، زبان اور نگلنے پر کام کرتا ہے۔",
+    "preparation_ur": [
+      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔"
+    ],
+    "description_hi": "स्पीच थेरेपिस्ट घर पर बोलने, भाषा और निगलने पर काम करता है।",
+    "preparation_hi": [
+      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।"
+    ],
+    "description_bn": "স্পিচ থেরাপিস্ট বাড়িতে কথা, ভাষা ও গেলার ওপর কাজ করেন।",
+    "preparation_bn": [
+      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Nagtatrabaho ang speech therapist sa bahay sa pagsasalita, wika at paglunok.",
+    "preparation_tl": [
+      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot."
+    ]
   },
   {
     "code": "lactation",
@@ -910,6 +1670,32 @@
     "is_active": true,
     "duration": "hour",
     "duration_value": 1,
-    "active": true
+    "active": true,
+    "name_ur": "دودھ پلانے کی مشیر",
+    "name_hi": "स्तनपान सलाहकार",
+    "name_bn": "বুকের দুধ খাওয়ানোর পরামর্শক",
+    "name_tl": "Konsultant sa Pagpapasuso",
+    "preparation_ar": [
+      "جهّز تقاريرك الطبية الحديثة وقائمة أدويتك."
+    ],
+    "preparation_en": [
+      "Have your recent medical reports and the list of your medicines ready."
+    ],
+    "description_ur": "دودھ پلانے کی ماہر بچے کے پکڑنے، پوزیشن اور دودھ کی مقدار میں مدد کے لیے آتی ہیں۔",
+    "preparation_ur": [
+      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔"
+    ],
+    "description_hi": "स्तनपान विशेषज्ञ पकड़, स्थिति और दूध की मात्रा में मदद के लिए आती हैं।",
+    "preparation_hi": [
+      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।"
+    ],
+    "description_bn": "স্তন্যদান বিশেষজ্ঞ শিশুর মুখে নেওয়া, অবস্থান ও দুধের পরিমাণে সাহায্য করতে আসেন।",
+    "preparation_bn": [
+      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।"
+    ],
+    "description_tl": "Bumibisita ang lactation specialist para tumulong sa latch, posisyon at dami ng gatas.",
+    "preparation_tl": [
+      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot."
+    ]
   }
 ]
