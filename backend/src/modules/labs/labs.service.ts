@@ -39,6 +39,17 @@ function publicProvider(p: any) {
   return { id: p.account_id, name_ar: p.name_ar ?? null, name_en: p.name_en ?? null, logo: p.logo ?? null, rating: p.rating_count > 0 ? p.rating_avg : null, rating_count: p.rating_count || 0 };
 }
 
+/**
+ * The approved, public lab behind GET /labs/:id. The id is the lab's account id (what a booking carries) or its profile id (what
+ * the public map and GET /providers/:id list): the map's "Book" opened /diagnostics/labs/<profile id> and every lab answered 404.
+ */
+export function publicLabFilter(id: string) {
+  return {
+    $or: [{ account_id: { $eq: id } }, { id: { $eq: id } }],
+    type: { $in: ['lab', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
+  };
+}
+
 @Injectable()
 export class LabsService {
   constructor(
@@ -151,9 +162,7 @@ export class LabsService {
   /** The public profile of an approved lab by account id (GET /labs/:id); its priced tests from its capabilities. */
   async publicLab(id: string) {
     if (typeof id !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(id)) throw new NotFoundException('lab_not_found');
-    const p: any = await this.providerProfiles.findOne({
-      account_id: { $eq: id }, type: { $in: ['lab', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
-    }, { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, description_ar: 1, description_en: 1, address: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1 }).lean();
+    const p: any = await this.providerProfiles.findOne(publicLabFilter(id), { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, description_ar: 1, description_en: 1, address: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1 }).lean();
     if (!p) throw new NotFoundException('lab_not_found');
     const items: any[] = await this.svcModel.db.collection('provider_capabilities_lab').find(
       { provider_account_id: { $eq: id }, available: true, price: { $gt: 0 } },
