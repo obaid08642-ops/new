@@ -174,15 +174,29 @@ describe("help and support", () => {
     expect(html).not.toContain("كيف أحجز");
   });
 
-  it("the requests tab reads the patient's requests, the feedback tab reads nothing", async () => {
-    server.api.mockResolvedValue(json([{ id: "r1", subject: "Late order", status: "OPEN" }]));
+  it("my requests is a row to the requests screen, the old requests tab opens the first tab, and feedback reads nothing", async () => {
+    server.api.mockResolvedValue(json([{ id: "1", question_en: "How do I book?", answer_en: "Pick a doctor." }]));
     const mine = render(await SettingsHelpPage({ params, searchParams: search({ tab: "requests" }) }));
-    expect(mine).toContain("Late order");
-    expect(server.api.mock.calls[0][0]).toBe("/support/requests/mine");
+    expect(mine).toContain("How do I book?");
+    expect(mine).toContain('href="/en/support/ticket"');
+    expect(mine).not.toContain("Send us a request");
     server.api.mockReset();
     const feedback = render(await SettingsHelpPage({ params, searchParams: search({ tab: "feedback" }) }));
     expect(feedback).toContain("Share your feedback");
     expect(server.api).not.toHaveBeenCalled();
+  });
+
+  it("the FAQ shows category chips when the server sends more than one category", async () => {
+    server.api.mockResolvedValue(json([
+      { id: "1", question_en: "How do I book?", answer_en: "a", category: "Booking" },
+      { id: "2", question_en: "How do I pay?", answer_en: "b", category: "Payment" },
+    ]));
+    const html = render(await SettingsHelpPage({ params, searchParams: search() }));
+    expect(html).toContain(">All<");
+    expect(html).toContain(">Booking<");
+    expect(html).toContain(">Payment<");
+    server.api.mockResolvedValue(json([{ id: "1", question_en: "Q", answer_en: "a", category: "Booking" }]));
+    expect(render(await SettingsHelpPage({ params, searchParams: search() }))).not.toContain(">All<");
   });
 });
 

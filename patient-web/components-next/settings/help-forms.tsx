@@ -4,70 +4,27 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
+import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import forms from "@/components-next/consult/consult.module.css";
 
-/**
- * "Send us a request" (the form of the old `/support` page): POST /api/patient/support/requests, category GENERAL, the same
- * payload as before. On success the fields clear and the list of requests reloads.
- */
-export function NewRequestForm() {
-  const t = useTranslations("SettingsWeb");
-  const router = useRouter();
-  const [subject, setSubject] = useState("");
-  const [message, setMessage] = useState("");
-  const [state, setState] = useState<"idle" | "loading" | "success" | "error">("idle");
-
-  async function submit(event: FormEvent) {
-    event.preventDefault();
-    if (state === "loading" || !subject.trim() || !message.trim()) return;
-    setState("loading");
-    try {
-      const response = await fetch("/api/patient/support/requests", {
-        method: "POST",
-        headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() },
-        body: JSON.stringify({ subject: subject.trim(), message: message.trim(), category: "GENERAL" }),
-      });
-      if (!response.ok) throw new Error("support_request_failed");
-      setSubject("");
-      setMessage("");
-      setState("success");
-      router.refresh();
-    } catch {
-      setState("error");
-    }
-  }
-
-  return (
-    <form onSubmit={submit} className={forms.stack} noValidate>
-      <label className={forms.field}>
-        <span className={forms.label}>{t("requestSubject")}</span>
-        <input className={forms.control} value={subject} maxLength={160} onChange={(event) => setSubject(event.target.value)} required />
-      </label>
-      <label className={forms.field}>
-        <span className={forms.label}>{t("requestMessage")}</span>
-        <textarea className={forms.control} value={message} rows={4} maxLength={2000} onChange={(event) => setMessage(event.target.value)} required />
-      </label>
-      {state === "success" ? <p className={forms.ok} role="status">{t("requestSent")}</p> : null}
-      {state === "error" ? <p className={forms.error} role="alert">{t("requestFailed")}</p> : null}
-      <Button type="submit" label={t("requestSend")} loading={state === "loading"} disabled={!subject.trim() || !message.trim()} fullWidth />
-    </form>
-  );
-}
-
-/** The values the backend stores for a feedback type (they are the words of the old form, kept as they were sent). */
-const FEEDBACK_TYPES = [
-  { value: "اقتراح", key: "fbTypeSuggestion" },
-  { value: "مشكلة", key: "fbTypeProblem" },
-  { value: "شكوى", key: "fbTypeComplaint" },
-  { value: "إطراء", key: "fbTypePraise" },
-  { value: "استفسار", key: "fbTypeQuestion" },
+/** The five kinds of the app's feedback screen; the key is what the backend stores as `category`. */
+const FEEDBACK_KINDS = [
+  { value: "suggestion", key: "fbTypeSuggestion" },
+  { value: "issue", key: "fbTypeProblem" },
+  { value: "complaint", key: "fbTypeComplaint" },
+  { value: "praise", key: "fbTypePraise" },
+  { value: "question", key: "fbTypeQuestion" },
 ] as const;
 
-/** "Share your feedback" (the old `/settings/feedback`): POST /api/support/feedback with the rating, the type and the message. */
-export function FeedbackForm() {
+/** The stars the form shows become the three ratings the server knows (the app's rule). */
+export const ratingOf = (stars: number): "positive" | "neutral" | "negative" | undefined =>
+  stars <= 0 ? undefined : stars >= 4 ? "positive" : stars === 3 ? "neutral" : "negative";
+
+/** "Share your feedback" (the help screen's second tab): POST /api/support/feedback with the same payload as the app: message, rating (positive, neutral, negative) and category. */
+export function FeedbackForm({ doneHref }: { doneHref: string }) {
   const t = useTranslations("SettingsWeb");
   const [rating, setRating] = useState(0);
-  const [type, setType] = useState<string>(FEEDBACK_TYPES[0].value);
+  const [kind, setKind] = useState<string>("");
   const [text, setText] = useState("");
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -82,7 +39,7 @@ export function FeedbackForm() {
       const res = await fetch("/api/support/feedback", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ rating, type, message: text.trim() }),
+        body: JSON.stringify({ message: text.trim(), ...(ratingOf(rating) ? { rating: ratingOf(rating) } : {}), ...(kind ? { category: kind } : {}) }),
       });
       if (!res.ok) { setError(t("fbFailed")); return; }
       setSent(true);
@@ -93,7 +50,15 @@ export function FeedbackForm() {
     }
   }
 
-  if (sent) return <p className={forms.ok} role="status">{t("fbSent")}</p>;
+  if (sent) {
+    return (
+      <div className={forms.stack} role="status">
+        <p className={forms.ok}><strong>{t("fbThanks")}</strong></p>
+        <p className={forms.body}>{t("fbThanksBody")}</p>
+        <ButtonLink href={doneHref} label={t("fbBack")} fullWidth />
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={onSubmit} className={forms.stack} noValidate>
@@ -110,8 +75,8 @@ export function FeedbackForm() {
       <div className={forms.field}>
         <span className={forms.label} id="fb-type">{t("fbType")}</span>
         <div className={forms.choices} role="group" aria-labelledby="fb-type">
-          {FEEDBACK_TYPES.map((item) => (
-            <button key={item.value} type="button" className={forms.choice} aria-pressed={type === item.value} onClick={() => setType(item.value)}>
+          {FEEDBACK_KINDS.map((item) => (
+            <button key={item.value} type="button" className={forms.choice} aria-pressed={kind === item.value} onClick={() => setKind(kind === item.value ? "" : item.value)}>
               {t(item.key)}
             </button>
           ))}
@@ -119,7 +84,7 @@ export function FeedbackForm() {
       </div>
       <label className={forms.field}>
         <span className={forms.label}>{t("fbMessage")}</span>
-        <textarea className={forms.control} value={text} rows={4} maxLength={2000} required onChange={(event) => setText(event.target.value)} />
+        <textarea className={forms.control} value={text} rows={4} maxLength={2000} placeholder={t("fbPlaceholder")} required onChange={(event) => setText(event.target.value)} />
       </label>
       {error ? <p className={forms.error} role="alert">{error}</p> : null}
       <Button type="submit" label={t("fbSend")} loading={sending} fullWidth />

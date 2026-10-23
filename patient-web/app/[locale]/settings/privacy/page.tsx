@@ -92,9 +92,21 @@ async function dataTab(locale: Locale, token: string, failed: React.ReactNode, t
             </span>
           </div>
           {storage.items.map((item) => (
-            <div className={styles.itemRow} key={item.key}>
-              <span className={styles.itemText}><span className={styles.itemTitle}>{t(`storageItem.${item.key}`)}</span></span>
-              <span className={styles.itemEnd}><bdi>{item.value} · {item.percent}%</bdi></span>
+            <div className={styles.barRow} key={item.key}>
+              <span className={styles.barHead}>
+                <span className={styles.itemTitle}>{t(`storageItem.${item.key}`)}</span>
+                <span className={styles.itemSub}><bdi>{item.value}</bdi></span>
+              </span>
+              <span
+                className={styles.barTrack}
+                role="progressbar"
+                aria-label={t(`storageItem.${item.key}`)}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.max(0, Math.min(100, Number(item.percent) || 0))}
+              >
+                <span className={styles.barFill} style={{ inlineSize: `${Math.max(0, Math.min(100, Number(item.percent) || 0))}%` }} />
+              </span>
             </div>
           ))}
           {storage.items.length === 0 ? <div className={styles.itemRow}><span className={styles.itemSub}>{t("storageEmpty")}</span></div> : null}

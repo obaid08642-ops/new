@@ -128,7 +128,23 @@
     "unavailableBody": "Suriin ang koneksyon at subukan muli.",
     "retry": "Subukan muli",
     "maintenanceTitle": "Naka-iskedyul na maintenance",
-    "maintenanceBody": "Pinapahusay namin ang serbisyo. Pakisubukan muli mamaya."
+    "maintenanceBody": "Pinapahusay namin ang serbisyo. Pakisubukan muli mamaya.",
+    "healthReminder": "Paalala sa kalusugan",
+    "recordsMedications": "Mga gamot",
+    "reminderAllDone": "Walang nakabinbing dose ngayon",
+    "reminderProgress": "{taken} sa {scheduled} dose ang naitala ngayon",
+    "recordsTitle": "Iyong mga rekord sa kalusugan",
+    "recordsMeals": "{count} pagkain ang naitala",
+    "recordsWater": "{count} ml ang naitala",
+    "recordsNutrition": "Nutrisyon",
+    "recordsVitals": "Vital signs",
+    "recordsUpdated": "Na-update mula sa iyong mga tala",
+    "recordsMood": "Pakiramdam",
+    "recordsMoodLogged": "Naitala ang mood ngayon",
+    "recordsMoodNotLogged": "Hindi mo pa naitala ang mood ngayon",
+    "recordsMaternity": "Pangangalaga sa ina",
+    "recordsPregnancy": "Pagsubaybay sa pagbubuntis",
+    "recordsCycle": "Pagsubaybay sa cycle"
   },
   "Login": {
     "title": "Mag-sign in",
@@ -910,7 +926,10 @@
     "chSms": "Mga text message",
     "saveFailed": "Hindi na-save ang pagbabago. Subukang muli.",
     "unavailable": "Hindi available sa ngayon",
-    "unavailableTitle": "Hindi ma-load ang mga setting"
+    "unavailableTitle": "Hindi ma-load ang mga setting",
+    "pushAsk": "I-on ang mga notification sa browser na ito para makatanggap ng paalala sa gamot at appointment at ng mga update sa order.",
+    "pushTurnOn": "I-on ang mga notification",
+    "pushBlocked": "Naka-off ang mga notification sa browser na ito. I-on ang mga ito sa site settings ng browser para makatanggap ng mga alerto."
   },
   "Articles": {
     "title": "Mga artikulo tungkol sa kalusugan",
@@ -1501,7 +1520,11 @@
     "shortAddressNotFound": "Walang nahanap na address para sa code na ito. Suriin ito at subukan muli.",
     "shortAddressUnavailable": "Hindi sumasagot ngayon ang Saudi Post. Maaari mo pa ring i-save ang address kasama ang mga detalyeng itinype mo.",
     "removedToast": "Naalis ang address.",
-    "makeDefault": "Gawing default"
+    "makeDefault": "Gawing default",
+    "useMyLocation": "Gamitin ang kasalukuyang lokasyon ko",
+    "locating": "Hinahanap ang lokasyon mo…",
+    "locationSet": "Naitakda na ang lokasyon ng address.",
+    "locateFailed": "Hindi makuha ang kasalukuyang lokasyon mo."
   },
   "ShareReport": {
     "title": "Ibahagi ang mga Ulat",
@@ -3980,7 +4003,15 @@
     "sessionEndConfirm": "Kumpirmahin ang pag-sign out",
     "deleteIntro": "Permanenteng made-delete nito ang iyong account at health data. Hindi na ito maibabalik.",
     "deleteContinue": "Magpatuloy",
-    "callSupport": "Tawagan ang suporta"
+    "callSupport": "Tawagan ang suporta",
+    "faqAll": "Lahat",
+    "fbThanks": "Salamat sa feedback mo",
+    "fbThanksBody": "Natanggap namin ito at babasahin namin.",
+    "fbBack": "Bumalik",
+    "fbPlaceholder": "Isulat dito ang feedback mo...",
+    "aboutDocuments": "Mga tuntunin at patakaran",
+    "aboutVersion": "Bersyon {version}",
+    "aboutDocumentFailed": "Hindi ma-load ang dokumento."
   },
   "AccountWeb": {
     "profileTitle": "Aking account",
@@ -4023,7 +4054,9 @@
     "mapUnavailable": "Hindi ma-load ang mga pasilidad. Subukang muli.",
     "mapRetry": "Subukang muli",
     "guestTitle": "Guest account ang gamit mo",
-    "guestBody": "Mag-sign in o gumawa ng account para makita ang iyong detalye, order at record."
+    "guestBody": "Mag-sign in o gumawa ng account para makita ang iyong detalye, order at record.",
+    "addressCount": "{count} address",
+    "familyCount": "{count} miyembro"
   },
   "ReturnsWeb": {
     "newRequest": "Bagong kahilingan sa pagbabalik",

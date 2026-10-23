@@ -9,24 +9,24 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 0 | 333 | 97 | 4 | 0 |
-| Other | 164 | 123 | 38 | 3 | 0 | 0 |
+| Other | 181 | 140 | 38 | 3 | 0 | 0 |
 | Admin | 99 | 0 | 65 | 34 | 0 | 0 |
 | Admin journeys | 20 | 0 | 18 | 2 | 0 | 0 |
 | Final pass | 8 | 0 | 2 | 6 | 0 | 0 |
 | Patient journeys | 87 | 0 | 85 | 2 | 0 | 0 |
 | Provider app | 31 | 0 | 27 | 4 | 0 | 0 |
 | Provider journeys | 34 | 0 | 32 | 2 | 0 | 0 |
-| **Total** | **877** | **123** | **600** | **150** | **4** | **0** |
+| **Total** | **894** | **140** | **600** | **150** | **4** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | client | 203 | 35 | 127 | 41 | 0 | 0 |
-| owner | 107 | 7 | 57 | 42 | 1 | 0 |
-| backend | 329 | 81 | 218 | 30 | 0 | 0 |
+| owner | 115 | 15 | 57 | 42 | 1 | 0 |
+| backend | 338 | 90 | 218 | 30 | 0 | 0 |
 | untagged | 238 | 0 | 198 | 37 | 3 | 0 |
-| **Total** | **877** | **123** | **600** | **150** | **4** | **0** |
+| **Total** | **894** | **140** | **600** | **150** | **4** | **0** |
 
 ## By file
 
@@ -98,6 +98,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `m6-ord11-web.json` | 9 | 9 | 0 | 0 | 0 | 0 |
 | `m6-ord22.json` | 5 | 4 | 1 | 0 | 0 | 0 |
 | `m6-ord30.json` | 14 | 14 | 0 | 0 | 0 | 0 |
+| `parity-account.json` | 17 | 17 | 0 | 0 | 0 | 0 |
 | `provider-admin-ish.json` | 3 | 0 | 3 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 0 | 6 | 0 | 0 | 0 |
 | `provider-facility.json` | 7 | 0 | 7 | 0 | 0 | 0 |
@@ -111,7 +112,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 0 | 7 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 0 | 0 | 1 | 0 | 0 |
 | `tooling.json` | 13 | 0 | 12 | 1 | 0 | 0 |
-| **Total** | **877** | **123** | **600** | **150** | **4** | **0** |
+| **Total** | **894** | **140** | **600** | **150** | **4** | **0** |
 
 ## Owner decisions (4)
 
@@ -122,7 +123,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 3 | `batch-1a-app.json#18` `patient-app/src/i18n/locales/en.json:0` | /pharmacy Six-language strings | 177 pharmacy.* keys were added to patient-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json. The English, Urdu, Hindi, Bengali and Filipino text was written by the design session (and, for reused phrases, taken from the phr… |
 | 4 | `batch-1d-web.json#1` `backend/src/modules/payments/payments.module.ts:154` | /pharmacy/payment Payment provider not exercised | No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only against a TEST stand-in outside the repo (… |
 
-## Open and unverified (123)
+## Open and unverified (140)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -249,3 +250,20 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `m6-ord30.json#11` | client | open | Ord33 Photo and licence task | [client] The photo_licence task has no route in the ordering stack, so the row is not tappable. |
 | `m6-ord30.json#12` | client | open | Ord33 Points per task | [client] Points are derived from the weights returned by the API (share of what is missing), since the API gives no per-task points. |
 | `m6-ord30.json#13` | client | open | Ord22 and Ord30 to Ord33 Render entry and board comparison | [client] tools/design/render-native-screen.mjs renders patient-app screens only; provider-app has no render path, so no render entry and no board screenshot were made for these fi… |
+| `parity-account.json#0` | owner | open | /welcome and /login Apple / Google / X / Snapchat sign-in on the web | [owner] Web shows Google only when a client id is set; Apple (Services ID, return URL) and X/Snapchat need provider setup the web does not have. POST /auth/social-login exists in … |
+| `parity-account.json#1` | backend | open | /otp resend countdown 300 s vs 60 s in the app | [backend] POST /auth/otp/request is throttled to 3 per 10 minutes, so the web waits 300 s; the app waits 60 s and would hit 429 after 3 sends. |
+| `parity-account.json#2` | owner | open | /register password minimum: app (6) disagrees with backend and web (10) | [owner] web register, reset and change-password now use the backend rule (10, lib/auth/password-rule); patient-app still checks 6 so a valid-looking password is rejected by the se… |
+| `parity-account.json#3` | backend | open | /register register creates the account before the OTP step | [backend] app sends OTP first; backend flow on web is register then OTP (?sent=0 leaves an account without a code). |
+| `parity-account.json#4` | backend | open | /forgot-password no OTP-based reset on the web | [backend] app goes forgot -> OTP -> reset with the code; web POST /auth/password/forgot mails a reset token the person types on /password-reset. |
+| `parity-account.json#5` | owner | open | /login after sign-in always /dashboard, no role check or provider-info page | [owner] app sends non-patient roles to provider-info; web has no such page. |
+| `parity-account.json#6` | owner | open | /dashboard whole page becomes an error state when a call fails | [owner] audit asks for a retry banner; the 2026-10-06 owner rule says ErrorState with retry when there is no cached copy. |
+| `parity-account.json#7` | owner | open | /settings/about no app version on the web | [owner] the web has no build version string to show; confirm whether a build id should be exposed. |
+| `parity-account.json#8` | backend | open | /settings/notifications notification kinds: web edits categories/channels, app … | [backend] PATCH /users/me/notification-settings validates the flat keys the app sends (general, offers, medications, doctorMessages, emergency, sound, vibration) but users.service… |
+| `parity-account.json#9` | backend | open | /dashboard and home unread dot on the notification bell | [backend] the backend notifications controller has no unread-count endpoint and the proxy allowlist has none; the bell cannot show a dot without an extra request per page. |
+| `parity-account.json#10` | owner | open | /settings/language calendar preference (Gregorian/Hijri/auto) | [owner] the app keeps a device-only preference read by its date helpers; the web formatters (lib/format-date) do not read one, so a switch would do nothing. |
+| `parity-account.json#11` | backend | open | /search sort, filter sidebar, pharmacies tab, price cards | [backend] GET /search takes q, locale and limit only and returns no price or sale fields. |
+| `parity-account.json#12` | owner | open | /search barcode scan button | [owner] /drug-scanner is an app screen (camera); no web equivalent exists. |
+| `parity-account.json#13` | owner | open | /profile/addresses map point and pick mode | [owner] "Use my current location" and the National Address code now set the pin; dragging a pin on a map needs a map library (none in patient-web; the facilities map is an OSM ifr… |
+| `parity-account.json#14` | backend | open | /register separate email and phone fields | [backend] the Patient Contract V1 register takes one identifier; the app sends email and phone together (legacy payload). |
+| `parity-account.json#15` | backend | open | /settings/security session location | [backend] GET /users/me/sessions sends a masked IP, not a place; the row shows the masked IP. |
+| `parity-account.json#16` | backend | open | /settings/notifications sound and vibration switches | [backend] app shows sound and vibration switches (flat keys, same PATCH); the backend does not store them (see the kinds entry), so a web switch would not persist. |

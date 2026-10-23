@@ -128,7 +128,23 @@
     "unavailableBody": "Check your connection and try again.",
     "retry": "Try again",
     "maintenanceTitle": "Scheduled maintenance",
-    "maintenanceBody": "We are improving the service. Please try again later."
+    "maintenanceBody": "We are improving the service. Please try again later.",
+    "healthReminder": "Health reminder",
+    "recordsMedications": "Medications",
+    "reminderAllDone": "No pending doses today",
+    "reminderProgress": "{taken} of {scheduled} doses logged today",
+    "recordsTitle": "Your health records",
+    "recordsMeals": "{count} meals logged",
+    "recordsWater": "{count} ml logged",
+    "recordsNutrition": "Nutrition",
+    "recordsVitals": "Vitals",
+    "recordsUpdated": "Updated from your records",
+    "recordsMood": "Mood",
+    "recordsMoodLogged": "Today’s mood is logged",
+    "recordsMoodNotLogged": "You have not logged your mood today",
+    "recordsMaternity": "Maternity",
+    "recordsPregnancy": "Pregnancy tracking",
+    "recordsCycle": "Cycle tracking"
   },
   "Login": {
     "title": "Sign in",
@@ -910,7 +926,10 @@
     "chSms": "Text messages",
     "saveFailed": "Couldn’t save the change. Try again.",
     "unavailable": "Not available right now",
-    "unavailableTitle": "Couldn't load the settings"
+    "unavailableTitle": "Couldn't load the settings",
+    "pushAsk": "Turn on notifications in this browser to get medicine and appointment reminders and order updates.",
+    "pushTurnOn": "Turn on notifications",
+    "pushBlocked": "Notifications are off in this browser. Turn them on in the browser’s site settings to receive alerts."
   },
   "Articles": {
     "title": "Health articles",
@@ -1501,7 +1520,11 @@
     "shortAddressNotFound": "No address was found for this code. Check it and try again.",
     "shortAddressUnavailable": "Saudi Post is not answering now. You can still save the address with the details you typed.",
     "removedToast": "The address was removed.",
-    "makeDefault": "Make default"
+    "makeDefault": "Make default",
+    "useMyLocation": "Use my current location",
+    "locating": "Finding your location…",
+    "locationSet": "The address location is set.",
+    "locateFailed": "We could not get your current location."
   },
   "ShareReport": {
     "title": "Share Reports",
@@ -3980,7 +4003,15 @@
     "sessionEndConfirm": "Confirm sign-out",
     "deleteIntro": "This permanently deletes your account and health data. This cannot be undone.",
     "deleteContinue": "Continue",
-    "callSupport": "Call support"
+    "callSupport": "Call support",
+    "faqAll": "All",
+    "fbThanks": "Thank you for your feedback",
+    "fbThanksBody": "We received it and will read it.",
+    "fbBack": "Back",
+    "fbPlaceholder": "Write your feedback here...",
+    "aboutDocuments": "Terms and policies",
+    "aboutVersion": "Version {version}",
+    "aboutDocumentFailed": "The document could not be loaded."
   },
   "AccountWeb": {
     "profileTitle": "My account",
@@ -4023,7 +4054,9 @@
     "mapUnavailable": "The facilities could not be loaded. Please try again.",
     "mapRetry": "Try again",
     "guestTitle": "You are using a guest account",
-    "guestBody": "Sign in or create an account to see your details, orders and records."
+    "guestBody": "Sign in or create an account to see your details, orders and records.",
+    "addressCount": "{count} addresses",
+    "familyCount": "{count} members"
   },
   "ReturnsWeb": {
     "newRequest": "New return request",

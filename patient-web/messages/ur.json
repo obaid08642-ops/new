@@ -128,7 +128,23 @@
     "unavailableBody": "اپنا کنکشن دیکھیں اور دوبارہ کوشش کریں۔",
     "retry": "دوبارہ کوشش کریں",
     "maintenanceTitle": "طے شدہ دیکھ بھال",
-    "maintenanceBody": "ہم سروس کو بہتر بنا رہے ہیں۔ براہِ کرم بعد میں کوشش کریں۔"
+    "maintenanceBody": "ہم سروس کو بہتر بنا رہے ہیں۔ براہِ کرم بعد میں کوشش کریں۔",
+    "healthReminder": "صحت کی یاددہانی",
+    "recordsMedications": "ادویات",
+    "reminderAllDone": "آج کوئی زیرِ التوا خوراک نہیں",
+    "reminderProgress": "آج {scheduled} میں سے {taken} خوراکیں درج",
+    "recordsTitle": "آپ کے صحت ریکارڈز",
+    "recordsMeals": "{count} کھانے درج ہیں",
+    "recordsWater": "{count} ملی لیٹر درج",
+    "recordsNutrition": "غذائیت",
+    "recordsVitals": "حیاتیاتی اشاریے",
+    "recordsUpdated": "آپ کے ریکارڈز سے اپ ڈیٹ",
+    "recordsMood": "مزاج",
+    "recordsMoodLogged": "آج کا مزاج درج ہے",
+    "recordsMoodNotLogged": "آپ نے آج مزاج درج نہیں کیا",
+    "recordsMaternity": "زچگی",
+    "recordsPregnancy": "حمل کی پیروی",
+    "recordsCycle": "سائیکل کی پیروی"
   },
   "Login": {
     "title": "سائن ان کریں",
@@ -910,7 +926,10 @@
     "chSms": "ٹیکسٹ پیغامات",
     "saveFailed": "تبدیلی محفوظ نہیں ہو سکی۔ دوبارہ کوشش کریں۔",
     "unavailable": "ابھی دستیاب نہیں",
-    "unavailableTitle": "ترتیبات لوڈ نہیں ہو سکیں"
+    "unavailableTitle": "ترتیبات لوڈ نہیں ہو سکیں",
+    "pushAsk": "دوا اور اپائنٹمنٹ کی یاد دہانیاں اور آرڈر کی اپڈیٹس پانے کے لیے اس براؤزر میں اطلاعات آن کریں۔",
+    "pushTurnOn": "اطلاعات آن کریں",
+    "pushBlocked": "اس براؤزر میں اطلاعات بند ہیں۔ الرٹس حاصل کرنے کے لیے براؤزر کی سائٹ سیٹنگز میں انہیں آن کریں۔"
   },
   "Articles": {
     "title": "صحت کے مضامین",
@@ -1501,7 +1520,11 @@
     "shortAddressNotFound": "اس کوڈ کا کوئی پتہ نہیں ملا۔ کوڈ چیک کر کے دوبارہ کوشش کریں۔",
     "shortAddressUnavailable": "سعودی پوسٹ اس وقت جواب نہیں دے رہی۔ آپ اپنی لکھی ہوئی تفصیلات کے ساتھ پتہ پھر بھی محفوظ کر سکتے ہیں۔",
     "removedToast": "پتا حذف ہو گیا۔",
-    "makeDefault": "ڈیفالٹ بنائیں"
+    "makeDefault": "ڈیفالٹ بنائیں",
+    "useMyLocation": "میرا موجودہ مقام استعمال کریں",
+    "locating": "آپ کا مقام تلاش کیا جا رہا ہے…",
+    "locationSet": "پتے کا مقام طے ہو گیا ہے۔",
+    "locateFailed": "آپ کا موجودہ مقام معلوم نہیں ہو سکا۔"
   },
   "ShareReport": {
     "title": "رپورٹس شیئر کریں",
@@ -3980,7 +4003,15 @@
     "sessionEndConfirm": "سائن آؤٹ کی تصدیق",
     "deleteIntro": "یہ آپ کا اکاؤنٹ اور صحت کا ڈیٹا ہمیشہ کے لیے حذف کر دے گا۔ اسے واپس نہیں کیا جا سکتا۔",
     "deleteContinue": "جاری رکھیں",
-    "callSupport": "سپورٹ کو کال کریں"
+    "callSupport": "سپورٹ کو کال کریں",
+    "faqAll": "سب",
+    "fbThanks": "آپ کی رائے کا شکریہ",
+    "fbThanksBody": "ہمیں یہ مل گئی ہے اور ہم اسے پڑھیں گے۔",
+    "fbBack": "واپس",
+    "fbPlaceholder": "اپنی رائے یہاں لکھیں...",
+    "aboutDocuments": "شرائط اور پالیسیاں",
+    "aboutVersion": "ورژن {version}",
+    "aboutDocumentFailed": "دستاویز لوڈ نہیں ہو سکی۔"
   },
   "AccountWeb": {
     "profileTitle": "میرا اکاؤنٹ",
@@ -4023,7 +4054,9 @@
     "mapUnavailable": "مراکز لوڈ نہیں ہو سکے۔ دوبارہ کوشش کریں۔",
     "mapRetry": "دوبارہ کوشش کریں",
     "guestTitle": "آپ مہمان اکاؤنٹ استعمال کر رہے ہیں",
-    "guestBody": "اپنی تفصیلات، آرڈرز اور ریکارڈ دیکھنے کے لیے سائن ان کریں یا اکاؤنٹ بنائیں۔"
+    "guestBody": "اپنی تفصیلات، آرڈرز اور ریکارڈ دیکھنے کے لیے سائن ان کریں یا اکاؤنٹ بنائیں۔",
+    "addressCount": "{count} پتے",
+    "familyCount": "{count} افراد"
   },
   "ReturnsWeb": {
     "newRequest": "نئی واپسی کی درخواست",

@@ -17,6 +17,7 @@ import { allowedImageUrl } from "@/lib/image-hosts";
 import { specialtyLabel, type SpecialtySlug } from "@/lib/specialties";
 import type { HomeSection } from "@/lib/api/public-config-server";
 import type { Locale } from "@/lib/i18n";
+import type { RecordRow, ReminderCard as ReminderCardData } from "@/lib/api/dashboard-extras";
 import { NONE_DISABLED, isPathHidden, visibleItems, type DisabledModules } from "@/lib/modules";
 import styles from "./home.module.css";
 
@@ -284,6 +285,54 @@ export function PointsCard({ locale, label, value }: { locale: Locale; label: st
       <Link href={`/${locale}/loyalty`} className={styles.rowLink}>
         <ListItem title={label} subtitle={value} leading={{ icon: "star", tone: "amber" }} />
       </Link>
+    </section>
+  );
+}
+
+/** The health reminder card (the app's ReminderCard): the next dose, or that today's doses are done; opens the reminders. */
+export function ReminderCard({ locale, t, card }: { locale: Locale; t: T; card: ReminderCardData }) {
+  const nf = new Intl.NumberFormat(locale);
+  const title = card.kind === "next" ? (card.name ?? t("recordsMedications")) : t("reminderAllDone");
+  const subtitle = card.kind === "next" ? card.detail : card.total > 0 ? t("reminderProgress", { taken: nf.format(card.taken), scheduled: nf.format(card.total) }) : undefined;
+  return (
+    <section className={styles.section} aria-label={t("healthReminder")}>
+      <Link href={`/${locale}/health/medications?tab=all`} className={styles.rowLink}>
+        <ListItem title={title} subtitle={subtitle} leading={{ icon: "clock-counter-clockwise", tone: "violet" }} />
+      </Link>
+    </section>
+  );
+}
+
+/** "Your health records" (the app's DayRecords): rows drawn only from what the API returned today. */
+export function RecordsCard({ locale, t, rows, disabled = NONE_DISABLED }: { locale: Locale; t: T; rows: RecordRow[]; disabled?: DisabledModules }) {
+  const nf = new Intl.NumberFormat(locale);
+  type Item = { key: string; href: string; icon: FillIconName; tone: ServiceTone; title: string; subtitle: string };
+  const items = rows.flatMap((row): Item[] => {
+    switch (row.key) {
+      case "nutrition":
+        return [{ key: row.key, href: "nutrition/daily-tracker", icon: "bowl-food", tone: TONE.food, title: t("recordsNutrition"), subtitle: [row.meals > 0 ? t("recordsMeals", { count: nf.format(row.meals) }) : "", row.waterMl > 0 ? t("recordsWater", { count: nf.format(row.waterMl) }) : ""].filter(Boolean).join(" · ") }];
+      case "vitals":
+        return [{ key: row.key, href: "health/vitals", icon: "heartbeat", tone: SERVICE_ICONS.health.tone, title: t("recordsVitals"), subtitle: t("recordsUpdated") }];
+      case "mood":
+        return [{ key: row.key, href: "mental-health/mood", icon: "brain", tone: "violet", title: t("recordsMood"), subtitle: row.loggedToday ? t("recordsMoodLogged") : t("recordsMoodNotLogged") }];
+      case "maternity":
+        return [{ key: row.key, href: "maternity", icon: "baby", tone: "pink", title: t("recordsMaternity"), subtitle: row.pregnant ? t("recordsPregnancy") : t("recordsCycle") }];
+    }
+  });
+  const shown = visibleItems(items, (item) => `/${locale}/${item.href}`, disabled);
+  if (shown.length === 0) return null;
+  return (
+    <section className={styles.section} aria-label={t("recordsTitle")}>
+      <SectionHeader title={t("recordsTitle")} />
+      <ul className={styles.rows}>
+        {shown.map((item) => (
+          <li key={item.key}>
+            <Link href={`/${locale}/${item.href}`} className={styles.rowLink}>
+              <ListItem title={item.title} subtitle={item.subtitle} leading={{ icon: item.icon, tone: item.tone }} />
+            </Link>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
