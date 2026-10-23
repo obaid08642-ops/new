@@ -37,6 +37,6 @@ describe("helpers", () => {
   });
   it("parses result values with ranges", () => {
     const v = parseResultValues({ values: [{ catalog_id: "hb", name: "Hb", value: 11.2, unit: "g/dL", range: { low: 12, high: 16 }, flag: "low", trend: [] }, { bad: 1 }] });
-    expect(v).toEqual([{ catalogId: "hb", name: "Hb", value: 11.2, unit: "g/dL", low: 12, high: 16, flag: "low" }]);
+    expect(v).toEqual([{ catalogId: "hb", name: "Hb", value: 11.2, unit: "g/dL", low: 12, high: 16, flag: "low", trend: [] }]);
   });
 });
