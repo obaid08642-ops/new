@@ -748,61 +748,6 @@
     ]
   },
   {
-    "name_en": "IV Drip / Fluids & Vitamins",
-    "name_ar": "محاليل وريدية وفيتامينات بالمنزل",
-    "category": "iv",
-    "price": 180,
-    "description_ar": "تركيب المحاليل الوريدية وأكياس الفيتامينات الموصوفة طبياً في راحة منزلك مع مراقبة كاملة طوال الجلسة.",
-    "description_en": "Prescribed IV fluids and vitamin drips at home with full monitoring throughout the session.",
-    "icon": "iv_bag",
-    "duration": "hour",
-    "duration_value": 1,
-    "popularity": 85,
-    "requires_companion": false,
-    "requires_patient_medication": true,
-    "image_url": "https://res.cloudinary.com/mcuwxgjz/image/upload/v1786117327/nabd/catalog/nur_iv.png",
-    "active": true,
-    "cash_availability": true,
-    "insurance_availability": true,
-    "preparation_ar": [
-      "تجهيز المحلول أو الدواء الموصوف مع روشتة الطبيب.",
-      "توفير مكان مريح للمريض أثناء التركيب (سرير أو كرسي مائل).",
-      "إبلاغ الممرض بأي حساسية دوائية أو أمراض قلب/كلى."
-    ],
-    "preparation_en": [
-      "Prepare the prescribed solution/medication with the prescription.",
-      "Provide a comfortable spot (bed or recliner) for the session.",
-      "Tell the nurse about drug allergies or heart/kidney conditions."
-    ],
-    "medical_review_status": "approved",
-    "public_eligibility": true,
-    "is_active": true,
-    "name_ur": "آئی وی ڈرپ / محلول اور وٹامنز",
-    "name_hi": "आईवी ड्रिप / घोल और विटामिन",
-    "name_bn": "আইভি ড্রিপ / স্যালাইন ও ভিটামিন",
-    "name_tl": "IV Drip / Fluids at Bitamina",
-    "description_ur": "ڈاکٹر کے نسخے پر نرس گھر پر محلول یا وٹامنز ڈرپ سے دیتا ہے۔",
-    "preparation_ur": [
-      "وزٹ سے پہلے ڈاکٹر کا نسخہ اور دوائیں یا محلول تیار رکھیں۔",
-      "نرس کے کام کے لیے صاف اور روشن جگہ تیار رکھیں۔"
-    ],
-    "description_hi": "डॉक्टर के पर्चे पर नर्स घर पर घोल या विटामिन ड्रिप से देती है।",
-    "preparation_hi": [
-      "विज़िट से पहले डॉक्टर का पर्चा और दवाएं या घोल तैयार रखें।",
-      "नर्स के काम के लिए साफ और रोशनी वाली जगह तैयार रखें।"
-    ],
-    "description_bn": "ডাক্তারের প্রেসক্রিপশনে নার্স বাড়িতে স্যালাইন বা ভিটামিন ড্রিপে দেন।",
-    "preparation_bn": [
-      "ভিজিটের আগে ডাক্তারের প্রেসক্রিপশন এবং ওষুধ বা স্যালাইন প্রস্তুত রাখুন।",
-      "নার্সের কাজের জন্য পরিষ্কার ও আলোকিত জায়গা প্রস্তুত রাখুন।"
-    ],
-    "description_tl": "Nagbibigay ang nurse ng fluids o bitamina sa dextrose sa bahay kapag inireseta ng doktor.",
-    "preparation_tl": [
-      "Ihanda ang reseta ng doktor at ang mga gamot o solusyon bago ang pagbisita.",
-      "Maghanda ng malinis at maliwanag na lugar para sa nurse."
-    ]
-  },
-  {
     "name_en": "Antibiotic IV Course",
     "name_ar": "جرعات مضاد حيوي وريدي",
     "category": "iv",
@@ -854,61 +799,6 @@
     "description_tl": "Mga nursing visit para ibigay sa ugat sa bahay ang iniresetang antibiotic course.",
     "preparation_tl": [
       "Ihanda ang reseta ng doktor at ang mga gamot o solusyon bago ang pagbisita.",
-      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot."
-    ]
-  },
-  {
-    "name_en": "Wound Dressing",
-    "name_ar": "تغيير على الجروح",
-    "category": "wound",
-    "price": 120,
-    "description_ar": "تنظيف وتعقيم وتغيير ضمادات الجروح والعمليات بمواد معقمة مع تقييم التئام الجرح.",
-    "description_en": "Sterile cleaning and dressing change for wounds and surgical incisions with healing assessment.",
-    "icon": "bandage",
-    "duration": "hour",
-    "duration_value": 1,
-    "popularity": 80,
-    "requires_companion": false,
-    "requires_patient_medication": false,
-    "image_url": "https://res.cloudinary.com/mcuwxgjz/image/upload/v1786117340/nabd/catalog/nur_wound.png",
-    "active": true,
-    "cash_availability": true,
-    "insurance_availability": true,
-    "preparation_ar": [
-      "تجهيز تقرير الطبيب أو تعليمات العناية بالجرح إن وجدت.",
-      "توفير مكان نظيف وجيد الإضاءة.",
-      "إبلاغ الممرض بأي أدوية سيولة يتناولها المريض."
-    ],
-    "preparation_en": [
-      "Have the doctor's wound-care instructions ready if available.",
-      "Provide a clean, well-lit area.",
-      "Tell the nurse about any blood thinners the patient takes."
-    ],
-    "medical_review_status": "approved",
-    "public_eligibility": true,
-    "is_active": true,
-    "name_ur": "زخم کی پٹی",
-    "name_hi": "घाव की ड्रेसिंग",
-    "name_bn": "ক্ষতের ড্রেসিং",
-    "name_tl": "Pagbebenda ng Sugat",
-    "description_ur": "نرس گھر پر زخم صاف کر کے پٹی بدلتا ہے۔",
-    "preparation_ur": [
-      "نرس کے کام کے لیے صاف اور روشن جگہ تیار رکھیں۔",
-      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔"
-    ],
-    "description_hi": "नर्स घर पर घाव साफ करके ड्रेसिंग बदलती है।",
-    "preparation_hi": [
-      "नर्स के काम के लिए साफ और रोशनी वाली जगह तैयार रखें।",
-      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।"
-    ],
-    "description_bn": "নার্স বাড়িতে ক্ষত পরিষ্কার করে ড্রেসিং বদলান।",
-    "preparation_bn": [
-      "নার্সের কাজের জন্য পরিষ্কার ও আলোকিত জায়গা প্রস্তুত রাখুন।",
-      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।"
-    ],
-    "description_tl": "Nililinis ng nurse ang sugat at pinapalitan ang benda sa bahay.",
-    "preparation_tl": [
-      "Maghanda ng malinis at maliwanag na lugar para sa nurse.",
       "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot."
     ]
   },
@@ -1318,57 +1208,6 @@
     "description_tl": "Nananatili ang caregiver magdamag kasama ang matanda, tumutulong sa gabi at nagbabantay sa problema.",
     "preparation_tl": [
       "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot."
-    ]
-  },
-  {
-    "name_en": "Post-Surgery Home Care",
-    "name_ar": "رعاية ما بعد العمليات",
-    "category": "post_op",
-    "price": 200,
-    "description_ar": "رعاية تمريضية متكاملة بعد العمليات الجراحية — متابعة الجرح والأدوية والعلامات الحيوية وخطة التعافي.",
-    "description_en": "Complete post-surgical nursing — wound, medications, vitals and recovery plan.",
-    "icon": "post_op",
-    "duration": "hour",
-    "duration_value": 1,
-    "popularity": 70,
-    "requires_companion": true,
-    "requires_patient_medication": false,
-    "image_url": "https://res.cloudinary.com/mcuwxgjz/image/upload/v1786117340/nabd/catalog/nur_wound.png",
-    "active": true,
-    "cash_availability": true,
-    "insurance_availability": true,
-    "preparation_ar": [
-      "تجهيز تقرير الخروج من المستشفى وقائمة الأدوية."
-    ],
-    "preparation_en": [
-      "Have the hospital discharge report and medication list ready."
-    ],
-    "medical_review_status": "approved",
-    "public_eligibility": true,
-    "is_active": true,
-    "name_ur": "سرجری کے بعد گھر پر دیکھ بھال",
-    "name_hi": "सर्जरी के बाद घर पर देखभाल",
-    "name_bn": "অস্ত্রোপচারের পর বাড়িতে যত্ন",
-    "name_tl": "Pangangalaga sa Bahay Pagkatapos ng Operasyon",
-    "description_ur": "سرجری کے بعد زخم، درد، دواؤں اور اہم علامات کی جانچ کے لیے نرسنگ وزٹ۔",
-    "preparation_ur": [
-      "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔",
-      "وزٹ سے پہلے ڈاکٹر کا نسخہ اور دوائیں یا محلول تیار رکھیں۔"
-    ],
-    "description_hi": "सर्जरी के बाद घाव, दर्द, दवाओं और वाइटल साइन्स की जांच के लिए नर्सिंग विज़िट।",
-    "preparation_hi": [
-      "अपनी हाल की मेडिकल रिपोर्ट और दवाओं की सूची तैयार रखें।",
-      "विज़िट से पहले डॉक्टर का पर्चा और दवाएं या घोल तैयार रखें।"
-    ],
-    "description_bn": "অস্ত্রোপচারের পর ক্ষত, ব্যথা, ওষুধ ও ভাইটাল সাইন দেখতে নার্সিং ভিজিট।",
-    "preparation_bn": [
-      "সাম্প্রতিক মেডিকেল রিপোর্ট ও ওষুধের তালিকা প্রস্তুত রাখুন।",
-      "ভিজিটের আগে ডাক্তারের প্রেসক্রিপশন এবং ওষুধ বা স্যালাইন প্রস্তুত রাখুন।"
-    ],
-    "description_tl": "Nursing visit pagkatapos ng operasyon para suriin ang sugat, sakit, gamot at vital signs.",
-    "preparation_tl": [
-      "Ihanda ang mga bagong medical report at listahan ng iyong mga gamot.",
-      "Ihanda ang reseta ng doktor at ang mga gamot o solusyon bago ang pagbisita."
     ]
   },
   {
