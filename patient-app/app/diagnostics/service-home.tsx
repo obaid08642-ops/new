@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
-import { Button, EmptyState, Search } from '../../../packages/ui-native/src';
+import { Button, Card, EmptyState, FIcon, Search } from '../../../packages/ui-native/src';
+import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
 import { ConsultScreen, Gate, Section, type GateStatus } from '../../src/components/consult/ConsultKit';
-import { LAB_TONE, LinkCard, ListCard, RAD_TONE, TestRow, diagLook, goBackDiag, useDiagText } from '../../src/components/diagnostics/DiagKit';
+import { LAB_TONE, ListCard, RAD_TONE, TestRow, diagLook, goBackDiag, useDiagText } from '../../src/components/diagnostics/DiagKit';
 import { ContextBar } from '../../src/components/ordering/ContextBar';
 import { ContextGate } from '../../src/components/ordering/OrderingKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
@@ -97,10 +98,21 @@ export default function ServiceHome() {
 
   const searchKey = kind === 'radiology' ? 'ordering.home.search.rad' : kind === 'nursing' ? 'ordering.home.search.nur' : 'ordering.home.search.lab';
   const title = kind === 'radiology' ? k('ordering.nav.radiology') : kind === 'nursing' ? k('ordering.nav.nursing') : k('ordering.nav.lab');
-  const footer = itemCount > 0 && kind !== 'nursing' ? <Button theme={theme} size="lg" fullWidth label={`${k('ordering.home.basketBar', { n: num(itemCount) })} · ${k('ordering.home.viewBasket')}`} onPress={() => router.push('/diagnostics/cart' as Href)} /> : undefined;
+  // Ord02 board: the basket button in the header with the item count on its corner
+  const basketIcon = (
+    <View>
+      <Glyph name="package" size={22} color={c.icon.primary} />
+      {itemCount > 0 ? (
+        <View style={{ position: 'absolute', top: -15, end: -15, minWidth: 20, height: 20, borderRadius: 10, paddingHorizontal: 5, backgroundColor: c.action.primary.bg, alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ ...scale(t, 'tag', 'bold'), color: c.action.primary.fg }}>{num(itemCount)}</Text>
+        </View>
+      ) : null}
+    </View>
+  );
+  const footer = itemCount > 0 && kind !== 'nursing' ? <Button theme={theme} size="lg" fullWidth label={`${k('ordering.home.viewBasket')} · ${k('diag.checkout.count', { n: num(itemCount) })}`} onPress={() => router.push('/diagnostics/cart' as Href)} /> : undefined;
 
   return (
-    <ConsultScreen testID={`ordering-home-${kind}`} title={title} onBack={goBackDiag} footer={footer} onRefresh={() => void load()}>
+    <ConsultScreen testID={`ordering-home-${kind}`} title={title} onBack={goBackDiag} footer={footer} actions={kind === 'nursing' ? undefined : [{ key: 'basket', label: k('ordering.home.viewBasket'), icon: basketIcon, onPress: () => router.push('/diagnostics/cart' as Href) }]} onRefresh={() => void load()}>
       <ContextGate ctx={ctx}>
         <ContextBar ctx={ctx} />
         <Search theme={theme} variant="inline" value={query} onChange={setQuery} onClear={() => setQuery('')} clearLabel={k('diag.clear')} placeholder={k(searchKey)} label={k(searchKey)} />
@@ -110,11 +122,21 @@ export default function ServiceHome() {
           ) : (
             <>
               {!needle && kind !== 'nursing' ? (
-                <Section title={k('ordering.home.orderTitle')}>
-                  <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{k('ordering.home.orderSub')}</Text>
-                  <LinkCard icon="test-tube" tone={LAB_TONE} title={k('ordering.home.orderMine')} onPress={() => router.push('/medical-orders' as Href)} />
-                  <LinkCard icon="scan" tone={RAD_TONE} title={k('ordering.home.orderPhoto')} onPress={() => router.push('/diagnostics/upload-rx' as Href)} />
-                </Section>
+                <Card theme={theme} elevation="card" padding="md">
+                  <View style={{ gap: 12 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                      <FIcon icon="file-text" tone={LAB_TONE} size={44} theme={theme} />
+                      <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
+                        <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{k('ordering.home.orderTitle')}</Text>
+                        <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{k('ordering.home.orderSub')}</Text>
+                      </View>
+                    </View>
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                      <View style={{ flexGrow: 1, flexBasis: 140 }}><Button theme={theme} size="md" variant="outline" fullWidth startIcon="clipboard-text" label={k('ordering.home.orderMine')} onPress={() => router.push('/medical-orders' as Href)} /></View>
+                      <View style={{ flexGrow: 1, flexBasis: 140 }}><Button theme={theme} size="md" variant="outline" fullWidth startIcon="camera" label={k('ordering.home.orderPhoto')} onPress={() => router.push('/diagnostics/upload-rx' as Href)} /></View>
+                    </View>
+                  </View>
+                </Card>
               ) : null}
               {!needle && packages.length > 0 ? (
                 <Section title={k('ordering.home.secPkg')} actionLabel={k('diag.cat.all')} onAction={() => router.push('/diagnostics/packages' as Href)}>
