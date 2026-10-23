@@ -25,7 +25,7 @@ const FLAG_TONE: Record<string, 'success' | 'warning' | 'danger'> = { normal: 's
 /**
  * Decision 19 (issue 338): a lab result, opened by its "result ready" push (route /health/results/:id). GET /lab-results/:id
  * answers the patient's own result: each value with its unit, reference range and the server's flag, and what the lab wrote.
- * "Discuss with a doctor" opens the consultations hub. A report file uploaded on the booking is opened from the booking.
+ * "Discuss with a doctor" starts the instant consultation with the result attached (/diagnostics/discuss). A report file uploaded on the booking is opened from the booking.
  */
 export default function LabResultScreen() {
   const { k, theme, t, c, flow } = useScreenUi();
@@ -121,7 +121,9 @@ export default function LabResultScreen() {
             ) : entries.length === 0 && !result.findings && !result.impression ? (
               <EmptyState icon="file-text" tone={LAB_TONE} title={k('health.report.empty')} theme={theme} />
             ) : null}
-            <Button label={k('diag.result.discuss')} onPress={() => router.push('/(tabs)/consultations' as Href)} theme={theme} testID="lab-result-discuss" />
+            {result.source === 'lab_booking' && result.booking_id ? (
+              <Button label={k('diag.result.discuss')} onPress={() => router.push({ pathname: '/diagnostics/discuss', params: { booking: result.booking_id as string } } as unknown as Href)} theme={theme} testID="lab-result-discuss" />
+            ) : null}
           </>
         ) : null}
       </Gate>

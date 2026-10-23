@@ -8,7 +8,7 @@ import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
-import { SELECTION_KEY } from "@/lib/ordering/basket";
+import { chosenGroup, SELECTION_KEY } from "@/lib/ordering/basket";
 import { contextQuery, type Point } from "@/lib/ordering/context";
 import { filterCompare, type OrderMode, type Payer, type ProviderRow, type QuoteGroup, type ServiceKind, type SortKey, type StaffGender } from "@/lib/ordering/quote";
 import { hoursUnit, moneyText, pickName, whenText } from "@/lib/ordering/format";
@@ -136,7 +136,7 @@ export function ProvidersClient({ locale, kind, place, pay, point }: Props) {
     const allChosen = quote.groups.length > 0 && quote.groups.every((g) => g.compare.some((r) => r.coversAll && r.providerId === chosen[g.mode]));
     const goNext = () => {
       try {
-        window.sessionStorage.setItem(SELECTION_KEY, JSON.stringify({ quoteId: quote.quoteId, home: chosen.home, facility: chosen.facility }));
+        window.sessionStorage.setItem(SELECTION_KEY, JSON.stringify({ quoteId: quote.quoteId, home: chosen.home, facility: chosen.facility, groups: Object.fromEntries(quote.groups.flatMap((g) => { const c = chosen[g.mode] ? chosenGroup(g, chosen[g.mode] as string) : undefined; return c ? [[g.mode, c]] : []; })) }));
       } catch { /* the next step also reads the choice from the address when storage is blocked */ }
       router.push(`/${locale}/labs/when${contextQuery({ kind, place, pay })}`);
     };

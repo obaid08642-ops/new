@@ -27,7 +27,7 @@ export function QuoteLoading({ label }: { label: string }) {
   );
 }
 
-export function QuoteError({ errorKey, onRetry }: { errorKey: string; onRetry: () => void }) {
+export function QuoteError({ errorKey, onRetry, titleKey = "errTitle" }: { errorKey: string; onRetry: () => void; titleKey?: string }) {
   const t = useTranslations("OrderingFlow");
-  return <ErrorState title={t("errTitle")} body={t(errorKey)} retryLabel={t("retry")} onRetry={onRetry} />;
+  return <ErrorState title={t(titleKey)} body={t(errorKey)} retryLabel={t("retry")} onRetry={onRetry} />;
 }

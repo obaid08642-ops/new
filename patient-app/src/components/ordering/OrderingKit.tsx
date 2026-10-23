@@ -2,71 +2,28 @@ import React from 'react';
 import { Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 
-import { Button, EmptyState, ErrorState, OfflineState, Segmented } from '../../../../packages/ui-native/src';
+import { Button, EmptyState, ErrorState, OfflineState } from '../../../../packages/ui-native/src';
 import { Gate, type GateStatus } from '../consult/ConsultKit';
 import { LabCard, LAB_TONE, Price, useDiagText } from '../diagnostics/DiagKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { fmtDate, fmtTime } from '../../utils/dates';
-import { providerName, type OrderingMode, type ProviderRow } from '../../utils/ordering';
+import { providerName, type ProviderRow } from '../../utils/ordering';
 import type { useOrderingContext } from '../../utils/useOrderingContext';
-import { formatAddressLine } from '../../utils/selectedAddress';
+import { FirstAskSheet, useFirstAsk } from './ContextBar';
 
 export type OrderingCtx = ReturnType<typeof useOrderingContext>;
-
-/** Place, payment and for whom, from the profile (the Ord01 bar replaces this strip; it uses the same hook). Changing a choice asks the quote again. */
-export function ContextSummary({ ctx }: { ctx: OrderingCtx }) {
-  const { theme, t, c, k, flow } = useScreenUi();
-  const policy = ctx.profile?.policy ?? null;
-  const members = ctx.profile?.members ?? [];
-  const mode: OrderingMode = ctx.choice.mode;
-  const line = (label: string, value: string) => (
-    <View style={{ flexDirection: 'row', gap: 8 }}>
-      <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{label}</Text>
-      <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'meta', 'bold'), color: c.text.primary, ...flow }}>{value}</Text>
-    </View>
-  );
-  const memberName = ctx.choice.memberId ? members.find((m) => m.id === ctx.choice.memberId)?.name : null;
-  return (
-    <View accessibilityLabel={k('ordering.ctx.aria')} style={{ borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, padding: 14, gap: 10 }}>
-      <Segmented
-        theme={theme}
-        label={k('ordering.ctx.lblWhere')}
-        value={mode}
-        onChange={(v) => ctx.setMode(v === 'facility' ? 'facility' : 'home')}
-        options={[{ value: 'home', label: k('ordering.ctx.optHome') }, { value: 'facility', label: k('ordering.ctx.optGo') }]}
-      />
-      {policy ? (
-        <Segmented
-          theme={theme}
-          label={k('ordering.ctx.lblPay')}
-          value={ctx.payer}
-          onChange={(v) => ctx.setPayer(v === 'insurance' ? 'insurance' : 'cash')}
-          options={[{ value: 'insurance', label: `${policy.company} · ${policy.cls}` }, { value: 'cash', label: k('ordering.ctx.valCash') }]}
-        />
-      ) : null}
-      {members.length > 0 ? (
-        <Segmented
-          theme={theme}
-          label={k('ordering.ctx.lblWho')}
-          value={ctx.choice.memberId ?? ''}
-          onChange={(v) => ctx.setMember(v === '' ? null : v)}
-          options={[{ value: '', label: k('ordering.ctx.valMe') }, ...members.map((m) => ({ value: m.id, label: m.name }))]}
-        />
-      ) : null}
-      {ctx.place ? line(k('ordering.ctx.lblWhere'), mode === 'home' ? formatAddressLine(ctx.place) : k('ordering.ctx.valGo')) : null}
-      {line(k('ordering.ctx.lblPay'), ctx.payer === 'insurance' && policy ? `${policy.company} · ${policy.cls}` : k('ordering.ctx.valCash'))}
-      {memberName ? line(k('ordering.ctx.lblWho'), memberName) : null}
-    </View>
-  );
-}
 
 /** Gate for the profile read: loading / error / offline, and "set your place" when no saved address has a map point. */
 export function ContextGate({ ctx, children }: { ctx: OrderingCtx; children: React.ReactNode }) {
   const { theme, k } = useScreenUi();
   const status: GateStatus = ctx.status === 'ready' ? 'ready' : ctx.status;
+  const [firstAsk, doneAsk] = useFirstAsk(ctx);
   if (status === 'ready' && ctx.needsPlace) {
     return (
+      <>
+      {firstAsk ? <FirstAskSheet ctx={ctx} onDone={doneAsk} /> : null}
       <EmptyState icon="map-pin" tone={LAB_TONE} title={k('ordering.ctx.setWhere')} body={k('ordering.ctx.newAddr')} actionLabel={k('ordering.ctx.setWhere')} onAction={() => router.push('/profile/addresses' as Href)} theme={theme} />
+      </>
     );
   }
   return (

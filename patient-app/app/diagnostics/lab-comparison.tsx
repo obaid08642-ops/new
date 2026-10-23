@@ -5,9 +5,12 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { Chip, EmptyState, Segmented } from '../../../packages/ui-native/src';
 import { ConsultScreen, Section } from '../../src/components/consult/ConsultKit';
 import { AmountLine, LAB_TONE, goBackDiag } from '../../src/components/diagnostics/DiagKit';
-import { ContextGate, ContextSummary, ProviderCard, QuoteFailure, QuoteLoading } from '../../src/components/ordering/OrderingKit';
+import { ContextBar } from '../../src/components/ordering/ContextBar';
+import { ContextGate, ProviderCard, QuoteFailure, QuoteLoading } from '../../src/components/ordering/OrderingKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
+import { groupsMissingPick, setPick, startDraft } from '../../src/utils/orderingBooking';
+import { formatAddressLine } from '../../src/utils/selectedAddress';
 import { providerName, sortRows, type OrderingKind, type OrderingMode, type OrderingSort, type ProviderRow } from '../../src/utils/ordering';
 import { useOrderingContext } from '../../src/utils/useOrderingContext';
 import { useOrderingQuote } from '../../src/utils/useOrderingQuote';
@@ -50,7 +53,16 @@ export default function LabComparison() {
       router.push('/diagnostics/cart' as Href);
       return;
     }
-    router.push({ pathname: '/diagnostics/checkout', params: { serviceType: group?.mode === 'home' ? 'home' : 'clinic', labName: name, labId: row.provider_id } } as unknown as Href);
+    if (!quote || !group || !ctx.body) return;
+    // the quote, the provider of this group and (for a split basket) the other group's provider travel to the time picker in the draft
+    startDraft({ kind, payer: ctx.payer, quote, lat: ctx.body.lat, lng: ctx.body.lng, placeLine: ctx.place ? formatAddressLine(ctx.place) : null });
+    const next = setPick(group, row);
+    const missing = next ? groupsMissingPick(next) : [];
+    if (missing.length > 0) {
+      setGroupMode(missing[0]);
+      return;
+    }
+    router.push('/diagnostics/when' as Href);
   };
 
   const nameOf = (pid: string) => {
@@ -61,7 +73,7 @@ export default function LabComparison() {
   return (
     <ConsultScreen testID="diagnostics-lab-comparison" title={k('ordering.match.title')} onBack={goBackDiag} onRefresh={() => void q.reload()}>
       <ContextGate ctx={ctx}>
-        <ContextSummary ctx={ctx} />
+        <ContextBar ctx={ctx} />
         <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{k('ordering.match.basket', { n: num(ids.length) })}</Text>
         {ids.length === 0 ? (
           <EmptyState icon="test-tube" tone={LAB_TONE} title={k('ordering.basket.emptyTitle')} body={k('ordering.basket.emptySub')} actionLabel={k('ordering.common.back')} onAction={goBackDiag} theme={theme} />
@@ -80,6 +92,8 @@ export default function LabComparison() {
                 options={quote.groups.map((g) => ({ value: g.mode, label: g.mode === 'home' ? k('ordering.match.homeVisit') : k('ordering.match.atCentre') }))}
               />
             ) : null}
+
+            {quote.groups.length > 1 ? <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{k('ordering.match.pickEach')}</Text> : null}
 
             {group.split_suggestion ? (
               <Section title={k('ordering.match.splitTitle')}>

@@ -47,16 +47,65 @@ export function parseBasket(raw: string | null): Basket {
 
 export const serializeBasket = (basket: Basket) => JSON.stringify(basket);
 
-/** The chosen provider per mode, kept for the next step (time picker). Session-scoped: a new session starts from the basket. */
-export type ProviderChoice = { quoteId: string; home?: string; facility?: string };
+/**
+ * What the provider step hands to the time and confirm steps. `home` / `facility` are the chosen provider ids (what POST /ordering/bookings
+ * takes); `groups` is a snapshot of the quote's own answer for the chosen provider of each mode (names, item ids, the totals the server
+ * computed; `lines`, the home fee and the insurance share exist only when the chosen provider is the quote's best match). Session-scoped.
+ */
+export type ChosenGroup = {
+  providerId: string; nameAr: string | null; nameEn: string | null; itemIds: string[]; total: number;
+  lines?: Array<{ catalogId: string; price: number; coverage?: "covered" | "needs_approval" | "not_covered" }>; homeFee?: number; estimatedInsuranceShare?: number; patientShare?: number;
+};
+export type ProviderChoice = { quoteId: string; home?: string; facility?: string; groups?: { home?: ChosenGroup; facility?: ChosenGroup } };
 export const SELECTION_KEY = "nabd_ordering_selection_v1";
+
+type Raw = Record<string, unknown>;
+const COVS = new Set(["covered", "needs_approval", "not_covered"]);
+const strOrNull = (v: unknown) => (typeof v === "string" ? v : null);
+
+function parseChosen(v: unknown): ChosenGroup | undefined {
+  const x = v && typeof v === "object" ? (v as Raw) : null;
+  if (!x || typeof x.providerId !== "string" || typeof x.total !== "number" || !Array.isArray(x.itemIds)) return undefined;
+  const lines = Array.isArray(x.lines)
+    ? x.lines.flatMap((l) => {
+        const r = l as Raw | null;
+        return r && typeof r.catalogId === "string" && typeof r.price === "number"
+          ? [{ catalogId: r.catalogId, price: r.price, ...(typeof r.coverage === "string" && COVS.has(r.coverage) ? { coverage: r.coverage as "covered" } : {}) }]
+          : [];
+      })
+    : undefined;
+  const n = (k: string) => (typeof x[k] === "number" ? (x[k] as number) : undefined);
+  return {
+    providerId: x.providerId, nameAr: strOrNull(x.nameAr), nameEn: strOrNull(x.nameEn), total: x.total,
+    itemIds: x.itemIds.filter((i): i is string => typeof i === "string"), ...(lines ? { lines } : {}),
+    homeFee: n("homeFee"), estimatedInsuranceShare: n("estimatedInsuranceShare"), patientShare: n("patientShare"),
+  };
+}
 
 export function parseChoice(raw: string | null): ProviderChoice | null {
   try {
-    const x = JSON.parse(raw ?? "null") as Record<string, unknown> | null;
+    const x = JSON.parse(raw ?? "null") as Raw | null;
     if (!x || typeof x.quoteId !== "string") return null;
-    return { quoteId: x.quoteId, home: typeof x.home === "string" ? x.home : undefined, facility: typeof x.facility === "string" ? x.facility : undefined };
+    const g = x.groups && typeof x.groups === "object" ? (x.groups as Raw) : null;
+    const home = g ? parseChosen(g.home) : undefined;
+    const facility = g ? parseChosen(g.facility) : undefined;
+    return {
+      quoteId: x.quoteId, home: typeof x.home === "string" ? x.home : undefined, facility: typeof x.facility === "string" ? x.facility : undefined,
+      ...(home || facility ? { groups: { ...(home ? { home } : {}), ...(facility ? { facility } : {}) } } : {}),
+    };
   } catch {
     return null;
   }
+}
+
+/** The group snapshot of one chosen provider from the quote group (see ChosenGroup). */
+export function chosenGroup(g: { items: Array<{ catalogId: string }>; bestMatch: { providerId: string; lines: Array<{ catalogId: string; price: number; coverage?: "covered" | "needs_approval" | "not_covered" }>; total: number; estimatedInsuranceShare: number; patientShare: number } | null; compare: Array<{ providerId: string; nameAr: string | null; nameEn: string | null; total: number }>; split: unknown }, providerId: string): ChosenGroup | undefined {
+  const row = g.compare.find((r) => r.providerId === providerId);
+  if (!row) return undefined;
+  const b = g.bestMatch && g.bestMatch.providerId === providerId ? g.bestMatch : null;
+  const lineSum = b ? Math.round(b.lines.reduce((s, l) => s + l.price, 0) * 100) / 100 : 0;
+  return {
+    providerId, nameAr: row.nameAr, nameEn: row.nameEn, itemIds: g.items.map((i) => i.catalogId), total: row.total,
+    ...(b ? { lines: b.lines, homeFee: Math.max(0, Math.round((b.total - lineSum) * 100) / 100), estimatedInsuranceShare: b.estimatedInsuranceShare, patientShare: b.patientShare } : {}),
+  };
 }

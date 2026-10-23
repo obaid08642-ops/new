@@ -1,0 +1,120 @@
+[
+  {
+    "batch": "m6-ord06-07",
+    "app": "web",
+    "screen": "Ord06 when picker",
+    "element": "Walk-in QR code and opening hours",
+    "file": "patient-web/components-next/ordering/when-client.tsx",
+    "line": 283,
+    "found": "[backend] GET /ordering/windows answers only { walk_in: true, qr: true } for a walk-in centre (ordering.service.ts windows). There is no QR token and no opening hours, so the walk-in card shows the choice but no QR image and no hours; nothing is drawn in their place.",
+    "suspect": "Needs the entry-code token (valid today) and the provider's opening hours on the windows answer (backend ordering.service.ts:335).",
+    "review_status": "open",
+    "backend": "backend/src/modules/ordering/ordering.service.ts:335"
+  },
+  {
+    "batch": "m6-ord06-07",
+    "app": "web",
+    "screen": "Ord06 when picker",
+    "element": "ASAP card hold on the patient's card",
+    "file": "patient-web/components-next/ordering/when-client.tsx",
+    "line": 161,
+    "found": "[backend] POST /ordering/asap (ordering-broadcast.service.ts startAsap) holds no amount on a card and the web has no hold step; the board line 'we hold the amount on your card' is therefore not shown.",
+    "suspect": "Owner/backend: confirm whether the card hold is wanted and add it before the copy is shown.",
+    "review_status": "open",
+    "backend": "backend/src/modules/ordering/ordering-broadcast.service.ts:94"
+  },
+  {
+    "batch": "m6-ord06-07",
+    "app": "web",
+    "screen": "Ord06 when picker",
+    "element": "ASAP accepted: booking created by the backend, no pay step",
+    "file": "patient-web/components-next/ordering/when-client.tsx",
+    "line": 253,
+    "found": "[backend] When a provider accepts an ASAP broadcast the backend creates the booking itself (bookAsap); this flow has no payment or confirm step for it. The screen shows 'accepted' and links to the bookings list (/diagnostics/bookings), not to a booking page (Ord08 is not built).",
+    "suspect": "Needs the payment of an ASAP booking defined, and the Ord08 status page. Link part resolved by m6-ord08-10 web: the accepted card now opens /labs/bookings/:id when the broadcast answers booking_id; the payment gap stays open.",
+    "review_status": "open",
+    "backend": "backend/src/modules/ordering/ordering-broadcast.service.ts:262"
+  },
+  {
+    "batch": "m6-ord06-07",
+    "app": "web",
+    "screen": "Ord06 when picker",
+    "element": "Centre slot times are the provider's hours written as UTC",
+    "file": "patient-web/components-next/ordering/when-client.tsx",
+    "line": 273,
+    "found": "[backend] slotsForProvider builds each slot from 'HH:MM' opening hours as a UTC instant (Date.UTC + hours), so a provider open 09:00 yields 09:00Z (12:00 in Riyadh). The picker shows the instant in UTC to match the provider's written hours, but the booking's scheduled_at is the UTC instant.",
+    "suspect": "Backend should build slots in the provider's time zone (Asia/Riyadh).",
+    "review_status": "open",
+    "backend": "backend/src/modules/labs/labs.service.ts:1151"
+  },
+  {
+    "batch": "m6-ord06-07",
+    "app": "web",
+    "screen": "Ord06 when picker",
+    "element": "Booking-level ASAP (window.asap) is unused",
+    "file": "patient-web/components-next/ordering/when-client.tsx",
+    "line": 161,
+    "found": "[owner] POST /ordering/bookings also accepts window.asap=true (a booking created at once, no broadcast, ordering.service.ts:369) next to the broadcast. The picker uses only the broadcast of the spec (3/5/8 km); the booking-level flag is never sent.",
+    "suspect": "Owner: remove or keep the second ASAP path.",
+    "review_status": "open",
+    "backend": "backend/src/modules/ordering/ordering.service.ts:369"
+  },
+  {
+    "batch": "m6-ord06-07",
+    "app": "web",
+    "screen": "Ord07 confirm and pay",
+    "element": "One payment for the whole group",
+    "file": "patient-web/components-next/ordering/confirm-client.tsx",
+    "line": 90,
+    "found": "[backend] POST /ordering/bookings answers one payment.amount for the group, but the only payment route is per booking (POST /payments/intent/lab/:id charges that booking's total). With a split group the screen lists one 'Pay this booking' button per booking; a single booking starts the Moyasar page at once.",
+    "suspect": "Needs a group-level intent that charges payment.amount once (spec: one checkout).",
+    "review_status": "open",
+    "backend": "backend/src/modules/payments/payments.module.ts:434"
+  },
+  {
+    "batch": "m6-ord06-07",
+    "app": "web",
+    "screen": "Ord07 confirm and pay",
+    "element": "Insured payment (co-pay) is not started here",
+    "file": "patient-web/components-next/ordering/confirm-client.tsx",
+    "line": 103,
+    "found": "[backend] For insurance the screen creates the group (payment_method insurance) and stops: home bookings are awaiting_approval and the co-pay after approval has no group route; a centre booking's 'amount due now' of the board is not in the booking answer (payment.amount is the sum of full booking totals, so it is not shown as due).",
+    "suspect": "Needs the amount due now for insured centre bookings and the co-pay route after approval.",
+    "review_status": "open",
+    "backend": "backend/src/modules/ordering/ordering.service.ts:430"
+  },
+  {
+    "batch": "m6-ord06-07",
+    "app": "web",
+    "screen": "Ord07 confirm and pay",
+    "element": "Price lines for a provider that is not the best match",
+    "file": "patient-web/components-next/ordering/confirm-client.tsx",
+    "line": 201,
+    "found": "[client] The quote returns item lines, home fee and insurance share only for best_match; for another chosen provider the screen shows that provider's total only (no breakdown) and no overall total unless every booking has it. The real totals come with the booking answer after confirm.",
+    "suspect": "Quote could return lines for every compare row; or the provider step could re-quote the chosen one.",
+    "review_status": "open",
+    "backend": "backend/src/modules/ordering/ordering.service.ts:1"
+  },
+  {
+    "batch": "m6-ord06-07",
+    "app": "web",
+    "screen": "Ord07 confirm and pay",
+    "element": "Moyasar card sheet is the hosted page",
+    "file": "patient-web/components-next/ordering/confirm-client.tsx",
+    "line": 95,
+    "found": "[owner] The board draws an in-page card sheet; the existing payment pattern (diagnostics checkout, pharmacy) goes to the hosted Moyasar page (checkout_url), so the card fields, saved card and 'use another card' are not built here.",
+    "suspect": "Owner: confirm the hosted page is acceptable for this flow.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-ord06-07",
+    "app": "web",
+    "screen": "Ord07 confirm and pay",
+    "element": "Preparation only for lab items",
+    "file": "patient-web/components-next/ordering/confirm-client.tsx",
+    "line": 150,
+    "found": "[client] Preparation lines come from the lab catalogue (server, per item, at most 12); radiology and nursing items show none because their catalogue reads are not wired into this step.",
+    "suspect": "Same loader as the item page for radiology/nursing in the next slice.",
+    "review_status": "open"
+  }
+]
