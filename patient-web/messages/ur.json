@@ -4506,6 +4506,12 @@
     "secTurn": "نتیجے کا وقت",
     "secSample": "نمونہ",
     "providers": "{m} فراہم کنندگان آپ کے سیاق کے مطابق",
+    "fromLine": "{p} سے شروع · {m} فراہم کنندگان",
+    "sample_blood": "خون",
+    "sample_semen": "منی",
+    "sample_stool": "پاخانہ",
+    "sample_swab": "سواب",
+    "sample_urine": "پیشاب",
     "homeFeeNote": "قیمت میں وزٹ فیس شامل ہے کیونکہ آپ نے \"گھر پر\" چنا",
     "covNote": "کوریج اور حصہ تخمینی ہیں۔ حتمی حصہ منظوری کے ساتھ ملتا ہے",
     "covYes": "کور شدہ",
@@ -4808,7 +4814,8 @@
     "resInRange": "حد میں",
     "resHigh": "حد سے اوپر",
     "resLow": "حد سے نیچے",
-    "resDiscuss": "ڈاکٹر سے بات کریں"
+    "resDiscuss": "ڈاکٹر سے بات کریں",
+    "resTrend": "آپ کے نتائج میں رجحان"
   },
   "InstantConsult": {
     "title": "فوری مشاورت",

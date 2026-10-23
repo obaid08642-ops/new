@@ -4506,6 +4506,12 @@
     "secTurn": "مدة النتيجة",
     "secSample": "العينة",
     "providers": "{m} مزوّدين يناسبون سياقك",
+    "fromLine": "من {p} · {m} مزوّدين",
+    "sample_blood": "دم",
+    "sample_semen": "سائل منوي",
+    "sample_stool": "براز",
+    "sample_swab": "مسحة",
+    "sample_urine": "بول",
     "homeFeeNote": "السعر شامل رسوم الزيارة لأنك اخترت «في البيت»",
     "covNote": "التغطية والحصة تقديريتان. الحصة النهائية تصلك مع الموافقة",
     "covYes": "مغطّى",
@@ -4808,7 +4814,8 @@
     "resInRange": "ضمن المرجع",
     "resHigh": "أعلى من المرجع",
     "resLow": "أقل من المرجع",
-    "resDiscuss": "ناقش النتيجة مع طبيب"
+    "resDiscuss": "ناقش النتيجة مع طبيب",
+    "resTrend": "الاتجاه عبر نتائجك"
   },
   "InstantConsult": {
     "title": "استشارة فورية",
