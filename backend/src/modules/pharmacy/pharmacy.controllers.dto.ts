@@ -384,8 +384,11 @@ export class PreviewOfferDto {
   @IsIn(['delivery', 'pickup'])
   delivery_option?: 'delivery' | 'pickup';
 
+  /** The pharmacy's own delivery/pickup estimate in minutes (5-1440), shown to the patient as given; nothing is computed. */
   @IsOptional()
-  @IsNumber()
+  @IsInt()
+  @Min(5)
+  @Max(1440)
   eta_minutes?: number;
 
   /** #507: the pharmacy's own preparation estimate in minutes (shown to the patient as given; nothing is computed). */
@@ -411,8 +414,11 @@ export class DraftOfferDto {
   @IsIn(['delivery', 'pickup'])
   delivery_option?: 'delivery' | 'pickup';
 
+  /** The pharmacy's own delivery/pickup estimate in minutes (5-1440), shown to the patient as given; nothing is computed. */
   @IsOptional()
-  @IsNumber()
+  @IsInt()
+  @Min(5)
+  @Max(1440)
   eta_minutes?: number;
 
   /** #507: the pharmacy's own preparation estimate in minutes (shown to the patient as given; nothing is computed). */
