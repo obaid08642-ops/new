@@ -9,6 +9,7 @@ import { getPatientHealthTrends } from "@/lib/api/trends-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { BOARD_VITALS, VITAL_ORDER, VITAL_VIEW, isFlag, pickTab, vitalView, type VitalKey } from "@/lib/health/view";
+import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { LocalTimeLine } from "@/components-next/consult/local-time-line";
@@ -20,7 +21,7 @@ import { VitalsForm } from "@/components-next/health/vitals-form";
 import styles from "@/components-next/health/health.module.css";
 import forms from "@/components-next/consult/consult.module.css";
 
-type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string | string[]; add?: string | string[] }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string | string[]; add?: string | string[]; vital?: string | string[] }> };
 const TABS = ["today", "history", "trends"] as const;
 
 /**
@@ -38,13 +39,14 @@ export default async function VitalsPage({ params, searchParams }: Props) {
   const token = await requirePatientAccess(locale);
   const tab = pickTab(query.tab, TABS, "today");
   const base = `/${locale}/health/vitals`;
+  const vitalParam = Array.isArray(query.vital) ? query.vital[0] : query.vital;
 
   const frame = (body: ReactNode) => (
     <ConsultPage locale={locale} title={t("vitalsTitle")} backHref={`/${locale}/health`}>
       <div className={styles.toolbar}>
         <span />
         <FormSheet title={t("addReading")} triggerLabel={t("addReading")} closeLabel={t("close")} defaultOpen={isFlag(query.add)} closeHref={`${base}?tab=${tab}`}>
-          <VitalsForm />
+          <VitalsForm defaultType={vitalParam} />
         </FormSheet>
       </div>
       <HealthTabs label={t("vitalsTitle")} base={base} active={tab} options={[
@@ -80,6 +82,7 @@ export default async function VitalsPage({ params, searchParams }: Props) {
             return (
               <li key={key}>
                 <VitalTile
+                  href={`${base}?tab=history&vital=${key}`}
                   label={label(key)}
                   value={vital ? vital.value : "—"}
                   unit={vital?.unit}
@@ -97,10 +100,20 @@ export default async function VitalsPage({ params, searchParams }: Props) {
   }
 
   if (tab === "history") {
-    const readings = extractVitalHistory(payload);
-    if (readings.length === 0) return frame(<ConsultState kind="empty" icon="heartbeat" title={t("vitalsHistory")} body={t("historyEmpty")} />);
+    const everything = extractVitalHistory(payload);
+    if (everything.length === 0) return frame(<ConsultState kind="empty" icon="heartbeat" title={t("vitalsHistory")} body={t("historyEmpty")} />);
+    // chips per vital type (as in the app); the last 30 readings of the chosen type
+    const present = VITAL_ORDER.filter((key) => everything.some((reading) => reading.key === key));
+    const chosen = present.find((key) => key === vitalParam) ?? "all";
+    const readings = (chosen === "all" ? everything : everything.filter((reading) => reading.key === chosen)).slice(0, 30);
+    const contextLabel = (value: string) => (value === "morning" || value === "afternoon" || value === "evening" ? t(`ctx.${value}`) : value);
     return frame(
       <>
+        <LinkSegmented
+          label={t("vitalsHistory")}
+          value={chosen}
+          options={[{ value: "all", label: t("historyAll"), href: `${base}?tab=history` }, ...present.map((key) => ({ value: key, label: label(key), href: `${base}?tab=history&vital=${key}` }))]}
+        />
         <RowsCard label={t("vitalsHistory")}>
           {readings.map((reading) => (
             <li key={reading.id}>
@@ -108,7 +121,7 @@ export default async function VitalsPage({ params, searchParams }: Props) {
                 <FIcon icon={VITAL_VIEW[reading.key].icon} tone={VITAL_VIEW[reading.key].tone} size={40} />
                 <span className={styles.rowBody}>
                   <span className={styles.rowTitle}>{label(reading.key)} · <bdi>{reading.value}{reading.unit ? ` ${reading.unit}` : ""}</bdi></span>
-                  {reading.context ? <span className={styles.rowSub}>{reading.context}</span> : null}
+                  {reading.context ? <span className={styles.rowSub}>{contextLabel(reading.context)}</span> : null}
                   {reading.measuredAt ? <span className={styles.rowSub}><LocalTimeLine iso={reading.measuredAt} locale={locale} /></span> : null}
                 </span>
               </div>
