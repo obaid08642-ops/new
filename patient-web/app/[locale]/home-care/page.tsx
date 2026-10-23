@@ -16,6 +16,7 @@ import { LocalTimeLine } from "@/components-next/consult/local-time-line";
 import { RowCard, Notice } from "@/components-next/consult/consult-parts";
 import { Caret, MetaLine, NURSING, RowList, StatusLine, nursingStatus, serviceIcon } from "@/components-next/nursing/nursing-parts";
 import { SectionHead, money, pickText } from "@/components-next/diagnostics/diag-parts";
+import { pickTexts } from "@/lib/i18n/localized";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -109,7 +110,7 @@ async function GuestHomeCare({ locale }: { locale: Locale }) {
                 href={`/${locale}/home-care/services/${encodeURIComponent(item.id)}`}
                 icon={serviceIcon(item.id, item.category, item.nameAr, item.nameEn)}
                 tone={NURSING.tone}
-                title={pickText(locale, item.nameAr, item.nameEn) ?? t("serviceUnavailable")}
+                title={pickTexts(locale, item.names) ?? t("serviceUnavailable")}
                 sub={item.price !== undefined ? money(locale, item.price) : undefined}
                 caret={caret}
               />

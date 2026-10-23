@@ -13,6 +13,7 @@ import { ConsultState } from "@/components-next/consult/consult-state";
 import { Hero } from "@/components-next/consult/consult-parts";
 import { NURSING, serviceIcon } from "@/components-next/nursing/nursing-parts";
 import { money, pickText } from "@/components-next/diagnostics/diag-parts";
+import { pickTexts } from "@/lib/i18n/localized";
 import { HomeCareBookingForm, type BookableNurse } from "@/components-next/home-care-booking-form";
 
 type Props = { params: Promise<{ locale: string; serviceId: string }> };
@@ -66,7 +67,7 @@ export default async function HomeCareBookPage({ params }: Props) {
   const located = parseDeliveryAddresses(await addressRes.json().catch(() => null)).filter(hasLocation);
   located.sort((a, b) => Number(b.isDefault) - Number(a.isDefault));
   const addresses = located.map((a) => ({ id: a.id, label: [a.label, formatAddressLine(a, locale)].filter(Boolean).join(" · ") || a.id }));
-  const name = pickText(locale, service.nameAr, service.nameEn) ?? t("serviceTitle");
+  const name = pickTexts(locale, service.names) ?? t("serviceTitle");
   return (
     <ConsultPage locale={locale} title={t("bookTitle")} backHref={back}>
       <Hero icon={serviceIcon(service.nameAr, service.nameEn)} tone={NURSING.tone} title={name} sub={service.price !== undefined ? money(locale, service.price) : t("eyebrow")} />

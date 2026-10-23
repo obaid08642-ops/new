@@ -14,7 +14,8 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { Facts, Hero, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
 import { NURSING, ServiceChips, serviceIcon } from "@/components-next/nursing/nursing-parts";
-import { money, pickText } from "@/components-next/diagnostics/diag-parts";
+import { money } from "@/components-next/diagnostics/diag-parts";
+import { pickTexts } from "@/lib/i18n/localized";
 import consult from "@/components-next/consult/consult.module.css";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 
@@ -35,8 +36,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!service) return { robots: { index: false, follow: false } };
   const t = await getTranslations({ locale, namespace: "NursingWeb" });
   const seo = await getTranslations({ locale, namespace: "SeoAnswer" });
-  const name = pickText(locale, service.nameAr, service.nameEn) ?? t("serviceTitle");
-  const description = (pickText(locale, service.descriptionAr, service.descriptionEn) ?? seo("homeCareWho", { name })).replace(/\s+/g, " ").slice(0, 160);
+  const name = pickTexts(locale, service.names) ?? t("serviceTitle");
+  const description = (pickTexts(locale, service.descriptions) ?? seo("homeCareWho", { name })).replace(/\s+/g, " ").slice(0, 160);
   const path = `/home-care/services/${encodeURIComponent(serviceId)}`;
   const canonical = localizedUrl(locale, path);
   return {
@@ -81,8 +82,8 @@ export default async function HomeCareServicePage({ params }: Props) {
     );
   }
   if (!service) notFound();
-  const name = pickText(locale, service.nameAr, service.nameEn) ?? "";
-  const description = pickText(locale, service.descriptionAr, service.descriptionEn);
+  const name = pickTexts(locale, service.names) ?? "";
+  const description = pickTexts(locale, service.descriptions);
   const duration = [service.durationValue, service.duration].filter(Boolean).join(" ");
   const rows: FactRow[] = [
     ...(service.price !== undefined ? [{ label: t("priceLabel"), value: money(locale, service.price), icon: "tag" as const, tone: NURSING.tone }] : []),
