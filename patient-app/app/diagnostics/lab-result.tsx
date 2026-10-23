@@ -3,12 +3,13 @@ import { Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Button, Card, EmptyState, FIcon } from '../../../packages/ui-native/src';
-import { Gate, InfoRow, Section, goBack, useConsultFormat } from '../../src/components/consult/ConsultKit';
+import { Gate, Section, goBack, useConsultFormat } from '../../src/components/consult/ConsultKit';
 import { LAB_TONE } from '../../src/components/diagnostics/DiagKit';
 import { HealthScreen, Pill, bodyOf, useRemote } from '../../src/components/health/HealthKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
 import { pickLocalized } from '../../src/utils/localize';
+import { RangeBar, Spark } from '../../src/components/ordering/ResultKit';
 import { trendFor, type TrendPoint } from '../../src/utils/result-trend';
 
 /** One measured value of the result, as the lab entered it (POST /lab-results); `flag` is the server's (normal, high, low, critical). */
@@ -59,59 +60,44 @@ export default function LabResultScreen() {
         {result ? (
           <>
             <Card theme={theme}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <FIcon icon="test-tube" tone={LAB_TONE} size={48} theme={theme} />
-                <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
-                  <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{title}</Text>
-                  {result.critical ? <Pill label={k('health.report.critical')} tone="danger" /> : null}
+              <View style={{ gap: 12 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  <FIcon icon="file-text" tone={LAB_TONE} size={44} theme={theme} />
+                  <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
+                    <Text accessibilityRole="header" style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{title}</Text>
+                    <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{[result.reported_by_name, fmt.date(result.reported_at, true)].filter(Boolean).join(' · ')}</Text>
+                    {result.critical ? <Pill label={k('health.report.critical')} tone="danger" /> : null}
+                  </View>
                 </View>
-              </View>
-              <View>
-                <InfoRow label={k('health.report.date')} value={fmt.date(result.reported_at, true)} />
-                <InfoRow label={k('diag.result.by')} value={result.reported_by_name || ''} last />
               </View>
             </Card>
             {entries.length > 0 ? (
-              <Section title={k('diag.result.values')}>
-                <Card theme={theme}>
-                  <View>
-                    {entries.map((e, i) => {
-                      const tone = FLAG_TONE[String(e.flag)];
-                      return (
-                        <View key={`${e.name}-${i}`} accessibilityLabel={[e.name, `${e.value ?? ''} ${e.unit ?? ''}`.trim(), range(e), tone ? k(`diag.result.flag.${e.flag}`) : ''].filter(Boolean).join(', ')} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, paddingVertical: 8, borderBottomWidth: i === entries.length - 1 ? 0 : 1, borderBottomColor: c.border.hairline }}>
-                          <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
-                            <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.primary, ...flow }}>{e.name}</Text>
-                            {range(e) ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{range(e)}</Text> : null}
-                          </View>
-                          <View style={{ alignItems: 'flex-end', gap: 4 }}>
-                            <Text style={{ ...scale(t, 'small', 'bold'), color: tone ? c.status[tone].fg : c.text.primary }}>{`${e.value ?? ''} ${e.unit ?? ''}`.trim()}</Text>
-                            {tone && e.flag !== 'normal' ? <Pill label={k(`diag.result.flag.${e.flag}`)} tone={tone} /> : null}
-                          </View>
+              <Card theme={theme}>
+                <View>
+                  {entries.map((e, i) => {
+                    const tone = FLAG_TONE[String(e.flag)];
+                    const points: TrendPoint[] = e.name ? trendFor(history, e.name) : [];
+                    const current = typeof e.value === 'number' || (typeof e.value === 'string' && e.value.trim() !== '') ? Number(e.value) : NaN;
+                    const series = points.length > 0 && Number.isFinite(current) ? [...points.filter((p) => p.id !== result.id).map((p) => p.value), current] : [];
+                    const trendLabel = series.length > 1 ? `${k('diag.result.trendTitle')}: ${series.map((v) => fmt.num(v)).join(', ')}` : undefined;
+                    return (
+                      <View key={`${e.name}-${i}`} accessibilityLabel={[e.name, `${e.value ?? ''} ${e.unit ?? ''}`.trim(), range(e), tone ? k(`diag.result.flag.${e.flag}`) : ''].filter(Boolean).join(', ')} style={{ gap: 8, paddingVertical: 12, borderBottomWidth: i === entries.length - 1 ? 0 : 1, borderBottomColor: c.border.hairline }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
+                          <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{e.name}</Text>
+                          <Text style={{ ...scale(t, 'h4', 'bold'), color: tone ? c.status[tone].fg : c.text.primary }}>{`${e.value ?? ''} ${e.unit ?? ''}`.trim()}</Text>
                         </View>
-                      );
-                    })}
-                  </View>
-                </Card>
-              </Section>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                          {tone ? <Pill label={k(`diag.result.flag.${e.flag}`)} tone={tone} /> : <View />}
+                          <Spark values={series} flag={e.flag} label={trendLabel} />
+                        </View>
+                        {Number.isFinite(current) && e.ref_low !== undefined && e.ref_high !== undefined ? <RangeBar value={current} low={e.ref_low} high={e.ref_high} flag={e.flag} /> : null}
+                        {range(e) ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{range(e)}</Text> : null}
+                      </View>
+                    );
+                  })}
+                </View>
+              </Card>
             ) : null}
-            {entries.map((e) => {
-              const points: TrendPoint[] = e.name ? trendFor(history, e.name) : [];
-              const current = typeof e.value === 'number' || (typeof e.value === 'string' && e.value.trim() !== '') ? Number(e.value) : NaN;
-              if (!e.name || points.length === 0 || !Number.isFinite(current)) return null;
-              const series = [...points.filter((p) => p.id !== result.id), { id: result.id ?? '', at: result.reported_at ?? '', value: current, unit: e.unit, flag: e.flag }];
-              return (
-                <Section key={`trend-${e.name}`} title={`${k('diag.result.trendTitle')} · ${e.name}`}>
-                  <Card theme={theme}>
-                    <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('diag.result.trendNote')}</Text>
-                    {series.map((p) => (
-                      <Text key={`${p.id}-${p.at}`} style={{ ...scale(t, 'small', 'regular'), color: c.text.primary, ...flow }}>
-                        {`${fmt.date(p.at, false)} · ${fmt.num(p.value)}${p.unit ? ` ${p.unit}` : ''}`}
-                      </Text>
-                    ))}
-                  </Card>
-                </Section>
-              );
-            })}
             {text(k('diag.result.findings'), result.findings)}
             {text(k('diag.result.impression'), result.impression)}
             {text(k('health.report.recommendations'), result.recommendations)}
