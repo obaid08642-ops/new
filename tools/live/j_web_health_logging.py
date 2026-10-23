@@ -28,7 +28,7 @@ def main():
     ctx = browser.new_context(locale='ar-SA', viewport={'width': 390, 'height': 844})
     page = ctx.new_page()
 
-    def submit(form_label, fills, choice=None):
+    def submit(form_label, fills, choice=None, scales=()):
         form = page.get_by_role('form', name=form_label)
         form.wait_for(timeout=30000)
         # the form is interactive once React has hydrated it (its DOM node carries React's fiber key)
@@ -39,6 +39,14 @@ def main():
             for _ in range(10):
                 btn.click()
                 if btn.get_attribute('aria-pressed') == 'true':
+                    break
+                page.wait_for_timeout(500)
+        # a 1-5 scale is a row of tiles under a legend (the app's rating tiles), no longer a number field: press the n-th tile
+        for legend, n in scales:
+            tile = form.locator('fieldset').filter(has_text=legend).locator('button').nth(n - 1)
+            for _ in range(10):
+                tile.click()
+                if tile.get_attribute('aria-pressed') == 'true':
                     break
                 page.wait_for_timeout(500)
         for label, value in fills:
@@ -73,7 +81,7 @@ def main():
 
         journey('issue 864: a mood is logged on the website')
         page.goto(f'{WEB}/ar/mental-health/mood', wait_until='load', timeout=60000)
-        msg = submit('سجّل مزاجك', [('الطاقة (1-5، اختياري)', '4')], choice='جيد')
+        msg = submit('سجّل مزاجك', [], choice='جيد', scales=[('الطاقة (1-5، اختياري)', 4)])
         step('the mood form says it was saved', 'تم الحفظ' in msg, msg)
         rows = pat.get('/mental-health/mood?days=30')
         items = rows.body if isinstance(rows.body, list) else rows.items()
