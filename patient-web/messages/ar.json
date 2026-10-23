@@ -2381,7 +2381,9 @@
     "searchRound": "الجولة {round}: نبحث في الصيدليات ضمن {km} كم",
     "showMethods": "اختيار طريقة الدفع",
     "paymentUnavailable": "لا توجد طريقة دفع إلكتروني متاحة لهذا الطلب الآن.",
-    "loadingMethods": "جارٍ تحميل طرق الدفع…"
+    "loadingMethods": "جارٍ تحميل طرق الدفع…",
+    "deliveryEta": "التوصيل خلال {time}",
+    "rating": "التقييم {rating} ({count})"
   },
   "PharmacyCheckout": {
     "title": "إتمام الطلب",

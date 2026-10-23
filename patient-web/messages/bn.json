@@ -2381,7 +2381,9 @@
     "searchRound": "রাউন্ড {round}: {km} কিমির মধ্যে ফার্মেসি খোঁজা হচ্ছে",
     "showMethods": "পরিশোধ পদ্ধতি বেছে নিন",
     "paymentUnavailable": "এই অর্ডারের জন্য এখন কোনো অনলাইন পরিশোধ পদ্ধতি নেই।",
-    "loadingMethods": "পরিশোধ পদ্ধতি লোড হচ্ছে…"
+    "loadingMethods": "পরিশোধ পদ্ধতি লোড হচ্ছে…",
+    "deliveryEta": "{time}-এর মধ্যে ডেলিভারি",
+    "rating": "রেটিং {rating} ({count})"
   },
   "PharmacyCheckout": {
     "title": "চেকআউট",

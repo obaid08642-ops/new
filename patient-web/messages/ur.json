@@ -2381,7 +2381,9 @@
     "searchRound": "راؤنڈ {round}: {km} کلومیٹر کے اندر فارمیسیاں تلاش ہو رہی ہیں",
     "showMethods": "ادائیگی کا طریقہ منتخب کریں",
     "paymentUnavailable": "اس آرڈر کے لیے فی الحال آن لائن ادائیگی کا کوئی طریقہ دستیاب نہیں۔",
-    "loadingMethods": "ادائیگی کے طریقے لوڈ ہو رہے ہیں…"
+    "loadingMethods": "ادائیگی کے طریقے لوڈ ہو رہے ہیں…",
+    "deliveryEta": "ڈیلیوری {time} میں",
+    "rating": "ریٹنگ {rating} ({count})"
   },
   "PharmacyCheckout": {
     "title": "چیک آؤٹ",

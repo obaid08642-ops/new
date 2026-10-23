@@ -2381,7 +2381,9 @@
     "searchRound": "Round {round}: naghahanap ng botika sa loob ng {km} km",
     "showMethods": "Pumili ng paraan ng pagbabayad",
     "paymentUnavailable": "Walang available na online na paraan ng pagbabayad para sa order na ito ngayon.",
-    "loadingMethods": "Nilo-load ang mga paraan ng pagbabayad…"
+    "loadingMethods": "Nilo-load ang mga paraan ng pagbabayad…",
+    "deliveryEta": "Darating sa loob ng {time}",
+    "rating": "Puntos {rating} ({count})"
   },
   "PharmacyCheckout": {
     "title": "Pag-checkout",
