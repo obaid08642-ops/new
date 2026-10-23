@@ -366,7 +366,22 @@
     "callOpen": "انضم إلى الزيارة المرئية",
     "cancelledRefund": "أُلغي الموعد. يعود {amount} ({percent}٪ مما دفعت) إلى وسيلة الدفع الأصلية.",
     "cancelledNoRefund": "أُلغي الموعد. لا يستحق استرداد وفق سياسة الإلغاء.",
-    "cancelledNotCharged": "أُلغي الموعد. لم يُخصم أي مبلغ."
+    "cancelledNotCharged": "أُلغي الموعد. لم يُخصم أي مبلغ.",
+    "bookingNumber": "رقم الحجز",
+    "paymentMethodLabel": "طريقة الدفع",
+    "amount": "المبلغ",
+    "bookAgain": "احجز مجدداً",
+    "emptyUpcoming": "لا توجد مواعيد قادمة",
+    "emptyPast": "لا توجد مواعيد سابقة",
+    "cancelReasonTitle": "سبب الإلغاء",
+    "cancelReasons": {
+      "emergency": "ارتباط طارئ",
+      "better": "تحسّنت صحتي",
+      "otherDoctor": "أريد تغيير الطبيب",
+      "time": "الوقت لا يناسبني",
+      "payment": "مشكلة في الدفع",
+      "other": "سبب آخر"
+    }
   },
   "Medicines": {
     "eyebrow": "كتالوج خاص",
@@ -1191,7 +1206,11 @@
     "paymentAddPolicy": "أضف التأمين",
     "doctorPhotoAlt": "صورة {name}",
     "clinicPhotosTitle": "صور العيادة",
-    "clinicPhotoAlt": "صورة العيادة {n}"
+    "clinicPhotoAlt": "صورة العيادة {n}",
+    "bioTitle": "عن الطبيب",
+    "infoTitle": "معلومات إضافية",
+    "languagesLabel": "اللغات",
+    "chooseDayTime": "اختر اليوم والوقت"
   },
   "LabsServices": {
     "eyebrow": "الرعاية المخبرية",
@@ -1711,7 +1730,16 @@
     "submit": "إرسال التقييم",
     "submitting": "جارٍ الإرسال...",
     "thanks": "شكراً لك! تم استلام تقييمك.",
-    "error": "تعذر إرسال التقييم. حاول مرة أخرى."
+    "error": "تعذر إرسال التقييم. حاول مرة أخرى.",
+    "tagsTitle": "ما الذي أعجبك؟",
+    "tags": {
+      "excellent": "ممتاز",
+      "fast": "سريع",
+      "professional": "احترافي",
+      "clean": "نظيف",
+      "helpful": "متعاون",
+      "recommend": "أنصح به"
+    }
   },
   "HomeVisitTracking": {
     "title": "تتبع الزيارة المنزلية",
@@ -2539,7 +2567,8 @@
       "in_progress": "جارٍ الآن",
       "completed": "مكتمل",
       "cancelled": "ملغى",
-      "no_show": "لم يحضر"
+      "no_show": "لم يحضر",
+      "pending_copay": "بانتظار دفع حصتك"
     },
     "insurancePendingTitle": "المنشأة تطلب موافقة شركة التأمين",
     "insuranceDecidedTitle": "تم تسجيل قرار التأمين",
@@ -2633,7 +2662,12 @@
     "callAudioOnly": "الاتصال ضعيف، فأوقفنا الفيديو وأبقينا الصوت.",
     "callTryVideo": "جرّب الفيديو مرة أخرى",
     "callDropped": "انقطعت المكالمة.",
-    "callContinueInChat": "أكمل في المحادثة"
+    "callContinueInChat": "أكمل في المحادثة",
+    "statReviews": "تقييم",
+    "copayTitle": "وصلت الموافقة",
+    "copayBody": "تمت الموافقة. ادفع نسبة التحمل ({amount}) لفتح الاستشارة.",
+    "copayAction": "عرض طلب التأمين والدفع الآمن",
+    "actionDoctorProfile": "عرض الملف"
   },
   "ConsultClient": {
     "payHeading": "أكمل الدفع من خلال بوابة آمنة",
