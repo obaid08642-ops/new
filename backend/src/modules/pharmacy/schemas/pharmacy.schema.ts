@@ -377,6 +377,8 @@ export class PharmacyBroadcast extends Document {
   @Prop({ default: 8 }) max_radius_km: number;
   @Prop({ type: [Number], default: [3, 5, 8] }) round_radii_km: number[];
   @Prop({ default: false }) extended_stage?: boolean;
+  /** Set by the expiry command when enough live offers exist (`pharmacy_broadcast_stop_after_offers`): the broadcast no longer widens while they last. */
+  @Prop() widening_stopped_at?: Date;
   // Atomic full-acceptance lock: first pharmacy to claim sets this.
   @Prop({ default: 'open', enum: ['open', 'locked', 'fallback_split', 'closed'], index: true }) lock_state: string;
   @Prop() locked_to_pharmacy_account_id?: string;
