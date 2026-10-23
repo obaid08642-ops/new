@@ -20,7 +20,7 @@ import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { PharmacyInsuranceDecisionService } from './services/pharmacy-insurance-decision.service';
 import { PharmacyExpiryCommandService } from './services/pharmacy-expiry-command.service';
 import { PaymentsService } from '../payments/payments.module';
-import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, OpenChatThreadDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto, PaymentRulesDto, PharmacyCodSettingDto, ResolvePriceReviewDto } from './pharmacy.controllers.dto';
+import { CreateDto, UpdateDto, CancelDto, PaymentIntentDto, CancelRejectedInsuranceDto, SelectOfferDto, AcceptFinalQuoteDto, RegisterCodDto, AcceptInsuranceDto, ItemActionDto, OutDto, DeliveredDto, InsuranceDecisionDto, CancelDto3, SetTrackingDto, RestockDto, SampleOrderDto, PreviewOfferDto, DraftOfferDto, RejectDto, PostDto, OpenChatThreadDto, ReportDto, CreateDto2, MarkShortageDto, RejectDto5, SetCodPolicyDto, PaymentRulesDto, PharmacyCodSettingDto, ResolvePriceReviewDto, BroadcastConfigDto } from './pharmacy.controllers.dto';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
 // =========================================================================
@@ -388,7 +388,30 @@ export class AdminFulfillmentPolicyController {
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.ADMIN)
 export class AdminBroadcastController {
-  constructor(private bc: PharmacyBroadcastService, private readonly expiry: PharmacyExpiryCommandService) {}
+  constructor(private bc: PharmacyBroadcastService, private readonly expiry: PharmacyExpiryCommandService, @InjectConnection() private readonly conn: Connection) {}
+
+  /** The broadcast policy next to each other: the widening stages (read-only here) and the stop-after-offers setting (editable). */
+  @RequirePermissions(Permission.SETTINGS_EDIT)
+  @Get('config')
+  async config() {
+    return { stages: await this.bc.getBroadcastStages().catch(() => null), stop_after_offers: await this.bc.getStopAfterOffers() };
+  }
+
+  /** Owner decision 2026-10-22: once this many live offers exist the broadcast stops widening (0 = never stop). */
+  @RequirePermissions(Permission.SETTINGS_EDIT)
+  @Put('config')
+  async setConfig(@CurrentUser() u: any, @Body() b: BroadcastConfigDto) {
+    const before = await this.bc.getStopAfterOffers();
+    const now = new Date();
+    await this.conn.collection('system_configs').updateOne(
+      { key: 'pharmacy_broadcast_stop_after_offers' },
+      { $set: { key: 'pharmacy_broadcast_stop_after_offers', value: b.stop_after_offers, updated_at: now, updated_by: u?.id ?? null }, $setOnInsert: { created_at: now } },
+      { upsert: true },
+    );
+    await recordAudit(this.conn, { action: 'pharmacy.broadcast_stop_after_offers_set', user_id: u?.id, role: 'admin', resource_kind: 'system_config', resource_id: 'system_config:pharmacy_broadcast_stop_after_offers', changes: { before: { stop_after_offers: before }, after: { stop_after_offers: b.stop_after_offers } }, severity: 'warn' });
+    return this.config();
+  }
+
   /** Admin monitor list (broadcast-monitor.tsx). */
   @Get()
   async list(@Query('limit') limit?: string) {
