@@ -223,22 +223,29 @@ export interface LabCardProps {
   selected?: boolean;
   onPress?: () => void;
   width?: number;
+  /** The glyph of the mark (the compare list draws the facility glyph, the board's hospital); default the lab glyph. */
+  icon?: FillIconName;
+  /** Drawn first in the card (the best-match pill). */
+  top?: React.ReactNode;
+  /** The chosen one is shown by the ring only (no check) when the card carries its own badge. */
+  noCheck?: boolean;
   children?: React.ReactNode;
   testID?: string;
 }
 
 /** The board's lab card (ServiceHub "approved labs", Cart's list of compatible labs): mark, name, line, tags, free content. */
-export function LabCard({ name, line, tags, selected, onPress, width, children, testID }: LabCardProps) {
+export function LabCard({ name, line, tags, selected, onPress, width, icon, top, noCheck, children, testID }: LabCardProps) {
   const { theme, t, c, flow, k } = useScreenUi();
   const body = (
     <View style={{ width, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: selected ? 2 : 1, borderColor: selected ? c.text.primary : c.border.hairline, padding: 14, gap: 10 }}>
+      {top}
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-        <FIcon icon={SERVICE_ICONS.lab.icon} tone={LAB_TONE} size={48} theme={theme} />
+        <FIcon icon={icon ?? SERVICE_ICONS.lab.icon} tone={LAB_TONE} size={48} theme={theme} />
         <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
           <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{name}</Text>
           {line ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{line}</Text> : null}
         </View>
-        {selected ? (
+        {selected && !noCheck ? (
           <View accessibilityLabel={k('diag.selected')} style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: c.action.selected.bg, alignItems: 'center', justifyContent: 'center' }}>
             <Mark kind="check" size={16} color={c.action.selected.fg} />
           </View>
