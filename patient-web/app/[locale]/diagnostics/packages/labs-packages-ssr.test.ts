@@ -17,10 +17,16 @@ import LabPackageDetailPage from "./[packageId]/page";
 
 describe("Labs Packages SSR", () => {
   it("renders only live package rows and links to detail", async () => {
-    state.getPublicLabServices.mockResolvedValue(new Response(JSON.stringify([{ id: "pkg-1", name_en: "Wellness panel", is_package: true, included_services: ["cbc"] }]), { status: 200 }));
+    const fetchMock = vi.fn().mockImplementation(async () => new Response(JSON.stringify([{ id: "pkg-1", name_en: "Wellness panel", is_package: true, included_services: ["cbc"], category: "cardiac" }, { id: "pkg-2", name_en: "Bone panel", category: "bone" }]), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
     const html = renderToStaticMarkup((await LabsPackagesPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({}) })) as never);
+    expect(String(fetchMock.mock.calls[0][0])).toContain("/labs/packages");
     expect(html).toContain("Wellness panel");
     expect(html).toContain('href="/en/diagnostics/packages/pkg-1"');
+    // the search and the category narrow the list in place
+    const narrowed = renderToStaticMarkup((await LabsPackagesPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ q: "bone" }) })) as never);
+    expect(narrowed).toContain("Bone panel");
+    expect(narrowed).not.toContain("Wellness panel");
   });
   it("renders package detail facts from the live endpoint and books through the cart (one booking path)", async () => {
     state.getPublicLabPackage.mockResolvedValue(new Response(JSON.stringify({ id: "pkg-1", name_en: "Wellness panel", is_package: true, price: 120, included_services: ["cbc", "tsh"], preparation_en: ["Bring your request"] }), { status: 200 }));
@@ -28,7 +34,7 @@ describe("Labs Packages SSR", () => {
     expect(html).toContain("Wellness panel");
     expect(html).toContain("Bring your request");
     expect(html).not.toContain("/en/diagnostics/labs/book"); // journeys#50: one booking path, the cart
-    expect(html).toContain("/en/diagnostics/cart?add=pkg-1&amp;name=Wellness%20panel&amp;price=120");
+    expect(html).toContain("/en/labs/pkg-1?kind=lab");
     expect(html).not.toContain("style=");
   });
 });

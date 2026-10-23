@@ -3033,7 +3033,9 @@
     "bookingNotSentTitle": "Walang na-book",
     "bookingNotSentBody": "Hindi pa nagpapadala ng booking ang window na ito, kaya walang appointment na ginawa at walang bayad na kinuha. Buksan ang pahina ng nursing para mag-book ng pagbisita.",
     "bookingNotSentCta": "Pumunta sa nursing",
-    "bookingNotSentClose": "Isara"
+    "bookingNotSentClose": "Isara",
+    "approvalNoOrderTitle": "Walang booking na may insurance",
+    "approvalNoOrderBody": "Nakadepende ang insurance step sa isang booking. Buksan ang isa sa mga kahilingan mo para sundan ang pag-apruba o mag-upload ng dokumento."
   },
   "OrderContext": {
     "hint": "Agad na nag-a-update ang presyo at coverage kapag may binago",
@@ -3158,7 +3160,36 @@
     "experienceLabel": "Karanasan sa trabaho",
     "ratingLabel": "Rating ng mga pasyente",
     "nurseServicesTitle": "Mga available na serbisyo ng nursing",
-    "requestNurse": "Humiling ng pagbisita ng nurse"
+    "requestNurse": "Humiling ng pagbisita ng nurse",
+    "prepTitle": "Paghahanda",
+    "carePackages": "Mga care package",
+    "rxNotice": "Kailangan ng reseta mula sa doktor mo para sa serbisyong ito. Hihilingin ng nars na makita ito bago ang pagbisita.",
+    "sortTitle": "Ayusin ang mga nars",
+    "sortAny": "Anumang pagkakasunod",
+    "sortRating": "Pinakamataas ang rating",
+    "filterGender": "Kasarian ng nars",
+    "gender_any": "Kahit sino",
+    "gender_female": "Babae",
+    "gender_male": "Lalaki",
+    "ratingLine": "{rating} ({count})",
+    "yearsLine": "{count, plural, one {# taon ng karanasan} other {# taon ng karanasan}}",
+    "priceAtBooking": "Makukumpirma ang presyo sa pag-book",
+    "availableNow": "Available ngayon",
+    "notNow": "Hindi available ngayon",
+    "degreeLabel": "Kuwalipikasyon",
+    "nurseChooseService": "Pumili ng serbisyo para i-book ang nars na ito",
+    "nurseChooseServiceBody": "Pumili muna ng home-care na serbisyo. Lalabas ang mga bakanteng oras ng nars kapag may napili na.",
+    "visitPrice": "Presyo ng pagbisita",
+    "confirmWithAmount": "Kumpirmahin ang booking · {amount}",
+    "insFetched": "Ang insurance mo na naka-file",
+    "insCompany": "Kumpanya",
+    "insPolicy": "Numero ng polisiya",
+    "insNoPolicy": "Walang insurance policy na naka-file. Magdagdag bago ipadala ang kahilingan.",
+    "insAddPolicy": "Magdagdag ng polisiya",
+    "callNurse": "Tawagan ang nars",
+    "nurseOnMap": "Ipakita ang nars sa mapa",
+    "insuranceNone": "Wala pang kahilingan sa insurance",
+    "insuranceNoneBody": "Kapag humiling ka ng pagbisita gamit ang insurance, lalabas dito ang pag-apruba."
   },
   "MaternityWeb": {
     "title": "Pagbubuntis",
@@ -3229,7 +3260,15 @@
     "weekEmpty": "Wala pang nilalaman para sa linggong ito.",
     "weekUnavailable": "Hindi ma-load ang nilalaman ng linggong ito.",
     "readThisWeek": "Basahin ngayong linggo",
-    "readEmpty": "Wala pang artikulo para sa linggong ito."
+    "readEmpty": "Wala pang artikulo para sa linggong ito.",
+    "pregnancyNotice": "Batay ito sa petsang inilagay mo. Hindi nito kinukumpirma ang edad ng pagbubuntis o kalusugan ng fetus.",
+    "cycleNotice": "Batay ang cycle at fertility estimates sa iyong entry. Huwag gamitin para sa contraception.",
+    "safetyNotice": "Kung may matinding sakit, pagdurugo o agarang alalahanin, makipag-ugnayan sa medikal na serbisyo o emergency. Hindi nagdi-diagnose ang Nabd+.",
+    "notContraception": "Hindi contraception o kumpirmasyon ng ovulation.",
+    "dayLabel": "Araw {day} ng {total}-araw na siklo",
+    "dayOfCycle": "Araw ng siklo",
+    "cycleDays": "{count} araw",
+    "allArticles": "Lahat ng artikulo"
   },
   "NutritionWeb": {
     "title": "Nutrisyon",
@@ -3306,7 +3345,24 @@
     "planFailed": "Hindi magawa ang plano ngayon. Subukan muli.",
     "planNutritionist": "Kumonsulta sa isang nutritionist",
     "planNotice": "Ang planong ito ay pangkalahatang gabay mula sa AI assistant, hindi reseta ng doktor. Kausapin muna ang isang nutritionist bago ang malaking pagbabago.",
-    "planDay": "Araw {n}"
+    "planDay": "Araw {n}",
+    "remaining": "Natitira: {value}",
+    "setTarget": "Itakda ang mga layunin sa nutrisyon",
+    "protein": "Protina",
+    "carbs": "Karbohidrato",
+    "fat": "Taba",
+    "gram": "g",
+    "waterProgress": "{value} / {target} {unit}",
+    "addMl": "+{amount} ml",
+    "waterFailed": "Hindi na-save ang tubig. Subukan muli.",
+    "proteinLine": "Protina {value} g",
+    "nutritionSafety": "Ang pag-log ng pagkain ay para sa pagsubaybay lamang. Hindi nagdi-diagnose o nagbibigay ng therapeutic diet ang Nabd+.",
+    "macro": {
+      "protein_g": "Protina (g, opsyonal)",
+      "carbs_g": "Carbohydrates (g, opsyonal)",
+      "fat_g": "Taba (g, opsyonal)",
+      "fiber_g": "Fiber (g, opsyonal)"
+    }
   },
   "MentalWeb": {
     "title": "Kalusugang pangkaisipan",
@@ -3341,7 +3397,15 @@
       "bad": "Hindi mabuti",
       "terrible": "Napakasama"
     },
-    "urgentRowSub": "Tawagan ang numero ng agarang tulong"
+    "urgentRowSub": "Tawagan ang numero ng agarang tulong",
+    "moodTag": {
+      "calm": "Kalmado",
+      "tired": "Pagod",
+      "stressed": "Nai-stress",
+      "connected": "Konektado",
+      "rested": "Nakapagpahinga",
+      "overwhelmed": "Nabibigatan"
+    }
   },
   "ProgramsWeb": {
     "title": "Aking mga health program",
@@ -3666,7 +3730,10 @@
       "expiry": "Petsa ng pag-expire (opsyonal)",
       "submit": "I-save ang polisiya",
       "invalid": "Pumili ng kumpanya at maglagay ng wastong numero ng polisiya (hindi bababa sa 3 karakter).",
-      "failed": "Hindi na-save ang polisiya."
+      "failed": "Hindi na-save ang polisiya.",
+      "scan": "I-scan ang insurance card gamit ang camera",
+      "scanned": "Nabasa ang mga nakikitang detalye sa card. Suriin bago i-save.",
+      "scanFailed": "Hindi nabasa ang card. Ilagay ang mga detalye nang mano-mano."
     },
     "coverage": {
       "title": "Ano ang saklaw ng polisiya ko",
@@ -3682,7 +3749,16 @@
       "result": "Saklaw na nakatala",
       "eligible": "Nakalista bilang sakop sa naka-save mong polisiya",
       "notEligible": "Hindi nakalista bilang sakop sa naka-save mong polisiya",
-      "forService": "Serbisyo: {service}"
+      "forService": "Serbisyo: {service}",
+      "provider": "Pangalan ng provider (opsyonal)",
+      "providerHint": "Pangalan ng doktor, ospital o botika",
+      "copayTitle": "Bahagi mo",
+      "youPay": "Babayaran mo",
+      "cap": "Nakatakdang limitasyon ng bahagi mo",
+      "finalNote": "Ang pinal na halaga ay kinukuwenta mula sa aktwal na presyo ng provider sa booking.",
+      "preAuth": "Maaaring mangailangan ng paunang pag-apruba ang insurer; ang pasilidad ang humihingi nito",
+      "askSupport": "Makipag-ugnayan sa support",
+      "again": "Tingnan ang ibang serbisyo"
     },
     "request": {
       "pageTitle": "Kahilingan sa insurance",
@@ -3731,7 +3807,12 @@
       "acceptFailed": "Hindi naitala ang self-pay. Walang nalikhang bayad.",
       "acceptRetry": "Hindi naitala ang self-pay. Subukan muli.",
       "payFailed": "Hindi nasimulan ang ligtas na online na pagbabayad. Walang nakumpirmang bayad.",
-      "payRetry": "Hindi nasimulan ang online na pagbabayad. Walang nakumpirmang bayad."
+      "payRetry": "Hindi nasimulan ang online na pagbabayad. Walang nakumpirmang bayad.",
+      "insurer": "Kompanya ng insurance",
+      "payNow": "Pumunta sa ligtas na bayad — {amount}",
+      "missingTitle": "Walang hiling sa insurance",
+      "missingBody": "Walang nakitang hiling sa insurance para sa booking na ito. Buksan ang mga hiling mo sa pahina ng insurance.",
+      "back": "Bumalik"
     },
     "noteCode": {
       "coverage_decided_by_provider": "Ang provider ang magpapasya sa huling coverage kapag sinuri nito ang iyong request.",
@@ -3745,10 +3826,36 @@
       "lab": "Laboratoryo",
       "radiology": "Sentro ng radyolohiya",
       "home_care": "Pangangalaga sa bahay",
-      "nursing": "Pag-aalaga ng nars"
+      "nursing": "Pag-aalaga ng nars",
+      "other": "Tagapagbigay"
     },
     "memberLine": "Numero ng miyembro: {id}",
-    "expiryLine": "Mag-e-expire sa {date}"
+    "expiryLine": "Mag-e-expire sa {date}",
+    "policyVerified": "Nasuri na",
+    "policyInReview": "Sinusuri",
+    "policyNumber": "Numero ng polisiya",
+    "memberName": "Pangalan ng miyembro",
+    "nationalId": "Pambansang ID",
+    "policyNetwork": "Network ng provider",
+    "kind": {
+      "consultation": "Konsultasyong medikal",
+      "lab": "Mga lab test",
+      "radiology": "Radyolohiya",
+      "nursing": "Nursing sa bahay",
+      "pharmacy": "Mga gamot",
+      "other": "Serbisyo"
+    },
+    "usageRequests": "Mga kahilingan sa insurance: {count}",
+    "usageCovered": "Sinagot ng insurer",
+    "usagePaid": "Binayaran mo",
+    "networkType": {
+      "all": "Lahat",
+      "doctor": "Mga doktor",
+      "hospital": "Mga ospital",
+      "pharmacy": "Mga botika",
+      "lab": "Mga laboratoryo"
+    },
+    "networkCall": "Tumawag"
   },
   "LoyaltyHubWeb": {
     "title": "Mga puntos ng Nabd",
@@ -4279,7 +4386,13 @@
         "good": "Mabuti",
         "okay": "Ayos lang",
         "bad": "Mahirap",
-        "terrible": "Napakahirap"
+        "terrible": "Napakahirap",
+        "calm": "Kalmado",
+        "tired": "Pagod",
+        "stressed": "Nai-stress",
+        "connected": "Konektado",
+        "rested": "Nakapagpahinga",
+        "overwhelmed": "Nabibigatan"
       },
       "energy_level": "Enerhiya (1-5, opsyonal)",
       "stress_level": "Stress (1-5, opsyonal)",
@@ -4291,8 +4404,10 @@
         "energy_level": "Ang enerhiya ay numero mula 1 hanggang 5.",
         "stress_level": "Ang stress ay numero mula 1 hanggang 5.",
         "sleep_hours": "Ang oras ng tulog ay mula 0 hanggang 24.",
-        "notes": "Masyadong mahaba ang tala."
-      }
+        "notes": "Masyadong mahaba ang tala.",
+        "tags": "Pumili ng mga tag mula sa listahan."
+      },
+      "tags": "Ano ang naglalarawan sa araw mo?"
     },
     "kicks": {
       "title": "Itala ang sipa ng baby",

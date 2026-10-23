@@ -25,7 +25,7 @@ describe("Labs Services SSR", () => {
     state.getPublicLabServices.mockResolvedValue(new Response(JSON.stringify([{ id: "cbc", name_en: "CBC", price: 20 }]), { status: 200 }));
     const html = await render();
     expect(html).toContain("CBC");
-    expect(html).toContain("/en/diagnostics/labs/book?serviceId=cbc");
+    expect(html).toContain("/en/labs/cbc?kind=lab");
     expect(html).not.toContain("style=");
     expect(state.getPublicLabServices).toHaveBeenCalledWith({ search: "", homeOnly: false });
   });
