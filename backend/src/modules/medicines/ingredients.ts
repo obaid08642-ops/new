@@ -4,8 +4,7 @@
  * returned with `status: 'review'` and the reasons, for the admin's review queue.
  */
 import {
-  DosageForm, FORM_INDEX, IGNORE_INDEX, INN_INDEX, INN_PARENT, INN_TABLE_VERSION, LEAFLET_MARKERS, MODIFIER_INDEX,
-  ROUTE_BY_FORM, ROUTE_INDEX, Route, STORAGE_MARKERS, StrengthUnit, UNIT_INDEX, WARNING_MARKERS, matchPhrase, normalizeText, tokenize,
+  DOSAGE_FORMS, DosageForm, FORM_INDEX, IGNORE_INDEX, INN_ENTRIES, INN_INDEX, INN_PARENT, INN_TABLE_VERSION, LEAFLET_MARKERS, matchPhrase, MODIFIER_INDEX, normalizeText, Route, ROUTE_BY_FORM, ROUTE_INDEX, ROUTES, STORAGE_MARKERS, STRENGTH_UNITS, StrengthUnit, tokenize, UNIT_INDEX, WARNING_MARKERS,
 } from './inn-normalization';
 
 export const INGREDIENTS_PARSER_VERSION = `p1/${INN_TABLE_VERSION}`;
@@ -288,4 +287,15 @@ export const INGREDIENTS_SCOPE_FILTER = { category: { $in: [...INGREDIENTS_SCOPE
 
 export function inIngredientsScope(row: { category?: unknown }): boolean {
   return typeof row.category === 'string' && (INGREDIENTS_SCOPE_CATEGORIES as readonly string[]).includes(row.category.trim());
+}
+
+/** Issue 1556 (PR 3): the closed lists the admin's review form offers. Read-only, the same lists the checker accepts. */
+export function ingredientsVocabulary() {
+  return {
+    table_version: INN_TABLE_VERSION,
+    inns: INN_ENTRIES.map((e) => e.inn).sort(),
+    dosage_forms: [...DOSAGE_FORMS],
+    routes: [...ROUTES],
+    strength_units: [...STRENGTH_UNITS],
+  };
 }

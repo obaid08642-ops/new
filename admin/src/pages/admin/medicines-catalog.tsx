@@ -106,6 +106,18 @@ export default function MedicinesCatalogPage() {
   // change requests
   const [requests, setRequests] = useState<any[]>([]);
   const [reqStatus, setReqStatus] = useState('pending');
+  // Issue 1556 (PR 3): the reviewed ingredients of a queued row, checked by the backend on approve.
+  type IngRow = { inn: string; strength_value: string; strength_unit: string };
+  type IngDraft = { ingredients: IngRow[]; dosage_form: string; route: string };
+  const [ingVocab, setIngVocab] = useState<null | { inns: string[]; dosage_forms: string[]; routes: string[]; strength_units: string[] }>(null);
+  const [ingDraft, setIngDraft] = useState<Record<string, IngDraft>>({});
+  const [ingErr, setIngErr] = useState<Record<string, string>>({});
+  useEffect(() => {
+    if (tab !== 'requests' || ingVocab) return;
+    apiFetch('/medicines/admin/ingredients/vocab')
+      .then((v: any) => setIngVocab(v))
+      .catch((e: any) => setIngErr(prev => ({ ...prev, _vocab: e?.message || 'تعذر تحميل القوائم' })));
+  }, [tab, ingVocab]);
   // Partial approval: per-request field selection + admin value overrides
   const [fieldSel, setFieldSel] = useState<Record<string, Record<string, boolean>>>({});
   const [overrides, setOverrides] = useState<Record<string, Record<string, any>>>({});
@@ -311,6 +323,33 @@ export default function MedicinesCatalogPage() {
     } catch (e: any) { alert(`فشل تغيير الشعار: ${e?.message || ''}`); } finally { setBusy(null); }
   };
 
+  const ingDraftOf = (r: any): IngDraft => ingDraft[r.id || r._id] || {
+    ingredients: [{ inn: '', strength_value: '', strength_unit: '' }],
+    dosage_form: r.changes?.dosage_form || '',
+    route: r.changes?.route || '',
+  };
+  const patchIngDraft = (r: any, patch: (d: IngDraft) => IngDraft) => {
+    const id = r.id || r._id;
+    setIngDraft(prev => ({ ...prev, [id]: patch(ingDraftOf(r)) }));
+  };
+  const setIngRow = (r: any, i: number, change: Partial<IngRow>) => patchIngDraft(r, d => ({ ...d, ingredients: d.ingredients.map((x, k) => (k === i ? { ...x, ...change } : x)) }));
+  // Builds the overrides the backend checks: empty rows are dropped; the value is a number or null.
+  const ingOverrides = (r: any): { overrides?: any; error?: string } => {
+    const d = ingDraftOf(r);
+    const ingredients = d.ingredients.filter(x => x.inn).map(x => ({
+      inn: x.inn,
+      strength_value: x.strength_value.trim() === '' ? null : Number(x.strength_value),
+      strength_unit: x.strength_unit || null,
+    }));
+    if (ingredients.some(x => x.strength_value !== null && !Number.isFinite(x.strength_value))) return { error: 'قيمة التركيز يجب أن تكون رقماً' };
+    const overrides: any = {};
+    if (ingredients.length) overrides.ingredients = ingredients;
+    if (d.dosage_form) overrides.dosage_form = d.dosage_form;
+    if (d.route) overrides.route = d.route;
+    if (!Object.keys(overrides).length) return { error: 'أدخل مكوناً واحداً على الأقل أو الشكل الدوائي أو طريق الإعطاء' };
+    return { overrides };
+  };
+
   const decideRequest = async (r: any, action: 'approve' | 'reject') => {
     const id = r.id || r._id;
     setBusy(id);
@@ -318,6 +357,10 @@ export default function MedicinesCatalogPage() {
       let body: any = {};
       if (action === 'reject') {
         body = { reason: 'رفض إداري' };
+      } else if (r.type === 'ingredients_review') {
+        const built = ingOverrides(r);
+        if (built.error) { setIngErr(prev => ({ ...prev, [id]: built.error! })); setBusy(null); return; }
+        body = { overrides: built.overrides };
       } else if (r.type === 'field_edit' || r.type === 'new_item') {
         // PARTIAL approval: only checked fields go live; edited cells become overrides.
         const changes = r.changes || r.payload || {};
@@ -332,8 +375,13 @@ export default function MedicinesCatalogPage() {
         method: 'POST',
         body: JSON.stringify(body),
       });
+      setIngErr(prev => { const next = { ...prev }; delete next[id]; return next; });
       await loadRequests();
-    } catch (e: any) { alert(`فشل الإجراء: ${e?.message || ''}`); } finally { setBusy(null); }
+    } catch (e: any) {
+      // A 400 from the backend (for example "unknown INN") is shown on the row, not in an alert.
+      if (r.type === 'ingredients_review') setIngErr(prev => ({ ...prev, [id]: e?.message || 'فشل الإجراء' }));
+      else alert(`فشل الإجراء: ${e?.message || ''}`);
+    } finally { setBusy(null); }
   };
 
   const F = (key: string, label: string, opts: { dir?: string; area?: boolean; ltr?: boolean } = {}) => (
@@ -597,7 +645,7 @@ export default function MedicinesCatalogPage() {
                           {r.type === 'new_item' ? 'اقتراح صنف جديد' : r.type === 'image_remove' ? 'طلب إزالة صورة' : r.type === 'shortage_badge' ? 'طلب شعار نقص' : 'اقتراح تعديل'} — {r.medicine_name || r.payload?.name_ar || r.medicine_id}
                         </div>
                         <div className="text-xs text-slate-400 mt-0.5">من: {(r.reporter_role || r.suggested_by_role) === 'guest' ? 'زائر (غير مسجل)' : (r.reporter_role || r.suggested_by_role || 'مزود')} {r.createdAt && `· ${new Date(r.createdAt).toLocaleString(dateLocale(), { hour12: false, numberingSystem: 'latn' })}`}</div>
-                        {(r.changes || r.payload) && r.current_values && Object.keys(r.changes || r.payload).length > 0 ? (
+                        {r.type !== 'ingredients_review' && (r.changes || r.payload) && r.current_values && Object.keys(r.changes || r.payload).length > 0 ? (
                           /* old → new diff table (snapshot captured at suggestion time);
                              pending field edits get per-field checkboxes (partial approval)
                              and editable proposed values (admin override before approval). */
@@ -641,9 +689,54 @@ export default function MedicinesCatalogPage() {
                               ]}
                             />
                           </div>
-                        ) : (r.changes || r.payload) ? (
+                        ) : r.type !== 'ingredients_review' && (r.changes || r.payload) ? (
                           <pre className="mt-2 text-xs bg-slate-50 rounded p-2 overflow-x-auto" dir="ltr">{JSON.stringify(r.changes || r.payload, null, 2).slice(0, 600)}</pre>
                         ) : null}
+                        {r.type === 'ingredients_review' && (
+                          <div className="mt-2 border border-slate-200 rounded p-3 space-y-3 text-sm">
+                            <div className="grid grid-cols-2 gap-2 text-xs text-slate-600">
+                              {['active_ingredient', 'generic_name', 'strength', 'form'].map(k => (
+                                <div key={k}><span className="font-bold">{k}: </span><span dir="ltr">{r.current_values?.[k] ?? '—'}</span></div>
+                              ))}
+                            </div>
+                            {reqStatus === 'pending' && ingVocab && (
+                              <div className="space-y-2">
+                                <div className="font-bold text-slate-700">المكونات (المادة الفعالة والتركيز)</div>
+                                {ingDraftOf(r).ingredients.map((row, i) => (
+                                  <div key={i} className="flex flex-wrap gap-2 items-center">
+                                    <select value={row.inn} onChange={e => setIngRow(r, i, { inn: e.target.value })} className="border rounded px-2 py-1 text-xs" dir="ltr">
+                                      <option value="">— اختر المادة —</option>
+                                      {ingVocab.inns.map(x => <option key={x} value={x}>{x}</option>)}
+                                    </select>
+                                    <input type="number" step="any" min="0" value={row.strength_value} onChange={e => setIngRow(r, i, { strength_value: e.target.value })} className="border rounded px-2 py-1 text-xs w-28" dir="ltr" placeholder="التركيز" />
+                                    <select value={row.strength_unit} onChange={e => setIngRow(r, i, { strength_unit: e.target.value })} className="border rounded px-2 py-1 text-xs" dir="ltr">
+                                      <option value="">— الوحدة —</option>
+                                      {ingVocab.strength_units.map(u => <option key={u} value={u}>{u}</option>)}
+                                    </select>
+                                    <button onClick={() => patchIngDraft(r, d => ({ ...d, ingredients: d.ingredients.filter((_, k) => k !== i) }))} className="text-red-600 text-xs font-bold">حذف</button>
+                                  </div>
+                                ))}
+                                <button onClick={() => patchIngDraft(r, d => ({ ...d, ingredients: [...d.ingredients, { inn: '', strength_value: '', strength_unit: '' }] }))} className="text-teal-700 text-xs font-bold">+ إضافة مكوّن</button>
+                                <div className="flex flex-wrap gap-3 text-xs">
+                                  <label className="flex items-center gap-1">الشكل الدوائي
+                                    <select value={ingDraftOf(r).dosage_form} onChange={e => patchIngDraft(r, d => ({ ...d, dosage_form: e.target.value }))} className="border rounded px-2 py-1" dir="ltr">
+                                      <option value="">—</option>
+                                      {ingVocab.dosage_forms.map(x => <option key={x} value={x}>{x}</option>)}
+                                    </select>
+                                  </label>
+                                  <label className="flex items-center gap-1">طريق الإعطاء
+                                    <select value={ingDraftOf(r).route} onChange={e => patchIngDraft(r, d => ({ ...d, route: e.target.value }))} className="border rounded px-2 py-1" dir="ltr">
+                                      <option value="">—</option>
+                                      {ingVocab.routes.map(x => <option key={x} value={x}>{x}</option>)}
+                                    </select>
+                                  </label>
+                                </div>
+                              </div>
+                            )}
+                            {reqStatus === 'pending' && !ingVocab && <div className="text-xs text-slate-500">جاري تحميل القوائم...</div>}
+                            {ingErr[r.id || r._id] && <div className="text-red-700 text-xs font-bold">{ingErr[r.id || r._id]}</div>}
+                          </div>
+                        )}
                         {r.note && <div className="text-sm text-slate-600 mt-1">ملاحظة: {r.note}</div>}
                       </div>
                       {canUpdate && reqStatus === 'pending' && (
