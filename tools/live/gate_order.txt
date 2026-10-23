@@ -71,6 +71,7 @@ j_admin_orders_export
 j_web_guest_services
 j_web_guest_services_2
 j_pharmacy_insurance_first
+j_web_diagnostics_locales
 j_services_content
 j_services_merged
 j_web_product_page
@@ -93,4 +94,3 @@ j_guest_matrix
 j_checkout_contact
 j_guest_lifecycle
 j_user_history
-j_web_diagnostics_locales
