@@ -32,7 +32,7 @@
 //     400 `medical_order_required` (insured labs and radiology need the doctor's order unless `medical_order_id` or an upload is sent),
 //     400 `provider_not_candidate` (a provider the quote did not offer), 409 `quote_expired`.
 //     After booking, a later change of the provider's price does not change the locked total.
-//     With payer `insurance`, a home booking is created `awaiting_approval` and is NOT dispatched; a facility booking is `pending`.
+//     With payer `insurance`, every booking (home or facility) is created `awaiting_approval` and is NOT confirmed or payable until the provider's item decisions.
 import { JwtService } from '@nestjs/jwt';
 import { LiveStack, JWT_SECRET } from './live-server';
 
@@ -233,5 +233,12 @@ describe('M3 ordering engine', () => {
     const inbox = await get('/labs/provider/inbox', providerToken('lab-m3-b', 'lab'));
     const dispatched = JSON.stringify(inbox.body).includes(ok.body.bookings[0].id) && /"status":"(accepted|on_the_way|assigned)"/.test(JSON.stringify(inbox.body));
     expect(dispatched).toBe(false);
+  });
+
+  it('12. an insured facility (in-centre) booking waits for the approval too', async () => {
+    const q = (await quote({ items: ['cbc'], context: { mode: 'facility', ...CENTER, payer: 'insurance' } })).body;
+    const ok = await post('/ordering/bookings', patient, { quote_id: q.quote_id, selections: { facility: { provider_id: 'lab-m3-c', walk_in: true } }, payment_method: 'insurance', medical_order_id: 'mo-m3' });
+    expect(ok.status).toBe(201);
+    expect(ok.body.bookings[0]).toMatchObject({ mode: 'facility', status: 'awaiting_approval' });
   });
 });
