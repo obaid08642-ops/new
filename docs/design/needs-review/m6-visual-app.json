@@ -1,0 +1,178 @@
+[
+  {
+    "batch": "m6-visual",
+    "app": "patient-app",
+    "screen": "/diagnostics/service-home (Ord02)",
+    "element": "Packages strip and most-requested rows",
+    "file": "patient-app/app/diagnostics/service-home.tsx",
+    "line": 142,
+    "found": "[client] The board draws packages as a horizontal strip of tone cards (icon, count, price, \"from\") and the most-requested tests with a round coral add button; the app draws both as list rows with an outlined add toggle (shared TestRow/AddToggle, used by ServiceHub too).",
+    "suspect": "Use PackageCard strip and a round add toggle variant in TestRow for the ordering home; one shared-component change that also touches ServiceHub, so left for the reviewer.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-visual",
+    "app": "patient-app",
+    "screen": "/diagnostics/service-home (Ord02)",
+    "element": "Browse labs row (\"تصفّح المختبرات · 9 مختبرًا قريبًا منك\")",
+    "file": "patient-app/app/diagnostics/service-home.tsx",
+    "line": 151,
+    "found": "[backend] The board has a secondary \"browse labs\" row with a nearby-provider count; no endpoint in the screen gives that count (GET /ordering/quote returns providers_count per item only) and the row is not drawn.",
+    "suspect": "Add the row once a count (or a plain link without count) is approved.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-visual",
+    "app": "patient-app",
+    "screen": "/diagnostics/service-home (Ord02)",
+    "element": "Hint line under the context bar",
+    "file": "patient-app/src/components/ordering/ContextBar.tsx",
+    "line": 73,
+    "found": "[client] The app prints \"prices and coverage update as soon as anything changes\" under the bar on every screen; the board has no such line under the bar.",
+    "suspect": "Show it only after a change (it already switches to the toast text) or drop it.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-visual",
+    "app": "patient-app",
+    "screen": "/diagnostics/when (Ord06)",
+    "element": "Context bar",
+    "file": "patient-app/app/diagnostics/when.tsx",
+    "line": 175,
+    "found": "[client] The board shows the context bar on the picker; the screen has none (the draft was quoted for one context, so changing it here would invalidate the quote).",
+    "suspect": "Decide whether the bar is read-only here; not added by the visual pass because it is a logic choice.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-visual",
+    "app": "patient-app",
+    "screen": "/diagnostics/when (Ord06)",
+    "element": "Booking summary section and day-card two-line label",
+    "file": "patient-app/app/diagnostics/when.tsx",
+    "line": 287,
+    "found": "[client] The app has a \"booking summary\" block the board does not draw (the board ends with the insurance note and a sticky \"next\" bar showing the chosen time); day cards show one line (\"Friday 23 October\") where the board shows weekday over date.",
+    "suspect": "Move the chosen time into the sticky bar and drop the summary, split the day label in two lines.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-visual",
+    "app": "patient-app",
+    "screen": "/diagnostics/confirm (Ord07)",
+    "element": "Payment method card and context bar",
+    "file": "patient-app/app/diagnostics/confirm.tsx",
+    "line": 303,
+    "found": "[client] The board has a \"payment method\" card (card brand, last digits, Change, \"Secure payment via Moyasar\") and the context bar; the app shows a method radio only when more than one method exists and no bar. Saved-card data is not in any endpoint the screen calls.",
+    "suspect": "Backend/owner: decide if a saved card is shown before the hosted checkout.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-visual",
+    "app": "patient-app",
+    "screen": "/diagnostics/confirm (Ord07)",
+    "element": "Doctor-order card and gender control",
+    "file": "patient-app/app/diagnostics/confirm.tsx",
+    "line": 245,
+    "found": "[client] The board draws the doctor order as one card with the attached order and a green \"attached automatically\" chip, and the staff-gender choice as a segmented control inside the home booking card; the app draws a section with radios/buttons and chips.",
+    "suspect": "Restyle with Card + Segmented; behaviour is unchanged.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-visual",
+    "app": "patient-app",
+    "screen": "/diagnostics/booking-status (Ord08, Ord09, Ord10)",
+    "element": "Whole status screen",
+    "file": "patient-app/app/diagnostics/booking-status.tsx",
+    "line": 150,
+    "found": "[client+backend] Rebuilt to the boards in the second pass: per-stage titles (insurance decision / booking status), booking card with mode tile, stage and paid state, amber countdown block with refund notice (Ord08), amber insurer-wait block, the insurer head with expiry warning, per-item cards with approval chips and server shares, three option cards with icon tile and radio (Ord09), the steps card for every stage, technician card, arrival code in four boxes, preparation reminders and the emergency button (Ord10). Pay and partial-choice logic untouched. Still different: no context bar [client, same logic choice as the picker]; no countdown progress bar (the booking carries the deadline but not the window start) [backend]; no map hero or \"arrives in 18 min\" (no ETA or location in GET /ordering/bookings/:id/visit) [backend]; technician rating and languages are not in the visit answer [backend]; no in-app chat/call buttons because no technician chat/call route exists [backend]; no \"cancel booking\" bar (no cancel call on this screen) [owner]; the sticky pay button shows no price on the option cards.",
+    "suspect": "Rebuild the three stages from the boards (high effort: payment and booking); data already comes from the existing endpoints, rating and languages of the technician are not in GET /ordering/bookings/:id/visit [backend].",
+    "review_status": "partly resolved (second pass)"
+  },
+  {
+    "batch": "m6-visual",
+    "app": "patient-app",
+    "screen": "/diagnostics/lab-result (Ord11)",
+    "element": "Values list",
+    "file": "patient-app/app/diagnostics/lab-result.tsx",
+    "line": 75,
+    "found": "[client] Values now have the big coloured value with unit, status chip, reference-range bar from ref_low/ref_high, a trend line from the existing result-trend helper (earlier values plus this one), and the summary card with the file tile, lab and date. Still different: no context bar, no share / download buttons (no route), no \"4 values: 2 within, 2 outside\" line (needs a new six-language string), and the chip says \"Normal\" where the board says \"Within range\".",
+    "suspect": "Add a RangeBar and sparkline component (new shape on the board, no new colour) and the summary card.",
+    "review_status": "partly resolved (second pass)"
+  },
+  {
+    "batch": "m6-visual",
+    "app": "patient-app",
+    "screen": "/medical-orders (Ord20)",
+    "element": "Order cards",
+    "file": "patient-app/app/medical-orders/index.tsx",
+    "line": 32,
+    "found": "[client+backend] List rebuilt: valid/expired tabs, a card per order with validity, each group with a glyph tile, item rows named through GET /labs/services/:id, /radiology/services/:id and /home-care/services/:id (group name when a lookup fails), status chips (not ordered / booked / later, six languages added) and an Order button per group. Still different: no doctor name, visit date and order number, no \"awaiting approval\" chip, no estimated share or approval clock [backend: GET /medical-orders/mine has none of them]; the Order button opens the order where the order call lives; no context bar.",
+    "suspect": "Client: resolve names from the catalogue ids, draw per-group sections and tabs. [backend] doctor {name, specialty} and the order number in the list answer.",
+    "review_status": "partly resolved (second pass)"
+  },
+  {
+    "batch": "m6-visual",
+    "app": "patient-app",
+    "screen": "/medical-orders/[id] (Ord21)",
+    "element": "Order detail",
+    "file": "patient-app/app/medical-orders/[id].tsx",
+    "line": 59,
+    "found": "[client+backend] Detail rebuilt with one card per group (tile, items named from the catalogue, status chips, \"later\" per open item, Order button). Still different: no doctor header or validity bar, no \"attached to booking and insurer\" line [backend], no context bar.",
+    "suspect": "Rebuild from Ord21 after the list; doctor and item names as in the list row.",
+    "review_status": "partly resolved (second pass)"
+  },
+  {
+    "batch": "m6-visual",
+    "app": "patient-app",
+    "screen": "/diagnostics/lab-comparison (Ord05)",
+    "element": "Home/centre segmented control and default sort",
+    "file": "patient-app/app/diagnostics/lab-comparison.tsx",
+    "line": 87,
+    "found": "[client] The board shows one list for the whole basket with \"cheapest\" selected by default and an \"out of network\" tag; the app splits a split basket in two tabs (needed to pick one provider per booking) and starts with no sort selected; no out-of-network tag key exists in the locale files.",
+    "suspect": "Owner/reviewer: confirm the per-booking tabs; add default sort and an out-of-network string in six languages.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-visual",
+    "app": "patient-app",
+    "screen": "/diagnostics/test-detail (Ord03)",
+    "element": "Item page sections",
+    "file": "patient-app/app/diagnostics/test-detail.tsx",
+    "line": 8,
+    "found": "[backend] The board has preparation, turnaround and sample rows, a coverage card per insurance class and a doctor-order card with pre-ticked items; with the real catalogue answer the screen draws the hero, the from-price card and the sticky bar only. Per-item coverage per class is the needs-backend field already recorded in ordering-m0-flowa.md.",
+    "suspect": "Backend coverage per class; client rows for prep/turnaround/sample from /labs/services/:id once those fields are confirmed.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-visual",
+    "app": "patient-app",
+    "screen": "shared date formatting",
+    "element": "fmtDate / fmtTime of utils/dates.ts",
+    "file": "patient-app/src/utils/dates.ts",
+    "line": 97,
+    "found": "[client] fmtDate and fmtTime always use the Arabic locale, so a screen in English, Urdu, Hindi, Bengali or Filipino shows Arabic day and month names. Fixed for the ordering screens (useOrderDates, dateFormatterFor); still used by chat-with-doctor, cancel-reschedule, notifications, payments/result, pharmacist-chat, rx-order, product-detail, diagnostics/checkout, (tabs)/pharmacy, MonthlyReportView, ConsultKit, ConsultBooking and DoctorSearchView.",
+    "suspect": "Switch those files to dateFormatterFor(lang), or make fmtDate read the active language.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-visual",
+    "app": "provider-app",
+    "screen": "all provider screens (Ord22, Ord30-33)",
+    "element": "No render path",
+    "file": "tools/design/render-native-screen.mjs",
+    "line": 1,
+    "found": "[client] The render tool and its entry are bound to patient-app (AppContext, redux auth slice, expo-router mocks); provider-app has its own ThemeContext/LangContext, NStyled components and React Navigation, so it cannot be drawn without a second entry and mocks (not done in this pass). MedicalOrderComposer and the four ordering screens were checked by reading the code against the boards only.",
+    "suspect": "Add a provider-app entry (own providers, navigation mock) if a visual pass of provider-app is wanted.",
+    "review_status": "open"
+  },
+  {
+    "batch": "m6-visual",
+    "app": "provider-app",
+    "screen": "MedicalOrderComposer (Ord22) and ordering screens (Ord30-33)",
+    "element": "Code read against boards",
+    "file": "provider-app/src/screens/doctor/doctor/MedicalOrderComposer.tsx",
+    "line": 187,
+    "found": "[client] Read-only check: no raw colours or hex (all from theme tokens), no left/right style props, remove-item and chip targets are 44 or more, RTL is done by hand (row-reverse and textAlign by language, ar and en only, as the provider-app strings are ar+en). Labels are written in the file (label(ar, en)) instead of a locale file, which the translation rule does not allow; the six-language strings exist in docs/design/ordering-m0-strings.provider.json.",
+    "suspect": "Move the labels to the provider-app locale files; visual comparison with the boards still needs a render.",
+    "review_status": "open"
+  }
+]

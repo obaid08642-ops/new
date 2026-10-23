@@ -195,82 +195,6 @@
     ]
   },
   {
-    "name_ar": "باقة الفحص الشامل",
-    "name_en": "Comprehensive Health Package",
-    "category": "blood",
-    "sample_type": "blood",
-    "price": 399,
-    "old_price": 510,
-    "fasting_required": true,
-    "fasting_hours": 10,
-    "home_visit_supported": true,
-    "facility_visit_supported": true,
-    "turnaround_hours": 24,
-    "preparation_ar": [
-      "الصيام 10 ساعات",
-      "شرب الماء فقط",
-      "لا توجد أنشطة شاقة قبل التحليل"
-    ],
-    "preparation_en": [
-      "Fast 8-12 hours before the test (water only).",
-      "Bring a list of your medications and supplements."
-    ],
-    "is_package": true,
-    "included_services": [
-      "CBC",
-      "FBS",
-      "HbA1c",
-      "LIP",
-      "KFT",
-      "LFT",
-      "VITD",
-      "TSH"
-    ],
-    "popularity": 95,
-    "active": true,
-    "medical_referral_required": false,
-    "version": 1,
-    "cash_availability": true,
-    "insurance_availability": true,
-    "home_collection_availability": true,
-    "in_lab_availability": true,
-    "id": "834c1dc5-9fbd-4341-82a5-e12863446ffa",
-    "image_url": "https://res.cloudinary.com/mcuwxgjz/image/upload/v1786117296/nabd/catalog/lab_package.png",
-    "description_ar": "باقة شاملة تضم صورة دم كاملة، سكر، دهون، وظائف كلى وكبد، فيتامينات وغدة درقية — للاطمئنان العام السنوي.",
-    "description_en": "A comprehensive package: CBC, glucose, lipids, kidney and liver function, vitamins and thyroid — for an annual check-up.",
-    "medical_review_status": "approved",
-    "public_eligibility": true,
-    "is_active": true,
-    "name_ur": "جامع صحت پیکج",
-    "name_hi": "व्यापक स्वास्थ्य पैकेज",
-    "name_bn": "বিস্তৃত স্বাস্থ্য প্যাকেজ",
-    "name_tl": "Komprehensibong Pakete sa Kalusugan",
-    "description_ur": "خون کا مکمل ٹیسٹ، خالی پیٹ شوگر، HbA1c، چکنائی، گردوں اور جگر کا فنکشن، وٹامن ڈی اور TSH۔",
-    "preparation_ur": [
-      "نمونے سے پہلے 10 گھنٹے کچھ نہ کھائیں؛ صرف سادہ پانی پی سکتے ہیں۔",
-      "نرس یا لیب کو اپنی تمام دواؤں اور سپلیمنٹس کے بارے میں بتائیں۔",
-      "اگر آپ بایوٹن (وٹامن B7) لیتے ہیں تو لیب کو بتائیں؛ یہ نتیجے پر اثر ڈال سکتا ہے۔"
-    ],
-    "description_hi": "संपूर्ण रक्त गणना, उपवास शुगर, HbA1c, लिपिड, किडनी और लिवर फ़ंक्शन, विटामिन डी और TSH।",
-    "preparation_hi": [
-      "नमूने से पहले 10 घंटे उपवास रखें; केवल सादा पानी पी सकते हैं।",
-      "आप जो भी दवाएं या सप्लीमेंट लेते हैं, उनके बारे में नर्स या लैब को बताएं।",
-      "अगर आप बायोटिन (विटामिन B7) लेते हैं तो लैब को बताएं; यह परिणाम पर असर डाल सकता है।"
-    ],
-    "description_bn": "রক্তের পূর্ণ গণনা, খালি পেটে শর্করা, HbA1c, লিপিড, কিডনি ও লিভার ফাংশন, ভিটামিন ডি ও TSH।",
-    "preparation_bn": [
-      "নমুনা দেওয়ার আগে ১০ ঘণ্টা খালি পেটে থাকুন; শুধু সাধারণ পানি পান করা যাবে।",
-      "আপনি যে ওষুধ বা সাপ্লিমেন্ট খান, তা নার্স বা ল্যাবকে জানান।",
-      "বায়োটিন (ভিটামিন B7) সাপ্লিমেন্ট খেলে ল্যাবকে জানান; এটি ফলাফলে প্রভাব ফেলতে পারে।"
-    ],
-    "description_tl": "Blood count, fasting sugar, HbA1c, lipids, kidney at liver function, vitamin D at TSH.",
-    "preparation_tl": [
-      "Mag-ayuno nang 10 oras bago kunan ng sample; tubig lang ang puwedeng inumin.",
-      "Sabihin sa nurse o sa lab ang lahat ng gamot o supplement na iniinom mo.",
-      "Kung umiinom ka ng biotin (vitamin B7), sabihin sa lab; maaari itong makaapekto sa resulta."
-    ]
-  },
-  {
     "name_ar": "سكر صائم (FBS)",
     "name_en": "Fasting Blood Sugar",
     "short_code": "FBS",
@@ -1688,7 +1612,7 @@
     "short_code": "PKG_HEART",
     "name_ar": "باقة صحة القلب",
     "name_en": "Heart Health Package",
-    "category": "package",
+    "category": "cardiac",
     "sample_type": "blood",
     "price": 289,
     "old_price": 420,
@@ -1872,72 +1796,6 @@
     "description_tl": "Sinusukat ang CRP, protinang ginagawa ng atay kapag may pamamaga.",
     "preparation_tl": [
       "Hindi kailangang mag-ayuno."
-    ]
-  },
-  {
-    "name_ar": "باقة القلب",
-    "name_en": "Cardiac Package",
-    "category": "cardiac",
-    "sample_type": "blood",
-    "price": 289,
-    "old_price": 380,
-    "fasting_required": true,
-    "fasting_hours": 12,
-    "home_visit_supported": true,
-    "facility_visit_supported": true,
-    "turnaround_hours": 12,
-    "preparation_ar": [
-      "صيام 8-12 ساعة قبل التحليل (يُسمح بالماء فقط).",
-      "تجنب المجهود البدني الشاق قبل التحليل بيوم."
-    ],
-    "preparation_en": [
-      "Fast 8-12 hours (water only).",
-      "Avoid strenuous exercise the day before."
-    ],
-    "is_package": true,
-    "included_services": [
-      "LIP",
-      "CKMB",
-      "CBC"
-    ],
-    "popularity": 70,
-    "active": true,
-    "medical_referral_required": false,
-    "version": 1,
-    "cash_availability": true,
-    "insurance_availability": true,
-    "home_collection_availability": true,
-    "in_lab_availability": true,
-    "id": "593eff7e-c5f8-4bb6-8b78-09a63eca7043",
-    "image_url": "https://res.cloudinary.com/mcuwxgjz/image/upload/v1786117296/nabd/catalog/lab_package.png",
-    "description_ar": "باقة صحة القلب: دهون الدم، إنزيمات القلب، وبروتين سي التفاعلي لتقييم خطر أمراض القلب والشرايين.",
-    "description_en": "Heart health package: lipids, cardiac enzymes and CRP to assess cardiovascular risk.",
-    "medical_review_status": "approved",
-    "public_eligibility": true,
-    "is_active": true,
-    "name_ur": "قلبی پیکج",
-    "name_hi": "कार्डियक पैकेज",
-    "name_bn": "কার্ডিয়াক প্যাকেজ",
-    "name_tl": "Pakete para sa Puso",
-    "description_ur": "چکنائی، CK-MB اور خون کا مکمل ٹیسٹ۔",
-    "preparation_ur": [
-      "نمونے سے پہلے 10 سے 12 گھنٹے کچھ نہ کھائیں؛ صرف سادہ پانی پی سکتے ہیں۔",
-      "نرس یا لیب کو اپنی تمام دواؤں اور سپلیمنٹس کے بارے میں بتائیں۔"
-    ],
-    "description_hi": "लिपिड, CK-MB और संपूर्ण रक्त गणना।",
-    "preparation_hi": [
-      "नमूने से पहले 10 से 12 घंटे उपवास रखें; केवल सादा पानी पी सकते हैं।",
-      "आप जो भी दवाएं या सप्लीमेंट लेते हैं, उनके बारे में नर्स या लैब को बताएं।"
-    ],
-    "description_bn": "লিপিড, CK-MB ও রক্তের পূর্ণ গণনা।",
-    "preparation_bn": [
-      "নমুনা দেওয়ার আগে ১০ থেকে ১২ ঘণ্টা খালি পেটে থাকুন; শুধু সাধারণ পানি পান করা যাবে।",
-      "আপনি যে ওষুধ বা সাপ্লিমেন্ট খান, তা নার্স বা ল্যাবকে জানান।"
-    ],
-    "description_tl": "Lipids, CK-MB at blood count.",
-    "preparation_tl": [
-      "Mag-ayuno nang 10 hanggang 12 oras bago kunan ng sample; tubig lang ang puwedeng inumin.",
-      "Sabihin sa nurse o sa lab ang lahat ng gamot o supplement na iniinom mo."
     ]
   },
   {

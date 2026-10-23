@@ -2411,6 +2411,8 @@
     "showMethods": "اختيار طريقة الدفع",
     "paymentUnavailable": "لا توجد طريقة دفع إلكتروني متاحة لهذا الطلب الآن.",
     "loadingMethods": "جارٍ تحميل طرق الدفع…",
+    "deliveryEta": "التوصيل خلال {time}",
+    "rating": "التقييم {rating} ({count})",
     "lineUnnamed": "صنف",
     "quoteSubstitute": "صنف بديل",
     "notifAskOffers": "فعّل الإشعارات لنخبرك فور وصول عروض الصيدليات.",

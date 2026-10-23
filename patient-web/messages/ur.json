@@ -2411,6 +2411,8 @@
     "showMethods": "ادائیگی کا طریقہ منتخب کریں",
     "paymentUnavailable": "اس آرڈر کے لیے فی الحال آن لائن ادائیگی کا کوئی طریقہ دستیاب نہیں۔",
     "loadingMethods": "ادائیگی کے طریقے لوڈ ہو رہے ہیں…",
+    "deliveryEta": "ڈیلیوری {time} میں",
+    "rating": "ریٹنگ {rating} ({count})",
     "lineUnnamed": "شے",
     "quoteSubstitute": "متبادل شے",
     "notifAskOffers": "اطلاعات آن کریں تاکہ فارمیسیوں کی پیشکشیں آتے ہی ہم آپ کو بتا سکیں۔",

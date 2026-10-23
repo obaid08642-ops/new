@@ -2411,6 +2411,8 @@
     "showMethods": "Pumili ng paraan ng pagbabayad",
     "paymentUnavailable": "Walang available na online na paraan ng pagbabayad para sa order na ito ngayon.",
     "loadingMethods": "Nilo-load ang mga paraan ng pagbabayad…",
+    "deliveryEta": "Darating sa loob ng {time}",
+    "rating": "Puntos {rating} ({count})",
     "lineUnnamed": "Produkto",
     "quoteSubstitute": "Kapalit na item",
     "notifAskOffers": "I-on ang mga notification para masabihan ka namin agad kapag nagpadala na ng mga alok ang mga parmasya.",
