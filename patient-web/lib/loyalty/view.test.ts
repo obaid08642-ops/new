@@ -10,13 +10,22 @@ describe("loyalty readers", () => {
 
   it("reads only well-formed tiers and ways to earn; no tiers stays empty (the page then says unavailable)", () => {
     const config = parseConfig({ tiers: [{ id: "a", label: "Test A", minPts: 0, perks: ["p1", 3] }, { label: "no id", minPts: 5 }], earn_ways: [{ action: "Test way", pts: 10 }, { pts: 1 }] });
-    expect(config.tiers).toEqual([{ id: "a", label: "Test A", minPts: 0, perks: ["p1"] }]);
-    expect(config.earnWays).toEqual([{ action: "Test way", points: 10 }]);
+    expect(config.tiers).toEqual([{ id: "a", label: "Test A", minPts: 0, perks: ["p1"], perkCodes: [undefined] }]);
+    expect(config.earnWays).toEqual([{ action: "Test way", points: 10, reason: undefined }]);
     expect(parseConfig({}).tiers).toEqual([]);
   });
 
+  it("keeps the stable codes the server sends next to the Arabic texts", () => {
+    const config = parseConfig({
+      tiers: [{ id: "bronze", label: "برونزي", minPts: 0, perks: ["5% كاشباك", "أولوية"], perk_codes: ["cashback_5_consult", "priority_standard"] }],
+      earn_ways: [{ action: "استشارة", reason: "booking_completed", pts: "+50" }, { action: "تحدي صحي", reason: null, pts: "حسب التحدي" }],
+    });
+    expect(config.tiers[0].perkCodes).toEqual(["cashback_5_consult", "priority_standard"]);
+    expect(config.earnWays).toEqual([{ action: "استشارة", points: "+50", reason: "booking_completed" }, { action: "تحدي صحي", points: "حسب التحدي", reason: undefined }]);
+  });
+
   it("measures the way to the next tier", () => {
-    const tiers = [{ id: "a", label: "A", minPts: 0, perks: [] }, { id: "b", label: "B", minPts: 1000, perks: [] }];
+    const tiers = [{ id: "a", label: "A", minPts: 0, perks: [], perkCodes: [] }, { id: "b", label: "B", minPts: 1000, perks: [], perkCodes: [] }];
     expect(tierProgress(tiers, "a", 250)).toMatchObject({ share: 0.25, missing: 750 });
     expect(tierProgress(tiers, "b", 5000)).toMatchObject({ share: 1, missing: 0 });
     expect(tierProgress(tiers, "unknown", 0).current?.id).toBe("a");

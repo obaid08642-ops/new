@@ -15,6 +15,7 @@ import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import health from "@/components-next/health/health.module.css";
 import styles from "@/components-next/loyalty/loyalty.module.css";
+import { earnLabels, perkLabel, tierLabel } from "@/lib/loyalty/labels";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string | string[] }> };
 
@@ -67,6 +68,8 @@ export default async function LoyaltyPage({ params, searchParams }: Props) {
   const percent = new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 0 });
   const toneOf = (index: number) => TIER_TONES[index % TIER_TONES.length];
   const date = (value?: string) => formatDate(locale, value ?? null) ?? undefined;
+  const label = t as unknown as (key: string) => string;
+  const tierName = (tier: { id: string; label: string }) => tierLabel(label, tier);
   const pts = (n: number | string) => t("pointsAmount", { points: typeof n === "number" ? number.format(n) : n });
 
   let content: ReactNode = null;
@@ -93,25 +96,26 @@ export default async function LoyaltyPage({ params, searchParams }: Props) {
           <>
             <SectionHead id="earn" title={t("earnTitle")} />
             <RowsCard label={t("earnTitle")}>
-              {earnWays.map((w, i) => (
-                <li key={`${w.action}-${i}`}><RecordRow icon="star" tone={toneOf(i)} title={w.action} sub={[pts(w.points)]} /></li>
-              ))}
+              {earnWays.map((w, i) => {
+                const earn = earnLabels(label, w);
+                return <li key={`${w.action}-${i}`}><RecordRow icon="star" tone={toneOf(i)} title={earn.title} sub={[earn.varies ? String(earn.points) : pts(earn.points)]} /></li>;
+              })}
             </RowsCard>
           </>
         ) : null}
         {current.perks.length > 0 ? (
           <>
-            <SectionHead id="perks" title={t("perksTitle", { tier: current.label })} />
-            <RowsCard label={t("perksTitle", { tier: current.label })}>
-              {current.perks.map((p, i) => <li key={`${p}-${i}`}><RecordRow icon="check-circle" tone={SERVICE_ICONS.lab.tone} title={p} /></li>)}
+            <SectionHead id="perks" title={t("perksTitle", { tier: tierName(current) })} />
+            <RowsCard label={t("perksTitle", { tier: tierName(current) })}>
+              {current.perks.map((p, i) => <li key={`${p}-${i}`}><RecordRow icon="check-circle" tone={SERVICE_ICONS.lab.tone} title={perkLabel(label, p, current.perkCodes[i])} /></li>)}
             </RowsCard>
           </>
         ) : null}
         {progress.next && progress.next.perks.length > 0 ? (
           <>
-            <SectionHead id="next-perks" title={t("nextPerksTitle", { tier: progress.next.label })} />
-            <RowsCard label={t("nextPerksTitle", { tier: progress.next.label })}>
-              {progress.next.perks.slice(0, 2).map((p, i) => <li key={`${p}-${i}`}><RecordRow icon="star" tone={POINTS.tone} title={p} /></li>)}
+            <SectionHead id="next-perks" title={t("nextPerksTitle", { tier: tierName(progress.next) })} />
+            <RowsCard label={t("nextPerksTitle", { tier: tierName(progress.next) })}>
+              {progress.next.perks.slice(0, 2).map((p, i) => <li key={`${p}-${i}`}><RecordRow icon="star" tone={POINTS.tone} title={perkLabel(label, p, progress.next?.perkCodes[i])} /></li>)}
             </RowsCard>
           </>
         ) : null}
@@ -192,8 +196,8 @@ export default async function LoyaltyPage({ params, searchParams }: Props) {
         icon={POINTS.icon}
         label={t("balanceLabel")}
         ring={{ value: progress.share, label: t("balanceRing", { points: number.format(points) }), valueText: number.format(points), caption: t("points") }}
-        title={current.label}
-        lines={progress.next && progress.missing > 0 ? [t("toNext", { points: number.format(progress.missing), tier: progress.next.label })] : []}
+        title={tierName(current)}
+        lines={progress.next && progress.missing > 0 ? [t("toNext", { points: number.format(progress.missing), tier: tierName(progress.next) })] : []}
       />
       <HealthTabs
         label={t("tabsLabel")}
@@ -218,7 +222,7 @@ export default async function LoyaltyPage({ params, searchParams }: Props) {
               <RecordRow
                 icon="star"
                 tone={tx.delta > 0 ? SERVICE_ICONS.lab.tone : SERVICE_ICONS.pharmacy.tone}
-                title={tx.description ?? (tx.reason && REASONS.includes(tx.reason) ? t(`reason.${tx.reason}`) : tx.reason ?? "—")}
+                title={tx.reason && REASONS.includes(tx.reason) ? t(`reason.${tx.reason}`) : tx.description ?? tx.reason ?? "—"}
                 sub={[date(tx.createdAt)].filter((line) => line !== undefined)}
                 end={<bdi className={`${styles.delta} ${tx.delta > 0 ? styles.deltaUp : styles.deltaDown}`}>{tx.delta > 0 ? "+" : "−"}{number.format(Math.abs(tx.delta))}</bdi>}
               />

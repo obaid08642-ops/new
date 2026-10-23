@@ -7,8 +7,10 @@
 export const LOYALTY_TABS = ["rewards", "challenges", "invite"] as const;
 export type LoyaltyTab = (typeof LOYALTY_TABS)[number];
 
-export type Tier = { id: string; label: string; minPts: number; perks: string[] };
-export type EarnWay = { action: string; points: number | string };
+/** `perkCodes[i]` is the stable code of `perks[i]` (the server sends both; the Arabic text stays for older clients). */
+export type Tier = { id: string; label: string; minPts: number; perks: string[]; perkCodes: Array<string | undefined> };
+/** `reason` is the stable code of the way to earn (null for "a health challenge", whose points vary). */
+export type EarnWay = { action: string; points: number | string; reason?: string };
 export type Transaction = { id: string; delta: number; reason?: string; description?: string; createdAt?: string };
 export type Reward = { id: string; title: string; description?: string; pointsRequired: number };
 export type Challenge = { id: string; title: string; desc?: string; rewardPoints?: number; endDate?: string; joined: boolean; completed: boolean; progress: number; total?: number };
@@ -36,13 +38,14 @@ export function parseConfig(payload: unknown): { tiers: Tier[]; earnWays: EarnWa
     const id = str(r?.id);
     const min = num(r?.minPts);
     if (!r || !id || min === undefined) return [];
-    return [{ id, label: str(r.label) ?? id, minPts: min, perks: (Array.isArray(r.perks) ? r.perks : []).filter((p): p is string => typeof p === "string") }];
+    const perks = (Array.isArray(r.perks) ? r.perks : []).map((p, i) => ({ text: typeof p === "string" ? p : undefined, code: Array.isArray(r.perk_codes) ? str(r.perk_codes[i]) : undefined })).filter((p): p is { text: string; code: string | undefined } => p.text !== undefined);
+    return [{ id, label: str(r.label) ?? id, minPts: min, perks: perks.map((p) => p.text), perkCodes: perks.map((p) => p.code) }];
   });
   const earnWays = (Array.isArray(o?.earn_ways) ? o.earn_ways : []).flatMap((w): EarnWay[] => {
     const r = rec(w);
     const action = str(r?.action);
     const points = typeof r?.pts === "number" || typeof r?.pts === "string" ? (r.pts as number | string) : undefined;
-    return action && points !== undefined ? [{ action, points }] : [];
+    return action && points !== undefined ? [{ action, points, reason: str(r?.reason) }] : [];
   });
   return { tiers, earnWays };
 }
