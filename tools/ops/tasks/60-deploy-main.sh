@@ -19,7 +19,7 @@
 # REHEARSE_FAIL_AT=<step> forces a failure; REHEARSE_MISSING_IMAGE=<service> treats
 # that service's running image as gone from the host, as patient-web's is in production (rehearsal only).
 set -u
-SHA=${OPS_RELEASE_SHA:-79a3d84bd665e52fafc1928b61c8382f58098c06}
+SHA=${OPS_RELEASE_SHA:-3b9602cfc6abbabd5dbe6e8c693f8f6e8c2ff9d7}
 S8=${SHA:0:8}
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}
@@ -51,7 +51,21 @@ nginx_ok() { $DK exec nabdah-nginx nginx -t >/dev/null 2>&1; }
 for c in nabdah-backend nabdah-mongodb nabdah-redis nabdah-nginx; do [ "$(health $c)" = healthy ] || { echo "deploy: ABORT $c not healthy before starting"; exit 1; }; done
 nginx_ok || { echo "deploy: ABORT nginx -t fails before starting"; exit 1; }
 FREE=$(df -Pk / | awk 'NR==2{print int($4/1048576)}')
-[ "$FREE" -ge 4 ] || { echo "deploy: ABORT only ${FREE} GB free on /"; exit 1; }
+# 2026-10-22: loading a release needs ~7 GB (run 39858901688 filled the disk). Before the check, remove what no container
+# uses: older release upload dirs, and nabdah-* image tags that are neither running nor this release (old rollback points
+# of releases older than the running one). Never a volume, never a running image, never a backup.
+RUNIMG=$($DK ps --format '{{.Image}}' | sort -u)
+for dir in $(sudo -n ls -1 ${OPS_RELEASE_DIR:-/opt/nabdah/releases} 2>/dev/null); do [ "$dir" = "$S8" ] || sudo -n rm -rf "${OPS_RELEASE_DIR:-/opt/nabdah/releases}/$dir"; done
+for t in $($DK images --format '{{.Repository}}:{{.Tag}}' | grep -E '^nabdah-' | grep -v ":$S8\$"); do
+  echo "$RUNIMG" | grep -qx "$t" && continue
+  RID=$($DK image inspect -f '{{.Id}}' "$t" 2>/dev/null)
+  for c in $($DK ps -q); do [ "$($DK inspect -f '{{.Image}}' $c)" = "$RID" ] && continue 2; done
+  $DK rmi "$t" >/dev/null 2>&1
+done
+$DK image prune -f >/dev/null 2>&1; $DK builder prune -f --filter "until=72h" >/dev/null 2>&1
+FREE=$(df -Pk / | awk 'NR==2{print int($4/1048576)}')
+echo "status: deploy free_gb_after_precleanup=$FREE"
+[ "$FREE" -ge 9 ] || { echo "deploy: ABORT only ${FREE} GB free on / (9 needed to load a release)"; exit 1; }
 wait_code "$H_API" /api/v1/health/liveness 200 3 || { echo "deploy: ABORT api not 200 before starting"; exit 1; }
 echo "deploy: pre-checks ok (release $S8 verified, stack healthy, ${FREE} GB free)"
 
@@ -108,6 +122,7 @@ sudo -n tar -tzf "$SNAP" | grep -qx '.env.production' || { echo "deploy: ABORT s
 ABSENT=""; for f in $NEW; do sudo -n test -e "$D/$f" || ABSENT="$ABSENT $f"; done
 echo "deploy: rollback point: images tagged rollback-$TS (${OLDREF[backend]}, ${OLDREF[admin-web]}, ${OLDREF[patient-web]}); files saved"
 
+WORKER_BEFORE=$($DK ps -aq -f name=^nabdah-worker$); MEILI_BEFORE=$($DK ps -aq -f name=^nabdah-meilisearch$)
 rollback() {
   echo "deploy: FAILED at '$1', rolling back"
   # what the new containers said before they are replaced (into the encrypted report only; masked)
@@ -130,8 +145,13 @@ rollback() {
   sudo -n tar -xzf "$SNAP" -C $D
   for f in $ABSENT; do sudo -n rm -f "$D/$f"; done
   for s in $APP_SERVICES; do $DK tag "${OLDIMG[$s]}" "${OLDREF[$s]}"; done
-  $DK rm -f nabdah-worker nabdah-meilisearch >/dev/null 2>&1
-  $COMPOSE_OLD up -d --no-build --no-deps --force-recreate $APP_SERVICES nginx >/dev/null 2>&1
+  # only what this deploy added is removed; a worker or meilisearch that ran before comes back on the old image
+  [ -n "$WORKER_BEFORE" ] || $DK rm -f nabdah-worker >/dev/null 2>&1
+  [ -n "$MEILI_BEFORE" ] || $DK rm -f nabdah-meilisearch >/dev/null 2>&1
+  RB="$COMPOSE_OLD"; sudo -n test -f $D/docker-compose.release.yml && RB="$COMPOSE"
+  RBS="$APP_SERVICES nginx"; [ -n "$WORKER_BEFORE" ] && RBS="$RBS worker"
+  $RB up -d --no-build --no-deps --force-recreate $RBS >/dev/null 2>&1
+  [ -n "$MEILI_BEFORE" ] && $RB up -d --no-build --no-deps meilisearch >/dev/null 2>&1
   local ok=1
   wait_healthy nabdah-backend 48 || ok=0
   for s in $APP_SERVICES; do [ "$($DK inspect -f '{{.Image}}' nabdah-$s)" = "${OLDIMG[$s]}" ] || { echo "deploy: $s is not on its old image"; ok=0; }; done
@@ -225,11 +245,16 @@ $COMPOSE config -q >/dev/null 2>&1 || rollback "compose config invalid"
 if [ "$(health nabdah-clamav)" != healthy ]; then
   MEMAV=$(awk '/^MemAvailable:/{print int($2/1024)}' /proc/meminfo)
   echo "status: deploy clamav=starting mem_available_mb=$MEMAV"
-  [ "${MEMAV:-0}" -ge 1500 ] || rollback "not enough memory for clamav (${MEMAV} MB available)"
-  $COMPOSE up -d --no-build --no-deps clamav >/dev/null 2>&1 || rollback "clamav up"
-  wait_healthy nabdah-clamav 120 || rollback "clamav health"
+  if [ "${MEMAV:-0}" -ge 1500 ]; then
+    $COMPOSE up -d --no-build --no-deps clamav >/dev/null 2>&1 || rollback "clamav up"
+    wait_healthy nabdah-clamav 120 || rollback "clamav health"
+  else
+    # not enough memory: the scanner is not started (the stack ran without it before this deploy too, so uploads stay
+    # refused exactly as before, never accepted unscanned); the owner is told the server needs more memory
+    echo "status: deploy clamav=SKIPPED_LOW_MEMORY mem_available_mb=$MEMAV uploads_refused_until_scanner_runs"
+  fi
 fi
-echo "status: deploy clamav=healthy"
+echo "status: deploy clamav=$(health nabdah-clamav)"
 $COMPOSE up -d --no-build --no-deps meilisearch >/dev/null 2>&1 || rollback "meilisearch up"
 wait_healthy nabdah-meilisearch 24 || rollback "meilisearch health"
 $COMPOSE up -d --no-build --no-deps backend worker >/dev/null 2>&1 || rollback "backend/worker up"
