@@ -64,7 +64,9 @@ async function main() {
     entry.references = references;
     entry.provider_duplicates = providerDuplicates;
 
-    if (APPLY && Object.keys(fill).length) await col.updateOne({ _id: keep._id } as never, { $set: fill });
+    const forced = pair.set_on_kept || {};
+    entry.set_on_kept = Object.keys(forced);
+    if (APPLY && (Object.keys(fill).length || Object.keys(forced).length)) await col.updateOne({ _id: keep._id } as never, { $set: { ...fill, ...forced } });
     const values = [...map.keys()];
     for (const ref of cat.refs) {
       if (!names.has(ref.collection) || !values.length) continue;

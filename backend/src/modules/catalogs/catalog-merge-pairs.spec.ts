@@ -29,6 +29,9 @@ describe('catalog merge pairs (pure)', () => {
     expect(matchesPair({ name_en: 'Comprehensive Health Package', is_package: false }, general)).toBe(false);
     expect(matchesPair({ name_en: 'Comprehensive Health Package', is_package: true, is_deleted: true, merged_into: 'a' }, general)).toBe(false);
   });
+  it('the heart pair puts the kept package in the cardiac category', () => {
+    expect((PAIRS.find((p) => p.id === 'pkg-heart') as MergePair).set_on_kept).toEqual({ category: 'cardiac' });
+  });
   it('keeps the older row, whatever the order', () => {
     const a = { id: 'a', createdAt: new Date('2026-03-01') };
     const b = { id: 'b', createdAt: new Date('2026-01-01') };
@@ -68,6 +71,8 @@ describe('2026-10-catalogue-merge-pairs on a production-shaped database', () => 
       { id: 'pkg-old', short_code: 'PKG_GENERAL', name_ar: 'باقة الصحة العامة', name_en: 'General Wellness Package', is_package: true, included_services: ['CBC'], price: 300, active: true, createdAt: new Date('2026-01-01') },
       { id: 'pkg-new', test_code: 'comprehensive_health_package', name_ar: 'باقة الفحص الشامل', name_en: 'Comprehensive Health Package', is_package: true, included_services: ['CBC', 'LIP'], description_en: 'Full check', price: 350, active: true, createdAt: new Date('2026-05-01') },
       { id: 'lab-cbc', short_code: 'CBC', name_ar: 'تحليل دم شامل', name_en: 'Complete Blood Count', active: true },
+      { id: 'heart-old', short_code: 'PKG_HEART', name_ar: 'باقة صحة القلب', name_en: 'Heart Health Package', is_package: true, category: 'package', active: true, createdAt: new Date('2026-01-02') },
+      { id: 'heart-new', name_ar: 'باقة القلب', name_en: 'Cardiac Package', is_package: true, category: 'cardiac', active: true, createdAt: new Date('2026-05-02') },
     ]);
     await db.collection('labbookings').insertOne({ id: 'bk-1', items: [{ service_id: 'pkg-new' }] });
     await db.collection('nursing_services').insertMany([
@@ -106,6 +111,8 @@ describe('2026-10-catalogue-merge-pairs on a production-shaped database', () => 
     const kept = await db.collection('lab_services').findOne({ id: 'pkg-old' });
     expect(kept?.active).toBe(true);
     expect(kept?.description_en).toBe('Full check');
+    // the removed heart package was the only one in the cardiac category: the kept one takes it over
+    expect((await db.collection('lab_services').findOne({ id: 'heart-old' }))?.category).toBe('cardiac');
     const gone = await db.collection('lab_services').findOne({ id: 'pkg-new' });
     expect(gone).toEqual(expect.objectContaining({ active: false, is_deleted: true, merged_into: 'pkg-old' }));
     expect(await db.collection('archive_lab_services').countDocuments({ id: 'pkg-new', merged_into: 'pkg-old' })).toBe(1);

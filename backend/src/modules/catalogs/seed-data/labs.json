@@ -1612,7 +1612,7 @@
     "short_code": "PKG_HEART",
     "name_ar": "باقة صحة القلب",
     "name_en": "Heart Health Package",
-    "category": "package",
+    "category": "cardiac",
     "sample_type": "blood",
     "price": 289,
     "old_price": 420,

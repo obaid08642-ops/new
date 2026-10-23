@@ -12,6 +12,8 @@ export interface MergePair {
   names_en: string[];
   names_ar: string[];
   codes: string[];
+  /** Fields forced onto the kept row (the removed row carried them and a screen filters on them). */
+  set_on_kept?: Record<string, unknown>;
 }
 
 const text = (v: unknown) => (typeof v === 'string' ? v : '');
