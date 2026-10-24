@@ -5,7 +5,21 @@
  */
 import type { ServiceKind } from "./quote";
 
-export type BasketLine = { id: string; nameAr?: string; nameEn?: string };
+/** The names a line carries in the other website languages (issue 1832). The Arabic and English names stay the fallback. */
+export type LineNames = { ur?: string; hi?: string; bn?: string; fil?: string };
+export type BasketLine = { id: string; nameAr?: string; nameEn?: string; names?: LineNames };
+const NAME_LOCALES = ["ur", "hi", "bn", "fil"] as const;
+
+/** Keeps only the non-empty string names of the known locales. */
+export function cleanNames(v: unknown): LineNames | undefined {
+  if (!v || typeof v !== "object") return undefined;
+  const out: LineNames = {};
+  for (const l of NAME_LOCALES) {
+    const x = (v as Record<string, unknown>)[l];
+    if (typeof x === "string" && x.trim()) out[l] = x;
+  }
+  return Object.keys(out).length ? out : undefined;
+}
 export type Basket = Record<ServiceKind, BasketLine[]>;
 
 export const BASKET_KEY = "nabd_ordering_basket_v1";
@@ -17,7 +31,8 @@ export const emptyBasket = (): Basket => ({ lab: [], radiology: [], nursing: [] 
 
 export function addLine(basket: Basket, kind: ServiceKind, line: BasketLine): Basket {
   if (!ID.test(line.id) || basket[kind].some((l) => l.id === line.id) || basket[kind].length >= MAX_BASKET_ITEMS) return basket;
-  return { ...basket, [kind]: [...basket[kind], { id: line.id, nameAr: line.nameAr, nameEn: line.nameEn }] };
+  const names = cleanNames(line.names);
+  return { ...basket, [kind]: [...basket[kind], { id: line.id, nameAr: line.nameAr, nameEn: line.nameEn, ...(names ? { names } : {}) }] };
 }
 
 export const removeLine = (basket: Basket, kind: ServiceKind, id: string): Basket =>
@@ -35,7 +50,8 @@ export function parseBasket(raw: string | null): Basket {
       for (const r of rows) {
         const x = r as Record<string, unknown>;
         if (x && typeof x.id === "string" && ID.test(x.id) && !out[kind].some((l) => l.id === x.id) && out[kind].length < MAX_BASKET_ITEMS) {
-          out[kind].push({ id: x.id, nameAr: typeof x.nameAr === "string" ? x.nameAr : undefined, nameEn: typeof x.nameEn === "string" ? x.nameEn : undefined });
+          const names = cleanNames(x.names);
+          out[kind].push({ id: x.id, nameAr: typeof x.nameAr === "string" ? x.nameAr : undefined, nameEn: typeof x.nameEn === "string" ? x.nameEn : undefined, ...(names ? { names } : {}) });
         }
       }
     }
