@@ -4,7 +4,9 @@
  * returned with `status: 'review'` and the reasons, for the admin's review queue.
  */
 import {
-  DOSAGE_FORMS, DosageForm, FORM_INDEX, IGNORE_INDEX, INN_ENTRIES, INN_INDEX, INN_PARENT, INN_TABLE_VERSION, LEAFLET_MARKERS, matchPhrase, MODIFIER_INDEX, normalizeText, Route, ROUTE_BY_FORM, ROUTE_INDEX, ROUTES, STORAGE_MARKERS, STRENGTH_UNITS, StrengthUnit, tokenize, UNIT_INDEX, WARNING_MARKERS,
+  DOSAGE_FORMS, DosageForm, FORM_INDEX, IGNORE_INDEX, INN_ENTRIES, INN_INDEX, INN_PARENT, INN_TABLE_VERSION, LEAFLET_MARKERS, MODIFIER_INDEX,
+  ROUTES, ROUTE_BY_FORM, ROUTE_INDEX, Route, STORAGE_MARKERS, STRENGTH_UNITS, StrengthUnit, UNIT_INDEX, WARNING_MARKERS, matchPhrase,
+  normalizeText, tokenize,
 } from './inn-normalization';
 
 export const INGREDIENTS_PARSER_VERSION = `p1/${INN_TABLE_VERSION}`;
@@ -287,6 +289,50 @@ export const INGREDIENTS_SCOPE_FILTER = { category: { $in: [...INGREDIENTS_SCOPE
 
 export function inIngredientsScope(row: { category?: unknown }): boolean {
   return typeof row.category === 'string' && (INGREDIENTS_SCOPE_CATEGORIES as readonly string[]).includes(row.category.trim());
+}
+
+const KNOWN_INNS = new Set(INN_ENTRIES.map((e) => e.inn));
+
+export type ReviewedIngredientsPatch = {
+  ingredients?: Ingredient[];
+  dosage_form?: DosageForm;
+  route?: Route;
+};
+
+/**
+ * Issue 1556 (PR 2): the admin's reviewed values for a queued row, checked against the closed lists (INN table, dosage forms,
+ * routes, strength units). Nothing is accepted that is not in those lists, and nothing is guessed: a row the admin does not
+ * fill in is not written.
+ */
+export function checkReviewedIngredients(input: unknown): { ok: true; patch: ReviewedIngredientsPatch } | { ok: false; error: string } {
+  if (!input || typeof input !== 'object') return { ok: false, error: 'the reviewed values are required' };
+  const src = input as Record<string, unknown>;
+  const patch: ReviewedIngredientsPatch = {};
+  if (src.ingredients !== undefined) {
+    if (!Array.isArray(src.ingredients) || src.ingredients.length === 0) return { ok: false, error: 'ingredients must be a non-empty list' };
+    const ingredients: Ingredient[] = [];
+    for (const raw of src.ingredients) {
+      const i = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+      if (typeof i.inn !== 'string' || !KNOWN_INNS.has(i.inn)) return { ok: false, error: `unknown INN: ${String(i.inn)}` };
+      const value = i.strength_value ?? null;
+      const unit = i.strength_unit ?? null;
+      if (value !== null && (typeof value !== 'number' || !Number.isFinite(value) || value <= 0)) return { ok: false, error: `strength value for ${i.inn} must be a positive number or null` };
+      if (unit !== null && !(STRENGTH_UNITS as readonly unknown[]).includes(unit)) return { ok: false, error: `unknown strength unit for ${i.inn}` };
+      if ((value === null) !== (unit === null)) return { ok: false, error: `strength value and unit for ${i.inn} must both be set or both null` };
+      ingredients.push({ inn: i.inn, strength_value: value as number | null, strength_unit: unit as StrengthUnit | null });
+    }
+    patch.ingredients = ingredients;
+  }
+  if (src.dosage_form !== undefined && src.dosage_form !== null) {
+    if (!(DOSAGE_FORMS as readonly unknown[]).includes(src.dosage_form)) return { ok: false, error: 'unknown dosage form' };
+    patch.dosage_form = src.dosage_form as DosageForm;
+  }
+  if (src.route !== undefined && src.route !== null) {
+    if (!(ROUTES as readonly unknown[]).includes(src.route)) return { ok: false, error: 'unknown route' };
+    patch.route = src.route as Route;
+  }
+  if (Object.keys(patch).length === 0) return { ok: false, error: 'nothing to apply' };
+  return { ok: true, patch };
 }
 
 /** Issue 1556 (PR 3): the closed lists the admin's review form offers. Read-only, the same lists the checker accepts. */

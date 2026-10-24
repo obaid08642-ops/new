@@ -124,7 +124,7 @@ export class PharmacyOrder extends Document {
   @Prop() cod_idempotency_key?: string;
   @Prop({ type: Object }) insurance_decision?: Record<string, any>;
   @Prop() insurance_rejection_cancellation_key?: string;
-  @Prop({ type: Object }) delivery?: { method?: string; courier_name?: string; courier_phone?: string; courier_eta?: Date; dispatched_at?: Date; delivered_at?: Date };
+  @Prop({ type: Object }) delivery?: { method?: string; courier_name?: string; courier_phone?: string; courier_vehicle?: string; courier_eta?: Date; dispatched_at?: Date; delivered_at?: Date };
   @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
   @Prop({ required: true, index: true }) patient_account_id: string;
   @Prop({ required: true, default: PharmacyOrderState.DRAFT, enum: Object.values(PharmacyOrderState), index: true }) status: PharmacyOrderState;
@@ -298,6 +298,7 @@ export class PharmacyAllocation extends Document {
     method?: 'pharmacy_delivery' | 'pickup';
     courier_name?: string;
     courier_phone?: string;
+    courier_vehicle?: string;
     eta?: Date;
     delivered_at?: Date;
   };

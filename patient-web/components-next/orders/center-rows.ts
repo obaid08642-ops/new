@@ -3,7 +3,7 @@ import { extractDiagnosticBookings } from "@/lib/api/diagnostics";
 import { extractNursingVisits } from "@/lib/api/nursing-visits";
 import { isPast, modeOf, statusKey as appointmentStatusKey, statusTone as appointmentTone } from "@/lib/consult/appointment-view";
 import { diagnosticBookingHref } from "@/lib/diagnostics-links";
-import { isPrevious, orderAction, orderNumber, type OrderAction, type OrderRow } from "@/lib/pharmacy/order-view";
+import { isPrevious, orderAction, orderNumber, parseLegacyOrderRows, type OrderAction, type OrderRow } from "@/lib/pharmacy/order-view";
 import { pickText } from "@/components-next/diagnostics/diag-parts";
 import { diagStatus } from "@/components-next/diagnostics/status";
 import { nursingStatus } from "@/components-next/nursing/nursing-parts";
@@ -99,6 +99,15 @@ export function pharmacyRows(locale: string, orders: OrderRow[], l: CenterLabels
       itemsText: row.total === undefined && row.itemCount !== undefined ? l.orders("itemsCount", { count: row.itemCount }) : undefined,
       action: { href: actionHref(locale, row.id, action), label: l.orders(`action.${action}`) },
     };
+  });
+}
+
+/** The orders of the old flow (GET /orders/mine), listed like the app's order center does: they open the tracking screen. */
+export function legacyOrderRows(locale: string, payload: unknown, l: CenterLabels): CenterRow[] {
+  return pharmacyRows(locale, parseLegacyOrderRows(payload), l).map((row) => {
+    const id = row.key.slice("pharmacy-".length);
+    const tracking = `/${locale}/orders/${encodeURIComponent(id)}/tracking`;
+    return { ...row, key: `legacy-${id}`, href: tracking, action: { href: tracking, label: l.orders("action.track") } };
   });
 }
 

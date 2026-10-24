@@ -6,7 +6,7 @@ import { SERVICE_ICONS, type FillIconName, type ServiceTone } from "@/components
  */
 export type Mode = "video" | "clinic" | "home";
 
-export const KNOWN_STATUSES = ["pending", "pending_payment", "confirmed", "scheduled", "rescheduled", "en_route", "arrived", "checked_in", "in_progress", "completed", "cancelled", "no_show"] as const;
+export const KNOWN_STATUSES = ["pending", "pending_payment", "pending_copay", "confirmed", "scheduled", "rescheduled", "en_route", "arrived", "checked_in", "in_progress", "completed", "cancelled", "no_show"] as const;
 export type KnownStatus = (typeof KNOWN_STATUSES)[number];
 
 const norm = (status?: string) => (status ?? "").toLowerCase();
@@ -30,11 +30,11 @@ export const MODE_VISUAL: Record<Mode, { icon: FillIconName; tone: ServiceTone }
 
 /** Booked, waiting for a decision or payment, or under way: what the "upcoming" tab lists (every status is in one tab). */
 // The same tab buckets as the app (patient-app/src/utils/appointmentTabs.ts UPCOMING): a rescheduled or en-route visit is upcoming.
-export const isUpcoming = (status?: string) => ["confirmed", "pending", "pending_payment", "scheduled", "rescheduled", "en_route", "arrived", "checked_in", "in_progress"].includes(norm(status));
+export const isUpcoming = (status?: string) => ["confirmed", "pending", "pending_payment", "pending_copay", "scheduled", "rescheduled", "en_route", "arrived", "checked_in", "in_progress"].includes(norm(status));
 /** Finished or closed, including a missed visit: what the "past" tab lists. */
 export const isPast = (status?: string) => ["completed", "cancelled", "no_show"].includes(norm(status));
 /** A visit that can still change: cancel, reschedule, the booking status. */
-export const isOpen = (status?: string) => ["pending", "pending_payment", "confirmed", "scheduled"].includes(norm(status));
+export const isOpen = (status?: string) => ["pending", "pending_payment", "pending_copay", "confirmed", "scheduled"].includes(norm(status));
 /** The call or visit can be entered now. */
 export const isJoinable = (status?: string) => ["confirmed", "scheduled", "in_progress", "checked_in"].includes(norm(status));
 export const isDone = (status?: string) => ["completed", "complete", "finished", "done"].includes(norm(status));

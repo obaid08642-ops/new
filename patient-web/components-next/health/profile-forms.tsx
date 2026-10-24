@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { useSheetClose } from "./form-sheet";
-import type { ProfileBasics, ProfileItem, ProfileListKey } from "@/lib/health/profile";
+import { BLOOD_TYPES, type Gender, type ProfileBasics, type ProfileItem, type ProfileListKey } from "@/lib/health/profile";
+import { Toggle } from "@/components-next/ui-generated/components/Controls";
 import styles from "./health.module.css";
 import forms from "@/components-next/consult/consult.module.css";
 
@@ -82,27 +83,35 @@ export function ProfileList({ list, title, initial }: { list: ProfileListKey; ti
 
 const toNumber = (value: string) => (value.trim() ? Number(value) : undefined);
 
-/** Edit the basics (height, weight, blood type): PATCH /api/medical-profile, the call the profile edit form makes. */
+const GENDERS: readonly Gender[] = ["unspecified", "female", "male"];
+
+/**
+ * Edit the basics as the app does (PATCH /api/medical-profile): the nine blood-type chips, height, weight with their range
+ * checks, the gender choice and the three switches (pregnant, breastfeeding, smoker).
+ */
 export function BasicsForm({ initial }: { initial: ProfileBasics }) {
   const t = useTranslations("HealthWeb");
   const router = useRouter();
   const close = useSheetClose();
   const [height, setHeight] = useState(initial.heightCm !== undefined ? String(initial.heightCm) : "");
   const [weight, setWeight] = useState(initial.weightKg !== undefined ? String(initial.weightKg) : "");
-  const [blood, setBlood] = useState(initial.bloodType ?? "");
+  const [blood, setBlood] = useState<string>(initial.bloodType && (BLOOD_TYPES as readonly string[]).includes(initial.bloodType) ? initial.bloodType : "unknown");
+  const [gender, setGender] = useState<Gender>(initial.gender ?? "unspecified");
+  const [pregnant, setPregnant] = useState(initial.isPregnant === true);
+  const [breastfeeding, setBreastfeeding] = useState(initial.isBreastfeeding === true);
+  const [smoker, setSmoker] = useState(initial.isSmoker === true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setError(null);
-    const payload: Record<string, unknown> = {};
     const h = toNumber(height);
     const w = toNumber(weight);
     if ((h !== undefined && (!Number.isFinite(h) || h < 30 || h > 300)) || (w !== undefined && (!Number.isFinite(w) || w < 2 || w > 1000))) { setError(t("basicsInvalid")); return; }
+    const payload: Record<string, unknown> = { blood_type: blood, gender, is_pregnant: pregnant, is_breastfeeding: breastfeeding, is_smoker: smoker };
     if (h !== undefined) payload.height_cm = h;
     if (w !== undefined) payload.weight_kg = w;
-    if (blood.trim()) payload.blood_type = blood.trim().slice(0, 8);
     setSaving(true);
     try {
       const res = await fetch("/api/medical-profile", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
@@ -116,8 +125,21 @@ export function BasicsForm({ initial }: { initial: ProfileBasics }) {
     }
   }
 
+  const switches = [
+    { key: "pregnant", label: t("basicsPregnant"), value: pregnant, set: setPregnant },
+    { key: "breastfeeding", label: t("basicsBreastfeeding"), value: breastfeeding, set: setBreastfeeding },
+    { key: "smoker", label: t("basicsSmoker"), value: smoker, set: setSmoker },
+  ];
   return (
     <form onSubmit={onSubmit} className={forms.stack} noValidate>
+      <div className={forms.field} role="group" aria-label={t("basicsBlood")}>
+        <span className={forms.label}>{t("basicsBlood")}</span>
+        <div className={forms.choices}>
+          {BLOOD_TYPES.map((type) => (
+            <button key={type} type="button" className={forms.choice} aria-pressed={blood === type} onClick={() => setBlood(type)}>{type === "unknown" ? t("basicsUnknown") : <bdi>{type}</bdi>}</button>
+          ))}
+        </div>
+      </div>
       <label className={forms.field}>
         <span className={forms.label}>{t("basicsHeight")}</span>
         <input className={forms.control} value={height} onChange={(event) => setHeight(event.target.value)} inputMode="decimal" maxLength={6} dir="ltr" />
@@ -126,10 +148,23 @@ export function BasicsForm({ initial }: { initial: ProfileBasics }) {
         <span className={forms.label}>{t("basicsWeight")}</span>
         <input className={forms.control} value={weight} onChange={(event) => setWeight(event.target.value)} inputMode="decimal" maxLength={6} dir="ltr" />
       </label>
-      <label className={forms.field}>
-        <span className={forms.label}>{t("basicsBlood")}</span>
-        <input className={forms.control} value={blood} onChange={(event) => setBlood(event.target.value)} maxLength={8} dir="ltr" />
-      </label>
+      <div className={forms.field} role="group" aria-label={t("basicsGender")}>
+        <span className={forms.label}>{t("basicsGender")}</span>
+        <div className={forms.choices}>
+          {GENDERS.map((value) => (
+            <button key={value} type="button" className={forms.choice} aria-pressed={gender === value} onClick={() => setGender(value)}>{t(`gender.${value}`)}</button>
+          ))}
+        </div>
+      </div>
+      <div className={forms.field} role="group" aria-label={t("basicsOptional")}>
+        <span className={forms.label}>{t("basicsOptional")}</span>
+        {switches.map((item) => (
+          <div key={item.key} className={styles.toggleRow}>
+            <span>{item.label}</span>
+            <Toggle label={item.label} value={item.value} onChange={item.set} />
+          </div>
+        ))}
+      </div>
       {error ? <p className={forms.error} role="alert">{error}</p> : null}
       <Button type="submit" label={t("basicsSave")} loading={saving} fullWidth />
     </form>
