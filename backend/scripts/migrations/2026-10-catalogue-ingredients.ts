@@ -1,6 +1,6 @@
 // Issue 1556: structured ingredients / dosage_form / route for catalogue medicines, parsed from the stored text.
-// DRY-RUN ONLY for now (owner, 2026-10-16): the review session's field-by-field data report on issue 1556 comes
-// first; until then this script reads and reports, and writes nothing. The write mode is added once the rules are final.
+// Dry run by default: reads and reports, writes nothing. --queue (issue 1556 PR 2) writes pending admin review requests for
+// rows the parser cannot read with confidence, on a test database only. No mode writes a medicine: an admin approves each row.
 //
 // Prints coverage before and the projected coverage after, per field, and the rows that would go to the admin's
 // review queue (catalog_change_requests, type ingredients_review) with their reason.
@@ -12,6 +12,7 @@
 //   npx ts-node --transpile-only scripts/migrations/2026-10-catalogue-ingredients.ts --fixture=<rows.json>   (a JSON array of catalogue rows)
 //   add --samples=N to print N example rows per outcome.
 import fs from 'fs';
+import { randomUUID } from 'crypto';
 import mongoose from 'mongoose';
 import {
   INGREDIENTS_PARSER_VERSION, INGREDIENTS_SCOPE_CATEGORIES, INGREDIENTS_SCOPE_FILTER, ParseResult, inIngredientsScope, parseCatalogueRow,
@@ -24,6 +25,19 @@ if (process.argv.includes('--apply')) {
 }
 const FIXTURE = arg('fixture');
 const SAMPLES = Number(arg('samples') || 0);
+
+// --queue (issue 1556 PR 2): writes one pending `ingredients_review` change request per row the parser cannot read with
+// confidence, into the admin queue. It never writes a medicine: the value is written only when an admin approves it.
+// Guards: ALLOW_INGREDIENT_QUEUE=1, an explicit DB_NAME (not the default), a name without "prod", and no fixture.
+const QUEUE = process.argv.includes('--queue');
+if (QUEUE) {
+  const dbName = process.env.DB_NAME || '';
+  if (process.env.ALLOW_INGREDIENT_QUEUE !== '1') { console.error('--queue needs ALLOW_INGREDIENT_QUEUE=1'); process.exit(2); }
+  if (!dbName || dbName === 'nabd' || /prod/i.test(dbName) || /prod/i.test(process.env.MONGODB_URI || process.env.MONGO_URL || '')) {
+    console.error('--queue refuses this database: set DB_NAME to a test database (never the default or production)'); process.exit(2);
+  }
+  if (FIXTURE) { console.error('--queue cannot be combined with --fixture'); process.exit(2); }
+}
 
 type Row = Record<string, any>;
 
@@ -44,6 +58,32 @@ async function* rows(): AsyncGenerator<Row> {
   await mongoose.connect(process.env.MONGODB_URI || process.env.MONGO_URL || 'mongodb://127.0.0.1:27017', { dbName: process.env.DB_NAME || 'nabd' });
   const cur = mongoose.connection.collection('medicines').find({ is_deleted: { $ne: true }, ...INGREDIENTS_SCOPE_FILTER }).sort({ _id: 1 }).batchSize(500);
   for await (const r of cur) yield r as Row;
+}
+
+let queued = 0;
+let alreadyQueued = 0;
+
+/** One pending review request per medicine (no second one while the first is open). */
+async function queueReview(r: Row, p: ParseResult) {
+  const requests = mongoose.connection.collection('catalog_change_requests');
+  const open = await requests.findOne({ medicine_id: r.id, type: 'ingredients_review', status: 'pending' }, { projection: { _id: 1 } });
+  if (open) { alreadyQueued += 1; return; }
+  const now = new Date();
+  await requests.insertOne({
+    id: randomUUID(),
+    type: 'ingredients_review',
+    medicine_id: r.id,
+    medicine_name: r.name_ar || r.name_en || null,
+    changes: { dosage_form: p.dosage_form, route: p.route, ingredients: [] },
+    current_values: { active_ingredient: r.active_ingredient ?? null, generic_name: r.generic_name ?? null, strength: r.strength ?? null, form: r.form ?? null },
+    note: `parser: ${p.reasons.join(', ') || 'no ingredient found'}`,
+    reporter_id: 'ingredients-migration',
+    reporter_role: 'system',
+    status: 'pending',
+    createdAt: now,
+    updatedAt: now,
+  });
+  queued += 1;
 }
 
 async function run() {
@@ -78,12 +118,13 @@ async function run() {
     if (p.leaflet) { after.leaflets_to_move += 1; after.active_ingredient -= 1; }
     if (p.status === 'none' && !r.active_ingredient && !r.generic_name) after.no_source += 1;
     for (const reason of p.reasons) after.reasons[reason] = (after.reasons[reason] || 0) + 1;
+    if (QUEUE && p.status === 'review') await queueReview(r, p);
     const key = p.status === 'review' ? `review:${p.reasons.join('+')}` : p.status;
     if (SAMPLES && (samples[key] ||= []).length < SAMPLES) {
       samples[key].push({ id: r.id, active_ingredient: String(r.active_ingredient || '').slice(0, 120), strength: r.strength, form: r.form, ingredients: p.ingredients, dosage_form: p.dosage_form, route: p.route, unknown: p.unknown });
     }
   }
-  console.log(JSON.stringify({ mode: 'dry-run', parser: INGREDIENTS_PARSER_VERSION, source: FIXTURE ? `fixture ${FIXTURE}` : `db ${process.env.DB_NAME || 'nabd'}`, scope: INGREDIENTS_SCOPE_CATEGORIES, out_of_scope_skipped: FIXTURE ? outOfScope : 'filtered in the query', before, after_projected: after }, null, 1));
+  console.log(JSON.stringify({ mode: QUEUE ? 'queue' : 'dry-run', queued, already_queued: alreadyQueued, parser: INGREDIENTS_PARSER_VERSION, source: FIXTURE ? `fixture ${FIXTURE}` : `db ${process.env.DB_NAME || 'nabd'}`, scope: INGREDIENTS_SCOPE_CATEGORIES, out_of_scope_skipped: FIXTURE ? outOfScope : 'filtered in the query', before, after_projected: after }, null, 1));
   if (SAMPLES) console.log(JSON.stringify(samples, null, 1));
 }
 

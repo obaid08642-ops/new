@@ -9,6 +9,7 @@ import { ConsultState } from "@/components-next/consult/consult-state";
 import { Notice } from "@/components-next/consult/consult-parts";
 import { FlushCard, Group } from "@/components-next/settings/settings-kit";
 import { SessionList } from "@/components-next/settings/session-list";
+import { ChangePasswordForm, TwoFactorToggle } from "@/components-next/settings/security-forms";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { OFFER_TONES } from "@/components-next/pharmacy-offers/tones";
 import styles from "@/components-next/settings/settings.module.css";
@@ -16,8 +17,7 @@ import styles from "@/components-next/settings/settings.module.css";
 type Props = { params: Promise<{ locale: string }> };
 
 /**
- * `/settings/security` (merge map section 3): the security settings the server reports (biometric sign-in, two-factor;
- * read-only here) and the active sessions, each with a sign-out. A failed sessions read is said in place; the screen needs
+ * `/settings/security` (merge map section 3): the security settings the server reports (biometric sign-in read-only, two-factor a switch), the change-password form and the active sessions, each with a sign-out. A failed sessions read is said in place; the screen needs
  * the settings themselves.
  */
 export default async function SettingsSecurityPage({ params }: Props) {
@@ -59,9 +59,10 @@ export default async function SettingsSecurityPage({ params }: Props) {
             <span className={styles.itemTitle}>{t("twoFactor")}</span>
             <span className={styles.itemSub}>{t("twoFactorSub")}</span>
           </span>
-          {chip(security.twoFactor)}
+          {security.twoFactor === undefined ? chip(undefined) : <TwoFactorToggle initial={security.twoFactor} />}
         </div>
       </FlushCard>
+      <FlushCard label={t("changePasswordTitle")}><div className={styles.itemRow}><ChangePasswordForm /></div></FlushCard>
       <Notice>{t("securityNote")}</Notice>
       <Group id="sessions" title={t("sessionsTitle")}>
         {sessions === null ? <Notice warn>{t("sessionsUnavailable")}</Notice>
