@@ -18,16 +18,19 @@ const TYPES = [
 ] as const;
 
 type TypeKey = (typeof TYPES)[number]["key"];
+const CONTEXTS = ["morning", "afternoon", "evening"] as const;
+const isTypeKey = (value: string | undefined): value is TypeKey => TYPES.some((item) => item.key === value);
 
 /**
  * "Add reading" (the old vitals log form, now in a sheet): the same payload to the same endpoint (POST /api/health/vitals).
  * On success it closes the sheet and reloads the screen's readings.
  */
-export function VitalsForm() {
+export function VitalsForm({ defaultType }: { defaultType?: string }) {
   const t = useTranslations("HealthWeb");
   const router = useRouter();
   const close = useSheetClose();
-  const [type, setType] = useState<TypeKey>("bp");
+  const [type, setType] = useState<TypeKey>(isTypeKey(defaultType) ? defaultType : "bp");
+  const [context, setContext] = useState<(typeof CONTEXTS)[number]>("morning");
   const [primary, setPrimary] = useState("");
   const [secondary, setSecondary] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +40,7 @@ export function VitalsForm() {
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setError(null);
-    const payload: Record<string, unknown> = { type, unit: meta?.unit };
+    const payload: Record<string, unknown> = { type, unit: meta?.unit, context, source: "manual" };
     if (type === "bp") {
       const systolic = Number(primary);
       const diastolic = Number(secondary);
@@ -88,6 +91,14 @@ export function VitalsForm() {
           <input className={forms.control} value={primary} onChange={(event) => setPrimary(event.target.value)} inputMode="decimal" required dir="ltr" />
         </label>
       )}
+      <div className={forms.field} role="group" aria-label={t("readingWhen")}>
+        <span className={forms.label}>{t("readingWhen")}</span>
+        <div className={forms.choices}>
+          {CONTEXTS.map((key) => (
+            <button key={key} type="button" className={forms.choice} aria-pressed={context === key} onClick={() => setContext(key)}>{t(`ctx.${key}`)}</button>
+          ))}
+        </div>
+      </div>
       {error ? <p className={forms.error} role="alert">{error}</p> : null}
       <Button type="submit" label={t("saveReading")} loading={saving} fullWidth />
     </form>

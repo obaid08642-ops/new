@@ -85,7 +85,7 @@ export default async function MedicationsPage({ params, searchParams }: Props) {
   );
 
   if (!response.ok) return frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
-  const empty = (body: string) => <ConsultState kind="empty" icon="pill" title={t("medicationsTitle")} body={body} />;
+  const empty = (body: string) => <ConsultState kind="empty" icon="pill" title={t("medicationsTitle")} body={body} actionLabel={t("reminderAdd")} actionHref={`${base}?tab=all&add=1`} />;
   const medicineName = (name?: string) => name ?? t("medicineUnavailable");
   const freq = (value: string) => (["daily", "weekly", "as_needed"].includes(value) ? t(`frequency.${value}`) : value);
 
@@ -104,11 +104,13 @@ export default async function MedicationsPage({ params, searchParams }: Props) {
   }
 
   if (tab === "all" || tab === "refills") {
-    if (reminders.length === 0) return frame(empty(tab === "all" ? t("remindersEmpty") : t("refillsEmpty")));
+    // the refills tab lists the chronic reminders only (as the app does)
+    const listed = tab === "refills" ? reminders.filter((reminder) => reminder.chronic) : reminders;
+    if (listed.length === 0) return frame(empty(tab === "all" ? t("remindersEmpty") : t("refillsEmpty")));
     return frame(
       <>
         <RowsCard label={tab === "all" ? t("medsAll") : t("medsRefills")}>
-          {reminders.map((reminder) => (
+          {listed.map((reminder) => (
             <li key={reminder.id}>
               <div className={styles.row}>
                 <FIcon icon={pharmacy.icon} tone={pharmacy.tone} size={40} />

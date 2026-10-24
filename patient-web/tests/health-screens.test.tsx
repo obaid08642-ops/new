@@ -47,7 +47,7 @@ import { FormSheet } from "@/components-next/health/form-sheet";
 import { HealthTabs } from "@/components-next/health/health-kit";
 import { todayDoses } from "@/lib/health/doses";
 import { familyContacts, profileItems } from "@/lib/health/profile";
-import { extractReports, extractTimeline } from "@/lib/health/records";
+import { extractProviderReports, extractReports, extractTimeline } from "@/lib/health/records";
 import { isFlag, pickTab } from "@/lib/health/view";
 
 const TOKEN = "server-only-health-token";
@@ -197,8 +197,12 @@ describe("medications: four tabs and a sheet", () => {
   });
 
   it("refills offer a refill for each reminder, chronic reads its own endpoint, and no reminders is an empty state", async () => {
-    backend({ "/health/reminders": { reminders: [reminder] }, "/health/chronic-meds": [{ id: REMINDER, name: "Metformin", active: true, needs_refill_soon: true, days_until_refill: 3 }] });
+    backend({ "/health/reminders": { reminders: [{ ...reminder, chronic: true }] }, "/health/chronic-meds": [{ id: REMINDER, name: "Metformin", active: true, needs_refill_soon: true, days_until_refill: 3 }] });
     expect(render(await MedicationsPage(page({ tab: "refills" })))).toContain("Request refill");
+    // only chronic reminders are refillable (as in the app): a plain reminder gives the empty state with the way to add one
+    backend({ "/health/reminders": { reminders: [reminder] }, "/health/chronic-meds": [] });
+    expect(render(await MedicationsPage(page({ tab: "refills" })))).not.toContain("Request refill");
+    backend({ "/health/reminders": { reminders: [{ ...reminder, chronic: true }] }, "/health/chronic-meds": [{ id: REMINDER, name: "Metformin", active: true, needs_refill_soon: true, days_until_refill: 3 }] });
     const chronic = render(await MedicationsPage(page({ tab: "chronic" })));
     expect(chronic).toContain("Metformin");
     expect(chronic).toContain("Refill soon");
@@ -335,6 +339,9 @@ describe("the shared pieces", () => {
     expect(familyContacts({ data: [{ user_id: "u", display_name: "Omar", phone: "+966507654321" }, { phone: "x" }] })).toEqual([{ id: "u", name: "Omar", relation: undefined, maskedPhone: "•••••••••4321" }]);
     expect(extractReports([{ id: "r", title_ar: "عنوان", title_en: "Title" }], "en")[0].title).toBe("Title");
     expect(extractReports([{ id: "r", title_ar: "عنوان", title_en: "Title" }], "ar")[0].title).toBe("عنوان");
+    // the kind, the critical flag and the unread flag the Reports tab draws
+    expect(extractReports([{ id: "r", lab_booking_id: "l", critical: true, viewed_by_patient: false }, { id: "q", radiology_booking_id: "x" }, { id: "n" }], "en").map((r) => [r.kind, r.critical, r.unread])).toEqual([["lab", true, true], ["radiology", false, false], ["notes", false, false]]);
+    expect(extractProviderReports({ data: [{ id: "p", title: "Scan", doctor: "Dr A", critical: true, has_attachments: true }, { title: "no id" }] })).toEqual([{ id: "p", title: "Scan", type: undefined, doctor: "Dr A", facility: undefined, date: undefined, critical: true, hasAttachments: true }]);
     expect(extractTimeline({ events: [{ id: "e", kind: "lab", created_at: "2026-08-20" }] })[0]).toMatchObject({ type: "lab", date: "2026-08-20" });
   });
 
