@@ -44,7 +44,7 @@ describe('doctors: gender and price filters, is_online, reviews', () => {
   it('the detail shows published ratings with the reviewer first name only, and is_online', async () => {
     const { svc } = make({ ratings: [{ score: 5, comment: 'Great', user_name: 'Huda Al-Otaibi', createdAt: new Date('2026-10-01'), user_id: 'secret', entity_id: 'booking-9' }], online: ['a1'] });
     const out = await svc.doctorById('d1');
-    expect(out.reviews_data).toEqual([{ rating: 5, text: 'Great', date: new Date('2026-10-01'), reviewer: 'Huda' }]);
+    expect(out.reviews_data).toEqual([{ rating: 5, text: 'Great', date: new Date('2026-10-01'), reviewer: 'Huda A.', sub_ratings: null }]);
     expect(JSON.stringify(out)).not.toMatch(/secret|booking-9|Otaibi/);
     expect(out.is_online).toBe(true);
   });
