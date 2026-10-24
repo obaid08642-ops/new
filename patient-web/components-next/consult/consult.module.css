@@ -216,7 +216,7 @@ textarea.control { resize: vertical; line-height: 1.6; overflow-wrap: anywhere; 
 
 /* ---- the richer doctor card and page (2026-10-24): fact chips, written reviews, services, the clinic map ---- */
 .docFacts { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; min-inline-size: 0; }
-.docFact { display: inline-flex; align-items: center; min-block-size: 28px; padding-inline: 10px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-sunken); color: var(--nabd-color-text-secondary); font-size: var(--nabd-font-size-label); overflow-wrap: anywhere; }
+.docFact { display: inline-flex; align-items: center; min-block-size: 28px; padding-inline: 10px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-sunken); color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-label); overflow-wrap: anywhere; }
 .reviewList { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; min-inline-size: 0; }
 .review { display: flex; flex-direction: column; gap: 4px; padding-block-end: 12px; border-block-end: 1px solid var(--nabd-color-border-subtle); min-inline-size: 0; }
 .review:last-child { padding-block-end: 0; border-block-end: 0; }
