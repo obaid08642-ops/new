@@ -476,7 +476,11 @@ export class AppointmentsService {
         if (to === APPT_STATES.CONFIRMED) appt.confirmed_at = new Date();
         if (to === APPT_STATES.COMPLETED) appt.completed_at = new Date();
         await appt.save();
-        this.events.emit(`appointment.${to.toLowerCase()}`, { id, actor: actor.id });
+        // The consultation start also carries what the loyalty "guaranteed appointment" credit needs (slot, check-in, start).
+        const stamp = (state: string) => (appt.state_history as any[]).filter((h) => h?.state === state).map((h) => h.at)[0] ?? null;
+        this.events.emit(`appointment.${to.toLowerCase()}`, to === APPT_STATES.IN_PROGRESS
+          ? { id, actor: actor.id, patient_id: appt.patient_id, service_type: appt.service_type, slot_start: appt.slot_start, checked_in_at: stamp(APPT_STATES.CHECKED_IN), started_at: stamp(APPT_STATES.IN_PROGRESS) }
+          : { id, actor: actor.id });
         return appt.toObject();
       },
     });
