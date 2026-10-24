@@ -4,7 +4,7 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
 import { extractAppointmentDetail } from "@/lib/api/appointments";
-import { APPOINTMENT_ID, MODE_VISUAL, modeOf } from "@/lib/consult/appointment-view";
+import { APPOINTMENT_ID, MODE_VISUAL, isOpen, modeOf } from "@/lib/consult/appointment-view";
 import { AppointmentActions } from "@/components-next/appointment-actions";
 import { AppointmentRescheduleForm } from "@/components-next/appointment-reschedule-form";
 import { ConsultPage } from "@/components-next/consult/consult-page";
@@ -25,6 +25,7 @@ export default async function ConsultationCancelReschedulePage({ params, searchP
   setRequestLocale(locale);
   const c = await getTranslations("ConsultWeb");
   const a = await getTranslations("Appointments");
+  const b = await getTranslations("BookConsultation");
   const token = await requirePatientAccess(locale);
   const response = await callPatientApi(`/care/appointments/${encodeURIComponent(appointmentId)}`, {}, token);
   if (response.status === 401) redirect(`/${locale}/login`);
@@ -32,6 +33,8 @@ export default async function ConsultationCancelReschedulePage({ params, searchP
   const appointment = extractAppointmentDetail(await response.json().catch(() => null));
   if (!appointment) notFound();
 
+  // Only an open appointment can change; a finished or cancelled one opened by its link goes back to its page.
+  if (!isOpen(appointment.status)) redirect(`/${locale}/appointments/${encodeURIComponent(appointmentId)}`);
   const slotMs = appointment.slotStart ? Date.parse(appointment.slotStart) : NaN;
   const hoursUntil = Number.isFinite(slotMs) ? (slotMs - Date.now()) / 3600000 : null;
   // The rule is the server's (public system configuration); the screen only reads its numbers and never writes one.
@@ -47,13 +50,18 @@ export default async function ConsultationCancelReschedulePage({ params, searchP
       </Hero>
       {refundPct !== null ? <p className={styles.ok} role="status">{c("expectedRefund", { percent: refundPct })}</p> : null}
       <PolicyCard title={c("policyTitle")} lines={policyLines(c, policy)} />
-      <AppointmentRescheduleForm
-        appointmentId={appointmentId}
-        labels={{ title: a("rescheduleTitle"), date: a("rescheduleDate"), reason: a("rescheduleReason"), submit: a("rescheduleSubmit"), cancel: a("rescheduleCancel"), conflict: a("rescheduleConflict"), failed: a("rescheduleFailed"), unavailable: a("rescheduleUnavailable"), invalid: a("rescheduleInvalid") }}
-      />
+      {appointment.doctorId && mode ? (
+        <AppointmentRescheduleForm
+          appointmentId={appointmentId}
+          doctorId={appointment.doctorId}
+          serviceType={mode}
+          locale={locale}
+          labels={{ title: a("rescheduleTitle"), date: b("selectDay"), slots: b("slotsLabel"), reason: a("rescheduleReason"), submit: a("rescheduleSubmit"), cancel: a("rescheduleCancel"), conflict: a("rescheduleConflict"), failed: a("rescheduleFailed"), unavailable: a("rescheduleUnavailable"), invalid: a("rescheduleInvalid"), today: b("today"), loading: b("loadingSlots"), noSlots: b("noSlots"), slotsUnavailable: b("slotsUnavailable") }}
+        />
+      ) : null}
       <AppointmentActions
         appointmentId={appointmentId}
-        labels={{ actionsTitle: a("actionsTitle"), cancelAppointment: a("cancelAppointment"), cancelConfirm: a("cancelConfirm"), cancelReason: a("cancelReason"), keepAppointment: a("keepAppointment"), confirmCancel: a("confirmCancel"), cancelConflict: a("cancelConflict"), cancelFailed: a("cancelFailed"), cancelUnavailable: a("cancelUnavailable") }}
+        labels={{ actionsTitle: a("actionsTitle"), cancelAppointment: a("cancelAppointment"), cancelConfirm: a("cancelConfirm"), cancelReason: a("cancelReason"), keepAppointment: a("keepAppointment"), confirmCancel: a("confirmCancel"), cancelConflict: a("cancelConflict"), cancelFailed: a("cancelFailed"), cancelUnavailable: a("cancelUnavailable"), myAppointments: c("actionMyAppointments"), reasonTitle: a("cancelReasonTitle"), reasons: { emergency: a("cancelReasons.emergency"), better: a("cancelReasons.better"), otherDoctor: a("cancelReasons.otherDoctor"), time: a("cancelReasons.time"), payment: a("cancelReasons.payment"), other: a("cancelReasons.other") } }}
         locale={locale}
         refundText={{ refunded: a("cancelledRefund", { amount: "{amount}", percent: "{percent}" }), noRefund: a("cancelledNoRefund"), notCharged: a("cancelledNotCharged") }}
       />

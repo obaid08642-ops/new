@@ -430,7 +430,22 @@
     "callOpen": "वीडियो विज़िट में शामिल हों",
     "cancelledRefund": "अपॉइंटमेंट रद्द हो गई। {amount} (आपके भुगतान का {percent}%) आपके मूल भुगतान तरीके में वापस जाएगा।",
     "cancelledNoRefund": "अपॉइंटमेंट रद्द हो गई। रद्दीकरण नीति के अनुसार कोई धनवापसी नहीं है।",
-    "cancelledNotCharged": "अपॉइंटमेंट रद्द हो गई। कोई राशि नहीं ली गई।"
+    "cancelledNotCharged": "अपॉइंटमेंट रद्द हो गई। कोई राशि नहीं ली गई।",
+    "bookingNumber": "बुकिंग नंबर",
+    "paymentMethodLabel": "भुगतान का तरीका",
+    "amount": "राशि",
+    "bookAgain": "फिर से बुक करें",
+    "emptyUpcoming": "कोई आगामी अपॉइंटमेंट नहीं",
+    "emptyPast": "कोई पिछली अपॉइंटमेंट नहीं",
+    "cancelReasonTitle": "रद्द करने का कारण",
+    "cancelReasons": {
+      "emergency": "कोई आपातकालीन काम",
+      "better": "मेरी तबीयत ठीक हो गई",
+      "otherDoctor": "मैं डॉक्टर बदलना चाहता हूँ",
+      "time": "समय मेरे लिए ठीक नहीं है",
+      "payment": "भुगतान में समस्या",
+      "other": "कोई और कारण"
+    }
   },
   "Medicines": {
     "eyebrow": "निजी कैटलॉग",
@@ -1280,7 +1295,11 @@
     "paymentAddPolicy": "बीमा जोड़ें",
     "doctorPhotoAlt": "{name} की तस्वीर",
     "clinicPhotosTitle": "क्लिनिक की तस्वीरें",
-    "clinicPhotoAlt": "क्लिनिक की तस्वीर {n}"
+    "clinicPhotoAlt": "क्लिनिक की तस्वीर {n}",
+    "bioTitle": "डॉक्टर के बारे में",
+    "infoTitle": "अतिरिक्त जानकारी",
+    "languagesLabel": "भाषाएँ",
+    "chooseDayTime": "दिन और समय चुनें"
   },
   "LabsServices": {
     "eyebrow": "प्रयोगशाला देखभाल",
@@ -1830,7 +1849,16 @@
     "submit": "रेटिंग भेजें",
     "submitting": "भेजा जा रहा है...",
     "thanks": "धन्यवाद! आपकी रेटिंग मिल गई।",
-    "error": "रेटिंग नहीं भेजी जा सकी। पुनः प्रयास करें।"
+    "error": "रेटिंग नहीं भेजी जा सकी। पुनः प्रयास करें।",
+    "tagsTitle": "क्या अच्छा रहा?",
+    "tags": {
+      "excellent": "उत्कृष्ट",
+      "fast": "तेज़",
+      "professional": "पेशेवर",
+      "clean": "साफ़-सुथरा",
+      "helpful": "मददगार",
+      "recommend": "मैं सुझाता हूँ"
+    }
   },
   "HomeVisitTracking": {
     "title": "होम विज़िट ट्रैकिंग",
@@ -2700,7 +2728,8 @@
       "in_progress": "जारी है",
       "completed": "पूर्ण",
       "cancelled": "रद्द",
-      "no_show": "अनुपस्थित"
+      "no_show": "अनुपस्थित",
+      "pending_copay": "आपके सह-भुगतान की प्रतीक्षा"
     },
     "insurancePendingTitle": "संस्था बीमा कंपनी से स्वीकृति माँग रही है",
     "insuranceDecidedTitle": "बीमा का निर्णय दर्ज हो गया",
@@ -2794,7 +2823,12 @@
     "callAudioOnly": "आपका कनेक्शन कमज़ोर है, इसलिए हमने वीडियो बंद करके आवाज़ चालू रखी है।",
     "callTryVideo": "वीडियो फिर से आज़माएँ",
     "callDropped": "कॉल कट गई।",
-    "callContinueInChat": "चैट में जारी रखें"
+    "callContinueInChat": "चैट में जारी रखें",
+    "statReviews": "समीक्षाएँ",
+    "copayTitle": "स्वीकृति मिल गई",
+    "copayBody": "मंज़ूर हो गया। परामर्श खोलने के लिए सह-भुगतान ({amount}) करें।",
+    "copayAction": "बीमा अनुरोध देखें और सुरक्षित भुगतान करें",
+    "actionDoctorProfile": "प्रोफ़ाइल देखें"
   },
   "ConsultClient": {
     "payHeading": "सुरक्षित गेटवे से भुगतान पूरा करें",

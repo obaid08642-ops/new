@@ -430,7 +430,22 @@
     "callOpen": "ویڈیو ملاقات میں شامل ہوں",
     "cancelledRefund": "ملاقات منسوخ ہو گئی۔ {amount} (آپ کی ادائیگی کا {percent}٪) آپ کے اصل ادائیگی کے طریقے میں واپس جائے گا۔",
     "cancelledNoRefund": "ملاقات منسوخ ہو گئی۔ منسوخی کی پالیسی کے مطابق کوئی رقم واپس نہیں۔",
-    "cancelledNotCharged": "ملاقات منسوخ ہو گئی۔ کوئی رقم وصول نہیں کی گئی۔"
+    "cancelledNotCharged": "ملاقات منسوخ ہو گئی۔ کوئی رقم وصول نہیں کی گئی۔",
+    "bookingNumber": "بکنگ نمبر",
+    "paymentMethodLabel": "ادائیگی کا طریقہ",
+    "amount": "رقم",
+    "bookAgain": "دوبارہ بک کریں",
+    "emptyUpcoming": "کوئی آنے والی ملاقات نہیں",
+    "emptyPast": "کوئی گزشتہ ملاقات نہیں",
+    "cancelReasonTitle": "منسوخی کی وجہ",
+    "cancelReasons": {
+      "emergency": "کوئی ہنگامی مصروفیت",
+      "better": "میری صحت بہتر ہو گئی",
+      "otherDoctor": "میں ڈاکٹر بدلنا چاہتا ہوں",
+      "time": "وقت میرے لیے مناسب نہیں",
+      "payment": "ادائیگی میں مسئلہ",
+      "other": "کوئی اور وجہ"
+    }
   },
   "Medicines": {
     "eyebrow": "نجی کیٹلاگ",
@@ -1280,7 +1295,11 @@
     "paymentAddPolicy": "انشورنس شامل کریں",
     "doctorPhotoAlt": "{name} کی تصویر",
     "clinicPhotosTitle": "کلینک کی تصاویر",
-    "clinicPhotoAlt": "کلینک کی تصویر {n}"
+    "clinicPhotoAlt": "کلینک کی تصویر {n}",
+    "bioTitle": "ڈاکٹر کے بارے میں",
+    "infoTitle": "مزید معلومات",
+    "languagesLabel": "زبانیں",
+    "chooseDayTime": "دن اور وقت منتخب کریں"
   },
   "LabsServices": {
     "eyebrow": "لیبارٹری کیئر",
@@ -1830,7 +1849,16 @@
     "submit": "درجہ بندی بھیجیں",
     "submitting": "بھیجا جا رہا ہے...",
     "thanks": "شکریہ! آپ کی رائے موصول ہو گئی۔",
-    "error": "درجہ بندی نہیں بھیجی جا سکی۔ دوبارہ کوشش کریں۔"
+    "error": "درجہ بندی نہیں بھیجی جا سکی۔ دوبارہ کوشش کریں۔",
+    "tagsTitle": "کیا اچھا رہا؟",
+    "tags": {
+      "excellent": "بہترین",
+      "fast": "تیز",
+      "professional": "پیشہ ورانہ",
+      "clean": "صاف ستھرا",
+      "helpful": "مددگار",
+      "recommend": "میں تجویز کرتا ہوں"
+    }
   },
   "HomeVisitTracking": {
     "title": "گھر کی ویزٹ ٹریکنگ",
@@ -2700,7 +2728,8 @@
       "in_progress": "جاری ہے",
       "completed": "مکمل",
       "cancelled": "منسوخ",
-      "no_show": "غیر حاضر"
+      "no_show": "غیر حاضر",
+      "pending_copay": "آپ کی شریک ادائیگی کا انتظار"
     },
     "insurancePendingTitle": "ادارہ انشورنس کمپنی سے منظوری مانگ رہا ہے",
     "insuranceDecidedTitle": "انشورنس کا فیصلہ درج ہو گیا",
@@ -2794,7 +2823,12 @@
     "callAudioOnly": "آپ کا کنکشن کمزور ہے، اس لیے ہم نے ویڈیو بند کر کے آواز جاری رکھی ہے۔",
     "callTryVideo": "ویڈیو دوبارہ آزمائیں",
     "callDropped": "کال منقطع ہو گئی۔",
-    "callContinueInChat": "چیٹ میں جاری رکھیں"
+    "callContinueInChat": "چیٹ میں جاری رکھیں",
+    "statReviews": "جائزے",
+    "copayTitle": "منظوری موصول ہو گئی",
+    "copayBody": "منظور ہو گیا۔ مشاورت کھولنے کے لیے شریکِ ادائیگی ({amount}) ادا کریں۔",
+    "copayAction": "بیمہ کی درخواست دیکھیں اور محفوظ ادائیگی کریں",
+    "actionDoctorProfile": "پروفائل دیکھیں"
   },
   "ConsultClient": {
     "payHeading": "محفوظ گیٹ وے کے ذریعے ادائیگی مکمل کریں",

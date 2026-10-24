@@ -430,7 +430,22 @@
     "callOpen": "Sumali sa video visit",
     "cancelledRefund": "Nakansela ang appointment. Ang {amount} ({percent}% ng ibinayad mo) ay ibabalik sa orihinal mong paraan ng pagbabayad.",
     "cancelledNoRefund": "Nakansela ang appointment. Ayon sa patakaran sa pagkansela, walang refund.",
-    "cancelledNotCharged": "Nakansela ang appointment. Walang siningil."
+    "cancelledNotCharged": "Nakansela ang appointment. Walang siningil.",
+    "bookingNumber": "Numero ng booking",
+    "paymentMethodLabel": "Paraan ng pagbabayad",
+    "amount": "Halaga",
+    "bookAgain": "Mag-book muli",
+    "emptyUpcoming": "Walang paparating na appointment",
+    "emptyPast": "Walang nakaraang appointment",
+    "cancelReasonTitle": "Dahilan ng pagkansela",
+    "cancelReasons": {
+      "emergency": "May biglaang pangyayari",
+      "better": "Bumuti na ang pakiramdam ko",
+      "otherDoctor": "Gusto kong magpalit ng doktor",
+      "time": "Hindi akma sa akin ang oras",
+      "payment": "May problema sa bayad",
+      "other": "Ibang dahilan"
+    }
   },
   "Medicines": {
     "eyebrow": "Pribadong katalogo",
@@ -1280,7 +1295,11 @@
     "paymentAddPolicy": "Idagdag ang seguro",
     "doctorPhotoAlt": "Larawan ni {name}",
     "clinicPhotosTitle": "Mga larawan ng klinika",
-    "clinicPhotoAlt": "Larawan ng klinika {n}"
+    "clinicPhotoAlt": "Larawan ng klinika {n}",
+    "bioTitle": "Tungkol sa doktor",
+    "infoTitle": "Karagdagang impormasyon",
+    "languagesLabel": "Mga wika",
+    "chooseDayTime": "Pumili ng araw at oras"
   },
   "LabsServices": {
     "eyebrow": "Pangangalaga sa laboratoryo",
@@ -1830,7 +1849,16 @@
     "submit": "Ipadala ang rating",
     "submitting": "Ipinapadala...",
     "thanks": "Salamat! Natanggap ang rating mo.",
-    "error": "Hindi naipadala ang rating. Subukan muli."
+    "error": "Hindi naipadala ang rating. Subukan muli.",
+    "tagsTitle": "Ano ang naging maganda?",
+    "tags": {
+      "excellent": "Napakahusay",
+      "fast": "Mabilis",
+      "professional": "Propesyonal",
+      "clean": "Malinis",
+      "helpful": "Matulungin",
+      "recommend": "Inirerekomenda ko"
+    }
   },
   "HomeVisitTracking": {
     "title": "Home visit tracking",
@@ -2700,7 +2728,8 @@
       "in_progress": "Isinasagawa",
       "completed": "Nakumpleto",
       "cancelled": "Kinansela",
-      "no_show": "Hindi sumipot"
+      "no_show": "Hindi sumipot",
+      "pending_copay": "Naghihintay ng iyong co-pay"
     },
     "insurancePendingTitle": "Humihingi ng approval ang facility sa insurer",
     "insuranceDecidedTitle": "Naitala na ang desisyon ng insurance",
@@ -2794,7 +2823,12 @@
     "callAudioOnly": "Mahina ang koneksyon mo, kaya pinatay namin ang video at pinanatili ang tunog.",
     "callTryVideo": "Subukan muli ang video",
     "callDropped": "Naputol ang tawag.",
-    "callContinueInChat": "Ituloy sa chat"
+    "callContinueInChat": "Ituloy sa chat",
+    "statReviews": "review",
+    "copayTitle": "Dumating na ang approval",
+    "copayBody": "Aprubado. Bayaran ang co-pay ({amount}) para mabuksan ang konsultasyon.",
+    "copayAction": "Suriin ang insurance request at magbayad nang ligtas",
+    "actionDoctorProfile": "Tingnan ang profile"
   },
   "ConsultClient": {
     "payHeading": "Kumpletuhin ang bayad sa pamamagitan ng ligtas na gateway",

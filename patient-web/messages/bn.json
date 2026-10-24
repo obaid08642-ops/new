@@ -430,7 +430,22 @@
     "callOpen": "ভিডিও ভিজিটে যোগ দিন",
     "cancelledRefund": "অ্যাপয়েন্টমেন্ট বাতিল হয়েছে। {amount} (আপনার পরিশোধের {percent}%) আপনার মূল পেমেন্ট পদ্ধতিতে ফেরত যাবে।",
     "cancelledNoRefund": "অ্যাপয়েন্টমেন্ট বাতিল হয়েছে। বাতিল নীতি অনুযায়ী কোনো ফেরত নেই।",
-    "cancelledNotCharged": "অ্যাপয়েন্টমেন্ট বাতিল হয়েছে। কোনো টাকা কাটা হয়নি।"
+    "cancelledNotCharged": "অ্যাপয়েন্টমেন্ট বাতিল হয়েছে। কোনো টাকা কাটা হয়নি।",
+    "bookingNumber": "বুকিং নম্বর",
+    "paymentMethodLabel": "পেমেন্ট পদ্ধতি",
+    "amount": "পরিমাণ",
+    "bookAgain": "আবার বুক করুন",
+    "emptyUpcoming": "কোনো আসন্ন অ্যাপয়েন্টমেন্ট নেই",
+    "emptyPast": "কোনো আগের অ্যাপয়েন্টমেন্ট নেই",
+    "cancelReasonTitle": "বাতিলের কারণ",
+    "cancelReasons": {
+      "emergency": "জরুরি কাজ পড়েছে",
+      "better": "আমার শরীর ভালো হয়েছে",
+      "otherDoctor": "আমি ডাক্তার বদলাতে চাই",
+      "time": "সময়টি আমার জন্য ঠিক নয়",
+      "payment": "পেমেন্টে সমস্যা",
+      "other": "অন্য কারণ"
+    }
   },
   "Medicines": {
     "eyebrow": "ব্যক্তিগত ক্যাটালগ",
@@ -1280,7 +1295,11 @@
     "paymentAddPolicy": "বিমা যোগ করুন",
     "doctorPhotoAlt": "{name}-এর ছবি",
     "clinicPhotosTitle": "ক্লিনিকের ছবি",
-    "clinicPhotoAlt": "ক্লিনিকের ছবি {n}"
+    "clinicPhotoAlt": "ক্লিনিকের ছবি {n}",
+    "bioTitle": "ডাক্তার সম্পর্কে",
+    "infoTitle": "অতিরিক্ত তথ্য",
+    "languagesLabel": "ভাষা",
+    "chooseDayTime": "দিন ও সময় বেছে নিন"
   },
   "LabsServices": {
     "eyebrow": "ল্যাবরেটরি কেয়ার",
@@ -1830,7 +1849,16 @@
     "submit": "রেটিং পাঠান",
     "submitting": "পাঠানো হচ্ছে...",
     "thanks": "ধন্যবাদ! আপনার রেটিং পাওয়া গেছে।",
-    "error": "রেটিং পাঠানো যায়নি। আবার চেষ্টা করুন।"
+    "error": "রেটিং পাঠানো যায়নি। আবার চেষ্টা করুন।",
+    "tagsTitle": "কী ভালো লেগেছে?",
+    "tags": {
+      "excellent": "চমৎকার",
+      "fast": "দ্রুত",
+      "professional": "পেশাদার",
+      "clean": "পরিচ্ছন্ন",
+      "helpful": "সহযোগী",
+      "recommend": "আমি সুপারিশ করি"
+    }
   },
   "HomeVisitTracking": {
     "title": "হোম ভিজিট ট্র্যাকিং",
@@ -2700,7 +2728,8 @@
       "in_progress": "চলছে",
       "completed": "সম্পন্ন",
       "cancelled": "বাতিল",
-      "no_show": "অনুপস্থিত"
+      "no_show": "অনুপস্থিত",
+      "pending_copay": "আপনার সহ-পেমেন্টের অপেক্ষায়"
     },
     "insurancePendingTitle": "প্রতিষ্ঠান বিমা কোম্পানির কাছে অনুমোদন চাইছে",
     "insuranceDecidedTitle": "বিমার সিদ্ধান্ত নথিভুক্ত হয়েছে",
@@ -2794,7 +2823,12 @@
     "callAudioOnly": "আপনার সংযোগ দুর্বল, তাই আমরা ভিডিও বন্ধ করে শব্দ চালু রেখেছি।",
     "callTryVideo": "আবার ভিডিও চেষ্টা করুন",
     "callDropped": "কলটি কেটে গেছে।",
-    "callContinueInChat": "চ্যাটে চালিয়ে যান"
+    "callContinueInChat": "চ্যাটে চালিয়ে যান",
+    "statReviews": "রিভিউ",
+    "copayTitle": "অনুমোদন এসেছে",
+    "copayBody": "অনুমোদিত। পরামর্শ চালু করতে কো-পে ({amount}) দিন।",
+    "copayAction": "বিমার অনুরোধ দেখে নিরাপদে পেমেন্ট করুন",
+    "actionDoctorProfile": "প্রোফাইল দেখুন"
   },
   "ConsultClient": {
     "payHeading": "নিরাপদ গেটওয়ের মাধ্যমে পেমেন্ট সম্পন্ন করুন",

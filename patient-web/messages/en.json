@@ -389,7 +389,22 @@
     "callOpen": "Join the video visit",
     "cancelledRefund": "Appointment cancelled. {amount} ({percent}% of what you paid) goes back to your original payment method.",
     "cancelledNoRefund": "Appointment cancelled. Under the cancellation policy no refund is due.",
-    "cancelledNotCharged": "Appointment cancelled. Nothing was charged."
+    "cancelledNotCharged": "Appointment cancelled. Nothing was charged.",
+    "bookingNumber": "Booking number",
+    "paymentMethodLabel": "Payment method",
+    "amount": "Amount",
+    "bookAgain": "Book again",
+    "emptyUpcoming": "No upcoming appointments",
+    "emptyPast": "No past appointments",
+    "cancelReasonTitle": "Reason for cancelling",
+    "cancelReasons": {
+      "emergency": "Something urgent came up",
+      "better": "I feel better",
+      "otherDoctor": "I want a different doctor",
+      "time": "The time does not suit me",
+      "payment": "A payment problem",
+      "other": "Another reason"
+    }
   },
   "Medicines": {
     "eyebrow": "Private catalog",
@@ -1280,7 +1295,11 @@
     "paymentAddPolicy": "Add insurance",
     "doctorPhotoAlt": "Photo of {name}",
     "clinicPhotosTitle": "Clinic photos",
-    "clinicPhotoAlt": "Clinic photo {n}"
+    "clinicPhotoAlt": "Clinic photo {n}",
+    "bioTitle": "About the doctor",
+    "infoTitle": "More information",
+    "languagesLabel": "Languages",
+    "chooseDayTime": "Choose a day and time"
   },
   "LabsServices": {
     "eyebrow": "Laboratory care",
@@ -1830,7 +1849,16 @@
     "submit": "Submit rating",
     "submitting": "Submitting...",
     "thanks": "Thank you! Your rating was received.",
-    "error": "Could not submit the rating. Please try again."
+    "error": "Could not submit the rating. Please try again.",
+    "tagsTitle": "What went well?",
+    "tags": {
+      "excellent": "Excellent",
+      "fast": "Fast",
+      "professional": "Professional",
+      "clean": "Clean",
+      "helpful": "Helpful",
+      "recommend": "I recommend"
+    }
   },
   "HomeVisitTracking": {
     "title": "Home visit tracking",
@@ -2700,7 +2728,8 @@
       "in_progress": "In progress",
       "completed": "Completed",
       "cancelled": "Cancelled",
-      "no_show": "Missed"
+      "no_show": "Missed",
+      "pending_copay": "Awaiting your co-pay"
     },
     "insurancePendingTitle": "The facility is asking the insurer for approval",
     "insuranceDecidedTitle": "Insurance decision recorded",
@@ -2794,7 +2823,12 @@
     "callAudioOnly": "Your connection is weak, so we turned video off and kept the sound.",
     "callTryVideo": "Try video again",
     "callDropped": "The call was cut off.",
-    "callContinueInChat": "Continue in chat"
+    "callContinueInChat": "Continue in chat",
+    "statReviews": "reviews",
+    "copayTitle": "Approval received",
+    "copayBody": "Approved. Pay the co-pay ({amount}) to unlock the consultation.",
+    "copayAction": "Review the insurance request and pay securely",
+    "actionDoctorProfile": "View profile"
   },
   "ConsultClient": {
     "payHeading": "Complete the payment through a secure gateway",
