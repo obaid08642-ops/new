@@ -107,3 +107,30 @@ a.tile:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nab
 /* ---- the flags on a report row and the actions under a prescription row ---- */
 .pills { display: flex; flex-wrap: wrap; gap: 6px; }
 .rowActions { display: flex; flex-wrap: wrap; gap: 8px; padding-block-end: 12px; padding-inline-start: 52px; }
+
+/* ---- sleep: the last seven nights as bars (violet service tone, tokens only) ---- */
+.pill_danger { color: var(--nabd-color-status-danger-fg); }
+.weekBars { list-style: none; margin: 0; padding: 0; display: flex; align-items: stretch; gap: 8px; block-size: 120px; }
+.weekCol { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; }
+.weekBar { inline-size: 70%; border-radius: var(--nabd-radius-sm); background: var(--nabd-color-service-violet-fg); min-block-size: 6px; }
+.weekValue, .weekDay { font-size: var(--nabd-font-size-micro); color: var(--nabd-color-text-secondary); }
+.weekValue { font-weight: 700; }
+
+/* ---- the profile: a switch row and the photo block ---- */
+.toggleRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-block-size: 44px; }
+.photo { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+
+/* ---- vitals trends: the line chart takes the vital's service tone ---- */
+.trendChart { display: block; inline-size: 100%; block-size: 120px; overflow: visible; }
+.trendChart polyline { stroke: currentColor; }
+.trendChart circle { fill: currentColor; }
+.trend_amber { color: var(--nabd-color-service-amber-fg); }
+.trend_blue { color: var(--nabd-color-service-blue-fg); }
+.trend_coral { color: var(--nabd-color-service-coral-fg); }
+.trend_ink { color: var(--nabd-color-service-ink-fg); }
+.trend_lime { color: var(--nabd-color-service-lime-fg); }
+.trend_mint { color: var(--nabd-color-service-mint-fg); }
+.trend_peach { color: var(--nabd-color-service-peach-fg); }
+.trend_pink { color: var(--nabd-color-service-pink-fg); }
+.trend_teal { color: var(--nabd-color-service-teal-fg); }
+.trend_violet { color: var(--nabd-color-service-violet-fg); }

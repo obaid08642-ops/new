@@ -8,7 +8,7 @@ import { getPatientChronicMedications } from "@/lib/api/chronic-meds-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { formatDate } from "@/lib/format-date";
 import { isLocale } from "@/lib/i18n";
-import { todayDoses } from "@/lib/health/doses";
+import { formatTimeKey, takenPercent, todayDoses } from "@/lib/health/doses";
 import { isFlag, pickTab, CORAL } from "@/lib/health/view";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
@@ -19,12 +19,14 @@ import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { DoseRows } from "@/components-next/health/dose-rows";
 import { FormSheet } from "@/components-next/health/form-sheet";
-import { HealthTabs, RowsCard } from "@/components-next/health/health-kit";
-import { DeleteReminderButton, RefillButton } from "@/components-next/health/reminder-actions";
+import { HealthTabs, RowsCard, SectionHead } from "@/components-next/health/health-kit";
+import { ChronicActions, RefillButton, StopReminderButton } from "@/components-next/health/reminder-actions";
+import { ScoreRing } from "@/components-next/health/score-ring";
 import { ReminderForm } from "@/components-next/health/reminder-form";
 import { getPatientFamilyGroup, getPatientFamilyMembers } from "@/lib/api/family-server";
 import { extractFamilyMembers } from "@/lib/api/family";
 import { manageableMembers } from "@/lib/family/view";
+import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/health/health.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string | string[]; add?: string | string[]; edit?: string | string[] }> };
@@ -48,12 +50,14 @@ export default async function MedicationsPage({ params, searchParams }: Props) {
   const here = `${base}?tab=${tab}`;
   const editId = Array.isArray(query.edit) ? query.edit[0] : query.edit;
   const pharmacy = SERVICE_ICONS.pharmacy;
+  const trackBase = `/${locale}/pharmacy/broadcast-status`;
+  const addressHref = `/${locale}/profile/addresses`;
 
   let response: Response;
   try { response = await (tab === "chronic" ? getPatientChronicMedications(token) : getPatientMedicationReminders(token)); } catch { response = new Response(null, { status: 503 }); }
   if (response.status === 401) redirect(`/${locale}/login`);
   const payload = response.ok ? await response.json().catch(() => null) : null;
-  const reminders = response.ok && tab !== "chronic" ? extractMedicationReminderSummaries(payload) : [];
+  const reminders = response.ok && tab !== "chronic" ? extractMedicationReminderSummaries(payload).filter((reminder) => reminder.active) : [];
   const editing = editId ? reminders.find((reminder) => reminder.id === editId) : undefined;
   // journeys 67: "for whom" lists the family members this patient may write reminders for (none without a family)
   const [groupRes, membersRes] = await Promise.all([getPatientFamilyGroup(token).catch(() => null), getPatientFamilyMembers(token).catch(() => null)]);
@@ -96,8 +100,16 @@ export default async function MedicationsPage({ params, searchParams }: Props) {
     const taken = doses.filter((dose) => dose.status === "taken").length;
     return frame(
       <>
-        <p className={styles.rowSub} role="status">{t("dosesTaken", { taken, total: doses.length })}</p>
-        <RowsCard label={t("medsToday")}><DoseRows rows={doses} labels={{ statuses, medicineUnavailable: t("medicineUnavailable") }} withAction /></RowsCard>
+        <section className={`${rx.card} ${styles.score}`} aria-label={t("dailyPlan")}>
+          <ScoreRing value={takenPercent(doses)} label={t("dosesLogged")} valueText={new Intl.NumberFormat(locale).format(takenPercent(doses))} caption="%" tone="info" />
+          <span className={styles.scoreBody}>
+            <span className={styles.rowTitle}>{t("dailyPlan")}</span>
+            <span className={styles.rowSub} role="status">{t("dosesTaken", { taken, total: doses.length })}</span>
+          </span>
+        </section>
+        <SectionHead id="doses-timeline" title={t("doseTimeline")} action={{ href: `${base}?tab=all`, label: t("viewReminders") }} />
+        <RowsCard label={t("medsToday")}><DoseRows rows={doses} locale={locale} labels={{ statuses, medicineUnavailable: t("medicineUnavailable") }} withAction /></RowsCard>
+        <ButtonLink href={`/${locale}/health/records?tab=prescriptions`} label={t("medsPrescriptionsLink")} variant="outline" size="md" />
         <Notice>{t("medsNotice")}</Notice>
       </>,
     );
@@ -117,15 +129,17 @@ export default async function MedicationsPage({ params, searchParams }: Props) {
                 <span className={styles.rowBody}>
                   <span className={styles.rowTitle}>{medicineName(reminder.medicineName)}</span>
                   {reminder.dose ? <span className={styles.rowSub}><bdi>{reminder.dose}</bdi></span> : null}
-                  {tab === "all" && reminder.times.length ? <span className={styles.times}>{reminder.times.map((time) => <span className={styles.time} key={time}>{time}</span>)}</span> : null}
+                  {tab === "all" && reminder.times.length ? <span className={styles.times}>{reminder.times.map((time) => <span className={styles.time} key={time}>{formatTimeKey(locale, time)}</span>)}</span> : null}
                   {tab === "all" && reminder.frequency ? <span className={styles.rowSub}>{freq(reminder.frequency)}</span> : null}
+                  {tab === "all" && reminder.instructions ? <span className={styles.rowSub}>{reminder.instructions}</span> : null}
+                  {tab === "all" && reminder.chronic ? <StatusChip label={t("reminderChronic")} tone="amber" /> : null}
                 </span>
                 {tab === "refills" ? (
-                  <RefillButton id={reminder.id} />
+                  <RefillButton id={reminder.id} trackBase={trackBase} addressHref={addressHref} />
                 ) : (
                   <span className={styles.rowActions}>
                     <ButtonLink href={`${base}?tab=all&edit=${encodeURIComponent(reminder.id)}`} label={t("reminderEdit")} variant="ghost" size="sm" />
-                    <DeleteReminderButton id={reminder.id} />
+                    <StopReminderButton id={reminder.id} />
                   </span>
                 )}
               </div>
@@ -151,7 +165,7 @@ export default async function MedicationsPage({ params, searchParams }: Props) {
                 <span className={styles.rowBody}>
                   <span className={styles.rowTitle}>{med.name ?? t("medicineUnnamed")}</span>
                   {[med.dose, med.frequency].filter(Boolean).length ? <span className={styles.rowSub}>{med.dose ? <bdi>{med.dose}</bdi> : null}{med.dose && med.frequency ? " · " : ""}{med.frequency ? freq(med.frequency) : null}</span> : null}
-                  {med.times.length ? <span className={styles.times}>{med.times.map((time) => <span className={styles.time} key={time}>{time}</span>)}</span> : null}
+                  {med.times.length ? <span className={styles.times}>{med.times.map((time) => <span className={styles.time} key={time}>{formatTimeKey(locale, time)}</span>)}</span> : null}
                   {refill ? <span className={styles.rowSub}>{t("refillOn", { date: refill })}{med.daysUntilRefill !== undefined ? ` · ${t("refillInDays", { count: med.daysUntilRefill })}` : ""}</span> : null}
                   {med.pillsRemaining !== undefined ? <span className={styles.rowSub}>{t("unitsRemaining", { count: med.pillsRemaining })}</span> : null}
                   <span className={styles.times}>
@@ -159,6 +173,7 @@ export default async function MedicationsPage({ params, searchParams }: Props) {
                     {med.needsRefillSoon ? <StatusChip label={t("refillSoon")} tone={CORAL} /> : null}
                   </span>
                 </span>
+                <ChronicActions id={med.id} soon={med.needsRefillSoon} trackBase={trackBase} addressHref={addressHref} />
               </div>
             </li>
           );

@@ -82,7 +82,7 @@ describe("the family hub", () => {
     expect(html).toContain("Decline all");
     expect(html).toContain("/en/family/calendar");
     expect(html).toContain("/en/family/chat");
-    expect(html).toContain("/en/health/profile#emergency");
+    expect(html).toContain("/en/health/profile?tab=emergency");
     // GET /family/emergency-contacts is not answered here (503): the row keeps its hint instead of a number
     expect(html).toContain("Who to reach in an emergency");
     // the old permission screens' key names, the account id and the token never reach the markup; no call entry

@@ -729,7 +729,7 @@
     "timelineEmpty": "No health events recorded yet.",
     "reportsEmpty": "No medical reports yet",
     "chronicEmpty": "No chronic medications yet.",
-    "chronicNotice": "Your recorded medication schedules and refill dates are shown here. Adding, editing, stopping, refilling and reminders aren't available yet.",
+    "chronicNotice": "This page helps track records and refills. It never creates an order or changes a prescription automatically.",
     "medicineUnavailable": "Medicine name unavailable",
     "medicineUnnamed": "Unnamed medicine",
     "emergencyMineEmpty": "No emergency contacts yet.",
@@ -827,7 +827,55 @@
     "historyAll": "All",
     "doseSkip": "Skip",
     "refillConfirm": "Confirm refill request",
-    "refillSent": "Your refill request was sent."
+    "refillSent": "Your refill request was sent.",
+    "photoTitle": "Profile photo",
+    "photoChange": "Change photo",
+    "photoUploading": "Uploading the photo",
+    "photoNote": "The photo is saved in your user profile; the rest is saved in the medical profile.",
+    "photoFailed": "The photo could not be uploaded.",
+    "basicsUnknown": "Unknown",
+    "basicsGender": "Gender",
+    "gender": {
+      "unspecified": "Prefer not to say",
+      "female": "Female",
+      "male": "Male"
+    },
+    "basicsOptional": "Optional information",
+    "basicsPregnant": "Currently pregnant",
+    "basicsBreastfeeding": "Breastfeeding",
+    "basicsSmoker": "Currently smoking",
+    "sleepQuality": {
+      "excellent": "Excellent",
+      "good": "Good",
+      "fair": "Fair",
+      "poor": "Poor"
+    },
+    "sleepWeek": "Last 7 days",
+    "sleepAverage": "Average sleep {hours} hours",
+    "sleepTips": "For better sleep",
+    "trendsInRange": "Within normal range",
+    "trendsOutRange": "Outside normal range",
+    "trendsNormal": "Normal range: {lo}-{hi} {unit}",
+    "trendsMax": "Highest",
+    "trendsMin": "Lowest",
+    "trendsAvg": "Average",
+    "trendsCount": "Number of readings",
+    "trendsShare": "Share my vitals summary",
+    "trendsShareTitle": "My health vitals summary — Nabd Plus",
+    "dosesLogged": "Today’s logged doses",
+    "dailyPlan": "Today’s plan",
+    "doseTimeline": "Today’s dose timeline",
+    "viewReminders": "View reminders",
+    "medsPrescriptionsLink": "View prescriptions",
+    "reminderStop": "Pause reminder",
+    "refillTrack": "Track the order",
+    "refillNoAddress": "You need a saved address before a refill.",
+    "refillAddAddress": "Add an address",
+    "chronicDefer": "Defer 3 days",
+    "chronicStop": "Stop refill tracking",
+    "chronicUpdateFailed": "Refill follow-up could not be updated.",
+    "confirmAction": "Confirm",
+    "photoInvalid": "Choose a photo of up to 5 megabytes."
   },
   "Prescriptions": {
     "title": "Prescriptions",
@@ -3477,7 +3525,15 @@
     "weekEmpty": "This week's content isn't available yet.",
     "weekUnavailable": "This week's content could not be loaded.",
     "readThisWeek": "Read this week",
-    "readEmpty": "No articles for this week yet."
+    "readEmpty": "No articles for this week yet.",
+    "pregnancyNotice": "This view uses the date you entered. It does not confirm gestational age or fetal health and does not replace medical care.",
+    "cycleNotice": "Cycle and fertility estimates are based on your entries and may not suit irregular cycles. Do not use them for contraception.",
+    "safetyNotice": "If you have severe pain, bleeding, or urgent concern, contact medical care or emergency services. Nabd+ does not diagnose.",
+    "notContraception": "Not contraception or ovulation confirmation.",
+    "dayLabel": "Day {day} of a {total}-day cycle",
+    "dayOfCycle": "Cycle day",
+    "cycleDays": "{count} days",
+    "allArticles": "All articles"
   },
   "NutritionWeb": {
     "title": "Nutrition",
@@ -3554,7 +3610,24 @@
     "planFailed": "The plan could not be created right now. Try again.",
     "planNutritionist": "Follow up with a nutritionist",
     "planNotice": "This plan is general guidance from the AI assistant, not a medical prescription. Talk to a nutritionist before any big change.",
-    "planDay": "Day {n}"
+    "planDay": "Day {n}",
+    "remaining": "Remaining: {value}",
+    "setTarget": "Set nutrition goals",
+    "protein": "Protein",
+    "carbs": "Carbohydrates",
+    "fat": "Fat",
+    "gram": "g",
+    "waterProgress": "{value} / {target} {unit}",
+    "addMl": "+{amount} ml",
+    "waterFailed": "The water could not be saved. Try again.",
+    "proteinLine": "Protein {value} g",
+    "nutritionSafety": "Meal logging supports tracking only. Nabd+ does not diagnose, prescribe a therapeutic diet, or replace a dietitian.",
+    "macro": {
+      "protein_g": "Protein (g, optional)",
+      "carbs_g": "Carbohydrates (g, optional)",
+      "fat_g": "Fat (g, optional)",
+      "fiber_g": "Fiber (g, optional)"
+    }
   },
   "MentalWeb": {
     "title": "Mental health",
@@ -3589,7 +3662,15 @@
       "bad": "Not good",
       "terrible": "Very bad"
     },
-    "urgentRowSub": "Call the urgent-help number"
+    "urgentRowSub": "Call the urgent-help number",
+    "moodTag": {
+      "calm": "Calm",
+      "tired": "Tired",
+      "stressed": "Stressed",
+      "connected": "Connected",
+      "rested": "Rested",
+      "overwhelmed": "Overwhelmed"
+    }
   },
   "ProgramsWeb": {
     "title": "My health programs",
@@ -3914,7 +3995,10 @@
       "expiry": "Expiry date (optional)",
       "submit": "Save policy",
       "invalid": "Select a company and enter a valid policy number (at least 3 characters).",
-      "failed": "Could not save the policy."
+      "failed": "Could not save the policy.",
+      "scan": "Scan the insurance card with the camera",
+      "scanned": "The visible details were read from the card. Check them before saving.",
+      "scanFailed": "The card could not be read. Enter the details by hand."
     },
     "coverage": {
       "title": "What my policy covers",
@@ -3930,7 +4014,16 @@
       "result": "Coverage on file",
       "eligible": "Listed as covered on your saved policy",
       "notEligible": "Not listed as covered on your saved policy",
-      "forService": "Service: {service}"
+      "forService": "Service: {service}",
+      "provider": "Provider name (optional)",
+      "providerHint": "Name of the doctor, hospital or pharmacy",
+      "copayTitle": "Your share",
+      "youPay": "You pay",
+      "cap": "Fixed cap on your share",
+      "finalNote": "The final amount is worked out from the provider's actual price at booking.",
+      "preAuth": "The insurer may require prior approval. The facility requests it",
+      "askSupport": "Contact support",
+      "again": "Look up another service"
     },
     "request": {
       "pageTitle": "Insurance request",
@@ -3979,7 +4072,12 @@
       "acceptFailed": "Self-pay could not be recorded. No payment was created.",
       "acceptRetry": "Self-pay could not be recorded. Try again.",
       "payFailed": "Secure online payment could not start. No payment was confirmed.",
-      "payRetry": "Online payment could not start. No payment was confirmed."
+      "payRetry": "Online payment could not start. No payment was confirmed.",
+      "insurer": "Insurer",
+      "payNow": "Go to secure payment — {amount}",
+      "missingTitle": "No insurance request",
+      "missingBody": "We found no insurance request for this booking. Open your requests from the insurance page.",
+      "back": "Go back"
     },
     "noteCode": {
       "coverage_decided_by_provider": "The provider decides the final coverage when it reviews your request.",
@@ -3993,10 +4091,36 @@
       "lab": "Laboratory",
       "radiology": "Radiology center",
       "home_care": "Home care",
-      "nursing": "Nursing"
+      "nursing": "Nursing",
+      "other": "Provider"
     },
     "memberLine": "Member number: {id}",
-    "expiryLine": "Expires on {date}"
+    "expiryLine": "Expires on {date}",
+    "policyVerified": "Reviewed",
+    "policyInReview": "In review",
+    "policyNumber": "Policy number",
+    "memberName": "Member name",
+    "nationalId": "National ID",
+    "policyNetwork": "Network",
+    "kind": {
+      "consultation": "Medical consultation",
+      "lab": "Lab tests",
+      "radiology": "Radiology",
+      "nursing": "Home nursing",
+      "pharmacy": "Medicines",
+      "other": "Service"
+    },
+    "usageRequests": "Insurance requests: {count}",
+    "usageCovered": "Covered by insurer",
+    "usagePaid": "You paid",
+    "networkType": {
+      "all": "All",
+      "doctor": "Doctors",
+      "hospital": "Hospitals",
+      "pharmacy": "Pharmacies",
+      "lab": "Labs"
+    },
+    "networkCall": "Call"
   },
   "LoyaltyHubWeb": {
     "title": "Nabd points",
@@ -4068,7 +4192,30 @@
     "copied": "Copied",
     "copyFailed": "Could not copy",
     "shared": "Shared",
-    "inviteeFallback": "Invitee"
+    "inviteeFallback": "Invitee",
+    "tier.bronze": "Bronze",
+    "tier.silver": "Silver",
+    "tier.gold": "Gold",
+    "tier.platinum": "Platinum",
+    "perk.cashback_5_consult": "5% cashback on consultations",
+    "perk.priority_standard": "Standard booking priority",
+    "perk.cashback_8": "8% cashback",
+    "perk.free_pharmacy_shipping": "Free shipping from the pharmacy",
+    "perk.priority_advanced": "Advanced booking priority",
+    "perk.cashback_12": "12% cashback",
+    "perk.free_consult_monthly_1": "1 free consultation per month",
+    "perk.support_priority_24_7": "Priority support 24/7",
+    "perk.cashback_15": "15% cashback",
+    "perk.free_consult_monthly_2": "2 free consultations per month",
+    "perk.personal_health_manager": "Personal health manager",
+    "perk.exclusive_offers": "Exclusive access to offers",
+    "earn.booking_completed": "Completed medical consultation",
+    "earn.order_delivered": "Completed pharmacy order",
+    "earn.review_submitted": "Rating a service",
+    "earn.referral_converted": "Inviting a friend (on their first booking)",
+    "earn.vitals_logged": "Logging vital signs",
+    "earn.challenge": "Health challenge",
+    "earn.perChallenge": "Varies by challenge"
   },
   "OffersWeb": {
     "title": "Offers and packages",
@@ -4546,7 +4693,13 @@
         "good": "Good",
         "okay": "Okay",
         "bad": "Difficult",
-        "terrible": "Very difficult"
+        "terrible": "Very difficult",
+        "calm": "Calm",
+        "tired": "Tired",
+        "stressed": "Stressed",
+        "connected": "Connected",
+        "rested": "Rested",
+        "overwhelmed": "Overwhelmed"
       },
       "energy_level": "Energy (1-5, optional)",
       "stress_level": "Stress (1-5, optional)",
@@ -4558,8 +4711,10 @@
         "energy_level": "Energy is a number from 1 to 5.",
         "stress_level": "Stress is a number from 1 to 5.",
         "sleep_hours": "Hours of sleep are between 0 and 24.",
-        "notes": "The note is too long."
-      }
+        "notes": "The note is too long.",
+        "tags": "Choose tags from the list."
+      },
+      "tags": "What describes your day?"
     },
     "kicks": {
       "title": "Log baby kicks",

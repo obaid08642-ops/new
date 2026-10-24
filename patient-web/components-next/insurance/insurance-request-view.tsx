@@ -31,7 +31,7 @@ const POLL_MS = 6000;
  * pages made, with the same bodies and idempotency keys: payment-capabilities (GET), accept-self-pay (POST) and payment-intent
  * (POST, only an https checkout address is followed).
  */
-export function InsuranceRequestView({ request, price, bookingStatusHref }: { request: InsuranceRequest; price?: number; bookingStatusHref: string | null }) {
+export function InsuranceRequestView({ request, price, bookingStatusHref, policy }: { request: InsuranceRequest; price?: number; bookingStatusHref: string | null; policy?: { company?: string; number?: string } }) {
   const t = useTranslations("InsuranceWeb");
   const locale = useLocale();
   const router = useRouter();
@@ -47,15 +47,18 @@ export function InsuranceRequestView({ request, price, bookingStatusHref }: { re
     return () => clearInterval(timer);
   }, [request.state, router]);
 
-  async function loadCapabilities(nextMode: Mode) {
+  /** Reads the payment options of the request (GET payment-capabilities). With `payAtOnce` and exactly one method the checkout starts straight away (the app's one tap). */
+  async function loadCapabilities(nextMode: Mode, payAtOnce = false) {
     if (loading) return;
     setLoading(true); setMessage(null); setCapabilities(null);
     try {
       const response = await fetch(`/api/insurance/requests/${request.id}/payment-capabilities?mode=${nextMode}`, { cache: "no-store" });
       const data = await response.json().catch(() => null);
       if (!response.ok || !data) { setMessage(t("request.noOnline")); return; }
-      setCapabilities(data as Capabilities);
+      const loaded = data as Capabilities;
+      setCapabilities(loaded);
       setMode(nextMode);
+      if (payAtOnce && loaded.methods.length === 1) await startPayment(loaded.methods[0].id);
     } catch { setMessage(t("request.optionsFailed")); } finally { setLoading(false); }
   }
 
@@ -72,16 +75,23 @@ export function InsuranceRequestView({ request, price, bookingStatusHref }: { re
   async function begin(method: Method) {
     if (loading || !mode || !capabilities?.methods.some((item) => item.id === method)) return;
     setLoading(true); setMessage(null);
+    try { await startPayment(method); } finally { setLoading(false); }
+  }
+
+  /** POST payment-intent for the chosen method and follow the https checkout address the server returns (nothing is marked paid here). */
+  async function startPayment(method: Method) {
     try {
       const response = await fetch(`/api/insurance/requests/${request.id}/payment-intent`, { method: "POST", headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() }, body: JSON.stringify({ method }) });
       const data = await response.json().catch(() => null);
       if (!response.ok || !isHttpsCheckoutUrl(data?.checkoutUrl)) { setMessage(t("request.payFailed")); return; }
       window.location.assign(data.checkoutUrl);
-    } catch { setMessage(t("request.payRetry")); } finally { setLoading(false); }
+    } catch { setMessage(t("request.payRetry")); }
   }
 
   const state = request.state;
   const payMode: Mode | null = state === "COPAY_PENDING" ? "copay" : state === "SELF_PAY_PENDING" ? "self-pay" : null;
+  // The amount on the pay button is the server's figure for the request (never computed here).
+  const payAmount = payMode === "copay" ? request.copayAmount : payMode === "self-pay" ? request.selfPayAmount : undefined;
   const methodLabel = (method: Method) => (method === "apple-pay" ? t("request.methodApple") : method === "google-pay" ? t("request.methodGoogle") : t("request.methodCard"));
   const amounts: Array<{ label: string; value: number }> = [];
   if (price !== undefined) amounts.push({ label: t("request.total"), value: price });
@@ -116,6 +126,15 @@ export function InsuranceRequestView({ request, price, bookingStatusHref }: { re
         </section>
       ) : null}
 
+      {policy && (policy.company || policy.number) ? (
+        <section className={rx.card} aria-label={t("request.insurer")}>
+          <ul className={styles.amounts}>
+            {policy.company ? <li><span className={styles.amountLabel}>{t("request.insurer")}</span><span className={styles.amountValue}><bdi>{policy.company}</bdi></span></li> : null}
+            {policy.number ? <li><span className={styles.amountLabel}>{t("policyNumber")}</span><span className={styles.amountValue}><bdi>{policy.number}</bdi></span></li> : null}
+          </ul>
+        </section>
+      ) : null}
+
       {amounts.length > 0 ? (
         <section className={rx.card} aria-label={t("request.amounts")}>
           <ul className={styles.amounts}>
@@ -134,7 +153,10 @@ export function InsuranceRequestView({ request, price, bookingStatusHref }: { re
       ) : null}
 
       {payMode && !capabilities ? (
-        <Button label={t("request.showOptions")} size="lg" fullWidth loading={loading} onClick={() => void loadCapabilities(payMode)} />
+        <Button
+          label={payAmount !== undefined ? t("request.payNow", { amount: money(payAmount) }) : t("request.showOptions")}
+          size="lg" fullWidth loading={loading} onClick={() => void loadCapabilities(payMode, true)}
+        />
       ) : null}
 
       {capabilities ? (

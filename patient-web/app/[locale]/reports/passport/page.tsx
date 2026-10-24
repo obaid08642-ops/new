@@ -35,7 +35,7 @@ export default async function HealthPassportPage({ params }: Props) {
     callPatientApi("/medical-profile/passport-token", {}, token).catch(() => null),
   ]);
   if (profileRes?.status === 401 || tokenRes?.status === 401) redirect(`/${locale}/login`);
-  const back = `/${locale}/health/profile#healthid`;
+  const back = `/${locale}/health/profile?tab=basics`;
   if (!profileRes?.ok && !tokenRes?.ok) {
     return (
       <ConsultPage locale={locale} title={t("secHealthId")} backHref={back}>
