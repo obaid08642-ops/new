@@ -4,7 +4,8 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
 import { extractAppointmentDetail } from "@/lib/api/appointments";
-import { APPOINTMENT_ID, isDone, isJoinable, modeOf, statusKey, statusTone } from "@/lib/consult/appointment-view";
+import { APPOINTMENT_ID, isDone, isJoinable, isOpen, modeOf, statusKey, statusTone } from "@/lib/consult/appointment-view";
+import { AutoRefresh } from "@/components-next/consult/auto-refresh";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { clinicConfirmation } from "@/components-next/consult/clinic-confirmation";
 import { ActionLinks, Hero, type LinkAction } from "@/components-next/consult/consult-parts";
@@ -49,11 +50,14 @@ export default async function ConsultationBookingStatusPage({ params, searchPara
   const actions: LinkAction[] = [];
   if (active && isVideo) actions.push({ href: `/${locale}/consultations/virtual-waiting-room?appointmentId=${id}`, label: c("actionWaitingRoom") });
   if (active && !isVideo && !showClinic) actions.push({ href: `/${locale}/appointments/${id}`, label: c("actionAppointmentDetails") });
+  if (active && mode === "home") actions.push({ href: `/${locale}/consultations/home-visit-tracking?appointmentId=${id}`, label: c("actionTrack") });
+  if (isOpen(appointment.status)) actions.push({ href: `/${locale}/consultations/cancel-reschedule?appointmentId=${id}`, label: c("actionEdit"), variant: "outline" });
   if (isDone(appointment.status)) actions.push({ href: `/${locale}/appointments/${id}`, label: c("actionSummary") });
   actions.push({ href: `/${locale}/appointments`, label: c("actionMyAppointments"), variant: "outline" });
 
   return (
     <ConsultPage locale={locale} title={locationView ? c("clinicLocationTitle") : showClinic ? c("clinicConfirmTitle") : c("bookingStatusTitle")} backHref={`/${locale}/appointments/${id}`}>
+      {!locationView && isOpen(appointment.status) ? <AutoRefresh /> : null}
       {!locationView ? <Hero icon="check-circle" tone={statusTone(appointment.status)} title={key ? c(`status.${key}`) : a("statusUnavailable")} sub={appointment.doctorName} /> : null}
       {clinic}
       {!locationView ? <ActionLinks actions={actions} /> : null}

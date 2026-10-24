@@ -91,6 +91,15 @@ describe("the urgent-help page", () => {
   });
 });
 
+describe("the urgent-help page when the call itself throws", () => {
+  it("shows the same in-page error (a network error is not an error-boundary page) and keeps the share action", async () => {
+    server.api.mockRejectedValueOnce(new Error("network down"));
+    const out = await html(EmergencyPage({ params }));
+    expect(out).not.toContain("tel:");
+    expect(out).toContain("could not be loaded");
+  });
+});
+
 describe("the removed SOS routes and calls", () => {
   it.each([
     ["sos", SosRedirect],

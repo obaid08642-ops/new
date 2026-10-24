@@ -50,7 +50,7 @@ export async function LabsCatalog({ locale, search, homeOnly, backHref }: { loca
             return (
               <LabCard
                 key={service.id}
-                href={`/${locale}/diagnostics/labs/book?serviceId=${encodeURIComponent(service.id)}`}
+                href={`/${locale}/labs/${encodeURIComponent(service.id)}?kind=lab`}
                 title={pickText(locale, service.nameAr, service.nameEn) ?? ""}
                 tags={tags}
                 imageUrl={service.imageUrl}

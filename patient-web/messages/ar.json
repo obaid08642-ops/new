@@ -175,7 +175,8 @@
     "rateLimited": "محاولات كثيرة. انتظر دقيقة ثم حاول مرة أخرى.",
     "serverError": "حدث خطأ من جانبنا. حاول مرة أخرى بعد قليل.",
     "guestBlocked": "تعذر فتح الدخول كضيف. سجّل الدخول أو حاول مرة أخرى بعد قليل.",
-    "googleUnavailable": "الدخول عبر Google غير متاح الآن. استخدم طريقة أخرى لتسجيل الدخول."
+    "googleUnavailable": "الدخول عبر Google غير متاح الآن. استخدم طريقة أخرى لتسجيل الدخول.",
+    "locked": "محاولات فاشلة كثيرة. حاول مرة أخرى بعد {minutes} دقيقة."
   },
   "Dashboard": {
     "eyebrow": "بوابة خاصة",
@@ -376,7 +377,22 @@
     "callOpen": "انضم إلى الزيارة المرئية",
     "cancelledRefund": "أُلغي الموعد. يعود {amount} ({percent}٪ مما دفعت) إلى وسيلة الدفع الأصلية.",
     "cancelledNoRefund": "أُلغي الموعد. لا يستحق استرداد وفق سياسة الإلغاء.",
-    "cancelledNotCharged": "أُلغي الموعد. لم يُخصم أي مبلغ."
+    "cancelledNotCharged": "أُلغي الموعد. لم يُخصم أي مبلغ.",
+    "bookingNumber": "رقم الحجز",
+    "paymentMethodLabel": "طريقة الدفع",
+    "amount": "المبلغ",
+    "bookAgain": "احجز مجدداً",
+    "emptyUpcoming": "لا توجد مواعيد قادمة",
+    "emptyPast": "لا توجد مواعيد سابقة",
+    "cancelReasonTitle": "سبب الإلغاء",
+    "cancelReasons": {
+      "emergency": "ارتباط طارئ",
+      "better": "تحسّنت صحتي",
+      "otherDoctor": "أريد تغيير الطبيب",
+      "time": "الوقت لا يناسبني",
+      "payment": "مشكلة في الدفع",
+      "other": "سبب آخر"
+    }
   },
   "Medicines": {
     "eyebrow": "كتالوج خاص",
@@ -503,7 +519,12 @@
     "earlier": "سابقًا",
     "emptyTitle": "لا توجد إشعارات",
     "markAllRead": "تحديد الكل كمقروء",
-    "markFailed": "تعذر تحديث الإشعار. حاول مرة أخرى."
+    "markFailed": "تعذر تحديث الإشعار. حاول مرة أخرى.",
+    "filters": "تصفية الإشعارات",
+    "filterAll": "الكل",
+    "filter_system": "النظام",
+    "filter_medical": "طبية",
+    "filter_promotion": "العروض"
   },
   "Health": {
     "eyebrow": "صحة خاصة",
@@ -708,7 +729,7 @@
     "timelineEmpty": "لا توجد أحداث صحية مسجلة بعد.",
     "reportsEmpty": "لا توجد تقارير طبية بعد",
     "chronicEmpty": "لا توجد أدوية مزمنة بعد.",
-    "chronicNotice": "تظهر هنا مواعيد أدويتك المسجلة وتواريخ إعادة التعبئة. الإضافة والتعديل والإيقاف وإعادة التعبئة والتذكيرات غير متاحة بعد.",
+    "chronicNotice": "تساعدك هذه الصفحة على متابعة السجل وإعادة التعبئة. لا تنشئ طلباً تلقائياً ولا تعدل وصفة أو جرعة.",
     "medicineUnavailable": "اسم الدواء غير متاح",
     "medicineUnnamed": "دواء غير مسمى",
     "emergencyMineEmpty": "لا توجد جهات اتصال للطوارئ بعد.",
@@ -733,7 +754,128 @@
     "reminderFor": "لمن هذا التذكير؟",
     "reminderForMe": "لي أنا",
     "reminderForName": "تذكير لـ {name}",
-    "reminderMemberFallback": "فرد من العائلة"
+    "reminderMemberFallback": "فرد من العائلة",
+    "scoreLevel": {
+      "excellent": "ممتازة",
+      "good": "جيدة",
+      "fair": "مقبولة",
+      "needs_attention": "تحتاج انتباه"
+    },
+    "scoreComp": {
+      "bmi": "مؤشر كتلة الجسم",
+      "bp": "ضغط الدم",
+      "glucose": "سكر الدم",
+      "heart_rate": "نبض القلب",
+      "sleep": "جودة النوم",
+      "tracking": "انتظام التسجيل"
+    },
+    "scoreRec": {
+      "bmi_high": "مؤشر كتلة الجسم أعلى من الطبيعي — نشاط بدني منتظم وتغذية متوازنة يساعدان على خفضه",
+      "profile_incomplete": "أكمل طولك ووزنك في الملف الصحي لتحسب درجتك بدقة أعلى",
+      "bp_high": "قراءة ضغط الدم الأخيرة مرتفعة — قلل الملح وراقب الضغط بانتظام واستشر طبيبك",
+      "glucose_off": "قراءة السكر خارج النطاق الطبيعي — راجع خطة وجباتك وأدويتك مع طبيبك",
+      "sleep_low": "جودة نومك تحتاج تحسيناً — ثبّت موعد النوم وقلل الشاشات قبله",
+      "tracking_low": "سجّل مؤشراتك الحيوية بانتظام (٥ قراءات أسبوعياً) لرفع دقة درجتك",
+      "tracking_start": "ابدأ بتسجيل مؤشراتك الحيوية (ضغط، سكر، وزن) لتفعيل درجة الصحة"
+    },
+    "scoreOpen": "فتح المؤشرات الحيوية",
+    "scoreEmpty": "لا توجد بيانات كافية. سجّل مؤشراتك الحيوية لتفعيل درجتك.",
+    "hubChronic": "الأمراض المزمنة",
+    "hubChronicHint": "حالاتك وما تحتاجه من متابعة",
+    "hubTrends": "الاتجاهات",
+    "hubTrendsHint": "رسوم بيانية لقياساتك",
+    "hubFamily": "العائلة",
+    "hubFamilyHint": "أفراد عائلتك وصلاحياتهم",
+    "hubFamilyChat": "محادثة العائلة",
+    "hubFamilyChatHint": "تواصل مع أفراد عائلتك",
+    "hubNursing": "التمريض المنزلي",
+    "hubNursingHint": "رعاية تمريضية في منزلك",
+    "hubPrograms": "برامجي العلاجية",
+    "hubProgramsHint": "البرامج الطبية الجارية وجلساتها",
+    "hubArticles": "مقالات صحية",
+    "hubArticlesHint": "اقرأ وتعلّم",
+    "hubChallenges": "تحدياتي",
+    "hubChallengesHint": "نقاط ومكافآت",
+    "hubMoreTitle": "المزيد",
+    "vitalsUnavailable": "تعذر تحميل المؤشرات الحيوية.",
+    "reportKind": {
+      "all": "الكل",
+      "lab": "تحاليل",
+      "radiology": "أشعة",
+      "notes": "ملاحظات طبية"
+    },
+    "reportsNoneOfKind": "لا توجد تقارير من هذا النوع.",
+    "reportImportant": "مهم",
+    "reportNew": "جديد",
+    "reportsFromProviders": "تقارير من مقدمي الخدمة",
+    "reportAttachments": "يتضمن مرفقات من مقدم الخدمة",
+    "reportAlert": "تنبيه من التقرير",
+    "rxShare": "مشاركة",
+    "rxOrder": "اطلب",
+    "rxShareTitle": "وصفة طبية — {doctor}",
+    "rxMedicines": "الأدوية",
+    "reportsFilter": "نوع التقرير",
+    "shareCopied": "تم النسخ",
+    "reportEmptyTitle": "لا يوجد محتوى في هذا التقرير",
+    "reportEmptyBody": "لم يضف مقدم الخدمة نصًا أو نتائج لهذا التقرير بعد.",
+    "ctx": {
+      "morning": "صباحاً",
+      "afternoon": "ظهراً",
+      "evening": "مساءً"
+    },
+    "readingWhen": "وقت القياس",
+    "historyAll": "الكل",
+    "doseSkip": "تخطي",
+    "refillConfirm": "تأكيد طلب إعادة التعبئة",
+    "refillSent": "تم إرسال طلب إعادة التعبئة.",
+    "photoTitle": "الصورة الشخصية",
+    "photoChange": "تغيير الصورة",
+    "photoUploading": "جارٍ رفع الصورة",
+    "photoNote": "تُحفظ الصورة في ملف المستخدم، وباقي المعلومات في الملف الطبي.",
+    "photoFailed": "تعذر رفع الصورة الشخصية.",
+    "basicsUnknown": "غير معروف",
+    "basicsGender": "النوع",
+    "gender": {
+      "unspecified": "لا أريد التحديد",
+      "female": "أنثى",
+      "male": "ذكر"
+    },
+    "basicsOptional": "معلومات اختيارية",
+    "basicsPregnant": "متابعة حمل حالياً",
+    "basicsBreastfeeding": "الرضاعة الطبيعية",
+    "basicsSmoker": "التدخين حالياً",
+    "sleepQuality": {
+      "excellent": "ممتاز",
+      "good": "جيد",
+      "fair": "متوسط",
+      "poor": "ضعيف"
+    },
+    "sleepWeek": "آخر ٧ أيام",
+    "sleepAverage": "متوسط النوم {hours} ساعة",
+    "sleepTips": "لنوم أفضل",
+    "trendsInRange": "ضمن الطبيعي",
+    "trendsOutRange": "خارج الطبيعي",
+    "trendsNormal": "المعدل الطبيعي: {lo}-{hi} {unit}",
+    "trendsMax": "أعلى قيمة",
+    "trendsMin": "أدنى قيمة",
+    "trendsAvg": "المتوسط",
+    "trendsCount": "عدد القراءات",
+    "trendsShare": "مشاركة ملخص مؤشراتي",
+    "trendsShareTitle": "ملخص مؤشراتي الصحية — نبض بلس",
+    "dosesLogged": "جرعات اليوم المسجلة",
+    "dailyPlan": "خطة اليوم",
+    "doseTimeline": "تسلسل جرعات اليوم",
+    "viewReminders": "عرض التذكيرات",
+    "medsPrescriptionsLink": "عرض الوصفات",
+    "reminderStop": "إيقاف التذكير",
+    "refillTrack": "تتبع الطلب",
+    "refillNoAddress": "تحتاج عنواناً مسجلاً قبل إعادة الصرف.",
+    "refillAddAddress": "إضافة عنوان",
+    "chronicDefer": "تأجيل 3 أيام",
+    "chronicStop": "إيقاف متابعة الإعادة",
+    "chronicUpdateFailed": "تعذر تحديث متابعة إعادة التعبئة.",
+    "confirmAction": "تأكيد",
+    "photoInvalid": "اختر صورة لا يزيد حجمها عن 5 ميغابايت."
   },
   "Prescriptions": {
     "title": "الوصفات الطبية",
@@ -1201,7 +1343,11 @@
     "paymentAddPolicy": "أضف التأمين",
     "doctorPhotoAlt": "صورة {name}",
     "clinicPhotosTitle": "صور العيادة",
-    "clinicPhotoAlt": "صورة العيادة {n}"
+    "clinicPhotoAlt": "صورة العيادة {n}",
+    "bioTitle": "عن الطبيب",
+    "infoTitle": "معلومات إضافية",
+    "languagesLabel": "اللغات",
+    "chooseDayTime": "اختر اليوم والوقت"
   },
   "LabsServices": {
     "eyebrow": "الرعاية المخبرية",
@@ -1364,7 +1510,8 @@
     "recentTitle": "عمليات البحث الأخيرة",
     "recentClear": "مسح",
     "trendingTitle": "الأكثر بحثًا الآن",
-    "tryTitle": "جرّب أحد هذه"
+    "tryTitle": "جرّب أحد هذه",
+    "seeAll": "الكل ({count})"
   },
   "SearchSuggest": {
     "listLabel": "اقتراحات البحث",
@@ -1531,7 +1678,8 @@
     "shortAddressInvalid": "العنوان المختصر أربعة أحرف وأربعة أرقام، مثل {example}.",
     "shortAddressNotFound": "لم نجد عنواناً لهذا الرمز. تأكد منه وحاول مرة أخرى.",
     "shortAddressUnavailable": "خدمة البريد السعودي لا تستجيب الآن. يمكنك حفظ العنوان بالتفاصيل التي كتبتها.",
-    "removedToast": "تم حذف العنوان."
+    "removedToast": "تم حذف العنوان.",
+    "makeDefault": "تعيين كافتراضي"
   },
   "ShareReport": {
     "title": "مشاركة التقارير",
@@ -1750,7 +1898,16 @@
     "submit": "إرسال التقييم",
     "submitting": "جارٍ الإرسال...",
     "thanks": "شكراً لك! تم استلام تقييمك.",
-    "error": "تعذر إرسال التقييم. حاول مرة أخرى."
+    "error": "تعذر إرسال التقييم. حاول مرة أخرى.",
+    "tagsTitle": "ما الذي أعجبك؟",
+    "tags": {
+      "excellent": "ممتاز",
+      "fast": "سريع",
+      "professional": "احترافي",
+      "clean": "نظيف",
+      "helpful": "متعاون",
+      "recommend": "أنصح به"
+    }
   },
   "HomeVisitTracking": {
     "title": "تتبع الزيارة المنزلية",
@@ -1790,7 +1947,8 @@
   "SupportTicket": {
     "title": "تذاكر الدعم",
     "back": "رجوع",
-    "empty": "لا توجد بيانات بعد."
+    "empty": "لا توجد بيانات بعد.",
+    "newRequest": "طلب جديد"
   },
   "HealthTimeline": {
     "title": "السجل الصحي الزمني",
@@ -1965,7 +2123,7 @@
     "identifier": "البريد الإلكتروني أو رقم الهاتف",
     "hintIdentifier": "نرسل إليه رمز التأكيد",
     "password": "كلمة المرور",
-    "hintPassword": "8 أحرف على الأقل",
+    "hintPassword": "10 أحرف على الأقل",
     "agree": "أوافق على <terms>الشروط والأحكام</terms> و<privacy>سياسة الخصوصية</privacy>",
     "submit": "إنشاء الحساب",
     "busy": "جارٍ إنشاء الحساب…",
@@ -1980,7 +2138,13 @@
     "rateLimited": "محاولات كثيرة. انتظر دقيقة ثم حاول مرة أخرى.",
     "incomplete": "تعذر إكمال التسجيل. قد يكون حسابك قد أُنشئ بالفعل: جرّب تسجيل الدخول أو حاول مرة أخرى بعد قليل.",
     "showPassword": "إظهار كلمة المرور",
-    "hidePassword": "إخفاء كلمة المرور"
+    "hidePassword": "إخفاء كلمة المرور",
+    "errName": "أدخل اسمك (حرفان على الأقل).",
+    "errIdentifier": "أدخل بريدًا إلكترونيًا أو رقم جوال صحيحًا.",
+    "errPassword": "يجب أن تتكوّن كلمة المرور من 10 أحرف على الأقل.",
+    "errMismatch": "كلمتا المرور غير متطابقتين.",
+    "errAgree": "وافق على الشروط وسياسة الخصوصية للمتابعة.",
+    "confirm": "تأكيد كلمة المرور"
   },
   "Otp": {
     "title": "أدخل رمز التأكيد",
@@ -2001,7 +2165,8 @@
     "resent": "تم إرسال رمز جديد.",
     "resendFailed": "تعذر إرسال رمز جديد. حاول مرة أخرى بعد قليل.",
     "resendLimited": "طلبت رموزًا كثيرة. حاول مرة أخرى بعد بضع دقائق.",
-    "resendUnavailable": "لا يمكننا إرسال رمز الآن. حاول مرة أخرى بعد قليل."
+    "resendUnavailable": "لا يمكننا إرسال رمز الآن. حاول مرة أخرى بعد قليل.",
+    "change": "تغيير البريد أو رقم الجوال"
   },
   "ForgotPassword": {
     "title": "استعادة كلمة المرور",
@@ -2028,13 +2193,18 @@
     "back": "العودة إلى الدخول",
     "invalidToken": "الرمز غير صالح أو انتهت صلاحيته. اطلب رمزًا جديدًا.",
     "mismatch": "كلمتا المرور غير متطابقتين.",
-    "requestNew": "اطلب رمزًا جديدًا"
+    "requestNew": "اطلب رمزًا جديدًا",
+    "successTitle": "تم تحديث كلمة المرور",
+    "signIn": "تسجيل الدخول",
+    "showPassword": "إظهار كلمة المرور",
+    "hidePassword": "إخفاء كلمة المرور"
   },
   "Welcome": {
     "tagline": "رعايتك الصحية المتكاملة",
     "guest": "المتابعة كضيف",
     "register": "إنشاء حساب",
-    "login": "تسجيل الدخول"
+    "login": "تسجيل الدخول",
+    "guestFailed": "تعذّر المتابعة كضيف. حاول مرة أخرى."
   },
   "AuthFrame": {
     "back": "رجوع",
@@ -2608,7 +2778,8 @@
       "in_progress": "جارٍ الآن",
       "completed": "مكتمل",
       "cancelled": "ملغى",
-      "no_show": "لم يحضر"
+      "no_show": "لم يحضر",
+      "pending_copay": "بانتظار دفع حصتك"
     },
     "insurancePendingTitle": "المنشأة تطلب موافقة شركة التأمين",
     "insuranceDecidedTitle": "تم تسجيل قرار التأمين",
@@ -2702,7 +2873,12 @@
     "callAudioOnly": "الاتصال ضعيف، فأوقفنا الفيديو وأبقينا الصوت.",
     "callTryVideo": "جرّب الفيديو مرة أخرى",
     "callDropped": "انقطعت المكالمة.",
-    "callContinueInChat": "أكمل في المحادثة"
+    "callContinueInChat": "أكمل في المحادثة",
+    "statReviews": "تقييم",
+    "copayTitle": "وصلت الموافقة",
+    "copayBody": "تمت الموافقة. ادفع نسبة التحمل ({amount}) لفتح الاستشارة.",
+    "copayAction": "عرض طلب التأمين والدفع الآمن",
+    "actionDoctorProfile": "عرض الملف"
   },
   "ConsultClient": {
     "payHeading": "أكمل الدفع من خلال بوابة آمنة",
@@ -2758,7 +2934,12 @@
       "vitals": "مشاهدة المؤشرات الحيوية",
       "meds": "مشاهدة الأدوية",
       "reports": "مشاهدة التقارير",
-      "appointments": "مشاهدة المواعيد"
+      "appointments": "مشاهدة المواعيد",
+      "booking": "الحجز نيابةً",
+      "pharmacy": "الطلب من الصيدلية",
+      "payment": "الدفع نيابةً",
+      "location": "مشاركة الموقع",
+      "emergency": "إشعارات الطوارئ"
     },
     "calendarTitle": "تقويم العائلة",
     "calendarSub": "مواعيد وأدوية الجميع",
@@ -2850,7 +3031,58 @@
     "medsAddReminder": "إضافة تذكير دواء",
     "close": "إغلاق",
     "removeConfirmTitle": "إزالة هذا الفرد من العائلة؟",
-    "removeConfirmBody": "لن يظهر في قائمة العائلة بعد الآن."
+    "removeConfirmBody": "لن يظهر في قائمة العائلة بعد الآن.",
+    "joinExisting": "انضم لعائلة حالية",
+    "defaultName": "عائلتي",
+    "reqReplied": "تم الرد، وتم إشعار العضو بالتغييرات.",
+    "reqAllowed": "مسموح",
+    "reqRefused": "مرفوض",
+    "reqNote": "يمكنك تعديل الصلاحيات لاحقاً، وسيُشعَر الطرف الآخر بأي تغيير.",
+    "reqAccept": "قبول الصلاحيات",
+    "reqDecline": "رفض الكل",
+    "permsRequested": "تم إرسال طلب الصلاحيات للعضو للموافقة عليه.",
+    "ownerPermsTitle": "مالك المجموعة",
+    "ownerPermsBody": "صلاحيات مالك المجموعة لا تُدار من هنا.",
+    "inviteShare": "مشاركة الدعوة",
+    "inviteShareMessage": "انضم لعائلتي على نبض بلس! أدخل هذا الكود في التطبيق: {code}",
+    "invitePermsTitle": "الصلاحيات",
+    "invitePermsBody": "بعد قبول الدعوة تتحكم في صلاحيات الفرد: المؤشرات والأدوية والحجز نيابةً وغيرها.",
+    "relation": {
+      "spouse": "زوج/ة",
+      "child": "ابن/ة",
+      "parent": "والد/ة",
+      "sibling": "أخ/أخت",
+      "caregiver": "مقدم رعاية",
+      "other": "أخرى"
+    },
+    "joinScan": "مسح رمز QR بالكاميرا",
+    "joinDoneTitle": "تم الانضمام للعائلة!",
+    "joinDoneBody": "أنت الآن مرتبط بالمجموعة العائلية.",
+    "joinGoFamily": "الذهاب للعائلة",
+    "memberChat": "محادثة العائلة",
+    "memberBook": "حجز موعد نيابةً",
+    "calendarAdd": "إضافة حدث",
+    "calendarNewTitle": "حدث عائلي جديد",
+    "calendarEventTitle": "عنوان الحدث",
+    "calendarEventDate": "الموعد",
+    "calendarMember": "العضو",
+    "calendarEventType": "نوع الحدث",
+    "calendarType": {
+      "appointment": "موعد",
+      "reminder": "تذكير",
+      "medication": "دواء",
+      "lab": "تحليل"
+    },
+    "calendarSave": "إضافة الحدث",
+    "calendarInvalid": "أكمل العنوان والموعد والعضو ونوع الحدث بصيغة صحيحة.",
+    "calendarAddFailed": "تعذر إضافة الحدث. حاول مرة أخرى.",
+    "calendarDelete": "حذف",
+    "calendarDeleteTitle": "حذف الحدث",
+    "calendarDeleteBody": "هل أنت متأكد من حذف هذا الحدث من تقويم العائلة؟",
+    "calendarDeleteFailed": "تعذر حذف الحدث",
+    "memberAge": "{n} سنة",
+    "vitalsTitle": "المؤشرات الحيوية",
+    "noVitals": "لا توجد مؤشرات مسجلة أو لم يسمح الفرد بعرضها."
   },
   "DiagWeb": {
     "retry": "حاول مرة أخرى",
@@ -3068,7 +3300,9 @@
     "bookingNotSentTitle": "لم يتم أي حجز",
     "bookingNotSentBody": "هذه النافذة لا ترسل الحجز بعد، لذلك لم يُنشأ أي موعد ولم يُسحب أي مبلغ. افتح صفحة التمريض لحجز زيارة.",
     "bookingNotSentCta": "إلى صفحة التمريض",
-    "bookingNotSentClose": "إغلاق"
+    "bookingNotSentClose": "إغلاق",
+    "approvalNoOrderTitle": "لا يوجد حجز لعرض التأمين",
+    "approvalNoOrderBody": "خطوة التأمين تتبع حجزًا. افتح أحد طلباتك لمتابعة الموافقة أو رفع مستند."
   },
   "OrderContext": {
     "hint": "تتحدّث الأسعار والتغطية فور أي تغيير",
@@ -3193,7 +3427,36 @@
     "experienceLabel": "الخبرة الميدانية",
     "ratingLabel": "تقييم المرضى",
     "nurseServicesTitle": "الخدمات التمريضية المتاحة",
-    "requestNurse": "طلب زيارة تمريض"
+    "requestNurse": "طلب زيارة تمريض",
+    "prepTitle": "التحضير",
+    "carePackages": "باقات الرعاية",
+    "rxNotice": "هذه الخدمة تحتاج وصفة طبية من طبيبك، وسيطلب الممرض الاطلاع عليها قبل الزيارة.",
+    "sortTitle": "ترتيب الممرضين",
+    "sortAny": "أي ترتيب",
+    "sortRating": "الأعلى تقييمًا",
+    "filterGender": "جنس الممرض",
+    "gender_any": "الكل",
+    "gender_female": "ممرضة",
+    "gender_male": "ممرض",
+    "ratingLine": "{rating} ({count})",
+    "yearsLine": "{count, plural, one {خبرة سنة واحدة} two {خبرة سنتين} few {خبرة # سنوات} many {خبرة # سنة} other {خبرة # سنة}}",
+    "priceAtBooking": "السعر يُحدد عند الحجز",
+    "availableNow": "متاح الآن",
+    "notNow": "غير متاح الآن",
+    "degreeLabel": "المؤهل",
+    "nurseChooseService": "اختر خدمة لحجز هذا الممرض",
+    "nurseChooseServiceBody": "اختر خدمة تمريض منزلي أولًا، وتظهر مواعيد الممرض بعد اختيار الخدمة.",
+    "visitPrice": "سعر الزيارة",
+    "confirmWithAmount": "تأكيد الحجز · {amount}",
+    "insFetched": "تأمينك المسجل",
+    "insCompany": "الشركة",
+    "insPolicy": "رقم الوثيقة",
+    "insNoPolicy": "لا توجد وثيقة تأمين في ملفك. أضفها قبل إرسال الطلب.",
+    "insAddPolicy": "إضافة وثيقة",
+    "callNurse": "اتصل بالممرض",
+    "nurseOnMap": "عرض الممرض على الخريطة",
+    "insuranceNone": "لا يوجد طلب تأمين",
+    "insuranceNoneBody": "عند طلب زيارة بالتأمين ستظهر الموافقة هنا."
   },
   "MaternityWeb": {
     "title": "الأمومة",
@@ -3264,7 +3527,15 @@
     "weekEmpty": "محتوى هذا الأسبوع غير متوفر بعد.",
     "weekUnavailable": "تعذر تحميل محتوى هذا الأسبوع.",
     "readThisWeek": "اقرأ هذا الأسبوع",
-    "readEmpty": "لا توجد مقالات لهذا الأسبوع بعد."
+    "readEmpty": "لا توجد مقالات لهذا الأسبوع بعد.",
+    "pregnancyNotice": "يعتمد هذا العرض على التاريخ الذي أدخلته. لا يثبت عمر الحمل أو صحة الجنين ولا يغني عن الرعاية الطبية.",
+    "cycleNotice": "توقعات الدورة والخصوبة تقديرية بناءً على مدخلاتك، وقد لا تناسب الدورة غير المنتظمة. لا تستخدميها لمنع الحمل.",
+    "safetyNotice": "إذا كان لديكِ ألم شديد أو نزف أو قلق عاجل، تواصلي مع خدمة طبية أو الطوارئ. لا يقدم نَبْض تشخيصاً.",
+    "notContraception": "ليست وسيلة منع حمل أو تأكيد للإباضة.",
+    "dayLabel": "اليوم {day} من دورة {total} يومًا",
+    "dayOfCycle": "يوم الدورة",
+    "cycleDays": "{count} أيام",
+    "allArticles": "كل المقالات"
   },
   "NutritionWeb": {
     "title": "التغذية",
@@ -3341,7 +3612,24 @@
     "planFailed": "تعذر إنشاء الخطة الآن. حاول مرة أخرى.",
     "planNutritionist": "تابع مع أخصائي تغذية",
     "planNotice": "هذه الخطة إرشادات عامة من المساعد الذكي وليست وصفة طبية. استشر أخصائي تغذية قبل أي تغيير كبير.",
-    "planDay": "اليوم {n}"
+    "planDay": "اليوم {n}",
+    "remaining": "المتبقي: {value}",
+    "setTarget": "إعداد أهداف التغذية",
+    "protein": "البروتين",
+    "carbs": "الكربوهيدرات",
+    "fat": "الدهون",
+    "gram": "غ",
+    "waterProgress": "{value} / {target} {unit}",
+    "addMl": "+{amount} مل",
+    "waterFailed": "تعذر حفظ الماء. حاول مرة أخرى.",
+    "proteinLine": "بروتين {value} غ",
+    "nutritionSafety": "تسجيل الوجبات يساعد على المتابعة فقط. لا يضع نَبْض تشخيصاً أو حمية علاجية أو بديلاً عن اختصاصي التغذية.",
+    "macro": {
+      "protein_g": "البروتين (جم، اختياري)",
+      "carbs_g": "الكربوهيدرات (جم، اختياري)",
+      "fat_g": "الدهون (جم، اختياري)",
+      "fiber_g": "الألياف (جم، اختياري)"
+    }
   },
   "MentalWeb": {
     "title": "الصحة النفسية",
@@ -3376,7 +3664,15 @@
       "bad": "سيئ",
       "terrible": "سيئ جداً"
     },
-    "urgentRowSub": "اتصل برقم المساعدة العاجلة"
+    "urgentRowSub": "اتصل برقم المساعدة العاجلة",
+    "moodTag": {
+      "calm": "هادئ",
+      "tired": "متعب",
+      "stressed": "متوتر",
+      "connected": "متواصل",
+      "rested": "مرتاح",
+      "overwhelmed": "مثقل"
+    }
   },
   "ProgramsWeb": {
     "title": "برامجي الصحية",
@@ -3701,7 +3997,10 @@
       "expiry": "تاريخ الانتهاء (اختياري)",
       "submit": "حفظ البوليصة",
       "invalid": "اختر الشركة وأدخل رقم بوليصة صحيحًا (3 أحرف على الأقل).",
-      "failed": "تعذّر حفظ البوليصة."
+      "failed": "تعذّر حفظ البوليصة.",
+      "scan": "مسح بطاقة التأمين بالكاميرا",
+      "scanned": "تم استخراج البيانات المرئية من البطاقة. راجعها قبل الحفظ.",
+      "scanFailed": "فشل التعرف على البطاقة. أدخل البيانات يدويًا."
     },
     "coverage": {
       "title": "ما تغطيه وثيقتي",
@@ -3717,7 +4016,16 @@
       "result": "التغطية المسجّلة",
       "eligible": "مُدرجة كمغطاة في وثيقتك المحفوظة",
       "notEligible": "غير مُدرجة كمغطاة في وثيقتك المحفوظة",
-      "forService": "الخدمة: {service}"
+      "forService": "الخدمة: {service}",
+      "provider": "اسم المزود (اختياري)",
+      "providerHint": "اسم الطبيب أو المستشفى أو الصيدلية",
+      "copayTitle": "نسبة التحمل",
+      "youPay": "تدفعها أنت",
+      "cap": "حد أقصى ثابت للتحمل",
+      "finalNote": "المبلغ النهائي يُحتسب من سعر مقدم الخدمة الفعلي عند الحجز.",
+      "preAuth": "قد تشترط شركة التأمين موافقة مسبقة، وتطلبها المنشأة",
+      "askSupport": "تواصل مع الدعم",
+      "again": "عرض خدمة أخرى"
     },
     "request": {
       "pageTitle": "طلب التأمين",
@@ -3766,7 +4074,12 @@
       "acceptFailed": "تعذّر تسجيل اختيار الدفع الذاتي. لم تُنشأ أي عملية دفع.",
       "acceptRetry": "تعذّر تسجيل اختيار الدفع الذاتي. أعد المحاولة.",
       "payFailed": "تعذّر بدء الدفع الإلكتروني بأمان. لم يتم تأكيد أي دفع.",
-      "payRetry": "تعذّر بدء الدفع الإلكتروني. لم يتم تأكيد أي دفع."
+      "payRetry": "تعذّر بدء الدفع الإلكتروني. لم يتم تأكيد أي دفع.",
+      "insurer": "شركة التأمين",
+      "payNow": "الانتقال للدفع الآمن — {amount}",
+      "missingTitle": "لا يوجد طلب تأمين",
+      "missingBody": "لم نجد طلب تأمين لهذا الحجز. افتح قائمة الطلبات من صفحة التأمين.",
+      "back": "رجوع"
     },
     "noteCode": {
       "coverage_decided_by_provider": "التغطية النهائية يحددها مقدم الخدمة عند مراجعة طلبك.",
@@ -3780,10 +4093,36 @@
       "lab": "مختبر",
       "radiology": "مركز أشعة",
       "home_care": "رعاية منزلية",
-      "nursing": "تمريض"
+      "nursing": "تمريض",
+      "other": "مزود خدمة"
     },
     "memberLine": "رقم العضوية: {id}",
-    "expiryLine": "تنتهي في {date}"
+    "expiryLine": "تنتهي في {date}",
+    "policyVerified": "تمت مراجعتها",
+    "policyInReview": "قيد المراجعة",
+    "policyNumber": "رقم الوثيقة",
+    "memberName": "اسم العضو",
+    "nationalId": "الهوية الوطنية",
+    "policyNetwork": "الشبكة",
+    "kind": {
+      "consultation": "استشارة طبية",
+      "lab": "تحاليل",
+      "radiology": "أشعة",
+      "nursing": "تمريض منزلي",
+      "pharmacy": "أدوية",
+      "other": "خدمة"
+    },
+    "usageRequests": "طلبات التأمين: {count}",
+    "usageCovered": "غطّته شركة التأمين",
+    "usagePaid": "دفعتَه أنت",
+    "networkType": {
+      "all": "الكل",
+      "doctor": "أطباء",
+      "hospital": "مستشفيات",
+      "pharmacy": "صيدليات",
+      "lab": "مختبرات"
+    },
+    "networkCall": "اتصال"
   },
   "LoyaltyHubWeb": {
     "title": "نقاط نبض",
@@ -3855,7 +4194,30 @@
     "copied": "تم النسخ",
     "copyFailed": "تعذّر النسخ",
     "shared": "تمت المشاركة",
-    "inviteeFallback": "مدعو"
+    "inviteeFallback": "مدعو",
+    "tier.bronze": "برونزي",
+    "tier.silver": "فضي",
+    "tier.gold": "ذهبي",
+    "tier.platinum": "بلاتيني",
+    "perk.cashback_5_consult": "5% كاشباك على الاستشارات",
+    "perk.priority_standard": "أولوية حجز عادية",
+    "perk.cashback_8": "8% كاشباك",
+    "perk.free_pharmacy_shipping": "شحن مجاني من الصيدلية",
+    "perk.priority_advanced": "أولوية حجز متقدمة",
+    "perk.cashback_12": "12% كاشباك",
+    "perk.free_consult_monthly_1": "استشارة مجانية شهريًا",
+    "perk.support_priority_24_7": "دعم أولوية 24/7",
+    "perk.cashback_15": "15% كاشباك",
+    "perk.free_consult_monthly_2": "استشارتان مجانيتان شهريًا",
+    "perk.personal_health_manager": "مدير صحة شخصي",
+    "perk.exclusive_offers": "دخول حصري للعروض",
+    "earn.booking_completed": "استشارة طبية مكتملة",
+    "earn.order_delivered": "طلب صيدلية مكتمل",
+    "earn.review_submitted": "تقييم خدمة",
+    "earn.referral_converted": "دعوة صديق (عند أول حجز له)",
+    "earn.vitals_logged": "تسجيل مؤشرات حيوية",
+    "earn.challenge": "تحدٍّ صحي",
+    "earn.perChallenge": "حسب التحدي"
   },
   "OffersWeb": {
     "title": "العروض والباقات",
@@ -4011,7 +4373,24 @@
     "disconnectApp": "قطع الاتصال",
     "disconnectFailed": "تعذر قطع الاتصال. حاول مرة أخرى.",
     "rowConnectedApps": "التطبيقات الذكية المتصلة",
-    "rowConnectedAppsSub": "المساعدات التي سمحت لها بحسابك"
+    "rowConnectedAppsSub": "المساعدات التي سمحت لها بحسابك",
+    "changePasswordTitle": "تغيير كلمة المرور",
+    "currentPassword": "كلمة المرور الحالية",
+    "newPassword": "كلمة المرور الجديدة",
+    "repeatPassword": "أعد كلمة المرور الجديدة",
+    "currentRequired": "أدخل كلمة المرور الحالية.",
+    "passwordTooShort": "يجب أن تتكوّن كلمة المرور الجديدة من 10 أحرف على الأقل.",
+    "passwordMismatch": "كلمتا المرور غير متطابقتين.",
+    "currentWrong": "كلمة المرور الحالية غير صحيحة.",
+    "passwordChangeFailed": "تعذّر تغيير كلمة المرور. حاول مرة أخرى.",
+    "passwordChanged": "تم تغيير كلمة المرور. تم تسجيل الخروج من أجهزتك الأخرى.",
+    "savePassword": "تغيير كلمة المرور",
+    "sessionCurrent": "هذا الجهاز",
+    "sessionLastSeen": "آخر نشاط {when}",
+    "sessionEndConfirm": "تأكيد تسجيل الخروج",
+    "deleteIntro": "سيؤدي هذا إلى حذف حسابك وبياناتك الصحية نهائيًا. لا يمكن التراجع عن ذلك.",
+    "deleteContinue": "متابعة",
+    "callSupport": "الاتصال بالدعم"
   },
   "AccountWeb": {
     "profileTitle": "حسابي",
@@ -4052,7 +4431,9 @@
     "mapIdleBody": "اختر منشأة من القائمة لتظهر على الخريطة مع الاتجاهات.",
     "mapIdleNote": "خرائط مفتوحة المصدر تحمي خصوصيتك.",
     "mapUnavailable": "تعذر تحميل المنشآت. حاول مرة أخرى.",
-    "mapRetry": "أعد المحاولة"
+    "mapRetry": "أعد المحاولة",
+    "guestTitle": "أنت تستخدم حساب ضيف",
+    "guestBody": "سجّل الدخول أو أنشئ حسابًا لعرض بياناتك وطلباتك وسجلاتك."
   },
   "ReturnsWeb": {
     "newRequest": "طلب إرجاع جديد",
@@ -4314,7 +4695,13 @@
         "good": "جيد",
         "okay": "عادي",
         "bad": "صعب",
-        "terrible": "صعب جدًا"
+        "terrible": "صعب جدًا",
+        "calm": "هادئ",
+        "tired": "متعب",
+        "stressed": "متوتر",
+        "connected": "متواصل",
+        "rested": "مرتاح",
+        "overwhelmed": "مثقل"
       },
       "energy_level": "الطاقة (1-5، اختياري)",
       "stress_level": "الضغط (1-5، اختياري)",
@@ -4326,8 +4713,10 @@
         "energy_level": "الطاقة رقم من 1 إلى 5.",
         "stress_level": "الضغط رقم من 1 إلى 5.",
         "sleep_hours": "ساعات النوم بين 0 و24.",
-        "notes": "الملاحظة طويلة جدًا."
-      }
+        "notes": "الملاحظة طويلة جدًا.",
+        "tags": "اختر الوسوم من القائمة."
+      },
+      "tags": "ما الذي يصف يومك؟"
     },
     "kicks": {
       "title": "سجّل حركات الجنين",
@@ -4575,6 +4964,12 @@
     "secTurn": "مدة النتيجة",
     "secSample": "العينة",
     "providers": "{m} مزوّدين يناسبون سياقك",
+    "fromLine": "من {p} · {m} مزوّدين",
+    "sample_blood": "دم",
+    "sample_semen": "سائل منوي",
+    "sample_stool": "براز",
+    "sample_swab": "مسحة",
+    "sample_urine": "بول",
     "homeFeeNote": "السعر شامل رسوم الزيارة لأنك اخترت «في البيت»",
     "covNote": "التغطية والحصة تقديريتان. الحصة النهائية تصلك مع الموافقة",
     "covYes": "مغطّى",
@@ -4877,7 +5272,8 @@
     "resInRange": "ضمن المرجع",
     "resHigh": "أعلى من المرجع",
     "resLow": "أقل من المرجع",
-    "resDiscuss": "ناقش النتيجة مع طبيب"
+    "resDiscuss": "ناقش النتيجة مع طبيب",
+    "resTrend": "الاتجاه عبر نتائجك"
   },
   "InstantConsult": {
     "title": "استشارة فورية",

@@ -6,21 +6,34 @@ import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/consult/consult.module.css";
 
+/** The aspects a patient can tick (the app's six); the server stores their Arabic words, as the app sends them. */
+export type RatingTagId = "excellent" | "fast" | "professional" | "clean" | "helpful" | "recommend";
+export const RATING_TAGS: ReadonlyArray<{ id: RatingTagId; stored: string }> = [
+  { id: "excellent", stored: "ممتاز" }, // i18n-ok: the aspect as stored on the server, not shown to the user
+  { id: "fast", stored: "سريع" }, // i18n-ok: stored value
+  { id: "professional", stored: "احترافي" }, // i18n-ok: stored value
+  { id: "clean", stored: "نظيف" }, // i18n-ok: stored value
+  { id: "helpful", stored: "متعاون" }, // i18n-ok: stored value
+  { id: "recommend", stored: "أنصح به" }, // i18n-ok: stored value
+];
+
 /** `star` is a template with {n}: the name of one star ("{n} of 5"), the number written for the reader's language. */
-type Labels = { rating: string; star: string; comment: string; commentPh: string; submit: string; submitting: string; thanks: string; error: string };
+type Labels = { rating: string; star: string; comment: string; commentPh: string; submit: string; submitting: string; thanks: string; error: string; tagsTitle: string; tags: Record<RatingTagId, string> };
 
 /**
  * The body the backend reads (patient-ux `RateDto`): the booking kind and its id, the rating, and the comment if any.
  * Nothing else: the API refuses unknown fields (forbidNonWhitelisted), so no `locale`.
  */
-export function reviewBody(bookingId: string, rating: number, comment: string, bookingKind = "appointment") {
-  return { booking_kind: bookingKind, booking_id: bookingId, rating, comment: comment.trim() || undefined };
+export function reviewBody(bookingId: string, rating: number, comment: string, tags: ReadonlyArray<RatingTagId> = [], bookingKind = "appointment") {
+  const aspects = RATING_TAGS.filter((tag) => tags.includes(tag.id)).map((tag) => tag.stored);
+  return { booking_kind: bookingKind, booking_id: bookingId, rating, comment: comment.trim() || undefined, ...(aspects.length ? { aspects } : {}) };
 }
 
 export function PostCallRatingForm({ locale, appointmentId, labels, bookingKind }: { locale: string; appointmentId: string; labels: Labels; bookingKind?: string }) {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
+  const [tags, setTags] = useState<RatingTagId[]>([]);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -33,7 +46,7 @@ export function PostCallRatingForm({ locale, appointmentId, labels, bookingKind 
       const res = await fetch("/api/patient-ux/review", {
         method: "POST",
         headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() },
-        body: JSON.stringify(reviewBody(appointmentId, rating, comment, bookingKind)),
+        body: JSON.stringify(reviewBody(appointmentId, rating, comment, tags, bookingKind)),
       });
       if (!res.ok) throw new Error("failed");
       setDone(true);
@@ -62,6 +75,11 @@ export function PostCallRatingForm({ locale, appointmentId, labels, bookingKind 
           >
             <FIcon icon="star" tone="amber" size={36} chip="none" />
           </button>
+        ))}
+      </div>
+      <div role="group" aria-label={labels.tagsTitle} className={styles.slots}>
+        {RATING_TAGS.map((tag) => (
+          <button key={tag.id} type="button" className={styles.choice} aria-pressed={tags.includes(tag.id)} onClick={() => setTags((current) => (current.includes(tag.id) ? current.filter((x) => x !== tag.id) : [...current, tag.id]))}>{labels.tags[tag.id]}</button>
         ))}
       </div>
       <label className={styles.field}>

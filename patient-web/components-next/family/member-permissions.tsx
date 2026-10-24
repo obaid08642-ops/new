@@ -36,7 +36,12 @@ export function MemberPermissions({ memberId, granted, backHref }: { memberId: s
     setSaving(true);
     try {
       const res = await fetch(url, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ permissions: grants }) });
-      if (!res.ok) { setMessage({ kind: "error", text: t("permsFailed") }); return; }
+      if (!res.ok) {
+        // Not the owner: the change is a request the owner answers (as in the app).
+        const asked = await fetch("/api/family/permissions/request", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ target_member_id: memberId, permissions: grants }) });
+        setMessage(asked.ok ? { kind: "ok", text: t("permsRequested") } : { kind: "error", text: t("permsFailed") });
+        return;
+      }
       setMessage({ kind: "ok", text: t("permsSaved") });
       router.refresh();
     } catch {

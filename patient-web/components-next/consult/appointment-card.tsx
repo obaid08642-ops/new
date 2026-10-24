@@ -28,6 +28,7 @@ export function AppointmentCard({
   primary,
   primaryInk = false,
   secondary,
+  priceText,
 }: {
   locale: string;
   href: string;
@@ -44,6 +45,8 @@ export function AppointmentCard({
   /** The primary action in the ink fill (the board draws the video visit in the action colour and the clinic and home visits in ink). */
   primaryInk?: boolean;
   secondary?: CardAction;
+  /** The visit's price, already formatted, when the server states one. */
+  priceText?: string;
 }) {
   const visual = mode ? MODE_VISUAL[mode] : null;
   return (
@@ -52,7 +55,7 @@ export function AppointmentCard({
         {slotStart ? <LocalTile iso={slotStart} locale={locale} tone={SERVICE_ICONS.health.tone} /> : visual ? <FIcon icon={visual.icon} tone={visual.tone} size={52} /> : null}
         <span className={styles.apptText}>
           <span className={styles.apptTitle}>{title}</span>
-          {specialty || timeLine ? <span className={styles.apptMeta}>{specialty}{specialty && timeLine ? " · " : ""}{timeLine}</span> : null}
+          {specialty || timeLine || priceText ? <span className={styles.apptMeta}>{[specialty, timeLine, priceText].reduce<React.ReactNode[]>((parts, part, index) => (part ? [...parts, ...(parts.length ? [" · "] : []), <span key={index}>{part}</span>] : parts), [])}</span> : null}
           <span className={styles.chips}>
             {mode && modeLabel && visual ? <StatusChip label={modeLabel} tone={visual.tone} /> : null}
             <StatusChip label={statusLabel} tone={statusTone} />

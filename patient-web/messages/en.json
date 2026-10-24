@@ -175,7 +175,8 @@
     "rateLimited": "Too many attempts. Wait a minute and try again.",
     "serverError": "Something went wrong on our side. Try again in a moment.",
     "guestBlocked": "We couldn't open guest access. Sign in, or try again in a moment.",
-    "googleUnavailable": "Google sign-in isn't available right now. Use another way to sign in."
+    "googleUnavailable": "Google sign-in isn't available right now. Use another way to sign in.",
+    "locked": "Too many failed attempts. Try again in {minutes} minutes."
   },
   "NursingCatalog": {
     "eyebrow": "Verified nursing services",
@@ -388,7 +389,22 @@
     "callOpen": "Join the video visit",
     "cancelledRefund": "Appointment cancelled. {amount} ({percent}% of what you paid) goes back to your original payment method.",
     "cancelledNoRefund": "Appointment cancelled. Under the cancellation policy no refund is due.",
-    "cancelledNotCharged": "Appointment cancelled. Nothing was charged."
+    "cancelledNotCharged": "Appointment cancelled. Nothing was charged.",
+    "bookingNumber": "Booking number",
+    "paymentMethodLabel": "Payment method",
+    "amount": "Amount",
+    "bookAgain": "Book again",
+    "emptyUpcoming": "No upcoming appointments",
+    "emptyPast": "No past appointments",
+    "cancelReasonTitle": "Reason for cancelling",
+    "cancelReasons": {
+      "emergency": "Something urgent came up",
+      "better": "I feel better",
+      "otherDoctor": "I want a different doctor",
+      "time": "The time does not suit me",
+      "payment": "A payment problem",
+      "other": "Another reason"
+    }
   },
   "Medicines": {
     "eyebrow": "Private catalog",
@@ -503,7 +519,12 @@
     "earlier": "Earlier",
     "emptyTitle": "No notifications yet",
     "markAllRead": "Mark all as read",
-    "markFailed": "We couldn't update the notification. Try again."
+    "markFailed": "We couldn't update the notification. Try again.",
+    "filters": "Filter notifications",
+    "filterAll": "All",
+    "filter_system": "System",
+    "filter_medical": "Medical",
+    "filter_promotion": "Offers"
   },
   "Health": {
     "eyebrow": "Private health",
@@ -708,7 +729,7 @@
     "timelineEmpty": "No health events recorded yet.",
     "reportsEmpty": "No medical reports yet",
     "chronicEmpty": "No chronic medications yet.",
-    "chronicNotice": "Your recorded medication schedules and refill dates are shown here. Adding, editing, stopping, refilling and reminders aren't available yet.",
+    "chronicNotice": "This page helps track records and refills. It never creates an order or changes a prescription automatically.",
     "medicineUnavailable": "Medicine name unavailable",
     "medicineUnnamed": "Unnamed medicine",
     "emergencyMineEmpty": "No emergency contacts yet.",
@@ -733,7 +754,128 @@
     "reminderFor": "Who is this reminder for?",
     "reminderForMe": "Me",
     "reminderForName": "Reminder for {name}",
-    "reminderMemberFallback": "Family member"
+    "reminderMemberFallback": "Family member",
+    "scoreLevel": {
+      "excellent": "Excellent",
+      "good": "Good",
+      "fair": "Fair",
+      "needs_attention": "Needs attention"
+    },
+    "scoreComp": {
+      "bmi": "Body mass index",
+      "bp": "Blood pressure",
+      "glucose": "Blood glucose",
+      "heart_rate": "Heart rate",
+      "sleep": "Sleep quality",
+      "tracking": "Tracking consistency"
+    },
+    "scoreRec": {
+      "bmi_high": "BMI is above normal — regular activity and balanced nutrition help lower it",
+      "profile_incomplete": "Add your height and weight to your health profile to compute your score more accurately",
+      "bp_high": "Your latest blood pressure reading is high — cut salt, monitor regularly and consult your doctor",
+      "glucose_off": "Your glucose reading is out of the normal range — review your meal plan and medication with your doctor",
+      "sleep_low": "Your sleep quality needs improvement — keep a fixed bedtime and cut screens before bed",
+      "tracking_low": "Log your vitals regularly (5 readings a week) to make your score more accurate",
+      "tracking_start": "Start logging your vitals (blood pressure, glucose, weight) to activate your health score"
+    },
+    "scoreOpen": "Open vitals",
+    "scoreEmpty": "Not enough data yet. Log your vitals to get your score.",
+    "hubChronic": "Chronic conditions",
+    "hubChronicHint": "Your conditions and their follow-up",
+    "hubTrends": "Trends",
+    "hubTrendsHint": "Charts of your measurements",
+    "hubFamily": "Family",
+    "hubFamilyHint": "Your family members and permissions",
+    "hubFamilyChat": "Family chat",
+    "hubFamilyChatHint": "Talk with your family",
+    "hubNursing": "Home nursing",
+    "hubNursingHint": "Nursing care at home",
+    "hubPrograms": "My programs",
+    "hubProgramsHint": "Your active medical programs and sessions",
+    "hubArticles": "Health articles",
+    "hubArticlesHint": "Read and learn",
+    "hubChallenges": "My challenges",
+    "hubChallengesHint": "Points and rewards",
+    "hubMoreTitle": "More",
+    "vitalsUnavailable": "The vital signs couldn't be loaded.",
+    "reportKind": {
+      "all": "All",
+      "lab": "Lab tests",
+      "radiology": "Radiology",
+      "notes": "Medical notes"
+    },
+    "reportsNoneOfKind": "No reports of this kind.",
+    "reportImportant": "Important",
+    "reportNew": "New",
+    "reportsFromProviders": "Reports from providers",
+    "reportAttachments": "Includes attachments from the provider",
+    "reportAlert": "Alert in the report",
+    "rxShare": "Share",
+    "rxOrder": "Order",
+    "rxShareTitle": "Prescription — {doctor}",
+    "rxMedicines": "Medicines",
+    "reportsFilter": "Report type",
+    "shareCopied": "Copied",
+    "reportEmptyTitle": "This report has no content",
+    "reportEmptyBody": "The provider has not added text or results to this report yet.",
+    "ctx": {
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "evening": "Evening"
+    },
+    "readingWhen": "Time of day",
+    "historyAll": "All",
+    "doseSkip": "Skip",
+    "refillConfirm": "Confirm refill request",
+    "refillSent": "Your refill request was sent.",
+    "photoTitle": "Profile photo",
+    "photoChange": "Change photo",
+    "photoUploading": "Uploading the photo",
+    "photoNote": "The photo is saved in your user profile; the rest is saved in the medical profile.",
+    "photoFailed": "The photo could not be uploaded.",
+    "basicsUnknown": "Unknown",
+    "basicsGender": "Gender",
+    "gender": {
+      "unspecified": "Prefer not to say",
+      "female": "Female",
+      "male": "Male"
+    },
+    "basicsOptional": "Optional information",
+    "basicsPregnant": "Currently pregnant",
+    "basicsBreastfeeding": "Breastfeeding",
+    "basicsSmoker": "Currently smoking",
+    "sleepQuality": {
+      "excellent": "Excellent",
+      "good": "Good",
+      "fair": "Fair",
+      "poor": "Poor"
+    },
+    "sleepWeek": "Last 7 days",
+    "sleepAverage": "Average sleep {hours} hours",
+    "sleepTips": "For better sleep",
+    "trendsInRange": "Within normal range",
+    "trendsOutRange": "Outside normal range",
+    "trendsNormal": "Normal range: {lo}-{hi} {unit}",
+    "trendsMax": "Highest",
+    "trendsMin": "Lowest",
+    "trendsAvg": "Average",
+    "trendsCount": "Number of readings",
+    "trendsShare": "Share my vitals summary",
+    "trendsShareTitle": "My health vitals summary — Nabd Plus",
+    "dosesLogged": "Today’s logged doses",
+    "dailyPlan": "Today’s plan",
+    "doseTimeline": "Today’s dose timeline",
+    "viewReminders": "View reminders",
+    "medsPrescriptionsLink": "View prescriptions",
+    "reminderStop": "Pause reminder",
+    "refillTrack": "Track the order",
+    "refillNoAddress": "You need a saved address before a refill.",
+    "refillAddAddress": "Add an address",
+    "chronicDefer": "Defer 3 days",
+    "chronicStop": "Stop refill tracking",
+    "chronicUpdateFailed": "Refill follow-up could not be updated.",
+    "confirmAction": "Confirm",
+    "photoInvalid": "Choose a photo of up to 5 megabytes."
   },
   "Prescriptions": {
     "title": "Prescriptions",
@@ -1201,7 +1343,11 @@
     "paymentAddPolicy": "Add insurance",
     "doctorPhotoAlt": "Photo of {name}",
     "clinicPhotosTitle": "Clinic photos",
-    "clinicPhotoAlt": "Clinic photo {n}"
+    "clinicPhotoAlt": "Clinic photo {n}",
+    "bioTitle": "About the doctor",
+    "infoTitle": "More information",
+    "languagesLabel": "Languages",
+    "chooseDayTime": "Choose a day and time"
   },
   "LabsServices": {
     "eyebrow": "Laboratory care",
@@ -1364,7 +1510,8 @@
     "recentTitle": "Recent searches",
     "recentClear": "Clear",
     "trendingTitle": "Trending now",
-    "tryTitle": "Try one of these"
+    "tryTitle": "Try one of these",
+    "seeAll": "See all ({count})"
   },
   "SearchSuggest": {
     "listLabel": "Search suggestions",
@@ -1531,7 +1678,8 @@
     "shortAddressInvalid": "A short address is four letters and four digits, for example {example}.",
     "shortAddressNotFound": "No address was found for this code. Check it and try again.",
     "shortAddressUnavailable": "Saudi Post is not answering now. You can still save the address with the details you typed.",
-    "removedToast": "The address was removed."
+    "removedToast": "The address was removed.",
+    "makeDefault": "Make default"
   },
   "ShareReport": {
     "title": "Share Reports",
@@ -1750,7 +1898,16 @@
     "submit": "Submit rating",
     "submitting": "Submitting...",
     "thanks": "Thank you! Your rating was received.",
-    "error": "Could not submit the rating. Please try again."
+    "error": "Could not submit the rating. Please try again.",
+    "tagsTitle": "What went well?",
+    "tags": {
+      "excellent": "Excellent",
+      "fast": "Fast",
+      "professional": "Professional",
+      "clean": "Clean",
+      "helpful": "Helpful",
+      "recommend": "I recommend"
+    }
   },
   "HomeVisitTracking": {
     "title": "Home visit tracking",
@@ -1790,7 +1947,8 @@
   "SupportTicket": {
     "title": "Support tickets",
     "back": "Back",
-    "empty": "No data yet."
+    "empty": "No data yet.",
+    "newRequest": "New request"
   },
   "HealthTimeline": {
     "title": "Health timeline",
@@ -1965,7 +2123,7 @@
     "identifier": "Email or mobile number",
     "hintIdentifier": "We'll send the confirmation code here",
     "password": "Password",
-    "hintPassword": "At least 8 characters",
+    "hintPassword": "At least 10 characters",
     "agree": "I agree to the <terms>Terms</terms> and <privacy>Privacy Policy</privacy>",
     "submit": "Create account",
     "busy": "Creating account…",
@@ -1980,7 +2138,13 @@
     "rateLimited": "Too many attempts. Wait a minute and try again.",
     "incomplete": "Registration could not be completed. Your account may already exist: try signing in, or try again in a moment.",
     "showPassword": "Show password",
-    "hidePassword": "Hide password"
+    "hidePassword": "Hide password",
+    "errName": "Enter your name (at least 2 characters).",
+    "errIdentifier": "Enter a valid email or phone number.",
+    "errPassword": "The password must be at least 10 characters.",
+    "errMismatch": "The two passwords don't match.",
+    "errAgree": "Agree to the terms and privacy policy to continue.",
+    "confirm": "Confirm password"
   },
   "Otp": {
     "title": "Enter the code",
@@ -2001,7 +2165,8 @@
     "resent": "A new code is on its way.",
     "resendFailed": "We couldn't send a new code. Try again in a moment.",
     "resendLimited": "You've asked for too many codes. Try again in a few minutes.",
-    "resendUnavailable": "We can't send a code right now. Try again in a moment."
+    "resendUnavailable": "We can't send a code right now. Try again in a moment.",
+    "change": "Change email or phone"
   },
   "ForgotPassword": {
     "title": "Reset your password",
@@ -2028,13 +2193,18 @@
     "back": "Back to sign in",
     "invalidToken": "That code isn't valid or has expired. Request a new one.",
     "mismatch": "The two passwords don't match.",
-    "requestNew": "Request a new code"
+    "requestNew": "Request a new code",
+    "successTitle": "Password updated",
+    "signIn": "Sign in",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   },
   "Welcome": {
     "tagline": "Your complete healthcare",
     "guest": "Continue as guest",
     "register": "Create account",
-    "login": "Log in"
+    "login": "Log in",
+    "guestFailed": "Could not start as a guest. Try again."
   },
   "AuthFrame": {
     "back": "Back",
@@ -2608,7 +2778,8 @@
       "in_progress": "In progress",
       "completed": "Completed",
       "cancelled": "Cancelled",
-      "no_show": "Missed"
+      "no_show": "Missed",
+      "pending_copay": "Awaiting your co-pay"
     },
     "insurancePendingTitle": "The facility is asking the insurer for approval",
     "insuranceDecidedTitle": "Insurance decision recorded",
@@ -2702,7 +2873,12 @@
     "callAudioOnly": "Your connection is weak, so we turned video off and kept the sound.",
     "callTryVideo": "Try video again",
     "callDropped": "The call was cut off.",
-    "callContinueInChat": "Continue in chat"
+    "callContinueInChat": "Continue in chat",
+    "statReviews": "reviews",
+    "copayTitle": "Approval received",
+    "copayBody": "Approved. Pay the co-pay ({amount}) to unlock the consultation.",
+    "copayAction": "Review the insurance request and pay securely",
+    "actionDoctorProfile": "View profile"
   },
   "ConsultClient": {
     "payHeading": "Complete the payment through a secure gateway",
@@ -2758,7 +2934,12 @@
       "vitals": "View vitals",
       "meds": "View medications",
       "reports": "View reports",
-      "appointments": "View appointments"
+      "appointments": "View appointments",
+      "booking": "Book on their behalf",
+      "pharmacy": "Order from the pharmacy",
+      "payment": "Pay on their behalf",
+      "location": "Share location",
+      "emergency": "Emergency alerts"
     },
     "calendarTitle": "Family calendar",
     "calendarSub": "Everyone's appointments and medicines",
@@ -2850,7 +3031,58 @@
     "medsAddReminder": "Add a medicine reminder",
     "close": "Close",
     "removeConfirmTitle": "Remove this member from your family?",
-    "removeConfirmBody": "They will no longer appear in your family list."
+    "removeConfirmBody": "They will no longer appear in your family list.",
+    "joinExisting": "Join an existing family",
+    "defaultName": "My family",
+    "reqReplied": "Replied. The member has been told.",
+    "reqAllowed": "Allowed",
+    "reqRefused": "Refused",
+    "reqNote": "You can change the permissions later, and the other person is told of any change.",
+    "reqAccept": "Accept permissions",
+    "reqDecline": "Decline all",
+    "permsRequested": "The permission request was sent to the member for approval.",
+    "ownerPermsTitle": "The group owner",
+    "ownerPermsBody": "The owner's access is not managed from here.",
+    "inviteShare": "Share the invite",
+    "inviteShareMessage": "Join my family on Nabd Plus! Enter this code in the app: {code}",
+    "invitePermsTitle": "Permissions",
+    "invitePermsBody": "After the invite is accepted you control the member's permissions: readings, medicines, booking on their behalf and more.",
+    "relation": {
+      "spouse": "Spouse",
+      "child": "Child",
+      "parent": "Parent",
+      "sibling": "Sibling",
+      "caregiver": "Caregiver",
+      "other": "Other"
+    },
+    "joinScan": "Scan a QR code with the camera",
+    "joinDoneTitle": "You joined the family!",
+    "joinDoneBody": "You are now linked to the family group.",
+    "joinGoFamily": "Go to my family",
+    "memberChat": "Family chat",
+    "memberBook": "Book on their behalf",
+    "calendarAdd": "Add an event",
+    "calendarNewTitle": "New family event",
+    "calendarEventTitle": "Event title",
+    "calendarEventDate": "Date and time",
+    "calendarMember": "Member",
+    "calendarEventType": "Event type",
+    "calendarType": {
+      "appointment": "Appointment",
+      "reminder": "Reminder",
+      "medication": "Medicine",
+      "lab": "Lab test"
+    },
+    "calendarSave": "Add the event",
+    "calendarInvalid": "Fill in the title, the date, the member and the type, in the right format.",
+    "calendarAddFailed": "Could not add the event. Try again.",
+    "calendarDelete": "Delete",
+    "calendarDeleteTitle": "Delete the event",
+    "calendarDeleteBody": "Are you sure you want to delete this event from the family calendar?",
+    "calendarDeleteFailed": "Could not delete the event",
+    "memberAge": "{n} years",
+    "vitalsTitle": "Vital signs",
+    "noVitals": "No readings are recorded, or the member has not allowed them to be shown."
   },
   "DiagWeb": {
     "retry": "Try again",
@@ -3068,7 +3300,9 @@
     "bookingNotSentTitle": "Nothing was booked",
     "bookingNotSentBody": "This window does not send a booking yet, so no appointment was made and no payment was taken. Open the nursing page to book a visit.",
     "bookingNotSentCta": "Go to nursing",
-    "bookingNotSentClose": "Close"
+    "bookingNotSentClose": "Close",
+    "approvalNoOrderTitle": "No booking to show insurance for",
+    "approvalNoOrderBody": "The insurance step belongs to a booking. Open one of your requests to follow its approval or upload a document."
   },
   "OrderContext": {
     "hint": "Prices and coverage update at once when you change anything",
@@ -3193,7 +3427,36 @@
     "experienceLabel": "Field Experience",
     "ratingLabel": "Patient Rating",
     "nurseServicesTitle": "Available Nursing Services",
-    "requestNurse": "Request Nursing Visit"
+    "requestNurse": "Request Nursing Visit",
+    "prepTitle": "Preparation",
+    "carePackages": "Care packages",
+    "rxNotice": "This service needs a prescription from your doctor. The nurse will ask to see it before the visit.",
+    "sortTitle": "Sort nurses",
+    "sortAny": "Any order",
+    "sortRating": "Highest rated",
+    "filterGender": "Nurse gender",
+    "gender_any": "Any",
+    "gender_female": "Female",
+    "gender_male": "Male",
+    "ratingLine": "{rating} ({count})",
+    "yearsLine": "{count, plural, one {# year of experience} other {# years of experience}}",
+    "priceAtBooking": "Price confirmed at booking",
+    "availableNow": "Available now",
+    "notNow": "Not available now",
+    "degreeLabel": "Qualification",
+    "nurseChooseService": "Choose a service to book this nurse",
+    "nurseChooseServiceBody": "Pick a home-care service first. The nurse's free times appear once a service is chosen.",
+    "visitPrice": "Visit price",
+    "confirmWithAmount": "Confirm booking · {amount}",
+    "insFetched": "Your insurance on file",
+    "insCompany": "Company",
+    "insPolicy": "Policy number",
+    "insNoPolicy": "No insurance policy on file. Add one before sending the request.",
+    "insAddPolicy": "Add a policy",
+    "callNurse": "Call the nurse",
+    "nurseOnMap": "Show the nurse on the map",
+    "insuranceNone": "No insurance request yet",
+    "insuranceNoneBody": "When you request a visit with insurance, its approval appears here."
   },
   "MaternityWeb": {
     "title": "Maternity",
@@ -3264,7 +3527,15 @@
     "weekEmpty": "This week's content isn't available yet.",
     "weekUnavailable": "This week's content could not be loaded.",
     "readThisWeek": "Read this week",
-    "readEmpty": "No articles for this week yet."
+    "readEmpty": "No articles for this week yet.",
+    "pregnancyNotice": "This view uses the date you entered. It does not confirm gestational age or fetal health and does not replace medical care.",
+    "cycleNotice": "Cycle and fertility estimates are based on your entries and may not suit irregular cycles. Do not use them for contraception.",
+    "safetyNotice": "If you have severe pain, bleeding, or urgent concern, contact medical care or emergency services. Nabd+ does not diagnose.",
+    "notContraception": "Not contraception or ovulation confirmation.",
+    "dayLabel": "Day {day} of a {total}-day cycle",
+    "dayOfCycle": "Cycle day",
+    "cycleDays": "{count} days",
+    "allArticles": "All articles"
   },
   "NutritionWeb": {
     "title": "Nutrition",
@@ -3341,7 +3612,24 @@
     "planFailed": "The plan could not be created right now. Try again.",
     "planNutritionist": "Follow up with a nutritionist",
     "planNotice": "This plan is general guidance from the AI assistant, not a medical prescription. Talk to a nutritionist before any big change.",
-    "planDay": "Day {n}"
+    "planDay": "Day {n}",
+    "remaining": "Remaining: {value}",
+    "setTarget": "Set nutrition goals",
+    "protein": "Protein",
+    "carbs": "Carbohydrates",
+    "fat": "Fat",
+    "gram": "g",
+    "waterProgress": "{value} / {target} {unit}",
+    "addMl": "+{amount} ml",
+    "waterFailed": "The water could not be saved. Try again.",
+    "proteinLine": "Protein {value} g",
+    "nutritionSafety": "Meal logging supports tracking only. Nabd+ does not diagnose, prescribe a therapeutic diet, or replace a dietitian.",
+    "macro": {
+      "protein_g": "Protein (g, optional)",
+      "carbs_g": "Carbohydrates (g, optional)",
+      "fat_g": "Fat (g, optional)",
+      "fiber_g": "Fiber (g, optional)"
+    }
   },
   "MentalWeb": {
     "title": "Mental health",
@@ -3376,7 +3664,15 @@
       "bad": "Not good",
       "terrible": "Very bad"
     },
-    "urgentRowSub": "Call the urgent-help number"
+    "urgentRowSub": "Call the urgent-help number",
+    "moodTag": {
+      "calm": "Calm",
+      "tired": "Tired",
+      "stressed": "Stressed",
+      "connected": "Connected",
+      "rested": "Rested",
+      "overwhelmed": "Overwhelmed"
+    }
   },
   "ProgramsWeb": {
     "title": "My health programs",
@@ -3701,7 +3997,10 @@
       "expiry": "Expiry date (optional)",
       "submit": "Save policy",
       "invalid": "Select a company and enter a valid policy number (at least 3 characters).",
-      "failed": "Could not save the policy."
+      "failed": "Could not save the policy.",
+      "scan": "Scan the insurance card with the camera",
+      "scanned": "The visible details were read from the card. Check them before saving.",
+      "scanFailed": "The card could not be read. Enter the details by hand."
     },
     "coverage": {
       "title": "What my policy covers",
@@ -3717,7 +4016,16 @@
       "result": "Coverage on file",
       "eligible": "Listed as covered on your saved policy",
       "notEligible": "Not listed as covered on your saved policy",
-      "forService": "Service: {service}"
+      "forService": "Service: {service}",
+      "provider": "Provider name (optional)",
+      "providerHint": "Name of the doctor, hospital or pharmacy",
+      "copayTitle": "Your share",
+      "youPay": "You pay",
+      "cap": "Fixed cap on your share",
+      "finalNote": "The final amount is worked out from the provider's actual price at booking.",
+      "preAuth": "The insurer may require prior approval. The facility requests it",
+      "askSupport": "Contact support",
+      "again": "Look up another service"
     },
     "request": {
       "pageTitle": "Insurance request",
@@ -3766,7 +4074,12 @@
       "acceptFailed": "Self-pay could not be recorded. No payment was created.",
       "acceptRetry": "Self-pay could not be recorded. Try again.",
       "payFailed": "Secure online payment could not start. No payment was confirmed.",
-      "payRetry": "Online payment could not start. No payment was confirmed."
+      "payRetry": "Online payment could not start. No payment was confirmed.",
+      "insurer": "Insurer",
+      "payNow": "Go to secure payment — {amount}",
+      "missingTitle": "No insurance request",
+      "missingBody": "We found no insurance request for this booking. Open your requests from the insurance page.",
+      "back": "Go back"
     },
     "noteCode": {
       "coverage_decided_by_provider": "The provider decides the final coverage when it reviews your request.",
@@ -3780,10 +4093,36 @@
       "lab": "Laboratory",
       "radiology": "Radiology center",
       "home_care": "Home care",
-      "nursing": "Nursing"
+      "nursing": "Nursing",
+      "other": "Provider"
     },
     "memberLine": "Member number: {id}",
-    "expiryLine": "Expires on {date}"
+    "expiryLine": "Expires on {date}",
+    "policyVerified": "Reviewed",
+    "policyInReview": "In review",
+    "policyNumber": "Policy number",
+    "memberName": "Member name",
+    "nationalId": "National ID",
+    "policyNetwork": "Network",
+    "kind": {
+      "consultation": "Medical consultation",
+      "lab": "Lab tests",
+      "radiology": "Radiology",
+      "nursing": "Home nursing",
+      "pharmacy": "Medicines",
+      "other": "Service"
+    },
+    "usageRequests": "Insurance requests: {count}",
+    "usageCovered": "Covered by insurer",
+    "usagePaid": "You paid",
+    "networkType": {
+      "all": "All",
+      "doctor": "Doctors",
+      "hospital": "Hospitals",
+      "pharmacy": "Pharmacies",
+      "lab": "Labs"
+    },
+    "networkCall": "Call"
   },
   "LoyaltyHubWeb": {
     "title": "Nabd points",
@@ -3855,7 +4194,30 @@
     "copied": "Copied",
     "copyFailed": "Could not copy",
     "shared": "Shared",
-    "inviteeFallback": "Invitee"
+    "inviteeFallback": "Invitee",
+    "tier.bronze": "Bronze",
+    "tier.silver": "Silver",
+    "tier.gold": "Gold",
+    "tier.platinum": "Platinum",
+    "perk.cashback_5_consult": "5% cashback on consultations",
+    "perk.priority_standard": "Standard booking priority",
+    "perk.cashback_8": "8% cashback",
+    "perk.free_pharmacy_shipping": "Free shipping from the pharmacy",
+    "perk.priority_advanced": "Advanced booking priority",
+    "perk.cashback_12": "12% cashback",
+    "perk.free_consult_monthly_1": "1 free consultation per month",
+    "perk.support_priority_24_7": "Priority support 24/7",
+    "perk.cashback_15": "15% cashback",
+    "perk.free_consult_monthly_2": "2 free consultations per month",
+    "perk.personal_health_manager": "Personal health manager",
+    "perk.exclusive_offers": "Exclusive access to offers",
+    "earn.booking_completed": "Completed medical consultation",
+    "earn.order_delivered": "Completed pharmacy order",
+    "earn.review_submitted": "Rating a service",
+    "earn.referral_converted": "Inviting a friend (on their first booking)",
+    "earn.vitals_logged": "Logging vital signs",
+    "earn.challenge": "Health challenge",
+    "earn.perChallenge": "Varies by challenge"
   },
   "OffersWeb": {
     "title": "Offers and packages",
@@ -4011,7 +4373,24 @@
     "disconnectApp": "Disconnect",
     "disconnectFailed": "Could not disconnect. Please try again.",
     "rowConnectedApps": "Connected AI apps",
-    "rowConnectedAppsSub": "Assistants you allowed into your account"
+    "rowConnectedAppsSub": "Assistants you allowed into your account",
+    "changePasswordTitle": "Change password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "repeatPassword": "Repeat new password",
+    "currentRequired": "Enter your current password.",
+    "passwordTooShort": "The new password must be at least 10 characters.",
+    "passwordMismatch": "The two passwords don't match.",
+    "currentWrong": "The current password is wrong.",
+    "passwordChangeFailed": "The password could not be changed. Try again.",
+    "passwordChanged": "Password changed. Your other devices were signed out.",
+    "savePassword": "Change password",
+    "sessionCurrent": "This device",
+    "sessionLastSeen": "Last active {when}",
+    "sessionEndConfirm": "Confirm sign-out",
+    "deleteIntro": "This permanently deletes your account and health data. This cannot be undone.",
+    "deleteContinue": "Continue",
+    "callSupport": "Call support"
   },
   "AccountWeb": {
     "profileTitle": "My account",
@@ -4052,7 +4431,9 @@
     "mapIdleBody": "Choose a facility from the list to see it on the map with directions.",
     "mapIdleNote": "Open-source maps that protect your privacy.",
     "mapUnavailable": "The facilities could not be loaded. Please try again.",
-    "mapRetry": "Try again"
+    "mapRetry": "Try again",
+    "guestTitle": "You are using a guest account",
+    "guestBody": "Sign in or create an account to see your details, orders and records."
   },
   "ReturnsWeb": {
     "newRequest": "New return request",
@@ -4314,7 +4695,13 @@
         "good": "Good",
         "okay": "Okay",
         "bad": "Difficult",
-        "terrible": "Very difficult"
+        "terrible": "Very difficult",
+        "calm": "Calm",
+        "tired": "Tired",
+        "stressed": "Stressed",
+        "connected": "Connected",
+        "rested": "Rested",
+        "overwhelmed": "Overwhelmed"
       },
       "energy_level": "Energy (1-5, optional)",
       "stress_level": "Stress (1-5, optional)",
@@ -4326,8 +4713,10 @@
         "energy_level": "Energy is a number from 1 to 5.",
         "stress_level": "Stress is a number from 1 to 5.",
         "sleep_hours": "Hours of sleep are between 0 and 24.",
-        "notes": "The note is too long."
-      }
+        "notes": "The note is too long.",
+        "tags": "Choose tags from the list."
+      },
+      "tags": "What describes your day?"
     },
     "kicks": {
       "title": "Log baby kicks",
@@ -4575,6 +4964,12 @@
     "secTurn": "Result time",
     "secSample": "Sample",
     "providers": "{m} providers fit your context",
+    "fromLine": "From {p} · {m} providers",
+    "sample_blood": "Blood",
+    "sample_semen": "Semen",
+    "sample_stool": "Stool",
+    "sample_swab": "Swab",
+    "sample_urine": "Urine",
     "homeFeeNote": "The price includes the visit fee because you chose \"At home\"",
     "covNote": "Coverage and share are estimates. The final share comes with the approval",
     "covYes": "Covered",
@@ -4877,7 +5272,8 @@
     "resInRange": "In range",
     "resHigh": "Above range",
     "resLow": "Below range",
-    "resDiscuss": "Discuss with a doctor"
+    "resDiscuss": "Discuss with a doctor",
+    "resTrend": "Trend across your results"
   },
   "InstantConsult": {
     "title": "Instant consultation",

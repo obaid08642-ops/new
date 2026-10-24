@@ -68,9 +68,9 @@ function backend(routes: Record<string, unknown | Response>) {
   });
 }
 
-const policy = { has_policy: true, policy: { company_name: "Bupa Arabia", plan_class: "VIP" } };
+const policy = { has_policy: true, policy: { company_name: "Bupa Arabia", plan_class: "VIP", policy_number: "POL-123", member_name: "Test Member", national_id: "1000000000", network: "Network A", verified: false } };
 const requests = { data: [
-  { id: ID, state: "COPAY_PENDING", created_at: "2026-10-01T10:00:00.000Z", copay_amount: 12.5 },
+  { id: ID, state: "COPAY_PENDING", booking_kind: "lab", price: 80, created_at: "2026-10-01T10:00:00.000Z", copay_amount: 12.5 },
   { id: ID2, state: "PENDING_PROVIDER_REVIEW", created_at: "2026-10-03T10:00:00.000Z" },
 ] };
 
@@ -82,7 +82,14 @@ describe("the insurance hub", () => {
     const html = render(await InsurancePage(hub()));
     expect(html).toContain("Bupa Arabia");
     expect(html).toContain("Class VIP");
-    expect(html).toContain("Policy recorded");
+    // the badge follows the verified flag (not yet verified: in review), and the card carries the details rows
+    expect(html).toContain("In review");
+    for (const detail of ["POL-123", "Test Member", "1000000000", "Network A"]) expect(html).toContain(detail);
+    // a request row is titled by its booking kind and shows the price
+    expect(html).toContain("Lab tests");
+    expect(html).toMatch(/SAR\s80\.00/);
+    // the decision-35 note shows under every tab
+    expect(render(await InsurancePage(hub({ tab: "benefits" })))).toContain("Nabd+ does not contact your insurer");
     for (const label of ["Policy", "Benefits", "Network"]) expect(html).toContain(`>${label}</a>`);
     for (const label of ["Claims", "Refunds"]) expect(html).not.toContain(`>${label}</a>`);
     expect(html).not.toMatch(/submit-claim|submit a claim|Submit claim/i);
@@ -130,10 +137,14 @@ describe("the insurance hub", () => {
     const none = render(await InsurancePage(hub({ tab: "network" })));
     expect(none).toContain("No saved policy");
     expect(none).toContain("/en/insurance/add-policy");
-    backend({ "/insurance/my-policy": policy, "/users/me/profile": { insurance: { company_id: "c9" } }, "/providers?insurance_company=c9&q=nur": [{ id: "p1", name_en: "Nur Clinic", type: "clinic" }] });
-    const html = render(await InsurancePage(hub({ tab: "network", q: "nur" })));
+    backend({ "/insurance/my-policy": policy, "/users/me/profile": { insurance: { company_id: "c9" } }, "/providers?insurance_company=c9": [{ id: "p1", name_en: "Nur Clinic", type: "clinic", city: "Riyadh", specialties: ["A", "B", "C", "D"], phone: "+966500000000" }] });
+    const html = render(await InsurancePage(hub({ tab: "network" })));
     expect(html).toContain("Nur Clinic");
-    expect(html).toContain('name="tab" value="network"');
+    // type chips, the city, up to three specialties and the call button, as the app's network tab
+    for (const chip of ["All", "Doctors", "Hospitals", "Pharmacies", "Labs"]) expect(html).toContain(`>${chip}</button>`);
+    expect(html).toContain("Clinic · A · B · C · Riyadh");
+    expect(html).not.toContain("A · B · C · D");
+    expect(html).toContain('href="tel:+966500000000"');
   });
 });
 
@@ -160,7 +171,7 @@ describe("the page of one insurance request", () => {
     expect(html).toContain("SAR");
     expect(html).toContain("12.50");
     expect(html).toContain("80.00");
-    expect(html).toContain("View secure payment options");
+    expect(html).toMatch(/Go to secure payment — SAR\s12\.50/);
     expect(html.toLowerCase()).not.toContain("cash");
     expect(html).toContain('data-back="/en/insurance"');
   });
@@ -196,9 +207,46 @@ describe("the page of one insurance request", () => {
   });
 
   it("self-pay due shows the options button; an unknown state or a bad id is not a page", async () => {
-    expect(await open({ state: "SELF_PAY_PENDING", self_pay_amount: 30 })).toContain("View secure payment options");
+    expect(await open({ state: "SELF_PAY_PENDING", self_pay_amount: 30 })).toMatch(/Go to secure payment — SAR\s30\.00/);
     expect(await open({ state: "WHATEVER" })).toContain("Unable to load insurance");
     await expect(InsuranceRequestPage(page("nope"))).rejects.toThrow("not-found");
+  });
+});
+
+describe("parity with the app (benefits usage, request not found, coverage details)", () => {
+  it("benefits: the usage figures are the server's (requests, insurer covered, you paid, expiry)", async () => {
+    backend({ "/insurance/my-policy": policy, "/insurance/benefits-summary": { has_policy: true, policy: {}, benefits: [], usage: { requests: 3, insurer_covered: 200, patient_share: 40 }, expiry_date: "2027-01-01" } });
+    const html = render(await InsurancePage(hub({ tab: "benefits" })));
+    expect(html).toContain("Insurance requests: 3");
+    expect(html).toMatch(/SAR\s200\.00/);
+    expect(html).toMatch(/SAR\s40\.00/);
+    expect(html).toContain("Covered by insurer");
+    expect(html).toContain("You paid");
+  });
+
+  it("a request that is not the patient's is an in-page state with the way back, not a 404 page", async () => {
+    backend({ [`/insurance/requests/${ID}`]: json({}, 404) });
+    const html = render(await InsuranceRequestPage({ params: Promise.resolve({ locale: "en", requestId: ID }) }));
+    expect(html).toContain("No insurance request");
+    expect(html).toContain("Go back");
+  });
+
+  it("the request page shows the insurer and the policy number under the amounts", async () => {
+    backend({ "/insurance/my-policy": policy, [`/insurance/requests/${ID}`]: { data: { id: ID, state: "APPROVED_FULL" } } });
+    const html = render(await InsuranceRequestPage({ params: Promise.resolve({ locale: "en", requestId: ID }) }));
+    expect(html).toContain("Bupa Arabia");
+    expect(html).toContain("POL-123");
+  });
+
+  it("coverage: the optional provider field, the copay and the cap, the pre-authorisation flag with the support link, and check again", async () => {
+    backend({ "/insurance/coverage-check?service_type=labs&service_key=Nur": { covered: true, eligible: true, service_type: "labs", copay_percent: 20, copay_flat: 50, requires_preauth: true, provider_name: "Nur Clinic" } });
+    const html = render(await InsuranceCoverageCheckPage({ params, searchParams: Promise.resolve({ service_type: "labs", service_key: "Nur" }) }));
+    expect(html).toContain('name="service_key"');
+    expect(html).toMatch(/20\s?%/);
+    expect(html).toMatch(/SAR\s50\.00/);
+    expect(html).toContain("Nur Clinic");
+    expect(html).toContain('href="/en/support/chat"');
+    expect(html).toContain('href="/en/insurance/coverage-check"');
   });
 });
 
@@ -252,7 +300,7 @@ describe("what the screens read", () => {
     expect(parseBenefits({ benefits: [{ key: "k" }] })).toEqual([{ key: "k", noteCode: undefined }]);
     expect(parseBenefits({ benefits: [{ key: "k", note_code: "no_policy_on_file" }] })).toEqual([{ key: "k", noteCode: "no_policy_on_file" }]);
     expect(parseBenefits({})).toBeNull();
-    expect(parseCoverage({ eligible: false })).toEqual({ eligible: false, serviceType: undefined, noteCode: undefined });
+    expect(parseCoverage({ eligible: false })).toEqual({ eligible: false, serviceType: undefined, noteCode: undefined, copayPercent: undefined, copayFlat: undefined, requiresPreauth: false, reason: undefined, sub: undefined });
     expect(parseCoverage({ eligible: "yes" })).toBeNull();
     expect(requestTone("REJECTED")).toBe("bad");
   });

@@ -1,0 +1,57 @@
+[
+  {
+    "screen": "/insurance policy tab",
+    "element": "CHI lookup (button \"فحص بوابة مجلس الضمان\")",
+    "file": "patient-web/app/[locale]/insurance/page.tsx",
+    "line": 85,
+    "found": "[owner] The app reads the patient's policy from the Council of Health Insurance portal in a WebView (ChiLookup). The web has no equivalent and no backend endpoint for it; a web redirect to the portal would need the owner's decision on the flow.",
+    "suspect": "Owner decision: offer a link to the portal on the web or leave it app-only.",
+    "batch": "parity-insurance",
+    "app": "patient-web",
+    "review_status": "open"
+  },
+  {
+    "screen": "/insurance policy tab",
+    "element": "Change policy in place (insurer sheet with network chips)",
+    "file": "patient-web/app/[locale]/insurance/page.tsx",
+    "line": 85,
+    "found": "[client] The web opens the blank add-policy form. The app edits in place with a network choice (GET /insurance/companies/:id/networks) and the saved values prefilled; the web route POST /api/insurance/policy has no network field and the form has no prefill.",
+    "suspect": "Add network chips and a prefill to the add-policy form in a follow-up slice.",
+    "batch": "parity-insurance",
+    "app": "patient-web",
+    "review_status": "open"
+  },
+  {
+    "screen": "/insurance policy tab",
+    "element": "\"عرض الكل\" link next to the requests title (board)",
+    "file": "patient-web/app/[locale]/insurance/page.tsx",
+    "line": 87,
+    "found": "[owner] The board draws a link to a full requests list; no such screen exists in the app or the web (the tab already lists up to 50 requests, the backend limit).",
+    "suspect": "Owner decision: drop the link from the board or add a list screen.",
+    "batch": "parity-insurance",
+    "app": "patient-web",
+    "review_status": "open"
+  },
+  {
+    "screen": "/insurance/coverage-check",
+    "element": "Copay %, cap, pre-authorisation, reason in the result",
+    "file": "patient-web/app/[locale]/insurance/coverage-check/page.tsx",
+    "line": 79,
+    "found": "[backend] The page now shows copay_percent, copay_flat, requires_preauth and reason exactly as the app does, but GET /insurance/coverage-check of the insurance engine (coverageCheckAnswer) returns only eligible, policy, service_type and note_code, so these lines appear only when the coverage-rule path answers.",
+    "suspect": "Reviewer session: check which coverage-check handler answers and return the stored coverage rule fields from it.",
+    "batch": "parity-insurance",
+    "app": "patient-web",
+    "review_status": "open"
+  },
+  {
+    "screen": "/maternity pregnancy",
+    "element": "Board quick actions \"حاسبة الولادة\" and \"مواعيد المتابعة\"",
+    "file": "patient-web/app/[locale]/maternity/page.tsx",
+    "line": 117,
+    "found": "[owner] The board shows two shortcut tiles (due-date calculator, follow-up appointments). Neither screen exists in the app or the web, and the app has no such tiles; the web keeps its two cards (gynecology consultation, scans).",
+    "suspect": "Owner decision: add the two screens or remove the tiles from the board.",
+    "batch": "parity-insurance",
+    "app": "patient-web",
+    "review_status": "open"
+  }
+]
