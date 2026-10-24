@@ -19,6 +19,8 @@ import { ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { UserRole } from '../../common/enums';
 import { CreateBookingDto, RespondDto, AssignDto, CheckInDto, GpsDto, VisitReportDto, CreateCarePlanDto, SetAvailabilityDto, InventoryRequestDto, PostMessageDto, PostLegacyDto, ProviderSendDto } from './home-care-compat.dto';
 
+import { nurseFilterClauses, nearestOrigin, distanceKmTo } from './nurse-list-filters';
+
 const ACTIVE_STATES = ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'ARRIVED', 'CARE_STARTED'];
 
 const NURSE_TYPES = ['home_care', 'nursing', 'nurse'];
@@ -74,14 +76,18 @@ export class HomeCareCompatController {
     if (serviceId) filter['nursing_services.key'] = { $eq: String(serviceId) };
     const gender = typeof q?.gender === 'string' ? q.gender : '';
     if (gender && gender !== 'any') filter.gender = { $eq: gender };
+    Object.assign(filter, nurseFilterClauses(q));
     if (typeof q?.search === 'string' && q.search.trim()) {
       const rx = new RegExp(q.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
       filter.$or = [{ name_ar: rx }, { name_en: rx }, { full_name: rx }];
     }
-    const rows: any[] = await this.profiles.find(filter).limit(50).lean();
+    const origin = nearestOrigin(q);
+    // Nearest-first needs the whole candidate set (capped), then the closest 50; the other orders keep the first 50.
+    const rows: any[] = await this.profiles.find(filter).limit(origin ? 500 : 50).lean();
     const sort = String(q?.sort || '');
-    const list = rows.map((p) => this.nurseView(p, svc));
-    if (sort === 'rating') list.sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0));
+    const list = rows.map((p) => ({ ...this.nurseView(p, svc), ...(origin ? { distance_km: distanceKmTo(p, origin) } : {}) }));
+    if (origin) return list.sort((a: any, b: any) => (a.distance_km ?? Infinity) - (b.distance_km ?? Infinity)).slice(0, 50);
+    else if (sort === 'rating') list.sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0));
     return list;
   }
 
