@@ -5,9 +5,15 @@ import { extractRecord } from "@/lib/api/profile";
 import { readCancellationPolicy } from "@/lib/consult/cancellation-policy";
 import { policyLines } from "@/components-next/consult/policy-lines";
 import { isLocale } from "@/lib/i18n";
+import { readLegalPolicy } from "@/lib/api/legal-policy";
+import { PAGE_POLICIES, parsePolicyList } from "@/lib/legal/policy-list";
+import { parseLegal } from "@/lib/legal/parse-legal";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { BulletList, Hero, SectionCard } from "@/components-next/consult/consult-parts";
 import { Group, NavRows } from "@/components-next/settings/settings-kit";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
+import styles from "@/components-next/settings/settings.module.css";
+import rx from "@/components-next/pharmacy/rx.module.css";
 import forms from "@/components-next/consult/consult.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -41,6 +47,19 @@ export default async function SettingsAboutPage({ params }: Props) {
   const rules: string[] = [];
   // issue 781: the same three tiers the booking and cancellation pages show, from the server's numbers (full refund, the
   // half tier with its percent, then none); the old "late fee" line is gone because the server applies the half tier instead
+  // The published documents (GET /legal/policies, public): the four with a page of their own show their version, any other
+  // document opens in place. A failed list leaves the four links as they were.
+  const listResponse = await callPatientApi("/legal/policies", { cache: "no-store" }).catch(() => null);
+  const documents = listResponse?.ok ? parsePolicyList(await listResponse.json().catch(() => null), locale) : [];
+  const versionOf = (key: string) => documents.find((item) => item.key === key)?.version ?? undefined;
+  const versionSub = (key: string) => { const v = versionOf(key); return v ? t("aboutVersion", { version: v }) : undefined; };
+  const extras = await Promise.all(
+    documents.filter((item) => !(PAGE_POLICIES as readonly string[]).includes(item.key)).map(async (item) => {
+      const text = await readLegalPolicy(item.key, locale).catch(() => null);
+      return { ...item, blocks: text?.content ? parseLegal(text.content) : null };
+    }),
+  );
+  const textLang = locale === "ar" ? "ar" : "en";
   const policy = readCancellationPolicy(config);
   if (policy) rules.push(...policyLines(c, policy));
   else if (fullHours !== undefined) rules.push(t("ruleCancelFull", { hours: fullHours }));
@@ -55,13 +74,29 @@ export default async function SettingsAboutPage({ params }: Props) {
           locale={locale}
           label={t("aboutLegal")}
           rows={[
-            { href: `/${locale}/terms`, icon: "file-text", tone: "ink", title: t("aboutTerms") },
-            { href: `/${locale}/privacy`, icon: "shield-check", tone: "teal", title: t("aboutPrivacy") },
-            { href: `/${locale}/refund-policy`, icon: "arrows-left-right", tone: "amber", title: legal("refundPolicy") },
-            { href: `/${locale}/telehealth-consent`, icon: "video-camera", tone: "blue", title: legal("telehealthConsent") },
+            { href: `/${locale}/terms`, icon: "file-text", tone: "ink", title: t("aboutTerms"), sub: versionSub("patient_terms") },
+            { href: `/${locale}/privacy`, icon: "shield-check", tone: "teal", title: t("aboutPrivacy"), sub: versionSub("privacy_policy") },
+            { href: `/${locale}/refund-policy`, icon: "arrows-left-right", tone: "amber", title: legal("refundPolicy"), sub: versionSub("refund_policy") },
+            { href: `/${locale}/telehealth-consent`, icon: "video-camera", tone: "blue", title: legal("telehealthConsent"), sub: versionSub("telehealth_consent") },
           ]}
         />
       </Group>
+      {extras.length > 0 ? (
+        <Group id="documents" title={t("aboutDocuments")}>
+          <div className={rx.card}>
+            {extras.map((doc) => (
+              <details key={doc.key} className={styles.faq}>
+                <summary><span>{doc.title}{doc.version ? <> · <bdi>{t("aboutVersion", { version: doc.version })}</bdi></> : null}</span><Icon name="caret-down" size={16} tone="secondary" /></summary>
+                {doc.blocks ? (
+                  <div lang={textLang} dir={textLang === "ar" ? "rtl" : "ltr"}>
+                    {doc.blocks.map((block, index) => block.kind === "heading" ? <h3 key={index}>{block.text}</h3> : <p key={index} className={styles.faqAnswer}>{block.kind === "bullet" ? `• ${block.text}` : block.text}</p>)}
+                  </div>
+                ) : <p className={styles.faqAnswer}>{t("aboutDocumentFailed")}</p>}
+              </details>
+            ))}
+          </div>
+        </Group>
+      ) : null}
       <SectionCard id="rules" title={t("aboutRules")}>
         {rules.length > 0 ? <BulletList items={rules} label={t("aboutRules")} /> : <p className={`${forms.body} ${forms.muted}`}>{t("aboutRulesUnavailable")}</p>}
       </SectionCard>

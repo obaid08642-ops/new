@@ -34,6 +34,7 @@ import { diagnosticBookingHref } from "@/lib/diagnostics-links";
 import { byPrice, byRating, matchesQuery, parseHubFilter } from "@/lib/diagnostics-hub";
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import { publicReadSignal } from "@/lib/api/public-timeout";
+import { pickTexts } from "@/lib/i18n/localized";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string; q?: string; show?: string; sort?: string }> };
 
@@ -266,13 +267,13 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
               <SectionHead id="hub-packages" title={t("packagesTitle")} href={`/${locale}/diagnostics/packages`} linkLabel={t("packagesAll")} />
               <Rail label={t("packagesTitle")}>
                 {shownPackages.map((pkg) => {
-                  const name = pickText(locale, pkg.nameAr, pkg.nameEn) ?? "";
+                  const name = pickTexts(locale, pkg.names) ?? "";
                   return (
                     <PackageCard
                       key={pkg.id}
                       href={itemHref(pkg.id, "lab")}
                       title={name}
-                      sub={pickText(locale, pkg.descriptionAr, pkg.descriptionEn)}
+                      sub={pickTexts(locale, pkg.descriptions)}
                       count={pkg.includedServices?.length ? t("packageCount", { count: pkg.includedServices.length }) : undefined}
                       price={pkg.price !== undefined ? money(locale, pkg.price) : undefined}
                       was={pkg.oldPrice !== undefined && pkg.price !== undefined && pkg.oldPrice > pkg.price ? money(locale, pkg.oldPrice) : undefined}
@@ -291,7 +292,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
             ) : (
               <TestList label={t("testsTitle")}>
                 {tests.map((s) => {
-                  const name = pickText(locale, s.nameAr, s.nameEn) ?? "";
+                  const name = pickTexts(locale, s.names) ?? "";
                   return (
                     <TestRow
                       key={s.id}
@@ -320,7 +321,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
                 <RadiologyTile
                   key={s.id}
                   href={itemHref(s.id, "radiology")}
-                  title={pickText(locale, s.nameAr, s.nameEn) ?? ""}
+                  title={pickTexts(locale, s.names) ?? ""}
                   sub={s.price !== undefined ? t("fromPrice", { price: money(locale, s.price) }) : undefined}
                   imageUrl={s.imageUrl}
                 />

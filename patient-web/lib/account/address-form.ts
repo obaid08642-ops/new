@@ -45,3 +45,16 @@ export function buildAddressPatch(saved: AddressRecord, form: AddressForm): Part
   }
   return Object.keys(patch).length > 0 ? patch : null;
 }
+
+/** The pin of an address (backend `lat` / `lng` of POST and PATCH /users/me/addresses). */
+export type AddressPoint = { lat: number; lng: number };
+
+/** A pin from the browser's position; null when either number is not a real coordinate. */
+export function pointFromPosition(lat: unknown, lng: unknown): AddressPoint | null {
+  return typeof lat === "number" && typeof lng === "number" && Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180 ? { lat, lng } : null;
+}
+
+/** What a request adds for the pin: its two numbers, or nothing. */
+export function pointBody(point: AddressPoint | null): Partial<AddressPoint> {
+  return point ? { lat: point.lat, lng: point.lng } : {};
+}

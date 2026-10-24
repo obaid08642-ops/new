@@ -6,8 +6,9 @@ import { callPatientApi } from "@/lib/api/upstream";
 import { boundedUpstreamError } from "@/lib/api/error-response";
 
 const schema = z.object({
-  rating: z.number().min(0).max(5),
-  type: z.string().trim().min(1).max(64),
+  // the app's payload: the three ratings the server knows, and the kind as `category`; both optional
+  rating: z.enum(["positive", "neutral", "negative"]).optional(),
+  category: z.enum(["suggestion", "issue", "complaint", "praise", "question"]).optional(),
   message: z.string().trim().min(1).max(2000),
 });
 

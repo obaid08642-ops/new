@@ -21,6 +21,10 @@ describe("post-call rating request body", () => {
     expect(body).not.toHaveProperty("appointment_id");
     expect(body).not.toHaveProperty("locale");
   });
+
+  it("takes another booking kind, such as a pharmacy order", () => {
+    expect(reviewBody("ord-9", 5, "", [], "pharmacy")).toEqual({ booking_kind: "pharmacy", booking_id: "ord-9", rating: 5, comment: undefined });
+  });
 });
 
 describe("rating aspects", () => {

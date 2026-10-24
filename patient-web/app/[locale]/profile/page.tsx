@@ -3,6 +3,10 @@ import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { callPatientApi } from "@/lib/api/upstream";
 import { extractRecord, profileDomainState, readProfileFields, type ProfileDomainState, type ProfileField } from "@/lib/api/profile";
+import { extractFamilyMembers } from "@/lib/api/family";
+import { getDisabledModules } from "@/lib/api/public-config-server";
+import { listCount, pointsOf } from "@/lib/account/summary";
+import { isPathHidden } from "@/lib/modules";
 import { hintFromAccessToken } from "@/lib/auth/session-hint";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
@@ -61,6 +65,25 @@ export default async function ProfilePage({ params }: Props) {
     callPatientApi("/users/me/insurance", {}, token),
   ]);
   if ([profileResponse, medicalResponse, insuranceResponse].some((response) => response.status === 401)) redirect(`/${locale}/login`);
+  // The shortcut value and the row counts are the app's: each comes from its own read and is left out when that read fails.
+  const disabled = await getDisabledModules();
+  const showFamily = !isPathHidden(`/${locale}/family`, disabled);
+  const showInsurance = !isPathHidden(`/${locale}/insurance`, disabled);
+  const showLoyalty = !isPathHidden(`/${locale}/loyalty`, disabled);
+  const optionalJson = async (path: string, wanted: boolean): Promise<unknown | null> => {
+    if (!wanted) return null;
+    const res = await callPatientApi(path, {}, token).catch(() => null);
+    return res?.ok ? await res.json().catch(() => null) : null;
+  };
+  const [pointsPayload, addressesPayload, familyPayload] = await Promise.all([
+    optionalJson("/loyalty/account", showLoyalty),
+    optionalJson("/users/me/addresses", true),
+    optionalJson("/family/members", showFamily),
+  ]);
+  const points = pointsOf(pointsPayload);
+  const addressCount = listCount(addressesPayload);
+  const familyCount = familyPayload === null ? null : extractFamilyMembers(familyPayload).length;
+  const nf = new Intl.NumberFormat(locale);
   const [identity, medical, insurance] = await Promise.all([
     resolveDomain(profileResponse, ["fullName", "full_name", "name", "email", "phone", "mobile", "dateOfBirth"]),
     resolveDomain(medicalResponse, ["blood_type", "height_cm", "weight_kg", "gender", "is_smoker", "drinks_alcohol", "is_pregnant", "is_breastfeeding"]),
@@ -83,8 +106,9 @@ export default async function ProfilePage({ params }: Props) {
   const tiles = [
     { href: `${base}/orders`, icon: "package", tone: "coral", label: a("tileOrders") },
     { href: `${base}/appointments`, icon: "calendar-dots", tone: "blue", label: a("tileAppointments") },
-    { href: `${base}/loyalty`, icon: "star", tone: "amber", label: a("tilePoints") },
+    { href: `${base}/loyalty`, icon: "star", tone: "amber", label: a("tilePoints"), value: points === null ? undefined : nf.format(points) },
   ] as const;
+  const shownTiles = tiles.filter((tile) => tile.href !== `${base}/loyalty` || showLoyalty);
 
   return (
     <ConsultPage locale={locale} title={a("profileTitle")} backHref={base}>
@@ -95,11 +119,12 @@ export default async function ProfilePage({ params }: Props) {
         action={<ButtonLink href={`${base}/health/profile`} label={a("edit")} variant="outline" size="sm" />}
       />
       <ul className={styles.tiles} aria-label={a("shortcuts")}>
-        {tiles.map((tile) => (
+        {shownTiles.map((tile) => (
           <li key={tile.href}>
             <Link href={tile.href} className={styles.tile}>
               <FIcon icon={tile.icon} tone={tile.tone} size={40} />
               <span className={styles.tileLabel}>{tile.label}</span>
+              {"value" in tile && tile.value ? <span className={styles.tileValue}><bdi>{tile.value}</bdi></span> : null}
             </Link>
           </li>
         ))}
@@ -109,9 +134,9 @@ export default async function ProfilePage({ params }: Props) {
         label={a("accountRows")}
         rows={[
           { href: `${base}/health/profile`, icon: "heartbeat", tone: "coral", title: a("rowHealth") },
-          { href: `${base}/profile/addresses`, icon: "map-pin", tone: "coral", title: a("rowAddresses") },
-          { href: `${base}/family`, icon: "users-three", tone: "peach", title: a("rowFamily") },
-          { href: `${base}/insurance`, icon: "shield-check", tone: "teal", title: t("insurance"), sub: insurer ? <bdi>{String(insurer.value)}</bdi> : undefined },
+          { href: `${base}/profile/addresses`, icon: "map-pin", tone: "coral", title: a("rowAddresses"), sub: addressCount === null ? undefined : a("addressCount", { count: nf.format(addressCount) }) },
+          ...(showFamily ? [{ href: `${base}/family`, icon: "users-three", tone: "peach", title: a("rowFamily"), sub: familyCount === null ? undefined : a("familyCount", { count: nf.format(familyCount) }) } as const] : []),
+          ...(showInsurance ? [{ href: `${base}/insurance`, icon: "shield-check", tone: "teal", title: t("insurance"), sub: insurer ? <bdi>{String(insurer.value)}</bdi> : undefined } as const] : []),
           { href: `${base}/prescriptions`, icon: "prescription", tone: "violet", title: a("rowPrescriptions") },
         ]}
       />

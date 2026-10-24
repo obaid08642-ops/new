@@ -128,7 +128,23 @@
     "unavailableBody": "अपना कनेक्शन जांचें और फिर कोशिश करें।",
     "retry": "फिर कोशिश करें",
     "maintenanceTitle": "निर्धारित रखरखाव",
-    "maintenanceBody": "हम सेवा को बेहतर बना रहे हैं। कृपया बाद में कोशिश करें।"
+    "maintenanceBody": "हम सेवा को बेहतर बना रहे हैं। कृपया बाद में कोशिश करें।",
+    "healthReminder": "स्वास्थ्य अनुस्मारक",
+    "recordsMedications": "दवाएँ",
+    "reminderAllDone": "आज कोई लंबित खुराक नहीं",
+    "reminderProgress": "आज {scheduled} में से {taken} खुराकें दर्ज",
+    "recordsTitle": "आपके स्वास्थ्य रिकॉर्ड",
+    "recordsMeals": "{count} भोजन दर्ज",
+    "recordsWater": "{count} ml दर्ज",
+    "recordsNutrition": "पोषण",
+    "recordsVitals": "जीवन संकेत",
+    "recordsUpdated": "आपके रिकॉर्ड से अद्यतन",
+    "recordsMood": "मूड",
+    "recordsMoodLogged": "आज का मूड दर्ज है",
+    "recordsMoodNotLogged": "आपने आज मूड दर्ज नहीं किया",
+    "recordsMaternity": "मातृत्व",
+    "recordsPregnancy": "गर्भावस्था ट्रैकिंग",
+    "recordsCycle": "चक्र ट्रैकिंग"
   },
   "Login": {
     "title": "साइन इन करें",
@@ -1056,7 +1072,10 @@
     "chSms": "टेक्स्ट संदेश",
     "saveFailed": "बदलाव सहेजा नहीं जा सका। फिर कोशिश करें।",
     "unavailable": "अभी उपलब्ध नहीं",
-    "unavailableTitle": "सेटिंग्स लोड नहीं हो सकीं"
+    "unavailableTitle": "सेटिंग्स लोड नहीं हो सकीं",
+    "pushAsk": "दवा और अपॉइंटमेंट की याद दिलाने वाले संदेश और ऑर्डर अपडेट पाने के लिए इस ब्राउज़र में सूचनाएँ चालू करें।",
+    "pushTurnOn": "सूचनाएँ चालू करें",
+    "pushBlocked": "इस ब्राउज़र में सूचनाएँ बंद हैं। अलर्ट पाने के लिए ब्राउज़र की साइट सेटिंग में उन्हें चालू करें।"
   },
   "Articles": {
     "title": "स्वास्थ्य लेख",
@@ -1692,7 +1711,11 @@
     "shortAddressNotFound": "इस कोड के लिए कोई पता नहीं मिला। कोड जाँचकर फिर कोशिश करें।",
     "shortAddressUnavailable": "सऊदी पोस्ट अभी जवाब नहीं दे रही। आप अपने लिखे विवरण के साथ पता फिर भी सहेज सकते हैं।",
     "removedToast": "पता हटा दिया गया।",
-    "makeDefault": "डिफ़ॉल्ट बनाएँ"
+    "makeDefault": "डिफ़ॉल्ट बनाएँ",
+    "useMyLocation": "मेरा वर्तमान स्थान उपयोग करें",
+    "locating": "आपका स्थान खोजा जा रहा है…",
+    "locationSet": "पते का स्थान तय हो गया है।",
+    "locateFailed": "आपका वर्तमान स्थान नहीं मिल सका।"
   },
   "ShareReport": {
     "title": "रिपोर्ट साझा करें",
@@ -1926,6 +1949,7 @@
   },
   "PostCallRating": {
     "title": "अपने परामर्श को रेट करें",
+    "rateTitle": "अपने अनुभव को रेट करें",
     "subtitle": "आपकी प्रतिक्रिया देखभाल की गुणवत्ता सुधारती है।",
     "comment": "टिप्पणी",
     "commentPh": "अपने नोट साझा करें (वैकल्पिक)",
@@ -2762,7 +2786,8 @@
     "chatPharmacist": "फ़ार्मासिस्ट को संदेश भेजें",
     "pickupLine": "फ़ार्मेसी से लेना",
     "deliveryLine": "घर तक डिलीवरी",
-    "legacyEta": "लगभग {minutes, number} मिनट में पहुँचेगा"
+    "legacyEta": "लगभग {minutes, number} मिनट में पहुँचेगा",
+    "rateOrder": "फ़ार्मेसी के साथ अपने अनुभव को रेट करें"
   },
   "OrderReorder": {
     "title": "फिर से ऑर्डर करें",
@@ -4465,7 +4490,15 @@
     "sessionEndConfirm": "साइन आउट की पुष्टि करें",
     "deleteIntro": "इससे आपका खाता और स्वास्थ्य डेटा हमेशा के लिए हट जाएगा। इसे वापस नहीं किया जा सकता।",
     "deleteContinue": "जारी रखें",
-    "callSupport": "सहायता को कॉल करें"
+    "callSupport": "सहायता को कॉल करें",
+    "faqAll": "सभी",
+    "fbThanks": "आपके फ़ीडबैक के लिए धन्यवाद",
+    "fbThanksBody": "हमें यह मिल गया है और हम इसे पढ़ेंगे।",
+    "fbBack": "वापस",
+    "fbPlaceholder": "अपना फ़ीडबैक यहाँ लिखें...",
+    "aboutDocuments": "शर्तें और नीतियां",
+    "aboutVersion": "संस्करण {version}",
+    "aboutDocumentFailed": "दस्तावेज़ लोड नहीं हो सका।"
   },
   "AccountWeb": {
     "profileTitle": "मेरा खाता",
@@ -4508,7 +4541,9 @@
     "mapUnavailable": "केंद्र लोड नहीं हो सके। फिर से कोशिश करें।",
     "mapRetry": "फिर से कोशिश करें",
     "guestTitle": "आप अतिथि खाते का उपयोग कर रहे हैं",
-    "guestBody": "अपनी जानकारी, ऑर्डर और रिकॉर्ड देखने के लिए साइन इन करें या खाता बनाएँ।"
+    "guestBody": "अपनी जानकारी, ऑर्डर और रिकॉर्ड देखने के लिए साइन इन करें या खाता बनाएँ।",
+    "addressCount": "{count} पते",
+    "familyCount": "{count} सदस्य"
   },
   "ReturnsWeb": {
     "newRequest": "नया रिटर्न अनुरोध",

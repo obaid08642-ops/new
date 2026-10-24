@@ -46,3 +46,19 @@ describe("editing a saved address (issue 769)", () => {
     expect(isAllowedPatientApiRequest(`/users/me/addresses/${saved.id}/extra`, "PATCH")).toBe(false);
   });
 });
+
+import { pointBody, pointFromPosition } from "./address-form";
+
+describe("the pin of an address", () => {
+  it("accepts a real coordinate only", () => {
+    expect(pointFromPosition(24.7, 46.6)).toEqual({ lat: 24.7, lng: 46.6 });
+    expect(pointFromPosition(91, 0)).toBeNull();
+    expect(pointFromPosition(0, 181)).toBeNull();
+    expect(pointFromPosition(NaN, 1)).toBeNull();
+    expect(pointFromPosition("24", 46)).toBeNull();
+  });
+  it("adds the two numbers to a request, or nothing", () => {
+    expect(pointBody({ lat: 1, lng: 2 })).toEqual({ lat: 1, lng: 2 });
+    expect(pointBody(null)).toEqual({});
+  });
+});

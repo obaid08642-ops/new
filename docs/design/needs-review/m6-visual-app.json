@@ -85,7 +85,8 @@
     "line": 150,
     "found": "[client+backend] Rebuilt to the boards in the second pass: per-stage titles (insurance decision / booking status), booking card with mode tile, stage and paid state, amber countdown block with refund notice (Ord08), amber insurer-wait block, the insurer head with expiry warning, per-item cards with approval chips and server shares, three option cards with icon tile and radio (Ord09), the steps card for every stage, technician card, arrival code in four boxes, preparation reminders and the emergency button (Ord10). Pay and partial-choice logic untouched. Still different: no context bar [client, same logic choice as the picker]; no countdown progress bar (the booking carries the deadline but not the window start) [backend]; no map hero or \"arrives in 18 min\" (no ETA or location in GET /ordering/bookings/:id/visit) [backend]; technician rating and languages are not in the visit answer [backend]; no in-app chat/call buttons because no technician chat/call route exists [backend]; no \"cancel booking\" bar (no cancel call on this screen) [owner]; the sticky pay button shows no price on the option cards.",
     "suspect": "Rebuild the three stages from the boards (high effort: payment and booking); data already comes from the existing endpoints, rating and languages of the technician are not in GET /ordering/bookings/:id/visit [backend].",
-    "review_status": "partly resolved (second pass)"
+    "review_status": "open",
+    "review_note": "partly resolved (second pass)"
   },
   {
     "batch": "m6-visual",
@@ -96,7 +97,8 @@
     "line": 75,
     "found": "[client] Values now have the big coloured value with unit, status chip, reference-range bar from ref_low/ref_high, a trend line from the existing result-trend helper (earlier values plus this one), and the summary card with the file tile, lab and date. Still different: no context bar, no share / download buttons (no route), no \"4 values: 2 within, 2 outside\" line (needs a new six-language string), and the chip says \"Normal\" where the board says \"Within range\".",
     "suspect": "Add a RangeBar and sparkline component (new shape on the board, no new colour) and the summary card.",
-    "review_status": "partly resolved (second pass)"
+    "review_status": "open",
+    "review_note": "partly resolved (second pass)"
   },
   {
     "batch": "m6-visual",
@@ -107,7 +109,8 @@
     "line": 32,
     "found": "[client+backend] List rebuilt: valid/expired tabs, a card per order with validity, each group with a glyph tile, item rows named through GET /labs/services/:id, /radiology/services/:id and /home-care/services/:id (group name when a lookup fails), status chips (not ordered / booked / later, six languages added) and an Order button per group. Still different: no doctor name, visit date and order number, no \"awaiting approval\" chip, no estimated share or approval clock [backend: GET /medical-orders/mine has none of them]; the Order button opens the order where the order call lives; no context bar.",
     "suspect": "Client: resolve names from the catalogue ids, draw per-group sections and tabs. [backend] doctor {name, specialty} and the order number in the list answer.",
-    "review_status": "partly resolved (second pass)"
+    "review_status": "open",
+    "review_note": "partly resolved (second pass)"
   },
   {
     "batch": "m6-visual",
@@ -118,7 +121,8 @@
     "line": 59,
     "found": "[client+backend] Detail rebuilt with one card per group (tile, items named from the catalogue, status chips, \"later\" per open item, Order button). Still different: no doctor header or validity bar, no \"attached to booking and insurer\" line [backend], no context bar.",
     "suspect": "Rebuild from Ord21 after the list; doctor and item names as in the list row.",
-    "review_status": "partly resolved (second pass)"
+    "review_status": "open",
+    "review_note": "partly resolved (second pass)"
   },
   {
     "batch": "m6-visual",

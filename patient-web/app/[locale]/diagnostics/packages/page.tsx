@@ -9,8 +9,9 @@ import { isLocale } from "@/lib/i18n";
 import { hubMetadata } from "@/lib/seo";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
-import { LAB, PackageCard, SearchForm, money, pickText } from "@/components-next/diagnostics/diag-parts";
+import { LAB, PackageCard, SearchForm, money } from "@/components-next/diagnostics/diag-parts";
 import styles from "@/components-next/diagnostics/diag.module.css";
+import { pickTexts } from "@/lib/i18n/localized";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string; category?: string }> };
 
@@ -80,8 +81,8 @@ export default async function LabsPackagesPage({ params, searchParams }: Props) 
               <PackageCard
                 fluid
                 href={`/${locale}/diagnostics/packages/${encodeURIComponent(item.id)}`}
-                title={pickText(locale, item.nameAr, item.nameEn) ?? ""}
-                sub={pickText(locale, item.descriptionAr, item.descriptionEn)}
+                title={pickTexts(locale, item.names) ?? ""}
+                sub={pickTexts(locale, item.descriptions)}
                 count={item.includedServices?.length ? t("tests", { count: item.includedServices.length }) : undefined}
                 price={item.price !== undefined ? money(locale, item.price) : undefined}
                 was={item.oldPrice !== undefined && item.price !== undefined && item.oldPrice > item.price ? money(locale, item.oldPrice) : undefined}

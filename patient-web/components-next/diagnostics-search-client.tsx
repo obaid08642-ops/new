@@ -8,7 +8,7 @@ import { LAB, TestList, TestRow } from "@/components-next/diagnostics/diag-parts
 import consult from "@/components-next/consult/consult.module.css";
 import { formatPrice } from "@/lib/format-price";
 
-export type SearchRow = { id: string; name: string; category?: string; price?: number };
+export type SearchRow = { id: string; name: string; /** the name in every language, for the filter */ search?: string; category?: string; price?: number };
 
 /** The live filter of the diagnostics search (canvas/Search): one field over the tests the server sent; each result goes to the test's page. */
 export function DiagnosticsSearchClient({ services, initialQuery, locale }: { services: SearchRow[]; initialQuery: string; locale: string }) {
@@ -16,7 +16,7 @@ export function DiagnosticsSearchClient({ services, initialQuery, locale }: { se
   const [q, setQ] = useState(initialQuery);
   const results = useMemo(() => {
     const needle = q.trim().toLocaleLowerCase(locale);
-    return needle ? services.filter((s) => `${s.name} ${s.category ?? ""}`.toLocaleLowerCase(locale).includes(needle)) : services;
+    return needle ? services.filter((s) => `${s.name} ${s.search ?? ""} ${s.category ?? ""}`.toLocaleLowerCase(locale).includes(needle)) : services;
   }, [services, q, locale]);
   return (
     <>

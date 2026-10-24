@@ -40,7 +40,7 @@ export default async function Page({ params }: Props) {
   const token = await requirePatientAccess(locale);
   const res = await callPatientApi("/support/requests/mine", {}, token);
   if (res.status === 401) redirect(`/${locale}/login`);
-  const back = `/${locale}/settings/help?tab=requests`;
+  const back = `/${locale}/settings/help`;
   if (!res.ok) {
     return (
       <ConsultPage locale={locale} title={t("title")} backHref={back}>

@@ -334,3 +334,14 @@ export function checkReviewedIngredients(input: unknown): { ok: true; patch: Rev
   if (Object.keys(patch).length === 0) return { ok: false, error: 'nothing to apply' };
   return { ok: true, patch };
 }
+
+/** Issue 1556 (PR 3): the closed lists the admin's review form offers. Read-only, the same lists the checker accepts. */
+export function ingredientsVocabulary() {
+  return {
+    table_version: INN_TABLE_VERSION,
+    inns: INN_ENTRIES.map((e) => e.inn).sort(),
+    dosage_forms: [...DOSAGE_FORMS],
+    routes: [...ROUTES],
+    strength_units: [...STRENGTH_UNITS],
+  };
+}

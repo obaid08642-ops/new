@@ -128,7 +128,23 @@
     "unavailableBody": "تحقق من اتصالك ثم حاول مرة أخرى.",
     "retry": "إعادة المحاولة",
     "maintenanceTitle": "صيانة مجدولة",
-    "maintenanceBody": "نعمل على تحسين الخدمة. حاول لاحقًا."
+    "maintenanceBody": "نعمل على تحسين الخدمة. حاول لاحقًا.",
+    "healthReminder": "تذكير صحي",
+    "recordsMedications": "الأدوية",
+    "reminderAllDone": "لا توجد جرعات معلقة اليوم",
+    "reminderProgress": "{taken} من {scheduled} جرعة سُجلت اليوم",
+    "recordsTitle": "سجلاتك الصحية",
+    "recordsMeals": "{count} وجبات مسجلة",
+    "recordsWater": "{count} مل مسجل",
+    "recordsNutrition": "التغذية",
+    "recordsVitals": "المؤشرات الحيوية",
+    "recordsUpdated": "محدّث من سجلاتك",
+    "recordsMood": "المزاج",
+    "recordsMoodLogged": "تم تسجيل مزاج اليوم",
+    "recordsMoodNotLogged": "لم تسجل مزاجك اليوم",
+    "recordsMaternity": "الأمومة",
+    "recordsPregnancy": "متابعة الحمل",
+    "recordsCycle": "متابعة الدورة"
   },
   "Login": {
     "title": "تسجيل الدخول",
@@ -1056,7 +1072,10 @@
     "chSms": "الرسائل النصية",
     "saveFailed": "تعذّر حفظ التغيير. حاول مرة أخرى.",
     "unavailable": "غير متاح حالياً",
-    "unavailableTitle": "تعذر تحميل الإعدادات"
+    "unavailableTitle": "تعذر تحميل الإعدادات",
+    "pushAsk": "فعّل الإشعارات في هذا المتصفح لتصلك تذكيرات الأدوية والمواعيد وتحديثات الطلبات.",
+    "pushTurnOn": "تفعيل الإشعارات",
+    "pushBlocked": "الإشعارات متوقفة في هذا المتصفح. فعّلها من إعدادات الموقع في المتصفح لتصلك التنبيهات."
   },
   "Articles": {
     "title": "مقالات الصحة",
@@ -1692,7 +1711,11 @@
     "shortAddressNotFound": "لم نجد عنواناً لهذا الرمز. تأكد منه وحاول مرة أخرى.",
     "shortAddressUnavailable": "خدمة البريد السعودي لا تستجيب الآن. يمكنك حفظ العنوان بالتفاصيل التي كتبتها.",
     "removedToast": "تم حذف العنوان.",
-    "makeDefault": "تعيين كافتراضي"
+    "makeDefault": "تعيين كافتراضي",
+    "useMyLocation": "استخدم موقعي الحالي",
+    "locating": "جارٍ تحديد موقعك…",
+    "locationSet": "تم تحديد موقع العنوان على الخريطة.",
+    "locateFailed": "تعذّر الحصول على موقعك الحالي."
   },
   "ShareReport": {
     "title": "مشاركة التقارير",
@@ -1926,6 +1949,7 @@
   },
   "PostCallRating": {
     "title": "قيّم استشارتك",
+    "rateTitle": "قيّم تجربتك",
     "subtitle": "تقييمك يساعدنا على تحسين جودة الرعاية.",
     "comment": "تعليق",
     "commentPh": "شاركنا ملاحظاتك (اختياري)",
@@ -2762,7 +2786,8 @@
     "chatPharmacist": "مراسلة الصيدلاني",
     "pickupLine": "استلام من الصيدلية",
     "deliveryLine": "توصيل للمنزل",
-    "legacyEta": "يصل خلال حوالي {minutes, number} دقيقة"
+    "legacyEta": "يصل خلال حوالي {minutes, number} دقيقة",
+    "rateOrder": "قيّم تجربتك مع الصيدلية"
   },
   "OrderReorder": {
     "title": "إعادة الطلب",
@@ -4465,7 +4490,15 @@
     "sessionEndConfirm": "تأكيد تسجيل الخروج",
     "deleteIntro": "سيؤدي هذا إلى حذف حسابك وبياناتك الصحية نهائيًا. لا يمكن التراجع عن ذلك.",
     "deleteContinue": "متابعة",
-    "callSupport": "الاتصال بالدعم"
+    "callSupport": "الاتصال بالدعم",
+    "faqAll": "الكل",
+    "fbThanks": "شكراً على ملاحظتك",
+    "fbThanksBody": "وصلتنا وسنقرؤها.",
+    "fbBack": "رجوع",
+    "fbPlaceholder": "اكتب ملاحظتك هنا...",
+    "aboutDocuments": "الشروط والسياسات",
+    "aboutVersion": "الإصدار {version}",
+    "aboutDocumentFailed": "تعذر تحميل المستند."
   },
   "AccountWeb": {
     "profileTitle": "حسابي",
@@ -4508,7 +4541,9 @@
     "mapUnavailable": "تعذر تحميل المنشآت. حاول مرة أخرى.",
     "mapRetry": "أعد المحاولة",
     "guestTitle": "أنت تستخدم حساب ضيف",
-    "guestBody": "سجّل الدخول أو أنشئ حسابًا لعرض بياناتك وطلباتك وسجلاتك."
+    "guestBody": "سجّل الدخول أو أنشئ حسابًا لعرض بياناتك وطلباتك وسجلاتك.",
+    "addressCount": "{count} عناوين",
+    "familyCount": "{count} أفراد"
   },
   "ReturnsWeb": {
     "newRequest": "طلب إرجاع جديد",
