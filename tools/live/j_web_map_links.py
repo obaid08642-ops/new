@@ -54,8 +54,8 @@ def main():
             step(f'/{loc}/map has no sideways scroll at 360px (dark)', page.evaluate('document.documentElement.scrollWidth - window.innerWidth') <= 2, '')
             if loc in ('ar', 'en'):
                 name = lab['name_ar'] if loc == 'ar' else lab['name_en']
-                card = page.locator('li', has_text=name).first
-                link = card.locator('a[href*="/diagnostics/labs/"]').first
+                # other journeys seed facilities with the same name, so the card is found by the lab's own link
+                link = page.locator(f'li a[href$="/diagnostics/labs/{lab["id"]}"]').first
                 step(f'/{loc}/map has a Book link on the lab "{name}"', link.count() == 1, '')
                 if link.count():
                     link.click()
