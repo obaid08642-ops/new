@@ -21,11 +21,13 @@ import { ConsultState } from "@/components-next/consult/consult-state";
 import { DoctorListCard } from "@/components-next/consult/doctor-list-card";
 import { DoctorQuickFilters } from "@/components-next/consult/doctor-quick-filters";
 import { InsurerFromPolicy } from "@/components-next/consult/insurer-from-policy";
-import { DEGREES, effectiveType, filterPageParams, nearestApplies, parseDoctorFilters, PAYMENT_FILTERS, serverOrdersList, VISIT_TYPES, type Degree, type DoctorFilters, type PaymentFilter, type VisitType } from "@/lib/consult/doctor-filters";
+import { DEGREES, effectiveType, GENDER_FILTERS, type GenderFilter, filterPageParams, nearestApplies, parseDoctorFilters, PAYMENT_FILTERS, serverOrdersList, VISIT_TYPES, type Degree, type DoctorFilters, type PaymentFilter, type VisitType } from "@/lib/consult/doctor-filters";
+import { formatPrice } from "@/lib/format-price";
+import { cardFacts } from "@/lib/consult/doctor-card-facts";
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import styles from "@/components-next/consult/consult.module.css";
 
-export type DoctorsViewProps = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string; specialty?: string; sort?: "rating" | "price" | "wait"; type?: string; degree?: string; payment?: string; insurance?: string; insurance_class?: string; available?: string; nearest?: string; lat?: string; lng?: string; city?: string }> };
+export type DoctorsViewProps = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string; specialty?: string; sort?: "rating" | "price" | "wait"; type?: string; gender?: string; degree?: string; payment?: string; insurance?: string; insurance_class?: string; available?: string; nearest?: string; lat?: string; lng?: string; city?: string }> };
 type Props = DoctorsViewProps;
 
 /**
@@ -89,11 +91,12 @@ export async function DoctorsView({ params, searchParams }: Props) {
   const sortHref = (sort: string) => pageHref(filterPageParams(filters, { ...text, sort }));
   const withFilters = (next: Partial<DoctorFilters>, sort = sp.sort) => pageHref(filterPageParams({ ...filters, ...next }, { ...text, sort }));
   const typeHref = (type: VisitType) => withFilters({ type: filters.type === type ? undefined : type, nearest: filters.nearest && nearestApplies(type) });
+  const genderHref = (gender: GenderFilter | undefined) => withFilters({ gender });
   const paymentHref = (payment: PaymentFilter) => withFilters({ payment: filters.payment === payment ? undefined : payment });
   const nearestBase = filterPageParams({ ...filters, nearest: false, place: null }, { ...text, sort: sp.sort });
   nearestBase.set("nearest", "1");
   const degreeHref = (degree: Degree) => withFilters({ degree: filters.degree === degree ? undefined : degree });
-  const filtered = Boolean(filters.type || filters.degree || filters.payment || filters.availableNow || filters.nearest);
+  const filtered = Boolean(filters.type || filters.gender || filters.degree || filters.payment || filters.availableNow || filters.nearest);
   const typeLabels: Record<VisitType, string> = { clinic: t("service_clinic"), video: t("service_video"), home_visit: t("service_home") };
 
   return (
@@ -133,6 +136,11 @@ export async function DoctorsView({ params, searchParams }: Props) {
         label={t("visitType")}
         value={shownType ?? ""}
         options={VISIT_TYPES.map((type) => ({ value: type, label: typeLabels[type], href: typeHref(type) }))}
+      />
+      <LinkSegmented
+        label={t("genderLabel")}
+        value={filters.gender ?? "any"}
+        options={[{ value: "any", label: t("genderAny"), href: genderHref(undefined) }, ...GENDER_FILTERS.map((gender) => ({ value: gender, label: t(gender === "male" ? "genderMale" : "genderFemale"), href: genderHref(gender) }))]}
       />
       <LinkSegmented
         label={t("gradeLabel")}
@@ -187,9 +195,10 @@ export async function DoctorsView({ params, searchParams }: Props) {
         <ul className={`${styles.list} ${styles.grid}`} aria-label={t("title")}>
           {doctors.map((doctor) => {
             const modes: Array<{ mode: ConsultMode; label: string }> = [];
-            if (doctor.clinic) modes.push({ mode: "clinic", label: t("service_clinic") });
-            if (doctor.home) modes.push({ mode: "home", label: t("service_home") });
-            if (doctor.online) modes.push({ mode: "online", label: t("service_video") });
+            const withFee = (label: string, fee: number | undefined) => (fee !== undefined ? `${label} · ${formatPrice(locale, fee).text}` : label);
+            if (doctor.clinic) modes.push({ mode: "clinic", label: withFee(t("service_clinic"), doctor.prices?.clinic) });
+            if (doctor.home) modes.push({ mode: "home", label: withFee(t("service_home"), doctor.prices?.home) });
+            if (doctor.online) modes.push({ mode: "online", label: withFee(t("service_video"), doctor.prices?.video) });
             return (
               <li key={doctor.id}>
                 <DoctorListCard
@@ -206,6 +215,9 @@ export async function DoctorsView({ params, searchParams }: Props) {
                   bookLabel={c("book")}
                   verifiedLabel={doctor.verified ? t("verifiedDoctor") : undefined}
                   photoSrc={doctor.photo}
+                  availableLabel={doctor.isOnline ? t("onlineNow") : undefined}
+                  facts={cardFacts(doctor, locale, { years: (n) => t("yearsExperience", { n }), male: t("genderMale"), female: t("genderFemale"), insurance: t("insuranceAccepted"), wait: (n) => t("avgWait", { n }) })}
+                  factsLabel={t("factsLabel")}
                 />
               </li>
             );
