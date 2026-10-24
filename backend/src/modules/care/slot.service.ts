@@ -33,6 +33,14 @@ export class SlotService {
     @InjectModel(LeaveRequest.name) private leaves: Model<LeaveRequestDocument>,
   ) {}
 
+  /**
+   * The status history of a doctor's latest completed clinic appointments, for the average waiting time. Only that field is read,
+   * through the appointment model (no raw collection access), newest first.
+   */
+  async completedClinicHistories(doctorId: string, limit = 200): Promise<Array<{ state_history?: unknown }>> {
+    return await this.apptModel.find({ doctor_id: doctorId, status: 'COMPLETED', service_type: 'clinic' }, { _id: 0, state_history: 1 }).sort({ completed_at: -1 }).limit(limit).lean() as any;
+  }
+
   // Day-of-week mapping used in seed data
   private readonly DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 

@@ -514,8 +514,7 @@ export class CareService {
     obj.education_verified = certs.map((c: any) => ({ type: c.doc_type, issuer: c.issuer ?? null, issued_date: c.issued_date ?? null }));
     // Average clinic waiting time (check-in to start), only once there are enough completed clinic appointments.
     try {
-      const done: any[] = await db.collection('appointments').find({ doctor_id: obj.id, status: 'COMPLETED', service_type: 'clinic' } as any, { projection: { _id: 0, state_history: 1 } }).sort({ completed_at: -1 }).limit(200).toArray();
-      obj.avg_wait_minutes = averageWaitMinutes(done);
+      obj.avg_wait_minutes = averageWaitMinutes(await this.slots.completedClinicHistories(obj.id, 200));
     } catch { obj.avg_wait_minutes = null; }
 
     // Real photos only (empty when the provider published none): toPublicDoctor already gives clinicPhotos as public
