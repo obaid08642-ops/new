@@ -247,6 +247,11 @@ export class OutDto {
   courier_phone?: string;
 
   @IsOptional()
+  @IsString()
+  @MaxLength(60)
+  courier_vehicle?: string;
+
+  @IsOptional()
   @IsDateString()
   eta?: string;
 

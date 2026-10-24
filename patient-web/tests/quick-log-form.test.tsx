@@ -41,8 +41,8 @@ describe("the log forms", () => {
 
 describe("the day summary the nutrition page draws", () => {
   it("reads the server's calories and water objects (it showed 0 and no target before)", () => {
-    expect(parseNutritionSummary({ calories: { consumed: 1200, burned: 0, target: 2000, net: 1200 }, water: { consumed_ml: 350, target_ml: 2500 } })).toEqual({ calories: 1200, target: 2000, waterMl: 350 });
-    expect(parseNutritionSummary({ calories: 900, water_ml: 200 })).toEqual({ calories: 900, target: null, waterMl: 200 });
-    expect(parseNutritionSummary(null)).toEqual({ calories: 0, target: null, waterMl: 0 });
+    expect(parseNutritionSummary({ calories: { consumed: 1200, burned: 0, target: 2000, net: 1200 }, water: { consumed_ml: 350, target_ml: 2500 } })).toEqual({ calories: 1200, target: 2000, waterMl: 350, waterTargetMl: 2500, proteinG: null, carbsG: null, fatG: null });
+    expect(parseNutritionSummary({ calories: 900, water_ml: 200 })).toEqual({ calories: 900, target: null, waterMl: 200, waterTargetMl: null, proteinG: null, carbsG: null, fatG: null });
+    expect(parseNutritionSummary(null)).toEqual({ calories: 0, target: null, waterMl: 0, waterTargetMl: null, proteinG: null, carbsG: null, fatG: null });
   });
 });

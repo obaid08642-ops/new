@@ -441,7 +441,7 @@ export class PharmacyAllocationService {
 
   async preparing(user: any, id: string) { return this.advance(user, id, PharmacyAllocationState.PREPARING); }
   async ready(user: any, id: string) { return this.advance(user, id, PharmacyAllocationState.READY_FOR_PICKUP); }
-  async outForDelivery(user: any, id: string, body?: { courier_name?: string; courier_phone?: string; eta?: Date | string }) {
+  async outForDelivery(user: any, id: string, body?: { courier_name?: string; courier_phone?: string; courier_vehicle?: string; eta?: Date | string }) {
     assertProvider(user);
     const a = await this.allocs.findOne({ id });
     if (!a) throw new NotFoundException();
@@ -457,6 +457,7 @@ export class PharmacyAllocationService {
       $set: {
         'delivery.courier_name': String(body?.courier_name || '').slice(0, 120) || undefined,
         'delivery.courier_phone': String(body?.courier_phone || '').slice(0, 32) || undefined,
+        'delivery.courier_vehicle': String(body?.courier_vehicle || '').slice(0, 60) || undefined,
         'delivery.courier_eta': body?.eta ? new Date(body.eta) : undefined,
         'delivery.dispatched_at': new Date(),
       },

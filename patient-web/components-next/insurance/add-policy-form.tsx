@@ -1,12 +1,25 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
+import { Notice } from "@/components-next/consult/consult-parts";
 import type { CompanyRow } from "@/lib/insurance/view";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import forms from "@/components-next/consult/consult.module.css";
+
+/** The card photo the reader accepts (the route allows about 6 MB of image). */
+const MAX_CARD_BYTES = 5 * 1024 * 1024;
+
+/** The optional fields of the body: only the ones the patient filled (the app omits an empty one too). */
+export function policyOptionals(input: { memberId: string; memberName: string; expiry: string }): { member_id?: string; member_name?: string; expiry_date?: string } {
+  const out: { member_id?: string; member_name?: string; expiry_date?: string } = {};
+  if (input.memberId.trim()) out.member_id = input.memberId.trim();
+  if (input.memberName.trim()) out.member_name = input.memberName.trim();
+  if (input.expiry.trim()) out.expiry_date = input.expiry.trim();
+  return out;
+}
 
 /** Add a policy (POST /api/insurance/policy, the body and the idempotency key as before), then the hub. The insurer is chosen here. */
 export function AddPolicyForm({ companies, locale, returnTo }: { companies: CompanyRow[]; locale: string; returnTo?: string }) {
@@ -19,6 +32,44 @@ export function AddPolicyForm({ companies, locale, returnTo }: { companies: Comp
   const [expiry, setExpiry] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const [scanned, setScanned] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  /** The card photo goes to POST /insurance/ocr-extract (as the app's "scan the card"); what it reads fills the fields, the patient checks them before saving. */
+  async function onScan(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    setError(null); setScanned(false);
+    const mime = file.type;
+    if ((mime !== "image/jpeg" && mime !== "image/png" && mime !== "image/webp") || file.size > MAX_CARD_BYTES) { setError(t("add.scanFailed")); return; }
+    setScanning(true);
+    try {
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
+      const res = await fetch("/api/insurance/ocr-extract", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ image_base64: dataUrl.slice(dataUrl.indexOf(",") + 1), mime_type: mime }) });
+      const data = (await res.json().catch(() => null)) as { success?: boolean; extracted_data?: Record<string, string> } | null;
+      if (!res.ok || !data?.success || !data.extracted_data) { setError(t("add.scanFailed")); return; }
+      const found = data.extracted_data;
+      if (found.policy_number) setPolicyNumber(found.policy_number);
+      if (found.national_id) setMemberId(found.national_id);
+      if (found.member_name) setMemberName(found.member_name);
+      if (found.expiry_date && /^\d{4}-\d{2}-\d{2}$/.test(found.expiry_date)) setExpiry(found.expiry_date);
+      const needle = found.provider?.toLowerCase();
+      const match = needle ? companies.find((company) => company.name.toLowerCase().includes(needle) || needle.includes(company.name.toLowerCase())) : undefined;
+      if (match) setCompanyId(match.id);
+      setScanned(true);
+    } catch {
+      setError(t("add.scanFailed"));
+    } finally {
+      setScanning(false);
+    }
+  }
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -35,9 +86,7 @@ export function AddPolicyForm({ companies, locale, returnTo }: { companies: Comp
         body: JSON.stringify({
           company_id: companyId,
           policy_number: policyNumber.trim(),
-          member_id: memberId.trim(),
-          member_name: memberName.trim(),
-          expiry_date: expiry.trim(),
+          ...policyOptionals({ memberId, memberName, expiry }),
         }),
       });
       const data = await res.json().catch(() => null);
@@ -53,6 +102,9 @@ export function AddPolicyForm({ companies, locale, returnTo }: { companies: Comp
 
   return (
     <form onSubmit={onSubmit} className={`${rx.card} ${forms.stack}`} noValidate aria-label={t("add.title")}>
+      <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden aria-label={t("add.scan")} onChange={(event) => void onScan(event)} />
+      <Button type="button" label={t("add.scan")} variant="outline" size="lg" fullWidth loading={scanning} onClick={() => fileRef.current?.click()} />
+      {scanned ? <div role="status"><Notice>{t("add.scanned")}</Notice></div> : null}
       <label className={forms.field}>
         <span className={forms.label}>{t("add.company")}</span>
         <select className={forms.control} value={companyId} onChange={(event) => setCompanyId(event.target.value)} required>

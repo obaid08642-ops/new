@@ -8,6 +8,7 @@ import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, SERVICE_ICONS, type FillIconName, t
 import { Spinner } from "@/components-next/ui-generated/components/Spinner";
 import { peekSwr, putSwr } from "@/lib/swr-lite";
 import { mapBookHref } from "@/lib/map/book-href";
+import { cityLabel, type CityNames } from "@/lib/api/city-names";
 import forms from "@/components-next/consult/consult.module.css";
 import styles from "./map-explorer.module.css";
 
@@ -55,7 +56,7 @@ const TYPE_ICON: Record<ProviderType, { icon: FillIconName; tone: ServiceTone }>
  * The facilities map (GET /providers/map, public): a search field, the type filters, the list of providers with directions
  * and booking, and the OpenStreetMap pane of the chosen one. The list is the server's; nothing is invented when it is empty.
  */
-export function MapExplorerClient({ locale, labels }: { locale: string; labels: Labels }) {
+export function MapExplorerClient({ locale, labels, cityNames }: { locale: string; labels: Labels; cityNames?: CityNames }) {
   const t = useTranslations("AccountWeb");
   // The list the last visit in this tab received shows at once; the request below replaces it (lib/swr-lite.ts).
   const [providers, setProviders] = useState<Provider[]>(() => peekSwr<Provider[]>(MAP_URL) ?? []);
@@ -87,7 +88,7 @@ export function MapExplorerClient({ locale, labels }: { locale: string; labels: 
                 distance_km: typeof p.distance_km === "number" ? p.distance_km : undefined,
                 lat: p.lat ?? p.location?.lat,
                 lng: p.lng ?? p.location?.lng,
-                address: p.address || p.city || undefined,
+                address: p.address || cityLabel(locale, p.city, cityNames) || undefined,
                 specialty: p.specialty || p.specialties?.[0],
               }));
             putSwr(MAP_URL, next);
@@ -105,7 +106,7 @@ export function MapExplorerClient({ locale, labels }: { locale: string; labels: 
     return () => {
       cancelled = true;
     };
-  }, [attempt, locale]);
+  }, [attempt, locale, cityNames]);
 
   const filtered = useMemo(() => {
     return providers.filter((p) => {

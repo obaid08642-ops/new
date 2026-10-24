@@ -17,7 +17,7 @@ describe('PaymentsService.handleWebhook after authentication', () => {
   it('looks the payment up by the id nested in data and verifies it as that patient, never trusting the body status', async () => {
     const svc = make({ id: 'txn_1', patient_id: 'pat_1' });
     expect(await svc.handleWebhook('moyasar', body(), undefined, JSON.stringify(body()))).toEqual({ ok: true });
-    expect(svc.txns.findOne).toHaveBeenCalledWith({ gateway_intent_id: { $eq: 'pay_1' } });
+    expect(svc.txns.findOne).toHaveBeenCalledWith({ $or: [{ gateway_intent_id: { $in: ['pay_1', 'evt_1'] } }, { gateway_charge_id: { $in: ['pay_1', 'evt_1'] } }] });
     expect(svc.verifyPayment).toHaveBeenCalledWith({ id: 'pat_1', role: 'system' }, 'txn_1'); // asks the provider, ignores data.status
   });
 

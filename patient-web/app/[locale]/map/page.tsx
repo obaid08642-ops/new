@@ -6,6 +6,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import { MapExplorerClient } from "@/components-next/map-explorer-client";
+import { callPatientApi } from "@/lib/api/upstream";
+import { extractCityNames } from "@/lib/api/city-names";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -36,12 +38,16 @@ export default async function MapExplorerPage({ params }: Props) {
   setRequestLocale(locale);
 
   const t = await getTranslations("MapExplorer");
+  // the cities the map draws are stored in Arabic; the public city list gives the English name for the other pages
+  const cities = locale === "ar" || locale === "ur" ? null : await callPatientApi("/locations/cities").catch(() => null);
+  const cityNames = cities && cities.ok ? extractCityNames(await cities.json().catch(() => null)) : undefined;
 
   return (
     <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}`} width="wide">
       <p className={rx.lead}>{t("subtitle")}</p>
       <MapExplorerClient
         locale={locale}
+        cityNames={cityNames}
         labels={{
           searchPh: t("searchPh"),
           filterAll: t("filterAll"),

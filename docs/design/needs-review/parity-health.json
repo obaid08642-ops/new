@@ -6,8 +6,8 @@
     "element": "Invite: QR code",
     "file": "patient-web/components-next/family/add-family.tsx",
     "line": 24,
-    "found": "[client] The app shows the invite as a QR; patient-web has no QR library (none in package.json), so the invite shows the code and Share only.",
-    "suspect": "Add a QR dependency (owner/reviewer decision) and draw the invite URL as a QR.",
+    "found": "[owner] The app shows the invite as a QR. patient-web/package.json has no QR library and a new dependency (or an in-repo encoder) is not allowed without approval; the invite shows the code and Share only.",
+    "suspect": "Owner approves a QR dependency (e.g. a small QR encoder), then draw the invite URL as a QR.",
     "review_status": "open"
   },
   {
@@ -17,8 +17,8 @@
     "element": "Book for this member",
     "file": "patient-web/app/[locale]/family/[memberRef]/page.tsx",
     "line": 62,
-    "found": "[client] The Chat button is added; 'Book on their behalf' needs the web booking flow to carry for_member_id (the app's setBookingFor), which the web booking forms (appointment-booking-form, home-care-booking-form) do not have.",
-    "suspect": "Add for_member_id to the web booking flow, then a Book button here.",
+    "found": "[client] The Chat button is added. 'Book on their behalf' needs the web consultation booking flow to carry for_member_id (backend accepts it: appointments.dto.ts, appointments.service.ts): the member page would link to the doctors list with the member id, which has to pass through the doctors list, the doctor page (app/[locale]/consultations/doctors/[doctorId]/page.tsx) and components-next/appointment-booking-form.tsx (POST /api/appointments/book) like the app's setBookingFor. It belongs to the consultations/booking service session.",
+    "suspect": "Add for_member_id to the web booking flow (route handler schema, form, query carried between pages), then a Book button here.",
     "review_status": "open"
   },
   {
@@ -50,8 +50,8 @@
     "element": "QR code and expiry",
     "file": "patient-web/app/[locale]/reports/passport/page.tsx",
     "line": 57,
-    "found": "[client] The token is printed as text; no QR (no QR library) and no expiry pill.",
-    "suspect": "Add a QR dependency, draw the token as a QR and show its expiry.",
+    "found": "[owner] The token is printed as text. No QR (no QR library in package.json, same decision as the family invite) and no expiry pill (the token response carries no expiry field the page reads; check POST /health/health-id before adding one).",
+    "suspect": "Owner approves the QR dependency; then draw the token as a QR and show the expiry if the backend returns one.",
     "review_status": "open"
   },
   {
@@ -96,6 +96,50 @@
     "line": 102,
     "found": "[owner] The web detail is the documented bounded view (no diagnosis, notes or photo) and hides the order button when the state is not orderable; the app always offers Order for unpurchased prescriptions.",
     "suspect": "Accepted difference unless the owner wants the app's behaviour.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-health",
+    "app": "patient-web",
+    "screen": "/health/profile",
+    "element": "Follow-up conditions detail (severity, controlled, diagnosed, doctor, check-ups, medicines, tips)",
+    "file": "patient-web/app/[locale]/health/profile/page.tsx",
+    "line": 128,
+    "found": "[backend] The app draws expandable follow-up cards from GET /health/chronic-diseases (severity, controlled, diagnosedDate, doctor, lastCheckup, nextCheckup, medications, tips). The endpoint (health.service.ts listChronicDiseases) returns only id, name, controlled:null and source, so the web shows name and source.",
+    "suspect": "Return those fields from GET /health/chronic-diseases (needs the data model for them), then draw the cards from the chronic list here.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-health",
+    "app": "patient-web",
+    "screen": "/health/vitals",
+    "element": "Trends: normal range and in/out-of-range pill",
+    "file": "patient-web/app/[locale]/health/vitals/page.tsx",
+    "line": 160,
+    "found": "[owner] Trends now draws the app's chart, stats and 'within / outside normal range' pill from the normal range GET /health/trends returns. The web had dropped normal ranges on purpose (the page says it is not a diagnosis); the pill is a health statement.",
+    "suspect": "Owner confirms the pill and range text may show on the web as in the app; if not, remove the pill and the range line.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-health",
+    "app": "patient-web",
+    "screen": "/health/vitals",
+    "element": "Add reading and Add sleep placement (toolbar sheet, not a footer button)",
+    "file": "patient-web/app/[locale]/health/vitals/page.tsx",
+    "line": 51,
+    "found": "[owner] The app has a footer 'Add' button; every web health screen (vitals, medications, sleep) opens its sheet from a toolbar button under the title, kept consistent. Placement only.",
+    "suspect": "Accepted difference unless the owner wants a sticky footer button on the three screens.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-health",
+    "app": "patient-web",
+    "screen": "/health/medications",
+    "element": "Device alerts sync (Sync alerts button)",
+    "file": "patient-web/app/[locale]/health/medications/page.tsx",
+    "line": 113,
+    "found": "[owner] The app's All reminders row has 'Sync alerts' (schedules phone notifications). The web cannot schedule device notifications (the FAQ says so), so the button is not drawn.",
+    "suspect": "Accepted difference; web push reminders would be a separate product decision.",
     "review_status": "open"
   }
 ]
