@@ -634,6 +634,8 @@
     "idCodeTitle": "Share code",
     "idCodeBody": "Show this code to your provider to share your file.",
     "idCodeFailed": "We couldn't create a share code right now.",
+    "idQrLabel": "QR code of your health ID, for your provider to scan",
+    "idValidUntil": "Valid until {time}",
     "itemAdd": "Add",
     "itemAddFailed": "Couldn't add it. Try again.",
     "itemName": "Name",
