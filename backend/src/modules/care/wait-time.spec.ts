@@ -23,15 +23,15 @@ describe('average clinic waiting time (check-in to start)', () => {
   it('the doctor detail carries avg_wait_minutes from completed clinic appointments only', async () => {
     const doc = { id: 'd1', user_id: 'u1', name_en: 'Dr', medical_review_status: 'approved', license_verified: true };
     const waits = Array.from({ length: 5 }, () => appt('2026-10-01T09:00:00Z', '2026-10-01T09:30:00Z'));
-    let query: any;
+    const completedClinicHistories = jest.fn(async () => waits);
     const providerModel: any = {
       findOne: async () => doc,
       find: () => ({ limit: () => Promise.resolve([]) }),
-      db: { collection: (n: string) => ({ find: (q: any) => { if (n === 'appointments') query = q; return { toArray: async () => (n === 'appointments' ? waits : []), sort: () => ({ limit: () => ({ toArray: async () => (n === 'appointments' ? waits : []) }) }) }; } }) },
+      db: { collection: () => ({ find: () => ({ toArray: async () => [], sort: () => ({ limit: () => ({ toArray: async () => [] }) }) }) }) },
     };
-    const svc: any = new (CareService as any)(providerModel, {}, { findOne: async () => null }, { nextAvailable: async () => null, hasSlotsToday: async () => false });
+    const svc: any = new (CareService as any)(providerModel, {}, { findOne: async () => null }, { nextAvailable: async () => null, hasSlotsToday: async () => false, completedClinicHistories });
     const out = await svc.doctorById('d1');
     expect(out.avg_wait_minutes).toBe(30);
-    expect(query).toMatchObject({ doctor_id: 'd1', status: 'COMPLETED', service_type: 'clinic' });
+    expect(completedClinicHistories).toHaveBeenCalledWith('d1', 200);
   });
 });
