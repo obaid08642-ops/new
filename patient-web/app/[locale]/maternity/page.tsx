@@ -9,7 +9,7 @@ import { callPatientApi } from "@/lib/api/upstream";
 import { formatDate } from "@/lib/format-date";
 import { getDirection, isLocale } from "@/lib/i18n";
 import { pickTab } from "@/lib/health/view";
-import { cycleWindow, parseMaternity, trimesterOf, type MaternityView } from "@/lib/maternity/view";
+import { cycleDayOf, cycleWindow, parseMaternity, trimesterOf, type MaternityView } from "@/lib/maternity/view";
 import { articleTitle, parseMaternityContent, pickWeekText, type MaternityContentView } from "@/lib/maternity/week";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
@@ -116,7 +116,9 @@ export default async function MaternityPage({ params, searchParams }: Props) {
       {tab === "ovulation" ? <OvulationTab t={t} profile={profile} locale={locale} /> : null}
       <RowCard href={`/${locale}/consultations/doctors?specialty=gynecology`} icon="stethoscope" tone="blue" title={t("consultTitle")} sub={t("consultSub")} caret={<Icon name={caret} size={16} tone="secondary" />} />
       <RowCard href={`/${locale}/diagnostics/radiology`} icon="scan" tone="violet" title={t("scansTitle")} sub={t("scansSub")} caret={<Icon name={caret} size={16} tone="secondary" />} />
-      <Notice warn>{t("notice")}</Notice>
+      {/* the app's two notices: the one of the path (pregnancy or cycle) and the urgent-care safety notice */}
+      <Notice warn>{tab === "pregnancy" ? t("pregnancyNotice") : t("cycleNotice")}</Notice>
+      <Notice>{t("safetyNotice")}</Notice>
     </>,
     tab,
   );
@@ -140,9 +142,10 @@ function PregnancyTab({ t, profile, number, date, locale, content, caret }: TabP
           ring={{ value: Math.min(profile.week, 40) / 40, label: t("ringLabel", { week: number.format(profile.week) }), valueText: number.format(profile.week), caption: t("weekUnit") }}
           title={t(`trimester${trimesterOf(profile.week)}`)}
           lines={due ? [t("dueOn", { date: due })] : []}
+          badge={t("estimate")}
         />
       ) : due ? (
-        <CareHero tone={MATERNITY.tone} icon={MATERNITY.icon} label={t("tabPregnancy")} title={t("tabPregnancy")} lines={[t("dueOn", { date: due })]} />
+        <CareHero tone={MATERNITY.tone} icon={MATERNITY.icon} label={t("tabPregnancy")} title={t("tabPregnancy")} lines={[t("dueOn", { date: due })]} badge={t("estimate")} />
       ) : null}
       {profile.week !== null ? <WeekContent t={t} locale={locale} content={content} number={number} caret={caret} /> : null}
       {/* issue 862: kicks and contractions are logged on the website too (POST /maternity/kicks, /maternity/contractions) */}
@@ -217,7 +220,7 @@ function WeekContent({ t, locale, content, number, caret }: { t: Tr; locale: str
       ) : (
         <p className={rx.note} role="status">{t("weekEmpty")}</p>
       )}
-      <SectionHead id="read-this-week" title={t("readThisWeek")} />
+      <SectionHead id="read-this-week" title={t("readThisWeek")} action={{ href: `/${locale}/articles`, label: t("allArticles") }} />
       {content.articles.length ? (
         <ul className={care.list} aria-labelledby="read-this-week">
           {content.articles.flatMap((article) => {
@@ -273,14 +276,19 @@ function OvulationTab({ t, profile, locale }: { t: Tr; profile: MaternityView; l
     return <ConsultState kind="empty" icon="calendar-dots" tone="violet" title={t("cycleTitle")} body={profile.pregnant ? t("cyclePregnant") : t("cycleEmpty")} actionLabel={t("updateProfile")} actionHref={`/${locale}/maternity/maternity-setup`} />;
   }
   const day = (value: Date) => new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "UTC" }).format(value);
+  // The day of the cycle, as the app counts it: whole days since the last period plus one, kept inside the cycle length.
+  const length = profile.cycleLength as number;
+  const number = new Intl.NumberFormat(locale);
+  const cycleDay = Math.min(length, Math.max(1, cycleDayOf(profile.lastPeriod as string)));
   return (
     <>
       <CareHero
         tone="violet"
         icon="calendar-dots"
         label={t("cycleTitle")}
+        ring={{ value: cycleDay / length, label: t("dayLabel", { day: number.format(cycleDay), total: number.format(length) }), valueText: number.format(cycleDay), caption: t("dayOfCycle") }}
         title={t("cycleTitle")}
-        lines={[profile.regular === null ? null : profile.regular ? t("regular") : t("irregular")].filter((line): line is string => line !== null)}
+        lines={[t("cycleDays", { count: number.format(length) }), profile.regular === null ? null : profile.regular ? t("regular") : t("irregular")].filter((line): line is string => line !== null)}
         badge={t("estimate")}
       />
       <RowsCard label={t("cycleTitle")}>

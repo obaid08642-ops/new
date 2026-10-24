@@ -45,7 +45,7 @@ export default async function PharmacyRxOrderPage({ params, searchParams }: Prop
   const rxT = await getTranslations("Prescriptions");
   const flow = await getTranslations("PharmacyFlow");
   const token = await requirePatientAccess(locale);
-  const back = `/${locale}/prescriptions`;
+  const back = `/${locale}/health/records?tab=prescriptions`;
   const unavailable = (
     <CoreShell locale={locale} title={t("orderTitle")} backHref={back} width="narrow">
       <div className={rx.state}><RetryErrorState title={t("unavailableTitle")} body={t("unavailableBody")} retryLabel={flow("retry")} /></div>

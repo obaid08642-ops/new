@@ -33,9 +33,10 @@ export default async function EmergencyPage({ params }: Props) {
   const g = await getTranslations("GuestServices");
   const rs = await getTranslations("RouteState");
 
-  const response = await callPatientApi("/mental-health/urgent-help");
-  const help = response.ok ? parseUrgentHelp(await response.json().catch(() => null)) : null;
-  const failed = !response.ok;
+  // A network error is the same in-page error as a bad status (the call, not the page, failed); the share action stays.
+  const response = await callPatientApi("/mental-health/urgent-help").catch(() => null);
+  const help = response?.ok ? parseUrgentHelp(await response.json().catch(() => null)) : null;
+  const failed = !response?.ok;
 
   return (
     <ConsultPage locale={locale} title={t("title")} backHref={signedIn ? `/${locale}/dashboard` : `/${locale}`}>

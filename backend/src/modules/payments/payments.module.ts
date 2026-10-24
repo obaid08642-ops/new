@@ -140,24 +140,33 @@ export class MoyasarAdapter implements PaymentGateway {
     return { Authorization: `Basic ${b}`, 'Content-Type': 'application/json' };
   }
   async createIntent(o: CreateIntentRequest) {
+    // Moyasar's Payments API needs a card `source` collected client-side with the publishable key, so a server-created
+    // hosted checkout is an Invoice (POST /invoices -> `url`). The payer pays on that page; Moyasar redirects to callback_url.
     const run = async (req: CreateIntentRequest) => {
       const base = process.env.PAYMENT_RESULT_URL || `${process.env.PUBLIC_APP_URL || ''}/payments/result`;
       // #550: the return address names our transaction (`?ref=`); the provider appends its own id and status after it.
       const callback = req.return_ref ? `${base}${base.includes('?') ? '&' : '?'}ref=${encodeURIComponent(req.return_ref)}` : base;
-      const body = JSON.stringify({ amount: Math.round(req.amount * 100), currency: req.currency || 'SAR', description: req.description, callback_url: callback });
-      const r = await externalFetch(`${this.base}/payments`, { method: 'POST', headers: this.headers(), body });
+      const body = JSON.stringify({ amount: Math.round(req.amount * 100), currency: req.currency || 'SAR', description: req.description, callback_url: callback, success_url: callback, back_url: callback });
+      const r = await externalFetch(`${this.base}/invoices`, { method: 'POST', headers: this.headers(), body });
       const j: any = await r.json();
       if (!r.ok) throw new BadGatewayException(j.message || 'moyasar_intent_failed');
-      return { intent_id: j.id, checkout_url: j.source?.transaction_url };
+      return { intent_id: j.id, checkout_url: j.url };
     };
     return runExternalCall(this.breakers, `payment:${this.name}:create_intent`, run, [o], gatewayUnavailable());
   }
+  /**
+   * `id` is the invoice id. The invoice is paid when one of its payments is; the settled payment (not the invoice)
+   * is what is refunded later, and its own amount/currency are what the server compares with the amount it asked for.
+   */
   async verify(id: string) {
-    const run = async (paymentId: string) => {
-      const r = await externalFetch(`${this.base}/payments/${paymentId}`, { headers: this.headers() });
+    const run = async (invoiceId: string) => {
+      const r = await externalFetch(`${this.base}/invoices/${invoiceId}`, { headers: this.headers() });
       const j: any = await r.json();
-      const map: any = { paid: 'paid', initiated: 'pending', failed: 'failed', authorized: 'pending' };
-      return { status: (map[j.status] || 'pending') as VerifyResult['status'], charge_id: j.id, raw: j };
+      const payments: any[] = Array.isArray(j.payments) ? j.payments : [];
+      const paid = payments.find((p) => p?.status === 'paid' || p?.status === 'captured');
+      if (paid) return { status: 'paid' as VerifyResult['status'], charge_id: paid.id as string, raw: paid };
+      const map: Record<string, VerifyResult['status']> = { failed: 'failed', expired: 'failed', canceled: 'cancelled', cancelled: 'cancelled' };
+      return { status: (map[j.status] || 'pending') as VerifyResult['status'], raw: j };
     };
     return runExternalCall(this.breakers, `payment:${this.name}:verify`, run, [id], gatewayUnavailable());
   }
@@ -334,11 +343,15 @@ export class PaymentsService {
     const methods = configured
       ? [{ id: 'card', kind: 'online' }, { id: 'apple-pay', kind: 'online' }, { id: 'google-pay', kind: 'online' }]
       : [];
+    // The pharmacy's own estimate from the offer the patient selected (null when it gave none); never computed here.
+    const offer: any = await this.txns.db!.collection('pharmacy_offers').findOne({ id: order.selected_offer_id }, { projection: { _id: 0, 'fulfillment.eta_minutes': 1 } });
+    const eta = offer?.fulfillment?.eta_minutes;
     return {
       booking_id: order.id,
       amount,
       currency: String(order.pricing_snapshot?.totals?.currency || 'SAR'),
       methods,
+      eta_minutes: typeof eta === 'number' && Number.isFinite(eta) ? eta : null,
     };
   }
 
@@ -533,7 +546,8 @@ export class PaymentsService {
     // Replays (patient re-verify, webhook redelivery) of an already-paid
     // transaction must not re-run the paid side effects: payment.completed
     // drives booking confirmation, wallet and ledger listeners.
-    if (t.status === 'paid') return this.publicTxn(t);
+    // A refund (payment_refunded webhook, admin refund) is a later state of a paid payment: never re-read it as pending.
+    if (['paid', 'refunded', 'partially_refunded'].includes(t.status)) return this.publicTxn(t);
     const result = await this.adapter.verify(t.gateway_intent_id);
     const settled = result.status === 'paid' && this.gatewayAmountMatches(t, result.raw);
     if (result.status === 'paid' && !settled) {
@@ -651,7 +665,7 @@ export class PaymentsService {
     const key = process.env.MOYASAR_SECRET_KEY || process.env.MOYASAR_SECRET || process.env.MOYASAR_API_KEY;
     if (!key) throw new BadRequestException('payment_gateway_not_configured');
     // Sent once; on a timeout the transaction stays `authorized` and a later verify/reconciliation reads the real status.
-    const r = await timedFetch(`${moyasarBase()}/payments/${t.gateway_intent_id}/capture`, {
+    const r = await timedFetch(`${moyasarBase()}/payments/${t.gateway_charge_id || t.gateway_intent_id}/capture`, {
       method: 'POST',
       headers: { Authorization: `Basic ${Buffer.from(`${key}:`).toString('base64')}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({}),
@@ -703,9 +717,11 @@ export class PaymentsService {
     // Look up by gateway_intent_id or gateway_charge_id present in payload.
     // Moyasar's native body nests the payment id in data.id (payload.id is the
     // event id); the Stripe shape nests it in data.object.id.
-    const intentId = payload.data?.id || payload.data?.object?.id || payload.id || payload.payment_intent;
-    if (!intentId) return { ok: false, reason: 'no_intent_id' };
-    const t = await this.txns.findOne({ gateway_intent_id: { $eq: intentId } });
+    // The hosted checkout is an invoice, so the payment object carries our intent id as data.invoice_id.
+    const ids = [payload.data?.invoice_id, payload.data?.id, payload.data?.object?.id, payload.id, payload.payment_intent]
+      .filter((v): v is string => typeof v === 'string' && v.length > 0);
+    if (!ids.length) return { ok: false, reason: 'no_intent_id' };
+    const t = await this.txns.findOne({ $or: [{ gateway_intent_id: { $in: ids } }, { gateway_charge_id: { $in: ids } }] });
     if (!t) return { ok: false, reason: 'no_match' };
     await this.verifyPayment({ id: t.patient_id, role: 'system' }, t.id);
     return { ok: true };

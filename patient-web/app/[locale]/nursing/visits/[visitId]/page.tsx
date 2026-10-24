@@ -4,11 +4,12 @@ import { callPatientApi } from "@/lib/api/upstream";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { ConsultPage } from "@/components-next/consult/consult-page";
-import { Facts, Notice, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
+import { ActionLinks, Facts, Notice, SectionCard, type FactRow, type LinkAction } from "@/components-next/consult/consult-parts";
 import { NURSING, nursingStatus } from "@/components-next/nursing/nursing-parts";
 import { Timeline } from "@/components-next/ui-generated/components/Cards";
 import { minutesText } from "@/components-next/diagnostics/diag-parts";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
+import { TrackingRefresh } from "@/components-next/orders/tracking-refresh";
 import { NursingPayButton } from "@/components-next/nursing/nursing-pay";
 import styles from "@/components-next/nursing/nursing.module.css";
 
@@ -54,6 +55,16 @@ export default async function NursingVisitTrackingPage({ params, searchParams }:
   const pulse = vitals?.pulse;
   const bp = vitals?.bp;
   const look = nursingStatus(status);
+  // The app refreshes the tracking every 15 seconds while the visit is open.
+  const open = !["COMPLETED", "CANCELLED"].includes(status);
+  const phone = typeof track?.nurse_phone === "string" && /^\+?[0-9 ()-]{5,20}$/.test(track.nurse_phone.trim()) ? track.nurse_phone.trim() : null;
+  const lat = Number(track?.current_lat);
+  const lng = Number(track?.current_lng);
+  const located = track?.current_lat != null && track?.current_lng != null && Number.isFinite(lat) && Number.isFinite(lng);
+  const contact: LinkAction[] = [
+    ...(phone && open ? [{ href: `tel:${phone}`, label: t("callNurse"), variant: "outline" as const, external: true }] : []),
+    ...(located && open ? [{ href: `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=16/${lat}/${lng}`, label: t("nurseOnMap"), variant: "outline" as const, external: true }] : []),
+  ];
   // journeys#60: a card visit that is not paid yet can be paid from here (the booking form lands here when the card page did not open).
   const owesCard = visit?.payment_method === "card" && visit?.payment_status !== "paid" && !["CANCELLED", "COMPLETED"].includes(status);
   // N1: result files the nurse attached at the end of the visit ({storage_id, name, mime, at}); each opens through the signed-URL route.
@@ -85,7 +96,9 @@ export default async function NursingVisitTrackingPage({ params, searchParams }:
           steps={STEPS.map((s, i) => ({ id: s, label: t(`step_${s}`), state: idx < 0 || i > idx ? "upcoming" : i === idx && idx < STEPS.length - 1 ? "current" : "done" }))}
         />
         {idx < 0 ? <Notice warn>{t("unknownStatus")}</Notice> : null}
+        <ActionLinks actions={contact} />
       </SectionCard>
+      {open ? <TrackingRefresh intervalSeconds={15} /> : null}
       {owesCard ? (
         <SectionCard id="visit-pay" title={t("payTitle")}>
           <NursingPayButton bookingId={visitId} failedBefore={pay === "failed"} />

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pickTexts } from "@/lib/i18n/localized";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components-next/json-ld";
 import { DirectAnswer } from "@/components-next/seo/direct-answer";
@@ -12,14 +13,14 @@ import { getOptionalPatientAccessToken } from "@/lib/auth/session";
 import { isLocale, locales } from "@/lib/i18n";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
-import { Facts, Hero, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
+import { BulletList, Facts, Hero, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
 import { NURSING, ServiceChips, serviceIcon } from "@/components-next/nursing/nursing-parts";
-import { money } from "@/components-next/diagnostics/diag-parts";
-import { pickTexts } from "@/lib/i18n/localized";
+import { money, pickText } from "@/components-next/diagnostics/diag-parts";
 import consult from "@/components-next/consult/consult.module.css";
+import { servicePayFlow } from "@/lib/nursing/pay-flow";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 
-type Props = { params: Promise<{ locale: string; serviceId: string }> };
+type Props = { params: Promise<{ locale: string; serviceId: string }>; searchParams?: Promise<{ pay?: string }> };
 
 /** The public catalogue entry for this service (what crawlers and signed-out patients read). */
 async function publicService(serviceId: string) {
@@ -50,8 +51,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 /** One home care service (canvas/ServiceHub detail): its name, what it is, the price and duration, and whether insurance covers it. */
-export default async function HomeCareServicePage({ params }: Props) {
+export default async function HomeCareServicePage({ params, searchParams }: Props) {
   const { locale, serviceId } = await params;
+  const pay = servicePayFlow(((await searchParams) ?? {}).pay);
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("NursingWeb");
@@ -84,6 +86,7 @@ export default async function HomeCareServicePage({ params }: Props) {
   if (!service) notFound();
   const name = pickTexts(locale, service.names) ?? "";
   const description = pickTexts(locale, service.descriptions);
+  const preparation = (locale === "ar" || locale === "ur" ? service.preparationAr ?? service.preparationEn : service.preparationEn ?? service.preparationAr) ?? [];
   const duration = [service.durationValue, service.duration].filter(Boolean).join(" ");
   const rows: FactRow[] = [
     ...(service.price !== undefined ? [{ label: t("priceLabel"), value: money(locale, service.price), icon: "tag" as const, tone: NURSING.tone }] : []),
@@ -105,13 +108,18 @@ export default async function HomeCareServicePage({ params }: Props) {
           <p className={consult.body}>{description}</p>
         </SectionCard>
       ) : null}
+      {preparation.length > 0 ? (
+        <SectionCard id="service-prep" title={t("prepTitle")}>
+          <BulletList items={preparation} />
+        </SectionCard>
+      ) : null}
       {rows.length > 0 ? (
         <SectionCard id="service-facts">
           <Facts rows={rows} label={t("serviceTitle")} />
         </SectionCard>
       ) : null}
       {/* journeys#60 (issue 1069): the service is booked on the website too (the book page asks for sign-in) */}
-      <ButtonLink href={`/${locale}/home-care/services/${encodeURIComponent(serviceId)}/book`} label={t("bookCta")} fullWidth />
+      <ButtonLink href={`/${locale}/home-care/services/${encodeURIComponent(serviceId)}/book${pay === "insurance" ? "?pay=insurance" : ""}`} label={t("bookCta")} fullWidth />
     </ConsultPage>
   );
 }
