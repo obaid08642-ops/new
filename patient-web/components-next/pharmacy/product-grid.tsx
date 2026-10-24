@@ -1,11 +1,7 @@
-"use client";
-
-import { useState } from "react";
-import Link from "next/link";
 import { getImageProps } from "next/image";
 import { useTranslations } from "next-intl";
-import { ProductCard } from "@/components-next/ui-generated/components/Cards";
-import { useCart } from "@/lib/context/CartContext";
+import { AddedRegion, AddToCartButton } from "./add-to-cart-button";
+import { ProductCardStatic } from "./product-card-static";
 import { promoPercent } from "@/lib/discount";
 import { formatNumber, formatPrice } from "@/lib/format-price";
 import { allowedImageUrl } from "@/lib/image-hosts";
@@ -43,8 +39,9 @@ export type GridProduct = {
 
 /**
  * The product cards of canvas/PharmacyHub (a grid) and canvas/ProductWeb / ProductFull ("alternatives": a row on
- * phones, five columns on a desktop). The card is the design system's `ProductCard`; the add button puts the product
- * in the cart of this browser and says so in a live region (the board's "the count bumps").
+ * phones, five columns on a desktop). A server component (issue 1835): the cards are the design system's ProductCard markup
+ * drawn on the server (product-card-static.tsx) and only each add button is client code; it puts the product in the cart of
+ * this browser and says so in a live region (the board's "the count bumps").
  */
 export function ProductGrid({
   locale,
@@ -60,11 +57,9 @@ export function ProductGrid({
 }) {
   const t = useTranslations("PharmacyBrowse");
   const product = useTranslations("PublicProduct");
-  const { addItem } = useCart();
-  const [added, setAdded] = useState("");
 
   return (
-    <>
+    <AddedRegion>
       <ul className={layout === "rail" ? styles.rail : styles.grid}>
         {items.map((item, index) => {
           // Decision 10: no discount on a prescription item, whatever old price the answer carries (canShowPromo, via promoPercent).
@@ -72,43 +67,43 @@ export function ProductGrid({
           // No price from the API: the card says so and cannot be added (no "0.00" made up).
           const priced = item.price > 0;
           const money = formatPrice(locale, item.price);
+          const addLabel = t("addToCart", { name: item.name });
           return (
             <li key={item.id} className={styles.cell}>
-              <ProductCard
+              <ProductCardStatic
                 name={item.name}
                 meta={[item.form, item.strength, item.packageSize].filter(Boolean).join(" · ") || undefined}
                 price={priced ? money.amount : t("priceUnavailable")}
                 currency={priced ? money.currency : undefined}
-                disabled={!priced}
                 imageSrc={cardImage(item.thumb || item.image)}
                 discountLabel={(item.rx ? undefined : item.badge) || (percent > 0 ? product("discount", { percent: formatNumber(locale, percent) }) : undefined)}
                 rxLabel={item.rx ? product("rxRequired") : undefined}
                 onlineLabel={item.onlineOnly === true ? product("onlineOnly") : undefined}
-                addLabel={t("addToCart", { name: item.name })}
                 href={`/${locale}/p/${encodeURIComponent(item.slug)}`}
-                linkAs={Link}
                 imagePriority={index < priorityCount}
-                onAdd={() => {
-                  addItem({
-                    id: item.id,
-                    name: item.name,
-                    rx: item.rx,
-                    onlineOnly: item.onlineOnly === true ? true : undefined,
-                    image: item.image,
-                    slug: item.slug,
-                    form: item.form,
-                    strength: item.strength,
-                    qty: 1,
-                  });
-                  // decision 10: an Rx item in the cart needs a prescription at checkout; the grid says so as the product page does
-                  setAdded(item.rx ? `${t("addedToCart", { name: item.name })} ${t("addedRxNote")}` : t("addedToCart", { name: item.name }));
-                }}
+                add={
+                  <AddToCartButton
+                    disabled={!priced}
+                    addLabel={addLabel}
+                    // decision 10: an Rx item in the cart needs a prescription at checkout; the grid says so as the product page does
+                    announce={item.rx ? `${t("addedToCart", { name: item.name })} ${t("addedRxNote")}` : t("addedToCart", { name: item.name })}
+                    line={{
+                      id: item.id,
+                      name: item.name,
+                      rx: item.rx,
+                      onlineOnly: item.onlineOnly === true ? true : undefined,
+                      image: item.image,
+                      slug: item.slug,
+                      form: item.form,
+                      strength: item.strength,
+                    }}
+                  />
+                }
               />
             </li>
           );
         })}
       </ul>
-      <p role="status" className={styles.srOnly}>{added}</p>
-    </>
+    </AddedRegion>
   );
 }
