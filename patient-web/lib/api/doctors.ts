@@ -10,10 +10,16 @@ const doctorSchema = z.object({
   specialty_ar: z.string().max(180).optional().nullable(), specialty: z.string().max(180).optional().nullable(), academic_degree: z.string().max(120).optional().nullable(),
   rating: z.number().min(0).max(5).optional().nullable(), review_count: z.number().int().nonnegative().optional().nullable(), reviews_count: z.number().int().nonnegative().optional().nullable(),
   consultation_fee: z.number().nonnegative().optional().nullable(), price: z.number().nonnegative().optional().nullable(), price_clinic: z.number().nonnegative().optional().nullable(), price_online: z.number().nonnegative().optional().nullable(), price_home: z.number().nonnegative().optional().nullable(), average_wait: z.number().nonnegative().optional().nullable(), years_experience: z.number().int().nonnegative().optional().nullable(), experience_years: z.number().int().nonnegative().optional().nullable(),
-  offers_online: z.boolean().optional().nullable(), offers_clinic: z.boolean().optional().nullable(), offers_home: z.boolean().optional().nullable(), accepts_insurance: z.boolean().optional().nullable(), verified: z.boolean().optional().nullable(), scfhs_license_no: z.string().max(80).optional().nullable(), photo_url: z.string().max(400).optional().nullable(), clinicPhotos: z.array(z.string().max(400)).max(20).optional().nullable(), facility_name: z.string().max(180).optional().nullable(), clinic_name: z.string().max(180).optional().nullable(), hospital: z.string().max(180).optional().nullable(), next_available_slot: z.string().max(80).optional().nullable(), next_available_at: z.string().max(80).optional().nullable(), consultation_modes: z.array(z.string().max(24)).max(8).optional().nullable(),
+  offers_online: z.boolean().optional().nullable(), offers_clinic: z.boolean().optional().nullable(), offers_home: z.boolean().optional().nullable(), accepts_insurance: z.boolean().optional().nullable(), verified: z.boolean().optional().nullable(), scfhs_license_no: z.string().max(80).optional().nullable(), license: z.object({ number: z.string().max(80).optional().nullable(), verified: z.boolean().optional().nullable() }).passthrough().optional().nullable(), photo_url: z.string().max(400).optional().nullable(), clinicPhotos: z.array(z.string().max(400)).max(20).optional().nullable(), facility_name: z.string().max(180).optional().nullable(), clinic_name: z.string().max(180).optional().nullable(), hospital: z.string().max(180).optional().nullable(), next_available_slot: z.string().max(80).optional().nullable(), next_available_at: z.string().max(80).optional().nullable(), consultation_modes: z.array(z.string().max(24)).max(8).optional().nullable(),
   bio: z.string().max(4000).optional().nullable(), languages: z.array(z.string().max(24)).max(12).optional().nullable(), facility_id: z.string().max(128).optional().nullable(), city: z.string().max(120).optional().nullable(), district: z.string().max(120).optional().nullable(),
 }).strip();
-export type DoctorRow = { id: string; /** The fee of each visit type the doctor offers (positive prices only). */ prices?: { clinic?: number; video?: number; home?: number }; name?: string; nameAr?: string; nameEn?: string; degree?: string; specialty?: string; rating?: number; reviews?: number; price?: number; waitMinutes?: number; experienceYears?: number; online: boolean; clinic: boolean; home: boolean; acceptsInsurance: boolean; facility?: string; nextSlot?: string; /** Admin-approved and licence-verified (`verified`, Q-20/D-17): the seal is drawn only when true. */ verified: boolean; licenseNo?: string; /** The doctor's photo and clinic photos as website addresses (2-web#3); none when the doctor has not added one. */ photo?: string; clinicPhotos?: string[]; /** The about text, the spoken languages (codes), the clinic's id and its city and district, as the public doctor row sends them. */ bio?: string; languages?: string[]; facilityId?: string; city?: string; district?: string };
+/** The list orders the page offers; `available_today` is the server's own (real slots today first, then the soonest). */
+export const DOCTOR_SORTS = ["rating", "price", "wait", "available_today"] as const;
+export type DoctorSort = (typeof DOCTOR_SORTS)[number];
+/** The sort a page link names; anything else is dropped. */
+export const parseDoctorSort = (value: unknown): DoctorSort | undefined => (DOCTOR_SORTS as readonly string[]).includes(value as string) ? (value as DoctorSort) : undefined;
+export type DoctorLicense = { number: string; verified: boolean };
+export type DoctorRow = { id: string; /** The fee of each visit type the doctor offers (positive prices only). */ prices?: { clinic?: number; video?: number; home?: number }; name?: string; nameAr?: string; nameEn?: string; degree?: string; specialty?: string; rating?: number; reviews?: number; price?: number; waitMinutes?: number; experienceYears?: number; online: boolean; clinic: boolean; home: boolean; acceptsInsurance: boolean; facility?: string; nextSlot?: string; /** Admin-approved and licence-verified (`verified`, Q-20/D-17): the seal is drawn only when true. */ verified: boolean; licenseNo?: string; /** The licence line ("licensed by SCFHS, no. X"): the number the server sent and whether it verified it; none without a number. */ license?: DoctorLicense; /** The doctor's photo and clinic photos as website addresses (2-web#3); none when the doctor has not added one. */ photo?: string; clinicPhotos?: string[]; /** The about text, the spoken languages (codes), the clinic's id and its city and district, as the public doctor row sends them. */ bio?: string; languages?: string[]; facilityId?: string; city?: string; district?: string };
 function rowsFrom(payload: unknown): unknown[] { if (Array.isArray(payload)) return payload; if (payload && typeof payload === "object" && !Array.isArray(payload)) { const root=payload as Record<string,unknown>; for (const key of ["data","items","doctors","results"]) if (Array.isArray(root[key])) return root[key]; } return []; }
 /** Positive prices only: the backend sends 0 / null for a mode the doctor does not offer. */
 function firstPrice(...values: Array<number | null | undefined>) { return values.find((value): value is number => typeof value === "number" && value > 0); }
@@ -32,6 +38,11 @@ export function doctorMediaSrc(url: string | null | undefined): string | undefin
   const m = MEDIA_PATH.exec(url);
   if (m) return `/api/doctor-media/${m[1]}/${m[2]}`;
   return /^https:\/\//i.test(url) ? url : undefined;
+}
+/** The SCFHS licence line from the public doctor payload: the number (`license.number`, else the older `scfhs_license_no`) and `license.verified` (false without it). Hidden (undefined) when there is no number. */
+export function licenseOf(license: { number?: string | null; verified?: boolean | null } | null | undefined, legacyNumber?: string | null): DoctorLicense | undefined {
+  const number = (license?.number ?? legacyNumber ?? "").trim();
+  return number ? { number, verified: license?.verified === true } : undefined;
 }
 export function extractDoctors(payload: unknown): DoctorRow[] {
   return rowsFrom(payload).flatMap((value) => {
@@ -62,6 +73,7 @@ export function extractDoctors(payload: unknown): DoctorRow[] {
       nextSlot: d.next_available_at ?? d.next_available_slot ?? undefined,
       verified: d.verified === true,
       licenseNo: d.scfhs_license_no || undefined,
+      license: licenseOf(d.license, d.scfhs_license_no),
       photo: doctorMediaSrc(d.photo_url),
       bio: d.bio || undefined,
       languages: d.languages?.length ? d.languages : undefined,
@@ -81,7 +93,7 @@ export function doctorDisplayName(doctor: Pick<DoctorRow, "name" | "nameAr" | "n
  * exact `specialty` filter; any other specialty text stays the free-text `q` search. Nearest (by position) and Available now are
  * ordered by the server (distance / earliest slot), so the page's own sort does not apply then.
  */
-export function doctorQuery(input: { search?: string; specialty?: string; sort?: "rating" | "price" | "wait"; filters?: DoctorFilters }) {
+export function doctorQuery(input: { search?: string; specialty?: string; sort?: DoctorSort; filters?: DoctorFilters }) {
   const params = new URLSearchParams();
   // a specialty slug is its own filter and combines with a text search; any other specialty text is the old free-text search
   const slug = isSpecialtySlug(input.specialty) ? (input.specialty as string).trim() : "";

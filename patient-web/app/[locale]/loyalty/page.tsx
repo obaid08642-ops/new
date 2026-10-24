@@ -21,7 +21,7 @@ type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?
 
 const POINTS = SERVICE_ICONS.points;
 const TIER_TONES = [SERVICE_ICONS.points.tone, SERVICE_ICONS.consult.tone, SERVICE_ICONS.radiology.tone, SERVICE_ICONS.nursing.tone, SERVICE_ICONS.maternity.tone];
-const REASONS = ["booking_completed", "order_delivered", "review_submitted", "vitals_logged", "reward_claimed", "points_expired", "referral_converted"];
+const REASONS = ["booking_completed", "order_delivered", "review_submitted", "vitals_logged", "reward_claimed", "points_expired", "referral_converted", "late_compensation"];
 
 /**
  * The loyalty hub (merge map 2, section 7): the points balance with its tier, three link tabs `?tab=rewards|challenges|invite`
@@ -220,7 +220,7 @@ export default async function LoyaltyPage({ params, searchParams }: Props) {
           {transactions.map((tx) => (
             <li key={tx.id}>
               <RecordRow
-                icon="star"
+                icon={tx.reason === "late_compensation" ? "clock-counter-clockwise" : "star"}
                 tone={tx.delta > 0 ? SERVICE_ICONS.lab.tone : SERVICE_ICONS.pharmacy.tone}
                 title={tx.reason && REASONS.includes(tx.reason) ? t(`reason.${tx.reason}`) : tx.description ?? tx.reason ?? "—"}
                 sub={[date(tx.createdAt)].filter((line) => line !== undefined)}

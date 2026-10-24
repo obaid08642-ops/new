@@ -30,7 +30,8 @@ export type ProviderRow = {
   coversAll: boolean;
   missing: string[];
 };
-export type BestMatch = ProviderRow & { lines: QuoteLine[]; estimatedInsuranceShare: number; patientShare: number };
+/** `estimatedPatientShare` is the server's estimate from the card's copay percent and cap (null when it has none: never worked out here). */
+export type BestMatch = ProviderRow & { lines: QuoteLine[]; estimatedInsuranceShare: number; patientShare: number; estimatedPatientShare: number | null };
 export type EmptyAlternative = { type: "facility_nearby"; providersCount: number; nearestKm: number } | { type: "broadcast" } | { type: "notify_me" };
 export type QuoteGroup = {
   mode: OrderMode;
@@ -73,7 +74,20 @@ function parseBest(v: unknown): BestMatch | null {
     if (!l || !id || price === null) return [];
     return [{ catalogId: id, price, ...(typeof l.coverage === "string" && COVERAGE.has(l.coverage) ? { coverage: l.coverage as Coverage } : {}) }];
   });
-  return { ...row, lines, estimatedInsuranceShare: num(r.estimated_insurance_share) ?? 0, patientShare: num(r.patient_share) ?? row.total };
+  return { ...row, lines, estimatedInsuranceShare: num(r.estimated_insurance_share) ?? 0, patientShare: num(r.patient_share) ?? row.total, estimatedPatientShare: nonNegative(r.estimated_patient_share) };
+}
+
+const nonNegative = (v: unknown): number | null => { const n = num(v); return n !== null && n >= 0 ? n : null; };
+
+/**
+ * The insured-booking share line (owner 2026-10-24): the estimate only when the server sent `estimated_patient_share`; otherwise,
+ * for a provider that accepts the patient's insurance, the plain "confirmed by the provider"; nothing for a cash booking or a
+ * provider outside the network.
+ */
+export function insuredShareLine(best: Pick<BestMatch, "estimatedPatientShare" | "inNetwork">, pay: Payer): { kind: "estimate"; amount: number } | { kind: "accepted" } | null {
+  if (pay !== "insurance") return null;
+  if (best.estimatedPatientShare !== null) return { kind: "estimate", amount: best.estimatedPatientShare };
+  return best.inNetwork ? { kind: "accepted" } : null;
 }
 
 const parseFrom = (v: unknown) => {

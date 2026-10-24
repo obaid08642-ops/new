@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { Notice } from "@/components-next/consult/consult-parts";
 import type { CompanyRow } from "@/lib/insurance/view";
+import { copayBody } from "@/lib/insurance/copay";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import forms from "@/components-next/consult/consult.module.css";
 
@@ -30,6 +31,9 @@ export function AddPolicyForm({ companies, locale, returnTo }: { companies: Comp
   const [memberId, setMemberId] = useState("");
   const [memberName, setMemberName] = useState("");
   const [expiry, setExpiry] = useState("");
+  const [copayPercent, setCopayPercent] = useState("");
+  const [copayCap, setCopayCap] = useState("");
+  const [copayError, setCopayError] = useState<"percent" | "cap" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [scanning, setScanning] = useState(false);
@@ -75,6 +79,9 @@ export function AddPolicyForm({ companies, locale, returnTo }: { companies: Comp
     event.preventDefault();
     setError(null);
     if (!companyId || policyNumber.trim().length < 3) { setError(t("add.invalid")); return; }
+    const copay = copayBody(copayPercent, copayCap);
+    setCopayError(copay.ok ? null : copay.field);
+    if (!copay.ok) return;
     setSaving(true);
     try {
       const res = await fetch("/api/insurance/policy", {
@@ -87,6 +94,7 @@ export function AddPolicyForm({ companies, locale, returnTo }: { companies: Comp
           company_id: companyId,
           policy_number: policyNumber.trim(),
           ...policyOptionals({ memberId, memberName, expiry }),
+          ...copay.body,
         }),
       });
       const data = await res.json().catch(() => null);
@@ -127,6 +135,17 @@ export function AddPolicyForm({ companies, locale, returnTo }: { companies: Comp
       <label className={forms.field}>
         <span className={forms.label}>{t("add.expiry")}</span>
         <input className={forms.control} type="date" value={expiry} onChange={(event) => setExpiry(event.target.value)} />
+      </label>
+      <p className={`${forms.body} ${forms.muted}`} id="copay-hint">{t("add.copayHint")}</p>
+      <label className={forms.field}>
+        <span className={forms.label}>{t("add.copayPercent")}</span>
+        <input className={forms.control} type="number" inputMode="decimal" min={0} max={100} step="any" value={copayPercent} onChange={(event) => setCopayPercent(event.target.value)} dir="ltr" autoComplete="off" aria-describedby="copay-hint" aria-invalid={copayError === "percent"} />
+        {copayError === "percent" ? <span className={forms.error} role="alert">{t("add.copayPercentInvalid")}</span> : null}
+      </label>
+      <label className={forms.field}>
+        <span className={forms.label}>{t("add.copayCap")}</span>
+        <input className={forms.control} type="number" inputMode="decimal" min={0} step="any" value={copayCap} onChange={(event) => setCopayCap(event.target.value)} dir="ltr" autoComplete="off" aria-describedby="copay-hint" aria-invalid={copayError === "cap"} />
+        {copayError === "cap" ? <span className={forms.error} role="alert">{t("add.copayCapInvalid")}</span> : null}
       </label>
       {error ? <p className={forms.error} role="alert">{error}</p> : null}
       <Button type="submit" label={t("add.submit")} size="lg" fullWidth loading={saving} />

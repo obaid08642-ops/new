@@ -3,8 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SPECIALTY_SLUGS, isSpecialtySlug, specialtyLabel } from "@/lib/specialties";
-import { doctorDisplayName, extractDoctors } from "@/lib/api/doctors";
+import { doctorDisplayName, extractDoctors, parseDoctorSort, type DoctorSort } from "@/lib/api/doctors";
 import { getPublicDoctors } from "@/lib/api/doctors-server";
+import { getPublicConfig } from "@/lib/api/public-config-server";
+import { parseLateGuarantee } from "@/lib/consult/late-guarantee";
+import { GuaranteeLine } from "@/components-next/consult/differentiators";
 import { isOutage } from "@/lib/api/outage";
 import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
 import { isLocale, locales } from "@/lib/i18n";
@@ -23,7 +26,7 @@ import { effectiveType, filterPageParams, nearestApplies, parseDoctorFilters, PA
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import styles from "@/components-next/consult/consult.module.css";
 
-export type DoctorsViewProps = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string; specialty?: string; sort?: "rating" | "price" | "wait"; type?: string; payment?: string; insurance?: string; insurance_class?: string; available?: string; nearest?: string; lat?: string; lng?: string; city?: string }> };
+export type DoctorsViewProps = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string; specialty?: string; sort?: DoctorSort; type?: string; payment?: string; insurance?: string; insurance_class?: string; available?: string; nearest?: string; lat?: string; lng?: string; city?: string }> };
 type Props = DoctorsViewProps;
 
 /**
@@ -62,13 +65,17 @@ export async function DoctorsView({ params, searchParams }: Props) {
   // the URL only (no session on a cached public page); InsurerFromPolicy fills them in from the saved policy in the browser.
   const shownType = effectiveType(filters);
   let failed = false;
-  const response = await getPublicDoctors({ search: sp.q, specialty: sp.specialty, sort: ["rating", "price", "wait"].includes(sp.sort ?? "") ? sp.sort : undefined, filters }).catch(() => null);
+  const response = await getPublicDoctors({ search: sp.q, specialty: sp.specialty, sort: parseDoctorSort(sp.sort), filters }).catch(() => null);
   // A failure (no answer, or a 5xx) on the cached page throws, so Next keeps the last good copy instead of caching an error
   // (stale-if-error, issue 302). On the twin (never cached) the error state with a retry shows, as before.
   if (isOutage(response) && searchParams === undefined) throw new PublicDataUnavailableError("doctors");
   if (response && response.ok) {
     doctors = extractDoctors(await response.json().catch(() => null));
   } else failed = true;
+
+  // The guarantee line comes from the server's public setting (minutes and points); no setting, no line.
+  const guarantee = parseLateGuarantee(await getPublicConfig().catch(() => null));
+  const guaranteeText = guarantee ? t("guaranteeLine", { minutes: guarantee.minutes, points: guarantee.points }) : null;
 
   // a specialty slug (from the pharmacy cart "Consult a doctor") filters the list and shows by its name, never as raw text in the search field
   const specialtyName = specialtyLabel(names, sp.specialty);
@@ -146,6 +153,7 @@ export async function DoctorsView({ params, searchParams }: Props) {
             { value: "rating", label: t("sortRating"), href: sortHref("rating") },
             { value: "price", label: t("sortPrice"), href: sortHref("price") },
             { value: "wait", label: t("sortWait"), href: sortHref("wait") },
+            { value: "available_today", label: t("sortAvailableToday"), href: sortHref("available_today") },
           ]}
         />
       )}
@@ -184,6 +192,7 @@ export async function DoctorsView({ params, searchParams }: Props) {
                   verifiedLabel={doctor.verified ? t("verifiedDoctor") : undefined}
                   photoSrc={doctor.photo}
                 />
+                <GuaranteeLine text={guaranteeText} />
               </li>
             );
           })}

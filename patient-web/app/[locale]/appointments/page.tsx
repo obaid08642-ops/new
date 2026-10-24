@@ -54,7 +54,7 @@ export default async function AppointmentsPage({ params, searchParams }: Props) 
         ]}
       />
       {shown.length === 0 ? (
-        <ConsultState kind="empty" title={activeTab === "upcoming" ? t("emptyUpcoming") : t("emptyPast")} body={t("empty")} actionLabel={activeTab === "upcoming" ? c("actionBookConsultation") : undefined} actionHref={activeTab === "upcoming" ? `/${locale}/consultations/doctors` : undefined} />
+        <ConsultState kind="empty" title={activeTab === "upcoming" ? t("emptyUpcoming") : t("emptyPast")} body={t("empty")} actionLabel={activeTab === "upcoming" ? c("actionBookConsultation") : undefined} actionHref={activeTab === "upcoming" ? `/${locale}/consultations/doctors?sort=available_today` : undefined} />
       ) : (
         <>
           <ul className={styles.list} aria-label={activeTab === "upcoming" ? c("tabUpcoming") : c("tabPast")}>

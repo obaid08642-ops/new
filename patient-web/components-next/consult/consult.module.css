@@ -213,3 +213,8 @@ textarea.control { resize: vertical; line-height: 1.6; overflow-wrap: anywhere; 
 }
 .consentText:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
 .consentHeading { margin: 0; font-size: var(--nabd-font-size-control); font-weight: 700; line-height: 1.5; }
+
+/* ---- the guaranteed-appointment line and the licence line (owner 2026-10-24); tokens only ---- */
+.guarantee { margin: 0; padding-inline: var(--nabd-space-sm); font-size: var(--nabd-font-size-label); line-height: 1.6; color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.licenseLine { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.licenseLine bdi { unicode-bidi: isolate; }

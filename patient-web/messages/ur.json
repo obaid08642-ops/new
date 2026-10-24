@@ -593,7 +593,9 @@
     "filterAll": "سب",
     "filter_system": "سسٹم",
     "filter_medical": "طبی",
-    "filter_promotion": "پیشکشیں"
+    "filter_promotion": "پیشکشیں",
+    "lateCompensationTitle": "آپ کے لیٹ اپوائنٹمنٹ کے پوائنٹس",
+    "lateCompensationBody": "آپ کا اپوائنٹمنٹ دیر سے شروع ہوا، اس لیے آپ کے اکاؤنٹ میں نبض پوائنٹس شامل کیے گئے۔ انہیں پوائنٹس کی تاریخ میں دیکھیں۔"
   },
   "Health": {
     "eyebrow": "نجی صحت",
@@ -1352,7 +1354,6 @@
     "nearestCity": "{city} میں ڈاکٹر",
     "visitType": "مشاورت کی قسم",
     "verifiedDoctor": "تصدیق شدہ ڈاکٹر",
-    "licenseNumber": "لائسنس نمبر {number}",
     "specialtyLabel": "تخصص",
     "allSpecialties": "تمام تخصصات",
     "paymentLabel": "ادائیگی",
@@ -1366,7 +1367,11 @@
     "bioTitle": "ڈاکٹر کے بارے میں",
     "infoTitle": "مزید معلومات",
     "languagesLabel": "زبانیں",
-    "chooseDayTime": "دن اور وقت منتخب کریں"
+    "chooseDayTime": "دن اور وقت منتخب کریں",
+    "sortAvailableToday": "آج دستیاب",
+    "guaranteeLine": "اگر آپ کا اپوائنٹمنٹ {minutes} منٹ سے زیادہ لیٹ ہو تو آپ کو {points} نبض پوائنٹس ملتے ہیں۔",
+    "licenseLine": "سعودی کمیشن برائے طبی تخصصات سے لائسنس یافتہ، نمبر {number}",
+    "licenseVerified": "تصدیق شدہ"
   },
   "LabsServices": {
     "eyebrow": "لیبارٹری کیئر",
@@ -2901,7 +2906,10 @@
     "copayTitle": "منظوری موصول ہو گئی",
     "copayBody": "منظور ہو گیا۔ مشاورت کھولنے کے لیے شریکِ ادائیگی ({amount}) ادا کریں۔",
     "copayAction": "بیمہ کی درخواست دیکھیں اور محفوظ ادائیگی کریں",
-    "actionDoctorProfile": "پروفائل دیکھیں"
+    "actionDoctorProfile": "پروفائل دیکھیں",
+    "actionOrderPrescription": "نسخہ منگوائیں",
+    "actionBookLabs": "لیب ٹیسٹ بک کریں",
+    "actionBookScans": "اسکین بک کریں"
   },
   "ConsultClient": {
     "payHeading": "محفوظ گیٹ وے کے ذریعے ادائیگی مکمل کریں",
@@ -4023,7 +4031,12 @@
       "failed": "پالیسی محفوظ نہیں ہو سکی۔",
       "scan": "کیمرے سے انشورنس کارڈ اسکین کریں",
       "scanned": "کارڈ سے نظر آنے والی تفصیلات پڑھ لی گئیں۔ محفوظ کرنے سے پہلے جانچ لیں۔",
-      "scanFailed": "کارڈ پڑھا نہیں جا سکا۔ تفصیلات خود درج کریں۔"
+      "scanFailed": "کارڈ پڑھا نہیں جا سکا۔ تفصیلات خود درج کریں۔",
+      "copayHint": "اختیاری۔ انہیں اپنے کارڈ سے لکھیں: آپ کا ادا کردہ حصہ اور فی آئٹم زیادہ سے زیادہ رقم۔ بکنگ سے پہلے تخمینے کے لیے استعمال ہوتے ہیں۔",
+      "copayPercent": "آپ کا حصہ، % (اختیاری)",
+      "copayCap": "فی آئٹم زیادہ سے زیادہ، ر.س (اختیاری)",
+      "copayPercentInvalid": "0 سے 100 تک کوئی عدد درج کریں۔",
+      "copayCapInvalid": "0 یا اس سے زیادہ رقم درج کریں۔"
     },
     "coverage": {
       "title": "میری پالیسی کیا کور کرتی ہے",
@@ -4240,7 +4253,8 @@
     "earn.referral_converted": "دوست کو مدعو کرنا (اس کی پہلی بکنگ پر)",
     "earn.vitals_logged": "اہم علامات کا اندراج",
     "earn.challenge": "صحت کا چیلنج",
-    "earn.perChallenge": "چیلنج کے مطابق"
+    "earn.perChallenge": "چیلنج کے مطابق",
+    "reason.late_compensation": "اپوائنٹمنٹ میں تاخیر کا معاوضہ"
   },
   "OffersWeb": {
     "title": "آفرز اور پیکجز",
@@ -5306,7 +5320,9 @@
     "resHigh": "حد سے اوپر",
     "resLow": "حد سے نیچے",
     "resDiscuss": "ڈاکٹر سے بات کریں",
-    "resTrend": "آپ کے نتائج میں رجحان"
+    "resTrend": "آپ کے نتائج میں رجحان",
+    "shareEstimate": "آپ کا تخمینی حصہ: {p} (تخمینہ؛ فراہم کنندہ کی تصدیق کے بعد حتمی)",
+    "shareAccepted": "انشورنس قبول ہے۔ آپ کا حصہ فراہم کنندہ طے کرے گا۔"
   },
   "InstantConsult": {
     "title": "فوری مشاورت",

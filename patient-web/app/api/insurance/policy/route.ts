@@ -12,6 +12,9 @@ const schema = z.object({
   member_id: z.string().max(64).optional().default(""),
   member_name: z.string().max(128).optional().default(""),
   expiry_date: z.string().max(32).optional().default(""),
+  // the card's copay figures (optional; the backend DTO bounds are the same)
+  copay_percent: z.number().min(0).max(100).optional(),
+  copay_cap_sar: z.number().min(0).max(1_000_000).optional(),
 });
 
 export async function POST(request: Request) {

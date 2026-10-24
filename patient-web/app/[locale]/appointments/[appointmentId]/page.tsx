@@ -16,6 +16,8 @@ import { ConsultationPaymentAction } from "@/components-next/consultation-paymen
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { ActionLinks, Facts, Hero, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
+import { bookingFlowHref, medicalOrderActionPath, parseFollowUpActions, pharmacyOrderHref } from "@/lib/consult/follow-up-actions";
+import { OrderFormButton } from "@/components-next/medical-orders/order-form-button";
 import { LocalTimeLine } from "@/components-next/consult/local-time-line";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
@@ -94,6 +96,8 @@ export default async function AppointmentDetailPage({ params }: Props) {
   const summaryMeds = Array.isArray(summary?.prescription) ? (summary.prescription as unknown[]) : [];
   const followUpRecommended = summary?.follow_up_recommended === true;
   const windowDays = typeof summary?.follow_up_window_days === "number" ? summary.follow_up_window_days : undefined;
+  // The one-tap actions are the ones the server lists (on the summary, else on the appointment): none listed, none shown.
+  const followUps = parseFollowUpActions(summary?.follow_up_actions ?? record?.follow_up_actions);
   const followUpHref = doctorId ? `/${locale}/consultations/book/${encodeURIComponent(doctorId)}?followUp=${id}` : undefined;
 
   const rows: FactRow[] = [
@@ -171,10 +175,17 @@ export default async function AppointmentDetailPage({ params }: Props) {
               </ul>
             ) : null}
             {followUpRecommended && windowDays !== undefined ? <p className={styles.body}>{c("summaryFollowUp", { days: windowDays })}. {c("summaryFollowUpBody")}</p> : null}
+            {followUps.length > 0 ? (
+              <div className={styles.stack}>
+                {followUps.map((a) => a.kind === "pharmacy_order"
+                  ? <ActionLinks key={`p-${a.prescriptionId}`} actions={[{ href: pharmacyOrderHref(locale, a.prescriptionId), label: c("actionOrderPrescription") }]} />
+                  : <OrderFormButton key={a.kind} action={medicalOrderActionPath(a)} fields={{ group_all: "1" }} label={c(a.kind === "lab_booking" ? "actionBookLabs" : "actionBookScans")} next={bookingFlowHref(locale, a.kind)} primary />)}
+              </div>
+            ) : null}
             <ActionLinks
               actions={[
                 ...(followUpHref ? [{ href: followUpHref, label: c("actionBookFollowUp") }] : []),
-                { href: `/${locale}/diagnostics/labs`, label: c("actionBookTests"), variant: "outline" as const },
+                ...(followUps.some((a) => a.kind === "lab_booking") ? [] : [{ href: `/${locale}/diagnostics/labs`, label: c("actionBookTests"), variant: "outline" as const }]),
                 { href: `/${locale}/consultations/post-call-rating?appointmentId=${id}`, label: c("actionRate"), variant: "outline" as const },
               ]}
             />
