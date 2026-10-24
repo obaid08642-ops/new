@@ -52,6 +52,11 @@ def main():
                 step(f'/{loc}/{path} shows no Arabic', not AR.search(body), [l for l in body.split('\n') if AR.search(l)][:3])
                 step(f'/{loc}/{path} returns to the {loc} home', page.locator(f'main a[href="/{loc}"]').count() > 0, body[:200])
             page.goto(f'{WEB}/{loc}/{EMPTY_PATH}', wait_until='load', timeout=60000)
+            # the page shows its loading text first: wait for the empty state to be visible instead of reading the loading text
+            try:
+                page.get_by_text(empty[loc], exact=False).first.wait_for(state='visible', timeout=20000)
+            except Exception:
+                pass
             body = page.inner_text('main') if page.locator('main').count() else page.inner_text('body')
             step(f'/{loc}/{EMPTY_PATH} says "{empty[loc]}" (its own empty state)', empty[loc] in body, body[:200])
             step(f'/{loc}/{EMPTY_PATH} shows no Arabic', not AR.search(body), [l for l in body.split('\n') if AR.search(l)][:3])
