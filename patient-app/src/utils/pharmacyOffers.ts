@@ -38,6 +38,10 @@ export interface OfferView {
   distanceKm: number | null;
   /** The server's estimate of preparation time. */
   prepMinutes: number | null;
+  /** The pharmacy's own delivery ETA (approx_delivery.eta_minutes), its average rating and the count behind it: null when absent (hidden). */
+  etaMinutes: number | null;
+  rating: number | null;
+  ratingCount: number | null;
   /** `quote_expires_at` as epoch milliseconds; null when the server sent none or an unreadable one. */
   expiresAt: number | null;
   totals: OfferTotals;
@@ -100,6 +104,9 @@ export function parseOffer(raw: unknown): OfferView | null {
     nameEn: text(o.pharmacy_name_en) ?? null,
     distanceKm: num(o.approx_distance_km),
     prepMinutes: num(o.preparation_minutes),
+    etaMinutes: num((o.approx_delivery as { eta_minutes?: unknown } | null | undefined)?.eta_minutes),
+    rating: num(o.pharmacy_rating),
+    ratingCount: num(o.pharmacy_rating_count),
     expiresAt: Number.isFinite(localExpires) ? localExpires : null,
     totals: readTotals(o.totals),
     lines,

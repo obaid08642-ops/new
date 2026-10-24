@@ -108,8 +108,8 @@ export default function LabComparison() {
             ) : null}
 
             {group.best_match ? (
-              <Section title={k('ordering.match.best')}>
-                <ProviderCard row={group.best_match} itemsCount={itemsCount} selected onChoose={() => void choose(group.best_match as ProviderRow)}>
+              <Section>
+                <ProviderCard row={group.best_match} itemsCount={itemsCount} selected badge={k('ordering.match.best')} mode={group.mode} onChoose={() => void choose(group.best_match as ProviderRow)}>
                   {ctx.payer === 'insurance' && quote.estimate ? (
                     <View style={{ gap: 4 }}>
                       <AmountLine label={k('ordering.basket.sumIns')} amount={group.best_match.estimated_insurance_share} success />
@@ -132,7 +132,7 @@ export default function LabComparison() {
                 {rows.length === 0 ? (
                   <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('ordering.match.emptyTitle')}</Text>
                 ) : (
-                  rows.map((r) => <ProviderCard key={r.provider_id} row={r} itemsCount={itemsCount} onChoose={() => void choose(r)} />)
+                  rows.map((r) => <ProviderCard key={r.provider_id} row={r} itemsCount={itemsCount} mode={group.mode} onChoose={() => void choose(r)} />)
                 )}
               </Section>
             ) : null}

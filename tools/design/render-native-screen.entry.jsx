@@ -19,6 +19,9 @@ import { AppProvider } from '@app/src/context/AppContext';
 import { CartProvider, useCart } from '@app/src/context/CartContext';
 import { ConsultationsProvider } from '@app/src/context/ConsultationsContext';
 import { DiagnosticsCartProvider, useDiagnosticsCart } from '@app/src/context/DiagnosticsCartContext';
+import { parseQuote } from '@app/src/utils/ordering';
+import { setPick, setTime, startDraft } from '@app/src/utils/orderingBooking';
+import fixtures from '@fixtures';
 import Screen from '@screen';
 import TabBar from '@tabbar';
 import LayoutHeader from '@header';
@@ -31,6 +34,18 @@ const store = configureStore({
   reducer: { auth: authReducer },
   preloadedState: cfg.auth === 'member' ? { auth: { ...authInitial, isAuthenticated: true, isGuest: false } } : undefined,
 });
+// --ordering-draft quote|picked|timed: the in-memory ordering draft the compare, picker and confirm screens read, built from the TEST quote of the
+// fixtures (POST /ordering/quote) the way the compare screen builds it: quote, then the best match of each group, then a time for each group.
+if (cfg.draft) {
+  const quote = parseQuote(JSON.parse(JSON.stringify(fixtures['POST /ordering/quote']).replace(/"@in\+(\d+)s"/g, (_m, n) => JSON.stringify(new Date(Date.now() + Number(n) * 1000).toISOString()))));
+  if (quote) {
+    startDraft({ kind: 'lab', payer: cfg.draftPayer || 'insurance', quote, lat: 24.7, lng: 46.7, placeLine: 'شارع تجريبي، مدينة تجريبية' });
+    if (cfg.draft !== 'quote') for (const g of quote.groups) if (g.best_match) setPick(g, g.best_match);
+    if (cfg.draft === 'timed') {
+      for (const g of quote.groups) setTime(g.mode, g.mode === 'home' ? { type: 'window', start: new Date(Date.now() + 7200e3).toISOString(), end: new Date(Date.now() + 14400e3).toISOString() } : { type: 'slot', id: 'test-slot-1', start: new Date(Date.now() + 90000e3).toISOString(), end: new Date(Date.now() + 91800e3).toISOString() });
+    }
+  }
+}
 const metrics = { frame: { x: 0, y: 0, width: cfg.width, height: cfg.height }, insets: cfg.insets };
 
 // --cart test: marked TEST lines in the real cart (the second needs a prescription), added once on mount

@@ -276,3 +276,14 @@ export function DoctorsSection({ doctors, locale, t, specialties }: { doctors: D
     </section>
   );
 }
+
+/** The board's points card: the balance from GET /loyalty/account, opening the loyalty hub (`points` is formatted by the page; `label` and `value` come from the locale files). */
+export function PointsCard({ locale, label, value }: { locale: Locale; label: string; value: string }) {
+  return (
+    <section className={styles.section} aria-label={label}>
+      <Link href={`/${locale}/loyalty`} className={styles.rowLink}>
+        <ListItem title={label} subtitle={value} leading={{ icon: "star", tone: "amber" }} />
+      </Link>
+    </section>
+  );
+}

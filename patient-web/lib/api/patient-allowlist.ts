@@ -170,6 +170,8 @@ const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }>
   { method: "POST", route: new RegExp("^/auth/heartbeat$", "i") },
   // the heart on the product page (components-next/pharmacy/wishlist-heart): backend POST /users/me/wishlist/:itemId toggles one medicine
   { method: "POST", route: new RegExp("^/users/me/wishlist/[A-Za-z0-9_-]{1,128}$") },
+  // "Suggest an edit" on the product page (components-next/pharmacy/suggest-change): backend POST /medicines/:id/suggest-change, as the app sends it
+  { method: "POST", route: new RegExp("^/medicines/[A-Za-z0-9_-]{1,128}/suggest-change$") },
 ];
 
 export function isAllowedPatientApiPath(path: string) {
