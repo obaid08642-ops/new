@@ -46,7 +46,7 @@ export class CareController {
     @Query('price_max') price_max?: string,
     @Query('lat') lat?: string,
     @Query('lng') lng?: string,
-    @Query('sort') sort?: 'rating' | 'price_asc' | 'price_desc' | 'experience' | 'distance' | 'distance_asc' | 'distance_desc',
+    @Query('sort') sort?: 'rating' | 'price_asc' | 'price_desc' | 'experience' | 'distance' | 'distance_asc' | 'distance_desc' | 'available_today',
     @Query('type') type?: 'clinic' | 'video' | 'home_visit',
     @Query('available_within') available_within?: string,
     @Query('page') page?: string,

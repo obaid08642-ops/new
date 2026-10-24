@@ -1,6 +1,6 @@
 """Journey: provider onboarding (provider-app src/screens/*/…Registration.tsx) -> admin review
 (admin/src/pages/admin/provider-moderation.tsx) -> provider login -> visible to patients."""
-import base64, time
+import base64, datetime, time
 from lib import Client, journey, step, mail_code, uniq, phone
 
 # A real (valid) 8x8 PNG, built here: stands in for photographed documents / the drawn signature.
@@ -165,7 +165,10 @@ def _value(key, kind):
     if kind is None or kind == 'null':
         return UNTYPED.get(key)
     if kind == 'string':
-        if 'date' in k or 'expiry' in k:
+        if 'expiry' in k:
+            # a licence the backend accepts: still valid two years from now (never a fixed date that will lapse)
+            return (datetime.date.today() + datetime.timedelta(days=730)).isoformat()
+        if 'date' in k:
             return '2027-06-30'
         if k in ('gender', 'gender_pref', 'home_collector_gender'):
             return 'male'
