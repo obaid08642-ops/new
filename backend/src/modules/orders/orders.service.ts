@@ -794,6 +794,7 @@ export class OrdersService {
         driver_id: null,
         courier_name: d.courier_name ?? null,
         courier_phone: d.courier_phone ?? null,
+        courier_vehicle: d.courier_vehicle ?? null,
         courier_eta: d.courier_eta ?? null,
         dispatched_at: d.dispatched_at ?? null,
         delivered_at: d.delivered_at ?? null,
