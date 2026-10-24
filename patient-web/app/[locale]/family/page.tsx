@@ -152,7 +152,7 @@ export default async function FamilyPage({ params }: Props) {
 
       <RowCard href={`${base}/calendar`} icon="calendar-dots" tone="coral" title={t("calendarTitle")} sub={t("calendarSub")} caret={<Icon name={caret} size={16} tone="secondary" />} />
       <RowCard href={`${base}/chat`} icon="chat-circle-text" tone="blue" title={t("chatTitle")} sub={t("chatSub")} caret={<Icon name={caret} size={16} tone="secondary" />} />
-      <RowCard href={`/${locale}/health/profile#emergency`} icon="users" tone="amber" title={t("emergencyTitle")} sub={emergencyCount ? t("emergencyCount", { count: emergencyCount }) : t("emergencySub")} caret={<Icon name={caret} size={16} tone="secondary" />} />
+      <RowCard href={`/${locale}/health/profile?tab=emergency`} icon="users" tone="amber" title={t("emergencyTitle")} sub={emergencyCount ? t("emergencyCount", { count: emergencyCount }) : t("emergencySub")} caret={<Icon name={caret} size={16} tone="secondary" />} />
     </ConsultPage>
   );
 }
