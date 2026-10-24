@@ -150,6 +150,7 @@ import { UserRole } from '../../common/enums';
 import { AutoEntitySeoPipelineService, PipelineEntityType } from '../events/auto-entity-seo-pipeline.service';
 import { PUBLIC_MEDICINE, PUBLIC_TYPED_PROVIDER } from '../entity-graph/entity-graph.service';
 import { resolveMedicinePublicDto, productLocaleToDb, PUBLIC_CATALOG_LOCALES } from '../medicines/med-i18n';
+import { catalogueFilterClauses, CatalogueFilterInput } from './catalogue-filters';
 import { toPublicMedicine, toPublicProductCard } from '../medicines/public-medicine';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { EquivalentRow, ingredientCandidatePattern, ingredientParts, rankEquivalents } from './product-equivalents';
@@ -784,7 +785,7 @@ export class SeoSearchService {
   }
 
   /** Paginated products inside a localized category cluster. */
-  async publicCategoryProducts(locale: string, category: string, sub?: string, page = 1, limit = 24, q?: string, sort: CatalogueSort = 'popular') {
+  async publicCategoryProducts(locale: string, category: string, sub?: string, page = 1, limit = 24, q?: string, sort: CatalogueSort = 'popular', extra: CatalogueFilterInput = {}) {
     const db = productLocaleToDb(locale);
     const key = (f: string) => db === 'ar' ? f : `translations.${db}.${f === 'category' ? 'main_category' : f}`;
     const filter: any = { ...this.publicProductFilter() };
@@ -873,6 +874,10 @@ export class SeoSearchService {
       }
     }
 
+    // Design parity (#1819): form / brand / rx / price range, validated in catalogue-filters.ts.
+    const extras = catalogueFilterClauses(extra, db);
+    if (extras.and.length) filter.$and = [...(filter.$and || []), ...extras.and];
+
     const perPage = Math.min(Math.max(limit, 1), 48);
     // Popularity-first ordering (views → rating → stable id). Deliberately NOT
     // image-first: imageless medicines were buried under cosmetics on "All".
@@ -883,6 +888,7 @@ export class SeoSearchService {
       : { usage_count: -1, rating: -1, _id: 1 };
     // An explicit price order skips items without a real price (a 0 is "no price", never the cheapest).
     if (sort === 'price_asc' || sort === 'price_desc') filter.price = { $gt: 0 };
+    if (extras.price) filter.price = { ...(filter.price || {}), ...extras.price, ...(extras.price.$gte === undefined && extras.price.$lte !== undefined ? { $gt: 0 } : {}) };
 
     const cursor = this.conn.collection(CATALOG_COLLECTIONS.medicines)
       .find(filter, { projection: { _id: 0, id: 1, sku: 1, slug: 1, name_ar: 1, name_en: 1, price: 1, old_price: 1, image_1: 1, image: 1, images: 1, form: 1, strength: 1, package_size: 1, category: 1, sub_category: 1, active_ingredient: 1, requires_prescription: 1, online_exclusive: 1, availability_status: 1, usage_count: 1, translations: 1 } } as any)
@@ -1370,6 +1376,11 @@ export class SeoSearchController {
     @Query('limit') limit?: string,
     @Query('q') q?: string,
     @Query('sort') sort?: string,
+    @Query('form') form?: string,
+    @Query('brand') brand?: string,
+    @Query('rx') rx?: string,
+    @Query('price_min') priceMin?: string,
+    @Query('price_max') priceMax?: string,
   ) {
     if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
     const cat = category || 'all';
@@ -1380,7 +1391,7 @@ export class SeoSearchController {
       const n = Number.parseInt(raw ?? '', 10);
       return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
     };
-    return this.svc.publicCategoryProducts(locale, cat, sub, bounded(page, 1, 10_000), bounded(limit, 24, 100), q, order);
+    return this.svc.publicCategoryProducts(locale, cat, sub, bounded(page, 1, 10_000), bounded(limit, 24, 100), q, order, { form, brand, rx, price_min: priceMin, price_max: priceMax });
   }
 
   /** Product sitemap page as JSON (the web app renders same-host XML). */
