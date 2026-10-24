@@ -66,7 +66,7 @@ export default async function ReviewsPage({ params, searchParams }: Props) {
             locale={locale}
             appointmentId={rateId}
             bookingKind={rateKind}
-            labels={{ rating: c("ratingGroup"), star: c("ratingStar"), comment: pc("comment"), commentPh: pc("commentPh"), submit: pc("submit"), submitting: pc("submitting"), thanks: pc("thanks"), error: pc("error") }}
+            labels={{ rating: c("ratingGroup"), star: c("ratingStar"), comment: pc("comment"), commentPh: pc("commentPh"), submit: pc("submit"), submitting: pc("submitting"), thanks: pc("thanks"), error: pc("error"), tagsTitle: pc("tagsTitle"), tags: { excellent: pc("tags.excellent"), fast: pc("tags.fast"), professional: pc("tags.professional"), clean: pc("tags.clean"), helpful: pc("tags.helpful"), recommend: pc("tags.recommend") } }}
           />
         </>
       ) : null}
