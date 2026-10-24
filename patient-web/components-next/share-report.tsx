@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { Notice } from "@/components-next/consult/consult-parts";
+import { ShareWithDoctor } from "@/components-next/share-report-doctor";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/consult/consult.module.css";
 
@@ -82,6 +83,7 @@ export function ShareReportPanel({ reports, locale, origin }: {
                 </span>
               </span>
             </label>
+            <div className={styles.pickRow}><ShareWithDoctor reportId={report.id} locale={locale} /></div>
           </li>
         ))}
       </ul>

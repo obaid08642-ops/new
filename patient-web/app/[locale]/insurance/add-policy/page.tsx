@@ -6,7 +6,9 @@ import { isLocale } from "@/lib/i18n";
 import { parseCompanies, type CompanyRow } from "@/lib/insurance/view";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { Notice } from "@/components-next/consult/consult-parts";
-import { AddPolicyForm } from "@/components-next/insurance/add-policy-form";
+import { getPatientInsurancePolicy } from "@/lib/api/insurance-server";
+import { parseInsuranceSummary } from "@/lib/api/insurance";
+import { AddPolicyForm, type PolicyPrefill } from "@/components-next/insurance/add-policy-form";
 import { safeNextPath } from "@/lib/auth/safe-next";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ next?: string | string[] }> };
@@ -34,11 +36,24 @@ export default async function InsuranceAddPolicyPage({ params, searchParams }: P
     failed = true;
   }
 
+  // changing the saved policy starts from its values (a patient without one gets the blank form)
+  let initial: PolicyPrefill | undefined;
+  try {
+    const policyRes = await getPatientInsurancePolicy(token);
+    const summary = policyRes.ok ? parseInsuranceSummary(await policyRes.json().catch(() => null)) : null;
+    if (summary?.hasPolicy) {
+      const company = companies.find((c) => c.name === summary.companyName);
+      initial = { companyId: company?.id, policyNumber: summary.policyNumber, memberId: summary.memberId, memberName: summary.memberName, expiry: summary.expiryDate?.slice(0, 10), network: summary.network };
+    }
+  } catch {
+    initial = undefined;
+  }
+
   return (
     <ConsultPage locale={locale} title={t("add.title")} backHref={`/${locale}/insurance`}>
       <Notice>{t("add.lead")}</Notice>
       {failed ? <div role="alert"><Notice warn>{t("add.companiesFailed")}</Notice></div> : null}
-      <AddPolicyForm companies={companies} locale={locale} returnTo={returnTo} />
+      <AddPolicyForm companies={companies} locale={locale} returnTo={returnTo} initial={initial} />
     </ConsultPage>
   );
 }
