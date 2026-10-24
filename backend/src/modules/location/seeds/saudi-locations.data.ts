@@ -2,6 +2,10 @@ export interface SeedLocation {
   code: string;
   name_ar: string;
   name_en: string;
+  name_ur?: string;
+  name_hi?: string;
+  name_bn?: string;
+  name_tl?: string;
   type: 'country' | 'region' | 'city' | 'district' | 'sub_area';
   parent_code?: string | null;
   aliases: string[];
