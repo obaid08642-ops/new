@@ -20,7 +20,7 @@ type Rule = { source: string; params: readonly string[]; twin: string; destinati
 
 export const QUERY_TWIN_RULES: readonly Rule[] = [
   { source: `/:locale(${LOCALES})/c/:path*`, params: ["page", "q", "sort"], twin: "c", destination: "/:locale/q/c/:path*" },
-  { source: `/:locale(${LOCALES})/consultations/doctors`, params: ["q", "specialty", "sort", "type", "payment", "insurance", "insurance_class", "available", "nearest", "lat", "lng", "city"], twin: "consultations/doctors", destination: "/:locale/q/consultations/doctors" },
+  { source: `/:locale(${LOCALES})/consultations/doctors`, params: ["q", "specialty", "sort", "type", "gender", "payment", "insurance", "insurance_class", "available", "nearest", "lat", "lng", "city"], twin: "consultations/doctors", destination: "/:locale/q/consultations/doctors" },
   { source: `/:locale(${LOCALES})/articles`, params: ["q", "category", "tab"], twin: "articles", destination: "/:locale/q/articles" },
 ];
 

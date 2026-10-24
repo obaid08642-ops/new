@@ -33,7 +33,12 @@ export type PaymentFilter = (typeof PAYMENT_FILTERS)[number];
  *  by the browser from the saved policy, so the doctors page itself never reads the session (static/cached page rule). */
 export type Insurer = { company: string; class?: string };
 
+export const GENDER_FILTERS = ["male", "female"] as const;
+export type GenderFilter = (typeof GENDER_FILTERS)[number];
+
 export type DoctorFilters = {
+  /** Doctor gender (GET /care/doctors `gender`); absent means any. */
+  gender?: GenderFilter;
   type?: VisitType;
   payment?: PaymentFilter;
   /** Only with payment "insurance": the saved policy's company and class, from the page URL. */
@@ -66,6 +71,8 @@ export function parseDoctorFilters(raw: Raw): DoctorFilters {
   const company = payment === "insurance" ? boundedText(first(raw.insurance)) : undefined;
   const insurerClass = company ? boundedText(first(raw.insurance_class)) : undefined;
   const insurer: Insurer | undefined = company ? (insurerClass ? { company, class: insurerClass } : { company }) : undefined;
+  const rawGender = first(raw.gender);
+  const gender = (GENDER_FILTERS as readonly string[]).includes(rawGender ?? "") ? (rawGender as GenderFilter) : undefined;
   const availableNow = first(raw.available) === "1";
   const nearest = first(raw.nearest) === "1" && nearestApplies(type ?? (availableNow ? "clinic" : undefined));
   let place: NearbyPlace | null = null;
@@ -76,7 +83,7 @@ export function parseDoctorFilters(raw: Raw): DoctorFilters {
     if (lat !== null && lng !== null) place = { kind: "coords", lat, lng };
     else if (city) place = { kind: "city", city };
   }
-  return { type, ...(payment ? { payment } : {}), ...(insurer ? { insurer } : {}), availableNow, nearest: nearest && place !== null, place };
+  return { type, ...(gender ? { gender } : {}), ...(payment ? { payment } : {}), ...(insurer ? { insurer } : {}), availableNow, nearest: nearest && place !== null, place };
 }
 
 /** "Available now" needs a visit type; without a chosen one the clinic is the default (and is shown as chosen). */
@@ -94,6 +101,7 @@ export function filterApiParams(filters: DoctorFilters): Array<[string, string]>
       if (filters.insurer.class) out.push(["insurance_class", filters.insurer.class]);
     } else out.push(["accepts_insurance", "true"]);
   }
+  if (filters.gender) out.push(["gender", filters.gender]);
   if (filters.availableNow) out.push(["available_within", String(AVAILABLE_WITHIN_MINUTES)]);
   if (filters.nearest && filters.place && nearestApplies(type)) {
     if (filters.place.kind === "coords") {
@@ -120,6 +128,7 @@ export function filterPageParams(filters: DoctorFilters, extra: { q?: string; sp
     params.set("insurance", filters.insurer.company);
     if (filters.insurer.class) params.set("insurance_class", filters.insurer.class);
   }
+  if (filters.gender) params.set("gender", filters.gender);
   if (filters.availableNow) params.set("available", "1");
   if (filters.nearest && filters.place) {
     params.set("nearest", "1");
