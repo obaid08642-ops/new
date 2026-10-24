@@ -30,7 +30,7 @@
       "fil": {
         "missing": 0,
         "empty": 0,
-        "english": 151
+        "english": 138
       }
     },
     "app": {
@@ -45,22 +45,22 @@
         "english": 0
       },
       "ur": {
-        "missing": 36,
+        "missing": 0,
         "empty": 0,
         "english": 0
       },
       "hi": {
-        "missing": 36,
+        "missing": 0,
         "empty": 0,
         "english": 0
       },
       "bn": {
-        "missing": 36,
+        "missing": 0,
         "empty": 0,
         "english": 0
       },
       "tl": {
-        "missing": 36,
+        "missing": 0,
         "empty": 0,
         "english": 4
       }
