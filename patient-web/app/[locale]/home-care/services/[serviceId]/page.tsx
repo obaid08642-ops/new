@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pickTexts } from "@/lib/i18n/localized";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components-next/json-ld";
 import { DirectAnswer } from "@/components-next/seo/direct-answer";
@@ -36,8 +37,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!service) return { robots: { index: false, follow: false } };
   const t = await getTranslations({ locale, namespace: "NursingWeb" });
   const seo = await getTranslations({ locale, namespace: "SeoAnswer" });
-  const name = pickText(locale, service.nameAr, service.nameEn) ?? t("serviceTitle");
-  const description = (pickText(locale, service.descriptionAr, service.descriptionEn) ?? seo("homeCareWho", { name })).replace(/\s+/g, " ").slice(0, 160);
+  const name = pickTexts(locale, service.names) ?? t("serviceTitle");
+  const description = (pickTexts(locale, service.descriptions) ?? seo("homeCareWho", { name })).replace(/\s+/g, " ").slice(0, 160);
   const path = `/home-care/services/${encodeURIComponent(serviceId)}`;
   const canonical = localizedUrl(locale, path);
   return {
@@ -83,8 +84,8 @@ export default async function HomeCareServicePage({ params, searchParams }: Prop
     );
   }
   if (!service) notFound();
-  const name = pickText(locale, service.nameAr, service.nameEn) ?? "";
-  const description = pickText(locale, service.descriptionAr, service.descriptionEn);
+  const name = pickTexts(locale, service.names) ?? "";
+  const description = pickTexts(locale, service.descriptions);
   const preparation = (locale === "ar" || locale === "ur" ? service.preparationAr ?? service.preparationEn : service.preparationEn ?? service.preparationAr) ?? [];
   const duration = [service.durationValue, service.duration].filter(Boolean).join(" ");
   const rows: FactRow[] = [
