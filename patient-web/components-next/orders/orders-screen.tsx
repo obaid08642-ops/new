@@ -11,7 +11,7 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import type { Locale } from "@/lib/i18n";
 import { parseOrderRows } from "@/lib/pharmacy/order-view";
 import { callPatientApi } from "@/lib/api/upstream";
-import { consultationRows, diagnosticRows, nursingRows, pharmacyRows, returnRows, sortCenterRows, type CenterLabels, type CenterRow } from "./center-rows";
+import { consultationRows, diagnosticRows, legacyOrderRows, nursingRows, pharmacyRows, returnRows, sortCenterRows, type CenterLabels, type CenterRow } from "./center-rows";
 import { OrderList } from "./order-list";
 import rx from "@/components-next/pharmacy/rx.module.css";
 
@@ -50,6 +50,7 @@ export async function OrdersScreen({ locale }: { locale: Locale }) {
 
   const sources = await Promise.all([
     read(locale, () => callPatientApi("/patient/pharmacy/orders", {}, token), (payload) => pharmacyRows(locale, parseOrderRows(payload), labels)),
+    read(locale, () => callPatientApi("/orders/mine", {}, token), (payload) => legacyOrderRows(locale, payload, labels)),
     read(locale, () => getPatientAppointments(token), (payload) => consultationRows(locale, payload, labels)),
     read(locale, () => getDiagnosticBookings(token, "labs"), (payload) => diagnosticRows(locale, "labs", payload, labels)),
     read(locale, () => getDiagnosticBookings(token, "radiology"), (payload) => diagnosticRows(locale, "radiology", payload, labels)),

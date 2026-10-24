@@ -3,6 +3,7 @@ import { addLine, emptyBasket, hasLine, MAX_BASKET_ITEMS, parseBasket, parseChoi
 import { parseBookingResult } from "./bookings";
 import { contextQuery, payOf, placeOf, pointFromAddresses } from "./context";
 import { filterCompare, orderingErrorKey, parseQuote, summarize } from "./quote";
+import { parseResultValues, rangeGeometry } from "./results";
 import { parseWindows } from "./windows";
 
 const row = (id: string, total: number, extra: Record<string, unknown> = {}) => ({ provider_id: id, name_ar: "ا", name_en: id, total, distance_km: 2.5, rating: 4.5, in_network: true, earliest_at: "2026-10-23T10:00:00.000Z", turnaround_hours: 24, ...extra });
@@ -104,6 +105,7 @@ describe("context", () => {
     expect(pointFromAddresses([{ latitude: 1, longitude: 2 }, { latitude: 3, longitude: 4, is_default: true }])).toEqual({ lat: 3, lng: 4 });
     expect(pointFromAddresses([{ label: "x" }, { latitude: 5, longitude: 6 }])).toEqual({ lat: 5, lng: 6 });
     expect(pointFromAddresses({ addresses: [{ latitude: 7, longitude: 8 }] })).toEqual({ lat: 7, lng: 8 });
+    expect(pointFromAddresses([{ lat: 24.7, lng: 46.6, is_default: true }])).toEqual({ lat: 24.7, lng: 46.6 });
     expect(pointFromAddresses([{ label: "x" }])).toBeNull();
     expect(pointFromAddresses(null)).toBeNull();
   });
@@ -131,5 +133,16 @@ describe("windows and bookings", () => {
     expect(r?.bookings[0].items[0].coverage).toBe("needs_approval");
     expect(r?.payment).toEqual({ amount: 165, status: "pending" });
     expect(parseBookingResult({ order_group_id: "x" })).toBeNull();
+  });
+});
+
+describe("results (Ord11)", () => {
+  it("keeps the server's flag and trend and places the value on the range bar", () => {
+    const [v] = parseResultValues({ values: [{ catalog_id: "a", name: "A", value: 12.4, unit: "u", range: { low: 4, high: 11 }, flag: "high", trend: [{ date: "2026-01-01", value: 9 }, { date: "x" }] }] });
+    expect(v.flag).toBe("high");
+    expect(v.trend).toEqual([{ date: "2026-01-01", value: 9 }]);
+    expect(rangeGeometry({ value: 7.5, low: 4, high: 11 })?.marker).toBeCloseTo(50);
+    expect(rangeGeometry({ value: 100, low: 4, high: 11 })?.marker).toBe(100);
+    expect(rangeGeometry({ value: 1, low: null, high: 5 })).toBeNull();
   });
 });

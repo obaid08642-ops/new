@@ -61,7 +61,7 @@ export function ProvidersClient({ locale, kind, place, pay, point }: Props) {
         {!r.coversAll ? <StatusChip label={t("covers", { a: lines.length - r.missing.length, b: lines.length })} tone={DIAG_TONES.warn} /> : null}
       </div>
       <ul className={styles.meta}>
-        {r.rating !== null ? <li>{t("rating", { r: new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(r.rating) })}</li> : null}
+        {r.rating !== null && r.rating > 0 ? <li>{t("rating", { r: new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(r.rating) })}</li> : null}
         {r.distanceKm !== null ? <li>{t("dist", { d: new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(r.distanceKm) })}</li> : null}
         {whenText(locale, r.earliestAt) ? <li>{t("earliest", { w: whenText(locale, r.earliestAt) ?? "" })}</li> : null}
         {r.turnaroundHours !== null ? <li>{t("turnaround", { time: hoursUnit(locale, r.turnaroundHours) })}</li> : null}

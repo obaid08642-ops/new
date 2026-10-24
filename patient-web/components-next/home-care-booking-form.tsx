@@ -10,6 +10,8 @@ import { Input, Select } from "@/components-next/ui-generated/components/Inputs"
 import { SectionCard } from "@/components-next/consult/consult-parts";
 import { startNursingPayment } from "@/components-next/nursing/nursing-pay";
 import styles from "@/components-next/consult/consult.module.css";
+import { formatPrice } from "@/lib/format-price";
+import type { InsuranceOnFile } from "@/lib/nursing/nurse";
 import { chosenSlot, nurseSlotsView, parseNurseSlots, type NurseSlotsResult } from "@/lib/nursing/nurse-slots";
 import nursing from "@/components-next/nursing/nursing.module.css";
 
@@ -67,12 +69,18 @@ export function createHomeCareBookingAttempt(send: typeof fetch = (...a) => fetc
  * visit is paid by card (the Moyasar page) or sent to the insurer (decision 25: no cash). The booking request keeps its
  * idempotency key until the server gives a definite answer, so a retry after a lost connection never books twice.
  */
-export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insurance }: {
+export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insurance, price, initialMethod = "card", insuranceOnFile }: {
   locale: string;
   serviceId: string;
   nurses: BookableNurse[];
   addresses: BookableAddress[];
   insurance: boolean;
+  /** The visit price of the service for this nurse (the server charges the catalogue price); unset when the server sent none. */
+  price?: number;
+  /** The way chosen on the hub (decision 25: card or insurance). */
+  initialMethod?: Method;
+  /** The patient's policy from the coverage check (insurance flow only); null when it could not be read. */
+  insuranceOnFile?: InsuranceOnFile | null;
 }) {
   const t = useTranslations("NursingWeb");
   const router = useRouter();
@@ -88,7 +96,8 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
   const slot = chosenSlot({ state: slotsState, slots }, picked);
   const [addressId, setAddressId] = useState(addresses[0]?.id ?? "");
   const [notes, setNotes] = useState("");
-  const [method, setMethod] = useState<Method>("card");
+  const [method, setMethod] = useState<Method>(insurance && initialMethod === "insurance" ? "insurance" : "card");
+  const noPolicy = method === "insurance" && insuranceOnFile?.has === false;
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const busy = useRef(false);
@@ -111,6 +120,7 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
     if (!slot) { setError(t("formSelectTime")); return; }
     if (Date.parse(slot) < Date.now()) { setError(t("formPast")); return; }
     if (!addressId) { setError(t("formAddAddress")); return; }
+    if (noPolicy) { setError(t("insNoPolicy")); return; }
     busy.current = true;
     setSaving(true);
     attempt.current ??= createHomeCareBookingAttempt();
@@ -141,13 +151,17 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
   return (
     <>
       <SectionCard id="home-care-nurse" title={t("chooseNurse")}>
-        <div className={styles.slots} role="group" aria-label={t("chooseNurse")}>
-          {nurses.map((nurse) => (
-            <button key={nurse.id} type="button" value={nurse.id} className={styles.choice} aria-pressed={nurse.id === nurseId} onClick={() => setNurseId(nurse.id)}>
-              {nurse.name}{nurse.detail ? ` · ${nurse.detail}` : ""}
-            </button>
-          ))}
-        </div>
+        {nurses.length === 1 ? (
+          <p className={styles.body}>{nurses[0].name}{nurses[0].detail ? ` · ${nurses[0].detail}` : ""}</p>
+        ) : (
+          <div className={styles.slots} role="group" aria-label={t("chooseNurse")}>
+            {nurses.map((nurse) => (
+              <button key={nurse.id} type="button" value={nurse.id} className={styles.choice} aria-pressed={nurse.id === nurseId} onClick={() => setNurseId(nurse.id)}>
+                {nurse.name}{nurse.detail ? ` · ${nurse.detail}` : ""}
+              </button>
+            ))}
+          </div>
+        )}
       </SectionCard>
       <SectionCard id="home-care-day" title={t("formDay")}>
         <div className={styles.days} role="group" aria-label={t("formDay")}>
@@ -187,10 +201,26 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
       </SectionCard>
       <SectionCard id="home-care-pay" title={t("formMethod")}>
         <Segmented label={t("formMethod")} value={method} onChange={(v) => setMethod(v === "insurance" && insurance ? "insurance" : "card")} options={methods.map((m) => ({ value: m, label: t(`method_${m}`) }))} />
-        {method === "insurance" ? <p className={`${styles.body} ${styles.muted}`}>{t("insuranceNote")}</p> : null}
+        {method === "insurance" ? (
+          <>
+            {insuranceOnFile?.has ? (
+              <dl className={styles.body}>
+                <dt>{t("insFetched")}</dt>
+                {insuranceOnFile.company ? <dd>{t("insCompany")}: <bdi>{insuranceOnFile.company}</bdi></dd> : null}
+                {insuranceOnFile.policy ? <dd>{t("insPolicy")}: <bdi>{insuranceOnFile.policy}</bdi></dd> : null}
+              </dl>
+            ) : null}
+            {noPolicy ? <p className={styles.error} role="alert">{t("insNoPolicy")} <Link href={`/${locale}/insurance/add-policy`} className={nursing.addAddress}>{t("insAddPolicy")}</Link></p> : null}
+            <p className={`${styles.body} ${styles.muted}`}>{t("insuranceNote")}</p>
+          </>
+        ) : price !== undefined ? (
+          <p className={styles.body}>{t("visitPrice")}: <bdi>{formatPrice(locale, price).text}</bdi></p>
+        ) : (
+          <p className={`${styles.body} ${styles.muted}`}>{t("priceAtBooking")}</p>
+        )}
       </SectionCard>
       {error ? <p role="alert" className={styles.error}>{error}</p> : null}
-      <Button fullWidth size="lg" loading={saving} disabled={saving || !slot || !addressId} label={saving ? t("formBooking") : t("formConfirm")} onClick={() => void submit()} />
+      <Button fullWidth size="lg" loading={saving} disabled={saving || !slot || !addressId || noPolicy} label={saving ? t("formBooking") : method === "card" && price !== undefined ? t("confirmWithAmount", { amount: formatPrice(locale, price).text }) : t("formConfirm")} onClick={() => void submit()} />
     </>
   );
 }

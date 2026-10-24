@@ -56,8 +56,9 @@ function backend(routes: Record<string, unknown | Response>) {
   });
 }
 
-const members = { members: [{ user_id: MEMBER, role: "owner", display_name: "Sara Ali", relation: "Mother", joined_at: "2026-08-20T10:00:00.000Z" }] };
-const group = { data: { name: "Ali family", owner_id: MEMBER, members: [{ user_id: MEMBER, permissions: ["vitals", "meds", "view_health"] }] } };
+const OTHER = "private_other_456";
+const members = { members: [{ user_id: MEMBER, role: "owner", display_name: "Sara Ali", relation: "Mother", joined_at: "2026-08-20T10:00:00.000Z" }, { user_id: OTHER, role: "member", display_name: "Omar Ali", relation: "Son", joined_at: "2026-08-21T10:00:00.000Z" }] };
+const group = { data: { name: "Ali family", owner_id: MEMBER, members: [{ user_id: MEMBER, permissions: ["vitals", "meds", "view_health"] }, { user_id: OTHER, permissions: ["vitals", "meds", "view_health"] }] } };
 const pending = [{ id: "req-1", member_name: "Omar Ali", permissions: ["reports", "unknown_grant"] }];
 
 beforeEach(() => { server.api.mockReset(); });
@@ -69,13 +70,16 @@ describe("the family hub", () => {
     expect(server.api).toHaveBeenCalledWith("/family/members", {}, TOKEN);
     expect(html).toContain("Sara Ali");
     expect(html).toContain("Ali family");
-    expect(html).toContain("Access 2/4");
+    // the owner carries no badge; another member shows how many of the nine permissions were granted
+    expect(html).toContain("Access 2/9");
+    expect(html.match(/Access \d\/9/g)).toHaveLength(1);
     expect(html).toContain(`/en/family/${familyMemberRef(MEMBER)}`);
     expect(html).toContain("/en/family/add?tab=invite");
     expect(html).toContain("/en/family/add?tab=join");
     expect(html).toContain("Omar Ali");
     expect(html).toContain("View reports");
-    expect(html).toContain("Approve");
+    expect(html).toContain("Accept permissions");
+    expect(html).toContain("Decline all");
     expect(html).toContain("/en/family/calendar");
     expect(html).toContain("/en/family/chat");
     expect(html).toContain("/en/health/profile#emergency");
@@ -132,12 +136,17 @@ describe("the family member", () => {
 
   it("draws the member's grants and the remove action on the permissions tab, from the group", async () => {
     backend({ "/family/members": members, "/family/my-group": group });
-    const html = render(await FamilyMemberPage(props({ tab: "permissions" })));
+    const html = render(await FamilyMemberPage({ params: Promise.resolve({ locale: "en", memberRef: familyMemberRef(OTHER) }), searchParams: Promise.resolve({ tab: "permissions" }) }));
     expect(html).toContain("View vitals");
+    expect(html).toContain("Pay on their behalf");
     expect(html).toContain("Remove from family");
     expect(html).toContain("Save");
     backend({ "/family/members": members });
-    expect(render(await FamilyMemberPage(props({ tab: "permissions" })))).toContain("The permissions couldn&#x27;t be loaded.");
+    expect(render(await FamilyMemberPage({ params: Promise.resolve({ locale: "en", memberRef: familyMemberRef(OTHER) }), searchParams: Promise.resolve({ tab: "permissions" }) }))).toContain("The permissions couldn&#x27;t be loaded.");
+    // the owner holds every permission: a locked state, no switches and no removal
+    const locked = render(await FamilyMemberPage(props({ tab: "permissions" })));
+    expect(locked).toContain("The group owner");
+    expect(locked).not.toContain("Remove from family");
   });
 
   it("is not found for an unknown reference", async () => {
@@ -149,26 +158,37 @@ describe("the family member", () => {
 describe("the family calendar", () => {
   it("lists the events, treats no group as an empty calendar and a failed read as an error", async () => {
     backend({ "/family/calendar": [{ id: "e1", title: "Vaccination", member_name: "Omar Ali", event_date: "2026-09-01T10:00:00.000Z" }] });
-    const html = render(await FamilyCalendarPage({ params }));
+    const html = render(await FamilyCalendarPage(page()));
     expect(html).toContain("Vaccination");
     expect(html).toContain("Omar Ali");
+    // a person with a group can add an event; the delete button is only on events the server marks deletable
+    expect(html).not.toContain("Delete");
     backend({ "/family/calendar": json({}, 404) });
-    expect(render(await FamilyCalendarPage({ params }))).toContain("No scheduled events");
+    expect(render(await FamilyCalendarPage(page()))).toContain("No scheduled events");
     backend({});
-    expect(render(await FamilyCalendarPage({ params }))).toContain("Unable to load family");
+    expect(render(await FamilyCalendarPage(page()))).toContain("Unable to load family");
   });
 });
 
 describe("add or join", () => {
   it("is one screen with the tabs Invite, Join with code and Scan QR, the tab in the URL and the code kept", async () => {
     const invite = render(await FamilyAddPage(page()));
-    expect(invite).toContain("Create invite code");
+    expect(invite).toContain("After the invite is accepted");
     expect(invite).toContain("/en/family/add?tab=join");
     expect(invite).toContain("/en/family/add?tab=scan");
     const join = render(await FamilyAddPage(page({ tab: "join", code: "ABC123" })));
     expect(join).toContain("ABC123");
     expect(join).toContain("Join family");
     expect(render(await FamilyAddPage(page({ tab: "scan" })))).toContain("Invite code or link");
+  });
+});
+
+describe("the new readers", () => {
+  it("reads the nine permissions, the raw request field and its date, and the shared vitals", () => {
+    expect(knownPermissions(["booking", "pharmacy", "payment", "location", "emergency", "view_health"])).toEqual(["booking", "pharmacy", "payment", "location", "emergency"]);
+    expect(parsePermissionRequests([{ id: "r", requested_permissions: ["payment", "x"], createdAt: "2026-09-01T10:00:00.000Z" }])).toEqual([{ id: "r", name: undefined, permissions: ["payment"], createdAt: "2026-09-01T10:00:00.000Z" }]);
+    expect(parseMemberRecords({ vitals: [{ type: "weight", value: 70, unit: "kg" }, { type: "bp", value: "120/80", unit: "mmHg" }, { type: "heart_rate", value: "" }] }).vitals).toEqual([{ type: "bp", value: "120/80", unit: "mmHg" }, { type: "weight", value: "70", unit: "kg" }]);
+    expect(parseCalendarEvents([{ id: "e", title: "T", type: "lab", can_delete: true }])[0]).toMatchObject({ type: "lab", canDelete: true });
   });
 });
 
@@ -190,8 +210,8 @@ describe("the old routes and the readers", () => {
     expect(knownPermissions(["vitals", "view_health"])).toEqual(["vitals"]);
     expect(parsePermissionRequests(pending)).toEqual([{ id: "req-1", name: "Omar Ali", permissions: ["reports"] }]);
     expect(parsePermissionRequests({ data: [{ member_name: "no id" }] })).toEqual([]);
-    expect(parseCalendarEvents({ events: [{ id: "e1", title: "T", event_date: "2026-09-01" }] })).toEqual([{ id: "e1", title: "T", member: undefined, at: "2026-09-01" }]);
-    expect(parseMemberRecords(null)).toEqual({ gender: undefined, birthDate: undefined, bloodType: undefined, medicines: [], canSeeMeds: false, appointments: [], hasReports: false });
+    expect(parseCalendarEvents({ events: [{ id: "e1", title: "T", event_date: "2026-09-01" }] })).toEqual([{ id: "e1", title: "T", member: undefined, at: "2026-09-01", type: undefined, canDelete: false }]);
+    expect(parseMemberRecords(null)).toEqual({ gender: undefined, birthDate: undefined, bloodType: undefined, medicines: [], vitals: [], canSeeMeds: false, appointments: [], hasReports: false });
   });
 
   it("the family screens carry no raw colour, inline style or call entry", () => {

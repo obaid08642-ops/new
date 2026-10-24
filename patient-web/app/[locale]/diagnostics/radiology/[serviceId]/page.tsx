@@ -90,7 +90,7 @@ export default async function RadiologyServiceDetailPage({ params }: Props) {
     ...(service.durationMinutes !== undefined ? [{ label: w("factDuration"), value: minutesText(locale, service.durationMinutes), icon: "clock-counter-clockwise", tone: DIAG_TONES.facility } as FactRow] : []),
     ...(service.turnaroundHours !== undefined ? [{ label: w("factResult"), value: hoursText(locale, service.turnaroundHours), icon: "file-text", tone: DIAG_TONES.info } as FactRow] : []),
   ];
-  const addHref = `/${locale}/diagnostics/cart?add=${encodeURIComponent(`rad_${service.id}`)}&name=${encodeURIComponent(name ?? "")}${service.price !== undefined ? `&price=${service.price}` : ""}`;
+  const addHref = `/${locale}/labs/${encodeURIComponent(service.id)}?kind=radiology`;
 
   return (
     <ConsultPage locale={locale} title={name ?? t("title")} backHref={backHref}>

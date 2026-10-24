@@ -192,7 +192,7 @@ export function OtpScreen({ locale, identifier = "", codeNotSent = false }: { lo
       {error && identifier ? <p className={styles.error} role="alert">{error}</p> : null}
       <div className={styles.actions}>
         <Button type="submit" variant="primary" size="lg" fullWidth label={busy ? t("busy") : t("verify")} loading={busy} disabled={!identifier} />
-        <p className={styles.foot}><button type="button" className={styles.link} onClick={() => router.back()}>{t("back")}</button></p>
+        <p className={styles.foot}><button type="button" className={styles.link} onClick={() => router.back()}>{t("change")}</button></p>
       </div>
     </form>
   </>;

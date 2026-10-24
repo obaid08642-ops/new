@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Card, SectionHeader } from "@/components-next/ui-generated/components/Surfaces";
+import { Card, Chip, SectionHeader } from "@/components-next/ui-generated/components/Surfaces";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import type { FillIconName, ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import styles from "./notifications.module.css";
@@ -19,7 +19,11 @@ export type NotificationRowData = {
   unread: boolean;
   /** The web page the notification opens, resolved on the server (null: the row only marks it as read). */
   href: string | null;
+  /** The app's filter group for the kind (system, medical, promotion). */
+  category: NotificationCategory;
 };
+export type NotificationCategory = "system" | "medical" | "promotion";
+export const NOTIFICATION_CATEGORIES: NotificationCategory[] = ["system", "medical", "promotion"];
 export type NotificationGroup = { key: string; title: string; items: NotificationRowData[] };
 
 /** POST /api/patient/notifications/:id/read (or /read-all): the BFF forwards it to the backend with the session. */
@@ -39,6 +43,10 @@ export function NotificationsList({ groups }: { groups: NotificationGroup[] }) {
   const [readIds, setReadIds] = useState<Set<string>>(() => new Set());
   const [failed, setFailed] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [filter, setFilter] = useState<NotificationCategory | "all">("all");
+  const categories = NOTIFICATION_CATEGORIES.filter((c) => groups.some((g) => g.items.some((i) => i.category === c)));
+  const active = filter !== "all" && categories.includes(filter) ? filter : "all";
+  const visible = groups.map((g) => ({ ...g, items: active === "all" ? g.items : g.items.filter((i) => i.category === active) })).filter((g) => g.items.length > 0);
 
   const isUnread = (item: NotificationRowData) => item.unread && !readIds.has(item.id);
   const unreadCount = groups.reduce((sum, group) => sum + group.items.filter(isUnread).length, 0);
@@ -67,7 +75,11 @@ export function NotificationsList({ groups }: { groups: NotificationGroup[] }) {
   return <>
     {unreadCount > 0 ? <div className={styles.tools}><button type="button" className={styles.markAll} onClick={markAll} disabled={busy}>{t("markAllRead")}</button></div> : null}
     {failed ? <p className={styles.failed} role="alert">{t("markFailed")}</p> : null}
-    {groups.map((group) => (
+    {categories.length > 1 ? <div className={styles.chips} role="group" aria-label={t("filters")}>
+      <Chip label={t("filterAll")} selected={active === "all"} onClick={() => setFilter("all")} />
+      {categories.map((c) => <Chip key={c} label={t(`filter_${c}`)} selected={active === c} onClick={() => setFilter(c)} />)}
+    </div> : null}
+    {visible.map((group) => (
       <section key={group.key} className={styles.group} aria-label={group.title}>
         <SectionHeader title={group.title} />
         <Card padding="none">
