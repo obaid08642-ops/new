@@ -111,7 +111,9 @@ export class RatingsService {
   async forProvider(providerId: string, page = 1, limit = 20): Promise<any> {
     const skip = (Math.max(page, 1) - 1) * Math.min(limit, 100);
     const [rows, total, agg] = await Promise.all([
-      this.ratings.find({ provider_id: providerId, status: 'published' }, { projection: { _id: 0 } }).sort({ createdAt: -1 }).skip(skip).limit(Math.min(limit, 100)).toArray(),
+      // A public list: score, comment, date and the reviewer's first name only. user_id, the full name and the booked
+      // entity id stay private (they identify the patient and the visit).
+      this.ratings.find({ provider_id: providerId, status: 'published' }, { projection: { _id: 0, score: 1, comment: 1, createdAt: 1, user_name: 1 } }).sort({ createdAt: -1 }).skip(skip).limit(Math.min(limit, 100)).toArray(),
       this.ratings.countDocuments({ provider_id: providerId, status: 'published' }),
       this.ratings.aggregate([
         { $match: { provider_id: providerId, status: 'published' } },
@@ -119,7 +121,12 @@ export class RatingsService {
       ]).toArray(),
     ]);
     return {
-      data: rows,
+      data: rows.map((r: any) => ({
+        score: r.score,
+        comment: r.comment ?? null,
+        createdAt: r.createdAt ?? null,
+        reviewer: typeof r.user_name === 'string' && r.user_name.trim() ? r.user_name.trim().split(/\s+/)[0].slice(0, 30) : null,
+      })),
       total,
       page,
       total_pages: Math.ceil(total / Math.min(limit, 100)),
