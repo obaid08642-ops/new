@@ -277,9 +277,9 @@ describe('Reset password (fix: validation messages, code carried over, missing e
     await type('reset-password', '123');
     await type('reset-confirm', '123');
     await fireEvent.press(screen.getByTestId('reset-submit'));
-    expect(await screen.findByText('كلمة المرور 6 أحرف على الأقل')).toBeTruthy();
-    await type('reset-password', 'secret1');
-    await type('reset-confirm', 'secret2');
+    expect(await screen.findByText('كلمة المرور 8 أحرف على الأقل')).toBeTruthy();
+    await type('reset-password', 'secret12');
+    await type('reset-confirm', 'secret13');
     await fireEvent.press(screen.getByTestId('reset-submit'));
     expect((await screen.findAllByText('كلمتا المرور غير متطابقتين')).length).toBeGreaterThan(0);
     expect(apiFetch).not.toHaveBeenCalled();
@@ -290,8 +290,8 @@ describe('Reset password (fix: validation messages, code carried over, missing e
     await render(mount(<ResetPasswordScreen />).ui);
     expect(screen.getByTestId('reset-email')).toBeTruthy();
     await type('reset-code', '123456');
-    await type('reset-password', 'secret1');
-    await type('reset-confirm', 'secret1');
+    await type('reset-password', 'secret12');
+    await type('reset-confirm', 'secret12');
     await fireEvent.press(screen.getByTestId('reset-submit'));
     expect(await screen.findByText('أدخل البريد الإلكتروني الذي وصله الرمز')).toBeTruthy();
     expect(apiFetch).not.toHaveBeenCalled();
@@ -299,15 +299,15 @@ describe('Reset password (fix: validation messages, code carried over, missing e
     await type('reset-email', 'A@B.sa');
     await fireEvent.press(screen.getByTestId('reset-submit'));
     await waitFor(() => expect(apiFetch).toHaveBeenCalled());
-    expect(apiFetch).toHaveBeenCalledWith('/auth/reset-password', { method: 'POST', body: JSON.stringify({ identifier: 'a@b.sa', password: 'secret1', code: '123456' }) });
+    expect(apiFetch).toHaveBeenCalledWith('/auth/reset-password', { method: 'POST', body: JSON.stringify({ identifier: 'a@b.sa', password: 'secret12', code: '123456' }) });
   });
 
   it('a wrong code from the server is shown translated, and the code field stays editable', async () => {
     mockParams = { email: 'a@b.sa', code: '000000' };
     (apiFetch as jest.Mock).mockRejectedValue(new Error('Invalid OTP code'));
     await render(mount(<ResetPasswordScreen />).ui);
-    await type('reset-password', 'secret1');
-    await type('reset-confirm', 'secret1');
+    await type('reset-password', 'secret12');
+    await type('reset-confirm', 'secret12');
     await fireEvent.press(screen.getByTestId('reset-submit'));
     expect(await screen.findByText('رمز التحقق غير صحيح')).toBeTruthy();
     expect(screen.getByTestId('reset-code').props.value).toBe('000000');
