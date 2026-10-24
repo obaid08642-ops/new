@@ -141,7 +141,7 @@ export default async function InsurancePage({ params, searchParams }: Props) {
       if (insurance?.class) qs.set("insurance_class", insurance.class);
       const res = await read(() => callPatientApi(`/providers?${qs.toString()}`, {}, token));
       if (res?.status === 401) redirect(`/${locale}/login`);
-      providers = res && res.status >= 200 && res.status < 300 ? parseProviders(res.body) : null;
+      providers = res && res.status >= 200 && res.status < 300 ? parseProviders(res.body, locale) : null;
     }
     content = !companyId ? (
       <>

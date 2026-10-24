@@ -106,6 +106,16 @@ describe('E-ins-1 relay-only insurance answers carry a code, never an Arabic-onl
     expect(out.policy).toMatchObject({ member_id: 'M-1', expiry_date: '2027-01-01', company_logo_url: 'https://cdn.example.test/c1.png' });
   });
 
+  it('#1819: the policy names its insurer id (catalogue company, else the legacy provider), null when neither', async () => {
+    expect((await makeService({ hasPolicy: true }).myPolicy(user)).policy.insurer_id).toBe('c1');
+    const legacy = makeService({ hasPolicy: true });
+    legacy.patients.findOne = jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue({ user_id: 'u1', insurance: { provider: 'bupa', policy_number: 'P-1' } }) });
+    expect((await legacy.myPolicy(user)).policy.insurer_id).toBe('bupa');
+    const none = makeService({ hasPolicy: true });
+    none.patients.findOne = jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue({ user_id: 'u1', insurance: { policy_number: 'P-2' } }) });
+    expect((await none.myPolicy(user)).policy.insurer_id).toBeNull();
+  });
+
   it('#823/#826: benefits carry the patient\'s own request totals and the policy expiry, never an invented limit', async () => {
     const out = await makeService({ hasPolicy: true }).benefitsAnswer(user);
     expect(out.usage).toEqual({ requests: 3, approved: 2, rejected: 1, insurer_covered: 280, patient_share: 20, currency: 'SAR' });

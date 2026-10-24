@@ -53,7 +53,7 @@ function newIdempotencyKey(): string {
 /** A saved address with a map location, for a home visit (journeys#29). */
 export type HomeAddress = { id: string; label: string; line: string; lat: number; lng: number };
 
-export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddresses = [], consent = null, initialType }: { doctorId: string; locale: string; doctor: DoctorRow | null; top?: ReactNode; policy?: { title: string; lines: string[] }; homeAddresses?: HomeAddress[]; consent?: TelehealthConsentText | null; /** The visit type the doctor page was on, when the doctor offers it. */ initialType?: string }) {
+export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddresses = [], consent = null, initialType, bookingFor = null, insurance = { ready: true } }: { doctorId: string; locale: string; doctor: DoctorRow | null; top?: ReactNode; policy?: { title: string; lines: string[] }; homeAddresses?: HomeAddress[]; consent?: TelehealthConsentText | null; /** The visit type the doctor page was on, when the doctor offers it. */ initialType?: string; /** The family member the visit is for (from the member page). */ bookingFor?: { id: string; name: string } | null; /** Whether the saved policy can back an insurance request. */ insurance?: { ready: boolean; memberId?: string } }) {
   const t = useTranslations("BookConsultation");
   const names = useTranslations("SpecialtyNames");
   const legal = useTranslations("LegalLinks");
@@ -119,6 +119,10 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
 
   async function submit() {
     if (!selectedSlot) return;
+    if (paymentMethod === "insurance" && !insurance.ready) {
+      setError(t("insuranceNotReady"));
+      return;
+    }
     setSubmitting(true);
     setError(null);
     try {
@@ -162,10 +166,14 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
           patient_notes: notes.trim() || undefined,
           visit_location: visitLocation,
           slot_lock_id: slotLockId,
+          for_member_id: bookingFor?.id,
+          insurance_member_id: paymentMethod === "insurance" ? insurance.memberId : undefined,
         }),
       });
       if (res.ok) {
         const data = await res.json().catch(() => null);
+        // the booking for a member is made: the next one is for the person signed in again
+        if (bookingFor) await fetch("/api/family/booking-for", { method: "DELETE" }).catch(() => null);
         // Insurance continues to the insurance request page with the server-issued
         // request id (mirrors mobile); card/cash land on the appointment page.
         if (paymentMethod === "insurance" && data?.insurance_request_id) {
@@ -193,7 +201,7 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
   const fee = doctor ? priceForVisit(doctor, visitType) : undefined;
   const price = fee != null ? formatPrice(locale, fee) : null;
   const submitButton = (
-    <Button fullWidth size="lg" label={submitting ? t("submitting") : t("submit")} loading={submitting} disabled={!selectedSlot} onClick={() => void submit()} />
+    <Button fullWidth size="lg" label={submitting ? t("submitting") : t("submit")} loading={submitting} disabled={!selectedSlot || (paymentMethod === "insurance" && !insurance.ready)} onClick={() => void submit()} />
   );
 
   return (
@@ -205,6 +213,11 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
       footer={<StickyFooter label={t("title")}><div className={styles.bookBar}>{submitButton}</div></StickyFooter>}
     >
       {top}
+      {bookingFor ? (
+        <SectionCard id="book-for" title={t("bookingFor", { name: bookingFor.name })}>
+          <Button label={t("bookingForSelf")} variant="outline" onClick={() => void fetch("/api/family/booking-for", { method: "DELETE" }).then(() => router.refresh())} />
+        </SectionCard>
+      ) : null}
       <Hero title={(doctor ? doctorDisplayName(doctor, locale) : undefined) || t("doctorUnavailable")} sub={[specialty, doctor ? doctorPlace(doctor, locale) : undefined].filter(Boolean).join(" · ") || undefined} />
       <SectionCard id="book-visit-type" title={t("visitType")}>
         <Segmented
@@ -259,6 +272,12 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
           options={allowedMethods.map((method) => ({ value: method, label: t(`pay.${method}`) }))}
         />
         {visitType !== "clinic" ? <p className={`${styles.body} ${styles.muted}`}>{t("cashClinicOnly")}</p> : null}
+        {paymentMethod === "insurance" ? (
+          <>
+            <p className={`${styles.body} ${insurance.ready ? styles.muted : styles.error}`} role={insurance.ready ? undefined : "alert"}>{insurance.ready ? t("insuranceReady") : t("insuranceNotReady")}</p>
+            <ButtonLink href={`/${locale}/insurance?tab=policy`} label={t("manageInsurance")} variant="outline" size="md" />
+          </>
+        ) : null}
       </SectionCard>
       {policy ? (
         <PolicyCard title={policy.title} lines={policy.lines}>

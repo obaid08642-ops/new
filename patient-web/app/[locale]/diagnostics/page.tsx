@@ -6,6 +6,7 @@ import { extractDiagnosticBookings, type DiagnosticBooking } from "@/lib/api/dia
 import { getDiagnosticBookings } from "@/lib/api/diagnostics-server";
 import { extractLabServices, insuranceOffered, labPaymentFits, type LabService } from "@/lib/api/labs";
 import { getPublicLabServices } from "@/lib/api/labs-server";
+import { extractLabProviders } from "@/lib/api/lab-providers";
 import { extractRadiologyServices } from "@/lib/api/radiology";
 import { getPublicRadiologyServices } from "@/lib/api/radiology-server";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -21,7 +22,7 @@ import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
-import { ReferralNote, LAB, PackageCard, QuickLink, RADIOLOGY, RadiologyTile, Rail, SearchForm, SectionHead, TestList, TestRow, hoursText, money, pickText, type Tag } from "@/components-next/diagnostics/diag-parts";
+import { ReferralNote, LabCard, LAB, PackageCard, QuickLink, RADIOLOGY, RadiologyTile, Rail, SearchForm, SectionHead, TestList, TestRow, hoursText, money, pickText, type Tag } from "@/components-next/diagnostics/diag-parts";
 import { diagStatus } from "@/components-next/diagnostics/status";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { RowCard } from "@/components-next/consult/consult-parts";
@@ -30,10 +31,12 @@ import styles from "@/components-next/diagnostics/diag.module.css";
 import type { Metadata } from "next";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 import { diagnosticBookingHref } from "@/lib/diagnostics-links";
+import { byPrice, byRating, matchesQuery, parseHubFilter } from "@/lib/diagnostics-hub";
+import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import { publicReadSignal } from "@/lib/api/public-timeout";
 import { pickTexts } from "@/lib/i18n/localized";
 
-type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string; q?: string; show?: string; sort?: string }> };
 
 const LIMIT_TESTS = 8;
 const LIMIT_PACKAGES = 6;
@@ -67,6 +70,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   setRequestLocale(locale);
   const query = (await searchParams) ?? {};
   const kind = query.kind === "radiology" ? "radiology" : "labs";
+  const filter = parseHubFilter(query);
   const place = query.place === "facility" ? "facility" : "home";
   // Decision 30 (owner 2026-10-14, question 5): insurance or self-pay first; self-pay is the default.
   const wantedPay = query.pay === "insurance" ? "insurance" : "self_pay";
@@ -104,6 +108,10 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
     getPublicRadiologyServices().catch(() => null),
     fetch(patientApiUrl("/labs/packages"), { signal: publicReadSignal(), headers: { Accept: "application/json" }, cache: "no-store" }).catch(() => null),
   ]);
+  // the approved labs strip (GET /providers?type=lab, public); a failed read leaves the strip out
+  const providersRes = kind === "labs" ? await fetch(patientApiUrl("/providers?type=lab"), { signal: publicReadSignal(), headers: { Accept: "application/json" }, next: { revalidate: 300 } }).catch(() => null) : null;
+  const providerRows = providersRes && providersRes.ok ? extractLabProviders(await providersRes.json().catch(() => null)) : [];
+  const approvedLabs = (filter.sort === "rating" ? byRating(providerRows) : providerRows).filter((lab) => matchesQuery(filter.q, lab.nameAr, lab.nameEn)).slice(0, 8);
   const labServices = labsRes && labsRes.ok ? extractLabServices(await labsRes.json().catch(() => null)) : [];
   const radiologyServices = radRes && radRes.ok ? extractRadiologyServices(await radRes.json().catch(() => null)) : [];
   const packages = pkgsRes && pkgsRes.ok ? extractLabServices(await pkgsRes.json().catch(() => null)) : [];
@@ -112,9 +120,12 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   const pay = wantedPay === "insurance" && anyInsurance ? "insurance" : "self_pay";
   const catalogFailed = !(labsRes && labsRes.ok) && !(radRes && radRes.ok);
 
-  const href = (over: Partial<{ kind: string; place: string; pay: string }>) => {
-    const next = { kind, place, pay, ...over };
+  const href = (over: Partial<{ kind: string; place: string; pay: string; show: string; sort: string }>) => {
+    const next = { kind, place, pay, show: filter.show ?? "", sort: filter.sort ?? "", ...over };
     const params = new URLSearchParams();
+    if (filter.q) params.set("q", filter.q);
+    if (next.show && next.kind === "labs") params.set("show", next.show);
+    if (next.sort) params.set("sort", next.sort);
     if (next.kind !== "labs") params.set("kind", next.kind);
     if (next.place !== "home") params.set("place", next.place);
     if (next.pay !== "self_pay") params.set("pay", next.pay);
@@ -124,9 +135,11 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
 
   const fits = (service: { homeVisitSupported?: boolean; facilityVisitSupported?: boolean }) => (place === "home" ? service.homeVisitSupported !== false : service.facilityVisitSupported !== false);
   const pays = (s: LabService) => labPaymentFits(pay, s);
-  const tests = labServices.filter((s) => s.isPackage !== true && !s.unavailable && fits(s) && pays(s)).slice(0, LIMIT_TESTS);
-  const shownPackages = packages.filter((p) => !p.unavailable && pays(p)).slice(0, LIMIT_PACKAGES);
-  const scans = radiologyServices.filter(fits).slice(0, LIMIT_RADIOLOGY);
+  const ordered = <T extends { price?: number }>(rows: T[]) => (filter.sort === "price" ? byPrice(rows) : rows);
+  const named = (s: { nameAr?: string; nameEn?: string }) => matchesQuery(filter.q, s.nameAr, s.nameEn);
+  const tests = filter.show === "packages" ? [] : ordered(labServices.filter((s) => s.isPackage !== true && !s.unavailable && fits(s) && pays(s) && named(s))).slice(0, LIMIT_TESTS);
+  const shownPackages = filter.show === "tests" ? [] : ordered(packages.filter((p) => !p.unavailable && pays(p) && named(p))).slice(0, LIMIT_PACKAGES);
+  const scans = ordered(radiologyServices.filter((s) => fits(s) && named(s))).slice(0, LIMIT_RADIOLOGY);
 
   const testTags = (s: LabService): Tag[] => [
     ...(s.homeVisitSupported ? [{ label: t("tagHome"), tone: LAB.tone } as Tag] : []),
@@ -145,7 +158,48 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
         <span />
         <ButtonLink href={`/${locale}/diagnostics/bookings`} label={t("myRequests")} variant="outline" size="sm" />
       </div>
-      <SearchForm action={`/${locale}/diagnostics/search`} placeholder={kind === "labs" ? t("searchLabs") : t("searchRadiology")} label={t("searchLabel")} submitLabel={t("search")} />
+      {/* The search filters the lists of the chosen kind in place (the app does; radiology has no search page), the URL keeps it. */}
+      <SearchForm
+        action={`/${locale}/diagnostics`}
+        defaultValue={filter.q}
+        placeholder={kind === "labs" ? t("searchLabs") : t("searchRadiology")}
+        label={t("searchLabel")}
+        submitLabel={t("search")}
+        below={
+          <>
+            {kind !== "labs" ? <input type="hidden" name="kind" value={kind} /> : null}
+            {place !== "home" ? <input type="hidden" name="place" value={place} /> : null}
+            {pay !== "self_pay" ? <input type="hidden" name="pay" value={pay} /> : null}
+            {filter.show && kind === "labs" ? <input type="hidden" name="show" value={filter.show} /> : null}
+            {filter.sort ? <input type="hidden" name="sort" value={filter.sort} /> : null}
+          </>
+        }
+      />
+      <details className={styles.filterSheet} open={Boolean(filter.show || filter.sort)}>
+        <summary className={styles.filterSummary}>{t("filterTitle")}</summary>
+        <div className={styles.stack}>
+          {kind === "labs" ? (
+            <LinkSegmented
+              label={t("filterShow")}
+              value={filter.show ?? ""}
+              options={[
+                { value: "", label: t("filterAll"), href: href({ show: "" }) },
+                { value: "packages", label: t("filterPackages"), href: href({ show: "packages" }) },
+                { value: "tests", label: t("filterTests"), href: href({ show: "tests" }) },
+              ]}
+            />
+          ) : null}
+          <LinkSegmented
+            label={t("filterSort")}
+            value={filter.sort ?? ""}
+            options={[
+              { value: "", label: t("sortDefault"), href: href({ sort: "" }) },
+              ...(kind === "labs" ? [{ value: "rating", label: t("sortRating"), href: href({ sort: "rating" }) }] : []),
+              { value: "price", label: t("sortPrice"), href: href({ sort: "price" }) },
+            ]}
+          />
+        </div>
+      </details>
 
       <nav className={styles.kinds} aria-label={t("kindLabel")}>
         <Link href={href({ kind: "labs" })} replace className={styles.kind} aria-current={kind === "labs" ? "page" : undefined}>
@@ -186,6 +240,23 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
       {/* Ord02: order entry (a doctor's order) and the secondary provider-first path. Photographing a paper order needs an upload step that is not in this PR (needs-review). */}
       <RowCard href={`/${locale}/medical-orders`} icon={SERVICE_ICONS.lab.icon} tone={SERVICE_ICONS.lab.tone} title={o("orderTitle")} sub={o("orderSub")} caret={caret} />
       {kind === "labs" ? <RowCard href={`/${locale}/diagnostics/labs`} icon={LAB.icon} tone={LAB.tone} title={o("browseLab")} sub={o("browseLabSub")} caret={caret} /> : null}
+
+      {kind === "labs" && approvedLabs.length > 0 ? (
+        <section className={styles.stack} aria-labelledby="hub-approved-labs">
+          <SectionHead id="hub-approved-labs" title={t("approvedLabs")} href={`/${locale}/diagnostics/labs`} linkLabel={t("labsAll")} />
+          <ul className={styles.labGrid} aria-label={t("approvedLabs")}>
+            {approvedLabs.map((lab) => (
+              <LabCard
+                key={lab.id}
+                href={`/${locale}/diagnostics/labs/${encodeURIComponent(lab.id)}`}
+                title={pickText(locale, lab.nameAr, lab.nameEn) ?? ""}
+                sub={lab.rating !== undefined ? t("labRating", { n: new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(lab.rating) }) : undefined}
+                tags={lab.homeVisit ? [{ label: t("labHomeTag"), tone: LAB.tone }] : []}
+              />
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {catalogFailed ? (
         <ConsultState kind="error" title={t("catalogErrorTitle")} body={t("catalogErrorBody")} retryLabel={t("retry")} />

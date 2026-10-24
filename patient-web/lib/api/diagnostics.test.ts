@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { extractDiagnosticBooking, extractDiagnosticBookings, parseDiagnosticBookingId, parseDiagnosticDomain } from "./diagnostics";
+import { extractDiagnosticBooking, extractDiagnosticBookings, extractDiagnosticTracking, parseDiagnosticBookingId, parseDiagnosticDomain } from "./diagnostics";
 
 const bookingId = "91047ef2-ad36-422a-a184-629693e7c729";
 
 describe("diagnostic booking response guards", () => {
-  it("allows only approved booking fields and ignores patient, pricing, reports, and document fields", () => {
+  it("allows only approved booking fields (the booking total is the patient's own, shown on the list) and ignores patient, reports, and document fields", () => {
     const rows = extractDiagnosticBookings({ data: [{ id: bookingId, state: "CONFIRMED", scheduled_at: "2026-08-20T10:00:00.000Z", patient_name: "private", total_price: 500, reports: [{ url: "private" }] }] });
-    expect(rows).toEqual([{ id: bookingId, state: "CONFIRMED", scheduledAt: "2026-08-20T10:00:00.000Z", locationType: undefined, scanNameAr: undefined, scanNameEn: undefined, medicalReferralRequired: undefined, hasReport: true, reportIds: [] }]);
+    expect(rows).toEqual([{ id: bookingId, state: "CONFIRMED", scheduledAt: "2026-08-20T10:00:00.000Z", locationType: undefined, scanNameAr: undefined, scanNameEn: undefined, medicalReferralRequired: undefined, hasReport: true, reportIds: [], total: 500 }]);
   });
 
   it("lists the report ids the booking holds a file for, never a url (journeys#54)", () => {
@@ -30,5 +30,20 @@ describe("lab booking test name (needs-review issue 1065)", () => {
   it("reads the first test's names from the booking items", () => {
     expect(extractDiagnosticBookings([{ id: bookingId, state: "CONFIRMED", items: [{ name_ar: "صورة دم كاملة", name_en: "CBC" }] }])[0])
       .toMatchObject({ id: bookingId, testNameAr: "صورة دم كاملة", testNameEn: "CBC" });
+  });
+});
+
+describe("diagnostic booking results and collector", () => {
+  it("reads result rows (name, result, reference, abnormal) and drops rows without a name or a result", () => {
+    const booking = extractDiagnosticBooking({ id: bookingId, results: [{ id: "r1", name: "Glucose", result: 130, reference: "70-100", isAbnormal: true }, { name: "HDL", result: "55" }, { name: "empty" }, "x"] });
+    expect(booking?.results).toEqual([
+      { id: "r1", name: "Glucose", result: "130", reference: "70-100", abnormal: true },
+      { id: "1", name: "HDL", result: "55", reference: undefined, abnormal: false },
+    ]);
+    expect(extractDiagnosticBooking({ id: bookingId })?.results).toBeUndefined();
+  });
+
+  it("keeps the collector name and phone of the tracking", () => {
+    expect(extractDiagnosticTracking({ techName: "Sara", techPhone: "+966500000000", timeline: [] })).toMatchObject({ techName: "Sara", techPhone: "+966500000000" });
   });
 });
