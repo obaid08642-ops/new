@@ -243,7 +243,12 @@ export function Avatar({ name, size = 'md', src, status = 'none', testID }: Avat
   // `nabd-avatar__ring` class); the box and the initials per size are css/Surfaces.css.
 
   return (
-    <span data-testid={testID} role="img" aria-label={name} className={`nabd-avatar nabd-avatar--${size}`}>
+    <span
+      data-testid={testID}
+      // a named avatar is an image with that name; one without a name is decoration (its link or card names it), never an empty "image"
+      {...(name.trim() ? { role: 'img', 'aria-label': name } : { 'aria-hidden': true })}
+      className={`nabd-avatar nabd-avatar--${size}`}
+    >
       {src ? (
         // a real photo; the name is already the accessible name of the wrapper
         <img src={src} alt="" aria-hidden width={box} height={box} className="nabd-avatar__ring nabd-avatar__photo" />

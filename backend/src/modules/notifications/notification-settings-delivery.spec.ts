@@ -26,6 +26,29 @@ describe('the switches of Settings > Notifications decide push and email (batch-
   });
 });
 
+describe('the flat switches (#1819) also decide delivery', () => {
+  const base = { channels: { push: true, email: true }, categories: {} };
+  it('the master switch, medications and doctor messages stop push and email; emergencies still go out', async () => {
+    const off = { push: false, email: false };
+    expect(await svcWith({ ...base, preferences: { general: false } }).deliveryPrefs({ user_id: 'u1', type: NotificationType.ORDER })).toEqual(off);
+    expect(await svcWith({ ...base, preferences: { medications: false } }).deliveryPrefs({ user_id: 'u1', type: NotificationType.MEDICATION })).toEqual(off);
+    expect(await svcWith({ ...base, preferences: { medications: false } }).deliveryPrefs({ user_id: 'u1', type: NotificationType.ORDER })).toEqual({ push: true, email: true });
+    expect(await svcWith({ ...base, preferences: { doctorMessages: false } }).deliveryPrefs({ user_id: 'u1', type: NotificationType.INFO, title_key: 'notif.chat_doctor.title' })).toEqual(off);
+    expect(await svcWith({ ...base, preferences: { general: false } }).deliveryPrefs({ user_id: 'u1', type: NotificationType.EMERGENCY })).toEqual({ push: true, email: true });
+  });
+});
+
+describe('the bell unread count', () => {
+  it('counts what this user can see and has not read, in the list scope', async () => {
+    const svc: any = Object.create(NotificationsService.prototype);
+    svc.model = { countDocuments: jest.fn(async () => 7) };
+    expect(await svc.unreadCount({ id: 'u1', role: 'patient' })).toEqual({ unread: 7 });
+    expect(svc.model.countDocuments).toHaveBeenCalledWith({
+      $and: [{ $or: [{ user_id: 'u1' }, { role: 'patient' }, { role: 'all' }] }, { read_by: { $ne: 'u1' } }],
+    });
+  });
+});
+
 describe('a doctor chat message reaches the patient (the "chat" switch has something to switch)', () => {
   it('notifies the patient of a consultation thread with a link to the appointment, and only the provider of a patient message', async () => {
     const svc: any = Object.create(NotificationsService.prototype);

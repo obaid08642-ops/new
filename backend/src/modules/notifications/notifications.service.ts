@@ -1,3 +1,4 @@
+import { delayCreditText } from '../loyalty/guaranteed-appointment';
 import { BadGatewayException, BadRequestException, Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { I18nService } from '../i18n/i18n.service';
 import { Model } from 'mongoose';
@@ -54,6 +55,11 @@ export class NotificationsService {
     if (!settings) return all;
     const category = String(n.title_key || '').startsWith('notif.chat_') ? 'chat' : NOTIFICATION_CATEGORY[String(n.type)] ?? null;
     if (category && settings.categories?.[category] === false) return { push: false, email: false };
+    // Design parity (#1819): the master switch, and the medication / doctor-message switches of the flat settings.
+    const prefs = settings.preferences || {};
+    if (prefs.general === false) return { push: false, email: false };
+    if (n.type === NotificationType.MEDICATION && prefs.medications === false) return { push: false, email: false };
+    if (category === 'chat' && prefs.doctorMessages === false) return { push: false, email: false };
     return { push: settings.channels?.push !== false, email: settings.channels?.email !== false };
   }
 
@@ -467,6 +473,17 @@ export class NotificationsService {
         web_path: target?.web_path ?? null,
       };
     });
+  }
+
+  /** The bell's number: notifications this user can see and has not read (the list's scope), not capped by the list window. */
+  async unreadCount(user: any): Promise<{ unread: number }> {
+    const unread = await this.model.countDocuments({
+      $and: [
+        { $or: [{ user_id: user.id }, { role: user.role }, { role: 'all' }] },
+        { read_by: { $ne: user.id } },
+      ],
+    });
+    return { unread: Number(unread) || 0 };
   }
 
   async markRead(id: string, user: any) {
@@ -1208,6 +1225,19 @@ export class NotificationsService {
     }
     // Routine per-action points are intentionally silent — the user sees them
     // in the loyalty hub; push-spamming every +10 would be terrible UX.
+  }
+
+  /** "Guaranteed appointment" credit: tell the patient in their own language. The text is stored as written (no key to translate). */
+  @OnEvent('loyalty.appointment_delay_credit')
+  async onAppointmentDelayCredit(p: { user_id?: string; points?: number; appointment_id?: string }) {
+    if (!p?.user_id || !p.points) return;
+    let locale: string | undefined;
+    try {
+      const u: any = await this.model.db.collection('users').findOne({ id: { $eq: String(p.user_id) } }, { projection: { _id: 0, locale: 1, language: 1 } });
+      locale = u?.locale || u?.language;
+    } catch { /* English */ }
+    const text = delayCreditText(locale, p.points);
+    await this.create({ user_id: p.user_id, title: text.title, body: text.body, type: NotificationType.PROMO, action: { route: '/loyalty/hub' }, params: { appointment_id: p.appointment_id, points: p.points } });
   }
 
   // ============ EPIC4/S20: AI scenarios ============

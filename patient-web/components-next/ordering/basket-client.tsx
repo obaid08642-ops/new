@@ -9,7 +9,7 @@ import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import { contextQuery, type Point } from "@/lib/ordering/context";
 import { summarize, type OrderMode, type Payer, type QuoteGroup, type ServiceKind } from "@/lib/ordering/quote";
-import { moneyText, pickName } from "@/lib/ordering/format";
+import { moneyText, pickLineName } from "@/lib/ordering/format";
 import { QuoteError, QuoteLoading } from "./quote-parts";
 import { useBasket } from "./use-basket";
 import { useQuote } from "./use-quote";
@@ -29,7 +29,7 @@ export function BasketClient({ locale, kind, place, pay, point, hubHref }: Props
   const { state, reload } = useQuote(request);
   const nameOf = (id: string) => {
     const l = lines.find((x) => x.id === id);
-    return l ? pickName(locale, l.nameAr, l.nameEn) : undefined;
+    return l ? pickLineName(locale, l) : undefined;
   };
 
   if (lines.length === 0) {

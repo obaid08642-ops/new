@@ -11,7 +11,7 @@ import { parseChoice, SELECTION_KEY, type ChosenGroup, type ProviderChoice } fro
 import { createBooking, OrderingApiError, payBooking } from "@/lib/ordering/client";
 import type { OrderingBookingResult } from "@/lib/ordering/bookings";
 import { contextQuery } from "@/lib/ordering/context";
-import { moneyText, pickName } from "@/lib/ordering/format";
+import { moneyText, pickLineName, pickName } from "@/lib/ordering/format";
 import { orderingErrorKey, type OrderMode, type Payer, type ServiceKind, type StaffGender } from "@/lib/ordering/quote";
 import { buildBookingRequest, DOC_MAX_CHARS, evidenceReady, orderCovers, parseSchedule, payableNow, SCHEDULE_KEY, whenSummary, type Evidence, type Schedule } from "@/lib/ordering/schedule";
 import { CoverageChip, QuoteLoading } from "./quote-parts";
@@ -68,7 +68,7 @@ export function ConfirmClient({ locale, kind, place, pay, orders, prep }: Props)
   }
 
   const lines = basket[kind];
-  const nameOf = (id: string) => { const l = lines.find((x) => x.id === id); return l ? pickName(locale, l.nameAr, l.nameEn) : undefined; };
+  const nameOf = (id: string) => { const l = lines.find((x) => x.id === id); return l ? pickLineName(locale, l) : undefined; };
   const evidence: Evidence = { ...(orderId ? { medicalOrderId: orderId } : {}), ...(doc && !orderId ? { documents: [{ kind: "doctor_request" as const, url_or_b64: doc.data, filename: doc.filename }] } : {}) };
   const ready = evidenceReady(insured, evidence);
   const groups = modes.map((m) => choice.groups?.[m]).filter((g): g is ChosenGroup => !!g);

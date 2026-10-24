@@ -213,3 +213,18 @@ textarea.control { resize: vertical; line-height: 1.6; overflow-wrap: anywhere; 
 }
 .consentText:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
 .consentHeading { margin: 0; font-size: var(--nabd-font-size-control); font-weight: 700; line-height: 1.5; }
+
+/* ---- the richer doctor card and page (2026-10-24): fact chips, written reviews, services, the clinic map ---- */
+.docFacts { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; min-inline-size: 0; }
+.docFact { display: inline-flex; align-items: center; min-block-size: 28px; padding-inline: 10px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-sunken); color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-label); overflow-wrap: anywhere; }
+.reviewList { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; min-inline-size: 0; }
+.review { display: flex; flex-direction: column; gap: 4px; padding-block-end: 12px; border-block-end: 1px solid var(--nabd-color-border-subtle); min-inline-size: 0; }
+.review:last-child { padding-block-end: 0; border-block-end: 0; }
+.reviewHead { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.reviewWho { font-size: var(--nabd-font-size-row); font-weight: 600; overflow-wrap: anywhere; }
+.reviewDate { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); }
+.reviewSubs { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.priceRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-block-size: 44px; font-size: var(--nabd-font-size-control); }
+.priceRow > :first-child { min-inline-size: 0; overflow-wrap: anywhere; }
+.priceValue { font-weight: 700; white-space: nowrap; }
+.mapFrame { display: block; inline-size: 100%; aspect-ratio: 16 / 10; border: 0; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-sunken); }

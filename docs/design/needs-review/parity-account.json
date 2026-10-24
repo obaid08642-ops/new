@@ -3,11 +3,22 @@
     "batch": "parity-account",
     "app": "patient-web",
     "screen": "/welcome and /login",
-    "element": "Apple / Google / X / Snapchat sign-in on the web",
+    "element": "Social sign-in on the web: Google, Apple, X, Snapchat (provider setup)",
     "file": "patient-web/components-next/social-login-buttons.tsx",
-    "line": 29,
-    "found": "[owner] Web shows Google only when a client id is set; Apple (Services ID, return URL) and X/Snapchat need provider setup the web does not have. POST /auth/social-login exists in the backend.",
-    "suspect": "Buttons would be fake without provider credentials; owner to supply ids/flags.",
+    "line": 50,
+    "found": "[owner] Owner decision 2026-10-24 (corrected): web sign-in and sign-up offer all providers. Each button renders only when configured: NEXT_PUBLIC_GOOGLE_CLIENT_ID; NEXT_PUBLIC_APPLE_CLIENT_ID + NEXT_PUBLIC_APPLE_REDIRECT_URI; X/Snapchat need NEXT_PUBLIC_X_CLIENT_ID / NEXT_PUBLIC_SNAPCHAT_CLIENT_ID, the redirect https://<site>/<locale>/login/social-callback registered at the provider, and NEXT_PUBLIC_SOCIAL_X_SNAPCHAT=1 (also as Dockerfile build args in deploy/docker/Dockerfile.patient-web, outside this session's scope).",
+    "suspect": "Until configured the buttons stay hidden (no fake button). The owner must create the provider apps.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-account",
+    "app": "patient-web",
+    "screen": "/welcome and /login",
+    "element": "X and Snapchat tokens are refused by the backend",
+    "file": "patient-web/app/api/auth/social-exchange/route.ts",
+    "line": 15,
+    "found": "[backend] POST /auth/social-login throws social_provider_not_supported for provider x and snapchat (auth.service.ts socialLogin); session S is adding the verification. Until then the web buttons are gated by NEXT_PUBLIC_SOCIAL_X_SNAPCHAT=1 like the app.",
+    "suspect": "Drop the gate on web and app once the backend verifies both. Snapchat's token endpoint may also require a client secret/Basic auth, which the app flow (mirrored) does not send.",
     "review_status": "open"
   },
   {
@@ -19,17 +30,6 @@
     "line": 92,
     "found": "[backend] POST /auth/otp/request is throttled to 3 per 10 minutes, so the web waits 300 s; the app waits 60 s and would hit 429 after 3 sends.",
     "suspect": "Reviewer to decide one cooldown and one throttle for both clients.",
-    "review_status": "open"
-  },
-  {
-    "batch": "parity-account",
-    "app": "patient-web",
-    "screen": "/register",
-    "element": "password minimum: app (6) disagrees with backend and web (10)",
-    "file": "patient-web/components-next/register-form.tsx",
-    "line": 10,
-    "found": "[owner] web register, reset and change-password now use the backend rule (10, lib/auth/password-rule); patient-app still checks 6 so a valid-looking password is rejected by the server.",
-    "suspect": "One decision: align patient-app to 10 (patient-app change, outside the web batch).",
     "review_status": "open"
   },
   {
@@ -52,28 +52,6 @@
     "line": 30,
     "found": "[backend] app goes forgot -> OTP -> reset with the code; web POST /auth/password/forgot mails a reset token the person types on /password-reset.",
     "suspect": "Needs an OTP reset endpoint the web can call.",
-    "review_status": "open"
-  },
-  {
-    "batch": "parity-account",
-    "app": "patient-web",
-    "screen": "/login",
-    "element": "after sign-in always /dashboard, no role check or provider-info page",
-    "file": "patient-web/components-next/login-form.tsx",
-    "line": 53,
-    "found": "[owner] app sends non-patient roles to provider-info; web has no such page.",
-    "suspect": "Owner to decide whether the web needs it.",
-    "review_status": "open"
-  },
-  {
-    "batch": "parity-account",
-    "app": "patient-web",
-    "screen": "/dashboard",
-    "element": "whole page becomes an error state when a call fails",
-    "file": "patient-web/app/[locale]/dashboard/page.tsx",
-    "line": 1,
-    "found": "[owner] audit asks for a retry banner; the 2026-10-06 owner rule says ErrorState with retry when there is no cached copy.",
-    "suspect": "Mark as decided.",
     "review_status": "open"
   },
   {
@@ -149,8 +127,8 @@
     "element": "map point and pick mode",
     "file": "patient-web/components-next/account/address-book.tsx",
     "line": 40,
-    "found": "[owner] \"Use my current location\" and the National Address code now set the pin; dragging a pin on a map needs a map library (none in patient-web; the facilities map is an OSM iframe that cannot report a pin).",
-    "suspect": "Owner: approve a map library and tile provider (e.g. Leaflet with OpenStreetMap) for the address pin picker, or accept the current options.",
+    "found": "[owner] Owner decision 2026-10-24: saved addresses first, adding opens the picker. Web: the list (select mode via ?select=1) comes first and adding offers \"Use my current location\" and the National Address code. A draggable pin needs a map library (none in patient-web; the OSM iframe cannot report a pin).",
+    "suspect": "Owner: approve a map library (e.g. Leaflet with OpenStreetMap tiles) for a draggable pin, or accept the current options; nothing was added.",
     "review_status": "open"
   },
   {
@@ -184,6 +162,17 @@
     "line": 18,
     "found": "[backend] app shows sound and vibration switches (flat keys, same PATCH); the backend does not store them (see the kinds entry), so a web switch would not persist.",
     "suspect": "Backend persists sound/vibration; web adds the two rows afterwards.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-account",
+    "app": "patient-web",
+    "screen": "/login",
+    "element": "provider app store and web links",
+    "file": "patient-web/lib/auth/provider-links.ts",
+    "line": 14,
+    "found": "[owner] The page shown to a provider account on the patient site reads its links from NEXT_PUBLIC_PROVIDER_WEB_URL, NEXT_PUBLIC_PROVIDER_APP_IOS_URL and NEXT_PUBLIC_PROVIDER_APP_ANDROID_URL. The repo has no store URLs and only the backend env example names https://provider.nabd.plus (PROVIDER_APP_BASE_URL), so none is hard-coded.",
+    "suspect": "Owner supplies the real store URLs and confirms the provider web address; each link is hidden while unset. Dockerfile.patient-web needs the matching build args.",
     "review_status": "open"
   }
 ]
