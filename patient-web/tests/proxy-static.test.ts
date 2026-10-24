@@ -102,7 +102,7 @@ describe("the dynamic twins of the list pages and the unavailable page are confi
     const config = (await import("../next.config")).default as { rewrites?: () => Promise<{ beforeFiles: Array<{ source: string; has?: Array<{ type: string; key: string; value?: string }> }> }> };
     const { beforeFiles } = await config.rewrites!();
     const { UNAVAILABLE_FALLBACK_HEADER } = await import("../lib/security/query-twin");
-    expect(beforeFiles.filter((r) => r.has?.[0]?.type === "query")).toHaveLength(19);
+    expect(beforeFiles.filter((r) => r.has?.[0]?.type === "query")).toHaveLength(20);
     const fallback = beforeFiles.find((r) => r.has?.[0]?.type === "header")!;
     expect(fallback.has![0]).toMatchObject({ key: UNAVAILABLE_FALLBACK_HEADER, value: "1" });
     expect(fallback.source).toBe("/:locale(ar|en|ur|hi|bn|fil)/:path*");
