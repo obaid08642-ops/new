@@ -334,11 +334,15 @@ export class PaymentsService {
     const methods = configured
       ? [{ id: 'card', kind: 'online' }, { id: 'apple-pay', kind: 'online' }, { id: 'google-pay', kind: 'online' }]
       : [];
+    // The pharmacy's own estimate from the offer the patient selected (null when it gave none); never computed here.
+    const offer: any = await this.txns.db!.collection('pharmacy_offers').findOne({ id: order.selected_offer_id }, { projection: { _id: 0, 'fulfillment.eta_minutes': 1 } });
+    const eta = offer?.fulfillment?.eta_minutes;
     return {
       booking_id: order.id,
       amount,
       currency: String(order.pricing_snapshot?.totals?.currency || 'SAR'),
       methods,
+      eta_minutes: typeof eta === 'number' && Number.isFinite(eta) ? eta : null,
     };
   }
 
