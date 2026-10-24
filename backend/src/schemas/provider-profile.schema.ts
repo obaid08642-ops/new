@@ -78,6 +78,7 @@ export class ProviderProfile {
   // written by patients never became visible on provider profiles.
   @Prop({ default: 0 }) rating_avg: number;
   @Prop({ default: 0 }) rating_count: number;
+  @Prop({ type: Object }) sub_ratings_avg?: { doctor: number | null; clinic: number | null; waiting: number | null };
   @Prop() iban?: string;
   @Prop() bank_account_name?: string;
   // Doctor-specific
