@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { callPatientApi } from "@/lib/api/upstream";
+import { readPublicConfig } from "@/lib/api/public-config-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale, type Locale } from "@/lib/i18n";
 import { ConsultPage } from "@/components-next/consult/consult-page";
@@ -106,12 +107,17 @@ export default async function SettingsHelpPage({ params, searchParams }: Props) 
   const response = await callPatientApi("/support/faqs", {}, token);
   if (response.status === 401) redirect(`/${locale}/login`);
   if (!response.ok) return failed;
+  // The support number comes from GET /config (contact.support_phone), as in the app; no number, no row.
+  const config = await readPublicConfig().catch(() => null);
+  const rawPhone = (config?.data as { contact?: { support_phone?: unknown } } | null)?.contact?.support_phone;
+  const phone = typeof rawPhone === "string" && /^\+?[\d\s-]{5,20}$/.test(rawPhone.trim()) ? rawPhone.trim() : null;
   const faqs = extractFaqs(await response.json().catch(() => null), locale);
   return frame(
     <>
       <SectionCard id="chat" title={t("chatTitle")}>
         <p className={forms.body}>{t("chatBody")}</p>
         <ButtonLink href={`/${locale}/support/chat`} label={t("chatOpen")} fullWidth />
+        {phone ? <ButtonLink href={`tel:${phone.replace(/[\s-]/g, "")}`} label={t("callSupport")} variant="outline" fullWidth /> : null}
       </SectionCard>
       <SectionCard id="faq" title={t("faqTitle")}>
         {faqs.length === 0 ? <p className={`${forms.body} ${forms.muted}`}>{t("faqEmpty")}</p> : (

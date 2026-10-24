@@ -22,3 +22,10 @@ describe("post-call rating request body", () => {
     expect(body).not.toHaveProperty("locale");
   });
 });
+
+describe("rating aspects", () => {
+  it("sends the ticked aspects as the stored words, and none when nothing is ticked", () => {
+    expect(reviewBody("appt-1", 5, "", ["fast", "clean"]).aspects).toEqual(["سريع", "نظيف"]);
+    expect(reviewBody("appt-1", 5, "")).not.toHaveProperty("aspects");
+  });
+});

@@ -35,7 +35,10 @@ export function TakeDoseButton({ id, timeKey }: { id: string; timeKey?: string }
   const { busy, failed, run, t } = useReminderCall();
   return (
     <span className={styles.inline}>
-      <Button variant="outline" size="sm" label={t("doseTake")} disabled={busy} loading={busy} onClick={() => void run(() => fetch(...reminderLogRequest(id, timeKey)), t("saveFailed"))} />
+      <span className={styles.rowActions}>
+        <Button variant="outline" size="sm" label={t("doseTake")} disabled={busy} loading={busy} onClick={() => void run(() => fetch(...reminderLogRequest(id, timeKey)), t("saveFailed"))} />
+        <Button variant="ghost" size="sm" label={t("doseSkip")} disabled={busy} onClick={() => void run(() => fetch(...reminderLogRequest(id, timeKey, crypto.randomUUID(), "skipped")), t("saveFailed"))} />
+      </span>
       {failed ? <span role="alert" className={forms.error}>{failed}</span> : null}
     </span>
   );
@@ -60,9 +63,16 @@ export function DeleteReminderButton({ id }: { id: string }) {
 /** "Request a refill": POST /api/health/reminders/:id/refill. */
 export function RefillButton({ id }: { id: string }) {
   const { busy, failed, run, t } = useReminderCall();
+  const [confirming, setConfirming] = useState(false);
+  const [sent, setSent] = useState(false);
+  if (sent) return <span role="status" className={forms.ok}>{t("refillSent")}</span>;
+  if (!confirming) return <Button variant="outline" size="sm" label={t("refillRequest")} onClick={() => setConfirming(true)} />;
   return (
     <span className={styles.inline}>
-      <Button variant="outline" size="sm" label={t("refillRequest")} disabled={busy} loading={busy} onClick={() => void run(() => fetch(`/api/health/reminders/${encodeURIComponent(id)}/refill`, { method: "POST" }), t("refillFailed"))} />
+      <span className={styles.rowActions}>
+        <Button variant="outline" size="sm" label={t("refillConfirm")} disabled={busy} loading={busy} onClick={() => void run(async () => { const res = await fetch(`/api/health/reminders/${encodeURIComponent(id)}/refill`, { method: "POST" }); if (res.ok) setSent(true); return res; }, t("refillFailed"))} />
+        <Button variant="ghost" size="sm" label={t("cancel")} disabled={busy} onClick={() => setConfirming(false)} />
+      </span>
       {failed ? <span role="alert" className={forms.error}>{failed}</span> : null}
     </span>
   );

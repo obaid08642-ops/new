@@ -261,7 +261,7 @@ export function SearchClient({ locale, initialQuery = "" }: { locale: string; in
         const items = shown(section.groups);
         if (items.length === 0) return null;
         return <section key={section.id} className={styles.group} data-single={tab === "all" ? undefined : "true"} aria-label={section.title}>
-          <div className={styles.groupHead}><SectionHeader title={section.title} /></div>
+          <div className={styles.groupHead}><SectionHeader title={section.title} action={tab === "all" ? <button type="button" className={styles.rxAction} onClick={() => setTab(section.groups[0])}>{t("seeAll", { count: items.length })}</button> : undefined} /></div>
           <div className={styles.items}>
             {items.map((r) => <ResultItem key={`${r.typeEn}-${r.id}`} result={r} locale={locale} query={q} onOpen={() => setRecent(persistRecent(q))} />)}
           </div>

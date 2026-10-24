@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { isLabCategory } from "@/lib/lab-categories";
 import { extractLabServices } from "@/lib/api/labs";
-import { getPublicLabServices } from "@/lib/api/labs-server";
+import { patientApiUrl } from "@/lib/api/upstream";
+import { publicReadSignal } from "@/lib/api/public-timeout";
 import { isLocale } from "@/lib/i18n";
 import { hubMetadata } from "@/lib/seo";
 import { ConsultPage } from "@/components-next/consult/consult-page";
@@ -31,7 +32,8 @@ export default async function LabsPackagesPage({ params, searchParams }: Props) 
   const w = await getTranslations("DiagWeb");
   const search = (query.q ?? "").trim();
   const category = (query.category ?? "").trim();
-  const response = await getPublicLabServices({ search, category });
+  // The packages endpoint (as the app and the hub read it), narrowed here by the name and the category in the URL.
+  const response = await fetch(patientApiUrl("/labs/packages"), { signal: publicReadSignal(), headers: { Accept: "application/json" }, cache: "no-store" }).catch(() => null);
   const backHref = `/${locale}/diagnostics`;
   if (!response || !response.ok) {
     return (
@@ -40,9 +42,13 @@ export default async function LabsPackagesPage({ params, searchParams }: Props) 
       </ConsultPage>
     );
   }
-  const packages = extractLabServices(await response.json().catch(() => null)).filter((item) => item.isPackage !== false);
+  const all = extractLabServices(await response.json().catch(() => null)).filter((item) => !item.unavailable);
   // The codes are shown by their label in the page's language (issue 1550 walkthrough: the list showed "cardiac", "package").
-  const categories = [...new Set(packages.map((item) => item.category?.trim().toLowerCase()).filter(isLabCategory))];
+  const categories = [...new Set(all.map((item) => item.category?.trim().toLowerCase()).filter(isLabCategory))];
+  const needle = search.toLocaleLowerCase(locale);
+  const packages = all.filter((item) =>
+    (!category || item.category?.trim().toLowerCase() === category.toLowerCase()) &&
+    (!needle || [item.nameAr, item.nameEn, item.descriptionAr, item.descriptionEn].some((v) => v?.toLocaleLowerCase(locale).includes(needle))));
 
   return (
     <ConsultPage locale={locale} title={t("title")} backHref={backHref}>
