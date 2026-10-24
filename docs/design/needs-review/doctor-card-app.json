@@ -1,0 +1,101 @@
+[
+  {
+    "batch": "doctor-card",
+    "app": "patient-app",
+    "screen": "/consultations/doctor/[id]",
+    "element": "Education",
+    "file": "patient-app/app/consultations/doctor/[id].tsx",
+    "line": 216,
+    "found": "[backend] `education` is not in toPublicDoctor (care.service.ts): the page shows the honest empty line \"No education added yet\" until the field is sent.",
+    "suspect": "Backend: add education (array of degree/school) to the public doctor model.",
+    "review_status": "open"
+  },
+  {
+    "batch": "doctor-card",
+    "app": "patient-app",
+    "screen": "/consultations/doctor/[id]",
+    "element": "Average wait",
+    "file": "patient-app/app/consultations/doctor/[id].tsx",
+    "line": 78,
+    "found": "[backend] `wait_time` (minutes) is not sent by GET /care/doctors or /care/doctors/:id; the card and page draw it only when present.",
+    "suspect": "Backend: compute or store an average wait.",
+    "review_status": "open"
+  },
+  {
+    "batch": "doctor-card",
+    "app": "patient-app",
+    "screen": "/search?view=doctors",
+    "element": "Card average wait",
+    "file": "patient-app/src/utils/doctorSearch.ts",
+    "line": 80,
+    "found": "[backend] `wait_time` is read from the list item; the backend sends none today so no wait is drawn.",
+    "suspect": "Backend: same field as the page.",
+    "review_status": "open"
+  },
+  {
+    "batch": "doctor-card",
+    "app": "patient-app",
+    "screen": "/consultations/doctor/[id]",
+    "element": "Services with prices",
+    "file": "patient-app/app/consultations/doctor/[id].tsx",
+    "line": 79,
+    "found": "[backend] `services` ({name_ar,name_en,price}[]) is not in the public doctor model; the section is drawn only when sent.",
+    "suspect": "Backend: expose the doctor's priced services.",
+    "review_status": "open"
+  },
+  {
+    "batch": "doctor-card",
+    "app": "patient-app",
+    "screen": "/consultations/doctor/[id]",
+    "element": "Follow-up price and window",
+    "file": "patient-app/app/consultations/doctor/[id].tsx",
+    "line": 80,
+    "found": "[backend] `follow_up_price` and `follow_up_days` are not sent; the row is drawn only when present.",
+    "suspect": "Backend: expose the follow-up price and window.",
+    "review_status": "open"
+  },
+  {
+    "batch": "doctor-card",
+    "app": "patient-app",
+    "screen": "/consultations/doctor/[id]",
+    "element": "Clinic map",
+    "file": "patient-app/app/consultations/doctor/[id].tsx",
+    "line": 233,
+    "found": "[backend] The clinic coordinates (`location.lat/lng`) are not in the public doctor model (toPublicFacility omits the exact location by design); the map shows only when sent and only for the clinic visit.",
+    "suspect": "Backend/owner: decide whether the clinic point may be public.",
+    "review_status": "open"
+  },
+  {
+    "batch": "doctor-card",
+    "app": "patient-app",
+    "screen": "/consultations/doctor/[id]",
+    "element": "Review sub-ratings",
+    "file": "patient-app/app/consultations/doctor/[id].tsx",
+    "line": 31,
+    "found": "[backend] Ratings carry only score and comment (ratings.module.ts submit); there are no sub-ratings to draw, so none are shown.",
+    "suspect": "Backend: add sub-ratings to the rating model before the UI can show them.",
+    "review_status": "open"
+  },
+  {
+    "batch": "doctor-card",
+    "app": "patient-app",
+    "screen": "/consultations/doctor/[id]",
+    "element": "Reviews source",
+    "file": "patient-app/app/consultations/doctor/[id].tsx",
+    "line": 215,
+    "found": "[backend] `reviews_data` and `is_online` exist only on branch s/p-doctors (PR #1861), the page reads them as soon as it is merged; the list is capped at 10 by the server, so see-all shows those 10.",
+    "suspect": "Backend: paginate GET /ratings/provider/:id if more than 10 are wanted.",
+    "review_status": "open"
+  },
+  {
+    "batch": "doctor-card",
+    "app": "patient-app",
+    "screen": "/search?view=doctors",
+    "element": "Price band filter",
+    "file": "patient-app/src/components/views/DoctorSearchView.tsx",
+    "line": 117,
+    "found": "[client] The existing doctors screen has no price band (only the sort), so price_min/price_max (supported by PR #1861) are not wired; the gender filter is.",
+    "suspect": "Owner: board for a price band, then wire price_min/price_max.",
+    "review_status": "open"
+  }
+]

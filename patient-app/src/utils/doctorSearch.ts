@@ -14,12 +14,17 @@ export const DOCTOR_SORTS = ['rating', 'price_asc'] as const;
 export type DoctorSort = (typeof DOCTOR_SORTS)[number];
 
 /** `?q=...&specialty=...&sort=...`, with empty values left out. */
-export function doctorsQuery(opts: { q?: string; specialty?: string; sort?: string }): string {
+export const DOCTOR_GENDERS = ['male', 'female'] as const;
+export type DoctorGender = (typeof DOCTOR_GENDERS)[number];
+
+export function doctorsQuery(opts: { q?: string; specialty?: string; sort?: string; gender?: string }): string {
   const qs = new URLSearchParams();
   const q = (opts.q ?? '').trim();
   if (q) qs.set('q', q);
   if (opts.specialty) qs.set('specialty', opts.specialty);
   if (opts.sort) qs.set('sort', opts.sort);
+  // `gender` (male | female) is read by GET /care/doctors; "any" is simply not sent
+  if (opts.gender === 'male' || opts.gender === 'female') qs.set('gender', opts.gender);
   return qs.toString();
 }
 
@@ -31,7 +36,15 @@ export interface DoctorCardRow {
   rating: number | null;
   reviews: number | null;
   price: number | null;
-  wait: null;
+  /** The average wait as the server states it (`wait_time`, minutes); null until the backend sends it. */
+  wait: number | null;
+  title: string | null;
+  photo: string | null;
+  gender: DoctorGender | null;
+  /** `is_online`: the doctor is available now. */
+  availableNow: boolean;
+  verified: boolean;
+  prices: { clinic: number | null; online: number | null; home: number | null };
   exp: number | null;
   online: boolean;
   clinic: boolean;
@@ -42,6 +55,7 @@ export interface DoctorCardRow {
 }
 
 const num = (v: unknown): number | null => (typeof v === 'number' && Number.isFinite(v) ? v : null);
+const positive = (v: unknown): number | null => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : null);
 const text = (v: unknown): string | null => (typeof v === 'string' && v.trim() ? v.trim() : null);
 
 /** The rows of a GET /care/doctors answer (`items`; a bare array is tolerated); anything else is no rows. */
@@ -63,7 +77,13 @@ export function doctorRows(res: unknown, pick: (ar: string | null, en: string | 
       rating: num(d.rating),
       reviews: num(d.reviews_count),
       price: num(d.price_clinic) ?? num(d.price_online) ?? num(d.price_home),
-      wait: null,
+      wait: num(d.wait_time),
+      title: text(d.title),
+      photo: text(d.photo_url),
+      gender: d.gender === 'male' || d.gender === 'female' ? d.gender : null,
+      availableNow: d.is_online === true,
+      verified: d.verified === true,
+      prices: { clinic: positive(d.price_clinic), online: positive(d.price_online), home: positive(d.price_home) },
       exp: num(d.years_experience),
       online: modes.includes('online') || modes.includes('video'),
       clinic: modes.includes('clinic'),
