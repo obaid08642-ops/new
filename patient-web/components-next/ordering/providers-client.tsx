@@ -10,7 +10,7 @@ import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import { chosenGroup, SELECTION_KEY } from "@/lib/ordering/basket";
 import { contextQuery, type Point } from "@/lib/ordering/context";
-import { filterCompare, type OrderMode, type Payer, type ProviderRow, type QuoteGroup, type ServiceKind, type SortKey, type StaffGender } from "@/lib/ordering/quote";
+import { filterCompare, insuredShareLine, type OrderMode, type Payer, type ProviderRow, type QuoteGroup, type ServiceKind, type SortKey, type StaffGender } from "@/lib/ordering/quote";
 import { hoursUnit, moneyText, pickName, whenText } from "@/lib/ordering/format";
 import { CoverageChip, QuoteError, QuoteLoading } from "./quote-parts";
 import { useBasket } from "./use-basket";
@@ -102,7 +102,11 @@ export function ProvidersClient({ locale, kind, place, pay, point }: Props) {
                   ))}
                 </ul>
               ) : null}
-              {pay === "insurance" ? <p className={styles.sub}>{t("covShare", { p: moneyText(locale, g.bestMatch.patientShare) })} · {t("covNote")}</p> : null}
+              {(() => {
+                const share = insuredShareLine(g.bestMatch, pay);
+                if (!share) return null;
+                return <p className={styles.sub}>{share.kind === "estimate" ? t("shareEstimate", { p: moneyText(locale, share.amount) }) : t("shareAccepted")}</p>;
+              })()}
             </>
           ) : null}
           {g.split ? (

@@ -551,7 +551,9 @@
     "filterAll": "الكل",
     "filter_system": "النظام",
     "filter_medical": "طبية",
-    "filter_promotion": "العروض"
+    "filter_promotion": "العروض",
+    "lateCompensationTitle": "نقاط مقابل تأخر موعدك",
+    "lateCompensationBody": "تأخر موعدك فأضفنا نقاط نبض إلى حسابك. تجدها في سجل النقاط."
   },
   "Health": {
     "eyebrow": "صحة خاصة",
@@ -1365,7 +1367,6 @@
     "nearestCity": "الأطباء في {city}",
     "visitType": "نوع الاستشارة",
     "verifiedDoctor": "طبيب موثّق",
-    "licenseNumber": "رقم الترخيص {number}",
     "specialtyLabel": "التخصص",
     "allSpecialties": "كل التخصصات",
     "paymentLabel": "الدفع",
@@ -1425,7 +1426,11 @@
     "openInMaps": "فتح في الخرائط",
     "facilityLink": "عرض العيادة",
     "reviewsBack": "العودة إلى الطبيب",
-    "insuranceTitle": "التأمين المقبول"
+    "insuranceTitle": "التأمين المقبول",
+    "sortAvailableToday": "متاح اليوم",
+    "guaranteeLine": "إذا تأخر موعدك أكثر من {minutes} دقيقة تحصل على {points} نقطة من نقاط نبض.",
+    "licenseLine": "مرخّص من الهيئة السعودية للتخصصات الصحية، رقم {number}",
+    "licenseVerified": "موثّق"
   },
   "LabsServices": {
     "eyebrow": "الرعاية المخبرية",
@@ -2987,7 +2992,10 @@
     "actionDoctorProfile": "عرض الملف",
     "waitingRoomYourTurn": "دورك",
     "waitingRoomCallsOff": "المكالمات المرئية غير متاحة حالياً.",
-    "ratingOutOf": "{value} من 5"
+    "ratingOutOf": "{value} من 5",
+    "actionOrderPrescription": "اطلب الوصفة",
+    "actionBookLabs": "احجز التحاليل",
+    "actionBookScans": "احجز الأشعة"
   },
   "ConsultClient": {
     "payHeading": "أكمل الدفع من خلال بوابة آمنة",
@@ -4147,7 +4155,12 @@
       "scan": "مسح بطاقة التأمين بالكاميرا",
       "scanned": "تم استخراج البيانات المرئية من البطاقة. راجعها قبل الحفظ.",
       "scanFailed": "فشل التعرف على البطاقة. أدخل البيانات يدويًا.",
-      "network": "الشبكة"
+      "network": "الشبكة",
+      "copayHint": "اختياري. انقلهما من بطاقتك: نسبة ما تدفعه وأقصى مبلغ لكل بند. نستخدمهما لتقدير حصتك قبل الحجز.",
+      "copayPercent": "نسبة تحمّلك % (اختياري)",
+      "copayCap": "الحد الأقصى لكل بند، ر.س (اختياري)",
+      "copayPercentInvalid": "أدخل رقمًا من 0 إلى 100.",
+      "copayCapInvalid": "أدخل مبلغًا يساوي 0 أو أكثر."
     },
     "coverage": {
       "title": "ما تغطيه وثيقتي",
@@ -4364,7 +4377,8 @@
     "earn.referral_converted": "دعوة صديق (عند أول حجز له)",
     "earn.vitals_logged": "تسجيل مؤشرات حيوية",
     "earn.challenge": "تحدٍّ صحي",
-    "earn.perChallenge": "حسب التحدي"
+    "earn.perChallenge": "حسب التحدي",
+    "reason.late_compensation": "تعويض تأخر الموعد"
   },
   "OffersWeb": {
     "title": "العروض والباقات",
@@ -5430,7 +5444,9 @@
     "resHigh": "أعلى من المرجع",
     "resLow": "أقل من المرجع",
     "resDiscuss": "ناقش النتيجة مع طبيب",
-    "resTrend": "الاتجاه عبر نتائجك"
+    "resTrend": "الاتجاه عبر نتائجك",
+    "shareEstimate": "حصتك التقديرية: {p} (تقدير؛ تصبح نهائية بعد تأكيد مقدّم الخدمة)",
+    "shareAccepted": "التأمين مقبول. يؤكّد مقدّم الخدمة حصتك."
   },
   "InstantConsult": {
     "title": "استشارة فورية",

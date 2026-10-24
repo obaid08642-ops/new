@@ -604,7 +604,9 @@
     "filterAll": "সব",
     "filter_system": "সিস্টেম",
     "filter_medical": "চিকিৎসা",
-    "filter_promotion": "অফার"
+    "filter_promotion": "অফার",
+    "lateCompensationTitle": "দেরি হওয়া অ্যাপয়েন্টমেন্টের জন্য পয়েন্ট",
+    "lateCompensationBody": "আপনার অ্যাপয়েন্টমেন্ট দেরিতে শুরু হয়েছে, তাই আপনার অ্যাকাউন্টে নাবদ পয়েন্ট যোগ হয়েছে। পয়েন্টের ইতিহাসে দেখুন।"
   },
   "Health": {
     "eyebrow": "ব্যক্তিগত স্বাস্থ্য",
@@ -1365,7 +1367,6 @@
     "nearestCity": "{city}-এ ডাক্তার",
     "visitType": "পরামর্শের ধরন",
     "verifiedDoctor": "যাচাইকৃত ডাক্তার",
-    "licenseNumber": "লাইসেন্স নম্বর {number}",
     "specialtyLabel": "বিশেষত্ব",
     "allSpecialties": "সব বিশেষত্ব",
     "paymentLabel": "পেমেন্ট",
@@ -1425,7 +1426,11 @@
     "openInMaps": "মানচিত্রে খুলুন",
     "facilityLink": "ক্লিনিক দেখুন",
     "reviewsBack": "ডাক্তারের পৃষ্ঠায় ফিরুন",
-    "insuranceTitle": "গৃহীত বিমা"
+    "insuranceTitle": "গৃহীত বিমা",
+    "sortAvailableToday": "আজ পাওয়া যাচ্ছে",
+    "guaranteeLine": "আপনার অ্যাপয়েন্টমেন্ট {minutes} মিনিটের বেশি দেরি হলে আপনি {points} নাবদ পয়েন্ট পান।",
+    "licenseLine": "সৌদি কমিশন ফর হেলথ স্পেশালিটিজ কর্তৃক লাইসেন্সপ্রাপ্ত, নম্বর {number}",
+    "licenseVerified": "যাচাইকৃত"
   },
   "LabsServices": {
     "eyebrow": "ল্যাবরেটরি কেয়ার",
@@ -2987,7 +2992,10 @@
     "actionDoctorProfile": "প্রোফাইল দেখুন",
     "waitingRoomYourTurn": "আপনার পালা",
     "waitingRoomCallsOff": "ভিডিও কল এখন পাওয়া যাচ্ছে না।",
-    "ratingOutOf": "5 এর মধ্যে {value}"
+    "ratingOutOf": "5 এর মধ্যে {value}",
+    "actionOrderPrescription": "প্রেসক্রিপশন অর্ডার করুন",
+    "actionBookLabs": "ল্যাব পরীক্ষা বুক করুন",
+    "actionBookScans": "স্ক্যান বুক করুন"
   },
   "ConsultClient": {
     "payHeading": "নিরাপদ গেটওয়ের মাধ্যমে পেমেন্ট সম্পন্ন করুন",
@@ -4147,7 +4155,12 @@
       "scan": "ক্যামেরায় বিমা কার্ড স্ক্যান করুন",
       "scanned": "কার্ড থেকে দৃশ্যমান তথ্য পড়া হয়েছে। সংরক্ষণের আগে যাচাই করুন।",
       "scanFailed": "কার্ড পড়া যায়নি। নিজে তথ্য লিখুন।",
-      "network": "নেটওয়ার্ক"
+      "network": "নেটওয়ার্ক",
+      "copayHint": "ঐচ্ছিক। আপনার কার্ড থেকে লিখুন: আপনার দেয় অংশ এবং প্রতিটি আইটেমে সর্বোচ্চ পরিমাণ। বুকিংয়ের আগে আনুমানিক হিসাবে ব্যবহৃত হয়।",
+      "copayPercent": "আপনার অংশ, % (ঐচ্ছিক)",
+      "copayCap": "প্রতি আইটেমে সর্বোচ্চ, SAR (ঐচ্ছিক)",
+      "copayPercentInvalid": "0 থেকে 100 এর মধ্যে একটি সংখ্যা লিখুন।",
+      "copayCapInvalid": "0 বা তার বেশি পরিমাণ লিখুন।"
     },
     "coverage": {
       "title": "আমার পলিসি কী কভার করে",
@@ -4364,7 +4377,8 @@
     "earn.referral_converted": "বন্ধুকে আমন্ত্রণ (তার প্রথম বুকিংয়ে)",
     "earn.vitals_logged": "গুরুত্বপূর্ণ সূচক নথিভুক্ত করা",
     "earn.challenge": "স্বাস্থ্য চ্যালেঞ্জ",
-    "earn.perChallenge": "চ্যালেঞ্জ অনুযায়ী"
+    "earn.perChallenge": "চ্যালেঞ্জ অনুযায়ী",
+    "reason.late_compensation": "অ্যাপয়েন্টমেন্ট দেরির ক্ষতিপূরণ"
   },
   "OffersWeb": {
     "title": "অফার ও প্যাকেজ",
@@ -5430,7 +5444,9 @@
     "resHigh": "সীমার উপরে",
     "resLow": "সীমার নিচে",
     "resDiscuss": "ডাক্তারের সঙ্গে আলোচনা করুন",
-    "resTrend": "আপনার ফলাফলের ধারা"
+    "resTrend": "আপনার ফলাফলের ধারা",
+    "shareEstimate": "আপনার আনুমানিক অংশ: {p} (আনুমানিক; সেবাদাতা নিশ্চিত করার পর চূড়ান্ত)",
+    "shareAccepted": "বিমা গ্রহণযোগ্য। আপনার অংশ সেবাদাতা নিশ্চিত করবেন।"
   },
   "InstantConsult": {
     "title": "তাৎক্ষণিক পরামর্শ",

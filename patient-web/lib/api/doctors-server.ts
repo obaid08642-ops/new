@@ -1,5 +1,5 @@
 import { patientApiUrl } from "@/lib/api/upstream";
-import { doctorQuery, doctorSlotsQuery } from "./doctors";
+import { doctorQuery, doctorSlotsQuery, type DoctorSort } from "./doctors";
 import { filterApiParams, type DoctorFilters } from "@/lib/consult/doctor-filters";
 import { publicReadSignal } from "@/lib/api/public-timeout";
 
@@ -11,7 +11,7 @@ export const PROVIDER_PAGES_TAG = "providers";
  * first view of /consultations/doctors) goes through the Next data cache for a minute. A search
  * or specialty text is free-form and would fill the cache with one entry per query, so it is never cached.
  */
-export async function getPublicDoctors(input: { search?: string; specialty?: string; sort?: "rating" | "price" | "wait"; filters?: DoctorFilters } = {}): Promise<Response | null> {
+export async function getPublicDoctors(input: { search?: string; specialty?: string; sort?: DoctorSort; filters?: DoctorFilters } = {}): Promise<Response | null> {
   // a position or a window of minutes is free-form too: a filtered list is never cached
   const cacheable = !(input.search ?? input.specialty ?? "").trim() && !(input.filters && filterApiParams(input.filters).length > 0);
   try { return await fetch(patientApiUrl(doctorQuery(input)), { headers: { Accept: "application/json" }, signal: publicReadSignal(), ...(cacheable ? { next: { revalidate: 60, tags: [PROVIDER_PAGES_TAG] } } : { cache: "no-store" as const }) }); } catch { return null; }

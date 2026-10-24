@@ -551,7 +551,9 @@
     "filterAll": "All",
     "filter_system": "System",
     "filter_medical": "Medical",
-    "filter_promotion": "Offers"
+    "filter_promotion": "Offers",
+    "lateCompensationTitle": "Points for your late appointment",
+    "lateCompensationBody": "Your appointment started late, so Nabd points were added to your account. See them in your points history."
   },
   "Health": {
     "eyebrow": "Private health",
@@ -1365,7 +1367,6 @@
     "nearestCity": "Doctors in {city}",
     "visitType": "Consultation type",
     "verifiedDoctor": "Verified doctor",
-    "licenseNumber": "Licence no. {number}",
     "specialtyLabel": "Specialty",
     "allSpecialties": "All specialties",
     "paymentLabel": "Payment",
@@ -1425,7 +1426,11 @@
     "openInMaps": "Open in maps",
     "facilityLink": "View the clinic",
     "reviewsBack": "Back to the doctor",
-    "insuranceTitle": "Accepted insurance"
+    "insuranceTitle": "Accepted insurance",
+    "sortAvailableToday": "Available today",
+    "guaranteeLine": "Late more than {minutes} minutes? You get {points} Nabd points.",
+    "licenseLine": "Licensed by SCFHS, no. {number}",
+    "licenseVerified": "Verified"
   },
   "LabsServices": {
     "eyebrow": "Laboratory care",
@@ -2987,7 +2992,10 @@
     "actionDoctorProfile": "View profile",
     "waitingRoomYourTurn": "Your turn",
     "waitingRoomCallsOff": "Video calls are not available right now.",
-    "ratingOutOf": "{value} out of 5"
+    "ratingOutOf": "{value} out of 5",
+    "actionOrderPrescription": "Order the prescription",
+    "actionBookLabs": "Book the labs",
+    "actionBookScans": "Book the scans"
   },
   "ConsultClient": {
     "payHeading": "Complete the payment through a secure gateway",
@@ -4147,7 +4155,12 @@
       "scan": "Scan the insurance card with the camera",
       "scanned": "The visible details were read from the card. Check them before saving.",
       "scanFailed": "The card could not be read. Enter the details by hand.",
-      "network": "Network"
+      "network": "Network",
+      "copayHint": "Optional. Copy these from your card: the share you pay and the maximum per item. They are used for an estimate before you book.",
+      "copayPercent": "Your share, % (optional)",
+      "copayCap": "Maximum per item, SAR (optional)",
+      "copayPercentInvalid": "Enter a number from 0 to 100.",
+      "copayCapInvalid": "Enter an amount of 0 or more."
     },
     "coverage": {
       "title": "What my policy covers",
@@ -4364,7 +4377,8 @@
     "earn.referral_converted": "Inviting a friend (on their first booking)",
     "earn.vitals_logged": "Logging vital signs",
     "earn.challenge": "Health challenge",
-    "earn.perChallenge": "Varies by challenge"
+    "earn.perChallenge": "Varies by challenge",
+    "reason.late_compensation": "Late appointment credit"
   },
   "OffersWeb": {
     "title": "Offers and packages",
@@ -5430,7 +5444,9 @@
     "resHigh": "Above range",
     "resLow": "Below range",
     "resDiscuss": "Discuss with a doctor",
-    "resTrend": "Trend across your results"
+    "resTrend": "Trend across your results",
+    "shareEstimate": "Your estimated share: {p} (estimate; final after the provider confirms)",
+    "shareAccepted": "Insurance accepted. Your share is confirmed by the provider."
   },
   "InstantConsult": {
     "title": "Instant consultation",

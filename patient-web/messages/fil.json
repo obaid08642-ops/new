@@ -604,7 +604,9 @@
     "filterAll": "Lahat",
     "filter_system": "Sistema",
     "filter_medical": "Medikal",
-    "filter_promotion": "Mga alok"
+    "filter_promotion": "Mga alok",
+    "lateCompensationTitle": "Mga puntos para sa late mong appointment",
+    "lateCompensationBody": "Late nagsimula ang appointment mo, kaya nadagdagan ng mga puntos ng Nabd ang account mo. Tingnan sa kasaysayan ng puntos."
   },
   "Health": {
     "eyebrow": "Pribadong kalusugan",
@@ -1365,7 +1367,6 @@
     "nearestCity": "Mga doktor sa {city}",
     "visitType": "Uri ng konsultasyon",
     "verifiedDoctor": "Beripikadong doktor",
-    "licenseNumber": "Lisensya blg. {number}",
     "specialtyLabel": "Espesyalidad",
     "allSpecialties": "Lahat ng espesyalidad",
     "paymentLabel": "Bayad",
@@ -1425,7 +1426,11 @@
     "openInMaps": "Buksan sa Maps",
     "facilityLink": "Tingnan ang klinika",
     "reviewsBack": "Bumalik sa doktor",
-    "insuranceTitle": "Tinatanggap na insurance"
+    "insuranceTitle": "Tinatanggap na insurance",
+    "sortAvailableToday": "Available ngayong araw",
+    "guaranteeLine": "Mahigit {minutes} minuto bang late? Makakakuha ka ng {points} puntos ng Nabd.",
+    "licenseLine": "Lisensyado ng SCFHS, blg. {number}",
+    "licenseVerified": "Beripikado"
   },
   "LabsServices": {
     "eyebrow": "Pangangalaga sa laboratoryo",
@@ -2987,7 +2992,10 @@
     "actionDoctorProfile": "Tingnan ang profile",
     "waitingRoomYourTurn": "Ang iyong turn",
     "waitingRoomCallsOff": "Hindi available ang mga video call ngayon.",
-    "ratingOutOf": "{value} sa 5"
+    "ratingOutOf": "{value} sa 5",
+    "actionOrderPrescription": "I-order ang reseta",
+    "actionBookLabs": "Mag-book ng mga lab test",
+    "actionBookScans": "Mag-book ng mga scan"
   },
   "ConsultClient": {
     "payHeading": "Kumpletuhin ang bayad sa pamamagitan ng ligtas na gateway",
@@ -4147,7 +4155,12 @@
       "scan": "I-scan ang insurance card gamit ang camera",
       "scanned": "Nabasa ang mga nakikitang detalye sa card. Suriin bago i-save.",
       "scanFailed": "Hindi nabasa ang card. Ilagay ang mga detalye nang mano-mano.",
-      "network": "Network ng seguro"
+      "network": "Network ng seguro",
+      "copayHint": "Opsyonal. Kopyahin mula sa iyong card: ang bahaging babayaran mo at ang pinakamataas na halaga kada item. Ginagamit ito para sa pagtatantya bago ka mag-book.",
+      "copayPercent": "Bahagi mo, % (opsyonal)",
+      "copayCap": "Pinakamataas kada item, SAR (opsyonal)",
+      "copayPercentInvalid": "Maglagay ng numero mula 0 hanggang 100.",
+      "copayCapInvalid": "Maglagay ng halagang 0 o higit pa."
     },
     "coverage": {
       "title": "Ano ang saklaw ng polisiya ko",
@@ -4364,7 +4377,8 @@
     "earn.referral_converted": "Pag-imbita ng kaibigan (sa una niyang booking)",
     "earn.vitals_logged": "Pag-log ng mga vital sign",
     "earn.challenge": "Hamon sa kalusugan",
-    "earn.perChallenge": "Depende sa hamon"
+    "earn.perChallenge": "Depende sa hamon",
+    "reason.late_compensation": "Kabayaran sa late na appointment"
   },
   "OffersWeb": {
     "title": "Mga alok at package",
@@ -5430,7 +5444,9 @@
     "resHigh": "Higit sa saklaw",
     "resLow": "Mas mababa sa saklaw",
     "resDiscuss": "Talakayin sa doktor",
-    "resTrend": "Takbo ng iyong mga resulta"
+    "resTrend": "Takbo ng iyong mga resulta",
+    "shareEstimate": "Tinatayang bahagi mo: {p} (pagtatantya; pinal pagkatapos kumpirmahin ng provider)",
+    "shareAccepted": "Tinatanggap ang insurance. Kukumpirmahin ng provider ang bahagi mo."
   },
   "InstantConsult": {
     "title": "Instant na konsultasyon",

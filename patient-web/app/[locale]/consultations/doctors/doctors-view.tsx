@@ -3,8 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SPECIALTY_SLUGS, isSpecialtySlug, specialtyLabel } from "@/lib/specialties";
-import { doctorDisplayName, extractDoctors } from "@/lib/api/doctors";
+import { doctorDisplayName, extractDoctors, parseDoctorSort, type DoctorSort } from "@/lib/api/doctors";
 import { getPublicDoctors } from "@/lib/api/doctors-server";
+import { getPublicConfig } from "@/lib/api/public-config-server";
+import { parseLateGuarantee } from "@/lib/consult/late-guarantee";
+import { GuaranteeLine } from "@/components-next/consult/differentiators";
 import { getCachedSpecialties } from "@/lib/api/specialties-cached";
 import { extractSpecialties } from "@/lib/api/specialties";
 import { isOutage } from "@/lib/api/outage";
@@ -27,7 +30,7 @@ import { cardFacts } from "@/lib/consult/doctor-card-facts";
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import styles from "@/components-next/consult/consult.module.css";
 
-export type DoctorsViewProps = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string; specialty?: string; sort?: "rating" | "price" | "wait"; type?: string; gender?: string; degree?: string; payment?: string; insurance?: string; insurance_class?: string; available?: string; nearest?: string; lat?: string; lng?: string; city?: string }> };
+export type DoctorsViewProps = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string; specialty?: string; sort?: DoctorSort; type?: string; gender?: string; degree?: string; payment?: string; insurance?: string; insurance_class?: string; available?: string; nearest?: string; lat?: string; lng?: string; city?: string }> };
 type Props = DoctorsViewProps;
 
 /**
@@ -66,7 +69,7 @@ export async function DoctorsView({ params, searchParams }: Props) {
   // the URL only (no session on a cached public page); InsurerFromPolicy fills them in from the saved policy in the browser.
   const shownType = effectiveType(filters);
   let failed = false;
-  const response = await getPublicDoctors({ search: sp.q, specialty: sp.specialty, sort: ["rating", "price", "wait"].includes(sp.sort ?? "") ? sp.sort : undefined, filters }).catch(() => null);
+  const response = await getPublicDoctors({ search: sp.q, specialty: sp.specialty, sort: parseDoctorSort(sp.sort), filters }).catch(() => null);
   // A failure (no answer, or a 5xx) on the cached page throws, so Next keeps the last good copy instead of caching an error
   // (stale-if-error, issue 302). On the twin (never cached) the error state with a retry shows, as before.
   if (isOutage(response) && searchParams === undefined) throw new PublicDataUnavailableError("doctors");
@@ -74,6 +77,9 @@ export async function DoctorsView({ params, searchParams }: Props) {
     doctors = extractDoctors(await response.json().catch(() => null));
   } else failed = true;
 
+  // The guarantee line comes from the server's public setting (minutes and points); no setting, no line.
+  const guarantee = parseLateGuarantee(await getPublicConfig().catch(() => null));
+  const guaranteeText = guarantee ? t("guaranteeLine", { minutes: guarantee.minutes, points: guarantee.points }) : null;
   // the busiest specialties with their doctor counts, as chips (the board's specialty row); a failed read leaves them out
   const specialtyRes = await getCachedSpecialties();
   const count = new Intl.NumberFormat(locale);
@@ -177,6 +183,7 @@ export async function DoctorsView({ params, searchParams }: Props) {
             { value: "rating", label: t("sortRating"), href: sortHref("rating") },
             { value: "price", label: t("sortPrice"), href: sortHref("price") },
             { value: "wait", label: t("sortWait"), href: sortHref("wait") },
+            { value: "available_today", label: t("sortAvailableToday"), href: sortHref("available_today") },
           ]}
         />
       )}
@@ -219,6 +226,7 @@ export async function DoctorsView({ params, searchParams }: Props) {
                   facts={cardFacts(doctor, locale, { years: (n) => t("yearsExperience", { n }), male: t("genderMale"), female: t("genderFemale"), insurance: t("insuranceAccepted"), wait: (n) => t("avgWait", { n }) })}
                   factsLabel={t("factsLabel")}
                 />
+                <GuaranteeLine text={guaranteeText} />
               </li>
             );
           })}
