@@ -8,7 +8,7 @@ import { ProductCardStatic } from "@/components-next/pharmacy/product-card-stati
 const addButton = (disabled: boolean) => (
   <button type="button" aria-label="add" disabled={disabled} className={`nabd-product-card__add${disabled ? " nabd-product-card__add--inert nabd-product-card__add--disabled" : ""}`} />
 );
-const strip = (html: string) => html.replace(/<button[\s\S]*?<\/button>/, "<button/>").replace(/<a /, "<a ");
+const strip = (html: string) => html.replace(/<button[\s\S]*?<\/button>/, "<button/>");
 
 describe("ProductCardStatic (issue 1835)", () => {
   const base = { name: "Panadol", meta: "Tablets · 500 mg", price: "24.50", currency: "SAR", discountLabel: "-39%", rxLabel: "Rx", onlineLabel: "Online only", imageSrc: "/i.webp" };
