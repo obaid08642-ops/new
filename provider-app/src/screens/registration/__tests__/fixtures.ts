@@ -24,9 +24,9 @@ export const pharmacyFixture = {
 const doctorBase = {
   legalName: 'Ahmed Ali Alharbi', nameAr: 'د. أحمد', nameEn: 'Dr. Ahmed', email: 'doctor@example.com',
   phone: '0551234567', password: 'Passw0rd!x', confirmPass: 'Passw0rd!x', gender: 'male',
-  scfhsNumber: '12345678', nationalId: '1000000000', iban: IBAN, accountHolderName: 'Ahmed Ali Alharbi',
+  scfhsNumber: '12345678', licenseExpiry: '2099-12-31', nationalId: '1000000000', iban: IBAN, accountHolderName: 'Ahmed Ali Alharbi',
   idFrontUri: 'file:///cache/id.jpg', scfhsDocUri: 'file:///cache/scfhs.jpg', extraDocUri: 'file:///cache/extra.jpg',
-  specialty: 'cardiology', degree: 'consultant', yearsExp: '12', bio: 'Cardiologist', profilePhotoUri: 'file:///cache/me.jpg',
+  specialty: 'cardiology', subSpecialty: 'Interventional cardiology, Heart failure', degree: 'consultant', yearsExp: '12', bio: 'Cardiologist', profilePhotoUri: 'file:///cache/me.jpg',
   clinicImagesUris: ['file:///cache/c0.jpg', 'https://cdn.test/old.jpg'],
   offersClinic: true, clinicPrice: '200', clinicDuration: '30',
   offersHome: true, homePrice: '350', homeDuration: '45', homeRadius: 10, homeTransportFee: true, homeTransportPrice: '30',

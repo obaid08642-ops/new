@@ -12,6 +12,7 @@ import { WebView } from 'react-native-webview';
 import { useTheme, useLang, useToast } from '../../context';
 import { NInput, NPhoneInput, NPassStrength, NDropdown, NDatePickerSheet, NDivider } from '../../components/ui';
 import { Validate } from '../../security/Security';
+import { isFutureLicenseDate, splitSubSpecialties } from './doctorRegistrationFields';
 import { SP, R, FS, FW, DEGREES } from '../../constants';
 import { I, I as NIcon } from '../../components/icons';
 import { LocationPickerModal } from '../../components/LocationPickerModal';
@@ -33,9 +34,10 @@ interface DoctorRegData {
   phone: string; password: string; confirmPass: string; gender: string;
   // Step 2
   scfhsNumber: string; nationalId: string; iban: string; accountHolderName: string;
+  /** SCFHS licence expiry, YYYY-MM-DD (required, not in the past) */ licenseExpiry: string;
   idFrontUri: string; scfhsDocUri: string; extraDocUri: string;
   // Step 3
-  specialty: string; degree: string; yearsExp: string;
+  specialty: string; /** sub-specialty (required), several separated by commas */ subSpecialty: string; degree: string; yearsExp: string;
   bio: string; profilePhotoUri: string; clinicImagesUris: string[];
   // Step 4 - Services & Map
   offersClinic: boolean; clinicPrice: string; clinicDuration: string;
@@ -60,8 +62,8 @@ interface DoctorRegData {
 
 const INITIAL: DoctorRegData = {
   legalName:'', nameAr:'', nameEn:'', email:'', phone:'', password:'', confirmPass:'', gender:'',
-  scfhsNumber:'', nationalId:'', iban:'', accountHolderName: '', idFrontUri:'', scfhsDocUri:'', extraDocUri:'',
-  specialty:'', degree:'', yearsExp:'', bio:'', profilePhotoUri:'', clinicImagesUris: [],
+  scfhsNumber:'', nationalId:'', iban:'', accountHolderName: '', licenseExpiry:'', idFrontUri:'', scfhsDocUri:'', extraDocUri:'',
+  specialty:'', subSpecialty:'', degree:'', yearsExp:'', bio:'', profilePhotoUri:'', clinicImagesUris: [],
   offersClinic:false, clinicPrice:'', clinicDuration:'',
   offersHome:false, homePrice:'', homeDuration:'', homeRadius: 0, homeTransportFee: false, homeTransportPrice: '',
   offersVideo:false, videoPrice:'', videoDuration:'',
@@ -121,6 +123,7 @@ async function sendDoctor(data: DoctorRegData, uploads: Uploader): Promise<void>
   }
   await ProviderApi.step3({
     specialty: data.specialty,
+    sub_specialties: splitSubSpecialties(data.subSpecialty),
     academic_degree: data.degree,
     years_experience: parseInt(data.yearsExp) || 0,
     consultation_modes: [
@@ -343,9 +346,18 @@ function Step2KYC({ data, update, submitRef, uploads }: StepProps<DoctorRegData>
   const pick = useDocumentPicker<DoctorRegData>(update);
 
   const [loading, setLoading] = useState(false);
+  const [showExpiryCal, setShowExpiryCal] = useState(false);
   const handleNext = async (): Promise<boolean> => {
     if (!data.nationalId || !data.scfhsNumber || !data.idFrontUri || !data.scfhsDocUri) {
       show(AR ? 'أكمل بيانات التوثيق والمستندات المطلوبة' : 'Complete the required licensing fields & documents', 'error');
+      return false;
+    }
+    if (!isFutureLicenseDate(data.licenseExpiry)) {
+      show(AR ? 'أدخل تاريخ انتهاء ترخيص الهيئة (لا يمكن أن يكون في الماضي)' : 'Enter the SCFHS licence expiry date (it cannot be in the past)', 'error');
+      return false;
+    }
+    if (!Validate.iban(data.iban)) {
+      show(AR ? 'رقم الآيبان غير صحيح' : 'Invalid IBAN', 'error');
       return false;
     }
     setLoading(true);
@@ -356,6 +368,9 @@ function Step2KYC({ data, update, submitRef, uploads }: StepProps<DoctorRegData>
 
       await ProviderApi.step2({
         license_number: data.scfhsNumber,
+        license_expiry_date: data.licenseExpiry,
+        iban: data.iban,
+        bank_account_name: data.accountHolderName || data.legalName || undefined,
         license_documents: [idFrontUrl, scfhsUrl, extraUrl].filter(Boolean),
       });
       return true;
@@ -372,6 +387,21 @@ function Step2KYC({ data, update, submitRef, uploads }: StepProps<DoctorRegData>
     <View>
       <NInput label={AR ? 'رقم الهوية الوطنية / الإقامة' : 'National ID'} value={data.nationalId} onChange={v=>update({nationalId:v})} kbType="numeric" required />
       <NInput label={AR ? 'رقم تصنيف الهيئة (SCFHS)' : 'SCFHS Number'} value={data.scfhsNumber} onChange={v=>update({scfhsNumber:v})} kbType="numeric" required />
+      <TouchableOpacity onPress={() => setShowExpiryCal(true)}>
+        <NInput label={AR ? 'تاريخ انتهاء ترخيص الهيئة' : 'SCFHS licence expiry date'} placeholder={AR ? 'اختر التاريخ من التقويم...' : 'Choose date...'} value={data.licenseExpiry} onChange={() => {}} editable={false} icon="calendar" required hint={AR ? 'سنذكّرك قبل 30 يوماً من الانتهاء' : 'We will remind you 30 days before it expires'} />
+      </TouchableOpacity>
+      <NDatePickerSheet
+        visible={showExpiryCal}
+        value={data.licenseExpiry}
+        onChange={(v: string) => {
+          if (!isFutureLicenseDate(v)) { show(AR ? 'لا يمكن اختيار تاريخ في الماضي' : 'A past date cannot be chosen', 'error'); return; }
+          update({ licenseExpiry: v });
+        }}
+        onClose={() => setShowExpiryCal(false)}
+        title={AR ? 'تاريخ انتهاء الترخيص' : 'Licence expiry date'}
+      />
+      <NInput label={AR ? 'رقم الآيبان IBAN' : 'Bank IBAN'} placeholder="SA0000000000000000000000" value={data.iban} onChange={v=>update({iban:v.toUpperCase().replace(/\s/g,'')})} required maxLen={24} hint={AR ? 'SA + 22 رقم — لاستلام المدفوعات' : 'SA + 22 digits — to receive payments'} />
+      <NInput label={AR ? 'اسم صاحب الحساب' : 'Account holder name'} value={data.accountHolderName} onChange={v=>update({accountHolderName:v})} />
       
       <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.md, marginBottom: SP.sm, textAlign: AR ? 'right':'left' }}>{AR ? 'المرفقات' : 'Attachments'}</Text>
       <DocBtn label={AR ? 'الهوية الوطنية (الوجه الأمامي)' : 'National ID (Front)'} done={!!data.idFrontUri} onPress={() => pick('idFrontUri')} />
@@ -390,6 +420,10 @@ function Step3Profile({ data, update, submitRef }: StepProps<DoctorRegData>) {
   const handleNext = (): boolean => {
     if (!data.specialty || !data.degree) {
       show(AR ? 'اختر التخصص والدرجة العلمية' : 'Select specialty and degree', 'error');
+      return false;
+    }
+    if (splitSubSpecialties(data.subSpecialty).length === 0) {
+      show(AR ? 'أدخل التخصص الفرعي' : 'Enter your sub-specialty', 'error');
       return false;
     }
     return true;
@@ -438,6 +472,8 @@ function Step3Profile({ data, update, submitRef }: StepProps<DoctorRegData>) {
         onChange={v => update({ specialty: v })}
         placeholder={AR ? 'اختر التخصص...' : 'Select Specialty...'}
       />
+      <View style={{ height: SP.sm }} />
+      <NInput label={AR ? 'التخصص الفرعي' : 'Sub-specialty'} value={data.subSpecialty} onChange={v=>update({subSpecialty:v})} required hint={AR ? 'افصل بينها بفاصلة إن تعددت' : 'Separate several with commas'} />
       <View style={{ height: SP.sm }} />
       <NDropdown
         label={AR ? 'الدرجة العلمية' : 'Degree'}
