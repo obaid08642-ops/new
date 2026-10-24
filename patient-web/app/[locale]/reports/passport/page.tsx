@@ -8,20 +8,31 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { Facts, Hero, Notice, SectionCard } from "@/components-next/consult/consult-parts";
 import { CopyTextButton } from "@/components-next/copy-text-button";
+import { PassportQr } from "@/components-next/health/passport-qr";
+import { passportQrText } from "@/lib/health/qr";
 import styles from "@/components-next/consult/consult.module.css";
 import { TEAL } from "@/lib/health/view";
 
 type Props = { params: Promise<{ locale: string }> };
 
-const tokenOf = (payload: unknown): string | null => {
-  const root = payload && typeof payload === "object" ? (payload as { token?: unknown; data?: { token?: unknown } }) : null;
-  if (typeof root?.token === "string") return root.token;
-  return typeof root?.data?.token === "string" ? root.data.token : null;
+type PassportToken = { token: string; format: string; version: number; expiresAt: string | null };
+
+const tokenOf = (payload: unknown): PassportToken | null => {
+  const outer = payload && typeof payload === "object" ? (payload as { data?: unknown }) : null;
+  const root = (outer?.data && typeof outer.data === "object" ? outer.data : payload) as { token?: unknown; format?: unknown; version?: unknown; expires_at?: unknown } | null;
+  if (!root || typeof root.token !== "string" || !root.token) return null;
+  return {
+    token: root.token,
+    format: typeof root.format === "string" ? root.format : "nabd_health_passport",
+    version: typeof root.version === "number" ? root.version : 2,
+    expiresAt: typeof root.expires_at === "string" ? root.expires_at : null,
+  };
 };
 
 /**
  * The health ID card (merge map, section 1: stays a detail screen, linked from the profile and the hub): the patient's name and
- * basics (GET /medical-profile) and the share code a provider scans or types (GET /medical-profile/passport-token).
+ * basics (GET /medical-profile) and the QR code a provider scans (GET /medical-profile/passport-token: a short-lived token, never medical
+ * data; the same QR text as the patient app), with a button that copies the same text.
  */
 export default async function HealthPassportPage({ params }: Props) {
   const { locale } = await params;
@@ -46,6 +57,8 @@ export default async function HealthPassportPage({ params }: Props) {
   const root = profileRes?.ok ? profileRoot(await profileRes.json().catch(() => null)) : null;
   const basics = profileBasics(root);
   const passportToken = tokenRes?.ok ? tokenOf(await tokenRes.json().catch(() => null)) : null;
+  const qrText = passportToken ? passportQrText(passportToken.format, passportToken.version, passportToken.token) : "";
+  const expires = passportToken?.expiresAt ? new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(new Date(passportToken.expiresAt)) : null;
   const name = typeof root?.full_name === "string" ? root.full_name : typeof root?.name === "string" ? root.name : undefined;
 
   return (
@@ -54,8 +67,9 @@ export default async function HealthPassportPage({ params }: Props) {
       {passportToken ? (
         <SectionCard id="passport-code" title={t("idCodeTitle")}>
           <p className={`${styles.body} ${styles.muted}`}>{t("idCodeBody")}</p>
-          <p className={styles.codeText}>{passportToken}</p>
-          <CopyTextButton text={passportToken} />
+          <PassportQr text={qrText} label={t("idQrLabel")} />
+          {expires ? <p className={`${styles.body} ${styles.muted}`}>{t("idValidUntil", { time: expires })}</p> : null}
+          <CopyTextButton text={qrText} />
         </SectionCard>
       ) : (
         <div role="alert"><Notice warn>{t("idCodeFailed")}</Notice></div>
