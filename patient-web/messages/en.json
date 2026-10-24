@@ -459,7 +459,7 @@
     "no": "No",
     "open": "View details",
     "back": "Back to diagnostics",
-    "detailNotice": "Only the booking status and schedule are shown here. Reports, documents and prices aren't shown on this page.",
+    "detailNotice": "The booking status, schedule and amount are shown here. Documents aren't shown on this page.",
     "tabLabs": "Laboratory Tests",
     "tabRadiology": "Diagnostic Radiology",
     "tabMyBookings": "My Requests & Results",
@@ -1366,7 +1366,20 @@
     "bioTitle": "About the doctor",
     "infoTitle": "More information",
     "languagesLabel": "Languages",
-    "chooseDayTime": "Choose a day and time"
+    "chooseDayTime": "Choose a day and time",
+    "faqTitle": "Common questions",
+    "faqCancelQ": "Can I cancel or change the appointment?",
+    "faqCancelA": "Yes. You can cancel or change it from the appointment details under the platform's current policy.",
+    "faqPayQ": "Which payment methods are available?",
+    "faqPayA": "Remote consultations by card only, home visits by card or insurance, and clinic visits by card, insurance or cash.",
+    "clinicPhotoOpen": "Open clinic photo {n} full size",
+    "gradeLabel": "Grade",
+    "degree_professor": "Professor",
+    "degree_consultant": "Consultant",
+    "degree_senior_specialist": "Senior specialist",
+    "degree_specialist": "Specialist",
+    "degree_resident": "Resident",
+    "degree_general_practitioner": "General practitioner"
   },
   "LabsServices": {
     "eyebrow": "Laboratory care",
@@ -1717,7 +1730,22 @@
     "empty": "No reports to share",
     "notice": "Only secure in-portal links are shared — never send raw medical data in text.",
     "bundleHeader": "Nabd Plus — medical reports shared:",
-    "bundleTitle": "Nabd Plus"
+    "bundleTitle": "Nabd Plus",
+    "shareWithDoctor": "Share with a doctor",
+    "doctorSearchLabel": "Doctor's name",
+    "doctorSearchPh": "Search for a doctor by name",
+    "doctorSearch": "Search",
+    "searching": "Searching…",
+    "noDoctors": "No doctors found with that name.",
+    "shareWithThisDoctor": "Share",
+    "sharedWith": "Shared with",
+    "notSharedYet": "This report is not shared with any doctor.",
+    "revoke": "Stop sharing",
+    "doctorFallback": "Doctor",
+    "doctorShared": "The report is shared with the doctor.",
+    "doctorShareFailed": "Could not share. Try again later.",
+    "doctorRevokeFailed": "Could not stop sharing. Try again later.",
+    "doctorSearchFailed": "Search failed. Try again later."
   },
   "BookConsultation": {
     "homeAddressRequired": "Choose the visit address from your saved addresses first",
@@ -1759,7 +1787,12 @@
     "duration": "Visit length",
     "durationValue": "{n} min",
     "homeAddressNone": "Add an address with its map location for a home visit.",
-    "homeAddressAdd": "Add or edit an address"
+    "homeAddressAdd": "Add or edit an address",
+    "bookingFor": "Booking for {name}",
+    "bookingForSelf": "Book for myself instead",
+    "insuranceReady": "We will send the request to the facility with your saved policy details.",
+    "insuranceNotReady": "There is no active policy to use. Add your insurance details first.",
+    "manageInsurance": "Manage insurance"
   },
   "AiHealthReport": {
     "title": "Your AI Health Report",
@@ -1910,7 +1943,9 @@
       "missed": "Missed call",
       "active": "Call in progress",
       "pending": "Pending call"
-    }
+    },
+    "callAgain": "Call again",
+    "showMore": "Show more"
   },
   "PostCallRating": {
     "title": "Rate your consultation",
@@ -2004,7 +2039,9 @@
     "defaultAbout": "A certified medical laboratory equipped with modern diagnostics.",
     "servicesTitle": "Available Tests",
     "price": "{value} SAR",
-    "ratingLine": "Rated {rating} of 5 · {count} ratings"
+    "ratingLine": "Rated {rating} of 5 · {count} ratings",
+    "directions": "Directions to the lab",
+    "branchesCount": "{n} branches"
   },
   "NurseDetail": {
     "title": "Nurse Profile",
@@ -2901,7 +2938,9 @@
     "copayTitle": "Approval received",
     "copayBody": "Approved. Pay the co-pay ({amount}) to unlock the consultation.",
     "copayAction": "Review the insurance request and pay securely",
-    "actionDoctorProfile": "View profile"
+    "actionDoctorProfile": "View profile",
+    "waitingRoomYourTurn": "Your turn",
+    "waitingRoomCallsOff": "Video calls are not available right now."
   },
   "ConsultClient": {
     "payHeading": "Complete the payment through a secure gateway",
@@ -3105,7 +3144,9 @@
     "calendarDeleteFailed": "Could not delete the event",
     "memberAge": "{n} years",
     "vitalsTitle": "Vital signs",
-    "noVitals": "No readings are recorded, or the member has not allowed them to be shown."
+    "noVitals": "No readings are recorded, or the member has not allowed them to be shown.",
+    "bookForMember": "Book a consultation",
+    "bookForMemberFailed": "Could not start the booking. Try again."
   },
   "DiagWeb": {
     "retry": "Try again",
@@ -3325,7 +3366,35 @@
     "bookingNotSentCta": "Go to nursing",
     "bookingNotSentClose": "Close",
     "approvalNoOrderTitle": "No booking to show insurance for",
-    "approvalNoOrderBody": "The insurance step belongs to a booking. Open one of your requests to follow its approval or upload a document."
+    "approvalNoOrderBody": "The insurance step belongs to a booking. Open one of your requests to follow its approval or upload a document.",
+    "approvedLabs": "Approved labs",
+    "labRating": "Rating {n}",
+    "labHomeTag": "Home collection",
+    "labsAll": "All labs",
+    "bookingTotal": "Total amount",
+    "bookingResultsTitle": "Test results",
+    "resultValue": "Result",
+    "resultReference": "Normal range",
+    "resultAbnormal": "Outside the normal range",
+    "radiologyStagesTitle": "Scan stages",
+    "stageScan": "Scan",
+    "stageReport": "Report",
+    "stageResult": "Result",
+    "cancelBooking": "Cancel the booking",
+    "cancelBookingConfirm": "Do you want to cancel this booking?",
+    "cancelBookingBack": "Go back",
+    "cancelBookingYes": "Yes, cancel",
+    "cancelBookingFailed": "The booking could not be cancelled. Try again.",
+    "collectorPending": "A collector will be assigned soon",
+    "filterTitle": "Filter and sort",
+    "filterShow": "Show",
+    "filterSort": "Sort by",
+    "filterAll": "All",
+    "filterPackages": "Packages only",
+    "filterTests": "Tests only",
+    "sortDefault": "Default",
+    "sortRating": "Highest rated",
+    "sortPrice": "Lowest price"
   },
   "OrderContext": {
     "hint": "Prices and coverage update at once when you change anything",
@@ -3479,7 +3548,14 @@
     "callNurse": "Call the nurse",
     "nurseOnMap": "Show the nurse on the map",
     "insuranceNone": "No insurance request yet",
-    "insuranceNoneBody": "When you request a visit with insurance, its approval appears here."
+    "insuranceNoneBody": "When you request a visit with insurance, its approval appears here.",
+    "nurseMapTitle": "The nurse's location on the map",
+    "nurseDirections": "Directions to the nurse",
+    "addressUseLocation": "Use my current location",
+    "addressLocating": "Finding your location...",
+    "addressLocationSet": "Your current location will be used for the visit",
+    "addressUseSaved": "Use a saved address instead",
+    "addressLocationDenied": "Could not get your location. Allow location access or choose a saved address."
   },
   "MaternityWeb": {
     "title": "Maternity",
@@ -4023,7 +4099,8 @@
       "failed": "Could not save the policy.",
       "scan": "Scan the insurance card with the camera",
       "scanned": "The visible details were read from the card. Check them before saving.",
-      "scanFailed": "The card could not be read. Enter the details by hand."
+      "scanFailed": "The card could not be read. Enter the details by hand.",
+      "network": "Network"
     },
     "coverage": {
       "title": "What my policy covers",

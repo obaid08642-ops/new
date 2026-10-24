@@ -50,6 +50,9 @@ describe("patient API allowlist", () => {
     // the web checkout broadcast must use the /patient/pharmacy prefix; the bare path is not served
     expect(isAllowedPatientApiRequest("/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/submit", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest("/labs/bookings/91047ef2-ad36-422a-a184-629693e7c729/items/svc_cbc-1/opt-in-cash", "PATCH")).toBe(true);
+    expect(isAllowedPatientApiRequest("/labs/bookings/91047ef2-ad36-422a-a184-629693e7c729/cancel", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/radiology/bookings/91047ef2-ad36-422a-a184-629693e7c729/cancel", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/radiology/bookings/91047ef2-ad36-422a-a184-629693e7c729/state", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/offers/91047ef2-ad36-422a-a184-629693e7c729/select", "POST")).toBe(true);
     expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/insurance/co-pay/accept", "POST")).toBe(true);
     expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/payment", "POST")).toBe(false);

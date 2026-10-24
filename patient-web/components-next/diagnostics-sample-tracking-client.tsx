@@ -17,7 +17,7 @@ import styles from "@/components-next/diagnostics/diag.module.css";
 
 type Step = { state: string; at?: string };
 type Prep = { key: string; name: string; lines: string[] };
-type Tracking = { state?: string; eta?: number | null; techName?: string; techPhone?: string; scheduledAt?: string; steps: Step[]; preparation: Prep[] };
+type Tracking = { state?: string; eta?: number | null; techName?: string; techPhone?: string; home: boolean; scheduledAt?: string; steps: Step[]; preparation: Prep[] };
 
 /** The catalogue language a test's preparation is written in, for the site locale (fil is "tl" in the catalogue). */
 const PREP_LANG: Record<string, string> = { ar: "ar", en: "en", ur: "ur", hi: "hi", bn: "bn", fil: "tl" };
@@ -52,6 +52,7 @@ export function parseTracking(payload: unknown, locale: string): Tracking {
     eta: typeof t.eta === "number" ? t.eta : null,
     techName,
     techPhone,
+    home: Boolean(b && (b.location_type === "HOME_COLLECTION" || b.location_type === "MOBILE_HOME_VISIT")),
     scheduledAt: b && typeof b.scheduled_at === "string" ? b.scheduled_at : undefined,
     steps,
     preparation,
@@ -129,6 +130,15 @@ export function DiagnosticsSampleTrackingClient({ bookingId, locale }: { booking
         </div>
         {when ? <p className={styles.flowNote}>{t("trackingScheduled", { when })}</p> : null}
       </section>
+
+      {!tracking.techName && !tracking.techPhone && tracking.home && !FINAL_STATES.has(tracking.state ?? "") ? (
+        <section className={rx.card} aria-label={t("collectorLabel")}>
+          <div className={styles.etaText}>
+            <span className={styles.etaLabel}>{t("collectorLabel")}</span>
+            <span className={consult.rowTitle}>{t("collectorPending")}</span>
+          </div>
+        </section>
+      ) : null}
 
       {tracking.techName || tracking.techPhone ? (
         <>

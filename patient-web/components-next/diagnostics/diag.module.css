@@ -155,3 +155,21 @@
   .pack, .rad, .lab, .kind { transition: none; }
   .rad:hover, .lab:hover, .pack:hover { transform: none; }
 }
+
+/* ---- hub: the filter and sort sheet (a disclosure; the choices are links that keep the URL the whole state) ---- */
+.filterSheet { display: flex; flex-direction: column; gap: 8px; min-inline-size: 0; }
+.filterSummary {
+  display: flex; align-items: center; min-block-size: 44px; padding-inline: 16px; box-sizing: border-box; cursor: pointer; list-style: none;
+  border-radius: var(--nabd-radius-lg); border: 1px solid var(--nabd-color-border-strong); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary);
+  font-size: var(--nabd-font-size-segment); font-weight: 500;
+}
+.filterSummary::-webkit-details-marker { display: none; }
+.filterSummary:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.filterSheet[open] > .filterSummary { margin-block-end: 8px; }
+
+/* Category chips of a GET filter form: a radio per chip, the checked one is filled. */
+.catChips { display: flex; flex-wrap: wrap; gap: 8px; border: 0; margin: 0; padding: 0; min-inline-size: 0; }
+.catChip { position: relative; display: inline-flex; align-items: center; justify-content: center; min-block-size: 44px; padding-inline: 16px; box-sizing: border-box; border-radius: var(--nabd-radius-pill); border: 1px solid var(--nabd-color-border-strong); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-label); cursor: pointer; overflow-wrap: anywhere; }
+.catChip input { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.catChip:has(input:checked) { background: var(--nabd-color-action-primary-bg); border-color: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg); }
+.catChip:has(input:focus-visible) { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }

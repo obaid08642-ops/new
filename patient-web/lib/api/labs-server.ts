@@ -80,6 +80,10 @@ export type LabDetail = {
   rating_count: number;
   description?: string;
   home_visit?: boolean;
+  /** Where the lab is and how many branches it has (the app's directions and branches rows), when the server sends them. */
+  lat?: number;
+  lng?: number;
+  branches?: number;
   services?: Array<{
     id: string;
     name: string;
@@ -122,6 +126,9 @@ export function extractLab(payload: unknown): LabDetail | null {
     rating_count: typeof item.rating_count === "number" ? item.rating_count : 0,
     description: typeof item.description === "string" ? item.description : undefined,
     home_visit: typeof item.home_visit === "boolean" ? item.home_visit : undefined,
+    lat: typeof item.lat === "number" && Math.abs(item.lat) <= 90 ? item.lat : undefined,
+    lng: typeof item.lng === "number" && Math.abs(item.lng) <= 180 ? item.lng : undefined,
+    branches: typeof item.branches === "number" && Number.isInteger(item.branches) && item.branches > 0 ? item.branches : undefined,
     services: Array.isArray(item.services)
       ? item.services.map((s: any) => ({
           id: String(s.id ?? s._id ?? ""),
