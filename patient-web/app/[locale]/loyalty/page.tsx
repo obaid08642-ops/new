@@ -75,7 +75,7 @@ export default async function LoyaltyPage({ params, searchParams }: Props) {
   let content: ReactNode = null;
   if (tab === "rewards") {
     const res = await callPatientApi("/loyalty/rewards", {}, token).catch(() => null);
-    const rewards = res?.ok ? parseRewards(await res.json().catch(() => null)) : null;
+    const rewards = res?.ok ? parseRewards(await res.json().catch(() => null), locale) : null;
     content = (
       <>
         <SectionHead id="rewards" title={t("rewardsTitle")} />
@@ -123,7 +123,7 @@ export default async function LoyaltyPage({ params, searchParams }: Props) {
     );
   } else if (tab === "challenges") {
     const res = await callPatientApi("/loyalty/challenges", {}, token).catch(() => null);
-    const challenges = res?.ok ? parseChallenges(await res.json().catch(() => null)) : null;
+    const challenges = res?.ok ? parseChallenges(await res.json().catch(() => null), locale) : null;
     content =
       challenges === null ? (
         <PartUnavailable>{t("partUnavailable")}</PartUnavailable>

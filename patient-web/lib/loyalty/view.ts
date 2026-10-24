@@ -59,18 +59,23 @@ export function parseTransactions(payload: unknown): Transaction[] {
   });
 }
 
-export function parseRewards(payload: unknown): Reward[] {
+/** Rewards and challenges carry `title_ar` and `title_en`: outside Arabic the English title is shown when the server has one. */
+function localTitle(r: Record<string, unknown> | null, locale: string): string | undefined {
+  return (locale !== "ar" ? str(r?.title_en) : undefined) ?? str(r?.title) ?? str(r?.title_ar) ?? str(r?.title_en);
+}
+
+export function parseRewards(payload: unknown, locale = "ar"): Reward[] {
   return listOf(payload, ["data", "rewards", "items"]).flatMap((value): Reward[] => {
     const r = rec(value);
     const id = r?.id === undefined || r?.id === null ? undefined : String(r.id);
-    const title = str(r?.title) ?? str(r?.title_ar) ?? str(r?.title_en);
+    const title = localTitle(r, locale);
     const cost = num(r?.points_required) ?? num(r?.cost_points);
     if (!r || !id || !title || cost === undefined) return [];
     return [{ id, title, description: str(r.description), pointsRequired: cost }];
   });
 }
 
-export function parseChallenges(payload: unknown): Challenge[] {
+export function parseChallenges(payload: unknown, locale = "ar"): Challenge[] {
   return listOf(payload, ["data", "challenges"]).flatMap((value): Challenge[] => {
     const r = rec(value);
     const id = str(r?.id);
@@ -78,7 +83,7 @@ export function parseChallenges(payload: unknown): Challenge[] {
     const progress = num(r.user_progress) ?? 0;
     const completed = r.completed === true;
     const total = num(r.target_count);
-    return [{ id, title: str(r.title) ?? str(r.title_ar) ?? id, desc: str(r.desc) ?? str(r.description), rewardPoints: num(r.reward_points), endDate: str(r.end_date), joined: r.joined === true || progress > 0 || completed, completed, progress, total: total && total > 0 ? total : undefined }];
+    return [{ id, title: localTitle(r, locale) ?? id, desc: str(r.desc) ?? str(r.description), rewardPoints: num(r.reward_points), endDate: str(r.end_date), joined: r.joined === true || progress > 0 || completed, completed, progress, total: total && total > 0 ? total : undefined }];
   });
 }
 

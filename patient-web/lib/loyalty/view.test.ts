@@ -35,6 +35,17 @@ describe("loyalty readers", () => {
     expect(parseTransactions({ transactions: [{ id: "t1", points_delta: -50, reason: "reward_claimed" }, { id: "t2", points_delta: 0 }] })).toEqual([{ id: "t1", delta: -50, reason: "reward_claimed", description: undefined, createdAt: undefined }]);
   });
 
+  it("shows the English title of a reward and a challenge outside Arabic, and the Arabic one on the Arabic page", () => {
+    const reward = [{ id: "r1", title_ar: "قسيمة تجريبية", title_en: "Test coupon", points_required: 1 }];
+    expect(parseRewards(reward, "en")[0].title).toBe("Test coupon");
+    expect(parseRewards(reward, "hi")[0].title).toBe("Test coupon");
+    expect(parseRewards(reward, "ar")[0].title).toBe("قسيمة تجريبية");
+    expect(parseRewards([{ id: "r2", title_ar: "قسيمة", points_required: 1 }], "en")[0].title).toBe("قسيمة");
+    const challenge = [{ id: "c1", title_ar: "تحدي شهري", title_en: "Monthly challenge", reward_points: 50 }];
+    expect(parseChallenges(challenge, "fil")[0].title).toBe("Monthly challenge");
+    expect(parseChallenges(challenge, "ar")[0].title).toBe("تحدي شهري");
+  });
+
   it("reads rewards, and challenges without a default target or end date", () => {
     expect(parseRewards([{ id: "r1", title: "Test reward", points_required: 300 }, { id: "r2", title: "no cost" }])).toEqual([{ id: "r1", title: "Test reward", description: undefined, pointsRequired: 300 }]);
     const [c] = parseChallenges([{ id: "c1", title: "Test", reward_points: 20, user_progress: 2 }]);
