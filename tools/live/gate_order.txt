@@ -30,6 +30,7 @@ j_payouts
 j_b8_texts
 j_rx_flags
 j_web_one_cancel
+j_web_translated_pages
 j_lab_result_push
 j_sfda_price_review
 j_password_reset_link
