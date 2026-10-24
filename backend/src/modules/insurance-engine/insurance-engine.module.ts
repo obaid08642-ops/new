@@ -278,6 +278,11 @@ export class InsuranceFlowService {
     const key = String(body.company_id);
     const company = await this.companies.findOne({ $or: [{ id: { $eq: key } }, { code: { $eq: key.toLowerCase() } }], is_active: true }).lean();
     if (!company) throw new NotFoundException('insurance company not found');
+    // The figures printed on the card (optional): the estimate before booking uses them. Validated, never guessed.
+    const copayPercent = body.copay_percent;
+    const copayCap = body.copay_cap_sar;
+    if (copayPercent !== undefined && copayPercent !== null && !(typeof copayPercent === 'number' && copayPercent >= 0 && copayPercent <= 100)) throw new BadRequestException('invalid_copay_percent');
+    if (copayCap !== undefined && copayCap !== null && !(typeof copayCap === 'number' && copayCap >= 0 && copayCap <= 1_000_000)) throw new BadRequestException('invalid_copay_cap');
     // `verified` is never taken from the client: verification is a separate server/admin step
     const policy = {
       company_id: (company as any).id,
@@ -291,6 +296,8 @@ export class InsuranceFlowService {
       national_id: body.national_id,
       policy_number: body.policy_number,
       expiry_date: body.expiry_date,
+      ...(typeof copayPercent === 'number' ? { copay_percent: copayPercent } : {}),
+      ...(typeof copayCap === 'number' ? { copay_cap_sar: copayCap } : {}),
       card_image_url: body.card_image_url,
       ocr_extracted: !!body.ocr_extracted,
       verified: false,
@@ -317,6 +324,9 @@ export class InsuranceFlowService {
       company_name_en: company?.name_en ?? null,
       member_id: ins.member_id ?? null,
       expiry_date: ins.expiry_date ?? null,
+      // Design parity (#1819): the insurer id the booking forms send (insurance_provider): the catalogue company, else the
+      // legacy saved provider name; null when neither was saved.
+      insurer_id: ins.company_id ? String(ins.company_id) : (typeof ins.provider === 'string' && ins.provider ? ins.provider : null),
     };
     return { has_policy, policy };
   }

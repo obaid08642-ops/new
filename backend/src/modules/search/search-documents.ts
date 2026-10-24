@@ -53,6 +53,8 @@ export interface SearchDocument {
   name_text: string;
   slug?: string | null;
   price?: number | null;
+  /** The price before a reduction; null when none, and always null for a prescription item (decision 10). */
+  old_price?: number | null;
   specialty?: string | null;
   code?: string | null;
   requires_prescription: boolean;
@@ -167,6 +169,7 @@ export function toSearchDocument(source: SearchSource, raw: any): SearchDocument
   const rx = raw?.requires_prescription === true;
   const popularity = Number(raw?.usage_count ?? raw?.popularity ?? raw?.rating_count ?? 0);
   const price = Number(raw?.price ?? raw?.price_clinic);
+  const oldPrice = Number(raw?.old_price);
   return {
     key: searchKey(type, id),
     src: `${source}:${String(raw?._id ?? id)}`,
@@ -178,6 +181,7 @@ export function toSearchDocument(source: SearchSource, raw: any): SearchDocument
     name_text,
     slug: str(raw?.slug) || null,
     price: Number.isFinite(price) && price > 0 ? price : null,
+    old_price: !rx && Number.isFinite(oldPrice) && oldPrice > price && price > 0 ? oldPrice : null,
     specialty: str(raw?.specialty) || null,
     code: str(raw?.code) || str(raw?.short_code) || null,
     requires_prescription: rx,

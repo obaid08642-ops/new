@@ -57,8 +57,8 @@ describe("every sign-in and sign-out reaches the cart", () => {
       expect(source, file).toContain("announceSignedIn()");
       expect(source.indexOf("announceSignedIn()"), file).toBeLessThan(source.lastIndexOf(navigation));
     }
-    // google, apple and guest sign-in are three flows in one file
-    expect(code("components-next/social-login-buttons.tsx").match(/announceSignedIn\(\)/g)).toHaveLength(3);
+    // google and guest sign-in are two flows in one file
+    expect(code("components-next/social-login-buttons.tsx").match(/announceSignedIn\(\)/g)).toHaveLength(2);
   });
 
   it("the provider reacts to the sign-out event, to other tabs (storage) and to a signed-in answer", () => {

@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { authErrorKind } from "@/lib/auth/auth-errors";
+import { MIN_PASSWORD_LENGTH } from "@/lib/auth/password-rule";
 import type { Locale } from "@/lib/i18n";
 import styles from "./auth/auth.module.css";
 
@@ -32,7 +33,7 @@ export function PasswordResetForm({ locale, initialToken = "" }: { locale: Local
     event.preventDefault();
     setExpired(false);
     if (newPassword !== confirm) { setOk(false); setMessage(t("mismatch")); return; }
-    if (resetToken.trim().length < 1 || newPassword.length < 10) { setOk(false); setMessage(t("failed")); return; }
+    if (resetToken.trim().length < 1 || newPassword.length < MIN_PASSWORD_LENGTH) { setOk(false); setMessage(t("failed")); return; }
     setBusy(true); setMessage(null);
     try {
       const response = await fetch("/api/auth/password/reset", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ reset_token: resetToken.trim(), new_password: newPassword }) });
@@ -73,11 +74,11 @@ export function PasswordResetForm({ locale, initialToken = "" }: { locale: Local
       </label>
       <label className={styles.field}>
         <span className={styles.label}>{t("password")}</span>
-        <span className={styles.control}><input required minLength={10} type={show ? "text" : "password"} value={newPassword} onChange={(event) => setPassword(event.target.value)} autoComplete="new-password" />{eye}</span>
+        <span className={styles.control}><input required minLength={MIN_PASSWORD_LENGTH} type={show ? "text" : "password"} value={newPassword} onChange={(event) => setPassword(event.target.value)} autoComplete="new-password" />{eye}</span>
       </label>
       <label className={styles.field}>
         <span className={styles.label}>{t("confirm")}</span>
-        <span className={styles.control}><input required minLength={10} type={show ? "text" : "password"} value={confirm} aria-invalid={liveMismatch || undefined} onChange={(event) => setConfirm(event.target.value)} autoComplete="new-password" /></span>
+        <span className={styles.control}><input required minLength={MIN_PASSWORD_LENGTH} type={show ? "text" : "password"} value={confirm} aria-invalid={liveMismatch || undefined} onChange={(event) => setConfirm(event.target.value)} autoComplete="new-password" /></span>
       </label>
       {liveMismatch ? <p className={styles.error} role="alert">{t("mismatch")}</p> : null}
       {message && !(liveMismatch && message === t("mismatch")) ? <p className={styles.error} role="alert">{message}</p> : null}

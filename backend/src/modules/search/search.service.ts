@@ -18,6 +18,7 @@ import { MeiliClient } from './meili.client';
 import { runsBackgroundWork } from '../../common/process-role';
 import { connectionFlagSource, isKilled } from '../../common/killswitches/killswitches.helper';
 import { PurgeBus } from '../../common/purge-bus';
+import { SearchRefine, hasRefine, refineItems } from './search-refine';
 import { JudgedSuggestion, SuggestRow, TextRange, compareSuggestions, judgeSuggestion } from './suggest-rank';
 
 export const SEARCH_INDEX = 'search_index';
@@ -62,6 +63,8 @@ export interface SearchItem {
   highlight?: string;
   slug?: string | null;
   price?: number | null;
+  old_price?: number | null;
+  discount_percent?: number;
   specialty?: string | null;
   code?: string | null;
   requires_prescription: boolean;
@@ -255,29 +258,32 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
 
   // ── Queries ─────────────────────────────────────────────────────────────────────────────────
 
-  async search(q: string, opts: { section?: SearchSection; locale?: SearchLocale; limit?: number }) {
+  async search(q: string, opts: { section?: SearchSection; locale?: SearchLocale; limit?: number; refine?: SearchRefine }) {
     const locale = opts.locale || 'ar';
     const query = normalizeSearchText(q || '').slice(0, 120);
     const types = opts.section ? SECTION_TYPES[opts.section] : SEARCH_TYPES;
     const limit = Math.min(Math.max(opts.limit || (opts.section ? 20 : 5), 1), 50);
+    // A sort or a price/sale filter works on a window larger than the page, so the page is the best of the whole window.
+    const fetchLimit = hasRefine(opts.refine) ? 50 : limit;
     if (!query) return opts.section ? { query, section: opts.section, engine: 'none', items: [] } : { query, engine: 'none', groups: [] };
 
     let engine: 'meilisearch' | 'mongo' = 'mongo';
     let byType: Record<string, SearchItem[]> | null = null;
     if (this.meili) {
       try {
-        const hits = await this.meili.search(query, types, limit, [`names.${locale}`]);
+        const hits = await this.meili.search(query, types, fetchLimit, [`names.${locale}`]);
         byType = Object.fromEntries(Object.entries(hits).map(([t, list]) => [t, list.map((h) => this.toItem(h, locale, (h._formatted as any)?.names?.[locale]))]));
         engine = 'meilisearch';
       } catch (e) {
         this.log.warn(`meilisearch query failed, answering from MongoDB: ${(e as Error).message}`);
       }
     }
-    if (!byType) byType = await this.mongoSearch(query, types, limit, locale);
+    if (!byType) byType = await this.mongoSearch(query, types, fetchLimit, locale);
+    byType = Object.fromEntries(Object.entries(byType).map(([t, list]) => [t, opts.section ? list : refineItems(list, opts.refine).slice(0, limit)]));
 
     if (opts.section) {
       // One section: its types merged, in relevance order within each type and type order across them.
-      const items = types.flatMap((t) => byType![t] || []).slice(0, limit);
+      const items = refineItems(types.flatMap((t) => byType![t] || []), opts.refine).slice(0, limit);
       return { query, section: opts.section, engine, items };
     }
     const groups = types
@@ -388,6 +394,8 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
       ...(typeof highlight === 'string' && highlight.includes('<mark>') ? { highlight } : {}),
       slug: doc.slug ?? null,
       price: doc.price ?? null,
+      old_price: doc.old_price ?? null,
+      discount_percent: doc.old_price && doc.price && doc.old_price > doc.price ? Math.round((1 - doc.price / doc.old_price) * 100) : 0,
       specialty: doc.specialty ?? null,
       code: doc.code ?? null,
       requires_prescription: doc.requires_prescription === true,

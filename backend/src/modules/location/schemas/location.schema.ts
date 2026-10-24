@@ -37,6 +37,19 @@ export class Location {
   @Prop({ required: true, index: true })
   name_en: string;
 
+  // Issue 1831: the name in Urdu, Hindi, Bengali and Filipino (tl), where the data has it; the pages fall back to name_en.
+  @Prop({ type: String, required: false })
+  name_ur?: string;
+
+  @Prop({ type: String, required: false })
+  name_hi?: string;
+
+  @Prop({ type: String, required: false })
+  name_bn?: string;
+
+  @Prop({ type: String, required: false })
+  name_tl?: string;
+
   @Prop({
     required: true,
     enum: ['country', 'region', 'city', 'district', 'sub_area'],

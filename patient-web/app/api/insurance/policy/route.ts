@@ -12,6 +12,8 @@ const schema = z.object({
   member_id: z.string().max(64).optional().default(""),
   member_name: z.string().max(128).optional().default(""),
   expiry_date: z.string().max(32).optional().default(""),
+  // the insurer's network (the app's network chips); the policy stores it with the company and class
+  network: z.string().max(128).optional(),
 });
 
 export async function POST(request: Request) {

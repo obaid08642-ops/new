@@ -59,8 +59,8 @@ export function contentSecurityPolicy(nonce: string, isDevelopment = process.env
     "frame-ancestors 'none'",
     "img-src 'self' data: https:",
     // issue 777: the map page embeds an OpenStreetMap view (https://www.openstreetmap.org/export/embed.html), whose tiles load from *.tile.openstreetmap.org
-    // Sign in with Apple (JS, popup mode) talks to appleid.apple.com; its script is loaded by our own nonce'd code (strict-dynamic).
     // issue 430: Google sign-in (Google Identity Services) draws its popup and button from accounts.google.com/gsi/
+    // Owner decision 2026-10-24: all four providers; Apple, X and Snapchat sign in through popup windows (no frames), Apple's script talks to appleid.apple.com
     "frame-src 'self' https://www.openstreetmap.org https://accounts.google.com/gsi/",
     `style-src 'self' 'nonce-${nonce}' https://accounts.google.com/gsi/style${isDevelopment ? " 'unsafe-inline'" : ""}`,
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' '${THEME_SCRIPT_HASH}'${isDevelopment ? " 'unsafe-eval'" : ""}`,
