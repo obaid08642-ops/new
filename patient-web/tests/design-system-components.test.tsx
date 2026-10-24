@@ -263,6 +263,11 @@ describe("design review — ratings are real or absent, people are real or neutr
     expect(photo).toContain('aria-label="د. أحمد"');
     expect(markup(Avatar, { name: "Amina Haddad" })).toContain(">AH<");
     expect(markup(Avatar, { name: "" })).toContain('data-icon="user"');
+    // issue 1550 (axe role-img-alt): a named avatar is an image with its name; a nameless one is decoration, never an empty "image"
+    expect(markup(Avatar, { name: "Amina Haddad" })).toContain('role="img" aria-label="Amina Haddad"');
+    const nameless = markup(Avatar, { name: "  " });
+    expect(nameless).toContain('aria-hidden="true"');
+    expect(nameless).not.toContain('role="img"');
     const contract = readFileSync(resolve(process.cwd(), "../packages/ui/components/contract.ts"), "utf8");
     const gallery = readFileSync(resolve(process.cwd(), "../packages/ui/build-preview.mjs"), "utf8");
     expect(contract).not.toContain("illustratedName");
