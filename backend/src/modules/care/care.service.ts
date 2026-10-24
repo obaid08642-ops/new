@@ -1,3 +1,4 @@
+import { AVAILABILITY_WINDOW, NextSlotCache, orderByAvailability } from './availability-order';
 import { averageWaitMinutes } from './wait-time';
 import { reviewerLabel } from '../ratings/reviewer-label';
 import { StorageService } from '../storage/storage.module';
@@ -106,7 +107,7 @@ export class CareService {
     price_max?: number;
     lat?: number;
     lng?: number;
-    sort?: 'rating' | 'price_asc' | 'price_desc' | 'experience' | 'distance' | 'distance_asc' | 'distance_desc';
+    sort?: 'rating' | 'price_asc' | 'price_desc' | 'experience' | 'distance' | 'distance_asc' | 'distance_desc' | 'available_today';
     nearest_type?: 'clinic' | 'video' | 'home_visit';
     user?: any;
     available_type?: 'clinic' | 'video' | 'home_visit';
@@ -164,6 +165,7 @@ export class CareService {
     // Q-12 "Nearest": sort=distance is answered by the DB (2dsphere $geoNear),
     // clinic and home-visit only; video has no meaningful "near".
     if (opts.sort === 'distance') return this.listNearest(q, opts);
+    if (opts.sort === 'available_today') return this.listByAvailability(q, opts);
     const sort: any = {};
     const needDistance = opts.sort === 'distance_asc' || opts.sort === 'distance_desc';
     if (opts.sort === 'price_asc') sort.price_clinic = 1;
@@ -223,6 +225,40 @@ export class CareService {
         : (totalIsExact ? page * limit < total : raw.length > offset + limit),
       items: out,
     };
+  }
+
+  private readonly nextSlotCache = new NextSlotCache();
+
+  /**
+   * sort=available_today: the best AVAILABILITY_WINDOW doctors by rating are ordered by real free slots (today first, then soonest),
+   * then paged. Each doctor's next slot is cached for a minute and computed ten at a time, so the cost stays bounded.
+   */
+  private async listByAvailability(q: any, opts: { page?: number; limit?: number }) {
+    const page = Math.max(1, opts.page || 1);
+    const limit = Math.min(50, Math.max(5, opts.limit || 20));
+    const offset = (page - 1) * limit;
+    const raw: any[] = await this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ rating: -1 }).maxTimeMS(5000).limit(AVAILABILITY_WINDOW);
+    const withNext: Array<{ doc: any; next: string | null }> = [];
+    for (let i = 0; i < raw.length; i += 10) {
+      const batch = raw.slice(i, i + 10);
+      withNext.push(...await Promise.all(batch.map(async (doc) => {
+        const id = String((doc.toObject ? doc.toObject() : doc).id);
+        const cached = this.nextSlotCache.get(id);
+        if (cached.hit) return { doc, next: cached.value };
+        const full = doc.toObject ? doc : await this.providerModel.findOne({ id });
+        const next = full ? await this.slots.nextAvailable(full as any) : null;
+        this.nextSlotCache.set(id, next);
+        return { doc, next };
+      })));
+    }
+    const ordered = orderByAvailability(withNext);
+    const slice = ordered.slice(offset, offset + limit);
+    const online = await this.onlineSet(slice.map((x) => x.doc));
+    const items = slice.map((x) => {
+      const d: any = x.doc.toObject ? x.doc.toObject() : x.doc;
+      return { ...this.toPublicDoctor(d, x.next), is_online: this.isOnlineDoc(d, online) };
+    });
+    return { page, limit, total: null, total_is_exact: false, has_more: ordered.length > offset + limit, items };
   }
 
   /**
