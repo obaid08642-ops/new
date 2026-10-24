@@ -7,6 +7,7 @@ import { Button } from "@/components-next/ui-generated/components/Button";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { authErrorKind } from "@/lib/auth/auth-errors";
 import { announceSignedIn } from "@/lib/auth/session-identity";
+import { registerProblem } from "@/lib/auth/password-rule";
 import type { Locale } from "@/lib/i18n";
 import styles from "./auth/auth.module.css";
 
@@ -31,7 +32,7 @@ export function registerErrorMessage(t: (key: string) => string, status: number)
 export function RegisterForm({ locale }: { locale: Locale }) {
   const t = useTranslations("Register");
   const router = useRouter();
-  const [form, setForm] = useState({ name: "", identifier: "", password: "" });
+  const [form, setForm] = useState({ name: "", identifier: "", password: "", confirm: "" });
   const [agreed, setAgreed] = useState(false);
   const [show, setShow] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -54,10 +55,8 @@ export function RegisterForm({ locale }: { locale: Locale }) {
       { policy_id: policyIds.terms, version: policyIds.termsVersion },
       { policy_id: policyIds.privacy, version: policyIds.privacyVersion },
     ];
-    if (form.name.trim().length < 2 || form.identifier.trim().length < 3 || form.password.length < 8 || !agreed) {
-      setMessage(t("invalid"));
-      return;
-    }
+    const problem = registerProblem(form, agreed);
+    if (problem) { setMessage(t(problem)); return; }
     setBusy(true);
     try {
       // Guest with a phone identifier converts (zero-loss merge server-side)
@@ -125,13 +124,18 @@ export function RegisterForm({ locale }: { locale: Locale }) {
         <div className={styles.field}>
           <label className={styles.label} htmlFor="register-password">{t("password")}</label>
           <span className={styles.control}>
-            <input id="register-password" required minLength={8} type={show ? "text" : "password"} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} autoComplete="new-password" />
+            <input id="register-password" required minLength={10} type={show ? "text" : "password"} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} autoComplete="new-password" />
             <button type="button" className={styles.eye} onClick={() => setShow((v) => !v)} aria-label={show ? t("hidePassword") : t("showPassword")}>
               <Icon name={show ? "eye-slash" : "eye"} size={20} tone="currentColor" />
             </button>
           </span>
           <span className={styles.hint}>{t("hintPassword")}</span>
         </div>
+        <label className={styles.field}>
+          <span className={styles.label}>{t("confirm")}</span>
+          <span className={styles.control}><input required type={show ? "text" : "password"} value={form.confirm} aria-invalid={form.confirm.length > 0 && form.confirm !== form.password || undefined} onChange={(e) => setForm({ ...form, confirm: e.target.value })} autoComplete="new-password" /></span>
+          {form.confirm.length > 0 && form.confirm !== form.password ? <span className={styles.error} role="alert">{t("errMismatch")}</span> : null}
+        </label>
         <label className={styles.consent}>
           <input type="checkbox" className={styles.checkbox} checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
           <span>

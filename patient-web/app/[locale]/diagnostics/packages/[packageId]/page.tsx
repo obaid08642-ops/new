@@ -67,7 +67,7 @@ export default async function LabPackageDetailPage({ params }: Props) {
     ...(pkg.turnaroundHours !== undefined ? [{ label: t("turnaround"), value: hoursText(locale, pkg.turnaroundHours), icon: "file-text", tone: DIAG_TONES.info } as FactRow] : []),
     ...(pkg.fastingRequired ? [{ label: t("preparation"), value: pkg.fastingHours ? t("fastingHours", { value: pkg.fastingHours }) : t("fasting"), icon: "clock-counter-clockwise", tone: DIAG_TONES.warn } as FactRow] : []),
   ];
-  const addHref = `/${locale}/diagnostics/cart?add=${encodeURIComponent(packageId)}&name=${encodeURIComponent(name ?? "")}${pkg.price !== undefined ? `&price=${pkg.price}` : ""}`;
+  const addHref = `/${locale}/labs/${encodeURIComponent(packageId)}?kind=lab`;
 
   return (
     <ConsultPage locale={locale} title={name ?? t("title")} backHref={`/${locale}/diagnostics/packages`}>
@@ -79,7 +79,7 @@ export default async function LabPackageDetailPage({ params }: Props) {
       {pkg.includedServices?.length ? <SectionCard id="pkg-included" title={t("includedTitle")}><BulletList items={pkg.includedServices} /></SectionCard> : null}
       {preparation.length > 0 ? <SectionCard id="pkg-prep" title={t("preparationTitle")}><BulletList items={preparation} /></SectionCard> : null}
       <Notice>{pkg.homeVisitSupported ? t("homeAvailable") : t("homeUnavailable")}</Notice>
-      {/* journeys#50: one booking path, the cart (the lab is chosen there), as the app. */}
+      {/* Parity: the order item page (add to the basket, book now, providers), as the app. */}
       <ActionLinks actions={[{ href: addHref, label: w("addToOrderCta") }]} />
     </ConsultPage>
   );

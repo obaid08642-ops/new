@@ -20,6 +20,6 @@
 .button:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
 .button:disabled { opacity: 0.5; cursor: not-allowed; }
 .primary { background: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg); border-color: transparent; }
-.item { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-block-size: 44px; }
-.itemText { flex: 1; min-inline-size: 0; font-size: var(--nabd-font-size-control); }
+.item { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; min-block-size: 44px; }
+.itemText { flex: 1 1 10rem; min-inline-size: 0; font-size: var(--nabd-font-size-control); overflow-wrap: anywhere; }
 .groups { display: flex; flex-direction: column; gap: 12px; }

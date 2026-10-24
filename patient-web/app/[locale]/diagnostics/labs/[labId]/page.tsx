@@ -81,7 +81,7 @@ export default async function LabDetailPage({ params }: Props) {
             {lab.services.map((svc) => (
               <LabCard
                 key={svc.id}
-                href={`/${locale}/diagnostics/labs/book?serviceId=${encodeURIComponent(svc.id)}&labId=${encodeURIComponent(lab.id)}`}
+                href={`/${locale}/labs/${encodeURIComponent(svc.id)}?kind=lab`}
                 title={pickText(locale, svc.name_ar ?? svc.name, svc.name_en ?? svc.name) ?? svc.name}
                 sub={svc.sample_type}
                 price={svc.price !== undefined ? money(locale, svc.price) : undefined}

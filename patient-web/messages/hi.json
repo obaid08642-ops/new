@@ -175,7 +175,8 @@
     "rateLimited": "बहुत ज़्यादा कोशिशें। एक मिनट रुककर फिर कोशिश करें।",
     "serverError": "हमारी तरफ़ से कुछ गड़बड़ हुई। थोड़ी देर बाद फिर कोशिश करें।",
     "guestBlocked": "अतिथि पहुंच नहीं खुल सकी। साइन इन करें या थोड़ी देर बाद फिर कोशिश करें।",
-    "googleUnavailable": "Google से साइन इन अभी उपलब्ध नहीं है। साइन इन का कोई और तरीका इस्तेमाल करें।"
+    "googleUnavailable": "Google से साइन इन अभी उपलब्ध नहीं है। साइन इन का कोई और तरीका इस्तेमाल करें।",
+    "locked": "बहुत अधिक असफल प्रयास। {minutes} मिनट बाद फिर कोशिश करें।"
   },
   "Dashboard": {
     "eyebrow": "निजी पोर्टल",
@@ -304,7 +305,17 @@
       "returns": "वापसी अनुरोध"
     },
     "statusUnavailable": "स्थिति उपलब्ध नहीं",
-    "partialNote": "कुछ ऑर्डर लोड नहीं हो सके। बाकी नीचे दिखाए गए हैं, थोड़ी देर बाद फिर कोशिश करें।"
+    "partialNote": "कुछ ऑर्डर लोड नहीं हो सके। बाकी नीचे दिखाए गए हैं, थोड़ी देर बाद फिर कोशिश करें।",
+    "filterLabel": "सेवा के अनुसार फ़िल्टर",
+    "filterAll": "सभी",
+    "filterKind": {
+      "pharmacy": "फ़ार्मेसी",
+      "consultation": "डॉक्टर",
+      "labs": "लैब टेस्ट",
+      "radiology": "रेडियोलॉजी",
+      "nursing": "नर्सिंग",
+      "returns": "वापसी और रिफ़ंड"
+    }
   },
   "Cart": {
     "eyebrow": "निजी कार्ट",
@@ -419,7 +430,22 @@
     "callOpen": "वीडियो विज़िट में शामिल हों",
     "cancelledRefund": "अपॉइंटमेंट रद्द हो गई। {amount} (आपके भुगतान का {percent}%) आपके मूल भुगतान तरीके में वापस जाएगा।",
     "cancelledNoRefund": "अपॉइंटमेंट रद्द हो गई। रद्दीकरण नीति के अनुसार कोई धनवापसी नहीं है।",
-    "cancelledNotCharged": "अपॉइंटमेंट रद्द हो गई। कोई राशि नहीं ली गई।"
+    "cancelledNotCharged": "अपॉइंटमेंट रद्द हो गई। कोई राशि नहीं ली गई।",
+    "bookingNumber": "बुकिंग नंबर",
+    "paymentMethodLabel": "भुगतान का तरीका",
+    "amount": "राशि",
+    "bookAgain": "फिर से बुक करें",
+    "emptyUpcoming": "कोई आगामी अपॉइंटमेंट नहीं",
+    "emptyPast": "कोई पिछली अपॉइंटमेंट नहीं",
+    "cancelReasonTitle": "रद्द करने का कारण",
+    "cancelReasons": {
+      "emergency": "कोई आपातकालीन काम",
+      "better": "मेरी तबीयत ठीक हो गई",
+      "otherDoctor": "मैं डॉक्टर बदलना चाहता हूँ",
+      "time": "समय मेरे लिए ठीक नहीं है",
+      "payment": "भुगतान में समस्या",
+      "other": "कोई और कारण"
+    }
   },
   "Medicines": {
     "eyebrow": "निजी कैटलॉग",
@@ -546,7 +572,12 @@
     "earlier": "पहले",
     "emptyTitle": "अभी कोई सूचना नहीं",
     "markAllRead": "सभी को पढ़ा हुआ करें",
-    "markFailed": "सूचना अपडेट नहीं हो सकी। फिर कोशिश करें।"
+    "markFailed": "सूचना अपडेट नहीं हो सकी। फिर कोशिश करें।",
+    "filters": "सूचनाएँ फ़िल्टर करें",
+    "filterAll": "सभी",
+    "filter_system": "सिस्टम",
+    "filter_medical": "चिकित्सा",
+    "filter_promotion": "ऑफ़र"
   },
   "Health": {
     "eyebrow": "निजी स्वास्थ्य",
@@ -776,7 +807,80 @@
     "reminderFor": "यह रिमाइंडर किसके लिए है?",
     "reminderForMe": "मेरे लिए",
     "reminderForName": "{name} के लिए रिमाइंडर",
-    "reminderMemberFallback": "परिवार का सदस्य"
+    "reminderMemberFallback": "परिवार का सदस्य",
+    "scoreLevel": {
+      "excellent": "उत्कृष्ट",
+      "good": "अच्छा",
+      "fair": "ठीक-ठाक",
+      "needs_attention": "ध्यान चाहिए"
+    },
+    "scoreComp": {
+      "bmi": "बॉडी मास इंडेक्स",
+      "bp": "रक्तचाप",
+      "glucose": "रक्त शर्करा",
+      "heart_rate": "हृदय गति",
+      "sleep": "नींद की गुणवत्ता",
+      "tracking": "नियमित रिकॉर्डिंग"
+    },
+    "scoreRec": {
+      "bmi_high": "बीएमआई सामान्य से अधिक है — नियमित शारीरिक गतिविधि और संतुलित आहार इसे कम करने में मदद करते हैं",
+      "profile_incomplete": "अपना स्कोर अधिक सटीक बनाने के लिए स्वास्थ्य प्रोफ़ाइल में अपनी ऊँचाई और वज़न जोड़ें",
+      "bp_high": "आपकी ताज़ा रक्तचाप रीडिंग अधिक है — नमक कम करें, नियमित जाँच करें और डॉक्टर से सलाह लें",
+      "glucose_off": "ग्लूकोज़ रीडिंग सामान्य सीमा से बाहर है — अपने आहार योजना और दवाओं की समीक्षा डॉक्टर के साथ करें",
+      "sleep_low": "आपकी नींद की गुणवत्ता में सुधार चाहिए — सोने का समय तय रखें और सोने से पहले स्क्रीन कम करें",
+      "tracking_low": "अपना स्कोर अधिक सटीक बनाने के लिए नियमित रूप से अपने वाइटल दर्ज करें (सप्ताह में 5 रीडिंग)",
+      "tracking_start": "अपना स्वास्थ्य स्कोर चालू करने के लिए अपने वाइटल (रक्तचाप, शुगर, वज़न) दर्ज करना शुरू करें"
+    },
+    "scoreOpen": "वाइटल्स खोलें",
+    "scoreEmpty": "अभी पर्याप्त डेटा नहीं है। स्कोर पाने के लिए अपने वाइटल्स दर्ज करें।",
+    "hubChronic": "पुरानी बीमारियाँ",
+    "hubChronicHint": "आपकी बीमारियाँ और फ़ॉलो-अप",
+    "hubTrends": "रुझान",
+    "hubTrendsHint": "आपके मापों के चार्ट",
+    "hubFamily": "परिवार",
+    "hubFamilyHint": "आपके परिवार के सदस्य और अनुमतियाँ",
+    "hubFamilyChat": "परिवार की चैट",
+    "hubFamilyChatHint": "अपने परिवार से बात करें",
+    "hubNursing": "घर पर नर्सिंग",
+    "hubNursingHint": "घर पर नर्सिंग देखभाल",
+    "hubPrograms": "मेरे प्रोग्राम",
+    "hubProgramsHint": "आपके चालू मेडिकल प्रोग्राम और सत्र",
+    "hubArticles": "स्वास्थ्य लेख",
+    "hubArticlesHint": "पढ़ें और जानें",
+    "hubChallenges": "मेरी चुनौतियाँ",
+    "hubChallengesHint": "पॉइंट और इनाम",
+    "hubMoreTitle": "और देखें",
+    "vitalsUnavailable": "महत्वपूर्ण संकेत लोड नहीं हो सके।",
+    "reportKind": {
+      "all": "सभी",
+      "lab": "लैब जाँच",
+      "radiology": "रेडियोलॉजी",
+      "notes": "मेडिकल नोट्स"
+    },
+    "reportsNoneOfKind": "इस प्रकार की कोई रिपोर्ट नहीं।",
+    "reportImportant": "महत्वपूर्ण",
+    "reportNew": "नया",
+    "reportsFromProviders": "प्रदाताओं की रिपोर्ट",
+    "reportAttachments": "प्रदाता की ओर से अटैचमेंट शामिल हैं",
+    "reportAlert": "रिपोर्ट में चेतावनी",
+    "rxShare": "साझा करें",
+    "rxOrder": "मँगवाएँ",
+    "rxShareTitle": "पर्चा — {doctor}",
+    "rxMedicines": "दवाइयाँ",
+    "reportsFilter": "रिपोर्ट का प्रकार",
+    "shareCopied": "कॉपी हो गया",
+    "reportEmptyTitle": "इस रिपोर्ट में कोई सामग्री नहीं है",
+    "reportEmptyBody": "प्रदाता ने अभी इस रिपोर्ट में कोई पाठ या परिणाम नहीं जोड़ा है।",
+    "ctx": {
+      "morning": "सुबह",
+      "afternoon": "दोपहर",
+      "evening": "शाम"
+    },
+    "readingWhen": "दिन का समय",
+    "historyAll": "सभी",
+    "doseSkip": "छोड़ें",
+    "refillConfirm": "रीफ़िल अनुरोध की पुष्टि करें",
+    "refillSent": "आपका रीफ़िल अनुरोध भेज दिया गया है।"
   },
   "Prescriptions": {
     "title": "पर्चे",
@@ -1191,7 +1295,11 @@
     "paymentAddPolicy": "बीमा जोड़ें",
     "doctorPhotoAlt": "{name} की तस्वीर",
     "clinicPhotosTitle": "क्लिनिक की तस्वीरें",
-    "clinicPhotoAlt": "क्लिनिक की तस्वीर {n}"
+    "clinicPhotoAlt": "क्लिनिक की तस्वीर {n}",
+    "bioTitle": "डॉक्टर के बारे में",
+    "infoTitle": "अतिरिक्त जानकारी",
+    "languagesLabel": "भाषाएँ",
+    "chooseDayTime": "दिन और समय चुनें"
   },
   "LabsServices": {
     "eyebrow": "प्रयोगशाला देखभाल",
@@ -1354,7 +1462,8 @@
     "recentTitle": "हाल की खोजें",
     "recentClear": "साफ़ करें",
     "trendingTitle": "अभी ट्रेंडिंग",
-    "tryTitle": "इनमें से कोई आज़माएँ"
+    "tryTitle": "इनमें से कोई आज़माएँ",
+    "seeAll": "सभी देखें ({count})"
   },
   "SearchSuggest": {
     "listLabel": "खोज सुझाव",
@@ -1450,7 +1559,35 @@
     "allCategories": "सभी श्रेणियाँ",
     "loadMore": "और देखें",
     "page": "पृष्ठ {page}",
-    "onlineOnly": "केवल ऑनलाइन"
+    "onlineOnly": "केवल ऑनलाइन",
+    "share": "साझा करें",
+    "suggestTitle": "संपादन सुझाएं",
+    "suggestFieldEdit": "डेटा संपादन (विवरण/सक्रिय घटक/उपयोग)",
+    "suggestImageRemove": "तस्वीर गलत — हटाएं",
+    "suggestShortage": "बाज़ार में आइटम कम",
+    "suggestDuplicate": "डुप्लिकेट आइटम — हटाएं",
+    "suggestOther": "अन्य नोट",
+    "suggestFieldDescription": "विवरण",
+    "suggestFieldIngredient": "सक्रिय घटक",
+    "suggestFieldUsage": "उपयोग निर्देश",
+    "suggestFieldDosage": "खुराक",
+    "suggestFieldMaker": "निर्माता",
+    "suggestFieldName": "नाम",
+    "suggestValueRequired": "सुझाया सही मान लिखें",
+    "suggestValuePlaceholder": "सुझाया सही मान",
+    "suggestNotePlaceholder": "अतिरिक्त नोट (वैकल्पिक)",
+    "suggestSend": "सुझाव भेजें",
+    "suggestSentTitle": "भेज दिया गया",
+    "suggestSentBody": "आपका सुझाव प्रबंधन पहुंचा, अनुमोदन पश्चात लागू होगा। धन्यवाद।",
+    "suggestFailTitle": "भेजना विफल रहा",
+    "suggestFailBody": "बाद में पुनः प्रयास करें",
+    "shareCopied": "लिंक कॉपी हो गया",
+    "shareFailed": "लिंक साझा नहीं हो सका। फिर से कोशिश करें।",
+    "suggestTypeLabel": "सुझाव का प्रकार",
+    "suggestFieldLabel": "सुधारा जाने वाला डेटा",
+    "suggestSending": "भेजा जा रहा है…",
+    "suggestSignIn": "अपना सुझाव भेजने के लिए साइन इन करें।",
+    "suggestSignInAction": "साइन इन"
   },
   "Wallet": {
     "wallet": "वॉलेट",
@@ -1493,7 +1630,8 @@
     "shortAddressInvalid": "संक्षिप्त पता चार अक्षरों और चार अंकों का होता है, जैसे {example}।",
     "shortAddressNotFound": "इस कोड के लिए कोई पता नहीं मिला। कोड जाँचकर फिर कोशिश करें।",
     "shortAddressUnavailable": "सऊदी पोस्ट अभी जवाब नहीं दे रही। आप अपने लिखे विवरण के साथ पता फिर भी सहेज सकते हैं।",
-    "removedToast": "पता हटा दिया गया।"
+    "removedToast": "पता हटा दिया गया।",
+    "makeDefault": "डिफ़ॉल्ट बनाएँ"
   },
   "ShareReport": {
     "title": "रिपोर्ट साझा करें",
@@ -1711,7 +1849,16 @@
     "submit": "रेटिंग भेजें",
     "submitting": "भेजा जा रहा है...",
     "thanks": "धन्यवाद! आपकी रेटिंग मिल गई।",
-    "error": "रेटिंग नहीं भेजी जा सकी। पुनः प्रयास करें।"
+    "error": "रेटिंग नहीं भेजी जा सकी। पुनः प्रयास करें।",
+    "tagsTitle": "क्या अच्छा रहा?",
+    "tags": {
+      "excellent": "उत्कृष्ट",
+      "fast": "तेज़",
+      "professional": "पेशेवर",
+      "clean": "साफ़-सुथरा",
+      "helpful": "मददगार",
+      "recommend": "मैं सुझाता हूँ"
+    }
   },
   "HomeVisitTracking": {
     "title": "होम विज़िट ट्रैकिंग",
@@ -1751,7 +1898,8 @@
   "SupportTicket": {
     "title": "सहायता टिकट",
     "back": "वापस",
-    "empty": "अभी कोई डेटा नहीं।"
+    "empty": "अभी कोई डेटा नहीं।",
+    "newRequest": "नया अनुरोध"
   },
   "HealthTimeline": {
     "title": "स्वास्थ्य समयरेखा",
@@ -1871,7 +2019,8 @@
     "viaPhoto": "फ़ोटो लें",
     "viaUpload": "अपलोड",
     "viaType": "नाम लिखें",
-    "errorBusy": "कम समय में बहुत अधिक प्रयास। एक मिनट रुकें, फिर दोबारा कोशिश करें।"
+    "errorBusy": "कम समय में बहुत अधिक प्रयास। एक मिनट रुकें, फिर दोबारा कोशिश करें।",
+    "privacy": "नुस्खा पहले सहेजा जाता है ताकि फ़ार्मासिस्ट उसे देख सके। इस स्क्रीन से कोई कीमत या भुगतान का तरीका नहीं जोड़ा जाता।"
   },
   "HubSeo": {
     "privacy": {
@@ -1925,7 +2074,7 @@
     "identifier": "ईमेल या मोबाइल नंबर",
     "hintIdentifier": "हम पुष्टि कोड यहीं भेजेंगे",
     "password": "पासवर्ड",
-    "hintPassword": "कम से कम 8 अक्षर",
+    "hintPassword": "कम से कम 10 अक्षर",
     "agree": "मैं <terms>शर्तों</terms> और <privacy>गोपनीयता नीति</privacy> से सहमत हूं",
     "submit": "खाता बनाएं",
     "busy": "खाता बनाया जा रहा है…",
@@ -1940,7 +2089,13 @@
     "rateLimited": "बहुत ज़्यादा कोशिशें। एक मिनट रुककर फिर कोशिश करें।",
     "incomplete": "पंजीकरण पूरा नहीं हो सका। हो सकता है आपका खाता बन चुका हो: साइन इन करके देखें या थोड़ी देर बाद फिर कोशिश करें।",
     "showPassword": "पासवर्ड दिखाएं",
-    "hidePassword": "पासवर्ड छिपाएं"
+    "hidePassword": "पासवर्ड छिपाएं",
+    "errName": "अपना नाम दर्ज करें (कम से कम 2 अक्षर)।",
+    "errIdentifier": "मान्य ईमेल या फ़ोन नंबर दर्ज करें।",
+    "errPassword": "पासवर्ड कम से कम 10 अक्षरों का होना चाहिए।",
+    "errMismatch": "दोनों पासवर्ड मेल नहीं खाते।",
+    "errAgree": "जारी रखने के लिए शर्तों और गोपनीयता नीति से सहमत हों।",
+    "confirm": "पासवर्ड की पुष्टि करें"
   },
   "Otp": {
     "title": "खाते का सत्यापन",
@@ -1961,7 +2116,8 @@
     "resent": "नया कोड भेज दिया गया है।",
     "resendFailed": "नया कोड नहीं भेजा जा सका। थोड़ी देर बाद फिर कोशिश करें।",
     "resendLimited": "आपने बहुत ज़्यादा कोड मंगाए हैं। कुछ मिनट बाद फिर कोशिश करें।",
-    "resendUnavailable": "अभी कोड नहीं भेज सकते। थोड़ी देर बाद फिर कोशिश करें।"
+    "resendUnavailable": "अभी कोड नहीं भेज सकते। थोड़ी देर बाद फिर कोशिश करें।",
+    "change": "ईमेल या फ़ोन बदलें"
   },
   "ForgotPassword": {
     "title": "पासवर्ड रीसेट करें",
@@ -1988,13 +2144,18 @@
     "back": "लॉगिन पर लौटें",
     "invalidToken": "कोड मान्य नहीं है या उसकी अवधि समाप्त हो गई है। नया कोड मंगाएं।",
     "mismatch": "दोनों पासवर्ड मेल नहीं खाते।",
-    "requestNew": "नया कोड मंगाएं"
+    "requestNew": "नया कोड मंगाएं",
+    "successTitle": "पासवर्ड अपडेट हो गया",
+    "signIn": "साइन इन करें",
+    "showPassword": "पासवर्ड दिखाएँ",
+    "hidePassword": "पासवर्ड छिपाएँ"
   },
   "Welcome": {
     "tagline": "देखभाल, और करीब",
     "guest": "अतिथि के रूप में जारी रखें",
     "register": "खाता बनाएं",
-    "login": "लॉग इन"
+    "login": "लॉग इन",
+    "guestFailed": "अतिथि के रूप में शुरू नहीं हो सका। फिर से कोशिश करें।"
   },
   "AuthFrame": {
     "back": "वापस",
@@ -2174,7 +2335,18 @@
     "imageCounter": "{n, number} / {total, number}",
     "previousImage": "पिछली तस्वीर",
     "nextImage": "अगली तस्वीर",
-    "inCartCta": "कार्ट में ({n, number})"
+    "inCartCta": "कार्ट में ({n, number})",
+    "hubUploadTitle": "पर्चा अपलोड करें",
+    "hubUploadBody": "इसकी फोटो लें, पास की फार्मेसियां आपकी दवाएं तैयार करेंगी और कीमत पर मुकाबला करेंगी",
+    "hubFavorites": "पसंदीदा",
+    "hubReminders": "रिमाइंडर",
+    "hubOrders": "मेरे ऑर्डर",
+    "hubCart": "कार्ट",
+    "hubShortcuts": "फ़ार्मेसी शॉर्टकट",
+    "hubOrderAgain": "अपना पिछला ऑर्डर फिर से करें",
+    "hubOrderAgainAction": "ऑर्डर करें",
+    "hubOneItem": "1 वस्तु",
+    "hubItems": "{n, number} वस्तुएं"
   },
   "PharmacyOffers": {
     "backToOrder": "ऑर्डर पर वापस",
@@ -2362,7 +2534,15 @@
     "paymentUnavailable": "इस ऑर्डर के लिए अभी ऑनलाइन भुगतान का कोई तरीका उपलब्ध नहीं है।",
     "loadingMethods": "भुगतान के तरीके लोड हो रहे हैं…",
     "deliveryEta": "डिलीवरी {time} में",
-    "rating": "रेटिंग {rating} ({count})"
+    "rating": "रेटिंग {rating} ({count})",
+    "lineUnnamed": "आइटम",
+    "quoteSubstitute": "विकल्प वाला आइटम",
+    "notifAskOffers": "सूचनाएँ चालू करें, ताकि फ़ार्मेसियों के ऑफ़र आते ही हम आपको बता सकें।",
+    "notifAskTurnOn": "सूचनाएँ चालू करें",
+    "checkPaymentStatus": "भुगतान की स्थिति देखें",
+    "quoteLinesLabel": "ऑफ़र की वस्तुएँ",
+    "notifAskBlocked": "इस ब्राउज़र में सूचनाएँ ब्लॉक हैं। अलर्ट पाने के लिए ब्राउज़र की साइट सेटिंग में उन्हें अनुमति दें।",
+    "notifAskFailed": "सूचनाएँ चालू नहीं हो सकीं। फिर से कोशिश करें।"
   },
   "PharmacyCheckout": {
     "title": "चेकआउट",
@@ -2464,7 +2644,10 @@
     "insuranceNaBody": "यह ऑर्डर बीमा के फ़ैसले का इंतज़ार नहीं कर रहा।",
     "confirmTitle": "ऑर्डर",
     "confirmNoOrderTitle": "कोई ऑर्डर नहीं बताया गया",
-    "confirmNoOrderBody": "अपने ऑर्डर में से कोई ऑर्डर खोलें, या नया अनुरोध शुरू करें।"
+    "confirmNoOrderBody": "अपने ऑर्डर में से कोई ऑर्डर खोलें, या नया अनुरोध शुरू करें।",
+    "pickupNote": "खुद लेने पर भी हम आपके पास की फ़ार्मेसियाँ खोजने के लिए आपके स्थान का उपयोग करते हैं।",
+    "orderCardTitle": "ऑर्डर #{number}",
+    "orderPickup": "फ़ार्मेसी से खुद लेना"
   },
   "ProductGallery": {
     "zoom": "छवि बड़ी करें",
@@ -2490,13 +2673,17 @@
     "callCourier": "डिलीवरी पार्टनर को कॉल करें",
     "liveChecking": "अपडेट देखे जा रहे हैं",
     "nextCheck": "अगली जाँच {time} में",
-    "refreshNow": "अभी रिफ़्रेश करें"
+    "refreshNow": "अभी रिफ़्रेश करें",
+    "chatPharmacist": "फ़ार्मासिस्ट को संदेश भेजें",
+    "pickupLine": "फ़ार्मेसी से लेना",
+    "deliveryLine": "घर तक डिलीवरी",
+    "legacyEta": "लगभग {minutes, number} मिनट में पहुँचेगा"
   },
   "OrderReorder": {
     "title": "फिर से ऑर्डर करें",
-    "lead": "वे चीज़ें चुनें जो आप कार्ट में जोड़ना चाहते हैं। अनुरोध भेजने पर फ़ार्मेसियाँ अपनी कीमतें फिर से भेजती हैं।",
+    "lead": "जिन वस्तुओं को दोबारा मँगवाना है उन्हें चुनें। अनुरोध भेजने पर फ़ार्मेसियाँ अपनी कीमतें फिर से भेजती हैं।",
     "linesLabel": "पिछले ऑर्डर की चीज़ें",
-    "rxNote": "पिछले ऑर्डर में पर्चे का इस्तेमाल हुआ था; चेकआउट पर वह फिर से चाहिए होगा।",
+    "rxNote": "पिछले ऑर्डर में पर्चा इस्तेमाल हुआ था: वह नए अनुरोध के साथ भेजा जाता है।",
     "skipped": "{count, plural, one {# चीज़ लिखकर किया गया अनुरोध थी और कैटलॉग में नहीं है, इसलिए कार्ट में नहीं जोड़ी जा सकती।} other {# चीज़ें लिखकर किए गए अनुरोध थीं और कैटलॉग में नहीं हैं, इसलिए कार्ट में नहीं जोड़ी जा सकतीं।}}",
     "sendRequest": "अनुरोध भेजें",
     "pickOne": "कम से कम एक चीज़ चुनें।",
@@ -2541,7 +2728,8 @@
       "in_progress": "जारी है",
       "completed": "पूर्ण",
       "cancelled": "रद्द",
-      "no_show": "अनुपस्थित"
+      "no_show": "अनुपस्थित",
+      "pending_copay": "आपके सह-भुगतान की प्रतीक्षा"
     },
     "insurancePendingTitle": "संस्था बीमा कंपनी से स्वीकृति माँग रही है",
     "insuranceDecidedTitle": "बीमा का निर्णय दर्ज हो गया",
@@ -2635,7 +2823,12 @@
     "callAudioOnly": "आपका कनेक्शन कमज़ोर है, इसलिए हमने वीडियो बंद करके आवाज़ चालू रखी है।",
     "callTryVideo": "वीडियो फिर से आज़माएँ",
     "callDropped": "कॉल कट गई।",
-    "callContinueInChat": "चैट में जारी रखें"
+    "callContinueInChat": "चैट में जारी रखें",
+    "statReviews": "समीक्षाएँ",
+    "copayTitle": "स्वीकृति मिल गई",
+    "copayBody": "मंज़ूर हो गया। परामर्श खोलने के लिए सह-भुगतान ({amount}) करें।",
+    "copayAction": "बीमा अनुरोध देखें और सुरक्षित भुगतान करें",
+    "actionDoctorProfile": "प्रोफ़ाइल देखें"
   },
   "ConsultClient": {
     "payHeading": "सुरक्षित गेटवे से भुगतान पूरा करें",
@@ -2691,7 +2884,12 @@
       "vitals": "स्वास्थ्य संकेतक देखें",
       "meds": "दवाएँ देखें",
       "reports": "रिपोर्ट देखें",
-      "appointments": "अपॉइंटमेंट देखें"
+      "appointments": "अपॉइंटमेंट देखें",
+      "booking": "उनकी ओर से बुकिंग",
+      "pharmacy": "फ़ार्मेसी से ऑर्डर",
+      "payment": "उनकी ओर से भुगतान",
+      "location": "लोकेशन साझा करना",
+      "emergency": "आपातकालीन अलर्ट"
     },
     "calendarTitle": "परिवार कैलेंडर",
     "calendarSub": "सबकी अपॉइंटमेंट और दवाएँ",
@@ -2783,7 +2981,58 @@
     "medsAddReminder": "दवा रिमाइंडर जोड़ें",
     "close": "बंद करें",
     "removeConfirmTitle": "इस सदस्य को परिवार से हटाएँ?",
-    "removeConfirmBody": "यह सदस्य अब परिवार की सूची में नहीं दिखेगा।"
+    "removeConfirmBody": "यह सदस्य अब परिवार की सूची में नहीं दिखेगा।",
+    "joinExisting": "मौजूदा परिवार से जुड़ें",
+    "defaultName": "मेरा परिवार",
+    "reqReplied": "जवाब भेज दिया गया। सदस्य को सूचित कर दिया गया है।",
+    "reqAllowed": "अनुमत",
+    "reqRefused": "अस्वीकृत",
+    "reqNote": "आप बाद में अनुमतियाँ बदल सकते हैं, और दूसरे व्यक्ति को हर बदलाव की सूचना दी जाएगी।",
+    "reqAccept": "अनुमतियाँ स्वीकार करें",
+    "reqDecline": "सब अस्वीकार करें",
+    "permsRequested": "अनुमति का अनुरोध मंज़ूरी के लिए सदस्य को भेज दिया गया।",
+    "ownerPermsTitle": "समूह के मालिक",
+    "ownerPermsBody": "मालिक की पहुँच यहाँ से प्रबंधित नहीं होती।",
+    "inviteShare": "आमंत्रण साझा करें",
+    "inviteShareMessage": "Nabd Plus पर मेरे परिवार से जुड़ें! ऐप में यह कोड डालें: {code}",
+    "invitePermsTitle": "अनुमतियाँ",
+    "invitePermsBody": "आमंत्रण स्वीकार होने के बाद आप सदस्य की अनुमतियाँ नियंत्रित करते हैं: रीडिंग, दवाइयाँ, उनकी ओर से बुकिंग और बहुत कुछ।",
+    "relation": {
+      "spouse": "जीवनसाथी",
+      "child": "बेटा/बेटी",
+      "parent": "माता/पिता",
+      "sibling": "भाई/बहन",
+      "caregiver": "देखभाल करने वाला",
+      "other": "अन्य"
+    },
+    "joinScan": "कैमरे से QR कोड स्कैन करें",
+    "joinDoneTitle": "आप परिवार से जुड़ गए!",
+    "joinDoneBody": "अब आप परिवार समूह से जुड़ गए हैं।",
+    "joinGoFamily": "मेरे परिवार पर जाएँ",
+    "memberChat": "परिवार की चैट",
+    "memberBook": "उनकी ओर से अपॉइंटमेंट बुक करें",
+    "calendarAdd": "इवेंट जोड़ें",
+    "calendarNewTitle": "नया पारिवारिक इवेंट",
+    "calendarEventTitle": "इवेंट का शीर्षक",
+    "calendarEventDate": "तारीख और समय",
+    "calendarMember": "सदस्य",
+    "calendarEventType": "इवेंट का प्रकार",
+    "calendarType": {
+      "appointment": "अपॉइंटमेंट",
+      "reminder": "रिमाइंडर",
+      "medication": "दवा",
+      "lab": "लैब टेस्ट"
+    },
+    "calendarSave": "इवेंट जोड़ें",
+    "calendarInvalid": "शीर्षक, तारीख, सदस्य और प्रकार सही प्रारूप में भरें।",
+    "calendarAddFailed": "इवेंट जोड़ा नहीं जा सका। फिर से कोशिश करें।",
+    "calendarDelete": "हटाएँ",
+    "calendarDeleteTitle": "इवेंट हटाएँ",
+    "calendarDeleteBody": "क्या आप वाकई इस इवेंट को परिवार के कैलेंडर से हटाना चाहते हैं?",
+    "calendarDeleteFailed": "इवेंट हटाया नहीं जा सका",
+    "memberAge": "{n} साल",
+    "vitalsTitle": "महत्वपूर्ण संकेत",
+    "noVitals": "कोई रीडिंग दर्ज नहीं है, या सदस्य ने उन्हें दिखाने की अनुमति नहीं दी है।"
   },
   "DiagWeb": {
     "retry": "फिर से कोशिश करें",
@@ -3001,7 +3250,9 @@
     "bookingNotSentTitle": "कोई बुकिंग नहीं हुई",
     "bookingNotSentBody": "यह विंडो अभी बुकिंग नहीं भेजती, इसलिए कोई अपॉइंटमेंट नहीं बना और कोई भुगतान नहीं लिया गया। विज़िट बुक करने के लिए नर्सिंग पेज खोलें।",
     "bookingNotSentCta": "नर्सिंग पेज पर जाएँ",
-    "bookingNotSentClose": "बंद करें"
+    "bookingNotSentClose": "बंद करें",
+    "approvalNoOrderTitle": "बीमा दिखाने के लिए कोई बुकिंग नहीं",
+    "approvalNoOrderBody": "बीमा चरण किसी बुकिंग से जुड़ा होता है। मंज़ूरी देखने या दस्तावेज़ अपलोड करने के लिए अपना कोई अनुरोध खोलें।"
   },
   "OrderContext": {
     "hint": "कुछ भी बदलते ही कीमतें और कवरेज तुरंत अपडेट होते हैं",
@@ -3126,7 +3377,36 @@
     "experienceLabel": "कार्य का अनुभव",
     "ratingLabel": "मरीज़ों की रेटिंग",
     "nurseServicesTitle": "उपलब्ध नर्सिंग सेवाएँ",
-    "requestNurse": "नर्सिंग विज़िट का अनुरोध करें"
+    "requestNurse": "नर्सिंग विज़िट का अनुरोध करें",
+    "prepTitle": "तैयारी",
+    "carePackages": "केयर पैकेज",
+    "rxNotice": "इस सेवा के लिए आपके डॉक्टर का पर्चा चाहिए। नर्स विज़िट से पहले उसे देखने को कहेगी।",
+    "sortTitle": "नर्सों का क्रम",
+    "sortAny": "कोई भी क्रम",
+    "sortRating": "सबसे ऊँची रेटिंग",
+    "filterGender": "नर्स का लिंग",
+    "gender_any": "कोई भी",
+    "gender_female": "महिला",
+    "gender_male": "पुरुष",
+    "ratingLine": "{rating} ({count})",
+    "yearsLine": "{count, plural, one {# वर्ष का अनुभव} other {# वर्ष का अनुभव}}",
+    "priceAtBooking": "कीमत बुकिंग के समय तय होगी",
+    "availableNow": "अभी उपलब्ध",
+    "notNow": "अभी उपलब्ध नहीं",
+    "degreeLabel": "योग्यता",
+    "nurseChooseService": "इस नर्स को बुक करने के लिए सेवा चुनें",
+    "nurseChooseServiceBody": "पहले होम-केयर सेवा चुनें। सेवा चुनने के बाद नर्स के खाली समय दिखेंगे।",
+    "visitPrice": "विज़िट की कीमत",
+    "confirmWithAmount": "बुकिंग की पुष्टि · {amount}",
+    "insFetched": "आपका सहेजा हुआ बीमा",
+    "insCompany": "कंपनी",
+    "insPolicy": "पॉलिसी नंबर",
+    "insNoPolicy": "आपकी फ़ाइल में कोई बीमा पॉलिसी नहीं है। अनुरोध भेजने से पहले जोड़ें।",
+    "insAddPolicy": "पॉलिसी जोड़ें",
+    "callNurse": "नर्स को कॉल करें",
+    "nurseOnMap": "नर्स को मानचित्र पर दिखाएँ",
+    "insuranceNone": "अभी कोई बीमा अनुरोध नहीं",
+    "insuranceNoneBody": "जब आप बीमा के साथ विज़िट का अनुरोध करेंगे, तो उसकी मंज़ूरी यहाँ दिखेगी।"
   },
   "MaternityWeb": {
     "title": "मातृत्व",
@@ -3944,7 +4224,24 @@
     "disconnectApp": "संपर्क हटाएँ",
     "disconnectFailed": "संपर्क नहीं हटाया जा सका। फिर से कोशिश करें।",
     "rowConnectedApps": "जुड़े हुए AI ऐप",
-    "rowConnectedAppsSub": "वे सहायक जिन्हें आपने अपने खाते की अनुमति दी"
+    "rowConnectedAppsSub": "वे सहायक जिन्हें आपने अपने खाते की अनुमति दी",
+    "changePasswordTitle": "पासवर्ड बदलें",
+    "currentPassword": "वर्तमान पासवर्ड",
+    "newPassword": "नया पासवर्ड",
+    "repeatPassword": "नया पासवर्ड दोबारा लिखें",
+    "currentRequired": "अपना वर्तमान पासवर्ड दर्ज करें।",
+    "passwordTooShort": "नया पासवर्ड कम से कम 10 अक्षरों का होना चाहिए।",
+    "passwordMismatch": "दोनों पासवर्ड मेल नहीं खाते।",
+    "currentWrong": "वर्तमान पासवर्ड गलत है।",
+    "passwordChangeFailed": "पासवर्ड नहीं बदला जा सका। फिर से कोशिश करें।",
+    "passwordChanged": "पासवर्ड बदल गया। आपके अन्य उपकरण साइन आउट हो गए।",
+    "savePassword": "पासवर्ड बदलें",
+    "sessionCurrent": "यह उपकरण",
+    "sessionLastSeen": "आखिरी गतिविधि {when}",
+    "sessionEndConfirm": "साइन आउट की पुष्टि करें",
+    "deleteIntro": "इससे आपका खाता और स्वास्थ्य डेटा हमेशा के लिए हट जाएगा। इसे वापस नहीं किया जा सकता।",
+    "deleteContinue": "जारी रखें",
+    "callSupport": "सहायता को कॉल करें"
   },
   "AccountWeb": {
     "profileTitle": "मेरा खाता",
@@ -3985,7 +4282,9 @@
     "mapIdleBody": "सूची से कोई सुविधा चुनें, वह रास्ते के साथ नक्शे पर दिखेगी।",
     "mapIdleNote": "ओपन-सोर्स नक्शे जो आपकी गोपनीयता की रक्षा करते हैं।",
     "mapUnavailable": "केंद्र लोड नहीं हो सके। फिर से कोशिश करें।",
-    "mapRetry": "फिर से कोशिश करें"
+    "mapRetry": "फिर से कोशिश करें",
+    "guestTitle": "आप अतिथि खाते का उपयोग कर रहे हैं",
+    "guestBody": "अपनी जानकारी, ऑर्डर और रिकॉर्ड देखने के लिए साइन इन करें या खाता बनाएँ।"
   },
   "ReturnsWeb": {
     "newRequest": "नया रिटर्न अनुरोध",
@@ -4508,6 +4807,12 @@
     "secTurn": "नतीजे का समय",
     "secSample": "नमूना",
     "providers": "{m} प्रदाता आपके संदर्भ के अनुसार",
+    "fromLine": "{p} से शुरू · {m} प्रदाता",
+    "sample_blood": "रक्त",
+    "sample_semen": "वीर्य",
+    "sample_stool": "मल",
+    "sample_swab": "स्वैब",
+    "sample_urine": "मूत्र",
     "homeFeeNote": "कीमत में विज़िट शुल्क शामिल है क्योंकि आपने \"घर पर\" चुना",
     "covNote": "कवरेज और हिस्सा अनुमानित हैं। अंतिम हिस्सा मंज़ूरी के साथ मिलता है",
     "covYes": "कवर्ड",
@@ -4810,7 +5115,8 @@
     "resInRange": "सीमा में",
     "resHigh": "सीमा से ऊपर",
     "resLow": "सीमा से नीचे",
-    "resDiscuss": "डॉक्टर से चर्चा करें"
+    "resDiscuss": "डॉक्टर से चर्चा करें",
+    "resTrend": "आपके नतीजों में रुझान"
   },
   "InstantConsult": {
     "title": "तुरंत परामर्श",
