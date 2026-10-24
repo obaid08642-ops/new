@@ -103,3 +103,5 @@
 .skipped { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
 .pickList { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
 .pickList > li:first-child { border-block-start: 0; }
+
+.kindChips { display: flex; flex-wrap: wrap; gap: var(--nabd-space-sm); }

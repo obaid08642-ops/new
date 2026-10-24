@@ -305,7 +305,17 @@
       "returns": "वापसी अनुरोध"
     },
     "statusUnavailable": "स्थिति उपलब्ध नहीं",
-    "partialNote": "कुछ ऑर्डर लोड नहीं हो सके। बाकी नीचे दिखाए गए हैं, थोड़ी देर बाद फिर कोशिश करें।"
+    "partialNote": "कुछ ऑर्डर लोड नहीं हो सके। बाकी नीचे दिखाए गए हैं, थोड़ी देर बाद फिर कोशिश करें।",
+    "filterLabel": "सेवा के अनुसार फ़िल्टर",
+    "filterAll": "सभी",
+    "filterKind": {
+      "pharmacy": "फ़ार्मेसी",
+      "consultation": "डॉक्टर",
+      "labs": "लैब टेस्ट",
+      "radiology": "रेडियोलॉजी",
+      "nursing": "नर्सिंग",
+      "returns": "वापसी और रिफ़ंड"
+    }
   },
   "Cart": {
     "eyebrow": "निजी कार्ट",
@@ -1530,7 +1540,35 @@
     "allCategories": "सभी श्रेणियाँ",
     "loadMore": "और देखें",
     "page": "पृष्ठ {page}",
-    "onlineOnly": "केवल ऑनलाइन"
+    "onlineOnly": "केवल ऑनलाइन",
+    "share": "साझा करें",
+    "suggestTitle": "संपादन सुझाएं",
+    "suggestFieldEdit": "डेटा संपादन (विवरण/सक्रिय घटक/उपयोग)",
+    "suggestImageRemove": "तस्वीर गलत — हटाएं",
+    "suggestShortage": "बाज़ार में आइटम कम",
+    "suggestDuplicate": "डुप्लिकेट आइटम — हटाएं",
+    "suggestOther": "अन्य नोट",
+    "suggestFieldDescription": "विवरण",
+    "suggestFieldIngredient": "सक्रिय घटक",
+    "suggestFieldUsage": "उपयोग निर्देश",
+    "suggestFieldDosage": "खुराक",
+    "suggestFieldMaker": "निर्माता",
+    "suggestFieldName": "नाम",
+    "suggestValueRequired": "सुझाया सही मान लिखें",
+    "suggestValuePlaceholder": "सुझाया सही मान",
+    "suggestNotePlaceholder": "अतिरिक्त नोट (वैकल्पिक)",
+    "suggestSend": "सुझाव भेजें",
+    "suggestSentTitle": "भेज दिया गया",
+    "suggestSentBody": "आपका सुझाव प्रबंधन पहुंचा, अनुमोदन पश्चात लागू होगा। धन्यवाद।",
+    "suggestFailTitle": "भेजना विफल रहा",
+    "suggestFailBody": "बाद में पुनः प्रयास करें",
+    "shareCopied": "लिंक कॉपी हो गया",
+    "shareFailed": "लिंक साझा नहीं हो सका। फिर से कोशिश करें।",
+    "suggestTypeLabel": "सुझाव का प्रकार",
+    "suggestFieldLabel": "सुधारा जाने वाला डेटा",
+    "suggestSending": "भेजा जा रहा है…",
+    "suggestSignIn": "अपना सुझाव भेजने के लिए साइन इन करें।",
+    "suggestSignInAction": "साइन इन"
   },
   "Wallet": {
     "wallet": "वॉलेट",
@@ -1953,7 +1991,8 @@
     "viaPhoto": "फ़ोटो लें",
     "viaUpload": "अपलोड",
     "viaType": "नाम लिखें",
-    "errorBusy": "कम समय में बहुत अधिक प्रयास। एक मिनट रुकें, फिर दोबारा कोशिश करें।"
+    "errorBusy": "कम समय में बहुत अधिक प्रयास। एक मिनट रुकें, फिर दोबारा कोशिश करें।",
+    "privacy": "नुस्खा पहले सहेजा जाता है ताकि फ़ार्मासिस्ट उसे देख सके। इस स्क्रीन से कोई कीमत या भुगतान का तरीका नहीं जोड़ा जाता।"
   },
   "HubSeo": {
     "privacy": {
@@ -2268,7 +2307,18 @@
     "imageCounter": "{n, number} / {total, number}",
     "previousImage": "पिछली तस्वीर",
     "nextImage": "अगली तस्वीर",
-    "inCartCta": "कार्ट में ({n, number})"
+    "inCartCta": "कार्ट में ({n, number})",
+    "hubUploadTitle": "पर्चा अपलोड करें",
+    "hubUploadBody": "इसकी फोटो लें, पास की फार्मेसियां आपकी दवाएं तैयार करेंगी और कीमत पर मुकाबला करेंगी",
+    "hubFavorites": "पसंदीदा",
+    "hubReminders": "रिमाइंडर",
+    "hubOrders": "मेरे ऑर्डर",
+    "hubCart": "कार्ट",
+    "hubShortcuts": "फ़ार्मेसी शॉर्टकट",
+    "hubOrderAgain": "अपना पिछला ऑर्डर फिर से करें",
+    "hubOrderAgainAction": "ऑर्डर करें",
+    "hubOneItem": "1 वस्तु",
+    "hubItems": "{n, number} वस्तुएं"
   },
   "PharmacyOffers": {
     "backToOrder": "ऑर्डर पर वापस",
@@ -2456,7 +2506,15 @@
     "paymentUnavailable": "इस ऑर्डर के लिए अभी ऑनलाइन भुगतान का कोई तरीका उपलब्ध नहीं है।",
     "loadingMethods": "भुगतान के तरीके लोड हो रहे हैं…",
     "deliveryEta": "डिलीवरी {time} में",
-    "rating": "रेटिंग {rating} ({count})"
+    "rating": "रेटिंग {rating} ({count})",
+    "lineUnnamed": "आइटम",
+    "quoteSubstitute": "विकल्प वाला आइटम",
+    "notifAskOffers": "सूचनाएँ चालू करें, ताकि फ़ार्मेसियों के ऑफ़र आते ही हम आपको बता सकें।",
+    "notifAskTurnOn": "सूचनाएँ चालू करें",
+    "checkPaymentStatus": "भुगतान की स्थिति देखें",
+    "quoteLinesLabel": "ऑफ़र की वस्तुएँ",
+    "notifAskBlocked": "इस ब्राउज़र में सूचनाएँ ब्लॉक हैं। अलर्ट पाने के लिए ब्राउज़र की साइट सेटिंग में उन्हें अनुमति दें।",
+    "notifAskFailed": "सूचनाएँ चालू नहीं हो सकीं। फिर से कोशिश करें।"
   },
   "PharmacyCheckout": {
     "title": "चेकआउट",
@@ -2558,7 +2616,10 @@
     "insuranceNaBody": "यह ऑर्डर बीमा के फ़ैसले का इंतज़ार नहीं कर रहा।",
     "confirmTitle": "ऑर्डर",
     "confirmNoOrderTitle": "कोई ऑर्डर नहीं बताया गया",
-    "confirmNoOrderBody": "अपने ऑर्डर में से कोई ऑर्डर खोलें, या नया अनुरोध शुरू करें।"
+    "confirmNoOrderBody": "अपने ऑर्डर में से कोई ऑर्डर खोलें, या नया अनुरोध शुरू करें।",
+    "pickupNote": "खुद लेने पर भी हम आपके पास की फ़ार्मेसियाँ खोजने के लिए आपके स्थान का उपयोग करते हैं।",
+    "orderCardTitle": "ऑर्डर #{number}",
+    "orderPickup": "फ़ार्मेसी से खुद लेना"
   },
   "ProductGallery": {
     "zoom": "छवि बड़ी करें",
@@ -2584,13 +2645,17 @@
     "callCourier": "डिलीवरी पार्टनर को कॉल करें",
     "liveChecking": "अपडेट देखे जा रहे हैं",
     "nextCheck": "अगली जाँच {time} में",
-    "refreshNow": "अभी रिफ़्रेश करें"
+    "refreshNow": "अभी रिफ़्रेश करें",
+    "chatPharmacist": "फ़ार्मासिस्ट को संदेश भेजें",
+    "pickupLine": "फ़ार्मेसी से लेना",
+    "deliveryLine": "घर तक डिलीवरी",
+    "legacyEta": "लगभग {minutes, number} मिनट में पहुँचेगा"
   },
   "OrderReorder": {
     "title": "फिर से ऑर्डर करें",
-    "lead": "वे चीज़ें चुनें जो आप कार्ट में जोड़ना चाहते हैं। अनुरोध भेजने पर फ़ार्मेसियाँ अपनी कीमतें फिर से भेजती हैं।",
+    "lead": "जिन वस्तुओं को दोबारा मँगवाना है उन्हें चुनें। अनुरोध भेजने पर फ़ार्मेसियाँ अपनी कीमतें फिर से भेजती हैं।",
     "linesLabel": "पिछले ऑर्डर की चीज़ें",
-    "rxNote": "पिछले ऑर्डर में पर्चे का इस्तेमाल हुआ था; चेकआउट पर वह फिर से चाहिए होगा।",
+    "rxNote": "पिछले ऑर्डर में पर्चा इस्तेमाल हुआ था: वह नए अनुरोध के साथ भेजा जाता है।",
     "skipped": "{count, plural, one {# चीज़ लिखकर किया गया अनुरोध थी और कैटलॉग में नहीं है, इसलिए कार्ट में नहीं जोड़ी जा सकती।} other {# चीज़ें लिखकर किए गए अनुरोध थीं और कैटलॉग में नहीं हैं, इसलिए कार्ट में नहीं जोड़ी जा सकतीं।}}",
     "sendRequest": "अनुरोध भेजें",
     "pickOne": "कम से कम एक चीज़ चुनें।",

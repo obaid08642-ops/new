@@ -305,7 +305,17 @@
       "returns": "Kahilingan sa pagbabalik"
     },
     "statusUnavailable": "Hindi available ang status",
-    "partialNote": "May mga order na hindi ma-load. Nasa ibaba ang iba; subukan muli sa ilang sandali."
+    "partialNote": "May mga order na hindi ma-load. Nasa ibaba ang iba; subukan muli sa ilang sandali.",
+    "filterLabel": "I-filter ayon sa serbisyo",
+    "filterAll": "Lahat",
+    "filterKind": {
+      "pharmacy": "Botika",
+      "consultation": "Mga doktor",
+      "labs": "Lab test",
+      "radiology": "Radyolohiya",
+      "nursing": "Pangangalaga ng nars",
+      "returns": "Mga return at refund"
+    }
   },
   "Cart": {
     "eyebrow": "Pribadong cart",
@@ -1530,7 +1540,35 @@
     "allCategories": "Lahat ng kategorya",
     "loadMore": "Mag-load pa",
     "page": "Pahina {page}",
-    "onlineOnly": "Online lang"
+    "onlineOnly": "Online lang",
+    "share": "I-share",
+    "suggestTitle": "Magmungkahi ng pag-edit",
+    "suggestFieldEdit": "I-edit ang datos (paglalarawan/aktibong sangkap/paggamit)",
+    "suggestImageRemove": "Mali ang larawan — alisin",
+    "suggestShortage": "Kulang ang item sa merkado",
+    "suggestDuplicate": "Nadobleng item — tanggalin",
+    "suggestOther": "Ibang tala",
+    "suggestFieldDescription": "Paglalarawan",
+    "suggestFieldIngredient": "Aktibong sangkap",
+    "suggestFieldUsage": "Mga tagubilin sa paggamit",
+    "suggestFieldDosage": "Dosis",
+    "suggestFieldMaker": "Tagagawa",
+    "suggestFieldName": "Pangalan",
+    "suggestValueRequired": "I-type ang iminumungkahing tamang halaga",
+    "suggestValuePlaceholder": "Iminungkahing tamang halaga",
+    "suggestNotePlaceholder": "Karagdagang tala (opsyonal)",
+    "suggestSend": "Ipadala ang mungkahi",
+    "suggestSentTitle": "Naipadala",
+    "suggestSentBody": "Nakarating ang iyong mungkahi sa pamunuan at ipatutupad pagkatapos ng pag-apruba. Salamat.",
+    "suggestFailTitle": "Hindi naipadala",
+    "suggestFailBody": "Subukang muli mamaya",
+    "shareCopied": "Nakopya ang link",
+    "shareFailed": "Hindi maibahagi ang link. Subukan muli.",
+    "suggestTypeLabel": "Uri ng mungkahi",
+    "suggestFieldLabel": "Datos na itatama",
+    "suggestSending": "Ipinapadala…",
+    "suggestSignIn": "Mag-sign in para maipadala ang iyong mungkahi.",
+    "suggestSignInAction": "Mag-sign in"
   },
   "Wallet": {
     "wallet": "Wallet",
@@ -1953,7 +1991,8 @@
     "viaPhoto": "Kunan",
     "viaUpload": "I-upload",
     "viaType": "I-type ang pangalan",
-    "errorBusy": "Masyadong maraming subok sa maikling oras. Maghintay ng isang minuto, saka subukan muli."
+    "errorBusy": "Masyadong maraming subok sa maikling oras. Maghintay ng isang minuto, saka subukan muli.",
+    "privacy": "Sine-save muna ang reseta para masuri ng parmasyutiko. Walang presyo o paraan ng pagbabayad na idinaragdag mula sa screen na ito."
   },
   "HubSeo": {
     "privacy": {
@@ -2268,7 +2307,18 @@
     "imageCounter": "{n, number} / {total, number}",
     "previousImage": "Nakaraang larawan",
     "nextImage": "Susunod na larawan",
-    "inCartCta": "Nasa cart ({n, number})"
+    "inCartCta": "Nasa cart ({n, number})",
+    "hubUploadTitle": "I-upload ang reseta",
+    "hubUploadBody": "Kunan ito ng litrato at ihahanda ng mga kalapit na botika ang iyong mga gamot at magpapaligsahan sa presyo",
+    "hubFavorites": "Mga paborito",
+    "hubReminders": "Mga paalala",
+    "hubOrders": "Aking mga order",
+    "hubCart": "Kariton",
+    "hubShortcuts": "Mga shortcut ng parmasya",
+    "hubOrderAgain": "Ulitin ang nakaraang order",
+    "hubOrderAgainAction": "Mag-order",
+    "hubOneItem": "1 aytem",
+    "hubItems": "{n, number} aytem"
   },
   "PharmacyOffers": {
     "backToOrder": "Bumalik sa order",
@@ -2456,7 +2506,15 @@
     "paymentUnavailable": "Walang available na online na paraan ng pagbabayad para sa order na ito ngayon.",
     "loadingMethods": "Nilo-load ang mga paraan ng pagbabayad…",
     "deliveryEta": "Darating sa loob ng {time}",
-    "rating": "Puntos {rating} ({count})"
+    "rating": "Puntos {rating} ({count})",
+    "lineUnnamed": "Produkto",
+    "quoteSubstitute": "Kapalit na item",
+    "notifAskOffers": "I-on ang mga notification para masabihan ka namin agad kapag nagpadala na ng mga alok ang mga parmasya.",
+    "notifAskTurnOn": "I-on ang mga notification",
+    "checkPaymentStatus": "Tingnan ang status ng bayad",
+    "quoteLinesLabel": "Mga item ng alok",
+    "notifAskBlocked": "Naka-block ang mga notification sa browser na ito. Payagan ang mga ito sa site settings ng iyong browser para makatanggap ng mga alerto.",
+    "notifAskFailed": "Hindi ma-on ang mga notification. Subukan muli."
   },
   "PharmacyCheckout": {
     "title": "Pag-checkout",
@@ -2558,7 +2616,10 @@
     "insuranceNaBody": "Hindi naghihintay ng desisyon ng insurance ang order na ito.",
     "confirmTitle": "Tungkol sa order",
     "confirmNoOrderTitle": "Walang pinangalanang order",
-    "confirmNoOrderBody": "Magbukas ng order mula sa mga order mo, o magsimula ng bagong kahilingan."
+    "confirmNoOrderBody": "Magbukas ng order mula sa mga order mo, o magsimula ng bagong kahilingan.",
+    "pickupNote": "Kahit pickup, gagamitin pa rin namin ang iyong lokasyon para hanapin ang mga kalapit na parmasya.",
+    "orderCardTitle": "Numero ng order: {number}",
+    "orderPickup": "Kunin sa parmasya"
   },
   "ProductGallery": {
     "zoom": "Palakihin ang larawan",
@@ -2584,13 +2645,17 @@
     "callCourier": "Tawagan ang rider",
     "liveChecking": "Tinitingnan ang mga update",
     "nextCheck": "susunod na tingin sa loob ng {time}",
-    "refreshNow": "I-refresh ngayon"
+    "refreshNow": "I-refresh ngayon",
+    "chatPharmacist": "Padalhan ng mensahe ang parmasyutiko",
+    "pickupLine": "Kunin sa parmasya",
+    "deliveryLine": "Paghahatid sa bahay",
+    "legacyEta": "Darating sa mga {minutes, number} minuto"
   },
   "OrderReorder": {
     "title": "Mag-order ulit",
-    "lead": "Piliin ang mga item na idadagdag sa kariton mo. Ipinapadala ulit ng mga botika ang kanilang mga presyo kapag ipinadala mo ang kahilingan.",
+    "lead": "Piliin ang mga item na gusto mong i-order muli. Ipapadala muli ng mga parmasya ang kanilang mga presyo kapag ipinadala mo ang kahilingan.",
     "linesLabel": "Mga item ng naunang order",
-    "rxNote": "May reseta ang naunang order; kakailanganin ulit ito sa checkout.",
+    "rxNote": "May reseta ang nakaraang order: ipapadala ito kasama ng bagong kahilingan.",
     "skipped": "{count, plural, one {# item ang isinulat na kahilingan at wala sa katalogo, kaya hindi maidaragdag sa kariton.} other {# na item ang isinulat na kahilingan at wala sa katalogo, kaya hindi maidaragdag sa kariton.}}",
     "sendRequest": "Magpadala ng kahilingan",
     "pickOne": "Pumili ng kahit isang item.",
