@@ -20,7 +20,8 @@ const coord = (v: unknown, lim: number): number | null => {
 export function nurseFilterClauses(q: NurseListQuery): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   const nationality = str(q?.nationality, 60);
-  if (nationality) out.nationality = { $eq: nationality };
+  // the clients send `nationality=any` (and `availability=any`) for "no filter": that is not a nationality to match
+  if (nationality && !/^(any|all)$/i.test(nationality)) out.nationality = { $eq: nationality };
   if (q?.available === 'true') out['availability.accepting'] = { $ne: false };
   return out;
 }
