@@ -144,6 +144,15 @@ export class UpdateNotificationSettingsDto {
   @IsBoolean()
   general?: boolean;
 
+  // appointments / orders are the categories of the same name (stored there).
+  @IsOptional()
+  @IsBoolean()
+  appointments?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  orders?: boolean;
+
   @IsOptional()
   @IsBoolean()
   offers?: boolean;

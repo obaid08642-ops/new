@@ -27,6 +27,7 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiPath("/health/vitals-log")).toBe(true);
     expect(isAllowedPatientApiPath("/users/me/profile")).toBe(true);
     expect(isAllowedPatientApiPath("/users/me/notification-settings")).toBe(true);
+    expect(isAllowedPatientApiPath("/notifications/unread-count")).toBe(true);
     expect(isAllowedPatientApiPath("/users/me/wishlist")).toBe(true);
     expect(isAllowedPatientApiPath("/payments/pharmacy/91047ef2-ad36-422a-a184-629693e7c729/capabilities")).toBe(true);
     expect(isAllowedPatientApiPath("/pharmacy/chat/threads?order_id=91047ef2-ad36-422a-a184-629693e7c729")).toBe(true);
