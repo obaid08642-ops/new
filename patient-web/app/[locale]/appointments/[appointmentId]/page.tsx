@@ -5,7 +5,8 @@ import { getPatientAppointment } from "@/lib/api/appointments-server";
 import { callPatientApi } from "@/lib/api/upstream";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { isDone, isOpen, MODE_VISUAL, modeOf, statusKey, statusTone } from "@/lib/consult/appointment-view";
+import { formatPrice } from "@/lib/format-price";
+import { isDone, isJoinable, isOpen, MODE_VISUAL, modeOf, statusKey, statusTone } from "@/lib/consult/appointment-view";
 import { PrescriptionClient } from "@/components-next/prescription-client";
 import { CallTokenLauncher } from "@/components-next/call-token-launcher";
 import { readTelehealthConsent } from "@/lib/legal/telehealth-consent";
@@ -42,6 +43,7 @@ export default async function AppointmentDetailPage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("Appointments");
   const c = await getTranslations("ConsultWeb");
+  const pay = await getTranslations("BookConsultation");
   const rs = await getTranslations("RouteState");
   const token = await requirePatientAccess(locale);
   const response = await getPatientAppointment(token, appointmentId);
@@ -101,6 +103,12 @@ export default async function AppointmentDetailPage({ params }: Props) {
   if (appointment.slotStart) rows.push({ label: t("scheduled"), value: <LocalTimeLine iso={appointment.slotStart} locale={locale} />, icon: "calendar-dots", tone: SERVICE_ICONS.health.tone });
   const specialty = specialtyFor(appointment, locale);
   if (specialty) rows.push({ label: t("specialty"), value: specialty, icon: "stethoscope", tone: "blue" });
+  const method = appointment.paymentMethod?.toLowerCase();
+  if (method === "cash" || method === "card" || method === "insurance") rows.push({ label: t("paymentMethodLabel"), value: pay(`pay.${method}`), icon: "shield-check", tone: "blue" });
+  rows.push({ label: t("bookingNumber"), value: appointmentId.slice(0, 8).toUpperCase(), icon: "check-circle", tone: "blue" });
+  if (appointment.price !== undefined) rows.push({ label: t("amount"), value: formatPrice(locale, appointment.price).text, icon: "check-circle", tone: "blue" });
+  const confirmed = isJoinable(appointment.status);
+  const copayDue = appointment.status?.toLowerCase() === "pending_copay";
 
   return (
     <ConsultPage locale={locale} title={appointment.doctorName || serviceLabel} backHref={back}>
@@ -129,9 +137,21 @@ export default async function AppointmentDetailPage({ params }: Props) {
         </>
       ) : null}
 
-      {open ? (
-        <ActionLinks actions={[{ href: `/${locale}/consultations/booking-status?appointmentId=${id}`, label: c("actionBookingStatus"), variant: "outline" }]} />
+      {copayDue ? (
+        <SectionCard id="appointment-copay" title={c("copayTitle")}>
+          <p className={styles.body}>{c("copayBody", { amount: formatPrice(locale, appointment.copayAmount ?? 0).text })}</p>
+          {appointment.insuranceRequestId ? <ActionLinks actions={[{ href: `/${locale}/insurance/requests/${appointment.insuranceRequestId}`, label: c("copayAction") }]} /> : null}
+        </SectionCard>
       ) : null}
+      {open ? (
+        <ActionLinks actions={[
+          ...(confirmed && mode === "clinic" ? [{ href: `/${locale}/consultations/booking-status?appointmentId=${id}&view=location`, label: c("actionLocation") }] : []),
+          ...(confirmed && mode === "home" ? [{ href: `/${locale}/consultations/home-visit-tracking?appointmentId=${id}`, label: c("actionTrack") }] : []),
+          ...(confirmed && mode === "video" ? [{ href: `/${locale}/consultations/virtual-waiting-room?appointmentId=${id}`, label: c("actionWaitingRoom") }] : []),
+          { href: `/${locale}/consultations/booking-status?appointmentId=${id}`, label: c("actionBookingStatus"), variant: "outline" as const },
+        ]} />
+      ) : null}
+      {doctorId ? <ActionLinks actions={[{ href: `/${locale}/consultations/doctors/${encodeURIComponent(doctorId)}`, label: c("actionDoctorProfile"), variant: "outline" }]} /> : null}
       {doctorId ? <ActionLinks actions={[{ href: `/${locale}/appointments/${id}/chat`, label: c("actionChatDoctor"), variant: "outline" }]} /> : null}
 
       {done ? (

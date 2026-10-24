@@ -13,6 +13,10 @@ vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
 // the shell is a client component with its own tests (core-screens); the page's own markup is what is under test here
 vi.mock("@/components-next/core/core-shell", () => ({ CoreShell: ({ children }: { children: ReactNode }) => <div data-shell>{children}</div> }));
 
+vi.mock("@/components-next/consult/consult-page", () => ({ ConsultPage: ({ children }: { children: ReactNode }) => <div data-shell>{children}</div> }));
+vi.mock("@/components-next/consult/link-segmented", () => ({ LinkSegmented: () => <nav /> }));
+
+import RecordsPage from "../health/records/page";
 import PrescriptionsPage from "./page";
 import PrescriptionDetailPage from "./[prescriptionId]/page";
 
@@ -20,7 +24,17 @@ const prescriptionId = "91047ef2-ad36-422a-a184-629693e7c729";
 const serverToken = "server-only-prescription-token-never-in-html";
 const fileUrl = "https://example.test/private-prescription.pdf";
 
-describe("prescriptions list SSR boundary", () => {
+describe("the old prescriptions route", () => {
+  it("goes to the Prescriptions tab of the records screen, the one list", async () => {
+    const navigation = await import("next/navigation");
+    await PrescriptionsPage({ params: Promise.resolve({ locale: "en" }) });
+    expect(navigation.redirect).toHaveBeenCalledWith("/en/health/records?tab=prescriptions");
+  });
+});
+
+const records = async () => renderToStaticMarkup(await RecordsPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ tab: "prescriptions" }) }));
+
+describe("prescriptions list SSR boundary (the records tab)", () => {
   beforeEach(() => {
     state.getPatientPrescriptions.mockReset();
     state.requirePatientAccess.mockReset().mockResolvedValue(serverToken);
@@ -29,7 +43,7 @@ describe("prescriptions list SSR boundary", () => {
   it("renders bounded patient prescription metadata without diagnosis, instructions, file, or token", async () => {
     state.getPatientPrescriptions.mockResolvedValue(new Response(JSON.stringify({ prescriptions: [{ id: prescriptionId, state: "CREATED_BY_DOCTOR", createdAt: "2026-08-20T10:00:00.000Z", items: [{ medicine_name_ar: "visible-medicine", dose: "private-dose", instructions: "private-instructions" }], patient_id: "private-patient", diagnosis: "private-diagnosis", notes: "private-notes", upload_image: fileUrl }] }), { status: 200 }));
 
-    const html = renderToStaticMarkup(await PrescriptionsPage({ params: Promise.resolve({ locale: "en" }) }));
+    const html = await records();
 
     expect(state.getPatientPrescriptions).toHaveBeenCalledWith(serverToken);
     // F32: the raw state enum must never reach the user: only its translation key.
@@ -45,14 +59,14 @@ describe("prescriptions list SSR boundary", () => {
 
   it("says there are none, with the way to upload one, instead of drawing an empty list", async () => {
     state.getPatientPrescriptions.mockResolvedValue(new Response(JSON.stringify([]), { status: 200 }));
-    const html = renderToStaticMarkup(await PrescriptionsPage({ params: Promise.resolve({ locale: "en" }) }));
+    const html = await records();
     expect(html).toContain("emptyTitle");
     expect(html).not.toContain("<ul");
   });
 
   it("shows the retry state when the list cannot be read", async () => {
     state.getPatientPrescriptions.mockResolvedValue(new Response(null, { status: 503 }));
-    const html = renderToStaticMarkup(await PrescriptionsPage({ params: Promise.resolve({ locale: "en" }) }));
+    const html = await records();
     expect(html).toContain('role="alert"');
     expect(html).toContain("unavailableTitle");
   });

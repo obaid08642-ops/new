@@ -3,6 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { callPatientApi } from "@/lib/api/upstream";
+import { resolveProductGallery } from "@/lib/api/public-products-server";
+import { CatalogImage } from "@/components-next/pharmacy/catalog-image";
+import { CompareAddButton } from "@/components-next/pharmacy/compare-add-button";
+import { allowedImageUrl } from "@/lib/image-hosts";
 import { getDirection, isLocale } from "@/lib/i18n";
 import { hubMetadata } from "@/lib/seo";
 import { formatPrice } from "@/lib/format-price";
@@ -51,6 +55,7 @@ export default async function MedicineComparePage({ params, searchParams }: Prop
   const prices = items.map((m) => (typeof m.price === "number" && m.price > 0 ? m.price : null)).filter((p): p is number => p !== null);
   const cheapest = prices.length >= 2 ? Math.min(...prices) : null;
   const lowest = (await getTranslations("PharmacyOffers"))("lowestPrice");
+  const cartLabel = (await getTranslations("CartScreen"))("title");
   const back = `/${locale}/c`;
   const caret = getDirection(locale) === "rtl" ? "caret-right" : "caret-left";
 
@@ -75,7 +80,18 @@ export default async function MedicineComparePage({ params, searchParams }: Prop
               <thead>
                 <tr>
                   <th scope="col">{t("attribute")}</th>
-                  {items.map((m, i) => <th scope="col" key={i}>{String((locale === "ar" || locale === "ur" ? m.name_ar ?? m.name_en : m.name_en ?? m.name_ar) ?? `#${i + 1}`)}</th>)}
+                  {items.map((m, i) => {
+                    const name = String((locale === "ar" || locale === "ur" ? m.name_ar ?? m.name_en : m.name_en ?? m.name_ar) ?? `#${i + 1}`);
+                    const picture = allowedImageUrl(resolveProductGallery(m)[0]);
+                    return (
+                      <th scope="col" key={i}>
+                        <Link className={styles.compareHead} href={`/${locale}/medicines/${encodeURIComponent(String(m.id))}`}>
+                          {picture ? <CatalogImage src={picture} alt="" sizes="96px" width={96} height={96} className={styles.compareImage} /> : null}
+                          <span>{name}</span>
+                        </Link>
+                      </th>
+                    );
+                  })}
                 </tr>
               </thead>
               <tbody>
@@ -90,6 +106,17 @@ export default async function MedicineComparePage({ params, searchParams }: Prop
                     ))}
                   </tr>
                 ))}
+                <tr>
+                  <th scope="row">{cartLabel}</th>
+                  {items.map((m, i) => {
+                    const name = String((locale === "ar" || locale === "ur" ? m.name_ar ?? m.name_en : m.name_en ?? m.name_ar) ?? `#${i + 1}`);
+                    return (
+                      <td key={i}>
+                        <CompareAddButton id={String(m.id)} name={name} rx={m.requires_prescription === true} onlineOnly={m.online_exclusive === true} image={resolveProductGallery(m)[0] ?? null} slug={typeof m.slug === "string" ? m.slug : null} />
+                      </td>
+                    );
+                  })}
+                </tr>
               </tbody>
             </table>
           </div>
