@@ -9,7 +9,7 @@ describe('Phase 16.2 password policy', () => {
   beforeEach(() => { svc = new PasswordSecurityService(); });
 
   it(`refuses anything under ${MIN_PASSWORD_LENGTH} characters`, async () => {
-    for (const short of ['', 'a', 'abcdefgh', 'abcdefghi', '123456789']) {
+    for (const short of ['', 'a', 'abcdefg', '1234567', 'Ab1!xyz']) {
       const r = await svc.check(short, async () => false);
       expect(r.ok).toBe(false);
       expect(r.code).toBe('password_too_short');
@@ -19,6 +19,14 @@ describe('Phase 16.2 password policy', () => {
   it(`accepts a ${MIN_PASSWORD_LENGTH}-character password that is not in a breach corpus`, async () => {
     const r = await svc.check('correct-horse-battery', async () => false);
     expect(r).toEqual({ ok: true });
+  });
+
+  it('the minimum is 8 (owner decision 2026-10-24): 7 refused, 8 accepted, the other rules still apply', async () => {
+    expect(MIN_PASSWORD_LENGTH).toBe(8);
+    expect((await svc.check('Ab1!xyz', async () => false)).code).toBe('password_too_short');
+    expect(await svc.check('Ab1!xyzq', async () => false)).toEqual({ ok: true });
+    expect((await svc.check('12345678', async () => false)).code).toBe('password_compromised');
+    expect((await svc.check('x'.repeat(73), async () => false)).code).toBe('password_too_long');
   });
 
   it('refuses a compromised password from the local list, whatever its case', async () => {

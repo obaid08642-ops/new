@@ -31,7 +31,7 @@ const SOCIAL_FETCH = { timeoutMs: 5000, retries: 2, label: 'social-login', timeo
 import { randomUUID } from 'crypto';
 import { GuestService } from './guest.service';
 import { AccountLinkingService } from './account-linking.service';
-import { PasswordSecurityService, dummyPasswordHash } from '../../common/password-security.service';
+import { PasswordSecurityService, dummyPasswordHash, MIN_PASSWORD_LENGTH } from '../../common/password-security.service';
 import { LoginLockService } from '../../common/login-lock.service';
 import { OtpAbuseGuard } from '../../common/otp-abuse.service';
 import { I18nService, resolveLang } from '../i18n/i18n.service';
@@ -696,7 +696,7 @@ export class AuthService {
   async resetPatientPassword(resetToken: string, newPassword: string) {
     AuthService.assertString(resetToken, 'reset_token');
     AuthService.assertString(newPassword, 'new_password');
-    if (newPassword.length < 8) throw new BadRequestException({ message: 'password_too_short', code: 'password_too_short', statusCode: HttpStatus.BAD_REQUEST });
+    if (newPassword.length < MIN_PASSWORD_LENGTH) throw new BadRequestException({ message: 'password_too_short', code: 'password_too_short', statusCode: HttpStatus.BAD_REQUEST });
     const key = this.passwordResetKey(resetToken);
     const redis = this.redisService.getClient();
     const claimed = await redis.set(`${key}:claim`, '1', 'EX', this.PATIENT_EXCHANGE_TTL_SECONDS, 'NX');
