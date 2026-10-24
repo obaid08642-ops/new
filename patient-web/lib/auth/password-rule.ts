@@ -1,5 +1,5 @@
 /** The backend's password minimum (backend/src/common/password-security.service.ts MIN_PASSWORD_LENGTH). */
-export const MIN_PASSWORD_LENGTH = 10;
+export const MIN_PASSWORD_LENGTH = 8;
 
 export type RegisterProblem = "errName" | "errIdentifier" | "errPassword" | "errMismatch" | "errAgree";
 

@@ -1,7 +1,7 @@
 /**
  * Phase 16.2 — passwords.
  *
- * At least 10 characters, checked against a breached-password list (k-anonymity
+ * At least 8 characters (owner decision 2026-10-24), checked against a breached-password list (k-anonymity
  * range API when reachable, a local list otherwise). Progressive lockout of sign-in is login-lock.service.ts; the same
  * answer on login and on "forgot password" whether or not the account exists is in auth.service.ts.
  *
@@ -18,8 +18,8 @@ export interface PasswordCheck {
   code?: 'password_too_short' | 'password_too_long' | 'password_compromised';
 }
 
-/** The shortest password this product accepts (plan: at least 10). */
-export const MIN_PASSWORD_LENGTH = 10;
+/** The shortest password this product accepts (owner decision 2026-10-24: 8 everywhere; the admin seed keeps its own 12). */
+export const MIN_PASSWORD_LENGTH = 8;
 /** bcrypt never uses more than 72 bytes; refusing more is clearer than truncating. */
 export const MAX_PASSWORD_LENGTH_BYTES = 72;
 

@@ -4,6 +4,10 @@ import { registerProblem } from "@/lib/auth/password-rule";
 const ok = { name: "Sara", identifier: "sara@example.com", password: "long-enough-1", confirm: "long-enough-1" };
 describe("registerProblem", () => {
   it("accepts a complete form", () => expect(registerProblem(ok, true)).toBeNull());
+  it("the password minimum is 8 (owner decision 2026-10-24)", () => {
+    expect(registerProblem({ ...ok, password: "Ab1!xyz", confirm: "Ab1!xyz" }, true)).toBe("errPassword");
+    expect(registerProblem({ ...ok, password: "Ab1!xyzq", confirm: "Ab1!xyzq" }, true)).toBeNull();
+  });
   it("names the first broken rule", () => {
     expect(registerProblem({ ...ok, name: "S" }, true)).toBe("errName");
     expect(registerProblem({ ...ok, identifier: "ab" }, true)).toBe("errIdentifier");

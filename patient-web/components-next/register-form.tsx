@@ -124,7 +124,7 @@ export function RegisterForm({ locale }: { locale: Locale }) {
         <div className={styles.field}>
           <label className={styles.label} htmlFor="register-password">{t("password")}</label>
           <span className={styles.control}>
-            <input id="register-password" required minLength={10} type={show ? "text" : "password"} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} autoComplete="new-password" />
+            <input id="register-password" required minLength={8} type={show ? "text" : "password"} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} autoComplete="new-password" />
             <button type="button" className={styles.eye} onClick={() => setShow((v) => !v)} aria-label={show ? t("hidePassword") : t("showPassword")}>
               <Icon name={show ? "eye-slash" : "eye"} size={20} tone="currentColor" />
             </button>
