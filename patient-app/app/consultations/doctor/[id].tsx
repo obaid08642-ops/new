@@ -7,6 +7,8 @@ import { Button, Card, FIcon } from '../../../../packages/ui-native/src';
 import { DayStrip, ModeTiles, SlotGrid, slotsEmptyKey, useDays, type ModeTile } from '../../../src/components/consult/ConsultBooking';
 import { ConsultScreen, Gate, Section, ShareGlyph, StatusTag, specialtyLook, useConsultFormat, visitMode, type GateStatus } from '../../../src/components/consult/ConsultKit';
 import { Glyph } from '../../../src/components/pharmacy/PharmacyKit';
+import { GuaranteeLine, LicenseRow, useLateGuarantee } from '../../../src/components/consult/Differentiators';
+import { readLicenseLine } from '../../../src/utils/differentiators';
 import { step as scale, tint, useScreenUi } from '../../../src/components/screen/ScreenKit';
 import MapView, { Marker, PROVIDER_DEFAULT } from '../../../src/components/MapPrimitives';
 import { apiFetch } from '../../../src/utils/api';
@@ -69,6 +71,9 @@ interface Doctor {
   /** The public card model (GET /care/doctors/:id): `verified` = admin-approved and licence-verified, the SCFHS number, `rating` / `reviews_count`, `clinicPhotos`. */
   verified?: boolean;
   scfhs_license_no?: string;
+  /** "Licensed by SCFHS, no. X": number, authority and whether it was verified (no date). */
+  license?: { number?: string | null; authority?: string | null; verified?: boolean };
+  license_verified?: boolean;
   rating?: number;
   reviews_count?: number;
   clinicPhotos?: string[];
@@ -105,6 +110,8 @@ export default function DoctorProfile() {
   const [photoOpen, setPhotoOpen] = useState(false);
   const [reviewsAll, setReviewsAll] = useState(false);
   const days = useDays(30);
+  // The late-appointment guarantee of the same /system-config/public answer the cancellation numbers come from.
+  const guarantee = useLateGuarantee(policy);
 
   const load = useCallback(async () => {
     setStatus('loading');
@@ -209,7 +216,7 @@ export default function DoctorProfile() {
   });
   const price = getPrice(activeVt);
   const look = specialtyLook(doc?.specialty || doc?.sp);
-  const licenseNo = doc?.scfhs_license_no ?? doc?.scfhs_license_number;
+  const license = readLicenseLine(doc);
   const ratingAvg = doc?.rating_avg ?? doc?.rating ?? 0;
   const ratingCount = doc?.rating_count ?? doc?.reviews_count ?? 0;
   const reviews = Array.isArray(doc?.reviews_data) ? doc.reviews_data : [];
@@ -218,7 +225,6 @@ export default function DoctorProfile() {
     // education is not in the backend model yet: an honest empty line, never an invented degree
     { icon: 'file-text' as const, label: k('consult.doc.education'), value: education || k('consult.doc.noEducation') },
     ...(Array.isArray(doc?.languages) && doc.languages.length > 0 ? [{ icon: 'globe' as const, label: k('consult.doc.languages'), value: doc.languages.map(languageName).join('، ') }] : []),
-    ...(licenseNo ? [{ icon: 'identification-card' as const, label: k('consult.doc.license'), value: licenseNo }] : []),
     ...(doc?.accepts_insurance ? [{ icon: 'shield-check' as const, label: k('consult.doc.insurance'), value: k('consult.doc.acceptsInsurance') }] : []),
   ];
 
@@ -279,6 +285,8 @@ export default function DoctorProfile() {
                     <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, flexShrink: 1 }}>{place}</Text>
                   </View>
                 ) : null}
+                <LicenseRow license={license} testID="doctor-license" />
+                <GuaranteeLine guarantee={guarantee} center testID="doctor-guarantee" />
                 {Array.isArray(doc.tags) && doc.tags.length > 0 ? (
                   <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, justifyContent: 'center' }}>
                     {doc.tags.slice(0, 3).map((tag) => (

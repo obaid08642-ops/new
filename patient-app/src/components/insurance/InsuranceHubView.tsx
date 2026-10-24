@@ -11,6 +11,8 @@ import { useGuestGuard } from '../../hooks/useGuestGuard';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { ChiLookup } from './ChiLookup';
+import { CopayFields } from './CopayFields';
+import { parseCopay } from '../../utils/differentiators';
 import { BenefitsTab, NetworkTab } from './InsuranceHubTabs';
 import { FootNote, INSURANCE_REQUEST, INSURANCE_TABS, INSURANCE_TONE, InsuranceScreen, KIND_LOOK, requestState, usePolicy, type InsurancePolicy, type InsuranceTab } from './InsuranceKit';
 
@@ -174,6 +176,9 @@ function InsurerSheet({ open, onClose, onSaved }: { open: boolean; onClose: () =
   const [networkCode, setNetworkCode] = useState<string | null>(null);
   const [policyNumber, setPolicyNumber] = useState('');
   const [memberId, setMemberId] = useState('');
+  const [copayPercent, setCopayPercent] = useState('');
+  const [copayCap, setCopayCap] = useState('');
+  const [showCopayErrors, setShowCopayErrors] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [catalogFailed, setCatalogFailed] = useState(false);
@@ -204,6 +209,11 @@ function InsurerSheet({ open, onClose, onSaved }: { open: boolean; onClose: () =
       setError(k('insurance.insurer.required'));
       return;
     }
+    const copay = parseCopay(copayPercent, copayCap);
+    if (!copay.ok) {
+      setShowCopayErrors(true);
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
@@ -217,10 +227,14 @@ function InsurerSheet({ open, onClose, onSaved }: { open: boolean; onClose: () =
           member_id: memberId.trim(),
           network: networkCode || '',
           class: 'A',
+          ...copay.body,
         }),
       });
       setPolicyNumber('');
       setMemberId('');
+      setCopayPercent('');
+      setCopayCap('');
+      setShowCopayErrors(false);
       onSaved();
     } catch (e) {
       logError('insurance:insurer-save', e);
@@ -253,6 +267,7 @@ function InsurerSheet({ open, onClose, onSaved }: { open: boolean; onClose: () =
       ) : null}
       <Input label={k('insurance.insurer.policyNumber')} value={policyNumber} onChange={setPolicyNumber} theme={theme} testID="insurer-policy" />
       <Input label={k('insurance.insurer.memberId')} value={memberId} onChange={setMemberId} theme={theme} testID="insurer-member" />
+      <CopayFields percent={copayPercent} cap={copayCap} onPercent={setCopayPercent} onCap={setCopayCap} showErrors={showCopayErrors} idPrefix="insurer" />
     </SheetForm>
   );
 }

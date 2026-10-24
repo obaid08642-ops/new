@@ -19,7 +19,8 @@ import { pickLocalized } from '../../../src/utils/localize';
 import { autoTranslate } from '../../../src/i18n';
 import { dateLocaleFor } from '../../../src/utils/dates';
 import { DoctorListCard } from '../consult/DoctorListCard';
-import { DOCTOR_GENDERS, DOCTOR_SORTS, doctorRows, doctorsQuery, type DoctorGender, type DoctorSort } from '../../../src/utils/doctorSearch';
+import { DOCTOR_GENDERS, DOCTOR_SORTS, doctorRows, doctorsQuery, sortFromParam, type DoctorGender, type DoctorSort } from '../../../src/utils/doctorSearch';
+import { GuaranteeLine, useLateGuarantee } from '../../../src/components/consult/Differentiators';
 import { suggestionRoute } from '../../../src/utils/searchSuggest';
 import { useSearchSuggest } from '../../../src/hooks/useSearchSuggest';
 import { SearchSuggestList } from '../../../src/components/search/SearchSuggestList';
@@ -35,8 +36,10 @@ export default function DoctorSearchView() {
   const specialty = typeof params.specialty === "string" ? params.specialty : "";
   const [query, setQuery] = useState(typeof params.q === "string" ? params.q : "");
   const suggest = useSearchSuggest(query, lang);
-  const [sort, setSort] = useState<DoctorSort>("rating");
+  // a "book now" entry arrives with ?sort=available_today (owner decision 2026-10-24)
+  const [sort, setSort] = useState<DoctorSort>(sortFromParam(params.sort) ?? "rating");
   const [gender, setGender] = useState<DoctorGender | 'any'>('any');
+  const guarantee = useLateGuarantee();
   const [doctors, setDoctors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -118,7 +121,7 @@ export default function DoctorSearchView() {
           {DOCTOR_SORTS.map((k) => (
             <Chip
               key={k}
-              label={tr(k === "rating" ? "search.doctors.sortRating" : "search.doctors.sortPrice")}
+              label={tr(k === "rating" ? "search.doctors.sortRating" : k === "price_asc" ? "search.doctors.sortPrice" : "search.doctors.sortAvailable")}
               active={sort === k}
               onPress={() => setSort(k)}
             />
@@ -164,6 +167,7 @@ export default function DoctorSearchView() {
             </View>
           }
           renderItem={({ item: d }) => (
+            <View style={{ gap: 6 }}>
             <DoctorListCard
               doctor={d}
               onPress={() =>
@@ -179,6 +183,8 @@ export default function DoctorSearchView() {
                 })
               }
             />
+            <GuaranteeLine guarantee={guarantee} />
+            </View>
           )}
         />
       )}

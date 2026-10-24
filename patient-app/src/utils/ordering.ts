@@ -37,7 +37,8 @@ export interface ProviderRow {
   missing: string[];
 }
 export interface ItemLine { catalog_id: string; price: number; coverage: OrderingCoverage | null }
-export interface BestMatch extends ProviderRow { items: ItemLine[]; estimated_insurance_share: number; patient_share: number }
+/** `estimated_patient_share`: the patient's share worked out from the copay % and cap on their card; null when they did not fill them or this provider does not accept the policy. */
+export interface BestMatch extends ProviderRow { items: ItemLine[]; estimated_insurance_share: number; patient_share: number; estimated_patient_share?: number | null }
 export interface GroupItem { catalog_id: string; facility_only: boolean }
 export interface FromPrice { total: number; providers_count: number }
 export interface SplitSuggestion { assignments: Array<{ provider_id: string; catalog_ids: string[] }>; total: number }
@@ -81,7 +82,7 @@ function parseBest(raw: unknown): BestMatch | null {
     const price = l ? num(l.price) : null;
     return l && typeof l.catalog_id === 'string' && price !== null ? [{ catalog_id: l.catalog_id, price, coverage: COVERAGE.includes(l.coverage as OrderingCoverage) ? (l.coverage as OrderingCoverage) : null }] : [];
   });
-  return { ...row, items, estimated_insurance_share: num(r.estimated_insurance_share) ?? 0, patient_share: num(r.patient_share) ?? row.total };
+  return { ...row, items, estimated_insurance_share: num(r.estimated_insurance_share) ?? 0, patient_share: num(r.patient_share) ?? row.total, estimated_patient_share: num(r.estimated_patient_share) };
 }
 
 function parseFrom(raw: unknown): FromPrice | null {

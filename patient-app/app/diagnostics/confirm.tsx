@@ -19,6 +19,7 @@ import {
   type BookingDocument, type CreatedGroup, type PaymentMethod,
 } from '../../src/utils/orderingBooking';
 import { statusHref } from '../../src/utils/orderingStatus';
+import { insuredShare } from '../../src/utils/differentiators';
 import { paymentIntentHeaders } from '../../src/utils/payment-idempotency';
 
 const DAY_OPTS: Intl.DateTimeFormatOptions = { weekday: 'short', day: 'numeric', month: 'short' };
@@ -85,6 +86,8 @@ export default function DiagnosticsConfirm() {
   const picks = draft.quote.groups.map((g) => ({ g, p: draft.picks[g.mode]! }));
   const dueSum = Math.round(picks.reduce((s, x) => s + x.p.row.total, 0) * 100) / 100;
   const allBest = picks.every((x) => x.p.best);
+  // The booking's insured line: the server's estimate from the card's copay % and cap, else only the acceptance (owner decision 2026-10-24).
+  const share = insuredShare(picks.map((x) => x.p.estimatedShare ?? null));
   const notCovered = picks.some((x) => x.p.items.some((i) => i.coverage === 'not_covered'));
   const nameOf = (id: string) => cartItems.find((i) => i.id === id)?.name ?? names[id] ?? '';
   const when = (m: OrderingMode): string => {
@@ -292,6 +295,13 @@ export default function DiagnosticsConfirm() {
           {insured && allBest ? <AmountLine label={k('ordering.pay.lIns')} amount={picks.reduce((s, x) => s + (x.p.insuranceShare ?? 0), 0)} success minus /> : null}
           <AmountLine label={k('ordering.pay.lTotal')} amount={insured && allBest ? picks.reduce((s, x) => s + (x.p.patientShare ?? 0), 0) : dueSum} strong />
           {insured ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('ordering.pay.estNote')}</Text> : null}
+          {insured ? (
+            share.kind === 'estimate' ? (
+              <Text testID="insured-share-estimate" style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{k('ordering.pay.estimatedShare', { amount: money(share.amount) })}</Text>
+            ) : (
+              <Text testID="insured-share-accepted" style={{ ...scale(t, 'small', 'medium'), color: c.text.secondary, ...flow }}>{k('ordering.pay.insuranceAccepted')}</Text>
+            )
+          ) : null}
           {notCovered ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.status.warning.fg, ...flow }}>{k('ordering.pay.cashNote')}</Text> : null}
         </Block>
       </Section>

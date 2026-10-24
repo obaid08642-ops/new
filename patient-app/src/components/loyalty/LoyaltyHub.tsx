@@ -8,6 +8,7 @@ import { HealthTabs, MetricGrid, MetricTile, Notice, Panel, Pill, Row, rowsOf, u
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { useCopy } from '../screen/useCopy';
 import { apiFetch } from '../../utils/api';
+import { LATE_REASON } from '../../utils/differentiators';
 import { logError } from '../../utils/logger';
 
 /**
@@ -24,7 +25,7 @@ const TABS = ['rewards', 'challenges', 'invite'] as const;
 type HubTab = (typeof TABS)[number];
 
 const TIER_TONES: ServiceTone[] = [SERVICE_TONES[4], SERVICE_TONES[1], SERVICE_TONES[3], SERVICE_TONES[8], SERVICE_TONES[5]];
-const REASONS = ['booking_completed', 'order_delivered', 'review_submitted', 'vitals_logged', 'reward_claimed', 'points_expired', 'referral_converted'];
+const REASONS = ['booking_completed', 'order_delivered', 'review_submitted', 'vitals_logged', 'reward_claimed', 'points_expired', 'referral_converted', LATE_REASON];
 
 interface Tier {
   id: string;
@@ -451,8 +452,8 @@ function HistorySection({ transactions }: { transactions: Transaction[] }) {
             return (
               <Row
                 key={String(tx.id ?? i)}
-                icon="star"
-                tone={delta >= 0 ? 'mint' : SERVICE_TONES[0]}
+                icon={tx.reason === LATE_REASON ? 'clock-counter-clockwise' : 'star'}
+                tone={tx.reason === LATE_REASON ? 'amber' : delta >= 0 ? 'mint' : SERVICE_TONES[0]}
                 title={tx.description || reason || ''}
                 caption={date(tx.createdAt) || undefined}
                 trailing={<Pill tone={delta >= 0 ? 'success' : 'danger'} label={`${delta >= 0 ? '+' : '−'}${num(Math.abs(delta))}`} />}

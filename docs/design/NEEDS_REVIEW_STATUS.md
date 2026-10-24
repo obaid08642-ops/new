@@ -9,24 +9,24 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 0 | 333 | 97 | 4 | 0 |
-| Other | 282 | 239 | 40 | 3 | 0 | 0 |
+| Other | 298 | 255 | 40 | 3 | 0 | 0 |
 | Admin | 99 | 0 | 65 | 34 | 0 | 0 |
 | Admin journeys | 20 | 0 | 18 | 2 | 0 | 0 |
 | Final pass | 8 | 0 | 2 | 6 | 0 | 0 |
 | Patient journeys | 87 | 0 | 85 | 2 | 0 | 0 |
 | Provider app | 31 | 0 | 27 | 4 | 0 | 0 |
 | Provider journeys | 34 | 0 | 32 | 2 | 0 | 0 |
-| **Total** | **995** | **239** | **602** | **150** | **4** | **0** |
+| **Total** | **1011** | **255** | **602** | **150** | **4** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 225 | 55 | 129 | 41 | 0 | 0 |
+| client | 228 | 58 | 129 | 41 | 0 | 0 |
 | owner | 141 | 41 | 57 | 42 | 1 | 0 |
-| backend | 390 | 142 | 218 | 30 | 0 | 0 |
+| backend | 403 | 155 | 218 | 30 | 0 | 0 |
 | untagged | 239 | 1 | 198 | 37 | 3 | 0 |
-| **Total** | **995** | **239** | **602** | **150** | **4** | **0** |
+| **Total** | **1011** | **255** | **602** | **150** | **4** | **0** |
 
 ## By file
 
@@ -84,6 +84,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1c-web.json` | 13 | 0 | 10 | 3 | 0 | 0 |
 | `batch-1d-app.json` | 20 | 0 | 13 | 7 | 0 | 0 |
 | `batch-1d-web.json` | 10 | 0 | 6 | 3 | 1 | 0 |
+| `differentiators-app.json` | 7 | 7 | 0 | 0 | 0 | 0 |
+| `differentiators-web.json` | 9 | 9 | 0 | 0 | 0 | 0 |
 | `doctor-card-app.json` | 9 | 9 | 0 | 0 | 0 | 0 |
 | `doctor-card-web.json` | 10 | 10 | 0 | 0 | 0 | 0 |
 | `final-pass-2.json` | 4 | 0 | 0 | 4 | 0 | 0 |
@@ -122,7 +124,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 0 | 7 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 0 | 0 | 1 | 0 | 0 |
 | `tooling.json` | 13 | 0 | 12 | 1 | 0 | 0 |
-| **Total** | **995** | **239** | **602** | **150** | **4** | **0** |
+| **Total** | **1011** | **255** | **602** | **150** | **4** | **0** |
 
 ## Owner decisions (4)
 
@@ -133,11 +135,27 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 3 | `batch-1a-app.json#18` `patient-app/src/i18n/locales/en.json:0` | /pharmacy Six-language strings | 177 pharmacy.* keys were added to patient-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json. The English, Urdu, Hindi, Bengali and Filipino text was written by the design session (and, for reused phrases, taken from the phr… |
 | 4 | `batch-1d-web.json#1` `backend/src/modules/payments/payments.module.ts:154` | /pharmacy/payment Payment provider not exercised | No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only against a TEST stand-in outside the repo (… |
 
-## Open and unverified (239)
+## Open and unverified (255)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
 | `ac-1-agent-oauth.json#1` | client | open | Settings > Connected AI apps List and disconnect connected AI assistants | [client] No screen yet. Backend is ready: GET /api/v1/patient/agent-connections (client_id, client_name, logo_uri, scopes, connected_at) and DELETE /api/v1/patient/agent-connectio… |
+| `differentiators-app.json#0` | backend | open | /consultations/doctor/[id], doctors hub Late-appointment guarantee line (minute… | [backend] No late-compensation setting exists in GET /system-config/public on main or on any origin/s/* branch (the endpoint returns only cancellation_policy and returns_policy). … |
+| `differentiators-app.json#1` | backend | open | /loyalty (history), /notifications Late-compensation loyalty entry and notifica… | [backend] No late credit (points award, loyalty transaction reason or notification type) exists on main or on any origin/s/* branch. The client expects the loyalty reason and the … |
+| `differentiators-app.json#2` | backend | open | /consultations/appointment-detail Visit summary buttons (order prescription, bo… | [backend] `follow_up_actions` (shape: pharmacy_order / lab_booking / radiology_booking) exists only on origin/s/follow-up-actions, not on main. The client parses that shape, drops… |
+| `differentiators-app.json#3` | backend | open | /consultations/booking-confirm (doctor appointment) Estimated patient share for… | [backend] `estimated_patient_share` exists only on the ordering quote (labs, radiology, nursing; branch origin/s/ins-estimate, not yet on main). A doctor appointment has no estima… |
+| `differentiators-app.json#4` | backend | open | /diagnostics/confirm Estimated patient share (ordering booking) | [backend] Depends on origin/s/ins-estimate (estimated_patient_share, estimated_patient_share_basis on best_match; copay_percent and copay_cap_sar on POST /insurance/save-policy an… |
+| `differentiators-app.json#5` | backend | open | /consultations/doctor/[id] Licence line (SCFHS number, verified badge) | [backend] The `license: { number, authority, verified }` object of GET /care/doctors(/:id) exists on origin/s/doc-sort-available and origin/s/doc-license-line, not on main. The cl… |
+| `differentiators-app.json#6` | backend | open | /consultations (hub), search doctors view Available-today sort | [backend] sort=available_today for GET /care/doctors exists on origin/s/doc-sort-available, not on main. On main the server ignores the value and answers in rating order. |
+| `differentiators-web.json#0` | backend | open | Doctors list and doctor page Guaranteed-appointment line (minutes and points) | [backend] No `late_guarantee` { minutes, points } (or any late-compensation setting) exists in GET /config on main or any origin/s/* branch; the web reads that assumed shape and h… |
+| `differentiators-web.json#1` | backend | open | Loyalty history Late-compensation entry label and icon | [backend] No late-credit reason code exists in the backend loyalty history; the web labels the assumed reason `late_compensation` (six locales, clock icon); other reasons keep the… |
+| `differentiators-web.json#2` | backend | open | Notifications Late-compensation notification title and body | [backend] No notification type for the late credit exists in the backend; the web treats type `late_compensation` as the credit and writes the title and body from the messages in … |
+| `differentiators-web.json#3` | client | open | Appointment detail One-tap follow-up buttons (order prescription, book labs, bo… | [client] follow_up_actions is read in the real shape of origin/s/follow-up-actions (not on main yet): pharmacy_order, lab_booking, radiology_booking; nothing shows until that bran… |
+| `differentiators-web.json#4` | backend | open | Public doctor page /doctor/[slug] Licence line (SCFHS number, verified badge) | [backend] The entity-graph doctor record (GET /entity-graph/related/doctor/:slug) has no licence number or verified flag; `license { number, authority, verified }` exists only on … |
+| `differentiators-web.json#5` | backend | open | Booking (labs, radiology, nursing quote) Estimated patient share line | [backend] `estimated_patient_share` (with copay_percent and copay_cap_sar on the policy) exists only on origin/s/ins-estimate, not on main; and only on the ordering quote best mat… |
+| `differentiators-web.json#6` | client | open | Booking confirm Insurer / patient share lines still use the server rate estimate | [client] The confirm step still shows the rate-based estimated_insurance_share and patient_share, not the card-based estimate or the accepted-by-provider wording. |
+| `differentiators-web.json#7` | client | open | Insurance policy Edit policy (copay % and cap) | [client] The web has only the add-policy form (save-policy replaces the policy); there is no separate edit screen, so the copay fields are on the add/replace form only. The saved … |
+| `differentiators-web.json#8` | backend | open | Doctors list Available-today sort | [backend] sort=available_today is accepted by GET /care/doctors only on origin/s/doc-sort-available (not on main); until it merges the server ignores the unknown sort and the list… |
 | `doctor-card-app.json#0` | backend | open | /consultations/doctor/[id] Education | [backend] `education` is not in toPublicDoctor (care.service.ts): the page shows the honest empty line "No education added yet" until the field is sent. |
 | `doctor-card-app.json#1` | backend | open | /consultations/doctor/[id] Average wait | [backend] `wait_time` (minutes) is not sent by GET /care/doctors or /care/doctors/:id; the card and page draw it only when present. |
 | `doctor-card-app.json#2` | backend | open | /search?view=doctors Card average wait | [backend] `wait_time` is read from the list item; the backend sends none today so no wait is drawn. |

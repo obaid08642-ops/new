@@ -227,6 +227,7 @@ export default function BookingConfirmScreen() {
       {payMethod === 'insurance' ? (
         <>
           <Notice tone={insuranceReady ? 'info' : 'warning'} text={k(insuranceReady ? 'consult.confirm.insuranceReady' : 'consult.confirm.insuranceNotReady')} />
+          {insuranceReady ? <Text testID="booking-insurance-accepted" style={{ ...scale(t, 'meta', 'medium'), lineHeight: 20, color: c.text.secondary, ...flow }}>{k('ordering.pay.insuranceAccepted')}</Text> : null}
           <Button label={k('consult.confirm.manageInsurance')} variant="ghost" size="md" onPress={() => router.push({ pathname: '/insurance', params: { tab: 'policy' } } as unknown as Href)} theme={theme} />
         </>
       ) : null}

@@ -8,6 +8,7 @@ import { useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useConsultations } from '../../src/context/ConsultationsContext';
 import { statusCode, statusIs } from '../../src/utils/statusCase';
 import { PAST, UPCOMING } from '../../src/utils/appointmentTabs';
+import { BOOK_NOW_HREF } from '../../src/utils/consultNearby';
 
 /**
  * My appointments — board Appointments (canvas/Appointments.dc.html). The list is what GET /care/appointments returns
@@ -44,7 +45,7 @@ export default function AppointmentsScreen() {
     <ConsultList
       testID="appointments-screen"
       title={k('consult.appt.title')}
-      actions={[{ key: 'book', label: k('consult.appt.bookNew'), icon: <Glyph name="plus" size={20} color={c.icon.primary} />, onPress: () => router.push('/(tabs)/consultations' as Href) }]}
+      actions={[{ key: 'book', label: k('consult.appt.bookNew'), icon: <Glyph name="plus" size={20} color={c.icon.primary} />, onPress: () => router.push(BOOK_NOW_HREF as Href) }]}
       top={
         <Segmented
           label={k('consult.appt.title')}
@@ -68,7 +69,7 @@ export default function AppointmentsScreen() {
         title: k(tab === 'upcoming' ? 'consult.appt.emptyUpcoming' : 'consult.appt.emptyPast'),
         body: k('consult.appt.emptyBody'),
         actionLabel: tab === 'upcoming' ? k('consult.appt.bookNow') : undefined,
-        onAction: () => router.push('/(tabs)/consultations' as Href),
+        onAction: () => router.push(BOOK_NOW_HREF as Href),
       }}
       keyExtractor={(a) => String(a.id)}
       renderItem={(a) => {

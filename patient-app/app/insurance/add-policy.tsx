@@ -6,9 +6,11 @@ import * as ImagePicker from 'expo-image-picker';
 import { Button, Chip, Input } from '../../../packages/ui-native/src';
 import { Section } from '../../src/components/consult/ConsultKit';
 import { Notice, rowsOf } from '../../src/components/health/HealthKit';
+import { CopayFields } from '../../src/components/insurance/CopayFields';
 import { InsuranceScreen, INSURANCE_HUB } from '../../src/components/insurance/InsuranceKit';
 import { useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
+import { parseCopay } from '../../src/utils/differentiators';
 import { logError } from '../../src/utils/logger';
 import { pickLocalized } from '../../src/utils/localize';
 
@@ -26,6 +28,9 @@ export default function AddPolicyScreen() {
   const [memberId, setMemberId] = useState('');
   const [memberName, setMemberName] = useState('');
   const [expiry, setExpiry] = useState('');
+  const [copayPercent, setCopayPercent] = useState('');
+  const [copayCap, setCopayCap] = useState('');
+  const [showCopayErrors, setShowCopayErrors] = useState(false);
   const [ocrUsed, setOcrUsed] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
@@ -80,6 +85,11 @@ export default function AddPolicyScreen() {
 
   const handleSave = async () => {
     if (!company || !policyNum || isSaving) return;
+    const copay = parseCopay(copayPercent, copayCap);
+    if (!copay.ok) {
+      setShowCopayErrors(true);
+      return;
+    }
     setIsSaving(true);
     setNotice(null);
     try {
@@ -95,6 +105,7 @@ export default function AddPolicyScreen() {
           national_id: memberId || undefined,
           verified: false,
           ocr_extracted: ocrUsed,
+          ...copay.body,
         }),
       });
       router.replace(INSURANCE_HUB as Href);
@@ -128,6 +139,7 @@ export default function AddPolicyScreen() {
         <Input label={k('insurance.add.memberName')} placeholder={k('insurance.add.memberNameHint')} value={memberName} onChange={setMemberName} theme={theme} testID="add-member-name" />
         <Input label={k('insurance.add.expiry')} placeholder={k('insurance.add.expiryHint')} value={expiry} onChange={setExpiry} theme={theme} testID="add-expiry" />
       </Section>
+      <CopayFields percent={copayPercent} cap={copayCap} onPercent={setCopayPercent} onCap={setCopayCap} showErrors={showCopayErrors} idPrefix="add" />
     </InsuranceScreen>
   );
 }
