@@ -19,6 +19,8 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import { ProfileHeader, type ProfileStat } from "@/components-next/consult/profile-header";
 import { Notice, SectionCard } from "@/components-next/consult/consult-parts";
+import { ClinicMap, PriceRows, ReviewList, type ReviewItem } from "@/components-next/consult/doctor-sections";
+import { reviewItems } from "@/lib/consult/doctor-reviews";
 import styles from "@/components-next/consult/consult.module.css";
 
 type Props = { params: Promise<{ locale: string; doctorId: string }>; searchParams: Promise<{ service_type?: string }> };
@@ -79,7 +81,12 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
   const where = [doctor.facility, doctor.district, doctor.city].filter(Boolean).join(" · ");
   const languageNames = new Intl.DisplayNames(locale, { type: "language" });
   const spoken = (doctor.languages ?? []).map((code) => { try { return languageNames.of(code) ?? code; } catch { return code; } }).join(", ");
-  const tags = [doctor.verified ? t("verifiedDoctor") : undefined, doctor.facility, doctor.acceptsInsurance ? c("acceptsInsurance") : undefined].filter((tag): tag is string => Boolean(tag));
+  const tags = [doctor.isOnline ? t("onlineNow") : undefined, doctor.gender ? t(doctor.gender === "male" ? "genderMale" : "genderFemale") : undefined, doctor.verified ? t("verifiedDoctor") : undefined, doctor.facility, doctor.acceptsInsurance ? c("acceptsInsurance") : undefined].filter((tag): tag is string => Boolean(tag));
+  const subLabels = { communication: t("subRatingCommunication"), punctuality: t("subRatingPunctuality"), cleanliness: t("subRatingCleanliness"), value: t("subRatingValue") };
+  const reviews: ReviewItem[] = reviewItems(doctor.reviewsData ?? [], locale, { anonymous: t("reviewerAnonymous"), subLabels }).slice(0, 3);
+  const services = (doctor.services ?? []).map((x) => ({ label: (locale === "ar" ? x.nameAr ?? x.nameEn : x.nameEn ?? x.nameAr) ?? x.name ?? "", price: x.price !== undefined ? formatPrice(locale, x.price).text : undefined })).filter((x) => x.label);
+  const followUpRows = doctor.followUp?.price !== undefined ? [{ label: t("followUpTitle"), price: formatPrice(locale, doctor.followUp.price).text }] : [];
+  const followUpWindow = doctor.followUp?.days !== undefined ? t("followUpWindow", { n: formatNumber(locale, doctor.followUp.days) }) : undefined;
   const guarantee = parseLateGuarantee(await getPublicConfig().catch(() => null));
   const base = `/${locale}/consultations/doctors/${doctor.id}`;
 
@@ -93,7 +100,7 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
         <SectionCard id="clinic-photos-title" title={t("clinicPhotosTitle")}>
           <ul className={styles.gallery}>
             {doctor.clinicPhotos.map((src, index) => (
-              <li key={src}><img src={optimizedImageSrc(src, 192)} alt={t("clinicPhotoAlt", { n: index + 1 })} className={styles.galleryImg} loading="lazy" decoding="async" /></li>
+              <li key={src}><a href={optimizedImageSrc(src, 1200)} target="_blank" rel="noopener noreferrer" aria-label={t("clinicPhotoOpen", { n: index + 1 })}><img src={optimizedImageSrc(src, 192)} alt={t("clinicPhotoAlt", { n: index + 1 })} className={styles.galleryImg} loading="lazy" decoding="async" /></a></li>
             ))}
           </ul>
         </SectionCard>
@@ -110,8 +117,41 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
               {doctor.facilityId ? <Link href={`/${locale}/consultations/clinics/${encodeURIComponent(doctor.facilityId)}`}>{where}</Link> : where}
             </p>
           ) : null}
+          {doctor.facilityId ? <ButtonLink href={`/${locale}/consultations/clinics/${encodeURIComponent(doctor.facilityId)}`} label={t("facilityLink")} variant="outline" /> : null}
+          {doctor.acceptedInsurance?.length ? <p className={styles.body}>{t("insuranceTitle")}: {doctor.acceptedInsurance.join(", ")}</p> : null}
           {spoken ? <p className={styles.body}>{t("languagesLabel")}: {spoken}</p> : null}
         </SectionCard>
+      ) : null}
+      <SectionCard id="education-title" title={t("educationTitle")}>
+        {doctor.education?.length ? (
+          <ul className={styles.plain}>
+            {doctor.education.map((e, i) => <li key={`${e.degree}-${e.institution}-${i}`}>{[e.degree, e.institution, e.year !== undefined ? formatNumber(locale, e.year) : undefined].filter(Boolean).join(" · ")}{e.verified ? ` · ${t("certVerified")}` : ""}</li>)}
+          </ul>
+        ) : <p className={`${styles.body} ${styles.muted}`}>{t("educationEmpty")}</p>}
+      </SectionCard>
+      {doctor.certificates?.length ? (
+        <SectionCard id="certificates-title" title={t("certificatesTitle")}>
+          <ul className={styles.plain}>
+            {doctor.certificates.map((c, i) => <li key={`${c.name}-${i}`}>{[c.name, c.issuer, c.year !== undefined ? formatNumber(locale, c.year) : undefined].filter(Boolean).join(" · ")}{c.verified ? ` · ${t("certVerified")}` : ""}</li>)}
+          </ul>
+        </SectionCard>
+      ) : null}
+      {services.length || followUpRows.length ? (
+        <SectionCard id="services-title" title={t("servicesTitle")}>
+          <PriceRows rows={services} />
+          {followUpRows.length ? <><h3 className={styles.rowTitle}>{t("followUpTitle")}</h3><PriceRows rows={followUpRows} />{followUpWindow ? <p className={`${styles.body} ${styles.muted}`}>{followUpWindow}</p> : null}</> : null}
+        </SectionCard>
+      ) : null}
+      <SectionCard id="reviews-title" title={t("reviewsTitle")}>
+        {reviews.length ? (
+          <>
+            <ReviewList items={reviews} scoreLabel={(score) => c("ratingOutOf", { value: formatNumber(locale, score) })} />
+            <ButtonLink href={`/${locale}/consultations/doctors/${encodeURIComponent(doctor.id)}/reviews`} label={t("reviewsSeeAll")} variant="outline" />
+          </>
+        ) : <p className={`${styles.body} ${styles.muted}`}>{t("reviewsEmpty")}</p>}
+      </SectionCard>
+      {serviceType === "clinic" && doctor.clinic ? (
+        <ClinicMap id="clinic-location-title" title={t("clinicLocationTitle")} address={doctor.clinicAddress} point={doctor.location} mapTitle={t("clinicMapTitle")} openLabel={t("openInMaps")} />
       ) : null}
       <SectionCard id="slots-title" title={t("slotsTitle")}>
         <LinkSegmented
@@ -124,6 +164,14 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
         />
         {/* One booking path: the booking page has the day strip, the slots, the slot hold, the address of a home visit and the payment. */}
         <ButtonLink href={`/${locale}/consultations/book/${encodeURIComponent(doctor.id)}?service_type=${serviceType}`} label={t("chooseDayTime")} fullWidth />
+      </SectionCard>
+      <SectionCard id="faq-title" title={t("faqTitle")}>
+        {([["faqCancelQ", "faqCancelA"], ["faqPayQ", "faqPayA"]] as const).map(([q, a]) => (
+          <details key={q} className={styles.faq}>
+            <summary>{t(q)}</summary>
+            <p className={styles.body}>{t(a)}</p>
+          </details>
+        ))}
       </SectionCard>
       <Notice>{t("detailNotice")}</Notice>
     </ConsultPage>

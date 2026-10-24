@@ -7,6 +7,7 @@ import { SERVICE_ICONS, type FillIconName, type ServiceTone } from "@/components
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { formatPrice } from "@/lib/format-price";
 import { allowedImageUrl } from "@/lib/image-hosts";
+import { LiveFilter } from "./live-filter";
 import { CatalogImage } from "@/components-next/pharmacy/catalog-image";
 import consult from "@/components-next/consult/consult.module.css";
 import styles from "./diag.module.css";
@@ -50,7 +51,7 @@ export function SectionHead({ id, title, href, linkLabel }: { id: string; title:
  * The search pill of the hub and the catalogues: a GET form (the query is in the URL, it works before the page is
  * interactive). `children` are the hidden inputs or extra fields the screen's filters need.
  */
-export function SearchForm({ action, name = "q", defaultValue, placeholder, label, submitLabel, below }: { action?: string; name?: string; defaultValue?: string; placeholder: string; label: string; submitLabel: string; below?: ReactNode }) {
+export function SearchForm({ action, name = "q", defaultValue, placeholder, label, submitLabel, below, live = false }: { action?: string; name?: string; defaultValue?: string; placeholder: string; label: string; submitLabel: string; below?: ReactNode; /** Filter as you type (a list on the same page). */ live?: boolean }) {
   return (
     <form method="get" action={action} role="search" className={styles.searchForm}>
       <div className={consult.search}>
@@ -62,6 +63,7 @@ export function SearchForm({ action, name = "q", defaultValue, placeholder, labe
         <Button type="submit" label={submitLabel} size="lg" />
       </div>
       {below}
+      {live ? <LiveFilter /> : null}
     </form>
   );
 }

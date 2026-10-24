@@ -16,6 +16,12 @@ export class NotificationsController {
     return this.svc.listForUser(user, NotificationsService.listLang(lang, acceptLanguage));
   }
 
+  /** The bell badge: how many notifications are unread. */
+  @Get('unread-count')
+  unreadCount(@CurrentUser() user: any) {
+    return this.svc.unreadCount(user);
+  }
+
   /**
    * Device-token registration — the mobile apps call this after obtaining
    * their push token. Accepts { token, device|platform, provider }.

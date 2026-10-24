@@ -15,6 +15,8 @@ const schema = z.object({
   // the card's copay figures (optional; the backend DTO bounds are the same)
   copay_percent: z.number().min(0).max(100).optional(),
   copay_cap_sar: z.number().min(0).max(1_000_000).optional(),
+  // the insurer's network (the app's network chips); the policy stores it with the company and class
+  network: z.string().max(128).optional(),
 });
 
 export async function POST(request: Request) {

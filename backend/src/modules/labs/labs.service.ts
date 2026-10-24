@@ -1,3 +1,4 @@
+import { flattenResultEntries } from './lab-booking-results';
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException, ServiceUnavailableException, Inject, Optional } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -634,7 +635,11 @@ export class LabsService {
     if (b.patient_id !== user.id && user.role !== 'admin') throw new NotFoundException();
     // A report is listed by id and name only; its file is GET bookings/:id/reports/:reportId (journeys#54), so the
     // booking (polled every 15 s by the tracking screens) no longer carries every PDF as base64.
-    return { ...b, reports: (Array.isArray(b.reports) ? b.reports : []).map(reportSummary) };
+    // Design parity (#1819): the typed values of the booking's result documents, newest result first.
+    const resultDocs = await this.bkgModel.db.collection('labresults')
+      .find({ booking_id: id, patient_id: b.patient_id, source: { $ne: 'radiology' } }, { projection: { _id: 0, id: 1, entries: 1, reported_at: 1, critical: 1 } })
+      .sort({ createdAt: -1 }).limit(20).toArray();
+    return { ...b, reports: (Array.isArray(b.reports) ? b.reports : []).map(reportSummary), results: flattenResultEntries(resultDocs) };
   }
 
   /** The file of one report of a booking, for the patient, the assigned lab or an admin. */

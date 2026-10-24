@@ -12,17 +12,6 @@
   },
   {
     "screen": "/insurance policy tab",
-    "element": "Change policy in place (insurer sheet with network chips)",
-    "file": "patient-web/app/[locale]/insurance/page.tsx",
-    "line": 85,
-    "found": "[client] The web opens the blank add-policy form. The app edits in place with a network choice (GET /insurance/companies/:id/networks) and the saved values prefilled; the web route POST /api/insurance/policy has no network field and the form has no prefill.",
-    "suspect": "Add network chips and a prefill to the add-policy form in a follow-up slice.",
-    "batch": "parity-insurance",
-    "app": "patient-web",
-    "review_status": "open"
-  },
-  {
-    "screen": "/insurance policy tab",
     "element": "\"عرض الكل\" link next to the requests title (board)",
     "file": "patient-web/app/[locale]/insurance/page.tsx",
     "line": 87,

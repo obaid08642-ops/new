@@ -1,11 +1,11 @@
 "use client";
 
-import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { Notice } from "@/components-next/consult/consult-parts";
-import type { CompanyRow } from "@/lib/insurance/view";
+import type { CompanyRow, NetworkRow } from "@/lib/insurance/view";
 import { copayBody } from "@/lib/insurance/copay";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import forms from "@/components-next/consult/consult.module.css";
@@ -23,22 +23,43 @@ export function policyOptionals(input: { memberId: string; memberName: string; e
 }
 
 /** Add a policy (POST /api/insurance/policy, the body and the idempotency key as before), then the hub. The insurer is chosen here. */
-export function AddPolicyForm({ companies, locale, returnTo }: { companies: CompanyRow[]; locale: string; returnTo?: string }) {
+/** The saved policy, to change it in place (the app edits the saved values; the patient does not start from a blank form). */
+export type PolicyPrefill = { companyId?: string; policyNumber?: string; memberId?: string; memberName?: string; expiry?: string; network?: string };
+
+export function AddPolicyForm({ companies, locale, returnTo, initial }: { companies: CompanyRow[]; locale: string; returnTo?: string; initial?: PolicyPrefill }) {
   const t = useTranslations("InsuranceWeb");
   const router = useRouter();
-  const [companyId, setCompanyId] = useState("");
-  const [policyNumber, setPolicyNumber] = useState("");
-  const [memberId, setMemberId] = useState("");
-  const [memberName, setMemberName] = useState("");
-  const [expiry, setExpiry] = useState("");
+  const [companyId, setCompanyId] = useState(initial?.companyId ?? "");
+  const [policyNumber, setPolicyNumber] = useState(initial?.policyNumber ?? "");
+  const [memberId, setMemberId] = useState(initial?.memberId ?? "");
+  const [memberName, setMemberName] = useState(initial?.memberName ?? "");
+  const [expiry, setExpiry] = useState(initial?.expiry ?? "");
   const [copayPercent, setCopayPercent] = useState("");
   const [copayCap, setCopayCap] = useState("");
   const [copayError, setCopayError] = useState<"percent" | "cap" | null>(null);
+  const [networks, setNetworks] = useState<NetworkRow[]>([]);
+  const [network, setNetwork] = useState(initial?.network ?? "");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [scanned, setScanned] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // the chosen insurer's networks (GET /insurance/companies/:id/networks); a failed read just leaves the chips out
+  useEffect(() => {
+    if (!companyId) { setNetworks([]); return; }
+    const controller = new AbortController();
+    fetch(`/api/insurance/networks?company_id=${encodeURIComponent(companyId)}`, { signal: controller.signal })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { networks?: NetworkRow[] } | null) => {
+        const list = Array.isArray(data?.networks) ? data.networks : [];
+        setNetworks(list);
+        // keep the saved network when it is one of this insurer's (by code or name); a network of another insurer is dropped
+        setNetwork((current) => list.find((n) => n.code === current || n.name === current)?.code ?? "");
+      })
+      .catch(() => { if (!controller.signal.aborted) setNetworks([]); });
+    return () => controller.abort();
+  }, [companyId]);
 
   /** The card photo goes to POST /insurance/ocr-extract (as the app's "scan the card"); what it reads fills the fields, the patient checks them before saving. */
   async function onScan(event: ChangeEvent<HTMLInputElement>) {
@@ -95,6 +116,7 @@ export function AddPolicyForm({ companies, locale, returnTo }: { companies: Comp
           policy_number: policyNumber.trim(),
           ...policyOptionals({ memberId, memberName, expiry }),
           ...copay.body,
+          ...(network ? { network } : {}),
         }),
       });
       const data = await res.json().catch(() => null);
@@ -120,6 +142,16 @@ export function AddPolicyForm({ companies, locale, returnTo }: { companies: Comp
           {companies.map((company) => <option key={company.id} value={company.id}>{company.name}</option>)}
         </select>
       </label>
+      {networks.length > 0 ? (
+        <div className={forms.field} role="group" aria-label={t("add.network")}>
+          <span className={forms.label}>{t("add.network")}</span>
+          <div className={forms.choices}>
+            {networks.map((item) => (
+              <button key={item.code} type="button" className={forms.choice} aria-pressed={network === item.code} onClick={() => setNetwork(network === item.code ? "" : item.code)}>{item.name}</button>
+            ))}
+          </div>
+        </div>
+      ) : null}
       <label className={forms.field}>
         <span className={forms.label}>{t("add.policyNumber")}</span>
         <input className={forms.control} value={policyNumber} onChange={(event) => setPolicyNumber(event.target.value)} required minLength={3} maxLength={64} dir="ltr" autoComplete="off" />

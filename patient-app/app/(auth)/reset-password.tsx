@@ -27,7 +27,7 @@ export default function ResetPasswordScreen() {
     // say what is wrong instead of doing nothing
     if (!isValidEmail(email)) { setErrorMessage("auth.reset.errEmail"); return; }
     if (!code.trim()) { setErrorMessage("errors.codeRequired"); return; }
-    if (pw.length < 6) { setErrorMessage("auth.err.passwordShort"); return; }
+    if (pw.length < 8) { setErrorMessage("auth.err.passwordShort"); return; }
     if (pw !== confirmPw) { setErrorMessage("auth.err.mismatch"); return; }
     setErrorMessage(null);
     setLoading(true);

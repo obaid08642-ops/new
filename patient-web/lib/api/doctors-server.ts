@@ -35,3 +35,10 @@ export async function getPublicDoctorSlots(input: { id: string; date: string; se
   if (!/^[A-Za-z0-9_-]{1,128}$/.test(input.id) || !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(input.date)) throw new Error("invalid_slots_query");
   try { return await fetch(patientApiUrl(doctorSlotsQuery(input)), { headers: { Accept: "application/json" }, signal: publicReadSignal(), cache: "no-store" }); } catch { return null; }
 }
+
+/** The public written reviews of a doctor (GET /ratings/provider/:id): score, comment, date and the reviewer's first name. */
+export async function getPublicDoctorRatings(doctorId: string, page = 1): Promise<Response | null> {
+  if (!/^[A-Za-z0-9_-]{1,128}$/.test(doctorId)) throw new Error("invalid_doctor_id");
+  const n = Number.isInteger(page) && page > 0 && page <= 1000 ? page : 1;
+  try { return await fetch(patientApiUrl(`/ratings/provider/${doctorId}?page=${n}&limit=20`), { headers: { Accept: "application/json" }, signal: publicReadSignal(), cache: "no-store" }); } catch { return null; }
+}

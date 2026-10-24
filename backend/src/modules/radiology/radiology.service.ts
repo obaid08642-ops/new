@@ -368,6 +368,7 @@ export class RadiologyOpsService {
       patient_label_en: this._stateLabel(b.state, 'en'),
       scheduled_at: b.scheduled_at,
       preparation_confirmed: b.preparation_confirmed,
+      technician: await this.technicianView(b),
       steps,
     };
   }
@@ -627,7 +628,33 @@ export class RadiologyOpsService {
     if (b.patient_id !== user.id && !isProvider && user.role !== 'admin' && user.role !== 'super_admin') {
       throw new NotFoundException();
     }
-    return b;
+    // Design parity (#1819): the technician's name and, once the report is published, the files the patient may open.
+    return { ...b, technician: await this.technicianView(b), report_files: b.patient_id === user.id ? await this.reportFilesView(b) : undefined };
+  }
+
+  /** The technician assigned to a booking: display name only (never the account id, phone or licence). */
+  private async technicianView(b: any): Promise<{ name: string } | null> {
+    if (!b?.technician_id) return null;
+    const u: any = await this.userModel.findOne({ id: b.technician_id }, { _id: 0, full_name: 1, name: 1 }).lean();
+    const name = [u?.full_name, u?.name].find((v) => typeof v === 'string' && v.trim());
+    return name ? { name: name.trim().slice(0, 120) } : null;
+  }
+
+  /**
+   * The report PDF, the DICOM study and the scan images of a PUBLISHED report, by storage id and kind. The bytes are read
+   * with GET /storage/:id, which lets the booking's patient open exactly these objects (StorageService.radiologyPatientMayRead).
+   */
+  private async reportFilesView(b: any): Promise<Array<{ id: string; kind: 'report' | 'dicom' | 'image'; mime: string | null; name: string | null }> | null> {
+    if ((b?.state || b?.status) !== RadiologyBookingState.REPORT_READY) return null;
+    const wanted: Array<{ id: string; kind: 'report' | 'dicom' | 'image' }> = [
+      ...(b.report_storage_object_id ? [{ id: String(b.report_storage_object_id), kind: 'report' as const }] : []),
+      ...(b.dicom_storage_object_id ? [{ id: String(b.dicom_storage_object_id), kind: 'dicom' as const }] : []),
+      ...(Array.isArray(b.scan_storage_object_ids) ? b.scan_storage_object_ids.slice(0, 50).map((id: unknown) => ({ id: String(id), kind: 'image' as const })) : []),
+    ];
+    if (!wanted.length) return [];
+    const objects: any[] = await this.storageObjects.find({ id: { $in: wanted.map((w) => w.id) }, deleted: false }, { _id: 0, id: 1, mime: 1, original_name: 1 }).lean();
+    const byId = new Map(objects.map((o) => [o.id, o]));
+    return wanted.filter((w) => byId.has(w.id)).map((w) => ({ ...w, mime: byId.get(w.id).mime ?? null, name: byId.get(w.id).original_name ?? null }));
   }
 
   async cancel(id: string, user: any) {
