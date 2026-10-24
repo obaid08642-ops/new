@@ -638,6 +638,8 @@ export class CareService {
       // Q-20 / D-17: verified only when the admin approved the doctor AND the licence was verified; plus the SCFHS number.
       verified: d.medical_review_status === 'approved' && d.license_verified === true,
       scfhs_license_no: d.scfhs_license_number || null,
+      // The licence line the page draws ("licensed by SCFHS, no. X"): number, authority, and whether it was verified. No date.
+      license: { number: d.scfhs_license_number || null, authority: 'SCFHS', verified: d.medical_review_status === 'approved' && d.license_verified === true },
       next_available_at: nextAvailableAt,
       // Owner-approved profile fields (2026-10-24). The clinic's address and point only: the doctor's personal `address`
       // and `location` are never part of this model.
