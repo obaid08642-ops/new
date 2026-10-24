@@ -44,9 +44,9 @@ describe('social login verifies the provider token (Q107)', () => {
     await expect(service(staff).socialLogin({ provider: 'apple', token: unsigned({ email: 'admin@nabd.test' }) })).rejects.toBeInstanceOf(UnauthorizedException);
   });
 
-  it('an unsigned X or Snapchat "token" is refused, and the providers are off until enabled', async () => {
+  it('an unsigned X or Snapchat "token" is refused: only an authorization code is accepted', async () => {
     for (const provider of ['x', 'snapchat'] as const) {
-      await expect(service(staff).socialLogin({ provider, token: unsigned({ email: 'admin@nabd.test' }) })).rejects.toThrow('social_login_not_configured');
+      await expect(service(staff).socialLogin({ provider, token: unsigned({ email: 'admin@nabd.test' }) })).rejects.toThrow('social_code_required');
     }
   });
 

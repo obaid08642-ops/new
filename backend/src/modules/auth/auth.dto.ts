@@ -1,4 +1,4 @@
-import { IsArray, IsDefined, IsEmail, IsIn, IsInt, IsObject, IsOptional, IsString, Max, MaxLength, Min, ValidateNested } from 'class-validator';
+import { IsArray, IsDefined, IsEmail, IsIn, IsInt, IsObject, IsOptional, IsString, Matches, Max, MaxLength, Min, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import type {
   AuthenticationExtensionsClientOutputs,
@@ -214,13 +214,32 @@ export class ResetPasswordDto {
 }
 export class SocialLoginDto {
   @IsDefined()
-  // Q107: only providers whose tokens the backend can verify (X and Snapchat: the token is checked against the provider's own API).
+  // Q107: only providers whose identity the backend can verify. X and Snapchat sign in with an authorization code that
+  // the backend itself exchanges with its own client id and secret (a raw access token is refused: its audience is unknowable).
   @IsIn(["google", "apple", "x", "snapchat"])
   provider: "google" | "apple" | "x" | "snapchat";
 
-  @IsDefined()
+  /** Google access token / Apple identity token. */
+  @IsOptional()
   @IsString()
-  token: string;
+  @MaxLength(4096)
+  token?: string;
+
+  /** X / Snapchat: the authorization code, the PKCE verifier and the redirect URI used in the authorize request. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(2048)
+  code?: string;
+
+  @IsOptional()
+  @IsString()
+  @Matches(/^[A-Za-z0-9._~-]{43,128}$/)
+  code_verifier?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(512)
+  redirect_uri?: string;
 
   @IsOptional()
   @IsString()

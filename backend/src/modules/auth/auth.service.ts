@@ -3,7 +3,7 @@ import { currentRequestMeta, describeClient, maskIp } from '../../common/request
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { createHmac, createPublicKey, KeyObject, randomBytes } from 'crypto';
+import { createHash, createHmac, createPublicKey, KeyObject, randomBytes } from 'crypto';
 import * as nodemailer from 'nodemailer';
 import { Optional } from '@nestjs/common';
 import { KillSwitchesService } from '../kill-switches/kill-switches.service';
@@ -1547,12 +1547,13 @@ export class AuthService {
     return u?.phone || u?.email || identifier;
   }
 
-  async socialLogin(dto: { provider: 'google' | 'apple' | 'x' | 'snapchat'; token: string; email?: string; name?: string }, guestToken?: string) {
+  async socialLogin(dto: { provider: 'google' | 'apple' | 'x' | 'snapchat'; token?: string; code?: string; code_verifier?: string; redirect_uri?: string; email?: string; name?: string }, guestToken?: string) {
     // Q107: the email comes only from a provider token whose signature and
     // audience were verified, never from the body. X and Snapchat had no
     // verification at all (unsigned JWT decode, or a made-up address).
-    if (dto.provider === 'x' || dto.provider === 'snapchat') return this.subjectSocialLogin(dto.provider, dto.token, dto.name, guestToken);
+    if (dto.provider === 'x' || dto.provider === 'snapchat') return this.subjectSocialLogin(dto.provider, dto, guestToken);
     let verified: { email: string; full_name: string } | null;
+    if (!dto.token) throw new BadRequestException('social_token_required');
     if (dto.provider === 'google') verified = await this.verifyGoogleToken(dto.token);
     else if (dto.provider === 'apple') verified = await this.verifyAppleToken(dto.token);
     else throw new BadRequestException('social_provider_not_supported');
@@ -1604,10 +1605,15 @@ export class AuthService {
    * provider's stable account id (no email is taken from them), so a token can only ever open the account of the person
    * it was issued to and never an account that merely shares an address. Staff and provider accounts never get here.
    */
-  private async subjectSocialLogin(provider: 'x' | 'snapchat', token: string, nameIn: string | undefined, guestToken?: string) {
-    if (process.env[provider === 'x' ? 'X_SIGNIN_ENABLED' : 'SNAPCHAT_SIGNIN_ENABLED'] !== '1') throw new ServiceUnavailableException('social_login_not_configured');
-    const verified = provider === 'x' ? await this.verifyXToken(token) : await this.verifySnapchatToken(token);
+  private async subjectSocialLogin(provider: 'x' | 'snapchat', dto: { token?: string; code?: string; code_verifier?: string; redirect_uri?: string; name?: string }, guestToken?: string) {
+    // A raw access token cannot be audience-checked (it names no client), so it is never accepted: the backend exchanges
+    // the authorization code itself with OUR client id and secret, which makes the token ours by construction.
+    if (dto.token) throw new BadRequestException('social_code_required');
+    if (!dto.code || !dto.code_verifier || !dto.redirect_uri) throw new BadRequestException('social_code_required');
+    const accessToken = await this.exchangeSocialCode(provider, dto.code, dto.code_verifier, dto.redirect_uri);
+    const verified = provider === 'x' ? await this.verifyXToken(accessToken) : await this.verifySnapchatToken(accessToken);
     if (!verified) throw new UnauthorizedException('invalid_social_token');
+    const nameIn = dto.name;
     const field = provider === 'x' ? 'social_x_id' : 'social_snapchat_id';
     let u = await this.userModel.findOne({ [field]: verified.subject });
     if (u && u.role !== UserRole.PATIENT) throw new ForbiddenException('password_login_required');
@@ -1629,6 +1635,42 @@ export class AuthService {
     this.events.emit(EVENTS.USER_LOGGED_IN, { user_id: u.id, role: u.role });
     await this.mergeGuestFromRequest(guestToken, u.id);
     return { user: this.publicUser(u), token: this.signToken(u) };
+  }
+
+  /**
+   * Authorization-code exchange at the provider's token endpoint with our own client credentials
+   * (X_CLIENT_ID/X_CLIENT_SECRET, SNAPCHAT_CLIENT_ID/SNAPCHAT_CLIENT_SECRET). The redirect URI must be on the
+   * SOCIAL_REDIRECT_URIS allow-list, and a code is accepted once (the provider also refuses a replay).
+   */
+  private async exchangeSocialCode(provider: 'x' | 'snapchat', code: string, verifier: string, redirectUri: string): Promise<string> {
+    const prefix = provider === 'x' ? 'X' : 'SNAPCHAT';
+    const clientId = process.env[`${prefix}_CLIENT_ID`];
+    const secret = process.env[`${prefix}_CLIENT_SECRET`];
+    const allowed = String(process.env.SOCIAL_REDIRECT_URIS || '').split(',').map((v) => v.trim()).filter(Boolean);
+    if (!clientId || !secret || !allowed.length) throw new ServiceUnavailableException('social_login_not_configured');
+    if (!allowed.includes(redirectUri)) throw new BadRequestException('redirect_uri_not_allowed');
+    const codeKey = `social_code:${provider}:${createHash('sha256').update(code).digest('hex')}`;
+    const redis = (this.redisService as any)?.getClient?.();
+    if (redis) {
+      const first = await redis.set(codeKey, '1', 'EX', 600, 'NX').catch(() => 'OK');
+      if (first !== 'OK') throw new UnauthorizedException('invalid_social_token');
+    }
+    const url = provider === 'x' ? 'https://api.x.com/2/oauth2/token' : 'https://accounts.snapchat.com/login/oauth2/access_token';
+    const body = new URLSearchParams({ grant_type: 'authorization_code', code, redirect_uri: redirectUri, code_verifier: verifier, client_id: clientId });
+    try {
+      const r = await timedFetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: `Basic ${Buffer.from(`${clientId}:${secret}`).toString('base64')}` },
+        body: body.toString(),
+      }, SOCIAL_FETCH);
+      if (!r.ok) throw new UnauthorizedException('invalid_social_token');
+      const out: any = await r.json();
+      if (typeof out?.access_token !== 'string' || !out.access_token) throw new UnauthorizedException('invalid_social_token');
+      return out.access_token;
+    } catch (e) {
+      if (e instanceof GatewayTimeoutException || e instanceof UnauthorizedException) throw e;
+      throw new UnauthorizedException('invalid_social_token');
+    }
   }
 
   /** X OAuth 2.0 user access token: GET /2/users/me answers with the account it belongs to. */
