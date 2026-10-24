@@ -98,6 +98,14 @@ export function buildBackup(changes: FillChange[], csvSha: string, db: string, a
   return { created_at: at.toISOString(), csv_sha256: csvSha, db, changes };
 }
 
+/**
+ * The rollback update for one field: always a $set of the recorded value. An absent field was recorded as null, and it is
+ * restored as null (the checker reads null as empty), so nothing is ever unset.
+ */
+export function rollbackUpdate(change: FillChange): { $set: Record<string, string | null> } {
+  return { $set: { [change.path]: change.before } };
+}
+
 /** The production apply needs the reviewed file's hash, copied from the dry run. */
 export function checkConfirmation(csvText: string, provided: string | undefined): boolean {
   return typeof provided === 'string' && provided.length > 0 && provided === csvSha256(csvText);

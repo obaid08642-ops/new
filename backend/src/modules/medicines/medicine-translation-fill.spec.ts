@@ -1,4 +1,4 @@
-import { buildBackup, checkConfirmation, csvSha256, loadTranslations, planFill } from './medicine-translation-fill';
+import { buildBackup, checkConfirmation, csvSha256, loadTranslations, planFill, rollbackUpdate } from './medicine-translation-fill';
 
 const CSV = [
   'source,ur,hi,bn,fil,status',
@@ -48,5 +48,23 @@ describe('issue 1844: production apply rules', () => {
     // a value that is in neither the file nor English is not touched
     const other = planFill([{ id: 'm4', name_en: 'Unknown Product', translations: { ur: { name: 'Something Latin' } } }], map);
     expect(other).toEqual([]);
+  });
+});
+
+describe('issue 1844: rollback restores the recorded value', () => {
+  const base = { id: 'm9', field: 'name' as const, locale: 'ur', path: 'translations.ur.name' };
+
+  it('restores a recorded string with $set', () => {
+    expect(rollbackUpdate({ ...base, before: 'Dove Nourishing', after: 'Dove ur' })).toEqual({ $set: { 'translations.ur.name': 'Dove Nourishing' } });
+  });
+
+  it('restores an absent field as null with $set (never an unset)', () => {
+    const update = rollbackUpdate({ ...base, before: null, after: 'Dove ur' });
+    expect(update).toEqual({ $set: { 'translations.ur.name': null } });
+    expect(update).not.toHaveProperty('$unset');
+  });
+
+  it('restores an empty string as the empty string it was', () => {
+    expect(rollbackUpdate({ ...base, before: '', after: 'Dove ur' })).toEqual({ $set: { 'translations.ur.name': '' } });
   });
 });

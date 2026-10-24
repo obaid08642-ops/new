@@ -16,7 +16,7 @@
  *   Rollback (owner approval first):
  *     MONGODB_URI=... DB_NAME=... CONFIRM_MEDICINE_TRANSLATIONS=<csv_sha256 from the backup> \
  *       npx ts-node --transpile-only scripts/migrations/2026-10-medicine-translations-fill.ts --production --rollback=<backup.json>
- *     A field is restored only while it still holds the value this migration wrote.
+ *     A field is restored (with $set, to the recorded value) only while it still holds the value this migration wrote.
  *
  *   Test database only (--test-seed --apply): copies the English values into the six locales of the seeded test medicines.
  *     Refused for any DB_NAME without "test" or "live".
@@ -25,7 +25,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { connect, connection } from 'mongoose';
 import {
-  Backup, buildBackup, checkConfirmation, csvSha256, FillChange, loadTranslations, planFill,
+  Backup, buildBackup, checkConfirmation, csvSha256, FillChange, loadTranslations, planFill, rollbackUpdate,
 } from '../../src/modules/medicines/medicine-translation-fill';
 
 const arg = (name: string) => process.argv.find((a) => a.startsWith(`--${name}=`))?.split('=').slice(1).join('=');
@@ -84,8 +84,7 @@ async function main() {
     let restored = 0; let skipped = 0;
     for (const c of backup.changes) {
       const filter = { id: c.id, [c.path]: c.after };
-      const update = c.before === null ? { $unset: { [c.path]: '' } } : { $set: { [c.path]: c.before } };
-      const res = await connection.collection('medicines').updateOne(filter, update);
+      const res = await connection.collection('medicines').updateOne(filter, rollbackUpdate(c));
       if (res.modifiedCount) restored += 1; else skipped += 1;
     }
     console.log(JSON.stringify({ mode: 'rollback', db: dbName, restored, skipped_changed_since: skipped }));
