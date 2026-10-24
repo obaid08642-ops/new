@@ -59,7 +59,7 @@ export default async function LabPackageDetailPage({ params }: Props) {
   const description = pickTexts(locale, pkg.descriptions);
   const preparation = pickList(locale, pkg.preparations);
   // the package stores its tests as Arabic names or codes: shown in the page's language where the lab list knows them
-  const catalogue = pkg.includedServices?.length ? await getPublicLabServices().catch(() => null) : null;
+  const catalogue = pkg.includedServices?.length ? await Promise.resolve().then(() => getPublicLabServices()).catch(() => null) : null;
   const included = pkg.includedServices?.length ? includedTestNames(locale, pkg.includedServices, catalogue && catalogue.ok ? extractLabServices(await catalogue.json().catch(() => null)) : []) : [];
   const tags: Tag[] = [
     ...(pkg.homeVisitSupported ? [{ label: w("tagHome"), tone: LAB.tone } as Tag] : []),

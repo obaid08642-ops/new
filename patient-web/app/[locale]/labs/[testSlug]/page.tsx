@@ -71,7 +71,7 @@ export default async function OrderingItemPage({ params, searchParams }: Props) 
   const name = pickTexts(locale, item.names ?? { ar: item.nameAr, en: item.nameEn }) ?? t("itemTitle");
   const description = pickTexts(locale, item.descriptions ?? { ar: item.descriptionAr, en: item.descriptionEn });
   // a package stores its tests as Arabic names or codes: shown in the page's language where the lab list knows them
-  const catalogue = item.isPackage && item.included.length > 0 ? await getPublicLabServices().catch(() => null) : null;
+  const catalogue = item.isPackage && item.included.length > 0 ? await Promise.resolve().then(() => getPublicLabServices()).catch(() => null) : null;
   const included = item.isPackage ? includedTestNames(locale, item.included, catalogue && catalogue.ok ? extractLabServices(await catalogue.json().catch(() => null)) : []) : [];
   const prep = preparationFor(locale, item);
   const tone = kind === "radiology" ? RADIOLOGY : kind === "nursing" ? NURSING : LAB;
