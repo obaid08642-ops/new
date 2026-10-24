@@ -589,3 +589,12 @@ export class ResolvePriceReviewDto {
   @IsIn(['catalogue_updated', 'price_confirmed']) resolution: 'catalogue_updated' | 'price_confirmed';
   @IsOptional() @IsString() @MaxLength(500) note?: string;
 }
+
+/** PUT /admin/pharmacy/broadcasts/config: stop widening once this many live offers exist (0 = never stop). */
+export class BroadcastConfigDto {
+  @IsDefined()
+  @IsInt()
+  @Min(0)
+  @Max(100)
+  stop_after_offers: number;
+}

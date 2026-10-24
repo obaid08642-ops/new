@@ -1,0 +1,189 @@
+[
+  {
+    "batch": "parity-care",
+    "app": "patient-web",
+    "screen": "/nursing/catalog",
+    "element": "add nursing service to the ordering basket",
+    "file": "patient-web/app/[locale]/nursing/catalog/page.tsx",
+    "line": 100,
+    "found": "[backend] the add button and BasketBar (kind nursing) feed the ordering basket, but the ordering backend refuses nursing bookings (service_kind_not_bookable_yet)",
+    "suspect": "a patient can fill a basket that cannot be sent; booking works only through /home-care/services/[id]/book. Nothing was faked on the web.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-care",
+    "app": "patient-web",
+    "screen": "/home-care/services/[serviceId]/book",
+    "element": "repeat visits (days)",
+    "file": "patient-web/components-next/home-care-booking-form.tsx",
+    "line": 87,
+    "found": "[backend] POST /nursing/bookings has no days/sessions count; the app shows 'once or consecutive days' but only multiplies the estimate and sends no days",
+    "suspect": "the web books one visit; a days count needs a backend field and an owner decision (the app estimate may be wrong)",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-care",
+    "app": "patient-web",
+    "screen": "/home-care/services/[serviceId]/book",
+    "element": "availability and nationality filters",
+    "file": "patient-web/app/[locale]/home-care/services/[serviceId]/book/page.tsx",
+    "line": 48,
+    "found": "[backend] GET /home-care/providers honours gender, search and sort=rating only; availability, nationality and distance (nearest sort) are ignored and no distance_km is sent",
+    "suspect": "filters and the nearest sort shown in the app do nothing on the server",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-care",
+    "app": "patient-web",
+    "screen": "/home-care/services/[serviceId]/book",
+    "element": "address choice",
+    "file": "patient-web/components-next/home-care-booking-form.tsx",
+    "line": 193,
+    "found": "[client] a select of saved addresses that have a map point; the app also offers the selected-address row and the current location",
+    "suspect": "add the GPS option on the web",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-care",
+    "app": "patient-web",
+    "screen": "/nursing/visits/[visitId]",
+    "element": "rate the visit",
+    "file": "patient-web/app/[locale]/nursing/visits/[visitId]/page.tsx",
+    "line": 99,
+    "found": "[owner] the app's 'rate your visit' button only returns home and no nursing rating endpoint is wired in either client",
+    "suspect": "decide whether nursing visits are rated and which endpoint takes it",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-care",
+    "app": "patient-web",
+    "screen": "/nursing/visits/[visitId]",
+    "element": "embedded map and pick-up directions",
+    "file": "patient-web/app/[locale]/nursing/visits/[visitId]/page.tsx",
+    "line": 99,
+    "found": "[client] only an 'on the map' link is shown from current_lat/current_lng; no embedded map pin for the nurse and the home, no pick-up directions",
+    "suspect": "add a map component for the visit if the owner wants it on the web",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-care",
+    "app": "patient-web",
+    "screen": "/diagnostics",
+    "element": "approved labs strip, sort and filter sheet",
+    "file": "patient-web/app/[locale]/diagnostics/page.tsx",
+    "line": 147,
+    "found": "[client] the hub has no labs strip (rating, distance, home tag) and no sort/filter sheet; search still leaves for /diagnostics/search (labs only)",
+    "suspect": "add the strip and the sheet from existing /labs endpoints",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-care",
+    "app": "patient-web",
+    "screen": "/diagnostics",
+    "element": "insurance card opens the policy form",
+    "file": "patient-web/app/[locale]/diagnostics/page.tsx",
+    "line": 183,
+    "found": "[owner] the card opens add-policy (issue 1062); the app opens the pre-booking insurance upload and approval step",
+    "suspect": "the pre-booking upload form (insurer, network, camera, OCR, nearby lab, booking creation) is not on the web; needs an owner decision and the backend flow",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-care",
+    "app": "patient-web",
+    "screen": "/diagnostics",
+    "element": "radiology tile without centres count or add",
+    "file": "patient-web/app/[locale]/diagnostics/page.tsx",
+    "line": 249,
+    "found": "[backend] the board tile says 'from X SAR - N centres'; the scans list sends no centres count and the tile has no add toggle",
+    "suspect": "add the toggle; the centres count needs a field",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-care",
+    "app": "patient-web",
+    "screen": "/diagnostics/packages",
+    "element": "search needs Apply, categories are a select",
+    "file": "patient-web/app/[locale]/diagnostics/packages/page.tsx",
+    "line": 56,
+    "found": "[client] search filters on submit only and the category is a native select; the app filters as you type with chips from GET /labs/categories",
+    "suspect": "use chips and live filtering",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-care",
+    "app": "patient-web",
+    "screen": "/diagnostics/labs/[labId]",
+    "element": "directions, distance and branches",
+    "file": "patient-web/app/[locale]/diagnostics/labs/[labId]/page.tsx",
+    "line": 76,
+    "found": "[client] only rating, city/address and a phone link; no directions, distance or branches",
+    "suspect": "add the facts and a directions link",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-care",
+    "app": "patient-web",
+    "screen": "/diagnostics/lab-comparison",
+    "element": "legacy comparison with no price",
+    "file": "patient-web/app/[locale]/diagnostics/lab-comparison/page.tsx",
+    "line": 39,
+    "found": "[owner] cards show the name only (no price, rating, distance or book); the M6 providers step now does the comparison",
+    "suspect": "retire this page or redirect it to /labs/providers",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-care",
+    "app": "patient-web",
+    "screen": "/diagnostics/cart",
+    "element": "legacy cart shows no line price or total",
+    "file": "patient-web/components-next/diagnostics-cart-client.tsx",
+    "line": 31,
+    "found": "[owner] the old local cart has no quantity, no prices and a select for the lab; the M6 basket (/labs/basket) replaces it",
+    "suspect": "retire /diagnostics/cart, /checkout and the legacy compatible-labs call after the owner agrees",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-care",
+    "app": "patient-web",
+    "screen": "/diagnostics/checkout",
+    "element": "legacy checkout (free-text address and insurer)",
+    "file": "patient-web/app/[locale]/diagnostics/checkout/page.tsx",
+    "line": 14,
+    "found": "[owner] still reachable; the M6 when/confirm screens replace it",
+    "suspect": "retire with the legacy cart",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-care",
+    "app": "patient-web",
+    "screen": "/diagnostics/insurance-approval",
+    "element": "pre-booking upload form",
+    "file": "patient-web/app/[locale]/diagnostics/insurance-approval/page.tsx",
+    "line": 30,
+    "found": "[backend] without an order the web shows an empty state; the app shows company/network pickers, capture, OCR and creates the booking",
+    "suspect": "needs the backend pre-booking insurance flow and an owner decision",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-care",
+    "app": "patient-web",
+    "screen": "/diagnostics/bookings",
+    "element": "list has no grouping or amount",
+    "file": "patient-web/app/[locale]/diagnostics/bookings/page.tsx",
+    "line": 50,
+    "found": "[client] flat list without current/previous groups or the amount",
+    "suspect": "group and show the amount if the list sends it",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-care",
+    "app": "patient-web",
+    "screen": "/diagnostics/bookings/[domain]/[bookingId]",
+    "element": "results, radiology report, technician, total, cancel",
+    "file": "patient-web/app/[locale]/diagnostics/bookings/[domain]/[bookingId]/page.tsx",
+    "line": 56,
+    "found": "[client] no result rows with reference ranges, no radiology report or images or stages, no technician call, total or cancel",
+    "suspect": "draw them from the booking and results endpoints",
+    "review_status": "open"
+  }
+]

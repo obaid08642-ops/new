@@ -18,9 +18,15 @@ export function pointFromAddresses(payload: unknown): Point | null {
     : payload && typeof payload === "object" && Array.isArray((payload as Raw).addresses ?? (payload as Raw).data)
       ? (((payload as Raw).addresses ?? (payload as Raw).data) as Raw[])
       : [];
-  const usable = rows.filter((r): r is Raw => !!r && typeof r === "object" && typeof r.latitude === "number" && typeof r.longitude === "number" && Number.isFinite(r.latitude) && Number.isFinite(r.longitude));
+  // The backend's address rows carry `lat` / `lng` (users.addresses.dto.ts); `latitude` / `longitude` are accepted too.
+  const coords = (r: Raw): Point | null => {
+    const lat = typeof r.lat === "number" ? r.lat : r.latitude;
+    const lng = typeof r.lng === "number" ? r.lng : r.longitude;
+    return typeof lat === "number" && typeof lng === "number" && Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
+  };
+  const usable = rows.filter((r): r is Raw => !!r && typeof r === "object" && coords(r) !== null);
   const chosen = usable.find((r) => r.is_default === true) ?? usable[0];
-  return chosen ? { lat: chosen.latitude as number, lng: chosen.longitude as number } : null;
+  return chosen ? coords(chosen) : null;
 }
 
 /** The query string that carries the context from page to page. */
