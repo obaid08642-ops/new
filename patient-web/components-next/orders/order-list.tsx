@@ -7,14 +7,18 @@ import { useTranslations } from "next-intl";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
 import { Segmented, StatusChip } from "@/components-next/ui-generated/components/Controls";
+import { Chip } from "@/components-next/ui-generated/components/Surfaces";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
-import type { CenterRow } from "./center-rows";
+import type { CenterRow, OrderKind } from "./center-rows";
 import { LocalDate } from "./local-date";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "./orders.module.css";
 
 type Tab = "current" | "previous";
+
+/** The order of the service chips (the app's filterKind order); only the services that have a row are drawn. */
+const KIND_ORDER: readonly OrderKind[] = ["pharmacy", "consultation", "labs", "radiology", "nursing", "returns"];
 
 /**
  * The orders of canvas/Orders, for every service (issue 378): two tabs (current, previous) and one card per order with
@@ -25,7 +29,11 @@ export function OrderList({ locale, rows, partialNote }: { locale: string; rows:
   const t = useTranslations("Orders");
   const router = useRouter();
   const [tab, setTab] = useState<Tab>(() => (rows.some((row) => row.bucket === "current") || rows.length === 0 ? "current" : "previous"));
-  const shown = rows.filter((row) => row.bucket === tab);
+  const [kind, setKind] = useState<OrderKind | null>(null);
+  const kinds = KIND_ORDER.filter((value) => rows.some((row) => row.kind === value));
+  // a filter whose service has no rows falls back to All
+  const activeKind = kind !== null && kinds.includes(kind) ? kind : null;
+  const shown = rows.filter((row) => row.bucket === tab && (activeKind === null || row.kind === activeKind));
 
   return (
     <>
@@ -39,6 +47,14 @@ export function OrderList({ locale, rows, partialNote }: { locale: string; rows:
           options={[{ value: "current", label: t("tabCurrent") }, { value: "previous", label: t("tabPrevious") }]}
         />
       </div>
+      {kinds.length > 1 ? (
+        <div className={styles.kindChips} role="group" aria-label={t("filterLabel")}>
+          <Chip label={t("filterAll")} selected={activeKind === null} onClick={() => setKind(null)} />
+          {kinds.map((value) => (
+            <Chip key={value} label={t(`filterKind.${value}`)} selected={activeKind === value} onClick={() => setKind(value)} />
+          ))}
+        </div>
+      ) : null}
       {shown.length === 0 ? (
         <div className={rx.state} role="status">
           <EmptyState

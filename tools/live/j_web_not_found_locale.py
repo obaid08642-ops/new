@@ -13,13 +13,16 @@ WEB = os.environ.get('NABD_WEB_JOURNEYS_URL', 'http://127.0.0.1:3100')
 HERE = os.path.dirname(os.path.abspath(__file__))
 AR = re.compile(r'[؀-ۿ]')
 # pages that answer notFound() without the id they need (seen in the 2026-10-16 walkthrough)
-PATHS = ['pharmacy/final-quote', 'consultations/booking-status', 'nursing/insurance-status', 'diagnostics/test-detail']
+PATHS = ['pharmacy/final-quote', 'consultations/booking-status', 'diagnostics/test-detail']
+# nursing/insurance-status no longer answers notFound(): with no home care booking it shows its own empty state, as the app does
+EMPTY_PATH = 'nursing/insurance-status'
 
 
 def main():
     import j_accounts
     acct = j_accounts.app_signup(label='web-not-found')
     titles = {loc: json.load(open(os.path.join(HERE, '../../patient-web/messages', f'{loc}.json')))['NotFound']['title'] for loc in ('en', 'fil')}
+    empty = {loc: json.load(open(os.path.join(HERE, '../../patient-web/messages', f'{loc}.json')))['NursingWeb']['insuranceNone'] for loc in ('en', 'fil')}
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
@@ -48,6 +51,10 @@ def main():
                 step(f'/{loc}/{path} says "{title}"', title in body, body[:200])
                 step(f'/{loc}/{path} shows no Arabic', not AR.search(body), [l for l in body.split('\n') if AR.search(l)][:3])
                 step(f'/{loc}/{path} returns to the {loc} home', page.locator(f'main a[href="/{loc}"]').count() > 0, body[:200])
+            page.goto(f'{WEB}/{loc}/{EMPTY_PATH}', wait_until='load', timeout=60000)
+            body = page.inner_text('main') if page.locator('main').count() else page.inner_text('body')
+            step(f'/{loc}/{EMPTY_PATH} says "{empty[loc]}" (its own empty state)', empty[loc] in body, body[:200])
+            step(f'/{loc}/{EMPTY_PATH} shows no Arabic', not AR.search(body), [l for l in body.split('\n') if AR.search(l)][:3])
     except Exception as e:
         step('web not-found flow', False, str(e)[:300])
     browser.close()

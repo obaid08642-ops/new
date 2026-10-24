@@ -185,6 +185,8 @@ export function CheckoutScreen({ locale, prescription = null }: { locale: Locale
               disabled={sending}
             />
           </div>
+          {/* the app's pickup note: the address card stays, because pickup still finds the pharmacies near the patient */}
+          {fulfillment === "pickup" ? <p className={rx.note}>{t("pickupNote")}</p> : null}
           <AddressCard locale={locale} state={address} />
         </section>
 

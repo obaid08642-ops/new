@@ -29,7 +29,7 @@ export default async function VideoCallPage({ params, searchParams }: Props) {
     <ConsultPage locale={locale} title={c("videoCallTitle")} backHref={`/${locale}/appointments/${appointmentId}`} width="wide">
       <Hero icon="video-camera" tone="violet" title={c("videoCallTitle")} sub={c("videoCallSub")} />
       {credential ? (
-        <VideoRoomClient token={credential.token} serverUrl={livekitUrl()} chatHref={`/${locale}/appointments/${appointmentId}/chat`} labels={{ connecting: c("callConnecting"), live: c("callLive"), waiting: c("callWaitingForDoctor"), ended: c("callEnded"), leave: c("callLeave"), microphone: c("callMicrophone"), camera: c("callCamera"), you: c("callYou"), doctor: c("callDoctor"), reconnecting: c("callReconnecting"), audioOnly: c("callAudioOnly"), tryVideo: c("callTryVideo"), dropped: c("callDropped"), continueInChat: c("callContinueInChat") }} />
+        <VideoRoomClient token={credential.token} serverUrl={livekitUrl()} chatHref={`/${locale}/appointments/${appointmentId}/chat`} ratingHref={`/${locale}/consultations/post-call-rating?appointmentId=${appointmentId}`} labels={{ connecting: c("callConnecting"), live: c("callLive"), waiting: c("callWaitingForDoctor"), ended: c("callEnded"), leave: c("callLeave"), microphone: c("callMicrophone"), camera: c("callCamera"), you: c("callYou"), doctor: c("callDoctor"), reconnecting: c("callReconnecting"), audioOnly: c("callAudioOnly"), tryVideo: c("callTryVideo"), dropped: c("callDropped"), continueInChat: c("callContinueInChat") }} />
       ) : (
         <ConsultState kind="error" title={reason === "not_ready" ? c("callNotReady") : c("callUnavailable")} body={c("callAvailableLater")} retryLabel={rs("retry")} />
       )}
