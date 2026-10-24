@@ -40,6 +40,7 @@ const RADIOLOGY_PREPARATION_TEXT: Record<string, [string, string]> = {
 const ALLOWED_ROLES_PROVIDER = ['radiology', 'admin', 'hospital'];
 
 import { nearestFirst } from '../provider/services/nearest-first';
+import { NAME_PROJECTION, withItemNames, withScanNames } from '../../common/booking-names';
 
 /** Public card for a provider in carousels and price lists: no contact or account details. */
 function publicProvider(p: any) {
@@ -610,8 +611,15 @@ export class RadiologyOpsService {
       this.bkgModel.find({ patient_id: user.id }).sort({ createdAt: -1 }).lean(),
       me?._id ? this.centerBkgModel.find({ patient_id: me._id }).sort({ createdAt: -1 }).lean() : Promise.resolve([]),
     ]);
-    return [...(current as any[]), ...(center as any[]).map((c) => ({ ...c, state: c.state || c.status }))]
+    const all = [...(current as any[]), ...(center as any[]).map((c) => ({ ...c, state: c.state || c.status }))]
       .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+    return this.withNames(all);
+  }
+
+  /** Issue 1832: every line carries `names` and the booking `scan_names` (six languages), resolved from the catalogue by `service_id` in one query. */
+  private async withNames(bookings: any[]) {
+    const named = await withItemNames(bookings, (ids) => this.svcModel.find({ id: { $in: ids } }, NAME_PROJECTION).lean() as any);
+    return named.map(withScanNames);
   }
 
   async getBooking(id: string, user: any) {
@@ -629,7 +637,8 @@ export class RadiologyOpsService {
       throw new NotFoundException();
     }
     // Design parity (#1819): the technician's name and, once the report is published, the files the patient may open.
-    return { ...b, technician: await this.technicianView(b), report_files: b.patient_id === user.id ? await this.reportFilesView(b) : undefined };
+    const [named] = await this.withNames([b]);
+    return { ...named, technician: await this.technicianView(b), report_files: b.patient_id === user.id ? await this.reportFilesView(b) : undefined };
   }
 
   /** The technician assigned to a booking: display name only (never the account id, phone or licence). */

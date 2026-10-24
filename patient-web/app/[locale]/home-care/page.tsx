@@ -116,7 +116,7 @@ export default async function HomeCarePage({ params, searchParams }: Props) {
       ) : (
         <RowList label={t("bookingsTitle")}>
           {bookings.map((booking) => {
-            const name = pickText(locale, booking.serviceNameAr, booking.serviceNameEn) ?? t("serviceUnavailable");
+            const name = pickTexts(locale, booking.serviceNames) ?? t("serviceUnavailable");
             const status = nursingStatus(booking.state);
             return (
               <li key={booking.id}>

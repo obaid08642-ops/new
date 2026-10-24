@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { type Texts } from "@/lib/i18n/localized";
 
 export const diagnosticDomains = ["labs", "radiology"] as const;
 export type DiagnosticDomain = typeof diagnosticDomains[number];
@@ -22,6 +23,9 @@ export type DiagnosticBooking = {
   /** The first test of a lab booking (items[0].name_ar / name_en). */
   testNameAr?: string;
   testNameEn?: string;
+  /** The names in every language (issue 1832): the booking's `scan_names` / `items[0].names` over its stored Arabic/English. Read them with `pickTexts`. */
+  scanNames?: Texts;
+  testNames?: Texts;
   medicalReferralRequired?: boolean;
   hasReport?: boolean;
   /** Lab reports the booking holds a file for, opened through GET labs/bookings/:id/reports/:reportId (journeys#54). */
@@ -34,6 +38,19 @@ export type DiagnosticBooking = {
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
+}
+
+const NAME_LANGS = ["ar", "en", "ur", "hi", "bn", "tl"] as const;
+
+/** The server's `names` map ({ar,en,ur,hi,bn,tl}) merged over the stored Arabic/English of an old row; none when there is no text at all. */
+function namesFrom(map: unknown, ar?: string, en?: string): Texts | undefined {
+  const out: Texts = { ...(ar ? { ar } : {}), ...(en ? { en } : {}) };
+  const record = asRecord(map);
+  if (record) for (const lang of NAME_LANGS) {
+    const value = record[lang];
+    if (typeof value === "string" && value.trim()) out[lang] = value.trim();
+  }
+  return Object.keys(out).length ? out : undefined;
 }
 
 function listFrom(payload: unknown): unknown[] {
@@ -69,6 +86,7 @@ function bookingFrom(value: unknown): DiagnosticBooking | null {
   const record = asRecord(value);
   const id = bookingIdSchema.safeParse(record?.id);
   if (!id.success || !record) return null;
+  const firstItem = asRecord(Array.isArray(record.items) ? record.items[0] : null) ?? {};
   return {
     id: id.data,
     state: text(record, ["state", "status"]),
@@ -76,8 +94,10 @@ function bookingFrom(value: unknown): DiagnosticBooking | null {
     locationType: text(record, ["location_type", "delivery_mode"]),
     scanNameAr: text(record, ["scan_name_ar"]),
     scanNameEn: text(record, ["scan_name_en"]),
-    testNameAr: text(asRecord(Array.isArray(record.items) ? record.items[0] : null) ?? {}, ["name_ar"]),
-    testNameEn: text(asRecord(Array.isArray(record.items) ? record.items[0] : null) ?? {}, ["name_en"]),
+    testNameAr: text(firstItem, ["name_ar"]),
+    testNameEn: text(firstItem, ["name_en"]),
+    scanNames: namesFrom(record.scan_names, text(record, ["scan_name_ar"]), text(record, ["scan_name_en"])),
+    testNames: namesFrom(firstItem.names, text(firstItem, ["name_ar"]), text(firstItem, ["name_en"])),
     results: resultsFrom(record.results),
     total: [record.total, record.total_price].map((v) => (typeof v === "number" ? v : typeof v === "string" ? Number(v) : NaN)).find((v) => Number.isFinite(v) && v > 0),
     medicalReferralRequired: typeof record.medical_referral_required === "boolean" ? record.medical_referral_required : undefined,

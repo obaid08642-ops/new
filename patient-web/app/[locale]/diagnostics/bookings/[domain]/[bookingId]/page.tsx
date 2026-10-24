@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import { pickTexts } from "@/lib/i18n/localized";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractDiagnosticBooking, extractDiagnosticTracking, parseDiagnosticBookingId, parseDiagnosticDomain } from "@/lib/api/diagnostics";
 import { getDiagnosticBooking, getDiagnosticTracking } from "@/lib/api/diagnostics-server";
@@ -7,7 +8,7 @@ import { isLocale } from "@/lib/i18n";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { ActionLinks, Facts, Hero, Notice, SectionCard, type FactRow, type LinkAction } from "@/components-next/consult/consult-parts";
-import { LAB, RADIOLOGY, TagRow, minutesText, pickText } from "@/components-next/diagnostics/diag-parts";
+import { LAB, RADIOLOGY, TagRow, minutesText } from "@/components-next/diagnostics/diag-parts";
 import { diagStatus } from "@/components-next/diagnostics/status";
 import { Timeline } from "@/components-next/ui-generated/components/Cards";
 import { formatWhen } from "@/components-next/pharmacy-offers/format";
@@ -44,7 +45,7 @@ export default async function DiagnosticDetailPage({ params }: Props) {
   const trackingResponse = await getDiagnosticTracking(token, domain, bookingId);
   const tracking = domain === "labs" && trackingResponse.ok ? extractDiagnosticTracking(await trackingResponse.json().catch(() => null)) : null;
   const visual = domain === "labs" ? LAB : RADIOLOGY;
-  const label = domain === "labs" ? t("labs.label") : pickText(locale, booking.scanNameAr, booking.scanNameEn) ?? t("radiology.label");
+  const label = domain === "labs" ? t("labs.label") : pickTexts(locale, booking.scanNames) ?? t("radiology.label");
   const status = diagStatus(booking.state);
   const statusText = status.key === "unknown" ? t("statusUnavailable") : w(`status_${status.key}`);
   const when = booking.scheduledAt ? formatWhen(locale, booking.scheduledAt) : null;

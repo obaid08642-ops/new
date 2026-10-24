@@ -12,6 +12,8 @@ const visitSchema = z.object({
   service_name: text(200),
   service_name_ar: text(200),
   service_name_en: text(200),
+  /** Issue 1832: the service name in every language, resolved by the server from the catalogue. */
+  service_names: z.object({ ar: text(200), en: text(200), ur: text(200), hi: text(200), bn: text(200), tl: text(200) }).partial().nullish().transform((value) => value || undefined),
   address_label: text(300),
 }).strip();
 export type NursingVisit = { id: string; status?: string; scheduledAt?: string; providerName?: string; serviceName?: string; addressLabel?: string };
@@ -23,7 +25,9 @@ export function extractNursingVisits(value: unknown, locale = "ar"): NursingVisi
     const parsed = visitSchema.safeParse(row);
     if (!parsed.success) return [];
     const v = parsed.data;
-    const serviceName = v.service_name || (rtl ? v.service_name_ar || v.service_name_en : v.service_name_en || v.service_name_ar);
+    const lang = locale === "fil" ? "tl" : locale;
+    const own = v.service_names && (v.service_names as Record<string, string | undefined>)[lang];
+    const serviceName = own || v.service_name || (rtl ? v.service_name_ar || v.service_name_en : v.service_name_en || v.service_name_ar);
     return [{ id: v.id, status: v.status || v.state, scheduledAt: v.scheduled_at, providerName: v.provider_name, serviceName, addressLabel: v.address_label }];
   });
 }
