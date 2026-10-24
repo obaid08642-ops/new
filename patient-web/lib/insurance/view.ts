@@ -102,13 +102,20 @@ export function parseCoverage(payload: unknown): CoverageResult | null {
   };
 }
 
+/** The name in the page's language: Arabic on the Arabic page, the English (brand) name elsewhere, the other one when it is missing. */
+function nameFor(row: Record<string, unknown>, locale: string): string | undefined {
+  const ar = text(row.name_ar);
+  const en = text(row.name_en);
+  return (locale === "ar" ? ar ?? en : en ?? ar) ?? text(row.name);
+}
+
 export type ProviderRow = { id: string; name: string; type?: string; specialties: string[]; city?: string; phone?: string };
 
 /** GET /providers?insurance_company=…: the network providers of the patient's insurer. */
-export function parseProviders(payload: unknown): ProviderRow[] {
+export function parseProviders(payload: unknown, locale = "ar"): ProviderRow[] {
   return listOf(payload).flatMap((row) => {
     const id = text(row.id) ?? text(row._id);
-    const name = text(row.name_ar) ?? text(row.name_en) ?? text(row.name);
+    const name = nameFor(row, locale);
     const specialties = (Array.isArray(row.specialties) ? row.specialties : row.specialty ? [row.specialty] : []).filter((item): item is string => typeof item === "string" && !!item.trim());
     return id && name ? [{ id, name, type: text(row.type), specialties: specialties.slice(0, 3), city: text(row.city), phone: text(row.phone) }] : [];
   });
@@ -117,11 +124,11 @@ export function parseProviders(payload: unknown): ProviderRow[] {
 export type CompanyRow = { id: string; name: string };
 
 /** GET /insurance/companies: the insurers a policy can be added with. */
-export function parseCompanies(payload: unknown): CompanyRow[] {
+export function parseCompanies(payload: unknown, locale = "ar"): CompanyRow[] {
   return listOf(payload).flatMap((row) => {
     const id = text(row.id) ?? text(row._id) ?? text(row.code);
     if (!id) return [];
-    return [{ id, name: text(row.name_ar) ?? text(row.name_en) ?? text(row.name) ?? text(row.code) ?? id }];
+    return [{ id, name: nameFor(row, locale) ?? text(row.code) ?? id }];
   });
 }
 
