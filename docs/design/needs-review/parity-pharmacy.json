@@ -1,0 +1,123 @@
+[
+  {
+    "batch": "parity-pharmacy",
+    "app": "patient-web",
+    "screen": "/cart/checkout",
+    "element": "change delivery location",
+    "file": "patient-web/components-next/pharmacy/address-card.tsx",
+    "line": 53,
+    "found": "[client] The app's 'Change location' opens a map location picker (/shared/location-picker) and blocks the send when there is no map point; the web 'Change' opens the saved-address list (profile/addresses?select=1) and has no map picker component to reuse.",
+    "suspect": "A web map picker (search plus pin) is a new shared component; needs the owner's go-ahead and a board for it. Not built in this parity pass.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-pharmacy",
+    "app": "patient-web",
+    "screen": "/orders/[id]/offers",
+    "element": "choosing an offer (footer confirm step)",
+    "file": "patient-web/components-next/pharmacy-offers/offer-list.tsx",
+    "line": 221,
+    "found": "[owner] The app marks a card and confirms from a sticky footer (pharmacy, total, cash/insurance segmented, 'no payment now'); the web selects with one button per card and takes the coverage chosen at checkout (decision 30). The app checkout also has the coverage choice, so the two flows disagree on where coverage is chosen.",
+    "suspect": "Owner decision needed on one place for the coverage choice before the footer step is copied; changing it moves payment logic, which a design pass does not do.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-pharmacy",
+    "app": "patient-web",
+    "screen": "/orders/[id]/tracking",
+    "element": "rate after delivery",
+    "file": "patient-web/components-next/orders/tracking-screen.tsx",
+    "line": 177,
+    "found": "[client] The app opens /reviews with booking_kind=pharmacy when the order is done; the web /reviews page only lists reviews (GET /patient-ux/reviews) and no screen on the web creates one for any service.",
+    "suspect": "A review-create screen is a new feature shared by every service; needs a board and an endpoint check (reviews POST). Not added here.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-pharmacy",
+    "app": "patient-web",
+    "screen": "/orders/[id]/tracking",
+    "element": "courier vehicle",
+    "file": "patient-web/components-next/orders/tracking-screen.tsx",
+    "line": 153,
+    "found": "[backend] The board's courier row shows the vehicle; the order read (GET /patient/pharmacy/orders/:id, delivery) sends courier_name, courier_phone and eta only, no vehicle field.",
+    "suspect": "Backend must send the vehicle (delivery.courier_vehicle) before the web can draw it.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-pharmacy",
+    "app": "patient-web",
+    "screen": "/p/[slug]",
+    "element": "cold-chain chip",
+    "file": "patient-web/app/[locale]/p/[slug]/page.tsx",
+    "line": 329,
+    "found": "[backend] The app draws a chip when cold_chain is true; the public product answer (GET /public/product/:locale/:slug, toPublicMedicine) does not carry cold_chain.",
+    "suspect": "Backend must add cold_chain to the public product DTO.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-pharmacy",
+    "app": "patient-web",
+    "screen": "/p/[slug]",
+    "element": "interactions section",
+    "file": "patient-web/app/[locale]/p/[slug]/page.tsx",
+    "line": 252,
+    "found": "[backend] The app shows an 'interactions' accordion from the details answer; the public product DTO has no interactions array (the medicine schema has one).",
+    "suspect": "Backend must add interactions to the public product DTO.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-pharmacy",
+    "app": "patient-web",
+    "screen": "/p/[slug]",
+    "element": "related products row",
+    "file": "patient-web/app/[locale]/p/[slug]/page.tsx",
+    "line": 419,
+    "found": "[backend] The app reads related_product_ids and looks the rows up with POST /medicines/compare; the public product DTO does not send related_product_ids, so the web has nothing to look up (it keeps the equivalents/similar rail).",
+    "suspect": "Backend must add related_product_ids to the public product DTO.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-pharmacy",
+    "app": "patient-web",
+    "screen": "/p/[slug]",
+    "element": "availability in nearby pharmacies and insurance coverage",
+    "file": "patient-web/app/[locale]/p/[slug]/page.tsx",
+    "line": 356,
+    "found": "[backend] The board's buy card shows 'available in N nearby pharmacies', the nearest distance and 'covered by {insurer}' with a co-pay note; both depend on the signed-in patient (location, policy) and the product page is one cached public page for everyone, and no public endpoint answers them.",
+    "suspect": "Needs an authenticated, per-patient endpoint (or a client read after sign-in) and an owner decision on showing patient data on a cached page.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-pharmacy",
+    "app": "patient-web",
+    "screen": "/c",
+    "element": "filter sheet (forms, brands, Rx, price range)",
+    "file": "patient-web/app/[locale]/c/[[...category]]/category-view.tsx",
+    "line": 258,
+    "found": "[backend] The app's filter sheet filters by form, brand, Rx and min/max price; the public catalogue list (GET /public/categories/:locale/items) accepts only category, sub, q, page, limit and sort, so the web can only offer search, category, sub-category and sort.",
+    "suspect": "Backend must add forms, brands, rx, min_price and max_price to the public category items endpoint.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-pharmacy",
+    "app": "patient-web",
+    "screen": "/pharmacy/rx-order?prescriptionId",
+    "element": "medicine quantity per prescription line",
+    "file": "patient-web/components-next/pharmacy/rx-order-screen.tsx",
+    "line": 62,
+    "found": "[backend] The app shows dose and quantity on each line; the patient view of a prescription (GET /prescriptions/:id, toPatientWebDto) sends name, dose, frequency and duration only. The Rx number is drawn now.",
+    "suspect": "Backend must add the quantity to the patient prescription view.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-pharmacy",
+    "app": "patient-web",
+    "screen": "/pharmacy/payment",
+    "element": "arrival time and tax line",
+    "file": "patient-web/components-next/pharmacy-checkout/pay-screen.tsx",
+    "line": 119,
+    "found": "[backend] The CheckoutV2 board shows 'arrives in {time}' and a tax line ('included'); the order read and the payment capabilities send neither an arrival estimate nor a tax amount. The order number, pickup variant and pharmacy name are drawn now.",
+    "suspect": "Backend must send the arrival estimate and the tax amount (or the owner confirms they are not shown).",
+    "review_status": "open"
+  }
+]

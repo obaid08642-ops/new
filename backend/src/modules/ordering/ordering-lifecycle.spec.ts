@@ -80,3 +80,38 @@ describe('M7 confirm deadline', () => {
     expect(await svc.confirm({ id: 'lab' }, 'b1')).toEqual({ confirmed: true });
   });
 });
+
+describe('M7 expiry of an unconfirmed booking', () => {
+  const past = new Date(Date.now() - 60_000);
+  const makeExpiry = (booking: any, cancelUnconfirmed: () => Promise<boolean>) => {
+    const updates: any[] = [];
+    const bookings = { findOne: jest.fn(async () => booking), updateOne: jest.fn(async () => ({})) };
+    const lcCol = { findOneAndUpdate: jest.fn(async () => ({ booking_id: 'b1' })), updateOne: jest.fn(async (f: any, u: any) => { updates.push(u); return {}; }), find: jest.fn() };
+    const conn: any = { collection: jest.fn((n: string) => (n === 'labbookings' ? bookings : lcCol)) };
+    const ordering: any = { bump: jest.fn(async () => undefined) };
+    const labs: any = { cancelUnconfirmed: jest.fn(cancelUnconfirmed) };
+    const svc: any = new OrderingLifecycleService(conn, ordering, labs, {} as never, {} as never);
+    return { svc, updates, ordering, labs };
+  };
+  const due = { booking_id: 'b1', patient_id: 'p', provider_account_id: 'lab', quote_id: 'q', confirm_deadline_at: past, confirmed_at: null };
+
+  it('a booking that is already past the cancellable point is not left locked: the claim is released and no deadline applies', async () => {
+    const { svc, updates, ordering } = makeExpiry({ ...B, state: 'CONFIRMED' }, async () => false);
+    await svc.expireOne(due);
+    expect(updates).toEqual([{ $unset: { cancelled_at: '' }, $set: { confirm_deadline_at: null } }]);
+    expect(ordering.bump).not.toHaveBeenCalled();
+  });
+
+  it('a missing booking releases the claim too and never cancels anything', async () => {
+    const { svc, updates, labs } = makeExpiry(null, async () => true);
+    await svc.expireOne(due);
+    expect(labs.cancelUnconfirmed).not.toHaveBeenCalled();
+    expect(updates[0]).toEqual({ $unset: { cancelled_at: '' }, $set: { confirm_deadline_at: null } });
+  });
+
+  it('a cancel that throws releases the claim so the next sweep retries, and the error still surfaces', async () => {
+    const { svc, updates } = makeExpiry(B, async () => { throw new Error('boom'); });
+    await expect(svc.expireOne(due)).rejects.toThrow('boom');
+    expect(updates).toEqual([{ $unset: { cancelled_at: '' } }]);
+  });
+});

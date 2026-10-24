@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { callPatientApi } from "@/lib/api/upstream";
 import { extractRecord, profileDomainState, readProfileFields, type ProfileDomainState, type ProfileField } from "@/lib/api/profile";
+import { hintFromAccessToken } from "@/lib/auth/session-hint";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { ConsultPage } from "@/components-next/consult/consult-page";
@@ -40,6 +41,20 @@ export default async function ProfilePage({ params }: Props) {
   const t = await getTranslations("Profile");
   const a = await getTranslations("AccountWeb");
   const token = await requirePatientAccess(locale);
+  // A guest has no account data: the board's card with sign-in and create-account, not empty cards.
+  const hint = hintFromAccessToken(token);
+  if (hint?.kind === "user" && hint.isGuest) {
+    const welcome = await getTranslations("Welcome");
+    return (
+      <ConsultPage locale={locale} title={a("profileTitle")} backHref={`/${locale}`}>
+        <SectionCard id="guest" title={a("guestTitle")}>
+          <Notice>{a("guestBody")}</Notice>
+          <ButtonLink href={`/${locale}/login`} label={welcome("login")} variant="primary" />
+          <ButtonLink href={`/${locale}/register`} label={welcome("register")} variant="outline" />
+        </SectionCard>
+      </ConsultPage>
+    );
+  }
   const [profileResponse, medicalResponse, insuranceResponse] = await Promise.all([
     callPatientApi("/auth/me", {}, token),
     callPatientApi("/medical-profile", {}, token),

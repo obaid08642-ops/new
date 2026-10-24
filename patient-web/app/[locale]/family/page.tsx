@@ -120,7 +120,7 @@ export default async function FamilyPage({ params }: Props) {
           <ul className={styles.rows}>
             {members.map((member) => {
               const name = member.displayName || t("member");
-              const granted = grants.has(member.id) ? knownPermissions(grants.get(member.id) ?? []).length : null;
+              const granted = member.role !== "owner" && grants.has(member.id) ? knownPermissions(grants.get(member.id) ?? []).length : null;
               const joined = formatDate(locale, member.joinedAt);
               const sub = [member.role === "owner" ? t("owner") : t("memberRole"), member.relation, joined].filter(Boolean).join(" · ");
               return (

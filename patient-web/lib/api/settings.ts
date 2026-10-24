@@ -7,7 +7,7 @@ export const STORAGE_ITEM_KEYS = ["uploaded_prescriptions", "medical_reports"] a
 export type StorageItemKey = (typeof STORAGE_ITEM_KEYS)[number];
 const storageItemSchema = z.object({ key: z.enum(STORAGE_ITEM_KEYS), val: z.string().max(80), pct: z.number().min(0).max(100) }).passthrough();
 const storageSchema = z.object({ used: z.string().max(80).optional(), total: z.string().max(80).optional(), items: z.array(z.unknown()).max(20).optional() }).passthrough();
-const sessionSchema = z.object({ device: z.string().max(160).nullable().optional(), expires_in_seconds: z.number().int().min(0).max(31536000).optional() }).passthrough();
+const sessionSchema = z.object({ device: z.string().max(160).nullable().optional(), expires_in_seconds: z.number().int().min(0).max(31536000).optional(), is_current: z.boolean().optional(), label: z.string().max(80).nullable().optional(), platform: z.string().max(40).nullable().optional(), ip: z.string().max(64).nullable().optional(), last_seen_at: z.string().max(40).nullable().optional() }).passthrough();
 
 function record(payload: unknown): Record<string, unknown> | null {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) return null;
@@ -36,7 +36,7 @@ export function parseSessions(payload: unknown): SessionSummary[] {
   return list.flatMap((item) => { const parsed = sessionSchema.safeParse(item); if (!parsed.success) return []; return [{ device: parsed.data.device, expiresInSeconds: parsed.data.expires_in_seconds }]; });
 }
 
-export type OwnSession = SessionSummary & { id?: string };
+export type OwnSession = SessionSummary & { id?: string; current?: boolean; label?: string | null; platform?: string | null; ip?: string | null; lastSeenAt?: string | null };
 
 /**
  * The patient's own sessions WITH the id each one is ended by (DELETE /users/me/sessions/:jti), for the security screen's
@@ -51,7 +51,7 @@ export function parseOwnSessions(payload: unknown): OwnSession[] {
     if (!parsed.success) return [];
     const raw = item && typeof item === "object" ? (item as { id?: unknown }).id : undefined;
     const id = typeof raw === "string" && /^[A-Za-z0-9_-]{1,128}$/.test(raw) ? raw : undefined;
-    return [{ id, device: parsed.data.device, expiresInSeconds: parsed.data.expires_in_seconds }];
+    return [{ id, device: parsed.data.device, expiresInSeconds: parsed.data.expires_in_seconds, current: parsed.data.is_current, label: parsed.data.label, platform: parsed.data.platform, ip: parsed.data.ip, lastSeenAt: parsed.data.last_seen_at }];
   });
 }
 
