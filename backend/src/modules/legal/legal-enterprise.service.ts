@@ -271,13 +271,19 @@ export class LegalEnterpriseService {
           'تم تعليق حسابك تلقائياً لانتهاء الترخيص المهني. يرجى تجديد الترخيص ورفعه لإعادة التفعيل.',
           { reason: 'license_expired', profile_id: p.id });
         this.logger.warn(`Provider ${p.id} auto-suspended (license expired)`);
-      } else if (thresholds.includes(daysLeft)) {
-        const flag = `license_warn_${daysLeft}d`;
-        if (!p[flag]) {
+      } else if (daysLeft <= thresholds[0]) {
+        // The nearest threshold at or above the days left (29 days left = the 30-day warning), so a missed run does not skip a warning.
+        const bucket = [...thresholds].reverse().find((t) => daysLeft <= t) as number;
+        const flag = `license_warn_${bucket}d`;
+        // A renewed licence has a new expiry date: the warnings of the previous one no longer count.
+        const expiryKey = new Date(p.license_expiry_date).toISOString();
+        const sameExpiry = p.license_warn_expiry === expiryKey;
+        if (!sameExpiry || !p[flag]) {
           await this.notify(p.user_id || p.account_id, `تنبيه: ترخيصك ينتهي خلال ${daysLeft} يوم`,
             `ترخيصك المهني ينتهي في ${new Date(p.license_expiry_date).toLocaleDateString('ar-SA')}. جدّده لتجنب التعليق التلقائي.`,
             { reason: 'license_expiring', days_left: daysLeft, profile_id: p.id });
-          await this.conn.collection('provider_profiles').updateOne({ _id: p._id }, { $set: { [flag]: true } });
+          const reset = sameExpiry ? {} : Object.fromEntries(thresholds.map((t) => [`license_warn_${t}d`, false]));
+          await this.conn.collection('provider_profiles').updateOne({ _id: p._id }, { $set: { ...reset, [flag]: true, license_warn_expiry: expiryKey } });
         }
       }
     }
