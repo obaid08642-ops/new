@@ -6,19 +6,8 @@
     "element": "change delivery location",
     "file": "patient-web/components-next/pharmacy/address-card.tsx",
     "line": 53,
-    "found": "[owner] The app's 'Change location' opens a map location picker (/shared/location-picker) and blocks the send when there is no map point; the web 'Change' opens the saved-address list (profile/addresses?select=1) and has no map picker component to reuse.",
-    "suspect": "Owner decision needed: approve a new shared web map picker (search plus pin) and provide its board; nothing is built until then.",
-    "review_status": "open"
-  },
-  {
-    "batch": "parity-pharmacy",
-    "app": "patient-web",
-    "screen": "/orders/[id]/offers",
-    "element": "choosing an offer (footer confirm step)",
-    "file": "patient-web/components-next/pharmacy-offers/offer-list.tsx",
-    "line": 221,
-    "found": "[owner] The app marks a card and confirms from a sticky footer (pharmacy, total, cash/insurance segmented, 'no payment now'); the web selects with one button per card and takes the coverage chosen at checkout (decision 30). The app checkout also has the coverage choice, so the two flows disagree on where coverage is chosen.",
-    "suspect": "Owner decision needed on one place for the coverage choice before the footer step is copied; changing it moves payment logic, which a design pass does not do.",
+    "found": "[owner] Owner decision 2026-10-24: saved addresses first, then adding. The web shows the saved list (Change opens it) and add offers current location and the National Address code; a draggable map pin needs a map library, which patient-web does not have. Same row as /profile/addresses.",
+    "suspect": "Owner: approve a map library (e.g. Leaflet with OpenStreetMap tiles), or accept the current options.",
     "review_status": "open"
   },
   {

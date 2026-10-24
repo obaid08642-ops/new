@@ -10,6 +10,7 @@ import { AuthField } from '../auth/AuthKit';
 import { Notice, Panel, Row, SheetForm, rowsOf, useRemote } from '../health/HealthKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { LANGUAGES, useApp, type ThemeMode } from '../../context/AppContext';
+import { isValidNewPassword } from '../../utils/authSession';
 import { logout } from '../../store/slices/authSlice';
 import { getCalendarPref, onCalendarPrefChange, setCalendarPref, type CalendarPref } from '../../utils/dates';
 import { apiFetch } from '../../utils/api';
@@ -162,6 +163,10 @@ export function SecuritySettingsView() {
   const savePassword = async () => {
     if (!current || !next) {
       setError(k('set.security.passwordRequired'));
+      return;
+    }
+    if (!isValidNewPassword(next)) {
+      setError(k('auth.err.passwordShort'));
       return;
     }
     if (next !== again) {

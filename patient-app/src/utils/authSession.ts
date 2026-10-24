@@ -11,7 +11,11 @@ export interface AuthResponse {
   token?: string | { accessToken?: string; refreshToken?: string } | null;
 }
 
-export type SessionResult = { ok: true; token: string; role: string } | { ok: false; reason: 'no_token' | 'not_stored' };
+/** The shortest password a patient may set (register, reset, change): the same number as the server and the web. */
+export const PASSWORD_MIN_LENGTH = 8;
+export const isValidNewPassword = (value: string): boolean => value.length >= PASSWORD_MIN_LENGTH;
+
+export type SessionResult = { ok: true; token: string; role: string } | { ok: false; reason: 'no_token' | 'not_stored' | 'not_patient' };
 
 /**
  * The one way a patient session starts after a password login, a social login or a finished registration:
@@ -22,6 +26,9 @@ export type SessionResult = { ok: true; token: string; role: string } | { ok: fa
 export async function startSession(res: AuthResponse | null | undefined, dispatch: Dispatch<UnknownAction>): Promise<SessionResult> {
   const accessToken = typeof res?.token === 'string' ? res.token : res?.token?.accessToken || null;
   if (!accessToken) return { ok: false, reason: 'no_token' };
+  // A provider, admin or other non-patient account never gets a patient session: nothing is stored and the slice is untouched.
+  const claimed = decodeJwt(accessToken)?.role;
+  if (claimed && claimed !== 'patient') return { ok: false, reason: 'not_patient' };
   const stored = await storeAuthSession(res?.token);
   if (!stored) return { ok: false, reason: 'not_stored' };
   const decoded = decodeJwt(accessToken) || {};
