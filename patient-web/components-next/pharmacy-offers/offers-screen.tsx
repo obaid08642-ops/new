@@ -19,6 +19,8 @@ import { statusKey } from "./status";
 import { extractRecord } from "@/lib/api/profile";
 import { pharmacyCancelRules } from "./cancel-rules";
 import { WaitingActions } from "./waiting-actions";
+import { CancelOrder } from "./cancel-order";
+import { NotificationAsk } from "./notification-ask";
 import { OFFER_TONES } from "./tones";
 import styles from "./offers.module.css";
 
@@ -129,7 +131,8 @@ export async function OffersScreen({ locale, orderId, variant }: Props) {
             </Link>
           </div>
         ) : null}
-        {browsing ? <OffersLiveRefresh active={views.length === 0} /> : null}
+        {browsing ? <OffersLiveRefresh active /> : null}
+        {browsing ? <NotificationAsk /> : null}
         {browsing && !views.length ? (
           <>
             {progress.status ? <p className={styles.lead}>{(progress.status ?? "").toLowerCase() === "draft" ? t("waitingDraft") : t("waitingLead")}</p> : null}
@@ -161,6 +164,8 @@ export async function OffersScreen({ locale, orderId, variant }: Props) {
 
         {browsing && views.length ? <OfferList orderId={orderId} offers={views} after={variant === "broadcast" ? "tracking" : "refresh"} coverage={progress.paymentMode ?? "cash"} /> : null}
         {browsing && views.length ? <p className={styles.privacy}>{t("privacyNote")}</p> : null}
+        {/* the app keeps "Cancel order" under the offer list too (parity audit: cancel while offers are listed) */}
+        {browsing && views.length && progress.status ? <div className={styles.actions}><CancelOrder orderId={orderId} after="pharmacy" rules={cancelRules} /></div> : null}
         {browsing && !views.length ? (
           <div className={styles.state}><EmptyState icon="pill" tone={OFFER_TONES.pharmacy} title={t("emptyTitle")} body={t("emptyBody")} /></div>
         ) : null}

@@ -47,7 +47,7 @@ import { FormSheet } from "@/components-next/health/form-sheet";
 import { HealthTabs } from "@/components-next/health/health-kit";
 import { todayDoses } from "@/lib/health/doses";
 import { familyContacts, profileItems } from "@/lib/health/profile";
-import { extractReports, extractTimeline } from "@/lib/health/records";
+import { extractProviderReports, extractReports, extractTimeline } from "@/lib/health/records";
 import { isFlag, pickTab } from "@/lib/health/view";
 
 const TOKEN = "server-only-health-token";
@@ -155,20 +155,29 @@ describe("vitals: three tabs and a sheet", () => {
 describe("sleep", () => {
   it("leads with the last night, newest first, and lists every night", async () => {
     backend({ "/health/sleep": [{ id: "a", sleep_score: 60, duration_hours: 6, measured_at: "2026-08-18T06:00:00.000Z" }, { id: "b", sleep_score: 88, duration_hours: 8, measured_at: "2026-08-19T06:00:00.000Z" }] });
-    const html = render(await SleepPage({ params }));
+    const html = render(await SleepPage(page()));
     expect(html).toContain("Last night");
     expect(html.indexOf("88")).toBeLessThan(html.indexOf("Score 60"));
     expect(html).toContain("8 hours");
   });
 
+  it("shows the quality band, the last seven days as bars and their average", async () => {
+    const day = (offset: number, hours: number, score: number) => ({ id: `n${offset}`, sleep_score: score, duration_hours: hours, measured_at: new Date(Date.now() - offset * 86400000).toISOString() });
+    backend({ "/health/sleep": [day(0, 8, 88), day(1, 6, 60), day(2, 7, 70)] });
+    const html = render(await SleepPage(page()));
+    expect(html).toContain("Excellent");
+    expect(html).toContain("Last 7 days");
+    expect(html).toContain("Average sleep 7 hours");
+  });
+
   it("has the form to add a night (hours and score), also when there are no readings yet", async () => {
     backend({ "/health/sleep": [{ id: "a", sleep_score: 60, duration_hours: 6, measured_at: "2026-08-18T06:00:00.000Z" }] });
-    const filled = render(await SleepPage({ params }));
+    const filled = render(await SleepPage(page({ add: "1" })));
     expect(filled).toContain("Add sleep");
     expect(filled).toContain("Hours slept");
     expect(filled).toContain("Quality score (0 to 100)");
     backend({ "/health/sleep": [] });
-    const empty = render(await SleepPage({ params }));
+    const empty = render(await SleepPage(page({ add: "1" })));
     expect(empty).toContain("No sleep readings yet.");
     expect(empty).toContain("Hours slept");
   });
@@ -181,8 +190,11 @@ describe("medications: four tabs and a sheet", () => {
     expect(server.api).toHaveBeenCalledWith("/health/reminders", {}, TOKEN);
     expect(html).toContain("Verified medicine");
     expect(html).toContain("1 tablet");
-    expect(html).toContain("08:00");
+    expect(html).toContain("8:00 AM");
     expect(html).toContain("Taken");
+    expect(html).toContain("Skip");
+    expect(html).toContain("0%");
+    expect(html).toContain("/en/health/records?tab=prescriptions");
     for (const secret of [TOKEN, "private-patient", "private-instructions", "private-order"]) expect(html).not.toContain(secret);
   });
 
@@ -190,18 +202,26 @@ describe("medications: four tabs and a sheet", () => {
     backend({ "/health/reminders": { reminders: [reminder] } });
     const list = render(await MedicationsPage(page({ tab: "all" })));
     expect(list).toContain(`/en/health/medications?tab=all&amp;edit=${REMINDER}`);
-    expect(list).toContain("Delete");
+    expect(list).toContain("Pause reminder");
+    expect(list).toContain("private-instructions");
+    expect(list).not.toContain("private-patient");
     const edit = render(await MedicationsPage(page({ tab: "all", edit: REMINDER, add: "1" })));
     expect(edit.match(/role="dialog"/g)).toHaveLength(1);
     expect(edit).toContain('value="Verified medicine"');
   });
 
   it("refills offer a refill for each reminder, chronic reads its own endpoint, and no reminders is an empty state", async () => {
-    backend({ "/health/reminders": { reminders: [reminder] }, "/health/chronic-meds": [{ id: REMINDER, name: "Metformin", active: true, needs_refill_soon: true, days_until_refill: 3 }] });
+    backend({ "/health/reminders": { reminders: [{ ...reminder, chronic: true }] }, "/health/chronic-meds": [{ id: REMINDER, name: "Metformin", active: true, needs_refill_soon: true, days_until_refill: 3 }] });
     expect(render(await MedicationsPage(page({ tab: "refills" })))).toContain("Request refill");
+    // only chronic reminders are refillable (as in the app): a plain reminder gives the empty state with the way to add one
+    backend({ "/health/reminders": { reminders: [reminder] }, "/health/chronic-meds": [] });
+    expect(render(await MedicationsPage(page({ tab: "refills" })))).not.toContain("Request refill");
+    backend({ "/health/reminders": { reminders: [{ ...reminder, chronic: true }] }, "/health/chronic-meds": [{ id: REMINDER, name: "Metformin", active: true, needs_refill_soon: true, days_until_refill: 3 }] });
     const chronic = render(await MedicationsPage(page({ tab: "chronic" })));
     expect(chronic).toContain("Metformin");
     expect(chronic).toContain("Refill soon");
+    expect(chronic).toContain("Defer 3 days");
+    expect(chronic).toContain("Stop refill tracking");
     backend({ "/health/reminders": { reminders: [] } });
     const empty = render(await MedicationsPage(page()));
     expect(empty).toContain("No doses scheduled for today.");
@@ -217,11 +237,18 @@ describe("the medical profile", () => {
       "/health/emergency-contacts": [{ id: "c1", name: "Sara", relation: "Sister", phone: "+966501234567", isPrimary: true }],
       "/family/emergency-contacts": [{ user_id: "u1", display_name: "Omar", relation: "Brother", phone: "+966507654321" }],
     });
-    const html = render(await ProfilePage({ params }));
-    for (const id of ["basics", "conditions", "chronic", "emergency", "healthid"]) expect(html).toContain(`id="${id}"`);
-    expect(html).toContain("O+");
-    expect(html).toContain("Penicillin");
-    expect(html).toContain("Hypertension");
+    const basics = render(await ProfilePage(page()));
+    for (const id of ["basics", "healthid"]) expect(basics).toContain(`id="${id}"`);
+    expect(basics).toContain("O+");
+    expect(basics).toContain("Change photo");
+    expect(basics).toContain("/en/reports/passport");
+    const conditions = render(await ProfilePage(page({ tab: "conditions" })));
+    for (const id of ["conditions", "chronic"]) expect(conditions).toContain(`id="${id}"`);
+    expect(conditions).not.toContain('id="basics"');
+    expect(conditions).toContain("Penicillin");
+    expect(conditions).toContain("Hypertension");
+    const html = render(await ProfilePage(page({ tab: "emergency" })));
+    expect(html).toContain('id="emergency"');
     expect(html).toContain("My contacts");
     expect(html).toContain("My family on Nabd+");
     expect(html).toContain("Sara");
@@ -229,7 +256,6 @@ describe("the medical profile", () => {
     expect(html).toContain("4567");
     expect(html).not.toContain("+966501234567");
     expect(html).not.toContain("+966507654321");
-    expect(html).toContain("/en/reports/passport");
     // my contacts are editable: a Remove button on the contact and the add form (name, mobile number, relationship)
     expect(html).toContain("Remove");
     expect(html).toContain("Mobile number");
@@ -239,10 +265,10 @@ describe("the medical profile", () => {
 
   it("says in place when one section cannot load, and fails as a page only without the profile itself", async () => {
     backend({ "/medical-profile": { data: {} }, "/health/emergency-contacts": [] });
-    const html = render(await ProfilePage({ params }));
+    const html = render(await ProfilePage(page({ tab: "emergency" })));
     expect(html).toContain("This part couldn&#x27;t be loaded.");
     backend({});
-    expect(render(await ProfilePage({ params }))).toContain("Couldn&#x27;t load this screen");
+    expect(render(await ProfilePage(page()))).toContain("Couldn&#x27;t load this screen");
   });
 });
 
@@ -294,10 +320,10 @@ describe("detail screens and redirects", () => {
     expect(to("/health/refills")).toBe("/:locale/health/medications?tab=refills");
     expect(to("/health/chronic-medications")).toBe("/:locale/health/medications?tab=chronic");
     expect(to("/reminders")).toBe("/:locale/health/medications?tab=all");
-    expect(to("/health/emergency-contacts")).toBe("/:locale/health/profile#emergency");
-    expect(to("/family/emergency-contacts")).toBe("/:locale/health/profile#emergency");
-    expect(to("/health/conditions-allergies")).toBe("/:locale/health/profile#conditions");
-    expect(to("/health/chronic-diseases")).toBe("/:locale/health/profile#chronic");
+    expect(to("/health/emergency-contacts")).toBe("/:locale/health/profile?tab=emergency");
+    expect(to("/family/emergency-contacts")).toBe("/:locale/health/profile?tab=emergency");
+    expect(to("/health/conditions-allergies")).toBe("/:locale/health/profile?tab=conditions");
+    expect(to("/health/chronic-diseases")).toBe("/:locale/health/profile?tab=conditions");
     expect(to("/reports")).toBe("/:locale/health/records?tab=reports");
     expect(to("/reports/timeline")).toBe("/:locale/health/records?tab=timeline");
     expect(to("/health/timeline")).toBe("/:locale/health/records?tab=timeline");
@@ -329,12 +355,15 @@ describe("the shared pieces", () => {
     expect(pickTab(["b"], ["a", "b"] as const, "a")).toBe("b");
     expect(isFlag("1")).toBe(true);
     expect(isFlag("0")).toBe(false);
-    const doses = todayDoses([{ id: "1", medicineName: "A", times: ["20:00", "08:00"], todayDoses: [], dose: undefined, frequency: undefined, chronic: false }]);
+    const doses = todayDoses([{ id: "1", medicineName: "A", times: ["20:00", "08:00"], todayDoses: [], dose: undefined, frequency: undefined, chronic: false, active: true }]);
     expect(doses.map((dose) => `${dose.timeKey}:${dose.status}`)).toEqual(["08:00:pending", "20:00:pending"]);
     expect(profileItems([{ id: "1", name: "A" }, { name: "no id" }, { id: "3" }])).toEqual([{ id: "1", name: "A" }]);
     expect(familyContacts({ data: [{ user_id: "u", display_name: "Omar", phone: "+966507654321" }, { phone: "x" }] })).toEqual([{ id: "u", name: "Omar", relation: undefined, maskedPhone: "•••••••••4321" }]);
     expect(extractReports([{ id: "r", title_ar: "عنوان", title_en: "Title" }], "en")[0].title).toBe("Title");
     expect(extractReports([{ id: "r", title_ar: "عنوان", title_en: "Title" }], "ar")[0].title).toBe("عنوان");
+    // the kind, the critical flag and the unread flag the Reports tab draws
+    expect(extractReports([{ id: "r", lab_booking_id: "l", critical: true, viewed_by_patient: false }, { id: "q", radiology_booking_id: "x" }, { id: "n" }], "en").map((r) => [r.kind, r.critical, r.unread])).toEqual([["lab", true, true], ["radiology", false, false], ["notes", false, false]]);
+    expect(extractProviderReports({ data: [{ id: "p", title: "Scan", doctor: "Dr A", critical: true, has_attachments: true }, { title: "no id" }] })).toEqual([{ id: "p", title: "Scan", type: undefined, doctor: "Dr A", facility: undefined, date: undefined, critical: true, hasAttachments: true }]);
     expect(extractTimeline({ events: [{ id: "e", kind: "lab", created_at: "2026-08-20" }] })[0]).toMatchObject({ type: "lab", date: "2026-08-20" });
   });
 

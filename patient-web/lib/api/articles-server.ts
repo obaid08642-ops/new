@@ -26,3 +26,8 @@ export async function getPublicArticle(slug: string) {
   try { return await fetch(patientApiUrl(publicArticlePath(`/articles/${slug}`)), { headers: { Accept: "application/json" }, signal: publicReadSignal(), ...publicRead }); } catch { return null; }
 }
 export function getPatientArticleBookmarks(accessToken: string) { return callPatientApi("/articles/bookmarks/mine", {}, accessToken); }
+
+/** The sleep tips: the published articles tagged "sleep" (decision B8; the app reads GET /articles?tag=sleep&limit=4). Public, kept like the other article reads. */
+export async function getPublicSleepArticles() {
+  try { return await fetch(patientApiUrl("/articles?tag=sleep&limit=4"), { headers: { Accept: "application/json" }, signal: publicReadSignal(), ...publicRead }); } catch { return null; }
+}

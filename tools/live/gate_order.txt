@@ -30,6 +30,7 @@ j_payouts
 j_b8_texts
 j_rx_flags
 j_web_one_cancel
+j_web_translated_pages
 j_lab_result_push
 j_sfda_price_review
 j_password_reset_link
@@ -38,6 +39,7 @@ j_pharmacy_catalogue_lines
 j_web_compare_catalogue
 j_doctor_photos
 j_web_home_nursing
+j_web_loyalty_locales
 j_web_assistant
 j_web_offline
 j_web_offers_waiting
@@ -50,6 +52,7 @@ j_manual_request
 j_pregnancy_weeks
 j_patient_flows_c
 j_web_family_scan
+j_web_map_links
 j_family_book_for_member
 j_family_meds
 j_app_populated_lists

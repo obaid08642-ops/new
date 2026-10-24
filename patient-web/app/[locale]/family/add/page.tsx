@@ -22,6 +22,8 @@ export default async function FamilyAddPage({ params, searchParams }: Props) {
   const t = await getTranslations("FamilyWeb");
   await requirePatientAccess(locale);
   const tab = pickTab(query.tab, TABS, "invite");
+  const arabic = await getTranslations({ locale: "ar", namespace: "FamilyWeb" });
+  const relationValues = Object.fromEntries((["spouse", "child", "parent", "sibling", "caregiver", "other"] as const).map((key) => [key, arabic(`relation.${key}`)]));
   const code = Array.isArray(query.code) ? query.code[0] : query.code;
   return (
     <ConsultPage locale={locale} title={t("addTitle")} backHref={`/${locale}/family`}>
@@ -30,7 +32,7 @@ export default async function FamilyAddPage({ params, searchParams }: Props) {
         { value: "join", label: t("tabJoin") },
         { value: "scan", label: t("tabScan") },
       ]} />
-      {tab === "invite" ? <InviteTab /> : tab === "join" ? <JoinTab locale={locale} initialCode={code ?? ""} /> : <ScanTab locale={locale} />}
+      {tab === "invite" ? <InviteTab /> : tab === "join" ? <JoinTab locale={locale} initialCode={code ?? ""} relationValues={relationValues} /> : <ScanTab locale={locale} />}
     </ConsultPage>
   );
 }

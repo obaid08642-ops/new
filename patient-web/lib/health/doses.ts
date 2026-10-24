@@ -29,3 +29,15 @@ export function doseTone(status: MedicationDoseSummary["status"]): ServiceTone {
       return "blue";
   }
 }
+
+/** "08:00" as the reader's clock shows it (12 or 24 hour, native digits); the raw key if it is not HH:mm. */
+export function formatTimeKey(locale: string, timeKey: string): string {
+  const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(timeKey);
+  if (!match) return timeKey;
+  return new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit", timeZone: "UTC" }).format(new Date(Date.UTC(2000, 0, 1, Number(match[1]), Number(match[2]))));
+}
+
+/** The share of today's doses that are taken, as a whole percent (0 when there are none). */
+export function takenPercent(doses: DoseRow[]): number {
+  return doses.length ? Math.round((doses.filter((dose) => dose.status === "taken").length / doses.length) * 100) : 0;
+}

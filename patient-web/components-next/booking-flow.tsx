@@ -53,20 +53,20 @@ function newIdempotencyKey(): string {
 /** A saved address with a map location, for a home visit (journeys#29). */
 export type HomeAddress = { id: string; label: string; line: string; lat: number; lng: number };
 
-export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddresses = [], consent = null }: { doctorId: string; locale: string; doctor: DoctorRow | null; top?: ReactNode; policy?: { title: string; lines: string[] }; homeAddresses?: HomeAddress[]; consent?: TelehealthConsentText | null }) {
+export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddresses = [], consent = null, initialType }: { doctorId: string; locale: string; doctor: DoctorRow | null; top?: ReactNode; policy?: { title: string; lines: string[] }; homeAddresses?: HomeAddress[]; consent?: TelehealthConsentText | null; /** The visit type the doctor page was on, when the doctor offers it. */ initialType?: string }) {
   const t = useTranslations("BookConsultation");
   const names = useTranslations("SpecialtyNames");
   const legal = useTranslations("LegalLinks");
   const specialty = specialtyLabel(names, doctor?.specialty);
   const router = useRouter();
-  const days = useMemo(() => nextDays(7, locale), [locale]);
+  const days = useMemo(() => nextDays(30, locale), [locale]);
   // Only the visit types this doctor offers (consultation_modes → clinic / online / home) (needs-review issue 1037).
   const offered = useMemo<VisitType[]>(() => {
     if (!doctor) return [...VISIT_TYPES];
     const modes = VISIT_TYPES.filter((type) => (type === "clinic" ? doctor.clinic : type === "video" ? doctor.online : doctor.home));
     return modes.length ? modes : [...VISIT_TYPES];
   }, [doctor]);
-  const [visitType, setVisitType] = useState<VisitType>(offered[0]);
+  const [visitType, setVisitType] = useState<VisitType>(offered.find((type) => type === initialType) ?? offered[0]);
   const [dayIndex, setDayIndex] = useState(0);
   const [slots, setSlots] = useState<Array<{ start: string; end: string; label: string; available: boolean }>>([]);
   const [slotsReason, setSlotsReason] = useState<string | null>(null);

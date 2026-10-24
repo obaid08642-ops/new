@@ -1,0 +1,18 @@
+{
+  "id": "0b3c5b3e-8a0f-4c1d-9d8a-6f1f5a1e2c11",
+  "status": "initiated",
+  "amount": 15000,
+  "currency": "SAR",
+  "description": "Nabd consultation #abcd1234",
+  "expired_at": null,
+  "logo_url": null,
+  "amount_format": "150.00 SAR",
+  "url": "https://checkout.moyasar.com/invoices/0b3c5b3e-8a0f-4c1d-9d8a-6f1f5a1e2c11?lang=ar",
+  "callback_url": "https://nabd.example/payments/result?ref=txn_1",
+  "success_url": "https://nabd.example/payments/result?ref=txn_1",
+  "back_url": "https://nabd.example/payments/result?ref=txn_1",
+  "created_at": "2026-10-01T10:00:00.000Z",
+  "updated_at": "2026-10-01T10:00:00.000Z",
+  "metadata": {},
+  "payments": []
+}
