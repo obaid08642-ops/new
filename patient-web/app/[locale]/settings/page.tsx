@@ -8,6 +8,7 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { AccountSummary, profileIdentity } from "@/components-next/account/account-summary";
+import { SignOutAction } from "@/components-next/account/sign-out-action";
 import { NavRows } from "@/components-next/settings/settings-kit";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -27,24 +28,22 @@ export default async function SettingsHubPage({ params }: Props) {
   if (response.status === 401) redirect(`/${locale}/login`);
   if (response.status === 403 || response.status === 404) notFound();
   const back = `/${locale}/profile`;
-  if (!response.ok) {
-    return (
-      <ConsultPage locale={locale} title={t("hubTitle")} backHref={back}>
-        <ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />
-      </ConsultPage>
-    );
-  }
-  const identity = profileIdentity(extractRecord(await response.json().catch(() => null)));
+  // The sections do not depend on the summary: a failed read of the account is said in place and the rows stay.
+  const identity = response.ok ? profileIdentity(extractRecord(await response.json().catch(() => null))) : null;
   const base = `/${locale}/settings`;
 
   return (
     <ConsultPage locale={locale} title={t("hubTitle")} backHref={back}>
-      <AccountSummary
-        label={t("hubAccount")}
-        name={identity.name || t("hubAccountFallback")}
-        lines={identity.lines}
-        action={<ButtonLink href={`/${locale}/profile`} label={t("hubViewProfile")} variant="outline" size="sm" />}
-      />
+      {identity ? (
+        <AccountSummary
+          label={t("hubAccount")}
+          name={identity.name || t("hubAccountFallback")}
+          lines={identity.lines}
+          action={<ButtonLink href={`/${locale}/profile`} label={t("hubViewProfile")} variant="outline" size="sm" />}
+        />
+      ) : (
+        <ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />
+      )}
       <NavRows
         locale={locale}
         label={t("hubSections")}
@@ -58,6 +57,7 @@ export default async function SettingsHubPage({ params }: Props) {
           { href: `${base}/about`, icon: "info", tone: "ink", title: t("rowAbout"), sub: t("rowAboutSub") },
         ]}
       />
+      <SignOutAction locale={locale} />
     </ConsultPage>
   );
 }

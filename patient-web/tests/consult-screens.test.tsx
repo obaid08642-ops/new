@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const server = vi.hoisted(() => ({ api: vi.fn(), list: vi.fn(), one: vi.fn(), doctors: vi.fn() }));
 
+vi.mock("@/components-next/consult/auto-refresh", () => ({ AutoRefresh: () => null }));
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn(), replace: vi.fn(), back: vi.fn() }),
   redirect: (to: string) => { throw new Error(`redirect:${to}`); },
@@ -214,12 +215,15 @@ describe("the appointment screens", () => {
   });
 
   it("the home visit steps follow the server's status, and an unknown status marks none", async () => {
-    // The backend has no en-route state; CHECKED_IN (doctor at the door) is the "arrived" step (needs-review issue 406).
+    // CHECKED_IN and ARRIVED (doctor at the door) are the "arrived" step; EN_ROUTE is the step before it.
     server.one.mockResolvedValueOnce(json(row({ service_type: "home", status: "CHECKED_IN" })));
     const html = render(await HomeVisitTrackingPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }));
     expect(html).toContain("Provider arrived");
-    expect(html).not.toContain("Provider on the way");
     expect(html).toContain('aria-current="step"');
+    server.one.mockResolvedValueOnce(json(row({ service_type: "home", status: "EN_ROUTE" })));
+    const enRoute = render(await HomeVisitTrackingPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }));
+    expect(enRoute).toContain("Provider on the way");
+    expect(enRoute).not.toContain("Unknown status");
     server.one.mockResolvedValueOnce(json(row({ status: "MYSTERY" })));
     expect(render(await HomeVisitTrackingPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }))).toContain("Unknown status");
   });

@@ -14,6 +14,9 @@ const serviceSchema = z.object({
   duration_value: z.number().positive().optional(),
   duration: z.string().max(40).optional(),
   insurance_availability: z.boolean().optional(),
+  preparation_ar: z.union([z.array(z.string().max(500)).max(30), z.string().max(2000)]).optional(),
+  preparation_en: z.union([z.array(z.string().max(500)).max(30), z.string().max(2000)]).optional(),
+  requires_patient_medication: z.boolean().optional(),
   image_url: z.string().url().max(2048).optional(),
   icon: z.string().max(120).optional(),
 }).strip();
@@ -29,6 +32,10 @@ export type HomeCareService = {
   durationValue?: number;
   duration?: string;
   insuranceAvailable?: boolean;
+  preparationAr?: string[];
+  preparationEn?: string[];
+  /** The catalogue says the service needs the patient's prescription (injections, drips); unset when the record does not say. */
+  requiresPrescription?: boolean;
   imageUrl?: string;
   icon?: string;
 };
@@ -42,6 +49,12 @@ function rowsFrom(payload: unknown): unknown[] {
   return [];
 }
 
+/** A preparation sent as a list or as one text with a line per step. */
+function lines(value: string[] | string | undefined): string[] | undefined {
+  const list = (Array.isArray(value) ? value : typeof value === "string" ? value.split(/\r?\n/) : []).map((line) => line.trim()).filter(Boolean);
+  return list.length > 0 ? list : undefined;
+}
+
 function parseService(value: unknown): HomeCareService | null {
   const parsed = serviceSchema.safeParse(value);
   if (!parsed.success) return null;
@@ -49,7 +62,7 @@ function parseService(value: unknown): HomeCareService | null {
   const nameAr = item.name_ar ?? item.name;
   const nameEn = item.name_en ?? item.name;
   if (!nameAr && !nameEn) return null;
-  return { id: item.id, slug: item.slug, nameAr, nameEn, descriptionAr: item.description_ar ?? item.description, descriptionEn: item.description_en ?? item.description, price: item.price, durationValue: item.duration_value, duration: item.duration, insuranceAvailable: item.insurance_availability, imageUrl: item.image_url, icon: item.icon };
+  return { id: item.id, slug: item.slug, nameAr, nameEn, descriptionAr: item.description_ar ?? item.description, descriptionEn: item.description_en ?? item.description, price: item.price, durationValue: item.duration_value, duration: item.duration, insuranceAvailable: item.insurance_availability, preparationAr: lines(item.preparation_ar), preparationEn: lines(item.preparation_en), requiresPrescription: item.requires_patient_medication, imageUrl: item.image_url, icon: item.icon };
 }
 
 export function parseHomeCareServiceId(value: string) { return serviceIdSchema.safeParse(value); }

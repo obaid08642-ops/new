@@ -71,3 +71,14 @@ The table is generated from `backend/src/modules/medicines/inn-normalization.ts`
 | dexpanthenol |  | ديكسبانثينول, دكسبانثينول, dexpanthenol |
 | panthenol |  | بانثينول, برو فيتامين ب5, بروفيتامين ب5, بروفيتامين b5, provitamin b5, panthenol |
 | chlorhexidine |  | كلورهيكسيدين, chlorhexidine |
+
+## Additions in table 2026-10-23.1 (issue 1556, PR 2) — for the owner's sign-off
+
+Taken from the active ingredients of the test catalogue (`nabd_live`). The seed data carries no `active_ingredient`
+values. The Arabic spellings below are proposals and need the owner's approval before any queued row is approved.
+
+| INN | aliases added |
+|---|---|
+| azithromycin | ازيثرومايسين, ازيثروميسين, azithromycin |
+| tramadol | ترامادول, tramadol |
+| clavulanic acid (existing entry) | clavulanate (English alias added) |
