@@ -11,7 +11,7 @@ import {
   type Approval, type BookingView, type Choice, type Reminder, type Visit,
 } from "@/lib/ordering/lifecycle";
 import { clock } from "@/lib/ordering/schedule";
-import type { ResultValue } from "@/lib/ordering/results";
+import { rangeGeometry, type ResultValue } from "@/lib/ordering/results";
 import styles from "./ordering.module.css";
 
 type Props = { locale: string; booking: BookingView; approval: Approval | null; visit: Visit | null; reminders: Reminder[]; resultsReady: boolean; results: ResultValue[]; names: Record<string, string> };
@@ -273,16 +273,7 @@ export function BookingStatusClient({ locale, booking, approval, visit, reminder
           {results.length > 0 ? (
             <ul className={styles.items}>
               {results.map((r) => (
-                <li key={r.catalogId}>
-                  <span className={styles.itemText}>
-                    <span className={styles.itemName}>{names[r.catalogId] ?? r.name}</span>
-                    <span className={styles.sub}>
-                      <bdi>{`${new Intl.NumberFormat(locale).format(r.value)}${r.unit ? ` ${r.unit}` : ""}`}</bdi>
-                      {r.low !== null && r.high !== null ? ` · ${t("resRef", { a: new Intl.NumberFormat(locale).format(r.low), b: new Intl.NumberFormat(locale).format(r.high) })}` : ""}
-                      {` · ${t(r.flag === "low" ? "resLow" : r.flag === "high" ? "resHigh" : "resInRange")}`}
-                    </span>
-                  </span>
-                </li>
+                <ResultRow key={r.catalogId} r={r} name={names[r.catalogId] ?? r.name} locale={locale} t={t} />
               ))}
             </ul>
           ) : null}
@@ -319,5 +310,44 @@ export function BookingStatusClient({ locale, booking, approval, visit, reminder
 
       <Link href={`/${locale}/diagnostics/bookings`} className={styles.linkBtn}>{t("whenOpenBookings")}</Link>
     </div>
+  );
+}
+
+
+type Tr = ReturnType<typeof useTranslations>;
+/** One result (Ord11): the value, the server's flag, the lab's reference range on a bar and the trend across the patient's results. */
+function ResultRow({ r, name, locale, t }: { r: ResultValue; name: string; locale: string; t: Tr }) {
+  const nf = new Intl.NumberFormat(locale);
+  const geo = rangeGeometry(r);
+  const flagKey = r.flag === "low" ? "resLow" : r.flag === "high" ? "resHigh" : "resInRange";
+  const pts = r.trend.length >= 2 ? r.trend : null;
+  const lo = pts ? Math.min(...pts.map((p) => p.value)) : 0;
+  const hi = pts ? Math.max(...pts.map((p) => p.value)) : 0;
+  const y = (v: number) => (hi === lo ? 20 : 36 - ((v - lo) / (hi - lo)) * 32);
+  return (
+    <li className={styles.resultRow}>
+      <span className={styles.resultHead}>
+        <span className={styles.itemName}>{name}</span>
+        <span className={`${styles.flag} ${r.flag === "normal" ? styles.flagOk : r.flag === "low" ? styles.flagLow : styles.flagHigh}`}>{t(flagKey)}</span>
+      </span>
+      <span className={styles.resultValue}><bdi>{nf.format(r.value)}</bdi>{r.unit ? <small> <bdi>{r.unit}</bdi></small> : null}</span>
+      {geo ? (
+        <svg viewBox="0 0 100 10" className={styles.rangeSvg} preserveAspectRatio="none" aria-hidden="true">
+          <rect x="0" y="3" width="100" height="4" rx="2" className={styles.rangeTrackFill} />
+          <rect x={geo.band[0]} y="3" width={geo.band[1] - geo.band[0]} height="4" className={styles.rangeBandFill} />
+          <rect x={Math.min(98, Math.max(0, geo.marker - 1))} y="0" width="2" height="10" className={r.flag === "normal" ? styles.markerOk : styles.markerOut} />
+        </svg>
+      ) : null}
+      {r.low !== null && r.high !== null ? <span className={styles.sub}>{t("resRef", { a: nf.format(r.low), b: nf.format(r.high) })}</span> : null}
+      {pts ? (
+        <span className={styles.trend}>
+          <span className={styles.sub}>{t("resTrend")}</span>
+          <svg viewBox="0 0 100 40" className={styles.trendSvg} role="img" aria-label={pts.map((p) => nf.format(p.value)).join(" → ")} preserveAspectRatio="none">
+            <polyline fill="none" stroke="currentColor" strokeWidth="2" vectorEffect="non-scaling-stroke" points={pts.map((p, i) => `${(i / (pts.length - 1)) * 100},${y(p.value)}`).join(" ")} />
+          </svg>
+          <span className={styles.sub}><bdi>{nf.format(pts[0].value)}</bdi>{" → "}<bdi>{nf.format(pts[pts.length - 1].value)}</bdi></span>
+        </span>
+      ) : null}
+    </li>
   );
 }

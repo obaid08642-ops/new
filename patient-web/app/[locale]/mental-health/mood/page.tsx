@@ -6,6 +6,8 @@ import { parseMoodHistory } from "@/lib/api/mood";
 /** The server sends a mood code from a fixed list (MoodValue); the page translates it, never shows it raw. */
 const MOOD_CODES = ["great", "good", "okay", "bad", "terrible"] as const;
 const isMoodCode = (value?: string): value is (typeof MOOD_CODES)[number] => MOOD_CODES.some((code) => code === value);
+const MOOD_TAGS = ["calm", "tired", "stressed", "connected", "rested", "overwhelmed"] as const;
+const isMoodTag = (value: string): value is (typeof MOOD_TAGS)[number] => (MOOD_TAGS as readonly string[]).includes(value);
 import { getPatientMoodHistory } from "@/lib/api/mood-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { formatDate } from "@/lib/format-date";
@@ -66,6 +68,8 @@ export default async function MoodJournalPage({ params }: Props) {
                 entry.stress !== undefined ? t("stress", { value: number.format(entry.stress) }) : null,
                 entry.sleepHours !== undefined ? t("sleepHours", { value: number.format(entry.sleepHours) }) : null,
                 formatDate(locale, entry.loggedAt),
+                entry.notes ?? null,
+                entry.tags.length ? entry.tags.map((tag) => (isMoodTag(tag) ? t(`moodTag.${tag}`) : tag)).join(" · ") : null,
               ].filter((line): line is string => line !== null)}
             />
           </li>

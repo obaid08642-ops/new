@@ -33,6 +33,7 @@ import { InsuranceFlowService } from '../insurance-engine/insurance-engine.modul
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
 
 import { nearestFirst } from '../provider/services/nearest-first';
+import { publicLabFilter } from './labs-public';
 
 /** Public card for a provider in carousels and price lists: no contact or account details. */
 function publicProvider(p: any) {
@@ -158,12 +159,10 @@ export class LabsService {
   /** The public profile of an approved lab by account id (GET /labs/:id); its priced tests from its capabilities. */
   async publicLab(id: string) {
     if (typeof id !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(id)) throw new NotFoundException('lab_not_found');
-    const p: any = await this.providerProfiles.findOne({
-      account_id: { $eq: id }, type: { $in: ['lab', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
-    }, { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, description_ar: 1, description_en: 1, address: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1 }).lean();
+    const p: any = await this.providerProfiles.findOne(publicLabFilter(id), { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, description_ar: 1, description_en: 1, address: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1 }).lean();
     if (!p) throw new NotFoundException('lab_not_found');
     const items: any[] = await this.svcModel.db.collection('provider_capabilities_lab').find(
-      { provider_account_id: { $eq: id }, available: true, price: { $gt: 0 } },
+      { provider_account_id: { $eq: p.account_id }, available: true, price: { $gt: 0 } },
       { projection: { _id: 0, code: 1, name_ar: 1, name_en: 1, price: 1 } },
     ).limit(100).toArray();
     return {

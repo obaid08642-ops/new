@@ -5,9 +5,9 @@ import type { Locale } from "@/lib/i18n";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { CheckField, LAB, LabCard, SearchForm, money, type Tag } from "./diag-parts";
+import { pickTexts } from "@/lib/i18n/localized";
 import styles from "./diag.module.css";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
-import { pickTexts } from "@/lib/i18n/localized";
 
 /**
  * The laboratory catalogue (canvas/ServiceHub, the tests list): a search and a "home collection" filter in the URL, one card
@@ -51,7 +51,7 @@ export async function LabsCatalog({ locale, search, homeOnly, backHref }: { loca
             return (
               <LabCard
                 key={service.id}
-                href={`/${locale}/diagnostics/labs/book?serviceId=${encodeURIComponent(service.id)}`}
+                href={`/${locale}/labs/${encodeURIComponent(service.id)}?kind=lab`}
                 title={pickTexts(locale, service.names) ?? ""}
                 tags={tags}
                 imageUrl={service.imageUrl}

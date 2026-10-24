@@ -7,7 +7,7 @@ import { guestMergeHeaders } from "@/lib/auth/guest-merge";
 const schema = z.object({
   name: z.string().trim().min(2).max(120),
   identifier: z.string().trim().min(3).max(320),
-  password: z.string().min(8).max(128),
+  password: z.string().min(10).max(128),
   locale: z.string().trim().min(2).max(12),
   consents: z.array(z.object({ policy_id: z.string().trim().min(1).max(120), version: z.string().trim().min(1).max(80) }).strict()).min(1).max(8),
 }).superRefine((value, context) => {

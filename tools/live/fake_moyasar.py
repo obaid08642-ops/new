@@ -1,12 +1,14 @@
-"""Minimal Moyasar API stand-in for live journeys (MOYASAR_API_BASE=http://127.0.0.1:9100/v1).
+"""Moyasar API stand-in for live journeys (MOYASAR_API_BASE=http://127.0.0.1:9100/v1), shaped like the documented API.
 
-  POST /v1/payments                -> {id, status: initiated, amount, source.transaction_url}
-  GET  /v1/payments/<id>           -> the payment (status as last set)
-  POST /v1/payments/<id>/refund    -> status refunded (amount optional)
-  POST /v1/payments/<id>/capture   -> status paid
-  POST /__pay/<id>?status=paid|failed  (test hook: the patient completes/declines the hosted checkout)
+  POST /v1/invoices                -> {id, status: initiated, amount, currency, url, payments: []}   (hosted checkout)
+  GET  /v1/invoices/<id>           -> the invoice, with the payments made on it
+  GET  /v1/payments/<id>           -> one payment ({id, status, amount, currency, invoice_id, source})
+  POST /v1/payments/<id>/refund    -> payment status refunded (amount optional, halalas)
+  POST /v1/payments/<id>/capture   -> payment status paid
+  POST /__pay/<invoice_id>?status=paid|failed  (test hook: the patient completes/declines the hosted checkout;
+      adds a payment to the invoice, as Moyasar does when the payer submits the card form)
   POST /__mode {"payments_fail": bool} + GET /__mode
-      (P15.11 chaos hook: while payments_fail is true, POST /v1/payments
+      (P15.11 chaos hook: while payments_fail is true, POST /v1/invoices
       answers 500 gateway_failure_drill; flip back with chaos_ctrl.sh
       moyasar-fail / moyasar-ok)
 """
@@ -14,6 +16,7 @@ import json, uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
+INVOICES = {}
 PAYMENTS = {}
 
 # P15.11 chaos drill: in-memory gateway failure switch (reset on restart).
@@ -47,6 +50,8 @@ class H(BaseHTTPRequestHandler):
         p = urlparse(self.path).path.rstrip('/').split('/')
         if p[1:] == ['__mode']:
             return self._send(200, MODE)
+        if len(p) == 4 and p[1:3] == ['v1', 'invoices'] and p[3] in INVOICES:
+            return self._send(200, INVOICES[p[3]])
         if len(p) == 4 and p[1:3] == ['v1', 'payments'] and p[3] in PAYMENTS:
             return self._send(200, PAYMENTS[p[3]])
         self._send(404, {'message': 'not found'})
@@ -57,15 +62,15 @@ class H(BaseHTTPRequestHandler):
         if p[1:] == ['__mode']:
             MODE['payments_fail'] = bool(self._body().get('payments_fail', False))
             return self._send(200, MODE)
-        if p[1:] == ['v1', 'payments']:
+        if p[1:] == ['v1', 'invoices']:
             if MODE['payments_fail']:
                 return self._send(500, {'message': 'gateway_failure_drill', 'type': 'api_error'})
             b = self._body()
-            pid = 'pay_' + uuid.uuid4().hex[:20]
-            PAYMENTS[pid] = {'id': pid, 'status': 'initiated', 'amount': b.get('amount'), 'currency': b.get('currency', 'SAR'),
-                             'description': b.get('description'), 'refunded': 0,
-                             'source': {'type': 'creditcard', 'transaction_url': f'https://checkout.fake-moyasar.test/{pid}'}}
-            return self._send(201, PAYMENTS[pid])
+            iid = uuid.uuid4().hex[:8] + '-' + uuid.uuid4().hex[:4] + '-' + uuid.uuid4().hex[:4] + '-' + uuid.uuid4().hex[:12]
+            INVOICES[iid] = {'id': iid, 'status': 'initiated', 'amount': b.get('amount'), 'currency': b.get('currency', 'SAR'),
+                             'description': b.get('description'), 'callback_url': b.get('callback_url'),
+                             'url': f'https://checkout.fake-moyasar.test/{iid}', 'payments': []}
+            return self._send(201, INVOICES[iid])
         if len(p) == 5 and p[1:3] == ['v1', 'payments'] and p[3] in PAYMENTS:
             pay = PAYMENTS[p[3]]
             if p[4] == 'refund':
@@ -76,9 +81,15 @@ class H(BaseHTTPRequestHandler):
             if p[4] == 'capture':
                 pay['status'] = 'paid'
                 return self._send(200, pay)
-        if len(p) == 3 and p[1] == '__pay' and p[2] in PAYMENTS:
-            PAYMENTS[p[2]]['status'] = parse_qs(u.query).get('status', ['paid'])[0]
-            return self._send(200, PAYMENTS[p[2]])
+        if len(p) == 3 and p[1] == '__pay' and p[2] in INVOICES:
+            inv = INVOICES[p[2]]
+            status = parse_qs(u.query).get('status', ['paid'])[0]
+            pid = str(uuid.uuid4())
+            PAYMENTS[pid] = {'id': pid, 'status': status, 'amount': inv['amount'], 'currency': inv['currency'], 'refunded': 0,
+                             'invoice_id': inv['id'], 'source': {'type': 'creditcard', 'company': 'visa', 'message': 'APPROVED' if status == 'paid' else 'DECLINED'}}
+            inv['payments'].append(PAYMENTS[pid])
+            inv['status'] = status
+            return self._send(200, inv)
         self._send(404, {'message': 'not found'})
 
 

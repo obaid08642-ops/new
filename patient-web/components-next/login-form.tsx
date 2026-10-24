@@ -9,6 +9,7 @@ import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { authErrorKind } from "@/lib/auth/auth-errors";
 import { announceSignedIn } from "@/lib/auth/session-identity";
 import { safeNextPath } from "@/lib/auth/safe-next";
+import { afterFailure, minutesLeft, readLock, writeLock } from "@/lib/auth/login-lockout";
 import type { Locale } from "@/lib/i18n";
 import { SocialLoginButtons } from "./social-login-buttons";
 import styles from "./auth/auth.module.css";
@@ -39,13 +40,25 @@ export function LoginForm({ locale, guestBlocked = false }: { locale: Locale; gu
   const [submitting, setSubmitting] = useState(false);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault(); setMessage(null); setSubmitting(true);
+    event.preventDefault(); setMessage(null);
+    const locked = minutesLeft(readLock(), Date.now());
+    if (!twoFactor && locked > 0) { setMessage(t("locked", { minutes: locked })); return; }
+    if (!twoFactor && (identifier.trim().length < 3 || !password)) { setMessage(t("checkDetails")); return; }
+    setSubmitting(true);
     try {
       const endpoint = twoFactor ? "/api/auth/verify-2fa" : "/api/auth/login";
       const body = twoFactor ? { identifier, code } : { identifier, password };
       const response = await fetch(endpoint, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
       const payload = await response.json().catch(() => ({}));
-      if (!response.ok) { setMessage(loginErrorMessage(t, response.status, twoFactor)); return; }
+      if (!response.ok) {
+        if (!twoFactor && response.status === 401) {
+          const next = afterFailure(readLock(), Date.now()); writeLock(next);
+          const left = minutesLeft(next, Date.now());
+          if (left > 0) { setMessage(t("locked", { minutes: left })); return; }
+        }
+        setMessage(loginErrorMessage(t, response.status, twoFactor)); return;
+      }
+      writeLock({ fails: 0, lockedUntil: 0 });
       if (!twoFactor && payload.requires2fa) { setTwoFactor(true); setPassword(""); setMessage(null); return; }
       announceSignedIn();
       // Back to the page that asked for a sign-in (for example the checkout), never outside this site.

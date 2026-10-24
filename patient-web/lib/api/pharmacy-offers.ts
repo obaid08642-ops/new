@@ -85,6 +85,8 @@ export type PatientPharmacyOrderProgress = {
   acceptedQuoteTotal?: number;
   codAllowed?: boolean;
   paymentStatus?: string;
+  /** The lines of the chosen pharmacy's allocation (`allocations_detail[].items`), as the server stored them: the final quote's lines. */
+  quoteLines?: Array<{ id: string; name?: string; quantity?: number; unitPrice?: number; action: "available" | "substitute" | "unavailable" }>;
   /** The order's own items (id and names), so a decision or a conversation can name the item instead of its id. */
   items?: Array<{ id: string; nameAr?: string; nameEn?: string; rawName?: string }>;
   insurance?: {
@@ -222,6 +224,12 @@ export function extractPatientPharmacyOrderProgress(payload: unknown): PatientPh
   const selectedAllocation = stringValue(source, ["selected_allocation_id"]);
   const allocationRecords = Array.isArray(source.allocations_detail) ? source.allocations_detail.flatMap((value) => { const r = valueRecord(value); return r ? [r] : []; }) : [];
   const chosen = selectedAllocation ? allocationRecords.find((a) => a.id === selectedAllocation) : undefined;
+  const quoteLines = Array.isArray(chosen?.items) ? (chosen.items as unknown[]).flatMap((value, index) => {
+    const line = valueRecord(value);
+    if (!line) return [];
+    const action = line.action === "unavailable" ? "unavailable" : line.action === "substitute" ? "substitute" : "available";
+    return [{ id: stringValue(line, ["order_item_id", "id"]) ?? String(index), name: stringValue(line, ["name", "sku"]), quantity: numberValue(line, ["qty_offered"]), unitPrice: numberValue(line, ["unit_price"]), action } as const];
+  }) : [];
   const searchRecord = valueRecord(source.search);
   const searchName = searchRecord ? stringValue(searchRecord, ["state"]) : undefined;
   const search: PharmacySearchState | undefined = searchName === "no_pharmacy_available" ? { state: "no_pharmacy_available" }
@@ -232,6 +240,7 @@ export function extractPatientPharmacyOrderProgress(payload: unknown): PatientPh
     pharmacyNames: (chosen ? pharmacyNamesOf(chosen) : undefined) ?? pharmacyNamesOf(source),
     status: stringValue(source, ["status"]),
     items: orderItems.length ? orderItems : undefined,
+    quoteLines: quoteLines.length ? quoteLines : undefined,
     governedState: governedStep(stringValue(source, ["governed_state", "governedState"])),
     coverageMode: rawCoverageMode === "cash" || rawCoverageMode === "insurance" ? rawCoverageMode : undefined,
     paymentMode: paymentModeOf(stringValue(source, ["payment_mode", "paymentMode"]), stringValue(source, ["payment_method", "paymentMethod"])),

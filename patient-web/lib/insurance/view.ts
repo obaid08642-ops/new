@@ -21,7 +21,7 @@ export function listOf(payload: unknown): Rec[] {
 const text = (value: unknown): string | undefined => (typeof value === "string" && value.trim() ? value : undefined);
 const num = (value: unknown): number | undefined => (typeof value === "number" && Number.isFinite(value) ? value : undefined);
 
-export type RequestRow = { id: string; state: string; bookingId?: string; createdAt?: string; copayAmount?: number; selfPayAmount?: number };
+export type RequestRow = { id: string; state: string; bookingId?: string; createdAt?: string; bookingKind?: string; price?: number; copayAmount?: number; selfPayAmount?: number };
 
 /** GET /insurance/requests/my: the patient's insurance requests, newest first. */
 export function parseRequestRows(payload: unknown): RequestRow[] {
@@ -29,7 +29,7 @@ export function parseRequestRows(payload: unknown): RequestRow[] {
     .flatMap((row) => {
       const id = text(row.id);
       if (!id || !UUID.test(id)) return [];
-      return [{ id, state: text(row.state) ?? "", bookingId: text(row.booking_id), createdAt: text(row.created_at) ?? text(row.createdAt), copayAmount: num(row.copay_amount), selfPayAmount: num(row.self_pay_amount) }];
+      return [{ id, state: text(row.state) ?? "", bookingId: text(row.booking_id), createdAt: text(row.created_at) ?? text(row.createdAt), bookingKind: text(row.booking_kind), price: num(row.price), copayAmount: num(row.copay_amount), selfPayAmount: num(row.self_pay_amount) }];
     })
     .sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""));
 }
@@ -67,23 +67,50 @@ export function parseBenefits(payload: unknown): BenefitRow[] | null {
   return root.benefits.map(asRecord).filter((row): row is Rec => !!row).map((row, index) => ({ key: text(row.key) ?? String(index), noteCode: noteCodeOf(row.note_code) }));
 }
 
-export type CoverageResult = { eligible: boolean; serviceType?: string; noteCode?: NoteCode };
+export type BenefitsUsage = { requests: number; insurerCovered?: number; patientShare?: number };
+
+/** GET /insurance/benefits-summary `usage` (the patient's decided requests, summed by the server) and the policy's expiry; null without a policy. */
+export function parseBenefitsUsage(payload: unknown): { usage: BenefitsUsage | null; expiryDate?: string } | null {
+  const root = asRecord(payload);
+  if (!root || root.has_policy !== true) return null;
+  const usage = asRecord(root.usage);
+  return { usage: usage ? { requests: num(usage.requests) ?? 0, insurerCovered: num(usage.insurer_covered), patientShare: num(usage.patient_share) } : null, expiryDate: text(root.expiry_date) };
+}
+
+/** The kinds a request row can be (the app's KIND_LOOK): anything else is "other". */
+export const REQUEST_KINDS = ["consultation", "lab", "radiology", "nursing", "pharmacy"] as const;
+export type RequestKind = (typeof REQUEST_KINDS)[number] | "other";
+export const requestKindOf = (value: string | undefined): RequestKind => ((REQUEST_KINDS as readonly string[]).includes(value ?? "") ? (value as RequestKind) : "other");
+
+export type CoverageResult = {
+  eligible: boolean; serviceType?: string; noteCode?: NoteCode;
+  /** Sent when the stored coverage rules answer (the app shows them the same way); absent otherwise, never invented. */
+  copayPercent?: number; copayFlat?: number; requiresPreauth: boolean; reason?: string; sub?: string;
+};
 
 /** GET /insurance/coverage-check: `{ eligible, policy, service_type, note_code }`. */
 export function parseCoverage(payload: unknown): CoverageResult | null {
   const root = asRecord(payload);
   if (!root || typeof root.eligible !== "boolean") return null;
-  return { eligible: root.eligible, serviceType: text(root.service_type), noteCode: noteCodeOf(root.note_code) };
+  const covered = typeof root.covered === "boolean" ? root.covered : root.eligible;
+  const flat = num(root.copay_flat);
+  const sub = [text(root.provider_name), text(root.network_name_ar), text(root.company_name_ar)].filter(Boolean).join(" · ");
+  return {
+    eligible: covered, serviceType: text(root.service_type), noteCode: noteCodeOf(root.note_code),
+    copayPercent: num(root.copay_percent), copayFlat: flat !== undefined && flat > 0 ? flat : undefined,
+    requiresPreauth: root.requires_preauth === true || root.preAuthRequired === true, reason: text(root.reason), sub: sub || undefined,
+  };
 }
 
-export type ProviderRow = { id: string; name: string; type?: string };
+export type ProviderRow = { id: string; name: string; type?: string; specialties: string[]; city?: string; phone?: string };
 
 /** GET /providers?insurance_company=…: the network providers of the patient's insurer. */
 export function parseProviders(payload: unknown): ProviderRow[] {
   return listOf(payload).flatMap((row) => {
     const id = text(row.id) ?? text(row._id);
     const name = text(row.name_ar) ?? text(row.name_en) ?? text(row.name);
-    return id && name ? [{ id, name, type: text(row.type) }] : [];
+    const specialties = (Array.isArray(row.specialties) ? row.specialties : row.specialty ? [row.specialty] : []).filter((item): item is string => typeof item === "string" && !!item.trim());
+    return id && name ? [{ id, name, type: text(row.type), specialties: specialties.slice(0, 3), city: text(row.city), phone: text(row.phone) }] : [];
   });
 }
 

@@ -80,18 +80,21 @@ def main():
         book.first.click()
         page.wait_for_url('**/book', timeout=30000)
         sec = lambda key: page.locator(f'section[aria-labelledby="home-care-{key}"]')
-        sec('nurse').locator('button').first.wait_for(timeout=30000)
-        nurses = sec('nurse').locator('button')
+        # the booking page lists the nurses as cards (the app's service-details); "select" opens the nurse's own page, which holds the form
         listed = pat.get(f"/home-care/providers?type={svc['id']}")
         order = [n.get('id') for n in (listed.body if isinstance(listed.body, list) else listed.items())]
-        step('the nurses offering the service are listed, this nurse among them', nurses.count() == len(order) and nurse_id in order, f'{nurses.count()} button(s), {len(order)} from the server')
-        # by the nurse's own account id (the button's value): earlier journeys of the gate register other nurses, often
+        cards = page.locator('a[href*="/nursing/nurses/"]')
+        cards.first.wait_for(timeout=30000)
+        step('the nurses offering the service are listed, this nurse among them', cards.count() == len(order) and nurse_id in order, f'{cards.count()} card(s), {len(order)} from the server')
+        # by the nurse's own account id (in the card's link): earlier journeys of the gate register other nurses, often
         # under the same test name, and the list order is the server's, not this journey's
-        mine = sec('nurse').locator(f'button[value="{nurse_id}"]')
-        step('this nurse has her own button', mine.count() == 1, f'{mine.count()} button(s)')
-        if mine.count():
-            mine.first.click()
-            page.wait_for_selector(f'section[aria-labelledby="home-care-nurse"] button[value="{nurse_id}"][aria-pressed="true"]', timeout=15000)
+        mine = page.locator(f'a[href*="/nursing/nurses/{nurse_id}"]')
+        step('this nurse has her own card', mine.count() == 1, f'{mine.count()} card(s)')
+        if not mine.count():
+            return
+        mine.first.click()
+        page.wait_for_url(f'**/nursing/nurses/{nurse_id}**', timeout=30000)
+        sec('day').locator('button').first.wait_for(timeout=30000)
         sec('day').locator('button').nth(1).click()
         # until tomorrow is the chosen day and its own times have loaded: the previous day's buttons stay on screen for a
         # moment after the click, before the section switches to its loading line
