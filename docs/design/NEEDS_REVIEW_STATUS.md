@@ -9,24 +9,24 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 0 | 333 | 97 | 4 | 0 |
-| Other | 164 | 123 | 38 | 3 | 0 | 0 |
+| Other | 174 | 131 | 40 | 3 | 0 | 0 |
 | Admin | 99 | 0 | 65 | 34 | 0 | 0 |
 | Admin journeys | 20 | 0 | 18 | 2 | 0 | 0 |
 | Final pass | 8 | 0 | 2 | 6 | 0 | 0 |
 | Patient journeys | 87 | 0 | 85 | 2 | 0 | 0 |
 | Provider app | 31 | 0 | 27 | 4 | 0 | 0 |
 | Provider journeys | 34 | 0 | 32 | 2 | 0 | 0 |
-| **Total** | **877** | **123** | **600** | **150** | **4** | **0** |
+| **Total** | **887** | **131** | **602** | **150** | **4** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 203 | 35 | 127 | 41 | 0 | 0 |
+| client | 212 | 42 | 129 | 41 | 0 | 0 |
 | owner | 107 | 7 | 57 | 42 | 1 | 0 |
-| backend | 329 | 81 | 218 | 30 | 0 | 0 |
+| backend | 330 | 82 | 218 | 30 | 0 | 0 |
 | untagged | 238 | 0 | 198 | 37 | 3 | 0 |
-| **Total** | **877** | **123** | **600** | **150** | **4** | **0** |
+| **Total** | **887** | **131** | **602** | **150** | **4** | **0** |
 
 ## By file
 
@@ -98,6 +98,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `m6-ord11-web.json` | 9 | 9 | 0 | 0 | 0 | 0 |
 | `m6-ord22.json` | 5 | 4 | 1 | 0 | 0 | 0 |
 | `m6-ord30.json` | 14 | 14 | 0 | 0 | 0 | 0 |
+| `m6-visual-web.json` | 10 | 8 | 2 | 0 | 0 | 0 |
 | `provider-admin-ish.json` | 3 | 0 | 3 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 0 | 6 | 0 | 0 | 0 |
 | `provider-facility.json` | 7 | 0 | 7 | 0 | 0 | 0 |
@@ -111,7 +112,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 0 | 7 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 0 | 0 | 1 | 0 | 0 |
 | `tooling.json` | 13 | 0 | 12 | 1 | 0 | 0 |
-| **Total** | **877** | **123** | **600** | **150** | **4** | **0** |
+| **Total** | **887** | **131** | **602** | **150** | **4** | **0** |
 
 ## Owner decisions (4)
 
@@ -122,7 +123,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 3 | `batch-1a-app.json#18` `patient-app/src/i18n/locales/en.json:0` | /pharmacy Six-language strings | 177 pharmacy.* keys were added to patient-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json. The English, Urdu, Hindi, Bengali and Filipino text was written by the design session (and, for reused phrases, taken from the phr… |
 | 4 | `batch-1d-web.json#1` `backend/src/modules/payments/payments.module.ts:154` | /pharmacy/payment Payment provider not exercised | No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only against a TEST stand-in outside the repo (… |
 
-## Open and unverified (123)
+## Open and unverified (131)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -249,3 +250,11 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `m6-ord30.json#11` | client | open | Ord33 Photo and licence task | [client] The photo_licence task has no route in the ordering stack, so the row is not tappable. |
 | `m6-ord30.json#12` | client | open | Ord33 Points per task | [client] Points are derived from the weights returned by the API (share of what is missing), since the API gives no per-task points. |
 | `m6-ord30.json#13` | client | open | Ord22 and Ord30 to Ord33 Render entry and board comparison | [client] tools/design/render-native-screen.mjs renders patient-app screens only; provider-app has no render path, so no render entry and no board screenshot were made for these fi… |
+| `m6-visual-web.json#1` | client | open | Ord02/Ord04 (1280) Desktop layout: board = list column plus a sticky 'Your bask… | [client] Basket bar is the mobile pattern at every width; Ord02 web frame shows the side card with lines, 'from' total and 'Choose provider'. |
+| `m6-visual-web.json#3` | client | open | Ord03/Ord04/Ord05 Fixed floating tab bar covers the last card and the sticky ba… | [client] In full-page captures the bottom navigation overlaps the bottom actions (item page basket bar, providers 'Continue', when/confirm last card); needs bottom padding equal t… |
+| `m6-visual-web.json#4` | client | open | Ord01 context bar 'For whom' chip (family member) not drawn | [client] Needs the family list and quote context.family_member_id; the pages pass neither, and the family-record id question is open. |
+| `m6-visual-web.json#5` | client | open | Ord09 partial approval Choices are three immediate buttons; board = radio rows … | [client] Changing it to select-then-confirm touches the choosePartial flow, so it was not done in a visual pass. |
+| `m6-visual-web.json#6` | client | open | Ord20 my medical orders List rows are one-line summaries; board = cards per ord… | [client] Structure differs; the doctor name and per-item status are also missing from GET /medical-orders/mine ([backend]: orders carry catalogue ids and no doctor name). |
+| `m6-visual-web.json#7` | backend | open | Ord21 order detail Doctor name and specialty, per-item status chips (ordered/bo… | [backend] GET /medical-orders/:id has no doctor object and no booking link per item beyond status. |
+| `m6-visual-web.json#8` | client | open | Ord11 results Results live inside the booking page; the board has a dedicated r… | [client] Values, flag, range bar and trend are now drawn from the endpoint; the rating form and instant-consultation sheet are not (no rating endpoint found). |
+| `m6-visual-web.json#9` | client | open | Ord02/Ord04 (1280) Sticky basket side card still not drawn | [client] Left from pass one (not cheap: needs a two-column hub layout). |

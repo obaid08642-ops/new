@@ -20,6 +20,8 @@ import { ChipLink } from "@/components-next/pharmacy/chip-link";
 import { BuyActions, BuyBar, BuyPrice, BuyProvider, type BuyVariant } from "@/components-next/pharmacy/product-buy";
 import { VariantGallery, VariantPicker } from "@/components-next/pharmacy/variant-picker";
 import { ProductGallery } from "@/components-next/pharmacy/product-gallery";
+import { ProductShare } from "@/components-next/pharmacy/product-share";
+import { SuggestChange } from "@/components-next/pharmacy/suggest-change";
 import { ProductGrid, type GridProduct } from "@/components-next/pharmacy/product-grid";
 import { productCardImageSrc } from "@/components-next/pharmacy/catalog-image";
 import { promoOldPrice, promoPercent } from "@/lib/discount";
@@ -328,6 +330,7 @@ export default async function PublicProductPage({ params }: Props) {
                 <StatusChip label={product.is_rx ? t("rxRequired") : t("otc")} tone={product.is_rx ? "amber" : "mint"} />
                 <StatusChip label={product.available ? t("available") : discontinued ? t("unavailable") : t("limited")} tone={product.available ? "mint" : "amber"} />
                 {product.online_exclusive === true ? <StatusChip label={t("onlineOnly")} tone="mint" /> : null}
+                <ProductShare name={name} url={canonical} />
               </div>
               {product.category && categoryPath ? (
                 <div className={styles.catChips}>
@@ -461,6 +464,8 @@ export default async function PublicProductPage({ params }: Props) {
               )}
             </section>
           </div>
+
+          <SuggestChange medicineId={product.id} locale={locale} />
 
           <CiteThis
             title={name}

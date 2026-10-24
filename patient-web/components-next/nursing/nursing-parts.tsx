@@ -115,3 +115,14 @@ export function RowList({ label, children }: { label: string; children: ReactNod
     </ul>
   );
 }
+
+/** The facts of a nurse as small chips under the name: availability, rating, years and the visit price (a fact the server did not send is not passed). */
+export function NurseFacts({ facts, available }: { facts: string[]; available?: { label: string; good: boolean } }) {
+  if (facts.length === 0 && !available) return null;
+  return (
+    <span className={styles.chips}>
+      {available ? <StatusChip label={available.label} tone={available.good ? DIAG_TONES.good : DIAG_TONES.quiet} /> : null}
+      {facts.map((fact) => <StatusChip key={fact} label={fact} tone={NURSING.tone} />)}
+    </span>
+  );
+}
