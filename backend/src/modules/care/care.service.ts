@@ -1,3 +1,6 @@
+import { AVAILABILITY_WINDOW, NextSlotCache, orderByAvailability } from './availability-order';
+import { averageWaitMinutes } from './wait-time';
+import { reviewerLabel } from '../ratings/reviewer-label';
 import { StorageService } from '../storage/storage.module';
 import { policyClass, policyCompanyKeys } from '../../common/insurance-policy';
 import { BadRequestException, Injectable, NotFoundException, Inject, Optional } from '@nestjs/common';
@@ -98,9 +101,13 @@ export class CareService {
     /** payment=insurance: filter by the signed-in patient's own saved company and class. */
     paymentInsurance?: boolean;
     accepts_insurance?: boolean;
+    /** Design parity (#1819): the doctor's stored gender (male | female) and a price band on the price of the chosen mode. */
+    gender?: 'male' | 'female';
+    price_min?: number;
+    price_max?: number;
     lat?: number;
     lng?: number;
-    sort?: 'rating' | 'price_asc' | 'price_desc' | 'experience' | 'distance' | 'distance_asc' | 'distance_desc';
+    sort?: 'rating' | 'price_asc' | 'price_desc' | 'experience' | 'distance' | 'distance_asc' | 'distance_desc' | 'available_today';
     nearest_type?: 'clinic' | 'video' | 'home_visit';
     user?: any;
     available_type?: 'clinic' | 'video' | 'home_visit';
@@ -137,6 +144,14 @@ export class CareService {
       ] }];
     }
     if (opts.accepts_insurance !== undefined) q.accepts_insurance = opts.accepts_insurance;
+    if (opts.gender) q.gender = opts.gender;
+    const priceField = opts.service_type === 'video' ? 'price_online' : opts.service_type === 'home' ? 'price_home' : 'price_clinic';
+    if (opts.price_min !== undefined || opts.price_max !== undefined) {
+      const band: Record<string, number> = { $gt: 0 };
+      if (opts.price_min !== undefined) band.$gte = opts.price_min;
+      if (opts.price_max !== undefined) band.$lte = opts.price_max;
+      q[priceField] = band;
+    }
     const searchRegex = publicSearchRegex(opts.q);
     if (searchRegex) {
       q.$or = [
@@ -150,6 +165,7 @@ export class CareService {
     // Q-12 "Nearest": sort=distance is answered by the DB (2dsphere $geoNear),
     // clinic and home-visit only; video has no meaningful "near".
     if (opts.sort === 'distance') return this.listNearest(q, opts);
+    if (opts.sort === 'available_today') return this.listByAvailability(q, opts);
     const sort: any = {};
     const needDistance = opts.sort === 'distance_asc' || opts.sort === 'distance_desc';
     if (opts.sort === 'price_asc') sort.price_clinic = 1;
@@ -186,6 +202,7 @@ export class CareService {
     }
 
     const slice = docs.slice(offset, offset + limit);
+    const online = await this.onlineSet(slice);
     // P14.3: the next free time of the first 10 doctors, read together (each is 3 queries since nextAvailable
     // preloads its 14 days), not one doctor after another.
     const out: any[] = await Promise.all(slice.map(async (dRaw: any, i: number) => {
@@ -195,7 +212,7 @@ export class CareService {
         const docFull = dRaw.toObject ? dRaw : await this.providerModel.findOne({ id: d.id });
         nextAvailableAt = docFull ? await this.slots.nextAvailable(docFull as any) : null;
       }
-      return this.toPublicDoctor(d, nextAvailableAt, d._distance_km);
+      return { ...this.toPublicDoctor(d, nextAvailableAt, d._distance_km), is_online: this.isOnlineDoc(d, online) };
     }));
     await this.attachFacilityNames(out);
     const totalIsExact = !opts.available_today && !needDistance;
@@ -209,6 +226,40 @@ export class CareService {
         : (totalIsExact ? page * limit < total : raw.length > offset + limit),
       items: out,
     };
+  }
+
+  private readonly nextSlotCache = new NextSlotCache();
+
+  /**
+   * sort=available_today: the best AVAILABILITY_WINDOW doctors by rating are ordered by real free slots (today first, then soonest),
+   * then paged. Each doctor's next slot is cached for a minute and computed ten at a time, so the cost stays bounded.
+   */
+  private async listByAvailability(q: any, opts: { page?: number; limit?: number }) {
+    const page = Math.max(1, opts.page || 1);
+    const limit = Math.min(50, Math.max(5, opts.limit || 20));
+    const offset = (page - 1) * limit;
+    const raw: any[] = await this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ rating: -1 }).maxTimeMS(5000).limit(AVAILABILITY_WINDOW);
+    const withNext: Array<{ doc: any; next: string | null }> = [];
+    for (let i = 0; i < raw.length; i += 10) {
+      const batch = raw.slice(i, i + 10);
+      withNext.push(...await Promise.all(batch.map(async (doc) => {
+        const id = String((doc.toObject ? doc.toObject() : doc).id);
+        const cached = this.nextSlotCache.get(id);
+        if (cached.hit) return { doc, next: cached.value };
+        const full = doc.toObject ? doc : await this.providerModel.findOne({ id });
+        const next = full ? await this.slots.nextAvailable(full as any) : null;
+        this.nextSlotCache.set(id, next);
+        return { doc, next };
+      })));
+    }
+    const ordered = orderByAvailability(withNext);
+    const slice = ordered.slice(offset, offset + limit);
+    const online = await this.onlineSet(slice.map((x) => x.doc));
+    const items = slice.map((x) => {
+      const d: any = x.doc.toObject ? x.doc.toObject() : x.doc;
+      return { ...this.toPublicDoctor(d, x.next), is_online: this.isOnlineDoc(d, online) };
+    });
+    return { page, limit, total: null, total_is_exact: false, has_more: ordered.length > offset + limit, items };
   }
 
   /**
@@ -350,6 +401,28 @@ export class CareService {
     return { bookings, holds };
   }
 
+  /** Design parity (#1819): which of these doctors are online and accepting now, read together (2 queries for the page). */
+  private async onlineSet(docs: any[]): Promise<Set<string>> {
+    const ids = [...new Set(docs.flatMap((raw) => { const d = raw?.toObject ? raw.toObject() : raw; return [d?.account_id, d?.user_id, d?.id]; }).filter(Boolean).map(String))];
+    if (!ids.length) return new Set();
+    // A failed availability read must not fail the list: the badge then reads "not online", nothing else changes.
+    try {
+      const db = (this.providerModel as any).db;
+      const [a, b] = await Promise.all([
+        db.collection('provider_availability').find({ provider_account_id: { $in: ids }, status: 'accepting_orders' }, { projection: { _id: 0, provider_account_id: 1 } }).toArray(),
+        db.collection('provideravailability').find({ provider_id: { $in: ids }, instant_available: true }, { projection: { _id: 0, provider_id: 1 } }).toArray(),
+      ]);
+      return new Set<string>([...a.map((r: any) => String(r.provider_account_id)), ...b.map((r: any) => String(r.provider_id))]);
+    } catch {
+      return new Set();
+    }
+  }
+
+  private isOnlineDoc(raw: any, online: Set<string>): boolean {
+    const d = raw?.toObject ? raw.toObject() : raw;
+    return [d?.account_id, d?.user_id, d?.id].filter(Boolean).some((x) => online.has(String(x)));
+  }
+
   /** Provider app online toggle: provider_availability accepting_orders OR provideravailability instant_available. */
   private async isOnlineAccepting(ids: string[]): Promise<boolean> {
     if (!ids.length) return false;
@@ -443,19 +516,47 @@ export class CareService {
       obj.facility = facility ? this.toPublicFacility(facility) : null;
     }
     
-    // Real approved reviews only — never fabricated testimonials
-    const reviews: any[] = await this.providerModel.db
-      .collection('reviews')
-      .find({ provider_id: obj.id, status: 'approved' } as any)
-      .sort({ createdAt: -1 })
-      .limit(10)
-      .toArray();
-    obj.reviews_data = reviews.map((r: any) => ({
-      id: r.id,
-      rating: r.rating,
-      text: r.comment || '',
-      date: r.createdAt || null,
-    }));
+    // Real published reviews only — never fabricated testimonials. The reviews patients submit today live in `ratings`
+    // (keyed by the account that did the service); the older `reviews` collection is read when a doctor has none there.
+    const doctorKeys = [obj.id, (doc as any).account_id, (doc as any).user_id].filter(Boolean).map(String);
+    const db = this.providerModel.db;
+    const rated: any[] = await db.collection('ratings')
+      .find({ provider_id: { $in: doctorKeys }, status: 'published' } as any, { projection: { _id: 0, score: 1, comment: 1, user_name: 1, createdAt: 1, sub_ratings: 1 } })
+      .sort({ createdAt: -1 }).limit(10).toArray();
+    if (rated.length) {
+      // The reviewer is shown by first name only: a public page never carries a patient's full name or account id.
+      obj.reviews_data = rated.map((r: any) => ({
+        rating: r.score,
+        text: r.comment || '',
+        date: r.createdAt || null,
+        reviewer: reviewerLabel(r.user_name),
+        sub_ratings: r.sub_ratings ?? null,
+      }));
+    } else {
+      const reviews: any[] = await db.collection('reviews')
+        .find({ provider_id: obj.id, status: 'approved' } as any)
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .toArray();
+      obj.reviews_data = reviews.map((r: any) => ({
+        id: r.id,
+        rating: r.rating,
+        text: r.comment || '',
+        date: r.createdAt || null,
+      }));
+    }
+    obj.is_online = this.isOnlineDoc(doc, await this.onlineSet([doc]));
+    // Education proof the admin approved on the certificates screen: the kind and the issuer only, never the file or number.
+    const accountKeys = [(doc as any).user_id, (doc as any).account_id].filter(Boolean).map(String);
+    let certs: any[] = [];
+    try {
+      if (accountKeys.length) certs = await db.collection('provider_documents').find({ account_id: { $in: accountKeys }, doc_type: { $in: ['academic_certificate', 'board_certificate'] }, review_status: 'approved' } as any, { projection: { _id: 0, doc_type: 1, issuer: 1, issued_date: 1 } }).toArray();
+    } catch { certs = []; }
+    obj.education_verified = certs.map((c: any) => ({ type: c.doc_type, issuer: c.issuer ?? null, issued_date: c.issued_date ?? null }));
+    // Average clinic waiting time (check-in to start), only once there are enough completed clinic appointments.
+    try {
+      obj.avg_wait_minutes = averageWaitMinutes(await this.slots.completedClinicHistories(obj.id, 200));
+    } catch { obj.avg_wait_minutes = null; }
 
     // Real photos only (empty when the provider published none): toPublicDoctor already gives clinicPhotos as public
     // addresses; the raw clinic_images (private file ids) are not part of the public model
@@ -578,6 +679,8 @@ export class CareService {
       district: d.district || null,
       rating: d.rating_avg ?? d.rating ?? null,
       reviews_count: d.rating_count ?? d.reviews_count ?? 0,
+      // Averages of the published sub-ratings (doctor / clinic / waiting time); null until a patient has given one.
+      sub_ratings: { doctor: d.sub_ratings_avg?.doctor ?? null, clinic: d.sub_ratings_avg?.clinic ?? null, waiting: d.sub_ratings_avg?.waiting ?? null },
       bio: d.bio || null,
       languages: Array.isArray(d.languages) ? d.languages : [],
       accepts_insurance: Boolean(d.accepts_insurance),
@@ -592,7 +695,18 @@ export class CareService {
       // Q-20 / D-17: verified only when the admin approved the doctor AND the licence was verified; plus the SCFHS number.
       verified: d.medical_review_status === 'approved' && d.license_verified === true,
       scfhs_license_no: d.scfhs_license_number || null,
+      // The licence line the page draws ("licensed by SCFHS, no. X"): number, authority, and whether it was verified. No date.
+      license: { number: d.scfhs_license_number || null, authority: 'SCFHS', verified: d.medical_review_status === 'approved' && d.license_verified === true },
       next_available_at: nextAvailableAt,
+      // Owner-approved profile fields (2026-10-24). The clinic's address and point only: the doctor's personal `address`
+      // and `location` are never part of this model.
+      gender: d.gender === 'male' || d.gender === 'female' ? d.gender : null,
+      education: (Array.isArray(d.education) ? d.education : []).map((e: any) => ({ university: e?.university ?? null, graduation_year: e?.graduation_year ?? null, fellowship_board: e?.fellowship_board ?? null })),
+      follow_up: typeof d.follow_up_price === 'number' ? { price: d.follow_up_price, window_days: d.follow_up_window_days ?? null } : null,
+      procedures: (Array.isArray(d.procedures) ? d.procedures : []).map((p: any) => ({ name_ar: p?.name_ar ?? null, name_en: p?.name_en ?? null, price: p?.price ?? null })),
+      clinic: d.clinic_address || d.clinic_location
+        ? { address: d.clinic_address || null, lat: typeof d.clinic_location?.lat === 'number' ? d.clinic_location.lat : null, lng: typeof d.clinic_location?.lng === 'number' ? d.clinic_location.lng : null }
+        : null,
     };
     if (typeof distanceKm === 'number' && Number.isFinite(distanceKm)) publicDoctor.distance_km = Math.round(distanceKm * 10) / 10;
     return publicDoctor;

@@ -12,11 +12,11 @@ Result (round 1): 38 rows = 7 already fixed or not a gap, 22 fixed now (rows 34 
 | 1 | /cart | remove one line | already fixed | per-line trash button (`cart-screen.tsx`, `removeLine`) |
 | 2 | /cart/checkout | payment method choice | no gap | the app's checkout (`patient-app/app/pharmacy/checkout.tsx`) has the same cash/insurance segmented; the audit row was wrong. Where coverage is chosen is an owner question, see row 8 |
 | 3 | /cart/checkout | pickup note | fixed now | `PharmacyCheckout.pickupNote`; the address card stays, as in the app (pickup still uses the location) |
-| 4 | /cart/checkout | change delivery location (map) | blocked [owner] | a web map picker is a new shared component, needs go-ahead and a board; needs-review |
+| 4 | /cart/checkout | change delivery location (map) | partly fixed, blocked [owner] for the draggable pin (decision 2026-10-24: saved list first, add opens the picker; list and current-location/National Address add exist, a map pin needs a library) | a web map picker is a new shared component, needs go-ahead and a board; needs-review |
 | 5 | rx-order photo/upload | privacy line | fixed now | `RxUpload.privacy` under the note field |
 | 6 | offers / broadcast-status | cancel while offers are listed | fixed now | `CancelOrder` under the offer list |
 | 7 | offers / broadcast-status | live refresh | fixed now | `OffersLiveRefresh` active for the whole search (15 s plus the refresh button) |
-| 8 | offers / broadcast-status | choose an offer (footer confirm) | blocked [owner] | coverage is chosen at checkout (decision 30) on web and in the app checkout; needs-review |
+| 8 | offers / broadcast-status | choose an offer (footer confirm) | fixed (owner 2026-10-24) | coverage is chosen at checkout only; the web offers list has no coverage choice (read-only legend of the order's choice) |
 | 9 | offers | notification ask | fixed now | `NotificationAsk` (browser permission, `enableWebPush`), shown while the search is open |
 | 10 | final-quote | item lines | fixed now | `quoteLines` from the chosen allocation, drawn above the totals (offers page and final-quote) |
 | 11 | payment | order header card | fixed now | order number, pharmacy name, address or the pickup line |

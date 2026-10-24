@@ -1,3 +1,4 @@
+import { buildFollowUpActions } from './follow-up-actions';
 import { MedicalAccessLogService, logMedicalRead } from '../../common/pdpl-compliance.module';
 import { escapeRegex } from '../../common/slug.util';
 import { pickAttribution } from '../../common/attribution';
@@ -151,6 +152,11 @@ export class AppointmentsService {
     }
     const doctor = await this.providerModel.findOne({ id: body.doctor_id, type: ProviderType.DOCTOR, status: ProviderStatus.ACTIVE });
     if (!doctor) throw new NotFoundException('doctor_not_found');
+    // Owner decision 2026-10-24: bookings stop the moment the SCFHS licence date passes; the daily monitor then suspends the
+    // account, this check closes the hours in between.
+    if ((doctor as any).license_expiry_date && new Date((doctor as any).license_expiry_date).getTime() <= Date.now()) {
+      throw new BadRequestException('doctor_license_expired');
+    }
     if (!doctor.consultation_modes?.includes(body.service_type)) {
       throw new BadRequestException(`doctor does not support service_type=${body.service_type}`);
     }
@@ -422,6 +428,16 @@ export class AppointmentsService {
       followUps = [];
     }
     obj.follow_ups = followUps;
+
+    // After a completed visit the patient (or the person who booked it) sees what to do next: the prescription to order
+    // from a pharmacy and the open lab and scan items of the doctor's order. Enrichment only: it never breaks the read.
+    obj.follow_up_actions = [];
+    if (obj.status === APPT_STATES.COMPLETED && (user?.id === appt.patient_id || (appt.booked_by_user_id && user?.id === appt.booked_by_user_id))) {
+      try {
+        const order: any = await (this.connection as any)?.collection?.('medical_orders')?.findOne({ appointment_id: { $eq: String(obj.id) }, patient_id: { $eq: String(appt.patient_id) } }, { projection: { _id: 0, id: 1, prescription_id: 1, valid_until: 1, items: 1 } });
+        obj.follow_up_actions = buildFollowUpActions(obj.prescriptions, order ?? null);
+      } catch { obj.follow_up_actions = []; }
+    }
     
     // Q-16: video appointments carry what the call screen needs (room route).
     if (obj.service_type === 'video') {
@@ -476,7 +492,11 @@ export class AppointmentsService {
         if (to === APPT_STATES.CONFIRMED) appt.confirmed_at = new Date();
         if (to === APPT_STATES.COMPLETED) appt.completed_at = new Date();
         await appt.save();
-        this.events.emit(`appointment.${to.toLowerCase()}`, { id, actor: actor.id });
+        // The consultation start also carries what the loyalty "guaranteed appointment" credit needs (slot, check-in, start).
+        const stamp = (state: string) => (appt.state_history as any[]).filter((h) => h?.state === state).map((h) => h.at)[0] ?? null;
+        this.events.emit(`appointment.${to.toLowerCase()}`, to === APPT_STATES.IN_PROGRESS
+          ? { id, actor: actor.id, patient_id: appt.patient_id, service_type: appt.service_type, slot_start: appt.slot_start, checked_in_at: stamp(APPT_STATES.CHECKED_IN), started_at: stamp(APPT_STATES.IN_PROGRESS) }
+          : { id, actor: actor.id });
         return appt.toObject();
       },
     });

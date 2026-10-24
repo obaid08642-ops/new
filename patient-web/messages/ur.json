@@ -191,7 +191,18 @@
     "rateLimited": "بہت زیادہ کوششیں۔ ایک منٹ انتظار کریں اور دوبارہ کوشش کریں۔",
     "serverError": "ہماری طرف سے کوئی مسئلہ پیش آیا۔ تھوڑی دیر بعد دوبارہ کوشش کریں۔",
     "guestBlocked": "مہمان رسائی نہیں کھل سکی۔ سائن اِن کریں یا تھوڑی دیر بعد دوبارہ کوشش کریں۔",
+    "appleUnavailable": "Apple سے سائن ان ابھی دستیاب نہیں۔ سائن ان کا کوئی اور طریقہ استعمال کریں۔",
+    "apple": "Apple",
     "googleUnavailable": "Google کے ذریعے سائن اِن ابھی دستیاب نہیں۔ سائن اِن کا کوئی اور طریقہ استعمال کریں۔",
+    "google": "Google",
+    "x": "X",
+    "snapchat": "Snapchat",
+    "wrongAppTitle": "یہ فراہم کنندہ کا اکاؤنٹ ہے",
+    "wrongAppBody": "فراہم کنندگان کے اکاؤنٹس (ڈاکٹر، فارمیسی، لیبارٹری اور دیگر) مریضوں کی سائٹ پر استعمال نہیں ہوتے۔ سائن ان کے لیے فراہم کنندہ ایپ یا ویب سائٹ کھولیں۔ آپ یہاں سائن ان نہیں ہوئے۔",
+    "wrongAppIos": "iOS کے لیے فراہم کنندہ ایپ",
+    "wrongAppAndroid": "Android کے لیے فراہم کنندہ ایپ",
+    "wrongAppWeb": "فراہم کنندہ ویب سائٹ",
+    "wrongAppBack": "سائن ان پر واپس جائیں",
     "locked": "بہت زیادہ ناکام کوششیں۔ {minutes} منٹ بعد دوبارہ کوشش کریں۔"
   },
   "Dashboard": {
@@ -593,7 +604,9 @@
     "filterAll": "سب",
     "filter_system": "سسٹم",
     "filter_medical": "طبی",
-    "filter_promotion": "پیشکشیں"
+    "filter_promotion": "پیشکشیں",
+    "lateCompensationTitle": "آپ کے لیٹ اپوائنٹمنٹ کے پوائنٹس",
+    "lateCompensationBody": "آپ کا اپوائنٹمنٹ دیر سے شروع ہوا، اس لیے آپ کے اکاؤنٹ میں نبض پوائنٹس شامل کیے گئے۔ انہیں پوائنٹس کی تاریخ میں دیکھیں۔"
   },
   "Health": {
     "eyebrow": "نجی صحت",
@@ -1354,7 +1367,6 @@
     "nearestCity": "{city} میں ڈاکٹر",
     "visitType": "مشاورت کی قسم",
     "verifiedDoctor": "تصدیق شدہ ڈاکٹر",
-    "licenseNumber": "لائسنس نمبر {number}",
     "specialtyLabel": "تخصص",
     "allSpecialties": "تمام تخصصات",
     "paymentLabel": "ادائیگی",
@@ -1381,7 +1393,44 @@
     "degree_senior_specialist": "سینئر ماہر",
     "degree_specialist": "ماہر",
     "degree_resident": "ریزیڈنٹ",
-    "degree_general_practitioner": "جنرل پریکٹیشنر"
+    "degree_general_practitioner": "جنرل پریکٹیشنر",
+    "factsLabel": "ڈاکٹر کی تفصیلات",
+    "yearsExperience": "{n} سال کا تجربہ",
+    "genderMale": "مرد",
+    "genderFemale": "خاتون",
+    "genderLabel": "ڈاکٹر کی جنس",
+    "genderAny": "کوئی بھی",
+    "onlineNow": "ابھی دستیاب",
+    "avgWait": "اوسط انتظار {n} منٹ",
+    "insuranceAccepted": "انشورنس قبول ہے",
+    "educationTitle": "تعلیم",
+    "educationEmpty": "ابھی تک کوئی تعلیم شامل نہیں کی گئی",
+    "certificatesTitle": "اسناد",
+    "certVerified": "تصدیق شدہ",
+    "reviewsTitle": "مریضوں کے جائزے",
+    "reviewsEmpty": "ابھی تک کوئی جائزہ نہیں",
+    "reviewsSeeAll": "تمام جائزے دیکھیں",
+    "reviewsAllTitle": "تمام جائزے",
+    "reviewsMore": "اگلا صفحہ",
+    "reviewerAnonymous": "مریض",
+    "subRatingCommunication": "رابطہ",
+    "subRatingPunctuality": "وقت کی پابندی",
+    "subRatingCleanliness": "صفائی",
+    "subRatingValue": "قیمت کے مطابق قدر",
+    "servicesTitle": "خدمات اور قیمتیں",
+    "followUpTitle": "فالو اپ وزٹ",
+    "followUpPrice": "فالو اپ کی قیمت: {price}",
+    "followUpWindow": "وزٹ کے {n} دنوں کے اندر بکنگ کے لیے دستیاب",
+    "clinicLocationTitle": "کلینک کا پتہ",
+    "clinicMapTitle": "کلینک کا نقشہ",
+    "openInMaps": "نقشے میں کھولیں",
+    "facilityLink": "کلینک دیکھیں",
+    "reviewsBack": "ڈاکٹر کے صفحے پر واپس",
+    "insuranceTitle": "قبول شدہ انشورنس",
+    "sortAvailableToday": "آج دستیاب",
+    "guaranteeLine": "اگر آپ کا اپوائنٹمنٹ {minutes} منٹ سے زیادہ لیٹ ہو تو آپ کو {points} نبض پوائنٹس ملتے ہیں۔",
+    "licenseLine": "سعودی کمیشن برائے طبی تخصصات سے لائسنس یافتہ، نمبر {number}",
+    "licenseVerified": "تصدیق شدہ"
   },
   "LabsServices": {
     "eyebrow": "لیبارٹری کیئر",
@@ -2185,7 +2234,7 @@
     "identifier": "ای میل یا موبائل نمبر",
     "hintIdentifier": "ہم تصدیقی کوڈ یہیں بھیجیں گے",
     "password": "پاس ورڈ",
-    "hintPassword": "کم از کم 10 حروف",
+    "hintPassword": "کم از کم 8 حروف",
     "agree": "میں <terms>شرائط</terms> اور <privacy>رازداری کی پالیسی</privacy> سے اتفاق کرتا ہوں",
     "submit": "اکاؤنٹ بنائیں",
     "busy": "اکاؤنٹ بنایا جا رہا ہے…",
@@ -2203,7 +2252,7 @@
     "hidePassword": "پاس ورڈ چھپائیں",
     "errName": "اپنا نام درج کریں (کم از کم 2 حروف)۔",
     "errIdentifier": "درست ای میل یا فون نمبر درج کریں۔",
-    "errPassword": "پاس ورڈ کم از کم 10 حروف کا ہونا چاہیے۔",
+    "errPassword": "پاس ورڈ کم از کم 8 حروف کا ہونا چاہیے۔",
     "errMismatch": "دونوں پاس ورڈ مماثل نہیں ہیں۔",
     "errAgree": "جاری رکھنے کے لیے شرائط اور رازداری کی پالیسی سے اتفاق کریں۔",
     "confirm": "پاس ورڈ کی تصدیق کریں"
@@ -2942,7 +2991,11 @@
     "copayAction": "بیمہ کی درخواست دیکھیں اور محفوظ ادائیگی کریں",
     "actionDoctorProfile": "پروفائل دیکھیں",
     "waitingRoomYourTurn": "آپ کی باری",
-    "waitingRoomCallsOff": "ویڈیو کالز فی الحال دستیاب نہیں ہیں۔"
+    "waitingRoomCallsOff": "ویڈیو کالز فی الحال دستیاب نہیں ہیں۔",
+    "ratingOutOf": "5 میں سے {value}",
+    "actionOrderPrescription": "نسخہ منگوائیں",
+    "actionBookLabs": "لیب ٹیسٹ بک کریں",
+    "actionBookScans": "اسکین بک کریں"
   },
   "ConsultClient": {
     "payHeading": "محفوظ گیٹ وے کے ذریعے ادائیگی مکمل کریں",
@@ -4102,7 +4155,12 @@
       "scan": "کیمرے سے انشورنس کارڈ اسکین کریں",
       "scanned": "کارڈ سے نظر آنے والی تفصیلات پڑھ لی گئیں۔ محفوظ کرنے سے پہلے جانچ لیں۔",
       "scanFailed": "کارڈ پڑھا نہیں جا سکا۔ تفصیلات خود درج کریں۔",
-      "network": "نیٹ ورک"
+      "network": "نیٹ ورک",
+      "copayHint": "اختیاری۔ انہیں اپنے کارڈ سے لکھیں: آپ کا ادا کردہ حصہ اور فی آئٹم زیادہ سے زیادہ رقم۔ بکنگ سے پہلے تخمینے کے لیے استعمال ہوتے ہیں۔",
+      "copayPercent": "آپ کا حصہ، % (اختیاری)",
+      "copayCap": "فی آئٹم زیادہ سے زیادہ، ر.س (اختیاری)",
+      "copayPercentInvalid": "0 سے 100 تک کوئی عدد درج کریں۔",
+      "copayCapInvalid": "0 یا اس سے زیادہ رقم درج کریں۔"
     },
     "coverage": {
       "title": "میری پالیسی کیا کور کرتی ہے",
@@ -4319,7 +4377,8 @@
     "earn.referral_converted": "دوست کو مدعو کرنا (اس کی پہلی بکنگ پر)",
     "earn.vitals_logged": "اہم علامات کا اندراج",
     "earn.challenge": "صحت کا چیلنج",
-    "earn.perChallenge": "چیلنج کے مطابق"
+    "earn.perChallenge": "چیلنج کے مطابق",
+    "reason.late_compensation": "اپوائنٹمنٹ میں تاخیر کا معاوضہ"
   },
   "OffersWeb": {
     "title": "آفرز اور پیکجز",
@@ -4481,7 +4540,7 @@
     "newPassword": "نیا پاس ورڈ",
     "repeatPassword": "نیا پاس ورڈ دوبارہ لکھیں",
     "currentRequired": "اپنا موجودہ پاس ورڈ درج کریں۔",
-    "passwordTooShort": "نیا پاس ورڈ کم از کم 10 حروف کا ہونا چاہیے۔",
+    "passwordTooShort": "نیا پاس ورڈ کم از کم 8 حروف کا ہونا چاہیے۔",
     "passwordMismatch": "دونوں پاس ورڈ مماثل نہیں ہیں۔",
     "currentWrong": "موجودہ پاس ورڈ غلط ہے۔",
     "passwordChangeFailed": "پاس ورڈ تبدیل نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
@@ -5385,7 +5444,9 @@
     "resHigh": "حد سے اوپر",
     "resLow": "حد سے نیچے",
     "resDiscuss": "ڈاکٹر سے بات کریں",
-    "resTrend": "آپ کے نتائج میں رجحان"
+    "resTrend": "آپ کے نتائج میں رجحان",
+    "shareEstimate": "آپ کا تخمینی حصہ: {p} (تخمینہ؛ فراہم کنندہ کی تصدیق کے بعد حتمی)",
+    "shareAccepted": "انشورنس قبول ہے۔ آپ کا حصہ فراہم کنندہ طے کرے گا۔"
   },
   "InstantConsult": {
     "title": "فوری مشاورت",

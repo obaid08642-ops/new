@@ -10,12 +10,17 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { specialtyLabel } from "@/lib/specialties";
 import { defaultVisitType, doctorDisplayName, doctorPlace, extractDoctor, priceForVisit } from "@/lib/api/doctors";
 import { getPublicDoctor } from "@/lib/api/doctors-server";
+import { getPublicConfig } from "@/lib/api/public-config-server";
+import { parseLateGuarantee } from "@/lib/consult/late-guarantee";
+import { GuaranteeLine, LicenseLine } from "@/components-next/consult/differentiators";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { formatPrice, formatNumber } from "@/lib/format-price";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import { ProfileHeader, type ProfileStat } from "@/components-next/consult/profile-header";
 import { Notice, SectionCard } from "@/components-next/consult/consult-parts";
+import { ClinicMap, PriceRows, ReviewList, type ReviewItem } from "@/components-next/consult/doctor-sections";
+import { reviewItems } from "@/lib/consult/doctor-reviews";
 import styles from "@/components-next/consult/consult.module.css";
 
 type Props = { params: Promise<{ locale: string; doctorId: string }>; searchParams: Promise<{ service_type?: string }> };
@@ -76,13 +81,21 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
   const where = [doctorPlace(doctor, locale), doctor.district, doctor.city].filter(Boolean).join(" · ");
   const languageNames = new Intl.DisplayNames(locale, { type: "language" });
   const spoken = (doctor.languages ?? []).map((code) => { try { return languageNames.of(code) ?? code; } catch { return code; } }).join(", ");
-  const tags = [doctor.verified ? t("verifiedDoctor") : undefined, doctor.licenseNo ? t("licenseNumber", { number: doctor.licenseNo }) : undefined, doctorPlace(doctor, locale), doctor.acceptsInsurance ? c("acceptsInsurance") : undefined].filter((tag): tag is string => Boolean(tag));
+  const tags = [doctor.isOnline ? t("onlineNow") : undefined, doctor.gender ? t(doctor.gender === "male" ? "genderMale" : "genderFemale") : undefined, doctor.verified ? t("verifiedDoctor") : undefined, doctorPlace(doctor, locale), doctor.acceptsInsurance ? c("acceptsInsurance") : undefined].filter((tag): tag is string => Boolean(tag));
+  const subLabels = { communication: t("subRatingCommunication"), punctuality: t("subRatingPunctuality"), cleanliness: t("subRatingCleanliness"), value: t("subRatingValue") };
+  const reviews: ReviewItem[] = reviewItems(doctor.reviewsData ?? [], locale, { anonymous: t("reviewerAnonymous"), subLabels }).slice(0, 3);
+  const services = (doctor.services ?? []).map((x) => ({ label: (locale === "ar" ? x.nameAr ?? x.nameEn : x.nameEn ?? x.nameAr) ?? x.name ?? "", price: x.price !== undefined ? formatPrice(locale, x.price).text : undefined })).filter((x) => x.label);
+  const followUpRows = doctor.followUp?.price !== undefined ? [{ label: t("followUpTitle"), price: formatPrice(locale, doctor.followUp.price).text }] : [];
+  const followUpWindow = doctor.followUp?.days !== undefined ? t("followUpWindow", { n: formatNumber(locale, doctor.followUp.days) }) : undefined;
+  const guarantee = parseLateGuarantee(await getPublicConfig().catch(() => null));
   const base = `/${locale}/consultations/doctors/${doctor.id}`;
 
   return (
     <ConsultPage locale={locale} title={name} backHref={`/${locale}/consultations/doctors`}>
       <JsonLd data={[physician({ name, path: `/consultations/doctors/${doctor.id}`, locale, specialty: doctor.specialty ?? null }), breadcrumbList([{ name: t("title"), locale, path: "/consultations/doctors" }, { name, locale, path: `/consultations/doctors/${doctor.id}` }])]} />
       <ProfileHeader photoSrc={doctor.photo} photoAlt={doctor.photo ? t("doctorPhotoAlt", { name }) : undefined} line={[doctor.degree, specialtyLabel(names, doctor.specialty)].filter(Boolean).join(" · ") || undefined} tags={tags} stats={stats} />
+      <LicenseLine text={doctor.license ? t("licenseLine", { number: doctor.license.number }) : null} verifiedLabel={doctor.license?.verified ? t("licenseVerified") : undefined} />
+      <GuaranteeLine text={guarantee ? t("guaranteeLine", { minutes: guarantee.minutes, points: guarantee.points }) : null} />
       {doctor.clinicPhotos?.length ? (
         <SectionCard id="clinic-photos-title" title={t("clinicPhotosTitle")}>
           <ul className={styles.gallery}>
@@ -104,8 +117,41 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
               {doctor.facilityId ? <Link href={`/${locale}/consultations/clinics/${encodeURIComponent(doctor.facilityId)}`}>{where}</Link> : where}
             </p>
           ) : null}
+          {doctor.facilityId ? <ButtonLink href={`/${locale}/consultations/clinics/${encodeURIComponent(doctor.facilityId)}`} label={t("facilityLink")} variant="outline" /> : null}
+          {doctor.acceptedInsurance?.length ? <p className={styles.body}>{t("insuranceTitle")}: {doctor.acceptedInsurance.join(", ")}</p> : null}
           {spoken ? <p className={styles.body}>{t("languagesLabel")}: {spoken}</p> : null}
         </SectionCard>
+      ) : null}
+      <SectionCard id="education-title" title={t("educationTitle")}>
+        {doctor.education?.length ? (
+          <ul className={styles.plain}>
+            {doctor.education.map((e, i) => <li key={`${e.degree}-${e.institution}-${i}`}>{[e.degree, e.institution, e.year !== undefined ? formatNumber(locale, e.year) : undefined].filter(Boolean).join(" · ")}{e.verified ? ` · ${t("certVerified")}` : ""}</li>)}
+          </ul>
+        ) : <p className={`${styles.body} ${styles.muted}`}>{t("educationEmpty")}</p>}
+      </SectionCard>
+      {doctor.certificates?.length ? (
+        <SectionCard id="certificates-title" title={t("certificatesTitle")}>
+          <ul className={styles.plain}>
+            {doctor.certificates.map((c, i) => <li key={`${c.name}-${i}`}>{[c.name, c.issuer, c.year !== undefined ? formatNumber(locale, c.year) : undefined].filter(Boolean).join(" · ")}{c.verified ? ` · ${t("certVerified")}` : ""}</li>)}
+          </ul>
+        </SectionCard>
+      ) : null}
+      {services.length || followUpRows.length ? (
+        <SectionCard id="services-title" title={t("servicesTitle")}>
+          <PriceRows rows={services} />
+          {followUpRows.length ? <><h3 className={styles.rowTitle}>{t("followUpTitle")}</h3><PriceRows rows={followUpRows} />{followUpWindow ? <p className={`${styles.body} ${styles.muted}`}>{followUpWindow}</p> : null}</> : null}
+        </SectionCard>
+      ) : null}
+      <SectionCard id="reviews-title" title={t("reviewsTitle")}>
+        {reviews.length ? (
+          <>
+            <ReviewList items={reviews} scoreLabel={(score) => c("ratingOutOf", { value: formatNumber(locale, score) })} />
+            <ButtonLink href={`/${locale}/consultations/doctors/${encodeURIComponent(doctor.id)}/reviews`} label={t("reviewsSeeAll")} variant="outline" />
+          </>
+        ) : <p className={`${styles.body} ${styles.muted}`}>{t("reviewsEmpty")}</p>}
+      </SectionCard>
+      {serviceType === "clinic" && doctor.clinic ? (
+        <ClinicMap id="clinic-location-title" title={t("clinicLocationTitle")} address={doctor.clinicAddress} point={doctor.location} mapTitle={t("clinicMapTitle")} openLabel={t("openInMaps")} />
       ) : null}
       <SectionCard id="slots-title" title={t("slotsTitle")}>
         <LinkSegmented

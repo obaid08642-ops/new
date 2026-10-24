@@ -191,7 +191,18 @@
     "rateLimited": "محاولات كثيرة. انتظر دقيقة ثم حاول مرة أخرى.",
     "serverError": "حدث خطأ من جانبنا. حاول مرة أخرى بعد قليل.",
     "guestBlocked": "تعذر فتح الدخول كضيف. سجّل الدخول أو حاول مرة أخرى بعد قليل.",
+    "appleUnavailable": "تسجيل الدخول بحساب Apple غير متاح حاليًا. استخدم طريقة أخرى لتسجيل الدخول.",
+    "apple": "Apple",
     "googleUnavailable": "الدخول عبر Google غير متاح الآن. استخدم طريقة أخرى لتسجيل الدخول.",
+    "google": "Google",
+    "x": "X",
+    "snapchat": "Snapchat",
+    "wrongAppTitle": "هذا الحساب لمقدّم خدمة",
+    "wrongAppBody": "حسابات مقدّمي الخدمة (الأطباء والصيدليات والمختبرات وغيرهم) لا تُستخدم في موقع المرضى. افتح تطبيق مقدّم الخدمة أو موقعه لتسجيل الدخول. لم يتم تسجيل دخولك هنا.",
+    "wrongAppIos": "تطبيق مقدّم الخدمة لنظام iOS",
+    "wrongAppAndroid": "تطبيق مقدّم الخدمة لنظام Android",
+    "wrongAppWeb": "موقع مقدّم الخدمة",
+    "wrongAppBack": "العودة إلى تسجيل الدخول",
     "locked": "محاولات فاشلة كثيرة. حاول مرة أخرى بعد {minutes} دقيقة."
   },
   "Dashboard": {
@@ -540,7 +551,9 @@
     "filterAll": "الكل",
     "filter_system": "النظام",
     "filter_medical": "طبية",
-    "filter_promotion": "العروض"
+    "filter_promotion": "العروض",
+    "lateCompensationTitle": "نقاط مقابل تأخر موعدك",
+    "lateCompensationBody": "تأخر موعدك فأضفنا نقاط نبض إلى حسابك. تجدها في سجل النقاط."
   },
   "Health": {
     "eyebrow": "صحة خاصة",
@@ -1354,7 +1367,6 @@
     "nearestCity": "الأطباء في {city}",
     "visitType": "نوع الاستشارة",
     "verifiedDoctor": "طبيب موثّق",
-    "licenseNumber": "رقم الترخيص {number}",
     "specialtyLabel": "التخصص",
     "allSpecialties": "كل التخصصات",
     "paymentLabel": "الدفع",
@@ -1381,7 +1393,44 @@
     "degree_senior_specialist": "أخصائي أول",
     "degree_specialist": "أخصائي",
     "degree_resident": "مقيم",
-    "degree_general_practitioner": "طبيب عام"
+    "degree_general_practitioner": "طبيب عام",
+    "factsLabel": "تفاصيل الطبيب",
+    "yearsExperience": "خبرة {n} سنة",
+    "genderMale": "ذكر",
+    "genderFemale": "أنثى",
+    "genderLabel": "جنس الطبيب",
+    "genderAny": "الكل",
+    "onlineNow": "متاح الآن",
+    "avgWait": "متوسط الانتظار {n} دقيقة",
+    "insuranceAccepted": "يقبل التأمين",
+    "educationTitle": "التعليم",
+    "educationEmpty": "لم تتم إضافة مؤهلات تعليمية بعد",
+    "certificatesTitle": "الشهادات",
+    "certVerified": "موثّق",
+    "reviewsTitle": "تقييمات المرضى",
+    "reviewsEmpty": "لا توجد تقييمات بعد",
+    "reviewsSeeAll": "عرض كل التقييمات",
+    "reviewsAllTitle": "كل التقييمات",
+    "reviewsMore": "الصفحة التالية",
+    "reviewerAnonymous": "مريض",
+    "subRatingCommunication": "التواصل",
+    "subRatingPunctuality": "الالتزام بالموعد",
+    "subRatingCleanliness": "النظافة",
+    "subRatingValue": "القيمة مقابل السعر",
+    "servicesTitle": "الخدمات والأسعار",
+    "followUpTitle": "زيارة المتابعة",
+    "followUpPrice": "سعر المتابعة: {price}",
+    "followUpWindow": "متاحة للحجز خلال {n} يومًا من الزيارة",
+    "clinicLocationTitle": "عنوان العيادة",
+    "clinicMapTitle": "خريطة العيادة",
+    "openInMaps": "فتح في الخرائط",
+    "facilityLink": "عرض العيادة",
+    "reviewsBack": "العودة إلى الطبيب",
+    "insuranceTitle": "التأمين المقبول",
+    "sortAvailableToday": "متاح اليوم",
+    "guaranteeLine": "إذا تأخر موعدك أكثر من {minutes} دقيقة تحصل على {points} نقطة من نقاط نبض.",
+    "licenseLine": "مرخّص من الهيئة السعودية للتخصصات الصحية، رقم {number}",
+    "licenseVerified": "موثّق"
   },
   "LabsServices": {
     "eyebrow": "الرعاية المخبرية",
@@ -2185,7 +2234,7 @@
     "identifier": "البريد الإلكتروني أو رقم الهاتف",
     "hintIdentifier": "نرسل إليه رمز التأكيد",
     "password": "كلمة المرور",
-    "hintPassword": "10 أحرف على الأقل",
+    "hintPassword": "8 أحرف على الأقل",
     "agree": "أوافق على <terms>الشروط والأحكام</terms> و<privacy>سياسة الخصوصية</privacy>",
     "submit": "إنشاء الحساب",
     "busy": "جارٍ إنشاء الحساب…",
@@ -2203,7 +2252,7 @@
     "hidePassword": "إخفاء كلمة المرور",
     "errName": "أدخل اسمك (حرفان على الأقل).",
     "errIdentifier": "أدخل بريدًا إلكترونيًا أو رقم جوال صحيحًا.",
-    "errPassword": "يجب أن تتكوّن كلمة المرور من 10 أحرف على الأقل.",
+    "errPassword": "يجب أن تتكوّن كلمة المرور من 8 أحرف على الأقل.",
     "errMismatch": "كلمتا المرور غير متطابقتين.",
     "errAgree": "وافق على الشروط وسياسة الخصوصية للمتابعة.",
     "confirm": "تأكيد كلمة المرور"
@@ -2942,7 +2991,11 @@
     "copayAction": "عرض طلب التأمين والدفع الآمن",
     "actionDoctorProfile": "عرض الملف",
     "waitingRoomYourTurn": "دورك",
-    "waitingRoomCallsOff": "المكالمات المرئية غير متاحة حالياً."
+    "waitingRoomCallsOff": "المكالمات المرئية غير متاحة حالياً.",
+    "ratingOutOf": "{value} من 5",
+    "actionOrderPrescription": "اطلب الوصفة",
+    "actionBookLabs": "احجز التحاليل",
+    "actionBookScans": "احجز الأشعة"
   },
   "ConsultClient": {
     "payHeading": "أكمل الدفع من خلال بوابة آمنة",
@@ -4102,7 +4155,12 @@
       "scan": "مسح بطاقة التأمين بالكاميرا",
       "scanned": "تم استخراج البيانات المرئية من البطاقة. راجعها قبل الحفظ.",
       "scanFailed": "فشل التعرف على البطاقة. أدخل البيانات يدويًا.",
-      "network": "الشبكة"
+      "network": "الشبكة",
+      "copayHint": "اختياري. انقلهما من بطاقتك: نسبة ما تدفعه وأقصى مبلغ لكل بند. نستخدمهما لتقدير حصتك قبل الحجز.",
+      "copayPercent": "نسبة تحمّلك % (اختياري)",
+      "copayCap": "الحد الأقصى لكل بند، ر.س (اختياري)",
+      "copayPercentInvalid": "أدخل رقمًا من 0 إلى 100.",
+      "copayCapInvalid": "أدخل مبلغًا يساوي 0 أو أكثر."
     },
     "coverage": {
       "title": "ما تغطيه وثيقتي",
@@ -4319,7 +4377,8 @@
     "earn.referral_converted": "دعوة صديق (عند أول حجز له)",
     "earn.vitals_logged": "تسجيل مؤشرات حيوية",
     "earn.challenge": "تحدٍّ صحي",
-    "earn.perChallenge": "حسب التحدي"
+    "earn.perChallenge": "حسب التحدي",
+    "reason.late_compensation": "تعويض تأخر الموعد"
   },
   "OffersWeb": {
     "title": "العروض والباقات",
@@ -4481,7 +4540,7 @@
     "newPassword": "كلمة المرور الجديدة",
     "repeatPassword": "أعد كلمة المرور الجديدة",
     "currentRequired": "أدخل كلمة المرور الحالية.",
-    "passwordTooShort": "يجب أن تتكوّن كلمة المرور الجديدة من 10 أحرف على الأقل.",
+    "passwordTooShort": "يجب أن تتكوّن كلمة المرور الجديدة من 8 أحرف على الأقل.",
     "passwordMismatch": "كلمتا المرور غير متطابقتين.",
     "currentWrong": "كلمة المرور الحالية غير صحيحة.",
     "passwordChangeFailed": "تعذّر تغيير كلمة المرور. حاول مرة أخرى.",
@@ -5385,7 +5444,9 @@
     "resHigh": "أعلى من المرجع",
     "resLow": "أقل من المرجع",
     "resDiscuss": "ناقش النتيجة مع طبيب",
-    "resTrend": "الاتجاه عبر نتائجك"
+    "resTrend": "الاتجاه عبر نتائجك",
+    "shareEstimate": "حصتك التقديرية: {p} (تقدير؛ تصبح نهائية بعد تأكيد مقدّم الخدمة)",
+    "shareAccepted": "التأمين مقبول. يؤكّد مقدّم الخدمة حصتك."
   },
   "InstantConsult": {
     "title": "استشارة فورية",

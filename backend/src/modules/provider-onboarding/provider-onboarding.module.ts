@@ -1,3 +1,4 @@
+import { normalizeGender, normalizeEducation, normalizeProcedures, assertFollowUp, normalizeClinicLocation, normalizeIban, doctorSubmitProblems } from './doctor-profile-fields';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { Module, Controller, Post, Get, Body, Query, Param, UseGuards, Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
 import { isEmail } from 'class-validator';
@@ -135,6 +136,23 @@ export class ProviderOnboardingService {
       'pharmacist_name', 'tech_officer_name', 'tech_officer_scfhs',
       'lab_category', 'lab_accreditation', 'scfhs_expiry', 'profile_photo', 'region'];
     for (const f of fields) if (body[f] !== undefined) (profile as any)[f] = body[f];
+    if (profile.type === ProviderType.DOCTOR) {
+      if (body.gender !== undefined) {
+        const g = normalizeGender(body.gender);
+        if (!g) throw new BadRequestException('invalid_gender');
+        (profile as any).gender = g;
+      }
+      if (body.iban !== undefined) {
+        const iban = normalizeIban(body.iban);
+        if (!iban) throw new BadRequestException('invalid_iban');
+        (profile as any).iban = iban;
+      }
+    }
+    if (body.license_expiry_date !== undefined) {
+      const d = new Date(body.license_expiry_date);
+      if (Number.isNaN(d.getTime())) throw new BadRequestException('invalid_license_expiry_date');
+      (profile as any).license_expiry_date = d;
+    }
     const lat = Number(body?.location?.lat), lng = Number(body?.location?.lng);
     if (Number.isFinite(lat) && Number.isFinite(lng) && (lat !== 0 || lng !== 0)) (profile as any).geo = { lat, lng };
     if (!(profile as any).provider_type) (profile as any).provider_type = profile.type;
@@ -161,6 +179,8 @@ export class ProviderOnboardingService {
         'home_transport_fee', 'home_transport_price', 'clinic_name', 'vacation_date',
         'home_duration', 'schedule_video', 'schedule_home', 'schedule_clinic', 'national_id', 'gender',
         'languages', 'display_name_ar', 'display_name_en',
+        // owner decision 2026-10-24
+        'education', 'follow_up_price', 'follow_up_window_days', 'procedures', 'clinic_address', 'clinic_location',
       ],
       [ProviderType.HOSPITAL]: [
         'doctors_roster', 'lab_roster', 'radiology_roster', 'nursing_roster', 'pharmacy_roster', 'working_hours',
@@ -216,6 +236,17 @@ export class ProviderOnboardingService {
         .filter((x: any) => byId.has(String(x?.key)))
         .map((x: any) => ({ key: String(x.key), name_ar: byId.get(String(x.key))!.name_ar, name_en: byId.get(String(x.key))!.name_en, price: Number(x.price) || 0 }));
     }
+    if (profile.type === ProviderType.DOCTOR) {
+      if (body.education !== undefined) body.education = normalizeEducation(body.education);
+      if (body.procedures !== undefined) body.procedures = normalizeProcedures(body.procedures);
+      assertFollowUp(body.follow_up_price, body.follow_up_window_days);
+      if (body.clinic_location !== undefined) body.clinic_location = normalizeClinicLocation(body.clinic_location);
+      if (body.gender !== undefined) {
+        const g = normalizeGender(body.gender);
+        if (!g) throw new BadRequestException('invalid_gender');
+        body.gender = g;
+      }
+    }
     for (const k of keys) if (body[k] !== undefined) (profile as any)[k] = body[k];
     this.snapshotStep(profile, 'step3', body);
     profile.onboarding_step = Math.max(profile.onboarding_step || 0, 3);
@@ -236,6 +267,11 @@ export class ProviderOnboardingService {
     const profile = await this.providerModel.findOne({ user_id: user.id });
     if (!profile) throw new NotFoundException();
     if ((profile.onboarding_step || 0) < 3) throw new BadRequestException('complete_all_steps_first');
+    if (profile.type === ProviderType.DOCTOR) {
+      // Owner decision 2026-10-24: title (academic degree), a sub-specialty, an unexpired SCFHS licence date and an IBAN.
+      const missing = doctorSubmitProblems(profile.toObject());
+      if (missing.length) throw new BadRequestException({ message: 'doctor_registration_incomplete', code: 'doctor_registration_incomplete', missing });
+    }
     profile.onboarding_completed = true;
     profile.status = ProviderStatus.PENDING;
     if (body) {

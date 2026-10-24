@@ -34,7 +34,7 @@ export default function RegisterScreen() {
     if (!form.name || form.name.length < 3) { setErrorMessage('auth.register.errName'); return false; }
     if (!form.phone || form.phone.length < 9) { setErrorMessage('auth.register.errPhone'); return false; }
     if (!form.email || !form.email.includes('@')) { setErrorMessage('auth.register.errEmail'); return false; }
-    if (!form.password || form.password.length < 6) { setErrorMessage('auth.err.passwordShort'); return false; }
+    if (!form.password || form.password.length < 8) { setErrorMessage('auth.err.passwordShort'); return false; }
     if (form.password !== form.confirmPw) { setErrorMessage('auth.err.mismatch'); return false; }
     if (!agreed) { setErrorMessage('auth.register.errAgree'); return false; }
     return true;

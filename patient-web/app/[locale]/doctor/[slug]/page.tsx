@@ -8,6 +8,10 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { specialtyLabel } from "@/lib/specialties";
 import { getPublicDoctorEntity } from "@/lib/api/doctors-server";
+import { getPublicConfig } from "@/lib/api/public-config-server";
+import { parseLateGuarantee } from "@/lib/consult/late-guarantee";
+import { licenseOf } from "@/lib/api/doctors";
+import { GuaranteeLine, LicenseLine } from "@/components-next/consult/differentiators";
 import { formatNumber } from "@/lib/format-price";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import styles from "@/components-next/consult/consult.module.css";
@@ -105,6 +109,10 @@ export default async function DoctorCanonicalPage({ params }: Props) {
     modes.length ? seo("doctorModes", { modes: new Intl.ListFormat(locale, { type: "conjunction" }).format(modes) }) : null,
     seo("doctorBook"),
   ];
+  const guarantee = parseLateGuarantee(await getPublicConfig().catch(() => null));
+  const doctorsT = await getTranslations("Doctors");
+  // the entity record carries the licence only when the server sends `license` / `scfhs_license_no` on it; otherwise the line stays hidden
+  const license = licenseOf(doctor.license, doctor.scfhs_license_no);
   const insurers: string[] = Array.isArray(relationships.accepted_insurance) ? relationships.accepted_insurance : [];
 
   return (
@@ -130,6 +138,8 @@ export default async function DoctorCanonicalPage({ params }: Props) {
       />
       <DirectAnswer sentences={directAnswer} />
       <ProfileHeader line={[specialtyLabel(names, doctor.specialty), facilityName].filter(Boolean).join(" · ") || undefined} stats={stats} />
+      <LicenseLine text={license ? doctorsT("licenseLine", { number: license.number }) : null} verifiedLabel={license?.verified ? doctorsT("licenseVerified") : undefined} />
+      <GuaranteeLine text={guarantee ? doctorsT("guaranteeLine", { minutes: guarantee.minutes, points: guarantee.points }) : null} />
       {insurers.length > 0 ? (
         <SectionCard id="doctor-insurance" title={c("acceptedInsurance")}>
           <div className={styles.chips}>{insurers.map((ins) => <span key={ins} className={styles.tag}>{ins}</span>)}</div>

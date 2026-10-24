@@ -191,7 +191,18 @@
     "rateLimited": "बहुत ज़्यादा कोशिशें। एक मिनट रुककर फिर कोशिश करें।",
     "serverError": "हमारी तरफ़ से कुछ गड़बड़ हुई। थोड़ी देर बाद फिर कोशिश करें।",
     "guestBlocked": "अतिथि पहुंच नहीं खुल सकी। साइन इन करें या थोड़ी देर बाद फिर कोशिश करें।",
+    "appleUnavailable": "Apple से साइन इन अभी उपलब्ध नहीं है। साइन इन का कोई और तरीका चुनें।",
+    "apple": "Apple",
     "googleUnavailable": "Google से साइन इन अभी उपलब्ध नहीं है। साइन इन का कोई और तरीका इस्तेमाल करें।",
+    "google": "Google",
+    "x": "X",
+    "snapchat": "Snapchat",
+    "wrongAppTitle": "यह प्रदाता का खाता है",
+    "wrongAppBody": "प्रदाता खाते (डॉक्टर, फ़ार्मेसी, लैब और अन्य) मरीज़ों की साइट पर इस्तेमाल नहीं होते। साइन इन के लिए प्रदाता ऐप या वेबसाइट खोलें। आप यहाँ साइन इन नहीं हुए हैं।",
+    "wrongAppIos": "iOS के लिए प्रदाता ऐप",
+    "wrongAppAndroid": "Android के लिए प्रदाता ऐप",
+    "wrongAppWeb": "प्रदाता वेबसाइट",
+    "wrongAppBack": "साइन इन पर वापस जाएँ",
     "locked": "बहुत अधिक असफल प्रयास। {minutes} मिनट बाद फिर कोशिश करें।"
   },
   "Dashboard": {
@@ -593,7 +604,9 @@
     "filterAll": "सभी",
     "filter_system": "सिस्टम",
     "filter_medical": "चिकित्सा",
-    "filter_promotion": "ऑफ़र"
+    "filter_promotion": "ऑफ़र",
+    "lateCompensationTitle": "देर से शुरू हुई अपॉइंटमेंट के पॉइंट्स",
+    "lateCompensationBody": "आपकी अपॉइंटमेंट देर से शुरू हुई, इसलिए आपके खाते में नब्ज़ पॉइंट्स जोड़े गए हैं। उन्हें पॉइंट्स इतिहास में देखें।"
   },
   "Health": {
     "eyebrow": "निजी स्वास्थ्य",
@@ -1354,7 +1367,6 @@
     "nearestCity": "{city} में डॉक्टर",
     "visitType": "परामर्श का प्रकार",
     "verifiedDoctor": "सत्यापित डॉक्टर",
-    "licenseNumber": "लाइसेंस नंबर {number}",
     "specialtyLabel": "विशेषज्ञता",
     "allSpecialties": "सभी विशेषज्ञताएं",
     "paymentLabel": "भुगतान",
@@ -1381,7 +1393,44 @@
     "degree_senior_specialist": "वरिष्ठ विशेषज्ञ",
     "degree_specialist": "विशेषज्ञ",
     "degree_resident": "रेज़िडेंट",
-    "degree_general_practitioner": "सामान्य चिकित्सक"
+    "degree_general_practitioner": "सामान्य चिकित्सक",
+    "factsLabel": "डॉक्टर का विवरण",
+    "yearsExperience": "{n} वर्ष का अनुभव",
+    "genderMale": "पुरुष",
+    "genderFemale": "महिला",
+    "genderLabel": "डॉक्टर का लिंग",
+    "genderAny": "कोई भी",
+    "onlineNow": "अभी उपलब्ध",
+    "avgWait": "औसत प्रतीक्षा {n} मिनट",
+    "insuranceAccepted": "बीमा स्वीकार्य",
+    "educationTitle": "शिक्षा",
+    "educationEmpty": "अभी तक कोई शिक्षा नहीं जोड़ी गई",
+    "certificatesTitle": "प्रमाणपत्र",
+    "certVerified": "सत्यापित",
+    "reviewsTitle": "मरीज़ों की समीक्षाएँ",
+    "reviewsEmpty": "अभी कोई समीक्षा नहीं",
+    "reviewsSeeAll": "सभी समीक्षाएँ देखें",
+    "reviewsAllTitle": "सभी समीक्षाएँ",
+    "reviewsMore": "अगला पृष्ठ",
+    "reviewerAnonymous": "मरीज़",
+    "subRatingCommunication": "संवाद",
+    "subRatingPunctuality": "समय की पाबंदी",
+    "subRatingCleanliness": "साफ़-सफ़ाई",
+    "subRatingValue": "पैसे का मूल्य",
+    "servicesTitle": "सेवाएँ और कीमतें",
+    "followUpTitle": "फ़ॉलो-अप विज़िट",
+    "followUpPrice": "फ़ॉलो-अप की कीमत: {price}",
+    "followUpWindow": "विज़िट के {n} दिनों के भीतर बुक करने के लिए उपलब्ध",
+    "clinicLocationTitle": "क्लिनिक का पता",
+    "clinicMapTitle": "क्लिनिक का नक्शा",
+    "openInMaps": "मैप में खोलें",
+    "facilityLink": "क्लिनिक देखें",
+    "reviewsBack": "डॉक्टर के पेज पर वापस",
+    "insuranceTitle": "स्वीकृत बीमा",
+    "sortAvailableToday": "आज उपलब्ध",
+    "guaranteeLine": "अगर आपकी अपॉइंटमेंट {minutes} मिनट से ज़्यादा देर से शुरू हो, तो आपको {points} नब्ज़ पॉइंट्स मिलते हैं।",
+    "licenseLine": "सऊदी हेल्थ स्पेशलिटीज़ कमीशन से लाइसेंस प्राप्त, नंबर {number}",
+    "licenseVerified": "सत्यापित"
   },
   "LabsServices": {
     "eyebrow": "प्रयोगशाला देखभाल",
@@ -2185,7 +2234,7 @@
     "identifier": "ईमेल या मोबाइल नंबर",
     "hintIdentifier": "हम पुष्टि कोड यहीं भेजेंगे",
     "password": "पासवर्ड",
-    "hintPassword": "कम से कम 10 अक्षर",
+    "hintPassword": "कम से कम 8 अक्षर",
     "agree": "मैं <terms>शर्तों</terms> और <privacy>गोपनीयता नीति</privacy> से सहमत हूं",
     "submit": "खाता बनाएं",
     "busy": "खाता बनाया जा रहा है…",
@@ -2203,7 +2252,7 @@
     "hidePassword": "पासवर्ड छिपाएं",
     "errName": "अपना नाम दर्ज करें (कम से कम 2 अक्षर)।",
     "errIdentifier": "मान्य ईमेल या फ़ोन नंबर दर्ज करें।",
-    "errPassword": "पासवर्ड कम से कम 10 अक्षरों का होना चाहिए।",
+    "errPassword": "पासवर्ड कम से कम 8 अक्षरों का होना चाहिए।",
     "errMismatch": "दोनों पासवर्ड मेल नहीं खाते।",
     "errAgree": "जारी रखने के लिए शर्तों और गोपनीयता नीति से सहमत हों।",
     "confirm": "पासवर्ड की पुष्टि करें"
@@ -2942,7 +2991,11 @@
     "copayAction": "बीमा अनुरोध देखें और सुरक्षित भुगतान करें",
     "actionDoctorProfile": "प्रोफ़ाइल देखें",
     "waitingRoomYourTurn": "आपकी बारी",
-    "waitingRoomCallsOff": "वीडियो कॉल अभी उपलब्ध नहीं हैं।"
+    "waitingRoomCallsOff": "वीडियो कॉल अभी उपलब्ध नहीं हैं।",
+    "ratingOutOf": "5 में से {value}",
+    "actionOrderPrescription": "पर्चा ऑर्डर करें",
+    "actionBookLabs": "लैब जांच बुक करें",
+    "actionBookScans": "स्कैन बुक करें"
   },
   "ConsultClient": {
     "payHeading": "सुरक्षित गेटवे से भुगतान पूरा करें",
@@ -4102,7 +4155,12 @@
       "scan": "कैमरे से बीमा कार्ड स्कैन करें",
       "scanned": "कार्ड से दिखने वाली जानकारी पढ़ ली गई। सहेजने से पहले जाँच लें।",
       "scanFailed": "कार्ड पढ़ा नहीं जा सका। जानकारी खुद दर्ज करें।",
-      "network": "नेटवर्क"
+      "network": "नेटवर्क",
+      "copayHint": "वैकल्पिक। इन्हें अपने कार्ड से भरें: आपका देय हिस्सा और प्रति सेवा अधिकतम राशि। बुकिंग से पहले अनुमान के लिए इस्तेमाल होते हैं।",
+      "copayPercent": "आपका हिस्सा, % (वैकल्पिक)",
+      "copayCap": "प्रति सेवा अधिकतम, SAR (वैकल्पिक)",
+      "copayPercentInvalid": "0 से 100 के बीच कोई संख्या लिखें।",
+      "copayCapInvalid": "0 या उससे अधिक राशि लिखें।"
     },
     "coverage": {
       "title": "मेरी पॉलिसी क्या कवर करती है",
@@ -4319,7 +4377,8 @@
     "earn.referral_converted": "मित्र को आमंत्रित करना (उसकी पहली बुकिंग पर)",
     "earn.vitals_logged": "वाइटल साइन दर्ज करना",
     "earn.challenge": "स्वास्थ्य चुनौती",
-    "earn.perChallenge": "चुनौती के अनुसार"
+    "earn.perChallenge": "चुनौती के अनुसार",
+    "reason.late_compensation": "अपॉइंटमेंट में देरी का मुआवज़ा"
   },
   "OffersWeb": {
     "title": "ऑफ़र और पैकेज",
@@ -4481,7 +4540,7 @@
     "newPassword": "नया पासवर्ड",
     "repeatPassword": "नया पासवर्ड दोबारा लिखें",
     "currentRequired": "अपना वर्तमान पासवर्ड दर्ज करें।",
-    "passwordTooShort": "नया पासवर्ड कम से कम 10 अक्षरों का होना चाहिए।",
+    "passwordTooShort": "नया पासवर्ड कम से कम 8 अक्षरों का होना चाहिए।",
     "passwordMismatch": "दोनों पासवर्ड मेल नहीं खाते।",
     "currentWrong": "वर्तमान पासवर्ड गलत है।",
     "passwordChangeFailed": "पासवर्ड नहीं बदला जा सका। फिर से कोशिश करें।",
@@ -5385,7 +5444,9 @@
     "resHigh": "सीमा से ऊपर",
     "resLow": "सीमा से नीचे",
     "resDiscuss": "डॉक्टर से चर्चा करें",
-    "resTrend": "आपके नतीजों में रुझान"
+    "resTrend": "आपके नतीजों में रुझान",
+    "shareEstimate": "आपका अनुमानित हिस्सा: {p} (अनुमान; प्रदाता की पुष्टि के बाद अंतिम)",
+    "shareAccepted": "बीमा स्वीकार है। आपका हिस्सा प्रदाता द्वारा पुष्ट किया जाएगा।"
   },
   "InstantConsult": {
     "title": "तुरंत परामर्श",
