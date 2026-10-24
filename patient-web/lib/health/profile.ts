@@ -10,7 +10,10 @@ export const PROFILE_LISTS = [
 
 export type ProfileListKey = (typeof PROFILE_LISTS)[number]["list"];
 export type ProfileItem = { id: string; name: string };
-export type ProfileBasics = { heightCm?: number; weightKg?: number; bloodType?: string };
+export type Gender = "unspecified" | "female" | "male";
+export type ProfileBasics = { heightCm?: number; weightKg?: number; bloodType?: string; gender?: Gender; isPregnant?: boolean; isBreastfeeding?: boolean; isSmoker?: boolean };
+/** The blood types the app offers as chips; "unknown" is what the app stores for none. */
+export const BLOOD_TYPES = ["unknown", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] as const;
 export type FamilyContact = { id: string; name: string; relation?: string; maskedPhone?: string };
 
 const record = (value: unknown): Record<string, unknown> | null => (value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null);
@@ -35,7 +38,16 @@ export function profileItems(value: unknown): ProfileItem[] {
 }
 
 export function profileBasics(root: Record<string, unknown> | null): ProfileBasics {
-  return { heightCm: finite(root?.height_cm), weightKg: finite(root?.weight_kg), bloodType: text(root?.blood_type) };
+  const gender = text(root?.gender);
+  return {
+    heightCm: finite(root?.height_cm),
+    weightKg: finite(root?.weight_kg),
+    bloodType: text(root?.blood_type),
+    gender: gender === "female" || gender === "male" || gender === "unspecified" ? gender : undefined,
+    isPregnant: root?.is_pregnant === true,
+    isBreastfeeding: root?.is_breastfeeding === true,
+    isSmoker: root?.is_smoker === true,
+  };
 }
 
 /** The family members who are emergency contacts (GET /family/emergency-contacts): name, relation and a masked number. */

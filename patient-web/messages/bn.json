@@ -608,9 +608,9 @@
     "reportDoctor": "চিকিৎসক",
     "reportFacility": "প্রতিষ্ঠান",
     "backToHealth": "স্বাস্থ্যে ফিরে যান",
-    "vitalsHistoryEyebrow": "আপনার সংরক্ষিত vital readings",
-    "vitalsHistoryTitle": "Vitals history",
-    "vitalsHistoryNotice": "এই read-only view patient record-এ সংরক্ষিত readings দেখায়। এটি diagnosis বা medical judgment হিসাব করে না।",
+    "vitalsHistoryEyebrow": "আপনার রেকর্ড করা গুরুত্বপূর্ণ মাপ",
+    "vitalsHistoryTitle": "গুরুত্বপূর্ণ মাপের ইতিহাস",
+    "vitalsHistoryNotice": "এই শুধু-পড়ার দৃশ্য আপনার রোগীর রেকর্ডে সংরক্ষিত মাপ দেখায়। এটি কোনো রোগনির্ণয় বা চিকিৎসাগত সিদ্ধান্ত নেয় না।",
     "vitalsHistoryEmpty": "এখনও কোনো ভাইটাল রিডিং নেই।",
     "vitalsHistoryNoDefaults": "শুধু আপনার সংরক্ষিত রিডিং দেখানো হয়।",
     "vitalsHistoryReadOnly": "রিডিং যোগ, সম্পাদনা ও মুছে ফেলা এখনও উপলব্ধ নয়।"
@@ -782,7 +782,7 @@
     "timelineEmpty": "এখনও কোনো স্বাস্থ্য ঘটনা নেই।",
     "reportsEmpty": "এখনো কোনো প্রতিবেদন নেই",
     "chronicEmpty": "এখনও কোনো দীর্ঘমেয়াদি ওষুধ নেই।",
-    "chronicNotice": "আপনার রেকর্ড করা ওষুধের সময়সূচি ও রিফিলের তারিখ এখানে দেখানো হয়। যোগ, সম্পাদনা, বন্ধ, রিফিল ও রিমাইন্ডার এখনও উপলব্ধ নয়।",
+    "chronicNotice": "এই পাতা রেকর্ড ও রিফিল ট্র্যাক করতে সাহায্য করে; নিজে অর্ডার বা প্রেসক্রিপশন বদলায় না।",
     "medicineUnavailable": "ওষুধের নাম অনুপলব্ধ",
     "medicineUnnamed": "নামহীন ওষুধ",
     "emergencyMineEmpty": "এখনও কোনো জরুরি যোগাযোগ নেই।",
@@ -880,7 +880,55 @@
     "historyAll": "সব",
     "doseSkip": "বাদ দিন",
     "refillConfirm": "রিফিল অনুরোধ নিশ্চিত করুন",
-    "refillSent": "আপনার রিফিল অনুরোধ পাঠানো হয়েছে।"
+    "refillSent": "আপনার রিফিল অনুরোধ পাঠানো হয়েছে।",
+    "photoTitle": "প্রোফাইল ছবি",
+    "photoChange": "ছবি পরিবর্তন করুন",
+    "photoUploading": "ছবি আপলোড হচ্ছে",
+    "photoNote": "ছবি আপনার ব্যবহারকারী প্রোফাইলে এবং বাকি তথ্য মেডিকেল প্রোফাইলে সংরক্ষিত হয়।",
+    "photoFailed": "ছবি আপলোড করা যায়নি।",
+    "basicsUnknown": "অজানা",
+    "basicsGender": "লিঙ্গ",
+    "gender": {
+      "unspecified": "বলতে চাই না",
+      "female": "নারী",
+      "male": "পুরুষ"
+    },
+    "basicsOptional": "ঐচ্ছিক তথ্য",
+    "basicsPregnant": "বর্তমানে গর্ভবতী",
+    "basicsBreastfeeding": "বুকের দুধ খাওয়াচ্ছেন",
+    "basicsSmoker": "বর্তমানে ধূমপান",
+    "sleepQuality": {
+      "excellent": "চমৎকার",
+      "good": "ভালো",
+      "fair": "মাঝারি",
+      "poor": "দুর্বল"
+    },
+    "sleepWeek": "গত ৭ দিন",
+    "sleepAverage": "গড় ঘুম {hours} ঘণ্টা",
+    "sleepTips": "ভালো ঘুমের জন্য",
+    "trendsInRange": "স্বাভাবিক সীমার মধ্যে",
+    "trendsOutRange": "স্বাভাবিক সীমার বাইরে",
+    "trendsNormal": "স্বাভাবিক সীমা: {lo}-{hi} {unit}",
+    "trendsMax": "সর্বোচ্চ",
+    "trendsMin": "সর্বনিম্ন",
+    "trendsAvg": "গড়",
+    "trendsCount": "রিডিংয়ের সংখ্যা",
+    "trendsShare": "আমার ভাইটালের সারাংশ শেয়ার করুন",
+    "trendsShareTitle": "আমার স্বাস্থ্য ভাইটালের সারাংশ — নাবদ প্লাস",
+    "dosesLogged": "আজ নথিভুক্ত ডোজ",
+    "dailyPlan": "আজকের পরিকল্পনা",
+    "doseTimeline": "আজকের ডোজ সময়রেখা",
+    "viewReminders": "রিমাইন্ডার দেখুন",
+    "medsPrescriptionsLink": "প্রেসক্রিপশন দেখুন",
+    "reminderStop": "রিমাইন্ডার থামান",
+    "refillTrack": "অর্ডার ট্র্যাক করুন",
+    "refillNoAddress": "রিফিলের আগে একটি সংরক্ষিত ঠিকানা লাগবে।",
+    "refillAddAddress": "ঠিকানা যোগ করুন",
+    "chronicDefer": "৩ দিন পিছিয়ে দিন",
+    "chronicStop": "রিফিল ট্র্যাকিং বন্ধ করুন",
+    "chronicUpdateFailed": "রিফিল ট্র্যাকিং বদলায়নি।",
+    "confirmAction": "নিশ্চিত করুন",
+    "photoInvalid": "সর্বোচ্চ ৫ মেগাবাইটের একটি ছবি বেছে নিন।"
   },
   "Prescriptions": {
     "title": "প্রেসক্রিপশন",
@@ -1132,8 +1180,8 @@
     "source": "উৎস",
     "unknown": "অজানা",
     "empty": "এখনও কোনো দীর্ঘমেয়াদি রোগ নেই।",
-    "notice": "এগুলো শুধু profile-এ রেকর্ড করা entry। কোনো diagnosis, severity, control assessment বা treatment recommendation দেওয়া হয় না।",
-    "unavailableTitle": "Chronic condition লোড করা যায়নি",
+    "notice": "এগুলো শুধু প্রোফাইলে নিজে লেখা তথ্য। কোনো রোগনির্ণয়, তীব্রতা, নিয়ন্ত্রণের মূল্যায়ন বা চিকিৎসার সুপারিশ দেওয়া হয় না।",
+    "unavailableTitle": "দীর্ঘমেয়াদি অবস্থা লোড করা যায়নি",
     "unavailable": "অনুগ্রহ করে পরে আবার চেষ্টা করুন।"
   },
   "ChronicMedications": {
@@ -1148,7 +1196,7 @@
     "remaining": "রেকর্ড করা অবশিষ্ট ইউনিট",
     "empty": "এখনও কোনো দীর্ঘমেয়াদি ওষুধ নেই।",
     "notice": "আপনার রেকর্ড করা ওষুধের সময়সূচি ও রিফিলের তারিখ এখানে দেখানো হয়। যোগ, সম্পাদনা, বন্ধ, রিফিল ও রিমাইন্ডার এখনও উপলব্ধ নয়।",
-    "unavailableTitle": "Chronic medication লোড করা যায়নি",
+    "unavailableTitle": "দীর্ঘমেয়াদি ওষুধ লোড করা যায়নি",
     "unavailable": "অনুগ্রহ করে পরে আবার চেষ্টা করুন।"
   },
   "HealthTrends": {
@@ -1157,7 +1205,7 @@
     "back": "স্বাস্থ্যে ফিরে যান",
     "readings": "রিডিং",
     "empty": "এখনও কোনো প্রবণতার তথ্য নেই।",
-    "notice": "এই read-only view শুধু সংরক্ষিত readings ও direction-এর সারাংশ। এটি diagnosis, alert, normal-range assessment বা treatment recommendation নয়।",
+    "notice": "এই শুধু-পড়ার দৃশ্য সংরক্ষিত মাপ ও প্রবণতার দিকের সারাংশ। এটি রোগনির্ণয়, সতর্কতা, স্বাভাবিক সীমার মূল্যায়ন বা চিকিৎসার সুপারিশ নয়।",
     "unavailableTitle": "স্বাস্থ্য প্রবণতা লোড করা যায়নি",
     "unavailable": "অনুগ্রহ করে পরে আবার চেষ্টা করুন।",
     "direction": {
@@ -1907,65 +1955,65 @@
     "empty": "এখনও কোনো স্বাস্থ্য ঘটনা নেই।"
   },
   "Clinics": {
-    "title": "Medical Facility",
+    "title": "চিকিৎসা সুবিধা",
     "subtitle": "প্রতিষ্ঠানের বিবরণ ও উপলব্ধ ডাক্তার দেখুন",
-    "back": "Doctors Directory",
+    "back": "ডাক্তারদের তালিকা",
     "unavailableTitle": "প্রতিষ্ঠানটি এখন উপলব্ধ নয়",
     "unavailableBody": "চিকিৎসা প্রতিষ্ঠানের বিবরণ লোড করা যায়নি।",
-    "retry": "Retry",
+    "retry": "আবার চেষ্টা করুন",
     "typeLabel": "হাসপাতাল ও ক্লিনিক",
-    "aboutTitle": "About Facility",
+    "aboutTitle": "সুবিধা সম্পর্কে",
     "defaultAbout": "একটি আধুনিক চিকিৎসা প্রতিষ্ঠান যা উচ্চমানের স্বাস্থ্যসেবা প্রদান করে।",
-    "doctorsTitle": "Facility Doctors",
-    "rating": "Rating {value}"
+    "doctorsTitle": "সুবিধার ডাক্তাররা",
+    "rating": "রেটিং {value}"
   },
   "LabsDetail": {
-    "title": "Laboratory Details",
+    "title": "ল্যাবরেটরির বিবরণ",
     "subtitle": "ল্যাবে উপলব্ধ পরীক্ষা ও প্যাকেজ দেখুন",
-    "back": "Labs Directory",
+    "back": "ল্যাবরেটরির তালিকা",
     "unavailableTitle": "ল্যাবরেটরি এখন উপলব্ধ নয়",
     "unavailableBody": "ল্যাবরেটরির বিবরণ লোড করা যায়নি।",
-    "retry": "Retry",
-    "typeLabel": "Certified Laboratory",
+    "retry": "আবার চেষ্টা করুন",
+    "typeLabel": "প্রত্যয়িত ল্যাবরেটরি",
     "homeVisitSupported": "বাসায় নমুনা সংগ্রহের সুবিধা আছে",
-    "aboutTitle": "About Laboratory",
+    "aboutTitle": "ল্যাবরেটরি সম্পর্কে",
     "defaultAbout": "আধুনিক ডায়াগনস্টিক সরঞ্জামসহ একটি সনদপ্রাপ্ত চিকিৎসা ল্যাবরেটরি।",
-    "servicesTitle": "Available Tests",
+    "servicesTitle": "পাওয়া যাচ্ছে এমন পরীক্ষা",
     "price": "{value} SAR",
     "ratingLine": "রেটিং ৫-এর মধ্যে {rating} · রেটিংয়ের সংখ্যা {count}"
   },
   "NurseDetail": {
-    "title": "Nurse Profile",
+    "title": "নার্সের প্রোফাইল",
     "subtitle": "অভিজ্ঞতা ও হোম নার্সিং কেয়ার সেবা",
-    "back": "Nursing Directory",
+    "back": "নার্সদের তালিকা",
     "unavailableTitle": "প্রোফাইল এখন উপলব্ধ নয়",
     "unavailableBody": "নার্সের প্রোফাইলের বিবরণ লোড করা যায়নি।",
-    "retry": "Retry",
+    "retry": "আবার চেষ্টা করুন",
     "verified": "লাইসেন্সপ্রাপ্ত ও যাচাইকৃত",
-    "years": "years",
-    "experienceLabel": "Field Experience",
-    "ratingLabel": "Patient Rating",
-    "homeCareLabel": "Home Care",
-    "aboutTitle": "Professional Bio",
+    "years": "বছর",
+    "experienceLabel": "কাজের অভিজ্ঞতা",
+    "ratingLabel": "রোগীদের রেটিং",
+    "homeCareLabel": "বাড়িতে সেবা",
+    "aboutTitle": "পেশাগত পরিচিতি",
     "defaultBio": "একজন লাইসেন্সপ্রাপ্ত নার্স যিনি সহানুভূতিশীল হোম কেয়ার প্রদানে নিবেদিত।",
     "servicesTitle": "উপলব্ধ নার্সিং সেবা",
     "price": "{value} SAR",
     "requestNurse": "নার্সিং ভিজিটের অনুরোধ করুন"
   },
   "MapExplorer": {
-    "title": "Explore Facilities",
+    "title": "সুবিধা খুঁজুন",
     "subtitle": "আপনার কাছের যাচাইকৃত চিকিৎসা প্রতিষ্ঠান ও ফার্মেসি",
     "searchPh": "প্রতিষ্ঠানের নাম বা বিশেষত্ব দিয়ে খুঁজুন...",
-    "filterAll": "All",
+    "filterAll": "সব",
     "filterDoctors": "ডাক্তার ও ক্লিনিক",
-    "filterHospitals": "Hospitals",
-    "filterPharmacies": "Pharmacies",
-    "filterLabs": "Laboratories",
-    "filterNursing": "Nursing",
-    "directions": "Directions",
-    "book": "Book",
-    "rating": "Rating",
-    "distance": "Distance",
+    "filterHospitals": "হাসপাতাল",
+    "filterPharmacies": "ফার্মেসি",
+    "filterLabs": "ল্যাবরেটরি",
+    "filterNursing": "নার্সিং",
+    "directions": "দিকনির্দেশ",
+    "book": "বুক করুন",
+    "rating": "রেটিং",
+    "distance": "দূরত্ব",
     "noProviders": "আপনার মানদণ্ডের সাথে কোনো চিকিৎসা প্রতিষ্ঠান মেলেনি।"
   },
   "RxUpload": {
@@ -3477,7 +3525,15 @@
     "weekEmpty": "এই সপ্তাহের বিষয়বস্তু এখনও উপলব্ধ নয়।",
     "weekUnavailable": "এই সপ্তাহের বিষয়বস্তু লোড করা যায়নি।",
     "readThisWeek": "এই সপ্তাহে পড়ুন",
-    "readEmpty": "এই সপ্তাহের জন্য এখনও কোনো নিবন্ধ নেই।"
+    "readEmpty": "এই সপ্তাহের জন্য এখনও কোনো নিবন্ধ নেই।",
+    "pregnancyNotice": "এটি আপনার দেওয়া তারিখের উপর নির্ভর করে। এটি গর্ভকাল বা ভ্রূণের স্বাস্থ্য নিশ্চিত করে না।",
+    "cycleNotice": "চক্র ও উর্বরতার অনুমান আপনার তথ্যের উপর নির্ভর করে। গর্ভনিরোধে ব্যবহার করবেন না।",
+    "safetyNotice": "তীব্র ব্যথা, রক্তপাত বা জরুরি উদ্বেগে চিকিৎসা বা জরুরি সেবায় যোগাযোগ করুন। নাবদাহ রোগনির্ণয় করে না।",
+    "notContraception": "গর্ভনিরোধ বা ডিম্বস্ফোটনের নিশ্চয়তা নয়।",
+    "dayLabel": "{total} দিনের চক্রের {day} নম্বর দিন",
+    "dayOfCycle": "চক্রের দিন",
+    "cycleDays": "{count} দিন",
+    "allArticles": "সব নিবন্ধ"
   },
   "NutritionWeb": {
     "title": "পুষ্টি",
@@ -3554,7 +3610,24 @@
     "planFailed": "এখন পরিকল্পনা তৈরি করা যায়নি। আবার চেষ্টা করুন।",
     "planNutritionist": "পুষ্টিবিদের সাথে পরামর্শ করুন",
     "planNotice": "এই পরিকল্পনা AI সহকারীর সাধারণ নির্দেশনা, চিকিৎসা ব্যবস্থাপত্র নয়। বড় কোনো পরিবর্তনের আগে পুষ্টিবিদের সাথে কথা বলুন।",
-    "planDay": "দিন {n}"
+    "planDay": "দিন {n}",
+    "remaining": "বাকি: {value}",
+    "setTarget": "পুষ্টির লক্ষ্য নির্ধারণ করুন",
+    "protein": "প্রোটিন",
+    "carbs": "কার্বোহাইড্রেট",
+    "fat": "চর্বি",
+    "gram": "গ্রা",
+    "waterProgress": "{value} / {target} {unit}",
+    "addMl": "+{amount} মি.লি.",
+    "waterFailed": "পানি সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
+    "proteinLine": "প্রোটিন {value} গ্রা",
+    "nutritionSafety": "খাবার নথিভুক্ত করা শুধু ট্র্যাকিংয়ে সহায়তা করে। নাবদাহ রোগনির্ণয় বা চিকিৎসামূলক খাদ্য দেয় না।",
+    "macro": {
+      "protein_g": "প্রোটিন (গ্রাম, ঐচ্ছিক)",
+      "carbs_g": "কার্বোহাইড্রেট (গ্রাম, ঐচ্ছিক)",
+      "fat_g": "চর্বি (গ্রাম, ঐচ্ছিক)",
+      "fiber_g": "ফাইবার (গ্রাম, ঐচ্ছিক)"
+    }
   },
   "MentalWeb": {
     "title": "মানসিক স্বাস্থ্য",
@@ -3589,7 +3662,15 @@
       "bad": "ভালো না",
       "terrible": "খুব খারাপ"
     },
-    "urgentRowSub": "জরুরি সহায়তার নম্বরে কল করুন"
+    "urgentRowSub": "জরুরি সহায়তার নম্বরে কল করুন",
+    "moodTag": {
+      "calm": "শান্ত",
+      "tired": "ক্লান্ত",
+      "stressed": "চাপে",
+      "connected": "সংযুক্ত",
+      "rested": "বিশ্রামপ্রাপ্ত",
+      "overwhelmed": "অভিভূত"
+    }
   },
   "ProgramsWeb": {
     "title": "আমার স্বাস্থ্য প্রোগ্রাম",
@@ -3914,7 +3995,10 @@
       "expiry": "মেয়াদ শেষের তারিখ (ঐচ্ছিক)",
       "submit": "পলিসি সংরক্ষণ করুন",
       "invalid": "কোম্পানি বেছে নিন এবং সঠিক পলিসি নম্বর দিন (কমপক্ষে ৩টি অক্ষর)।",
-      "failed": "পলিসি সংরক্ষণ করা যায়নি।"
+      "failed": "পলিসি সংরক্ষণ করা যায়নি।",
+      "scan": "ক্যামেরায় বিমা কার্ড স্ক্যান করুন",
+      "scanned": "কার্ড থেকে দৃশ্যমান তথ্য পড়া হয়েছে। সংরক্ষণের আগে যাচাই করুন।",
+      "scanFailed": "কার্ড পড়া যায়নি। নিজে তথ্য লিখুন।"
     },
     "coverage": {
       "title": "আমার পলিসি কী কভার করে",
@@ -3930,7 +4014,16 @@
       "result": "রেকর্ডে থাকা কভারেজ",
       "eligible": "আপনার সংরক্ষিত পলিসিতে কভার হিসেবে তালিকাভুক্ত",
       "notEligible": "আপনার সংরক্ষিত পলিসিতে কভার হিসেবে তালিকাভুক্ত নয়",
-      "forService": "সেবা: {service}"
+      "forService": "সেবা: {service}",
+      "provider": "সেবাদাতার নাম (ঐচ্ছিক)",
+      "providerHint": "ডাক্তার, হাসপাতাল বা ফার্মেসির নাম",
+      "copayTitle": "আপনার অংশ",
+      "youPay": "আপনি দেবেন",
+      "cap": "আপনার অংশের নির্দিষ্ট সীমা",
+      "finalNote": "চূড়ান্ত অঙ্ক বুকিংয়ের সময় সেবাদাতার প্রকৃত মূল্য থেকে নির্ধারিত হয়।",
+      "preAuth": "বিমা কোম্পানি পূর্ব অনুমোদন চাইতে পারে; প্রতিষ্ঠান তা চায়",
+      "askSupport": "সহায়তার সঙ্গে যোগাযোগ করুন",
+      "again": "অন্য সেবা দেখুন"
     },
     "request": {
       "pageTitle": "বিমার অনুরোধ",
@@ -3979,7 +4072,12 @@
       "acceptFailed": "নিজে পরিশোধের সিদ্ধান্ত নথিভুক্ত করা যায়নি। কোনো পেমেন্ট তৈরি হয়নি।",
       "acceptRetry": "নিজে পরিশোধের সিদ্ধান্ত নথিভুক্ত করা যায়নি। আবার চেষ্টা করুন।",
       "payFailed": "নিরাপদ অনলাইন পেমেন্ট শুরু করা যায়নি। কোনো পেমেন্ট নিশ্চিত হয়নি।",
-      "payRetry": "অনলাইন পেমেন্ট শুরু করা যায়নি। কোনো পেমেন্ট নিশ্চিত হয়নি।"
+      "payRetry": "অনলাইন পেমেন্ট শুরু করা যায়নি। কোনো পেমেন্ট নিশ্চিত হয়নি।",
+      "insurer": "বিমা কোম্পানি",
+      "payNow": "নিরাপদ পরিশোধে যান — {amount}",
+      "missingTitle": "কোনো বিমা অনুরোধ নেই",
+      "missingBody": "এই বুকিংয়ের জন্য কোনো বিমা অনুরোধ পাওয়া যায়নি। বিমা পাতা থেকে আপনার অনুরোধ খুলুন।",
+      "back": "ফিরে যান"
     },
     "noteCode": {
       "coverage_decided_by_provider": "আপনার অনুরোধ পর্যালোচনার সময় সেবা প্রদানকারী চূড়ান্ত কভারেজ ঠিক করে।",
@@ -3993,10 +4091,36 @@
       "lab": "ল্যাবরেটরি",
       "radiology": "রেডিওলজি সেন্টার",
       "home_care": "হোম কেয়ার",
-      "nursing": "নার্সিং"
+      "nursing": "নার্সিং",
+      "other": "সেবাদাতা"
     },
     "memberLine": "সদস্য নম্বর: {id}",
-    "expiryLine": "মেয়াদ শেষ: {date}"
+    "expiryLine": "মেয়াদ শেষ: {date}",
+    "policyVerified": "পর্যালোচিত",
+    "policyInReview": "পর্যালোচনায়",
+    "policyNumber": "পলিসি নম্বর",
+    "memberName": "সদস্যের নাম",
+    "nationalId": "জাতীয় পরিচয়পত্র",
+    "policyNetwork": "নেটওয়ার্ক",
+    "kind": {
+      "consultation": "চিকিৎসা পরামর্শ",
+      "lab": "ল্যাব পরীক্ষা",
+      "radiology": "রেডিওলজি",
+      "nursing": "বাসায় নার্সিং",
+      "pharmacy": "ওষুধ",
+      "other": "সেবা"
+    },
+    "usageRequests": "বীমা অনুরোধ: {count}",
+    "usageCovered": "বীমা কোম্পানি বহন করেছে",
+    "usagePaid": "আপনি দিয়েছেন",
+    "networkType": {
+      "all": "সব",
+      "doctor": "ডাক্তার",
+      "hospital": "হাসপাতাল",
+      "pharmacy": "ফার্মেসি",
+      "lab": "ল্যাব"
+    },
+    "networkCall": "কল"
   },
   "LoyaltyHubWeb": {
     "title": "নাবদ পয়েন্ট",
@@ -4068,7 +4192,30 @@
     "copied": "কপি হয়েছে",
     "copyFailed": "কপি করা যায়নি",
     "shared": "শেয়ার হয়েছে",
-    "inviteeFallback": "আমন্ত্রিত ব্যক্তি"
+    "inviteeFallback": "আমন্ত্রিত ব্যক্তি",
+    "tier.bronze": "ব্রোঞ্জ",
+    "tier.silver": "সিলভার",
+    "tier.gold": "গোল্ড",
+    "tier.platinum": "প্লাটিনাম",
+    "perk.cashback_5_consult": "পরামর্শে ৫% ক্যাশব্যাক",
+    "perk.priority_standard": "সাধারণ বুকিং অগ্রাধিকার",
+    "perk.cashback_8": "৮% ক্যাশব্যাক",
+    "perk.free_pharmacy_shipping": "ফার্মেসি থেকে বিনামূল্যে ডেলিভারি",
+    "perk.priority_advanced": "উন্নত বুকিং অগ্রাধিকার",
+    "perk.cashback_12": "১২% ক্যাশব্যাক",
+    "perk.free_consult_monthly_1": "প্রতি মাসে ১টি বিনামূল্যে পরামর্শ",
+    "perk.support_priority_24_7": "২৪/৭ অগ্রাধিকার সহায়তা",
+    "perk.cashback_15": "১৫% ক্যাশব্যাক",
+    "perk.free_consult_monthly_2": "প্রতি মাসে ২টি বিনামূল্যে পরামর্শ",
+    "perk.personal_health_manager": "ব্যক্তিগত স্বাস্থ্য ম্যানেজার",
+    "perk.exclusive_offers": "অফারে একচেটিয়া প্রবেশাধিকার",
+    "earn.booking_completed": "সম্পন্ন চিকিৎসা পরামর্শ",
+    "earn.order_delivered": "সম্পন্ন ফার্মেসি অর্ডার",
+    "earn.review_submitted": "সেবার রেটিং",
+    "earn.referral_converted": "বন্ধুকে আমন্ত্রণ (তার প্রথম বুকিংয়ে)",
+    "earn.vitals_logged": "গুরুত্বপূর্ণ সূচক নথিভুক্ত করা",
+    "earn.challenge": "স্বাস্থ্য চ্যালেঞ্জ",
+    "earn.perChallenge": "চ্যালেঞ্জ অনুযায়ী"
   },
   "OffersWeb": {
     "title": "অফার ও প্যাকেজ",
@@ -4546,7 +4693,13 @@
         "good": "ভালো",
         "okay": "ঠিক আছে",
         "bad": "কঠিন",
-        "terrible": "খুব কঠিন"
+        "terrible": "খুব কঠিন",
+        "calm": "শান্ত",
+        "tired": "ক্লান্ত",
+        "stressed": "চাপে",
+        "connected": "সংযুক্ত",
+        "rested": "বিশ্রামপ্রাপ্ত",
+        "overwhelmed": "অভিভূত"
       },
       "energy_level": "শক্তি (১-৫, ঐচ্ছিক)",
       "stress_level": "চাপ (১-৫, ঐচ্ছিক)",
@@ -4558,8 +4711,10 @@
         "energy_level": "শক্তি ১ থেকে ৫-এর একটি সংখ্যা।",
         "stress_level": "চাপ ১ থেকে ৫-এর একটি সংখ্যা।",
         "sleep_hours": "ঘুমের ঘণ্টা ০ থেকে ২৪-এর মধ্যে।",
-        "notes": "নোটটি খুব দীর্ঘ।"
-      }
+        "notes": "নোটটি খুব দীর্ঘ।",
+        "tags": "তালিকা থেকে ট্যাগ বেছে নিন।"
+      },
+      "tags": "আপনার দিনকে কী বর্ণনা করে?"
     },
     "kicks": {
       "title": "শিশুর নড়াচড়া লিখুন",

@@ -21,9 +21,12 @@ import { BasicsForm, ProfileList } from "@/components-next/health/profile-forms"
 import { EmergencyContactsEditor } from "@/components-next/health/emergency-contacts-editor";
 import styles from "@/components-next/health/health.module.css";
 import forms from "@/components-next/consult/consult.module.css";
-import { CORAL, TEAL } from "@/lib/health/view";
+import { CORAL, TEAL, pickTab } from "@/lib/health/view";
+import { HealthTabs } from "@/components-next/health/health-kit";
+import { AvatarUpload } from "@/components-next/health/avatar-upload";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string | string[] }> };
+const TABS = ["basics", "conditions", "emergency"] as const;
 
 const settled = async (call: Promise<Response>): Promise<unknown | undefined> => {
   try {
@@ -41,8 +44,10 @@ const settled = async (call: Promise<Response>): Promise<unknown | undefined> =>
  * "my contacts" from GET /health/emergency-contacts and "my family on Nabd+" from GET /family/emergency-contacts) and the
  * health ID card. Each section says in place when its own call failed; the page needs the medical profile itself.
  */
-export default async function HealthProfilePage({ params }: Props) {
+export default async function HealthProfilePage({ params, searchParams }: Props) {
   const { locale } = await params;
+  const query = await searchParams;
+  const tab = pickTab(query.tab, TABS, "basics");
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("HealthWeb");
@@ -60,11 +65,15 @@ export default async function HealthProfilePage({ params }: Props) {
     );
   }
   const root = profileRoot(await profileRes.json().catch(() => null));
-  const [chronicPayload, contactsPayload, familyPayload] = await Promise.all([
-    settled(getPatientChronicDiseases(token)),
-    settled(getPatientEmergencyContacts(token)),
-    settled(getPatientFamilyEmergencyContacts(token)),
+  // each tab reads only its own data
+  const [chronicPayload, contactsPayload, familyPayload, userPayload] = await Promise.all([
+    tab === "conditions" ? settled(getPatientChronicDiseases(token)) : Promise.resolve(undefined),
+    tab === "emergency" ? settled(getPatientEmergencyContacts(token)) : Promise.resolve(undefined),
+    tab === "emergency" ? settled(getPatientFamilyEmergencyContacts(token)) : Promise.resolve(undefined),
+    tab === "basics" ? settled(callPatientApi("/users/me/profile", {}, token)) : Promise.resolve(undefined),
   ]);
+  const user = profileRoot(userPayload);
+  const avatarUrl = typeof user?.avatar_url === "string" && /^https?:\/\//.test(user.avatar_url) ? user.avatar_url : undefined;
   const basics = profileBasics(root);
   const lists = Object.fromEntries(PROFILE_LISTS.map(({ list, field }) => [list, profileItems(root?.[field])]));
   const recorded = chronicPayload === undefined ? null : parseChronicDiseases(chronicPayload);
@@ -72,30 +81,38 @@ export default async function HealthProfilePage({ params }: Props) {
   const family = familyPayload === undefined ? null : familyContacts(familyPayload);
   const caret = getDirection(locale) === "rtl" ? "caret-left" : "caret-right";
   const base = `/${locale}/health/profile`;
+  const genderLabel = basics.gender ? t(`gender.${basics.gender}`) : t("notSet");
 
   return (
     <ConsultPage locale={locale} title={t("profileTitle")} backHref={`/${locale}/health`}>
-      <nav className={styles.jump} aria-label={t("profileTitle")}>
-        <a href="#basics">{t("secBasics")}</a>
-        <a href="#conditions">{t("secConditions")}</a>
-        <a href="#chronic">{t("secChronic")}</a>
-        <a href="#emergency">{t("secEmergency")}</a>
-        <a href="#healthid">{t("secHealthId")}</a>
-      </nav>
+      <HealthTabs label={t("profileTitle")} base={base} active={tab} options={[
+        { value: "basics", label: t("secBasics") },
+        { value: "conditions", label: t("secConditions") },
+        { value: "emergency", label: t("secEmergency") },
+      ]} />
 
+      {tab === "basics" ? (<>
       <div id="basics" className={styles.anchor}>
+        <AvatarUpload name={t("photoTitle")} src={avatarUrl} />
         <SectionCard id="profile-basics" title={t("secBasics")}>
           <Facts rows={[
             { label: t("basicsBlood"), value: basics.bloodType ? <bdi>{basics.bloodType}</bdi> : t("notSet"), icon: "drop", tone: CORAL },
             { label: t("basicsHeight"), value: basics.heightCm !== undefined ? <bdi>{basics.heightCm}</bdi> : t("notSet"), icon: "user", tone: "blue" },
             { label: t("basicsWeight"), value: basics.weightKg !== undefined ? <bdi>{basics.weightKg}</bdi> : t("notSet"), icon: "scales", tone: TEAL },
+            { label: t("basicsGender"), value: genderLabel, icon: "user", tone: "violet" },
           ]} />
-          <FormSheet title={t("basicsEdit")} triggerLabel={t("basicsEdit")} closeLabel={t("close")} closeHref={`${base}#basics`} triggerVariant="outline">
+          <FormSheet title={t("basicsEdit")} triggerLabel={t("basicsEdit")} closeLabel={t("close")} closeHref={`${base}?tab=basics`} triggerVariant="outline">
             <BasicsForm initial={basics} />
           </FormSheet>
         </SectionCard>
       </div>
 
+      <div id="healthid" className={styles.anchor}>
+        <RowCard href={`/${locale}/reports/passport`} icon="identification-card" tone="blue" title={t("secHealthId")} sub={t("healthIdSub")} caret={<Icon name={caret} size={16} tone="secondary" />} />
+      </div>
+      </>) : null}
+
+      {tab === "conditions" ? (<>
       <div id="conditions" className={styles.anchor}>
         <SectionCard id="profile-conditions" title={t("secConditions")}>
           <ProfileList list="allergies" title={t("listAllergies")} initial={lists.allergies} />
@@ -131,6 +148,9 @@ export default async function HealthProfilePage({ params }: Props) {
         </SectionCard>
       </div>
 
+      </>) : null}
+
+      {tab === "emergency" ? (
       <div id="emergency" className={styles.anchor}>
         <SectionCard id="profile-emergency" title={t("secEmergency")}>
           <div className={forms.section}>
@@ -160,10 +180,7 @@ export default async function HealthProfilePage({ params }: Props) {
           </div>
         </SectionCard>
       </div>
-
-      <div id="healthid" className={styles.anchor}>
-        <RowCard href={`/${locale}/reports/passport`} icon="identification-card" tone="blue" title={t("secHealthId")} sub={t("healthIdSub")} caret={<Icon name={caret} size={16} tone="secondary" />} />
-      </div>
+      ) : null}
     </ConsultPage>
   );
 }

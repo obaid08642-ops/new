@@ -10,13 +10,22 @@ describe("loyalty readers", () => {
 
   it("reads only well-formed tiers and ways to earn; no tiers stays empty (the page then says unavailable)", () => {
     const config = parseConfig({ tiers: [{ id: "a", label: "Test A", minPts: 0, perks: ["p1", 3] }, { label: "no id", minPts: 5 }], earn_ways: [{ action: "Test way", pts: 10 }, { pts: 1 }] });
-    expect(config.tiers).toEqual([{ id: "a", label: "Test A", minPts: 0, perks: ["p1"] }]);
-    expect(config.earnWays).toEqual([{ action: "Test way", points: 10 }]);
+    expect(config.tiers).toEqual([{ id: "a", label: "Test A", minPts: 0, perks: ["p1"], perkCodes: [undefined] }]);
+    expect(config.earnWays).toEqual([{ action: "Test way", points: 10, reason: undefined }]);
     expect(parseConfig({}).tiers).toEqual([]);
   });
 
+  it("keeps the stable codes the server sends next to the Arabic texts", () => {
+    const config = parseConfig({
+      tiers: [{ id: "bronze", label: "برونزي", minPts: 0, perks: ["5% كاشباك", "أولوية"], perk_codes: ["cashback_5_consult", "priority_standard"] }],
+      earn_ways: [{ action: "استشارة", reason: "booking_completed", pts: "+50" }, { action: "تحدي صحي", reason: null, pts: "حسب التحدي" }],
+    });
+    expect(config.tiers[0].perkCodes).toEqual(["cashback_5_consult", "priority_standard"]);
+    expect(config.earnWays).toEqual([{ action: "استشارة", points: "+50", reason: "booking_completed" }, { action: "تحدي صحي", points: "حسب التحدي", reason: undefined }]);
+  });
+
   it("measures the way to the next tier", () => {
-    const tiers = [{ id: "a", label: "A", minPts: 0, perks: [] }, { id: "b", label: "B", minPts: 1000, perks: [] }];
+    const tiers = [{ id: "a", label: "A", minPts: 0, perks: [], perkCodes: [] }, { id: "b", label: "B", minPts: 1000, perks: [], perkCodes: [] }];
     expect(tierProgress(tiers, "a", 250)).toMatchObject({ share: 0.25, missing: 750 });
     expect(tierProgress(tiers, "b", 5000)).toMatchObject({ share: 1, missing: 0 });
     expect(tierProgress(tiers, "unknown", 0).current?.id).toBe("a");
@@ -24,6 +33,17 @@ describe("loyalty readers", () => {
 
   it("reads history rows by their signed points and skips zero rows", () => {
     expect(parseTransactions({ transactions: [{ id: "t1", points_delta: -50, reason: "reward_claimed" }, { id: "t2", points_delta: 0 }] })).toEqual([{ id: "t1", delta: -50, reason: "reward_claimed", description: undefined, createdAt: undefined }]);
+  });
+
+  it("shows the English title of a reward and a challenge outside Arabic, and the Arabic one on the Arabic page", () => {
+    const reward = [{ id: "r1", title_ar: "قسيمة تجريبية", title_en: "Test coupon", points_required: 1 }];
+    expect(parseRewards(reward, "en")[0].title).toBe("Test coupon");
+    expect(parseRewards(reward, "hi")[0].title).toBe("Test coupon");
+    expect(parseRewards(reward, "ar")[0].title).toBe("قسيمة تجريبية");
+    expect(parseRewards([{ id: "r2", title_ar: "قسيمة", points_required: 1 }], "en")[0].title).toBe("قسيمة");
+    const challenge = [{ id: "c1", title_ar: "تحدي شهري", title_en: "Monthly challenge", reward_points: 50 }];
+    expect(parseChallenges(challenge, "fil")[0].title).toBe("Monthly challenge");
+    expect(parseChallenges(challenge, "ar")[0].title).toBe("تحدي شهري");
   });
 
   it("reads rewards, and challenges without a default target or end date", () => {

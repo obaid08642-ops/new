@@ -19,6 +19,8 @@ import { QuickLogForm } from "@/components-next/health/quick-log-form";
 import { Notice } from "@/components-next/consult/consult-parts";
 import { parseNutritionPlan } from "@/lib/nutrition/plan";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
+import { NutritionWaterQuick } from "@/components-next/nutrition-water-quick";
+import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/health/health.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string | string[] }> };
@@ -151,13 +153,25 @@ export default async function NutritionPage({ params, searchParams }: Props) {
         lines={[
           new Intl.DateTimeFormat(locale, { dateStyle: "full" }).format(new Date()),
           summary.target !== null ? t("targetLine", { value: kcal(summary.target) }) : t("noTarget"),
-        ]}
+          summary.target !== null ? t("remaining", { value: kcal(Math.max(0, summary.target - summary.calories)) }) : null,
+        ].filter((line): line is string => line !== null)}
       />
+      {summary.target === null ? <ButtonLink href={`${base}?tab=target`} label={t("setTarget")} variant="outline" size="md" /> : null}
       <ul className={styles.tiles} aria-label={t("todayTitle")}>
         <li><VitalTile label={t("calories")} value={number.format(summary.calories)} unit={t("kcal")} icon="bowl-food" tone={NUTRITION.tone} /></li>
         <li><VitalTile label={t("water")} value={number.format(summary.waterMl)} unit={t("ml")} icon="drop" tone="blue" /></li>
+        {summary.proteinG !== null ? <li><VitalTile label={t("protein")} value={number.format(summary.proteinG)} unit={t("gram")} icon="heart" tone="mint" /></li> : null}
+        {summary.carbsG !== null ? <li><VitalTile label={t("carbs")} value={number.format(summary.carbsG)} unit={t("gram")} icon="bowl-food" tone="amber" /></li> : null}
+        {summary.fatG !== null ? <li><VitalTile label={t("fat")} value={number.format(summary.fatG)} unit={t("gram")} icon="drop" tone="violet" /></li> : null}
       </ul>
       <SectionHead id="log-water" title={t("water")} />
+      {summary.waterTargetMl !== null && summary.waterTargetMl > 0 ? (
+        <>
+          <progress className={rx.progressBar} value={Math.min(summary.waterMl, summary.waterTargetMl)} max={summary.waterTargetMl} aria-label={t("waterProgress", { value: number.format(summary.waterMl), target: number.format(summary.waterTargetMl) })} />
+          <p className={rx.note}>{t("waterProgress", { value: number.format(summary.waterMl), target: number.format(summary.waterTargetMl) })}</p>
+        </>
+      ) : null}
+      <NutritionWaterQuick />
       <QuickLogForm kind="water" />
       <SectionHead id="meals" title={t("meals")} />
       {meals === null ? (
@@ -172,13 +186,14 @@ export default async function NutritionPage({ params, searchParams }: Props) {
                 icon="bowl-food"
                 tone={NUTRITION.tone}
                 title={meal.name}
-                sub={meal.type && MEAL_TYPES.includes(meal.type) ? [t(`mealType.${meal.type}`)] : []}
+                sub={[meal.type && MEAL_TYPES.includes(meal.type) ? t(`mealType.${meal.type}`) : null, meal.proteinG !== undefined ? t("proteinLine", { value: number.format(meal.proteinG) }) : null].filter((line): line is string => line !== null)}
                 end={meal.calories !== undefined ? <bdi>{kcal(meal.calories)}</bdi> : undefined}
               />
             </li>
           ))}
         </RowsCard>
       )}
+      <Notice>{t("nutritionSafety")}</Notice>
     </>,
   );
 }
