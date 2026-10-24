@@ -192,6 +192,7 @@
     "serverError": "Something went wrong on our side. Try again in a moment.",
     "guestBlocked": "We couldn't open guest access. Sign in, or try again in a moment.",
     "googleUnavailable": "Google sign-in isn't available right now. Use another way to sign in.",
+    "appleUnavailable": "Apple sign-in isn't available right now. Use another way to sign in.",
     "locked": "Too many failed attempts. Try again in {minutes} minutes."
   },
   "NursingCatalog": {

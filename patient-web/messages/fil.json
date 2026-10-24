@@ -192,6 +192,7 @@
     "serverError": "May nangyaring problema sa amin. Subukan muli sa ilang sandali.",
     "guestBlocked": "Hindi mabuksan ang guest access. Mag-sign in o subukan muli sa ilang sandali.",
     "googleUnavailable": "Hindi available ngayon ang Google sign-in. Gumamit ng ibang paraan ng pag-sign in.",
+    "appleUnavailable": "Hindi available ngayon ang Apple sign-in. Gumamit ng ibang paraan ng pag-sign in.",
     "locked": "Masyadong maraming bigong pagtatangka. Subukan muli pagkalipas ng {minutes} minuto."
   },
   "Dashboard": {
