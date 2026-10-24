@@ -1,0 +1,56 @@
+{
+  "id": "0b3c5b3e-8a0f-4c1d-9d8a-6f1f5a1e2c11",
+  "status": "paid",
+  "amount": 15000,
+  "currency": "SAR",
+  "description": "Nabd consultation #abcd1234",
+  "expired_at": null,
+  "logo_url": null,
+  "amount_format": "150.00 SAR",
+  "url": "https://checkout.moyasar.com/invoices/0b3c5b3e-8a0f-4c1d-9d8a-6f1f5a1e2c11?lang=ar",
+  "callback_url": "https://nabd.example/payments/result?ref=txn_1",
+  "success_url": "https://nabd.example/payments/result?ref=txn_1",
+  "back_url": "https://nabd.example/payments/result?ref=txn_1",
+  "created_at": "2026-10-01T10:00:00.000Z",
+  "updated_at": "2026-10-01T10:00:00.000Z",
+  "metadata": {},
+  "payments": [
+    {
+      "id": "6d1c6d0e-3f0b-4f1c-8a52-0a1e0f7c9b22",
+      "status": "paid",
+      "amount": 15000,
+      "fee": 375,
+      "currency": "SAR",
+      "refunded": 0,
+      "refunded_at": null,
+      "captured": 0,
+      "captured_at": null,
+      "voided_at": null,
+      "description": "Nabd consultation #abcd1234",
+      "amount_format": "150.00 SAR",
+      "fee_format": "3.75 SAR",
+      "refunded_format": "0.00 SAR",
+      "captured_format": "0.00 SAR",
+      "invoice_id": "0b3c5b3e-8a0f-4c1d-9d8a-6f1f5a1e2c11",
+      "ip": null,
+      "callback_url": "https://nabd.example/payments/result?ref=txn_1",
+      "created_at": "2026-10-01T10:00:00.000Z",
+      "updated_at": "2026-10-01T10:00:05.000Z",
+      "metadata": {
+        "booking_id": "b1"
+      },
+      "source": {
+        "type": "creditcard",
+        "company": "visa",
+        "name": "TEST",
+        "number": "4111XXXXXXXX1111",
+        "gateway_id": "moyasar_cc_x",
+        "reference_number": "1",
+        "token": null,
+        "message": "APPROVED",
+        "transaction_url": null,
+        "response_code": "00"
+      }
+    }
+  ]
+}

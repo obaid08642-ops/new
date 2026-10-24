@@ -19,7 +19,7 @@ import { parseOrderId } from "@/lib/api/orders";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { getDirection, type Locale } from "@/lib/i18n";
 import { canCancelOrder, dialable, isMoving, orderNumber, pharmacyDisplayName, trackingSteps } from "@/lib/pharmacy/order-view";
-import { readOrderDetail } from "./read-orders";
+import { readLegacyTracking, readOrderDetailOrMissing } from "./read-orders";
 import { TrackingRefresh } from "./tracking-refresh";
 import { TrackingTimeline } from "./tracking-timeline";
 import rx from "@/components-next/pharmacy/rx.module.css";
@@ -48,7 +48,49 @@ export async function TrackingScreen({ locale, orderId }: { locale: Locale; orde
     </CoreShell>
   );
 
-  const order = await readOrderDetail(locale, orderId, token);
+  const order = await readOrderDetailOrMissing(locale, orderId, token);
+  if (!order.ok && order.missing) {
+    // an order of the old flow: the app falls back to GET /orders/:id/tracking when the governed read does not know the id
+    const legacy = await readLegacyTracking(orderId, token);
+    if (!legacy) notFound();
+    const legacyPhone = dialable(legacy.courier?.phone);
+    return frame(
+      <>
+        <section className={rx.card} aria-label={t("title")}>
+          <div className={styles.etaHead}>
+            <div className={styles.etaText}>
+              <span className={styles.etaLabel}>{t("statusLabel")}</span>
+              <span className={styles.etaValue} data-testid="legacy-tracking-status">{offers(`status.${statusKey(legacy.state)}`)}</span>
+              {legacy.etaMinutes !== undefined ? <span className={rx.rowSub}>{t("legacyEta", { minutes: legacy.etaMinutes })}</span> : null}
+            </div>
+            <span className={styles.etaChip}><bdi>{t("orderChip", { number: orderNumber(legacy.id) })}</bdi></span>
+          </div>
+        </section>
+        {legacy.courier ? (
+          <section className={rx.card} aria-label={t("courierLabel")}>
+            <div className={styles.courier}>
+              <div className={styles.courierText}>
+                <span className={styles.courierLabel}>{t("courierLabel")}</span>
+                <span className={styles.courierName}>{legacy.courier.name}</span>
+              </div>
+              {legacyPhone ? <a className={styles.textLink} href={`tel:${legacyPhone}`}>{t("callCourier")}</a> : null}
+            </div>
+          </section>
+        ) : null}
+        {legacy.pharmacyName || legacy.total !== undefined ? (
+          <section className={rx.card} aria-label={orders("detailTitle")}>
+            <div className={styles.summaryLink}>
+              <FIcon icon="storefront" tone={PHARMACY_TONE} size={40} />
+              <span className={styles.summaryText}>
+                <span className={rx.rowTitle} dir="auto">{legacy.pharmacyName ?? orders("detailTitle")}</span>
+                {legacy.total !== undefined ? <span className={rx.rowSub}>{formatMoney(locale, legacy.total)}</span> : null}
+              </span>
+            </div>
+          </section>
+        ) : null}
+      </>,
+    );
+  }
   if (!order.ok) {
     return frame(<div className={rx.state}><RetryLinkErrorState title={orders("unavailableTitle")} body={orders("unavailableBody")} retryLabel={routeState("retry")} actionLabel={orders("backToOrders")} actionHref={`/${locale}/orders`} /></div>);
   }
@@ -67,6 +109,8 @@ export async function TrackingScreen({ locale, orderId }: { locale: Locale; orde
     .filter((part): part is string => Boolean(part));
   // an order whose offer was just selected is not yet in fulfilment: its next step (final price, payment, insurance) is
   // where the order router sends it, and the cancel stays possible until the order is dispatched
+  // the app's summary names how the order reaches the patient: pickup from the pharmacy or home delivery
+  const fulfilLine = detail.fulfillment === "pickup" ? t("pickupLine") : detail.fulfillment === "delivery" ? t("deliveryLine") : orders("detailTitle");
   const trackingHref = `/${locale}/orders/${encodeURIComponent(orderId)}/tracking`;
   const next = routeForOrder({ status: detail.status, governedState: detail.governedState, paymentStatus: detail.paymentStatus }, orderId, locale);
   const caret = getDirection(locale) === "rtl" ? "caret-left" : "caret-right";
@@ -99,6 +143,12 @@ export async function TrackingScreen({ locale, orderId }: { locale: Locale; orde
         </div>
       ) : null}
 
+      {status !== "cancelled" ? (
+        <div className={styles.actions}>
+          <ButtonLink href={`/${locale}/pharmacy/chat?orderId=${encodeURIComponent(orderId)}`} label={t("chatPharmacist")} variant="outline" fullWidth />
+        </div>
+      ) : null}
+
       {detail.courier?.name || phone ? (
         <section className={rx.card} aria-label={t("courierLabel")}>
           <div className={styles.courier}>
@@ -115,9 +165,9 @@ export async function TrackingScreen({ locale, orderId }: { locale: Locale; orde
         <Link className={styles.summaryLink} href={orderHref}>
           <FIcon icon="storefront" tone={PHARMACY_TONE} size={40} />
           <span className={styles.summaryText}>
-            <span className={rx.rowTitle} data-testid="tracking-pharmacy-name">{pharmacyName ?? orders("detailTitle")}</span>
+            <span className={rx.rowTitle} data-testid="tracking-pharmacy-name">{pharmacyName ?? fulfilLine}</span>
             <span className={rx.rowSub}>
-              {new Intl.ListFormat(locale, { type: "unit", style: "narrow" }).format(pharmacyName ? [orders("detailTitle"), ...summary] : summary)}
+              {new Intl.ListFormat(locale, { type: "unit", style: "narrow" }).format(pharmacyName ? [fulfilLine, ...summary] : summary)}
             </span>
           </span>
           <span className={styles.summaryEnd}><Icon name={caret} size={18} tone="secondary" /></span>

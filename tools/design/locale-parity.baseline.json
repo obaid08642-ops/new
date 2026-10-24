@@ -15,22 +15,22 @@
       "ur": {
         "missing": 0,
         "empty": 0,
-        "english": 58
+        "english": 0
       },
       "hi": {
         "missing": 0,
         "empty": 0,
-        "english": 62
+        "english": 0
       },
       "bn": {
         "missing": 0,
         "empty": 0,
-        "english": 58
+        "english": 0
       },
       "fil": {
         "missing": 0,
         "empty": 0,
-        "english": 151
+        "english": 23
       }
     },
     "app": {
@@ -45,22 +45,22 @@
         "english": 0
       },
       "ur": {
-        "missing": 36,
+        "missing": 0,
         "empty": 0,
         "english": 0
       },
       "hi": {
-        "missing": 36,
+        "missing": 0,
         "empty": 0,
         "english": 0
       },
       "bn": {
-        "missing": 36,
+        "missing": 0,
         "empty": 0,
         "english": 0
       },
       "tl": {
-        "missing": 36,
+        "missing": 0,
         "empty": 0,
         "english": 4
       }

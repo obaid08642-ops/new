@@ -1,0 +1,178 @@
+[
+  {
+    "batch": "parity-account",
+    "app": "patient-web",
+    "screen": "/welcome and /login",
+    "element": "Apple / Google / X / Snapchat sign-in on the web",
+    "file": "patient-web/components-next/social-login-buttons.tsx",
+    "line": 29,
+    "found": "[owner] Web shows Google only when a client id is set; Apple (Services ID, return URL) and X/Snapchat need provider setup the web does not have. POST /auth/social-login exists in the backend.",
+    "suspect": "Buttons would be fake without provider credentials; owner to supply ids/flags.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-account",
+    "app": "patient-web",
+    "screen": "/otp",
+    "element": "resend countdown 300 s vs 60 s in the app",
+    "file": "patient-web/components-next/otp-screen.tsx",
+    "line": 92,
+    "found": "[backend] POST /auth/otp/request is throttled to 3 per 10 minutes, so the web waits 300 s; the app waits 60 s and would hit 429 after 3 sends.",
+    "suspect": "Reviewer to decide one cooldown and one throttle for both clients.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-account",
+    "app": "patient-web",
+    "screen": "/register",
+    "element": "password minimum disagrees across app (6), web (8) and backend (10)",
+    "file": "patient-web/components-next/register-form.tsx",
+    "line": 10,
+    "found": "[backend] backend MIN_PASSWORD_LENGTH is 10 (password-security.service.ts:22); the web register/reset forms say 8 and the app 6, so valid-looking passwords are rejected by the server.",
+    "suspect": "One rule across app, web and backend.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-account",
+    "app": "patient-web",
+    "screen": "/register",
+    "element": "register creates the account before the OTP step",
+    "file": "patient-web/components-next/register-form.tsx",
+    "line": 21,
+    "found": "[backend] app sends OTP first; backend flow on web is register then OTP (?sent=0 leaves an account without a code).",
+    "suspect": "Flow is backend-defined; not changed by design session.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-account",
+    "app": "patient-web",
+    "screen": "/forgot-password",
+    "element": "no OTP-based reset on the web",
+    "file": "patient-web/components-next/forgot-password-form.tsx",
+    "line": 30,
+    "found": "[backend] app goes forgot -> OTP -> reset with the code; web POST /auth/password/forgot mails a reset token the person types on /password-reset.",
+    "suspect": "Needs an OTP reset endpoint the web can call.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-account",
+    "app": "patient-web",
+    "screen": "/login",
+    "element": "after sign-in always /dashboard, no role check or provider-info page",
+    "file": "patient-web/components-next/login-form.tsx",
+    "line": 53,
+    "found": "[owner] app sends non-patient roles to provider-info; web has no such page.",
+    "suspect": "Owner to decide whether the web needs it.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-account",
+    "app": "patient-web",
+    "screen": "/dashboard",
+    "element": "whole page becomes an error state when a call fails",
+    "file": "patient-web/app/[locale]/dashboard/page.tsx",
+    "line": 1,
+    "found": "[owner] audit asks for a retry banner; the 2026-10-06 owner rule says ErrorState with retry when there is no cached copy.",
+    "suspect": "Mark as decided.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-account",
+    "app": "patient-web",
+    "screen": "/settings/about",
+    "element": "no app version on the web",
+    "file": "patient-web/app/[locale]/settings/about/page.tsx",
+    "line": 1,
+    "found": "[owner] the web has no build version string to show; confirm whether a build id should be exposed.",
+    "suspect": "Needs an owner choice of what the version is.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-account",
+    "app": "patient-web",
+    "screen": "/settings/notifications",
+    "element": "kinds and PATCH body differ from the app",
+    "file": "patient-web/components-next/settings/switch-list.tsx",
+    "line": 18,
+    "found": "[backend] web sends {group:{key:value}} (categories/channels); app sends flat flags (7 kinds incl. locked emergency). Both must edit the same stored settings.",
+    "suspect": "Backend DTO to confirm both shapes or unify.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-account",
+    "app": "patient-web",
+    "screen": "/dashboard and home",
+    "element": "unread dot on the notification bell",
+    "file": "patient-web/components-next/home/home-shell.tsx",
+    "line": 97,
+    "found": "[backend] the backend notifications controller has no unread-count endpoint and the proxy allowlist has none; the bell cannot show a dot without an extra request per page.",
+    "suspect": "Backend to add GET /notifications/unread-count; the home keeps one session request per page by design (F82).",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-account",
+    "app": "patient-web",
+    "screen": "/settings/language",
+    "element": "calendar preference (Gregorian/Hijri/auto)",
+    "file": "patient-web/components-next/settings/appearance-language.tsx",
+    "line": 6,
+    "found": "[owner] the app keeps a device-only preference read by its date helpers; the web formatters (lib/format-date) do not read one, so a switch would do nothing.",
+    "suspect": "Owner to decide if the web shows Hijri dates, then wire lib/format-date first.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-account",
+    "app": "patient-web",
+    "screen": "/search",
+    "element": "sort, filter sidebar, pharmacies tab, price cards",
+    "file": "patient-web/app/[locale]/search/search-client.tsx",
+    "line": 206,
+    "found": "[backend] GET /search takes q, locale and limit only and returns no price or sale fields.",
+    "suspect": "Needs backend filter/sort params before the board's sidebar can be wired.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-account",
+    "app": "patient-web",
+    "screen": "/search",
+    "element": "barcode scan button",
+    "file": "patient-web/app/[locale]/search/search-client.tsx",
+    "line": 206,
+    "found": "[owner] /drug-scanner is an app screen (camera); no web equivalent exists.",
+    "suspect": "Owner to decide if the web needs a scan flow.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-account",
+    "app": "patient-web",
+    "screen": "/profile/addresses",
+    "element": "map point and pick mode",
+    "file": "patient-web/components-next/account/address-book.tsx",
+    "line": 125,
+    "found": "[client] no web map component for choosing a point exists; set-default is done.",
+    "suspect": "Needs the map component (shared with delivery address) before the picker.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-account",
+    "app": "patient-web",
+    "screen": "/register",
+    "element": "separate email and phone fields",
+    "file": "patient-web/components-next/register-form.tsx",
+    "line": 35,
+    "found": "[backend] the Patient Contract V1 register takes one identifier; the app sends email and phone together (legacy payload).",
+    "suspect": "Backend to confirm one contract for both clients.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-account",
+    "app": "patient-web",
+    "screen": "/settings/security",
+    "element": "session location",
+    "file": "patient-web/components-next/settings/session-list.tsx",
+    "line": 51,
+    "found": "[backend] GET /users/me/sessions sends a masked IP, not a place; the row shows the masked IP.",
+    "suspect": "Backend to add a coarse location if the owner wants it.",
+    "review_status": "open"
+  }
+]

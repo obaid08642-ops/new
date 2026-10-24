@@ -74,3 +74,10 @@ export function cycleWindow(lastPeriod: string, cycleLength: number): { ovulatio
   const ovulation = at(cycleLength - 14);
   return { ovulation, start: new Date(ovulation.getTime() - 5 * DAY), end: new Date(ovulation.getTime() + DAY), next: at(cycleLength) };
 }
+
+/** Whole days from the last period to `now` plus one (the app's cycle day); 0 for a date that cannot be read. The caller keeps it inside the cycle length. */
+export function cycleDayOf(lastPeriod: string, now: number = Date.now()): number {
+  const last = new Date(lastPeriod);
+  if (Number.isNaN(last.getTime())) return 0;
+  return Math.floor((now - Date.UTC(last.getUTCFullYear(), last.getUTCMonth(), last.getUTCDate())) / DAY) + 1;
+}

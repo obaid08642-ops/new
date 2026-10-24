@@ -1,0 +1,84 @@
+{
+  "MapExplorer": {
+    "title": {"ur": "سہولیات تلاش کریں", "hi": "सुविधाएँ खोजें", "bn": "সুবিধা খুঁজুন", "fil": "Maghanap ng mga Pasilidad"},
+    "subtitle": {"ur": "آپ کے قریب تصدیق شدہ طبی سہولیات اور فارمیسیاں", "hi": "आपके पास की सत्यापित चिकित्सा सुविधाएँ और फार्मेसियाँ", "bn": "আপনার কাছের যাচাইকৃত চিকিৎসা সুবিধা ও ফার্মেসি", "fil": "Mga beripikadong pasilidad medikal at botika malapit sa iyo"},
+    "searchPh": {"ur": "سہولت کے نام یا شعبے سے تلاش کریں...", "hi": "सुविधा के नाम या विशेषज्ञता से खोजें...", "bn": "সুবিধার নাম বা বিশেষত্ব দিয়ে খুঁজুন...", "fil": "Maghanap ayon sa pangalan ng pasilidad o espesyalidad..."},
+    "filterAll": {"ur": "سب", "hi": "सभी", "bn": "সব", "fil": "Lahat"},
+    "filterDoctors": {"ur": "ڈاکٹر اور کلینک", "hi": "डॉक्टर और क्लिनिक", "bn": "ডাক্তার ও ক্লিনিক", "fil": "Mga Doktor at Klinika"},
+    "filterHospitals": {"ur": "ہسپتال", "hi": "अस्पताल", "bn": "হাসপাতাল", "fil": "Mga Ospital"},
+    "filterPharmacies": {"ur": "فارمیسیاں", "hi": "फार्मेसियाँ", "bn": "ফার্মেসি", "fil": "Mga Botika"},
+    "filterLabs": {"ur": "لیبارٹریاں", "hi": "प्रयोगशालाएँ", "bn": "ল্যাবরেটরি", "fil": "Mga Laboratoryo"},
+    "filterNursing": {"ur": "نرسنگ", "hi": "नर्सिंग", "bn": "নার্সিং", "fil": "Pag-aalaga ng Nars"},
+    "directions": {"ur": "راستہ", "hi": "रास्ता", "bn": "দিকনির্দেশ", "fil": "Direksyon"},
+    "book": {"ur": "بُک کریں", "hi": "बुक करें", "bn": "বুক করুন", "fil": "Mag-book"},
+    "rating": {"ur": "ریٹنگ", "hi": "रेटिंग", "bn": "রেটিং", "fil": "Marka"},
+    "distance": {"ur": "فاصلہ", "hi": "दूरी", "bn": "দূরত্ব", "fil": "Layo"},
+    "noProviders": {"ur": "آپ کے معیار سے کوئی طبی سہولت میل نہیں کھاتی۔", "hi": "आपकी शर्तों से कोई चिकित्सा सुविधा मेल नहीं खाती।", "bn": "আপনার শর্তের সঙ্গে কোনো চিকিৎসা সুবিধা মেলেনি।", "fil": "Walang pasilidad na medikal na tumutugma sa iyong pamantayan."}
+  },
+  "Clinics": {
+    "title": {"ur": "طبی سہولت", "hi": "चिकित्सा सुविधा", "bn": "চিকিৎসা সুবিধা", "fil": "Pasilidad Medikal"},
+    "subtitle": {"ur": "سہولت کی تفصیلات اور دستیاب ڈاکٹر دیکھیں", "hi": "सुविधा का विवरण और उपलब्ध डॉक्टर देखें", "bn": "সুবিধার বিবরণ ও উপলব্ধ ডাক্তার দেখুন", "fil": "Tingnan ang detalye ng pasilidad at mga available na doktor"},
+    "back": {"ur": "ڈاکٹروں کی فہرست", "hi": "डॉक्टरों की सूची", "bn": "ডাক্তারদের তালিকা", "fil": "Direktoryo ng mga Doktor"},
+    "unavailableTitle": {"ur": "سہولت فی الحال دستیاب نہیں", "hi": "सुविधा अभी उपलब्ध नहीं", "bn": "সুবিধাটি এখন পাওয়া যাচ্ছে না", "fil": "Hindi Available ang Pasilidad Ngayon"},
+    "unavailableBody": {"ur": "طبی سہولت کی تفصیلات لوڈ نہیں ہو سکیں۔", "hi": "चिकित्सा सुविधा का विवरण लोड नहीं हो सका।", "bn": "চিকিৎসা সুবিধার বিবরণ লোড করা যায়নি।", "fil": "Hindi ma-load ang detalye ng pasilidad medikal."},
+    "retry": {"ur": "دوبارہ کوشش کریں", "hi": "फिर कोशिश करें", "bn": "আবার চেষ্টা করুন", "fil": "Subukan muli"},
+    "typeLabel": {"ur": "ہسپتال اور کلینک", "hi": "अस्पताल और क्लिनिक", "bn": "হাসপাতাল ও ক্লিনিক", "fil": "Ospital at Klinika"},
+    "aboutTitle": {"ur": "سہولت کے بارے میں", "hi": "सुविधा के बारे में", "bn": "সুবিধা সম্পর্কে", "fil": "Tungkol sa Pasilidad"},
+    "defaultAbout": {"ur": "ایک جدید طبی سہولت جو اعلیٰ معیار کی صحت کی دیکھ بھال فراہم کرتی ہے۔", "hi": "एक आधुनिक चिकित्सा सुविधा जो उच्च गुणवत्ता की स्वास्थ्य सेवा देती है।", "bn": "একটি আধুনিক চিকিৎসা সুবিধা যা উচ্চমানের স্বাস্থ্যসেবা দেয়।", "fil": "Isang modernong pasilidad medikal na nagbibigay ng de-kalidad na pangangalagang pangkalusugan."},
+    "doctorsTitle": {"ur": "سہولت کے ڈاکٹر", "hi": "सुविधा के डॉक्टर", "bn": "সুবিধার ডাক্তাররা", "fil": "Mga Doktor ng Pasilidad"},
+    "rating": {"ur": "ریٹنگ {value}", "hi": "रेटिंग {value}", "bn": "রেটিং {value}", "fil": "Marka {value}"}
+  },
+  "LabsDetail": {
+    "title": {"ur": "لیبارٹری کی تفصیلات", "hi": "प्रयोगशाला का विवरण", "bn": "ল্যাবরেটরির বিবরণ", "fil": "Detalye ng Laboratoryo"},
+    "subtitle": {"ur": "لیبارٹری میں دستیاب ٹیسٹ اور پیکج دیکھیں", "hi": "प्रयोगशाला में उपलब्ध जाँच और पैकेज देखें", "bn": "ল্যাবরেটরিতে পাওয়া পরীক্ষা ও প্যাকেজ দেখুন", "fil": "Tingnan ang mga test at package na available sa laboratoryo"},
+    "back": {"ur": "لیبارٹریوں کی فہرست", "hi": "प्रयोगशालाओं की सूची", "bn": "ল্যাবরেটরির তালিকা", "fil": "Direktoryo ng mga Laboratoryo"},
+    "unavailableTitle": {"ur": "لیبارٹری فی الحال دستیاب نہیں", "hi": "प्रयोगशाला अभी उपलब्ध नहीं", "bn": "ল্যাবরেটরিটি এখন পাওয়া যাচ্ছে না", "fil": "Hindi Available ang Laboratoryo Ngayon"},
+    "unavailableBody": {"ur": "لیبارٹری کی تفصیلات لوڈ نہیں ہو سکیں۔", "hi": "प्रयोगशाला का विवरण लोड नहीं हो सका।", "bn": "ল্যাবরেটরির বিবরণ লোড করা যায়নি।", "fil": "Hindi ma-load ang detalye ng laboratoryo."},
+    "retry": {"ur": "دوبارہ کوشش کریں", "hi": "फिर कोशिश करें", "bn": "আবার চেষ্টা করুন", "fil": "Subukan muli"},
+    "typeLabel": {"ur": "مصدقہ لیبارٹری", "hi": "प्रमाणित प्रयोगशाला", "bn": "প্রত্যয়িত ল্যাবরেটরি", "fil": "Sertipikadong Laboratoryo"},
+    "homeVisitSupported": {"ur": "گھر پر نمونہ لینے کی سہولت دستیاب ہے", "hi": "घर पर सैंपल लेने की सुविधा उपलब्ध है", "bn": "বাড়িতে নমুনা সংগ্রহের সুবিধা আছে", "fil": "May koleksyon ng sample sa bahay"},
+    "aboutTitle": {"ur": "لیبارٹری کے بارے میں", "hi": "प्रयोगशाला के बारे में", "bn": "ল্যাবরেটরি সম্পর্কে", "fil": "Tungkol sa Laboratoryo"},
+    "defaultAbout": {"ur": "ایک مصدقہ طبی لیبارٹری جو جدید تشخیصی سہولیات سے لیس ہے۔", "hi": "आधुनिक जाँच सुविधाओं से लैस एक प्रमाणित चिकित्सा प्रयोगशाला।", "bn": "আধুনিক রোগনির্ণয় সুবিধাসহ একটি প্রত্যয়িত চিকিৎসা ল্যাবরেটরি।", "fil": "Isang sertipikadong laboratoryong medikal na may makabagong kagamitan sa diagnostics."},
+    "servicesTitle": {"ur": "دستیاب ٹیسٹ", "hi": "उपलब्ध जाँचें", "bn": "পাওয়া যাচ্ছে এমন পরীক্ষা", "fil": "Mga Available na Test"}
+  },
+  "NurseDetail": {
+    "title": {"ur": "نرس کا پروفائل", "hi": "नर्स की प्रोफ़ाइल", "bn": "নার্সের প্রোফাইল", "fil": "Profile ng Nars"},
+    "subtitle": {"ur": "تجربہ اور گھر پر نرسنگ کی خدمات", "hi": "अनुभव और घर पर नर्सिंग सेवाएँ", "bn": "অভিজ্ঞতা ও বাড়িতে নার্সিং সেবা", "fil": "Karanasan at mga serbisyo ng home nursing"},
+    "back": {"ur": "نرسوں کی فہرست", "hi": "नर्सों की सूची", "bn": "নার্সদের তালিকা", "fil": "Direktoryo ng mga Nars"},
+    "unavailableTitle": {"ur": "پروفائل فی الحال دستیاب نہیں", "hi": "प्रोफ़ाइल अभी उपलब्ध नहीं", "bn": "প্রোফাইল এখন পাওয়া যাচ্ছে না", "fil": "Hindi Available ang Profile Ngayon"},
+    "unavailableBody": {"ur": "نرس کے پروفائل کی تفصیلات لوڈ نہیں ہو سکیں۔", "hi": "नर्स की प्रोफ़ाइल का विवरण लोड नहीं हो सका।", "bn": "নার্সের প্রোফাইলের বিবরণ লোড করা যায়নি।", "fil": "Hindi ma-load ang detalye ng profile ng nars."},
+    "retry": {"ur": "دوبارہ کوشش کریں", "hi": "फिर कोशिश करें", "bn": "আবার চেষ্টা করুন", "fil": "Subukan muli"},
+    "verified": {"ur": "لائسنس یافتہ اور تصدیق شدہ", "hi": "लाइसेंस प्राप्त और सत्यापित", "bn": "লাইসেন্সপ্রাপ্ত ও যাচাইকৃত", "fil": "May Lisensya at Beripikado"},
+    "years": {"ur": "سال", "hi": "वर्ष", "bn": "বছর", "fil": "taon"},
+    "experienceLabel": {"ur": "میدانی تجربہ", "hi": "फ़ील्ड अनुभव", "bn": "কাজের অভিজ্ঞতা", "fil": "Karanasan sa Larangan"},
+    "ratingLabel": {"ur": "مریضوں کی ریٹنگ", "hi": "मरीज़ों की रेटिंग", "bn": "রোগীদের রেটিং", "fil": "Marka ng mga Pasyente"},
+    "homeCareLabel": {"ur": "گھر کی دیکھ بھال", "hi": "घर पर देखभाल", "bn": "বাড়িতে সেবা", "fil": "Pangangalaga sa Bahay"},
+    "aboutTitle": {"ur": "پیشہ ورانہ تعارف", "hi": "पेशेवर परिचय", "bn": "পেশাগত পরিচিতি", "fil": "Propesyonal na Talambuhay"},
+    "defaultBio": {"ur": "ایک لائسنس یافتہ نرس جو ہمدردی کے ساتھ گھر پر دیکھ بھال کے لیے وقف ہے۔", "hi": "एक लाइसेंस प्राप्त नर्स जो करुणा के साथ घर पर देखभाल के लिए समर्पित है।", "bn": "একজন লাইসেন্সপ্রাপ্ত নার্স, যিনি সহানুভূতির সঙ্গে বাড়িতে সেবা দিতে নিবেদিত।", "fil": "Isang lisensyadong nars na nakatuon sa mahabaging pangangalaga sa bahay."},
+    "servicesTitle": {"ur": "دستیاب نرسنگ خدمات", "hi": "उपलब्ध नर्सिंग सेवाएँ", "bn": "পাওয়া যাচ্ছে এমন নার্সিং সেবা", "fil": "Mga Available na Serbisyo ng Nursing"},
+    "requestNurse": {"ur": "نرسنگ وزٹ کی درخواست کریں", "hi": "नर्सिंग विज़िट का अनुरोध करें", "bn": "নার্সিং ভিজিটের অনুরোধ করুন", "fil": "Humiling ng Pagbisita ng Nars"}
+  },
+  "Health": {
+    "backToHealth": {"hi": "सेहत पर वापस"},
+    "vitalsHistoryEyebrow": {"ur": "آپ کی درج شدہ اہم علامات کی پیمائشیں", "hi": "आपकी दर्ज की गई महत्वपूर्ण माप", "bn": "আপনার রেকর্ড করা গুরুত্বপূর্ণ মাপ"},
+    "vitalsHistoryTitle": {"ur": "اہم علامات کی تاریخ", "hi": "महत्वपूर्ण मापों का इतिहास", "bn": "গুরুত্বপূর্ণ মাপের ইতিহাস", "fil": "Kasaysayan ng mga Mahalagang Sukat"},
+    "vitalsHistoryNotice": {"ur": "یہ صرف پڑھنے کا منظر آپ کے مریض ریکارڈ میں محفوظ پیمائشیں دکھاتا ہے۔ یہ کوئی تشخیص یا طبی فیصلہ نہیں کرتا۔", "hi": "यह केवल पढ़ने वाला दृश्य आपके मरीज़ रिकॉर्ड में सहेजी गई माप दिखाता है। यह कोई निदान या चिकित्सीय निर्णय नहीं निकालता।", "bn": "এই শুধু-পড়ার দৃশ্য আপনার রোগীর রেকর্ডে সংরক্ষিত মাপ দেখায়। এটি কোনো রোগনির্ণয় বা চিকিৎসাগত সিদ্ধান্ত নেয় না।"}
+  },
+  "ChronicDiseases": {
+    "notice": {"ur": "یہ صرف پروفائل میں خود درج کیے گئے اندراجات ہیں۔ کوئی تشخیص، شدت، کنٹرول کا جائزہ یا علاج کی سفارش نہیں دی جاتی۔", "hi": "ये केवल प्रोफ़ाइल में खुद दर्ज की गई प्रविष्टियाँ हैं। कोई निदान, गंभीरता, नियंत्रण का आकलन या उपचार की सिफ़ारिश नहीं दी जाती।", "bn": "এগুলো শুধু প্রোফাইলে নিজে লেখা তথ্য। কোনো রোগনির্ণয়, তীব্রতা, নিয়ন্ত্রণের মূল্যায়ন বা চিকিৎসার সুপারিশ দেওয়া হয় না।"},
+    "unavailableTitle": {"hi": "दीर्घकालिक स्थितियाँ लोड नहीं हो सकीं", "bn": "দীর্ঘমেয়াদি অবস্থা লোড করা যায়নি"}
+  },
+  "ChronicMedications": {
+    "unavailableTitle": {"hi": "दीर्घकालिक दवाएँ लोड नहीं हो सकीं", "bn": "দীর্ঘমেয়াদি ওষুধ লোড করা যায়নি"},
+    "remaining": {"ur": "درج شدہ باقی اکائیاں"}
+  },
+  "HealthTrends": {
+    "eyebrow": {"hi": "दर्ज किए गए स्वास्थ्य रुझान", "fil": "Mga naitalang trend sa kalusugan"},
+    "title": {"hi": "स्वास्थ्य रुझान", "fil": "Mga Trend sa Kalusugan"},
+    "notice": {"ur": "یہ صرف پڑھنے کا منظر محفوظ شدہ پیمائشوں اور رجحان کی سمت کا خلاصہ ہے۔ یہ تشخیص، الرٹ، نارمل حد کا جائزہ یا علاج کی سفارش نہیں۔", "hi": "यह केवल पढ़ने वाला दृश्य दर्ज की गई माप और रुझान की दिशा का सारांश है। यह निदान, चेतावनी, सामान्य सीमा का आकलन या उपचार की सिफ़ारिश नहीं है।", "bn": "এই শুধু-পড়ার দৃশ্য সংরক্ষিত মাপ ও প্রবণতার দিকের সারাংশ। এটি রোগনির্ণয়, সতর্কতা, স্বাভাবিক সীমার মূল্যায়ন বা চিকিৎসার সুপারিশ নয়।"},
+    "unavailableTitle": {"hi": "स्वास्थ्य रुझान लोड नहीं हो सके"}
+  },
+  "PostCallRating": {
+    "title": {"ur": "اپنے مشورے کو ریٹ کریں"}
+  }
+}

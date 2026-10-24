@@ -177,7 +177,8 @@ export class MoyasarService {
         params.description ||
         `Nabd ${params.bookingKind} #${params.bookingId.slice(0, 8)}`,
       callback_url: callbackUrl,
-      source: { type: 'creditcard' }, // frontend overrides with applepay / mada
+      success_url: callbackUrl,
+      back_url: callbackUrl,
       metadata: {
         booking_id: params.bookingId,
         booking_kind: params.bookingKind,
@@ -192,7 +193,8 @@ export class MoyasarService {
       try {
         // One attempt only: a POST without an idempotency key is never repeated. A timeout is a 504 and no local
         // payment row is written; the hosted checkout charges nothing until the patient completes it.
-        const resp = await timedFetch(`${this.baseUrl}/payments`, {
+        // Hosted checkout = Invoice: the Payments API needs a card `source` collected client-side with the publishable key.
+        const resp = await timedFetch(`${this.baseUrl}/invoices`, {
           method: 'POST',
           headers: this.authHeaders(),
           body: JSON.stringify(requestBody),
@@ -232,7 +234,7 @@ export class MoyasarService {
       currency: 'SAR',
       moyasar_id: moyasarResponse?.id,
       status: moyasarResponse?.status || 'initiated',
-      payment_url: moyasarResponse?.source?.transaction_url,
+      payment_url: moyasarResponse?.url ?? moyasarResponse?.source?.transaction_url,
       description: params.description,
       callback_url: callbackUrl,
       raw_response: moyasarResponse,
@@ -252,10 +254,15 @@ export class MoyasarService {
       try {
         // A read: safe to repeat (at most 2 more times). On a timeout the payment keeps its status and the
         // next reconciliation pass asks again.
-        const resp = await timedFetch(`${this.baseUrl}/payments/${encodeURIComponent(moyasarId)}`, {
+        const resp = await timedFetch(`${this.baseUrl}/invoices/${encodeURIComponent(moyasarId)}`, {
           headers: this.authHeaders(),
         }, { label: 'moyasar.syncPaymentStatus', retries: 2, timeoutCode: 'payment_gateway_timeout' });
-        const data: any = await resp.json();
+        const invoice: any = await resp.json();
+        // The invoice settles through one of its payments; that payment carries the status, source and amount.
+        const settled = Array.isArray(invoice?.payments)
+          ? invoice.payments.find((x: any) => ['paid', 'refunded'].includes(x?.status)) ?? invoice.payments[invoice.payments.length - 1]
+          : undefined;
+        const data: any = settled ? { ...settled, invoice_id: invoice.id } : invoice;
 
         const statusMap: Record<string, string> = {
           paid: 'paid',
@@ -313,9 +320,12 @@ export class MoyasarService {
 
     try {
       const amountHalalas = amount ? Math.round(amount * 100) : undefined;
+      // moyasar_id is the invoice; the refund goes to the payment that settled it (recorded by syncPaymentStatus).
+      const raw: any = payment.raw_response;
+      const settledPaymentId: string = raw?.invoice_id && typeof raw?.id === 'string' ? raw.id : moyasarId;
       // Never repeated: a second POST could refund twice. On a timeout nothing is recorded locally; the payment
       // stays `paid` until syncPaymentStatus reads `refunded` from Moyasar, so check it before asking again.
-      const resp = await timedFetch(`${this.baseUrl}/payments/${encodeURIComponent(moyasarId)}/refunds`, {
+      const resp = await timedFetch(`${this.baseUrl}/payments/${encodeURIComponent(settledPaymentId)}/refund`, {
         method: 'POST',
         headers: this.authHeaders(),
         body: JSON.stringify(amountHalalas ? { amount: amountHalalas } : {}),

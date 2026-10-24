@@ -11,15 +11,10 @@ import { NURSING } from "@/components-next/nursing/nursing-parts";
 import { CoverageChip } from "@/components-next/ordering/quote-parts";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { moneyText } from "@/lib/ordering/format";
-import { extractLabService, parseLabServiceId } from "@/lib/api/labs";
-import { getPublicLabPackage, getPublicLabService } from "@/lib/api/labs-server";
-import { extractNursingCatalog } from "@/lib/api/nursing-catalog";
-import { getPublicNursingCatalog } from "@/lib/api/nursing-catalog-server";
-import { parseRadiologyService, parseRadiologyServiceId } from "@/lib/api/radiology";
-import { getPublicRadiologyServiceDetail } from "@/lib/api/radiology-server";
 import { callPatientApi } from "@/lib/api/upstream";
 import { isLocale } from "@/lib/i18n";
-import { fromLab, fromNursing, fromRadiology, preparationFor, type ItemView } from "@/lib/ordering/item";
+import { preparationFor } from "@/lib/ordering/item";
+import { loadItem } from "@/lib/ordering/load-item";
 import { payOf, placeOf } from "@/lib/ordering/context";
 import { parseQuote, type Quote } from "@/lib/ordering/quote";
 import { kindOf, optionalToken, patientPoint } from "@/lib/ordering/server";
@@ -33,35 +28,6 @@ export async function generateMetadata({ params }: Pick<Props, "params">): Promi
   return { title: t("itemTitle"), robots: { index: false, follow: false } };
 }
 
-async function loadItem(kind: "lab" | "radiology" | "nursing", id: string): Promise<{ item: ItemView | null; failed: boolean }> {
-  try {
-    if (kind === "radiology") {
-      if (!parseRadiologyServiceId(id).success) return { item: null, failed: false };
-      const res = await getPublicRadiologyServiceDetail(id);
-      if (res.status === 404) return { item: null, failed: false };
-      if (!res.ok) return { item: null, failed: true };
-      const body = (await res.json().catch(() => null)) as { data?: unknown } | null;
-      const parsed = parseRadiologyService(body && typeof body === "object" && "data" in body ? body.data : body);
-      return { item: parsed ? fromRadiology(parsed) : null, failed: !parsed };
-    }
-    if (kind === "nursing") {
-      const res = await getPublicNursingCatalog();
-      if (!res || !res.ok) return { item: null, failed: true };
-      const found = extractNursingCatalog(await res.json().catch(() => null)).find((s) => s.id === id);
-      return { item: found ? fromNursing(found) : null, failed: false };
-    }
-    if (!parseLabServiceId(id).success) return { item: null, failed: false };
-    let res = await getPublicLabService(id);
-    if (res && res.status === 404) res = await getPublicLabPackage(id);
-    if (!res) return { item: null, failed: true };
-    if (res.status === 404) return { item: null, failed: false };
-    if (!res.ok) return { item: null, failed: true };
-    const parsed = extractLabService(await res.json().catch(() => null));
-    return { item: parsed ? fromLab(parsed) : null, failed: !parsed };
-  } catch {
-    return { item: null, failed: true };
-  }
-}
 
 /** Ord03 (canvas/Ord03-ItemPage): preparation, result time and sample from the catalogue; the price, provider count and coverage from a quote for this one item. */
 export default async function OrderingItemPage({ params, searchParams }: Props) {
@@ -106,9 +72,13 @@ export default async function OrderingItemPage({ params, searchParams }: Props) 
   const group = quote?.groups[0] ?? null;
   const best = group?.bestMatch ?? null;
   const line = best?.lines.find((l) => l.catalogId === item.id);
+  // Catalogue sample codes (lab_services.sample_type) -> translated label; an unknown code is hidden, never shown raw.
+  const SAMPLE_CODES = ["blood", "semen", "stool", "swab", "urine"] as const;
+  const sampleCode = item.sampleType?.trim().toLowerCase();
+  const sampleLabel = sampleCode && (SAMPLE_CODES as readonly string[]).includes(sampleCode) ? t(`sample_${sampleCode}` as `sample_blood`) : null;
   const facts: FactRow[] = [
     ...(item.turnaroundHours !== undefined ? [{ label: t("secTurn"), value: t("turnaround", { time: hoursText(locale, item.turnaroundHours) }), icon: "file-text", tone: DIAG_TONES.info } as FactRow] : []),
-    ...(item.sampleType ? [{ label: t("secSample"), value: item.sampleType, icon: "test-tube", tone: LAB.tone } as FactRow] : []),
+    ...(sampleLabel ? [{ label: t("secSample"), value: sampleLabel, icon: "test-tube", tone: LAB.tone } as FactRow] : []),
     ...(item.durationValue !== undefined && item.duration && /minute/i.test(item.duration) ? [{ label: t("duration"), value: minutesText(locale, item.durationValue), icon: "clock-counter-clockwise", tone: DIAG_TONES.info } as FactRow] : []),
   ];
 

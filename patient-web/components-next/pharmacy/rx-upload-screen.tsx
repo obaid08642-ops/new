@@ -187,6 +187,8 @@ export function RxUploadScreen({ locale, via = "photo", before, after }: { local
           />
         </div>
 
+        <p className={rx.note}>{t("privacy")}</p>
+
         {busy ? (
           <div className={rx.progress}>
             <p role="status" className={rx.status}>
