@@ -1,3 +1,4 @@
+import { DELAY_CREDIT_REASON, DELAY_CREDIT_DEFAULT_POINTS, qualifiesForDelayCredit, doctorSideDelayMinutes } from './guaranteed-appointment';
 import { riyadhDayRange, riyadhMonthStart } from '../../common/riyadh-clock';
 import {
   Injectable,
@@ -35,6 +36,7 @@ const POINTS_TABLE: Record<string, number> = {
   referral_converted: 100,
   referral_welcome:   50,
   vitals_logged:      10,
+  [DELAY_CREDIT_REASON]: DELAY_CREDIT_DEFAULT_POINTS, // a doctor-side delay of more than 30 minutes (admin: earn_points override)
 };
 
 /** Reasons tied to a purchase/completion (no earning caps); everything else is capped. */
@@ -246,6 +248,21 @@ export class LoyaltyService {
   }
 
   // ── Event Listeners ────────────────────────────────────────────────────────
+
+  /**
+   * "Guaranteed appointment": the consultation just started (the appointment service sends the slot and the check-in and start
+   * times). A clinic or video appointment more than 30 minutes late on the doctor's side earns the patient a credit, once.
+   */
+  @OnEvent('appointment.in_progress')
+  async onAppointmentStarted(p: { id?: string; patient_id?: string; service_type?: string; slot_start?: Date | string; checked_in_at?: Date | string | null; started_at?: Date | string }) {
+    if (!p?.id || !p.patient_id || !qualifiesForDelayCredit(p)) return;
+    const r: any = await this.awardPoints(p.patient_id, DELAY_CREDIT_REASON, 'appointment', p.id);
+    if (r?.points_awarded > 0) {
+      try {
+        this.events?.emit('loyalty.appointment_delay_credit', { user_id: p.patient_id, points: r.points_awarded, appointment_id: p.id, delay_minutes: Math.round(doctorSideDelayMinutes(p) ?? 0) });
+      } catch { /* the notification must never break awarding */ }
+    }
+  }
 
   @OnEvent('booking.completed')
   async onBookingCompleted(payload: { user_id: string; booking_id: string }) {

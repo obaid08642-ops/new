@@ -33,6 +33,24 @@ export const KIND_CATALOG: Record<Kind, string> = {
 const ORDER_GROUP: Record<Kind, 'labs' | 'radiology' | 'nursing'> = { lab: 'labs', radiology: 'radiology', nursing: 'nursing' };
 const QUOTE_TTL_MS = 30 * 60_000;
 const PURGE_AFTER_MS = 24 * 3_600_000;
+/** The copay percent and cap printed on the patient's card, when both are valid numbers (the cap is optional); null otherwise. */
+export function cardCopay(insurance: any): { percent: number; cap: number | null } | null {
+  const pct = insurance?.copay_percent;
+  const cap = insurance?.copay_cap_sar;
+  if (!(typeof pct === 'number' && Number.isFinite(pct) && pct >= 0 && pct <= 100)) return null;
+  return { percent: pct, cap: typeof cap === 'number' && Number.isFinite(cap) && cap >= 0 ? cap : null };
+}
+
+/** min(price x percent, cap) on each covered item, the full price on an uncovered one, plus whatever is not an item (the home fee). */
+export function estimatePatientShare(items: Array<{ price: number; covered: boolean }>, copay: { percent: number; cap: number | null }, extras = 0): number {
+  const part = items.reduce((sum, it) => {
+    if (!it.covered) return sum + it.price;
+    const share = it.price * (copay.percent / 100);
+    return sum + (copay.cap === null ? share : Math.min(share, copay.cap));
+  }, 0);
+  return Math.round((part + extras) * 100) / 100;
+}
+
 const DEFAULT_INSURANCE_RATE = 0.8; // share of a covered item the insurer is expected to pay; owner-editable `ordering_insurance_share_rate`
 
 const bad = (code: string) => new BadRequestException(code);
@@ -118,7 +136,7 @@ export class OrderingService implements OnModuleInit {
         mode: step.mode,
         items: step.ids.map((id) => (facilityOnly.has(id) ? { catalog_id: id, facility_only: true as const } : { catalog_id: id })),
         from_price: ranked.length ? { total: Math.min(...ranked.map((x) => x.total)), providers_count: ranked.length } : null,
-        best_match: best ? { ...row(best), ...this.shares(best.c, step.ids, step.mode, context.payer, shareRate) } : null,
+        best_match: best ? { ...row(best), ...this.shares(best.c, step.ids, step.mode, context.payer, shareRate, policy?.copay ?? null) } : null,
         compare: compare.map(row),
         split_suggestion: split ? { assignments: split.assignments, total: split.total } : null,
         empty,
@@ -158,7 +176,7 @@ export class OrderingService implements OnModuleInit {
    * The saved company and class for an insurance quote; null for cash. With `memberId` it is the family member's own policy
    * (never the account holder's: it is another person), after checking the member belongs to the caller.
    */
-  async policyOf(userId: string, payer: 'cash' | 'insurance', memberId?: string | null): Promise<{ keys: string[]; cls: string } | null> {
+  async policyOf(userId: string, payer: 'cash' | 'insurance', memberId?: string | null): Promise<{ keys: string[]; cls: string; copay: { percent: number; cap: number | null } | null } | null> {
     if (payer !== 'insurance') return null;
     let insurance: unknown;
     if (memberId) {
@@ -170,7 +188,7 @@ export class OrderingService implements OnModuleInit {
     const keys = policyCompanyKeys(insurance);
     const cls = policyClass(insurance);
     if (!keys.length || !cls) throw bad('insurance_not_saved');
-    return { keys, cls };
+    return { keys, cls, copay: cardCopay(insurance) };
   }
 
   private async ownMember(userId: string, id: string) {
@@ -232,13 +250,16 @@ export class OrderingService implements OnModuleInit {
   }
 
   /** Estimated insurer share on the items (never on the home fee); the patient pays the rest. */
-  private shares(c: Candidate, ids: string[], mode: Mode, payer: 'cash' | 'insurance', rate: number) {
+  private shares(c: Candidate, ids: string[], mode: Mode, payer: 'cash' | 'insurance', rate: number, copay: { percent: number; cap: number | null } | null = null) {
     const total = totalOf(c, ids, mode);
     const lines = ids.map((id) => ({ catalog_id: id, price: c.prices[id], ...(payer === 'insurance' ? { coverage: c.coverage[id] ?? 'not_covered' } : {}) }));
     const insured = payer === 'insurance'
       ? round2(lines.reduce((s, l) => s + (l.coverage === 'not_covered' ? 0 : l.price * rate), 0))
       : 0;
-    return { items: lines, estimated_insurance_share: insured, patient_share: round2(total - insured) };
+    // The patient's own card figures (owner decision 2026-10-24), only when they filled them AND this provider accepts their company and class.
+    // An estimate from what is printed on the card, never a final price: the provider decides after the insurer answers.
+    const own = payer === 'insurance' && copay && c.in_network ? estimatePatientShare(lines.map((l) => ({ price: l.price, covered: l.coverage !== 'not_covered' })), copay, total - lines.reduce((sum, l) => sum + l.price, 0)) : null;
+    return { items: lines, estimated_insurance_share: insured, patient_share: round2(total - insured), estimated_patient_share: own, estimated_patient_share_basis: own === null ? null : ('card_copay' as const) };
   }
 
   /** Providers that declared the mode, are live, and (home) cover the patient's point; with their prices for the given items. */

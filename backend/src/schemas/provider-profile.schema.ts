@@ -84,6 +84,16 @@ export class ProviderProfile {
   @Prop() specialty?: string;
   @Prop({ default: [] }) sub_specialties: string[];
   @Prop() title?: string; // Dr., Prof., etc
+  // Owner-approved doctor profile fields (2026-10-24); all optional, expand-only.
+  @Prop({ type: [{ university: String, graduation_year: Number, fellowship_board: String, _id: false }], default: [] })
+  education: Array<{ university: string; graduation_year?: number | null; fellowship_board?: string | null }>;
+  @Prop() follow_up_price?: number;
+  @Prop() follow_up_window_days?: number; // a follow-up within this many days is charged follow_up_price
+  @Prop({ type: [{ name_ar: String, name_en: String, price: Number, _id: false }], default: [] })
+  procedures: Array<{ name_ar: string; name_en?: string | null; price: number }>;
+  /** The clinic only, never the doctor's personal address. */
+  @Prop() clinic_address?: string;
+  @Prop({ type: { lat: Number, lng: Number }, _id: false }) clinic_location?: { lat: number; lng: number };
   @Prop() years_experience?: number;
   @Prop({ default: [] }) consultation_modes: string[]; // clinic|online|home
   @Prop() price_clinic?: number;

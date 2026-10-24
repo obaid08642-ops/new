@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDefined, IsEnum, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsInt, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min, ValidateNested } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { ProviderType } from '../../common/enums';
 
@@ -9,6 +9,25 @@ export class NursingServiceEntryDto {
   @IsOptional() @IsString() @MaxLength(200) name_ar?: string;
   @IsOptional() @IsString() @MaxLength(200) name_en?: string;
   @IsOptional() @IsNumber() price?: number;
+}
+
+/** Doctor education entry (2026-10-24). */
+export class EducationEntryDto {
+  @IsString() @MaxLength(200) university: string;
+  @IsOptional() @IsInt() @Min(1950) @Max(2100) graduation_year?: number;
+  @IsOptional() @IsString() @MaxLength(200) fellowship_board?: string;
+}
+
+/** Doctor procedure with its price (2026-10-24). */
+export class ProcedureEntryDto {
+  @IsString() @MaxLength(200) name_ar: string;
+  @IsOptional() @IsString() @MaxLength(200) name_en?: string;
+  @IsNumber() @Min(0) @Max(1000000) price: number;
+}
+
+export class MapPointDto {
+  @IsNumber() @Min(-90) @Max(90) lat: number;
+  @IsNumber() @Min(-180) @Max(180) lng: number;
 }
 
 export class WorkingHoursEntryDto {
@@ -123,6 +142,11 @@ export class Step2Dto {
   @IsOptional()
   @IsString()
   scfhs_license_number?: string;
+
+  /** SCFHS licence expiry (doctors): bookings stop after it, a warning goes out 30 days before. */
+  @IsOptional()
+  @IsDateString()
+  license_expiry_date?: string;
 
   @IsOptional()
   @IsString()
@@ -502,6 +526,41 @@ export class Step3Dto {
   @IsOptional()
   @IsString()
   title?: string;
+
+  // Doctor profile fields (owner decision 2026-10-24)
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => EducationEntryDto)
+  education?: EducationEntryDto[];
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(1000000)
+  follow_up_price?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(365)
+  follow_up_window_days?: number;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProcedureEntryDto)
+  procedures?: ProcedureEntryDto[];
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(300)
+  clinic_address?: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => MapPointDto)
+  clinic_location?: MapPointDto;
 
   @IsOptional()
   @IsString()

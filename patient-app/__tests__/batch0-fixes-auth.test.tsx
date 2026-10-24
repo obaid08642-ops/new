@@ -64,10 +64,10 @@ describe('Login (fix: skipAuth, identifier validation, session state, translated
     (storeAuthSession as jest.Mock).mockResolvedValue(ACCESS);
     await render(mount(<LoginScreen />).ui);
     await type('login-identifier', 'user@mail.com');
-    await type('login-password', 'secret1');
+    await type('login-password', 'secret12');
     await fireEvent.press(screen.getByTestId('login-submit'));
     await waitFor(() => expect(rootApiFetch).toHaveBeenCalled());
-    expect(rootApiFetch).toHaveBeenCalledWith('/auth/login', expect.objectContaining({ method: 'POST', skipAuth: true, body: JSON.stringify({ identifier: 'user@mail.com', password: 'secret1' }) }));
+    expect(rootApiFetch).toHaveBeenCalledWith('/auth/login', expect.objectContaining({ method: 'POST', skipAuth: true, body: JSON.stringify({ identifier: 'user@mail.com', password: 'secret12' }) }));
   });
 
   it('a valid short email (a@b.sa) is sent, not refused by a length check', async () => {
@@ -75,7 +75,7 @@ describe('Login (fix: skipAuth, identifier validation, session state, translated
     (storeAuthSession as jest.Mock).mockResolvedValue(ACCESS);
     await render(mount(<LoginScreen />).ui);
     await type('login-identifier', 'a@b.sa');
-    await type('login-password', 'secret1');
+    await type('login-password', 'secret12');
     await fireEvent.press(screen.getByTestId('login-submit'));
     await waitFor(() => expect(rootApiFetch).toHaveBeenCalled());
     expect(screen.queryByText('أدخل بريد إلكتروني أو هاتف صحيح')).toBeNull();
@@ -84,7 +84,7 @@ describe('Login (fix: skipAuth, identifier validation, session state, translated
   it.each(['abc', 'a@b', '12345678', 'user@@mail.com'])('"%s" is refused before any request, with the reason', async (bad) => {
     await render(mount(<LoginScreen />).ui);
     await type('login-identifier', bad);
-    await type('login-password', 'secret1');
+    await type('login-password', 'secret12');
     await fireEvent.press(screen.getByTestId('login-submit'));
     expect(await screen.findByText('أدخل بريد إلكتروني أو هاتف صحيح')).toBeTruthy();
     expect(rootApiFetch).not.toHaveBeenCalled();
@@ -117,7 +117,7 @@ describe('Login (fix: skipAuth, identifier validation, session state, translated
     (rootApiFetch as jest.Mock).mockRejectedValue(new Error('E11000 duplicate key'));
     await render(mount(<LoginScreen />).ui);
     await type('login-identifier', 'user@mail.com');
-    await type('login-password', 'secret1');
+    await type('login-password', 'secret12');
     await fireEvent.press(screen.getByTestId('login-submit'));
     expect(await screen.findByText('فشل تسجيل الدخول، حاول مجدداً')).toBeTruthy();
     expect(screen.queryByText('E11000 duplicate key')).toBeNull();
@@ -131,7 +131,7 @@ describe('Login (fix: skipAuth, identifier validation, session state, translated
     expect(store.getState().auth.isGuest).toBe(true);
     await render(ui);
     await type('login-identifier', 'user@mail.com');
-    await type('login-password', 'secret1');
+    await type('login-password', 'secret12');
     await fireEvent.press(screen.getByTestId('login-submit'));
     await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith('/(tabs)'));
     expect(storeAuthSession).toHaveBeenCalledWith(LOGIN_ANSWER.token); // access and refresh token together
@@ -146,7 +146,7 @@ describe('Login (fix: skipAuth, identifier validation, session state, translated
     const { store, ui } = mount(<LoginScreen />);
     await render(ui);
     await type('login-identifier', 'user@mail.com');
-    await type('login-password', 'secret1');
+    await type('login-password', 'secret12');
     await fireEvent.press(screen.getByTestId('login-submit'));
     expect(await screen.findByText('تعذّر تسجيل الدخول على هذا الجهاز. حاول مرة أخرى.')).toBeTruthy();
     expect(store.getState().auth.isAuthenticated).toBe(false);
@@ -162,7 +162,7 @@ describe('Email code (fix: resend purpose, reset flow, refresh token, translated
   it('resend in register mode asks for a code with purpose "register" (a new email has no account yet)', async () => {
     jest.useFakeTimers();
     try {
-      const id = createRegistrationTransaction({ fullName: 'Test User', phone: '+966500000001', email: 'new@mail.com', password: 'secret1' });
+      const id = createRegistrationTransaction({ fullName: 'Test User', phone: '+966500000001', email: 'new@mail.com', password: 'secret12' });
       mockParams = { mode: 'register', transactionId: id };
       (apiFetch as jest.Mock).mockResolvedValue({ ok: true, channel: 'email' });
       await render(mount(<OtpScreen />).ui);
@@ -201,7 +201,7 @@ describe('Email code (fix: resend purpose, reset flow, refresh token, translated
   });
 
   it('register: the refresh token is kept with the access token, and the slice becomes the signed-in patient', async () => {
-    const id = createRegistrationTransaction({ fullName: 'Test User', phone: '+966500000001', email: 'new@mail.com', password: 'secret1' });
+    const id = createRegistrationTransaction({ fullName: 'Test User', phone: '+966500000001', email: 'new@mail.com', password: 'secret12' });
     mockParams = { mode: 'register', transactionId: id };
     (apiFetch as jest.Mock).mockImplementation(async (path: string) => (path === '/auth/verify-otp' ? { ok: true } : LOGIN_ANSWER));
     (storeAuthSession as jest.Mock).mockResolvedValue(ACCESS);
@@ -215,7 +215,7 @@ describe('Email code (fix: resend purpose, reset flow, refresh token, translated
   });
 
   it('a wrong code is announced in the app language, not as the server\'s English', async () => {
-    mockParams = { mode: 'register', transactionId: createRegistrationTransaction({ fullName: 'T U', phone: '+966500000002', email: 'x@mail.com', password: 'secret1' }) };
+    mockParams = { mode: 'register', transactionId: createRegistrationTransaction({ fullName: 'T U', phone: '+966500000002', email: 'x@mail.com', password: 'secret12' }) };
     (apiFetch as jest.Mock).mockRejectedValue(new Error('Invalid OTP code'));
     await render(mount(<OtpScreen />).ui);
     await fillCode('000000');
@@ -277,8 +277,8 @@ describe('Reset password (fix: validation messages, code carried over, missing e
     await type('reset-password', '123');
     await type('reset-confirm', '123');
     await fireEvent.press(screen.getByTestId('reset-submit'));
-    expect(await screen.findByText('كلمة المرور 6 أحرف على الأقل')).toBeTruthy();
-    await type('reset-password', 'secret1');
+    expect(await screen.findByText('كلمة المرور 8 أحرف على الأقل')).toBeTruthy();
+    await type('reset-password', 'secret12');
     await type('reset-confirm', 'secret2');
     await fireEvent.press(screen.getByTestId('reset-submit'));
     expect((await screen.findAllByText('كلمتا المرور غير متطابقتين')).length).toBeGreaterThan(0);
@@ -290,8 +290,8 @@ describe('Reset password (fix: validation messages, code carried over, missing e
     await render(mount(<ResetPasswordScreen />).ui);
     expect(screen.getByTestId('reset-email')).toBeTruthy();
     await type('reset-code', '123456');
-    await type('reset-password', 'secret1');
-    await type('reset-confirm', 'secret1');
+    await type('reset-password', 'secret12');
+    await type('reset-confirm', 'secret12');
     await fireEvent.press(screen.getByTestId('reset-submit'));
     expect(await screen.findByText('أدخل البريد الإلكتروني الذي وصله الرمز')).toBeTruthy();
     expect(apiFetch).not.toHaveBeenCalled();
@@ -299,15 +299,15 @@ describe('Reset password (fix: validation messages, code carried over, missing e
     await type('reset-email', 'A@B.sa');
     await fireEvent.press(screen.getByTestId('reset-submit'));
     await waitFor(() => expect(apiFetch).toHaveBeenCalled());
-    expect(apiFetch).toHaveBeenCalledWith('/auth/reset-password', { method: 'POST', body: JSON.stringify({ identifier: 'a@b.sa', password: 'secret1', code: '123456' }) });
+    expect(apiFetch).toHaveBeenCalledWith('/auth/reset-password', { method: 'POST', body: JSON.stringify({ identifier: 'a@b.sa', password: 'secret12', code: '123456' }) });
   });
 
   it('a wrong code from the server is shown translated, and the code field stays editable', async () => {
     mockParams = { email: 'a@b.sa', code: '000000' };
     (apiFetch as jest.Mock).mockRejectedValue(new Error('Invalid OTP code'));
     await render(mount(<ResetPasswordScreen />).ui);
-    await type('reset-password', 'secret1');
-    await type('reset-confirm', 'secret1');
+    await type('reset-password', 'secret12');
+    await type('reset-confirm', 'secret12');
     await fireEvent.press(screen.getByTestId('reset-submit'));
     expect(await screen.findByText('رمز التحقق غير صحيح')).toBeTruthy();
     expect(screen.getByTestId('reset-code').props.value).toBe('000000');

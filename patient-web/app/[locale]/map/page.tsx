@@ -39,7 +39,7 @@ export default async function MapExplorerPage({ params }: Props) {
 
   const t = await getTranslations("MapExplorer");
   // the cities the map draws are stored in Arabic; the public city list gives the English name for the other pages
-  const cities = locale === "ar" || locale === "ur" ? null : await callPatientApi("/locations/cities").catch(() => null);
+  const cities = locale === "ar" ? null : await callPatientApi("/locations/cities").catch(() => null);
   const cityNames = cities && cities.ok ? extractCityNames(await cities.json().catch(() => null)) : undefined;
 
   return (
