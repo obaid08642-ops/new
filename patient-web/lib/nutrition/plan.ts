@@ -32,3 +32,14 @@ export function parseNutritionPlan(payload: unknown): NutritionPlanView | null {
   if (!days.length) return null;
   return { id, createdAt: typeof root.created_at === "string" ? root.created_at : null, days };
 }
+
+/**
+ * Whether GET /nutrition/profile holds the height and weight a plan is made from (the same rule as POST /nutrition/plan/generate,
+ * which answers 400 `nutrition_profile_required` otherwise). `null` when the reply is not readable: the button is then kept.
+ */
+export function hasBodyProfile(payload: unknown): boolean | null {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return null;
+  const root = payload as Record<string, unknown>;
+  const profile = root.data && typeof root.data === "object" ? (root.data as Record<string, unknown>) : root;
+  return Number(profile.height_cm) > 0 && Number(profile.weight_kg) > 0;
+}
