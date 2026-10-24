@@ -22,7 +22,7 @@
 /* ---- the badge of a status: neutral by default, the status tokens for approved / waiting / declined ---- */
 .badge {
   flex: none; align-self: flex-start; display: inline-flex; align-items: center; min-block-size: 24px; padding-inline: 9px; border-radius: var(--nabd-radius-pill);
-  background: var(--nabd-color-bg-sunken); color: var(--nabd-color-text-secondary); font-size: var(--nabd-font-size-micro); font-weight: 600; white-space: nowrap;
+  background: var(--nabd-color-bg-sunken); color: var(--nabd-color-text-tertiary); font-size: var(--nabd-font-size-micro); font-weight: 600; white-space: nowrap;
 }
 .badge bdi { unicode-bidi: isolate; }
 .badgeGood { background: var(--nabd-color-status-success-bg); color: var(--nabd-color-status-success-fg); }

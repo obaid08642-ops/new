@@ -27,7 +27,7 @@ export default async function InsuranceAddPolicyPage({ params, searchParams }: P
     const res = await callPatientApi("/insurance/companies", {}, token);
     if (res.status === 401) redirect(`/${locale}/login`);
     if (res.status === 403 || res.status === 404) notFound();
-    if (res.ok) companies = parseCompanies(await res.json().catch(() => null));
+    if (res.ok) companies = parseCompanies(await res.json().catch(() => null), locale);
     else failed = true;
   } catch (error) {
     if (error && typeof error === "object" && "digest" in error) throw error;
