@@ -24,8 +24,12 @@ def main():
     step('the public map lists a lab and a doctor', r.ok and lab and doctor, f'{r.status} {len(rows)}')
     cities = Client(None, 'anon').get('/locations/cities')
     crow = cities.body if isinstance(cities.body, list) else cities.items()
-    en_city = next((c.get('name_en') for c in crow if doctor and c.get('name_ar') == doctor.get('city')), None)
+    city_row = next((c for c in crow if doctor and c.get('name_ar') == doctor.get('city')), None) or {}
+    en_city = city_row.get('name_en')
     step('the city list knows the doctor\'s city in English', bool(en_city), doctor and doctor.get('city'))
+    # the page shows the city's own translation where the list has one, else English (hi, bn, fil), else the Arabic (ur)
+    expected_city = {'ar': doctor and doctor['city'], 'en': en_city, 'ur': city_row.get('name_ur') or (doctor and doctor['city']),
+                     'hi': city_row.get('name_hi') or en_city, 'bn': city_row.get('name_bn') or en_city, 'fil': city_row.get('name_tl') or en_city}
     if not (lab and doctor and en_city):
         return
     try:
@@ -46,10 +50,8 @@ def main():
             page.wait_for_selector('ul li', timeout=30000)
             page.wait_for_timeout(800)
             body = page.inner_text('main')
-            if loc in ('ar', 'ur'):
-                step(f'/{loc}/map shows the city in Arabic', doctor['city'] in body, body[:120])
-            else:
-                step(f'/{loc}/map shows the city in English ("{en_city}")', en_city in body, body[:120])
+            step(f'/{loc}/map shows the city in the page language ("{expected_city[loc]}")', bool(expected_city[loc]) and expected_city[loc] in body, body[:120])
+            if loc not in ('ar', 'ur') and expected_city[loc] != doctor['city']:
                 step(f'/{loc}/map shows no Arabic city name', doctor['city'] not in body, doctor['city'])
             step(f'/{loc}/map has no sideways scroll at 360px (dark)', page.evaluate('document.documentElement.scrollWidth - window.innerWidth') <= 2, '')
             if loc in ('ar', 'en'):

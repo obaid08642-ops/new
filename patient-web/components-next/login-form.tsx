@@ -11,6 +11,7 @@ import { announceSignedIn } from "@/lib/auth/session-identity";
 import { safeNextPath } from "@/lib/auth/safe-next";
 import { afterFailure, minutesLeft, readLock, writeLock } from "@/lib/auth/login-lockout";
 import type { Locale } from "@/lib/i18n";
+import { WrongAppNotice } from "./auth/wrong-app-notice";
 import { SocialLoginButtons } from "./social-login-buttons";
 import styles from "./auth/auth.module.css";
 
@@ -38,6 +39,7 @@ export function LoginForm({ locale, guestBlocked = false }: { locale: Locale; gu
   const [twoFactor, setTwoFactor] = useState(false);
   const [message, setMessage] = useState<string | null>(guestBlocked ? t("guestBlocked") : null);
   const [submitting, setSubmitting] = useState(false);
+  const [wrongApp, setWrongApp] = useState(false);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setMessage(null);
@@ -51,6 +53,7 @@ export function LoginForm({ locale, guestBlocked = false }: { locale: Locale; gu
       const response = await fetch(endpoint, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
+        if (response.status === 403 && payload?.message === "wrong_app") { setWrongApp(true); setPassword(""); setCode(""); return; }
         if (!twoFactor && response.status === 401) {
           const next = afterFailure(readLock(), Date.now()); writeLock(next);
           const left = minutesLeft(next, Date.now());
@@ -70,6 +73,8 @@ export function LoginForm({ locale, guestBlocked = false }: { locale: Locale; gu
 
   const submitLabel = submitting ? (twoFactor ? t("twoFactorSubmitting") : t("submitting")) : (twoFactor ? t("twoFactorSubmit") : t("submit"));
   const forgot = <button type="button" className={`${styles.link} ${styles.forgotTop}`} onClick={() => router.push(`/${locale}/forgot-password`)} disabled={submitting}>{t("forgotPassword")}</button>;
+
+  if (wrongApp) return <WrongAppNotice onBack={() => { setWrongApp(false); setTwoFactor(false); setMessage(null); }} />;
 
   return <>
     <div className={styles.heading}>
@@ -103,7 +108,7 @@ export function LoginForm({ locale, guestBlocked = false }: { locale: Locale; gu
       {message ? <p className={styles.error} role="alert">{message}</p> : null}
       <div className={styles.actions}>
         <Button type="submit" variant="primary" size="lg" fullWidth label={submitLabel} loading={submitting} />
-        <SocialLoginButtons locale={locale} />
+        <SocialLoginButtons locale={locale} onWrongApp={() => setWrongApp(true)} />
         <p className={styles.legal}>{t.rich("legal", {
           terms: (chunks) => <Link href={`/${locale}/terms`}>{chunks}</Link>,
           privacy: (chunks) => <Link href={`/${locale}/privacy`}>{chunks}</Link>,
