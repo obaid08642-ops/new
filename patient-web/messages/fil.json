@@ -687,6 +687,8 @@
     "idCodeTitle": "Code sa pagbabahagi",
     "idCodeBody": "Ipakita ang code na ito sa iyong provider para maibahagi ang iyong file.",
     "idCodeFailed": "Hindi makagawa ng share code ngayon.",
+    "idQrLabel": "QR code ng iyong health ID para i-scan ng iyong provider",
+    "idValidUntil": "Valid hanggang {time}",
     "itemAdd": "Idagdag",
     "itemAddFailed": "Hindi naidagdag. Subukan muli.",
     "itemName": "Pangalan",
