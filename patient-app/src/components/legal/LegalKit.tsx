@@ -117,12 +117,13 @@ export function LegalDocument({ policyKey, title, testID }: { policyKey: PolicyK
 }
 
 /** A notice page: a glyph, a headline, a line and up to two actions (the provider account notice). */
-export function NoticePage({ headline, body, primary, secondary, testID }: { headline: string; body: string; primary: { label: string; onPress: () => void }; secondary?: { label: string; onPress: () => void }; testID?: string }) {
+export function NoticePage({ headline, body, primary, more, secondary, testID }: { headline: string; body: string; primary?: { label: string; onPress: () => void }; more?: { label: string; onPress: () => void }[]; secondary?: { label: string; onPress: () => void }; testID?: string }) {
   return (
     <ConsultScreen title="" onBack={legalBack} testID={testID}>
       <ResultHero icon="stethoscope" tone="info" title={headline} body={body} />
       <View style={{ gap: 8, paddingTop: 16 }}>
-        <CardAction label={primary.label} onPress={primary.onPress} flex />
+        {primary ? <CardAction label={primary.label} onPress={primary.onPress} flex /> : null}
+        {(more || []).map((m) => <CardAction key={m.label} label={m.label} onPress={m.onPress} tone="outline" flex />)}
         {secondary ? <CardAction label={secondary.label} onPress={secondary.onPress} tone="outline" flex /> : null}
       </View>
     </ConsultScreen>

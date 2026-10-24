@@ -9,24 +9,24 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 0 | 333 | 97 | 4 | 0 |
-| Other | 269 | 226 | 40 | 3 | 0 | 0 |
+| Other | 282 | 239 | 40 | 3 | 0 | 0 |
 | Admin | 99 | 0 | 65 | 34 | 0 | 0 |
 | Admin journeys | 20 | 0 | 18 | 2 | 0 | 0 |
 | Final pass | 8 | 0 | 2 | 6 | 0 | 0 |
 | Patient journeys | 87 | 0 | 85 | 2 | 0 | 0 |
 | Provider app | 31 | 0 | 27 | 4 | 0 | 0 |
 | Provider journeys | 34 | 0 | 32 | 2 | 0 | 0 |
-| **Total** | **982** | **226** | **602** | **150** | **4** | **0** |
+| **Total** | **995** | **239** | **602** | **150** | **4** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 235 | 65 | 129 | 41 | 0 | 0 |
-| owner | 135 | 35 | 57 | 42 | 1 | 0 |
-| backend | 373 | 125 | 218 | 30 | 0 | 0 |
+| client | 225 | 55 | 129 | 41 | 0 | 0 |
+| owner | 141 | 41 | 57 | 42 | 1 | 0 |
+| backend | 390 | 142 | 218 | 30 | 0 | 0 |
 | untagged | 239 | 1 | 198 | 37 | 3 | 0 |
-| **Total** | **982** | **226** | **602** | **150** | **4** | **0** |
+| **Total** | **995** | **239** | **602** | **150** | **4** | **0** |
 
 ## By file
 
@@ -85,6 +85,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1d-app.json` | 20 | 0 | 13 | 7 | 0 | 0 |
 | `batch-1d-web.json` | 10 | 0 | 6 | 3 | 1 | 0 |
 | `doctor-card-app.json` | 9 | 9 | 0 | 0 | 0 | 0 |
+| `doctor-card-web.json` | 10 | 10 | 0 | 0 | 0 | 0 |
 | `final-pass-2.json` | 4 | 0 | 0 | 4 | 0 | 0 |
 | `final-pass.json` | 4 | 0 | 2 | 2 | 0 | 0 |
 | `journeys.json` | 87 | 0 | 85 | 2 | 0 | 0 |
@@ -101,12 +102,13 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `m6-ord30.json` | 14 | 14 | 0 | 0 | 0 | 0 |
 | `m6-visual-app.json` | 16 | 16 | 0 | 0 | 0 | 0 |
 | `m6-visual-web.json` | 10 | 8 | 2 | 0 | 0 | 0 |
-| `parity-account.json` | 17 | 17 | 0 | 0 | 0 | 0 |
-| `parity-care.json` | 17 | 17 | 0 | 0 | 0 | 0 |
-| `parity-doctors.json` | 8 | 8 | 0 | 0 | 0 | 0 |
+| `parity-account.json` | 16 | 16 | 0 | 0 | 0 | 0 |
+| `parity-care.json` | 14 | 14 | 0 | 0 | 0 | 0 |
+| `parity-doctors.json` | 15 | 15 | 0 | 0 | 0 | 0 |
 | `parity-health.json` | 13 | 13 | 0 | 0 | 0 | 0 |
-| `parity-insurance.json` | 5 | 5 | 0 | 0 | 0 | 0 |
-| `parity-pharmacy.json` | 10 | 10 | 0 | 0 | 0 | 0 |
+| `parity-insurance.json` | 4 | 4 | 0 | 0 | 0 | 0 |
+| `parity-owner-decisions-app.json` | 2 | 2 | 0 | 0 | 0 | 0 |
+| `parity-pharmacy.json` | 9 | 9 | 0 | 0 | 0 | 0 |
 | `provider-admin-ish.json` | 3 | 0 | 3 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 0 | 6 | 0 | 0 | 0 |
 | `provider-facility.json` | 7 | 0 | 7 | 0 | 0 | 0 |
@@ -120,7 +122,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 0 | 7 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 0 | 0 | 1 | 0 | 0 |
 | `tooling.json` | 13 | 0 | 12 | 1 | 0 | 0 |
-| **Total** | **982** | **226** | **602** | **150** | **4** | **0** |
+| **Total** | **995** | **239** | **602** | **150** | **4** | **0** |
 
 ## Owner decisions (4)
 
@@ -131,7 +133,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 3 | `batch-1a-app.json#18` `patient-app/src/i18n/locales/en.json:0` | /pharmacy Six-language strings | 177 pharmacy.* keys were added to patient-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json. The English, Urdu, Hindi, Bengali and Filipino text was written by the design session (and, for reused phrases, taken from the phr… |
 | 4 | `batch-1d-web.json#1` `backend/src/modules/payments/payments.module.ts:154` | /pharmacy/payment Payment provider not exercised | No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only against a TEST stand-in outside the repo (… |
 
-## Open and unverified (226)
+## Open and unverified (239)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -145,6 +147,16 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `doctor-card-app.json#6` | backend | open | /consultations/doctor/[id] Review sub-ratings | [backend] Ratings carry only score and comment (ratings.module.ts submit); there are no sub-ratings to draw, so none are shown. |
 | `doctor-card-app.json#7` | backend | open | /consultations/doctor/[id] Reviews source | [backend] `reviews_data` and `is_online` exist only on branch s/p-doctors (PR #1861), the page reads them as soon as it is merged; the list is capped at 10 by the server, so see-a… |
 | `doctor-card-app.json#8` | client | open | /search?view=doctors Price band filter | [client] The existing doctors screen has no price band (only the sort), so price_min/price_max (supported by PR #1861) are not wired; the gender filter is. |
+| `doctor-card-web.json#0` | backend | open | /consultations/doctors Gender on the card and in the filter | [backend] gender: GET /care/doctors filters by gender (PR #1861) but toPublicDoctor does not return it; the card fact and the page tag draw only when it is sent |
+| `doctor-card-web.json#1` | backend | open | /consultations/doctors Average wait fact | [backend] average_wait / wait_time: not in toPublicDoctor, so the fact never shows |
+| `doctor-card-web.json#2` | backend | open | /consultations/doctors/:id Education list | [backend] education: not built; the page shows the honest empty state 'No education added yet' |
+| `doctor-card-web.json#3` | backend | open | /consultations/doctors/:id Verified certificates | [backend] certificates: not sent; the section is hidden |
+| `doctor-card-web.json#4` | backend | open | /consultations/doctors/:id Services with prices | [backend] services: not sent; the section is hidden |
+| `doctor-card-web.json#5` | backend | open | /consultations/doctors/:id Follow-up price and window | [backend] follow_up_price / follow_up_days: not sent; the rows are hidden |
+| `doctor-card-web.json#6` | backend | open | /consultations/doctors/:id Clinic address and map | [backend] clinic_address and location {lat,lng}: toPublicDoctor omits them (the exact location is private by design); the section is hidden without them |
+| `doctor-card-web.json#7` | backend | open | /consultations/doctors/:id Review sub-ratings | [backend] reviews_data[].sub_ratings: ratings store one score only; sub-ratings never show |
+| `doctor-card-web.json#8` | backend | open | /consultations/doctors/:id Written reviews, detail payload | [backend] reviews_data and is_online exist only on branch s/p-doctors (PR #1861); until it merges the section shows its empty state and the online dot is hidden |
+| `doctor-card-web.json#9` | backend | open | /consultations/doctors Price band filter | [backend] price_min / price_max are supported by PR #1861 but the web has no price band control on the board, so none was added |
 | `m6-blocked.json#12` | backend | open | /medical-orders/[orderId] (Ord21) Item names | [backend] GET /medical-orders/:id gives catalog_id only, no test or scan name; items show their group (or sessions) instead of a name. |
 | `m6-blocked.json#13` | client | open | /medical-orders/[orderId] (Ord21, Order button) Order button prefill | [client] The Order button calls POST …/order, which returns the prefill (service_kind, items), then sends the patient to the group hub. The lab, radiology and nursing flows do not… |
 | `m6-blocked.json#14` | client | open | /medical-orders/[id] (Ord21, Order button) Order button prefill | [client] Same as the web: the prefill is not read by the app flows; the patient lands on the generic flow. |
@@ -291,48 +303,51 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `m6-visual-web.json#7` | backend | open | Ord21 order detail Doctor name and specialty, per-item status chips (ordered/bo… | [backend] GET /medical-orders/:id has no doctor object and no booking link per item beyond status. |
 | `m6-visual-web.json#8` | client | open | Ord11 results Results live inside the booking page; the board has a dedicated r… | [client] Values, flag, range bar and trend are now drawn from the endpoint; the rating form and instant-consultation sheet are not (no rating endpoint found). |
 | `m6-visual-web.json#9` | client | open | Ord02/Ord04 (1280) Sticky basket side card still not drawn | [client] Left from pass one (not cheap: needs a two-column hub layout). |
-| `parity-account.json#0` | owner | open | /welcome and /login Apple / Google / X / Snapchat sign-in on the web | [owner] Web shows Google only when a client id is set; Apple (Services ID, return URL) and X/Snapchat need provider setup the web does not have. POST /auth/social-login exists in … |
-| `parity-account.json#1` | backend | open | /otp resend countdown 300 s vs 60 s in the app | [backend] POST /auth/otp/request is throttled to 3 per 10 minutes, so the web waits 300 s; the app waits 60 s and would hit 429 after 3 sends. |
-| `parity-account.json#2` | owner | open | /register password minimum: app (6) disagrees with backend and web (10) | [owner] web register, reset and change-password now use the backend rule (10, lib/auth/password-rule); patient-app still checks 6 so a valid-looking password is rejected by the se… |
+| `parity-account.json#0` | owner | open | /welcome and /login Social sign-in on the web: Google, Apple, X, Snapchat (prov… | [owner] Owner decision 2026-10-24 (corrected): web sign-in and sign-up offer all providers. Each button renders only when configured: NEXT_PUBLIC_GOOGLE_CLIENT_ID; NEXT_PUBLIC_APP… |
+| `parity-account.json#1` | backend | open | /welcome and /login X and Snapchat tokens are refused by the backend | [backend] POST /auth/social-login throws social_provider_not_supported for provider x and snapchat (auth.service.ts socialLogin); session S is adding the verification. Until then … |
+| `parity-account.json#2` | backend | open | /otp resend countdown 300 s vs 60 s in the app | [backend] POST /auth/otp/request is throttled to 3 per 10 minutes, so the web waits 300 s; the app waits 60 s and would hit 429 after 3 sends. |
 | `parity-account.json#3` | backend | open | /register register creates the account before the OTP step | [backend] app sends OTP first; backend flow on web is register then OTP (?sent=0 leaves an account without a code). |
 | `parity-account.json#4` | backend | open | /forgot-password no OTP-based reset on the web | [backend] app goes forgot -> OTP -> reset with the code; web POST /auth/password/forgot mails a reset token the person types on /password-reset. |
-| `parity-account.json#5` | owner | open | /login after sign-in always /dashboard, no role check or provider-info page | [owner] app sends non-patient roles to provider-info; web has no such page. |
-| `parity-account.json#6` | owner | open | /dashboard whole page becomes an error state when a call fails | [owner] audit asks for a retry banner; the 2026-10-06 owner rule says ErrorState with retry when there is no cached copy. |
-| `parity-account.json#7` | owner | open | /settings/about no app version on the web | [owner] the web has no build version string to show; confirm whether a build id should be exposed. |
-| `parity-account.json#8` | backend | open | /settings/notifications notification kinds: web edits categories/channels, app … | [backend] PATCH /users/me/notification-settings validates the flat keys the app sends (general, offers, medications, doctorMessages, emergency, sound, vibration) but users.service… |
-| `parity-account.json#9` | backend | open | /dashboard and home unread dot on the notification bell | [backend] the backend notifications controller has no unread-count endpoint and the proxy allowlist has none; the bell cannot show a dot without an extra request per page. |
-| `parity-account.json#10` | owner | open | /settings/language calendar preference (Gregorian/Hijri/auto) | [owner] the app keeps a device-only preference read by its date helpers; the web formatters (lib/format-date) do not read one, so a switch would do nothing. |
-| `parity-account.json#11` | backend | open | /search sort, filter sidebar, pharmacies tab, price cards | [backend] GET /search takes q, locale and limit only and returns no price or sale fields. |
-| `parity-account.json#12` | owner | open | /search barcode scan button | [owner] /drug-scanner is an app screen (camera); no web equivalent exists. |
-| `parity-account.json#13` | owner | open | /profile/addresses map point and pick mode | [owner] "Use my current location" and the National Address code now set the pin; dragging a pin on a map needs a map library (none in patient-web; the facilities map is an OSM ifr… |
-| `parity-account.json#14` | backend | open | /register separate email and phone fields | [backend] the Patient Contract V1 register takes one identifier; the app sends email and phone together (legacy payload). |
-| `parity-account.json#15` | backend | open | /settings/security session location | [backend] GET /users/me/sessions sends a masked IP, not a place; the row shows the masked IP. |
-| `parity-account.json#16` | backend | open | /settings/notifications sound and vibration switches | [backend] app shows sound and vibration switches (flat keys, same PATCH); the backend does not store them (see the kinds entry), so a web switch would not persist. |
+| `parity-account.json#5` | owner | open | /settings/about no app version on the web | [owner] the web has no build version string to show; confirm whether a build id should be exposed. |
+| `parity-account.json#6` | backend | open | /settings/notifications notification kinds: web edits categories/channels, app … | [backend] PATCH /users/me/notification-settings validates the flat keys the app sends (general, offers, medications, doctorMessages, emergency, sound, vibration) but users.service… |
+| `parity-account.json#7` | backend | open | /dashboard and home unread dot on the notification bell | [backend] the backend notifications controller has no unread-count endpoint and the proxy allowlist has none; the bell cannot show a dot without an extra request per page. |
+| `parity-account.json#8` | owner | open | /settings/language calendar preference (Gregorian/Hijri/auto) | [owner] the app keeps a device-only preference read by its date helpers; the web formatters (lib/format-date) do not read one, so a switch would do nothing. |
+| `parity-account.json#9` | backend | open | /search sort, filter sidebar, pharmacies tab, price cards | [backend] GET /search takes q, locale and limit only and returns no price or sale fields. |
+| `parity-account.json#10` | owner | open | /search barcode scan button | [owner] /drug-scanner is an app screen (camera); no web equivalent exists. |
+| `parity-account.json#11` | owner | open | /profile/addresses map point and pick mode | [owner] Owner decision 2026-10-24: saved addresses first, adding opens the picker. Web: the list (select mode via ?select=1) comes first and adding offers "Use my current location… |
+| `parity-account.json#12` | backend | open | /register separate email and phone fields | [backend] the Patient Contract V1 register takes one identifier; the app sends email and phone together (legacy payload). |
+| `parity-account.json#13` | backend | open | /settings/security session location | [backend] GET /users/me/sessions sends a masked IP, not a place; the row shows the masked IP. |
+| `parity-account.json#14` | backend | open | /settings/notifications sound and vibration switches | [backend] app shows sound and vibration switches (flat keys, same PATCH); the backend does not store them (see the kinds entry), so a web switch would not persist. |
+| `parity-account.json#15` | owner | open | /login provider app store and web links | [owner] The page shown to a provider account on the patient site reads its links from NEXT_PUBLIC_PROVIDER_WEB_URL, NEXT_PUBLIC_PROVIDER_APP_IOS_URL and NEXT_PUBLIC_PROVIDER_APP_A… |
 | `parity-care.json#0` | backend | open | /nursing/catalog add nursing service to the ordering basket | [backend] the add button and BasketBar (kind nursing) feed the ordering basket, but the ordering backend refuses nursing bookings (service_kind_not_bookable_yet) |
 | `parity-care.json#1` | backend | open | /home-care/services/[serviceId]/book repeat visits (days) | [backend] POST /nursing/bookings has no days/sessions count; the app shows 'once or consecutive days' but only multiplies the estimate and sends no days |
 | `parity-care.json#2` | backend | open | /home-care/services/[serviceId]/book availability and nationality filters | [backend] GET /home-care/providers honours gender, search and sort=rating only; availability, nationality and distance (nearest sort) are ignored and no distance_km is sent |
-| `parity-care.json#3` | client | open | /home-care/services/[serviceId]/book address choice | [client] a select of saved addresses that have a map point; the app also offers the selected-address row and the current location |
-| `parity-care.json#4` | owner | open | /nursing/visits/[visitId] rate the visit | [owner] the app's 'rate your visit' button only returns home and no nursing rating endpoint is wired in either client |
-| `parity-care.json#5` | client | open | /nursing/visits/[visitId] embedded map and pick-up directions | [client] only an 'on the map' link is shown from current_lat/current_lng; no embedded map pin for the nurse and the home, no pick-up directions |
-| `parity-care.json#6` | client | open | /diagnostics approved labs strip, sort and filter sheet | [client] the hub has no labs strip (rating, distance, home tag) and no sort/filter sheet; search still leaves for /diagnostics/search (labs only) |
-| `parity-care.json#7` | owner | open | /diagnostics insurance card opens the policy form | [owner] the card opens add-policy (issue 1062); the app opens the pre-booking insurance upload and approval step |
-| `parity-care.json#8` | backend | open | /diagnostics radiology tile without centres count or add | [backend] the board tile says 'from X SAR - N centres'; the scans list sends no centres count and the tile has no add toggle |
-| `parity-care.json#9` | client | open | /diagnostics/packages search needs Apply, categories are a select | [client] search filters on submit only and the category is a native select; the app filters as you type with chips from GET /labs/categories |
-| `parity-care.json#10` | client | open | /diagnostics/labs/[labId] directions, distance and branches | [client] only rating, city/address and a phone link; no directions, distance or branches |
-| `parity-care.json#11` | owner | open | /diagnostics/lab-comparison legacy comparison with no price | [owner] cards show the name only (no price, rating, distance or book); the M6 providers step now does the comparison |
-| `parity-care.json#12` | owner | open | /diagnostics/cart legacy cart shows no line price or total | [owner] the old local cart has no quantity, no prices and a select for the lab; the M6 basket (/labs/basket) replaces it |
-| `parity-care.json#13` | owner | open | /diagnostics/checkout legacy checkout (free-text address and insurer) | [owner] still reachable; the M6 when/confirm screens replace it |
-| `parity-care.json#14` | backend | open | /diagnostics/insurance-approval pre-booking upload form | [backend] without an order the web shows an empty state; the app shows company/network pickers, capture, OCR and creates the booking |
-| `parity-care.json#15` | client | open | /diagnostics/bookings list has no grouping or amount | [client] flat list without current/previous groups or the amount |
-| `parity-care.json#16` | client | open | /diagnostics/bookings/[domain]/[bookingId] results, radiology report, technicia… | [client] no result rows with reference ranges, no radiology report or images or stages, no technician call, total or cancel |
-| `parity-doctors.json#0` | client | open | doctors list specialty chips with counts | [client] chip row with counts not built: the static page cannot read the no-store specialties |
-| `parity-doctors.json#1` | backend | open | doctors list available-now badge | [backend] public doctor payload has no is_online |
-| `parity-doctors.json#2` | backend | open | doctor detail reviews list | [backend] no reviews in the doctor payload |
-| `parity-doctors.json#3` | backend | open | doctor detail education | [backend] no education field in the public doctor row |
-| `parity-doctors.json#4` | owner | open | video call session start | [owner] web joins by call-token, the app by /calls/initiate and /join |
-| `parity-doctors.json#5` | backend | open | incoming call incoming-call prompt | [backend] needs a real-time channel (socket/push) on the web |
-| `parity-doctors.json#6` | backend | open | home visit tracking map, ETA, message | [backend] the appointment carries no doctor position or ETA |
-| `parity-doctors.json#7` | client | open | doctor detail inline booking component | [client] no longer used by any page; kept because acceptance/d-31 (reviewer-owned) imports it |
+| `parity-care.json#3` | owner | open | /nursing/visits/[visitId] rate the visit | [owner] the app's 'rate your visit' button only returns home and no nursing rating endpoint is wired in either client |
+| `parity-care.json#4` | owner | open | /diagnostics insurance card opens the policy form | [owner] the card opens add-policy (issue 1062); the app opens the pre-booking insurance upload and approval step |
+| `parity-care.json#5` | backend | open | /diagnostics radiology tile without centres count or add | [backend] the board tile says 'from X SAR - N centres'; the scans list sends no centres count and the tile has no add toggle |
+| `parity-care.json#6` | owner | open | /diagnostics/labs/[labId] distance from the patient | [owner] directions and branches are drawn; distance needs the patient's position (the app asks for it); decide whether the web asks for location on the lab page |
+| `parity-care.json#7` | owner | open | /diagnostics/lab-comparison legacy comparison with no price | [owner] cards show the name only (no price, rating, distance or book); the M6 providers step now does the comparison |
+| `parity-care.json#8` | owner | open | /diagnostics/cart legacy cart shows no line price or total | [owner] the old local cart has no quantity, no prices and a select for the lab; the M6 basket (/labs/basket) replaces it |
+| `parity-care.json#9` | owner | open | /diagnostics/checkout legacy checkout (free-text address and insurer) | [owner] still reachable; the M6 when/confirm screens replace it |
+| `parity-care.json#10` | backend | open | /diagnostics/insurance-approval pre-booking upload form | [backend] without an order the web shows an empty state; the app shows company/network pickers, capture, OCR and creates the booking |
+| `parity-care.json#11` | backend | open | /diagnostics/bookings/[domain]/[bookingId] lab result rows with value, referenc… | [backend] the client draws result rows (name, result, reference, isAbnormal) when the booking carries a `results` array, as the app does; GET /labs/bookings/:id sends no `results`… |
+| `parity-care.json#12` | backend | open | /diagnostics/bookings/[domain]/[bookingId] radiology report file and images vie… | [backend] the lab report opens through GET /labs/bookings/:id/reports/:reportId; radiology has no patient endpoint for the report file or an images link (only GET /radiology/repor… |
+| `parity-care.json#13` | backend | open | /diagnostics/bookings/[domain]/[bookingId] radiology collector (technician) blo… | [backend] the collector block (name, phone, arrival time) is drawn for home lab bookings from GET /labs/bookings/:id/tracking; GET /radiology/bookings/:id sends only technician_id… |
+| `parity-doctors.json#0` | backend | open | doctors list available-now badge | [backend] public doctor payload has no is_online |
+| `parity-doctors.json#1` | backend | open | doctor detail reviews list | [backend] no reviews in the doctor payload |
+| `parity-doctors.json#2` | backend | open | doctor detail education | [backend] no education field in the public doctor row |
+| `parity-doctors.json#3` | owner | open | video call session start | [owner] web joins by call-token, the app by /calls/initiate and /join |
+| `parity-doctors.json#4` | backend | open | incoming call incoming-call prompt | [backend] needs a real-time channel (socket/push) on the web |
+| `parity-doctors.json#5` | backend | open | home visit tracking map, ETA, message | [backend] the appointment carries no doctor position or ETA |
+| `parity-doctors.json#6` | backend | open | doctors list advanced filter: gender and price band | [backend] GET /care/doctors has no gender or price-band parameter (GET /care/doctors?degree= is wired: the grade filter is built); it should come from the same endpoint as query p… |
+| `parity-doctors.json#7` | owner | open | doctors list insurance company and network picker | [owner] the web filters by the saved policy's insurer (decision 30); the app has a company and network picker. Decide whether the web gets the picker |
+| `parity-doctors.json#8` | owner | open | doctors list offers row | [owner] the app shows an offers row above the list; the web has /consultations/offers only. Decide whether the list gets the row |
+| `parity-doctors.json#9` | owner | open | doctors list default visit type, sort choices, list length, specialty tones | [owner] cached static list keeps no default visit type, an extra wait sort and no paging; specialty rows use one generic tone. Decide whether these differences from the app are ac… |
+| `parity-doctors.json#10` | backend | open | booking insurance provider id | [backend] GET /insurance/my-policy returns no insurer id, so only insurance_member_id is sent; the app also sends insurance_provider (provider_id/company_id) |
+| `parity-doctors.json#11` | backend | open | waiting room wait time (your turn) | [backend] the web shows wait_time when the appointment sends it, but GET /care/appointments/:id never sends it |
+| `parity-doctors.json#12` | owner | open | waiting room one-step join | [owner] the web keeps a two-step join (token check, then open) because of the telehealth consent; decide whether to merge into one step |
+| `parity-doctors.json#13` | owner | open | doctor detail share button | [owner] the app has a share button on the doctor page; not built on the web (browser share vs copy link) |
+| `parity-doctors.json#14` | owner | open | doctor chat conversation view | [owner] layout differs from the app and attachments are hidden by decision B27; confirm |
 | `parity-health.json#0` | owner | open | /family/add Invite: QR code | [owner] The app shows the invite as a QR. patient-web/package.json has no QR library and a new dependency (or an in-repo encoder) is not allowed without approval; the invite shows… |
 | `parity-health.json#1` | client | open | /family/[member] Book for this member | [client] The Chat button is added. 'Book on their behalf' needs the web consultation booking flow to carry for_member_id (backend accepts it: appointments.dto.ts, appointments.ser… |
 | `parity-health.json#2` | backend | open | /health/records Prescriptions: purchased and OCR pills, data source | [backend] The app lists GET /health/prescriptions (isPurchased, isOcr, ocrAccuracy); the web lists GET /prescriptions/mine, which has no purchased or OCR fields and whose ids open… |
@@ -347,17 +362,17 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `parity-health.json#11` | owner | open | /health/vitals Add reading and Add sleep placement (toolbar sheet, not a footer… | [owner] The app has a footer 'Add' button; every web health screen (vitals, medications, sleep) opens its sheet from a toolbar button under the title, kept consistent. Placement o… |
 | `parity-health.json#12` | owner | open | /health/medications Device alerts sync (Sync alerts button) | [owner] The app's All reminders row has 'Sync alerts' (schedules phone notifications). The web cannot schedule device notifications (the FAQ says so), so the button is not drawn. |
 | `parity-insurance.json#0` | owner | open | /insurance policy tab CHI lookup (button "فحص بوابة مجلس الضمان") | [owner] The app reads the patient's policy from the Council of Health Insurance portal in a WebView (ChiLookup). The web has no equivalent and no backend endpoint for it; a web re… |
-| `parity-insurance.json#1` | client | open | /insurance policy tab Change policy in place (insurer sheet with network chips) | [client] The web opens the blank add-policy form. The app edits in place with a network choice (GET /insurance/companies/:id/networks) and the saved values prefilled; the web rout… |
-| `parity-insurance.json#2` | owner | open | /insurance policy tab "عرض الكل" link next to the requests title (board) | [owner] The board draws a link to a full requests list; no such screen exists in the app or the web (the tab already lists up to 50 requests, the backend limit). |
-| `parity-insurance.json#3` | backend | open | /insurance/coverage-check Copay %, cap, pre-authorisation, reason in the result | [backend] The page now shows copay_percent, copay_flat, requires_preauth and reason exactly as the app does, but GET /insurance/coverage-check of the insurance engine (coverageChe… |
-| `parity-insurance.json#4` | owner | open | /maternity pregnancy Board quick actions "حاسبة الولادة" and "مواعيد المتابعة" | [owner] The board shows two shortcut tiles (due-date calculator, follow-up appointments). Neither screen exists in the app or the web, and the app has no such tiles; the web keeps… |
-| `parity-pharmacy.json#0` | owner | open | /cart/checkout change delivery location | [owner] The app's 'Change location' opens a map location picker (/shared/location-picker) and blocks the send when there is no map point; the web 'Change' opens the saved-address … |
-| `parity-pharmacy.json#1` | owner | open | /orders/[id]/offers choosing an offer (footer confirm step) | [owner] The app marks a card and confirms from a sticky footer (pharmacy, total, cash/insurance segmented, 'no payment now'); the web selects with one button per card and takes th… |
-| `parity-pharmacy.json#2` | backend | open | /orders/[id]/tracking courier vehicle | [backend] The board's courier row shows the vehicle; the order read (GET /patient/pharmacy/orders/:id, delivery) sends courier_name, courier_phone and eta only, no vehicle field. |
-| `parity-pharmacy.json#3` | backend | open | /p/[slug] cold-chain chip | [backend] The app draws a chip when cold_chain is true; the public product answer (GET /public/product/:locale/:slug, toPublicMedicine) does not carry cold_chain. |
-| `parity-pharmacy.json#4` | backend | open | /p/[slug] interactions section | [backend] The app shows an 'interactions' accordion from the details answer; the public product DTO has no interactions array (the medicine schema has one). |
-| `parity-pharmacy.json#5` | backend | open | /p/[slug] related products row | [backend] The app reads related_product_ids and looks the rows up with POST /medicines/compare; the public product DTO does not send related_product_ids, so the web has nothing to… |
-| `parity-pharmacy.json#6` | backend | open | /p/[slug] availability in nearby pharmacies and insurance coverage | [backend] The board's buy card shows 'available in N nearby pharmacies', the nearest distance and 'covered by {insurer}' with a co-pay note; both depend on the signed-in patient (… |
-| `parity-pharmacy.json#7` | backend | open | /c filter sheet (forms, brands, Rx, price range) | [backend] The app's filter sheet filters by form, brand, Rx and min/max price; the public catalogue list (GET /public/categories/:locale/items) accepts only category, sub, q, page… |
-| `parity-pharmacy.json#8` | backend | open | /pharmacy/rx-order?prescriptionId medicine quantity per prescription line | [backend] The app shows dose and quantity on each line; the patient view of a prescription (GET /prescriptions/:id, toPatientWebDto) sends name, dose, frequency and duration only.… |
-| `parity-pharmacy.json#9` | backend | open | /pharmacy/payment arrival time and tax line | [backend] The CheckoutV2 board shows 'arrives in {time}' and a tax line ('included'); the order read and the payment capabilities send neither an arrival estimate nor a tax amount… |
+| `parity-insurance.json#1` | owner | open | /insurance policy tab "عرض الكل" link next to the requests title (board) | [owner] The board draws a link to a full requests list; no such screen exists in the app or the web (the tab already lists up to 50 requests, the backend limit). |
+| `parity-insurance.json#2` | backend | open | /insurance/coverage-check Copay %, cap, pre-authorisation, reason in the result | [backend] The page now shows copay_percent, copay_flat, requires_preauth and reason exactly as the app does, but GET /insurance/coverage-check of the insurance engine (coverageChe… |
+| `parity-insurance.json#3` | owner | open | /maternity pregnancy Board quick actions "حاسبة الولادة" and "مواعيد المتابعة" | [owner] The board shows two shortcut tiles (due-date calculator, follow-up appointments). Neither screen exists in the app or the web, and the app has no such tiles; the web keeps… |
+| `parity-owner-decisions-app.json#0` | owner | open | /(auth)/provider-info Provider app store links and provider web link | [owner] The build env keys EXPO_PUBLIC_PROVIDER_WEB_URL, EXPO_PUBLIC_PROVIDER_APP_IOS_URL and EXPO_PUBLIC_PROVIDER_APP_ANDROID_URL are not set anywhere in the repo (only PROVIDER_… |
+| `parity-owner-decisions-app.json#1` | owner | open | /(auth)/welcome X and Snapchat sign-in buttons | [owner] Decision 3 not applied to the app: X and Snapchat are already hidden (shown only when EXPO_PUBLIC_SOCIAL_X_SNAPCHAT=1, which is unset); Google shows on every platform |
+| `parity-pharmacy.json#0` | owner | open | /cart/checkout change delivery location | [owner] Owner decision 2026-10-24: saved addresses first, then adding. The web shows the saved list (Change opens it) and add offers current location and the National Address code… |
+| `parity-pharmacy.json#1` | backend | open | /orders/[id]/tracking courier vehicle | [backend] The board's courier row shows the vehicle; the order read (GET /patient/pharmacy/orders/:id, delivery) sends courier_name, courier_phone and eta only, no vehicle field. |
+| `parity-pharmacy.json#2` | backend | open | /p/[slug] cold-chain chip | [backend] The app draws a chip when cold_chain is true; the public product answer (GET /public/product/:locale/:slug, toPublicMedicine) does not carry cold_chain. |
+| `parity-pharmacy.json#3` | backend | open | /p/[slug] interactions section | [backend] The app shows an 'interactions' accordion from the details answer; the public product DTO has no interactions array (the medicine schema has one). |
+| `parity-pharmacy.json#4` | backend | open | /p/[slug] related products row | [backend] The app reads related_product_ids and looks the rows up with POST /medicines/compare; the public product DTO does not send related_product_ids, so the web has nothing to… |
+| `parity-pharmacy.json#5` | backend | open | /p/[slug] availability in nearby pharmacies and insurance coverage | [backend] The board's buy card shows 'available in N nearby pharmacies', the nearest distance and 'covered by {insurer}' with a co-pay note; both depend on the signed-in patient (… |
+| `parity-pharmacy.json#6` | backend | open | /c filter sheet (forms, brands, Rx, price range) | [backend] The app's filter sheet filters by form, brand, Rx and min/max price; the public catalogue list (GET /public/categories/:locale/items) accepts only category, sub, q, page… |
+| `parity-pharmacy.json#7` | backend | open | /pharmacy/rx-order?prescriptionId medicine quantity per prescription line | [backend] The app shows dose and quantity on each line; the patient view of a prescription (GET /prescriptions/:id, toPatientWebDto) sends name, dose, frequency and duration only.… |
+| `parity-pharmacy.json#8` | backend | open | /pharmacy/payment arrival time and tax line | [backend] The CheckoutV2 board shows 'arrives in {time}' and a tax line ('included'); the order read and the payment capabilities send neither an arrival estimate nor a tax amount… |

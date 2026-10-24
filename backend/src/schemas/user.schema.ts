@@ -11,6 +11,9 @@ export class User {
   @Prop() full_name: string;
   @Prop({ unique: true, sparse: true }) phone: string;
   @Prop({ unique: true, sparse: true }) email?: string;
+  // Sign-in with X / Snapchat: the provider's stable account id (neither gives a verified email we can trust as identity).
+  @Prop({ unique: true, sparse: true }) social_x_id?: string;
+  @Prop({ unique: true, sparse: true }) social_snapchat_id?: string;
   @Prop() password_hash?: string;
   @Prop({ type: String, enum: [...Object.values(UserRole), ...RETIRED_USER_ROLES], default: UserRole.PATIENT }) role: UserRole;
   @Prop({ default: true }) active: boolean;

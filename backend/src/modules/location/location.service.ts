@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Location, LocationDocument, LocationType } from './schemas/location.schema';
 import { SAUDI_LOCATIONS_SEED, SeedLocation } from './seeds/saudi-locations.data';
+import { LOCATION_TRANSLATIONS } from './seeds/location-translations.data';
 import { normalizeSearchText } from '../seo-search/seo-search.module';
 
 export interface ResolvedLocation {
@@ -48,7 +49,8 @@ export class LocationService implements OnModuleInit {
       for (const loc of SAUDI_LOCATIONS_SEED) {
         await this.locationModel.updateOne(
           { code: loc.code },
-          { $setOnInsert: loc },
+          // a new row carries its translated names; a row already in the database is never touched (the migration fills those)
+          { $setOnInsert: { ...loc, ...(LOCATION_TRANSLATIONS[loc.code] ?? {}) } },
           { upsert: true },
         );
       }

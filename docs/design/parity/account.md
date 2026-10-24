@@ -11,10 +11,10 @@ Audited 2026-10-16; verified against main on 2026-10-23. Statuses: fixed earlier
 | 2 | /welcome | guest start failure | fixed now | stays on Welcome, inline Welcome.guestFailed |
 | 3 | /welcome | language pill and theme switch | fixed earlier | AuthLayout top row: language selector and the 3-way theme control (light, automatic, dark) already on /welcome |
 | 4 | /welcome | first-launch flow | fixed earlier | owner decision 32: next.config redirects /onboarding/* to home |
-| 5 | /login | social sign-in | blocked [owner] | needs provider client ids / Apple setup |
+| 5 | /login | social sign-in | fixed now (owner 2026-10-24) | Apple only, shown when NEXT_PUBLIC_APPLE_CLIENT_ID and _REDIRECT_URI are set; Google/X/Snapchat hidden; provider setup stays open in needs-review |
 | 6 | /login | Google button label | blocked [owner] | needs provider client ids / Apple setup |
 | 7 | /login | client validation and lockout | fixed now | empty/short check and 5-fails/5-min lockout kept on the browser |
-| 8 | /login | after sign-in target | blocked [owner] | no provider-info page on web |
+| 8 | /login | after sign-in target | fixed now (owner 2026-10-24) | a non-patient role gets the provider-app page (403 wrong_app from the login, verify-2fa and social-login routes, no session cookie); links from env, hidden when unset |
 | 9 | /register | fields | fixed now (partly) | confirm password added; separate email/phone blocked [backend]: contract takes one identifier |
 | 10 | /register | validation messages | fixed now | one message per rule |
 | 11 | /register | password rule | fixed now | 10 characters (backend rule) in register, reset and change-password; hint updated |
@@ -30,7 +30,7 @@ Audited 2026-10-16; verified against main on 2026-10-23. Statuses: fixed earlier
 | 21 | /dashboard | offers and packages sections | fixed now | CuratedSections from /content/home on the dashboard |
 | 22 | /dashboard | points card | fixed now | PointsCard from GET /loyalty/account |
 | 23 | /dashboard | unread bell dot | blocked [backend] | no unread-count endpoint in the backend notifications controller |
-| 24 | /dashboard | data load failure | blocked [owner] | owner rule 2026-10-06: ErrorState on outage |
+| 24 | /dashboard | data load failure | fixed (owner 2026-10-24) | RetryErrorState with retry inside the shell when profile or appointment fails (already in dashboard/page.tsx) |
 | 25 | / (home) | AI card "start" and mode tools | no change | owner decision |
 | 26 | /search | recent searches | fixed earlier | recent searches present in search-client |
 | 27 | /search | lab and lab-package results | fixed earlier | 09504708 |
@@ -70,3 +70,5 @@ Audited 2026-10-16; verified against main on 2026-10-23. Statuses: fixed earlier
 | 19 | /settings/about | version | blocked [owner] | web has no build version to show |
 | 20 | /settings/about | published policy documents | fixed now | GET /legal/policies: versions on the four document pages, other documents open in place (GET /legal/policy/:key) |
 | 21 | /settings/about | cancellation and returns | no change | same content, layout only |
+
+Password minimum is 8 on web (lib/auth/password-rule, change-password, reset, six locales), owner 2026-10-24.

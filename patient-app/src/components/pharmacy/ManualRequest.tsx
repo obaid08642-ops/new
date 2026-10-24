@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { router, useFocusEffect } from 'expo-router';
+import { router, useFocusEffect, type Href } from 'expo-router';
 
 import { Button, Card, FIcon, Input, StickyFooter } from '../../../../packages/ui-native/src';
 import { Notice, PHARMACY_TONE } from './PharmacyKit';
@@ -130,7 +130,7 @@ export function useManualRequest(): { body: React.ReactNode; footer: React.React
           </View>
         </View>
         {!loadingAddress && !hasPoint ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.status.warning.fg, ...flow }}>{k('pharmacy.request.addressMissing')}</Text> : null}
-        <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.request.changeLocation')} onPress={() => router.push('/shared/location-picker')} style={{ minHeight: 44, justifyContent: 'center', alignSelf: 'flex-start' }}>
+        <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.request.changeLocation')} onPress={() => router.push('/profile/addresses?select=1' as Href)} style={{ minHeight: 44, justifyContent: 'center', alignSelf: 'flex-start' }}>
           <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.link, ...flow }}>{k('pharmacy.request.changeLocation')}</Text>
         </Pressable>
       </Card>
