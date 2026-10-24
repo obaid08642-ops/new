@@ -25,11 +25,11 @@
     "batch": "parity-account",
     "app": "patient-web",
     "screen": "/register",
-    "element": "password minimum disagrees across app (6), web (8) and backend (10)",
+    "element": "password minimum: app (6) disagrees with backend and web (10)",
     "file": "patient-web/components-next/register-form.tsx",
     "line": 10,
-    "found": "[backend] backend MIN_PASSWORD_LENGTH is 10 (password-security.service.ts:22); the web register/reset forms say 8 and the app 6, so valid-looking passwords are rejected by the server.",
-    "suspect": "One rule across app, web and backend.",
+    "found": "[owner] web register, reset and change-password now use the backend rule (10, lib/auth/password-rule); patient-app still checks 6 so a valid-looking password is rejected by the server.",
+    "suspect": "One decision: align patient-app to 10 (patient-app change, outside the web batch).",
     "review_status": "open"
   },
   {
@@ -91,11 +91,11 @@
     "batch": "parity-account",
     "app": "patient-web",
     "screen": "/settings/notifications",
-    "element": "kinds and PATCH body differ from the app",
+    "element": "notification kinds: web edits categories/channels, app edits flat flags",
     "file": "patient-web/components-next/settings/switch-list.tsx",
     "line": 18,
-    "found": "[backend] web sends {group:{key:value}} (categories/channels); app sends flat flags (7 kinds incl. locked emergency). Both must edit the same stored settings.",
-    "suspect": "Backend DTO to confirm both shapes or unify.",
+    "found": "[backend] PATCH /users/me/notification-settings validates the flat keys the app sends (general, offers, medications, doctorMessages, emergency, sound, vibration) but users.service.ts:297 updateNotificationSettings stores only channels and categories and GET returns only those, so the app flags are never saved and the web cannot show the app kinds or sound/vibration.",
+    "suspect": "Backend: persist and return the flat flags (or map them onto categories) so both clients edit one stored setting; then the web can add emergency (locked), sound and vibration rows (switch-list.tsx:18, notifications/page.tsx).",
     "review_status": "open"
   },
   {
@@ -148,9 +148,9 @@
     "screen": "/profile/addresses",
     "element": "map point and pick mode",
     "file": "patient-web/components-next/account/address-book.tsx",
-    "line": 125,
-    "found": "[client] no web map component for choosing a point exists; set-default is done.",
-    "suspect": "Needs the map component (shared with delivery address) before the picker.",
+    "line": 40,
+    "found": "[owner] \"Use my current location\" and the National Address code now set the pin; dragging a pin on a map needs a map library (none in patient-web; the facilities map is an OSM iframe that cannot report a pin).",
+    "suspect": "Owner: approve a map library and tile provider (e.g. Leaflet with OpenStreetMap) for the address pin picker, or accept the current options.",
     "review_status": "open"
   },
   {
@@ -173,6 +173,17 @@
     "line": 51,
     "found": "[backend] GET /users/me/sessions sends a masked IP, not a place; the row shows the masked IP.",
     "suspect": "Backend to add a coarse location if the owner wants it.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-account",
+    "app": "patient-web",
+    "screen": "/settings/notifications",
+    "element": "sound and vibration switches",
+    "file": "patient-web/components-next/settings/switch-list.tsx",
+    "line": 18,
+    "found": "[backend] app shows sound and vibration switches (flat keys, same PATCH); the backend does not store them (see the kinds entry), so a web switch would not persist.",
+    "suspect": "Backend persists sound/vibration; web adds the two rows afterwards.",
     "review_status": "open"
   }
 ]

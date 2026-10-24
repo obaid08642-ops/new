@@ -5,12 +5,14 @@ import { localizedUrl } from "@/lib/seo";
 import { isLocale, locales } from "@/lib/i18n";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { extractLabService } from "@/lib/api/labs";
-import { getPublicLabPackage } from "@/lib/api/labs-server";
+import { extractLabService, extractLabServices, includedTestNames } from "@/lib/api/labs";
+import { getPublicLabPackage, getPublicLabServices } from "@/lib/api/labs-server";
+import { pickList } from "@/lib/i18n/localized-lists";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ActionLinks, BulletList, Facts, Hero, Notice, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
-import { LAB, TagRow, hoursText, money, pickText, type Tag } from "@/components-next/diagnostics/diag-parts";
+import { LAB, TagRow, hoursText, money, type Tag } from "@/components-next/diagnostics/diag-parts";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
+import { pickTexts } from "@/lib/i18n/localized";
 
 type Props = { params: Promise<{ locale: string; packageId: string }> };
 
@@ -53,9 +55,12 @@ export default async function LabPackageDetailPage({ params }: Props) {
   if (response?.status === 404) notFound();
   if (!pkg) notFound();
 
-  const name = pickText(locale, pkg.nameAr, pkg.nameEn);
-  const description = pickText(locale, pkg.descriptionAr, pkg.descriptionEn);
-  const preparation = (locale === "ar" || locale === "ur" ? pkg.preparationAr ?? pkg.preparationEn : pkg.preparationEn ?? pkg.preparationAr) ?? [];
+  const name = pickTexts(locale, pkg.names);
+  const description = pickTexts(locale, pkg.descriptions);
+  const preparation = pickList(locale, pkg.preparations);
+  // the package stores its tests as Arabic names or codes: shown in the page's language where the lab list knows them
+  const catalogue = pkg.includedServices?.length ? await Promise.resolve().then(() => getPublicLabServices()).catch(() => null) : null;
+  const included = pkg.includedServices?.length ? includedTestNames(locale, pkg.includedServices, catalogue && catalogue.ok ? extractLabServices(await catalogue.json().catch(() => null)) : []) : [];
   const tags: Tag[] = [
     ...(pkg.homeVisitSupported ? [{ label: w("tagHome"), tone: LAB.tone } as Tag] : []),
     ...(pkg.fastingRequired ? [{ label: w("tagFasting"), tone: DIAG_TONES.warn } as Tag] : []),
@@ -76,7 +81,7 @@ export default async function LabPackageDetailPage({ params }: Props) {
         <TagRow tags={tags} />
       </Hero>
       {rows.length > 0 ? <SectionCard id="pkg-facts" title={t("facts")}><Facts rows={rows} label={t("facts")} /></SectionCard> : null}
-      {pkg.includedServices?.length ? <SectionCard id="pkg-included" title={t("includedTitle")}><BulletList items={pkg.includedServices} /></SectionCard> : null}
+      {pkg.includedServices?.length ? <SectionCard id="pkg-included" title={t("includedTitle")}><BulletList items={included} /></SectionCard> : null}
       {preparation.length > 0 ? <SectionCard id="pkg-prep" title={t("preparationTitle")}><BulletList items={preparation} /></SectionCard> : null}
       <Notice>{pkg.homeVisitSupported ? t("homeAvailable") : t("homeUnavailable")}</Notice>
       {/* Parity: the order item page (add to the basket, book now, providers), as the app. */}

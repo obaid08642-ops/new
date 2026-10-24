@@ -3,6 +3,7 @@ import { MedicinesService } from './medicines.service';
 import { toPublicMedicine, toPublicProductCard } from './public-medicine';
 import { PUBLIC_CATALOG_LOCALES } from './med-i18n';
 import { queryInt } from '../../common/safe-query';
+import { ingredientsVocabulary } from './ingredients';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { Permission, RequirePermissions } from '../../common/permissions';
@@ -241,6 +242,13 @@ export class MedicinesController {
   @Post('suggest-new-item')
   suggestNewItem(@CurrentUser() user: any, @Body() body: SuggestNewItemDto) {
     return this.svc.suggestNewItem(user || { id: 'guest', role: 'guest' }, body || {});
+  }
+
+  /** Admin: the closed lists the ingredients review form offers (INN table, dosage forms, routes, strength units). Admin-only. */
+  @Get('admin/ingredients/vocab')
+  @Roles(UserRole.ADMIN)
+  ingredientsVocab() {
+    return ingredientsVocabulary();
   }
 
   /** Admin: unified change-request inbox (all types) */

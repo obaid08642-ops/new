@@ -9,18 +9,16 @@ import { ConsultState } from "@/components-next/consult/consult-state";
 import { SectionCard } from "@/components-next/consult/consult-parts";
 import { HealthTabs } from "@/components-next/health/health-kit";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
-import { FeedbackForm, NewRequestForm } from "@/components-next/settings/help-forms";
-import { Icon } from "@/components-next/ui-generated/src/Icon";
-import { StatusChip } from "@/components-next/ui-generated/components/Controls";
+import { FaqList } from "@/components-next/settings/faq-list";
+import { FeedbackForm } from "@/components-next/settings/help-forms";
 import forms from "@/components-next/consult/consult.module.css";
 import styles from "@/components-next/settings/settings.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string }> };
 
-const TABS = ["faq", "requests", "feedback"] as const;
+const TABS = ["faq", "feedback"] as const;
 type Tab = (typeof TABS)[number];
-type Faq = { id: string; question: string; answer: string };
-type Ticket = { id: string; subject: string; status: string };
+type Faq = { id: string; question: string; answer: string; category: string | null };
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
@@ -37,25 +35,15 @@ function extractFaqs(payload: unknown, locale: Locale): Faq[] {
     // issue 1585: a FAQ may carry question_<locale> for every app language (the built-in fallback does).
     const question = String(r[`question_${locale}`] ?? (isAr ? r.question_ar : r.question_en) ?? r.question_ar ?? r.question_en ?? r.question ?? "");
     const answer = String(r[`answer_${locale}`] ?? (isAr ? r.answer_ar : r.answer_en) ?? r.answer_ar ?? r.answer_en ?? r.answer ?? "");
-    return question ? [{ id: String(r.id ?? question), question, answer }] : [];
-  });
-}
-
-function extractTickets(payload: unknown): Ticket[] {
-  const root = asRecord(payload);
-  const values = Array.isArray(payload) ? payload : [root?.data, root?.requests, root?.items].find(Array.isArray);
-  if (!Array.isArray(values)) return [];
-  return values.flatMap((value) => {
-    const r = asRecord(value);
-    if (!r || !r.id) return [];
-    return [{ id: String(r.id), subject: String(r.subject ?? r.title ?? r.category ?? ""), status: String(r.status ?? "open") }];
+    const category = typeof r.category === "string" && r.category.trim() ? r.category.trim() : null;
+    return question ? [{ id: String(r.id ?? question), question, answer, category }] : [];
   });
 }
 
 /**
- * `/settings/help` (merge map section 3 and map 2 "Support"): three tabs, `?tab=faq|requests|feedback`. The FAQ
- * (GET /support/faqs) with the way to the support chat; the patient's requests (GET /support/requests/mine) with the form to
- * send one; and the feedback form. `/support` and `/settings/feedback` redirect here.
+ * `/settings/help` (merge map section 3 and map 2 "Support"), as the app's: two tabs, `?tab=faq|feedback`. The first has the
+ * ways to reach support (the chat, my requests, the support phone) and the FAQ (GET /support/faqs) with its category chips; the
+ * second is the feedback form. `/support` and `/settings/feedback` redirect here; an old `?tab=requests` opens the first tab.
  */
 export default async function SettingsHelpPage({ params, searchParams }: Props) {
   const { locale } = await params;
@@ -70,39 +58,14 @@ export default async function SettingsHelpPage({ params, searchParams }: Props) 
   const frame = (body: React.ReactNode) => (
     <ConsultPage locale={locale} title={t("helpTitle")} backHref={`/${locale}/settings`}>
       <HealthTabs label={t("helpTabs")} base={`/${locale}/settings/help`} active={tab} options={[
-        { value: "faq", label: t("tabFaq") }, { value: "requests", label: t("tabRequests") }, { value: "feedback", label: t("tabFeedback") },
+        { value: "faq", label: t("tabFaq") }, { value: "feedback", label: t("tabFeedback") },
       ]} />
       {body}
     </ConsultPage>
   );
   const failed = frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
 
-  if (tab === "feedback") return frame(<SectionCard id="feedback" title={t("fbTitle")}><FeedbackForm /></SectionCard>);
-
-  if (tab === "requests") {
-    const response = await callPatientApi("/support/requests/mine", {}, token);
-    if (response.status === 401) redirect(`/${locale}/login`);
-    if (!response.ok) return failed;
-    const tickets = extractTickets(await response.json().catch(() => null));
-    return frame(
-      <>
-        <SectionCard id="mine" title={t("requestsTitle")}>
-          {tickets.length === 0 ? <p className={`${forms.body} ${forms.muted}`}>{t("requestsEmpty")}</p> : (
-            <ul className={styles.list} aria-label={t("requestsTitle")}>
-              {tickets.map((ticket) => (
-                <li key={ticket.id} className={styles.itemRow}>
-                  <span className={styles.itemText}><span className={styles.itemTitle}>{ticket.subject || ticket.id}</span></span>
-                  <StatusChip label={ticket.status} tone="ink" />
-                </li>
-              ))}
-            </ul>
-          )}
-          <ButtonLink href={`/${locale}/support/ticket`} label={t("requestsAll")} variant="outline" fullWidth />
-        </SectionCard>
-        <SectionCard id="new" title={t("requestNewTitle")}><NewRequestForm /></SectionCard>
-      </>,
-    );
-  }
+  if (tab === "feedback") return frame(<SectionCard id="feedback" title={t("fbTitle")}><FeedbackForm doneHref={`/${locale}/settings`} /></SectionCard>);
 
   const response = await callPatientApi("/support/faqs", {}, token);
   if (response.status === 401) redirect(`/${locale}/login`);
@@ -117,19 +80,11 @@ export default async function SettingsHelpPage({ params, searchParams }: Props) 
       <SectionCard id="chat" title={t("chatTitle")}>
         <p className={forms.body}>{t("chatBody")}</p>
         <ButtonLink href={`/${locale}/support/chat`} label={t("chatOpen")} fullWidth />
+        <ButtonLink href={`/${locale}/support/ticket`} label={t("tabRequests")} variant="outline" fullWidth />
         {phone ? <ButtonLink href={`tel:${phone.replace(/[\s-]/g, "")}`} label={t("callSupport")} variant="outline" fullWidth /> : null}
       </SectionCard>
       <SectionCard id="faq" title={t("faqTitle")}>
-        {faqs.length === 0 ? <p className={`${forms.body} ${forms.muted}`}>{t("faqEmpty")}</p> : (
-          <div>
-            {faqs.map((faq) => (
-              <details key={faq.id} className={styles.faq}>
-                <summary><span>{faq.question}</span><Icon name="caret-down" size={16} tone="secondary" /></summary>
-                {faq.answer ? <p className={styles.faqAnswer}>{faq.answer}</p> : null}
-              </details>
-            ))}
-          </div>
-        )}
+        {faqs.length === 0 ? <p className={`${forms.body} ${forms.muted}`}>{t("faqEmpty")}</p> : <FaqList faqs={faqs} label={t("faqTitle")} />}
       </SectionCard>
     </>,
   );

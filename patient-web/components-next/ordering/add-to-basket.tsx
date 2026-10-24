@@ -4,11 +4,11 @@ import { useTranslations } from "next-intl";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import styles from "@/components-next/diagnostics/diag.module.css";
-import { hasLine } from "@/lib/ordering/basket";
+import { hasLine, type LineNames } from "@/lib/ordering/basket";
 import type { ServiceKind } from "@/lib/ordering/quote";
 import { useBasket } from "./use-basket";
 
-type Line = { id: string; nameAr?: string; nameEn?: string };
+type Line = { id: string; nameAr?: string; nameEn?: string; names?: LineNames };
 
 /** The "+" of a catalogue row: adds to / removes from the local basket (no backend call). */
 export function AddToBasketIcon({ kind, line, name }: { kind: ServiceKind; line: Line; name: string }) {

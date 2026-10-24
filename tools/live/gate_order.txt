@@ -41,6 +41,7 @@ j_doctor_photos
 j_web_home_nursing
 j_web_loyalty_locales
 j_web_assistant
+j_web_nursing_locales
 j_web_offline
 j_web_offers_waiting
 j_web_b0_public
@@ -75,9 +76,11 @@ j_admin_orders_export
 j_web_guest_services
 j_web_guest_services_2
 j_pharmacy_insurance_first
+j_web_diagnostics_locales
 j_services_content
 j_services_merged
 j_web_product_page
+j_web_unnamed_images
 j_web_search_suggest
 j_drug_index_access
 j_admin_provider_delete

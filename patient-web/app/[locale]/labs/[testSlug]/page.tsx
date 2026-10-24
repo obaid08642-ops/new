@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { BulletList, Facts, Hero, Notice, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
-import { LAB, RADIOLOGY, hoursText, minutesText, pickText } from "@/components-next/diagnostics/diag-parts";
+import { LAB, RADIOLOGY, hoursText, minutesText } from "@/components-next/diagnostics/diag-parts";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 import { AddToBasketButton } from "@/components-next/ordering/add-to-basket";
 import { BasketBar } from "@/components-next/ordering/basket-bar";
@@ -14,6 +14,9 @@ import { moneyText } from "@/lib/ordering/format";
 import { callPatientApi } from "@/lib/api/upstream";
 import { isLocale } from "@/lib/i18n";
 import { preparationFor } from "@/lib/ordering/item";
+import { extractLabServices, includedTestNames } from "@/lib/api/labs";
+import { getPublicLabServices } from "@/lib/api/labs-server";
+import { pickTexts } from "@/lib/i18n/localized";
 import { loadItem } from "@/lib/ordering/load-item";
 import { payOf, placeOf } from "@/lib/ordering/context";
 import { parseQuote, type Quote } from "@/lib/ordering/quote";
@@ -65,8 +68,11 @@ export default async function OrderingItemPage({ params, searchParams }: Props) 
     }
   }
 
-  const name = pickText(locale, item.nameAr, item.nameEn) ?? t("itemTitle");
-  const description = pickText(locale, item.descriptionAr, item.descriptionEn);
+  const name = pickTexts(locale, item.names ?? { ar: item.nameAr, en: item.nameEn }) ?? t("itemTitle");
+  const description = pickTexts(locale, item.descriptions ?? { ar: item.descriptionAr, en: item.descriptionEn });
+  // a package stores its tests as Arabic names or codes: shown in the page's language where the lab list knows them
+  const catalogue = item.isPackage && item.included.length > 0 ? await Promise.resolve().then(() => getPublicLabServices()).catch(() => null) : null;
+  const included = item.isPackage ? includedTestNames(locale, item.included, catalogue && catalogue.ok ? extractLabServices(await catalogue.json().catch(() => null)) : []) : [];
   const prep = preparationFor(locale, item);
   const tone = kind === "radiology" ? RADIOLOGY : kind === "nursing" ? NURSING : LAB;
   const group = quote?.groups[0] ?? null;
@@ -97,7 +103,7 @@ export default async function OrderingItemPage({ params, searchParams }: Props) 
       </SectionCard>
       {facts.length > 0 ? <SectionCard id="item-facts" title={t("secFacts")}><Facts rows={facts} label={t("secFacts")} /></SectionCard> : null}
       {item.isPackage && item.included.length > 0 ? (
-        <SectionCard id="item-included" title={t("pkgCount", { n: item.included.length })}><BulletList items={item.included} /></SectionCard>
+        <SectionCard id="item-included" title={t("pkgCount", { n: item.included.length })}><BulletList items={included} /></SectionCard>
       ) : null}
 
       <SectionCard id="item-price" title={t("secPrice")}>

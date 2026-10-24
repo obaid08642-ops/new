@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import { pickTexts } from "@/lib/i18n/localized";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractHomeCareBookings } from "@/lib/api/home-care";
 import { getPatientHomeCareBookings } from "@/lib/api/home-care-server";
@@ -82,7 +83,7 @@ export default async function HomeCarePage({ params, searchParams }: Props) {
               <PackageCard
                 key={item.id}
                 href={serviceHref(item.id)}
-                title={pickText(locale, item.nameAr, item.nameEn) ?? t("serviceUnavailable")}
+                title={pickTexts(locale, item.names) ?? t("serviceUnavailable")}
                 sub={item.duration}
                 price={item.price !== undefined ? money(locale, item.price) : undefined}
                 cta={t("bookCta")}
@@ -100,7 +101,7 @@ export default async function HomeCarePage({ params, searchParams }: Props) {
         <RowList label={t("servicesTitle")}>
           {services.map((item) => (
             <li key={item.id}>
-              <RowCard href={serviceHref(item.id)} icon={serviceIcon(item.id, item.category, item.nameAr, item.nameEn)} tone={NURSING.tone} title={pickText(locale, item.nameAr, item.nameEn) ?? t("serviceUnavailable")} sub={item.price !== undefined ? money(locale, item.price) : undefined} caret={caret} />
+              <RowCard href={serviceHref(item.id)} icon={serviceIcon(item.id, item.category, item.nameAr, item.nameEn)} tone={NURSING.tone} title={pickTexts(locale, item.names) ?? t("serviceUnavailable")} sub={item.price !== undefined ? money(locale, item.price) : undefined} caret={caret} />
             </li>
           ))}
         </RowList>
@@ -170,7 +171,7 @@ async function GuestHomeCare({ locale }: { locale: Locale }) {
                 href={`/${locale}/home-care/services/${encodeURIComponent(item.id)}`}
                 icon={serviceIcon(item.id, item.category, item.nameAr, item.nameEn)}
                 tone={NURSING.tone}
-                title={pickText(locale, item.nameAr, item.nameEn) ?? t("serviceUnavailable")}
+                title={pickTexts(locale, item.names) ?? t("serviceUnavailable")}
                 sub={item.price !== undefined ? money(locale, item.price) : undefined}
                 caret={caret}
               />

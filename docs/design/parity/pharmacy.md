@@ -3,14 +3,16 @@
 Audit: `docs/review/walkthrough/parity-pharmacy.md` (2026-10-16, 38 rows). Verified against `main` on 2026-10-23 and fixed on branch `design/parity-pharmacy`.
 Needs-review lines for the blocked rows: `docs/design/needs-review/parity-pharmacy.json`.
 
-Result: 38 rows = 7 already fixed or not a gap, 22 fixed now (rows 34 and 36 only in part), 9 blocked (rows 4, 8, 14, 24, 25, 26, 27, 37, 38). The blocked parts of rows 34 (quantity) and 36 (arrival time, tax) are in the needs-review file too. Blocked by class: different 2 (4, 8), missing 7 (14, 24, 25, 26, 27, 37, 38). Blocked by cause: backend 6 (24, 25, 26, 27, 37, 38), owner 1 (8), new web feature 2 (4, 14).
+Round 2 (2026-10-23): row 14 fixed; row 4 reclassified [owner]. Now 23 fixed, 8 blocked (4, 8, 24, 25, 26, 27, 37, 38) plus the partial parts of 34 and 36.
+
+Result (round 1): 38 rows = 7 already fixed or not a gap, 22 fixed now (rows 34 and 36 only in part), 9 blocked (rows 4, 8, 14, 24, 25, 26, 27, 37, 38). The blocked parts of rows 34 (quantity) and 36 (arrival time, tax) are in the needs-review file too. Blocked by class: different 2 (4, 8), missing 7 (14, 24, 25, 26, 27, 37, 38). Blocked by cause: backend 6 (24, 25, 26, 27, 37, 38), owner 1 (8), new web feature 2 (4, 14).
 
 | # | screen | element | status | note |
 |---|---|---|---|---|
 | 1 | /cart | remove one line | already fixed | per-line trash button (`cart-screen.tsx`, `removeLine`) |
 | 2 | /cart/checkout | payment method choice | no gap | the app's checkout (`patient-app/app/pharmacy/checkout.tsx`) has the same cash/insurance segmented; the audit row was wrong. Where coverage is chosen is an owner question, see row 8 |
 | 3 | /cart/checkout | pickup note | fixed now | `PharmacyCheckout.pickupNote`; the address card stays, as in the app (pickup still uses the location) |
-| 4 | /cart/checkout | change delivery location (map) | blocked [client, new component] | no web map picker exists; needs-review |
+| 4 | /cart/checkout | change delivery location (map) | blocked [owner] | a web map picker is a new shared component, needs go-ahead and a board; needs-review |
 | 5 | rx-order photo/upload | privacy line | fixed now | `RxUpload.privacy` under the note field |
 | 6 | offers / broadcast-status | cancel while offers are listed | fixed now | `CancelOrder` under the offer list |
 | 7 | offers / broadcast-status | live refresh | fixed now | `OffersLiveRefresh` active for the whole search (15 s plus the refresh button) |
@@ -20,7 +22,7 @@ Result: 38 rows = 7 already fixed or not a gap, 22 fixed now (rows 34 and 36 onl
 | 11 | payment | order header card | fixed now | order number, pharmacy name, address or the pickup line |
 | 12 | payment | started but no provider page | fixed now | the transaction is kept; link to `/payments/result?orderId&ref` |
 | 13 | tracking | chat with the pharmacy | fixed now | outline button to `/pharmacy/chat?orderId` |
-| 14 | tracking | rate after delivery | blocked [client, new feature] | no review-create screen on the web for any service; needs-review |
+| 14 | tracking | rate after delivery | fixed now (round 2) | outline button on a delivered/completed order to `/reviews?booking_kind=pharmacy&booking_id=`; the reviews page shows the shared rating form (`PostCallRatingForm` now takes `bookingKind`) sent to `POST /patient-ux/review` |
 | 15 | tracking | old-flow order fallback | fixed now | `GET /orders/:id/tracking` when the governed read answers 404 |
 | 16 | tracking | pickup order summary | fixed now | pickup / home delivery wording from the order's fulfillment |
 | 17 | /orders | service filter | fixed now | `Chip` per service present, after All |

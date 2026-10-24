@@ -7,6 +7,7 @@ import { isLocale } from "@/lib/i18n";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { Group } from "@/components-next/settings/settings-kit";
+import { BrowserPushAsk } from "@/components-next/settings/browser-push-ask";
 import { SwitchList, type SwitchRow } from "@/components-next/settings/switch-list";
 import styles from "@/components-next/settings/settings.module.css";
 
@@ -50,6 +51,7 @@ export default async function SettingsNotificationsPage({ params }: Props) {
 
   return (
     <ConsultPage locale={locale} title={t("title")} backHref={back}>
+      <BrowserPushAsk />
       {categories.length + channels.length === 0 ? <p className={styles.hint} role="status">{t("unavailable")}</p> : null}
       {categories.length > 0 ? <Group id="categories" title={t("notifications")}><SwitchList kind="notifications" label={t("notifications")} rows={categories} /></Group> : null}
       {channels.length > 0 ? <Group id="channels" title={t("channels")}><SwitchList kind="notifications" label={t("channels")} rows={channels} /></Group> : null}
