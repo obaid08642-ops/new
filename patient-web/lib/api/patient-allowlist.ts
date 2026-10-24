@@ -44,6 +44,8 @@ const patientReadRoutes = [
   new RegExp("^/providers/map$", "i"),
   new RegExp("^/users/me/profile$"),
   new RegExp("^/users/me/notification-settings$"),
+  // The home bell: backend GET /notifications/unread-count.
+  new RegExp("^/notifications/unread-count$"),
   new RegExp(`^/unified-bookings/consultation/${orderId}$`, "i"),
   new RegExp(`^/care/appointments/${orderId}$`, "i"),
   new RegExp("^/health/score$"),

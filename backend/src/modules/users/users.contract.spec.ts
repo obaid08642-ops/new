@@ -20,6 +20,7 @@ describe('Users notification/session contract bridge', () => {
     await expect(service.getNotificationSettings('patient-1')).resolves.toEqual({
       channels: { push: false, email: false, sms: false },
       categories: { appointments: true, orders: true, health: true, chat: false, account: true, marketing: false },
+      preferences: { general: true, offers: true, medications: true, doctorMessages: true, emergency: true, sound: true, vibration: true, appointments: true, orders: true },
     });
   });
 
@@ -31,6 +32,7 @@ describe('Users notification/session contract bridge', () => {
     })).resolves.toEqual({
       channels: { push: true, email: true, sms: true },
       categories: { appointments: true, orders: true, health: true, chat: false, account: true, marketing: true },
+      preferences: { general: true, offers: true, medications: true, doctorMessages: true, emergency: true, sound: true, vibration: true, appointments: true, orders: true },
     });
 
     expect(service.patientRepository.updateOne).toHaveBeenCalledWith(
@@ -38,6 +40,17 @@ describe('Users notification/session contract bridge', () => {
       { $set: { notification_settings: expect.objectContaining({ channels: expect.objectContaining({ email: true }) }) } },
       { upsert: true },
     );
+  });
+
+  it('stores the flat switches: appointments/orders write the category, the rest are preferences, emergency cannot be turned off', async () => {
+    const service = serviceFor();
+    const out: any = await service.updateNotificationSettings('patient-1', { orders: false, general: false, doctorMessages: false, sound: false });
+    expect(out.categories.orders).toBe(false);
+    expect(out.preferences).toMatchObject({ general: false, doctorMessages: false, sound: false, vibration: true, orders: false, emergency: true });
+    const saved = (service as any).patientRepository.updateOne.mock.calls[0][1].$set.notification_settings;
+    expect(saved.preferences).toEqual({ general: false, offers: true, medications: true, doctorMessages: false, emergency: true, sound: false, vibration: true });
+    await expect(service.updateNotificationSettings('patient-1', { emergency: false })).rejects.toThrow('emergency_alerts_cannot_be_disabled');
+    await expect(service.updateNotificationSettings('patient-1', { sound: 'no' })).rejects.toThrow(BadRequestException);
   });
 
   it('rejects unknown keys, NoSQL paths, and non-boolean values', async () => {
