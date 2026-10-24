@@ -70,3 +70,21 @@
 .optionBtn[aria-pressed="true"] { border-color: var(--nabd-color-action-selected-bg); }
 .warnBox { padding: 10px 12px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-status-warning-bg); color: var(--nabd-color-status-warning-fg); font-size: var(--nabd-font-size-label); line-height: 1.7; }
 .danger { background: var(--nabd-color-status-danger-bg); color: var(--nabd-color-status-danger-fg); border-color: transparent; }
+/* Ord11 result rows */
+.items > li.resultRow { flex-direction: column; align-items: stretch; gap: 6px; padding-block: 12px; border-block-end: 1px solid var(--nabd-color-border-subtle); min-inline-size: 0; }
+.resultHead { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-inline-size: 0; }
+.resultValue { font-size: var(--nabd-font-size-h3); font-weight: 700; font-variant-numeric: tabular-nums; }
+.resultValue small { font-size: var(--nabd-font-size-label); font-weight: 500; color: var(--nabd-color-text-secondary); }
+.flag { padding: 2px 10px; border-radius: var(--nabd-radius-pill); font-size: var(--nabd-font-size-label); font-weight: 600; white-space: nowrap; }
+.flagOk { background: var(--nabd-color-status-success-bg); color: var(--nabd-color-status-success-fg); }
+.flagLow { background: var(--nabd-color-status-warning-bg); color: var(--nabd-color-status-warning-fg); }
+.flagHigh { background: var(--nabd-color-status-danger-bg); color: var(--nabd-color-status-danger-fg); }
+.rangeSvg { display: block; inline-size: 100%; block-size: 14px; }
+html[dir="rtl"] .rangeSvg { transform: scaleX(-1); }
+.rangeTrackFill { fill: var(--nabd-color-bg-sunken); }
+.rangeBandFill { fill: var(--nabd-color-status-success-fg); opacity: 0.35; }
+.markerOk { fill: var(--nabd-color-status-success-fg); }
+.markerOut { fill: var(--nabd-color-status-danger-fg); }
+.trend { display: flex; flex-direction: column; gap: 4px; color: var(--nabd-color-text-secondary); }
+.trendSvg { inline-size: 100%; block-size: 40px; color: var(--nabd-color-action-primary-bg); }
+html[dir="rtl"] .trendSvg { transform: scaleX(-1); }

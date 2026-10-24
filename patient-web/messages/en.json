@@ -4677,6 +4677,12 @@
     "secTurn": "Result time",
     "secSample": "Sample",
     "providers": "{m} providers fit your context",
+    "fromLine": "From {p} · {m} providers",
+    "sample_blood": "Blood",
+    "sample_semen": "Semen",
+    "sample_stool": "Stool",
+    "sample_swab": "Swab",
+    "sample_urine": "Urine",
     "homeFeeNote": "The price includes the visit fee because you chose \"At home\"",
     "covNote": "Coverage and share are estimates. The final share comes with the approval",
     "covYes": "Covered",
@@ -4979,7 +4985,8 @@
     "resInRange": "In range",
     "resHigh": "Above range",
     "resLow": "Below range",
-    "resDiscuss": "Discuss with a doctor"
+    "resDiscuss": "Discuss with a doctor",
+    "resTrend": "Trend across your results"
   },
   "InstantConsult": {
     "title": "Instant consultation",

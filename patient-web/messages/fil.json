@@ -4677,6 +4677,12 @@
     "secTurn": "Oras ng resulta",
     "secSample": "Ispesimen",
     "providers": "{m} provider ang akma sa konteksto mo",
+    "fromLine": "Mula {p} · {m} provider",
+    "sample_blood": "Dugo",
+    "sample_semen": "Semilya",
+    "sample_stool": "Dumi",
+    "sample_swab": "Pamunas",
+    "sample_urine": "Ihi",
     "homeFeeNote": "Kasama sa presyo ang bayad sa pagbisita dahil pinili mo ang \"Sa bahay\"",
     "covNote": "Tinatayang coverage at bahagi. Ang pinal na bahagi ay kasama ng approval",
     "covYes": "Sakop",
@@ -4979,7 +4985,8 @@
     "resInRange": "Nasa saklaw",
     "resHigh": "Higit sa saklaw",
     "resLow": "Mas mababa sa saklaw",
-    "resDiscuss": "Talakayin sa doktor"
+    "resDiscuss": "Talakayin sa doktor",
+    "resTrend": "Takbo ng iyong mga resulta"
   },
   "InstantConsult": {
     "title": "Instant na konsultasyon",
