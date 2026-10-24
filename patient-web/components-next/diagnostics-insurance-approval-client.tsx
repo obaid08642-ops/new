@@ -7,6 +7,7 @@ import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import { formatPrice, formatNumber } from "@/lib/format-price";
+import { pickTexts, textsOf } from "@/lib/i18n/localized";
 import consult from "@/components-next/consult/consult.module.css";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/diagnostics/diag.module.css";
@@ -23,7 +24,7 @@ const INSURANCE = SERVICE_ICONS.insurance;
 /** The message keys of the errors this screen shows (the text is looked up where it is drawn, so the polling callback does not depend on the translator). */
 const ERROR = { load: "approvalLoadFailed", connection: "connectionFailed", choice: "approvalChoiceFailed" } as const;
 
-function parseOrder(payload: unknown): OrderState | null {
+function parseOrder(payload: unknown, locale: string): OrderState | null {
   if (!payload || typeof payload !== "object") return null;
   const root = payload as Record<string, unknown>;
   const r = (root.data && typeof root.data === "object" ? root.data : root) as Record<string, unknown>;
@@ -32,7 +33,7 @@ function parseOrder(payload: unknown): OrderState | null {
     if (!it || typeof it !== "object") return [];
     const o = it as Record<string, unknown>;
     const id = typeof o.service_id === "string" ? o.service_id : typeof o.id === "string" ? o.id : null;
-    const name = typeof o.name_ar === "string" ? o.name_ar : typeof o.name_en === "string" ? o.name_en : typeof o.name === "string" ? o.name : null;
+    const name = pickTexts(locale, textsOf(o, "name")) ?? (typeof o.name === "string" ? o.name : null);
     if (!id || !name) return [];
     const covered = o.isCovered === true;
     return [{
@@ -69,11 +70,11 @@ export function DiagnosticsInsuranceApprovalClient({ orderId, labName, visitType
     try {
       const res = await fetch(`/api/patient/labs/bookings/${encodeURIComponent(orderId)}`, { cache: "no-store", credentials: "same-origin" });
       if (!res.ok) { setError(ERROR.load); return; }
-      const parsed = parseOrder(await res.json().catch(() => null));
+      const parsed = parseOrder(await res.json().catch(() => null), locale);
       if (!parsed) { setError(ERROR.load); return; }
       setOrder(parsed); setError(null);
     } catch { setError(ERROR.connection); }
-  }, [orderId]);
+  }, [orderId, locale]);
 
   useEffect(() => {
     load();

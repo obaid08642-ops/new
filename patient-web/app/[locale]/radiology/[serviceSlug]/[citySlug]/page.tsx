@@ -12,6 +12,7 @@ import { findCatalogItem } from "@/lib/api/catalog-lookup";
 import { extractRadiologyServices } from "@/lib/api/radiology";
 import { CardGrid, LandingEmpty, LandingPage, LandingSection, ServiceCard } from "@/components-next/landing/landing-kit";
 import { RADIOLOGY, money, pickText } from "@/components-next/diagnostics/diag-parts";
+import { pickTexts } from "@/lib/i18n/localized";
 
 type Props = { params: Promise<{ locale: string; serviceSlug: string; citySlug: string }> };
 
@@ -100,7 +101,7 @@ export default async function RadiologyCityPage({ params }: Props) {
                 <ServiceCard
                   icon={RADIOLOGY.icon}
                   tone={RADIOLOGY.tone}
-                  title={pickText(locale, service.nameAr, service.nameEn) ?? ""}
+                  title={pickTexts(locale, service.names) ?? ""}
                   chips={[service.modality, service.price !== undefined ? money(locale, service.price) : undefined].filter((chip): chip is string => Boolean(chip))}
                   actionHref={`/${locale}/diagnostics/radiology`}
                   actionLabel={t("radiology.book")}

@@ -7,10 +7,11 @@ import { localizedUrl } from "@/lib/seo";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import consult from "@/components-next/consult/consult.module.css";
-import { CheckField, RADIOLOGY, RadiologyTile, SearchForm, hoursText, minutesText, money, pickText, type Tag } from "@/components-next/diagnostics/diag-parts";
+import { CheckField, RADIOLOGY, RadiologyTile, SearchForm, hoursText, minutesText, money, type Tag } from "@/components-next/diagnostics/diag-parts";
 import styles from "@/components-next/diagnostics/diag.module.css";
 import type { Metadata } from "next";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
+import { pickTexts } from "@/lib/i18n/localized";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<Record<string, string | string[] | undefined>> };
 
@@ -105,7 +106,7 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
               service.durationMinutes !== undefined ? minutesText(locale, service.durationMinutes) : undefined,
               service.turnaroundHours !== undefined ? w("resultWithin", { time: hoursText(locale, service.turnaroundHours) }) : undefined,
             ].filter(Boolean).join(" · ");
-            return <RadiologyTile key={service.id} href={`/${locale}/diagnostics/radiology/${encodeURIComponent(service.id)}`} title={pickText(locale, service.nameAr, service.nameEn) ?? ""} sub={sub || undefined} tags={tags} imageUrl={service.imageUrl} />;
+            return <RadiologyTile key={service.id} href={`/${locale}/diagnostics/radiology/${encodeURIComponent(service.id)}`} title={pickTexts(locale, service.names) ?? ""} sub={sub || undefined} tags={tags} imageUrl={service.imageUrl} />;
           })}
         </ul>
       )}
