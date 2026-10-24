@@ -1891,6 +1891,7 @@
   },
   "PostCallRating": {
     "title": "قيّم استشارتك",
+    "rateTitle": "قيّم تجربتك",
     "subtitle": "تقييمك يساعدنا على تحسين جودة الرعاية.",
     "comment": "تعليق",
     "commentPh": "شاركنا ملاحظاتك (اختياري)",
@@ -2725,7 +2726,8 @@
     "chatPharmacist": "مراسلة الصيدلاني",
     "pickupLine": "استلام من الصيدلية",
     "deliveryLine": "توصيل للمنزل",
-    "legacyEta": "يصل خلال حوالي {minutes, number} دقيقة"
+    "legacyEta": "يصل خلال حوالي {minutes, number} دقيقة",
+    "rateOrder": "قيّم تجربتك مع الصيدلية"
   },
   "OrderReorder": {
     "title": "إعادة الطلب",
