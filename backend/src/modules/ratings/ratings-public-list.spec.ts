@@ -13,7 +13,7 @@ describe('public provider reviews', () => {
     const svc: any = Object.create(RatingsService.prototype);
     svc.conn = { collection: () => ratings };
     const out = await svc.forProvider('p1');
-    expect(out.data).toEqual([{ score: 4, comment: 'Good', createdAt: row.createdAt, reviewer: 'Omar' }]);
+    expect(out.data).toEqual([{ score: 4, comment: 'Good', createdAt: row.createdAt, reviewer: 'Omar S.', sub_ratings: null }]);
     expect(projection).toMatchObject({ score: 1, comment: 1, createdAt: 1, user_name: 1 });
     expect(projection).not.toHaveProperty('user_id');
     expect(out).toMatchObject({ total: 1, avg: 4, count: 1 });

@@ -86,6 +86,8 @@ export enum Permission {
   NOTIFICATIONS_SEND = 'notifications.send',
   INSURANCE_MANAGE = 'insurance.manage',
   SUPPORT_MANAGE = 'support.manage',
+  /** Approve or reject written patient reviews before they appear on a provider's public profile (2026-10-24). */
+  REVIEWS_MODERATE = 'reviews.moderate',
   CRM_MANAGE = 'crm.manage',
   // 20.3: read-only view of the stored warn/error log lines (/admin/logs)
   SYSTEM_LOGS_VIEW = 'system.logs.view',
@@ -160,6 +162,7 @@ export const PERMISSION_LABELS_AR: Record<string, string> = {
   [Permission.NOTIFICATIONS_SEND]: 'إرسال الإشعارات والحملات',
   [Permission.INSURANCE_MANAGE]: 'إدارة التأمين والمطالبات',
   [Permission.SUPPORT_MANAGE]: 'إدارة الدعم والمكالمات',
+  [Permission.REVIEWS_MODERATE]: 'مراجعة تقييمات المرضى المكتوبة',
   [Permission.CRM_MANAGE]: 'إدارة شرائح العملاء',
   [Permission.SYSTEM_LOGS_VIEW]: 'عرض سجلات النظام (قراءة فقط)',
   [Permission.MEDICAL_ACCESS_LOG_VIEW]: 'عرض سجل الاطلاع على السجلات الطبية (قراءة فقط)',
