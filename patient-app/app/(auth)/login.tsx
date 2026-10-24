@@ -55,9 +55,10 @@ export default function LoginScreen() {
       setErrorMessage('auth.err.identifier');
       return;
     }
-    if (!password || password.length < 6) { 
-      setErrorMessage('auth.err.passwordShort'); 
-      return; 
+    // sign-in only needs a password: accounts made under the old 6-character rule must still get in
+    if (!password) {
+      setErrorMessage('auth.err.checkData');
+      return;
     }
     
     setLoading(true);
@@ -72,6 +73,12 @@ export default function LoginScreen() {
         // M1: backend returns { user, token: { accessToken, refreshToken } }
       const session = await startSession(res, dispatch);
 
+      if (!session.ok && session.reason === 'not_patient') {
+        // a provider account on the patient app: no patient session (nothing was stored), only the page that says where to go
+        router.replace('/(auth)/provider-info' as any);
+        setLoading(false);
+        return;
+      }
       if (!session.ok && session.reason === 'not_stored') {
         setErrorMessage('auth.err.notStored');
         setLoading(false);
@@ -92,11 +99,7 @@ export default function LoginScreen() {
       setAttempts(0);
       setLockoutUntil(null);
 
-      if (session.role !== 'patient') {
-        router.replace('/(auth)/provider-info' as any);
-      } else {
-        router.replace('/(tabs)');
-      }
+      router.replace('/(tabs)');
     } catch (err: any) { 
       setErrorMessage(serverMessage(err, 'auth.err.loginFailed'));
       setAttempts(prev => {

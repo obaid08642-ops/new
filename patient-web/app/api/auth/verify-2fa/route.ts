@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { setSessionCookies } from "@/lib/auth/cookies";
+import { isNonPatientRole, wrongAppResponse } from "@/lib/auth/wrong-app";
 import { callPatientApi } from "@/lib/api/upstream";
 import { boundedUpstreamError } from "@/lib/api/error-response";
 
@@ -12,6 +13,7 @@ export async function POST(request: Request) {
   const upstream = await callPatientApi("/auth/login/verify-2fa", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(input.data) });
   const data = await upstream.json().catch(() => null);
   if (!upstream.ok) return boundedUpstreamError(data, "verification_failed", upstream.status);
+  if (isNonPatientRole(data)) return wrongAppResponse();
   const tokens = tokenPair(data);
   if (!tokens) return NextResponse.json({ message: "unexpected_auth_response" }, { status: 502 });
   const response = NextResponse.json({ authenticated: true });

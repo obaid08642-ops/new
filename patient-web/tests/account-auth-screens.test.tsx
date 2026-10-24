@@ -30,7 +30,7 @@ describe("account and sign-in screens", () => {
   it("the register form asks for the password twice", () => {
     const html = renderToStaticMarkup(<RegisterForm locale="en" />);
     expect(html).toContain("Confirm password");
-    expect(html).toContain("At least 10 characters");
+    expect(html).toContain("At least 8 characters");
   });
 
   it("the session list marks this device and asks nothing until a session is ended", () => {

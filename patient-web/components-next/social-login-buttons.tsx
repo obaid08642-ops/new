@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -8,10 +8,10 @@ import { getStableDeviceId } from "@/lib/auth/device-id";
 import { announceSignedIn } from "@/lib/auth/session-identity";
 import styles from "./auth/auth.module.css";
 
-type Props = { locale: string };
+type Props = { locale: string; onWrongApp?: () => void };
 
 declare global {
-  interface Window { google?: any; apple?: any }
+  interface Window { AppleID?: { auth: { init(config: Record<string, unknown>): void; signIn(): Promise<{ authorization?: { id_token?: string }; user?: { email?: string; name?: { firstName?: string; lastName?: string } } }> } } }
 }
 
 function loadScript(src: string): Promise<void> {
@@ -24,62 +24,62 @@ function loadScript(src: string): Promise<void> {
   });
 }
 
+const APPLE_SDK = "https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js";
+
 /**
- * Real social + guest sign-in for the web patient app.
- * Google renders only when NEXT_PUBLIC_GOOGLE_CLIENT_ID is configured, and
- * exchanges the OAuth access token with the backend (which verifies it against
- * Google's userinfo endpoint). Guest sign-in is always available and reuses this
- * browser's guest account (one stable device id), landing on Home like /welcome does.
+ * Guest sign-in is always available. The only social sign-in on the web is Apple (owner decision 2026-10-24: X, Snapchat
+ * and Google are not offered); its button renders only when NEXT_PUBLIC_APPLE_CLIENT_ID (the Services ID) and
+ * NEXT_PUBLIC_APPLE_REDIRECT_URI are configured, and the identity token goes to the backend, which verifies it.
  */
-export function SocialLoginButtons({ locale }: Props) {
+export function SocialLoginButtons({ locale, onWrongApp }: Props) {
   const router = useRouter();
   const t = useTranslations("Login");
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
-  const tokenClient = useRef<any>(null);
+  const [ready, setReady] = useState(false);
+  const appleClientId = process.env.NEXT_PUBLIC_APPLE_CLIENT_ID || "";
+  const appleRedirect = process.env.NEXT_PUBLIC_APPLE_REDIRECT_URI || "";
+  const configured = Boolean(appleClientId && appleRedirect);
   const failedMessage = t("unavailable");
-  const googleMessage = t("googleUnavailable");
+  const appleMessage = t("appleUnavailable");
 
   useEffect(() => {
-    if (!googleClientId) return;
+    if (!configured) return;
     let cancelled = false;
-    loadScript("https://accounts.google.com/gsi/client")
+    loadScript(APPLE_SDK)
       .then(() => {
-        if (cancelled || !window.google?.accounts?.oauth2) return;
-        tokenClient.current = window.google.accounts.oauth2.initTokenClient({
-          client_id: googleClientId,
-          scope: "openid email profile",
-          callback: async (response: any) => {
-            if (!response?.access_token) { setError(failedMessage); setBusy(null); return; }
-            try {
-              const res = await fetch("/api/auth/social-login", {
-                method: "POST",
-                headers: { "content-type": "application/json", "x-nabd-device-id": getStableDeviceId() },
-                body: JSON.stringify({ provider: "google", token: response.access_token }),
-              });
-              if (!res.ok) throw new Error("social_failed");
-              announceSignedIn();
-              router.replace(`/${locale}/dashboard`); router.refresh();
-            } catch { setError(failedMessage); } finally { setBusy(null); }
-          },
-          // The popup was closed, blocked or could not open: the buttons must come back.
-          error_callback: (failure: { type?: string } | undefined) => {
-            setBusy(null);
-            if (failure?.type !== "popup_closed") setError(googleMessage);
-          },
-        });
+        if (cancelled || !window.AppleID) return;
+        window.AppleID.auth.init({ clientId: appleClientId, scope: "name email", redirectURI: appleRedirect, usePopup: true });
+        setReady(true);
       })
-      .catch(() => { if (!cancelled) setError(googleMessage); });
+      .catch(() => { if (!cancelled) setError(appleMessage); });
     return () => { cancelled = true; };
-  }, [googleClientId, locale, failedMessage, googleMessage, router]);
+  }, [configured, appleClientId, appleRedirect, appleMessage]);
 
-  function googleLogin() {
+  async function appleLogin() {
+    if (busy) return;
     setError(null);
-    // The script has not loaded (offline, blocked): say so instead of leaving the buttons disabled.
-    if (!tokenClient.current) { setError(googleMessage); return; }
-    setBusy("google");
-    try { tokenClient.current.requestAccessToken(); } catch { setBusy(null); setError(googleMessage); }
+    if (!ready || !window.AppleID) { setError(appleMessage); return; }
+    setBusy("apple");
+    try {
+      const result = await window.AppleID.auth.signIn();
+      const token = result.authorization?.id_token;
+      if (!token) throw new Error("apple_no_token");
+      const name = [result.user?.name?.firstName, result.user?.name?.lastName].filter(Boolean).join(" ");
+      const res = await fetch("/api/auth/social-login", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-nabd-device-id": getStableDeviceId() },
+        body: JSON.stringify({ provider: "apple", token, ...(result.user?.email ? { email: result.user.email } : {}), ...(name ? { name } : {}) }),
+      });
+      if (res.status === 403 && (await res.json().catch(() => null))?.message === "wrong_app") { onWrongApp?.(); return; }
+      if (!res.ok) throw new Error("social_failed");
+      announceSignedIn();
+      router.replace(`/${locale}/dashboard`); router.refresh();
+    } catch (failure) {
+      // Closing the Apple popup is a choice, not an error.
+      const code = (failure as { error?: string } | null)?.error;
+      if (code !== "popup_closed_by_user" && code !== "user_cancelled_authorize") setError(failedMessage);
+    } finally { setBusy(null); }
   }
 
   async function guestLogin() {
@@ -94,10 +94,10 @@ export function SocialLoginButtons({ locale }: Props) {
   }
 
   return <>
-    {googleClientId ? <>
+    {configured ? <>
       <div className={styles.divider}>{t("orContinueWith")}</div>
       <div className={styles.social} aria-label={t("otherWays")}>
-        <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={googleLogin}>Google</button>
+        <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={appleLogin}>{t("apple")}</button>
       </div>
     </> : null}
     <div className={styles.foot}>

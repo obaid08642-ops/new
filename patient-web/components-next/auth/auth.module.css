@@ -189,3 +189,4 @@
 }
 .permText { flex: 1; min-inline-size: 0; }
 .permTitle { margin: 0 0 2px; font-size: var(--nabd-font-size-body); font-weight: 700; }
+a.socialButton { display: flex; align-items: center; justify-content: center; text-decoration: none; min-block-size: 52px; }

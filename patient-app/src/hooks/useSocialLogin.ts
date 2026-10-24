@@ -70,9 +70,12 @@ export function useSocialLogin() {
       // both tokens go to secure storage only (never AsyncStorage) and the auth slice learns of the user: the same
       // session start as the password login
       const session = await startSession(res, dispatch);
+      if (!session.ok && session.reason === 'not_patient') {
+        router.replace('/(auth)/provider-info' as any);
+        return;
+      }
       if (!session.ok) throw new Error(session.reason);
-      if (session.role !== 'patient') router.replace('/(auth)/provider-info' as any);
-      else router.replace('/(tabs)');
+      router.replace('/(tabs)');
     } catch (_err) {
       setError(SOCIAL_FAILED);
     } finally {
