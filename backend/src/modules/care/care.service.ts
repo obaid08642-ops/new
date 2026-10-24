@@ -1,3 +1,5 @@
+import { averageWaitMinutes } from './wait-time';
+import { reviewerLabel } from '../ratings/reviewer-label';
 import { StorageService } from '../storage/storage.module';
 import { policyClass, policyCompanyKeys } from '../../common/insurance-policy';
 import { BadRequestException, Injectable, NotFoundException, Inject, Optional } from '@nestjs/common';
@@ -478,7 +480,7 @@ export class CareService {
     const doctorKeys = [obj.id, (doc as any).account_id, (doc as any).user_id].filter(Boolean).map(String);
     const db = this.providerModel.db;
     const rated: any[] = await db.collection('ratings')
-      .find({ provider_id: { $in: doctorKeys }, status: 'published' } as any, { projection: { _id: 0, score: 1, comment: 1, user_name: 1, createdAt: 1 } })
+      .find({ provider_id: { $in: doctorKeys }, status: 'published' } as any, { projection: { _id: 0, score: 1, comment: 1, user_name: 1, createdAt: 1, sub_ratings: 1 } })
       .sort({ createdAt: -1 }).limit(10).toArray();
     if (rated.length) {
       // The reviewer is shown by first name only: a public page never carries a patient's full name or account id.
@@ -486,7 +488,8 @@ export class CareService {
         rating: r.score,
         text: r.comment || '',
         date: r.createdAt || null,
-        reviewer: typeof r.user_name === 'string' && r.user_name.trim() ? r.user_name.trim().split(/\s+/)[0].slice(0, 30) : null,
+        reviewer: reviewerLabel(r.user_name),
+        sub_ratings: r.sub_ratings ?? null,
       }));
     } else {
       const reviews: any[] = await db.collection('reviews')
@@ -502,6 +505,11 @@ export class CareService {
       }));
     }
     obj.is_online = this.isOnlineDoc(doc, await this.onlineSet([doc]));
+    // Average clinic waiting time (check-in to start), only once there are enough completed clinic appointments.
+    try {
+      const done: any[] = await db.collection('appointments').find({ doctor_id: obj.id, status: 'COMPLETED', service_type: 'clinic' } as any, { projection: { _id: 0, state_history: 1 } }).sort({ completed_at: -1 }).limit(200).toArray();
+      obj.avg_wait_minutes = averageWaitMinutes(done);
+    } catch { obj.avg_wait_minutes = null; }
 
     // Real photos only (empty when the provider published none): toPublicDoctor already gives clinicPhotos as public
     // addresses; the raw clinic_images (private file ids) are not part of the public model
@@ -607,6 +615,8 @@ export class CareService {
       district: d.district || null,
       rating: d.rating_avg ?? d.rating ?? null,
       reviews_count: d.rating_count ?? d.reviews_count ?? 0,
+      // Averages of the published sub-ratings (doctor / clinic / waiting time); null until a patient has given one.
+      sub_ratings: { doctor: d.sub_ratings_avg?.doctor ?? null, clinic: d.sub_ratings_avg?.clinic ?? null, waiting: d.sub_ratings_avg?.waiting ?? null },
       bio: d.bio || null,
       languages: Array.isArray(d.languages) ? d.languages : [],
       accepts_insurance: Boolean(d.accepts_insurance),
