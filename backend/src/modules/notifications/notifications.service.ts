@@ -54,6 +54,11 @@ export class NotificationsService {
     if (!settings) return all;
     const category = String(n.title_key || '').startsWith('notif.chat_') ? 'chat' : NOTIFICATION_CATEGORY[String(n.type)] ?? null;
     if (category && settings.categories?.[category] === false) return { push: false, email: false };
+    // Design parity (#1819): the master switch, and the medication / doctor-message switches of the flat settings.
+    const prefs = settings.preferences || {};
+    if (prefs.general === false) return { push: false, email: false };
+    if (n.type === NotificationType.MEDICATION && prefs.medications === false) return { push: false, email: false };
+    if (category === 'chat' && prefs.doctorMessages === false) return { push: false, email: false };
     return { push: settings.channels?.push !== false, email: settings.channels?.email !== false };
   }
 
@@ -467,6 +472,17 @@ export class NotificationsService {
         web_path: target?.web_path ?? null,
       };
     });
+  }
+
+  /** The bell's number: notifications this user can see and has not read (the list's scope), not capped by the list window. */
+  async unreadCount(user: any): Promise<{ unread: number }> {
+    const unread = await this.model.countDocuments({
+      $and: [
+        { $or: [{ user_id: user.id }, { role: user.role }, { role: 'all' }] },
+        { read_by: { $ne: user.id } },
+      ],
+    });
+    return { unread: Number(unread) || 0 };
   }
 
   async markRead(id: string, user: any) {

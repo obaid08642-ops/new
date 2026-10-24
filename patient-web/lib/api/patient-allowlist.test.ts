@@ -27,6 +27,7 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiPath("/health/vitals-log")).toBe(true);
     expect(isAllowedPatientApiPath("/users/me/profile")).toBe(true);
     expect(isAllowedPatientApiPath("/users/me/notification-settings")).toBe(true);
+    expect(isAllowedPatientApiPath("/notifications/unread-count")).toBe(true);
     expect(isAllowedPatientApiPath("/users/me/wishlist")).toBe(true);
     expect(isAllowedPatientApiPath("/payments/pharmacy/91047ef2-ad36-422a-a184-629693e7c729/capabilities")).toBe(true);
     expect(isAllowedPatientApiPath("/pharmacy/chat/threads?order_id=91047ef2-ad36-422a-a184-629693e7c729")).toBe(true);
@@ -50,6 +51,9 @@ describe("patient API allowlist", () => {
     // the web checkout broadcast must use the /patient/pharmacy prefix; the bare path is not served
     expect(isAllowedPatientApiRequest("/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/submit", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest("/labs/bookings/91047ef2-ad36-422a-a184-629693e7c729/items/svc_cbc-1/opt-in-cash", "PATCH")).toBe(true);
+    expect(isAllowedPatientApiRequest("/labs/bookings/91047ef2-ad36-422a-a184-629693e7c729/cancel", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/radiology/bookings/91047ef2-ad36-422a-a184-629693e7c729/cancel", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/radiology/bookings/91047ef2-ad36-422a-a184-629693e7c729/state", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/offers/91047ef2-ad36-422a-a184-629693e7c729/select", "POST")).toBe(true);
     expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/insurance/co-pay/accept", "POST")).toBe(true);
     expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/payment", "POST")).toBe(false);
