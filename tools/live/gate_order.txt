@@ -48,6 +48,7 @@ j_web_b0_public
 j_provider_side_b
 j_admin_catalogue_fields
 j_web_cancel_home
+j_web_consult_locales
 j_manual_request
 j_pregnancy_weeks
 j_patient_flows_c
