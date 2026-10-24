@@ -16,7 +16,7 @@ describe("issue 430: Google sign-in can open its popup", () => {
   it("the opener policy allows popups and the policy names only Google's gsi path", () => {
     expect(read("next.config.ts")).toContain('"Cross-Origin-Opener-Policy", value: "same-origin-allow-popups"');
     const policy = contentSecurityPolicy(CSP_NONCE_PLACEHOLDER, false);
-    expect(policy).toContain("connect-src 'self' https://api.nabd.plus wss://live.nabd.plus https://cdn.nabd.plus https://accounts.google.com/gsi/");
+    expect(policy).toContain("connect-src 'self' https://api.nabd.plus wss://live.nabd.plus https://cdn.nabd.plus https://appleid.apple.com");
     expect(policy).not.toMatch(/accounts\.google\.com(?!\/gsi\/)/);
   });
 });

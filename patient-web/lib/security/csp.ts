@@ -59,13 +59,13 @@ export function contentSecurityPolicy(nonce: string, isDevelopment = process.env
     "frame-ancestors 'none'",
     "img-src 'self' data: https:",
     // issue 777: the map page embeds an OpenStreetMap view (https://www.openstreetmap.org/export/embed.html), whose tiles load from *.tile.openstreetmap.org
-    // issue 430: Google sign-in (Google Identity Services) draws its popup and button from accounts.google.com/gsi/
-    "frame-src 'self' https://www.openstreetmap.org https://accounts.google.com/gsi/",
-    `style-src 'self' 'nonce-${nonce}' https://accounts.google.com/gsi/style${isDevelopment ? " 'unsafe-inline'" : ""}`,
+    // Owner decision 2026-10-24: Apple is the only social sign-in on the web; its popup is a window, its script loads under 'strict-dynamic' and it talks to appleid.apple.com
+    "frame-src 'self' https://www.openstreetmap.org",
+    `style-src 'self' 'nonce-${nonce}'${isDevelopment ? " 'unsafe-inline'" : ""}`,
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' '${THEME_SCRIPT_HASH}'${isDevelopment ? " 'unsafe-eval'" : ""}`,
     // Decision 4 (2026-10-14): a LiveKit other than wss://live.nabd.plus (NABD_LIVEKIT_URL, e.g. the local one of
     // tools/live/start-livekit.sh) is allowed by its exact origin, read at request time like the call screens read it.
-    ["connect-src 'self' https://api.nabd.plus wss://live.nabd.plus https://cdn.nabd.plus https://accounts.google.com/gsi/", ...livekitConnectSources(), sentryIngestOrigin()].filter(Boolean).join(" "),
+    ["connect-src 'self' https://api.nabd.plus wss://live.nabd.plus https://cdn.nabd.plus https://appleid.apple.com", ...livekitConnectSources(), sentryIngestOrigin()].filter(Boolean).join(" "),
     "font-src 'self' data:",
     "media-src 'self' https:",
     "object-src 'none'",
