@@ -226,6 +226,52 @@ export function isMoving(status: string | undefined): boolean {
   return key !== "" && key !== "delivered" && key !== "completed" && key !== "cancelled";
 }
 
+/**
+ * An order of the old flow (`GET /orders/mine` rows: `state`, `items`): enough to list it like a pharmacy order. The app's
+ * order center lists these too; a row without an id is not an order.
+ */
+export function parseLegacyOrderRows(payload: unknown): OrderRow[] {
+  const root = record(payload);
+  const list = Array.isArray(payload) ? payload : [root?.data, root?.orders, root?.items].find(Array.isArray);
+  if (!Array.isArray(list)) return [];
+  return list.flatMap((entry): OrderRow[] => {
+    const row = record(entry);
+    const id = text(row?.id);
+    if (!row || !id) return [];
+    const total = num(row.total);
+    return [{
+      id,
+      status: (text(row.state) ?? text(row.status) ?? "pending").toLowerCase(),
+      createdAt: text(row.createdAt) ?? text(row.created_at),
+      itemCount: Array.isArray(row.items) && row.items.length > 0 ? row.items.length : undefined,
+      ...(total !== undefined && total > 0 ? { total } : {}),
+    }];
+  });
+}
+
+/** The tracking of an order of the old flow (`GET /orders/:id/tracking`), the app's readLegacyTracking. */
+export type LegacyTracking = { id: string; state: string; pharmacyName?: string; total?: number; courier?: { name: string; phone?: string }; etaMinutes?: number };
+
+export function parseLegacyTracking(payload: unknown): LegacyTracking | null {
+  const root = record(payload);
+  const source = record(root?.data) ?? root;
+  const id = text(source?.order_id);
+  const state = text(source?.state);
+  if (!source || !id || !state) return null;
+  const delivery = record(source.delivery);
+  const courierName = text(delivery?.courier_name);
+  const eta = num(delivery?.eta_minutes);
+  const total = num(source.total);
+  return {
+    id,
+    state: state.toLowerCase(),
+    pharmacyName: text(source.pharmacy_name),
+    total: total !== undefined && total > 0 ? total : undefined,
+    courier: courierName ? { name: courierName, phone: text(delivery?.courier_phone) } : undefined,
+    etaMinutes: eta !== undefined && eta > 0 ? Math.round(eta) : undefined,
+  };
+}
+
 /** A phone number the courier's call link may carry: digits and a leading +, nothing a link could smuggle in. */
 export function dialable(phone: string | undefined): string | undefined {
   if (!phone) return undefined;

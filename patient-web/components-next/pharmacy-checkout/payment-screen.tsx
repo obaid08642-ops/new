@@ -5,6 +5,7 @@ import { LinkEmptyState } from "@/components-next/pharmacy/link-empty-state";
 import { OFFER_TONES } from "@/components-next/pharmacy-offers/tones";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { parseOrderId } from "@/lib/api/orders";
+import { orderNumber, pharmacyDisplayName } from "@/lib/pharmacy/order-view";
 import type { Locale } from "@/lib/i18n";
 import { needsCapabilities, paymentPageState, type PaymentPageState } from "@/lib/pharmacy/payment-state";
 import type { FillIconName, ServiceTone } from "@/components-next/ui-generated/icons/fill";
@@ -64,6 +65,9 @@ export async function PaymentScreen({ locale, orderId }: { locale: Locale; order
         coverage={view.coverageMode === "insurance" ? "insurance" : "cash"}
         totals={view.totals}
         insurerShare={view.insurance?.insurerShare}
+        orderNumber={orderNumber(orderId)}
+        pickup={view.fulfillment === "pickup"}
+        pharmacy={pharmacyDisplayName(view.pharmacyNames, locale)}
         address={addressParts.length ? new Intl.ListFormat(locale, { type: "unit", style: "short" }).format(addressParts) : undefined}
       />
     );

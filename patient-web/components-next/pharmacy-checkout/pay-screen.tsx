@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { CoreShell } from "@/components-next/core/core-shell";
@@ -34,6 +35,11 @@ export type PayScreenProps = {
   totals?: { subtotal?: number; deliveryFee?: number; total?: number };
   insurerShare?: number;
   address?: string;
+  /** The short number of the order and whether it is collected at the pharmacy (then the address card gives way to the pickup line). */
+  orderNumber: string;
+  pickup?: boolean;
+  /** The filling pharmacy's name in the reader's language, when the server named one. */
+  pharmacy?: string;
 };
 
 /**
@@ -42,7 +48,7 @@ export type PayScreenProps = {
  * patient enters the card on the payment provider's own secure page. A second press while a request runs does nothing,
  * and the same idempotency key is reused until the server has answered.
  */
-export function PayScreen({ locale, orderId, amount, currency, methods, coverage, totals, insurerShare, address }: PayScreenProps) {
+export function PayScreen({ locale, orderId, amount, currency, methods, coverage, totals, insurerShare, address, orderNumber, pickup, pharmacy }: PayScreenProps) {
   const t = useTranslations("PharmacyCheckout");
   const offers = useTranslations("PharmacyOffers");
   const addressT = useTranslations("PharmacyAddress");
@@ -51,6 +57,8 @@ export function PayScreen({ locale, orderId, amount, currency, methods, coverage
   const { reset } = action;
   const [method, setMethod] = useState<PaymentMethodId>(methods[0]);
   const [handoff, setHandoff] = useState<"going" | "none" | null>(null);
+  // the payment the server started when it named no secure page: kept so the patient can check its status
+  const [startedTransaction, setStartedTransaction] = useState<string | null>(null);
 
   // coming back from the provider's page with the Back button restores this page from memory: it must be usable again
   useEffect(() => {
@@ -66,6 +74,7 @@ export function PayScreen({ locale, orderId, amount, currency, methods, coverage
   async function pay() {
     if (action.pending || handoff === "going") return;
     setHandoff(null);
+    setStartedTransaction(null);
     const result = await action.run(`pay:${method}`, `/api/payments/pharmacy/${encodeURIComponent(orderId)}/intent`, { method });
     if (!result) return;
     if (!result.ok) {
@@ -82,6 +91,11 @@ export function PayScreen({ locale, orderId, amount, currency, methods, coverage
       return;
     }
     // the server answered but named no secure page: nothing was paid and nothing is claimed
+    const started = transactionIdOf(result.data);
+    if (started) {
+      rememberPayment({ orderId, transactionId: started });
+      setStartedTransaction(started);
+    }
     setHandoff("none");
   }
 
@@ -102,17 +116,16 @@ export function PayScreen({ locale, orderId, amount, currency, methods, coverage
       <div className={rx.page}>
         <div className={rx.head}><h1 className={rx.title}>{t("paymentTitle")}</h1></div>
 
-        {address ? (
-          <section className={rx.card} aria-label={addressT("deliverTo")}>
-            <div className={rx.cardRow}>
-              <FIcon icon="map-pin" tone={PHARMACY_TONE} size={44} />
-              <div className={rx.cardBody}>
-                <span className={rx.cardLabel}>{addressT("deliverTo")}</span>
-                <span className={rx.cardValue} dir="auto">{address}</span>
-              </div>
+        <section className={rx.card} aria-label={t("orderCardTitle", { number: orderNumber })}>
+          <div className={rx.cardRow}>
+            <FIcon icon="package" tone={PHARMACY_TONE} size={44} />
+            <div className={rx.cardBody}>
+              <span className={rx.cardValue}><bdi>{t("orderCardTitle", { number: orderNumber })}</bdi></span>
+              {pharmacy ? <span className={rx.cardLabel} dir="auto" data-testid="pay-pharmacy">{pharmacy}</span> : null}
+              {pickup ? <span className={rx.cardLabel}>{t("orderPickup")}</span> : address ? <><span className={rx.cardLabel}>{addressT("deliverTo")}</span><span className={rx.cardValue} dir="auto">{address}</span></> : null}
             </div>
-          </section>
-        ) : null}
+          </div>
+        </section>
 
         {coverage === "insurance" ? (
           <section className={rx.card} aria-labelledby="pay-how">
@@ -156,6 +169,9 @@ export function PayScreen({ locale, orderId, amount, currency, methods, coverage
         {action.error ? <p className={ov.errorText} role="alert">{action.error === "generic" ? offers("paymentError") : offers(`errors.${action.error}`)}</p> : null}
         {handoff === "going" ? <p className={ov.okText} role="status">{offers("redirecting")}</p> : null}
         {handoff === "none" ? <p className={ov.errorText} role="alert">{offers("noRedirect")}</p> : null}
+        {handoff === "none" && startedTransaction ? (
+          <Link className={rx.textLink} href={`/${locale}/payments/result?orderId=${encodeURIComponent(orderId)}&ref=${encodeURIComponent(startedTransaction)}`}>{offers("checkPaymentStatus")}</Link>
+        ) : null}
 
         <div className={rx.deskActions}>{payButton}</div>
       </div>

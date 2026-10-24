@@ -17,7 +17,7 @@ import { getCancellationPolicy } from "@/lib/consult/cancellation-policy";
 import { readTelehealthConsent } from "@/lib/legal/telehealth-consent";
 import type { Metadata } from "next";
 
-type Props = { params: Promise<{ locale: string; doctorId: string }> };
+type Props = { params: Promise<{ locale: string; doctorId: string }>; searchParams?: Promise<{ service_type?: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, doctorId } = await params;
@@ -32,8 +32,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 /** Book a consultation (canvas/BookingConfirm): the doctor, the visit type, day, time and payment, and the confirm bar. */
-export default async function BookConsultationPage({ params }: Props) {
+export default async function BookConsultationPage({ params, searchParams }: Props) {
   const { locale, doctorId } = await params;
+  const initialType = (await searchParams)?.service_type;
   if (!isLocale(locale) || !parseDoctorId(doctorId).success) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("BookConsultation");
@@ -65,6 +66,7 @@ export default async function BookConsultationPage({ params }: Props) {
       doctorId={doctorId}
       locale={locale}
       doctor={doctor}
+      initialType={initialType}
       policy={policy}
       homeAddresses={homeAddresses}
       consent={await readTelehealthConsent(locale)}

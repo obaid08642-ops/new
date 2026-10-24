@@ -104,6 +104,7 @@ export async function DoctorsView({ params, searchParams }: Props) {
         </label>
         <Button type="submit" label={t("search")} size="lg" />
       </form>
+      <Link className={styles.activeFilterClear} href={`/${locale}/appointments`}>{c("actionMyAppointments")}</Link>
       {specialtyName ? (
         <div className={styles.activeFilter}>
           <StatusChip label={specialtyName} tone="blue" />

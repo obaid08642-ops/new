@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { LocalTrackPublication, Room, Track as TrackType } from "livekit-client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { Spinner } from "@/components-next/ui-generated/components/Spinner";
 import { CallMediaToggles, type CallMediaPending } from "@/components-next/consult/call-media-toggles";
@@ -22,7 +23,8 @@ type Labels = {
  * network switch (Wi-Fi to 4G) shows "reconnecting" while LiveKit resumes the same call; a poor connection drops to audio
  * only (no camera sent, no video received) with a way back to video; a dropped call offers the appointment's chat.
  */
-export function VideoRoomClient({ token, serverUrl, labels, chatHref }: { token: string; serverUrl: string; labels: Labels; chatHref?: string }) {
+export function VideoRoomClient({ token, serverUrl, labels, chatHref, ratingHref }: { token: string; serverUrl: string; labels: Labels; chatHref?: string; /** Where hanging up goes: the rating of the consultation (as the app). */ ratingHref?: string }) {
+  const router = useRouter();
   const localTile = useRef<HTMLDivElement>(null);
   const remoteTile = useRef<HTMLDivElement>(null);
   const roomRef = useRef<Room | null>(null);
@@ -120,7 +122,7 @@ export function VideoRoomClient({ token, serverUrl, labels, chatHref }: { token:
       setPending(null);
     }
   }
-  function leave() { void roomRef.current?.disconnect(); setState("ended"); }
+  function leave() { void roomRef.current?.disconnect(); setState("ended"); if (ratingHref) router.push(ratingHref); }
 
   return (
     <div className={styles.stack} data-call-state={state}>

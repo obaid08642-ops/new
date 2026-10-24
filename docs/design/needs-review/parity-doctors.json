@@ -1,0 +1,90 @@
+[
+  {
+    "batch": "parity-doctors",
+    "app": "patient-web",
+    "screen": "doctors list",
+    "element": "specialty chips with counts",
+    "file": "patient-web/app/[locale]/consultations/doctors/doctors-view.tsx",
+    "line": 108,
+    "found": "[client] chip row with counts not built: the static page cannot read the no-store specialties",
+    "suspect": "a cached specialties read would allow it",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-doctors",
+    "app": "patient-web",
+    "screen": "doctors list",
+    "element": "available-now badge",
+    "file": "patient-web/components-next/consult/doctor-list-card.tsx",
+    "line": 1,
+    "found": "[backend] public doctor payload has no is_online",
+    "suspect": "badge cannot be drawn",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-doctors",
+    "app": "patient-web",
+    "screen": "doctor detail",
+    "element": "reviews list",
+    "file": "patient-web/app/[locale]/consultations/doctors/[doctorId]/page.tsx",
+    "line": 85,
+    "found": "[backend] no reviews in the doctor payload",
+    "suspect": "reviews list and rating bars cannot be drawn",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-doctors",
+    "app": "patient-web",
+    "screen": "doctor detail",
+    "element": "education",
+    "file": "patient-web/app/[locale]/consultations/doctors/[doctorId]/page.tsx",
+    "line": 85,
+    "found": "[backend] no education field in the public doctor row",
+    "suspect": "info card lacks education",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-doctors",
+    "app": "patient-web",
+    "screen": "video call",
+    "element": "session start",
+    "file": "patient-web/app/[locale]/consultations/video-call/page.tsx",
+    "line": 22,
+    "found": "[owner] web joins by call-token, the app by /calls/initiate and /join",
+    "suspect": "two session contracts; decide which is canonical",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-doctors",
+    "app": "patient-web",
+    "screen": "incoming call",
+    "element": "incoming-call prompt",
+    "file": "patient-web/components-next/call-token-launcher.tsx",
+    "line": 14,
+    "found": "[backend] needs a real-time channel (socket/push) on the web",
+    "suspect": "no incoming prompt on the web",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-doctors",
+    "app": "patient-web",
+    "screen": "home visit tracking",
+    "element": "map, ETA, message",
+    "file": "patient-web/app/[locale]/consultations/home-visit-tracking/page.tsx",
+    "line": 20,
+    "found": "[backend] the appointment carries no doctor position or ETA",
+    "suspect": "no live map",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-doctors",
+    "app": "patient-web",
+    "screen": "doctor detail",
+    "element": "inline booking component",
+    "file": "patient-web/components-next/appointment-booking-form.tsx",
+    "line": 1,
+    "found": "[client] no longer used by any page; kept because acceptance/d-31 (reviewer-owned) imports it",
+    "suspect": "reviewer may delete both",
+    "review_status": "open"
+  }
+]

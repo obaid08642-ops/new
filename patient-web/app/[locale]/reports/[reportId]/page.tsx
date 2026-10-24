@@ -9,6 +9,9 @@ import { ConsultState } from "@/components-next/consult/consult-state";
 import { Hero, SectionCard } from "@/components-next/consult/consult-parts";
 import styles from "@/components-next/consult/consult.module.css";
 import { TEAL } from "@/lib/health/view";
+import { ShareButton } from "@/components-next/health/share-button";
+import { StatusChip } from "@/components-next/ui-generated/components/Controls";
+import health from "@/components-next/health/health.module.css";
 
 type Props = { params: Promise<{ locale: string; reportId: string }> };
 
@@ -45,9 +48,21 @@ export default async function ReportDetailPage({ params }: Props) {
   const issued = formatDate(locale, text(row.issued_at) ?? text(row.createdAt), { dateStyle: "full" });
   const body = text(row.body);
 
+  const type = text(row.report_type);
+  const critical = row.critical === true;
+  const hasContent = Boolean(body) || FIELDS.some((key) => text(row[key]));
+  const shareText = [title, issued, "", ...FIELDS.flatMap((key) => (text(row[key]) ? [`${r(`fields.${key}`)}: ${text(row[key])}`] : [])), ...(body ? ["", body] : [])].filter((line) => line !== null && line !== undefined).join("\n");
+
   return (
     <ConsultPage locale={locale} title={t("reportTitle")} backHref={back}>
       <Hero icon="file-text" tone={TEAL} title={title} sub={issued ?? undefined} />
+      {type || critical ? (
+        <div className={health.pills}>
+          {type ? <StatusChip label={type} tone="blue" /> : null}
+          {critical ? <StatusChip label={t("reportImportant")} tone="peach" /> : null}
+        </div>
+      ) : null}
+      {hasContent ? <ShareButton label={t("rxShare")} copiedLabel={t("shareCopied")} text={shareText} variant="outline" size="md" /> : <ConsultState kind="empty" icon="file-text" title={t("reportEmptyTitle")} body={t("reportEmptyBody")} />}
       {FIELDS.flatMap((key) => {
         const value = text(row[key]);
         return value ? [(

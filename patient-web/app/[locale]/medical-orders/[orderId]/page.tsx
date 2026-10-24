@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { callPatientApi } from "@/lib/api/upstream";
 import { isLocale } from "@/lib/i18n";
+import { loadItem } from "@/lib/ordering/load-item";
 import { formatDate } from "@/lib/format-date";
 import { groupFlowHref, orderOf, type MedicalOrderItem, type OrderGroupKey } from "@/lib/medical-orders/medical-orders";
 import { ConsultPage } from "@/components-next/consult/consult-page";
@@ -10,6 +11,7 @@ import { ConsultState } from "@/components-next/consult/consult-state";
 import { Hero, Notice, SectionCard } from "@/components-next/consult/consult-parts";
 import { OrderFormButton } from "@/components-next/medical-orders/order-form-button";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { pickText } from "@/components-next/diagnostics/diag-parts";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 import styles from "@/components-next/medical-orders/medical-orders.module.css";
 
@@ -40,8 +42,14 @@ export default async function MedicalOrderPage({ params, searchParams }: Props) 
   const self = `/${locale}/medical-orders/${encodeURIComponent(order.id)}`;
   const until = formatDate(locale, order.valid_until, { dateStyle: "medium" });
   const actionPath = (itemId: string, action: "order" | "defer") => `/api/medical-orders/${encodeURIComponent(order.id)}/items/${encodeURIComponent(itemId)}/${action}`;
-  // The order carries catalogue ids only, not names (needs-review): an item shows its group, and its sessions when it has a series.
-  const itemLabel = (item: MedicalOrderItem) => (item.sessions ? `${t("sessionsLabel")}: ${item.sessions}` : t(`group${capital(item.group)}`));
+  // The order carries catalogue ids only: the names come from the public catalogue reads (one per item); an unresolved item shows its group.
+  const KIND = { labs: "lab", radiology: "radiology", nursing: "nursing" } as const;
+  const found = await Promise.all(GROUPS.flatMap((g) => (order.groups[g]?.items ?? []).filter((i) => g !== "prescription").map(async (i) => [i.id, (await loadItem(KIND[i.group], i.catalog_id)).item] as const)));
+  const names = new Map(found.map(([id, it]) => [id, it ? pickText(locale, it.nameAr, it.nameEn) : null]));
+  const itemLabel = (item: MedicalOrderItem) => {
+    const name = names.get(item.id) ?? t(`group${capital(item.group)}`);
+    return item.sessions ? `${name} · ${t("sessionsLabel")}: ${item.sessions}` : name;
+  };
 
   return (
     <ConsultPage locale={locale} title={t("detailTitle")} backHref={backHref}>

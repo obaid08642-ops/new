@@ -9,6 +9,7 @@ import { CoreShell } from "@/components-next/core/core-shell";
 import { RetryErrorState } from "@/components-next/core/core-states";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import { ShareButton } from "@/components-next/health/share-button";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { RxMedicineList } from "@/components-next/pharmacy/rx-medicines";
 import { prescriptionStateTone } from "@/components-next/pharmacy/rx-state";
@@ -35,11 +36,12 @@ export default async function PrescriptionDetailPage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("Prescriptions");
   const flow = await getTranslations("PharmacyFlow");
+  const hw = await getTranslations("HealthWeb");
   const token = await requirePatientAccess(locale);
   const response = await callPatientApi(`/prescriptions/${encodeURIComponent(prescriptionId)}`, {}, token);
   if (response.status === 401) redirect(`/${locale}/login`);
   if (response.status === 403 || response.status === 404) notFound();
-  const back = `/${locale}/prescriptions`;
+  const back = `/${locale}/health/records?tab=prescriptions`;
   const detail = response.ok ? extractPrescriptionDetail(await response.json().catch(() => null)) : null;
 
   if (!detail) {
@@ -98,6 +100,13 @@ export default async function PrescriptionDetailPage({ params }: Props) {
           <ButtonLink href={`/${locale}/cart/checkout?prescriptionId=${encodeURIComponent(detail.id)}`} label={t("orderCta")} fullWidth />
         ) : null}
         {!orderable ? <p className={rx.note} role="status">{t("notOrderable")}</p> : null}
+        <ShareButton
+          label={hw("rxShare")}
+          copiedLabel={hw("shareCopied")}
+          variant="outline"
+          size="md"
+          text={[hw("rxShareTitle", { doctor: detail.doctorName ?? "" }), issued ?? "", "", `${hw("rxMedicines")}:`, ...(detail.items.length ? detail.items.map((item) => `- ${[item.name, item.dose].filter(Boolean).join(" · ")}`) : ["—"])].join("\n")}
+        />
         <ButtonLink href={back} label={t("back")} variant="ghost" size="md" />
       </div>
     </CoreShell>
