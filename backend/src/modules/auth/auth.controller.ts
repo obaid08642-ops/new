@@ -54,11 +54,11 @@ import { IsString, IsOptional, MinLength } from 'class-validator';
 import { UserRole } from '../../common/enums';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
-class RegisterDto {
+export class RegisterDto {
   // Legacy registration payload.
   @IsOptional() @IsString() full_name?: string;
   @IsOptional() @IsString() phone?: string;
-  @IsString() @MinLength(6) password: string;
+  @IsString() @MinLength(8) password: string;
   @IsOptional() @IsString() email?: string;
   @IsOptional() @IsString() role?: UserRole;
   /** F63: OTP code proving ownership of the phone/email (else a prior verified marker is required). */
@@ -92,14 +92,14 @@ class PatientSessionExchangeDto {
 class PatientForgotPasswordDto {
   @IsString() identifier: string;
 }
-class PatientResetPasswordDto {
+export class PatientResetPasswordDto {
   @IsString() reset_token: string;
   @IsString() @MinLength(8) new_password: string;
 }
-class ConvertGuestDto {
+export class ConvertGuestDto {
   @IsString() full_name: string;
   @IsString() phone: string;
-  @IsString() @MinLength(6) password: string;
+  @IsString() @MinLength(8) password: string;
   @IsOptional() @IsString() email?: string;
 }
 

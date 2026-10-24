@@ -13,13 +13,13 @@ import {
   Chip,
   Input,
   IconButton,
-  DoctorCard,
 } from "../../../src/components/ui";
 import { apiFetch } from "../../../src/utils/api";
 import { pickLocalized } from '../../../src/utils/localize';
 import { autoTranslate } from '../../../src/i18n';
 import { dateLocaleFor } from '../../../src/utils/dates';
-import { DOCTOR_SORTS, doctorRows, doctorsQuery, sortFromParam, type DoctorSort } from '../../../src/utils/doctorSearch';
+import { DoctorListCard } from '../consult/DoctorListCard';
+import { DOCTOR_GENDERS, DOCTOR_SORTS, doctorRows, doctorsQuery, sortFromParam, type DoctorGender, type DoctorSort } from '../../../src/utils/doctorSearch';
 import { GuaranteeLine, useLateGuarantee } from '../../../src/components/consult/Differentiators';
 import { suggestionRoute } from '../../../src/utils/searchSuggest';
 import { useSearchSuggest } from '../../../src/hooks/useSearchSuggest';
@@ -38,15 +38,16 @@ export default function DoctorSearchView() {
   const suggest = useSearchSuggest(query, lang);
   // a "book now" entry arrives with ?sort=available_today (owner decision 2026-10-24)
   const [sort, setSort] = useState<DoctorSort>(sortFromParam(params.sort) ?? "rating");
+  const [gender, setGender] = useState<DoctorGender | 'any'>('any');
   const guarantee = useLateGuarantee();
   const [doctors, setDoctors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchDoctors = useCallback(async (search: string, sortBy: DoctorSort) => {
+  const fetchDoctors = useCallback(async (search: string, sortBy: DoctorSort, genderBy: DoctorGender | 'any') => {
     try {
       setLoading(true);
       // GET /care/doctors reads q, specialty and sort (rating | price_asc | ...) and answers { items: [...] }
-      const res = await apiFetch(`/care/doctors?${doctorsQuery({ q: search, specialty, sort: sortBy })}`);
+      const res = await apiFetch(`/care/doctors?${doctorsQuery({ q: search, specialty, sort: sortBy, gender: genderBy })}`);
       setDoctors(
         doctorRows(
           res,
@@ -66,9 +67,9 @@ export default function DoctorSearchView() {
 
   // search as the user types (the server does the matching), and again when the sort changes
   useEffect(() => {
-    const timer = setTimeout(() => { void fetchDoctors(query, sort); }, 350);
+    const timer = setTimeout(() => { void fetchDoctors(query, sort, gender); }, 350);
     return () => clearTimeout(timer);
-  }, [query, sort, fetchDoctors]);
+  }, [query, sort, gender, fetchDoctors]);
 
   const sorted = doctors;
 
@@ -125,6 +126,14 @@ export default function DoctorSearchView() {
               onPress={() => setSort(k)}
             />
           ))}
+          {(['any', ...DOCTOR_GENDERS] as const).map((g) => (
+            <Chip
+              key={g}
+              label={tr(g === 'any' ? 'search.doctors.genderAny' : g === 'male' ? 'search.doctors.genderMale' : 'search.doctors.genderFemale')}
+              active={gender === g}
+              onPress={() => setGender(g)}
+            />
+          ))}
         </ScrollView>
       </View>
 
@@ -159,7 +168,7 @@ export default function DoctorSearchView() {
           }
           renderItem={({ item: d }) => (
             <View style={{ gap: 6 }}>
-            <DoctorCard
+            <DoctorListCard
               doctor={d}
               onPress={() =>
                 router.push({

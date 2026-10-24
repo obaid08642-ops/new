@@ -18,12 +18,24 @@ const ANSWER = {
   ],
 };
 
+describe('doctors card: the richer fields, only when the server sends them', () => {
+  it('reads gender, is_online, verified, wait_time and the per-mode prices', () => {
+    const [row] = doctorRows({ items: [{ id: 'g', name_en: 'Dr. G', gender: 'female', is_online: true, verified: true, wait_time: 15, price_clinic: 0, price_online: 120 }] }, pick, slot);
+    expect(row).toMatchObject({ gender: 'female', availableNow: true, verified: true, wait: 15, prices: { clinic: null, online: 120, home: null } });
+  });
+  it('ignores a gender it does not know and sends gender only for male or female', () => {
+    expect(doctorRows({ items: [{ id: 'g', name_en: 'G', gender: 'x' }] }, pick, slot)[0].gender).toBeNull();
+    expect(doctorsQuery({ gender: 'female', sort: 'rating' })).toBe('sort=rating&gender=female');
+    expect(doctorsQuery({ gender: 'any' })).toBe('');
+  });
+});
+
 describe('doctors search: the real answer shape and query names', () => {
   it('reads items[] and maps the fields the server really sends', () => {
     const rows = doctorRows(ANSWER, pick, slot);
     expect(rows).toHaveLength(2);
     expect(rows[0]).toEqual({
-      id: 'd1', name: 'د. سارة', deg: 'MD', spec: 'cardiology', rating: 4.8, reviews: 31, price: 200, wait: null, exp: 12,
+      id: 'd1', name: 'د. سارة', deg: 'MD', spec: 'cardiology', rating: 4.8, reviews: 31, price: 200, wait: null, title: 'استشاري', photo: null, gender: null, availableNow: false, verified: false, prices: { clinic: 200, online: 150, home: null }, exp: 12,
       online: true, clinic: true, home: false, ins: true, hospital: 'مستشفى النور', slot: 'slot:2026-10-07T09:30:00.000Z',
     });
     expect(rows[1]).toMatchObject({ id: 'd2', name: 'Dr. Omar', deg: null, rating: null, price: 90, home: true, clinic: false, online: false, ins: false, slot: null });

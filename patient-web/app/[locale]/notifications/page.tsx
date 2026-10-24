@@ -22,6 +22,7 @@ const KIND: Record<string, { icon: FillIconName; tone: ServiceTone }> = {
   appointment: { icon: "video-camera", tone: toneOf("radiology") },
   medication: { icon: "bell", tone: toneOf("nursing") },
   prescription: { icon: "file-text", tone: toneOf("lab") },
+  late_compensation: { icon: "clock-counter-clockwise", tone: toneOf("points") },
   emergency: { icon: "ambulance", tone: toneOf("emergency") },
   promo: { icon: "tag", tone: toneOf("points") },
   alert: { icon: "warning", tone: toneOf("points") },
@@ -91,8 +92,9 @@ export default async function NotificationsPage({ params }: Props) {
       const kind = iconFor(n);
       return {
         id: n.id,
-        title: n.title ?? null,
-        body: n.body ?? null,
+        // the late-appointment credit is written in the page language from the messages (the server text is one language)
+        title: n.type?.toLowerCase() === "late_compensation" ? t("lateCompensationTitle") : n.title ?? null,
+        body: n.type?.toLowerCase() === "late_compensation" ? t("lateCompensationBody") : n.body ?? null,
         when: n.createdAt ? whenLabel(n.createdAt, locale, now) : null,
         icon: kind.icon,
         tone: kind.tone,

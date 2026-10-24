@@ -10,6 +10,7 @@ import { Glyph } from '../../../src/components/pharmacy/PharmacyKit';
 import { GuaranteeLine, LicenseRow, useLateGuarantee } from '../../../src/components/consult/Differentiators';
 import { readLicenseLine } from '../../../src/utils/differentiators';
 import { step as scale, tint, useScreenUi } from '../../../src/components/screen/ScreenKit';
+import MapView, { Marker, PROVIDER_DEFAULT } from '../../../src/components/MapPrimitives';
 import { apiFetch } from '../../../src/utils/api';
 import { isOffline } from '../../../src/utils/isOffline';
 import { logError } from '../../../src/utils/logger';
@@ -29,6 +30,8 @@ interface Review {
   rating?: number;
   text?: string;
   date?: string;
+  /** First name only (the public list never carries the full name). */
+  reviewer?: string | null;
 }
 interface Doctor {
   id: string;
@@ -76,6 +79,12 @@ interface Doctor {
   clinicPhotos?: string[];
   accepts_insurance?: boolean;
   reviews_data?: Review[];
+  /** Not sent by the backend yet (docs/design/needs-review/doctor-card-app.json): drawn only when present. */
+  wait_time?: number;
+  services?: Array<{ id?: string; name?: string; name_ar?: string; name_en?: string; price?: number }>;
+  follow_up_price?: number;
+  follow_up_days?: number;
+  location?: { lat?: number; lng?: number };
 }
 interface Slot {
   start: string;
@@ -99,6 +108,7 @@ export default function DoctorProfile() {
   const [faqOpen, setFaqOpen] = useState<Record<number, boolean>>({});
   const [bioOpen, setBioOpen] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
+  const [reviewsAll, setReviewsAll] = useState(false);
   const days = useDays(30);
   // The late-appointment guarantee of the same /system-config/public answer the cancellation numbers come from.
   const guarantee = useLateGuarantee(policy);
@@ -211,11 +221,23 @@ export default function DoctorProfile() {
   const ratingCount = doc?.rating_count ?? doc?.reviews_count ?? 0;
   const reviews = Array.isArray(doc?.reviews_data) ? doc.reviews_data : [];
   const education = doc?.education ? (Array.isArray(doc.education) ? doc.education.map((e) => `${e.degree} — ${e.school}`).join('\n') : String(doc.education)) : '';
-  const info: Array<{ icon: 'file-text' | 'globe' | 'shield-check'; label: string; value: string }> = [
-    ...(education ? [{ icon: 'file-text' as const, label: k('consult.doc.education'), value: education }] : []),
+  const info: Array<{ icon: 'file-text' | 'globe' | 'identification-card' | 'shield-check'; label: string; value: string }> = [
+    // education is not in the backend model yet: an honest empty line, never an invented degree
+    { icon: 'file-text' as const, label: k('consult.doc.education'), value: education || k('consult.doc.noEducation') },
     ...(Array.isArray(doc?.languages) && doc.languages.length > 0 ? [{ icon: 'globe' as const, label: k('consult.doc.languages'), value: doc.languages.map(languageName).join('، ') }] : []),
     ...(doc?.accepts_insurance ? [{ icon: 'shield-check' as const, label: k('consult.doc.insurance'), value: k('consult.doc.acceptsInsurance') }] : []),
   ];
+
+  const services = (doc?.services ?? []).flatMap((sv) => {
+    const label = pickLocalized(sv.name_ar, sv.name_en) || sv.name;
+    return label && typeof sv.price === 'number' && sv.price > 0 ? [{ key: sv.id || label, label, price: sv.price }] : [];
+  });
+  const followUp = typeof doc?.follow_up_price === 'number' && doc.follow_up_price >= 0 ? { price: doc.follow_up_price, days: doc.follow_up_days } : null;
+  const mapLat = doc?.location?.lat;
+  const mapLng = doc?.location?.lng;
+  // the map belongs to the clinic visit only
+  const showMap = activeVt === 'clinic' && typeof mapLat === 'number' && typeof mapLng === 'number';
+  const shownReviews = reviewsAll ? reviews : reviews.slice(0, 3);
 
   const book = () => {
     if (!doc) return;
@@ -273,9 +295,10 @@ export default function DoctorProfile() {
                   </View>
                 ) : null}
               </View>
-              {(doc.years_experience ?? 0) > 0 || ratingCount > 0 || ratingAvg > 0 ? (
+              {(doc.years_experience ?? 0) > 0 || ratingCount > 0 || ratingAvg > 0 || (doc.wait_time ?? 0) > 0 ? (
                 <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
                   {(doc.years_experience ?? 0) > 0 ? <Stat value={`${num(doc.years_experience ?? 0)}+`} label={k('consult.doc.years')} tone="blue" /> : null}
+                  {typeof doc.wait_time === 'number' && doc.wait_time > 0 ? <Stat value={num(doc.wait_time)} label={k('consult.doc.waitMinutes')} tone="violet" /> : null}
                   {ratingCount > 0 ? <Stat value={num(ratingCount)} label={k('consult.doc.reviews')} tone="mint" /> : null}
                   {ratingAvg > 0 ? <Stat value={num(ratingAvg, { maximumFractionDigits: 1 })} label={k('consult.doc.average')} tone="amber" /> : null}
                 </View>
@@ -290,6 +313,39 @@ export default function DoctorProfile() {
               <DayStrip days={days} value={day} onChange={setDay} label={k('consult.book.day')} />
               <SlotGrid loading={loadingSlots} value={selectedSlot} onChange={setSelectedSlot} emptyText={k(slotsEmptyKey(slotsReason))} slots={daySlots.map((s) => ({ id: s.start, label: clock(s.start), available: Boolean(s.available) }))} />
             </Section>
+
+            {services.length > 0 || followUp ? (
+              <Section title={k('consult.doc.services')}>
+                <Card theme={theme}>
+                  {services.map((sv, i) => (
+                    <View key={sv.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: c.border.hairline }}>
+                      <Text style={{ flex: 1, ...scale(t, 'small', 'medium'), color: c.text.primary, ...flow }}>{sv.label}</Text>
+                      <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary }}>{`${num(sv.price)} ${k('consult.currency')}`}</Text>
+                    </View>
+                  ))}
+                  {followUp ? (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8, borderTopWidth: services.length ? 1 : 0, borderTopColor: c.border.hairline }}>
+                      <View style={{ flex: 1, minWidth: 0 }}>
+                        <Text style={{ ...scale(t, 'small', 'medium'), color: c.text.primary, ...flow }}>{k('consult.doc.followUp')}</Text>
+                        {typeof followUp.days === 'number' && followUp.days > 0 ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.doc.followUpWindow', { n: num(followUp.days) })}</Text> : null}
+                      </View>
+                      <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary }}>{followUp.price > 0 ? `${num(followUp.price)} ${k('consult.currency')}` : k('consult.doc.free')}</Text>
+                    </View>
+                  ) : null}
+                </Card>
+              </Section>
+            ) : null}
+
+            {showMap ? (
+              <Section title={k('consult.doc.clinicMap')}>
+                <View style={{ height: 200, borderRadius: 24, overflow: 'hidden', borderWidth: 1, borderColor: c.border.hairline }}>
+                  <MapView provider={PROVIDER_DEFAULT} style={{ flex: 1 }} userInterfaceStyle={theme} initialRegion={{ latitude: mapLat, longitude: mapLng, latitudeDelta: 0.01, longitudeDelta: 0.01 }} showsMyLocationButton={false} showsCompass={false} scrollEnabled={false} zoomEnabled={false}>
+                    <Marker coordinate={{ latitude: mapLat, longitude: mapLng }} title={facilityName || name} tracksViewChanges={false} />
+                  </MapView>
+                </View>
+                {place ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{place}</Text> : null}
+              </Section>
+            ) : null}
 
             {bio ? (
               <Section title={k('consult.doc.about')}>
@@ -342,21 +398,30 @@ export default function DoctorProfile() {
               </Section>
             ) : null}
 
-            {reviews.length > 0 ? (
-              <Section title={k('consult.doc.patientReviews')}>
-                {reviews.map((r, i) => (
-                  <Card key={r.id || i} theme={theme} padding="sm">
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-                      {[1, 2, 3, 4, 5].map((n) => (
-                        <Glyph key={n} name="star" size={14} color={n <= (r.rating || 0) ? c.icon.ratingStar : c.border.strong} />
-                      ))}
-                      {r.date ? <Text style={{ ...scale(t, 'micro', 'regular'), color: c.text.tertiary, marginStart: 8 }}>{date(r.date)}</Text> : null}
-                    </View>
-                    {r.text ? <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, marginTop: 6, ...flow }}>{r.text}</Text> : null}
-                  </Card>
-                ))}
-              </Section>
-            ) : null}
+            <Section title={k('consult.doc.patientReviews')}>
+              {reviews.length === 0 ? (
+                <Card theme={theme} padding="sm">
+                  <Text testID="doctor-reviews-empty" style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.doc.noReviews')}</Text>
+                </Card>
+              ) : null}
+              {shownReviews.map((r, i) => (
+                <Card key={r.id || i} theme={theme} padding="sm">
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <Glyph key={n} name="star" size={14} color={n <= (r.rating || 0) ? c.icon.ratingStar : c.border.strong} />
+                    ))}
+                    {r.reviewer ? <Text style={{ ...scale(t, 'micro', 'bold'), color: c.text.secondary, marginStart: 8 }}>{r.reviewer}</Text> : null}
+                    {r.date ? <Text style={{ ...scale(t, 'micro', 'regular'), color: c.text.tertiary, marginStart: 8 }}>{date(r.date)}</Text> : null}
+                  </View>
+                  {r.text ? <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, marginTop: 6, ...flow }}>{r.text}</Text> : null}
+                </Card>
+              ))}
+              {reviews.length > 3 ? (
+                <Pressable accessibilityRole="button" accessibilityLabel={reviewsAll ? k('consult.doc.showLess') : k('consult.doc.seeAllReviews', { n: num(reviews.length) })} onPress={() => setReviewsAll((v) => !v)} style={{ minHeight: 44, justifyContent: 'center' }}>
+                  <Text style={{ ...scale(t, 'small', 'medium'), color: c.text.link, ...flow }}>{reviewsAll ? k('consult.doc.showLess') : k('consult.doc.seeAllReviews', { n: num(reviews.length) })}</Text>
+                </Pressable>
+              ) : null}
+            </Section>
 
             <Section title={k('consult.doc.faq')}>
               {faqs.map((f, i) => (
@@ -385,7 +450,7 @@ export default function DoctorProfile() {
 }
 
 /** One of the three figures under the hero (years, reviews, average): the tone's soft tile, 17 bold. */
-function Stat({ value, label, tone }: { value: string; label: string; tone: 'blue' | 'mint' | 'amber' }) {
+function Stat({ value, label, tone }: { value: string; label: string; tone: 'blue' | 'mint' | 'amber' | 'violet' }) {
   const { t, c } = useScreenUi();
   const look = c.service[tone];
   return (
