@@ -1,6 +1,6 @@
 [
   {
-    "path": "/*",
+    "path": "/ar$",
     "resourceSizes": [
       {
         "resourceType": "document",
@@ -45,6 +45,104 @@
       {
         "metric": "total-blocking-time",
         "budget": 200
+      }
+    ]
+  },
+  {
+    "path": "/ar/consultations/doctors$",
+    "resourceSizes": [
+      {
+        "resourceType": "document",
+        "budget": 140
+      },
+      {
+        "resourceType": "script",
+        "budget": 170
+      },
+      {
+        "resourceType": "stylesheet",
+        "budget": 100
+      },
+      {
+        "resourceType": "image",
+        "budget": 500
+      },
+      {
+        "resourceType": "total",
+        "budget": 1400
+      }
+    ],
+    "resourceCounts": [
+      {
+        "resourceType": "third-party",
+        "budget": 10
+      }
+    ],
+    "timings": [
+      {
+        "metric": "interactive",
+        "budget": 5500
+      },
+      {
+        "metric": "largest-contentful-paint",
+        "budget": 2500
+      },
+      {
+        "metric": "cumulative-layout-shift",
+        "budget": 0.1
+      },
+      {
+        "metric": "total-blocking-time",
+        "budget": 230
+      }
+    ]
+  },
+  {
+    "path": "/ar/c$",
+    "resourceSizes": [
+      {
+        "resourceType": "document",
+        "budget": 140
+      },
+      {
+        "resourceType": "script",
+        "budget": 170
+      },
+      {
+        "resourceType": "stylesheet",
+        "budget": 100
+      },
+      {
+        "resourceType": "image",
+        "budget": 500
+      },
+      {
+        "resourceType": "total",
+        "budget": 1400
+      }
+    ],
+    "resourceCounts": [
+      {
+        "resourceType": "third-party",
+        "budget": 10
+      }
+    ],
+    "timings": [
+      {
+        "metric": "interactive",
+        "budget": 5500
+      },
+      {
+        "metric": "largest-contentful-paint",
+        "budget": 2500
+      },
+      {
+        "metric": "cumulative-layout-shift",
+        "budget": 0.1
+      },
+      {
+        "metric": "total-blocking-time",
+        "budget": 340
       }
     ]
   }

@@ -18,6 +18,7 @@ import { HotCache } from '../redis/hot-cache.service';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
 import { AutoEntitySeoPipelineService } from '../events/auto-entity-seo-pipeline.service';
 import { NOT_PROMOTABLE_FILTER } from './promotion-rules';
+import { checkReviewedIngredients } from './ingredients';
 import { InteractionHit, pairInteractions } from '../ai/interaction-rules';
 import { publicMedicineFilter } from './public-medicine-filter';
 import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, PUBLIC_CATALOG_LOCALES } from './med-i18n';
@@ -1953,6 +1954,16 @@ export class MedicinesService {
       const data = { ...this.pickEditable(r.changes), ...overrides };
       const created = await this.createCatalog({ ...data, verified: true }, adminId);
       applied = { new_medicine_id: created.id };
+    } else if (r.type === 'ingredients_review') {
+      // Issue 1556 PR 2: the admin's own values for a row the parser could not read with confidence. Only the values the
+      // admin sends are written, each checked against the closed lists; the parser's guess is never written.
+      const checked = checkReviewedIngredients(opts?.overrides);
+      if (checked.ok === false) throw new BadRequestException(checked.error);
+      await this.model.updateOne(
+        { id: r.medicine_id },
+        { $set: { ...checked.patch, ingredients_status: 'reviewed', ingredients_reviewed_by: adminId, updatedAt: new Date() } },
+      );
+      applied = checked.patch;
     }
     // 'other' → informational; approval just acknowledges it.
 

@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Connection, Model, Types } from 'mongoose';
 import { pick } from '../../common/sanitize';
+import { escapeRegex } from '../../common/slug.util';
 import { pickAttribution } from '../../common/attribution';
 
 /** P3.3 (F15): writable catalog fields — id/_id/active/governance flags excluded. */
@@ -43,6 +44,13 @@ import { nearestFirst } from '../provider/services/nearest-first';
 /** Public card for a provider in carousels and price lists: no contact or account details. */
 function publicProvider(p: any) {
   return { id: p.account_id, name_ar: p.name_ar ?? null, name_en: p.name_en ?? null, logo: p.logo ?? null, rating: p.rating_count > 0 ? p.rating_avg : null, rating_count: p.rating_count || 0 };
+}
+
+/** Issue 1833: a radiology search matches every name field, in any language, case-insensitively. The text is escaped. */
+export const RADIOLOGY_NAME_FIELDS = ['name_ar', 'name_en', 'name_ur', 'name_hi', 'name_bn', 'name_tl'] as const;
+export function radiologySearchClause(search: string): { $or: Array<Record<string, RegExp>> } {
+  const pattern = new RegExp(escapeRegex(search.trim()), 'i');
+  return { $or: RADIOLOGY_NAME_FIELDS.map((field) => ({ [field]: pattern })) };
 }
 
 @Injectable()
@@ -436,7 +444,8 @@ export class RadiologyOpsService {
     const q: any = { is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' };
     if (opts.modality) q.modality = { $eq: opts.modality };
     if (opts.body_part) q.body_part = { $eq: opts.body_part };
-    if (opts.search) q.$text = { $search: opts.search };
+    // Issue 1833: the name search reads all six name fields (no text index needed for the 34 scans in the catalogue).
+    if (opts.search?.trim()) q.$or = radiologySearchClause(opts.search).$or;
     if (opts.home_only) q.home_visit_supported = true;
 
     // #623: "nearest" orders scans by the closest approved centre that performs them (same rule as

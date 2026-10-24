@@ -18,7 +18,7 @@ import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { parseOrderId } from "@/lib/api/orders";
 import { requirePatientAccess } from "@/lib/auth/session";
 import type { Locale } from "@/lib/i18n";
-import { canCancelOrder, orderAction, orderNumber } from "@/lib/pharmacy/order-view";
+import { canCancelOrder, orderAction, orderNumber, pharmacyDisplayName } from "@/lib/pharmacy/order-view";
 import { routeForOrder } from "@/lib/pharmacy/order-route";
 import { readOrderDetail } from "./read-orders";
 import { statusTone } from "./status-tone";
@@ -70,6 +70,7 @@ export async function OrderDetailScreen({ locale, orderId }: { locale: Locale; o
           <FIcon icon="pill" tone={PHARMACY_TONE} size={44} />
           <div className={styles.heroText}>
             <h2 className={rx.rowTitle}>{t("pharmacyOrder")}</h2>
+            {pharmacyDisplayName(detail.pharmacyName, locale) ? <span className={styles.orderMeta} dir="auto" data-testid="order-pharmacy-name">{pharmacyDisplayName(detail.pharmacyName, locale)}</span> : null}
             <span className={styles.orderMeta}>
               <bdi>{t("orderRef", { number: orderNumber(detail.id) })}</bdi>
               <CopyTextButton text={orderNumber(detail.id)} />
