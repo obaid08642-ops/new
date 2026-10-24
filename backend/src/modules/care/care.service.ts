@@ -502,6 +502,13 @@ export class CareService {
       }));
     }
     obj.is_online = this.isOnlineDoc(doc, await this.onlineSet([doc]));
+    // Education proof the admin approved on the certificates screen: the kind and the issuer only, never the file or number.
+    const accountKeys = [(doc as any).user_id, (doc as any).account_id].filter(Boolean).map(String);
+    let certs: any[] = [];
+    try {
+      if (accountKeys.length) certs = await db.collection('provider_documents').find({ account_id: { $in: accountKeys }, doc_type: { $in: ['academic_certificate', 'board_certificate'] }, review_status: 'approved' } as any, { projection: { _id: 0, doc_type: 1, issuer: 1, issued_date: 1 } }).toArray();
+    } catch { certs = []; }
+    obj.education_verified = certs.map((c: any) => ({ type: c.doc_type, issuer: c.issuer ?? null, issued_date: c.issued_date ?? null }));
 
     // Real photos only (empty when the provider published none): toPublicDoctor already gives clinicPhotos as public
     // addresses; the raw clinic_images (private file ids) are not part of the public model
@@ -622,6 +629,15 @@ export class CareService {
       verified: d.medical_review_status === 'approved' && d.license_verified === true,
       scfhs_license_no: d.scfhs_license_number || null,
       next_available_at: nextAvailableAt,
+      // Owner-approved profile fields (2026-10-24). The clinic's address and point only: the doctor's personal `address`
+      // and `location` are never part of this model.
+      gender: d.gender === 'male' || d.gender === 'female' ? d.gender : null,
+      education: (Array.isArray(d.education) ? d.education : []).map((e: any) => ({ university: e?.university ?? null, graduation_year: e?.graduation_year ?? null, fellowship_board: e?.fellowship_board ?? null })),
+      follow_up: typeof d.follow_up_price === 'number' ? { price: d.follow_up_price, window_days: d.follow_up_window_days ?? null } : null,
+      procedures: (Array.isArray(d.procedures) ? d.procedures : []).map((p: any) => ({ name_ar: p?.name_ar ?? null, name_en: p?.name_en ?? null, price: p?.price ?? null })),
+      clinic: d.clinic_address || d.clinic_location
+        ? { address: d.clinic_address || null, lat: typeof d.clinic_location?.lat === 'number' ? d.clinic_location.lat : null, lng: typeof d.clinic_location?.lng === 'number' ? d.clinic_location.lng : null }
+        : null,
     };
     if (typeof distanceKm === 'number' && Number.isFinite(distanceKm)) publicDoctor.distance_km = Math.round(distanceKm * 10) / 10;
     return publicDoctor;
