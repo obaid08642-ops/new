@@ -291,7 +291,7 @@ describe("records: three tabs", () => {
 });
 
 describe("detail screens and redirects", () => {
-  it("a report shows its title and the fields it has, and the health ID shows the share code", async () => {
+  it("a report shows its title and the fields it has, and the health ID shows its QR code, not the token text", async () => {
     backend({ "/medical-reports/report-0001": { title_en: "Blood test", summary: "All normal", diagnosis: "", issued_at: "2026-08-20T10:00:00.000Z" } });
     const report = render(await ReportDetailPage({ params: Promise.resolve({ locale: "en", reportId: "report-0001" }) }));
     expect(report).toContain("Blood test");
@@ -299,10 +299,14 @@ describe("detail screens and redirects", () => {
     expect(report).not.toContain("report-diagnosis");
     expect(report).toContain('data-back="/en/health/records?tab=reports"');
 
-    backend({ "/medical-profile": { data: { full_name: "Test Patient", blood_type: "A+" } }, "/medical-profile/passport-token": { token: "PASS-1234" } });
+    backend({ "/medical-profile": { data: { full_name: "Test Patient", blood_type: "A+" } }, "/medical-profile/passport-token": { token: "PASS-1234", format: "nabd_health_passport", version: 2, expires_at: "2026-10-24T10:35:00.000Z" } });
     const id = render(await PassportPage({ params }));
     expect(id).toContain("Test Patient");
-    expect(id).toContain("PASS-1234");
+    expect(id).toContain('role="img"');
+    expect(id).toContain("QR code of your health ID");
+    expect(id).toContain("Valid until");
+    // the long token is no longer printed as a code to type
+    expect(id).not.toContain("PASS-1234");
   });
 
   it("the removed order screen redirects to the prescriptions tab without carrying the old payload", async () => {
