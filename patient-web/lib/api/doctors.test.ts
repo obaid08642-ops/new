@@ -20,3 +20,19 @@ describe("doctors parser", () => {
     expect(doctorDisplayName(arabicOnly, "en")).toBe("د. س");
   });
 });
+
+describe("doctorPlace", () => {
+  const doctor = { facility: "مستشفى دله", facilityAr: "مستشفى دله", facilityEn: "Dallah Hospital" };
+  it("shows the facility in the page language: Arabic on ar and ur, English on the others", async () => {
+    const { doctorPlace } = await import("./doctors");
+    for (const locale of ["ar", "ur"]) expect(doctorPlace(doctor, locale)).toBe("مستشفى دله");
+    for (const locale of ["en", "hi", "bn", "fil"]) expect(doctorPlace(doctor, locale)).toBe("Dallah Hospital");
+  });
+  it("falls back to the stored text when the facility names are not sent", async () => {
+    const { doctorPlace, extractDoctors } = await import("./doctors");
+    expect(doctorPlace({ facility: "عيادة حرة" }, "en")).toBe("عيادة حرة");
+    expect(doctorPlace({}, "en")).toBeUndefined();
+    const [row] = extractDoctors([{ id: "d1", name_en: "Dr A", hospital: "مستشفى دله", facility_name_ar: "مستشفى دله", facility_name_en: "Dallah Hospital" }]);
+    expect(row.facilityEn).toBe("Dallah Hospital");
+  });
+});

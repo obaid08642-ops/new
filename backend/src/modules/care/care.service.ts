@@ -197,6 +197,7 @@ export class CareService {
       }
       return this.toPublicDoctor(d, nextAvailableAt, d._distance_km);
     }));
+    await this.attachFacilityNames(out);
     const totalIsExact = !opts.available_today && !needDistance;
     return {
       page,
@@ -294,6 +295,7 @@ export class CareService {
       pub.next_slot_at = new Date(at).toISOString();
       items.push(pub);
     }
+    await this.attachFacilityNames(items);
     return {
       page, limit, total: null, total_is_exact: false,
       has_more: out.length > offset + limit, items,
@@ -408,6 +410,7 @@ export class CareService {
         if (i < 10) nextAvailableAt = await this.slots.nextAvailable(d as any);
         out.push(this.toPublicDoctor(d, nextAvailableAt, (d._dist_m ?? 0) / 1000));
       }
+      await this.attachFacilityNames(out);
       return { page, limit, total: null, total_is_exact: false, has_more: hasMore, items: out };
     }
 
@@ -425,6 +428,7 @@ export class CareService {
       const d: any = dRaw?.toObject ? dRaw.toObject() : dRaw;
       out.push(this.toPublicDoctor(d, i < 10 ? await this.slots.nextAvailable(dRaw as any) : null));
     }
+    await this.attachFacilityNames(out);
     return { page, limit, total: null, total_is_exact: false, has_more: hasMore, items: out };
   }
 
@@ -433,6 +437,7 @@ export class CareService {
     const doc = await this.providerModel.findOne({ id, type: ProviderType.DOCTOR, ...publicProviderFilter() }, { _id: 0, __v: 0 });
     if (!doc) throw new NotFoundException('doctor_not_found');
     const obj: any = this.toPublicDoctor(doc, await this.slots.nextAvailable(doc));
+    await this.attachFacilityNames([obj]);
     if (obj.facility_id) {
       const facility = await this.facilityModel.findOne({ id: obj.facility_id, ...PUBLIC_FACILITY_FILTER }, { _id: 0, __v: 0 });
       obj.facility = facility ? this.toPublicFacility(facility) : null;
@@ -532,6 +537,23 @@ export class CareService {
     const image = await this.storage.publicProfileImage(mediaId);
     if (!image) throw new NotFoundException('media_not_found');
     return image;
+  }
+
+  /**
+   * A doctor's `hospital` is free text, written in Arabic. A list that carries `facility_id` also carries the public facility's
+   * names (`facility_name_ar`, `facility_name_en`) so an English, Hindi, Bengali or Filipino page can show the English name.
+   * One query for the whole page; an unknown or deactivated facility adds nothing.
+   */
+  async attachFacilityNames(items: any[]): Promise<void> {
+    const ids = [...new Set(items.map((d) => d?.facility_id).filter((x): x is string => typeof x === 'string' && x.length > 0))];
+    if (!ids.length) return;
+    // only the two names, for a facility a published doctor already names in `hospital`; a deactivated facility adds nothing
+    const rows: any[] = await this.facilityModel.find({ id: { $in: ids }, is_active: true }, { _id: 0, id: 1, name_ar: 1, name_en: 1 });
+    const byId = new Map(rows.map((r) => [r.id, r]));
+    for (const d of items) {
+      const f = d?.facility_id ? byId.get(d.facility_id) : null;
+      if (f) { d.facility_name_ar = f.name_ar ?? null; d.facility_name_en = f.name_en ?? null; }
+    }
   }
 
   private toPublicDoctor(raw: any, nextAvailableAt: string | null = null, distanceKm?: number) {

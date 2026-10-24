@@ -8,7 +8,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { specialtyLabel } from "@/lib/specialties";
-import { defaultVisitType, doctorDisplayName, extractDoctor, priceForVisit } from "@/lib/api/doctors";
+import { defaultVisitType, doctorDisplayName, doctorPlace, extractDoctor, priceForVisit } from "@/lib/api/doctors";
 import { getPublicDoctor } from "@/lib/api/doctors-server";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { formatPrice, formatNumber } from "@/lib/format-price";
@@ -73,10 +73,10 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
   if (doctor.reviews !== undefined) stats.push({ value: formatNumber(locale, doctor.reviews), label: c("statReviews") });
   if (doctor.experienceYears !== undefined) stats.push({ value: formatNumber(locale, doctor.experienceYears), label: c("statYears") });
   if (doctor.price !== undefined) stats.push({ value: formatPrice(locale, doctor.price).text, label: c("statPrice") });
-  const where = [doctor.facility, doctor.district, doctor.city].filter(Boolean).join(" · ");
+  const where = [doctorPlace(doctor, locale), doctor.district, doctor.city].filter(Boolean).join(" · ");
   const languageNames = new Intl.DisplayNames(locale, { type: "language" });
   const spoken = (doctor.languages ?? []).map((code) => { try { return languageNames.of(code) ?? code; } catch { return code; } }).join(", ");
-  const tags = [doctor.verified ? t("verifiedDoctor") : undefined, doctor.licenseNo ? t("licenseNumber", { number: doctor.licenseNo }) : undefined, doctor.facility, doctor.acceptsInsurance ? c("acceptsInsurance") : undefined].filter((tag): tag is string => Boolean(tag));
+  const tags = [doctor.verified ? t("verifiedDoctor") : undefined, doctor.licenseNo ? t("licenseNumber", { number: doctor.licenseNo }) : undefined, doctorPlace(doctor, locale), doctor.acceptsInsurance ? c("acceptsInsurance") : undefined].filter((tag): tag is string => Boolean(tag));
   const base = `/${locale}/consultations/doctors/${doctor.id}`;
 
   return (

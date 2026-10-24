@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SPECIALTY_SLUGS, isSpecialtySlug, specialtyLabel } from "@/lib/specialties";
-import { doctorDisplayName, extractDoctors } from "@/lib/api/doctors";
+import { doctorDisplayName, doctorPlace, extractDoctors } from "@/lib/api/doctors";
 import { getPublicDoctors } from "@/lib/api/doctors-server";
 import { isOutage } from "@/lib/api/outage";
 import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
@@ -175,7 +175,7 @@ export async function DoctorsView({ params, searchParams }: Props) {
                   name={doctorDisplayName(doctor, locale) ?? t("nameUnavailable")}
                   grade={doctor.degree}
                   specialty={specialtyLabel(names, doctor.specialty) ?? undefined}
-                  place={doctor.facility}
+                  place={doctorPlace(doctor, locale)}
                   modes={modes}
                   rating={doctor.rating !== undefined && doctor.reviews ? { value: doctor.rating, count: doctor.reviews } : undefined}
                   nextSlotIso={doctor.nextSlot}

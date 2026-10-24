@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { specialtyLabel } from "@/lib/specialties";
 import type { ReactNode } from "react";
-import { doctorDisplayName, priceForVisit, type DoctorRow } from "@/lib/api/doctors";
+import { doctorDisplayName, doctorPlace, priceForVisit, type DoctorRow } from "@/lib/api/doctors";
 import type { Locale } from "@/lib/i18n";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { Input, Select } from "@/components-next/ui-generated/components/Inputs";
@@ -205,7 +205,7 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
       footer={<StickyFooter label={t("title")}><div className={styles.bookBar}>{submitButton}</div></StickyFooter>}
     >
       {top}
-      <Hero title={(doctor ? doctorDisplayName(doctor, locale) : undefined) || t("doctorUnavailable")} sub={[specialty, doctor?.facility].filter(Boolean).join(" · ") || undefined} />
+      <Hero title={(doctor ? doctorDisplayName(doctor, locale) : undefined) || t("doctorUnavailable")} sub={[specialty, doctor ? doctorPlace(doctor, locale) : undefined].filter(Boolean).join(" · ") || undefined} />
       <SectionCard id="book-visit-type" title={t("visitType")}>
         <Segmented
           label={t("visitType")}
