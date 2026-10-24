@@ -54,7 +54,8 @@ def run(acct):
     step('both answer {requested: true} with the same status', a.status == b.status and a.get('requested') is True and b.get('requested') is True, (a.status, a.body, b.status, b.body))
 
     journey('passwords: a short or breached new password is refused (after the e-mail is proven)')
-    for password, code in (('Short1!', 'password_too_short'), ('letmein123', 'password_compromised')):
+    # the minimum is 8 (owner, 2026-10-24) in the DTO and the service alike, so a 7-character password is stopped by the DTO first
+    for password, code in (('Short1!', 'longer than or equal to 8'), ('letmein123', 'password_compromised')):
         email = f'weak-{random.randint(10**8, 10**9)}@nabd.test'
         t0 = time.time()
         # its own address: the OTP route is throttled per address and the journeys before this one send many from 127.0.0.1
