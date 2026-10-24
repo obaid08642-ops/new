@@ -26,9 +26,15 @@ def main():
     sp = anon.get('/care/specialties')
     specs = sp.body if isinstance(sp.body, list) else sp.items()
     spec = next((s for s in specs if s.get('slug') == 'cardiology'), specs[0] if specs else None)
-    d = anon.get('/care/doctors?limit=20')
-    docs = d.get('items') or []
-    withfac = [x for x in docs if x.get('facility_id') and x.get('hospital')]
+    # other journeys add many doctors without a facility, so look through the pages for the ones that work in one
+    docs, withfac = [], []
+    for page_no in range(1, 9):
+        d = anon.get(f'/care/doctors?limit=50&page={page_no}')
+        batch = d.get('items') or []
+        docs += batch
+        withfac = [x for x in docs if x.get('facility_id') and x.get('hospital')]
+        if withfac or not batch:
+            break
     step('the care API lists specialties and doctors that work in a facility', sp.ok and d.ok and spec and withfac, f'{sp.status} {d.status} {len(withfac)}')
     if not (spec and withfac):
         return
