@@ -17,7 +17,7 @@ import { NutritionBodyTargetClient } from "@/components-next/nutrition-body-targ
 import { NutritionPlanGenerate } from "@/components-next/nutrition-plan-generate";
 import { QuickLogForm } from "@/components-next/health/quick-log-form";
 import { Notice } from "@/components-next/consult/consult-parts";
-import { parseNutritionPlan } from "@/lib/nutrition/plan";
+import { hasBodyProfile, parseNutritionPlan } from "@/lib/nutrition/plan";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import { NutritionWaterQuick } from "@/components-next/nutrition-water-quick";
 import rx from "@/components-next/pharmacy/rx.module.css";
@@ -88,11 +88,15 @@ export default async function NutritionPage({ params, searchParams }: Props) {
     if (!planRes.ok && planRes.status !== 204) return frame(<ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailable")} retryLabel={rs("retry")} />);
     const plan = planRes.status === 204 ? null : parseNutritionPlan(await planRes.json().catch(() => null));
     const nutritionist = <ButtonLink href={`/${locale}/consultations/doctors?specialty=nutrition`} label={t("planNutritionist")} variant="outline" />;
+    // A plan is made from the height and weight in the profile: without them the button would only answer 400, so the way to the
+    // target form is shown instead. An unreadable profile reply keeps the button.
+    const profileRes = await callPatientApi("/nutrition/profile", {}, token).catch(() => null);
+    const bodyReady = profileRes && profileRes.ok ? hasBodyProfile(await profileRes.json().catch(() => null)) !== false : true;
     if (!plan) {
       return frame(
         <>
-          <ConsultState kind="empty" icon={NUTRITION.icon} tone={NUTRITION.tone} title={t("planEmptyTitle")} body={t("planEmptyBody")} />
-          <NutritionPlanGenerate />
+          <ConsultState kind="empty" icon={NUTRITION.icon} tone={NUTRITION.tone} title={t("planEmptyTitle")} body={bodyReady ? t("planEmptyBody") : t("planNeedsProfile")} />
+          {bodyReady ? <NutritionPlanGenerate /> : <ButtonLink href={`${base}?tab=target`} label={t("setTarget")} variant="primary" fullWidth />}
           {nutritionist}
         </>,
       );
@@ -112,7 +116,7 @@ export default async function NutritionPage({ params, searchParams }: Props) {
           </section>
         ))}
         {nutritionist}
-        <NutritionPlanGenerate again />
+        {bodyReady ? <NutritionPlanGenerate again /> : <ButtonLink href={`${base}?tab=target`} label={t("setTarget")} variant="outline" fullWidth />}
       </>,
     );
   }

@@ -36,10 +36,16 @@ export type Insurer = { company: string; class?: string };
 export const GENDER_FILTERS = ["male", "female"] as const;
 export type GenderFilter = (typeof GENDER_FILTERS)[number];
 
+/** The academic degrees GET /care/doctors?degree= knows (GET /care/degrees: the backend AcademicDegree slugs). */
+export const DEGREES = ["professor", "consultant", "senior_specialist", "specialist", "resident", "general_practitioner"] as const;
+export type Degree = (typeof DEGREES)[number];
+
 export type DoctorFilters = {
   /** Doctor gender (GET /care/doctors `gender`); absent means any. */
   gender?: GenderFilter;
   type?: VisitType;
+  /** The doctor's grade (`degree`). */
+  degree?: Degree;
   payment?: PaymentFilter;
   /** Only with payment "insurance": the saved policy's company and class, from the page URL. */
   insurer?: Insurer;
@@ -66,6 +72,8 @@ function numberParam(value: string | undefined, limit: number): number | null {
 export function parseDoctorFilters(raw: Raw): DoctorFilters {
   const rawType = first(raw.type);
   const type = (VISIT_TYPES as readonly string[]).includes(rawType ?? "") ? (rawType as VisitType) : undefined;
+  const rawDegree = first(raw.degree);
+  const degree = (DEGREES as readonly string[]).includes(rawDegree ?? "") ? (rawDegree as Degree) : undefined;
   const rawPayment = first(raw.payment) === "cash" ? "self_pay" : first(raw.payment);
   const payment = (PAYMENT_FILTERS as readonly string[]).includes(rawPayment ?? "") ? (rawPayment as PaymentFilter) : undefined;
   const company = payment === "insurance" ? boundedText(first(raw.insurance)) : undefined;
@@ -83,7 +91,7 @@ export function parseDoctorFilters(raw: Raw): DoctorFilters {
     if (lat !== null && lng !== null) place = { kind: "coords", lat, lng };
     else if (city) place = { kind: "city", city };
   }
-  return { type, ...(gender ? { gender } : {}), ...(payment ? { payment } : {}), ...(insurer ? { insurer } : {}), availableNow, nearest: nearest && place !== null, place };
+  return { type, ...(degree ? { degree } : {}), ...(gender ? { gender } : {}), ...(payment ? { payment } : {}), ...(insurer ? { insurer } : {}), availableNow, nearest: nearest && place !== null, place };
 }
 
 /** "Available now" needs a visit type; without a chosen one the clinic is the default (and is shown as chosen). */
@@ -95,6 +103,7 @@ export function filterApiParams(filters: DoctorFilters): Array<[string, string]>
   const type = effectiveType(filters);
   const out: Array<[string, string]> = [];
   if (type) out.push(["type", type]);
+  if (filters.degree) out.push(["degree", filters.degree]);
   if (filters.payment === "insurance") {
     if (filters.insurer) {
       out.push(["insurance", filters.insurer.company]);
@@ -123,6 +132,7 @@ export function filterPageParams(filters: DoctorFilters, extra: { q?: string; sp
   if (extra.specialty) params.set("specialty", extra.specialty);
   if (extra.sort) params.set("sort", extra.sort);
   if (filters.type) params.set("type", filters.type);
+  if (filters.degree) params.set("degree", filters.degree);
   if (filters.payment) params.set("payment", filters.payment);
   if (filters.payment === "insurance" && filters.insurer) {
     params.set("insurance", filters.insurer.company);

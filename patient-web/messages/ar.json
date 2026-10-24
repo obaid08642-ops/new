@@ -447,7 +447,7 @@
     "no": "لا",
     "open": "عرض التفاصيل",
     "back": "العودة إلى الفحوصات",
-    "detailNotice": "تظهر هنا حالة الحجز وموعده فقط. لا تظهر التقارير أو المستندات أو الأسعار في هذه الصفحة.",
+    "detailNotice": "تظهر هنا حالة الحجز وموعده ومبلغه. لا تظهر المستندات في هذه الصفحة.",
     "tabLabs": "التحاليل الطبية",
     "tabRadiology": "الأشعة التشخيصية",
     "tabMyBookings": "طلباتي ونتائجي",
@@ -634,6 +634,8 @@
     "idCodeTitle": "رمز المشاركة",
     "idCodeBody": "اعرض هذا الرمز لمقدّم الرعاية لمشاركة ملفك.",
     "idCodeFailed": "تعذّر إصدار رمز المشاركة حاليًا.",
+    "idQrLabel": "رمز QR لبطاقتك الصحية، ليمسحه مقدّم الخدمة",
+    "idValidUntil": "صالح حتى {time}",
     "itemAdd": "إضافة",
     "itemAddFailed": "تعذّرت الإضافة. حاول مرة أخرى.",
     "itemName": "الاسم",
@@ -1367,6 +1369,19 @@
     "infoTitle": "معلومات إضافية",
     "languagesLabel": "اللغات",
     "chooseDayTime": "اختر اليوم والوقت",
+    "faqTitle": "أسئلة شائعة",
+    "faqCancelQ": "هل يمكن إلغاء أو تعديل الموعد؟",
+    "faqCancelA": "نعم. يمكنك الإلغاء أو التعديل من صفحة تفاصيل الموعد وفق سياسة المنصة الحالية.",
+    "faqPayQ": "ما طرق الدفع المتاحة؟",
+    "faqPayA": "الاستشارة عن بعد بالبطاقة فقط، والزيارة المنزلية بالبطاقة أو التأمين، والكشف في العيادة بالبطاقة أو التأمين أو الكاش.",
+    "clinicPhotoOpen": "فتح صورة العيادة {n} بحجم كامل",
+    "gradeLabel": "الدرجة العلمية",
+    "degree_professor": "بروفيسور",
+    "degree_consultant": "استشاري",
+    "degree_senior_specialist": "أخصائي أول",
+    "degree_specialist": "أخصائي",
+    "degree_resident": "مقيم",
+    "degree_general_practitioner": "طبيب عام",
     "factsLabel": "تفاصيل الطبيب",
     "yearsExperience": "خبرة {n} سنة",
     "genderMale": "ذكر",
@@ -1750,7 +1765,22 @@
     "empty": "لا توجد تقارير للمشاركة",
     "notice": "تُشارك روابط آمنة داخل المنصة فقط — لا تُرسل بيانات طبية حساسة في النص.",
     "bundleHeader": "نبض بلس — تقارير طبية تمت مشاركتها:",
-    "bundleTitle": "نبض بلس"
+    "bundleTitle": "نبض بلس",
+    "shareWithDoctor": "مشاركة مع طبيب",
+    "doctorSearchLabel": "اسم الطبيب",
+    "doctorSearchPh": "ابحث عن طبيب بالاسم",
+    "doctorSearch": "بحث",
+    "searching": "جارٍ البحث…",
+    "noDoctors": "لا يوجد أطباء بهذا الاسم.",
+    "shareWithThisDoctor": "مشاركة",
+    "sharedWith": "تمت المشاركة مع",
+    "notSharedYet": "لم تتم مشاركة هذا التقرير مع أي طبيب.",
+    "revoke": "إلغاء المشاركة",
+    "doctorFallback": "طبيب",
+    "doctorShared": "تمت مشاركة التقرير مع الطبيب.",
+    "doctorShareFailed": "تعذّرت المشاركة. حاول لاحقاً.",
+    "doctorRevokeFailed": "تعذّر إلغاء المشاركة. حاول لاحقاً.",
+    "doctorSearchFailed": "تعذّر البحث. حاول لاحقاً."
   },
   "BookConsultation": {
     "homeAddressRequired": "اختر عنوان الزيارة من عناوينك المحفوظة أولًا",
@@ -1792,7 +1822,12 @@
     "duration": "مدة الزيارة",
     "durationValue": "{n} دقيقة",
     "homeAddressNone": "أضف عنوانًا بموقعه على الخريطة لزيارة المنزل.",
-    "homeAddressAdd": "إضافة عنوان أو تعديله"
+    "homeAddressAdd": "إضافة عنوان أو تعديله",
+    "bookingFor": "الحجز لـ {name}",
+    "bookingForSelf": "احجز لنفسي بدلاً من ذلك",
+    "insuranceReady": "سنرسل الطلب إلى المنشأة ببيانات وثيقتك المحفوظة.",
+    "insuranceNotReady": "لا توجد وثيقة تأمين فعّالة. أضف بيانات تأمينك أولاً.",
+    "manageInsurance": "إدارة التأمين"
   },
   "AiHealthReport": {
     "title": "تقريرك الصحي الذكي",
@@ -1943,7 +1978,9 @@
       "missed": "مكالمة فائتة",
       "active": "مكالمة نشطة حالياً",
       "pending": "مكالمة معلّقة"
-    }
+    },
+    "callAgain": "اتصل مجدداً",
+    "showMore": "عرض المزيد"
   },
   "PostCallRating": {
     "title": "قيّم استشارتك",
@@ -2037,7 +2074,9 @@
     "defaultAbout": "مختبر طبي مجهز بأحدث الأجهزة والتقنيات لتقديم نتائج دقيقة.",
     "servicesTitle": "التحاليل المتوفرة",
     "price": "{value} ر.س",
-    "ratingLine": "التقييم {rating} من 5 · عدد التقييمات {count}"
+    "ratingLine": "التقييم {rating} من 5 · عدد التقييمات {count}",
+    "directions": "الاتجاهات للمختبر",
+    "branchesCount": "{n} فروع"
   },
   "NurseDetail": {
     "title": "ملف الممرض/ة",
@@ -2935,6 +2974,8 @@
     "copayBody": "تمت الموافقة. ادفع نسبة التحمل ({amount}) لفتح الاستشارة.",
     "copayAction": "عرض طلب التأمين والدفع الآمن",
     "actionDoctorProfile": "عرض الملف",
+    "waitingRoomYourTurn": "دورك",
+    "waitingRoomCallsOff": "المكالمات المرئية غير متاحة حالياً.",
     "ratingOutOf": "{value} من 5"
   },
   "ConsultClient": {
@@ -3139,7 +3180,9 @@
     "calendarDeleteFailed": "تعذر حذف الحدث",
     "memberAge": "{n} سنة",
     "vitalsTitle": "المؤشرات الحيوية",
-    "noVitals": "لا توجد مؤشرات مسجلة أو لم يسمح الفرد بعرضها."
+    "noVitals": "لا توجد مؤشرات مسجلة أو لم يسمح الفرد بعرضها.",
+    "bookForMember": "احجز استشارة",
+    "bookForMemberFailed": "تعذّر بدء الحجز. حاول مرة أخرى."
   },
   "DiagWeb": {
     "retry": "حاول مرة أخرى",
@@ -3359,7 +3402,35 @@
     "bookingNotSentCta": "إلى صفحة التمريض",
     "bookingNotSentClose": "إغلاق",
     "approvalNoOrderTitle": "لا يوجد حجز لعرض التأمين",
-    "approvalNoOrderBody": "خطوة التأمين تتبع حجزًا. افتح أحد طلباتك لمتابعة الموافقة أو رفع مستند."
+    "approvalNoOrderBody": "خطوة التأمين تتبع حجزًا. افتح أحد طلباتك لمتابعة الموافقة أو رفع مستند.",
+    "approvedLabs": "مختبرات معتمدة",
+    "labRating": "تقييم {n}",
+    "labHomeTag": "سحب منزلي",
+    "labsAll": "كل المختبرات",
+    "bookingTotal": "المبلغ الإجمالي",
+    "bookingResultsTitle": "نتائج التحاليل",
+    "resultValue": "النتيجة",
+    "resultReference": "المعدل الطبيعي",
+    "resultAbnormal": "خارج المعدل الطبيعي",
+    "radiologyStagesTitle": "مراحل الأشعة",
+    "stageScan": "التصوير",
+    "stageReport": "التقرير",
+    "stageResult": "النتيجة",
+    "cancelBooking": "إلغاء الطلب",
+    "cancelBookingConfirm": "هل تريد إلغاء هذا الطلب؟",
+    "cancelBookingBack": "رجوع",
+    "cancelBookingYes": "نعم، إلغاء",
+    "cancelBookingFailed": "تعذر إلغاء الطلب. حاول مرة أخرى.",
+    "collectorPending": "سيتم تعيين مندوب لسحب العينة قريبًا",
+    "filterTitle": "تصفية وترتيب",
+    "filterShow": "ما يظهر",
+    "filterSort": "الترتيب",
+    "filterAll": "الكل",
+    "filterPackages": "الباقات فقط",
+    "filterTests": "التحاليل فقط",
+    "sortDefault": "الافتراضي",
+    "sortRating": "الأعلى تقييمًا",
+    "sortPrice": "الأقل سعرًا"
   },
   "OrderContext": {
     "hint": "تتحدّث الأسعار والتغطية فور أي تغيير",
@@ -3513,7 +3584,14 @@
     "callNurse": "اتصل بالممرض",
     "nurseOnMap": "عرض الممرض على الخريطة",
     "insuranceNone": "لا يوجد طلب تأمين",
-    "insuranceNoneBody": "عند طلب زيارة بالتأمين ستظهر الموافقة هنا."
+    "insuranceNoneBody": "عند طلب زيارة بالتأمين ستظهر الموافقة هنا.",
+    "nurseMapTitle": "موقع الممرض على الخريطة",
+    "nurseDirections": "الاتجاهات إلى موقع الممرض",
+    "addressUseLocation": "استخدام موقعي الحالي",
+    "addressLocating": "جارٍ تحديد موقعك...",
+    "addressLocationSet": "سيتم استخدام موقعك الحالي للزيارة",
+    "addressUseSaved": "استخدام عنوان محفوظ بدلًا من ذلك",
+    "addressLocationDenied": "تعذر تحديد موقعك. اسمح بالوصول إلى الموقع أو اختر عنوانًا محفوظًا."
   },
   "MaternityWeb": {
     "title": "الأمومة",
@@ -4057,7 +4135,8 @@
       "failed": "تعذّر حفظ البوليصة.",
       "scan": "مسح بطاقة التأمين بالكاميرا",
       "scanned": "تم استخراج البيانات المرئية من البطاقة. راجعها قبل الحفظ.",
-      "scanFailed": "فشل التعرف على البطاقة. أدخل البيانات يدويًا."
+      "scanFailed": "فشل التعرف على البطاقة. أدخل البيانات يدويًا.",
+      "network": "الشبكة"
     },
     "coverage": {
       "title": "ما تغطيه وثيقتي",

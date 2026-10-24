@@ -6,6 +6,7 @@ import { UserRole } from '../../common/enums';
 import { PublicCache } from '../../common/public-cache.decorator';
 import { SEARCH_LOCALES, SEARCH_SECTIONS, SearchLocale, SearchSection } from './search-documents';
 import { SearchService } from './search.service';
+import { SEARCH_SORTS, SearchRefine } from './search-refine';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
 export class SearchQueryDto {
@@ -13,6 +14,10 @@ export class SearchQueryDto {
   @IsOptional() @IsIn([...SEARCH_SECTIONS]) section?: SearchSection;
   @IsOptional() @IsIn([...SEARCH_LOCALES]) locale?: SearchLocale;
   @IsOptional() @IsString() @Matches(/^\d{1,2}$/) limit?: string;
+  @IsOptional() @IsIn([...SEARCH_SORTS]) sort?: SearchRefine['sort'];
+  @IsOptional() @IsString() @Matches(/^\d{1,7}(\.\d{1,2})?$/) price_min?: string;
+  @IsOptional() @IsString() @Matches(/^\d{1,7}(\.\d{1,2})?$/) price_max?: string;
+  @IsOptional() @IsIn(['true']) on_sale?: string;
 }
 
 /** Owner spec (issue 1544): a suggestion may be reused for 5 minutes by the browser and for an hour at the edge. */
@@ -33,7 +38,8 @@ export class SearchController {
   @UseGuards(UserRateLimitGuard)
   @UserRateLimit('search', 120, 60)
   search(@Query() dto: SearchQueryDto) {
-    return this.svc.search(dto.q || '', { section: dto.section, locale: dto.locale, limit: dto.limit ? Number(dto.limit) : undefined });
+    return this.svc.search(dto.q || '', { section: dto.section, locale: dto.locale, limit: dto.limit ? Number(dto.limit) : undefined,
+      refine: { sort: dto.sort, price_min: dto.price_min !== undefined ? Number(dto.price_min) : undefined, price_max: dto.price_max !== undefined ? Number(dto.price_max) : undefined, on_sale: dto.on_sale === 'true' } });
   }
 
   /**

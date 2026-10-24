@@ -93,7 +93,7 @@ describe("the dynamic twins of the list pages and the unavailable page are confi
     }
     const keys = (path: string) => rewrites.filter((r) => r.source.includes(path)).map((r) => r.has[0].key).sort();
     expect(keys("/c/:path*")).toEqual(["page", "q", "sort"]);
-    expect(keys("/consultations/doctors")).toEqual(["available", "city", "gender", "insurance", "insurance_class", "lat", "lng", "nearest", "payment", "q", "sort", "specialty", "type"]);
+    expect(keys("/consultations/doctors")).toEqual(["available", "city", "degree", "gender", "insurance", "insurance_class", "lat", "lng", "nearest", "payment", "q", "sort", "specialty", "type"]);
     expect(keys("/articles")).toEqual(["category", "q", "tab"]);
   });
 
