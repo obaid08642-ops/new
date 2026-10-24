@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { Screen, Skeleton, SectionHeader, useTabBarHeight } from '../../../packages/ui-native/src';
 import { useApp } from '../../src/context/AppContext';
 import { apiFetch } from '../../src/utils/api';
+import { BOOK_NOW_HREF } from '../../src/utils/consultNearby';
 import { healthDayT } from '../../src/i18n/health-day';
 import HomeSections from '../../src/components/HomeSections';
 import { HomeTopRow } from '../../src/components/home/HomeTopRow';
@@ -139,7 +140,7 @@ export default function HomeScreen() {
   if (maternity?.profile_ready) records.push({ key: 'maternity', service: 'maternity', title: t('maternity'), subtitle: maternity.is_pregnant ? t('maternityPregnancy') : t('maternityCycle'), route: '/maternity/hub' });
 
   const shownRecords = visibleItems(records, (row) => row.route, disabled);
-  const goAppointment = () => (appointment?.id ? router.push({ pathname: '/consultations/appointment-detail', params: { appointmentId: appointment.id } }) : router.push('/(tabs)/consultations'));
+  const goAppointment = () => (appointment?.id ? router.push({ pathname: '/consultations/appointment-detail', params: { appointmentId: appointment.id } }) : router.push(BOOK_NOW_HREF as never));
   const hasAppointment = Boolean(appointment && (appointment.doctorName || appointment.type || appointment.time || appointment.date));
 
   return (

@@ -49,6 +49,6 @@ describe('doctors search: the real answer shape and query names', () => {
   });
 
   it('offers only sorts the server knows (no waiting-time sort)', () => {
-    expect([...DOCTOR_SORTS]).toEqual(['rating', 'price_asc']);
+    expect([...DOCTOR_SORTS]).toEqual(['rating', 'price_asc', 'available_today']);
   });
 });

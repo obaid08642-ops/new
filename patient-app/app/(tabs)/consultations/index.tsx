@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
-import { router, type Href } from 'expo-router';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { AppHeader, Chip, DoctorCard, EmptyState, ErrorState, FIcon, OfferCard, Screen, Search, useTabBarHeight } from '../../../../packages/ui-native/src';
 import { COLUMN, step as scale, useScreenUi } from '../../../src/components/screen/ScreenKit';
@@ -11,6 +11,8 @@ import { logError } from '../../../src/utils/logger';
 import { buildDoctorsPath, doctorRows, keepsServerOrder, nearestApplies, resolveNearbyPlace, type NearbyPlace } from '../../../src/utils/consultNearby';
 import { deviceNearbyDeps } from '../../../src/utils/consultNearbyDevice';
 import { pickLocalized } from '../../../src/utils/localize';
+import { sortFromParam } from '../../../src/utils/doctorSearch';
+import { GuaranteeLine, useLateGuarantee } from '../../../src/components/consult/Differentiators';
 
 /**
  * Consultations hub — board Consult (canvas/Consult.dc.html): the header with the appointments button, the search with
@@ -91,7 +93,7 @@ interface Named {
   name?: string;
 }
 
-type Sort = 'rating' | 'price';
+type Sort = 'rating' | 'price' | 'available_today';
 type TitleF = 'all' | 'specialist' | 'consultant';
 type GenderF = 'all' | 'male' | 'female';
 type PriceF = 'all' | 'low' | 'mid' | 'high';
@@ -116,7 +118,13 @@ export default function Consultations() {
   const [filterTitle, setFilterTitle] = useState<TitleF>('all');
   const [filterGender, setFilterGender] = useState<GenderF>('all');
   const [filterPrice, setFilterPrice] = useState<PriceF>('all');
-  const [filterSort, setFilterSort] = useState<Sort>('rating');
+  // "Book now" entries open this tab with ?sort=available_today, which preselects the availability order (owner decision 2026-10-24).
+  const entrySort = sortFromParam(useLocalSearchParams<{ sort?: string }>().sort);
+  const [filterSort, setFilterSort] = useState<Sort>(entrySort === 'available_today' ? 'available_today' : 'rating');
+  useEffect(() => {
+    if (entrySort === 'available_today') setFilterSort('available_today');
+  }, [entrySort]);
+  const guarantee = useLateGuarantee();
   const [showInsModal, setShowInsModal] = useState(false);
   const [insCompany, setInsCompany] = useState('');
   const [insClass, setInsClass] = useState('');
@@ -130,7 +138,7 @@ export default function Consultations() {
   const [place, setPlace] = useState<NearbyPlace | null>(null);
   const [locating, setLocating] = useState(false);
   const [noPlace, setNoPlace] = useState(false);
-  const doctorsPath = buildDoctorsPath({ mode: activeVt, nearest, availableNow, place });
+  const doctorsPath = buildDoctorsPath({ mode: activeVt, nearest, availableNow, place, availableToday: filterSort === 'available_today' });
 
   const toggleNearest = async () => {
     if (nearest) {
@@ -272,7 +280,7 @@ export default function Consultations() {
       })
       .sort((a, b) => {
         // "Nearest": the server's distance order is kept (the sort is stable)
-        if (keepsServerOrder(doctorsPath) && filterSort === 'rating') return 0;
+        if (keepsServerOrder(doctorsPath) && (filterSort === 'rating' || filterSort === 'available_today')) return 0;
         if (filterSort === 'price') return priceOf(a) - priceOf(b);
         return (b.rating || Number(b.r || 0)) - (a.rating || Number(a.r || 0));
       });
@@ -417,8 +425,8 @@ export default function Consultations() {
             <EmptyState icon="stethoscope" tone="blue" title={k('consult.hub.empty')} body={k('consult.hub.emptyBody')} theme={theme} />
           ) : (
             listed.map((d, i) => (
+              <View key={d.id || i} style={{ gap: 6 }}>
               <DoctorCard
-                key={d.id || i}
                 name={d.n}
                 photoSrc={d.img || d.photo_url}
                 tone={specialtyLook(d.specialty_ar || d.sp).tone}
@@ -439,6 +447,8 @@ export default function Consultations() {
                 theme={theme}
                 testID={`hub-doctor-${i}`}
               />
+              <GuaranteeLine guarantee={guarantee} testID={`hub-doctor-${i}-guarantee`} />
+              </View>
             ))
           )}
           {filteredDocs.length > 10 ? (
@@ -450,7 +460,7 @@ export default function Consultations() {
       </View>
 
       <Sheet open={showFilter} title={k('consult.hub.advanced')} onClose={() => setShowFilter(false)} closeLabel={k('consult.close')}>
-        {choice<Sort>(k('consult.hub.sort'), filterSort, setFilterSort, [['rating', k('consult.hub.sortRating')], ['price', k('consult.hub.sortPrice')]])}
+        {choice<Sort>(k('consult.hub.sort'), filterSort, setFilterSort, [['rating', k('consult.hub.sortRating')], ['price', k('consult.hub.sortPrice')], ['available_today', k('consult.hub.sortAvailable')]])}
         {choice<TitleF>(k('consult.hub.grade'), filterTitle, setFilterTitle, [['all', k('consult.hub.all')], ['specialist', k('consult.hub.specialist')], ['consultant', k('consult.hub.consultant')]])}
         {choice<GenderF>(k('consult.hub.gender'), filterGender, setFilterGender, [['all', k('consult.hub.all')], ['male', k('consult.hub.male')], ['female', k('consult.hub.female')]])}
         {choice<PriceF>(k('consult.hub.price'), filterPrice, setFilterPrice, [['all', k('consult.hub.all')], ['low', k('consult.hub.priceLow', { n: num(100) })], ['mid', k('consult.hub.priceMid', { a: num(100), b: num(200) })], ['high', k('consult.hub.priceHigh', { n: num(200) })]])}

@@ -8,6 +8,7 @@ import { Glyph } from '../pharmacy/PharmacyKit';
 import { showLocalizedAlert } from '../LocalizedAlert';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
+import { BOOK_NOW_HREF } from '../../utils/consultNearby';
 import { HealthScreen, HealthTabs, Notice, Panel, Pill, Row, SheetForm, bodyOf, rowsOf, useRemote, useTab } from './HealthKit';
 
 /**
@@ -216,7 +217,7 @@ function ConditionsTab() {
                     </View>
                     {cond.medications?.length ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{`${k('health.profile.medicines')}: ${cond.medications.join('، ')}`}</Text> : null}
                     {cond.tips?.map((tip, i) => <Text key={i} style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{`• ${tip}`}</Text>)}
-                    <Button label={k('health.profile.bookCheckup')} variant="outline" size="md" fullWidth onPress={() => router.push('/(tabs)/consultations' as Href)} theme={theme} />
+                    <Button label={k('health.profile.bookCheckup')} variant="outline" size="md" fullWidth onPress={() => router.push(BOOK_NOW_HREF as Href)} theme={theme} />
                   </View>
                 ) : null}
               </Card>

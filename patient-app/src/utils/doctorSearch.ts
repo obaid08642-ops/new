@@ -5,12 +5,12 @@
  * backend/src/modules/care/care.service.ts (`toPublicDoctor`): name_ar, name_en, specialty, title, academic_degree,
  * years_experience, consultation_modes[], price_clinic / price_online / price_home, hospital, rating, reviews_count,
  * accepts_insurance, next_available_at. The query names the controller reads are `q`, `specialty` and `sort`
- * (rating, price_asc, price_desc, experience, distance_asc, distance_desc). Nothing is invented: a field the server
+ * (rating, price_asc, price_desc, experience, distance_asc, distance_desc, available_today). Nothing is invented: a field the server
  * does not send stays null (the server has no waiting-time data, so there is no waiting-time sort or value).
  */
 
 /** The sorts the view offers, as the server names them. */
-export const DOCTOR_SORTS = ['rating', 'price_asc'] as const;
+export const DOCTOR_SORTS = ['rating', 'price_asc', 'available_today'] as const;
 export type DoctorSort = (typeof DOCTOR_SORTS)[number];
 
 /** `?q=...&specialty=...&sort=...`, with empty values left out. */
@@ -74,4 +74,10 @@ export function doctorRows(res: unknown, pick: (ar: string | null, en: string | 
     });
   }
   return rows;
+}
+
+/** The sort a route asks for (`?sort=`): only a sort the view offers; the book-now entry sends `available_today`. */
+export function sortFromParam(value: unknown): DoctorSort | null {
+  const v = Array.isArray(value) ? value[0] : value;
+  return (DOCTOR_SORTS as readonly string[]).includes(v as string) ? (v as DoctorSort) : null;
 }

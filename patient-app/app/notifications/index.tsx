@@ -121,13 +121,15 @@ export default function NotificationsScreen() {
     try {
       // #417: the server writes the texts in the app's language
       const rows = await apiFetch<RawNotification[]>(`/notifications?lang=${encodeURIComponent(lang)}`);
-      setNotifs((Array.isArray(rows) ? rows : []).map(mapNotification));
+      setNotifs((Array.isArray(rows) ? rows : []).map((row) => mapNotification(row, k)));
     } catch {
       setFailed((await isOffline()) ? 'offline' : 'error');
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
+    // k is rebuilt every render but only changes with lang
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lang]);
 
   useEffect(() => {

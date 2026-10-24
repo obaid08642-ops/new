@@ -9,6 +9,7 @@ import { HealthTabs, Notice, Panel, Pill, Row } from '../health/HealthKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
+import { BOOK_NOW_HREF } from '../../utils/consultNearby';
 import { pickLocalized } from '../../utils/localize';
 import { i18nManager } from '../../i18n/LanguageManager';
 import { AI_HOME, AnswerCard, MyBubble } from './AssistantKit';
@@ -27,7 +28,7 @@ import { AI_HOME, AnswerCard, MyBubble } from './AssistantKit';
 const MODES = ['symptoms', 'prescription', 'report'] as const;
 type Mode = (typeof MODES)[number];
 
-const BOOK = '/(tabs)/consultations' as Href;
+const BOOK = BOOK_NOW_HREF as Href;
 const URGENT_HELP = '/emergency' as Href;
 const doctorsFor = (specialty: string | null): Href =>
   (specialty ? `/search?view=doctors&specialty=${encodeURIComponent(specialty)}` : BOOK) as Href;

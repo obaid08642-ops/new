@@ -16,7 +16,7 @@ const str = (v: unknown): string | null => (typeof v === 'string' && v !== '' ? 
 
 // ---------- the draft (memory only; the quote lives 30 minutes on the server) ----------
 
-export interface ProviderPick { row: ProviderRow; best: boolean; items: Array<{ catalog_id: string; price: number; coverage: string | null }>; insuranceShare: number | null; patientShare: number | null }
+export interface ProviderPick { row: ProviderRow; best: boolean; items: Array<{ catalog_id: string; price: number; coverage: string | null }>; insuranceShare: number | null; patientShare: number | null; estimatedShare?: number | null }
 export type TimePick =
   | { type: 'window'; start: string; end: string }
   | { type: 'slot'; id: string; start: string; end: string }
@@ -56,6 +56,7 @@ export function makePick(group: QuoteGroup, row: ProviderRow): ProviderPick {
     items: best ? best.items : [],
     insuranceShare: best ? best.estimated_insurance_share : null,
     patientShare: best ? best.patient_share : null,
+    estimatedShare: best ? best.estimated_patient_share ?? null : null,
   };
 }
 

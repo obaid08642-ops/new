@@ -10,6 +10,10 @@
  *                     server). The server orders by the earliest free slot; with "Nearest" too (clinic and home visit)
  *                     the position is sent and the free doctors come nearest first (2-app#10).
  *
+ * "Available today" is a sort, not a filter (owner decision 2026-10-24): sort=available_today, today's free doctors first and
+ * then the soonest next slot. It is the default when the patient arrives from a "book now" entry (BOOK_NOW_HREF). "Nearest"
+ * wins when both are on, because a distance order cannot also be an availability order.
+ *
  * Both controls are always on (decision 20, issue 339). With neither filter active the path is exactly
  * `/providers?type=doctor`.
  */
@@ -19,6 +23,8 @@ export type NearbyPlace = { kind: 'coords'; lat: number; lng: number } | { kind:
 
 export const DOCTORS_PATH = '/providers?type=doctor';
 export const CARE_DOCTORS_PATH = '/care/doctors';
+/** The entry of every "book now" button: the doctors hub with the "available today" sort preselected. */
+export const BOOK_NOW_HREF = '/(tabs)/consultations?sort=available_today';
 /** "Available now" means a doctor with a free slot within this many minutes. */
 export const AVAILABLE_WITHIN_MINUTES = 15;
 
@@ -34,10 +40,12 @@ export const careType = (mode: NearbyMode): 'clinic' | 'video' | 'home_visit' =>
  * The hub's doctor request. `place` is what "Nearest" needs (null: the patient's place is not known, so nothing is
  * sent for it). With neither filter active the path is the plain one.
  */
-export function buildDoctorsPath(opts: { mode: NearbyMode; nearest: boolean; availableNow: boolean; place: NearbyPlace | null }): string {
+export function buildDoctorsPath(opts: { mode: NearbyMode; nearest: boolean; availableNow: boolean; place: NearbyPlace | null; availableToday?: boolean }): string {
   const nearest = opts.nearest && nearestApplies(opts.mode) && opts.place !== null;
-  if (!nearest && !opts.availableNow) return DOCTORS_PATH;
+  const today = opts.availableToday === true && !nearest;
+  if (!nearest && !opts.availableNow && !today) return DOCTORS_PATH;
   const parts: string[] = [`type=${careType(opts.mode)}`];
+  if (today) parts.push('sort=available_today');
   if (opts.availableNow) parts.push(`available_within=${AVAILABLE_WITHIN_MINUTES}`);
   if (nearest && opts.place) {
     if (opts.place.kind === 'coords') {
@@ -50,7 +58,7 @@ export function buildDoctorsPath(opts: { mode: NearbyMode; nearest: boolean; ava
 }
 
 /** True when the server decides the order (distance, or earliest free slot): the screen then keeps it. */
-export const keepsServerOrder = (path: string): boolean => path.startsWith(CARE_DOCTORS_PATH) && /[?&](sort=distance|available_within=)/.test(path);
+export const keepsServerOrder = (path: string): boolean => path.startsWith(CARE_DOCTORS_PATH) && /[?&](sort=distance|sort=available_today|available_within=)/.test(path);
 
 /** True when the request asks the server for the distance order. */
 export const sortsByDistance = (path: string): boolean => path.includes('&sort=distance');
