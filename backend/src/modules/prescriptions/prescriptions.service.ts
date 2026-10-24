@@ -350,7 +350,12 @@ export class PrescriptionsService {
   }
 
   async listMine(patient_id: string) {
-    return this.logged({ id: patient_id, role: 'patient' }, 'list', await this.model.find({ patient_id }, { _id: 0, __v: 0, upload_image: 0 }).sort({ createdAt: -1 }).limit(100));
+    const rows: any[] = await this.model.find({ patient_id }, { _id: 0, __v: 0, upload_image: 0 }).sort({ createdAt: -1 }).limit(100);
+    // Design parity (#1819): the web list shows the same two badges as the app's health list. The photo itself stays out of
+    // the list; only whether one was uploaded (a scanned prescription) and whether an order was made from it.
+    const uploaded = new Set<string>(await this.model.distinct('id', { patient_id, upload_image: { $exists: true, $nin: [null, ''] } }));
+    const out = rows.map((r: any) => ({ ...(typeof r?.toObject === 'function' ? r.toObject() : r), isPurchased: !!r.order_id, isOcr: uploaded.has(String(r.id)) }));
+    return this.logged({ id: patient_id, role: 'patient' }, 'list', out);
   }
   /** The doctor's own prescriptions, newest first; optionally only those for one patient and/or one appointment. */
   async listForDoctor(doctor_id: string, filter: { patient_id?: string; appointment_id?: string } = {}) {

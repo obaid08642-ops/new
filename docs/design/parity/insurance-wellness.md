@@ -10,7 +10,7 @@ Patient claims stay removed (owner decision 35): only the redirects were checked
 | 1 | /insurance policy tab | policy card details | fixed | policy number, member name, national id (or member id), network under the card (`PolicyCard details`) |
 | 2 | /insurance policy tab | status badge | fixed | from `verified`: "Reviewed" / "In review" (app wording), "No policy" without one |
 | 3 | /insurance policy tab | CHI lookup | blocked | app-only WebView of the CHI portal, no web flow or endpoint; needs-review [owner] |
-| 4 | /insurance policy tab | change policy in place | open | still the blank add form; needs network chips (GET /insurance/companies/:id/networks), a network field in POST /api/insurance/policy and a prefill; needs-review [client] |
+| 4 | /insurance policy tab | change policy in place | fixed now | the add-policy form starts from the saved policy (company, number, member id, name, expiry, network) and shows the insurer's network chips (GET /insurance/companies/:id/networks); the network is sent with the policy |
 | 5 | /insurance policy tab | requests list rows | fixed | title by booking kind, price and date, state pill (request number / provider name are not in the app rows) |
 | 6 | /insurance policy tab | "view all" link (board) | blocked | no full-list screen exists anywhere; needs-review [owner] |
 | 7 | /insurance all tabs | decision-35 note | fixed | shown under every tab |

@@ -87,7 +87,7 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
         <SectionCard id="clinic-photos-title" title={t("clinicPhotosTitle")}>
           <ul className={styles.gallery}>
             {doctor.clinicPhotos.map((src, index) => (
-              <li key={src}><img src={optimizedImageSrc(src, 192)} alt={t("clinicPhotoAlt", { n: index + 1 })} className={styles.galleryImg} loading="lazy" decoding="async" /></li>
+              <li key={src}><a href={optimizedImageSrc(src, 1200)} target="_blank" rel="noopener noreferrer" aria-label={t("clinicPhotoOpen", { n: index + 1 })}><img src={optimizedImageSrc(src, 192)} alt={t("clinicPhotoAlt", { n: index + 1 })} className={styles.galleryImg} loading="lazy" decoding="async" /></a></li>
             ))}
           </ul>
         </SectionCard>
@@ -118,6 +118,14 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
         />
         {/* One booking path: the booking page has the day strip, the slots, the slot hold, the address of a home visit and the payment. */}
         <ButtonLink href={`/${locale}/consultations/book/${encodeURIComponent(doctor.id)}?service_type=${serviceType}`} label={t("chooseDayTime")} fullWidth />
+      </SectionCard>
+      <SectionCard id="faq-title" title={t("faqTitle")}>
+        {([["faqCancelQ", "faqCancelA"], ["faqPayQ", "faqPayA"]] as const).map(([q, a]) => (
+          <details key={q} className={styles.faq}>
+            <summary>{t(q)}</summary>
+            <p className={styles.body}>{t(a)}</p>
+          </details>
+        ))}
       </SectionCard>
       <Notice>{t("detailNotice")}</Notice>
     </ConsultPage>
