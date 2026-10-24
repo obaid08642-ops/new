@@ -55,6 +55,17 @@ export function unfilledItems(order: any, allocations: any[]): Array<{ order_ite
   return out;
 }
 
+/**
+ * The courier the pharmacy recorded when it marked the order out for delivery. That write goes to the order's own
+ * `delivery` (see PharmacyAllocationService.outForDelivery); an allocation's `delivery` is read first when it has one.
+ * Only what the pharmacy typed is returned, null when it did not.
+ */
+function courierOf(order: any, allocs: any[]) {
+  const pick = (key: 'courier_name' | 'courier_phone' | 'courier_vehicle'): string | null =>
+    allocs.find((a: any) => a.delivery?.[key])?.delivery?.[key] ?? order?.delivery?.[key] ?? null;
+  return { courier_name: pick('courier_name'), courier_phone: pick('courier_phone'), courier_vehicle: pick('courier_vehicle') };
+}
+
 @Injectable()
 export class PharmacyOrderService {
   constructor(
@@ -241,8 +252,7 @@ export class PharmacyOrderService {
       });
 
       // Courier fields from allocation delivery
-      const courierName = orderAllocs.find((a: any) => a.delivery?.courier_name)?.delivery?.courier_name ?? null;
-      const courierPhone = orderAllocs.find((a: any) => a.delivery?.courier_phone)?.delivery?.courier_phone ?? null;
+      const courier = courierOf(order, orderAllocs);
 
       // Pharmacy names for allocations
       const allocationsDetail = orderAllocs.map((a: any) => ({ ...a, ...(pharmacyNamesMap.get(a.pharmacy_account_id) ?? { pharmacy_name_ar: null, pharmacy_name_en: null }) }));
@@ -256,8 +266,7 @@ export class PharmacyOrderService {
         allocations_detail: allocationsDetail,
         pharmacy_name_ar: single?.pharmacy_name_ar ?? null,
         pharmacy_name_en: single?.pharmacy_name_en ?? null,
-        courier_name: courierName,
-        courier_phone: courierPhone,
+        ...courier,
         ...view,
       };
     });
@@ -334,8 +343,7 @@ export class PharmacyOrderService {
     });
 
     // Courier fields from allocation delivery (when assigned)
-    const courierName = allocs.find((a: any) => a.delivery?.courier_name)?.delivery?.courier_name ?? null;
-    const courierPhone = allocs.find((a: any) => a.delivery?.courier_phone)?.delivery?.courier_phone ?? null;
+    const courier = courierOf(order, allocs);
 
     // Unit price per line from selected offer (pricing_snapshot or offer items)
     const offerItemsMap = new Map<string, number>();
@@ -378,8 +386,7 @@ export class PharmacyOrderService {
       allocations_detail: allocationsDetail,
       pharmacy_name_ar: single?.pharmacy_name_ar ?? null,
       pharmacy_name_en: single?.pharmacy_name_en ?? null,
-      courier_name: courierName,
-      courier_phone: courierPhone,
+      ...courier,
       search: searchState,
       cancellation: { refund_now: cancelRefundNow },
       // 22.5: what an edit or a split can still do for this order
