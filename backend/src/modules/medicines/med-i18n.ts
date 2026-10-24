@@ -247,6 +247,17 @@ export function englishNameUnder(productLocale: string, localizedName: string | 
   return en;
 }
 
+function publicInteractions(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  const out: string[] = [];
+  for (const v of value) {
+    const t = typeof v === 'string' ? v.trim().slice(0, 120) : '';
+    if (t && !out.includes(t)) out.push(t);
+    if (out.length >= 30) break;
+  }
+  return out;
+}
+
 export function resolveMedicinePublicDto(raw: Record<string, any>, productLocale: string) {
   const lang = productLocaleToDb(productLocale);
   const tr = raw?.translations?.[lang] || {};
@@ -342,6 +353,10 @@ export function resolveMedicinePublicDto(raw: Record<string, any>, productLocale
     availability_status: raw?.availability_status || 'none',
     available: raw?.availability_status === 'none' || !raw?.availability_status,
     country_of_origin: raw?.country_of_origin || null,
+    // Design parity (#1819): the stored refrigeration flag, and the active ingredients recorded as interacting with this
+    // product (leaflet information; strings only, trimmed, no duplicates, at most 30). Nothing is derived or invented.
+    cold_chain: raw?.cold_chain === true,
+    interactions: publicInteractions(raw?.interactions),
     images,
     image: images[0] || null,
     // Decision D (issue 1556): the record's variant group and its own attribute (power / colour / shade / picture order).
