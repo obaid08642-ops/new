@@ -151,6 +151,11 @@ export class AppointmentsService {
     }
     const doctor = await this.providerModel.findOne({ id: body.doctor_id, type: ProviderType.DOCTOR, status: ProviderStatus.ACTIVE });
     if (!doctor) throw new NotFoundException('doctor_not_found');
+    // Owner decision 2026-10-24: bookings stop the moment the SCFHS licence date passes; the daily monitor then suspends the
+    // account, this check closes the hours in between.
+    if ((doctor as any).license_expiry_date && new Date((doctor as any).license_expiry_date).getTime() <= Date.now()) {
+      throw new BadRequestException('doctor_license_expired');
+    }
     if (!doctor.consultation_modes?.includes(body.service_type)) {
       throw new BadRequestException(`doctor does not support service_type=${body.service_type}`);
     }
