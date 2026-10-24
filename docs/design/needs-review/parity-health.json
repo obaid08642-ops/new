@@ -1,0 +1,101 @@
+[
+  {
+    "batch": "parity-health",
+    "app": "patient-web",
+    "screen": "/family/add",
+    "element": "Invite: QR code",
+    "file": "patient-web/components-next/family/add-family.tsx",
+    "line": 24,
+    "found": "[client] The app shows the invite as a QR; patient-web has no QR library (none in package.json), so the invite shows the code and Share only.",
+    "suspect": "Add a QR dependency (owner/reviewer decision) and draw the invite URL as a QR.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-health",
+    "app": "patient-web",
+    "screen": "/family/[member]",
+    "element": "Book for this member",
+    "file": "patient-web/app/[locale]/family/[memberRef]/page.tsx",
+    "line": 62,
+    "found": "[client] The Chat button is added; 'Book on their behalf' needs the web booking flow to carry for_member_id (the app's setBookingFor), which the web booking forms (appointment-booking-form, home-care-booking-form) do not have.",
+    "suspect": "Add for_member_id to the web booking flow, then a Book button here.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-health",
+    "app": "patient-web",
+    "screen": "/health/records",
+    "element": "Prescriptions: purchased and OCR pills, data source",
+    "file": "patient-web/app/[locale]/health/records/page.tsx",
+    "line": 69,
+    "found": "[backend] The app lists GET /health/prescriptions (isPurchased, isOcr, ocrAccuracy); the web lists GET /prescriptions/mine, which has no purchased or OCR fields and whose ids open /prescriptions/:id.",
+    "suspect": "Decide one source for both clients (or add isPurchased/ocrAccuracy to /prescriptions/mine); then draw the pills.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-health",
+    "app": "patient-web",
+    "screen": "/reports/[id]",
+    "element": "Lab categories and data source",
+    "file": "patient-web/app/[locale]/reports/[reportId]/page.tsx",
+    "line": 34,
+    "found": "[backend] The app reads GET /reports/:id (lab categories with test values, units and normal/abnormal); the web reads GET /medical-reports/:id, which has no categories.",
+    "suspect": "Return the lab categories from /medical-reports/:id or switch the web to /reports/:id.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-health",
+    "app": "patient-web",
+    "screen": "/reports/passport",
+    "element": "QR code and expiry",
+    "file": "patient-web/app/[locale]/reports/passport/page.tsx",
+    "line": 57,
+    "found": "[client] The token is printed as text; no QR (no QR library) and no expiry pill.",
+    "suspect": "Add a QR dependency, draw the token as a QR and show its expiry.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-health",
+    "app": "patient-web",
+    "screen": "/reports/passport",
+    "element": "Profile summary and share",
+    "file": "patient-web/app/[locale]/reports/passport/page.tsx",
+    "line": 57,
+    "found": "[owner] Allergies, long-term medicines, emergency contacts, age and gender are not drawn, and there is no Share action; sharing the health ID is a privacy decision.",
+    "suspect": "Owner decides what the Share action sends; then add the summary rows.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-health",
+    "app": "patient-web",
+    "screen": "/health",
+    "element": "Wearables row and linked-devices block",
+    "file": "patient-web/app/[locale]/health/page.tsx",
+    "line": 177,
+    "found": "[owner] Owner decision F20 hides the wearables row and route unless NEXT_PUBLIC_WEARABLES_ENABLED=true; the board's linked-devices block is not drawn.",
+    "suspect": "Keep as is until the owner reverses F20.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-health",
+    "app": "patient-web",
+    "screen": "/health/wearables",
+    "element": "Devices list",
+    "file": "patient-web/app/[locale]/health/wearables/page.tsx",
+    "line": 19,
+    "found": "[owner] The route is static text and 404 unless the env flag is on (F20); the app lists GET /wearables/devices.",
+    "suspect": "Owner decision F20.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-health",
+    "app": "patient-web",
+    "screen": "/prescriptions/[id]",
+    "element": "Not-orderable state, diagnosis, notes and photo",
+    "file": "patient-web/app/[locale]/prescriptions/[prescriptionId]/page.tsx",
+    "line": 102,
+    "found": "[owner] The web detail is the documented bounded view (no diagnosis, notes or photo) and hides the order button when the state is not orderable; the app always offers Order for unpurchased prescriptions.",
+    "suspect": "Accepted difference unless the owner wants the app's behaviour.",
+    "review_status": "open"
+  }
+]

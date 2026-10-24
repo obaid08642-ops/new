@@ -122,6 +122,24 @@ export function AddressList({ addresses, locale }: { addresses: PatientAddress[]
     }
   }
 
+  async function makeDefault(id: string) {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/patient/users/me/addresses/${encodeURIComponent(id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
+        body: JSON.stringify({ is_default: true }),
+      });
+      if (!res.ok) setError("save");
+      else router.refresh();
+    } catch {
+      setError("save");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function save(event: FormEvent, address: PatientAddress) {
     event.preventDefault();
     const patch = buildAddressPatch(address, form);
@@ -168,6 +186,7 @@ export function AddressList({ addresses, locale }: { addresses: PatientAddress[]
                 </span>
                 {rowMode === "view" ? (
                   <>
+                    {address.is_default ? null : <Button label={t("makeDefault")} variant="outline" size="sm" disabled={busy} onClick={() => void makeDefault(address.id)} />}
                     <Button label={t("edit")} variant="outline" size="sm" disabled={busy} onClick={() => open(address, "edit")} />
                     <Button label={t("remove")} variant="outline" size="sm" disabled={busy} onClick={() => open(address, "confirmRemove")} />
                   </>

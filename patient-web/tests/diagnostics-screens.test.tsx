@@ -126,13 +126,14 @@ describe("the flows the redesign must not touch", () => {
     expect(source).toContain('localStorage.removeItem("nabd-diagnostics-cart")');
   });
 
-  it("one booking path (journeys#49, #50): /diagnostics/labs/book adds the test to the cart, the detail pages have one action", () => {
+  it("parity: /diagnostics/labs/book and test-detail open the order item page; the detail pages add through it", () => {
     expect(existsSync(resolve(process.cwd(), "components-next/lab-booking-form.tsx"))).toBe(false);
     const book = code("app/[locale]/diagnostics/labs/book/page.tsx");
-    expect(book).toContain("redirect(`/${locale}/diagnostics/cart?add=${encodeURIComponent(service.id)}");
-    expect(book).not.toContain("noProviderTitle");
-    for (const file of ["app/[locale]/diagnostics/test-detail/page.tsx", "app/[locale]/diagnostics/packages/[packageId]/page.tsx"]) {
+    expect(book).toContain("redirect(`/${locale}/labs/${encodeURIComponent(serviceId)}?kind=lab`)");
+    expect(code("app/[locale]/diagnostics/test-detail/page.tsx")).toContain("?kind=${sp.type === \"radiology\" ? \"radiology\" : \"lab\"}");
+    for (const file of ["app/[locale]/diagnostics/test-detail/page.tsx", "app/[locale]/diagnostics/packages/[packageId]/page.tsx", "app/[locale]/diagnostics/radiology/[serviceId]/page.tsx"]) {
       expect(code(file), file).not.toContain("/diagnostics/labs/book");
+      expect(code(file), file).not.toContain("/diagnostics/cart?add=");
     }
   });
 

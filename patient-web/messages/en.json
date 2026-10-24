@@ -175,7 +175,8 @@
     "rateLimited": "Too many attempts. Wait a minute and try again.",
     "serverError": "Something went wrong on our side. Try again in a moment.",
     "guestBlocked": "We couldn't open guest access. Sign in, or try again in a moment.",
-    "googleUnavailable": "Google sign-in isn't available right now. Use another way to sign in."
+    "googleUnavailable": "Google sign-in isn't available right now. Use another way to sign in.",
+    "locked": "Too many failed attempts. Try again in {minutes} minutes."
   },
   "NursingCatalog": {
     "eyebrow": "Verified nursing services",
@@ -263,7 +264,17 @@
       "returns": "Return request"
     },
     "statusUnavailable": "Status unavailable",
-    "partialNote": "Some orders could not be loaded. The rest are shown below; try again in a moment."
+    "partialNote": "Some orders could not be loaded. The rest are shown below; try again in a moment.",
+    "filterLabel": "Filter by service",
+    "filterAll": "All",
+    "filterKind": {
+      "pharmacy": "Pharmacy",
+      "consultation": "Doctors",
+      "labs": "Lab tests",
+      "radiology": "Radiology",
+      "nursing": "Nursing",
+      "returns": "Returns and refunds"
+    }
   },
   "Cart": {
     "eyebrow": "Private cart",
@@ -378,7 +389,22 @@
     "callOpen": "Join the video visit",
     "cancelledRefund": "Appointment cancelled. {amount} ({percent}% of what you paid) goes back to your original payment method.",
     "cancelledNoRefund": "Appointment cancelled. Under the cancellation policy no refund is due.",
-    "cancelledNotCharged": "Appointment cancelled. Nothing was charged."
+    "cancelledNotCharged": "Appointment cancelled. Nothing was charged.",
+    "bookingNumber": "Booking number",
+    "paymentMethodLabel": "Payment method",
+    "amount": "Amount",
+    "bookAgain": "Book again",
+    "emptyUpcoming": "No upcoming appointments",
+    "emptyPast": "No past appointments",
+    "cancelReasonTitle": "Reason for cancelling",
+    "cancelReasons": {
+      "emergency": "Something urgent came up",
+      "better": "I feel better",
+      "otherDoctor": "I want a different doctor",
+      "time": "The time does not suit me",
+      "payment": "A payment problem",
+      "other": "Another reason"
+    }
   },
   "Medicines": {
     "eyebrow": "Private catalog",
@@ -493,7 +519,12 @@
     "earlier": "Earlier",
     "emptyTitle": "No notifications yet",
     "markAllRead": "Mark all as read",
-    "markFailed": "We couldn't update the notification. Try again."
+    "markFailed": "We couldn't update the notification. Try again.",
+    "filters": "Filter notifications",
+    "filterAll": "All",
+    "filter_system": "System",
+    "filter_medical": "Medical",
+    "filter_promotion": "Offers"
   },
   "Health": {
     "eyebrow": "Private health",
@@ -723,7 +754,80 @@
     "reminderFor": "Who is this reminder for?",
     "reminderForMe": "Me",
     "reminderForName": "Reminder for {name}",
-    "reminderMemberFallback": "Family member"
+    "reminderMemberFallback": "Family member",
+    "scoreLevel": {
+      "excellent": "Excellent",
+      "good": "Good",
+      "fair": "Fair",
+      "needs_attention": "Needs attention"
+    },
+    "scoreComp": {
+      "bmi": "Body mass index",
+      "bp": "Blood pressure",
+      "glucose": "Blood glucose",
+      "heart_rate": "Heart rate",
+      "sleep": "Sleep quality",
+      "tracking": "Tracking consistency"
+    },
+    "scoreRec": {
+      "bmi_high": "BMI is above normal — regular activity and balanced nutrition help lower it",
+      "profile_incomplete": "Add your height and weight to your health profile to compute your score more accurately",
+      "bp_high": "Your latest blood pressure reading is high — cut salt, monitor regularly and consult your doctor",
+      "glucose_off": "Your glucose reading is out of the normal range — review your meal plan and medication with your doctor",
+      "sleep_low": "Your sleep quality needs improvement — keep a fixed bedtime and cut screens before bed",
+      "tracking_low": "Log your vitals regularly (5 readings a week) to make your score more accurate",
+      "tracking_start": "Start logging your vitals (blood pressure, glucose, weight) to activate your health score"
+    },
+    "scoreOpen": "Open vitals",
+    "scoreEmpty": "Not enough data yet. Log your vitals to get your score.",
+    "hubChronic": "Chronic conditions",
+    "hubChronicHint": "Your conditions and their follow-up",
+    "hubTrends": "Trends",
+    "hubTrendsHint": "Charts of your measurements",
+    "hubFamily": "Family",
+    "hubFamilyHint": "Your family members and permissions",
+    "hubFamilyChat": "Family chat",
+    "hubFamilyChatHint": "Talk with your family",
+    "hubNursing": "Home nursing",
+    "hubNursingHint": "Nursing care at home",
+    "hubPrograms": "My programs",
+    "hubProgramsHint": "Your active medical programs and sessions",
+    "hubArticles": "Health articles",
+    "hubArticlesHint": "Read and learn",
+    "hubChallenges": "My challenges",
+    "hubChallengesHint": "Points and rewards",
+    "hubMoreTitle": "More",
+    "vitalsUnavailable": "The vital signs couldn't be loaded.",
+    "reportKind": {
+      "all": "All",
+      "lab": "Lab tests",
+      "radiology": "Radiology",
+      "notes": "Medical notes"
+    },
+    "reportsNoneOfKind": "No reports of this kind.",
+    "reportImportant": "Important",
+    "reportNew": "New",
+    "reportsFromProviders": "Reports from providers",
+    "reportAttachments": "Includes attachments from the provider",
+    "reportAlert": "Alert in the report",
+    "rxShare": "Share",
+    "rxOrder": "Order",
+    "rxShareTitle": "Prescription — {doctor}",
+    "rxMedicines": "Medicines",
+    "reportsFilter": "Report type",
+    "shareCopied": "Copied",
+    "reportEmptyTitle": "This report has no content",
+    "reportEmptyBody": "The provider has not added text or results to this report yet.",
+    "ctx": {
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "evening": "Evening"
+    },
+    "readingWhen": "Time of day",
+    "historyAll": "All",
+    "doseSkip": "Skip",
+    "refillConfirm": "Confirm refill request",
+    "refillSent": "Your refill request was sent."
   },
   "Prescriptions": {
     "title": "Prescriptions",
@@ -1191,7 +1295,11 @@
     "paymentAddPolicy": "Add insurance",
     "doctorPhotoAlt": "Photo of {name}",
     "clinicPhotosTitle": "Clinic photos",
-    "clinicPhotoAlt": "Clinic photo {n}"
+    "clinicPhotoAlt": "Clinic photo {n}",
+    "bioTitle": "About the doctor",
+    "infoTitle": "More information",
+    "languagesLabel": "Languages",
+    "chooseDayTime": "Choose a day and time"
   },
   "LabsServices": {
     "eyebrow": "Laboratory care",
@@ -1354,7 +1462,8 @@
     "recentTitle": "Recent searches",
     "recentClear": "Clear",
     "trendingTitle": "Trending now",
-    "tryTitle": "Try one of these"
+    "tryTitle": "Try one of these",
+    "seeAll": "See all ({count})"
   },
   "SearchSuggest": {
     "listLabel": "Search suggestions",
@@ -1450,7 +1559,35 @@
     "allCategories": "All categories",
     "loadMore": "Load more",
     "page": "Page {page}",
-    "onlineOnly": "Online only"
+    "onlineOnly": "Online only",
+    "share": "Share",
+    "suggestTitle": "Suggest edit",
+    "suggestFieldEdit": "Edit data (description/active ingredient/usage)",
+    "suggestImageRemove": "Image incorrect — remove it",
+    "suggestShortage": "Item short in the market",
+    "suggestDuplicate": "Duplicate item — delete it",
+    "suggestOther": "Other note",
+    "suggestFieldDescription": "Description",
+    "suggestFieldIngredient": "Active ingredient",
+    "suggestFieldUsage": "Usage instructions",
+    "suggestFieldDosage": "Dose",
+    "suggestFieldMaker": "Manufacturer",
+    "suggestFieldName": "Name",
+    "suggestValueRequired": "Type the suggested correct value",
+    "suggestValuePlaceholder": "Suggested correct value",
+    "suggestNotePlaceholder": "Additional note (optional)",
+    "suggestSend": "Send suggestion",
+    "suggestSentTitle": "Sent",
+    "suggestSentBody": "Your suggestion reached management and will apply after approval. Thank you.",
+    "suggestFailTitle": "Failed to send",
+    "suggestFailBody": "Try again later",
+    "shareCopied": "Link copied",
+    "shareFailed": "The link could not be shared. Try again.",
+    "suggestTypeLabel": "Kind of suggestion",
+    "suggestFieldLabel": "Data to correct",
+    "suggestSending": "Sending…",
+    "suggestSignIn": "Sign in to send your suggestion.",
+    "suggestSignInAction": "Sign in"
   },
   "Wallet": {
     "wallet": "Wallet",
@@ -1493,7 +1630,8 @@
     "shortAddressInvalid": "A short address is four letters and four digits, for example {example}.",
     "shortAddressNotFound": "No address was found for this code. Check it and try again.",
     "shortAddressUnavailable": "Saudi Post is not answering now. You can still save the address with the details you typed.",
-    "removedToast": "The address was removed."
+    "removedToast": "The address was removed.",
+    "makeDefault": "Make default"
   },
   "ShareReport": {
     "title": "Share Reports",
@@ -1711,7 +1849,16 @@
     "submit": "Submit rating",
     "submitting": "Submitting...",
     "thanks": "Thank you! Your rating was received.",
-    "error": "Could not submit the rating. Please try again."
+    "error": "Could not submit the rating. Please try again.",
+    "tagsTitle": "What went well?",
+    "tags": {
+      "excellent": "Excellent",
+      "fast": "Fast",
+      "professional": "Professional",
+      "clean": "Clean",
+      "helpful": "Helpful",
+      "recommend": "I recommend"
+    }
   },
   "HomeVisitTracking": {
     "title": "Home visit tracking",
@@ -1751,7 +1898,8 @@
   "SupportTicket": {
     "title": "Support tickets",
     "back": "Back",
-    "empty": "No data yet."
+    "empty": "No data yet.",
+    "newRequest": "New request"
   },
   "HealthTimeline": {
     "title": "Health timeline",
@@ -1871,7 +2019,8 @@
     "viaPhoto": "Photograph",
     "viaUpload": "Upload",
     "viaType": "Type names",
-    "errorBusy": "Too many attempts in a short time. Wait a minute, then try again."
+    "errorBusy": "Too many attempts in a short time. Wait a minute, then try again.",
+    "privacy": "The prescription is saved first so a pharmacist can review it. No price or payment method is added from this screen."
   },
   "HubSeo": {
     "privacy": {
@@ -1925,7 +2074,7 @@
     "identifier": "Email or mobile number",
     "hintIdentifier": "We'll send the confirmation code here",
     "password": "Password",
-    "hintPassword": "At least 8 characters",
+    "hintPassword": "At least 10 characters",
     "agree": "I agree to the <terms>Terms</terms> and <privacy>Privacy Policy</privacy>",
     "submit": "Create account",
     "busy": "Creating account…",
@@ -1940,7 +2089,13 @@
     "rateLimited": "Too many attempts. Wait a minute and try again.",
     "incomplete": "Registration could not be completed. Your account may already exist: try signing in, or try again in a moment.",
     "showPassword": "Show password",
-    "hidePassword": "Hide password"
+    "hidePassword": "Hide password",
+    "errName": "Enter your name (at least 2 characters).",
+    "errIdentifier": "Enter a valid email or phone number.",
+    "errPassword": "The password must be at least 10 characters.",
+    "errMismatch": "The two passwords don't match.",
+    "errAgree": "Agree to the terms and privacy policy to continue.",
+    "confirm": "Confirm password"
   },
   "Otp": {
     "title": "Enter the code",
@@ -1961,7 +2116,8 @@
     "resent": "A new code is on its way.",
     "resendFailed": "We couldn't send a new code. Try again in a moment.",
     "resendLimited": "You've asked for too many codes. Try again in a few minutes.",
-    "resendUnavailable": "We can't send a code right now. Try again in a moment."
+    "resendUnavailable": "We can't send a code right now. Try again in a moment.",
+    "change": "Change email or phone"
   },
   "ForgotPassword": {
     "title": "Reset your password",
@@ -1988,13 +2144,18 @@
     "back": "Back to sign in",
     "invalidToken": "That code isn't valid or has expired. Request a new one.",
     "mismatch": "The two passwords don't match.",
-    "requestNew": "Request a new code"
+    "requestNew": "Request a new code",
+    "successTitle": "Password updated",
+    "signIn": "Sign in",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   },
   "Welcome": {
     "tagline": "Your complete healthcare",
     "guest": "Continue as guest",
     "register": "Create account",
-    "login": "Log in"
+    "login": "Log in",
+    "guestFailed": "Could not start as a guest. Try again."
   },
   "AuthFrame": {
     "back": "Back",
@@ -2174,7 +2335,18 @@
     "imageCounter": "{n, number} / {total, number}",
     "previousImage": "Previous image",
     "nextImage": "Next image",
-    "inCartCta": "In cart ({n, number})"
+    "inCartCta": "In cart ({n, number})",
+    "hubUploadTitle": "Upload the prescription",
+    "hubUploadBody": "Photograph it and nearby pharmacies prepare your medicines and compete on price",
+    "hubFavorites": "Favorites",
+    "hubReminders": "Reminders",
+    "hubOrders": "My orders",
+    "hubCart": "Cart",
+    "hubShortcuts": "Pharmacy shortcuts",
+    "hubOrderAgain": "Order again",
+    "hubOrderAgainAction": "Order",
+    "hubOneItem": "1 item",
+    "hubItems": "{n, number} items"
   },
   "PharmacyOffers": {
     "backToOrder": "Back to the order",
@@ -2362,7 +2534,15 @@
     "paymentUnavailable": "No online payment method is available for this order right now.",
     "loadingMethods": "Loading the payment methods…",
     "deliveryEta": "Delivery in {time}",
-    "rating": "Rating {rating} ({count})"
+    "rating": "Rating {rating} ({count})",
+    "lineUnnamed": "Item",
+    "quoteSubstitute": "Substitute item",
+    "notifAskOffers": "Turn on notifications and we will tell you as soon as pharmacies send offers.",
+    "notifAskTurnOn": "Turn on notifications",
+    "checkPaymentStatus": "Check payment status",
+    "quoteLinesLabel": "Items of the offer",
+    "notifAskBlocked": "Notifications are blocked in this browser. Allow them in the site settings of your browser to get alerts.",
+    "notifAskFailed": "Notifications could not be turned on. Try again."
   },
   "PharmacyCheckout": {
     "title": "Checkout",
@@ -2464,7 +2644,10 @@
     "insuranceNaBody": "This order is not waiting for an insurance decision.",
     "confirmTitle": "Order",
     "confirmNoOrderTitle": "No order was named",
-    "confirmNoOrderBody": "Open an order from your orders, or start a new request."
+    "confirmNoOrderBody": "Open an order from your orders, or start a new request.",
+    "pickupNote": "For pickup we still use your location to find the pharmacies near you.",
+    "orderCardTitle": "Order #{number}",
+    "orderPickup": "Pickup from the pharmacy"
   },
   "ProductGallery": {
     "zoom": "Enlarge image",
@@ -2490,13 +2673,17 @@
     "callCourier": "Call the courier",
     "liveChecking": "Checking for updates",
     "nextCheck": "next check in {time}",
-    "refreshNow": "Refresh now"
+    "refreshNow": "Refresh now",
+    "chatPharmacist": "Message the pharmacist",
+    "pickupLine": "Pickup from the pharmacy",
+    "deliveryLine": "Home delivery",
+    "legacyEta": "Arrives in about {minutes, number} min"
   },
   "OrderReorder": {
     "title": "Order again",
-    "lead": "Choose the items to add to your cart. The pharmacies send their prices again when you send the request.",
+    "lead": "Choose the items to order again. The pharmacies send their prices again when you send the request.",
     "linesLabel": "Items of the earlier order",
-    "rxNote": "The earlier order used a prescription: it is needed again at checkout.",
+    "rxNote": "The earlier order used a prescription: it is sent with the new request.",
     "skipped": "{count, plural, one {# item was a typed request and is not in the catalogue, so it cannot be added to the cart.} other {# items were typed requests and are not in the catalogue, so they cannot be added to the cart.}}",
     "sendRequest": "Send a request",
     "pickOne": "Choose at least one item.",
@@ -2541,7 +2728,8 @@
       "in_progress": "In progress",
       "completed": "Completed",
       "cancelled": "Cancelled",
-      "no_show": "Missed"
+      "no_show": "Missed",
+      "pending_copay": "Awaiting your co-pay"
     },
     "insurancePendingTitle": "The facility is asking the insurer for approval",
     "insuranceDecidedTitle": "Insurance decision recorded",
@@ -2635,7 +2823,12 @@
     "callAudioOnly": "Your connection is weak, so we turned video off and kept the sound.",
     "callTryVideo": "Try video again",
     "callDropped": "The call was cut off.",
-    "callContinueInChat": "Continue in chat"
+    "callContinueInChat": "Continue in chat",
+    "statReviews": "reviews",
+    "copayTitle": "Approval received",
+    "copayBody": "Approved. Pay the co-pay ({amount}) to unlock the consultation.",
+    "copayAction": "Review the insurance request and pay securely",
+    "actionDoctorProfile": "View profile"
   },
   "ConsultClient": {
     "payHeading": "Complete the payment through a secure gateway",
@@ -2691,7 +2884,12 @@
       "vitals": "View vitals",
       "meds": "View medications",
       "reports": "View reports",
-      "appointments": "View appointments"
+      "appointments": "View appointments",
+      "booking": "Book on their behalf",
+      "pharmacy": "Order from the pharmacy",
+      "payment": "Pay on their behalf",
+      "location": "Share location",
+      "emergency": "Emergency alerts"
     },
     "calendarTitle": "Family calendar",
     "calendarSub": "Everyone's appointments and medicines",
@@ -2783,7 +2981,58 @@
     "medsAddReminder": "Add a medicine reminder",
     "close": "Close",
     "removeConfirmTitle": "Remove this member from your family?",
-    "removeConfirmBody": "They will no longer appear in your family list."
+    "removeConfirmBody": "They will no longer appear in your family list.",
+    "joinExisting": "Join an existing family",
+    "defaultName": "My family",
+    "reqReplied": "Replied. The member has been told.",
+    "reqAllowed": "Allowed",
+    "reqRefused": "Refused",
+    "reqNote": "You can change the permissions later, and the other person is told of any change.",
+    "reqAccept": "Accept permissions",
+    "reqDecline": "Decline all",
+    "permsRequested": "The permission request was sent to the member for approval.",
+    "ownerPermsTitle": "The group owner",
+    "ownerPermsBody": "The owner's access is not managed from here.",
+    "inviteShare": "Share the invite",
+    "inviteShareMessage": "Join my family on Nabd Plus! Enter this code in the app: {code}",
+    "invitePermsTitle": "Permissions",
+    "invitePermsBody": "After the invite is accepted you control the member's permissions: readings, medicines, booking on their behalf and more.",
+    "relation": {
+      "spouse": "Spouse",
+      "child": "Child",
+      "parent": "Parent",
+      "sibling": "Sibling",
+      "caregiver": "Caregiver",
+      "other": "Other"
+    },
+    "joinScan": "Scan a QR code with the camera",
+    "joinDoneTitle": "You joined the family!",
+    "joinDoneBody": "You are now linked to the family group.",
+    "joinGoFamily": "Go to my family",
+    "memberChat": "Family chat",
+    "memberBook": "Book on their behalf",
+    "calendarAdd": "Add an event",
+    "calendarNewTitle": "New family event",
+    "calendarEventTitle": "Event title",
+    "calendarEventDate": "Date and time",
+    "calendarMember": "Member",
+    "calendarEventType": "Event type",
+    "calendarType": {
+      "appointment": "Appointment",
+      "reminder": "Reminder",
+      "medication": "Medicine",
+      "lab": "Lab test"
+    },
+    "calendarSave": "Add the event",
+    "calendarInvalid": "Fill in the title, the date, the member and the type, in the right format.",
+    "calendarAddFailed": "Could not add the event. Try again.",
+    "calendarDelete": "Delete",
+    "calendarDeleteTitle": "Delete the event",
+    "calendarDeleteBody": "Are you sure you want to delete this event from the family calendar?",
+    "calendarDeleteFailed": "Could not delete the event",
+    "memberAge": "{n} years",
+    "vitalsTitle": "Vital signs",
+    "noVitals": "No readings are recorded, or the member has not allowed them to be shown."
   },
   "DiagWeb": {
     "retry": "Try again",
@@ -3001,7 +3250,9 @@
     "bookingNotSentTitle": "Nothing was booked",
     "bookingNotSentBody": "This window does not send a booking yet, so no appointment was made and no payment was taken. Open the nursing page to book a visit.",
     "bookingNotSentCta": "Go to nursing",
-    "bookingNotSentClose": "Close"
+    "bookingNotSentClose": "Close",
+    "approvalNoOrderTitle": "No booking to show insurance for",
+    "approvalNoOrderBody": "The insurance step belongs to a booking. Open one of your requests to follow its approval or upload a document."
   },
   "OrderContext": {
     "hint": "Prices and coverage update at once when you change anything",
@@ -3126,7 +3377,36 @@
     "experienceLabel": "Field Experience",
     "ratingLabel": "Patient Rating",
     "nurseServicesTitle": "Available Nursing Services",
-    "requestNurse": "Request Nursing Visit"
+    "requestNurse": "Request Nursing Visit",
+    "prepTitle": "Preparation",
+    "carePackages": "Care packages",
+    "rxNotice": "This service needs a prescription from your doctor. The nurse will ask to see it before the visit.",
+    "sortTitle": "Sort nurses",
+    "sortAny": "Any order",
+    "sortRating": "Highest rated",
+    "filterGender": "Nurse gender",
+    "gender_any": "Any",
+    "gender_female": "Female",
+    "gender_male": "Male",
+    "ratingLine": "{rating} ({count})",
+    "yearsLine": "{count, plural, one {# year of experience} other {# years of experience}}",
+    "priceAtBooking": "Price confirmed at booking",
+    "availableNow": "Available now",
+    "notNow": "Not available now",
+    "degreeLabel": "Qualification",
+    "nurseChooseService": "Choose a service to book this nurse",
+    "nurseChooseServiceBody": "Pick a home-care service first. The nurse's free times appear once a service is chosen.",
+    "visitPrice": "Visit price",
+    "confirmWithAmount": "Confirm booking · {amount}",
+    "insFetched": "Your insurance on file",
+    "insCompany": "Company",
+    "insPolicy": "Policy number",
+    "insNoPolicy": "No insurance policy on file. Add one before sending the request.",
+    "insAddPolicy": "Add a policy",
+    "callNurse": "Call the nurse",
+    "nurseOnMap": "Show the nurse on the map",
+    "insuranceNone": "No insurance request yet",
+    "insuranceNoneBody": "When you request a visit with insurance, its approval appears here."
   },
   "MaternityWeb": {
     "title": "Maternity",
@@ -4020,7 +4300,24 @@
     "disconnectApp": "Disconnect",
     "disconnectFailed": "Could not disconnect. Please try again.",
     "rowConnectedApps": "Connected AI apps",
-    "rowConnectedAppsSub": "Assistants you allowed into your account"
+    "rowConnectedAppsSub": "Assistants you allowed into your account",
+    "changePasswordTitle": "Change password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "repeatPassword": "Repeat new password",
+    "currentRequired": "Enter your current password.",
+    "passwordTooShort": "The new password must be at least 10 characters.",
+    "passwordMismatch": "The two passwords don't match.",
+    "currentWrong": "The current password is wrong.",
+    "passwordChangeFailed": "The password could not be changed. Try again.",
+    "passwordChanged": "Password changed. Your other devices were signed out.",
+    "savePassword": "Change password",
+    "sessionCurrent": "This device",
+    "sessionLastSeen": "Last active {when}",
+    "sessionEndConfirm": "Confirm sign-out",
+    "deleteIntro": "This permanently deletes your account and health data. This cannot be undone.",
+    "deleteContinue": "Continue",
+    "callSupport": "Call support"
   },
   "AccountWeb": {
     "profileTitle": "My account",
@@ -4061,7 +4358,9 @@
     "mapIdleBody": "Choose a facility from the list to see it on the map with directions.",
     "mapIdleNote": "Open-source maps that protect your privacy.",
     "mapUnavailable": "The facilities could not be loaded. Please try again.",
-    "mapRetry": "Try again"
+    "mapRetry": "Try again",
+    "guestTitle": "You are using a guest account",
+    "guestBody": "Sign in or create an account to see your details, orders and records."
   },
   "ReturnsWeb": {
     "newRequest": "New return request",
@@ -4592,6 +4891,12 @@
     "secTurn": "Result time",
     "secSample": "Sample",
     "providers": "{m} providers fit your context",
+    "fromLine": "From {p} · {m} providers",
+    "sample_blood": "Blood",
+    "sample_semen": "Semen",
+    "sample_stool": "Stool",
+    "sample_swab": "Swab",
+    "sample_urine": "Urine",
     "homeFeeNote": "The price includes the visit fee because you chose \"At home\"",
     "covNote": "Coverage and share are estimates. The final share comes with the approval",
     "covYes": "Covered",
@@ -4894,7 +5199,8 @@
     "resInRange": "In range",
     "resHigh": "Above range",
     "resLow": "Below range",
-    "resDiscuss": "Discuss with a doctor"
+    "resDiscuss": "Discuss with a doctor",
+    "resTrend": "Trend across your results"
   },
   "InstantConsult": {
     "title": "Instant consultation",
