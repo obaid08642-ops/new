@@ -8,7 +8,7 @@ import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { OFFER_TONES } from "@/components-next/pharmacy-offers/tones";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
-import { addressToForm, buildAddressPatch, EMPTY_ADDRESS_FORM, type AddressForm, type AddressRecord } from "@/lib/account/address-form";
+import { addressToForm, buildAddressPatch, EMPTY_ADDRESS_FORM, pointBody, pointFromPosition, type AddressForm, type AddressRecord, type AddressPoint } from "@/lib/account/address-form";
 import { GeoSelect } from "./geo-select";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import forms from "@/components-next/consult/consult.module.css";
@@ -22,9 +22,30 @@ export type PatientAddress = AddressRecord;
 const SHORT_ADDRESS_EXAMPLE = "RRRD2929";
 
 /** The fields of an address, shared by the add form and the edit form. */
-function AddressFields({ form, onChange, locale }: { form: AddressForm; onChange: (patch: Partial<AddressForm>) => void; locale: string }) {
+function AddressFields({ form, onChange, locale, point, onPoint }: { form: AddressForm; onChange: (patch: Partial<AddressForm>) => void; locale: string; point: AddressPoint | null; onPoint: (next: AddressPoint) => void }) {
   const t = useTranslations("Addresses");
   const [finding, setFinding] = useState(false);
+  const [locating, setLocating] = useState(false);
+  const [locateNote, setLocateNote] = useState<"set" | "failed" | null>(null);
+
+  /** The browser's own position puts the pin on the address (the app's "Use my current location"); the browser asks first. */
+  function useMyLocation() {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setLocateNote("failed");
+      return;
+    }
+    setLocating(true);
+    setLocateNote(null);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const next = pointFromPosition(position.coords.latitude, position.coords.longitude);
+        setLocating(false);
+        if (next) { onPoint(next); setLocateNote("set"); } else setLocateNote("failed");
+      },
+      () => { setLocating(false); setLocateNote("failed"); },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 },
+    );
+  }
   const [codeNote, setCodeNote] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
 
   /** 19.7: GET /national-address/lookup answers the street, district and city of a short address from Saudi Post. */
@@ -71,6 +92,9 @@ function AddressFields({ form, onChange, locale }: { form: AddressForm; onChange
         <input className={forms.control} value={form.line2} onChange={(event) => onChange({ line2: event.target.value })} maxLength={160} />
       </label>
       <GeoSelect value={{ region: form.region, city: form.city, district: form.district }} onChange={(next) => onChange(next)} locale={locale} />
+      <Button label={locating ? t("locating") : t("useMyLocation")} variant="outline" size="sm" loading={locating} disabled={locating} onClick={useMyLocation} />
+      {locateNote === "set" ? <p className={forms.ok} role="status">{t("locationSet")}</p> : null}
+      {locateNote === "failed" ? <p className={forms.error} role="alert">{t("locateFailed")}</p> : null}
       <label className={forms.field}>
         <span className={forms.label}>{t("notes")}</span>
         <textarea className={forms.control} value={form.notes} onChange={(event) => onChange({ notes: event.target.value })} maxLength={300} rows={2} />
@@ -95,12 +119,14 @@ export function AddressList({ addresses, locale }: { addresses: PatientAddress[]
   const [error, setError] = useState<"remove" | "save" | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [form, setForm] = useState<AddressForm>(EMPTY_ADDRESS_FORM);
+  const [point, setPoint] = useState<AddressPoint | null>(null);
 
   const modeOf = (id: string): RowMode => (mode?.id === id ? mode.kind : "view");
 
   function open(address: PatientAddress, kind: RowMode) {
     setError(null);
     setForm(addressToForm(address));
+    setPoint(null);
     setMode(kind === "view" ? null : { id: address.id, kind });
   }
 
@@ -142,8 +168,9 @@ export function AddressList({ addresses, locale }: { addresses: PatientAddress[]
 
   async function save(event: FormEvent, address: PatientAddress) {
     event.preventDefault();
+    // a new pin (the browser's position) is sent with the changed fields; without one the request is the fields alone
     const patch = buildAddressPatch(address, form);
-    if (!patch) {
+    if (!patch && !point) {
       // nothing changed (or the form is not valid, which the required fields already prevent): close without a request
       setMode(null);
       return;
@@ -154,7 +181,7 @@ export function AddressList({ addresses, locale }: { addresses: PatientAddress[]
       const res = await fetch(`/api/patient/users/me/addresses/${encodeURIComponent(address.id)}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
-        body: JSON.stringify(patch),
+        body: JSON.stringify({ ...patch, ...pointBody(point) }),
       });
       if (!res.ok) setError("save");
       else {
@@ -206,7 +233,7 @@ export function AddressList({ addresses, locale }: { addresses: PatientAddress[]
               {rowMode === "edit" ? (
                 <form onSubmit={(event) => void save(event, address)} className={styles.stack} aria-label={t("editTitle")}>
                   <h2 className={rx.h2}>{t("editTitle")}</h2>
-                  <AddressFields form={form} onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))} locale={locale} />
+                  <AddressFields form={form} onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))} locale={locale} point={point} onPoint={setPoint} />
                   <Button type="submit" label={busy ? t("saving") : t("save")} loading={busy} disabled={busy} fullWidth />
                   <Button label={t("cancel")} variant="outline" disabled={busy} onClick={() => open(address, "view")} fullWidth />
                 </form>
@@ -228,6 +255,7 @@ export function AddAddressForm({ locale }: { locale: string }) {
   const [submitting, setSubmitting] = useState(false);
   const [state, setState] = useState<"idle" | "saved" | "failed">("idle");
   const [form, setForm] = useState<AddressForm>(EMPTY_ADDRESS_FORM);
+  const [point, setPoint] = useState<AddressPoint | null>(null);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -237,11 +265,12 @@ export function AddAddressForm({ locale }: { locale: string }) {
       const res = await fetch("/api/patient/users/me/addresses", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, ...pointBody(point) }),
       });
       if (res.ok) {
         setState("saved");
         setForm(EMPTY_ADDRESS_FORM);
+        setPoint(null);
         router.refresh();
       } else {
         setState("failed");
@@ -256,7 +285,7 @@ export function AddAddressForm({ locale }: { locale: string }) {
   return (
     <form onSubmit={submit} className={styles.stack} aria-labelledby="add-address">
       <h2 id="add-address" className={rx.h2}>{t("addTitle")}</h2>
-      <AddressFields form={form} onChange={(patch) => { setState("idle"); setForm((prev) => ({ ...prev, ...patch })); }} locale={locale} />
+      <AddressFields form={form} onChange={(patch) => { setState("idle"); setForm((prev) => ({ ...prev, ...patch })); }} locale={locale} point={point} onPoint={(next) => { setState("idle"); setPoint(next); }} />
       {state === "failed" ? <p className={forms.error} role="alert">{t("saveFailed")}</p> : null}
       {state === "saved" ? <p className={forms.ok} role="status">{t("saved")}</p> : null}
       <Button type="submit" label={submitting ? t("saving") : t("save")} loading={submitting} fullWidth />

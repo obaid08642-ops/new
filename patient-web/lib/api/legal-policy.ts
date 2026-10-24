@@ -9,8 +9,8 @@ export type LegalPolicy = { content?: string | null; version?: string | number |
  * A policy of the legal service (`GET /legal/policy/:key?lang=`, public) for a page language: the service holds Arabic and
  * English, every other language reads the English text. 4xx (no such policy): `null`; no answer or 5xx: throws (public-read.ts).
  */
-export function readLegalPolicy(key: PolicyKey, locale: string) {
+export function readLegalPolicy(key: PolicyKey | (string & {}), locale: string) {
   const lang = locale === "ar" ? "ar" : "en";
   // The server-side API base like every other server read (NABD_API_BASE_URL): the live gate reads its own backend.
-  return readPublicEntity<LegalPolicy>(patientApiUrl(`/legal/policy/${key}?lang=${lang}`), 3600);
+  return readPublicEntity<LegalPolicy>(patientApiUrl(`/legal/policy/${encodeURIComponent(key)}?lang=${lang}`), 3600);
 }
