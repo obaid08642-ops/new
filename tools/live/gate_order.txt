@@ -50,6 +50,7 @@ j_manual_request
 j_pregnancy_weeks
 j_patient_flows_c
 j_web_family_scan
+j_web_map_links
 j_family_book_for_member
 j_family_meds
 j_app_populated_lists
