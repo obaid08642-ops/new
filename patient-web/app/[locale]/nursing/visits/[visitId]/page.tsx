@@ -63,7 +63,7 @@ export default async function NursingVisitTrackingPage({ params, searchParams }:
   const located = track?.current_lat != null && track?.current_lng != null && Number.isFinite(lat) && Number.isFinite(lng);
   const contact: LinkAction[] = [
     ...(phone && open ? [{ href: `tel:${phone}`, label: t("callNurse"), variant: "outline" as const, external: true }] : []),
-    ...(located && open ? [{ href: `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=16/${lat}/${lng}`, label: t("nurseOnMap"), variant: "outline" as const, external: true }] : []),
+    ...(located && open ? [{ href: `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=16/${lat}/${lng}`, label: t("nurseOnMap"), variant: "outline" as const, external: true }, { href: `https://www.openstreetmap.org/directions?to=${lat}%2C${lng}`, label: t("nurseDirections"), variant: "outline" as const, external: true }] : []),
   ];
   // journeys#60: a card visit that is not paid yet can be paid from here (the booking form lands here when the card page did not open).
   const owesCard = visit?.payment_method === "card" && visit?.payment_status !== "paid" && !["CANCELLED", "COMPLETED"].includes(status);
@@ -95,6 +95,14 @@ export default async function NursingVisitTrackingPage({ params, searchParams }:
           label={t("trackingTitle")}
           steps={STEPS.map((s, i) => ({ id: s, label: t(`step_${s}`), state: idx < 0 || i > idx ? "upcoming" : i === idx && idx < STEPS.length - 1 ? "current" : "done" }))}
         />
+        {located && open ? (
+          <iframe
+            title={t("nurseMapTitle")}
+            className={styles.visitMap}
+            loading="lazy"
+            src={`https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.01}%2C${lat - 0.01}%2C${lng + 0.01}%2C${lat + 0.01}&layer=mapnik&marker=${lat}%2C${lng}`}
+          />
+        ) : null}
         {idx < 0 ? <Notice warn>{t("unknownStatus")}</Notice> : null}
         <ActionLinks actions={contact} />
       </SectionCard>

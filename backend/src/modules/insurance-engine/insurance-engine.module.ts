@@ -317,6 +317,9 @@ export class InsuranceFlowService {
       company_name_en: company?.name_en ?? null,
       member_id: ins.member_id ?? null,
       expiry_date: ins.expiry_date ?? null,
+      // Design parity (#1819): the insurer id the booking forms send (insurance_provider): the catalogue company, else the
+      // legacy saved provider name; null when neither was saved.
+      insurer_id: ins.company_id ? String(ins.company_id) : (typeof ins.provider === 'string' && ins.provider ? ins.provider : null),
     };
     return { has_policy, policy };
   }

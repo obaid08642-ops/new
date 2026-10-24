@@ -1,0 +1,17 @@
+/* A QR code is read as dark modules on a light ground in both themes: in the dark theme the two token colours swap roles. */
+.qr {
+  --qr-dark: var(--nabd-color-text-primary);
+  --qr-light: var(--nabd-color-bg-surface);
+  display: block;
+  inline-size: min(100%, 15rem);
+  block-size: auto;
+  margin-inline: auto;
+  border-radius: var(--nabd-radius-md);
+  background: var(--qr-light);
+}
+:global([data-theme="dark"]) .qr {
+  --qr-dark: var(--nabd-color-bg-surface);
+  --qr-light: var(--nabd-color-text-primary);
+}
+.ground { fill: var(--qr-light); }
+.modules { fill: var(--qr-dark); }

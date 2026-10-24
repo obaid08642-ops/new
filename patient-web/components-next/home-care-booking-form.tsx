@@ -37,7 +37,7 @@ function newKey(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
 }
 
-export type HomeCareBookingInput = { nurseId: string; serviceId: string; slot: string; addressId: string; notes: string; method: Method };
+export type HomeCareBookingInput = { nurseId: string; serviceId: string; slot: string; addressId: string; /** The browser's current position, used instead of a saved address. */ location?: { lat: number; lng: number }; notes: string; method: Method };
 export type HomeCareBookingResult = { ok: true; id: string } | { ok: false; status: number; code: string };
 
 /**
@@ -53,7 +53,7 @@ export function createHomeCareBookingAttempt(send: typeof fetch = (...a) => fetc
     const res = await send("/api/nursing/bookings", {
       method: "POST",
       headers: { "content-type": "application/json", "idempotency-key": key },
-      body: JSON.stringify({ provider_id: input.nurseId, service_id: input.serviceId, scheduled_at: input.slot, address_id: input.addressId, notes: input.notes.trim() || undefined, payment_method: input.method }),
+      body: JSON.stringify({ provider_id: input.nurseId, service_id: input.serviceId, scheduled_at: input.slot, ...(input.location ? { location: input.location } : { address_id: input.addressId }), notes: input.notes.trim() || undefined, payment_method: input.method }),
     });
     pending = null;
     const data = (await res.json().catch(() => null)) as { id?: unknown; message?: unknown } | null;
@@ -95,6 +95,9 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
   const { state: slotsState, slots } = nurseSlotsView(slotsResult, nurseId, day);
   const slot = chosenSlot({ state: slotsState, slots }, picked);
   const [addressId, setAddressId] = useState(addresses[0]?.id ?? "");
+  const [here, setHere] = useState<{ lat: number; lng: number } | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [locationError, setLocationError] = useState(false);
   const [notes, setNotes] = useState("");
   const [method, setMethod] = useState<Method>(insurance && initialMethod === "insurance" ? "insurance" : "card");
   const noPolicy = method === "insurance" && insuranceOnFile?.has === false;
@@ -114,18 +117,28 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
     return () => controller.abort();
   }, [nurseId, day]);
 
+  function useMyLocation() {
+    if (!("geolocation" in navigator)) { setLocationError(true); return; }
+    setLocating(true); setLocationError(false);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { setHere({ lat: pos.coords.latitude, lng: pos.coords.longitude }); setLocating(false); },
+      () => { setLocationError(true); setLocating(false); },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+    );
+  }
+
   async function submit() {
     if (busy.current) return;
     setError(null);
     if (!slot) { setError(t("formSelectTime")); return; }
     if (Date.parse(slot) < Date.now()) { setError(t("formPast")); return; }
-    if (!addressId) { setError(t("formAddAddress")); return; }
+    if (!addressId && !here) { setError(t("formAddAddress")); return; }
     if (noPolicy) { setError(t("insNoPolicy")); return; }
     busy.current = true;
     setSaving(true);
     attempt.current ??= createHomeCareBookingAttempt();
     try {
-      const result = await attempt.current({ nurseId, serviceId, slot, addressId, notes, method });
+      const result = await attempt.current({ nurseId, serviceId, slot, addressId, ...(here ? { location: here } : {}), notes, method });
       if (!result.ok) {
         setError(result.code === "address_location_required" ? t("addressNeedsLocation") : /slot|conflict|taken/i.test(result.code) || result.status === 409 ? t("slotTaken") : t("formFailed"));
         return;
@@ -189,10 +202,21 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
           )}
       </SectionCard>
       <SectionCard id="home-care-address" title={t("formAddress")}>
-        {addresses.length > 0 ? (
-          <Select label={t("formAddress")} value={addressId} onChange={setAddressId} options={addresses.map((a) => ({ value: a.id, label: a.label }))} />
+        {here ? (
+          <>
+            <p className={styles.body} role="status">{t("addressLocationSet")}</p>
+            <Button variant="outline" fullWidth label={t("addressUseSaved")} onClick={() => setHere(null)} />
+          </>
         ) : (
-          <p className={`${styles.body} ${styles.muted}`}>{t("addressNeedsLocation")}</p>
+          <>
+            {addresses.length > 0 ? (
+              <Select label={t("formAddress")} value={addressId} onChange={setAddressId} options={addresses.map((a) => ({ value: a.id, label: a.label }))} />
+            ) : (
+              <p className={`${styles.body} ${styles.muted}`}>{t("addressNeedsLocation")}</p>
+            )}
+            <Button variant="outline" fullWidth loading={locating} label={locating ? t("addressLocating") : t("addressUseLocation")} onClick={useMyLocation} />
+            {locationError ? <p className={styles.error} role="alert">{t("addressLocationDenied")}</p> : null}
+          </>
         )}
         <Link href={`/${locale}/profile/addresses`} className={nursing.addAddress}>{t("formAddAddress")}</Link>
       </SectionCard>
@@ -220,7 +244,7 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
         )}
       </SectionCard>
       {error ? <p role="alert" className={styles.error}>{error}</p> : null}
-      <Button fullWidth size="lg" loading={saving} disabled={saving || !slot || !addressId || noPolicy} label={saving ? t("formBooking") : method === "card" && price !== undefined ? t("confirmWithAmount", { amount: formatPrice(locale, price).text }) : t("formConfirm")} onClick={() => void submit()} />
+      <Button fullWidth size="lg" loading={saving} disabled={saving || !slot || (!addressId && !here) || noPolicy} label={saving ? t("formBooking") : method === "card" && price !== undefined ? t("confirmWithAmount", { amount: formatPrice(locale, price).text }) : t("formConfirm")} onClick={() => void submit()} />
     </>
   );
 }

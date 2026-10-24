@@ -500,7 +500,7 @@
     "no": "نہیں",
     "open": "تفصیلات دیکھیں",
     "back": "تشخیص پر واپس",
-    "detailNotice": "یہاں صرف بکنگ کی صورتحال اور وقت دکھایا جاتا ہے۔ رپورٹس، دستاویزات اور قیمتیں اس صفحے پر نہیں دکھائی جاتیں۔",
+    "detailNotice": "یہاں بکنگ کی صورتحال، وقت اور رقم دکھائی جاتی ہے۔ دستاویزات اس صفحے پر نہیں دکھائی جاتیں۔",
     "labs": {
       "title": "لیب بکنگ",
       "label": "لیب بکنگ"
@@ -687,6 +687,8 @@
     "idCodeTitle": "شیئرنگ کوڈ",
     "idCodeBody": "اپنی فائل شیئر کرنے کے لیے یہ کوڈ اپنے فراہم کنندہ کو دکھائیں۔",
     "idCodeFailed": "ابھی شیئرنگ کوڈ نہیں بن سکا۔",
+    "idQrLabel": "آپ کے ہیلتھ آئی ڈی کا QR کوڈ، جسے آپ کا فراہم کنندہ اسکین کرے",
+    "idValidUntil": "{time} تک درست",
     "itemAdd": "شامل کریں",
     "itemAddFailed": "شامل نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
     "itemName": "نام",
@@ -1366,7 +1368,20 @@
     "bioTitle": "ڈاکٹر کے بارے میں",
     "infoTitle": "مزید معلومات",
     "languagesLabel": "زبانیں",
-    "chooseDayTime": "دن اور وقت منتخب کریں"
+    "chooseDayTime": "دن اور وقت منتخب کریں",
+    "faqTitle": "عام سوالات",
+    "faqCancelQ": "کیا ملاقات منسوخ یا تبدیل کی جا سکتی ہے؟",
+    "faqCancelA": "جی ہاں۔ آپ پلیٹ فارم کی موجودہ پالیسی کے مطابق ملاقات کی تفصیلات سے منسوخ یا تبدیل کر سکتے ہیں۔",
+    "faqPayQ": "ادائیگی کے کون سے طریقے دستیاب ہیں؟",
+    "faqPayA": "آن لائن مشاورت صرف کارڈ سے، گھر پر ملاقات کارڈ یا بیمہ سے، اور کلینک میں کارڈ، بیمہ یا نقد سے۔",
+    "clinicPhotoOpen": "کلینک کی تصویر {n} پوری سائز میں کھولیں",
+    "gradeLabel": "درجہ",
+    "degree_professor": "پروفیسر",
+    "degree_consultant": "کنسلٹنٹ",
+    "degree_senior_specialist": "سینئر ماہر",
+    "degree_specialist": "ماہر",
+    "degree_resident": "ریزیڈنٹ",
+    "degree_general_practitioner": "جنرل پریکٹیشنر"
   },
   "LabsServices": {
     "eyebrow": "لیبارٹری کیئر",
@@ -1717,7 +1732,22 @@
     "empty": "شیئر کرنے کے لیے کوئی رپورٹ نہیں",
     "notice": "صرف محفوظ پورٹل لنکس شیئر کیے جاتے ہیں",
     "bundleHeader": "نبض بلس — شیئر کی گئی طبی رپورٹس:",
-    "bundleTitle": "نبض بلس"
+    "bundleTitle": "نبض بلس",
+    "shareWithDoctor": "ڈاکٹر کے ساتھ شیئر کریں",
+    "doctorSearchLabel": "ڈاکٹر کا نام",
+    "doctorSearchPh": "نام سے ڈاکٹر تلاش کریں",
+    "doctorSearch": "تلاش",
+    "searching": "تلاش جاری ہے…",
+    "noDoctors": "اس نام کا کوئی ڈاکٹر نہیں ملا۔",
+    "shareWithThisDoctor": "شیئر کریں",
+    "sharedWith": "ان کے ساتھ شیئر کیا گیا",
+    "notSharedYet": "یہ رپورٹ کسی ڈاکٹر کے ساتھ شیئر نہیں کی گئی۔",
+    "revoke": "شیئرنگ بند کریں",
+    "doctorFallback": "ڈاکٹر",
+    "doctorShared": "رپورٹ ڈاکٹر کے ساتھ شیئر کر دی گئی۔",
+    "doctorShareFailed": "شیئر نہیں ہو سکا۔ بعد میں کوشش کریں۔",
+    "doctorRevokeFailed": "شیئرنگ بند نہیں ہو سکی۔ بعد میں کوشش کریں۔",
+    "doctorSearchFailed": "تلاش نہیں ہو سکی۔ بعد میں کوشش کریں۔"
   },
   "BookConsultation": {
     "homeAddressRequired": "پہلے اپنے محفوظ پتوں میں سے دورے کا پتہ منتخب کریں",
@@ -1759,7 +1789,12 @@
     "duration": "وزٹ کا دورانیہ",
     "durationValue": "{n} منٹ",
     "homeAddressNone": "گھر کے دورے کے لیے نقشے پر مقام کے ساتھ ایک پتہ شامل کریں۔",
-    "homeAddressAdd": "پتہ شامل کریں یا تبدیل کریں"
+    "homeAddressAdd": "پتہ شامل کریں یا تبدیل کریں",
+    "bookingFor": "{name} کے لیے بکنگ",
+    "bookingForSelf": "اس کے بجائے اپنے لیے بک کریں",
+    "insuranceReady": "ہم آپ کی محفوظ پالیسی کی تفصیلات کے ساتھ درخواست سہولت کو بھیجیں گے۔",
+    "insuranceNotReady": "استعمال کے لیے کوئی فعال پالیسی نہیں ہے۔ پہلے اپنی انشورنس کی تفصیلات شامل کریں۔",
+    "manageInsurance": "انشورنس کا نظم کریں"
   },
   "AiHealthReport": {
     "title": "آپ کی اے آئی ہیلتھ رپورٹ",
@@ -1910,7 +1945,9 @@
       "missed": "چھوٹی ہوئی کال",
       "active": "کال جاری ہے",
       "pending": "زیر التوا کال"
-    }
+    },
+    "callAgain": "دوبارہ کال کریں",
+    "showMore": "مزید دکھائیں"
   },
   "PostCallRating": {
     "title": "اپنے مشورے کو ریٹ کریں",
@@ -2004,7 +2041,9 @@
     "defaultAbout": "جدید تشخیصی آلات سے لیس ایک مصدقہ طبی لیبارٹری۔",
     "servicesTitle": "دستیاب ٹیسٹ",
     "price": "{value} ر.س",
-    "ratingLine": "ریٹنگ 5 میں سے {rating} · ریٹنگز کی تعداد {count}"
+    "ratingLine": "ریٹنگ 5 میں سے {rating} · ریٹنگز کی تعداد {count}",
+    "directions": "لیب تک راستہ",
+    "branchesCount": "{n} برانچیں"
   },
   "NurseDetail": {
     "title": "نرس کا پروفائل",
@@ -2901,7 +2940,9 @@
     "copayTitle": "منظوری موصول ہو گئی",
     "copayBody": "منظور ہو گیا۔ مشاورت کھولنے کے لیے شریکِ ادائیگی ({amount}) ادا کریں۔",
     "copayAction": "بیمہ کی درخواست دیکھیں اور محفوظ ادائیگی کریں",
-    "actionDoctorProfile": "پروفائل دیکھیں"
+    "actionDoctorProfile": "پروفائل دیکھیں",
+    "waitingRoomYourTurn": "آپ کی باری",
+    "waitingRoomCallsOff": "ویڈیو کالز فی الحال دستیاب نہیں ہیں۔"
   },
   "ConsultClient": {
     "payHeading": "محفوظ گیٹ وے کے ذریعے ادائیگی مکمل کریں",
@@ -3105,7 +3146,9 @@
     "calendarDeleteFailed": "ایونٹ حذف نہیں ہو سکا",
     "memberAge": "{n} سال",
     "vitalsTitle": "اہم علامات",
-    "noVitals": "کوئی ریڈنگ درج نہیں، یا فرد نے انہیں دکھانے کی اجازت نہیں دی۔"
+    "noVitals": "کوئی ریڈنگ درج نہیں، یا فرد نے انہیں دکھانے کی اجازت نہیں دی۔",
+    "bookForMember": "مشاورت بک کریں",
+    "bookForMemberFailed": "بکنگ شروع نہیں ہو سکی۔ دوبارہ کوشش کریں۔"
   },
   "DiagWeb": {
     "retry": "دوبارہ کوشش کریں",
@@ -3325,7 +3368,35 @@
     "bookingNotSentCta": "نرسنگ کے صفحے پر جائیں",
     "bookingNotSentClose": "بند کریں",
     "approvalNoOrderTitle": "انشورنس دکھانے کے لیے کوئی بکنگ نہیں",
-    "approvalNoOrderBody": "انشورنس کا مرحلہ کسی بکنگ سے جڑا ہوتا ہے۔ منظوری دیکھنے یا دستاویز اپلوڈ کرنے کے لیے اپنی کوئی درخواست کھولیں۔"
+    "approvalNoOrderBody": "انشورنس کا مرحلہ کسی بکنگ سے جڑا ہوتا ہے۔ منظوری دیکھنے یا دستاویز اپلوڈ کرنے کے لیے اپنی کوئی درخواست کھولیں۔",
+    "approvedLabs": "منظور شدہ لیبز",
+    "labRating": "ریٹنگ {n}",
+    "labHomeTag": "گھر پر نمونہ لینا",
+    "labsAll": "تمام لیبز",
+    "bookingTotal": "کل رقم",
+    "bookingResultsTitle": "ٹیسٹ کے نتائج",
+    "resultValue": "نتیجہ",
+    "resultReference": "نارمل رینج",
+    "resultAbnormal": "نارمل رینج سے باہر",
+    "radiologyStagesTitle": "سکین کے مراحل",
+    "stageScan": "سکین",
+    "stageReport": "رپورٹ",
+    "stageResult": "نتیجہ",
+    "cancelBooking": "بکنگ منسوخ کریں",
+    "cancelBookingConfirm": "کیا آپ یہ بکنگ منسوخ کرنا چاہتے ہیں؟",
+    "cancelBookingBack": "واپس جائیں",
+    "cancelBookingYes": "جی ہاں، منسوخ کریں",
+    "cancelBookingFailed": "بکنگ منسوخ نہیں ہو سکی۔ دوبارہ کوشش کریں۔",
+    "collectorPending": "جلد ہی نمونہ لینے والا مقرر کیا جائے گا",
+    "filterTitle": "فلٹر اور ترتیب",
+    "filterShow": "دکھائیں",
+    "filterSort": "ترتیب",
+    "filterAll": "سب",
+    "filterPackages": "صرف پیکجز",
+    "filterTests": "صرف ٹیسٹ",
+    "sortDefault": "ڈیفالٹ",
+    "sortRating": "سب سے زیادہ ریٹنگ",
+    "sortPrice": "کم سے کم قیمت"
   },
   "OrderContext": {
     "hint": "کچھ بھی بدلنے پر قیمتیں اور کوریج فوراً اپ ڈیٹ ہوتی ہیں",
@@ -3479,7 +3550,14 @@
     "callNurse": "نرس کو کال کریں",
     "nurseOnMap": "نرس کو نقشے پر دکھائیں",
     "insuranceNone": "ابھی کوئی انشورنس درخواست نہیں",
-    "insuranceNoneBody": "جب آپ انشورنس کے ساتھ وزٹ کی درخواست کریں گے تو اس کی منظوری یہاں نظر آئے گی۔"
+    "insuranceNoneBody": "جب آپ انشورنس کے ساتھ وزٹ کی درخواست کریں گے تو اس کی منظوری یہاں نظر آئے گی۔",
+    "nurseMapTitle": "نقشے پر نرس کا مقام",
+    "nurseDirections": "نرس تک راستہ",
+    "addressUseLocation": "میری موجودہ لوکیشن استعمال کریں",
+    "addressLocating": "آپ کی لوکیشن تلاش کی جا رہی ہے...",
+    "addressLocationSet": "دورے کے لیے آپ کی موجودہ لوکیشن استعمال ہوگی",
+    "addressUseSaved": "اس کے بجائے محفوظ پتہ استعمال کریں",
+    "addressLocationDenied": "آپ کی لوکیشن حاصل نہیں ہو سکی۔ لوکیشن کی اجازت دیں یا محفوظ پتہ منتخب کریں۔"
   },
   "MaternityWeb": {
     "title": "زچگی",
@@ -4023,7 +4101,8 @@
       "failed": "پالیسی محفوظ نہیں ہو سکی۔",
       "scan": "کیمرے سے انشورنس کارڈ اسکین کریں",
       "scanned": "کارڈ سے نظر آنے والی تفصیلات پڑھ لی گئیں۔ محفوظ کرنے سے پہلے جانچ لیں۔",
-      "scanFailed": "کارڈ پڑھا نہیں جا سکا۔ تفصیلات خود درج کریں۔"
+      "scanFailed": "کارڈ پڑھا نہیں جا سکا۔ تفصیلات خود درج کریں۔",
+      "network": "نیٹ ورک"
     },
     "coverage": {
       "title": "میری پالیسی کیا کور کرتی ہے",

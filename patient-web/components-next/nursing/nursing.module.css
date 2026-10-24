@@ -31,3 +31,6 @@
 .fileLink { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; min-block-size: 44px; padding: 10px 12px; border-radius: var(--nabd-radius-lg); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-link); text-decoration: none; }
 .fileLink:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
 .fileName { font-size: var(--nabd-font-size-control); font-weight: 600; min-inline-size: 0; overflow-wrap: anywhere; }
+
+/* The OpenStreetMap pane of the nurse position (current_lat/current_lng). */
+.visitMap { display: block; inline-size: 100%; block-size: 240px; border: 0; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-sunken); }

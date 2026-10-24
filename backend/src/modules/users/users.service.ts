@@ -245,10 +245,14 @@ export class UsersService {
   private static readonly NOTIFICATION_CHANNELS = ['push', 'email', 'sms'] as const;
   private static readonly NOTIFICATION_CATEGORIES = ['appointments', 'orders', 'health', 'chat', 'account', 'marketing'] as const;
 
+  /** Design parity (#1819): the flat switches the apps show. appointments and orders ARE the categories of the same name. */
+  private static readonly NOTIFICATION_PREFERENCES = ['general', 'offers', 'medications', 'doctorMessages', 'emergency', 'sound', 'vibration'] as const;
+
   private notificationDefaults() {
     return {
       channels: { push: true, email: false, sms: true },
       categories: { appointments: true, orders: true, health: true, chat: true, account: true, marketing: false },
+      preferences: { general: true, offers: true, medications: true, doctorMessages: true, emergency: true, sound: true, vibration: true },
     };
   }
 
@@ -263,12 +267,19 @@ export class UsersService {
     const categories: any = { ...defaults.categories };
     for (const key of UsersService.NOTIFICATION_CHANNELS) if (typeof sourceChannels[key] === 'boolean') channels[key] = sourceChannels[key];
     for (const key of UsersService.NOTIFICATION_CATEGORIES) if (typeof sourceCategories[key] === 'boolean') categories[key] = sourceCategories[key];
-    return { channels, categories };
+    const sourcePreferences = source.preferences && typeof source.preferences === 'object' ? source.preferences : {};
+    const preferences: any = { ...defaults.preferences };
+    for (const key of UsersService.NOTIFICATION_PREFERENCES) if (typeof sourcePreferences[key] === 'boolean') preferences[key] = sourcePreferences[key];
+    // Emergency alerts always go out (NotificationsService.deliveryPrefs), so the stored value is always true.
+    preferences.emergency = true;
+    // The flat read the apps use: the preferences plus the two categories they share.
+    return { channels, categories, preferences: { ...preferences, appointments: categories.appointments, orders: categories.orders } };
   }
 
   private validateNotificationPatch(body: any) {
     if (!body || typeof body !== 'object' || Array.isArray(body)) throw new BadRequestException('invalid_notification_settings');
-    const allowedTopLevel = new Set(['channels', 'categories']);
+    const flatKeys: readonly string[] = [...UsersService.NOTIFICATION_PREFERENCES, 'appointments', 'orders'];
+    const allowedTopLevel = new Set(['channels', 'categories', ...flatKeys]);
     for (const key of Object.keys(body)) {
       if (!allowedTopLevel.has(key) || key.includes('.') || key.startsWith('$')) throw new BadRequestException('notification_setting_not_allowed');
     }
@@ -286,7 +297,15 @@ export class UsersService {
     };
     validateGroup('channels', UsersService.NOTIFICATION_CHANNELS);
     validateGroup('categories', UsersService.NOTIFICATION_CATEGORIES);
-    if (!clean.channels && !clean.categories) throw new BadRequestException('notification_settings_empty');
+    // Flat switches: appointments / orders write the category of that name; the others are preferences.
+    for (const key of flatKeys) {
+      if (body[key] === undefined) continue;
+      if (typeof body[key] !== 'boolean') throw new BadRequestException('notification_setting_not_allowed');
+      if (key === 'emergency' && body[key] === false) throw new BadRequestException('emergency_alerts_cannot_be_disabled');
+      if (key === 'appointments' || key === 'orders') clean.categories = { ...(clean.categories || {}), [key]: body[key] };
+      else clean.preferences = { ...(clean.preferences || {}), [key]: body[key] };
+    }
+    if (!clean.channels && !clean.categories && !clean.preferences) throw new BadRequestException('notification_settings_empty');
     return clean;
   }
 
@@ -300,9 +319,11 @@ export class UsersService {
     const next = {
       channels: { ...current.channels, ...(patch.channels || {}) },
       categories: { ...current.categories, ...(patch.categories || {}) },
+      // Only the stored preferences (not the flat view that also repeats the two categories).
+      preferences: Object.fromEntries(UsersService.NOTIFICATION_PREFERENCES.map((k) => [k, (patch.preferences?.[k] ?? (current.preferences as any)[k])])),
     };
     await this.patientRepository.updateOne({ user_id: id }, { $set: { notification_settings: next } }, { upsert: true });
-    return next;
+    return this.normalizeNotificationSettings(next);
   }
 
   /** Real storage usage computed from the patient's stored content (base64 payloads). */
