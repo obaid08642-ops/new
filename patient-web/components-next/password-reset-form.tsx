@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { authErrorKind } from "@/lib/auth/auth-errors";
 import type { Locale } from "@/lib/i18n";
 import styles from "./auth/auth.module.css";
@@ -24,12 +25,14 @@ export function PasswordResetForm({ locale, initialToken = "" }: { locale: Local
   const [message, setMessage] = useState<string | null>(null);
   const [ok, setOk] = useState(false);
   const [expired, setExpired] = useState(false);
+  const [show, setShow] = useState(false);
+  const liveMismatch = confirm.length > 0 && newPassword !== confirm;
 
   async function submit(event: FormEvent) {
     event.preventDefault();
     setExpired(false);
     if (newPassword !== confirm) { setOk(false); setMessage(t("mismatch")); return; }
-    if (resetToken.trim().length < 1 || newPassword.length < 8) { setOk(false); setMessage(t("failed")); return; }
+    if (resetToken.trim().length < 1 || newPassword.length < 10) { setOk(false); setMessage(t("failed")); return; }
     setBusy(true); setMessage(null);
     try {
       const response = await fetch("/api/auth/password/reset", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ reset_token: resetToken.trim(), new_password: newPassword }) });
@@ -38,11 +41,25 @@ export function PasswordResetForm({ locale, initialToken = "" }: { locale: Local
         setMessage(resetErrorMessage(t, response.status));
         return;
       }
-      setOk(true); setMessage(t("success")); setToken(""); setPassword(""); setConfirm("");
+      setOk(true); setToken(""); setPassword(""); setConfirm("");
     } catch { setOk(false); setMessage(t("failed")); }
     finally { setBusy(false); }
   }
 
+  // The app's success screen: a message and a sign-in button, not a form that stays.
+  if (ok) return <>
+    <div className={styles.heading}>
+      <h1 className={styles.title}>{t("successTitle")}</h1>
+      <p className={styles.subtitle} role="status">{t("success")}</p>
+    </div>
+    <div className={styles.actions}>
+      <Button type="button" variant="primary" size="lg" fullWidth label={t("signIn")} onClick={() => router.replace(`/${locale}/login`)} />
+    </div>
+  </>;
+
+  const eye = <button type="button" className={styles.eye} onClick={() => setShow((value) => !value)} aria-label={show ? t("hidePassword") : t("showPassword")}>
+    <Icon name={show ? "eye-slash" : "eye"} size={20} tone="currentColor" />
+  </button>;
   return <>
     <div className={styles.heading}>
       <h1 className={styles.title}>{t("title")}</h1>
@@ -56,13 +73,14 @@ export function PasswordResetForm({ locale, initialToken = "" }: { locale: Local
       </label>
       <label className={styles.field}>
         <span className={styles.label}>{t("password")}</span>
-        <span className={styles.control}><input required minLength={8} type="password" value={newPassword} onChange={(event) => setPassword(event.target.value)} autoComplete="new-password" /></span>
+        <span className={styles.control}><input required minLength={10} type={show ? "text" : "password"} value={newPassword} onChange={(event) => setPassword(event.target.value)} autoComplete="new-password" />{eye}</span>
       </label>
       <label className={styles.field}>
         <span className={styles.label}>{t("confirm")}</span>
-        <span className={styles.control}><input required minLength={8} type="password" value={confirm} onChange={(event) => setConfirm(event.target.value)} autoComplete="new-password" /></span>
+        <span className={styles.control}><input required minLength={10} type={show ? "text" : "password"} value={confirm} aria-invalid={liveMismatch || undefined} onChange={(event) => setConfirm(event.target.value)} autoComplete="new-password" /></span>
       </label>
-      {message ? <p className={ok ? styles.note : styles.error} role={ok ? "status" : "alert"}>{message}</p> : null}
+      {liveMismatch ? <p className={styles.error} role="alert">{t("mismatch")}</p> : null}
+      {message && !(liveMismatch && message === t("mismatch")) ? <p className={styles.error} role="alert">{message}</p> : null}
       {expired ? <p className={styles.foot}><Link className={styles.link} href={`/${locale}/forgot-password`}>{t("requestNew")}</Link></p> : null}
       <div className={styles.actions}>
         <Button type="submit" variant="primary" size="lg" fullWidth label={busy ? t("busy") : t("submit")} loading={busy} />
