@@ -3,11 +3,22 @@
     "batch": "parity-account",
     "app": "patient-web",
     "screen": "/welcome and /login",
-    "element": "Apple sign-in on the web (provider setup)",
+    "element": "Social sign-in on the web: Google, Apple, X, Snapchat (provider setup)",
     "file": "patient-web/components-next/social-login-buttons.tsx",
-    "line": 29,
-    "found": "[owner] Owner decision 2026-10-24: Apple only on the web; Google, X and Snapchat are hidden. The Apple button renders when NEXT_PUBLIC_APPLE_CLIENT_ID and NEXT_PUBLIC_APPLE_REDIRECT_URI are set; the owner must create the Apple Services ID, register the return URL and set both (also as Dockerfile build args in deploy/docker/Dockerfile.patient-web, outside this session's scope).",
-    "suspect": "Until configured the button stays hidden (no fake button). Backend must verify the Apple identity token on POST /auth/social-login.",
+    "line": 50,
+    "found": "[owner] Owner decision 2026-10-24 (corrected): web sign-in and sign-up offer all providers. Each button renders only when configured: NEXT_PUBLIC_GOOGLE_CLIENT_ID; NEXT_PUBLIC_APPLE_CLIENT_ID + NEXT_PUBLIC_APPLE_REDIRECT_URI; X/Snapchat need NEXT_PUBLIC_X_CLIENT_ID / NEXT_PUBLIC_SNAPCHAT_CLIENT_ID, the redirect https://<site>/<locale>/login/social-callback registered at the provider, and NEXT_PUBLIC_SOCIAL_X_SNAPCHAT=1 (also as Dockerfile build args in deploy/docker/Dockerfile.patient-web, outside this session's scope).",
+    "suspect": "Until configured the buttons stay hidden (no fake button). The owner must create the provider apps.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-account",
+    "app": "patient-web",
+    "screen": "/welcome and /login",
+    "element": "X and Snapchat tokens are refused by the backend",
+    "file": "patient-web/app/api/auth/social-exchange/route.ts",
+    "line": 15,
+    "found": "[backend] POST /auth/social-login throws social_provider_not_supported for provider x and snapchat (auth.service.ts socialLogin); session S is adding the verification. Until then the web buttons are gated by NEXT_PUBLIC_SOCIAL_X_SNAPCHAT=1 like the app.",
+    "suspect": "Drop the gate on web and app once the backend verifies both. Snapchat's token endpoint may also require a client secret/Basic auth, which the app flow (mirrored) does not send.",
     "review_status": "open"
   },
   {

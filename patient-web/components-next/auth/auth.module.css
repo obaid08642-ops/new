@@ -104,9 +104,10 @@
 
 .divider { display: flex; align-items: center; gap: 12px; font-size: var(--nabd-font-size-caption); color: var(--nabd-color-text-secondary); }
 .divider::before, .divider::after { content: ""; flex: 1; block-size: 1px; background: var(--nabd-color-border-subtle); }
-.social { display: flex; justify-content: center; gap: 8px; }
+.social { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 .socialButton {
-  block-size: 52px; min-inline-size: 64px; padding-inline: 16px; border-radius: 16px; box-sizing: border-box;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-block-size: 52px; min-inline-size: 64px; padding-inline: 16px; border-radius: 16px; box-sizing: border-box;
   font: inherit; font-size: var(--nabd-font-size-control); font-weight: 500; cursor: pointer;
   background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary); border: 1px solid var(--nabd-color-border-subtle);
 }

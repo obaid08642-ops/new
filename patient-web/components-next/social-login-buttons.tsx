@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { getStableDeviceId } from "@/lib/auth/device-id";
 import { announceSignedIn } from "@/lib/auth/session-identity";
+import { BRAND_GOOGLE_PATH, BRAND_GOOGLE_VIEWBOX, BRAND_SNAPCHAT_PATH, BRAND_SNAPCHAT_VIEWBOX, BRAND_X_PATH, BRAND_X_VIEWBOX } from "@/components-next/ui-generated/icons/marks";
+import { acceptCallback, authorizeUrl, newPkce, xSnapchatEnabled, type CodeProvider } from "@/lib/auth/social-oauth";
 import styles from "./auth/auth.module.css";
 
 type Props = { locale: string; onWrongApp?: () => void };
 
 declare global {
-  interface Window { AppleID?: { auth: { init(config: Record<string, unknown>): void; signIn(): Promise<{ authorization?: { id_token?: string }; user?: { email?: string; name?: { firstName?: string; lastName?: string } } }> } } }
+  interface Window { google?: any; AppleID?: { auth: { init(config: Record<string, unknown>): void; signIn(): Promise<{ authorization?: { id_token?: string }; user?: { email?: string; name?: { firstName?: string; lastName?: string } } }> } } }
 }
 
 function loadScript(src: string): Promise<void> {
@@ -26,10 +28,24 @@ function loadScript(src: string): Promise<void> {
 
 const APPLE_SDK = "https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js";
 
+const MARKS = {
+  google: { path: BRAND_GOOGLE_PATH, viewBox: BRAND_GOOGLE_VIEWBOX },
+  x: { path: BRAND_X_PATH, viewBox: BRAND_X_VIEWBOX },
+  snapchat: { path: BRAND_SNAPCHAT_PATH, viewBox: BRAND_SNAPCHAT_VIEWBOX },
+} as const;
+
+/** The single-colour brand mark of the "continue with" buttons (currentColor, decorative: the button carries the name). */
+function Mark({ brand }: { brand: keyof typeof MARKS }) {
+  const { path, viewBox } = MARKS[brand];
+  const [, , w, h] = viewBox.split(" ").map(Number);
+  return <svg aria-hidden="true" focusable="false" viewBox={viewBox} width={(20 * w) / h} height={20} fill="currentColor"><path d={path} /></svg>;
+}
+
 /**
- * Guest sign-in is always available. The only social sign-in on the web is Apple (owner decision 2026-10-24: X, Snapchat
- * and Google are not offered); its button renders only when NEXT_PUBLIC_APPLE_CLIENT_ID (the Services ID) and
- * NEXT_PUBLIC_APPLE_REDIRECT_URI are configured, and the identity token goes to the backend, which verifies it.
+ * Guest sign-in is always available. Social sign-in offers all four providers, each hidden until configured:
+ * Google (Identity Services; NEXT_PUBLIC_GOOGLE_CLIENT_ID), Apple (NEXT_PUBLIC_APPLE_CLIENT_ID + NEXT_PUBLIC_APPLE_REDIRECT_URI),
+ * X and Snapchat (code + PKCE in a popup, like the app; NEXT_PUBLIC_X_CLIENT_ID / NEXT_PUBLIC_SNAPCHAT_CLIENT_ID and
+ * NEXT_PUBLIC_SOCIAL_X_SNAPCHAT=1). Every provider token goes to the backend, which verifies it.
  */
 export function SocialLoginButtons({ locale, onWrongApp }: Props) {
   const router = useRouter();
@@ -40,6 +56,13 @@ export function SocialLoginButtons({ locale, onWrongApp }: Props) {
   const appleClientId = process.env.NEXT_PUBLIC_APPLE_CLIENT_ID || "";
   const appleRedirect = process.env.NEXT_PUBLIC_APPLE_REDIRECT_URI || "";
   const configured = Boolean(appleClientId && appleRedirect);
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
+  const codeEnabled = xSnapchatEnabled(process.env.NEXT_PUBLIC_SOCIAL_X_SNAPCHAT);
+  const showX = codeEnabled && Boolean(process.env.NEXT_PUBLIC_X_CLIENT_ID);
+  const showSnapchat = codeEnabled && Boolean(process.env.NEXT_PUBLIC_SNAPCHAT_CLIENT_ID);
+  const codeClients: Record<CodeProvider, string> = { x: process.env.NEXT_PUBLIC_X_CLIENT_ID || "", snapchat: process.env.NEXT_PUBLIC_SNAPCHAT_CLIENT_ID || "" };
+  const tokenClient = useRef<any>(null);
+  const googleMessage = t("googleUnavailable");
   const failedMessage = t("unavailable");
   const appleMessage = t("appleUnavailable");
 
@@ -56,6 +79,91 @@ export function SocialLoginButtons({ locale, onWrongApp }: Props) {
     return () => { cancelled = true; };
   }, [configured, appleClientId, appleRedirect, appleMessage]);
 
+  async function postSocial(body: Record<string, string>) {
+    const res = await fetch("/api/auth/social-login", {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-nabd-device-id": getStableDeviceId() },
+      body: JSON.stringify(body),
+    });
+    if (res.status === 403 && (await res.json().catch(() => null))?.message === "wrong_app") { onWrongApp?.(); return; }
+    if (!res.ok) throw new Error("social_failed");
+    announceSignedIn();
+    router.replace(`/${locale}/dashboard`); router.refresh();
+  }
+
+  useEffect(() => {
+    if (!googleClientId) return;
+    let cancelled = false;
+    loadScript("https://accounts.google.com/gsi/client")
+      .then(() => {
+        if (cancelled || !window.google?.accounts?.oauth2) return;
+        tokenClient.current = window.google.accounts.oauth2.initTokenClient({
+          client_id: googleClientId,
+          scope: "openid email profile",
+          callback: async (response: any) => {
+            if (!response?.access_token) { setError(failedMessage); setBusy(null); return; }
+            try { await postSocial({ provider: "google", token: response.access_token }); } catch { setError(failedMessage); } finally { setBusy(null); }
+          },
+          // The popup was closed, blocked or could not open: the buttons must come back.
+          error_callback: (failure: { type?: string } | undefined) => {
+            setBusy(null);
+            if (failure?.type !== "popup_closed") setError(googleMessage);
+          },
+        });
+      })
+      .catch(() => { if (!cancelled) setError(googleMessage); });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [googleClientId, locale, failedMessage, googleMessage]);
+
+  function googleLogin() {
+    if (busy) return;
+    setError(null);
+    // The script has not loaded (offline, blocked): say so instead of leaving the buttons disabled.
+    if (!tokenClient.current) { setError(googleMessage); return; }
+    setBusy("google");
+    try { tokenClient.current.requestAccessToken(); } catch { setBusy(null); setError(googleMessage); }
+  }
+
+  async function codeLogin(provider: CodeProvider) {
+    if (busy) return;
+    setError(null);
+    if (!codeClients[provider]) { setError(failedMessage); return; }
+    setBusy(provider);
+    const redirectUri = `${window.location.origin}/${locale}/login/social-callback`;
+    let popup: Window | null = null;
+    let timer: ReturnType<typeof setInterval> | undefined;
+    let onMessage: ((event: MessageEvent) => void) | undefined;
+    try {
+      const pkce = await newPkce();
+      popup = window.open(authorizeUrl(provider, codeClients[provider], redirectUri, pkce), "nabd-social", "width=500,height=700");
+      if (!popup) throw new Error("popup_blocked");
+      const code = await new Promise<string | null>((resolve) => {
+        onMessage = (event: MessageEvent) => {
+          if (event.origin !== window.location.origin) return;
+          const accepted = acceptCallback(pkce.state, event.data);
+          if (accepted) resolve(accepted);
+        };
+        window.addEventListener("message", onMessage);
+        // closing the popup is a choice, not an error
+        timer = setInterval(() => { if (popup?.closed) resolve(null); }, 500);
+      });
+      if (!code) return;
+      const exchange = await fetch("/api/auth/social-exchange", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ provider, code, verifier: pkce.verifier, redirectUri }),
+      });
+      const token = exchange.ok ? (await exchange.json().catch(() => null))?.token : null;
+      if (typeof token !== "string" || !token) throw new Error("exchange_failed");
+      await postSocial({ provider, token });
+    } catch { setError(failedMessage); } finally {
+      if (timer) clearInterval(timer);
+      if (onMessage) window.removeEventListener("message", onMessage);
+      if (popup && !popup.closed) popup.close();
+      setBusy(null);
+    }
+  }
+
   async function appleLogin() {
     if (busy) return;
     setError(null);
@@ -66,15 +174,7 @@ export function SocialLoginButtons({ locale, onWrongApp }: Props) {
       const token = result.authorization?.id_token;
       if (!token) throw new Error("apple_no_token");
       const name = [result.user?.name?.firstName, result.user?.name?.lastName].filter(Boolean).join(" ");
-      const res = await fetch("/api/auth/social-login", {
-        method: "POST",
-        headers: { "content-type": "application/json", "x-nabd-device-id": getStableDeviceId() },
-        body: JSON.stringify({ provider: "apple", token, ...(result.user?.email ? { email: result.user.email } : {}), ...(name ? { name } : {}) }),
-      });
-      if (res.status === 403 && (await res.json().catch(() => null))?.message === "wrong_app") { onWrongApp?.(); return; }
-      if (!res.ok) throw new Error("social_failed");
-      announceSignedIn();
-      router.replace(`/${locale}/dashboard`); router.refresh();
+      await postSocial({ provider: "apple", token, ...(result.user?.email ? { email: result.user.email } : {}), ...(name ? { name } : {}) });
     } catch (failure) {
       // Closing the Apple popup is a choice, not an error.
       const code = (failure as { error?: string } | null)?.error;
@@ -94,10 +194,13 @@ export function SocialLoginButtons({ locale, onWrongApp }: Props) {
   }
 
   return <>
-    {configured ? <>
+    {googleClientId || configured || showX || showSnapchat ? <>
       <div className={styles.divider}>{t("orContinueWith")}</div>
       <div className={styles.social} aria-label={t("otherWays")}>
-        <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={appleLogin}>{t("apple")}</button>
+        {googleClientId ? <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={googleLogin}><Mark brand="google" /> {t("google")}</button> : null}
+        {configured ? <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={appleLogin}>{t("apple")}</button> : null}
+        {showX ? <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={() => codeLogin("x")}><Mark brand="x" /> {t("x")}</button> : null}
+        {showSnapchat ? <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={() => codeLogin("snapchat")}><Mark brand="snapchat" /> {t("snapchat")}</button> : null}
       </div>
     </> : null}
     <div className={styles.foot}>
