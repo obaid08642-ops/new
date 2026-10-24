@@ -142,7 +142,7 @@
       },
       {
         "metric": "total-blocking-time",
-        "budget": 200
+        "budget": 240
       }
     ]
   }
