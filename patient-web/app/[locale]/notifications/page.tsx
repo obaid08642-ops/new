@@ -36,6 +36,13 @@ function iconFor(n: PatientNotification) {
   return URGENT.includes(n.priority?.toLowerCase() || "") ? KIND.alert : KIND.info;
 }
 
+/** The app's filter group per backend type (patient-app/src/utils/notificationsFeed.ts); unknown kinds are system. */
+const MEDICAL_TYPES = ["appointment", "prescription", "medication", "emergency", "labs"];
+function categoryOf(n: PatientNotification): "system" | "medical" | "promotion" {
+  const type = n.type?.toLowerCase() || "";
+  return MEDICAL_TYPES.includes(type) ? "medical" : type === "promo" ? "promotion" : "system";
+}
+
 /** "5 minutes ago" for the last day, the date after that; the language's own digits and words. */
 function whenLabel(createdAt: string, locale: string, now: number) {
   const at = new Date(createdAt);
@@ -91,6 +98,7 @@ export default async function NotificationsPage({ params }: Props) {
         tone: kind.tone,
         unread: n.read === false,
         href: webRouteForNotification(n.route, locale),
+        category: categoryOf(n),
       };
     }),
   }));

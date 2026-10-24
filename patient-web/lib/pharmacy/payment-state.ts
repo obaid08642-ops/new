@@ -1,6 +1,7 @@
 // No zod: the result screen is a client component. Everything here only READS what the server sent; it never decides
 // that a payment happened. "Paid" is the server's word (`payment_status: "paid"` on the order, or a verified transaction).
 import { governedStep } from "./governed-step";
+import { orderPharmacyNames, type PharmacyNames } from "./order-view";
 
 function record(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
@@ -20,6 +21,10 @@ export type OrderPaymentView = {
   totals?: { subtotal?: number; deliveryFee?: number; total?: number; currency?: string };
   insurance?: { decision?: string; coPayAmount?: number; insurerShare?: number };
   address?: { label?: string; street?: string; district?: string; city?: string };
+  /** `pickup` when the patient collects the order at the pharmacy (then no delivery address is drawn). */
+  fulfillment?: "delivery" | "pickup";
+  /** The filling pharmacy's names as the server sent them; absent when it sent none. */
+  pharmacyNames?: PharmacyNames;
 };
 
 /** The payment-relevant part of `GET /patient/pharmacy/orders/:id`. */
@@ -40,6 +45,8 @@ export function parseOrderPaymentView(payload: unknown): OrderPaymentView | null
     totals: totals ? { subtotal: num(totals.subtotal), deliveryFee: num(totals.delivery_fee), total: num(totals.total), currency: text(totals.currency) } : undefined,
     insurance: summary ? { decision: text(summary.decision), coPayAmount: num(summary.co_pay_amount), insurerShare: num(summary.insurer_share) } : undefined,
     address: address ? { label: text(address.label), street: text(address.street), district: text(address.district), city: text(address.city) } : undefined,
+    fulfillment: ((method) => (method === "pickup" ? "pickup" : method ? "delivery" : undefined))(text(source.fulfillment) ?? text(record(source.delivery)?.method)),
+    pharmacyNames: orderPharmacyNames(source),
   };
 }
 

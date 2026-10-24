@@ -10,8 +10,10 @@ import { isLocale, locales, type Locale } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { CatalogSearch } from "@/components-next/pharmacy/catalog-search";
 import { ChipLink } from "@/components-next/pharmacy/chip-link";
+import { OrderAgainCard } from "@/components-next/pharmacy/order-again-card";
 import { ProductGrid } from "@/components-next/pharmacy/product-grid";
 import { productCardImageSrc } from "@/components-next/pharmacy/catalog-image";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
@@ -207,6 +209,35 @@ export async function CategoryView({ params, searchParams }: Props) {
         <div className={styles.searchWrap}>
           <CatalogSearch locale={locale} initial={sParams.q || ""} />
         </div>
+        {/* The PharmacyHub board's shortcuts (the app's hub): upload the prescription, favorites, reminders, orders and cart.
+            Plain links, so the cached page stays the same for everyone; "order again" needs the patient's orders and is on /orders. */}
+        {isAll && !q && page === 1 ? (
+          <nav aria-label={t("hubShortcuts")} className={styles.hub}>
+            <Link className={`${styles.row} ${styles.hubUpload}`} href={`/${locale}/pharmacy/rx-order?via=photo`}>
+              <span className={styles.rowMedia}><FIcon icon="prescription" tone={PHARMACY_TONE} chip="solid" size={56} /></span>
+              <span className={styles.rowBody}>
+                <span className={styles.rowName}>{t("hubUploadTitle")}</span>
+                <span className={styles.rowSub}>{t("hubUploadBody")}</span>
+              </span>
+            </Link>
+            <ul className={styles.hubQuick}>
+              {([
+                { key: "favorites", href: `/${locale}/wishlist`, icon: "heart", tone: PHARMACY_TONE, label: t("hubFavorites") },
+                { key: "reminders", href: `/${locale}/health/medications?tab=all`, icon: "bell", tone: "violet", label: t("hubReminders") },
+                { key: "orders", href: `/${locale}/orders`, icon: "file-text", tone: PHARMACY_TONE, label: t("hubOrders") },
+                { key: "cart", href: `/${locale}/cart`, icon: "package", tone: PHARMACY_TONE, label: t("hubCart") },
+              ] as const).map((shortcut) => (
+                <li key={shortcut.key}>
+                  <Link className={styles.hubTile} href={shortcut.href}>
+                    <FIcon icon={shortcut.icon} tone={shortcut.tone} size={42} />
+                    <span className={styles.hubLabel}>{shortcut.label}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <OrderAgainCard locale={locale} />
+          </nav>
+        ) : null}
         {categories.length > 0 ? (
           <nav aria-label={t("categories")} className={styles.chips}>
             <ChipLink href={`/${locale}/c`} label={t("all")} selected={isAll && !q} />

@@ -111,9 +111,6 @@ export function DiagnosticsInsuranceApprovalClient({ orderId, labName, visitType
     .reduce((s, i) => s + i.price, 0);
   // Only server amounts; no invented 50 SAR home-visit fee (needs-review issue 632).
   const finalToPay = order.status === "rejected" ? 0 : order.copayAmount + hybridCash;
-  const checkoutQuery = order.status === "rejected"
-    ? `visitType=${encodeURIComponent(visitType)}&isInsurance=false&total=${order.totalAmount}`
-    : `visitType=${encodeURIComponent(visitType)}&isInsurance=hybrid&copay=${finalToPay}`;
   const tone = order.status === "approved" ? DIAG_TONES.good : order.status === "partial_approval" ? DIAG_TONES.warn : order.status === "rejected" ? DIAG_TONES.quiet : DIAG_TONES.info;
 
   return (
@@ -167,11 +164,11 @@ export function DiagnosticsInsuranceApprovalClient({ orderId, labName, visitType
       <div className={consult.actions}>
         {order.status === "rejected" ? (
           <>
-            <ButtonLink href={`/${locale}/diagnostics/checkout?${checkoutQuery}`} label={t("proceedSelfPay")} />
+            <ButtonLink href={`/${locale}/labs/bookings/${encodeURIComponent(orderId)}`} label={t("proceedSelfPay")} />
             <ButtonLink href={`/${locale}/consultations`} label={t("requestConsultation")} variant="outline" />
           </>
         ) : resolved ? (
-          <ButtonLink href={`/${locale}/diagnostics/checkout?${checkoutQuery}`} label={t("continueToPayment")} />
+          <ButtonLink href={`/${locale}/labs/bookings/${encodeURIComponent(orderId)}`} label={t("continueToPayment")} />
         ) : (
           <p className={consult.notice} role="status">{t("waitingForDecision")}</p>
         )}

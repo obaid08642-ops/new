@@ -4,6 +4,8 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
 import { ConsultPage } from "@/components-next/consult/consult-page";
+import { ConsultState } from "@/components-next/consult/consult-state";
+import { TrackingRefresh } from "@/components-next/orders/tracking-refresh";
 import { ActionLinks, Facts, Hero, Notice, SectionCard, type FactRow, type LinkAction } from "@/components-next/consult/consult-parts";
 import { nursingStatus } from "@/components-next/nursing/nursing-parts";
 import { money } from "@/components-next/diagnostics/diag-parts";
@@ -51,7 +53,14 @@ export default async function NursingInsuranceStatusPage({ params, searchParams 
       booking = arr.find((b) => b.payment_method === "insurance") ?? arr[0] ?? null;
     }
   }
-  if (!booking?.id) notFound();
+  if (!booking?.id) {
+    // The app shows "no insurance request" with the way to the visits instead of an error page.
+    return (
+      <ConsultPage locale={locale} title={t("insuranceTitle")} backHref={`/${locale}/nursing/visits`}>
+        <ConsultState kind="empty" icon={INSURANCE.icon} tone={INSURANCE.tone} title={t("insuranceNone")} body={t("insuranceNoneBody")} actionLabel={t("visitsLink")} actionHref={`/${locale}/nursing/visits`} />
+      </ConsultPage>
+    );
+  }
 
   const state = typeof booking.state === "string" ? booking.state : typeof booking.status === "string" ? booking.status : "";
   const status = nursingStatus(state);
@@ -61,6 +70,8 @@ export default async function NursingInsuranceStatusPage({ params, searchParams 
   const decision = decisionRaw ? nursingStatus(decisionRaw) : null;
   const copayRaw = booking.copay_amount ?? booking.patient_share;
   const copay = typeof copayRaw === "number" ? copayRaw : Number(copayRaw);
+  // While the insurer has not decided, the page asks again (the app reloads on focus).
+  const pending = !decision && ["PENDING_INSURANCE", "NEW_REQUEST", "REQUESTED", "WAITING_COPAY"].includes(state.toUpperCase());
   const liveOk = ["CONFIRMED", "IN_PROGRESS", "APPROVED_FULL"].includes(state) && typeof booking.id === "string";
   const rows: FactRow[] = [
     ...(decision ? [{ label: t("decisionLabel"), value: t(`status.${decision.key}`), icon: "shield-check" as const, tone: INSURANCE.tone }] : []),
@@ -79,6 +90,7 @@ export default async function NursingInsuranceStatusPage({ params, searchParams 
         </SectionCard>
       ) : null}
       <Notice>{t("insuranceNote")}</Notice>
+      {pending ? <TrackingRefresh /> : null}
       <ActionLinks actions={actions} />
     </ConsultPage>
   );
