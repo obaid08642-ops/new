@@ -238,6 +238,13 @@ def register_type(ptype, overrides=None):
         body = {**body, **{k: v for k, v in (overrides or {}).items() if k in body or k in sent}}
         r = c.post(url, body)
         step(f"{url.split('/')[-1]} as sent by {at.split('/')[-1]}", r.ok, f'{r} body_keys={sorted(body)}')
+    if ptype == 'doctor':
+        # owner decision 2026-10-24: a doctor cannot submit without a sub-specialty, an unexpired SCFHS licence date and an IBAN
+        # (the provider app registration screen has to send them; until it does, the journey adds them so the rest of the flow runs)
+        r = c.post('/provider-onboarding/step2', {'license_expiry_date': '2031-12-31', 'iban': 'SA0380000000608010167519'})
+        step('doctor step2: licence expiry and IBAN (required at submit)', r.ok, r)
+        r = c.post('/provider-onboarding/step3', {'sub_specialties': ['اختبار']})
+        step('doctor step3: sub-specialty (required at submit)', r.ok, r)
     sig = upload(c, 'signature.png', 'image/png')
     t0 = time.time()
     r = c.post('/provider/auth/send-otp', {'email': email, 'purpose': 'email_verification'})
