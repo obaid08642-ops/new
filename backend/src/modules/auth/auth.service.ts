@@ -1551,6 +1551,7 @@ export class AuthService {
     // Q107: the email comes only from a provider token whose signature and
     // audience were verified, never from the body. X and Snapchat had no
     // verification at all (unsigned JWT decode, or a made-up address).
+    if (dto.provider === 'x' || dto.provider === 'snapchat') return this.subjectSocialLogin(dto.provider, dto.token, dto.name, guestToken);
     let verified: { email: string; full_name: string } | null;
     if (dto.provider === 'google') verified = await this.verifyGoogleToken(dto.token);
     else if (dto.provider === 'apple') verified = await this.verifyAppleToken(dto.token);
@@ -1596,6 +1597,70 @@ export class AuthService {
     await this.mergeGuestFromRequest(guestToken, u.id);
 
     return { user: this.publicUser(u), token: this.signToken(u) };
+  }
+
+  /**
+   * X and Snapchat: the access token is verified by asking the provider's own API who it belongs to. The identity is the
+   * provider's stable account id (no email is taken from them), so a token can only ever open the account of the person
+   * it was issued to and never an account that merely shares an address. Staff and provider accounts never get here.
+   */
+  private async subjectSocialLogin(provider: 'x' | 'snapchat', token: string, nameIn: string | undefined, guestToken?: string) {
+    if (process.env[provider === 'x' ? 'X_SIGNIN_ENABLED' : 'SNAPCHAT_SIGNIN_ENABLED'] !== '1') throw new ServiceUnavailableException('social_login_not_configured');
+    const verified = provider === 'x' ? await this.verifyXToken(token) : await this.verifySnapchatToken(token);
+    if (!verified) throw new UnauthorizedException('invalid_social_token');
+    const field = provider === 'x' ? 'social_x_id' : 'social_snapchat_id';
+    let u = await this.userModel.findOne({ [field]: verified.subject });
+    if (u && u.role !== UserRole.PATIENT) throw new ForbiddenException('password_login_required');
+    if (u && u.active === false) throw new ForbiddenException('account_disabled');
+    if (!u) {
+      await this.killSwitches?.assertOn('new_registrations');
+      u = await this.userModel.create({
+        full_name: verified.full_name || nameIn || 'Social User',
+        [field]: verified.subject,
+        password_hash: '',
+        role: UserRole.PATIENT,
+        active: true,
+      });
+      await this.patientModel.create({ user_id: u.id });
+      this.events.emit(EVENTS.USER_REGISTERED, { user_id: u.id, role: u.role });
+    }
+    u.last_login_at = new Date();
+    await u.save();
+    this.events.emit(EVENTS.USER_LOGGED_IN, { user_id: u.id, role: u.role });
+    await this.mergeGuestFromRequest(guestToken, u.id);
+    return { user: this.publicUser(u), token: this.signToken(u) };
+  }
+
+  /** X OAuth 2.0 user access token: GET /2/users/me answers with the account it belongs to. */
+  private async verifyXToken(token: string): Promise<{ subject: string; full_name: string } | null> {
+    try {
+      const r = await timedFetch('https://api.x.com/2/users/me?user.fields=name', { headers: { Authorization: `Bearer ${token}` } }, SOCIAL_FETCH);
+      if (!r.ok) return null;
+      const body: any = await r.json();
+      const id = body?.data?.id;
+      if (typeof id !== 'string' || !/^\d{1,25}$/.test(id)) return null;
+      return { subject: id, full_name: typeof body.data.name === 'string' ? body.data.name.slice(0, 120) : '' };
+    } catch (e) {
+      if (e instanceof GatewayTimeoutException) throw e;
+      return null;
+    }
+  }
+
+  /** Snapchat Login Kit access token: the Snap Kit /me query answers with the account's external id and display name. */
+  private async verifySnapchatToken(token: string): Promise<{ subject: string; full_name: string } | null> {
+    try {
+      const q = encodeURIComponent('{me{externalId displayName}}');
+      const r = await timedFetch(`https://kit.snapchat.com/v1/me?query=${q}`, { headers: { Authorization: `Bearer ${token}` } }, SOCIAL_FETCH);
+      if (!r.ok) return null;
+      const body: any = await r.json();
+      const me = body?.data?.me;
+      const id = me?.externalId;
+      if (typeof id !== 'string' || !id || id.length > 200) return null;
+      return { subject: id, full_name: typeof me.displayName === 'string' ? me.displayName.slice(0, 120) : '' };
+    } catch (e) {
+      if (e instanceof GatewayTimeoutException) throw e;
+      return null;
+    }
   }
 
   /** Q107: allowed OAuth client ids for a provider; none configured means the provider is off. */

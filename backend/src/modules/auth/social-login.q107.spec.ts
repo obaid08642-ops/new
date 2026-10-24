@@ -6,7 +6,7 @@
 // accepted from any OAuth client (no audience check).
 import { generateKeyPairSync } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
-import { BadRequestException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
 
 const keys = generateKeyPairSync('rsa', { modulusLength: 2048 });
 import { AuthService } from './auth.service';
@@ -44,9 +44,9 @@ describe('social login verifies the provider token (Q107)', () => {
     await expect(service(staff).socialLogin({ provider: 'apple', token: unsigned({ email: 'admin@nabd.test' }) })).rejects.toBeInstanceOf(UnauthorizedException);
   });
 
-  it('X and Snapchat (no verification exists) are refused', async () => {
+  it('an unsigned X or Snapchat "token" is refused, and the providers are off until enabled', async () => {
     for (const provider of ['x', 'snapchat'] as const) {
-      await expect(service(staff).socialLogin({ provider, token: unsigned({ email: 'admin@nabd.test' }) })).rejects.toBeInstanceOf(BadRequestException);
+      await expect(service(staff).socialLogin({ provider, token: unsigned({ email: 'admin@nabd.test' }) })).rejects.toThrow('social_login_not_configured');
     }
   });
 
