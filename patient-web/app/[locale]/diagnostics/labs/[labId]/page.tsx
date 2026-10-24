@@ -61,7 +61,12 @@ export default async function LabDetailPage({ params }: Props) {
   const place = [lab.city, lab.address].filter(Boolean).join(" · ");
   const decimal = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
   const whole = new Intl.NumberFormat(locale);
-  const actions: LinkAction[] = lab.phone ? [{ href: `tel:${lab.phone}`, label: w("callLab"), variant: "outline", external: true }] : [];
+  // the app's "Directions to the lab": the map point when the server has one, otherwise a search for the address
+  const directions = lab.lat !== undefined && lab.lng !== undefined ? `https://www.google.com/maps/dir/?api=1&destination=${lab.lat},${lab.lng}` : lab.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lab.address)}` : undefined;
+  const actions: LinkAction[] = [
+    ...(directions ? [{ href: directions, label: t("directions"), variant: "outline" as const, external: true }] : []),
+    ...(lab.phone ? [{ href: `tel:${lab.phone}`, label: w("callLab"), variant: "outline" as const, external: true }] : []),
+  ];
 
   return (
     <ConsultPage locale={locale} title={name} backHref={backHref}>
@@ -69,6 +74,7 @@ export default async function LabDetailPage({ params }: Props) {
       <Hero icon={LAB.icon} tone={LAB.tone} title={name} sub={place || undefined}>
         <TagRow tags={[
           ...(lab.rating !== undefined && lab.rating_count > 0 ? [{ label: t("ratingLine", { rating: decimal.format(lab.rating), count: whole.format(lab.rating_count) }), tone: LAB.tone }] : []),
+          ...(lab.branches ? [{ label: t("branchesCount", { n: whole.format(lab.branches) }), tone: LAB.tone }] : []),
           ...(lab.home_visit ? [{ label: t("homeVisitSupported"), tone: LAB.tone }] : []),
         ]} />
       </Hero>

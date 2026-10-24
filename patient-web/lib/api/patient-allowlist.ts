@@ -101,6 +101,8 @@ const patientReadRoutes = [
 const diagnosticsMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }> = [
   { method: "POST", route: new RegExp("^/labs/bookings$") },
   { method: "POST", route: new RegExp(`^/labs/bookings/${orderId}/documents$`, "i") },
+  // components-next/diagnostics/booking-cancel: the patient cancels their own lab or radiology booking (the backend checks it is theirs).
+  { method: "POST", route: new RegExp(`^/(labs|radiology)/bookings/${orderId}/cancel$`, "i") },
   { method: "PATCH", route: new RegExp(`^/labs/bookings/${orderId}/reschedule$`, "i") },
   // Lab insurance approval: the patient pays cash for an item insurance rejected (labs.controller opt-in-cash).
   { method: "PATCH", route: new RegExp(`^/labs/bookings/${orderId}/items/[^/]{1,128}/opt-in-cash$`, "i") },
