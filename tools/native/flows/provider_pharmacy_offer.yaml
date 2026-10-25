@@ -1,0 +1,16 @@
+# Pharmacy (provider app): a patient's order arrives on the dashboard -> Create offer -> pick the stocked item -> preview -> save -> send for the patient's choice;
+# then the patient (API) sees the offer.
+appId: com.nabd.provider
+---
+- runScript:
+    file: scripts/pharmacy_order.js
+- runFlow: common_provider_login.yaml
+- extendedWaitUntil:
+    visible: ".*(إنشاء عرض|Create offer).*"
+    timeout: 90000
+- takeScreenshot: provider_pharmacy_incoming_order
+- tapOn: ".*(إنشاء عرض|Create offer).*"
+- extendedWaitUntil:
+    visible: ".*(معاينة خادمية|Server quote preview).*"
+    timeout: 30000
+- takeScreenshot: provider_pharmacy_offer_composer

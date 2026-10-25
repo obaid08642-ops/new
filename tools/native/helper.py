@@ -54,6 +54,25 @@ def pharmacy_offer(timeout=45):
     return {'ok': False, 'step': 'broadcast', 'detail': 'no new pharmacy broadcast'}
 
 
+def patient_order():
+    """A new patient (with an address) sends a pharmacy order for the seeded medicine, as the patient app does; the provider flows then answer it in the provider app."""
+    import j_accounts, uuid
+    p = j_accounts.app_signup(label='native-orderer')
+    me = lib.Client(p['token'], 'patient')
+    me.post('/users/me/addresses', {'label': 'المنزل', 'street': 'شارع العليا 12', 'city': 'الرياض', 'lat': 24.7140, 'lng': 46.6760, 'is_default': True})
+    med = accounts()['meds'][0]
+    draft = {'items': [{'raw_name': med['name_ar'], 'qty': 1, 'sku': med['id'], 'intake_source': 'cart'}],
+             'delivery_address': {'label': 'المنزل', 'street': 'شارع العليا 12', 'city': 'الرياض', 'lat': 24.7140, 'lng': 46.6760},
+             'prescription_attachments': []}
+    k = f'mobile-native-order-{uuid.uuid4()}'
+    r = me.post('/patient/pharmacy/orders', draft, headers={'Idempotency-Key': k})
+    oid = r.get('id')
+    if not oid:
+        return {'ok': False, 'detail': str(r)}
+    r = me.post(f'/patient/pharmacy/orders/{oid}/submit', {}, headers={'Idempotency-Key': k + '-submit'})
+    return {'ok': bool(r.ok), 'order_id': oid, 'token': p['token'], 'email': p['email'], 'password': p['password']}
+
+
 def otp(to, since):
     return lib.mail_code(to, since, timeout=25)
 
@@ -93,6 +112,8 @@ class H(BaseHTTPRequestHandler):
                 return self._send(200, {'email': p['email'], 'phone': p['phone'], 'password': p['password'], 'name': 'اختبار native-extra'})
             if u.path == '/meds':
                 return self._send(200, accounts().get('meds', []))
+            if u.path == '/pharmacy/order':
+                return self._send(200, patient_order())
             if u.path == '/pharmacy/offer':
                 return self._send(200, pharmacy_offer())
             if u.path == '/api':

@@ -23,7 +23,9 @@ if [ "$TARGET" = patient ]; then
   EMAIL=$(python3 -c "import json;print(json.load(open('$ACC'))['patient']['email'])"); PASS=$(python3 -c "import json;print(json.load(open('$ACC'))['patient']['password'])")
   TAG="patient_${ARG/\//of}"
 else
-  EMAIL=$(python3 -c "import json;print(json.load(open('$ACC'))['providers'].get('$ARG',{}).get('email',''))"); PASS=$(python3 -c "import json;print(json.load(open('$ACC'))['providers'].get('$ARG',{}).get('password',''))")
+  # the pharmacy that stocks the seeded medicines (and is online) is the one the pharmacy flows sign in as
+  KEY="$ARG"; [ "$ARG" = pharmacy ] && KEY=pharmacy_stock
+  EMAIL=$(python3 -c "import json;a=json.load(open('$ACC'))['providers'];print((a.get('$KEY') or a.get('$ARG') or {}).get('email',''))"); PASS=$(python3 -c "import json;a=json.load(open('$ACC'))['providers'];print((a.get('$KEY') or a.get('$ARG') or {}).get('password',''))")
   TAG="provider_$ARG"
 fi
 
@@ -39,6 +41,10 @@ LOGIN_OK=no
 shopt -s nullglob
 for FLOW in tools/native/flows/${TARGET}_*.yaml; do
   NAME=$(basename "$FLOW" .yaml); NAME=${NAME#${TARGET}_}
+  # provider_<type>_<name>.yaml belongs to that provider type only (provider_<name>.yaml runs for every type)
+  for T in pharmacy doctor lab radiology home_care hospital; do
+    if [ "$TARGET" = provider ] && [[ "$NAME" == ${T}_* ]] && [ "$ARG" != "$T" ]; then continue 2; fi
+  done
   case "$FLOW_FILTER" in none) continue ;; all) ;; *) [[ "$NAME" == *"$FLOW_FILTER"* ]] || continue ;; esac
   if [ -z "$EMAIL" ]; then echo "no seeded account for $TARGET $ARG" > "$OUT/flow_${TAG}__${NAME}.txt"; continue; fi
   if "$HOME/.maestro/bin/maestro" test -e EMAIL="$EMAIL" -e PASSWORD="$PASS" -e HELPER="http://127.0.0.1:$HELPER_PORT" --test-output-dir "$OUT/maestro_${TAG}__${NAME}" "$FLOW" > "$OUT/maestro_${TAG}__${NAME}.log" 2>&1; then
