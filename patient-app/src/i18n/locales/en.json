@@ -3770,5 +3770,21 @@
   "search.doctors.sortAvailable": "Available today",
   "loyalty.reason.late_compensation": "Compensation for a late appointment",
   "notifications.late.title": "Nabd Plus points added",
-  "notifications.late.body": "Your appointment started late, so we added points to your balance."
+  "notifications.late.body": "Your appointment started late, so we added points to your balance.",
+  "pharmacy.ix.title": "Drug interaction checker",
+  "pharmacy.ix.intro": "We check your current medicines against the ones you enter and show known interactions.",
+  "pharmacy.ix.drug": "Medicine name",
+  "pharmacy.ix.add": "Add",
+  "pharmacy.ix.list": "Added medicines",
+  "pharmacy.ix.remove": "Remove {name}",
+  "pharmacy.ix.check": "Check interactions",
+  "pharmacy.ix.needOne": "Add at least one medicine",
+  "pharmacy.ix.open": "Check interactions between several medicines",
+  "diag.rad.modality": "Scan type",
+  "consult.hub.degree.professor": "Professor",
+  "consult.hub.degree.consultant": "Consultant",
+  "consult.hub.degree.senior_specialist": "Senior specialist",
+  "consult.hub.degree.specialist": "Specialist",
+  "consult.hub.degree.resident": "Resident",
+  "consult.hub.degree.general_practitioner": "General practitioner"
 }
