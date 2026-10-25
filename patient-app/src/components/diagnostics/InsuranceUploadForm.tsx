@@ -17,6 +17,8 @@ import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { normalizeProviders, rowsOf, type LabProvider } from '../../utils/labMappers';
 import { pickLocalized } from '../../utils/localize';
+import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../UploadsUnavailable';
 
 type Rec = Record<string, unknown>;
 const str = (v: unknown): string => (typeof v === 'string' || typeof v === 'number' ? String(v) : '');
@@ -27,6 +29,7 @@ const nameOf = (r: Rec): string => str(pickLocalized(r.name_ar as string | undef
 /** First state of the insurance step (board RxUpload): the prescription or doctor's request, what was read, the insurance, the visit and the lab, then send. After sending, the same route shows the provider's answer (insurance-approval, `orderId` in the URL). */
 export default function InsuranceUploadForm() {
   const { theme, t, c, k, flow } = useScreenUi();
+  const uploadsOn = useUploadsEnabled();
   const text = useDiagText();
   const { items, setPrescriptionUrl, setPaymentType, clearCart } = useDiagnosticsCart();
   // Scheduling context forwarded from checkout (day/time/lab); the booking is created with the real /labs|radiology/bookings calls
@@ -241,10 +244,12 @@ export default function InsuranceUploadForm() {
             <FIcon icon="prescription" tone={RX_TONE} size={72} theme={theme} />
             <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, textAlign: 'center' }}>{k('diag.upload.pick')}</Text>
             <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, textAlign: 'center' }}>{k('diag.upload.hint')}</Text>
+            {uploadsOn ? (
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
               <PickButton ink name="camera" label={k('diag.upload.camera')} onPress={() => void handlePick('camera')} />
               <PickButton name="image" label={k('diag.upload.gallery')} onPress={() => void handlePick('gallery')} />
             </View>
+            ) : <UploadsUnavailable />}
           </View>
           <LinkCard icon="stethoscope" tone="blue" title={k('diag.upload.noRequest')} body={k('diag.upload.talkGp')} onPress={() => router.push('/consultations' as Href)} />
         </>

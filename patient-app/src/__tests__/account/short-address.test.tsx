@@ -41,7 +41,7 @@ describe('national address short code in the address picker (19.7)', () => {
     await act(async () => fireEvent.changeText(screen.getByTestId('picker-short-address'), 'rrrd2929'));
     await act(async () => fireEvent.press(screen.getByTestId('picker-short-address-find')));
     await waitFor(() => expect(screen.getByText(en('picker.shortAddress.found'))).toBeTruthy());
-    expect(apiFetch.mock.calls[0][0]).toBe('/national-address/lookup?code=rrrd2929');
+    expect(apiFetch.mock.calls.map(([p]) => p)).toContain('/national-address/lookup?code=rrrd2929');
     expect(screen.getByTestId('picker-street').props.value).toBe('Test street, Test district, Test city');
 
     await act(async () => fireEvent.press(screen.getByTestId('picker-save')));

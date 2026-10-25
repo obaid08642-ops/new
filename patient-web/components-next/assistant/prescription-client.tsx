@@ -12,6 +12,7 @@ import { newIdempotencyKey } from "@/lib/pharmacy/broadcast";
 import { MAX_RX_FILE_BYTES, checkRxFile, ocrItemsWithLeaflet, prepareRxImage, type RxItem } from "@/lib/pharmacy/rx-upload";
 import { AnswerCard } from "./assistant-kit";
 import styles from "./assistant.module.css";
+import { UploadsUnavailable, useUploadsEnabled } from "@/components-next/uploads/uploads-provider";
 
 type Failure = "type" | "size" | "read" | "unreadable" | "ocr";
 type Phase = { kind: "idle" } | { kind: "preparing" } | { kind: "reading" } | { kind: "failed"; reason: Failure } | { kind: "answered"; items: Array<RxItem & { slug: string | null }> };
@@ -23,6 +24,7 @@ type Phase = { kind: "idle" } | { kind: "preparing" } | { kind: "reading" } | { 
  * pharmacist chat. Nothing is saved: the photo is not stored by this mode.
  */
 export function PrescriptionClient() {
+  const uploadsEnabled = useUploadsEnabled();
   const t = useTranslations("AssistantWeb");
   const rxText = useTranslations("RxUpload");
   const locale = useLocale();
@@ -82,7 +84,7 @@ export function PrescriptionClient() {
       <input ref={cameraRef} type="file" accept="image/*" capture="environment" hidden aria-label={rxText("cameraInput")} onChange={(event) => void pick(event)} />
       <input ref={photosRef} type="file" accept="image/*" hidden aria-label={rxText("photosInput")} onChange={(event) => void pick(event)} />
 
-      {phase.kind === "answered" ? null : (
+      {phase.kind === "answered" ? null : !uploadsEnabled ? <UploadsUnavailable className={rx.dropHint} /> : (
         <section className={rx.drop}>
           <FIcon icon="prescription" tone={PHARMACY_TONE} size={72} />
           <h2 className={rx.dropTitle}>{rxText("dropTitle")}</h2>

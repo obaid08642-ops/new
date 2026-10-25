@@ -1,4 +1,5 @@
 import { CHI_INQUIRY_URL, chiInquiryUrl, ConfigService } from './config.service';
+import { ClamavService } from '../storage/clamav.service';
 
 describe('CHI inquiry link in /config', () => {
   it('defaults to the official beneficiary inquiry page on chi.gov.sa', () => {
@@ -19,7 +20,16 @@ describe('CHI inquiry link in /config', () => {
 
   it('is served by getClientConfig', async () => {
     const conn = { collection: () => ({ find: () => ({ project: () => ({ toArray: async () => [] }) }), findOne: async () => null }) };
-    const cfg = await new ConfigService(conn as never).getClientConfig();
+    const cfg = await new ConfigService(conn as never, new ClamavService()).getClientConfig();
     expect(cfg.links).toEqual({ chi_inquiry: CHI_INQUIRY_URL });
+  });
+
+  it('carries uploads_enabled from the scanner signal, and the admin flag row can still override it', async () => {
+    const rows: any[] = [];
+    const conn = { collection: () => ({ find: () => ({ project: () => ({ toArray: async () => rows }) }), findOne: async () => null }) };
+    const clamav = { uploadsAvailable: jest.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(true) };
+    const svc = new ConfigService(conn as never, clamav as never);
+    expect((await svc.getClientConfig()).features.uploads_enabled).toBe(false);
+    expect((await svc.getClientConfig()).features.uploads_enabled).toBe(true);
   });
 });

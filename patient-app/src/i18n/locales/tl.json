@@ -3792,7 +3792,14 @@
   "consult.hub.degree.specialist": "Espesyalista",
   "consult.hub.degree.resident": "Residente",
   "consult.hub.degree.general_practitioner": "Pangkalahatang manggagamot",
+  "uploads.unavailable": "Pansamantalang hindi available ang pag-upload ng file. Subukan muli mamaya.",
   "orders.emptyKindCurrent": "Walang kasalukuyang order: {service}",
   "orders.emptyKindPrevious": "Walang nakaraang order: {service}",
-  "orders.emptyKindBody": "Wala pa sa serbisyong ito. Piliin ang Lahat para makita ang iba mong order."
+  "orders.emptyKindBody": "Wala pa sa serbisyong ito. Piliin ang Lahat para makita ang iba mong order.",
+  "picker.city": "Lungsod",
+  "picker.district": "Distrito",
+  "picker.choose": "Pumili",
+  "picker.reversing": "Binabasa ang address mula sa pin…",
+  "picker.outsideArea": "Nasa labas ng service area ang lugar na ito. Ilipat ang pin sa loob ng kaharian o i-type mismo ang address.",
+  "picker.reverseFailed": "Hindi nabasa ang address mula sa iyong lokasyon. I-type ito mismo."
 }

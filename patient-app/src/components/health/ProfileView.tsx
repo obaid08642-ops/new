@@ -10,6 +10,8 @@ import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { BOOK_NOW_HREF } from '../../utils/consultNearby';
 import { HealthScreen, HealthTabs, Notice, Panel, Pill, Row, SheetForm, bodyOf, rowsOf, useRemote, useTab } from './HealthKit';
+import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../UploadsUnavailable';
 
 /**
  * Medical profile (board HealthHub "ملفي الطبي", merge map row "Medical profile"): the tabs Basics, Conditions and Emergency.
@@ -45,6 +47,7 @@ function BasicsTab() {
   const [avatar, setAvatar] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const uploadsOn = useUploadsEnabled();
   const [message, setMessage] = useState<{ tone: 'danger' | 'success'; text: string } | null>(null);
   const { status, reload } = useRemote(async () => {
     const [medical, user] = await Promise.all([apiFetch('/medical-profile'), apiFetch('/users/me/profile')]);
@@ -97,7 +100,7 @@ function BasicsTab() {
       <Card theme={theme}>
         <View style={{ alignItems: 'center', gap: 10 }}>
           <Avatar name={k('health.profile.photo')} size="lg" src={avatar ?? undefined} theme={theme} />
-          <Button label={uploading ? k('health.profile.uploading') : k('health.profile.changePhoto')} variant="outline" size="sm" loading={uploading} onPress={() => void pickAvatar()} theme={theme} testID="profile-photo" />
+          {uploadsOn ? <Button label={uploading ? k('health.profile.uploading') : k('health.profile.changePhoto')} variant="outline" size="sm" loading={uploading} onPress={() => void pickAvatar()} theme={theme} testID="profile-photo" /> : <UploadsUnavailable />}
           <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.tertiary, textAlign: 'center' }}>{k('health.profile.photoNote')}</Text>
         </View>
       </Card>

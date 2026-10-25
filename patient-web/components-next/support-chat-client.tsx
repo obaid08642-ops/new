@@ -7,6 +7,7 @@ import { Spinner } from "@/components-next/ui-generated/components/Spinner";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import forms from "@/components-next/consult/consult.module.css";
 import styles from "@/components-next/settings/settings.module.css";
+import { useUploadsEnabled } from "@/components-next/uploads/uploads-provider";
 
 export type ChatMsg = { id: string; from: "user" | "agent"; text: string; time: string };
 const QUICK = ["quickCancel", "quickOrder", "quickRefund", "quickInsurance", "quickComplaint"] as const;
@@ -34,6 +35,7 @@ function parseHistory(payload: unknown): ChatMsg[] {
  * box, quick replies and an image attachment, on the shared chat bubbles. The logic is the old client's; the texts are keys.
  */
 export function SupportChatClient() {
+  const uploadsEnabled = useUploadsEnabled();
   const t = useTranslations("SupportChatWeb");
   const [messages, setMessages] = useState<ChatMsg[] | null>(null);
   const [draft, setDraft] = useState("");
@@ -137,7 +139,7 @@ export function SupportChatClient() {
           <input className={forms.control} value={draft} onChange={(e) => setDraft(e.target.value)} maxLength={2000} />
         </label>
         <div className={styles.actionsRow}>
-          <Button label={t("attach")} variant="outline" startIcon="image" loading={attaching} onClick={() => fileRef.current?.click()} />
+          {uploadsEnabled ? <Button label={t("attach")} variant="outline" startIcon="image" loading={attaching} onClick={() => fileRef.current?.click()} /> : null}
           <Button type="submit" label={t("send")} disabled={typing || !draft.trim()} />
         </div>
       </form>

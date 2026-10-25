@@ -41,6 +41,8 @@ const ABORT_REASONS = [
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { tokens, withAlpha } from '../../theme/tokens';
 import { fmtDateTime } from '../../utils/dates';
+import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../../components/UploadsUnavailable';
 const Stack = createNativeStackNavigator();
 
 export function RadiologyDashboardNavigator({ onLogout }: { onLogout: () => void }) {
@@ -399,6 +401,7 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
 
 // ══════ REPORTING SCREEN — PILLAR 6 + MODULE 10 ══════
 function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) {
+  const uploadsOn = useUploadsEnabled();
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast();
   const AR = lang === 'ar';
   const [loading, setLoading] = useState(false);
@@ -472,16 +475,22 @@ function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) 
       {/* Section 1: PDF (Mandatory) */}
       <NSecHeader title={AR?' قسم 1: تقرير PDF (إلزامي)':' Section 1: PDF Report (Mandatory)'} />
       <NCard style={{ marginBottom: SP.lg }}>
-        <NBtn label={reportFile ? (AR ? `ملف التقرير: ${reportFile.name}` : `Report file: ${reportFile.name}`) : (AR ? 'اختيار تقرير PDF موقّع' : 'Choose signed PDF report')} variant="outline" onPress={() => pickFile('report')} />
+        {uploadsOn ? (
+<NBtn label={reportFile ? (AR ? `ملف التقرير: ${reportFile.name}` : `Report file: ${reportFile.name}`) : (AR ? 'اختيار تقرير PDF موقّع' : 'Choose signed PDF report')} variant="outline" onPress={() => pickFile('report')} />
+) : <UploadsUnavailable />}
         <NInput label={AR ? 'النتائج السريرية (Findings)' : 'Clinical Findings'} value={findings} onChange={setFindings} multi lines={4} placeholder={AR ? 'اذكر النتائج الإشعاعية...' : 'Describe radiology findings...'} />
-        <NBtn label={pdfUploaded ? (AR ? 'رفع نسخة تقرير محدثة' : 'Upload updated report') : (AR ? 'رفع وحفظ تقرير PDF' : 'Upload and save PDF report')} loading={loading} onPress={handleUploadPdf} style={{ backgroundColor: pdfUploaded ? tokens.success : tokens.mintDeep }} />
+        {uploadsOn ? (
+<NBtn label={pdfUploaded ? (AR ? 'رفع نسخة تقرير محدثة' : 'Upload updated report') : (AR ? 'رفع وحفظ تقرير PDF' : 'Upload and save PDF report')} loading={loading} onPress={handleUploadPdf} style={{ backgroundColor: pdfUploaded ? tokens.success : tokens.mintDeep }} />
+) : null}
         {!pdfUploaded && <Text style={{ fontSize: FS.xs, color: tokens.error, textAlign: AR ? 'right' : 'left', marginTop: SP.sm }}>{AR ? '* ملف PDF موقّع يُرفع للتخزين الخاص قبل المراجعة' : '* A signed PDF is uploaded to private storage before review'}</Text>}
       </NCard>
 
       {/* Section 2: DICOM (Optional) */}
       <NSecHeader title={AR?' قسم 2: صور DICOM (اختياري)':' Section 2: DICOM Images (Optional)'} />
       <NCard style={{ marginBottom: SP.lg }}>
-        <NBtn label={dicomFile ? (AR ? `ملف DICOM: ${dicomFile.name}` : `DICOM file: ${dicomFile.name}`) : (AR ? 'اختيار ملف DICOM اختياري' : 'Choose optional DICOM file')} variant="outline" onPress={() => pickFile('dicom')} />
+        {uploadsOn ? (
+<NBtn label={dicomFile ? (AR ? `ملف DICOM: ${dicomFile.name}` : `DICOM file: ${dicomFile.name}`) : (AR ? 'اختيار ملف DICOM اختياري' : 'Choose optional DICOM file')} variant="outline" onPress={() => pickFile('dicom')} />
+) : <UploadsUnavailable />}
         <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginTop: SP.sm }}>
           {AR ? 'تُرفع ملفات الأشعة إلى التخزين الخاص وتتحقق الخدمة من ملكيتها قبل اعتماد التقرير.' : 'Scan files are uploaded to private storage and ownership is verified before the report is accepted.'}
         </Text>

@@ -8,7 +8,7 @@ import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { formatPrice } from "@/lib/format-price";
 import { allowedImageUrl } from "@/lib/image-hosts";
 import { LiveFilter } from "./live-filter";
-import { CatalogImage } from "@/components-next/pharmacy/catalog-image";
+import { PhotoWithFallback } from "./photo-with-fallback";
 import consult from "@/components-next/consult/consult.module.css";
 import styles from "./diag.module.css";
 
@@ -154,7 +154,7 @@ export function RadiologyTile({ href, title, sub, imageUrl, tags = [] }: { href:
   return (
     <li>
       <Link href={href} className={styles.rad}>
-        {image ? <span className={styles.photo}><CatalogImage src={image} alt="" sizes="48px" className={styles.photoImage} /></span> : <FIcon icon={RADIOLOGY.icon} tone={RADIOLOGY.tone} size={48} />}
+        {image ? <PhotoWithFallback src={image} sizes="48px" wrapClassName={styles.photo} className={styles.photoImage} fallback={<FIcon icon={RADIOLOGY.icon} tone={RADIOLOGY.tone} size={48} />} /> : <FIcon icon={RADIOLOGY.icon} tone={RADIOLOGY.tone} size={48} />}
         <span className={styles.radName}>{title}</span>
         {sub ? <span className={styles.radSub}>{sub}</span> : null}
         {tags.length > 0 ? <TagRow tags={tags} /> : null}
@@ -170,7 +170,7 @@ export function LabCard({ href, title, sub, tags = [], imageUrl, price }: { href
     <li>
       <Link href={href} className={styles.lab}>
         <span className={styles.labHead}>
-          {image ? <span className={styles.photo}><CatalogImage src={image} alt="" sizes="48px" className={styles.photoImage} /></span> : <FIcon icon={LAB.icon} tone={LAB.tone} size={48} />}
+          {image ? <PhotoWithFallback src={image} sizes="48px" wrapClassName={styles.photo} className={styles.photoImage} fallback={<FIcon icon={LAB.icon} tone={LAB.tone} size={48} />} /> : <FIcon icon={LAB.icon} tone={LAB.tone} size={48} />}
           <span className={styles.testMain}>
             <span className={styles.labName}>{title}</span>
             {sub ? <span className={styles.radSub}>{sub}</span> : null}

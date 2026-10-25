@@ -54,7 +54,8 @@ export function legalBack() {
   else router.replace('/(auth)/login' as Href);
 }
 
-export function LegalDocument({ policyKey, title, testID }: { policyKey: PolicyKey; title: string; testID?: string }) {
+/** The fetched policy text with its version line; used by the legal screens and by the sections of About and legal. */
+export function LegalDocumentBody({ policyKey }: { policyKey: PolicyKey }) {
   const { theme, t, c, flow, lang, k } = useScreenUi();
   const { date } = useConsultFormat();
   const [policy, setPolicy] = useState<Policy | null>(null);
@@ -88,7 +89,6 @@ export function LegalDocument({ policyKey, title, testID }: { policyKey: PolicyK
   const effective = date(policy?.effective_date);
 
   return (
-    <ConsultScreen title={title} onBack={legalBack} testID={testID}>
       <Gate status={status} onRetry={retry}>
         <Card theme={theme} padding="lg">
           <View style={{ gap: 10 }}>
@@ -112,6 +112,13 @@ export function LegalDocument({ policyKey, title, testID }: { policyKey: PolicyK
           </Text>
         ) : null}
       </Gate>
+  );
+}
+
+export function LegalDocument({ policyKey, title, testID }: { policyKey: PolicyKey; title: string; testID?: string }) {
+  return (
+    <ConsultScreen title={title} onBack={legalBack} testID={testID}>
+      <LegalDocumentBody policyKey={policyKey} />
     </ConsultScreen>
   );
 }

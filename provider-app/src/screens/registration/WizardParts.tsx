@@ -8,13 +8,17 @@ import { NBtn, NHeader, NScroll, WizardSection } from '../../components/ui';
 import { I, IBg } from '../../components/icons';
 import { FS, FW, R, SP } from '../../constants';
 import { useStepSaver } from './kit';
+import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../../components/UploadsUnavailable';
 import type { Saver, StepProps, Uploader } from './kit';
 
 /** Camera, gallery or file picker for one document field; the picked uri goes into `data[field]`. */
 export function useDocumentPicker<T>(update: (patch: Partial<T>) => void) {
   const { lang } = useLang(); const AR = lang === 'ar';
   const { show } = useToast();
+  const uploadsOn = useUploadsEnabled();
   return (field: keyof T) => {
+    if (!uploadsOn) { show(AR ? 'رفع الملفات غير متاح مؤقتًا. حاول لاحقًا.' : 'File uploads are temporarily unavailable. Try again later.', 'warning'); return; }
     const attach = (uri: string) => {
       update({ [field]: uri } as unknown as Partial<T>);
       show(AR ? 'تم إرفاق المستند' : 'Document attached', 'success');
@@ -55,6 +59,8 @@ export function useDocumentPicker<T>(update: (patch: Partial<T>) => void) {
 /** Square upload tile (grid of 2 or 3 per row). */
 export function DocCard({ label, done, onPress, required }: { label: string; done: boolean; onPress: () => void; required?: boolean }) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const uploadsOn = useUploadsEnabled();
+  if (!uploadsOn && !done) return <View style={{ flex: 1, marginHorizontal: 2 }}><UploadsUnavailable /></View>;
   return (
     <TouchableOpacity onPress={onPress} style={{
       flex: 1, minHeight: 90, borderRadius: R.xl, borderWidth: 2, padding: SP.lg, marginHorizontal: 2,
@@ -76,6 +82,8 @@ export function DocCard({ label, done, onPress, required }: { label: string; don
 /** Full-width upload row with an optional hint. */
 export function DocBtn({ label, desc, done, onPress }: { label: string; desc?: string; done: boolean; onPress: () => void }) {
   const { theme } = useTheme();
+  const uploadsOn = useUploadsEnabled();
+  if (!uploadsOn && !done) return <UploadsUnavailable style={{ marginBottom: SP.md }} />;
   return (
     <TouchableOpacity onPress={onPress} style={{
       padding: SP.lg, borderWidth: 2, borderStyle: 'dashed', borderRadius: R.lg, alignItems: 'center', marginBottom: SP.md,

@@ -1,5 +1,6 @@
 {
   "Shared": {
+    "uploadsUnavailable": "File uploads are temporarily unavailable. Try again later.",
     "brand": "Nabd Plus",
     "patientSignIn": "Patient sign in",
     "language": "Language",
@@ -744,8 +745,8 @@
     "vitalsHistory": "History",
     "vitalsTrends": "Trends",
     "noReading": "No reading yet",
-    "wearablesTitle": "Wearables",
-    "wearablesBody": "Pair your watch or band from the mobile app to sync automatically. You can also log readings manually here.",
+    "wearablesTitle": "Vital signs",
+    "wearablesBody": "Log your own vital readings and follow them over time.",
     "wearablesLog": "Log a reading manually",
     "scoreNotice": "This is a recorded wellness summary, not a diagnosis or treatment recommendation.",
     "scoreInsufficient": "Not enough data",

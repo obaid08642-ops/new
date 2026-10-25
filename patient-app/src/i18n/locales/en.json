@@ -3792,7 +3792,14 @@
   "consult.hub.degree.specialist": "Specialist",
   "consult.hub.degree.resident": "Resident",
   "consult.hub.degree.general_practitioner": "General practitioner",
+  "uploads.unavailable": "File uploads are temporarily unavailable. Try again later.",
   "orders.emptyKindCurrent": "No current orders: {service}",
   "orders.emptyKindPrevious": "No previous orders: {service}",
-  "orders.emptyKindBody": "Nothing in this service yet. Choose All to see your other orders."
+  "orders.emptyKindBody": "Nothing in this service yet. Choose All to see your other orders.",
+  "picker.city": "City",
+  "picker.district": "District",
+  "picker.choose": "Choose",
+  "picker.reversing": "Reading the address from the pin…",
+  "picker.outsideArea": "This spot is outside the service area. Move the pin inside the kingdom or type the address yourself.",
+  "picker.reverseFailed": "We could not read the address from your location. Type it yourself."
 }

@@ -3792,7 +3792,14 @@
   "consult.hub.degree.specialist": "أخصائي",
   "consult.hub.degree.resident": "مقيم",
   "consult.hub.degree.general_practitioner": "طبيب عام",
+  "uploads.unavailable": "رفع الملفات غير متاح مؤقتًا. حاول لاحقًا.",
   "orders.emptyKindCurrent": "لا توجد طلبات حالية: {service}",
   "orders.emptyKindPrevious": "لا توجد طلبات سابقة: {service}",
-  "orders.emptyKindBody": "لا شيء في هذه الخدمة بعد. اختر الكل لعرض باقي طلباتك."
+  "orders.emptyKindBody": "لا شيء في هذه الخدمة بعد. اختر الكل لعرض باقي طلباتك.",
+  "picker.city": "المدينة",
+  "picker.district": "الحي",
+  "picker.choose": "اختر",
+  "picker.reversing": "جارٍ قراءة العنوان من موقع الدبوس…",
+  "picker.outsideArea": "هذا الموقع خارج نطاق الخدمة. حرّك الدبوس داخل المملكة أو اكتب العنوان بنفسك.",
+  "picker.reverseFailed": "تعذّر قراءة العنوان من موقعك. اكتب العنوان بنفسك."
 }

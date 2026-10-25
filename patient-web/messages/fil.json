@@ -1,5 +1,6 @@
 {
   "Shared": {
+    "uploadsUnavailable": "Pansamantalang hindi available ang pag-upload ng file. Subukan muli mamaya.",
     "brand": "Nabd Plus",
     "patientSignIn": "Mag-sign in ang pasyente",
     "language": "Wika",
@@ -797,8 +798,8 @@
     "vitalsHistory": "Kasaysayan",
     "vitalsTrends": "Mga trend",
     "noReading": "Wala pang reading",
-    "wearablesTitle": "Mga wearable",
-    "wearablesBody": "I-pair ang iyong relo o band mula sa mobile app para awtomatikong mag-sync. Maaari ka ring mag-log ng mga reading nang mano-mano rito.",
+    "wearablesTitle": "Mga vital sign",
+    "wearablesBody": "Mag-log ng sarili mong mga reading ng vital sign at subaybayan ito sa paglipas ng panahon.",
     "wearablesLog": "Mag-log ng reading nang mano-mano",
     "scoreNotice": "Ito ay buod ng naitalang wellness data, hindi diagnosis o treatment recommendation.",
     "scoreInsufficient": "Hindi sapat ang data",

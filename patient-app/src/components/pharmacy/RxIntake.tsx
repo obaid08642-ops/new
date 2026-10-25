@@ -9,6 +9,8 @@ import { Glyph, Notice, PHARMACY_TONE, PickButton } from './PharmacyKit';
 import { COLUMN, step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
+import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../UploadsUnavailable';
 
 /**
  * The photo and upload ways in of "order with a prescription" (board RxUpload, canvas/RxUpload.dc.html; the old
@@ -27,6 +29,7 @@ const OCR_TAG = 'OCR extraction; requires pharmacy review'; // i18n-ok: stored w
 
 export function useRxPhotoIntake(via: 'photo' | 'upload'): { body: React.ReactNode; footer: React.ReactNode } {
   const { theme, t, c, dir, flow, k } = useScreenUi();
+  const uploadsOn = useUploadsEnabled();
   const [chosen, setChosen] = useState<Chosen | null>(null);
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
@@ -102,7 +105,7 @@ export function useRxPhotoIntake(via: 'photo' | 'upload'): { body: React.ReactNo
         <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, textAlign: 'center' }}>{via === 'photo' ? k('pharmacy.rx.zonePhoto') : k('pharmacy.rx.zoneUpload')}</Text>
         <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('pharmacy.scan.zoneHint')}</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginTop: 4 }}>
-          {via === 'photo' ? (
+          {!uploadsOn ? <UploadsUnavailable /> : via === 'photo' ? (
             <PickButton name="camera" label={k('pharmacy.scan.camera')} ink disabled={saving} onPress={() => void pick(true)} />
           ) : (
             <PickButton name="image" label={k('pharmacy.scan.photos')} ink disabled={saving} onPress={() => void pick(false)} />

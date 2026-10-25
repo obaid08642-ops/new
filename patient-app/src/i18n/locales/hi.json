@@ -3792,7 +3792,14 @@
   "consult.hub.degree.specialist": "विशेषज्ञ",
   "consult.hub.degree.resident": "रेज़िडेंट",
   "consult.hub.degree.general_practitioner": "सामान्य चिकित्सक",
+  "uploads.unavailable": "फ़ाइल अपलोड अभी अस्थायी रूप से उपलब्ध नहीं है। कृपया बाद में पुनः प्रयास करें।",
   "orders.emptyKindCurrent": "कोई मौजूदा ऑर्डर नहीं: {service}",
   "orders.emptyKindPrevious": "कोई पिछला ऑर्डर नहीं: {service}",
-  "orders.emptyKindBody": "इस सेवा में अभी कुछ नहीं है। अपने बाकी ऑर्डर देखने के लिए सभी चुनें।"
+  "orders.emptyKindBody": "इस सेवा में अभी कुछ नहीं है। अपने बाकी ऑर्डर देखने के लिए सभी चुनें।",
+  "picker.city": "शहर",
+  "picker.district": "मोहल्ला",
+  "picker.choose": "चुनें",
+  "picker.reversing": "पिन की जगह से पता पढ़ा जा रहा है…",
+  "picker.outsideArea": "यह जगह सेवा क्षेत्र से बाहर है। पिन को सऊदी अरब के अंदर ले जाएँ या पता खुद लिखें।",
+  "picker.reverseFailed": "आपके स्थान से पता नहीं पढ़ा जा सका। खुद लिखें।"
 }

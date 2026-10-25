@@ -32,6 +32,7 @@ const os = require('node:os');
 const mongoSanitize = require('express-mongo-sanitize');
 import { SentryExceptionFilter } from './common/sentry.filter';
 import { processRole } from './common/process-role';
+import { affordableWorkers, clusterAllowedForRole, requestedClusterWorkers, restartDelayMs, shouldFork } from './common/cluster-config';
 import { listLimitMiddleware } from './common/list-limit.middleware';
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
@@ -40,33 +41,51 @@ import { bootstrapWinstonOptions } from './common/winston-logger';
 import { LoggerService } from './common/logger.service';
 import { logEvent } from './common/structured-logger';
 
-// ── Cluster Mode: spawn one worker per CPU core ──────────────────────────────
-// Enabled by default in production; set CLUSTER_MODE=false to disable (e.g. in tests).
-const clusterEnabled =
-  process.env.CLUSTER_MODE !== 'false' &&
-  process.env.NODE_ENV === 'production' &&
-  // P14.26: the worker role is one process (each job runs once); scale it with more containers, not forks
-  processRole() !== 'worker' &&
-  (cluster as any).isPrimary;
+// ── Cluster mode (docs/perf/CLUSTER_MODE.md) ─────────────────────────────────
+// OFF unless CLUSTER_WORKERS >= 2 (default 1 = one process, as in production today). The owner turns it on together with the RAM upgrade.
+// Workers only fit when there is free RAM for them, and only the API role forks (PROCESS_ROLE=api): with the default role every worker
+// would run every cron job and queue consumer N times.
+const clusterRole = processRole();
+let clusterWorkers = requestedClusterWorkers(process.env, os.cpus().length);
+let clusterNote: string | null = null;
+if ((cluster as any).isPrimary && clusterWorkers >= 2) {
+  if (!clusterAllowedForRole(clusterRole)) {
+    clusterNote = `cluster off: CLUSTER_WORKERS=${clusterWorkers} needs PROCESS_ROLE=api (this process runs background work, role ${clusterRole})`;
+    clusterWorkers = 1;
+  } else {
+    const fit = affordableWorkers(clusterWorkers, os.freemem());
+    if (fit < clusterWorkers) clusterNote = `cluster workers cut from ${clusterWorkers} to ${fit}: free RAM ${Math.round(os.freemem() / 1048576)} MB`;
+    clusterWorkers = fit;
+  }
+  if (clusterNote) logEvent('warn', 'cluster_adjusted', { note: clusterNote }, 'cluster');
+}
+if ((cluster as any).isPrimary) process.env.CLUSTER_EFFECTIVE_WORKERS = String(clusterWorkers);
+
+const clusterEnabled = shouldFork(clusterWorkers, { isPrimary: !!(cluster as any).isPrimary, nodeEnv: process.env.NODE_ENV, role: clusterRole });
 
 if (clusterEnabled) {
-  const numCPUs = parseInt(process.env.CLUSTER_WORKERS || String(os.cpus().length), 10);
-  logEvent('info', 'cluster_starting', { workers: numCPUs, cpu_cores: os.cpus().length }, 'cluster');
+  logEvent('info', 'cluster_starting', { workers: clusterWorkers, cpu_cores: os.cpus().length, free_ram_mb: Math.round(os.freemem() / 1048576) }, 'cluster');
 
-  for (let i = 0; i < numCPUs; i++) {
+  for (let i = 0; i < clusterWorkers; i++) {
     (cluster as any).fork();
   }
 
+  const exits: number[] = [];
   (cluster as any).on('exit', (worker: any, code: number, signal: string) => {
-    logEvent('warn', 'cluster_worker_exited', { pid: worker.process.pid, exit_code: code, signal }, 'cluster');
-    (cluster as any).fork();
+    const now = Date.now();
+    exits.push(now);
+    while (exits.length && now - exits[0] > 60_000) exits.shift();
+    const delay = restartDelayMs(exits.length - 1);
+    logEvent('warn', 'cluster_worker_exited', { pid: worker.process.pid, exit_code: code, signal, restart_in_ms: delay, exits_last_minute: exits.length }, 'cluster');
+    // a worker that dies on boot must not spin: the delay doubles with each exit inside the last minute
+    setTimeout(() => (cluster as any).fork(), delay).unref?.();
   });
 
   (cluster as any).on('online', (worker: any) => {
     logEvent('info', 'cluster_worker_online', { pid: worker.process.pid }, 'cluster');
   });
 } else {
-  // Worker process or non-production: run the NestJS app normally
+  // Worker process or single process: run the NestJS app normally
   bootstrap().catch((err) => {
     logEvent('error', 'bootstrap_failed', { error: (err as Error)?.message, stack: String((err as Error)?.stack ?? '').split('\n').slice(0, 8).join('\n') }, 'bootstrap');
     process.exit(1);
