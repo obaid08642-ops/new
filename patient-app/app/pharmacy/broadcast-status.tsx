@@ -3,6 +3,7 @@ import { RefreshControl, Text, View } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
 
 import { AppHeader, Button, EmptyState, ErrorState, OfflineState, Screen, Segmented, StickyFooter } from '../../../packages/ui-native/src';
+import { CartButton } from '../../src/components/pharmacy/PharmacyKit';
 import { Money, Notice, OfferHero, PharmacyOfferCard } from '../../src/components/pharmacy/OfferKit';
 import { PHARMACY_TONE } from '../../src/components/pharmacy/PharmacyKit';
 import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
@@ -223,7 +224,7 @@ export default function BroadcastStatusScreen() {
 
   const header = (
     <View style={COLUMN}>
-      <AppHeader title={k('pharmacy.offers.title')} onBack={back} backLabel={k('pharmacy.back')} theme={theme} direction={dir} />
+      <AppHeader title={k('pharmacy.offers.title')} onBack={back} backLabel={k('pharmacy.back')} trailing={<CartButton />} theme={theme} direction={dir} />
     </View>
   );
 

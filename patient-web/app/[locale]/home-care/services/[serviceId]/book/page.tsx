@@ -8,7 +8,7 @@ import { getPatientHomeCareService } from "@/lib/api/home-care-services-server";
 import { callPatientApi } from "@/lib/api/upstream";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { getDirection, isLocale } from "@/lib/i18n";
-import { nurseGenderOf, nurseSortOf, parseNurses, type NurseGender, type NurseSort } from "@/lib/nursing/nurse";
+import { NURSE_NATIONALITIES, nurseAvailableOf, nurseGenderOf, nurseNationalityOf, nurseSortOf, parseNurses, type NurseGender, type NurseNationality, type NurseSort } from "@/lib/nursing/nurse";
 import { servicePayFlow } from "@/lib/nursing/pay-flow";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
@@ -17,7 +17,7 @@ import { Caret, NURSING, NurseFacts, RowList, serviceIcon } from "@/components-n
 import { money, pickText } from "@/components-next/diagnostics/diag-parts";
 import consult from "@/components-next/consult/consult.module.css";
 
-type Props = { params: Promise<{ locale: string; serviceId: string }>; searchParams?: Promise<{ sort?: string; gender?: string; pay?: string }> };
+type Props = { params: Promise<{ locale: string; serviceId: string }>; searchParams?: Promise<{ sort?: string; gender?: string; pay?: string; availability?: string; nationality?: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
@@ -37,6 +37,8 @@ export default async function HomeCareBookPage({ params, searchParams }: Props) 
   const query = (await searchParams) ?? {};
   const sort: NurseSort = nurseSortOf(query.sort);
   const gender: NurseGender = nurseGenderOf(query.gender);
+  const availableNow = nurseAvailableOf(query.availability);
+  const nationality: NurseNationality = nurseNationalityOf(query.nationality);
   const pay = servicePayFlow(query.pay);
   const t = await getTranslations("NursingWeb");
   const token = await requirePatientAccess(locale);
@@ -44,6 +46,8 @@ export default async function HomeCareBookPage({ params, searchParams }: Props) 
   const params2 = new URLSearchParams({ type: serviceId });
   if (sort !== "any") params2.set("sort", sort);
   if (gender !== "any") params2.set("gender", gender);
+  if (availableNow) params2.set("available", "true");
+  if (nationality !== "any") params2.set("nationality", nationality);
   const [serviceRes, nursesRes] = await Promise.all([
     getPatientHomeCareService(serviceId, token),
     callPatientApi(`/home-care/providers?${params2.toString()}`, { cache: "no-store" }, token),
@@ -61,9 +65,9 @@ export default async function HomeCareBookPage({ params, searchParams }: Props) 
   const nurses = parseNurses(await nursesRes.json().catch(() => null));
   const name = pickTexts(locale, service.names) ?? t("serviceTitle");
   const caret = <Caret rtl={getDirection(locale) === "rtl"} />;
-  const href = (over: Partial<{ sort: NurseSort; gender: NurseGender }>) => {
-    const next = { sort, gender, ...over };
-    const qs = new URLSearchParams({ ...(next.sort !== "any" ? { sort: next.sort } : {}), ...(next.gender !== "any" ? { gender: next.gender } : {}), ...(pay === "insurance" ? { pay: "insurance" } : {}) }).toString();
+  const href = (over: Partial<{ sort: NurseSort; gender: NurseGender; availableNow: boolean; nationality: NurseNationality }>) => {
+    const next = { sort, gender, availableNow, nationality, ...over };
+    const qs = new URLSearchParams({ ...(next.sort !== "any" ? { sort: next.sort } : {}), ...(next.gender !== "any" ? { gender: next.gender } : {}), ...(next.availableNow ? { availability: "now" } : {}), ...(next.nationality !== "any" ? { nationality: next.nationality } : {}), ...(pay === "insurance" ? { pay: "insurance" } : {}) }).toString();
     return `/${locale}/home-care/services/${encodeURIComponent(serviceId)}/book${qs ? `?${qs}` : ""}`;
   };
   const profileHref = (id: string) => `/${locale}/nursing/nurses/${encodeURIComponent(id)}?${new URLSearchParams({ serviceId, ...(pay === "insurance" ? { pay: "insurance" } : {}) }).toString()}`;
@@ -80,6 +84,15 @@ export default async function HomeCareBookPage({ params, searchParams }: Props) 
       <nav className={consult.segLinks} aria-label={t("filterGender")}>
         {(["any", "female", "male"] as const).map((value) => (
           <Link key={value} href={href({ gender: value })} replace aria-current={gender === value ? "page" : undefined}>{t(`gender_${value}`)}</Link>
+        ))}
+      </nav>
+      <nav className={consult.segLinks} aria-label={t("filterAvailability")}>
+        <Link href={href({ availableNow: false })} replace aria-current={!availableNow ? "page" : undefined}>{t("gender_any")}</Link>
+        <Link href={href({ availableNow: true })} replace aria-current={availableNow ? "page" : undefined}>{t("availableNow")}</Link>
+      </nav>
+      <nav className={consult.segLinks} aria-label={t("filterNationality")}>
+        {(["any", ...NURSE_NATIONALITIES] as const).map((value) => (
+          <Link key={value} href={href({ nationality: value })} replace aria-current={nationality === value ? "page" : undefined}>{t(`nationality_${value}`)}</Link>
         ))}
       </nav>
       {nurses.length === 0 ? (

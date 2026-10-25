@@ -144,7 +144,8 @@
     "recordsMoodNotLogged": "আজ আপনি মুড নথিভুক্ত করেননি",
     "recordsMaternity": "মাতৃত্ব",
     "recordsPregnancy": "গর্ভাবস্থা ট্র্যাকিং",
-    "recordsCycle": "চক্র ট্র্যাকিং"
+    "recordsCycle": "চক্র ট্র্যাকিং",
+    "notificationsUnread": "বিজ্ঞপ্তি, নতুন বিজ্ঞপ্তি আছে"
   },
   "Login": {
     "title": "সাইন ইন করুন",
@@ -959,7 +960,8 @@
     "chronicStop": "রিফিল ট্র্যাকিং বন্ধ করুন",
     "chronicUpdateFailed": "রিফিল ট্র্যাকিং বদলায়নি।",
     "confirmAction": "নিশ্চিত করুন",
-    "photoInvalid": "সর্বোচ্চ ৫ মেগাবাইটের একটি ছবি বেছে নিন।"
+    "photoInvalid": "সর্বোচ্চ ৫ মেগাবাইটের একটি ছবি বেছে নিন।",
+    "rxPurchased": "কেনা হয়েছে"
   },
   "Prescriptions": {
     "title": "প্রেসক্রিপশন",
@@ -1718,7 +1720,9 @@
     "suggestFieldLabel": "সংশোধনের তথ্য",
     "suggestSending": "পাঠানো হচ্ছে…",
     "suggestSignIn": "আপনার পরামর্শ পাঠাতে সাইন ইন করুন।",
-    "suggestSignInAction": "সাইন ইন"
+    "suggestSignInAction": "সাইন ইন",
+    "coldChain": "ফ্রিজে রাখতে হবে",
+    "interactions": "ওষুধের মিথস্ক্রিয়া"
   },
   "Wallet": {
     "wallet": "ওয়ালেট",
@@ -2506,7 +2510,15 @@
     "hubOrderAgain": "আপনার আগের অর্ডার আবার করুন",
     "hubOrderAgainAction": "অর্ডার করুন",
     "hubOneItem": "১টি আইটেম",
-    "hubItems": "{n, number}টি আইটেম"
+    "hubItems": "{n, number}টি আইটেম",
+    "filterForm": "ওষুধের ধরন",
+    "filterBrand": "প্রস্তুতকারক",
+    "filterRx": "প্রেসক্রিপশন",
+    "filterRxAny": "যেকোনো",
+    "filterRxOnly": "শুধু প্রেসক্রিপশনসহ",
+    "filterRxNone": "প্রেসক্রিপশন ছাড়া",
+    "filterPriceMin": "সর্বনিম্ন মূল্য",
+    "filterPriceMax": "সর্বোচ্চ মূল্য"
   },
   "PharmacyOffers": {
     "backToOrder": "অর্ডারে ফিরুন",
@@ -3610,7 +3622,13 @@
     "addressLocating": "আপনার অবস্থান খোঁজা হচ্ছে...",
     "addressLocationSet": "ভিজিটের জন্য আপনার বর্তমান অবস্থান ব্যবহার করা হবে",
     "addressUseSaved": "এর পরিবর্তে সংরক্ষিত ঠিকানা ব্যবহার করুন",
-    "addressLocationDenied": "আপনার অবস্থান পাওয়া যায়নি। অবস্থানের অনুমতি দিন বা সংরক্ষিত ঠিকানা বেছে নিন।"
+    "addressLocationDenied": "আপনার অবস্থান পাওয়া যায়নি। অবস্থানের অনুমতি দিন বা সংরক্ষিত ঠিকানা বেছে নিন।",
+    "filterAvailability": "প্রাপ্যতা",
+    "filterNationality": "জাতীয়তা",
+    "nationality_any": "সব",
+    "nationality_Saudi": "সৌদি",
+    "nationality_Filipino": "ফিলিপিনো",
+    "nationality_Egyptian": "মিশরীয়"
   },
   "MaternityWeb": {
     "title": "মাতৃত্ব",
@@ -4160,7 +4178,11 @@
       "copayPercent": "আপনার অংশ, % (ঐচ্ছিক)",
       "copayCap": "প্রতি আইটেমে সর্বোচ্চ, SAR (ঐচ্ছিক)",
       "copayPercentInvalid": "0 থেকে 100 এর মধ্যে একটি সংখ্যা লিখুন।",
-      "copayCapInvalid": "0 বা তার বেশি পরিমাণ লিখুন।"
+      "copayCapInvalid": "0 বা তার বেশি পরিমাণ লিখুন।",
+      "class": "শ্রেণি",
+      "companySearch": "আপনার বিমা কোম্পানি খুঁজুন",
+      "companyNone": "এই নামে কোনো কোম্পানি পাওয়া যায়নি",
+      "chiLink": "আপনার বিমা যাচাই করুন"
     },
     "coverage": {
       "title": "আমার পলিসি কী কভার করে",

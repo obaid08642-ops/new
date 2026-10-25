@@ -246,7 +246,8 @@ export default async function PublicProductPage({ params }: Props) {
       section("dosage", t("dosage"), lines(product.dosage_instructions)),
       section("howToUse", t("howToUse"), product.how_to_use || []),
     ]),
-    group("warnings", t("warnings"), [section("warnings", t("warnings"), product.warnings || [])]),
+    // issue 1819: the active ingredients recorded as interacting with this product (leaflet information, as stored)
+    group("warnings", t("warnings"), [section("warnings", t("warnings"), product.warnings || []), section("interactions", t("interactions"), product.interactions || [])]),
     group("sideEffects", t("sideEffects"), [section("sideEffects", t("sideEffects"), product.side_effects || [])]),
     group("more", b("groupMore"), [
       section("storage", t("storage"), lines(product.storage_conditions)),
@@ -330,6 +331,7 @@ export default async function PublicProductPage({ params }: Props) {
                 <StatusChip label={product.is_rx ? t("rxRequired") : t("otc")} tone={product.is_rx ? "amber" : "mint"} />
                 <StatusChip label={product.available ? t("available") : discontinued ? t("unavailable") : t("limited")} tone={product.available ? "mint" : "amber"} />
                 {product.online_exclusive === true ? <StatusChip label={t("onlineOnly")} tone="mint" /> : null}
+                {product.cold_chain === true ? <StatusChip label={t("coldChain")} tone="blue" /> : null}
                 <ProductShare name={name} url={canonical} />
               </div>
               {product.category && categoryPath ? (

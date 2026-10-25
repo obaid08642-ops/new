@@ -9,6 +9,7 @@ import { Avatar, Icon, IconButton } from '../../../../packages/ui-native/src';
 import { withAlpha } from '../../../../packages/ui-native/src/shells/shellTokens';
 import { LANGUAGES, useApp, type LangCode } from '../../context/AppContext';
 import { MapEntryButton } from '../account/MapEntryButton';
+import { CartButton } from '../pharmacy/PharmacyKit';
 import { Plain, Txt, useScreenUi } from './homeKit';
 
 /**
@@ -76,6 +77,7 @@ export function HomeTopRow({ name }: { name: string | null }) {
         </View>
       </Pressable>
       <MapEntryButton testID="home-map-entry" />
+      <CartButton testID="home-cart-button" />
       <View>
         <IconButton name="bell" label={tr('common.notifications')} variant="outlined" theme={theme} onPress={() => router.push('/notifications')} />
         {unread > 0 ? (

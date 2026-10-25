@@ -1,0 +1,79 @@
+[
+  {
+    "batch": "parity-pass-web",
+    "app": "patient-web",
+    "screen": "/p/[slug]",
+    "element": "pregnancy and breastfeeding warnings, 'reviewed on' date",
+    "file": "patient-web/app/[locale]/p/[slug]/page.tsx",
+    "line": 250,
+    "found": "[backend] The app's product page draws pregnancy_info, breastfeeding_info and last_reviewed; the public per-locale product DTO (med-i18n.ts) sends none of them.",
+    "suspect": "Add the three fields to the public DTO, then add two sections and a date line here.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-pass-web",
+    "app": "patient-web",
+    "screen": "/c",
+    "element": "multi-select dosage forms and makers",
+    "file": "patient-web/app/[locale]/c/[[...category]]/category-view.tsx",
+    "line": 262,
+    "found": "[backend] The app's sheet picks several forms and several brands; GET /public/categories/:locale/items takes one form and one brand (a regex), so the web panel offers one of each.",
+    "suspect": "Accept comma lists in catalogue-filters.ts if the owner wants the same.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-pass-web",
+    "app": "patient-web",
+    "screen": "/diagnostics/bookings/[domain]/[bookingId]",
+    "element": "radiology technician name and report files",
+    "file": "patient-web/app/[locale]/diagnostics/bookings/[domain]/[bookingId]/page.tsx",
+    "line": 112,
+    "found": "[client] Radiology booking reads now carry technician.name and report_files[] (PDF, DICOM, images by storage id) and the patient may open them with GET /storage/:id; neither the app nor the web reads them yet, and the web has no storage-read route for a patient.",
+    "suspect": "Build the file route and the two rows on both sides in one pass.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-pass-web",
+    "app": "patient-web",
+    "screen": "/home-care/services/[id]/book",
+    "element": "nearest-first sort with distance",
+    "file": "patient-web/app/[locale]/home-care/services/[serviceId]/book/page.tsx",
+    "line": 80,
+    "found": "[client] The backend sorts nearest and returns distance_km when it gets sort=nearest with lat and lng; neither the app nor the web sends the patient's point.",
+    "suspect": "Send the chosen address coordinates and draw the distance, on both sides.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-pass-web",
+    "app": "patient-web",
+    "screen": "/health/records",
+    "element": "scanned-prescription pill with accuracy",
+    "file": "patient-web/app/[locale]/health/records/page.tsx",
+    "line": 168,
+    "found": "[backend] The app shows 'Read by AI, accuracy n%' only with ocrAccuracy; GET /prescriptions/mine sends isOcr but not the accuracy, so the web shows only the Purchased pill.",
+    "suspect": "Add ocrAccuracy to the list rows, then draw the pill.",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-pass-web",
+    "app": "patient-web",
+    "screen": "/search",
+    "element": "sort, price range and sale filter",
+    "file": "patient-web/app/[locale]/search/search-client.tsx",
+    "line": 206,
+    "found": "[owner] GET /search now takes sort, price_min, price_max and on_sale and returns old_price and discount_percent, but the app's search screen has none of them; it is a web-board feature, not parity.",
+    "suspect": "Owner decides whether the web board's sidebar is built (and the app follows).",
+    "review_status": "open"
+  },
+  {
+    "batch": "parity-pass-web",
+    "app": "patient-web",
+    "screen": "/nursing hub filters",
+    "element": "availability and nationality parameters of the app",
+    "file": "patient-app/app/nursing/service-details.tsx",
+    "line": 62,
+    "found": "[client] The app sends availability=now|any and a lower-case nationality; the backend reads available=true and matches the nationality exactly as stored (seed: 'Saudi'), so the app's two filters match nothing or are ignored.",
+    "suspect": "App session: send available=true and the stored spelling; the web already does.",
+    "review_status": "open"
+  }
+]

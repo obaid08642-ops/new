@@ -27,6 +27,7 @@ import {
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
+import { fetchPublicList } from '../../src/utils/publicCache';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { insuranceOffered, normalizeLabList, normalizeProviders, type CatalogItem, type LabProvider } from '../../src/utils/labMappers';
@@ -102,9 +103,9 @@ export default function DiagnosticsHub() {
       return null;
     };
     const [pkgsRes, testsRes, radsRes, labsRes] = await Promise.all([
-      apiFetch<unknown>('/labs/packages').catch(miss),
-      apiFetch<unknown>('/labs/services').catch(miss),
-      apiFetch<unknown>('/radiology/services').catch(miss),
+      fetchPublicList<unknown>('/labs/packages').catch(miss),
+      fetchPublicList<unknown>('/labs/services').catch(miss),
+      fetchPublicList<unknown>('/radiology/services').catch(miss),
       apiFetch<unknown>('/providers?type=lab').catch(miss),
     ]);
     setPackages(normalizeLabList(pkgsRes));
@@ -121,7 +122,7 @@ export default function DiagnosticsHub() {
 
   useEffect(() => {
     let live = true;
-    apiFetch<unknown>('/radiology/modalities')
+    fetchPublicList<unknown>('/radiology/modalities')
       .then((res) => {
         if (live && Array.isArray(res)) setModalities(res.filter((x): x is string => typeof x === 'string' && x.length > 0));
       })

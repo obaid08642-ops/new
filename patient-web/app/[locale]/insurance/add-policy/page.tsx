@@ -10,6 +10,8 @@ import { getPatientInsurancePolicy } from "@/lib/api/insurance-server";
 import { parseInsuranceSummary } from "@/lib/api/insurance";
 import { AddPolicyForm, type PolicyPrefill } from "@/components-next/insurance/add-policy-form";
 import { safeNextPath } from "@/lib/auth/safe-next";
+import { getPublicConfig } from "@/lib/api/public-config-server";
+import { chiInquiryUrl } from "@/lib/insurance/chi";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ next?: string | string[] }> };
 
@@ -49,11 +51,13 @@ export default async function InsuranceAddPolicyPage({ params, searchParams }: P
     initial = undefined;
   }
 
+  const chiUrl = chiInquiryUrl(await getPublicConfig());
+
   return (
     <ConsultPage locale={locale} title={t("add.title")} backHref={`/${locale}/insurance`}>
       <Notice>{t("add.lead")}</Notice>
       {failed ? <div role="alert"><Notice warn>{t("add.companiesFailed")}</Notice></div> : null}
-      <AddPolicyForm companies={companies} locale={locale} returnTo={returnTo} initial={initial} />
+      <AddPolicyForm companies={companies} locale={locale} returnTo={returnTo} initial={initial} chiUrl={chiUrl} />
     </ConsultPage>
   );
 }

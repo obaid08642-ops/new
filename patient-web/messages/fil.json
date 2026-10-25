@@ -144,7 +144,8 @@
     "recordsMoodNotLogged": "Hindi mo pa naitala ang mood ngayon",
     "recordsMaternity": "Pangangalaga sa ina",
     "recordsPregnancy": "Pagsubaybay sa pagbubuntis",
-    "recordsCycle": "Pagsubaybay sa cycle"
+    "recordsCycle": "Pagsubaybay sa cycle",
+    "notificationsUnread": "Mga abiso, may bago"
   },
   "Login": {
     "title": "Mag-sign in",
@@ -959,7 +960,8 @@
     "chronicStop": "Itigil ang refill tracking",
     "chronicUpdateFailed": "Hindi na-update ang refill follow-up.",
     "confirmAction": "Kumpirmahin",
-    "photoInvalid": "Pumili ng larawang hindi lalampas sa 5 megabyte."
+    "photoInvalid": "Pumili ng larawang hindi lalampas sa 5 megabyte.",
+    "rxPurchased": "Nabili na"
   },
   "Prescriptions": {
     "title": "Mga reseta",
@@ -1718,7 +1720,9 @@
     "suggestFieldLabel": "Datos na itatama",
     "suggestSending": "Ipinapadala…",
     "suggestSignIn": "Mag-sign in para maipadala ang iyong mungkahi.",
-    "suggestSignInAction": "Mag-sign in"
+    "suggestSignInAction": "Mag-sign in",
+    "coldChain": "Kailangang ilagay sa ref",
+    "interactions": "Mga interaksyon ng gamot"
   },
   "Wallet": {
     "wallet": "Pitaka",
@@ -2506,7 +2510,15 @@
     "hubOrderAgain": "Ulitin ang nakaraang order",
     "hubOrderAgainAction": "Mag-order",
     "hubOneItem": "1 aytem",
-    "hubItems": "{n, number} aytem"
+    "hubItems": "{n, number} aytem",
+    "filterForm": "Anyo ng gamot",
+    "filterBrand": "Gumagawa",
+    "filterRx": "Reseta",
+    "filterRxAny": "Alinman",
+    "filterRxOnly": "May reseta lang",
+    "filterRxNone": "Walang reseta",
+    "filterPriceMin": "Pinakamababang presyo",
+    "filterPriceMax": "Pinakamataas na presyo"
   },
   "PharmacyOffers": {
     "backToOrder": "Bumalik sa order",
@@ -3610,7 +3622,13 @@
     "addressLocating": "Hinahanap ang iyong lokasyon...",
     "addressLocationSet": "Gagamitin ang kasalukuyan mong lokasyon para sa pagbisita",
     "addressUseSaved": "Gumamit na lang ng naka-save na address",
-    "addressLocationDenied": "Hindi makuha ang iyong lokasyon. Payagan ang access sa lokasyon o pumili ng naka-save na address."
+    "addressLocationDenied": "Hindi makuha ang iyong lokasyon. Payagan ang access sa lokasyon o pumili ng naka-save na address.",
+    "filterAvailability": "Kung kailan available",
+    "filterNationality": "Nasyonalidad",
+    "nationality_any": "Lahat",
+    "nationality_Saudi": "Taga-Saudi",
+    "nationality_Filipino": "Pilipino",
+    "nationality_Egyptian": "Taga-Egypt"
   },
   "MaternityWeb": {
     "title": "Pagbubuntis",
@@ -4160,7 +4178,11 @@
       "copayPercent": "Bahagi mo, % (opsyonal)",
       "copayCap": "Pinakamataas kada item, SAR (opsyonal)",
       "copayPercentInvalid": "Maglagay ng numero mula 0 hanggang 100.",
-      "copayCapInvalid": "Maglagay ng halagang 0 o higit pa."
+      "copayCapInvalid": "Maglagay ng halagang 0 o higit pa.",
+      "class": "Klase",
+      "companySearch": "Hanapin ang iyong insurer",
+      "companyNone": "Walang insurer na tugma",
+      "chiLink": "Alamin ang iyong insurance"
     },
     "coverage": {
       "title": "Ano ang saklaw ng polisiya ko",

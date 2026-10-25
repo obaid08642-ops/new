@@ -144,7 +144,8 @@
     "recordsMoodNotLogged": "You have not logged your mood today",
     "recordsMaternity": "Maternity",
     "recordsPregnancy": "Pregnancy tracking",
-    "recordsCycle": "Cycle tracking"
+    "recordsCycle": "Cycle tracking",
+    "notificationsUnread": "Notifications, you have new ones"
   },
   "Login": {
     "title": "Sign in",
@@ -906,7 +907,8 @@
     "chronicStop": "Stop refill tracking",
     "chronicUpdateFailed": "Refill follow-up could not be updated.",
     "confirmAction": "Confirm",
-    "photoInvalid": "Choose a photo of up to 5 megabytes."
+    "photoInvalid": "Choose a photo of up to 5 megabytes.",
+    "rxPurchased": "Purchased"
   },
   "Prescriptions": {
     "title": "Prescriptions",
@@ -1718,7 +1720,9 @@
     "suggestFieldLabel": "Data to correct",
     "suggestSending": "Sending…",
     "suggestSignIn": "Sign in to send your suggestion.",
-    "suggestSignInAction": "Sign in"
+    "suggestSignInAction": "Sign in",
+    "coldChain": "Needs refrigeration",
+    "interactions": "Drug interactions"
   },
   "Wallet": {
     "wallet": "Wallet",
@@ -2506,7 +2510,15 @@
     "hubOrderAgain": "Order again",
     "hubOrderAgainAction": "Order",
     "hubOneItem": "1 item",
-    "hubItems": "{n, number} items"
+    "hubItems": "{n, number} items",
+    "filterForm": "Dosage form",
+    "filterBrand": "Maker",
+    "filterRx": "Prescription",
+    "filterRxAny": "Any",
+    "filterRxOnly": "Prescription only",
+    "filterRxNone": "No prescription needed",
+    "filterPriceMin": "Lowest price",
+    "filterPriceMax": "Highest price"
   },
   "PharmacyOffers": {
     "backToOrder": "Back to the order",
@@ -3610,7 +3622,13 @@
     "addressLocating": "Finding your location...",
     "addressLocationSet": "Your current location will be used for the visit",
     "addressUseSaved": "Use a saved address instead",
-    "addressLocationDenied": "Could not get your location. Allow location access or choose a saved address."
+    "addressLocationDenied": "Could not get your location. Allow location access or choose a saved address.",
+    "filterAvailability": "Availability",
+    "filterNationality": "Nationality",
+    "nationality_any": "All",
+    "nationality_Saudi": "Saudi",
+    "nationality_Filipino": "Filipino",
+    "nationality_Egyptian": "Egyptian"
   },
   "MaternityWeb": {
     "title": "Maternity",
@@ -4160,7 +4178,11 @@
       "copayPercent": "Your share, % (optional)",
       "copayCap": "Maximum per item, SAR (optional)",
       "copayPercentInvalid": "Enter a number from 0 to 100.",
-      "copayCapInvalid": "Enter an amount of 0 or more."
+      "copayCapInvalid": "Enter an amount of 0 or more.",
+      "class": "Class",
+      "companySearch": "Search for your insurer",
+      "companyNone": "No insurer matches",
+      "chiLink": "Check your insurance"
     },
     "coverage": {
       "title": "What my policy covers",

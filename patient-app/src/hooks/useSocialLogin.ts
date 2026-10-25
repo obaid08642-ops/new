@@ -9,8 +9,10 @@ import * as AuthSession from 'expo-auth-session';
 
 import { apiFetch } from '../../utils/api';
 import { startSession } from '../utils/authSession';
+import { useSocialConfig } from './useSocialConfig';
 
 import type { SocialProvider } from '../components/auth/AuthKit';
+import type { SocialRuntimeConfig } from './useSocialConfig';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -29,14 +31,15 @@ const SNAPCHAT_DISCOVERY = {
   tokenEndpoint: 'https://accounts.snapchat.com/accounts/oauth2/token',
 };
 
-/** Read at call time from the build's public env (Expo inlines each literal reference). */
-function googleClientId(): string {
+/** The id for this platform: the backend's answer (GET /auth/social/config) first, then the build's public env (Expo inlines each literal reference). */
+function googleClientId(config: SocialRuntimeConfig | null): string {
+  const runtime = config?.google;
   const id =
     Platform.OS === 'ios'
-      ? process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID
+      ? runtime?.ios_client_id || process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID
       : Platform.OS === 'android'
-        ? process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID
-        : process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
+        ? runtime?.android_client_id || process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID
+        : runtime?.client_id || process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
   return id || '';
 }
 
@@ -44,25 +47,26 @@ function googleClientId(): string {
  * Social sign-in for Welcome and Login, in one place.
  *
  *  - Google: expo-auth-session's Google provider; its `authentication.accessToken` goes to the backend.
- *  - X and Snapchat: authorization code + PKCE, then `AuthSession.exchangeCodeAsync` (the request's
- *    `codeVerifier`, the same redirect URI and token endpoint) and the resulting access token goes to the backend.
+ *  - X and Snapchat: authorization code + PKCE; the code, the request's `codeVerifier` and the redirect URI go to the backend,
+ *    which exchanges them with its own client secret (it refuses a raw access token, and the redirect URI must be on its allow-list).
  *  - Apple (iOS): `signInAsync`; the identity token goes to the backend with the name and email when Apple
  *    returns them (first sign-in only).
  *
- * Every path ends in `POST /auth/social-login { provider, token }` and the same session handling as the
- * password login. A provider without a client id in this build shows the plain "not available" message;
- * nothing sensitive is logged.
+ * Every path ends in `POST /auth/social-login` and the same session handling as the password login. The client ids come from
+ * the backend's GET /auth/social/config (the build's EXPO_PUBLIC_* values are the fallback); a provider without one shows the
+ * plain "not available" message; nothing sensitive is logged.
  */
 export function useSocialLogin() {
   const dispatch = useDispatch();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const config = useSocialConfig();
   const redirectUri = useMemo(() => AuthSession.makeRedirectUri({ scheme: 'nabdplus' }), []);
 
-  const finish = useCallback(async (provider: SocialProvider, token: string, extra?: { email?: string; name?: string }) => {
+  const finish = useCallback(async (provider: SocialProvider, credential: { token: string } | { code: string; code_verifier: string; redirect_uri: string }, extra?: { email?: string; name?: string }) => {
     try {
       setBusy(true);
-      const body: Record<string, string> = { provider, token };
+      const body: Record<string, string> = { provider, ...credential };
       if (extra?.email) body.email = extra.email;
       if (extra?.name) body.name = extra.name;
       // skipAuth: a refused provider token answers 401, which must not delete the guest session that is stored
@@ -85,13 +89,13 @@ export function useSocialLogin() {
 
   // Google
   const [googleReq, googleRes, googlePrompt] = Google.useAuthRequest({
-    clientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || '',
-    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || '',
-    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || '',
+    clientId: config?.google.client_id || process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || '',
+    iosClientId: config?.google.ios_client_id || process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || '',
+    androidClientId: config?.google.android_client_id || process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || '',
   });
   useEffect(() => {
     if (googleRes?.type === 'success' && googleRes.authentication?.accessToken) {
-      void finish('google', googleRes.authentication.accessToken);
+      void finish('google', { token: googleRes.authentication.accessToken });
     } else if (googleRes?.type === 'error') {
       setError(SOCIAL_FAILED);
       setBusy(false);
@@ -101,8 +105,8 @@ export function useSocialLogin() {
   }, [googleRes, finish]);
 
   // X and Snapchat: code + PKCE
-  const xClientId = process.env.EXPO_PUBLIC_X_CLIENT_ID || '';
-  const snapClientId = process.env.EXPO_PUBLIC_SNAPCHAT_CLIENT_ID || '';
+  const xClientId = config?.x.client_id || process.env.EXPO_PUBLIC_X_CLIENT_ID || '';
+  const snapClientId = config?.snapchat.client_id || process.env.EXPO_PUBLIC_SNAPCHAT_CLIENT_ID || '';
   const [xReq, , xPrompt] = AuthSession.useAuthRequest(
     { clientId: xClientId, scopes: ['tweet.read', 'users.read', 'offline.access'], redirectUri, usePKCE: true },
     X_DISCOVERY,
@@ -118,7 +122,6 @@ export function useSocialLogin() {
       clientId: string,
       request: AuthSession.AuthRequest | null,
       prompt: () => Promise<AuthSession.AuthSessionResult>,
-      tokenEndpoint: string,
     ) => {
       if (!clientId) {
         setError(SOCIAL_UNAVAILABLE);
@@ -138,12 +141,7 @@ export function useSocialLogin() {
         }
         const code = result.params?.code;
         if (!code || !request.codeVerifier) throw new Error('no_code');
-        const tokens = await AuthSession.exchangeCodeAsync(
-          { clientId, code, redirectUri, extraParams: { code_verifier: request.codeVerifier } },
-          { tokenEndpoint },
-        );
-        if (!tokens.accessToken) throw new Error('no_access_token');
-        await finish(provider, tokens.accessToken);
+        await finish(provider, { code, code_verifier: request.codeVerifier, redirect_uri: redirectUri });
       } catch (_err) {
         setError(SOCIAL_FAILED);
         setBusy(false);
@@ -160,7 +158,7 @@ export function useSocialLogin() {
       });
       if (!credential.identityToken) throw new Error('no_identity_token');
       const name = [credential.fullName?.givenName, credential.fullName?.familyName].filter(Boolean).join(' ');
-      await finish('apple', credential.identityToken, { email: credential.email || undefined, name: name || undefined });
+      await finish('apple', { token: credential.identityToken }, { email: credential.email || undefined, name: name || undefined });
     } catch (e: any) {
       if (e?.code !== 'ERR_REQUEST_CANCELED') setError(SOCIAL_FAILED);
       setBusy(false);
@@ -178,16 +176,16 @@ export function useSocialLogin() {
           if (Platform.OS !== 'ios') setError(SOCIAL_UNAVAILABLE);
           else await appleLogin();
         } else if (provider === 'google') {
-          if (!googleClientId() || !googleReq) {
+          if (!googleClientId(config) || !googleReq) {
             setError(SOCIAL_UNAVAILABLE);
           } else {
             setBusy(true);
             await googlePrompt();
           }
         } else if (provider === 'x') {
-          await codeFlow('x', xClientId, xReq, xPrompt, X_DISCOVERY.tokenEndpoint);
+          await codeFlow('x', xClientId, xReq, xPrompt);
         } else {
-          await codeFlow('snapchat', snapClientId, snapReq, snapPrompt, SNAPCHAT_DISCOVERY.tokenEndpoint);
+          await codeFlow('snapchat', snapClientId, snapReq, snapPrompt);
         }
       } catch (_err) {
         setError(SOCIAL_FAILED);
@@ -196,7 +194,7 @@ export function useSocialLogin() {
         inFlight.current = false;
       }
     },
-    [appleLogin, codeFlow, googlePrompt, googleReq, snapClientId, snapPrompt, snapReq, xClientId, xPrompt, xReq],
+    [appleLogin, codeFlow, config, googlePrompt, googleReq, snapClientId, snapPrompt, snapReq, xClientId, xPrompt, xReq],
   );
 
   return { signIn, busy, error, clearError: () => setError(null) };

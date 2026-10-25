@@ -15,7 +15,7 @@ import { getDisabledModules } from "@/lib/api/public-config-server";
 import { isPathHidden } from "@/lib/modules";
 import { CartLink } from "@/components-next/core/cart-link";
 import { HomeTabBar } from "./home-tab-bar";
-import { HomeAccountTools, HomeNavLink, HomeNotificationsLink } from "./home-identity";
+import { HomeAccountTools, HomeNavLink, HomeNotificationsLink, NotificationBellLink } from "./home-identity";
 import styles from "./home.module.css";
 
 /**
@@ -96,11 +96,9 @@ export async function HomeShell({
         <Link href={`${base}/map`} className={styles.iconBtn} aria-label={t("svcMap")} data-map-entry="all">
           <FIcon icon="map-trifold" tone="ink" chip="none" size={20} />
         </Link>
-        {signedIn === undefined ? <HomeNotificationsLink locale={locale} label={t("notifications")} /> : null}
+        {signedIn === undefined ? <HomeNotificationsLink locale={locale} label={t("notifications")} unreadLabel={t("notificationsUnread")} /> : null}
         {knownSignedIn ? (
-          <Link href={`${base}/notifications`} className={styles.iconBtn} aria-label={t("notifications")}>
-            <FIcon icon="bell" tone="ink" chip="none" size={20} />
-          </Link>
+          <NotificationBellLink href={`${base}/notifications`} label={t("notifications")} unreadLabel={t("notificationsUnread")} />
         ) : null}
         <CartLink locale={locale} className={`${styles.iconBtn} ${styles.cartLink}`} badgeClassName={styles.cartBadge} />
         {signedIn === undefined ? (

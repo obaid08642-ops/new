@@ -63,6 +63,9 @@
 |---|---|
 | `LIVEKIT_API_KEY` / `LIVEKIT_API_SECRET` ⚠️ | مفاتيح خادم LiveKit لإصدار توكن الغرف |
 | `COTURN_HOST` / `COTURN_SECRET` / `COTURN_STUN_PORT` / `COTURN_TURN_PORT` ⚠️ | خادم TURN/STUN لعبور NAT في المكالمات |
+| `CALLS_P2P_ENABLED` | `true` يجعل مكالمة الاستشارة الفردية (شخصان) مباشرة بين الجهازين؛ الخادم يصادق ويمرّر الإشارة فقط، وTURN عند فشل المسار المباشر، وLiveKit للمجموعات وللتراجع. الافتراضي معطّل، ولا يعمل إلا مع عميل يعلن `supports_p2p` |
+| `CALLS_MAX_PER_HOST` | عدد المكالمات المتزامنة للمضيف (الطبيب) قبل الرد `409 provider_busy` (الافتراضي 1) |
+| `CALLS_PRESSURE_ACTIVE` | عدد المكالمات النشطة على المنصة الذي يبدأ عنده اقتراح «صوت فقط» للمكالمات الجديدة (الافتراضي 300) |
 
 ## 6) الذكاء الاصطناعي
 
@@ -113,10 +116,12 @@
 | `EXPO_PUBLIC_ONESIGNAL_APP_ID` ➖ | بديل OneSignal للإشعارات |
 | `EXPO_PUBLIC_GOOGLE_CLIENT_ID` / `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` / `EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID` ➖ | تسجيل الدخول بجوجل |
 | `EXPO_PUBLIC_X_CLIENT_ID` / `EXPO_PUBLIC_SNAPCHAT_CLIENT_ID` ➖ | تسجيل دخول اجتماعي إضافي |
+| `EXPO_PUBLIC_SOCIAL_X_SNAPCHAT` ➖ | احتياطي فقط: التطبيق يقرأ الآن `GET /auth/social/config` من الباك إند وقت التشغيل (متغيرات الباك إند في `backend/.env.example`، قسم Social sign-in) |
 | `EXPO_PUBLIC_SENTRY_DSN` ➖ | مراقبة أخطاء التطبيق |
 | `EXPO_PUBLIC_APP_ENV` ✅ | `production` |
 | `EXPO_PUBLIC_API_TIMEOUT` ➖ | مهلة الطلبات بالمللي ثانية |
 | `EXPO_PUBLIC_CDN_URL` / `EXPO_PUBLIC_PROJECT_ID` / `EXPO_PUBLIC_AI_URL` / `EXPO_PUBLIC_FASTAPI_BASE_URL` ➖ | نقاط خدمات مساعدة إن وُجدت |
+| `EXPO_PUBLIC_IMAGE_OPTIMIZER_URL` | أصل الويب (مثل `https://nabd.plus`) ليطلب التطبيق الصور بحجم مناسب عبر `/_next/image`؛ إن تُرك فارغًا تُحمَّل الصور الأصلية كما هي |
 
 > ملاحظة: لوحات الإدارة (`Napd-admin`) تُضبط عناوينها عبر `REACT_APP_*`/`NEXT_PUBLIC_*` في ملفات البيئة الخاصة بكل لوحة، وتشير لنفس عنوان الباك إند.
 

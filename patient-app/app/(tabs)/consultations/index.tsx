@@ -8,6 +8,7 @@ import { COLUMN, step as scale, useScreenUi } from '../../../src/components/scre
 import { MODE_LOOK, Section, Sheet, goBack, visitMode, specialtyLook, type VisitMode } from '../../../src/components/consult/ConsultKit';
 import { Glyph } from '../../../src/components/pharmacy/PharmacyKit';
 import { apiFetch } from '../../../src/utils/api';
+import { fetchPublicList } from '../../../src/utils/publicCache';
 import { logError } from '../../../src/utils/logger';
 import { DOCTOR_DEGREES, buildDoctorsPath, doctorRows, type DoctorDegree, keepsServerOrder, nearestApplies, resolveNearbyPlace, type NearbyPlace } from '../../../src/utils/consultNearby';
 import { deviceNearbyDeps } from '../../../src/utils/consultNearbyDevice';
@@ -181,7 +182,7 @@ export default function Consultations() {
 
   useEffect(() => {
     // Real specialties (names + live doctor counts) and real active offers
-    apiFetch<Spec[] | { data?: Spec[] }>('/care/specialties')
+    fetchPublicList<Spec[] | { data?: Spec[] }>('/care/specialties')
       .then((res) => {
         const list = Array.isArray(res) ? res : res?.data;
         setSpecialties(Array.isArray(list) ? list : []);

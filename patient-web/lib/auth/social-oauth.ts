@@ -1,8 +1,9 @@
 /**
  * X and Snapchat sign-in on the web mirrors the app (patient-app/src/hooks/useSocialLogin.ts codeFlow):
- * OAuth2 authorization code + PKCE (S256), the code is exchanged for an access token, and that token goes to
- * POST /auth/social-login as { provider, token }. The popup returns to /login/social-callback, which hands
- * { code, state } to the opener; the opener checks the state before anything else.
+ * OAuth2 authorization code + PKCE (S256). The code and the verifier go to POST /auth/social-login as
+ * { provider, code, code_verifier, redirect_uri } and the BACKEND exchanges them with its own client secret (it refuses a raw
+ * access token). The popup returns to /login/social-callback, which hands { code, state } to the opener; the opener checks the
+ * state before anything else.
  */
 export type CodeProvider = "x" | "snapchat";
 
@@ -14,15 +15,6 @@ export const CODE_PROVIDERS: Record<CodeProvider, { authorize: string; token: st
     scope: "https://auth.snapchat.com/oauth2/api/user.display_name",
   },
 };
-
-/**
- * X and Snapchat are refused by the backend until it verifies them through the provider's own API, so their buttons
- * stay hidden unless NEXT_PUBLIC_SOCIAL_X_SNAPCHAT=1 (same gate as the app's EXPO_PUBLIC_SOCIAL_X_SNAPCHAT; session S adds
- * the backend verification and this gate is dropped afterwards).
- */
-export function xSnapchatEnabled(flag: string | undefined): boolean {
-  return flag === "1";
-}
 
 function base64Url(bytes: Uint8Array): string {
   let bin = "";

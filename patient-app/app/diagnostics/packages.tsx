@@ -7,6 +7,7 @@ import { ConsultList } from '../../src/components/consult/ConsultKit';
 import { PackageCard, diagLook, goBackDiag } from '../../src/components/diagnostics/DiagKit';
 import { useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
+import { fetchPublicList } from '../../src/utils/publicCache';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { normalizeLabList, rowsOf, type CatalogItem } from '../../src/utils/labMappers';
@@ -29,7 +30,7 @@ export default function DiagnosticsPackages() {
   const load = useCallback(async () => {
     setStatus('loading');
     try {
-      const [pkgRes, catRes] = await Promise.all([apiFetch<unknown>('/labs/packages'), apiFetch<unknown>('/labs/categories')]);
+      const [pkgRes, catRes] = await Promise.all([fetchPublicList<unknown>('/labs/packages'), fetchPublicList<unknown>('/labs/categories')]);
       setPackages(normalizeLabList(pkgRes));
       setCats(
         rowsOf(catRes).flatMap((raw): Category[] => {

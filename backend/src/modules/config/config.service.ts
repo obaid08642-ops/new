@@ -2,6 +2,25 @@ import { Injectable } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 
+/**
+ * The Council of Health Insurance's own page for a beneficiary to look up their insurance (checked on chi.gov.sa on
+ * 2026-10-25: "الاستعلام عن معلومات التأمين الصحي"; it asks for the document number and a verification code, no fee).
+ * The clients read it from /config, so a change of address needs no app release. Only an https chi.gov.sa address is
+ * accepted from the environment; anything else falls back to this one.
+ */
+export const CHI_INQUIRY_URL = 'https://www.chi.gov.sa/ServicesDirectory/Pages/CheckInsurance.aspx';
+
+export function chiInquiryUrl(env: Record<string, string | undefined> = process.env): string {
+  const raw = (env.CHI_INQUIRY_URL || '').trim();
+  try {
+    const url = new URL(raw);
+    if (url.protocol === 'https:' && (url.hostname === 'chi.gov.sa' || url.hostname.endsWith('.chi.gov.sa'))) return url.toString();
+  } catch {
+    // not a URL: use the default
+  }
+  return CHI_INQUIRY_URL;
+}
+
 @Injectable()
 export class ConfigService {
   constructor(@InjectConnection() private readonly conn: Connection) {}
@@ -69,6 +88,7 @@ export class ConfigService {
       feature_rollouts: featureRollouts,
       pricing,
       contact,
+      links: { chi_inquiry: chiInquiryUrl() },
       app_versions,
     };
   }

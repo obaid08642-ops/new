@@ -30,3 +30,16 @@ describe("insurance on file", () => {
     expect(parseInsuranceOnFile("x")).toBeNull();
   });
 });
+
+describe("issue 1819 nurse list filters", () => {
+  it("reads the nationality only from the offered list and the availability only as 'now'", async () => {
+    const { nurseNationalityOf, nurseAvailableOf } = await import("./nurse");
+    expect(nurseNationalityOf("Saudi")).toBe("Saudi");
+    expect(nurseNationalityOf("saudi")).toBe("any");
+    expect(nurseNationalityOf("x$ne")).toBe("any");
+    expect(nurseNationalityOf(undefined)).toBe("any");
+    expect(nurseAvailableOf("now")).toBe(true);
+    expect(nurseAvailableOf("any")).toBe(false);
+    expect(nurseAvailableOf(undefined)).toBe(false);
+  });
+});
