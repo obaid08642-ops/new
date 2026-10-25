@@ -114,7 +114,6 @@ import { InsuranceModule } from './modules/insurance/insurance.module';
 import { ApprovalWorkflowModule } from './modules/approval-workflow/approval-workflow.module';
 import { RecruitmentModule } from './modules/recruitment/recruitment.module';
 import { FamilyModule } from './modules/family/family.module';
-import { CommunityModule } from './modules/community/community.module';
 import { LoyaltyModule } from './modules/loyalty/loyalty.module';
 import { ReferralModule } from './modules/referral/referral.module';
 import { FacilityOpsModule } from './modules/facility-ops/facility-ops.module';
@@ -298,7 +297,6 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     ApprovalWorkflowModule,
     RecruitmentModule,
     FamilyModule,
-    CommunityModule,
     LoyaltyModule,
     ReferralModule,
     FacilityOpsModule,
