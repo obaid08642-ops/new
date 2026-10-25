@@ -188,8 +188,6 @@ export function routeFromNotificationData(data: any): void {
       case 'offer':
         router.push('/loyalty/hub' as any);
         break;
-      case 'sos':
-      case 'ambulance':
       case 'emergency':
         router.push('/emergency' as any);
         break;

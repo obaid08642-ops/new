@@ -8,7 +8,6 @@ import {
   ClaimStatus, CLAIM_ACTIONS,
   RadiologyReportPhase, RADIOLOGY_REPORT_TRANSITIONS,
   LabSampleStage,
-  AmbulanceMissionState,
   assertProviderTransition,
   PROVIDER_NEW_ENDPOINTS,
 } from '../provider-contracts';
@@ -57,14 +56,6 @@ describe('P2 — provider contracts (7 verticals)', () => {
     expect(LabSampleStage.ANALYZING).toBeDefined();
     expect(LabSampleStage.RESULT_UPLOADED).toBeDefined();
     expect(LabSampleStage.SAMPLE_REJECTED).toBeDefined();
-  });
-
-  it('ambulance mission enum covers pool→claim→track→handover→complete', () => {
-    expect(AmbulanceMissionState.POOLED).toBeDefined();
-    expect(AmbulanceMissionState.CLAIMED).toBeDefined();
-    expect(AmbulanceMissionState.EN_ROUTE).toBeDefined();
-    expect(AmbulanceMissionState.HANDOVER).toBeDefined();
-    expect(AmbulanceMissionState.COMPLETED).toBeDefined();
   });
 
   it('governed endpoint list includes all 9 planned surfaces', () => {
