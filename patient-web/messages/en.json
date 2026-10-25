@@ -1635,6 +1635,9 @@
     }
   },
   "Emergency": {
+    "callEmergency": "Call emergency {number}",
+    "urgentCall": "Call urgent help {number}",
+    "urgentUnavailable": "No urgent-help number has been set up yet. In an emergency, call 997.",
     "title": "Urgent help",
     "intro": "If you need help right away, call the urgent-help number set up for Nabd Plus.",
     "call": "Call {number}",

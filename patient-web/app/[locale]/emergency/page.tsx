@@ -11,6 +11,7 @@ import { ConsultState } from "@/components-next/consult/consult-state";
 import { ActionLinks, Hero, Notice } from "@/components-next/consult/consult-parts";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import { ShareLocation } from "@/components-next/emergency/share-location";
+import { CallLink, EMERGENCY_NUMBER } from "@/components-next/emergency/call-link";
 
 type Props = { params: Promise<{ locale: string }> };
 const URGENT = SERVICE_ICONS.emergency;
@@ -40,11 +41,12 @@ export default async function EmergencyPage({ params }: Props) {
 
   return (
     <ConsultPage locale={locale} title={t("title")} backHref={signedIn ? `/${locale}/dashboard` : `/${locale}`}>
+      <CallLink dial={EMERGENCY_NUMBER} label={t("callEmergency", { number: EMERGENCY_NUMBER })} />
       <Hero icon={URGENT.icon} tone={URGENT.tone} title={t("title")} sub={t("intro")} />
       {failed ? (
         <ConsultState kind="error" title={t("loadError")} retryLabel={rs("retry")} />
       ) : help ? (
-        <ActionLinks actions={[{ href: `tel:${help.dial}`, label: t("call", { number: `⁦${help.phone}⁩` }), variant: "primary", external: true }]} />
+        <ActionLinks actions={[{ href: `tel:${help.dial}`, label: t("call", { number: `⁦${help.phone}⁩` }), variant: "outline", external: true }]} />
       ) : (
         <Notice warn>{t("unavailable")}</Notice>
       )}

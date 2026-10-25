@@ -11,6 +11,7 @@ import { ConsultState } from "@/components-next/consult/consult-state";
 import { Notice, RowCard } from "@/components-next/consult/consult-parts";
 import { CareHero } from "@/components-next/care/care-kit";
 import { SectionHead, VitalTile } from "@/components-next/health/health-kit";
+import { UrgentCall } from "@/components-next/emergency/urgent-call";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import styles from "@/components-next/health/health.module.css";
@@ -21,8 +22,8 @@ const MIND = SERVICE_ICONS.mind;
 /**
  * Mental health hub (canvas/CareHub; merge map section 5): the self-reported summary (GET /mental-health/dashboard) and the way into
  * the mood journal and therapist booking (the doctor list filtered to psychiatry).
- * Owner decision 8: no self-assessment, no scoring, no in-app crisis handling. The one urgent-help row opens the emergency page,
- * which reads the number from the admin config (GET /system-config/public); no number is ever written in the code.
+ * Owner decision 8: no self-assessment, no scoring, no in-app crisis handling. The urgent-help button calls the admin's number
+ * (GET /mental-health/urgent-help, `mental_health_urgent_help`); without one it says so and offers 997. No number is written in the code.
  */
 export default async function MentalHealthPage({ params }: Props) {
   const { locale } = await params;
@@ -30,7 +31,6 @@ export default async function MentalHealthPage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("MentalWeb");
   const rs = await getTranslations("RouteState");
-  const em = await getTranslations("Emergency");
   const token = await getOptionalPatientAccessToken();
   const caret = getDirection(locale) === "rtl" ? "caret-left" : "caret-right";
   if (!token) {
@@ -48,7 +48,7 @@ export default async function MentalHealthPage({ params }: Props) {
         doctorsTitle={g("mental.doctorsTitle")}
         action={{ id: "mental-sign-in", title: g("mental.actionTitle"), body: g("mental.actionBody"), label: g("mental.action"), next: `/${locale}/mental-health/mood` }}
       >
-        <RowCard href={`/${locale}/emergency`} icon={SERVICE_ICONS.emergency.icon} tone={SERVICE_ICONS.emergency.tone} title={em("title")} sub={t("urgentRowSub")} caret={<Icon name={caret} size={16} tone="secondary" />} />
+        <UrgentCall />
         <Notice>{t("notice")}</Notice>
       </GuestSpecialtyPage>
     );
@@ -87,7 +87,7 @@ export default async function MentalHealthPage({ params }: Props) {
       <SectionHead id="care" title={t("careTitle")} />
       <RowCard href={`/${locale}/mental-health/mood`} icon="heart" tone="pink" title={t("moodRow")} sub={t("moodRowSub")} caret={arrow} />
       <RowCard href={`/${locale}/consultations/doctors?specialty=psychiatry`} icon="stethoscope" tone="blue" title={t("therapistRow")} sub={t("therapistRowSub")} caret={arrow} />
-      <RowCard href={`/${locale}/emergency`} icon={SERVICE_ICONS.emergency.icon} tone={SERVICE_ICONS.emergency.tone} title={em("title")} sub={t("urgentRowSub")} caret={arrow} />
+      <UrgentCall />
       <Notice>{t("notice")}</Notice>
     </ConsultPage>
   );
