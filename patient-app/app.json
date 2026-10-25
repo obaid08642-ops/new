@@ -4295,6 +4295,7 @@
           "project": "patient-app"
         }
       ],
+      "@maplibre/maplibre-react-native",
       "expo-image",
       "expo-sharing",
       "expo-video",
