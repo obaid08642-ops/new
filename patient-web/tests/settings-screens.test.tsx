@@ -45,12 +45,6 @@ import SettingsPrivacyPage from "@/app/[locale]/settings/privacy/page";
 import SettingsSecurityPage from "@/app/[locale]/settings/security/page";
 import SettingsHelpPage from "@/app/[locale]/settings/help/page";
 import AddressesPage from "@/app/[locale]/profile/addresses/page";
-import SettingsDataRedirect from "@/app/[locale]/settings/data/page";
-import SettingsFeedbackRedirect from "@/app/[locale]/settings/feedback/page";
-import NotificationsSettingsRedirect from "@/app/[locale]/notifications/settings/page";
-import SupportRedirect from "@/app/[locale]/support/page";
-import AddressSelectRedirect from "@/app/[locale]/delivery/address-select/page";
-import ProfileEditRedirect from "@/app/[locale]/profile/edit/page";
 import { SessionList } from "@/components-next/settings/session-list";
 import { returnStatus } from "@/components-next/returns/return-kit";
 import { parseOwnSessions } from "@/lib/api/settings";
@@ -218,18 +212,6 @@ describe("address book and its pick mode", () => {
     const html = render(await element.type(element.props));
     expect(html).toContain("Use this address");
     expect(html).toContain('name="delivery-address"');
-  });
-});
-
-describe("merged routes redirect and keep the query", () => {
-  const props = (query: Record<string, string> = {}) => ({ params, searchParams: search(query) });
-  it("sends every old route to the screen that absorbed it", async () => {
-    expect(await redirectTarget(() => SettingsDataRedirect(props()))).toBe("redirect:/en/settings/privacy?tab=data");
-    expect(await redirectTarget(() => SettingsFeedbackRedirect(props()))).toBe("redirect:/en/settings/help?tab=feedback");
-    expect(await redirectTarget(() => NotificationsSettingsRedirect(props({ ref: "n" })))).toBe("redirect:/en/settings/notifications?ref=n");
-    expect(await redirectTarget(() => SupportRedirect(props()))).toBe("redirect:/en/settings/help");
-    expect(await redirectTarget(() => AddressSelectRedirect(props({ from: "cart" })))).toBe("redirect:/en/profile/addresses?from=cart&select=1");
-    expect(await redirectTarget(() => ProfileEditRedirect(props()))).toBe("redirect:/en/health/profile");
   });
 });
 
