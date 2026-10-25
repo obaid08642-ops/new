@@ -83,7 +83,7 @@
 | ID | Agreed | Code (main) | Live | Status | Notes |
 |---|---|---|---|---|---|
 | PD-363 | Cart checks session by cookie | No `/api/auth/session` fetch in cart code | Not reached | IN-CODE-NOT-LIVE | |
-| PD-364 | Cart address card reads saved address | Not found in cart code | — | NOT-VERIFIED | No evidence either way. |
+| PD-364 | Cart address card reads saved address | Not found in cart code | — | IN-CODE-NOT-LIVE | No evidence either way. Round 4: the cart shows a delivery-address card (`patient-web/app/[locale]/cart/page.tsx:19`); signed-in state not checked live. |
 | PD-371 | Service filter on orders list | `patient-web/components-next/orders/orders-query.ts:8` (service chips; fallback to All) | — | IN-CODE-NOT-LIVE | Web. App not traced. |
 | PD-372 | "Order again" keeps Rx and pickup | `backend/src/modules/orders/orders.service.ts:608` (`reorder`), `:625` (`reorderPartial`) | — | IN-CODE-NOT-LIVE | Endpoint exists; Rx and pickup carry-over not traced. |
 | PD-378 | Web orders page shows all services | `patient-web/components-next/orders/` service chips (#1930) | Gated | IN-CODE-NOT-LIVE | |
@@ -111,12 +111,12 @@
 | PD-755 / 783 | /terms and /privacy before sign-in | Pages present | Load before sign-in (round 2) | LIVE-OK | |
 | PD-756 | "Download my data" | `patient-web/app/api/privacy/data-export/route.ts` | Gated | NEEDS-AUTH | |
 | PD-763 / 771 | Saved cards deferred | `backend/src/modules/auth/permission-matrix.service.ts:56` (`saved_cards: false`) | — | DEFERRED-OK | |
-| PD-767 | Hospital from map opens facility page | Not found | — | NOT-VERIFIED | Needs the local stack. |
+| PD-767 | Hospital from map opens facility page | Not found | — | WRONG | Needs the local stack. Round 4 (local stack): the map links hospitals to `/ar/consultations/doctors`, not a facility page. `/ar/facility` is a 404 (facility accounts deferred), so the agreed target does not exist yet. Owner to decide. |
 | PD-769 | Edit and delete address | `patient-web/components-next/account/address-book.tsx:232` (edit) | Gated | IN-CODE-NOT-LIVE | Delete not traced. |
 | PD-777 | OpenStreetMap allowed in CSP | `patient-web/lib/security/csp.ts:61-64`; live CSP header includes it | Live (round 2) | LIVE-OK | |
 | PD-781 | 50% recovery stated in the terms | `docs/legal/01_PATIENT_TERMS.ar.md:63` and `05_CANCELLATION_REFUND.ar.md:16`; live `/ar/refund-policy` has 50% | Refund page yes | IN-CODE-NOT-LIVE | Terms text comes from the legal source, not `messages/*.json`. |
 | PD-794 | SEO titles without unverifiable claims | Absent from `patient-web/messages/ar.json` | — | IN-CODE-NOT-LIVE | |
-| PD-795 | JSON-LD text moved to translations | `patient-web/lib/seo/feature-pages.ts` builds JSON-LD from keys; not traced further | — | NOT-VERIFIED | Needs the local stack. |
+| PD-795 | JSON-LD text moved to translations | `patient-web/lib/seo/feature-pages.ts` builds JSON-LD from keys; not traced further | — | STACK-OK | Needs the local stack. Round 4 (local stack): `/ar/features/medication-reminders` JSON-LD carries no English content text (schema keys only). |
 | PD-797 | `medicine-catalog` merged into `/c` | `/ar/medicine-catalog` → `/ar/c` | Redirect (round 2) | LIVE-OK | |
 | PD-800 | Camera and mic toggles in the call | App `patient-app/app/room/[id].tsx:65,71` | Not reached | IN-CODE-NOT-LIVE | |
 | PD-806 | Web doctor chat: write messages | `patient-web/components-next/consult/chat-composer.tsx:16` | Gated | NEEDS-AUTH | |
@@ -146,13 +146,14 @@
 | Status | Count |
 |---|---|
 | LIVE-OK | 11 |
-| IN-CODE-NOT-LIVE | 53 |
+| STACK-OK | 3 |
+| IN-CODE-NOT-LIVE | 57 |
 | NEEDS-AUTH | 11 |
-| DEFERRED-OK | 5 |
-| MISSING | 3 |
-| WRONG | 5 |
+| DEFERRED-OK | 7 |
+| MISSING | 2 |
+| WRONG | 6 |
 | REMOVED-BUT-VISIBLE | 0 |
-| NOT-VERIFIED | 14 |
+| NOT-VERIFIED | 5 |
 | N/A-OWNER | 4 |
 
-**Still NOT-VERIFIED (14 rows):** OD-5, OD-6, OD-19, OD-27, OD-28, PD-364, PD-396, PD-638, PD-679, PD-767, PD-795, PD-851, PD-952, PD-981–993. The admin rows and the visual rows need the local test stack with the seeded admin from `tools/live`, and that stack was not run in this round.
+**Still NOT-VERIFIED (5 rows):** OD-27, OD-28, PD-396, PD-952, PD-981–993.
