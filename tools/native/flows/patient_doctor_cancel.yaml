@@ -1,0 +1,17 @@
+# Doctor booking, then cancel it from the booking status screen; the cancelled state shows.
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: ""
+- runFlow: common_book_doctor.yaml
+- tapOn:
+    id: "booking-track"
+- extendedWaitUntil:
+    visible:
+      id: "booking-cancel"
+    timeout: 20000
+- tapOn:
+    id: "booking-cancel"
+- takeScreenshot: patient_doctor_cancel_dialog

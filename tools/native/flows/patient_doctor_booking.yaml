@@ -1,0 +1,15 @@
+# Doctor booking (clinic visit, cash): hub -> doctor -> slot -> confirm -> success -> the appointment is in My appointments.
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: ""
+- runFlow: common_book_doctor.yaml
+- tapOn:
+    id: "booking-track"
+- extendedWaitUntil:
+    visible:
+      id: "booking-pending-screen"
+    timeout: 20000
+- takeScreenshot: patient_doctor_booking_pending

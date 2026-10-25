@@ -1,0 +1,47 @@
+# Signed-in patient -> Consultations -> the first doctor -> a clinic slot -> confirm with cash at the clinic -> booking success.
+appId: com.patient.nabd
+---
+- tapOn:
+    text: "الاستشارات"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "consultations-hub"
+    timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: "hub-doctor-0"
+    timeout: 30000
+- tapOn:
+    id: "hub-doctor-0"
+- extendedWaitUntil:
+    visible:
+      id: "doctor-screen"
+    timeout: 20000
+- runFlow:
+    when:
+      visible:
+        id: "mode-clinic"
+    commands:
+      - tapOn:
+          id: "mode-clinic"
+- extendedWaitUntil:
+    visible:
+      id: "slot-.*"
+    timeout: 30000
+- tapOn:
+    id: "slot-.*"
+- tapOn:
+    id: "doctor-book"
+- extendedWaitUntil:
+    visible:
+      id: "booking-confirm-screen"
+    timeout: 30000
+- tapOn:
+    id: "booking-pay-method-cash"
+- tapOn:
+    id: "booking-confirm-submit"
+- extendedWaitUntil:
+    visible:
+      id: "booking-success-screen"
+    timeout: 40000
