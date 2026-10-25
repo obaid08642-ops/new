@@ -1765,6 +1765,8 @@
     "shortAddressInvalid": "A short address is four letters and four digits, for example {example}.",
     "shortAddressNotFound": "No address was found for this code. Check it and try again.",
     "shortAddressUnavailable": "Saudi Post is not answering now. You can still save the address with the details you typed.",
+    "notFound": "This address no longer exists. The list was refreshed.",
+    "removeDefaultNote": "This is your default address. After removing it you will have no default address.",
     "removedToast": "The address was removed.",
     "makeDefault": "Make default",
     "useMyLocation": "Use my current location",

@@ -8,7 +8,7 @@ import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { OFFER_TONES } from "@/components-next/pharmacy-offers/tones";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
-import { addressToForm, buildAddressPatch, buildCreateBody, EMPTY_ADDRESS_FORM, pointBody, pointFromPosition, type AddressForm, type AddressRecord, type AddressPoint } from "@/lib/account/address-form";
+import { addressToForm, buildAddressPatch, buildCreateBody, addressErrorFor, savedPoint, EMPTY_ADDRESS_FORM, pointBody, pointFromPosition, type AddressForm, type AddressRecord, type AddressPoint } from "@/lib/account/address-form";
 import { GeoSelect } from "./geo-select";
 import { AddressMap } from "./address-map/address-map";
 import { createReverseController, fillFromReverse, type ReverseController, type ReverseState } from "@/lib/geo/reverse";
@@ -118,6 +118,10 @@ function AddressFields({ form, onChange, locale, point, onPoint, map, onRegion }
   );
 }
 
+/** The edit map only moves the pin: the saved fields are never overwritten by a lookup. */
+const IDLE_REVERSE: ReverseState = { status: "idle" };
+const noop = () => {};
+
 type RowMode = "view" | "edit" | "confirmRemove";
 
 /**
@@ -131,7 +135,7 @@ export function AddressList({ addresses, locale }: { addresses: PatientAddress[]
   const router = useRouter();
   const [mode, setMode] = useState<{ id: string; kind: RowMode } | null>(null);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<"remove" | "save" | null>(null);
+  const [error, setError] = useState<"remove" | "save" | "gone" | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [form, setForm] = useState<AddressForm>(EMPTY_ADDRESS_FORM);
   const [point, setPoint] = useState<AddressPoint | null>(null);
@@ -150,8 +154,11 @@ export function AddressList({ addresses, locale }: { addresses: PatientAddress[]
     setError(null);
     try {
       const res = await fetch(`/api/patient/users/me/addresses/${encodeURIComponent(id)}`, { method: "DELETE" });
-      if (!res.ok) setError("remove");
-      else {
+      if (!res.ok) {
+        const kind = addressErrorFor(res.status);
+        setError(kind === "notFound" ? "gone" : "remove");
+        if (kind === "notFound") { setMode(null); router.refresh(); }
+      } else {
         setMode(null);
         setToast(t("removedToast"));
         router.refresh();
@@ -172,8 +179,11 @@ export function AddressList({ addresses, locale }: { addresses: PatientAddress[]
         headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
         body: JSON.stringify({ is_default: true }),
       });
-      if (!res.ok) setError("save");
-      else router.refresh();
+      if (!res.ok) {
+        const kind = addressErrorFor(res.status);
+        setError(kind === "notFound" ? "gone" : "save");
+        if (kind === "notFound") router.refresh();
+      } else router.refresh();
     } catch {
       setError("save");
     } finally {
@@ -198,8 +208,11 @@ export function AddressList({ addresses, locale }: { addresses: PatientAddress[]
         headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
         body: JSON.stringify({ ...patch, ...pointBody(point) }),
       });
-      if (!res.ok) setError("save");
-      else {
+      if (!res.ok) {
+        const kind = addressErrorFor(res.status);
+        setError(kind === "notFound" ? "gone" : "save");
+        if (kind === "notFound") { setMode(null); router.refresh(); }
+      } else {
         setMode(null);
         router.refresh();
       }
@@ -237,7 +250,7 @@ export function AddressList({ addresses, locale }: { addresses: PatientAddress[]
               <ConfirmDialog
                 open={rowMode === "confirmRemove"}
                 title={t("removeConfirmTitle")}
-                body={t("removeConfirm", { name: address.label || t("unnamed") })}
+                body={address.is_default ? `${t("removeConfirm", { name: address.label || t("unnamed") })} ${t("removeDefaultNote")}` : t("removeConfirm", { name: address.label || t("unnamed") })}
                 confirmLabel={busy ? t("removing") : t("removeConfirmYes")}
                 cancelLabel={t("cancel")}
                 destructive
@@ -248,7 +261,7 @@ export function AddressList({ addresses, locale }: { addresses: PatientAddress[]
               {rowMode === "edit" ? (
                 <form onSubmit={(event) => void save(event, address)} className={styles.stack} aria-label={t("editTitle")}>
                   <h2 className={rx.h2}>{t("editTitle")}</h2>
-                  <AddressFields form={form} onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))} locale={locale} point={point} onPoint={setPoint} />
+                  <AddressFields form={form} onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))} locale={locale} point={point} onPoint={setPoint} map={<AddressMap point={point ?? savedPoint(address)} onPoint={setPoint} reverse={IDLE_REVERSE} onRetry={noop} locale={locale} />} />
                   <Button type="submit" label={busy ? t("saving") : t("save")} loading={busy} disabled={busy} fullWidth />
                   <Button label={t("cancel")} variant="outline" disabled={busy} onClick={() => open(address, "view")} fullWidth />
                 </form>
@@ -258,6 +271,7 @@ export function AddressList({ addresses, locale }: { addresses: PatientAddress[]
         })}
       </ul>
       {error === "remove" ? <p className={forms.error} role="alert">{t("removeFailed")}</p> : null}
+      {error === "gone" ? <p className={forms.error} role="alert">{t("notFound")}</p> : null}
       {error === "save" ? <p className={forms.error} role="alert">{t("saveFailed")}</p> : null}
     </>
   );

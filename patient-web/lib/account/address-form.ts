@@ -17,6 +17,9 @@ export type AddressRecord = {
   /** 19.7: the Saudi National Address short code. */
   short_address?: string | null;
   is_default?: boolean | null;
+  /** The saved pin (backend `lat` / `lng`). */
+  lat?: number | null;
+  lng?: number | null;
 };
 
 export type AddressForm = { label: string; line1: string; line2: string; city: string; district: string; region: string; notes: string; short_address: string; building: string; floor: string };
@@ -65,4 +68,14 @@ export function pointBody(point: AddressPoint | null): Partial<AddressPoint> {
 /** POST /users/me/addresses: the form as typed or filled from the map, plus the pin's two numbers when there is one. */
 export function buildCreateBody(form: AddressForm, point: AddressPoint | null): AddressForm & Partial<AddressPoint> {
   return { ...form, ...pointBody(point) };
+}
+
+/** The saved pin of an address, or null when it has none (an address typed by hand). */
+export function savedPoint(address: AddressRecord): AddressPoint | null {
+  return pointFromPosition(address.lat, address.lng);
+}
+
+/** What a failed PATCH or DELETE means to the patient: 404 `address_not_found` (removed elsewhere) or a plain failure. */
+export function addressErrorFor(status: number): "notFound" | "failed" {
+  return status === 404 ? "notFound" : "failed";
 }
