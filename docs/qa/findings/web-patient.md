@@ -41,3 +41,12 @@ Evidence: `POST /api/insurance/policy` returned 200 with body `{"company_id":"a3
 | P2 | /en/insurance/add-policy | class / category under company | Look for a class field after choosing the company | Company → class → copay, as the brief specifies | No class field in the form, though the backend accepts `plan_class` | patient-web add-policy page (file not yet located) |
 | P3 | /en/insurance/add-policy | company list | Read the list | Real insurer names only | Four test-named insurers ("Insure ins2a757", "Insure insfe238", "Insure ins4eb7f", "Insure insea7d1") in the list; likely seeded test data, confirm | seed data (tools/live) |
 | P3 | /en/insurance (after save) | company name | Read the card | Name in the page language | Arabic name "بوبا العربية" shown on an English page | backend stores name_ar as company_name (insurance-engine.module.ts:291) |
+
+
+## CORRECTION (16:50 UTC): hydration P1 was a local-setup error, not a product defect
+
+The CSP/nonce hydration failure on /en/c, /en/p/<slug>, /en/consultations/doctors (first reported as P1) came from running patient-web with plain `next start`. Production runs `node server/nonce-server.mjs` in front of the standalone Next server (deploy/docker/Dockerfile.patient-web:52). Without it, the public pages carry no script nonce, and cached HTML has a stale nonce. The app itself printed this warning at start: "patient-web is not running behind server/nonce-server.mjs".
+
+Re-tested on the production layout (nonce server on :3000, standalone Next on :3999, twice): /en/c, /en/consultations/doctors and /en/medicine all hydrate, 0 CSP errors, no stuck loader. The P1 is closed as a test-setup error. Production behaviour was also observed read-only earlier and showed no chunk errors.
+
+Lesson for the sweep: all results recorded under plain `next start` (the anonymous static sweep and the first signed-in sweep) must be treated as provisional. The signed-in sweep is being rerun on the production layout.
