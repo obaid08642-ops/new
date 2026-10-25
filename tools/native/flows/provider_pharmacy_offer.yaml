@@ -21,4 +21,26 @@ appId: com.nabd.provider
 - inputText: ${output.medTag}
 - hideKeyboard
 - tapOn: "بحث|Search"
-- takeScreenshot: provider_pharmacy_composer_search
+- extendedWaitUntil:
+    visible: ".*Stock.*|.*المخزون.*"
+    timeout: 30000
+- tapOn: ".*Stock.*|.*المخزون.*"
+- scrollUntilVisible:
+    element: "معاينة خادمية|Server quote preview"
+    timeout: 30000
+- tapOn: "معاينة خادمية|Server quote preview"
+- extendedWaitUntil:
+    visible: "حفظ المسودة|Save draft"
+    timeout: 30000
+- scrollUntilVisible:
+    element: "حفظ المسودة|Save draft"
+- tapOn: "حفظ المسودة|Save draft"
+- scrollUntilVisible:
+    element: "إرسال العرض للاختيار|Submit for patient selection"
+- tapOn: "إرسال العرض للاختيار|Submit for patient selection"
+- takeScreenshot: provider_pharmacy_offer_sent
+- runScript:
+    file: scripts/patient_offers.js
+    env:
+      ORDER: ${output.orderId}
+      TOKEN: ${output.patientToken}
