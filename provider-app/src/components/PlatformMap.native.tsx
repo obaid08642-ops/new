@@ -1,5 +1,5 @@
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Camera, GeoJSONSource, Layer, Map as MLMap, Marker as MLMarker, type CameraRef } from '@maplibre/maplibre-react-native';
 import { useTheme } from '../context';
 import { MAP_ATTRIBUTION, circlePolygon, mapStyleFor, regionFromView, zoomForRegion, type Region } from '../utils/map-geometry';
@@ -29,8 +29,11 @@ type MapView = MapViewHandle;
 const MapView = forwardRef<MapViewHandle, MapProps>(function MapView({ style, initialRegion, userInterfaceStyle, onPress, onRegionChangeComplete, children }, ref) {
   const camera = useRef<CameraRef>(null);
   const { theme } = useTheme();
+  const { width } = useWindowDimensions();
+  const widthRef = useRef(width);
+  widthRef.current = width;
   useImperativeHandle(ref, () => ({
-    animateToRegion: (r, durationMs = 500) => camera.current?.easeTo({ center: centreOf(r), zoom: zoomForRegion(r, Dimensions.get('window').width), duration: durationMs }),
+    animateToRegion: (r, durationMs = 500) => camera.current?.easeTo({ center: centreOf(r), zoom: zoomForRegion(r, widthRef.current), duration: durationMs }),
   }), []);
   return (
     <View style={[styles.fill, style as never]}>
@@ -43,7 +46,7 @@ const MapView = forwardRef<MapViewHandle, MapProps>(function MapView({ style, in
         onPress={onPress ? (e) => { const { lngLat } = e.nativeEvent; onPress({ nativeEvent: { coordinate: { latitude: lngLat[1], longitude: lngLat[0] } } }); } : undefined}
         onRegionDidChange={onRegionChangeComplete ? (e) => { const v = e.nativeEvent; onRegionChangeComplete(regionFromView(v.center, v.bounds)); } : undefined}
       >
-        <Camera ref={camera} initialViewState={initialRegion ? { center: centreOf(initialRegion), zoom: zoomForRegion(initialRegion, Dimensions.get('window').width) } : undefined} />
+        <Camera ref={camera} initialViewState={initialRegion ? { center: centreOf(initialRegion), zoom: zoomForRegion(initialRegion, widthRef.current) } : undefined} />
         {children}
       </MLMap>
       <View pointerEvents="none" style={[styles.attribution, { backgroundColor: theme.card }]}>

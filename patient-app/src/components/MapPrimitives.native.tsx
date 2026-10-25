@@ -1,5 +1,5 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Camera, Map as MLMap, Marker as MLMarker, UserLocation, type CameraRef } from '@maplibre/maplibre-react-native';
 import { MAP_ATTRIBUTION, mapStyleFor, regionFromView, zoomForRegion, type Region } from './map-geometry';
 import { useScreenUi } from './screen/ScreenKit';
@@ -37,17 +37,20 @@ type MapProps = {
   moveOnMarkerPress?: boolean;
 };
 
-const viewWidth = () => Dimensions.get('window').width;
 const centreOf = (r: Region): [number, number] => [r.longitude, r.latitude];
 
 type MapView = MapViewHandle;
 const MapView = forwardRef<MapViewHandle, MapProps>(function MapView({ style, initialRegion, region, userInterfaceStyle, showsUserLocation, scrollEnabled = true, zoomEnabled = true, onPress, onRegionChangeComplete, children }, ref) {
   const camera = useRef<CameraRef>(null);
   const { c } = useScreenUi();
+  // the width follows rotation and split screen; a ref so the imperative handle and the effect read the current one
+  const { width } = useWindowDimensions();
+  const widthRef = useRef(width);
+  widthRef.current = width;
   const first = region ?? initialRegion;
 
   useImperativeHandle(ref, () => ({
-    animateToRegion: (r, durationMs = 500) => camera.current?.easeTo({ center: centreOf(r), zoom: zoomForRegion(r, viewWidth()), duration: durationMs }),
+    animateToRegion: (r, durationMs = 500) => camera.current?.easeTo({ center: centreOf(r), zoom: zoomForRegion(r, widthRef.current), duration: durationMs }),
   }), []);
 
   // a controlled `region` (the tracking screens) moves the camera when it changes
@@ -55,7 +58,7 @@ const MapView = forwardRef<MapViewHandle, MapProps>(function MapView({ style, in
   useEffect(() => {
     if (!region || (last.current && last.current.latitude === region.latitude && last.current.longitude === region.longitude && last.current.longitudeDelta === region.longitudeDelta)) return;
     last.current = region;
-    camera.current?.easeTo({ center: centreOf(region), zoom: zoomForRegion(region, viewWidth()), duration: 500 });
+    camera.current?.easeTo({ center: centreOf(region), zoom: zoomForRegion(region, widthRef.current), duration: 500 });
   }, [region]);
 
   return (
@@ -72,7 +75,7 @@ const MapView = forwardRef<MapViewHandle, MapProps>(function MapView({ style, in
         onPress={onPress ? (e) => { const { lngLat } = e.nativeEvent; onPress({ nativeEvent: { coordinate: { latitude: lngLat[1], longitude: lngLat[0] } } }); } : undefined}
         onRegionDidChange={onRegionChangeComplete ? (e) => { const v = e.nativeEvent; onRegionChangeComplete(regionFromView(v.center, v.bounds)); } : undefined}
       >
-        <Camera ref={camera} initialViewState={first ? { center: centreOf(first), zoom: zoomForRegion(first, viewWidth()) } : undefined} />
+        <Camera ref={camera} initialViewState={first ? { center: centreOf(first), zoom: zoomForRegion(first, widthRef.current) } : undefined} />
         {showsUserLocation ? <UserLocation /> : null}
         {children}
       </MLMap>
