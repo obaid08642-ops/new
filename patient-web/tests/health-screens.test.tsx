@@ -39,8 +39,6 @@ import SleepPage from "@/app/[locale]/health/sleep/page";
 import MedicationsPage from "@/app/[locale]/health/medications/page";
 import ProfilePage from "@/app/[locale]/health/profile/page";
 import RecordsPage from "@/app/[locale]/health/records/page";
-import ActionableOrderRedirect from "@/app/[locale]/health/actionable-order/page";
-import SmartRemindersRedirect from "@/app/[locale]/health/smart-reminders/page";
 import ReportDetailPage from "@/app/[locale]/reports/[reportId]/page";
 import PassportPage from "@/app/[locale]/reports/passport/page";
 import { FormSheet } from "@/components-next/health/form-sheet";
@@ -309,10 +307,6 @@ describe("detail screens and redirects", () => {
     expect(id).not.toContain("PASS-1234");
   });
 
-  it("the removed order screen redirects to the prescriptions tab without carrying the old payload", async () => {
-    await expect(ActionableOrderRedirect({ params })).rejects.toThrow("redirect:/en/health/records?tab=prescriptions");
-    await expect(SmartRemindersRedirect({ params })).rejects.toThrow("redirect:/en/health/medications?tab=all");
-  });
 
   it("every old route is a redirect to a tab or a section of the new screens", async () => {
     const config = (await import("../next.config")).default;

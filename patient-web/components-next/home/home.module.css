@@ -29,7 +29,13 @@
 }
 /* issue 1819: the unread dot of the bell (the app's HomeTopRow: 10 dot, 2 ring, coral) */
 .bellDot { position: absolute; inset-block-start: 9px; inset-inline-end: 10px; inline-size: 10px; block-size: 10px; border-radius: 50%; background: var(--nabd-color-avatar-ring); border: 2px solid var(--nabd-color-bg-surface); box-sizing: border-box; pointer-events: none; }
-.cartLink { display: none; }
+.cartLink { display: inline-grid; }
+.cartBadge {
+  position: absolute; inset-block-start: -2px; inset-inline-end: -2px; min-inline-size: 18px; block-size: 18px; padding-inline: 4px;
+  box-sizing: border-box; border-radius: var(--nabd-radius-pill); display: inline-grid; place-items: center;
+  background: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg);
+  font-size: var(--nabd-font-size-micro); font-weight: 700; line-height: 1;
+}
 .signIn {
   block-size: 44px; padding-inline: 18px; border-radius: 22px; box-sizing: border-box;
   display: inline-flex; align-items: center; white-space: nowrap;
@@ -42,7 +48,6 @@
 @media (min-width: 540px) { .brand { display: inline-flex; } }
 @media (min-width: 768px) {
   .wordmark { display: inline; }
-  .cartLink { display: inline-grid; }
 }
 @media (min-width: 1024px) {
   .nav { display: flex; }
