@@ -5,7 +5,10 @@ appId: com.patient.nabd
     file: common_fresh_session.yaml
     env:
       FLAGS: ""
-- runFlow: common_book_doctor.yaml
+- runFlow:
+    file: common_book_doctor.yaml
+    env:
+      SLOT: "10"
 - takeScreenshot: patient_doctor_booking_confirmation
 - runFlow: common_my_appointments.yaml
 - tapOn:

@@ -9,5 +9,5 @@ appId: com.patient.nabd
 - tapOn:
     id: "order-cancel"
 - tapOn: "تراجع"
-- assertVisible: "لم تصل عروض بعد"
+- assertVisible: "تظهر العروض هنا فور رد الصيدليات.*"
 - assertNotVisible: "تم إلغاء هذا الطلب"

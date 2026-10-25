@@ -12,6 +12,9 @@ appId: com.patient.nabd
     visible:
       id: "diagnostics-hub"
     timeout: 20000
+# the hub opens on "at home"; the seeded tests have no home service in the area, so choose a visit at the centre
+- tapOn:
+    id: "diag-place-clinic"
 - scrollUntilVisible:
     element:
       id: "diag-test-0"
@@ -27,12 +30,6 @@ appId: com.patient.nabd
     visible:
       id: "diagnostics-cart"
     timeout: 20000
-# the basket opens on "at home"; this test has no home service in the area, so move it to a centre
-- runFlow:
-    when:
-      visible: "انقل هذا البند إلى المركز"
-    commands:
-      - tapOn: "انقل هذا البند إلى المركز"
 - tapOn:
     id: "diag-cart-continue"
 - extendedWaitUntil:

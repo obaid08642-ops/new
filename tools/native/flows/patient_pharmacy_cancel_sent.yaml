@@ -6,7 +6,7 @@ appId: com.patient.nabd
     env:
       FLAGS: "address=1"
 - runFlow: common_pharmacy_send.yaml
-- assertVisible: "لم تصل عروض بعد"
+- assertVisible: "تظهر العروض هنا فور رد الصيدليات.*"
 - tapOn:
     id: "order-cancel"
 - tapOn: "تأكيد الإلغاء"

@@ -1,4 +1,4 @@
-# Signed-in patient -> Consultations -> the first doctor -> a clinic slot -> confirm with cash at the clinic -> booking success.
+# SLOT: the index of the slot to take (default 10). Signed-in patient -> Consultations -> the first doctor -> a clinic slot -> confirm with cash at the clinic -> booking success.
 appId: com.patient.nabd
 ---
 - tapOn:
@@ -32,8 +32,9 @@ appId: com.patient.nabd
     visible:
       id: "slot-.*"
     timeout: 30000
+# the seed already booked the first slots of tomorrow; SLOT picks a later one (each flow its own)
 - tapOn:
-    id: "slot-0"
+    id: "slot-${SLOT}"
 - tapOn:
     id: "doctor-book"
 - extendedWaitUntil:
