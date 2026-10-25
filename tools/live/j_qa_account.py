@@ -50,4 +50,6 @@ def run():
 
 
 if __name__ == '__main__':
+    from lib import summary
     run()
+    summary()
