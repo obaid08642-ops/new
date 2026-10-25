@@ -1,4 +1,4 @@
-import { IsArray, IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDefined, IsIn, IsNumber, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class UpsertCandidateProfileDto {
   @IsOptional()
@@ -206,4 +206,15 @@ export class UpdateApplicationStatusDto {
   @IsDefined()
   @IsString()
   status: string;
+}
+
+export class GuestJobReviewDto {
+  @IsIn(['publish', 'reject'])
+  decision: 'publish' | 'reject';
+
+  /** The reason is recorded with the decision (who, when, why): required for publish and reject alike. */
+  @IsString()
+  @MinLength(3)
+  @MaxLength(500)
+  note: string;
 }

@@ -48,6 +48,9 @@ export class JobPosting {
   @Prop({ required: true, index: true }) facility_id: string; // Owner organization
   @Prop({ type: String, enum: ['draft', 'published', 'closed'], default: 'draft', index: true })
   status: 'draft' | 'published' | 'closed';
+  @Prop() reviewed_by?: string; // admin who published/rejected a guest draft
+  @Prop() reviewed_at?: Date;
+  @Prop() review_note?: string;
   @Prop({ default: false, index: true }) is_deleted: boolean;
 }
 export type JobPostingDocument = JobPosting & Document;
