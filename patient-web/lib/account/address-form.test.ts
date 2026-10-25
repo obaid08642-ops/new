@@ -69,3 +69,33 @@ describe("building and floor (address map flow)", () => {
     expect(buildCreateBody({ ...EMPTY_ADDRESS_FORM, label: "Home", line1: "x", building: "7" }, { lat: 1, lng: 2 })).toMatchObject({ building: "7", lat: 1, lng: 2 });
   });
 });
+
+describe("edit and delete of a saved address (PD-769)", () => {
+  it("starts the edit pin at the saved lat/lng, and has none for a typed address", async () => {
+    const { savedPoint } = await import("./address-form");
+    expect(savedPoint({ ...saved, lat: 24.7, lng: 46.7 })).toEqual({ lat: 24.7, lng: 46.7 });
+    expect(savedPoint(saved)).toBeNull();
+    expect(savedPoint({ ...saved, lat: 999, lng: 46.7 })).toBeNull();
+  });
+
+  it("sends a moved pin with the changed fields only", async () => {
+    const { pointBody } = await import("./address-form");
+    const form = { ...addressToForm(saved), label: "Work" };
+    expect({ ...buildAddressPatch(saved, form), ...pointBody({ lat: 24.7, lng: 46.7 }) }).toEqual({ label: "Work", lat: 24.7, lng: 46.7 });
+  });
+
+  it("tells a removed address (404) from any other failure", async () => {
+    const { addressErrorFor } = await import("./address-form");
+    expect(addressErrorFor(404)).toBe("notFound");
+    expect(addressErrorFor(500)).toBe("failed");
+    expect(addressErrorFor(400)).toBe("failed");
+  });
+
+  it("lets PATCH and DELETE of one address id through the proxy, and nothing else", () => {
+    const id = saved.id;
+    expect(isAllowedPatientApiRequest(`/users/me/addresses/${id}`, "PATCH")).toBe(true);
+    expect(isAllowedPatientApiRequest(`/users/me/addresses/${id}`, "DELETE")).toBe(true);
+    expect(isAllowedPatientApiRequest(`/users/me/addresses/${id}`, "PUT")).toBe(false);
+    expect(isAllowedPatientApiRequest("/users/me/addresses", "DELETE")).toBe(false);
+  });
+});

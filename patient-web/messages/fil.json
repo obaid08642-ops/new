@@ -1765,6 +1765,8 @@
     "shortAddressInvalid": "Ang maikling address ay apat na letra at apat na numero, gaya ng {example}.",
     "shortAddressNotFound": "Walang nahanap na address para sa code na ito. Suriin ito at subukan muli.",
     "shortAddressUnavailable": "Hindi sumasagot ngayon ang Saudi Post. Maaari mo pa ring i-save ang address kasama ang mga detalyeng itinype mo.",
+    "notFound": "Wala na ang address na ito. Na-refresh ang listahan.",
+    "removeDefaultNote": "Ito ang iyong default na address. Pagkatanggal nito, wala nang default na address.",
     "removedToast": "Naalis ang address.",
     "makeDefault": "Gawing default",
     "useMyLocation": "Gamitin ang kasalukuyang lokasyon ko",
