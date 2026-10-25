@@ -68,7 +68,8 @@ export function contentSecurityPolicy(nonce: string, isDevelopment = process.env
     // tools/live/start-livekit.sh) is allowed by its exact origin, read at request time like the call screens read it.
     ["connect-src 'self' https://api.nabd.plus wss://live.nabd.plus https://cdn.nabd.plus https://accounts.google.com/gsi/ https://appleid.apple.com", ...livekitConnectSources(), sentryIngestOrigin()].filter(Boolean).join(" "),
     "font-src 'self' data:",
-    "media-src 'self' https:",
+    // voice notes: the recorder previews the patient's own recording from a blob: URL
+    "media-src 'self' blob: https:",
     "object-src 'none'",
     "upgrade-insecure-requests",
   ].join("; ");

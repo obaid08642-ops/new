@@ -1181,6 +1181,30 @@
       "forbidden": "Messages can’t be sent in this conversation right now.",
       "network": "Couldn’t connect. Your message hasn’t been sent yet; try again.",
       "generic": "The message couldn’t be sent. Try again."
+    },
+    "voice": {
+      "title": "Voice note",
+      "record": "Record a voice note",
+      "recording": "Recording {time}",
+      "stop": "Stop recording",
+      "cancel": "Cancel",
+      "previewLabel": "Listen before sending, {time}",
+      "send": "Send voice note",
+      "sending": "Sending",
+      "retry": "Try again",
+      "discard": "Discard",
+      "maxReached": "The recording stopped at the {minutes}-minute limit.",
+      "play": "Play",
+      "pause": "Pause",
+      "playerLabel": "Voice note, {time}",
+      "errors": {
+        "denied": "Microphone access is blocked. Allow it in your browser's site settings, then try again.",
+        "unsupported": "This browser can't record voice notes. Use the app or another browser.",
+        "recordFailed": "The recording didn't work. Check your microphone and try again.",
+        "uploadFailed": "The voice note couldn't be sent. Try again.",
+        "forbidden": "Voice notes can't be sent in this conversation right now.",
+        "loadFailed": "The voice note couldn't be loaded. Try again."
+      }
     }
   },
   "Sleep": {

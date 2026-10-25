@@ -1181,6 +1181,30 @@
       "forbidden": "Hindi makapagpadala ng mensahe sa usapang ito ngayon.",
       "network": "Hindi makakonekta. Hindi pa naipapadala ang iyong mensahe; subukan muli.",
       "generic": "Hindi naipadala ang mensahe. Subukan muli."
+    },
+    "voice": {
+      "title": "Mensaheng boses",
+      "record": "Mag-record ng mensaheng boses",
+      "recording": "Nagre-record {time}",
+      "stop": "Ihinto ang pagre-record",
+      "cancel": "Kanselahin",
+      "previewLabel": "Pakinggan bago ipadala, {time}",
+      "send": "Ipadala ang mensaheng boses",
+      "sending": "Ipinapadala",
+      "retry": "Subukan muli",
+      "discard": "Itapon",
+      "maxReached": "Huminto ang pagre-record sa limitasyong {minutes} minuto.",
+      "play": "I-play",
+      "pause": "I-pause",
+      "playerLabel": "Mensaheng boses, {time}",
+      "errors": {
+        "denied": "Naka-block ang access sa mikropono. Payagan ito sa site settings ng browser, saka subukan muli.",
+        "unsupported": "Hindi makapag-record ng voice note ang browser na ito. Gamitin ang app o ibang browser.",
+        "recordFailed": "Hindi gumana ang pagre-record. Tingnan ang mikropono at subukan muli.",
+        "uploadFailed": "Hindi naipadala ang mensaheng boses. Subukan muli.",
+        "forbidden": "Hindi makapagpadala ng voice note sa usapang ito sa ngayon.",
+        "loadFailed": "Hindi na-load ang mensaheng boses. Subukan muli."
+      }
     }
   },
   "Sleep": {
