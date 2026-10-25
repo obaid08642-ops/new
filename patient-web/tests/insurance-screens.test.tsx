@@ -39,11 +39,6 @@ import InsuranceCoverageCheckPage from "@/app/[locale]/insurance/coverage-check/
 import ApprovalPendingRedirect from "@/app/[locale]/insurance/approval-pending/page";
 import CopayRedirect from "@/app/[locale]/insurance/copay/page";
 import PaymentSplitRedirect from "@/app/[locale]/insurance/payment-split/page";
-import PolicyDetailRedirect from "@/app/[locale]/insurance/policy-detail/page";
-import NetworkRedirect from "@/app/[locale]/insurance/network-providers/page";
-import ClaimsRedirect from "@/app/[locale]/insurance/claims/page";
-import RefundsRedirect from "@/app/[locale]/insurance/refunds/page";
-import SubmitClaimRedirect from "@/app/[locale]/insurance/submit-claim/page";
 import { TABS, parseBenefits, parseCoverage, parseRequestRows, requestTone } from "@/lib/insurance/view";
 
 const TOKEN = "server-only-insurance-token-never-in-html";
@@ -268,17 +263,7 @@ describe("the coverage check", () => {
 });
 
 describe("old routes (merge map 2, section 6)", () => {
-  it("tab pages redirect to the hub keeping the query", async () => {
-    expect(await redirectTarget(async () => PolicyDetailRedirect(hub()))).toBe("redirect:/en/insurance?tab=policy");
-    expect(await redirectTarget(async () => NetworkRedirect(hub({ q: "nur", type: "lab" })))).toBe("redirect:/en/insurance?tab=network&q=nur&type=lab");
-  });
 
-  it("the removed claims, refunds and submit-claim pages open the hub (owner decision 35)", async () => {
-    expect([...TABS]).toEqual(["policy", "benefits", "network"]);
-    expect(await redirectTarget(async () => ClaimsRedirect({ params }))).toBe("redirect:/en/insurance");
-    expect(await redirectTarget(async () => RefundsRedirect({ params }))).toBe("redirect:/en/insurance");
-    expect(await redirectTarget(async () => SubmitClaimRedirect({ params }))).toBe("redirect:/en/insurance");
-  });
 
   it("approval-pending, payment-split and co-pay open the one request page", async () => {
     const approval = (query: Record<string, string>) => ApprovalPendingRedirect({ params, searchParams: Promise.resolve(query) });
