@@ -2,6 +2,7 @@
 
   POST /v1/invoices                -> {id, status: initiated, amount, currency, url, payments: []}   (hosted checkout)
   GET  /v1/invoices/<id>           -> the invoice, with the payments made on it
+  GET  /__invoices                 -> test hook: ids of the invoices without a payment, oldest first
   GET  /v1/payments/<id>           -> one payment ({id, status, amount, currency, invoice_id, source})
   POST /v1/payments/<id>/refund    -> payment status refunded (amount optional, halalas)
   POST /v1/payments/<id>/capture   -> payment status paid
@@ -50,6 +51,8 @@ class H(BaseHTTPRequestHandler):
         p = urlparse(self.path).path.rstrip('/').split('/')
         if p[1:] == ['__mode']:
             return self._send(200, MODE)
+        if p[1:] == ['__invoices']:   # test hook: the invoices that no payment was made on yet, oldest first (native E2E completes the newest)
+            return self._send(200, [i['id'] for i in INVOICES.values() if not i.get('payments')])
         if len(p) == 4 and p[1:3] == ['v1', 'invoices'] and p[3] in INVOICES:
             return self._send(200, INVOICES[p[3]])
         if len(p) == 4 and p[1:3] == ['v1', 'payments'] and p[3] in PAYMENTS:

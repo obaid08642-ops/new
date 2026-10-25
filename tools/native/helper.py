@@ -145,6 +145,21 @@ def nursing_booking():
     return {'ok': bool(bid), 'booking_id': bid, 'token': p['token'], 'detail': '' if bid else str(r)}
 
 
+def pay_complete(status='paid', timeout=40):
+    """The patient completes (paid) or declines (failed) the newest open hosted checkout of the Moyasar test double."""
+    import urllib.request
+    base = os.environ.get('NATIVE_MOYASAR', 'http://127.0.0.1:9100')
+    end = time.time() + timeout
+    while time.time() < end:
+        ids = json.load(urllib.request.urlopen(base + '/__invoices'))
+        if ids:
+            req = urllib.request.Request(f'{base}/__pay/{ids[-1]}?status={status}', method='POST', data=b'{}', headers={'content-type': 'application/json'})
+            urllib.request.urlopen(req).read()
+            return {'ok': True, 'invoice': ids[-1], 'status': status}
+        time.sleep(1)
+    return {'ok': False, 'detail': 'no open invoice'}
+
+
 def otp(to, since):
     return lib.mail_code(to, since, timeout=25)
 
@@ -184,6 +199,8 @@ class H(BaseHTTPRequestHandler):
                 return self._send(200, {'email': p['email'], 'phone': p['phone'], 'password': p['password'], 'name': 'اختبار native-extra'})
             if u.path == '/meds':
                 return self._send(200, accounts().get('meds', []))
+            if u.path == '/pay/complete':
+                return self._send(200, pay_complete(q.get('status', 'paid')))
             if u.path == '/radiology/booking':
                 return self._send(200, radiology_booking())
             if u.path == '/nursing/booking':

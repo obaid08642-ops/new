@@ -1,0 +1,21 @@
+# Pharmacy payment declined (the Moyasar test double answers failed): the result screen says so and the order is not marked paid.
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: "address=1"
+- runFlow: common_pharmacy_cart.yaml
+- runFlow: common_pharmacy_to_payment.yaml
+- tapOn:
+    id: "payment-pay"
+- runScript:
+    file: scripts/pay_complete.js
+    env:
+      STATUS: "failed"
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "payment-result-screen"
+    timeout: 60000
+- takeScreenshot: patient_pharmacy_payment_failed

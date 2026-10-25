@@ -1,0 +1,19 @@
+# Pharmacy payment (the Moyasar test double): pay -> the hosted checkout opens outside the app -> the payment succeeds -> back in the app the result says paid and the order tracks on.
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: "address=1"
+- runFlow: common_pharmacy_cart.yaml
+- runFlow: common_pharmacy_to_payment.yaml
+- tapOn:
+    id: "payment-pay"
+- runScript:
+    file: scripts/pay_complete.js
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "payment-result-screen"
+    timeout: 60000
+- takeScreenshot: patient_pharmacy_payment_result
