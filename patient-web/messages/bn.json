@@ -195,6 +195,7 @@
     "appleUnavailable": "Apple দিয়ে সাইন ইন এখন উপলব্ধ নয়। সাইন ইনের অন্য উপায় ব্যবহার করুন।",
     "apple": "Apple",
     "googleUnavailable": "Google দিয়ে সাইন ইন এখন উপলব্ধ নয়। সাইন ইনের অন্য পদ্ধতি ব্যবহার করুন।",
+    "providerUnavailable": "{name} দিয়ে সাইন ইন এখন উপলব্ধ নয়। সাইন ইনের অন্য পদ্ধতি ব্যবহার করুন।",
     "google": "Google",
     "x": "X",
     "snapchat": "Snapchat",

@@ -19,10 +19,13 @@ const ALL: SocialButtons = {
 };
 
 describe("social sign-in buttons are shown per configuration", () => {
-  it("shows only guest sign-in when nothing is configured", () => {
+  // Owner, 2026-10-25: all four always show (the providers review the live button before they approve the app);
+  // a provider the server has no keys for answers "not available" on tap, and data-configured says which are live.
+  it("shows all four, not configured, when nothing is configured", () => {
     const html = render({});
-    expect(html).not.toMatch(/>(Google|Apple|X|Snapchat)</);
-    expect(html).not.toContain("Or continue with");
+    expect(html).toContain("Or continue with");
+    for (const label of ["Google</button>", ">Apple</button>", "X</button>", "Snapchat</button>"]) expect(html).toContain(label);
+    expect(html).not.toContain('data-configured="1"');
   });
   it("shows all four when the backend enables them", () => {
     const html = render(ALL);
@@ -31,10 +34,11 @@ describe("social sign-in buttons are shown per configuration", () => {
     expect(html).toContain("X</button>");
     expect(html).toContain("Snapchat</button>");
   });
-  it.each([["google", /Google<\/button>/], ["apple", />Apple<\/button>/], ["x", /X<\/button>/], ["snapchat", /Snapchat<\/button>/]] as const)("%s is hidden when the backend does not enable it", (provider, pattern) => {
+  it.each([["google", /data-configured="0"><svg[^>]*><path[^>]*><\/path><\/svg> Google<\/button>/], ["apple", /data-configured="0">Apple<\/button>/], ["x", /data-configured="0"><svg[^>]*><path[^>]*><\/path><\/svg> X<\/button>/], ["snapchat", /data-configured="0"><svg[^>]*><path[^>]*><\/path><\/svg> Snapchat<\/button>/]] as const)("%s stays visible but not configured when the backend does not enable it", (provider, pattern) => {
     const { [provider]: _removed, ...rest } = ALL;
-    expect(render(rest)).not.toMatch(pattern);
-    for (const other of Object.keys(rest)) expect(render(rest)).toContain(other === "google" ? "Google</button>" : other === "apple" ? ">Apple</button>" : other === "x" ? "X</button>" : "Snapchat</button>");
+    const html = render(rest);
+    expect(html).toMatch(pattern);
+    expect((html.match(/data-configured="1"/g) ?? []).length).toBe(3);
   });
 });
 

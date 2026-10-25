@@ -195,6 +195,7 @@
     "appleUnavailable": "Apple से साइन इन अभी उपलब्ध नहीं है। साइन इन का कोई और तरीका चुनें।",
     "apple": "Apple",
     "googleUnavailable": "Google से साइन इन अभी उपलब्ध नहीं है। साइन इन का कोई और तरीका इस्तेमाल करें।",
+    "providerUnavailable": "{name} से साइन इन अभी उपलब्ध नहीं है। साइन इन का कोई और तरीका इस्तेमाल करें।",
     "google": "Google",
     "x": "X",
     "snapchat": "Snapchat",
