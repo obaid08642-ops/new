@@ -228,7 +228,7 @@ export default function PharmacyHub() {
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
         <Text accessibilityRole="header" style={{ flex: 1, ...scale(t, 'h1'), letterSpacing: -0.3, color: c.text.primary, ...flow }}>{k('pharmacy.title')}</Text>
         <GlyphRound name="receipt" label={k('pharmacy.hub.orders')} onPress={() => go('/orders')} />
-        <GlyphRound name="package" label={k('pharmacy.cart')} onPress={() => go('/pharmacy/cart')}>
+        <GlyphRound name="package" label={k('pharmacy.cart')} onPress={() => go('/pharmacy/cart')} testID="pharmacy-cart">
           <CountBadge count={itemCount} />
         </GlyphRound>
       </View>

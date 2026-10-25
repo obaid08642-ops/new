@@ -1,0 +1,38 @@
+# Signed-in patient (with a saved address) -> Pharmacy -> search the seeded medicine -> product page -> add to cart -> the cart count shows 1 on the
+# product header; open the cart.
+appId: com.patient.nabd
+---
+- runScript:
+    file: scripts/meds.js
+- tapOn:
+    text: "الصيدلية"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "pharmacy-hub"
+    timeout: 20000
+- tapOn:
+    id: "pharmacy-search"
+- inputText: ${output.medTag}
+- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      id: "pharmacy-card-.*"
+    timeout: 30000
+- tapOn:
+    id: "pharmacy-card-.*"
+- extendedWaitUntil:
+    visible:
+      id: "product-detail"
+    timeout: 20000
+- tapOn:
+    id: "product-add-to-cart"
+- assertVisible:
+    id: "cart-count"
+    text: "1"
+- tapOn:
+    id: "product-cart"
+- extendedWaitUntil:
+    visible:
+      id: "cart-screen"
+    timeout: 20000

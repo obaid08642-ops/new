@@ -45,7 +45,7 @@ export function GlyphSquare({ name, label, onPress }: { name: FillIconName; labe
 }
 
 /** A 44 round header button with a fill glyph (board PharmacyHub: "my orders", the cart): surface, hairline ring, ink glyph. */
-export function GlyphRound({ name, label, onPress, children }: { name: FillIconName; label: string; onPress: () => void; children?: React.ReactNode }) {
+export function GlyphRound({ name, label, onPress, children, testID }: { name: FillIconName; label: string; onPress: () => void; children?: React.ReactNode; testID?: string }) {
   const { c } = useScreenUi();
   return (
     <View>
@@ -53,6 +53,7 @@ export function GlyphRound({ name, label, onPress, children }: { name: FillIconN
         accessibilityRole="button"
         accessibilityLabel={label}
         onPress={onPress}
+        testID={testID}
         style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 22, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.onGlass, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.8 : 1 })}
       >
         <Glyph name={name} size={20} color={c.icon.primary} />
@@ -67,7 +68,7 @@ export function CountBadge({ count }: { count: number }) {
   const { theme } = useScreenUi();
   if (count <= 0) return null;
   return (
-    <View pointerEvents="none" style={{ position: 'absolute', top: -3, end: -3 }}>
+    <View pointerEvents="none" testID="cart-count" accessible accessibilityLabel={String(count)} style={{ position: 'absolute', top: -3, end: -3 }}>
       <Badge content={count} tone="danger" theme={theme} />
     </View>
   );

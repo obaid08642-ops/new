@@ -161,6 +161,7 @@ export function PharmacyOfferCard({ offer, now, best, selected, busy, onPick }: 
 
   return (
     <View
+      testID="offer-card"
       style={{
         borderRadius: 24,
         backgroundColor: c.bg.surface,
@@ -227,6 +228,7 @@ export function PharmacyOfferCard({ offer, now, best, selected, busy, onPick }: 
           accessibilityState={{ disabled, selected }}
           disabled={disabled}
           onPress={onPick}
+          testID="offer-pick"
           style={({ pressed }) => ({ minHeight: 46, minWidth: 96, paddingHorizontal: 20, paddingVertical: 6, borderRadius: 16, flexDirection: 'row', gap: 6, alignItems: 'center', justifyContent: 'center', backgroundColor: disabled ? c.bg.sunken : c.action.selected.bg, opacity: pressed ? 0.85 : 1 })}
         >
           {selected ? <Glyph name="check-circle" size={18} color={c.action.selected.fg} /> : null}

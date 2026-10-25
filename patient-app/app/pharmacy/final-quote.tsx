@@ -166,7 +166,7 @@ export default function PharmacyFinalQuoteScreen() {
               <Money amount={totals.total} currency={totals.currency} size="h4" />
             </View>
             <View style={{ flex: 1 }}>
-              <Button label={errorKey ? k('pharmacy.quote.acceptRetry') : k('pharmacy.quote.accept')} size="lg" fullWidth loading={saving === 'accept'} disabled={saving !== null} onPress={accept} theme={theme} />
+              <Button label={errorKey ? k('pharmacy.quote.acceptRetry') : k('pharmacy.quote.accept')} size="lg" fullWidth loading={saving === 'accept'} disabled={saving !== null} onPress={accept} theme={theme} testID="quote-accept" />
             </View>
           </View>
         </View>
@@ -212,7 +212,7 @@ export default function PharmacyFinalQuoteScreen() {
         {quote.kind === 'accepted' ? (
           <View style={{ gap: 10 }}>
             <Text style={{ ...scale(t, 'caption'), lineHeight: 24, color: c.text.secondary, textAlign: 'center' }}>{k('pharmacy.quote.acceptedBody')}</Text>
-            <Button label={k('pharmacy.quote.payNow')} size="lg" fullWidth disabled={saving !== null} onPress={() => router.push({ pathname: '/pharmacy/payment', params: { orderId: id } })} theme={theme} />
+            <Button label={k('pharmacy.quote.payNow')} size="lg" fullWidth disabled={saving !== null} onPress={() => router.push({ pathname: '/pharmacy/payment', params: { orderId: id } })} theme={theme} testID="quote-pay-now" />
             {canCod ? (
               <>
                 <Button label={k('pharmacy.quote.cod')} variant="outline" size="lg" fullWidth loading={saving === 'cod'} disabled={saving !== null} onPress={registerCod} theme={theme} />

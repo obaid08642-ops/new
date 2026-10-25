@@ -18,6 +18,42 @@ def fresh():
     return {'email': f"{lib.uniq('e2e')}@nabd.test", 'phone': lib.phone(), 'password': 'Str0ng!Pass' + lib.uniq('')[-4:], 'name': 'اختبار نبض'}
 
 
+ACCOUNTS = os.environ.get('NATIVE_ACCOUNTS', '/tmp/native/accounts.json')
+OFFERED = set()
+
+
+def accounts():
+    return json.load(open(ACCOUNTS, encoding='utf8'))
+
+
+def provider(kind):
+    a = accounts()['providers'][kind]
+    r = lib.Client().post('/provider/auth/login', {'email': a['email'], 'password': a['password']})
+    return lib.Client(r.get('access_token'), kind)
+
+
+def pharmacy_offer(timeout=45):
+    """The pharmacy that stocks the seeded medicines answers the newest broadcast it has not answered yet with an offer for every item."""
+    ph = provider('pharmacy_stock')
+    end = time.time() + timeout
+    while time.time() < end:
+        for b in ph.get('/provider/pharmacy/broadcasts').items():
+            oid = b.get('order_id')
+            if not oid or oid in OFFERED:
+                continue
+            items = b.get('items') or b.get('medicines') or []
+            offer_items = [{'order_item_id': str(m.get('id') or m.get('order_item_id') or ''), 'availability': 'available',
+                            'qty_offered': int(m.get('qty_requested') or m.get('qty') or m.get('quantity') or 1)} for m in items]
+            d = ph.post(f'/provider/pharmacy/broadcasts/{oid}/offers/draft', {'items': offer_items})
+            if not d.get('id'):
+                return {'ok': False, 'step': 'draft', 'detail': str(d)}
+            r = ph.post(f"/provider/pharmacy/broadcasts/{oid}/offers/{d.get('id')}/submit")
+            OFFERED.add(oid)
+            return {'ok': bool(r.ok), 'order_id': oid, 'offer_id': d.get('id')}
+        time.sleep(1.5)
+    return {'ok': False, 'step': 'broadcast', 'detail': 'no new pharmacy broadcast'}
+
+
 def otp(to, since):
     return lib.mail_code(to, since, timeout=25)
 
@@ -48,13 +84,17 @@ class H(BaseHTTPRequestHandler):
                 p = j_accounts.app_signup(label='native-extra')
                 me = lib.Client(p['token'])
                 if q.get('address'):
-                    me.post('/users/me/addresses', {'label': 'المنزل', 'street': 'شارع التخصصي 12', 'city': 'الرياض'})
+                    me.post('/users/me/addresses', {'label': 'المنزل', 'street': 'شارع التخصصي 12', 'city': 'الرياض', 'lat': 24.7140, 'lng': 46.6760, 'is_default': True})
                 if q.get('family'):  # a second patient joins this patient's family
                     other = j_accounts.app_signup(label='native-member')
                     me.post('/family/create', {'name': 'عائلة الاختبار'})
                     code = me.post('/family/invite', {}).get('invite_code')
                     lib.Client(other['token']).post('/family/join', {'invite_code': code or '', 'relation': 'child'})
                 return self._send(200, {'email': p['email'], 'phone': p['phone'], 'password': p['password'], 'name': 'اختبار native-extra'})
+            if u.path == '/meds':
+                return self._send(200, accounts().get('meds', []))
+            if u.path == '/pharmacy/offer':
+                return self._send(200, pharmacy_offer())
             if u.path == '/api':
                 r = lib.Client(q.get('token')).get(q['path'])
                 return self._send(200, {'ok': r.ok, 'status': r.status, 'body': r.body})

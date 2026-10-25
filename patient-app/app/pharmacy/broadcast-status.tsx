@@ -286,7 +286,7 @@ export default function BroadcastStatusScreen() {
         {outOfNetwork ? <Notice tone="warning" text={k('pharmacy.offers.coverage.notInNetwork')} /> : null}
         <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('pharmacy.offers.noPaymentNow')}</Text>
         {pickError ? <Notice tone="danger" text={k(pickError)} /> : null}
-        <Button label={pickError ? k('pharmacy.offers.confirmRetry') : k('pharmacy.offers.confirm')} size="lg" fullWidth loading={confirming} disabled={confirming || picked.totals.total === null || outOfNetwork} onPress={() => void confirm()} theme={theme} />
+        <Button label={pickError ? k('pharmacy.offers.confirmRetry') : k('pharmacy.offers.confirm')} size="lg" fullWidth loading={confirming} disabled={confirming || picked.totals.total === null || outOfNetwork} onPress={() => void confirm()} theme={theme} testID="offer-confirm" />
       </View>
     </StickyFooter>
   ) : undefined;
@@ -343,7 +343,7 @@ export default function BroadcastStatusScreen() {
 
         {phase === 'searching' || phase === 'review' ? (
           <View style={{ gap: 8 }}>
-            <Button label={k('pharmacy.offers.cancelOrder')} variant="outline" size="md" fullWidth loading={cancelling} disabled={cancelling || confirming} onPress={askCancel} theme={theme} />
+            <Button label={k('pharmacy.offers.cancelOrder')} variant="outline" size="md" fullWidth loading={cancelling} disabled={cancelling || confirming} onPress={askCancel} theme={theme} testID="order-cancel" />
             {cancelError ? <Notice tone="danger" text={k(cancelError)} /> : null}
           </View>
         ) : null}

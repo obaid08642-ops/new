@@ -18,7 +18,7 @@ OUT = sys.argv[1] if len(sys.argv) > 1 else '/tmp/native/accounts.json'
 JOURNEYS = ['pharmacy', 'consultation', 'lab', 'radiology', 'nursing', 'facility', 'chat', 'returns', 'loyalty']   # j_ambulance no longer exists: the provider types the journeys miss are registered below
 SHARED = {'consult-patient', 'buyer', 'lab-patient', 'rad-patient', 'nursing-patient', 'insured-patient', 'loyal',
           'support-patient', 'chat-patient', 'returner'}
-state = {'patient': None, 'providers': {}}
+state = {'patient': None, 'providers': {}, 'meds': []}
 
 _signup = j_accounts.app_signup
 
@@ -41,6 +41,22 @@ def provider_after_approval(prov):
     return tok
 
 
+import lib  # noqa: E402
+
+_post = lib.Client.post
+
+
+def post(self, path, body=None, *a, **k):
+    # the catalogue items j_pharmacy creates (its pharmacy stocks them and is online): the flows search for them and the helper answers orders as that pharmacy
+    r = _post(self, path, body, *a, **k)
+    if path == '/medicines/admin/catalog' and isinstance(body, dict) and r.get('id'):
+        state['meds'].append({'id': r.get('id'), 'name_ar': body.get('name_ar'), 'name_en': body.get('name_en')})
+        if 'pharmacy' in state['providers'] and 'pharmacy_stock' not in state['providers']:
+            state['providers']['pharmacy_stock'] = dict(state['providers']['pharmacy'])
+    return r
+
+
+lib.Client.post = post
 j_accounts.app_signup = app_signup
 j_onboarding.provider_after_approval = provider_after_approval
 for mod in list(sys.modules.values()):  # journeys that already imported the helpers by name
@@ -68,5 +84,5 @@ if 'pharmacy' not in state['providers'] or len(state['providers']) < 1 + len(j_o
 
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 p = state['patient'] or _signup(label='native')
-json.dump({'patient': {'email': p['email'], 'password': p['password']}, 'providers': state['providers']}, open(OUT, 'w'), indent=1)
+json.dump({'patient': {'email': p['email'], 'password': p['password']}, 'providers': state['providers'], 'meds': state['meds']}, open(OUT, 'w'), indent=1)
 print('accounts:', {'patient': p['email'], 'providers': sorted(state['providers'])})

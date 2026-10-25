@@ -256,7 +256,7 @@ export default function OrderTrackingScreen() {
           </View>
         </Card>
 
-        {view.next ? <Button label={k(nextKey(view.next))} size="lg" fullWidth onPress={() => router.push(view.next as unknown as Href)} theme={theme} /> : null}
+        {view.next ? <Button label={k(nextKey(view.next))} size="lg" fullWidth onPress={() => router.push(view.next as unknown as Href)} theme={theme} testID="tracking-next" /> : null}
         {view.done ? (
           <Button
             label={k('orders.track.rate')}
@@ -265,6 +265,7 @@ export default function OrderTrackingScreen() {
             fullWidth
             onPress={() => router.push({ pathname: '/reviews', params: { booking_kind: 'pharmacy', booking_id: view.order.id } } as unknown as Href)}
             theme={theme}
+            testID="tracking-rate"
           />
         ) : null}
       </View>
