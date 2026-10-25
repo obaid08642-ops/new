@@ -104,10 +104,10 @@ describe("guest service pages (issue 1550)", () => {
     noPersonalReads();
   });
 
-  it("mental health: the psychiatrists, the urgent-help row and the mood-journal action", async () => {
+  it("mental health: the psychiatrists, the always-present 997 urgent-help button and the mood-journal action", async () => {
     const page = await html(await MentalHealthPage({ params }));
     expect(page).toContain("Dr Calm");
-    expect(page).toContain('href="/en/emergency"');
+    expect(page).toContain('href="tel:997"'); // the urgent-help button: 997 is always there (owner decision 14)
     expect(page).toContain(`href="/en/login?next=${encodeURIComponent("/en/mental-health/mood")}"`);
     noPersonalReads();
   });
