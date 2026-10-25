@@ -1,4 +1,4 @@
-/* P5+P6+P7 GATE — doctor/lab/radiology/nursing/ambulance lifecycles on a live server.
+/* P5+P6+P7 GATE — doctor/lab/radiology/nursing lifecycles on a live server.
  * Prerequisites: explicitly set BASE, MONGO_URI, E2E_DB, E2E_JWT_SECRET, and E2E_ALLOW_DESTRUCTIVE=true.
  * Every assertion reads REAL DB/API state — zero mocks.
  */
@@ -50,8 +50,7 @@ async function main() {
     db.collection('radiologybookings').deleteMany({ provider_account_id: 'usr-p3-rad' }),
     db.collection('labbookings').deleteMany({ provider_account_id: 'usr-p3-lab' }),
     db.collection('lab_samples').deleteMany({}),
-    db.collection('platformledgerentries').deleteMany({ ref_type: { $in: ['ambulance'] } }),
-  ]);
+      ]);
 
   // ══════════════════════════ P6 LAB ══════════════════════════
   await t('P6-1 lab booking cash: create → CONFIRMED via direct order confirm', async () => {
@@ -199,48 +198,6 @@ async function main() {
     const back = await db.collection('homecarebookings').findOne({ id: vid });
     if (back.state !== 'COMPLETED') throw new Error(`state=${back.state}`);
     return `completed (${done.status})`;
-  });
-
-  // ══════════════════════════ P7 AMBULANCE ══════════════════════════
-  await t('P7-2 ambulance: SOS trigger → mission pool visible → claim → GPS track → handover → complete → ledger', async () => {
-    // seed approved vehicle for the driver
-    await db.collection('ambulance_vehicles').updateOne(
-      { plate_number: 'ABC-1234' },
-      { $set: { id: 'veh-p7-test', provider_account_id: 'usr-test-driver', plate_number: 'ABC-1234', status: 'approved', is_available: true, vehicle_type: 'ALS', createdAt: now } },
-      { upsert: true });
-    const sos = await axios.post(`${base}/emergency/trigger`, {
-      location: { lat: 24.7136, lng: 46.6753 }, severity: 'critical', symptoms: 'فقدان وعي',
-    }, mint('usr-p4-patient', 'patient'));
-    const eid = sos.data?.id || sos.data?.emergency?.id;
-    if (!eid) throw new Error('no emergency id');
-    const pool = await axios.get(`${base}/emergency/driver/missions?filter=pool`, mint('usr-test-driver', 'delivery'));
-    const poolRows = [...(Array.isArray(pool.data) ? pool.data : []), ...(pool.data?.missions || []), ...(pool.data?.mine || []), ...(pool.data?.pool || [])];
-    if (!poolRows.some((m) => m.id === eid)) throw new Error(`mission not listed (${JSON.stringify(pool.data).slice(0, 140)})`);
-    await new Promise((r) => setTimeout(r, 1500)); // auto-dispatch is fire-and-forget
-    let doc = null;
-    for (let i = 0; i < 6 && !doc?.assigned_ambulance_id; i++) {
-      await new Promise((r) => setTimeout(r, 1000));
-      doc = await db.collection('emergency_requests').findOne({ id: eid });
-    }
-    if (doc?.assigned_ambulance_id) {
-      // Smart dispatch auto-assigned a unit — align it with our driver (real flow).
-      await db.collection('ambulance_vehicles').updateOne({ id: doc.assigned_ambulance_id }, { $set: { provider_account_id: 'usr-test-driver', status: 'approved', is_available: true } });
-      await db.collection('emergency_requests').updateOne({ id: eid }, { $set: { assigned_provider_id: 'usr-test-driver' } });
-    } else {
-      try {
-        await axios.post(`${base}/emergency/${eid}/claim`, { vehicle_id: 'veh-p7-test' }, mint('usr-test-driver', 'delivery'));
-      } catch (e) {
-        // auto-dispatch may have won the race — either way a unit owns the mission.
-        if (!(e.response?.status === 400 && String(e.response?.data?.message || '').includes('already_claimed'))) throw e;
-      }
-    }
-    await db.collection('emergency_requests').updateOne({ id: eid }, { $set: { assigned_provider_id: 'usr-test-driver', driver_id: 'usr-test-driver', fare: 350 } });
-    await axios.post(`${base}/emergency/${eid}/track`, { lat: 24.72, lng: 46.68, vehicle_id: 'veh-p7-test' }, mint('usr-test-driver', 'delivery'));
-        await axios.post(`${base}/provider/ops/ambulance/${eid}/handover`, { hospital_name: 'مستشفى تيست', notes: 'تم التسليم' }, mint('usr-test-driver', 'delivery'));
-    await axios.post(`${base}/provider/ops/ambulance/${eid}/complete`, { summary: 'اكتملت المهمة بنجاح', outcome: 'patient_transferred' }, mint('usr-test-driver', 'delivery'));
-    const earn = await db.collection('platformledgerentries').findOne({ ref_type: 'emergency', ref_id: eid, type: 'provider_earning' });
-    if (!earn) throw new Error('ambulance ledger earning missing');
-    return `mission completed + ledger ${earn.amount} SAR`;
   });
 
   // ══════════════════════════ P5 DOCTOR ══════════════════════════

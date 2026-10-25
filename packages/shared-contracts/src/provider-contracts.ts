@@ -13,8 +13,7 @@ export type ProviderVertical =
   | 'lab'
   | 'radiology'
   | 'nursing'
-  | 'facility'
-  | 'ambulance';
+  | 'facility';
 
 /** قرار بنود الصيدلية على الطلب (P3-1) */
 export interface OrderItemDecision {
@@ -289,18 +288,6 @@ export const CLAIM_ACTIONS: ReadonlyArray<readonly [ClaimStatus, ClaimAction, Cl
   [ClaimStatus.SUBMITTED, 'resubmit', ClaimStatus.RESUBMITTED],
   [ClaimStatus.REJECTED, 'resubmit', ClaimStatus.RESUBMITTED],
 ];
-
-// ─── مهمة الإسعاف ────────────────────────────────────────────────────────────
-
-export enum AmbulanceMissionState {
-  POOLED = 'POOLED',
-  CLAIMED = 'CLAIMED',
-  EN_ROUTE = 'EN_ROUTE',                  // GPS tracking فعلي
-  ON_SCENE = 'ON_SCENE',
-  HANDOVER = 'HANDOVER',                  // تسليم المستشفى + ملاحظات
-  COMPLETED = 'COMPLETED',                // ledger credit idempotent
-  RELEASED = 'RELEASED',                  // لم يتمكن من الاستلام
-}
 
 // ─── بوابة تحقق موحدة (تستخدمها e2e والعملاء) ───────────────────────────────
 
