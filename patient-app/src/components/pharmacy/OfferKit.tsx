@@ -173,9 +173,7 @@ export function PharmacyOfferCard({ offer, now, best, selected, busy, onPick }: 
       }}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-        <View style={{ width: 48, height: 48, borderRadius: 16, backgroundColor: c.bg.media, alignItems: 'center', justifyContent: 'center' }}>
-          <Glyph name="storefront" size={24} color={c.icon.secondary} />
-        </View>
+        <FIcon icon="storefront" tone={PHARMACY_TONE} size={48} theme={theme} />
         <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
           <Text style={{ ...scale(t, 'bodyStrong'), lineHeight: 22, color: c.text.primary, ...flow }}>{name}</Text>
           {sub ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{sub}</Text> : null}
