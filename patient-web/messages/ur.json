@@ -195,6 +195,7 @@
     "appleUnavailable": "Apple سے سائن ان ابھی دستیاب نہیں۔ سائن ان کا کوئی اور طریقہ استعمال کریں۔",
     "apple": "Apple",
     "googleUnavailable": "Google کے ذریعے سائن اِن ابھی دستیاب نہیں۔ سائن اِن کا کوئی اور طریقہ استعمال کریں۔",
+    "providerUnavailable": "{name} کے ذریعے سائن اِن ابھی دستیاب نہیں۔ سائن اِن کا کوئی اور طریقہ استعمال کریں۔",
     "google": "Google",
     "x": "X",
     "snapchat": "Snapchat",

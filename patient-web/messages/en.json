@@ -195,6 +195,7 @@
     "appleUnavailable": "Apple sign-in isn't available right now. Use another way to sign in.",
     "apple": "Apple",
     "googleUnavailable": "Google sign-in isn't available right now. Use another way to sign in.",
+    "providerUnavailable": "{name} sign-in isn't available right now. Use another way to sign in.",
     "google": "Google",
     "x": "X",
     "snapchat": "Snapchat",

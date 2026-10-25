@@ -195,6 +195,7 @@
     "appleUnavailable": "Hindi available ngayon ang pag-sign in gamit ang Apple. Gumamit ng ibang paraan ng pag-sign in.",
     "apple": "Apple",
     "googleUnavailable": "Hindi available ngayon ang Google sign-in. Gumamit ng ibang paraan ng pag-sign in.",
+    "providerUnavailable": "Hindi available ngayon ang {name} sign-in. Gumamit ng ibang paraan ng pag-sign in.",
     "google": "Google",
     "x": "X",
     "snapchat": "Snapchat",
