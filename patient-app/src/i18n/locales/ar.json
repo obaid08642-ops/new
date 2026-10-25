@@ -3792,6 +3792,7 @@
   "consult.hub.degree.specialist": "أخصائي",
   "consult.hub.degree.resident": "مقيم",
   "consult.hub.degree.general_practitioner": "طبيب عام",
+  "uploads.unavailable": "رفع الملفات غير متاح مؤقتًا. حاول لاحقًا.",
   "orders.emptyKindCurrent": "لا توجد طلبات حالية: {service}",
   "orders.emptyKindPrevious": "لا توجد طلبات سابقة: {service}",
   "orders.emptyKindBody": "لا شيء في هذه الخدمة بعد. اختر الكل لعرض باقي طلباتك."

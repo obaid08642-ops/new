@@ -3792,6 +3792,7 @@
   "consult.hub.degree.specialist": "Specialist",
   "consult.hub.degree.resident": "Resident",
   "consult.hub.degree.general_practitioner": "General practitioner",
+  "uploads.unavailable": "File uploads are temporarily unavailable. Try again later.",
   "orders.emptyKindCurrent": "No current orders: {service}",
   "orders.emptyKindPrevious": "No previous orders: {service}",
   "orders.emptyKindBody": "Nothing in this service yet. Choose All to see your other orders."

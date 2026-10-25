@@ -27,9 +27,12 @@ import { useInsuranceCatalog } from '../../../api/catalogs';
 import { SK, Vault } from '../../../security/Security';
 import { tokens, withAlpha } from '../../../theme/tokens';
 import { DrugSection } from './MedicalJobsScreen';
+import { useUploadsEnabled } from '../../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../../../components/UploadsUnavailable';
 
 
 export function DrugIndexDetail({ ctx }: any) {
+  const uploadsOn = useUploadsEnabled();
   const { theme, AR, show, insets, onBack, search, setSearch, selectedCat, setSelectedCat, selectedDrug, setSelectedDrug, drugDetail, setDrugDetail, detailLoading, setDetailLoading, drugs, categories, loading, scrollY, suggestOpen, setSuggestOpen, suggestTab, setSuggestTab, suggestForm, setSuggestForm, suggestNote, setSuggestNote, suggestImg, setSuggestImg, suggestBusy, setSuggestBusy, openSuggest, pickSuggestImage, submitSuggestFields, submitSuggestImage, SUGGEST_FIELD_DEFS } = ctx;
    const FactRow = ({ label, value }: { label: string; value?: any }) => {
      if (value === undefined || value === null || value === '') return null;
@@ -220,10 +223,12 @@ export function DrugIndexDetail({ ctx }: any) {
                  {suggestImg ? (
                    <View style={{ alignItems: 'center', gap: SP.sm }}>
                      <Image source={{ uri: suggestImg.uri }} style={{ width: 180, height: 180, borderRadius: R.md, backgroundColor: theme.surface2 }} resizeMode="contain" />
-                     <NBtn label={AR ? 'اختيار صورة أخرى' : 'Pick another image'} variant="outline" size="sm" icon="image" onPress={pickSuggestImage} full={false} />
+                     {uploadsOn ? (
+<NBtn label={AR ? 'اختيار صورة أخرى' : 'Pick another image'} variant="outline" size="sm" icon="image" onPress={pickSuggestImage} full={false} />
+) : null}
                    </View>
                  ) : (
-                   <NBtn label={AR ? 'اختيار صورة من الجهاز' : 'Pick image from device'} variant="outline" icon="image" onPress={pickSuggestImage} />
+                   (uploadsOn ? <NBtn label={AR ? 'اختيار صورة من الجهاز' : 'Pick image from device'} variant="outline" icon="image" onPress={pickSuggestImage} /> : <UploadsUnavailable />)
                  )}
                </View>
              )}

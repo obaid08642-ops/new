@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { ClamavService } from '../storage/clamav.service';
 
 /**
  * The Council of Health Insurance's own page for a beneficiary to look up their insurance (checked on chi.gov.sa on
@@ -23,7 +24,10 @@ export function chiInquiryUrl(env: Record<string, string | undefined> = process.
 
 @Injectable()
 export class ConfigService {
-  constructor(@InjectConnection() private readonly conn: Connection) {}
+  constructor(
+    @InjectConnection() private readonly conn: Connection,
+    private readonly clamav: ClamavService,
+  ) {}
 
   /**
    * Environment values provide the boot-safe baseline. Administrative flags
@@ -45,6 +49,9 @@ export class ConfigService {
       ].flatMap(([key, value]) => value === undefined ? [] : [[key, value === 'true']]),
     );
     featureFlags['video_calls'] = livekitReady;
+    // Public signal for every upload entry point (prescription, insurance card, chat photo, profile photo, nurse/lab files):
+    // false while the virus scanner cannot answer, so the clients hide the button instead of showing a form that fails.
+    featureFlags['uploads_enabled'] = await this.clamav.uploadsAvailable();
     const featureRollouts: Record<string, number> = {};
     try {
       const rows = await this.conn.collection('feature_flags').find({}).project({ _id: 0, key: 1, enabled: 1, rollout_percentage: 1 }).toArray();

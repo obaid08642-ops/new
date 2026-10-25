@@ -3792,6 +3792,7 @@
   "consult.hub.degree.specialist": "বিশেষজ্ঞ",
   "consult.hub.degree.resident": "রেসিডেন্ট",
   "consult.hub.degree.general_practitioner": "সাধারণ চিকিৎসক",
+  "uploads.unavailable": "ফাইল আপলোড সাময়িকভাবে অনুপলব্ধ। পরে আবার চেষ্টা করুন।",
   "orders.emptyKindCurrent": "কোনো চলমান অর্ডার নেই: {service}",
   "orders.emptyKindPrevious": "কোনো আগের অর্ডার নেই: {service}",
   "orders.emptyKindBody": "এই সেবায় এখনও কিছু নেই। আপনার অন্যান্য অর্ডার দেখতে সব বেছে নিন।"

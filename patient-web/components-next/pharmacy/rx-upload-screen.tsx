@@ -16,6 +16,7 @@ import { newIdempotencyKey } from "@/lib/pharmacy/broadcast";
 import { MAX_RX_FILE_BYTES, checkRxFile, ocrItems, postJsonWithProgress, prepareRxImage, uploadedPrescriptionId } from "@/lib/pharmacy/rx-upload";
 import { PHARMACY_TONE } from "./tones";
 import rx from "./rx.module.css";
+import { UploadsUnavailable, useUploadsEnabled } from "@/components-next/uploads/uploads-provider";
 
 type Failure = "type" | "size" | "read" | "unreadable" | "ocr" | "busy" | "save" | "session";
 type Phase =
@@ -34,6 +35,7 @@ const NOTE_MAX = 500;
  * progress shown are the real ones: what the server answered, and the bytes the browser has sent.
  */
 export function RxUploadScreen({ locale, via = "photo", before, after }: { locale: Locale; via?: "photo" | "upload"; before?: ReactNode; after?: ReactNode }) {
+  const uploadsEnabled = useUploadsEnabled();
   const t = useTranslations("RxUpload");
   const flow = useTranslations("PharmacyFlow");
   const router = useRouter();
@@ -149,6 +151,7 @@ export function RxUploadScreen({ locale, via = "photo", before, after }: { local
         <input ref={cameraRef} type="file" accept="image/*" capture="environment" hidden aria-label={t("cameraInput")} onChange={(event) => void pick(event)} />
         <input ref={photosRef} type="file" accept="image/*" hidden aria-label={t("photosInput")} onChange={(event) => void pick(event)} />
 
+        {!uploadsEnabled ? <UploadsUnavailable className={rx.dropHint} /> : (
         <section className={rx.drop}>
           <FIcon icon="prescription" tone={PHARMACY_TONE} size={72} />
           <h2 className={rx.dropTitle}>{t("dropTitle")}</h2>
@@ -158,6 +161,7 @@ export function RxUploadScreen({ locale, via = "photo", before, after }: { local
             {via === "upload" ? <Button label={t("photos")} startIcon="image" size="md" disabled={busy} onClick={() => photosRef.current?.click()} /> : null}
           </div>
         </section>
+        )}
 
         {image ? (
           <section aria-labelledby="rx-attachment">

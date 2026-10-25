@@ -26,8 +26,11 @@ import { resolveImageUri, resolveGallery } from '../../../utils/imageUrl';
 import { useInsuranceCatalog } from '../../../api/catalogs';
 import { SK, Vault } from '../../../security/Security';
 import { tokens, withAlpha } from '../../../theme/tokens';
+import { useUploadsEnabled } from '../../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../../../components/UploadsUnavailable';
 
 export function MediaConfigScreen({ onBack }: { onBack: () => void }) {
+  const uploadsOn = useUploadsEnabled();
  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
  // Real persisted clinic images (storage object ids) — loaded from profile,
  // changes go through the admin-approval delta pipeline.
@@ -139,7 +142,8 @@ export function MediaConfigScreen({ onBack }: { onBack: () => void }) {
  </View>
  ))}
 
- <TouchableOpacity
+ {uploadsOn ? (
+<TouchableOpacity
  onPress={handleAddPhoto}
  style={{
  width: '47%',
@@ -158,6 +162,7 @@ export function MediaConfigScreen({ onBack }: { onBack: () => void }) {
  {AR ? 'إضافة صورة' : 'Add Photo'}
  </Text>
  </TouchableOpacity>
+) : <UploadsUnavailable />}
  </View>
  </ScrollView>
  </View>
