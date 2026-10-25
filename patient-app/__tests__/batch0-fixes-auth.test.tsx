@@ -87,7 +87,8 @@ describe('Login (fix: skipAuth, identifier validation, session state, translated
     await type('login-password', 'secret12');
     await fireEvent.press(screen.getByTestId('login-submit'));
     expect(await screen.findByText('أدخل بريد إلكتروني أو هاتف صحيح')).toBeTruthy();
-    expect(rootApiFetch).not.toHaveBeenCalled();
+    // the screen reads the public social config on mount; nothing else (no login request) may have been sent
+    expect((rootApiFetch as jest.Mock).mock.calls.filter((c) => c[0] !== '/auth/social/config')).toEqual([]);
   });
 
   it('a wrong password shows the message in the app language, never the server\'s English', async () => {
