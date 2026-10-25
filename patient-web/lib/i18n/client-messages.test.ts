@@ -16,7 +16,7 @@ function sources(dir: string, out: string[] = []): string[] {
   return out;
 }
 
-const files = ["app", "components", "components-next", "lib"].flatMap((dir) => sources(join(root, dir)));
+const files = ["app", "components-next", "lib"].flatMap((dir) => sources(join(root, dir)));
 
 /** The project files a file imports (static, re-exports and dynamic import()), resolved like the bundler: `@/` and relative paths. */
 const importCache = new Map<string, string[]>();
