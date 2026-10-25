@@ -5,6 +5,8 @@ import { useTheme, useLang, useAuth, useToast } from '../../../context';
 import { NBtn, NCard, NInput, NHeader, NAvatar, NToggle, NSecHeader, NProfileImageUploader } from '../../../components/ui';
 import { I, IBg } from '../../../components/icons';
 import { SP, R, FS, FW, publicPageUrl } from '../../../constants';
+import { useUploadsEnabled } from '../../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../../../components/UploadsUnavailable';
 
 // One profile editor for every provider role. Same record, same calls for all:
 //   GET /provider/profile, PATCH /provider/profile (and the image calls inside NProfileImageUploader).
@@ -88,6 +90,7 @@ export function buildProfilePatch(base: ProfileForm, cur: ProfileForm, role: Pro
 }
 
 export function ProviderProfileEditor({ role, onBack, initialSection }: { role: ProfileEditorRole; onBack: () => void; initialSection?: ProfileSection }) {
+  const uploadsOn = useUploadsEnabled();
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const { user } = useAuth();
   const AR = lang === 'ar';
   const sections = SECTIONS_BY_ROLE[role];
@@ -195,10 +198,12 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
           <NSecHeader title={AR ? 'صور العيادة' : 'Clinic Images'} />
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View style={{ flexDirection: row, gap: SP.md }}>
-              <TouchableOpacity onPress={addClinicImage} style={{ width: 100, height: 100, borderRadius: R.md, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border, borderStyle: 'dashed' }}>
+              {uploadsOn ? (
+<TouchableOpacity onPress={addClinicImage} style={{ width: 100, height: 100, borderRadius: R.md, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border, borderStyle: 'dashed' }}>
                 <I name="plus" size={24} color={theme.primary} />
                 <Text style={{ fontSize: FS.xs, color: theme.primary, marginTop: SP.xs }}>{uploadingClinic ? (AR ? 'جارٍ الرفع…' : 'Uploading…') : (AR ? 'إضافة صورة' : 'Add Image')}</Text>
               </TouchableOpacity>
+) : <UploadsUnavailable />}
               {form.clinicImages.map((id) => (
                 <View key={id} style={{ width: 100, height: 100, borderRadius: R.md, backgroundColor: theme.surface2, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
                   <TouchableOpacity onPress={() => set('clinicImages', form.clinicImages.filter((x) => x !== id))} style={{ position: 'absolute', top: 4, right: 4, zIndex: 10, width: 24, height: 24, borderRadius: 12, backgroundColor: theme.danger, alignItems: 'center', justifyContent: 'center' }}>

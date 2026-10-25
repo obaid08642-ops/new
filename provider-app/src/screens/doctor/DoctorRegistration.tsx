@@ -22,6 +22,8 @@ import * as ImagePicker from 'expo-image-picker';
 import MapView, { Marker } from '../../components/PlatformMap';
 import { ProviderApi } from '../../api/provider';
 import { useInsuranceCatalog, useSpecialtiesCatalog } from '../../api/catalogs';
+import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../../components/UploadsUnavailable';
 
 const { width: W } = Dimensions.get('window');
 
@@ -413,6 +415,7 @@ function Step2KYC({ data, update, submitRef, uploads }: StepProps<DoctorRegData>
 
 // ══════════════════════════════════════════════════════════════════════════════
 function Step3Profile({ data, update, submitRef }: StepProps<DoctorRegData>) {
+  const uploadsOn = useUploadsEnabled();
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const specialties = useSpecialtiesCatalog();
   const [showRemoveBg, setShowRemoveBg] = useState(false);
@@ -438,9 +441,11 @@ function Step3Profile({ data, update, submitRef }: StepProps<DoctorRegData>) {
   return (
     <View>
       <View style={{ alignItems: 'center', marginBottom: SP.md }}>
-        <TouchableOpacity onPress={pickPhoto} style={{ width: 100, height: 100, borderRadius: 50, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderWidth: 2, borderColor: theme.primary }}>
+        {uploadsOn ? (
+<TouchableOpacity onPress={pickPhoto} style={{ width: 100, height: 100, borderRadius: 50, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderWidth: 2, borderColor: theme.primary }}>
           {data.profilePhotoUri ? <Image source={{ uri: data.profilePhotoUri }} style={{ width: 100, height: 100 }} /> : <I name="camera" size={32} color={theme.textSub} />}
         </TouchableOpacity>
+) : <UploadsUnavailable />}
         <Text style={{ fontSize: FS.sm, color: theme.primary, marginTop: SP.sm, fontWeight: FW.bold }}>{AR ? 'التقاط / اختيار صورة' : 'Take / Choose Photo'}</Text>
       </View>
       <View style={{ alignItems: 'center', marginBottom: SP.xl, paddingHorizontal: SP.md }}>
@@ -491,7 +496,8 @@ function Step3Profile({ data, update, submitRef }: StepProps<DoctorRegData>) {
           {AR ? 'صور العيادة (لغاية 5 صور)' : 'Clinic Images (up to 5)'}
         </Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: SP.sm, paddingVertical: SP.sm, flexDirection: AR ? 'row-reverse' : 'row' }}>
-          <TouchableOpacity onPress={async () => {
+          {uploadsOn ? (
+<TouchableOpacity onPress={async () => {
             let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: false, aspect: [4, 3], quality: 0.8, allowsMultipleSelection: true, selectionLimit: 5 });
             if (!result.canceled) {
               const uris = result.assets.map(a => a.uri);
@@ -500,6 +506,7 @@ function Step3Profile({ data, update, submitRef }: StepProps<DoctorRegData>) {
           }} style={{ width: 80, height: 80, borderRadius: R.md, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderStyle: 'dashed', borderColor: theme.primary }}>
             <I name="addPhotoAlternate" size={32} color={theme.primary} />
           </TouchableOpacity>
+) : <UploadsUnavailable />}
           {data.clinicImagesUris.map((uri: string, i: number) => (
             <View key={i} style={{ width: 80, height: 80, borderRadius: R.md, overflow: 'hidden' }}>
               <Image source={{ uri }} style={{ width: '100%', height: '100%' }} />

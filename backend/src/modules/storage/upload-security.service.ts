@@ -16,7 +16,7 @@
  * warning, so a missing scanner can never become the production behaviour.
  */
 import { BadRequestException, Injectable, Logger, Optional, ServiceUnavailableException } from '@nestjs/common';
-import { ClamavService } from './clamav.service';
+import { ClamavService, uploadScanRequired } from './clamav.service';
 
 export type Purpose = 'prescription' | 'avatar' | 'lab_report' | 'chat_attachment' | 'catalogue';
 
@@ -298,10 +298,7 @@ export class UploadSecurityService {
   }
 
   private scanRequired(): boolean {
-    const setting = (process.env.UPLOAD_SCAN || '').toLowerCase();
-    if (setting === 'required') return true;
-    if (setting === 'optional') return false;
-    return process.env.NODE_ENV === 'production';
+    return uploadScanRequired();
   }
 
   /**

@@ -64,6 +64,10 @@ export async function getSocialButtons(): Promise<SocialButtons> {
 /** Public home curation only: no credential is ever sent. */
 export const readHomeContent = () => readPublic("/content/home");
 export async function getPublicConfig(): Promise<any | null> { return (await readPublicConfig()).data; }
+/** features.uploads_enabled from GET /config; false only when the backend says so (an unreadable config fails open). */
+export async function getUploadsEnabled(): Promise<boolean> {
+  return (await getPublicConfig().catch(() => null))?.features?.uploads_enabled !== false;
+}
 export async function getHomeContent(): Promise<any | null> { return (await readHomeContent()).data; }
 
 /**

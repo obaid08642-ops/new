@@ -26,9 +26,12 @@ import { resolveImageUri, resolveGallery } from '../../../utils/imageUrl';
 import { useInsuranceCatalog } from '../../../api/catalogs';
 import { SK, Vault } from '../../../security/Security';
 import { tokens, withAlpha } from '../../../theme/tokens';
+import { useUploadsEnabled } from '../../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../../../components/UploadsUnavailable';
 
 
 export function MedicalJobsApplicant({ ctx }: any) {
+  const uploadsOn = useUploadsEnabled();
   const { theme, lang, AR, show, user, insets, onBack, onOpenChat, tab, setTab, postType, setPostType, search, setSearch, showFilters, setShowFilters, selectedJob, setSelectedJob, selectedApp, setSelectedApp, filterProf, setFilterProf, filterCity, setFilterCity, postTitle, setPostTitle, postProf, setPostProf, postClass, setPostClass, postContract, setPostContract, postNat, setPostNat, postExp, setPostExp, postDesc, setPostDesc, postContact, setPostContact, postPhone, setPostPhone, postCompany, setPostCompany, postSalary, setPostSalary, applyVisible, setApplyVisible, applyName, setApplyName, applyPhone, setApplyPhone, applyClass, setApplyClass, applyExp, setApplyExp, applyReady, setApplyReady, applyCV, setApplyCV, guestId, guestMine, isGuest, applyCvUrl, setApplyCvUrl, applyScfhs, setApplyScfhs, applyScfhsExp, setApplyScfhsExp, uploadingCV, setUploadingCV, jobs, loading, posting, postCity, setPostCity, applications, inboxLoading, filtered, handlePost, handleApply } = ctx;
     if (selectedJob && applyVisible) {
       return (
@@ -69,7 +72,8 @@ export function MedicalJobsApplicant({ ctx }: any) {
             </Text>
             <NInput label={AR ? 'رقم ترخيص الهيئة' : 'SCFHS license number'} value={applyScfhs} onChange={setApplyScfhs} />
             <NInput label={AR ? 'انتهاء الترخيص (YYYY-MM-DD)' : 'License expiry (YYYY-MM-DD)'} value={applyScfhsExp} onChange={setApplyScfhsExp} placeholder="2027-01-01" />
-            <TouchableOpacity onPress={async () => {
+            {uploadsOn ? (
+<TouchableOpacity onPress={async () => {
               try {
                 setUploadingCV(true);
                 const DocPicker: any = await import('expo-document-picker');
@@ -93,6 +97,7 @@ export function MedicalJobsApplicant({ ctx }: any) {
                 {uploadingCV ? (AR ? 'جارٍ الرفع…' : 'Uploading…') : applyCV ? (AR ? 'تم رفع الملف بنجاح' : 'File uploaded') : (AR ? 'اضغط لرفع ملف (PDF, Word, Image)' : 'Tap to upload (PDF, Word, Image)')}
               </Text>
             </TouchableOpacity>
+) : <UploadsUnavailable />}
 
             <NBtn label={AR ? 'إرسال الطلب (Submit)' : 'Submit Application'} onPress={handleApply} disabled={!applyName || !applyPhone || !applyCV} style={{ marginTop: SP.xl, backgroundColor: selectedJob.contact === 'whatsapp' ? tokens.success : theme.primary }} />
           </ScrollView>

@@ -28,6 +28,8 @@ import { SK, Vault } from '../../../security/Security';
 import { tokens, withAlpha } from '../../../theme/tokens';
 import { st } from './MedicalDrugIndexScreen';
 import { mapThreads, mapMessages } from '../../../utils/chatMap';
+import { useUploadsEnabled } from '../../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../../../components/UploadsUnavailable';
 
 export function ChatSystem({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
@@ -114,6 +116,7 @@ export function ChatSystem({ onBack }: { onBack: () => void }) {
 }
 
 function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
+  const uploadsOn = useUploadsEnabled();
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [msg, setMsg] = useState('');
   const [messages, setMessages] = useState<any[]>([]);
@@ -255,9 +258,11 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
 
  {/* Input bar */}
  <View style={[st.inputBar, { backgroundColor: theme.surface, borderTopColor: theme.border }]}>
- <TouchableOpacity onPress={() => setShowAttach(true)} style={{ padding: SP.sm }}>
+ {uploadsOn ? (
+<TouchableOpacity onPress={() => setShowAttach(true)} style={{ padding: SP.sm }}>
  <I name="plus" size={22} color={theme.primary} />
  </TouchableOpacity>
+) : null}
  <TextInput
  style={[st.chatInput, { backgroundColor: theme.surface2, color: theme.text, textAlign: AR ? 'right' : 'left' }]}
  placeholder={AR ? 'اكتب رسالة...' : 'Type a message...'}

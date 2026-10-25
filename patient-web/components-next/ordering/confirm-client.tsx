@@ -17,6 +17,7 @@ import { buildBookingRequest, DOC_MAX_CHARS, evidenceReady, orderCovers, parseSc
 import { CoverageChip, QuoteLoading } from "./quote-parts";
 import { useBasket } from "./use-basket";
 import styles from "./ordering.module.css";
+import { UploadsGate } from "@/components-next/uploads/uploads-provider";
 
 type Props = { locale: string; kind: ServiceKind; place: OrderMode; pay: Payer; orders: MedicalOrder[] | null; prep: Record<string, string[]> };
 type Doc = { filename: string; data: string };
@@ -235,10 +236,12 @@ export function ConfirmClient({ locale, kind, place, pay, orders, prep }: Props)
               ))}
             </div>
           ) : orders !== null ? <p className={styles.sub}>{t("payOrderNone")}</p> : null}
-          <label className={styles.sub}>
-            {t("payOrderFile")}
-            <input className={styles.fileInput} type="file" accept="image/*,application/pdf" onChange={(e) => onFile(e.target.files?.[0])} />
-          </label>
+          <UploadsGate className={styles.sub}>
+            <label className={styles.sub}>
+              {t("payOrderFile")}
+              <input className={styles.fileInput} type="file" accept="image/*,application/pdf" onChange={(e) => onFile(e.target.files?.[0])} />
+            </label>
+          </UploadsGate>
           {doc ? <p className={styles.sub}>{doc.filename} <button type="button" className={`${styles.linkBtn} ${styles.removeBtn}`} onClick={() => setDoc(null)}>{t("remove")}</button></p> : null}
           {docError ? <p className={styles.errorBox} role="alert">{docError}</p> : null}
           {!ready ? <p className={styles.sub}>{t("payOrderReq")}</p> : null}

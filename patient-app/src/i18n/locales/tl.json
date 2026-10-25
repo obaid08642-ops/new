@@ -3792,6 +3792,7 @@
   "consult.hub.degree.specialist": "Espesyalista",
   "consult.hub.degree.resident": "Residente",
   "consult.hub.degree.general_practitioner": "Pangkalahatang manggagamot",
+  "uploads.unavailable": "Pansamantalang hindi available ang pag-upload ng file. Subukan muli mamaya.",
   "orders.emptyKindCurrent": "Walang kasalukuyang order: {service}",
   "orders.emptyKindPrevious": "Walang nakaraang order: {service}",
   "orders.emptyKindBody": "Wala pa sa serbisyong ito. Piliin ang Lahat para makita ang iba mong order."

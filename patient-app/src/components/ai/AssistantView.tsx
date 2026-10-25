@@ -13,6 +13,8 @@ import { BOOK_NOW_HREF } from '../../utils/consultNearby';
 import { pickLocalized } from '../../utils/localize';
 import { i18nManager } from '../../i18n/LanguageManager';
 import { AI_HOME, AnswerCard, MyBubble } from './AssistantKit';
+import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../UploadsUnavailable';
 
 /**
  * The one assistant (merge map section 4, owner decision 7): three modes in the route (`?mode=symptoms|prescription|report`).
@@ -192,6 +194,7 @@ function PrescriptionMode() {
     }
   };
 
+  const uploadsOn = useUploadsEnabled();
   const pick = async (camera: boolean) => {
     try {
       const permission = camera ? await ImagePicker.requestCameraPermissionsAsync() : await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -212,10 +215,12 @@ function PrescriptionMode() {
     <>
       <Notice text={k('ai.rx.notice')} />
       {error ? <Notice tone="danger" text={error} testID="assistant-error" /> : null}
+      {uploadsOn ? (
       <View style={{ gap: 10 }}>
         <CardAction label={busy ? k('ai.rx.reading') : k('ai.rx.camera')} onPress={() => { if (!busy) void pick(true); }} testID="assistant-camera" />
         <CardAction label={k('ai.rx.gallery')} tone="outline" onPress={() => { if (!busy) void pick(false); }} testID="assistant-gallery" />
       </View>
+      ) : <UploadsUnavailable />}
       {meds ? (
         <>
           <Section title={k('ai.rx.medicines', { n: meds.length })}>

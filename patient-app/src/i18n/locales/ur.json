@@ -3792,6 +3792,7 @@
   "consult.hub.degree.specialist": "ماہر",
   "consult.hub.degree.resident": "ریزیڈنٹ",
   "consult.hub.degree.general_practitioner": "جنرل پریکٹیشنر",
+  "uploads.unavailable": "فائل اپ لوڈ فی الحال دستیاب نہیں ہے۔ بعد میں دوبارہ کوشش کریں۔",
   "orders.emptyKindCurrent": "کوئی موجودہ آرڈر نہیں: {service}",
   "orders.emptyKindPrevious": "کوئی پچھلا آرڈر نہیں: {service}",
   "orders.emptyKindBody": "اس سروس میں ابھی کچھ نہیں۔ باقی آرڈر دیکھنے کے لیے سب منتخب کریں۔"

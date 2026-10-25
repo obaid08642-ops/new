@@ -6,6 +6,8 @@ import { SignatureCanvasModal } from '../../components/SignatureCanvasModal';
 import { useTheme, useLang, useToast } from '../../context';
 import { FS, FW, SP } from '../../constants';
 import { MAX_VISIT_FILES, PickedVisitFile, buildVisitReportBody, pickVisitFile, uploadVisitFiles } from './visitFiles';
+import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../../components/UploadsUnavailable';
 
 /**
  * THE single home-visit flow of the nursing app. Every entry point (home cards, quick actions, orders tab, checklist)
@@ -20,6 +22,7 @@ interface NursingVisitSummary {
 }
 
 export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { order: NursingVisitSummary | null | undefined, onBack: () => void, onRefresh: () => void, onNavigate?: (s: string, p?: unknown) => void }) {
+  const uploadsOn = useUploadsEnabled();
   const { theme } = useTheme();
   const { lang } = useLang();
   const { show } = useToast();
@@ -232,13 +235,13 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
                   </View>
                 ))}
                 {files.length < MAX_VISIT_FILES ? (
-                  <NBtn label={AR ? 'إرفاق ملف (PDF أو صورة)' : 'Attach a file (PDF or image)'} variant="outline" disabled={busy}
+                  (uploadsOn ? <NBtn label={AR ? 'إرفاق ملف (PDF أو صورة)' : 'Attach a file (PDF or image)'} variant="outline" disabled={busy}
                     onPress={async () => {
                       try {
                         const f = await pickVisitFile();
                         if (f) setFiles((cur) => [...cur, f].slice(0, MAX_VISIT_FILES));
                       } catch { show(AR ? 'تعذر اختيار الملف' : 'Could not pick the file', 'error'); }
-                    }} />
+                    }} /> : <UploadsUnavailable />)
                 ) : (
                   <Text style={{ color: theme.textSub, fontSize: FS.xs }}>{AR ? 'الحد الأقصى 10 ملفات' : 'Maximum 10 files'}</Text>
                 )}

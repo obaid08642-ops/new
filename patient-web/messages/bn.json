@@ -1,5 +1,6 @@
 {
   "Shared": {
+    "uploadsUnavailable": "ফাইল আপলোড সাময়িকভাবে বন্ধ আছে। পরে আবার চেষ্টা করুন।",
     "brand": "নাবদ প্লাস",
     "patientSignIn": "রোগীর সাইন ইন",
     "language": "ভাষা",
