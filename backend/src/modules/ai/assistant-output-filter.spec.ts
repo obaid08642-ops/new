@@ -165,8 +165,8 @@ describe('OD-15 on the assistant answer', () => {
   });
 
   it('a leaflet with nothing safe left becomes the "consult a doctor" answer with the button and the disclaimer', async () => {
-    const bad: any = { id: 'b', name_en: 'Panadol', warnings_en: ['Take 2 tablets daily'] };
-    const a: any = await serviceFor([bad]).assist('u1', { message: 'Panadol', locale: 'en' });
+    const bad: any = { id: 'b', name_en: 'Panadol', warnings_en: ['Do not combine with Ibuprofen'] };
+    const a: any = await serviceFor([bad, ibuprofen]).assist('u1', { message: 'Panadol', locale: 'en' });
     expect(a.kind).toBe('out_of_scope');
     expect(a.text).toBe(SAFE_TEXT.en);
     expect(a.actions).toEqual([{ type: 'book_consultation', specialty: 'general_practice' }]);

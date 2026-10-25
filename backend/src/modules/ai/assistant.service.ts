@@ -236,7 +236,8 @@ export class AssistantService {
         if (ok.length === parts.length) kept[k] = v;
         else if (ok.length && Array.isArray(v)) kept[k] = ok;
       }
-      if (!Object.keys(kept).length) return replace();
+      // a leaflet that had nothing to begin with stays as it was; one whose every field was dropped becomes the safe answer
+      if (!Object.keys(kept).length && Object.keys(answer.leaflet).length) return replace();
       return { ...answer, leaflet: kept };
     }
     return answer;
