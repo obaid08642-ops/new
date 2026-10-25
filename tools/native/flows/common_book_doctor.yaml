@@ -33,6 +33,9 @@ appId: com.patient.nabd
       id: "slot-.*"
     timeout: 30000
 # the seed already booked the first slots of tomorrow; SLOT picks a later one (each flow its own)
+- scrollUntilVisible:
+    element:
+      id: "slot-${SLOT}"
 - tapOn:
     id: "slot-${SLOT}"
 - tapOn:

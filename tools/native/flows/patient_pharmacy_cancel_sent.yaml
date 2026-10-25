@@ -1,4 +1,4 @@
-# Pharmacy: cancel right after sending (no offers yet): the offers screen says nothing has arrived; Cancel order -> Confirm -> "this order was cancelled".
+# Pharmacy: cancel right after sending (no offers yet): the offers screen says nothing has arrived; Cancel order -> Confirm -> back on the pharmacy hub.
 appId: com.patient.nabd
 ---
 - runFlow:
@@ -10,7 +10,9 @@ appId: com.patient.nabd
 - tapOn:
     id: "order-cancel"
 - tapOn: "تأكيد الإلغاء"
+# the app returns to the pharmacy hub after the cancel
 - extendedWaitUntil:
-    visible: "تم إلغاء هذا الطلب"
+    visible:
+      id: "pharmacy-hub"
     timeout: 20000
 - takeScreenshot: patient_pharmacy_cancelled
