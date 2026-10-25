@@ -24,7 +24,7 @@ if [ "$TARGET" = patient ]; then
   TAG="patient_${ARG/\//of}"
 else
   # the pharmacy that stocks the seeded medicines (and is online) is the one the pharmacy flows sign in as
-  KEY="$ARG"; [ "$ARG" = pharmacy ] && KEY=pharmacy_stock
+  KEY="$ARG"; [ "$ARG" = pharmacy ] && KEY=pharmacy_stock; [ "$ARG" = doctor ] && KEY=doctor_slots
   EMAIL=$(python3 -c "import json;a=json.load(open('$ACC'))['providers'];print((a.get('$KEY') or a.get('$ARG') or {}).get('email',''))"); PASS=$(python3 -c "import json;a=json.load(open('$ACC'))['providers'];print((a.get('$KEY') or a.get('$ARG') or {}).get('password',''))")
   TAG="provider_$ARG"
 fi

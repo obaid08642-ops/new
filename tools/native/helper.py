@@ -73,6 +73,28 @@ def patient_order():
     return {'ok': bool(r.ok), 'order_id': oid, 'token': p['token'], 'email': p['email'], 'password': p['password']}
 
 
+def doctor_appointment():
+    """A new patient books the seeded doctor (clinic visit tomorrow, cash), as the patient app does; the provider flow then finds it in the doctor app."""
+    import j_accounts, uuid, datetime
+    doc = provider('doctor_slots')
+    did = doc.get('/provider-onboarding/my-profile').get('id') or doc.get('/provider/me').get('account', 'id')
+    p = j_accounts.app_signup(label='native-booker')
+    me = lib.Client(p['token'], 'patient')
+    day = (datetime.date.today() + datetime.timedelta(days=1)).isoformat()
+    r = me.get(f'/care/doctors/{did}/slots?date={day}&service_type=clinic')
+    slots = r.body if isinstance(r.body, list) else (r.get('slots') or r.items())
+    free = [x for x in slots if (x.get('available', True) if isinstance(x, dict) else True)]
+    if not free:
+        return {'ok': False, 'detail': 'no free slot tomorrow: ' + str(r)}
+    s0 = free[0]
+    slot = (s0.get('start') or s0.get('slot_start') or s0.get('time')) if isinstance(s0, dict) else s0
+    lock = me.post('/slot-locks/reserve', {'provider_id': did, 'booking_kind': 'consultation', 'slot_start': slot}).get('id')
+    r = me.post('/care/appointments', {'doctor_id': did, 'service_type': 'clinic', 'slot_start': slot, 'payment_method': 'cash', 'slot_lock_id': lock},
+                headers={'Idempotency-Key': f'appointment-create-{did}-{slot}-{uuid.uuid4()}'})
+    aid = r.get('id')
+    return {'ok': bool(aid), 'appointment_id': aid, 'token': p['token'], 'detail': '' if aid else str(r)}
+
+
 def otp(to, since):
     return lib.mail_code(to, since, timeout=25)
 
@@ -112,6 +134,8 @@ class H(BaseHTTPRequestHandler):
                 return self._send(200, {'email': p['email'], 'phone': p['phone'], 'password': p['password'], 'name': 'اختبار native-extra'})
             if u.path == '/meds':
                 return self._send(200, accounts().get('meds', []))
+            if u.path == '/doctor/appointment':
+                return self._send(200, doctor_appointment())
             if u.path == '/pharmacy/order':
                 return self._send(200, patient_order())
             if u.path == '/pharmacy/offer':

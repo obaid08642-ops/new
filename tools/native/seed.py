@@ -18,7 +18,7 @@ OUT = sys.argv[1] if len(sys.argv) > 1 else '/tmp/native/accounts.json'
 JOURNEYS = ['pharmacy', 'consultation', 'lab', 'radiology', 'nursing', 'facility', 'chat', 'returns', 'loyalty']   # j_ambulance no longer exists: the provider types the journeys miss are registered below
 SHARED = {'consult-patient', 'buyer', 'lab-patient', 'rad-patient', 'nursing-patient', 'insured-patient', 'loyal',
           'support-patient', 'chat-patient', 'returner'}
-state = {'patient': None, 'providers': {}, 'meds': []}
+state = {'patient': None, 'providers': {}, 'meds': [], 'tok': {}}
 
 _signup = j_accounts.app_signup
 
@@ -38,6 +38,7 @@ def provider_after_approval(prov):
     tok = _after(prov)
     if tok:
         state['providers'][prov['type']] = {'email': prov['email'], 'password': prov['password']}
+        state['tok'][tok] = {'email': prov['email'], 'password': prov['password']}
     return tok
 
 
@@ -53,6 +54,8 @@ def post(self, path, body=None, *a, **k):
         state['meds'].append({'id': r.get('id'), 'name_ar': body.get('name_ar'), 'name_en': body.get('name_en')})
         if 'pharmacy' in state['providers'] and 'pharmacy_stock' not in state['providers']:
             state['providers']['pharmacy_stock'] = dict(state['providers']['pharmacy'])
+    if path == '/provider/schedule-slots' and self.token in state['tok'] and 'doctor_slots' not in state['providers']:
+        state['providers']['doctor_slots'] = dict(state['tok'][self.token])   # the doctor who published clinic hours: patients can book them
     return r
 
 

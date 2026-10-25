@@ -1,0 +1,10 @@
+# Doctor (provider app): a patient's clinic booking (made by the API) shows up after sign-in.
+appId: com.nabd.provider
+---
+- runScript:
+    file: scripts/doctor_appointment.js
+- runFlow: common_provider_login.yaml
+- extendedWaitUntil:
+    visible: ".*(قبول|Accept|المواعيد|Appointments|مواعيد).*"
+    timeout: 90000
+- takeScreenshot: provider_doctor_dashboard
