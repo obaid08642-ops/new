@@ -169,3 +169,10 @@
 |---|---|
 | `TURN_REALM` / `COTURN_REALM` | نطاق المصادقة (يطابق realm في turnserver.conf) |
 | `TURN_URLS` | تجاوز كامل لقائمة ICE URLs (مفصولة بفواصل) |
+
+### وضع العنقود (Cluster) — معطّل افتراضيًا
+| المتغير | الوصف |
+|---|---|
+| `CLUSTER_WORKERS` | عدد عمّال الـAPI. **الافتراضي 1 = عملية واحدة** كما في الإنتاج اليوم. لا يتجاوز عدد الأنوية ولا 8. يعمل فقط في الإنتاج مع `PROCESS_ROLE=api` وبوجود ذاكرة حرة كافية؛ يقرّر المالك تفعيله مع ترقية الذاكرة (`docs/perf/CLUSTER_MODE.md`) |
+| `CLUSTER_MODE` | `false` يفرض عملية واحدة مهما كان `CLUSTER_WORKERS` (لا تعني "true" تفعيلًا بعد الآن) |
+| `CLUSTER_WORKER_RAM_MB` / `CLUSTER_RESERVED_RAM_MB` | ذاكرة كل عامل (افتراضي تخطيطي 700، يُستبدل بالقياس) والذاكرة المحجوزة لـMongoDB وRedis وMeilisearch (1536) لحارس الذاكرة |
