@@ -69,7 +69,7 @@ describe('LiveKitService with the P2P flag', () => {
     expect(r.transport).toBe('p2p');
     expect(r.token).toBeNull();
     expect(r.ice_servers).toHaveLength(2);
-    expect(r.ice_servers[1].username).toMatch(/^\d+:call_/);
+    expect(r.ice_servers[1].username).toMatch(/^\d+:[0-9a-f-]{36}$/);
     expect(r.ice_servers[1].username).not.toContain('patient-1');
     expect(JSON.stringify(r.ice_servers)).not.toContain('turn-secret');
     expect(sessions.insertOne.mock.calls[0][0].transport).toBe('p2p');
