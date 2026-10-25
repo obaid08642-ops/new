@@ -98,3 +98,12 @@ Per-screen scan (every element, sizes 390/768/1280, six languages, dark mode) is
 
 - Each DONE row needs the DB proof (collection, document id, fields) recorded in the evidence column.
 - Provider and admin sides of each scenario are checked at the same moment (status sync) once the patient side is DONE.
+
+## Stop point (update every turn)
+
+- Static patient-web routes (anonymous, 390 and 1280): 141 of 141 swept. Table: docs/qa/screens/patient-web-static.md. Defects: docs/qa/findings/web-sweep-static.md.
+- Auth-gated patient-web routes (signed in as the QA patient, 390 and 1280): sweep running, 72 routes, see /tmp/claude-0-scratch/sweep_auth.jsonl. Results still to be written to docs/qa/screens/patient-web-auth.md.
+- Dynamic patient-web routes (53, need seeded IDs): not started.
+- Admin screens: not started.
+- Scenarios: see the counts above. Next after the signed-in sweep: admin screens, then the TODO scenarios with DB proof.
+- Re-test on main: hydration P1 fixed; insurance copay fixed; guest job publish still open.
