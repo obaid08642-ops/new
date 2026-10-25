@@ -129,7 +129,7 @@ export class FamilyService {
 
   async generateInvite(userId: string) {
     const group = await this.groupM.findOne({ owner_id: userId, is_deleted: { $ne: true } }).lean();
-    if (!group) throw new NotFoundException('You must be the group owner');
+    if (!group) throw new ForbiddenException('You must be the group owner');
     const code = this.generateInviteCode();
     const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
     await this.groupM.updateOne({ id: (group as any).id }, { invite_code: code, invite_expires_at: expires });
