@@ -72,6 +72,8 @@ import {
 // PHARMACY DASHBOARD NAVIGATOR
 // ══════════════════════════════════════════════════════════════════════════════
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../../components/UploadsUnavailable';
 const Stack = createNativeStackNavigator();
 
 export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
@@ -414,6 +416,7 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab, onToggleOnline }: any) {
 
 
 function B2BSupplyRequestScreen({ onBack }: any) {
+  const uploadsOn = useUploadsEnabled();
   const { theme } = useTheme();
   const { lang } = useLang();
   const { show } = useToast();
@@ -572,7 +575,9 @@ function B2BSupplyRequestScreen({ onBack }: any) {
                     {AR ? 'قم بتوجيه الكاميرا نحو الرف أو الفاتورة لاستخراج النواقص تلقائياً' : 'Point camera at shelf or invoice to extract shortages automatically'}
                   </Text>
                 </View>
-                <NBtn label={AR ? 'اختيار صورة الرف/الفاتورة وتحليلها' : 'Pick shelf/invoice photo & analyze'} onPress={() => submitB2B('ocr')} />
+                {uploadsOn ? (
+<NBtn label={AR ? 'اختيار صورة الرف/الفاتورة وتحليلها' : 'Pick shelf/invoice photo & analyze'} onPress={() => submitB2B('ocr')} />
+) : <UploadsUnavailable />}
               </View>
             )}
 

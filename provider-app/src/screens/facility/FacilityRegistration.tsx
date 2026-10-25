@@ -18,6 +18,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { ProviderApi } from '../../api/provider';
 import { useInsuranceCatalog, useServicesCatalog, useSpecialtiesCatalog } from '../../api/catalogs';
 import { tokens, withAlpha } from '../../theme/tokens';
+import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../../components/UploadsUnavailable';
 
 const { width: W } = Dimensions.get('window');
 
@@ -232,6 +234,7 @@ function Step1Basic({ data, update, submitRef }: StepProps<FacilityRegData>) {
 
 // ══════════════════════════════════════════════════════════════════════════════
 function Step2Legal({ data, update, submitRef }: StepProps<FacilityRegData>) {
+  const uploadsOn = useUploadsEnabled();
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   
   const pick = useDocumentPicker<FacilityRegData>(update);
@@ -254,7 +257,8 @@ return (
           {AR ? 'صور المنشأة (لغاية 5 صور)' : 'Facility Images (up to 5)'}
         </Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: SP.sm, paddingVertical: SP.sm, flexDirection: AR ? 'row-reverse' : 'row' }}>
-          <TouchableOpacity onPress={async () => {
+          {uploadsOn ? (
+<TouchableOpacity onPress={async () => {
             let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: false, aspect: [4, 3], quality: 0.8, allowsMultipleSelection: true, selectionLimit: 5 });
             if (!result.canceled) {
               const uris = result.assets.map(a => a.uri);
@@ -263,6 +267,7 @@ return (
           }} style={{ width: 80, height: 80, borderRadius: R.md, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderStyle: 'dashed', borderColor: theme.primary }}>
             <I name="addPhotoAlternate" size={32} color={theme.primary} />
           </TouchableOpacity>
+) : <UploadsUnavailable />}
           {(data.facilityImagesUris||[]).map((uri: string, i: number) => (
             <View key={i} style={{ width: 80, height: 80, borderRadius: R.md, overflow: 'hidden' }}>
               <Image source={{ uri }} style={{ width: '100%', height: '100%' }} />
@@ -376,6 +381,7 @@ function Step3Location({ data, update, submitRef, uploads }: StepProps<FacilityR
 
 // ══════════════════════════════════════════════════════════════════════════════
 function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegData>) {
+  const uploadsOn = useUploadsEnabled();
   useStepSaver(submitRef, () => true);
  const labCatalog = useServicesCatalog('lab');
  const radCatalog = useServicesCatalog('radiology');
@@ -771,7 +777,8 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
                 {AR ? 'صور العيادة/المكان (لغاية 5 صور)' : 'Clinic/Location Images (up to 5)'}
               </Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: SP.sm, paddingVertical: SP.sm, flexDirection: AR ? 'row-reverse' : 'row' }}>
-                <TouchableOpacity onPress={async () => {
+                {uploadsOn ? (
+<TouchableOpacity onPress={async () => {
                   let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: false, aspect: [4, 3], quality: 0.8, allowsMultipleSelection: true, selectionLimit: 5 });
                   if (!result.canceled) {
                     const uris = result.assets.map(a => a.uri);
@@ -780,6 +787,7 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
                 }} style={{ width: 80, height: 80, borderRadius: R.md, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderStyle: 'dashed', borderColor: theme.primary }}>
                   <I name="addPhotoAlternate" size={32} color={theme.primary} />
                 </TouchableOpacity>
+) : <UploadsUnavailable />}
                 {(tempSub.clinicImagesUris||[]).map((uri: string, i: number) => (
                   <View key={i} style={{ width: 80, height: 80, borderRadius: R.md, overflow: 'hidden' }}>
                     <Image source={{ uri }} style={{ width: '100%', height: '100%' }} />

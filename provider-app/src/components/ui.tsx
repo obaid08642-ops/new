@@ -16,6 +16,8 @@ import { I, hasIcon } from './icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import client from '../api/client';
+import { useUploadsEnabled } from '../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from 'UploadsUnavailable';
 
 // DEVICE_STANDARD §3: layout reads the live window (rotation, split-screen, foldables) through
 // useWindowDimensions inside each component, never a module-level Dimensions.get snapshot.
@@ -857,6 +859,7 @@ export function NImageOptimizerWebView({ visible, onClose }: { visible: boolean;
 }
 
 export function NProfileImageUploader({
+  const uploadsOn = useUploadsEnabled();
  currentImageId,
  onImageUploaded,
  onProcessComplete,
@@ -1034,9 +1037,11 @@ export function NProfileImageUploader({
  </Text>
  
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md, alignItems: 'center' }}>
- <TouchableOpacity onPress={pickImage} style={[st.actionBtn, { backgroundColor: theme.primary }]}>
+ {uploadsOn ? (
+<TouchableOpacity onPress={pickImage} style={[st.actionBtn, { backgroundColor: theme.primary }]}>
  <Text style={st.actionBtnTxt}> {AR ? 'تحميل صورة' : 'Upload Photo'}</Text>
  </TouchableOpacity>
+) : <UploadsUnavailable />}
  
  <TouchableOpacity onPress={() => setShowWebView(true)} style={[st.actionBtn, { backgroundColor: theme.surface2, borderColor: theme.border, borderWidth: 1 }]}>
  <Text style={[st.actionBtnTxt, { color: theme.text }]}> {AR ? 'تحسين الصورة' : 'Improve Photo'}</Text>

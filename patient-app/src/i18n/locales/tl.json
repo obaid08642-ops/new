@@ -3791,5 +3791,6 @@
   "consult.hub.degree.senior_specialist": "Senior na espesyalista",
   "consult.hub.degree.specialist": "Espesyalista",
   "consult.hub.degree.resident": "Residente",
-  "consult.hub.degree.general_practitioner": "Pangkalahatang manggagamot"
+  "consult.hub.degree.general_practitioner": "Pangkalahatang manggagamot",
+  "uploads.unavailable": "Pansamantalang hindi available ang pag-upload ng file. Subukan muli mamaya."
 }

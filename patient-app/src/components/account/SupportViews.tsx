@@ -11,6 +11,8 @@ import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { AccountScreen } from './AccountKit';
+import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../UploadsUnavailable';
 
 /**
  * Support (flow screens, merge map section 8): the chat with the support team (GET and POST /support/chat; a photo is uploaded with
@@ -60,6 +62,7 @@ export function SupportChatView() {
     }
   };
 
+  const uploadsOn = useUploadsEnabled();
   const attach = async () => {
     setAttaching(true);
     setFailed(null);
@@ -98,8 +101,8 @@ export function SupportChatView() {
       empty={{ title: k('support.chat.emptyTitle'), body: k('support.chat.emptyBody') }}
       composer={{ value: draft, onChange: setDraft, onSend: () => void send(draft), sending, placeholder: k('support.chat.placeholder'), sendLabel: k('support.chat.send') }}
       quickReplies={QUICK.map((code) => ({ label: k(`support.chat.quick.${code}`), onPress: () => void send(k(`support.chat.quick.${code}`)) }))}
-      attach={{ label: k('support.chat.photo'), onPress: () => void attach(), busy: attaching }}
-      notice={failed ? <Notice tone="danger" text={failed} /> : undefined}
+      attach={uploadsOn ? { label: k('support.chat.photo'), onPress: () => void attach(), busy: attaching } : undefined}
+      notice={failed ? <Notice tone="danger" text={failed} /> : !uploadsOn ? <UploadsUnavailable /> : undefined}
       testID="support-chat-screen"
     />
   );

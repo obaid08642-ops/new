@@ -3791,5 +3791,6 @@
   "consult.hub.degree.senior_specialist": "أخصائي أول",
   "consult.hub.degree.specialist": "أخصائي",
   "consult.hub.degree.resident": "مقيم",
-  "consult.hub.degree.general_practitioner": "طبيب عام"
+  "consult.hub.degree.general_practitioner": "طبيب عام",
+  "uploads.unavailable": "رفع الملفات غير متاح مؤقتًا. حاول لاحقًا."
 }
