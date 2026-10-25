@@ -66,12 +66,13 @@ export function Marker({ coordinate, children }: { coordinate: { latitude: numbe
 let circleSeq = 0;
 /** A translucent disc of `radius` metres (the delivery / coverage radius). */
 export function Circle({ center, radius, strokeColor, fillColor }: { center: { latitude: number; longitude: number }; radius: number; strokeColor?: string; fillColor?: string }) {
+  const { theme } = useTheme();
   const id = useRef(`circle-${(circleSeq += 1)}`).current;
   const data = React.useMemo(() => circlePolygon(center, radius), [center.latitude, center.longitude, radius]);
   return (
     <GeoJSONSource id={id} data={data}>
-      <Layer id={`${id}-fill`} type="fill" source={id} paint={{ 'fill-color': fillColor ?? 'rgba(0,0,0,0.15)' }} />
-      <Layer id={`${id}-line`} type="line" source={id} paint={{ 'line-color': strokeColor ?? '#000000', 'line-width': 2 }} />
+      <Layer id={`${id}-fill`} type="fill" source={id} paint={{ 'fill-color': fillColor ?? theme.primary, 'fill-opacity': fillColor ? 1 : 0.15 }} />
+      <Layer id={`${id}-line`} type="line" source={id} paint={{ 'line-color': strokeColor ?? theme.primary, 'line-width': 2 }} />
     </GeoJSONSource>
   );
 }
