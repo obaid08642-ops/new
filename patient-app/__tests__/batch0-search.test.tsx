@@ -10,6 +10,8 @@ import { blocksFor, countByFilter, fromGrouped, routeFor } from '../src/utils/se
 
 const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn(), canGoBack: jest.fn(() => true) };
 let mockParams: Record<string, string> = {};
+jest.mock('react-native-localize', () => ({ getLocales: () => [{ languageCode: 'ar' }], getCalendar: () => 'gregorian' }));
+jest.mock('../src/context/CartContext', () => ({ useCart: () => ({ itemCount: 0 }) })); // the header's cart button reads the count (the app wraps every screen in CartProvider)
 jest.mock('expo-router', () => ({
   get router() {
     return mockRouter;
