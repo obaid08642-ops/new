@@ -472,9 +472,6 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'notif.challenge_completed.title': { ar: 'أكملت التحدي!', en: 'Challenge completed!', ur: 'چیلنج مکمل!' },
   'notif.challenge_completed.body': { ar: 'أحسنت! كسبت {points} نقطة إضافية', en: 'Well done! You earned {points} extra points', ur: 'شاباش!' },
 
-  // ============ EPIC4/S20: COMMUNITY NOTIFICATIONS ============
-  'notif.community_reply.title': { ar: 'رد جديد على منشورك', en: 'New reply to your post', ur: 'نیا جواب' },
-  'notif.community_reply.body': { ar: 'علّق أحد الأعضاء على منشورك في المجتمع', en: 'A member commented on your community post', ur: 'تبصرہ' },
 
   // ============ EPIC5/S3: INSURANCE / FINANCE / PAYMENT NOTIFICATIONS ============
   'notif.insurance_approved.title': { ar: 'تمت الموافقة على التأمين', en: 'Insurance approved', ur: 'انشورنس منظور' },
