@@ -91,6 +91,50 @@ if 'pharmacy' not in state['providers'] or len(state['providers']) < 1 + len(j_o
         j_onboarding.admin_review(admin, p)
         provider_after_approval(p)
 
+# The lab and the imaging centre of the journeys also declare their prices for the ordering engine (the basket, the six-step screens ask POST /ordering/quote):
+# without a priced provider the basket cannot offer one. Same calls as j_ordering_engine.py (PUT /provider/ordering/settings and /items).
+def declare_ordering(key, kind, service_path, n):
+    acc = state['providers'].get(key)
+    if not acc:
+        print('ordering prices: no', key); return
+    tok = lib.Client().post('/provider/auth/login', {'email': acc['email'], 'password': acc['password']}).get('access_token')
+    prov = lib.Client(tok, key)
+    r = prov.put('/provider/ordering/settings', {'modes': ['home', 'facility'], 'home_fee': 25, 'home_radius_km': 50, 'auto_accept': False, 'walk_in': False})
+    print('ordering settings', key, r.status)
+    for svc in lib.Client(tok, key).get(service_path).items()[:n]:
+        r = prov.put('/provider/ordering/items', {'service_kind': kind, 'catalog_id': svc['id'], 'prices': {'home': 80, 'facility': 55}})
+        print('ordering item', key, svc.get('id'), r.status)
+
+
+def nurse_hours():
+    """The nurse of the journeys works every day 08:00-18:00 (the patient app lists her free times per day: GET /home-care/providers/:id/slots); the admin approves the change."""
+    acc = state['providers'].get('home_care_stock')
+    if not acc:
+        print('nurse hours: no home_care_stock'); return
+    import j_admin
+    admin, _ = j_admin.login()
+    tok = lib.Client().post('/provider/auth/login', {'email': acc['email'], 'password': acc['password']}).get('access_token')
+    nurse = lib.Client(tok, 'nurse')
+    for dow in range(7):
+        for st in ('home', 'home_nursing'):
+            r = nurse.post('/provider/schedule-slots', {'day_of_week': dow, 'start_time': '08:00', 'end_time': '18:00', 'service_type': st})
+            print('nurse hours', dow, st, r.status)
+    pend = [x for x in admin.get('/admin/admin/providers/provider-deltas').items() if x.get('status') == 'pending']
+    for x in pend:
+        admin.post(f"/admin/admin/providers/provider-deltas/{x['id']}/approve", {'reason': 'ساعات الزيارات معتمدة'})
+    print('nurse hours: approved', len(pend), 'changes')
+
+
+try:
+    nurse_hours()
+except Exception:
+    traceback.print_exc()
+try:
+    declare_ordering('lab_stock', 'lab', '/labs/services', 8)
+    declare_ordering('radiology_stock', 'radiology', '/radiology/services', 4)
+except Exception:
+    traceback.print_exc()
+
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 p = state['patient'] or _signup(label='native')
 json.dump({'patient': {'email': p['email'], 'password': p['password']}, 'providers': state['providers'], 'meds': state['meds']}, open(OUT, 'w'), indent=1)

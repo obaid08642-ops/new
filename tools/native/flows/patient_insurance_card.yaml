@@ -67,6 +67,8 @@ appId: com.patient.nabd
 - eraseText: 20
 - inputText: "POL999888"
 - hideKeyboard
+- scrollUntilVisible:
+    element: "حفظ"
 - tapOn: "حفظ"
 - extendedWaitUntil:
     visible: ".*POL999888.*"
