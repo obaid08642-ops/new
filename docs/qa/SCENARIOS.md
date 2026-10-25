@@ -101,9 +101,10 @@ Per-screen scan (every element, sizes 390/768/1280, six languages, dark mode) is
 
 ## Stop point (update every turn)
 
-- Static patient-web routes (anonymous, 390 and 1280): 141 of 141 swept. Table: docs/qa/screens/patient-web-static.md. Defects: docs/qa/findings/web-sweep-static.md.
-- Auth-gated patient-web routes (signed in as the QA patient, 390 and 1280): sweep running, 72 routes, see /tmp/claude-0-scratch/sweep_auth.jsonl. Results still to be written to docs/qa/screens/patient-web-auth.md.
-- Dynamic patient-web routes (53, need seeded IDs): not started.
-- Admin screens: not started.
-- Scenarios: see the counts above. Next after the signed-in sweep: admin screens, then the TODO scenarios with DB proof.
-- Re-test on main: hydration P1 fixed; insurance copay fixed; guest job publish still open.
+- Static patient-web routes (anonymous, 141): swept. Ran on the old layout (plain next start); treat as provisional, rerun on the production layout is still needed. Table: docs/qa/screens/patient-web-static.md.
+- Auth-gated patient-web routes (signed in, 72): swept on the production layout. Table: docs/qa/screens/patient-web-auth.md. Findings: docs/qa/findings/web-sweep-auth.md.
+- Dynamic patient-web routes (53): NOT started. Need seeded IDs (use tools/live seed output).
+- Admin screens: NOT started.
+- Scenarios: 74 rows; counts above. Still open: JB-03 (guest job publish, P1), PR-05, MP-02, JB-06, and the 60 TODO scenarios that need DB proof.
+- Corrected: hydration P1 retracted (local setup; production layout passes). Recorded in docs/qa/findings/web-patient.md.
+- Environment: services drop between turns. Recover with /tmp/claude-0-scratch/stack_up.sh (uses the nonce server for patient-web).
