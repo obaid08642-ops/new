@@ -1,6 +1,10 @@
-# 2026-10-25 lead reviewer: run 17, APPLY the catalogue plan reviewed from run 16's dry run (main@2920ecb7 is live):
-#   plan 7750e708…: medicine_translations set 534, medicine_name_hygiene set 36, total 570 of 20,990 medicines; no inserts.
-#   The task re-plans and writes nothing unless the hash still matches; backup first, guarded writes, verify, rollback on mismatch.
-# No deploy in this run. cf-purge-api so the product pages show the new names.
+# 2026-10-25 lead reviewer: run 18, deploy main@5e6cd1a6 (34 merges since 2920ecb7: SMS removed (OTP by push + email), social buttons
+# always shown, 997 button, voice notes, web address map + edit/delete, orders filter, 50% refund terms, insurance copay saved,
+# price review, uploads_enabled gate, ar/en catalogue names, catalogue-apply retry, AI/feature removals).
+# Then 90-catalogue-apply as a DRY RUN (EXPECT_PLAN_SHA empty: counts + plan hash, writes nothing; the plan changes with the ar/en
+# names and the packaged districts), 91-env-names (READ-ONLY, names only) and cf-purge-api.
+release:5e6cd1a662aa5db9107929b205fe9ff9654d1783
+60-deploy-main
 90-catalogue-apply
+91-env-names
 cf-purge-api

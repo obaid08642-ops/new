@@ -13,11 +13,12 @@
 # Steps (see backend/src/modules/catalogs/catalogue-apply.steps.ts): medicine name translations (#1844, the reviewed CSV shipped in the
 # image), Arabic/English names of regions, cities and insurers (owner decision: two languages only), medicine-name hygiene and the
 # owner-approved Arabic name fixes (#1556), districts (item 5).
-# Optional inputs on the host (skipped when absent): $IN/districts.json  (the extract of backend/src/modules/location/districts-plan.ts)
+# The districts extract ships INSIDE the image (backend/src/modules/location/data/districts-extract.v1.json) and is used by default.
+# Optional inputs on the host (skipped when absent): $IN/districts.json  (an OVERRIDE of the packaged extract, same format)
 #                                                    $IN/approved-name-fixes.csv  (the owner-approved rows of fix-catalogue-names)
 # After a change of medicine names, add `cf-purge-api` to tools/ops/RUN for that run so the cached product pages refresh.
 set -u
-EXPECT_PLAN_SHA="7750e7082fbf840e712f494513986e642d439b2d7dbbdf901bd2bedb9ff676d6"
+EXPECT_PLAN_SHA=""
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}
 IN=${OPS_CATALOGUE_DIR:-/opt/nabdah/catalogue}
