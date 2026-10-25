@@ -31,3 +31,13 @@ Guest (no account, device id):
 | P1 | guest job post → admin → public listing | publish step | A guest posts a job. Try to publish it as admin with PUT /recruitment/jobs/:id {status:"published"} | The admin reviews and publishes the draft, so it appears in the public listing (the code comment says "admin publishes") | No route publishes a guest draft. Admin PUT returns 404 "Job posting not found" (the update looks up by facility owner, and the draft's facility_id is `guest:<device>`). The admin web has no recruitment page. So every guest post stays a draft forever | backend/src/modules/recruitment/recruitment.module.ts:151-179 (guest post), :327-334 (PUT jobs/:id), :168 (facility_id guest:) |
 
 Signed-in hospital: POST /recruitment/jobs (status published) → 201, job visible in the public list (1 job). Candidate-profile rule (`cv_url`, `scfhs_license_number`, `scfhs_license_expiry` required; no `headline`). Doctor application needs a candidate profile first (400 "Candidate profile must be created before applying to jobs"). Result of the doctor's apply: see the matrix row JB-05 for the current status.
+
+## Job applications (JB-05, signed in)
+
+Doctor: candidate profile POST /recruitment/candidate/profile 201 (license status "Pending"). Apply POST /recruitment/jobs/:id/apply 201 (`cover_letter` field; `cover_note` is rejected). DB `job_applications` has the doc with status `submitted`.
+Hospital: GET /recruitment/jobs/:id/applications lists it. PATCH /recruitment/applications/:id/status with `under_review` 200. DB status `under_review`. Doctor GET /recruitment/applications/my shows `under_review`. Pass.
+
+| severity | route | element | steps | expected | actual | file:line |
+|---|---|---|---|---|---|---|
+| P3 | PATCH /recruitment/applications/:id/status | id used in the URL | Use the `_id` from the applications list | Works, or the list returns the id the endpoint expects | 404 "Job application not found" with `_id`. The lookup uses the `id` field (UUID), which the list also returns. Confirm which id the web and app pass | backend/src/modules/recruitment/recruitment.module.ts:274-276 |
+| P3 | PATCH applications/:id/status | allowed statuses | Send `shortlisted` | Either accepted or listed in the UI | 400 "Invalid application status". Allowed: submitted, under_review, interviewing, accepted, rejected. Check the hospital UI uses only these | backend/src/modules/recruitment/recruitment.module.ts:285 |

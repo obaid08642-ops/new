@@ -6,7 +6,7 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 
 ## Coverage
 
-- Scenarios: 5 done, 8 partial, 6 blocked (reason given), 55 not started, of 74 total.
+- Scenarios: 6 done, 8 partial, 6 blocked (reason given), 54 not started, of 74 total.
 - Screens: 0 of 274 patient-web routes fully scanned (public pages sampled in findings). Admin and provider screens not started.
 - The sweep is not finished. It is finished only when both counts reach 100%, or each remaining line gives its reason.
 
@@ -87,7 +87,7 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 | JB-02 | jobs, guest | guest apply to an unpublished draft | DONE | 404 (correctly refused) |
 | JB-03 | jobs, guest | admin publishes guest draft → public listing | BLOCKED | Defect (P1): no route publishes a guest draft; admin PUT returns 404. Finding in findings/b2b-map-jobs.md |
 | JB-04 | jobs, signed-in hospital | post a job → public listing | PARTIAL | POST /recruitment/jobs 201, public list shows 1. DB status check pending |
-| JB-05 | jobs, signed-in doctor | candidate profile → apply → hospital sees application | TODO | Profile needs cv_url, scfhs_license_number, scfhs_license_expiry. Apply needs profile first |
+| JB-05 | jobs, signed-in doctor | candidate profile → apply → hospital updates status → doctor sees it | DONE | Profile 201, apply 201, DB job_applications submitted → under_review, doctor view shows under_review (findings/b2b-map-jobs.md) |
 | JB-06 | jobs | inbox and messages between the two sides | TODO | |
 
 ## B. Screens
