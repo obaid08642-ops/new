@@ -1,6 +1,8 @@
-# 2026-10-25 lead reviewer: run 19, APPLY the catalogue plan reviewed from run 18's dry run (main@5e6cd1a6 is live):
-#   plan a58af340… (37-char prefix; the log masked 2 characters): medicine_translations set 534, medicine_name_hygiene set 36,
-#   total 570 of 20,990 medicines, no inserts; districts 0 (the extract is still being fetched).
-#   The tool now writes in batches of 100 with retry (#1935). Backup first, guarded writes, verify, rollback on mismatch.
-90-catalogue-apply
+# 2026-10-25 lead reviewer: run 20, deploy main@f7fe0830 (53 commits since run 18's 5e6cd1a6): product pages hydrate (CSP),
+# doctor page 503 fixed, admin logs back, AI output filter, community module removed, ambulance remnants removed, MapLibre address
+# map in the app, Snapchat sign-in fix + app bridge page, districts assignment fix, colour slice 1, COD journey, cluster mode ready (off).
+# No catalogue step (run 19 already applied the 570 rows). 91-env-names (READ-ONLY, names only) and cf-purge-api.
+release:f7fe083056ffd45f8e0e238eb8bced9582d1021f
+60-deploy-main
+91-env-names
 cf-purge-api
