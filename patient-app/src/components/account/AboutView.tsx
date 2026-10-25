@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Text, View } from 'react-native';
 import Constants from 'expo-constants';
-import { router, type Href } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 
 import { Card } from '../../../../packages/ui-native/src';
 import { Gate, Section, Sheet } from '../consult/ConsultKit';
@@ -11,6 +11,7 @@ import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { AccountScreen } from './AccountKit';
 import { PolicyCard } from './PolicyText';
+import { LegalDocumentBody, type PolicyKey } from '../legal/LegalKit';
 
 /**
  * About and legal (merge map section 3): `?tab=about` is the app, its version and the support link; `?tab=legal` is the
@@ -19,6 +20,11 @@ import { PolicyCard } from './PolicyText';
  */
 
 const TABS = ['about', 'legal'] as const;
+/** The two patient documents shown as sections of the legal tab; `?doc=` opens one (the old screens redirect with it). */
+const SECTIONS: { key: PolicyKey; title: string; icon: 'arrows-left-right' | 'video-camera'; tone: 'amber' | 'blue' }[] = [
+  { key: 'refund_policy', title: 'legal.refund.title', icon: 'arrows-left-right', tone: 'amber' },
+  { key: 'telehealth_consent', title: 'legal.telehealth.title', icon: 'video-camera', tone: 'blue' },
+];
 
 interface PolicyListItem { key: string; title_ar?: string; title_en?: string; version?: string | number }
 interface PolicyDoc { title?: string; version?: string | number; content?: string }
@@ -56,6 +62,8 @@ function LegalTab() {
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
   const rows = list.data ?? [];
+  const { doc: docParam } = useLocalSearchParams<{ doc?: string }>();
+  const [openDoc, setOpenDoc] = useState<string | null>(SECTIONS.some((x) => x.key === docParam) ? (docParam as string) : null);
 
   const open = async (key: string) => {
     setOpenKey(key);
@@ -78,11 +86,15 @@ function LegalTab() {
     <>
       <PolicyCard kind="cancellation" title={k('set.legal.cancellation')} />
       <PolicyCard kind="returns" title={k('set.legal.returns')} />
-      {/* D-38: the full cancellation and refund policy and the telehealth consent, each on its own screen */}
-      <Panel testID="legal-patient-texts">
-        <Row icon="arrows-left-right" tone="amber" title={k('legal.refund.title')} onPress={() => router.push('/settings/refund-policy' as Href)} testID="legal-refund-policy-link" />
-        <Row icon="video-camera" tone="blue" title={k('legal.telehealth.title')} onPress={() => router.push('/settings/telehealth-consent' as Href)} last testID="legal-telehealth-consent-link" />
-      </Panel>
+      {/* D-38: the full cancellation and refund policy and the telehealth consent, as sections of this screen */}
+      {SECTIONS.map((section) => (
+        <View key={section.key} style={{ gap: 8 }} testID={`legal-section-${section.key}`}>
+          <Panel>
+            <Row icon={section.icon} tone={section.tone} title={k(section.title)} onPress={() => setOpenDoc(openDoc === section.key ? null : section.key)} last testID={`legal-${section.key}-toggle`} />
+          </Panel>
+          {openDoc === section.key ? <LegalDocumentBody policyKey={section.key} /> : null}
+        </View>
+      ))}
       <Section title={k('set.legal.documents')}>
         <Gate status={list.status} onRetry={() => void list.reload()}>
           {rows.length === 0 ? (
