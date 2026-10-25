@@ -144,7 +144,7 @@ def run():
     keys = [x.get('key') for x in r.items()]
     step('the flags tab lists the six flags the server reads, each with its effect',
          r.ok and set(keys) == {'ai_symptom_checker', 'recommendations_enabled', 'nudges_enabled', 'live_map_enabled',
-                                'analytics_ingestion_enabled'}
+                                'analytics_ingestion_enabled', 'search_suggestions_enabled'}
          and all(x.get('effect') for x in r.items()), r)
     r = owner.post('/admin/admin/governance-controls/feature-flags', {'key': 'telehealth', 'enabled': False, 'reason': 'live gate: dead flag probe'})
     step('a flag nothing reads is refused (400 feature_flag_has_no_effect)', r.status == 400 and 'feature_flag_has_no_effect' in str(r.body), r)
