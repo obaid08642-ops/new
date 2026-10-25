@@ -228,7 +228,7 @@ export class LiveKitService {
     this.events.emit('call.incoming', {
       callee_id: resolvedCallee, caller_id: callerId, caller_name: callerName, call_type: callType || 'video', session_id: sessionId, room_name: roomName,
     });
-    return { room_name: roomName, token, call_type: callType || 'video', session_id: sessionId, ...(await this.transportInfo(transport, callerId)) };
+    return { room_name: roomName, token, call_type: callType || 'video', session_id: sessionId, ...(await this.transportInfo(transport, sessionId)) };
   }
 
   /** The host (provider) holds `CALLS_MAX_PER_HOST` calls at once; a further call is answered 409 provider_busy, never queued silently. */
@@ -247,10 +247,13 @@ export class LiveKitService {
     }
   }
 
-  /** STUN, then TURN with short-lived credentials (CoturnService, the same ones /coturn/credentials serves); empty when TURN is not configured. */
-  private iceServersFor(userId: string) {
+  /**
+   * STUN, then TURN with short-lived credentials (CoturnService, the same ones /coturn/credentials serves); empty when TURN is not configured.
+   * The TURN username carries the call-session id, not the account id: coturn logs usernames, and a call needs no identity there.
+   */
+  private iceServersFor(callSessionId: string) {
     const turn = new CoturnService();
-    return turn.isConfigured() ? turn.getIceServers(userId).iceServers : [];
+    return turn.isConfigured() ? turn.getIceServers(callSessionId).iceServers : [];
   }
 
   private async activeCallCount(): Promise<number> {
@@ -258,11 +261,11 @@ export class LiveKitService {
   }
 
   /** What the client needs to start the media: the transport, the ICE servers for P2P, and whether to start audio only. */
-  private async transportInfo(transport: 'p2p' | 'livekit', userId: string, sample?: LinkSample) {
+  private async transportInfo(transport: 'p2p' | 'livekit', callSessionId: string, sample?: LinkSample) {
     const advice = audioOnlyAdvice({ activeCalls: await this.activeCallCount(), sample });
     return {
       transport,
-      ice_servers: transport === 'p2p' ? this.iceServersFor(userId) : [],
+      ice_servers: transport === 'p2p' ? this.iceServersFor(callSessionId) : [],
       audio_only: advice.audio_only,
       audio_only_reason: advice.reason,
     };
@@ -296,7 +299,7 @@ export class LiveKitService {
       { $set: { status: 'ACTIVE', started_at: new Date(), updatedAt: new Date() } },
     );
     // P14.22: the web call room links a dropped call to this appointment's chat
-    return { room_name: session.room_name, token, appointment_id: session.appointment_id ?? null, ...(await this.transportInfo(transport, userId)) };
+    return { room_name: session.room_name, token, appointment_id: session.appointment_id ?? null, ...(await this.transportInfo(transport, session.id)) };
   }
 
   async endCall(sessionId: string, userId: string) {
