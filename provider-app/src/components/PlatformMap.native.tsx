@@ -83,6 +83,6 @@ export function Circle({ center, radius, strokeColor, fillColor }: { center: { l
 const styles = StyleSheet.create({
   fill: { flex: 1 },
   pin: { width: 20, height: 20, borderRadius: 10, borderWidth: 3 },
-  attribution: { position: 'absolute', bottom: 4, left: 4, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, opacity: 0.9 },
+  attribution: { position: 'absolute', bottom: 4, start: 4, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, opacity: 0.9 },
   attributionText: { fontSize: 10 },
 });
