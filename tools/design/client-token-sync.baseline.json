@@ -14,7 +14,6 @@
     "provider-app/src/context/index.tsx": 6,
     "provider-app/src/screens/auth/AuthScreens.tsx": 8,
     "provider-app/src/screens/auth/PendingDashboard.tsx": 1,
-    "provider-app/src/screens/doctor/DoctorOpsScreens.tsx": 1,
     "provider-app/src/screens/doctor/doctor/AvailabilityPulseScreen.tsx": 1,
     "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx": 2,
     "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx": 8,

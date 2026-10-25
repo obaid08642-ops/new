@@ -227,6 +227,10 @@ export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => vo
         <NSecHeader title={AR ? 'الملف الشخصي والإعدادات' : 'Profile & Config'} />
         <NSettingsRow icon="user" label={AR ? 'تعديل الملف الشخصي' : 'Edit Profile'} onPress={() => onNavigate('profile_edit')} />
         <NSettingsRow icon="mapPin" label={AR ? 'الموقع ونطاق التغطية' : 'Location & Coverage'} onPress={() => onNavigate('location_config')} />
+        <NSettingsRow icon="calendar" label={AR ? 'إجازاتي وإغلاقاتي' : 'Leaves & Closings'} onPress={() => onNavigate('doctor_leaves')} />
+        <NSettingsRow icon="document" label={AR ? 'قوالب الوصفات' : 'Prescription Templates'} onPress={() => onNavigate('rx_templates')} />
+        <NSettingsRow icon="document" label={AR ? 'التشخيصات المحفوظة' : 'Saved Diagnoses'} onPress={() => onNavigate('saved_diagnoses')} />
+        <NSettingsRow icon="shield" label={AR ? 'قائمة الحظر' : 'Patient Blacklist'} onPress={() => onNavigate('doctor_blacklist')} />
         <NSettingsRow icon="calendar" label={AR ? 'مواعيد العمل (Scheduler)' : 'Availability Engine'} onPress={() => onNavigate('availability_engine')} />
         <NSettingsRow icon="shield" label={AR ? 'شركات التأمين' : 'Insurance Config'} onPress={() => onNavigate('insurance_config')} />
        <NSettingsRow icon="shield" label={AR ? 'طلبات التأمين الواردة' : 'Insurance Requests'} onPress={() => onNavigate('insurance_requests')} />

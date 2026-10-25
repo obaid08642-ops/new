@@ -3,7 +3,7 @@
   "totals": {
     "patient-web": 56,
     "patient-app": 317,
-    "provider-app": 229,
+    "provider-app": 228,
     "admin": 167
   },
   "files": {
@@ -57,7 +57,6 @@
     "provider-app/src/context/index.tsx": 6,
     "provider-app/src/screens/auth/AuthScreens.tsx": 8,
     "provider-app/src/screens/auth/PendingDashboard.tsx": 1,
-    "provider-app/src/screens/doctor/DoctorOpsScreens.tsx": 1,
     "provider-app/src/screens/doctor/doctor/AvailabilityPulseScreen.tsx": 1,
     "provider-app/src/screens/doctor/doctor/DoctorAvailabilityScreen.tsx": 2,
     "provider-app/src/screens/doctor/doctor/DoctorHomeTab.tsx": 8,
