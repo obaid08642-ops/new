@@ -344,7 +344,7 @@ export class InsuranceFlowService {
    *  - `has_policy` is the neutral name for what `eligible` always meant ("a policy is on
    *    file"). `eligible` is kept because the clients read it; the two always agree.
    *  - `live_check: false` says out loud that nothing was checked with an insurer, and no
-   *    `nphies_*` field is returned.
+   *    no insurer-check field is returned.
    */
   async coverageCheckAnswer(user: any, query: any) {
     const { has_policy, policy } = await this.myPolicy(user);

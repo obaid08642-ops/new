@@ -8,7 +8,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { NABDAH_ACCESS_TOKEN_SECURITY_SCHEME } from '../../config/openapi.config';
-import { CreateCompanyDto, UpdateCompanyDto, OcrExtractDto, UploadPolicyDto, NphiesEligibilityDto, SubmitClaimDto, CreateInsuranceNetworkDto, CreateCoverageRuleDto } from './insurance.dto';
+import { CreateCompanyDto, UpdateCompanyDto, OcrExtractDto, UploadPolicyDto, SubmitClaimDto, CreateInsuranceNetworkDto, CreateCoverageRuleDto } from './insurance.dto';
 import { InjectModel, InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
 import { Optional } from '@nestjs/common';
@@ -181,7 +181,7 @@ export class InsuranceService {
     const patientIns = patient.insurance; // { provider: 'bupa', network: 'gold', policy_number: '...', class: 'A' }
     
     // LOCAL eligibility check — provider enters approval result manually in their system
-    // No direct NPHIES integration. Insurance data collected from patient and sent with booking request.
+    // Insurance data is collected from the patient and sent with the booking request; nothing asks an insurer.
     // Provider performs approval on their clinic/hospital system and enters result in provider app.
 
     // Find provider or facility contracts for copay details
@@ -311,44 +311,6 @@ Use null for any field not clearly visible. Do not guess.`;
       );
     }
     return { success: true, policy: doc };
-  }
-
-  /**
-   * Eligibility check against the patient's stored, verified policy.
-   * NOTE: the live NPHIES exchange is NOT integrated yet — this answers from
-   * locally stored policy data only and says so explicitly (nphies_live: false).
-   */
-  async nphiesEligibility(nationalId: string, companyCode: string, memberId?: string) {
-    if (!nationalId || !companyCode) {
-      throw new BadRequestException('national_id and insurance_company_code are required');
-    }
-    const patient: any = await this.patientModel.findOne({ 'insurance.national_id': { $eq: nationalId } }).lean();
-    const ins = patient?.insurance;
-    const code = String(companyCode).toLowerCase();
-    const matches = ins && (
-      String(ins.provider || '').toLowerCase().includes(code) ||
-      String(ins.company_id || '').toLowerCase().includes(code)
-    );
-    if (!matches) {
-      return { eligible: false, reason: 'no_matching_policy_on_file', manual_approval_required: true };
-    }
-    
-    // LOCAL eligibility check — provider enters approval result manually
-    // No direct NPHIES integration. Returns stored policy info for provider to verify.
-    return {
-      eligible: true,
-      source: 'stored_policy',
-      verified: !!ins.verified,
-      network: ins.network || null,
-      network_class: ins.class || null,
-      expiry_date: ins.expiry_date || null,
-      manual_approval_required: true,
-      policy_details: {
-        provider: ins.provider,
-        policy_number: ins.policy_number,
-        national_id: ins.national_id,
-      },
-    };
   }
 
   /** LJ-02: a claim is filed against a real paid booking; the server sets the

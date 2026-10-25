@@ -122,20 +122,6 @@ export class UploadPolicyDto {
   ocr_extracted?: boolean;
 }
 
-export class NphiesEligibilityDto {
-  @IsOptional()
-  @IsString()
-  national_id?: string;
-
-  @IsOptional()
-  @IsString()
-  insurance_company_code?: string;
-
-  @IsOptional()
-  @IsString()
-  member_id?: string;
-}
-
 export class SubmitClaimDto {
   @IsOptional()
   @IsNumber()

@@ -168,7 +168,7 @@ export class RadiologyController {
     return this.svc.approveReport(id, user);
   }
 
-  // PILLAR 4: Insurance NPHIES Gatekeeper
+  // PILLAR 4: Insurance approval gate (the provider records the insurer's decision)
   @Roles(UserRole.RADIOLOGY, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('bookings/:id/insurance-approval')
   insuranceApproval(@Param('id') id: string, @Body() body: InsuranceApprovalDto, @CurrentUser() user: any) {

@@ -246,41 +246,4 @@ describe('InsuranceService', () => {
       );
     });
   });
-
-  describe('nphiesEligibility', () => {
-    it('should return eligible:false when no stored policy matches', async () => {
-      patientModel.findOne.mockReturnValue({
-        lean: jest.fn().mockResolvedValue(null),
-      });
-      const res = await service.nphiesEligibility('1092839482', 'bupa');
-      expect(res.eligible).toBe(false);
-      expect(res.reason).toBe('no_matching_policy_on_file');
-      expect(res).not.toHaveProperty('nphies_live');
-    });
-
-    it('should return stored-policy eligibility when the national id matches', async () => {
-      patientModel.findOne.mockReturnValue({
-        lean: jest.fn().mockResolvedValue({
-          insurance: {
-            national_id: '1092839482',
-            provider: 'Bupa Arabia',
-            verified: true,
-            network: 'gold',
-            class: 'A',
-            expiry_date: '2027-01-01',
-          },
-        }),
-      });
-      const res = await service.nphiesEligibility('1092839482', 'bupa');
-      expect(res.eligible).toBe(true);
-      expect(res.source).toBe('stored_policy');
-      expect(res).not.toHaveProperty('nphies_live');
-      expect(res.verified).toBe(true);
-      expect(res.network).toBe('gold');
-    });
-
-    it('should throw BadRequestException if arguments are missing', async () => {
-      await expect(service.nphiesEligibility('', '')).rejects.toThrow(BadRequestException);
-    });
-  });
 });
