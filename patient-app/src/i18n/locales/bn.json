@@ -3795,5 +3795,11 @@
   "uploads.unavailable": "ফাইল আপলোড সাময়িকভাবে অনুপলব্ধ। পরে আবার চেষ্টা করুন।",
   "orders.emptyKindCurrent": "কোনো চলমান অর্ডার নেই: {service}",
   "orders.emptyKindPrevious": "কোনো আগের অর্ডার নেই: {service}",
-  "orders.emptyKindBody": "এই সেবায় এখনও কিছু নেই। আপনার অন্যান্য অর্ডার দেখতে সব বেছে নিন।"
+  "orders.emptyKindBody": "এই সেবায় এখনও কিছু নেই। আপনার অন্যান্য অর্ডার দেখতে সব বেছে নিন।",
+  "picker.city": "শহর",
+  "picker.district": "এলাকা",
+  "picker.choose": "বেছে নিন",
+  "picker.reversing": "পিনের অবস্থান থেকে ঠিকানা পড়া হচ্ছে…",
+  "picker.outsideArea": "এই স্থানটি সেবা এলাকার বাইরে। পিনটি সৌদি আরবের ভিতরে সরান বা নিজে ঠিকানা লিখুন।",
+  "picker.reverseFailed": "আপনার অবস্থান থেকে ঠিকানা পড়া যায়নি। নিজে লিখুন।"
 }
