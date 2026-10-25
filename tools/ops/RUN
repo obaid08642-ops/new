@@ -1,4 +1,7 @@
-# 2026-10-23 owner (lead reviewer): run 14, deploy main@3b9602cf (Next 16.4.2 + Node 22.23.4 security fixes, ordering M1-M8).
-# 60-deploy-main: pre-cleanup of unused old releases, 9 GB free required, backup first, rollback keeps worker/meilisearch, no script migrations.
-release:3b9602cfc6abbabd5dbe6e8c693f8f6e8c2ff9d7
+# 2026-10-25 lead reviewer: run 15, deploy main@e6bbf833 (cleanup web/backend, X/Snapchat sign-in (gated off), Moyasar invoices,
+# doctor registration fields + ops screens, booking names, dependency fixes). No script migrations (MIGRATIONS="").
+# Then cf-purge-api (fresh public answers) and 50-inspect-scale (READ-ONLY: CPU/RAM/disk/containers, env NAMES only, no values).
+release:e6bbf83337327fca94b1d4396fd91eb41cc9f361
 60-deploy-main
+50-inspect-scale
+cf-purge-api
