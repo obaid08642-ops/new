@@ -3791,5 +3791,6 @@
   "consult.hub.degree.senior_specialist": "সিনিয়র বিশেষজ্ঞ",
   "consult.hub.degree.specialist": "বিশেষজ্ঞ",
   "consult.hub.degree.resident": "রেসিডেন্ট",
-  "consult.hub.degree.general_practitioner": "সাধারণ চিকিৎসক"
+  "consult.hub.degree.general_practitioner": "সাধারণ চিকিৎসক",
+  "uploads.unavailable": "ফাইল আপলোড সাময়িকভাবে অনুপলব্ধ। পরে আবার চেষ্টা করুন।"
 }

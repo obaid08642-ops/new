@@ -3791,5 +3791,6 @@
   "consult.hub.degree.senior_specialist": "Senior specialist",
   "consult.hub.degree.specialist": "Specialist",
   "consult.hub.degree.resident": "Resident",
-  "consult.hub.degree.general_practitioner": "General practitioner"
+  "consult.hub.degree.general_practitioner": "General practitioner",
+  "uploads.unavailable": "File uploads are temporarily unavailable. Try again later."
 }

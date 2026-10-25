@@ -3791,5 +3791,6 @@
   "consult.hub.degree.senior_specialist": "वरिष्ठ विशेषज्ञ",
   "consult.hub.degree.specialist": "विशेषज्ञ",
   "consult.hub.degree.resident": "रेज़िडेंट",
-  "consult.hub.degree.general_practitioner": "सामान्य चिकित्सक"
+  "consult.hub.degree.general_practitioner": "सामान्य चिकित्सक",
+  "uploads.unavailable": "फ़ाइल अपलोड अभी अस्थायी रूप से उपलब्ध नहीं है। कृपया बाद में पुनः प्रयास करें।"
 }
