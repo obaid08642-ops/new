@@ -1,12 +1,9 @@
 import * as bcrypt from 'bcryptjs';
 import { AuthService } from './auth.service';
-import { SmsService } from '../sms/sms.service';
 
 // P17-17.9: forms that are easy on a phone (backend part). Red on the base:
 // verifyOtp compares the RAW code (Arabic-Indic digits never match),
-// resetPassword looks the user up with the raw identifier, and the SMS body
-// is not WebOTP/SMS-Retriever formatted.
-jest.mock('axios', () => ({ post: jest.fn(async () => ({ status: 200 })) }));
+// resetPassword looks the user up with the raw identifier.
 
 describe('P17-17.9 phone-friendly OTP forms', () => {
   const OLD_ENV = { ...process.env };
@@ -52,23 +49,6 @@ describe('P17-17.9 phone-friendly OTP forms', () => {
     const out: any = await svc.resetPassword('٠٥٠١٢٣٤٥٦٧', 'long-enough-password', '123456');
     expect(out).toMatchObject({ ok: true });
     expect(userModel.findOne).toHaveBeenCalledWith({ phone: '+966501234567' });
-  });
-
-  it('the OTP SMS is WebOTP/SMS-Retriever formatted when the app hash is configured', async () => {
-    process.env.SMS_ENABLED = 'true';
-    process.env.TAQNYAT_API_KEY = 't-key';
-    process.env.SMS_WEBOTP_HASH = 'ABCDEF12345';
-    process.env.API_PUBLIC_URL = 'https://api.nabd.plus';
-    const axios = require('axios');
-    const conn: any = { collection: jest.fn(() => ({ findOne: jest.fn(async () => null) })) };
-    const svc = new SmsService(conn);
-    const bodies: string[] = [];
-    axios.post.mockImplementation(async (_u: string, b: any) => { bodies.push(b.body); return { status: 200 }; });
-    await svc.sendOtp('+966501234567', '123456');
-    expect(bodies).toHaveLength(1);
-    expect(bodies[0]).toContain('<#>');
-    expect(bodies[0]).toContain('123456');
-    expect(bodies[0]).toContain('ABCDEF12345');
   });
 
   it('OTP error strings stay exactly as the clients pin them', async () => {

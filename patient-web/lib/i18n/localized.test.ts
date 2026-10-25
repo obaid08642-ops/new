@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { pickTexts, textsInclude, textsOf } from "./localized";
+import { namesOf, pickName, pickTexts, textsInclude, textsOf } from "./localized";
 import { extractNursingCatalog } from "@/lib/api/nursing-catalog";
 import { extractHomeCareServices } from "@/lib/api/home-care-services";
 
@@ -7,7 +7,7 @@ const row = { id: "svc-1", name_ar: "قياس", name_en: "Vitals", name_ur: "پ�
 
 describe("localized catalogue text", () => {
   it("reads every language column and drops empty ones", () => {
-    expect(textsOf({ ...row, name_hi: "  " }, "name")).toEqual({ ar: "قياس", en: "Vitals", ur: "پیمائش", bn: "পরিমাপ", tl: "Pagsukat" });
+    expect(namesOf({ ...row, name_en: "  " })).toEqual({ ar: "قياس" });
   });
 
   it("picks the page language, and Filipino reads the tl column", () => {
@@ -35,10 +35,10 @@ describe("localized catalogue text", () => {
 
   it("the nursing catalogue and the home care service carry the six languages", () => {
     const [item] = extractNursingCatalog([row]);
-    expect(pickTexts("hi", item.names)).toBe("जांच");
+    expect(pickName("hi", item.names)).toBe("Vitals"); // names are ar/en only (owner decision 2026-10-25)
     expect(pickTexts("hi", item.descriptions)).toBe("विवरण");
     const [service] = extractHomeCareServices([row]);
-    expect(pickTexts("bn", service.names)).toBe("পরিমাপ");
+    expect(pickName("bn", service.names)).toBe("Vitals");
     expect(service.nameEn).toBe("Vitals");
   });
 });

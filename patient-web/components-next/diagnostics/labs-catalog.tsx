@@ -5,7 +5,7 @@ import type { Locale } from "@/lib/i18n";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { CheckField, LAB, LabCard, SearchForm, money, type Tag } from "./diag-parts";
-import { pickTexts } from "@/lib/i18n/localized";
+import { pickName } from "@/lib/i18n/localized";
 import styles from "./diag.module.css";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 
@@ -52,7 +52,7 @@ export async function LabsCatalog({ locale, search, homeOnly, backHref }: { loca
               <LabCard
                 key={service.id}
                 href={`/${locale}/labs/${encodeURIComponent(service.id)}?kind=lab`}
-                title={pickTexts(locale, service.names) ?? ""}
+                title={pickName(locale, service.names) ?? ""}
                 tags={tags}
                 imageUrl={service.imageUrl}
                 price={service.price !== undefined ? money(locale, service.price) : undefined}

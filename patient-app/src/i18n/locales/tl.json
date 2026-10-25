@@ -113,7 +113,7 @@
   "errors.phoneRegistered": "Nakarehistro na ang numerong ito. Mag-log in na lang.",
   "errors.accountRegistered": "Nakarehistro na ang account na ito. Mag-log in na lang.",
   "errors.userNotFound": "Walang account na tumutugma sa mga detalyeng ito",
-  "errors.otpUnavailable": "Hindi maipadala ang code ngayon. Subukan muli mamaya.",
+  "errors.otpUnavailable": "Hindi naipadala ang code. Ang mga code ay napupunta sa mga notification ng app at sa iyong email, kaya magdagdag ng email sa account mo kung wala pa, saka subukan muli.",
   "errors.codeRequired": "Ilagay ang verification code",
   "errors.offline": "Walang koneksyon sa internet. Suriin ang iyong network.",
   "errors.timeout": "Masyadong natagalan ang kahilingan. Suriin ang iyong koneksyon at subukan muli.",
@@ -3791,5 +3791,8 @@
   "consult.hub.degree.senior_specialist": "Senior na espesyalista",
   "consult.hub.degree.specialist": "Espesyalista",
   "consult.hub.degree.resident": "Residente",
-  "consult.hub.degree.general_practitioner": "Pangkalahatang manggagamot"
+  "consult.hub.degree.general_practitioner": "Pangkalahatang manggagamot",
+  "orders.emptyKindCurrent": "Walang kasalukuyang order: {service}",
+  "orders.emptyKindPrevious": "Walang nakaraang order: {service}",
+  "orders.emptyKindBody": "Wala pa sa serbisyong ito. Piliin ang Lahat para makita ang iba mong order."
 }

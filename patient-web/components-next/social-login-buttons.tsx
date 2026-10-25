@@ -128,7 +128,8 @@ export function SocialLoginButtons({ locale, social, onWrongApp }: Props) {
   async function codeLogin(provider: CodeProvider) {
     if (busy) return;
     setError(null);
-    if (!codeClients[provider]) { setError(failedMessage); return; }
+    // Not set up on the server yet: the button stays visible (the providers review the live button) and says so.
+    if (!codeClients[provider]) { setError(t("providerUnavailable", { name: t(provider) })); return; }
     setBusy(provider);
     const redirectUri = `${window.location.origin}/${locale}/login/social-callback`;
     let popup: Window | null = null;
@@ -189,15 +190,17 @@ export function SocialLoginButtons({ locale, social, onWrongApp }: Props) {
   }
 
   return <>
-    {googleClientId || configured || showX || showSnapchat ? <>
+    {/* All four always show (owner, 2026-10-25: the providers review the live button before they approve the app). A provider the
+        server has no keys for yet answers its own "not available yet" message on tap. */}
+    <>
       <div className={styles.divider}>{t("orContinueWith")}</div>
       <div className={styles.social} aria-label={t("otherWays")}>
-        {googleClientId ? <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={googleLogin}><Mark brand="google" /> {t("google")}</button> : null}
-        {configured ? <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={appleLogin}>{t("apple")}</button> : null}
-        {showX ? <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={() => codeLogin("x")}><Mark brand="x" /> {t("x")}</button> : null}
-        {showSnapchat ? <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={() => codeLogin("snapchat")}><Mark brand="snapchat" /> {t("snapchat")}</button> : null}
+        <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={googleLogin} data-configured={googleClientId ? "1" : "0"}><Mark brand="google" /> {t("google")}</button>
+        <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={appleLogin} data-configured={configured ? "1" : "0"}>{t("apple")}</button>
+        <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={() => codeLogin("x")} data-configured={showX ? "1" : "0"}><Mark brand="x" /> {t("x")}</button>
+        <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={() => codeLogin("snapchat")} data-configured={showSnapchat ? "1" : "0"}><Mark brand="snapchat" /> {t("snapchat")}</button>
       </div>
-    </> : null}
+    </>
     <div className={styles.foot}>
       <span>{t("noAccount")} <Link className={styles.link} href={`/${locale}/register`}>{t("createAccount")}</Link></span>
       <button type="button" className={`${styles.link} ${styles.guest}`} onClick={guestLogin} disabled={busy !== null}>

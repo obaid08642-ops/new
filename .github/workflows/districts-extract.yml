@@ -1,0 +1,72 @@
+name: districts-extract
+
+# Builds the districts extract (src/modules/location/data/districts-extract.v1.json) on a GitHub runner, which has the open network the
+# agent sessions lack. Manual only; it never commits: it uploads the validated file as an artifact with a per-city summary, and
+# a reviewer commits it in a data-only PR.
+on:
+  workflow_dispatch:
+    inputs:
+      cities:
+        description: 'Comma-separated city codes (empty = every active city of the catalogue seed)'
+        required: false
+        default: ''
+      gap_ms:
+        description: 'Pause between Overpass queries, ms (Overpass etiquette: one query at a time)'
+        required: false
+        default: '12000'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: districts-extract
+  cancel-in-progress: false
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci --ignore-scripts
+
+      - name: Probe the official lists (reachability only)
+        run: |
+          {
+            echo '### Official lists (reachability from the runner; nothing is downloaded or parsed here)'
+            for url in https://data.gov.sa https://splonline.com.sa https://www.stats.gov.sa; do
+              code=$(curl -s -o /dev/null -m 20 -w '%{http_code}' -A 'NabdPlus-districts-extract/1.0 (+https://nabd.plus)' "$url" || true)
+              echo "- $url → HTTP ${code:-none}"
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fetch from OpenStreetMap (Overpass), one query per city
+        env:
+          GEO_USER_AGENT: NabdPlus-districts-extract/1.0 (+https://nabd.plus; ops@nabd.plus)
+          CITIES: ${{ inputs.cities }}
+          GAP_MS: ${{ inputs.gap_ms }}
+        run: |
+          args=(--from-seed --out=/tmp/districts-raw.json "--gap-ms=${GAP_MS:-12000}")
+          if [ -n "$CITIES" ]; then args+=("--cities=$CITIES"); fi
+          npx ts-node --transpile-only scripts/geo/fetch-osm-districts.ts "${args[@]}"
+
+      - name: Validate and clean
+        run: |
+          npx ts-node --transpile-only scripts/geo/validate-districts-extract.ts /tmp/districts-raw.json /tmp/districts-extract.v1.json /tmp/summary.md
+          { echo '### Districts per city'; cat /tmp/summary.md; } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: districts-extract.v1.json
+          path: |
+            /tmp/districts-extract.v1.json
+            /tmp/summary.md
+          if-no-files-found: error

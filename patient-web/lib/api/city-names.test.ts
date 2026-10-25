@@ -15,20 +15,12 @@ describe("city names", () => {
     expect(extractCityNames(null)).toEqual({});
   });
 
-  it("shows the city in each page's language: its own translation where the list has one, the English name where it has not, Arabic on the Arabic page", () => {
-    expect(cityLabel("en", "الرياض", names)).toBe("Riyadh");
-    expect(cityLabel("ur", "الرياض", names)).toBe("ریاض");
-    expect(cityLabel("hi", "الرياض", names)).toBe("रियाद");
-    expect(cityLabel("bn", "الرياض", names)).toBe("রিয়াদ");
-    expect(cityLabel("fil", "الرياض", names)).toBe("Riyadh");
+  it("shows Arabic on the Arabic page and the English name on every other page (Urdu, Hindi, Bengali and Filipino included)", () => {
     expect(cityLabel("ar", "الرياض", names)).toBe("الرياض");
-  });
-
-  it("falls back for a city the list has no translation for: English on hi/bn/fil, Arabic on ur", () => {
-    expect(cityLabel("hi", "جدة", names)).toBe("Jeddah");
-    expect(cityLabel("bn", "جدة", names)).toBe("Jeddah");
-    expect(cityLabel("fil", "جدة", names)).toBe("Jeddah");
-    expect(cityLabel("ur", "جدة", names)).toBe("جدة");
+    for (const locale of ["en", "ur", "hi", "bn", "fil"]) {
+      expect(cityLabel(locale, "الرياض", names)).toBe("Riyadh");
+      expect(cityLabel(locale, "جدة", names)).toBe("Jeddah");
+    }
   });
 
   it("keeps a city the list does not know, and nothing when there is none", () => {

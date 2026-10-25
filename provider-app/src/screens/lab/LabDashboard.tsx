@@ -147,7 +147,7 @@ function LabOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) {
                 <View>
                   <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{order.patient_name || 'Patient'}</Text>
                   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                    <Text style={{ fontSize: FS.sm, color: theme.textSub, fontWeight:'bold' }}>{order.is_insurance?' NPHIES':' Cash'}</Text>
+                    <Text style={{ fontSize: FS.sm, color: theme.textSub, fontWeight:'bold' }}>{order.is_insurance?(AR?' تأمين':' Insurance'):(AR?' نقدًا':' Cash')}</Text>
                     <Text style={{ fontSize: FS.sm, color: theme.textSub }}>•</Text>
                     <Text style={{ fontSize: FS.sm, color: order.homeCollection? theme.primary: theme.textSub }}>{order.homeCollection?' سحب منزلي':' حضور للمختبر'}</Text>
                   </View>
@@ -382,11 +382,11 @@ function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTr
 function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; onNav:(s:string,p?:any)=>void }) {
  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
   const [showRegister, setShowRegister] = useState(false);
-  const [showNphies, setShowNphies] = useState(false);
+  const [showApproval, setShowApproval] = useState(false);
   const [showAssign, setShowAssign] = useState(false);
   const [barcode, setBarcode] = useState('');
   const [notes, setNotes] = useState('');
-  const [nphiesCode, setNphiesCode] = useState('');
+  const [decisionRef, setDecisionRef] = useState('');
   const [copay, setCopay] = useState('');
   const [techName, setTechName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -423,19 +423,19 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
     }
   };
 
-  const handleNphiesApproval = async () => {
-    if (!nphiesCode) return show(AR ? 'الرجاء إدخال مرجع القرار الداخلي' : 'Enter the internal decision reference', 'warning');
+  const handleApproval = async () => {
+    if (!decisionRef) return show(AR ? 'الرجاء إدخال مرجع القرار الداخلي' : 'Enter the internal decision reference', 'warning');
     setLoading(true);
     try {
       const copayPercent = Math.max(0, Math.min(99, Number(copay)));
       const decision = copayPercent > 0 ? 'APPROVED_PARTIAL' : 'APPROVED_FULL';
       await client.post(`/labs/bookings/${order.id}/coverage-decision`, {
         decision,
-        decision_reference: nphiesCode,
+        decision_reference: decisionRef,
         ...(decision === 'APPROVED_PARTIAL' ? { copay_percent: copayPercent } : {}),
       });
       show(AR ? 'سُجل قرار التغطية الداخلي من الخادم' : 'The server recorded the internal coverage decision', 'success');
-      setShowNphies(false);
+      setShowApproval(false);
       onBack();
     } catch (e: any) {
       show(e.message, 'error');
@@ -566,7 +566,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
       {order?.status === 'NEW_REQUEST' && (
         <View style={{gap:SP.md}}>
           {order?.is_insurance ? (
-            <NBtn label={AR ? 'طلب موافقة NPHIES' : 'Request NPHIES Approval'} onPress={() => setShowNphies(true)} />
+            <NBtn label={AR ? 'طلب موافقة التأمين' : 'Request Insurance Approval'} onPress={() => setShowApproval(true)} />
           ) : (
             <NBtn label={AR ? 'تأكيد الطلب المباشر (كاش)' : 'Confirm Direct Order (Cash)'} onPress={handleCashConfirm} />
           )}
@@ -634,12 +634,12 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
         </View>
       </NSheet>
 
-      {/* NPHIES Approval Sheet */}
-      <NSheet visible={showNphies} onClose={()=>setShowNphies(false)} title={AR ? 'موافقة التأمين NPHIES' : 'NPHIES Approval'} height={400}>
+      {/* Insurance approval sheet */}
+      <NSheet visible={showApproval} onClose={()=>setShowApproval(false)} title={AR ? 'موافقة التأمين' : 'Insurance Approval'} height={400}>
         <View style={{ padding: SP.md }}>
-          <NInput label={AR ? 'مرجع القرار الداخلي' : 'Internal decision reference'} placeholder="REF-12345" value={nphiesCode} onChange={setNphiesCode} icon="verified" />
+          <NInput label={AR ? 'مرجع القرار الداخلي' : 'Internal decision reference'} placeholder="REF-12345" value={decisionRef} onChange={setDecisionRef} icon="verified" />
           <NInput label={AR ? 'نسبة تحمل المريض (0–99%)' : 'Patient co-pay percentage (0–99%)'} placeholder="0" value={copay} onChange={setCopay} icon="payments" kbType="numeric" />
-          <NBtn label={AR ? 'تسجيل قرار التغطية' : 'Record coverage decision'} onPress={handleNphiesApproval} style={{ marginTop: SP.md }} />
+          <NBtn label={AR ? 'تسجيل قرار التغطية' : 'Record coverage decision'} onPress={handleApproval} style={{ marginTop: SP.md }} />
         </View>
       </NSheet>
 

@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { OrdersScreen } from "@/components-next/orders/orders-screen";
 import { isLocale } from "@/lib/i18n";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ tab?: string | string[]; kind?: string | string[] }> };
 
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
@@ -13,9 +13,9 @@ export async function generateMetadata({ params }: Props) {
 }
 
 /** The patient's orders (canvas/Orders). */
-export default async function OrdersPage({ params }: Props) {
+export default async function OrdersPage({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  return <OrdersScreen locale={locale} />;
+  return <OrdersScreen locale={locale} query={(await searchParams) ?? {}} />;
 }

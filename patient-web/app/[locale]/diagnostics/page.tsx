@@ -34,7 +34,7 @@ import { diagnosticBookingHref } from "@/lib/diagnostics-links";
 import { byPrice, byRating, matchesQuery, parseHubFilter } from "@/lib/diagnostics-hub";
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import { publicReadSignal } from "@/lib/api/public-timeout";
-import { pickTexts } from "@/lib/i18n/localized";
+import { pickName, pickTexts } from "@/lib/i18n/localized";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string; q?: string; show?: string; sort?: string }> };
 
@@ -75,6 +75,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   // Decision 30 (owner 2026-10-14, question 5): insurance or self-pay first; self-pay is the default.
   const wantedPay = query.pay === "insurance" ? "insurance" : "self_pay";
   const t = await getTranslations("DiagWeb");
+  const home = await getTranslations("HomeWeb");
   const d = await getTranslations("Diagnostics");
   const oc = await getTranslations("OrderContext");
   const o = await getTranslations("OrderingFlow");
@@ -152,7 +153,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   const mine = domains.filter((entry) => entry.bookings.length > 0);
 
   return (
-    <ConsultPage locale={locale} title={t("hubTitle")} backHref={`/${locale}`}>
+    <ConsultPage locale={locale} title={t("hubTitle")} backHref={`/${locale}`} mapType="lab" mapLabel={home("svcMap")}>
       <StaleWhileRevalidate />
       <div className={styles.sectionHead}>
         <span />
@@ -267,7 +268,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
               <SectionHead id="hub-packages" title={t("packagesTitle")} href={`/${locale}/diagnostics/packages`} linkLabel={t("packagesAll")} />
               <Rail label={t("packagesTitle")}>
                 {shownPackages.map((pkg) => {
-                  const name = pickTexts(locale, pkg.names) ?? "";
+                  const name = pickName(locale, pkg.names) ?? "";
                   return (
                     <PackageCard
                       key={pkg.id}
@@ -292,7 +293,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
             ) : (
               <TestList label={t("testsTitle")}>
                 {tests.map((s) => {
-                  const name = pickTexts(locale, s.names) ?? "";
+                  const name = pickName(locale, s.names) ?? "";
                   return (
                     <TestRow
                       key={s.id}
@@ -321,7 +322,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
                 <RadiologyTile
                   key={s.id}
                   href={itemHref(s.id, "radiology")}
-                  title={pickTexts(locale, s.names) ?? ""}
+                  title={pickName(locale, s.names) ?? ""}
                   sub={s.price !== undefined ? t("fromPrice", { price: money(locale, s.price) }) : undefined}
                   imageUrl={s.imageUrl}
                 />
@@ -335,7 +336,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
         <section className={styles.stack} key={domain} aria-labelledby={`hub-${domain}`}>
           <SectionHead id={`hub-${domain}`} title={d(`${domain}.title`)} href={`/${locale}/diagnostics/bookings`} linkLabel={t("allRequests")} />
           {bookings.slice(0, LIMIT_BOOKINGS).map((booking) => {
-            const label = domain === "labs" ? d("labs.label") : pickTexts(locale, booking.scanNames) ?? d("radiology.label");
+            const label = domain === "labs" ? d("labs.label") : pickName(locale, booking.scanNames) ?? d("radiology.label");
             const status = diagStatus(booking.state);
             return (
               <RowCard

@@ -242,7 +242,7 @@ export class UsersService {
     return merged;
   }
 
-  private static readonly NOTIFICATION_CHANNELS = ['push', 'email', 'sms'] as const;
+  private static readonly NOTIFICATION_CHANNELS = ['push', 'email'] as const;
   private static readonly NOTIFICATION_CATEGORIES = ['appointments', 'orders', 'health', 'chat', 'account', 'marketing'] as const;
 
   /** Design parity (#1819): the flat switches the apps show. appointments and orders ARE the categories of the same name. */
@@ -250,7 +250,7 @@ export class UsersService {
 
   private notificationDefaults() {
     return {
-      channels: { push: true, email: false, sms: true },
+      channels: { push: true, email: false },
       categories: { appointments: true, orders: true, health: true, chat: true, account: true, marketing: false },
       preferences: { general: true, offers: true, medications: true, doctorMessages: true, emergency: true, sound: true, vibration: true },
     };

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
+import { mapHref } from '../../../src/utils/mapEntry';
 import { AppHeader, Chip, DoctorCard, EmptyState, ErrorState, FIcon, OfferCard, Screen, Search, useTabBarHeight } from '../../../../packages/ui-native/src';
 import { COLUMN, step as scale, useScreenUi } from '../../../src/components/screen/ScreenKit';
 import { MODE_LOOK, Section, Sheet, goBack, visitMode, specialtyLook, type VisitMode } from '../../../src/components/consult/ConsultKit';
@@ -307,7 +308,10 @@ export default function Consultations() {
         title={k('consult.hub.title')}
         onBack={() => goBack('/(tabs)' as Href)}
         backLabel={k('consult.back')}
-        actions={[{ key: 'appointments', label: k('consult.appt.title'), icon: <Glyph name="calendar-dots" size={20} color={c.icon.primary} />, onPress: () => router.push('/consultations/appointments' as Href) }]}
+        actions={[
+          { key: 'map', label: k('services.cat.map'), icon: <Glyph name="map-pin-line" size={20} color={c.icon.primary} />, onPress: () => router.push(mapHref('doctor') as Href) },
+          { key: 'appointments', label: k('consult.appt.title'), icon: <Glyph name="calendar-dots" size={20} color={c.icon.primary} />, onPress: () => router.push('/consultations/appointments' as Href) },
+        ]}
         theme={theme}
         direction={dir}
       />

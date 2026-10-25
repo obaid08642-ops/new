@@ -82,6 +82,8 @@ def run(admin, admin_email):
 
         journey('urgent alerts: the evaluator raises it while no screen is open')
         _, before = unread(admin)
+        # `before` already counts any alert the 5-minute schedule raised before this read finished, so only an alert created
+        # after it is "fresh" (expected to raise the count by one); an earlier one takes the de-duplicated branch below.
         t0 = time.time()
         window = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H')
         r = admin.post('/admin/admin/urgent-alerts/evaluate', {})
@@ -92,7 +94,7 @@ def run(admin, admin_email):
             return
         alert = hits[0]
         created = datetime.fromisoformat(str(alert.get('created_at')).replace('Z', '+00:00')).timestamp()
-        fresh = created >= t0 - 2
+        fresh = created >= t0
         step('alert carries kind, severity, message key + params and the finance link',
              alert.get('severity') == 'critical' and alert.get('message_key') == 'admin_alerts.payment_failures'
              and int((alert.get('params') or {}).get('count') or 0) >= 1 and alert.get('link') == '/admin/finance-suite', alert)

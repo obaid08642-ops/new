@@ -16,7 +16,7 @@ import { isLocale } from "@/lib/i18n";
 import { preparationFor } from "@/lib/ordering/item";
 import { extractLabServices, includedTestNames } from "@/lib/api/labs";
 import { getPublicLabServices } from "@/lib/api/labs-server";
-import { pickTexts } from "@/lib/i18n/localized";
+import { pickTexts, pickName } from "@/lib/i18n/localized";
 import { loadItem } from "@/lib/ordering/load-item";
 import { payOf, placeOf } from "@/lib/ordering/context";
 import { parseQuote, type Quote } from "@/lib/ordering/quote";
@@ -68,7 +68,7 @@ export default async function OrderingItemPage({ params, searchParams }: Props) 
     }
   }
 
-  const name = pickTexts(locale, item.names ?? { ar: item.nameAr, en: item.nameEn }) ?? t("itemTitle");
+  const name = pickName(locale, item.names ?? { ar: item.nameAr, en: item.nameEn }) ?? t("itemTitle");
   const description = pickTexts(locale, item.descriptions ?? { ar: item.descriptionAr, en: item.descriptionEn });
   // a package stores its tests as Arabic names or codes: shown in the page's language where the lab list knows them
   const catalogue = item.isPackage && item.included.length > 0 ? await Promise.resolve().then(() => getPublicLabServices()).catch(() => null) : null;

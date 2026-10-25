@@ -7,10 +7,13 @@
  * A place is kept only with BOTH an Arabic and an English name in OSM (`name:ar`, `name:en`): nothing is transliterated or guessed.
  * Needs network access to the Overpass API (not available in every sandbox).
  *
+ * Without a database (a CI runner): `--from-seed` takes the cities from the packaged catalogue seed instead of the `locations` collection.
+ *
  * Run: MONGODB_URI=... DB_NAME=... npx ts-node --transpile-only scripts/geo/fetch-osm-districts.ts --out=districts.json [--cities=sa-riyadh,sa-jeddah]
  */
 import * as fs from 'fs';
 import { connect, connection } from 'mongoose';
+import { SAUDI_LOCATIONS_SEED } from '../../src/modules/location/seeds/saudi-locations.data';
 
 export interface OsmElement { type: 'node' | 'way' | 'relation'; id: number; lat?: number; lon?: number; center?: { lat: number; lon: number }; tags?: Record<string, string> }
 export interface OutDistrict { city_code: string; name_ar: string; name_en: string; lat: number; lng: number; source: string }
@@ -45,16 +48,30 @@ async function main() {
   const only = (process.argv.find((a) => a.startsWith('--cities=')) || '').slice(9).split(',').filter(Boolean);
   const gap = Number((process.argv.find((a) => a.startsWith('--gap-ms=')) || '').slice(9)) || 12000;
   if (!out) throw new Error('--out=<file.json> is required');
-  if (!process.env.MONGODB_URI) throw new Error('MONGODB_URI_required');
-  await connect(process.env.MONGODB_URI, process.env.DB_NAME ? { dbName: process.env.DB_NAME } : {});
-  const cities = (await connection.db!.collection('locations').find({ type: 'city', is_active: true }, { projection: { _id: 0, code: 1, name_ar: 1, name_en: 1, coordinates: 1 } }).toArray()) as unknown as Array<{ code: string; name_ar: string; name_en: string; coordinates?: { lat: number; lng: number } }>;
+  const fromSeed = process.argv.includes('--from-seed');
+  let cities: Array<{ code: string; name_ar: string; name_en: string; coordinates?: { lat: number; lng: number } }>;
+  if (fromSeed) {
+    cities = SAUDI_LOCATIONS_SEED.filter((l) => l.type === 'city' && l.is_active);
+  } else {
+    if (!process.env.MONGODB_URI) throw new Error('MONGODB_URI_required (or pass --from-seed)');
+    await connect(process.env.MONGODB_URI, process.env.DB_NAME ? { dbName: process.env.DB_NAME } : {});
+    cities = (await connection.db!.collection('locations').find({ type: 'city', is_active: true }, { projection: { _id: 0, code: 1, name_ar: 1, name_en: 1, coordinates: 1 } }).toArray()) as unknown as typeof cities;
+  }
   const ua = process.env.GEO_USER_AGENT || 'NabdPlus-backend/1.0 (+https://nabd.plus)';
   const endpoint = process.env.OVERPASS_URL || 'https://overpass-api.de/api/interpreter';
   const result: { cities: Array<{ code: string; lat: number; lng: number; source: string }>; districts: OutDistrict[] } = { cities: [], districts: [] };
   const report: Record<string, unknown> = {};
   for (const city of cities.filter((c) => !only.length || only.includes(c.code))) {
-    const res = await fetch(endpoint, { method: 'POST', headers: { 'User-Agent': ua, 'Content-Type': 'application/x-www-form-urlencoded' }, body: `data=${encodeURIComponent(overpassQuery(city.name_ar.replace(/^(مدينة)\s+/, ''), city.name_en))}` });
-    if (!res.ok) { report[city.code] = { error: res.status }; await new Promise((r) => setTimeout(r, gap)); continue; }
+    // A network error or a 429/504 from Overpass is retried twice after a longer wait; a city that still fails is reported, not guessed.
+    let res: Response | null = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        res = await fetch(endpoint, { method: 'POST', headers: { 'User-Agent': ua, 'Content-Type': 'application/x-www-form-urlencoded' }, body: `data=${encodeURIComponent(overpassQuery(city.name_ar.replace(/^(مدينة)\s+/, ''), city.name_en))}` });
+        if (res.ok || ![429, 502, 503, 504].includes(res.status)) break;
+      } catch { res = null; }
+      await new Promise((r) => setTimeout(r, gap * 2 * attempt));
+    }
+    if (!res || !res.ok) { report[city.code] = { error: res ? res.status : 'network' }; await new Promise((r) => setTimeout(r, gap)); continue; }
     const body: { elements?: OsmElement[] } = await res.json();
     const { rows, skipped } = overpassToRows(city.code, body.elements ?? []);
     result.districts.push(...rows);
@@ -62,12 +79,13 @@ async function main() {
     await new Promise((r) => setTimeout(r, gap));
   }
   fs.writeFileSync(out, JSON.stringify(result, null, 1));
+  if (fromSeed) fs.writeFileSync(`${out}.report.json`, JSON.stringify(report, null, 1));
   console.log(JSON.stringify({ out, districts: result.districts.length, per_city: report }));
 }
 
 if (require.main === module) {
   main()
-    .then(() => connection.close())
+    .then(() => (connection.readyState ? connection.close() : undefined))
     .catch(async (e) => {
       console.error(e?.message || e);
       await connection.close().catch(() => undefined);

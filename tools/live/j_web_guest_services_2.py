@@ -114,6 +114,7 @@ def main():
         dial = ('+' if URGENT.startswith('+') else '') + re.sub(r'\D', '', URGENT)
         step('/ar/emergency: a guest gets the page, not the sign-in form', '/ar/login' not in page.url, page.url)
         step('/ar/emergency: the urgent-help number is a tel: button', page.locator(f'a[href="tel:{dial}"]').count() == 1, text[:200])
+        step('/ar/emergency: the 997 button is always there (owner decision 14)', page.locator('a[href="tel:997"]').count() == 1, text[:200])
         guest_action('/ar/emergency', '/ar/emergency')
 
         text, _ = visit('/ar/insurance/network-providers')

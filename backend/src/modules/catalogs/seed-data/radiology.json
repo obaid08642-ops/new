@@ -34,10 +34,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "پیٹ اور پیڑو کا الٹراساؤنڈ",
-    "name_hi": "पेट और पेल्विस का अल्ट्रासाउंड",
-    "name_bn": "পেট ও শ্রোণির আল্ট্রাসাউন্ড",
-    "name_tl": "Ultrasound ng Tiyan at Pelvis",
     "description_ur": "آواز کی لہروں سے جگر، پتے، لبلبے، تلی، گردوں، مثانے اور پیڑو کے اعضا کی تصاویر، بغیر شعاعوں کے۔",
     "preparation_ur": [
       "معائنے سے 6 گھنٹے پہلے کچھ نہ کھائیں؛ پانی کے چند گھونٹ لے سکتے ہیں۔",
@@ -100,10 +96,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "سینے کا ایکسرے",
-    "name_hi": "छाती का एक्स-रे",
-    "name_bn": "বুকের এক্স-রে",
-    "name_tl": "X-Ray ng Dibdib",
     "description_ur": "کم شعاعوں سے پھیپھڑوں، دل اور سینے کی دیوار کی ایکسرے تصویر۔",
     "preparation_ur": [
       "زیورات اور دھات کی چیزیں اتار دیں اور بغیر دھات کے آرام دہ کپڑے پہنیں۔",
@@ -170,10 +162,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "حمل کا الٹراساؤنڈ",
-    "name_hi": "गर्भावस्था अल्ट्रासाउंड",
-    "name_bn": "গর্ভাবস্থার আল্ট্রাসাউন্ড",
-    "name_tl": "Ultrasound sa Pagbubuntis",
     "description_ur": "آواز کی لہروں سے بچے، آنول اور رحم کی تصاویر، بغیر شعاعوں کے۔",
     "preparation_ur": [
       "معائنے سے تقریباً ایک گھنٹہ پہلے 4 سے 6 گلاس پانی پئیں اور معائنے کے بعد تک پیشاب نہ کریں۔",
@@ -236,10 +224,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "پیٹ کا الٹراساؤنڈ",
-    "name_hi": "पेट का अल्ट्रासाउंड",
-    "name_bn": "পেটের আল্ট্রাসাউন্ড",
-    "name_tl": "Ultrasound ng Tiyan",
     "description_ur": "آواز کی لہروں سے جگر، پتے، لبلبے، تلی اور گردوں کی تصاویر، بغیر شعاعوں کے۔",
     "preparation_ur": [
       "معائنے سے 6 گھنٹے پہلے کچھ نہ کھائیں؛ پانی کے چند گھونٹ لے سکتے ہیں۔"
@@ -298,10 +282,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "ریڑھ کی ہڈی کا ایکسرے",
-    "name_hi": "रीढ़ का एक्स-रे",
-    "name_bn": "মেরুদণ্ডের এক্স-রে",
-    "name_tl": "X-Ray ng Gulugod",
     "description_ur": "ریڑھ کی ہڈی کی ایکسرے تصاویر۔",
     "preparation_ur": [
       "زیورات اور دھات کی چیزیں اتار دیں اور بغیر دھات کے آرام دہ کپڑے پہنیں۔",
@@ -368,10 +348,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "دل کا ایکو",
-    "name_hi": "इकोकार्डियोग्राम (दिल का ईको)",
-    "name_bn": "ইকোকার্ডিওগ্রাম (হৃদ্‌যন্ত্রের ইকো)",
-    "name_tl": "Echocardiogram",
     "description_ur": "دل کا الٹراساؤنڈ جو اس کے خانے، والوز اور پمپنگ دکھاتا ہے، بغیر شعاعوں کے۔",
     "preparation_ur": [
       "کسی خاص تیاری کی ضرورت نہیں۔",
@@ -430,10 +406,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "گردوں اور مثانے کا الٹراساؤنڈ",
-    "name_hi": "किडनी और मूत्राशय का अल्ट्रासाउंड",
-    "name_bn": "কিডনি ও মূত্রথলির আল্ট্রাসাউন্ড",
-    "name_tl": "Ultrasound ng Bato at Pantog",
     "description_ur": "آواز کی لہروں سے گردوں اور مثانے کی تصاویر، بغیر شعاعوں کے۔",
     "preparation_ur": [
       "معائنے سے تقریباً ایک گھنٹہ پہلے 4 سے 6 گلاس پانی پئیں اور معائنے کے بعد تک پیشاب نہ کریں۔"
@@ -484,10 +456,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "کمر کے نچلے حصے کا ایم آر آئی",
-    "name_hi": "कमर (लंबर) रीढ़ का एमआरआई",
-    "name_bn": "কোমরের (লাম্বার) মেরুদণ্ডের এমআরআই",
-    "name_tl": "MRI ng Lumbar Spine",
     "description_ur": "مقناطیسی میدان سے کمر کے نچلے حصے کی تفصیلی تصاویر: ڈسک، اعصاب اور ہڈیاں، بغیر شعاعوں کے۔",
     "preparation_ur": [
       "اگر آپ کے جسم میں پیس میکر، امپلانٹ، دھات کا ٹکڑا یا کوئی طبی آلہ ہو، یا بند جگہ سے گھبراہٹ ہوتی ہو تو عملے کو بتائیں۔",
@@ -554,10 +522,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "گھٹنے کا ایکسرے",
-    "name_hi": "घुटने का एक्स-रे",
-    "name_bn": "হাঁটুর এক্স-রে",
-    "name_tl": "X-Ray ng Tuhod",
     "description_ur": "گھٹنے کے جوڑ کی ایکسرے تصاویر۔",
     "preparation_ur": [
       "زیورات اور دھات کی چیزیں اتار دیں اور بغیر دھات کے آرام دہ کپڑے پہنیں۔",
@@ -616,10 +580,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "چھاتی کا الٹراساؤنڈ",
-    "name_hi": "स्तन का अल्ट्रासाउंड",
-    "name_bn": "স্তনের আল্ট্রাসাউন্ড",
-    "name_tl": "Ultrasound ng Suso",
     "description_ur": "آواز کی لہروں سے چھاتی کے ٹشو کی تصاویر، بغیر شعاعوں کے۔",
     "preparation_ur": [
       "کسی خاص تیاری کی ضرورت نہیں۔",
@@ -674,10 +634,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "زنانہ پیڑو کا الٹراساؤنڈ",
-    "name_hi": "स्त्री रोग (पेल्विक) अल्ट्रासाउंड",
-    "name_bn": "স্ত্রীরোগ (শ্রোণি) আল্ট্রাসাউন্ড",
-    "name_tl": "Gynecologic (Pelvic) Ultrasound",
     "description_ur": "آواز کی لہروں سے رحم اور بیضہ دانیوں کی تصاویر، پیٹ کے اوپر سے یا اندرونی طور پر، بغیر شعاعوں کے۔",
     "preparation_ur": [
       "معائنے سے تقریباً ایک گھنٹہ پہلے 4 سے 6 گلاس پانی پئیں اور معائنے کے بعد تک پیشاب نہ کریں۔",
@@ -740,10 +696,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "پیٹ کا ایکسرے",
-    "name_hi": "पेट का एक्स-रे",
-    "name_bn": "পেটের এক্স-রে",
-    "name_tl": "X-Ray ng Tiyan",
     "description_ur": "پیٹ کی ایکسرے تصویر۔",
     "preparation_ur": [
       "زیورات اور دھات کی چیزیں اتار دیں اور بغیر دھات کے آرام دہ کپڑے پہنیں۔",
@@ -810,10 +762,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "پیڑو کا الٹراساؤنڈ",
-    "name_hi": "पेल्विस का अल्ट्रासाउंड",
-    "name_bn": "শ্রোণির আল্ট্রাসাউন্ড",
-    "name_tl": "Ultrasound ng Pelvis",
     "description_ur": "نچلے پیٹ کے اوپر سے آواز کی لہروں سے مثانے اور پیڑو کے اعضا کی تصاویر، بغیر شعاعوں کے۔",
     "preparation_ur": [
       "معائنے سے تقریباً ایک گھنٹہ پہلے 4 سے 6 گلاس پانی پئیں اور معائنے کے بعد تک پیشاب نہ کریں۔"
@@ -872,10 +820,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "دماغ کا سی ٹی اسکین",
-    "name_hi": "मस्तिष्क का सीटी स्कैन",
-    "name_bn": "মস্তিষ্কের সিটি স্ক্যান",
-    "name_tl": "CT Scan ng Utak",
     "description_ur": "سر اور دماغ کی تراشی (کراس سیکشن) ایکسرے تصاویر۔",
     "preparation_ur": [
       "زیورات اور دھات کی چیزیں اتار دیں اور بغیر دھات کے آرام دہ کپڑے پہنیں۔",
@@ -938,10 +882,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "ٹانگوں کی وریدوں کا ڈاپلر",
-    "name_hi": "पैरों की नसों का डॉपलर",
-    "name_bn": "পায়ের শিরার ডপলার",
-    "name_tl": "Doppler ng mga Ugat sa Binti",
     "description_ur": "الٹراساؤنڈ جو ٹانگوں کی وریدوں میں خون کا بہاؤ دکھاتا ہے، بغیر شعاعوں کے۔",
     "preparation_ur": [
       "کسی خاص تیاری کی ضرورت نہیں۔"
@@ -1000,10 +940,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "میموگرافی",
-    "name_hi": "मैमोग्राफ़ी",
-    "name_bn": "ম্যামোগ্রাফি",
-    "name_tl": "Mammography",
     "description_ur": "چھاتیوں کی کم خوراک والی ایکسرے تصاویر۔",
     "preparation_ur": [
       "معائنے کے دن سینے یا بغلوں پر ڈیوڈرنٹ، پاؤڈر یا لوشن نہ لگائیں۔ اگر ماہواری آتی ہے تو اس کے تقریباً ایک ہفتے بعد وقت لیں۔",
@@ -1070,10 +1006,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "تھائیرائیڈ کا الٹراساؤنڈ",
-    "name_hi": "थायरॉइड अल्ट्रासाउंड",
-    "name_bn": "থাইরয়েড আল্ট্রাসাউন্ড",
-    "name_tl": "Ultrasound ng Thyroid",
     "description_ur": "آواز کی لہروں سے گردن میں تھائیرائیڈ غدود کی تصاویر، بغیر شعاعوں کے۔",
     "preparation_ur": [
       "کسی خاص تیاری کی ضرورت نہیں۔"
@@ -1136,10 +1068,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "دماغ کا ایم آر آئی",
-    "name_hi": "मस्तिष्क का एमआरआई",
-    "name_bn": "মস্তিষ্কের এমআরআই",
-    "name_tl": "MRI ng Utak",
     "description_ur": "مقناطیسی میدان سے دماغ کی تفصیلی تصاویر، بغیر شعاعوں کے۔",
     "preparation_ur": [
       "اگر آپ کے جسم میں پیس میکر، امپلانٹ، دھات کا ٹکڑا یا کوئی طبی آلہ ہو، یا بند جگہ سے گھبراہٹ ہوتی ہو تو عملے کو بتائیں۔",
@@ -1202,10 +1130,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "کولہے (پیلوس) کا ایکسرے",
-    "name_hi": "पेल्विस का एक्स-रे",
-    "name_bn": "শ্রোণির এক্স-রে",
-    "name_tl": "X-Ray ng Pelvis",
     "description_ur": "پیلوس اور کولہے کے جوڑوں کی ایکسرے تصویر۔",
     "preparation_ur": [
       "زیورات اور دھات کی چیزیں اتار دیں اور بغیر دھات کے آرام دہ کپڑے پہنیں۔",
@@ -1266,10 +1190,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "کنٹراسٹ کے ساتھ پیٹ کا سی ٹی اسکین",
-    "name_hi": "कंट्रास्ट के साथ पेट का सीटी स्कैन",
-    "name_bn": "কনট্রাস্টসহ পেটের সিটি স্ক্যান",
-    "name_tl": "CT Scan ng Tiyan na may Contrast",
     "description_ur": "پیٹ کی تراشی ایکسرے تصاویر، اعضا اور نالیوں کو واضح دکھانے کے لیے کنٹراسٹ ڈائی کے ساتھ۔",
     "preparation_ur": [
       "معائنے سے 6 گھنٹے پہلے کچھ نہ کھائیں؛ پانی کے چند گھونٹ لے سکتے ہیں۔",
@@ -1342,10 +1262,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "پیٹ اور پیڑو کا سی ٹی اسکین",
-    "name_hi": "पेट और पेल्विस का सीटी स्कैन",
-    "name_bn": "পেট ও শ্রোণির সিটি স্ক্যান",
-    "name_tl": "CT Scan ng Tiyan at Pelvis",
     "description_ur": "پیٹ اور پیڑو کی تراشی ایکسرے تصاویر، عموماً کنٹراسٹ ڈائی کے ساتھ۔",
     "preparation_ur": [
       "معائنے سے 6 گھنٹے پہلے کچھ نہ کھائیں؛ پانی کے چند گھونٹ لے سکتے ہیں۔",
@@ -1420,10 +1336,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "گھٹنے کا ایم آر آئی",
-    "name_hi": "घुटने का एमआरआई",
-    "name_bn": "হাঁটুর এমআরআই",
-    "name_tl": "MRI ng Tuhod",
     "description_ur": "مقناطیسی میدان سے گھٹنے کی تفصیلی تصاویر: لیگامنٹس، کارٹلیج، مینسکس اور ہڈی، بغیر شعاعوں کے۔",
     "preparation_ur": [
       "اگر آپ کے جسم میں پیس میکر، امپلانٹ، دھات کا ٹکڑا یا کوئی طبی آلہ ہو، یا بند جگہ سے گھبراہٹ ہوتی ہو تو عملے کو بتائیں۔",
@@ -1482,10 +1394,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "سائنس کا ایکسرے",
-    "name_hi": "साइनस का एक्स-रे",
-    "name_bn": "সাইনাসের এক্স-রে",
-    "name_tl": "X-Ray ng Sinus",
     "description_ur": "ناک کے اردگرد سائنس کی ایکسرے تصویر۔",
     "preparation_ur": [
       "زیورات اور دھات کی چیزیں اتار دیں اور بغیر دھات کے آرام دہ کپڑے پہنیں۔",
@@ -1544,10 +1452,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "گردن کی شریانوں کا ڈاپلر",
-    "name_hi": "गर्दन की धमनियों (कैरोटिड) का डॉपलर",
-    "name_bn": "ঘাড়ের ধমনির (ক্যারোটিড) ডপলার",
-    "name_tl": "Doppler ng Carotid Artery",
     "description_ur": "دماغ کو خون پہنچانے والی گردن کی شریانوں میں بہاؤ کا الٹراساؤنڈ، بغیر شعاعوں کے۔",
     "preparation_ur": [
       "کسی خاص تیاری کی ضرورت نہیں۔",
@@ -1610,10 +1514,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "ہڈیوں کی کثافت (DEXA)",
-    "name_hi": "हड्डियों का घनत्व (DEXA)",
-    "name_bn": "হাড়ের ঘনত্ব (DEXA)",
-    "name_tl": "Pagsukat ng Densidad ng Buto (DEXA)",
     "description_ur": "بہت کم خوراک والا ایکسرے جو ریڑھ اور کولہے پر ہڈیوں کی کثافت ناپتا ہے۔",
     "preparation_ur": [
       "معائنے سے 24 گھنٹے پہلے کیلشیم سپلیمنٹ نہ لیں، اور اگر حال ہی میں بیریم یا کنٹراسٹ والا معائنہ ہوا ہو تو عملے کو بتائیں۔",
@@ -1680,10 +1580,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "سینے کا سی ٹی اسکین",
-    "name_hi": "छाती का सीटी स्कैन",
-    "name_bn": "বুকের সিটি স্ক্যান",
-    "name_tl": "CT Scan ng Dibdib",
     "description_ur": "پھیپھڑوں اور سینے کی تراشی ایکسرے تصاویر۔",
     "preparation_ur": [
       "زیورات اور دھات کی چیزیں اتار دیں اور بغیر دھات کے آرام دہ کپڑے پہنیں۔",
@@ -1758,10 +1654,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "ریڑھ کی ہڈی کا ایم آر آئی",
-    "name_hi": "रीढ़ का एमआरआई",
-    "name_bn": "মেরুদণ্ডের এমআরআই",
-    "name_tl": "MRI ng Gulugod",
     "description_ur": "مقناطیسی میدان سے ریڑھ کے کسی حصے کی تفصیلی تصاویر: ڈسک، اعصاب اور حرام مغز، بغیر شعاعوں کے۔",
     "preparation_ur": [
       "اگر آپ کے جسم میں پیس میکر، امپلانٹ، دھات کا ٹکڑا یا کوئی طبی آلہ ہو، یا بند جگہ سے گھبراہٹ ہوتی ہو تو عملے کو بتائیں۔",
@@ -1824,10 +1716,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "سائنس کا سی ٹی اسکین",
-    "name_hi": "साइनस का सीटी स्कैन",
-    "name_bn": "সাইনাসের সিটি স্ক্যান",
-    "name_tl": "CT Scan ng Sinus",
     "description_ur": "سائنس کی تراشی ایکسرے تصاویر۔",
     "preparation_ur": [
       "زیورات اور دھات کی چیزیں اتار دیں اور بغیر دھات کے آرام دہ کپڑے پہنیں۔",
@@ -1886,10 +1774,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "ریڑھ کی ہڈی کا سی ٹی اسکین",
-    "name_hi": "रीढ़ का सीटी स्कैन",
-    "name_bn": "মেরুদণ্ডের সিটি স্ক্যান",
-    "name_tl": "CT Scan ng Gulugod",
     "description_ur": "ریڑھ کی ہڈیوں کی تراشی ایکسرے تصاویر۔",
     "preparation_ur": [
       "زیورات اور دھات کی چیزیں اتار دیں اور بغیر دھات کے آرام دہ کپڑے پہنیں۔",
@@ -1952,10 +1836,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "کندھے کا ایم آر آئی",
-    "name_hi": "कंधे का एमआरआई",
-    "name_bn": "কাঁধের এমআরআই",
-    "name_tl": "MRI ng Balikat",
     "description_ur": "مقناطیسی میدان سے کندھے کی تفصیلی تصاویر: پٹھے، رگیں اور جوڑ، بغیر شعاعوں کے۔",
     "preparation_ur": [
       "اگر آپ کے جسم میں پیس میکر، امپلانٹ، دھات کا ٹکڑا یا کوئی طبی آلہ ہو، یا بند جگہ سے گھبراہٹ ہوتی ہو تو عملے کو بتائیں۔",
@@ -1995,10 +1875,6 @@
     "description_en": "Fallopian tube imaging for fertility clinics.",
     "image_url": "https://cdn.nabd.plus/radiology/hsg.png",
     "is_active": true,
-    "name_ur": "ایچ ایس جی (بچہ دانی اور نالیوں کا ایکسرے)",
-    "name_hi": "एचएसजी (गर्भाशय और ट्यूब का एक्स-रे)",
-    "name_bn": "এইচএসজি (জরায়ু ও নালির এক্স-রে)",
-    "name_tl": "HSG (Hysterosalpingogram)",
     "preparation_ar": [
       "يُجرى بعد انتهاء الدورة الشهرية وقبل التبويض، عادة بين اليوم 7 و10 من الدورة، وقد ينصحك الطبيب بمسكّن قبله.",
       "أخبري الطاقم إذا كنتِ حاملًا أو يُحتمل أن تكوني حاملًا.",
@@ -2053,10 +1929,6 @@
     "description_en": "Full jaw and teeth imaging.",
     "image_url": "https://cdn.nabd.plus/radiology/panorex.png",
     "is_active": true,
-    "name_ur": "دانتوں کا پینورامک ایکسرے",
-    "name_hi": "दांतों का पैनोरमिक एक्स-रे",
-    "name_bn": "দাঁতের প্যানোরামিক এক্স-রে",
-    "name_tl": "Dental Panoramic X-Ray",
     "preparation_ar": [
       "انزع المجوهرات والأشياء المعدنية، والبس ملابس مريحة خالية من المعادن.",
       "أخبري الطاقم إذا كنتِ حاملًا أو يُحتمل أن تكوني حاملًا."
@@ -2102,10 +1974,6 @@
     "description_en": "GI tract contrast study.",
     "image_url": "https://cdn.nabd.plus/radiology/barium.png",
     "is_active": true,
-    "name_ur": "بیریم اسٹڈی",
-    "name_hi": "बेरियम जांच",
-    "name_bn": "বেরিয়াম পরীক্ষা",
-    "name_tl": "Pagsusuri gamit ang Barium",
     "preparation_ar": [
       "لا تأكل ولا تشرب قبل الفحص بـ8 ساعات ما لم يُطلب غير ذلك، وستشرب أو تُعطى سائل الباريوم أثناء الفحص.",
       "أخبري الطاقم إذا كنتِ حاملًا أو يُحتمل أن تكوني حاملًا.",
@@ -2157,10 +2025,6 @@
     "description_en": "Whole-body oncology scan — specialized centers only.",
     "image_url": "https://cdn.nabd.plus/radiology/petct.png",
     "is_active": true,
-    "name_ur": "پی ای ٹی-سی ٹی اسکین",
-    "name_hi": "पीईटी-सीटी स्कैन",
-    "name_bn": "পিইটি-সিটি স্ক্যান",
-    "name_tl": "PET-CT Scan",
     "preparation_ar": [
       "صُم 6 ساعات وتجنّب المجهود الشاق قبل الفحص بـ24 ساعة. إذا كنت مصابًا بالسكري فاسأل المركز عن طريقة أخذ أدويتك في ذلك اليوم.",
       "أخبري الطاقم إذا كنتِ حاملًا أو يُحتمل أن تكوني حاملًا.",

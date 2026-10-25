@@ -42,22 +42,23 @@ describe('social providers gate (only providers the backend verifies, Q107)', ()
     else process.env.EXPO_PUBLIC_SOCIAL_X_SNAPCHAT = saved;
   });
 
-  it('android: google only (X and Snapchat hidden while the server refuses them)', () => {
+  // Owner, 2026-10-25: every provider shows before its keys are set; one without keys says "not available" when pressed.
+  it('android: google, X and Snapchat (never Apple)', () => {
     delete process.env.EXPO_PUBLIC_SOCIAL_X_SNAPCHAT;
     jest.replaceProperty(Platform, 'OS', 'android');
-    expect(availableSocialProviders()).toEqual(['google']);
+    expect(availableSocialProviders()).toEqual(['google', 'x', 'snapchat']);
   });
 
-  it('ios: apple first, then google', () => {
+  it('ios: apple first, then google, X and Snapchat', () => {
     delete process.env.EXPO_PUBLIC_SOCIAL_X_SNAPCHAT;
     jest.replaceProperty(Platform, 'OS', 'ios');
-    expect(availableSocialProviders()).toEqual(['apple', 'google']);
+    expect(availableSocialProviders()).toEqual(['apple', 'google', 'x', 'snapchat']);
   });
 
-  it('web: google (no Apple)', () => {
+  it('web: google, X and Snapchat (no Apple)', () => {
     delete process.env.EXPO_PUBLIC_SOCIAL_X_SNAPCHAT;
     jest.replaceProperty(Platform, 'OS', 'web');
-    expect(availableSocialProviders()).toEqual(['google']);
+    expect(availableSocialProviders()).toEqual(['google', 'x', 'snapchat']);
   });
 
   it('flag on: X and Snapchat come back after google', () => {
@@ -78,9 +79,9 @@ describe('Login screen', () => {
     expect(queryAllByText('نسيت كلمة المرور؟').length).toBe(1);
     expect(queryByText('أو تابع عبر')).not.toBeNull();
     expect(getByLabelText('المتابعة مع Google')).toBeTruthy();
-    // Q107: the server refuses X and Snapchat until it verifies them, so no button is drawn.
-    expect(screen.queryByLabelText('المتابعة مع X')).toBeNull();
-    expect(screen.queryByLabelText('المتابعة مع Snapchat')).toBeNull();
+    // Owner, 2026-10-25: X and Snapchat show before their keys are set (pressing one says "not available").
+    expect(screen.queryByLabelText('المتابعة مع X')).toBeTruthy();
+    expect(screen.queryByLabelText('المتابعة مع Snapchat')).toBeTruthy();
   });
 
   it('ios: the official Apple button is rendered', async () => {

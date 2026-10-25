@@ -6,8 +6,8 @@ import * as os from 'os';
 import * as path from 'path';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { applyChanges, decodeBackup, encodeBackup, planSha, rollbackChanges, sha256, stable, type Change, type DbLike } from './catalogue-apply.core';
-import { computePlan, main } from '../../scripts/catalogue-apply';
+import { applyChanges, BATCH, decodeBackup, isTransientMongoError, withRetry, encodeBackup, planSha, rollbackChanges, sha256, stable, type Change, type DbLike } from './catalogue-apply.core';
+import { PACKAGED_DISTRICTS, computePlan, main } from '../../scripts/catalogue-apply';
 import { tidy } from './catalogue-apply.steps';
 
 jest.setTimeout(120_000);
@@ -76,11 +76,18 @@ describe('plan', () => {
     expect(c.sha).not.toBe(a.sha);
   });
 
-  it('skips the optional inputs when they are not given', async () => {
+  it('uses the districts extract packaged in the image by default, and a host file only as an override', async () => {
     const p = await computePlan(db, ['plan']);
-    expect(p.report.districts).toMatch(/skipped/);
+    expect((p.report.districts as any).source).toBe('packaged');
+    expect(p.inputs.districts_extract).toBe(sha256(fs.readFileSync(PACKAGED_DISTRICTS, 'utf8')));
+    const o = await computePlan(db, ['plan', `--districts=${writeFile('d3.json', JSON.stringify(districtsExtract))}`]);
+    expect((o.report.districts as any).source).toBe('host_file_override');
+    expect(o.inputs.districts_extract).not.toBe(p.inputs.districts_extract);
+  });
+
+  it('skips the name fixes when no approved file is given', async () => {
+    const p = await computePlan(db, ['plan']);
     expect(p.report.name_fixes).toMatch(/skipped/);
-    expect(p.changes.some((c) => c.step === 'districts')).toBe(false);
   });
 });
 
@@ -203,5 +210,78 @@ describe('the pieces', () => {
   it('the packaged CSV is the reviewed file (same bytes as data/catalogue-input-01)', () => {
     const original = fs.readFileSync(path.join(__dirname, '../../../../data/catalogue-input-01/medicine-translations-2026-10-24.csv'), 'utf8');
     expect(sha256(csv)).toBe(sha256(original));
+  });
+});
+
+describe('a dropped connection (production run 17: "connection 1 closed")', () => {
+  const netError = () => Object.assign(new Error('connection 1 to 10.0.0.1:27017 closed'), { name: 'MongoNetworkError' });
+
+  /** A db whose bulkWrite performs the write and THEN drops (the ambiguous case), for the first `failures` calls from the `from`-th. */
+  function flaky(failures: number, from = 2): { db: DbLike; calls: () => number } {
+    let calls = 0; let failed = 0;
+    const wrapped: DbLike = {
+      collection: (name: string) => {
+        const real = db.collection(name);
+        return new Proxy(real as any, {
+          get(target, prop) {
+            if (prop !== 'bulkWrite') return typeof target[prop] === 'function' ? target[prop].bind(target) : target[prop];
+            return async (ops: any[], options: any) => {
+              calls += 1;
+              const res = await target.bulkWrite(ops, options);
+              if (calls >= from && failed < failures) { failed += 1; throw netError(); }
+              return res;
+            };
+          },
+        });
+      },
+    };
+    return { db: wrapped, calls: () => calls };
+  }
+
+  const snapshot = async () => (await raw().collection('medicines').find({}).sort({ id: 1 }).toArray());
+
+  async function seedMany(n: number) {
+    await raw().collection('medicines').deleteMany({});
+    await raw().collection('medicines').insertMany(Array.from({ length: n }, (_, i) => ({ id: `bulk${i}`, name_en: `Name ${i}`, name_ar: `  اسم   ${i} ` })));
+  }
+
+  it('applies in batches of 100, retries the batch that dropped, and ends with nothing left to change', async () => {
+    const n = BATCH * 2 + 50;
+    await seedMany(n);
+    const plan = await computePlan(db, ['plan']);
+    const fixes = plan.changes.filter((c) => c.collection === 'medicines');
+    expect(fixes.length).toBeGreaterThanOrEqual(n);
+    const f = flaky(2);
+    const res = await applyChanges(f.db, plan.changes);
+    expect(res.retried_batches).toBe(2);
+    expect(f.calls()).toBeGreaterThan(Math.floor(fixes.length / BATCH)); // more than one batch, plus the retries
+    expect((await computePlan(db, ['plan'])).changes).toHaveLength(0); // idempotent: the retry applied nothing twice and lost nothing
+  });
+
+  it('gives up with the error after the attempts are used (the task then rolls back)', async () => {
+    await seedMany(10);
+    const plan = await computePlan(db, ['plan']);
+    const f = flaky(1000, 1);
+    await expect(applyChanges(f.db, plan.changes)).rejects.toMatchObject({ name: 'MongoNetworkError' });
+  });
+
+  it('a rollback also survives a dropped connection and restores the backup state', async () => {
+    await seedMany(BATCH + 20);
+    const original = await snapshot();
+    const plan = await computePlan(db, ['plan']);
+    await applyChanges(db, plan.changes);
+    const f = flaky(1, 1);
+    const res = await rollbackChanges(f.db, plan.changes);
+    expect(res.retried_batches).toBe(1);
+    expect(await snapshot()).toEqual(original);
+  });
+
+  it('retries only network errors, not a real failure', async () => {
+    expect(isTransientMongoError(netError())).toBe(true);
+    expect(isTransientMongoError(new Error('Topology is closed, please connect'))).toBe(true);
+    expect(isTransientMongoError(Object.assign(new Error('E11000 duplicate key'), { code: 11000 }))).toBe(false);
+    let tries = 0;
+    await expect(withRetry(async () => { tries += 1; throw new Error('E11000 duplicate key'); }, undefined, async () => undefined)).rejects.toThrow('E11000');
+    expect(tries).toBe(1);
   });
 });

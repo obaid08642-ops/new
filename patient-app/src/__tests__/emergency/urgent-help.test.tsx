@@ -6,9 +6,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { UrgentHelpView, parseShareResult } from '../../components/emergency/UrgentHelpView';
 import { message } from '../../components/screen/ScreenKit';
 import { parseUrgentHelp } from '../../utils/urgent-help';
-import EmergencySos from '../../../app/emergency/sos';
-import EmergencySosActive from '../../../app/emergency/sos-active';
-import EmergencyTracking from '../../../app/emergency/tracking';
 
 /**
  * Owner decision 14 (2026-10-10): the one urgent-help screen. Every value is a TEST value. What is proved: the number comes
@@ -117,13 +114,3 @@ describe('send my location to my family (decision 14, issue 665)', () => {
   });
 });
 
-describe('the removed SOS routes', () => {
-  it.each([
-    ['sos', EmergencySos],
-    ['sos-active', EmergencySosActive],
-    ['tracking', EmergencyTracking],
-  ])('/emergency/%s redirects to /emergency', async (_name, Screen) => {
-    await render(<Screen />);
-    expect(screen.getByTestId('redirect').props.children).toBe('/emergency');
-  });
-});

@@ -45,3 +45,6 @@
   .side { flex: 0 0 420px; max-block-size: calc(100dvh - 160px); overflow-y: auto; }
   .pane { flex: 1; min-block-size: 480px; }
 }
+
+/* the "Map" entry on the provider lists (a row with the shared outline button at the end) */
+.entryRow { display: flex; justify-content: flex-end; }

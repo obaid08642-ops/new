@@ -1,16 +1,17 @@
 /**
  * Issue 1832: a booking stores the name of the test, the scan or the nursing service only in Arabic and English (written when
- * it was created), so the bookings lists could not show the other four languages. The booking keeps the catalogue id of each
+ * it was created). Names of catalogue data are Arabic and English only (owner decision 2026-10-25): the UI shows Arabic on the Arabic
+ * page and English on every other page, so the old row and the catalogue answer the same two languages. The booking keeps the catalogue id of each
  * line (labs `items[].service_id`, radiology `items[].service_id`, nursing `service_id`); the read endpoints resolve the name
- * from the catalogue in all six languages with ONE batched query per list, and the stored Arabic/English stay the fallback
+ * from the catalogue (the current Arabic and English) with ONE batched query per list, and the stored Arabic/English stay the fallback
  * (old rows, deleted catalogue entries, a catalogue row that lacks a language).
  */
-export const NAME_LANGS = ['ar', 'en', 'ur', 'hi', 'bn', 'tl'] as const;
+export const NAME_LANGS = ['ar', 'en'] as const;
 export type NameLang = (typeof NAME_LANGS)[number];
 export type LocalizedNames = Partial<Record<NameLang, string>>;
 
 /** The projection of the catalogue columns the resolver reads. */
-export const NAME_PROJECTION = { _id: 0, id: 1, name_ar: 1, name_en: 1, name_ur: 1, name_hi: 1, name_bn: 1, name_tl: 1 } as const;
+export const NAME_PROJECTION = { _id: 0, id: 1, name_ar: 1, name_en: 1 } as const;
 
 const clean = (v: unknown): string | undefined => (typeof v === 'string' && v.trim() ? v.trim() : undefined);
 
@@ -61,7 +62,7 @@ export async function loadCatalogue(load: (ids: string[]) => Promise<Array<Recor
 type Plain = Record<string, any>;
 
 /**
- * Lab and radiology bookings: every `items[]` line gets `names` (six languages); the booking gets `item_names` as the list in
+ * Lab and radiology bookings: every `items[]` line gets `names` (Arabic and English); the booking gets `item_names` as the list in
  * line order for readers that show the first line only (`items[0].names`).
  */
 export async function withItemNames(bookings: Plain[], load: (ids: string[]) => Promise<Array<Record<string, unknown>>>): Promise<Plain[]> {

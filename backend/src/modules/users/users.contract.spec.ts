@@ -18,7 +18,7 @@ describe('Users notification/session contract bridge', () => {
     const service = serviceFor({ push: false, sms: false, unexpected: true, categories: { chat: false, secret: true } });
 
     await expect(service.getNotificationSettings('patient-1')).resolves.toEqual({
-      channels: { push: false, email: false, sms: false },
+      channels: { push: false, email: false },
       categories: { appointments: true, orders: true, health: true, chat: false, account: true, marketing: false },
       preferences: { general: true, offers: true, medications: true, doctorMessages: true, emergency: true, sound: true, vibration: true, appointments: true, orders: true },
     });
@@ -30,7 +30,7 @@ describe('Users notification/session contract bridge', () => {
     await expect(service.updateNotificationSettings('patient-1', {
       channels: { email: true }, categories: { marketing: true, chat: false },
     })).resolves.toEqual({
-      channels: { push: true, email: true, sms: true },
+      channels: { push: true, email: true },
       categories: { appointments: true, orders: true, health: true, chat: false, account: true, marketing: true },
       preferences: { general: true, offers: true, medications: true, doctorMessages: true, emergency: true, sound: true, vibration: true, appointments: true, orders: true },
     });

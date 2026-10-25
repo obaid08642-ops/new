@@ -850,7 +850,6 @@ export function PendingScreen({
  {[
  { icon:'', ar:'البريد الإلكتروني', en:'Email' },
  { icon: '', ar: 'إشعار التطبيق Push', en: 'Push Notification' },
- { icon: '', ar: 'رسالة SMS', en: 'SMS' },
  ].map((ch, i) => (
  <View key={i} style={{
  flexDirection: AR ? 'row-reverse' : 'row',

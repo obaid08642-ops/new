@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
@@ -8,8 +8,10 @@ import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { OFFER_TONES } from "@/components-next/pharmacy-offers/tones";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
-import { addressToForm, buildAddressPatch, EMPTY_ADDRESS_FORM, pointBody, pointFromPosition, type AddressForm, type AddressRecord, type AddressPoint } from "@/lib/account/address-form";
+import { addressToForm, buildAddressPatch, buildCreateBody, EMPTY_ADDRESS_FORM, pointBody, pointFromPosition, type AddressForm, type AddressRecord, type AddressPoint } from "@/lib/account/address-form";
 import { GeoSelect } from "./geo-select";
+import { AddressMap } from "./address-map/address-map";
+import { createReverseController, fillFromReverse, type ReverseController, type ReverseState } from "@/lib/geo/reverse";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import forms from "@/components-next/consult/consult.module.css";
 import styles from "@/components-next/settings/settings.module.css";
@@ -22,7 +24,7 @@ export type PatientAddress = AddressRecord;
 const SHORT_ADDRESS_EXAMPLE = "RRRD2929";
 
 /** The fields of an address, shared by the add form and the edit form. */
-function AddressFields({ form, onChange, locale, point, onPoint }: { form: AddressForm; onChange: (patch: Partial<AddressForm>) => void; locale: string; point: AddressPoint | null; onPoint: (next: AddressPoint) => void }) {
+function AddressFields({ form, onChange, locale, point, onPoint, map, onRegion }: { form: AddressForm; onChange: (patch: Partial<AddressForm>) => void; locale: string; point: AddressPoint | null; onPoint: (next: AddressPoint) => void; map?: ReactNode; onRegion?: (region: string) => void }) {
   const t = useTranslations("Addresses");
   const [finding, setFinding] = useState(false);
   const [locating, setLocating] = useState(false);
@@ -73,12 +75,7 @@ function AddressFields({ form, onChange, locale, point, onPoint }: { form: Addre
 
   return (
     <>
-      <label className={forms.field}>
-        <span className={forms.label}>{t("shortAddress")}</span>
-        <input className={forms.control} value={form.short_address} onChange={(event) => onChange({ short_address: event.target.value })} placeholder={t("shortAddressPlaceholder", { example: SHORT_ADDRESS_EXAMPLE })} maxLength={20} dir="ltr" autoCapitalize="characters" autoComplete="off" />
-      </label>
-      <Button label={finding ? t("shortAddressFinding") : t("shortAddressFind")} variant="outline" size="sm" loading={finding} disabled={finding || !form.short_address.trim()} onClick={() => void findShortAddress()} />
-      {codeNote ? <p className={codeNote.kind === "ok" ? forms.ok : forms.error} role={codeNote.kind === "ok" ? "status" : "alert"}>{codeNote.text}</p> : null}
+      {map}
       <label className={forms.field}>
         <span className={forms.label}>{t("label")}</span>
         <input className={forms.control} value={form.label} onChange={(event) => onChange({ label: event.target.value })} required maxLength={80} />
@@ -91,14 +88,32 @@ function AddressFields({ form, onChange, locale, point, onPoint }: { form: Addre
         <span className={forms.label}>{t("line2")}</span>
         <input className={forms.control} value={form.line2} onChange={(event) => onChange({ line2: event.target.value })} maxLength={160} />
       </label>
-      <GeoSelect value={{ region: form.region, city: form.city, district: form.district }} onChange={(next) => onChange(next)} locale={locale} />
-      <Button label={locating ? t("locating") : t("useMyLocation")} variant="outline" size="sm" loading={locating} disabled={locating} onClick={useMyLocation} />
-      {locateNote === "set" ? <p className={forms.ok} role="status">{t("locationSet")}</p> : null}
-      {locateNote === "failed" ? <p className={forms.error} role="alert">{t("locateFailed")}</p> : null}
+      <GeoSelect value={{ region: form.region, city: form.city, district: form.district }} onChange={(next) => onChange(next)} onRegionResolved={onRegion} locale={locale} />
+      <label className={forms.field}>
+        <span className={forms.label}>{t("building")}</span>
+        <input className={forms.control} value={form.building} onChange={(event) => onChange({ building: event.target.value })} maxLength={40} />
+      </label>
+      <label className={forms.field}>
+        <span className={forms.label}>{t("floor")}</span>
+        <input className={forms.control} value={form.floor} onChange={(event) => onChange({ floor: event.target.value })} maxLength={40} />
+      </label>
+      {map ? null : (
+        <>
+          <Button label={locating ? t("locating") : t("useMyLocation")} variant="outline" size="sm" loading={locating} disabled={locating} onClick={useMyLocation} />
+          {locateNote === "set" ? <p className={forms.ok} role="status">{t("locationSet")}</p> : null}
+          {locateNote === "failed" ? <p className={forms.error} role="alert">{t("locateFailed")}</p> : null}
+        </>
+      )}
       <label className={forms.field}>
         <span className={forms.label}>{t("notes")}</span>
         <textarea className={forms.control} value={form.notes} onChange={(event) => onChange({ notes: event.target.value })} maxLength={300} rows={2} />
       </label>
+      <label className={forms.field}>
+        <span className={forms.label}>{t("shortAddress")}</span>
+        <input className={forms.control} value={form.short_address} onChange={(event) => onChange({ short_address: event.target.value })} placeholder={t("shortAddressPlaceholder", { example: SHORT_ADDRESS_EXAMPLE })} maxLength={20} dir="ltr" autoCapitalize="characters" autoComplete="off" />
+      </label>
+      <Button label={finding ? t("shortAddressFinding") : t("shortAddressFind")} variant="outline" size="sm" loading={finding} disabled={finding || !form.short_address.trim()} onClick={() => void findShortAddress()} />
+      {codeNote ? <p className={codeNote.kind === "ok" ? forms.ok : forms.error} role={codeNote.kind === "ok" ? "status" : "alert"}>{codeNote.text}</p> : null}
     </>
   );
 }
@@ -248,7 +263,12 @@ export function AddressList({ addresses, locale }: { addresses: PatientAddress[]
   );
 }
 
-/** "Add a new address": POST /api/patient/users/me/addresses with the fields the old form sent. */
+/**
+ * "Add a new address" (owner item 4): the map first. Moving the map (or "use my location") puts the pin; once the map has
+ * stopped, GET /api/geo/reverse is asked once after about 600 ms and fills the city and district (our catalogue, still
+ * pickers), the street, the building number and the short-address code, except the fields the patient has already typed or
+ * picked. Manual entry and the short-address code stay below. Save posts the fields and the pin to POST /users/me/addresses.
+ */
 export function AddAddressForm({ locale }: { locale: string }) {
   const t = useTranslations("Addresses");
   const router = useRouter();
@@ -256,6 +276,33 @@ export function AddAddressForm({ locale }: { locale: string }) {
   const [state, setState] = useState<"idle" | "saved" | "failed">("idle");
   const [form, setForm] = useState<AddressForm>(EMPTY_ADDRESS_FORM);
   const [point, setPoint] = useState<AddressPoint | null>(null);
+  const [reverse, setReverse] = useState<ReverseState>({ status: "idle" });
+  const touched = useRef(new Set<keyof AddressForm>());
+  const controller = useRef<ReverseController | null>(null);
+
+  useEffect(() => {
+    const created = createReverseController({
+      onState: (next) => {
+        setReverse(next);
+        if (next.status === "ok") setForm((prev) => ({ ...prev, ...fillFromReverse(next.result, touched.current) }));
+      },
+    });
+    controller.current = created;
+    return () => created.cancel();
+  }, []);
+
+  function placePin(next: AddressPoint) {
+    setState("idle");
+    setPoint(next);
+    controller.current?.schedule(next);
+  }
+
+  /** What the patient types or picks is kept: a later answer of the map never overwrites it. */
+  function edit(patch: Partial<AddressForm>) {
+    setState("idle");
+    for (const key of Object.keys(patch) as Array<keyof AddressForm>) touched.current.add(key);
+    setForm((prev) => ({ ...prev, ...patch }));
+  }
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -265,12 +312,15 @@ export function AddAddressForm({ locale }: { locale: string }) {
       const res = await fetch("/api/patient/users/me/addresses", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
-        body: JSON.stringify({ ...form, ...pointBody(point) }),
+        body: JSON.stringify(buildCreateBody(form, point)),
       });
       if (res.ok) {
         setState("saved");
         setForm(EMPTY_ADDRESS_FORM);
         setPoint(null);
+        setReverse({ status: "idle" });
+        touched.current.clear();
+        controller.current?.cancel();
         router.refresh();
       } else {
         setState("failed");
@@ -283,9 +333,17 @@ export function AddAddressForm({ locale }: { locale: string }) {
   }
 
   return (
-    <form onSubmit={submit} className={styles.stack} aria-labelledby="add-address">
+    <form onSubmit={submit} className={styles.stack} id="new-address" aria-labelledby="add-address">
       <h2 id="add-address" className={rx.h2}>{t("addTitle")}</h2>
-      <AddressFields form={form} onChange={(patch) => { setState("idle"); setForm((prev) => ({ ...prev, ...patch })); }} locale={locale} point={point} onPoint={(next) => { setState("idle"); setPoint(next); }} />
+      <AddressFields
+        form={form}
+        onChange={edit}
+        onRegion={(region) => setForm((prev) => ({ ...prev, region }))}
+        locale={locale}
+        point={point}
+        onPoint={placePin}
+        map={<AddressMap point={point} onPoint={placePin} reverse={reverse} onRetry={() => controller.current?.retry()} locale={locale} />}
+      />
       {state === "failed" ? <p className={forms.error} role="alert">{t("saveFailed")}</p> : null}
       {state === "saved" ? <p className={forms.ok} role="status">{t("saved")}</p> : null}
       <Button type="submit" label={submitting ? t("saving") : t("save")} loading={submitting} fullWidth />

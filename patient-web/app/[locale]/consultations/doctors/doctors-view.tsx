@@ -62,6 +62,7 @@ export async function DoctorsView({ params, searchParams }: Props) {
   const { locale } = await params; const sp = (await searchParams) ?? {}; if (!isLocale(locale)) notFound(); setRequestLocale(locale);
   const t = await getTranslations("Doctors");
   const c = await getTranslations("ConsultWeb");
+  const home = await getTranslations("HomeWeb");
   const names = await getTranslations("SpecialtyNames");
   let doctors: ReturnType<typeof extractDoctors> = [];
   const filters = parseDoctorFilters(sp);
@@ -106,7 +107,7 @@ export async function DoctorsView({ params, searchParams }: Props) {
   const typeLabels: Record<VisitType, string> = { clinic: t("service_clinic"), video: t("service_video"), home_visit: t("service_home") };
 
   return (
-    <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/consultations`} width="wide">
+    <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/consultations`} width="wide" mapType="doctor" mapLabel={home("svcMap")}>
       <StaleWhileRevalidate maxAgeSeconds={searchParams === undefined ? DOCTORS_REVALIDATE_SECONDS : undefined} />
       <form className={styles.search} method="get" role="search">
         <label className={styles.searchField}>

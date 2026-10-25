@@ -218,8 +218,8 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
   const AR = lang === 'ar';
   const [loading, setLoading] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(order);
-  const [showNphies, setShowNphies] = useState(false);
-  const [nphiesCode, setNphiesCode] = useState('');
+  const [showApproval, setShowApproval] = useState(false);
+  const [decisionRef, setDecisionRef] = useState('');
   const [copay, setCopay] = useState('');
   const [showAbort, setShowAbort] = useState(false);
   const [abortReason, setAbortReason] = useState('');
@@ -235,18 +235,18 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
   };
 
   const handleInsuranceApproval = async () => {
-    if (!nphiesCode.trim()) return show(AR ? 'أدخل مرجع القرار الداخلي' : 'Enter the internal decision reference', 'warning');
+    if (!decisionRef.trim()) return show(AR ? 'أدخل مرجع القرار الداخلي' : 'Enter the internal decision reference', 'warning');
     setLoading(true);
     try {
       const copayPercent = Math.max(0, Math.min(99, Number(copay)));
       const decision = copayPercent > 0 ? 'APPROVED_PARTIAL' : 'APPROVED_FULL';
       await client.post(`/radiology/bookings/${currentOrder.id}/coverage-decision`, {
         decision,
-        decision_reference: nphiesCode.trim(),
+        decision_reference: decisionRef.trim(),
         ...(decision === 'APPROVED_PARTIAL' ? { copay_percent: copayPercent } : {}),
       });
       show(AR ? 'سُجل قرار التغطية الداخلي من الخادم' : 'The server recorded the internal coverage decision', 'success');
-      setShowNphies(false); await refresh();
+      setShowApproval(false); await refresh();
     } catch (e: any) { show(e.message, 'error'); } finally { setLoading(false); }
   };
 
@@ -335,14 +335,14 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
       <View style={{ gap: SP.md, marginBottom: SP.xl }}>
         {currentOrder.state === 'NEW_REQUEST' && (<>
           {currentOrder.payment_method === 'insurance' ? (
-            <NBtn label={AR?' تسجيل قرار تغطية داخلي':' Record Internal Coverage Decision'} variant="outline" onPress={() => setShowNphies(true)} />
+            <NBtn label={AR?' تسجيل قرار تغطية داخلي':' Record Internal Coverage Decision'} variant="outline" onPress={() => setShowApproval(true)} />
           ) : (
             // server accepts only cash at the center or a paid card booking (radiology.service assertConfirmable)
             <NBtn label={AR?' قبول الحجز':' Accept booking'} loading={loading} onPress={acceptBooking} style={{ backgroundColor:tokens.mintDeep }} />
           )}
           <NBtn label={AR?' رفض الحجز':' Reject booking'} variant="danger" onPress={() => setShowReject(true)} />
         </>)}
-        {currentOrder.state ==='PENDING_INSURANCE' && <NBtn label={AR?' إدخال موافقة التأمين':' Enter Insurance Approval'} onPress={() => setShowNphies(true)} />}
+        {currentOrder.state ==='PENDING_INSURANCE' && <NBtn label={AR?' إدخال موافقة التأمين':' Enter Insurance Approval'} onPress={() => setShowApproval(true)} />}
         {currentOrder.state ==='CONFIRMED' && <NBtn label={AR?' تأكيد حضور المريض (Check-in)':' Confirm Patient Arrival (Check-in)'} loading={loading} onPress={() => doAction('checkin')} style={{ backgroundColor:tokens.mintDeep }} />}
         {currentOrder.state === 'ARRIVED_CHECKIN' && (<>
           <NBtn label={AR?' استدعاء لغرفة الأشعة':' Call to Scanning Room'} loading={loading} onPress={() => doAction('start-scan')} style={{ backgroundColor:tokens.warning }} />
@@ -358,9 +358,9 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
         {currentOrder.state ==='REPORT_READY' && (<View style={{ backgroundColor:withAlpha(tokens.success, 0.12), borderRadius: R.md, padding: SP.lg, alignItems:'center' }}><Text style={{ color:tokens.success, fontSize: FS.lg, fontWeight: FW.bold }}>{AR?' التقرير أُرسل للمريض':' Report Sent to Patient'}</Text>{currentOrder.doctor_notified && <Text style={{ color:tokens.mintDeep, fontSize: FS.sm, marginTop: SP.sm }}>{AR?' تم إشعار الطبيب المحيل':' Referring doctor notified'}</Text>}</View>)}
       </View>
 
-      {/* NPHIES Insurance Modal */}
-      <NSheet visible={showNphies} onClose={() => setShowNphies(false)} title={AR ? 'إدخال موافقة التأمين' : 'Insurance Approval'}>
-        <NInput label={AR ? 'مرجع القرار الداخلي' : 'Internal decision reference'} value={nphiesCode} onChange={setNphiesCode} placeholder="REF-XXXXX" />
+      {/* Insurance approval sheet */}
+      <NSheet visible={showApproval} onClose={() => setShowApproval(false)} title={AR ? 'إدخال موافقة التأمين' : 'Insurance Approval'}>
+        <NInput label={AR ? 'مرجع القرار الداخلي' : 'Internal decision reference'} value={decisionRef} onChange={setDecisionRef} placeholder="REF-XXXXX" />
         <NPriceInput label={AR ? 'نسبة التحمل (0–99%)' : 'Co-pay percentage (0–99%)'} value={copay} onChange={setCopay} />
         <Text style={{ fontSize: FS.xs, color: tokens.warning, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{AR ? 'القرار الجزئي يضع الطلب في انتظار بوابة دفع التحمل الخادمية؛ لا يُؤكد من هذه الشاشة.' : 'A partial decision waits for the server co-pay payment gate; this screen cannot confirm it.'}</Text>
         <NBtn label={AR ? 'تسجيل قرار التغطية' : 'Record Coverage Decision'} loading={loading} onPress={handleInsuranceApproval} />

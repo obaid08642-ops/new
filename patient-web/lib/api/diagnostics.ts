@@ -23,7 +23,7 @@ export type DiagnosticBooking = {
   /** The first test of a lab booking (items[0].name_ar / name_en). */
   testNameAr?: string;
   testNameEn?: string;
-  /** The names in every language (issue 1832): the booking's `scan_names` / `items[0].names` over its stored Arabic/English. Read them with `pickTexts`. */
+  /** The names (Arabic and English, issue 1832): the booking's `scan_names` / `items[0].names` over its stored Arabic/English. Read them with `pickName`. */
   scanNames?: Texts;
   testNames?: Texts;
   medicalReferralRequired?: boolean;
@@ -40,9 +40,9 @@ function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
 }
 
-const NAME_LANGS = ["ar", "en", "ur", "hi", "bn", "tl"] as const;
+const NAME_LANGS = ["ar", "en"] as const; // names are Arabic and English only (owner decision 2026-10-25)
 
-/** The server's `names` map ({ar,en,ur,hi,bn,tl}) merged over the stored Arabic/English of an old row; none when there is no text at all. */
+/** The server's `names` map ({ar,en}) merged over the stored Arabic/English of an old row; none when there is no text at all. */
 function namesFrom(map: unknown, ar?: string, en?: string): Texts | undefined {
   const out: Texts = { ...(ar ? { ar } : {}), ...(en ? { en } : {}) };
   const record = asRecord(map);
