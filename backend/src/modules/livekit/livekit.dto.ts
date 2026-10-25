@@ -28,6 +28,17 @@ export class InitiateCallDto {
   @IsOptional()
   @IsString()
   appointmentId?: string;
+
+  /** The client can run a peer-to-peer call (CALLS_P2P_ENABLED); absent means LiveKit only. */
+  @IsOptional()
+  @IsBoolean()
+  supports_p2p?: boolean;
+}
+
+export class JoinCallDto {
+  @IsOptional()
+  @IsBoolean()
+  supports_p2p?: boolean;
 }
 
 export class SaveMetricsDto {
@@ -40,4 +51,16 @@ export class MuteParticipantDto {
   @IsDefined()
   @IsBoolean()
   muted: boolean;
+}
+
+export class FallbackDto {
+  @IsDefined()
+  @IsIn(['ice_failed', 'no_relay', 'timeout', 'unsupported'])
+  reason: string;
+}
+
+export class MediaPathDto {
+  @IsDefined()
+  @IsIn(['direct', 'relay'])
+  path: 'direct' | 'relay';
 }
