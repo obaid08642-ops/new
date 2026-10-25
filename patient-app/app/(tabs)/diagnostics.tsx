@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { RefreshControl, Text, View } from 'react-native';
+import { RefreshControl, ScrollView, Text, View } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
 
-import { EmptyState, ErrorState, OfflineState, Radio, Screen, Search, Segmented, useTabBarHeight } from '../../../packages/ui-native/src';
+import { Chip, EmptyState, ErrorState, OfflineState, Radio, Screen, Search, Segmented, useTabBarHeight } from '../../../packages/ui-native/src';
 import { CARE_TONE, Section, Sheet } from '../../src/components/consult/ConsultKit';
 import {
   CartBar,
@@ -66,6 +66,9 @@ export default function DiagnosticsHub() {
   const [tests, setTests] = useState<CatalogItem[]>([]);
   const [rads, setRads] = useState<CatalogItem[]>([]);
   const [labs, setLabs] = useState<LabProvider[]>([]);
+  // radiology: the scan types GET /radiology/modalities lists, and the one chosen (the server filters, as on the web)
+  const [modalities, setModalities] = useState<string[]>([]);
+  const [modality, setModality] = useState('');
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState<'error' | 'offline' | null>(null);
   const [address, setAddress] = useState<Awaited<ReturnType<typeof resolveEffectiveAddress>>>(null);
@@ -114,6 +117,26 @@ export default function DiagnosticsHub() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    let live = true;
+    apiFetch<unknown>('/radiology/modalities')
+      .then((res) => {
+        if (live && Array.isArray(res)) setModalities(res.filter((x): x is string => typeof x === 'string' && x.length > 0));
+      })
+      .catch((err) => logError('diagnostics:tab:modalities', err));
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  // choosing a scan type asks the server for that type only; the first load already holds "all"
+  const pickModality = (value: string) => {
+    setModality(value);
+    apiFetch<unknown>(`/radiology/services${value ? `?modality=${encodeURIComponent(value)}` : ''}`)
+      .then((res) => setRads(normalizeLabList(res)))
+      .catch((err) => logError('diagnostics:tab:modality', err));
+  };
 
   const inCart = (id: string) => items.some((i) => i.id === id);
   const toggle = (item: CatalogItem, kind: 'lab' | 'radiology') => {
@@ -318,6 +341,14 @@ export default function DiagnosticsHub() {
           <View style={{ gap: 14 }}>
             <ToneNote icon="info" tone={RAD_TONE} text={place === 'home' ? k('diag.hub.radNoteHome') : k('diag.hub.radNoteClinic')} />
             <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{k('diag.hub.radTitle')}</Text>
+            {modalities.length > 0 ? (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} accessibilityLabel={k('diag.rad.modality')} contentContainerStyle={{ gap: 8 }} testID="rad-modality-filter">
+                <Chip label={k('diag.filter.all')} selected={modality === ''} onPress={() => pickModality('')} theme={theme} testID="rad-modality-all" />
+                {modalities.map((m) => (
+                  <Chip key={m} label={m.toUpperCase()} selected={modality === m} onPress={() => pickModality(m)} theme={theme} testID={`rad-modality-${m}`} />
+                ))}
+              </ScrollView>
+            ) : null}
             {view.rs.length > 0 ? (
               <ListCard>
                 {view.rs.map((rad, i) => (

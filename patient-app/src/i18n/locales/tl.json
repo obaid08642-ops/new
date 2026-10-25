@@ -3770,5 +3770,21 @@
   "search.doctors.sortAvailable": "Available ngayong araw",
   "loyalty.reason.late_compensation": "Kabayaran sa pagkaantala ng appointment",
   "notifications.late.title": "Naidagdag ang mga puntos ng Nabd Plus",
-  "notifications.late.body": "Late nagsimula ang appointment mo, kaya nagdagdag kami ng puntos sa balanse mo."
+  "notifications.late.body": "Late nagsimula ang appointment mo, kaya nagdagdag kami ng puntos sa balanse mo.",
+  "pharmacy.ix.title": "Tagasuri ng interaksyon ng gamot",
+  "pharmacy.ix.intro": "Sinusuri namin ang iyong kasalukuyang gamot laban sa mga ilalagay mo at ipinapakita ang mga kilalang interaksyon.",
+  "pharmacy.ix.drug": "Pangalan ng gamot",
+  "pharmacy.ix.add": "Idagdag",
+  "pharmacy.ix.list": "Mga idinagdag na gamot",
+  "pharmacy.ix.remove": "Alisin ang {name}",
+  "pharmacy.ix.check": "Suriin ang interaksyon",
+  "pharmacy.ix.needOne": "Magdagdag ng kahit isang gamot",
+  "pharmacy.ix.open": "Suriin ang interaksyon ng ilang gamot",
+  "diag.rad.modality": "Uri ng scan",
+  "consult.hub.degree.professor": "Propesor",
+  "consult.hub.degree.consultant": "Konsultant",
+  "consult.hub.degree.senior_specialist": "Senior na espesyalista",
+  "consult.hub.degree.specialist": "Espesyalista",
+  "consult.hub.degree.resident": "Residente",
+  "consult.hub.degree.general_practitioner": "Pangkalahatang manggagamot"
 }
