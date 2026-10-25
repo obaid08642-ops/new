@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Keyboard, Linking, Platform, Pressable, ScrollView, Text, View } from 'react-native';
-import { router, type Href } from 'expo-router';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
 import * as Location from 'expo-location';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -13,6 +13,7 @@ import { step as scale, tint, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { pickLocalized } from '../../utils/localize';
+import { parseMapKind } from '../../utils/mapEntry';
 
 /**
  * The providers map (`/map`, restyle): GET /providers/map?type&lat&lng&radius around the phone's position, and GET /user/insurance for the
@@ -93,7 +94,13 @@ export function ProvidersMapView() {
   const { k, theme, t, c, flow, isRTL, num, money } = useScreenUi();
   const mapRef = useRef<MapView>(null);
   const [providers, setProviders] = useState<Provider[]>([]);
-  const [kind, setKind] = useState<Kind | 'all'>('all');
+  // `/map?type=pharmacy` opens the map filtered to that kind (the entries on Home and the provider lists pass it)
+  const params = useLocalSearchParams<{ type?: string | string[] }>();
+  const typeParam = parseMapKind(params.type);
+  const [kind, setKind] = useState<Kind | 'all'>(typeParam ?? 'all');
+  useEffect(() => {
+    setKind(typeParam ?? 'all');
+  }, [typeParam]);
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<Provider | null>(null);
   const [insurance, setInsurance] = useState<string | null>(null);

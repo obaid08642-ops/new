@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { RefreshControl, Text, View } from 'react-native';
+import { MapEntryButton } from '../../src/components/account/MapEntryButton';
 import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
 
 import { EmptyState, ErrorState, OfflineState, Radio, Screen, Search, Segmented, useTabBarHeight } from '../../../packages/ui-native/src';
@@ -182,6 +183,7 @@ export default function DiagnosticsHub() {
       <View style={{ width: '100%', maxWidth: 440, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 12, gap: 16 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <Text accessibilityRole="header" style={{ flex: 1, minWidth: 0, ...scale(t, 'h1'), color: c.text.primary, ...flow }}>{k('diag.hub.title')}</Text>
+          <MapEntryButton kind="lab" testID="diagnostics-map-entry" />
           <View style={{ flexShrink: 1 }}>
             <PillLink icon="receipt" label={k('diag.hub.myOrders')} onPress={() => router.push('/diagnostics/orders' as Href)} />
           </View>

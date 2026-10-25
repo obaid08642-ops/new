@@ -8,6 +8,7 @@ import { JsonLd } from "@/components-next/json-ld";
 import { StaleWhileRevalidate } from "@/components-next/nav/stale-while-revalidate";
 import { isLocale, locales, type Locale } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
+import { MapEntryLink } from "@/components-next/map-entry-link";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
@@ -86,6 +87,7 @@ export async function CategoryView({ params, searchParams }: Props) {
   const typedLocale = locale as Locale;
   setRequestLocale(typedLocale);
   const t = await getTranslations("PharmacyBrowse");
+  const mapLabel = (await getTranslations("HomeWeb"))("svcMap");
     const decoded = (category || []).map((c) => decodeURIComponent(c));
   if (decoded.length > 2) notFound();
   const sParams = (await searchParams) ?? {};
@@ -206,6 +208,7 @@ export async function CategoryView({ params, searchParams }: Props) {
           <h1 className={styles.title}>{heading}</h1>
           {totalProducts > 0 ? <p className={styles.count}>{t("productsCount", { count: totalProducts })}</p> : null}
         </div>
+        <MapEntryLink locale={locale} type="pharmacy" label={mapLabel} />
         <div className={styles.searchWrap}>
           <CatalogSearch locale={locale} initial={sParams.q || ""} />
         </div>

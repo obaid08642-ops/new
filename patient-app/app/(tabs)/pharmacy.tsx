@@ -19,6 +19,7 @@ import {
 } from '../../../packages/ui-native/src';
 import type { FillIconName, ServiceTone } from '../../../packages/ui/icons/fill';
 import ProductImage from '../../src/components/ProductImage';
+import { MapEntryButton } from '../../src/components/account/MapEntryButton';
 import { FilterSheet } from '../../src/components/pharmacy/FilterSheet';
 import { CountBadge, GlyphRound, GlyphSquare, PHARMACY_TONE, SECONDARY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
@@ -227,6 +228,7 @@ export default function PharmacyHub() {
       {/* title, my orders, cart */}
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
         <Text accessibilityRole="header" style={{ flex: 1, ...scale(t, 'h1'), letterSpacing: -0.3, color: c.text.primary, ...flow }}>{k('pharmacy.title')}</Text>
+        <MapEntryButton kind="pharmacy" testID="pharmacy-map-entry" />
         <GlyphRound name="receipt" label={k('pharmacy.hub.orders')} onPress={() => go('/orders')} />
         <GlyphRound name="package" label={k('pharmacy.cart')} onPress={() => go('/pharmacy/cart')}>
           <CountBadge count={itemCount} />

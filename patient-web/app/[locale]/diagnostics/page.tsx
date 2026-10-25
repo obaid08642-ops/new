@@ -75,6 +75,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   // Decision 30 (owner 2026-10-14, question 5): insurance or self-pay first; self-pay is the default.
   const wantedPay = query.pay === "insurance" ? "insurance" : "self_pay";
   const t = await getTranslations("DiagWeb");
+  const home = await getTranslations("HomeWeb");
   const d = await getTranslations("Diagnostics");
   const oc = await getTranslations("OrderContext");
   const o = await getTranslations("OrderingFlow");
@@ -152,7 +153,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   const mine = domains.filter((entry) => entry.bookings.length > 0);
 
   return (
-    <ConsultPage locale={locale} title={t("hubTitle")} backHref={`/${locale}`}>
+    <ConsultPage locale={locale} title={t("hubTitle")} backHref={`/${locale}`} mapType="lab" mapLabel={home("svcMap")}>
       <StaleWhileRevalidate />
       <div className={styles.sectionHead}>
         <span />
