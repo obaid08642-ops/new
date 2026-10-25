@@ -40,7 +40,9 @@ appId: com.patient.nabd
 - hideKeyboard
 - scrollUntilVisible:
     element:
-      id: "register-submit"
+      id: "register-terms"
+- tapOn:
+    id: "register-terms"
 - tapOn:
     id: "register-submit"
 - runFlow:

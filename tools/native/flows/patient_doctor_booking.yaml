@@ -1,4 +1,4 @@
-# Doctor booking (clinic visit, cash): hub -> doctor -> slot -> confirm -> success -> the appointment is in My appointments.
+# Doctor booking (clinic visit, cash): hub -> doctor -> slot -> confirm -> the confirmation with its QR code -> the appointment is in My appointments.
 appId: com.patient.nabd
 ---
 - runFlow:
@@ -6,10 +6,18 @@ appId: com.patient.nabd
     env:
       FLAGS: ""
 - runFlow: common_book_doctor.yaml
+- takeScreenshot: patient_doctor_booking_confirmation
+- pressKey: back
+- runFlow:
+    when:
+      notVisible:
+        id: "home-profile"
+    commands:
+      - pressKey: back
+- runFlow: common_my_appointments.yaml
 - tapOn:
-    id: "booking-track"
+    id: "appointment-card"
 - extendedWaitUntil:
     visible:
-      id: "booking-pending-screen"
+      id: "appointment-detail-screen"
     timeout: 20000
-- takeScreenshot: patient_doctor_booking_pending

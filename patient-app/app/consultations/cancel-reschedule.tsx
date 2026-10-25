@@ -220,7 +220,7 @@ export default function CancelRescheduleScreen() {
               {CANCEL_REASONS.map((r) => {
                 const on = selectedReason === r.id;
                 return (
-                  <Pressable key={r.id} accessibilityRole="radio" accessibilityState={{ selected: on }} accessibilityLabel={k(`consult.cancel.reason.${r.id}`)} onPress={() => setSelectedReason(r.id)} style={{ minHeight: 52, borderRadius: 18, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: c.bg.surface, borderWidth: on ? 2 : 1, borderColor: on ? c.status.danger.fg : c.border.hairline }}>
+                  <Pressable key={r.id} accessibilityRole="radio" accessibilityState={{ selected: on }} accessibilityLabel={k(`consult.cancel.reason.${r.id}`)} onPress={() => setSelectedReason(r.id)} testID={`cancel-reason-${r.id}`} style={{ minHeight: 52, borderRadius: 18, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: c.bg.surface, borderWidth: on ? 2 : 1, borderColor: on ? c.status.danger.fg : c.border.hairline }}>
                     <View style={{ width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: on ? c.status.danger.fg : c.border.strong, alignItems: 'center', justifyContent: 'center' }}>
                       {on ? <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: c.status.danger.fg }} /> : null}
                     </View>

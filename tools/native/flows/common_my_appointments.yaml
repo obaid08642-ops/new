@@ -1,0 +1,15 @@
+# Home -> profile -> My appointments (the list, with the booked appointment as a card).
+appId: com.patient.nabd
+---
+- tapOn:
+    id: "home-profile"
+- tapOn:
+    id: "account-appointments"
+- extendedWaitUntil:
+    visible:
+      id: "appointments-screen"
+    timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: "appointment-card"
+    timeout: 20000

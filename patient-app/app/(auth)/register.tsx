@@ -152,7 +152,7 @@ export default function RegisterScreen() {
           onChangeText={(t: string) => setForm({ ...form, confirmPw: t })}
           testID="register-confirm"
         />
-        <AuthCheckbox checked={agreed} onToggle={() => setAgreed(!agreed)} label="auth.register.agree">
+        <AuthCheckbox checked={agreed} onToggle={() => setAgreed(!agreed)} label="auth.register.agree" testID="register-terms">
           <LocalizedText style={{ fontFamily: FONT.regular, fontSize: 13, lineHeight: 21, color: c.text.primary, textAlign: 'auto' }}>
             {'auth.register.agreePrefix'}{' '}
             <LocalizedText accessibilityRole="link" onPress={() => router.push('/(auth)/terms')} style={{ color: c.action.primary.bg, fontFamily: FONT.medium }}>{'auth.register.terms'}</LocalizedText>
