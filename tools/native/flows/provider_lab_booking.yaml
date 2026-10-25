@@ -1,0 +1,10 @@
+# Lab (provider app): a patient's booking (made by the API) is in the lab's inbox as a new request with the patient's name.
+appId: com.nabd.provider
+---
+- runScript:
+    file: scripts/lab_booking.js
+- runFlow: common_provider_login.yaml
+- extendedWaitUntil:
+    visible: ".*native-labber.*"
+    timeout: 90000
+- takeScreenshot: provider_lab_inbox

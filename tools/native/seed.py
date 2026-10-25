@@ -56,6 +56,8 @@ def post(self, path, body=None, *a, **k):
             state['providers']['pharmacy_stock'] = dict(state['providers']['pharmacy'])
     if path == '/provider/schedule-slots' and self.token in state['tok'] and 'doctor_slots' not in state['providers']:
         state['providers']['doctor_slots'] = dict(state['tok'][self.token])   # the doctor who published clinic hours: patients can book them
+    if path == '/labs/samples/register' and self.token in state['tok'] and 'lab_stock' not in state['providers']:
+        state['providers']['lab_stock'] = dict(state['tok'][self.token])   # the lab that runs the seeded tests: patients can book it
     return r
 
 

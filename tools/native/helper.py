@@ -95,6 +95,21 @@ def doctor_appointment():
     return {'ok': bool(aid), 'appointment_id': aid, 'token': p['token'], 'detail': '' if aid else str(r)}
 
 
+def lab_booking():
+    """A new patient books two tests at the seeded lab (at the facility, cash), as the patient app does; the lab flow finds the request in the lab app."""
+    import j_accounts, datetime
+    lab = provider('lab_stock')
+    lab_id = lab.get('/provider/me').get('account', 'id')
+    p = j_accounts.app_signup(label='native-labber')
+    me = lib.Client(p['token'], 'patient')
+    services = me.get('/labs/services').items()
+    when = (datetime.datetime.now() + datetime.timedelta(days=1)).replace(hour=10, minute=0, second=0, microsecond=0).astimezone().isoformat()
+    r = me.post('/labs/bookings', {'items': [{'service_id': services[0]['id']}], 'scheduled_at': when, 'location_type': 'facility',
+                                   'payment_method': 'cash', 'provider_account_id': lab_id})
+    bid = r.get('id')
+    return {'ok': bool(bid), 'booking_id': bid, 'token': p['token'], 'detail': '' if bid else str(r)}
+
+
 def otp(to, since):
     return lib.mail_code(to, since, timeout=25)
 
@@ -134,6 +149,8 @@ class H(BaseHTTPRequestHandler):
                 return self._send(200, {'email': p['email'], 'phone': p['phone'], 'password': p['password'], 'name': 'اختبار native-extra'})
             if u.path == '/meds':
                 return self._send(200, accounts().get('meds', []))
+            if u.path == '/lab/booking':
+                return self._send(200, lab_booking())
             if u.path == '/doctor/appointment':
                 return self._send(200, doctor_appointment())
             if u.path == '/pharmacy/order':
