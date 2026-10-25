@@ -1,4 +1,4 @@
-// Issue 1832: the bookings reads carry the catalogue names in the six languages (one batched catalogue query), the stored ar/en as the fallback.
+// Issue 1832: the bookings reads carry the catalogue names (Arabic and English since the owner decision of 2026-10-25; one batched catalogue query), the stored ar/en as the fallback.
 import { LabsService } from './labs.service';
 import { RadiologyOpsService } from '../radiology/radiology.service';
 import { HomeCareSvc } from '../home-care/home-care.service';
@@ -25,7 +25,7 @@ describe('bookings read endpoints resolve names from the catalogue (issue 1832)'
     const out = await svc.mineFor({ id: 'u1' });
     expect(cat.find).toHaveBeenCalledTimes(1);
     expect(cat.find.mock.calls[0][0]).toEqual({ id: { $in: ['cbc'] } });
-    expect(out[0].items[0].names).toMatchObject({ ar: 'صورة دم', en: 'CBC', hi: 'रक्त', bn: 'রক্ত', ur: 'خون', tl: 'Dugo' });
+    expect(out[0].items[0].names).toEqual({ ar: 'صورة دم', en: 'CBC' });
     expect(out[0].items[0].name_ar).toBe('قديم'); // the stored fields are untouched
     expect(out[1].items[0].names).toEqual({ ar: 'بلا معرف', en: 'no id' });
   });
@@ -48,7 +48,7 @@ describe('bookings read endpoints resolve names from the catalogue (issue 1832)'
     svc.centerBkgModel = { find: () => chain([{ id: 'r0', createdAt: new Date('2026-10-01'), scan_name_ar: 'قديم جداً', scan_name_en: 'very old', status: 'DONE' }]) };
     const out = await svc.mineFor({ id: 'u1' });
     expect(cat.find).toHaveBeenCalledTimes(1);
-    expect(out[0].scan_names).toMatchObject({ ar: 'رنين', en: 'MRI', hi: 'एमआरआई' });
+    expect(out[0].scan_names).toEqual({ ar: 'رنين', en: 'MRI' });
     expect(out[1].scan_names).toEqual({ ar: 'قديم جداً', en: 'very old' });
   });
 
@@ -61,7 +61,7 @@ describe('bookings read endpoints resolve names from the catalogue (issue 1832)'
       { id: 'n2', service_name_ar: 'قديم', service_name_en: 'old' },
     ]) };
     const out = await svc.mineFor({ id: 'u1' });
-    expect(out[0].service_names).toEqual({ ar: 'جروح', en: 'Wound care', tl: 'Sugat' });
+    expect(out[0].service_names).toEqual({ ar: 'جروح', en: 'Wound care' });
     expect(out[0].service_name_ar).toBe('قديم');
     expect(out[1].service_names).toEqual({ ar: 'قديم', en: 'old' });
   });

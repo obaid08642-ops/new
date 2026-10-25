@@ -37,18 +37,7 @@ export class Location {
   @Prop({ required: true, index: true })
   name_en: string;
 
-  // Issue 1831: the name in Urdu, Hindi, Bengali and Filipino (tl), where the data has it; the pages fall back to name_en.
-  @Prop({ type: String, required: false })
-  name_ur?: string;
-
-  @Prop({ type: String, required: false })
-  name_hi?: string;
-
-  @Prop({ type: String, required: false })
-  name_bn?: string;
-
-  @Prop({ type: String, required: false })
-  name_tl?: string;
+  // Names are Arabic and English only (owner decision 2026-10-25): the UI shows `name_ar` on the Arabic page and `name_en` on every other.
 
   @Prop({
     required: true,

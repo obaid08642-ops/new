@@ -5,8 +5,7 @@ import { listsOf, type TextLists } from "@/lib/i18n/localized-lists";
 const idSchema = z.string().regex(/^[A-Za-z0-9_-]{1,128}$/);
 const serviceSchema = z.object({
   _id: idSchema.optional(), id: idSchema.optional(), short_code: z.string().max(80).optional(),
-  name_ar: z.string().min(1).max(180).optional(), name_en: z.string().min(1).max(180).optional(),
-  ...translatedColumns("name", 180), ...translatedColumns("description", 2000),
+  name_ar: z.string().min(1).max(180).optional(), name_en: z.string().min(1).max(180).optional(), ...translatedColumns("description", 2000),
   preparation_ur: z.array(z.string().max(500)).max(40).optional(), preparation_hi: z.array(z.string().max(500)).max(40).optional(),
   preparation_bn: z.array(z.string().max(500)).max(40).optional(), preparation_tl: z.array(z.string().max(500)).max(40).optional(),
   modality: z.string().max(80).optional(), body_part: z.string().max(100).optional(),

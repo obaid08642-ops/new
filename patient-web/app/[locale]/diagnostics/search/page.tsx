@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { isLabCategory, type LabCategory } from "@/lib/lab-categories";
 import { isLocale } from "@/lib/i18n";
-import { pickTexts, textsOf } from "@/lib/i18n/localized";
+import { namesOf, pickName } from "@/lib/i18n/localized";
 import { callPatientApi } from "@/lib/api/upstream";
 import { DiagnosticsSearchClient, type SearchRow } from "@/components-next/diagnostics-search-client";
 import { ConsultPage } from "@/components-next/consult/consult-page";
@@ -20,16 +20,16 @@ function extractServices(payload: unknown, locale: string, categoryLabel: (code:
     const o = item as Record<string, unknown>;
     const id = typeof o._id === "string" ? o._id : typeof o.id === "string" ? o.id : null;
     if (!id) return [];
-    // /labs/services sends the name in every language it holds (name_ar, name_en, name_ur, name_hi, name_bn, name_tl): the page reads its own.
-    const names = textsOf(o, "name");
+    // /labs/services sends the name in Arabic and English (names are ar/en only, owner decision 2026-10-25): Arabic on the Arabic page, English on every other.
+    const names = namesOf(o);
     // a row that sends only a generic `name` is that name in every language it lacks
     if (str(o.name)) { names.en = names.en ?? str(o.name); names.ar = names.ar ?? str(o.name); }
-    const name = pickTexts(locale, names);
+    const name = pickName(locale, names);
     if (!name) return [];
     const code = typeof o.category === "string" ? o.category.trim().toLowerCase() : "";
     const category = isLabCategory(code) ? categoryLabel(code) : undefined;
     const rawPrice = o.price ?? o.base_price;
-    // every language's name is searchable, so a patient may type the English name on a Hindi page
+    // both names are searchable, so a patient may type the English name on a Hindi page
     return [{ id, name, search: Object.values(names).join(" "), category, price: typeof rawPrice === "number" && Number.isFinite(rawPrice) ? rawPrice : undefined }];
   });
 }

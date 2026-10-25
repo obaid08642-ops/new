@@ -5,7 +5,7 @@
   "status": "published",
   "medical_review_status": "approved",
   "post_launch_review": "pending",
-  "review_note": "Published per the owner; the owner's legal and medical reviewers check after launch. Written conservatively: no dosing, no diagnosis, emergencies sent to emergency care.",
+  "review_note": "Published per the owner; the owner's legal and medical reviewers check after launch. Written conservatively: no dosing, no diagnosis, emergencies sent to emergency care. 2026-10-25 (owner): names of tests, scans and nursing services stay Arabic and English only; this file now carries descriptions, preparations and fasting rules.",
   "languages": [
     "ar",
     "en",
@@ -26,12 +26,6 @@
         "names_en": [
           "Complete Blood Count"
         ]
-      },
-      "names": {
-        "ur": "خون کا مکمل ٹیسٹ (CBC)",
-        "hi": "संपूर्ण रक्त गणना (CBC)",
-        "bn": "কমপ্লিট ব্লাড কাউন্ট (CBC)",
-        "fil": "Complete Blood Count (CBC)"
       },
       "description": {
         "en": "Counts red cells, white cells and platelets and measures haemoglobin.",
@@ -97,12 +91,6 @@
           "Vitamin D"
         ]
       },
-      "names": {
-        "ur": "وٹامن ڈی (25-OH)",
-        "hi": "विटामिन डी (25-OH)",
-        "bn": "ভিটামিন ডি (25-OH)",
-        "fil": "Bitamina D (25-OH)"
-      },
       "description": {
         "en": "Measures 25-hydroxy vitamin D, the main form of vitamin D stored in the body.",
         "ar": "يقيس فيتامين د (25-هيدروكسي)، وهو الشكل الرئيسي المخزّن من فيتامين د في الجسم.",
@@ -165,12 +153,6 @@
         "names_en": [
           "Fasting Blood Sugar"
         ]
-      },
-      "names": {
-        "ur": "خالی پیٹ شوگر (FBS)",
-        "hi": "उपवास रक्त शर्करा (FBS)",
-        "bn": "খালি পেটে রক্তে শর্করা (FBS)",
-        "fil": "Fasting Blood Sugar (FBS)"
       },
       "description": {
         "en": "Measures blood glucose after an overnight fast.",
@@ -236,12 +218,6 @@
           "TSH"
         ]
       },
-      "names": {
-        "ur": "تھائیرائیڈ محرک ہارمون (TSH)",
-        "hi": "थायरॉइड उत्तेजक हार्मोन (TSH)",
-        "bn": "থাইরয়েড স্টিমুলেটিং হরমোন (TSH)",
-        "fil": "Thyroid Stimulating Hormone (TSH)"
-      },
       "description": {
         "en": "Measures the pituitary hormone that controls the thyroid gland.",
         "ar": "يقيس هرمون الغدة النخامية الذي ينظّم عمل الغدة الدرقية.",
@@ -306,12 +282,6 @@
           "HbA1c"
         ]
       },
-      "names": {
-        "ur": "تین ماہ کی اوسط شوگر (HbA1c)",
-        "hi": "तीन महीने की औसत शुगर (HbA1c)",
-        "bn": "তিন মাসের গড় শর্করা (HbA1c)",
-        "fil": "HbA1c (3-buwang average ng asukal)"
-      },
       "description": {
         "en": "Shows the average blood sugar over the past 2 to 3 months.",
         "ar": "يُظهر متوسط السكر في الدم خلال الشهرين أو الثلاثة الماضية.",
@@ -368,12 +338,6 @@
         "names_en": [
           "Kidney Function (Creatinine + Urea)"
         ]
-      },
-      "names": {
-        "ur": "گردوں کا فنکشن (کریٹینین + یوریا)",
-        "hi": "किडनी फ़ंक्शन (क्रिएटिनिन + यूरिया)",
-        "bn": "কিডনি ফাংশন (ক্রিয়েটিনিন + ইউরিয়া)",
-        "fil": "Pagsusuri sa Bato (Creatinine + Urea)"
       },
       "description": {
         "en": "Measures creatinine and urea, waste products cleared by the kidneys.",
@@ -437,12 +401,6 @@
         "names_en": [
           "Ferritin"
         ]
-      },
-      "names": {
-        "ur": "فیریٹن (آئرن کا ذخیرہ)",
-        "hi": "फ़ेरिटिन (आयरन भंडार)",
-        "bn": "ফেরিটিন (আয়রনের মজুত)",
-        "fil": "Ferritin (imbak ng iron)"
       },
       "description": {
         "en": "Measures ferritin, which reflects the iron stored in the body.",
@@ -508,12 +466,6 @@
           "Lipid Profile"
         ]
       },
-      "names": {
-        "ur": "چکنائی کا پروفائل (لپڈ پروفائل)",
-        "hi": "लिपिड प्रोफ़ाइल",
-        "bn": "লিপিড প্রোফাইল",
-        "fil": "Pagsusuri sa Taba sa Dugo (Lipid Profile)"
-      },
       "description": {
         "en": "Measures total cholesterol, LDL, HDL and triglycerides.",
         "ar": "يقيس الكوليسترول الكلي والضار (LDL) والنافع (HDL) والدهون الثلاثية.",
@@ -576,12 +528,6 @@
         "names_en": [
           "Liver Enzymes (ALT + AST)"
         ]
-      },
-      "names": {
-        "ur": "جگر کے انزائمز (ALT + AST)",
-        "hi": "लिवर एंज़ाइम (ALT + AST)",
-        "bn": "লিভার এনজাইম (ALT + AST)",
-        "fil": "Pagsusuri sa Atay (ALT + AST)"
       },
       "description": {
         "en": "Measures the liver enzymes ALT and AST.",
@@ -649,12 +595,6 @@
           "Complete Urine Analysis"
         ]
       },
-      "names": {
-        "ur": "پیشاب کا مکمل ٹیسٹ",
-        "hi": "पेशाब की पूरी जांच",
-        "bn": "প্রস্রাবের পূর্ণ পরীক্ষা",
-        "fil": "Kumpletong Urinalysis"
-      },
       "description": {
         "en": "Checks the urine for colour, sugar, protein, blood, cells and crystals.",
         "ar": "يفحص البول من حيث اللون والسكر والبروتين والدم والخلايا والأملاح.",
@@ -718,12 +658,6 @@
           "Pregnancy Hormone (Beta-hCG)"
         ]
       },
-      "names": {
-        "ur": "حمل کا ہارمون (بیٹا ایچ سی جی)",
-        "hi": "गर्भावस्था हार्मोन (बीटा-hCG)",
-        "bn": "গর্ভাবস্থার হরমোন (বিটা-hCG)",
-        "fil": "Hormone sa Pagbubuntis (Beta-hCG)"
-      },
       "description": {
         "en": "Measures the pregnancy hormone hCG in the blood.",
         "ar": "يقيس هرمون الحمل (hCG) في الدم.",
@@ -780,12 +714,6 @@
         "names_en": [
           "Vitamin B12"
         ]
-      },
-      "names": {
-        "ur": "وٹامن بی 12",
-        "hi": "विटामिन बी12",
-        "bn": "ভিটামিন বি১২",
-        "fil": "Bitamina B12"
       },
       "description": {
         "en": "Measures the level of vitamin B12 in the blood.",
@@ -850,12 +778,6 @@
           "Liver Function"
         ]
       },
-      "names": {
-        "ur": "جگر کا فنکشن ٹیسٹ",
-        "hi": "लिवर फ़ंक्शन टेस्ट",
-        "bn": "লিভার ফাংশন টেস্ট",
-        "fil": "Liver Function Test"
-      },
       "description": {
         "en": "A group of tests: liver enzymes (ALT, AST, ALP, GGT), bilirubin and proteins such as albumin.",
         "ar": "مجموعة تحاليل: إنزيمات الكبد (ALT وAST وALP وGGT) والبيليروبين والبروتينات مثل الألبومين.",
@@ -918,12 +840,6 @@
         "names_en": [
           "Kidney Function"
         ]
-      },
-      "names": {
-        "ur": "گردوں کا فنکشن ٹیسٹ",
-        "hi": "किडनी फ़ंक्शन टेस्ट",
-        "bn": "কিডনি ফাংশন টেস্ট",
-        "fil": "Kidney Function Test"
       },
       "description": {
         "en": "A group of tests: creatinine, urea, estimated filtration rate (eGFR) and salts such as sodium and potassium.",
@@ -988,12 +904,6 @@
           "Hemoglobin"
         ]
       },
-      "names": {
-        "ur": "ہیموگلوبن",
-        "hi": "हीमोग्लोबिन",
-        "bn": "হিমোগ্লোবিন",
-        "fil": "Hemoglobin"
-      },
       "description": {
         "en": "Measures haemoglobin, the protein in red cells that carries oxygen.",
         "ar": "يقيس الهيموجلوبين، وهو البروتين في كريات الدم الحمراء الذي يحمل الأكسجين.",
@@ -1053,12 +963,6 @@
           "Blood Group + Rh Factor"
         ]
       },
-      "names": {
-        "ur": "بلڈ گروپ اور آر ایچ فیکٹر",
-        "hi": "ब्लड ग्रुप और Rh फ़ैक्टर",
-        "bn": "রক্তের গ্রুপ ও Rh ফ্যাক্টর",
-        "fil": "Blood Type at Rh Factor"
-      },
       "description": {
         "en": "Finds your ABO blood group and Rh factor (positive or negative).",
         "ar": "يحدد فصيلة الدم (ABO) والعامل الريزي (موجب أو سالب).",
@@ -1116,12 +1020,6 @@
           "C-Reactive Protein"
         ]
       },
-      "names": {
-        "ur": "سی ری ایکٹو پروٹین (CRP)",
-        "hi": "सी-रिएक्टिव प्रोटीन (CRP)",
-        "bn": "সি-রিঅ্যাক্টিভ প্রোটিন (CRP)",
-        "fil": "C-Reactive Protein (CRP)"
-      },
       "description": {
         "en": "Measures CRP, a protein the liver makes when there is inflammation.",
         "ar": "يقيس بروتين CRP الذي يفرزه الكبد عند وجود التهاب.",
@@ -1178,12 +1076,6 @@
         "names_en": [
           "Free T3 + Free T4"
         ]
-      },
-      "names": {
-        "ur": "فری T3 + فری T4",
-        "hi": "फ्री T3 + फ्री T4",
-        "bn": "ফ্রি T3 + ফ্রি T4",
-        "fil": "Mga Hormone ng Thyroid (Free T3 + Free T4)"
       },
       "description": {
         "en": "Measures the free (active) thyroid hormones T3 and T4.",
@@ -1248,12 +1140,6 @@
           "2-Hour Postprandial Glucose"
         ]
       },
-      "names": {
-        "ur": "کھانے کے 2 گھنٹے بعد شوگر",
-        "hi": "भोजन के 2 घंटे बाद शुगर",
-        "bn": "খাওয়ার ২ ঘণ্টা পর শর্করা",
-        "fil": "Asukal 2 oras pagkatapos kumain"
-      },
       "description": {
         "en": "Measures blood glucose 2 hours after a meal.",
         "ar": "يقيس السكر في الدم بعد ساعتين من الأكل.",
@@ -1316,12 +1202,6 @@
         "names_en": [
           "Electrolytes (Na/K/Cl)"
         ]
-      },
-      "names": {
-        "ur": "الیکٹرولائٹس (سوڈیم/پوٹاشیم/کلورائیڈ)",
-        "hi": "इलेक्ट्रोलाइट्स (सोडियम/पोटैशियम/क्लोराइड)",
-        "bn": "ইলেক্ট্রোলাইট (সোডিয়াম/পটাশিয়াম/ক্লোরাইড)",
-        "fil": "Mga Electrolyte (Na/K/Cl)"
       },
       "description": {
         "en": "Measures sodium, potassium and chloride in the blood.",
@@ -1386,12 +1266,6 @@
           "Hepatitis B Surface Antigen"
         ]
       },
-      "names": {
-        "ur": "ہیپاٹائٹس بی سرفیس اینٹیجن (HBsAg)",
-        "hi": "हेपेटाइटिस बी सरफेस एंटीजन (HBsAg)",
-        "bn": "হেপাটাইটিস বি সারফেস অ্যান্টিজেন (HBsAg)",
-        "fil": "Hepatitis B Surface Antigen (HBsAg)"
-      },
       "description": {
         "en": "Looks for the surface antigen of the hepatitis B virus in the blood.",
         "ar": "يبحث عن المستضد السطحي لفيروس التهاب الكبد ب في الدم.",
@@ -1454,12 +1328,6 @@
         "names_en": [
           "Iron + Ferritin"
         ]
-      },
-      "names": {
-        "ur": "آئرن + فیریٹن",
-        "hi": "आयरन + फ़ेरिटिन",
-        "bn": "আয়রন + ফেরিটিন",
-        "fil": "Bakal + Ferritin"
       },
       "description": {
         "en": "Measures serum iron together with ferritin (iron stores).",
@@ -1530,12 +1398,6 @@
           "Iron + TIBC"
         ]
       },
-      "names": {
-        "ur": "آئرن + TIBC",
-        "hi": "आयरन + TIBC",
-        "bn": "আয়রন + TIBC",
-        "fil": "Bakal + TIBC"
-      },
       "description": {
         "en": "Measures serum iron and the total iron-binding capacity (TIBC) of the blood.",
         "ar": "يقيس الحديد في الدم والسعة الكلية لربط الحديد (TIBC).",
@@ -1605,12 +1467,6 @@
           "Hepatitis C Antibody"
         ]
       },
-      "names": {
-        "ur": "ہیپاٹائٹس سی اینٹی باڈی",
-        "hi": "हेपेटाइटिस सी एंटीबॉडी",
-        "bn": "হেপাটাইটিস সি অ্যান্টিবডি",
-        "fil": "Antibody sa Hepatitis C (Anti-HCV)"
-      },
       "description": {
         "en": "Looks for antibodies to the hepatitis C virus.",
         "ar": "يبحث عن الأجسام المضادة لفيروس التهاب الكبد سي.",
@@ -1673,12 +1529,6 @@
         "names_en": [
           "H. Pylori Stool Antigen"
         ]
-      },
-      "names": {
-        "ur": "ایچ پائلوری (پاخانے میں اینٹیجن)",
-        "hi": "एच. पाइलोरी (मल एंटीजन)",
-        "bn": "এইচ. পাইলোরি (মলে অ্যান্টিজেন)",
-        "fil": "H. Pylori Antigen sa Dumi"
       },
       "description": {
         "en": "Looks for Helicobacter pylori bacteria in a stool sample.",
@@ -1744,12 +1594,6 @@
           "ESR"
         ]
       },
-      "names": {
-        "ur": "ای ایس آر (خون کے خلیوں کے بیٹھنے کی رفتار)",
-        "hi": "ईएसआर (रक्त कोशिका अवसादन दर)",
-        "bn": "ইএসআর (লোহিত কণিকা থিতানোর হার)",
-        "fil": "ESR (Erythrocyte Sedimentation Rate)"
-      },
       "description": {
         "en": "Measures how fast red cells settle in a tube of blood.",
         "ar": "يقيس سرعة ترسّب كريات الدم الحمراء في أنبوب العينة.",
@@ -1806,12 +1650,6 @@
         "names_en": [
           "Coagulation Profile (PT/INR/aPTT)"
         ]
-      },
-      "names": {
-        "ur": "خون جمنے کا پروفائل (PT/INR/aPTT)",
-        "hi": "रक्त जमाव प्रोफ़ाइल (PT/INR/aPTT)",
-        "bn": "রক্ত জমাট বাঁধার প্রোফাইল (PT/INR/aPTT)",
-        "fil": "Pagsusuri sa Pamumuo ng Dugo (PT/INR/aPTT)"
       },
       "description": {
         "en": "Measures how long the blood takes to clot (PT, INR and aPTT).",
@@ -1876,12 +1714,6 @@
           "Total Calcium"
         ]
       },
-      "names": {
-        "ur": "کل کیلشیم",
-        "hi": "कुल कैल्शियम",
-        "bn": "মোট ক্যালসিয়াম",
-        "fil": "Kabuuang Calcium"
-      },
       "description": {
         "en": "Measures the total calcium in the blood.",
         "ar": "يقيس الكالسيوم الكلي في الدم.",
@@ -1944,12 +1776,6 @@
         "names_en": [
           "Prostate Specific Antigen"
         ]
-      },
-      "names": {
-        "ur": "پروسٹیٹ اسپیسفک اینٹیجن (PSA)",
-        "hi": "प्रोस्टेट स्पेसिफ़िक एंटीजन (PSA)",
-        "bn": "প্রোস্টেট স্পেসিফিক অ্যান্টিজেন (PSA)",
-        "fil": "Prostate Specific Antigen (PSA)"
       },
       "description": {
         "en": "Measures PSA, a protein made by the prostate gland.",
@@ -2014,12 +1840,6 @@
           "T3"
         ]
       },
-      "names": {
-        "ur": "ٹرائی آئیوڈوتھائیرونین (T3)",
-        "hi": "ट्राईआयोडोथायरोनिन (T3)",
-        "bn": "ট্রাইআয়োডোথাইরোনিন (T3)",
-        "fil": "T3 (Triiodothyronine)"
-      },
       "description": {
         "en": "Measures the thyroid hormone T3 (triiodothyronine).",
         "ar": "يقيس هرمون الغدة الدرقية T3 (ثلاثي يود الثيرونين).",
@@ -2082,12 +1902,6 @@
         "names_en": [
           "T4"
         ]
-      },
-      "names": {
-        "ur": "تھائیروکسین (T4)",
-        "hi": "थायरोक्सिन (T4)",
-        "bn": "থাইরক্সিন (T4)",
-        "fil": "T4 (Thyroxine)"
       },
       "description": {
         "en": "Measures the thyroid hormone T4 (thyroxine).",
@@ -2152,12 +1966,6 @@
           "Stool Analysis"
         ]
       },
-      "names": {
-        "ur": "پاخانے کا ٹیسٹ",
-        "hi": "मल की जांच",
-        "bn": "মল পরীক্ষা",
-        "fil": "Pagsusuri sa Dumi"
-      },
       "description": {
         "en": "Examines a stool sample for parasites, blood, cells and digestion.",
         "ar": "يفحص عينة البراز للبحث عن الطفيليات والدم والخلايا ومدى الهضم.",
@@ -2214,12 +2022,6 @@
         "names_en": [
           "Testosterone"
         ]
-      },
-      "names": {
-        "ur": "ٹیسٹوسٹیرون",
-        "hi": "टेस्टोस्टेरोन",
-        "bn": "টেস্টোস্টেরন",
-        "fil": "Testosterone"
       },
       "description": {
         "en": "Measures the hormone testosterone in the blood.",
@@ -2285,12 +2087,6 @@
           "Oral Glucose Tolerance Test"
         ]
       },
-      "names": {
-        "ur": "گلوکوز برداشت ٹیسٹ (OGTT)",
-        "hi": "ग्लूकोज़ टॉलरेंस टेस्ट (OGTT)",
-        "bn": "গ্লুকোজ টলারেন্স টেস্ট (OGTT)",
-        "fil": "Oral Glucose Tolerance Test (OGTT)"
-      },
       "description": {
         "en": "Measures blood sugar fasting and then after a standard glucose drink.",
         "ar": "يقيس السكر في الدم صائمًا ثم بعد شرب محلول سكري قياسي.",
@@ -2353,12 +2149,6 @@
         "names_en": [
           "Common Allergy Panel (20 items)"
         ]
-      },
-      "names": {
-        "ur": "عام الرجی پینل (20 اشیاء)",
-        "hi": "सामान्य एलर्जी पैनल (20 चीज़ें)",
-        "bn": "সাধারণ অ্যালার্জি প্যানেল (২০টি)",
-        "fil": "Karaniwang Panel sa Allergy (20 item)"
       },
       "description": {
         "en": "Measures IgE antibodies to 20 common food and airborne allergens.",
@@ -2423,12 +2213,6 @@
         "names_en": [
           "Prolactin"
         ]
-      },
-      "names": {
-        "ur": "پرولیکٹن",
-        "hi": "प्रोलैक्टिन",
-        "bn": "প্রোল্যাক্টিন",
-        "fil": "Prolactin"
       },
       "description": {
         "en": "Measures prolactin, a pituitary hormone involved in breast milk production.",
@@ -2499,12 +2283,6 @@
           "Magnesium"
         ]
       },
-      "names": {
-        "ur": "میگنیشیم",
-        "hi": "मैग्नीशियम",
-        "bn": "ম্যাগনেসিয়াম",
-        "fil": "Magnesium"
-      },
       "description": {
         "en": "Measures the level of magnesium in the blood.",
         "ar": "يقيس مستوى المغنيسيوم في الدم.",
@@ -2567,12 +2345,6 @@
         "names_en": [
           "D-Dimer"
         ]
-      },
-      "names": {
-        "ur": "ڈی ڈائمر",
-        "hi": "डी-डाइमर",
-        "bn": "ডি-ডাইমার",
-        "fil": "D-Dimer"
       },
       "description": {
         "en": "Measures D-dimer, a fragment released when a blood clot breaks down.",
@@ -2637,12 +2409,6 @@
           "CK-MB"
         ]
       },
-      "names": {
-        "ur": "سی کے ایم بی",
-        "hi": "सीके-एमबी",
-        "bn": "সিকে-এমবি",
-        "fil": "CK-MB"
-      },
       "description": {
         "en": "Measures CK-MB, an enzyme found mainly in heart muscle.",
         "ar": "يقيس إنزيم CK-MB الموجود أساسًا في عضلة القلب.",
@@ -2705,12 +2471,6 @@
         "names_en": [
           "Zinc"
         ]
-      },
-      "names": {
-        "ur": "زنک",
-        "hi": "ज़िंक",
-        "bn": "জিংক",
-        "fil": "Zinc"
       },
       "description": {
         "en": "Measures the level of zinc in the blood.",
@@ -2776,12 +2536,6 @@
           "Cortisol"
         ]
       },
-      "names": {
-        "ur": "کورٹیسول",
-        "hi": "कोर्टिसोल",
-        "bn": "কর্টিসল",
-        "fil": "Cortisol"
-      },
       "description": {
         "en": "Measures cortisol, a stress hormone made by the adrenal glands.",
         "ar": "يقيس الكورتيزول، وهو هرمون تفرزه الغدة الكظرية.",
@@ -2844,12 +2598,6 @@
         "names_en": [
           "Parathyroid Hormone"
         ]
-      },
-      "names": {
-        "ur": "پیرا تھائیرائیڈ ہارمون (PTH)",
-        "hi": "पैराथायरॉइड हार्मोन (PTH)",
-        "bn": "প্যারাথাইরয়েড হরমোন (PTH)",
-        "fil": "Parathyroid Hormone (PTH)"
       },
       "description": {
         "en": "Measures parathyroid hormone, which controls calcium in the blood and bones.",
@@ -2914,12 +2662,6 @@
           "CA-125 Tumor Marker"
         ]
       },
-      "names": {
-        "ur": "سی اے 125 (ٹیومر مارکر)",
-        "hi": "सीए-125 (ट्यूमर मार्कर)",
-        "bn": "সিএ-১২৫ (টিউমার মার্কার)",
-        "fil": "Tumor Marker na CA-125"
-      },
       "description": {
         "en": "Measures CA-125, a protein that can be raised in some ovarian conditions.",
         "ar": "يقيس CA-125، وهو بروتين قد يرتفع في بعض حالات المبيض.",
@@ -2983,12 +2725,6 @@
           "G6PD Enzyme"
         ]
       },
-      "names": {
-        "ur": "جی 6 پی ڈی انزائم",
-        "hi": "जी6पीडी एंज़ाइम",
-        "bn": "জি৬পিডি এনজাইম",
-        "fil": "Enzyme na G6PD"
-      },
       "description": {
         "en": "Measures the G6PD enzyme that protects red blood cells.",
         "ar": "يقيس إنزيم G6PD الذي يحمي كريات الدم الحمراء.",
@@ -3045,12 +2781,6 @@
         "names_en": [
           "Alpha-Fetoprotein"
         ]
-      },
-      "names": {
-        "ur": "الفا فیٹوپروٹین (AFP)",
-        "hi": "अल्फ़ा-फ़ीटोप्रोटीन (AFP)",
-        "bn": "আলফা-ফিটোপ্রোটিন (AFP)",
-        "fil": "Alpha-Fetoprotein (AFP)"
       },
       "description": {
         "en": "Measures alpha-fetoprotein (AFP) in the blood.",
@@ -3116,12 +2846,6 @@
           "Troponin I"
         ]
       },
-      "names": {
-        "ur": "ٹروپونن آئی",
-        "hi": "ट्रोपोनिन आई",
-        "bn": "ট্রোপোনিন আই",
-        "fil": "Troponin I"
-      },
       "description": {
         "en": "Measures troponin I, a protein released when heart muscle is injured.",
         "ar": "يقيس التروبونين I، وهو بروتين يتحرر عند إصابة عضلة القلب.",
@@ -3184,12 +2908,6 @@
         "names_en": [
           "Homocysteine"
         ]
-      },
-      "names": {
-        "ur": "ہوموسسٹین",
-        "hi": "होमोसिस्टीन",
-        "bn": "হোমোসিস্টিন",
-        "fil": "Homocysteine"
       },
       "description": {
         "en": "Measures homocysteine, an amino acid in the blood.",
@@ -3254,12 +2972,6 @@
           "HIV Test"
         ]
       },
-      "names": {
-        "ur": "ایچ آئی وی ٹیسٹ",
-        "hi": "एचआईवी टेस्ट",
-        "bn": "এইচআইভি পরীক্ষা",
-        "fil": "Pagsusuri sa HIV"
-      },
       "description": {
         "en": "Looks for HIV antibodies and antigen in the blood.",
         "ar": "يبحث عن الأجسام المضادة والمستضد لفيروس نقص المناعة البشرية في الدم.",
@@ -3323,12 +3035,6 @@
           "Pap Smear"
         ]
       },
-      "names": {
-        "ur": "پیپ اسمیئر",
-        "hi": "पैप स्मीयर",
-        "bn": "প্যাপ স্মিয়ার",
-        "fil": "Pap Smear"
-      },
       "description": {
         "en": "A gentle swab of cells from the cervix, examined under a microscope.",
         "ar": "مسحة لطيفة لخلايا عنق الرحم تُفحص تحت المجهر.",
@@ -3385,12 +3091,6 @@
         "names_en": [
           "Semen Analysis"
         ]
-      },
-      "names": {
-        "ur": "منی کا تجزیہ",
-        "hi": "वीर्य विश्लेषण",
-        "bn": "বীর্য বিশ্লেষণ",
-        "fil": "Pagsusuri sa Semilya"
       },
       "description": {
         "en": "Examines a semen sample for sperm count, movement and shape.",
@@ -3449,12 +3149,6 @@
           "Quantiferon-TB"
         ]
       },
-      "names": {
-        "ur": "کوانٹی فیرون ٹی بی",
-        "hi": "क्वांटिफ़ेरॉन-टीबी",
-        "bn": "কোয়ান্টিফেরন-টিবি",
-        "fil": "QuantiFERON-TB"
-      },
       "description": {
         "en": "A blood test (interferon-gamma release assay) for tuberculosis infection.",
         "ar": "تحليل دم (اختبار إطلاق الإنترفيرون غاما) للكشف عن عدوى السل.",
@@ -3511,12 +3205,6 @@
         "names_en": [
           "Progesterone"
         ]
-      },
-      "names": {
-        "ur": "پروجیسٹرون",
-        "hi": "प्रोजेस्टेरोन",
-        "bn": "প্রোজেস্টেরন",
-        "fil": "Progesterone"
       },
       "description": {
         "en": "Measures the hormone progesterone in the blood.",
@@ -3581,12 +3269,6 @@
           "Hb Electrophoresis"
         ]
       },
-      "names": {
-        "ur": "ہیموگلوبن الیکٹروفوریسس",
-        "hi": "हीमोग्लोबिन इलेक्ट्रोफ़ोरेसिस",
-        "bn": "হিমোগ্লোবিন ইলেক্ট্রোফোরেসিস",
-        "fil": "Hemoglobin Electrophoresis"
-      },
       "description": {
         "en": "Separates the types of haemoglobin in the blood.",
         "ar": "يفصل أنواع الهيموجلوبين الموجودة في الدم.",
@@ -3643,12 +3325,6 @@
         "names_en": [
           "General Wellness Package"
         ]
-      },
-      "names": {
-        "ur": "عمومی صحت کا پیکج",
-        "hi": "सामान्य स्वास्थ्य पैकेज",
-        "bn": "সাধারণ স্বাস্থ্য প্যাকেজ",
-        "fil": "Pakete para sa Pangkalahatang Kalusugan"
       },
       "description": {
         "en": "Blood count, fasting sugar, lipids, kidney and liver tests and a urine test.",
@@ -3718,12 +3394,6 @@
         "names_en": [
           "Comprehensive Health Package"
         ]
-      },
-      "names": {
-        "ur": "جامع صحت پیکج",
-        "hi": "व्यापक स्वास्थ्य पैकेज",
-        "bn": "বিস্তৃত স্বাস্থ্য প্যাকেজ",
-        "fil": "Komprehensibong Pakete sa Kalusugan"
       },
       "description": {
         "en": "Blood count, fasting sugar, HbA1c, lipids, kidney and liver function, vitamin D and TSH.",
@@ -3795,12 +3465,6 @@
           "Diabetes Care Package"
         ]
       },
-      "names": {
-        "ur": "ذیابیطس کی دیکھ بھال کا پیکج",
-        "hi": "डायबिटीज़ केयर पैकेज",
-        "bn": "ডায়াবেটিস কেয়ার প্যাকেজ",
-        "fil": "Pakete sa Pangangalaga sa Diabetes"
-      },
       "description": {
         "en": "Fasting sugar, HbA1c, kidney tests, lipids and a urine test.",
         "ar": "سكر صائم وسكر تراكمي ووظائف الكلى ودهون الدم وتحليل بول.",
@@ -3869,12 +3533,6 @@
         "names_en": [
           "Vitamins & Minerals Package"
         ]
-      },
-      "names": {
-        "ur": "وٹامنز اور معدنیات کا پیکج",
-        "hi": "विटामिन और मिनरल पैकेज",
-        "bn": "ভিটামিন ও খনিজ প্যাকেজ",
-        "fil": "Pakete sa Bitamina at Mineral"
       },
       "description": {
         "en": "Vitamin D, vitamin B12, ferritin, calcium, magnesium and zinc.",
@@ -3945,12 +3603,6 @@
           "Premarital Package"
         ]
       },
-      "names": {
-        "ur": "شادی سے پہلے کی جانچ کا پیکج",
-        "hi": "विवाह-पूर्व जांच पैकेज",
-        "bn": "বিবাহপূর্ব পরীক্ষা প্যাকেজ",
-        "fil": "Pakete Bago ang Kasal"
-      },
       "description": {
         "en": "Blood count, blood group and Rh, hepatitis B and C, G6PD and fasting sugar.",
         "ar": "تحليل دم شامل وفصيلة الدم والعامل الريزي والتهاب الكبد ب وسي وإنزيم G6PD وسكر صائم.",
@@ -4013,12 +3665,6 @@
         "names_en": [
           "Fatigue Package"
         ]
-      },
-      "names": {
-        "ur": "تھکاوٹ کا پیکج",
-        "hi": "थकान पैकेज",
-        "bn": "ক্লান্তি প্যাকেজ",
-        "fil": "Pakete para sa Pagkapagod"
       },
       "description": {
         "en": "Blood count, vitamin D, vitamin B12, ferritin, TSH and magnesium.",
@@ -4089,12 +3735,6 @@
           "Pregnancy Advanced Package"
         ]
       },
-      "names": {
-        "ur": "حمل کا جامع پیکج",
-        "hi": "गर्भावस्था एडवांस पैकेज",
-        "bn": "গর্ভাবস্থা অ্যাডভান্সড প্যাকেজ",
-        "fil": "Advanced na Pakete sa Pagbubuntis"
-      },
       "description": {
         "en": "Blood count, TSH, vitamin D, iron and ferritin, and vitamin B12.",
         "ar": "تحليل دم شامل وهرمون الغدة الدرقية وفيتامين د والحديد والفيريتين وفيتامين ب12.",
@@ -4158,12 +3798,6 @@
           "Thyroid Package"
         ]
       },
-      "names": {
-        "ur": "تھائیرائیڈ پیکج",
-        "hi": "थायरॉइड पैकेज",
-        "bn": "থাইরয়েড প্যাকেজ",
-        "fil": "Pakete sa Thyroid"
-      },
       "description": {
         "en": "TSH with free T3 and free T4.",
         "ar": "هرمون TSH مع T3 الحر وT4 الحر.",
@@ -4226,12 +3860,6 @@
         "names_en": [
           "Seniors Package"
         ]
-      },
-      "names": {
-        "ur": "بزرگوں کا پیکج",
-        "hi": "वरिष्ठ नागरिक पैकेज",
-        "bn": "প্রবীণদের প্যাকেজ",
-        "fil": "Pakete para sa mga Nakatatanda"
       },
       "description": {
         "en": "Blood count, HbA1c, lipids, vitamin D, vitamin B12, kidney and liver tests, TSH, urine and salts.",
@@ -4302,12 +3930,6 @@
           "Women Hormones Package"
         ]
       },
-      "names": {
-        "ur": "خواتین کے ہارمونز کا پیکج",
-        "hi": "महिला हार्मोन पैकेज",
-        "bn": "নারী হরমোন প্যাকেজ",
-        "fil": "Pakete sa mga Hormone ng Kababaihan"
-      },
       "description": {
         "en": "TSH, T3, T4, prolactin and cortisol.",
         "ar": "هرمون TSH وT3 وT4 والبرولاكتين والكورتيزول.",
@@ -4377,12 +3999,6 @@
           "Heart Health Package"
         ]
       },
-      "names": {
-        "ur": "دل کی صحت کا پیکج",
-        "hi": "हृदय स्वास्थ्य पैकेज",
-        "bn": "হৃদ্‌স্বাস্থ্য প্যাকেজ",
-        "fil": "Pakete sa Kalusugan ng Puso"
-      },
       "description": {
         "en": "Lipids, troponin, CRP, homocysteine, fasting sugar and salts.",
         "ar": "دهون الدم والتروبونين وبروتين سي التفاعلي والهوموسيستين وسكر صائم وأملاح الدم.",
@@ -4445,12 +4061,6 @@
         "names_en": [
           "Women Health Package"
         ]
-      },
-      "names": {
-        "ur": "خواتین کی صحت کا پیکج",
-        "hi": "महिला स्वास्थ्य पैकेज",
-        "bn": "নারী স্বাস্থ্য প্যাকেজ",
-        "fil": "Pakete sa Kalusugan ng Kababaihan"
       },
       "description": {
         "en": "Prolactin, TSH, vitamin D, ferritin, blood count and CA-125.",
@@ -4521,12 +4131,6 @@
           "Cardiac Package"
         ]
       },
-      "names": {
-        "ur": "قلبی پیکج",
-        "hi": "कार्डियक पैकेज",
-        "bn": "কার্ডিয়াক প্যাকেজ",
-        "fil": "Pakete para sa Puso"
-      },
       "description": {
         "en": "Lipids, CK-MB and blood count.",
         "ar": "دهون الدم وإنزيم CK-MB وتحليل دم شامل.",
@@ -4589,12 +4193,6 @@
         "names_en": [
           "Men Health Package"
         ]
-      },
-      "names": {
-        "ur": "مردوں کی صحت کا پیکج",
-        "hi": "पुरुष स्वास्थ्य पैकेज",
-        "bn": "পুরুষ স্বাস্থ্য প্যাকেজ",
-        "fil": "Pakete sa Kalusugan ng Kalalakihan"
       },
       "description": {
         "en": "Testosterone, PSA, lipids, HbA1c, vitamin D and blood count.",
@@ -4664,12 +4262,6 @@
         "names_en": [
           "Uric Acid"
         ]
-      },
-      "names": {
-        "ur": "یورک ایسڈ",
-        "hi": "यूरिक एसिड",
-        "bn": "ইউরিক অ্যাসিড",
-        "fil": "Uric Acid"
       },
       "description": {
         "en": "Measures uric acid in the blood.",
@@ -4742,12 +4334,6 @@
           "Folate (Vitamin B9)"
         ]
       },
-      "names": {
-        "ur": "فولیٹ (وٹامن بی 9)",
-        "hi": "फ़ोलेट (विटामिन बी9)",
-        "bn": "ফোলেট (ভিটামিন বি৯)",
-        "fil": "Folate (Bitamina B9)"
-      },
       "description": {
         "en": "Measures folate (vitamin B9) in the blood.",
         "ar": "يقيس حمض الفوليك (فيتامين ب9) في الدم.",
@@ -4818,12 +4404,6 @@
         "names_en": [
           "Lipase"
         ]
-      },
-      "names": {
-        "ur": "لائپیز",
-        "hi": "लाइपेज़",
-        "bn": "লাইপেজ",
-        "fil": "Lipase"
       },
       "description": {
         "en": "Measures lipase, an enzyme made by the pancreas.",
@@ -4896,12 +4476,6 @@
           "Rheumatoid Factor (RF)"
         ]
       },
-      "names": {
-        "ur": "روماٹائیڈ فیکٹر",
-        "hi": "रूमेटॉइड फ़ैक्टर",
-        "bn": "রিউমাটয়েড ফ্যাক্টর",
-        "fil": "Rheumatoid Factor"
-      },
       "description": {
         "en": "Looks for rheumatoid factor, an antibody found in some joint diseases.",
         "ar": "يبحث عن عامل الروماتويد، وهو جسم مضاد يظهر في بعض أمراض المفاصل.",
@@ -4966,12 +4540,6 @@
         "names_en": [
           "ASO Titer"
         ]
-      },
-      "names": {
-        "ur": "اے ایس او ٹائٹر",
-        "hi": "एएसओ टाइटर",
-        "bn": "এএসও টাইটার",
-        "fil": "ASO Titer"
       },
       "description": {
         "en": "Measures antibodies made after a recent streptococcal (strep) infection.",
@@ -5038,12 +4606,6 @@
           "Brucella Antibodies"
         ]
       },
-      "names": {
-        "ur": "بروسیلا اینٹی باڈیز",
-        "hi": "ब्रुसेला एंटीबॉडी",
-        "bn": "ব্রুসেলা অ্যান্টিবডি",
-        "fil": "Brucella Antibodies"
-      },
       "description": {
         "en": "Looks for antibodies to Brucella, the bacteria behind Malta fever.",
         "ar": "يبحث عن الأجسام المضادة لبكتيريا البروسيلا المسببة للحمى المالطية.",
@@ -5109,12 +4671,6 @@
           "Dengue NS1 Antigen"
         ]
       },
-      "names": {
-        "ur": "ڈینگی این ایس 1",
-        "hi": "डेंगू एनएस1",
-        "bn": "ডেঙ্গু এনএস১",
-        "fil": "Dengue NS1 Antigen"
-      },
       "description": {
         "en": "Looks for the dengue virus NS1 antigen in the blood.",
         "ar": "يبحث عن مستضد NS1 لفيروس حمى الضنك في الدم.",
@@ -5179,12 +4735,6 @@
         "names_en": [
           "FSH + LH"
         ]
-      },
-      "names": {
-        "ur": "ایف ایس ایچ + ایل ایچ",
-        "hi": "एफ़एसएच + एलएच",
-        "bn": "এফএসএইচ + এলএইচ",
-        "fil": "FSH + LH"
       },
       "description": {
         "en": "Measures FSH and LH, pituitary hormones that control the ovaries and testes.",
@@ -5257,12 +4807,6 @@
           "Anti-Müllerian Hormone (AMH)"
         ]
       },
-      "names": {
-        "ur": "اینٹی مولیرین ہارمون (AMH)",
-        "hi": "एंटी-मुलेरियन हार्मोन (AMH)",
-        "bn": "অ্যান্টি-মুলেরিয়ান হরমোন (AMH)",
-        "fil": "Anti-Müllerian Hormone (AMH)"
-      },
       "description": {
         "en": "Measures AMH, a hormone that reflects the egg reserve in the ovaries.",
         "ar": "يقيس هرمون AMH الذي يعكس مخزون البويضات في المبيضين.",
@@ -5327,12 +4871,6 @@
         "names_en": [
           "Estradiol (E2)"
         ]
-      },
-      "names": {
-        "ur": "ایسٹراڈیول (E2)",
-        "hi": "एस्ट्राडियोल (E2)",
-        "bn": "এস্ট্রাডিওল (E2)",
-        "fil": "Estradiol (E2)"
       },
       "description": {
         "en": "Measures estradiol, the main female sex hormone.",
@@ -5404,12 +4942,6 @@
         "names_en": [
           "Fasting Insulin"
         ]
-      },
-      "names": {
-        "ur": "خالی پیٹ انسولین",
-        "hi": "उपवास इंसुलिन",
-        "bn": "খালি পেটে ইনসুলিন",
-        "fil": "Fasting Insulin"
       },
       "description": {
         "en": "Measures insulin in the blood after fasting.",
@@ -5484,12 +5016,6 @@
           "Urine Microalbumin"
         ]
       },
-      "names": {
-        "ur": "پیشاب میں مائیکرو البومن",
-        "hi": "पेशाब में माइक्रोएल्ब्यूमिन",
-        "bn": "প্রস্রাবে মাইক্রোঅ্যালবুমিন",
-        "fil": "Urine Microalbumin"
-      },
       "description": {
         "en": "Measures small amounts of albumin protein in the urine, usually as an albumin-to-creatinine ratio.",
         "ar": "يقيس الكميات الصغيرة من بروتين الألبومين في البول، عادة كنسبة الألبومين إلى الكرياتينين.",
@@ -5554,12 +5080,6 @@
         "names_en": [
           "Urine Culture"
         ]
-      },
-      "names": {
-        "ur": "پیشاب کا کلچر",
-        "hi": "पेशाब कल्चर",
-        "bn": "প্রস্রাবের কালচার",
-        "fil": "Urine Culture"
       },
       "description": {
         "en": "Grows bacteria from a urine sample and tests which antibiotics work against them.",
@@ -5634,12 +5154,6 @@
           "Abdominal & Pelvic Ultrasound"
         ]
       },
-      "names": {
-        "ur": "پیٹ اور پیڑو کا الٹراساؤنڈ",
-        "hi": "पेट और पेल्विस का अल्ट्रासाउंड",
-        "bn": "পেট ও শ্রোণির আল্ট্রাসাউন্ড",
-        "fil": "Ultrasound ng Tiyan at Pelvis"
-      },
       "description": {
         "en": "Sound-wave images of the liver, gallbladder, pancreas, spleen, kidneys, bladder and pelvic organs, without radiation.",
         "ar": "صور بالموجات الصوتية للكبد والمرارة والبنكرياس والطحال والكلى والمثانة وأعضاء الحوض، دون أشعة.",
@@ -5703,12 +5217,6 @@
         "names_en": [
           "Chest X-Ray"
         ]
-      },
-      "names": {
-        "ur": "سینے کا ایکسرے",
-        "hi": "छाती का एक्स-रे",
-        "bn": "বুকের এক্স-রে",
-        "fil": "X-Ray ng Dibdib"
       },
       "description": {
         "en": "An X-ray picture of the lungs, heart and chest wall, using a low radiation dose.",
@@ -5780,12 +5288,6 @@
           "Pregnancy Ultrasound"
         ]
       },
-      "names": {
-        "ur": "حمل کا الٹراساؤنڈ",
-        "hi": "गर्भावस्था अल्ट्रासाउंड",
-        "bn": "গর্ভাবস্থার আল্ট্রাসাউন্ড",
-        "fil": "Ultrasound sa Pagbubuntis"
-      },
       "description": {
         "en": "Sound-wave images of the baby, placenta and womb, without radiation.",
         "ar": "صور بالموجات الصوتية للجنين والمشيمة والرحم، دون أشعة.",
@@ -5849,12 +5351,6 @@
           "Abdomen Ultrasound"
         ]
       },
-      "names": {
-        "ur": "پیٹ کا الٹراساؤنڈ",
-        "hi": "पेट का अल्ट्रासाउंड",
-        "bn": "পেটের আল্ট্রাসাউন্ড",
-        "fil": "Ultrasound ng Tiyan"
-      },
       "description": {
         "en": "Sound-wave images of the liver, gallbladder, pancreas, spleen and kidneys, without radiation.",
         "ar": "صور بالموجات الصوتية للكبد والمرارة والبنكرياس والطحال والكلى، دون أشعة.",
@@ -5912,12 +5408,6 @@
         "names_en": [
           "Spine X-Ray"
         ]
-      },
-      "names": {
-        "ur": "ریڑھ کی ہڈی کا ایکسرے",
-        "hi": "रीढ़ का एक्स-रे",
-        "bn": "মেরুদণ্ডের এক্স-রে",
-        "fil": "X-Ray ng Gulugod"
       },
       "description": {
         "en": "X-ray pictures of the bones of the spine.",
@@ -5988,12 +5478,6 @@
           "Echocardiogram"
         ]
       },
-      "names": {
-        "ur": "دل کا ایکو",
-        "hi": "इकोकार्डियोग्राम (दिल का ईको)",
-        "bn": "ইকোকার্ডিওগ্রাম (হৃদ্‌যন্ত্রের ইকো)",
-        "fil": "Echocardiogram"
-      },
       "description": {
         "en": "An ultrasound of the heart showing its chambers, valves and pumping, without radiation.",
         "ar": "تصوير القلب بالموجات الصوتية يُظهر حجراته وصماماته وقوة ضخه، دون أشعة.",
@@ -6063,12 +5547,6 @@
           "Kidney & Bladder Ultrasound"
         ]
       },
-      "names": {
-        "ur": "گردوں اور مثانے کا الٹراساؤنڈ",
-        "hi": "किडनी और मूत्राशय का अल्ट्रासाउंड",
-        "bn": "কিডনি ও মূত্রথলির আল্ট্রাসাউন্ড",
-        "fil": "Ultrasound ng Bato at Pantog"
-      },
       "description": {
         "en": "Sound-wave images of the kidneys and bladder, without radiation.",
         "ar": "صور بالموجات الصوتية للكلى والمثانة، دون أشعة.",
@@ -6125,12 +5603,6 @@
         "names_en": [
           "Lumbar Spine MRI"
         ]
-      },
-      "names": {
-        "ur": "کمر کے نچلے حصے کا ایم آر آئی",
-        "hi": "कमर (लंबर) रीढ़ का एमआरआई",
-        "bn": "কোমরের (লাম্বার) মেরুদণ্ডের এমআরআই",
-        "fil": "MRI ng Lumbar Spine"
       },
       "description": {
         "en": "Detailed magnetic-field images of the lower back: discs, nerves and bones, without radiation.",
@@ -6202,12 +5674,6 @@
           "Knee X-Ray"
         ]
       },
-      "names": {
-        "ur": "گھٹنے کا ایکسرے",
-        "hi": "घुटने का एक्स-रे",
-        "bn": "হাঁটুর এক্স-রে",
-        "fil": "X-Ray ng Tuhod"
-      },
       "description": {
         "en": "X-ray pictures of the knee joint.",
         "ar": "صور بالأشعة السينية لمفصل الركبة.",
@@ -6277,12 +5743,6 @@
           "Breast Ultrasound"
         ]
       },
-      "names": {
-        "ur": "چھاتی کا الٹراساؤنڈ",
-        "hi": "स्तन का अल्ट्रासाउंड",
-        "bn": "স্তনের আল্ট্রাসাউন্ড",
-        "fil": "Ultrasound ng Suso"
-      },
       "description": {
         "en": "Sound-wave images of the breast tissue, without radiation.",
         "ar": "صور بالموجات الصوتية لأنسجة الثدي، دون أشعة.",
@@ -6347,12 +5807,6 @@
           "CT Brain",
           "Brain CT Scan"
         ]
-      },
-      "names": {
-        "ur": "دماغ کا سی ٹی اسکین",
-        "hi": "मस्तिष्क का सीटी स्कैन",
-        "bn": "মস্তিষ্কের সিটি স্ক্যান",
-        "fil": "CT Scan ng Utak"
       },
       "description": {
         "en": "Cross-section X-ray images of the head and brain.",
@@ -6429,12 +5883,6 @@
           "Pelvic (Gyn) Ultrasound"
         ]
       },
-      "names": {
-        "ur": "زنانہ پیڑو کا الٹراساؤنڈ",
-        "hi": "स्त्री रोग (पेल्विक) अल्ट्रासाउंड",
-        "bn": "স্ত্রীরোগ (শ্রোণি) আল্ট্রাসাউন্ড",
-        "fil": "Gynecologic (Pelvic) Ultrasound"
-      },
       "description": {
         "en": "Sound-wave images of the womb and ovaries, through the abdomen or internally, without radiation.",
         "ar": "صور بالموجات الصوتية للرحم والمبايض عبر البطن أو داخليًا، دون أشعة.",
@@ -6498,12 +5946,6 @@
         "names_en": [
           "Abdomen X-Ray"
         ]
-      },
-      "names": {
-        "ur": "پیٹ کا ایکسرے",
-        "hi": "पेट का एक्स-रे",
-        "bn": "পেটের এক্স-রে",
-        "fil": "X-Ray ng Tiyan"
       },
       "description": {
         "en": "An X-ray picture of the abdomen.",
@@ -6574,12 +6016,6 @@
           "Pelvic Ultrasound"
         ]
       },
-      "names": {
-        "ur": "پیڑو کا الٹراساؤنڈ",
-        "hi": "पेल्विस का अल्ट्रासाउंड",
-        "bn": "শ্রোণির আল্ট্রাসাউন্ড",
-        "fil": "Ultrasound ng Pelvis"
-      },
       "description": {
         "en": "Sound-wave images of the bladder and pelvic organs through the lower abdomen, without radiation.",
         "ar": "صور بالموجات الصوتية للمثانة وأعضاء الحوض عبر أسفل البطن، دون أشعة.",
@@ -6637,12 +6073,6 @@
           "Leg Veins Doppler"
         ]
       },
-      "names": {
-        "ur": "ٹانگوں کی وریدوں کا ڈاپلر",
-        "hi": "पैरों की नसों का डॉपलर",
-        "bn": "পায়ের শিরার ডপলার",
-        "fil": "Doppler ng mga Ugat sa Binti"
-      },
       "description": {
         "en": "An ultrasound that shows blood flow in the leg veins, without radiation.",
         "ar": "تصوير بالموجات الصوتية يُظهر سريان الدم في أوردة الساقين، دون أشعة.",
@@ -6699,12 +6129,6 @@
         "names_en": [
           "Mammography"
         ]
-      },
-      "names": {
-        "ur": "میموگرافی",
-        "hi": "मैमोग्राफ़ी",
-        "bn": "ম্যামোগ্রাফি",
-        "fil": "Mammography"
       },
       "description": {
         "en": "Low-dose X-ray images of the breasts.",
@@ -6776,12 +6200,6 @@
           "Thyroid Ultrasound"
         ]
       },
-      "names": {
-        "ur": "تھائیرائیڈ کا الٹراساؤنڈ",
-        "hi": "थायरॉइड अल्ट्रासाउंड",
-        "bn": "থাইরয়েড আল্ট্রাসাউন্ড",
-        "fil": "Ultrasound ng Thyroid"
-      },
       "description": {
         "en": "Sound-wave images of the thyroid gland in the neck, without radiation.",
         "ar": "صور بالموجات الصوتية للغدة الدرقية في الرقبة، دون أشعة.",
@@ -6840,12 +6258,6 @@
           "MRI Brain",
           "Brain MRI"
         ]
-      },
-      "names": {
-        "ur": "دماغ کا ایم آر آئی",
-        "hi": "मस्तिष्क का एमआरआई",
-        "bn": "মস্তিষ্কের এমআরআই",
-        "fil": "MRI ng Utak"
       },
       "description": {
         "en": "Detailed magnetic-field images of the brain, without radiation.",
@@ -6922,12 +6334,6 @@
           "Pelvis X-Ray"
         ]
       },
-      "names": {
-        "ur": "کولہے (پیلوس) کا ایکسرے",
-        "hi": "पेल्विस का एक्स-रे",
-        "bn": "শ্রোণির এক্স-রে",
-        "fil": "X-Ray ng Pelvis"
-      },
       "description": {
         "en": "An X-ray picture of the pelvis and hip joints.",
         "ar": "صورة بالأشعة السينية للحوض ومفصلي الورك.",
@@ -6996,12 +6402,6 @@
         "names_en": [
           "Abdomen CT with Contrast"
         ]
-      },
-      "names": {
-        "ur": "کنٹراسٹ کے ساتھ پیٹ کا سی ٹی اسکین",
-        "hi": "कंट्रास्ट के साथ पेट का सीटी स्कैन",
-        "bn": "কনট্রাস্টসহ পেটের সিটি স্ক্যান",
-        "fil": "CT Scan ng Tiyan na may Contrast"
       },
       "description": {
         "en": "Cross-section X-ray images of the abdomen, with contrast dye to show organs and vessels clearly.",
@@ -7077,12 +6477,6 @@
         "names_en": [
           "CT Abdomen & Pelvis"
         ]
-      },
-      "names": {
-        "ur": "پیٹ اور پیڑو کا سی ٹی اسکین",
-        "hi": "पेट और पेल्विस का सीटी स्कैन",
-        "bn": "পেট ও শ্রোণির সিটি স্ক্যান",
-        "fil": "CT Scan ng Tiyan at Pelvis"
       },
       "description": {
         "en": "Cross-section X-ray images of the abdomen and pelvis, usually with contrast dye.",
@@ -7161,12 +6555,6 @@
           "Knee MRI"
         ]
       },
-      "names": {
-        "ur": "گھٹنے کا ایم آر آئی",
-        "hi": "घुटने का एमआरआई",
-        "bn": "হাঁটুর এমআরআই",
-        "fil": "MRI ng Tuhod"
-      },
       "description": {
         "en": "Detailed magnetic-field images of the knee: ligaments, cartilage, menisci and bone, without radiation.",
         "ar": "صور مفصلة بالرنين المغناطيسي للركبة: الأربطة والغضاريف والهلالة والعظم، دون أشعة.",
@@ -7235,12 +6623,6 @@
         "names_en": [
           "Sinus X-Ray"
         ]
-      },
-      "names": {
-        "ur": "سائنس کا ایکسرے",
-        "hi": "साइनस का एक्स-रे",
-        "bn": "সাইনাসের এক্স-রে",
-        "fil": "X-Ray ng Sinus"
       },
       "description": {
         "en": "An X-ray picture of the sinuses around the nose.",
@@ -7311,12 +6693,6 @@
           "Carotid Doppler"
         ]
       },
-      "names": {
-        "ur": "گردن کی شریانوں کا ڈاپلر",
-        "hi": "गर्दन की धमनियों (कैरोटिड) का डॉपलर",
-        "bn": "ঘাড়ের ধমনির (ক্যারোটিড) ডপলার",
-        "fil": "Doppler ng Carotid Artery"
-      },
       "description": {
         "en": "An ultrasound of blood flow in the neck arteries that supply the brain, without radiation.",
         "ar": "تصوير بالموجات الصوتية لسريان الدم في شرايين الرقبة المغذية للدماغ، دون أشعة.",
@@ -7379,12 +6755,6 @@
         "names_en": [
           "Bone Density (DEXA)"
         ]
-      },
-      "names": {
-        "ur": "ہڈیوں کی کثافت (DEXA)",
-        "hi": "हड्डियों का घनत्व (DEXA)",
-        "bn": "হাড়ের ঘনত্ব (DEXA)",
-        "fil": "Pagsukat ng Densidad ng Buto (DEXA)"
       },
       "description": {
         "en": "A very low-dose X-ray that measures bone density at the spine and hip.",
@@ -7456,12 +6826,6 @@
           "CT Chest",
           "Chest CT Scan"
         ]
-      },
-      "names": {
-        "ur": "سینے کا سی ٹی اسکین",
-        "hi": "छाती का सीटी स्कैन",
-        "bn": "বুকের সিটি স্ক্যান",
-        "fil": "CT Scan ng Dibdib"
       },
       "description": {
         "en": "Cross-section X-ray images of the lungs and chest.",
@@ -7538,12 +6902,6 @@
           "MRI Spine"
         ]
       },
-      "names": {
-        "ur": "ریڑھ کی ہڈی کا ایم آر آئی",
-        "hi": "रीढ़ का एमआरआई",
-        "bn": "মেরুদণ্ডের এমআরআই",
-        "fil": "MRI ng Gulugod"
-      },
       "description": {
         "en": "Detailed magnetic-field images of a part of the spine: discs, nerves and spinal cord, without radiation.",
         "ar": "صور مفصلة بالرنين المغناطيسي لجزء من العمود الفقري: الغضاريف والأعصاب والحبل الشوكي، دون أشعة.",
@@ -7619,12 +6977,6 @@
           "Sinus CT Scan"
         ]
       },
-      "names": {
-        "ur": "سائنس کا سی ٹی اسکین",
-        "hi": "साइनस का सीटी स्कैन",
-        "bn": "সাইনাসের সিটি স্ক্যান",
-        "fil": "CT Scan ng Sinus"
-      },
       "description": {
         "en": "Cross-section X-ray images of the sinuses.",
         "ar": "صور مقطعية بالأشعة السينية للجيوب الأنفية.",
@@ -7693,12 +7045,6 @@
         "names_en": [
           "Spine CT Scan"
         ]
-      },
-      "names": {
-        "ur": "ریڑھ کی ہڈی کا سی ٹی اسکین",
-        "hi": "रीढ़ का सीटी स्कैन",
-        "bn": "মেরুদণ্ডের সিটি স্ক্যান",
-        "fil": "CT Scan ng Gulugod"
       },
       "description": {
         "en": "Cross-section X-ray images of the bones of the spine.",
@@ -7775,12 +7121,6 @@
           "Shoulder MRI"
         ]
       },
-      "names": {
-        "ur": "کندھے کا ایم آر آئی",
-        "hi": "कंधे का एमआरआई",
-        "bn": "কাঁধের এমআরআই",
-        "fil": "MRI ng Balikat"
-      },
       "description": {
         "en": "Detailed magnetic-field images of the shoulder: tendons, muscles and joint, without radiation.",
         "ar": "صور مفصلة بالرنين المغناطيسي للكتف: الأوتار والعضلات والمفصل، دون أشعة.",
@@ -7851,12 +7191,6 @@
           "HSG",
           "Hysterosalpingography (HSG)"
         ]
-      },
-      "names": {
-        "ur": "ایچ ایس جی (بچہ دانی اور نالیوں کا ایکسرے)",
-        "hi": "एचएसजी (गर्भाशय और ट्यूब का एक्स-रे)",
-        "bn": "এইচএসজি (জরায়ু ও নালির এক্স-রে)",
-        "fil": "HSG (Hysterosalpingogram)"
       },
       "description": {
         "en": "An X-ray of the womb and fallopian tubes after a contrast dye is gently passed through the cervix.",
@@ -7934,12 +7268,6 @@
           "Dental Panoramic"
         ]
       },
-      "names": {
-        "ur": "دانتوں کا پینورامک ایکسرے",
-        "hi": "दांतों का पैनोरमिक एक्स-रे",
-        "bn": "দাঁতের প্যানোরামিক এক্স-রে",
-        "fil": "Dental Panoramic X-Ray"
-      },
       "description": {
         "en": "A single low-dose X-ray showing all the teeth and both jaws.",
         "ar": "صورة واحدة بالأشعة السينية منخفضة الجرعة تُظهر جميع الأسنان والفكين.",
@@ -8003,12 +7331,6 @@
         "names_en": [
           "Barium Study"
         ]
-      },
-      "names": {
-        "ur": "بیریم اسٹڈی",
-        "hi": "बेरियम जांच",
-        "bn": "বেরিয়াম পরীক্ষা",
-        "fil": "Pagsusuri gamit ang Barium"
       },
       "description": {
         "en": "Moving X-ray images of the food pipe, stomach or bowel after you drink or are given a barium liquid.",
@@ -8079,12 +7401,6 @@
         "names_en": [
           "PET-CT Scan"
         ]
-      },
-      "names": {
-        "ur": "پی ای ٹی-سی ٹی اسکین",
-        "hi": "पीईटी-सीटी स्कैन",
-        "bn": "পিইটি-সিটি স্ক্যান",
-        "fil": "PET-CT Scan"
       },
       "description": {
         "en": "A scan that combines a CT with a small injected radioactive tracer to show how active body tissues are.",
@@ -8161,12 +7477,6 @@
           "Hand & Wrist X-Ray"
         ]
       },
-      "names": {
-        "ur": "ہاتھ اور کلائی کا ایکسرے",
-        "hi": "हाथ और कलाई का एक्स-रे",
-        "bn": "হাত ও কবজির এক্স-রে",
-        "fil": "X-Ray ng Kamay at Pulso"
-      },
       "description": {
         "en": "X-ray pictures of the hand and wrist bones.",
         "ar": "صور بالأشعة السينية لعظام اليد والرسغ.",
@@ -8238,12 +7548,6 @@
         "names_en": [
           "Foot & Ankle X-Ray"
         ]
-      },
-      "names": {
-        "ur": "پاؤں اور ٹخنے کا ایکسرے",
-        "hi": "पैर और टखने का एक्स-रे",
-        "bn": "পা ও গোড়ালির এক্স-রে",
-        "fil": "X-Ray ng Paa at Bukung-bukong"
       },
       "description": {
         "en": "X-ray pictures of the foot and ankle bones.",
@@ -8317,12 +7621,6 @@
           "Shoulder X-Ray"
         ]
       },
-      "names": {
-        "ur": "کندھے کا ایکسرے",
-        "hi": "कंधे का एक्स-रे",
-        "bn": "কাঁধের এক্স-রে",
-        "fil": "X-Ray ng Balikat"
-      },
       "description": {
         "en": "X-ray pictures of the shoulder joint.",
         "ar": "صور بالأشعة السينية لمفصل الكتف.",
@@ -8394,12 +7692,6 @@
         "names_en": [
           "Detailed Fetal Anomaly Scan"
         ]
-      },
-      "names": {
-        "ur": "بچے کا تفصیلی اینوملی اسکین",
-        "hi": "शिशु का विस्तृत एनॉमली स्कैन",
-        "bn": "শিশুর বিস্তারিত অ্যানোমালি স্ক্যান",
-        "fil": "Detalyadong Fetal Anomaly Scan"
       },
       "description": {
         "en": "A detailed pregnancy ultrasound, usually at 18 to 22 weeks, that looks at the baby's organs and growth.",
@@ -8479,12 +7771,6 @@
         "names_en": [
           "Cervical Spine MRI"
         ]
-      },
-      "names": {
-        "ur": "گردن کی ریڑھ کا ایم آر آئی",
-        "hi": "गर्दन की रीढ़ का एमआरआई",
-        "bn": "ঘাড়ের মেরুদণ্ডের এমআরআই",
-        "fil": "MRI ng Cervical Spine"
       },
       "description": {
         "en": "Detailed magnetic-field images of the neck part of the spine: discs, nerves and spinal cord, without radiation.",
@@ -8571,12 +7857,6 @@
           "CT KUB (Kidney Stones)"
         ]
       },
-      "names": {
-        "ur": "گردوں کی پتھری کا سی ٹی (CT KUB)",
-        "hi": "किडनी की पथरी का सीटी (CT KUB)",
-        "bn": "কিডনির পাথরের সিটি (CT KUB)",
-        "fil": "CT KUB (Kidney Stones)"
-      },
       "description": {
         "en": "A low-dose CT of the kidneys, ureters and bladder without contrast.",
         "ar": "أشعة مقطعية منخفضة الجرعة للكلى والحالبين والمثانة دون صبغة.",
@@ -8658,12 +7938,6 @@
           "Vital Signs Monitoring"
         ]
       },
-      "names": {
-        "ur": "اہم علامات کی پیمائش",
-        "hi": "वाइटल साइन्स की जांच",
-        "bn": "ভাইটাল সাইন পরিমাপ",
-        "fil": "Pagsukat ng Vital Signs"
-      },
       "description": {
         "en": "A nurse measures blood pressure, pulse, temperature, oxygen level and blood sugar at home and records them.",
         "ar": "يقيس الممرض في المنزل الضغط والنبض والحرارة ونسبة الأكسجين والسكر ويسجّلها.",
@@ -8722,12 +7996,6 @@
           "Blood Sample Collection"
         ]
       },
-      "names": {
-        "ur": "لیب کے لیے خون کا نمونہ",
-        "hi": "लैब के लिए खून का नमूना",
-        "bn": "ল্যাবের জন্য রক্তের নমুনা",
-        "fil": "Pagkuha ng Dugo para sa Lab"
-      },
       "description": {
         "en": "A nurse takes blood samples at home and delivers them to the laboratory.",
         "ar": "يسحب الممرض عينات الدم في المنزل ويوصلها إلى المختبر.",
@@ -8783,12 +8051,6 @@
         "names_en": [
           "Medical Injections (IV/IM)"
         ]
-      },
-      "names": {
-        "ur": "طبی انجیکشن (رگ/پٹھے میں)",
-        "hi": "चिकित्सा इंजेक्शन (नस/मांसपेशी में)",
-        "bn": "চিকিৎসা ইনজেকশন (শিরা/পেশিতে)",
-        "fil": "Mga Medikal na Iniksyon (IV/IM)"
       },
       "description": {
         "en": "A nurse gives injections into a muscle or vein at home, as prescribed.",
@@ -8851,12 +8113,6 @@
         "names_en": [
           "IV Drip Therapy"
         ]
-      },
-      "names": {
-        "ur": "آئی وی ڈرپ",
-        "hi": "आईवी ड्रिप",
-        "bn": "আইভি ড্রিপ",
-        "fil": "Terapiya sa IV Drip"
       },
       "description": {
         "en": "A nurse places a cannula and gives prescribed fluids or medicines by drip at home, watching you during the drip.",
@@ -8926,12 +8182,6 @@
           "Advanced Wound & Diabetic Foot Care"
         ]
       },
-      "names": {
-        "ur": "گہرے زخم اور ذیابیطس کے پاؤں کی دیکھ بھال",
-        "hi": "गहरे घाव और डायबिटिक फ़ुट की देखभाल",
-        "bn": "গভীর ক্ষত ও ডায়াবেটিক ফুটের যত্ন",
-        "fil": "Advanced Wound at Diabetic Foot Care"
-      },
       "description": {
         "en": "A nurse cleans and dresses deep or slow-healing wounds, including diabetic foot ulcers.",
         "ar": "ينظّف الممرض الجروح العميقة أو بطيئة الالتئام ويضمّدها، ومنها قرح القدم السكرية.",
@@ -8994,12 +8244,6 @@
           "Urinary Catheter Care"
         ]
       },
-      "names": {
-        "ur": "پیشاب کی نلی (کیتھیٹر) کی دیکھ بھال",
-        "hi": "मूत्र कैथेटर की देखभाल",
-        "bn": "মূত্র ক্যাথেটারের যত্ন",
-        "fil": "Pangangalaga sa Urinary Catheter"
-      },
       "description": {
         "en": "A nurse checks, cleans or changes a urinary catheter at home.",
         "ar": "يفحص الممرض القسطرة البولية أو ينظّفها أو يغيّرها في المنزل.",
@@ -9061,12 +8305,6 @@
         "names_en": [
           "Tracheostomy Care"
         ]
-      },
-      "names": {
-        "ur": "ٹریکیوسٹومی کی دیکھ بھال",
-        "hi": "ट्रेकियोस्टॉमी की देखभाल",
-        "bn": "ট্র্যাকিওস্টমির যত্ন",
-        "fil": "Pangangalaga sa Tracheostomy"
       },
       "description": {
         "en": "A trained nurse cleans the tracheostomy, changes the dressing and suctions secretions.",
@@ -9138,12 +8376,6 @@
           "Oxygen Therapy Setup"
         ]
       },
-      "names": {
-        "ur": "گھر پر آکسیجن تھراپی",
-        "hi": "घर पर ऑक्सीजन थेरेपी",
-        "bn": "বাড়িতে অক্সিজেন থেরাপি",
-        "fil": "Oxygen Therapy sa Bahay"
-      },
       "description": {
         "en": "A nurse sets up and checks prescribed home oxygen and shows the family how to use it safely.",
         "ar": "يجهّز الممرض الأكسجين المنزلي الموصوف ويفحصه ويعلّم الأسرة استخدامه بأمان.",
@@ -9205,12 +8437,6 @@
         "names_en": [
           "Post-Surgery Care"
         ]
-      },
-      "names": {
-        "ur": "سرجری کے بعد کی دیکھ بھال",
-        "hi": "सर्जरी के बाद देखभाल",
-        "bn": "অস্ত্রোপচার-পরবর্তী যত্ন",
-        "fil": "Pangangalaga Pagkatapos ng Operasyon"
       },
       "description": {
         "en": "Longer nursing visits after surgery: wound checks, medicines, vital signs and help moving safely.",
@@ -9280,12 +8506,6 @@
           "Elderly Companion & Care"
         ]
       },
-      "names": {
-        "ur": "بزرگوں کی دیکھ بھال اور ساتھ",
-        "hi": "बुज़ुर्गों की देखभाल और साथ",
-        "bn": "প্রবীণদের যত্ন ও সঙ্গ",
-        "fil": "Pag-aalaga at Pagsama sa Matatanda"
-      },
       "description": {
         "en": "A caregiver stays with an older person to help with daily needs, medicines on time and safety at home.",
         "ar": "يرافق مقدم رعاية كبير السن لمساعدته في احتياجاته اليومية وأدويته في مواعيدها وسلامته في المنزل.",
@@ -9343,12 +8563,6 @@
           "Mother & Newborn Care",
           "Newborn & Mother Care"
         ]
-      },
-      "names": {
-        "ur": "ماں اور نوزائیدہ کی دیکھ بھال",
-        "hi": "मां और नवजात की देखभाल",
-        "bn": "মা ও নবজাতকের যত্ন",
-        "fil": "Pangangalaga sa Ina at Sanggol"
       },
       "description": {
         "en": "A nurse visits after birth to check mother and baby, the cord and feeding, and to answer questions.",
@@ -9411,12 +8625,6 @@
         "names_en": [
           "Home ICU Care"
         ]
-      },
-      "names": {
-        "ur": "گھر پر انتہائی نگہداشت",
-        "hi": "घर पर आईसीयू देखभाल",
-        "bn": "বাড়িতে আইসিইউ যত্ন",
-        "fil": "Pangangalaga sa ICU sa Bahay"
       },
       "description": {
         "en": "Long shifts by trained nurses for patients who depend on medical devices at home, such as ventilators or feeding pumps.",
@@ -9486,12 +8694,6 @@
           "Intramuscular Injection"
         ]
       },
-      "names": {
-        "ur": "پٹھے میں انجیکشن",
-        "hi": "मांसपेशी में इंजेक्शन",
-        "bn": "পেশিতে ইনজেকশন",
-        "fil": "Iniksyon sa Kalamnan"
-      },
       "description": {
         "en": "A nurse gives a prescribed injection into a muscle at home.",
         "ar": "يعطي الممرض حقنة عضلية موصوفة في المنزل.",
@@ -9547,12 +8749,6 @@
         "names_en": [
           "Intravenous Injection / Cannula"
         ]
-      },
-      "names": {
-        "ur": "رگ میں انجیکشن / کینولا",
-        "hi": "नस में इंजेक्शन / कैनुला",
-        "bn": "শিরায় ইনজেকশন / ক্যানুলা",
-        "fil": "Iniksyon sa Ugat / Cannula"
       },
       "description": {
         "en": "A nurse gives a prescribed injection into a vein or places a cannula at home.",
@@ -9616,12 +8812,6 @@
           "IV Drip / Fluids & Vitamins"
         ]
       },
-      "names": {
-        "ur": "آئی وی ڈرپ / محلول اور وٹامنز",
-        "hi": "आईवी ड्रिप / घोल और विटामिन",
-        "bn": "আইভি ড্রিপ / স্যালাইন ও ভিটামিন",
-        "fil": "IV Drip / Fluids at Bitamina"
-      },
       "description": {
         "en": "A nurse gives fluids or vitamins by drip at home when a doctor has prescribed them.",
         "ar": "يعطي الممرض المحاليل أو الفيتامينات بالتنقيط في المنزل عند وصف الطبيب لها.",
@@ -9683,12 +8873,6 @@
         "names_en": [
           "Antibiotic IV Course"
         ]
-      },
-      "names": {
-        "ur": "اینٹی بایوٹک آئی وی کورس",
-        "hi": "एंटीबायोटिक आईवी कोर्स",
-        "bn": "অ্যান্টিবায়োটিক আইভি কোর্স",
-        "fil": "Kurso ng Antibiotic sa IV"
       },
       "description": {
         "en": "Nursing visits to give a prescribed course of antibiotics into a vein at home.",
@@ -9752,12 +8936,6 @@
           "Wound Dressing"
         ]
       },
-      "names": {
-        "ur": "زخم کی پٹی",
-        "hi": "घाव की ड्रेसिंग",
-        "bn": "ক্ষতের ড্রেসিং",
-        "fil": "Pagbebenda ng Sugat"
-      },
       "description": {
         "en": "A nurse cleans a wound and changes the dressing at home.",
         "ar": "ينظّف الممرض الجرح ويغيّر الضماد في المنزل.",
@@ -9819,12 +8997,6 @@
         "names_en": [
           "Bedsore Care"
         ]
-      },
-      "names": {
-        "ur": "بستر کے زخم (بیڈ سور) کی دیکھ بھال",
-        "hi": "बेडसोर की देखभाल",
-        "bn": "বেডসোরের যত্ন",
-        "fil": "Pangangalaga sa Bedsore"
       },
       "description": {
         "en": "A nurse cleans and dresses pressure sores and advises on turning and positioning.",
@@ -9888,12 +9060,6 @@
           "Diabetic Foot Care"
         ]
       },
-      "names": {
-        "ur": "ذیابیطس کے پاؤں کی دیکھ بھال",
-        "hi": "डायबिटिक फ़ुट की देखभाल",
-        "bn": "ডায়াবেটিক ফুটের যত্ন",
-        "fil": "Pangangalaga sa Paa para sa Diabetes"
-      },
       "description": {
         "en": "A nurse checks the feet of a person with diabetes and dresses any wound or ulcer.",
         "ar": "يفحص الممرض قدمي مريض السكري ويضمّد أي جرح أو قرحة.",
@@ -9956,12 +9122,6 @@
           "Suture Removal"
         ]
       },
-      "names": {
-        "ur": "ٹانکے نکالنا",
-        "hi": "टांके निकालना",
-        "bn": "সেলাই কাটা",
-        "fil": "Pagtanggal ng Tahi"
-      },
       "description": {
         "en": "A nurse removes stitches or staples at home on the date your doctor set.",
         "ar": "يزيل الممرض الغرز أو الدبابيس الجراحية في المنزل في الموعد الذي حدده الطبيب.",
@@ -10017,12 +9177,6 @@
         "names_en": [
           "Urinary Catheterization"
         ]
-      },
-      "names": {
-        "ur": "پیشاب کی نلی لگانا",
-        "hi": "मूत्र कैथेटर लगाना",
-        "bn": "মূত্র ক্যাথেটার বসানো",
-        "fil": "Paglalagay ng Urinary Catheter"
       },
       "description": {
         "en": "A nurse inserts or changes a urinary catheter at home, as prescribed.",
@@ -10086,12 +9240,6 @@
           "Feeding Tube Care"
         ]
       },
-      "names": {
-        "ur": "فیڈنگ ٹیوب کی دیکھ بھال",
-        "hi": "फ़ीडिंग ट्यूब की देखभाल",
-        "bn": "ফিডিং টিউবের যত্ন",
-        "fil": "Pangangalaga sa Feeding Tube"
-      },
       "description": {
         "en": "A nurse checks, flushes and cares for a feeding tube and the skin around it.",
         "ar": "يفحص الممرض أنبوب التغذية ويغسله ويعتني به وبالجلد حوله.",
@@ -10153,12 +9301,6 @@
         "names_en": [
           "Stoma Care"
         ]
-      },
-      "names": {
-        "ur": "اسٹوما کی دیکھ بھال",
-        "hi": "स्टोमा की देखभाल",
-        "bn": "স্টোমার যত্ন",
-        "fil": "Pangangalaga sa Stoma"
       },
       "description": {
         "en": "A nurse changes the stoma bag, checks the skin and teaches self-care.",
@@ -10222,12 +9364,6 @@
           "Elderly Daily Care"
         ]
       },
-      "names": {
-        "ur": "بزرگوں کی روزانہ دیکھ بھال",
-        "hi": "बुज़ुर्गों की रोज़ाना देखभाल",
-        "bn": "প্রবীণদের দৈনিক যত্ন",
-        "fil": "Pang-araw-araw na Pag-aalaga sa Matatanda"
-      },
       "description": {
         "en": "A daytime caregiver helps an older person with hygiene, meals, medicines on time and moving safely.",
         "ar": "يساعد مقدم رعاية نهاري كبير السن في النظافة والوجبات والأدوية في مواعيدها والحركة بأمان.",
@@ -10284,12 +9420,6 @@
           "Elderly Overnight Care"
         ]
       },
-      "names": {
-        "ur": "بزرگوں کی رات کی دیکھ بھال",
-        "hi": "बुज़ुर्गों की रात की देखभाल",
-        "bn": "প্রবীণদের রাতের যত্ন",
-        "fil": "Pag-aalaga sa Matatanda sa Gabi"
-      },
       "description": {
         "en": "An overnight caregiver stays with an older person, helps at night and watches for problems.",
         "ar": "يبقى مقدم رعاية ليلًا مع كبير السن ويساعده ويراقب أي مشكلة.",
@@ -10345,12 +9475,6 @@
         "names_en": [
           "Post-Surgery Home Care"
         ]
-      },
-      "names": {
-        "ur": "سرجری کے بعد گھر پر دیکھ بھال",
-        "hi": "सर्जरी के बाद घर पर देखभाल",
-        "bn": "অস্ত্রোপচারের পর বাড়িতে যত্ন",
-        "fil": "Pangangalaga sa Bahay Pagkatapos ng Operasyon"
       },
       "description": {
         "en": "A nursing visit after surgery to check the wound, pain, medicines and vital signs.",
@@ -10414,12 +9538,6 @@
           "Child Vaccination at Home"
         ]
       },
-      "names": {
-        "ur": "گھر پر بچوں کی ویکسینیشن",
-        "hi": "घर पर बच्चों का टीकाकरण",
-        "bn": "বাড়িতে শিশুর টিকা",
-        "fil": "Bakuna ng Bata sa Bahay"
-      },
       "description": {
         "en": "A nurse gives a child the vaccines due on the national schedule at home.",
         "ar": "يعطي الممرض الطفل التطعيمات المستحقة حسب الجدول الوطني في المنزل.",
@@ -10475,12 +9593,6 @@
         "names_en": [
           "Physiotherapy Session"
         ]
-      },
-      "names": {
-        "ur": "فزیوتھراپی سیشن",
-        "hi": "फ़िज़ियोथेरेपी सत्र",
-        "bn": "ফিজিওথেরাপি সেশন",
-        "fil": "Sesyon ng Physical Therapy"
       },
       "description": {
         "en": "A physiotherapist gives exercises and treatment at home to improve movement and reduce pain.",
@@ -10544,12 +9656,6 @@
           "Elderly Mobility Rehab"
         ]
       },
-      "names": {
-        "ur": "بزرگوں کی حرکت کی بحالی",
-        "hi": "बुज़ुर्गों की गतिशीलता पुनर्वास",
-        "bn": "প্রবীণদের চলাফেরার পুনর্বাসন",
-        "fil": "Rehab sa Paggalaw ng Matatanda"
-      },
       "description": {
         "en": "A physiotherapist works on balance, strength and walking with older adults at home.",
         "ar": "يعمل أخصائي العلاج الطبيعي مع كبار السن في المنزل على التوازن والقوة والمشي.",
@@ -10611,12 +9717,6 @@
         "names_en": [
           "Palliative Care Visit"
         ]
-      },
-      "names": {
-        "ur": "تسکینی نگہداشت (پیلی ایٹو کیئر) وزٹ",
-        "hi": "प्रशामक देखभाल (पैलिएटिव केयर) विज़िट",
-        "bn": "প্যালিয়েটিভ কেয়ার ভিজিট",
-        "fil": "Pagbisita para sa Palliative Care"
       },
       "description": {
         "en": "A nurse visits to ease symptoms such as pain and discomfort and to support the patient and family, under the treating team’s plan.",
@@ -10686,12 +9786,6 @@
           "Medication Management Visit"
         ]
       },
-      "names": {
-        "ur": "دواؤں کے انتظام کا وزٹ",
-        "hi": "दवा प्रबंधन विज़िट",
-        "bn": "ওষুধ ব্যবস্থাপনা ভিজিট",
-        "fil": "Pagbisita para sa Pamamahala ng Gamot"
-      },
       "description": {
         "en": "A nurse reviews your medicines with you, sets up a weekly organiser and explains how to take them.",
         "ar": "يراجع الممرض أدويتك معك ويرتّبها في منظّم أسبوعي ويشرح طريقة تناولها.",
@@ -10747,12 +9841,6 @@
         "names_en": [
           "Nebulization Session"
         ]
-      },
-      "names": {
-        "ur": "نیبولائزر سیشن",
-        "hi": "नेबुलाइज़ेशन सत्र",
-        "bn": "নেবুলাইজেশন সেশন",
-        "fil": "Sesyon ng Nebulization"
       },
       "description": {
         "en": "A nurse gives a prescribed inhaled medicine through a nebuliser and checks breathing.",
@@ -10810,12 +9898,6 @@
           "Blood Pressure Follow-up Program"
         ]
       },
-      "names": {
-        "ur": "بلڈ پریشر کی نگرانی کا پروگرام",
-        "hi": "ब्लड प्रेशर फ़ॉलो-अप कार्यक्रम",
-        "bn": "রক্তচাপ ফলো-আপ প্রোগ্রাম",
-        "fil": "Programa sa Pagsubaybay ng Presyon ng Dugo"
-      },
       "description": {
         "en": "Scheduled nursing visits to measure blood pressure, record readings and share them with your doctor.",
         "ar": "زيارات تمريضية مجدولة لقياس الضغط وتسجيل القراءات ومشاركتها مع طبيبك.",
@@ -10871,12 +9953,6 @@
         "names_en": [
           "Home Dialysis Session"
         ]
-      },
-      "names": {
-        "ur": "گھر پر ڈائیلاسس سیشن",
-        "hi": "घर पर डायलिसिस सत्र",
-        "bn": "বাড়িতে ডায়ালাইসিস সেশন",
-        "fil": "Sesyon ng Dialysis sa Bahay"
       },
       "description": {
         "en": "A dialysis-trained nurse supervises a home dialysis session under the kidney team’s prescription.",
@@ -10946,12 +10022,6 @@
           "Speech Therapy"
         ]
       },
-      "names": {
-        "ur": "اسپیچ تھراپی",
-        "hi": "स्पीच थेरेपी",
-        "bn": "স্পিচ থেরাপি",
-        "fil": "Terapiya sa Pagsasalita"
-      },
       "description": {
         "en": "A speech therapist works on speech, language and swallowing at home.",
         "ar": "يعمل أخصائي النطق في المنزل على الكلام واللغة والبلع.",
@@ -11008,12 +10078,6 @@
           "Lactation Consultant"
         ]
       },
-      "names": {
-        "ur": "دودھ پلانے کی مشیر",
-        "hi": "स्तनपान सलाहकार",
-        "bn": "বুকের দুধ খাওয়ানোর পরামর্শক",
-        "fil": "Konsultant sa Pagpapasuso"
-      },
       "description": {
         "en": "A lactation specialist visits to help with latch, positioning and milk supply.",
         "ar": "تزور أخصائية الرضاعة للمساعدة في الالتقام ووضعية الرضاعة وإدرار الحليب.",
@@ -11069,12 +10133,6 @@
         "names_en": [
           "Home ECG"
         ]
-      },
-      "names": {
-        "ur": "گھر پر ای سی جی",
-        "hi": "घर पर ईसीजी",
-        "bn": "বাড়িতে ইসিজি",
-        "fil": "ECG sa Bahay"
       },
       "description": {
         "en": "A nurse records a 12-lead ECG at home and shares the tracing for a doctor to read.",
@@ -11146,12 +10204,6 @@
           "Insulin Injection & Diabetes Teaching"
         ]
       },
-      "names": {
-        "ur": "انسولین انجیکشن اور ذیابیطس کی تعلیم",
-        "hi": "इंसुलिन इंजेक्शन और डायबिटीज़ शिक्षा",
-        "bn": "ইনসুলিন ইনজেকশন ও ডায়াবেটিস শিক্ষা",
-        "fil": "Insulin Injection at Pagtuturo sa Diabetes"
-      },
       "description": {
         "en": "A nurse gives or supervises insulin as prescribed and teaches how to inject, check blood sugar and spot low sugar.",
         "ar": "يعطي الممرض الإنسولين حسب الوصفة أو يشرف عليه، ويعلّم طريقة الحقن وقياس السكر وكشف انخفاضه.",
@@ -11221,12 +10273,6 @@
         "names_en": [
           "Nasogastric Tube Insertion or Change"
         ]
-      },
-      "names": {
-        "ur": "ناک سے معدے کی نلی لگانا یا بدلنا",
-        "hi": "नाक से पेट की नली लगाना या बदलना",
-        "bn": "নাক দিয়ে পাকস্থলীর নল বসানো বা বদলানো",
-        "fil": "Paglalagay o Pagpapalit ng NG Tube"
       },
       "description": {
         "en": "A trained nurse inserts or changes a nasogastric feeding tube at home and checks its position.",
