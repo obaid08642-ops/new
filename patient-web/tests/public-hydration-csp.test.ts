@@ -49,7 +49,7 @@ describe.each(PATHS)("%s", (path) => {
       const html = await r.text();
       const nonce = /'nonce-([^']+)'/.exec(scriptSrc(r))![1];
       expect(html).not.toContain(CSP_NONCE_PLACEHOLDER);
-      const tags = html.match(/<script[^>]*>/g)!;
+      const tags = html.match(/<script[^>]*>/gi)!;
       expect(tags.length).toBe(3);
       for (const tag of tags) expect(tag).toContain(`nonce="${nonce}"`);
       expect(html).not.toMatch(/<link[^>]*as="script"(?![^>]*nonce=)/);
@@ -68,8 +68,8 @@ describe.each(PATHS)("%s", (path) => {
     expect(policy).not.toContain("'unsafe-inline'");
     expect(html).not.toContain(CSP_NONCE_PLACEHOLDER);
     expect(html).not.toMatch(/\snonce=/);
-    expect(html).not.toMatch(/<script[^>]*\ssrc=/);
-    const inline = [...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)];
+    expect(html).not.toMatch(/<script[^>]*\ssrc=/i);
+    const inline = [...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script\s*>/gi)];
     expect(inline.length).toBeGreaterThan(0);
     for (const m of inline) expect(policy).toContain(`'sha256-${createHash("sha256").update(m[1]).digest("base64")}'`);
   });
