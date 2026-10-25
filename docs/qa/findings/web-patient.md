@@ -29,3 +29,15 @@ Not yet covered: cart with items, checkout, booking, payment, insurance card add
 | P3 | /fil/login | "Password" label | Open the page in Filipino | Filipino word, or a deliberate loanword agreed with the translation owner | English word "Password" in the field label (messages/fil.json:153 sets it on purpose). Translation owner to decide | patient-web/messages/fil.json:153 |
 
 OK: dir is rtl for ar and ur, ltr for hi, bn, fil; no raw translation keys or `undefined`/`NaN`/`[object Object]` on /login and /doctors in all six locales; titles are localised. Not yet checked: dark mode, 1280 layout on non-English pages, Urdu/Arabic layout beyond the login page.
+
+## Insurance (add policy, signed-in QA patient, local stack)
+
+Evidence: `POST /api/insurance/policy` returned 200 with body `{"company_id":"a3f5d742-…","policy_number":"QA-POL-1792899011567","copay_percent":20,"copay_cap_sar":500}`. Reload of /en/insurance shows "QA-POL-…" (persists). MongoDB `nabd_live.patient_profiles`: `insurance` subdocument has company_code `bupa`, policy_number, saved_at, verified false, but **no copay_percent and no copay_cap_sar**.
+
+| severity | route | element | steps | expected | actual | file:line |
+|---|---|---|---|---|---|---|
+| P1 | /en/insurance/add-policy → POST /api/insurance/policy | "Your share, %" and "Maximum per item, SAR" | Fill share 20 and max 500, save, read the DB | Both values stored; estimates use them | 200 OK, values sent, not stored: the PatientProfile insurance sub-schema has no copay fields, so strict mode drops them silently. Copay estimates will be wrong or absent | backend/src/schemas/patient-profile.schema.ts:81-100 (sub-schema); backend/src/modules/insurance-engine/insurance-engine.module.ts:299-306 (writes them) |
+| P1 | same | save path | Two save paths exist (insurance-engine and insurance.module savePolicy at backend/src/modules/insurance/insurance.module.ts:359) that build different insurance objects | One path, one shape | Two writers of the same field with different shapes; which one the web uses is confirmed by the stored document (engine shape) | backend/src/modules/insurance/insurance.module.ts:359 |
+| P2 | /en/insurance/add-policy | class / category under company | Look for a class field after choosing the company | Company → class → copay, as the brief specifies | No class field in the form, though the backend accepts `plan_class` | patient-web add-policy page (file not yet located) |
+| P3 | /en/insurance/add-policy | company list | Read the list | Real insurer names only | Four test-named insurers ("Insure ins2a757", "Insure insfe238", "Insure ins4eb7f", "Insure insea7d1") in the list; likely seeded test data, confirm | seed data (tools/live) |
+| P3 | /en/insurance (after save) | company name | Read the card | Name in the page language | Arabic name "بوبا العربية" shown on an English page | backend stores name_ar as company_name (insurance-engine.module.ts:291) |

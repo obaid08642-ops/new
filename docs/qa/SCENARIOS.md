@@ -6,7 +6,7 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 
 ## Coverage
 
-- Scenarios: 2 done, 1 partial, 4 blocked (reason given), 52 not started, of 59 total.
+- Scenarios: 2 done, 2 partial, 4 blocked (reason given), 51 not started, of 59 total.
 - Screens: 0 of 274 patient-web routes fully scanned (public pages sampled in findings). Admin and provider screens not started.
 - The sweep is not finished. It is finished only when both counts reach 100%, or each remaining line gives its reason.
 
@@ -44,7 +44,7 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 | L-01 | lab | book → provider accepts / rejects → visit → result | TODO | |
 | R-01 | radiology | book → accept / reject → visit → result | TODO | |
 | N-01 | nursing | book → accept / reject → visit | TODO | |
-| I-01 | insurance | add card (company → class → copay) | TODO | |
+| I-01 | insurance | add card (company → copay) | PARTIAL | Save 200 and reload verified in MongoDB (patient_profiles). Copay values dropped (P1). No class field (P2) |
 | I-02 | insurance | edit card | TODO | |
 | I-03 | insurance | delete card | TODO | |
 | I-04 | insurance | CHI link | TODO | |
