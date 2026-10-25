@@ -93,25 +93,25 @@ if 'pharmacy' not in state['providers'] or len(state['providers']) < 1 + len(j_o
 
 # The lab and the imaging centre of the journeys also declare their prices for the ordering engine (the basket, the six-step screens ask POST /ordering/quote):
 # without a priced provider the basket cannot offer one. Same calls as j_ordering_engine.py (PUT /provider/ordering/settings and /items).
-def declare_ordering(key, kind, service_path, n):
+def declare_ordering(key, kind, service_path, n, modes=('home', 'facility')):
     acc = state['providers'].get(key)
     if not acc:
         print('ordering prices: no', key); return
     tok = lib.Client().post('/provider/auth/login', {'email': acc['email'], 'password': acc['password']}).get('access_token')
     prov = lib.Client(tok, key)
-    r = prov.put('/provider/ordering/settings', {'modes': ['home', 'facility'], 'home_fee': 25, 'home_radius_km': 50, 'auto_accept': False, 'walk_in': False})
+    r = prov.put('/provider/ordering/settings', {'modes': list(modes), 'home_fee': 25, 'home_radius_km': 50, 'auto_accept': False, 'walk_in': False})
     print('ordering settings', key, r.status)
     for svc in lib.Client(tok, key).get(service_path).items()[:n]:
-        r = prov.put('/provider/ordering/items', {'service_kind': kind, 'catalog_id': svc['id'], 'prices': {'home': 80, 'facility': 55}})
+        r = prov.put('/provider/ordering/items', {'service_kind': kind, 'catalog_id': svc['id'], 'prices': ({'home': 80, 'facility': 55} if 'home' in modes else {'facility': 55})})
         print('ordering item', key, svc.get('id'), r.status)
 
 
-def nurse_hours():
+def nurse_hours(key='home_care_stock'):
     """The nurse of the journeys works every day 08:00-18:00. The patient app lists her free times from the profile's working hours
     (home-care slotsForProvider), which the registration wizard sets; the journeys registered her with a Sunday-only default, so the hours are set in the TEST database."""
-    acc = state['providers'].get('home_care_stock')
+    acc = state['providers'].get(key)
     if not acc:
-        print('nurse hours: no home_care_stock'); return
+        print('working hours: no', key); return
     import json as _json, subprocess
     tok = lib.Client().post('/provider/auth/login', {'email': acc['email'], 'password': acc['password']}).get('access_token')
     account_id = lib.Client(tok, 'nurse').get('/provider/me').get('account', 'id')
@@ -121,16 +121,17 @@ def nurse_hours():
     backend = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'backend')
     r = subprocess.run(['node', '-e', code, str(account_id)], cwd=backend, capture_output=True, text=True, timeout=60,
                        env={**os.environ, 'MONGO_URL': os.environ.get('MONGO_URL', 'mongodb://127.0.0.1:27017/?replicaSet=rs0&directConnection=true'), 'DB_NAME': os.environ.get('DB_NAME', 'nabd_live')})
-    print('nurse hours', account_id, r.stdout.strip(), r.stderr.strip()[:200])
+    print('working hours', key, account_id, r.stdout.strip(), r.stderr.strip()[:200])
 
 
-try:
-    nurse_hours()
-except Exception:
-    traceback.print_exc()
+for _k in ('home_care_stock', 'lab_stock', 'radiology_stock'):   # every day 08:00-18:00 (the lab and the centre offer centre visits in those hours)
+    try:
+        nurse_hours(_k)
+    except Exception:
+        traceback.print_exc()
 try:
     declare_ordering('lab_stock', 'lab', '/labs/services', 8)
-    declare_ordering('radiology_stock', 'radiology', '/radiology/services', 4)
+    declare_ordering('radiology_stock', 'radiology', '/radiology/services', 4, modes=('facility',))   # only portable ultrasound may be priced for home
 except Exception:
     traceback.print_exc()
 

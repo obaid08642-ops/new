@@ -62,8 +62,12 @@ appId: com.patient.nabd
     id: "slot-3"
 - tapOn:
     id: "nursing-book-submit"
+# the visit is paid by card: the hosted checkout (the Moyasar test double) opens outside the app; the helper completes it and the app comes back
+- runScript:
+    file: scripts/pay_complete.js
+- launchApp
 - extendedWaitUntil:
     visible:
-      id: "nursing-booking-sent"
-    timeout: 40000
+      id: "payment-result-screen|nursing-booking-sent"
+    timeout: 60000
 - takeScreenshot: patient_nursing_booking_sent
