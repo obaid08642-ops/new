@@ -1,0 +1,17 @@
+# Loyalty: the points hub opens from the account screen with the balance, tabs and history.
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: ""
+- tapOn:
+    id: "home-profile"
+- tapOn:
+    id: "account-points"
+- assertVisible:
+    id: "loyalty-hub"
+- assertVisible:
+    id: "loyalty-balance"
+- assertVisible:
+    id: "loyalty-tabs"

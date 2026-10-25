@@ -1,0 +1,48 @@
+# Settings in every language: each of the six languages is chosen on the language screen and the screen title comes back in that language;
+# the choice survives leaving and re-opening the screen. Ends back in Arabic.
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: ""
+- tapOn:
+    id: "home-profile"
+- tapOn:
+    id: "account-settings"
+- assertVisible:
+    id: "settings-screen"
+- tapOn:
+    id: "settings-language"
+- assertVisible:
+    id: "language-settings-screen"
+- tapOn:
+    id: "language-en"
+- assertVisible:
+    text: "Language and appearance"
+- takeScreenshot: patient_language_en
+- tapOn:
+    id: "language-ur"
+- assertVisible:
+    text: "زبان اور ظاہری شکل"
+- takeScreenshot: patient_language_ur
+- tapOn:
+    id: "language-hi"
+- assertVisible:
+    text: "भाषा और दिखावट"
+- takeScreenshot: patient_language_hi
+- tapOn:
+    id: "language-bn"
+- assertVisible:
+    text: "ভাষা ও চেহারা"
+- takeScreenshot: patient_language_bn
+- tapOn:
+    id: "language-tl"
+- assertVisible:
+    text: "Wika at itsura"
+- takeScreenshot: patient_language_tl
+- tapOn:
+    id: "language-ar"
+- assertVisible:
+    text: "اللغة والمظهر"
+- takeScreenshot: patient_language_ar

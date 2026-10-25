@@ -3,7 +3,7 @@
   python3 tools/native/helper.py [port]        (default 9300, 127.0.0.1 only; started by run_job.sh)
   GET /fresh                    -> {email, phone, password, name}   unused sign-up data (nothing is created)
   GET /otp?to=<email>[&since=ms] -> {code}                           newest 6-digit code mailed to <email> (smtp_sink), waits up to 25 s
-  GET /patient/new              -> {email, phone, password, name}   a patient created through the real API (for flows that change or delete the account)
+  GET /patient/new[?address=1][&family=1] -> {email, phone, password, name}   a patient created through the real API (for flows that change or delete the account); address=1 adds a saved address, family=1 a family with one member
   GET /api?path=/x&token=...    -> the backend's JSON answer (GET), for checks on the other side of a journey
 Test stack only; every address is @nabd.test.
 """
@@ -46,6 +46,14 @@ class H(BaseHTTPRequestHandler):
             if u.path == '/patient/new':
                 import j_accounts
                 p = j_accounts.app_signup(label='native-extra')
+                me = lib.Client(p['token'])
+                if q.get('address'):
+                    me.post('/users/me/addresses', {'label': 'المنزل', 'street': 'شارع التخصصي 12', 'city': 'الرياض'})
+                if q.get('family'):  # a second patient joins this patient's family
+                    other = j_accounts.app_signup(label='native-member')
+                    me.post('/family/create', {'name': 'عائلة الاختبار'})
+                    code = me.post('/family/invite', {}).get('invite_code')
+                    lib.Client(other['token']).post('/family/join', {'invite_code': code or '', 'relation': 'child'})
                 return self._send(200, {'email': p['email'], 'phone': p['phone'], 'password': p['password'], 'name': 'اختبار native-extra'})
             if u.path == '/api':
                 r = lib.Client(q.get('token')).get(q['path'])

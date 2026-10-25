@@ -1,0 +1,32 @@
+# Address book: the saved address shows, edit it (the new street shows after saving), delete it (the empty state shows).
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: "address=1"
+- tapOn:
+    id: "home-profile"
+- tapOn:
+    id: "account-addresses"
+- assertVisible:
+    id: "addresses-screen"
+- assertVisible:
+    text: ".*شارع التخصصي 12.*"
+- tapOn:
+    id: "address-edit-.*"
+- tapOn:
+    id: "address-edit-street"
+- eraseText: 40
+- inputText: "طريق الملك فهد 7"
+- hideKeyboard
+- tapOn:
+    id: "address-edit-save"
+- assertVisible:
+    text: ".*طريق الملك فهد 7.*"
+- tapOn:
+    id: "address-delete-.*"
+- tapOn:
+    id: "android:id/button1"
+- assertVisible:
+    text: "لا توجد عناوين محفوظة"

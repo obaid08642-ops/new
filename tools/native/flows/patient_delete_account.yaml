@@ -1,0 +1,52 @@
+# Delete account: Privacy -> delete tab -> confirm -> password -> back on Welcome; signing in with the deleted account fails.
+appId: com.patient.nabd
+---
+- runScript:
+    file: scripts/new_patient.js
+    env:
+      FLAGS: ""
+- runFlow: common_to_welcome.yaml
+- runFlow:
+    file: common_sign_in.yaml
+    env:
+      EMAIL: ${output.email}
+      PASSWORD: ${output.password}
+- tapOn:
+    id: "home-profile"
+- tapOn:
+    id: "account-privacy"
+- assertVisible:
+    id: "privacy-screen"
+- tapOn:
+    text: "حذف الحساب"
+- tapOn:
+    id: "delete-account"
+- tapOn:
+    id: "delete-continue"
+- tapOn:
+    id: "delete-password"
+- inputText: ${output.password}
+- hideKeyboard
+- tapOn:
+    text: "حذف نهائي"
+- extendedWaitUntil:
+    visible:
+      id: "welcome-login"
+    timeout: 30000
+- tapOn:
+    id: "welcome-login"
+- tapOn:
+    id: "login-identifier"
+- inputText: ${output.email}
+- tapOn:
+    id: "login-password"
+- inputText: ${output.password}
+- hideKeyboard
+- tapOn:
+    id: "login-submit"
+- extendedWaitUntil:
+    visible:
+      id: "login-identifier"
+    timeout: 20000
+- assertNotVisible:
+    id: "home-screen"
