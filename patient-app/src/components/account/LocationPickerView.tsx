@@ -4,7 +4,7 @@ import { router, type Href } from 'expo-router';
 import * as Location from 'expo-location';
 
 import { Button, Input } from '../../../../packages/ui-native/src';
-import MapView, { PROVIDER_DEFAULT, type Region } from '../MapPrimitives';
+import MapView, { PROVIDER_DEFAULT, mapAvailable, type Region } from '../MapPrimitives';
 import { Section } from '../consult/ConsultKit';
 import { Notice } from '../health/HealthKit';
 import { Glyph } from '../pharmacy/PharmacyKit';
@@ -35,7 +35,7 @@ type Field = (typeof FIELDS)[number];
 type NationalAddress = { short_address: string; street?: string; district?: string; city?: string; lat?: number; lng?: number };
 
 export function LocationPickerView() {
-  const { k, theme, t, c, flow } = useScreenUi();
+  const { k, theme, t, c, flow, lang } = useScreenUi();
   const mapRef = useRef<MapView>(null);
   const [pin, setPin] = useState({ lat: START.latitude, lng: START.longitude });
   const [reverse, setReverse] = useState('');
@@ -60,6 +60,23 @@ export function LocationPickerView() {
     }
   }, []);
 
+  /** No map in this build: the street and district come from the server (GET /geo/reverse), which also checks the point is in the service area. */
+  const readStreetFromServer = useCallback(async (latitude: number, longitude: number) => {
+    try {
+      const found = (await apiFetch(`/geo/reverse?lat=${latitude}&lng=${longitude}`)) as { street?: string | null; district_name_ar?: string | null; district_name_en?: string | null; city_name_ar?: string | null; city_name_en?: string | null; short_address?: string | null } | null;
+      if (!found) return;
+      const district = lang === 'ar' ? found.district_name_ar : found.district_name_en;
+      const city = lang === 'ar' ? found.city_name_ar : found.city_name_en;
+      const line = [found.street, district, city].filter(Boolean).join(', ');
+      setReverse(line);
+      setForm((current) => ({ ...current, street: line || current.street }));
+      if (found.short_address) setShortCode(found.short_address);
+    } catch (e) {
+      logError('picker:geo-reverse', e);
+      setMessage(k('picker.reverseFailed'));
+    }
+  }, [lang, k]);
+
   const goToMe = async () => {
     setLocating(true);
     setMessage(null);
@@ -73,7 +90,8 @@ export function LocationPickerView() {
       const { latitude, longitude } = here.coords;
       setPin({ lat: latitude, lng: longitude });
       mapRef.current?.animateToRegion({ latitude, longitude, latitudeDelta: 0.01, longitudeDelta: 0.01 }, 800);
-      await readStreet(latitude, longitude);
+      if (mapAvailable) await readStreet(latitude, longitude);
+      else await readStreetFromServer(latitude, longitude);
     } catch (e) {
       logError('picker:position', e);
       setMessage(k('picker.locateFailed'));
@@ -131,6 +149,7 @@ export function LocationPickerView() {
       footer={<Button label={k('picker.save')} size="lg" fullWidth disabled={!form.street.trim()} loading={saving} onPress={() => void save()} theme={theme} testID="picker-save" />}
       testID="location-picker-screen"
     >
+      {mapAvailable ? (
       <View style={{ height: 260, borderRadius: 24, overflow: 'hidden', borderWidth: 1, borderColor: c.border.hairline }}>
         <MapView ref={mapRef} style={{ position: 'absolute', top: 0, bottom: 0, start: 0, end: 0 }} provider={PROVIDER_DEFAULT} initialRegion={START} userInterfaceStyle={theme} showsUserLocation showsMyLocationButton={false} showsCompass={false} onRegionChangeComplete={(r: Region) => { setPin({ lat: r.latitude, lng: r.longitude }); void readStreet(r.latitude, r.longitude); }} />
         <View pointerEvents="none" style={{ position: 'absolute', top: 0, bottom: 0, start: 0, end: 0, alignItems: 'center', justifyContent: 'center' }}>
@@ -139,6 +158,9 @@ export function LocationPickerView() {
           </View>
         </View>
       </View>
+      ) : (
+        <Notice tone="info" text={k('picker.noMap')} />
+      )}
       <Button label={k('picker.useMyLocation')} variant="outline" size="lg" fullWidth startIcon="map-pin-line" loading={locating} onPress={() => void goToMe()} theme={theme} testID="picker-locate" />
       {message ? <Notice tone="danger" text={message} /> : null}
       {reverse ? <Notice tone="info" text={reverse} /> : null}

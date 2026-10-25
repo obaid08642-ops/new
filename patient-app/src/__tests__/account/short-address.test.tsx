@@ -18,7 +18,7 @@ jest.mock('expo-location', () => ({
   reverseGeocodeAsync: async () => [],
 }));
 jest.mock('react-native-localize', () => ({ getLocales: () => [], findBestLanguageTag: () => undefined, getCalendar: () => 'gregorian' }));
-jest.mock('../../components/MapPrimitives', () => ({ __esModule: true, default: () => null, Marker: () => null, PROVIDER_DEFAULT: 'default' }));
+jest.mock('../../components/MapPrimitives', () => ({ __esModule: true, default: () => null, Marker: () => null, PROVIDER_DEFAULT: 'default', mapAvailable: true }));
 jest.mock('../../context/AppContext', () => ({ useApp: () => ({ isDark: false, lang: 'en', isRTL: false }) }));
 jest.mock('../../utils/logger', () => ({ logError: jest.fn() }));
 jest.mock('../../utils/isOffline', () => ({ isOffline: jest.fn(async () => false) }));

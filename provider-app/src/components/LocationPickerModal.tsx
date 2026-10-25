@@ -5,6 +5,7 @@ import { SP, FS, R } from '../constants';
 import { useTheme, useLang } from '../context';
 import * as Location from 'expo-location';
 import { tokens } from '../theme/tokens';
+import { mapAvailable } from '../utils/mapAvailability';
 
 interface LocationPickerModalProps {
   visible: boolean;
@@ -78,6 +79,7 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
           <Text style={{ fontSize: FS.lg, fontWeight: 'bold', color: theme.text, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>{AR ? 'تحديد الموقع على الخريطة' : 'Select Location on Map'}</Text>
 
           <View style={{ flex: 1, borderRadius: R.md, overflow: 'hidden', marginBottom: SP.md }}>
+            {mapAvailable ? (
             <MapView
               ref={mapRef}
               style={StyleSheet.absoluteFill}
@@ -95,6 +97,12 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
                 onDragEnd={(e) => setSelected({ lat: e.nativeEvent.coordinate.latitude, lng: e.nativeEvent.coordinate.longitude })}
               />
             </MapView>
+            ) : (
+            <View style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center', padding: SP.lg, backgroundColor: theme.border }]} testID="map-unavailable">
+              <Text style={{ color: theme.text, textAlign: 'center', fontWeight: 'bold', marginBottom: SP.sm }}>{AR ? 'الخريطة غير متاحة في هذا الإصدار' : 'The map is not available in this version'}</Text>
+              <Text style={{ color: theme.textSub, textAlign: 'center' }}>{AR ? 'استخدم «موقعي الحالي» لتحديد الموقع:' : 'Use “My Location” to set the position:'} {selected.lat.toFixed(5)}, {selected.lng.toFixed(5)}</Text>
+            </View>
+            )}
             <TouchableOpacity
               style={{ position: 'absolute', bottom: SP.md, right: SP.md, backgroundColor: theme.bg, paddingVertical: SP.sm, paddingHorizontal: SP.md, borderRadius: R.md, elevation: 3, flexDirection: 'row', alignItems: 'center', gap: 6 }}
               onPress={handleGetCurrentLocation}
@@ -109,7 +117,7 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
             <Text style={{ color: tokens.error, fontSize: FS.sm, marginBottom: SP.sm, textAlign: 'center' }}>{locError}</Text>
           )}
           <Text style={{ color: theme.textSub, fontSize: FS.xs, marginBottom: SP.sm, textAlign: 'center' }}>
-            {AR ? 'اضغط على الخريطة أو اسحب الدبوس لتحديد الموقع بدقة' : 'Tap the map or drag the pin to fine-tune the location'}
+            {mapAvailable ? (AR ? 'اضغط على الخريطة أو اسحب الدبوس لتحديد الموقع بدقة' : 'Tap the map or drag the pin to fine-tune the location') : ''}
           </Text>
 
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }}>
