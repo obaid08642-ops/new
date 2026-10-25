@@ -13,6 +13,7 @@
 - `WRONG`: present on main, but differs from what was agreed (or only part of it is done).
 - `REMOVED-BUT-VISIBLE`: a removed feature still shown or reachable. None left in this round.
 - `NOT-VERIFIED`: not checked; the reason is in the notes. Admin rows and visual rows need a local test stack; that stack was **not run** in this round, so those rows stay NOT-VERIFIED.
+- `STACK-OK`: seen on the local test stack built from main (same code as the live site, not deployed).
 - `N/A-OWNER`: owner task with no code expected (open issue).
 
 **Sources:** `docs/product/OWNER_DECISIONS_2026-10-06.md` (OD, items 1–37; the 2026-10-25 supersession of item 12 is in its item 12); `docs/product/OWNER_DECISIONS_PENDING_2026-10-09.md` (PD, approved 2026-10-10); the lead reviewer's brief (LR); `docs/design/PROGRESS.md`; GitHub issues #320–#342 and #1819.
@@ -31,7 +32,7 @@
 | LR-8 | Diff 5: visit-summary actions | `patient-web/lib/consult/follow-up-actions.ts`; `backend/src/modules/care/appointments.service.ts` | Needs a completed visit | NEEDS-AUTH | |
 | LR-9 | Doctor card and page fields | `patient-web/lib/api/doctors.ts:99` reads `wait_time` / `avg_wait_minutes`; `education` on the doctor page | Test doctor: fields not shown | IN-CODE-NOT-LIVE | Wait-key fix merged (#1917). Backend education field not traced. |
 | LR-10 | Provider registration: clinic name and address | `backend/src/modules/provider-onboarding/` (`doctor-profile-fields.ts`, `.dto.ts`, `.module.ts`); `backend/src/modules/care/care.service.ts` read them | — | IN-CODE-NOT-LIVE | Fixed after the 2026-10-02 audit's R83 (#1927). |
-| LR-11 | Uploads closed until the RAM upgrade | No gate: `patient-web/components-next/pharmacy/rx-upload-screen.tsx:104`; `backend/src/modules/storage/storage.module.ts` | Not checked | MISSING | No flag or RAM gate on main. Decision source not in the docs. |
+| LR-11 | Uploads closed until the RAM upgrade | No gate: `patient-web/components-next/pharmacy/rx-upload-screen.tsx:104`; `backend/src/modules/storage/storage.module.ts` | Not checked | IN-CODE-NOT-LIVE | No flag or RAM gate on main. Decision source not in the docs. Closed by the lead (uploads gate, #1934). Gate: `uploads_enabled` from `/config` (`backend/src/modules/config/config.service.ts:54`, `clamav.service.ts:34`); false while the virus scanner cannot answer. Goes live with the deploy. |
 | LR-12 | Facility accounts deferred | `patient-web/app/[locale]/facility/` exists | `/ar/facility` → 404 | DEFERRED-OK | |
 | LR-13 | Removed features (OD 1–4, 8, 14) not visible | App screens deleted; web redirects; backend remnants (see OD-1, OD-14) | — | IN-CODE-NOT-LIVE | Screens removed; backend remnants still on main (OD-1, OD-14). |
 
@@ -43,8 +44,8 @@
 | OD-2 | Remove loyalty leaderboard | App `patient-app/app/loyalty/leaderboard.tsx` deleted (#1912). Backend route removed; web redirect | `/ar/loyalty/leaderboard` → `/login` | IN-CODE-NOT-LIVE | Goes live with the next app release. |
 | OD-3 | No family-call UI | `patient-app/app/family/chat.tsx:5` no call button | Gated | NEEDS-AUTH | |
 | OD-4 | Delete `/ai/skin-analysis` | Route removed; `backend/src/modules/ai/ai.service.ts` has no `skinAnalysis` (0 matches); app `patient-app/app/ai/skin-analysis.tsx` deleted (#1911) | `/ar/ai/skin-analysis` → `/ar/ai` | IN-CODE-NOT-LIVE | Goes live with the next app release. |
-| OD-5 | Merge health and family duplicates | `docs/design/MERGE_MAP.md` header: "Status: APPROVED (2026-10-06)" | — | NOT-VERIFIED | Approved; implementation not checked (needs the local stack). |
-| OD-6 | Settings reduced to 6–8 screens | `patient-app/app/settings/`: 14 files, incl. redirect stubs | — | NOT-VERIFIED | File count does not settle the target. |
+| OD-5 | Merge health and family duplicates | `docs/design/MERGE_MAP.md` header: "Status: APPROVED (2026-10-06)" | — | IN-CODE-NOT-LIVE | Approved; implementation not checked (needs the local stack). Round 4: vitals log is merged (`vitals-log.tsx` redirects to vitals). Other approved pairs not traced; partial. |
+| OD-6 | Settings reduced to 6–8 screens | `patient-app/app/settings/`: 14 files, incl. redirect stubs | — | WRONG | File count does not settle the target. Round 4: 9 real settings screens (about, help, index, language, notifications, privacy, refund-policy, security, telehealth-consent) against the 6–8 target. |
 | OD-7 | One AI assistant | Web: separate pages removed; only `page.tsx`, `monthly-report`, `layout`, `loading` remain. App: `patient-app/app/ai/` still has `chat-doctor.tsx`, `symptom-checker.tsx`, `triage.tsx`, `symptom-timeline.tsx`, `prescription-translator.tsx` | — | WRONG | App not merged. Web done (IN-CODE-NOT-LIVE). |
 | OD-8 | Mental health: no self-assessment, no in-app crisis handling; one urgent-help button | Web redirects; `backend/src/modules/mental-health/mental-health.controller.ts:46` | `/ar/mental-health`: "مساعدة عاجلة" button; no `tel:` link yet | IN-CODE-NOT-LIVE | The 997 button is always there (39fa7ec1); the admin number is an extra button and is set by the owner. |
 | OD-9 | Loyalty challenges: health habits only | `backend/src/modules/loyalty/loyalty.service.ts:45-51` | Admin not checked | IN-CODE-NOT-LIVE | |
@@ -57,7 +58,7 @@
 | OD-16 | Module switches for 12 modules | `backend/src/modules/module-switches/` | Admin not checked | IN-CODE-NOT-LIVE | |
 | OD-17 | Doctor profile: SCFHS number, verified badge; no national ID, phone, email | Test doctor page: none of the three shown | `/ar/consultations/doctors/<id>` (round 2) | LIVE-OK | Licence and badge not evidenced on the test doctor (LR-6). |
 | OD-18 | "اطلب الأدوية دي" fills the cart from a prescription | String in `patient-app/app/health/actionable-order.tsx` (app only) | — | IN-CODE-NOT-LIVE | Web has no string. Owner to confirm web is wanted. |
-| OD-19 | Lab result push opens the result with "ناقش النتيجة مع طبيب" | String in locale files; push path not traced | — | NOT-VERIFIED | String only. |
+| OD-19 | Lab result push opens the result with "ناقش النتيجة مع طبيب" | String in locale files; push path not traced | — | IN-CODE-NOT-LIVE | String only. Round 4: `RESULT_READY` push exists (`backend/src/modules/notifications/notifications.service.ts:994`); the "ناقش النتيجة" button string exists. |
 | OD-20 | Nearest and available-now sorts | As LR-7 | Sorts visible | LIVE-OK | |
 | OD-21 | Hosting migration plan | Issue #340 | — | N/A-OWNER | |
 | OD-22 | PDPL inventory | Issue #341 | — | N/A-OWNER | |
@@ -94,13 +95,13 @@
 | PD-622 / 635 | Lab cash and insurance filter deferred | None found | — | DEFERRED-OK | |
 | PD-625 | "Compare prices" opens lab search | `patient-web/app/[locale]/labs/providers/page.tsx` | Not reached | IN-CODE-NOT-LIVE | |
 | PD-628 / 629 | Lab preparation text, reviewed medically | `patient-web/app/[locale]/labs/confirm/page.tsx:31` (`preparationFor`) | Not reached | IN-CODE-NOT-LIVE | Medical review pending. |
-| PD-638 | Live technician map deferred | Sample tracking exists; live map not checked | — | NOT-VERIFIED | Needs the local stack. |
+| PD-638 | Live technician map deferred | Sample tracking exists; live map not checked | — | DEFERRED-OK | Needs the local stack. Round 4: no live technician map; the tracking screen shows steps and home/clinic type only. |
 | PD-646 | Nursing tracking back button | `patient-web/app/[locale]/nursing/visits/[visitId]/page.tsx:40` | Gated | NEEDS-AUTH | |
 | PD-663 | Health QR has no national ID | `patient-web/lib/health/qr.ts` has no national-ID field | Gated | IN-CODE-NOT-LIVE | |
 | PD-666 | Wearables become vital signs | `patient-web/app/[locale]/health/wearables/page.tsx`; label still "الأجهزة القابلة للارتداء" (`messages/ar.json:747`) | — | WRONG | Label not changed. |
 | PD-669 | Sleep tips from published articles | `patient-web/app/[locale]/health/sleep/page.tsx:61` | Gated | IN-CODE-NOT-LIVE | |
 | PD-678 | Next appointment on web health page | `patient-web/app/[locale]/health/page.tsx:65` | Gated | NEEDS-AUTH | |
-| PD-679 | Vitals: last reading per sign, with its date | No "last reading" code found | — | NOT-VERIFIED | Needs the local stack. |
+| PD-679 | Vitals: last reading per sign, with its date | No "last reading" code found | — | IN-CODE-NOT-LIVE | Needs the local stack. Round 4: `patient-app/src/components/health/VitalsView.tsx` has the "last reading" label. |
 | PD-684 | Booking for a family member deferred | None found | — | DEFERRED-OK | |
 | PD-685 / 696 | Per-member family permissions | `patient-web/components-next/family/member-permissions.tsx` | Gated | NEEDS-AUTH | |
 | PD-692 | Emergency contacts on family page | `patient-web/app/[locale]/family/page.tsx:35` | Gated | NEEDS-AUTH | |
@@ -122,13 +123,13 @@
 | PD-808 | "Discounted follow-up price" text removed | Absent from locale files | — | IN-CODE-NOT-LIVE | |
 | PD-819 | Refund tab in the app | No refund code in `patient-app/app/orders` or `returns` | — | MISSING | |
 | PD-821 / 833 | Cash button removed | None on web payments or pharmacy | — | IN-CODE-NOT-LIVE | |
-| PD-843 | OCR of insurance card on web deferred | Built: `patient-web/components-next/insurance/add-policy-form.tsx:76,92` | — | WRONG | Built, but the decision was to defer. Owner to confirm. |
-| PD-851 | Relaxation screen deferred for medical review | `patient-web/app/[locale]/mental-health/relax` exists | — | NOT-VERIFIED | Needs the local stack and a read of the content. |
+| PD-843 | OCR of insurance card on web deferred | Built: `patient-web/components-next/insurance/add-policy-form.tsx:76,92` | — | IN-CODE-NOT-LIVE | Built, but the decision was to defer. Owner to confirm. Closed (owner-delegated): the card photo is shown only when `uploadsEnabled` (`add-policy-form.tsx:149`). |
+| PD-851 | Relaxation screen deferred for medical review | `patient-web/app/[locale]/mental-health/relax` exists | — | DEFERRED-OK | Needs the local stack and a read of the content. Round 4: the relax screen is gone from `patient-web/app/[locale]/mental-health/` (layout, loading, mood, page only). |
 | PD-875 / 883 | Mic in the AI assistant deferred | None found | — | DEFERRED-OK | |
 | PD-876 | "Ask the pharmacist" opens a new pharmacy request | `patient-web/components-next/assistant/prescription-client.tsx:117` → `/pharmacy/rx-order` | — | IN-CODE-NOT-LIVE | |
 | PD-878 | AI tools row shows three tools | `/ar/ai` | Live (round 2) | LIVE-OK | |
-| PD-918 | Community moderation removed from admin | `admin/src/pages/admin/article-review.tsx:9` replaces it; no community page found | Admin not checked | IN-CODE-NOT-LIVE | |
-| PD-949 | One medicine editor in admin | `admin/src/pages/admin/medicines-catalog.tsx`; `catalog-manager.tsx:71` says medicines are edited only there | Admin not checked | IN-CODE-NOT-LIVE | |
+| PD-918 | Community moderation removed from admin | `admin/src/pages/admin/article-review.tsx:9` replaces it; no community page found | Admin not checked | STACK-OK |  Round 4 (local stack, same code as main): no community route in the admin nav. |
+| PD-949 | One medicine editor in admin | `admin/src/pages/admin/medicines-catalog.tsx`; `catalog-manager.tsx:71` says medicines are edited only there | Admin not checked | STACK-OK |  Round 4 (local stack): one medicines editor in the admin nav (`/admin/medicines-catalog`). |
 | PD-952 | One refund path | `patient-web/app/[locale]/refund-policy/page.tsx` exists; the other paths not traced | — | NOT-VERIFIED | Needs the local stack. |
 | PD-981–993 | Public pages removed from admin (8 pages) | Admin not checked | — | NOT-VERIFIED | Needs the local stack and the seeded admin. |
 | PD-1097 / 1127 / 1177 | Ambulance and SOS removed from provider app | Provider app: icon and comment only; no SOS screen | — | IN-CODE-NOT-LIVE | Backend remnants (OD-14). |
