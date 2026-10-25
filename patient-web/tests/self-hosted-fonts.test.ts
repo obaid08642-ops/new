@@ -56,3 +56,26 @@ describe("self-hosted fonts", () => {
     }
   });
 });
+
+describe("Noto Nastaliq Urdu is for ur only (PD-394)", () => {
+  it("leads the ur stack and is in no other locale's .shell rule", () => {
+    const rule = (locale: string) => css.match(new RegExp(`\\.shell\\[lang="${locale}"\\]\\s*\\{\\s*font-family:\\s*([^;]+);`))?.[1] ?? "";
+    expect(rule("ur").split(",")[0].trim()).toBe("var(--font-noto-nastaliq-urdu)");
+    for (const other of ["ar", "en", "hi", "bn", "fil"]) expect(rule(other), other).not.toContain("nastaliq");
+    expect(tokens.font.family.locale.ur).toMatch(/^'Noto Nastaliq Urdu'/);
+  });
+
+  it("is never preloaded (its unicode-range face downloads only when Urdu text renders) and swaps", () => {
+    const block = fontsTs.slice(fontsTs.indexOf("export const notoNastaliqUrdu"), fontsTs.indexOf("export const notoSansDevanagari"));
+    expect(block).toContain("preload: false");
+    expect(block).toContain('display: "swap"');
+    expect(fontsTs.match(/preload: true/g)).toHaveLength(1); // Readex Pro only
+  });
+
+  it("gives Urdu a taller line height through a ur-only token override", () => {
+    const override = css.match(/\.shell\[lang="ur"\]\s*\{\s*(--nabd-line-height[^}]+)\}/)?.[1] ?? "";
+    expect(override).toContain("--nabd-line-height-body: 2");
+    expect(css).toMatch(/\.shell\[lang="ur"\] :is\(p, li, dd, label\) \{ line-height: var\(--nabd-line-height-body\)/);
+    expect(css.match(/--nabd-line-height-body: 2/g)).toHaveLength(1); // nowhere else than the ur rule
+  });
+});
