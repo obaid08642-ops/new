@@ -127,7 +127,10 @@ def run(admin, admin_email):
         step('second evaluation runs', r.ok, r)
         r, hits = payment_alerts(admin, window)
         step('still one failed-payments alert for this hour (no duplicate)', len(hits) == 1 and hits[0].get('id') == alert['id'], r)
-        step('no second e-mail for the same alert', len(alert_mails(admin_email, t1, timeout=6)) == 0, 'second mail found')
+        # Every mail for this hour's alert since it was created: one at most. Counting only mails after t1 read a slow first
+        # delivery (it reached the sink after the second evaluation) as a duplicate.
+        since_alert = alert_mails(admin_email, created - 2, timeout=6)
+        step('no second e-mail for the same alert', len(since_alert) <= 1, f'{len(since_alert)} mails since the alert was created')
     finally:
         journey('urgent alerts: restore the rules')
         r = admin.put('/admin/admin/urgent-alerts/rules', {'rules': original})
