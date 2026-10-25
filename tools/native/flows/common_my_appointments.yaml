@@ -1,10 +1,7 @@
-# Home -> profile -> My appointments (the list, with the booked appointment as a card).
+# My appointments (opened by the app's own link), with the booked appointment as a card.
 appId: com.patient.nabd
 ---
-- tapOn:
-    id: "home-profile"
-- tapOn:
-    id: "account-appointments"
+- openLink: "nabdplus:///consultations/appointments"
 - extendedWaitUntil:
     visible:
       id: "appointments-screen"

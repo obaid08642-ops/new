@@ -7,13 +7,6 @@ appId: com.patient.nabd
       FLAGS: ""
 - runFlow: common_book_doctor.yaml
 - takeScreenshot: patient_doctor_booking_confirmation
-- pressKey: back
-- runFlow:
-    when:
-      notVisible:
-        id: "home-profile"
-    commands:
-      - pressKey: back
 - runFlow: common_my_appointments.yaml
 - tapOn:
     id: "appointment-card"

@@ -27,6 +27,12 @@ appId: com.patient.nabd
     visible:
       id: "diagnostics-cart"
     timeout: 20000
+# the basket opens on "at home"; this test has no home service in the area, so move it to a centre
+- runFlow:
+    when:
+      visible: "انقل هذا البند إلى المركز"
+    commands:
+      - tapOn: "انقل هذا البند إلى المركز"
 - tapOn:
     id: "diag-cart-continue"
 - extendedWaitUntil:

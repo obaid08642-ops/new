@@ -25,12 +25,15 @@ appId: com.patient.nabd
     commands:
       - tapOn:
           id: "mode-clinic"
+# tomorrow: every slot of today may already be in the past
+- tapOn:
+    id: "day-1"
 - extendedWaitUntil:
     visible:
       id: "slot-.*"
     timeout: 30000
 - tapOn:
-    id: "slot-.*"
+    id: "slot-0"
 - tapOn:
     id: "doctor-book"
 - extendedWaitUntil:

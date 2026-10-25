@@ -6,13 +6,6 @@ appId: com.patient.nabd
     env:
       FLAGS: ""
 - runFlow: common_book_doctor.yaml
-- pressKey: back
-- runFlow:
-    when:
-      notVisible:
-        id: "home-profile"
-    commands:
-      - pressKey: back
 - runFlow: common_my_appointments.yaml
 - tapOn:
     text: "تعديل أو إلغاء"
