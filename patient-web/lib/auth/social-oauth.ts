@@ -12,7 +12,8 @@ export const CODE_PROVIDERS: Record<CodeProvider, { authorize: string; token: st
   snapchat: {
     authorize: "https://accounts.snapchat.com/accounts/oauth2/auth",
     token: "https://accounts.snapchat.com/accounts/oauth2/token",
-    scope: "https://auth.snapchat.com/oauth2/api/user.display_name",
+    // display_name for the name, external_id for the account id the backend signs in by (its /me query asks for both); space-separated
+    scope: "https://auth.snapchat.com/oauth2/api/user.display_name https://auth.snapchat.com/oauth2/api/user.external_id",
   },
 };
 
