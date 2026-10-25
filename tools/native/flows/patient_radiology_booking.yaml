@@ -12,14 +12,15 @@ appId: com.patient.nabd
     visible:
       id: "diagnostics-hub"
     timeout: 20000
-# scans are listed for a visit at the centre (the hub's "at home" list shows only the scans that have a home visit)
+# the hub's second tab lists the scans
+- tapOn: "الأشعة والتصوير"
+# scans are listed for a visit at the centre (the "at home" list shows only the scans that have a home visit)
 - tapOn:
     id: "diag-place-clinic"
 - scrollUntilVisible:
     element:
       id: "diag-rad-0"
-    timeout: 90000
-    speed: 70
+    timeout: 40000
 - tapOn:
     id: "diag-rad-0"
 - extendedWaitUntil:
