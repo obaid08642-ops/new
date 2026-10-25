@@ -290,7 +290,10 @@
       "radiology": "الأشعة",
       "nursing": "التمريض",
       "returns": "المرتجعات والاستردادات"
-    }
+    },
+    "emptyKindCurrentTitle": "لا توجد طلبات حالية: {service}",
+    "emptyKindPreviousTitle": "لا توجد طلبات سابقة: {service}",
+    "emptyKindBody": "لا شيء في هذه الخدمة بعد. اختر الكل لعرض باقي طلباتك."
   },
   "Cart": {
     "eyebrow": "سلة خاصة",

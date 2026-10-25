@@ -343,7 +343,10 @@
       "radiology": "Radyolohiya",
       "nursing": "Pangangalaga ng nars",
       "returns": "Mga return at refund"
-    }
+    },
+    "emptyKindCurrentTitle": "Walang kasalukuyang order: {service}",
+    "emptyKindPreviousTitle": "Walang nakaraang order: {service}",
+    "emptyKindBody": "Wala pa sa serbisyong ito. Piliin ang Lahat para makita ang iba mong order."
   },
   "Cart": {
     "eyebrow": "Pribadong cart",

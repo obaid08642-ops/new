@@ -20,19 +20,43 @@ type Tab = "current" | "previous";
 /** The order of the service chips (the app's filterKind order); only the services that have a row are drawn. */
 const KIND_ORDER: readonly OrderKind[] = ["pharmacy", "consultation", "labs", "radiology", "nursing", "returns"];
 
+export const ORDER_KINDS = KIND_ORDER;
+
+/** The list's own address for a tab and a service: defaults (current, all) are left out. */
+export function ordersQuery(path: string, tab: Tab, kind: OrderKind | null): string {
+  const params = new URLSearchParams();
+  if (tab === "previous") params.set("tab", "previous");
+  if (kind) params.set("kind", kind);
+  const query = params.toString();
+  return query ? `${path}?${query}` : path;
+}
+
+/** Reads ?tab and ?kind from the address; anything unknown is ignored. */
+export function parseOrdersQuery(query: { tab?: string | string[]; kind?: string | string[] }): { tab?: Tab; kind: OrderKind | null } {
+  const one = (v?: string | string[]) => (Array.isArray(v) ? v[0] : v);
+  const kind = KIND_ORDER.find((value) => value === one(query.kind)) ?? null;
+  return { tab: one(query.tab) === "previous" ? "previous" : one(query.tab) === "current" ? "current" : undefined, kind };
+}
+
 /**
  * The orders of canvas/Orders, for every service (issue 378): two tabs (current, previous) and one card per order with
  * its title, number or kind, date, status, the price the server stored (pharmacy), and the one action that fits. The
  * rows arrive with their labels already in the reader's language (./center-rows), newest first.
  */
-export function OrderList({ locale, rows, partialNote }: { locale: string; rows: CenterRow[]; partialNote?: string }) {
+export function OrderList({ locale, rows, partialNote, initialTab, initialKind }: { locale: string; rows: CenterRow[]; partialNote?: string; initialTab?: Tab; initialKind?: OrderKind | null }) {
   const t = useTranslations("Orders");
   const router = useRouter();
-  const [tab, setTab] = useState<Tab>(() => (rows.some((row) => row.bucket === "current") || rows.length === 0 ? "current" : "previous"));
-  const [kind, setKind] = useState<OrderKind | null>(null);
+  const [tab, setTab] = useState<Tab>(() => initialTab ?? (rows.some((row) => row.bucket === "current") || rows.length === 0 ? "current" : "previous"));
+  const [kind, setKind] = useState<OrderKind | null>(initialKind ?? null);
   const kinds = KIND_ORDER.filter((value) => rows.some((row) => row.kind === value));
   // a filter whose service has no rows falls back to All
   const activeKind = kind !== null && kinds.includes(kind) ? kind : null;
+  // the tab and the service live in the URL (?tab=previous&kind=labs) so a reload or a shared link keeps them
+  const remember = (nextTab: Tab, nextKind: OrderKind | null) => {
+    setTab(nextTab);
+    setKind(nextKind);
+    router.replace(ordersQuery(`/${locale}/orders`, nextTab, nextKind), { scroll: false });
+  };
   const shown = rows.filter((row) => row.bucket === tab && (activeKind === null || row.kind === activeKind));
 
   return (
@@ -43,15 +67,15 @@ export function OrderList({ locale, rows, partialNote }: { locale: string; rows:
           label={t("tabsLabel")}
           size="sm"
           value={tab}
-          onChange={(value) => setTab(value === "previous" ? "previous" : "current")}
+          onChange={(value) => remember(value === "previous" ? "previous" : "current", activeKind)}
           options={[{ value: "current", label: t("tabCurrent") }, { value: "previous", label: t("tabPrevious") }]}
         />
       </div>
       {kinds.length > 1 ? (
         <div className={styles.kindChips} role="group" aria-label={t("filterLabel")}>
-          <Chip label={t("filterAll")} selected={activeKind === null} onClick={() => setKind(null)} />
+          <Chip label={t("filterAll")} selected={activeKind === null} onClick={() => remember(tab, null)} />
           {kinds.map((value) => (
-            <Chip key={value} label={t(`filterKind.${value}`)} selected={activeKind === value} onClick={() => setKind(value)} />
+            <Chip key={value} label={t(`filterKind.${value}`)} selected={activeKind === value} onClick={() => remember(tab, value)} />
           ))}
         </div>
       ) : null}
@@ -60,10 +84,10 @@ export function OrderList({ locale, rows, partialNote }: { locale: string; rows:
           <EmptyState
             icon="pill"
             tone={PHARMACY_TONE}
-            title={t(tab === "current" ? "emptyCurrentTitle" : "emptyPreviousTitle")}
-            body={t(tab === "current" ? "emptyCurrentBody" : "emptyPreviousBody")}
-            actionLabel={tab === "current" ? t("browse") : undefined}
-            onAction={() => router.push(`/${locale}/pharmacy`)}
+            title={activeKind ? t(tab === "current" ? "emptyKindCurrentTitle" : "emptyKindPreviousTitle", { service: t(`filterKind.${activeKind}`) }) : t(tab === "current" ? "emptyCurrentTitle" : "emptyPreviousTitle")}
+            body={activeKind ? t("emptyKindBody") : t(tab === "current" ? "emptyCurrentBody" : "emptyPreviousBody")}
+            actionLabel={activeKind ? t("filterAll") : tab === "current" ? t("browse") : undefined}
+            onAction={() => (activeKind ? remember(tab, null) : router.push(`/${locale}/pharmacy`))}
           />
         </div>
       ) : (

@@ -3791,5 +3791,8 @@
   "consult.hub.degree.senior_specialist": "वरिष्ठ विशेषज्ञ",
   "consult.hub.degree.specialist": "विशेषज्ञ",
   "consult.hub.degree.resident": "रेज़िडेंट",
-  "consult.hub.degree.general_practitioner": "सामान्य चिकित्सक"
+  "consult.hub.degree.general_practitioner": "सामान्य चिकित्सक",
+  "orders.emptyKindCurrent": "कोई मौजूदा ऑर्डर नहीं: {service}",
+  "orders.emptyKindPrevious": "कोई पिछला ऑर्डर नहीं: {service}",
+  "orders.emptyKindBody": "इस सेवा में अभी कुछ नहीं है। अपने बाकी ऑर्डर देखने के लिए सभी चुनें।"
 }

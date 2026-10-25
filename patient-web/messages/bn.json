@@ -343,7 +343,10 @@
       "radiology": "রেডিওলজি",
       "nursing": "নার্সিং",
       "returns": "ফেরত ও রিফান্ড"
-    }
+    },
+    "emptyKindCurrentTitle": "কোনো চলমান অর্ডার নেই: {service}",
+    "emptyKindPreviousTitle": "কোনো আগের অর্ডার নেই: {service}",
+    "emptyKindBody": "এই সেবায় এখনও কিছু নেই। আপনার অন্যান্য অর্ডার দেখতে সব বেছে নিন।"
   },
   "Cart": {
     "eyebrow": "ব্যক্তিগত কার্ট",

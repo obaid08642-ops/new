@@ -30,8 +30,8 @@ vi.mock("@/components-next/core/core-shell", () => ({
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: async () => "server-only-order-token" }));
 vi.mock("@/lib/api/upstream", () => ({ callPatientApi: server.api }));
 
-import { actionHref, pharmacyRows, type CenterLabels } from "@/components-next/orders/center-rows";
-import { OrderList } from "@/components-next/orders/order-list";
+import { actionHref, pharmacyRows, sortCenterRows, type CenterLabels, type CenterRow } from "@/components-next/orders/center-rows";
+import { OrderList, ordersQuery, parseOrdersQuery } from "@/components-next/orders/order-list";
 import { OrderDetailScreen } from "@/components-next/orders/order-detail-screen";
 import { OrdersScreen } from "@/components-next/orders/orders-screen";
 import { ReorderPicker } from "@/components-next/orders/reorder-picker";
@@ -390,5 +390,45 @@ describe("/pharmacy/reorder", () => {
     expect(server.api).toHaveBeenCalledWith(`/patient/pharmacy/orders/${ORDER}`, {}, TOKEN);
     expect(html).toContain("Paracetamol 500 mg");
     expect(html).not.toContain("A typed request");
+  });
+});
+
+describe("/orders service filter", () => {
+  const row = (key: string, kind: CenterRow["kind"], at: string | undefined, bucket: CenterRow["bucket"] = "current"): CenterRow => ({
+    key, kind, href: `/en/x/${key}`, icon: "pill", tone: "ink", title: `T-${key}`, meta: kind, at, statusLabel: "s", statusTone: "ink", bucket, action: { href: `/en/x/${key}`, label: "Details" },
+  });
+  const rows = [row("p1", "pharmacy", ts(8)), row("c1", "consultation", ts(11)), row("l1", "labs", ts(9)), row("r1", "radiology", ts(9), "previous"), row("n1", "nursing", undefined), row("t1", "returns", ts(7))];
+
+  it("merges and sorts newest first with undated rows last", () => {
+    expect(sortCenterRows(rows).map((r) => r.key)).toEqual(["c1", "l1", "r1", "p1", "t1", "n1"]);
+  });
+
+  it("offers a chip per service that has a row, and filters by ?kind and ?tab", () => {
+    const all = render(<OrderList locale="en" rows={rows} />);
+    for (const label of ["Pharmacy", "Doctors", "Lab tests", "Radiology", "Nursing", "Returns and refunds"]) expect(all).toContain(label);
+    const labs = render(<OrderList locale="en" rows={rows} initialKind="labs" />);
+    expect(labs).toContain("T-l1");
+    expect(labs).not.toContain("T-p1");
+    const prev = render(<OrderList locale="en" rows={rows} initialTab="previous" initialKind="radiology" />);
+    expect(prev).toContain("T-r1");
+    expect(prev).not.toContain("T-l1");
+  });
+
+  it("says which service is empty for the tab, and offers All", () => {
+    const html = render(<OrderList locale="en" rows={rows} initialTab="previous" initialKind="labs" />);
+    expect(html).toContain("No previous orders: Lab tests");
+    expect(html).toContain("Choose All");
+  });
+
+  it("keeps the state in the address and ignores unknown values", () => {
+    expect(ordersQuery("/en/orders", "current", null)).toBe("/en/orders");
+    expect(ordersQuery("/en/orders", "previous", "labs")).toBe("/en/orders?tab=previous&kind=labs");
+    expect(parseOrdersQuery({ tab: "previous", kind: "labs" })).toEqual({ tab: "previous", kind: "labs" });
+    expect(parseOrdersQuery({ tab: "x", kind: "bogus" })).toEqual({ tab: undefined, kind: null });
+  });
+
+  it("draws one card per kind with its own link", () => {
+    const html = render(<OrderList locale="en" rows={rows.filter((r) => r.bucket === "current")} />);
+    for (const key of ["p1", "c1", "l1", "n1", "t1"]) expect(html).toContain(`href="/en/x/${key}"`);
   });
 });

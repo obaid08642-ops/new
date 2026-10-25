@@ -12,7 +12,7 @@ import type { Locale } from "@/lib/i18n";
 import { parseOrderRows } from "@/lib/pharmacy/order-view";
 import { callPatientApi } from "@/lib/api/upstream";
 import { consultationRows, diagnosticRows, legacyOrderRows, nursingRows, pharmacyRows, returnRows, sortCenterRows, type CenterLabels, type CenterRow } from "./center-rows";
-import { OrderList } from "./order-list";
+import { OrderList, parseOrdersQuery } from "./order-list";
 import rx from "@/components-next/pharmacy/rx.module.css";
 
 /** One source of the order center: its rows, or `failed` when the service did not answer (the other services still show). */
@@ -33,7 +33,7 @@ async function read(locale: string, load: () => Promise<Response>, build: (paylo
  * consultations, lab and radiology bookings, nursing visits and returns, newest first, from each service's own endpoint. A service
  * that does not answer is named in a note and the others still show; only when none answers is the page an error.
  */
-export async function OrdersScreen({ locale }: { locale: Locale }) {
+export async function OrdersScreen({ locale, query = {} }: { locale: Locale; query?: { tab?: string | string[]; kind?: string | string[] } }) {
   const t = await getTranslations({ locale, namespace: "Orders" });
   const routeState = await getTranslations({ locale, namespace: "RouteState" });
   const labels: CenterLabels = {
@@ -60,6 +60,7 @@ export async function OrdersScreen({ locale }: { locale: Locale }) {
   const rows = sortCenterRows(sources.flatMap((source) => source.rows));
   const failedCount = sources.filter((source) => source.failed).length;
 
+  const initial = parseOrdersQuery(query);
   let body;
   if (failedCount === sources.length) {
     body = <div className={rx.state}><RetryLinkErrorState title={t("listErrorTitle")} body={t("unavailableBody")} retryLabel={routeState("retry")} /></div>;
@@ -70,7 +71,7 @@ export async function OrdersScreen({ locale }: { locale: Locale }) {
       </div>
     );
   } else {
-    body = <OrderList locale={locale} rows={rows} partialNote={failedCount > 0 ? t("partialNote") : undefined} />;
+    body = <OrderList locale={locale} rows={rows} partialNote={failedCount > 0 ? t("partialNote") : undefined} initialTab={initial.tab} initialKind={initial.kind} />;
   }
 
   return (

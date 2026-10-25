@@ -343,7 +343,10 @@
       "radiology": "रेडियोलॉजी",
       "nursing": "नर्सिंग",
       "returns": "वापसी और रिफ़ंड"
-    }
+    },
+    "emptyKindCurrentTitle": "कोई मौजूदा ऑर्डर नहीं: {service}",
+    "emptyKindPreviousTitle": "कोई पिछला ऑर्डर नहीं: {service}",
+    "emptyKindBody": "इस सेवा में अभी कुछ नहीं है। अपने बाकी ऑर्डर देखने के लिए सभी चुनें।"
   },
   "Cart": {
     "eyebrow": "निजी कार्ट",

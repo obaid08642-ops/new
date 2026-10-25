@@ -178,7 +178,7 @@ export function OrderList({ endpoints, titleKey, testID }: { endpoints: OrderEnd
         keyExtractor={(row) => row.key}
         ListHeaderComponent={top}
         ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
-        ListEmptyComponent={<EmptyState icon="receipt" tone={ORDERS_TONE} title={k(bucket === 'current' ? 'orders.emptyCurrent' : 'orders.emptyPrevious')} body={k('orders.emptyBody')} theme={theme} />}
+        ListEmptyComponent={<EmptyState icon="receipt" tone={ORDERS_TONE} title={activeKind ? k(bucket === 'current' ? 'orders.emptyKindCurrent' : 'orders.emptyKindPrevious', { service: k(`orders.filterKind.${activeKind}`) }) : k(bucket === 'current' ? 'orders.emptyCurrent' : 'orders.emptyPrevious')} body={k(activeKind ? 'orders.emptyKindBody' : 'orders.emptyBody')} theme={theme} />}
         contentContainerStyle={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 40 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); void load('manual'); }} tintColor={c.text.primary} />}
         renderItem={({ item }) => <OrderCard row={item} onPress={item.route ? () => router.push(item.route as unknown as Href) : undefined} />}
