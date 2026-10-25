@@ -14,8 +14,10 @@ import { getWebSocketCorsOptions } from '../../config/websocket-cors';
 import { ChatService } from '../chat/chat.service';
 import { LiveKitService } from '../livekit/livekit.service';
 import { registerGauge } from '../../common/metrics.service';
+import { realtimeTransports } from '../../common/cluster-config';
 
-@WebSocketGateway({ cors: getWebSocketCorsOptions(), namespace: '/', transports: ['websocket', 'polling'] })
+// websocket only once more than one worker serves sockets (common/cluster-config.ts): a polling handshake spans several requests and would reach different workers
+@WebSocketGateway({ cors: getWebSocketCorsOptions(), namespace: '/', transports: realtimeTransports() })
 export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
   private readonly logger = new Logger('RealtimeGateway');

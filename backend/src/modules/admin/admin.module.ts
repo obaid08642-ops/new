@@ -40,6 +40,8 @@ import { AdminSegmentsController } from './enterprise/admin-segments.controller'
 import { AdminCouponsController } from './enterprise/admin-coupons.controller';
 import { AdminCmsController } from './enterprise/admin-cms.controller';
 import { AdminOpsController } from './enterprise/admin-ops.controller';
+import { AdminLogsController } from '../logs/admin-logs.controller';
+import { AdminMedicalAccessController } from './enterprise/admin-medical-access.controller';
 import { ScheduledReportsRunner } from './enterprise/scheduled-reports.runner';
 import { AdminCommandCenterV2Controller } from './enterprise/command-center-v2.controller';
 import { AdminGovernanceControlsController, PublicContentController } from './enterprise/admin-governance-controls.controller';
@@ -145,6 +147,8 @@ import { AdminUrgentAlertsService } from './alerts/admin-urgent-alerts.service';
     AdminCmsController,
     AdminCouponsController,
     AdminOpsController,
+    AdminLogsController, // GET admin/logs (20.3); dropped by the P5.3 merge, so the admin system-logs page got 404
+    AdminMedicalAccessController, // GET admin/medical-access (PDPL access log); dropped by the same merge
     AdminGovernanceControlsController,
     PublicContentController,
     AdminCommandCenterV2Controller,

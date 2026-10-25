@@ -106,9 +106,9 @@ Generated rows (one per collection; see §0 for how each column was derived):
 | `commission_rule_history` | raw only | unknown (raw collection, no schema) | modules/finance-engine/finance-engine.module.ts | none found | none found |
 | `commissionledgers` | modules/admin/web-core/schemas/commission-ledger.schema.ts:6 (derived name) | systemCommission[PAY], vatOnCommission[PAY] | modules/admin/web-core/controllers/finance.controller.ts | admin, provider, patient-own? | none found |
 | `commissionrules` | modules/insurance-engine/insurance-engine.module.ts:115 (derived name) | unknown (raw collection, no schema) | modules/compat/admin-spa.module.ts; modules/finance-engine/finance-engine.module.ts; modules/insurance-engine/insurance-engine.module.ts | none found | none found |
-| `community_comments` | schemas/community.schemas.ts:32 | id, post_id, author_id | unknown | none found | none found |
-| `community_live_sessions` | schemas/community.schemas.ts:48 | id, host_id, stream_url[FILE] | unknown | none found | none found |
-| `community_posts` | schemas/community.schemas.ts:5 | id, author_id | unknown | patient-own? | soft delete is_deleted (modules/community/community.service.ts:136) |
+| `community_comments` | (no schema: the community module was removed, owner decision 1) | — | archive_community_comments after `scripts/migrations/2026-10-archive-community.ts --apply` | — | — |
+| `community_live_sessions` | (no schema: the community module was removed, owner decision 1) | — | archive_community_live_sessions after `scripts/migrations/2026-10-archive-community.ts --apply` | — | — |
+| `community_posts` | (no schema: the community module was removed, owner decision 1) | — | archive_community_posts after `scripts/migrations/2026-10-archive-community.ts --apply` | — | — |
 | `complaints` | raw only | unknown (raw collection, no schema) | modules/compat/admin-spa.module.ts | none found | none found |
 | `conditions` | modules/entity-graph/schemas/condition.schema.ts:6 | symptoms[MED] | modules/admin/enterprise/admin-governance-controls.controller.ts; modules/compat/admin-spa.module.ts; modules/entity-graph/entity-graph.service.ts | admin, provider, patient-own?, public | none found |
 | `consultation_messages` | raw only | unknown (raw collection, no schema) | modules/care/care-compat.controller.ts | admin, provider, patient-own?, public | none found |
