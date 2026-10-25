@@ -144,7 +144,8 @@
     "recordsMoodNotLogged": "لم تسجل مزاجك اليوم",
     "recordsMaternity": "الأمومة",
     "recordsPregnancy": "متابعة الحمل",
-    "recordsCycle": "متابعة الدورة"
+    "recordsCycle": "متابعة الدورة",
+    "notificationsUnread": "الإشعارات، يوجد جديد"
   },
   "Login": {
     "title": "تسجيل الدخول",
@@ -906,7 +907,8 @@
     "chronicStop": "إيقاف متابعة الإعادة",
     "chronicUpdateFailed": "تعذر تحديث متابعة إعادة التعبئة.",
     "confirmAction": "تأكيد",
-    "photoInvalid": "اختر صورة لا يزيد حجمها عن 5 ميغابايت."
+    "photoInvalid": "اختر صورة لا يزيد حجمها عن 5 ميغابايت.",
+    "rxPurchased": "تم الشراء"
   },
   "Prescriptions": {
     "title": "الوصفات الطبية",
@@ -1718,7 +1720,9 @@
     "suggestFieldLabel": "البيان المراد تعديله",
     "suggestSending": "جارٍ الإرسال…",
     "suggestSignIn": "سجّل الدخول لإرسال اقتراحك.",
-    "suggestSignInAction": "تسجيل الدخول"
+    "suggestSignInAction": "تسجيل الدخول",
+    "coldChain": "يحتاج تبريد",
+    "interactions": "التداخلات الدوائية"
   },
   "Wallet": {
     "wallet": "المحفظة",
@@ -2506,7 +2510,15 @@
     "hubOrderAgain": "أعد طلبك السابق",
     "hubOrderAgainAction": "اطلب",
     "hubOneItem": "صنف واحد",
-    "hubItems": "{n, number} أصناف"
+    "hubItems": "{n, number} أصناف",
+    "filterForm": "الشكل الدوائي",
+    "filterBrand": "الشركة المصنّعة",
+    "filterRx": "الوصفة الطبية",
+    "filterRxAny": "الكل",
+    "filterRxOnly": "بوصفة طبية فقط",
+    "filterRxNone": "بدون وصفة",
+    "filterPriceMin": "أقل سعر",
+    "filterPriceMax": "أعلى سعر"
   },
   "PharmacyOffers": {
     "backToOrder": "العودة إلى الطلب",
@@ -3610,7 +3622,13 @@
     "addressLocating": "جارٍ تحديد موقعك...",
     "addressLocationSet": "سيتم استخدام موقعك الحالي للزيارة",
     "addressUseSaved": "استخدام عنوان محفوظ بدلًا من ذلك",
-    "addressLocationDenied": "تعذر تحديد موقعك. اسمح بالوصول إلى الموقع أو اختر عنوانًا محفوظًا."
+    "addressLocationDenied": "تعذر تحديد موقعك. اسمح بالوصول إلى الموقع أو اختر عنوانًا محفوظًا.",
+    "filterAvailability": "التوافر",
+    "filterNationality": "الجنسية",
+    "nationality_any": "الكل",
+    "nationality_Saudi": "سعودي",
+    "nationality_Filipino": "فلبيني",
+    "nationality_Egyptian": "مصري"
   },
   "MaternityWeb": {
     "title": "الأمومة",

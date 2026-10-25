@@ -79,7 +79,7 @@ export default async function BookConsultationPage({ params, searchParams }: Pro
   // insurance readiness (the app checks the saved policy before it offers the insurance request)
   const policyRes = await getPatientInsurancePolicy(token).catch(() => null);
   const summary = policyRes?.ok ? parseInsuranceSummary(await policyRes.json().catch(() => null)) : null;
-  const insurance = { ready: Boolean(summary?.hasPolicy && (summary.policyNumber || summary.memberId || summary.companyName)), memberId: summary?.policyNumber || summary?.memberId };
+  const insurance = { ready: Boolean(summary?.hasPolicy && (summary.policyNumber || summary.memberId || summary.companyName)), memberId: summary?.policyNumber || summary?.memberId, providerId: summary?.insurerId };
   return (
     <BookingFlow
       bookingFor={bookingFor}
