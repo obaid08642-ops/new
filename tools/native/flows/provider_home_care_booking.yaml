@@ -1,0 +1,10 @@
+# Home care (provider app): a patient's nursing visit (made by the API, paid with the test double) reaches the nurse.
+appId: com.nabd.provider
+---
+- runScript:
+    file: scripts/nursing_booking.js
+- runFlow: common_provider_login.yaml
+- extendedWaitUntil:
+    visible: ".*(قبول|Accept|طلب جديد|New request|الزيارات|Visits).*"
+    timeout: 90000
+- takeScreenshot: provider_home_care_dashboard

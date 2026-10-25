@@ -1,0 +1,14 @@
+# Radiology centre (provider app): a patient's scan booking (made by the API, cash at the centre) is in the centre's incoming list.
+appId: com.nabd.provider
+---
+- runScript:
+    file: scripts/radiology_booking.js
+- runFlow: common_provider_login.yaml
+- extendedWaitUntil:
+    visible: "الطلبات|Orders"
+    timeout: 90000
+- tapOn: "الطلبات|Orders"
+- extendedWaitUntil:
+    visible: "طلب جديد|New request"
+    timeout: 60000
+- takeScreenshot: provider_radiology_inbox

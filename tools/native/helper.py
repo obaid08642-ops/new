@@ -110,6 +110,41 @@ def lab_booking():
     return {'ok': bool(bid), 'booking_id': bid, 'token': p['token'], 'detail': '' if bid else str(r)}
 
 
+def _tomorrow_at(hour):
+    import datetime
+    return (datetime.datetime.now() + datetime.timedelta(days=1)).replace(hour=hour, minute=0, second=0, microsecond=0).astimezone().isoformat()
+
+
+def radiology_booking():
+    """A new patient books a scan at the seeded imaging centre (at the centre, cash); the radiology flow finds it in the provider app."""
+    import j_accounts
+    centre = provider('radiology_stock')
+    cid = centre.get('/provider/me').get('account', 'id')
+    p = j_accounts.app_signup(label='native-scanner')
+    me = lib.Client(p['token'], 'patient')
+    scan = me.get('/radiology/services').items()[0]
+    r = me.post('/radiology/bookings', {'service_id': scan['id'], 'scheduled_at': _tomorrow_at(11), 'location_type': 'facility', 'payment_method': 'cash', 'provider_account_id': cid})
+    bid = r.get('id')
+    return {'ok': bool(bid), 'booking_id': bid, 'token': p['token'], 'detail': '' if bid else str(r)}
+
+
+def nursing_booking():
+    """A new patient books the seeded nurse (card, paid with the test double so the nurse can accept); the home-care flow finds the visit in the provider app."""
+    import j_accounts, j_nursing
+    nurse = provider('home_care_stock')
+    nid = nurse.get('/provider/me').get('account', 'id')
+    p = j_accounts.app_signup(label='native-visitor')
+    me = lib.Client(p['token'], 'patient')
+    me.post('/users/me/addresses', {'label': 'المنزل', 'street': 'شارع الملك فهد 3', 'city': 'الرياض', 'lat': 24.7001, 'lng': 46.7001, 'is_default': True})
+    svc = (lambda r: r.body if isinstance(r.body, list) else r.items())(me.get('/home-care/services'))[0]
+    addr = {'address': 'شارع الملك فهد 3، الرياض', 'city': 'الرياض', 'lat': 24.7001, 'lng': 46.7001}
+    r = me.post('/nursing/bookings', {'provider_id': nid, 'service_id': svc['id'], 'service_name_ar': svc.get('name_ar'), 'scheduled_at': _tomorrow_at(9), 'address': addr, 'payment_method': 'card'})
+    bid = r.get('id')
+    if bid:
+        j_nursing.card_payment(me, 'nursing', bid)
+    return {'ok': bool(bid), 'booking_id': bid, 'token': p['token'], 'detail': '' if bid else str(r)}
+
+
 def otp(to, since):
     return lib.mail_code(to, since, timeout=25)
 
@@ -149,6 +184,10 @@ class H(BaseHTTPRequestHandler):
                 return self._send(200, {'email': p['email'], 'phone': p['phone'], 'password': p['password'], 'name': 'اختبار native-extra'})
             if u.path == '/meds':
                 return self._send(200, accounts().get('meds', []))
+            if u.path == '/radiology/booking':
+                return self._send(200, radiology_booking())
+            if u.path == '/nursing/booking':
+                return self._send(200, nursing_booking())
             if u.path == '/lab/booking':
                 return self._send(200, lab_booking())
             if u.path == '/doctor/appointment':
