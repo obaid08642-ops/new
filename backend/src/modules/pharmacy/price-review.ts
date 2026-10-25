@@ -9,7 +9,7 @@ import { riyadhParts } from '../../common/riyadh-clock';
  */
 export const PRICE_REVIEWS = 'pharmacy_line_price_reviews';
 export type PriceReviewStatus = 'open' | 'catalogue_updated' | 'pharmacy_actioned' | 'dismissed';
-export type PriceReviewAction = 'catalogue_updated' | 'dismissed' | 'warning' | 'suspend_temporary' | 'block' | 'penalty';
+export type PriceReviewAction = 'catalogue_updated' | 'dismissed' | 'warning' | 'suspend_temporary' | 'block' | 'penalty' | 'suspension_lifted';
 
 /** How far above the catalogue price, in percent with two decimals. */
 export function percentAbove(offered: number, catalogue: number): number {

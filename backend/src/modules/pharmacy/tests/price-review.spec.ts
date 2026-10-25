@@ -17,7 +17,7 @@ jest.setTimeout(120_000);
 let mongod: MongoMemoryServer;
 let conn: Connection;
 const admin = { id: 'admin-1', role: 'admin' };
-const providerAdmin = { suspend: jest.fn() };
+const providerAdmin = { suspend: jest.fn(), reactivate: jest.fn() };
 const providerNotifications = { createSystem: jest.fn() };
 let service: PharmacyPriceReviewService;
 
@@ -39,6 +39,9 @@ beforeEach(async () => {
   await conn.collection('medicines').deleteMany({});
   await conn.collection('medicines').insertOne({ id: 'med-1', sfda_price: 10, name_en: 'Drug' });
   providerAdmin.suspend.mockReset().mockResolvedValue({});
+  providerAdmin.reactivate.mockReset().mockResolvedValue({});
+  await conn.collection('provider_accounts').deleteMany({});
+  await conn.collection('provider_profiles').deleteMany({});
   providerNotifications.createSystem.mockReset().mockResolvedValue({});
 });
 
@@ -176,5 +179,49 @@ describe('the decisions need a reason', () => {
     expect(await validate(plainToInstance(PriceReviewPenaltyDto, { note: 'fine', amount_sar: 0 }))).not.toHaveLength(0);
     expect(await validate(plainToInstance(PriceReviewPenaltyDto, { note: 'fine', amount_sar: 100 }))).toHaveLength(0);
     expect(await validate(plainToInstance(PriceReviewSuspendDto, { note: 'fine' }))).not.toHaveLength(0);
+  });
+});
+
+describe('a temporary suspension ends by itself', () => {
+  const ended = new Date('2026-11-01T00:00:00Z');
+  const after = new Date('2026-11-01T00:10:00Z');
+  const suspended = (over: Record<string, unknown> = {}) => col().insertOne({ id: 'r1', status: 'pharmacy_actioned', action: 'suspend_temporary', pharmacy_id: 'ph1', suspended_until: ended, note: 'repeat', name_ar: 'دواء', ...over });
+  const account = (status = 'suspended') => conn.collection('provider_accounts').insertOne({ id: 'ph1', status });
+
+  it('reactivates the pharmacy at the end date, tells it, audits it, and does it once', async () => {
+    await account(); await suspended();
+    expect(await service.liftExpiredSuspensions(after)).toEqual({ lifted: 1, skipped: 0, failed: 0 });
+    expect(providerAdmin.reactivate).toHaveBeenCalledWith({ id: 'system', role: 'admin' }, 'ph1', expect.objectContaining({ reason: expect.stringContaining('r1') }));
+    expect(providerNotifications.createSystem).toHaveBeenCalledWith('ph1', expect.objectContaining({ related_id: 'r1' }));
+    expect(await col().findOne({ id: 'r1' })).toMatchObject({ lifted_state: 'lifted' });
+    expect(await conn.collection('auditlogs').countDocuments({ action: 'pharmacy.price_review.suspension_lifted' })).toBe(1);
+    expect(await service.liftExpiredSuspensions(after)).toEqual({ lifted: 0, skipped: 0, failed: 0 });
+    expect(providerAdmin.reactivate).toHaveBeenCalledTimes(1);
+  });
+
+  it('does nothing before the end date', async () => {
+    await account(); await suspended();
+    expect(await service.liftExpiredSuspensions(new Date('2026-10-31T23:00:00Z'))).toEqual({ lifted: 0, skipped: 0, failed: 0 });
+    expect(providerAdmin.reactivate).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['not_suspended', async () => { await account('approved'); await suspended(); }],
+    ['blocked_by_price_review', async () => { await account(); await conn.collection('provider_profiles').insertOne({ account_id: 'ph1', blocked_by_price_review: 'r9' }); await suspended(); }],
+    ['later_suspension_running', async () => { await account(); await suspended(); await suspended({ id: 'r2', suspended_until: new Date('2027-01-01T00:00:00Z') }); }],
+  ])('skips the lift (%s) and says why on the row', async (reason, setup) => {
+    await setup();
+    const res = await service.liftExpiredSuspensions(after);
+    expect(res.lifted).toBe(0);
+    expect(providerAdmin.reactivate).not.toHaveBeenCalled();
+    expect(await col().findOne({ id: 'r1' })).toMatchObject({ lifted_state: `skipped:${reason}` });
+  });
+
+  it('gives the claim back when the reactivation fails, so the next run tries again', async () => {
+    await account(); await suspended();
+    providerAdmin.reactivate.mockRejectedValueOnce(new Error('scfhs_license_not_verified'));
+    expect(await service.liftExpiredSuspensions(after)).toEqual({ lifted: 0, skipped: 0, failed: 1 });
+    expect(await col().findOne({ id: 'r1' })).not.toHaveProperty('lifted_at');
+    expect(await service.liftExpiredSuspensions(after)).toEqual({ lifted: 1, skipped: 0, failed: 0 });
   });
 });
