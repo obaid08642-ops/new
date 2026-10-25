@@ -16,6 +16,10 @@
       {
         "include": "modules/medicines/data/*.csv",
         "watchAssets": false
+      },
+      {
+        "include": "modules/location/data/*.json",
+        "watchAssets": false
       }
     ]
   }
