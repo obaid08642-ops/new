@@ -1634,6 +1634,9 @@
     }
   },
   "Emergency": {
+    "callEmergency": "Tumawag sa emergency {number}",
+    "urgentCall": "Tumawag sa agarang tulong {number}",
+    "urgentUnavailable": "Wala pang naka-set na numero ng agarang tulong. Sa emergency, tumawag sa 997.",
     "title": "Agarang tulong",
     "intro": "Kung kailangan mo ng agarang tulong, tawagan ang numero ng agarang tulong na itinakda sa Nabd Plus.",
     "call": "Tawagan ang {number}",
