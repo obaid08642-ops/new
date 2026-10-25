@@ -21,3 +21,11 @@ Format: `| severity | route | element | steps | expected | actual | file:line |`
 Checked and OK on the local stack, prod build (guest unless stated): /en/login, /en/register, /en/cart (empty state text OK), /en/doctors, /en/insurance, /en/diagnostics, /en/radiology, /en/home-nursing. LCP 110-320 ms on the local build. Sign-in with a registered patient works (lands on /en/dashboard). Search "panadol" returns 5 results.
 
 Not yet covered: cart with items, checkout, booking, payment, insurance card add, languages ar/ur/hi/bn/fil, dark mode, admin panel.
+
+## Languages and direction (local stack, 390 px)
+
+| severity | route | element | steps | expected | actual | file:line |
+|---|---|---|---|---|---|---|
+| P3 | /fil/login | "Password" label | Open the page in Filipino | Filipino word, or a deliberate loanword agreed with the translation owner | English word "Password" in the field label (messages/fil.json:153 sets it on purpose). Translation owner to decide | patient-web/messages/fil.json:153 |
+
+OK: dir is rtl for ar and ur, ltr for hi, bn, fil; no raw translation keys or `undefined`/`NaN`/`[object Object]` on /login and /doctors in all six locales; titles are localised. Not yet checked: dark mode, 1280 layout on non-English pages, Urdu/Arabic layout beyond the login page.
