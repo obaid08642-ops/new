@@ -648,8 +648,8 @@ export class AuthService {
 
   /**
    * 435: the reset reaches the person as a link to the website's reset page (the page reads the token from the link), valid
-   * for 30 minutes, in their language. Email when there is one; a phone-only account gets it by SMS (when SMS is on) and on
-   * its signed-in devices by push. Every channel is best effort and the answer stays the same opaque `requested`.
+   * for 30 minutes, in their language. Email when there is one, and on the account's
+   * signed-in devices by push (no SMS: owner decision 2026-10-25). Every channel is best effort and the answer stays the same opaque `requested`.
    */
   private async deliverPasswordReset(user: any, email: string | undefined, resetToken: string) {
     const webLocales = ['ar', 'en', 'ur', 'hi', 'bn', 'fil'];
