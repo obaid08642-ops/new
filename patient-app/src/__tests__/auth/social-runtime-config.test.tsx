@@ -42,14 +42,17 @@ describe('providers drawn from the backend answer', () => {
     expect(availableSocialProviders(config())).toEqual(['google', 'x', 'snapchat']);
   });
 
-  it.each([['apple', 'ios'], ['google', 'ios'], ['x', 'ios'], ['snapchat', 'ios']] as const)('%s off in the answer → no button', (provider, os) => {
+  // Owner, 2026-10-25: a provider the backend does not enable still shows (pressing it says "not available").
+  it.each([['apple', 'ios'], ['google', 'ios'], ['x', 'ios'], ['snapchat', 'ios']] as const)('%s off in the answer → the button still shows', (provider, os) => {
     jest.replaceProperty(Platform, 'OS', os);
-    expect(availableSocialProviders(config({ [provider]: off }))).not.toContain(provider);
+    expect(availableSocialProviders(config({ [provider]: off }))).toContain(provider);
   });
 
-  it('with no answer the build-time rule applies (Apple on iOS, Google, X and Snapchat only with the flag)', () => {
+  it('with no answer the same four show (Apple on iOS only)', () => {
     jest.replaceProperty(Platform, 'OS', 'ios');
-    expect(availableSocialProviders(null)).toEqual(['apple', 'google']);
+    expect(availableSocialProviders(null)).toEqual(['apple', 'google', 'x', 'snapchat']);
+    jest.replaceProperty(Platform, 'OS', 'android');
+    expect(availableSocialProviders(null)).toEqual(['google', 'x', 'snapchat']);
   });
 
   it('an answer that is not the expected shape is ignored', () => {

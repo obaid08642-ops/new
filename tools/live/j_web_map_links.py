@@ -1,8 +1,7 @@
 """Journey (patient-web in a real browser, signed out): the public facilities map (issue 1550 walkthrough).
   - "Book" on a lab opens the lab's page (it used to be a 404: the map lists a lab by its profile id and the lab endpoint looked
     only for the account id) and "Book" on a doctor opens the doctor's page;
-  - the city under each facility is in the page's language: English on the English, Hindi, Bengali and Filipino pages (the
-    city list holds Arabic and English), Arabic on the Arabic and Urdu pages;
+  - the city under each facility is the English name on every page but the Arabic one (the city list holds Arabic and English only);
   - no sideways scroll at 360 px in dark mode.
 Stack: backend :8002 (seeded test facilities), patient-web :3100 (PATIENT_WEB_PORT=3100 tools/live/start-web.sh).
 """
@@ -27,9 +26,8 @@ def main():
     city_row = next((c for c in crow if doctor and c.get('name_ar') == doctor.get('city')), None) or {}
     en_city = city_row.get('name_en')
     step('the city list knows the doctor\'s city in English', bool(en_city), doctor and doctor.get('city'))
-    # the page shows the city's own translation where the list has one, else English (hi, bn, fil), else the Arabic (ur)
-    expected_city = {'ar': doctor and doctor['city'], 'en': en_city, 'ur': city_row.get('name_ur') or (doctor and doctor['city']),
-                     'hi': city_row.get('name_hi') or en_city, 'bn': city_row.get('name_bn') or en_city, 'fil': city_row.get('name_tl') or en_city}
+    # names are ar/en only (issue #1905): the Arabic page shows the Arabic city, every other page the English one
+    expected_city = {'ar': doctor and doctor['city'], 'en': en_city, 'ur': en_city, 'hi': en_city, 'bn': en_city, 'fil': en_city}
     if not (lab and doctor and en_city):
         return
     try:
@@ -51,7 +49,7 @@ def main():
             page.wait_for_timeout(800)
             body = page.inner_text('main')
             step(f'/{loc}/map shows the city in the page language ("{expected_city[loc]}")', bool(expected_city[loc]) and expected_city[loc] in body, body[:120])
-            if loc not in ('ar', 'ur') and expected_city[loc] != doctor['city']:
+            if loc != 'ar' and expected_city[loc] != doctor['city']:
                 step(f'/{loc}/map shows no Arabic city name', doctor['city'] not in body, doctor['city'])
             step(f'/{loc}/map has no sideways scroll at 360px (dark)', page.evaluate('document.documentElement.scrollWidth - window.innerWidth') <= 2, '')
             if loc in ('ar', 'en'):

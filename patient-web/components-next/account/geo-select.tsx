@@ -27,7 +27,7 @@ function readOptions(payload: unknown): Option[] {
  * Region, city and district as three selects (GET /locations/regions, /cities, /districts?city=). The names come from the
  * server in Arabic and English; every other language shows the English name.
  */
-export function GeoSelect({ value, onChange, locale }: { value: Value; onChange: (value: Value) => void; locale: string }) {
+export function GeoSelect({ value, onChange, locale, onRegionResolved }: { value: Value; onChange: (value: Value) => void; locale: string; onRegionResolved?: (region: string) => void }) {
   const t = useTranslations("AccountWeb");
   const [regions, setRegions] = useState<Option[]>([]);
   const [allCities, setAllCities] = useState<Option[]>([]);
@@ -44,6 +44,16 @@ export function GeoSelect({ value, onChange, locale }: { value: Value; onChange:
     if (!value.city) { setDistricts([]); return; }
     fetch(`/api/patient/locations/districts?city=${encodeURIComponent(value.city)}`).then((r) => r.json()).then((d) => setDistricts(readOptions(d))).catch(() => undefined);
   }, [value.city]);
+
+  // A city set from outside (the map's address lookup gives a city code) shows under its own region: the region is read from the catalogue.
+  useEffect(() => {
+    if (!value.city || value.region) return;
+    const region = allCities.find((city) => city.code === value.city)?.parent_code;
+    if (!region) return;
+    if (onRegionResolved) onRegionResolved(region);
+    else onChange({ ...value, region });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allCities, value.city, value.region]);
 
   const cities = value.region ? allCities.filter((city) => city.parent_code === value.region) : [];
 

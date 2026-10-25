@@ -10,7 +10,8 @@
  *
  * Exit codes: 0 ok · 2 the plan differs from --expect (nothing written) · 3 verify failed after the writes (the task rolls back) · 1 error.
  * Steps: medicine translations (#1844, the packaged CSV), Arabic/English names of regions, cities and insurers, medicine-name hygiene
- * and the owner-approved name fixes (#1556), districts (an extract the owner supplies). Inputs that are not given are skipped.
+ * and the owner-approved name fixes (#1556), districts (the extract packaged in the image; `--districts=<file>` overrides it).
+ * The name-fixes file is optional and skipped when not given.
  */
 import * as fs from 'fs';
 import * as path from 'path';
@@ -23,6 +24,8 @@ import {
 import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn } from '../modules/catalogs/catalogue-apply.steps';
 
 const TRANSLATIONS_CSV = path.join(__dirname, '../modules/medicines/data/medicine-translations-2026-10-24.csv');
+/** The districts extract shipped in the image (nest-cli asset, like the CSV above). A `--districts=<file>` on the command line overrides it. */
+export const PACKAGED_DISTRICTS = path.join(__dirname, '../modules/location/data/districts-extract.v1.json');
 const TOUCHED = ['medicines', 'locations', 'insurance_companies'];
 
 const arg = (argv: string[], name: string): string | undefined => argv.find((a) => a.startsWith(`--${name}=`))?.split('=').slice(1).join('=');
@@ -55,14 +58,13 @@ export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> 
     report.name_fixes = { approved: planned.approved, refused: planned.refused, already_applied_or_changed: planned.already_applied_or_changed };
   } else report.name_fixes = 'skipped: no approved file given';
 
-  const districts = arg(argv, 'districts');
-  if (districts) {
-    const text = fs.readFileSync(districts, 'utf8');
-    inputs.districts_extract = sha256(text);
-    const planned = await planDistricts(db, JSON.parse(text));
-    changes.push(...planned.changes);
-    report.districts = { rejected_rows: planned.rejected, cities_with_new_rows: planned.perCity.filter((c) => c.new > 0).length, new_rows: planned.perCity.reduce((n, c) => n + c.new, 0), centroid_fills: planned.perCity.reduce((n, c) => n + c.centroid_fills, 0) };
-  } else report.districts = 'skipped: no extract given';
+  const override = arg(argv, 'districts');
+  const districts = override ?? PACKAGED_DISTRICTS;
+  const text = fs.readFileSync(districts, 'utf8');
+  inputs.districts_extract = sha256(text);
+  const planned = await planDistricts(db, JSON.parse(text));
+  changes.push(...planned.changes);
+  report.districts = { source: override ? 'host_file_override' : 'packaged', rejected_rows: planned.rejected, cities_with_new_rows: planned.perCity.filter((c) => c.new > 0).length, new_rows: planned.perCity.reduce((n, c) => n + c.new, 0), centroid_fills: planned.perCity.reduce((n, c) => n + c.centroid_fills, 0) };
 
   return { changes, inputs, sha: planSha(changes, inputs), report };
 }

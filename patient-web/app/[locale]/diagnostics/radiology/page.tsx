@@ -11,7 +11,7 @@ import { CheckField, RADIOLOGY, RadiologyTile, SearchForm, hoursText, minutesTex
 import styles from "@/components-next/diagnostics/diag.module.css";
 import type { Metadata } from "next";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
-import { pickTexts } from "@/lib/i18n/localized";
+import { pickName } from "@/lib/i18n/localized";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<Record<string, string | string[] | undefined>> };
 
@@ -106,7 +106,7 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
               service.durationMinutes !== undefined ? minutesText(locale, service.durationMinutes) : undefined,
               service.turnaroundHours !== undefined ? w("resultWithin", { time: hoursText(locale, service.turnaroundHours) }) : undefined,
             ].filter(Boolean).join(" · ");
-            return <RadiologyTile key={service.id} href={`/${locale}/diagnostics/radiology/${encodeURIComponent(service.id)}`} title={pickTexts(locale, service.names) ?? ""} sub={sub || undefined} tags={tags} imageUrl={service.imageUrl} />;
+            return <RadiologyTile key={service.id} href={`/${locale}/diagnostics/radiology/${encodeURIComponent(service.id)}`} title={pickName(locale, service.names) ?? ""} sub={sub || undefined} tags={tags} imageUrl={service.imageUrl} />;
           })}
         </ul>
       )}

@@ -29,7 +29,7 @@ export interface OrderInsuranceDecisionRequest {
   items: OrderItemDecision[];
   copay_percent?: number;          // 0..100
   insurer_share?: number;          // SAR — يحسب سيرفريًا عند الغياب
-  nphies_approval_code?: string;
+  approval_reference?: string;
   policy_number?: string;
   member_id?: string;
 }

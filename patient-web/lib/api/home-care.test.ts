@@ -10,15 +10,15 @@ describe("home-care response guards", () => {
   });
 });
 
-describe("home-care booking service names in every language (issue 1832)", () => {
+describe("home-care booking service names, Arabic and English (issue 1832, owner decision 2026-10-25)", () => {
   it("reads service_names over the stored Arabic/English; an old booking keeps the stored pair", async () => {
-    const { pickTexts } = await import("@/lib/i18n/localized");
+    const { pickName } = await import("@/lib/i18n/localized");
     const [fresh, old] = extractHomeCareBookings({ data: [
       { id: bookingId, service_name_ar: "قديم", service_name_en: "old", service_names: { ar: "جروح", en: "Wound care", tl: "Sugat", hi: "घाव" } },
       { id: "11111111-2222-4333-8444-555555555555", service_name_ar: "قديم", service_name_en: "old" },
     ] });
-    expect(["ar", "en", "hi", "fil", "bn"].map((l) => pickTexts(l, fresh.serviceNames))).toEqual(["جروح", "Wound care", "घाव", "Sugat", "Wound care"]);
+    expect(["ar", "en", "hi", "fil", "bn"].map((l) => pickName(l, fresh.serviceNames))).toEqual(["جروح", "Wound care", "Wound care", "Wound care", "Wound care"]);
     expect(old.serviceNames).toEqual({ ar: "قديم", en: "old" });
-    expect(pickTexts("ur", old.serviceNames)).toBe("قديم");
+    expect(pickName("ur", old.serviceNames)).toBe("old");
   });
 });

@@ -10,7 +10,7 @@
 ## 2) الأسرار والبيئة (BLOCKED — قيم حقيقية من المالك)
 - [ ] `MONGO_URL`, `DB_NAME`, `JWT_SECRET` (32+), `REDIS_URL`, `ALLOWED_ORIGINS`, `NODE_ENV=production`
 - [ ] المدفوعات: `MOYASAR_*` (+ بدائل PayTabs/Paymob/Tap/Stripe إن وجدت)
-- [ ] الإشعارات: FCM/Firebase، SMS (Infobip/Unifonic/Taqnyat)، SMTP/Resend
+- [ ] الإشعارات: FCM/Firebase، واتساب (Infobip)، SMTP/Resend
 - [ ] المكالمات: `LIVEKIT_API_KEY/SECRET` + COTURN
 - [ ] التخزين: S3/R2 + `GEMINI_API_KEY` + `SENTRY_DSN`
 - [ ] الويب: `NABD_API_BASE_URL`, `NEXT_PUBLIC_SITE_ORIGIN`, Google OAuth

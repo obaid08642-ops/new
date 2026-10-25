@@ -43,6 +43,14 @@ export const THEME_SCRIPT_HASH = `sha256-${createHash("sha256").update(THEME_INI
  * P20.4: the browser Sentry SDK posts errors to its DSN's ingest origin (https://o….ingest.de.sentry.io); without that
  * origin in connect-src no browser error reaches Sentry. The DSN is inlined at build time (Dockerfile.patient-web).
  */
+/**
+ * The address map (components-next/account/address-map, MapLibre GL): the style, sprite, glyphs and vector tiles all come
+ * from OpenFreeMap, which needs no key. The page fetches the style (connect-src), the tile worker fetches the tiles
+ * (connect-src) and draws them in WebGL (images and sprites: img-src already allows https:). MapLibre starts its tile worker from a
+ * blob: URL, so worker-src allows blob: and nothing else.
+ */
+export const MAP_TILE_ORIGIN = "https://tiles.openfreemap.org";
+
 export function sentryIngestOrigin(dsn = process.env.NEXT_PUBLIC_SENTRY_DSN): string | null {
   try {
     return dsn ? new URL(dsn).origin : null;
@@ -66,9 +74,11 @@ export function contentSecurityPolicy(nonce: string, isDevelopment = process.env
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' '${THEME_SCRIPT_HASH}'${isDevelopment ? " 'unsafe-eval'" : ""}`,
     // Decision 4 (2026-10-14): a LiveKit other than wss://live.nabd.plus (NABD_LIVEKIT_URL, e.g. the local one of
     // tools/live/start-livekit.sh) is allowed by its exact origin, read at request time like the call screens read it.
-    ["connect-src 'self' https://api.nabd.plus wss://live.nabd.plus https://cdn.nabd.plus https://accounts.google.com/gsi/ https://appleid.apple.com", ...livekitConnectSources(), sentryIngestOrigin()].filter(Boolean).join(" "),
+    [`connect-src 'self' https://api.nabd.plus wss://live.nabd.plus https://cdn.nabd.plus ${MAP_TILE_ORIGIN} https://accounts.google.com/gsi/ https://appleid.apple.com`, ...livekitConnectSources(), sentryIngestOrigin()].filter(Boolean).join(" "),
+    "worker-src 'self' blob:",
     "font-src 'self' data:",
-    "media-src 'self' https:",
+    // voice notes: the recorder previews the patient's own recording from a blob: URL
+    "media-src 'self' blob: https:",
     "object-src 'none'",
     "upgrade-insecure-requests",
   ].join("; ");

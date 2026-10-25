@@ -177,7 +177,7 @@
     "otpRequestInvalid": "We couldn't send the code. Check the email or number and try again.",
     "otpInvalid": "The one-time code was not accepted. Try again.",
     "otpExchangeInvalid": "We couldn't finish signing you in. Try again.",
-    "otpUnavailable": "We can't send a code right now. Try again in a moment.",
+    "otpUnavailable": "We couldn't send the code. Codes go to your app notifications and your email, so add an email to your account if it has none, then try again.",
     "guestContinue": "Continue as guest",
     "guestLoading": "Opening guest access…",
     "forgotPassword": "Forgot password?",
@@ -196,6 +196,7 @@
     "appleUnavailable": "Apple sign-in isn't available right now. Use another way to sign in.",
     "apple": "Apple",
     "googleUnavailable": "Google sign-in isn't available right now. Use another way to sign in.",
+    "providerUnavailable": "{name} sign-in isn't available right now. Use another way to sign in.",
     "google": "Google",
     "x": "X",
     "snapchat": "Snapchat",
@@ -303,7 +304,10 @@
       "radiology": "Radiology",
       "nursing": "Nursing",
       "returns": "Returns and refunds"
-    }
+    },
+    "emptyKindCurrentTitle": "No current orders: {service}",
+    "emptyKindPreviousTitle": "No previous orders: {service}",
+    "emptyKindBody": "Nothing in this service yet. Choose All to see your other orders."
   },
   "Cart": {
     "eyebrow": "Private cart",
@@ -1087,7 +1091,6 @@
     "catMarketing": "Offers and health news",
     "chPush": "Phone notifications",
     "chEmail": "Email",
-    "chSms": "Text messages",
     "saveFailed": "Couldn’t save the change. Try again.",
     "unavailable": "Not available right now",
     "unavailableTitle": "Couldn't load the settings",
@@ -1182,6 +1185,30 @@
       "forbidden": "Messages can’t be sent in this conversation right now.",
       "network": "Couldn’t connect. Your message hasn’t been sent yet; try again.",
       "generic": "The message couldn’t be sent. Try again."
+    },
+    "voice": {
+      "title": "Voice note",
+      "record": "Record a voice note",
+      "recording": "Recording {time}",
+      "stop": "Stop recording",
+      "cancel": "Cancel",
+      "previewLabel": "Listen before sending, {time}",
+      "send": "Send voice note",
+      "sending": "Sending",
+      "retry": "Try again",
+      "discard": "Discard",
+      "maxReached": "The recording stopped at the {minutes}-minute limit.",
+      "play": "Play",
+      "pause": "Pause",
+      "playerLabel": "Voice note, {time}",
+      "errors": {
+        "denied": "Microphone access is blocked. Allow it in your browser's site settings, then try again.",
+        "unsupported": "This browser can't record voice notes. Use the app or another browser.",
+        "recordFailed": "The recording didn't work. Check your microphone and try again.",
+        "uploadFailed": "The voice note couldn't be sent. Try again.",
+        "forbidden": "Voice notes can't be sent in this conversation right now.",
+        "loadFailed": "The voice note couldn't be loaded. Try again."
+      }
     }
   },
   "Sleep": {
@@ -1635,6 +1662,9 @@
     }
   },
   "Emergency": {
+    "callEmergency": "Call emergency {number}",
+    "urgentCall": "Call urgent help {number}",
+    "urgentUnavailable": "No urgent-help number has been set up yet. In an emergency, call 997.",
     "title": "Urgent help",
     "intro": "If you need help right away, call the urgent-help number set up for Nabd Plus.",
     "call": "Call {number}",
@@ -1771,7 +1801,9 @@
     "useMyLocation": "Use my current location",
     "locating": "Finding your location…",
     "locationSet": "The address location is set.",
-    "locateFailed": "We could not get your current location."
+    "locateFailed": "We could not get your current location.",
+    "building": "Building number",
+    "floor": "Floor"
   },
   "ShareReport": {
     "title": "Share Reports",
@@ -2881,7 +2913,8 @@
     "emptyBody": "Add an address with its map location to receive pharmacy orders.",
     "emptyAction": "Add an address",
     "errorTitle": "Your addresses could not be loaded",
-    "errorBody": "Check your connection and try again."
+    "errorBody": "Check your connection and try again.",
+    "addOnMap": "Add an address on the map"
   },
   "ConsultWeb": {
     "tabUpcoming": "Upcoming",
@@ -5510,5 +5543,30 @@
     "errBusy": "Too many requests. Wait a moment and try again.",
     "loadErr": "Could not load the page",
     "retry": "Retry"
+  },
+  "AddressMap": {
+    "title": "Pick the address on the map",
+    "mapLabel": "Address map",
+    "hint": "Move the map so the pin sits on your door. With the keyboard: the arrow keys move the pin, plus and minus zoom.",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "pinLabel": "Pin: the address location",
+    "loading": "Loading the map…",
+    "noMapTitle": "No map available",
+    "noMapBody": "You can still use your location, pick the city and district, or enter the short address code in the fields below.",
+    "useMyLocation": "Use my location",
+    "locating": "Finding your location…",
+    "located": "The pin is on your location.",
+    "denied": "Location permission was denied. Allow it in your browser settings, or move the map yourself.",
+    "locateFailed": "Your location could not be found. Move the map yourself.",
+    "coords": "Pin at: {point}",
+    "noPin": "Move the map to place the pin, or use your location.",
+    "finding": "Finding the address…",
+    "found": "Address found. Check the details below.",
+    "errOutside": "This place is outside our service area. Move the pin inside the Kingdom.",
+    "errNotFound": "No address was found here. Move the pin, or fill in the details below.",
+    "errUnavailable": "The address service is not available right now. Fill in the details below, or try again.",
+    "errNetwork": "You seem to be offline. Fill in the details below, or try again.",
+    "retry": "Try again"
   }
 }

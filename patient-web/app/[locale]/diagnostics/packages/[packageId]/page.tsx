@@ -12,7 +12,7 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ActionLinks, BulletList, Facts, Hero, Notice, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
 import { LAB, TagRow, hoursText, money, type Tag } from "@/components-next/diagnostics/diag-parts";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
-import { pickTexts } from "@/lib/i18n/localized";
+import { pickName, pickTexts } from "@/lib/i18n/localized";
 
 type Props = { params: Promise<{ locale: string; packageId: string }> };
 
@@ -55,7 +55,7 @@ export default async function LabPackageDetailPage({ params }: Props) {
   if (response?.status === 404) notFound();
   if (!pkg) notFound();
 
-  const name = pickTexts(locale, pkg.names);
+  const name = pickName(locale, pkg.names);
   const description = pickTexts(locale, pkg.descriptions);
   const preparation = pickList(locale, pkg.preparations);
   // the package stores its tests as Arabic names or codes: shown in the page's language where the lab list knows them

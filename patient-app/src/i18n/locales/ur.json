@@ -113,7 +113,7 @@
   "errors.phoneRegistered": "یہ فون نمبر پہلے سے رجسٹرڈ ہے۔ لاگ ان کریں۔",
   "errors.accountRegistered": "یہ اکاؤنٹ پہلے سے رجسٹرڈ ہے۔ لاگ ان کریں۔",
   "errors.userNotFound": "ان تفصیلات کے ساتھ کوئی اکاؤنٹ نہیں ملا",
-  "errors.otpUnavailable": "کوڈ ابھی بھیجا نہیں جا سکا۔ بعد میں دوبارہ کوشش کریں۔",
+  "errors.otpUnavailable": "کوڈ نہیں بھیجا جا سکا۔ کوڈ ایپ کی اطلاعات اور ای میل پر آتے ہیں، اس لیے اگر آپ کے اکاؤنٹ میں ای میل نہیں ہے تو ای میل شامل کریں اور دوبارہ کوشش کریں۔",
   "errors.codeRequired": "تصدیقی کوڈ درج کریں",
   "errors.offline": "انٹرنیٹ کنکشن نہیں ہے۔ اپنا نیٹ ورک چیک کریں۔",
   "errors.timeout": "درخواست میں بہت وقت لگ گیا۔ اپنا کنکشن چیک کریں اور دوبارہ کوشش کریں۔",
@@ -3792,5 +3792,8 @@
   "consult.hub.degree.specialist": "ماہر",
   "consult.hub.degree.resident": "ریزیڈنٹ",
   "consult.hub.degree.general_practitioner": "جنرل پریکٹیشنر",
-  "uploads.unavailable": "فائل اپ لوڈ فی الحال دستیاب نہیں ہے۔ بعد میں دوبارہ کوشش کریں۔"
+  "uploads.unavailable": "فائل اپ لوڈ فی الحال دستیاب نہیں ہے۔ بعد میں دوبارہ کوشش کریں۔",
+  "orders.emptyKindCurrent": "کوئی موجودہ آرڈر نہیں: {service}",
+  "orders.emptyKindPrevious": "کوئی پچھلا آرڈر نہیں: {service}",
+  "orders.emptyKindBody": "اس سروس میں ابھی کچھ نہیں۔ باقی آرڈر دیکھنے کے لیے سب منتخب کریں۔"
 }

@@ -125,7 +125,7 @@ export function DSOTPInput({
               onBlur={() => setFocusedIndex(null)}
               keyboardType="number-pad"
               maxLength={index === 0 ? length : (Platform.OS === 'android' ? 2 : 1)}
-              autoComplete={index === 0 ? (Platform.OS === 'android' ? 'sms-otp' : 'one-time-code') : 'off'}
+              autoComplete={index === 0 ? 'one-time-code' : 'off'}
               textContentType={index === 0 ? 'oneTimeCode' : 'none'}
               importantForAutofill={index === 0 ? 'yes' : 'no'}
               selectTextOnFocus

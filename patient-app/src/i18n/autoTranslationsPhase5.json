@@ -1,7 +1,7 @@
 {
   "_meta": {
     "purpose": "Phase 5 six-language UI localization additions",
-    "source_count": 2799,
+    "source_count": 2796,
     "languages": [
       "ar",
       "en",
@@ -539,14 +539,6 @@
       "hi": "बीमा कंपनी चुनें और पॉलिसी नंबर दर्ज करें",
       "bn": "বীমা কোম্পানি নির্বাচন করুন এবং পলিসি নম্বর লিখুন",
       "fil": "Piliin ang insurance company at ilagay ang policy number"
-    },
-    "اختر شركة التأمين والفئة. سيتم التحقق عبر NPHIES": {
-      "ar": "اختر شركة التأمين والفئة. سيتم التحقق عبر NPHIES",
-      "en": "Select insurer and category. Verification will be done via NPHIES",
-      "ur": "انشورنس کمپنی اور زمرہ منتخب کریں۔ NPHIES کے ذریعے تصدیق کی جائے گی",
-      "hi": "बीमा कंपनी और श्रेणी चुनें। NPHIES के माध्यम से सत्यापन किया जाएगा",
-      "bn": "বীমা কোম্পানি ও বিভাগ নির্বাচন করুন। NPHIES মাধ্যমে যাচাইকরণ করা হবে",
-      "fil": "Piliin ang insurer at kategorya. Susuriin sa pamamagitan ng NPHIES"
     },
     "اختر عدد الأيام المتتالية التي سيحضر فيها الممرض.": {
       "ar": "اختر عدد الأيام المتتالية التي سيحضر فيها الممرض.",
@@ -7596,14 +7588,6 @@
       "bn": "আপনার বর্তমান অবস্থান পাঠানো হবে এবং দ্রুত অ্যাম্বুল্যান্স অনুরোধ করা হবে। আপনি কি নিশ্চিত?",
       "fil": "Ipapadala ang iyong kasalukuyang lokasyon at hihilingin ang agarang ambulansya. Sigurado ka ba?"
     },
-    "سيتم التحقق من تغطية التحاليل عبر NPHIES": {
-      "ar": "سيتم التحقق من تغطية التحاليل عبر NPHIES",
-      "en": "Test coverage will be verified via NPHIES",
-      "ur": "تحاليل کی کوریج NPHIES کے ذریعے تصدیق کی جائے گی",
-      "hi": "परीक्षणों की कवरेज NPHIES के जरिए जाँची जाएगी",
-      "bn": "পরীক্ষার কভারেজ NPHIES-এর মাধ্যমে যাচাই করা হবে",
-      "fil": "Susuriin ang saklaw ng mga pagsusuri sa pamamagitan ng NPHIES"
-    },
     "سيتم خصم نسبة تحملك عند تأكيد الخدمة. الباقي يُحاسب مباشرة على التأمين.": {
       "ar": "سيتم خصم نسبة تحملك عند تأكيد الخدمة. الباقي يُحاسب مباشرة على التأمين.",
       "en": "Your copay will be deducted when you confirm the service. The rest will be billed directly to the insurer.",
@@ -9627,14 +9611,6 @@
       "hi": "सहायता के लिए अब जुड़ा हुआ",
       "bn": "এখন সাহায্যের জন্য সংযুক্ত",
       "fil": "Konektado ngayon para sa tulong"
-    },
-    "متوافق مع منصة نفيس (NPHIES) للتحقق الفوري من التغطية التأمينية": {
-      "ar": "متوافق مع منصة نفيس (NPHIES) للتحقق الفوري من التغطية التأمينية",
-      "en": "Compatible with Nafees (NPHIES) platform for instant insurance coverage verification",
-      "ur": "نفيس (NPHIES) پلیٹ فارم کے ساتھ ہم آہنگ — فوری انشورنس کوریج کی تصدیق کے لیے",
-      "hi": "Nafees (NPHIES) प्लेटफ़ॉर्म के साथ संगत — बीमा कवरेज की त्वरित जाँच के लिए",
-      "bn": "Nafees (NPHIES) প্ল্যাটফর্মের সাথে সামঞ্জস্যপূর্ণ — বীমা কভারেজ তৎক্ষণাত যাচাইয়ের জন্য",
-      "fil": "Katugma sa Nafees (NPHIES) platform para sa agarang beripikasyon ng insurance coverage"
     },
     "متوسط التقييم": {
       "ar": "متوسط التقييم",

@@ -14,6 +14,14 @@ describe("the policy and OpenStreetMap", () => {
     expect(directives["img-src"]).toContain("https:");
   });
 
+  it("lets the address map (MapLibre GL) load its style and tiles from OpenFreeMap only, and start its tile worker from a blob", () => {
+    expect(directives["connect-src"]).toContain("https://tiles.openfreemap.org");
+    expect(directives["connect-src"]).not.toContain("https:");
+    expect(directives["worker-src"]).toEqual(["'self'", "blob:"]);
+    expect(directives["script-src"].join(" ")).not.toContain("openfreemap");
+    expect(directives["script-src"]).not.toContain("blob:");
+  });
+
   it("does not loosen scripts, the default or who may frame this site", () => {
     expect(directives["default-src"]).toEqual(["'self'"]);
     expect(directives["frame-ancestors"]).toEqual(["'none'"]);

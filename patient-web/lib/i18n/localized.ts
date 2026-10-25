@@ -38,6 +38,26 @@ export function pickTexts(locale: string, texts: Texts | undefined): string | un
   return (rtl ? texts.ar ?? texts.en : texts.en ?? texts.ar) || undefined;
 }
 
+/**
+ * Catalogue NAMES (cities, insurers, lab tests, scans, nursing services) are kept in Arabic and English only (owner decision
+ * 2026-10-25): the Arabic page shows `ar`, every other page (Urdu, Hindi, Bengali, Filipino included) shows `en`. This is catalogue
+ * data, not UI text, so the six-language rule does not apply. An old row that still holds `name_ur` ... is read as ar/en.
+ */
+export function namesOf(row: Record<string, unknown>): Texts {
+  const out: Texts = {};
+  for (const lang of ["ar", "en"] as const) {
+    const value = row[`name_${lang}`];
+    if (typeof value === "string" && value.trim()) out[lang] = value.trim();
+  }
+  return out;
+}
+
+/** The name for the page's language: Arabic on the Arabic page, English everywhere else, the other one when it is missing. */
+export function pickName(locale: string, names: Texts | undefined): string | undefined {
+  if (!names) return undefined;
+  return (locale === "ar" ? names.ar ?? names.en : names.en ?? names.ar) || undefined;
+}
+
 /** True when the query is inside any language of the field (so a search finds a service by its translated name). */
 export function textsInclude(texts: Texts | undefined, query: string, locale: string): boolean {
   if (!texts || !query) return false;

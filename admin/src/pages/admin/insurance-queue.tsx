@@ -125,7 +125,7 @@ export default function InsuranceQueuePage() {
                 ['السعر', selectedReq.price != null ? `${selectedReq.price} ر.س` : '—'],
                 ['نسبة التحمل', selectedReq.copay_amount ? `${selectedReq.copay_amount} ر.س (${selectedReq.copay_percent ?? '—'}%)` : '—'],
                 ['الحالة', (STATE_AR[selectedReq.state] || {}).ar || selectedReq.state],
-                ['كود NPHIES', selectedReq.nphies_code || '—'],
+                ['مرجع القرار', selectedReq.approval_ref || '—'],
                 ['التاريخ', selectedReq.createdAt ? new Date(selectedReq.createdAt).toLocaleString(dateLocale(), { hour12: false, numberingSystem: 'latn' }) : '—'],
                 ['ملاحظات', selectedReq.note || selectedReq.notes || '—'],
               ].map(([k, v]) => (

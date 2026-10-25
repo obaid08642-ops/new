@@ -48,7 +48,6 @@ export class UpdatePatientInsuranceDto {
   @IsOptional() @IsBoolean() verified?: boolean;
   @IsOptional() @IsString() pdf_url?: string;
   @IsOptional() @IsBoolean() ocr_extracted?: boolean;
-  @IsOptional() @IsBoolean() nphies_eligible?: boolean;
   /** As printed on the card (optional): the copay share in percent and the cap per item in SAR; the pre-booking estimate uses them. */
   @IsOptional() @IsNumber() @Min(0) @Max(100) copay_percent?: number;
   @IsOptional() @IsNumber() @Min(0) @Max(1000000) copay_cap_sar?: number;

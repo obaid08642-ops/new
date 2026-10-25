@@ -261,7 +261,7 @@ export interface OrderSources {
 export type PickName = (ar: unknown, en: unknown, names?: unknown) => string | null;
 
 const isRecord = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
-/** The `names` map (ar, en, ur, hi, bn, tl) the server resolves from the catalogue (issue 1832): the first line of a booking's `items[]`. */
+/** The `names` map (ar, en) the server resolves from the catalogue (issue 1832): the first line of a booking's `items[]`. */
 const lineNames = (b: Record<string, unknown>): unknown => (Array.isArray(b.items) && isRecord(b.items[0]) ? (b.items[0] as Record<string, unknown>).names : undefined);
 const lineField = (b: Record<string, unknown>, key: string): unknown => (Array.isArray(b.items) && isRecord(b.items[0]) ? (b.items[0] as Record<string, unknown>)[key] : undefined);
 

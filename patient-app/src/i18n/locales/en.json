@@ -113,7 +113,7 @@
   "errors.phoneRegistered": "This phone number is already registered. Log in instead.",
   "errors.accountRegistered": "This account is already registered. Log in instead.",
   "errors.userNotFound": "No account matches these details",
-  "errors.otpUnavailable": "The code could not be sent right now. Try again later.",
+  "errors.otpUnavailable": "We couldn't send the code. Codes go to your app notifications and your email, so add an email to your account if it has none, then try again.",
   "errors.codeRequired": "Enter the verification code",
   "errors.offline": "No internet connection. Check your network.",
   "errors.timeout": "The request took too long. Check your connection and try again.",
@@ -3792,5 +3792,8 @@
   "consult.hub.degree.specialist": "Specialist",
   "consult.hub.degree.resident": "Resident",
   "consult.hub.degree.general_practitioner": "General practitioner",
-  "uploads.unavailable": "File uploads are temporarily unavailable. Try again later."
+  "uploads.unavailable": "File uploads are temporarily unavailable. Try again later.",
+  "orders.emptyKindCurrent": "No current orders: {service}",
+  "orders.emptyKindPrevious": "No previous orders: {service}",
+  "orders.emptyKindBody": "Nothing in this service yet. Choose All to see your other orders."
 }

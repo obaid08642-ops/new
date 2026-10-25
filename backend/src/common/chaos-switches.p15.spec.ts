@@ -3,8 +3,6 @@
  *
  * Each switch must produce the DOCUMENTED degraded answer, so a drill that
  * drives them asserts a real behaviour rather than an accidental error:
- * - CHAOS_FAIL_SMS=1 → sendOtp() returns false WITHOUT calling the provider.
- *   Control (switch unset): the same setup delivers and calls axios.post.
  * - CHAOS_FAIL_LIVEKIT=1 → roomService() is null even with credentials set, so
  *   getRoomParticipants() → [] and muteParticipant() → livekit_not_configured,
  *   with no server contact.
@@ -12,11 +10,10 @@
  *
  * The PRODUCTION GUARD is the part the old tree got wrong (review c9f6368c):
  * the switches were gated on the env var alone, so one stray variable in
- * production silently disabled every OTP SMS and all LiveKit room control.
+ * production silently disabled all LiveKit room control.
  * `isChaosFail` must be false there whatever the env says, and the boot must
  * refuse to start with one set.
  */
-import { SmsService } from '../modules/sms/sms.service';
 import { LiveKitService } from '../modules/livekit/livekit.service';
 import { isChaosFail } from './chaos-switches';
 import { validateEnvironment } from '../config/env.validation';
@@ -30,25 +27,19 @@ describe('15.11 chaos failure switches (mocked)', () => {
 
   describe('isChaosFail', () => {
     it("fires only on the exact string '1'", () => {
-      process.env.CHAOS_FAIL_SMS = '1';
-      expect(isChaosFail('sms')).toBe(true);
-      process.env.CHAOS_FAIL_SMS = 'true';
-      expect(isChaosFail('sms')).toBe(false);
-      process.env.CHAOS_FAIL_SMS = '0';
-      expect(isChaosFail('sms')).toBe(false);
-      delete process.env.CHAOS_FAIL_SMS;
-      expect(isChaosFail('sms')).toBe(false);
       process.env.CHAOS_FAIL_LIVEKIT = '1';
       expect(isChaosFail('livekit')).toBe(true);
+      process.env.CHAOS_FAIL_LIVEKIT = 'true';
+      expect(isChaosFail('livekit')).toBe(false);
+      process.env.CHAOS_FAIL_LIVEKIT = '0';
+      expect(isChaosFail('livekit')).toBe(false);
       delete process.env.CHAOS_FAIL_LIVEKIT;
       expect(isChaosFail('livekit')).toBe(false);
     });
 
     it('never fires in production, whatever the environment says', () => {
       process.env.NODE_ENV = 'production';
-      process.env.CHAOS_FAIL_SMS = '1';
       process.env.CHAOS_FAIL_LIVEKIT = '1';
-      expect(isChaosFail('sms')).toBe(false);
       expect(isChaosFail('livekit')).toBe(false);
     });
   });
@@ -67,38 +58,11 @@ describe('15.11 chaos failure switches (mocked)', () => {
     });
 
     it('refuses to boot when a chaos switch is set in production', () => {
-      expect(() => validateEnvironment({ ...prod, CHAOS_FAIL_SMS: '1' })).toThrow(/CHAOS_FAIL_SMS/);
       expect(() => validateEnvironment({ ...prod, CHAOS_FAIL_LIVEKIT: '1' })).toThrow(/CHAOS_FAIL_LIVEKIT/);
     });
 
     it('allows the same switch outside production (it is how the drills run)', () => {
-      expect(() => validateEnvironment({ NODE_ENV: 'development', CHAOS_FAIL_SMS: '1' })).not.toThrow();
-    });
-  });
-
-  describe('CHAOS_FAIL_SMS', () => {
-    const enabledConn: any = {
-      collection: () => ({ findOne: async () => ({ key: 'sms_enabled', enabled: true }) }),
-    };
-
-    it('forces the documented fallback (false) without touching the provider', async () => {
-      process.env.CHAOS_FAIL_SMS = '1';
-      process.env.TAQNYAT_API_KEY = 'tk';
-      const axios = require('axios');
-      const post = jest.spyOn(axios, 'post').mockResolvedValue({ status: 200 });
-      const svc = new SmsService(enabledConn);
-      await expect(svc.sendOtp('+966500000000', '123456')).resolves.toBe(false);
-      expect(post).not.toHaveBeenCalled();
-    });
-
-    it('control: the same setup delivers when the switch is unset', async () => {
-      delete process.env.CHAOS_FAIL_SMS;
-      process.env.TAQNYAT_API_KEY = 'tk';
-      const axios = require('axios');
-      const post = jest.spyOn(axios, 'post').mockResolvedValue({ status: 200 });
-      const svc = new SmsService(enabledConn);
-      await expect(svc.sendOtp('+966500000000', '123456')).resolves.toBe(true);
-      expect(post).toHaveBeenCalledTimes(1);
+      expect(() => validateEnvironment({ NODE_ENV: 'development', CHAOS_FAIL_LIVEKIT: '1' })).not.toThrow();
     });
   });
 

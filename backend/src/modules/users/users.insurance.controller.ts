@@ -27,7 +27,6 @@ const canonicalInsuranceSchema = {
     verified: { type: 'boolean', readOnly: true, example: false },
     pdf_url: { type: 'string', format: 'uri' },
     ocr_extracted: { type: 'boolean' },
-    nphies_eligible: { type: 'boolean' },
   },
   additionalProperties: true,
 };

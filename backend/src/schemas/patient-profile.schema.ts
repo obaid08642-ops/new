@@ -97,7 +97,9 @@ export class PatientProfile {
       verified: Boolean,
       pdf_url: String,
       ocr_extracted: Boolean,
-      nphies_eligible: Boolean,
+      // As printed on the card (optional): the pre-booking estimate reads them. Without them here Mongoose strict mode dropped both on save.
+      copay_percent: Number,
+      copay_cap_sar: Number,
     },
     _id: false,
   })
@@ -119,7 +121,8 @@ export class PatientProfile {
     verified?: boolean;
     pdf_url?: string;
     ocr_extracted?: boolean;
-    nphies_eligible?: boolean;
+    copay_percent?: number;
+    copay_cap_sar?: number;
   };
 }
 export type PatientProfileDocument = PatientProfile & Document;

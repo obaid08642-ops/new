@@ -138,7 +138,7 @@ export class FamilyService {
 
   /** Contract DTO never reveals a join code. Delivery must be available or fail closed. */
   async sendInvite(userId: string, channel: string, target: string) {
-    if (!['sms', 'email'].includes(channel)) throw new BadRequestException('invalid_invite_channel');
+    if (channel !== 'email') throw new BadRequestException('invalid_invite_channel');
     const destination = String(target || '').trim();
     if (!destination || destination.length > 254) throw new BadRequestException('invalid_invite_target');
     const generated = await this.generateInvite(userId);

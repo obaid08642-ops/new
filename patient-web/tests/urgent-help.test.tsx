@@ -36,8 +36,8 @@ import { isAllowedPatientApiRequest } from "@/lib/api/patient-allowlist";
 
 /**
  * Owner decision 14 (2026-10-10): the one urgent-help page. Every value is a TEST value. What is proved: the number comes from
- * GET /mental-health/urgent-help (never from the code), a number gives a `tel:` button, no number gives no button and an honest
- * message, a failed read gives the error state, and the removed SOS routes redirect to /emergency.
+ * GET /mental-health/urgent-help (never from the code), a number gives a `tel:` button next to the always-present tel:997 one (owner decision 14, 2026-10-25), no number
+ * keeps 997 and gives an honest message about the config number, a failed read keeps 997 and gives the error line, and the removed SOS routes redirect to /emergency.
  */
 
 const params = Promise.resolve({ locale: "en" });
@@ -68,31 +68,37 @@ describe("the urgent-help page", () => {
     const out = await html(EmergencyPage({ params }));
     expect(server.api).toHaveBeenCalledWith("/mental-health/urgent-help");
     expect(out).toContain('href="tel:+966115550100"');
+    expect(out).toContain('href="tel:997"'); // 997 is always there, the config number is the extra button
     expect(out).toContain("Call");
     expect(out).toContain("+966115550100");
     expect(out).not.toContain("has been set up yet");
   });
 
-  it("shows no button and an honest message when the config has no number", async () => {
+  it("keeps the 997 button and says honestly that the config number is missing", async () => {
     server.api.mockResolvedValue(json({ phone: null, updated_at: null }));
     const out = await html(EmergencyPage({ params }));
-    expect(out).not.toContain("tel:");
+    // owner decision 14 (2026-10-25): the 997 button is ALWAYS there; the config number is an extra button only when known
+    expect(out).toContain('href="tel:997"');
+    expect(out.match(/href="tel:/g)).toHaveLength(1);
     expect(out).toContain("No urgent-help number has been set up yet");
   });
 
-  it("shows the error state, not a button, when the config cannot be read", async () => {
+  it("keeps the 997 button and shows the error line when the config cannot be read", async () => {
     server.api.mockResolvedValue(new Response(null, { status: 503 }));
     const out = await html(EmergencyPage({ params }));
-    expect(out).not.toContain("tel:");
+    // the honest message is about the config number; 997 stays
+    expect(out).toContain('href="tel:997"');
+    expect(out.match(/href="tel:/g)).toHaveLength(1);
     expect(out).toContain("could not be loaded");
   });
 });
 
 describe("the urgent-help page when the call itself throws", () => {
-  it("shows the same in-page error (a network error is not an error-boundary page) and keeps the share action", async () => {
+  it("shows the same in-page error (a network error is not an error-boundary page) and keeps the 997 button", async () => {
     server.api.mockRejectedValueOnce(new Error("network down"));
     const out = await html(EmergencyPage({ params }));
-    expect(out).not.toContain("tel:");
+    expect(out).toContain('href="tel:997"');
+    expect(out.match(/href="tel:/g)).toHaveLength(1);
     expect(out).toContain("could not be loaded");
   });
 });

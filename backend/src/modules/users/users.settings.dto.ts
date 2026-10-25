@@ -97,9 +97,6 @@ export class NotificationChannelsDto {
   @IsBoolean()
   email?: boolean;
 
-  @IsOptional()
-  @IsBoolean()
-  sms?: boolean;
 }
 
 export class NotificationCategoriesDto {
