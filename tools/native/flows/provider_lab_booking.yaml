@@ -1,4 +1,5 @@
-# Lab (provider app): a patient's booking (made by the API) is in the lab's Orders inbox as a new request with the patient's name.
+# Lab (provider app): a patient's booking (made by the API) is in the lab's Orders > Incoming list as a new cash request for 45 SAR (the order card shows
+# "Patient", not the name: findings #4); opening it shows the order.
 appId: com.nabd.provider
 ---
 - runScript:
@@ -9,6 +10,8 @@ appId: com.nabd.provider
     timeout: 90000
 - tapOn: "الطلبات|Orders"
 - extendedWaitUntil:
-    visible: ".*native-labber.*"
+    visible: "طلب جديد|New request"
     timeout: 60000
-- takeScreenshot: provider_lab_inbox
+- assertVisible: ".*45.*"
+- tapOn: "طلب جديد|New request"
+- takeScreenshot: provider_lab_order_detail

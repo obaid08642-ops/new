@@ -22,8 +22,7 @@ appId: com.patient.nabd
     visible:
       id: "nursing-nurse-.*"
     timeout: 40000
-- tapOn:
-    id: "nursing-nurse-.*"
+- tapOn: "اختيار"
 - extendedWaitUntil:
     visible:
       id: "nursing-nurse-profile"

@@ -12,6 +12,9 @@ appId: com.patient.nabd
     visible:
       id: "diagnostics-hub"
     timeout: 20000
+# scans are listed for a visit at the centre (the hub's "at home" list shows only the scans that have a home visit)
+- tapOn:
+    id: "diag-place-clinic"
 - scrollUntilVisible:
     element:
       id: "diag-rad-0"
@@ -29,8 +32,7 @@ appId: com.patient.nabd
     timeout: 20000
 # the basket opens on "at home" (the hub's place choice is not carried: findings #3) and the seeded tests have no home service in the area: choose "I will go myself"
 - tapOn:
-    id: "ordering-ctx-.*"
-    index: 0
+    id: "ordering-ctx-where"
 - tapOn: "سأذهب بنفسي"
 - tapOn:
     id: "diag-cart-continue"

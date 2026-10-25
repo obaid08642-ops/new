@@ -28,6 +28,9 @@ appId: com.patient.nabd
     timeout: 30000
 - tapOn:
     id: "add-company-.*"
+- scrollUntilVisible:
+    element:
+      id: "add-policy-number"
 - tapOn:
     id: "add-policy-number"
 - inputText: "POL123456"
