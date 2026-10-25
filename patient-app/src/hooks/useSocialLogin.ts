@@ -9,6 +9,7 @@ import * as AuthSession from 'expo-auth-session';
 
 import { apiFetch } from '../../utils/api';
 import { startSession } from '../utils/authSession';
+import { SNAPCHAT_REDIRECT_URI, SNAPCHAT_RETURN_URL, SNAPCHAT_SCOPES } from '../utils/socialRedirects';
 import { useSocialConfig } from './useSocialConfig';
 
 import type { SocialProvider } from '../components/auth/AuthKit';
@@ -111,10 +112,19 @@ export function useSocialLogin() {
     { clientId: xClientId, scopes: ['tweet.read', 'users.read', 'offline.access'], redirectUri, usePKCE: true },
     X_DISCOVERY,
   );
-  const [snapReq, , snapPrompt] = AuthSession.useAuthRequest(
-    { clientId: snapClientId, scopes: ['https://auth.snapchat.com/oauth2/api/user.display_name'], redirectUri, usePKCE: true },
+  const [snapReq] = AuthSession.useAuthRequest(
+    { clientId: snapClientId, scopes: SNAPCHAT_SCOPES, redirectUri: SNAPCHAT_REDIRECT_URI, usePKCE: true },
     SNAPCHAT_DISCOVERY,
   );
+  // Snapchat's redirect is the HTTPS bridge page, so the in-app browser is told to stop at nabdplus://login/app-callback instead
+  // (the request's own prompt would wait for the HTTPS address); the returned URL is checked against the request's state.
+  const snapPrompt = useCallback(async (): Promise<AuthSession.AuthSessionResult> => {
+    if (!snapReq) return { type: 'error' } as AuthSession.AuthSessionResult;
+    const authUrl = await snapReq.makeAuthUrlAsync(SNAPCHAT_DISCOVERY);
+    const result = await WebBrowser.openAuthSessionAsync(authUrl, SNAPCHAT_RETURN_URL);
+    if (result.type !== 'success') return { type: result.type === 'cancel' ? 'cancel' : 'dismiss' } as AuthSession.AuthSessionResult;
+    return snapReq.parseReturnUrl(result.url);
+  }, [snapReq]);
 
   const codeFlow = useCallback(
     async (
@@ -122,6 +132,7 @@ export function useSocialLogin() {
       clientId: string,
       request: AuthSession.AuthRequest | null,
       prompt: () => Promise<AuthSession.AuthSessionResult>,
+      redirect: string,
     ) => {
       if (!clientId) {
         setError(SOCIAL_UNAVAILABLE);
@@ -141,13 +152,13 @@ export function useSocialLogin() {
         }
         const code = result.params?.code;
         if (!code || !request.codeVerifier) throw new Error('no_code');
-        await finish(provider, { code, code_verifier: request.codeVerifier, redirect_uri: redirectUri });
+        await finish(provider, { code, code_verifier: request.codeVerifier, redirect_uri: redirect });
       } catch (_err) {
         setError(SOCIAL_FAILED);
         setBusy(false);
       }
     },
-    [finish, redirectUri],
+    [finish],
   );
 
   const appleLogin = useCallback(async () => {
@@ -183,9 +194,9 @@ export function useSocialLogin() {
             await googlePrompt();
           }
         } else if (provider === 'x') {
-          await codeFlow('x', xClientId, xReq, xPrompt);
+          await codeFlow('x', xClientId, xReq, xPrompt, redirectUri);
         } else {
-          await codeFlow('snapchat', snapClientId, snapReq, snapPrompt);
+          await codeFlow('snapchat', snapClientId, snapReq, snapPrompt, SNAPCHAT_REDIRECT_URI);
         }
       } catch (_err) {
         setError(SOCIAL_FAILED);
