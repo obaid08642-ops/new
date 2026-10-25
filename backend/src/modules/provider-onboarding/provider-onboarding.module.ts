@@ -1,4 +1,4 @@
-import { normalizeGender, normalizeEducation, normalizeProcedures, assertFollowUp, normalizeClinicLocation, normalizeIban, doctorSubmitProblems } from './doctor-profile-fields';
+import { clinicFromRegistration, normalizeGender, normalizeEducation, normalizeProcedures, assertFollowUp, normalizeClinicLocation, normalizeIban, doctorSubmitProblems } from './doctor-profile-fields';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { Module, Controller, Post, Get, Body, Query, Param, UseGuards, Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
 import { isEmail } from 'class-validator';
@@ -147,6 +147,8 @@ export class ProviderOnboardingService {
         if (!iban) throw new BadRequestException('invalid_iban');
         (profile as any).iban = iban;
       }
+      // LR-10: the clinic address and point typed at registration are what patients see on the doctor page.
+      Object.assign(profile as any, clinicFromRegistration(profile, body));
     }
     if (body.license_expiry_date !== undefined) {
       const d = new Date(body.license_expiry_date);
