@@ -169,7 +169,7 @@ export class CheckoutContactService {
   }
 
   /**
-   * A channel confirmed the phone (a WhatsApp/SMS code when enabled, or the provider after calling the patient).
+   * A channel confirmed the phone (a WhatsApp code when enabled, or the provider after calling the patient).
    * Nothing else sets the flag.
    */
   async markPhoneVerified(accountId: string, source: 'otp' | 'provider_call'): Promise<void> {

@@ -33,10 +33,7 @@
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_SECURE` ⚠️ | خادم البريد لإرسال رمز OTP بريدياً |
 | `SMTP_FROM` / `PROVIDER_MAIL_FROM` ⚠️ | عنوان المُرسل الظاهر |
 | `RESEND_API_KEY` ➖ | بديل Resend للبريد |
-| `INFOBIP_API_KEY` / `INFOBIP_BASE_URL` / `INFOBIP_SENDER` / `INFOBIP_URL` ⚠️ | قناة SMS (Infobip) لرمز OTP |
-| `UNIFONIC_APP_ID` ⚠️ | قناة SMS بديلة (Unifonic السعودية) |
-| `TAQNYAT_API_KEY` ⚠️ | قناة SMS بديلة (تقنية السعودية) |
-| `SMS_WEBHOOK_TOKEN` ➖ | توكن التحقق لردود SMS الواردة |
+| `INFOBIP_API_KEY` / `INFOBIP_URL` / `INFOBIP_SENDER` ➖ | قناة واتساب للإشعارات (Infobip). لا SMS في المنتج. |
 | `FEATURE_WHATSAPP` ➖ | تفعيل قناة واتساب للإشعارات |
 
 ## 3) الإشعارات الفورية (Push)
@@ -155,10 +152,8 @@
 | `SES_SMTP_USER` / `SES_SMTP_PASS` | بيانات SES SMTP |
 | `SES_FROM` | مرسل SES (يُستخدم MAIL_FROM عند غيابه) |
 
-### SMS — معطل افتراضياً
-| المتغير | الوصف |
-|---|---|
-| `SMS_ENABLED` | false افتراضياً. التفعيل الفعلي من لوحة الأدمن عبر feature flag `sms_enabled` بدون كود |
+### رموز التحقق (OTP) — إشعار + بريد، لا SMS
+قرار المالك 2026-10-25: لا رسائل SMS في أي مكان. كل رمز يصل بإشعار التطبيق (كل أجهزة الحساب المسجلة) **و** البريد الإلكتروني معًا. حساب بلا بريد وبلا جهاز مسجل يتلقى الخطأ `otp_no_channel` (503). تمت إزالة المتغيرات `SMS_ENABLED` و`SMS_WEBHOOK_TOKEN` و`UNIFONIC_APP_ID` و`TAQNYAT_API_KEY` و`SMS_WEBOTP_*` والعلم `sms_enabled`.
 
 ### الذكاء الاصطناعي — تبديل المزود بدون كود
 | المتغير | الوصف |

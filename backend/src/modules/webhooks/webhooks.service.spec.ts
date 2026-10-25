@@ -96,15 +96,4 @@ describe('WebhooksService (E5-F1 hardening)', () => {
     expect(emit).not.toHaveBeenCalled();
   });
 
-  it('rejects sms webhook when token not configured in production', async () => {
-    process.env.NODE_ENV = 'production';
-    delete process.env.SMS_WEBHOOK_TOKEN;
-    await expect(svc.handleSmsWebhook({}, 'x')).rejects.toThrow();
-  });
-
-  it('rejects sms webhook with wrong token (timing-safe)', async () => {
-    process.env.NODE_ENV = 'production';
-    process.env.SMS_WEBHOOK_TOKEN = 'expected';
-    await expect(svc.handleSmsWebhook({}, 'wrong')).rejects.toThrow('Invalid token');
-  });
 });

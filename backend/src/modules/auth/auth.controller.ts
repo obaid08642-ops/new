@@ -125,7 +125,7 @@ export class AuthController {
   @Post('otp/request')
   patientOtpRequest(@Body() dto: PatientOtpRequestDto, @Req() req: Request) {
     // 16.3: the caller's address bounds how many distinct numbers one caller
-    // may target, which is what stops SMS-pumping fan-out.
+    // may target, which is what stops fan-out over many numbers.
     return this.auth.requestPatientOtp(dto.identifier, clientIp(req));
   }
 
@@ -359,7 +359,7 @@ export class AuthController {
   // kept with deprecation headers. Canonical: otp/request, otp/verify, password/reset.
   @Public()
   @Header('Deprecation', 'true')
-  @Throttle({ default: { limit: 5, ttl: 60000 } }) // E5-F4 SMS-bombing guard
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // E5-F4 OTP-flooding guard
   @Post('send-otp')
   sendOtp(@Body() body: SendOtpDto, @Req() req: Request) {
     this.log.warn('deprecated auth alias called: send-otp (canonical: otp/request)');
