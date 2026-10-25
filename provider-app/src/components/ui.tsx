@@ -17,7 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import client from '../api/client';
 import { useUploadsEnabled } from '../hooks/useUploadsEnabled';
-import { UploadsUnavailable } from 'UploadsUnavailable';
+import { UploadsUnavailable } from './UploadsUnavailable';
 
 // DEVICE_STANDARD §3: layout reads the live window (rotation, split-screen, foldables) through
 // useWindowDimensions inside each component, never a module-level Dimensions.get snapshot.
@@ -859,7 +859,6 @@ export function NImageOptimizerWebView({ visible, onClose }: { visible: boolean;
 }
 
 export function NProfileImageUploader({
-  const uploadsOn = useUploadsEnabled();
  currentImageId,
  onImageUploaded,
  onProcessComplete,
@@ -874,6 +873,7 @@ export function NProfileImageUploader({
  const { lang } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
+ const uploadsOn = useUploadsEnabled();
 
  const [imageUri, setImageUri] = useState<string | null>(null);
  const [status, setStatus] = useState<'idle' | 'pending' | 'processing' | 'completed' | 'failed'>('idle');
