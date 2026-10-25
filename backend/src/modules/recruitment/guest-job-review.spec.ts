@@ -64,7 +64,16 @@ describe('guest job review', () => {
   it('DTO rejects an unknown decision', async () => {
     const bad = plainToInstance(GuestJobReviewDto, { decision: 'delete' });
     expect((await validate(bad)).length).toBeGreaterThan(0);
-    const ok = plainToInstance(GuestJobReviewDto, { decision: 'publish', note: 'x' });
+    const ok = plainToInstance(GuestJobReviewDto, { decision: 'publish', note: 'data checked' });
     expect(await validate(ok)).toHaveLength(0);
+  });
+
+  it('DTO needs a reason of 3 to 500 characters for publish and for reject', async () => {
+    for (const decision of ['publish', 'reject']) {
+      expect((await validate(plainToInstance(GuestJobReviewDto, { decision }))).length, `${decision} without a note`).toBeGreaterThan(0);
+      expect((await validate(plainToInstance(GuestJobReviewDto, { decision, note: 'ab' }))).length, `${decision} with 2 characters`).toBeGreaterThan(0);
+      expect((await validate(plainToInstance(GuestJobReviewDto, { decision, note: 'x'.repeat(501) }))).length, `${decision} with 501 characters`).toBeGreaterThan(0);
+      expect(await validate(plainToInstance(GuestJobReviewDto, { decision, note: 'abc' }))).toHaveLength(0);
+    }
   });
 });

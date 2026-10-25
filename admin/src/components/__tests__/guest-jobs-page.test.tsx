@@ -24,6 +24,11 @@ beforeEach(() => { calls.length = 0; host = document.createElement('div'); docum
 afterEach(() => { act(() => root.unmount()); host.remove(); });
 const flush = () => act(async () => { await new Promise((r) => setTimeout(r, 0)); });
 const button = (label: string) => Array.from(host.querySelectorAll('button')).find((b) => b.textContent?.trim() === label) as HTMLButtonElement;
+const setNote = async (v: string) => {
+  const area = host.querySelector('textarea') as HTMLTextAreaElement;
+  const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')!.set!;
+  await act(async () => { setter.call(area, v); area.dispatchEvent(new Event('input', { bubbles: true })); });
+};
 const open = async () => { await act(async () => { root.render(<GuestJobsPage />); }); await flush(); await act(async () => { button('التفاصيل').click(); }); await flush(); };
 
 describe('admin guest jobs page', () => {
@@ -34,18 +39,22 @@ describe('admin guest jobs page', () => {
     expect(host.textContent).toContain('صيدلي');
   });
 
-  it('publish posts the decision to the review route', async () => {
+  it('publish needs a reason, then posts the decision with it to the review route', async () => {
     await open();
+    await act(async () => { button('نشر').click(); }); await flush();
+    expect(host.querySelector('[role="alert"]')?.textContent).toContain('السبب');
+    expect(calls.some((c) => c.init?.method === 'POST')).toBe(false);
+    await setNote('بيانات صحيحة');
     await act(async () => { button('نشر').click(); }); await flush();
     const post = calls.find((c) => c.init?.method === 'POST');
     expect(post?.path).toContain('/admin/admin/recruitment/guest-jobs/j1/review');
-    expect(JSON.parse(String(post?.init?.body))).toEqual({ decision: 'publish' });
+    expect(JSON.parse(String(post?.init?.body))).toEqual({ decision: 'publish', note: 'بيانات صحيحة' });
   });
 
   it('reject needs a reason first', async () => {
     await open();
     await act(async () => { button('رفض').click(); }); await flush();
-    expect(host.querySelector('[role="alert"]')?.textContent).toContain('سبب الرفض');
+    expect(host.querySelector('[role="alert"]')?.textContent).toContain('السبب');
     expect(calls.some((c) => c.init?.method === 'POST')).toBe(false);
   });
 });
