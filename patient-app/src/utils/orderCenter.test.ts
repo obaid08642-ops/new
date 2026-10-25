@@ -119,28 +119,28 @@ describe('service filter (371)', () => {
   });
 });
 
-describe('booking names in the six languages (issue 1832)', () => {
-  const tl = { ar: 'غيار', en: 'Dressing', hi: 'ड्रेसिंग', tl: 'Pagbabalot' };
-  const byLang = (lang: keyof typeof tl) => (ar: unknown, en: unknown, names?: unknown) => {
-    const m = (names ?? {}) as Record<string, string>;
-    return m[lang] ?? m.en ?? (typeof en === 'string' ? en : typeof ar === 'string' ? ar : null);
+describe('booking names, Arabic and English (issue 1832, owner decision 2026-10-25)', () => {
+  const names = { ar: 'غيار', en: 'Dressing' };
+  // the screen shows Arabic on the Arabic app and English on every other language
+  const byLang = (lang: string) => (ar: unknown, en: unknown, map?: unknown) => {
+    const m = (map ?? {}) as Record<string, string>;
+    return (lang === 'ar' ? m.ar ?? m.en : m.en ?? m.ar) ?? (typeof en === 'string' ? en : typeof ar === 'string' ? ar : null);
   };
-  const nursing = [{ id: 'n1', state: 'NEW_REQUEST', service_name_ar: 'قديم', service_name_en: 'old', service_names: tl, total_price: 80 }];
+  const nursing = [{ id: 'n1', state: 'NEW_REQUEST', service_name_ar: 'قديم', service_name_en: 'old', service_names: names, total_price: 80 }];
 
   it('a nursing row passes the server\'s service_names to the picker, so a locale switch needs no new read', () => {
-    expect(buildRows({ nursing }, byLang('hi'))[0].title).toBe('ड्रेसिंग');
-    expect(buildRows({ nursing }, byLang('tl'))[0].title).toBe('Pagbabalot');
     expect(buildRows({ nursing }, byLang('ar'))[0].title).toBe('غيار');
+    for (const lang of ['en', 'ur', 'hi', 'bn', 'fil']) expect(buildRows({ nursing }, byLang(lang))[0].title).toBe('Dressing');
   });
 
   it('lab and radiology rows read the first line\'s names / scan_names; an old booking without them keeps the stored pair', () => {
-    const labs = [{ id: 'l1', state: 'CONFIRMED', items: [{ service_id: 'cbc', name_ar: 'قديم', name_en: 'old', names: tl }] }, { id: 'l2', state: 'CONFIRMED', items: [{ name_ar: 'قديم', name_en: 'old' }] }];
-    const radiology = [{ id: 'r1', state: 'CONFIRMED', scan_name_ar: 'قديم', scan_name_en: 'old', scan_names: tl }, { id: 'r2', state: 'CONFIRMED', scan_name_ar: 'قديم', scan_name_en: 'old' }];
+    const labs = [{ id: 'l1', state: 'CONFIRMED', items: [{ service_id: 'cbc', name_ar: 'قديم', name_en: 'old', names }] }, { id: 'l2', state: 'CONFIRMED', items: [{ name_ar: 'قديم', name_en: 'old' }] }];
+    const radiology = [{ id: 'r1', state: 'CONFIRMED', scan_name_ar: 'قديم', scan_name_en: 'old', scan_names: names }, { id: 'r2', state: 'CONFIRMED', scan_name_ar: 'قديم', scan_name_en: 'old' }];
     const out = buildRows({ labs, radiology }, byLang('hi'));
     const title = (id: string) => out.find((r) => r.id === id)?.title;
-    expect(title('l1')).toBe('ड्रेसिंग');
+    expect(title('l1')).toBe('Dressing');
     expect(title('l2')).toBe('old');
-    expect(title('r1')).toBe('ड्रेसिंग');
+    expect(title('r1')).toBe('Dressing');
     expect(title('r2')).toBe('old');
   });
 });

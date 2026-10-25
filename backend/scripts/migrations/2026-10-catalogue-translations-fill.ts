@@ -2,8 +2,8 @@
  * Catalogue translation fill (2026-10-23). NOT RUN: owner approval is needed before it touches production.
  *
  * Writes what the seed-data files now carry and the database may lack:
- *   1. insurance_companies: name_ur/hi/bn/tl, description_<l>, and (TPAs) the corrected ar/en description;
- *      insurance_networks (code `tier-N`): name_ur/hi/bn/tl; plan Arabic name `VIP` -> `فئة VIP` is not touched (display only).
+ *   1. insurance_companies: description_<l> (the names stay ar/en only), and (TPAs) the corrected ar/en description;
+ *      insurance_networks: nothing is written (class names are ar/en only); plan Arabic name `VIP` -> `فئة VIP` is not touched (display only).
  *   2. two display names that were not a name: radiology `HSG` -> `Hysterosalpingography (HSG)` (name_en) and lab `CK-MB`
  *      (name_ar) -> `إنزيم القلب CK-MB`. Renamed only while the stored value is still the old one, so an admin edit is kept.
  * The lab/radiology/nursing/specialties names and descriptions come from 2026-10-services-content.ts: run it with
@@ -40,7 +40,8 @@ export function fillSet(stored: Record<string, any>, wanted: Record<string, stri
 
 export function companyFields(c: Company, withTpaText: boolean): Record<string, string | undefined> {
   const w: Record<string, string | undefined> = {};
-  for (const l of LOCALES) { w[`name_${l}`] = c[`name_${l}`]; w[`description_${l}`] = c[`description_${l}`]; }
+  // names stay Arabic and English only (owner, 2026-10-25): only the descriptions are written in the other four languages
+  for (const l of LOCALES) w[`description_${l}`] = c[`description_${l}`];
   if (withTpaText) { w.description_ar = c.description_ar; w.description_en = c.description_en; }
   return w;
 }
@@ -56,8 +57,7 @@ async function main() {
   if (!db) throw new Error('no database connection');
   const report = { companies: { rows: 0, written: 0, missing_in_db: [] as string[] }, networks: { written: 0 }, renamed: [] as string[] };
   const cos = db.collection('insurance_companies');
-  const nets = db.collection('insurance_networks');
-  for (const c of seed) {
+    for (const c of seed) {
     const row: any = await cos.findOne({ code: c.code });
     if (!row) { report.companies.missing_in_db.push(c.code); continue; }
     report.companies.rows++;
@@ -65,13 +65,6 @@ async function main() {
     const oldText = (row.description_en || '') === 'Licensed cooperative health insurer — approved networks and tiers.';
     const set = fillSet(row, companyFields(c, c.kind === 'tpa' && oldText), OVERWRITE || (c.kind === 'tpa' && oldText));
     if (Object.keys(set).length) { report.companies.written++; if (APPLY) await cos.updateOne({ _id: row._id }, { $set: set }); }
-    for (const p of c.plans) {
-      const tier = Number(p.tier_level) || c.plans.indexOf(p) + 1;
-      const net: any = await nets.findOne({ company_id: row.id, code: `tier-${tier}` });
-      if (!net) continue;
-      const nset = fillSet(net, Object.fromEntries(LOCALES.map((l) => [`name_${l}`, p[`name_${l}`]])), OVERWRITE);
-      if (Object.keys(nset).length) { report.networks.written++; if (APPLY) await nets.updateOne({ _id: net._id }, { $set: nset }); }
-    }
   }
   for (const [col, field, from, to] of [
     ['radiology_services', 'name_en', 'HSG', 'Hysterosalpingography (HSG)'],

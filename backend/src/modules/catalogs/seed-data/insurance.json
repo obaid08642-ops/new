@@ -9,50 +9,30 @@
       {
         "tier_level": 1,
         "name_ar": "فئة VIP",
-        "name_en": "VIP",
-        "name_ur": "وی آئی پی",
-        "name_hi": "वीआईपी",
-        "name_bn": "ভিআইপি",
-        "name_tl": "VIP"
+        "name_en": "VIP"
       },
       {
         "tier_level": 2,
         "name_ar": "الفئة الذهبية",
-        "name_en": "Gold",
-        "name_ur": "گولڈ",
-        "name_hi": "गोल्ड",
-        "name_bn": "গোল্ড",
-        "name_tl": "Ginto"
+        "name_en": "Gold"
       },
       {
         "tier_level": 3,
         "name_ar": "الفئة الفضية",
-        "name_en": "Silver",
-        "name_ur": "سلور",
-        "name_hi": "सिल्वर",
-        "name_bn": "সিলভার",
-        "name_tl": "Pilak"
+        "name_en": "Silver"
       },
       {
         "tier_level": 4,
         "name_ar": "الفئة البرونزية",
-        "name_en": "Bronze",
-        "name_ur": "برونز",
-        "name_hi": "ब्रॉन्ज़",
-        "name_bn": "ব্রোঞ্জ",
-        "name_tl": "Tanso"
+        "name_en": "Bronze"
       }
     ],
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
     "kind": "insurer",
-    "name_ur": "Bupa Arabia",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "Bupa Arabia",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "Bupa Arabia",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "Bupa Arabia",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -65,41 +45,25 @@
       {
         "tier_level": 1,
         "name_ar": "فئة VIP",
-        "name_en": "VIP",
-        "name_ur": "وی آئی پی",
-        "name_hi": "वीआईपी",
-        "name_bn": "ভিআইপি",
-        "name_tl": "VIP"
+        "name_en": "VIP"
       },
       {
         "tier_level": 2,
         "name_ar": "ذهبية",
-        "name_en": "Gold",
-        "name_ur": "گولڈ",
-        "name_hi": "गोल्ड",
-        "name_bn": "গোল্ড",
-        "name_tl": "Ginto"
+        "name_en": "Gold"
       },
       {
         "tier_level": 3,
         "name_ar": "فضية",
-        "name_en": "Silver",
-        "name_ur": "سلور",
-        "name_hi": "सिल्वर",
-        "name_bn": "সিলভার",
-        "name_tl": "Pilak"
+        "name_en": "Silver"
       }
     ],
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
     "kind": "insurer",
-    "name_ur": "Tawuniya",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "Tawuniya",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "Tawuniya",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "Tawuniya",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -112,41 +76,25 @@
       {
         "tier_level": 1,
         "name_ar": "فئة A",
-        "name_en": "Class A",
-        "name_ur": "کلاس A",
-        "name_hi": "क्लास A",
-        "name_bn": "ক্লাস A",
-        "name_tl": "Klase A"
+        "name_en": "Class A"
       },
       {
         "tier_level": 2,
         "name_ar": "فئة B",
-        "name_en": "Class B",
-        "name_ur": "کلاس B",
-        "name_hi": "क्लास B",
-        "name_bn": "ক্লাস B",
-        "name_tl": "Klase B"
+        "name_en": "Class B"
       },
       {
         "tier_level": 3,
         "name_ar": "فئة C",
-        "name_en": "Class C",
-        "name_ur": "کلاس C",
-        "name_hi": "क्लास C",
-        "name_bn": "ক্লাস C",
-        "name_tl": "Klase C"
+        "name_en": "Class C"
       }
     ],
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
     "kind": "insurer",
-    "name_ur": "MedGulf",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "MedGulf",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "MedGulf",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "MedGulf",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -159,32 +107,20 @@
       {
         "tier_level": 1,
         "name_ar": "ذهبية",
-        "name_en": "Gold",
-        "name_ur": "گولڈ",
-        "name_hi": "गोल्ड",
-        "name_bn": "গোল্ড",
-        "name_tl": "Ginto"
+        "name_en": "Gold"
       },
       {
         "tier_level": 2,
         "name_ar": "فضية",
-        "name_en": "Silver",
-        "name_ur": "سلور",
-        "name_hi": "सिल्वर",
-        "name_bn": "সিলভার",
-        "name_tl": "Pilak"
+        "name_en": "Silver"
       }
     ],
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
     "kind": "insurer",
-    "name_ur": "SAICO",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "SAICO",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "SAICO",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "SAICO",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -197,41 +133,25 @@
       {
         "tier_level": 1,
         "name_ar": "فئة VIP",
-        "name_en": "VIP",
-        "name_ur": "وی آئی پی",
-        "name_hi": "वीआईपी",
-        "name_bn": "ভিআইপি",
-        "name_tl": "VIP"
+        "name_en": "VIP"
       },
       {
         "tier_level": 2,
         "name_ar": "ذهبية",
-        "name_en": "Gold",
-        "name_ur": "گولڈ",
-        "name_hi": "गोल्ड",
-        "name_bn": "গোল্ড",
-        "name_tl": "Ginto"
+        "name_en": "Gold"
       },
       {
         "tier_level": 3,
         "name_ar": "فضية",
-        "name_en": "Silver",
-        "name_ur": "سلور",
-        "name_hi": "सिल्वर",
-        "name_bn": "সিলভার",
-        "name_tl": "Pilak"
+        "name_en": "Silver"
       }
     ],
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
     "kind": "insurer",
-    "name_ur": "Al Rajhi Takaful",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "Al Rajhi Takaful",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "Al Rajhi Takaful",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "Al Rajhi Takaful",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -244,32 +164,20 @@
       {
         "tier_level": 1,
         "name_ar": "ذهبية",
-        "name_en": "Gold",
-        "name_ur": "گولڈ",
-        "name_hi": "गोल्ड",
-        "name_bn": "গোল্ড",
-        "name_tl": "Ginto"
+        "name_en": "Gold"
       },
       {
         "tier_level": 2,
         "name_ar": "فضية",
-        "name_en": "Silver",
-        "name_ur": "سلور",
-        "name_hi": "सिल्वर",
-        "name_bn": "সিলভার",
-        "name_tl": "Pilak"
+        "name_en": "Silver"
       }
     ],
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
     "kind": "insurer",
-    "name_ur": "Walaa",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "Walaa",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "Walaa",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "Walaa",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -282,32 +190,20 @@
       {
         "tier_level": 1,
         "name_ar": "شاملة",
-        "name_en": "Comprehensive",
-        "name_ur": "جامع",
-        "name_hi": "व्यापक",
-        "name_bn": "সম্পূর্ণ",
-        "name_tl": "Komprehensibo"
+        "name_en": "Comprehensive"
       },
       {
         "tier_level": 2,
         "name_ar": "أساسية",
-        "name_en": "Basic",
-        "name_ur": "بنیادی",
-        "name_hi": "बुनियादी",
-        "name_bn": "মৌলিক",
-        "name_tl": "Batayan"
+        "name_en": "Basic"
       }
     ],
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
     "kind": "insurer",
-    "name_ur": "Allianz Saudi",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "Allianz Saudi",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "Allianz Saudi",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "Allianz Saudi",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -320,32 +216,20 @@
       {
         "tier_level": 1,
         "name_ar": "فئة VIP",
-        "name_en": "VIP",
-        "name_ur": "وی آئی پی",
-        "name_hi": "वीआईपी",
-        "name_bn": "ভিআইপি",
-        "name_tl": "VIP"
+        "name_en": "VIP"
       },
       {
         "tier_level": 2,
         "name_ar": "ذهبية",
-        "name_en": "Gold",
-        "name_ur": "گولڈ",
-        "name_hi": "गोल्ड",
-        "name_bn": "গোল্ড",
-        "name_tl": "Ginto"
+        "name_en": "Gold"
       }
     ],
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
     "kind": "insurer",
-    "name_ur": "AXA Gulf",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "AXA Gulf",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "AXA Gulf",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "AXA Gulf",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -358,32 +242,20 @@
       {
         "tier_level": 1,
         "name_ar": "ذهبية",
-        "name_en": "Gold",
-        "name_ur": "گولڈ",
-        "name_hi": "गोल्ड",
-        "name_bn": "গোল্ড",
-        "name_tl": "Ginto"
+        "name_en": "Gold"
       },
       {
         "tier_level": 2,
         "name_ar": "فضية",
-        "name_en": "Silver",
-        "name_ur": "سلور",
-        "name_hi": "सिल्वर",
-        "name_bn": "সিলভার",
-        "name_tl": "Pilak"
+        "name_en": "Silver"
       }
     ],
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
     "kind": "insurer",
-    "name_ur": "CIG",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "CIG",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "CIG",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "CIG",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -396,32 +268,20 @@
       {
         "tier_level": 1,
         "name_ar": "ذهبية",
-        "name_en": "Gold",
-        "name_ur": "گولڈ",
-        "name_hi": "गोल्ड",
-        "name_bn": "গোল্ড",
-        "name_tl": "Ginto"
+        "name_en": "Gold"
       },
       {
         "tier_level": 2,
         "name_ar": "فضية",
-        "name_en": "Silver",
-        "name_ur": "سلور",
-        "name_hi": "सिल्वर",
-        "name_bn": "সিলভার",
-        "name_tl": "Pilak"
+        "name_en": "Silver"
       }
     ],
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
     "kind": "insurer",
-    "name_ur": "Malath",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "Malath",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "Malath",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "Malath",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -434,32 +294,20 @@
       {
         "tier_level": 1,
         "name_ar": "ذهبية",
-        "name_en": "Gold",
-        "name_ur": "گولڈ",
-        "name_hi": "गोल्ड",
-        "name_bn": "গোল্ড",
-        "name_tl": "Ginto"
+        "name_en": "Gold"
       },
       {
         "tier_level": 2,
         "name_ar": "فضية",
-        "name_en": "Silver",
-        "name_ur": "سلور",
-        "name_hi": "सिल्वर",
-        "name_bn": "সিলভার",
-        "name_tl": "Pilak"
+        "name_en": "Silver"
       }
     ],
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
     "kind": "insurer",
-    "name_ur": "Salama",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "Salama",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "Salama",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "Salama",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -472,32 +320,20 @@
       {
         "tier_level": 1,
         "name_ar": "ذهبية",
-        "name_en": "Gold",
-        "name_ur": "گولڈ",
-        "name_hi": "गोल्ड",
-        "name_bn": "গোল্ড",
-        "name_tl": "Ginto"
+        "name_en": "Gold"
       },
       {
         "tier_level": 2,
         "name_ar": "فضية",
-        "name_en": "Silver",
-        "name_ur": "سلور",
-        "name_hi": "सिल्वर",
-        "name_bn": "সিলভার",
-        "name_tl": "Pilak"
+        "name_en": "Silver"
       }
     ],
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
     "kind": "insurer",
-    "name_ur": "Gulf Union",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "Gulf Union",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "Gulf Union",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "Gulf Union",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -510,32 +346,20 @@
       {
         "tier_level": 1,
         "name_ar": "فئة VIP",
-        "name_en": "VIP",
-        "name_ur": "وی آئی پی",
-        "name_hi": "वीआईपी",
-        "name_bn": "ভিআইপি",
-        "name_tl": "VIP"
+        "name_en": "VIP"
       },
       {
         "tier_level": 2,
         "name_ar": "ذهبية",
-        "name_en": "Gold",
-        "name_ur": "گولڈ",
-        "name_hi": "गोल्ड",
-        "name_bn": "গোল্ড",
-        "name_tl": "Ginto"
+        "name_en": "Gold"
       }
     ],
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
     "kind": "insurer",
-    "name_ur": "Arabian Shield",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "Arabian Shield",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "Arabian Shield",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "Arabian Shield",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -548,32 +372,20 @@
       {
         "tier_level": 1,
         "name_ar": "ذهبية",
-        "name_en": "Gold",
-        "name_ur": "گولڈ",
-        "name_hi": "गोल्ड",
-        "name_bn": "গোল্ড",
-        "name_tl": "Ginto"
+        "name_en": "Gold"
       },
       {
         "tier_level": 2,
         "name_ar": "فضية",
-        "name_en": "Silver",
-        "name_ur": "سلور",
-        "name_hi": "सिल्वर",
-        "name_bn": "সিলভার",
-        "name_tl": "Pilak"
+        "name_en": "Silver"
       }
     ],
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
     "kind": "insurer",
-    "name_ur": "AlSagr",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "AlSagr",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "AlSagr",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "AlSagr",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -586,32 +398,20 @@
       {
         "tier_level": 1,
         "name_ar": "ذهبية",
-        "name_en": "Gold",
-        "name_ur": "گولڈ",
-        "name_hi": "गोल्ड",
-        "name_bn": "গোল্ড",
-        "name_tl": "Ginto"
+        "name_en": "Gold"
       },
       {
         "tier_level": 2,
         "name_ar": "فضية",
-        "name_en": "Silver",
-        "name_ur": "سلور",
-        "name_hi": "सिल्वर",
-        "name_bn": "সিলভার",
-        "name_tl": "Pilak"
+        "name_en": "Silver"
       }
     ],
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
     "kind": "insurer",
-    "name_ur": "Amana",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "Amana",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "Amana",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "Amana",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -624,23 +424,15 @@
       {
         "tier_level": 1,
         "name_ar": "شاملة",
-        "name_en": "Comprehensive",
-        "name_ur": "جامع",
-        "name_hi": "व्यापक",
-        "name_bn": "সম্পূর্ণ",
-        "name_tl": "Komprehensibo"
+        "name_en": "Comprehensive"
       }
     ],
     "description_ar": "مدير مطالبات صحية (TPA) وليس شركة تأمين — شبكات وفئات معتمدة.",
     "description_en": "Health claims administrator (TPA), not an insurer — approved networks and tiers.",
     "kind": "tpa",
-    "name_ur": "Cigna",
     "description_ur": "ہیلتھ کلیمز ایڈمنسٹریٹر (TPA)، انشورنس کمپنی نہیں — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "Cigna",
     "description_hi": "स्वास्थ्य दावा प्रबंधक (TPA), बीमा कंपनी नहीं — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "Cigna",
     "description_bn": "স্বাস্থ্য দাবি ব্যবস্থাপক (TPA), বিমা কোম্পানি নয় — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "Cigna",
     "description_tl": "Tagapamahala ng health claims (TPA), hindi kompanya ng insurance — mga aprubadong network at tier."
   },
   {
@@ -653,23 +445,15 @@
       {
         "tier_level": 1,
         "name_ar": "شاملة",
-        "name_en": "Comprehensive",
-        "name_ur": "جامع",
-        "name_hi": "व्यापक",
-        "name_bn": "সম্পূর্ণ",
-        "name_tl": "Komprehensibo"
+        "name_en": "Comprehensive"
       }
     ],
     "description_ar": "مدير مطالبات صحية (TPA) وليس شركة تأمين — شبكات وفئات معتمدة.",
     "description_en": "Health claims administrator (TPA), not an insurer — approved networks and tiers.",
     "kind": "tpa",
-    "name_ur": "GlobeMed",
     "description_ur": "ہیلتھ کلیمز ایڈمنسٹریٹر (TPA)، انشورنس کمپنی نہیں — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "GlobeMed",
     "description_hi": "स्वास्थ्य दावा प्रबंधक (TPA), बीमा कंपनी नहीं — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "GlobeMed",
     "description_bn": "স্বাস্থ্য দাবি ব্যবস্থাপক (TPA), বিমা কোম্পানি নয় — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "GlobeMed",
     "description_tl": "Tagapamahala ng health claims (TPA), hindi kompanya ng insurance — mga aprubadong network at tier."
   },
   {
@@ -682,23 +466,15 @@
       {
         "tier_level": 1,
         "name_ar": "شاملة",
-        "name_en": "Comprehensive",
-        "name_ur": "جامع",
-        "name_hi": "व्यापक",
-        "name_bn": "সম্পূর্ণ",
-        "name_tl": "Komprehensibo"
+        "name_en": "Comprehensive"
       }
     ],
     "description_ar": "مدير مطالبات صحية (TPA) وليس شركة تأمين — شبكات وفئات معتمدة.",
     "description_en": "Health claims administrator (TPA), not an insurer — approved networks and tiers.",
     "kind": "tpa",
-    "name_ur": "NextCare",
     "description_ur": "ہیلتھ کلیمز ایڈمنسٹریٹر (TPA)، انشورنس کمپنی نہیں — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "NextCare",
     "description_hi": "स्वास्थ्य दावा प्रबंधक (TPA), बीमा कंपनी नहीं — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "NextCare",
     "description_bn": "স্বাস্থ্য দাবি ব্যবস্থাপক (TPA), বিমা কোম্পানি নয় — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "NextCare",
     "description_tl": "Tagapamahala ng health claims (TPA), hindi kompanya ng insurance — mga aprubadong network at tier."
   },
   {
@@ -711,23 +487,15 @@
       {
         "tier_level": 1,
         "name_ar": "شاملة",
-        "name_en": "Comprehensive",
-        "name_ur": "جامع",
-        "name_hi": "व्यापक",
-        "name_bn": "সম্পূর্ণ",
-        "name_tl": "Komprehensibo"
+        "name_en": "Comprehensive"
       }
     ],
     "description_ar": "مدير مطالبات صحية (TPA) وليس شركة تأمين — شبكات وفئات معتمدة.",
     "description_en": "Health claims administrator (TPA), not an insurer — approved networks and tiers.",
     "kind": "tpa",
-    "name_ur": "Mediviza",
     "description_ur": "ہیلتھ کلیمز ایڈمنسٹریٹر (TPA)، انشورنس کمپنی نہیں — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "Mediviza",
     "description_hi": "स्वास्थ्य दावा प्रबंधक (TPA), बीमा कंपनी नहीं — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "Mediviza",
     "description_bn": "স্বাস্থ্য দাবি ব্যবস্থাপক (TPA), বিমা কোম্পানি নয় — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "Mediviza",
     "description_tl": "Tagapamahala ng health claims (TPA), hindi kompanya ng insurance — mga aprubadong network at tier."
   },
   {
@@ -740,23 +508,15 @@
       {
         "tier_level": 1,
         "name_ar": "شاملة",
-        "name_en": "Comprehensive",
-        "name_ur": "جامع",
-        "name_hi": "व्यापक",
-        "name_bn": "সম্পূর্ণ",
-        "name_tl": "Komprehensibo"
+        "name_en": "Comprehensive"
       }
     ],
     "description_ar": "مدير مطالبات صحية (TPA) وليس شركة تأمين — شبكات وفئات معتمدة.",
     "description_en": "Health claims administrator (TPA), not an insurer — approved networks and tiers.",
     "kind": "tpa",
-    "name_ur": "MedNet",
     "description_ur": "ہیلتھ کلیمز ایڈمنسٹریٹر (TPA)، انشورنس کمپنی نہیں — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "MedNet",
     "description_hi": "स्वास्थ्य दावा प्रबंधक (TPA), बीमा कंपनी नहीं — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "MedNet",
     "description_bn": "স্বাস্থ্য দাবি ব্যবস্থাপক (TPA), বিমা কোম্পানি নয় — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "MedNet",
     "description_tl": "Tagapamahala ng health claims (TPA), hindi kompanya ng insurance — mga aprubadong network at tier."
   },
   {
@@ -769,32 +529,20 @@
       {
         "tier_level": 1,
         "name_ar": "ذهبية",
-        "name_en": "Gold",
-        "name_ur": "گولڈ",
-        "name_hi": "गोल्ड",
-        "name_bn": "গোল্ড",
-        "name_tl": "Ginto"
+        "name_en": "Gold"
       },
       {
         "tier_level": 2,
         "name_ar": "فضية",
-        "name_en": "Silver",
-        "name_ur": "سلور",
-        "name_hi": "सिल्वर",
-        "name_bn": "সিলভার",
-        "name_tl": "Pilak"
+        "name_en": "Silver"
       }
     ],
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
     "kind": "insurer",
-    "name_ur": "Buruj",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "Buruj",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "Buruj",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "Buruj",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -807,32 +555,20 @@
       {
         "tier_level": 1,
         "name_ar": "ذهبية",
-        "name_en": "Gold",
-        "name_ur": "گولڈ",
-        "name_hi": "गोल्ड",
-        "name_bn": "গোল্ড",
-        "name_tl": "Ginto"
+        "name_en": "Gold"
       },
       {
         "tier_level": 2,
         "name_ar": "فضية",
-        "name_en": "Silver",
-        "name_ur": "سلور",
-        "name_hi": "सिल्वर",
-        "name_bn": "সিলভার",
-        "name_tl": "Pilak"
+        "name_en": "Silver"
       }
     ],
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
     "kind": "insurer",
-    "name_ur": "ACIG",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "ACIG",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "ACIG",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "ACIG",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -845,32 +581,20 @@
       {
         "tier_level": 1,
         "name_ar": "ذهبية",
-        "name_en": "Gold",
-        "name_ur": "گولڈ",
-        "name_hi": "गोल्ड",
-        "name_bn": "গোল্ড",
-        "name_tl": "Ginto"
+        "name_en": "Gold"
       },
       {
         "tier_level": 2,
         "name_ar": "فضية",
-        "name_en": "Silver",
-        "name_ur": "سلور",
-        "name_hi": "सिल्वर",
-        "name_bn": "সিলভার",
-        "name_tl": "Pilak"
+        "name_en": "Silver"
       }
     ],
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
     "kind": "insurer",
-    "name_ur": "Enaya",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "Enaya",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "Enaya",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "Enaya",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -883,32 +607,20 @@
       {
         "tier_level": 1,
         "name_ar": "ذهبية",
-        "name_en": "Gold",
-        "name_ur": "گولڈ",
-        "name_hi": "गोल्ड",
-        "name_bn": "গোল্ড",
-        "name_tl": "Ginto"
+        "name_en": "Gold"
       },
       {
         "tier_level": 2,
         "name_ar": "فضية",
-        "name_en": "Silver",
-        "name_ur": "سلور",
-        "name_hi": "सिल्वर",
-        "name_bn": "সিলভার",
-        "name_tl": "Pilak"
+        "name_en": "Silver"
       }
     ],
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
     "kind": "insurer",
-    "name_ur": "UCA",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "UCA",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "UCA",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "UCA",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -921,32 +633,20 @@
       {
         "tier_level": 1,
         "name_ar": "ذهبية",
-        "name_en": "Gold",
-        "name_ur": "گولڈ",
-        "name_hi": "गोल्ड",
-        "name_bn": "গোল্ড",
-        "name_tl": "Ginto"
+        "name_en": "Gold"
       },
       {
         "tier_level": 2,
         "name_ar": "فضية",
-        "name_en": "Silver",
-        "name_ur": "سلور",
-        "name_hi": "सिल्वर",
-        "name_bn": "সিলভার",
-        "name_tl": "Pilak"
+        "name_en": "Silver"
       }
     ],
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
     "kind": "insurer",
-    "name_ur": "AlAhli Takaful",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "AlAhli Takaful",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "AlAhli Takaful",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "AlAhli Takaful",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -959,23 +659,15 @@
       {
         "tier_level": 1,
         "name_ar": "شاملة",
-        "name_en": "Comprehensive",
-        "name_ur": "جامع",
-        "name_hi": "व्यापक",
-        "name_bn": "সম্পূর্ণ",
-        "name_tl": "Komprehensibo"
+        "name_en": "Comprehensive"
       }
     ],
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
     "kind": "insurer",
-    "name_ur": "Chubb",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "Chubb",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "Chubb",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "Chubb",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -987,33 +679,21 @@
       {
         "tier_level": 1,
         "name_ar": "ذهبية",
-        "name_en": "Gold",
-        "name_ur": "گولڈ",
-        "name_hi": "गोल्ड",
-        "name_bn": "গোল্ড",
-        "name_tl": "Ginto"
+        "name_en": "Gold"
       },
       {
         "tier_level": 2,
         "name_ar": "فضية",
-        "name_en": "Silver",
-        "name_ur": "سلور",
-        "name_hi": "सिल्वर",
-        "name_bn": "সিলভার",
-        "name_tl": "Pilak"
+        "name_en": "Silver"
       }
     ],
     "image_url": "https://cdn.nabd.plus/insurance/aljazira_takaful.png",
     "is_active": true,
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
-    "name_ur": "Aljazira Takaful",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "Aljazira Takaful",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "Aljazira Takaful",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "Aljazira Takaful",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -1025,33 +705,21 @@
       {
         "tier_level": 1,
         "name_ar": "ذهبية",
-        "name_en": "Gold",
-        "name_ur": "گولڈ",
-        "name_hi": "गोल्ड",
-        "name_bn": "গোল্ড",
-        "name_tl": "Ginto"
+        "name_en": "Gold"
       },
       {
         "tier_level": 2,
         "name_ar": "فضية",
-        "name_en": "Silver",
-        "name_ur": "سلور",
-        "name_hi": "सिल्वर",
-        "name_bn": "সিলভার",
-        "name_tl": "Pilak"
+        "name_en": "Silver"
       }
     ],
     "image_url": "https://cdn.nabd.plus/insurance/sabb_takaful.png",
     "is_active": true,
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
-    "name_ur": "SABB Takaful",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "SABB Takaful",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "SABB Takaful",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "SABB Takaful",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -1063,33 +731,21 @@
       {
         "tier_level": 1,
         "name_ar": "ذهبية",
-        "name_en": "Gold",
-        "name_ur": "گولڈ",
-        "name_hi": "गोल्ड",
-        "name_bn": "গোল্ড",
-        "name_tl": "Ginto"
+        "name_en": "Gold"
       },
       {
         "tier_level": 2,
         "name_ar": "فضية",
-        "name_en": "Silver",
-        "name_ur": "سلور",
-        "name_hi": "सिल्वर",
-        "name_bn": "সিলভার",
-        "name_tl": "Pilak"
+        "name_en": "Silver"
       }
     ],
     "image_url": "https://cdn.nabd.plus/insurance/alalamiya.png",
     "is_active": true,
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
-    "name_ur": "Al Alamiya",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "Al Alamiya",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "Al Alamiya",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "Al Alamiya",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   },
   {
@@ -1101,33 +757,21 @@
       {
         "tier_level": 1,
         "name_ar": "ذهبية",
-        "name_en": "Gold",
-        "name_ur": "گولڈ",
-        "name_hi": "गोल्ड",
-        "name_bn": "গোল্ড",
-        "name_tl": "Ginto"
+        "name_en": "Gold"
       },
       {
         "tier_level": 2,
         "name_ar": "فضية",
-        "name_en": "Silver",
-        "name_ur": "سلور",
-        "name_hi": "सिल्वर",
-        "name_bn": "সিলভার",
-        "name_tl": "Pilak"
+        "name_en": "Silver"
       }
     ],
     "image_url": "https://cdn.nabd.plus/insurance/aletihad.png",
     "is_active": true,
     "description_ar": "شركة تأمين صحي تعاوني مرخصة — شبكات وفئات معتمدة لدى مقدمي الخدمة.",
     "description_en": "Licensed cooperative health insurer — approved networks and tiers.",
-    "name_ur": "Al-Etihad",
     "description_ur": "لائسنس یافتہ کوآپریٹو ہیلتھ انشورنس کمپنی — منظور شدہ نیٹ ورکس اور درجات۔",
-    "name_hi": "Al-Etihad",
     "description_hi": "लाइसेंस प्राप्त सहकारी स्वास्थ्य बीमा कंपनी — स्वीकृत नेटवर्क और श्रेणियां।",
-    "name_bn": "Al-Etihad",
     "description_bn": "লাইসেন্সপ্রাপ্ত সমবায় স্বাস্থ্য বিমা কোম্পানি — অনুমোদিত নেটওয়ার্ক ও শ্রেণি।",
-    "name_tl": "Al-Etihad",
     "description_tl": "May lisensyang kooperatibang kompanya ng health insurance — mga aprubadong network at tier."
   }
 ]

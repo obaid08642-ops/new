@@ -12,6 +12,14 @@
       {
         "include": "modules/catalogs/seed-data/*.json",
         "watchAssets": false
+      },
+      {
+        "include": "modules/medicines/data/*.csv",
+        "watchAssets": false
+      },
+      {
+        "include": "modules/location/data/*.json",
+        "watchAssets": false
       }
     ]
   }

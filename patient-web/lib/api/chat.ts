@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { parseVoiceMessage, type VoiceAttachment } from "@/lib/chat/voice-note";
 
 const threadIdSchema = z.string().uuid();
 const allowedThreadTypes = ["direct", "group", "booking"] as const;
@@ -33,9 +34,13 @@ export function extractChatThreadSummaries(payload: unknown) {
 }
 
 /** `text`: owner decision B27 (2026-10-14), only inside the thread: the text of the patient's own messages and the doctor's replies (never in list previews). */
-export type ChatMessageSummary = { id: string; senderRole: string; type: string; createdAt?: string; edited: boolean; deleted: boolean; hasAttachment: boolean; text?: string };
+export type ChatMessageSummary = { id: string; senderRole: string; type: string; createdAt?: string; edited: boolean; deleted: boolean; hasAttachment: boolean; text?: string; voice?: VoiceAttachment };
 // the doctor answers from the provider app, which sends as "provider" in the booking thread
 const TEXT_ROLES = new Set(["patient", "doctor", "provider"]);
+function voiceField(record: Record<string, unknown>): { voice?: VoiceAttachment } {
+  const voice = parseVoiceMessage(record);
+  return voice ? { voice } : {};
+}
 export function extractChatMessageSummaries(payload: unknown): ChatMessageSummary[] {
   const root = asRecord(payload);
   const list = Array.isArray(root?.messages) ? root.messages : listFrom(payload);
@@ -43,6 +48,6 @@ export function extractChatMessageSummaries(payload: unknown): ChatMessageSummar
     const record = asRecord(value);
     const id = threadIdSchema.safeParse(record?.id);
     if (!id.success || typeof record?.sender_role !== "string" || typeof record?.type !== "string") return [];
-    return [{ id: id.data, senderRole: record.sender_role.slice(0, 40), type: record.type.slice(0, 20), createdAt: typeof record.createdAt === "string" ? record.createdAt : undefined, edited: record.is_edited === true, deleted: record.is_deleted === true, hasAttachment: typeof record.attachment_url === "string" || typeof record.attachment_name === "string", ...(record.type === "text" && record.is_deleted !== true && TEXT_ROLES.has(record.sender_role) && typeof record.body === "string" && record.body.trim() ? { text: record.body.trim().slice(0, 4000) } : {}) }];
+    return [{ id: id.data, senderRole: record.sender_role.slice(0, 40), type: record.type.slice(0, 20), createdAt: typeof record.createdAt === "string" ? record.createdAt : undefined, edited: record.is_edited === true, deleted: record.is_deleted === true, hasAttachment: typeof record.attachment_url === "string" || typeof record.attachment_name === "string", ...(record.type === "text" && record.is_deleted !== true && TEXT_ROLES.has(record.sender_role) && typeof record.body === "string" && record.body.trim() ? { text: record.body.trim().slice(0, 4000) } : {}), ...voiceField(record) }];
   });
 }

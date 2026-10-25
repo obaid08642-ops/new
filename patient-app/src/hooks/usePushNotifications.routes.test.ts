@@ -34,6 +34,11 @@ describe('notification routes the backend writes, translated to screens that exi
     expect(translateBackendRoute('/health/family-hub')).toEqual({ pathname: '/family' });
   });
 
+  it('removed skin analysis and SOS routes open the assistant and the urgent-help screen (decisions 4 and 14)', () => {
+    expect(translateBackendRoute('/ai/skin-analysis')).toEqual({ pathname: '/ai' });
+    for (const r of ['/emergency/sos', '/emergency/sos-active', '/emergency/tracking']) expect(translateBackendRoute(r)).toEqual({ pathname: '/emergency' });
+  });
+
   it('the old loyalty routes open their tab of the loyalty hub; the removed leaderboard opens the hub (Batch 11)', () => {
     expect(translateBackendRoute('/loyalty/hub')).toEqual({ pathname: '/loyalty/hub' });
     expect(translateBackendRoute('/loyalty/referrals')).toEqual({ pathname: '/loyalty/hub', params: { tab: 'invite' } });

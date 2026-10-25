@@ -46,7 +46,7 @@ type Provider = {
 /** The handoff service map's glyph and tone for each kind of provider (never written as colour names). */
 const TYPE_ICON: Record<ProviderType, { icon: FillIconName; tone: ServiceTone }> = {
   doctor: SERVICE_ICONS.consult,
-  hospital: { icon: "hospital", tone: SERVICE_ICONS.consult.tone },
+  hospital: { icon: "hospital", tone: "violet" }, // the app map: a hospital is violet, a doctor blue
   pharmacy: SERVICE_ICONS.pharmacy,
   lab: SERVICE_ICONS.lab,
   nursing: SERVICE_ICONS.nursing,
@@ -56,7 +56,7 @@ const TYPE_ICON: Record<ProviderType, { icon: FillIconName; tone: ServiceTone }>
  * The facilities map (GET /providers/map, public): a search field, the type filters, the list of providers with directions
  * and booking, and the OpenStreetMap pane of the chosen one. The list is the server's; nothing is invented when it is empty.
  */
-export function MapExplorerClient({ locale, labels, cityNames }: { locale: string; labels: Labels; cityNames?: CityNames }) {
+export function MapExplorerClient({ locale, labels, cityNames, initialType = null }: { locale: string; labels: Labels; cityNames?: CityNames; initialType?: ProviderType | null }) {
   const t = useTranslations("AccountWeb");
   // The list the last visit in this tab received shows at once; the request below replaces it (lib/swr-lite.ts).
   const [providers, setProviders] = useState<Provider[]>(() => peekSwr<Provider[]>(MAP_URL) ?? []);
@@ -64,7 +64,7 @@ export function MapExplorerClient({ locale, labels, cityNames }: { locale: strin
   // the list could not be read (no answer or an error answer): said so with a retry, never shown as "no facilities"
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
-  const [selectedType, setSelectedType] = useState<string>("all");
+  const [selectedType, setSelectedType] = useState<string>(initialType ?? "all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
 

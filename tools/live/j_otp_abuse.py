@@ -33,22 +33,11 @@ CALLER = {'X-Forwarded-For': f'198.51.100.{random.randint(1, 254)}'}
 def run():
     journey('otp abuse: pumping limits hold on the live stack')
 
-    # 16.3 — a number from a country we do not serve never gets a code. This is
+    # 16.3 — something that is not a phone number never gets a code. This is
     # the first request on the IP, so the exact code is ours, not a throttle's.
-    r = anon.post('/auth/otp/request', headers=CALLER, b={'identifier': '+12025550143'})
-    step('otp: country not served is refused (otp_country_not_served)',
-         r.status == 429 and 'otp_country_not_served' in str(r.body), r)
-
-    # 16.3 — a served country still works, so the refusal above is not simply a
-    # broken endpoint.
-    served = sa_mobile()
-    r = anon.post('/auth/otp/request', headers=CALLER, b={'identifier': served})
-    # The journeys before this one share the caller's 3-per-10-min throttle on this
-    # endpoint, so a 429 from the throttle is possible here. What this step proves is
-    # that the allow-list does not refuse a served country: accepted, or throttled,
-    # but never otp_country_not_served / otp_invalid_identifier.
-    throttled = r.status == 429 and 'ThrottlerException' in str(r.body)
-    step('otp: a served country is not refused by the allow-list', r.ok or throttled, r)
+    r = anon.post('/auth/otp/request', headers=CALLER, b={'identifier': '12345'})
+    step('otp: an unusable identifier is refused (otp_invalid_identifier)',
+         r.status == 429 and 'otp_invalid_identifier' in str(r.body), r)
 
     # 16.3 — repeated asks for one number stop being served.
     target = sa_mobile()

@@ -15,6 +15,7 @@ import { setUnreadCount } from '../src/store/slices/notificationsSlice';
  */
 
 const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn() };
+jest.mock('../src/context/CartContext', () => ({ useCart: () => ({ itemCount: 0 }) })); // the header's cart button reads the count (the app wraps every screen in CartProvider)
 jest.mock('expo-router', () => {
   const React = require('react');
   return {

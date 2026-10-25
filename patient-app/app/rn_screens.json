@@ -296,18 +296,6 @@
   "lines": 8
  },
  {
-  "file": "emergency/sos-active.tsx",
-  "lines": 6
- },
- {
-  "file": "emergency/tracking.tsx",
-  "lines": 6
- },
- {
-  "file": "emergency/sos.tsx",
-  "lines": 6
- },
- {
   "file": "loyalty/hub.tsx",
   "lines": 414
  },
@@ -394,10 +382,6 @@
  {
   "file": "ai/symptom-checker.tsx",
   "lines": 592
- },
- {
-  "file": "ai/skin-analysis.tsx",
-  "lines": 323
  },
  {
   "file": "consultations/doctor-search.tsx",
@@ -602,14 +586,6 @@
  {
   "file": "(auth)/welcome.tsx",
   "lines": 124
- },
- {
-  "file": "community/hub.tsx",
-  "lines": 112
- },
- {
-  "file": "community/post-detail.tsx",
-  "lines": 197
  },
  {
   "file": "nutrition/food-scanner.tsx",

@@ -215,8 +215,8 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
   );
 
   const locationSection = (() => {
-    // react-native-maps is only needed here, so it is loaded when this section is opened.
-    const Maps = require('react-native-maps');
+    // the map is only needed here, so it is loaded when this section is opened.
+    const Maps = require('../../../components/PlatformMap');
     const MapView = Maps.default; const Marker = Maps.Marker;
     return (
       <View style={{ gap: SP.md }}>
@@ -227,7 +227,7 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
             initialRegion={{ latitude: form.pin?.lat || 24.7136, longitude: form.pin?.lng || 46.6753, latitudeDelta: 0.02, longitudeDelta: 0.02 }}
             onPress={(e: { nativeEvent: { coordinate: { latitude: number; longitude: number } } }) => set('pin', { lat: e.nativeEvent.coordinate.latitude, lng: e.nativeEvent.coordinate.longitude })}
           >
-            {form.pin && <Marker coordinate={{ latitude: form.pin.lat, longitude: form.pin.lng }} draggable onDragEnd={(e: { nativeEvent: { coordinate: { latitude: number; longitude: number } } }) => set('pin', { lat: e.nativeEvent.coordinate.latitude, lng: e.nativeEvent.coordinate.longitude })} />}
+            {form.pin && <Marker coordinate={{ latitude: form.pin.lat, longitude: form.pin.lng }} />}
           </MapView>
         </View>
         <NBtn label={locating ? (AR ? 'جارٍ التحديد…' : 'Locating…') : (AR ? 'استخدم موقعي الحالي' : 'Use my current location')} variant="outline" onPress={useMyLocation} />

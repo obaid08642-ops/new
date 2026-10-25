@@ -31,6 +31,8 @@ const patientReadRoutes = [
   // components-next/account/geo-select: regions, cities and districts through the proxy (needs-review issue 780).
   new RegExp("^/locations/(regions|cities)$", "i"),
   new RegExp("^/locations/districts\\?city=[^&#]{1,120}$", "i"),
+  // app/api/geo/reverse and the address map: backend GET /geo/reverse, the address of one point (city and district are ours).
+  new RegExp("^/geo/reverse\\?lat=-?\\d{1,3}(\\.\\d{1,15})?&lng=-?\\d{1,3}(\\.\\d{1,15})?$", "i"),
   new RegExp("^/nutrition/profile$", "i"),
   new RegExp("^/support/chat$", "i"),
   new RegExp(`^/orders/${orderId}/tracking$`, "i"),

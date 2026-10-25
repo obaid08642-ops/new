@@ -129,6 +129,7 @@ The design session proposes a merge map first, the owner approves it, and only t
 - Lines that cannot be mapped are marked "price not verified" and go to admin review; the admin adds the item to the catalogue.
 - Medicine lines cannot be confirmed until they are mapped.
 - The source of the ceiling price is stored on the item.
+- **Superseded (owner, 2026-10-25), supersedes the 2026-10-10 amendment too:** the server no longer rejects an offer above the registered price. The pharmacist MAY offer a line above the catalogue (SFDA) price; every such line raises an admin *price review* (one row per offer line: pharmacy, order/offer, medicine, catalogue price, offered price, % above, status `open` / `catalogue_updated` / `pharmacy_actioned` / `dismissed`, and who decided what, when and why). The admin gets one notice per pharmacy + medicine per day. The admin can (a) update the catalogue price to the offered one (audit-logged), (b) dismiss (the price is justified), or (c) act on the pharmacy: a warning, a temporary suspension, a block, or a penalty (a ledger debit). The pharmacy sees in its app that an offer above the catalogue price is visible to the admin. Implemented in `backend/src/modules/pharmacy/price-review*.ts` and the admin page "Price reviews" (`/admin/price-reviews`). Lines that map to no catalogue item still go to the "price not verified" queue as before.
 
 **Notes and open question**
 - The catalogue has only `price` (and `old_price`). There is no field showing that `price` is the SFDA registered price, and no source field.

@@ -80,7 +80,7 @@ export class AdminGovernanceControlsController {
       this.conn.collection('feature_flags').find({}).project({ _id: 0 }).toArray(),
       this.conn.collection('featureflags').find({}).project({ _id: 0 }).toArray(),
     ]);
-    // The server checks (killswitches.helper connectionFlagSource, sms.service) read the `featureflags` rows, which
+    // The server checks (killswitches.helper connectionFlagSource) read the `featureflags` rows, which
     // this page writes together with `feature_flags`; the state shown is the one those checks see.
     const readByChecks = new Map<string, any>();
     for (const row of legacy as any[]) {
@@ -88,10 +88,10 @@ export class AdminGovernanceControlsController {
       if (key) readByChecks.set(key, row);
     }
     // needs-review admin-system item 10: only the flags a server check reads are listed, each with its effect. An absent
-    // row reads ON for every one of them except sms_enabled, whose default is the SMS_ENABLED env.
+    // row reads ON.
     const data = EFFECTIVE_FLAGS.map((flag) => {
       const row = readByChecks.get(flag.key);
-      const enabled = row ? !!row.enabled : flag.key === 'sms_enabled' ? process.env.SMS_ENABLED === 'true' : true;
+      const enabled = row ? !!row.enabled : true;
       return { key: flag.key, name: flag.name, effect: flag.effect, enabled, updatedAt: row?.updatedAt || row?.updated_at || null, stored: !!row };
     });
     return { data, stores: { canonical: canonical.length, legacy: legacy.length } };

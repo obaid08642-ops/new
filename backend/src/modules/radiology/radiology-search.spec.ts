@@ -1,17 +1,14 @@
 import { radiologySearchClause, RADIOLOGY_NAME_FIELDS } from './radiology.service';
 
-// Issue 1833: the radiology name search matches all six name fields, escaped, case-insensitive.
+// Issue 1833: the radiology name search matches the Arabic and English name fields (names are ar/en only, owner decision 2026-10-25), escaped, case-insensitive.
 describe('issue 1833: radiology name search', () => {
   const matches = (doc: Record<string, string>, search: string) => {
     const { $or } = radiologySearchClause(search);
     return $or.some((cond) => Object.entries(cond).some(([field, re]) => typeof doc[field] === 'string' && re.test(doc[field])));
   };
 
-  it('finds a scan by its name in every language', () => {
-    const doc = { name_ar: 'أشعة الصدر', name_en: 'Chest X-Ray', name_ur: 'سینے کا ایکسرے', name_hi: 'छाती का एक्स-रे', name_bn: 'বুকের এক্স-রে', name_tl: 'Chest X-Ray (Filipino)' };
-    expect(matches(doc, 'سینے')).toBe(true);
-    expect(matches(doc, 'छाती')).toBe(true);
-    expect(matches(doc, 'বুকের')).toBe(true);
+  it('finds a scan by its Arabic or English name', () => {
+    const doc = { name_ar: 'أشعة الصدر', name_en: 'Chest X-Ray' };
     expect(matches(doc, 'chest x-ray')).toBe(true);
     expect(matches(doc, 'أشعة')).toBe(true);
   });
@@ -30,7 +27,7 @@ describe('issue 1833: radiology name search', () => {
     expect(radiologySearchClause('x')).not.toHaveProperty('$text');
   });
 
-  it('reads exactly the six name fields', () => {
-    expect(RADIOLOGY_NAME_FIELDS).toEqual(['name_ar', 'name_en', 'name_ur', 'name_hi', 'name_bn', 'name_tl']);
+  it('reads exactly the two name fields', () => {
+    expect(RADIOLOGY_NAME_FIELDS).toEqual(['name_ar', 'name_en']);
   });
 });

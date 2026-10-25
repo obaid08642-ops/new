@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation";
-import { pickTexts } from "@/lib/i18n/localized";
+import { pickName } from "@/lib/i18n/localized";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractDiagnosticBooking, extractDiagnosticTracking, parseDiagnosticBookingId, parseDiagnosticDomain } from "@/lib/api/diagnostics";
 import { getDiagnosticBooking, getDiagnosticTracking } from "@/lib/api/diagnostics-server";
@@ -45,7 +45,7 @@ export default async function DiagnosticDetailPage({ params }: Props) {
   const trackingResponse = await getDiagnosticTracking(token, domain, bookingId);
   const tracking = domain === "labs" && trackingResponse.ok ? extractDiagnosticTracking(await trackingResponse.json().catch(() => null)) : null;
   const visual = domain === "labs" ? LAB : RADIOLOGY;
-  const label = domain === "labs" ? t("labs.label") : pickTexts(locale, booking.scanNames) ?? t("radiology.label");
+  const label = domain === "labs" ? t("labs.label") : pickName(locale, booking.scanNames) ?? t("radiology.label");
   const status = diagStatus(booking.state);
   const statusText = status.key === "unknown" ? t("statusUnavailable") : w(`status_${status.key}`);
   const when = booking.scheduledAt ? formatWhen(locale, booking.scheduledAt) : null;

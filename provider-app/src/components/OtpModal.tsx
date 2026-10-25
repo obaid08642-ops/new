@@ -53,7 +53,7 @@ export const OtpModal = ({ visible, onClose, onVerify, target, type = 'email', o
   };
 
   const handleChange = (val: string, index: number) => {
-    // Autofill / paste of the full code (keyboard suggestion or SMS autofill)
+    // Autofill / paste of the full code (keyboard suggestion or paste)
     if (val.length > 1) {
       distribute(val, index === 0 ? 0 : index);
       return;
@@ -141,7 +141,7 @@ export const OtpModal = ({ visible, onClose, onVerify, target, type = 'email', o
                 }}
                 keyboardType="number-pad"
                 maxLength={index === 0 ? OTP_LEN : 1}
-                autoComplete={index === 0 ? (Platform.OS === 'android' ? 'sms-otp' : 'one-time-code') : 'off'}
+                autoComplete={index === 0 ? 'one-time-code' : 'off'}
                 textContentType={index === 0 ? 'oneTimeCode' : 'none'}
                 importantForAutofill={index === 0 ? 'yes' : 'no'}
                 style={{

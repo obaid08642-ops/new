@@ -17,7 +17,7 @@ const CATEGORY_LABEL = {
   appointments: "catAppointments", orders: "catOrders", health: "catHealth",
   chat: "catChat", account: "catAccount", marketing: "catMarketing",
 } as const;
-const CHANNEL_LABEL = { push: "chPush", email: "chEmail", sms: "chSms" } as const;
+const CHANNEL_LABEL = { push: "chPush", email: "chEmail" } as const;
 
 /**
  * `/settings/notifications` (merge map section 3): the one notification-preferences screen, GET and PATCH

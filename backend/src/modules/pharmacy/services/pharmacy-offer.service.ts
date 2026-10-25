@@ -9,6 +9,7 @@ import { BusinessRulesService } from '../../business-rules/business-rules.module
 import { PharmacyNotificationService } from './pharmacy-notification.service';
 import { CATALOGUE_PROJECTION, cataloguePrice, catalogueSku } from './catalogue-lines';
 import { assertSubstituteInsidePrescription } from './rx-rules';
+import { syncLineReviews } from '../price-review';
 
 const OFFER_TTL_MS = 10 * 60_000;
 const ACTIVE_PHARMACY_STATUSES = ['approved', 'active'];
@@ -287,27 +288,27 @@ export class PharmacyOfferService {
   }
 
   /**
-   * D-12: the admin review list holds one row per offer (kept current as the draft changes and on
-   * submit) and the admin gets one notice per offer with a line above the catalogue price.
-   * A draft with nothing to check clears its open row.
+   * The admin review list holds one row per offer for the lines that map to no catalogue item (`not_verified`), kept current as the draft
+   * changes and on submit. A line ABOVE the catalogue price (owner decision 2026-10-25, which supersedes OD-12: the pharmacist may price above
+   * it) is a `PriceReview` row of its own per line, with one admin notice per pharmacy + medicine per day: see `price-review.ts`.
    */
   private async reportPriceReview(offer: any, orderId: string) {
+    await syncLineReviews(this.connection, offer, orderId);
     const reviews = this.connection.collection('pharmacy_price_reviews');
-    const lines = (offer.items || []).filter((i: any) => i.above_catalogue_price === true || i.price_check === 'not_verified');
+    const lines = (offer.items || []).filter((i: any) => i.price_check === 'not_verified');
     if (!lines.length) {
       await reviews.deleteOne({ offer_id: offer.id, status: 'open' });
       return;
     }
     const now = new Date();
-    const res: any = await reviews.findOneAndUpdate(
+    await reviews.findOneAndUpdate(
       { offer_id: offer.id },
       {
         $set: {
           order_id: orderId, offer_version: offer.version, offer_status: offer.status, pharmacy_account_id: offer.pharmacy_account_id,
           lines: lines.map((i: any) => ({
             order_item_id: i.order_item_id, medicine_id: i.medicine_id || null, sku: i.sku ?? null, name_ar: i.name_ar ?? null, name_en: i.name_en ?? null,
-            reason: i.above_catalogue_price ? 'price_above_catalogue' : 'not_verified',
-            catalogue_price: i.catalogue_price ?? null, offered_price: i.unit_price ?? null,
+            reason: 'not_verified', catalogue_price: i.catalogue_price ?? null, offered_price: i.unit_price ?? null,
           })),
           status: 'open', updatedAt: now,
         },
@@ -315,15 +316,6 @@ export class PharmacyOfferService {
       },
       { upsert: true, returnDocument: 'after' },
     );
-    const reviewId = (res?.value ?? res)?.id;
-    if (lines.some((i: any) => i.above_catalogue_price === true)) {
-      await this.connection.collection('notifications').updateOne(
-        { role: 'admin', type: 'pharmacy_price_review', 'body.offer_id': offer.id },
-        { $setOnInsert: { id: uuidv4(), user_id: 'admin', role: 'admin', type: 'pharmacy_price_review', title_key: 'admin.pharmacy.price_above_catalogue',
-          body: { order_id: orderId, offer_id: offer.id, review_id: reviewId }, read: false, createdAt: now } },
-        { upsert: true },
-      );
-    }
   }
 
   private async serverQuote(userId: string, order: any, inputs: ProviderOfferItemInput[], preparationMinutes?: number, etaMinutes?: number) {

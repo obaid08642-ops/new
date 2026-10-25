@@ -193,7 +193,7 @@ describe('every listed switch is enforced where its action starts (nothing else 
 
   it('new_registrations: both register contracts refused before the OTP or users are touched', async () => {
     const u = untouched;
-    const auth = new AuthService(u(), u(), u(), u(), u(), undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, off('new_registrations'));
+    const auth = new AuthService(u(), u(), u(), u(), u(), undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, off('new_registrations'));
     await expectOff(auth.register({ full_name: 'x', email: 'a@b.test', password: 'Str0ng!Pass1' }), 'new_registrations');
     await expectOff(auth.registerPatientContract({ name: 'x', identifier: 'a@b.test', password: 'Str0ng!Pass1', locale: 'ar', consents: [] }), 'new_registrations');
   });

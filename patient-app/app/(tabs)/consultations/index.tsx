@@ -2,13 +2,15 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
+import { mapHref } from '../../../src/utils/mapEntry';
 import { AppHeader, Chip, DoctorCard, EmptyState, ErrorState, FIcon, OfferCard, Screen, Search, useTabBarHeight } from '../../../../packages/ui-native/src';
 import { COLUMN, step as scale, useScreenUi } from '../../../src/components/screen/ScreenKit';
 import { MODE_LOOK, Section, Sheet, goBack, visitMode, specialtyLook, type VisitMode } from '../../../src/components/consult/ConsultKit';
 import { Glyph } from '../../../src/components/pharmacy/PharmacyKit';
 import { apiFetch } from '../../../src/utils/api';
+import { fetchPublicList } from '../../../src/utils/publicCache';
 import { logError } from '../../../src/utils/logger';
-import { buildDoctorsPath, doctorRows, keepsServerOrder, nearestApplies, resolveNearbyPlace, type NearbyPlace } from '../../../src/utils/consultNearby';
+import { DOCTOR_DEGREES, buildDoctorsPath, doctorRows, type DoctorDegree, keepsServerOrder, nearestApplies, resolveNearbyPlace, type NearbyPlace } from '../../../src/utils/consultNearby';
 import { deviceNearbyDeps } from '../../../src/utils/consultNearbyDevice';
 import { pickLocalized } from '../../../src/utils/localize';
 import { sortFromParam } from '../../../src/utils/doctorSearch';
@@ -94,10 +96,9 @@ interface Named {
 }
 
 type Sort = 'rating' | 'price' | 'available_today';
-type TitleF = 'all' | 'specialist' | 'consultant';
+type TitleF = 'all' | DoctorDegree;
 type GenderF = 'all' | 'male' | 'female';
 type PriceF = 'all' | 'low' | 'mid' | 'high';
-const TITLE_WORDS: Record<Exclude<TitleF, 'all'>, string[]> = { specialist: ['أخصائي', 'specialist'], consultant: ['استشاري', 'consultant'] };
 const priceOf = (d: Doc): number => d.consultation_fee || Number(String(d.p ?? '0').replace(/\D/g, '')) || 0;
 
 export default function Consultations() {
@@ -138,7 +139,7 @@ export default function Consultations() {
   const [place, setPlace] = useState<NearbyPlace | null>(null);
   const [locating, setLocating] = useState(false);
   const [noPlace, setNoPlace] = useState(false);
-  const doctorsPath = buildDoctorsPath({ mode: activeVt, nearest, availableNow, place, availableToday: filterSort === 'available_today' });
+  const doctorsPath = buildDoctorsPath({ mode: activeVt, nearest, availableNow, place, availableToday: filterSort === 'available_today', degree: filterTitle === 'all' ? null : filterTitle });
 
   const toggleNearest = async () => {
     if (nearest) {
@@ -181,7 +182,7 @@ export default function Consultations() {
 
   useEffect(() => {
     // Real specialties (names + live doctor counts) and real active offers
-    apiFetch<Spec[] | { data?: Spec[] }>('/care/specialties')
+    fetchPublicList<Spec[] | { data?: Spec[] }>('/care/specialties')
       .then((res) => {
         const list = Array.isArray(res) ? res : res?.data;
         setSpecialties(Array.isArray(list) ? list : []);
@@ -272,11 +273,10 @@ export default function Consultations() {
 
         // Modal filters — real fields only (no name-based gender guessing)
         const matchesGender = filterGender === 'all' || !d.gender || (filterGender === 'male' ? d.gender === 'male' : d.gender === 'female');
-        const matchesTitle = filterTitle === 'all' || TITLE_WORDS[filterTitle].some((w) => (d.sp || d.badge || d.biography || '').toLowerCase().includes(w));
         const price = priceOf(d);
         const matchesPrice = filterPrice === 'all' || (filterPrice === 'low' ? price < 100 : filterPrice === 'mid' ? price >= 100 && price <= 200 : price > 200);
 
-        return matchesSearch && matchesVt && matchesPay && matchesSpec && matchesGender && matchesTitle && matchesPrice;
+        return matchesSearch && matchesVt && matchesPay && matchesSpec && matchesGender && matchesPrice;
       })
       .sort((a, b) => {
         // "Nearest": the server's distance order is kept (the sort is stable)
@@ -308,7 +308,10 @@ export default function Consultations() {
         title={k('consult.hub.title')}
         onBack={() => goBack('/(tabs)' as Href)}
         backLabel={k('consult.back')}
-        actions={[{ key: 'appointments', label: k('consult.appt.title'), icon: <Glyph name="calendar-dots" size={20} color={c.icon.primary} />, onPress: () => router.push('/consultations/appointments' as Href) }]}
+        actions={[
+          { key: 'map', label: k('services.cat.map'), icon: <Glyph name="map-pin-line" size={20} color={c.icon.primary} />, onPress: () => router.push(mapHref('doctor') as Href) },
+          { key: 'appointments', label: k('consult.appt.title'), icon: <Glyph name="calendar-dots" size={20} color={c.icon.primary} />, onPress: () => router.push('/consultations/appointments' as Href) },
+        ]}
         theme={theme}
         direction={dir}
       />
@@ -461,7 +464,7 @@ export default function Consultations() {
 
       <Sheet open={showFilter} title={k('consult.hub.advanced')} onClose={() => setShowFilter(false)} closeLabel={k('consult.close')}>
         {choice<Sort>(k('consult.hub.sort'), filterSort, setFilterSort, [['rating', k('consult.hub.sortRating')], ['price', k('consult.hub.sortPrice')], ['available_today', k('consult.hub.sortAvailable')]])}
-        {choice<TitleF>(k('consult.hub.grade'), filterTitle, setFilterTitle, [['all', k('consult.hub.all')], ['specialist', k('consult.hub.specialist')], ['consultant', k('consult.hub.consultant')]])}
+        {choice<TitleF>(k('consult.hub.grade'), filterTitle, setFilterTitle, [['all', k('consult.hub.all')], ...DOCTOR_DEGREES.map((g): [TitleF, string] => [g, k(`consult.hub.degree.${g}`)])])}
         {choice<GenderF>(k('consult.hub.gender'), filterGender, setFilterGender, [['all', k('consult.hub.all')], ['male', k('consult.hub.male')], ['female', k('consult.hub.female')]])}
         {choice<PriceF>(k('consult.hub.price'), filterPrice, setFilterPrice, [['all', k('consult.hub.all')], ['low', k('consult.hub.priceLow', { n: num(100) })], ['mid', k('consult.hub.priceMid', { a: num(100), b: num(200) })], ['high', k('consult.hub.priceHigh', { n: num(200) })]])}
         <View style={{ flexDirection: 'row', gap: 10 }}>

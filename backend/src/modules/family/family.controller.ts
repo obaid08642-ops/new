@@ -31,7 +31,7 @@ export class FamilyController {
   }
 
   /**
-   * With a channel (sms/email) the invite is sent there and the code is not in the answer. Without one (issue 694: the apps'
+   * With a channel (email) the invite is sent there and the code is not in the answer. Without one (issue 694: the apps'
    * "invite code" tab and its QR), the group owner gets the group's own code, valid 24 hours (generateInvite: owner only).
    */
   @Post('invite')

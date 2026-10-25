@@ -10,7 +10,6 @@ import { resolve } from "node:path";
 const files = [
   "app/[locale]/home-care/page.tsx",
   "app/[locale]/home-care/providers/page.tsx",
-  "app/[locale]/home-care/services/page.tsx",
   "app/[locale]/home-care/services/[serviceId]/page.tsx",
   "app/[locale]/nursing/catalog/page.tsx",
   "app/[locale]/nursing/insurance-status/page.tsx",

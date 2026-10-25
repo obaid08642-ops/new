@@ -8,6 +8,9 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ChatComposer } from "@/components-next/consult/chat-composer";
+import { VoiceNoteRecorder } from "@/components-next/consult/voice-note-recorder";
+import { VoiceNotePlayer } from "@/components-next/consult/voice-note-player";
+import { voiceNoteAllowed } from "@/lib/chat/voice-note";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { ActionLinks, Notice, RowCard } from "@/components-next/consult/consult-parts";
 import { LocalTimeLine } from "@/components-next/consult/local-time-line";
@@ -88,7 +91,8 @@ export default async function ChatThreadPage({ params }: Props) {
                   <>
                     {message.text ? <p className={styles.rowSub} dir="auto" data-testid="chat-message-text">{message.text}</p> : null}
                     {message.createdAt ? <LocalTimeLine iso={message.createdAt} locale={locale} className={styles.rowSub} /> : null}
-                    {message.hasAttachment ? <span className={styles.rowSub}>{t("attachmentHidden")}</span> : null}
+                    {message.voice ? <VoiceNotePlayer mediaId={message.voice.mediaId} durationSeconds={message.voice.durationSeconds} /> : null}
+                    {message.hasAttachment && !message.voice ? <span className={styles.rowSub}>{t("attachmentHidden")}</span> : null}
                   </>
                 }
               />
@@ -98,6 +102,8 @@ export default async function ChatThreadPage({ params }: Props) {
       )}
       {/* issue 806: text composer, only where the server's rules say the patient may chat and the thread is not read-only */}
       {permissions?.canChat && !permissions.readOnly ? <ChatComposer threadId={threadId} /> : null}
+      {/* items 388 / 799: voice notes only where the server says can_voice (online consultations), like the app */}
+      {voiceNoteAllowed(permissions) ? <VoiceNoteRecorder threadId={threadId} /> : null}
       {closed ? <Notice>{t("closed")}</Notice> : null}
       {followUpHref ? <ActionLinks actions={[{ href: followUpHref, label: t("bookFollowUp") }]} /> : null}
       <Notice>{t("bodyHidden")}</Notice>

@@ -19,7 +19,7 @@ const KNOWN: ReadonlyArray<readonly [RegExp, string]> = [
   [/phone already registered/i, 'errors.phoneRegistered'],
   [/identifier_already_registered/i, 'errors.accountRegistered'],
   [/user not found/i, 'errors.userNotFound'],
-  [/otp_channel_unavailable/i, 'errors.otpUnavailable'],
+  [/otp_no_channel|otp_channel_unavailable/i, 'errors.otpUnavailable'],
   [/code_required|otp_required/i, 'errors.codeRequired'],
   [/request_timeout/i, 'errors.timeout'],
   [/offline_error|network error|offline_mutation_pending/i, 'errors.offline'],

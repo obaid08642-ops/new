@@ -144,7 +144,8 @@
     "recordsMoodNotLogged": "Hindi mo pa naitala ang mood ngayon",
     "recordsMaternity": "Pangangalaga sa ina",
     "recordsPregnancy": "Pagsubaybay sa pagbubuntis",
-    "recordsCycle": "Pagsubaybay sa cycle"
+    "recordsCycle": "Pagsubaybay sa cycle",
+    "notificationsUnread": "Mga abiso, may bago"
   },
   "Login": {
     "title": "Mag-sign in",
@@ -175,7 +176,7 @@
     "otpRequestInvalid": "Hindi maipadala ang code. Suriin ang email o numero at subukang muli.",
     "otpInvalid": "Hindi tinanggap ang one-time code. Subukan muli.",
     "otpExchangeInvalid": "Hindi natapos ang pag-sign in mo. Subukang muli.",
-    "otpUnavailable": "Hindi makapagpadala ng code ngayon. Subukang muli sa ilang sandali.",
+    "otpUnavailable": "Hindi naipadala ang code. Ang mga code ay napupunta sa mga notification ng app at sa iyong email, kaya magdagdag ng email sa account mo kung wala pa, saka subukan muli.",
     "guestContinue": "Magpatuloy bilang guest",
     "guestLoading": "Binubuksan ang guest access…",
     "forgotPassword": "Nakalimutan ang password?",
@@ -194,6 +195,7 @@
     "appleUnavailable": "Hindi available ngayon ang pag-sign in gamit ang Apple. Gumamit ng ibang paraan ng pag-sign in.",
     "apple": "Apple",
     "googleUnavailable": "Hindi available ngayon ang Google sign-in. Gumamit ng ibang paraan ng pag-sign in.",
+    "providerUnavailable": "Hindi available ngayon ang {name} sign-in. Gumamit ng ibang paraan ng pag-sign in.",
     "google": "Google",
     "x": "X",
     "snapchat": "Snapchat",
@@ -342,7 +344,10 @@
       "radiology": "Radyolohiya",
       "nursing": "Pangangalaga ng nars",
       "returns": "Mga return at refund"
-    }
+    },
+    "emptyKindCurrentTitle": "Walang kasalukuyang order: {service}",
+    "emptyKindPreviousTitle": "Walang nakaraang order: {service}",
+    "emptyKindBody": "Wala pa sa serbisyong ito. Piliin ang Lahat para makita ang iba mong order."
   },
   "Cart": {
     "eyebrow": "Pribadong cart",
@@ -959,7 +964,8 @@
     "chronicStop": "Itigil ang refill tracking",
     "chronicUpdateFailed": "Hindi na-update ang refill follow-up.",
     "confirmAction": "Kumpirmahin",
-    "photoInvalid": "Pumili ng larawang hindi lalampas sa 5 megabyte."
+    "photoInvalid": "Pumili ng larawang hindi lalampas sa 5 megabyte.",
+    "rxPurchased": "Nabili na"
   },
   "Prescriptions": {
     "title": "Mga reseta",
@@ -1084,7 +1090,6 @@
     "catMarketing": "Mga alok at balita sa kalusugan",
     "chPush": "Mga abiso sa telepono",
     "chEmail": "Email address",
-    "chSms": "Mga text message",
     "saveFailed": "Hindi na-save ang pagbabago. Subukang muli.",
     "unavailable": "Hindi available sa ngayon",
     "unavailableTitle": "Hindi ma-load ang mga setting",
@@ -1179,6 +1184,30 @@
       "forbidden": "Hindi makapagpadala ng mensahe sa usapang ito ngayon.",
       "network": "Hindi makakonekta. Hindi pa naipapadala ang iyong mensahe; subukan muli.",
       "generic": "Hindi naipadala ang mensahe. Subukan muli."
+    },
+    "voice": {
+      "title": "Mensaheng boses",
+      "record": "Mag-record ng mensaheng boses",
+      "recording": "Nagre-record {time}",
+      "stop": "Ihinto ang pagre-record",
+      "cancel": "Kanselahin",
+      "previewLabel": "Pakinggan bago ipadala, {time}",
+      "send": "Ipadala ang mensaheng boses",
+      "sending": "Ipinapadala",
+      "retry": "Subukan muli",
+      "discard": "Itapon",
+      "maxReached": "Huminto ang pagre-record sa limitasyong {minutes} minuto.",
+      "play": "I-play",
+      "pause": "I-pause",
+      "playerLabel": "Mensaheng boses, {time}",
+      "errors": {
+        "denied": "Naka-block ang access sa mikropono. Payagan ito sa site settings ng browser, saka subukan muli.",
+        "unsupported": "Hindi makapag-record ng voice note ang browser na ito. Gamitin ang app o ibang browser.",
+        "recordFailed": "Hindi gumana ang pagre-record. Tingnan ang mikropono at subukan muli.",
+        "uploadFailed": "Hindi naipadala ang mensaheng boses. Subukan muli.",
+        "forbidden": "Hindi makapagpadala ng voice note sa usapang ito sa ngayon.",
+        "loadFailed": "Hindi na-load ang mensaheng boses. Subukan muli."
+      }
     }
   },
   "Sleep": {
@@ -1632,6 +1661,9 @@
     }
   },
   "Emergency": {
+    "callEmergency": "Tumawag sa emergency {number}",
+    "urgentCall": "Tumawag sa agarang tulong {number}",
+    "urgentUnavailable": "Wala pang naka-set na numero ng agarang tulong. Sa emergency, tumawag sa 997.",
     "title": "Agarang tulong",
     "intro": "Kung kailangan mo ng agarang tulong, tawagan ang numero ng agarang tulong na itinakda sa Nabd Plus.",
     "call": "Tawagan ang {number}",
@@ -1718,7 +1750,9 @@
     "suggestFieldLabel": "Datos na itatama",
     "suggestSending": "Ipinapadala…",
     "suggestSignIn": "Mag-sign in para maipadala ang iyong mungkahi.",
-    "suggestSignInAction": "Mag-sign in"
+    "suggestSignInAction": "Mag-sign in",
+    "coldChain": "Kailangang ilagay sa ref",
+    "interactions": "Mga interaksyon ng gamot"
   },
   "Wallet": {
     "wallet": "Pitaka",
@@ -1766,7 +1800,9 @@
     "useMyLocation": "Gamitin ang kasalukuyang lokasyon ko",
     "locating": "Hinahanap ang lokasyon mo…",
     "locationSet": "Naitakda na ang lokasyon ng address.",
-    "locateFailed": "Hindi makuha ang kasalukuyang lokasyon mo."
+    "locateFailed": "Hindi makuha ang kasalukuyang lokasyon mo.",
+    "building": "Numero ng gusali",
+    "floor": "Palapag"
   },
   "ShareReport": {
     "title": "Ibahagi ang mga Ulat",
@@ -2506,7 +2542,15 @@
     "hubOrderAgain": "Ulitin ang nakaraang order",
     "hubOrderAgainAction": "Mag-order",
     "hubOneItem": "1 aytem",
-    "hubItems": "{n, number} aytem"
+    "hubItems": "{n, number} aytem",
+    "filterForm": "Anyo ng gamot",
+    "filterBrand": "Gumagawa",
+    "filterRx": "Reseta",
+    "filterRxAny": "Alinman",
+    "filterRxOnly": "May reseta lang",
+    "filterRxNone": "Walang reseta",
+    "filterPriceMin": "Pinakamababang presyo",
+    "filterPriceMax": "Pinakamataas na presyo"
   },
   "PharmacyOffers": {
     "backToOrder": "Bumalik sa order",
@@ -2868,7 +2912,8 @@
     "emptyBody": "Magdagdag ng address na may lokasyon sa mapa para makatanggap ng mga order sa botika.",
     "emptyAction": "Magdagdag ng address",
     "errorTitle": "Hindi ma-load ang mga address mo",
-    "errorBody": "Tingnan ang koneksyon mo at subukan ulit."
+    "errorBody": "Tingnan ang koneksyon mo at subukan ulit.",
+    "addOnMap": "Magdagdag ng address sa mapa"
   },
   "ConsultWeb": {
     "tabUpcoming": "Paparating",
@@ -3610,7 +3655,13 @@
     "addressLocating": "Hinahanap ang iyong lokasyon...",
     "addressLocationSet": "Gagamitin ang kasalukuyan mong lokasyon para sa pagbisita",
     "addressUseSaved": "Gumamit na lang ng naka-save na address",
-    "addressLocationDenied": "Hindi makuha ang iyong lokasyon. Payagan ang access sa lokasyon o pumili ng naka-save na address."
+    "addressLocationDenied": "Hindi makuha ang iyong lokasyon. Payagan ang access sa lokasyon o pumili ng naka-save na address.",
+    "filterAvailability": "Kung kailan available",
+    "filterNationality": "Nasyonalidad",
+    "nationality_any": "Lahat",
+    "nationality_Saudi": "Taga-Saudi",
+    "nationality_Filipino": "Pilipino",
+    "nationality_Egyptian": "Taga-Egypt"
   },
   "MaternityWeb": {
     "title": "Pagbubuntis",
@@ -4160,7 +4211,11 @@
       "copayPercent": "Bahagi mo, % (opsyonal)",
       "copayCap": "Pinakamataas kada item, SAR (opsyonal)",
       "copayPercentInvalid": "Maglagay ng numero mula 0 hanggang 100.",
-      "copayCapInvalid": "Maglagay ng halagang 0 o higit pa."
+      "copayCapInvalid": "Maglagay ng halagang 0 o higit pa.",
+      "class": "Klase",
+      "companySearch": "Hanapin ang iyong insurer",
+      "companyNone": "Walang insurer na tugma",
+      "chiLink": "Alamin ang iyong insurance"
     },
     "coverage": {
       "title": "Ano ang saklaw ng polisiya ko",
@@ -5486,6 +5541,31 @@
     "errNetwork": "Walang koneksyon. Suriin ang internet at subukan muli.",
     "errBusy": "Masyadong maraming request. Maghintay sandali at subukan muli.",
     "loadErr": "Hindi ma-load ang page",
+    "retry": "Subukan muli"
+  },
+  "AddressMap": {
+    "title": "Piliin ang address sa mapa",
+    "mapLabel": "Mapa ng address",
+    "hint": "Igalaw ang mapa para nasa pinto mo ang pin. Sa keyboard: ang mga arrow key ang gumagalaw sa pin, ang plus at minus ang nagza-zoom.",
+    "zoomIn": "Mag-zoom in",
+    "zoomOut": "Mag-zoom out",
+    "pinLabel": "Pin: ang lokasyon ng address",
+    "loading": "Nilo-load ang mapa…",
+    "noMapTitle": "Walang magagamit na mapa",
+    "noMapBody": "Magagamit mo pa rin ang iyong lokasyon, pumili ng lungsod at distrito, o ilagay ang short address code sa mga field sa ibaba.",
+    "useMyLocation": "Gamitin ang aking lokasyon",
+    "locating": "Hinahanap ang iyong lokasyon…",
+    "located": "Nasa iyong lokasyon na ang pin.",
+    "denied": "Tinanggihan ang pahintulot sa lokasyon. Payagan ito sa settings ng browser, o ikaw na ang gumalaw ng mapa.",
+    "locateFailed": "Hindi mahanap ang iyong lokasyon. Ikaw na ang gumalaw ng mapa.",
+    "coords": "Pin sa: {point}",
+    "noPin": "Igalaw ang mapa para ilagay ang pin, o gamitin ang iyong lokasyon.",
+    "finding": "Hinahanap ang address…",
+    "found": "Nahanap ang address. Suriin ang mga detalye sa ibaba.",
+    "errOutside": "Nasa labas ito ng aming service area. Ilipat ang pin sa loob ng Kaharian.",
+    "errNotFound": "Walang nahanap na address dito. Ilipat ang pin, o punan ang mga detalye sa ibaba.",
+    "errUnavailable": "Hindi available ang address service ngayon. Punan ang mga detalye sa ibaba, o subukan muli.",
+    "errNetwork": "Mukhang offline ka. Punan ang mga detalye sa ibaba, o subukan muli.",
     "retry": "Subukan muli"
   }
 }

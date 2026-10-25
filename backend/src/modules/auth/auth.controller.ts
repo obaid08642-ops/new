@@ -3,6 +3,8 @@ import { AuthLoginDto, AuthVerify2faDto, RefreshDto, LogoutDto, RecordConsentDto
 import { PresenceService } from '../presence/presence.service';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
+import { PublicCache } from '../../common/public-cache.decorator';
+import { buildSocialConfig } from './social-config';
 
 const DEVICE_COOKIE = 'nabd_admin_device';
 const PATIENT_ACCESS_COOKIE = 'nabd_patient_access';
@@ -123,7 +125,7 @@ export class AuthController {
   @Post('otp/request')
   patientOtpRequest(@Body() dto: PatientOtpRequestDto, @Req() req: Request) {
     // 16.3: the caller's address bounds how many distinct numbers one caller
-    // may target, which is what stops SMS-pumping fan-out.
+    // may target, which is what stops fan-out over many numbers.
     return this.auth.requestPatientOtp(dto.identifier, clientIp(req));
   }
 
@@ -357,7 +359,7 @@ export class AuthController {
   // kept with deprecation headers. Canonical: otp/request, otp/verify, password/reset.
   @Public()
   @Header('Deprecation', 'true')
-  @Throttle({ default: { limit: 5, ttl: 60000 } }) // E5-F4 SMS-bombing guard
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // E5-F4 OTP-flooding guard
   @Post('send-otp')
   sendOtp(@Body() body: SendOtpDto, @Req() req: Request) {
     this.log.warn('deprecated auth alias called: send-otp (canonical: otp/request)');
@@ -384,6 +386,14 @@ export class AuthController {
     const id = body.identifier || body.email || body.phone || '';
     if (!body?.code) throw new BadRequestException('code_required');
     return this.auth.resetPassword(id, body.password, body.code);
+  }
+
+  /** Which social providers this backend can finish, and their PUBLIC client ids / redirect URIs (never a secret). The clients read it at run time. */
+  @Public()
+  @PublicCache(300, ['auth-social-config'])
+  @Get('social/config')
+  socialConfig() {
+    return buildSocialConfig();
   }
 
   @Public()

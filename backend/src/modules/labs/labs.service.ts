@@ -49,7 +49,7 @@ function publicProvider(p: any) {
  */
 export function labSearchClause(search: string): Array<Record<string, RegExp>> {
   const re = new RegExp(search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
-  return ['name_ar', 'name_en', 'name_ur', 'name_hi', 'name_bn', 'name_tl', 'short_code'].map((field) => ({ [field]: re }));
+  return ['name_ar', 'name_en', 'short_code'].map((field) => ({ [field]: re }));
 }
 
 @Injectable()

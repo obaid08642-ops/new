@@ -6,6 +6,7 @@ import { tokens, type ThemeName } from '../../../../packages/design-tokens/dist/
 import { BrandMark, Icon, IconButton, SHELL_FONT } from '../../../../packages/ui-native/src';
 import { withAlpha } from '../../../../packages/ui-native/src/shells/shellTokens';
 import { useApp } from '../../context/AppContext';
+import type { SocialRuntimeConfig } from '../../hooks/useSocialConfig';
 import { autoTranslate } from '../../i18n';
 import { LocalizedText } from '../LocalizedText';
 import { NabdLogo } from '../NabdLogo';
@@ -274,16 +275,12 @@ export type SocialProvider = 'apple' | 'google' | 'x' | 'snapchat';
  * it shows the plain "not available" message (hooks/useSocialLogin.ts).
  */
 /**
- * Providers the backend verifies (Q107): Apple (identity token checked against Apple's keys)
- * and Google. X and Snapchat are refused by the server until it verifies them through the
- * provider's own API, so their buttons stay hidden unless EXPO_PUBLIC_SOCIAL_X_SNAPCHAT=1.
+ * The providers to draw (owner, 2026-10-25): ALWAYS Apple on iOS (never Android), Google, X and Snapchat. The providers review the
+ * live button before they approve the app, so a button shows before its keys are set; pressing one the backend has no keys for
+ * shows the plain "not available" message (hooks/useSocialLogin.ts). `config` stays accepted so the call sites do not change.
  */
-export function availableSocialProviders(): SocialProvider[] {
-  const list: SocialProvider[] = [];
-  if (Platform.OS === 'ios') list.push('apple');
-  list.push('google');
-  if (process.env.EXPO_PUBLIC_SOCIAL_X_SNAPCHAT === '1') list.push('x', 'snapchat');
-  return list;
+export function availableSocialProviders(_config?: SocialRuntimeConfig | null): SocialProvider[] {
+  return Platform.OS === 'ios' ? ['apple', 'google', 'x', 'snapchat'] : ['google', 'x', 'snapchat'];
 }
 
 const PROVIDER_NAME: Record<SocialProvider, string> = { apple: 'Apple', google: 'Google', x: 'X', snapchat: 'Snapchat' };

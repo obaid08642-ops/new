@@ -3,7 +3,7 @@ import { z } from "zod";
 const prescriptionIdSchema = z.string().uuid();
 
 export type PrescriptionItem = { name?: string; dose?: string; frequencyHours?: number; durationDays?: number; instructions?: string };
-export type PrescriptionSummary = { id: string; state?: string; itemCount: number; createdAt?: string; doctorName?: string; medicationNames: string[]; items: PrescriptionItem[] };
+export type PrescriptionSummary = { id: string; state?: string; itemCount: number; createdAt?: string; doctorName?: string; medicationNames: string[]; items: PrescriptionItem[]; /** issue 1819: an order was made from it (GET /prescriptions/mine `isPurchased`). */ isPurchased?: boolean; /** issue 1819: it was uploaded as a photo (`isOcr`). */ isOcr?: boolean };
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
@@ -40,7 +40,7 @@ function prescriptionFrom(value: unknown): PrescriptionSummary | null {
   const doctorName = [record.doctorName, record.doctor_name, doctor?.name].find((value) => typeof value === "string" && value.trim()) as string | undefined;
   const items = (Array.isArray(record.medications) ? record.medications : Array.isArray(record.items) ? record.items : []).flatMap((item) => { const parsed = itemFrom(item); return parsed ? [parsed] : []; });
   const medicationNames = items.flatMap((item) => item.name ? [item.name] : []);
-  return { id: id.data, state, itemCount: items.length, createdAt, doctorName, medicationNames, items };
+  return { id: id.data, state, itemCount: items.length, createdAt, doctorName, medicationNames, items, isPurchased: record.isPurchased === true, isOcr: record.isOcr === true };
 }
 
 export function extractPrescriptionSummaries(payload: unknown) {

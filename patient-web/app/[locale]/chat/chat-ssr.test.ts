@@ -20,7 +20,6 @@ vi.mock("@/components-next/core/core-shell", async () => {
   return { CoreShell: ({ children, backHref }: { children: unknown; backHref?: string }) => createElement("div", { "data-shell": true }, createElement("a", { href: backHref }, "back"), children as never) };
 });
 
-import ChatPage from "./page";
 import ChatThreadPage from "./[threadId]/page";
 
 const threadId = "91047ef2-ad36-422a-a184-629693e7c729";
@@ -36,10 +35,6 @@ describe("the doctor thread of a booking (decision 24)", () => {
     state.permissions.mockReset().mockResolvedValue(json({}, 404));
     state.api.mockReset();
     state.requirePatientAccess.mockReset().mockResolvedValue(serverToken);
-  });
-
-  it("the chat list is gone: it goes to the bookings list", async () => {
-    await expect(ChatPage({ params: Promise.resolve({ locale: "en" }) })).rejects.toThrow("redirect:/en/appointments");
   });
 
   it("shows the doctor's reply (B27) and the emergency number: no names, attachments or token", async () => {

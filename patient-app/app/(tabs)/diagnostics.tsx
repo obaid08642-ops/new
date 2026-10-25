@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { RefreshControl, Text, View } from 'react-native';
+import { RefreshControl, ScrollView, Text, View } from 'react-native';
+import { MapEntryButton } from '../../src/components/account/MapEntryButton';
 import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
 
-import { EmptyState, ErrorState, OfflineState, Radio, Screen, Search, Segmented, useTabBarHeight } from '../../../packages/ui-native/src';
+import { Chip, EmptyState, ErrorState, OfflineState, Radio, Screen, Search, Segmented, useTabBarHeight } from '../../../packages/ui-native/src';
 import { CARE_TONE, Section, Sheet } from '../../src/components/consult/ConsultKit';
 import {
   CartBar,
@@ -26,6 +27,7 @@ import {
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
+import { fetchPublicList } from '../../src/utils/publicCache';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { insuranceOffered, normalizeLabList, normalizeProviders, type CatalogItem, type LabProvider } from '../../src/utils/labMappers';
@@ -66,6 +68,9 @@ export default function DiagnosticsHub() {
   const [tests, setTests] = useState<CatalogItem[]>([]);
   const [rads, setRads] = useState<CatalogItem[]>([]);
   const [labs, setLabs] = useState<LabProvider[]>([]);
+  // radiology: the scan types GET /radiology/modalities lists, and the one chosen (the server filters, as on the web)
+  const [modalities, setModalities] = useState<string[]>([]);
+  const [modality, setModality] = useState('');
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState<'error' | 'offline' | null>(null);
   const [address, setAddress] = useState<Awaited<ReturnType<typeof resolveEffectiveAddress>>>(null);
@@ -98,9 +103,9 @@ export default function DiagnosticsHub() {
       return null;
     };
     const [pkgsRes, testsRes, radsRes, labsRes] = await Promise.all([
-      apiFetch<unknown>('/labs/packages').catch(miss),
-      apiFetch<unknown>('/labs/services').catch(miss),
-      apiFetch<unknown>('/radiology/services').catch(miss),
+      fetchPublicList<unknown>('/labs/packages').catch(miss),
+      fetchPublicList<unknown>('/labs/services').catch(miss),
+      fetchPublicList<unknown>('/radiology/services').catch(miss),
       apiFetch<unknown>('/providers?type=lab').catch(miss),
     ]);
     setPackages(normalizeLabList(pkgsRes));
@@ -114,6 +119,26 @@ export default function DiagnosticsHub() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    let live = true;
+    fetchPublicList<unknown>('/radiology/modalities')
+      .then((res) => {
+        if (live && Array.isArray(res)) setModalities(res.filter((x): x is string => typeof x === 'string' && x.length > 0));
+      })
+      .catch((err) => logError('diagnostics:tab:modalities', err));
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  // choosing a scan type asks the server for that type only; the first load already holds "all"
+  const pickModality = (value: string) => {
+    setModality(value);
+    apiFetch<unknown>(`/radiology/services${value ? `?modality=${encodeURIComponent(value)}` : ''}`)
+      .then((res) => setRads(normalizeLabList(res)))
+      .catch((err) => logError('diagnostics:tab:modality', err));
+  };
 
   const inCart = (id: string) => items.some((i) => i.id === id);
   const toggle = (item: CatalogItem, kind: 'lab' | 'radiology') => {
@@ -182,6 +207,7 @@ export default function DiagnosticsHub() {
       <View style={{ width: '100%', maxWidth: 440, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 12, gap: 16 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <Text accessibilityRole="header" style={{ flex: 1, minWidth: 0, ...scale(t, 'h1'), color: c.text.primary, ...flow }}>{k('diag.hub.title')}</Text>
+          <MapEntryButton kind="lab" testID="diagnostics-map-entry" />
           <View style={{ flexShrink: 1 }}>
             <PillLink icon="receipt" label={k('diag.hub.myOrders')} onPress={() => router.push('/diagnostics/orders' as Href)} />
           </View>
@@ -318,6 +344,14 @@ export default function DiagnosticsHub() {
           <View style={{ gap: 14 }}>
             <ToneNote icon="info" tone={RAD_TONE} text={place === 'home' ? k('diag.hub.radNoteHome') : k('diag.hub.radNoteClinic')} />
             <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{k('diag.hub.radTitle')}</Text>
+            {modalities.length > 0 ? (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} accessibilityLabel={k('diag.rad.modality')} contentContainerStyle={{ gap: 8 }} testID="rad-modality-filter">
+                <Chip label={k('diag.filter.all')} selected={modality === ''} onPress={() => pickModality('')} theme={theme} testID="rad-modality-all" />
+                {modalities.map((m) => (
+                  <Chip key={m} label={m.toUpperCase()} selected={modality === m} onPress={() => pickModality(m)} theme={theme} testID={`rad-modality-${m}`} />
+                ))}
+              </ScrollView>
+            ) : null}
             {view.rs.length > 0 ? (
               <ListCard>
                 {view.rs.map((rad, i) => (

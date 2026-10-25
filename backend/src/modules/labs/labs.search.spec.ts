@@ -1,15 +1,12 @@
 import { labSearchClause } from './labs.service';
 
-// Walkthrough of the website (issue 1550): the lab search found a test only by its Arabic or English name, so a patient reading
-// the site in Hindi, Bengali, Urdu or Filipino who typed the name they see found nothing.
+// The names of tests are Arabic and English only (owner decision 2026-10-25), so the search reads those two and the short code.
 describe('labSearchClause', () => {
-  it('matches the name in all six languages and the short code', () => {
+  it('matches the Arabic and English name and the short code', () => {
     const clause = labSearchClause('  cbc ');
-    expect(clause.map((c) => Object.keys(c)[0])).toEqual(['name_ar', 'name_en', 'name_ur', 'name_hi', 'name_bn', 'name_tl', 'short_code']);
-    const hindi = labSearchClause('रक्त').find((c) => 'name_hi' in c)?.name_hi as RegExp;
-    expect(hindi.test('संपूर्ण रक्त गणना (CBC)')).toBe(true);
-    const filipino = labSearchClause('pagsukat').find((c) => 'name_tl' in c)?.name_tl as RegExp;
-    expect(filipino.test('Pagsukat ng Vital Signs')).toBe(true);
+    expect(clause.map((c) => Object.keys(c)[0])).toEqual(['name_ar', 'name_en', 'short_code']);
+    const english = clause.find((c) => 'name_en' in c)?.name_en as RegExp;
+    expect(english.test('Complete Blood Count (CBC)')).toBe(true);
   });
 
   it('treats the text literally (no regex injection)', () => {

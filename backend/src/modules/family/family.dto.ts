@@ -53,7 +53,7 @@ export class CreateDto {
 /** POST /family/invite: with a channel and a target the code is sent there; without, the owner gets the code to show (QR). */
 export class InviteDto {
   @IsOptional()
-  @IsIn(["sms", "email"])
+  @IsIn(["email"])
   channel?: string;
 
   @ValidateIf((o: InviteDto) => o.channel !== undefined)

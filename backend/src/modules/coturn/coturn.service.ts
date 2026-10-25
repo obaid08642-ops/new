@@ -59,19 +59,21 @@ export class CoturnService {
    * Compatible with Coturn's REST API auth (--use-auth-secret flag).
    * The username format `<expiry-timestamp>:<userId>` is the Coturn REST API standard.
    */
-  generateCredentials(userId: string, ttlSeconds = 86400): TurnCredentials {
+  generateCredentials(label: string, ttlSeconds = 86400): TurnCredentials {
     if (!this.isConfigured()) throw new ServiceUnavailableException('coturn_not_configured');
     const timestamp = Math.floor(Date.now() / 1000) + ttlSeconds;
-    const username = `${timestamp}:${userId}`;
-    const credential = crypto
+    // Coturn REST API name: `<expiry>:<label>`. HMAC-SHA1 is what coturn's `use-auth-secret` mode requires (it is a MAC, not a
+    // password hash); the label is only an opaque tag for coturn's logs, not a secret.
+    const turnName = `${timestamp}:${label}`;
+    const mac = crypto
       .createHmac('sha1', this.coturnSecret)
-      .update(username)
+      .update(turnName)
       .digest('base64');
 
     return {
       urls: this.iceUrls(),
-      username,
-      credential,
+      username: turnName,
+      credential: mac,
       ttl: ttlSeconds,
       realm: this.turnRealm,
     };
@@ -81,11 +83,11 @@ export class CoturnService {
    * Returns a structured ICE server configuration object ready for WebRTC clients.
    * Separates the STUN entry (no auth needed) from TURN entries (auth required).
    */
-  getIceServers(userId: string): {
+  getIceServers(label: string): {
     iceServers: Array<{ urls: string[]; username?: string; credential?: string }>;
     realm: string;
   } {
-    const creds = this.generateCredentials(userId);
+    const creds = this.generateCredentials(label);
     const urls = this.iceUrls();
     const stunUrls = urls.filter((u) => u.startsWith('stun:'));
     const turnUrls = urls.filter((u) => !u.startsWith('stun:'));

@@ -56,6 +56,23 @@ export function normalizeClinicLocation(v: any): { lat: number; lng: number } {
   return { lat, lng };
 }
 
+/**
+ * LR-10: the registration step 2 sends the clinic's street address as `address` and its map point as `location`, but the public
+ * doctor row (care.service publicDoctor.clinic) reads `clinic_address` / `clinic_location`, so a doctor who only registered never
+ * showed an address. For a doctor those two are filled from step 2 when they are still empty: a clinic address set later in the
+ * profile editor is never overwritten, and an invalid point is ignored here (step 2 does not require one).
+ */
+export function clinicFromRegistration(profile: any, body: any): { clinic_address?: string; clinic_location?: { lat: number; lng: number } } {
+  const out: { clinic_address?: string; clinic_location?: { lat: number; lng: number } } = {};
+  const address = text(body?.address, 300);
+  if (address && !text(profile?.clinic_address, 300)) out.clinic_address = address;
+  const lat = body?.location?.lat, lng = body?.location?.lng;
+  const valid = typeof lat === 'number' && typeof lng === 'number' && Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180 && !(lat === 0 && lng === 0);
+  const has = typeof profile?.clinic_location?.lat === 'number' && typeof profile?.clinic_location?.lng === 'number';
+  if (valid && !has) out.clinic_location = { lat, lng };
+  return out;
+}
+
 /** SA IBAN: SA + 22 digits (spaces tolerated). */
 export function normalizeIban(v: unknown): string | null {
   const s = String(v ?? '').replace(/\s+/g, '').toUpperCase();

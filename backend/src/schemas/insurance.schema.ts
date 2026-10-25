@@ -52,6 +52,9 @@ export class InsuranceNetwork {
   @Prop({ required: true }) name_ar: string;
   @Prop({ required: true }) name_en: string;
   @Prop({ default: 1 }) tier_level: number;
+  /** The class's usual copay figures, offered to the patient when adding a card (they stay editable on the card). Optional: none is published officially, so none is invented. */
+  @Prop({ min: 0, max: 100 }) copay_percent?: number;
+  @Prop({ min: 0, max: 1_000_000 }) copay_cap_sar?: number;
   /** Evidence that this precise company-specific network/tier is official. */
   @Prop() source_url?: string;
   @Prop() source_label?: string;

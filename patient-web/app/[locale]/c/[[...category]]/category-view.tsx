@@ -2,16 +2,18 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { readPublicCategories, readPublicCategoryProducts } from "@/lib/api/public-products-server";
+import { parseCatalogueFilters, readCatalogueFilterOptions, readPublicCategories, readPublicCategoryProducts } from "@/lib/api/public-products-server";
 import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
 import { JsonLd } from "@/components-next/json-ld";
 import { StaleWhileRevalidate } from "@/components-next/nav/stale-while-revalidate";
 import { isLocale, locales, type Locale } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
+import { MapEntryLink } from "@/components-next/map-entry-link";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { CatalogSearch } from "@/components-next/pharmacy/catalog-search";
+import { CatalogueFilterPanel, filtersQuery } from "@/components-next/pharmacy/catalogue-filters";
 import { ChipLink } from "@/components-next/pharmacy/chip-link";
 import { OrderAgainCard } from "@/components-next/pharmacy/order-again-card";
 import { ProductGrid } from "@/components-next/pharmacy/product-grid";
@@ -26,7 +28,7 @@ import styles from "@/components-next/pharmacy/pharmacy.module.css";
  */
 export type CategoryViewProps = {
   params: Promise<{ locale: string; category?: string[] }>;
-  searchParams?: Promise<{ page?: string; q?: string; sort?: string }>;
+  searchParams?: Promise<{ page?: string; q?: string; sort?: string; form?: string; brand?: string; rx?: string; price_min?: string; price_max?: string }>;
 };
 type Props = CategoryViewProps;
 
@@ -86,6 +88,7 @@ export async function CategoryView({ params, searchParams }: Props) {
   const typedLocale = locale as Locale;
   setRequestLocale(typedLocale);
   const t = await getTranslations("PharmacyBrowse");
+  const mapLabel = (await getTranslations("HomeWeb"))("svcMap");
     const decoded = (category || []).map((c) => decodeURIComponent(c));
   if (decoded.length > 2) notFound();
   const sParams = (await searchParams) ?? {};
@@ -93,10 +96,14 @@ export async function CategoryView({ params, searchParams }: Props) {
   const q = (sParams.q || "").trim();
   const sort = parseSort(sParams.sort);
   const [main, sub] = decoded;
+  // issue 1819: dosage form, maker, Rx and price range (the app's filter sheet); only the dynamic twin ever carries them
+  const filters = parseCatalogueFilters(sParams);
+  const filterQuery = filtersQuery(filters);
 
-  const [treeRead, dataRead] = await Promise.all([
+  const [treeRead, dataRead, filterOptions] = await Promise.all([
     readPublicCategories(typedLocale),
-    readPublicCategoryProducts(typedLocale, main || "all", sub, page, q, sort),
+    readPublicCategoryProducts(typedLocale, main || "all", sub, page, q, sort, filters),
+    readCatalogueFilterOptions(),
   ]);
   // A failed read (no answer, or a 5xx) is not an empty catalogue: this page is cached, and a cached "no products" or error
   // would replace the good copy. Throwing keeps it (stale-if-error, #302).
@@ -108,7 +115,7 @@ export async function CategoryView({ params, searchParams }: Props) {
   const heading = q ? t("resultsFor", { query: q }) : isAll ? t("allTitle") : (sub || main);
   const totalProducts = data?.total ?? 0;
   const pages = Math.max(Math.ceil(totalProducts / (data?.limit || 24)), 1);
-  const qParam = `${q ? `&q=${encodeURIComponent(q)}` : ""}${sort !== "popular" ? `&sort=${sort}` : ""}`;
+  const qParam = `${q ? `&q=${encodeURIComponent(q)}` : ""}${sort !== "popular" ? `&sort=${sort}` : ""}${filterQuery ? `&${filterQuery}` : ""}`;
   const basePath = isAll
     ? `/${locale}/c`
     : `/${locale}/c/${encodeURIComponent(main)}${sub ? `/${encodeURIComponent(sub)}` : ""}`;
@@ -206,6 +213,7 @@ export async function CategoryView({ params, searchParams }: Props) {
           <h1 className={styles.title}>{heading}</h1>
           {totalProducts > 0 ? <p className={styles.count}>{t("productsCount", { count: totalProducts })}</p> : null}
         </div>
+        <MapEntryLink locale={locale} type="pharmacy" label={mapLabel} />
         <div className={styles.searchWrap}>
           <CatalogSearch locale={locale} initial={sParams.q || ""} />
         </div>
@@ -254,10 +262,17 @@ export async function CategoryView({ params, searchParams }: Props) {
             ))}
           </nav>
         ) : null}
+        <CatalogueFilterPanel
+          locale={locale}
+          resetHref={`${basePath}${q || sort !== "popular" ? `?${[q ? `q=${encodeURIComponent(q)}` : "", sort !== "popular" ? `sort=${sort}` : ""].filter(Boolean).join("&")}` : ""}`}
+          filters={filters}
+          options={filterOptions}
+          hidden={{ ...(q ? { q } : {}), ...(sort !== "popular" ? { sort } : {}) }}
+        />
         {totalProducts > 1 ? (
           <nav aria-label={t("sortLabel")} className={styles.chips}>
             {SORTS.map((o) => {
-              const query = [q ? `q=${encodeURIComponent(q)}` : "", o.id !== "popular" ? `sort=${o.id}` : ""].filter(Boolean).join("&");
+              const query = [q ? `q=${encodeURIComponent(q)}` : "", o.id !== "popular" ? `sort=${o.id}` : "", filterQuery].filter(Boolean).join("&");
               return <ChipLink key={o.id} href={query ? `${basePath}?${query}` : basePath} label={t(o.label)} selected={sort === o.id} />;
             })}
           </nav>

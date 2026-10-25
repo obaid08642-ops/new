@@ -14,8 +14,10 @@ describe("call room settings", () => {
     expect(o.publishDefaults.videoSimulcastLayers).toEqual([VideoPresets.h180, VideoPresets.h360]);
     expect(o.publishDefaults.dtx).toBe(true);
     expect(o.publishDefaults.audioPreset).toBe(AudioPresets.speech);
-    const app = fs.readFileSync(path.join(__dirname, "../../patient-app/src/components/livekit-view.tsx"), "utf8");
-    for (const s of ["adaptiveStream: true", "dynacast: true", "simulcast: true", "videoSimulcastLayers: [VideoPresets.h180, VideoPresets.h360]", "maxBitrate: 1_700_000", "audioPreset: AudioPresets.speech", "dtx: true"]) {
+    // The app's live call screen (the old src/components/livekit-view.tsx was never imported and is removed). The app sets its
+    // voice bitrate explicitly (32 kbps with DTX) where the web uses the speech preset; both keep DTX on.
+    const app = fs.readFileSync(path.join(__dirname, "../../patient-app/app/consultations/video-call.tsx"), "utf8");
+    for (const s of ["adaptiveStream: true", "dynacast: true", "simulcast: true", "videoSimulcastLayers: [VideoPresets.h180, VideoPresets.h360]", "maxBitrate: 1_700_000", "audioBitrate: 32_000", "dtx: true"]) {
       expect(app, s).toContain(s);
     }
   });
