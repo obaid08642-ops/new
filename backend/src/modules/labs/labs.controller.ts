@@ -7,10 +7,12 @@ import { BookDto, TransitionDto, UploadDocDto, UpdateInsDto, OptInCashDto, Assig
 import { CreateLabCatalogDto, UpdateLabCatalogDto, ApproveCatalogDto, BulkApproveCatalogDto } from './labs.dto';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { PublicCache } from '../../common/public-cache.decorator';
 @Controller('labs')
 export class LabsController {
   constructor(private readonly svc: LabsService) {}
 
+  @PublicCache(120, ['catalog', 'labs'])
   @Public() @Get('services')
   services(
     @Query('category') cat?: string,
@@ -35,12 +37,15 @@ export class LabsController {
     });
   }
 
+  @PublicCache(120, ['catalog', 'labs'])
   @Public() @Get('packages')
   packages() { return this.svc.list({ packages_only: true }); }
 
+  @PublicCache(120, ['catalog', 'labs'])
   @Public() @Get('categories')
   categories() { return this.svc.categoryCounts(); }
 
+  @PublicCache(120, ['catalog', 'labs'])
   @Public() @Get('services/:id')
   one(@Param('id') id: string) { return this.svc.getById(id); }
 
