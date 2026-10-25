@@ -6,7 +6,7 @@ import { Timeline } from "@/components-next/ui-generated/components/Cards";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { LAB } from "@/components-next/diagnostics/diag-parts";
-import { pickTexts, textsOf } from "@/lib/i18n/localized";
+import { namesOf, pickName } from "@/lib/i18n/localized";
 import { BulletList } from "@/components-next/consult/consult-parts";
 import { diagStatus } from "@/components-next/diagnostics/status";
 import { minutesText } from "@/components-next/diagnostics/diag-parts";
@@ -42,7 +42,7 @@ export function parseTracking(payload: unknown, locale: string): Tracking {
     const texts = o.texts && typeof o.texts === "object" ? (o.texts as Record<string, unknown>)[prepLang] : null;
     const lines = Array.isArray(texts) ? texts.filter((x): x is string => typeof x === "string" && x.trim().length > 0) : [];
     const pick = (v: unknown) => (typeof v === "string" ? v : "");
-    const name = pickTexts(locale, textsOf(o, "name")) ?? "";
+    const name = pickName(locale, namesOf(o)) ?? "";
     return lines.length ? [{ key: pick(o.service_id) || String(i), name, lines }] : [];
   });
   const techName = typeof t.techName === "string" && t.techName.trim() ? t.techName : undefined;

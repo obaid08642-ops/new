@@ -28,10 +28,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "اہم علامات کی پیمائش",
-    "name_hi": "वाइटल साइन्स की जांच",
-    "name_bn": "ভাইটাল সাইন পরিমাপ",
-    "name_tl": "Pagsukat ng Vital Signs",
     "description_ur": "نرس گھر پر بلڈ پریشر، نبض، درجہ حرارت، آکسیجن اور شوگر ناپ کر ریکارڈ کرتا ہے۔",
     "preparation_ur": [
       "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔"
@@ -78,10 +74,6 @@
     "public_eligibility": true,
     "is_active": true,
     "popularity": 84,
-    "name_ur": "لیب کے لیے خون کا نمونہ",
-    "name_hi": "लैब के लिए खून का नमूना",
-    "name_bn": "ল্যাবের জন্য রক্তের নমুনা",
-    "name_tl": "Pagkuha ng Dugo para sa Lab",
     "description_ur": "نرس گھر پر خون کے نمونے لے کر لیبارٹری پہنچاتا ہے۔",
     "preparation_ur": [
       "نرس یا لیب کو اپنی تمام دواؤں اور سپلیمنٹس کے بارے میں بتائیں۔"
@@ -129,10 +121,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "طبی انجیکشن (رگ/پٹھے میں)",
-    "name_hi": "चिकित्सा इंजेक्शन (नस/मांसपेशी में)",
-    "name_bn": "চিকিৎসা ইনজেকশন (শিরা/পেশিতে)",
-    "name_tl": "Mga Medikal na Iniksyon (IV/IM)",
     "description_ur": "نرس نسخے کے مطابق گھر پر پٹھے یا رگ میں انجیکشن لگاتا ہے۔",
     "preparation_ur": [
       "وزٹ سے پہلے ڈاکٹر کا نسخہ اور دوائیں یا محلول تیار رکھیں۔",
@@ -184,10 +172,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "آئی وی ڈرپ",
-    "name_hi": "आईवी ड्रिप",
-    "name_bn": "আইভি ড্রিপ",
-    "name_tl": "Terapiya sa IV Drip",
     "description_ur": "نرس کینولا لگا کر گھر پر نسخے کے مطابق محلول یا دوا ڈرپ سے دیتا ہے اور اس دوران آپ کی نگرانی کرتا ہے۔",
     "preparation_ur": [
       "وزٹ سے پہلے ڈاکٹر کا نسخہ اور دوائیں یا محلول تیار رکھیں۔",
@@ -243,10 +227,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "گہرے زخم اور ذیابیطس کے پاؤں کی دیکھ بھال",
-    "name_hi": "गहरे घाव और डायबिटिक फ़ुट की देखभाल",
-    "name_bn": "গভীর ক্ষত ও ডায়াবেটিক ফুটের যত্ন",
-    "name_tl": "Advanced Wound at Diabetic Foot Care",
     "description_ur": "نرس گہرے یا دیر سے بھرنے والے زخموں، بشمول ذیابیطس کے پاؤں کے زخموں، کی صفائی اور پٹی کرتا ہے۔",
     "preparation_ur": [
       "نرس کے کام کے لیے صاف اور روشن جگہ تیار رکھیں۔",
@@ -294,10 +274,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "پیشاب کی نلی (کیتھیٹر) کی دیکھ بھال",
-    "name_hi": "मूत्र कैथेटर की देखभाल",
-    "name_bn": "মূত্র ক্যাথেটারের যত্ন",
-    "name_tl": "Pangangalaga sa Urinary Catheter",
     "description_ur": "نرس گھر پر پیشاب کی نلی چیک کرتا، صاف کرتا یا بدلتا ہے۔",
     "preparation_ur": [
       "زیر استعمال آلات اور سامان (آکسیجن، ٹیوبیں، تھیلیاں) نرس کے معائنے کے لیے تیار رکھیں۔",
@@ -345,10 +321,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "ٹریکیوسٹومی کی دیکھ بھال",
-    "name_hi": "ट्रेकियोस्टॉमी की देखभाल",
-    "name_bn": "ট্র্যাকিওস্টমির যত্ন",
-    "name_tl": "Pangangalaga sa Tracheostomy",
     "description_ur": "تربیت یافتہ نرس ٹریکیوسٹومی کی صفائی، پٹی کی تبدیلی اور رطوبتوں کی سکشن کرتا ہے۔",
     "preparation_ur": [
       "زیر استعمال آلات اور سامان (آکسیجن، ٹیوبیں، تھیلیاں) نرس کے معائنے کے لیے تیار رکھیں۔",
@@ -403,10 +375,6 @@
     "public_eligibility": true,
     "is_active": true,
     "popularity": 42,
-    "name_ur": "گھر پر آکسیجن تھراپی",
-    "name_hi": "घर पर ऑक्सीजन थेरेपी",
-    "name_bn": "বাড়িতে অক্সিজেন থেরাপি",
-    "name_tl": "Oxygen Therapy sa Bahay",
     "description_ur": "نرس نسخے کے مطابق گھر کی آکسیجن لگاتا اور چیک کرتا ہے اور گھر والوں کو محفوظ استعمال سکھاتا ہے۔",
     "preparation_ur": [
       "وزٹ سے پہلے ڈاکٹر کا نسخہ اور دوائیں یا محلول تیار رکھیں۔",
@@ -454,10 +422,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "سرجری کے بعد کی دیکھ بھال",
-    "name_hi": "सर्जरी के बाद देखभाल",
-    "name_bn": "অস্ত্রোপচার-পরবর্তী যত্ন",
-    "name_tl": "Pangangalaga Pagkatapos ng Operasyon",
     "description_ur": "سرجری کے بعد لمبی نرسنگ وزٹ: زخم کی جانچ، دوائیں، اہم علامات اور محفوظ حرکت میں مدد۔",
     "preparation_ur": [
       "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔",
@@ -511,10 +475,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "بزرگوں کی دیکھ بھال اور ساتھ",
-    "name_hi": "बुज़ुर्गों की देखभाल और साथ",
-    "name_bn": "প্রবীণদের যত্ন ও সঙ্গ",
-    "name_tl": "Pag-aalaga at Pagsama sa Matatanda",
     "description_ur": "نگہداشت کرنے والا بزرگ کے ساتھ رہ کر روزمرہ ضروریات، بروقت دواؤں اور گھر میں حفاظت میں مدد کرتا ہے۔",
     "preparation_ur": [
       "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔"
@@ -559,10 +519,6 @@
     "public_eligibility": true,
     "is_active": true,
     "popularity": 75,
-    "name_ur": "ماں اور نوزائیدہ کی دیکھ بھال",
-    "name_hi": "मां और नवजात की देखभाल",
-    "name_bn": "মা ও নবজাতকের যত্ন",
-    "name_tl": "Pangangalaga sa Ina at Sanggol",
     "description_ur": "نرس پیدائش کے بعد ماں اور بچے، ناف اور دودھ پلانے کی جانچ اور سوالوں کے جواب کے لیے آتا ہے۔",
     "preparation_ur": [
       "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔",
@@ -612,10 +568,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "گھر پر انتہائی نگہداشت",
-    "name_hi": "घर पर आईसीयू देखभाल",
-    "name_bn": "বাড়িতে আইসিইউ যত্ন",
-    "name_tl": "Pangangalaga sa ICU sa Bahay",
     "description_ur": "تربیت یافتہ نرسوں کی لمبی شفٹیں ان مریضوں کے لیے جو گھر پر وینٹی لیٹر یا فیڈنگ پمپ جیسے آلات پر انحصار کرتے ہیں۔",
     "preparation_ur": [
       "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔",
@@ -671,10 +623,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "پٹھے میں انجیکشن",
-    "name_hi": "मांसपेशी में इंजेक्शन",
-    "name_bn": "পেশিতে ইনজেকশন",
-    "name_tl": "Iniksyon sa Kalamnan",
     "description_ur": "نرس گھر پر نسخے کا انجیکشن پٹھے میں لگاتا ہے۔",
     "preparation_ur": [
       "وزٹ سے پہلے ڈاکٹر کا نسخہ اور دوائیں یا محلول تیار رکھیں۔"
@@ -722,10 +670,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "رگ میں انجیکشن / کینولا",
-    "name_hi": "नस में इंजेक्शन / कैनुला",
-    "name_bn": "শিরায় ইনজেকশন / ক্যানুলা",
-    "name_tl": "Iniksyon sa Ugat / Cannula",
     "description_ur": "نرس گھر پر نسخے کا انجیکشن رگ میں لگاتا یا کینولا لگاتا ہے۔",
     "preparation_ur": [
       "وزٹ سے پہلے ڈاکٹر کا نسخہ اور دوائیں یا محلول تیار رکھیں۔",
@@ -777,10 +721,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "اینٹی بایوٹک آئی وی کورس",
-    "name_hi": "एंटीबायोटिक आईवी कोर्स",
-    "name_bn": "অ্যান্টিবায়োটিক আইভি কোর্স",
-    "name_tl": "Kurso ng Antibiotic sa IV",
     "description_ur": "گھر پر رگ میں نسخے کا اینٹی بایوٹک کورس دینے کے لیے نرسنگ وزٹ۔",
     "preparation_ur": [
       "وزٹ سے پہلے ڈاکٹر کا نسخہ اور دوائیں یا محلول تیار رکھیں۔",
@@ -832,10 +772,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "بستر کے زخم (بیڈ سور) کی دیکھ بھال",
-    "name_hi": "बेडसोर की देखभाल",
-    "name_bn": "বেডসোরের যত্ন",
-    "name_tl": "Pangangalaga sa Bedsore",
     "description_ur": "نرس دباؤ کے زخموں کی صفائی اور پٹی کرتا ہے اور کروٹ بدلنے اور لٹانے کا طریقہ بتاتا ہے۔",
     "preparation_ur": [
       "نرس کے کام کے لیے صاف اور روشن جگہ تیار رکھیں۔",
@@ -887,10 +823,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "ذیابیطس کے پاؤں کی دیکھ بھال",
-    "name_hi": "डायबिटिक फ़ुट की देखभाल",
-    "name_bn": "ডায়াবেটিক ফুটের যত্ন",
-    "name_tl": "Pangangalaga sa Paa para sa Diabetes",
     "description_ur": "نرس ذیابیطس کے مریض کے پاؤں جانچتا ہے اور کسی زخم یا السر کی پٹی کرتا ہے۔",
     "preparation_ur": [
       "نرس کے کام کے لیے صاف اور روشن جگہ تیار رکھیں۔",
@@ -938,10 +870,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "ٹانکے نکالنا",
-    "name_hi": "टांके निकालना",
-    "name_bn": "সেলাই কাটা",
-    "name_tl": "Pagtanggal ng Tahi",
     "description_ur": "نرس ڈاکٹر کی بتائی تاریخ پر گھر پر ٹانکے یا اسٹیپلز نکالتا ہے۔",
     "preparation_ur": [
       "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔"
@@ -985,10 +913,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "پیشاب کی نلی لگانا",
-    "name_hi": "मूत्र कैथेटर लगाना",
-    "name_bn": "মূত্র ক্যাথেটার বসানো",
-    "name_tl": "Paglalagay ng Urinary Catheter",
     "description_ur": "نرس نسخے کے مطابق گھر پر پیشاب کی نلی لگاتا یا بدلتا ہے۔",
     "preparation_ur": [
       "وزٹ سے پہلے ڈاکٹر کا نسخہ اور دوائیں یا محلول تیار رکھیں۔",
@@ -1036,10 +960,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "فیڈنگ ٹیوب کی دیکھ بھال",
-    "name_hi": "फ़ीडिंग ट्यूब की देखभाल",
-    "name_bn": "ফিডিং টিউবের যত্ন",
-    "name_tl": "Pangangalaga sa Feeding Tube",
     "description_ur": "نرس فیڈنگ ٹیوب کی جانچ، صفائی اور اس کے اردگرد کی جلد کی دیکھ بھال کرتا ہے۔",
     "preparation_ur": [
       "زیر استعمال آلات اور سامان (آکسیجن، ٹیوبیں، تھیلیاں) نرس کے معائنے کے لیے تیار رکھیں۔",
@@ -1087,10 +1007,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "اسٹوما کی دیکھ بھال",
-    "name_hi": "स्टोमा की देखभाल",
-    "name_bn": "স্টোমার যত্ন",
-    "name_tl": "Pangangalaga sa Stoma",
     "description_ur": "نرس اسٹوما بیگ بدلتا، جلد جانچتا اور خود دیکھ بھال سکھاتا ہے۔",
     "preparation_ur": [
       "زیر استعمال آلات اور سامان (آکسیجن، ٹیوبیں، تھیلیاں) نرس کے معائنے کے لیے تیار رکھیں۔",
@@ -1140,10 +1056,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "بزرگوں کی روزانہ دیکھ بھال",
-    "name_hi": "बुज़ुर्गों की रोज़ाना देखभाल",
-    "name_bn": "প্রবীণদের দৈনিক যত্ন",
-    "name_tl": "Pang-araw-araw na Pag-aalaga sa Matatanda",
     "description_ur": "دن کا نگہداشت کرنے والا بزرگ کی صفائی، کھانے، بروقت دواؤں اور محفوظ حرکت میں مدد کرتا ہے۔",
     "preparation_ur": [
       "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔"
@@ -1189,10 +1101,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "بزرگوں کی رات کی دیکھ بھال",
-    "name_hi": "बुज़ुर्गों की रात की देखभाल",
-    "name_bn": "প্রবীণদের রাতের যত্ন",
-    "name_tl": "Pag-aalaga sa Matatanda sa Gabi",
     "description_ur": "رات کا نگہداشت کرنے والا بزرگ کے ساتھ رہتا ہے، رات میں مدد کرتا اور مسائل پر نظر رکھتا ہے۔",
     "preparation_ur": [
       "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔"
@@ -1238,10 +1146,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "گھر پر بچوں کی ویکسینیشن",
-    "name_hi": "घर पर बच्चों का टीकाकरण",
-    "name_bn": "বাড়িতে শিশুর টিকা",
-    "name_tl": "Bakuna ng Bata sa Bahay",
     "description_ur": "نرس گھر پر بچے کو قومی شیڈول کے مطابق واجب ویکسین لگاتا ہے۔",
     "preparation_ur": [
       "بچے کا ویکسینیشن کارڈ تیار رکھیں، اور اگر بچہ بیمار ہو یا پچھلی ویکسین پر ردعمل ہوا ہو تو نرس کو بتائیں۔"
@@ -1287,10 +1191,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "فزیوتھراپی سیشن",
-    "name_hi": "फ़िज़ियोथेरेपी सत्र",
-    "name_bn": "ফিজিওথেরাপি সেশন",
-    "name_tl": "Sesyon ng Physical Therapy",
     "description_ur": "فزیوتھراپسٹ گھر پر حرکت بہتر بنانے اور درد کم کرنے کے لیے ورزشیں اور علاج دیتا ہے۔",
     "preparation_ur": [
       "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔",
@@ -1340,10 +1240,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "بزرگوں کی حرکت کی بحالی",
-    "name_hi": "बुज़ुर्गों की गतिशीलता पुनर्वास",
-    "name_bn": "প্রবীণদের চলাফেরার পুনর্বাসন",
-    "name_tl": "Rehab sa Paggalaw ng Matatanda",
     "description_ur": "فزیوتھراپسٹ گھر پر بزرگوں کے ساتھ توازن، طاقت اور چلنے پر کام کرتا ہے۔",
     "preparation_ur": [
       "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔",
@@ -1391,10 +1287,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "تسکینی نگہداشت (پیلی ایٹو کیئر) وزٹ",
-    "name_hi": "प्रशामक देखभाल (पैलिएटिव केयर) विज़िट",
-    "name_bn": "প্যালিয়েটিভ কেয়ার ভিজিট",
-    "name_tl": "Pagbisita para sa Palliative Care",
     "description_ur": "نرس معالج ٹیم کے منصوبے کے تحت درد اور بے آرامی جیسی علامات کم کرنے اور مریض و گھر والوں کو سہارا دینے کے لیے آتا ہے۔",
     "preparation_ur": [
       "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔",
@@ -1446,10 +1338,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "دواؤں کے انتظام کا وزٹ",
-    "name_hi": "दवा प्रबंधन विज़िट",
-    "name_bn": "ওষুধ ব্যবস্থাপনা ভিজিট",
-    "name_tl": "Pagbisita para sa Pamamahala ng Gamot",
     "description_ur": "نرس آپ کے ساتھ دوائیں دیکھتا ہے، ہفتہ وار ڈبہ ترتیب دیتا ہے اور لینے کا طریقہ سمجھاتا ہے۔",
     "preparation_ur": [
       "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔"
@@ -1493,10 +1381,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "نیبولائزر سیشن",
-    "name_hi": "नेबुलाइज़ेशन सत्र",
-    "name_bn": "নেবুলাইজেশন সেশন",
-    "name_tl": "Sesyon ng Nebulization",
     "description_ur": "نرس نیبولائزر سے نسخے کی دوا سانس کے ذریعے دیتا ہے اور سانس کی جانچ کرتا ہے۔",
     "preparation_ur": [
       "وزٹ سے پہلے ڈاکٹر کا نسخہ اور دوائیں یا محلول تیار رکھیں۔"
@@ -1542,10 +1426,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "بلڈ پریشر کی نگرانی کا پروگرام",
-    "name_hi": "ब्लड प्रेशर फ़ॉलो-अप कार्यक्रम",
-    "name_bn": "রক্তচাপ ফলো-আপ প্রোগ্রাম",
-    "name_tl": "Programa sa Pagsubaybay ng Presyon ng Dugo",
     "description_ur": "بلڈ پریشر ناپنے، ریڈنگ ریکارڈ کرنے اور ڈاکٹر کو بھیجنے کے لیے طے شدہ نرسنگ وزٹ۔",
     "preparation_ur": [
       "اپنی حالیہ طبی رپورٹیں اور دواؤں کی فہرست تیار رکھیں۔"
@@ -1577,10 +1457,6 @@
     "duration": "hour",
     "duration_value": 4,
     "active": true,
-    "name_ur": "گھر پر ڈائیلاسس سیشن",
-    "name_hi": "घर पर डायलिसिस सत्र",
-    "name_bn": "বাড়িতে ডায়ালাইসিস সেশন",
-    "name_tl": "Sesyon ng Dialysis sa Bahay",
     "preparation_ar": [
       "جهّز وصفة الطبيب والأدوية أو المحاليل قبل الزيارة.",
       "جهّز الأجهزة والمستلزمات المستخدمة (الأكسجين، الأنابيب، الأكياس) ليفحصها الممرض.",
@@ -1630,10 +1506,6 @@
     "duration": "hour",
     "duration_value": 1,
     "active": true,
-    "name_ur": "اسپیچ تھراپی",
-    "name_hi": "स्पीच थेरेपी",
-    "name_bn": "স্পিচ থেরাপি",
-    "name_tl": "Terapiya sa Pagsasalita",
     "preparation_ar": [
       "جهّز تقاريرك الطبية الحديثة وقائمة أدويتك."
     ],
@@ -1671,10 +1543,6 @@
     "duration": "hour",
     "duration_value": 1,
     "active": true,
-    "name_ur": "دودھ پلانے کی مشیر",
-    "name_hi": "स्तनपान सलाहकार",
-    "name_bn": "বুকের দুধ খাওয়ানোর পরামর্শক",
-    "name_tl": "Konsultant sa Pagpapasuso",
     "preparation_ar": [
       "جهّز تقاريرك الطبية الحديثة وقائمة أدويتك."
     ],

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { listsOf, pickList } from "./localized-lists";
-import { pickTexts } from "./localized";
+import { pickName, pickTexts } from "./localized";
 import { extractLabService } from "@/lib/api/labs";
 import { parseRadiologyService } from "@/lib/api/radiology";
 import { fromLab, fromRadiology, preparationFor } from "@/lib/ordering/item";
@@ -24,11 +24,12 @@ describe("catalogue lists in every language", () => {
     expect(pickList("hi", undefined)).toEqual([]);
   });
 
-  it("a lab test carries its names and preparation in six languages into the item page", () => {
+  it("a lab test carries its name (Arabic and English) and its preparation in six languages into the item page", () => {
     const service = extractLabService(lab);
     expect(service).not.toBeNull();
     const item = fromLab(service!);
-    expect(pickTexts("bn", item.names)).toBe("রক্ত");
+    expect(pickName("bn", item.names)).toBe("Blood count"); // names are ar/en only
+    expect(pickName("ar", item.names)).toBe("صورة دم");
     expect(pickTexts("hi", item.descriptions)).toBe("विवरण");
     expect(preparationFor("hi", item)).toEqual(["उपवास नहीं"]);
     expect(preparationFor("en", item)).toEqual(["No fasting"]);
@@ -38,7 +39,7 @@ describe("catalogue lists in every language", () => {
   it("a scan carries them too", () => {
     const scan = parseRadiologyService({ id: "xr", name_ar: "أشعة", name_en: "X-Ray", name_hi: "एक्स-रे", preparation_hi: ["धातु हटाएँ"], preparation_en: ["Remove metal"] });
     const item = fromRadiology(scan!);
-    expect(pickTexts("hi", item.names)).toBe("एक्स-रे");
+    expect(pickName("hi", item.names)).toBe("X-Ray");
     expect(preparationFor("hi", item)).toEqual(["धातु हटाएँ"]);
   });
 });
@@ -51,7 +52,7 @@ describe("the tests a package includes", () => {
       { id: "t2", short_code: "FBS", name_ar: "سكر صائم", name_en: "Fasting sugar" },
     ]);
     const included = ["تحليل دم شامل", "FBS", "t1", "فحص غير معروف"];
-    expect(includedTestNames("hi", included, tests)).toEqual(["रक्त गणना", "Fasting sugar", "रक्त गणना", "فحص غير معروف"]);
+    expect(includedTestNames("hi", included, tests)).toEqual(["Blood count", "Fasting sugar", "Blood count", "فحص غير معروف"]);
     expect(includedTestNames("ar", included, tests)).toEqual(["تحليل دم شامل", "سكر صائم", "تحليل دم شامل", "فحص غير معروف"]);
     expect(includedTestNames("en", [], tests)).toEqual([]);
   });

@@ -37,10 +37,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "خون کا مکمل ٹیسٹ (CBC)",
-    "name_hi": "संपूर्ण रक्त गणना (CBC)",
-    "name_bn": "কমপ্লিট ব্লাড কাউন্ট (CBC)",
-    "name_tl": "Complete Blood Count (CBC)",
     "description_ur": "سرخ اور سفید خلیوں اور پلیٹلیٹس کی تعداد اور ہیموگلوبن ناپتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -104,10 +100,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "عمومی صحت کا پیکج",
-    "name_hi": "सामान्य स्वास्थ्य पैकेज",
-    "name_bn": "সাধারণ স্বাস্থ্য প্যাকেজ",
-    "name_tl": "Pakete para sa Pangkalahatang Kalusugan",
     "description_ur": "خون کا مکمل ٹیسٹ، خالی پیٹ شوگر، چکنائی، گردوں اور جگر کے ٹیسٹ اور پیشاب کا ٹیسٹ۔",
     "preparation_ur": [
       "نمونے سے پہلے 10 گھنٹے کچھ نہ کھائیں؛ صرف سادہ پانی پی سکتے ہیں۔",
@@ -169,10 +161,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "وٹامن ڈی (25-OH)",
-    "name_hi": "विटामिन डी (25-OH)",
-    "name_bn": "ভিটামিন ডি (25-OH)",
-    "name_tl": "Bitamina D (25-OH)",
     "description_ur": "جسم میں ذخیرہ شدہ وٹامن ڈی کی بنیادی شکل، 25-ہائیڈروکسی وٹامن ڈی، ناپتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -230,10 +218,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "خالی پیٹ شوگر (FBS)",
-    "name_hi": "उपवास रक्त शर्करा (FBS)",
-    "name_bn": "খালি পেটে রক্তে শর্করা (FBS)",
-    "name_tl": "Fasting Blood Sugar (FBS)",
     "description_ur": "رات بھر خالی پیٹ رہنے کے بعد خون میں گلوکوز ناپتا ہے۔",
     "preparation_ur": [
       "نمونے سے پہلے 8 گھنٹے کچھ نہ کھائیں؛ صرف سادہ پانی پی سکتے ہیں۔",
@@ -293,10 +277,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "تھائیرائیڈ محرک ہارمون (TSH)",
-    "name_hi": "थायरॉइड उत्तेजक हार्मोन (TSH)",
-    "name_bn": "থাইরয়েড স্টিমুলেটিং হরমোন (TSH)",
-    "name_tl": "Thyroid Stimulating Hormone (TSH)",
     "description_ur": "پٹیوٹری غدود کا وہ ہارمون ناپتا ہے جو تھائیرائیڈ کو کنٹرول کرتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -359,10 +339,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "ذیابیطس کی دیکھ بھال کا پیکج",
-    "name_hi": "डायबिटीज़ केयर पैकेज",
-    "name_bn": "ডায়াবেটিস কেয়ার প্যাকেজ",
-    "name_tl": "Pakete sa Pangangalaga sa Diabetes",
     "description_ur": "خالی پیٹ شوگر، HbA1c، گردوں کے ٹیسٹ، چکنائی اور پیشاب کا ٹیسٹ۔",
     "preparation_ur": [
       "نمونے سے پہلے 10 گھنٹے کچھ نہ کھائیں؛ صرف سادہ پانی پی سکتے ہیں۔",
@@ -430,10 +406,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "وٹامنز اور معدنیات کا پیکج",
-    "name_hi": "विटामिन और मिनरल पैकेज",
-    "name_bn": "ভিটামিন ও খনিজ প্যাকেজ",
-    "name_tl": "Pakete sa Bitamina at Mineral",
     "description_ur": "وٹامن ڈی، وٹامن بی 12، فیریٹن، کیلشیم، میگنیشیم اور زنک۔",
     "preparation_ur": [
       "نمونے سے پہلے 10 گھنٹے کچھ نہ کھائیں؛ صرف سادہ پانی پی سکتے ہیں۔",
@@ -497,10 +469,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "تین ماہ کی اوسط شوگر (HbA1c)",
-    "name_hi": "तीन महीने की औसत शुगर (HbA1c)",
-    "name_bn": "তিন মাসের গড় শর্করা (HbA1c)",
-    "name_tl": "HbA1c (3-buwang average ng asukal)",
     "description_ur": "پچھلے 2 سے 3 مہینوں کی اوسط شوگر دکھاتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔"
@@ -555,10 +523,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "گردوں کا فنکشن (کریٹینین + یوریا)",
-    "name_hi": "किडनी फ़ंक्शन (क्रिएटिनिन + यूरिया)",
-    "name_bn": "কিডনি ফাংশন (ক্রিয়েটিনিন + ইউরিয়া)",
-    "name_tl": "Pagsusuri sa Bato (Creatinine + Urea)",
     "description_ur": "کریٹینین اور یوریا ناپتا ہے، جو فضلات گردے خارج کرتے ہیں۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -617,10 +581,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "فیریٹن (آئرن کا ذخیرہ)",
-    "name_hi": "फ़ेरिटिन (आयरन भंडार)",
-    "name_bn": "ফেরিটিন (আয়রনের মজুত)",
-    "name_tl": "Ferritin (imbak ng iron)",
     "description_ur": "فیریٹن ناپتا ہے جو جسم میں آئرن کے ذخیرے کو ظاہر کرتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -680,10 +640,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "چکنائی کا پروفائل (لپڈ پروفائل)",
-    "name_hi": "लिपिड प्रोफ़ाइल",
-    "name_bn": "লিপিড প্রোফাইল",
-    "name_tl": "Pagsusuri sa Taba sa Dugo (Lipid Profile)",
     "description_ur": "کل کولیسٹرول، LDL، HDL اور ٹرائی گلیسرائیڈز ناپتا ہے۔",
     "preparation_ur": [
       "نمونے سے پہلے 10 سے 12 گھنٹے کچھ نہ کھائیں؛ صرف سادہ پانی پی سکتے ہیں۔",
@@ -742,10 +698,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "جگر کے انزائمز (ALT + AST)",
-    "name_hi": "लिवर एंज़ाइम (ALT + AST)",
-    "name_bn": "লিভার এনজাইম (ALT + AST)",
-    "name_tl": "Pagsusuri sa Atay (ALT + AST)",
     "description_ur": "جگر کے انزائمز ALT اور AST ناپتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -809,10 +761,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "شادی سے پہلے کی جانچ کا پیکج",
-    "name_hi": "विवाह-पूर्व जांच पैकेज",
-    "name_bn": "বিবাহপূর্ব পরীক্ষা প্যাকেজ",
-    "name_tl": "Pakete Bago ang Kasal",
     "description_ur": "خون کا مکمل ٹیسٹ، بلڈ گروپ اور Rh، ہیپاٹائٹس بی اور سی، G6PD اور خالی پیٹ شوگر۔",
     "preparation_ur": [
       "نمونے سے پہلے 10 گھنٹے کچھ نہ کھائیں؛ صرف سادہ پانی پی سکتے ہیں۔",
@@ -874,10 +822,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "پیشاب کا مکمل ٹیسٹ",
-    "name_hi": "पेशाब की पूरी जांच",
-    "name_bn": "প্রস্রাবের পূর্ণ পরীক্ষা",
-    "name_tl": "Kumpletong Urinalysis",
     "description_ur": "پیشاب کا رنگ، شوگر، پروٹین، خون، خلیے اور قلمیں جانچتا ہے۔",
     "preparation_ur": [
       "پیشاب کے درمیانی حصے کا نمونہ، بہتر ہے صبح کا پہلا پیشاب، دیے گئے جراثیم سے پاک ڈبے میں جمع کریں۔",
@@ -934,10 +878,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "حمل کا ہارمون (بیٹا ایچ سی جی)",
-    "name_hi": "गर्भावस्था हार्मोन (बीटा-hCG)",
-    "name_bn": "গর্ভাবস্থার হরমোন (বিটা-hCG)",
-    "name_tl": "Hormone sa Pagbubuntis (Beta-hCG)",
     "description_ur": "خون میں حمل کا ہارمون hCG ناپتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔"
@@ -997,10 +937,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "تھکاوٹ کا پیکج",
-    "name_hi": "थकान पैकेज",
-    "name_bn": "ক্লান্তি প্যাকেজ",
-    "name_tl": "Pakete para sa Pagkapagod",
     "description_ur": "خون کا مکمل ٹیسٹ، وٹامن ڈی، وٹامن بی 12، فیریٹن، TSH اور میگنیشیم۔",
     "preparation_ur": [
       "نمونے سے پہلے 10 گھنٹے کچھ نہ کھائیں؛ صرف سادہ پانی پی سکتے ہیں۔",
@@ -1067,10 +1003,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "حمل کا جامع پیکج",
-    "name_hi": "गर्भावस्था एडवांस पैकेज",
-    "name_bn": "গর্ভাবস্থা অ্যাডভান্সড প্যাকেজ",
-    "name_tl": "Advanced na Pakete sa Pagbubuntis",
     "description_ur": "خون کا مکمل ٹیسٹ، TSH، وٹامن ڈی، آئرن اور فیریٹن، اور وٹامن بی 12۔",
     "preparation_ur": [
       "نمونے سے پہلے 8 گھنٹے کچھ نہ کھائیں؛ صرف سادہ پانی پی سکتے ہیں۔",
@@ -1128,10 +1060,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "وٹامن بی 12",
-    "name_hi": "विटामिन बी12",
-    "name_bn": "ভিটামিন বি১২",
-    "name_tl": "Bitamina B12",
     "description_ur": "خون میں وٹامن بی 12 کی سطح ناپتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -1191,10 +1119,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "جگر کا فنکشن ٹیسٹ",
-    "name_hi": "लिवर फ़ंक्शन टेस्ट",
-    "name_bn": "লিভার ফাংশন টেস্ট",
-    "name_tl": "Liver Function Test",
     "description_ur": "ٹیسٹوں کا مجموعہ: جگر کے انزائمز (ALT، AST، ALP، GGT)، بلیروبن اور البومن جیسے پروٹین۔",
     "preparation_ur": [
       "نمونے سے پہلے 8 گھنٹے کچھ نہ کھائیں؛ صرف سادہ پانی پی سکتے ہیں۔",
@@ -1254,10 +1178,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "تھائیرائیڈ پیکج",
-    "name_hi": "थायरॉइड पैकेज",
-    "name_bn": "থাইরয়েড প্যাকেজ",
-    "name_tl": "Pakete sa Thyroid",
     "description_ur": "TSH کے ساتھ فری T3 اور فری T4۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -1317,10 +1237,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "گردوں کا فنکشن ٹیسٹ",
-    "name_hi": "किडनी फ़ंक्शन टेस्ट",
-    "name_bn": "কিডনি ফাংশন টেস্ট",
-    "name_tl": "Kidney Function Test",
     "description_ur": "ٹیسٹوں کا مجموعہ: کریٹینین، یوریا، تخمینی فلٹریشن ریٹ (eGFR) اور سوڈیم و پوٹاشیم جیسے نمکیات۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -1388,10 +1304,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "بزرگوں کا پیکج",
-    "name_hi": "वरिष्ठ नागरिक पैकेज",
-    "name_bn": "প্রবীণদের প্যাকেজ",
-    "name_tl": "Pakete para sa mga Nakatatanda",
     "description_ur": "خون کا مکمل ٹیسٹ، HbA1c، چکنائی، وٹامن ڈی، وٹامن بی 12، گردوں اور جگر کے ٹیسٹ، TSH، پیشاب اور نمکیات۔",
     "preparation_ur": [
       "نمونے سے پہلے 10 گھنٹے کچھ نہ کھائیں؛ صرف سادہ پانی پی سکتے ہیں۔",
@@ -1452,10 +1364,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "ہیموگلوبن",
-    "name_hi": "हीमोग्लोबिन",
-    "name_bn": "হিমোগ্লোবিন",
-    "name_tl": "Hemoglobin",
     "description_ur": "ہیموگلوبن ناپتا ہے، سرخ خلیوں کا وہ پروٹین جو آکسیجن لے جاتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔"
@@ -1516,10 +1424,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "خواتین کے ہارمونز کا پیکج",
-    "name_hi": "महिला हार्मोन पैकेज",
-    "name_bn": "নারী হরমোন প্যাকেজ",
-    "name_tl": "Pakete sa mga Hormone ng Kababaihan",
     "description_ur": "TSH، T3، T4، پرولیکٹن اور کورٹیسول۔",
     "preparation_ur": [
       "نمونہ عموماً صبح تقریباً 8 بجے لیا جاتا ہے، جب تک ڈاکٹر کوئی اور وقت نہ بتائے۔",
@@ -1583,10 +1487,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "بلڈ گروپ اور آر ایچ فیکٹر",
-    "name_hi": "ब्लड ग्रुप और Rh फ़ैक्टर",
-    "name_bn": "রক্তের গ্রুপ ও Rh ফ্যাক্টর",
-    "name_tl": "Blood Type at Rh Factor",
     "description_ur": "آپ کا ABO بلڈ گروپ اور Rh فیکٹر (مثبت یا منفی) معلوم کرتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔"
@@ -1646,10 +1546,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "دل کی صحت کا پیکج",
-    "name_hi": "हृदय स्वास्थ्य पैकेज",
-    "name_bn": "হৃদ্‌স্বাস্থ্য প্যাকেজ",
-    "name_tl": "Pakete sa Kalusugan ng Puso",
     "description_ur": "چکنائی، ٹروپونن، CRP، ہوموسسٹین، خالی پیٹ شوگر اور نمکیات۔",
     "preparation_ur": [
       "نمونے سے پہلے 10 سے 12 گھنٹے کچھ نہ کھائیں؛ صرف سادہ پانی پی سکتے ہیں۔",
@@ -1713,10 +1609,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "خواتین کی صحت کا پیکج",
-    "name_hi": "महिला स्वास्थ्य पैकेज",
-    "name_bn": "নারী স্বাস্থ্য প্যাকেজ",
-    "name_tl": "Pakete sa Kalusugan ng Kababaihan",
     "description_ur": "پرولیکٹن، TSH، وٹامن ڈی، فیریٹن، خون کا مکمل ٹیسٹ اور CA-125۔",
     "preparation_ur": [
       "نمونے سے پہلے 10 گھنٹے کچھ نہ کھائیں؛ صرف سادہ پانی پی سکتے ہیں۔",
@@ -1777,10 +1669,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "سی ری ایکٹو پروٹین (CRP)",
-    "name_hi": "सी-रिएक्टिव प्रोटीन (CRP)",
-    "name_bn": "সি-রিঅ্যাক্টিভ প্রোটিন (CRP)",
-    "name_tl": "C-Reactive Protein (CRP)",
     "description_ur": "CRP ناپتا ہے، وہ پروٹین جو سوزش کی صورت میں جگر بناتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔"
@@ -1840,10 +1728,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "مردوں کی صحت کا پیکج",
-    "name_hi": "पुरुष स्वास्थ्य पैकेज",
-    "name_bn": "পুরুষ স্বাস্থ্য প্যাকেজ",
-    "name_tl": "Pakete sa Kalusugan ng Kalalakihan",
     "description_ur": "ٹیسٹوسٹیرون، PSA، چکنائی، HbA1c، وٹامن ڈی اور خون کا مکمل ٹیسٹ۔",
     "preparation_ur": [
       "نمونے سے پہلے 10 سے 12 گھنٹے کچھ نہ کھائیں؛ صرف سادہ پانی پی سکتے ہیں۔",
@@ -1904,10 +1788,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "فری T3 + فری T4",
-    "name_hi": "फ्री T3 + फ्री T4",
-    "name_bn": "ফ্রি T3 + ফ্রি T4",
-    "name_tl": "Mga Hormone ng Thyroid (Free T3 + Free T4)",
     "description_ur": "تھائیرائیڈ کے آزاد (فعال) ہارمونز T3 اور T4 ناپتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -1964,10 +1844,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "کھانے کے 2 گھنٹے بعد شوگر",
-    "name_hi": "भोजन के 2 घंटे बाद शुगर",
-    "name_bn": "খাওয়ার ২ ঘণ্টা পর শর্করা",
-    "name_tl": "Asukal 2 oras pagkatapos kumain",
     "description_ur": "کھانے کے 2 گھنٹے بعد خون میں گلوکوز ناپتا ہے۔",
     "preparation_ur": [
       "معمول کا کھانا کھائیں، پھر کھانا شروع کرنے کے 2 گھنٹے بعد نمونہ دیں؛ درمیان میں کچھ نہ کھائیں۔",
@@ -2024,10 +1900,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "الیکٹرولائٹس (سوڈیم/پوٹاشیم/کلورائیڈ)",
-    "name_hi": "इलेक्ट्रोलाइट्स (सोडियम/पोटैशियम/क्लोराइड)",
-    "name_bn": "ইলেক্ট্রোলাইট (সোডিয়াম/পটাশিয়াম/ক্লোরাইড)",
-    "name_tl": "Mga Electrolyte (Na/K/Cl)",
     "description_ur": "خون میں سوڈیم، پوٹاشیم اور کلورائیڈ ناپتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -2084,10 +1956,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "ہیپاٹائٹس بی سرفیس اینٹیجن (HBsAg)",
-    "name_hi": "हेपेटाइटिस बी सरफेस एंटीजन (HBsAg)",
-    "name_bn": "হেপাটাইটিস বি সারফেস অ্যান্টিজেন (HBsAg)",
-    "name_tl": "Hepatitis B Surface Antigen (HBsAg)",
     "description_ur": "خون میں ہیپاٹائٹس بی وائرس کا سرفیس اینٹیجن تلاش کرتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -2147,10 +2015,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "آئرن + فیریٹن",
-    "name_hi": "आयरन + फ़ेरिटिन",
-    "name_bn": "আয়রন + ফেরিটিন",
-    "name_tl": "Bakal + Ferritin",
     "description_ur": "خون میں آئرن اور فیریٹن (آئرن کا ذخیرہ) ناپتا ہے۔",
     "preparation_ur": [
       "نمونے سے پہلے 8 گھنٹے کچھ نہ کھائیں؛ صرف سادہ پانی پی سکتے ہیں۔",
@@ -2213,10 +2077,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "آئرن + TIBC",
-    "name_hi": "आयरन + TIBC",
-    "name_bn": "আয়রন + TIBC",
-    "name_tl": "Bakal + TIBC",
     "description_ur": "خون میں آئرن اور کل آئرن باندھنے کی صلاحیت (TIBC) ناپتا ہے۔",
     "preparation_ur": [
       "نمونے سے پہلے 8 گھنٹے کچھ نہ کھائیں؛ صرف سادہ پانی پی سکتے ہیں۔",
@@ -2277,10 +2137,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "ہیپاٹائٹس سی اینٹی باڈی",
-    "name_hi": "हेपेटाइटिस सी एंटीबॉडी",
-    "name_bn": "হেপাটাইটিস সি অ্যান্টিবডি",
-    "name_tl": "Antibody sa Hepatitis C (Anti-HCV)",
     "description_ur": "ہیپاٹائٹس سی وائرس کے خلاف اینٹی باڈیز تلاش کرتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -2337,10 +2193,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "ایچ پائلوری (پاخانے میں اینٹیجن)",
-    "name_hi": "एच. पाइलोरी (मल एंटीजन)",
-    "name_bn": "এইচ. পাইলোরি (মলে অ্যান্টিজেন)",
-    "name_tl": "H. Pylori Antigen sa Dumi",
     "description_ur": "پاخانے کے نمونے میں ہیلیکوبیکٹر پائلوری بیکٹیریا تلاش کرتا ہے۔",
     "preparation_ur": [
       "پاخانے کا تھوڑا سا نمونہ دیے گئے صاف ڈبے میں جمع کریں، اس میں پیشاب یا پانی نہ ملنے دیں۔",
@@ -2398,10 +2250,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "ای ایس آر (خون کے خلیوں کے بیٹھنے کی رفتار)",
-    "name_hi": "ईएसआर (रक्त कोशिका अवसादन दर)",
-    "name_bn": "ইএসআর (লোহিত কণিকা থিতানোর হার)",
-    "name_tl": "ESR (Erythrocyte Sedimentation Rate)",
     "description_ur": "ناپتا ہے کہ نلی میں سرخ خلیے کتنی تیزی سے نیچے بیٹھتے ہیں۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔"
@@ -2456,10 +2304,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "خون جمنے کا پروفائل (PT/INR/aPTT)",
-    "name_hi": "रक्त जमाव प्रोफ़ाइल (PT/INR/aPTT)",
-    "name_bn": "রক্ত জমাট বাঁধার প্রোফাইল (PT/INR/aPTT)",
-    "name_tl": "Pagsusuri sa Pamumuo ng Dugo (PT/INR/aPTT)",
     "description_ur": "خون کے جمنے میں لگنے والا وقت (PT، INR اور aPTT) ناپتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -2516,10 +2360,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "کل کیلشیم",
-    "name_hi": "कुल कैल्शियम",
-    "name_bn": "মোট ক্যালসিয়াম",
-    "name_tl": "Kabuuang Calcium",
     "description_ur": "خون میں کل کیلشیم ناپتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -2578,10 +2418,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "پروسٹیٹ اسپیسفک اینٹیجن (PSA)",
-    "name_hi": "प्रोस्टेट स्पेसिफ़िक एंटीजन (PSA)",
-    "name_bn": "প্রোস্টেট স্পেসিফিক অ্যান্টিজেন (PSA)",
-    "name_tl": "Prostate Specific Antigen (PSA)",
     "description_ur": "PSA ناپتا ہے، پروسٹیٹ غدود کا بنایا ہوا پروٹین۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -2641,10 +2477,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "ٹرائی آئیوڈوتھائیرونین (T3)",
-    "name_hi": "ट्राईआयोडोथायरोनिन (T3)",
-    "name_bn": "ট্রাইআয়োডোথাইরোনিন (T3)",
-    "name_tl": "T3 (Triiodothyronine)",
     "description_ur": "تھائیرائیڈ ہارمون T3 (ٹرائی آئیوڈوتھائیرونین) ناپتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -2704,10 +2536,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "تھائیروکسین (T4)",
-    "name_hi": "थायरोक्सिन (T4)",
-    "name_bn": "থাইরক্সিন (T4)",
-    "name_tl": "T4 (Thyroxine)",
     "description_ur": "تھائیرائیڈ ہارمون T4 (تھائیروکسین) ناپتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -2764,10 +2592,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "پاخانے کا ٹیسٹ",
-    "name_hi": "मल की जांच",
-    "name_bn": "মল পরীক্ষা",
-    "name_tl": "Pagsusuri sa Dumi",
     "description_ur": "پاخانے کے نمونے میں طفیلیے، خون، خلیے اور ہاضمہ جانچتا ہے۔",
     "preparation_ur": [
       "پاخانے کا تھوڑا سا نمونہ دیے گئے صاف ڈبے میں جمع کریں، اس میں پیشاب یا پانی نہ ملنے دیں۔"
@@ -2820,10 +2644,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "ٹیسٹوسٹیرون",
-    "name_hi": "टेस्टोस्टेरोन",
-    "name_bn": "টেস্টোস্টেরন",
-    "name_tl": "Testosterone",
     "description_ur": "خون میں ٹیسٹوسٹیرون ہارمون ناپتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -2885,10 +2705,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "گلوکوز برداشت ٹیسٹ (OGTT)",
-    "name_hi": "ग्लूकोज़ टॉलरेंस टेस्ट (OGTT)",
-    "name_bn": "গ্লুকোজ টলারেন্স টেস্ট (OGTT)",
-    "name_tl": "Oral Glucose Tolerance Test (OGTT)",
     "description_ur": "خالی پیٹ اور پھر معیاری گلوکوز مشروب کے بعد خون میں شوگر ناپتا ہے۔",
     "preparation_ur": [
       "نمونے سے پہلے 10 گھنٹے کچھ نہ کھائیں؛ صرف سادہ پانی پی سکتے ہیں۔",
@@ -2947,10 +2763,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "عام الرجی پینل (20 اشیاء)",
-    "name_hi": "सामान्य एलर्जी पैनल (20 चीज़ें)",
-    "name_bn": "সাধারণ অ্যালার্জি প্যানেল (২০টি)",
-    "name_tl": "Karaniwang Panel sa Allergy (20 item)",
     "description_ur": "کھانے اور ہوا میں موجود 20 عام الرجی پیدا کرنے والی چیزوں کے خلاف IgE اینٹی باڈیز ناپتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -3010,10 +2822,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "پرولیکٹن",
-    "name_hi": "प्रोलैक्टिन",
-    "name_bn": "প্রোল্যাক্টিন",
-    "name_tl": "Prolactin",
     "description_ur": "پرولیکٹن ناپتا ہے، پٹیوٹری کا ہارمون جو دودھ بننے سے جڑا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -3074,10 +2882,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "میگنیشیم",
-    "name_hi": "मैग्नीशियम",
-    "name_bn": "ম্যাগনেসিয়াম",
-    "name_tl": "Magnesium",
     "description_ur": "خون میں میگنیشیم کی سطح ناپتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -3134,10 +2938,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "ڈی ڈائمر",
-    "name_hi": "डी-डाइमर",
-    "name_bn": "ডি-ডাইমার",
-    "name_tl": "D-Dimer",
     "description_ur": "ڈی ڈائمر ناپتا ہے، وہ ٹکڑا جو خون کا لوتھڑا ٹوٹنے پر نکلتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -3197,10 +2997,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "سی کے ایم بی",
-    "name_hi": "सीके-एमबी",
-    "name_bn": "সিকে-এমবি",
-    "name_tl": "CK-MB",
     "description_ur": "CK-MB ناپتا ہے، ایک انزائم جو زیادہ تر دل کے پٹھوں میں ہوتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -3257,10 +3053,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "زنک",
-    "name_hi": "ज़िंक",
-    "name_bn": "জিংক",
-    "name_tl": "Zinc",
     "description_ur": "خون میں زنک کی سطح ناپتا ہے۔",
     "preparation_ur": [
       "صبح کے وقت نمونہ دینا بہتر ہے۔",
@@ -3320,10 +3112,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "کورٹیسول",
-    "name_hi": "कोर्टिसोल",
-    "name_bn": "কর্টিসল",
-    "name_tl": "Cortisol",
     "description_ur": "کورٹیسول ناپتا ہے، ایڈرینل غدود کا بنایا ہوا ہارمون۔",
     "preparation_ur": [
       "نمونہ عموماً صبح تقریباً 8 بجے لیا جاتا ہے، جب تک ڈاکٹر کوئی اور وقت نہ بتائے۔",
@@ -3380,10 +3168,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "پیرا تھائیرائیڈ ہارمون (PTH)",
-    "name_hi": "पैराथायरॉइड हार्मोन (PTH)",
-    "name_bn": "প্যারাথাইরয়েড হরমোন (PTH)",
-    "name_tl": "Parathyroid Hormone (PTH)",
     "description_ur": "پیرا تھائیرائیڈ ہارمون ناپتا ہے جو خون اور ہڈیوں میں کیلشیم کو کنٹرول کرتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -3440,10 +3224,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "سی اے 125 (ٹیومر مارکر)",
-    "name_hi": "सीए-125 (ट्यूमर मार्कर)",
-    "name_bn": "সিএ-১২৫ (টিউমার মার্কার)",
-    "name_tl": "Tumor Marker na CA-125",
     "description_ur": "CA-125 ناپتا ہے، ایک پروٹین جو بیضہ دانی کی بعض حالتوں میں بڑھ سکتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -3500,10 +3280,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "جی 6 پی ڈی انزائم",
-    "name_hi": "जी6पीडी एंज़ाइम",
-    "name_bn": "জি৬পিডি এনজাইম",
-    "name_tl": "Enzyme na G6PD",
     "description_ur": "G6PD انزائم ناپتا ہے جو سرخ خلیوں کی حفاظت کرتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔"
@@ -3556,10 +3332,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "الفا فیٹوپروٹین (AFP)",
-    "name_hi": "अल्फ़ा-फ़ीटोप्रोटीन (AFP)",
-    "name_bn": "আলফা-ফিটোপ্রোটিন (AFP)",
-    "name_tl": "Alpha-Fetoprotein (AFP)",
     "description_ur": "خون میں الفا فیٹوپروٹین (AFP) ناپتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -3619,10 +3391,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "ٹروپونن آئی",
-    "name_hi": "ट्रोपोनिन आई",
-    "name_bn": "ট্রোপোনিন আই",
-    "name_tl": "Troponin I",
     "description_ur": "ٹروپونن آئی ناپتا ہے، وہ پروٹین جو دل کے پٹھوں کو نقصان پہنچنے پر نکلتا ہے۔",
     "preparation_ur": [
       "روزہ (فاقہ) رکھنے کی ضرورت نہیں۔",
@@ -3679,10 +3447,6 @@
     "medical_review_status": "approved",
     "public_eligibility": true,
     "is_active": true,
-    "name_ur": "ہوموسسٹین",
-    "name_hi": "होमोसिस्टीन",
-    "name_bn": "হোমোসিস্টিন",
-    "name_tl": "Homocysteine",
     "description_ur": "ہوموسسٹین ناپتا ہے، خون میں موجود ایک امینو ایسڈ۔",
     "preparation_ur": [
       "نمونے سے پہلے 8 گھنٹے کچھ نہ کھائیں؛ صرف سادہ پانی پی سکتے ہیں۔",
@@ -3720,10 +3484,6 @@
     ],
     "image_url": "https://cdn.nabd.plus/labs/hiv.png",
     "is_active": true,
-    "name_ur": "ایچ آئی وی ٹیسٹ",
-    "name_hi": "एचआईवी टेस्ट",
-    "name_bn": "এইচআইভি পরীক্ষা",
-    "name_tl": "Pagsusuri sa HIV",
     "preparation_en": [
       "No fasting is needed.",
       "The result is confidential and shared only with you."
@@ -3762,10 +3522,6 @@
     "description_en": "Cervical cancer screening.",
     "image_url": "https://cdn.nabd.plus/labs/pap.png",
     "is_active": true,
-    "name_ur": "پیپ اسمیئر",
-    "name_hi": "पैप स्मीयर",
-    "name_bn": "প্যাপ স্মিয়ার",
-    "name_tl": "Pap Smear",
     "preparation_ar": [
       "احجزي في غير أيام الدورة الشهرية، وتجنّبي قبلها بيومين الجماع والكريمات المهبلية والغسول المهبلي."
     ],
@@ -3802,10 +3558,6 @@
     "description_en": "Fertility assessment: count, motility, morphology.",
     "image_url": "https://cdn.nabd.plus/labs/semen.png",
     "is_active": true,
-    "name_ur": "منی کا تجزیہ",
-    "name_hi": "वीर्य विश्लेषण",
-    "name_bn": "বীর্য বিশ্লেষণ",
-    "name_tl": "Pagsusuri sa Semilya",
     "preparation_ar": [
       "امتنع عن القذف من 2 إلى 7 أيام قبل العينة، واجمع العينة كاملة في العلبة المعقمة المخصصة."
     ],
@@ -3842,10 +3594,6 @@
     "description_en": "Latent TB detection, more accurate than skin test.",
     "image_url": "https://cdn.nabd.plus/labs/qft.png",
     "is_active": true,
-    "name_ur": "کوانٹی فیرون ٹی بی",
-    "name_hi": "क्वांटिफ़ेरॉन-टीबी",
-    "name_bn": "কোয়ান্টিফেরন-টিবি",
-    "name_tl": "QuantiFERON-TB",
     "preparation_ar": [
       "لا يحتاج إلى صيام."
     ],
@@ -3882,10 +3630,6 @@
     "description_en": "Ovulation assessment and early pregnancy follow-up.",
     "image_url": "https://cdn.nabd.plus/labs/prog.png",
     "is_active": true,
-    "name_ur": "پروجیسٹرون",
-    "name_hi": "प्रोजेस्टेरोन",
-    "name_bn": "প্রোজেস্টেরন",
-    "name_tl": "Progesterone",
     "preparation_ar": [
       "لا يحتاج إلى صيام.",
       "قد يطلب طبيبك إجراء هذا التحليل في يوم محدد من الدورة الشهرية."
@@ -3928,10 +3672,6 @@
     "description_en": "Sickle cell and thalassemia screening.",
     "image_url": "https://cdn.nabd.plus/labs/hbe.png",
     "is_active": true,
-    "name_ur": "ہیموگلوبن الیکٹروفوریسس",
-    "name_hi": "हीमोग्लोबिन इलेक्ट्रोफ़ोरेसिस",
-    "name_bn": "হিমোগ্লোবিন ইলেক্ট্রোফোরেসিস",
-    "name_tl": "Hemoglobin Electrophoresis",
     "preparation_ar": [
       "لا يحتاج إلى صيام."
     ],

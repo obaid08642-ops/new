@@ -10,7 +10,7 @@ import { ConsultState } from "@/components-next/consult/consult-state";
 import { RowCard } from "@/components-next/consult/consult-parts";
 import { Caret, NURSING, RowList, ServiceChips, serviceIcon } from "@/components-next/nursing/nursing-parts";
 import { SearchForm, money } from "@/components-next/diagnostics/diag-parts";
-import { pickTexts, textsInclude } from "@/lib/i18n/localized";
+import { pickName, pickTexts, textsInclude } from "@/lib/i18n/localized";
 import type { Metadata } from "next";
 import { AddToBasketIcon } from "@/components-next/ordering/add-to-basket";
 import { BasketBar } from "@/components-next/ordering/basket-bar";
@@ -84,7 +84,7 @@ export default async function NursingCatalogPage({ params, searchParams }: Props
       ) : (
         <RowList label={t("catalogTitle")}>
           {shown.map((item) => {
-            const name = pickTexts(locale, item.names) ?? "";
+            const name = pickName(locale, item.names) ?? "";
             const description = pickTexts(locale, item.descriptions);
             const duration = localDuration(locale, item.durationValue, item.duration);
             return (

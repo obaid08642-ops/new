@@ -48,7 +48,7 @@ function publicProvider(p: any) {
 }
 
 /** Issue 1833: a radiology search matches every name field, in any language, case-insensitively. The text is escaped. */
-export const RADIOLOGY_NAME_FIELDS = ['name_ar', 'name_en', 'name_ur', 'name_hi', 'name_bn', 'name_tl'] as const;
+export const RADIOLOGY_NAME_FIELDS = ['name_ar', 'name_en'] as const;
 export function radiologySearchClause(search: string): { $or: Array<Record<string, RegExp>> } {
   const pattern = new RegExp(escapeRegex(search.trim()), 'i');
   return { $or: RADIOLOGY_NAME_FIELDS.map((field) => ({ [field]: pattern })) };

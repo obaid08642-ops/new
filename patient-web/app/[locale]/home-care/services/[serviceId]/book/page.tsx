@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { pickTexts } from "@/lib/i18n/localized";
+import { pickName } from "@/lib/i18n/localized";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -59,7 +59,7 @@ export default async function HomeCareBookPage({ params, searchParams }: Props) 
     );
   }
   const nurses = parseNurses(await nursesRes.json().catch(() => null));
-  const name = pickTexts(locale, service.names) ?? t("serviceTitle");
+  const name = pickName(locale, service.names) ?? t("serviceTitle");
   const caret = <Caret rtl={getDirection(locale) === "rtl"} />;
   const href = (over: Partial<{ sort: NurseSort; gender: NurseGender }>) => {
     const next = { sort, gender, ...over };

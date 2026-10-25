@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { pickTexts, textsOf, translatedColumns, type Texts } from "@/lib/i18n/localized";
+import { namesOf, pickName, textsOf, translatedColumns, type Texts } from "@/lib/i18n/localized";
 import { listsOf, type TextLists } from "@/lib/i18n/localized-lists";
 
 const labServiceIdSchema = z.string().regex(/^[A-Za-z0-9_-]{1,128}$/);
@@ -10,7 +10,6 @@ const labServiceSchema = z.object({
   short_code: z.string().max(80).optional(),
   description_ar: z.string().max(2000).optional(),
   description_en: z.string().max(2000).optional(),
-  ...translatedColumns("name", 180),
   ...translatedColumns("description", 2000),
   preparation_ur: z.array(z.string().max(500)).max(40).optional(),
   preparation_hi: z.array(z.string().max(500)).max(40).optional(),
@@ -70,7 +69,7 @@ function parseLabService(value: unknown): LabService | null {
   if (!item.name_ar && !item.name_en) return null;
   const row = value as Record<string, unknown>;
   return {
-    names: textsOf(row, "name"), descriptions: textsOf(row, "description"), preparations: listsOf(row, "preparation"),
+    names: namesOf(row), descriptions: textsOf(row, "description"), preparations: listsOf(row, "preparation"),
     id: item.id, nameAr: item.name_ar, nameEn: item.name_en, shortCode: item.short_code,
     descriptionAr: item.description_ar, descriptionEn: item.description_en, category: item.category,
     sampleType: item.sample_type, price: item.price, oldPrice: item.old_price,
@@ -113,6 +112,6 @@ export function includedTestNames(locale: string, included: readonly string[], t
   }
   return included.map((entry) => {
     const test = index.get(key(entry));
-    return (test && pickTexts(locale, test.names)) || entry;
+    return (test && pickName(locale, test.names)) || entry;
   });
 }
