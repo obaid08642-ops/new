@@ -6,7 +6,7 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 
 ## Coverage
 
-- Scenarios: 8 done, 9 partial, 4 blocked (reason given), 53 not started, of 74 total.
+- Scenarios: 8 done, 12 partial, 4 blocked (reason given), 50 not started, of 74 total.
 - Screens: 0 of 274 patient-web routes fully scanned (public pages sampled in findings). Admin and provider screens not started.
 - The sweep is not finished. It is finished only when both counts reach 100%, or each remaining line gives its reason.
 
@@ -57,9 +57,9 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 | A-07 | account | 8-character password rule | TODO | |
 | A-08 | account | profile edit | PARTIAL | Health basics (height, weight) proven: UI Save → PATCH /api/medical-profile 200; reload shows 172 / 70; MongoDB medicalprofiles doc updated (height_cm 172, weight_kg 70, updatedAt set). Name, email and phone not tested yet |
 | A-09 | account | family members | TODO | |
-| A-10 | account | addresses (map) | TODO | |
-| A-11 | account | notifications | TODO | |
-| A-12 | account | loyalty (Nabdat) | TODO | |
+| A-10 | account | addresses (map) | PARTIAL | API journey tools/live/j_qa_account.py: add, edit and delete with read-back (all pass). Map picker UI not tested yet |
+| A-11 | account | notifications | PARTIAL | Settings save and read-back pass (j_qa_account.py). In-app notification list not tested yet |
+| A-12 | account | loyalty (Nabdat) | PARTIAL | Reads pass: /loyalty/config, /account, /rewards (j_qa_account.py). Earn, redeem and challenge join not tested yet |
 | A-13 | account | support / chat | TODO | |
 | A-14 | account | legal pages | TODO | |
 | A-15 | account | delete account | TODO | do on a throwaway local account only |
@@ -105,7 +105,7 @@ Per-screen scan (every element, sizes 390/768/1280, six languages, dark mode) is
 - Auth-gated patient-web routes (signed in, 72): swept on the production layout. Table: docs/qa/screens/patient-web-auth.md. Findings: docs/qa/findings/web-sweep-auth.md.
 - Admin pages (65 files): swept signed in, on the admin build of 03:12, then re-checked on the rebuilt admin from merged main. Findings: docs/qa/findings/admin-sweep.md. Dynamic admin routes (orders/[kind]/[id]) not tested (need IDs).
 - Dynamic patient-web routes (53): 5 routes tested with a real seeded doctor (docs/qa/findings/web-sweep-dynamic.md). Found P1: /consultations/doctors/<id> returns 503 (server-to-client function prop). The other ~48 need seeded IDs for articles, facilities, community, orders, appointments, labs, radiology, packages, results, clinics: NOT TESTED, reason: no seeded records of those types yet.
-- Scenarios: 8 done, 9 partial, 4 blocked (reason given), 53 not started, of 74 total.
+- Scenarios: 8 done, 12 partial, 4 blocked (reason given), 50 not started, of 74 total.
 - Open P1s: guest job publish (no route); admin system logs API 404 (AdminLogsController dropped in the P5.3 merge).
 - Corrected: hydration P1 retracted (local setup; production layout passes).
 - Environment: services drop between turns. Recover with /tmp/claude-0-scratch/stack_up.sh (patient-web via the nonce server). Kill stale next-server processes by PID (comm next-server) before restarting admin.
