@@ -1,4 +1,4 @@
-import { normalizeDistrictName, planImport, type ExistingRow, type Extract } from '../../../scripts/migrations/2026-10-districts-import';
+import { normalizeDistrictName, planImport, type ExistingRow, type Extract } from './districts-plan';
 
 const existing: ExistingRow[] = [
   { code: 'sa-riyadh', name_ar: 'الرياض', name_en: 'Riyadh', type: 'city' },
