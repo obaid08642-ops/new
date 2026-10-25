@@ -4160,7 +4160,11 @@
       "copayPercent": "Bahagi mo, % (opsyonal)",
       "copayCap": "Pinakamataas kada item, SAR (opsyonal)",
       "copayPercentInvalid": "Maglagay ng numero mula 0 hanggang 100.",
-      "copayCapInvalid": "Maglagay ng halagang 0 o higit pa."
+      "copayCapInvalid": "Maglagay ng halagang 0 o higit pa.",
+      "class": "Klase",
+      "companySearch": "Hanapin ang iyong insurer",
+      "companyNone": "Walang insurer na tugma",
+      "chiLink": "Alamin ang iyong insurance"
     },
     "coverage": {
       "title": "Ano ang saklaw ng polisiya ko",

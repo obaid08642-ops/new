@@ -132,14 +132,19 @@ export function parseCompanies(payload: unknown, locale = "ar"): CompanyRow[] {
   });
 }
 
-export type NetworkRow = { code: string; name: string };
+/** An insurer's class (the backend calls it a network): its name in the page's language and, when the catalogue has them, the usual copay figures. */
+export type NetworkRow = { code: string; name: string; copayPercent?: number; copayCapSar?: number };
 
-/** GET /insurance/companies/:id/networks: the network choices of one insurer (the app's network chips). */
-export function parseNetworks(payload: unknown): NetworkRow[] {
+const figure = (value: unknown, max: number): number | undefined => (typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= max ? value : undefined);
+
+/** GET /insurance/companies/:id/networks: the class choices of one insurer (the app's class chips), named in the page's language. */
+export function parseNetworks(payload: unknown, locale = "ar"): NetworkRow[] {
   return listOf(payload).flatMap((row) => {
     const code = text(row.code) ?? text(row.id) ?? text(row._id);
     if (!code) return [];
-    return [{ code, name: text(row.name_ar) ?? text(row.name_en) ?? text(row.name) ?? code }];
+    const copayPercent = figure(row.copay_percent, 100);
+    const copayCapSar = figure(row.copay_cap_sar, 1_000_000);
+    return [{ code, name: nameFor(row, locale) ?? code, ...(copayPercent !== undefined ? { copayPercent } : {}), ...(copayCapSar !== undefined ? { copayCapSar } : {}) }];
   });
 }
 

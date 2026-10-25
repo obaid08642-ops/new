@@ -3770,5 +3770,9 @@
   "search.doctors.sortAvailable": "আজ উপলব্ধ",
   "loyalty.reason.late_compensation": "অ্যাপয়েন্টমেন্ট দেরির ক্ষতিপূরণ",
   "notifications.late.title": "নবদ প্লাস পয়েন্ট যোগ হয়েছে",
-  "notifications.late.body": "আপনার অ্যাপয়েন্টমেন্ট দেরিতে শুরু হয়েছে, তাই আপনার ব্যালেন্সে পয়েন্ট যোগ করা হয়েছে।"
+  "notifications.late.body": "আপনার অ্যাপয়েন্টমেন্ট দেরিতে শুরু হয়েছে, তাই আপনার ব্যালেন্সে পয়েন্ট যোগ করা হয়েছে।",
+  "insurance.add.class": "শ্রেণি",
+  "insurance.add.companySearch": "আপনার বিমা কোম্পানি খুঁজুন",
+  "insurance.add.companyNone": "এই নামে কোনো কোম্পানি পাওয়া যায়নি",
+  "insurance.add.chiLink": "আপনার বিমা যাচাই করুন"
 }

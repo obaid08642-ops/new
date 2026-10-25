@@ -3770,5 +3770,9 @@
   "search.doctors.sortAvailable": "आज उपलब्ध",
   "loyalty.reason.late_compensation": "अपॉइंटमेंट में देरी का मुआवज़ा",
   "notifications.late.title": "नब्ज़ प्लस पॉइंट जोड़े गए",
-  "notifications.late.body": "आपकी अपॉइंटमेंट देर से शुरू हुई, इसलिए आपके बैलेंस में पॉइंट जोड़ दिए गए।"
+  "notifications.late.body": "आपकी अपॉइंटमेंट देर से शुरू हुई, इसलिए आपके बैलेंस में पॉइंट जोड़ दिए गए।",
+  "insurance.add.class": "श्रेणी",
+  "insurance.add.companySearch": "अपनी बीमा कंपनी खोजें",
+  "insurance.add.companyNone": "इस नाम की कोई कंपनी नहीं मिली",
+  "insurance.add.chiLink": "अपना बीमा जाँचें"
 }

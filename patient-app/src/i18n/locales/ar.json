@@ -3770,5 +3770,9 @@
   "search.doctors.sortAvailable": "المتاح اليوم",
   "loyalty.reason.late_compensation": "تعويض عن تأخّر الموعد",
   "notifications.late.title": "أُضيفت نقاط نبض+",
-  "notifications.late.body": "تأخّر موعدك عن وقته، فأضفنا نقاطاً إلى رصيدك."
+  "notifications.late.body": "تأخّر موعدك عن وقته، فأضفنا نقاطاً إلى رصيدك.",
+  "insurance.add.class": "الفئة",
+  "insurance.add.companySearch": "ابحث عن شركة التأمين",
+  "insurance.add.companyNone": "لا توجد شركة بهذا الاسم",
+  "insurance.add.chiLink": "استعلم عن تأمينك"
 }

@@ -3770,5 +3770,9 @@
   "search.doctors.sortAvailable": "Available today",
   "loyalty.reason.late_compensation": "Compensation for a late appointment",
   "notifications.late.title": "Nabd Plus points added",
-  "notifications.late.body": "Your appointment started late, so we added points to your balance."
+  "notifications.late.body": "Your appointment started late, so we added points to your balance.",
+  "insurance.add.class": "Class",
+  "insurance.add.companySearch": "Search for your insurer",
+  "insurance.add.companyNone": "No insurer matches",
+  "insurance.add.chiLink": "Check your insurance"
 }

@@ -3770,5 +3770,9 @@
   "search.doctors.sortAvailable": "آج دستیاب",
   "loyalty.reason.late_compensation": "ملاقات میں تاخیر کا معاوضہ",
   "notifications.late.title": "نبض پلس پوائنٹس شامل ہو گئے",
-  "notifications.late.body": "آپ کی ملاقات دیر سے شروع ہوئی، اس لیے آپ کے بیلنس میں پوائنٹس شامل کر دیے گئے۔"
+  "notifications.late.body": "آپ کی ملاقات دیر سے شروع ہوئی، اس لیے آپ کے بیلنس میں پوائنٹس شامل کر دیے گئے۔",
+  "insurance.add.class": "زمرہ",
+  "insurance.add.companySearch": "اپنی انشورنس کمپنی تلاش کریں",
+  "insurance.add.companyNone": "اس نام کی کوئی کمپنی نہیں ملی",
+  "insurance.add.chiLink": "اپنی انشورنس کی تفصیل معلوم کریں"
 }

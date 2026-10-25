@@ -4160,7 +4160,11 @@
       "copayPercent": "نسبة تحمّلك % (اختياري)",
       "copayCap": "الحد الأقصى لكل بند، ر.س (اختياري)",
       "copayPercentInvalid": "أدخل رقمًا من 0 إلى 100.",
-      "copayCapInvalid": "أدخل مبلغًا يساوي 0 أو أكثر."
+      "copayCapInvalid": "أدخل مبلغًا يساوي 0 أو أكثر.",
+      "class": "الفئة",
+      "companySearch": "ابحث عن شركة التأمين",
+      "companyNone": "لا توجد شركة بهذا الاسم",
+      "chiLink": "استعلم عن تأمينك"
     },
     "coverage": {
       "title": "ما تغطيه وثيقتي",
