@@ -31,7 +31,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: native-e2e-${{ github.ref }}
+  group: native-e2e-${{ github.ref }}-${{ inputs.app }}-${{ inputs.target }}-${{ inputs.flow }}
   cancel-in-progress: true
 
 jobs:
