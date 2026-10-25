@@ -10,4 +10,4 @@ appId: com.patient.nabd
     id: "cart-remove-.*"
 - tapOn:
     id: "cart-remove-.*"
-- assertVisible: "EMPTY_TITLE"
+- assertVisible: "السلة فارغة"
