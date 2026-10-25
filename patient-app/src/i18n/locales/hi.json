@@ -246,6 +246,7 @@
   "pharmacy.all": "सभी",
   "pharmacy.addToCart": "कार्ट में जोड़ें",
   "pharmacy.cart": "कार्ट",
+  "pharmacy.cartCount": "कार्ट, {count} आइटम",
   "pharmacy.viewCart": "कार्ट देखें",
   "pharmacy.viewAll": "सभी देखें",
   "pharmacy.needsRx": "नुस्खा आवश्यक",

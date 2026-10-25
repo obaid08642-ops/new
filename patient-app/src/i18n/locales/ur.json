@@ -246,6 +246,7 @@
   "pharmacy.all": "سب",
   "pharmacy.addToCart": "ٹوکری میں شامل کریں",
   "pharmacy.cart": "ٹوکری",
+  "pharmacy.cartCount": "ٹوکری، {count} آئٹمز",
   "pharmacy.viewCart": "ٹوکری دیکھیں",
   "pharmacy.viewAll": "سب دیکھیں",
   "pharmacy.needsRx": "نسخہ درکار",
