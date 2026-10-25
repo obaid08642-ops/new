@@ -16,12 +16,22 @@ const mockApiFetch = jest.fn();
 const mockReplace = jest.fn();
 jest.mock('expo-router', () => ({ router: { replace: (...a: unknown[]) => mockReplace(...a) } }));
 jest.mock('../../../utils/api', () => ({ apiFetch: (...a: unknown[]) => mockApiFetch(...a), storeAuthSession: jest.fn() }));
-jest.mock('expo-web-browser', () => ({ maybeCompleteAuthSession: jest.fn() }));
+const mockOpenAuthSession = jest.fn();
+jest.mock('expo-web-browser', () => ({ maybeCompleteAuthSession: jest.fn(), openAuthSessionAsync: (...a: unknown[]) => mockOpenAuthSession(...a) }));
 jest.mock('expo-auth-session/providers/google', () => ({ useAuthRequest: () => [{}, null, jest.fn()] }));
 const mockPrompt = jest.fn();
 jest.mock('expo-auth-session', () => ({
   makeRedirectUri: () => 'nabdplus://redirect',
-  useAuthRequest: () => [{ codeVerifier: 'verifier-0123456789012345678901234567890123456789' }, null, (...a: unknown[]) => mockPrompt(...a)],
+  useAuthRequest: () => [
+    {
+      codeVerifier: 'verifier-0123456789012345678901234567890123456789',
+      // Snapchat: the request builds the authorize URL and checks the returned URL (its redirect is the HTTPS bridge page)
+      makeAuthUrlAsync: async () => 'https://accounts.snapchat.com/accounts/oauth2/auth?x=1',
+      parseReturnUrl: () => ({ type: 'success', params: { code: 'the-code' } }),
+    },
+    null,
+    (...a: unknown[]) => mockPrompt(...a),
+  ],
   exchangeCodeAsync: jest.fn(() => { throw new Error('the app must not exchange the code itself'); }),
 }));
 
@@ -30,7 +40,7 @@ const off = { enabled: false };
 const answer = (over: Record<string, unknown> = {}) => ({ google: { ...on, client_id: 'g-web', ios_client_id: 'g-ios', android_client_id: 'g-and' }, apple: { ...on }, x: { ...on, client_id: 'x-id' }, snapchat: { ...on, client_id: 's-id' }, ...over });
 const config = (over: Record<string, unknown> = {}) => parseSocialRuntime(answer(over)) as SocialRuntimeConfig;
 
-afterEach(() => { jest.restoreAllMocks(); resetSocialConfigCache(); mockApiFetch.mockReset(); mockPrompt.mockReset(); mockReplace.mockReset(); });
+afterEach(() => { jest.restoreAllMocks(); resetSocialConfigCache(); mockApiFetch.mockReset(); mockPrompt.mockReset(); mockOpenAuthSession.mockReset(); mockReplace.mockReset(); });
 
 describe('providers drawn from the backend answer', () => {
   it('ios: all four; android and web: never Apple', () => {
@@ -84,6 +94,7 @@ describe('X and Snapchat send the code to the backend', () => {
       return { user: { id: 'u1', full_name: 'A' }, token: { accessToken: 'a', refreshToken: 'r' } };
     });
     mockPrompt.mockResolvedValue({ type: 'success', params: { code: 'the-code' } });
+    mockOpenAuthSession.mockResolvedValue({ type: 'success', url: 'nabdplus://login/app-callback?code=the-code&state=s' });
     const wrapper = ({ children }: { children: React.ReactNode }) => React.createElement(Provider, { store: makeStore(), children });
     const { result } = await renderHook(() => useSocialLogin(), { wrapper });
     await act(async () => {});
@@ -91,7 +102,7 @@ describe('X and Snapchat send the code to the backend', () => {
     const call = mockApiFetch.mock.calls.find((c) => c[0] === '/auth/social-login');
     expect(call).toBeDefined();
     const body = JSON.parse((call?.[1] as { body: string }).body);
-    expect(body).toEqual({ provider, code: 'the-code', code_verifier: 'verifier-0123456789012345678901234567890123456789', redirect_uri: 'nabdplus://redirect' });
+    expect(body).toEqual({ provider, code: 'the-code', code_verifier: 'verifier-0123456789012345678901234567890123456789', redirect_uri: provider === 'x' ? 'nabdplus://redirect' : 'https://nabd.plus/en/login/app-callback' });
     expect((call?.[1] as { skipAuth?: boolean }).skipAuth).toBe(true);
   });
 });
