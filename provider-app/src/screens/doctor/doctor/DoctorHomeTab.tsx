@@ -345,7 +345,7 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
     <Text style={{ fontSize: FS.sm, color: theme.text, textAlign: AR ? 'right' : 'left', fontWeight: FW.bold, marginTop: 2 }}>{insuranceModalReq?.complaint || (AR ? 'غير متوفر' : 'N/A')}</Text>
   </View>
   </NCard>
-  <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? 'حالة الموافقة من نفييس:' : 'NPHIES Approval Status:'}</Text>
+  <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? 'حالة موافقة التأمين:' : 'Insurance Approval Status:'}</Text>
   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginBottom: SP.lg }}>
   {['كلية', 'جزئية', 'مرفوضة'].map(s => (
   <TouchableOpacity key={s} onPress={() => setApprovalStatus(s)} style={{ flex: 1, padding: SP.md, borderRadius: R.md, backgroundColor: approvalStatus === s ? theme.primary : theme.surface2, alignItems: 'center' }}>
