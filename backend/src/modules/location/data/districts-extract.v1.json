@@ -1,0 +1,5 @@
+{
+  "_note": "The districts extract shipped in the backend image (read by catalogue-apply by default; a host file --districts=<file> overrides it). Rows: city_code, name_ar, name_en, lat, lng, source (osm:<node|way|relation>/<id> or the official list's name); cities: code, lat, lng, source. Every row is checked by modules/location/districts-extract.spec.ts. Build it with scripts/geo/fetch-osm-districts.ts and the official lists, review, and commit the file here. Empty until then: the districts step plans nothing.",
+  "cities": [],
+  "districts": []
+}
