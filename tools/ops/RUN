@@ -1,9 +1,6 @@
-# 2026-10-25 lead reviewer: run 16, deploy main@2920ecb7 (#1890-#1909: social sign-in from the backend at run time, insurance
-# company/class/copay + CHI link, map entry, cart button, web parity, /geo/reverse, P2P calls (flag off), public catalogue caching).
-# Then 90-catalogue-apply as a DRY RUN only (EXPECT_PLAN_SHA empty: prints counts and the plan hash, writes nothing),
-# 91-env-names (READ-ONLY: which settings are set or missing, names only, never a value) and cf-purge-api.
-release:2920ecb73910dc15a137821af70d1d0b7fad85ed
-60-deploy-main
+# 2026-10-25 lead reviewer: run 17, APPLY the catalogue plan reviewed from run 16's dry run (main@2920ecb7 is live):
+#   plan 7750e708…: medicine_translations set 534, medicine_name_hygiene set 36, total 570 of 20,990 medicines; no inserts.
+#   The task re-plans and writes nothing unless the hash still matches; backup first, guarded writes, verify, rollback on mismatch.
+# No deploy in this run. cf-purge-api so the product pages show the new names.
 90-catalogue-apply
-91-env-names
 cf-purge-api

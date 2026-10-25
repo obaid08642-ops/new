@@ -17,7 +17,7 @@
 #                                                    $IN/approved-name-fixes.csv  (the owner-approved rows of fix-catalogue-names)
 # After a change of medicine names, add `cf-purge-api` to tools/ops/RUN for that run so the cached product pages refresh.
 set -u
-EXPECT_PLAN_SHA=""
+EXPECT_PLAN_SHA="7750e7082fbf840e712f494513986e642d439b2d7dbbdf901bd2bedb9ff676d6"
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}
 IN=${OPS_CATALOGUE_DIR:-/opt/nabdah/catalogue}
