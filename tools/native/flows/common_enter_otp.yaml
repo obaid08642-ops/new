@@ -1,0 +1,22 @@
+# The OTP screen: read the code mailed to ${TO} from the test sink and type it into the six boxes, then confirm.
+appId: com.patient.nabd
+---
+- extendedWaitUntil:
+    visible:
+      id: "otp-box-0"
+    timeout: 30000
+- runScript:
+    file: scripts/otp.js
+    env:
+      TO: ${TO}
+- tapOn:
+    id: "otp-box-0"
+- inputText: ${output.code.charAt(0)}
+- inputText: ${output.code.charAt(1)}
+- inputText: ${output.code.charAt(2)}
+- inputText: ${output.code.charAt(3)}
+- inputText: ${output.code.charAt(4)}
+- inputText: ${output.code.charAt(5)}
+- hideKeyboard
+- tapOn:
+    id: "otp-submit"

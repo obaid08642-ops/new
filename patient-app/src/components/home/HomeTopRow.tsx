@@ -39,7 +39,7 @@ export function HomeTopRow({ name }: { name: string | null }) {
 
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-      <Pressable accessibilityRole="button" accessibilityLabel={tr('common.profile')} onPress={() => router.push('/profile')} hitSlop={4}>
+      <Pressable accessibilityRole="button" accessibilityLabel={tr('common.profile')} onPress={() => router.push('/profile')} hitSlop={4} testID="home-profile">
         <Avatar name={first} size="md" theme={theme} />
       </Pressable>
       <View style={{ flex: 1 }} />
@@ -47,6 +47,7 @@ export function HomeTopRow({ name }: { name: string | null }) {
         accessibilityRole="button"
         accessibilityLabel={tr('common.language')}
         onPress={() => setLangOpen(true)}
+        testID="home-language"
         style={{ ...ring, minWidth: HIT, paddingHorizontal: 8, alignItems: 'center', justifyContent: 'center' }}
       >
         <Plain weight="medium" size={15} maxFontSizeMultiplier={1.3}>{LANG_SHORT[lang]}</Plain>
@@ -75,7 +76,7 @@ export function HomeTopRow({ name }: { name: string | null }) {
         </View>
       </Pressable>
       <View>
-        <IconButton name="bell" label={tr('common.notifications')} variant="outlined" theme={theme} onPress={() => router.push('/notifications')} />
+        <IconButton name="bell" label={tr('common.notifications')} variant="outlined" theme={theme} onPress={() => router.push('/notifications')} testID="home-notifications" />
         {unread > 0 ? (
           <View
             testID="home-bell-dot"

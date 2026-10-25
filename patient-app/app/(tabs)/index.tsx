@@ -151,7 +151,7 @@ export default function HomeScreen() {
       bottomSpace={barHeight + 40}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void load(true)} tintColor={c.action.primary.bg} />}
     >
-      <View style={{ ...PHONE_COLUMN, paddingTop: 7, gap: 16 }}>
+      <View style={{ ...PHONE_COLUMN, paddingTop: 7, gap: 16 }} testID="home-screen">
         <HomeTopRow name={patientName} />
         <GreetingCard name={patientName} />
         {failed > 0 && !loading ? <LoadBanner message={t('error')} retryLabel={t('retry')} onRetry={() => void load(true)} /> : null}

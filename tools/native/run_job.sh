@@ -27,6 +27,12 @@ else
   TAG="provider_$ARG"
 fi
 
+# Helper the flows call from runScript (fresh sign-up data, mailed OTP codes, a throwaway patient): tools/native/helper.py
+HELPER_PORT=9300
+nohup python3 tools/native/helper.py "$HELPER_PORT" > "$OUT/helper.log" 2>&1 &
+HELPER_PID=$!
+sleep 1
+
 # The flows of this app: tools/native/flows/<app>_<name>.yaml, narrowed by NATIVE_FLOW. One result file per flow:
 # flow_<TAG>__<name>.txt = "ok", or why it failed (the Maestro log and screenshots are in maestro_<TAG>__<name>).
 LOGIN_OK=no
@@ -35,7 +41,7 @@ for FLOW in tools/native/flows/${TARGET}_*.yaml; do
   NAME=$(basename "$FLOW" .yaml); NAME=${NAME#${TARGET}_}
   case "$FLOW_FILTER" in none) continue ;; all) ;; *) [[ "$NAME" == *"$FLOW_FILTER"* ]] || continue ;; esac
   if [ -z "$EMAIL" ]; then echo "no seeded account for $TARGET $ARG" > "$OUT/flow_${TAG}__${NAME}.txt"; continue; fi
-  if "$HOME/.maestro/bin/maestro" test -e EMAIL="$EMAIL" -e PASSWORD="$PASS" --test-output-dir "$OUT/maestro_${TAG}__${NAME}" "$FLOW" > "$OUT/maestro_${TAG}__${NAME}.log" 2>&1; then
+  if "$HOME/.maestro/bin/maestro" test -e EMAIL="$EMAIL" -e PASSWORD="$PASS" -e HELPER="http://127.0.0.1:$HELPER_PORT" --test-output-dir "$OUT/maestro_${TAG}__${NAME}" "$FLOW" > "$OUT/maestro_${TAG}__${NAME}.log" 2>&1; then
     echo ok > "$OUT/flow_${TAG}__${NAME}.txt"; [ "$NAME" = login ] && LOGIN_OK=yes
   else
     echo "maestro flow failed (see maestro_${TAG}__${NAME}.log and its screenshots)" > "$OUT/flow_${TAG}__${NAME}.txt"
@@ -51,5 +57,6 @@ if [ "$CRAWL" = true ]; then
     python3 tools/native/native_crawl.py provider --ptype "$ARG" --out "$OUT"
   fi
 fi
+kill "$HELPER_PID" 2>/dev/null || true
 adb logcat -d -v time '*:E' > "$OUT/logcat_errors_$TAG.txt" 2>/dev/null || true
 exit 0

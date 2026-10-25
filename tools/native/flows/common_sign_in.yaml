@@ -1,0 +1,22 @@
+# Welcome -> Log in with ${EMAIL} / ${PASSWORD} -> home.
+appId: com.patient.nabd
+---
+- tapOn:
+    id: "welcome-login"
+- extendedWaitUntil:
+    visible:
+      id: "login-identifier"
+    timeout: 20000
+- tapOn:
+    id: "login-identifier"
+- inputText: ${EMAIL}
+- tapOn:
+    id: "login-password"
+- inputText: ${PASSWORD}
+- hideKeyboard
+- tapOn:
+    id: "login-submit"
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 40000

@@ -1,0 +1,48 @@
+# Sign-up: Welcome -> Create account -> form -> OTP mailed to the new address -> home.
+appId: com.patient.nabd
+---
+- runFlow: common_to_welcome.yaml
+- runScript:
+    file: scripts/fresh.js
+- tapOn:
+    id: "welcome-register"
+- extendedWaitUntil:
+    visible:
+      id: "register-name"
+    timeout: 20000
+- tapOn:
+    id: "register-name"
+- inputText: ${output.name}
+- tapOn:
+    id: "register-email"
+- inputText: ${output.email}
+- tapOn:
+    id: "register-phone"
+- inputText: ${output.phone}
+- tapOn:
+    id: "register-password"
+- inputText: ${output.password}
+- tapOn:
+    id: "register-confirm"
+- inputText: ${output.password}
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "register-submit"
+- tapOn:
+    id: "register-submit"
+- runFlow:
+    file: common_enter_otp.yaml
+    env:
+      TO: ${output.email}
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 40000
+- tapOn:
+    id: "home-profile"
+- assertVisible:
+    id: "profile-screen"
+- assertVisible:
+    text: ${output.name}
+- takeScreenshot: patient_signup_profile

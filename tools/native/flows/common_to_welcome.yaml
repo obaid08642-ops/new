@@ -1,0 +1,26 @@
+# Fresh install to the Welcome screen: language step, intro (skipped), Welcome.
+appId: com.patient.nabd
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: ".*isn.t responding.*"
+    commands:
+      - tapOn: "Wait"
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-language"
+    timeout: 120000
+- tapOn:
+    id: "language-continue"
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-intro"
+    timeout: 20000
+- tapOn:
+    id: "onboarding-skip"
+- extendedWaitUntil:
+    visible:
+      id: "welcome-login"
+    timeout: 20000
