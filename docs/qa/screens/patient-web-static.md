@@ -1,6 +1,6 @@
 # Patient-web static routes, anonymous sweep (390 and 1280 px)
 
-Source: sweep script on the local production build (merged main). Auth-gated routes redirect to login as expected; they are covered by the signed-in sweep (not yet run). Per-route flags only; the defects are in docs/qa/findings/web-sweep-static.md.
+Source: sweep script on the local production build (merged main). Auth-gated routes redirect to login as expected; they are covered by the signed-in sweep (not yet run). Re-run on the production layout (nonce server on :3000) at 19:10 UTC: all 141 routes recorded, same flags as the first pass. Per-route flags only; the defects are in docs/qa/findings/web-sweep-static.md.
 
 | route | 390 px | 1280 px |
 |---|---|---|
