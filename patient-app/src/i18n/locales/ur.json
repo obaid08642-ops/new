@@ -3795,5 +3795,11 @@
   "uploads.unavailable": "فائل اپ لوڈ فی الحال دستیاب نہیں ہے۔ بعد میں دوبارہ کوشش کریں۔",
   "orders.emptyKindCurrent": "کوئی موجودہ آرڈر نہیں: {service}",
   "orders.emptyKindPrevious": "کوئی پچھلا آرڈر نہیں: {service}",
-  "orders.emptyKindBody": "اس سروس میں ابھی کچھ نہیں۔ باقی آرڈر دیکھنے کے لیے سب منتخب کریں۔"
+  "orders.emptyKindBody": "اس سروس میں ابھی کچھ نہیں۔ باقی آرڈر دیکھنے کے لیے سب منتخب کریں۔",
+  "picker.city": "شہر",
+  "picker.district": "محلہ",
+  "picker.choose": "منتخب کریں",
+  "picker.reversing": "پن کی جگہ سے پتہ پڑھا جا رہا ہے…",
+  "picker.outsideArea": "یہ جگہ سروس کے علاقے سے باہر ہے۔ پن کو مملکت کے اندر لائیں یا پتہ خود لکھیں۔",
+  "picker.reverseFailed": "آپ کے مقام سے پتہ نہیں پڑھا جا سکا۔ خود لکھیں۔"
 }

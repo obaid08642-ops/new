@@ -18,7 +18,7 @@ Not in this task: the ingredient normalisation, merge pairs, variant groups and 
 ## How a run goes
 1. **Dry run** (`EXPECT_PLAN_SHA=""` in the task file, the committed state): prints `status:` lines with the plan, counts per step and the plan's
    SHA-256. Nothing is written.
-2. The owner reads the counts. The reviewer sets `EXPECT_PLAN_SHA=<hash>` in the task file and runs the task again.
+2. The owner reads the counts. The reviewer sets `EXPECT_PLAN_SHA=<hash>` in the task file and runs the task again. `<hash>` may be the full hash or a hex prefix of at least 32 characters (the public log masks secret-like substrings, so the full hash is not always readable there); a shorter or non-hex value aborts before anything is written.
 3. **Apply**: the plan is recomputed and must have the same hash (otherwise nothing is written); a **backup** of every field the plan changes
    (before-images) and every document it inserts is written, read back and hashed, and a copy goes to `/opt/nabdah/backups/catalogue-<ts>.json.gz`;
    the writes run as compare-and-set (a field edited since the plan is skipped, never overwritten); then a **fresh plan must be empty** and the

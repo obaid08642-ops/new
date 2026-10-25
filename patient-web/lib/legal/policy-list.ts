@@ -4,6 +4,9 @@ export type PolicyListItem = { key: string; title: string; version: string | nul
 /** The four documents the patient site already has a page for. */
 export const PAGE_POLICIES = ["patient_terms", "privacy_policy", "refund_policy", "telehealth_consent"] as const;
 
+/** Shown as sections of Settings > About and legal (the public pages /refund-policy and /telehealth-consent stay for the flows that link them). */
+export const INLINE_POLICIES = ["refund_policy", "telehealth_consent"] as const;
+
 const rec = (value: unknown): Record<string, unknown> | null => (value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null);
 const str = (value: unknown): string | null => (typeof value === "string" && value.trim() ? value.trim() : null);
 

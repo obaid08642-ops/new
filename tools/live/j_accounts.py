@@ -1,5 +1,6 @@
 """Journey: accounts (patient-app signup/login/logout/refresh/reset, provider self-registration).
 Payloads are copied from the clients: patient-app app/(auth)/{register,otp,login,forgot-password}.tsx."""
+import secrets
 import time
 from lib import Client, journey, step, mail_code, uniq, phone
 
@@ -11,7 +12,8 @@ def app_signup(role=None, label='patient'):
     """patient-app register.tsx -> otp.tsx: send-otp(email) -> verify-otp -> register -> token."""
     email = f'{uniq(label)}@nabd.test'
     ph = phone()
-    pw = 'Str0ng!Pass' + uniq('')[-4:]
+    # random and long: a fixed stem + 4 characters is sometimes on the breached-password list, which register rightly refuses
+    pw = 'Nb-' + secrets.token_urlsafe(18)
     t0 = time.time()
     r = anon.post('/auth/send-otp', {'email': email, 'purpose': 'register'})
     step(f'{label}: send-otp (email, register)', r.ok, r)
