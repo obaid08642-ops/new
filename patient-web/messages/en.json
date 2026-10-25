@@ -1770,7 +1770,9 @@
     "useMyLocation": "Use my current location",
     "locating": "Finding your location…",
     "locationSet": "The address location is set.",
-    "locateFailed": "We could not get your current location."
+    "locateFailed": "We could not get your current location.",
+    "building": "Building number",
+    "floor": "Floor"
   },
   "ShareReport": {
     "title": "Share Reports",
@@ -2880,7 +2882,8 @@
     "emptyBody": "Add an address with its map location to receive pharmacy orders.",
     "emptyAction": "Add an address",
     "errorTitle": "Your addresses could not be loaded",
-    "errorBody": "Check your connection and try again."
+    "errorBody": "Check your connection and try again.",
+    "addOnMap": "Add an address on the map"
   },
   "ConsultWeb": {
     "tabUpcoming": "Upcoming",
@@ -5509,5 +5512,30 @@
     "errBusy": "Too many requests. Wait a moment and try again.",
     "loadErr": "Could not load the page",
     "retry": "Retry"
+  },
+  "AddressMap": {
+    "title": "Pick the address on the map",
+    "mapLabel": "Address map",
+    "hint": "Move the map so the pin sits on your door. With the keyboard: the arrow keys move the pin, plus and minus zoom.",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "pinLabel": "Pin: the address location",
+    "loading": "Loading the map…",
+    "noMapTitle": "No map available",
+    "noMapBody": "You can still use your location, pick the city and district, or enter the short address code in the fields below.",
+    "useMyLocation": "Use my location",
+    "locating": "Finding your location…",
+    "located": "The pin is on your location.",
+    "denied": "Location permission was denied. Allow it in your browser settings, or move the map yourself.",
+    "locateFailed": "Your location could not be found. Move the map yourself.",
+    "coords": "Pin at: {point}",
+    "noPin": "Move the map to place the pin, or use your location.",
+    "finding": "Finding the address…",
+    "found": "Address found. Check the details below.",
+    "errOutside": "This place is outside our service area. Move the pin inside the Kingdom.",
+    "errNotFound": "No address was found here. Move the pin, or fill in the details below.",
+    "errUnavailable": "The address service is not available right now. Fill in the details below, or try again.",
+    "errNetwork": "You seem to be offline. Fill in the details below, or try again.",
+    "retry": "Try again"
   }
 }

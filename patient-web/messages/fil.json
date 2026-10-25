@@ -1770,7 +1770,9 @@
     "useMyLocation": "Gamitin ang kasalukuyang lokasyon ko",
     "locating": "Hinahanap ang lokasyon mo…",
     "locationSet": "Naitakda na ang lokasyon ng address.",
-    "locateFailed": "Hindi makuha ang kasalukuyang lokasyon mo."
+    "locateFailed": "Hindi makuha ang kasalukuyang lokasyon mo.",
+    "building": "Numero ng gusali",
+    "floor": "Palapag"
   },
   "ShareReport": {
     "title": "Ibahagi ang mga Ulat",
@@ -2880,7 +2882,8 @@
     "emptyBody": "Magdagdag ng address na may lokasyon sa mapa para makatanggap ng mga order sa botika.",
     "emptyAction": "Magdagdag ng address",
     "errorTitle": "Hindi ma-load ang mga address mo",
-    "errorBody": "Tingnan ang koneksyon mo at subukan ulit."
+    "errorBody": "Tingnan ang koneksyon mo at subukan ulit.",
+    "addOnMap": "Magdagdag ng address sa mapa"
   },
   "ConsultWeb": {
     "tabUpcoming": "Paparating",
@@ -5508,6 +5511,31 @@
     "errNetwork": "Walang koneksyon. Suriin ang internet at subukan muli.",
     "errBusy": "Masyadong maraming request. Maghintay sandali at subukan muli.",
     "loadErr": "Hindi ma-load ang page",
+    "retry": "Subukan muli"
+  },
+  "AddressMap": {
+    "title": "Piliin ang address sa mapa",
+    "mapLabel": "Mapa ng address",
+    "hint": "Igalaw ang mapa para nasa pinto mo ang pin. Sa keyboard: ang mga arrow key ang gumagalaw sa pin, ang plus at minus ang nagza-zoom.",
+    "zoomIn": "Mag-zoom in",
+    "zoomOut": "Mag-zoom out",
+    "pinLabel": "Pin: ang lokasyon ng address",
+    "loading": "Nilo-load ang mapa…",
+    "noMapTitle": "Walang magagamit na mapa",
+    "noMapBody": "Magagamit mo pa rin ang iyong lokasyon, pumili ng lungsod at distrito, o ilagay ang short address code sa mga field sa ibaba.",
+    "useMyLocation": "Gamitin ang aking lokasyon",
+    "locating": "Hinahanap ang iyong lokasyon…",
+    "located": "Nasa iyong lokasyon na ang pin.",
+    "denied": "Tinanggihan ang pahintulot sa lokasyon. Payagan ito sa settings ng browser, o ikaw na ang gumalaw ng mapa.",
+    "locateFailed": "Hindi mahanap ang iyong lokasyon. Ikaw na ang gumalaw ng mapa.",
+    "coords": "Pin sa: {point}",
+    "noPin": "Igalaw ang mapa para ilagay ang pin, o gamitin ang iyong lokasyon.",
+    "finding": "Hinahanap ang address…",
+    "found": "Nahanap ang address. Suriin ang mga detalye sa ibaba.",
+    "errOutside": "Nasa labas ito ng aming service area. Ilipat ang pin sa loob ng Kaharian.",
+    "errNotFound": "Walang nahanap na address dito. Ilipat ang pin, o punan ang mga detalye sa ibaba.",
+    "errUnavailable": "Hindi available ang address service ngayon. Punan ang mga detalye sa ibaba, o subukan muli.",
+    "errNetwork": "Mukhang offline ka. Punan ang mga detalye sa ibaba, o subukan muli.",
     "retry": "Subukan muli"
   }
 }
