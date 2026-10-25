@@ -26,6 +26,9 @@ appId: com.patient.nabd
 - tapOn:
     id: "register-password"
 - inputText: ${output.password}
+- scrollUntilVisible:
+    element:
+      id: "register-confirm"
 - tapOn:
     id: "register-confirm"
 - inputText: ${output.password}

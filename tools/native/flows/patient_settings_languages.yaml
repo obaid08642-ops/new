@@ -37,7 +37,7 @@ appId: com.patient.nabd
     text: "ভাষা ও চেহারা"
 - takeScreenshot: patient_language_bn
 - tapOn:
-    id: "language-tl"
+    id: "language-fil"
 - assertVisible:
     text: "Wika at itsura"
 - takeScreenshot: patient_language_tl

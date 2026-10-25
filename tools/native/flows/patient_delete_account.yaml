@@ -1,4 +1,4 @@
-# Delete account: Privacy -> delete tab -> confirm -> password -> back on Welcome; signing in with the deleted account fails.
+# Delete account: Privacy -> delete tab -> confirm -> password -> the app returns to the Log in screen; signing in with the deleted account fails.
 appId: com.patient.nabd
 ---
 - runScript:
@@ -31,10 +31,8 @@ appId: com.patient.nabd
     text: "حذف نهائي"
 - extendedWaitUntil:
     visible:
-      id: "welcome-login"
+      id: "login-identifier"
     timeout: 30000
-- tapOn:
-    id: "welcome-login"
 - tapOn:
     id: "login-identifier"
 - inputText: ${output.email}
