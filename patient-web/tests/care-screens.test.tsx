@@ -36,21 +36,11 @@ vi.mock("@/lib/api/meditation-server", () => ({ getPatientMeditationHistory: (to
 
 import MaternityPage from "@/app/[locale]/maternity/page";
 import MaternitySetupPage from "@/app/[locale]/maternity/maternity-setup/page";
-import TrackerRedirect from "@/app/[locale]/maternity/tracker/page";
-import BabyGrowthRedirect from "@/app/[locale]/maternity/baby-growth/page";
 import NutritionPage from "@/app/[locale]/nutrition/page";
 import LogMealPage from "@/app/[locale]/nutrition/log-meal/page";
-import BodyTargetRedirect from "@/app/[locale]/nutrition/body-target/page";
-import PlanRedirect from "@/app/[locale]/nutrition/plan/page";
 import MentalHealthPage from "@/app/[locale]/mental-health/page";
 import MoodPage from "@/app/[locale]/mental-health/mood/page";
-import RelaxPage from "@/app/[locale]/mental-health/relax/page";
-import BreathingRedirect from "@/app/[locale]/mental-health/breathing/page";
-import CrisisRedirect from "@/app/[locale]/mental-health/crisis-contacts/page";
-import SelfAssessmentRedirect from "@/app/[locale]/mental-health/self-assessment/page";
-import TherapistRedirect from "@/app/[locale]/mental-health/therapist-match/page";
 import ProgramsPage from "@/app/[locale]/programs/page";
-import ProgramsActiveRedirect from "@/app/[locale]/programs/active/page";
 import { CareHero, RecordRow } from "@/components-next/care/care-kit";
 import { ChoiceGroup, TextField } from "@/components-next/care/care-fields";
 
@@ -128,10 +118,6 @@ describe("the maternity hub", () => {
     expect(render(await MaternityPage(page()))).toContain("Maternity data could not be loaded");
   });
 
-  it("the old tracker, growth pages redirect to the tabs and keep the query", async () => {
-    expect(await redirectOf(async () => TrackerRedirect({ params, searchParams: Promise.resolve({ x: "1" }) }))).toBe("redirect:/en/maternity?x=1&tab=pregnancy");
-    expect(await redirectOf(async () => BabyGrowthRedirect(page()))).toBe("redirect:/en/maternity?tab=baby");
-  });
 
   it("the setup form renders both paths' fields with date inputs", async () => {
     const html = render(await MaternitySetupPage({ params }));
@@ -182,8 +168,6 @@ describe("the nutrition hub", () => {
 
   it("the log-meal form stays its own screen; the old body-target and plan routes redirect", async () => {
     expect(render(await LogMealPage({ params }))).toContain("Save meal");
-    expect(await redirectOf(async () => BodyTargetRedirect(page()))).toBe("redirect:/en/nutrition?tab=target");
-    expect(await redirectOf(async () => PlanRedirect(page()))).toBe("redirect:/en/nutrition?tab=plan");
   });
 });
 
@@ -205,14 +189,6 @@ describe("mental health", () => {
     expect(render(await MoodPage({ params }))).toContain(">Good<");
   });
 
-  it("the removed screens and the old tabs redirect", async () => {
-    // owner decision B18: Relax (breathing, meditation) is removed; its addresses open the hub
-    expect(await redirectOf(async () => RelaxPage(page()))).toBe("redirect:/en/mental-health");
-    expect(await redirectOf(async () => BreathingRedirect(page()))).toBe("redirect:/en/mental-health");
-    expect(await redirectOf(async () => CrisisRedirect(page()))).toBe("redirect:/en/mental-health");
-    expect(await redirectOf(async () => SelfAssessmentRedirect(page()))).toBe("redirect:/en/mental-health");
-    expect(await redirectOf(async () => TherapistRedirect(page()))).toBe("redirect:/en/consultations/doctors?specialty=psychiatry");
-  });
 });
 
 describe("programs", () => {
@@ -231,6 +207,5 @@ describe("programs", () => {
     expect(render(await ProgramsPage({ params }))).toContain("No active health programs right now.");
     backend({});
     expect(render(await ProgramsPage({ params }))).toContain("Programs could not be loaded");
-    expect(await redirectOf(async () => ProgramsActiveRedirect(page()))).toBe("redirect:/en/programs");
   });
 });

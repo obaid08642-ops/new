@@ -11,6 +11,7 @@ import { apiFetch } from '../utils/api';
 import { internalRoute } from '../utils/deepLinks';
 import { Plain, useScreenUi } from './home/homeKit';
 import { useModules } from '../context/ModulesContext';
+import { optimizedImageUri } from '../utils/optimizedImage';
 
 type Item = { id?: string; title_ar?: string; title_en?: string; image_url?: string; deep_link?: string };
 type Section = { id?: string; type?: string; title_ar?: string; title_en?: string; enabled?: boolean; items?: Item[] };
@@ -79,7 +80,7 @@ export default function HomeSections() {
                   >
                     <View style={{ width: CARD_WIDTH, height: IMAGE_HEIGHT, backgroundColor: c.service.blue.bg, alignItems: 'center', justifyContent: 'center' }}>
                       {item.image_url ? (
-                        <Image source={{ uri: item.image_url }} contentFit="cover" accessibilityIgnoresInvertColors style={{ width: CARD_WIDTH, height: IMAGE_HEIGHT }} />
+                        <Image source={{ uri: optimizedImageUri(item.image_url, CARD_WIDTH) }} contentFit="cover" accessibilityIgnoresInvertColors style={{ width: CARD_WIDTH, height: IMAGE_HEIGHT }} />
                       ) : (
                         <FIcon icon="tag" tone="blue" chip="none" size={56} theme={theme} />
                       )}

@@ -80,6 +80,7 @@ export function RadiologyDashboardNavigator({ onLogout }: { onLogout: () => void
       {orderingStackScreens(Stack, 'radiology')}
       <Stack.Screen name="wallet">{({ navigation }: any) => <ProviderWalletScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="withdrawal_workflow">{({ navigation }: any) => <WithdrawalWorkflow onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="medical_jobs">{({ navigation }: any) => <MedicalJobsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="drug_index">{({ navigation }: any) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
     </Stack.Navigator>
   );
@@ -651,6 +652,7 @@ function RadiologySettingsScreen({ onLogout, onNav }: { onLogout: () => void; on
       <NCard style={{ marginBottom: SP.md }}>
         <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{AR ? 'الأدوية' : 'Drugs'}</Text>
         <NBtn label={AR ? 'دليل الأدوية الطبي' : 'Medical Drug Index'} variant="outline" onPress={() => onNav && onNav('drug_index')} />
+        <NBtn label={AR ? 'الوظائف الطبية' : 'Medical Jobs'} variant="outline" onPress={() => onNav && onNav('medical_jobs')} style={{ marginTop: SP.sm }} />
       </NCard>
       <NCard style={{ marginTop: SP.xl }}><NBtn label={AR ? 'تسجيل الخروج' : 'Logout'} onPress={onLogout} style={{ backgroundColor: tokens.error, borderColor: tokens.error }} /></NCard>
     </ScrollView>

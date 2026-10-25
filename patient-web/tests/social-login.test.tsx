@@ -1,47 +1,40 @@
 import { createHash } from "node:crypto";
 import { renderToStaticMarkup } from "react-dom/server";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: vi.fn(), refresh: vi.fn() }) }));
 vi.mock("next-intl", async () => (await import("./helpers/intl")).nextIntlMock("en"));
 
 import { SocialLoginButtons } from "../components-next/social-login-buttons";
-import { acceptCallback, authorizeUrl, codeChallenge, newPkce, randomUrlSafe, xSnapchatEnabled } from "../lib/auth/social-oauth";
+import { acceptCallback, authorizeUrl, codeChallenge, newPkce, randomUrlSafe } from "../lib/auth/social-oauth";
 
-const ALL = ["NEXT_PUBLIC_GOOGLE_CLIENT_ID", "NEXT_PUBLIC_APPLE_CLIENT_ID", "NEXT_PUBLIC_APPLE_REDIRECT_URI", "NEXT_PUBLIC_X_CLIENT_ID", "NEXT_PUBLIC_SNAPCHAT_CLIENT_ID", "NEXT_PUBLIC_SOCIAL_X_SNAPCHAT"];
-afterEach(() => vi.unstubAllEnvs());
-const render = () => renderToStaticMarkup(<SocialLoginButtons locale="en" />);
+import type { SocialButtons } from "../lib/auth/social-config";
+
+const render = (social: SocialButtons) => renderToStaticMarkup(<SocialLoginButtons locale="en" social={social} />);
+const ALL: SocialButtons = {
+  google: { clientId: "g" },
+  apple: { clientId: "a", redirectUri: "https://x.test/cb" },
+  x: { clientId: "x" },
+  snapchat: { clientId: "s" },
+};
 
 describe("social sign-in buttons are shown per configuration", () => {
   it("shows only guest sign-in when nothing is configured", () => {
-    ALL.forEach((k) => vi.stubEnv(k, ""));
-    const html = render();
+    const html = render({});
     expect(html).not.toMatch(/>(Google|Apple|X|Snapchat)</);
     expect(html).not.toContain("Or continue with");
   });
-  it("shows Google and Apple when configured", () => {
-    ALL.forEach((k) => vi.stubEnv(k, ""));
-    vi.stubEnv("NEXT_PUBLIC_GOOGLE_CLIENT_ID", "g");
-    vi.stubEnv("NEXT_PUBLIC_APPLE_CLIENT_ID", "a");
-    vi.stubEnv("NEXT_PUBLIC_APPLE_REDIRECT_URI", "https://x.test/cb");
-    const html = render();
+  it("shows all four when the backend enables them", () => {
+    const html = render(ALL);
     expect(html).toContain("Google</button>");
     expect(html).toContain(">Apple</button>");
-    expect(html).not.toContain(">Snapchat</button>");
-  });
-  it("hides X and Snapchat without the gate even with client ids, and shows them with it", () => {
-    ALL.forEach((k) => vi.stubEnv(k, ""));
-    vi.stubEnv("NEXT_PUBLIC_X_CLIENT_ID", "x");
-    vi.stubEnv("NEXT_PUBLIC_SNAPCHAT_CLIENT_ID", "s");
-    expect(render()).not.toMatch(/>(X|Snapchat)<\/button>/);
-    vi.stubEnv("NEXT_PUBLIC_SOCIAL_X_SNAPCHAT", "1");
-    const html = render();
     expect(html).toContain("X</button>");
     expect(html).toContain("Snapchat</button>");
   });
-  it("the gate is exactly '1'", () => {
-    expect(xSnapchatEnabled("1")).toBe(true);
-    for (const v of [undefined, "", "0", "true"]) expect(xSnapchatEnabled(v)).toBe(false);
+  it.each([["google", /Google<\/button>/], ["apple", />Apple<\/button>/], ["x", /X<\/button>/], ["snapchat", /Snapchat<\/button>/]] as const)("%s is hidden when the backend does not enable it", (provider, pattern) => {
+    const { [provider]: _removed, ...rest } = ALL;
+    expect(render(rest)).not.toMatch(pattern);
+    for (const other of Object.keys(rest)) expect(render(rest)).toContain(other === "google" ? "Google</button>" : other === "apple" ? ">Apple</button>" : other === "x" ? "X</button>" : "Snapchat</button>");
   });
 });
 

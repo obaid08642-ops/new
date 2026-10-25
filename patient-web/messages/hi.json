@@ -144,7 +144,8 @@
     "recordsMoodNotLogged": "आपने आज मूड दर्ज नहीं किया",
     "recordsMaternity": "मातृत्व",
     "recordsPregnancy": "गर्भावस्था ट्रैकिंग",
-    "recordsCycle": "चक्र ट्रैकिंग"
+    "recordsCycle": "चक्र ट्रैकिंग",
+    "notificationsUnread": "सूचनाएँ, नई सूचनाएँ हैं"
   },
   "Login": {
     "title": "साइन इन करें",
@@ -959,7 +960,8 @@
     "chronicStop": "रिफिल ट्रैकिंग रोकें",
     "chronicUpdateFailed": "रिफिल ट्रैकिंग नहीं बदली।",
     "confirmAction": "पक्का करें",
-    "photoInvalid": "अधिकतम 5 मेगाबाइट की फ़ोटो चुनें।"
+    "photoInvalid": "अधिकतम 5 मेगाबाइट की फ़ोटो चुनें।",
+    "rxPurchased": "खरीदा गया"
   },
   "Prescriptions": {
     "title": "पर्चे",
@@ -1718,7 +1720,9 @@
     "suggestFieldLabel": "सुधारा जाने वाला डेटा",
     "suggestSending": "भेजा जा रहा है…",
     "suggestSignIn": "अपना सुझाव भेजने के लिए साइन इन करें।",
-    "suggestSignInAction": "साइन इन"
+    "suggestSignInAction": "साइन इन",
+    "coldChain": "प्रशीतन आवश्यक",
+    "interactions": "दवाओं की पारस्परिक क्रिया"
   },
   "Wallet": {
     "wallet": "वॉलेट",
@@ -2506,7 +2510,15 @@
     "hubOrderAgain": "अपना पिछला ऑर्डर फिर से करें",
     "hubOrderAgainAction": "ऑर्डर करें",
     "hubOneItem": "1 वस्तु",
-    "hubItems": "{n, number} वस्तुएं"
+    "hubItems": "{n, number} वस्तुएं",
+    "filterForm": "दवा का रूप",
+    "filterBrand": "निर्माता",
+    "filterRx": "प्रिस्क्रिप्शन",
+    "filterRxAny": "कोई भी",
+    "filterRxOnly": "केवल प्रिस्क्रिप्शन वाली",
+    "filterRxNone": "बिना प्रिस्क्रिप्शन",
+    "filterPriceMin": "न्यूनतम कीमत",
+    "filterPriceMax": "अधिकतम कीमत"
   },
   "PharmacyOffers": {
     "backToOrder": "ऑर्डर पर वापस",
@@ -3610,7 +3622,13 @@
     "addressLocating": "आपका स्थान खोजा जा रहा है...",
     "addressLocationSet": "विज़िट के लिए आपका वर्तमान स्थान उपयोग किया जाएगा",
     "addressUseSaved": "इसके बजाय सहेजा हुआ पता उपयोग करें",
-    "addressLocationDenied": "आपका स्थान नहीं मिल सका। स्थान की अनुमति दें या सहेजा हुआ पता चुनें।"
+    "addressLocationDenied": "आपका स्थान नहीं मिल सका। स्थान की अनुमति दें या सहेजा हुआ पता चुनें।",
+    "filterAvailability": "उपलब्धता",
+    "filterNationality": "राष्ट्रीयता",
+    "nationality_any": "सभी",
+    "nationality_Saudi": "सऊदी",
+    "nationality_Filipino": "फ़िलिपिनो",
+    "nationality_Egyptian": "मिस्री"
   },
   "MaternityWeb": {
     "title": "मातृत्व",
@@ -4160,7 +4178,11 @@
       "copayPercent": "आपका हिस्सा, % (वैकल्पिक)",
       "copayCap": "प्रति सेवा अधिकतम, SAR (वैकल्पिक)",
       "copayPercentInvalid": "0 से 100 के बीच कोई संख्या लिखें।",
-      "copayCapInvalid": "0 या उससे अधिक राशि लिखें।"
+      "copayCapInvalid": "0 या उससे अधिक राशि लिखें।",
+      "class": "श्रेणी",
+      "companySearch": "अपनी बीमा कंपनी खोजें",
+      "companyNone": "इस नाम की कोई कंपनी नहीं मिली",
+      "chiLink": "अपना बीमा जाँचें"
     },
     "coverage": {
       "title": "मेरी पॉलिसी क्या कवर करती है",

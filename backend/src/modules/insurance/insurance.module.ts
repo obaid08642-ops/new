@@ -72,7 +72,7 @@ export class InsuranceService {
       // Legacy network records remain in the database for audit/reactivation.
       // Only explicitly retired networks are excluded from the public catalog;
       // legacy records without catalog_status keep their current visible behavior.
-      this.networkModel.find({ catalog_status: { $ne: 'retired' } }, { _id: 0, company_id: 1, id: 1, code: 1, name_ar: 1, name_en: 1, tier_level: 1 } as any).lean(),
+      this.networkModel.find({ catalog_status: { $ne: 'retired' } }, { _id: 0, company_id: 1, id: 1, code: 1, name_ar: 1, name_en: 1, tier_level: 1, copay_percent: 1, copay_cap_sar: 1 } as any).lean(),
     ]);
     const byCompany = new Map<string, any[]>();
     for (const n of networks as any[]) {

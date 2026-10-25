@@ -10,6 +10,7 @@ import { Glyph } from '../pharmacy/PharmacyKit';
 import { Money } from '../pharmacy/OfferKit';
 import { Chevron } from '../consult/ConsultKit';
 import { statusLook, type OrderKind } from '../../utils/orderCenter';
+import { optimizedImageUri } from '../../utils/optimizedImage';
 
 /**
  * What the labs and radiology screens share (Batch 3, slice 3-app): the look of a service, the tags, the test row with its
@@ -465,7 +466,7 @@ export function DetailHead({ icon, tone, image, title, body }: { icon: FillIconN
     <Card theme={theme} tint={tone} padding="lg">
       <View style={{ alignItems: 'center', gap: 10 }}>
         {image ? (
-          <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: image }} style={{ width: 96, height: 96, borderRadius: 24, backgroundColor: c.bg.surface }} contentFit="cover" />
+          <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: optimizedImageUri(image, 96) }} style={{ width: 96, height: 96, borderRadius: 24, backgroundColor: c.bg.surface }} contentFit="cover" />
         ) : (
           <FIcon icon={icon} tone={tone} size={72} theme={theme} />
         )}

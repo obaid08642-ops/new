@@ -13,6 +13,7 @@ import { afterFailure, minutesLeft, readLock, writeLock } from "@/lib/auth/login
 import type { Locale } from "@/lib/i18n";
 import { WrongAppNotice } from "./auth/wrong-app-notice";
 import { SocialLoginButtons } from "./social-login-buttons";
+import type { SocialButtons } from "@/lib/auth/social-config";
 import styles from "./auth/auth.module.css";
 
 type Translate = (key: string) => string;
@@ -29,7 +30,7 @@ export function loginErrorMessage(t: Translate, status: number, twoFactor: boole
   }
 }
 
-export function LoginForm({ locale, guestBlocked = false }: { locale: Locale; guestBlocked?: boolean }) {
+export function LoginForm({ locale, guestBlocked = false, social = {} }: { locale: Locale; guestBlocked?: boolean; social?: SocialButtons }) {
   const router = useRouter();
   const t = useTranslations("Login");
   const [identifier, setIdentifier] = useState("");
@@ -45,7 +46,9 @@ export function LoginForm({ locale, guestBlocked = false }: { locale: Locale; gu
     event.preventDefault(); setMessage(null);
     const locked = minutesLeft(readLock(), Date.now());
     if (!twoFactor && locked > 0) { setMessage(t("locked", { minutes: locked })); return; }
+    // The form is noValidate: the browser's own "required" bubble is the only feedback otherwise, and many readers never see it.
     if (!twoFactor && (identifier.trim().length < 3 || !password)) { setMessage(t("checkDetails")); return; }
+    if (twoFactor && code.trim().length < 6) { setMessage(t("twoFactorInvalid")); return; }
     setSubmitting(true);
     try {
       const endpoint = twoFactor ? "/api/auth/verify-2fa" : "/api/auth/login";
@@ -81,17 +84,17 @@ export function LoginForm({ locale, guestBlocked = false }: { locale: Locale; gu
       <h1 className={styles.title}>{t("title")}</h1>
       <p className={styles.subtitle}>{t("body")}</p>
     </div>
-    <form className={styles.form} onSubmit={submit} aria-busy={submitting} noValidate={false}>
+    <form className={styles.form} onSubmit={submit} aria-busy={submitting} noValidate>
       <label className={styles.field}>
         <span className={styles.label}>{t("identifier")}</span>
         <span className={styles.control}>
-          <input required dir="ltr" autoComplete="username" autoCapitalize="none" spellCheck={false} value={identifier} disabled={twoFactor} onChange={(event) => setIdentifier(event.target.value)} />
+          <input required aria-invalid={Boolean(message) && !twoFactor && identifier.trim().length < 3} dir="ltr" autoComplete="username" autoCapitalize="none" spellCheck={false} value={identifier} disabled={twoFactor} onChange={(event) => setIdentifier(event.target.value)} />
         </span>
       </label>
       {!twoFactor ? <div className={styles.field}>
         <div className={styles.labelRow}><label className={styles.label} htmlFor="login-password">{t("password")}</label>{forgot}</div>
         <span className={styles.control}>
-          <input id="login-password" required type={showPassword ? "text" : "password"} autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} />
+          <input id="login-password" required aria-invalid={Boolean(message) && !password} type={showPassword ? "text" : "password"} autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} />
           <button type="button" className={styles.eye} onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? t("hidePassword") : t("showPassword")}>
             <Icon name={showPassword ? "eye-slash" : "eye"} size={20} tone="currentColor" />
           </button>
@@ -108,7 +111,7 @@ export function LoginForm({ locale, guestBlocked = false }: { locale: Locale; gu
       {message ? <p className={styles.error} role="alert">{message}</p> : null}
       <div className={styles.actions}>
         <Button type="submit" variant="primary" size="lg" fullWidth label={submitLabel} loading={submitting} />
-        <SocialLoginButtons locale={locale} onWrongApp={() => setWrongApp(true)} />
+        <SocialLoginButtons locale={locale} social={social} onWrongApp={() => setWrongApp(true)} />
         <p className={styles.legal}>{t.rich("legal", {
           terms: (chunks) => <Link href={`/${locale}/terms`}>{chunks}</Link>,
           privacy: (chunks) => <Link href={`/${locale}/privacy`}>{chunks}</Link>,

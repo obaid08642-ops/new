@@ -3,6 +3,8 @@ import { AuthLoginDto, AuthVerify2faDto, RefreshDto, LogoutDto, RecordConsentDto
 import { PresenceService } from '../presence/presence.service';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
+import { PublicCache } from '../../common/public-cache.decorator';
+import { buildSocialConfig } from './social-config';
 
 const DEVICE_COOKIE = 'nabd_admin_device';
 const PATIENT_ACCESS_COOKIE = 'nabd_patient_access';
@@ -384,6 +386,14 @@ export class AuthController {
     const id = body.identifier || body.email || body.phone || '';
     if (!body?.code) throw new BadRequestException('code_required');
     return this.auth.resetPassword(id, body.password, body.code);
+  }
+
+  /** Which social providers this backend can finish, and their PUBLIC client ids / redirect URIs (never a secret). The clients read it at run time. */
+  @Public()
+  @PublicCache(300, ['auth-social-config'])
+  @Get('social/config')
+  socialConfig() {
+    return buildSocialConfig();
   }
 
   @Public()

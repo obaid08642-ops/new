@@ -14,6 +14,15 @@ const read = (raw: string): number | null | undefined => {
   return Number.isFinite(n) ? n : null;
 };
 
+/** What choosing an insurer's class puts in the two copay boxes: the catalogue's figures when it has them, else what the patient already typed. Both stay editable. */
+export function figuresForClass(item: { copayPercent?: number; copayCapSar?: number } | null, current: { percent: string; cap: string }): { percent: string; cap: string } {
+  if (!item) return current;
+  return {
+    percent: item.copayPercent !== undefined ? String(item.copayPercent) : current.percent,
+    cap: item.copayCapSar !== undefined ? String(item.copayCapSar) : current.cap,
+  };
+}
+
 export function copayBody(percentText: string, capText: string): CopayResult {
   const percent = read(percentText);
   const cap = read(capText);

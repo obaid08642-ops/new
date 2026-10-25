@@ -7,6 +7,7 @@ import { CARE_TONE } from '../consult/ConsultKit';
 import { Tag, Price } from '../diagnostics/DiagKit';
 import { Glyph } from '../pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
+import { optimizedImageUri } from '../../utils/optimizedImage';
 
 /**
  * What the nursing (home care) screens share (Batch 4, slice 4-app): the status words of a visit or a request, the service
@@ -71,7 +72,7 @@ export function ServiceCard({ title, desc, image, icon, price, onPress, actionLa
   return (
     <View testID={testID} style={{ flexBasis: '47%', flexGrow: 1, minWidth: 148, borderRadius: 24, backgroundColor: look.bg, padding: 14, gap: 10 }}>
       <Pressable accessibilityRole="button" accessibilityLabel={[title, desc].filter(Boolean).join(', ')} onPress={onPress} style={({ pressed }) => ({ gap: 8, minHeight: 44, opacity: pressed ? 0.9 : 1 })}>
-        {image ? <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: image }} style={{ width: 56, height: 56, borderRadius: 18, backgroundColor: c.bg.surface }} contentFit="cover" /> : <FIcon icon={icon} tone={CARE_TONE} size={56} theme={theme} />}
+        {image ? <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: optimizedImageUri(image, 56) }} style={{ width: 56, height: 56, borderRadius: 18, backgroundColor: c.bg.surface }} contentFit="cover" /> : <FIcon icon={icon} tone={CARE_TONE} size={56} theme={theme} />}
         <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{title}</Text>
         {desc ? (
           <Text numberOfLines={2} style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{desc}</Text>

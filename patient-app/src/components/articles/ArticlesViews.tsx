@@ -14,6 +14,7 @@ import { useSearchSuggest } from '../../hooks/useSearchSuggest';
 import { SearchSuggestList } from '../search/SearchSuggestList';
 import { suggestionRoute } from '../../utils/searchSuggest';
 import { pickLocalized } from '../../utils/localize';
+import { optimizedImageUri } from '../../utils/optimizedImage';
 
 /**
  * Health articles (Batch 10, merge map row "Articles"; no board, the card and list language of CareHub). The list has the tabs
@@ -77,7 +78,7 @@ export function ArticleCard({ article, saved = false, testID }: { article: Artic
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={title} onPress={() => openArticle(article.slug)} testID={testID} style={{ minHeight: 44 }}>
       <Card theme={theme} padding="none">
-        {article.cover_image ? <Image cachePolicy="memory-disk" source={{ uri: article.cover_image }} accessibilityIgnoresInvertColors style={{ width: '100%', height: 150, borderTopLeftRadius: 24, borderTopRightRadius: 24, backgroundColor: c.bg.sunken }} contentFit="cover" /> : null}
+        {article.cover_image ? <Image cachePolicy="memory-disk" source={{ uri: optimizedImageUri(article.cover_image, 400) }} accessibilityIgnoresInvertColors style={{ width: '100%', height: 150, borderTopLeftRadius: 24, borderTopRightRadius: 24, backgroundColor: c.bg.sunken }} contentFit="cover" /> : null}
         <View style={{ padding: 14, gap: 8 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
             {article.category ? <Pill label={article.category} tone="info" /> : <View />}
@@ -224,7 +225,7 @@ export function ArticleDetailView({ slug }: { slug: string }) {
       <Gate status={gate} onRetry={() => void reload()} missingTitle={k('articles.missing')} missingBody={k('articles.missingBody')}>
         {article ? (
           <>
-            {article.cover_image ? <Image cachePolicy="memory-disk" source={{ uri: article.cover_image }} accessibilityIgnoresInvertColors style={{ width: '100%', height: 200, borderRadius: 24, backgroundColor: c.bg.sunken }} contentFit="cover" /> : null}
+            {article.cover_image ? <Image cachePolicy="memory-disk" source={{ uri: optimizedImageUri(article.cover_image, 400) }} accessibilityIgnoresInvertColors style={{ width: '100%', height: 200, borderRadius: 24, backgroundColor: c.bg.sunken }} contentFit="cover" /> : null}
             {article.category ? <Pill label={article.category} tone="info" /> : null}
             <Text accessibilityRole="header" style={{ ...scale(t, 'h2'), color: c.text.primary, ...flow }}>{pickLocalized(article.title_ar, article.title_en)}</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>

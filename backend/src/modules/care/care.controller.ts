@@ -3,24 +3,28 @@ import type { Response } from 'express';
 import { CareService } from './care.service';
 import { CurrentUser, JwtAuthGuard, Public } from '../../common/auth.guard';
 import { queryInt, queryNumber } from '../../common/safe-query';
+import { PublicCache } from '../../common/public-cache.decorator';
 
 @Controller('care')
 @UseGuards(JwtAuthGuard)
 export class CareController {
   constructor(private svc: CareService) {}
 
+  @PublicCache(300, ['catalog', 'care'])
   @Public()
   @Get('specialties')
   specialties() {
     return this.svc.specialties();
   }
 
+  @PublicCache(300, ['catalog', 'care'])
   @Public()
   @Get('insurance')
   insuranceCompanies() {
     return this.svc.insuranceCompanies();
   }
 
+  @PublicCache(300, ['catalog', 'care'])
   @Public()
   @Get('degrees')
   degrees() {

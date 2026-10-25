@@ -13,8 +13,9 @@ import { ThemeButton } from "./theme-button";
 import type { Locale } from "@/lib/i18n";
 import { getDisabledModules } from "@/lib/api/public-config-server";
 import { isPathHidden } from "@/lib/modules";
+import { CartLink } from "@/components-next/core/cart-link";
 import { HomeTabBar } from "./home-tab-bar";
-import { HomeAccountTools, HomeNavLink, HomeNotificationsLink } from "./home-identity";
+import { HomeAccountTools, HomeNavLink, HomeNotificationsLink, NotificationBellLink } from "./home-identity";
 import styles from "./home.module.css";
 
 /**
@@ -92,15 +93,11 @@ export async function HomeShell({
       <div className={styles.tools}>
         <LocaleSelector current={locale} label={shared("language")} />
         <ThemeButton label={shared("theme")} />
-        {signedIn === undefined ? <HomeNotificationsLink locale={locale} label={t("notifications")} /> : null}
+        {signedIn === undefined ? <HomeNotificationsLink locale={locale} label={t("notifications")} unreadLabel={t("notificationsUnread")} /> : null}
         {knownSignedIn ? (
-          <Link href={`${base}/notifications`} className={styles.iconBtn} aria-label={t("notifications")}>
-            <FIcon icon="bell" tone="ink" chip="none" size={20} />
-          </Link>
+          <NotificationBellLink href={`${base}/notifications`} label={t("notifications")} unreadLabel={t("notificationsUnread")} />
         ) : null}
-        <Link href={`${base}/cart`} className={`${styles.iconBtn} ${styles.cartLink}`} aria-label={t("cart")}>
-          <FIcon icon="package" tone="ink" chip="none" size={20} />
-        </Link>
+        <CartLink locale={locale} className={`${styles.iconBtn} ${styles.cartLink}`} badgeClassName={styles.cartBadge} />
         {signedIn === undefined ? (
           <HomeAccountTools locale={locale} signInLabel={t("signIn")} accountLabel={t("account")} />
         ) : knownSignedIn ? (

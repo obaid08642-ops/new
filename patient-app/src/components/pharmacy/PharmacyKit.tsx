@@ -45,13 +45,14 @@ export function GlyphSquare({ name, label, onPress }: { name: FillIconName; labe
 }
 
 /** A 44 round header button with a fill glyph (board PharmacyHub: "my orders", the cart): surface, hairline ring, ink glyph. */
-export function GlyphRound({ name, label, onPress, children }: { name: FillIconName; label: string; onPress: () => void; children?: React.ReactNode }) {
+export function GlyphRound({ name, label, onPress, children, testID }: { name: FillIconName; label: string; onPress: () => void; children?: React.ReactNode; testID?: string }) {
   const { c } = useScreenUi();
   return (
     <View>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={label}
+        testID={testID}
         onPress={onPress}
         style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 22, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.onGlass, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.8 : 1 })}
       >
@@ -70,6 +71,22 @@ export function CountBadge({ count }: { count: number }) {
     <View pointerEvents="none" style={{ position: 'absolute', top: -3, end: -3 }}>
       <Badge content={count} tone="danger" theme={theme} />
     </View>
+  );
+}
+
+/**
+ * The cart button of every header that carries it (hub, search, home, the offers screens): the board's 44 round glyph with
+ * the count bubble, read from the same cart context the add buttons write to, so it changes in the same render as an add
+ * or a remove. The accessible name carries the count in the screen's language.
+ */
+export function CartButton({ testID }: { testID?: string }) {
+  const { itemCount } = useCart();
+  const { k } = useScreenUi();
+  const label = itemCount > 0 ? k('pharmacy.cartCount', { count: itemCount }) : k('pharmacy.cart');
+  return (
+    <GlyphRound name="package" label={label} onPress={() => router.push('/pharmacy/cart' as Href)} testID={testID ?? 'cart-button'}>
+      <CountBadge count={itemCount} />
+    </GlyphRound>
   );
 }
 

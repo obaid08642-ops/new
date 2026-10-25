@@ -7,6 +7,7 @@ import { ConsultScreen, Gate, Section } from '../../src/components/consult/Consu
 import { Block, LAB_TONE, goBackDiag } from '../../src/components/diagnostics/DiagKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
+import { fetchPublicList } from '../../src/utils/publicCache';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { pickLocalized } from '../../src/utils/localize';
@@ -43,7 +44,7 @@ export default function DiscussScreen() {
   const loadSpecs = useCallback(async () => {
     setSpecStatus('loading');
     try {
-      const res = await apiFetch<Specialty[] | { data?: Specialty[] }>('/care/specialties');
+      const res = await fetchPublicList<Specialty[] | { data?: Specialty[] }>('/care/specialties');
       const list = Array.isArray(res) ? res : res?.data;
       setSpecs((Array.isArray(list) ? list : []).filter((s) => typeof s?.slug === 'string' && s.slug !== ''));
       setSpecStatus('ready');

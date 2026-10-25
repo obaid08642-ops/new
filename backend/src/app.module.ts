@@ -12,6 +12,7 @@ import { DeviceTrustModule } from './modules/device-trust/device-trust.module';
 import { SeoSearchModule } from './modules/seo-search/seo-search.module';
 import { DeferredLinksModule } from './modules/deferred-links/deferred-links.module';
 import { LocationModule } from './modules/location/location.module';
+import { GeoModule } from './modules/geo/geo.module';
 import { SearchIntentModule } from './modules/search-intent/search-intent.module';
 import { SearchModule } from './modules/search/search.controller';
 import { EntityGraphModule } from './modules/entity-graph/entity-graph.module';
@@ -180,6 +181,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     SeoSearchModule,
     DeferredLinksModule,
     LocationModule,
+    GeoModule,
     SearchIntentModule,
     SearchModule,
     EntityGraphModule,
