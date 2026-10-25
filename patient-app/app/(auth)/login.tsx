@@ -9,6 +9,7 @@ import { apiFetch } from '../../utils/api';
 import { startSession } from '../../src/utils/authSession';
 import { serverMessage } from '../../src/utils/serverMessage';
 import { useSocialLogin, type SocialProvider } from '../../src/hooks/useSocialLogin';
+import { useSocialConfig } from '../../src/hooks/useSocialConfig';
 import {
   AuthAltLine,
   AuthBody,
@@ -111,7 +112,7 @@ export default function LoginScreen() {
     setLoading(false);
   };
 
-  const providers = availableSocialProviders();
+  const providers = availableSocialProviders(useSocialConfig());
 
   return (
     <Screen

@@ -113,6 +113,7 @@
 | `EXPO_PUBLIC_ONESIGNAL_APP_ID` ➖ | بديل OneSignal للإشعارات |
 | `EXPO_PUBLIC_GOOGLE_CLIENT_ID` / `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` / `EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID` ➖ | تسجيل الدخول بجوجل |
 | `EXPO_PUBLIC_X_CLIENT_ID` / `EXPO_PUBLIC_SNAPCHAT_CLIENT_ID` ➖ | تسجيل دخول اجتماعي إضافي |
+| `EXPO_PUBLIC_SOCIAL_X_SNAPCHAT` ➖ | احتياطي فقط: التطبيق يقرأ الآن `GET /auth/social/config` من الباك إند وقت التشغيل (متغيرات الباك إند في `backend/.env.example`، قسم Social sign-in) |
 | `EXPO_PUBLIC_SENTRY_DSN` ➖ | مراقبة أخطاء التطبيق |
 | `EXPO_PUBLIC_APP_ENV` ✅ | `production` |
 | `EXPO_PUBLIC_API_TIMEOUT` ➖ | مهلة الطلبات بالمللي ثانية |

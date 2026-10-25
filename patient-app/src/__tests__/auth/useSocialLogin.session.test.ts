@@ -55,7 +55,7 @@ describe('social sign-in starts the same session as the password login', () => {
     (storeAuthSession as jest.Mock).mockResolvedValue(ACCESS);
     await run();
     expect(apiFetch).toHaveBeenCalledWith('/auth/social-login', expect.objectContaining({ method: 'POST', skipAuth: true }));
-    expect(JSON.parse((apiFetch as jest.Mock).mock.calls[0][1].body)).toEqual({ provider: 'apple', token: 'identity-token' });
+    expect(JSON.parse((apiFetch as jest.Mock).mock.calls.find((c: unknown[]) => c[0] === '/auth/social-login')![1].body)).toEqual({ provider: 'apple', token: 'identity-token' });
     expect(storeAuthSession).toHaveBeenCalledWith(ANSWER.token); // access AND refresh token
     expect(mockRouter.replace).toHaveBeenCalledWith('/(tabs)');
   });

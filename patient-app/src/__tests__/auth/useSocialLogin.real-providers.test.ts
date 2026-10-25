@@ -20,7 +20,7 @@ describe('social sign-in with no client ids in the build (real expo-auth-session
     const src = readFileSync(join(__dirname, '../../hooks/useSocialLogin.ts'), 'utf8');
     const call = src.slice(src.indexOf('Google.useAuthRequest('), src.indexOf('});', src.indexOf('Google.useAuthRequest(')));
     for (const key of ['clientId', 'iosClientId', 'androidClientId']) {
-      expect(call).toMatch(new RegExp(`\\b${key}: process\\.env\\.EXPO_PUBLIC_GOOGLE_[A-Z_]*CLIENT_ID \\|\\| ''`));
+      expect(call).toMatch(new RegExp(`\\b${key}: (config\\?\\.google\\.[a-z_]+ \\|\\| )?process\\.env\\.EXPO_PUBLIC_GOOGLE_[A-Z_]*CLIENT_ID \\|\\| ''`));
     }
   });
 });
