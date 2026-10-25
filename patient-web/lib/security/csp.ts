@@ -77,7 +77,8 @@ export function contentSecurityPolicy(nonce: string, isDevelopment = process.env
     [`connect-src 'self' https://api.nabd.plus wss://live.nabd.plus https://cdn.nabd.plus ${MAP_TILE_ORIGIN} https://accounts.google.com/gsi/ https://appleid.apple.com`, ...livekitConnectSources(), sentryIngestOrigin()].filter(Boolean).join(" "),
     "worker-src 'self' blob:",
     "font-src 'self' data:",
-    "media-src 'self' https:",
+    // voice notes: the recorder previews the patient's own recording from a blob: URL
+    "media-src 'self' blob: https:",
     "object-src 'none'",
     "upgrade-insecure-requests",
   ].join("; ");
