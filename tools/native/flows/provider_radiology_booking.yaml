@@ -1,4 +1,5 @@
-# Radiology centre (provider app): a patient's scan booking (made by the API, cash at the centre) is in the centre's incoming list.
+# Radiology centre (provider app): a patient's scan booking (made by the API, cash at the centre) is in Orders > New with the scan name, the time and the price.
+# The card's title shows "—" instead of the patient (findings #8).
 appId: com.nabd.provider
 ---
 - runScript:
@@ -9,6 +10,7 @@ appId: com.nabd.provider
     timeout: 90000
 - tapOn: "الطلبات|Orders"
 - extendedWaitUntil:
-    visible: "طلب جديد|New request"
+    visible: "طلب جديد|New Request"
     timeout: 60000
+- assertVisible: ".*180.*"
 - takeScreenshot: provider_radiology_inbox
