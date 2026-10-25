@@ -13,6 +13,7 @@ import { ThemeButton } from "./theme-button";
 import type { Locale } from "@/lib/i18n";
 import { getDisabledModules } from "@/lib/api/public-config-server";
 import { isPathHidden } from "@/lib/modules";
+import { CartLink } from "@/components-next/core/cart-link";
 import { HomeTabBar } from "./home-tab-bar";
 import { HomeAccountTools, HomeNavLink, HomeNotificationsLink } from "./home-identity";
 import styles from "./home.module.css";
@@ -98,9 +99,7 @@ export async function HomeShell({
             <FIcon icon="bell" tone="ink" chip="none" size={20} />
           </Link>
         ) : null}
-        <Link href={`${base}/cart`} className={`${styles.iconBtn} ${styles.cartLink}`} aria-label={t("cart")}>
-          <FIcon icon="package" tone="ink" chip="none" size={20} />
-        </Link>
+        <CartLink locale={locale} className={`${styles.iconBtn} ${styles.cartLink}`} badgeClassName={styles.cartBadge} />
         {signedIn === undefined ? (
           <HomeAccountTools locale={locale} signInLabel={t("signIn")} accountLabel={t("account")} />
         ) : knownSignedIn ? (

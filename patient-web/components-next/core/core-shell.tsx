@@ -10,6 +10,7 @@ import { isPathHidden } from "@/lib/modules";
 import { useRoutePrefetch } from "@/components-next/nav/use-route-prefetch";
 import { AppShell } from "@/components-next/ui-generated/shells";
 import { BottomTabBar } from "@/components-next/ui-generated/components/Surfaces";
+import { CartLink } from "./cart-link";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import type { BottomTabItem } from "@/components-next/ui-generated/components/contract";
 import { NabdMark } from "@/components-next/nabd-mark";
@@ -70,19 +71,8 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
   // a switched-off module has no section and no tab (#953)
   const disabled = useDisabledModules();
   const rtl = getDirection(locale) === "rtl";
-  // issue 1547: the cart's count on its icon, read from the cart of this browser, so an add shows at once
-  const { itemCount } = useCart();
-  const cartLink = (extra = "") => (
-    <Link
-      href={`/${locale}/cart`}
-      className={`${styles.iconLink} ${styles.cartLink}${extra ? ` ${extra}` : ""}`}
-      data-testid="cart-link"
-      aria-label={itemCount > 0 ? shell("cartCount", { n: itemCount }) : shell("cart")}
-    >
-      <Icon name="cart" size={20} tone="currentColor" />
-      {itemCount > 0 ? <span className={styles.cartBadge} aria-hidden="true" data-testid="cart-badge">{formatNumber(locale, itemCount)}</span> : null}
-    </Link>
-  );
+  // issue 1547: the cart's count on its icon (CartLink reads the cart of this browser, so an add shows at once)
+  const cartLink = (extra = "") => <CartLink locale={locale} className={`${styles.iconLink} ${styles.cartLink}${extra ? ` ${extra}` : ""}`} />;
 
   const allTabs: Array<BottomTabItem & { href: string }> = [
     { id: "home", label: nav("navHome"), icon: "house", href: `/${locale}` },
@@ -156,8 +146,8 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
         />
       ) : null}
 
-      {/* pages without the tab bar (the product page, canvas/ProductFull) carry the cart in the phone header */}
-      {hideTabs && !search ? cartLink(`${styles.phoneOnly} ${styles.phoneCart}`) : null}
+      {/* every page carries the cart in the phone header (the wide header has it in the tools); the search page too */}
+      {cartLink(`${styles.phoneOnly}${hideTabs && !search ? ` ${styles.phoneCart}` : ""}`)}
 
       <div className={`${styles.tools} ${styles.wideOnly}`}>
         <LocaleSelector current={locale} label={shell("language")} />
