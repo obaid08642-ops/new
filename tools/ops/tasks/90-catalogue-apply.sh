@@ -18,7 +18,7 @@
 #                                                    $IN/approved-name-fixes.csv  (the owner-approved rows of fix-catalogue-names)
 # After a change of medicine names, add `cf-purge-api` to tools/ops/RUN for that run so the cached product pages refresh.
 set -u
-EXPECT_PLAN_SHA=""
+EXPECT_PLAN_SHA="a58af3401a56fba18f5fad5a5cc6493b3b623"
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}
 IN=${OPS_CATALOGUE_DIR:-/opt/nabdah/catalogue}
@@ -58,7 +58,11 @@ if [ -z "$EXPECT_PLAN_SHA" ]; then
   say "dry run only: nothing was written. To apply, set EXPECT_PLAN_SHA=$SHA in this task (owner approval first)"
   cleanup_inputs; exit 0
 fi
-[ "$EXPECT_PLAN_SHA" = "$SHA" ] || { say "ABORT the plan changed (expected ${EXPECT_PLAN_SHA:0:12}, now ${SHA:0:12}): nothing was written, run the dry run again"; cleanup_inputs; exit 1; }
+# EXPECT_PLAN_SHA may be a prefix of at least 32 hex characters: the public log masks any substring equal to a workflow secret, so the
+# full hash is not always readable there. 32+ hex characters still name exactly one plan.
+case "$EXPECT_PLAN_SHA" in *[!0-9a-f]*) say "ABORT EXPECT_PLAN_SHA is not hex"; cleanup_inputs; exit 1;; esac
+[ ${#EXPECT_PLAN_SHA} -ge 32 ] || { say "ABORT EXPECT_PLAN_SHA must have at least 32 hex characters"; cleanup_inputs; exit 1; }
+case "$SHA" in "$EXPECT_PLAN_SHA"*) ;; *) say "ABORT the plan changed (expected ${EXPECT_PLAN_SHA:0:12}, now ${SHA:0:12}): nothing was written, run the dry run again"; cleanup_inputs; exit 1;; esac
 [ "$TOTAL" != 0 ] || { say "nothing to apply (plan is empty)"; cleanup_inputs; exit 0; }
 
 # --- 2+3. backup, apply, verify
