@@ -70,9 +70,9 @@ describe('guest job review', () => {
 
   it('DTO needs a reason of 3 to 500 characters for publish and for reject', async () => {
     for (const decision of ['publish', 'reject']) {
-      expect((await validate(plainToInstance(GuestJobReviewDto, { decision }))).length, `${decision} without a note`).toBeGreaterThan(0);
-      expect((await validate(plainToInstance(GuestJobReviewDto, { decision, note: 'ab' }))).length, `${decision} with 2 characters`).toBeGreaterThan(0);
-      expect((await validate(plainToInstance(GuestJobReviewDto, { decision, note: 'x'.repeat(501) }))).length, `${decision} with 501 characters`).toBeGreaterThan(0);
+      expect((await validate(plainToInstance(GuestJobReviewDto, { decision }))).length).toBeGreaterThan(0);
+      expect((await validate(plainToInstance(GuestJobReviewDto, { decision, note: 'ab' }))).length).toBeGreaterThan(0);
+      expect((await validate(plainToInstance(GuestJobReviewDto, { decision, note: 'x'.repeat(501) }))).length).toBeGreaterThan(0);
       expect(await validate(plainToInstance(GuestJobReviewDto, { decision, note: 'abc' }))).toHaveLength(0);
     }
   });
