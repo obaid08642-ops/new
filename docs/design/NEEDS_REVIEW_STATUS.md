@@ -9,14 +9,14 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 0 | 333 | 97 | 4 | 0 |
-| Other | 298 | 255 | 40 | 3 | 0 | 0 |
+| Other | 299 | 256 | 40 | 3 | 0 | 0 |
 | Admin | 99 | 0 | 65 | 34 | 0 | 0 |
 | Admin journeys | 20 | 0 | 18 | 2 | 0 | 0 |
 | Final pass | 8 | 0 | 2 | 6 | 0 | 0 |
 | Patient journeys | 87 | 0 | 85 | 2 | 0 | 0 |
 | Provider app | 31 | 0 | 27 | 4 | 0 | 0 |
 | Provider journeys | 34 | 0 | 32 | 2 | 0 | 0 |
-| **Total** | **1011** | **255** | **602** | **150** | **4** | **0** |
+| **Total** | **1012** | **256** | **602** | **150** | **4** | **0** |
 
 ## By tag
 
@@ -24,9 +24,9 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 |---|---:|---:|---:|---:|---:|---:|
 | client | 228 | 58 | 129 | 41 | 0 | 0 |
 | owner | 141 | 41 | 57 | 42 | 1 | 0 |
-| backend | 403 | 155 | 218 | 30 | 0 | 0 |
+| backend | 404 | 156 | 218 | 30 | 0 | 0 |
 | untagged | 239 | 1 | 198 | 37 | 3 | 0 |
-| **Total** | **1011** | **255** | **602** | **150** | **4** | **0** |
+| **Total** | **1012** | **256** | **602** | **150** | **4** | **0** |
 
 ## By file
 
@@ -88,6 +88,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `differentiators-web.json` | 9 | 9 | 0 | 0 | 0 | 0 |
 | `doctor-card-app.json` | 9 | 9 | 0 | 0 | 0 | 0 |
 | `doctor-card-web.json` | 10 | 10 | 0 | 0 | 0 | 0 |
+| `doctor-ops-wire.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `final-pass-2.json` | 4 | 0 | 0 | 4 | 0 | 0 |
 | `final-pass.json` | 4 | 0 | 2 | 2 | 0 | 0 |
 | `journeys.json` | 87 | 0 | 85 | 2 | 0 | 0 |
@@ -124,7 +125,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 0 | 7 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 0 | 0 | 1 | 0 | 0 |
 | `tooling.json` | 13 | 0 | 12 | 1 | 0 | 0 |
-| **Total** | **1011** | **255** | **602** | **150** | **4** | **0** |
+| **Total** | **1012** | **256** | **602** | **150** | **4** | **0** |
 
 ## Owner decisions (4)
 
@@ -135,7 +136,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 3 | `batch-1a-app.json#18` `patient-app/src/i18n/locales/en.json:0` | /pharmacy Six-language strings | 177 pharmacy.* keys were added to patient-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json. The English, Urdu, Hindi, Bengali and Filipino text was written by the design session (and, for reused phrases, taken from the phr… |
 | 4 | `batch-1d-web.json#1` `backend/src/modules/payments/payments.module.ts:154` | /pharmacy/payment Payment provider not exercised | No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only against a TEST stand-in outside the repo (… |
 
-## Open and unverified (255)
+## Open and unverified (256)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -175,6 +176,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `doctor-card-web.json#7` | backend | open | /consultations/doctors/:id Review sub-ratings | [backend] reviews_data[].sub_ratings: ratings store one score only; sub-ratings never show |
 | `doctor-card-web.json#8` | backend | open | /consultations/doctors/:id Written reviews, detail payload | [backend] reviews_data and is_online exist only on branch s/p-doctors (PR #1861); until it merges the section shows its empty state and the online dot is hidden |
 | `doctor-card-web.json#9` | backend | open | /consultations/doctors Price band filter | [backend] price_min / price_max are supported by PR #1861 but the web has no price band control on the board, so none was added |
+| `doctor-ops-wire.json#0` | backend | open | DoctorBlacklistScreen patient name on each blocked row | [backend] GET /provider/ops/doctor/blacklist (provider-ops.module.ts myBlacklist) returns only patient_id, reason, createdAt: no patient_name, so the row shows the raw patient id |
 | `m6-blocked.json#12` | backend | open | /medical-orders/[orderId] (Ord21) Item names | [backend] GET /medical-orders/:id gives catalog_id only, no test or scan name; items show their group (or sessions) instead of a name. |
 | `m6-blocked.json#13` | client | open | /medical-orders/[orderId] (Ord21, Order button) Order button prefill | [client] The Order button calls POST …/order, which returns the prefill (service_kind, items), then sends the patient to the group hub. The lab, radiology and nursing flows do not… |
 | `m6-blocked.json#14` | client | open | /medical-orders/[id] (Ord21, Order button) Order button prefill | [client] Same as the web: the prefill is not read by the app flows; the patient lands on the generic flow. |

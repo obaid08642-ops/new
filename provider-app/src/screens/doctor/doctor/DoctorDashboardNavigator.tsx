@@ -25,6 +25,7 @@ import { DoctorStatsRow } from '../components/DoctorStatsRow';
 import { DoctorUrgentRequests } from '../components/DoctorUrgentRequests';
 import { DoctorQueueList } from '../components/DoctorQueueList';
 import { FacilityInvitationsScreen } from '../FacilityInvitationsScreen';
+import { DoctorLeavesScreen, PrescriptionTemplatesScreen, SavedDiagnosesScreen, DoctorBlacklistScreen } from '../DoctorOpsScreens';
 import {
  PromotionsDashboard, CreateCampaignScreen, 
  SubscriptionsAdsScreen, AffiliatePortal, ReputationHub,
@@ -131,6 +132,10 @@ export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void })
      <Stack.Screen name="pre_visit_chat">{({ navigation, route }: any) => <PreVisitChatScreen apt={route.params?.param} onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="medical_jobs">{({ navigation }: any) => <MedicalJobsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="drug_index">{({ navigation }: any) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+     <Stack.Screen name="doctor_leaves">{({ navigation }: any) => <DoctorLeavesScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+     <Stack.Screen name="rx_templates">{({ navigation }: any) => <PrescriptionTemplatesScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+     <Stack.Screen name="saved_diagnoses">{({ navigation }: any) => <SavedDiagnosesScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+     <Stack.Screen name="doctor_blacklist">{({ navigation }: any) => <DoctorBlacklistScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="facility_invitations">{({ navigation }: any) => <FacilityInvitationsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="location_config">{({ navigation }: any) => <ProviderProfileEditor role="doctor" initialSection="location" onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="inbound_reports">{({ navigation }: any) => <InboundMedicalReportsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
