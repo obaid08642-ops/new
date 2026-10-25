@@ -165,11 +165,12 @@ export default async function RecordsPage({ params, searchParams }: Props) {
                     {item.medicationNames.length ? <span className={`${styles.rowSub} ${rx.clamp2}`}>{list.format(item.medicationNames)}</span> : null}
                     <span className={styles.rowSub}>{[rxt("medicineCount", { count: item.itemCount }), issued].filter(Boolean).join(" · ")}</span>
                     {item.doctorName ? <StatusChip label={rxt(prescriptionStateKey(item.state))} tone={prescriptionStateTone(item.state)} /> : null}
+                    {item.isPurchased ? <StatusChip label={t("rxPurchased")} tone="mint" /> : null}
                   </span>
                   <span className={rx.rowEnd}><Icon name={caret} size={16} tone="secondary" /></span>
                 </Link>
                 <div className={styles.rowActions}>
-                  {isOrderablePrescriptionState(item.state) && item.itemCount > 0 ? <ButtonLink href={`/${locale}/cart/checkout?prescriptionId=${encodeURIComponent(item.id)}`} label={t("rxOrder")} size="sm" /> : null}
+                  {!item.isPurchased && isOrderablePrescriptionState(item.state) && item.itemCount > 0 ? <ButtonLink href={`/${locale}/cart/checkout?prescriptionId=${encodeURIComponent(item.id)}`} label={t("rxOrder")} size="sm" /> : null}
                   <ShareButton label={t("rxShare")} copiedLabel={t("shareCopied")} text={[t("rxShareTitle", { doctor: item.doctorName ?? "" }), issued, "", `${t("rxMedicines")}:`, ...(item.medicationNames.length ? item.medicationNames.map((name) => `- ${name}`) : ["—"])].filter((line) => line !== null).join("\n")} />
                 </div>
               </li>

@@ -27,6 +27,8 @@
   background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-onGlass);
   color: var(--nabd-color-text-primary); text-decoration: none;
 }
+/* issue 1819: the unread dot of the bell (the app's HomeTopRow: 10 dot, 2 ring, coral) */
+.bellDot { position: absolute; inset-block-start: 9px; inset-inline-end: 10px; inline-size: 10px; block-size: 10px; border-radius: 50%; background: var(--nabd-color-avatar-ring); border: 2px solid var(--nabd-color-bg-surface); box-sizing: border-box; pointer-events: none; }
 .cartLink { display: inline-grid; }
 .cartBadge {
   position: absolute; inset-block-start: -2px; inset-inline-end: -2px; min-inline-size: 18px; block-size: 18px; padding-inline: 4px;

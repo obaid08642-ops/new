@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useSessionIdentity } from "@/lib/auth/session-identity";
 import { Avatar } from "@/components-next/ui-generated/components/Surfaces";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { SignOutButton } from "@/components-next/sign-out-button";
+import { fetchUnreadCount } from "@/lib/notifications/unread-count";
 import type { Locale } from "@/lib/i18n";
 import styles from "./home.module.css";
 
@@ -25,15 +27,34 @@ export function HomeNavLink({ locale, label }: { locale: Locale; label: string }
   return <Link href={href} className={`${styles.navLink} ${styles.navLinkActive}`} aria-current="page">{label}</Link>;
 }
 
-/** The notifications bell; only a signed-in patient has one. */
-export function HomeNotificationsLink({ locale, label }: { locale: Locale; label: string }) {
-  const { status } = useSessionIdentity();
-  if (status !== "user") return null;
+/**
+ * The bell link with the app's unread dot (HomeTopRow): the dot is drawn when the server counts unread notifications and
+ * follows the count again whenever the tab is shown. No dot while the count is unknown.
+ */
+export function NotificationBellLink({ href, label, unreadLabel }: { href: string; label: string; unreadLabel: string }) {
+  const [unread, setUnread] = useState<number | null>(null);
+  useEffect(() => {
+    const controller = new AbortController();
+    const load = () => { void fetchUnreadCount(controller.signal).then((n) => { if (!controller.signal.aborted) setUnread(n); }); };
+    load();
+    const onShow = () => { if (document.visibilityState === "visible") load(); };
+    document.addEventListener("visibilitychange", onShow);
+    return () => { controller.abort(); document.removeEventListener("visibilitychange", onShow); };
+  }, []);
+  const hasUnread = unread !== null && unread > 0;
   return (
-    <Link href={`/${locale}/notifications`} className={styles.iconBtn} aria-label={label}>
+    <Link href={href} className={styles.iconBtn} aria-label={hasUnread ? unreadLabel : label}>
       <FIcon icon="bell" tone="ink" chip="none" size={20} />
+      {hasUnread ? <span className={styles.bellDot} data-testid="home-bell-dot" aria-hidden="true" /> : null}
     </Link>
   );
+}
+
+/** The notifications bell; only a signed-in patient has one. */
+export function HomeNotificationsLink({ locale, label, unreadLabel }: { locale: Locale; label: string; unreadLabel: string }) {
+  const { status } = useSessionIdentity();
+  if (status !== "user") return null;
+  return <NotificationBellLink href={`/${locale}/notifications`} label={label} unreadLabel={unreadLabel} />;
 }
 
 /** Sign out and the account avatar for a signed-in patient, the sign-in button for a visitor, a stand-in until known. */

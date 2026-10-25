@@ -67,6 +67,12 @@ export function parseNurses(payload: unknown): Nurse[] {
 export type NurseSort = "any" | "rating";
 export const nurseSortOf = (value: unknown): NurseSort => (value === "rating" ? "rating" : "any");
 export type NurseGender = "any" | "male" | "female";
+/** issue 1819: the nationality choices of the app's filter sheet; the value is what the profile stores (the server matches it exactly). */
+export const NURSE_NATIONALITIES = ["Saudi", "Filipino", "Egyptian"] as const;
+export type NurseNationality = "any" | (typeof NURSE_NATIONALITIES)[number];
+export const nurseNationalityOf = (value: unknown): NurseNationality => (NURSE_NATIONALITIES as readonly unknown[]).includes(value) ? (value as NurseNationality) : "any";
+/** issue 1819: "available now" only (`available=true` on GET /home-care/providers). */
+export const nurseAvailableOf = (value: unknown): boolean => value === "now";
 export const nurseGenderOf = (value: unknown): NurseGender => (value === "male" || value === "female" ? value : "any");
 
 /** The policy the patient has on file, from GET /insurance/coverage-check (`{ has_policy | eligible, policy }`); nothing is invented when a field is absent. */
