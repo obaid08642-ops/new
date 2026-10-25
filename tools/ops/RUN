@@ -1,8 +1,8 @@
-# 2026-10-25 lead reviewer: run 20, deploy main@f7fe0830 (53 commits since run 18's 5e6cd1a6): product pages hydrate (CSP),
-# doctor page 503 fixed, admin logs back, AI output filter, community module removed, ambulance remnants removed, MapLibre address
-# map in the app, Snapchat sign-in fix + app bridge page, districts assignment fix, colour slice 1, COD journey, cluster mode ready (off).
-# No catalogue step (run 19 already applied the 570 rows). 91-env-names (READ-ONLY, names only) and cf-purge-api.
-release:f7fe083056ffd45f8e0e238eb8bced9582d1021f
+# 2026-10-25 lead reviewer: run 21. Run 20 ABORTED before any change: only 8 GB free on / (9 needed to load a release);
+# production stayed on 5e6cd1a6. First 92-free-safe (journal, apt cache, container logs >20 MB, dangling images and build cache
+# >72h; never a volume, a backup or a running/rollback image), then deploy main@85c8de47 (run 20's changes + #1953 guest-job
+# review). If space is still short, the deploy aborts again with nothing changed and the du lines say what to free next.
+release:85c8de471a62dce43ba7704e47d2cc931e409edb
+92-free-safe
 60-deploy-main
-91-env-names
 cf-purge-api
