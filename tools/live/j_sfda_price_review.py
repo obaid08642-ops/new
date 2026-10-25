@@ -1,8 +1,9 @@
 """Journey: the pharmacy price above the catalogue (SFDA) price (decision 12, revised 2026-10-10; issue 331).
   A pharmacy offers a line above the catalogue price (provider-app PharmacyBroadcastResponse, "custom price"): the line is
-  accepted and flagged on the draft (the app warns per line), the admin gets the offer in the review list
-  (GET /admin/pharmacy/price-review, admin page pharmacy-price-review) and closes it (POST .../price-review/:id/resolve),
-  after updating the catalogue price (PATCH /medicines/admin/catalog/:id { sfda_price }).
+  accepted and flagged on the draft (the app warns per line), and since the owner decision of 2026-10-25 (which supersedes
+  decision 12) each such line is a price review of its own (GET /admin/pharmacy/price-reviews, admin page price-reviews)
+  that the admin decides once with a reason: update the catalogue (POST .../:id/update-catalogue), dismiss, warn, suspend,
+  block or penalise. The older queue (GET /admin/pharmacy/price-review) keeps only the lines that map to no catalogue item.
 """
 import uuid
 
@@ -50,25 +51,23 @@ def main():
     step('the draft is saved with the higher price (not refused)', r.ok and offer.get('id'), r)
     step('the line says it is above the catalogue price, with the catalogue price (the app warns per line)', len(flagged) == 1 and float(flagged[0].get('catalogue_price') or 0) == ceiling, offer.get('items'))
 
-    journey('decision 12: the admin reviews and closes it')
-    r = admin.get(f'/admin/admin/pharmacy/price-review?status=open&order_id={oid}')
-    rows = r.get('items') or []
-    row = rows[0] if rows else {}
-    step('the offer is in the admin price review list with the reason and both prices', r.ok and row.get('lines') and row['lines'][0].get('reason') == 'price_above_catalogue' and float(row['lines'][0].get('offered_price') or 0) == above, r)
+    journey('owner decision 2026-10-25: the admin reviews the price above the catalogue and decides once')
+    r = admin.get('/admin/admin/pharmacy/price-reviews?status=open&limit=100')
+    row = next((x for x in (r.get('items') or []) if x.get('order_id') == oid), {})
+    step('the line is in the admin price review list with the catalogue price, the offered price and the percent above',
+         r.ok and bool(row.get('id')) and float(row.get('offered_price') or 0) == above and float(row.get('catalogue_price') or 0) == ceiling and float(row.get('percent_above') or 0) > 0, r)
     if not row.get('id'):
         return
-    r = admin.req('PATCH', f"/medicines/admin/catalog/{med['id']}", {'sfda_price': above, 'reason': 'مراجعة سعر عرض صيدلية (قرار 12)'})
-    step('admin updates the catalogue price to the new official price', r.ok, r)
-    r = admin.post(f"/admin/admin/pharmacy/price-review/{row['id']}/resolve", {'resolution': 'catalogue_updated', 'note': 'السعر الرسمي الجديد'})
-    step('admin closes the review (catalogue updated)', r.ok and r.get('status') == 'closed' and r.get('resolution') == 'catalogue_updated', r)
-    r = admin.post(f"/admin/admin/pharmacy/price-review/{row['id']}/resolve", {'resolution': 'price_confirmed'})
-    step('a closed review cannot be closed again', r.status == 400, r)
-    r = admin.post('/admin/admin/pharmacy/price-review/no-such-review/resolve', {'resolution': 'price_confirmed'})
-    step('an unknown review is not found', r.status == 404, r)
-    r = admin.post(f"/admin/admin/pharmacy/price-review/{row['id']}/resolve", {'resolution': 'anything'})
-    step('an unknown resolution is refused by validation', r.status == 400, r)
-    r = admin.get(f'/admin/admin/pharmacy/price-review?status=closed&order_id={oid}')
-    step('it is listed among the closed reviews', r.ok and any(x.get('id') == row['id'] for x in (r.get('items') or [])), r)
+    r = admin.post(f"/admin/admin/pharmacy/price-reviews/{row['id']}/dismiss", {})
+    step('a decision needs a reason (400 without a note)', r.status == 400, r)
+    r = admin.post(f"/admin/admin/pharmacy/price-reviews/{row['id']}/update-catalogue", {'note': 'السعر الرسمي الجديد'})
+    step('admin updates the catalogue price to the offered one (the review is closed as catalogue_updated)', r.ok and r.get('status') == 'catalogue_updated', r)
+    r = admin.post(f"/admin/admin/pharmacy/price-reviews/{row['id']}/dismiss", {'note': 'مرة ثانية'})
+    step('a decided review cannot be decided again (409)', r.status == 409, r)
+    r = admin.post('/admin/admin/pharmacy/price-reviews/no-such-review/dismiss', {'note': 'غير موجود'})
+    step('an unknown review is not found (404)', r.status == 404, r)
+    r = admin.get(f'/admin/admin/pharmacy/price-reviews?status=catalogue_updated&limit=100')
+    step('it is listed among the decided reviews', r.ok and any(x.get('id') == row['id'] for x in (r.get('items') or [])), r)
     r = pharm.get(f'/provider/capabilities/pharmacy')
     step('the pharmacy app still lists the item (nothing else changed)', r.ok, r.status)
 
