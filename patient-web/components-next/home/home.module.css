@@ -27,7 +27,13 @@
   background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-onGlass);
   color: var(--nabd-color-text-primary); text-decoration: none;
 }
-.cartLink { display: none; }
+.cartLink { display: inline-grid; }
+.cartBadge {
+  position: absolute; inset-block-start: -2px; inset-inline-end: -2px; min-inline-size: 18px; block-size: 18px; padding-inline: 4px;
+  box-sizing: border-box; border-radius: var(--nabd-radius-pill); display: inline-grid; place-items: center;
+  background: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg);
+  font-size: var(--nabd-font-size-micro); font-weight: 700; line-height: 1;
+}
 .signIn {
   block-size: 44px; padding-inline: 18px; border-radius: 22px; box-sizing: border-box;
   display: inline-flex; align-items: center; white-space: nowrap;
@@ -40,7 +46,6 @@
 @media (min-width: 540px) { .brand { display: inline-flex; } }
 @media (min-width: 768px) {
   .wordmark { display: inline; }
-  .cartLink { display: inline-grid; }
 }
 @media (min-width: 1024px) {
   .nav { display: flex; }

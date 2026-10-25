@@ -3774,5 +3774,21 @@
   "insurance.add.class": "শ্রেণি",
   "insurance.add.companySearch": "আপনার বিমা কোম্পানি খুঁজুন",
   "insurance.add.companyNone": "এই নামে কোনো কোম্পানি পাওয়া যায়নি",
-  "insurance.add.chiLink": "আপনার বিমা যাচাই করুন"
+  "insurance.add.chiLink": "আপনার বিমা যাচাই করুন",
+  "pharmacy.ix.title": "ওষুধের পারস্পরিক প্রভাব যাচাই",
+  "pharmacy.ix.intro": "আপনার বর্তমান ওষুধের সাথে আপনি যা দেন তা মিলিয়ে জানা প্রভাবগুলো দেখাই।",
+  "pharmacy.ix.drug": "ওষুধের নাম",
+  "pharmacy.ix.add": "যোগ করুন",
+  "pharmacy.ix.list": "যোগ করা ওষুধ",
+  "pharmacy.ix.remove": "{name} সরান",
+  "pharmacy.ix.check": "প্রভাব যাচাই করুন",
+  "pharmacy.ix.needOne": "অন্তত একটি ওষুধ যোগ করুন",
+  "pharmacy.ix.open": "একাধিক ওষুধের মধ্যে প্রভাব যাচাই করুন",
+  "diag.rad.modality": "স্ক্যানের ধরন",
+  "consult.hub.degree.professor": "অধ্যাপক",
+  "consult.hub.degree.consultant": "কনসালট্যান্ট",
+  "consult.hub.degree.senior_specialist": "সিনিয়র বিশেষজ্ঞ",
+  "consult.hub.degree.specialist": "বিশেষজ্ঞ",
+  "consult.hub.degree.resident": "রেসিডেন্ট",
+  "consult.hub.degree.general_practitioner": "সাধারণ চিকিৎসক"
 }

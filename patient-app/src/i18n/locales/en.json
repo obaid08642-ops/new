@@ -3774,5 +3774,21 @@
   "insurance.add.class": "Class",
   "insurance.add.companySearch": "Search for your insurer",
   "insurance.add.companyNone": "No insurer matches",
-  "insurance.add.chiLink": "Check your insurance"
+  "insurance.add.chiLink": "Check your insurance",
+  "pharmacy.ix.title": "Drug interaction checker",
+  "pharmacy.ix.intro": "We check your current medicines against the ones you enter and show known interactions.",
+  "pharmacy.ix.drug": "Medicine name",
+  "pharmacy.ix.add": "Add",
+  "pharmacy.ix.list": "Added medicines",
+  "pharmacy.ix.remove": "Remove {name}",
+  "pharmacy.ix.check": "Check interactions",
+  "pharmacy.ix.needOne": "Add at least one medicine",
+  "pharmacy.ix.open": "Check interactions between several medicines",
+  "diag.rad.modality": "Scan type",
+  "consult.hub.degree.professor": "Professor",
+  "consult.hub.degree.consultant": "Consultant",
+  "consult.hub.degree.senior_specialist": "Senior specialist",
+  "consult.hub.degree.specialist": "Specialist",
+  "consult.hub.degree.resident": "Resident",
+  "consult.hub.degree.general_practitioner": "General practitioner"
 }

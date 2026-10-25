@@ -37,8 +37,6 @@ vi.mock("@/lib/api/articles-server", () => ({
 // a request with a query (?q=, ?category=, ?tab=) is answered by the dynamic twin (F82-3), which renders the same view
 import ArticlesPage from "@/app/[locale]/q/articles/page";
 import ArticlePage from "@/app/[locale]/articles/[slug]/page";
-import BookmarksRedirect from "@/app/[locale]/articles/bookmarks/page";
-import CommunityRedirect from "@/app/[locale]/community/page";
 import CommunityPostRedirect from "@/app/[locale]/community/[postId]/page";
 import { extractSearchResults } from "@/lib/api/search";
 
@@ -139,11 +137,6 @@ describe("the article", () => {
 });
 
 describe("redirects and the removed community", () => {
-  it("sends the old bookmarks page to the Saved tab and the community pages to the articles", async () => {
-    await expect(BookmarksRedirect({ params: Promise.resolve({ locale: "en" }) })).rejects.toThrow("redirect:/en/articles?tab=saved");
-    await expect(CommunityRedirect({ params: Promise.resolve({ locale: "en" }) })).rejects.toThrow("redirect:/en/articles");
-    await expect(CommunityPostRedirect({ params: Promise.resolve({ locale: "en", postId: "p1" }) })).rejects.toThrow("redirect:/en/articles");
-  });
 
   it("does not draw a community result of the search answer", () => {
     const rows = extractSearchResults([

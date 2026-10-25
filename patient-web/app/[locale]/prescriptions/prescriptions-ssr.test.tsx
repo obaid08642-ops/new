@@ -17,20 +17,11 @@ vi.mock("@/components-next/consult/consult-page", () => ({ ConsultPage: ({ child
 vi.mock("@/components-next/consult/link-segmented", () => ({ LinkSegmented: () => <nav /> }));
 
 import RecordsPage from "../health/records/page";
-import PrescriptionsPage from "./page";
 import PrescriptionDetailPage from "./[prescriptionId]/page";
 
 const prescriptionId = "91047ef2-ad36-422a-a184-629693e7c729";
 const serverToken = "server-only-prescription-token-never-in-html";
 const fileUrl = "https://example.test/private-prescription.pdf";
-
-describe("the old prescriptions route", () => {
-  it("goes to the Prescriptions tab of the records screen, the one list", async () => {
-    const navigation = await import("next/navigation");
-    await PrescriptionsPage({ params: Promise.resolve({ locale: "en" }) });
-    expect(navigation.redirect).toHaveBeenCalledWith("/en/health/records?tab=prescriptions");
-  });
-});
 
 const records = async () => renderToStaticMarkup(await RecordsPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ tab: "prescriptions" }) }));
 

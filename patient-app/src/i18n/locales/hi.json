@@ -3774,5 +3774,21 @@
   "insurance.add.class": "श्रेणी",
   "insurance.add.companySearch": "अपनी बीमा कंपनी खोजें",
   "insurance.add.companyNone": "इस नाम की कोई कंपनी नहीं मिली",
-  "insurance.add.chiLink": "अपना बीमा जाँचें"
+  "insurance.add.chiLink": "अपना बीमा जाँचें",
+  "pharmacy.ix.title": "दवाओं के आपसी असर की जाँच",
+  "pharmacy.ix.intro": "हम आपकी मौजूदा दवाओं को आपकी दर्ज की गई दवाओं से मिलाकर ज्ञात असर दिखाते हैं।",
+  "pharmacy.ix.drug": "दवा का नाम",
+  "pharmacy.ix.add": "जोड़ें",
+  "pharmacy.ix.list": "जोड़ी गई दवाएँ",
+  "pharmacy.ix.remove": "{name} हटाएँ",
+  "pharmacy.ix.check": "असर जाँचें",
+  "pharmacy.ix.needOne": "कम से कम एक दवा जोड़ें",
+  "pharmacy.ix.open": "कई दवाओं के बीच असर जाँचें",
+  "diag.rad.modality": "स्कैन का प्रकार",
+  "consult.hub.degree.professor": "प्रोफेसर",
+  "consult.hub.degree.consultant": "कंसल्टेंट",
+  "consult.hub.degree.senior_specialist": "वरिष्ठ विशेषज्ञ",
+  "consult.hub.degree.specialist": "विशेषज्ञ",
+  "consult.hub.degree.resident": "रेज़िडेंट",
+  "consult.hub.degree.general_practitioner": "सामान्य चिकित्सक"
 }

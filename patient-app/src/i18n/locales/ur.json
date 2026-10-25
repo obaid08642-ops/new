@@ -3774,5 +3774,21 @@
   "insurance.add.class": "زمرہ",
   "insurance.add.companySearch": "اپنی انشورنس کمپنی تلاش کریں",
   "insurance.add.companyNone": "اس نام کی کوئی کمپنی نہیں ملی",
-  "insurance.add.chiLink": "اپنی انشورنس کی تفصیل معلوم کریں"
+  "insurance.add.chiLink": "اپنی انشورنس کی تفصیل معلوم کریں",
+  "pharmacy.ix.title": "ادویات کے ٹکراؤ کی جانچ",
+  "pharmacy.ix.intro": "ہم آپ کی موجودہ ادویات کو آپ کی درج کردہ ادویات سے ملا کر معلوم ٹکراؤ دکھاتے ہیں۔",
+  "pharmacy.ix.drug": "دوا کا نام",
+  "pharmacy.ix.add": "شامل کریں",
+  "pharmacy.ix.list": "شامل کردہ ادویات",
+  "pharmacy.ix.remove": "{name} ہٹائیں",
+  "pharmacy.ix.check": "ٹکراؤ جانچیں",
+  "pharmacy.ix.needOne": "کم از کم ایک دوا شامل کریں",
+  "pharmacy.ix.open": "کئی ادویات کے درمیان ٹکراؤ جانچیں",
+  "diag.rad.modality": "اسکین کی قسم",
+  "consult.hub.degree.professor": "پروفیسر",
+  "consult.hub.degree.consultant": "کنسلٹنٹ",
+  "consult.hub.degree.senior_specialist": "سینئر ماہر",
+  "consult.hub.degree.specialist": "ماہر",
+  "consult.hub.degree.resident": "ریزیڈنٹ",
+  "consult.hub.degree.general_practitioner": "جنرل پریکٹیشنر"
 }
