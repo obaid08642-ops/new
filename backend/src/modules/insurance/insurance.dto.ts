@@ -136,56 +136,6 @@ export class NphiesEligibilityDto {
   member_id?: string;
 }
 
-export class SavePolicyDto {
-  @IsOptional()
-  @IsString()
-  company_id?: string;
-
-  @IsOptional()
-  @IsString()
-  provider?: string;
-
-  @IsOptional()
-  @IsString()
-  policy_number?: string;
-
-  @IsOptional()
-  @IsString()
-  network?: string;
-
-  @IsOptional()
-  @IsString()
-  class?: string;
-
-  @IsOptional()
-  @IsDateString()
-  expiry_date?: string;
-
-  @IsOptional()
-  @IsString()
-  member_name?: string;
-
-  @IsOptional()
-  @IsString()
-  national_id?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  verified?: boolean;
-
-  @IsOptional()
-  @IsString()
-  pdf_url?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  ocr_extracted?: boolean;
-
-  @IsOptional()
-  @IsBoolean()
-  nphies_eligible?: boolean;
-}
-
 export class SubmitClaimDto {
   @IsOptional()
   @IsNumber()

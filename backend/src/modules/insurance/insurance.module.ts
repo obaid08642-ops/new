@@ -8,7 +8,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { NABDAH_ACCESS_TOKEN_SECURITY_SCHEME } from '../../config/openapi.config';
-import { CreateCompanyDto, UpdateCompanyDto, OcrExtractDto, UploadPolicyDto, NphiesEligibilityDto, SavePolicyDto, SubmitClaimDto, CreateInsuranceNetworkDto, CreateCoverageRuleDto } from './insurance.dto';
+import { CreateCompanyDto, UpdateCompanyDto, OcrExtractDto, UploadPolicyDto, NphiesEligibilityDto, SubmitClaimDto, CreateInsuranceNetworkDto, CreateCoverageRuleDto } from './insurance.dto';
 import { InjectModel, InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
 import { Optional } from '@nestjs/common';
@@ -351,28 +351,6 @@ Use null for any field not clearly visible. Do not guess.`;
     };
   }
 
-  async savePolicy(patientId: string, policyData: any) {
-    let patient = await this.patientModel.findOne({ user_id: { $eq: patientId } });
-    if (!patient) {
-      patient = await this.patientModel.create({ user_id: patientId });
-    }
-    patient.insurance = {
-      company_id: policyData.company_id || policyData.provider,
-      provider: policyData.provider,
-      policy_number: policyData.policy_number,
-      network: policyData.network,
-      class: policyData.class,
-      expiry_date: policyData.expiry_date,
-      member_name: policyData.member_name,
-      national_id: policyData.national_id,
-      verified: policyData.verified ?? false,
-      pdf_url: policyData.pdf_url,
-      ocr_extracted: policyData.ocr_extracted ?? false,
-    };
-    await patient.save();
-    return { success: true, insurance: patient.insurance };
-  }
-
   /** LJ-02: a claim is filed against a real paid booking; the server sets the
    * status/date and ignores any client-supplied status or submitted_at. */
   async submitClaim(patientId: string, claimData: any) {
@@ -655,12 +633,6 @@ export class InsuranceController {
   @Post('upload-policy')
   uploadPolicy(@CurrentUser() u: any, @Body() body: UploadPolicyDto) {
     return this.svc.uploadPolicy(body, u?.id);
-  }
-
-  @SelfService()
-  @Post('save-policy')
-  savePolicy(@CurrentUser() u: any, @Body() body: SavePolicyDto) {
-    return this.svc.savePolicy(u.id, body);
   }
 
   @SelfService()
