@@ -1,0 +1,47 @@
+# Provider sign-in on the real Android build. EMAIL / PASSWORD of the provider type under test (tools/native/seed.py).
+# provider-app has no testIDs on its welcome and sign-in screens (src/screens/auth/AuthScreens.tsx), so this flow finds them by their
+# Arabic or English text; checked against those screens on 2026-10-25.
+appId: com.nabd.provider
+---
+- launchApp:
+    clearState: true
+# The emulator's own launcher can freeze under load and cover the app with "isn't responding"; answer Wait.
+- runFlow:
+    when:
+      visible: ".*isn.t responding.*"
+    commands:
+      - tapOn: "Wait"
+- extendedWaitUntil:
+    visible: ".*(Nabd Plus|نبض بلس).*"
+    timeout: 60000
+# the welcome screen lists the provider types first; the sign-in entry is below them
+- scrollUntilVisible:
+    element: ".*(سجّل الدخول|تسجيل الدخول|Log In|Sign In).*"
+    direction: DOWN
+    timeout: 30000
+- tapOn: ".*(سجّل الدخول|تسجيل الدخول|Log In|Sign In).*"
+- runFlow:
+    when:
+      visible: "تسجيل الدخول \\(Sign In\\)|Sign In"
+    commands:
+      - tapOn: "تسجيل الدخول \\(Sign In\\)|Sign In"
+- extendedWaitUntil:
+    visible: "example@email\\.com.*"
+    timeout: 20000
+- tapOn: "example@email\\.com.*"
+- inputText: ${EMAIL}
+- tapOn: "••••••••"
+- inputText: ${PASSWORD}
+- hideKeyboard
+- tapOn:
+    text: "تسجيل الدخول|Log In"
+    below: "تذكرني|Remember Me"
+- runFlow:
+    when:
+      visible: "ليس الآن|Maybe Later"
+    commands:
+      - tapOn: "ليس الآن|Maybe Later"
+- extendedWaitUntil:
+    notVisible: "example@email\\.com.*"
+    timeout: 40000
+- takeScreenshot: provider_after_login

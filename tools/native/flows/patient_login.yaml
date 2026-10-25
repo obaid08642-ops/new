@@ -1,0 +1,52 @@
+# Patient sign-in on the real Android build (email + password), from a fresh install, through today's screens:
+# splash -> language step -> intro -> Welcome -> Log in. EMAIL / PASSWORD come from tools/native/seed.py.
+# Every control is found by its testID (patient-app/app/(onboarding), (auth)/welcome, (auth)/login), not by its text,
+# so a change of language or wording does not break the flow.
+appId: com.patient.nabd
+---
+- launchApp:
+    clearState: true
+# The emulator's own launcher can freeze under load and cover the app with "isn't responding"; answer Wait.
+- runFlow:
+    when:
+      visible: ".*isn.t responding.*"
+    commands:
+      - tapOn: "Wait"
+# the splash plays for ~2.6 s, then a first launch opens the language step
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-language"
+    timeout: 120000
+- tapOn:
+    id: "language-continue"
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-intro"
+    timeout: 30000
+- tapOn:
+    id: "onboarding-skip"
+- extendedWaitUntil:
+    visible:
+      id: "welcome-login"
+    timeout: 30000
+- tapOn:
+    id: "welcome-login"
+- extendedWaitUntil:
+    visible:
+      id: "login-identifier"
+    timeout: 30000
+- tapOn:
+    id: "login-identifier"
+- inputText: ${EMAIL}
+- tapOn:
+    id: "login-password"
+- inputText: ${PASSWORD}
+- hideKeyboard
+- tapOn:
+    id: "login-submit"
+# a successful sign-in replaces the screen with Home (the tabs)
+- extendedWaitUntil:
+    notVisible:
+      id: "login-identifier"
+    timeout: 30000
+- takeScreenshot: patient_after_login
