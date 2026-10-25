@@ -3,6 +3,7 @@ import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { Model } from 'mongoose';
 import { HomeCareService, HomeCareBooking, NursingBookingState, HomeCareBookingState, NursingVisitReport, CarePlan, MedicalSupplyRequest } from '../../schemas/home-care.schema';
 import { pick } from '../../common/sanitize';
+import { NAME_PROJECTION, withServiceNames } from '../../common/booking-names';
 import { pickAttribution } from '../../common/attribution';
 
 /** P3.3 (F15): writable catalog fields — id/_id/active/governance flags excluded. */
@@ -142,14 +143,21 @@ export class HomeCareSvc {
   }
 
   async mineFor(user: any) {
-    return this.bkgModel.find({ patient_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(80);
+    const rows = await this.bkgModel.find({ patient_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(80).lean();
+    return this.withServiceNames(rows as any[]);
+  }
+
+  /** Issue 1832: `service_names` in the six languages, resolved from the catalogue by `service_id` in one query; `service_name_ar/en` stay as stored. */
+  withServiceNames(bookings: any[]) {
+    return withServiceNames(bookings, (ids) => this.svcModel.find({ id: { $in: ids } }, NAME_PROJECTION).lean());
   }
 
   async getBooking(id: string, user: any) {
-    const b = await this.bkgModel.findOne({ id }, { _id: 0, __v: 0 });
+    const b = await this.bkgModel.findOne({ id }, { _id: 0, __v: 0 }).lean();
     if (!b) throw new NotFoundException();
     if (b.patient_id !== user.id && user.role !== 'admin') throw new NotFoundException();
-    return b;
+    const [named] = await this.withServiceNames([b]);
+    return named;
   }
 
   async cancel(id: string, user: any) {

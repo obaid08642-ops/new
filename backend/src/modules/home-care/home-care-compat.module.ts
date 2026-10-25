@@ -20,6 +20,7 @@ import { UserRole } from '../../common/enums';
 import { CreateBookingDto, RespondDto, AssignDto, CheckInDto, GpsDto, VisitReportDto, CreateCarePlanDto, SetAvailabilityDto, InventoryRequestDto, PostMessageDto, PostLegacyDto, ProviderSendDto } from './home-care-compat.dto';
 
 import { nurseFilterClauses, nearestOrigin, distanceKmTo } from './nurse-list-filters';
+import { NAME_PROJECTION, withServiceNames } from '../../common/booking-names';
 
 const ACTIVE_STATES = ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'ARRIVED', 'CARE_STARTED'];
 
@@ -166,9 +167,11 @@ export class HomeCareCompatController {
 
   @Header('Deprecation', 'true')
   @Header('Sunset', 'Sat, 01 Aug 2026 00:00:00 GMT')
-  @Get('bookings/my') myBookings(@CurrentUser() u: any, @Query() q: any) {
+  @Get('bookings/my') async myBookings(@CurrentUser() u: any, @Query() q: any) {
     const filter: any = u.role === 'patient' ? { patient_id: u.id } : { provider_id: u.id };
-    return this.bookings.find(filter, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean();
+    const rows: any[] = await this.bookings.find(filter, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean();
+    // Issue 1832: the patient's list carries `service_names` in the six languages (resolved from the catalogue by service_id, one query).
+    return u.role === 'patient' ? withServiceNames(rows, (ids) => this.services.find({ id: { $in: ids } }, NAME_PROJECTION).lean() as any) : rows;
   }
 
   // Provider app: GET /home-care/bookings/nursing/all

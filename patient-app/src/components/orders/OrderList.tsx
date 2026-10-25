@@ -12,7 +12,7 @@ import { COLUMN, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { isOffline } from '../../utils/isOffline';
 import { logError } from '../../utils/logger';
-import { pickLocalized } from '../../utils/localize';
+import { currentDbLang, pickLocalized } from '../../utils/localize';
 import { ORDERS_TONE, buildRows, inBucket, kindsPresent, ofKind, type Bucket, type OrderKind, type OrderRow, type OrderSources } from '../../utils/orderCenter';
 
 /**
@@ -21,10 +21,24 @@ import { ORDERS_TONE, buildRows, inBucket, kindsPresent, ofKind, type Bucket, ty
  * retry. Statuses, dates, numbers and amounts are what the endpoints return.
  */
 
-const pick = (ar: unknown, en: unknown): string | null => {
-  const value = pickLocalized(ar as string | undefined, en as string | undefined);
+const pick = (ar: unknown, en: unknown, names?: unknown): string | null => {
+  const value = pickBookingName(names, ar, en);
   return typeof value === 'string' && value.trim() !== '' ? value : null;
 };
+
+/** Issue 1832: the booking's name in the app's language from the server's `names` map; Arabic/English as before when it has none. */
+export function pickBookingName(names: unknown, ar: unknown, en: unknown): string | undefined {
+  if (names && typeof names === 'object' && !Array.isArray(names)) {
+    const map = names as Record<string, unknown>;
+    const lang = currentDbLang();
+    const own = map[lang];
+    if (typeof own === 'string' && own.trim()) return own;
+    const arabic = typeof map.ar === 'string' && map.ar.trim() ? map.ar : undefined;
+    const english = typeof map.en === 'string' && map.en.trim() ? map.en : undefined;
+    return (lang === 'ar' ? arabic ?? english : english ?? arabic) ?? pickLocalized(ar as string | undefined, en as string | undefined);
+  }
+  return pickLocalized(ar as string | undefined, en as string | undefined);
+}
 
 export type OrderEndpoints = ReadonlyArray<readonly [keyof OrderSources, string]>;
 

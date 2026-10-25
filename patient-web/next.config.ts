@@ -31,7 +31,7 @@ const nextConfig: NextConfig = {
     cssChunking: "graph",
   },
 
-  allowedDevOrigins: ["127.0.0.1", "3000-ikwbywe2u081i4meqv02p-09e989e4.sg1.manus.computer"],
+  allowedDevOrigins: ["127.0.0.1"],
   async redirects() {
     return localeOnlyRedirects([
       { source: "/:locale/doctors", destination: "/:locale/consultations/doctors", permanent: false },
