@@ -20,6 +20,13 @@ describe("LoginForm", () => {
     expect(html).not.toContain("patient.sandbox@nabd.plus");
   });
 
+  it("shows its own message for an empty field instead of the browser's bubble (the form is noValidate)", () => {
+    const html = renderToStaticMarkup(<LoginForm locale="en" />);
+    expect(html).toMatch(/<form[^>]*noValidate=""|<form[^>]*novalidate/i);
+    const source = readFileSync(resolve(process.cwd(), "components-next/login-form.tsx"), "utf8");
+    expect(source).toContain('setMessage(t("checkDetails"))');
+  });
+
   it("does not expose internal Sandbox guidance on the production sign-in page", () => {
     const page = readFileSync(resolve(process.cwd(), "app/[locale]/login/page.tsx"), "utf8");
 
