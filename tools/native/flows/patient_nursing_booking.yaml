@@ -1,0 +1,45 @@
+# Nursing booking: Nursing tab -> Book now on a service -> a nurse -> a time tomorrow -> confirm -> "booking sent".
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: "address=1"
+- tapOn:
+    text: "التمريض"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "nursing-hub"
+    timeout: 20000
+- extendedWaitUntil:
+    visible: "احجز الآن"
+    timeout: 30000
+- tapOn:
+    text: "احجز الآن"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "nursing-nurse-.*"
+    timeout: 40000
+- tapOn:
+    id: "nursing-nurse-.*"
+- extendedWaitUntil:
+    visible:
+      id: "nursing-nurse-profile"
+    timeout: 20000
+- tapOn:
+    id: "day-1"
+- extendedWaitUntil:
+    visible:
+      id: "slot-.*"
+    timeout: 30000
+- tapOn:
+    id: "slot-3"
+- tapOn:
+    id: "nursing-book-submit"
+- extendedWaitUntil:
+    visible:
+      id: "nursing-booking-sent"
+    timeout: 40000
+- takeScreenshot: patient_nursing_booking_sent

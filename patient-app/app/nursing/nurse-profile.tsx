@@ -254,6 +254,7 @@ export default function NursingMegaProfile() {
         disabled={processing || !selectedTime}
         label={flow === 'insurance' ? k('nur.book.sendInsurance') : priced ? k('nur.book.confirmPrice', { amount: money(totalServiceFee), currency: k('pharmacy.currency') }) : k('nur.book.confirm')}
         onPress={() => void handleSubmit()}
+        testID="nursing-book-submit"
       />
     ) : undefined;
 

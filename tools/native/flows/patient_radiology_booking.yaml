@@ -1,0 +1,73 @@
+# Radiology booking: Lab tests tab -> a scan -> add to cart -> basket -> the best lab -> time -> confirm -> the booking is created (open the order).
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: "address=1"
+- tapOn:
+    text: "التحاليل"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "diagnostics-hub"
+    timeout: 20000
+# the hub opens on "at home"; the seeded tests have no home service in the area, so choose a visit at the centre
+- tapOn:
+    id: "diag-place-clinic"
+- scrollUntilVisible:
+    element:
+      id: "diag-rad-0"
+- tapOn:
+    id: "diag-rad-0"
+- extendedWaitUntil:
+    visible:
+      id: "diagnostics-test-detail"
+    timeout: 20000
+- tapOn:
+    id: "diag-book-now"
+- extendedWaitUntil:
+    visible:
+      id: "diagnostics-cart"
+    timeout: 20000
+- tapOn:
+    id: "diag-cart-continue"
+- extendedWaitUntil:
+    visible:
+      id: "diagnostics-lab-comparison"
+    timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: "provider-choose"
+    timeout: 40000
+- tapOn:
+    id: "provider-choose"
+- extendedWaitUntil:
+    visible:
+      id: "diagnostics-when"
+    timeout: 30000
+- tapOn:
+    id: "time-day"
+    index: 0
+- tapOn:
+    id: "time-window"
+    index: 0
+- tapOn:
+    id: "diag-when-continue"
+- extendedWaitUntil:
+    visible:
+      id: "diagnostics-confirm"
+    timeout: 20000
+- tapOn:
+    id: "diag-confirm-submit"
+- extendedWaitUntil:
+    visible:
+      id: "diag-view-order"
+    timeout: 40000
+- tapOn:
+    id: "diag-view-order"
+- extendedWaitUntil:
+    visible:
+      id: "diagnostics-booking-status"
+    timeout: 30000
+- takeScreenshot: patient_radiology_booking_status

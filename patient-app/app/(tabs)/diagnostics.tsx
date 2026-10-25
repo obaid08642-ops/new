@@ -330,6 +330,7 @@ export default function DiagnosticsHub() {
                     price={rad.price}
                     last={i === view.rs.length - 1}
                     onPress={() => router.push(`/diagnostics/test-detail?id=${rad.id}&isRadiology=true` as Href)}
+                    testID={`diag-rad-${i}`}
                     toggle={{ on: inCart(rad.id), label: inCart(rad.id) ? k('diag.cart.remove', { name: rad.name }) : k('diag.cart.add', { name: rad.name }), onPress: () => toggle(rad, 'radiology') }}
                   />
                 ))}
