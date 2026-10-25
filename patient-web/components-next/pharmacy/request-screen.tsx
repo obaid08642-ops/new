@@ -15,6 +15,7 @@ import { checkRxFile, prepareRxImage } from "@/lib/pharmacy/rx-upload";
 import { AddressCard } from "./address-card";
 import { useDeliveryAddress } from "./use-delivery-address";
 import rx from "./rx.module.css";
+import { UploadsUnavailable, useUploadsEnabled } from "@/components-next/uploads/uploads-provider";
 
 const NAME_MIN = 3;
 const NAME_MAX = 200;
@@ -26,6 +27,7 @@ const DETAILS_MAX = 500;
  * reaches the pharmacies; before this rebuild the web only created a draft that nobody was ever asked about.
  */
 export function RequestScreen({ locale, before, initialName = "" }: { locale: Locale; before?: ReactNode; initialName?: string }) {
+  const uploadsEnabled = useUploadsEnabled();
   const t = useTranslations("PharmacyRequest");
   const rxT = useTranslations("RxUpload");
   const flow = useTranslations("PharmacyFlow");
@@ -114,7 +116,9 @@ export function RequestScreen({ locale, before, initialName = "" }: { locale: Lo
           <span className={rx.cardLabel}>{`${t("photo")} ${t("optional")}`}</span>
           <input ref={photoInput} type="file" accept="image/jpeg,image/png,image/webp" hidden aria-label={t("photo")} onChange={(event) => void pickPhoto(event.target.files?.[0])} />
           {photo ? <div className={rx.thumb}><img src={photo.preview} alt={t("photoAlt")} className={rx.thumbImage} /></div> : null}
-          <Button type="button" variant="outline" size="md" label={photoState === "uploading" ? t("photoUploading") : photo ? t("photoChange") : t("photoAdd")} loading={photoState === "uploading"} disabled={sending} onClick={() => photoInput.current?.click()} />
+          {uploadsEnabled ? (
+            <Button type="button" variant="outline" size="md" label={photoState === "uploading" ? t("photoUploading") : photo ? t("photoChange") : t("photoAdd")} loading={photoState === "uploading"} disabled={sending} onClick={() => photoInput.current?.click()} />
+          ) : <UploadsUnavailable className={rx.note} />}
           {photoState === "failed" || photoState === "type" ? <p className={rx.note} role="alert">{photoState === "type" ? t("photoType") : t("photoFailed")}</p> : null}
         </div>
 

@@ -1,5 +1,6 @@
 {
   "Shared": {
+    "uploadsUnavailable": "File uploads are temporarily unavailable. Try again later.",
     "brand": "Nabd Plus",
     "patientSignIn": "Patient sign in",
     "language": "Language",

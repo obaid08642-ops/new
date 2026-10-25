@@ -7,12 +7,14 @@ import { Button } from "@/components-next/ui-generated/components/Button";
 import { Avatar } from "@/components-next/ui-generated/components/Surfaces";
 import styles from "./health.module.css";
 import forms from "@/components-next/consult/consult.module.css";
+import { UploadsUnavailable, useUploadsEnabled } from "@/components-next/uploads/uploads-provider";
 
 const MAX_BYTES = 5_000_000;
 const TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 /** Profile photo (the app's "Change photo"): picks an image and sends it to POST /api/health/avatar, which uploads it and saves it on the user profile. */
 export function AvatarUpload({ name, src }: { name: string; src?: string }) {
+  const uploadsEnabled = useUploadsEnabled();
   const t = useTranslations("HealthWeb");
   const router = useRouter();
   const input = useRef<HTMLInputElement>(null);
@@ -50,8 +52,8 @@ export function AvatarUpload({ name, src }: { name: string; src?: string }) {
     <div className={styles.photo}>
       <Avatar name={name} size="lg" src={url} />
       <input ref={input} type="file" accept={TYPES.join(",")} hidden aria-label={t("photoChange")} onChange={(event) => void onPick(event)} />
-      <Button variant="outline" size="sm" label={busy ? t("photoUploading") : t("photoChange")} loading={busy} onClick={() => input.current?.click()} />
-      <span className={forms.muted}>{t("photoNote")}</span>
+      {uploadsEnabled ? <Button variant="outline" size="sm" label={busy ? t("photoUploading") : t("photoChange")} loading={busy} onClick={() => input.current?.click()} /> : null}
+      {uploadsEnabled ? <span className={forms.muted}>{t("photoNote")}</span> : <UploadsUnavailable className={forms.muted} />}
       {error ? <span className={forms.error} role="alert">{error}</span> : null}
     </div>
   );

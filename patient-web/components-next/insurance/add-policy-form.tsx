@@ -10,6 +10,7 @@ import { copayBody, figuresForClass } from "@/lib/insurance/copay";
 import { CompanyPicker } from "@/components-next/insurance/company-picker";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import forms from "@/components-next/consult/consult.module.css";
+import { useUploadsEnabled } from "@/components-next/uploads/uploads-provider";
 
 /** The card photo the reader accepts (the route allows about 6 MB of image). */
 const MAX_CARD_BYTES = 5 * 1024 * 1024;
@@ -28,6 +29,7 @@ export function policyOptionals(input: { memberId: string; memberName: string; e
 export type PolicyPrefill = { companyId?: string; policyNumber?: string; memberId?: string; memberName?: string; expiry?: string; network?: string };
 
 export function AddPolicyForm({ companies, locale, returnTo, initial, chiUrl }: { companies: CompanyRow[]; locale: string; returnTo?: string; initial?: PolicyPrefill; chiUrl?: string | null }) {
+  const uploadsEnabled = useUploadsEnabled();
   const t = useTranslations("InsuranceWeb");
   const router = useRouter();
   const [companyId, setCompanyId] = useState(initial?.companyId ?? "");
@@ -144,8 +146,12 @@ export function AddPolicyForm({ companies, locale, returnTo, initial, chiUrl }: 
 
   return (
     <form onSubmit={onSubmit} className={`${rx.card} ${forms.stack}`} noValidate aria-label={t("add.title")}>
-      <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden aria-label={t("add.scan")} onChange={(event) => void onScan(event)} />
-      <Button type="button" label={t("add.scan")} variant="outline" size="lg" fullWidth loading={scanning} onClick={() => fileRef.current?.click()} />
+      {uploadsEnabled ? (
+        <>
+          <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden aria-label={t("add.scan")} onChange={(event) => void onScan(event)} />
+          <Button type="button" label={t("add.scan")} variant="outline" size="lg" fullWidth loading={scanning} onClick={() => fileRef.current?.click()} />
+        </>
+      ) : null}
       {scanned ? <div role="status"><Notice>{t("add.scanned")}</Notice></div> : null}
       {chiUrl ? <a className={forms.body} href={chiUrl} target="_blank" rel="noopener noreferrer">{t("add.chiLink")}</a> : null}
       <CompanyPicker companies={companies} value={companyId} onChange={setCompanyId} label={t("add.company")} searchLabel={t("add.companySearch")} noneLabel={t("add.companyNone")} />

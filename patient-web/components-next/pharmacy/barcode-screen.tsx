@@ -17,6 +17,7 @@ import { MAX_RX_FILE_BYTES, checkRxFile, prepareRxImage } from "@/lib/pharmacy/r
 import { ButtonLink } from "./button-link";
 import { PHARMACY_TONE } from "./tones";
 import rx from "./rx.module.css";
+import { UploadsUnavailable, useUploadsEnabled } from "@/components-next/uploads/uploads-provider";
 
 type Failure = "type" | "size" | "read" | "unreadable" | "rxUnreadable" | "busy" | "scan" | "session";
 type Phase =
@@ -34,6 +35,7 @@ type Phase =
  * photo for the pharmacist's review) and this screen opens the prescription order. The interaction check stays below.
  */
 export function BarcodeScreen({ locale }: { locale: Locale }) {
+  const uploadsEnabled = useUploadsEnabled();
   const t = useTranslations("PharmacyBarcode");
   const flow = useTranslations("PharmacyFlow");
   const browse = useTranslations("PharmacyBrowse");
@@ -100,6 +102,7 @@ export function BarcodeScreen({ locale }: { locale: Locale }) {
         <div className={rx.head}><h1 className={rx.title}>{t("title")}</h1></div>
         <p className={rx.lead}>{t("intro")}</p>
 
+        {!uploadsEnabled ? <UploadsUnavailable className={rx.note} /> : null}
         <input ref={input} className={rx.srOnly} type="file" accept="image/jpeg,image/png,image/webp" capture="environment" tabIndex={-1} aria-hidden="true" onChange={(event) => void pick(event)} />
         <Button
           type="button"
@@ -108,7 +111,7 @@ export function BarcodeScreen({ locale }: { locale: Locale }) {
           startIcon="scan"
           label={busy ? t("reading") : phase.kind === "idle" ? t("takePhoto") : t("another")}
           loading={busy}
-          disabled={busy}
+          disabled={busy || !uploadsEnabled}
           onClick={() => input.current?.click()}
         />
         {phase.kind === "reading" ? <p className={rx.note} role="status">{t("reading")}</p> : null}

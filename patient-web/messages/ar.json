@@ -1,5 +1,6 @@
 {
   "Shared": {
+    "uploadsUnavailable": "رفع الملفات غير متاح مؤقتًا. حاول لاحقًا.",
     "brand": "نبض بلس",
     "patientSignIn": "دخول المريض",
     "language": "اللغة",
