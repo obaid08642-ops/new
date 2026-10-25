@@ -23,7 +23,9 @@ PERMISSION_PKGS = ('com.google.android.permissioncontroller', 'com.android.permi
 ALLOW = re.compile(r'^(While using the app|Only this time|Allow|السماح|أثناء استخدام التطبيق|هذه المرة فقط)$', re.I)
 DESTRUCTIVE = re.compile(r'(حذف|إلغاء الحساب|تسجيل الخروج|خروج|تعطيل الحساب|delete|log ?out|sign ?out|deactivate|remove account)', re.I)
 ERROR_TEXT = re.compile(r'(حدث خطأ|خطأ غير متوقع|تعذر تحميل|فشل التحميل|Something went wrong|Unexpected error|Network Error|'
-                        r'Request failed with status|Cannot read propert|is not a function|الصفحة غير متاحة|\b404\b|\b500\b)', re.I)
+                        r'Request failed with status|Cannot read propert|is not a function|الصفحة غير متاحة|'
+                        # an HTTP status, never a bare number: the nutrition screens show "+500 ml" and prices are numbers too
+                        r'\b(?:error|status|http|code)\s*:?\s*(?:404|500)\b|\b(?:404|500)\s+(?:error|not found|internal server error)\b)', re.I)
 RAW_VALUE = re.compile(r'(\bundefined\b|\bNaN\b|\[object Object\]|\bnull\b|Invalid Date|\{\{|\}\})')
 VOLATILE = re.compile(r'\d')
 TAP_LIMIT = int(os.environ.get('NATIVE_TAP_LIMIT', '20'))
