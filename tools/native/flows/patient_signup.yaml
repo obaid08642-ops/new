@@ -18,7 +18,11 @@ appId: com.patient.nabd
 - inputText: ${output.email}
 - tapOn:
     id: "register-phone"
-- inputText: ${output.phone}
+- inputText: ${output.local}
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "register-password"
 - tapOn:
     id: "register-password"
 - inputText: ${output.password}

@@ -13,6 +13,8 @@ appId: com.patient.nabd
       id: "onboarding-language"
     timeout: 120000
 - tapOn:
+    id: "language-ar"
+- tapOn:
     id: "language-continue"
 - extendedWaitUntil:
     visible:
