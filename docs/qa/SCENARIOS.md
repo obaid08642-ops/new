@@ -104,7 +104,7 @@ Per-screen scan (every element, sizes 390/768/1280, six languages, dark mode) is
 - Static patient-web routes (anonymous, 141): swept on the OLD layout (plain next start). Provisional. Rerun on the production layout still needed. Table: docs/qa/screens/patient-web-static.md.
 - Auth-gated patient-web routes (signed in, 72): swept on the production layout. Table: docs/qa/screens/patient-web-auth.md. Findings: docs/qa/findings/web-sweep-auth.md.
 - Admin pages (65 files): swept signed in, on the admin build of 03:12, then re-checked on the rebuilt admin from merged main. Findings: docs/qa/findings/admin-sweep.md. Dynamic admin routes (orders/[kind]/[id]) not tested (need IDs).
-- Dynamic patient-web routes (53): NOT started. Need seeded IDs.
+- Dynamic patient-web routes (53): 5 routes tested with a real seeded doctor (docs/qa/findings/web-sweep-dynamic.md). Found P1: /consultations/doctors/<id> returns 503 (server-to-client function prop). The other ~48 need seeded IDs for articles, facilities, community, orders, appointments, labs, radiology, packages, results, clinics: NOT TESTED, reason: no seeded records of those types yet.
 - Scenarios: 74 rows. Open: JB-03 (guest job publish, P1), PR-05, MP-02, JB-06, and the 60 TODO rows needing DB proof.
 - Open P1s: guest job publish (no route); admin system logs API 404 (AdminLogsController dropped in the P5.3 merge).
 - Corrected: hydration P1 retracted (local setup; production layout passes).
