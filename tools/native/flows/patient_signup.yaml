@@ -26,9 +26,14 @@ appId: com.patient.nabd
 - tapOn:
     id: "register-password"
 - inputText: ${output.password}
+- hideKeyboard
+- swipe:
+    direction: UP
+    duration: 400
 - scrollUntilVisible:
     element:
       id: "register-confirm"
+    timeout: 30000
 - tapOn:
     id: "register-confirm"
 - inputText: ${output.password}
