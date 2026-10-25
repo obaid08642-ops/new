@@ -62,6 +62,8 @@ import { ProviderAccountRepository } from "./services/repositories/provideraccou
 import { ProviderAccountProfileRepository } from "./services/repositories/provideraccountprofile.repository";
 // P5.3: merged from PharmacyOpsModule (pharmacy_ops/ → pharmacy/)
 import { PharmacyOpsController, ProviderPharmacyAliasController } from './pharmacy_ops.controller';
+import { PharmacyPriceReviewService } from './price-review.service';
+import { AdminPriceReviewController } from './price-review.controller';
 import { PharmacyOpsService } from './pharmacy_ops.service';
 import { OrdersModule } from '../orders/orders.module';
 import { ProviderAvailabilityRepository } from "./services/repositories/provideravailability.repository";
@@ -110,6 +112,7 @@ import { B2BVoiceController } from './pharmacy-b2b-voice.controller';
     ]),
   ],
   providers: [
+    PharmacyPriceReviewService,
     PharmacyOrderService,
     PharmacyRefillService,
     // P5.3: merged from PharmacyOpsModule (pharmacy_ops/ → pharmacy/)
@@ -154,6 +157,7 @@ import { B2BVoiceController } from './pharmacy-b2b-voice.controller';
     ProviderPharmacyController,
     ProviderInventoryExtController,
     AdminPharmacyController,
+    AdminPriceReviewController,
     // F17: demo seeders exist ONLY in explicit test mode (404 elsewhere).
     ...(process.env.NODE_ENV === 'test' && process.env.ALLOW_TEST_SEED === 'true' ? [AdminPharmacySeedController] : []),
       ProviderBroadcastController, AdminBroadcastController, AdminFulfillmentPolicyController, AdminPharmacyInsuranceController,
