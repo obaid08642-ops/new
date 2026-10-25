@@ -107,22 +107,21 @@ def declare_ordering(key, kind, service_path, n):
 
 
 def nurse_hours():
-    """The nurse of the journeys works every day 08:00-18:00 (the patient app lists her free times per day: GET /home-care/providers/:id/slots); the admin approves the change."""
+    """The nurse of the journeys works every day 08:00-18:00. The patient app lists her free times from the profile's working hours
+    (home-care slotsForProvider), which the registration wizard sets; the journeys registered her with a Sunday-only default, so the hours are set in the TEST database."""
     acc = state['providers'].get('home_care_stock')
     if not acc:
         print('nurse hours: no home_care_stock'); return
-    import j_admin
-    admin, _ = j_admin.login()
+    import json as _json, subprocess
     tok = lib.Client().post('/provider/auth/login', {'email': acc['email'], 'password': acc['password']}).get('access_token')
-    nurse = lib.Client(tok, 'nurse')
-    for dow in range(7):
-        for st in ('home', 'home_nursing'):
-            r = nurse.post('/provider/schedule-slots', {'day_of_week': dow, 'start_time': '08:00', 'end_time': '18:00', 'service_type': st})
-            print('nurse hours', dow, st, r.status)
-    pend = [x for x in admin.get('/admin/admin/providers/provider-deltas').items() if x.get('status') == 'pending']
-    for x in pend:
-        admin.post(f"/admin/admin/providers/provider-deltas/{x['id']}/approve", {'reason': 'ساعات الزيارات معتمدة'})
-    print('nurse hours: approved', len(pend), 'changes')
+    account_id = lib.Client(tok, 'nurse').get('/provider/me').get('account', 'id')
+    code = ("const m=require('mongoose');(async()=>{await m.connect(process.env.MONGO_URL,{dbName:process.env.DB_NAME});"
+            "const r=await m.connection.db.collection('provider_profiles').updateOne({account_id:process.argv[1]},{$set:{working_hours:[{day:'all',open:'08:00',close:'18:00',open_evening:null,close_evening:null,closed:false}]}});"
+            "console.log(JSON.stringify(r));await m.disconnect();})().catch(e=>{console.error(e);process.exit(1)})")
+    backend = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'backend')
+    r = subprocess.run(['node', '-e', code, str(account_id)], cwd=backend, capture_output=True, text=True, timeout=60,
+                       env={**os.environ, 'MONGO_URL': os.environ.get('MONGO_URL', 'mongodb://127.0.0.1:27017/?replicaSet=rs0&directConnection=true'), 'DB_NAME': os.environ.get('DB_NAME', 'nabd_live')})
+    print('nurse hours', account_id, r.stdout.strip(), r.stderr.strip()[:200])
 
 
 try:

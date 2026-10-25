@@ -57,9 +57,28 @@ appId: com.patient.nabd
     visible:
       id: "diagnostics-when"
     timeout: 30000
+# take the first of the offered days that has times
 - tapOn:
     id: "time-day"
     index: 0
+- runFlow:
+    when:
+      visible: "لا توجد مواعيد متاحة في هذا اليوم.*"
+    commands:
+      - tapOn:
+          id: "time-day"
+          index: 1
+- runFlow:
+    when:
+      visible: "لا توجد مواعيد متاحة في هذا اليوم.*"
+    commands:
+      - tapOn:
+          id: "time-day"
+          index: 2
+- extendedWaitUntil:
+    visible:
+      id: "time-window"
+    timeout: 20000
 - tapOn:
     id: "time-window"
     index: 0

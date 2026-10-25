@@ -5,7 +5,6 @@ appId: com.patient.nabd
     file: common_fresh_session.yaml
     env:
       FLAGS: "address=1"
-- runFlow: common_pharmacy_cart.yaml
 - runFlow: common_pharmacy_to_payment.yaml
 - tapOn:
     id: "payment-pay"
