@@ -3,6 +3,9 @@ import { View, Text, StyleSheet } from 'react-native';
 
 export const PROVIDER_DEFAULT = 'web-fallback';
 
+/** The web preview draws a plain box, never a native map, so nothing needs a key. */
+export const mapAvailable = true;
+
 export type Region = {
   latitude: number;
   longitude: number;

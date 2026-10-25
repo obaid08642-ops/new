@@ -3103,6 +3103,10 @@
   "map.reviews": "({n} ratings)",
   "map.price": "Price",
   "map.directions": "Directions",
+  "map.unavailable.title": "The map is not available in this version.",
+  "map.openInMaps": "Open in Maps",
+  "picker.noMap": "The map is not available right now. Use your current location, enter the short address code, or type the address yourself.",
+  "picker.reverseFailed": "We could not read the address from your location. Type it yourself.",
   "map.insuranceOk": "Your insurance ({name}) is accepted here.",
   "map.insuranceSetup": "Set up your health insurance",
   "picker.title": "Add an address",
@@ -3791,5 +3795,10 @@
   "consult.hub.degree.senior_specialist": "Senior specialist",
   "consult.hub.degree.specialist": "Specialist",
   "consult.hub.degree.resident": "Resident",
-  "consult.hub.degree.general_practitioner": "General practitioner"
+  "consult.hub.degree.general_practitioner": "General practitioner",
+  "picker.city": "City",
+  "picker.district": "District",
+  "picker.choose": "Choose",
+  "picker.reversing": "Reading the address from the pin…",
+  "picker.outsideArea": "This spot is outside the service area. Move the pin inside the kingdom or type the address yourself."
 }

@@ -3103,6 +3103,10 @@
   "map.reviews": "({n} रेटिंग)",
   "map.price": "कीमत",
   "map.directions": "दिशा-निर्देश",
+  "map.unavailable.title": "इस संस्करण में नक्शा उपलब्ध नहीं है।",
+  "map.openInMaps": "मैप्स में खोलें",
+  "picker.noMap": "नक्शा अभी उपलब्ध नहीं है। अपना वर्तमान स्थान उपयोग करें, छोटे पते का कोड दर्ज करें या पता खुद लिखें।",
+  "picker.reverseFailed": "आपके स्थान से पता नहीं पढ़ा जा सका। खुद लिखें।",
   "map.insuranceOk": "आपका बीमा ({name}) यहाँ स्वीकार है।",
   "map.insuranceSetup": "अपना स्वास्थ्य बीमा सेट करें",
   "picker.title": "पता जोड़ें",
@@ -3791,5 +3795,10 @@
   "consult.hub.degree.senior_specialist": "वरिष्ठ विशेषज्ञ",
   "consult.hub.degree.specialist": "विशेषज्ञ",
   "consult.hub.degree.resident": "रेज़िडेंट",
-  "consult.hub.degree.general_practitioner": "सामान्य चिकित्सक"
+  "consult.hub.degree.general_practitioner": "सामान्य चिकित्सक",
+  "picker.city": "शहर",
+  "picker.district": "मोहल्ला",
+  "picker.choose": "चुनें",
+  "picker.reversing": "पिन की जगह से पता पढ़ा जा रहा है…",
+  "picker.outsideArea": "यह जगह सेवा क्षेत्र से बाहर है। पिन को सऊदी अरब के अंदर ले जाएँ या पता खुद लिखें।"
 }

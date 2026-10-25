@@ -3103,6 +3103,10 @@
   "map.reviews": "({n} تقييم)",
   "map.price": "السعر",
   "map.directions": "الاتجاهات",
+  "map.unavailable.title": "الخريطة غير متاحة في هذا الإصدار.",
+  "map.openInMaps": "افتح في الخرائط",
+  "picker.noMap": "الخريطة غير متاحة الآن. استخدم موقعي الحالي أو أدخل رمز العنوان المختصر أو اكتب العنوان بنفسك.",
+  "picker.reverseFailed": "تعذّر قراءة العنوان من موقعك. اكتب العنوان بنفسك.",
   "map.insuranceOk": "تأمينك ({name}) مقبول هنا.",
   "map.insuranceSetup": "لإعداد تأمينك الطبي — اضغط هنا",
   "picker.title": "إضافة عنوان",
@@ -3791,5 +3795,10 @@
   "consult.hub.degree.senior_specialist": "أخصائي أول",
   "consult.hub.degree.specialist": "أخصائي",
   "consult.hub.degree.resident": "مقيم",
-  "consult.hub.degree.general_practitioner": "طبيب عام"
+  "consult.hub.degree.general_practitioner": "طبيب عام",
+  "picker.city": "المدينة",
+  "picker.district": "الحي",
+  "picker.choose": "اختر",
+  "picker.reversing": "جارٍ قراءة العنوان من موقع الدبوس…",
+  "picker.outsideArea": "هذا الموقع خارج نطاق الخدمة. حرّك الدبوس داخل المملكة أو اكتب العنوان بنفسك."
 }

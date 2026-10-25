@@ -3103,6 +3103,10 @@
   "map.reviews": "({n} ریٹنگز)",
   "map.price": "قیمت",
   "map.directions": "راستہ",
+  "map.unavailable.title": "اس ورژن میں نقشہ دستیاب نہیں ہے۔",
+  "map.openInMaps": "نقشے میں کھولیں",
+  "picker.noMap": "نقشہ ابھی دستیاب نہیں۔ اپنا موجودہ مقام استعمال کریں، مختصر پتے کا کوڈ درج کریں یا پتہ خود لکھیں۔",
+  "picker.reverseFailed": "آپ کے مقام سے پتہ نہیں پڑھا جا سکا۔ خود لکھیں۔",
   "map.insuranceOk": "آپ کی انشورنس ({name}) یہاں قبول ہے۔",
   "map.insuranceSetup": "اپنی ہیلتھ انشورنس سیٹ اپ کریں",
   "picker.title": "پتہ شامل کریں",
@@ -3791,5 +3795,10 @@
   "consult.hub.degree.senior_specialist": "سینئر ماہر",
   "consult.hub.degree.specialist": "ماہر",
   "consult.hub.degree.resident": "ریزیڈنٹ",
-  "consult.hub.degree.general_practitioner": "جنرل پریکٹیشنر"
+  "consult.hub.degree.general_practitioner": "جنرل پریکٹیشنر",
+  "picker.city": "شہر",
+  "picker.district": "محلہ",
+  "picker.choose": "منتخب کریں",
+  "picker.reversing": "پن کی جگہ سے پتہ پڑھا جا رہا ہے…",
+  "picker.outsideArea": "یہ جگہ سروس کے علاقے سے باہر ہے۔ پن کو مملکت کے اندر لائیں یا پتہ خود لکھیں۔"
 }
