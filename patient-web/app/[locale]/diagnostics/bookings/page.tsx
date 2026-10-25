@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { pickName, pickTexts } from "@/lib/i18n/localized";
+import { pickName } from "@/lib/i18n/localized";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractDiagnosticBookings, type DiagnosticDomain } from "@/lib/api/diagnostics";
@@ -73,7 +73,7 @@ export default async function DiagnosticsBookingsPage({ params, searchParams }: 
           {rows.map(({ domain, booking }) => {
             const visual = domain === "labs" ? LAB : RADIOLOGY;
             // needs-review issue 636: a lab booking shows its first test name (the list sends items), the generic label only without one
-            const title = domain === "labs" ? pickTexts(locale, booking.testNames) ?? d("labs.label") : pickName(locale, booking.scanNames) ?? d("radiology.label");
+            const title = domain === "labs" ? pickName(locale, booking.testNames) ?? d("labs.label") : pickName(locale, booking.scanNames) ?? d("radiology.label");
             const status = diagStatus(booking.state);
             return (
               <li className={orders.order} key={`${domain}-${booking.id}`}>

@@ -1,5 +1,5 @@
 import { extractAppointmentRows } from "@/lib/api/appointments";
-import { pickName, pickTexts } from "@/lib/i18n/localized";
+import { pickName } from "@/lib/i18n/localized";
 import { extractDiagnosticBookings } from "@/lib/api/diagnostics";
 import { extractNursingVisits } from "@/lib/api/nursing-visits";
 import { isPast, modeOf, statusKey as appointmentStatusKey, statusTone as appointmentTone } from "@/lib/consult/appointment-view";
@@ -140,7 +140,7 @@ export function diagnosticRows(locale: string, domain: "labs" | "radiology", pay
     const status = diagStatus(booking.state);
     const href = diagnosticBookingHref(locale, domain, booking.id);
     const title = domain === "labs"
-      ? pickTexts(locale, booking.testNames) ?? l.diagnostics("labs.label")
+      ? pickName(locale, booking.testNames) ?? l.diagnostics("labs.label")
       : pickName(locale, booking.scanNames) ?? l.diagnostics("radiology.label");
     return {
       key: `${domain}-${booking.id}`,
