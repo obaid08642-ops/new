@@ -53,7 +53,7 @@ export class SplGeocodeSource {
         address: { source: 'spl', city: a.city, district: a.district, street: a.street, building_no: a.building_number, postal_code: a.post_code, short_address: a.short_address || undefined },
       };
     } catch (e: any) {
-      this.logger.warn(`SPL reverse failed: ${e?.message || e}`);
+      this.logger.warn(`SPL reverse failed: ${e?.name || 'error'}`); // the name only: a URL parse error would carry the api_key
       return { outcome: 'unavailable' };
     }
   }
