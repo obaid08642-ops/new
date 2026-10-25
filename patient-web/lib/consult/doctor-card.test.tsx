@@ -18,6 +18,11 @@ describe("doctor parser: richer fields are read only when the server sent them",
     expect(d?.services?.[0]).toMatchObject({ nameEn: "Scan", price: 100 });
     expect(d?.reviewsData?.[0]).toMatchObject({ rating: 5, reviewer: "Sara" });
   });
+  it("reads what the backend sends today: avg_wait_minutes and education as university / graduation_year / fellowship_board (LR-9)", () => {
+    const d = extractDoctor({ data: { id: "d9", name_en: "A", avg_wait_minutes: 18, education: [{ university: "KSU", graduation_year: 2010, fellowship_board: "SBIM" }, { university: null, graduation_year: null, fellowship_board: null }] } });
+    expect(d?.waitMinutes).toBe(18);
+    expect(d?.education).toEqual([{ degree: "SBIM", institution: "KSU", year: 2010, verified: false }]);
+  });
   it("leaves every new field undefined when absent (no invented values)", () => {
     const d = extractDoctors([{ id: "d2" }])[0];
     for (const key of ["gender", "isOnline", "education", "certificates", "services", "followUp", "clinicAddress", "location", "reviewsData", "waitMinutes"] as const) expect(d[key]).toBeUndefined();
