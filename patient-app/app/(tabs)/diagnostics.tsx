@@ -286,6 +286,7 @@ export default function DiagnosticsHub() {
                       price={test.price}
                       last={i === view.ts.length - 1}
                       onPress={() => router.push(`/diagnostics/test-detail?id=${test.id}` as Href)}
+                      testID={`diag-test-${i}`}
                       toggle={{ on: inCart(test.id), label: inCart(test.id) ? k('diag.cart.remove', { name: test.name }) : k('diag.cart.add', { name: test.name }), onPress: () => toggle(test, 'lab') }}
                     />
                   ))}

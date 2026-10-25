@@ -96,7 +96,7 @@ export function ProviderCard({ row, total, selected, itemsCount, onChoose, choos
           <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.secondary, ...flow }}>{k('ordering.match.total')}</Text>
           <Price amount={total ?? row.total} size="h4" />
         </View>
-        {badge && onChoose && row.covers_all ? <Button theme={theme} size="md" label={chooseLabel ?? k('ordering.match.choose')} onPress={onChoose} /> : null}
+        {badge && onChoose && row.covers_all ? <Button theme={theme} size="md" label={chooseLabel ?? k('ordering.match.choose')} onPress={onChoose} testID="provider-choose" /> : null}
       </View>
     </LabCard>
   );
@@ -131,6 +131,7 @@ export function TimeTile({ label, selected, onPress, kind }: { label: string; se
       accessibilityState={{ selected }}
       accessibilityLabel={label}
       onPress={onPress}
+      testID={`time-${kind}`}
       style={{
         flexGrow: 1,
         flexBasis: day ? '30%' : '45%',

@@ -53,6 +53,7 @@ export default function DiagnosticsCart() {
       size="lg"
       fullWidth
       label={k('ordering.basket.cta')}
+      testID="diag-cart-continue"
       disabled={!canContinue}
       onPress={() => router.push({ pathname: '/diagnostics/lab-comparison', params: { kind: labs.length ? 'lab' : 'radiology', mode: ctx.choice.mode, payer: ctx.payer } } as unknown as Href)}
     />

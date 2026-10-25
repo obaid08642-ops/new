@@ -58,7 +58,7 @@ export default function TestDetail() {
         </View>
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <View style={{ flex: 1 }}>
-            <Button theme={theme} size="lg" fullWidth variant="outline" label={inCart ? k('diag.detail.inCart') : k('diag.detail.addToCart')} disabled={inCart} onPress={add} />
+            <Button theme={theme} size="lg" fullWidth variant="outline" label={inCart ? k('diag.detail.inCart') : k('diag.detail.addToCart')} disabled={inCart} onPress={add} testID="diag-add" />
           </View>
           <View style={{ flex: 1 }}>
             <Button
@@ -66,6 +66,7 @@ export default function TestDetail() {
               size="lg"
               fullWidth
               label={k('diag.detail.bookNow')}
+              testID="diag-book-now"
               onPress={() => {
                 add();
                 router.push('/diagnostics/cart' as Href);
