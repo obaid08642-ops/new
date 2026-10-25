@@ -258,7 +258,12 @@ export interface OrderSources {
 }
 
 /** The server's own name of a service, in the language asked (`name_<lang>` falls back to the other of ar / en). */
-export type PickName = (ar: unknown, en: unknown) => string | null;
+export type PickName = (ar: unknown, en: unknown, names?: unknown) => string | null;
+
+const isRecord = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
+/** The `names` map (ar, en, ur, hi, bn, tl) the server resolves from the catalogue (issue 1832): the first line of a booking's `items[]`. */
+const lineNames = (b: Record<string, unknown>): unknown => (Array.isArray(b.items) && isRecord(b.items[0]) ? (b.items[0] as Record<string, unknown>).names : undefined);
+const lineField = (b: Record<string, unknown>, key: string): unknown => (Array.isArray(b.items) && isRecord(b.items[0]) ? (b.items[0] as Record<string, unknown>)[key] : undefined);
 
 export function buildRows(src: OrderSources, pick: PickName): OrderRow[] {
   const rows: OrderRow[] = [];
@@ -289,7 +294,7 @@ export function buildRows(src: OrderSources, pick: PickName): OrderRow[] {
   for (const b of listOf(src.labs)) {
     push(
       row('labs', b, text(b.state) ?? text(b.status) ?? 'NEW_REQUEST', {
-        title: pick(b.service_name_ar, b.service_name_en) ?? pick(b.package_name_ar, b.package_name_en),
+        title: pick(b.service_name_ar ?? lineField(b, 'name_ar'), b.service_name_en ?? lineField(b, 'name_en'), lineNames(b)) ?? pick(b.package_name_ar, b.package_name_en),
         sub: b.visit_type === 'home' ? { key: 'orders.sub.labHome' } : { key: 'orders.sub.labVisit' },
         at: time(b.scheduled_at) ?? time(b.createdAt),
         amount: firstAmount(b, ['total', 'total_price']),
@@ -302,7 +307,7 @@ export function buildRows(src: OrderSources, pick: PickName): OrderRow[] {
     const center = text(b.center_name);
     push(
       row('radiology', b, text(b.state) ?? text(b.status) ?? 'NEW_REQUEST', {
-        title: pick(b.service_name_ar, b.service_name_en),
+        title: pick(b.service_name_ar ?? b.scan_name_ar, b.service_name_en ?? b.scan_name_en, b.scan_names ?? lineNames(b)),
         sub: center ? { text: center } : null,
         at: time(b.scheduled_at) ?? time(b.createdAt),
         amount: firstAmount(b, ['total', 'total_price']),
@@ -316,7 +321,7 @@ export function buildRows(src: OrderSources, pick: PickName): OrderRow[] {
     const address = addressText(b.address);
     push(
       row('nursing', b, text(b.state) ?? 'NEW_REQUEST', {
-        title: pick(b.service_name_ar, b.service_name_en),
+        title: pick(b.service_name_ar, b.service_name_en, b.service_names),
         sub: address ? { text: address } : null,
         at: time(b.scheduled_at) ?? time(b.createdAt),
         amount: firstAmount(b, ['total_price']),

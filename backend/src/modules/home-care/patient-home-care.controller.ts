@@ -152,6 +152,6 @@ export class PatientHomeCareController {
     const merged = [...(canonical as any[]), ...(legacy as any[]).map(({ _id, ...d }: any) => d)]
       .sort((a: any, b: any) => new Date(b.created_at || b.createdAt || 0).getTime() - new Date(a.created_at || a.createdAt || 0).getTime())
       .slice(0, lim);
-    return { data: merged, page: parseInt(page, 10) || 1, limit: lim };
+    return { data: await this.homeSvc.withServiceNames(merged), page: parseInt(page, 10) || 1, limit: lim };
   }
 }

@@ -32,6 +32,7 @@ import { RedisService } from '../redis/redis.service';
 import { BusinessRulesService } from '../business-rules/business-rules.module';
 import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
+import { NAME_PROJECTION, withItemNames } from '../../common/booking-names';
 
 import { nearestFirst } from '../provider/services/nearest-first';
 import { publicLabFilter } from './labs-public';
@@ -626,7 +627,13 @@ export class LabsService {
   }
 
   async mineFor(user: any) {
-    return this.bkgModel.find({ patient_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(80);
+    const rows = await this.bkgModel.find({ patient_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(80).lean();
+    return this.withLineNames(rows as any[]);
+  }
+
+  /** Issue 1832: every line of the bookings carries `names` in the six languages, resolved from the catalogue by `service_id` in one query. */
+  private withLineNames(bookings: any[]) {
+    return withItemNames(bookings, (ids) => this.svcModel.find({ id: { $in: ids } }, NAME_PROJECTION).lean());
   }
 
   async getBooking(id: string, user: any) {
@@ -639,7 +646,8 @@ export class LabsService {
     const resultDocs = await this.bkgModel.db.collection('labresults')
       .find({ booking_id: id, patient_id: b.patient_id, source: { $ne: 'radiology' } }, { projection: { _id: 0, id: 1, entries: 1, reported_at: 1, critical: 1 } })
       .sort({ createdAt: -1 }).limit(20).toArray();
-    return { ...b, reports: (Array.isArray(b.reports) ? b.reports : []).map(reportSummary), results: flattenResultEntries(resultDocs) };
+    const [named] = await this.withLineNames([b]);
+    return { ...named, reports: (Array.isArray(b.reports) ? b.reports : []).map(reportSummary), results: flattenResultEntries(resultDocs) };
   }
 
   /** The file of one report of a booking, for the patient, the assigned lab or an admin. */

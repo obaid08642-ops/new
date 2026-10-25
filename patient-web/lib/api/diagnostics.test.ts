@@ -47,3 +47,33 @@ describe("diagnostic booking results and collector", () => {
     expect(extractDiagnosticTracking({ techName: "Sara", techPhone: "+966500000000", timeline: [] })).toMatchObject({ techName: "Sara", techPhone: "+966500000000" });
   });
 });
+
+describe("booking names in every language (issue 1832)", () => {
+  const names = { ar: "صورة دم", en: "CBC", ur: "خون", hi: "रक्त", bn: "রক্ত", tl: "Dugo" };
+
+  it("reads the server's names for a lab line and a scan, and the page's language picks its own", async () => {
+    const { pickTexts } = await import("@/lib/i18n/localized");
+    const [lab] = extractDiagnosticBookings([{ id: bookingId, state: "CONFIRMED", items: [{ name_ar: "قديم", name_en: "old", names }] }]);
+    expect(lab.testNames).toEqual(names);
+    expect(["ar", "en", "ur", "hi", "bn", "fil"].map((l) => pickTexts(l, lab.testNames))).toEqual(["صورة دم", "CBC", "خون", "रक्त", "রক্ত", "Dugo"]);
+    const [scan] = extractDiagnosticBookings([{ id: bookingId, state: "CONFIRMED", scan_name_ar: "قديم", scan_name_en: "old", scan_names: { ar: "رنين", en: "MRI", hi: "एमआरआई" } }]);
+    expect(pickTexts("hi", scan.scanNames)).toBe("एमआरआई");
+    expect(pickTexts("bn", scan.scanNames)).toBe("MRI"); // no Bengali on the row: English, as every catalogue page does
+  });
+
+  it("an old booking without names falls back to its stored Arabic and English", async () => {
+    const { pickTexts } = await import("@/lib/i18n/localized");
+    const [old] = extractDiagnosticBookings([{ id: bookingId, state: "CONFIRMED", items: [{ name_ar: "صورة دم", name_en: "CBC" }] }]);
+    expect(old.testNames).toEqual({ ar: "صورة دم", en: "CBC" });
+    expect(pickTexts("ur", old.testNames)).toBe("صورة دم");
+    expect(pickTexts("hi", old.testNames)).toBe("CBC");
+    const [none] = extractDiagnosticBookings([{ id: bookingId, state: "CONFIRMED" }]);
+    expect(none.testNames).toBeUndefined();
+    expect(none.scanNames).toBeUndefined();
+  });
+
+  it("ignores anything in `names` that is not a language text", () => {
+    const [row] = extractDiagnosticBookings([{ id: bookingId, items: [{ names: { hi: "रक्त", fr: "Sang", en: 5, bn: "   " } }] }]);
+    expect(row.testNames).toEqual({ hi: "रक्त" });
+  });
+});

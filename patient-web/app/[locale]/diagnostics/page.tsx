@@ -335,7 +335,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
         <section className={styles.stack} key={domain} aria-labelledby={`hub-${domain}`}>
           <SectionHead id={`hub-${domain}`} title={d(`${domain}.title`)} href={`/${locale}/diagnostics/bookings`} linkLabel={t("allRequests")} />
           {bookings.slice(0, LIMIT_BOOKINGS).map((booking) => {
-            const label = domain === "labs" ? d("labs.label") : pickText(locale, booking.scanNameAr, booking.scanNameEn) ?? d("radiology.label");
+            const label = domain === "labs" ? d("labs.label") : pickTexts(locale, booking.scanNames) ?? d("radiology.label");
             const status = diagStatus(booking.state);
             return (
               <RowCard
