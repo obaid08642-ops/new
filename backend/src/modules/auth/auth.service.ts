@@ -9,7 +9,6 @@ import { Optional } from '@nestjs/common';
 import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { PushService } from '../push/push.module';
 import { escapeHtml, MailService } from '../mail/mail.module';
-import { SmsService } from '../sms/sms.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { User, UserDocument } from '../../schemas/user.schema';
 import { PatientProfile, PatientProfileDocument } from '../../schemas/patient-profile.schema';
@@ -76,7 +75,6 @@ export class AuthService {
     @Optional() private adminSession?: AdminSessionService,
     @Optional() private push?: PushService,
     @Optional() private mail?: MailService,
-    @Optional() private sms?: SmsService,
     @Optional() private guests?: GuestService,
     @Optional() private linking?: AccountLinkingService,
     // 16.2: length + breached-password policy, applied before anything is stored.
@@ -443,29 +441,14 @@ export class AuthService {
   }
 
   /**
-   * F34 channel policy. Delivers the OTP on every working channel, most
-   * direct first: SMS for phone identifiers (Taqnyat via SmsService, only
-   * when SMS_ENABLED), then push (best-effort), then email (the identifier
-   * itself, or the account email for phone identifiers). Returns the list of
-   * channels that accepted the message. Never throws — callers decide.
+   * Owner decision 2026-10-25: no SMS anywhere. A one-time code goes by push
+   * (every registered device of the account) AND by email (the identifier
+   * itself, or the account email for a phone identifier). Returns the list of
+   * channels that accepted the message. Never throws — callers answer
+   * `otp_no_channel` when the list is empty.
    */
   private async deliverOtp(user: any, identifier: string, code: string, isEmailIdentifier: boolean): Promise<string[]> {
     const delivered: string[] = [];
-    if (!isEmailIdentifier && user?.phone) {
-      try {
-        if (await this.sms?.sendOtp(user.phone, code)) {
-          delivered.push('sms');
-          // 16.3: the daily budget is spent only now, when a message really
-          // left. check() only reads it, so a refused or undelivered OTP costs
-          // nothing. If the budget is already gone, stop before sending.
-          const spent = await this.otpAbuse?.recordSmsSent();
-          if (spent === false) {
-            this.logger.warn('otp not sent: the daily SMS budget is spent');
-            return delivered;
-          }
-        }
-      } catch { /* fall through to push/email */ }
-    }
     if (user?.id) try {
       const r: any = await this.push?.sendTemplated(
         user.id,
@@ -561,12 +544,11 @@ export class AuthService {
       this.PATIENT_OTP_TTL_SECONDS,
     );
 
-    // F34: SMS first for phone identifiers (when enabled), then push, then
-    // email. A phone-only user with SMS disabled and no email is no longer
-    // told "sent" for a code that went nowhere.
+    // Push + email together; an account with neither gets otp_no_channel
+    // instead of a "sent" for a code that went nowhere.
     const delivered = await this.deliverOtp(user, normalized, code, normalized.includes('@'));
     if (!delivered.length) {
-      throw new ServiceUnavailableException({ message: 'otp_channel_unavailable', code: 'otp_channel_unavailable' });
+      throw new ServiceUnavailableException({ message: 'otp_no_channel', code: 'otp_no_channel' });
     }
     return this.opaqueOtpResponse(normalized);
   }
@@ -684,9 +666,6 @@ export class AuthService {
         await this.mail?.sendPasswordReset(email, i18n.t('auth.passwordReset.subject', lang), body, i18n.t('auth.passwordReset.action', lang), link, lang === 'en' ? 'ltr' : 'rtl');
       } catch { /* do not disclose account state */ }
       return;
-    }
-    if (user?.phone) {
-      try { await this.sms?.sendText(user.phone, `${body} ${link}`); } catch { /* best effort */ }
     }
     if (user?.id) {
       try { await this.push?.sendTemplated(user.id, 'auth.passwordReset.subject', 'auth.passwordReset.body', { kind: 'password_reset', url: link }, { minutes }); } catch { /* best effort */ }
@@ -1427,7 +1406,7 @@ export class AuthService {
     if (!existing && purpose !== 'register') {
       // No account: same answer as a sent code, so this endpoint cannot be used to
       // test which emails/phones are registered. Nothing is stored or sent.
-      return { ok: true, channel: isEmail ? 'email' : 'sms' };
+      return { ok: true, channel: 'email' };
     }
     // F63 registration: a new identifier must be able to receive the code that
     // /auth/register requires (the code goes to the identifier itself).
@@ -1443,8 +1422,7 @@ export class AuthService {
     );
 
     try {
-      // F34 channel policy: SMS (phone identifiers, when enabled) → push →
-      // email. Every channel is isolated; at least one must accept.
+      // Push + email, each isolated; at least one must accept.
       const delivered = await this.deliverOtp(u, normalized, code, isEmail);
       if (
         process.env.NODE_ENV !== 'production' &&
@@ -1454,7 +1432,7 @@ export class AuthService {
         logEvent('warn', 'otp_no_delivery_channel', {}, 'auth');
       }
       if (!delivered.length) {
-        throw new ServiceUnavailableException({ message: 'otp_channel_unavailable', code: 'otp_channel_unavailable' });
+        throw new ServiceUnavailableException({ message: 'otp_no_channel', code: 'otp_no_channel' });
       }
       return { ok: true, channel: delivered[0] };
     } catch (err: any) {

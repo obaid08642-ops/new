@@ -39,14 +39,6 @@ export class WebhooksController {
     return this.service.handlePayTabsWebhook(body, signature, rawBody);
   }
 
-  @Post('sms')
-  async sms(
-    @Body() body: Record<string, unknown>,
-    @Headers('x-sms-token') token: string
-  ) {
-    return this.service.handleSmsWebhook(requireObjectBody(body), token);
-  }
-
   @Post('livekit')
   async livekit(
     @Headers('authorization') authHeader: string,

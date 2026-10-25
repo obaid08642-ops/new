@@ -75,7 +75,7 @@ describe("patient OTP BFF routes", () => {
   it("passes an upstream throttle or channel failure through with its status", async () => {
     state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ statusCode: 429 }), { status: 429 }));
     expect((await requestOtp(jsonRequest("/api/auth/otp/request", { identifier: "patient@example.com" }))).status).toBe(429);
-    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ code: "otp_channel_unavailable" }), { status: 503 }));
+    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ code: "otp_no_channel" }), { status: 503 }));
     expect((await requestOtp(jsonRequest("/api/auth/otp/request", { identifier: "+966509999999" }))).status).toBe(503);
   });
   it("remembers where the code went in a short-lived httpOnly cookie, not in a URL", async () => {

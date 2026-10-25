@@ -13,7 +13,6 @@ import { resolveNotificationTarget } from './notification-target';
 import { NotificationRepository } from "./repositories/notification.repository";
 import { initializeApp, getApps, cert } from 'firebase-admin';
 import { getMessaging } from 'firebase-admin/messaging';
-import { SmsService } from '../sms/sms.service';
 import { MailService } from '../mail/mail.module';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
@@ -32,7 +31,6 @@ export class NotificationsService {
     @Inject('NotificationRepository') private model: NotificationRepository,
     @InjectModel(NotificationTemplate.name) private templateModel: Model<NotificationTemplateDocument>,
     private events: EventEmitter2,
-    private smsService: SmsService,
     private mail: MailService,
     @InjectQueue('notifications-delivery') private queue: Queue,
     private readonly i18n: I18nService,
@@ -196,7 +194,7 @@ export class NotificationsService {
       try {
         const user = (await this.model.db.model('User').findOne({ id: n.user_id }).lean()) as any;
         if (user?.phone) {
-          // SMS retired: phone users are served by email (if on file) + push + WhatsApp.
+          // Phone users are served by email (if on file) + push + WhatsApp.
           if (user?.email && !emailSent) {
             try {
               await this.sendEmail(n, user.email);
@@ -286,13 +284,12 @@ export class NotificationsService {
     // 1. Broadcast Push Notification
     await this.sendPush(n);
 
-    // 2. Broadcast to user specific channels (SMS, Email, WhatsApp) if user_id is set
+    // 2. Broadcast to user specific channels (Email, WhatsApp) if user_id is set
     if (n.user_id) {
       try {
         const user = (await this.model.db.model('User').findOne({ id: n.user_id }).lean()) as any;
         if (user) {
           if (user.phone) {
-            // SMS retired (see dispatch above).
             await this.sendWhatsApp(n, user.phone);
           }
           if (user.email) {
@@ -399,12 +396,6 @@ export class NotificationsService {
       this.logger.error('Expo push failed', e.message);
       return false;
     }
-  }
-
-  /** SMS retired: kept as a logged no-op so historic delivery records keep their shape. */
-  async sendSms(_n: any, _phone: string) {
-    this.logger.warn('SMS channel retired — use email instead.');
-    return false;
   }
 
   async sendEmail(n: any, email: string) {

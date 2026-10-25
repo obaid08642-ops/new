@@ -12,16 +12,6 @@ the harness actually runs each dependency):
                           no server-side latency switch exists — the backend
                           half is DEFERRED-OUT-OF-SCOPE, see notes)
   payment gateway 500 .... tools/live/fake_moyasar.py /__mode failure switch
-  SMS provider down ...... the backend's TEST-ONLY switch (p15-backend
-                          backend/src/common/chaos-switches.ts):
-                          CHAOS_FAIL_SMS=1 makes SmsService.sendOtp() return
-                          false before any provider call, so the standard OTP
-                          email+push fallback is forced. It is process env, so
-                          the drill restarts the backend with it set
-                          (chaos_ctrl.sh backend-chaos) and without it afterwards
-                          (backend-nochaos). The drill only trusts the fallback
-                          if the restart is PROVED (new backend pid) and the
-                          runtime marker is seen in the backend log.
   LiveKit down .......... same mechanism: CHAOS_FAIL_LIVEKIT=1 makes
                           LiveKitService.roomService() return null, so every
                           server-side room call answers exactly as if LiveKit
@@ -312,53 +302,31 @@ def drill_payment_gateway_500():
              f'first={v_id} second={v2_id} (both must exist and match) {v2}')
 
 
-def drill_sms_down():
-    journey('chaos: SMS provider down — OTP falls back to email, nobody is locked out')
-    # The switch is REAL now (p15-backend F10), so the drill takes SMS down for
-    # real instead of asserting the fallback that already holds when SMS is merely
-    # disabled by default. CHAOS_FAIL_SMS=1 -> SmsService.sendOtp() returns false
-    # before any provider call, forcing the documented email+push OTP fallback.
-    ok, sw, raw = chaos_backend('CHAOS_FAIL_SMS', 'on')
-    if not ok or not sw.get('new_process') or sw.get('env_state') == 'absent':
-        step('the backend restarted with CHAOS_FAIL_SMS=1 (SMS is really down)', False, raw[:300])
-        skip('SMS provider down', f'could not prove the switch on the backend: {raw[:160]}')
-        return
-    step('the backend restarted with CHAOS_FAIL_SMS=1 (SMS is really down)', True, raw)
-    try:
-        import time as _t
-        from lib import mail_code, uniq, phone
-        anon = Client()
-        email = f'sms-fallback-{uniq("c")}@nabd.test'
-        t0 = _t.time()
-        r = anon.post('/auth/send-otp', {'email': email, 'purpose': 'register'})
-        # Step name kept verbatim from the pre-switch version (never rename an
-        # existing step); "disabled" is now literally true: the switch forces
-        # SmsService.sendOtp() to return false.
-        step('send-otp answers while SMS is down/disabled', r.ok, r)
-        code = mail_code(email, t0)
-        step('the OTP is delivered by email (SMS -> email fallback works)', code, 'no mail with a 6-digit code')
-        if code:
-            r = anon.post('/auth/verify-otp', {'email': email, 'code': code})
-            step('the emailed OTP verifies (the user is not locked out)', r.ok, r)
-        # The SMS channel is only tried for a phone identifier on an account that has a
-        # phone (AuthService.deliverOtp), so the drill needs a real phone account: the
-        # email-only request above never touches SmsService.
-        ph = phone()
-        r = anon.post('/auth/register', {'full_name': 'اختبار انقطاع الرسائل', 'phone': ph, 'email': email, 'password': 'Str0ng!Pass' + uniq('')[-4:]})
-        step('a phone + email account is registered for the SMS drill', r.ok, r)
-        t1 = _t.time()
-        r = anon.post('/auth/send-otp', {'phone': ph, 'purpose': 'reset'})
-        step('send-otp by phone answers while SMS is down (no 5xx, no lockout)', r.ok, r)
-        marker = log_marker('CHAOS_FAIL_SMS=1')
-        step('the server actually took the SMS failure path (runtime marker in the backend log)', marker,
-             f'no "CHAOS_FAIL_SMS=1" marker in {BACKEND_LOG} — the switch was never read')
-        code2 = mail_code(email, t1)
-        step('the phone OTP falls back to the account email', code2, 'no mail with a 6-digit code')
-    finally:
-        ok2, sw2, raw2 = chaos_backend('CHAOS_FAIL_SMS', 'off')
-        step('the backend is back on a clean process with CHAOS_FAIL_SMS unset',
-             ok2 and sw2.get('new_process') and (not sw2.get('env_verified') or sw2.get('env_state') == 'absent'),
-             raw2)
+def drill_otp_channels():
+    journey('otp: no SMS — a code goes by push + email, nobody is locked out')
+    # Owner decision 2026-10-25: there is no SMS channel. A phone request for an
+    # account with an email gets the code by email (and by push when the account
+    # has a device); an account with neither answers 503 otp_no_channel.
+    import time as _t
+    from lib import mail_code, uniq, phone
+    anon = Client()
+    email = f'otp-channels-{uniq("c")}@nabd.test'
+    t0 = _t.time()
+    r = anon.post('/auth/send-otp', {'email': email, 'purpose': 'register'})
+    step('send-otp by email answers', r.ok, r)
+    code = mail_code(email, t0)
+    step('the OTP is delivered by email', code, 'no mail with a 6-digit code')
+    if code:
+        r = anon.post('/auth/verify-otp', {'email': email, 'code': code})
+        step('the emailed OTP verifies (the user is not locked out)', r.ok, r)
+    ph = phone()
+    r = anon.post('/auth/register', {'full_name': 'اختبار قنوات الرمز', 'phone': ph, 'email': email, 'password': 'Str0ng!Pass' + uniq('')[-4:]})
+    step('a phone + email account is registered', r.ok, r)
+    t1 = _t.time()
+    r = anon.post('/auth/send-otp', {'phone': ph, 'purpose': 'reset'})
+    step('send-otp by phone answers (no 5xx, no lockout)', r.ok, r)
+    code2 = mail_code(email, t1)
+    step('the phone OTP goes to the account email', code2, 'no mail with a 6-digit code')
 
 
 def drill_livekit_down():
@@ -422,7 +390,7 @@ def run():
     drill_mongo_stepdown()
     drill_slow_api()
     drill_payment_gateway_500()
-    drill_sms_down()
+    drill_otp_channels()
     drill_livekit_down()
 
 

@@ -1,8 +1,7 @@
 /**
- * Phase 16.3 — OTP abuse / SMS pumping.
+ * Phase 16.3 — OTP abuse limits (push + email only, no SMS).
  *
- * The plan's Verify, as tests: the 6th OTP for a number within an hour is
- * refused, a country code not on the list is refused, and one IP cannot fan
+ * The 6th OTP for a number within an hour is refused, and one IP cannot fan
  * out across many numbers.
  *
  * The normalisation tests matter most: a limit keyed on the raw string would be
@@ -10,10 +9,8 @@
  */
 import {
   OtpAbuseGuard,
-  DEFAULT_COUNTRY_ALLOWLIST,
   MAX_OTP_PER_NUMBER_PER_HOUR,
   MAX_NUMBERS_PER_IP_PER_HOUR,
-  DAILY_SMS_BUDGET,
 } from './otp-abuse.service';
 
 /** An in-memory RedisService stand-in with just the methods the guard uses. */
@@ -122,23 +119,6 @@ describe('Phase 16.3 OTP abuse guard', () => {
     });
   });
 
-  describe('country allow-list', () => {
-    it('a country code that is not served is refused', async () => {
-      const g = new OtpAbuseGuard(fakeRedis());
-      await expect(g.check('+12025550143', '1.1.1.1')).resolves.toEqual({
-        allowed: false, code: 'otp_country_not_served',
-      });
-    });
-
-    it('serves every country on the allow-list', () => {
-      const g = new OtpAbuseGuard(fakeRedis());
-      for (const cc of DEFAULT_COUNTRY_ALLOWLIST) {
-        expect(g.isServed(`${cc}500000000`)).toBe(true);
-      }
-      expect(g.isServed('+12025550143')).toBe(false);
-    });
-  });
-
   describe('per-IP fan-out', () => {
     it('one IP cannot fan out over many distinct numbers', async () => {
       const g = new OtpAbuseGuard(fakeRedis());
@@ -157,7 +137,7 @@ describe('Phase 16.3 OTP abuse guard', () => {
       await g.check('+966500000111', ip);
       await g.check('+966500000111', ip);
       await g.check('0500000111', ip);
-      expect(((g as any).redis.sets.get(`sms:otp:ip:${ip}:numbers`))?.size).toBe(1);
+      expect(((g as any).redis.sets.get(`otp:ip:${ip}:numbers`))?.size).toBe(1);
     });
 
     it('two different IPs do not share a budget', async () => {
@@ -170,49 +150,15 @@ describe('Phase 16.3 OTP abuse guard', () => {
     });
   });
 
-  describe('daily budget is read-only until an SMS is really sent', () => {
-    it('check() never spends the budget', async () => {
-      const g = new OtpAbuseGuard(fakeRedis());
-      for (let i = 0; i < 50; i += 1) {
-        await g.check(`+9665000000${String(i).padStart(2, '0')}`, '3.3.3.3');
-      }
-      expect(await g.remainingDailyBudget()).toBe(DAILY_SMS_BUDGET);
+  it('an unusable identifier is refused before any counter is touched', async () => {
+    const g = new OtpAbuseGuard(fakeRedis());
+    await expect(g.check('not-a-number', '4.4.4.4')).resolves.toEqual({
+      allowed: false, code: 'otp_invalid_identifier',
     });
-
-    it('a refused request costs nothing', async () => {
-      const g = new OtpAbuseGuard(fakeRedis());
-      await g.check('+12025550143', '4.4.4.4');   // country not served
-      await g.check('not-a-number', '4.4.4.4');   // unnormalisable
-      expect(await g.remainingDailyBudget()).toBe(DAILY_SMS_BUDGET);
-    });
-
-    it('recordSmsSent spends one, and is the only thing that does', async () => {
-      const g = new OtpAbuseGuard(fakeRedis());
-      expect(await g.remainingDailyBudget()).toBe(DAILY_SMS_BUDGET);
-      await expect(g.recordSmsSent()).resolves.toBe(true);
-      expect(await g.remainingDailyBudget()).toBe(DAILY_SMS_BUDGET - 1);
-    });
-
-    it('once the budget is gone, OTP sends are refused', async () => {
-      const g = new OtpAbuseGuard(fakeRedis());
-      await (g as any).redis.set('sms:daily_budget:used', String(DAILY_SMS_BUDGET));
-      await expect(g.check('+966501234567', '5.5.5.5')).resolves.toEqual({
-        allowed: false, code: 'otp_daily_budget_exhausted',
-      });
-    });
-
-    it('the budget is the LAST check, so a country refusal never reaches it', async () => {
-      const g = new OtpAbuseGuard(fakeRedis());
-      // Budget is spent AND the country is not served: the country is reported,
-      // which is only true if the budget check runs after it.
-      await (g as any).redis.set('sms:daily_budget:used', String(DAILY_SMS_BUDGET));
-      await expect(g.check('+12025550143', '6.6.6.6')).resolves.toEqual({
-        allowed: false, code: 'otp_country_not_served',
-      });
-    });
+    expect((g as any).redis.counters.size).toBe(0);
   });
 
-  it('an email identifier costs no SMS and is never refused here', async () => {
+  it('an email identifier is never refused here', async () => {
     const g = new OtpAbuseGuard(fakeRedis());
     for (let i = 0; i < 50; i += 1) {
       await expect(g.check('patient@example.com', '1.1.1.1')).resolves.toEqual({ allowed: true });
