@@ -100,7 +100,7 @@ export class PharmacyOrdersProviderService {
           insurance_status: payload?.status || payload?.insuranceStatus || 'evaluated',
           copay,
           insurance_evaluation: {
-            nphies_code: payload?.nphies_code || payload?.nphiesCode || null,
+            approval_reference: payload?.approval_reference || null,
             status: payload?.status || payload?.insuranceStatus || 'evaluated',
             copay,
             notes: payload?.notes || null,
