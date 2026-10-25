@@ -6,7 +6,7 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 
 ## Coverage
 
-- Scenarios: 6 done, 8 partial, 6 blocked (reason given), 54 not started, of 74 total.
+- Scenarios: 8 done, 8 partial, 4 blocked (reason given), 54 not started, of 74 total.
 - Screens: 0 of 274 patient-web routes fully scanned (public pages sampled in findings). Admin and provider screens not started.
 - The sweep is not finished. It is finished only when both counts reach 100%, or each remaining line gives its reason.
 
@@ -14,8 +14,8 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 
 | id | area | scenario | status | evidence / reason |
 |---|---|---|---|---|
-| P-01 | pharmacy | build cart (local-first), guest | BLOCKED | Product pages /en/c, /en/p/* never hydrate: CSP nonce mismatch (findings P1) |
-| P-02 | pharmacy | build cart, signed in | BLOCKED | Same as P-01 |
+| P-01 | pharmacy | build cart (local-first), guest | DONE | Retested on rebuilt main (20:05 UTC): product page hydrates, Add to cart updates the header badge to 1, cart page lists the item. Cart is kept in the browser by design (owner decision 2026-10-06), so no DB write to prove. Earlier P1 was a local setup error (findings web-patient.md CORRECTION) |
+| P-02 | pharmacy | build cart, signed in | DONE | Same retest as P-01, signed in as the QA patient: badge 1, cart page shows the item, no API errors |
 | P-03 | pharmacy | send order (broadcast) | TODO | needs P-01 |
 | P-04 | pharmacy | compare offers | TODO | |
 | P-05 | pharmacy | accept offer and pay (card, test double) | TODO | |
@@ -44,7 +44,7 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 | L-01 | lab | book → provider accepts / rejects → visit → result | TODO | |
 | R-01 | radiology | book → accept / reject → visit → result | TODO | |
 | N-01 | nursing | book → accept / reject → visit | TODO | |
-| I-01 | insurance | add card (company → copay) | PARTIAL | Save 200 and reload verified in MongoDB (patient_profiles). Copay values dropped (P1). No class field (P2) |
+| I-01 | insurance | add card (company → copay) | PARTIAL | Retested on rebuilt main: save 201, MongoDB patient_profiles holds copay_percent 20 and copay_cap_sar 500 (P1 fixed). Still open: no class field in the form (P2) |
 | I-02 | insurance | edit card | TODO | |
 | I-03 | insurance | delete card | TODO | |
 | I-04 | insurance | CHI link | TODO | |
@@ -105,7 +105,7 @@ Per-screen scan (every element, sizes 390/768/1280, six languages, dark mode) is
 - Auth-gated patient-web routes (signed in, 72): swept on the production layout. Table: docs/qa/screens/patient-web-auth.md. Findings: docs/qa/findings/web-sweep-auth.md.
 - Admin pages (65 files): swept signed in, on the admin build of 03:12, then re-checked on the rebuilt admin from merged main. Findings: docs/qa/findings/admin-sweep.md. Dynamic admin routes (orders/[kind]/[id]) not tested (need IDs).
 - Dynamic patient-web routes (53): 5 routes tested with a real seeded doctor (docs/qa/findings/web-sweep-dynamic.md). Found P1: /consultations/doctors/<id> returns 503 (server-to-client function prop). The other ~48 need seeded IDs for articles, facilities, community, orders, appointments, labs, radiology, packages, results, clinics: NOT TESTED, reason: no seeded records of those types yet.
-- Scenarios: 74 rows. Open: JB-03 (guest job publish, P1), PR-05, MP-02, JB-06, and the 60 TODO rows needing DB proof.
+- Scenarios: 8 done, 8 partial, 4 blocked (reason given), 54 not started, of 74 total.
 - Open P1s: guest job publish (no route); admin system logs API 404 (AdminLogsController dropped in the P5.3 merge).
 - Corrected: hydration P1 retracted (local setup; production layout passes).
 - Environment: services drop between turns. Recover with /tmp/claude-0-scratch/stack_up.sh (patient-web via the nonce server). Kill stale next-server processes by PID (comm next-server) before restarting admin.
