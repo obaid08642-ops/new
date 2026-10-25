@@ -6,7 +6,7 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 
 ## Coverage
 
-- Scenarios: 2 done, 2 partial, 4 blocked (reason given), 51 not started, of 59 total.
+- Scenarios: 5 done, 8 partial, 6 blocked (reason given), 55 not started, of 74 total.
 - Screens: 0 of 274 patient-web routes fully scanned (public pages sampled in findings). Admin and provider screens not started.
 - The sweep is not finished. It is finished only when both counts reach 100%, or each remaining line gives its reason.
 
@@ -73,6 +73,22 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 | V-08 | provider, all types | dashboard, receive request, accept / reject / offer | TODO | |
 | V-09 | provider, all types | schedule, leaves, templates, blacklist, payouts | TODO | |
 | AD-01 | admin | every list, filter, approve / reject, edit, report | TODO | admin panel :3001 |
+
+| PR-01 | pharmacy B2B | pharmacy submits shortage request → admin sees it | PARTIAL | API as pharmacy 201; DB `procurementrequests` PENDING_ADMIN_REVIEW; pharmacy list shows it; admin list shows it (admin API, admin web page not yet clicked) |
+| PR-02 | pharmacy B2B | admin review, quotation, cancel, complete; pharmacy sees each status | PARTIAL | Full lifecycle verified over API with DB status at each step (IDs in findings/b2b-map-jobs.md). Admin web buttons not clicked yet |
+| PR-03 | pharmacy B2B | pharmacy approves quotation (feedback) | DONE | POST /pharmacy/procurement/:id/feedback 201; DB APPROVED_BY_PHARMACY, then complete by admin 200 → COMPLETED |
+| PR-04 | pharmacy B2B | analyze-file (upload or text) | BLOCKED | Validation verified (400 with clear message). Text analysis returns 503 ai_provider_unavailable: no AI key on the test stack |
+| PR-05 | pharmacy B2B | rejection and cancellation by the pharmacy | TODO | |
+| MP-01 | providers map | GET /providers/map and type filters | PARTIAL | API 200 (13 active, 2 pharmacies, 5 doctors within 50 km). Map page, markers and cards not yet checked in the browser |
+| MP-02 | providers map | provider card → profile → book | TODO | |
+| DI-01 | drug index | search and detail as pharmacy | PARTIAL | API 200 (search, categories). Detail and web UI not yet checked |
+| DI-02 | drug index | guest search | DONE | Guest gets 401 Missing token: recorded as "cannot search" |
+| JB-01 | jobs, guest | device-bound post | PARTIAL | POST /recruitment/jobs/guest 201 draft; DB job_postings has it; guest/mine lists it. Web UI not checked |
+| JB-02 | jobs, guest | guest apply to an unpublished draft | DONE | 404 (correctly refused) |
+| JB-03 | jobs, guest | admin publishes guest draft → public listing | BLOCKED | Defect (P1): no route publishes a guest draft; admin PUT returns 404. Finding in findings/b2b-map-jobs.md |
+| JB-04 | jobs, signed-in hospital | post a job → public listing | PARTIAL | POST /recruitment/jobs 201, public list shows 1. DB status check pending |
+| JB-05 | jobs, signed-in doctor | candidate profile → apply → hospital sees application | TODO | Profile needs cv_url, scfhs_license_number, scfhs_license_expiry. Apply needs profile first |
+| JB-06 | jobs | inbox and messages between the two sides | TODO | |
 
 ## B. Screens
 
