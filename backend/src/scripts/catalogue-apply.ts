@@ -67,11 +67,17 @@ export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> 
   return { changes, inputs, sha: planSha(changes, inputs), report };
 }
 
+/**
+ * Small pool (the backend, Mongo, Redis and Meilisearch share about 1 GB of free RAM), a bounded socket wait, writes retried by the
+ * driver once, and a quick heartbeat so a dead socket is noticed between batches. The batch retry in the core covers what the driver does not.
+ */
+export const CONNECTION_OPTIONS = { maxPoolSize: 2, minPoolSize: 0, serverSelectionTimeoutMS: 30_000, socketTimeoutMS: 120_000, heartbeatFrequencyMS: 10_000, retryWrites: true } as const;
+
 /** Its own connection (never the process-wide default), closed by the caller. */
 async function connect(): Promise<{ db: DbLike; close: () => Promise<void> }> {
   const uri = process.env.MONGO_URL;
   if (!uri) throw new Error('MONGO_URL is not set in this container');
-  const conn = await mongoose.createConnection(uri, { dbName: process.env.DB_NAME || 'nabd_nestjs', directConnection: mongoDirectConnection(uri) }).asPromise();
+  const conn = await mongoose.createConnection(uri, { dbName: process.env.DB_NAME || 'nabd_nestjs', directConnection: mongoDirectConnection(uri), ...CONNECTION_OPTIONS }).asPromise();
   return { db: conn.db as unknown as DbLike, close: () => conn.close() };
 }
 
@@ -79,7 +85,7 @@ const out = (o: Record<string, unknown>) => console.log(JSON.stringify(o));
 
 export async function main(argv: string[]): Promise<number> {
   const cmd = argv[0];
-  const { db, close } = await connect();
+  let { db, close } = await connect();
   try {
     if (cmd === 'plan') {
       const p = await computePlan(db, argv);
@@ -104,11 +110,15 @@ export async function main(argv: string[]): Promise<number> {
       if (readBack.changes.length !== p.changes.length || readBack.meta.plan_sha !== p.sha) throw new Error('backup could not be read back');
       out({ cmd, step: 'backup', file_sha256: sha256(file), bytes: file.length, changes: p.changes.length });
       const written = await applyChanges(db, p.changes);
+      // The verify runs on a fresh connection: the one that did the writes may be the one that dropped.
+      await close().catch(() => undefined);
+      ({ db, close } = await connect());
       const after = await countsOf(db, TOUCHED);
       const want = expectedCounts(before, p.changes);
       const again = await computePlan(db, argv);
       const countsOk = TOUCHED.every((c) => after[c] === want[c] || want[c] === undefined);
-      const ok = again.changes.length === 0 && countsOk && written.skipped_changed_since_plan === 0;
+      // A retried batch may have been written by its first attempt, which makes `applied` short; then the proof is the verify (nothing left to change, counts as expected).
+      const ok = again.changes.length === 0 && countsOk && (written.skipped_changed_since_plan === 0 || written.retried_batches > 0);
       out({ cmd, step: 'apply', ...written, remaining_changes: again.changes.length, counts_before: before, counts_after: after, counts_ok: countsOk, ok });
       return ok ? 0 : 3;
     }

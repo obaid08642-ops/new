@@ -78,28 +78,64 @@ export function summarize(changes: Change[]): Record<string, { set: number; inse
 /** An absent or empty field is written as `null` in the plan; the guard then accepts absent, null or empty. */
 const beforeGuard = (before: unknown) => (before === null || before === undefined ? { $in: [null, ''] } : before);
 
-const BATCH = 1000;
+/** Small batches: a dropped connection loses at most this many updates, and the host (about 1 GB free) is never asked for one long write. */
+export const BATCH = 100;
+const RETRY_ATTEMPTS = 6;
+const RETRY_BASE_MS = 500;
 
-/** Runs the compare-and-set updates in batches of 1000 (one round trip each); returns how many modified a document. */
-async function runUpdates(db: DbLike, collection: string, ops: Array<{ filter: Record<string, unknown>; update: Record<string, unknown> }>): Promise<{ modified: number; total: number }> {
+/** A network failure that a retry can cure: the driver's network/selection errors, or a closed/reset socket by message. */
+export function isTransientMongoError(e: unknown): boolean {
+  const err = e as { name?: string; message?: string; code?: string; errorLabels?: string[]; hasErrorLabel?: (l: string) => boolean } | null;
+  if (!err) return false;
+  if (err.name === 'MongoNetworkError' || err.name === 'MongoNetworkTimeoutError' || err.name === 'MongoServerSelectionError' || err.name === 'MongoNotConnectedError') return true;
+  if (err.hasErrorLabel?.('RetryableWriteError') || err.errorLabels?.includes('RetryableWriteError') || err.errorLabels?.includes('TransientTransactionError')) return true;
+  return /\b(closed|ECONNRESET|EPIPE|ETIMEDOUT|socket|topology was destroyed|not connected)\b/i.test(`${err.code ?? ''} ${err.message ?? ''}`);
+}
+
+export interface RetryStats { retried_batches: number }
+
+/**
+ * Runs `fn` again after a transient network error (up to 6 attempts, 0.5 s doubling). `fn` receives the attempt number (1-based).
+ * Every write here is guarded (compare-and-set, or insert-if-absent), so running a batch twice cannot apply anything twice.
+ */
+export async function withRetry<T>(fn: (attempt: number) => Promise<T>, stats?: RetryStats, sleep: (ms: number) => Promise<void> = (ms) => new Promise((r) => setTimeout(r, ms))): Promise<T> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await fn(attempt);
+    } catch (e) {
+      if (attempt >= RETRY_ATTEMPTS || !isTransientMongoError(e)) throw e;
+      if (stats) stats.retried_batches += 1;
+      await sleep(RETRY_BASE_MS * 2 ** (attempt - 1));
+    }
+  }
+}
+
+/** Runs the compare-and-set updates in batches of 100 (one round trip each, retried on a dropped connection); returns how many modified a document. */
+async function runUpdates(db: DbLike, collection: string, ops: Array<{ filter: Record<string, unknown>; update: Record<string, unknown> }>, stats?: RetryStats): Promise<{ modified: number; total: number }> {
   let modified = 0;
   for (let i = 0; i < ops.length; i += BATCH) {
     const slice = ops.slice(i, i + BATCH);
-    const res = await db.collection(collection).bulkWrite(slice.map((o) => ({ updateOne: { filter: o.filter, update: o.update } })), { ordered: false });
+    const res = await withRetry(() => db.collection(collection).bulkWrite(slice.map((o) => ({ updateOne: { filter: o.filter, update: o.update } })), { ordered: false }), stats);
+    // After a retry the first attempt may have written before the connection dropped, so this count can be short; the verify step is the proof.
     modified += res.modifiedCount ?? 0;
   }
   return { modified, total: ops.length };
 }
 
-export async function applyChanges(db: DbLike, changes: Change[], now: Date = new Date()): Promise<{ applied: number; skipped_changed_since_plan: number; inserted: number }> {
+export async function applyChanges(db: DbLike, changes: Change[], now: Date = new Date()): Promise<{ applied: number; skipped_changed_since_plan: number; inserted: number; retried_batches: number }> {
+  const stats: RetryStats = { retried_batches: 0 };
   let applied = 0; let skipped = 0; let inserted = 0;
   const sets = new Map<string, Array<{ filter: Record<string, unknown>; update: Record<string, unknown> }>>();
   for (const c of changes) {
     if (c.kind === 'insert') {
-      const exists = await db.collection(c.collection).countDocuments({ code: c.doc.code });
-      if (exists) { skipped += 1; continue; }
-      await db.collection(c.collection).insertOne({ ...c.doc, createdAt: now, updatedAt: now });
-      inserted += 1;
+      // On a retry, a document with this code may be the one the dropped first attempt wrote: that counts as inserted.
+      const wrote = await withRetry(async (attempt) => {
+        const exists = await db.collection(c.collection).countDocuments({ code: c.doc.code });
+        if (exists) return attempt > 1;
+        await db.collection(c.collection).insertOne({ ...c.doc, createdAt: now, updatedAt: now });
+        return true;
+      }, stats);
+      if (wrote) inserted += 1; else skipped += 1;
     } else {
       const list = sets.get(c.collection) ?? [];
       list.push({ filter: { ...c.key, [c.path]: beforeGuard(c.before) }, update: { $set: { [c.path]: c.after } } });
@@ -107,23 +143,24 @@ export async function applyChanges(db: DbLike, changes: Change[], now: Date = ne
     }
   }
   for (const [collection, ops] of sets) {
-    const r = await runUpdates(db, collection, ops);
+    const r = await runUpdates(db, collection, ops, stats);
     applied += r.modified; skipped += r.total - r.modified;
   }
-  return { applied, skipped_changed_since_plan: skipped, inserted };
+  return { applied, skipped_changed_since_plan: skipped, inserted, retried_batches: stats.retried_batches };
 }
 
 /**
  * Undo: a field goes back to its before-image only while it still holds what the apply wrote; an inserted document is deleted.
  * A nested field that did not exist (`translations.hi.name`) leaves its parents behind as {}: the ones that are empty now are dropped.
  */
-export async function rollbackChanges(db: DbLike, changes: Change[]): Promise<{ restored: number; skipped_changed_since: number; deleted: number }> {
+export async function rollbackChanges(db: DbLike, changes: Change[]): Promise<{ restored: number; skipped_changed_since: number; deleted: number; retried_batches: number }> {
+  const stats: RetryStats = { retried_batches: 0 };
   let restored = 0; let skipped = 0; let deleted = 0;
   const sets = new Map<string, Array<{ filter: Record<string, unknown>; update: Record<string, unknown> }>>();
   const parents = new Map<string, Array<{ filter: Record<string, unknown>; update: Record<string, unknown> }>>();
   for (const c of [...changes].reverse()) {
     if (c.kind === 'insert') {
-      const res = await db.collection(c.collection).deleteOne({ code: c.doc.code, source: c.doc.source });
+      const res = await withRetry(() => db.collection(c.collection).deleteOne({ code: c.doc.code, source: c.doc.source }), stats);
       if (res.deletedCount) deleted += 1; else skipped += 1;
       continue;
     }
@@ -142,11 +179,11 @@ export async function rollbackChanges(db: DbLike, changes: Change[]): Promise<{ 
     }
   }
   for (const [collection, ops] of sets) {
-    const r = await runUpdates(db, collection, ops);
+    const r = await runUpdates(db, collection, ops, stats);
     restored += r.modified; skipped += r.total - r.modified;
   }
-  for (const [collection, ops] of parents) await runUpdates(db, collection, ops);
-  return { restored, skipped_changed_since: skipped, deleted };
+  for (const [collection, ops] of parents) await runUpdates(db, collection, ops, stats);
+  return { restored, skipped_changed_since: skipped, deleted, retried_batches: stats.retried_batches };
 }
 
 // ---------------------------------------------------------------------------
@@ -165,7 +202,7 @@ export function decodeBackup(buf: Buffer): Backup {
 /** Document counts of the collections the plan touches: the verify step compares before and after. */
 export async function countsOf(db: DbLike, collections: string[]): Promise<Record<string, number>> {
   const out: Record<string, number> = {};
-  for (const name of collections) out[name] = await db.collection(name).countDocuments({});
+  for (const name of collections) out[name] = await withRetry(() => db.collection(name).countDocuments({}));
   return out;
 }
 

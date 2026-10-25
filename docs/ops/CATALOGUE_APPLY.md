@@ -35,3 +35,13 @@ Manual rollback later: `docker cp /opt/nabdah/backups/catalogue-<ts>.json.gz nab
   needed first. Locally the task was run against a local MongoDB with `docker` / `sudo` shims: dry run, wrong hash (aborts), apply (backup,
   guarded writes, empty fresh plan), a repeat dry run (0 changes) and a rollback (state and plan hash identical to before).
 - After medicine names change, list `cf-purge-api` in that run so the cached product pages refresh.
+
+## A dropped connection (production run 17, 2026-10-25)
+
+The first production run died with `connection 1 to <ip>:27017 closed` during the writes; the rollback restored everything (counts equal to the backup). What the tool does now:
+
+- **Writes in batches of 100** (was 1000), one `bulkWrite` each, `ordered:false`. A drop loses at most one batch, and the host (about 1.1 GB free RAM shared with Mongo, Redis, Meilisearch and the backend) is never asked for one long write.
+- **A batch is retried** (up to 6 attempts, 0.5 s doubling) on a network error: `MongoNetworkError`, server-selection errors, or a closed/reset socket. Every write is guarded (set only while the field still holds the value the plan saw; insert only while the code is absent), so a retried batch cannot apply anything twice. The result reports `retried_batches`; after a retry the `applied` count can be short (the first attempt may have written before the drop), so then the proof is the verify: nothing left to change and the document counts as expected.
+- **The verify after the apply uses a fresh connection**; the rollback already opens its own and retries its batches the same way.
+- **Connection options**: `maxPoolSize 2`, `socketTimeoutMS 120000`, `heartbeatFrequencyMS 10000`, `serverSelectionTimeoutMS 30000`, `retryWrites`. The tool opens one connection of its own (not the backend's pool).
+- The cause of the close is not provable from the repo (no server log): the likely ones are the socket being reset under memory pressure on the host or an idle/long socket. The fix does not depend on which.
