@@ -5,6 +5,7 @@ import { useTheme, useLang, useAuth, useToast } from '../../../context';
 import { NBtn, NCard, NInput, NHeader, NAvatar, NToggle, NSecHeader, NProfileImageUploader } from '../../../components/ui';
 import { I, IBg } from '../../../components/icons';
 import { SP, R, FS, FW, publicPageUrl } from '../../../constants';
+import { mapAvailable } from '../../../utils/mapAvailability';
 
 // One profile editor for every provider role. Same record, same calls for all:
 //   GET /provider/profile, PATCH /provider/profile (and the image calls inside NProfileImageUploader).
@@ -222,6 +223,7 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
       <View style={{ gap: SP.md }}>
         <NSecHeader title={AR ? 'موقع العيادة' : 'Clinic Location'} />
         <View style={{ height: 260, borderRadius: R.xl, overflow: 'hidden', borderWidth: 1, borderColor: theme.border }}>
+          {mapAvailable ? (
           <MapView
             style={{ flex: 1 }}
             initialRegion={{ latitude: form.pin?.lat || 24.7136, longitude: form.pin?.lng || 46.6753, latitudeDelta: 0.02, longitudeDelta: 0.02 }}
@@ -229,6 +231,12 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
           >
             {form.pin && <Marker coordinate={{ latitude: form.pin.lat, longitude: form.pin.lng }} draggable onDragEnd={(e: { nativeEvent: { coordinate: { latitude: number; longitude: number } } }) => set('pin', { lat: e.nativeEvent.coordinate.latitude, lng: e.nativeEvent.coordinate.longitude })} />}
           </MapView>
+          ) : (
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: SP.lg, backgroundColor: theme.border }} testID="map-unavailable">
+            <Text style={{ fontSize: FS.sm, color: theme.text, textAlign: 'center' }}>{AR ? 'الخريطة غير متاحة في هذا الإصدار — استخدم «موقعي الحالي» أدناه' : 'The map is not available in this version — use “Use my current location” below'}</Text>
+            {form.pin ? <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: SP.sm }}>{form.pin.lat.toFixed(5)}, {form.pin.lng.toFixed(5)}</Text> : null}
+          </View>
+          )}
         </View>
         <NBtn label={locating ? (AR ? 'جارٍ التحديد…' : 'Locating…') : (AR ? 'استخدم موقعي الحالي' : 'Use my current location')} variant="outline" onPress={useMyLocation} />
         <NSecHeader title={AR ? 'الزيارات المنزلية' : 'Home Visits'} />

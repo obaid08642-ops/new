@@ -5,7 +5,7 @@ import * as Location from 'expo-location';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button, Chip, FIcon, Search, type FillIconName, type ServiceTone } from '../../../../packages/ui-native/src';
-import MapView, { Marker, PROVIDER_DEFAULT } from '../MapPrimitives';
+import MapView, { Marker, PROVIDER_DEFAULT, mapAvailable } from '../MapPrimitives';
 import { Chevron, Sheet, goBack, RX_TONE, CARE_TONE } from '../consult/ConsultKit';
 import { Notice } from '../health/HealthKit';
 import { Glyph } from '../pharmacy/PharmacyKit';
@@ -220,6 +220,7 @@ export function ProvidersMapView() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg.canvas }} testID="map-screen">
+      {mapAvailable ? (
       <MapView ref={mapRef} style={{ position: 'absolute', top: 0, bottom: 0, start: 0, end: 0 }} provider={PROVIDER_DEFAULT} initialRegion={START} userInterfaceStyle={theme} showsUserLocation showsMyLocationButton={false} showsCompass={false} moveOnMarkerPress={false} onPress={() => { Keyboard.dismiss(); setQuery(''); }}>
         {withPosition.map((p) => (
           <Marker key={p.id} coordinate={{ latitude: p.lat as number, longitude: p.lng as number }} tracksViewChanges={false} onPress={(e: { stopPropagation?: () => void }) => { e.stopPropagation?.(); setSelected(p); }}>
@@ -227,6 +228,24 @@ export function ProvidersMapView() {
           </Marker>
         ))}
       </MapView>
+      ) : (
+        // A build with no map key (Android without a Google Maps key) cannot mount the native map: the same providers as a list,
+        // nearest first, each with its distance and a way out to the phone's Maps app.
+        <ScrollView style={{ position: 'absolute', top: 0, bottom: 0, start: 0, end: 0 }} contentContainerStyle={{ paddingTop: insets.top + 190, paddingBottom: insets.bottom + 24, paddingHorizontal: 16, gap: 10 }} keyboardShouldPersistTaps="handled" testID="map-list-fallback">
+          {[...shown].sort((a, b) => (a.distance ?? Number.MAX_VALUE) - (b.distance ?? Number.MAX_VALUE)).map((p) => (
+            <View key={p.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderRadius: 20, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }}>
+              <Pressable accessibilityRole="button" accessibilityLabel={`${p.name}, ${k(`map.kind.${p.kind}`)}`} onPress={() => pick(p)} style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 48 }} testID={`map-row-${p.id}`}>
+                <FIcon icon={LOOK[p.kind].icon} tone={LOOK[p.kind].tone} chip="soft" size={36} theme={theme} />
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <Text numberOfLines={1} style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{p.name}</Text>
+                  <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.tertiary, ...flow }}>{[k(`map.kind.${p.kind}`), p.distance !== null ? k('map.km', { n: num(p.distance, { maximumFractionDigits: 1 }) }) : ''].filter(Boolean).join(' · ')}</Text>
+                </View>
+              </Pressable>
+              {p.lat !== null && p.lng !== null ? <Button label={k('map.openInMaps')} variant="outline" size="sm" onPress={() => directions(p)} theme={theme} testID={`map-row-open-${p.id}`} /> : null}
+            </View>
+          ))}
+        </ScrollView>
+      )}
 
       <View pointerEvents="box-none" style={{ position: 'absolute', top: 0, start: 0, end: 0, paddingTop: insets.top + 8, paddingBottom: 8, paddingHorizontal: 16, gap: 10, backgroundColor: panel }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
