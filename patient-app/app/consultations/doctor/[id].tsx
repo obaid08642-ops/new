@@ -16,6 +16,7 @@ import { isOffline } from '../../../src/utils/isOffline';
 import { logError } from '../../../src/utils/logger';
 import { apiMediaUri } from '../../../src/utils/mediaUri';
 import { pickLocalized } from '../../../src/utils/localize';
+import { optimizedImageUri } from '../../../src/utils/optimizedImage';
 
 /**
  * Doctor page — board DoctorFull (canvas/DoctorFull.dc.html) and docs/design/SPEC_PRODUCT_DOCTOR_DETAIL.md §B. The
@@ -265,7 +266,7 @@ export default function DoctorProfile() {
               <View style={{ alignItems: 'center', gap: 8 }}>
                 {photo ? (
                   <Pressable accessibilityRole="imagebutton" accessibilityLabel={name} onPress={() => setPhotoOpen(true)}>
-                    <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: photo }} contentFit="cover" style={{ width: 120, height: 120, borderRadius: 40, backgroundColor: c.bg.media }} />
+                    <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: optimizedImageUri(photo, 120) }} contentFit="cover" style={{ width: 120, height: 120, borderRadius: 40, backgroundColor: c.bg.media }} />
                   </Pressable>
                 ) : (
                   <FIcon icon={look.icon} tone={look.tone} size={96} theme={theme} />
@@ -376,7 +377,7 @@ export default function DoctorProfile() {
                 <Section key={g.key} title={g.title}>
                   <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
                     {(g.urls ?? []).map((uri) => (
-                      <Image cachePolicy="memory-disk" key={uri} accessibilityIgnoresInvertColors accessibilityLabel={g.title} source={{ uri }} contentFit="cover" style={{ width: g.w, height: 130, borderRadius: 16, backgroundColor: c.bg.media }} />
+                      <Image cachePolicy="memory-disk" key={uri} accessibilityIgnoresInvertColors accessibilityLabel={g.title} source={{ uri: optimizedImageUri(uri, g.w) }} contentFit="cover" style={{ width: g.w, height: 130, borderRadius: 16, backgroundColor: c.bg.media }} />
                     ))}
                   </ScrollView>
                 </Section>

@@ -117,6 +117,7 @@
 | `EXPO_PUBLIC_APP_ENV` ✅ | `production` |
 | `EXPO_PUBLIC_API_TIMEOUT` ➖ | مهلة الطلبات بالمللي ثانية |
 | `EXPO_PUBLIC_CDN_URL` / `EXPO_PUBLIC_PROJECT_ID` / `EXPO_PUBLIC_AI_URL` / `EXPO_PUBLIC_FASTAPI_BASE_URL` ➖ | نقاط خدمات مساعدة إن وُجدت |
+| `EXPO_PUBLIC_IMAGE_OPTIMIZER_URL` | أصل الويب (مثل `https://nabd.plus`) ليطلب التطبيق الصور بحجم مناسب عبر `/_next/image`؛ إن تُرك فارغًا تُحمَّل الصور الأصلية كما هي |
 
 > ملاحظة: لوحات الإدارة (`Napd-admin`) تُضبط عناوينها عبر `REACT_APP_*`/`NEXT_PUBLIC_*` في ملفات البيئة الخاصة بكل لوحة، وتشير لنفس عنوان الباك إند.
 
