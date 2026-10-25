@@ -15,9 +15,50 @@ export type ScanVerdict = { status: 'clean' } | { status: 'infected'; signature:
 const CHUNK = 64 * 1024;
 const SCAN_TIMEOUT_MS = 30_000;
 
+/** UPLOAD_SCAN=required forces the scan, =optional lifts it; unset means required in production. */
+export function uploadScanRequired(): boolean {
+  const setting = (process.env.UPLOAD_SCAN || '').toLowerCase();
+  if (setting === 'required') return true;
+  if (setting === 'optional') return false;
+  return process.env.NODE_ENV === 'production';
+}
+
+const AVAILABILITY_TTL_MS = 30_000;
+
 @Injectable()
 export class ClamavService {
   private readonly logger = new Logger(ClamavService.name);
+  private availability?: { at: number; ok: boolean };
+
+  /**
+   * The public `uploads_enabled` signal in /config. True when uploads can succeed: the scan is not required, or clamd
+   * answers PING with PONG. Cached for 30 s so /config never waits on the scanner more than twice a minute.
+   */
+  async uploadsAvailable(): Promise<boolean> {
+    if (!uploadScanRequired()) return true;
+    const now = Date.now();
+    if (this.availability && now - this.availability.at < AVAILABILITY_TTL_MS) return this.availability.ok;
+    const ok = this.configured() && (await this.ping());
+    this.availability = { at: now, ok };
+    return ok;
+  }
+
+  private ping(): Promise<boolean> {
+    return new Promise((resolve) => {
+      const socketPath = (process.env.CLAMD_SOCKET || '').trim();
+      const socket = socketPath
+        ? net.createConnection({ path: socketPath })
+        : net.createConnection({ host: (process.env.CLAMD_HOST || '').trim(), port: Number(process.env.CLAMD_PORT) || 3310 });
+      const chunks: Buffer[] = [];
+      let settled = false;
+      const done = (ok: boolean) => { if (!settled) { settled = true; clearTimeout(timer); socket.destroy(); resolve(ok); } };
+      const timer = setTimeout(() => done(false), 2_000);
+      socket.on('error', () => done(false));
+      socket.on('data', (c) => chunks.push(c));
+      socket.on('close', () => done(Buffer.concat(chunks).toString('utf8').replace(/\0/g, '').trim() === 'PONG'));
+      socket.on('connect', () => socket.write('zPING\0'));
+    });
+  }
 
   configured(): boolean {
     return Boolean((process.env.CLAMD_SOCKET || '').trim() || (process.env.CLAMD_HOST || '').trim());
