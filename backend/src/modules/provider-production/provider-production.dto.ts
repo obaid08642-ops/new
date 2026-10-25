@@ -15,7 +15,7 @@ export class OrderInsuranceDto {
 
   @IsOptional()
   @IsString()
-  nphies_approval_code?: string;
+  approval_reference?: string;
 
   @IsOptional()
   @IsString()

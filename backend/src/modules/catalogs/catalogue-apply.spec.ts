@@ -7,7 +7,7 @@ import * as path from 'path';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { applyChanges, BATCH, decodeBackup, isTransientMongoError, withRetry, encodeBackup, planSha, rollbackChanges, sha256, stable, type Change, type DbLike } from './catalogue-apply.core';
-import { computePlan, main } from '../../scripts/catalogue-apply';
+import { PACKAGED_DISTRICTS, computePlan, main } from '../../scripts/catalogue-apply';
 import { tidy } from './catalogue-apply.steps';
 
 jest.setTimeout(120_000);
@@ -76,11 +76,18 @@ describe('plan', () => {
     expect(c.sha).not.toBe(a.sha);
   });
 
-  it('skips the optional inputs when they are not given', async () => {
+  it('uses the districts extract packaged in the image by default, and a host file only as an override', async () => {
     const p = await computePlan(db, ['plan']);
-    expect(p.report.districts).toMatch(/skipped/);
+    expect((p.report.districts as any).source).toBe('packaged');
+    expect(p.inputs.districts_extract).toBe(sha256(fs.readFileSync(PACKAGED_DISTRICTS, 'utf8')));
+    const o = await computePlan(db, ['plan', `--districts=${writeFile('d3.json', JSON.stringify(districtsExtract))}`]);
+    expect((o.report.districts as any).source).toBe('host_file_override');
+    expect(o.inputs.districts_extract).not.toBe(p.inputs.districts_extract);
+  });
+
+  it('skips the name fixes when no approved file is given', async () => {
+    const p = await computePlan(db, ['plan']);
     expect(p.report.name_fixes).toMatch(/skipped/);
-    expect(p.changes.some((c) => c.step === 'districts')).toBe(false);
   });
 });
 

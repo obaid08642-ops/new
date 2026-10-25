@@ -10,7 +10,7 @@ container** (so it uses the container's own `MONGO_URL` / `DB_NAME`; the tool pr
 | `names_ar_en` | `name_ar` / `name_en` of regions, cities and insurers, only where empty | the central seeds (two languages only, owner decision 2026-10-25) |
 | `medicine_name_hygiene` | leading, trailing and double spaces in `name_ar` / `name_en` of medicines (never a letter) | the database |
 | `medicine_name_fixes` | the Arabic name fixes the owner approved (#1556 decision A), through the script's own checks | `$IN/approved-name-fixes.csv` (optional) |
-| `districts` | district centroids and new districts, each row with its `source` (item 5) | `$IN/districts.json` (optional) |
+| `districts` | district centroids and new districts, each row with its `source` (item 5) | the extract packaged in the image (`backend/src/modules/location/data/districts-extract.v1.json`, **empty until the owner's reviewed rows are committed**); `$IN/districts.json` on the host only overrides it |
 
 Not in this task: the ingredient normalisation, merge pairs, variant groups and picture imports of #1556 (their own migrations under
 `backend/scripts/migrations/`), and the pre-existing production state of the `medicines` collection.

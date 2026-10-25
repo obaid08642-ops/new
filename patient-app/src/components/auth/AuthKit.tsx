@@ -275,23 +275,12 @@ export type SocialProvider = 'apple' | 'google' | 'x' | 'snapchat';
  * it shows the plain "not available" message (hooks/useSocialLogin.ts).
  */
 /**
- * The providers to draw. When the backend answered GET /auth/social/config (`config`), exactly the providers it can finish:
- * Apple on iOS only (never Android or web), Google, X and Snapchat as it enables them. While there is no answer (older backend,
- * offline) the build-time rule applies: Apple on iOS, Google, and X + Snapchat only with EXPO_PUBLIC_SOCIAL_X_SNAPCHAT=1.
+ * The providers to draw (owner, 2026-10-25): ALWAYS Apple on iOS (never Android), Google, X and Snapchat. The providers review the
+ * live button before they approve the app, so a button shows before its keys are set; pressing one the backend has no keys for
+ * shows the plain "not available" message (hooks/useSocialLogin.ts). `config` stays accepted so the call sites do not change.
  */
-export function availableSocialProviders(config?: SocialRuntimeConfig | null): SocialProvider[] {
-  const list: SocialProvider[] = [];
-  if (config) {
-    if (Platform.OS === 'ios' && config.apple.enabled) list.push('apple');
-    if (config.google.enabled) list.push('google');
-    if (config.x.enabled) list.push('x');
-    if (config.snapchat.enabled) list.push('snapchat');
-    return list;
-  }
-  if (Platform.OS === 'ios') list.push('apple');
-  list.push('google');
-  if (process.env.EXPO_PUBLIC_SOCIAL_X_SNAPCHAT === '1') list.push('x', 'snapchat');
-  return list;
+export function availableSocialProviders(_config?: SocialRuntimeConfig | null): SocialProvider[] {
+  return Platform.OS === 'ios' ? ['apple', 'google', 'x', 'snapchat'] : ['google', 'x', 'snapchat'];
 }
 
 const PROVIDER_NAME: Record<SocialProvider, string> = { apple: 'Apple', google: 'Google', x: 'X', snapchat: 'Snapchat' };

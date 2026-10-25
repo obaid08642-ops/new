@@ -48,7 +48,7 @@ function publicProvider(p: any) {
 }
 
 /** Issue 1833: a radiology search matches every name field, in any language, case-insensitively. The text is escaped. */
-export const RADIOLOGY_NAME_FIELDS = ['name_ar', 'name_en', 'name_ur', 'name_hi', 'name_bn', 'name_tl'] as const;
+export const RADIOLOGY_NAME_FIELDS = ['name_ar', 'name_en'] as const;
 export function radiologySearchClause(search: string): { $or: Array<Record<string, RegExp>> } {
   const pattern = new RegExp(escapeRegex(search.trim()), 'i');
   return { $or: RADIOLOGY_NAME_FIELDS.map((field) => ({ [field]: pattern })) };
@@ -295,7 +295,7 @@ export class RadiologyOpsService {
   }
 
   // ──────────────────────────────────────────────
-  // PILLAR 4: Insurance NPHIES Gatekeeper
+  // PILLAR 4: Insurance approval gate (the provider records the insurer's decision; nothing here asks an insurer)
   // ──────────────────────────────────────────────
   async processInsuranceApproval(id: string, user: any, body: { approval_code: string; copay: number }) {
     const b = await this.findBooking(id, user);
@@ -325,7 +325,7 @@ export class RadiologyOpsService {
     b.insurance_copay = copay;
     b.insurance_status = 'approved';
     const nextState = copay > 0 ? RadiologyBookingState.WAITING_COPAY : RadiologyBookingState.CONFIRMED;
-    (b.state_history = b.state_history || []).push({ from: b.state, to: nextState, by_user_id: user.id, by_role: user.role, at: new Date(), note: `NPHIES approved. Code: ${body.approval_code}. Copay: ${copay} SAR` });
+    (b.state_history = b.state_history || []).push({ from: b.state, to: nextState, by_user_id: user.id, by_role: user.role, at: new Date(), note: `Insurance approved. Reference: ${body.approval_code}. Copay: ${copay} SAR` });
     b.state = nextState;
     await b.save();
     this.events.emit('radiology.insurance_approved', { bookingId: id, patientId: b.patient_id, copay });

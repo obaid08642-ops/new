@@ -1,15 +1,16 @@
 import { idsOf, loadCatalogue, namesOf, resolveLineNames, withItemNames, withScanNames, withServiceNames } from './booking-names';
 
+// names are Arabic and English only (owner decision 2026-10-25); an old row that still holds name_ur/hi/bn/tl is read as ar/en
 const cbc = { id: 'cbc', name_ar: 'صورة دم', name_en: 'CBC', name_ur: 'خون', name_hi: 'रक्त', name_bn: 'রক্ত', name_tl: 'Dugo' };
 
 describe('booking names (issue 1832): the catalogue name in the reader\'s language, the stored Arabic/English as the fallback', () => {
   it('namesOf drops empty values', () => {
-    expect(namesOf({ name_ar: 'ا', name_en: ' ', name_hi: 'ह' })).toEqual({ ar: 'ا', hi: 'ह' });
+    expect(namesOf({ name_ar: 'ا', name_en: ' ', name_hi: 'ह' })).toEqual({ ar: 'ا' });
     expect(namesOf(null)).toEqual({});
   });
 
-  it('the resolver: all six languages from the catalogue row, the stored line only fills what the row lacks', () => {
-    expect(resolveLineNames({ name_ar: 'قديم', name_en: 'old' }, cbc)).toEqual({ ar: 'صورة دم', en: 'CBC', ur: 'خون', hi: 'रक्त', bn: 'রক্ত', tl: 'Dugo' });
+  it('the resolver: Arabic and English from the catalogue row (other languages on an old row are ignored), the stored line only fills what the row lacks', () => {
+    expect(resolveLineNames({ name_ar: 'قديم', name_en: 'old' }, cbc)).toEqual({ ar: 'صورة دم', en: 'CBC' });
     // a catalogue row with no English: the booking's stored English stays
     expect(resolveLineNames({ name_ar: 'قديم', name_en: 'old' }, { id: 'x', name_ar: 'جديد' })).toEqual({ ar: 'جديد', en: 'old' });
   });
@@ -43,12 +44,11 @@ describe('booking names (issue 1832): the catalogue name in the reader\'s langua
     ], load);
     expect(load).toHaveBeenCalledTimes(1);
     expect(load).toHaveBeenCalledWith(['cbc', 'gone']);
-    expect(rows[0].items![0].names).toMatchObject({ hi: 'रक्त', ur: 'خون', tl: 'Dugo' });
+    expect(rows[0].items![0].names).toEqual({ ar: 'صورة دم', en: 'CBC' });
     expect(rows[0].items![1].names).toEqual({ ar: 'محذوف', en: 'deleted' });
     expect(rows[1].items![0].names).toEqual({ ar: 'بلا معرف', en: 'no id' });
     expect(rows[2]).toEqual({ id: 'b3' });
-    // the same payload serves every locale: the reader picks its language out of `names`
-    expect(rows[0].items![0].names.bn).toBe('রক্ত');
+    // the same payload serves every locale: the reader shows `ar` on the Arabic page and `en` on every other
     expect(rows[0].items![0].names.en).toBe('CBC');
   });
 
@@ -58,12 +58,12 @@ describe('booking names (issue 1832): the catalogue name in the reader\'s langua
       { id: 'n1', service_id: 's1', service_name_ar: 'قديم', service_name_en: 'old' },
       { id: 'n2', service_name_ar: 'قديم', service_name_en: 'old' },
     ], async () => [svc]);
-    expect(out[0].service_names).toEqual({ ar: 'جروح', en: 'Wound care', hi: 'घाव' });
+    expect(out[0].service_names).toEqual({ ar: 'جروح', en: 'Wound care' });
     expect(out[1].service_names).toEqual({ ar: 'قديم', en: 'old' });
   });
 
   it('radiology: scan_names is the first line\'s resolution, or the stored scan name for a booking without lines', () => {
-    expect(withScanNames({ items: [{ names: { ar: 'أ', hi: 'ह' } }], scan_name_ar: 'قديم' }).scan_names).toEqual({ ar: 'أ', hi: 'ह' });
+    expect(withScanNames({ items: [{ names: { ar: 'أ', en: 'A' } }], scan_name_ar: 'قديم' }).scan_names).toEqual({ ar: 'أ', en: 'A' });
     expect(withScanNames({ scan_name_ar: 'قديم', scan_name_en: 'old' }).scan_names).toEqual({ ar: 'قديم', en: 'old' });
   });
 });

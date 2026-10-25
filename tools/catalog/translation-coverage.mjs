@@ -43,6 +43,9 @@ const nameOf = (row, l) => {
 };
 const textOf = (prefix) => (row, l) => row[`${prefix}_${suffix(l)}`];
 
+/** Names kept in Arabic and English only (owner decision 2026-10-25): cities are not seed files here; labs, packages, radiology, nursing and insurance. */
+const TWO_NAME_CATALOGUES = new Set(['labs', 'packages', 'radiology', 'nursing', 'insurance']);
+
 const CATALOGUES = [
   { key: 'labs', file: 'labs.json', filter: (r) => r.is_package !== true, id: (r) => r.short_code || r.code || r.name_en,
     fields: { name: nameOf, description: textOf('description'), preparation: textOf('preparation') } },
@@ -93,6 +96,8 @@ for (const cat of CATALOGUES) {
         // an optional field is checked only where the English (or Arabic) value exists
         const base = get(row, 'en') ?? get(row, 'ar');
         if (field !== 'name' && (base === undefined || isBlank(base))) continue;
+        // owner decision 2026-10-25: the names of these catalogues (and the insurance plan names) are Arabic and English only
+        if ((field === 'name' || field === 'plan_names') && TWO_NAME_CATALOGUES.has(cat.key) && l !== 'ar' && l !== 'en') continue;
         let v = get(row, l);
         if (field === 'plan_names') {
           const vals = Array.isArray(v) ? v : [];

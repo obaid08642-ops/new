@@ -233,3 +233,14 @@ textarea.control { resize: vertical; line-height: 1.6; overflow-wrap: anywhere; 
 .priceRow > :first-child { min-inline-size: 0; overflow-wrap: anywhere; }
 .priceValue { font-weight: 700; white-space: nowrap; }
 .mapFrame { display: block; inline-size: 100%; aspect-ratio: 16 / 10; border: 0; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-sunken); }
+
+/* ---- voice notes (items 388 / 799): recorder and player, tokens only ---- */
+.voiceBox { display: flex; flex-direction: column; gap: 10px; min-inline-size: 0; padding: 12px; border: 1px solid var(--nabd-color-border-strong); border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-surface); }
+.voiceClock { margin: 0; font-size: var(--nabd-font-size-body); font-weight: 700; color: var(--nabd-color-text-primary); font-variant-numeric: tabular-nums; }
+.voiceActions { display: flex; flex-wrap: wrap; gap: 10px; }
+.voiceActions > * { flex: 1 1 140px; }
+.voiceAudio { inline-size: 100%; min-block-size: 44px; }
+.voicePlayer { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; min-inline-size: 0; }
+.voiceRange { flex: 1 1 120px; min-inline-size: 0; min-block-size: 44px; accent-color: var(--nabd-color-action-selected-bg); }
+.voiceRange:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.voiceTime { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); font-variant-numeric: tabular-nums; }

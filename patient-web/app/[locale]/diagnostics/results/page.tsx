@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation";
-import { pickTexts } from "@/lib/i18n/localized";
+import { pickName } from "@/lib/i18n/localized";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractDiagnosticBookings } from "@/lib/api/diagnostics";
 import { callPatientApi } from "@/lib/api/upstream";
@@ -58,7 +58,7 @@ export default async function DiagnosticsResultsPage({ params }: Props) {
               const status = diagStatus(b.state);
               return (
                 <li key={b.id}>
-                  <RowCard href={diagnosticBookingHref(locale, "labs", b.id)} icon={LAB.icon} tone={LAB.tone} title={pickTexts(locale, b.testNames) ?? d("labs.label")} sub={[b.scheduledAt && !Number.isNaN(Date.parse(b.scheduledAt)) ? new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(b.scheduledAt)) : null, b.hasReport ? d("reportReady") : status.key === "unknown" ? d("statusUnavailable") : t(`status_${status.key}`)].filter(Boolean).join(" · ")} caret={caret} />
+                  <RowCard href={diagnosticBookingHref(locale, "labs", b.id)} icon={LAB.icon} tone={LAB.tone} title={pickName(locale, b.testNames) ?? d("labs.label")} sub={[b.scheduledAt && !Number.isNaN(Date.parse(b.scheduledAt)) ? new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(b.scheduledAt)) : null, b.hasReport ? d("reportReady") : status.key === "unknown" ? d("statusUnavailable") : t(`status_${status.key}`)].filter(Boolean).join(" · ")} caret={caret} />
                 </li>
               );
             })}
