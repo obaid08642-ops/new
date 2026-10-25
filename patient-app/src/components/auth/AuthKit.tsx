@@ -286,7 +286,7 @@ export function availableSocialProviders(_config?: SocialRuntimeConfig | null): 
 
 const PROVIDER_NAME: Record<SocialProvider, string> = { apple: 'Apple', google: 'Google', x: 'X', snapchat: 'Snapchat' };
 
-// Every provider is drawn in its own brand colours from packages/ui/icons/social-brands.ts (the one brand-colour module).
+// Apple is always the official AppleAuthentication button (black / white per theme, with its own logo); the others are drawn in their own brand colours from packages/ui/icons/social-brands.ts (the one brand-colour module).
 function ProviderGlyph({ provider, color, size = 20 }: { provider: SocialProvider; color: string; size?: number }) {
   return <SocialMark brand={provider} color={color} size={size} />;
 }
@@ -316,7 +316,7 @@ export function SocialButtons({ providers, onPress, layout, disabled }: { provid
   if (layout === 'icons') {
     return (
       <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10 }}>
-        {providers.map((p) => (
+        {providers.map((p) => p === 'apple' ? <React.Fragment key={p}>{apple(64, 52, 16)}</React.Fragment> : (
           <Pressable
             key={p}
             accessibilityRole="button"
