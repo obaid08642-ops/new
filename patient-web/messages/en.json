@@ -4178,7 +4178,11 @@
       "copayPercent": "Your share, % (optional)",
       "copayCap": "Maximum per item, SAR (optional)",
       "copayPercentInvalid": "Enter a number from 0 to 100.",
-      "copayCapInvalid": "Enter an amount of 0 or more."
+      "copayCapInvalid": "Enter an amount of 0 or more.",
+      "class": "Class",
+      "companySearch": "Search for your insurer",
+      "companyNone": "No insurer matches",
+      "chiLink": "Check your insurance"
     },
     "coverage": {
       "title": "What my policy covers",

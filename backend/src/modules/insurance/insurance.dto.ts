@@ -1,10 +1,12 @@
-import { IsBoolean, IsDateString, IsDefined, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsDateString, IsDefined, IsIn, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class CreateInsuranceNetworkDto {
   @IsDefined() @IsString() code: string;
   @IsDefined() @IsString() name_ar: string;
   @IsDefined() @IsString() name_en: string;
   @IsOptional() @IsNumber() tier_level?: number;
+  @IsOptional() @IsNumber() @Min(0) @Max(100) copay_percent?: number;
+  @IsOptional() @IsNumber() @Min(0) @Max(1_000_000) copay_cap_sar?: number;
   @IsOptional() @IsString() source_url?: string;
   @IsOptional() @IsString() source_label?: string;
   @IsOptional() @IsIn(['pending_review', 'verified', 'retired']) catalog_status?: string;
