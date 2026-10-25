@@ -16,6 +16,7 @@ Real effects checked (and everything restored at the end, even when a step fails
   - the flags tab lists only flags a server check reads, and refuses a key nothing reads.
   Stack: backend :8002, admin :3001; the super admin is seeded by seed_admin.js (owner@nabd.test).
 """
+import secrets
 import os
 import time
 
@@ -51,7 +52,7 @@ def verified_signup_body(anon, label):
     step(f'{label}: OTP email delivered', code, 'no mail')
     r = anon.post('/auth/verify-otp', {'email': email, 'code': code})
     step(f'{label}: verify-otp', r.ok, r)
-    return {'full_name': f'اختبار {label}', 'phone': phone(), 'email': email, 'password': 'Str0ng!Pass' + uniq('')[-4:]}
+    return {'full_name': f'اختبار {label}', 'phone': phone(), 'email': email, 'password': 'Nb-' + secrets.token_urlsafe(18)}
 
 
 def run():

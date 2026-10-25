@@ -22,6 +22,7 @@ the harness actually runs each dependency):
   Payloads are copied from the clients the same way the other journeys do
   (j_accounts register flow, j_payments lab-booking + intent/verify).
 """
+import secrets
 import json
 import os
 import subprocess
@@ -320,7 +321,7 @@ def drill_otp_channels():
         r = anon.post('/auth/verify-otp', {'email': email, 'code': code})
         step('the emailed OTP verifies (the user is not locked out)', r.ok, r)
     ph = phone()
-    r = anon.post('/auth/register', {'full_name': 'اختبار قنوات الرمز', 'phone': ph, 'email': email, 'password': 'Str0ng!Pass' + uniq('')[-4:]})
+    r = anon.post('/auth/register', {'full_name': 'اختبار قنوات الرمز', 'phone': ph, 'email': email, 'password': 'Nb-' + secrets.token_urlsafe(18)})
     step('a phone + email account is registered', r.ok, r)
     t1 = _t.time()
     r = anon.post('/auth/send-otp', {'phone': ph, 'purpose': 'reset'})
