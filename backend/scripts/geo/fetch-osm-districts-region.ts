@@ -1,20 +1,20 @@
 /**
- * One Overpass query per administrative REGION (admin_level 4, picked by its ISO 3166-2 tag), not one per city: the 13 regions are 13
- * queries instead of ~150, so a run finishes in minutes. Every neighbourhood/suburb/quarter of the region (nodes and ways, `out center`) is
- * assigned to the NEAREST of our cities of that region, by the centre of the city's own OSM place node (matched by its Arabic or English name);
- * a place farther than `--max-km` (default 40) from every city centre is counted, not guessed. A place is kept only with BOTH an Arabic and an
- * English name (nothing is transliterated), as in `fetch-osm-districts.ts`, whose row builder this reuses.
+ * Two Overpass queries per administrative REGION (admin_level 4, picked by its ISO 3166-2 tag), not one per city: 13 regions instead of ~150
+ * cities, so a run finishes in minutes. Query 1: every neighbourhood/suburb/quarter of the region plus its city/town/village nodes (the
+ * centres of OUR cities, which the seed has none of). Query 2: the governorate/municipality boundaries (admin_level 6–8) with their outlines.
+ * A district goes to the city whose boundary contains it; without one, to the nearest city centre within `--max-km` (default 25); farther is
+ * rejected with a reason (see district-assign.ts). A place is kept only with BOTH an Arabic and an English name (nothing is transliterated).
  *
- * A failed region never loses the others: the script ALWAYS writes `--out` (an empty list for a failed region) and `<out>.report.json`
- * with the error, and exits 0 so the workflow can upload the partial artifact; the merge step lists the failed regions.
+ * A failed region never loses the others: the script ALWAYS writes `--out` (empty for a failed region) and `<out>.report.json` with the error,
+ * and exits 0 so the workflow can upload the partial artifact; the merge step lists the failed regions. If only the boundaries query fails,
+ * the region is still built from city centres alone and the report says so.
  *
- * Run: npx ts-node --transpile-only scripts/geo/fetch-osm-districts-region.ts --region=SA-01 --out=/tmp/part-SA-01.json [--gap-ms=12000] [--max-km=40]
+ * Run: npx ts-node --transpile-only scripts/geo/fetch-osm-districts-region.ts --region=SA-01 --out=/tmp/part-SA-01.json [--gap-ms=12000] [--max-km=25]
  */
 import * as fs from 'fs';
-import { haversineM } from '../../src/modules/geo/geo-math';
-import { normalizeDistrictName } from '../../src/modules/location/districts-plan';
 import { SAUDI_LOCATIONS_SEED } from '../../src/modules/location/seeds/saudi-locations.data';
-import { overpassToRows, type OsmElement, type OutDistrict } from './fetch-osm-districts';
+import { overpassToRows, type OutDistrict } from './fetch-osm-districts';
+import { assignPoint, buildBoundaries, pointOf, resolveCentres, type AssignedBy, type OsmAny, type OsmTagged, type SeedCity } from './district-assign';
 
 /** The 13 regions of the kingdom by ISO 3166-2 (SA-13 is not used). */
 export const REGIONS: ReadonlyArray<{ iso: string; name_en: string }> = [
@@ -26,70 +26,77 @@ export const REGIONS: ReadonlyArray<{ iso: string; name_en: string }> = [
 ];
 
 const DISTRICT_PLACES = new Set(['suburb', 'neighbourhood', 'quarter']);
-const CITY_PLACES = new Set(['city', 'town', 'village']);
 
+/** The places of the region: neighbourhoods to assign, and the city/town/village nodes that give our cities their centres. */
 export function regionQuery(iso: string, timeoutS = 600): string {
   if (!/^SA-\d{2}$/.test(iso)) throw new Error(`bad region code: ${iso}`);
   return `[out:json][timeout:${timeoutS}];rel["boundary"="administrative"]["admin_level"="4"]["ISO3166-2"="${iso}"];map_to_area->.r;(node(area.r)["place"~"^(suburb|neighbourhood|quarter)$"];way(area.r)["place"~"^(suburb|neighbourhood|quarter)$"];node(area.r)["place"~"^(city|town|village)$"];way(area.r)["place"~"^(city|town|village)$"];);out center tags;`;
 }
 
-export interface SeedCity { code: string; name_ar: string; name_en: string }
+/** The governorate / municipality boundaries (admin_level 6–8) of the region, with their outlines, to decide which city contains a district. */
+export function regionBoundariesQuery(iso: string, timeoutS = 600): string {
+  if (!/^SA-\d{2}$/.test(iso)) throw new Error(`bad region code: ${iso}`);
+  return `[out:json][timeout:${timeoutS}];rel["boundary"="administrative"]["admin_level"="4"]["ISO3166-2"="${iso}"];map_to_area->.r;rel(area.r)["boundary"="administrative"]["admin_level"~"^(6|7|8)$"];out geom tags;`;
+}
+
 export type RegionSkipped = { no_ar_or_en_name: number; no_point: number; duplicate: number; too_far: number; no_city_centre: number };
+export interface RegionResult {
+  rows: OutDistrict[];
+  cities: Array<{ code: string; lat: number; lng: number; source: string }>;
+  skipped: RegionSkipped;
+  per_city: Record<string, { boundary: number; nearest: number }>;
+  centre_from: Record<string, 'place' | 'boundary'>;
+  ambiguous_cities: string[];
+  cities_without_centre: string[];
+  boundaries: { used: number; unclosed: number };
+}
 
-const pointOf = (e: OsmElement) => {
-  const lat = e.lat ?? e.center?.lat; const lng = e.lon ?? e.center?.lon;
-  return typeof lat === 'number' && typeof lng === 'number' ? { lat, lng } : null;
-};
-
-/** The region's answer → rows per city; also the cities of ours that had no place node (so they got no district) for the report. */
-export function regionToRows(elements: OsmElement[], cities: SeedCity[], maxKm = 40): { rows: OutDistrict[]; skipped: RegionSkipped; cities_without_centre: string[] } {
+/** The region's answers → rows per city, the centres found for our cities, and what was assigned how; nothing is guessed. */
+export function regionToRows(elements: OsmAny[], cities: SeedCity[], maxKm = 25): RegionResult {
+  const { boundaries, unclosed } = buildBoundaries(elements);
+  const res = resolveCentres(elements, boundaries, cities);
   const skipped: RegionSkipped = { no_ar_or_en_name: 0, no_point: 0, duplicate: 0, too_far: 0, no_city_centre: 0 };
-  const byName = new Map<string, SeedCity>();
-  for (const c of cities) {
-    byName.set(normalizeDistrictName(c.name_ar.replace(/^(مدينة)\s+/, '')), c);
-    byName.set(normalizeDistrictName(c.name_en), c);
-  }
-  const centres = new Map<string, { lat: number; lng: number }>();
-  const places: OsmElement[] = [];
-  for (const e of elements ?? []) {
-    const kind = e.tags?.place;
-    if (kind && CITY_PLACES.has(kind)) {
-      const p = pointOf(e);
-      const keys = [e.tags?.['name:ar'], e.tags?.['name:en'], e.tags?.name].filter((v): v is string => !!v).map(normalizeDistrictName);
-      const city = keys.map((k) => byName.get(k)).find(Boolean);
-      if (p && city && !centres.has(city.code)) centres.set(city.code, p);
-    } else if (kind && DISTRICT_PLACES.has(kind)) places.push(e);
-  }
-  const grouped = new Map<string, OsmElement[]>();
-  for (const e of places) {
+  const grouped = new Map<string, OsmTagged[]>();
+  const how = new Map<string, AssignedBy>();
+  for (const e of elements) {
+    if (e.type === 'relation' || !e.tags?.place || !DISTRICT_PLACES.has(e.tags.place)) continue;
     const p = pointOf(e);
     if (!p) { skipped.no_point += 1; continue; }
-    if (!centres.size) { skipped.no_city_centre += 1; continue; }
-    let best: { code: string; m: number } | null = null;
-    for (const [code, c] of centres) {
-      const m = haversineM(p, c);
-      if (!best || m < best.m) best = { code, m };
-    }
-    if (!best || best.m > maxKm * 1000) { skipped.too_far += 1; continue; }
-    grouped.set(best.code, [...(grouped.get(best.code) ?? []), e]);
+    const out = assignPoint(p, res, maxKm);
+    if ('rejected' in out) { skipped[out.rejected] += 1; continue; }
+    grouped.set(out.city, [...(grouped.get(out.city) ?? []), e]);
+    how.set(`osm:${e.type}/${e.id}`, out.by);
   }
   const rows: OutDistrict[] = [];
+  const per_city: RegionResult['per_city'] = {};
   for (const [code, els] of grouped) {
     const r = overpassToRows(code, els);
     rows.push(...r.rows);
     skipped.no_ar_or_en_name += r.skipped.no_ar_or_en_name; skipped.duplicate += r.skipped.duplicate; skipped.no_point += r.skipped.no_point;
+    for (const row of r.rows) {
+      const by = how.get(row.source) as AssignedBy;
+      (per_city[code] ||= { boundary: 0, nearest: 0 })[by] += 1;
+    }
   }
-  return { rows, skipped, cities_without_centre: cities.filter((c) => !centres.has(c.code)).map((c) => c.code) };
+  const centre_from: RegionResult['centre_from'] = {};
+  for (const [code, c] of res.centres) centre_from[code] = c.from;
+  return {
+    rows, skipped, per_city, centre_from,
+    cities: [...res.centres].map(([code, c]) => ({ code, lat: c.lat, lng: c.lng, source: c.source })),
+    ambiguous_cities: res.ambiguous,
+    cities_without_centre: res.missing,
+    boundaries: { used: boundaries.length, unclosed },
+  };
 }
 
 /** POST with a per-attempt timeout; network errors, timeouts and 429/5xx are retried with a growing wait. Returns the parsed answer or the error text. */
-export async function queryOverpass(endpoint: string, ua: string, query: string, opts: { attempts: number; attemptTimeoutMs: number; gapMs: number; fetchImpl?: typeof fetch }): Promise<{ elements?: OsmElement[]; error?: string }> {
+export async function queryOverpass(endpoint: string, ua: string, query: string, opts: { attempts: number; attemptTimeoutMs: number; gapMs: number; fetchImpl?: typeof fetch }): Promise<{ elements?: OsmAny[]; error?: string }> {
   const doFetch = opts.fetchImpl ?? fetch;
   let last = 'no attempt';
   for (let attempt = 1; attempt <= opts.attempts; attempt++) {
     try {
       const res = await doFetch(endpoint, { method: 'POST', headers: { 'User-Agent': ua, 'Content-Type': 'application/x-www-form-urlencoded' }, body: `data=${encodeURIComponent(query)}`, signal: AbortSignal.timeout(opts.attemptTimeoutMs) });
-      if (res.ok) return (await res.json()) as { elements?: OsmElement[] };
+      if (res.ok) return (await res.json()) as { elements?: OsmAny[] };
       last = `http ${res.status}`;
       if (![429, 502, 503, 504].includes(res.status)) return { error: last };
     } catch (e) {
@@ -105,22 +112,32 @@ async function main() {
   const region = arg('region'); const out = arg('out');
   if (!region || !out) throw new Error('--region=SA-01 and --out=<file.json> are required');
   if (!REGIONS.some((r) => r.iso === region)) throw new Error(`unknown region ${region}`);
-  const gapMs = Number(arg('gap-ms')) || 12000; const maxKm = Number(arg('max-km')) || 40;
+  const gapMs = Number(arg('gap-ms')) || 12000; const maxKm = Number(arg('max-km')) || 25;
   const attemptTimeoutMs = (Number(arg('attempt-timeout-s')) || 900) * 1000;
-  const cities = SAUDI_LOCATIONS_SEED.filter((l) => l.type === 'city' && l.is_active);
+  const cities: SeedCity[] = SAUDI_LOCATIONS_SEED.filter((l) => l.type === 'city' && l.is_active);
   const ua = process.env.GEO_USER_AGENT || 'NabdPlus-backend/1.0 (+https://nabd.plus)';
   const endpoint = process.env.OVERPASS_URL || 'https://overpass-api.de/api/interpreter';
-  const result: { cities: never[]; districts: OutDistrict[] } = { cities: [], districts: [] };
+  const result: { cities: RegionResult['cities']; districts: OutDistrict[] } = { cities: [], districts: [] };
   const report: Record<string, unknown> = {};
   try {
-    const answer = await queryOverpass(endpoint, ua, regionQuery(region), { attempts: 3, attemptTimeoutMs, gapMs });
-    if (answer.error) report[`region:${region}`] = { error: answer.error };
+    const places = await queryOverpass(endpoint, ua, regionQuery(region), { attempts: 3, attemptTimeoutMs, gapMs });
+    if (places.error) report[`region:${region}`] = { error: places.error };
     else {
-      const { rows, skipped, cities_without_centre } = regionToRows(answer.elements ?? [], cities, maxKm);
-      result.districts.push(...rows);
-      const perCity: Record<string, number> = {};
-      for (const r of rows) perCity[r.city_code] = (perCity[r.city_code] ?? 0) + 1;
-      report[`region:${region}`] = { kept: rows.length, ...skipped, cities_with_districts: Object.keys(perCity).length, cities_without_centre: cities_without_centre.length };
+      await new Promise((r) => setTimeout(r, gapMs));
+      const bounds = await queryOverpass(endpoint, ua, regionBoundariesQuery(region), { attempts: 3, attemptTimeoutMs, gapMs });
+      const r = regionToRows([...(places.elements ?? []), ...(bounds.elements ?? [])], cities, maxKm);
+      result.districts.push(...r.rows);
+      result.cities.push(...r.cities);
+      report[`region:${region}`] = {
+        kept: r.rows.length, ...r.skipped,
+        ...(bounds.error ? { boundaries_error: bounds.error } : {}),
+        boundaries: r.boundaries,
+        cities_with_centre: r.cities.length,
+        centre_from: r.centre_from,
+        ambiguous_cities: r.ambiguous_cities,
+        cities_without_centre: r.cities_without_centre,
+        per_city: r.per_city,
+      };
     }
   } catch (e) {
     report[`region:${region}`] = { error: (e as Error)?.message ?? String(e) };
@@ -128,7 +145,7 @@ async function main() {
   // Always written, even for a failed region: the workflow uploads it as a partial result.
   fs.writeFileSync(out, JSON.stringify(result, null, 1));
   fs.writeFileSync(`${out}.report.json`, JSON.stringify(report, null, 1));
-  console.log(JSON.stringify({ region, districts: result.districts.length, report }));
+  console.log(JSON.stringify({ region, districts: result.districts.length, cities: result.cities.length, report: Object.values(report)[0] && { ...(Object.values(report)[0] as object), per_city: undefined, cities_without_centre: undefined } }));
 }
 
 if (require.main === module) {
