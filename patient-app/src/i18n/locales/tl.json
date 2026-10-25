@@ -246,6 +246,7 @@
   "pharmacy.all": "Lahat",
   "pharmacy.addToCart": "Idagdag sa kariton",
   "pharmacy.cart": "Kariton",
+  "pharmacy.cartCount": "Kariton, {count} item",
   "pharmacy.viewCart": "Tingnan ang kariton",
   "pharmacy.viewAll": "Tingnan lahat",
   "pharmacy.needsRx": "Nangangailangan ng reseta",

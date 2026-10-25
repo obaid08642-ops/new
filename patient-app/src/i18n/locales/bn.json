@@ -246,6 +246,7 @@
   "pharmacy.all": "সব",
   "pharmacy.addToCart": "কার্টে যোগ করুন",
   "pharmacy.cart": "কার্ট",
+  "pharmacy.cartCount": "কার্ট, {count}টি আইটেম",
   "pharmacy.viewCart": "কার্ট দেখুন",
   "pharmacy.viewAll": "সব দেখুন",
   "pharmacy.needsRx": "প্রেসক্রিপশন দরকার",

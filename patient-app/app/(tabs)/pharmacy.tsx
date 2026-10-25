@@ -20,7 +20,7 @@ import {
 import type { FillIconName, ServiceTone } from '../../../packages/ui/icons/fill';
 import ProductImage from '../../src/components/ProductImage';
 import { FilterSheet } from '../../src/components/pharmacy/FilterSheet';
-import { CountBadge, GlyphRound, GlyphSquare, PHARMACY_TONE, SECONDARY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
+import { CartButton, CountBadge, GlyphRound, GlyphSquare, PHARMACY_TONE, SECONDARY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useCart } from '../../src/context/CartContext';
 import { dateLocaleFor } from '../../src/utils/dates';
@@ -228,9 +228,7 @@ export default function PharmacyHub() {
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
         <Text accessibilityRole="header" style={{ flex: 1, ...scale(t, 'h1'), letterSpacing: -0.3, color: c.text.primary, ...flow }}>{k('pharmacy.title')}</Text>
         <GlyphRound name="receipt" label={k('pharmacy.hub.orders')} onPress={() => go('/orders')} />
-        <GlyphRound name="package" label={k('pharmacy.cart')} onPress={() => go('/pharmacy/cart')}>
-          <CountBadge count={itemCount} />
-        </GlyphRound>
+        <CartButton />
       </View>
 
       {/* search with the barcode, and the ink camera square */}

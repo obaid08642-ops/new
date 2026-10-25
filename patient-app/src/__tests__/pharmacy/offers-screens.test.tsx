@@ -32,6 +32,8 @@ jest.mock('expo-router', () => {
 });
 jest.mock('react-native-localize', () => ({ getLocales: () => [], findBestLanguageTag: () => undefined }));
 jest.mock('../../context/AppContext', () => ({ useApp: () => ({ isDark: false, lang: 'en', isRTL: false }) }));
+const mockCartCount = { current: 0 };
+jest.mock('../../context/CartContext', () => ({ useCart: () => ({ itemCount: mockCartCount.current }) }));
 jest.mock('../../components/LocalizedAlert', () => ({ showLocalizedAlert: jest.fn() }));
 // the in-context notification prompt is covered by __tests__/notification-in-context.test.tsx; here the phone already allows them
 jest.mock('../../components/NotificationAsk', () => ({ NotificationAsk: () => null }));
@@ -99,6 +101,17 @@ describe('offers screen', () => {
     // the delivery fee is the server's own number, drawn only because it is above 0
     expect(screen.getByText(k('pharmacy.offers.deliveryFee', { price: `10.00 ${k('pharmacy.currency')}` }))).toBeTruthy();
     expect(screen.getAllByText(/80\.00/).length).toBeGreaterThan(0);
+  });
+
+  it('has the cart button in the header with the cart count, and it opens the cart', async () => {
+    mockParams.current = { orderId: 'ord' };
+    mockCartCount.current = 3;
+    answer({ '/patient/pharmacy/orders/ord/offers': offers(), '/patient/pharmacy/orders/ord': searchingOrder });
+    await render(wrap(<BroadcastStatusScreen />));
+    await screen.findByText('Test pharmacy 1');
+    await tap(screen.getByLabelText(k('pharmacy.cartCount', { count: 3 })));
+    expect(mockRouter.push).toHaveBeenCalledWith('/pharmacy/cart');
+    mockCartCount.current = 0;
   });
 
   it('opens an order from the older requestId link too (the redirect used to send requestId, callers send orderId)', async () => {

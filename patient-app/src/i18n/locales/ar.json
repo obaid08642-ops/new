@@ -246,6 +246,7 @@
   "pharmacy.all": "الكل",
   "pharmacy.addToCart": "أضف للسلة",
   "pharmacy.cart": "السلة",
+  "pharmacy.cartCount": "السلة، {count} عناصر",
   "pharmacy.viewCart": "عرض السلة",
   "pharmacy.viewAll": "عرض الكل",
   "pharmacy.needsRx": "يحتاج وصفة",
