@@ -1,0 +1,13 @@
+# QA sweep: admin web, all 65 page files (anonymous gate not used; signed in as the admin, 1280 and 390 px)
+
+Sweep on an admin build from 03:12 (before main's admin changes). Items marked "stale build" are re-checked after the rebuild from merged main (see below).
+
+| severity | route | element | steps | expected | actual | file:line |
+|---|---|---|---|---|---|---|
+| P1 | /admin/logs | system logs list | Open the page as an admin with system.logs.view | Log rows | BFF GET /api/admin/admin/logs?page_size=50 → 404 `Cannot GET /api/v1/admin/logs`. The backend controller is not registered: `AdminLogsController` is declared only in the old `admin/enterprise/admin-enterprise.module.ts`, which nothing imports any more (P5.3 merged the module into `admin/admin.module.ts`, which does not list the controller) | backend/src/modules/admin/admin.module.ts:126 (controllers list, missing) ; backend/src/modules/admin/enterprise/admin-enterprise.module.ts:22,63 (dead module) ; admin/src/pages/admin/logs.tsx:38 |
+| P2 | (backend) | AdminMedicalAccessController | Call its routes | Routes are registered | Not in the merged controllers list either (second controller dropped by the same merge). The admin web does not call it, so impact unknown until its owner confirms | backend/src/modules/admin/enterprise/admin-enterprise.module.ts (dead module); controller file contains `@Get()` |
+| P3 | /admin/price-override-audit | page load | Open the page | No runtime error | `TypeError: Cannot read properties of undefined (reading 'toFixed')` in the first sweep. NOT reproduced on a second load with a fresh session. Intermittent or data-dependent; needs a repro with data | admin/src/pages/admin/price-override-audit.tsx (not yet located) |
+| P2 | /admin/catalog-manager | images | Open the page | Images load | 6 broken images (not yet identified which URLs) | admin catalog-manager page (not yet located) |
+| P3 | /admin/loyalty-config, /admin/segments | controls | Open the page | Named controls | 2 and 1 unnamed controls | not yet located |
+
+Pending re-check on the rebuilt admin (stale build): /admin/price-reviews returned 404 because `src/pages/admin/price-reviews.tsx` (added to main 08:59 today) was not in the 03:12 build; /admin/orders/index is a bad route in my list (real route is /admin/orders). /admin/orders/[kind]/[id] needs real IDs (dynamic, not tested here).
