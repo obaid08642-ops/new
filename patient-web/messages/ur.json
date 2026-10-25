@@ -344,7 +344,10 @@
       "radiology": "ریڈیولوجی",
       "nursing": "نرسنگ",
       "returns": "واپسی اور ریفنڈ"
-    }
+    },
+    "emptyKindCurrentTitle": "کوئی موجودہ آرڈر نہیں: {service}",
+    "emptyKindPreviousTitle": "کوئی پچھلا آرڈر نہیں: {service}",
+    "emptyKindBody": "اس سروس میں ابھی کچھ نہیں۔ باقی آرڈر دیکھنے کے لیے سب منتخب کریں۔"
   },
   "Cart": {
     "eyebrow": "نجی کارٹ",

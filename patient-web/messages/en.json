@@ -303,7 +303,10 @@
       "radiology": "Radiology",
       "nursing": "Nursing",
       "returns": "Returns and refunds"
-    }
+    },
+    "emptyKindCurrentTitle": "No current orders: {service}",
+    "emptyKindPreviousTitle": "No previous orders: {service}",
+    "emptyKindBody": "Nothing in this service yet. Choose All to see your other orders."
   },
   "Cart": {
     "eyebrow": "Private cart",

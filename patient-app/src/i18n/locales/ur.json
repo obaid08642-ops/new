@@ -3791,5 +3791,8 @@
   "consult.hub.degree.senior_specialist": "سینئر ماہر",
   "consult.hub.degree.specialist": "ماہر",
   "consult.hub.degree.resident": "ریزیڈنٹ",
-  "consult.hub.degree.general_practitioner": "جنرل پریکٹیشنر"
+  "consult.hub.degree.general_practitioner": "جنرل پریکٹیشنر",
+  "orders.emptyKindCurrent": "کوئی موجودہ آرڈر نہیں: {service}",
+  "orders.emptyKindPrevious": "کوئی پچھلا آرڈر نہیں: {service}",
+  "orders.emptyKindBody": "اس سروس میں ابھی کچھ نہیں۔ باقی آرڈر دیکھنے کے لیے سب منتخب کریں۔"
 }

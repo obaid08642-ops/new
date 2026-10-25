@@ -30,8 +30,9 @@ vi.mock("@/components-next/core/core-shell", () => ({
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: async () => "server-only-order-token" }));
 vi.mock("@/lib/api/upstream", () => ({ callPatientApi: server.api }));
 
-import { actionHref, pharmacyRows, type CenterLabels } from "@/components-next/orders/center-rows";
+import { actionHref, pharmacyRows, sortCenterRows, type CenterLabels, type CenterRow } from "@/components-next/orders/center-rows";
 import { OrderList } from "@/components-next/orders/order-list";
+import { ordersQuery, parseOrdersQuery } from "@/components-next/orders/orders-query";
 import { OrderDetailScreen } from "@/components-next/orders/order-detail-screen";
 import { OrdersScreen } from "@/components-next/orders/orders-screen";
 import { ReorderPicker } from "@/components-next/orders/reorder-picker";
@@ -390,5 +391,93 @@ describe("/pharmacy/reorder", () => {
     expect(server.api).toHaveBeenCalledWith(`/patient/pharmacy/orders/${ORDER}`, {}, TOKEN);
     expect(html).toContain("Paracetamol 500 mg");
     expect(html).not.toContain("A typed request");
+  });
+});
+
+describe("/orders service filter", () => {
+  const row = (key: string, kind: CenterRow["kind"], at: string | undefined, bucket: CenterRow["bucket"] = "current"): CenterRow => ({
+    key, kind, href: `/en/x/${key}`, icon: "pill", tone: "ink", title: `T-${key}`, meta: kind, at, statusLabel: "s", statusTone: "ink", bucket, action: { href: `/en/x/${key}`, label: "Details" },
+  });
+  const rows = [row("p1", "pharmacy", ts(8)), row("c1", "consultation", ts(11)), row("l1", "labs", ts(9)), row("r1", "radiology", ts(9), "previous"), row("n1", "nursing", undefined), row("t1", "returns", ts(7))];
+
+  it("merges and sorts newest first with undated rows last", () => {
+    expect(sortCenterRows(rows).map((r) => r.key)).toEqual(["c1", "l1", "r1", "p1", "t1", "n1"]);
+  });
+
+  it("offers a chip per service that has a row, and filters by ?kind and ?tab", () => {
+    const all = render(<OrderList locale="en" rows={rows} />);
+    for (const label of ["Pharmacy", "Doctors", "Lab tests", "Radiology", "Nursing", "Returns and refunds"]) expect(all).toContain(label);
+    const labs = render(<OrderList locale="en" rows={rows} initialKind="labs" />);
+    expect(labs).toContain("T-l1");
+    expect(labs).not.toContain("T-p1");
+    const prev = render(<OrderList locale="en" rows={rows} initialTab="previous" initialKind="radiology" />);
+    expect(prev).toContain("T-r1");
+    expect(prev).not.toContain("T-l1");
+  });
+
+  it("says which service is empty for the tab, and offers All", () => {
+    const html = render(<OrderList locale="en" rows={rows} initialTab="previous" initialKind="labs" />);
+    expect(html).toContain("No previous orders: Lab tests");
+    expect(html).toContain("Choose All");
+  });
+
+  it("keeps the state in the address and ignores unknown values", () => {
+    expect(ordersQuery("/en/orders", "current", null)).toBe("/en/orders");
+    expect(ordersQuery("/en/orders", "previous", "labs")).toBe("/en/orders?tab=previous&kind=labs");
+    expect(parseOrdersQuery({ tab: "previous", kind: "labs" })).toEqual({ tab: "previous", kind: "labs" });
+    expect(parseOrdersQuery({ tab: "x", kind: "bogus" })).toEqual({ tab: undefined, kind: null });
+  });
+
+  it("draws one card per kind with its own link", () => {
+    const html = render(<OrderList locale="en" rows={rows.filter((r) => r.bucket === "current")} />);
+    for (const key of ["p1", "c1", "l1", "n1", "t1"]) expect(html).toContain(`href="/en/x/${key}"`);
+  });
+});
+
+describe("/orders as the server renders it with the filter in the address (live regression: the page answered the error state)", () => {
+  const RET = "0a1b2c3d-4444-4222-8333-444455556666";
+  const sources = () => centerApi({
+    [PHARMACY]: json([{ id: ORDER, status: "out_for_delivery", createdAt: ts(8) }]),
+    "/nursing/bookings/mine": json([{ id: "visit-1", state: "NURSE_EN_ROUTE", scheduled_at: ts(10), service_name_en: "Wound care" }]),
+    "/pharmacy/returns": json([{ id: RET, status: "processing", reason: "Damaged box", refund_amount: 12.5, createdAt: ts(9) }]),
+  });
+
+  it("shows the nursing visit and the return under All and under their own service, and never throws for any filter", async () => {
+    for (const kind of [undefined, "pharmacy", "consultation", "labs", "radiology", "nursing", "returns", "bogus"]) {
+      sources();
+      const html = render(await OrdersScreen({ locale: "en", query: kind ? { kind } : {} }));
+      expect(html).not.toContain("Your orders could not be loaded");
+      if (!kind || kind === "bogus") {
+        expect(html).toContain('href="/en/nursing/visits/visit-1"');
+        expect(html).toContain(`href="/en/returns/${RET}"`);
+      }
+      if (kind === "nursing") {
+        expect(html).toContain('href="/en/nursing/visits/visit-1"');
+        expect(html).not.toContain(`href="/en/returns/${RET}"`);
+      }
+      if (kind === "returns") {
+        expect(html).toContain(`href="/en/returns/${RET}"`);
+        expect(html).not.toContain('href="/en/nursing/visits/visit-1"');
+      }
+    }
+  });
+
+  it("also with the previous tab in the address", async () => {
+    sources();
+    const html = render(await OrdersScreen({ locale: "en", query: { tab: "previous", kind: "returns" } }));
+    expect(html).not.toContain("Your orders could not be loaded");
+  });
+
+  it("the server component imports no value from a client module (calling one from the server is the error the live check saw)", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { resolve } = await import("node:path");
+    const dir = resolve(process.cwd(), "components-next/orders");
+    const screen = readFileSync(resolve(dir, "orders-screen.tsx"), "utf8");
+    const clientModules = ["order-list"].filter((name) => readFileSync(resolve(dir, `${name}.tsx`), "utf8").startsWith('"use client"'));
+    for (const name of clientModules) {
+      const match = screen.match(new RegExp(`import\\s*\\{([^}]*)\\}\\s*from\\s*"\\./${name}"`));
+      // only the component itself may come from a client module
+      expect((match?.[1] ?? "").split(",").map((part) => part.trim()).filter(Boolean)).toEqual(["OrderList"]);
+    }
   });
 });
