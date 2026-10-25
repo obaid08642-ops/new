@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { textsOf, translatedColumns, type Texts } from "@/lib/i18n/localized";
+import { namesOf, textsOf, translatedColumns, type Texts } from "@/lib/i18n/localized";
 
 const serviceIdSchema = z.string().regex(/^[A-Za-z0-9_-]{1,128}$/);
 const serviceSchema = z.object({
@@ -11,7 +11,6 @@ const serviceSchema = z.object({
   description_ar: z.string().max(2000).optional(),
   description_en: z.string().max(2000).optional(),
   description: z.string().max(2000).optional(),
-  ...translatedColumns("name", 180),
   ...translatedColumns("description", 2000),
   price: z.number().nonnegative().optional(),
   duration_value: z.number().positive().optional(),
@@ -69,7 +68,7 @@ function parseService(value: unknown): HomeCareService | null {
   const nameEn = item.name_en ?? item.name;
   if (!nameAr && !nameEn) return null;
   const row = value as Record<string, unknown>;
-  const names = { ...(item.name ? { ar: item.name, en: item.name } : {}), ...textsOf(row, "name") };
+  const names = { ...(item.name ? { ar: item.name, en: item.name } : {}), ...namesOf(row) };
   const descriptions = { ...(item.description ? { ar: item.description, en: item.description } : {}), ...textsOf(row, "description") };
   return { names, descriptions, id: item.id, slug: item.slug, nameAr, nameEn, descriptionAr: item.description_ar ?? item.description, descriptionEn: item.description_en ?? item.description, price: item.price, durationValue: item.duration_value, duration: item.duration, insuranceAvailable: item.insurance_availability, preparationAr: lines(item.preparation_ar), preparationEn: lines(item.preparation_en), requiresPrescription: item.requires_patient_medication, imageUrl: item.image_url, icon: item.icon };
 }

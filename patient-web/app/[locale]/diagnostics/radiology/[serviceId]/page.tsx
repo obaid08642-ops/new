@@ -13,7 +13,7 @@ import { ConsultState } from "@/components-next/consult/consult-state";
 import { ActionLinks, BulletList, Facts, Hero, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
 import { RADIOLOGY, TagRow, hoursText, minutesText, money, type Tag } from "@/components-next/diagnostics/diag-parts";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
-import { pickTexts } from "@/lib/i18n/localized";
+import { pickName, pickTexts } from "@/lib/i18n/localized";
 
 type Props = { params: Promise<{ locale: string; serviceId: string }> };
 
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ serviceId
   const service = response && response.ok ? parseRadiologyService(await response.json().catch(() => null)) : null;
   // An unknown or unpublished service is not indexed (the page answers 404 or the error state).
   if (!service) return { robots: { index: false, follow: false } };
-  const name = pickTexts(locale, service.names) ?? t("title");
+  const name = pickName(locale, service.names) ?? t("title");
   const description = (pickTexts(locale, service.descriptions) ?? seo("radiologyWho", { name })).replace(/\s+/g, " ").slice(0, 160);
   const path = `/diagnostics/radiology/${encodeURIComponent(serviceId)}`;
   const canonical = localizedUrl(locale, path);
@@ -75,7 +75,7 @@ export default async function RadiologyServiceDetailPage({ params }: Props) {
     );
   }
 
-  const name = pickTexts(locale, service.names);
+  const name = pickName(locale, service.names);
   const description = pickTexts(locale, service.descriptions);
   const preparation = (locale === "ar" || locale === "ur" ? service.preparationAr ?? service.preparationEn : service.preparationEn ?? service.preparationAr) ?? [];
   const tags: Tag[] = [

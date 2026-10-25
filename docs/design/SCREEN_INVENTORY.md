@@ -522,7 +522,6 @@
 | app | `/loyalty/challenges` | `patient-app/app/loyalty/challenges.tsx` | list | Account | — | done (batch 11 merged) |
 | web | `/loyalty/challenges` | `patient-web/app/[locale]/loyalty/challenges/page.tsx` | list | Account | — | done (batch 11 merged) |
 | app | `/loyalty/hub` | `patient-app/app/loyalty/hub.tsx` | hub | Account | `GET /loyalty/account`<br>`GET /loyalty/challenges`<br>`POST /loyalty/challenges/:param/join`<br>`GET /loyalty/config`<br>`GET /loyalty/rewards`<br>`POST /loyalty/rewards/:param/claim`<br>`GET /loyalty/transactions`<br>`POST /referrals/apply` +1 more | done (batch 11 merged) |
-| app | `/loyalty/leaderboard` | `patient-app/app/loyalty/leaderboard.tsx` | list | Account | — | done (batch 11 merged) |
 | web | `/loyalty/leaderboard` | `patient-web/app/[locale]/loyalty/leaderboard/page.tsx` | list | Account | — | done (batch 11 merged) |
 | app | `/loyalty/referrals` | `patient-app/app/loyalty/referrals.tsx` | list | Account | — | done (batch 11 merged) |
 | web | `/loyalty/referrals` | `patient-web/app/[locale]/loyalty/referrals/page.tsx` | list | Account | — | done (batch 11 merged) |

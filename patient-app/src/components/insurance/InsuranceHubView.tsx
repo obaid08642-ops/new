@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 
 import { Button, Chip, FIcon, Input, type FillIconName } from '../../../../packages/ui-native/src';
 import { Glyph } from '../pharmacy/PharmacyKit';
@@ -10,7 +11,7 @@ import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { useGuestGuard } from '../../hooks/useGuestGuard';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
-import { ChiLookup } from './ChiLookup';
+import { chiInquiryUrl } from '../../utils/insuranceAdd';
 import { CopayFields } from './CopayFields';
 import { parseCopay } from '../../utils/differentiators';
 import { BenefitsTab, NetworkTab } from './InsuranceHubTabs';
@@ -71,7 +72,11 @@ function PolicyTab() {
   const fmt = useConsultFormat();
   const policy = usePolicy();
   const requests = useRemote(async () => rowsOf<InsuranceRequestRow>(await apiFetch('/insurance/requests/my')), [], 'insurance:requests');
-  const [chi, setChi] = useState(false);
+  // The Council of Health Insurance's own inquiry page comes from the backend's /config (links.chi_inquiry); without it no button is drawn.
+  const [chiUrl, setChiUrl] = useState<string | null>(null);
+  useEffect(() => {
+    apiFetch('/config').then((cfg) => setChiUrl(chiInquiryUrl(cfg))).catch(() => setChiUrl(null));
+  }, []);
   const [form, setForm] = useState(false);
   const p: InsurancePolicy | null = policy.data;
   const rows = requests.data ?? [];
@@ -105,9 +110,11 @@ function PolicyTab() {
           <View style={{ flex: 1 }}>
             <Button label={p ? k('insurance.policy.change') : k('insurance.policy.add')} variant="outline" fullWidth onPress={() => (p ? setForm(true) : router.push('/insurance/add-policy' as Href))} theme={theme} testID="policy-change" />
           </View>
-          <View style={{ flex: 1 }}>
-            <Button label={k('insurance.policy.chiLookup')} variant="outline" fullWidth onPress={() => setChi(true)} theme={theme} testID="policy-chi" />
-          </View>
+          {chiUrl ? (
+            <View style={{ flex: 1 }}>
+              <Button label={k('insurance.policy.chiLookup')} variant="outline" fullWidth onPress={() => void WebBrowser.openBrowserAsync(chiUrl).catch((e) => logError('insurance:chi', e))} theme={theme} testID="policy-chi" />
+            </View>
+          ) : null}
         </View>
       </Gate>
 
@@ -146,7 +153,6 @@ function PolicyTab() {
       </Section>
 
       <InsurerSheet open={form} onClose={() => setForm(false)} onSaved={() => { setForm(false); void policy.reload(true); }} />
-      <ChiLookup open={chi} onClose={() => setChi(false)} onSaved={() => { setChi(false); void policy.reload(true); }} />
     </>
   );
 }

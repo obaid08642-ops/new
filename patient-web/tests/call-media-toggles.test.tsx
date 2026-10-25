@@ -66,6 +66,6 @@ describe("the LiveKit server the call screens use", () => {
     expect(livekitConnectSources({ NABD_LIVEKIT_URL: "ws://127.0.0.1:7880" })).toEqual(["ws://127.0.0.1:7880", "http://127.0.0.1:7880"]);
     vi.stubEnv("NABD_LIVEKIT_URL", "ws://127.0.0.1:7880");
     const connect = contentSecurityPolicy("n", false).split("; ").find((d) => d.startsWith("connect-src "));
-    expect(connect).toBe("connect-src 'self' https://api.nabd.plus wss://live.nabd.plus https://cdn.nabd.plus https://accounts.google.com/gsi/ https://appleid.apple.com ws://127.0.0.1:7880 http://127.0.0.1:7880");
+    expect(connect).toBe("connect-src 'self' https://api.nabd.plus wss://live.nabd.plus https://cdn.nabd.plus https://tiles.openfreemap.org https://accounts.google.com/gsi/ https://appleid.apple.com ws://127.0.0.1:7880 http://127.0.0.1:7880");
   });
 });

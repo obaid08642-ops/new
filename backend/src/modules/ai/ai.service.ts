@@ -261,47 +261,6 @@ Return ONLY valid JSON with this exact structure:
     }
   }
 
-  /**
-   * Skin self-check guidance, not image analysis or dermatology diagnosis.
-   * A photo is deliberately rejected until a clinically governed, privacy-reviewed
-   * imaging workflow has been approved for the deployment region.
-   */
-  async skinAnalysis(body: any, patientId?: string) {
-    const ownerId = this.requirePatientId(patientId);
-    if (body?.image_base64 || body?.imageBase64) throw new BadRequestException('skin_photo_analysis_unavailable');
-    if (body?.acknowledge_limitations !== true) throw new BadRequestException('skin_limitations_acknowledgement_required');
-    const area = this.selectedValues(body?.areas, ['face', 'hand', 'back', 'body', 'other'], 'areas', 5);
-    if (!area.length) throw new BadRequestException('areas_invalid');
-    const observations = this.selectedValues(body?.observations, [
-      'new_or_changing', 'growing_or_changed_colour_texture', 'painful_or_itchy',
-      'bleeding_or_crusting', 'not_healing_over_four_weeks', 'none',
-    ], 'observations', 6);
-    if (observations.includes('none') && observations.length > 1) throw new BadRequestException('observations_invalid');
-    const note = this.optionalText(body?.note, 'note', 500);
-    const concernSignals = new Set(['new_or_changing', 'growing_or_changed_colour_texture', 'painful_or_itchy', 'bleeding_or_crusting', 'not_healing_over_four_weeks']);
-    const needsClinicalAssessment = observations.some((item) => concernSignals.has(item));
-    const result = {
-      care_level: needsClinicalAssessment ? 'clinical_assessment' : 'self_observation',
-      selected_areas: area,
-      selected_observations: observations,
-      image_analysis: false,
-      diagnosis: null,
-      treatment: null,
-      notice: needsClinicalAssessment
-        ? 'selected_skin_changes_should_be_assessed_by_a_clinician'
-        : 'this_check_cannot_rule_out_a_skin_condition_seek_clinical_advice_for_any_new_or_worsening_change',
-    };
-    await this.conn.collection('ai_skin_self_checks').insertOne({
-      patient_id: ownerId,
-      areas: area,
-      observations,
-      note: note ?? null,
-      care_level: result.care_level,
-      createdAt: new Date(),
-    });
-    return result;
-  }
-
   async medicineImageSearch(base64: string) {
     try {
       const prompt = `Identify this medicine packaging. Return JSON: { "name": "medicine name", "active_ingredient": "ingredient" }`;

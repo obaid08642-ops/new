@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import { CoreShell } from "@/components-next/core/core-shell";
 import type { Locale } from "@/lib/i18n";
 import rx from "@/components-next/pharmacy/rx.module.css";
+import { MapEntryLink } from "@/components-next/map-entry-link";
+import type { MapProviderType } from "@/lib/map/book-href";
 import { Breadcrumbs, type Crumb } from "@/components-next/navigation/breadcrumbs";
 
 /**
@@ -18,6 +20,8 @@ export function ConsultPage({
   hideTabs = false,
   crumbs,
   crumbsLabel,
+  mapType,
+  mapLabel,
   children,
 }: {
   locale: Locale;
@@ -29,6 +33,10 @@ export function ConsultPage({
   /** 17.1: the visible trail above the title (Home › Section › Page), with the nav's accessible name. */
   crumbs?: Crumb[];
   crumbsLabel?: string;
+  /** A provider list passes its kind: a "Map" button opens /map filtered to it. */
+  mapType?: MapProviderType;
+  /** HomeWeb.svcMap, read by the page (required with `mapType`). */
+  mapLabel?: string;
   children: ReactNode;
 }) {
   return (
@@ -36,6 +44,7 @@ export function ConsultPage({
       <div className={rx.page}>
         {crumbs && crumbsLabel ? <Breadcrumbs label={crumbsLabel} items={crumbs} /> : null}
         <div className={rx.head}><h1 className={rx.title}>{title}</h1></div>
+        {mapType && mapLabel ? <MapEntryLink locale={locale} type={mapType} label={mapLabel} /> : null}
         {children}
       </div>
     </CoreShell>
