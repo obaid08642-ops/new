@@ -69,7 +69,7 @@ describe.each(PATHS)("%s", (path) => {
     expect(html).not.toContain(CSP_NONCE_PLACEHOLDER);
     expect(html).not.toMatch(/\snonce=/);
     expect(html).not.toMatch(/<script[^>]*\ssrc=/i);
-    const inline = [...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script\s*>/gi)];
+    const inline = [...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script[^>]*>/gi)];
     expect(inline.length).toBeGreaterThan(0);
     for (const m of inline) expect(policy).toContain(`'sha256-${createHash("sha256").update(m[1]).digest("base64")}'`);
   });
