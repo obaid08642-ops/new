@@ -11,32 +11,10 @@ import { Chip } from "@/components-next/ui-generated/components/Surfaces";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import type { CenterRow, OrderKind } from "./center-rows";
+import { KIND_ORDER, ordersQuery, type OrdersTab as Tab } from "./orders-query";
 import { LocalDate } from "./local-date";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "./orders.module.css";
-
-type Tab = "current" | "previous";
-
-/** The order of the service chips (the app's filterKind order); only the services that have a row are drawn. */
-const KIND_ORDER: readonly OrderKind[] = ["pharmacy", "consultation", "labs", "radiology", "nursing", "returns"];
-
-export const ORDER_KINDS = KIND_ORDER;
-
-/** The list's own address for a tab and a service: defaults (current, all) are left out. */
-export function ordersQuery(path: string, tab: Tab, kind: OrderKind | null): string {
-  const params = new URLSearchParams();
-  if (tab === "previous") params.set("tab", "previous");
-  if (kind) params.set("kind", kind);
-  const query = params.toString();
-  return query ? `${path}?${query}` : path;
-}
-
-/** Reads ?tab and ?kind from the address; anything unknown is ignored. */
-export function parseOrdersQuery(query: { tab?: string | string[]; kind?: string | string[] }): { tab?: Tab; kind: OrderKind | null } {
-  const one = (v?: string | string[]) => (Array.isArray(v) ? v[0] : v);
-  const kind = KIND_ORDER.find((value) => value === one(query.kind)) ?? null;
-  return { tab: one(query.tab) === "previous" ? "previous" : one(query.tab) === "current" ? "current" : undefined, kind };
-}
 
 /**
  * The orders of canvas/Orders, for every service (issue 378): two tabs (current, previous) and one card per order with

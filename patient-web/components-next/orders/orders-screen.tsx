@@ -12,7 +12,8 @@ import type { Locale } from "@/lib/i18n";
 import { parseOrderRows } from "@/lib/pharmacy/order-view";
 import { callPatientApi } from "@/lib/api/upstream";
 import { consultationRows, diagnosticRows, legacyOrderRows, nursingRows, pharmacyRows, returnRows, sortCenterRows, type CenterLabels, type CenterRow } from "./center-rows";
-import { OrderList, parseOrdersQuery } from "./order-list";
+import { OrderList } from "./order-list";
+import { parseOrdersQuery } from "./orders-query";
 import rx from "@/components-next/pharmacy/rx.module.css";
 
 /** One source of the order center: its rows, or `failed` when the service did not answer (the other services still show). */
