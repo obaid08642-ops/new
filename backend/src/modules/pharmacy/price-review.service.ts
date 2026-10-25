@@ -1,4 +1,6 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
 import { InjectConnection } from '@nestjs/mongoose';
 import type { Connection } from 'mongoose';
 import { recordAudit } from '../../common/audit-record';
@@ -18,6 +20,8 @@ import { PRICE_REVIEWS, type PriceReviewAction } from './price-review';
 @Injectable()
 export class PharmacyPriceReviewService {
   private readonly ledger: LedgerService;
+  private readonly logger = new Logger(PharmacyPriceReviewService.name);
+  private lifting = false;
 
   constructor(
     @InjectConnection() private readonly conn: Connection,
@@ -147,6 +151,60 @@ export class PharmacyPriceReviewService {
     } catch (e) { await this.release(id); throw e; }
     await this.audit(admin, row, 'suspend_temporary', { suspended_until: end.toISOString() });
     return row;
+  }
+
+  /**
+   * A temporary suspension ends by itself at `suspended_until`: every 10 minutes the pharmacy of each expired suspension is reactivated and
+   * the pharmacy is told. The row is claimed first (`lifted_at`), so two instances never lift it twice; the lift is skipped, with the reason on the row,
+   * when the pharmacy is no longer suspended (an admin already acted), is blocked by a price review, or has a LATER temporary suspension still running.
+   * A failed reactivation (for example the licence check) gives the claim back and is retried on the next run.
+   */
+  @Cron('*/10 * * * *')
+  async liftExpiredSuspensions(now: Date = new Date()): Promise<{ lifted: number; skipped: number; failed: number }> {
+    const out = { lifted: 0, skipped: 0, failed: 0 };
+    if (this.lifting) return out;
+    this.lifting = true;
+    try {
+      const due: any[] = await this.col.find({ action: 'suspend_temporary', status: 'pharmacy_actioned', suspended_until: { $lte: now }, lifted_at: { $exists: false } }, { projection: { _id: 0 } }).limit(50).toArray();
+      for (const candidate of due) {
+        const claimed: any = await this.col.findOneAndUpdate({ id: { $eq: candidate.id }, lifted_at: { $exists: false } }, { $set: { lifted_at: now, lifted_state: 'lifting' } }, { returnDocument: 'after', projection: { _id: 0 } });
+        const row = claimed?.value ?? claimed;
+        if (!row?.id) continue;
+        try {
+          const skip = await this.liftBlocker(row, now);
+          if (skip) {
+            await this.col.updateOne({ id: row.id }, { $set: { lifted_state: `skipped:${skip}`, updated_at: now } });
+            out.skipped += 1;
+            continue;
+          }
+          const system = { id: 'system', role: 'admin' };
+          await this.providerAdmin.reactivate(system, row.pharmacy_id, { reason: `price review ${row.id}: temporary suspension ended` });
+          await this.col.updateOne({ id: row.id }, { $set: { lifted_state: 'lifted', updated_at: now } });
+          await this.audit(system, row, 'suspension_lifted', { suspended_until: new Date(row.suspended_until).toISOString() });
+          await this.notifyPharmacy(row, 'انتهى تعليق حسابك', 'Your suspension has ended', 'انتهت مدة تعليق حساب الصيدلية وأُعيد تفعيله.', 'The suspension of your pharmacy account has ended and it is active again.').catch(() => undefined);
+          out.lifted += 1;
+        } catch (e: any) {
+          // give the claim back: the next run tries again
+          await this.col.updateOne({ id: row.id }, { $unset: { lifted_at: '', lifted_state: '' } });
+          this.logger.error(`suspension_lift_failed review=${row.id}: ${e?.message}`);
+          out.failed += 1;
+        }
+      }
+    } finally {
+      this.lifting = false;
+    }
+    return out;
+  }
+
+  /** Why the lift must not happen (null = lift it). */
+  private async liftBlocker(row: any, now: Date): Promise<string | null> {
+    const account: any = await this.conn.collection('provider_accounts').findOne({ id: { $eq: String(row.pharmacy_id) } }, { projection: { _id: 0, status: 1 } });
+    if (!account) return 'pharmacy_not_found';
+    if (String(account.status) !== 'suspended') return 'not_suspended';
+    const blocked = await this.conn.collection('provider_profiles').countDocuments({ account_id: { $eq: String(row.pharmacy_id) }, blocked_by_price_review: { $exists: true, $ne: null } });
+    if (blocked) return 'blocked_by_price_review';
+    const later = await this.col.countDocuments({ pharmacy_id: { $eq: String(row.pharmacy_id) }, id: { $ne: row.id }, action: 'suspend_temporary', status: 'pharmacy_actioned', suspended_until: { $gt: now } });
+    return later ? 'later_suspension_running' : null;
   }
 
   async block(admin: any, id: string, note: string) {
