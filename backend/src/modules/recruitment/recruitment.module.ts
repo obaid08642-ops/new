@@ -5,8 +5,9 @@ import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser, Public, SelfService } from '../../common/auth.guard';
 import { Audited } from '../../common/audit-log.interceptor';
 import { UserRole } from '../../common/enums';
+import { Permission, RequirePermissions } from '../../common/permissions';
 import { CandidateProfile, CandidateProfileSchema, JobPosting, JobPostingSchema, JobApplication, JobApplicationSchema } from '../../schemas/job-board.schema';
-import { UpsertCandidateProfileDto, CreateJobDto, UpdateJobDto, GuestPostDto, GuestApplyDto, ApplyForJobDto, UpdateApplicationStatusDto} from './recruitment.dto';
+import { UpsertCandidateProfileDto, CreateJobDto, UpdateJobDto, GuestPostDto, GuestApplyDto, GuestJobReviewDto, ApplyForJobDto, UpdateApplicationStatusDto} from './recruitment.dto';
 
 @Injectable()
 export class RecruitmentService {
@@ -149,6 +150,32 @@ export class RecruitmentService {
   }
 
   // --- Guest submissions (no account): device-bound drafts, admin publishes ---
+  /** Admin queue: guest drafts waiting for a decision, oldest first. */
+  async listGuestDrafts(status: string = 'draft'): Promise<any[]> {
+    const st = ['draft', 'published', 'closed'].includes(status) ? status : 'draft';
+    return this.jobModel
+      .find({ is_deleted: false, guest_device_id: { $exists: true, $ne: null }, status: { $eq: st } })
+      .sort({ createdAt: 1 })
+      .limit(200)
+      .lean();
+  }
+
+  /** Publish or reject a guest draft. Claim-then-act: only a still-draft guest post can be decided, so two admins cannot both win. */
+  async reviewGuestJob(adminId: string, jobId: string, decision: 'publish' | 'reject', note?: string): Promise<any> {
+    const next = decision === 'publish' ? 'published' : 'closed';
+    const job = await this.jobModel.findOneAndUpdate(
+      { id: jobId, is_deleted: false, status: 'draft', guest_device_id: { $exists: true, $ne: null } },
+      { $set: { status: next, reviewed_by: adminId, reviewed_at: new Date(), review_note: note } },
+      { new: true },
+    ).lean();
+    if (!job) {
+      const exists = await this.jobModel.findOne({ id: jobId, is_deleted: false }).lean();
+      if (!exists) throw new NotFoundException('Job posting not found');
+      throw new BadRequestException('Only a pending guest post can be reviewed');
+    }
+    return job;
+  }
+
   async guestPostJob(deviceId: string, dto: any): Promise<any> {
     if (!deviceId || deviceId.length < 8) throw new BadRequestException('device_id required');
     if (!dto.title || !dto.description || !dto.location) {
@@ -384,6 +411,27 @@ export class RecruitmentController {
   }
 }
 
+/** Admin moderation of guest job posts (QA: they could never be published). */
+@Controller('admin/recruitment/guest-jobs')
+@UseGuards(JwtAuthGuard)
+@Roles(UserRole.ADMIN)
+export class AdminRecruitmentController {
+  constructor(private svc: RecruitmentService) {}
+
+  @RequirePermissions(Permission.FACILITY_EDIT)
+  @Get()
+  list(@Query('status') status?: string) {
+    return this.svc.listGuestDrafts(status);
+  }
+
+  @RequirePermissions(Permission.FACILITY_EDIT)
+  @Post(':id/review')
+  @Audited({ model: 'JobPosting', idParam: 'id', action: 'guest_job_review' })
+  review(@CurrentUser() u: any, @Param('id') id: string, @Body() b: GuestJobReviewDto) {
+    return this.svc.reviewGuestJob(u.id, id, b.decision, b.note);
+  }
+}
+
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -392,7 +440,7 @@ export class RecruitmentController {
       { name: 'JobApplication', schema: JobApplicationSchema },
     ]),
   ],
-  controllers: [RecruitmentController],
+  controllers: [RecruitmentController, AdminRecruitmentController],
   providers: [RecruitmentService],
   exports: [RecruitmentService],
 })
