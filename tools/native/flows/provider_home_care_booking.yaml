@@ -14,6 +14,7 @@ appId: com.nabd.provider
 - runScript:
     file: scripts/booking_state.js
     env:
-      PATH: "/nursing/bookings/${output.bookingId}"
+      PATH: "/nursing/bookings/mine"
+      ID: ${output.bookingId}
       TOKEN: ${output.patientToken}
       STATE_WAS: "PROVIDER_ASSIGNED"
