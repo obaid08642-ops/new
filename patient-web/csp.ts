@@ -36,6 +36,8 @@ export function contentSecurityPolicy(nonce?: string): string {
   const connectSrc = [
     "'self'",
     ...(API_ORIGIN ? [API_ORIGIN] : []),
+    // the address map (MapLibre GL) loads its style and vector tiles from OpenFreeMap, which needs no key
+    "https://tiles.openfreemap.org",
     // ws:// for the realtime gateway
     ...(API_ORIGIN ? [API_ORIGIN.replace(/^http/, "ws")] : []),
     ...(isDev ? ["ws:", "http:", "https:"] : []),
