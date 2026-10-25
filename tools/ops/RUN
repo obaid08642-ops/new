@@ -1,7 +1,9 @@
-# 2026-10-25 lead reviewer: run 15, deploy main@e6bbf833 (cleanup web/backend, X/Snapchat sign-in (gated off), Moyasar invoices,
-# doctor registration fields + ops screens, booking names, dependency fixes). No script migrations (MIGRATIONS="").
-# Then cf-purge-api (fresh public answers) and 50-inspect-scale (READ-ONLY: CPU/RAM/disk/containers, env NAMES only, no values).
-release:e6bbf83337327fca94b1d4396fd91eb41cc9f361
+# 2026-10-25 lead reviewer: run 16, deploy main@2920ecb7 (#1890-#1909: social sign-in from the backend at run time, insurance
+# company/class/copay + CHI link, map entry, cart button, web parity, /geo/reverse, P2P calls (flag off), public catalogue caching).
+# Then 90-catalogue-apply as a DRY RUN only (EXPECT_PLAN_SHA empty: prints counts and the plan hash, writes nothing),
+# 91-env-names (READ-ONLY: which settings are set or missing, names only, never a value) and cf-purge-api.
+release:2920ecb73910dc15a137821af70d1d0b7fad85ed
 60-deploy-main
-50-inspect-scale
+90-catalogue-apply
+91-env-names
 cf-purge-api
