@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { getStableDeviceId } from "@/lib/auth/device-id";
 import { announceSignedIn } from "@/lib/auth/session-identity";
-import { BRAND_GOOGLE_PATH, BRAND_GOOGLE_VIEWBOX, BRAND_SNAPCHAT_PATH, BRAND_SNAPCHAT_VIEWBOX, BRAND_X_PATH, BRAND_X_VIEWBOX } from "@/components-next/ui-generated/icons/marks";
+import { SocialMark } from "@/components-next/social-mark";
+import "@/components-next/ui-generated/icons/social-brands.css";
 import { acceptCallback, authorizeUrl, newPkce, type CodeProvider } from "@/lib/auth/social-oauth";
 import type { SocialButtons } from "@/lib/auth/social-config";
 import styles from "./auth/auth.module.css";
@@ -28,19 +29,6 @@ function loadScript(src: string): Promise<void> {
 }
 
 const APPLE_SDK = "https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js";
-
-const MARKS = {
-  google: { path: BRAND_GOOGLE_PATH, viewBox: BRAND_GOOGLE_VIEWBOX },
-  x: { path: BRAND_X_PATH, viewBox: BRAND_X_VIEWBOX },
-  snapchat: { path: BRAND_SNAPCHAT_PATH, viewBox: BRAND_SNAPCHAT_VIEWBOX },
-} as const;
-
-/** The single-colour brand mark of the "continue with" buttons (currentColor, decorative: the button carries the name). */
-function Mark({ brand }: { brand: keyof typeof MARKS }) {
-  const { path, viewBox } = MARKS[brand];
-  const [, , w, h] = viewBox.split(" ").map(Number);
-  return <svg aria-hidden="true" focusable="false" viewBox={viewBox} width={(20 * w) / h} height={20} fill="currentColor"><path d={path} /></svg>;
-}
 
 /**
  * Guest sign-in is always available. Social sign-in offers all four providers; `social` says which ones the backend can finish and
@@ -195,10 +183,10 @@ export function SocialLoginButtons({ locale, social, onWrongApp }: Props) {
     <>
       <div className={styles.divider}>{t("orContinueWith")}</div>
       <div className={styles.social} aria-label={t("otherWays")}>
-        <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={googleLogin} data-configured={googleClientId ? "1" : "0"}><Mark brand="google" /> {t("google")}</button>
-        <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={appleLogin} data-configured={configured ? "1" : "0"}>{t("apple")}</button>
-        <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={() => codeLogin("x")} data-configured={showX ? "1" : "0"}><Mark brand="x" /> {t("x")}</button>
-        <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={() => codeLogin("snapchat")} data-configured={showSnapchat ? "1" : "0"}><Mark brand="snapchat" /> {t("snapchat")}</button>
+        <button type="button" className={`${styles.socialButton} socialBrandButton socialBrandGoogle`} disabled={busy !== null} onClick={googleLogin} data-configured={googleClientId ? "1" : "0"}><SocialMark brand="google" /> {t("google")}</button>
+        <button type="button" className={`${styles.socialButton} socialBrandButton socialBrandApple`} disabled={busy !== null} onClick={appleLogin} data-configured={configured ? "1" : "0"}><SocialMark brand="apple" /> {t("apple")}</button>
+        <button type="button" className={`${styles.socialButton} socialBrandButton socialBrandX`} disabled={busy !== null} onClick={() => codeLogin("x")} data-configured={showX ? "1" : "0"}><SocialMark brand="x" /> {t("x")}</button>
+        <button type="button" className={`${styles.socialButton} socialBrandButton socialBrandSnapchat`} disabled={busy !== null} onClick={() => codeLogin("snapchat")} data-configured={showSnapchat ? "1" : "0"}><SocialMark brand="snapchat" /> {t("snapchat")}</button>
       </div>
     </>
     <div className={styles.foot}>

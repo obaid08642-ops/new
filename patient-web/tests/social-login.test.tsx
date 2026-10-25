@@ -24,21 +24,40 @@ describe("social sign-in buttons are shown per configuration", () => {
   it("shows all four, not configured, when nothing is configured", () => {
     const html = render({});
     expect(html).toContain("Or continue with");
-    for (const label of ["Google</button>", ">Apple</button>", "X</button>", "Snapchat</button>"]) expect(html).toContain(label);
+    for (const label of ["Google</button>", " Apple</button>", "X</button>", "Snapchat</button>"]) expect(html).toContain(label);
     expect(html).not.toContain('data-configured="1"');
   });
   it("shows all four when the backend enables them", () => {
     const html = render(ALL);
     expect(html).toContain("Google</button>");
-    expect(html).toContain(">Apple</button>");
+    expect(html).toContain(" Apple</button>");
     expect(html).toContain("X</button>");
     expect(html).toContain("Snapchat</button>");
   });
-  it.each([["google", /data-configured="0"><svg[^>]*><path[^>]*><\/path><\/svg> Google<\/button>/], ["apple", /data-configured="0">Apple<\/button>/], ["x", /data-configured="0"><svg[^>]*><path[^>]*><\/path><\/svg> X<\/button>/], ["snapchat", /data-configured="0"><svg[^>]*><path[^>]*><\/path><\/svg> Snapchat<\/button>/]] as const)("%s stays visible but not configured when the backend does not enable it", (provider, pattern) => {
+  it.each([["google", /data-configured="0"><svg[^>]*>(?:<path[^>]*><\/path>)+<\/svg> Google<\/button>/], ["apple", /data-configured="0"><svg[^>]*>(?:<path[^>]*><\/path>)+<\/svg> Apple<\/button>/], ["x", /data-configured="0"><svg[^>]*>(?:<path[^>]*><\/path>)+<\/svg> X<\/button>/], ["snapchat", /data-configured="0"><svg[^>]*>(?:<path[^>]*><\/path>)+<\/svg> Snapchat<\/button>/]] as const)("%s stays visible but not configured when the backend does not enable it", (provider, pattern) => {
     const { [provider]: _removed, ...rest } = ALL;
     const html = render(rest);
     expect(html).toMatch(pattern);
     expect((html.match(/data-configured="1"/g) ?? []).length).toBe(3);
+  });
+});
+
+describe("brand look of the buttons (owner, 2026-10-25)", () => {
+  it("draws the four-colour Google G, and gives each provider its own brand class", () => {
+    const html = render(ALL);
+    for (const fill of ["#EA4335", "#4285F4", "#FBBC05", "#34A853"]) expect(html).toContain(`fill="${fill}"`);
+    for (const brand of ["Google", "Apple", "X", "Snapchat"]) expect(html).toContain(`socialBrandButton socialBrand${brand}`);
+  });
+  it("keeps the CSS brand colours equal to social-brands.ts", async () => {
+    const { SOCIAL_BUTTON_COLORS } = await import("@/components-next/ui-generated/icons/social-brands");
+    const { readFileSync } = await import("node:fs");
+    const css = readFileSync("components-next/ui-generated/icons/social-brands.css", "utf8");
+    for (const [brand, themes] of Object.entries(SOCIAL_BUTTON_COLORS)) {
+      const name = brand === "x" ? "X" : brand[0].toUpperCase() + brand.slice(1);
+      const light = css.match(new RegExp(`^\\.socialBrand${name} \\{ --sb-bg: (#\\w+); --sb-fg: (#\\w+); --sb-border: (#\\w+); \\}`, "m"));
+      expect(light?.slice(1)).toEqual([themes.light.background, themes.light.foreground, themes.light.border]);
+      expect(css).toContain(`--sb-bg: ${themes.dark.background}`);
+    }
   });
 });
 

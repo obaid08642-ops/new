@@ -1,0 +1,17 @@
+/* Brand colours of the "continue with" buttons: the same values as social-brands.ts (a test keeps them equal).
+   Brand marks are the one allowed exception to the token-colour rule (owner, 2026-10-25). */
+.socialBrandGoogle { --sb-bg: #FFFFFF; --sb-fg: #1F1F1F; --sb-border: #747775; }
+.socialBrandApple { --sb-bg: #000000; --sb-fg: #FFFFFF; --sb-border: #000000; }
+.socialBrandSnapchat { --sb-bg: #FFFC00; --sb-fg: #000000; --sb-border: #000000; }
+.socialBrandX { --sb-bg: #000000; --sb-fg: #FFFFFF; --sb-border: #000000; }
+:root[data-theme="dark"] .socialBrandGoogle { --sb-bg: #131314; --sb-fg: #E3E3E3; --sb-border: #8E918F; }
+:root[data-theme="dark"] .socialBrandApple { --sb-bg: #FFFFFF; --sb-fg: #000000; --sb-border: #FFFFFF; }
+:root[data-theme="dark"] .socialBrandSnapchat { --sb-border: #FFFC00; }
+:root[data-theme="dark"] .socialBrandX { --sb-bg: #FFFFFF; --sb-fg: #000000; --sb-border: #FFFFFF; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .socialBrandGoogle { --sb-bg: #131314; --sb-fg: #E3E3E3; --sb-border: #8E918F; }
+  :root:not([data-theme="light"]) .socialBrandApple { --sb-bg: #FFFFFF; --sb-fg: #000000; --sb-border: #FFFFFF; }
+  :root:not([data-theme="light"]) .socialBrandSnapchat { --sb-border: #FFFC00; }
+  :root:not([data-theme="light"]) .socialBrandX { --sb-bg: #FFFFFF; --sb-fg: #000000; --sb-border: #FFFFFF; }
+}
+button.socialBrandButton, a.socialBrandButton { background: var(--sb-bg); color: var(--sb-fg); border: 1px solid var(--sb-border); }
