@@ -8,6 +8,8 @@ import { Pill, goBack, useAddMedToCart } from '../../src/components/pharmacy/Pha
 import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
+import { InteractionResult } from '../../src/components/pharmacy/InteractionResult';
+import type { IxResult } from '../../src/utils/interactionCheck';
 import { medMeta, medName, medPrice, needsRx, onlineOnly, type Med } from '../../src/utils/pharmacyCatalog';
 
 /**
@@ -32,19 +34,6 @@ type ScanAnswer = {
   matches?: Med[];
 };
 type Problem = 'unknown' | 'error' | 'busy' | 'rxUnreadable';
-type IxHit = { severity?: string; code?: string; note_ar?: string; note?: string };
-const IX_NOTES = new Set(['bleeding_risk', 'lactic_acidosis', 'high_potassium', 'severe_low_blood_pressure', 'rhabdomyolysis']);
-type IxResult = { checked?: number; safe?: boolean; interactions?: IxHit[] };
-
-/** The three levels the checker states; any other word from the server is not drawn as a label. */
-function ixLevel(value?: string): { key: string; tone: 'danger' | 'warning' | 'success' } | null {
-  const v = (value || '').toLowerCase();
-  if (['high', 'severe', 'major', 'critical', 'contraindicated'].includes(v)) return { key: 'pharmacy.scan.ixHigh', tone: 'danger' };
-  if (['moderate', 'medium'].includes(v)) return { key: 'pharmacy.scan.ixMedium', tone: 'warning' };
-  if (['low', 'minor', 'mild'].includes(v)) return { key: 'pharmacy.scan.ixLow', tone: 'success' };
-  return null;
-}
-
 /** A route that is a screen of the app (the typed router only knows the generated list). */
 const go = (href: string) => router.push(href as Href);
 
@@ -57,7 +46,7 @@ function scanProblem(e: unknown): Problem {
 }
 
 export default function BarcodeScannerScreen() {
-  const { theme, t, c, dir, flow, k, money, lang } = useScreenUi();
+  const { theme, t, c, dir, flow, k, money } = useScreenUi();
   const addToCart = useAddMedToCart();
   const [permission, requestPermission] = useCameraPermissions();
   const [found, setFound] = useState<Found | null>(null);
@@ -146,9 +135,14 @@ export default function BarcodeScannerScreen() {
   });
 
   const manual = (
+    <>
+    <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.ix.open')} onPress={() => go('/pharmacy/interactions')} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 }}>
+      <Text style={{ ...scale(t, 'label', 'medium'), color: onInverse, textAlign: 'center', textDecorationLine: 'underline' }}>{k('pharmacy.ix.open')}</Text>
+    </Pressable>
     <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.barcode.manual')} onPress={() => go('/pharmacy/rx-order?via=type')} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 }}>
       <Text style={{ ...scale(t, 'label', 'medium'), color: onInverse, textAlign: 'center', textDecorationLine: 'underline' }}>{k('pharmacy.barcode.manual')}</Text>
     </Pressable>
+    </>
   );
 
   let body: React.ReactNode;
@@ -190,23 +184,7 @@ export default function BarcodeScannerScreen() {
         {ix.state === 'error' ? (
           <Text accessibilityRole="alert" style={{ ...scale(t, 'meta', 'regular'), color: c.status.danger.fg, textAlign: 'center' }}>{k('pharmacy.scan.ixFailed')}</Text>
         ) : null}
-        {ix.state === 'done' && ix.result ? (
-          <View accessibilityLiveRegion="polite" style={{ gap: 8, paddingTop: 12, borderTopWidth: 1, borderColor: c.border.subtle }}>
-            <Text accessibilityRole="header" style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>{ix.result.safe ? k('pharmacy.scan.ixSafe') : k('pharmacy.scan.ixAttention')}</Text>
-            {(ix.result.interactions || []).map((h, i) => {
-              const level = ixLevel(h.severity);
-              // The note is translated from its code; the Arabic server sentence is never shown in another language.
-              const note = h.code && IX_NOTES.has(h.code) ? k(`pharmacy.scan.ix.${h.code}`) : lang === 'ar' ? h.note_ar || h.note : h.note;
-              return (
-                <View key={`${h.severity}-${i}`} style={{ gap: 4 }}>
-                  {level ? <Pill label={k(level.key)} tone={level.tone} /> : null}
-                  {note ? <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{note}</Text> : null}
-                </View>
-              );
-            })}
-            <Text style={{ ...scale(t, 'caption', 'regular'), color: c.text.secondary, ...flow }}>{k('pharmacy.scan.ixAdvisory')}</Text>
-          </View>
-        ) : null}
+        {ix.state === 'done' && ix.result ? <InteractionResult result={ix.result} /> : null}
       </Card>
     );
   } else if (matches && matches.meds.length > 0) {

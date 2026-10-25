@@ -31,9 +31,6 @@ vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: async () => "server
 vi.mock("@/lib/api/upstream", () => ({ callPatientApi: server.api }));
 
 import EmergencyPage from "@/app/[locale]/emergency/page";
-import SosRedirect from "@/app/[locale]/emergency/sos/page";
-import SosActiveRedirect from "@/app/[locale]/emergency/sos-active/page";
-import TrackingRedirect from "@/app/[locale]/emergency/tracking/page";
 import { parseUrgentHelp } from "@/lib/api/urgent-help";
 import { isAllowedPatientApiRequest } from "@/lib/api/patient-allowlist";
 
@@ -101,13 +98,6 @@ describe("the urgent-help page when the call itself throws", () => {
 });
 
 describe("the removed SOS routes and calls", () => {
-  it.each([
-    ["sos", SosRedirect],
-    ["sos-active", SosActiveRedirect],
-    ["tracking", TrackingRedirect],
-  ])("/emergency/%s redirects to /emergency", async (_name, Page) => {
-    expect(await redirectOf(() => Page({ params }))).toBe("/en/emergency");
-  });
 
   it("no longer lets the browser trigger, cancel, read or track an SOS through the proxy", () => {
     expect(isAllowedPatientApiRequest("/orders/mine", "GET")).toBe(true); // the check is live

@@ -13,6 +13,7 @@ import { CreateNoteDto, CreateBookingDto, ArriveAtPatientDto, TriggerEmergencyDt
 import { CreateHomeCareCatalogDto, UpdateHomeCareCatalogDto, ApproveCatalogDto, BulkApproveCatalogDto } from './home-care.dto';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { PublicCache } from '../../common/public-cache.decorator';
 @UseGuards(JwtAuthGuard)
 @Controller('nursing')
 export class NursingController {
@@ -99,6 +100,7 @@ export class NursingController {
   }
 
   // 1. SERVICES CATALOG (Pillar 2)
+  @PublicCache(120, ['catalog', 'nursing'])
   @Public() @Get('catalog')
   async getCatalog() {
     return this.serviceModel.find({ active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }).lean();
