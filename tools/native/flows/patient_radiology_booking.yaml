@@ -18,6 +18,8 @@ appId: com.patient.nabd
 - scrollUntilVisible:
     element:
       id: "diag-rad-0"
+    timeout: 90000
+    speed: 70
 - tapOn:
     id: "diag-rad-0"
 - extendedWaitUntil:
@@ -34,6 +36,10 @@ appId: com.patient.nabd
 - tapOn:
     id: "ordering-ctx-where"
 - tapOn: "سأذهب بنفسي"
+# the prices and coverage are asked again for the centre; the "no home service" line goes and the button turns on
+- extendedWaitUntil:
+    notVisible: "لا توجد خدمة منزلية.*"
+    timeout: 40000
 - tapOn:
     id: "diag-cart-continue"
 - extendedWaitUntil:

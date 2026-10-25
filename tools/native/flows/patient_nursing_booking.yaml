@@ -27,8 +27,39 @@ appId: com.patient.nabd
     visible:
       id: "nursing-nurse-profile"
     timeout: 20000
+# the nurse works some days only: take the first of the next days that has times
 - tapOn:
     id: "day-1"
+- runFlow:
+    when:
+      visible: "الطبيب غير متاح في هذا اليوم"
+    commands:
+      - tapOn:
+          id: "day-2"
+- runFlow:
+    when:
+      visible: "الطبيب غير متاح في هذا اليوم"
+    commands:
+      - tapOn:
+          id: "day-3"
+- runFlow:
+    when:
+      visible: "الطبيب غير متاح في هذا اليوم"
+    commands:
+      - tapOn:
+          id: "day-4"
+- runFlow:
+    when:
+      visible: "الطبيب غير متاح في هذا اليوم"
+    commands:
+      - tapOn:
+          id: "day-5"
+- runFlow:
+    when:
+      visible: "الطبيب غير متاح في هذا اليوم"
+    commands:
+      - tapOn:
+          id: "day-6"
 - extendedWaitUntil:
     visible:
       id: "slot-.*"
