@@ -1,7 +1,7 @@
-# 2026-10-26 lead reviewer: run 29. Run 28 ABORTED its deploy (disk: 0.88 GB free before cleanup; production unchanged on
+# 2026-10-26 lead reviewer: run 30 (replaces run 29, not approved yet; owner: keep ONE local copy of each backup). Run 28 ABORTED its deploy (disk: 0.88 GB free before cleanup; production unchanged on
 # d355336b); its catalogue dry run ran on the old code (0 changes). This run, in order:
-#  97-free-old-predeploy: the owner's Approve allows removing LOCAL pre-deploy dumps and catalogue backups except the 2 newest of
-#    each (nightly backups and everything else stay); truncate container logs over 20 MB.
+#  97-free-old-predeploy: keep ONE local copy of each backup kind (pre-deploy dump, catalogue backup, nightly; the nightlies are
+#    also on the private R2 bucket), remove the older local copies; truncate container logs over 20 MB.
 #  93-free-unused-images, then deploy main@9878f74e (everything from run 28 + #2012/#2013 if merged).
 #  90-catalogue-apply DRY RUN (numbered fake districts, #1997): counts only, no writes.
 #  73-mail-test: Mailjet first (3 mails) + 1 per other provider with keys, to the owner's alert address.
