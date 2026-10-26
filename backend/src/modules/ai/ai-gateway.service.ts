@@ -134,6 +134,12 @@ export interface AiGenerateResult {
   cached?: boolean;
 }
 
+/** Maps a provider HTTP failure to a stable code. 401/403 are `ai_provider_auth_failed`; nothing from the response body is kept. */
+export function providerHttpErrorCode(providerKey: string, status: number): string {
+  if (status === 401 || status === 403) return 'ai_provider_auth_failed';
+  return `${providerKey}_http_${status}`;
+}
+
 @Injectable()
 export class AiGatewayService {
   private readonly logger = new Logger('AiGateway');
@@ -444,8 +450,9 @@ export class AiGatewayService {
       signal: AbortSignal.timeout(30_000),
     });
     if (!resp.ok) {
-      const body = await resp.text();
-      throw new BadGatewayException(`${p.key}_http_${resp.status}: ${body.slice(0, 150)}`);
+      // The provider's body is never put in the message: a 401 body can carry part of the API key (Sentry NABD-BACKEND-21).
+      await resp.body?.cancel().catch(() => undefined);
+      throw new BadGatewayException(providerHttpErrorCode(p.key, resp.status));
     }
     const json: any = await resp.json();
     const text = json?.choices?.[0]?.message?.content;

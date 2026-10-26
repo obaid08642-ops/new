@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScopedSuggest } from '../../src/components/search/ScopedSuggest';
 import { SUGGEST_SCOPES } from '../../src/utils/searchSuggest';
-import { FlatList, Pressable, Text, View, useWindowDimensions } from 'react-native';
+import { FlatList, Pressable, RefreshControl, Text, View, useWindowDimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
@@ -18,11 +18,11 @@ import {
   Search,
   useTabBarHeight,
 } from '../../../packages/ui-native/src';
-import ProductImage from '../../src/components/ProductImage';
+import { RotatingProductImage } from '../../src/components/pharmacy/RotatingProductImage';
+import { FilterSheet } from '../../src/components/pharmacy/FilterSheet';
+import { CartButton, WishlistButton, GlyphSquare, MedAddControl, PHARMACY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
 import { ActiveFilters, type ActiveFilter } from '../../src/components/pharmacy/ActiveFilters';
 import { CategoryTiles } from '../../src/components/pharmacy/CategoryTiles';
-import { FilterSheet } from '../../src/components/pharmacy/FilterSheet';
-import { CartButton, WishlistButton, GlyphSquare, PHARMACY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useCart } from '../../src/context/CartContext';
 import { apiFetch } from '../../src/utils/api';
@@ -80,6 +80,8 @@ function ProductSkeleton({ cols }: { cols: number }) {
   );
 }
 
+const VIEWABLE = { itemVisiblePercentThreshold: 60 };
+
 export default function PharmacyHub() {
   const { theme, t, c, dir, flow, k, money, num, lang } = useScreenUi();
   const barHeight = useTabBarHeight();
@@ -87,6 +89,11 @@ export default function PharmacyHub() {
   const cols = width >= 768 ? 3 : 2;
   const { itemCount } = useCart();
   const addToCart = useAddMedToCart();
+  // the cards on screen turn through their pictures; the ones scrolled away stop (the list tells us which are viewable)
+  const [visibleIds, setVisibleIds] = useState<Set<string>>(() => new Set());
+  const onViewable = useRef(({ viewableItems }: { viewableItems: Array<{ item: { id?: unknown } }> }) => {
+    setVisibleIds(new Set(viewableItems.map((v) => String(v.item?.id ?? ''))));
+  }).current;
 
   // what the filter sheet hands back (the filters live in the URL)
   const params = useLocalSearchParams<{
@@ -314,7 +321,11 @@ export default function PharmacyHub() {
         ListHeaderComponent={<View style={{ marginBottom: 16 }}>{header}</View>}
         ListEmptyComponent={empty}
         keyboardShouldPersistTaps="handled"
+        // pull down to reload the list (the same reload the retry button asks for)
+        refreshControl={<RefreshControl refreshing={loading && medicines.length > 0} onRefresh={() => setReloadKey((n) => n + 1)} tintColor={c.text.primary} />}
         initialNumToRender={8}
+        onViewableItemsChanged={onViewable}
+        viewabilityConfig={VIEWABLE}
         maxToRenderPerBatch={8}
         windowSize={7}
         contentContainerStyle={{ width: '100%', maxWidth: 720, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 6, paddingBottom: barHeight + 40, flexGrow: 1 }}
@@ -329,12 +340,13 @@ export default function PharmacyHub() {
                 meta={medMeta(item) || undefined}
                 price={price ? money(price) : ''}
                 currency={price ? k('pharmacy.currency') : undefined}
-                image={<ProductImage uri={medGallery(item)[0]} style={{ width: '100%', height: '100%' }} iconSize={40} />}
+                image={<RotatingProductImage uris={medGallery(item)} active={visibleIds.has(String(item.id))} iconSize={40} />}
                 discountLabel={pct > 0 ? k('pharmacy.discount', { n: num(pct) }) : undefined}
                 rxLabel={productNote(item, { rx: k('pharmacy.needsRx'), online: k('pharmacy.product.exclusive') })}
                 addLabel={k('pharmacy.addToCart')}
                 onPress={() => openProduct(item)}
                 onAdd={() => addToCart(item)}
+                addControl={<MedAddControl med={item} size={40} disabled={!price} addLabel={k('pharmacy.addToCart')} />}
                 testID={`pharmacy-card-${item.id}`}
                 theme={theme}
               />
