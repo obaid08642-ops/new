@@ -110,7 +110,7 @@ export function StatusLine({ label, tone }: { label: string; tone: ServiceTone }
 /** The list the rows of a screen sit in. */
 export function RowList({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <ul className={styles.list} aria-label={label}>
+    <ul className={styles.list} aria-label={label} data-stagger>
       {children}
     </ul>
   );
