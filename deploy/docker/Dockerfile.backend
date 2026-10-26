@@ -16,6 +16,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends wget \
 COPY node_modules ./node_modules
 COPY dist ./dist
 COPY src/constants ./src/constants
+# Build-time smoke: sharp loads its linux-x64 native binary at require time. An image built without the optional platform
+# package crashed on boot in a loop (Sentry NABD-BACKEND-1X, 2026-10-19); now such an image fails to build instead.
+RUN node -e "require('sharp')"
 RUN groupadd -r nestjs && useradd -r -g nestjs nestjs \
   && chown -R nestjs:nestjs /usr/src/app
 USER nestjs

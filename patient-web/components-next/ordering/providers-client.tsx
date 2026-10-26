@@ -127,7 +127,7 @@ export function ProvidersClient({ locale, kind, place, pay, point }: Props) {
           {g.empty ? <p className={styles.note} role="status">{g.mode === "home" ? t("altTitle") : t("altTitleCentre")} <Link href={basketHref}>{t("backToBasket")}</Link></p> : null}
           {rest.length > 0 ? (
             <>
-              <h3 className={styles.title}>{t("compare")} <span className={styles.sub}>{t("count", { n: rows.length })}</span></h3>
+              <h3 className={styles.title}>{t("compare")}</h3>
               {rest.map((r) => renderRow({ r, mode: g.mode }))}
             </>
           ) : null}
