@@ -56,7 +56,7 @@
 .tools { margin-inline-start: auto; align-items: center; gap: 8px; }
 /* between 1024 and 1439 the bar carries the five sections plus language, theme, bell, favourites, cart, profile and sign-out: tighten
    them so the last icon is never pushed past the window edge */
-@media (min-width: 1024px) and (max-width: 1439px) {
+@media (min-width: 1200px) and (max-width: 1439px) {
   .section { padding-inline: 10px; }
   .sections { gap: 2px; }
   .tools { gap: 4px; }
@@ -86,11 +86,16 @@
   .tools { display: flex; }
 }
 
-@media (min-width: 1024px) {
+/* The sections need room next to the language, theme, bell, favourites, cart, profile and sign-out controls: from 1200 (at 1024 the
+   last icon was pushed past the window edge), so 1024-1199 keeps the tab bar. */
+@media (min-width: 1200px) {
   .sections { display: flex; }
   /* the tab bar goes; a page CTA (StickyFooter) stays: without it the booking, order and payment buttons vanished from 1024 */
   .root :global(.nabd-shell__tabs) { display: none; }
   .root :global(.nabd-shell__bottom:not(:has(.nabd-sticky-footer))) { display: none; }
+}
+
+@media (min-width: 1024px) {
   /* the CTA keeps the width of the page column, not the window */
   .root :global(.nabd-sticky-footer) > * { max-inline-size: 720px; margin-inline: auto; }
   .page { padding-block-end: var(--nabd-space-5xl); }
