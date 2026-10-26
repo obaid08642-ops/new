@@ -1,6 +1,6 @@
 "use client";
 
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { SearchSuggest, useSearchSuggest } from "@/components-next/search/search-suggest";
 import styles from "./home.module.css";
 
@@ -17,7 +17,7 @@ export function HeroSearch({ locale, placeholder, label, button }: { locale: str
       allResultsHref={(q) => `/${locale}/search?q=${encodeURIComponent(q)}`}
       renderField={(combobox) => (
         <form className={styles.search} action={`/${locale}/search`} method="get" role="search">
-          <FIcon icon="magnifying-glass" tone="ink" chip="none" size={22} />
+          <Icon name="search" size={22} tone="secondary" />
           <input
             className={styles.searchInput}
             type="search"
