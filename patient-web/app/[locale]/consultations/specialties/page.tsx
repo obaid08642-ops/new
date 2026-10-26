@@ -1,3 +1,4 @@
+import { SuggestInput } from "@/components-next/search/suggest-input";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -60,11 +61,9 @@ export default async function SpecialtySelectPage({ params, searchParams }: Prop
     <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/consultations`}>
       <JsonLd data={[{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }]} />
       <form method="get" role="search" className={styles.search}>
-        <label className={styles.searchField}>
+        <SuggestInput locale={locale} id="specialty-search" name="q" defaultValue={q} placeholder={t("searchPlaceholder")} label={t("searchLabel")} fieldClassName={styles.searchField} inputClassName={styles.searchInput}>
           <Icon name="search" size={20} tone="secondary" />
-          <span className="sr-only">{t("searchLabel")}</span>
-          <input id="specialty-search" name="q" defaultValue={q} placeholder={t("searchPlaceholder")} className={styles.searchInput} />
-        </label>
+        </SuggestInput>
         <Button type="submit" label={c("search")} size="lg" />
       </form>
 

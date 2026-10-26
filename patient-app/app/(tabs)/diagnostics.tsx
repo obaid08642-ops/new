@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ScopedSuggest } from '../../src/components/search/ScopedSuggest';
+import { SUGGEST_SCOPES } from '../../src/utils/searchSuggest';
 import { RefreshControl, ScrollView, Text, View } from 'react-native';
 import { MapEntryButton } from '../../src/components/account/MapEntryButton';
 import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
@@ -225,6 +227,7 @@ export default function DiagnosticsHub() {
           onFilterPress={() => setSheet(true)}
           filterLabel={k('diag.hub.filter')}
         />
+        <ScopedSuggest query={query} scope={isLab ? SUGGEST_SCOPES.labs : SUGGEST_SCOPES.radiology} />
 
         {failed === 'error' ? <ErrorState title={k('consult.error.title')} body={k('consult.error.body')} retryLabel={k('consult.retry')} onRetry={() => void load()} theme={theme} /> : null}
         {failed === 'offline' ? <OfflineState title={k('consult.offline.title')} body={k('consult.offline.body')} retryLabel={k('consult.retry')} onRetry={() => void load()} theme={theme} /> : null}
