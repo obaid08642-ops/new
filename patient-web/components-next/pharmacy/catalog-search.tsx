@@ -4,9 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Search } from "@/components-next/ui-generated/components/Inputs";
+import { ComboboxHost, SearchSuggest, useSearchSuggest } from "@/components-next/search/search-suggest";
+import { SUGGEST_SCOPES } from "@/lib/search/suggest";
 
 /**
  * The hub's search field (canvas/PharmacyHub: the 52 tall field, the ink filter square and the barcode button inside).
+ * Live suggestions (medicines only) drop under the field after 2-3 letters; picking one opens the medicine, Enter still runs the full search.
  * Submitting goes to the catalogue's own search URL; the barcode button opens "scan a medicine". The categories are the chips under the field (the old filters page is a redirect to them).
  */
 export function CatalogSearch({
@@ -25,7 +28,14 @@ export function CatalogSearch({
   const t = useTranslations("PharmacyBrowse");
   const router = useRouter();
   const [value, setValue] = useState(initial);
+  const { state, controller } = useSearchSuggest(locale, SUGGEST_SCOPES.pharmacy);
   return (
+    <SearchSuggest
+      state={state}
+      controller={controller}
+      allResultsHref={(q) => `/${locale}/${target}?q=${encodeURIComponent(q)}`}
+      renderField={(combobox) => (
+    <ComboboxHost combobox={combobox}>
     <form
       role="search"
       aria-label={t("searchLabel")}
@@ -39,14 +49,17 @@ export function CatalogSearch({
     >
       <Search
         value={value}
-        onChange={setValue}
+        onChange={(next) => { setValue(next); controller.input(next); }}
         placeholder={t("searchPlaceholder")}
         label={t("searchLabel")}
-        onClear={() => setValue("")}
+        onClear={() => { setValue(""); controller.input(""); }}
         clearLabel={t("clear")}
         onScanPress={tools ? () => router.push(`/${locale}/pharmacy/barcode`) : undefined}
         scanLabel={t("scan")}
       />
     </form>
+    </ComboboxHost>
+      )}
+    />
   );
 }
