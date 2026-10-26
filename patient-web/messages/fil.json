@@ -148,7 +148,11 @@
     "recordsMaternity": "Pangangalaga sa ina",
     "recordsPregnancy": "Pagsubaybay sa pagbubuntis",
     "recordsCycle": "Pagsubaybay sa cycle",
-    "notificationsUnread": "Mga abiso, may bago"
+    "notificationsUnread": "Mga abiso, may bago",
+    "orderAgain": "Ulitin ang nakaraang order",
+    "orderAgainOneItem": "1 aytem",
+    "orderAgainItems": "{n, number} aytem",
+    "orderAgainAction": "Mag-order"
   },
   "Login": {
     "title": "Mag-sign in",

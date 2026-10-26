@@ -148,7 +148,11 @@
     "recordsMaternity": "زچگی",
     "recordsPregnancy": "حمل کی پیروی",
     "recordsCycle": "سائیکل کی پیروی",
-    "notificationsUnread": "اطلاعات، نئی اطلاعات ہیں"
+    "notificationsUnread": "اطلاعات، نئی اطلاعات ہیں",
+    "orderAgain": "اپنا پچھلا آرڈر دوبارہ کریں",
+    "orderAgainOneItem": "ایک آئٹم",
+    "orderAgainItems": "{n, number} آئٹمز",
+    "orderAgainAction": "آرڈر کریں"
   },
   "Login": {
     "title": "سائن ان کریں",
