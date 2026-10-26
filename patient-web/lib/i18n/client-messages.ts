@@ -81,7 +81,7 @@ export const ROUTE_GROUP_NAMESPACES: Record<string, readonly string[]> = {
   profile: ["AccountWeb", "AddressMap", "Addresses", "DeliveryAddressSelect"],
   programs: ["ProgramsWeb"],
   q: ["Doctors", "PharmacyBrowse", "PublicProduct"],
-  register: ["Register"],
+  register: ["Register", "Login"],
   reports: ["HealthWeb"],
   returns: ["ReturnsWeb"],
   search: ["SpecialtyNames", "PublicProduct"],

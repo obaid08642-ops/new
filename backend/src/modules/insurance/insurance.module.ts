@@ -1,3 +1,4 @@
+import { buildPatientPolicy, insuranceCompanyFilter, policyClass, policyCompanyKeys } from '../../common/insurance-policy';
 import { Module, Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Injectable, BadRequestException, NotFoundException, ServiceUnavailableException, Logger, Req } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -204,9 +205,10 @@ export class InsuranceService {
 
     // Match patient insurance company & network code
     const matchingContract = contracts.find(c => 
-      c.company_id.toLowerCase() === patientIns.provider.toLowerCase() &&
+      // the policy names its insurer by id, code and display name (one shape): the contract's company matches any of them
+      policyCompanyKeys(patientIns).some((k) => k.toLowerCase() === c.company_id.toLowerCase()) &&
       c.network_id.toLowerCase() === patientIns.network.toLowerCase() &&
-      (c.covered_classes.length === 0 || c.covered_classes.includes(patientIns.class))
+      (c.covered_classes.length === 0 || c.covered_classes.includes(policyClass(patientIns)))
     );
 
     if (!matchingContract) {
@@ -247,7 +249,7 @@ export class InsuranceService {
       company_name_ar: matchingContract.company_name_ar,
       network_id: matchingContract.network_id,
       network_name_ar: matchingContract.network_name_ar,
-      class: patientIns.class,
+      class: policyClass(patientIns),
       copay_percent: copayPercent,
       copay_flat: copayFlat,
       requires_preauth: requiresPreauth,
@@ -290,19 +292,10 @@ Use null for any field not clearly visible. Do not guess.`;
     if (!policyNumber || !provider) {
       throw new BadRequestException('provider and policy_number are required');
     }
-    const doc: any = {
-      provider,
-      company_id: fileData.company_id || provider,
-      policy_number: policyNumber,
-      network: fileData.network || null,
-      class: fileData.class || null,
-      expiry_date: fileData.expiry_date || null,
-      member_name: fileData.member_name || null,
-      national_id: fileData.national_id || null,
-      verified: false,
-      pdf_url: fileData.pdf_url || null,
-      ocr_extracted: !!fileData.ocr_extracted,
-    };
+    // One writer, one shape (common/insurance-policy.ts): merged over what is saved, so the card figures survive; `verified` is always false.
+    const company: any = await this.companyModel.findOne(insuranceCompanyFilter(String(fileData.company_id || provider))).lean();
+    const current: any = patientId ? await this.patientModel.findOne({ user_id: patientId }, { _id: 0, insurance: 1 }).lean() : null;
+    const doc: any = buildPatientPolicy(current?.insurance, { ...fileData, provider, policy_number: policyNumber }, company);
     if (patientId) {
       await this.patientModel.findOneAndUpdate(
         { user_id: patientId },
