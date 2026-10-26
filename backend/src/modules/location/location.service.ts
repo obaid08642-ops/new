@@ -60,12 +60,15 @@ export class LocationService implements OnModuleInit {
       const seedCityCodes = new Set(
         SAUDI_LOCATIONS_SEED.filter((l) => l.type === 'city').map((l) => l.code),
       );
+      // Rows that carry a `source` (cities and districts the OpenStreetMap import / admin import added, with their provenance) are not legacy
+      // duplicates: only rows without one are switched off.
+      const legacy = { source: { $in: [null, ''] } };
       await this.locationModel.updateMany(
-        { code: { $regex: '^sa-', $nin: Array.from(seedCodes) } },
+        { code: { $regex: '^sa-', $nin: Array.from(seedCodes) }, ...legacy },
         { $set: { is_active: false } },
       ).catch(() => null);
       await this.locationModel.updateMany(
-        { type: 'district', parent_code: { $nin: Array.from(seedCityCodes) } },
+        { type: 'district', parent_code: { $nin: Array.from(seedCityCodes) }, ...legacy },
         { $set: { is_active: false } },
       ).catch(() => null);
       this.logger.log('Saudi locations upserted successfully.');
