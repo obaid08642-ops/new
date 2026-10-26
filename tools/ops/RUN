@@ -1,7 +1,9 @@
-# 2026-10-26 lead reviewer: run 24, deploy main@fd8cb3bd: the logo is never black (#1968), district boundaries (#1969),
-# doctors page budget (#1970), public-page ink sweep (#1971). 93-free-unused-images first (owner-approved: only images no
-# container uses), then deploy (SHA pinned in 60-deploy-main.sh), then cf-purge-api.
-release:fd8cb3bd713b66e8e612f909e4b45566551b780d
+# 2026-10-26 lead reviewer: run 25 (morning). Deploy main@8d228714: Urdu/Arabic product pages no longer 502 (#1976), live
+# suggestions per service (#1973), no cite box on medicines (#1977), app colours (#1975), locations: fake cities and numbered
+# districts deleted after re-pointing, +159 cities, 3010 districts by boundary (#1972, #1983). Then 90-catalogue-apply as a
+# DRY RUN (EXPECT_PLAN_SHA empty: counts + plan hash, writes nothing) so the owner sees the locations plan before any write.
+release:8d228714de022b29509c22be19757eb3b68c1c8a
 93-free-unused-images
 60-deploy-main
+90-catalogue-apply
 cf-purge-api
