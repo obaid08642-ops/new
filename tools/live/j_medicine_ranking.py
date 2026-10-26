@@ -12,10 +12,14 @@ import uuid
 
 from lib import Client, journey, step
 
+# The catalogue's canonical category name (what the app and the website send). An English slug such as 'vitamins' is only an
+# alias that GET /medicines maps to this name, so a medicine stored under the slug itself is never matched by that filter.
+CATEGORY = 'الفيتامينات والتغذية الصحية'
+
 
 def create(admin, tag, letter):
     body = {'name_ar': f'ترتيب {tag} {letter}', 'name_en': f'Ranking {tag} {letter}', 'active_ingredient': f'ranking-{tag}-{letter}',
-            'generic_name': f'ranking-{tag}-{letter}', 'manufacturer': 'Nabd Test', 'brand': f'Ranking {tag}', 'category': 'vitamins',
+            'generic_name': f'ranking-{tag}-{letter}', 'manufacturer': 'Nabd Test', 'brand': f'Ranking {tag}', 'category': CATEGORY,
             'sub_category': '', 'form': 'tablet', 'strength': '500mg', 'package_size': '20', 'barcode': str(6300000000000 + int(uuid.uuid4().hex[:6], 16) % 1000000),
             'price': 20, 'requires_prescription': False, 'online_exclusive': False, 'images': [], 'image': '',
             'description_ar': 'اختبار', 'description_en': 'test', 'usage_instructions_ar': '', 'usage_instructions_en': '',
@@ -75,10 +79,10 @@ def main():
     step('public category list (web): C, then B, then A', after == [c, b, a], {'got': after, 'A': a, 'B': b, 'C': c})
     # the app's list has no text query: walk its pages (100 a page) until the three test medicines have all been seen.
     # The list is cached per URL and other journeys ask for the same one: a pharmacyId of this run's own makes a fresh key.
-    # The category is the one the catalogue stored for the test medicines (found by their unique text), not the one the form sent.
+    # The category is the canonical one the test medicines were created with.
     probe = anon.get(f'/medicines?page=1&limit=100&q={tag}&pharmacyId=ranking-{tag}')
     stored = next((m.get('category') for m in probe.items() if m.get('id') == a and m.get('category')), None)
-    cat = urllib.parse.quote(str(stored or 'vitamins'))
+    cat = urllib.parse.quote(CATEGORY)
     got, pageno, total_pages = [], 1, 1
     while pageno <= min(total_pages, 30) and len(got) < 3:
         page = anon.get(f'/medicines?page={pageno}&limit=100&category={cat}&sort=smart_ranking&pharmacyId=ranking-{tag}')
