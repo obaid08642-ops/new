@@ -106,13 +106,13 @@ describe('Search screen (board Search)', () => {
     expect(screen.getByRole('header', { name: 'أطباء' })).toBeTruthy();
     expect(screen.getByRole('header', { name: 'تحاليل وأشعة' })).toBeTruthy();
     expect(screen.getByRole('header', { name: 'خدمات تمريض' })).toBeTruthy();
-    // chips: only kinds that have results, each with its real count; "All" counts everything
-    expect(screen.getByLabelText('الكل 8')).toBeTruthy();
-    expect(screen.getByLabelText('أدوية 4')).toBeTruthy();
-    expect(screen.getByLabelText('أطباء 1')).toBeTruthy();
+    // chips: only kinds that have results; no counts on them (owner layout decision 8: no public counts)
+    expect(screen.getAllByLabelText('الكل').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByLabelText('أدوية')).toBeTruthy();
+    expect(screen.getAllByLabelText('أطباء').length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByLabelText(/^مقالات/)).toBeNull();
-    // medicines preview 3 rows with a "see all (4)" link; a "0" price is not drawn, a real one is
-    expect(screen.getByLabelText('الكل (4)')).toBeTruthy();
+    // medicines preview 3 rows with a "see all" link (no number); a "0" price is not drawn, a real one is
+    expect(screen.getAllByLabelText('الكل').length).toBeGreaterThanOrEqual(2); // the "All" chip and the see-all link
     expect(screen.queryByText('باراسيتامول فوار')).toBeNull();
     expect(screen.getByLabelText('باراسيتامول 500. 12 ر.س')).toBeTruthy();
     expect(screen.getByLabelText('باراسيتامول شراب')).toBeTruthy();
@@ -129,8 +129,8 @@ describe('Search screen (board Search)', () => {
     mockParams = { q: 'باراسيتامول' };
     await render(ui);
     await waitFor(() => expect(screen.getByText('أدوية ومنتجات')).toBeTruthy(), { timeout: 3000 });
-    await fireEvent.press(screen.getByLabelText('الكل (4)'));
-    expect(screen.getByLabelText('أدوية 4').props.accessibilityState.selected).toBe(true);
+    await fireEvent.press(screen.getAllByLabelText('الكل').slice(-1)[0]); // the see-all link comes after the chips
+    expect(screen.getByLabelText('أدوية').props.accessibilityState.selected).toBe(true);
     expect(screen.queryByLabelText('د. سارة. 200 ر.س')).toBeNull(); // the doctors block is gone
     expect(screen.queryByText('تحاليل وأشعة')).toBeNull();
     expect(screen.getByLabelText('باراسيتامول فوار')).toBeTruthy(); // all four now
