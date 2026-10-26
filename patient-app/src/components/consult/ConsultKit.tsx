@@ -301,8 +301,8 @@ export function StatusTag({ label, tone }: { label: string; tone: StatusTone }) 
 /** A filled or outlined action of a card (board Appointments: 46 tall, radius 15). `ink` is the dark one. */
 export function CardAction({ label, onPress, tone = 'primary', flex = false, testID }: { label: string; onPress: () => void; tone?: 'primary' | 'ink' | 'outline'; flex?: boolean; testID?: string }) {
   const { t, c } = useScreenUi();
-  const bg = tone === 'primary' ? c.action.primary.bg : tone === 'ink' ? c.action.selected.bg : 'transparent';
-  const fg = tone === 'primary' ? c.action.primary.fg : tone === 'ink' ? c.action.selected.fg : c.text.primary;
+  const bg = tone === 'primary' ? c.action.primary.bg : tone === 'ink' ? c.action.primary.bg : 'transparent';
+  const fg = tone === 'primary' ? c.action.primary.fg : tone === 'ink' ? c.action.primary.fg : c.action.primary.bg;
   return (
     <Pressable
       testID={testID}
@@ -317,7 +317,7 @@ export function CardAction({ label, onPress, tone = 'primary', flex = false, tes
         borderRadius: 15,
         backgroundColor: bg,
         borderWidth: tone === 'outline' ? 1.5 : 0,
-        borderColor: c.border.strong,
+        borderColor: c.action.primary.bg,
         alignItems: 'center',
         justifyContent: 'center',
         flexGrow: flex ? 1 : 0,

@@ -82,9 +82,9 @@ export function VariantPicker({ variants, selectedId, onSelect }: { variants: Pr
                   accessibilityLabel={v.available ? label : k('pharmacy.variant.unavailable', { label })}
                   disabled={!v.available}
                   onPress={() => onSelect(v.id)}
-                  style={{ minWidth: 72, height: 44, paddingHorizontal: 8, borderRadius: 12, borderWidth: 1, borderColor: on ? c.action.selected.bg : c.border.subtle, backgroundColor: on ? c.action.selected.bg : c.bg.surface, alignItems: 'center', justifyContent: 'center', opacity: v.available ? 1 : 0.4 }}
+                  style={{ minWidth: 72, height: 44, paddingHorizontal: 8, borderRadius: 12, borderWidth: 1, borderColor: on ? c.service.coral.bg : c.border.subtle, backgroundColor: on ? c.service.coral.bg : c.bg.surface, alignItems: 'center', justifyContent: 'center', opacity: v.available ? 1 : 0.4 }}
                 >
-                  <Text style={{ ...scale(t, 'control'), color: on ? c.action.selected.fg : c.text.primary, writingDirection: 'ltr' }}>{label}</Text>
+                  <Text style={{ ...scale(t, 'control'), color: on ? c.service.coral.fg : c.text.primary, writingDirection: 'ltr' }}>{label}</Text>
                 </Pressable>
               );
             })}

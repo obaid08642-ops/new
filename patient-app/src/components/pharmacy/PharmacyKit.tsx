@@ -37,9 +37,9 @@ export function GlyphSquare({ name, label, onPress }: { name: FillIconName; labe
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
-      style={({ pressed }) => ({ width: 52, height: 52, borderRadius: 18, backgroundColor: c.action.selected.bg, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.8 : 1 })}
+      style={({ pressed }) => ({ width: 52, height: 52, borderRadius: 18, backgroundColor: c.action.primary.bg, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.8 : 1 })}
     >
-      <Glyph name={name} size={22} color={c.action.selected.fg} />
+      <Glyph name={name} size={22} color={c.action.primary.fg} />
     </Pressable>
   );
 }
@@ -56,7 +56,7 @@ export function GlyphRound({ name, label, onPress, children, testID }: { name: F
         onPress={onPress}
         style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 22, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.onGlass, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.8 : 1 })}
       >
-        <Glyph name={name} size={20} color={c.icon.primary} />
+        <Glyph name={name} size={20} color={c.text.secondary} />
       </Pressable>
       {children}
     </View>
@@ -170,7 +170,7 @@ export function Notice({ tone, icon, title, body, actionLabel, onAction }: { ton
  */
 export function PickButton({ name, label, ink, disabled, onPress }: { name: FillIconName; label: string; ink?: boolean; disabled?: boolean; onPress: () => void }) {
   const { t, c } = useScreenUi();
-  const fg = ink ? c.action.selected.fg : c.text.primary;
+  const fg = ink ? c.service.coral.fg : c.action.primary.bg;
   return (
     <Pressable
       accessibilityRole="button"
@@ -183,9 +183,9 @@ export function PickButton({ name, label, ink, disabled, onPress }: { name: Fill
         paddingHorizontal: 16,
         paddingVertical: 6,
         borderRadius: 14,
-        backgroundColor: ink ? c.action.selected.bg : 'transparent',
+        backgroundColor: ink ? c.service.coral.bg : 'transparent',
         borderWidth: ink ? 0 : 1.5,
-        borderColor: c.text.primary,
+        borderColor: c.action.primary.bg,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',

@@ -102,7 +102,7 @@ function LegalTab() {
           ) : (
             <Panel testID="legal-documents">
               {rows.map((row, i) => (
-                <Row key={row.key} icon="file-text" tone="ink" title={title(row)} subtitle={row.version ? k('set.legal.version', { version: row.version }) : undefined} onPress={() => void open(row.key)} last={i === rows.length - 1} testID={`legal-${row.key}`} />
+                <Row key={row.key} icon="file-text" tone="blue" title={title(row)} subtitle={row.version ? k('set.legal.version', { version: row.version }) : undefined} onPress={() => void open(row.key)} last={i === rows.length - 1} testID={`legal-${row.key}`} />
               ))}
             </Panel>
           )}

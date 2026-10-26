@@ -51,7 +51,7 @@ export function HomeTopRow({ name }: { name: string | null }) {
         onPress={() => setLangOpen(true)}
         style={{ ...ring, minWidth: HIT, paddingHorizontal: 8, alignItems: 'center', justifyContent: 'center' }}
       >
-        <Plain weight="medium" size={15} maxFontSizeMultiplier={1.3}>{LANG_SHORT[lang]}</Plain>
+        <Plain weight="medium" size={15} color={c.text.secondary} maxFontSizeMultiplier={1.3}>{LANG_SHORT[lang]}</Plain>
       </Pressable>
       <Pressable
         accessibilityRole="switch"
@@ -138,12 +138,12 @@ function LanguageSheet({ visible, onClose }: { visible: boolean; onClose: () => 
                   setLang(code);
                   onClose();
                 }}
-                style={{ minHeight: 52, borderRadius: 16, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: selected ? c.action.selected.bg : 'transparent' }}
+                style={{ minHeight: 52, borderRadius: 16, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: selected ? c.service.coral.bg : 'transparent' }}
               >
-                <Plain weight={selected ? 'bold' : 'medium'} size={16} color={selected ? c.action.selected.fg : c.text.primary} style={{ flex: 1 }}>
+                <Plain weight={selected ? 'bold' : 'medium'} size={16} color={selected ? c.service.coral.fg : c.text.primary} style={{ flex: 1 }}>
                   {item.native}
                 </Plain>
-                {selected ? <Icon name="check" size={20} theme={theme} color={c.action.selected.fg} /> : null}
+                {selected ? <Icon name="check" size={20} theme={theme} color={c.service.coral.fg} /> : null}
               </Pressable>
             );
           })}

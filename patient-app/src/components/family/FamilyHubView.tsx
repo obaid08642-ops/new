@@ -105,7 +105,7 @@ function Hub() {
     <FamilyScreen
       title={k('family.hub.title')}
       onBack={() => (router.canGoBack() ? router.back() : router.replace(HEALTH_HUB))}
-      actions={group ? [{ key: 'add', label: k('family.hub.addMember'), icon: <Glyph name="plus" size={20} color={c.icon.primary} />, onPress: () => router.push(FAMILY_ADD as Href) }] : undefined}
+      actions={group ? [{ key: 'add', label: k('family.hub.addMember'), icon: <Glyph name="plus" size={20} color={c.text.secondary} />, onPress: () => router.push(FAMILY_ADD as Href) }] : undefined}
       testID="family-hub"
     >
       <Gate status={family.status} onRetry={() => void family.reload()}>
