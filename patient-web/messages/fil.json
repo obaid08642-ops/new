@@ -49,7 +49,8 @@
     "menuFamily": "Pamilya",
     "menuArticles": "Mga artikulo",
     "menuSettings": "Mga setting",
-    "menuHelp": "Tulong"
+    "menuHelp": "Tulong",
+    "menuResults": "Mga order at resulta ko"
   },
   "Home": {
     "eyebrow": "Digital na portal ng pasyente",
@@ -1009,6 +1010,7 @@
     "timesPerDay": "{count, plural, one {Isang beses sa isang araw} other {# beses sa isang araw}}",
     "durationDays": "{days, plural, one {Sa loob ng # araw} other {Sa loob ng # araw}}",
     "orderCta": "I-order ang mga gamot na ito",
+    "notInCart": "{count} sa {total} na gamot ang isinulat ng doktor nang mano-mano at hindi maidaragdag sa cart",
     "notOrderable": "Hindi na maaaring mag-order mula sa resetang ito.",
     "back": "Bumalik sa mga reseta"
   },
@@ -1480,6 +1482,9 @@
     "searchLabel": "Maghanap ng serbisyo",
     "searchPlaceholder": "Maghanap ayon sa test o kategorya",
     "homeOnly": "Kolekta sa bahay",
+    "activeFilters": "Mga aktibong filter",
+    "removeFilter": "Alisin ang filter: {filter}",
+    "clearAll": "Burahin lahat",
     "apply": "Ilapat",
     "price": "Mula {value}",
     "fasting": "Maaaring kailangan ang fasting",
@@ -2447,6 +2452,11 @@
     "addToCart": "Idagdag ang {name} sa cart",
     "addedToCart": "Naidagdag ang {name} sa iyong cart",
     "addedRxNote": "Kailangan ng reseta ang gamot na ito. Sa cart, mag-upload ng reseta o kumonsulta sa doktor.",
+    "stepperDecrease": "Bawasan ang dami ng {name}",
+    "stepperIncrease": "Dagdagan ang dami ng {name}",
+    "qtyInCart": "{n, number} sa cart",
+    "removedFromCart": "Inalis ang {name} sa iyong cart",
+    "undo": "I-undo",
     "referencePrice": "Presyong sanggunian",
     "cheaper": "Mas mura",
     "priceUnavailable": "Hindi available ang presyo",

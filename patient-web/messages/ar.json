@@ -49,7 +49,8 @@
     "menuFamily": "العائلة",
     "menuArticles": "المقالات",
     "menuSettings": "الإعدادات",
-    "menuHelp": "المساعدة"
+    "menuHelp": "المساعدة",
+    "menuResults": "طلباتي ونتائجي"
   },
   "Home": {
     "eyebrow": "بوابة المريض الرقمية",
@@ -956,6 +957,7 @@
     "timesPerDay": "{count, plural, one {مرة في اليوم} two {مرتان في اليوم} few {# مرات في اليوم} many {# مرةً في اليوم} other {# مرة في اليوم}}",
     "durationDays": "{days, plural, one {لمدة يوم واحد} two {لمدة يومين} few {لمدة # أيام} many {لمدة # يومًا} other {لمدة # يوم}}",
     "orderCta": "اطلب الأدوية دي",
+    "notInCart": "{count} من {total} أدوية كتبها الطبيب يدويًا ولا يمكن إضافتها إلى السلة",
     "notOrderable": "لم يعد بالإمكان الطلب من هذه الوصفة.",
     "back": "العودة إلى الوصفات"
   },
@@ -1480,6 +1482,9 @@
     "searchLabel": "بحث في خدمات المختبر",
     "searchPlaceholder": "ابحث عن تحليل أو تصنيف",
     "homeOnly": "سحب عينة من المنزل",
+    "activeFilters": "الفلاتر النشطة",
+    "removeFilter": "إزالة التصفية: {filter}",
+    "clearAll": "مسح الكل",
     "apply": "تطبيق",
     "price": "يبدأ من {value}",
     "fasting": "قد يتطلب صياماً",
@@ -2447,6 +2452,11 @@
     "addToCart": "أضف {name} إلى السلة",
     "addedToCart": "تمت إضافة {name} إلى السلة",
     "addedRxNote": "هذا الدواء يحتاج وصفة طبية. في السلة ارفع الوصفة أو استشر طبيبًا.",
+    "stepperDecrease": "تقليل كمية {name}",
+    "stepperIncrease": "زيادة كمية {name}",
+    "qtyInCart": "{n, number} في السلة",
+    "removedFromCart": "تمت إزالة {name} من السلة",
+    "undo": "تراجع",
     "referencePrice": "السعر المرجعي",
     "cheaper": "أوفر",
     "priceUnavailable": "السعر غير متاح",

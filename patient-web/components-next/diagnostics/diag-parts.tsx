@@ -53,10 +53,10 @@ export function SectionHead({ id, title, href, linkLabel }: { id: string; title:
  * The search pill of the hub and the catalogues: a GET form (the query is in the URL, it works before the page is
  * interactive). `children` are the hidden inputs or extra fields the screen's filters need.
  */
-export function SearchForm({ action, name = "q", defaultValue, placeholder, label, submitLabel, below, live = false, suggest }: { action?: string; name?: string; defaultValue?: string; placeholder: string; label: string; submitLabel: string; below?: ReactNode; /** Filter as you type (a list on the same page). */ live?: boolean; /** Live suggestions of this service under the field (the page's language and the service's scope). */ suggest?: { locale: string; scope: SuggestScope } }) {
-  if (suggest && !live) return <SuggestSearchForm action={action} name={name} defaultValue={defaultValue} placeholder={placeholder} label={label} submitLabel={submitLabel} below={below} locale={suggest.locale} scope={suggest.scope} />;
+export function SearchForm({ action, name = "q", defaultValue, placeholder, label, submitLabel, below, live = false, sticky = false, suggest }: { action?: string; name?: string; defaultValue?: string; placeholder: string; label: string; submitLabel: string; below?: ReactNode; /** Filter as you type (a list on the same page). */ live?: boolean; /** Live suggestions of this service under the field (the page's language and the service's scope). */ suggest?: { locale: string; scope: SuggestScope }; /** The search stays under the header while a long list scrolls. */ sticky?: boolean }) {
+  if (suggest && !live) return <SuggestSearchForm action={action} name={name} defaultValue={defaultValue} placeholder={placeholder} label={label} submitLabel={submitLabel} below={below} sticky={sticky} locale={suggest.locale} scope={suggest.scope} />;
   return (
-    <form method="get" action={action} role="search" className={styles.searchForm}>
+    <form method="get" action={action} role="search" className={sticky ? `${styles.searchForm} ${styles.searchSticky}` : styles.searchForm}>
       <div className={consult.search}>
         <label className={consult.searchField}>
           <Icon name="search" size={20} tone="secondary" />

@@ -29,6 +29,7 @@ import {
   Icon,
   Input,
   OfflineState,
+  PopWhen,
   Radio,
   Screen,
   SERVICE_ICONS,
@@ -39,7 +40,7 @@ import {
 import { rowsOf } from '../../src/components/health/HealthKit';
 import { loadPolicy } from '../../src/components/insurance/InsuranceKit';
 import ProductImage from '../../src/components/ProductImage';
-import { CountBadge, Glyph, PHARMACY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
+import { CountBadge, Glyph, MedAddControl, PHARMACY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
 import { DetailAccordion, FactsGrid, MiniProduct, Pill, SafetyCard, type AccordionSection } from '../../src/components/pharmacy/ProductSections';
 import { COLUMN, step as scale, tint, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useCart } from '../../src/context/CartContext';
@@ -783,6 +784,7 @@ export default function ProductDetailScreen() {
                         onPress={() => router.push({ pathname: '/pharmacy/product-detail', params: { id: r.id } })}
                         onAdd={() => addToCart(r)}
                         addLabel={k('pharmacy.addToCart')}
+                        addControl={<MedAddControl med={r} size={36} addLabel={k('pharmacy.addToCart')} />}
                       />
                     );
                   })}
@@ -820,7 +822,9 @@ export default function ProductDetailScreen() {
               </Svg>
             </GlassButton>
             <GlassButton label={inWishlist ? k('pharmacy.product.favRemove') : k('pharmacy.product.favAdd')} onPress={toggleWishlist}>
-              {inWishlist ? <Glyph name="heart" size={20} color={c.icon.favorite} /> : <Icon name="heart" size={20} theme={theme} color={c.icon.favorite} />}
+              <PopWhen active={inWishlist}>
+                {inWishlist ? <Glyph name="heart" size={20} color={c.icon.favorite} /> : <Icon name="heart" size={20} theme={theme} color={c.icon.favorite} />}
+              </PopWhen>
             </GlassButton>
             <View>
               <GlassButton label={k('pharmacy.cart')} onPress={() => go('/pharmacy/cart' as Href)}>

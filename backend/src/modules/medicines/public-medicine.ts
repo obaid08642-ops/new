@@ -85,6 +85,7 @@ export function toPublicProductCard(raw: Record<string, any>, locale: string) {
     active_ingredient: dto.active_ingredient, manufacturer: dto.manufacturer,
     price: dto.price, old_price: dto.old_price, currency: dto.currency,
     is_rx: dto.is_rx, online_exclusive: dto.online_exclusive, available: dto.available, image: dto.image,
+    ...(Array.isArray(dto.images) && dto.images.length > 1 ? { images: dto.images.slice(0, 5) } : {}),
     url: `${process.env.WEB_PUBLIC_URL || 'https://nabd.plus'}/${locale}/p/${encodeURIComponent(String(dto.slug))}`,
   };
 }

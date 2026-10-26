@@ -2,6 +2,7 @@
 // app/_layout.tsx — Root Layout (Expo SDK 54)
 
 // Polyfills must run before ANY other import (LiveKit expects DOMException).
+import { CartMotionHost } from '../src/components/cart/CartMotionHost';
 import '../src/polyfills';
 
 import { useEffect } from 'react';
@@ -121,6 +122,7 @@ function RootLayout() {
                       </Stack>
                       </ModuleRouteGate>
                       </AppGate>
+                      <CartMotionHost />
                     </ConsultationsProvider>
                   </DiagnosticsCartProvider>
                 </CartProvider>

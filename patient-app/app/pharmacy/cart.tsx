@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 
-import { AppHeader, Button, Card, EmptyState, FIcon, Icon, Screen, Stepper, StickyFooter } from '../../../packages/ui-native/src';
+import { AppHeader, Button, Card, EmptyState, FIcon, Icon, Screen, Stepper, StickyFooter, useCountUp } from '../../../packages/ui-native/src';
 import ProductImage from '../../src/components/ProductImage';
 import { Glyph, Notice, PHARMACY_TONE, Pill, goBack } from '../../src/components/pharmacy/PharmacyKit';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
@@ -72,6 +72,7 @@ function Line({ item, last }: { item: CartItem; last: boolean }) {
 export default function PharmacyCartScreen() {
   const { theme, t, c, dir, flow, k, num } = useScreenUi();
   const { items, hasRxItems, clearCart, ready } = useCart();
+  const shownCount = useCountUp(items.length); // the count under the title counts to its new value
   const [consulting, setConsulting] = useState(false);
   const consultBusy = useRef(false);
 
@@ -163,7 +164,7 @@ export default function PharmacyCartScreen() {
     <Screen theme={theme} direction={dir} header={header} footer={footer} testID="cart-screen">
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24, gap: 16 }}>
         <Text style={{ ...scale(t, 'label', 'medium'), color: c.text.secondary, ...flow }}>
-          {items.length === 1 ? k('pharmacy.hub.oneItem') : k('pharmacy.hub.items', { n: num(items.length) })}
+          {items.length === 1 ? k('pharmacy.hub.oneItem') : k('pharmacy.hub.items', { n: num(shownCount) })}
         </Text>
 
         <Card padding="none" theme={theme}>

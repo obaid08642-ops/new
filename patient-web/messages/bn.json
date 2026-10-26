@@ -49,7 +49,8 @@
     "menuFamily": "পরিবার",
     "menuArticles": "নিবন্ধ",
     "menuSettings": "সেটিংস",
-    "menuHelp": "সহায়তা"
+    "menuHelp": "সহায়তা",
+    "menuResults": "আমার অর্ডার ও ফলাফল"
   },
   "Home": {
     "eyebrow": "ডিজিটাল রোগী পোর্টাল",
@@ -1009,6 +1010,7 @@
     "timesPerDay": "{count, plural, one {দিনে একবার} other {দিনে # বার}}",
     "durationDays": "{days, plural, one {# দিনের জন্য} other {# দিনের জন্য}}",
     "orderCta": "এই ওষুধগুলো অর্ডার করুন",
+    "notInCart": "{total}টির মধ্যে {count}টি ওষুধ ডাক্তার হাতে লিখেছেন এবং কার্টে যোগ করা যাবে না",
     "notOrderable": "এই প্রেসক্রিপশন থেকে আর অর্ডার করা যাবে না।",
     "back": "প্রেসক্রিপশনে ফিরে যান"
   },
@@ -1480,6 +1482,9 @@
     "searchLabel": "ল্যাব সেবা খুঁজুন",
     "searchPlaceholder": "টেস্ট বা বিভাগ খুঁজুন",
     "homeOnly": "বাড়ি থেকে নমুনা",
+    "activeFilters": "সক্রিয় ফিল্টার",
+    "removeFilter": "ফিল্টার সরান: {filter}",
+    "clearAll": "সব মুছুন",
     "apply": "প্রয়োগ করুন",
     "price": "{value} থেকে শুরু",
     "fasting": "উপবাস প্রয়োজন হতে পারে",
@@ -2447,6 +2452,11 @@
     "addToCart": "{name} কার্টে যোগ করুন",
     "addedToCart": "{name} আপনার কার্টে যোগ হয়েছে",
     "addedRxNote": "এই ওষুধের জন্য প্রেসক্রিপশন লাগবে। কার্টে প্রেসক্রিপশন আপলোড করুন বা ডাক্তারের পরামর্শ নিন।",
+    "stepperDecrease": "{name}-এর পরিমাণ কমান",
+    "stepperIncrease": "{name}-এর পরিমাণ বাড়ান",
+    "qtyInCart": "কার্টে {n, number}টি",
+    "removedFromCart": "{name} কার্ট থেকে সরানো হয়েছে",
+    "undo": "পূর্বাবস্থায় ফেরান",
     "referencePrice": "রেফারেন্স মূল্য",
     "cheaper": "কম দাম",
     "priceUnavailable": "দাম পাওয়া যাচ্ছে না",
