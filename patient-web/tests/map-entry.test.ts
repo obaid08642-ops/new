@@ -14,7 +14,8 @@ describe("providers map entry", () => {
   it("reads only a known kind", () => {
     expect(parseMapType("lab")).toBe("lab");
     expect(parseMapType(["doctor", "lab"])).toBe("doctor");
-    expect(parseMapType("radiology")).toBeNull();
+    expect(parseMapType("radiology")).toBe("radiology");
+    expect(parseMapType("dentist")).toBeNull();
     expect(parseMapType(undefined)).toBeNull();
   });
 
