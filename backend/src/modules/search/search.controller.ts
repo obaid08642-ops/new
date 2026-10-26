@@ -4,7 +4,7 @@ import { IsIn, IsOptional, IsString, Matches, MaxLength } from 'class-validator'
 import { JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { PublicCache } from '../../common/public-cache.decorator';
-import { SEARCH_LOCALES, SEARCH_SECTIONS, SearchLocale, SearchSection } from './search-documents';
+import { SEARCH_LOCALES, SEARCH_SECTIONS, SEARCH_TYPES, SearchLocale, SearchSection, SearchType } from './search-documents';
 import { SearchService } from './search.service';
 import { SEARCH_SORTS, SearchRefine } from './search-refine';
 
@@ -23,9 +23,15 @@ export class SearchQueryDto {
 /** Owner spec (issue 1544): a suggestion may be reused for 5 minutes by the browser and for an hour at the edge. */
 export const SUGGEST_CACHE_CONTROL = 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400';
 
+const SUGGEST_TYPES_PATTERN = new RegExp(`^(${SEARCH_TYPES.join('|')})(,(${SEARCH_TYPES.join('|')}))*$`);
+
 export class SuggestQueryDto {
   @IsOptional() @IsString() @MaxLength(60) q?: string;
   @IsOptional() @IsIn([...SEARCH_LOCALES]) locale?: SearchLocale;
+  /** A service screen's own suggestions: the same sections as GET /search. Nothing = the home search (everything). */
+  @IsOptional() @IsIn([...SEARCH_SECTIONS]) section?: SearchSection;
+  /** Narrows to some types, comma separated (labs without scans: `lab_test,lab_package`; scans: `radiology`). */
+  @IsOptional() @IsString() @MaxLength(80) @Matches(SUGGEST_TYPES_PATTERN) types?: string;
 }
 
 /** D-29: one search for every section (`section`), and the grouped home search (no section). */
@@ -52,7 +58,7 @@ export class SearchController {
   @UseGuards(UserRateLimitGuard)
   @UserRateLimit('search_suggest', 600, 60)
   suggest(@Query() dto: SuggestQueryDto) {
-    return this.svc.suggest(dto.q || '', dto.locale);
+    return this.svc.suggest(dto.q || '', dto.locale, { section: dto.section, types: dto.types ? (dto.types.split(',') as SearchType[]) : undefined });
   }
 }
 

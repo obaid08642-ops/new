@@ -75,7 +75,7 @@ export function ReturnsHubView() {
     <AccountScreen
       title={k('returns.title')}
       fallback={'/orders' as Href}
-      actions={[{ key: 'new', label: k('returns.new'), icon: <Glyph name="plus" size={20} color={c.icon.primary} />, onPress: () => router.push('/returns/new-request' as Href) }]}
+      actions={[{ key: 'new', label: k('returns.new'), icon: <Glyph name="plus" size={20} color={c.text.secondary} />, onPress: () => router.push('/returns/new-request' as Href) }]}
       footer={<Button label={k('returns.new')} size="lg" fullWidth startIcon="plus" onPress={() => router.push('/returns/new-request' as Href)} theme={theme} testID="returns-new" />}
       testID="returns-screen"
     >

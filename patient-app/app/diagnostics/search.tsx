@@ -12,14 +12,14 @@ import { normalizeLabList, type CatalogItem } from '../../src/utils/labMappers';
 import { useApp } from '../../src/context/AppContext';
 import { useSearchSuggest } from '../../src/hooks/useSearchSuggest';
 import { SearchSuggestList } from '../../src/components/search/SearchSuggestList';
-import { suggestionRoute } from '../../src/utils/searchSuggest';
+import { SUGGEST_SCOPES, suggestionRoute } from '../../src/utils/searchSuggest';
 
 /** Search of the lab tests: the field, and a row per test that opens its page (board Search). */
 export default function DiagnosticsSearch() {
   const { theme, k } = useScreenUi();
   const { lang } = useApp();
   const [q, setQ] = useState('');
-  const suggest = useSearchSuggest(q, lang);
+  const suggest = useSearchSuggest(q, lang, SUGGEST_SCOPES.labs);
   const [tests, setTests] = useState<CatalogItem[]>([]);
   const [status, setStatus] = useState<'loading' | 'error' | 'offline' | 'ready'>('loading');
 

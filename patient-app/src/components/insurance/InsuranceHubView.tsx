@@ -50,7 +50,7 @@ function Hub() {
   return (
     <InsuranceScreen
       title={k('insurance.hub.title')}
-      actions={[{ key: 'add', label: k('insurance.hub.addPolicy'), icon: <Glyph name="plus" size={20} color={c.icon.primary} />, onPress: () => router.push('/insurance/add-policy' as Href) }]}
+      actions={[{ key: 'add', label: k('insurance.hub.addPolicy'), icon: <Glyph name="plus" size={20} color={c.text.secondary} />, onPress: () => router.push('/insurance/add-policy' as Href) }]}
       testID="insurance-hub"
     >
       <HealthTabs

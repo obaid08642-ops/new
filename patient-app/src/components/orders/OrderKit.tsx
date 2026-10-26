@@ -78,8 +78,8 @@ export function OrderCard({ row, onPress }: { row: OrderRow; onPress?: () => voi
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, paddingTop: 10, borderTopWidth: 1, borderTopColor: c.border.subtle }}>
           {row.amount ? <Money amount={row.amount.value} currency={row.amount.currency} size="bodyStrong" unit="tag" /> : <View />}
           {action ? (
-            <View style={{ minHeight: 36, paddingHorizontal: 14, paddingVertical: 4, borderRadius: 12, borderWidth: 1.5, borderColor: c.text.primary, alignItems: 'center', justifyContent: 'center', flexShrink: 1 }}>
-              <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, textAlign: 'center' }}>{action}</Text>
+            <View style={{ minHeight: 36, paddingHorizontal: 14, paddingVertical: 4, borderRadius: 12, borderWidth: 1.5, borderColor: c.action.primary.bg, alignItems: 'center', justifyContent: 'center', flexShrink: 1 }}>
+              <Text style={{ ...scale(t, 'small', 'bold'), color: c.action.primary.bg, textAlign: 'center' }}>{action}</Text>
             </View>
           ) : null}
         </View>

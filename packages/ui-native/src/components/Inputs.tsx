@@ -392,9 +392,9 @@ export function Search({
           accessibilityLabel={filterLabel ?? 'Filter'}
           onPress={onFilterPress}
           testID={testID ? `${testID}-filter` : undefined}
-          style={{ width: 52, height: 52, borderRadius: 18, backgroundColor: c.action.selected.bg, alignItems: 'center', justifyContent: 'center' }}
+          style={{ width: 52, height: 52, borderRadius: 18, backgroundColor: c.action.primary.bg, alignItems: 'center', justifyContent: 'center' }}
         >
-          <Icon name="sliders" size={20} theme={theme} color={c.action.selected.fg} />
+          <Icon name="sliders" size={20} theme={theme} color={c.action.primary.fg} />
         </Pressable>
       ) : null}
     </View>
