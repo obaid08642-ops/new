@@ -166,8 +166,7 @@ export class PushService implements OnModuleInit {
         this.fcmTokenCache[projectId] = { token: data.access_token, expiry: Date.now() + (data.expires_in - 60) * 1000 };
         return data.access_token;
       } else {
-        const errorText = await resp.text();
-        this.logger.error(`FCM token fetch failed: ${resp.status} - ${errorText}`);
+        this.logger.error(`FCM token fetch failed: ${resp.status}`);
         return null;
       }
     } catch (e: any) {

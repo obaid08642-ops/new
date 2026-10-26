@@ -177,8 +177,12 @@
 .sectionName { flex: 1; font-size: var(--nabd-font-size-body); font-weight: 700; }
 .sectionCount { font-size: var(--nabd-font-size-meta); color: var(--nabd-color-text-secondary); }
 .sectionTitle { margin: 0 0 10px; font-size: var(--nabd-font-size-body-lg); font-weight: 700; }
-.sectionBody { padding: 0 16px 16px; }
-.section[data-open="false"] .sectionBody { display: none; }
+.sectionBody { display: grid; grid-template-rows: 1fr; transition: grid-template-rows var(--nabd-motion-duration-enter) var(--nabd-motion-easing-enter); }
+.sectionBodyInner { min-block-size: 0; overflow: hidden; padding: 0 16px 16px; }
+/* closed: the row collapses smoothly and the text leaves the tab order and the accessibility tree when the collapse ends */
+.section[data-open="false"] .sectionBody { grid-template-rows: 0fr; visibility: hidden; transition: grid-template-rows var(--nabd-motion-duration-enter) var(--nabd-motion-easing-enter), visibility 0s linear var(--nabd-motion-duration-enter); }
+.section[data-open="false"] .sectionBodyInner { padding-block-end: 0; }
+@media (prefers-reduced-motion: reduce) { .sectionBody, .section[data-open="false"] .sectionBody { transition: none; } }
 .langNote { margin: 0 0 8px; font-size: var(--nabd-font-size-caption); line-height: 1.5; color: var(--nabd-color-text-tertiary); }
 .bullets { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .bullets li { position: relative; padding-inline-start: 16px; font-size: var(--nabd-font-size-control); line-height: 1.7; color: var(--nabd-color-text-tertiary); overflow-wrap: anywhere; white-space: pre-line; }
@@ -216,7 +220,7 @@
   .panel[data-active="false"] { display: none; }
   .panel + .panel { border-block-start: 0; }
   .section + .section { border-block-start: 0; }
-  .sectionBody { padding: 0; }
+  .sectionBodyInner { padding: 0; }
   .legal { padding-inline: 28px; }
   .rxCard { padding-inline: 16px; }
 }

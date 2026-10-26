@@ -615,6 +615,8 @@ export class SeoSearchService {
       .sort({ id: 1 })
       .skip((page - 1) * perPage)
       .limit(perPage)
+      // One round trip for the page (the driver default of 101 docs made ~50 getMore calls: Sentry NABD-BACKEND-1V).
+      .batchSize(perPage)
       .toArray();
     const val = rows.map((m: any) => {
       const alternates: Record<string, string> = {};
@@ -909,6 +911,8 @@ export class SeoSearchService {
         sku: dto.sku, id: dto.id, slug: dto.slug, name: dto.name, form: dto.form, strength: dto.strength,
         package_size: dto.package_size, price: dto.price, old_price: dto.old_price, currency: dto.currency,
         is_rx: dto.is_rx, online_exclusive: dto.online_exclusive, available: dto.available, image: dto.image,
+        // a card with more than one picture turns through them (at most five, the first is `image`)
+        ...(Array.isArray(dto.images) && dto.images.length > 1 ? { images: dto.images.slice(0, 5) } : {}),
       };
     });
     // No page-1 pins and no round-robin fill any more: the aggregate above already orders the whole list by the composite

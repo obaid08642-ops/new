@@ -18,6 +18,7 @@ import { AccountSummary, profileIdentity } from "@/components-next/account/accou
 import { SignOutAction } from "@/components-next/account/sign-out-action";
 import { NavRows } from "@/components-next/settings/settings-kit";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import styles from "@/components-next/settings/settings.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -144,7 +145,7 @@ export default async function ProfilePage({ params }: Props) {
         locale={locale}
         label={a("settingsRows")}
         rows={[
-          { href: `${base}/settings`, icon: "gear", tone: "ink", title: a("rowSettings"), sub: a("rowSettingsSub") },
+          { href: `${base}/settings`, icon: "gear", tone: SERVICE_ICONS.nursing.tone, title: a("rowSettings"), sub: a("rowSettingsSub") },
           { href: `${base}/settings/help`, icon: "headset", tone: "mint", title: a("rowSupport") },
           { href: `${base}/settings/privacy`, icon: "key", tone: "violet", title: a("rowPrivacy") },
         ]}

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { NATIVE_MOTION, reduceMotionNow } from '../motion';
 import {
   I18nManager,
   Image,
@@ -313,7 +314,7 @@ export function ServiceTile({
       disabled={disabled}
       onPress={onPress}
       testID={testID}
-      style={{
+      style={({ pressed }) => ({
         minHeight: 108,
         paddingHorizontal: 8,
         borderRadius: 22,
@@ -325,7 +326,9 @@ export function ServiceTile({
         justifyContent: 'center',
         gap: 10,
         opacity: disabled ? 0.5 : 1,
-      }}
+        // pressed: shrinks to the press scale token (not with reduced motion)
+        transform: [{ scale: pressed && !disabled && !reduceMotionNow() ? NATIVE_MOTION.pressScale : 1 }],
+      })}
     >
       <FIcon icon={icon} tone={tone} size={TILE_CHIP[size]} theme={theme} />
       <Text style={{ fontSize: 13, fontFamily: 'ReadexPro-700', color: t.color.text.primary, textAlign: 'center' }}>{label}</Text>
