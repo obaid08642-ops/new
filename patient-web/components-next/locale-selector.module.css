@@ -87,13 +87,13 @@
 }
 
 .activeOption {
-  background: var(--nabd-color-bg-sunken);
-  color: var(--nabd-color-text-primary);
+  background: var(--nabd-color-service-coral-bg);
+  color: var(--nabd-color-service-coral-fg);
   font-weight: 700;
 }
 
 .checkIcon {
-  color: var(--nabd-color-text-primary);
+  color: var(--nabd-color-service-coral-fg);
   font-weight: 900;
   font-size: 0.9rem;
 }
