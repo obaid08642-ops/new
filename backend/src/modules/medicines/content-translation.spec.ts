@@ -58,7 +58,7 @@ describe('requests, estimate and plan (a fake model)', () => {
   it('groups by language pair, ar/en targets first, at most 3 texts per request', () => {
     expect(reqs.every((r) => r.items.length <= 3)).toBe(true);
     expect(reqs[0].target === 'ar' || reqs[0].target === 'en').toBe(true);
-    expect(reqs.every((r) => r.prompt.includes('do not add, remove, summarise'.replace('do not', 'do not')) || r.prompt.includes('never invent content'))).toBe(true);
+    expect(reqs.every((r) => r.prompt.includes('never invent content'))).toBe(true);
   });
   it('estimates tokens and cost without a network', () => {
     const e = estimateRequests(reqs);
