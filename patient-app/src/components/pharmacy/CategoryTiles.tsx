@@ -1,8 +1,9 @@
 import React from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
-import { FIcon } from '../../../../packages/ui-native/src';
-import { SERVICE_ICONS, type FillIconName, type ServiceTone } from '../../../../packages/ui/icons/fill';
+import Svg, { Path } from 'react-native-svg';
+
+import { CATEGORY_ART, CATEGORY_ART_ROLE_VAR, CATEGORY_ART_TONE, CATEGORY_ART_VIEWBOX, categoryArtKey, type CategoryArtRole } from '../../../../packages/ui/icons/category-art';
 import { PHARMACY_TONE } from './PharmacyKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 
@@ -10,38 +11,34 @@ import { step as scale, useScreenUi } from '../screen/ScreenKit';
  * The pharmacy categories as large tiles in two rows that scroll sideways (owner layout decision 7): the same tile style
  * as the Reminders / My orders tiles of Home. No product counts are drawn (decision 8).
  *
- * The art of a tile is `CategoryArt`. Until the shared category-illustration module of packages/ui is on main it is the
- * service-tone FIcon tile of the identity (token colours only); the illustration replaces only that function.
+ * The art of a tile is `CategoryArt`. The art is the shared module packages/ui/icons/category-art.ts; its colour roles map to the active theme's tokens.
  */
 
 export type CategoryTile = { id: string; label: string };
 
-const TONE = {
-  medications: SERVICE_ICONS.pharmacy.tone,
-  hair: SERVICE_ICONS.map.tone,
-  makeup: SERVICE_ICONS.emergency.tone,
-  skin: SERVICE_ICONS.nursing.tone,
-  baby: SERVICE_ICONS.maternity.tone,
-  vitamins: SERVICE_ICONS.nutrition.tone,
-  personal: SERVICE_ICONS.mind.tone,
-} as const;
-
-const ART: Record<string, { icon: FillIconName; tone: ServiceTone }> = {
-  all: { icon: 'squares-four', tone: 'ink' },
-  medications: { icon: 'pill', tone: TONE.medications },
-  'hair-care': { icon: 'sparkle', tone: TONE.hair },
-  cosmetics: { icon: 'star', tone: TONE.makeup },
-  skincare: { icon: 'drop', tone: TONE.skin },
-  baby: { icon: 'baby-carriage', tone: TONE.baby },
-  vitamins: { icon: 'bowl-food', tone: TONE.vitamins },
-  'personal-care': { icon: 'hand-heart', tone: TONE.personal },
-};
-
-/** The picture of one category tile (placeholder structure: the shared illustration module plugs in here). */
-function CategoryArt({ id }: { id: string }) {
-  const { theme } = useScreenUi();
-  const art = ART[id] ?? ART.all;
-  return <FIcon icon={art.icon} tone={art.tone} size={42} theme={theme} />;
+/** The picture of one category tile: the shared illustration module of packages/ui drawn with react-native-svg. */
+function CategoryArt({ id, label }: { id: string; label: string }) {
+  const { t, c } = useScreenUi();
+  const key = id === 'all' ? 'all' : categoryArtKey(label);
+  const tone = c.service[CATEGORY_ART_TONE[key]];
+  // each role reads the token its CSS variable names (the module's CATEGORY_ART_ROLE_VAR), resolved for the active theme
+  const resolve = (v: string): string => {
+    if (v === '--nabd-tone-bg') return tone.bg;
+    if (v === '--nabd-tone-fg') return tone.fg;
+    // --nabd-color-<group>-<name> is t.color.<group>.<name>
+    const [group, name] = v.replace('--nabd-color-', '').split('-');
+    return (t.color as unknown as Record<string, Record<string, string>>)[group][name];
+  };
+  const role = Object.fromEntries(Object.entries(CATEGORY_ART_ROLE_VAR).map(([r, v]) => [r, resolve(v)])) as Record<CategoryArtRole, string>;
+  return (
+    <View style={{ width: 48, height: 48, borderRadius: 15, backgroundColor: tone.bg, alignItems: 'center', justifyContent: 'center' }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      <Svg width={42} height={42} viewBox={CATEGORY_ART_VIEWBOX}>
+        {CATEGORY_ART[key].map((sh, i) => (
+          <Path key={i} d={sh.d} fill={sh.fill ? role[sh.fill] : 'none'} stroke={sh.stroke ? role[sh.stroke] : undefined} strokeWidth={sh.sw} strokeLinecap="round" strokeLinejoin="round" />
+        ))}
+      </Svg>
+    </View>
+  );
 }
 
 export const TILE_WIDTH = 104;
@@ -49,8 +46,7 @@ export const TILE_HEIGHT = 96;
 const GAP = 8;
 
 export function CategoryTiles({ items, activeId, onSelect }: { items: CategoryTile[]; activeId: string; onSelect: (id: string) => void }) {
-  const { theme, t, c } = useScreenUi();
-  void theme;
+  const { t, c } = useScreenUi();
   const perRow = Math.max(1, Math.ceil(items.length / 2));
   return (
     <View style={{ marginHorizontal: -16 }}>
@@ -81,7 +77,7 @@ export function CategoryTiles({ items, activeId, onSelect }: { items: CategoryTi
                   opacity: pressed ? 0.8 : 1,
                 })}
               >
-                <CategoryArt id={item.id} />
+                <CategoryArt id={item.id} label={item.label} />
                 <Text numberOfLines={2} style={{ ...scale(t, 'micro', 'bold'), color: c.text.primary, textAlign: 'center' }}>{item.label}</Text>
               </Pressable>
             );
