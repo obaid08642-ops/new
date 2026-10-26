@@ -171,7 +171,7 @@ export default function PaymentResultRoute() {
     const primary = visit ?? (pharmacy ? { label: k('pharmacy.quote.orderStatus'), go: toOrder } : { label: k('payments.result.toHome'), go: home });
     const showHome = visit !== null || pharmacy;
     return state(
-      <EmptyState icon="check-circle" tone="mint" title={k('pharmacy.pay.paidTitle')} body={k('payments.result.paidBody')} actionLabel={primary.label} onAction={primary.go} secondaryActionLabel={showHome ? k('payments.result.toHome') : undefined} onSecondaryAction={showHome ? home : undefined} theme={theme} />,
+      <EmptyState popIcon icon="check-circle" tone="mint" title={k('pharmacy.pay.paidTitle')} body={k('payments.result.paidBody')} actionLabel={primary.label} onAction={primary.go} secondaryActionLabel={showHome ? k('payments.result.toHome') : undefined} onSecondaryAction={showHome ? home : undefined} theme={theme} />,
       rows.length ? (
         <Card theme={theme}>
           <View style={{ gap: 12 }}>

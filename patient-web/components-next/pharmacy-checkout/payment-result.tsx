@@ -228,7 +228,7 @@ export function PaymentResult({ locale, reference, transactionId, gatewayRef, or
       : goOrders;
     const secondary = primary === goOrders ? undefined : goOrders;
     content = (
-      <div role={phase.kind === "failed" || phase.kind === "error" ? "alert" : "status"}>
+      <div role={phase.kind === "failed" || phase.kind === "error" ? "alert" : "status"} className={phase.kind === "paid" ? "nabd-success-pop" : undefined}>
         <EmptyState
           icon={shown.icon}
           tone={shown.tone}

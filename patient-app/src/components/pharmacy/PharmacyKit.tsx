@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useRef } from 'react';
+import { Animated, Pressable, Text, View, type GestureResponderEvent } from 'react-native';
 import { router, type Href } from 'expo-router';
 import Svg, { Path } from 'react-native-svg';
 
@@ -9,6 +9,9 @@ import { useCart } from '../../context/CartContext';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { showLocalizedAlert } from '../LocalizedAlert';
 import { medGallery, medName, needsRx, onlineOnly, type Med } from '../../utils/pharmacyCatalog';
+import { flyToCart, registerCartTarget } from '../../utils/flyToCart';
+import { MOTION, reduceMotion } from '../../utils/motion';
+import { showUndoToast } from '../../utils/undoToast';
 
 /**
  * Pieces the pharmacy hub, the product page, the wishlist and the comparison share, so each screen holds no colour,
@@ -63,15 +66,36 @@ export function GlyphRound({ name, label, onPress, children, testID }: { name: F
   );
 }
 
-/** A count on a header button (the cart): the board's coral bubble at the end corner. Nothing when the count is 0. */
+/**
+ * A count on a header button (the cart): the board's coral bubble at the end corner. Nothing when the count is 0. When the
+ * count goes up the bubble pops (scale 1 -> 1.2 -> 1, MOTION.pop); with reduced motion only the number changes.
+ */
 export function CountBadge({ count }: { count: number }) {
   const { theme } = useScreenUi();
+  const scaleValue = useRef(new Animated.Value(1)).current;
+  const before = useRef(count);
+  useEffect(() => {
+    if (count > before.current && !reduceMotion()) {
+      Animated.sequence([
+        Animated.timing(scaleValue, { toValue: 1.2, duration: MOTION.pop / 2, useNativeDriver: true }),
+        Animated.timing(scaleValue, { toValue: 1, duration: MOTION.pop / 2, useNativeDriver: true }),
+      ]).start();
+    }
+    before.current = count;
+  }, [count, scaleValue]);
   if (count <= 0) return null;
   return (
-    <View pointerEvents="none" style={{ position: 'absolute', top: -3, end: -3 }}>
+    <Animated.View pointerEvents="none" style={{ position: 'absolute', top: -3, end: -3, transform: [{ scale: scaleValue }] }}>
       <Badge content={count} tone="danger" theme={theme} />
-    </View>
+    </Animated.View>
   );
+}
+
+/** The header cart button says where it is, so a product picture can fly to it (utils/flyToCart.ts). */
+function useCartTarget() {
+  const ref = useRef<View>(null);
+  useEffect(() => registerCartTarget({ measure: (done) => { if (ref.current) ref.current.measureInWindow(done); else done(0, 0, 0, 0); } }), []);
+  return ref;
 }
 
 /**
@@ -83,10 +107,13 @@ export function CartButton({ testID }: { testID?: string }) {
   const { itemCount } = useCart();
   const { k } = useScreenUi();
   const label = itemCount > 0 ? k('pharmacy.cartCount', { count: itemCount }) : k('pharmacy.cart');
+  const target = useCartTarget();
   return (
-    <GlyphRound name="package" label={label} onPress={() => router.push('/pharmacy/cart' as Href)} testID={testID ?? 'cart-button'}>
-      <CountBadge count={itemCount} />
-    </GlyphRound>
+    <View ref={target} collapsable={false}>
+      <GlyphRound name="package" label={label} onPress={() => router.push('/pharmacy/cart' as Href)} testID={testID ?? 'cart-button'}>
+        <CountBadge count={itemCount} />
+      </GlyphRound>
+    </View>
   );
 }
 
@@ -104,8 +131,8 @@ export function useAddMedToCart() {
   const { addItem } = useCart();
   const { k } = useScreenUi();
   return useCallback(
-    (m: Med, qty = 1) => {
-      if (needsRx(m)) {
+    (m: Med, qty = 1, opts?: { quiet?: boolean }) => {
+      if (needsRx(m) && !opts?.quiet) {
         showLocalizedAlert(k('pharmacy.rxNoticeTitle'), k('pharmacy.rxNoticeBody'), [{ text: k('pharmacy.ok') }]);
       }
       void addItem({
@@ -201,6 +228,70 @@ export function PickButton({ name, label, ink, disabled, onPress }: { name: Fill
     >
       <Glyph name={name} size={18} color={fg} />
       <Text style={{ ...scale(t, 'small', 'bold'), color: fg }}>{label}</Text>
+    </Pressable>
+  );
+}
+
+/**
+ * The add control of a product card, tile or row. Nothing of it in the cart: the board's + button. Once it is in the cart:
+ * [- qty +], the cart's own quantity (so the same product shows the same number on every screen and after a restart); - at 1
+ * removes the line and offers "undo". The first add flies the product's picture to the header cart button (not with reduced motion).
+ */
+export function MedAddControl({ med, size = 40, disabled = false, addLabel }: { med: Med; size?: number; disabled?: boolean; addLabel?: string }) {
+  const { items, updateQty, removeItem } = useCart();
+  const { c, k, num } = useScreenUi();
+  const addToCart = useAddMedToCart();
+  const id = String(med.id);
+  const name = medName(med);
+  const qty = items.find((line) => line.id === id)?.qty ?? 0;
+  const fly = (event: GestureResponderEvent) => flyToCart({ x: event.nativeEvent.pageX, y: event.nativeEvent.pageY }, medGallery(med)[0] || (typeof med.image === 'string' ? med.image : null));
+  const box = { height: size, borderRadius: 14, backgroundColor: c.action.primary.bg, alignItems: 'center' as const, justifyContent: 'center' as const };
+
+  if (qty > 0 && !disabled) {
+    return (
+      <View accessibilityRole="adjustable" accessibilityLabel={k('pharmacy.stepper.qty', { n: num(qty) })} testID={`med-stepper-${id}`} style={{ ...box, flexDirection: 'row', gap: 2, paddingHorizontal: 2 }}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={k('pharmacy.stepper.decrease', { name })}
+          testID={`med-stepper-${id}-minus`}
+          hitSlop={4}
+          onPress={() => {
+            if (qty > 1) { void updateQty(id, -1); return; }
+            void removeItem(id);
+            showUndoToast(k('pharmacy.removedFromCart', { name }), k('common.undo'), () => addToCart(med, 1, { quiet: true }));
+          }}
+          style={{ width: 34, height: size, alignItems: 'center', justifyContent: 'center' }}
+        >
+          <View style={{ width: 14, height: 2.5, borderRadius: 2, backgroundColor: c.action.primary.fg }} />
+        </Pressable>
+        <Text testID={`med-stepper-${id}-qty`} style={{ minWidth: 18, textAlign: 'center', color: c.action.primary.fg, fontSize: 15, fontWeight: '700' }}>{num(qty)}</Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={k('pharmacy.stepper.increase', { name })}
+          testID={`med-stepper-${id}-plus`}
+          hitSlop={4}
+          onPress={(event) => { void updateQty(id, 1); fly(event); }}
+          style={{ width: 34, height: size, alignItems: 'center', justifyContent: 'center' }}
+        >
+          <View style={{ width: 14, height: 2.5, borderRadius: 2, backgroundColor: c.action.primary.fg }} />
+          <View style={{ position: 'absolute', width: 2.5, height: 14, borderRadius: 2, backgroundColor: c.action.primary.fg }} />
+        </Pressable>
+      </View>
+    );
+  }
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={addLabel ?? k('pharmacy.addToCart')}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
+      testID={`med-add-${id}`}
+      hitSlop={4}
+      onPress={(event) => { addToCart(med); fly(event); }}
+      style={{ ...box, width: size, opacity: disabled ? 0.4 : 1 }}
+    >
+      <View style={{ width: 16, height: 2.5, borderRadius: 2, backgroundColor: c.action.primary.fg }} />
+      <View style={{ position: 'absolute', width: 2.5, height: 16, borderRadius: 2, backgroundColor: c.action.primary.fg }} />
     </Pressable>
   );
 }

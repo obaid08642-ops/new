@@ -29,6 +29,18 @@ describe('publicCategoryProducts popularity ordering', () => {
           const skipObj = { limit: jest.fn().mockReturnValue(limitObj) };
           return { sort: jest.fn().mockReturnValue({ skip: jest.fn().mockReturnValue(skipObj), limit: jest.fn().mockReturnValue(limitObj) }) };
         }),
+        // The ALL-page diversity pool is one $facet aggregation: evaluate each branch's $match/$limit over the sorted docs.
+        aggregate: jest.fn().mockImplementation((pipeline: any[]) => {
+          const facet = pipeline.find((st: any) => st.$facet)?.$facet || {};
+          const sorted = [...medicines].sort((a, b) => (b.usage_count || 0) - (a.usage_count || 0));
+          const out: Record<string, any[]> = {};
+          for (const [name, branch] of Object.entries<any[]>(facet)) {
+            const ors: any[] = branch.find((st: any) => st.$match)?.$match?.$or || [];
+            const lim: number = branch.find((st: any) => st.$limit)?.$limit ?? 1e9;
+            out[name] = sorted.filter((m) => ors.some((c: any) => Object.entries(c).every(([f, v]) => (m as any)[f] === v))).slice(0, lim);
+          }
+          return { toArray: jest.fn().mockResolvedValue([out]) };
+        }),
         countDocuments: jest.fn().mockResolvedValue(medicines.length),
       },
       product_ranking_metrics: {
@@ -52,8 +64,14 @@ describe('publicCategoryProducts popularity ordering', () => {
       cursor.sort = jest.fn().mockImplementation((s: any) => { if (!sortArg) sortArg = s; return (withSort as any)(s); });
       return cursor;
     });
-    return { service, getSort: () => sortArg };
+    return { service, getSort: () => sortArg, aggregateCalls: () => (cols.medicines.aggregate as jest.Mock).mock.calls.length };
   };
+
+  it('loads the ALL-page diversity pool with ONE aggregation, not one query per category', async () => {
+    const { service, aggregateCalls } = svc([doc('a', { usage_count: 5 }), doc('b', { category: 'العناية بالبشرة', usage_count: 4 })]);
+    await service.publicCategoryProducts('ar', 'all', undefined, 1, 24);
+    expect(aggregateCalls()).toBe(1);
+  });
 
   it('sorts by usage_count first (no image bias — medicines surface on All)', async () => {
     const meds = [doc('cosmo', { usage_count: 1, image_1: 'x' }), doc('cibrax', { usage_count: 500 }), doc('baby', { usage_count: 2, image_1: 'y' })];
