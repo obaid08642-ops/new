@@ -1,7 +1,7 @@
 /**
  * Placeholder and duplicate city rows of the central seed. Owner decision 2026-10-26 (replaces "inactive"): there are no real users
  * yet, so they are DELETED with their synthetic districts, after every reference is re-pointed to the right real city. The plan
- * prints the reference counts; a row whose references have no real counterpart is not deleted.
+ * prints the reference counts.
  *
  * Reference check: the clients store a city as TEXT (the Arabic or English name, sometimes the code), so a row is "referenced" when
  * an address, provider, facility, branch or order holds one of the row's three spellings.
@@ -9,7 +9,7 @@
 
 /**
  * What happens to a row before it is deleted. `into` is the real city that takes over its references (a city written as text in an
- * address, provider, facility, branch or order); a row with no real counterpart is deleted only while nothing references it.
+ * address, provider, facility, branch or order); a row with no real counterpart has its references re-pointed to the main city of its region (REGION_DEFAULT_CITY).
  */
 export interface DeleteRule { code: string; into?: string; reason: string }
 
@@ -26,6 +26,15 @@ export const DELETE_CITY_RULES: readonly DeleteRule[] = [
   { code: 'sa-al-umran', into: 'sa-al-ahsa', reason: 'a district of Al-Ahsa (sa-al-ahsa-035 exists)' },
   { code: 'sa-al-taraf', into: 'sa-al-ahsa', reason: 'a district of Al-Ahsa (sa-al-ahsa-034 exists)' },
 ];
+
+/**
+ * A placeholder with no real counterpart that something still references is re-pointed to the main city of its own macro region (the
+ * references carry no coordinates the plan could use), and the plan lists it as `region_default`.
+ */
+export const REGION_DEFAULT_CITY: Readonly<Record<string, string>> = {
+  'sa-central-region': 'sa-riyadh', 'sa-western-region': 'sa-jeddah', 'sa-eastern-region': 'sa-dammam',
+  'sa-northern-region': 'sa-tabuk', 'sa-southern-region': 'sa-abha',
+};
 
 /** Left as they are, listed in the plan: no governorate boundary centre is available to the apply. */
 export const LISTED_ONLY_CITY_CODES: readonly string[] = ['sa-sudair', 'sa-yanbu-al-nakhal'];

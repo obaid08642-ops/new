@@ -72,16 +72,20 @@ describe('planPlaceholderCities', () => {
     expect((await planPlaceholderCities(db)).changes).toHaveLength(0);
   });
 
-  it('keeps a placeholder that something references and has no real counterpart, and prints the counts', async () => {
+  it('re-points a referenced placeholder with no real counterpart to the main city of its region, lists it, and prints the counts', async () => {
+    await raw().collection('locations').insertOne(loc('sa-riyadh-x', 'city', 'sa-central-region', 'x', 'x')); // a bystander
     await raw().collection('patient_profiles').insertOne({ addresses: [{ id: 'a', city: 'Central City 2' }, { id: 'b', city: 'الرياض' }] });
     await raw().collection('orders').insertOne({ address: { city: 'مدينة وسطى 2' } });
     await raw().collection('provider_profiles').insertOne({ city: 'sa-central-city-2' });
     const { changes, report } = await planPlaceholderCities(db);
-    expect(report.blocked_by_references).toEqual(['sa-central-city-2']);
     expect(report.references['sa-central-city-2']).toEqual({ 'patient_profiles.addresses.city': 1, 'provider_profiles.city': 1, 'orders.address.city': 1 });
+    expect(report.repointed.find((m) => m.code === 'sa-central-city-2')).toEqual({ code: 'sa-central-city-2', into: 'sa-riyadh', rewritten_references: 3, how: 'region_default' });
     await applyChanges(db, changes);
-    expect(await exists('sa-central-city-2')).toBe(true);
-    expect(await exists('sa-central-city-1')).toBe(false);
+    expect((await raw().collection('patient_profiles').findOne({}))!.addresses.map((a: any) => a.city)).toEqual(['Riyadh', 'الرياض']);
+    expect((await raw().collection('orders').findOne({}))!.address.city).toBe('الرياض');
+    expect((await raw().collection('provider_profiles').findOne({}))!.city).toBe('sa-riyadh');
+    expect(await exists('sa-central-city-2')).toBe(false);
+    expect((await planPlaceholderCities(db)).changes).toHaveLength(0);
   });
 
   it('re-points a *-new row to its real city before deleting it', async () => {

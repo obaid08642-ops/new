@@ -6,7 +6,7 @@
 import { Types } from 'mongoose';
 import { SAUDI_LOCATIONS_SEED } from '../location/seeds/saudi-locations.data';
 import { planImport, type Extract } from '../location/districts-plan';
-import { CITY_REFERENCE_FIELDS, DELETE_CITY_RULES, LISTED_ONLY_CITY_CODES, spellingsOf, withDistricts, type LocationRow } from '../location/placeholder-cities';
+import { CITY_REFERENCE_FIELDS, DELETE_CITY_RULES, LISTED_ONLY_CITY_CODES, REGION_DEFAULT_CITY, spellingsOf, withDistricts, type LocationRow } from '../location/placeholder-cities';
 import { FillChange, loadTranslations, planFill } from '../medicines/medicine-translation-fill';
 import { applyApproved, parseCsv, type AuditCollection, type UpdateCollection } from '../../scripts/fix-catalogue-names';
 import insuranceSeed from './seed-data/insurance.json';
@@ -127,8 +127,7 @@ export interface PlaceholderCityReport {
   references: Record<string, Record<string, number>>;
   deleted_cities: string[];
   deleted_rows: number;
-  repointed: Array<{ code: string; into: string; rewritten_references: number }>;
-  blocked_by_references: string[];
+  repointed: Array<{ code: string; into: string; rewritten_references: number; how: 'real_counterpart' | 'region_default' }>;
   listed_only: string[];
   missing_in_database: string[];
 }
@@ -151,14 +150,15 @@ const sameForm = (stored: string, from: LocationRow, to: LocationRow): string =>
  * Step 6 — placeholder and duplicate cities (owner decision 2026-10-26: deleted, not hidden). For each row of DELETE_CITY_RULES:
  *  1. every reference (a city written as text) is re-pointed to the real city of the rule (same language as the stored value);
  *  2. the city and its districts are deleted, each only while it is still the document the plan saw (before-image kept in the backup).
- * A row with no real counterpart that something still references is NOT deleted; it is listed. Sudair and Yanbu Al Nakhal are only listed.
+ * A row with no real counterpart that something still references is re-pointed to the main city of its region and listed (`region_default`).
+ * Sudair and Yanbu Al Nakhal are only listed.
  */
 export async function planPlaceholderCities(db: DbLike): Promise<{ changes: Change[]; report: PlaceholderCityReport }> {
   const codes = DELETE_CITY_RULES.map((r) => r.code);
-  const all = (await db.collection('locations').find({ $or: [{ code: { $in: [...codes, ...LISTED_ONLY_CITY_CODES, ...DELETE_CITY_RULES.flatMap((r) => (r.into ? [r.into] : []))] } }, { parent_code: { $in: codes } }] }, {}).toArray()) as Array<LocationRow & { _id: unknown }>;
+  const all = (await db.collection('locations').find({ $or: [{ code: { $in: [...codes, ...LISTED_ONLY_CITY_CODES, ...DELETE_CITY_RULES.flatMap((r) => (r.into ? [r.into] : [])), ...Object.values(REGION_DEFAULT_CITY)] } }, { parent_code: { $in: codes } }] }, {}).toArray()) as Array<LocationRow & { _id: unknown }>;
   const byCode = new Map(all.map((r) => [r.code, r]));
   const changes: Change[] = [];
-  const report: PlaceholderCityReport = { references: {}, deleted_cities: [], deleted_rows: 0, repointed: [], blocked_by_references: [], listed_only: [], missing_in_database: [] };
+  const report: PlaceholderCityReport = { references: {}, deleted_cities: [], deleted_rows: 0, repointed: [], listed_only: [], missing_in_database: [] };
 
   for (const rule of DELETE_CITY_RULES) {
     const city = byCode.get(rule.code);
@@ -166,8 +166,9 @@ export async function planPlaceholderCities(db: DbLike): Promise<{ changes: Chan
     const spellings = spellingsOf(city);
     const refs = await countReferences(db, spellings);
     if (Object.keys(refs).length) report.references[rule.code] = refs;
-    const target = rule.into ? byCode.get(rule.into) : undefined;
-    if (Object.keys(refs).length && !target) { report.blocked_by_references.push(rule.code); continue; }
+    const hasRefs = Object.keys(refs).length > 0;
+    const target = rule.into ? byCode.get(rule.into) : hasRefs ? byCode.get(REGION_DEFAULT_CITY[city.parent_code ?? ''] ?? '') : undefined;
+    if (hasRefs && !target) throw new Error(`cannot re-point the references of ${rule.code}: no target city in the database`);
     if (target) {
       let rewritten = 0;
       for (const f of CITY_REFERENCE_FIELDS) {
@@ -184,7 +185,7 @@ export async function planPlaceholderCities(db: DbLike): Promise<{ changes: Chan
           }
         }
       }
-      report.repointed.push({ code: rule.code, into: rule.into as string, rewritten_references: rewritten });
+      report.repointed.push({ code: rule.code, into: target.code, rewritten_references: rewritten, how: rule.into ? 'real_counterpart' : 'region_default' });
     }
     for (const row of all.filter((r) => r.code === rule.code || r.parent_code === rule.code)) {
       changes.push({ kind: 'delete', step: 'placeholder_cities', collection: 'locations', key: { code: row.code }, doc: row as unknown as Record<string, unknown> });
