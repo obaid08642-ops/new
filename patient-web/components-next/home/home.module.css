@@ -19,14 +19,18 @@
   color: var(--nabd-color-text-primary); text-decoration: none;
   font-size: var(--nabd-font-size-control); font-weight: 600;
 }
-.navLinkActive { background: var(--nabd-color-brand-ink); color: var(--nabd-color-text-onInverse); }
+/* owner ink override 2026-10-26: the active nav pill is the brand coral with the on-brand label */
+.navLinkActive { background: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg); }
 .tools { margin-inline-start: auto; display: flex; align-items: center; gap: 8px; }
 .iconBtn {
   inline-size: 44px; block-size: 44px; border-radius: 22px; box-sizing: border-box; flex-shrink: 0;
   display: inline-grid; place-items: center; position: relative;
   background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-onGlass);
-  color: var(--nabd-color-text-primary); text-decoration: none;
+  color: var(--nabd-color-text-secondary); text-decoration: none;
 }
+/* the ink-toned glyphs follow the button colour (secondary text), the map takes its service tone */
+.iconBtn :global(.nabd-ficon__glyph) { fill: currentColor; }
+.iconBtnMap { background: var(--nabd-color-service-amber-bg); border-color: transparent; color: var(--nabd-color-service-amber-fg); }
 /* issue 1819: the unread dot of the bell (the app's HomeTopRow: 10 dot, 2 ring, coral) */
 .bellDot { position: absolute; inset-block-start: 9px; inset-inline-end: 10px; inline-size: 10px; block-size: 10px; border-radius: 50%; background: var(--nabd-color-avatar-ring); border: 2px solid var(--nabd-color-bg-surface); box-sizing: border-box; pointer-events: none; }
 .cartLink { display: inline-grid; }
@@ -39,7 +43,8 @@
 .signIn {
   block-size: 44px; padding-inline: 18px; border-radius: 22px; box-sizing: border-box;
   display: inline-flex; align-items: center; white-space: nowrap;
-  background: var(--nabd-color-brand-ink); color: var(--nabd-color-text-onInverse);
+  background: linear-gradient(180deg, var(--nabd-color-action-primary-gradient-from) 0%, var(--nabd-color-action-primary-gradient-to) 100%);
+  background-color: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg);
   font-size: var(--nabd-font-size-control); font-weight: 600; text-decoration: none;
 }
 /* F82-3: the static Home does not know who is looking; until the browser has the answer the sign-in button's size is held by this invisible stand-in. */
@@ -126,7 +131,7 @@
 .apptMeta { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
 .outlineBtn {
   block-size: 44px; padding-inline: 16px; border-radius: 14px; box-sizing: border-box; flex-shrink: 0;
-  border: 1.5px solid var(--nabd-color-text-primary); color: var(--nabd-color-text-primary);
+  border: 1.5px solid var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-bg);
   display: inline-flex; align-items: center; text-decoration: none;
   font-size: var(--nabd-font-size-control); font-weight: 600;
 }

@@ -19,7 +19,7 @@
   display: flex; align-items: center; min-block-size: 44px; padding-inline: 12px; box-sizing: border-box; border-radius: var(--nabd-radius-lg);
   color: var(--nabd-color-text-primary); text-decoration: none; font-size: var(--nabd-font-size-control); font-weight: 500;
 }
-.opt[aria-current="page"] { background: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg); font-weight: 700; }
+.opt[aria-current="page"] { background: var(--nabd-color-service-coral-bg); color: var(--nabd-color-service-coral-fg); font-weight: 700; }
 .note { margin: 6px 0 0; padding-inline: 12px; font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); line-height: 1.7; overflow-wrap: anywhere; }
 .add { color: var(--nabd-color-text-link); font-weight: 600; display: inline-flex; align-items: center; min-block-size: 44px; }
 .hint { color: var(--nabd-color-text-secondary); font-size: var(--nabd-font-size-label); line-height: 1.7; }
