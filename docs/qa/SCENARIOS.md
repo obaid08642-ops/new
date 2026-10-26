@@ -6,7 +6,7 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 
 ## Coverage
 
-- Scenarios: 13 done, 26 partial, 5 blocked (reason given), 30 not started, of 74 total.
+- Scenarios: 13 done, 29 partial, 5 blocked (reason given), 27 not started, of 74 total.
 - Screens: 0 of 274 patient-web routes fully scanned (public pages sampled in findings). Admin and provider screens not started.
 - The sweep is not finished. It is finished only when both counts reach 100%, or each remaining line gives its reason.
 
@@ -41,9 +41,9 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 | D-09 | doctor | reschedule | TODO | |
 | D-10 | doctor | cancel and refund | PARTIAL | j_consultation.py: admin cannot mark refunded without a refund; booking stays paid; refund queue closed. An actual refund is not tested |
 | D-11 | doctor | guaranteed-appointment credit | TODO | |
-| L-01 | lab | book → provider accepts / rejects → visit → result | TODO | |
-| R-01 | radiology | book → accept / reject → visit → result | TODO | |
-| N-01 | nursing | book → accept / reject → visit | TODO | |
+| L-01 | lab | book → provider accepts / rejects → visit → result | PARTIAL | tools/live/j_lab.py (141/141): checkout creates the booking, inbox shows NEW_REQUEST, another lab cannot move it, lab confirms, sample tracked to result_ready, result sent. Provider rejection not tested |
+| R-01 | radiology | book → accept / reject → visit → result | PARTIAL | tools/live/j_radiology.py (129/129): booking, center inbox, wrong center refused, patient cannot confirm own booking, center accepts, report uploaded and attached, my results lists it, REPORT_READY. Provider rejection not tested |
+| N-01 | nursing | book → accept / reject → visit | PARTIAL | tools/live/j_nursing.py (134/134): booking assigned to the nurse, unpaid card visit refused, payment verified, nurse accepts, visit completed with report and patient signature. Provider rejection not tested |
 | I-01 | insurance | add card (company → copay) | PARTIAL | Retested on rebuilt main: save 201, MongoDB patient_profiles holds copay_percent 20 and copay_cap_sar 500 (P1 fixed). Still open: no class field in the form (P2) |
 | I-02 | insurance | edit card | PARTIAL | API overwrite with read-back passes (tools/live/j_qa_insurance.py). UI Change button not clicked yet |
 | I-03 | insurance | delete card | BLOCKED | No delete exists (P2, findings/insurance-delete.md). Test once an endpoint exists |
@@ -105,7 +105,7 @@ Per-screen scan (every element, sizes 390/768/1280, six languages, dark mode) is
 - Auth-gated patient-web routes (signed in, 72): swept on the production layout. Table: docs/qa/screens/patient-web-auth.md. Findings: docs/qa/findings/web-sweep-auth.md.
 - Admin pages (65 files): swept signed in, on the admin build of 03:12, then re-checked on the rebuilt admin from merged main. Findings: docs/qa/findings/admin-sweep.md. Dynamic admin routes (orders/[kind]/[id]) not tested (need IDs).
 - Dynamic patient-web routes (53): 5 routes tested with a real seeded doctor (docs/qa/findings/web-sweep-dynamic.md). Found P1: /consultations/doctors/<id> returns 503 (server-to-client function prop). The other ~48 need seeded IDs for articles, facilities, community, orders, appointments, labs, radiology, packages, results, clinics: NOT TESTED, reason: no seeded records of those types yet.
-- Scenarios: 13 done, 26 partial, 5 blocked (reason given), 30 not started, of 74 total.
+- Scenarios: 13 done, 29 partial, 5 blocked (reason given), 27 not started, of 74 total.
 - Open P1s: guest job publish (no route); admin system logs API 404 (AdminLogsController dropped in the P5.3 merge).
 - Corrected: hydration P1 retracted (local setup; production layout passes).
 - Environment: services drop between turns. Recover with /tmp/claude-0-scratch/stack_up.sh (patient-web via the nonce server). Kill stale next-server processes by PID (comm next-server) before restarting admin.
