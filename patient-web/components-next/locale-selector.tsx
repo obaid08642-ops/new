@@ -8,7 +8,7 @@ import { localeLabels, locales, type Locale } from "@/lib/i18n";
 import { pathInLocale } from "@/lib/locale-path";
 import styles from "./locale-selector.module.css";
 
-export function LocaleSelector({ current, label }: { current: Locale; label: string }) {
+export function LocaleSelector({ current, label, compactOnPhone = false }: { current: Locale; label: string; compactOnPhone?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname() || `/${current}`;
   const router = useRouter();
@@ -25,7 +25,7 @@ export function LocaleSelector({ current, label }: { current: Locale; label: str
   }, []);
 
   return (
-    <div className={styles.wrapper} ref={containerRef}>
+    <div className={`${styles.wrapper} ${compactOnPhone ? styles.compactOnPhone : ""}`} ref={containerRef}>
       <button
         type="button"
         className={styles.trigger}
@@ -35,7 +35,7 @@ export function LocaleSelector({ current, label }: { current: Locale; label: str
         aria-label={label}
       >
         <Globe size={15} aria-hidden="true" className={styles.globeIcon} />
-        <span>{localeLabels[current]}</span>
+        <span className={styles.currentLabel}>{localeLabels[current]}</span>
         <ChevronDown size={14} aria-hidden="true" className={`${styles.chevronIcon} ${isOpen ? styles.chevronOpen : ""}`} />
       </button>
 

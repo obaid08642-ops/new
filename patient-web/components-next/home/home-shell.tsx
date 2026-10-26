@@ -78,7 +78,7 @@ export async function HomeShell({
   const topBar = (
     <div className={styles.top}>
       <Link href={base} className={styles.brand} aria-label={shared("brand")}>
-        <NabdMark size={34} variant="text" />
+        <NabdMark size={34} variant="brand" />
         <span className={styles.wordmark} aria-hidden="true">
           {shared("wordmark")}<span className={styles.plus}>+</span>
         </span>
@@ -94,7 +94,7 @@ export async function HomeShell({
         ))}
       </nav>
       <div className={styles.tools}>
-        <LocaleSelector current={locale} label={shared("language")} />
+        <LocaleSelector current={locale} label={shared("language")} compactOnPhone />
         <ThemeButton label={shared("theme")} />
         <Link href={`${base}/map`} className={`${styles.iconBtn} ${styles.iconBtnMap}`} aria-label={t("svcMap")} data-map-entry="all">
           <FIcon icon="map-trifold" tone="amber" chip="none" size={20} />
