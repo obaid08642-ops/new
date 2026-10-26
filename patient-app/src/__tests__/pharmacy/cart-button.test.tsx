@@ -80,9 +80,8 @@ describe('cart button', () => {
     expect(view.getByTestId('svc-cart').props.accessibilityLabel).toBe(k('pharmacy.cartCount', { count: 2 }));
     fireEvent.press(view.getByTestId('svc-cart'));
     expect(mockRouter.push).toHaveBeenLastCalledWith('/pharmacy/cart');
-    await act(async () => {
-      await cart.removeItem('m1');
-    });
+    // leave the device cart as it was found (not inside act: an act scope left open by the press made the next test render nothing)
+    await cart.removeItem('m1');
     mockDiagItems = [];
   });
 
@@ -109,9 +108,8 @@ describe('cart button', () => {
     expect(view.getByTestId('cart-chooser-lab').props.accessibilityLabel).toContain(k('cart.name.lab'));
     fireEvent.press(view.getByTestId('cart-chooser-lab'));
     expect(mockRouter.push).toHaveBeenLastCalledWith('/diagnostics/cart');
-    await act(async () => {
-      await cart.removeItem('m1');
-    });
+    // leave the device cart as it was found (not inside act: an act scope left open by the press made the next test render nothing)
+    await cart.removeItem('m1');
     mockDiagItems = [];
   });
 
