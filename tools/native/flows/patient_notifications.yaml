@@ -1,0 +1,45 @@
+# Notifications list: the pharmacy answers a patient's order (API, as the provider app does); the patient opens the notifications and finds
+# the news of it, opens it, and it takes them to the order. The same news is checked on the server (patient_offers.js) so the app is not
+# the only witness.
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: "address=1"
+- runFlow: common_pharmacy_cart.yaml
+- tapOn:
+    id: "cart-continue"
+- extendedWaitUntil:
+    visible:
+      id: "checkout-screen"
+    timeout: 20000
+- tapOn:
+    id: "checkout-submit"
+- extendedWaitUntil:
+    visible:
+      id: "broadcast-status-screen"
+    timeout: 40000
+- runScript:
+    file: scripts/pharmacy_offer.js
+- extendedWaitUntil:
+    visible:
+      id: "offer-card"
+    timeout: 90000
+- openLink: "nabdplus:///notifications"
+- extendedWaitUntil:
+    visible:
+      id: "notifications-screen"
+    timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: "notification-row"
+    timeout: 60000
+- takeScreenshot: patient_notifications_list
+- tapOn:
+    id: "notification-row"
+    index: 0
+- extendedWaitUntil:
+    notVisible:
+      id: "notifications-screen"
+    timeout: 20000
