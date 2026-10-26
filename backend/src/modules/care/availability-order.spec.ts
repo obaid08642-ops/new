@@ -27,7 +27,8 @@ describe('sort=available_today', () => {
   it('the list orders the rating window by free slots, pages it, and computes each doctor once per minute', async () => {
     const mk = (id: string) => ({ id, account_id: `a-${id}`, user_id: `u-${id}`, name_en: id, toObject() { return this; } });
     const docs = ['d1', 'd2', 'd3', 'd4'].map(mk);
-    const nexts: Record<string, string | null> = { d1: null, d2: new Date(Date.now() + 3 * 86_400_000).toISOString(), // three days from now, whatever day the suite runs on d3: new Date(Date.now() + 3600_000).toISOString(), d4: new Date(Date.now() + 2 * 3600_000).toISOString() };
+    // d2 is three days from now, whatever day the suite runs on (a fixed date broke it once that day arrived)
+    const nexts: Record<string, string | null> = { d1: null, d2: new Date(Date.now() + 3 * 86_400_000).toISOString(), d3: new Date(Date.now() + 3600_000).toISOString(), d4: new Date(Date.now() + 2 * 3600_000).toISOString() };
     const nextAvailable = jest.fn(async (d: any) => nexts[d.id]);
     let query: any;
     const providerModel: any = {
