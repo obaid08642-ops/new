@@ -1,13 +1,13 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
-import dynamic from "next/dynamic";
+import { Suspense, lazy, useCallback, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { DoctorFilters } from "@/lib/consult/doctor-filters";
 import styles from "./consult.module.css";
 
 // The panel is only needed once the button is pressed (the doctors page is at its script budget).
-const Panel = dynamic(() => import("./doctor-filters-panel"), { ssr: false });
+// React.lazy, not next/dynamic: the dynamic loader runtime (about 1 KB gzip) would ship with the page for a panel that is rarely opened.
+const Panel = lazy(() => import("./doctor-filters-panel"));
 
 type Props = {
   locale: string;
@@ -35,7 +35,7 @@ export function DoctorFiltersSheet({ count, ...panel }: Props) {
         <span>{t("filters")}</span>
         {count > 0 ? <span className={styles.filtersBadge} aria-hidden="true">{new Intl.NumberFormat(panel.locale).format(count)}</span> : null}
       </button>
-      {open ? <Panel {...panel} onClose={close} /> : null}
+      {open ? <Suspense fallback={null}><Panel {...panel} onClose={close} /></Suspense> : null}
     </>
   );
 }

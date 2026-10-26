@@ -25,7 +25,6 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { DoctorListCard } from "@/components-next/consult/doctor-list-card";
 import { DoctorFiltersSheet } from "@/components-next/consult/doctor-filters-sheet";
 import { VisitTypeCards } from "@/components-next/consult/visit-type-cards";
-import { InsurerFromPolicy } from "@/components-next/consult/insurer-from-policy";
 import { effectiveType, filterPageParams, nearestApplies, parseDoctorFilters, type DoctorFilters, type VisitType } from "@/lib/consult/doctor-filters";
 import { formatPrice } from "@/lib/format-price";
 import { cardFacts } from "@/lib/consult/doctor-card-facts";
@@ -34,6 +33,8 @@ import styles from "@/components-next/consult/consult.module.css";
 
 // The empty and error states are rare: their chunk (it carries the Feedback components and the icon record) loads only when one is drawn, so the list page stays under its script budget.
 const ConsultState = dynamic(() => import("@/components-next/consult/consult-state").then((m) => m.ConsultState));
+// drawn only for "Insurance" with no insurer in the address: its chunk loads only then
+const InsurerFromPolicy = dynamic(() => import("@/components-next/consult/insurer-from-policy").then((m) => m.InsurerFromPolicy));
 
 export type DoctorsViewProps = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string; specialty?: string; sort?: DoctorSort; type?: string; gender?: string; degree?: string; payment?: string; insurance?: string; insurance_class?: string; available?: string; nearest?: string; lat?: string; lng?: string; city?: string }> };
 type Props = DoctorsViewProps;
