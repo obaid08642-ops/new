@@ -28,23 +28,27 @@ export function SuggestSearchForm({ action, name = "q", defaultValue, placeholde
 }) {
   const { state, controller } = useSearchSuggest(locale, scope);
   return (
-    <SearchSuggest
-      state={state}
-      controller={controller}
-      allResultsHref={action ? (q) => `${action}?${name}=${encodeURIComponent(q)}` : undefined}
-      renderField={(combobox) => (
-        <form method="get" action={action} role="search" className={sticky ? `${styles.searchForm} ${styles.searchSticky}` : styles.searchForm}>
-          <div className={consult.search}>
-            <label className={consult.searchField}>
-              <Icon name="search" size={20} tone="secondary" />
-              <span className="sr-only">{label}</span>
-              <input name={name} defaultValue={defaultValue} placeholder={placeholder} className={consult.searchInput} {...combobox} onChange={(event) => controller.input(event.target.value)} />
-            </label>
-            <Button type="submit" label={submitLabel} size="lg" />
-          </div>
-          {below}
-        </form>
-      )}
-    />
+    // sticky goes on this wrapper, a direct child of the tall page column: the suggest wrapper inside is only as tall as the field, and a
+    // sticky element cannot leave its parent
+    <div className={sticky ? styles.searchSticky : undefined}>
+      <SearchSuggest
+        state={state}
+        controller={controller}
+        allResultsHref={action ? (q) => `${action}?${name}=${encodeURIComponent(q)}` : undefined}
+        renderField={(combobox) => (
+          <form method="get" action={action} role="search" className={styles.searchForm}>
+            <div className={consult.search}>
+              <label className={consult.searchField}>
+                <Icon name="search" size={20} tone="secondary" />
+                <span className="sr-only">{label}</span>
+                <input name={name} defaultValue={defaultValue} placeholder={placeholder} className={consult.searchInput} {...combobox} onChange={(event) => controller.input(event.target.value)} />
+              </label>
+              <Button type="submit" label={submitLabel} size="lg" />
+            </div>
+            {below}
+          </form>
+        )}
+      />
+    </div>
   );
 }
