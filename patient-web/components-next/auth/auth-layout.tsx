@@ -50,7 +50,7 @@ export async function AuthLayout({
             <span className={styles.backSpacer} aria-hidden="true" />
           )}
           {showMark ? <Link href={`/${locale}`} className={styles.brand} aria-label={shared("brand")}>
-            <NabdMark size={34} variant="text" />
+            <NabdMark size={34} />
             <span className={styles.wordmark} aria-hidden="true">
               {shared("wordmark")}<span className={styles.plus}>+</span>
             </span>

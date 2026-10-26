@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { browserCoords, resolveNearbyPlace, savedAddressCity } from "@/lib/consult/doctor-filters-browser";
 import styles from "./consult.module.css";
 
 type Props = {
@@ -34,6 +33,8 @@ export function DoctorQuickFilters({ availableHref, availableOn, nearestOffHref,
 
   async function turnNearestOn() {
     setState("locating");
+    // Loaded on the tap, not with the page: the location code is only needed here, and the doctors page is at its script budget (Lighthouse).
+    const { browserCoords, resolveNearbyPlace, savedAddressCity } = await import("@/lib/consult/doctor-filters-browser");
     const place = await resolveNearbyPlace({ deviceCoords: () => browserCoords(), savedCity: () => savedAddressCity() });
     if (!place) return setState("none");
     setState("idle");

@@ -46,8 +46,9 @@ export function shellTokens(theme: ThemeName = 'light') {
     glassStrong: t.color.glass.bgStrong,
     /** canvas-tinted glass of the handoff CTA bars (Cart, CheckoutV2, RxUpload, BookingConfirm: canvas at 86%) */
     glassCanvas: withAlpha(t.color.bg.canvas, 0.86),
-    selectedBg: t.color.action.selected.bg,
-    selectedFg: t.color.action.selected.fg,
+    /** owner ink override 2026-10-26: the active tab pill is brand coral with its paired label, never ink */
+    selectedBg: t.color.action.primary.bg,
+    selectedFg: t.color.action.primary.fg,
     fabFrom: t.color.action.fab.from,
     fabTo: t.color.action.fab.to,
     fabFg: t.color.action.fab.fg,

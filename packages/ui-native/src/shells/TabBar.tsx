@@ -9,7 +9,7 @@ import { SHELL_FONT, resolveDirection, shellTokens, type Direction, type ThemeNa
  * <TabBar> — handoff §3 and canvas/HomeApp.dc.html:
  *  - a floating glass pill (68 tall, radius 34, 14 from each side) above the
  *    bottom inset (DEVICE_STANDARD §1: tab bar height + bottom inset);
- *  - the active item is an ink pill that shows its label;
+ *  - the active item is a coral pill (owner override 2026-10-26) that shows its label;
  *  - the centre item (Consultations) is a raised 66 pt coral button ringed in
  *    the canvas colour;
  *  - every item is at least 52×52, above the 44/48 minimum (DEVICE_STANDARD §3.3).

@@ -82,8 +82,8 @@ export function ProviderCard({ row, total, selected, itemsCount, onChoose, choos
       noCheck={Boolean(badge)}
       onPress={!badge && onChoose && row.covers_all ? onChoose : undefined}
       top={badge ? (
-        <View style={{ alignSelf: 'flex-start', minHeight: 28, paddingHorizontal: 12, borderRadius: 14, backgroundColor: c.action.selected.bg, justifyContent: 'center' }}>
-          <Text style={{ ...scale(t, 'tag', 'bold'), color: c.action.selected.fg }}>{badge}</Text>
+        <View style={{ alignSelf: 'flex-start', minHeight: 28, paddingHorizontal: 12, borderRadius: 14, backgroundColor: c.service.coral.bg, justifyContent: 'center' }}>
+          <Text style={{ ...scale(t, 'tag', 'bold'), color: c.service.coral.fg }}>{badge}</Text>
         </View>
       ) : undefined}
     >
@@ -139,12 +139,12 @@ export function TimeTile({ label, selected, onPress, kind }: { label: string; se
         borderRadius: day ? 16 : 14,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: day && selected ? c.action.selected.bg : c.bg.surface,
+        backgroundColor: day && selected ? c.service.coral.bg : c.bg.surface,
         borderWidth: !day && selected ? 2 : 1,
         borderColor: !day && selected ? c.action.primary.bg : c.border.hairline,
       }}
     >
-      <Text style={{ ...scale(t, day ? 'small' : 'small', selected ? 'bold' : 'medium'), textAlign: 'center', color: day && selected ? c.action.selected.fg : c.text.primary }}>{label}</Text>
+      <Text style={{ ...scale(t, day ? 'small' : 'small', selected ? 'bold' : 'medium'), textAlign: 'center', color: day && selected ? c.service.coral.fg : c.text.primary }}>{label}</Text>
     </Pressable>
   );
 }

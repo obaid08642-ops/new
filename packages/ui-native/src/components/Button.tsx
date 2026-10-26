@@ -56,7 +56,7 @@ function variantStyle(variant: Variant, theme: ThemeName) {
     case 'primary':
       return { bg: 'transparent', fg: c.action.primary.fg, border: 0, borderColor: 'transparent' };
     case 'outline':
-      return { bg: 'transparent', fg: c.text.primary, border: 1.5, borderColor: c.text.primary };
+      return { bg: 'transparent', fg: c.action.primary.bg, border: 1.5, borderColor: c.action.primary.bg };
     case 'secondary':
       return { bg: c.action.secondary.bg, fg: c.action.secondary.fg, border: 1, borderColor: c.border.onGlass };
     case 'danger':
@@ -183,7 +183,7 @@ export function IconButton({
   const c = t.color;
   const box = ICON_BOX[size];
   const toneColour: Record<string, string> = {
-    neutral: c.icon.primary,
+    neutral: c.text.secondary,
     primary: c.action.primary.bg,
     success: c.status.success.fg,
     warning: c.status.warning.fg,
@@ -193,11 +193,11 @@ export function IconButton({
   const fill: Record<NonNullable<IconButtonProps['variant']>, { bg: string; border: number }> = {
     plain: { bg: 'transparent', border: 0 },
     outlined: { bg: c.bg.surface, border: 1 },
-    filled: { bg: c.action.selected.bg, border: 0 },
+    filled: { bg: c.service.coral.bg, border: 0 },
     tinted: { bg: c.bg.sunken, border: 0 },
     glass: { bg: c.glass.bg, border: 1 },
   };
-  const glyph = variant === 'filled' ? c.action.selected.fg : toneColour[tone] ?? toneColour.neutral;
+  const glyph = variant === 'filled' ? c.service.coral.fg : toneColour[tone] ?? toneColour.neutral;
 
   return (
     <Pressable

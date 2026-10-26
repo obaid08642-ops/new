@@ -82,13 +82,13 @@ export interface NativeChipProps extends ChipProps {
 
 /**
  * The filter chip of canvas/Search: 38 tall (44 with hitSlop), radius 19, 14pt;
- * a surface pill with a subtle border, or ink with a bold label when selected.
+ * a surface pill with a subtle border, or the soft coral tint with coral bold label when selected (owner override 2026-10-26).
  * Same geometry as the web renderer.
  */
 export function Chip({ label, count, startIcon, selected = false, loading = false, disabled = false, testID, onPress, theme = 'light' }: NativeChipProps) {
   const c = tokens(theme).color;
   const inert = disabled || loading;
-  const fg = selected ? c.action.selected.fg : c.text.primary;
+  const fg = selected ? c.service.coral.fg : c.text.primary;
   return (
     <Pressable
       accessibilityRole="button"
@@ -106,7 +106,7 @@ export function Chip({ label, count, startIcon, selected = false, loading = fals
         alignItems: 'center',
         gap: 6,
         alignSelf: 'flex-start',
-        backgroundColor: selected ? c.action.selected.bg : c.bg.surface,
+        backgroundColor: selected ? c.service.coral.bg : c.bg.surface,
         borderWidth: selected ? 0 : 1,
         borderColor: c.border.subtle,
         opacity: disabled ? 0.5 : 1,

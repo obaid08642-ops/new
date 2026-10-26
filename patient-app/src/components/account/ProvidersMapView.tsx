@@ -277,7 +277,7 @@ export function ProvidersMapView() {
       </View>
 
       <Pressable accessibilityRole="button" accessibilityLabel={k('map.myLocation')} onPress={() => void goToMe()} style={{ position: 'absolute', end: 16, bottom: insets.bottom + (shown.length > 0 && !selected ? 132 : 24), width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }} testID="map-my-location">
-        <Glyph name="map-pin-line" size={22} color={c.icon.primary} />
+        <Glyph name="map-pin-line" size={22} color={c.service.map.glyph} />
       </Pressable>
 
       {!selected && shown.length > 0 ? (
