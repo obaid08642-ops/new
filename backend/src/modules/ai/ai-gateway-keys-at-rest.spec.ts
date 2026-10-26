@@ -58,7 +58,8 @@ describe('16.1 AI provider keys at rest', () => {
     const { svc, docs, providers } = setup([row('openai', wrapped, 1)]);
     await svc.listProviders();
     expect(docs[0].api_key).toBe(wrapped);
-    expect(providers.updateOne).not.toHaveBeenCalled();
+    // providers the gateway knows but the DB lacks are inserted (env sync); no write ever touches a saved key
+    expect(providers.updateOne.mock.calls.every(([, u]: any[]) => !u.$set?.api_key)).toBe(true);
   });
 
   it('keeps plaintext and warns once without the encryption key, then migrates after the retry window', async () => {
@@ -69,7 +70,7 @@ describe('16.1 AI provider keys at rest', () => {
     await svc.listProviders();
     expect(docs[0].api_key).toBe(PLAIN);
     expect(warn).toHaveBeenCalledTimes(1);
-    expect(providers.find).toHaveBeenCalledTimes(3); // 2 list reads + 1 migration scan, none in the retry window
+    expect(providers.find).toHaveBeenCalledTimes(4); // 2 list reads + 1 migration scan + 1 env-sync scan, none in the retry window
     process.env.AI_KEYS_ENC_KEY = Buffer.alloc(32, 7).toString('base64');
     const now = Date.now();
     jest.spyOn(Date, 'now').mockReturnValue(now + 11 * 60_000);

@@ -24,8 +24,8 @@ import { connectionFlagSource, isKilled } from '../../common/killswitches/killsw
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { RedisService } from '../redis/redis.service';
 
-export type AiProviderName =
-  | 'gemini' | 'openai' | 'groq' | 'cerebras' | 'openrouter' | 'deepseek' | 'qwen' | 'replicate';
+import { AiProviderName, NON_CHAT_PROVIDERS, PROVIDER_ENV_KEY } from './ai-provider-catalog';
+export type { AiProviderName };
 
 export interface ProviderConfig {
   key: AiProviderName;
@@ -55,6 +55,9 @@ const DEFAULT_PROVIDERS: ProviderConfig[] = [
   { key: 'openrouter', enabled: true, api_key: '', model: 'meta-llama/llama-3.3-70b-instruct', vision_model: 'openai/gpt-4o-mini', priority: 5, daily_quota: 200, used_today: 0, usage_date: '', base_url: 'https://openrouter.ai/api/v1', requests_per_minute: 20, requests_per_day: 200, tokens_per_day: 200000, note: 'aggregator fallback' },
   { key: 'cerebras', enabled: true, api_key: '', model: 'llama-4-scout-17b-16e-instruct', priority: 6, daily_quota: 1000, used_today: 0, usage_date: '', base_url: 'https://api.cerebras.ai/v1', requests_per_minute: 30, requests_per_day: 1000, tokens_per_day: 500000 },
   { key: 'qwen', enabled: true, api_key: '', model: 'qwen-plus', vision_model: 'qwen-vl-plus', priority: 7, daily_quota: 500, used_today: 0, usage_date: '', base_url: 'https://dashscope.aliyuncs.com/compatible-mode/v1', requests_per_minute: 30, requests_per_day: 500, tokens_per_day: 500000 },
+  // OpenCode Zen: OpenAI-compatible chat completions (docs: opencode.ai/docs/zen). The docs say the free models are only for the
+  // OpenCode client, so this uses a paid model id; the model, quota and limits are editable in the admin.
+  { key: 'opencode', enabled: true, api_key: '', model: 'deepseek-v4.1-flash', priority: 9, daily_quota: 500, used_today: 0, usage_date: '', base_url: 'https://opencode.ai/inference/openai/v1', requests_per_minute: 20, requests_per_day: 500, tokens_per_day: 500000, note: 'OpenCode Zen (OpenAI-compatible); text only' },
   { key: 'replicate', enabled: false, api_key: '', model: 'stability-ai/sdxl', priority: 8, daily_quota: 100, used_today: 0, usage_date: '', requests_per_minute: 10, requests_per_day: 100, tokens_per_day: 0, note: 'image generation only — not a chat provider' },
 ];
 
@@ -223,23 +226,51 @@ export class AiGatewayService {
     }
   }
 
+  private envSyncedAt = 0;
+
+  /**
+   * Env → DB sync. The registry used to be seeded from the environment only while `ai_providers` was empty, so a key added to
+   * `.env.production` later never reached the gateway. Now, once per process (retried every 10 minutes after a failure):
+   *  - a provider the gateway knows but the DB lacks (e.g. added in a release) is inserted with its defaults;
+   *  - a provider whose DB key is empty and whose environment variable is set gets the environment key (encrypted like the seed).
+   * A key an admin saved in the DB is never overwritten (the update filter requires an empty key). Only names are logged.
+   */
+  private async syncEnvKeys(): Promise<void> {
+    if (this.envSyncedAt && Date.now() < this.envSyncedAt) return;
+    try {
+      const filled: string[] = [];
+      const have = new Set(((await this.providers.find({}).toArray()) as unknown as Array<{ key: string }>).map((r) => r.key));
+      for (const p of DEFAULT_PROVIDERS) {
+        if (!have.has(p.key)) await this.providers.updateOne({ key: p.key }, { $setOnInsert: { ...p } }, { upsert: true });
+        const envKey = String(process.env[PROVIDER_ENV_KEY[p.key]] || '').trim();
+        if (!envKey) continue;
+        let stored = envKey;
+        try { stored = encryptApiKey(envKey); }
+        catch { this.logger.warn('AI_KEYS_ENC_KEY missing — storing an environment key unencrypted (re-save from admin to encrypt)'); }
+        const res = await this.providers.updateOne(
+          { key: p.key, $or: [{ api_key: '' }, { api_key: null }, { api_key: { $exists: false } }] },
+          { $set: { api_key: stored, updatedAt: new Date() } },
+        );
+        if (res.modifiedCount) filled.push(p.key);
+      }
+      if (filled.length) {
+        this.registryCache = null;
+        this.logger.log(`AI provider keys taken from the environment: ${filled.join(', ')}`);
+      }
+      this.envSyncedAt = Number.MAX_SAFE_INTEGER; // done for this process
+    } catch (e) {
+      this.envSyncedAt = Date.now() + 10 * 60_000;
+      this.logger.warn(`AI provider env sync failed: ${(e as Error).message}`);
+    }
+  }
+
   private async ensureRegistry() {
     const count = await this.providers.countDocuments({});
-    if (count > 0) { await this.migrateLegacyKeys(); return; }
-    const envKeys: Record<string, string> = {
-      gemini: process.env.GEMINI_API_KEY || '',
-      openai: process.env.OPENAI_API_KEY || '',
-      groq: process.env.GROQ_API_KEY || '',
-      cerebras: process.env.CEREBRAS_API_KEY || '',
-      openrouter: process.env.OPENROUTER_API_KEY || '',
-      deepseek: process.env.DEEPSEEK_API_KEY || '',
-      qwen: process.env.QWEN_API_KEY || '',
-      replicate: process.env.REPLICATE_API_TOKEN || '',
-    };
+    if (count > 0) { await this.migrateLegacyKeys(); await this.syncEnvKeys(); return; }
     for (const p of DEFAULT_PROVIDERS) {
       // P13-R21: seed keys encrypted when the env key exists; otherwise the
       // seed stays plaintext once (rotated to ciphertext on first admin save).
-      let seedKey = envKeys[p.key] || '';
+      let seedKey = String(process.env[PROVIDER_ENV_KEY[p.key]] || '');
       if (seedKey) {
         try { seedKey = encryptApiKey(seedKey); }
         catch { this.logger.warn('AI_KEYS_ENC_KEY missing — seeding a plaintext key (re-save from admin to encrypt)'); }
@@ -292,15 +323,17 @@ export class AiGatewayService {
   }
 
   /** P13-R21: park a failing provider for 5 minutes (priority order resumes it after). */
-  private async coolDown(key: string): Promise<void> {
-    await this.kvSet(this.cooldownKey(key), '1', 300);
+  private async coolDown(key: string, seconds = 300): Promise<void> {
+    await this.kvSet(this.cooldownKey(key), '1', seconds);
   }
 
   /** Eligible providers in attempt order (auto: priority asc, quota-aware). */
-  private async attemptChain(feature?: string): Promise<ProviderConfig[]> {
+  private async attemptChain(feature?: string, vision = false): Promise<ProviderConfig[]> {
     const { providers, mode, pinned, purposeOverrides } = await this.loadRegistry();
     const today = this.today();
+    // A vision request only goes to providers that have a vision model (prescription and card OCR); non-chat providers never join.
     const usable = (p: ProviderConfig) =>
+      !NON_CHAT_PROVIDERS.has(p.key) && (!vision || !!p.vision_model) &&
       p.enabled && p.api_key && (p.daily_quota === 0 || p.usage_date !== today || p.used_today < p.daily_quota);
     const chain: ProviderConfig[] = [];
     for (const p of providers.filter(usable)) {
@@ -363,7 +396,7 @@ export class AiGatewayService {
         }
       } catch { /* cache miss behaves like no cache */ }
     }
-    const chain = await this.attemptChain(opts.feature);
+    const chain = await this.attemptChain(opts.feature, !!opts.imageBase64);
     if (chain.length === 0) throw new ServiceUnavailableException('ai_provider_unavailable');
 
     // P13-R21: names, phones and IDs never leave for a provider.
@@ -398,9 +431,11 @@ export class AiGatewayService {
         await this.recordUsage(p, opts.feature, elapsed, false, fellBack, e.message?.slice(0, 160));
         const msg = String(e.message || '');
         // Rate limit / quota / connection → cool down, move to next provider
-        if (/429|rate.?limit|quota|insufficient|timeout|ECONN|ENOTFOUND|503|529|credit/i.test(msg)) {
+        // A rejected key (401/403) does not heal in minutes: park it for 30 minutes so every request does not pay for it.
+        const authFailed = /ai_provider_auth_failed/.test(msg);
+        if (authFailed || /429|rate.?limit|quota|insufficient|timeout|ECONN|ENOTFOUND|_http_5\d\d|503|529|credit/i.test(msg)) {
           this.logger.warn(`[AI-Gateway] ${p.key} failed (${msg.slice(0, 60)}) → cooldown + fallback`);
-          await this.coolDown(p.key);
+          await this.coolDown(p.key, authFailed ? 1800 : 300);
           fellBack = true;
           lastErr = e;
           continue;
@@ -478,6 +513,8 @@ export class AiGatewayService {
               ],
             },
             tokens_usage_date: today,
+            // admin view: last success, last error code
+            ...(ok ? { last_ok_at: new Date() } : { last_error_code: { $literal: String(error || 'error').slice(0, 80) }, last_error_at: new Date() }),
           },
         },
       ] as any,
@@ -541,6 +578,8 @@ export class AiGatewayService {
           error_rate_24h: st.calls ? Math.round((st.failures / st.calls) * 1000) / 1000 : 0,
           avg_ms_24h: st.avg_ms != null ? Math.round(st.avg_ms) : null,
           calls_24h: st.calls || 0,
+          last_ok_at: p.last_ok_at ?? null, last_error_code: p.last_error_code ?? null, last_error_at: p.last_error_at ?? null,
+          supports_vision: !!p.vision_model, chat: !NON_CHAT_PROVIDERS.has(p.key),
           has_key: masked.has_key, key_preview: masked.key_preview, ...(masked.key_unreadable ? { key_unreadable: true } : {}), note: p.note,
         };
       }),
