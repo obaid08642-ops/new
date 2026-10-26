@@ -432,6 +432,10 @@ export class SeoSearchService {
     ) || await this.conn.collection(CATALOG_COLLECTIONS.medicines).findOne(
       { ...this.publicProductFilter(), slug: decoded },
       { projection: { _id: 0 } },
+    // A product with no slug at all is linked by its id (`slugs[locale]` falls back to it), so the id must resolve too.
+    ) || await this.conn.collection(CATALOG_COLLECTIONS.medicines).findOne(
+      { ...this.publicProductFilter(), id: decoded },
+      { projection: { _id: 0 } },
     );
     if (!med) throw new NotFoundException('product_not_found');
     return resolveMedicinePublicDto(med, locale);

@@ -353,6 +353,8 @@
   "pharmacy.section.warnings": "সতর্কবার্তা",
   "pharmacy.section.precautions": "সতর্কতা",
   "pharmacy.section.sideEffects": "পার্শ্বপ্রতিক্রিয়া",
+  "pharmacy.section.onlyEnglish": "শুধু ইংরেজিতে পাওয়া যায়",
+  "pharmacy.section.onlyArabic": "শুধু আরবিতে পাওয়া যায়",
   "pharmacy.section.contra": "ব্যবহারের নিষেধাজ্ঞা",
   "pharmacy.section.interactions": "ওষুধের মিথস্ক্রিয়া",
   "pharmacy.section.pregnancyBreastfeeding": "গর্ভাবস্থা ও বুকের দুধ খাওয়ানো",

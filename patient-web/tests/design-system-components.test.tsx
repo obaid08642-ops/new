@@ -284,9 +284,9 @@ describe("handoff §3 — controls (components 2/4) match the boards", () => {
     expect(html).toContain("border-radius:18px");
   });
 
-  it("OutlineButton is 1.5px of ink on transparent; sm is 40 to look at and 44 to hit", () => {
+  it("OutlineButton is 1.5px of the action colour on transparent (owner ink override 2026-10-26); sm is 40 to look at and 44 to hit", () => {
     const html = markup(Button, { label: "تعديل", variant: "outline", size: "sm" });
-    expect(html).toContain("border:1.5px solid var(--nabd-color-text-primary)");
+    expect(html).toContain("border:1.5px solid var(--nabd-color-action-primary-bg)");
     expect(html).toContain("background:transparent");
     expect(html).toContain("height:40px");
     expect(html).toContain("calc((40px - var(--nabd-a11y-minTouchTarget)) / 2)");
@@ -309,11 +309,11 @@ describe("handoff §3 — controls (components 2/4) match the boards", () => {
     const filter = markup(IconButton, { name: "sliders", label: "تصفية", variant: "filled", shape: "square", size: "lg" });
     expect(filter).toContain("width:52px");
     expect(filter).toContain("border-radius:18px");
-    expect(filter).toContain("background:var(--nabd-color-action-selected-bg)");
+    expect(filter).toContain("background:var(--nabd-color-action-primary-bg)");
     expect(filter).toContain('data-icon="sliders"');
   });
 
-  it("Segmented is a named radiogroup with one tab stop; the selected item is the raised surface pill", () => {
+  it("Segmented is a named radiogroup with one tab stop; the selected item is the soft action tint pill", () => {
     const html = markup(Segmented, {
       label: "المظهر", value: "light",
       options: [{ value: "auto", label: "تلقائي" }, { value: "light", label: "فاتح" }, { value: "dark", label: "غامق" }],
@@ -324,6 +324,7 @@ describe("handoff §3 — controls (components 2/4) match the boards", () => {
     expect(html.match(/aria-checked="true"/g)).toHaveLength(1);
     expect(html.match(/tabindex="0"/g)).toHaveLength(1);
     expect(html).toContain("background:var(--nabd-color-control-segmentedTrack)");
+    expect(html).toContain("background:var(--nabd-color-service-coral-bg)");
     expect(html.match(/box-shadow:var\(--nabd-shadow-segmented\)/g)).toHaveLength(1);
   });
 
@@ -361,7 +362,9 @@ describe("handoff §3 — controls (components 2/4) match the boards", () => {
     expect(status).toContain("color:var(--nabd-color-service-coral-fg)");
     const chip = markup(Chip, { label: "أدوية", count: 12, selected: true });
     expect(chip).toContain('aria-pressed="true"');
-    expect(chip).toContain("background:var(--nabd-color-action-selected-bg)");
+    expect(chip).toContain("background:var(--nabd-color-service-coral-bg)");
+    expect(chip).toContain("color:var(--nabd-color-service-coral-fg)");
+    expect(chip).not.toContain("action-selected");
     expect(chip).toContain(">12<");
     expect(markup(Chip, { label: "أطباء" })).not.toContain("opacity:0.7");
   });
@@ -502,7 +505,7 @@ describe("handoff §3 — states and the main tab bar (components 4/4) match the
     expect(html).toContain("var(--nabd-color-service-blue-bg)");
   });
 
-  it("BottomTabBar is HomeApp's bar: glass pill, ink active pill with its label, raised coral centre, every item named", () => {
+  it("BottomTabBar is HomeApp's bar: glass pill, coral active pill with its label, raised coral centre, every item named", () => {
     const html = markup(BottomTabBar, { label: "التنقل الرئيسي", value: "home", items: [
       { id: "home", label: "الرئيسية", icon: "house" },
       { id: "consult", label: "الاستشارات", icon: "stethoscope", raised: true },
@@ -512,7 +515,9 @@ describe("handoff §3 — states and the main tab bar (components 4/4) match the
     expect(html).toContain("background:var(--nabd-color-glass-bgStrong)");
     expect(html).toContain("box-shadow:var(--nabd-shadow-tabBar)");
     expect(html.match(/aria-current="page"/g)).toHaveLength(1);
-    expect(html).toContain("background:var(--nabd-color-action-selected-bg)");
+    expect(html).toContain("background:var(--nabd-color-action-primary-bg)");
+    expect(html).toContain("color:var(--nabd-color-action-primary-fg)");
+    expect(html).not.toContain("action-selected");
     expect(html).toContain("linear-gradient(180deg, var(--nabd-color-action-fab-from) 0%, var(--nabd-color-action-fab-to) 100%)");
     expect(html).toContain("margin-block-start:-34px");
     for (const name of ["الرئيسية", "الاستشارات", "التحاليل"]) expect(html).toContain(`aria-label="${name}"`);
