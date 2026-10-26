@@ -1,5 +1,3 @@
-"use client";
-
 // GENERATED FILE — DO NOT EDIT.
 //
 // Mirrored from packages/ui/components/FIcon.tsx by tools/design/sync-ui-components.mjs.
