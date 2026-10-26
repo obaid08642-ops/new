@@ -55,7 +55,7 @@ export default function DiagnosticsHub() {
   const { theme, dir, t, c, k, num, flow } = useScreenUi();
   const text = useDiagText();
   const barHeight = useTabBarHeight();
-  const { items, itemCount, total, addItem, removeItem } = useDiagnosticsCart();
+  const { items, addItem, removeItem } = useDiagnosticsCart();
 
   // `?tab=radiology` opens the radiology side (the services catalogue's imaging entry; needs-review issue 414).
   const { tab } = useLocalSearchParams<{ tab?: string }>();
@@ -193,7 +193,11 @@ export default function DiagnosticsHub() {
       ];
   const addressLine = address ? k('diag.addr.to', { address: formatAddressLine(address) }) : addressLoaded ? k('diag.addr.none') : k('diag.addr.loading');
 
-  const barSpace = itemCount > 0 ? 84 : 0;
+  // one cart per service: the labs tab counts the lab tests, the radiology tab the scans (the cart screen lists both groups)
+  const tabLines = items.filter((i) => (i.kind === 'radiology') === (mainTab === 'radiology'));
+  const tabCount = tabLines.reduce((n, i) => n + (i.qty > 0 ? i.qty : 1), 0);
+  const tabTotal = tabLines.reduce((n, i) => n + i.price * (i.qty > 0 ? i.qty : 1), 0);
+  const barSpace = tabCount > 0 ? 84 : 0;
 
   return (
     <View style={{ flex: 1 }}>
@@ -396,8 +400,8 @@ export default function DiagnosticsHub() {
         </View>
       </Sheet>
     </Screen>
-    {itemCount > 0 ? (
-      <CartBar count={itemCount} total={total} bottom={barHeight + 8} actionLabel={k('diag.bar.continue')} countLabel={k('diag.bar.count', { n: num(itemCount) })} totalLabel={k('diag.bar.total')} onPress={() => router.push('/diagnostics/cart' as Href)} />
+    {tabCount > 0 ? (
+      <CartBar count={tabCount} total={tabTotal} bottom={barHeight + 8} actionLabel={k('diag.bar.continue')} countLabel={k('diag.bar.count', { n: num(tabCount) })} totalLabel={k('diag.bar.total')} onPress={() => router.push('/diagnostics/cart' as Href)} />
     ) : null}
     </View>
   );

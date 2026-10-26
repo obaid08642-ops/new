@@ -4,7 +4,7 @@ import { UsersService } from './users.service';
 
 describe('POST /users/me/insurance', () => {
   const setup = () => {
-    const users: any = { getPatientProfile: jest.fn(async () => ({ insurance: null })), setPatientInsurance: jest.fn(async () => undefined) };
+    const users: any = { getPatientProfile: jest.fn(async () => ({ insurance: null })), setPatientInsurance: jest.fn(async () => undefined), findInsuranceCompany: jest.fn(async () => null) };
     return { users, ctrl: new UsersInsuranceController(users) };
   };
 
