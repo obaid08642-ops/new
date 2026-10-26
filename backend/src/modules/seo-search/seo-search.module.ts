@@ -614,6 +614,8 @@ export class SeoSearchService {
       .sort({ id: 1 })
       .skip((page - 1) * perPage)
       .limit(perPage)
+      // One round trip for the page (the driver default of 101 docs made ~50 getMore calls: Sentry NABD-BACKEND-1V).
+      .batchSize(perPage)
       .toArray();
     const val = rows.map((m: any) => {
       const alternates: Record<string, string> = {};
