@@ -1,5 +1,5 @@
 import { lastValueFrom, of } from 'rxjs';
-import { SearchService, suggestMinLength } from './search.service';
+import { SearchService, suggestMinLength, suggestTypes } from './search.service';
 import { normalizeSearchText } from '../seo-search/seo-search.module';
 import { MeiliClient } from './meili.client';
 import { foldWithMap, highlightRanges, judgeSuggestion } from './suggest-rank';
@@ -28,7 +28,7 @@ function service(rows: any[], flags: Record<string, boolean> = {}, purgeBus?: { 
           asked.push(filter);
           let n = Infinity;
           const matches = () => rows
-            .filter((r) => !filter.key?.$nin?.includes(r.key) && (!filter.text || filter.text.test(r.text)))
+            .filter((r) => !filter.key?.$nin?.includes(r.key) && (!filter.text || filter.text.test(r.text)) && (!filter.type?.$in || filter.type.$in.includes(r.type)))
             .sort((a, b) => (b.boost ?? 0) - (a.boost ?? 0));
           const cursor: any = {
             sort: () => cursor,
@@ -195,7 +195,7 @@ describe('issue 1544: Meilisearch path (prefix search, typo tolerance) and the M
     const spy = jest.spyOn(MeiliClient.prototype, 'suggest').mockResolvedValue([hit('u', 'Urban Clinic', 9), hit('b', 'Banadol Extra')] as any);
     const { svc, asked } = service([]);
     const out = (await svc.suggest('ban', 'en')).suggestions;
-    expect(spy).toHaveBeenCalledWith('ban', 200);
+    expect(spy).toHaveBeenCalledWith('ban', 200, null);
     expect(names(out)).toEqual(['Banadol Extra', 'Urban Clinic']);
     expect(out[0].highlights).toEqual([{ start: 0, length: 3 }]);
     // no MongoDB prefix pool: the only MongoDB query is the bounded inside-a-word one (fewer than 8 first-tier answers)
@@ -306,5 +306,83 @@ describe('issue 1544: edge cache and purge', () => {
     } finally {
       jest.useRealTimers();
     }
+  });
+});
+
+describe('scoped suggestions: each service screen asks for its own section (and types)', () => {
+  const sectionOf = (type: string) => ({ medicine: 'pharmacy', doctor: 'consultations', specialty: 'consultations', lab_test: 'labs', lab_package: 'labs', radiology: 'labs', nursing: 'nursing', article: null } as Record<string, string | null>)[type];
+  const mixed = [
+    ['medicine', 'Cardio Pill'], ['doctor', 'Dr Cardio Ahmed'], ['specialty', 'Cardiology'], ['lab_test', 'Cardiac Troponin'],
+    ['lab_package', 'Cardio Check Package'], ['radiology', 'Cardio MRI'], ['nursing', 'Cardio Home Monitoring'], ['article', 'Cardio health tips'],
+  ].map(([type, en], i) => row(`x${i}`, type, { en }, { section: sectionOf(type) }));
+
+  it('no scope is the home search: every type is suggested (unchanged)', async () => {
+    const { svc } = service(mixed);
+    expect((await svc.suggest('car', 'en')).suggestions).toHaveLength(8);
+  });
+
+  it.each([
+    ['pharmacy', ['medicine']],
+    ['consultations', ['doctor', 'specialty']],
+    ['labs', ['lab_test', 'lab_package', 'radiology']],
+    ['nursing', ['nursing']],
+  ] as const)('section %s suggests only its own types', async (section, types) => {
+    const { svc } = service(mixed);
+    const out = (await svc.suggest('car', 'en', { section })).suggestions;
+    expect(out.length).toBe(types.length);
+    expect(out.every((s) => (types as readonly string[]).includes(s.type))).toBe(true);
+  });
+
+  it('types narrows a section: scans only, labs without scans, and types alone work without a section', async () => {
+    const { svc } = service(mixed);
+    expect((await svc.suggest('car', 'en', { section: 'labs', types: ['radiology'] })).suggestions.map((s) => s.type)).toEqual(['radiology']);
+    expect((await svc.suggest('car', 'en', { section: 'labs', types: ['lab_test', 'lab_package'] })).suggestions.map((s) => s.type).sort()).toEqual(['lab_package', 'lab_test']);
+    expect((await svc.suggest('car', 'en', { types: ['medicine'] })).suggestions.map((s) => s.type)).toEqual(['medicine']);
+    // a type outside the section is not suggested
+    expect((await svc.suggest('car', 'en', { section: 'pharmacy', types: ['radiology'] })).suggestions).toEqual([]);
+  });
+
+  it('both MongoDB queries (the word-start pool and the inside-a-word tier) carry the type filter', async () => {
+    const { svc, asked } = service([row('p', 'medicine', { en: 'Ban 1' }, { section: 'pharmacy' }), row('q', 'medicine', { en: 'Urban 2' }, { section: 'pharmacy' })]);
+    await svc.suggest('ban', 'en', { section: 'pharmacy' });
+    expect(asked).toHaveLength(2);
+    for (const f of asked) expect(f.type).toEqual({ $in: ['medicine'] });
+  });
+
+  it('Meilisearch is asked with the same types as a filter', async () => {
+    process.env.MEILI_URL = 'http://meili:7700';
+    const spy = jest.spyOn(MeiliClient.prototype, 'suggest').mockResolvedValue([] as any);
+    const { svc } = service([]);
+    await svc.suggest('ban', 'en', { section: 'labs', types: ['radiology'] });
+    expect(spy).toHaveBeenCalledWith('ban', 200, ['radiology']);
+    spy.mockRestore();
+    delete process.env.MEILI_URL;
+  });
+
+  it('suggestTypes: no scope is everything (null); an unknown type is dropped and a scope nothing fits is empty (never everything)', async () => {
+    expect(suggestTypes({})).toBeNull();
+    expect(suggestTypes({ section: 'nursing' })).toEqual(['nursing']);
+    expect(suggestTypes({ types: ['nope' as any] })).toEqual([]);
+    expect((await service(mixed).svc.suggest('car', 'en', { types: ['nope' as any] })).suggestions).toEqual([]);
+  });
+});
+
+describe('scoped suggestions: the request', () => {
+  const { validate } = require('class-validator');
+  const { plainToInstance } = require('class-transformer');
+  const { SuggestQueryDto } = require('./search.controller');
+  const check = async (o: object) => (await validate(plainToInstance(SuggestQueryDto, o))).length;
+
+  it('accepts the section values GET /search accepts and the type list, refuses anything else', async () => {
+    expect(await check({ q: 'car', section: 'pharmacy' })).toBe(0);
+    expect(await check({ q: 'car', section: 'labs', types: 'lab_test,lab_package' })).toBe(0);
+    expect(await check({ q: 'car', section: 'insurance' })).toBe(1);
+    expect(await check({ q: 'car', types: 'medicine,evil' })).toBe(1);
+  });
+
+  it('the cache key is the whole URL, so every section has its own cached answer', () => {
+    // redis-cache.interceptor.ts: `http_cache:${request.originalUrl}`: the query string (section, types) is part of the key.
+    const src = require('fs').readFileSync(require('path').join(__dirname, '../../common/redis-cache.interceptor.ts'), 'utf8');
+    expect(src).toContain('request.originalUrl');
   });
 });

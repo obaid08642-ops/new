@@ -238,14 +238,14 @@ export function AuthCheckbox({ checked, onToggle, label, children }: { checked: 
           height: 22,
           marginTop: 1,
           borderRadius: 7,
-          backgroundColor: checked ? c.text.primary : c.bg.surface,
+          backgroundColor: checked ? c.action.primary.bg : c.bg.surface,
           borderWidth: checked ? 0 : 1.5,
           borderColor: c.border.strong,
           alignItems: 'center',
           justifyContent: 'center',
         }}
       >
-        {checked ? <Icon name="check" size={14} theme={theme} color={c.bg.canvas} /> : null}
+        {checked ? <Icon name="check" size={14} theme={theme} color={c.action.primary.fg} /> : null}
       </Pressable>
       <View style={{ flex: 1 }}>{children}</View>
     </View>

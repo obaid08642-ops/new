@@ -241,10 +241,10 @@ export function ProductCard({ name, meta, price, currency, imageSrc, image, disc
           onPress={inert ? undefined : onAdd}
           hitSlop={2}
           testID={testID ? `${testID}-add` : undefined}
-          style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: c.action.selected.bg, alignItems: 'center', justifyContent: 'center', opacity: disabled ? 0.5 : 1 }}
+          style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: c.action.primary.bg, alignItems: 'center', justifyContent: 'center', opacity: disabled ? 0.5 : 1 }}
         >
           <Svg width={18} height={18} viewBox={FILL_ICON_VIEWBOX}>
-            <Path d={PLUS_SQUARE_PATH} fill={c.action.selected.fg} />
+            <Path d={PLUS_SQUARE_PATH} fill={c.action.primary.fg} />
           </Svg>
         </Pressable>
       </View>

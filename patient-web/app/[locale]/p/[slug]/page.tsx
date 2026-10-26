@@ -9,7 +9,6 @@ import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl, siteOrigin } from "@/lib/seo";
 import { howToJsonLd } from "@/lib/seo/json-ld";
 import { DirectAnswer, speakableSpec } from "@/components-next/seo/direct-answer";
-import { CiteThis } from "@/components-next/cite-this";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { StickyFooter } from "@/components-next/ui-generated/shells/StickyFooter";
 import { Card } from "@/components-next/ui-generated/components/Surfaces";
@@ -470,15 +469,6 @@ export default async function PublicProductPage({ params }: Props) {
 
           <SuggestChange medicineId={product.id} locale={locale} />
           <ProductViewBeacon medicineId={product.id} />
-
-          <CiteThis
-            title={name}
-            uri={canonical}
-            author={null}
-            authorTitle={null}
-            publishedAt={null}
-            locale={locale}
-          />
         </div>
       </CoreShell>
     </BuyProvider>
