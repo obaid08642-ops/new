@@ -89,7 +89,7 @@ describe('cart button', () => {
   it('a radiology screen counts only the scans and opens the diagnostics cart', async () => {
     mockDiagItems = [{ id: 't1', kind: 'lab', qty: 3 }, { id: 'r1', kind: 'radiology', qty: 1 }];
     const view = await render(wrap(<ServiceCartButton service="radiology" testID="svc-cart" />));
-    expect(view.getByTestId('svc-cart').props.accessibilityLabel).toBe(k('pharmacy.cartCount', { count: 1 }));
+    expect((await view.findByTestId('svc-cart')).props.accessibilityLabel).toBe(k('pharmacy.cartCount', { count: 1 }));
     fireEvent.press(view.getByTestId('svc-cart'));
     expect(mockRouter.push).toHaveBeenLastCalledWith('/diagnostics/cart');
     mockDiagItems = [];
@@ -102,7 +102,7 @@ describe('cart button', () => {
       await cart.addItem({ id: 'm1', name: 'Test medicine', rx: false, qty: 2 });
     });
     mockRouter.push.mockClear();
-    fireEvent.press(view.getByTestId('svc-cart'));
+    fireEvent.press(await view.findByTestId('svc-cart'));
     expect(mockRouter.push).not.toHaveBeenCalled();
     expect(await view.findByTestId('cart-chooser')).toBeTruthy();
     expect(view.getByTestId('cart-chooser-pharmacy').props.accessibilityLabel).toContain(k('cart.name.pharmacy'));
@@ -118,7 +118,7 @@ describe('cart button', () => {
   it('on Home with one non-empty cart it opens that cart at once', async () => {
     mockDiagItems = [{ id: 'r1', kind: 'radiology', qty: 1 }];
     const view = await render(wrap(<ServiceCartButton testID="svc-cart" />));
-    fireEvent.press(view.getByTestId('svc-cart'));
+    fireEvent.press(await view.findByTestId('svc-cart'));
     expect(mockRouter.push).toHaveBeenLastCalledWith('/diagnostics/cart');
     mockDiagItems = [];
   });

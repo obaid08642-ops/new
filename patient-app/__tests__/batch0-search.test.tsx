@@ -12,6 +12,7 @@ const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn(), canGo
 let mockParams: Record<string, string> = {};
 jest.mock('react-native-localize', () => ({ getLocales: () => [{ languageCode: 'ar' }], getCalendar: () => 'gregorian' }));
 jest.mock('../src/context/CartContext', () => ({ useCart: () => ({ itemCount: 0 }) })); // the header's cart button reads the count (the app wraps every screen in CartProvider)
+jest.mock('../src/context/DiagnosticsCartContext', () => ({ useDiagnosticsCart: () => ({ items: [] }) })); // the search header's cart button reads the diagnostics cart too (one cart per service)
 jest.mock('expo-router', () => ({
   get router() {
     return mockRouter;
