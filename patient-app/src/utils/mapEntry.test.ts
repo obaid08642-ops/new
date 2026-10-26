@@ -20,11 +20,12 @@ describe('providers map entry', () => {
     expect(parseMapKind(undefined)).toBeNull();
   });
 
-  it('is offered on Home, pharmacy, diagnostics and consultations with the right type', () => {
+  it('is offered on Home only', () => {
     expect(read('src/components/home/HomeTopRow.tsx')).toContain('<MapEntryButton');
-    expect(read('app/(tabs)/pharmacy.tsx')).toContain('<MapEntryButton kind="pharmacy"');
-    expect(read('app/(tabs)/diagnostics.tsx')).toContain('<MapEntryButton kind="lab"');
-    expect(read('app/(tabs)/consultations/index.tsx')).toContain("mapHref('doctor')");
+    // owner layout decisions 4, 10 and 12: the map lives on Home only, not under the pharmacy, labs or consultations headers
+    expect(read('app/(tabs)/pharmacy.tsx')).not.toContain('<MapEntryButton');
+    expect(read('app/(tabs)/diagnostics.tsx')).not.toContain('<MapEntryButton');
+    expect(read('app/(tabs)/consultations/index.tsx')).not.toContain('mapHref');
   });
 
   it('the map screen reads the type param to filter', () => {

@@ -1129,7 +1129,7 @@
   "consult.hub.visitType": "পরামর্শের ধরন",
   "consult.hub.payment": "পেমেন্ট",
   "consult.hub.payAll": "সব",
-  "consult.hub.payCash": "নগদ",
+  "consult.hub.payCash": "বিমা ছাড়া (নগদ)",
   "consult.hub.payInsurance": "বিমা",
   "consult.hub.specialties": "বিশেষত্ব",
   "consult.hub.viewAll": "সব দেখুন",
@@ -3801,5 +3801,13 @@
   "picker.choose": "বেছে নিন",
   "picker.reversing": "পিনের অবস্থান থেকে ঠিকানা পড়া হচ্ছে…",
   "picker.outsideArea": "এই স্থানটি সেবা এলাকার বাইরে। পিনটি সৌদি আরবের ভিতরে সরান বা নিজে ঠিকানা লিখুন।",
-  "picker.reverseFailed": "আপনার অবস্থান থেকে ঠিকানা পড়া যায়নি। নিজে লিখুন।"
+  "picker.reverseFailed": "আপনার অবস্থান থেকে ঠিকানা পড়া যায়নি। নিজে লিখুন।",
+  "consult.hub.visitSubClinic": "ক্লিনিকে ডাক্তারের সাথে দেখা করুন",
+  "consult.hub.visitSubVideo": "ভিডিওতে ডাক্তারের সাথে কথা বলুন",
+  "consult.hub.visitSubHome": "ডাক্তার আপনার বাড়িতে আসেন",
+  "consult.hub.filters": "ফিল্টার",
+  "consult.hub.filtersTitle": "ডাক্তার ফিল্টার করুন",
+  "consult.hub.filtersClearAll": "সব মুছুন",
+  "consult.hub.filtersClose": "ফিল্টার বন্ধ করুন",
+  "consult.hub.filtersWithCount": "ফিল্টার, {n}টি সক্রিয়"
 }

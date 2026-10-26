@@ -1129,7 +1129,7 @@
   "consult.hub.visitType": "نوع الاستشارة",
   "consult.hub.payment": "طريقة الدفع",
   "consult.hub.payAll": "الكل",
-  "consult.hub.payCash": "كاش",
+  "consult.hub.payCash": "بدون تأمين (كاش)",
   "consult.hub.payInsurance": "تأمين",
   "consult.hub.specialties": "التخصصات",
   "consult.hub.viewAll": "عرض الكل",
@@ -3801,5 +3801,13 @@
   "picker.choose": "اختر",
   "picker.reversing": "جارٍ قراءة العنوان من موقع الدبوس…",
   "picker.outsideArea": "هذا الموقع خارج نطاق الخدمة. حرّك الدبوس داخل المملكة أو اكتب العنوان بنفسك.",
-  "picker.reverseFailed": "تعذّر قراءة العنوان من موقعك. اكتب العنوان بنفسك."
+  "picker.reverseFailed": "تعذّر قراءة العنوان من موقعك. اكتب العنوان بنفسك.",
+  "consult.hub.visitSubClinic": "قابل الطبيب في العيادة",
+  "consult.hub.visitSubVideo": "تحدث مع الطبيب بالفيديو",
+  "consult.hub.visitSubHome": "يأتيك الطبيب إلى المنزل",
+  "consult.hub.filters": "الفلاتر",
+  "consult.hub.filtersTitle": "تصفية الأطباء",
+  "consult.hub.filtersClearAll": "مسح الكل",
+  "consult.hub.filtersClose": "إغلاق الفلاتر",
+  "consult.hub.filtersWithCount": "الفلاتر، {n} مفعّل"
 }
