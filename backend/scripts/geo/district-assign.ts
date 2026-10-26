@@ -58,23 +58,32 @@ const seedKeys = (c: SeedCity) => keysOf([c.name_ar, c.name_en, ...(c.aliases ??
 type Ring = Pt[];
 const same = (a: Pt, b: Pt) => a.lat === b.lat && a.lng === b.lng;
 
-/** Joins ways end to end into closed rings; a chain that never closes is dropped (and counted by the caller). */
+/**
+ * Joins ways end to end into closed rings. A way may join either end of the chain being built and may run in either direction: the ways
+ * of a real boundary relation come in any order and any direction (the first way's START is often the second one's END), so extending only
+ * the end of the chain never closed a ring. A chain that never closes is dropped (the caller counts the relation as unclosed).
+ */
 export function stitchRings(segments: Pt[][]): Ring[] {
   const left = segments.filter((s) => s.length >= 2).map((s) => [...s]);
   const rings: Ring[] = [];
+  const closed = (r: Ring) => r.length > 3 && same(r[0], r[r.length - 1]);
   while (left.length) {
-    const ring = left.shift() as Ring;
+    let ring = left.shift() as Ring;
     let progressed = true;
-    while (progressed && !(ring.length > 3 && same(ring[0], ring[ring.length - 1]))) {
+    while (progressed && !closed(ring)) {
       progressed = false;
-      const end = ring[ring.length - 1];
+      const head = ring[0]; const tail = ring[ring.length - 1];
       for (let i = 0; i < left.length; i++) {
-        const s = left[i];
-        if (same(s[0], end)) { ring.push(...s.slice(1)); left.splice(i, 1); progressed = true; break; }
-        if (same(s[s.length - 1], end)) { ring.push(...[...s].reverse().slice(1)); left.splice(i, 1); progressed = true; break; }
+        const s = left[i]; const first = s[0]; const last = s[s.length - 1];
+        if (same(first, tail)) ring = [...ring, ...s.slice(1)];
+        else if (same(last, tail)) ring = [...ring, ...[...s].reverse().slice(1)];
+        else if (same(last, head)) ring = [...s.slice(0, -1), ...ring];
+        else if (same(first, head)) ring = [...[...s].reverse().slice(0, -1), ...ring];
+        else continue;
+        left.splice(i, 1); progressed = true; break;
       }
     }
-    if (ring.length > 3 && same(ring[0], ring[ring.length - 1])) rings.push(ring);
+    if (closed(ring)) rings.push(ring);
   }
   return rings;
 }
