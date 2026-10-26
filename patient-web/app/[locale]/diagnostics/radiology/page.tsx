@@ -1,3 +1,4 @@
+import { SUGGEST_SCOPES } from "@/lib/search/suggest";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractRadiologyServices } from "@/lib/api/radiology";
@@ -67,6 +68,7 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
     <ConsultPage locale={locale} title={t("title")} backHref={backHref} resultsHref={`/${locale}/diagnostics/results`}>
       <p className={styles.flowNote}>{t("subtitle")}</p>
       <SearchForm
+        suggest={{ locale, scope: SUGGEST_SCOPES.radiology }}
         name="search"
         defaultValue={search}
         placeholder={t("searchPlaceholder")}

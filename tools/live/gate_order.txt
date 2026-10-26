@@ -82,6 +82,7 @@ j_services_merged
 j_web_product_page
 j_web_unnamed_images
 j_web_search_suggest
+j_search_suggest_sections
 j_drug_index_access
 j_admin_provider_delete
 j_insurance_selfpay_filters

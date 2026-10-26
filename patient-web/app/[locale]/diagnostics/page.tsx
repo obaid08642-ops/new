@@ -1,3 +1,4 @@
+import { SUGGEST_SCOPES } from "@/lib/search/suggest";
 import { StaleWhileRevalidate } from "@/components-next/nav/stale-while-revalidate";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -160,6 +161,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
       </div>
       {/* The search filters the lists of the chosen kind in place (the app does; radiology has no search page), the URL keeps it. */}
       <SearchForm
+        suggest={{ locale, scope: kind === "labs" ? SUGGEST_SCOPES.labs : SUGGEST_SCOPES.radiology }}
         action={`/${locale}/diagnostics`}
         defaultValue={filter.q}
         placeholder={kind === "labs" ? t("searchLabs") : t("searchRadiology")}
