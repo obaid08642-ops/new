@@ -7,7 +7,8 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { AppHeader, Chip, DoctorCard, EmptyState, ErrorState, FIcon, Icon, OfferCard, Screen, Search, Skeleton, useTabBarHeight } from '../../../../packages/ui-native/src';
 import { COLUMN, step as scale, useScreenUi } from '../../../src/components/screen/ScreenKit';
 import { CONSULT_TONE, MODE_LOOK, Section, Sheet, goBack, visitMode, specialtyLook, type VisitMode } from '../../../src/components/consult/ConsultKit';
-import { Glyph } from '../../../src/components/pharmacy/PharmacyKit';
+import { GlyphRound } from '../../../src/components/pharmacy/PharmacyKit';
+import { HeaderMenuButton } from '../../../src/components/nav/HeaderMenuButton';
 import { ActiveFilters, type ActiveFilter } from '../../../src/components/pharmacy/ActiveFilters';
 import { apiFetch } from '../../../src/utils/api';
 import { fetchPublicList } from '../../../src/utils/publicCache';
@@ -354,9 +355,12 @@ export default function Consultations() {
         title={k('consult.hub.title')}
         onBack={() => goBack('/(tabs)' as Href)}
         backLabel={k('consult.back')}
-        actions={[
-          { key: 'appointments', label: k('consult.appt.title'), icon: <Glyph name="calendar-dots" size={20} color={c.text.secondary} />, onPress: () => router.push('/consultations/appointments' as Href) },
-        ]}
+        trailing={
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <GlyphRound name="calendar-dots" label={k('consult.appt.title')} onPress={() => router.push('/consultations/appointments' as Href)} testID="consult-appointments-entry" />
+            <HeaderMenuButton testID="consult-menu-button" />
+          </View>
+        }
         theme={theme}
         direction={dir}
       />

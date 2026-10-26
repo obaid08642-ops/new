@@ -3821,5 +3821,14 @@
   "consult.hub.filtersTitle": "ڈاکٹرز فلٹر کریں",
   "consult.hub.filtersClearAll": "سب صاف کریں",
   "consult.hub.filtersClose": "فلٹر بند کریں",
-  "consult.hub.filtersWithCount": "فلٹر، {n} فعال"
+  "consult.hub.filtersWithCount": "فلٹر، {n} فعال",
+  "menu.open": "مینو",
+  "menu.close": "مینو بند کریں",
+  "menu.profile": "میرا اکاؤنٹ",
+  "menu.orders": "میرے آرڈرز",
+  "menu.family": "خاندان",
+  "menu.articles": "مضامین",
+  "menu.notifications": "اطلاعات",
+  "menu.settings": "ترتیبات",
+  "menu.help": "مدد"
 }

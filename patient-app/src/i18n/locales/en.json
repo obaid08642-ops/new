@@ -3821,5 +3821,14 @@
   "consult.hub.filtersTitle": "Filter doctors",
   "consult.hub.filtersClearAll": "Clear all",
   "consult.hub.filtersClose": "Close filters",
-  "consult.hub.filtersWithCount": "Filters, {n} active"
+  "consult.hub.filtersWithCount": "Filters, {n} active",
+  "menu.open": "Menu",
+  "menu.close": "Close menu",
+  "menu.profile": "My account",
+  "menu.orders": "My orders",
+  "menu.family": "Family",
+  "menu.articles": "Articles",
+  "menu.notifications": "Notifications",
+  "menu.settings": "Settings",
+  "menu.help": "Help"
 }

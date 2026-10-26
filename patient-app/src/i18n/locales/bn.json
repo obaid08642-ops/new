@@ -3821,5 +3821,14 @@
   "consult.hub.filtersTitle": "ডাক্তার ফিল্টার করুন",
   "consult.hub.filtersClearAll": "সব মুছুন",
   "consult.hub.filtersClose": "ফিল্টার বন্ধ করুন",
-  "consult.hub.filtersWithCount": "ফিল্টার, {n}টি সক্রিয়"
+  "consult.hub.filtersWithCount": "ফিল্টার, {n}টি সক্রিয়",
+  "menu.open": "মেনু",
+  "menu.close": "মেনু বন্ধ করুন",
+  "menu.profile": "আমার অ্যাকাউন্ট",
+  "menu.orders": "আমার অর্ডার",
+  "menu.family": "পরিবার",
+  "menu.articles": "নিবন্ধ",
+  "menu.notifications": "নোটিফিকেশন",
+  "menu.settings": "সেটিংস",
+  "menu.help": "সহায়তা"
 }

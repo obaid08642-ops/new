@@ -3821,5 +3821,14 @@
   "consult.hub.filtersTitle": "تصفية الأطباء",
   "consult.hub.filtersClearAll": "مسح الكل",
   "consult.hub.filtersClose": "إغلاق الفلاتر",
-  "consult.hub.filtersWithCount": "الفلاتر، {n} مفعّل"
+  "consult.hub.filtersWithCount": "الفلاتر، {n} مفعّل",
+  "menu.open": "القائمة",
+  "menu.close": "إغلاق القائمة",
+  "menu.profile": "حسابي",
+  "menu.orders": "طلباتي",
+  "menu.family": "العائلة",
+  "menu.articles": "المقالات",
+  "menu.notifications": "الإشعارات",
+  "menu.settings": "الإعدادات",
+  "menu.help": "المساعدة"
 }

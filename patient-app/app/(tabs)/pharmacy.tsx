@@ -21,6 +21,7 @@ import {
 import { RotatingProductImage } from '../../src/components/pharmacy/RotatingProductImage';
 import { FilterSheet } from '../../src/components/pharmacy/FilterSheet';
 import { CartButton, WishlistButton, GlyphSquare, MedAddControl, PHARMACY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
+import { HeaderMenuButton } from '../../src/components/nav/HeaderMenuButton';
 import { ActiveFilters, type ActiveFilter } from '../../src/components/pharmacy/ActiveFilters';
 import { CategoryTiles } from '../../src/components/pharmacy/CategoryTiles';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
@@ -228,6 +229,7 @@ export default function PharmacyHub() {
         <Text accessibilityRole="header" style={{ flex: 1, ...scale(t, 'h1'), letterSpacing: -0.3, color: c.text.primary, ...flow }}>{k('pharmacy.title')}</Text>
         <WishlistButton />
         <CartButton />
+        <HeaderMenuButton testID="pharmacy-menu-button" />
       </View>
 
       {/* search with the barcode, and the ink camera square */}
