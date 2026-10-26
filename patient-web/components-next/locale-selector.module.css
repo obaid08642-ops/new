@@ -97,3 +97,10 @@
   font-weight: 900;
   font-size: 0.9rem;
 }
+
+/* phones, where the header is tight (home): the trigger is the globe alone, 40px like the other header buttons; the name stays in aria-label */
+@media (max-width: 539px) {
+  .compactOnPhone .trigger { inline-size: 40px; block-size: 40px; padding: 0; justify-content: center; border-radius: 20px; }
+  .compactOnPhone .currentLabel,
+  .compactOnPhone .chevronIcon { display: none; }
+}
