@@ -1,8 +1,9 @@
-# 2026-10-26 lead reviewer: run 22. Run 21 ABORTED safely again: 7.45 GB free after the safe cleanup (9 needed); nothing changed,
-# production stays on 5e6cd1a6. The owner's Approve of this run allows 93-free-unused-images: removes only docker images that NO
-# container uses (docker showed 1.85 GB reclaimable), each printed with its size. Never a volume, a backup, or an image in use.
-# Then deploy main@85c8de47. If space is still short the deploy aborts again with nothing changed.
-release:85c8de471a62dce43ba7704e47d2cc931e409edb
+# 2026-10-26 lead reviewer: run 23. Run 22 freed the disk (9.1 GB) and its deploy passed every check, but it re-deployed 5e6cd1a6:
+# 60-deploy-main.sh pins its SHA in a default the workflow does not override, and I had not updated it. Now pinned to
+# main@b600f427 (all merges since 5e6cd1a6: product pages, doctor page, admin logs, Snapchat fix + app bridge page, brand
+# social buttons, districts fix, colour slice 1, guest-job review, family 403). 93-free-unused-images first (owner-approved:
+# only images no container uses), then deploy, then cf-purge-api.
+release:b600f427ec64a904cb8f7000fe3d9bbd546b42c8
 93-free-unused-images
 60-deploy-main
 cf-purge-api
