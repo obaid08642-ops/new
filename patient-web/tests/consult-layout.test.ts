@@ -21,7 +21,7 @@ describe("consultations doctors list layout", () => {
     expect(view).toContain("styles.searchSticky");
     expect(view).toContain("activeChips.length > 0");
     expect(view).toContain('t("filtersClearAll")');
-    const sheet = code("components-next/consult/doctor-filters-sheet.tsx");
+    const sheet = code("components-next/consult/doctor-filters-panel.tsx");
     for (const needle of ['role="dialog"', 'aria-modal="true"', 'event.key === "Escape"', 'event.key !== "Tab"', "aria-labelledby"]) expect(sheet, needle).toContain(needle);
   });
   it("words self-pay as 'Without insurance (cash)' in all six languages", () => {
