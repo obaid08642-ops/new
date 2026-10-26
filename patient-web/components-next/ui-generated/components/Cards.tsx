@@ -16,10 +16,9 @@
 import * as React from 'react';
 import clsx from 'clsx';
 
-import type { ConsultMode, DoctorCardProps, OfferCardProps, ProductCardProps, ProgressRingProps, TimelineProps } from './contract';
-import { FIcon } from './FIcon';
+import type { ConsultMode, DoctorCardProps, ProductCardProps, ProgressRingProps, TimelineProps } from './contract';
 import { Rating } from './Surfaces';
-import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, type FillIconName } from '../icons/fill';
+import { FILL_CHECK_CIRCLE, FILL_HOSPITAL, FILL_HOUSE, FILL_MAP_PIN, FILL_PILL, FILL_USER, FILL_VIDEO_CAMERA } from '../icons/fill-glyphs';
 import { CLOCK_PATH, MARK_VIEWBOX_24, PLUS_SQUARE_PATH, SEAL_CHECK_PATH, SEAL_PATH } from '../icons/marks';
 
 /**
@@ -33,20 +32,25 @@ import { CLOCK_PATH, MARK_VIEWBOX_24, PLUS_SQUARE_PATH, SEAL_CHECK_PATH, SEAL_PA
  * ProgressRing's free size stays in SVG attributes.
  */
 
-function Glyph({ name, size, color }: { name: FillIconName; size: number; color: string }) {
+// Named glyph imports (icons/fill-glyphs.ts), not the name-indexed FILL_ICON_PATHS record: a record picked by
+// name cannot be tree-shaken, so every page drawing a DoctorCard would ship all of it. OfferCard (icon by prop)
+// lives in ./OfferCard for the same reason.
+const GLYPH_VIEWBOX = '0 0 256 256'; // same as GLYPH_VIEWBOX in ../icons/fill, which would pull the record in
+
+function Glyph({ d, size, color }: { d: string; size: number; color: string }) {
   return (
-    <svg width={size} height={size} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true" className="nabd-cards-glyph">
-      <path d={FILL_ICON_PATHS[name]} fill={color} />
+    <svg width={size} height={size} viewBox={GLYPH_VIEWBOX} aria-hidden="true" className="nabd-cards-glyph">
+      <path d={d} fill={color} />
     </svg>
   );
 }
 
 /* ------------------------------------------------------------ DoctorCard */
 
-const MODE: Record<ConsultMode, { icon: FillIconName; tone: 'blue' | 'mint' | 'violet' }> = {
-  clinic: { icon: 'hospital', tone: 'blue' },
-  home: { icon: 'house', tone: 'mint' },
-  online: { icon: 'video-camera', tone: 'violet' },
+const MODE: Record<ConsultMode, { glyph: string; tone: 'blue' | 'mint' | 'violet' }> = {
+  clinic: { glyph: FILL_HOSPITAL, tone: 'blue' },
+  home: { glyph: FILL_HOUSE, tone: 'mint' },
+  online: { glyph: FILL_VIDEO_CAMERA, tone: 'violet' },
 };
 
 export interface WebDoctorCardProps extends DoctorCardProps {
@@ -86,7 +90,7 @@ export function DoctorCard({
           {photoSrc ? (
             <img src={photoSrc} alt="" aria-hidden className="nabd-doctor-card__img" />
           ) : (
-            <Glyph name="user" size={44} color={`var(--nabd-color-service-${tone}-fg)`} />
+            <Glyph d={FILL_USER} size={44} color={`var(--nabd-color-service-${tone}-fg)`} />
           )}
           {availableLabel ? <span role="img" aria-label={availableLabel} className="nabd-doctor-card__available" /> : null}
         </div>
@@ -104,7 +108,7 @@ export function DoctorCard({
           {specialty ? <span className="nabd-doctor-card__specialty">{specialty}</span> : null}
           {place ? (
             <span className="nabd-doctor-card__place">
-              <Glyph name="map-pin" size={14} color="var(--nabd-color-action-primary-bg)" />
+              <Glyph d={FILL_MAP_PIN} size={14} color="var(--nabd-color-action-primary-bg)" />
               {place}
             </span>
           ) : null}
@@ -112,7 +116,7 @@ export function DoctorCard({
             <div className="nabd-doctor-card__modes">
               {modes.map(({ mode, label }) => (
                 <span key={mode} className={`nabd-doctor-card__mode nabd-tone--${MODE[mode].tone}`}>
-                  <Glyph name={MODE[mode].icon} size={13} color="currentColor" />
+                  <Glyph d={MODE[mode].glyph} size={13} color="currentColor" />
                   {label}
                 </span>
               ))}
@@ -198,7 +202,7 @@ export function ProductCard({
             fetchPriority={imagePriority ? 'high' : 'auto'}
           />
         ) : (
-          <Glyph name="pill" size={40} color="var(--nabd-color-icon-secondary)" />
+          <Glyph d={FILL_PILL} size={40} color="var(--nabd-color-icon-secondary)" />
         )}
         {discountLabel ? <span className="nabd-product-card__discount">{discountLabel}</span> : null}
       </div>
@@ -237,7 +241,7 @@ export function ProductCard({
             'nabd-product-card__add--disabled': disabled,
           })}
         >
-          <svg width={18} height={18} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true">
+          <svg width={18} height={18} viewBox={GLYPH_VIEWBOX} aria-hidden="true">
             <path d={PLUS_SQUARE_PATH} fill="var(--nabd-color-action-primary-fg)" />
           </svg>
           {/* 40 to look at, 44 to hit */}
@@ -245,33 +249,6 @@ export function ProductCard({
         </button>
       </div>
     </div>
-  );
-}
-
-/* ------------------------------------------------------------- OfferCard */
-
-export interface WebOfferCardProps extends OfferCardProps {
-  href?: string;
-}
-
-export function OfferCard({ title, provider, price, currency, was, tag, icon, tone, href, testID }: WebOfferCardProps) {
-  const Root = href ? 'a' : 'article';
-  return (
-    <Root href={href} data-testid={testID} className="nabd-offer-card">
-      <div className={`nabd-offer-card__head nabd-tone--${tone}`}>
-        <FIcon icon={icon} tone={tone} chip="none" size={56} />
-        {tag ? <span className="nabd-offer-card__tag">{tag}</span> : null}
-      </div>
-      <div className="nabd-offer-card__body">
-        <span className="nabd-offer-card__title">{title}</span>
-        {provider ? <span className="nabd-offer-card__provider">{provider}</span> : null}
-        <div className="nabd-offer-card__prices">
-          <span className="nabd-offer-card__price">{price}</span>
-          {currency ? <span className="nabd-offer-card__currency">{currency}</span> : null}
-          {was ? <span className="nabd-offer-card__was">{was}</span> : null}
-        </div>
-      </div>
-    </Root>
   );
 }
 
@@ -297,7 +274,7 @@ export function Timeline({ steps, label, testID }: TimelineProps) {
                   'nabd-timeline__dot--current': current,
                 })}
               >
-                {done ? <Glyph name="check-circle" size={12} color="var(--nabd-color-action-primary-fg)" /> : null}
+                {done ? <Glyph d={FILL_CHECK_CIRCLE} size={12} color="var(--nabd-color-action-primary-fg)" /> : null}
               </span>
               {last ? null : <span aria-hidden className={clsx('nabd-timeline__line', { 'nabd-timeline__line--reached': lineReached })} />}
             </div>

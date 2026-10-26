@@ -78,7 +78,7 @@ const FILES = [
   // outline record (icons/fill.ts) stays out of the browser bundle of every page that draws it from the server (the doctors page
   // is at its script budget).
   { from: 'packages/ui/components/FIcon.tsx', to: 'patient-web/components-next/ui-generated/components/FIcon.tsx' },
-  ...['Button', 'Spinner', 'Inputs', 'Controls', 'Surfaces', 'Cards', 'Feedback'].map((name) => ({
+  ...['Button', 'Spinner', 'Inputs', 'Controls', 'Surfaces', 'Cards', 'OfferCard', 'Feedback'].map((name) => ({
     from: `packages/ui/components/${name}.tsx`,
     to: `patient-web/components-next/ui-generated/components/${name}.tsx`,
     useClient: true,

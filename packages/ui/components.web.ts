@@ -14,7 +14,8 @@
 import type { WebButtonProps, WebIconButtonProps } from './components/Button';
 import type { WebRadioProps } from './components/Controls';
 import type { WebEmptyStateProps, WebErrorStateProps, WebOfflineStateProps } from './components/Feedback';
-import type { WebDoctorCardProps, WebOfferCardProps, WebProductCardProps } from './components/Cards';
+import type { WebDoctorCardProps, WebProductCardProps } from './components/Cards';
+import type { WebOfferCardProps } from './components/OfferCard';
 import type { WebChipProps } from './components/Surfaces';
 import type * as C from './components/contract';
 

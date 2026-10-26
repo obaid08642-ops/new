@@ -30,7 +30,8 @@ export { IllustratedIconView, Illustration, ILLUSTRATED_ICONS, ILLUSTRATION_NAME
 export { Button, IconButton } from './components/Button';
 export { Spinner } from './components/Spinner';
 export { Segmented, Toggle, Radio, StatusChip } from './components/Controls';
-export { DoctorCard, ProductCard, OfferCard, Timeline, ProgressRing } from './components/Cards';
+export { DoctorCard, ProductCard, Timeline, ProgressRing } from './components/Cards';
+export { OfferCard } from './components/OfferCard';
 export { Input, Select, Otp, Search, Stepper, SlotPicker } from './components/Inputs';
 export {
   Avatar, Badge, BottomTabBar, Card, Chip, ListItem, MapPinCard, NavBar, PriceTag,
