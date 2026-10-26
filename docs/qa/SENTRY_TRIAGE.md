@@ -1,0 +1,67 @@
+# Sentry triage — unresolved issues, last 7 days
+
+Generated 2026-10-26 (read-only, from the Sentry connector; org `nabdplus`, projects `nabd-backend`, `patient-web`; `patient-app` and `provider-app` returned no unresolved issues in the window).
+Source query: `is:unresolved`, period 7d, sorted by frequency → **20 issues**, all are in the top-20 so all were mapped.
+All issues are `environment: production`. **Release is not exposed by the connector output, so it is not listed.** No emails, tokens, IPs or user IDs are copied here (one provider API-key fragment and one user ID in NABD-BACKEND-21 were redacted).
+"7d events" = count in the search window; "total" = lifetime count of the issue (Sentry issue page). Dates are UTC.
+Repo mapping is against `origin/main`; production line numbers can differ slightly from main, so treat `file:line` as the starting point.
+
+## Summary table
+
+| # | Issue | Title | Culprit | 7d events | Total | Users | First seen | Last seen |
+|---|---|---|---|---|---|---|---|---|
+| 1 | [NABD-BACKEND-1X](https://nabdplus.sentry.io/issues/NABD-BACKEND-1X) | Could not load the "sharp" module using the linux-x64 runtime | `sharp.dist:sharp` (fatal, uncaught) | 142 | 142 | 0 | 2026-10-19 | 2026-10-19 |
+| 2 | [PATIENT-WEB-7](https://nabdplus.sentry.io/issues/PATIENT-WEB-7) | PublicDataUnavailableError: product | `GET /[locale]/p/[slug]` | 129 | 129 | 0 | 2026-10-19 | 2026-10-25 |
+| 3 | [PATIENT-WEB-6](https://nabdplus.sentry.io/issues/PATIENT-WEB-6) | PublicDataUnavailableError: product | `GET /[locale]/p/[slug]` (generateMetadata) | 127 | 127 | 0 | 2026-10-19 | 2026-10-25 |
+| 4 | [PATIENT-WEB-8](https://nabdplus.sentry.io/issues/PATIENT-WEB-8) | PublicDataUnavailableError: product | `GET /[locale]/p/[slug]` (generateMetadata) | 91 | 91 | 0 | 2026-10-25 | 2026-10-26 |
+| 5 | [PATIENT-WEB-9](https://nabdplus.sentry.io/issues/PATIENT-WEB-9) | PublicDataUnavailableError: product | `GET /[locale]/p/[slug]` (page) | 90 | 90 | 0 | 2026-10-25 | 2026-10-26 |
+| 6 | [NABD-BACKEND-1C](https://nabdplus.sentry.io/issues/NABD-BACKEND-1C) | N+1 Query (`find medicines`) | `GET /api/v1/public/categories/:locale/items` | 78 | 122 | 0 | 2026-10-15 | 2026-10-26 |
+| 7 | [NABD-BACKEND-1B](https://nabdplus.sentry.io/issues/NABD-BACKEND-1B) | N+1 Query (`find medicines`) | `GET /api/v1/public/categories/:locale/items` | 40 | 72 | 0 | 2026-10-15 | 2026-10-26 |
+| 8 | [PATIENT-WEB-1](https://nabdplus.sentry.io/issues/PATIENT-WEB-1) | PublicDataUnavailableError: category | `GET /[locale]/q/c/[[...category]]` (regressed) | 28 | 30 | 0 | 2026-10-16 | 2026-10-26 |
+| 9 | [NABD-BACKEND-1W](https://nabdplus.sentry.io/issues/NABD-BACKEND-1W) | Error: Command timed out (ioredis) | `GET /api/v1/modules` | 7 | 7 | 0 | 2026-10-19 | 2026-10-24 |
+| 10 | [NABD-BACKEND-19](https://nabdplus.sentry.io/issues/NABD-BACKEND-19) | MongoNetworkTimeoutError: connection timed out | `GET /api/v1/public/categories/:locale/items` | 7 | 93 | 0 | 2026-09-23 | 2026-10-25 |
+| 11 | [NABD-BACKEND-1V](https://nabdplus.sentry.io/issues/NABD-BACKEND-1V) | N+1 Query (`getMore medicines`) | `GET /api/v1/public/sitemaps/products/:locale/:page` | 4 | 6 | 0 | 2026-10-17 | 2026-10-23 |
+| 12 | [NABD-BACKEND-1D](https://nabdplus.sentry.io/issues/NABD-BACKEND-1D) | ReplyError: MISCONF Errors writing to the AOF file: No space left on device | `GET /api/{*path}` | 3 | 3341 | 0 | 2026-10-16 | 2026-10-22 |
+| 13 | [NABD-BACKEND-21](https://nabdplus.sentry.io/issues/NABD-BACKEND-21) | BadGatewayException: replicate_http_401 | `POST /api/v1/ai/prescription-ocr` | 2 | 2 | 1 | 2026-10-25 | 2026-10-25 |
+| 14 | [NABD-BACKEND-20](https://nabdplus.sentry.io/issues/NABD-BACKEND-20) | MongoServerSelectionError: ECONNREFUSED :27017 | `GET /api/v1/public/product/:locale/:slug` | 2 | 2 | 0 | 2026-10-25 | 2026-10-25 |
+| 15 | [PATIENT-WEB-4](https://nabdplus.sentry.io/issues/PATIENT-WEB-4) | PublicDataUnavailableError: home | `GET /[locale]` (regressed) | 2 | 4 | 0 | 2026-10-16 | 2026-10-19 |
+| 16 | [NABD-BACKEND-1Z](https://nabdplus.sentry.io/issues/NABD-BACKEND-1Z) | MongoServerSelectionError: ECONNREFUSED :27017 | `AdminNotificationCenterService.runFanouts` | 1 | 1 | 0 | 2026-10-25 | 2026-10-25 |
+| 17 | [NABD-BACKEND-1Y](https://nabdplus.sentry.io/issues/NABD-BACKEND-1Y) | Stream isn't writeable and enableOfflineQueue options is false | `GET /api/{*path}` | 1 | 1 | 0 | 2026-10-25 | 2026-10-25 |
+| 18 | [NABD-BACKEND-1T](https://nabdplus.sentry.io/issues/NABD-BACKEND-1T) | MongoTopologyClosedError: Topology is closed | `GET /api/v1/entity-graph/related/:type/:id` | 1 | 2 | 0 | 2026-10-17 | 2026-10-19 |
+| 19 | [NABD-BACKEND-1R](https://nabdplus.sentry.io/issues/NABD-BACKEND-1R) | Error: Connection is closed. (ioredis) | `GET /api/{*path}` | 1 | 2 | 0 | 2026-10-16 | 2026-10-25 |
+| 20 | [NABD-BACKEND-A](https://nabdplus.sentry.io/issues/NABD-BACKEND-A) | MongoServerSelectionError: getaddrinfo ENOTFOUND mongodb | `GET /api/v1/entity-graph/related/:type/:id` | 1 | 61 | 0 | 2026-09-14 | 2026-10-19 |
+
+## Stack-trace mapping and likely cause
+
+| # | Frame in latest event | Repo file:line (main) | Likely cause | Owner |
+|---|---|---|---|---|
+| 1 | `node_modules/sharp/dist/sharp.cjs:171` thrown at module load, uncaught (fatal), node v20.20.2 on Debian 12 | `backend/package.json:71` (`sharp ^0.35.5`); install in `backend/Dockerfile.production:7,22` (`npm ci`) | The prod image on 2026-10-19 was built without the linux-x64 optional dependency for sharp (optional deps skipped), so the process crashed on boot in a loop (142 events in 20 min). Not seen since; the image was rebuilt/rolled back. Add a boot-time smoke check in the image build. | backend |
+| 2–5 | `generateMetadata` and the page body both throw `PublicDataUnavailableError("product")` | `patient-web/app/[locale]/p/[slug]/page.tsx:60` (generateMetadata) and `:103` (page); class in `patient-web/lib/api/public-unavailable.ts:9` | By design (F82-3 stale-if-error): the backend product read failed (`read.failed`) and no cached copy existed. Root cause is on the backend side: product reads timing out or refused (see #10, #14, #19, redis #12/#17). Four Sentry groups are the same failure from two throw sites × two time windows. Same product slugs repeat. Consider grouping/fingerprinting these and not reporting the expected outage throw twice (metadata + page). | web (reporting), backend (root cause) |
+| 6, 7 | N+1 span: repeated `find medicines {$or, is_deleted, medical_review_status, public_eligibility}, limit, projection {_id}` inside one request | `backend/src/modules/seo-search/seo-search.module.ts:1374` (`publicCategoryProducts`) and the service call it makes | One `medicines` query per category/sub-category/item inside the handler instead of a single `$in`/aggregate. Hot endpoint (`category=all&page=1`, every locale), likely a driver of the Mongo timeouts in #10. Two groups because of two query shapes. | backend |
+| 8 | `PublicDataUnavailableError("category")` | `patient-web/app/[locale]/c/[[...category]]/category-view.tsx:110` (`treeRead.failed \|\| dataRead.failed`) | Category tree or category items read failed; items endpoint is the slow N+1 one (#6/#7, #10). Marked regressed (was resolved earlier). | backend (root cause), web |
+| 9 | `ioredis/built/Command.js:207` "Command timed out", request `GET /api/v1/modules` | `backend/src/modules/module-switches/module-switches.controller.ts:25`; client `backend/src/modules/redis/redis.service.ts:62` (`commandTimeout: 3000`) | Redis slower than the 3 s command timeout during the Redis disk/AOF trouble window (see #12). Handled. | infra / backend |
+| 10 | `mongodb/src/cmap/connection.ts:328` network timeout on `categories/hi/items` (response still 200, handled) | `backend/src/modules/seo-search/seo-search.module.ts:1374` | Mongo connection stalls under load from the N+1 category queries (#6/#7); also touched by Mongo restarts (#14, #16). Chronic since 2026-09-23. | backend / infra |
+| 11 | N+1 `getMore medicines` while paging a cursor for the sitemap | `backend/src/modules/seo-search/seo-search.module.ts:1403` (`public/sitemaps/products/:locale/:page`) | Sitemap page iterates a large cursor in small batches (one getMore per batch flagged as N+1). Low frequency; raise `batchSize` or use `.lean()` with a bigger page. Low priority. | backend |
+| 12 | `ioredis/built/resp/decoder.js:126` ReplyError `MISCONF ... AOF ... No space left on device`, on `GET /api/v1/public/product/hi/...` | not app code: Redis host/volume; reads go through `backend/src/modules/redis/redis.service.ts` | Redis container's disk was full, so Redis refused writes (3341 events 2026-10-16 → 10-22). Cleared since the volume was freed. Needs a disk alert and AOF/retention config; the app should degrade (treat cache write failure as non-fatal). | infra, backend |
+| 13 | `backend/src/modules/ai/ai.service.ts:214` (`prescriptionOcr`) ← `ocrTranslate:253` ← `genVision:70` ← `ai-gateway.service.ts:377` / `:448` (`generateOpenAiCompat`) | main differs from prod line numbers: `ai.service.ts:211` `prescriptionOcr`; `ai-gateway.service.ts:231` reads `REPLICATE_API_TOKEN` | Replicate rejected the configured API key with HTTP 401 (key invalid/revoked/mis-set in prod env). One real user hit it twice; prescription OCR is down until the key is replaced. Also note the 401 body is echoed in the exception message (partial key) — should be scrubbed before it reaches logs/Sentry. | backend (key rotation = owner/ops) |
+| 14 | `seo-search.module.ts:429` `publicProductBySlug` → `collection(medicines).findOne` → `ECONNREFUSED 172.19.0.2:27017` | `backend/src/modules/seo-search/seo-search.module.ts:425-431` | MongoDB container was down/restarting around 2026-10-25 08:51 (same minute as #16, backend restarted 08:33). Transient; product page then fails (feeds #4/#5). | infra |
+| 15 | `PublicDataUnavailableError("home")` | `patient-web/app/[locale]/page.tsx:72` (`isOutage(doctorsResponse) \|\| config.failed`) | Backend outage at 2026-10-19 18:48 (same window as #1 boot crash loop). Regressed, not seen since. | backend (root cause) |
+| 16 | `admin-notification-center.module.ts:247` `runFanouts` → `campaigns.findOneAndUpdate` → `ECONNREFUSED` | `backend/src/modules/admin/notification-center/admin-notification-center.module.ts:243-249` | Cron fan-out ran while Mongo was down (same event as #14). Handled; retried on next tick. Just noise from the outage. | infra (no code fix needed) |
+| 17 | `ioredis/built/Redis.js:406` rejects because `enableOfflineQueue: false` while reconnecting; request `GET /api/v1/public/categories/ar` | `backend/src/modules/redis/redis.service.ts:57` (`enableOfflineQueue: false`, `enableAutoPipelining: true`) | Redis was reconnecting right after the 08:33 restart; commands issued in that gap are rejected rather than queued. Cache calls on public routes should catch and fall through to the DB. | backend |
+| 18 | `@nestjs/core ... callShutdownHook` → `MongooseCoreModule.onApplicationShutdown` → `connection.close()` → `MongoTopologyClosedError` | shutdown hook; request context is `GET /api/v1/entity-graph/related/:type/:id` | Container stop during deploy: in-flight request to `entity-graph` hit a closing topology (2026-10-19 deploy). Harmless; app already handles SIGTERM. | none (noise) |
+| 19 | `ioredis/built/redis/event_handler.js:353` flushQueue "Connection is closed" on `public/product/fil/...` | `backend/src/modules/redis/redis.service.ts` | Redis connection dropped during the 2026-10-25 restart window (same server as #13, #14). Same class as #17. | backend / infra |
+| 20 | `dist/modules/entity-graph/entity-graph.service.js:129` `getRelatedDoctor` → `provider_profiles.findOne` → `ENOTFOUND mongodb` | `backend/src/modules/entity-graph/entity-graph.service.ts:148` (`getRelatedDoctor`) | DNS name `mongodb` unresolved from the backend container (Docker network not up / wrong compose network) during deploys 2026-09-14 → 10-19; 61 events lifetime, 1 this week. Infra, not code. | infra |
+
+## Patterns worth the reviewer's attention
+
+1. **One outage drives most of the web noise.** Items 2–5, 8, 15 are all `PublicDataUnavailableError` from patient-web, caused by backend reads failing (Mongo/Redis, #10, #12, #14, #17, #19). Fix backend stability first; then dedupe these in Sentry (fingerprint by `what`, report once, not in both `generateMetadata` and the page).
+2. **Hot endpoint `GET /api/v1/public/categories/:locale/items`** has N+1 queries (#6, #7) and Mongo network timeouts (#10). One backend fix (batch the `medicines` lookups) likely clears three groups.
+3. **Redis**: disk full (#12, 3341 events), command timeout (#9), offline-queue rejects (#17), closed connection (#19). Public routes should treat Redis failures as cache misses.
+4. **Prescription OCR is broken in prod** (#13): invalid Replicate key, and the provider's error text (with a partial key) leaks into the exception message.
+5. **#1 (sharp)** is a bad image build on 2026-10-19; no events since, but nothing in the pipeline would catch it again.
+
+## Not covered
+
+- Release per issue (not returned by the connector tool output).
+- `patient-app` and `provider-app` projects: no unresolved issues in the last 7 days.
+- Mapping uses the stack frames in the latest event only; web frames are minified (`app:///_next/server/chunks/...`), so the web file:line comes from the culprit route plus the `PublicDataUnavailableError` throw sites on main, not from source maps.
