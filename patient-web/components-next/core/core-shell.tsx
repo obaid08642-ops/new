@@ -13,6 +13,8 @@ import { BottomTabBar } from "@/components-next/ui-generated/components/Surfaces
 import { CartLink } from "./cart-link";
 import { WishlistLink } from "./wishlist-link";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import type { BottomTabItem } from "@/components-next/ui-generated/components/contract";
 import { NabdMark } from "@/components-next/nabd-mark";
 import { LocaleSelector } from "@/components-next/locale-selector";
@@ -55,6 +57,8 @@ export type CoreShellProps = {
    * (the page carries its own search there). Unlike `search`, it does not replace the section links.
    */
   topBarSearch?: ReactNode;
+  /** Labs and radiology: where "My orders and results" goes; draws an icon button in the header and an entry in the phone menu. */
+  resultsHref?: string;
   /** The page's sticky bottom bar (a <StickyFooter>, canvas/ProductFull); it sits above the tab bar and goes away from 1024. */
   footer?: ReactNode;
   /** Pages with a sticky buy bar and no tab bar on phones (canvas/ProductFull). */
@@ -62,7 +66,7 @@ export type CoreShellProps = {
   children: ReactNode;
 };
 
-export function CoreShell({ locale, title, backHref, search, cancelHref, width = "wide", topBarSearch, footer, hideTabs = false, children }: CoreShellProps) {
+export function CoreShell({ locale, title, backHref, search, cancelHref, width = "wide", topBarSearch, footer, hideTabs = false, resultsHref, children }: CoreShellProps) {
   const router = useRouter();
   const shell = useTranslations("CoreShell");
   const shared = useTranslations("Shared");
@@ -132,6 +136,11 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
         </>
       )}
 
+      {resultsHref ? (
+        <Link href={resultsHref} className={`${styles.iconLink} ${styles.phoneOnly}`} aria-label={shell("menuResults")} title={shell("menuResults")}>
+          <FIcon icon="chart-line-up" tone={SERVICE_ICONS.lab.tone} size={24} />
+        </Link>
+      ) : null}
       {/* every page carries favourites and the cart in the phone header (the wide header has them in the tools); the search page too */}
       <WishlistLink locale={locale} className={`${styles.iconLink} ${styles.cartLink} ${styles.phoneOnly} ${styles.phoneCart}`} />
       {cartLink(styles.phoneOnly)}
@@ -140,6 +149,7 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
         <PhoneMenu
           labels={{ open: shell("menuOpen"), close: shell("menuClose") }}
           items={[
+            ...(resultsHref ? [{ label: shell("menuResults"), href: resultsHref }] : []),
             { label: shell("menuProfile"), href: `/${locale}/profile` },
             { label: shell("menuOrders"), href: `/${locale}/orders` },
             { label: shell("menuFamily"), href: `/${locale}/family` },
@@ -154,6 +164,11 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
       <div className={`${styles.tools} ${styles.wideOnly}`}>
         <LocaleSelector current={locale} label={shell("language")} />
         <ThemeToggle label={shared("theme")} />
+        {resultsHref ? (
+          <Link href={resultsHref} className={styles.iconLink} aria-label={shell("menuResults")} title={shell("menuResults")}>
+            <FIcon icon="chart-line-up" tone={SERVICE_ICONS.lab.tone} size={24} />
+          </Link>
+        ) : null}
         <Link href={`/${locale}/notifications`} className={styles.iconLink} aria-label={shell("notifications")}>
           <Icon name="bell" size={20} tone="currentColor" />
         </Link>

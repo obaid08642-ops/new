@@ -44,7 +44,8 @@
     "menuFamily": "Family",
     "menuArticles": "Articles",
     "menuSettings": "Settings",
-    "menuHelp": "Help"
+    "menuHelp": "Help",
+    "menuResults": "My orders and results"
   },
   "Home": {
     "eyebrow": "Digital patient portal",
@@ -1475,6 +1476,9 @@
     "searchLabel": "Search lab services",
     "searchPlaceholder": "Search by test or category",
     "homeOnly": "Home collection",
+    "activeFilters": "Active filters",
+    "removeFilter": "Remove filter: {filter}",
+    "clearAll": "Clear all",
     "apply": "Apply",
     "price": "From {value}",
     "fasting": "Fasting may be required",

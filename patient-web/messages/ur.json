@@ -44,7 +44,8 @@
     "menuFamily": "خاندان",
     "menuArticles": "مضامین",
     "menuSettings": "ترتیبات",
-    "menuHelp": "مدد"
+    "menuHelp": "مدد",
+    "menuResults": "میرے آرڈرز اور نتائج"
   },
   "Home": {
     "eyebrow": "ڈیجیٹل مریض پورٹل",
@@ -1475,6 +1476,9 @@
     "searchLabel": "لیب سروسز تلاش کریں",
     "searchPlaceholder": "ٹیسٹ یا زمرہ تلاش کریں",
     "homeOnly": "گھر سے نمونہ",
+    "activeFilters": "فعال فلٹرز",
+    "removeFilter": "فلٹر ہٹائیں: {filter}",
+    "clearAll": "سب صاف کریں",
     "apply": "لاگو کریں",
     "price": "شروع {value} سے",
     "fasting": "روزہ ضروری ہو سکتا ہے",

@@ -44,7 +44,8 @@
     "menuFamily": "العائلة",
     "menuArticles": "المقالات",
     "menuSettings": "الإعدادات",
-    "menuHelp": "المساعدة"
+    "menuHelp": "المساعدة",
+    "menuResults": "طلباتي ونتائجي"
   },
   "Home": {
     "eyebrow": "بوابة المريض الرقمية",
@@ -1475,6 +1476,9 @@
     "searchLabel": "بحث في خدمات المختبر",
     "searchPlaceholder": "ابحث عن تحليل أو تصنيف",
     "homeOnly": "سحب عينة من المنزل",
+    "activeFilters": "الفلاتر النشطة",
+    "removeFilter": "إزالة التصفية: {filter}",
+    "clearAll": "مسح الكل",
     "apply": "تطبيق",
     "price": "يبدأ من {value}",
     "fasting": "قد يتطلب صياماً",
