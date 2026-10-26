@@ -22,7 +22,7 @@ import { JwtAuthGuard, CurrentUser, SelfService, Roles } from '../../common/auth
 import { InsuranceCompanySchema, InsuranceCompanyDocument } from '../../schemas/insurance.schema';
 import { PatientProfileSchema } from '../../schemas/patient-profile.schema';
 import { ProviderProfileSchema } from '../../schemas/provider-profile.schema';
-import { hasInsuranceContract, policyClass, policyCompanyKeys } from '../../common/insurance-policy';
+import { buildPatientPolicy, hasInsuranceContract, policyClass, policyCompanyKeys } from '../../common/insurance-policy';
 import { FraudService, RefundExecutor } from '../finance-engine/finance-engine.module';
 import { TransactionSchema } from '../../schemas/transaction.schema';
 import { OrderSchema } from '../../schemas/order.schema';
@@ -278,31 +278,10 @@ export class InsuranceFlowService {
     const key = String(body.company_id);
     const company = await this.companies.findOne({ $or: [{ id: { $eq: key } }, { code: { $eq: key.toLowerCase() } }], is_active: true }).lean();
     if (!company) throw new NotFoundException('insurance company not found');
-    // The figures printed on the card (optional): the estimate before booking uses them. Validated, never guessed.
-    const copayPercent = body.copay_percent;
-    const copayCap = body.copay_cap_sar;
-    if (copayPercent !== undefined && copayPercent !== null && !(typeof copayPercent === 'number' && copayPercent >= 0 && copayPercent <= 100)) throw new BadRequestException('invalid_copay_percent');
-    if (copayCap !== undefined && copayCap !== null && !(typeof copayCap === 'number' && copayCap >= 0 && copayCap <= 1_000_000)) throw new BadRequestException('invalid_copay_cap');
-    // `verified` is never taken from the client: verification is a separate server/admin step
-    const policy = {
-      company_id: (company as any).id,
-      company_code: (company as any).code,
-      company_name: (company as any).name_ar || (company as any).name,
-      provider: (company as any).name_ar || (company as any).name_en || (company as any).code,
-      plan_class: body.plan_class || body.class,
-      network: body.network,
-      member_id: body.member_id,
-      member_name: body.member_name,
-      national_id: body.national_id,
-      policy_number: body.policy_number,
-      expiry_date: body.expiry_date,
-      ...(typeof copayPercent === 'number' ? { copay_percent: copayPercent } : {}),
-      ...(typeof copayCap === 'number' ? { copay_cap_sar: copayCap } : {}),
-      card_image_url: body.card_image_url,
-      ocr_extracted: !!body.ocr_extracted,
-      verified: false,
-      saved_at: new Date(),
-    };
+    // One writer, one shape (common/insurance-policy.ts): the card figures are validated there and kept across later saves; `verified` is never
+    // taken from the client (verification is a separate server/admin step).
+    const current: any = await this.patients.findOne({ user_id: user.id }, { _id: 0, insurance: 1 }).lean();
+    const policy = buildPatientPolicy(current?.insurance, { ...body, company_id: (company as any).id }, company);
     await this.patients.updateOne({ user_id: user.id }, { $set: { insurance: policy } }, { upsert: true });
     return { ok: true, policy };
   }

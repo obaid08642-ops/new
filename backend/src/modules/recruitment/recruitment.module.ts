@@ -2,7 +2,7 @@ import { Module, Controller, Get, Post, Put, Patch, Param, Query, Body, UseGuard
 import { Throttle } from '@nestjs/throttler';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { JwtAuthGuard, Roles, CurrentUser, Public, SelfService } from '../../common/auth.guard';
+import { JwtAuthGuard, Roles, CurrentUser, Public, SelfService, hasEffectiveRole } from '../../common/auth.guard';
 import { Audited } from '../../common/audit-log.interceptor';
 import { UserRole } from '../../common/enums';
 import { Permission, RequirePermissions } from '../../common/permissions';
@@ -319,6 +319,16 @@ export class RecruitmentService {
   }
 }
 
+/**
+ * Who may post and manage jobs: the facilities that employ medical staff and the doctors with their own practice, and admins. A provider-app
+ * token carries role 'provider' with the facility type in `provider_type`, so the check reads the EFFECTIVE roles (role and provider_type), the
+ * same way the `@Roles` guard does: testing the raw `role` alone refused every hospital that signed in through the provider app.
+ */
+export const JOB_POSTER_ROLES: Array<UserRole | string> = [
+  UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.BRANCH_ADMIN, 'clinic', UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY,
+  UserRole.HOME_CARE, UserRole.NURSING, UserRole.DOCTOR, UserRole.ADMIN, UserRole.SUPER_ADMIN,
+];
+
 @Controller('recruitment')
 @UseGuards(JwtAuthGuard)
 export class RecruitmentController {
@@ -342,16 +352,16 @@ export class RecruitmentController {
   }
 
   // --- Job Posting endpoints ---
-  @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
+  @Roles(...JOB_POSTER_ROLES)
   @Post('jobs')
   createJob(@CurrentUser() u: any, @Body() b: CreateJobDto) {
-    if (![UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.DOCTOR, UserRole.ADMIN, UserRole.SUPER_ADMIN].includes(u.role as UserRole)) {
+    if (!hasEffectiveRole(u, ...(JOB_POSTER_ROLES as string[]))) {
       throw new ForbiddenException('Only healthcare facilities, clinics, doctors and admins can post jobs');
     }
     return this.svc.createJob(u.id, b);
   }
 
-  @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
+  @Roles(...JOB_POSTER_ROLES)
   @Put('jobs/:id')
   @Audited({ model: 'JobPosting', idParam: 'id', action: 'job_posting_update' })
   updateJob(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateJobDto) {
@@ -403,7 +413,7 @@ export class RecruitmentController {
     return this.svc.listJobApplications(id, u.id, u.role);
   }
 
-  @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
+  @Roles(...JOB_POSTER_ROLES)
   @Patch('applications/:id/status')
   @Audited({ model: 'JobApplication', idParam: 'id', action: 'job_application_status_update' })
   updateApplicationStatus(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateApplicationStatusDto) {
