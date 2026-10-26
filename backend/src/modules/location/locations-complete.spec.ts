@@ -120,4 +120,15 @@ describe('mergeParts with new cities', () => {
     expect((report.assignment as { new_cities: unknown }).new_cities).toEqual({ found: 1, conflicting_codes: ['sa-clash'] });
     fs.rmSync(dir, { recursive: true, force: true });
   });
+
+  it('a city two regions disagree on takes the centre found in a region of its own macro region', () => {
+    const dir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'parts-'));
+    const c = (lat: number) => ({ code: 'sa-arar', lat, lng: 41, source: 'osm:node/1' });
+    fs.writeFileSync(path.join(dir, 'part-SA-08.json'), JSON.stringify({ cities: [c(30.9)], districts: [] })); // Northern Borders: the seed's Arar is in the north
+    fs.writeFileSync(path.join(dir, 'part-SA-03.json'), JSON.stringify({ cities: [c(25.9)], districts: [] })); // a homonym in Madinah (west)
+    const { merged, report } = mergeParts(dir);
+    expect(merged.cities.find((x) => x.code === 'sa-arar')?.lat).toBe(30.9);
+    expect((report.assignment as { conflicting_centres: string[] }).conflicting_centres).toEqual([]);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
 });
