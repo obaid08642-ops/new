@@ -35,6 +35,8 @@
     "mainNav": "Pangunahing nabigasyon",
     "sections": "Mga seksyon",
     "cartCount": "Laman ng cart ({n, number})",
+    "wishlist": "Mga paborito",
+    "wishlistCount": "Mga paborito ({n, number})",
     "menuOpen": "Listahan",
     "menuClose": "Isara ang menu",
     "menuProfile": "Aking account",

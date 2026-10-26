@@ -11,6 +11,7 @@ import { useRoutePrefetch } from "@/components-next/nav/use-route-prefetch";
 import { AppShell } from "@/components-next/ui-generated/shells";
 import { BottomTabBar } from "@/components-next/ui-generated/components/Surfaces";
 import { CartLink } from "./cart-link";
+import { WishlistLink } from "./wishlist-link";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import type { BottomTabItem } from "@/components-next/ui-generated/components/contract";
 import { NabdMark } from "@/components-next/nabd-mark";
@@ -131,6 +132,10 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
         </>
       )}
 
+      {/* every page carries favourites and the cart in the phone header (the wide header has them in the tools); the search page too */}
+      <WishlistLink locale={locale} className={`${styles.iconLink} ${styles.cartLink} ${styles.phoneOnly} ${styles.phoneCart}`} />
+      {cartLink(styles.phoneOnly)}
+      {/* the menu is the last item at the inline-end edge (owner layout decision 1) */}
       {!search ? (
         <PhoneMenu
           labels={{ open: shell("menuOpen"), close: shell("menuClose") }}
@@ -146,15 +151,13 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
         />
       ) : null}
 
-      {/* every page carries the cart in the phone header (the wide header has it in the tools); the search page too */}
-      {cartLink(`${styles.phoneOnly}${hideTabs && !search ? ` ${styles.phoneCart}` : ""}`)}
-
       <div className={`${styles.tools} ${styles.wideOnly}`}>
         <LocaleSelector current={locale} label={shell("language")} />
         <ThemeToggle label={shared("theme")} />
         <Link href={`/${locale}/notifications`} className={styles.iconLink} aria-label={shell("notifications")}>
           <Icon name="bell" size={20} tone="currentColor" />
         </Link>
+        <WishlistLink locale={locale} className={`${styles.iconLink} ${styles.cartLink}`} />
         {cartLink()}
         <Link href={`/${locale}/profile`} className={styles.iconLink} aria-label={shared("account")}>
           <Icon name="user" size={20} tone="currentColor" />

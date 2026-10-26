@@ -35,6 +35,8 @@
     "mainNav": "मुख्य नेविगेशन",
     "sections": "अनुभाग",
     "cartCount": "कार्ट ({n, number})",
+    "wishlist": "पसंदीदा",
+    "wishlistCount": "पसंदीदा ({n, number})",
     "menuOpen": "मेनू",
     "menuClose": "मेनू बंद करें",
     "menuProfile": "मेरा खाता",

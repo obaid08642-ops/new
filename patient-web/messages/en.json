@@ -35,6 +35,8 @@
     "mainNav": "Main navigation",
     "sections": "Sections",
     "cartCount": "Cart ({n, number})",
+    "wishlist": "Favourites",
+    "wishlistCount": "Favourites ({n, number})",
     "menuOpen": "Menu",
     "menuClose": "Close menu",
     "menuProfile": "My account",
