@@ -7,6 +7,7 @@
   - Purchases count when the order is delivered (orders.service.ts); that step is covered by the unit tests.
   Stack: backend :8002.
 """
+import urllib.parse
 import uuid
 
 from lib import Client, journey, step
@@ -74,15 +75,17 @@ def main():
     step('public category list (web): C, then B, then A', after == [c, b, a], {'got': after, 'A': a, 'B': b, 'C': c})
     # the app's list has no text query: walk its pages (100 a page) until the three test medicines have all been seen.
     # The list is cached per URL and other journeys ask for the same one: a pharmacyId of this run's own makes a fresh key.
+    # The category is the one the catalogue stored for the test medicines (found by their unique text), not the one the form sent.
+    probe = anon.get(f'/medicines?page=1&limit=100&q={tag}&pharmacyId=ranking-{tag}')
+    stored = next((m.get('category') for m in probe.items() if m.get('id') == a and m.get('category')), None)
+    cat = urllib.parse.quote(str(stored or 'vitamins'))
     got, pageno, total_pages = [], 1, 1
     while pageno <= min(total_pages, 30) and len(got) < 3:
-        page = anon.get(f'/medicines?page={pageno}&limit=100&category=vitamins&sort=smart_ranking&pharmacyId=ranking-{tag}')
+        page = anon.get(f'/medicines?page={pageno}&limit=100&category={cat}&sort=smart_ranking&pharmacyId=ranking-{tag}')
         total_pages = page.get('total_pages', default=1) or 1
         got += [m.get('id') for m in page.items() if m.get('id') in ids and m.get('id') not in got]
         pageno += 1
-    probe = anon.get(f'/medicines?page=1&limit=100&q={tag}&pharmacyId=ranking-{tag}')
-    last = anon.get(f'/medicines?page=1&limit=100&category=vitamins&sort=smart_ranking&pharmacyId=ranking-{tag}')
-    diag = {'by_text': [m.get('id') for m in probe.items()], 'first_page_len': len(last.items()), 'total': last.get('total'), 'keys': list(last.body.keys()) if isinstance(last.body, dict) else type(last.body).__name__}
+    diag = {'by_text': [m.get('id') for m in probe.items()], 'stored_category': stored, 'last_page_len': len(page.items()), 'total': page.get('total')}
     step('medicines list without a text query (app): C, then B, then A', got == [c, b, a], {'got': got, 'pages': total_pages, 'status': page.status, 'diag': diag, 'A': a, 'B': b, 'C': c})
 
 
