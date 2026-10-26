@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Linking, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
-import { Card, FIcon } from '../../../../packages/ui-native/src';
-import { ConsultScreen, Gate, Section, specialtyLook, type GateStatus } from '../../../src/components/consult/ConsultKit';
+import { Button, Card, Chip, FIcon } from '../../../../packages/ui-native/src';
+import { ConsultScreen, Gate, InfoRow, Section, specialtyLook, type GateStatus } from '../../../src/components/consult/ConsultKit';
+import MapView, { Marker, PROVIDER_DEFAULT } from '../../../src/components/MapPrimitives';
 import { Glyph } from '../../../src/components/pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../../src/utils/api';
@@ -12,11 +13,13 @@ import { isOffline } from '../../../src/utils/isOffline';
 import { logError } from '../../../src/utils/logger';
 import { pickLocalized } from '../../../src/utils/localize';
 import { optimizedImageUri } from '../../../src/utils/optimizedImage';
+import { facilityHoursRows, facilityPoint, type FacilityHoursRow } from '../../../src/utils/facilityPage';
 
 /**
- * Clinic or hospital page — board DoctorFull's clinic card (canvas/DoctorFull.dc.html) as a page. Everything is GET
- * /care/facilities/:id: the photo, the name, the city, the description and the doctors who work there. A part the
- * server did not send is not drawn (no sample rating, no sample text).
+ * Clinic or hospital page — board DoctorFull's clinic card (canvas/DoctorFull.dc.html) as a page. It reads GET /care/facilities/:id
+ * (the photo, the name, the city, the description and the doctors who work there) and GET /entity-graph/related/facility/:id (the
+ * address, the phone, the pin, the opening hours and the departments; the one that also answers for a hospital registered through
+ * the provider app, which the map lists by its profile id). A part neither sent is not drawn (no sample rating, no sample text).
  */
 
 interface FacilityDoctor {
@@ -26,6 +29,26 @@ interface FacilityDoctor {
   specialty?: string;
   specialty_ar?: string;
   photo_url?: string;
+}
+interface GraphDoctor {
+  id?: string;
+  name_ar?: string | null;
+  name_en?: string | null;
+  specialty?: string | null;
+}
+interface GraphFacility {
+  entity?: {
+    name_ar?: string | null;
+    name_en?: string | null;
+    city?: string | null;
+    phone?: string | null;
+    address?: string | null;
+    logo?: string | null;
+    lat?: number | null;
+    lng?: number | null;
+    working_hours?: FacilityHoursRow[] | null;
+  } | null;
+  relationships?: { doctors?: GraphDoctor[] | null; departments?: string[] | null } | null;
 }
 interface Facility {
   image?: string;
@@ -39,8 +62,9 @@ interface Facility {
 
 export default function ClinicProfile() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { theme, t, c, flow, k } = useScreenUi();
+  const { theme, t, c, flow, k, lang } = useScreenUi();
   const [data, setData] = useState<Facility | null>(null);
+  const [graph, setGraph] = useState<GraphFacility | null>(null);
   const [status, setStatus] = useState<GateStatus>('loading');
 
   const load = useCallback(async () => {
@@ -50,10 +74,16 @@ export default function ClinicProfile() {
     }
     setStatus('loading');
     try {
-      const res = await apiFetch<Facility & { data?: Facility }>(`/care/facilities/${id}`);
-      const f = res?.data || res || null;
+      const [care, found] = await Promise.allSettled([
+        apiFetch<Facility & { data?: Facility }>(`/care/facilities/${id}`),
+        apiFetch<GraphFacility>(`/entity-graph/related/facility/${encodeURIComponent(String(id))}`),
+      ]);
+      if (care.status === 'rejected' && found.status === 'rejected') throw care.reason;
+      const f = care.status === 'fulfilled' ? care.value?.data || care.value || null : null;
+      const g = found.status === 'fulfilled' ? found.value || null : null;
       setData(f);
-      setStatus(f ? 'ready' : 'missing');
+      setGraph(g);
+      setStatus(f || g?.entity ? 'ready' : 'missing');
     } catch (e) {
       logError('consultations:clinic', e);
       setData(null);
@@ -65,18 +95,37 @@ export default function ClinicProfile() {
     void load();
   }, [load]);
 
-  const name = pickLocalized(data?.name_ar, data?.name_en) || '';
+  const entity = graph?.entity ?? null;
+  const name = pickLocalized(data?.name_ar ?? entity?.name_ar, data?.name_en ?? entity?.name_en) || '';
   const about = pickLocalized(data?.description_ar, data?.description_en) || '';
-  const doctors = Array.isArray(data?.doctors) ? data.doctors : [];
+  const city = data?.city || entity?.city || '';
+  const image = data?.image || entity?.logo || '';
+  const careDoctors = Array.isArray(data?.doctors) ? data.doctors : [];
+  // the page of a hospital registered through the provider app has no care record: its doctors come from the entity graph
+  const doctors: FacilityDoctor[] = careDoctors.length > 0
+    ? careDoctors
+    : (graph?.relationships?.doctors ?? []).map((d) => ({ id: d.id, name_ar: d.name_ar ?? undefined, name: d.name_en ?? undefined, specialty: d.specialty ?? undefined }));
+  const departments = (graph?.relationships?.departments ?? []).filter((d) => typeof d === 'string' && d.length > 0);
+  const point = facilityPoint(entity?.lat, entity?.lng);
+  const hours = facilityHoursRows(lang, entity?.working_hours ?? [], k('consult.clinicPage.closed'));
+  const phone = entity?.phone || '';
+  const openDirections = () => {
+    if (!point) return;
+    const url = Platform.select({
+      ios: `maps:0,0?q=${encodeURIComponent(name)}@${point.lat},${point.lng}`,
+      android: `geo:0,0?q=${point.lat},${point.lng}(${encodeURIComponent(name)})`,
+    });
+    if (url) void Linking.openURL(url);
+  };
 
   return (
     <ConsultScreen title={name || k('consult.clinicPage.title')} testID="clinic-profile-screen">
       <Gate status={status} onRetry={() => void load()} missingTitle={k('consult.clinicPage.missing')} errorTitle={k('consult.clinicPage.loadError')}>
-        {data ? (
+        {data || entity ? (
           <>
             <Card theme={theme} padding="none">
-              {data.image ? (
-                <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors accessibilityLabel={name} source={{ uri: optimizedImageUri(data.image, 400) }} contentFit="cover" style={{ width: '100%', height: 180, borderTopLeftRadius: 24, borderTopRightRadius: 24 }} />
+              {image ? (
+                <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors accessibilityLabel={name} source={{ uri: optimizedImageUri(image, 400) }} contentFit="cover" style={{ width: '100%', height: 180, borderTopLeftRadius: 24, borderTopRightRadius: 24 }} />
               ) : (
                 <View style={{ height: 120, alignItems: 'center', justifyContent: 'center', backgroundColor: c.service.blue.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
                   <FIcon icon="hospital" tone="blue" chip="none" size={44} theme={theme} />
@@ -84,14 +133,59 @@ export default function ClinicProfile() {
               )}
               <View style={{ padding: 16, gap: 6 }}>
                 {name ? <Text accessibilityRole="header" style={{ ...scale(t, 'h2'), color: c.text.primary, ...flow }}>{name}</Text> : null}
-                {data.city ? (
+                {city ? (
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                     <Glyph name="map-pin" size={16} color={c.icon.secondary} />
-                    <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, flex: 1, ...flow }}>{data.city}</Text>
+                    <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, flex: 1, ...flow }}>{city}</Text>
                   </View>
                 ) : null}
               </View>
             </Card>
+
+            {entity?.address || phone || point ? (
+              <Section title={k('consult.clinicPage.address')}>
+                <Card theme={theme}>
+                  {entity?.address ? <InfoRow label={k('consult.clinicPage.address')} value={entity.address} last={!phone} /> : null}
+                  {phone ? <InfoRow label={k('consult.clinicPage.phone')} value={phone} last /> : null}
+                </Card>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                  {phone ? <Button label={k('consult.clinicPage.call')} variant="outline" size="md" startIcon="phone" onPress={() => void Linking.openURL(`tel:${phone}`)} theme={theme} testID="clinic-call" /> : null}
+                  {point ? <Button label={k('consult.clinicPage.directions')} variant="outline" size="md" startIcon="map-pin" onPress={openDirections} theme={theme} testID="clinic-directions" /> : null}
+                </View>
+                {point ? (
+                  <View style={{ height: 200, borderRadius: 24, overflow: 'hidden', borderWidth: 1, borderColor: c.border.hairline }}>
+                    <MapView
+                      provider={PROVIDER_DEFAULT}
+                      style={{ flex: 1 }}
+                      userInterfaceStyle={theme}
+                      initialRegion={{ latitude: point.lat, longitude: point.lng, latitudeDelta: 0.01, longitudeDelta: 0.01 }}
+                      showsMyLocationButton={false}
+                      showsCompass={false}
+                      scrollEnabled={false}
+                      zoomEnabled={false}
+                    >
+                      <Marker coordinate={{ latitude: point.lat, longitude: point.lng }} title={name} tracksViewChanges={false} />
+                    </MapView>
+                  </View>
+                ) : null}
+              </Section>
+            ) : null}
+
+            {hours.length > 0 ? (
+              <Section title={k('consult.clinicPage.hours')}>
+                <Card theme={theme}>
+                  {hours.map((row, i) => <InfoRow key={row.label} label={row.label} value={row.value} last={i === hours.length - 1} />)}
+                </Card>
+              </Section>
+            ) : null}
+
+            {departments.length > 0 ? (
+              <Section title={k('consult.clinicPage.services')}>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                  {departments.map((d) => <Chip key={d} label={d} theme={theme} />)}
+                </View>
+              </Section>
+            ) : null}
 
             {about ? (
               <Section title={k('consult.clinicPage.about')}>

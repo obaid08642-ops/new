@@ -4031,6 +4031,13 @@
       "insurance": "Accepted insurance",
       "phone": "Phone",
       "location": "Location",
+      "address": "Address",
+      "hours": "Working hours",
+      "closed": "Closed",
+      "doctors": "Doctors at this facility",
+      "call": "Call",
+      "directions": "Directions",
+      "pinLabel": "Location of {name} on the map",
       "book": "Book appointment"
     },
     "homeNursing": {

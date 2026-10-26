@@ -59,6 +59,13 @@ def main():
     r = anon.get(f'/entity-graph/related/facility/{hid}')
     ent = (r.body or {}).get('entity') if isinstance(r.body, dict) else None
     step('its facility page answers from the public profile', r.ok and ent and ent.get('id') == hid and ent.get('type') == 'hospital', r)
+    # issue 767: the page carries the profile's own pin, address and hours (each only when the profile has it; nothing invented)
+    mine = Client(h['token'], 'hospital').get('/provider-onboarding/my-profile')
+    step('the facility page has the pin the hospital saved', ent and ent.get('lat') == 24.72 and ent.get('lng') == 46.68, {k: ent.get(k) for k in ('lat', 'lng')} if ent else None)
+    if mine.get('address'):
+        step('and its address', ent.get('address') == str(mine.get('address')).strip(), {'page': ent.get('address'), 'profile': mine.get('address')})
+    prof_hours = mine.get('working_hours') or []
+    step('and exactly the opening hours the profile lists', len(ent.get('working_hours') or []) == len([x for x in prof_hours if isinstance(x, dict) and isinstance(x.get('day'), str)]), {'page': len(ent.get('working_hours') or []), 'profile': len(prof_hours)})
     r = anon.get('/entity-graph/related/facility/no-such-facility')
     step('an unknown facility is still not found', r.status == 404, r.status)
 
@@ -103,6 +110,8 @@ def main():
         step('nothing in the body ran or stayed markup', page.evaluate(f'() => window.__pwned_{tag} === undefined') and section.locator('script, img, [onclick]').count() == 0, '')
         res = page.goto(f'{WEB}/ar/facility/{hid}', wait_until='load', timeout=60000)
         step('the website opens the hospital page from the map link (not a 404)', res is not None and res.status == 200, f'{res.status if res else None} {page.locator("main").first.inner_text()[:200]}')
+        # issue 767: the pin gives the directions link; the map itself is lazy and may be absent without WebGL, so it is not required
+        step('the page links directions to the hospital pin', page.locator('a[href*="google.com/maps/dir/?api=1&destination=24.72,46.68"]').count() >= 1, page.locator('main').first.inner_text()[:200])
     except Exception as e:
         step('web flow', False, str(e)[:300])
     finally:

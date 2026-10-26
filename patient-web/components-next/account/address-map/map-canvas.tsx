@@ -30,9 +30,12 @@ export type MapCanvasProps = {
   zoomIn: string;
   zoomOut: string;
   pinLabel: string;
+  /** A place to look at, not to choose: the map does not move (the facility page), so the pin stays on the place. */
+  fixed?: boolean;
+  zoom?: number;
 };
 
-export default function MapCanvas({ initial, focus, onMoveEnd, onUnavailable, label, hint, zoomIn, zoomOut, pinLabel }: MapCanvasProps) {
+export default function MapCanvas({ initial, focus, onMoveEnd, onUnavailable, label, hint, zoomIn, zoomOut, pinLabel, fixed = false, zoom }: MapCanvasProps) {
   const host = useRef<HTMLDivElement>(null);
   const map = useRef<MapLibreMap | null>(null);
   const callbacks = useRef({ onMoveEnd, onUnavailable });
@@ -50,7 +53,8 @@ export default function MapCanvas({ initial, focus, onMoveEnd, onUnavailable, la
         container: host.current,
         style: MAP_STYLE_URL,
         center: [start.lng, start.lat],
-        zoom: MAP_DEFAULT_ZOOM,
+        zoom: zoom ?? MAP_DEFAULT_ZOOM,
+        interactive: !fixed,
         keyboard: false,
         dragRotate: false,
         pitchWithRotate: false,
@@ -64,7 +68,7 @@ export default function MapCanvas({ initial, focus, onMoveEnd, onUnavailable, la
     }
     map.current = instance;
     instance.touchZoomRotate.disableRotation();
-    instance.addControl(new NavigationControl({ showCompass: false }), "top-right");
+    if (!fixed) instance.addControl(new NavigationControl({ showCompass: false }), "top-right");
     instance.on("load", () => { loaded = true; });
     // a style that never arrives (blocked, offline) is "no map"; a missed tile later is not
     instance.on("error", () => { if (live && !loaded) callbacks.current.onUnavailable(); });
@@ -100,12 +104,12 @@ export default function MapCanvas({ initial, focus, onMoveEnd, onUnavailable, la
   return (
     <div className={styles.wrap}>
       <div className={styles.frame}>
-      <div ref={host} className={styles.map} role="group" aria-label={label} aria-describedby={hintId} tabIndex={0} onKeyDown={onKeyDown} />
+      <div ref={host} className={styles.map} role="group" aria-label={label} aria-describedby={hint ? hintId : undefined} tabIndex={fixed ? undefined : 0} onKeyDown={onKeyDown} />
       <span className={styles.pin} role="img" aria-label={pinLabel}>
         <FIcon icon="map-pin" tone={SERVICE_ICONS.pharmacy.tone} size={44} />
       </span>
       </div>
-      <p id={hintId} className={styles.hint}>{hint}</p>
+      {hint ? <p id={hintId} className={styles.hint}>{hint}</p> : null}
     </div>
   );
 }
