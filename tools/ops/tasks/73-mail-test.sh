@@ -17,8 +17,13 @@ envget() { sudo -n grep -E "^$1=" "$ENVF" | tail -1 | cut -d= -f2- | sed -E "s/^
 health() { $DK inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$1" 2>/dev/null; }
 echo "## mail-test"
 [ -n "$(envget OPS_ALERT_EMAIL)" ] || { echo "mail: ABORT OPS_ALERT_EMAIL is not set"; exit 1; }
-MISSING=""; for n in RESEND_API_KEY BREVO_API_KEY MAILJET_API_KEY MAILJET_SECRET_KEY; do [ -n "$(envget $n)" ] || MISSING="$MISSING $n"; done
-[ -z "$MISSING" ] || { echo "mail: ABORT keys not set in .env.production:$MISSING"; exit 1; }
+# 2026-10-26: test only the providers that have keys (Mailjet first: the owner's account was just re-approved).
+PROVIDERS=""
+[ -n "$(envget MAILJET_API_KEY)" ] && [ -n "$(envget MAILJET_SECRET_KEY)" ] && PROVIDERS="$PROVIDERS mailjet"
+[ -n "$(envget BREVO_API_KEY)" ] && PROVIDERS="$PROVIDERS brevo"
+[ -n "$(envget RESEND_API_KEY)" ] && PROVIDERS="$PROVIDERS resend"
+[ -n "$PROVIDERS" ] || { echo "mail: ABORT no mail provider has its keys in .env.production"; exit 1; }
+echo "mail: providers to test:$PROVIDERS"
 
 ENV_AT=$(sudo -n stat -c %Y "$ENVF"); STARTED=$($DK inspect -f '{{.State.StartedAt}}' nabdah-backend | xargs -I{} date -d {} +%s)
 if [ "$ENV_AT" -gt "$STARTED" ]; then
@@ -30,7 +35,7 @@ if [ "$ENV_AT" -gt "$STARTED" ]; then
 fi
 echo "mail: backend running since $($DK inspect -f '{{.State.StartedAt}}' nabdah-backend | cut -c1-19), providers with keys: $($DK exec nabdah-backend sh -c 'for n in RESEND_API_KEY BREVO_API_KEY MAILJET_API_KEY MAILJET_SECRET_KEY; do eval v=\${$n:-}; [ -n "$v" ] && printf "%s " $n; done')"
 
-$DK exec -i nabdah-backend node - <<'NODE'
+$DK exec -i -e TEST_PROVIDERS="$PROVIDERS" nabdah-backend node - <<'NODE'
 const mongoose = require('mongoose');
 const { EventEmitter2 } = require('@nestjs/event-emitter');
 const { MailService } = require('/usr/src/app/dist/modules/mail/mail.module.js');
@@ -39,23 +44,26 @@ const { MailService } = require('/usr/src/app/dist/modules/mail/mail.module.js')
   const conn = await mongoose.createConnection(process.env.MONGO_URL, { dbName: process.env.DB_NAME || 'nabd_nestjs', directConnection: true, serverSelectionTimeoutMS: 15000 }).asPromise();
   const svc = new MailService(new EventEmitter2(), conn);
   const stamp = new Date().toISOString().slice(0, 19) + 'Z';
-  for (const p of ['resend', 'brevo', 'mailjet']) {
+  const providers = String(process.env.TEST_PROVIDERS || '').trim().split(/\s+/).filter(Boolean);
+  // Mailjet gets 3 mails (the owner asked for a group after the account was re-approved); every other provider gets 1.
+  const sends = providers.flatMap((p) => (p === 'mailjet' ? [1, 2, 3] : [1]).map((n) => [p, n]));
+  for (const [p, n] of sends) {
     process.env.MAIL_PROVIDER_ORDER = p;   // MailService reads it on every send: one provider at a time
-    const subject = `Nabd+ mail test (${p}) ${stamp}`;
+    const subject = `Nabd+ mail test (${p}) #${n} ${stamp}`;
     const html = `<div dir="ltr" style="font-family: system-ui, sans-serif;"><p>Test mail through ${p}, sent by the build session's ops task 73 after the key rotation.</p></div>`;
     const r = await svc.send(owner, subject, html, `Test mail through ${p}.`);
     console.log(`mail: ${p}: ok=${r.ok} provider=${r.provider} fallback_used=${r.fallback_used}${r.error ? ' error=' + String(r.error).slice(0, 120) : ''}`);
   }
   await new Promise((r) => setTimeout(r, 1500));
-  const rows = await conn.collection('mail_log').find({ subject: { $regex: '^Nabd\\+ mail test \\(' } }).sort({ createdAt: -1 }).limit(3).toArray();
+  const rows = await conn.collection('mail_log').find({ subject: { $regex: '^Nabd\\+ mail test \\(' } }).sort({ createdAt: -1 }).limit(sends.length).toArray();
   console.log('mail: mail_log rows (newest first):');
   for (const row of rows) console.log(`mail:   provider=${row.provider} ok=${row.ok} fallback_used=${row.fallback_used} at=${new Date(row.createdAt).toISOString()} to=${row.to === owner ? '<owner>' : '<other>'} subject="${row.subject}"`);
   const q = await conn.collection('mail_quota').find({ _id: { $regex: ':d:' } }).sort({ _id: 1 }).toArray();
   console.log('mail: today per provider: ' + q.map((d) => `${d.provider || d._id.split(':')[0]}=${d.count}`).join(' '));
   await conn.close();
-  process.exit(rows.length === 3 && rows.every((x) => x.ok) ? 0 : 2);
+  process.exit(rows.length === sends.length && rows.every((x) => x.ok) ? 0 : 2);
 })().catch((e) => { console.log('mail: FAIL ' + String(e && e.message || e).slice(0, 200)); process.exit(1); });
 NODE
 rc=$?
-if [ $rc = 0 ]; then echo "mail: OK: one mail per provider delivered and logged"; else echo "mail: NOT OK (exit $rc): see the lines above"; fi
+if [ $rc = 0 ]; then echo "mail: OK: every test mail delivered and logged"; else echo "mail: NOT OK (exit $rc): see the lines above"; fi
 exit $rc
