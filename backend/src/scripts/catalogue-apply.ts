@@ -23,7 +23,7 @@ import {
   applyChanges, countsOf, decodeBackup, encodeBackup, expectedCounts, planSha, rollbackChanges, sha256, summarize,
   type Change, type DbLike,
 } from '../modules/catalogs/catalogue-apply.core';
-import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn, planNumberedDistricts, planPlaceholderCities, planProductTranslations } from '../modules/catalogs/catalogue-apply.steps';
+import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn, planInsuranceShape, planNumberedDistricts, planPlaceholderCities, planProductTranslations } from '../modules/catalogs/catalogue-apply.steps';
 import { isTranslationFile } from '../modules/medicines/content-translation';
 
 const TRANSLATIONS_CSV = path.join(__dirname, '../modules/medicines/data/medicine-translations-2026-10-24.csv');
@@ -87,6 +87,10 @@ export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> 
     changes.push(...t.changes);
     report.product_translations = t.report;
   } else report.product_translations = 'skipped: no translations file given';
+
+  const shape = await planInsuranceShape(db);
+  changes.push(...shape.changes);
+  report.insurance_shape = shape.report;
 
   return { changes, inputs, sha: planSha(changes, inputs), report };
 }
