@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScopedSuggest } from '../../src/components/search/ScopedSuggest';
 import { SUGGEST_SCOPES } from '../../src/utils/searchSuggest';
-import { FlatList, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
+import { FlatList, Pressable, RefreshControl, ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { useSelector } from 'react-redux';
@@ -375,6 +375,8 @@ export default function PharmacyHub() {
         ListHeaderComponent={<View style={{ marginBottom: 16 }}>{header}</View>}
         ListEmptyComponent={empty}
         keyboardShouldPersistTaps="handled"
+        // pull down to reload the list (the same reload the retry button asks for)
+        refreshControl={<RefreshControl refreshing={loading && medicines.length > 0} onRefresh={() => setReloadKey((n) => n + 1)} tintColor={c.text.primary} />}
         initialNumToRender={8}
         onViewableItemsChanged={onViewable}
         viewabilityConfig={VIEWABLE}

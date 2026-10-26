@@ -29,6 +29,7 @@ import {
   Icon,
   Input,
   OfflineState,
+  PopWhen,
   Radio,
   Screen,
   SERVICE_ICONS,
@@ -821,7 +822,9 @@ export default function ProductDetailScreen() {
               </Svg>
             </GlassButton>
             <GlassButton label={inWishlist ? k('pharmacy.product.favRemove') : k('pharmacy.product.favAdd')} onPress={toggleWishlist}>
-              {inWishlist ? <Glyph name="heart" size={20} color={c.icon.favorite} /> : <Icon name="heart" size={20} theme={theme} color={c.icon.favorite} />}
+              <PopWhen active={inWishlist}>
+                {inWishlist ? <Glyph name="heart" size={20} color={c.icon.favorite} /> : <Icon name="heart" size={20} theme={theme} color={c.icon.favorite} />}
+              </PopWhen>
             </GlassButton>
             <View>
               <GlassButton label={k('pharmacy.cart')} onPress={() => go('/pharmacy/cart' as Href)}>

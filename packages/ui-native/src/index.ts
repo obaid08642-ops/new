@@ -25,6 +25,9 @@ export { FILL_ICON_NAMES, FILL_ICON_PATHS, SERVICE_ICONS, SERVICE_TONES } from '
 export type { FillIconName, ServiceName, ServiceTone } from '../../ui/icons/fill';
 export { EmptyState, ErrorState, OfflineState, Modal, Skeleton, Toast } from './components/Feedback';
 
+// The shared motion of the native components (tokens `motion.*`; off with reduced motion). Native-only.
+export { FadeIn, NATIVE_MOTION, PopIn, PopWhen, Pulse, countUpValue, reduceMotionNow, setReduceMotionForTest, useCountUp } from './motion';
+
 // Screen shells (DEVICE_STANDARD §1). Native-only layout, so not part of the cross-platform contract.
 export * from './shells';
 
