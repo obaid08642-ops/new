@@ -45,9 +45,11 @@
 
 /* the page's phone header: back, title in the middle, a spacer of the back button's width */
 .phoneTitle {
-  flex: 1; min-inline-size: 0; margin: 0; text-align: center;
+  flex: 1; min-inline-size: 0; margin: 0; text-align: start;
   font-size: var(--nabd-font-size-h3); line-height: var(--nabd-font-size-h3-lineHeight); font-weight: 700;
-  overflow-wrap: anywhere; padding-inline-end: 56px; /* the back button's width and gap, so the title is centred */
+  /* The tools (results, favourites, cart, menu) sit after the title, so it is no longer centred by a spacer; a word is never cut
+     in the middle (a 390px phone gave a title of a few letters per line before): long titles wrap between words. */
+  overflow-wrap: normal; word-break: normal; hyphens: none;
 }
 
 .search { flex: 1; min-inline-size: 0; }
@@ -69,6 +71,13 @@
 .section:hover { background: var(--nabd-color-bg-sunken); }
 
 .tools { margin-inline-start: auto; align-items: center; gap: 8px; }
+/* between 1024 and 1439 the bar carries the five sections plus language, theme, bell, favourites, cart, profile and sign-out: tighten
+   them so the last icon is never pushed past the window edge */
+@media (min-width: 1200px) and (max-width: 1439px) {
+  .section { padding-inline: 10px; }
+  .sections { gap: 2px; }
+  .tools { gap: 4px; }
+}
 /* the shared language and theme controls reach the 44 touch target here (DEVICE_STANDARD §3) */
 .tools [aria-haspopup="true"] { min-block-size: 44px; }
 .tools :global(.theme-option) { min-inline-size: 44px; min-block-size: 44px; }
@@ -94,11 +103,16 @@
   .tools { display: flex; }
 }
 
-@media (min-width: 1024px) {
+/* The sections need room next to the language, theme, bell, favourites, cart, profile and sign-out controls: from 1200 (at 1024 the
+   last icon was pushed past the window edge), so 1024-1199 keeps the tab bar. */
+@media (min-width: 1200px) {
   .sections { display: flex; }
   /* the tab bar goes; a page CTA (StickyFooter) stays: without it the booking, order and payment buttons vanished from 1024 */
   .root :global(.nabd-shell__tabs) { display: none; }
   .root :global(.nabd-shell__bottom:not(:has(.nabd-sticky-footer))) { display: none; }
+}
+
+@media (min-width: 1024px) {
   /* the CTA keeps the width of the page column, not the window */
   .root :global(.nabd-sticky-footer) > * { max-inline-size: 720px; margin-inline: auto; }
   .page { padding-block-end: var(--nabd-space-5xl); }

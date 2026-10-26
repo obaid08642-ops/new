@@ -6,8 +6,8 @@
  *         DRY RUN. Reads the published products (MONGO_URL / DB_NAME), counts the missing texts per target and field, the texts in the
  *         wrong column (listed, never translated from), and prints the token count and the price at the configured model. Writes the requests.
  *   run   --requests requests.jsonl --out responses.jsonl [--rpm 60]
- *         Calls the model. Resumable: request ids already in --out are skipped. Needs an AI provider variable (GEMINI_API_KEY, or
- *         OPENAI_API_KEY with AI_PROVIDER=openai); without one it says so and stops. Model: TRANSLATE_MODEL (default as the classify job).
+ *         Calls the model. Resumable: request ids already in --out are skipped. Needs an AI provider key in the environment (any provider of the
+ *         gateway chain: GEMINI_API_KEY, GROQ_API_KEY, ... OPENCODE_API_KEY; they are tried in order); without one it says so and stops. Model: TRANSLATE_MODEL (default as the classify job).
  *   plan  --requests requests.jsonl --responses responses.jsonl --out translations.json
  *         Checks every answer (same numbers, right script, sane length, no markup) and writes the reviewed file that
  *         `catalogue-apply plan --product-translations=<file>` reads. Rejected answers are counted by reason and left out.
@@ -23,9 +23,10 @@ import { publicMedicineFilter } from '../modules/medicines/public-medicine-filte
 import { TARGET_ORDER, buildRequests, checkTranslation, findGaps, parseAnswers, type Gap, type Rejection, type TranslateRequest, type TranslationFile, type TranslationItem } from '../modules/medicines/content-translation';
 import type { ContentLocale } from '../modules/medicines/med-i18n';
 import { DEFAULT_MODEL, PRICES, approxTokens, callerFromEnv, runRequests } from './classify-catalogue-batch';
+import { providerVariableNames } from '../modules/ai/env-chain';
 
 const arg = (argv: string[], name: string): string | undefined => argv.find((a) => a.startsWith(`--${name}=`))?.split('=').slice(1).join('=');
-export const PROVIDER_VARIABLES = ['GEMINI_API_KEY', 'OPENAI_API_KEY'] as const;
+export const PROVIDER_VARIABLES: readonly string[] = providerVariableNames();
 
 export interface GapEstimate {
   texts: number; requests: number; total_input_tokens: number; total_output_tokens: number; model: string;
@@ -99,7 +100,7 @@ export async function main(argv: string[]): Promise<number> {
   }
   if (step === 'run') {
     const present = PROVIDER_VARIABLES.filter((v) => !!process.env[v]);
-    if (!present.length) { out({ step, ok: false, error: 'no AI provider variable is set (GEMINI_API_KEY or OPENAI_API_KEY): nothing was sent. The sections stay marked with their language (the page rule).' }); return 2; }
+    if (!present.length) { out({ step, ok: false, error: `no AI provider variable is set (${PROVIDER_VARIABLES.join(', ')}): nothing was sent. The sections stay marked with their language (the page rule).` }); return 2; }
     const requests = arg(argv, 'requests'); const outFile = arg(argv, 'out');
     if (!requests || !outFile) throw new Error('--requests and --out are required');
     const reqs = readJsonl<TranslateRequest>(requests);

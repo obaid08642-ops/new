@@ -1,4 +1,5 @@
 
+import { POPULAR_ORDER_STAGES } from '../product-ranking/product-ranking.service';
 import { BackfillSlugsDto } from './seo-search.dto';
 import { safeDecode } from '../../common/slug.util';
 import { buildMedicineReport, medicineReportMarkdown } from './medicine-publication-report';
@@ -614,6 +615,8 @@ export class SeoSearchService {
       .sort({ id: 1 })
       .skip((page - 1) * perPage)
       .limit(perPage)
+      // One round trip for the page (the driver default of 101 docs made ~50 getMore calls: Sentry NABD-BACKEND-1V).
+      .batchSize(perPage)
       .toArray();
     const val = rows.map((m: any) => {
       const alternates: Record<string, string> = {};
@@ -894,123 +897,26 @@ export class SeoSearchService {
     if (sort === 'price_asc' || sort === 'price_desc') filter.price = { $gt: 0 };
     if (extras.price) filter.price = { ...(filter.price || {}), ...extras.price, ...(extras.price.$gte === undefined && extras.price.$lte !== undefined ? { $gt: 0 } : {}) };
 
-    const cursor = this.conn.collection(CATALOG_COLLECTIONS.medicines)
-      .find(filter, { projection: { _id: 0, id: 1, sku: 1, slug: 1, name_ar: 1, name_en: 1, price: 1, old_price: 1, image_1: 1, image: 1, images: 1, form: 1, strength: 1, package_size: 1, category: 1, sub_category: 1, active_ingredient: 1, requires_prescription: 1, online_exclusive: 1, availability_status: 1, usage_count: 1, translations: 1 } } as any)
-      .sort(sortClause)
-      .skip((Math.max(page, 1) - 1) * perPage)
-      .limit(perPage);
+    const projection = { _id: 0, id: 1, sku: 1, slug: 1, name_ar: 1, name_en: 1, price: 1, old_price: 1, image_1: 1, image: 1, images: 1, form: 1, strength: 1, package_size: 1, category: 1, sub_category: 1, active_ingredient: 1, requires_prescription: 1, online_exclusive: 1, availability_status: 1, usage_count: 1, translations: 1 };
+    const skip = (Math.max(page, 1) - 1) * perPage;
+    const medicines = this.conn.collection(CATALOG_COLLECTIONS.medicines);
+    // The default order is the ranking's composite score (in stock and with an image first among equals), not the old usage counter.
+    const cursor = sort === 'popular'
+      ? medicines.aggregate([{ $match: filter }, ...POPULAR_ORDER_STAGES, { $skip: skip }, { $limit: perPage }, { $project: projection }] as any)
+      : medicines.find(filter, { projection } as any).sort(sortClause).skip(skip).limit(perPage);
     const [rows, total] = await Promise.all([cursor.toArray(), this.publicListingCount(filter)]);
-    let items = rows.map((m: any) => {
+    const items = rows.map((m: any) => {
       const dto = resolveMedicinePublicDto(m, locale);
       return {
         sku: dto.sku, id: dto.id, slug: dto.slug, name: dto.name, form: dto.form, strength: dto.strength,
         package_size: dto.package_size, price: dto.price, old_price: dto.old_price, currency: dto.currency,
         is_rx: dto.is_rx, online_exclusive: dto.online_exclusive, available: dto.available, image: dto.image,
+        // a card with more than one picture turns through them (at most five, the first is `image`)
+        ...(Array.isArray(dto.images) && dto.images.length > 1 ? { images: dto.images.slice(0, 5) } : {}),
       };
     });
-    // Page-1 popularity boost, SCOPED to the requested category by construction:
-    // top composite_score drugs (views + cart adds + purchases) are intersected
-    // with the SAME page filter, so a specific category only ever pins its own
-    // items; 'all' pins the global top. Ranked items move to front in rank
-    // order (not only when absent). Later pages keep pure usage order.
-    // ALL-page diversity: after pins, round-robin across canonical categories
-    // so ALL shows medicines + beauty + hair + baby + vitamins instead of
-    // 24× paracetamol. Max 2 per active ingredient. 60s in-process cache.
-    // Known trade-off: a promoted item whose natural rank is beyond page 1 may
-    // reappear on its natural page (stateless endpoint). Harmless; page-1 wins.
-    if (Math.max(page, 1) === 1 && !q?.trim() && sort === 'popular') {
-      try {
-        const toDto = (m: any) => {
-          const dto = resolveMedicinePublicDto(m, locale);
-          return { sku: dto.sku, id: dto.id, slug: dto.slug, name: dto.name, form: dto.form, strength: dto.strength, package_size: dto.package_size, price: dto.price, old_price: dto.old_price, currency: dto.currency, is_rx: dto.is_rx, online_exclusive: dto.online_exclusive, available: dto.available, image: dto.image };
-        };
-        const isAll = !resolvedCat || resolvedCat === 'all' || resolvedCat === 'الكل';
-        if (isAll) {
-          const cacheKey = `alldiv:${locale}:${perPage}`;
-          const cached = this.sitemapCache.get(cacheKey);
-          if (cached && cached.exp > Date.now()) {
-            items = cached.val;
-          } else {
-            const top: any[] = await this.conn.collection('product_ranking_metrics')
-              .find({ pharmacy_id: 'global' }).sort({ composite_score: -1 }).limit(20)
-              .project({ _id: 0, drug_id: 1 }).toArray().catch(() => []);
-            const ranked = top.map((t: any) => t.drug_id).filter(Boolean);
-            const rankPos = new Map(ranked.map((id: string, i: number) => [id, i]));
-            // A prescription-only item is never promoted (owner decisions 10 and 29): it keeps its natural place.
-            const pins = items.filter((i: any) => rankPos.has(i.id) && !i.is_rx)
-              .sort((a: any, b: any) => rankPos.get(a.id)! - rankPos.get(b.id)!).slice(0, 8);
-            const pinIds = new Set(pins.map((i: any) => i.id));
-            const ingCount = new Map<string, number>();
-            const canonicals = [...new Set(Object.values(CANONICAL_CATEGORY_MAP))];
-            const perCat: any[][] = await Promise.all(canonicals.map((cat) =>
-              this.conn.collection(CATALOG_COLLECTIONS.medicines).find(
-                { ...this.publicProductFilter(), $or: [{ category: cat }, { [key('category')]: cat }] },
-                { projection: { _id: 0 } },
-              ).sort({ usage_count: -1, rating: -1 }).limit(6).toArray().catch(() => []),
-            ));
-            // Seed dedupe + ingredient budget from the usage-ordered base page
-            // (DTOs carry no ingredient, so resolve via the per-category raws).
-            // onPage = every base id (fill must be genuinely new); pins stay a
-            // subset that keeps front position via `rest` below.
-            const onPage = new Set(items.map((i: any) => i.id));
-            const ingOf = new Map<string, string>();
-            for (const docs of perCat) for (const m of docs) {
-              const ing = String(m?.active_ingredient || '').trim();
-              if (m?.id && ing && !ingOf.has(m.id)) ingOf.set(m.id, ing);
-            }
-            const fill: any[] = [];
-            for (let round = 0; round < 6; round++) {
-              for (const docs of perCat) {
-                const m = (docs[round] || null) as any;
-                if (!m?.id || onPage.has(m.id) || fill.some((f: any) => f.id === m.id)) continue;
-                fill.push(toDto(m)); onPage.add(m.id);
-              }
-            }
-            // Final walk in priority order (pins → diverse pool → rest),
-            // enforcing max 2 per active ingredient across the whole page so
-            // one ingredient (e.g. paracetamol) cannot flood ALL page-1.
-            const keep = (dto: any): boolean => {
-              const ing = ingOf.get(dto.id);
-              if (!ing) return true;
-              if ((ingCount.get(ing) || 0) >= 2) return false;
-              ingCount.set(ing, (ingCount.get(ing) || 0) + 1);
-              return true;
-            };
-            // Reset budget: base seeding above only measured; rebuild strictly.
-            ingCount.clear();
-            const rest = items.filter((i: any) => !pinIds.has(i.id));
-            const rebuilt: any[] = [];
-            for (const dto of [...pins, ...fill, ...rest]) {
-              if (rebuilt.length >= perPage) break;
-              if (keep(dto)) rebuilt.push(dto);
-            }
-            if (rebuilt.length) {
-              items = rebuilt;
-              this.sitemapCache.set(cacheKey, { exp: Date.now() + 60 * 1000, val: items });
-            }
-          }
-        } else {
-          const top: any[] = await this.conn.collection('product_ranking_metrics')
-            .find({ pharmacy_id: 'global' }).sort({ composite_score: -1 }).limit(20)
-            .project({ _id: 0, drug_id: 1 }).toArray().catch(() => []);
-          const ranked = top.map((t: any) => t.drug_id).filter(Boolean);
-          const have = new Set(items.map((i: any) => i.id));
-          const missing = ranked.filter((id: string) => !have.has(id));
-          if (missing.length) {
-            const extra: any[] = await this.conn.collection(CATALOG_COLLECTIONS.medicines)
-              .find({ ...filter, id: { $in: missing } }, { projection: { _id: 0 } }).toArray().catch(() => []);
-            for (const m of extra) {
-              if (m?.id && !have.has(m.id)) { items.push(toDto(m)); have.add(m.id); }
-            }
-          }
-          const rankPos = new Map(ranked.map((id: string, i: number) => [id, i]));
-          items = [
-            ...items.filter((i: any) => rankPos.has(i.id) && !i.is_rx).sort((a: any, b: any) => rankPos.get(a.id)! - rankPos.get(b.id)!).slice(0, 8),
-            ...items.filter((i: any) => !rankPos.has(i.id) || i.is_rx),
-          ].slice(0, perPage);
-        }
-      } catch { /* boost is best-effort; base order stands */ }
-    }
+    // No page-1 pins and no round-robin fill any more: the aggregate above already orders the whole list by the composite
+    // score (see POPULAR_ORDER_STAGES), so a product nobody viewed, searched, carted or ordered can no longer jump ahead of one that was.
     return {
       locale, category: decodedCat, sub_category: sub ? safeDecode(sub) : null,
       page: Math.max(page, 1), limit: perPage, total,

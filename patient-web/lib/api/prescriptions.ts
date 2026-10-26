@@ -50,7 +50,7 @@ export function extractPrescriptionSummaries(payload: unknown) {
   });
 }
 
-export type PrescriptionDetailItem = { name: string; dose?: string; everyHours?: number; timesPerDay?: number; durationDays?: number };
+export type PrescriptionDetailItem = { name: string; dose?: string; everyHours?: number; timesPerDay?: number; durationDays?: number; medicineId?: string; quantity?: number };
 export type PrescriptionDetail = { id: string; state?: string; issuedAt?: string; doctorName?: string; doctorSpecialty?: string; items: PrescriptionDetailItem[] };
 
 function positive(value: unknown): number | undefined {
@@ -77,7 +77,7 @@ export function extractPrescriptionDetail(payload: unknown): PrescriptionDetail 
     const name = plainText(item?.name);
     if (!item || !name) return [];
     const frequency = asRecord(item.frequency);
-    return [{ name, dose: plainText(item.dose), everyHours: positive(frequency?.every_hours), timesPerDay: positive(frequency?.times_per_day), durationDays: positive(item.duration) }];
+    return [{ name, dose: plainText(item.dose), everyHours: positive(frequency?.every_hours), timesPerDay: positive(frequency?.times_per_day), durationDays: positive(item.duration), medicineId: plainText(item.medicine_id), quantity: positive(item.quantity) }];
   });
   const doctor = asRecord(record.doctor);
   return {

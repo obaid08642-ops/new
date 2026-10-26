@@ -22,7 +22,7 @@ import { checkReviewedIngredients } from './ingredients';
 import { InteractionHit, pairInteractions } from '../ai/interaction-rules';
 import { publicMedicineFilter } from './public-medicine-filter';
 import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, PUBLIC_CATALOG_LOCALES } from './med-i18n';
-import { normalizeRankingSort, ProductRankingService } from '../product-ranking/product-ranking.service';
+import { normalizeRankingSort, POPULAR_ORDER_STAGES, ProductRankingService } from '../product-ranking/product-ranking.service';
 import { ManualBoostsService } from '../product-ranking/manual-boosts.service';
 import { escapeRegex } from '../../common/slug.util';
 
@@ -617,7 +617,7 @@ export class MedicinesService {
     let rows: any[] = [];
 
     // Continuous Dynamic Ranking Fast-Path when viewing storefront without search query
-    if (!search && this.rankingService) {
+    if (!search && this.rankingService && normalizeRankingSort(sort) !== 'smart_ranking') {
       const { drugIds } = await this.rankingService.getRankedDrugIds({
         pharmacyId,
         category: (category && category !== 'all') ? category : undefined,
@@ -649,9 +649,11 @@ export class MedicinesService {
     }
 
     // Regex path: substring/normalized/synonym matching (used when FTS misses)
-    if (rows.length < 3) {
-      rows = await this.model.find(this.buildQuery(search, (category && category !== 'all') ? category : undefined, includeUnverified), MedicinesService.CARD_PROJECTION)
-        .sort({ verified: -1, usage_count: -1, name_ar: 1 }).limit(cap);
+    if (rows.length < 3 || (!search && normalizeRankingSort(sort) === 'smart_ranking')) {
+      const filter = this.buildQuery(search, (category && category !== 'all') ? category : undefined, includeUnverified);
+      rows = (!search && normalizeRankingSort(sort) === 'smart_ranking')
+        ? await this.model.aggregate([{ $match: filter }, ...POPULAR_ORDER_STAGES, { $limit: cap }, { $project: MedicinesService.CARD_PROJECTION }] as any)
+        : await this.model.find(filter, MedicinesService.CARD_PROJECTION).sort({ verified: -1, usage_count: -1, name_ar: 1 }).limit(cap);
     }
 
     // Typo-tolerant fallback: zero hits → retry with letter-gap regex (normalization first)
@@ -712,7 +714,7 @@ export class MedicinesService {
     if (cached) return cached;
 
     // Continuous Dynamic Ranking Fast-Path when not searching text
-    if (!search && this.rankingService) {
+    if (!search && this.rankingService && normalizeRankingSort(sort) !== 'smart_ranking') {
       const offset = (safePage - 1) * safeLimit;
       const { drugIds, total } = await this.rankingService.getRankedDrugIds({
         pharmacyId,
@@ -745,10 +747,14 @@ export class MedicinesService {
     }
 
     const q = this.buildQuery(search, (category && category !== 'all') ? category : undefined, includeUnverified);
+    const byRank = !search && normalizeRankingSort(sort) === 'smart_ranking';
+    const skipN = (safePage - 1) * safeLimit;
     const [data, total] = await Promise.all([
-      this.model.find(q, MedicinesService.CARD_PROJECTION)
-        .sort({ verified: -1, usage_count: -1, name_ar: 1 })
-        .skip((safePage - 1) * safeLimit).limit(safeLimit),
+      byRank
+        ? this.model.aggregate([{ $match: q }, ...POPULAR_ORDER_STAGES, { $skip: skipN }, { $limit: safeLimit }, { $project: MedicinesService.CARD_PROJECTION }] as any)
+        : this.model.find(q, MedicinesService.CARD_PROJECTION)
+          .sort({ verified: -1, usage_count: -1, name_ar: 1 })
+          .skip(skipN).limit(safeLimit),
       (this.model as any).countDocuments ? (this.model as any).countDocuments(q) : Promise.resolve(0),
     ]);
     const result = {
@@ -785,13 +791,16 @@ export class MedicinesService {
       q.price = { $gt: 0 }; // a missing price is not the cheapest
     }
     if (and.length) q.$and = and;
+    const byRank = sort !== 'price_asc' && sort !== 'price_desc' && sort !== 'newest' && !search;
     const order: any = sort === 'price_asc' ? { price: 1, id: 1 }
       : sort === 'price_desc' ? { price: -1, id: 1 }
       : sort === 'newest' ? { createdAt: -1, id: 1 }
       : { verified: -1, usage_count: -1, name_ar: 1 };
     const safeLimit = clampPageInt(limit, 30, 100);
     const safePage = page === undefined ? 1 : clampPageInt(page, 1);
-    const find = this.model.find(q, MedicinesService.CARD_PROJECTION).sort(order).skip((safePage - 1) * safeLimit).limit(safeLimit);
+    const find = byRank
+      ? this.model.aggregate([{ $match: q }, ...POPULAR_ORDER_STAGES, { $skip: (safePage - 1) * safeLimit }, { $limit: safeLimit }, { $project: MedicinesService.CARD_PROJECTION }] as any)
+      : this.model.find(q, MedicinesService.CARD_PROJECTION).sort(order).skip((safePage - 1) * safeLimit).limit(safeLimit);
     const rows = (await find as any[]).map((m: any) => this.withBadges(m?.toObject ? m.toObject() : m));
     if (page === undefined) return rows;
     const total = await (this.model as any).countDocuments(q);

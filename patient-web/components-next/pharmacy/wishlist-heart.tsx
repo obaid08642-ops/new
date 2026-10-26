@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { MOTION, reducedMotion } from "@/lib/motion/motion";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { IconButton } from "@/components-next/ui-generated/components/Button";
@@ -23,6 +24,15 @@ export function WishlistHeart({ itemId, locale }: { itemId: string; locale: stri
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
   const running = useRef(false);
+  const box = useRef<HTMLDivElement>(null);
+  const wasIn = useRef(false);
+  // the heart pops (scale 1 -> 1.25 -> 1) when it turns on; not with reduced motion
+  useEffect(() => {
+    if (inList && !wasIn.current && !reducedMotion()) {
+      box.current?.querySelector("button")?.animate([{ transform: "scale(1)" }, { transform: "scale(1.25)", offset: 0.5 }, { transform: "scale(1)" }], { duration: MOTION.pop, easing: MOTION.ease });
+    }
+    wasIn.current = inList;
+  }, [inList]);
 
   useEffect(() => {
     let active = true;
@@ -60,7 +70,7 @@ export function WishlistHeart({ itemId, locale }: { itemId: string; locale: stri
   }
 
   return (
-    <div className={styles.wishlist}>
+    <div className={styles.wishlist} ref={box}>
       <IconButton name="heart" label={inList ? t("wishlistRemove") : t("wishlistAdd")} variant={inList ? "filled" : "outlined"} loading={busy} onClick={toggle} />
       {failed ? <p role="status" className={styles.wishlistError}>{t("wishlistError")}</p> : null}
     </div>

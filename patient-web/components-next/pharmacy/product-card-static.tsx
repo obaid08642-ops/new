@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { CardImageRotator } from "./card-image-rotator";
 import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX } from "@/components-next/ui-generated/icons/fill";
 
 /**
@@ -13,6 +14,8 @@ export type ProductCardStaticProps = {
   price: string;
   currency?: string;
   imageSrc?: string;
+  /** The card's other pictures: with at least one, the card turns through them while it is on screen (card-image-rotator.tsx). */
+  moreImages?: string[];
   discountLabel?: string;
   rxLabel?: string;
   onlineLabel?: string;
@@ -23,7 +26,7 @@ export type ProductCardStaticProps = {
   add: ReactNode;
 };
 
-export function ProductCardStatic({ name, meta, price, currency, imageSrc, discountLabel, rxLabel, onlineLabel, href, imagePriority = false, add }: ProductCardStaticProps) {
+export function ProductCardStatic({ name, meta, price, currency, imageSrc, moreImages, discountLabel, rxLabel, onlineLabel, href, imagePriority = false, add }: ProductCardStaticProps) {
   return (
     <div className="nabd-product-card">
       <a href={href} className="nabd-product-card__link">
@@ -43,6 +46,7 @@ export function ProductCardStatic({ name, meta, price, currency, imageSrc, disco
               <path d={FILL_ICON_PATHS.pill} fill="var(--nabd-color-icon-secondary)" />
             </svg>
           )}
+          {imageSrc && moreImages && moreImages.length > 0 ? <CardImageRotator srcs={[imageSrc, ...moreImages]} /> : null}
           {discountLabel ? <span className="nabd-product-card__discount">{discountLabel}</span> : null}
         </div>
         <span className="nabd-product-card__name">{name}</span>
