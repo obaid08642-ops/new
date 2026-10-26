@@ -72,14 +72,15 @@ def main():
     step('admin runs the score job again', r.ok and (r.get('updated') or 0) >= 2, r)
     r, after = order_of(anon, tag, ids, 2)
     step('public category list (web): C, then B, then A', after == [c, b, a], {'got': after, 'A': a, 'B': b, 'C': c})
-    # the app's list has no text query: walk its pages (100 a page) until the three test medicines have all been seen
+    # the app's list has no text query: walk its pages (100 a page) until the three test medicines have all been seen.
+    # The list is cached per URL and other journeys ask for the same one: a pharmacyId of this run's own makes a fresh key.
     got, pageno, total_pages = [], 1, 1
     while pageno <= min(total_pages, 30) and len(got) < 3:
-        page = anon.get(f'/medicines?page={pageno}&limit=100&category=vitamins&sort=smart_ranking')
+        page = anon.get(f'/medicines?page={pageno}&limit=100&category=vitamins&sort=smart_ranking&pharmacyId=ranking-{tag}')
         total_pages = page.get('total_pages', default=1) or 1
         got += [m.get('id') for m in page.items() if m.get('id') in ids and m.get('id') not in got]
         pageno += 1
-    step('medicines list without a text query (app): C, then B, then A', got == [c, b, a], {'got': got, 'A': a, 'B': b, 'C': c})
+    step('medicines list without a text query (app): C, then B, then A', got == [c, b, a], {'got': got, 'pages': total_pages, 'status': page.status, 'A': a, 'B': b, 'C': c})
 
 
 if __name__ == '__main__':
