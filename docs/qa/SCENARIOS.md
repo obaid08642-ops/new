@@ -6,7 +6,7 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 
 ## Coverage
 
-- Scenarios: 16 done, 36 partial, 4 blocked (reason given), 18 not started, of 74 total.
+- Scenarios: 17 done, 40 partial, 4 blocked (reason given), 13 not started, of 74 total.
 - Screens: 0 of 274 patient-web routes fully scanned (public pages sampled in findings). Admin and provider screens not started.
 - The sweep is not finished. It is finished only when both counts reach 100%, or each remaining line gives its reason.
 
@@ -34,7 +34,7 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 | D-02 | doctor | doctor page → slot → book, video, free | PARTIAL | j_consultation.py: slot held (10 min lock), same slot cannot be booked twice, booking shows paid (video, card). Free booking not checked |
 | D-03 | doctor | book clinic visit, paid | DONE | j_consultation.py matrix: clinic + cash appointment created and cash booking recorded. DB via the journey read-backs |
 | D-04 | doctor | book with insurance (copay/cap estimate) | PARTIAL | j_consultation.py matrix: home + insurance appointment created, insurance request opened, provider decision visible. Copay/cap estimate not checked |
-| D-05 | doctor | book for a family member | TODO | |
+| D-05 | doctor | book for a family member | DONE | tools/live/j_family_book_for_member.py (54/54): owner books for a family member; MongoDB appointments row: patient_id = member, booked_by_user_id = owner; stranger refused (403); owner pays by card, member sees paid |
 | D-06 | doctor | telehealth consent → call | PARTIAL | j_consultation.py reads GET /calls/provider/waiting-room. Consent and the call itself not tested |
 | D-07 | doctor | visit summary actions → prescription | DONE | j_consultation.py: visit summary opens; stored summary and prescription are ciphertext in the database (16.9 steps); the patient reads plaintext; prescription listed; access log written |
 | D-08 | doctor | no-show | DONE | tools/live/j_qa_appointments.py (56/56, 2026-10-26 run): `POST /calls/provider/no-show` on the rescheduled visit; MongoDB appointments: NO_SHOW, refund_percentage 0, refund_destination none, state_history note no_show; patient sees NO_SHOW after reload; second no-show refused (appointment_not_no_show_eligible) |
@@ -65,10 +65,10 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 | A-15 | account | delete account | PARTIAL | API journey tools/live/j_qa_delete.py on a throwaway account: export works, wrong password refused, erasure with password 2xx, login refused afterwards (all pass). Web settings UI not clicked yet |
 | V-01 | provider, pharmacy | registration, every field and step | PARTIAL | tools/live/j_onboarding.py (112/112): pharmacy registration steps, licence and logo uploads, approval with commissions, unconfirmed SCFHS licence refused. Not every field of every step checked |
 | V-02 | provider, doctor | registration, every field and step | PARTIAL | tools/live/j_loyalty.py (117/117): doctor registration steps 2 and 3 as sent by DoctorRegistration.tsx, signature upload, approval with commissions. Not every field checked |
-| V-03 | provider, lab | registration, every field and step | TODO | |
-| V-04 | provider, radiology | registration, every field and step | TODO | |
-| V-05 | provider, home_care | registration, every field and step | TODO | |
-| V-06 | provider, hospital | registration, every field and step | TODO | |
+| V-03 | provider, lab | registration, every field and step | PARTIAL | tools/live/j_onboarding.py onboard_all (112/112, 2026-10-26): API registration, admin review and approval pass for this type; fields are not walked in the UI and no per-type DB check yet |
+| V-04 | provider, radiology | registration, every field and step | PARTIAL | tools/live/j_onboarding.py onboard_all (112/112, 2026-10-26): API registration, admin review and approval pass for this type; fields are not walked in the UI and no per-type DB check yet |
+| V-05 | provider, home_care | registration, every field and step | PARTIAL | tools/live/j_onboarding.py onboard_all (112/112, 2026-10-26): API registration, admin review and approval pass for this type; fields are not walked in the UI and no per-type DB check yet |
+| V-06 | provider, hospital | registration, every field and step | PARTIAL | tools/live/j_onboarding.py onboard_all (112/112, 2026-10-26): API registration, admin review and approval pass for this type; fields are not walked in the UI and no per-type DB check yet |
 | V-07 | provider, all types | admin approval and rejection | PARTIAL | j_onboarding.py: approval with commissions, unconfirmed licence refused (fails closed). Admin rejection of an applicant not tested |
 | V-08 | provider, all types | dashboard, receive request, accept / reject / offer | PARTIAL | pharmacy, lab, radiology, nursing journeys: provider inbox shows the new request, provider accepts and completes. Rejection and offers per type not all covered |
 | V-09 | provider, all types | schedule, leaves, templates, blacklist, payouts | PARTIAL | j_consultation.py: doctor submits clinic hours, admin approves the slots change. Leaves, templates, blacklist and payouts not tested |
@@ -105,7 +105,7 @@ Per-screen scan (every element, sizes 390/768/1280, six languages, dark mode) is
 - Auth-gated patient-web routes (signed in, 72): swept on the production layout. Table: docs/qa/screens/patient-web-auth.md. Findings: docs/qa/findings/web-sweep-auth.md.
 - Admin pages (65 files): swept signed in, on the admin build of 03:12, then re-checked on the rebuilt admin from merged main. Findings: docs/qa/findings/admin-sweep.md. Dynamic admin routes (orders/[kind]/[id]) not tested (need IDs).
 - Dynamic patient-web routes (53): 5 routes tested with a real seeded doctor (docs/qa/findings/web-sweep-dynamic.md). Found P1: /consultations/doctors/<id> returns 503 (server-to-client function prop). The other ~48 need seeded IDs for articles, facilities, community, orders, appointments, labs, radiology, packages, results, clinics: NOT TESTED, reason: no seeded records of those types yet.
-- Scenarios: 16 done, 36 partial, 4 blocked (reason given), 18 not started, of 74 total.
+- Scenarios: 17 done, 40 partial, 4 blocked (reason given), 13 not started, of 74 total.
 - Open P1s: guest job publish (no route); admin system logs API 404 (AdminLogsController dropped in the P5.3 merge).
 - Corrected: hydration P1 retracted (local setup; production layout passes).
 - Environment: services drop between turns. Recover with /tmp/claude-0-scratch/stack_up.sh (patient-web via the nonce server). Kill stale next-server processes by PID (comm next-server) before restarting admin.
