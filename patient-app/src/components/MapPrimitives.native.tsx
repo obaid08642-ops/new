@@ -1,8 +1,9 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+import React, { forwardRef, useEffect, useMemo, useImperativeHandle, useRef } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { Camera, GeoJSONSource, Layer, Map as MLMap, Marker as MLMarker, UserLocation, type CameraRef } from '@maplibre/maplibre-react-native';
+import { Camera, GeoJSONSource, Images, Layer, Map as MLMap, Marker as MLMarker, UserLocation, type CameraRef } from '@maplibre/maplibre-react-native';
 import { MAP_ATTRIBUTION, mapStyleFor, regionFromView, zoomForRegion, type Region } from './map-geometry';
 import { useScreenUi, tint } from './screen/ScreenKit';
+import { holoPinUri } from './map-hologram-image';
 import { CLUSTER, HOLO_KINDS, HOLO_LOOK, matchByKind, type HoloFeatureCollection, type HoloKind } from './map-hologram';
 
 /**
@@ -123,10 +124,14 @@ export function HologramLayer({ data, selectedId, onSelect, onCluster }: { data:
   const { c } = useScreenUi();
   const by = (pick: (kind: HoloKind) => string) => matchByKind(Object.fromEntries(HOLO_KINDS.map((kind) => [kind, pick(kind)])) as Record<HoloKind, string>, c.service.map.glyph);
   const fg = by((kind) => c.service[HOLO_LOOK[kind].tone].fg);
+  // one pin image per kind, drawn from this theme's service tones (re-made when the theme changes)
+  const images = useMemo(() => Object.fromEntries(HOLO_KINDS.map((kind) => [`holo-${kind}`, { uri: holoPinUri(kind, c.service[HOLO_LOOK[kind].tone].fg, c.service[HOLO_LOOK[kind].tone].bg) }])), [c]);
   const glow = by((kind) => tint(c.service[HOLO_LOOK[kind].tone].fg, 0.22));
   const plate = by((kind) => tint(c.service[HOLO_LOOK[kind].tone].fg, 0.32));
   const single = ['all', ['!', ['has', 'point_count']], ['!=', ['get', 'id'], selectedId ?? '']];
   return (
+    <>
+    <Images images={images as never} />
     <GeoJSONSource
       id="providers"
       data={data as never}
@@ -145,10 +150,10 @@ export function HologramLayer({ data, selectedId, onSelect, onCluster }: { data:
       <Layer id="holo-cluster-halo" type="circle" filter={['has', 'point_count']} style={{ circleRadius: 26, circleColor: tint(c.service.map.glyph, 0.2), circlePitchAlignment: 'map', circleBlur: 0.6 }} />
       <Layer id="holo-cluster" type="circle" filter={['has', 'point_count']} style={{ circleRadius: 17, circleColor: c.service.map.bg, circleStrokeColor: c.service.map.glyph, circleStrokeWidth: 2 }} />
       <Layer id="holo-cluster-count" type="symbol" filter={['has', 'point_count']} style={{ textField: ['get', 'point_count_abbreviated'], textSize: 13, textColor: c.service.map.glyph, textAllowOverlap: true }} />
-      <Layer id="holo-halo" type="circle" filter={single} style={{ circleRadius: 24, circleColor: glow, circleBlur: 0.8, circlePitchAlignment: 'map' }} />
-      <Layer id="holo-plate" type="circle" filter={single} style={{ circleRadius: 12, circleColor: plate, circleStrokeColor: fg, circleStrokeWidth: 1.5, circleStrokeOpacity: 0.6, circlePitchAlignment: 'map' }} />
-      <Layer id="holo-core" type="circle" filter={single} style={{ circleRadius: 7, circleColor: fg, circleStrokeColor: c.bg.surface, circleStrokeWidth: 2, circleTranslate: [0, -14], circleBlur: 0.1 }} />
+      <Layer id="holo-halo" type="circle" filter={single} style={{ circleRadius: 24, circleTranslate: [0, -6], circleColor: glow, circleBlur: 0.8, circlePitchAlignment: 'map' }} />
+      <Layer id="holo-pin" type="symbol" filter={single} style={{ iconImage: ['concat', 'holo-', ['get', 'kind']], iconAnchor: 'bottom', iconSize: 1, iconAllowOverlap: true, iconPitchAlignment: 'viewport' }} />
     </GeoJSONSource>
+    </>
   );
 }
 

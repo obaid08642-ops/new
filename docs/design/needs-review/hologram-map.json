@@ -30,6 +30,6 @@
   "element": "hologram layers on device",
   "file": "patient-app/src/components/MapPrimitives.native.tsx",
   "line": 122,
-  "found": "[client] native layers (GeoJSONSource/Layer, clustering, circlePitchAlignment) are typed loosely and only the pure helpers are unit-tested; @maplibre/maplibre-react-native is not installed in this sandbox, so not run on a device or emulator. Non-selected pins differ by tone only (no per-kind base shape or icon; those are on the selected React marker)"
+  "found": "[client] unselected pins are a native symbol layer using per-kind PNGs generated at runtime from the token tones (map-hologram-image.ts) and registered with Images as data: URIs; not run on a device or emulator (@maplibre/maplibre-react-native is not installed here): check that v11 Images accepts data-URI PNGs and that GeoJSONSource/Layer props are right. The mark inside each bubble is a simple figure, not the Phosphor glyph (icon fonts cannot be rasterised without assets)"
  }
 ]

@@ -23,3 +23,26 @@ describe('hologram pin helpers', () => {
     expect(holoMotion(false)).toEqual({ pulse: true, lift: true });
   });
 });
+
+import { HOLO_H, HOLO_W, base64, encodePng, parseColor, renderHoloPixels } from '../../components/map-hologram-image';
+import { inflateSync } from 'zlib';
+
+describe('hologram pin image', () => {
+  it('parses hex and rgba colours', () => {
+    expect(parseColor('#FF0000')).toEqual([255, 0, 0, 1]);
+    expect(parseColor('rgba(10,20,30,0.5)')).toEqual([10, 20, 30, 0.5]);
+  });
+  it('draws a different, non-empty pin per kind in the given colours and encodes a valid PNG', () => {
+    const a = renderHoloPixels('lab', '#0E7C5E', '#E6F7F1');
+    const b = renderHoloPixels('hospital', '#0E7C5E', '#E6F7F1');
+    expect(a.some((v, i) => i % 4 === 3 && v > 0)).toBe(true);
+    expect(Buffer.from(a).equals(Buffer.from(b))).toBe(false);
+    const png = encodePng(a, HOLO_W, HOLO_H);
+    expect(Array.from(png.slice(0, 8))).toEqual([137, 80, 78, 71, 13, 10, 26, 10]);
+    const idat = Buffer.from(png).indexOf('IDAT');
+    const len = Buffer.from(png).readUInt32BE(idat - 4);
+    const raw = inflateSync(Buffer.from(png.slice(idat + 4, idat + 4 + len)));
+    expect(raw.length).toBe((HOLO_W * 4 + 1) * HOLO_H);
+    expect(base64(Uint8Array.from([77, 97, 110]))).toBe('TWFu');
+  });
+});
