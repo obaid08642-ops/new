@@ -53,7 +53,7 @@ function newIdempotencyKey(): string {
 /** A saved address with a map location, for a home visit (journeys#29). */
 export type HomeAddress = { id: string; label: string; line: string; lat: number; lng: number };
 
-export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddresses = [], consent = null, initialType, bookingFor = null, insurance = { ready: true } }: { doctorId: string; locale: string; doctor: DoctorRow | null; top?: ReactNode; policy?: { title: string; lines: string[] }; homeAddresses?: HomeAddress[]; consent?: TelehealthConsentText | null; /** The visit type the doctor page was on, when the doctor offers it. */ initialType?: string; /** The family member the visit is for (from the member page). */ bookingFor?: { id: string; name: string } | null; /** Whether the saved policy can back an insurance request. */ insurance?: { ready: boolean; memberId?: string } }) {
+export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddresses = [], consent = null, initialType, bookingFor = null, insurance = { ready: true } }: { doctorId: string; locale: string; doctor: DoctorRow | null; top?: ReactNode; policy?: { title: string; lines: string[] }; homeAddresses?: HomeAddress[]; consent?: TelehealthConsentText | null; /** The visit type the doctor page was on, when the doctor offers it. */ initialType?: string; /** The family member the visit is for (from the member page). */ bookingFor?: { id: string; name: string } | null; /** Whether the saved policy can back an insurance request. */ insurance?: { ready: boolean; memberId?: string; providerId?: string } }) {
   const t = useTranslations("BookConsultation");
   const names = useTranslations("SpecialtyNames");
   const legal = useTranslations("LegalLinks");
@@ -167,6 +167,7 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
           visit_location: visitLocation,
           slot_lock_id: slotLockId,
           for_member_id: bookingFor?.id,
+          insurance_provider: paymentMethod === "insurance" ? insurance.providerId : undefined,
           insurance_member_id: paymentMethod === "insurance" ? insurance.memberId : undefined,
         }),
       });

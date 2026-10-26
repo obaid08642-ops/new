@@ -83,7 +83,7 @@ export function GreetingCard({ name }: { name: string | null }) {
             <Txt accessibilityRole="header" weight="bold" size={24}>{greeting}</Txt>
           )}
         </View>
-        <NabdLogo size={36} variant="text" theme={theme} pulse label={tr('common.appName')} />
+        <NabdLogo size={36} pulse label={tr('common.appName')} />
       </View>
       <EcgLine />
     </Card>

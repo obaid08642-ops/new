@@ -121,7 +121,7 @@ export function AccountView() {
         {showInsurance ? <Row icon="shield-check" tone={CARE_TONE} title={k('account.insurance')} subtitle={counts.insurance ?? undefined} onPress={guarded('/profile/insurance', 'insurance')} last testID="account-insurance" /> : null}
       </Panel>
       <Panel testID="account-settings-rows">
-        <Row icon="gear" tone="ink" title={k('account.settings')} subtitle={k('account.settingsHint')} onPress={go('/settings')} testID="account-settings" />
+        <Row icon="gear" tone={CARE_TONE} title={k('account.settings')} subtitle={k('account.settingsHint')} onPress={go('/settings')} testID="account-settings" />
         <Row icon="headset" tone="mint" title={k('account.support')} onPress={go('/settings/help')} testID="account-support" />
         <Row icon="lock" tone="violet" title={k('account.privacy')} onPress={go('/settings/privacy')} last testID="account-privacy" />
       </Panel>

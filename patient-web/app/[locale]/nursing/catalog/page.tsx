@@ -1,3 +1,4 @@
+import { SUGGEST_SCOPES } from "@/lib/search/suggest";
 import { notFound } from "next/navigation";
 import { StaleWhileRevalidate } from "@/components-next/nav/stale-while-revalidate";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -10,7 +11,7 @@ import { ConsultState } from "@/components-next/consult/consult-state";
 import { RowCard } from "@/components-next/consult/consult-parts";
 import { Caret, NURSING, RowList, ServiceChips, serviceIcon } from "@/components-next/nursing/nursing-parts";
 import { SearchForm, money } from "@/components-next/diagnostics/diag-parts";
-import { pickTexts, textsInclude } from "@/lib/i18n/localized";
+import { pickName, pickTexts, textsInclude } from "@/lib/i18n/localized";
 import type { Metadata } from "next";
 import { AddToBasketIcon } from "@/components-next/ordering/add-to-basket";
 import { BasketBar } from "@/components-next/ordering/basket-bar";
@@ -76,7 +77,7 @@ export default async function NursingCatalogPage({ params, searchParams }: Props
   return (
     <ConsultPage locale={locale} title={t("catalogTitle")} backHref={`/${locale}/home-care`}>
       <StaleWhileRevalidate />
-      {items.length > 0 ? <SearchForm defaultValue={q} placeholder={t("searchPlaceholder")} label={t("searchLabel")} submitLabel={t("searchSubmit")} /> : null}
+      {items.length > 0 ? <SearchForm suggest={{ locale, scope: SUGGEST_SCOPES.nursing }} defaultValue={q} placeholder={t("searchPlaceholder")} label={t("searchLabel")} submitLabel={t("searchSubmit")} /> : null}
       {items.length === 0 ? (
         <ConsultState kind="empty" icon={NURSING.icon} tone={NURSING.tone} title={t("catalogEmptyTitle")} body={t("catalogEmptyBody")} />
       ) : shown.length === 0 ? (
@@ -84,7 +85,7 @@ export default async function NursingCatalogPage({ params, searchParams }: Props
       ) : (
         <RowList label={t("catalogTitle")}>
           {shown.map((item) => {
-            const name = pickTexts(locale, item.names) ?? "";
+            const name = pickName(locale, item.names) ?? "";
             const description = pickTexts(locale, item.descriptions);
             const duration = localDuration(locale, item.durationValue, item.duration);
             return (

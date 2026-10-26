@@ -1,5 +1,6 @@
 {
   "Shared": {
+    "uploadsUnavailable": "رفع الملفات غير متاح مؤقتًا. حاول لاحقًا.",
     "brand": "نبض بلس",
     "patientSignIn": "دخول المريض",
     "language": "اللغة",
@@ -34,6 +35,13 @@
     "mainNav": "التنقل الرئيسي",
     "sections": "الأقسام",
     "cartCount": "السلة ({n, number})",
+    "wishlist": "المفضلة",
+    "wishlistCount": "المفضلة ({n, number})",
+    "cartChooser": "اختر السلة",
+    "cartPharmacy": "سلة الصيدلية",
+    "cartLab": "سلة التحاليل",
+    "cartRadiology": "سلة الأشعة",
+    "cartNursing": "سلة التمريض المنزلي",
     "menuOpen": "القائمة",
     "menuClose": "إغلاق القائمة",
     "menuProfile": "حسابي",
@@ -41,7 +49,8 @@
     "menuFamily": "العائلة",
     "menuArticles": "المقالات",
     "menuSettings": "الإعدادات",
-    "menuHelp": "المساعدة"
+    "menuHelp": "المساعدة",
+    "menuResults": "طلباتي ونتائجي"
   },
   "Home": {
     "eyebrow": "بوابة المريض الرقمية",
@@ -144,7 +153,12 @@
     "recordsMoodNotLogged": "لم تسجل مزاجك اليوم",
     "recordsMaternity": "الأمومة",
     "recordsPregnancy": "متابعة الحمل",
-    "recordsCycle": "متابعة الدورة"
+    "recordsCycle": "متابعة الدورة",
+    "notificationsUnread": "الإشعارات، يوجد جديد",
+    "orderAgain": "أعد طلبك السابق",
+    "orderAgainOneItem": "صنف واحد",
+    "orderAgainItems": "{n, number} أصناف",
+    "orderAgainAction": "اطلب"
   },
   "Login": {
     "title": "تسجيل الدخول",
@@ -175,7 +189,7 @@
     "otpRequestInvalid": "تعذّر إرسال الرمز. راجع البريد أو الرقم وحاول مرة أخرى.",
     "otpInvalid": "لم يتم قبول الرمز. حاول مرة أخرى.",
     "otpExchangeInvalid": "تعذّر إكمال تسجيل الدخول. حاول مرة أخرى.",
-    "otpUnavailable": "تعذّر إرسال الرمز الآن. حاول مرة أخرى بعد قليل.",
+    "otpUnavailable": "تعذّر إرسال الرمز. تصل الرموز إلى إشعارات التطبيق والبريد الإلكتروني، فأضف بريدًا إلكترونيًا إلى حسابك إن لم يكن فيه بريد ثم حاول مجددًا.",
     "guestContinue": "المتابعة كضيف",
     "guestLoading": "جارٍ الدخول كضيف…",
     "forgotPassword": "نسيت كلمة المرور؟",
@@ -194,6 +208,7 @@
     "appleUnavailable": "تسجيل الدخول بحساب Apple غير متاح حاليًا. استخدم طريقة أخرى لتسجيل الدخول.",
     "apple": "Apple",
     "googleUnavailable": "الدخول عبر Google غير متاح الآن. استخدم طريقة أخرى لتسجيل الدخول.",
+    "providerUnavailable": "الدخول عبر {name} غير متاح الآن. استخدم طريقة أخرى لتسجيل الدخول.",
     "google": "Google",
     "x": "X",
     "snapchat": "Snapchat",
@@ -289,7 +304,10 @@
       "radiology": "الأشعة",
       "nursing": "التمريض",
       "returns": "المرتجعات والاستردادات"
-    }
+    },
+    "emptyKindCurrentTitle": "لا توجد طلبات حالية: {service}",
+    "emptyKindPreviousTitle": "لا توجد طلبات سابقة: {service}",
+    "emptyKindBody": "لا شيء في هذه الخدمة بعد. اختر الكل لعرض باقي طلباتك."
   },
   "Cart": {
     "eyebrow": "سلة خاصة",
@@ -739,8 +757,8 @@
     "vitalsHistory": "السجل",
     "vitalsTrends": "الاتجاهات",
     "noReading": "لا توجد قراءة بعد",
-    "wearablesTitle": "الأجهزة القابلة للارتداء",
-    "wearablesBody": "اربط ساعتك أو سوارك من تطبيق الجوال لمزامنة المؤشرات تلقائيًا. يمكنك أيضًا تسجيل قراءاتك يدويًا من هنا.",
+    "wearablesTitle": "العلامات الحيوية",
+    "wearablesBody": "سجّل قراءاتك الحيوية بنفسك وتابعها مع الوقت.",
     "wearablesLog": "تسجيل قراءة يدويًا",
     "scoreNotice": "هذا ملخص للبيانات الصحية المسجلة وليس تشخيصاً أو توصية علاجية.",
     "scoreInsufficient": "بيانات غير كافية",
@@ -906,7 +924,8 @@
     "chronicStop": "إيقاف متابعة الإعادة",
     "chronicUpdateFailed": "تعذر تحديث متابعة إعادة التعبئة.",
     "confirmAction": "تأكيد",
-    "photoInvalid": "اختر صورة لا يزيد حجمها عن 5 ميغابايت."
+    "photoInvalid": "اختر صورة لا يزيد حجمها عن 5 ميغابايت.",
+    "rxPurchased": "تم الشراء"
   },
   "Prescriptions": {
     "title": "الوصفات الطبية",
@@ -938,6 +957,7 @@
     "timesPerDay": "{count, plural, one {مرة في اليوم} two {مرتان في اليوم} few {# مرات في اليوم} many {# مرةً في اليوم} other {# مرة في اليوم}}",
     "durationDays": "{days, plural, one {لمدة يوم واحد} two {لمدة يومين} few {لمدة # أيام} many {لمدة # يومًا} other {لمدة # يوم}}",
     "orderCta": "اطلب الأدوية دي",
+    "notInCart": "{count} من {total} أدوية كتبها الطبيب يدويًا ولا يمكن إضافتها إلى السلة",
     "notOrderable": "لم يعد بالإمكان الطلب من هذه الوصفة.",
     "back": "العودة إلى الوصفات"
   },
@@ -1084,7 +1104,6 @@
     "catMarketing": "العروض والنشرة الصحية",
     "chPush": "إشعارات الجوال",
     "chEmail": "البريد الإلكتروني",
-    "chSms": "الرسائل النصية",
     "saveFailed": "تعذّر حفظ التغيير. حاول مرة أخرى.",
     "unavailable": "غير متاح حالياً",
     "unavailableTitle": "تعذر تحميل الإعدادات",
@@ -1179,6 +1198,30 @@
       "forbidden": "لا يمكن إرسال رسائل في هذه المحادثة الآن.",
       "network": "تعذّر الاتصال. رسالتك لم تُرسل بعد، حاول مرة أخرى.",
       "generic": "تعذّر إرسال الرسالة. حاول مرة أخرى."
+    },
+    "voice": {
+      "title": "رسالة صوتية",
+      "record": "سجّل رسالة صوتية",
+      "recording": "جارٍ التسجيل {time}",
+      "stop": "إيقاف التسجيل",
+      "cancel": "إلغاء",
+      "previewLabel": "استمع قبل الإرسال، {time}",
+      "send": "أرسل الرسالة الصوتية",
+      "sending": "جارٍ الإرسال",
+      "retry": "حاول مرة أخرى",
+      "discard": "تجاهل",
+      "maxReached": "توقف التسجيل عند حد {minutes} دقائق.",
+      "play": "تشغيل",
+      "pause": "إيقاف مؤقت",
+      "playerLabel": "رسالة صوتية، {time}",
+      "errors": {
+        "denied": "الوصول إلى الميكروفون محظور. اسمح به من إعدادات الموقع في المتصفح ثم حاول مرة أخرى.",
+        "unsupported": "هذا المتصفح لا يدعم تسجيل الرسائل الصوتية. استخدم التطبيق أو متصفحًا آخر.",
+        "recordFailed": "لم ينجح التسجيل. تحقق من الميكروفون وحاول مرة أخرى.",
+        "uploadFailed": "تعذّر إرسال الرسالة الصوتية. حاول مرة أخرى.",
+        "forbidden": "لا يمكن إرسال رسائل صوتية في هذه المحادثة الآن.",
+        "loadFailed": "تعذّر تحميل الرسالة الصوتية. حاول مرة أخرى."
+      }
     }
   },
   "Sleep": {
@@ -1439,6 +1482,9 @@
     "searchLabel": "بحث في خدمات المختبر",
     "searchPlaceholder": "ابحث عن تحليل أو تصنيف",
     "homeOnly": "سحب عينة من المنزل",
+    "activeFilters": "الفلاتر النشطة",
+    "removeFilter": "إزالة التصفية: {filter}",
+    "clearAll": "مسح الكل",
     "apply": "تطبيق",
     "price": "يبدأ من {value}",
     "fasting": "قد يتطلب صياماً",
@@ -1557,7 +1603,6 @@
     "clear": "مسح",
     "cancel": "إلغاء",
     "resultsFor": "نتائج «{query}»",
-    "resultsCount": "{count} نتيجة",
     "emptyHint": "جرّب كلمات أخرى أو تأكد من الكتابة.",
     "tabAll": "الكل",
     "tabMedicines": "أدوية",
@@ -1632,6 +1677,9 @@
     }
   },
   "Emergency": {
+    "callEmergency": "اتصل بالطوارئ {number}",
+    "urgentCall": "اتصل بالمساعدة العاجلة {number}",
+    "urgentUnavailable": "لم يُضبط رقم مساعدة عاجلة بعد. في حالة الطوارئ اتصل بالرقم 997.",
     "title": "مساعدة عاجلة",
     "intro": "إذا كنت بحاجة إلى مساعدة فورية، اتصل برقم المساعدة العاجلة المحدد في نبض بلس.",
     "call": "اتصل بالرقم {number}",
@@ -1654,6 +1702,8 @@
     "sar": "ر.س"
   },
   "PublicProduct": {
+    "contentOnlyEnglish": "متوفر بالإنجليزية فقط",
+    "contentOnlyArabic": "متوفر بالعربية فقط",
     "backToCatalog": "العودة إلى الكتالوج",
     "home": "الرئيسية",
     "products": "المنتجات",
@@ -1685,7 +1735,6 @@
     "origin": "بلد المنشأ",
     "disclaimer": "معلومات هذا المنتج من كتالوج نبض بلس الموثق ولا تغني عن استشارة الطبيب أو الصيدلي. الأسعار بالريال السعودي وتشمل الضريبة عند الطلب.",
     "browseCategory": "تصفح فئة {category}",
-    "productsInCategory": "{count} منتجاً في هذه الفئة",
     "emptyCategory": "لا توجد منتجات منشورة في هذه الفئة حالياً.",
     "allCategories": "كل الفئات",
     "loadMore": "عرض المزيد",
@@ -1718,7 +1767,9 @@
     "suggestFieldLabel": "البيان المراد تعديله",
     "suggestSending": "جارٍ الإرسال…",
     "suggestSignIn": "سجّل الدخول لإرسال اقتراحك.",
-    "suggestSignInAction": "تسجيل الدخول"
+    "suggestSignInAction": "تسجيل الدخول",
+    "coldChain": "يحتاج تبريد",
+    "interactions": "التداخلات الدوائية"
   },
   "Wallet": {
     "wallet": "المحفظة",
@@ -1766,7 +1817,9 @@
     "useMyLocation": "استخدم موقعي الحالي",
     "locating": "جارٍ تحديد موقعك…",
     "locationSet": "تم تحديد موقع العنوان على الخريطة.",
-    "locateFailed": "تعذّر الحصول على موقعك الحالي."
+    "locateFailed": "تعذّر الحصول على موقعك الحالي.",
+    "building": "رقم المبنى",
+    "floor": "الدور"
   },
   "ShareReport": {
     "title": "مشاركة التقارير",
@@ -2378,7 +2431,6 @@
     "clear": "مسح",
     "filter": "تصفية",
     "scan": "امسح الباركود",
-    "productsCount": "{count, number} منتج",
     "categories": "الأقسام",
     "subcategories": "الأقسام الفرعية",
     "allIn": "كل {category}",
@@ -2400,6 +2452,11 @@
     "addToCart": "أضف {name} إلى السلة",
     "addedToCart": "تمت إضافة {name} إلى السلة",
     "addedRxNote": "هذا الدواء يحتاج وصفة طبية. في السلة ارفع الوصفة أو استشر طبيبًا.",
+    "stepperDecrease": "تقليل كمية {name}",
+    "stepperIncrease": "زيادة كمية {name}",
+    "qtyInCart": "{n, number} في السلة",
+    "removedFromCart": "تمت إزالة {name} من السلة",
+    "undo": "تراجع",
     "referencePrice": "السعر المرجعي",
     "cheaper": "أوفر",
     "priceUnavailable": "السعر غير متاح",
@@ -2498,15 +2555,25 @@
     "inCartCta": "في السلة ({n, number})",
     "hubUploadTitle": "ارفع الروشتة",
     "hubUploadBody": "صوّرها، والصيدليات القريبة تجهّز أدويتك وتتنافس على السعر",
-    "hubFavorites": "المفضلة",
     "hubReminders": "التذكيرات",
     "hubOrders": "طلباتي",
-    "hubCart": "السلة",
     "hubShortcuts": "اختصارات الصيدلية",
     "hubOrderAgain": "أعد طلبك السابق",
     "hubOrderAgainAction": "اطلب",
     "hubOneItem": "صنف واحد",
-    "hubItems": "{n, number} أصناف"
+    "hubItems": "{n, number} أصناف",
+    "filterForm": "الشكل الدوائي",
+    "filterBrand": "الشركة المصنّعة",
+    "filterRx": "الوصفة الطبية",
+    "filterRxAny": "الكل",
+    "filterRxOnly": "بوصفة طبية فقط",
+    "filterRxNone": "بدون وصفة",
+    "filterPriceMin": "أقل سعر",
+    "filterPriceMax": "أعلى سعر",
+    "pageTitle": "الصيدلية",
+    "activeFilters": "عوامل التصفية المفعّلة",
+    "removeFilter": "إزالة التصفية: {filter}",
+    "clearAll": "مسح الكل"
   },
   "PharmacyOffers": {
     "backToOrder": "العودة إلى الطلب",
@@ -2868,7 +2935,8 @@
     "emptyBody": "أضف عنوانًا مع موقعه على الخريطة لاستلام طلبات الصيدلية.",
     "emptyAction": "أضف عنوانًا",
     "errorTitle": "تعذّر تحميل عناوينك",
-    "errorBody": "تحقق من اتصالك ثم حاول مرة أخرى."
+    "errorBody": "تحقق من اتصالك ثم حاول مرة أخرى.",
+    "addOnMap": "إضافة عنوان على الخريطة"
   },
   "ConsultWeb": {
     "tabUpcoming": "القادمة",
@@ -3610,7 +3678,13 @@
     "addressLocating": "جارٍ تحديد موقعك...",
     "addressLocationSet": "سيتم استخدام موقعك الحالي للزيارة",
     "addressUseSaved": "استخدام عنوان محفوظ بدلًا من ذلك",
-    "addressLocationDenied": "تعذر تحديد موقعك. اسمح بالوصول إلى الموقع أو اختر عنوانًا محفوظًا."
+    "addressLocationDenied": "تعذر تحديد موقعك. اسمح بالوصول إلى الموقع أو اختر عنوانًا محفوظًا.",
+    "filterAvailability": "التوافر",
+    "filterNationality": "الجنسية",
+    "nationality_any": "الكل",
+    "nationality_Saudi": "سعودي",
+    "nationality_Filipino": "فلبيني",
+    "nationality_Egyptian": "مصري"
   },
   "MaternityWeb": {
     "title": "الأمومة",
@@ -4160,7 +4234,11 @@
       "copayPercent": "نسبة تحمّلك % (اختياري)",
       "copayCap": "الحد الأقصى لكل بند، ر.س (اختياري)",
       "copayPercentInvalid": "أدخل رقمًا من 0 إلى 100.",
-      "copayCapInvalid": "أدخل مبلغًا يساوي 0 أو أكثر."
+      "copayCapInvalid": "أدخل مبلغًا يساوي 0 أو أكثر.",
+      "class": "الفئة",
+      "companySearch": "ابحث عن شركة التأمين",
+      "companyNone": "لا توجد شركة بهذا الاسم",
+      "chiLink": "استعلم عن تأمينك"
     },
     "coverage": {
       "title": "ما تغطيه وثيقتي",
@@ -5183,7 +5261,6 @@
     "total": "الإجمالي",
     "choose": "اختر هذا المزوّد",
     "compare": "قارن بنفسك",
-    "count": "{n} مزوّدين",
     "sort": "ترتيب حسب",
     "sCheap": "الأرخص",
     "sNear": "الأقرب",
@@ -5487,5 +5564,35 @@
     "errBusy": "طلبات كثيرة. انتظر قليلًا ثم حاول.",
     "loadErr": "تعذّر تحميل الصفحة",
     "retry": "إعادة المحاولة"
+  },
+  "AddressMap": {
+    "title": "حدّد العنوان على الخريطة",
+    "mapLabel": "خريطة اختيار العنوان",
+    "hint": "حرّك الخريطة ليكون الدبوس على باب منزلك. بلوحة المفاتيح: الأسهم تحرّك الدبوس، و+ و- للتقريب والتبعيد.",
+    "zoomIn": "تقريب",
+    "zoomOut": "تبعيد",
+    "pinLabel": "الدبوس: موقع العنوان",
+    "loading": "جارٍ تحميل الخريطة…",
+    "noMapTitle": "الخريطة غير متاحة",
+    "noMapBody": "يمكنك استخدام موقعك الحالي، أو اختيار المدينة والحي، أو إدخال رمز العنوان المختصر في الحقول أدناه.",
+    "useMyLocation": "استخدم موقعي الحالي",
+    "locating": "جارٍ تحديد موقعك…",
+    "located": "وُضع الدبوس على موقعك.",
+    "denied": "لم يُسمح بالوصول إلى الموقع. فعّل الإذن من إعدادات المتصفح، أو حرّك الخريطة بنفسك.",
+    "locateFailed": "تعذّر تحديد موقعك. حرّك الخريطة بنفسك.",
+    "coords": "الدبوس عند: {point}",
+    "noPin": "حرّك الخريطة لوضع الدبوس، أو استخدم موقعك.",
+    "finding": "جارٍ البحث عن العنوان…",
+    "found": "وُجد العنوان. راجع التفاصيل أدناه.",
+    "errOutside": "هذا المكان خارج نطاق الخدمة. حرّك الدبوس إلى داخل المملكة.",
+    "errNotFound": "لم نجد عنوانًا في هذا الموضع. حرّك الدبوس أو املأ التفاصيل أدناه.",
+    "errUnavailable": "خدمة العناوين غير متاحة الآن. املأ التفاصيل أدناه أو أعد المحاولة.",
+    "errNetwork": "يبدو أنك غير متصل بالإنترنت. املأ التفاصيل أدناه أو أعد المحاولة.",
+    "retry": "أعد المحاولة"
+  },
+  "AppCallback": {
+    "title": "جارٍ الرجوع إلى التطبيق…",
+    "open": "افتح التطبيق",
+    "invalid": "رابط تسجيل الدخول هذا غير صالح. أغلق هذه النافذة وحاول مجددًا من التطبيق."
   }
 }

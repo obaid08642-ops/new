@@ -6,17 +6,22 @@ import { Button, Screen, StickyFooter } from '../../../packages/ui-native/src';
 import { apiFetch } from '../../src/utils/api';
 import { createRegistrationTransaction } from '../../src/services/auth/RegistrationTransaction';
 import { serverMessage } from '../../src/utils/serverMessage';
+import { useSocialLogin, type SocialProvider } from '../../src/hooks/useSocialLogin';
+import { useSocialConfig } from '../../src/hooks/useSocialConfig';
 
 import { LocalizedText } from '../../src/components/LocalizedText';
 import {
   AuthAltLine,
   AuthBody,
+  AuthDivider,
   AuthFooter,
   AuthCheckbox,
   AuthError,
   AuthField,
   AuthTitle,
   AuthTopBar,
+  SocialButtons,
+  availableSocialProviders,
   FONT,
   useAuthUi,
 } from '../../src/components/auth/AuthKit';
@@ -28,6 +33,9 @@ export default function RegisterScreen() {
   const [loading, setLoading] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // the same four buttons as the login screen: a first social sign-in creates the account
+  const social = useSocialLogin();
+  const providers = availableSocialProviders(useSocialConfig());
 
   const validate = () => {
     setErrorMessage(null);
@@ -88,6 +96,8 @@ export default function RegisterScreen() {
               onPress={handleRegister}
               testID="register-submit"
             />
+            <AuthDivider label="auth.orContinueWith" />
+            <SocialButtons layout="icons" providers={providers} onPress={(p: SocialProvider) => { setErrorMessage(null); void social.signIn(p); }} disabled={loading || social.busy} />
             <AuthAltLine text="auth.haveAccount" link="auth.login" onPress={() => router.push('/(auth)/login')} />
           </AuthFooter>
         </StickyFooter>
@@ -160,7 +170,7 @@ export default function RegisterScreen() {
             <LocalizedText accessibilityRole="link" onPress={() => router.push('/(auth)/privacy')} style={{ color: c.action.primary.bg, fontFamily: FONT.medium }}>{'auth.register.privacy'}</LocalizedText>
           </LocalizedText>
         </AuthCheckbox>
-        <AuthError message={errorMessage} />
+        <AuthError message={errorMessage ?? social.error} />
       </View>
       </AuthBody>
     </Screen>

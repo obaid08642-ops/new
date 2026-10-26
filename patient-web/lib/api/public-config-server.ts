@@ -2,6 +2,7 @@ import { cache } from "react";
 import { patientApiUrl } from "@/lib/api/upstream";
 import { parseDisabled, type DisabledModules, NONE_DISABLED } from "@/lib/modules";
 import { publicReadSignal } from "@/lib/api/public-timeout";
+import { resolveSocial, type SocialButtons } from "@/lib/auth/social-config";
 
 export type HomeSectionItem = { id?: string; title_ar?: string; title_en?: string; image_url?: string; deep_link?: string };
 export type HomeSection = { id?: string; title_ar?: string; title_en?: string; enabled?: boolean; position?: number; items?: HomeSectionItem[] };
@@ -54,9 +55,19 @@ async function readPublic(path: string, revalidate: number = PUBLIC_REVALIDATE_S
 
 /** Public config only: no credential is ever sent. */
 export const readPublicConfig = () => readPublic("/config");
+/** Which social sign-in providers the backend can finish, with their public ids (GET /auth/social/config; five minutes). */
+export const readSocialConfig = () => readPublic("/auth/social/config", 300);
+export async function getSocialButtons(): Promise<SocialButtons> {
+  const read = await readSocialConfig();
+  return resolveSocial(read.data);
+}
 /** Public home curation only: no credential is ever sent. */
 export const readHomeContent = () => readPublic("/content/home");
 export async function getPublicConfig(): Promise<any | null> { return (await readPublicConfig()).data; }
+/** features.uploads_enabled from GET /config; false only when the backend says so (an unreadable config fails open). */
+export async function getUploadsEnabled(): Promise<boolean> {
+  return (await getPublicConfig().catch(() => null))?.features?.uploads_enabled !== false;
+}
 export async function getHomeContent(): Promise<any | null> { return (await readHomeContent()).data; }
 
 /**

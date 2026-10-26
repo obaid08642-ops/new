@@ -174,9 +174,7 @@ export function PharmacyOfferCard({ offer, now, best, selected, busy, onPick }: 
       }}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-        <View style={{ width: 48, height: 48, borderRadius: 16, backgroundColor: c.bg.media, alignItems: 'center', justifyContent: 'center' }}>
-          <Glyph name="storefront" size={24} color={c.icon.secondary} />
-        </View>
+        <FIcon icon="storefront" tone={PHARMACY_TONE} size={48} theme={theme} />
         <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
           <Text style={{ ...scale(t, 'bodyStrong'), lineHeight: 22, color: c.text.primary, ...flow }}>{name}</Text>
           {sub ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{sub}</Text> : null}
@@ -229,10 +227,10 @@ export function PharmacyOfferCard({ offer, now, best, selected, busy, onPick }: 
           disabled={disabled}
           onPress={onPick}
           testID="offer-pick"
-          style={({ pressed }) => ({ minHeight: 46, minWidth: 96, paddingHorizontal: 20, paddingVertical: 6, borderRadius: 16, flexDirection: 'row', gap: 6, alignItems: 'center', justifyContent: 'center', backgroundColor: disabled ? c.bg.sunken : c.action.selected.bg, opacity: pressed ? 0.85 : 1 })}
+          style={({ pressed }) => ({ minHeight: 46, minWidth: 96, paddingHorizontal: 20, paddingVertical: 6, borderRadius: 16, flexDirection: 'row', gap: 6, alignItems: 'center', justifyContent: 'center', backgroundColor: disabled ? c.bg.sunken : c.action.primary.bg, opacity: pressed ? 0.85 : 1 })}
         >
-          {selected ? <Glyph name="check-circle" size={18} color={c.action.selected.fg} /> : null}
-          <Text style={{ flexShrink: 1, textAlign: 'center', ...scale(t, 'bodyStrong'), color: disabled ? c.text.secondary : c.action.selected.fg }}>{expired ? k('pharmacy.offers.expiredShort') : selected ? k('pharmacy.offers.chosen') : k('pharmacy.offers.choose')}</Text>
+          {selected ? <Glyph name="check-circle" size={18} color={c.action.primary.fg} /> : null}
+          <Text style={{ flexShrink: 1, textAlign: 'center', ...scale(t, 'bodyStrong'), color: disabled ? c.text.secondary : c.action.primary.fg }}>{expired ? k('pharmacy.offers.expiredShort') : selected ? k('pharmacy.offers.chosen') : k('pharmacy.offers.choose')}</Text>
         </Pressable>
       </View>
     </View>

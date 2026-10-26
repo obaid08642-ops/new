@@ -72,4 +72,21 @@ describe('PharmacyOrderService.registerCod — 21.5 contact phone and unverified
     const order = await conn.collection('pharmacy_orders').findOne({ id: 'o-p6' });
     expect(order?.payment_method).toBeUndefined();
   });
+
+  it('D-25: a patient with no delivered or completed order cannot pay a first order in cash, and the order is left unchanged', async () => {
+    await conn.collection('users').insertOne({ id: 'p7', phone: '0501234567', phone_verified: true });
+    await conn.collection('pharmacy_orders').insertOne({
+      id: 'o-p7', patient_account_id: 'p7', status: 'cash_card_payment_pending', selected_offer_id: 'offer', pharmacy_account_id: 'ph1',
+      quote_accepted_at: new Date(), pricing_snapshot: { hash: 'h', totals: { total: 120 } }, items: [],
+    });
+    // an order that is still on its way, or one that was cancelled, is not a delivered order
+    await conn.collection('pharmacy_orders').insertMany([
+      { id: 'y1', patient_account_id: 'p7', status: 'out_for_delivery' },
+      { id: 'y2', patient_account_id: 'p7', status: 'cancelled' },
+    ]);
+    await expect(register('p7')).rejects.toThrow('cod_first_order_not_allowed');
+    expect((await conn.collection('pharmacy_orders').findOne({ id: 'o-p7' }))?.payment_method).toBeUndefined();
+    await conn.collection('pharmacy_orders').updateOne({ id: 'y1' }, { $set: { status: 'completed' } });
+    await expect(register('p7')).resolves.toMatchObject({ ok: true });
+  });
 });

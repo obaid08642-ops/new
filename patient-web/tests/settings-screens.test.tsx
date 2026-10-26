@@ -31,6 +31,9 @@ vi.mock("@/components-next/core/core-shell", () => ({
 }));
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: async () => "server-only-token" }));
 vi.mock("@/lib/api/upstream", () => ({ callPatientApi: server.api }));
+vi.mock("@/lib/api/legal-policy", () => ({
+  readLegalPolicy: async (key: string) => (key === "refund_policy" ? { content: "Refund test body" } : key === "telehealth_consent" ? { content: "Consent test body" } : null),
+}));
 vi.mock("@/lib/api/settings-server", () => ({
   getPatientPrivacySettings: server.privacy,
   getPatientStorage: server.storage,
@@ -45,12 +48,6 @@ import SettingsPrivacyPage from "@/app/[locale]/settings/privacy/page";
 import SettingsSecurityPage from "@/app/[locale]/settings/security/page";
 import SettingsHelpPage from "@/app/[locale]/settings/help/page";
 import AddressesPage from "@/app/[locale]/profile/addresses/page";
-import SettingsDataRedirect from "@/app/[locale]/settings/data/page";
-import SettingsFeedbackRedirect from "@/app/[locale]/settings/feedback/page";
-import NotificationsSettingsRedirect from "@/app/[locale]/notifications/settings/page";
-import SupportRedirect from "@/app/[locale]/support/page";
-import AddressSelectRedirect from "@/app/[locale]/delivery/address-select/page";
-import ProfileEditRedirect from "@/app/[locale]/profile/edit/page";
 import { SessionList } from "@/components-next/settings/session-list";
 import { returnStatus } from "@/components-next/returns/return-kit";
 import { parseOwnSessions } from "@/lib/api/settings";
@@ -72,6 +69,9 @@ describe("settings hub", () => {
     const html = render(await SettingsHubPage({ params }));
     expect(html).toContain("Sara Test");
     for (const path of ["notifications", "privacy", "security", "language", "help", "about"]) expect(html).toContain(`href="/en/settings/${path}"`);
+    expect(html).not.toContain("refund-policy");
+    expect(html).not.toContain("telehealth-consent");
+    expect((html.match(/href="\/en\/settings\//g) || []).length).toBe(7);
     expect(server.api).toHaveBeenCalledTimes(1);
     expect(server.api.mock.calls[0][0]).toBe("/auth/me");
     expect(html).not.toContain("style=");
@@ -86,6 +86,20 @@ describe("settings hub", () => {
 });
 
 describe("about and legal", () => {
+  it("shows the refund policy and the telehealth consent as sections, not as links to separate pages", async () => {
+    server.api.mockImplementation(async (path: string) => {
+      if (path === "/legal/policies") return json([{ key: "refund_policy", title_en: "Refund test title", version: 3 }, { key: "telehealth_consent", title_en: "Consent test title", version: 2 }]);
+      return json({});
+    });
+    const html = render(await SettingsAboutPage({ params }));
+    expect(html).toContain('data-testid="about-doc-refund_policy"');
+    expect(html).toContain('data-testid="about-doc-telehealth_consent"');
+    expect(html).toContain("Refund test body");
+    expect(html).toContain("Consent test body");
+    expect(html).not.toContain('href="/en/refund-policy"');
+    expect(html).not.toContain('href="/en/telehealth-consent"');
+  });
+
   it("writes the cancellation and refund rules from the server's numbers only (decision 26)", async () => {
     server.api.mockResolvedValue(json({ cancellation_policy: { full_hours: 24, half_hours: 12, half_refund_percent: 50, late_fee_percent: 25 }, returns_policy: { wallet_refund_days_min: 2, wallet_refund_days_max: 5, unused_days: 9 } }));
     const html = render(await SettingsAboutPage({ params }));
@@ -218,18 +232,6 @@ describe("address book and its pick mode", () => {
     const html = render(await element.type(element.props));
     expect(html).toContain("Use this address");
     expect(html).toContain('name="delivery-address"');
-  });
-});
-
-describe("merged routes redirect and keep the query", () => {
-  const props = (query: Record<string, string> = {}) => ({ params, searchParams: search(query) });
-  it("sends every old route to the screen that absorbed it", async () => {
-    expect(await redirectTarget(() => SettingsDataRedirect(props()))).toBe("redirect:/en/settings/privacy?tab=data");
-    expect(await redirectTarget(() => SettingsFeedbackRedirect(props()))).toBe("redirect:/en/settings/help?tab=feedback");
-    expect(await redirectTarget(() => NotificationsSettingsRedirect(props({ ref: "n" })))).toBe("redirect:/en/settings/notifications?ref=n");
-    expect(await redirectTarget(() => SupportRedirect(props()))).toBe("redirect:/en/settings/help");
-    expect(await redirectTarget(() => AddressSelectRedirect(props({ from: "cart" })))).toBe("redirect:/en/profile/addresses?from=cart&select=1");
-    expect(await redirectTarget(() => ProfileEditRedirect(props()))).toBe("redirect:/en/health/profile");
   });
 });
 

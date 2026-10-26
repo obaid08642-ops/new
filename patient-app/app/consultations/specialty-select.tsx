@@ -6,6 +6,7 @@ import { Card, FIcon, Input } from '../../../packages/ui-native/src';
 import { Chevron, ConsultList, specialtyLook } from '../../src/components/consult/ConsultKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
+import { fetchPublicList } from '../../src/utils/publicCache';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { pickLocalized } from '../../src/utils/localize';
@@ -32,7 +33,7 @@ export default function SpecialtySelectScreen() {
   const load = useCallback(async () => {
     setStatus('loading');
     try {
-      const res = await apiFetch<Specialty[] | { data?: Specialty[] }>('/care/specialties');
+      const res = await fetchPublicList<Specialty[] | { data?: Specialty[] }>('/care/specialties');
       const list = Array.isArray(res) ? res : res?.data;
       setSpecs(Array.isArray(list) ? list : []);
       setStatus('ready');
@@ -69,7 +70,6 @@ export default function SpecialtySelectScreen() {
                 <FIcon icon={look.icon} tone={look.tone} size={52} theme={theme} />
                 <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
                   <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{name}</Text>
-                  {typeof sp.count === 'number' ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.spec.count', { n: num(sp.count) })}</Text> : null}
                 </View>
                 <Chevron />
               </View>

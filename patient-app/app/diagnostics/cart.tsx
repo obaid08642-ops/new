@@ -93,7 +93,7 @@ export default function DiagnosticsCart() {
       title={k('ordering.basket.title')}
       onBack={goBackDiag}
       footer={footer}
-      actions={[{ key: 'clear', label: k('diag.cart.clear'), icon: <Glyph name="trash" size={20} color={c.icon.primary} />, onPress: () => void clearCart() }]}
+      actions={[{ key: 'clear', label: k('diag.cart.clear'), icon: <Glyph name="trash" size={20} color={c.text.secondary} />, onPress: () => void clearCart() }]}
       onRefresh={() => { void labQ.reload(); void scanQ.reload(); }}
     >
       <ContextGate ctx={ctx}>

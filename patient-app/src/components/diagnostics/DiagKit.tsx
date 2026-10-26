@@ -10,6 +10,7 @@ import { Glyph } from '../pharmacy/PharmacyKit';
 import { Money } from '../pharmacy/OfferKit';
 import { Chevron } from '../consult/ConsultKit';
 import { statusLook, type OrderKind } from '../../utils/orderCenter';
+import { optimizedImageUri } from '../../utils/optimizedImage';
 
 /**
  * What the labs and radiology screens share (Batch 3, slice 3-app): the look of a service, the tags, the test row with its
@@ -105,9 +106,9 @@ export function AddToggle({ on, label, onPress }: { on: boolean; label: string; 
       accessibilityLabel={label}
       accessibilityState={{ selected: on }}
       onPress={onPress}
-      style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? c.action.selected.bg : c.bg.surface, borderWidth: on ? 0 : 1.5, borderColor: c.border.strong, opacity: pressed ? 0.8 : 1 })}
+      style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? c.service.coral.bg : c.bg.surface, borderWidth: on ? 0 : 1.5, borderColor: c.border.strong, opacity: pressed ? 0.8 : 1 })}
     >
-      <Mark kind={on ? 'check' : 'plus'} color={on ? c.action.selected.fg : c.text.primary} />
+      <Mark kind={on ? 'check' : 'plus'} color={on ? c.service.coral.fg : c.text.primary} />
     </Pressable>
   );
 }
@@ -206,8 +207,8 @@ export function PackageCard({ name, desc, count, price, oldPrice, icon, tone, ac
           {oldPrice ? <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.secondary, textDecorationLine: 'line-through' }}>{money(oldPrice)} {k('pharmacy.currency')}</Text> : null}
           {price !== null ? <Price amount={price} size="h3" /> : null}
         </View>
-        <View style={{ minHeight: 40, paddingHorizontal: 16, paddingVertical: 6, borderRadius: 14, backgroundColor: c.action.selected.bg, justifyContent: 'center', flexShrink: 1 }}>
-          <Text style={{ ...scale(t, 'small', 'bold'), color: c.action.selected.fg, textAlign: 'center' }}>{actionLabel}</Text>
+        <View style={{ minHeight: 40, paddingHorizontal: 16, paddingVertical: 6, borderRadius: 14, backgroundColor: c.action.primary.bg, justifyContent: 'center', flexShrink: 1 }}>
+          <Text style={{ ...scale(t, 'small', 'bold'), color: c.action.primary.fg, textAlign: 'center' }}>{actionLabel}</Text>
         </View>
       </View>
     </Pressable>
@@ -246,8 +247,8 @@ export function LabCard({ name, line, tags, selected, onPress, width, icon, top,
           {line ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{line}</Text> : null}
         </View>
         {selected && !noCheck ? (
-          <View accessibilityLabel={k('diag.selected')} style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: c.action.selected.bg, alignItems: 'center', justifyContent: 'center' }}>
-            <Mark kind="check" size={16} color={c.action.selected.fg} />
+          <View accessibilityLabel={k('diag.selected')} style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: c.service.coral.bg, alignItems: 'center', justifyContent: 'center' }}>
+            <Mark kind="check" size={16} color={c.service.coral.fg} />
           </View>
         ) : null}
       </View>
@@ -465,7 +466,7 @@ export function DetailHead({ icon, tone, image, title, body }: { icon: FillIconN
     <Card theme={theme} tint={tone} padding="lg">
       <View style={{ alignItems: 'center', gap: 10 }}>
         {image ? (
-          <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: image }} style={{ width: 96, height: 96, borderRadius: 24, backgroundColor: c.bg.surface }} contentFit="cover" />
+          <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: optimizedImageUri(image, 96) }} style={{ width: 96, height: 96, borderRadius: 24, backgroundColor: c.bg.surface }} contentFit="cover" />
         ) : (
           <FIcon icon={icon} tone={tone} size={72} theme={theme} />
         )}

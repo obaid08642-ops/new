@@ -13,8 +13,8 @@ import { logError } from '../../utils/logger';
 
 /**
  * The loyalty hub (Batch 11, merge map section 7): the points balance with the tier and its progress, three link tabs
- * (Rewards, Challenges, Invite friends; `?tab=`) and the points history. One screen in place of rewards, challenges,
- * referrals and the removed leaderboard. GET /loyalty/account, /loyalty/transactions, /loyalty/config (tiers and ways to
+ * (Rewards, Challenges, Invite friends; `?tab=`) and the points history. One screen in place of rewards, challenges and
+ * referrals. GET /loyalty/account, /loyalty/transactions, /loyalty/config (tiers and ways to
  * earn: the server's own), /loyalty/rewards + POST claim, /loyalty/challenges + POST join, /referrals/my + POST apply.
  * Reward, challenge and invitation titles are the server's text; the tier names, the perks and the ways to earn are
  * translated by the server's stable ids (tier id, perk code, earn reason) and show the server's text only for an id this

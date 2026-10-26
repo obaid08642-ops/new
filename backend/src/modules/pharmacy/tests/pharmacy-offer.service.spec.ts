@@ -8,6 +8,7 @@ function emptyCollection() {
     findOne: jest.fn().mockResolvedValue(null),
     findOneAndUpdate: jest.fn().mockResolvedValue(null),
     deleteOne: jest.fn().mockResolvedValue({ deletedCount: 0 }),
+    deleteMany: jest.fn().mockResolvedValue({ deletedCount: 0 }),
     updateOne: jest.fn().mockResolvedValue({ acknowledged: true }),
     insertOne: jest.fn().mockResolvedValue({ acknowledged: true }),
     insertMany: jest.fn().mockResolvedValue({ acknowledged: true }),

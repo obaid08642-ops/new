@@ -12,6 +12,7 @@ import { DeviceTrustModule } from './modules/device-trust/device-trust.module';
 import { SeoSearchModule } from './modules/seo-search/seo-search.module';
 import { DeferredLinksModule } from './modules/deferred-links/deferred-links.module';
 import { LocationModule } from './modules/location/location.module';
+import { GeoModule } from './modules/geo/geo.module';
 import { SearchIntentModule } from './modules/search-intent/search-intent.module';
 import { SearchModule } from './modules/search/search.controller';
 import { EntityGraphModule } from './modules/entity-graph/entity-graph.module';
@@ -113,7 +114,6 @@ import { InsuranceModule } from './modules/insurance/insurance.module';
 import { ApprovalWorkflowModule } from './modules/approval-workflow/approval-workflow.module';
 import { RecruitmentModule } from './modules/recruitment/recruitment.module';
 import { FamilyModule } from './modules/family/family.module';
-import { CommunityModule } from './modules/community/community.module';
 import { LoyaltyModule } from './modules/loyalty/loyalty.module';
 import { ReferralModule } from './modules/referral/referral.module';
 import { FacilityOpsModule } from './modules/facility-ops/facility-ops.module';
@@ -180,6 +180,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     SeoSearchModule,
     DeferredLinksModule,
     LocationModule,
+    GeoModule,
     SearchIntentModule,
     SearchModule,
     EntityGraphModule,
@@ -296,7 +297,6 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     ApprovalWorkflowModule,
     RecruitmentModule,
     FamilyModule,
-    CommunityModule,
     LoyaltyModule,
     ReferralModule,
     FacilityOpsModule,

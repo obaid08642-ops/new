@@ -12,12 +12,8 @@ export class LabService extends Document {
   @Prop() short_code?: string; // e.g., CBC, FBS, TSH
   @Prop() description_ar?: string;
   @Prop() description_en?: string;
-  // #1556 F: names, descriptions and preparation in the six app languages, and the published content
+  // #1556 F: descriptions and preparation in the six app languages (the NAME stays Arabic and English only, owner 2026-10-25), and the published content
   // (purpose, turnaround) from catalogs/content/services-content.v1.json.
-  @Prop() name_ur?: string;
-  @Prop() name_hi?: string;
-  @Prop() name_bn?: string;
-  @Prop() name_tl?: string;
   @Prop() description_ur?: string;
   @Prop() description_hi?: string;
   @Prop() description_bn?: string;

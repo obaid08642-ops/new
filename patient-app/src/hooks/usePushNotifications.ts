@@ -71,6 +71,10 @@ export function translateBackendRoute(route: string): { pathname: string; params
   // Community is removed (owner decision 1): an old community notification opens the articles
   if (clean === '/community' || clean.startsWith('/community/')) return { pathname: '/articles' };
 
+  // Removed features (owner decisions 4 and 14): old links open the assistant / the urgent-help screen
+  if (clean === '/ai/skin-analysis') return { pathname: '/ai' };
+  if (clean === '/emergency/sos' || clean === '/emergency/sos-active' || clean === '/emergency/tracking') return { pathname: '/emergency' };
+
   // Routes that already exist verbatim in the app
   if (clean === '/consultations/appointments') return { pathname: clean };
   if (clean === '/diagnostics/results-history') return { pathname: clean };
@@ -184,8 +188,6 @@ export function routeFromNotificationData(data: any): void {
       case 'offer':
         router.push('/loyalty/hub' as any);
         break;
-      case 'sos':
-      case 'ambulance':
       case 'emergency':
         router.push('/emergency' as any);
         break;

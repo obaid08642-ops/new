@@ -6,7 +6,7 @@ import { readCancellationPolicy } from "@/lib/consult/cancellation-policy";
 import { policyLines } from "@/components-next/consult/policy-lines";
 import { isLocale } from "@/lib/i18n";
 import { readLegalPolicy } from "@/lib/api/legal-policy";
-import { PAGE_POLICIES, parsePolicyList } from "@/lib/legal/policy-list";
+import { INLINE_POLICIES, PAGE_POLICIES, parsePolicyList } from "@/lib/legal/policy-list";
 import { parseLegal } from "@/lib/legal/parse-legal";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { BulletList, Hero, SectionCard } from "@/components-next/consult/consult-parts";
@@ -54,7 +54,10 @@ export default async function SettingsAboutPage({ params }: Props) {
   const versionOf = (key: string) => documents.find((item) => item.key === key)?.version ?? undefined;
   const versionSub = (key: string) => { const v = versionOf(key); return v ? t("aboutVersion", { version: v }) : undefined; };
   const extras = await Promise.all(
-    documents.filter((item) => !(PAGE_POLICIES as readonly string[]).includes(item.key)).map(async (item) => {
+    [
+      ...INLINE_POLICIES.map((key) => documents.find((item) => item.key === key) ?? { key, title: key === "refund_policy" ? legal("refundPolicy") : legal("telehealthConsent"), version: null }),
+      ...documents.filter((item) => !(PAGE_POLICIES as readonly string[]).includes(item.key)),
+    ].map(async (item) => {
       const text = await readLegalPolicy(item.key, locale).catch(() => null);
       return { ...item, blocks: text?.content ? parseLegal(text.content) : null };
     }),
@@ -74,10 +77,8 @@ export default async function SettingsAboutPage({ params }: Props) {
           locale={locale}
           label={t("aboutLegal")}
           rows={[
-            { href: `/${locale}/terms`, icon: "file-text", tone: "ink", title: t("aboutTerms"), sub: versionSub("patient_terms") },
-            { href: `/${locale}/privacy`, icon: "shield-check", tone: "teal", title: t("aboutPrivacy"), sub: versionSub("privacy_policy") },
-            { href: `/${locale}/refund-policy`, icon: "arrows-left-right", tone: "amber", title: legal("refundPolicy"), sub: versionSub("refund_policy") },
-            { href: `/${locale}/telehealth-consent`, icon: "video-camera", tone: "blue", title: legal("telehealthConsent"), sub: versionSub("telehealth_consent") },
+            { href: `/${locale}/terms`, icon: "file-text", tone: "violet", title: t("aboutTerms"), sub: versionSub("patient_terms") },
+            { href: `/${locale}/privacy`, icon: "shield-check", tone: "violet", title: t("aboutPrivacy"), sub: versionSub("privacy_policy") },
           ]}
         />
       </Group>
@@ -85,7 +86,7 @@ export default async function SettingsAboutPage({ params }: Props) {
         <Group id="documents" title={t("aboutDocuments")}>
           <div className={rx.card}>
             {extras.map((doc) => (
-              <details key={doc.key} className={styles.faq}>
+              <details key={doc.key} id={doc.key} className={styles.faq} data-testid={`about-doc-${doc.key}`}>
                 <summary><span>{doc.title}{doc.version ? <> · <bdi>{t("aboutVersion", { version: doc.version })}</bdi></> : null}</span><Icon name="caret-down" size={16} tone="secondary" /></summary>
                 {doc.blocks ? (
                   <div lang={textLang} dir={textLang === "ar" ? "rtl" : "ltr"}>

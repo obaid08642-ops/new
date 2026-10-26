@@ -56,11 +56,11 @@ export function DayStrip({ days, value, onChange, label }: { days: DayItem[]; va
             accessibilityState={{ selected: on }}
             accessibilityLabel={`${d.name} ${d.day} ${d.month}`}
             onPress={() => onChange(i)}
-            style={{ minWidth: 64, minHeight: 64, paddingHorizontal: 10, borderRadius: 18, alignItems: 'center', justifyContent: 'center', gap: 2, backgroundColor: on ? c.action.selected.bg : c.bg.surface, borderWidth: on ? 0 : 1, borderColor: c.border.hairline }}
+            style={{ minWidth: 64, minHeight: 64, paddingHorizontal: 10, borderRadius: 18, alignItems: 'center', justifyContent: 'center', gap: 2, backgroundColor: on ? c.service.coral.bg : c.bg.surface, borderWidth: on ? 0 : 1, borderColor: c.border.hairline }}
           >
-            <Text style={{ ...scale(t, 'tag', 'regular'), color: on ? c.action.selected.fg : c.text.secondary }}>{d.name}</Text>
-            <Text style={{ ...scale(t, 'h4'), color: on ? c.action.selected.fg : c.text.primary }}>{d.day}</Text>
-            <Text style={{ ...scale(t, 'micro', 'regular'), color: on ? c.action.selected.fg : c.text.tertiary }}>{d.month}</Text>
+            <Text style={{ ...scale(t, 'tag', 'regular'), color: on ? c.service.coral.fg : c.text.secondary }}>{d.name}</Text>
+            <Text style={{ ...scale(t, 'h4'), color: on ? c.service.coral.fg : c.text.primary }}>{d.day}</Text>
+            <Text style={{ ...scale(t, 'micro', 'regular'), color: on ? c.service.coral.fg : c.text.tertiary }}>{d.month}</Text>
           </Pressable>
         );
       })}
@@ -144,7 +144,7 @@ export function ModeTiles({ tiles, value, onChange, label }: { tiles: ModeTile[]
             accessibilityState={{ selected: on }}
             accessibilityLabel={k(`consult.mode.${m.mode}`)}
             onPress={() => onChange(m.id)}
-            style={{ flex: 1, minWidth: 0, minHeight: 44, borderRadius: 22, paddingVertical: 14, paddingHorizontal: 6, alignItems: 'center', gap: 8, backgroundColor: c.bg.surface, borderWidth: on ? 2 : 1, borderColor: on ? c.action.selected.bg : c.border.hairline }}
+            style={{ flex: 1, minWidth: 0, minHeight: 44, borderRadius: 22, paddingVertical: 14, paddingHorizontal: 6, alignItems: 'center', gap: 8, backgroundColor: c.bg.surface, borderWidth: on ? 2 : 1, borderColor: on ? c.action.primary.bg : c.border.hairline }}
           >
             <View style={{ width: 42, height: 42, borderRadius: 14, backgroundColor: tone.bg, alignItems: 'center', justifyContent: 'center' }}>
               <Glyph name={look.icon} size={22} color={tone.fg} />

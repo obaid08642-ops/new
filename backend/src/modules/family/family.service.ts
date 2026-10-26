@@ -129,7 +129,7 @@ export class FamilyService {
 
   async generateInvite(userId: string) {
     const group = await this.groupM.findOne({ owner_id: userId, is_deleted: { $ne: true } }).lean();
-    if (!group) throw new NotFoundException('You must be the group owner');
+    if (!group) throw new ForbiddenException('You must be the group owner');
     const code = this.generateInviteCode();
     const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
     await this.groupM.updateOne({ id: (group as any).id }, { invite_code: code, invite_expires_at: expires });
@@ -138,7 +138,7 @@ export class FamilyService {
 
   /** Contract DTO never reveals a join code. Delivery must be available or fail closed. */
   async sendInvite(userId: string, channel: string, target: string) {
-    if (!['sms', 'email'].includes(channel)) throw new BadRequestException('invalid_invite_channel');
+    if (channel !== 'email') throw new BadRequestException('invalid_invite_channel');
     const destination = String(target || '').trim();
     if (!destination || destination.length > 254) throw new BadRequestException('invalid_invite_target');
     const generated = await this.generateInvite(userId);

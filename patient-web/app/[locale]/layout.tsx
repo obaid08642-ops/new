@@ -3,6 +3,7 @@ import { OfflineSupport } from "@/components-next/offline-support";
 import { OfflineBanner } from "@/components-next/network/offline-banner";
 import Link from "next/link";
 import "../globals.css";
+import "../motion.css";
 import { THEME_COLOR } from "../design-tokens/theme-color";
 // DEVICE_STANDARD §1 web shells (<AppShell>, <StickyFooter>), mirrored from packages/ui/shells.
 import "@/components-next/ui-generated/shells/shells.css";
@@ -23,7 +24,8 @@ import { pickClientMessages } from "@/lib/i18n/client-messages";
 import { ThemeToggle } from "@/components-next/theme-toggle";
 import { THEME_INIT_SCRIPT } from "@/app/theme";
 import { ModuleRouteGate, ModulesProvider } from "@/components-next/modules/modules-provider";
-import { getDisabledModules } from "@/lib/api/public-config-server";
+import { getDisabledModules, getUploadsEnabled } from "@/lib/api/public-config-server";
+import { UploadsProvider } from "@/components-next/uploads/uploads-provider";
 import { isPathHidden } from "@/lib/modules";
 import { BackToTopLoader } from "@/components-next/navigation/back-to-top-loader";
 import "@/components-next/navigation/navigation.css";
@@ -103,6 +105,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   // module switches (#953): a public fetch revalidated every 15 s (no cookie, no header, so static/ISR pages stay
   // cacheable), fail-open; hides entry points and stops deep links into a switched-off module
   const disabled = await getDisabledModules();
+  const uploadsEnabled = await getUploadsEnabled();
   const moduleCopy = await getTranslations({ locale: typedLocale, namespace: "Modules" });
   const legalLinks = await getTranslations({ locale: typedLocale, namespace: "LegalLinks" });
 
@@ -147,11 +150,13 @@ export default async function LocaleLayout({ children, params }: Props) {
             {/* The cart (lib/context/CartContext) was written but never mounted: every "add to cart" on the product pages
                 was a no-op. It keeps its items in this browser only, so mounting it here costs no request. */}
             <ModulesProvider disabled={[...disabled]}>
+              <UploadsProvider enabled={uploadsEnabled}>
               <CartProvider>
                 <ModuleRouteGate locale={typedLocale} title={moduleCopy("unavailableTitle")} body={moduleCopy("unavailableBody")} homeLabel={moduleCopy("unavailableHome")}>
                   {children}
                 </ModuleRouteGate>
               </CartProvider>
+              </UploadsProvider>
             </ModulesProvider>
             <footer className="site-footer">
               <nav aria-label={t("brand")} className="site-footer__links">

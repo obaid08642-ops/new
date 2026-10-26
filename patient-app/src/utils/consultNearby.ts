@@ -18,6 +18,10 @@
  * `/providers?type=doctor`.
  */
 
+/** The academic grades GET /care/doctors?degree= knows (the same list as the web's filter). */
+export const DOCTOR_DEGREES = ['professor', 'consultant', 'senior_specialist', 'specialist', 'resident', 'general_practitioner'] as const;
+export type DoctorDegree = (typeof DOCTOR_DEGREES)[number];
+
 export type NearbyMode = 'clinic' | 'home' | 'online';
 export type NearbyPlace = { kind: 'coords'; lat: number; lng: number } | { kind: 'city'; city: string };
 
@@ -40,11 +44,13 @@ export const careType = (mode: NearbyMode): 'clinic' | 'video' | 'home_visit' =>
  * The hub's doctor request. `place` is what "Nearest" needs (null: the patient's place is not known, so nothing is
  * sent for it). With neither filter active the path is the plain one.
  */
-export function buildDoctorsPath(opts: { mode: NearbyMode; nearest: boolean; availableNow: boolean; place: NearbyPlace | null; availableToday?: boolean }): string {
+export function buildDoctorsPath(opts: { mode: NearbyMode; nearest: boolean; availableNow: boolean; place: NearbyPlace | null; availableToday?: boolean; degree?: DoctorDegree | null }): string {
   const nearest = opts.nearest && nearestApplies(opts.mode) && opts.place !== null;
   const today = opts.availableToday === true && !nearest;
-  if (!nearest && !opts.availableNow && !today) return DOCTORS_PATH;
+  const degree = opts.degree && (DOCTOR_DEGREES as readonly string[]).includes(opts.degree) ? opts.degree : null;
+  if (!nearest && !opts.availableNow && !today && !degree) return DOCTORS_PATH;
   const parts: string[] = [`type=${careType(opts.mode)}`];
+  if (degree) parts.push(`degree=${degree}`);
   if (today) parts.push('sort=available_today');
   if (opts.availableNow) parts.push(`available_within=${AVAILABLE_WITHIN_MINUTES}`);
   if (nearest && opts.place) {

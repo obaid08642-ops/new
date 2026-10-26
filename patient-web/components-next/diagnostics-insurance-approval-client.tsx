@@ -7,7 +7,7 @@ import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import { formatPrice, formatNumber } from "@/lib/format-price";
-import { pickTexts, textsOf } from "@/lib/i18n/localized";
+import { namesOf, pickName } from "@/lib/i18n/localized";
 import consult from "@/components-next/consult/consult.module.css";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/diagnostics/diag.module.css";
@@ -33,7 +33,7 @@ function parseOrder(payload: unknown, locale: string): OrderState | null {
     if (!it || typeof it !== "object") return [];
     const o = it as Record<string, unknown>;
     const id = typeof o.service_id === "string" ? o.service_id : typeof o.id === "string" ? o.id : null;
-    const name = pickTexts(locale, textsOf(o, "name")) ?? (typeof o.name === "string" ? o.name : null);
+    const name = pickName(locale, namesOf(o)) ?? (typeof o.name === "string" ? o.name : null);
     if (!id || !name) return [];
     const covered = o.isCovered === true;
     return [{

@@ -7,7 +7,7 @@ export type HomeCareBooking = {
   id: string;
   serviceNameAr?: string;
   serviceNameEn?: string;
-  /** The service name in every language (issue 1832): `service_names` over the stored Arabic/English. Read it with `pickTexts`. */
+  /** The service name (Arabic and English, issue 1832): `service_names` over the stored Arabic/English. Read it with `pickName`. */
   serviceNames?: Texts;
   state?: string;
   scheduledAt?: string;
@@ -29,7 +29,7 @@ function listFrom(payload: unknown): unknown[] {
 function namesFrom(map: unknown, ar?: string, en?: string): Texts | undefined {
   const out: Texts = { ...(ar ? { ar } : {}), ...(en ? { en } : {}) };
   const record = asRecord(map);
-  if (record) for (const lang of ["ar", "en", "ur", "hi", "bn", "tl"] as const) {
+  if (record) for (const lang of ["ar", "en"] as const) {
     const value = record[lang];
     if (typeof value === "string" && value.trim()) out[lang] = value.trim();
   }

@@ -8,6 +8,12 @@ from j_nursing import card_payment
 KEY = lambda tag: f'mobile-{tag}-{uuid.uuid4()}'
 
 
+
+def has_delivered_order(pat):
+    """D-25: cash on delivery needs an earlier delivered/completed pharmacy order of the same patient (backend assertCodAllowed)."""
+    r = pat.get('/patient/pharmacy/orders')
+    return r.ok and any(str(o.get('status') or o.get('governed_state') or '').lower() in ('delivered', 'completed') for o in r.items() if isinstance(o, dict))
+
 def patient_address(pat):
     # shared/location-picker: { label, street, city, lat, lng, is_default }
     r = pat.post('/users/me/addresses', {'label': 'المنزل', 'street': 'شارع العليا 12', 'city': 'الرياض', 'lat': 24.7140, 'lng': 46.6760, 'is_default': True})
@@ -191,9 +197,15 @@ def run(pat, pharm, admin=None, meds=None):
         step('admin sets the COD limit', r.ok, r)
     r = pat.get('/payment-rules')
     step('patient app reads the payment rules', r.ok and (r.body.get('data', r.body) if isinstance(r.body, dict) else {}).get('pharmacy_cod_max_sar'), r)
-    r = pat.post(f'/patient/pharmacy/orders/{oid}/cod/register', None, headers={'Idempotency-Key': KEY('cod')})
-    first_order = r.status == 400 and 'cod_first_order_not_allowed' in json.dumps(r.body, ensure_ascii=False)
-    step('cash on delivery refused on the patient\'s first order (D-25)', first_order, r)
+    if has_delivered_order(pat):
+        # The native seed (tools/native/seed.py SHARED) hands ONE patient to every journey, so by now that patient already has a delivered order and
+        # the backend is right to allow cash on delivery. Nothing is asserted about the refusal here; the order is paid by card like the first one.
+        first_order = True
+        step('cash on delivery refusal is checked on a first order only; this patient already has a delivered order (shared seed patient), paying by card', True, '')
+    else:
+        r = pat.post(f'/patient/pharmacy/orders/{oid}/cod/register', None, headers={'Idempotency-Key': KEY('cod')})
+        first_order = r.status == 400 and 'cod_first_order_not_allowed' in json.dumps(r.body, ensure_ascii=False)
+        step('cash on delivery refused on the patient\'s first order (D-25)', first_order, r)
     paid_by_card = False
     if first_order:
         paid_by_card = bool(card_payment(pat, 'pharmacy', oid))

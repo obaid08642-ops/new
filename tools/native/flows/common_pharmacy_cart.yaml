@@ -25,7 +25,7 @@ appId: com.patient.nabd
     id: "cart-count"
     text: "1"
 - tapOn:
-    id: "pharmacy-cart"
+    id: "cart-button"
 - extendedWaitUntil:
     visible:
       id: "cart-screen"

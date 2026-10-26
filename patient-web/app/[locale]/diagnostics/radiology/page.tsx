@@ -1,3 +1,4 @@
+import { SUGGEST_SCOPES } from "@/lib/search/suggest";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractRadiologyServices } from "@/lib/api/radiology";
@@ -11,7 +12,7 @@ import { CheckField, RADIOLOGY, RadiologyTile, SearchForm, hoursText, minutesTex
 import styles from "@/components-next/diagnostics/diag.module.css";
 import type { Metadata } from "next";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
-import { pickTexts } from "@/lib/i18n/localized";
+import { pickName } from "@/lib/i18n/localized";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<Record<string, string | string[] | undefined>> };
 
@@ -54,7 +55,7 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
   const backHref = `/${locale}/diagnostics?kind=radiology`;
   if (!servicesResult?.ok) {
     return (
-      <ConsultPage locale={locale} title={t("title")} backHref={backHref}>
+      <ConsultPage locale={locale} title={t("title")} backHref={backHref} resultsHref={`/${locale}/diagnostics/results`}>
         <ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailableBody")} retryLabel={t("retry")} />
       </ConsultPage>
     );
@@ -64,9 +65,10 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
   const modalityList = Array.isArray(modalityValues) ? modalityValues.filter((x): x is string => typeof x === "string") : [];
 
   return (
-    <ConsultPage locale={locale} title={t("title")} backHref={backHref}>
+    <ConsultPage locale={locale} title={t("title")} backHref={backHref} resultsHref={`/${locale}/diagnostics/results`}>
       <p className={styles.flowNote}>{t("subtitle")}</p>
       <SearchForm
+        suggest={{ locale, scope: SUGGEST_SCOPES.radiology }}
         name="search"
         defaultValue={search}
         placeholder={t("searchPlaceholder")}
@@ -106,7 +108,7 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
               service.durationMinutes !== undefined ? minutesText(locale, service.durationMinutes) : undefined,
               service.turnaroundHours !== undefined ? w("resultWithin", { time: hoursText(locale, service.turnaroundHours) }) : undefined,
             ].filter(Boolean).join(" · ");
-            return <RadiologyTile key={service.id} href={`/${locale}/diagnostics/radiology/${encodeURIComponent(service.id)}`} title={pickTexts(locale, service.names) ?? ""} sub={sub || undefined} tags={tags} imageUrl={service.imageUrl} />;
+            return <RadiologyTile key={service.id} href={`/${locale}/diagnostics/radiology/${encodeURIComponent(service.id)}`} title={pickName(locale, service.names) ?? ""} sub={sub || undefined} tags={tags} imageUrl={service.imageUrl} />;
           })}
         </ul>
       )}

@@ -16,6 +16,7 @@ Real effects checked (and everything restored at the end, even when a step fails
   - the flags tab lists only flags a server check reads, and refuses a key nothing reads.
   Stack: backend :8002, admin :3001; the super admin is seeded by seed_admin.js (owner@nabd.test).
 """
+import secrets
 import os
 import time
 
@@ -51,7 +52,7 @@ def verified_signup_body(anon, label):
     step(f'{label}: OTP email delivered', code, 'no mail')
     r = anon.post('/auth/verify-otp', {'email': email, 'code': code})
     step(f'{label}: verify-otp', r.ok, r)
-    return {'full_name': f'اختبار {label}', 'phone': phone(), 'email': email, 'password': 'Str0ng!Pass' + uniq('')[-4:]}
+    return {'full_name': f'اختبار {label}', 'phone': phone(), 'email': email, 'password': 'Nb-' + secrets.token_urlsafe(18)}
 
 
 def run():
@@ -142,9 +143,9 @@ def run():
     journey('flags tab: only flags a server check reads')
     r = owner.get('/admin/admin/governance-controls/feature-flags')
     keys = [x.get('key') for x in r.items()]
-    step('the flags tab lists the seven flags the server reads, each with its effect',
+    step('the flags tab lists the six flags the server reads, each with its effect',
          r.ok and set(keys) == {'ai_symptom_checker', 'recommendations_enabled', 'nudges_enabled', 'live_map_enabled',
-                                'analytics_ingestion_enabled', 'search_suggestions_enabled', 'sms_enabled'}
+                                'analytics_ingestion_enabled', 'search_suggestions_enabled'}
          and all(x.get('effect') for x in r.items()), r)
     r = owner.post('/admin/admin/governance-controls/feature-flags', {'key': 'telehealth', 'enabled': False, 'reason': 'live gate: dead flag probe'})
     step('a flag nothing reads is refused (400 feature_flag_has_no_effect)', r.status == 400 and 'feature_flag_has_no_effect' in str(r.body), r)

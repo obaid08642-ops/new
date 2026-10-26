@@ -123,7 +123,7 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
                   placeholder={AR ? 'أدخل الرمز المكون من 6 أرقام' : 'Enter 6-digit code'}
                   keyboardType="number-pad"
                   maxLength={6}
-                  autoComplete={Platform.OS === 'android' ? 'sms-otp' : 'one-time-code'}
+                  autoComplete="one-time-code"
                   textContentType="oneTimeCode"
                   importantForAutofill="yes"
                   style={{ backgroundColor: theme.bg, borderWidth: 1, borderColor: theme.border, borderRadius: 12, padding: 14, fontSize: 18, textAlign: 'center', letterSpacing: 4, marginBottom: 16, color: theme.text, writingDirection: 'ltr' }}

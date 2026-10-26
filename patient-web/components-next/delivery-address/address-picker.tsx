@@ -101,6 +101,7 @@ export function AddressPicker({ locale, addresses }: { locale: string; addresses
       {failed ? <p className={styles.error} role="alert">{t("saveFailed")}</p> : null}
       <div className={styles.actions}>
         <Button label={t("confirm")} fullWidth disabled={!selected} loading={saving} onClick={confirm} />
+        <ButtonLink href={`/${locale}/profile/addresses#new-address`} label={t("addOnMap")} variant="outline" fullWidth />
         <ButtonLink href={`/${locale}/profile/addresses`} label={t("manage")} variant="outline" fullWidth />
       </div>
     </>

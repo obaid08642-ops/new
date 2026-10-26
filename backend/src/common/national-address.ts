@@ -63,3 +63,30 @@ export function parseNationalAddress(body: unknown, shortAddress: string): Natio
   // An answer with none of the address parts is "not found", not an empty address.
   return out.street || out.city || out.district || out.post_code || out.lat !== undefined ? out : null;
 }
+
+/**
+ * The first address in an SPL "address-geocode" answer (coordinates in, address out): the same field names as the short-address
+ * answer, plus the short address when SPL sends it. Every field is optional; null when the answer holds no address at all.
+ */
+export function parseGeocodedAddress(body: unknown): NationalAddress | null {
+  const root: any = body && typeof body === 'object' ? body : null;
+  if (!root) return null;
+  const list = pick(root, 'Addresses', 'addresses');
+  const one: any = Array.isArray(list) ? list[0] : undefined;
+  if (!one || typeof one !== 'object') return null;
+  const short = normalizeShortAddress(text(pick(one, 'ShortAddress', 'short_address', 'ShortCode'), 16));
+  const out: NationalAddress = {
+    short_address: short ?? '',
+    building_number: text(pick(one, 'BuildingNumber', 'building_number'), 8),
+    street: text(pick(one, 'Street', 'street')),
+    district: text(pick(one, 'District', 'district')),
+    city: text(pick(one, 'City', 'city')),
+    region: text(pick(one, 'RegionName', 'Region', 'region')),
+    post_code: text(pick(one, 'PostCode', 'ZipCode', 'post_code'), 8),
+    additional_number: text(pick(one, 'AdditionalNumber', 'additional_number'), 8),
+    lat: coord(pick(one, 'Latitude', 'lat', 'latitude'), -90, 90),
+    lng: coord(pick(one, 'Longitude', 'lng', 'lon', 'longitude'), -180, 180),
+  };
+  const filled = Object.entries(out).some(([k, v]) => k !== 'short_address' && v !== undefined) || out.short_address !== '';
+  return filled ? out : null;
+}

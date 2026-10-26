@@ -25,7 +25,7 @@
   color: var(--nabd-color-text-primary); text-decoration: none; border-radius: var(--nabd-radius-3xl);
   background: var(--nabd-color-bg-sunken); border: 1px solid var(--nabd-color-border-hairline);
 }
-.kind[aria-current="page"] { background: var(--nabd-color-bg-surface); border: 2px solid var(--nabd-color-action-selected-bg); box-shadow: var(--nabd-shadow-card); }
+.kind[aria-current="page"] { background: var(--nabd-color-bg-surface); border: 2px solid var(--nabd-color-action-primary-bg); box-shadow: var(--nabd-shadow-card); }
 .kindText { display: flex; flex-direction: column; gap: 2px; min-inline-size: 0; }
 .kindTitle { font-size: var(--nabd-font-size-row); font-weight: 700; overflow-wrap: anywhere; }
 .kindSub { font-size: var(--nabd-font-size-micro); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
@@ -38,6 +38,18 @@
   background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-2xl);
 }
 .searchForm { display: flex; flex-direction: column; gap: 8px; min-inline-size: 0; }
+.searchSticky {
+  position: sticky; inset-block-start: var(--nabd-shell-top-h, 56px); z-index: var(--nabd-z-sticky, 10);
+  background: var(--nabd-color-bg-canvas); padding-block: 6px; margin-block: -6px;
+}
+.chipsRow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.activeChip {
+  display: inline-flex; align-items: center; gap: 6px; min-block-size: 36px; padding-inline: 12px 8px; box-sizing: border-box; text-decoration: none;
+  border-radius: var(--nabd-radius-pill); background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline);
+  color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-label); font-weight: 600;
+}
+.activeChip:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.activeChipX { font-size: var(--nabd-font-size-body); line-height: 1; color: var(--nabd-color-text-secondary); }
 .check { display: flex; align-items: center; gap: 10px; min-block-size: 44px; font-size: var(--nabd-font-size-control); cursor: pointer; overflow-wrap: anywhere; }
 .check input { flex: none; inline-size: 22px; block-size: 22px; margin: 0; accent-color: var(--nabd-color-action-primary-bg); }
 .check:has(input:focus-visible) { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; border-radius: var(--nabd-radius-sm); }
@@ -65,7 +77,7 @@
 .packFoot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
 .packCta {
   display: inline-flex; align-items: center; justify-content: center; min-block-size: 44px; padding-inline: 16px; border-radius: var(--nabd-radius-xl);
-  background: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg); font-size: var(--nabd-font-size-control); font-weight: 600;
+  background: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg); font-size: var(--nabd-font-size-control); font-weight: 600;
 }
 
 /* ---- prices ---- */

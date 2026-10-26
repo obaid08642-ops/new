@@ -11,6 +11,7 @@ import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { parseMaternityContent } from '../../utils/maternityWeek';
 import { CareHero, CareScreen, PrimaryAction } from './CareKit';
+import { optimizedImageUri } from '../../utils/optimizedImage';
 
 /**
  * Maternity (board CareHub, merge map section 5): one hub with the tabs Pregnancy and Ovulation (`?tab=`) and the
@@ -78,7 +79,7 @@ function WeekContent({ week }: { week: number }) {
           <Card theme={theme} testID="maternity-week">
             <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 14 }}>
               {entry.image ? (
-                <Image cachePolicy="memory-disk" source={{ uri: entry.image }} accessibilityLabel={k('care.mat.weekImageAlt', { week: num(entry.week) })} accessibilityIgnoresInvertColors contentFit="cover" style={{ width: 96, height: 96, borderRadius: 20, backgroundColor: c.bg.sunken }} />
+                <Image cachePolicy="memory-disk" source={{ uri: optimizedImageUri(entry.image, 96) }} accessibilityLabel={k('care.mat.weekImageAlt', { week: num(entry.week) })} accessibilityIgnoresInvertColors contentFit="cover" style={{ width: 96, height: 96, borderRadius: 20, backgroundColor: c.bg.sunken }} />
               ) : null}
               <View style={{ flex: 1, minWidth: 0, gap: 6 }}>
                 <Text style={{ ...scale(t, 'body', 'bold'), color: c.text.primary, ...flow }}>{entry.size}</Text>

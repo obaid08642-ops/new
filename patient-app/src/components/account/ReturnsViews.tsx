@@ -12,6 +12,8 @@ import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { AccountScreen } from './AccountKit';
 import { PolicyCard } from './PolicyText';
+import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
+import { UploadsUnavailable } from '../UploadsUnavailable';
 
 /**
  * Returns (board Orders, restyle only): the list with the status filter, one request, and the three-step form
@@ -73,7 +75,7 @@ export function ReturnsHubView() {
     <AccountScreen
       title={k('returns.title')}
       fallback={'/orders' as Href}
-      actions={[{ key: 'new', label: k('returns.new'), icon: <Glyph name="plus" size={20} color={c.icon.primary} />, onPress: () => router.push('/returns/new-request' as Href) }]}
+      actions={[{ key: 'new', label: k('returns.new'), icon: <Glyph name="plus" size={20} color={c.text.secondary} />, onPress: () => router.push('/returns/new-request' as Href) }]}
       footer={<Button label={k('returns.new')} size="lg" fullWidth startIcon="plus" onPress={() => router.push('/returns/new-request' as Href)} theme={theme} testID="returns-new" />}
       testID="returns-screen"
     >
@@ -222,6 +224,7 @@ export function ReturnRequestView() {
   const booking = eligible.find((row) => row.id === orderId);
   const reasons = serviceType ? REASONS[serviceType] : [];
 
+  const uploadsOn = useUploadsEnabled();
   const attach = async (fromCamera: boolean) => {
     setMessage(null);
     try {
@@ -348,6 +351,7 @@ export function ReturnRequestView() {
           </Section>
           <Input label={k('returns.new.details')} placeholder={k('returns.new.detailsPlaceholder')} value={details} onChange={setDetails} multiline rows={4} theme={theme} testID="return-details" />
           <Section title={k('returns.new.photos')}>
+            {uploadsOn ? (
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <View style={{ flex: 1 }}>
                 <Button label={k('returns.new.camera')} variant="outline" size="md" fullWidth startIcon="camera" disabled={uploading} onPress={() => void attach(true)} theme={theme} testID="return-camera" />
@@ -356,6 +360,7 @@ export function ReturnRequestView() {
                 <Button label={k('returns.new.library')} variant="outline" size="md" fullWidth startIcon="image" disabled={uploading} onPress={() => void attach(false)} theme={theme} testID="return-library" />
               </View>
             </View>
+            ) : <UploadsUnavailable />}
             {uploading ? <Notice tone="info" text={k('returns.new.uploading')} /> : null}
             {docs.length > 0 ? (
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>

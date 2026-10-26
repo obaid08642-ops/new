@@ -1,4 +1,4 @@
-import { Rating } from "@/components-next/ui-generated/components/Surfaces";
+import { ReviewScore } from "./review-score";
 import { SectionCard } from "./consult-parts";
 import styles from "./consult.module.css";
 
@@ -18,7 +18,7 @@ export function ReviewList({ items, scoreLabel }: { items: ReviewItem[]; scoreLa
         <li key={r.key} className={styles.review}>
           <div className={styles.reviewHead}>
             <span className={styles.reviewWho}>{r.who}</span>
-            <Rating value={r.score} count={1} formatLabel={(v) => scoreLabel(v)} />
+            <ReviewScore value={r.score} label={scoreLabel(r.score)} />
           </div>
           {r.date ? <span className={styles.reviewDate}>{r.date}</span> : null}
           {r.text ? <p className={styles.body}>{r.text}</p> : null}

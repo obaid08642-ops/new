@@ -214,7 +214,7 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
             <Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? 'تنبيه أسعار' : 'Price notice'}</Text>
             {flagged.map((i: any) => <Text key={String(i.order_item_id)} style={{ color: theme.textSub, marginTop: SP.xs }}>
               {i.above_catalogue_price === true
-                ? (AR ? `${i.name_ar || i.sku || ''}: سعرك ${i.unit_price} ر.س أعلى من سعر الكتالوج ${i.catalogue_price} ر.س. أسعار الأدوية جبرية؛ تأكد أن السعر الرسمي تغيّر. أُبلغت الإدارة للمراجعة.` : `${i.name_ar || i.sku || ''}: your price ${i.unit_price} SAR is above the catalogue price ${i.catalogue_price} SAR. Medicine prices are regulated; make sure the official price changed. The admin was told and will review it.`)
+                ? (AR ? `${i.name_ar || i.sku || ''}: سعرك ${i.unit_price} ر.س أعلى من سعر الكتالوج ${i.catalogue_price} ر.س. السعر الأعلى مسموح، لكن الإدارة ترى هذا العرض وتراجعه، وقد تحدّث سعر الكتالوج أو تحذّر أو توقف أو تغرّم الصيدلية إذا لم يكن مبرَّرًا.` : `${i.name_ar || i.sku || ''}: your price ${i.unit_price} SAR is above the catalogue price ${i.catalogue_price} SAR. A higher price is allowed, but the admin can see this offer and reviews it: they may update the catalogue price, or warn, suspend, block or fine the pharmacy if it is not justified.`)
                 : (AR ? `${i.name_ar || i.sku || ''}: الصنف غير مطابق لكتالوج نبض بلس، فلم يُتحقق من سعره.` : `${i.name_ar || i.sku || ''}: this item is not in the Nabd Plus catalogue, so its price was not checked.`)}
             </Text>)}
           </NCard>;

@@ -10,6 +10,7 @@ import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { pickLocalized } from '../../utils/localize';
 import { logError } from '../../utils/logger';
+import { optimizedImageUri } from '../../utils/optimizedImage';
 
 /**
  * Offers (Batch 11, merge map section 7: list and detail stay). GET /home/offers, GET /offers/:id,
@@ -144,7 +145,7 @@ export function OfferDetailView() {
       <Gate status={remote.status === 'ready' && !offer ? 'missing' : remote.status} onRetry={() => void remote.reload()} missingTitle={k('offers.missingTitle')} missingBody={k('offers.missingBody')} errorTitle={k('offers.errorTitle')}>
         {offer ? (
           <>
-            {offer.image ? <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors accessibilityLabel={title} source={{ uri: offer.image }} style={{ width: '100%', height: 200, borderRadius: 24, backgroundColor: c.bg.surface }} contentFit="cover" /> : null}
+            {offer.image ? <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors accessibilityLabel={title} source={{ uri: optimizedImageUri(offer.image, 400) }} style={{ width: '100%', height: 200, borderRadius: 24, backgroundColor: c.bg.surface }} contentFit="cover" /> : null}
             <View style={{ gap: 6 }}>
               {offer.target?.sponsored ? <Pill tone="neutral" label={k('offers.sponsored')} /> : null}
               <Text accessibilityRole="header" style={{ ...scale(t, 'h2'), color: c.text.primary, ...flow }}>{title}</Text>
@@ -173,7 +174,7 @@ export function OfferDetailView() {
               <Section title={k('offers.terms')}>
                 <Panel>
                   {terms.map((item, i) => (
-                    <Row key={`${item}-${i}`} icon="info" tone="ink" title={item} last={i === terms.length - 1} />
+                    <Row key={`${item}-${i}`} icon="info" tone="amber" title={item} last={i === terms.length - 1} />
                   ))}
                 </Panel>
               </Section>

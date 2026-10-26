@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
+import { SocialLoginButtons } from "./social-login-buttons";
+import type { SocialButtons } from "@/lib/auth/social-config";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { authErrorKind } from "@/lib/auth/auth-errors";
 import { announceSignedIn } from "@/lib/auth/session-identity";
@@ -29,7 +31,7 @@ export function registerErrorMessage(t: (key: string) => string, status: number)
   }
 }
 
-export function RegisterForm({ locale }: { locale: Locale }) {
+export function RegisterForm({ locale, social = {} }: { locale: Locale; social?: SocialButtons }) {
   const t = useTranslations("Register");
   const router = useRouter();
   const [form, setForm] = useState({ name: "", identifier: "", password: "", confirm: "" });
@@ -149,6 +151,7 @@ export function RegisterForm({ locale }: { locale: Locale }) {
         {isGuest ? <p className={styles.note} role="note">{t("guestNote")}</p> : null}
         <div className={styles.actions}>
           <Button type="submit" variant="primary" size="lg" fullWidth label={busy ? t("busy") : t("submit")} loading={busy} />
+          <SocialLoginButtons locale={locale} social={social} variant="register" />
           <p className={styles.foot}><Link className={styles.link} href={`/${locale}/login`}>{t("login")}</Link></p>
         </div>
       </form>

@@ -1,6 +1,6 @@
 /**
- * #1556 owner decision F: published six-language content for every lab test, scan and nursing service, six-language
- * names for every list, and the missing common items. Checks the content file itself (every language present and in
+ * #1556 owner decision F: published six-language content for every lab test, scan and nursing service (names stay Arabic and English; the
+ * specialties keep six-language names), and the missing common items. Checks the content file itself (every language present and in
  * its own script, every seed row covered) and runs the real apply script on an in-memory MongoDB seeded from
  * seed-data.
  */
@@ -41,7 +41,8 @@ describe('services-content.v1.json', () => {
         const prep = it.preparation[l] as unknown as string[];
         if (!Array.isArray(prep) || !prep.length || !prep.every((p) => SCRIPT_RE[l].test(p))) bad.push(`${it.match.names_en[0]}.preparation.${l}`);
       }
-      for (const l of ['ur', 'hi', 'bn', 'fil']) if (!String(it.names[l] ?? '').trim()) bad.push(`${it.match.names_en[0]}.names.${l}`);
+      // owner decision 2026-10-25: the name of a test, scan or nursing service stays Arabic and English only
+      if ('names' in it) bad.push(`${it.match.names_en[0]}.names (must not be written)`);
     }
     expect(bad).toEqual([]);
   });

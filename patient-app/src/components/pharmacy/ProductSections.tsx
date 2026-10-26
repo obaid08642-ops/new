@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { LayoutAnimation, Pressable, Text, View } from 'react-native';
 
-import { FIcon, Icon } from '../../../../packages/ui-native/src';
+import { FIcon, Icon, NATIVE_MOTION, reduceMotionNow } from '../../../../packages/ui-native/src';
 import type { FillIconName, ServiceTone } from '../../../../packages/ui/icons/fill';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import ProductImage from '../ProductImage';
@@ -86,6 +86,9 @@ export interface AccordionSection {
   key: string;
   title: string;
   items: string[];
+  /** Set when the text is not in the app's language: its writing direction, and the note that says which language it is in. */
+  dir?: 'rtl' | 'ltr';
+  note?: string;
 }
 
 /** "Medicine details": one section open at a time, the count shown when there is more than one item, bullets in the action colour. */
@@ -102,7 +105,11 @@ export function DetailAccordion({ sections }: { sections: AccordionSection[] }) 
               accessibilityRole="button"
               accessibilityState={{ expanded: isOpen }}
               accessibilityLabel={s.items.length > 1 ? `${s.title} ${s.items.length}` : s.title}
-              onPress={() => setOpen(isOpen ? -1 : i)}
+              onPress={() => {
+                // the section opens and closes smoothly (the enter duration of the tokens); not with reduced motion
+                if (!reduceMotionNow()) LayoutAnimation.configureNext({ duration: NATIVE_MOTION.enter, update: { type: LayoutAnimation.Types.easeInEaseOut }, create: { type: LayoutAnimation.Types.easeInEaseOut, property: LayoutAnimation.Properties.opacity }, delete: { type: LayoutAnimation.Types.easeInEaseOut, property: LayoutAnimation.Properties.opacity } });
+                setOpen(isOpen ? -1 : i);
+              }}
               style={{ minHeight: 54, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 10 }}
             >
               <Text style={{ flex: 1, ...scale(t, 'row', isOpen ? 'bold' : 'medium'), color: c.text.primary, ...flow }}>{s.title}</Text>
@@ -111,10 +118,11 @@ export function DetailAccordion({ sections }: { sections: AccordionSection[] }) 
             </Pressable>
             {isOpen ? (
               <View style={{ paddingHorizontal: 16, paddingBottom: 16, gap: 8 }}>
+                {s.note ? <Text testID={`lang-note-${s.key}`} style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, writingDirection: dir, textAlign: dir === 'rtl' ? 'right' : 'left' }}>{s.note}</Text> : null}
                 {s.items.map((it, k) => (
                   <View key={k} style={{ flexDirection: 'row', gap: 10 }}>
                     <View style={{ width: 6, height: 6, borderRadius: 3, marginTop: 10, backgroundColor: c.action.primary.bg }} />
-                    <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'control', 'regular'), lineHeight: 24, color: c.text.tertiary, writingDirection: dir, textAlign: dir === 'rtl' ? 'right' : 'left' }}>{it}</Text>
+                    <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'control', 'regular'), lineHeight: 24, color: c.text.tertiary, writingDirection: s.dir ?? dir, textAlign: (s.dir ?? dir) === 'rtl' ? 'right' : 'left' }}>{it}</Text>
                   </View>
                 ))}
               </View>
@@ -138,6 +146,7 @@ export function MiniProduct({
   onPress,
   onAdd,
   addLabel,
+  addControl,
 }: {
   name: string;
   meta?: string;
@@ -150,6 +159,8 @@ export function MiniProduct({
   onPress: () => void;
   onAdd?: () => void;
   addLabel?: string;
+  /** The app's quantity stepper in place of the + button. */
+  addControl?: React.ReactNode;
 }) {
   const { t, c, flow } = useScreenUi();
   const chip = badge ? (badge.tone === 'success' ? { bg: c.status.success.bg, fg: c.status.success.fg } : { bg: c.status.neutral.bg, fg: c.text.tertiary }) : null;
@@ -176,11 +187,11 @@ export function MiniProduct({
             <Text style={{ ...scale(t, 'tag'), color: chip.fg }}>{badge.label}</Text>
           </View>
         ) : null}
-        {onAdd ? (
-          <Pressable accessibilityRole="button" accessibilityLabel={addLabel} onPress={onAdd} hitSlop={4} style={{ width: 36, height: 36, borderRadius: 12, backgroundColor: c.action.selected.bg, alignItems: 'center', justifyContent: 'center' }}>
-            <Icon name="plus" size={16} color={c.action.selected.fg} />
+        {addControl ?? (onAdd ? (
+          <Pressable accessibilityRole="button" accessibilityLabel={addLabel} onPress={onAdd} hitSlop={4} style={{ width: 36, height: 36, borderRadius: 12, backgroundColor: c.action.primary.bg, alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="plus" size={16} color={c.action.primary.fg} />
           </Pressable>
-        ) : null}
+        ) : null)}
       </View>
     </View>
   );

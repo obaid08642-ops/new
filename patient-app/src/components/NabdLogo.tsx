@@ -10,7 +10,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 
-import { tokens, type ThemeName } from '../../../packages/design-tokens/dist/ts/tokens';
+import { tokens } from '../../../packages/design-tokens/dist/ts/tokens';
 
 /**
  * NabdLogo — the owner-approved "Noon Dot" mark for the mobile apps.
@@ -37,18 +37,16 @@ const STROKE_WIDTH = 36;
 const BEAT_MS = 1000;
 
 /**
- * `text` is the boards' sign-in mark (canvas/Auth.dc.html): the bowl in the text
- * colour of the theme (ink on light, near-white on dark) and the coral dot.
+ * Owner decision 2026-10-25: the mark is never black. Only the coral bowl and dot (`brand`, light or dark page) or the white mark
+ * (`onBrand`) on a coral/red tile exist; the old `text` and `ink` variants were removed so black cannot come back.
  */
-export type NabdLogoVariant = 'brand' | 'onBrand' | 'ink' | 'text';
+export type NabdLogoVariant = 'brand' | 'onBrand';
 
 export interface NabdLogoProps {
   size?: number;
   variant?: NabdLogoVariant;
   /** Beat the dot at 60 bpm. Used on the splash and on loading. */
   pulse?: boolean;
-  /** The theme the `text` variant reads its colours from. */
-  theme?: ThemeName;
   /** Accessible name of the image (e.g. the brand name in the screen's language). */
   label?: string;
   testID?: string;
@@ -58,11 +56,10 @@ export function NabdLogo({
   size = 120,
   variant = 'brand',
   pulse = false,
-  theme = 'light',
   label,
   testID = 'nabd-logo',
 }: NabdLogoProps) {
-  const t = tokens(variant === 'text' ? theme : 'light');
+  const t = tokens('light');
   const [reduceMotion, setReduceMotion] = useState(false);
 
   useEffect(() => {
@@ -104,14 +101,7 @@ export function NabdLogo({
     opacity: 1 - beat.value * 0.18,
   }));
 
-  const stroke =
-    variant === 'onBrand'
-      ? t.color.text.onBrand
-      : variant === 'ink'
-        ? t.color.text.onInverse
-        : variant === 'text'
-          ? t.color.text.primary
-          : t.color.brand.coral;
+  const stroke = variant === 'onBrand' ? t.color.text.onBrand : t.color.brand.coral;
   const dot =
     variant === 'onBrand' ? t.color.text.onBrand : t.color.brand.coral;
 

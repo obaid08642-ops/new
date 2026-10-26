@@ -47,7 +47,7 @@ function PulseLine() {
 export function HeroCard({ locale, t, eyebrow, title, headingId }: { locale: Locale; t: T; eyebrow?: string; title: string; headingId: string }) {
   return (
     <section className={`${styles.hero} ${styles.riseInPlace}`} aria-labelledby={headingId}>
-      <span className={styles.heroMark}><NabdMark size={34} variant="text" /></span>
+      <span className={styles.heroMark}><NabdMark size={34} /></span>
       <div className={styles.heroText}>
         {eyebrow ? <p className={styles.eyebrow}>{eyebrow}</p> : null}
         <h1 id={headingId} className={styles.title}>{title}</h1>
@@ -173,9 +173,9 @@ const MORE: Array<{ key: string; href: string; icon: FillIconName; tone: Service
   { key: "returns", href: "returns", icon: "arrows-left-right", tone: "amber" },
   { key: "reports", href: "reports", icon: "file-text", tone: "blue" },
   { key: "loyalty", href: "loyalty", icon: "star", tone: "amber" },
-  { key: "support", href: "support", icon: "headset", tone: TONE.care },
+  { key: "support", href: "support", icon: "headset", tone: "mint" },
   { key: "profile", href: "profile", icon: "user", tone: "blue" },
-  { key: "settings", href: "settings", icon: "gear", tone: "ink" },
+  { key: "settings", href: "settings", icon: "gear", tone: TONE.care },
   { key: "articles", href: "articles", icon: "clipboard-text", tone: "mint" },
 ];
 

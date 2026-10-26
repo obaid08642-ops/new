@@ -133,7 +133,7 @@ export class ProviderProductionService {
         'insurance_details.copay_percent': copayPercent,
         'insurance_details.insurer_share': insurerShare,
         'insurance_details.patient_share': patientShare,
-        'insurance_details.nphies_approval_code': body.nphies_approval_code || null,
+        'insurance_details.approval_reference': body.approval_reference || null,
         'insurance_details.policy_number': body.policy_number || null,
         'insurance_details.member_id': body.member_id || null,
         'insurance_details.decided_by': user.id,

@@ -114,6 +114,9 @@ export function BuyProvider({ locale, product: pageProduct, variants = [], child
     if (inCart > 0) return;
     putInCart();
     setAdded(true);
+    // the product's picture flies to the header cart icon (not with reduced motion; loaded only now)
+    const page = document.querySelector<HTMLElement>("main");
+    if (page) void import("@/lib/motion/fly-to-cart").then((m) => m.flyToCart(page));
   }, [putInCart, inCart]);
 
   const buyNow = useCallback(() => {

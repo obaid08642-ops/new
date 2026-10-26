@@ -19,6 +19,7 @@ describe('serverMessage: what the backend and the api helpers say, as a translat
     ['Email already registered', 'errors.emailRegistered'],
     ['Phone already registered', 'errors.phoneRegistered'],
     ['User not found', 'errors.userNotFound'],
+    ['otp_no_channel', 'errors.otpUnavailable'],
     ['otp_channel_unavailable', 'errors.otpUnavailable'],
     ['OFFLINE_ERROR', 'errors.offline'],
     // the Arabic fallbacks the root helper writes itself

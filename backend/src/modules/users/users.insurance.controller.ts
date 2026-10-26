@@ -1,3 +1,4 @@
+import { buildPatientPolicy } from '../../common/insurance-policy';
 import { Body, Controller, Get, Post, UseGuards, BadRequestException } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -27,7 +28,6 @@ const canonicalInsuranceSchema = {
     verified: { type: 'boolean', readOnly: true, example: false },
     pdf_url: { type: 'string', format: 'uri' },
     ocr_extracted: { type: 'boolean' },
-    nphies_eligible: { type: 'boolean' },
   },
   additionalProperties: true,
 };
@@ -79,11 +79,9 @@ export class UsersInsuranceController {
       throw new BadRequestException('insurance_class_required');
     }
     const profile = await this.users.getPatientProfile(id);
-    const updatedInsurance = {
-      ...profile.insurance,
-      ...body,
-      verified: false, // Must be verified by admin
-    };
+    // One writer, one shape (common/insurance-policy.ts); `verified` is always false: only an administrative step verifies.
+    const company = await this.users.findInsuranceCompany(body.provider ?? body.provider_name);
+    const updatedInsurance = buildPatientPolicy(profile.insurance, body, company);
     await this.users.setPatientInsurance(id, updatedInsurance);
     // Fixed JSON only: never echo the patient's text back (read it with GET /users/me/insurance).
     return { success: true, verified: false };

@@ -6,9 +6,11 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { Notice } from "@/components-next/consult/consult-parts";
 import type { CompanyRow, NetworkRow } from "@/lib/insurance/view";
-import { copayBody } from "@/lib/insurance/copay";
+import { copayBody, figuresForClass } from "@/lib/insurance/copay";
+import { CompanyPicker } from "@/components-next/insurance/company-picker";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import forms from "@/components-next/consult/consult.module.css";
+import { useUploadsEnabled } from "@/components-next/uploads/uploads-provider";
 
 /** The card photo the reader accepts (the route allows about 6 MB of image). */
 const MAX_CARD_BYTES = 5 * 1024 * 1024;
@@ -26,7 +28,8 @@ export function policyOptionals(input: { memberId: string; memberName: string; e
 /** The saved policy, to change it in place (the app edits the saved values; the patient does not start from a blank form). */
 export type PolicyPrefill = { companyId?: string; policyNumber?: string; memberId?: string; memberName?: string; expiry?: string; network?: string };
 
-export function AddPolicyForm({ companies, locale, returnTo, initial }: { companies: CompanyRow[]; locale: string; returnTo?: string; initial?: PolicyPrefill }) {
+export function AddPolicyForm({ companies, locale, returnTo, initial, chiUrl }: { companies: CompanyRow[]; locale: string; returnTo?: string; initial?: PolicyPrefill; chiUrl?: string | null }) {
+  const uploadsEnabled = useUploadsEnabled();
   const t = useTranslations("InsuranceWeb");
   const router = useRouter();
   const [companyId, setCompanyId] = useState(initial?.companyId ?? "");
@@ -49,7 +52,7 @@ export function AddPolicyForm({ companies, locale, returnTo, initial }: { compan
   useEffect(() => {
     if (!companyId) { setNetworks([]); return; }
     const controller = new AbortController();
-    fetch(`/api/insurance/networks?company_id=${encodeURIComponent(companyId)}`, { signal: controller.signal })
+    fetch(`/api/insurance/networks?company_id=${encodeURIComponent(companyId)}&locale=${encodeURIComponent(locale)}`, { signal: controller.signal })
       .then((res) => (res.ok ? res.json() : null))
       .then((data: { networks?: NetworkRow[] } | null) => {
         const list = Array.isArray(data?.networks) ? data.networks : [];
@@ -59,7 +62,18 @@ export function AddPolicyForm({ companies, locale, returnTo, initial }: { compan
       })
       .catch(() => { if (!controller.signal.aborted) setNetworks([]); });
     return () => controller.abort();
-  }, [companyId]);
+  }, [companyId, locale]);
+
+  /** Choosing a class fills the card's copay figures from the catalogue (when it has them); both stay editable. */
+  function chooseClass(item: NetworkRow) {
+    const next = network === item.code ? "" : item.code;
+    setNetwork(next);
+    if (!next) return;
+    const figures = figuresForClass(item, { percent: copayPercent, cap: copayCap });
+    setCopayPercent(figures.percent);
+    setCopayCap(figures.cap);
+    setCopayError(null);
+  }
 
   /** The card photo goes to POST /insurance/ocr-extract (as the app's "scan the card"); what it reads fills the fields, the patient checks them before saving. */
   async function onScan(event: ChangeEvent<HTMLInputElement>) {
@@ -116,7 +130,7 @@ export function AddPolicyForm({ companies, locale, returnTo, initial }: { compan
           policy_number: policyNumber.trim(),
           ...policyOptionals({ memberId, memberName, expiry }),
           ...copay.body,
-          ...(network ? { network } : {}),
+          ...(network ? { network, class: network } : {}),
         }),
       });
       const data = await res.json().catch(() => null);
@@ -132,22 +146,21 @@ export function AddPolicyForm({ companies, locale, returnTo, initial }: { compan
 
   return (
     <form onSubmit={onSubmit} className={`${rx.card} ${forms.stack}`} noValidate aria-label={t("add.title")}>
-      <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden aria-label={t("add.scan")} onChange={(event) => void onScan(event)} />
-      <Button type="button" label={t("add.scan")} variant="outline" size="lg" fullWidth loading={scanning} onClick={() => fileRef.current?.click()} />
+      {uploadsEnabled ? (
+        <>
+          <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden aria-label={t("add.scan")} onChange={(event) => void onScan(event)} />
+          <Button type="button" label={t("add.scan")} variant="outline" size="lg" fullWidth loading={scanning} onClick={() => fileRef.current?.click()} />
+        </>
+      ) : null}
       {scanned ? <div role="status"><Notice>{t("add.scanned")}</Notice></div> : null}
-      <label className={forms.field}>
-        <span className={forms.label}>{t("add.company")}</span>
-        <select className={forms.control} value={companyId} onChange={(event) => setCompanyId(event.target.value)} required>
-          <option value="">{t("add.companyPlaceholder")}</option>
-          {companies.map((company) => <option key={company.id} value={company.id}>{company.name}</option>)}
-        </select>
-      </label>
+      {chiUrl ? <a className={forms.body} href={chiUrl} target="_blank" rel="noopener noreferrer">{t("add.chiLink")}</a> : null}
+      <CompanyPicker companies={companies} value={companyId} onChange={setCompanyId} label={t("add.company")} searchLabel={t("add.companySearch")} noneLabel={t("add.companyNone")} />
       {networks.length > 0 ? (
-        <div className={forms.field} role="group" aria-label={t("add.network")}>
-          <span className={forms.label}>{t("add.network")}</span>
+        <div className={forms.field} role="group" aria-label={t("add.class")}>
+          <span className={forms.label}>{t("add.class")}</span>
           <div className={forms.choices}>
             {networks.map((item) => (
-              <button key={item.code} type="button" className={forms.choice} aria-pressed={network === item.code} onClick={() => setNetwork(network === item.code ? "" : item.code)}>{item.name}</button>
+              <button key={item.code} type="button" className={forms.choice} aria-pressed={network === item.code} onClick={() => chooseClass(item)}>{item.name}</button>
             ))}
           </div>
         </div>

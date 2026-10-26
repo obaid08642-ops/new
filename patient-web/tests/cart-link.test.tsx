@@ -1,0 +1,104 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { renderToStaticMarkup } from "react-dom/server";
+import { NextIntlClientProvider } from "next-intl";
+import { describe, expect, it, vi } from "vitest";
+import { createCartStore, type StorageLike } from "@/lib/cart/cart-store";
+import en from "@/messages/en.json";
+
+let count = 0;
+let path = "/en/c";
+let basketLines: Record<"lab" | "radiology" | "nursing", unknown[]> = { lab: [], radiology: [], nursing: [] };
+vi.mock("@/lib/context/CartContext", () => ({ useCart: () => ({ itemCount: count }) }));
+vi.mock("next/navigation", () => ({ usePathname: () => path }));
+vi.mock("@/components-next/ordering/use-basket", () => ({ useBasket: () => ({ basket: basketLines }) }));
+vi.mock("next/link", () => ({ default: ({ children, ...rest }: Record<string, unknown>) => <a {...rest}>{children as never}</a> }));
+
+import { CartLink } from "@/components-next/core/cart-link";
+
+const read = (file: string) => readFileSync(resolve(process.cwd(), file), "utf8");
+const render = () =>
+  renderToStaticMarkup(
+    <NextIntlClientProvider locale="en" timeZone="UTC" messages={{ CoreShell: en.CoreShell }}><CartLink locale="en" /></NextIntlClientProvider>,
+  );
+
+describe("the shared cart button", () => {
+  it("shows the icon without a badge when empty and a count with an accessible label otherwise", () => {
+    path = "/en/c";
+    count = 0;
+    expect(render()).not.toContain("cart-badge");
+    count = 3;
+    const html = render();
+    expect(html).toContain('data-testid="cart-badge"');
+    expect(html).toContain('aria-label="Cart (3)"');
+  });
+
+  it("is the one cart button of the core shell (every phone header) and of the home header", () => {
+    const core = read("components-next/core/core-shell.tsx");
+    expect(core).toContain("<CartLink");
+    expect(core).not.toMatch(/hideTabs && !search \? cartLink/);
+    expect(read("components-next/home/home-shell.tsx")).toContain("<CartLink");
+  });
+});
+
+describe("one cart per service: the header button", () => {
+  const reset = () => { count = 0; basketLines = { lab: [], radiology: [], nursing: [] }; };
+  it("on a pharmacy page it opens the pharmacy cart and counts only the pharmacy cart", () => {
+    reset(); path = "/en/c/vitamins"; count = 2; basketLines = { lab: [{}, {}, {}], radiology: [], nursing: [] };
+    const html = render();
+    expect(html).toContain('href="/en/cart"');
+    expect(html).toContain('aria-label="Cart (2)"');
+  });
+  it("on a labs page it opens the labs basket and counts only the labs basket", () => {
+    reset(); path = "/en/diagnostics"; count = 5; basketLines = { lab: [{}, {}, {}], radiology: [], nursing: [] };
+    const html = render();
+    expect(html).toContain('href="/en/labs/basket"');
+    expect(html).toContain('aria-label="Cart (3)"');
+  });
+  it("on a radiology page it opens the radiology basket, and on a nursing page the nursing basket", () => {
+    reset(); path = "/en/diagnostics/radiology"; basketLines = { lab: [{}], radiology: [{}, {}], nursing: [{}] };
+    expect(render()).toContain('href="/en/labs/basket?kind=radiology"');
+    expect(render()).toContain('aria-label="Cart (2)"');
+    path = "/en/nursing/catalog";
+    expect(render()).toContain('href="/en/labs/basket?kind=nursing"');
+    expect(render()).toContain('aria-label="Cart (1)"');
+  });
+  it("on Home with carts in two services it is a chooser button (the list opens on click), with the total as its badge", () => {
+    reset(); path = "/en"; count = 3; basketLines = { lab: [], radiology: [], nursing: [{}] };
+    const html = render();
+    expect(html).toContain('data-cart-service="chooser"');
+    expect(html).toContain('aria-haspopup="true"');
+    expect(html).toContain('aria-label="Cart (4)"');
+  });
+  it("on Home with one non-empty cart it opens that cart, with none the pharmacy cart", () => {
+    reset(); path = "/en"; basketLines = { lab: [{}], radiology: [], nursing: [] };
+    expect(render()).toContain('href="/en/labs/basket"');
+    reset();
+    expect(render()).toContain('href="/en/cart"');
+  });
+});
+
+describe("the count the button reads updates in the same tick", () => {
+  it("add then remove notifies subscribers at once with the new count", () => {
+    const data = new Map<string, string>();
+    const storage: StorageLike = {
+      get length() { return data.size; },
+      key: (i) => [...data.keys()][i] ?? null,
+      getItem: (k) => data.get(k) ?? null,
+      setItem: (k, v) => { data.set(k, v); },
+      removeItem: (k) => { data.delete(k); },
+    };
+    const store = createCartStore(() => storage);
+    store.load();
+    const seen: number[] = [];
+    const total = () => store.getSnapshot().items.reduce((n, i) => n + i.qty, 0);
+    store.subscribe(() => seen.push(total()));
+    store.add({ id: "p1", name: "A", rx: false });
+    store.add({ id: "p1", name: "A", rx: false });
+    expect(total()).toBe(2);
+    store.remove("p1");
+    expect(total()).toBe(0);
+    expect(seen[seen.length - 1]).toBe(0);
+    expect(seen).toContain(2);
+  });
+});

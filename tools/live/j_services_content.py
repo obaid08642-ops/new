@@ -132,7 +132,7 @@ def run():
     fbs = next((x for x in rows_of(r) if x.get('short_code') == 'FBS'), {})
     step('fasting sugar says to fast 8 hours, in Urdu too', fbs.get('fasting_required') is True and fbs.get('fasting_hours') == 8 and '8' in (fbs.get('preparation_ur') or [''])[0],
          {k: fbs.get(k) for k in ('fasting_required', 'fasting_hours', 'preparation_ur')})
-    step('names exist in ur/hi/bn/tl', all(fbs.get(f'name_{l}') for l in ('ur', 'hi', 'bn', 'tl')), {l: fbs.get(f'name_{l}') for l in ('ur', 'hi', 'bn', 'tl')})
+    step('names exist in ar/en and none in ur/hi/bn/tl (issue #1905)', all(fbs.get(f'name_{l}') for l in ('ar', 'en')) and not any(fbs.get(f'name_{l}') for l in ('ur', 'hi', 'bn', 'tl')), {l: fbs.get(f'name_{l}') for l in ('ar', 'en', 'ur', 'hi', 'bn', 'tl')})
 
     journey('service content: added items and specialties')
     listed = [x.get('short_code') for x in rows_of(anon.get('/labs/services?search=Uric'))]

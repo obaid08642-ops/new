@@ -1,7 +1,7 @@
 // Instant search suggestions (#1654 rules, as on the website): minimum length, the wait, the abort of the request in
 // flight, the kill switch, the highlight and the route of each type.
 import {
-  SUGGEST_DEBOUNCE_MS,
+  SUGGEST_DEBOUNCE_MS, SUGGEST_SCOPES, suggestScopeQuery,
   SuggestController,
   canSuggest,
   highlightParts,
@@ -139,5 +139,17 @@ describe('SuggestController', () => {
     expect(h.controller.current.status).toBe('off');
     h.controller.input('paracetamol');
     expect(h.timers).toHaveLength(0);
+  });
+});
+
+describe('scopes', () => {
+  it('puts the service in the request, none for the home screen', () => {
+    expect(suggestScopeQuery()).toBe('');
+    expect(suggestScopeQuery(SUGGEST_SCOPES.pharmacy)).toBe('&section=pharmacy');
+    expect(suggestScopeQuery(SUGGEST_SCOPES.radiology)).toBe('&section=labs&types=radiology');
+    expect(suggestScopeQuery(SUGGEST_SCOPES.labs)).toBe('&section=labs&types=lab_test%2Clab_package');
+  });
+  it('waits 250 ms', () => {
+    expect(SUGGEST_DEBOUNCE_MS).toBe(250);
   });
 });

@@ -1,35 +1,33 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Keyboard, Linking, Platform, Pressable, ScrollView, Text, View } from 'react-native';
-import { router, type Href } from 'expo-router';
+import { AccessibilityInfo, Animated, Easing, Keyboard, Linking, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
 import * as Location from 'expo-location';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button, Chip, FIcon, Search, type FillIconName, type ServiceTone } from '../../../../packages/ui-native/src';
-import MapView, { Marker, PROVIDER_DEFAULT } from '../MapPrimitives';
-import { Chevron, Sheet, goBack, RX_TONE, CARE_TONE } from '../consult/ConsultKit';
+import MapView, { HologramLayer, Marker, PROVIDER_DEFAULT } from '../MapPrimitives';
+import { HOLO_KINDS, HOLO_LOOK, holoMotion, isHoloKind, toFeatureCollection, type HoloKind } from '../map-hologram';
+import { Chevron, Sheet, goBack } from '../consult/ConsultKit';
 import { Notice } from '../health/HealthKit';
 import { Glyph } from '../pharmacy/PharmacyKit';
 import { step as scale, tint, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { pickLocalized } from '../../utils/localize';
+import { parseMapKind } from '../../utils/mapEntry';
 
 /**
  * The providers map (`/map`, restyle): GET /providers/map?type&lat&lng&radius around the phone's position, and GET /user/insurance for the
  * "your insurance is accepted" line. A provider appears as a marker only when the server gave it a position; the rating, distance, time
- * and price are drawn only when the server sent them. The marker is a token-coloured pin per kind (no 3D shapes); a tap opens the
+ * and price are drawn only when the server sent them. Every provider is a hologram pin in its kind's service tone, drawn by the
+ * map's native clustered layers; the selected one is a React marker with a beam, a lifted icon bubble and a pulse ring. A tap opens the
  * provider's sheet with directions and the way to book.
  */
 
-type Kind = 'doctor' | 'hospital' | 'pharmacy' | 'lab' | 'nursing';
-const KINDS: Kind[] = ['doctor', 'hospital', 'pharmacy', 'lab', 'nursing'];
-const LOOK: Record<Kind, { icon: FillIconName; tone: ServiceTone }> = {
-  doctor: { icon: 'stethoscope', tone: 'blue' },
-  hospital: { icon: 'hospital', tone: 'violet' },
-  pharmacy: { icon: 'pill', tone: RX_TONE },
-  lab: { icon: 'test-tube', tone: 'mint' },
-  nursing: { icon: 'first-aid-kit', tone: CARE_TONE },
-};
+type Kind = HoloKind;
+const KINDS: readonly Kind[] = HOLO_KINDS;
+const ICONS: Record<Kind, FillIconName> = { doctor: 'stethoscope', hospital: 'hospital', pharmacy: 'pill', lab: 'test-tube', radiology: 'scan', nursing: 'first-aid-kit' };
+const LOOK: Record<Kind, { icon: FillIconName; tone: ServiceTone }> = Object.fromEntries(KINDS.map((key) => [key, { icon: ICONS[key], tone: HOLO_LOOK[key].tone }])) as Record<Kind, { icon: FillIconName; tone: ServiceTone }>;
 /** The centre of Riyadh until the phone gives its position (the map has to open somewhere). */
 const START = { latitude: 24.7136, longitude: 46.6753, latitudeDelta: 0.05, longitudeDelta: 0.05 };
 
@@ -49,7 +47,7 @@ interface Provider {
   insurance: string[];
 }
 
-const kindOf = (raw: unknown): Kind => (KINDS as string[]).includes(String(raw)) ? (raw as Kind) : 'doctor';
+const kindOf = (raw: unknown): Kind => (isHoloKind(raw) ? raw : 'doctor');
 const numberOrNull = (value: unknown): number | null => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 const textList = (value: unknown): string[] => (Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []);
 
@@ -76,14 +74,37 @@ function readProvider(p: Record<string, unknown>): Provider {
   };
 }
 
-function Pin({ kind, selected, open }: { kind: Kind; selected: boolean; open: boolean | null }) {
+/** The selected provider: flattened base platform, light beam, lifted icon bubble with a glow, and a pulse ring (none under reduced motion). */
+function HologramPin({ kind, name }: { kind: Kind; name: string }) {
   const { c } = useScreenUi();
   const tone = c.service[LOOK[kind].tone];
-  const size = selected ? 46 : 38;
+  const shape = HOLO_LOOK[kind].shape;
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    void AccessibilityInfo.isReduceMotionEnabled().then((on) => { if (alive) setReduce(on); }).catch(() => undefined);
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => { alive = false; sub.remove(); };
+  }, []);
+  const motion = holoMotion(reduce);
+  const pulse = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (!motion.pulse) { pulse.setValue(0); return; }
+    const loop = Animated.loop(Animated.timing(pulse, { toValue: 1, duration: 1800, easing: Easing.out(Easing.quad), useNativeDriver: true }));
+    loop.start();
+    return () => loop.stop();
+  }, [motion.pulse, pulse]);
+  const base = shape === 'rectangle' ? { width: 52, height: 36, borderRadius: 6 } : shape === 'square' ? { width: 44, height: 44, borderRadius: 6 } : shape === 'rounded' ? { width: 44, height: 44, borderRadius: 14 } : shape === 'diamond' ? { width: 34, height: 34, borderRadius: 4 } : { width: 44, height: 44, borderRadius: 22 };
+  const rotate = shape === 'diamond' ? [{ rotateX: '55deg' }, { rotateZ: '45deg' }] : [{ rotateX: '55deg' }];
   return (
-    <View style={{ width: size, height: size, borderRadius: size / 2, alignItems: 'center', justifyContent: 'center', backgroundColor: selected ? tone.fg : tone.bg, borderWidth: 2, borderColor: tone.fg }}>
-      <Glyph name={LOOK[kind].icon} size={selected ? 22 : 18} color={selected ? tone.bg : tone.fg} />
-      {open !== null ? <View style={{ position: 'absolute', top: -2, end: -2, width: 12, height: 12, borderRadius: 6, borderWidth: 2, borderColor: c.bg.surface, backgroundColor: open ? c.status.success.fill : c.status.danger.fg }} /> : null}
+    <View style={{ width: 96, height: 120, alignItems: 'center', justifyContent: 'flex-end' }} accessible accessibilityLabel={name}>
+      <Text numberOfLines={1} style={{ position: 'absolute', top: 0, maxWidth: 96, color: tone.fg, backgroundColor: tint(c.bg.surface, 0.92), paddingHorizontal: 6, borderRadius: 8, fontSize: 11 }}>{name}</Text>
+      {motion.pulse ? <Animated.View style={{ position: 'absolute', bottom: 38, width: 64, height: 64, borderRadius: 32, borderWidth: 2, borderColor: tone.fg, opacity: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.5, 0] }), transform: [{ rotateX: '55deg' }, { scale: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.5, 1.4] }) }] }} /> : null}
+      <View style={{ ...base, backgroundColor: tint(tone.fg, 0.32), borderWidth: 2, borderColor: tone.fg, transform: rotate, marginBottom: 38 }} />
+      <View style={{ position: 'absolute', bottom: 50, width: 22, height: 40, borderTopLeftRadius: 11, borderTopRightRadius: 11, backgroundColor: tint(tone.fg, 0.22) }} />
+      <View style={{ position: 'absolute', bottom: 76, width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center', backgroundColor: tone.bg, borderWidth: 2, borderColor: tone.fg, shadowColor: tone.fg, shadowOpacity: 0.7, shadowRadius: 10, shadowOffset: { width: 0, height: 0 }, elevation: 6 }}>
+        <Glyph name={LOOK[kind].icon} size={22} color={tone.fg} />
+      </View>
     </View>
   );
 }
@@ -93,7 +114,13 @@ export function ProvidersMapView() {
   const { k, theme, t, c, flow, isRTL, num, money } = useScreenUi();
   const mapRef = useRef<MapView>(null);
   const [providers, setProviders] = useState<Provider[]>([]);
-  const [kind, setKind] = useState<Kind | 'all'>('all');
+  // `/map?type=pharmacy` opens the map filtered to that kind (the entries on Home and the provider lists pass it)
+  const params = useLocalSearchParams<{ type?: string | string[] }>();
+  const typeParam = parseMapKind(params.type);
+  const [kind, setKind] = useState<Kind | 'all'>(typeParam ?? 'all');
+  useEffect(() => {
+    setKind(typeParam ?? 'all');
+  }, [typeParam]);
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<Provider | null>(null);
   const [insurance, setInsurance] = useState<string | null>(null);
@@ -167,7 +194,8 @@ export function ProvidersMapView() {
     [providers, kind, query],
   );
   const results = query.trim() ? shown.slice(0, 6) : [];
-  const withPosition = shown.filter((p) => p.lat !== null && p.lng !== null);
+  const features = useMemo(() => toFeatureCollection(shown), [shown]);
+  const viewDelta = useRef(START.latitudeDelta);
 
   const focus = (p: Provider, delta = 0.015) => {
     if (p.lat !== null && p.lng !== null) mapRef.current?.animateToRegion({ latitude: p.lat, longitude: p.lng, latitudeDelta: delta, longitudeDelta: delta }, 800);
@@ -202,7 +230,8 @@ export function ProvidersMapView() {
     setSelected(null);
     if (p.kind === 'doctor') router.push({ pathname: '/consultations/doctor-profile', params: { doctorId: p.id } } as unknown as Href);
     else if (p.kind === 'pharmacy') router.push('/(tabs)/pharmacy' as Href);
-    else if (p.kind === 'lab') router.push('/diagnostics/book-sample' as Href);
+    else if (p.kind === 'lab' || p.kind === 'radiology') router.push('/diagnostics/book-sample' as Href);
+    // radiology shares the diagnostics booking until it has its own entry (needs-review)
     // 767: a hospital opens its facility page (GET /care/facilities/:id), not the consultations tab
     else if (p.kind === 'hospital') router.push({ pathname: '/consultations/clinic/[id]', params: { id: p.id } } as unknown as Href);
     else router.push('/(tabs)/nursing' as Href);
@@ -220,12 +249,18 @@ export function ProvidersMapView() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg.canvas }} testID="map-screen">
-      <MapView ref={mapRef} style={{ position: 'absolute', top: 0, bottom: 0, start: 0, end: 0 }} provider={PROVIDER_DEFAULT} initialRegion={START} userInterfaceStyle={theme} showsUserLocation showsMyLocationButton={false} showsCompass={false} moveOnMarkerPress={false} onPress={() => { Keyboard.dismiss(); setQuery(''); }}>
-        {withPosition.map((p) => (
-          <Marker key={p.id} coordinate={{ latitude: p.lat as number, longitude: p.lng as number }} tracksViewChanges={false} onPress={(e: { stopPropagation?: () => void }) => { e.stopPropagation?.(); setSelected(p); }}>
-            <Pin kind={p.kind} selected={selected?.id === p.id} open={p.isOpen} />
+      <MapView ref={mapRef} style={{ position: 'absolute', top: 0, bottom: 0, start: 0, end: 0 }} provider={PROVIDER_DEFAULT} initialRegion={START} userInterfaceStyle={theme} showsUserLocation showsMyLocationButton={false} showsCompass={false} moveOnMarkerPress={false} onRegionChangeComplete={(r) => { viewDelta.current = r.latitudeDelta; }} onPress={() => { Keyboard.dismiss(); setQuery(''); }}>
+        <HologramLayer
+          data={features}
+          selectedId={selected?.id ?? null}
+          onSelect={(id) => { const p = providers.find((row) => row.id === id); if (p) { Keyboard.dismiss(); setSelected(p); } }}
+          onCluster={([lng, lat]) => mapRef.current?.animateToRegion({ latitude: lat, longitude: lng, latitudeDelta: viewDelta.current / 3, longitudeDelta: viewDelta.current / 3 }, 500)}
+        />
+        {selected && selected.lat !== null && selected.lng !== null ? (
+          <Marker coordinate={{ latitude: selected.lat, longitude: selected.lng }} tracksViewChanges={false} onPress={() => setSelected(null)}>
+            <HologramPin kind={selected.kind} name={selected.name} />
           </Marker>
-        ))}
+        ) : null}
       </MapView>
 
       <View pointerEvents="box-none" style={{ position: 'absolute', top: 0, start: 0, end: 0, paddingTop: insets.top + 8, paddingBottom: 8, paddingHorizontal: 16, gap: 10, backgroundColor: panel }}>
@@ -270,7 +305,7 @@ export function ProvidersMapView() {
       </View>
 
       <Pressable accessibilityRole="button" accessibilityLabel={k('map.myLocation')} onPress={() => void goToMe()} style={{ position: 'absolute', end: 16, bottom: insets.bottom + (shown.length > 0 && !selected ? 132 : 24), width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }} testID="map-my-location">
-        <Glyph name="map-pin-line" size={22} color={c.icon.primary} />
+        <Glyph name="map-pin-line" size={22} color={c.service.map.glyph} />
       </Pressable>
 
       {!selected && shown.length > 0 ? (

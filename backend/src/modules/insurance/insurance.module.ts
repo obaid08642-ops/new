@@ -1,3 +1,4 @@
+import { buildPatientPolicy, insuranceCompanyFilter, policyClass, policyCompanyKeys } from '../../common/insurance-policy';
 import { Module, Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Injectable, BadRequestException, NotFoundException, ServiceUnavailableException, Logger, Req } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -8,7 +9,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { NABDAH_ACCESS_TOKEN_SECURITY_SCHEME } from '../../config/openapi.config';
-import { CreateCompanyDto, UpdateCompanyDto, OcrExtractDto, UploadPolicyDto, NphiesEligibilityDto, SavePolicyDto, SubmitClaimDto, CreateInsuranceNetworkDto, CreateCoverageRuleDto } from './insurance.dto';
+import { CreateCompanyDto, UpdateCompanyDto, OcrExtractDto, UploadPolicyDto, SubmitClaimDto, CreateInsuranceNetworkDto, CreateCoverageRuleDto } from './insurance.dto';
 import { InjectModel, InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
 import { Optional } from '@nestjs/common';
@@ -72,7 +73,7 @@ export class InsuranceService {
       // Legacy network records remain in the database for audit/reactivation.
       // Only explicitly retired networks are excluded from the public catalog;
       // legacy records without catalog_status keep their current visible behavior.
-      this.networkModel.find({ catalog_status: { $ne: 'retired' } }, { _id: 0, company_id: 1, id: 1, code: 1, name_ar: 1, name_en: 1, tier_level: 1 } as any).lean(),
+      this.networkModel.find({ catalog_status: { $ne: 'retired' } }, { _id: 0, company_id: 1, id: 1, code: 1, name_ar: 1, name_en: 1, tier_level: 1, copay_percent: 1, copay_cap_sar: 1 } as any).lean(),
     ]);
     const byCompany = new Map<string, any[]>();
     for (const n of networks as any[]) {
@@ -181,7 +182,7 @@ export class InsuranceService {
     const patientIns = patient.insurance; // { provider: 'bupa', network: 'gold', policy_number: '...', class: 'A' }
     
     // LOCAL eligibility check — provider enters approval result manually in their system
-    // No direct NPHIES integration. Insurance data collected from patient and sent with booking request.
+    // Insurance data is collected from the patient and sent with the booking request; nothing asks an insurer.
     // Provider performs approval on their clinic/hospital system and enters result in provider app.
 
     // Find provider or facility contracts for copay details
@@ -204,9 +205,10 @@ export class InsuranceService {
 
     // Match patient insurance company & network code
     const matchingContract = contracts.find(c => 
-      c.company_id.toLowerCase() === patientIns.provider.toLowerCase() &&
+      // the policy names its insurer by id, code and display name (one shape): the contract's company matches any of them
+      policyCompanyKeys(patientIns).some((k) => k.toLowerCase() === c.company_id.toLowerCase()) &&
       c.network_id.toLowerCase() === patientIns.network.toLowerCase() &&
-      (c.covered_classes.length === 0 || c.covered_classes.includes(patientIns.class))
+      (c.covered_classes.length === 0 || c.covered_classes.includes(policyClass(patientIns)))
     );
 
     if (!matchingContract) {
@@ -247,7 +249,7 @@ export class InsuranceService {
       company_name_ar: matchingContract.company_name_ar,
       network_id: matchingContract.network_id,
       network_name_ar: matchingContract.network_name_ar,
-      class: patientIns.class,
+      class: policyClass(patientIns),
       copay_percent: copayPercent,
       copay_flat: copayFlat,
       requires_preauth: requiresPreauth,
@@ -290,19 +292,10 @@ Use null for any field not clearly visible. Do not guess.`;
     if (!policyNumber || !provider) {
       throw new BadRequestException('provider and policy_number are required');
     }
-    const doc: any = {
-      provider,
-      company_id: fileData.company_id || provider,
-      policy_number: policyNumber,
-      network: fileData.network || null,
-      class: fileData.class || null,
-      expiry_date: fileData.expiry_date || null,
-      member_name: fileData.member_name || null,
-      national_id: fileData.national_id || null,
-      verified: false,
-      pdf_url: fileData.pdf_url || null,
-      ocr_extracted: !!fileData.ocr_extracted,
-    };
+    // One writer, one shape (common/insurance-policy.ts): merged over what is saved, so the card figures survive; `verified` is always false.
+    const company: any = await this.companyModel.findOne(insuranceCompanyFilter(String(fileData.company_id || provider))).lean();
+    const current: any = patientId ? await this.patientModel.findOne({ user_id: patientId }, { _id: 0, insurance: 1 }).lean() : null;
+    const doc: any = buildPatientPolicy(current?.insurance, { ...fileData, provider, policy_number: policyNumber }, company);
     if (patientId) {
       await this.patientModel.findOneAndUpdate(
         { user_id: patientId },
@@ -311,66 +304,6 @@ Use null for any field not clearly visible. Do not guess.`;
       );
     }
     return { success: true, policy: doc };
-  }
-
-  /**
-   * Eligibility check against the patient's stored, verified policy.
-   * NOTE: the live NPHIES exchange is NOT integrated yet — this answers from
-   * locally stored policy data only and says so explicitly (nphies_live: false).
-   */
-  async nphiesEligibility(nationalId: string, companyCode: string, memberId?: string) {
-    if (!nationalId || !companyCode) {
-      throw new BadRequestException('national_id and insurance_company_code are required');
-    }
-    const patient: any = await this.patientModel.findOne({ 'insurance.national_id': { $eq: nationalId } }).lean();
-    const ins = patient?.insurance;
-    const code = String(companyCode).toLowerCase();
-    const matches = ins && (
-      String(ins.provider || '').toLowerCase().includes(code) ||
-      String(ins.company_id || '').toLowerCase().includes(code)
-    );
-    if (!matches) {
-      return { eligible: false, reason: 'no_matching_policy_on_file', manual_approval_required: true };
-    }
-    
-    // LOCAL eligibility check — provider enters approval result manually
-    // No direct NPHIES integration. Returns stored policy info for provider to verify.
-    return {
-      eligible: true,
-      source: 'stored_policy',
-      verified: !!ins.verified,
-      network: ins.network || null,
-      network_class: ins.class || null,
-      expiry_date: ins.expiry_date || null,
-      manual_approval_required: true,
-      policy_details: {
-        provider: ins.provider,
-        policy_number: ins.policy_number,
-        national_id: ins.national_id,
-      },
-    };
-  }
-
-  async savePolicy(patientId: string, policyData: any) {
-    let patient = await this.patientModel.findOne({ user_id: { $eq: patientId } });
-    if (!patient) {
-      patient = await this.patientModel.create({ user_id: patientId });
-    }
-    patient.insurance = {
-      company_id: policyData.company_id || policyData.provider,
-      provider: policyData.provider,
-      policy_number: policyData.policy_number,
-      network: policyData.network,
-      class: policyData.class,
-      expiry_date: policyData.expiry_date,
-      member_name: policyData.member_name,
-      national_id: policyData.national_id,
-      verified: policyData.verified ?? false,
-      pdf_url: policyData.pdf_url,
-      ocr_extracted: policyData.ocr_extracted ?? false,
-    };
-    await patient.save();
-    return { success: true, insurance: patient.insurance };
   }
 
   /** LJ-02: a claim is filed against a real paid booking; the server sets the
@@ -655,12 +588,6 @@ export class InsuranceController {
   @Post('upload-policy')
   uploadPolicy(@CurrentUser() u: any, @Body() body: UploadPolicyDto) {
     return this.svc.uploadPolicy(body, u?.id);
-  }
-
-  @SelfService()
-  @Post('save-policy')
-  savePolicy(@CurrentUser() u: any, @Body() body: SavePolicyDto) {
-    return this.svc.savePolicy(u.id, body);
   }
 
   @SelfService()

@@ -1,5 +1,6 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { extractDoctor, extractDoctors, extractPublicRatings, doctorQuery } from "@/lib/api/doctors";
 import { cardFacts } from "./doctor-card-facts";
@@ -17,6 +18,11 @@ describe("doctor parser: richer fields are read only when the server sent them",
     expect(d?.certificates?.[0]).toMatchObject({ name: "Board", verified: false });
     expect(d?.services?.[0]).toMatchObject({ nameEn: "Scan", price: 100 });
     expect(d?.reviewsData?.[0]).toMatchObject({ rating: 5, reviewer: "Sara" });
+  });
+  it("reads what the backend sends today: avg_wait_minutes and education as university / graduation_year / fellowship_board (LR-9)", () => {
+    const d = extractDoctor({ data: { id: "d9", name_en: "A", avg_wait_minutes: 18, education: [{ university: "KSU", graduation_year: 2010, fellowship_board: "SBIM" }, { university: null, graduation_year: null, fellowship_board: null }] } });
+    expect(d?.waitMinutes).toBe(18);
+    expect(d?.education).toEqual([{ degree: "SBIM", institution: "KSU", year: 2010, verified: false }]);
   });
   it("leaves every new field undefined when absent (no invented values)", () => {
     const d = extractDoctors([{ id: "d2" }])[0];
@@ -70,6 +76,12 @@ describe("sections render", () => {
     expect(html).toContain("Sara");
     expect(html).toContain("Value");
     expect(renderToStaticMarkup(createElement(PriceRows, { rows: [{ label: "Scan", price: "100 SAR" }] }))).toContain("100 SAR");
+  });
+  it("the server-rendered review list passes no function to a client component (the 503 on the booking screen)", () => {
+    const source = readFileSync("components-next/consult/doctor-sections.tsx", "utf8");
+    expect(source).not.toContain("formatLabel");
+    expect(source).not.toMatch(/ui-generated\/components\/Surfaces/);
+    expect(readFileSync("components-next/consult/review-score.tsx", "utf8")).toMatch(/^"use client"/);
   });
   it("map: nothing without address or point; address only without a point; iframe with a point", () => {
     const base = { id: "m", title: "Clinic", mapTitle: "Map", openLabel: "Open" };

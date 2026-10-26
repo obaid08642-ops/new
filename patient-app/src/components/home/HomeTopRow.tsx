@@ -8,6 +8,9 @@ import Svg, { Path } from 'react-native-svg';
 import { Avatar, Icon, IconButton } from '../../../../packages/ui-native/src';
 import { withAlpha } from '../../../../packages/ui-native/src/shells/shellTokens';
 import { LANGUAGES, useApp, type LangCode } from '../../context/AppContext';
+import { MapEntryButton } from '../account/MapEntryButton';
+import { ServiceCartButton } from '../cart/ServiceCartButton';
+import { WishlistButton } from '../pharmacy/PharmacyKit';
 import { Plain, Txt, useScreenUi } from './homeKit';
 
 /**
@@ -50,7 +53,7 @@ export function HomeTopRow({ name }: { name: string | null }) {
         testID="home-language"
         style={{ ...ring, minWidth: HIT, paddingHorizontal: 8, alignItems: 'center', justifyContent: 'center' }}
       >
-        <Plain weight="medium" size={15} maxFontSizeMultiplier={1.3}>{LANG_SHORT[lang]}</Plain>
+        <Plain weight="medium" size={15} color={c.text.secondary} maxFontSizeMultiplier={1.3}>{LANG_SHORT[lang]}</Plain>
       </Pressable>
       <Pressable
         accessibilityRole="switch"
@@ -75,6 +78,9 @@ export function HomeTopRow({ name }: { name: string | null }) {
           </Svg>
         </View>
       </Pressable>
+      <MapEntryButton testID="home-map-entry" />
+        <WishlistButton testID="home-wishlist-button" />
+      <ServiceCartButton testID="home-cart-button" />
       <View>
         <IconButton name="bell" label={tr('common.notifications')} variant="outlined" theme={theme} onPress={() => router.push('/notifications')} testID="home-notifications" />
         {unread > 0 ? (
@@ -135,12 +141,12 @@ function LanguageSheet({ visible, onClose }: { visible: boolean; onClose: () => 
                   setLang(code);
                   onClose();
                 }}
-                style={{ minHeight: 52, borderRadius: 16, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: selected ? c.action.selected.bg : 'transparent' }}
+                style={{ minHeight: 52, borderRadius: 16, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: selected ? c.service.coral.bg : 'transparent' }}
               >
-                <Plain weight={selected ? 'bold' : 'medium'} size={16} color={selected ? c.action.selected.fg : c.text.primary} style={{ flex: 1 }}>
+                <Plain weight={selected ? 'bold' : 'medium'} size={16} color={selected ? c.service.coral.fg : c.text.primary} style={{ flex: 1 }}>
                   {item.native}
                 </Plain>
-                {selected ? <Icon name="check" size={20} theme={theme} color={c.action.selected.fg} /> : null}
+                {selected ? <Icon name="check" size={20} theme={theme} color={c.service.coral.fg} /> : null}
               </Pressable>
             );
           })}

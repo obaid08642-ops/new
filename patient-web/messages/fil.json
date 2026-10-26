@@ -1,5 +1,6 @@
 {
   "Shared": {
+    "uploadsUnavailable": "Pansamantalang hindi available ang pag-upload ng file. Subukan muli mamaya.",
     "brand": "Nabd Plus",
     "patientSignIn": "Mag-sign in ang pasyente",
     "language": "Wika",
@@ -34,6 +35,13 @@
     "mainNav": "Pangunahing nabigasyon",
     "sections": "Mga seksyon",
     "cartCount": "Laman ng cart ({n, number})",
+    "wishlist": "Mga paborito",
+    "wishlistCount": "Mga paborito ({n, number})",
+    "cartChooser": "Pumili ng cart",
+    "cartPharmacy": "Cart ng parmasya",
+    "cartLab": "Cart ng lab test",
+    "cartRadiology": "Cart ng radiology",
+    "cartNursing": "Cart ng home nursing",
     "menuOpen": "Listahan",
     "menuClose": "Isara ang menu",
     "menuProfile": "Aking account",
@@ -41,7 +49,8 @@
     "menuFamily": "Pamilya",
     "menuArticles": "Mga artikulo",
     "menuSettings": "Mga setting",
-    "menuHelp": "Tulong"
+    "menuHelp": "Tulong",
+    "menuResults": "Mga order at resulta ko"
   },
   "Home": {
     "eyebrow": "Digital na portal ng pasyente",
@@ -144,7 +153,12 @@
     "recordsMoodNotLogged": "Hindi mo pa naitala ang mood ngayon",
     "recordsMaternity": "Pangangalaga sa ina",
     "recordsPregnancy": "Pagsubaybay sa pagbubuntis",
-    "recordsCycle": "Pagsubaybay sa cycle"
+    "recordsCycle": "Pagsubaybay sa cycle",
+    "notificationsUnread": "Mga abiso, may bago",
+    "orderAgain": "Ulitin ang nakaraang order",
+    "orderAgainOneItem": "1 aytem",
+    "orderAgainItems": "{n, number} aytem",
+    "orderAgainAction": "Mag-order"
   },
   "Login": {
     "title": "Mag-sign in",
@@ -175,7 +189,7 @@
     "otpRequestInvalid": "Hindi maipadala ang code. Suriin ang email o numero at subukang muli.",
     "otpInvalid": "Hindi tinanggap ang one-time code. Subukan muli.",
     "otpExchangeInvalid": "Hindi natapos ang pag-sign in mo. Subukang muli.",
-    "otpUnavailable": "Hindi makapagpadala ng code ngayon. Subukang muli sa ilang sandali.",
+    "otpUnavailable": "Hindi naipadala ang code. Ang mga code ay napupunta sa mga notification ng app at sa iyong email, kaya magdagdag ng email sa account mo kung wala pa, saka subukan muli.",
     "guestContinue": "Magpatuloy bilang guest",
     "guestLoading": "Binubuksan ang guest access…",
     "forgotPassword": "Nakalimutan ang password?",
@@ -194,6 +208,7 @@
     "appleUnavailable": "Hindi available ngayon ang pag-sign in gamit ang Apple. Gumamit ng ibang paraan ng pag-sign in.",
     "apple": "Apple",
     "googleUnavailable": "Hindi available ngayon ang Google sign-in. Gumamit ng ibang paraan ng pag-sign in.",
+    "providerUnavailable": "Hindi available ngayon ang {name} sign-in. Gumamit ng ibang paraan ng pag-sign in.",
     "google": "Google",
     "x": "X",
     "snapchat": "Snapchat",
@@ -342,7 +357,10 @@
       "radiology": "Radyolohiya",
       "nursing": "Pangangalaga ng nars",
       "returns": "Mga return at refund"
-    }
+    },
+    "emptyKindCurrentTitle": "Walang kasalukuyang order: {service}",
+    "emptyKindPreviousTitle": "Walang nakaraang order: {service}",
+    "emptyKindBody": "Wala pa sa serbisyong ito. Piliin ang Lahat para makita ang iba mong order."
   },
   "Cart": {
     "eyebrow": "Pribadong cart",
@@ -792,8 +810,8 @@
     "vitalsHistory": "Kasaysayan",
     "vitalsTrends": "Mga trend",
     "noReading": "Wala pang reading",
-    "wearablesTitle": "Mga wearable",
-    "wearablesBody": "I-pair ang iyong relo o band mula sa mobile app para awtomatikong mag-sync. Maaari ka ring mag-log ng mga reading nang mano-mano rito.",
+    "wearablesTitle": "Mga vital sign",
+    "wearablesBody": "Mag-log ng sarili mong mga reading ng vital sign at subaybayan ito sa paglipas ng panahon.",
     "wearablesLog": "Mag-log ng reading nang mano-mano",
     "scoreNotice": "Ito ay buod ng naitalang wellness data, hindi diagnosis o treatment recommendation.",
     "scoreInsufficient": "Hindi sapat ang data",
@@ -959,7 +977,8 @@
     "chronicStop": "Itigil ang refill tracking",
     "chronicUpdateFailed": "Hindi na-update ang refill follow-up.",
     "confirmAction": "Kumpirmahin",
-    "photoInvalid": "Pumili ng larawang hindi lalampas sa 5 megabyte."
+    "photoInvalid": "Pumili ng larawang hindi lalampas sa 5 megabyte.",
+    "rxPurchased": "Nabili na"
   },
   "Prescriptions": {
     "title": "Mga reseta",
@@ -991,6 +1010,7 @@
     "timesPerDay": "{count, plural, one {Isang beses sa isang araw} other {# beses sa isang araw}}",
     "durationDays": "{days, plural, one {Sa loob ng # araw} other {Sa loob ng # araw}}",
     "orderCta": "I-order ang mga gamot na ito",
+    "notInCart": "{count} sa {total} na gamot ang isinulat ng doktor nang mano-mano at hindi maidaragdag sa cart",
     "notOrderable": "Hindi na maaaring mag-order mula sa resetang ito.",
     "back": "Bumalik sa mga reseta"
   },
@@ -1084,7 +1104,6 @@
     "catMarketing": "Mga alok at balita sa kalusugan",
     "chPush": "Mga abiso sa telepono",
     "chEmail": "Email address",
-    "chSms": "Mga text message",
     "saveFailed": "Hindi na-save ang pagbabago. Subukang muli.",
     "unavailable": "Hindi available sa ngayon",
     "unavailableTitle": "Hindi ma-load ang mga setting",
@@ -1179,6 +1198,30 @@
       "forbidden": "Hindi makapagpadala ng mensahe sa usapang ito ngayon.",
       "network": "Hindi makakonekta. Hindi pa naipapadala ang iyong mensahe; subukan muli.",
       "generic": "Hindi naipadala ang mensahe. Subukan muli."
+    },
+    "voice": {
+      "title": "Mensaheng boses",
+      "record": "Mag-record ng mensaheng boses",
+      "recording": "Nagre-record {time}",
+      "stop": "Ihinto ang pagre-record",
+      "cancel": "Kanselahin",
+      "previewLabel": "Pakinggan bago ipadala, {time}",
+      "send": "Ipadala ang mensaheng boses",
+      "sending": "Ipinapadala",
+      "retry": "Subukan muli",
+      "discard": "Itapon",
+      "maxReached": "Huminto ang pagre-record sa limitasyong {minutes} minuto.",
+      "play": "I-play",
+      "pause": "I-pause",
+      "playerLabel": "Mensaheng boses, {time}",
+      "errors": {
+        "denied": "Naka-block ang access sa mikropono. Payagan ito sa site settings ng browser, saka subukan muli.",
+        "unsupported": "Hindi makapag-record ng voice note ang browser na ito. Gamitin ang app o ibang browser.",
+        "recordFailed": "Hindi gumana ang pagre-record. Tingnan ang mikropono at subukan muli.",
+        "uploadFailed": "Hindi naipadala ang mensaheng boses. Subukan muli.",
+        "forbidden": "Hindi makapagpadala ng voice note sa usapang ito sa ngayon.",
+        "loadFailed": "Hindi na-load ang mensaheng boses. Subukan muli."
+      }
     }
   },
   "Sleep": {
@@ -1439,6 +1482,9 @@
     "searchLabel": "Maghanap ng serbisyo",
     "searchPlaceholder": "Maghanap ayon sa test o kategorya",
     "homeOnly": "Kolekta sa bahay",
+    "activeFilters": "Mga aktibong filter",
+    "removeFilter": "Alisin ang filter: {filter}",
+    "clearAll": "Burahin lahat",
     "apply": "Ilapat",
     "price": "Mula {value}",
     "fasting": "Maaaring kailangan ang fasting",
@@ -1557,7 +1603,6 @@
     "clear": "Burahin",
     "cancel": "Kanselahin",
     "resultsFor": "Mga resulta para sa “{query}”",
-    "resultsCount": "{count} resulta",
     "emptyHint": "Subukan ang ibang salita o suriin ang baybay.",
     "tabAll": "Lahat",
     "tabMedicines": "Gamot",
@@ -1632,6 +1677,9 @@
     }
   },
   "Emergency": {
+    "callEmergency": "Tumawag sa emergency {number}",
+    "urgentCall": "Tumawag sa agarang tulong {number}",
+    "urgentUnavailable": "Wala pang naka-set na numero ng agarang tulong. Sa emergency, tumawag sa 997.",
     "title": "Agarang tulong",
     "intro": "Kung kailangan mo ng agarang tulong, tawagan ang numero ng agarang tulong na itinakda sa Nabd Plus.",
     "call": "Tawagan ang {number}",
@@ -1654,6 +1702,8 @@
     "sar": "SAR"
   },
   "PublicProduct": {
+    "contentOnlyEnglish": "Makukuha lamang sa Ingles",
+    "contentOnlyArabic": "Makukuha lamang sa Arabe",
     "backToCatalog": "Bumalik sa katalogo",
     "home": "Home",
     "products": "Mga Produkto",
@@ -1685,7 +1735,6 @@
     "origin": "Bansa ng pinagmulan",
     "disclaimer": "Ang impormasyon ng produkto ay mula sa beripikadong katalogo ng Nabd Plus at hindi kapalit ng payo ng doktor o parmasyutiko. Mga presyo sa Saudi Riyal (SAR).",
     "browseCategory": "Tingnan ang {category}",
-    "productsInCategory": "{count} produkto sa kategoryang ito",
     "emptyCategory": "Walang naka-publish na produkto sa kategoryang ito.",
     "allCategories": "Lahat ng kategorya",
     "loadMore": "Mag-load pa",
@@ -1718,7 +1767,9 @@
     "suggestFieldLabel": "Datos na itatama",
     "suggestSending": "Ipinapadala…",
     "suggestSignIn": "Mag-sign in para maipadala ang iyong mungkahi.",
-    "suggestSignInAction": "Mag-sign in"
+    "suggestSignInAction": "Mag-sign in",
+    "coldChain": "Kailangang ilagay sa ref",
+    "interactions": "Mga interaksyon ng gamot"
   },
   "Wallet": {
     "wallet": "Pitaka",
@@ -1766,7 +1817,9 @@
     "useMyLocation": "Gamitin ang kasalukuyang lokasyon ko",
     "locating": "Hinahanap ang lokasyon mo…",
     "locationSet": "Naitakda na ang lokasyon ng address.",
-    "locateFailed": "Hindi makuha ang kasalukuyang lokasyon mo."
+    "locateFailed": "Hindi makuha ang kasalukuyang lokasyon mo.",
+    "building": "Numero ng gusali",
+    "floor": "Palapag"
   },
   "ShareReport": {
     "title": "Ibahagi ang mga Ulat",
@@ -2378,7 +2431,6 @@
     "clear": "Burahin",
     "filter": "I-filter",
     "scan": "Mag-scan ng barcode",
-    "productsCount": "{count, number} produkto",
     "categories": "Mga kategorya",
     "subcategories": "Mga subkategorya",
     "allIn": "Lahat sa {category}",
@@ -2400,6 +2452,11 @@
     "addToCart": "Idagdag ang {name} sa cart",
     "addedToCart": "Naidagdag ang {name} sa iyong cart",
     "addedRxNote": "Kailangan ng reseta ang gamot na ito. Sa cart, mag-upload ng reseta o kumonsulta sa doktor.",
+    "stepperDecrease": "Bawasan ang dami ng {name}",
+    "stepperIncrease": "Dagdagan ang dami ng {name}",
+    "qtyInCart": "{n, number} sa cart",
+    "removedFromCart": "Inalis ang {name} sa iyong cart",
+    "undo": "I-undo",
     "referencePrice": "Presyong sanggunian",
     "cheaper": "Mas mura",
     "priceUnavailable": "Hindi available ang presyo",
@@ -2498,15 +2555,25 @@
     "inCartCta": "Nasa cart ({n, number})",
     "hubUploadTitle": "I-upload ang reseta",
     "hubUploadBody": "Kunan ito ng litrato at ihahanda ng mga kalapit na botika ang iyong mga gamot at magpapaligsahan sa presyo",
-    "hubFavorites": "Mga paborito",
     "hubReminders": "Mga paalala",
     "hubOrders": "Aking mga order",
-    "hubCart": "Kariton",
     "hubShortcuts": "Mga shortcut ng parmasya",
     "hubOrderAgain": "Ulitin ang nakaraang order",
     "hubOrderAgainAction": "Mag-order",
     "hubOneItem": "1 aytem",
-    "hubItems": "{n, number} aytem"
+    "hubItems": "{n, number} aytem",
+    "filterForm": "Anyo ng gamot",
+    "filterBrand": "Gumagawa",
+    "filterRx": "Reseta",
+    "filterRxAny": "Alinman",
+    "filterRxOnly": "May reseta lang",
+    "filterRxNone": "Walang reseta",
+    "filterPriceMin": "Pinakamababang presyo",
+    "filterPriceMax": "Pinakamataas na presyo",
+    "pageTitle": "Parmasya",
+    "activeFilters": "Mga aktibong filter",
+    "removeFilter": "Alisin ang filter: {filter}",
+    "clearAll": "Burahin lahat"
   },
   "PharmacyOffers": {
     "backToOrder": "Bumalik sa order",
@@ -2868,7 +2935,8 @@
     "emptyBody": "Magdagdag ng address na may lokasyon sa mapa para makatanggap ng mga order sa botika.",
     "emptyAction": "Magdagdag ng address",
     "errorTitle": "Hindi ma-load ang mga address mo",
-    "errorBody": "Tingnan ang koneksyon mo at subukan ulit."
+    "errorBody": "Tingnan ang koneksyon mo at subukan ulit.",
+    "addOnMap": "Magdagdag ng address sa mapa"
   },
   "ConsultWeb": {
     "tabUpcoming": "Paparating",
@@ -3610,7 +3678,13 @@
     "addressLocating": "Hinahanap ang iyong lokasyon...",
     "addressLocationSet": "Gagamitin ang kasalukuyan mong lokasyon para sa pagbisita",
     "addressUseSaved": "Gumamit na lang ng naka-save na address",
-    "addressLocationDenied": "Hindi makuha ang iyong lokasyon. Payagan ang access sa lokasyon o pumili ng naka-save na address."
+    "addressLocationDenied": "Hindi makuha ang iyong lokasyon. Payagan ang access sa lokasyon o pumili ng naka-save na address.",
+    "filterAvailability": "Kung kailan available",
+    "filterNationality": "Nasyonalidad",
+    "nationality_any": "Lahat",
+    "nationality_Saudi": "Taga-Saudi",
+    "nationality_Filipino": "Pilipino",
+    "nationality_Egyptian": "Taga-Egypt"
   },
   "MaternityWeb": {
     "title": "Pagbubuntis",
@@ -4160,7 +4234,11 @@
       "copayPercent": "Bahagi mo, % (opsyonal)",
       "copayCap": "Pinakamataas kada item, SAR (opsyonal)",
       "copayPercentInvalid": "Maglagay ng numero mula 0 hanggang 100.",
-      "copayCapInvalid": "Maglagay ng halagang 0 o higit pa."
+      "copayCapInvalid": "Maglagay ng halagang 0 o higit pa.",
+      "class": "Klase",
+      "companySearch": "Hanapin ang iyong insurer",
+      "companyNone": "Walang insurer na tugma",
+      "chiLink": "Alamin ang iyong insurance"
     },
     "coverage": {
       "title": "Ano ang saklaw ng polisiya ko",
@@ -5183,7 +5261,6 @@
     "total": "Kabuuan",
     "choose": "Piliin ang provider na ito",
     "compare": "Ikumpara mo mismo",
-    "count": "{n} provider",
     "sort": "Ayusin ayon sa",
     "sCheap": "Pinakamura",
     "sNear": "Pinakamalapit",
@@ -5487,5 +5564,35 @@
     "errBusy": "Masyadong maraming request. Maghintay sandali at subukan muli.",
     "loadErr": "Hindi ma-load ang page",
     "retry": "Subukan muli"
+  },
+  "AddressMap": {
+    "title": "Piliin ang address sa mapa",
+    "mapLabel": "Mapa ng address",
+    "hint": "Igalaw ang mapa para nasa pinto mo ang pin. Sa keyboard: ang mga arrow key ang gumagalaw sa pin, ang plus at minus ang nagza-zoom.",
+    "zoomIn": "Mag-zoom in",
+    "zoomOut": "Mag-zoom out",
+    "pinLabel": "Pin: ang lokasyon ng address",
+    "loading": "Nilo-load ang mapa…",
+    "noMapTitle": "Walang magagamit na mapa",
+    "noMapBody": "Magagamit mo pa rin ang iyong lokasyon, pumili ng lungsod at distrito, o ilagay ang short address code sa mga field sa ibaba.",
+    "useMyLocation": "Gamitin ang aking lokasyon",
+    "locating": "Hinahanap ang iyong lokasyon…",
+    "located": "Nasa iyong lokasyon na ang pin.",
+    "denied": "Tinanggihan ang pahintulot sa lokasyon. Payagan ito sa settings ng browser, o ikaw na ang gumalaw ng mapa.",
+    "locateFailed": "Hindi mahanap ang iyong lokasyon. Ikaw na ang gumalaw ng mapa.",
+    "coords": "Pin sa: {point}",
+    "noPin": "Igalaw ang mapa para ilagay ang pin, o gamitin ang iyong lokasyon.",
+    "finding": "Hinahanap ang address…",
+    "found": "Nahanap ang address. Suriin ang mga detalye sa ibaba.",
+    "errOutside": "Nasa labas ito ng aming service area. Ilipat ang pin sa loob ng Kaharian.",
+    "errNotFound": "Walang nahanap na address dito. Ilipat ang pin, o punan ang mga detalye sa ibaba.",
+    "errUnavailable": "Hindi available ang address service ngayon. Punan ang mga detalye sa ibaba, o subukan muli.",
+    "errNetwork": "Mukhang offline ka. Punan ang mga detalye sa ibaba, o subukan muli.",
+    "retry": "Subukan muli"
+  },
+  "AppCallback": {
+    "title": "Bumabalik sa app…",
+    "open": "Buksan ang app",
+    "invalid": "Hindi valid ang sign-in link na ito. Isara ang window na ito at subukan ulit mula sa app."
   }
 }

@@ -1,3 +1,4 @@
+import { insuranceCompanyFilter } from '../../common/insurance-policy';
 import { Injectable, Optional, NotFoundException, ForbiddenException, UnauthorizedException, BadRequestException, Inject } from '@nestjs/common';
 import { describeClient, maskIp } from '../../common/request-meta';
 import { MEDIA_RELEASE, mediaRefId } from '../media/media-cleanup.service';
@@ -205,6 +206,13 @@ export class UsersService {
    * and requires a class); it is NOT in the public-profile whitelist, so PATCH /users/me/profile can never set `verified`,
    * a class or a company.
    */
+  /** The active catalogue insurer a client's `company_id` / `provider` names (id, code or name), or null. */
+  async findInsuranceCompany(key: unknown): Promise<Record<string, any> | null> {
+    const k = typeof key === 'string' ? key.trim() : '';
+    if (!k) return null;
+    return (await this.conn.collection('insurance_companies').findOne(insuranceCompanyFilter(k) as never, { projection: { _id: 0 } })) as Record<string, any> | null;
+  }
+
   async setPatientInsurance(user_id: string, insurance: Record<string, unknown>) {
     return this.patientRepository.updateOne({ user_id }, { $set: { insurance } }, { upsert: true, new: true, projection: { _id: 0, __v: 0 } });
   }
@@ -242,7 +250,7 @@ export class UsersService {
     return merged;
   }
 
-  private static readonly NOTIFICATION_CHANNELS = ['push', 'email', 'sms'] as const;
+  private static readonly NOTIFICATION_CHANNELS = ['push', 'email'] as const;
   private static readonly NOTIFICATION_CATEGORIES = ['appointments', 'orders', 'health', 'chat', 'account', 'marketing'] as const;
 
   /** Design parity (#1819): the flat switches the apps show. appointments and orders ARE the categories of the same name. */
@@ -250,7 +258,7 @@ export class UsersService {
 
   private notificationDefaults() {
     return {
-      channels: { push: true, email: false, sms: true },
+      channels: { push: true, email: false },
       categories: { appointments: true, orders: true, health: true, chat: true, account: true, marketing: false },
       preferences: { general: true, offers: true, medications: true, doctorMessages: true, emergency: true, sound: true, vibration: true },
     };

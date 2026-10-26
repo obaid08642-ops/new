@@ -20,7 +20,7 @@ type TranslationKeys = {
   chatWithDoctor: string; chatWithPharmacist: string; videoCall: string; audioCall: string;
   myCards: string; addCard: string; myOrders: string; orderTracking: string;
   darkMode: string; lightMode: string; systemMode: string; language: string; fontSize: string;
-  secondOpinion: string; referral: string; drugScanner: string; skinAnalysis: string; symptomChecker: string;
+  secondOpinion: string; referral: string; drugScanner: string; symptomChecker: string;
 };
 
 export const translations: Record<LangCode, TranslationKeys> = {
@@ -43,7 +43,7 @@ export const translations: Record<LangCode, TranslationKeys> = {
     chatWithDoctor: 'محادثة مع الطبيب', chatWithPharmacist: 'محادثة مع الصيدلي', videoCall: 'مكالمة فيديو', audioCall: 'مكالمة صوتية',
     myCards: 'بطاقاتي', addCard: 'إضافة بطاقة', myOrders: 'طلباتي', orderTracking: 'تتبع الطلب',
     darkMode: 'الوضع الداكن', lightMode: 'الوضع الفاتح', systemMode: 'وضع النظام', language: 'اللغة', fontSize: 'حجم الخط',
-    secondOpinion: 'رأي طبي ثاني', referral: 'إحالة طبية', drugScanner: 'ماسح الأدوية', skinAnalysis: 'تحليل البشرة', symptomChecker: 'فحص الأعراض',
+    secondOpinion: 'رأي طبي ثاني', referral: 'إحالة طبية', drugScanner: 'ماسح الأدوية', symptomChecker: 'فحص الأعراض',
   },
   en: {
     home: 'Home', consultations: 'Consult', pharmacy: 'Pharmacy', diagnostics: 'Labs', health: 'My Health',
@@ -64,7 +64,7 @@ export const translations: Record<LangCode, TranslationKeys> = {
     chatWithDoctor: 'Chat with Doctor', chatWithPharmacist: 'Chat with Pharmacist', videoCall: 'Video Call', audioCall: 'Audio Call',
     myCards: 'My Cards', addCard: 'Add Card', myOrders: 'My Orders', orderTracking: 'Order Tracking',
     darkMode: 'Dark Mode', lightMode: 'Light Mode', systemMode: 'System Mode', language: 'Language', fontSize: 'Font Size',
-    secondOpinion: 'Second Opinion', referral: 'Referral', drugScanner: 'Drug Scanner', skinAnalysis: 'Skin Analysis', symptomChecker: 'Symptom Checker',
+    secondOpinion: 'Second Opinion', referral: 'Referral', drugScanner: 'Drug Scanner', symptomChecker: 'Symptom Checker',
   },
   ur: {
     home: 'ہوم', consultations: 'مشاورت', pharmacy: 'فارمیسی', diagnostics: 'ٹیسٹ', health: 'میری صحت',
@@ -85,7 +85,7 @@ export const translations: Record<LangCode, TranslationKeys> = {
     chatWithDoctor: 'ڈاکٹر سے چیٹ', chatWithPharmacist: 'فارماسسٹ سے چیٹ', videoCall: 'ویڈیو کال', audioCall: 'آڈیو کال',
     myCards: 'میرے کارڈز', addCard: 'کارڈ شامل کریں', myOrders: 'میرے آرڈرز', orderTracking: 'آرڈر ٹریکنگ',
     darkMode: 'ڈارک موڈ', lightMode: 'لائٹ موڈ', systemMode: 'سسٹم موڈ', language: 'زبان', fontSize: 'فونٹ سائز',
-    secondOpinion: 'دوسری رائے', referral: 'ریفرل', drugScanner: 'دوا سکینر', skinAnalysis: 'جلد کا تجزیہ', symptomChecker: 'علامات کی جانچ',
+    secondOpinion: 'دوسری رائے', referral: 'ریفرل', drugScanner: 'دوا سکینر', symptomChecker: 'علامات کی جانچ',
   },
   hi: {
     home: 'होम', consultations: 'परामर्श', pharmacy: 'फार्मेसी', diagnostics: 'जांच', health: 'मेरा स्वास्थ्य',
@@ -106,7 +106,7 @@ export const translations: Record<LangCode, TranslationKeys> = {
     chatWithDoctor: 'डॉक्टर से चैट', chatWithPharmacist: 'फार्मासिस्ट से चैट', videoCall: 'वीडियो कॉल', audioCall: 'ऑडियो कॉल',
     myCards: 'मेरे कार्ड', addCard: 'कार्ड जोड़ें', myOrders: 'मेरे ऑर्डर', orderTracking: 'ऑर्डर ट्रैकिंग',
     darkMode: 'डार्क मोड', lightMode: 'लाइट मोड', systemMode: 'सिस्टम मोड', language: 'भाषा', fontSize: 'फ़ॉन्ट आकार',
-    secondOpinion: 'दूसरी राय', referral: 'रेफरल', drugScanner: 'दवा स्कैनर', skinAnalysis: 'त्वचा विश्लेषण', symptomChecker: 'लक्षण जांच',
+    secondOpinion: 'दूसरी राय', referral: 'रेफरल', drugScanner: 'दवा स्कैनर', symptomChecker: 'लक्षण जांच',
   },
   bn: {
     home: 'হোম', consultations: 'পরামর্শ', pharmacy: 'ফার্মেসি', diagnostics: 'পরীক্ষা', health: 'আমার স্বাস্থ্য',
@@ -127,7 +127,7 @@ export const translations: Record<LangCode, TranslationKeys> = {
     chatWithDoctor: 'ডাক্তারের সাথে চ্যাট', chatWithPharmacist: 'ফার্মাসিস্টের সাথে চ্যাট', videoCall: 'ভিডিও কল', audioCall: 'অডিও কল',
     myCards: 'আমার কার্ড', addCard: 'কার্ড যোগ', myOrders: 'আমার অর্ডার', orderTracking: 'অর্ডার ট্র্যাকিং',
     darkMode: 'ডার্ক মোড', lightMode: 'লাইট মোড', systemMode: 'সিস্টেম মোড', language: 'ভাষা', fontSize: 'ফন্ট সাইজ',
-    secondOpinion: 'দ্বিতীয় মতামত', referral: 'রেফারেল', drugScanner: 'ওষুধ স্ক্যানার', skinAnalysis: 'ত্বক বিশ্লেষণ', symptomChecker: 'লক্ষণ পরীক্ষক',
+    secondOpinion: 'দ্বিতীয় মতামত', referral: 'রেফারেল', drugScanner: 'ওষুধ স্ক্যানার', symptomChecker: 'লক্ষণ পরীক্ষক',
   },
   fil: {
     home: 'Home', consultations: 'Konsulta', pharmacy: 'Parmasya', diagnostics: 'Lab Tests', health: 'Kalusugan',
@@ -148,7 +148,7 @@ export const translations: Record<LangCode, TranslationKeys> = {
     chatWithDoctor: 'Chat sa Doktor', chatWithPharmacist: 'Chat sa Pharmacist', videoCall: 'Video Call', audioCall: 'Audio Call',
     myCards: 'Mga Card Ko', addCard: 'Magdagdag ng Card', myOrders: 'Mga Order Ko', orderTracking: 'Order Tracking',
     darkMode: 'Dark Mode', lightMode: 'Light Mode', systemMode: 'System Mode', language: 'Wika', fontSize: 'Laki ng Font',
-    secondOpinion: 'Pangalawang Opinyon', referral: 'Referral', drugScanner: 'Drug Scanner', skinAnalysis: 'Skin Analysis', symptomChecker: 'Symptom Checker',
+    secondOpinion: 'Pangalawang Opinyon', referral: 'Referral', drugScanner: 'Drug Scanner', symptomChecker: 'Symptom Checker',
   },
 };
 

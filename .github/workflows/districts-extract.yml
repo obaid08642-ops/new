@@ -1,0 +1,141 @@
+name: districts-extract
+
+# Builds the districts extract (src/modules/location/data/districts-extract.v1.json) on a GitHub runner, which has the open network the
+# agent sessions lack. Manual only; it never commits: it uploads the validated file as an artifact with a per-city summary, and
+# a reviewer commits it in a data-only PR.
+#
+# One Overpass query per REGION (13 admin_level 4 regions, a matrix job each, one at a time), not per city: the first run (one query per
+# city, ~150 cities with a 12 s pause) hit the 2 h job limit and was cancelled with nothing saved. Each region job uploads its part even when
+# it fails, and the merge job validates whatever parts exist, so one stuck region never loses the others.
+# Each region job makes two queries (places + the admin_level 6-8 boundaries); a district goes to the city whose boundary contains it, else to
+# the nearest city centre within 25 km, else it is rejected with a reason (scripts/geo/district-assign.ts). The summary lists, per city, the
+# count by boundary, the nearest-city fallback count, and how many already exist in the seed (their codes are kept by the import) or are new.
+on:
+  workflow_dispatch:
+    inputs:
+      regions:
+        description: 'Comma-separated ISO 3166-2 region codes, e.g. SA-01,SA-02 (empty = all 13)'
+        required: false
+        default: ''
+      gap_ms:
+        description: 'Pause between Overpass queries / retries, ms (Overpass etiquette: one query at a time)'
+        required: false
+        default: '12000'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: districts-extract
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      regions: ${{ steps.pick.outputs.regions }}
+    steps:
+      - id: pick
+        env:
+          WANTED: ${{ inputs.regions }}
+        run: |
+          all='SA-01 SA-02 SA-03 SA-04 SA-05 SA-06 SA-07 SA-08 SA-09 SA-10 SA-11 SA-12 SA-14'
+          picked=()
+          for r in $all; do
+            if [ -z "$WANTED" ] || [[ ",${WANTED// /}," == *",$r,"* ]]; then picked+=("$r"); fi
+          done
+          if [ ${#picked[@]} -eq 0 ]; then echo "no valid region in: $WANTED"; exit 1; fi
+          json=$(printf '%s\n' "${picked[@]}" | jq -R . | jq -sc .)
+          echo "regions=$json" >> "$GITHUB_OUTPUT"
+
+  region:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        region: ${{ fromJson(needs.plan.outputs.regions) }}
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci --ignore-scripts
+
+      - name: Fetch the region from OpenStreetMap (Overpass), one query
+        env:
+          GEO_USER_AGENT: NabdPlus-districts-extract/1.0 (+https://nabd.plus; ops@nabd.plus)
+          GAP_MS: ${{ inputs.gap_ms }}
+          REGION: ${{ matrix.region }}
+        run: |
+          mkdir -p /tmp/parts
+          npx ts-node --transpile-only scripts/geo/fetch-osm-districts-region.ts "--region=${REGION}" "--out=/tmp/parts/part-${REGION}.json" "--gap-ms=${GAP_MS:-12000}"
+
+      # Uploaded even when the fetch step failed or the job was cancelled: a part is never lost with its region.
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: part-${{ matrix.region }}
+          path: /tmp/parts/
+          if-no-files-found: warn
+
+  merge:
+    needs: [plan, region]
+    if: always() && needs.plan.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci --ignore-scripts
+
+      - name: Probe the official lists (reachability only)
+        run: |
+          {
+            echo '### Official lists (reachability from the runner; nothing is downloaded or parsed here)'
+            for url in https://data.gov.sa https://splonline.com.sa https://www.stats.gov.sa; do
+              code=$(curl -s -o /dev/null -m 20 -w '%{http_code}' -A 'NabdPlus-districts-extract/1.0 (+https://nabd.plus)' "$url" || true)
+              echo "- $url → HTTP ${code:-none}"
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: part-*
+          path: /tmp/parts
+          merge-multiple: true
+
+      - name: Merge the regions
+        run: npx ts-node --transpile-only scripts/geo/merge-districts-parts.ts /tmp/parts /tmp/districts-raw.json
+
+      - name: Validate and clean
+        run: |
+          rc=0
+          npx ts-node --transpile-only scripts/geo/validate-districts-extract.ts /tmp/districts-raw.json /tmp/districts-extract.v1.json /tmp/summary.md || rc=$?
+          { echo '### Districts per city'; cat /tmp/summary.md 2>/dev/null || echo '(no summary)'; echo; echo '### Fetch report (per region)'; echo '```json'; cat /tmp/districts-raw.json.report.json; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          exit $rc
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: districts-extract.v1.json
+          path: |
+            /tmp/districts-extract.v1.json
+            /tmp/summary.md
+            /tmp/districts-raw.json.report.json
+          if-no-files-found: warn

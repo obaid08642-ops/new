@@ -2,11 +2,12 @@ import { Module, Controller, Get, Post, Put, Patch, Param, Query, Body, UseGuard
 import { Throttle } from '@nestjs/throttler';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { JwtAuthGuard, Roles, CurrentUser, Public, SelfService } from '../../common/auth.guard';
+import { JwtAuthGuard, Roles, CurrentUser, Public, SelfService, hasEffectiveRole } from '../../common/auth.guard';
 import { Audited } from '../../common/audit-log.interceptor';
 import { UserRole } from '../../common/enums';
+import { Permission, RequirePermissions } from '../../common/permissions';
 import { CandidateProfile, CandidateProfileSchema, JobPosting, JobPostingSchema, JobApplication, JobApplicationSchema } from '../../schemas/job-board.schema';
-import { UpsertCandidateProfileDto, CreateJobDto, UpdateJobDto, GuestPostDto, GuestApplyDto, ApplyForJobDto, UpdateApplicationStatusDto} from './recruitment.dto';
+import { UpsertCandidateProfileDto, CreateJobDto, UpdateJobDto, GuestPostDto, GuestApplyDto, GuestJobReviewDto, ApplyForJobDto, UpdateApplicationStatusDto} from './recruitment.dto';
 
 @Injectable()
 export class RecruitmentService {
@@ -149,6 +150,32 @@ export class RecruitmentService {
   }
 
   // --- Guest submissions (no account): device-bound drafts, admin publishes ---
+  /** Admin queue: guest drafts waiting for a decision, oldest first. */
+  async listGuestDrafts(status: string = 'draft'): Promise<any[]> {
+    const st = ['draft', 'published', 'closed'].includes(status) ? status : 'draft';
+    return this.jobModel
+      .find({ is_deleted: false, guest_device_id: { $exists: true, $ne: null }, status: { $eq: st } })
+      .sort({ createdAt: 1 })
+      .limit(200)
+      .lean();
+  }
+
+  /** Publish or reject a guest draft. Claim-then-act: only a still-draft guest post can be decided, so two admins cannot both win. */
+  async reviewGuestJob(adminId: string, jobId: string, decision: 'publish' | 'reject', note?: string): Promise<any> {
+    const next = decision === 'publish' ? 'published' : 'closed';
+    const job = await this.jobModel.findOneAndUpdate(
+      { id: jobId, is_deleted: false, status: 'draft', guest_device_id: { $exists: true, $ne: null } },
+      { $set: { status: next, reviewed_by: adminId, reviewed_at: new Date(), review_note: note } },
+      { new: true },
+    ).lean();
+    if (!job) {
+      const exists = await this.jobModel.findOne({ id: jobId, is_deleted: false }).lean();
+      if (!exists) throw new NotFoundException('Job posting not found');
+      throw new BadRequestException('Only a pending guest post can be reviewed');
+    }
+    return job;
+  }
+
   async guestPostJob(deviceId: string, dto: any): Promise<any> {
     if (!deviceId || deviceId.length < 8) throw new BadRequestException('device_id required');
     if (!dto.title || !dto.description || !dto.location) {
@@ -292,6 +319,16 @@ export class RecruitmentService {
   }
 }
 
+/**
+ * Who may post and manage jobs: the facilities that employ medical staff and the doctors with their own practice, and admins. A provider-app
+ * token carries role 'provider' with the facility type in `provider_type`, so the check reads the EFFECTIVE roles (role and provider_type), the
+ * same way the `@Roles` guard does: testing the raw `role` alone refused every hospital that signed in through the provider app.
+ */
+export const JOB_POSTER_ROLES: Array<UserRole | string> = [
+  UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.BRANCH_ADMIN, 'clinic', UserRole.PHARMACY, UserRole.LAB, UserRole.RADIOLOGY,
+  UserRole.HOME_CARE, UserRole.NURSING, UserRole.DOCTOR, UserRole.ADMIN, UserRole.SUPER_ADMIN,
+];
+
 @Controller('recruitment')
 @UseGuards(JwtAuthGuard)
 export class RecruitmentController {
@@ -315,16 +352,16 @@ export class RecruitmentController {
   }
 
   // --- Job Posting endpoints ---
-  @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
+  @Roles(...JOB_POSTER_ROLES)
   @Post('jobs')
   createJob(@CurrentUser() u: any, @Body() b: CreateJobDto) {
-    if (![UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.DOCTOR, UserRole.ADMIN, UserRole.SUPER_ADMIN].includes(u.role as UserRole)) {
+    if (!hasEffectiveRole(u, ...(JOB_POSTER_ROLES as string[]))) {
       throw new ForbiddenException('Only healthcare facilities, clinics, doctors and admins can post jobs');
     }
     return this.svc.createJob(u.id, b);
   }
 
-  @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
+  @Roles(...JOB_POSTER_ROLES)
   @Put('jobs/:id')
   @Audited({ model: 'JobPosting', idParam: 'id', action: 'job_posting_update' })
   updateJob(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateJobDto) {
@@ -376,11 +413,32 @@ export class RecruitmentController {
     return this.svc.listJobApplications(id, u.id, u.role);
   }
 
-  @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
+  @Roles(...JOB_POSTER_ROLES)
   @Patch('applications/:id/status')
   @Audited({ model: 'JobApplication', idParam: 'id', action: 'job_application_status_update' })
   updateApplicationStatus(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateApplicationStatusDto) {
     return this.svc.updateApplicationStatus(id, u.id, u.role, b.status);
+  }
+}
+
+/** Admin moderation of guest job posts (QA: they could never be published). */
+@Controller('admin/recruitment/guest-jobs')
+@UseGuards(JwtAuthGuard)
+@Roles(UserRole.ADMIN)
+export class AdminRecruitmentController {
+  constructor(private svc: RecruitmentService) {}
+
+  @RequirePermissions(Permission.FACILITY_EDIT)
+  @Get()
+  list(@Query('status') status?: string) {
+    return this.svc.listGuestDrafts(status);
+  }
+
+  @RequirePermissions(Permission.FACILITY_EDIT)
+  @Post(':id/review')
+  @Audited({ model: 'JobPosting', idParam: 'id', action: 'guest_job_review' })
+  review(@CurrentUser() u: any, @Param('id') id: string, @Body() b: GuestJobReviewDto) {
+    return this.svc.reviewGuestJob(u.id, id, b.decision, b.note);
   }
 }
 
@@ -392,7 +450,7 @@ export class RecruitmentController {
       { name: 'JobApplication', schema: JobApplicationSchema },
     ]),
   ],
-  controllers: [RecruitmentController],
+  controllers: [RecruitmentController, AdminRecruitmentController],
   providers: [RecruitmentService],
   exports: [RecruitmentService],
 })

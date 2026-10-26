@@ -57,3 +57,8 @@ const styles = StyleSheet.create({
   marker: { position: 'absolute', top: '50%', left: '50%' as any },
   markerDot: { color: '#d9485f', fontSize: 22 },
 });
+
+/** The hologram pins need the native map layers; the web preview draws none. */
+export function HologramLayer(_props: any) {
+  return null;
+}

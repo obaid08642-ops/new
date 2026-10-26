@@ -29,6 +29,7 @@ import {
   Icon,
   Input,
   OfflineState,
+  PopWhen,
   Radio,
   Screen,
   SERVICE_ICONS,
@@ -39,7 +40,7 @@ import {
 import { rowsOf } from '../../src/components/health/HealthKit';
 import { loadPolicy } from '../../src/components/insurance/InsuranceKit';
 import ProductImage from '../../src/components/ProductImage';
-import { CountBadge, Glyph, PHARMACY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
+import { CountBadge, Glyph, MedAddControl, PHARMACY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
 import { DetailAccordion, FactsGrid, MiniProduct, Pill, SafetyCard, type AccordionSection } from '../../src/components/pharmacy/ProductSections';
 import { COLUMN, step as scale, tint, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useCart } from '../../src/context/CartContext';
@@ -48,14 +49,14 @@ import { apiFetch, hasSession } from '../../src/utils/api';
 import { dateLocaleFor } from '../../src/utils/dates';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
-import { currentDbLang } from '../../src/utils/localize';
+import { currentDbLang, dbLangDir } from '../../src/utils/localize';
 import { prefetchAlternatives, prefetchHotMedicines } from '../../src/utils/prefetch';
 import { getVisibleProductIds } from '../../src/utils/productNav';
 import { VariantPicker } from '../../src/components/pharmacy/VariantPicker';
 import { productLocaleOf, type ProductVariant } from '../../src/utils/variantPicker';
 import { coveringInsurerName, type InsurerCompany } from '../../src/utils/productInsurance';
 import { englishNameUnder } from '../../src/utils/englishNameUnder';
-import { canShowPromo, discountPercent, medField, medGallery, medMeta, medName, medPrice, needsRx, oldPriceOf, onlineOnly, productNote, type Med } from '../../src/utils/pharmacyCatalog';
+import { canShowPromo, discountPercent, medField, medFieldSource, medGallery, medMeta, medName, medPrice, needsRx, oldPriceOf, onlineOnly, productNote, type Med } from '../../src/utils/pharmacyCatalog';
 
 /**
  * Product page — board ProductFull (canvas/ProductFull.dc.html), field mapping in SPEC_PRODUCT_DOCTOR_DETAIL §A.
@@ -389,19 +390,27 @@ export default function ProductDetailScreen() {
 
     const pregnancy = textOf(medField(med, 'pregnancy_info'));
     const breastfeeding = textOf(medField(med, 'breastfeeding_info'));
+    // A section the catalogue has only in another language is drawn in that language and says so (owner rule 2026-10-26).
+    const sec = (key: string, title: string, field: string): AccordionSection => {
+      const { value, lang: used } = medFieldSource(med, field);
+      const items = linesOf(value);
+      return used === 'en' || used === 'ar'
+        ? { key, title, items, dir: dbLangDir(used), note: k(used === 'en' ? 'pharmacy.section.onlyEnglish' : 'pharmacy.section.onlyArabic') }
+        : { key, title, items };
+    };
     const sections: AccordionSection[] = [
-      { key: 'description', title: 'pharmacy.section.description', items: linesOf(medField(med, 'description')) },
-      { key: 'indications', title: 'pharmacy.section.indications', items: linesOf(medField(med, 'indications')) },
-      { key: 'dosage', title: 'pharmacy.section.dosage', items: linesOf(medField(med, 'dosage')) },
-      { key: 'usage', title: 'pharmacy.section.usage', items: linesOf(medField(med, 'usage_instructions')) },
-      { key: 'warnings', title: 'pharmacy.section.warnings', items: linesOf(medField(med, 'warnings')) },
-      { key: 'precautions', title: 'pharmacy.section.precautions', items: linesOf(medField(med, 'precautions')) },
-      { key: 'side', title: 'pharmacy.section.sideEffects', items: linesOf(medField(med, 'side_effects')) },
-      { key: 'contra', title: 'pharmacy.section.contra', items: linesOf(medField(med, 'contraindications')) },
+      sec('description', 'pharmacy.section.description', 'description'),
+      sec('indications', 'pharmacy.section.indications', 'indications'),
+      sec('dosage', 'pharmacy.section.dosage', 'dosage'),
+      sec('usage', 'pharmacy.section.usage', 'usage_instructions'),
+      sec('warnings', 'pharmacy.section.warnings', 'warnings'),
+      sec('precautions', 'pharmacy.section.precautions', 'precautions'),
+      sec('side', 'pharmacy.section.sideEffects', 'side_effects'),
+      sec('contra', 'pharmacy.section.contra', 'contraindications'),
       { key: 'interactions', title: 'pharmacy.section.interactions', items: linesOf(med.interactions) },
       { key: 'pregnancy', title: 'pharmacy.section.pregnancyBreastfeeding', items: [...linesOf(pregnancy), ...linesOf(breastfeeding)] },
       { key: 'storage', title: 'pharmacy.section.storage', items: linesOf(storage) },
-      { key: 'more', title: 'pharmacy.section.more', items: linesOf(medField(med, 'more_info')) },
+      sec('more', 'pharmacy.section.more', 'more_info'),
     ].filter((s) => s.items.length > 0);
 
     return {
@@ -585,8 +594,8 @@ export default function ProductDetailScreen() {
                 </View>
               ) : null}
               {onlineOnly(med) ? (
-                <View style={{ height: 28, paddingHorizontal: 10, borderRadius: 14, backgroundColor: c.action.selected.bg, justifyContent: 'center' }}>
-                  <Text style={{ ...scale(t, 'meta'), color: c.action.selected.fg }}>{k('pharmacy.product.exclusive')}</Text>
+                <View style={{ height: 28, paddingHorizontal: 10, borderRadius: 14, backgroundColor: c.service.coral.bg, justifyContent: 'center' }}>
+                  <Text style={{ ...scale(t, 'meta'), color: c.service.coral.fg }}>{k('pharmacy.product.exclusive')}</Text>
                 </View>
               ) : null}
             </View>
@@ -777,6 +786,7 @@ export default function ProductDetailScreen() {
                         onPress={() => router.push({ pathname: '/pharmacy/product-detail', params: { id: r.id } })}
                         onAdd={() => addToCart(r)}
                         addLabel={k('pharmacy.addToCart')}
+                        addControl={<MedAddControl med={r} size={36} addLabel={k('pharmacy.addToCart')} />}
                       />
                     );
                   })}
@@ -814,7 +824,9 @@ export default function ProductDetailScreen() {
               </Svg>
             </GlassButton>
             <GlassButton label={inWishlist ? k('pharmacy.product.favRemove') : k('pharmacy.product.favAdd')} onPress={toggleWishlist}>
-              {inWishlist ? <Glyph name="heart" size={20} color={c.icon.favorite} /> : <Icon name="heart" size={20} theme={theme} color={c.icon.favorite} />}
+              <PopWhen active={inWishlist}>
+                {inWishlist ? <Glyph name="heart" size={20} color={c.icon.favorite} /> : <Icon name="heart" size={20} theme={theme} color={c.icon.favorite} />}
+              </PopWhen>
             </GlassButton>
             <View>
               <GlassButton label={k('pharmacy.cart')} onPress={() => go('/pharmacy/cart' as Href)} testID="product-cart">

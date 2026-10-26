@@ -13,7 +13,30 @@ export interface Suggestion {
   code: string | null;
 }
 
-export const SUGGEST_DEBOUNCE_MS = 200;
+export const SUGGEST_DEBOUNCE_MS = 250;
+
+/** Which results a screen's suggestions are limited to (the same scopes as the website; the backend filters on them). */
+export interface SuggestScope {
+  section?: 'pharmacy' | 'consultations' | 'labs' | 'nursing';
+  types?: readonly SuggestType[];
+}
+
+/** pharmacy = medicines only, labs = lab tests and packages, radiology = scans, nursing = nursing services, consultations = doctors and specialties. */
+export const SUGGEST_SCOPES = {
+  pharmacy: { section: 'pharmacy' },
+  labs: { section: 'labs', types: ['lab_test', 'lab_package'] },
+  radiology: { section: 'labs', types: ['radiology'] },
+  nursing: { section: 'nursing' },
+  consultations: { section: 'consultations' },
+} as const satisfies Record<string, SuggestScope>;
+
+/** The query string of the scope (empty for the home screen's unscoped search). */
+export function suggestScopeQuery(scope?: SuggestScope): string {
+  let out = '';
+  if (scope?.section) out += `&section=${encodeURIComponent(scope.section)}`;
+  if (scope?.types?.length) out += `&types=${encodeURIComponent(scope.types.join(','))}`;
+  return out;
+}
 const ARABIC_SCRIPT = /[؀-ۿݐ-ݿࢠ-ࣿ]/;
 const TYPES: readonly string[] = ['medicine', 'doctor', 'specialty', 'lab_test', 'lab_package', 'radiology', 'nursing', 'article'];
 
@@ -160,6 +183,7 @@ export interface SuggestDeps {
   /** The API base URL (the app's BASE_URL, which already ends in /api/v1). */
   baseUrl: string;
   locale: string;
+  scope?: SuggestScope;
   fetcher: (url: string, init: { signal: AbortSignal }) => Promise<Response>;
   onChange: (state: SuggestState) => void;
   setTimer?: (fn: () => void, ms: number) => unknown;
@@ -229,7 +253,7 @@ export class SuggestController {
     this.request = request;
     try {
       const response = await this.deps.fetcher(
-        `${this.deps.baseUrl}/search/suggest?q=${encodeURIComponent(suggestQueryText(q))}&locale=${encodeURIComponent(this.deps.locale)}`,
+        `${this.deps.baseUrl}/search/suggest?q=${encodeURIComponent(suggestQueryText(q))}&locale=${encodeURIComponent(this.deps.locale)}${suggestScopeQuery(this.deps.scope)}`,
         { signal: request.signal },
       );
       if (!response.ok) throw new Error('suggest_unavailable');

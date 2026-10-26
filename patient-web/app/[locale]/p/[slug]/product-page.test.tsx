@@ -5,10 +5,10 @@ const state = vi.hoisted(() => ({ getPublicProduct: vi.fn(), getPublicEquivalent
 
 // The shell and the client controls are not under test here (the page's data and structured data are).
 vi.mock("next/navigation", () => ({ notFound: vi.fn(), useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
-vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("next-intl", () => ({ useLocale: () => "en", useTranslations: () => (key: string) => key }));
 vi.mock("@/components-next/core/core-shell", () => ({ CoreShell: ({ children }: { children: unknown }) => children }));
 
-vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("next-intl", () => ({ useLocale: () => "en", useTranslations: () => (key: string) => key }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
 vi.mock("@/lib/i18n", () => ({
   isLocale: () => true,
@@ -82,6 +82,18 @@ describe("public product page (catalog v14)", () => {
   });
 
   // Decision D (issue 1556): a product with variants draws the picker and the chosen variant's own price.
+  it("issue 1819: draws the cold-chain chip and the interactions section only when the server sends them", async () => {
+    state.getPublicProduct.mockResolvedValue({ ...product, cold_chain: true, interactions: ["warfarin", "aspirin"] });
+    const html = renderToStaticMarkup(await PublicProductPage({ params }));
+    expect(html).toContain("coldChain");
+    expect(html).toContain("interactions");
+    expect(html).toContain("warfarin");
+    state.getPublicProduct.mockResolvedValue({ ...product, cold_chain: false, interactions: [] });
+    const plain = renderToStaticMarkup(await PublicProductPage({ params }));
+    expect(plain).not.toContain("coldChain");
+    expect(plain).not.toContain("warfarin");
+  });
+
   it("draws the variant picker and the chosen variant's price when the product has variants", async () => {
     state.getPublicProduct.mockResolvedValue({ ...product, id: "d2", is_rx: false, old_price: null, variant_group: "vg_diva", variant: { kind: "power", power: -2.5, colour: null, shade: null, position: 1 } });
     const variant = (id: string, power: number, price: number) => ({ id, sku: 1, slug: `diva-${id}`, name: `Diva ${power}`, price, old_price: null, currency: "SAR", is_rx: false, online_exclusive: false, available: true, availability_status: "none", image: `${id}.webp`, variant: { kind: "power", power, colour: null, shade: null, position: 0 } });

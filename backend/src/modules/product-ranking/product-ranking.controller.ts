@@ -8,6 +8,7 @@ import {
   Req,
   HttpCode,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -47,6 +48,9 @@ export class RecordEventPayload {
   metadata?: Record<string, any>;
 }
 
+/** The events a client may send: a view, a search result opened, a click. */
+const CLIENT_EVENT_TYPES = new Set<string>(['product_viewed', 'product_searched', 'product_clicked']);
+
 @ApiTags('Product Ranking')
 @Controller('medicines/events')
 @ShedOnOverload() // 14.17: recommendations shed first under overload
@@ -62,6 +66,9 @@ export class ProductRankingController {
   @ApiOperation({ summary: 'Record user interaction event for dynamic continuous re-ranking' })
   @ApiResponse({ status: 200, description: 'Event accepted and processed' })
   async recordEvent(@Body() payload: RecordEventPayload, @Req() req: Request) {
+    // The server records cart adds, wishlist adds and purchases itself (cart, wishlist and order services). This public
+    // endpoint takes only the signals a browser or an app can honestly report, so nobody can post purchases to rank a product.
+    if (!CLIENT_EVENT_TYPES.has(payload.event_type)) throw new BadRequestException('event_recorded_by_server');
     const user = (req as any).user;
     const ipAddress = req.ip || req.socket.remoteAddress;
 

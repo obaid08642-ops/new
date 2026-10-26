@@ -46,11 +46,17 @@ export type PublicProduct = {
   availability_status: string;
   available: boolean;
   country_of_origin: string | null;
+  /** issue 1819: the stored refrigeration flag; absent on answers from before the field was sent. */
+  cold_chain?: boolean;
+  /** issue 1819: the active ingredients recorded as interacting with this product; absent on older answers. */
+  interactions?: string[];
   images: string[];
   image: string | null;
   /** Decision D (issue 1556): the product's variant group (powers, colours, shades), null when it has none. */
   variant_group?: string | null;
   variant?: PublicVariantAttr | null;
+  /** Sections shown in another language than the page's: field → the language the text is in (absent on answers from before the rule). */
+  fallback_langs?: Record<string, string>;
 };
 
 /** A record's own attribute inside its variant group (decision D). Colour and shade are words of the English name. */
@@ -223,15 +229,48 @@ export type CategoryItems = {
   items: PublicProductCard[];
 };
 
+/**
+ * issue 1819: the category listing's extra filters, as the app's filter sheet has them (dosage form, maker, prescription
+ * or not, price range). Every field is optional; whatever is empty is left out of the request.
+ */
+export type CatalogueFilters = { form?: string; brand?: string; rx?: "true" | "false"; price_min?: string; price_max?: string };
+
+/** The filters of a URL's query, trimmed, bounded and with an unparseable price dropped (the server validates again). */
+export function parseCatalogueFilters(raw: { form?: string; brand?: string; rx?: string; price_min?: string; price_max?: string }): CatalogueFilters {
+  const text = (v?: string) => (typeof v === "string" ? v.replace(/[\u0000-\u001F\u007F-\u009F]/g, "").trim().slice(0, 80) : "");
+  const money = (v?: string) => {
+    const t = typeof v === "string" ? v.trim() : "";
+    const n = t === "" ? NaN : Number(t);
+    return Number.isFinite(n) && n >= 0 && n <= 1_000_000 ? String(n) : "";
+  };
+  const out: CatalogueFilters = {};
+  if (text(raw.form)) out.form = text(raw.form);
+  if (text(raw.brand)) out.brand = text(raw.brand);
+  if (raw.rx === "true" || raw.rx === "false") out.rx = raw.rx;
+  const min = money(raw.price_min);
+  const max = money(raw.price_max);
+  if (min) out.price_min = min;
+  if (max && (!min || Number(max) >= Number(min))) out.price_max = max;
+  return out;
+}
+
 export async function getPublicCategoryProducts(
   locale: Locale,
   category: string | undefined,
   sub: string | undefined,
   page: number,
   q?: string,
-  sort?: "popular" | "price_asc" | "price_desc" | "newest"
+  sort?: "popular" | "price_asc" | "price_desc" | "newest",
+  filters?: CatalogueFilters
 ): Promise<CategoryItems | null> {
-  return (await readPublicCategoryProducts(locale, category, sub, page, q, sort)).data;
+  return (await readPublicCategoryProducts(locale, category, sub, page, q, sort, filters)).data;
+}
+
+/** The dosage forms and makers of the public catalogue (GET /medicines/filters, public): the choices of the filter panel. */
+export async function readCatalogueFilterOptions(): Promise<{ forms: string[]; brands: string[] }> {
+  const read = await readJson<{ forms?: unknown; brands?: unknown }>("/medicines/filters");
+  const list = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string" && x.trim() !== "") : []);
+  return { forms: list(read.data?.forms), brands: list(read.data?.brands) };
 }
 
 export async function readPublicCategoryProducts(
@@ -240,7 +279,8 @@ export async function readPublicCategoryProducts(
   sub: string | undefined,
   page: number,
   q?: string,
-  sort?: "popular" | "price_asc" | "price_desc" | "newest"
+  sort?: "popular" | "price_asc" | "price_desc" | "newest",
+  filters?: CatalogueFilters
 ): Promise<PublicRead<CategoryItems>> {
   if (!isLocale(locale)) return { data: null, failed: false };
   const catParam = category && category.trim() ? category : "all";
@@ -249,6 +289,8 @@ export async function readPublicCategoryProducts(
   if (q && q.trim()) params.set("q", q.trim());
   // #816: the catalogue order; the default (popularity) is left out so the static page and its cache key stay the same
   if (sort && sort !== "popular") params.set("sort", sort);
+  // issue 1819: the extra filters (the server validates them again); nothing is sent for an empty one
+  for (const [key, value] of Object.entries(filters ?? {})) if (value) params.set(key, value);
   const read = await readJson<CategoryItems>(`/public/categories/${locale}/items?${params.toString()}`);
   const data = read.data;
   if (!data) return { data: null, failed: read.failed };
@@ -260,6 +302,7 @@ export async function readPublicCategoryProducts(
         ...it,
         name: cleanProductName(it.name, it.official_name),
         image: resolveImageUri(it.image) || (Array.isArray(it.images) && it.images[0] ? resolveImageUri(it.images[0]) : null),
+        images: Array.isArray(it.images) ? it.images.map((src) => resolveImageUri(src)).filter((src): src is string => Boolean(src)) : undefined,
       })),
     },
   };

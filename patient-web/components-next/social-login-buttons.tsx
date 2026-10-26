@@ -6,11 +6,19 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { getStableDeviceId } from "@/lib/auth/device-id";
 import { announceSignedIn } from "@/lib/auth/session-identity";
-import { BRAND_GOOGLE_PATH, BRAND_GOOGLE_VIEWBOX, BRAND_SNAPCHAT_PATH, BRAND_SNAPCHAT_VIEWBOX, BRAND_X_PATH, BRAND_X_VIEWBOX } from "@/components-next/ui-generated/icons/marks";
-import { acceptCallback, authorizeUrl, newPkce, xSnapchatEnabled, type CodeProvider } from "@/lib/auth/social-oauth";
+import { SocialMark } from "@/components-next/social-mark";
+import "@/components-next/ui-generated/icons/social-brands.css";
+import { acceptCallback, authorizeUrl, newPkce, type CodeProvider } from "@/lib/auth/social-oauth";
+import type { SocialButtons } from "@/lib/auth/social-config";
 import styles from "./auth/auth.module.css";
 
-type Props = { locale: string; onWrongApp?: () => void };
+type Props = {
+  locale: string;
+  social: SocialButtons;
+  onWrongApp?: () => void;
+  /** `register` is the sign-up page: the same buttons and divider, without the "no account yet" and guest links under them. */
+  variant?: "login" | "register";
+};
 
 declare global {
   interface Window { google?: any; AppleID?: { auth: { init(config: Record<string, unknown>): void; signIn(): Promise<{ authorization?: { id_token?: string }; user?: { email?: string; name?: { firstName?: string; lastName?: string } } }> } } }
@@ -28,39 +36,25 @@ function loadScript(src: string): Promise<void> {
 
 const APPLE_SDK = "https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js";
 
-const MARKS = {
-  google: { path: BRAND_GOOGLE_PATH, viewBox: BRAND_GOOGLE_VIEWBOX },
-  x: { path: BRAND_X_PATH, viewBox: BRAND_X_VIEWBOX },
-  snapchat: { path: BRAND_SNAPCHAT_PATH, viewBox: BRAND_SNAPCHAT_VIEWBOX },
-} as const;
-
-/** The single-colour brand mark of the "continue with" buttons (currentColor, decorative: the button carries the name). */
-function Mark({ brand }: { brand: keyof typeof MARKS }) {
-  const { path, viewBox } = MARKS[brand];
-  const [, , w, h] = viewBox.split(" ").map(Number);
-  return <svg aria-hidden="true" focusable="false" viewBox={viewBox} width={(20 * w) / h} height={20} fill="currentColor"><path d={path} /></svg>;
-}
-
 /**
- * Guest sign-in is always available. Social sign-in offers all four providers, each hidden until configured:
- * Google (Identity Services; NEXT_PUBLIC_GOOGLE_CLIENT_ID), Apple (NEXT_PUBLIC_APPLE_CLIENT_ID + NEXT_PUBLIC_APPLE_REDIRECT_URI),
- * X and Snapchat (code + PKCE in a popup, like the app; NEXT_PUBLIC_X_CLIENT_ID / NEXT_PUBLIC_SNAPCHAT_CLIENT_ID and
- * NEXT_PUBLIC_SOCIAL_X_SNAPCHAT=1). Every provider token goes to the backend, which verifies it.
+ * Guest sign-in is always available. Social sign-in offers all four providers; `social` says which ones the backend can finish and
+ * their public ids (GET /auth/social/config, read by the page at run time). Google (Identity Services) and Apple send the
+ * provider's token; X and Snapchat (code + PKCE in a popup, like the app) send the authorization code and the verifier, and the
+ * BACKEND exchanges them with its own client secret. The backend verifies every one.
  */
-export function SocialLoginButtons({ locale, onWrongApp }: Props) {
+export function SocialLoginButtons({ locale, social, onWrongApp, variant = "login" }: Props) {
   const router = useRouter();
   const t = useTranslations("Login");
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
-  const appleClientId = process.env.NEXT_PUBLIC_APPLE_CLIENT_ID || "";
-  const appleRedirect = process.env.NEXT_PUBLIC_APPLE_REDIRECT_URI || "";
+  const appleClientId = social.apple?.clientId ?? "";
+  const appleRedirect = social.apple?.redirectUri ?? "";
   const configured = Boolean(appleClientId && appleRedirect);
-  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
-  const codeEnabled = xSnapchatEnabled(process.env.NEXT_PUBLIC_SOCIAL_X_SNAPCHAT);
-  const showX = codeEnabled && Boolean(process.env.NEXT_PUBLIC_X_CLIENT_ID);
-  const showSnapchat = codeEnabled && Boolean(process.env.NEXT_PUBLIC_SNAPCHAT_CLIENT_ID);
-  const codeClients: Record<CodeProvider, string> = { x: process.env.NEXT_PUBLIC_X_CLIENT_ID || "", snapchat: process.env.NEXT_PUBLIC_SNAPCHAT_CLIENT_ID || "" };
+  const googleClientId = social.google?.clientId ?? "";
+  const showX = Boolean(social.x?.clientId);
+  const showSnapchat = Boolean(social.snapchat?.clientId);
+  const codeClients: Record<CodeProvider, string> = { x: social.x?.clientId ?? "", snapchat: social.snapchat?.clientId ?? "" };
   const tokenClient = useRef<any>(null);
   const googleMessage = t("googleUnavailable");
   const failedMessage = t("unavailable");
@@ -128,7 +122,8 @@ export function SocialLoginButtons({ locale, onWrongApp }: Props) {
   async function codeLogin(provider: CodeProvider) {
     if (busy) return;
     setError(null);
-    if (!codeClients[provider]) { setError(failedMessage); return; }
+    // Not set up on the server yet: the button stays visible (the providers review the live button) and says so.
+    if (!codeClients[provider]) { setError(t("providerUnavailable", { name: t(provider) })); return; }
     setBusy(provider);
     const redirectUri = `${window.location.origin}/${locale}/login/social-callback`;
     let popup: Window | null = null;
@@ -149,13 +144,8 @@ export function SocialLoginButtons({ locale, onWrongApp }: Props) {
         timer = setInterval(() => { if (popup?.closed) resolve(null); }, 500);
       });
       if (!code) return;
-      const exchange = await fetch("/api/auth/social-exchange", {
-        method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ provider, code, verifier: pkce.verifier, redirectUri }),
-      });
-      const token = exchange.ok ? (await exchange.json().catch(() => null))?.token : null;
-      if (typeof token !== "string" || !token) throw new Error("exchange_failed");
-      await postSocial({ provider, token });
+      // the backend exchanges the code with its own client secret (and refuses a raw X / Snapchat access token)
+      await postSocial({ provider, code, code_verifier: pkce.verifier, redirect_uri: redirectUri });
     } catch { setError(failedMessage); } finally {
       if (timer) clearInterval(timer);
       if (onMessage) window.removeEventListener("message", onMessage);
@@ -194,21 +184,23 @@ export function SocialLoginButtons({ locale, onWrongApp }: Props) {
   }
 
   return <>
-    {googleClientId || configured || showX || showSnapchat ? <>
+    {/* All four always show (owner, 2026-10-25: the providers review the live button before they approve the app). A provider the
+        server has no keys for yet answers its own "not available yet" message on tap. */}
+    <>
       <div className={styles.divider}>{t("orContinueWith")}</div>
       <div className={styles.social} aria-label={t("otherWays")}>
-        {googleClientId ? <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={googleLogin}><Mark brand="google" /> {t("google")}</button> : null}
-        {configured ? <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={appleLogin}>{t("apple")}</button> : null}
-        {showX ? <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={() => codeLogin("x")}><Mark brand="x" /> {t("x")}</button> : null}
-        {showSnapchat ? <button type="button" className={styles.socialButton} disabled={busy !== null} onClick={() => codeLogin("snapchat")}><Mark brand="snapchat" /> {t("snapchat")}</button> : null}
+        <button type="button" className={`${styles.socialButton} socialBrandButton socialBrandGoogle`} disabled={busy !== null} onClick={googleLogin} data-configured={googleClientId ? "1" : "0"}><SocialMark brand="google" /> {t("google")}</button>
+        <button type="button" className={`${styles.socialButton} socialBrandButton socialBrandApple`} disabled={busy !== null} onClick={appleLogin} data-configured={configured ? "1" : "0"}><SocialMark brand="apple" /> {t("apple")}</button>
+        <button type="button" className={`${styles.socialButton} socialBrandButton socialBrandX`} disabled={busy !== null} onClick={() => codeLogin("x")} data-configured={showX ? "1" : "0"}><SocialMark brand="x" /> {t("x")}</button>
+        <button type="button" className={`${styles.socialButton} socialBrandButton socialBrandSnapchat`} disabled={busy !== null} onClick={() => codeLogin("snapchat")} data-configured={showSnapchat ? "1" : "0"}><SocialMark brand="snapchat" /> {t("snapchat")}</button>
       </div>
-    </> : null}
-    <div className={styles.foot}>
-      <span>{t("noAccount")} <Link className={styles.link} href={`/${locale}/register`}>{t("createAccount")}</Link></span>
-      <button type="button" className={`${styles.link} ${styles.guest}`} onClick={guestLogin} disabled={busy !== null}>
-        {busy === "guest" ? t("guestLoading") : t("guestContinue")}
-      </button>
-    </div>
+    </>
+    {variant === "login" ? <div className={styles.foot}>
+        <span>{t("noAccount")} <Link className={styles.link} href={`/${locale}/register`}>{t("createAccount")}</Link></span>
+        <button type="button" className={`${styles.link} ${styles.guest}`} onClick={guestLogin} disabled={busy !== null}>
+          {busy === "guest" ? t("guestLoading") : t("guestContinue")}
+        </button>
+      </div> : null}
     {error ? <p className={styles.error} role="alert">{error}</p> : null}
   </>;
 }

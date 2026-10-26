@@ -12,6 +12,7 @@ import { LocalizedText } from '../../src/components/LocalizedText';
 import { NabdLogo } from '../../src/components/NabdLogo';
 import { AUTH_COLUMN, FONT, SocialButtons, availableSocialProviders, useAuthUi, type SocialProvider } from '../../src/components/auth/AuthKit';
 import { useSocialLogin } from '../../src/hooks/useSocialLogin';
+import { useSocialConfig } from '../../src/hooks/useSocialConfig';
 import { createGuestSession } from '../../src/utils/guestSession';
 import { guestLogin } from '../../src/store/slices/authSlice';
 import { STORAGE_KEYS } from '../../src/constants';
@@ -106,7 +107,7 @@ export default function Welcome() {
   }, [fadeAnim, slideAnim]);
 
   // The provider's flow runs here, through the same hook as the sign-in screen.
-  const providers = availableSocialProviders();
+  const providers = availableSocialProviders(useSocialConfig());
   const social = useSocialLogin();
   const onSocial = (p: SocialProvider) => {
     setGuestError(null);
@@ -240,7 +241,7 @@ export default function Welcome() {
                 <FIcon icon={x.icon} tone={x.tone} chip="none" size={x.glyph} theme={theme} />
               </View>
             ))}
-            <NabdLogo size={150} variant="text" theme={theme} pulse label={tr('common.appName')} />
+            <NabdLogo size={150} pulse label={tr('common.appName')} />
           </View>
         </View>
 

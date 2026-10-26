@@ -60,7 +60,7 @@ export function SickLeaveScreen({ apt, onBack }:
  </NCard>
  <Text style={{ fontSize: FS['5xl'] }}></Text>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: 'center', marginTop: SP.md }}>
- {AR ? 'تم إرسال الإجازة للمريض عبر QR Code ورسالة نصية' : 'Sick leave sent to patient via QR Code & SMS'}
+ {AR ? 'تم إرسال الإجازة للمريض عبر QR Code' : 'Sick leave sent to patient via QR Code'}
  </Text>
  <NBtn label={AR ? 'رجوع' : 'Back'} onPress={onBack} style={{ marginTop: SP.xxl }} />
  </View>

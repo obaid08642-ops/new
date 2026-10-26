@@ -7,10 +7,12 @@ import { BookDto, TransitionDto, UpdateInsDto, AssignTechDto, UploadReportDto, F
 import { CreateRadiologyCatalogDto, UpdateRadiologyCatalogDto, ApproveCatalogDto, BulkApproveCatalogDto } from './radiology.dto';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { PublicCache } from '../../common/public-cache.decorator';
 @Controller('radiology')
 export class RadiologyController {
   constructor(private readonly svc: RadiologyOpsService) {}
 
+  @PublicCache(120, ['catalog', 'radiology'])
   @Public() @Get('services')
   services(
     @Query('modality') m?: string,
@@ -64,9 +66,11 @@ export class RadiologyController {
     return this.svc.slotsForProvider(providerAccountId, date, dur);
   }
 
+  @PublicCache(120, ['catalog', 'radiology'])
   @Public() @Get('modalities')
   modalities() { return this.svc.modalities(); }
 
+  @PublicCache(120, ['catalog', 'radiology'])
   @Public() @Get('services/:id')
   one(@Param('id') id: string) { return this.svc.getById(id); }
 
@@ -164,7 +168,7 @@ export class RadiologyController {
     return this.svc.approveReport(id, user);
   }
 
-  // PILLAR 4: Insurance NPHIES Gatekeeper
+  // PILLAR 4: Insurance approval gate (the provider records the insurer's decision)
   @Roles(UserRole.RADIOLOGY, UserRole.HOSPITAL, UserRole.ADMIN)
   @Post('bookings/:id/insurance-approval')
   insuranceApproval(@Param('id') id: string, @Body() body: InsuranceApprovalDto, @CurrentUser() user: any) {

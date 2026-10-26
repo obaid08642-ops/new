@@ -266,7 +266,7 @@ export function WelcomeScreen({
  )}
  </View>
  <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: 'center', marginBottom: SP.xl }}>
- {AR ? 'التصفح كضيف — النشر والتقديم يتطلبان تسجيل الدخول' : 'Browse as guest — posting and applying require sign-in'}
+ {AR ? 'تصفح كضيف — يمكنك نشر إعلان (يُراجَع قبل النشر) أو التقديم على وظيفة، مرتبطاً بهذا الجهاز' : 'Browse as a guest — you can post a job (reviewed before it goes live) or apply, tied to this device'}
  </Text>
 
  {/* Global Login Link */}
@@ -850,7 +850,6 @@ export function PendingScreen({
  {[
  { icon:'', ar:'البريد الإلكتروني', en:'Email' },
  { icon: '', ar: 'إشعار التطبيق Push', en: 'Push Notification' },
- { icon: '', ar: 'رسالة SMS', en: 'SMS' },
  ].map((ch, i) => (
  <View key={i} style={{
  flexDirection: AR ? 'row-reverse' : 'row',

@@ -66,11 +66,19 @@ const FILES = [
   // component file, so a page uses the same renderer the gallery and the board comparisons do.
   // Component files hold state, refs or handlers, so they are Client Components here.
   { from: 'packages/ui/icons/fill.ts', to: 'patient-web/components-next/ui-generated/icons/fill.ts', transform: filterFill },
+  // Pharmacy category illustrations: framework-neutral path data (the app draws the same module with react-native-svg).
+  { from: 'packages/ui/icons/category-art.ts', to: 'patient-web/components-next/ui-generated/icons/category-art.ts' },
   { from: 'packages/ui/icons/marks.ts', to: 'patient-web/components-next/ui-generated/icons/marks.ts' },
+  { from: 'packages/ui/icons/social-brands.ts', to: 'patient-web/components-next/ui-generated/icons/social-brands.ts' },
+  { from: 'packages/ui/icons/social-brands.css', to: 'patient-web/components-next/ui-generated/icons/social-brands.css' },
   { from: 'packages/ui/icons/fill-glyphs.ts', to: 'patient-web/components-next/ui-generated/icons/fill-glyphs.ts' },
   { from: 'packages/ui/icons/line.ts', to: 'patient-web/components-next/ui-generated/icons/line.ts' },
   { from: 'packages/ui/components/contract.ts', to: 'patient-web/components-next/ui-generated/components/contract.ts' },
-  ...['Button', 'Spinner', 'FIcon', 'Inputs', 'Controls', 'Surfaces', 'Cards', 'Feedback'].map((name) => ({
+  // FIcon is NOT a Client Component: it only uses useId, which a Server Component may call, and as a server module the whole
+  // outline record (icons/fill.ts) stays out of the browser bundle of every page that draws it from the server (the doctors page
+  // is at its script budget).
+  { from: 'packages/ui/components/FIcon.tsx', to: 'patient-web/components-next/ui-generated/components/FIcon.tsx' },
+  ...['Button', 'Spinner', 'Inputs', 'Controls', 'Surfaces', 'Cards', 'Feedback'].map((name) => ({
     from: `packages/ui/components/${name}.tsx`,
     to: `patient-web/components-next/ui-generated/components/${name}.tsx`,
     useClient: true,

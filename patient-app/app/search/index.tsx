@@ -7,6 +7,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card, Chip, EmptyState, ErrorState, FIcon, Icon, OfflineState, Screen, SectionHeader, Search, SERVICE_ICONS, Skeleton, type ServiceName } from '../../../packages/ui-native/src';
 import PharmacyProductSearchView from '../../src/components/views/PharmacyProductSearchView';
 import DoctorSearchView from '../../src/components/views/DoctorSearchView';
+import { ServiceCartButton } from '../../src/components/cart/ServiceCartButton';
+import { WishlistButton } from '../../src/components/pharmacy/PharmacyKit';
 import { LocalizedText } from '../../src/components/LocalizedText';
 import { COLUMN, FONT, tint, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
@@ -166,7 +168,7 @@ function Block({ block, term, filter, count, onOpen, onSeeAll }: { block: Result
     <View style={{ gap: 10 }}>
       <SectionHeader
         title={tr(section.title)}
-        actionLabel={seeAll ? `${tr('الكل')} (${count})` : undefined}
+        actionLabel={seeAll ? tr('الكل') : undefined}
         onActionPress={seeAll ? () => onSeeAll(seeAll.key) : undefined}
         theme={theme}
       />
@@ -211,7 +213,7 @@ function UploadCard() {
       onPress={() => router.push('/pharmacy/rx-order?via=photo' as Href)}
       style={{ flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 44, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 22, borderWidth: 1, borderStyle: 'dashed', borderColor: c.border.strong }}
     >
-      <FIcon icon="prescription" tone="ink" chip="none" size={24} theme={theme} />
+      <FIcon icon="prescription" tone={SERVICE_ICONS.pharmacy.tone} chip="none" size={24} theme={theme} />
       <LocalizedText style={{ flex: 1, ...scale(t, 'small', 'regular'), color: c.text.primary, ...flow }}>
         لم تجد ما تبحث عنه؟ ارفع الوصفة وتبحث الصيدليات عنه لك
       </LocalizedText>
@@ -394,6 +396,8 @@ function SearchScreen({ initialQuery }: { initialQuery: string }) {
             theme={theme}
           />
         </View>
+        <WishlistButton testID="search-wishlist-button" />
+        <ServiceCartButton testID="search-cart-button" />
         <Pressable accessibilityRole="button" accessibilityLabel={tr('إلغاء')} onPress={leave} hitSlop={8} style={{ minHeight: 44, minWidth: 44, alignItems: 'center', justifyContent: 'center' }}>
           <LocalizedText style={{ ...scale(t, 'body', 'regular'), color: c.text.primary }}>إلغاء</LocalizedText>
         </Pressable>
@@ -402,7 +406,7 @@ function SearchScreen({ initialQuery }: { initialQuery: string }) {
         <View style={COLUMN}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 8, paddingStart: 16 + startInset, paddingEnd: 16 + endInset }}>
             {chips.map((f) => (
-              <Chip key={f.key} label={tr(f.label)} count={counts[f.key]} selected={filter === f.key} onPress={() => setFilter(f.key)} theme={theme} />
+              <Chip key={f.key} label={tr(f.label)} selected={filter === f.key} onPress={() => setFilter(f.key)} theme={theme} />
             ))}
           </ScrollView>
         </View>

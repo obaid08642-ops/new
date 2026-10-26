@@ -21,6 +21,8 @@ import { makeStore, withStore } from './utils/testStore';
  */
 
 const mockParams: { current: Record<string, string> } = { current: {} };
+jest.mock('../context/CartContext', () => ({ useCart: () => ({ itemCount: 0 }) })); // the header's cart button reads the count (the app wraps every screen in CartProvider)
+jest.mock('../context/DiagnosticsCartContext', () => ({ useDiagnosticsCart: () => ({ items: [] }) })); // the Home header's cart button reads the diagnostics cart too (one cart per service)
 jest.mock('expo-router', () => {
   const ReactLib = jest.requireActual('react');
   return {

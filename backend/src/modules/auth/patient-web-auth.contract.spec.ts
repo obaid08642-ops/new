@@ -32,7 +32,7 @@ describe('patient web auth contract', () => {
     // deviceTrust, adminDevices, adminSession, push). Passing it one or two slots
     // early lands it on adminSession/push, this.mail stays undefined, and the
     // per-channel catch in deliverOtp turns the missing mailer into an opaque
-    // `otp_channel_unavailable` instead of an obvious wiring mistake.
+    // `otp_no_channel` instead of an obvious wiring mistake.
     const mail = { sendOtp: jest.fn(async () => ({ ok: true, provider: 'resend', fallback_used: false })) };
     const service = new AuthService(
       userModel as any,

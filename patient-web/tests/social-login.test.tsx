@@ -1,47 +1,76 @@
 import { createHash } from "node:crypto";
 import { renderToStaticMarkup } from "react-dom/server";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: vi.fn(), refresh: vi.fn() }) }));
 vi.mock("next-intl", async () => (await import("./helpers/intl")).nextIntlMock("en"));
 
 import { SocialLoginButtons } from "../components-next/social-login-buttons";
-import { acceptCallback, authorizeUrl, codeChallenge, newPkce, randomUrlSafe, xSnapchatEnabled } from "../lib/auth/social-oauth";
+import { acceptCallback, authorizeUrl, codeChallenge, newPkce, randomUrlSafe } from "../lib/auth/social-oauth";
 
-const ALL = ["NEXT_PUBLIC_GOOGLE_CLIENT_ID", "NEXT_PUBLIC_APPLE_CLIENT_ID", "NEXT_PUBLIC_APPLE_REDIRECT_URI", "NEXT_PUBLIC_X_CLIENT_ID", "NEXT_PUBLIC_SNAPCHAT_CLIENT_ID", "NEXT_PUBLIC_SOCIAL_X_SNAPCHAT"];
-afterEach(() => vi.unstubAllEnvs());
-const render = () => renderToStaticMarkup(<SocialLoginButtons locale="en" />);
+import type { SocialButtons } from "../lib/auth/social-config";
+
+const render = (social: SocialButtons) => renderToStaticMarkup(<SocialLoginButtons locale="en" social={social} />);
+const ALL: SocialButtons = {
+  google: { clientId: "g" },
+  apple: { clientId: "a", redirectUri: "https://x.test/cb" },
+  x: { clientId: "x" },
+  snapchat: { clientId: "s" },
+};
+
+describe("the same buttons on the register page", () => {
+  it("shows the divider and all four providers, without the create-account and guest links", () => {
+    const html = renderToStaticMarkup(<SocialLoginButtons locale="en" social={ALL} variant="register" />);
+    expect(html).toContain("Or continue with");
+    for (const label of ["Google</button>", " Apple</button>", "X</button>", "Snapchat</button>"]) expect(html).toContain(label);
+    expect(html).not.toContain("/en/register");
+    expect(html).not.toContain("guest");
+  });
+  it("the login page keeps its create-account link", () => {
+    expect(render(ALL)).toContain("/en/register");
+  });
+});
 
 describe("social sign-in buttons are shown per configuration", () => {
-  it("shows only guest sign-in when nothing is configured", () => {
-    ALL.forEach((k) => vi.stubEnv(k, ""));
-    const html = render();
-    expect(html).not.toMatch(/>(Google|Apple|X|Snapchat)</);
-    expect(html).not.toContain("Or continue with");
+  // Owner, 2026-10-25: all four always show (the providers review the live button before they approve the app);
+  // a provider the server has no keys for answers "not available" on tap, and data-configured says which are live.
+  it("shows all four, not configured, when nothing is configured", () => {
+    const html = render({});
+    expect(html).toContain("Or continue with");
+    for (const label of ["Google</button>", " Apple</button>", "X</button>", "Snapchat</button>"]) expect(html).toContain(label);
+    expect(html).not.toContain('data-configured="1"');
   });
-  it("shows Google and Apple when configured", () => {
-    ALL.forEach((k) => vi.stubEnv(k, ""));
-    vi.stubEnv("NEXT_PUBLIC_GOOGLE_CLIENT_ID", "g");
-    vi.stubEnv("NEXT_PUBLIC_APPLE_CLIENT_ID", "a");
-    vi.stubEnv("NEXT_PUBLIC_APPLE_REDIRECT_URI", "https://x.test/cb");
-    const html = render();
+  it("shows all four when the backend enables them", () => {
+    const html = render(ALL);
     expect(html).toContain("Google</button>");
-    expect(html).toContain(">Apple</button>");
-    expect(html).not.toContain(">Snapchat</button>");
-  });
-  it("hides X and Snapchat without the gate even with client ids, and shows them with it", () => {
-    ALL.forEach((k) => vi.stubEnv(k, ""));
-    vi.stubEnv("NEXT_PUBLIC_X_CLIENT_ID", "x");
-    vi.stubEnv("NEXT_PUBLIC_SNAPCHAT_CLIENT_ID", "s");
-    expect(render()).not.toMatch(/>(X|Snapchat)<\/button>/);
-    vi.stubEnv("NEXT_PUBLIC_SOCIAL_X_SNAPCHAT", "1");
-    const html = render();
+    expect(html).toContain(" Apple</button>");
     expect(html).toContain("X</button>");
     expect(html).toContain("Snapchat</button>");
   });
-  it("the gate is exactly '1'", () => {
-    expect(xSnapchatEnabled("1")).toBe(true);
-    for (const v of [undefined, "", "0", "true"]) expect(xSnapchatEnabled(v)).toBe(false);
+  it.each([["google", /data-configured="0"><svg[^>]*>(?:<path[^>]*><\/path>)+<\/svg> Google<\/button>/], ["apple", /data-configured="0"><svg[^>]*>(?:<path[^>]*><\/path>)+<\/svg> Apple<\/button>/], ["x", /data-configured="0"><svg[^>]*>(?:<path[^>]*><\/path>)+<\/svg> X<\/button>/], ["snapchat", /data-configured="0"><svg[^>]*>(?:<path[^>]*><\/path>)+<\/svg> Snapchat<\/button>/]] as const)("%s stays visible but not configured when the backend does not enable it", (provider, pattern) => {
+    const { [provider]: _removed, ...rest } = ALL;
+    const html = render(rest);
+    expect(html).toMatch(pattern);
+    expect((html.match(/data-configured="1"/g) ?? []).length).toBe(3);
+  });
+});
+
+describe("brand look of the buttons (owner, 2026-10-25)", () => {
+  it("draws the four-colour Google G, and gives each provider its own brand class", () => {
+    const html = render(ALL);
+    for (const fill of ["#EA4335", "#4285F4", "#FBBC05", "#34A853"]) expect(html).toContain(`fill="${fill}"`);
+    for (const brand of ["Google", "Apple", "X", "Snapchat"]) expect(html).toContain(`socialBrandButton socialBrand${brand}`);
+  });
+  it("keeps the CSS brand colours equal to social-brands.ts", async () => {
+    const { SOCIAL_BUTTON_COLORS } = await import("@/components-next/ui-generated/icons/social-brands");
+    const { readFileSync } = await import("node:fs");
+    const css = readFileSync("components-next/ui-generated/icons/social-brands.css", "utf8");
+    for (const [brand, themes] of Object.entries(SOCIAL_BUTTON_COLORS)) {
+      const name = brand === "x" ? "X" : brand[0].toUpperCase() + brand.slice(1);
+      const light = css.match(new RegExp(`^\\.socialBrand${name} \\{ --sb-bg: (#\\w+); --sb-fg: (#\\w+); --sb-border: (#\\w+); \\}`, "m"));
+      expect(light?.slice(1)).toEqual([themes.light.background, themes.light.foreground, themes.light.border]);
+      expect(css).toContain(`--sb-bg: ${themes.dark.background}`);
+    }
   });
 });
 

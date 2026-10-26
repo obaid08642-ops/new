@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { isAddressFormValid } from "./address-form";
-import { addressToForm, buildAddressPatch, EMPTY_ADDRESS_FORM } from "./address-form";
+import { addressToForm, buildAddressPatch, buildCreateBody, EMPTY_ADDRESS_FORM } from "./address-form";
 import { isAllowedPatientApiRequest } from "../api/patient-allowlist";
 
 const saved = { id: "3f2b8c1e-5d4a-4b6f-9a2c-1e8d7f6a5b4c", label: "Home", line1: "12 King Fahd Rd", line2: null, city: "riyadh", district: "olaya", region: "riyadh_region", notes: "Gate 2", is_default: true };
 
 describe("editing a saved address (issue 769)", () => {
   it("fills the form with what is saved and leaves a missing field empty", () => {
-    expect(addressToForm(saved)).toEqual({ label: "Home", line1: "12 King Fahd Rd", line2: "", city: "riyadh", district: "olaya", region: "riyadh_region", notes: "Gate 2", short_address: "" });
+    expect(addressToForm(saved)).toEqual({ label: "Home", line1: "12 King Fahd Rd", line2: "", city: "riyadh", district: "olaya", region: "riyadh_region", notes: "Gate 2", short_address: "", building: "", floor: "" });
     expect(addressToForm({ id: "x" })).toEqual(EMPTY_ADDRESS_FORM);
   });
 
@@ -60,5 +60,12 @@ describe("the pin of an address", () => {
   it("adds the two numbers to a request, or nothing", () => {
     expect(pointBody({ lat: 1, lng: 2 })).toEqual({ lat: 1, lng: 2 });
     expect(pointBody(null)).toEqual({});
+  });
+});
+
+describe("building and floor (address map flow)", () => {
+  it("are part of the form, the PATCH and the POST body", () => {
+    expect(buildAddressPatch(saved, { ...addressToForm(saved), building: " 7421 ", floor: "3" })).toEqual({ building: "7421", floor: "3" });
+    expect(buildCreateBody({ ...EMPTY_ADDRESS_FORM, label: "Home", line1: "x", building: "7" }, { lat: 1, lng: 2 })).toMatchObject({ building: "7", lat: 1, lng: 2 });
   });
 });

@@ -190,6 +190,8 @@ export function DoctorCard({
 /* ----------------------------------------------------------- ProductCard */
 
 export interface NativeProductCardProps extends ProductCardProps, Themed {
+  /** Replaces the + button (the app puts its quantity stepper here once the product is in the cart). */
+  addControl?: React.ReactNode;
   onPress?: () => void;
   onAdd?: () => void;
   /**
@@ -199,7 +201,7 @@ export interface NativeProductCardProps extends ProductCardProps, Themed {
   image?: React.ReactNode;
 }
 
-export function ProductCard({ name, meta, price, currency, imageSrc, image, discountLabel, rxLabel, onlineLabel, addLabel, onPress, onAdd, loading = false, disabled = false, testID, theme = 'light' }: NativeProductCardProps) {
+export function ProductCard({ name, meta, price, currency, imageSrc, image, discountLabel, rxLabel, onlineLabel, addLabel, onPress, onAdd, addControl, loading = false, disabled = false, testID, theme = 'light' }: NativeProductCardProps) {
   const t = tokens(theme);
   const c = t.color;
   const inert = disabled || loading;
@@ -233,7 +235,7 @@ export function ProductCard({ name, meta, price, currency, imageSrc, image, disc
           {rxLabel ? <Text style={{ fontSize: 11, fontFamily: 'ReadexPro-700', color: c.status.warning.fg }}>{rxLabel}</Text> : null}
           {onlineLabel ? <Text style={{ fontSize: 11, fontFamily: 'ReadexPro-700', color: c.service.mint.fg }}>{onlineLabel}</Text> : null}
         </View>
-        <Pressable
+        {addControl ?? <Pressable
           accessibilityRole="button"
           accessibilityLabel={addLabel}
           accessibilityState={{ disabled: inert, busy: loading }}
@@ -241,12 +243,12 @@ export function ProductCard({ name, meta, price, currency, imageSrc, image, disc
           onPress={inert ? undefined : onAdd}
           hitSlop={2}
           testID={testID ? `${testID}-add` : undefined}
-          style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: c.action.selected.bg, alignItems: 'center', justifyContent: 'center', opacity: disabled ? 0.5 : 1 }}
+          style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: c.action.primary.bg, alignItems: 'center', justifyContent: 'center', opacity: disabled ? 0.5 : 1 }}
         >
           <Svg width={18} height={18} viewBox={FILL_ICON_VIEWBOX}>
-            <Path d={PLUS_SQUARE_PATH} fill={c.action.selected.fg} />
+            <Path d={PLUS_SQUARE_PATH} fill={c.action.primary.fg} />
           </Svg>
-        </Pressable>
+        </Pressable>}
       </View>
     </View>
   );

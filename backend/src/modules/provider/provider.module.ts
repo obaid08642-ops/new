@@ -223,6 +223,8 @@ import { ProviderDrugIndexController } from './provider-drug-index.controller';
     ProviderMatchingService, AssignmentStrategyService, ServiceCapabilityService, ProviderScoringService,
     // P5.3: merged from ProvidersModule (providers/ → provider/)
     ProvidersService,
+    // the admin price review suspends a pharmacy through the same service as the admin provider screen
+    ProviderAdminService,
   ],
 })
 export class ProviderModule {}

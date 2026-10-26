@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
+import { renderToReadableStream, renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const server = vi.hoisted(() => ({ api: vi.fn() }));
@@ -36,26 +36,18 @@ vi.mock("@/lib/api/meditation-server", () => ({ getPatientMeditationHistory: (to
 
 import MaternityPage from "@/app/[locale]/maternity/page";
 import MaternitySetupPage from "@/app/[locale]/maternity/maternity-setup/page";
-import TrackerRedirect from "@/app/[locale]/maternity/tracker/page";
-import BabyGrowthRedirect from "@/app/[locale]/maternity/baby-growth/page";
 import NutritionPage from "@/app/[locale]/nutrition/page";
 import LogMealPage from "@/app/[locale]/nutrition/log-meal/page";
-import BodyTargetRedirect from "@/app/[locale]/nutrition/body-target/page";
-import PlanRedirect from "@/app/[locale]/nutrition/plan/page";
 import MentalHealthPage from "@/app/[locale]/mental-health/page";
 import MoodPage from "@/app/[locale]/mental-health/mood/page";
-import RelaxPage from "@/app/[locale]/mental-health/relax/page";
-import BreathingRedirect from "@/app/[locale]/mental-health/breathing/page";
-import CrisisRedirect from "@/app/[locale]/mental-health/crisis-contacts/page";
-import SelfAssessmentRedirect from "@/app/[locale]/mental-health/self-assessment/page";
-import TherapistRedirect from "@/app/[locale]/mental-health/therapist-match/page";
 import ProgramsPage from "@/app/[locale]/programs/page";
-import ProgramsActiveRedirect from "@/app/[locale]/programs/active/page";
 import { CareHero, RecordRow } from "@/components-next/care/care-kit";
 import { ChoiceGroup, TextField } from "@/components-next/care/care-fields";
 
 const TOKEN = "server-only-care-token";
 const render = (node: ReactNode) => renderToStaticMarkup(node);
+/** For pages that hold an async server component (the urgent-help call): streams until everything has resolved. */
+const renderAsync = async (node: ReactNode): Promise<string> => { const stream = await renderToReadableStream(node as never); await stream.allReady; return new Response(stream).text(); };
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
 const params = Promise.resolve({ locale: "en" });
 const page = (query: Record<string, string> = {}) => ({ params, searchParams: Promise.resolve(query) });
@@ -128,10 +120,6 @@ describe("the maternity hub", () => {
     expect(render(await MaternityPage(page()))).toContain("Maternity data could not be loaded");
   });
 
-  it("the old tracker, growth pages redirect to the tabs and keep the query", async () => {
-    expect(await redirectOf(async () => TrackerRedirect({ params, searchParams: Promise.resolve({ x: "1" }) }))).toBe("redirect:/en/maternity?x=1&tab=pregnancy");
-    expect(await redirectOf(async () => BabyGrowthRedirect(page()))).toBe("redirect:/en/maternity?tab=baby");
-  });
 
   it("the setup form renders both paths' fields with date inputs", async () => {
     const html = render(await MaternitySetupPage({ params }));
@@ -182,22 +170,23 @@ describe("the nutrition hub", () => {
 
   it("the log-meal form stays its own screen; the old body-target and plan routes redirect", async () => {
     expect(render(await LogMealPage({ params }))).toContain("Save meal");
-    expect(await redirectOf(async () => BodyTargetRedirect(page()))).toBe("redirect:/en/nutrition?tab=target");
-    expect(await redirectOf(async () => PlanRedirect(page()))).toBe("redirect:/en/nutrition?tab=plan");
   });
 });
 
 describe("mental health", () => {
   const dashboard = { mood: { total_entries: 4, avg_mood: 3.5, avg_energy: 3, avg_stress: 2, avg_sleep: 7 }, meditation: { total_sessions: 2, completed_sessions: 1, total_minutes: 20 } };
 
-  it("the hub: the summary, the ways in, no Relax row (owner decision B18), and no self-assessment, crisis contacts or hard-coded number", async () => {
+  it("the hub: the summary, the ways in, no Relax row (owner decision B18), and no self-assessment or crisis contacts, and the 997 button always present (owner decision 14)", async () => {
     backend({ "/mental-health/dashboard": dashboard });
-    const html = render(await MentalHealthPage({ params }));
+    const html = await renderAsync(await MentalHealthPage({ params }));
     expect(html).toContain("Mood entries");
     expect(html).toContain("/en/mental-health/mood");
     expect(html).not.toContain("/en/mental-health/relax");
     expect(html).toContain("/en/consultations/doctors?specialty=psychiatry");
-    expect(html).not.toMatch(/self-assessment|crisis|tel:/i);
+    
+    expect(html).not.toMatch(/self-assessment|crisis/i);
+    // the only tel: link on the hub is the always-present emergency number (the config number is an extra button, only when known)
+    expect(html.match(/href="tel:[^"]*"/g)).toEqual(['href="tel:997"']);
   });
 
   it("the mood journal lists the entries", async () => {
@@ -205,14 +194,6 @@ describe("mental health", () => {
     expect(render(await MoodPage({ params }))).toContain(">Good<");
   });
 
-  it("the removed screens and the old tabs redirect", async () => {
-    // owner decision B18: Relax (breathing, meditation) is removed; its addresses open the hub
-    expect(await redirectOf(async () => RelaxPage(page()))).toBe("redirect:/en/mental-health");
-    expect(await redirectOf(async () => BreathingRedirect(page()))).toBe("redirect:/en/mental-health");
-    expect(await redirectOf(async () => CrisisRedirect(page()))).toBe("redirect:/en/mental-health");
-    expect(await redirectOf(async () => SelfAssessmentRedirect(page()))).toBe("redirect:/en/mental-health");
-    expect(await redirectOf(async () => TherapistRedirect(page()))).toBe("redirect:/en/consultations/doctors?specialty=psychiatry");
-  });
 });
 
 describe("programs", () => {
@@ -231,6 +212,5 @@ describe("programs", () => {
     expect(render(await ProgramsPage({ params }))).toContain("No active health programs right now.");
     backend({});
     expect(render(await ProgramsPage({ params }))).toContain("Programs could not be loaded");
-    expect(await redirectOf(async () => ProgramsActiveRedirect(page()))).toBe("redirect:/en/programs");
   });
 });

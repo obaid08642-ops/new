@@ -12,7 +12,7 @@ import { COLUMN, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { isOffline } from '../../utils/isOffline';
 import { logError } from '../../utils/logger';
-import { currentDbLang, pickLocalized } from '../../utils/localize';
+import { pickBookingName } from '../../utils/bookingName';
 import { ORDERS_TONE, buildRows, inBucket, kindsPresent, ofKind, type Bucket, type OrderKind, type OrderRow, type OrderSources } from '../../utils/orderCenter';
 
 /**
@@ -21,24 +21,12 @@ import { ORDERS_TONE, buildRows, inBucket, kindsPresent, ofKind, type Bucket, ty
  * retry. Statuses, dates, numbers and amounts are what the endpoints return.
  */
 
+export { pickBookingName };
+
 const pick = (ar: unknown, en: unknown, names?: unknown): string | null => {
   const value = pickBookingName(names, ar, en);
   return typeof value === 'string' && value.trim() !== '' ? value : null;
 };
-
-/** Issue 1832: the booking's name in the app's language from the server's `names` map; Arabic/English as before when it has none. */
-export function pickBookingName(names: unknown, ar: unknown, en: unknown): string | undefined {
-  if (names && typeof names === 'object' && !Array.isArray(names)) {
-    const map = names as Record<string, unknown>;
-    const lang = currentDbLang();
-    const own = map[lang];
-    if (typeof own === 'string' && own.trim()) return own;
-    const arabic = typeof map.ar === 'string' && map.ar.trim() ? map.ar : undefined;
-    const english = typeof map.en === 'string' && map.en.trim() ? map.en : undefined;
-    return (lang === 'ar' ? arabic ?? english : english ?? arabic) ?? pickLocalized(ar as string | undefined, en as string | undefined);
-  }
-  return pickLocalized(ar as string | undefined, en as string | undefined);
-}
 
 export type OrderEndpoints = ReadonlyArray<readonly [keyof OrderSources, string]>;
 
@@ -178,7 +166,7 @@ export function OrderList({ endpoints, titleKey, testID }: { endpoints: OrderEnd
         keyExtractor={(row) => row.key}
         ListHeaderComponent={top}
         ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
-        ListEmptyComponent={<EmptyState icon="receipt" tone={ORDERS_TONE} title={k(bucket === 'current' ? 'orders.emptyCurrent' : 'orders.emptyPrevious')} body={k('orders.emptyBody')} theme={theme} />}
+        ListEmptyComponent={<EmptyState icon="receipt" tone={ORDERS_TONE} title={activeKind ? k(bucket === 'current' ? 'orders.emptyKindCurrent' : 'orders.emptyKindPrevious', { service: k(`orders.filterKind.${activeKind}`) }) : k(bucket === 'current' ? 'orders.emptyCurrent' : 'orders.emptyPrevious')} body={k(activeKind ? 'orders.emptyKindBody' : 'orders.emptyBody')} theme={theme} />}
         contentContainerStyle={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 40 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); void load('manual'); }} tintColor={c.text.primary} />}
         renderItem={({ item }) => <OrderCard row={item} onPress={item.route ? () => router.push(item.route as unknown as Href) : undefined} />}

@@ -45,7 +45,7 @@ export default function AppointmentsScreen() {
     <ConsultList
       testID="appointments-screen"
       title={k('consult.appt.title')}
-      actions={[{ key: 'book', label: k('consult.appt.bookNew'), icon: <Glyph name="plus" size={20} color={c.icon.primary} />, onPress: () => router.push(BOOK_NOW_HREF as Href) }]}
+      actions={[{ key: 'book', label: k('consult.appt.bookNew'), icon: <Glyph name="plus" size={20} color={c.text.secondary} />, onPress: () => router.push(BOOK_NOW_HREF as Href) }]}
       top={
         <Segmented
           label={k('consult.appt.title')}

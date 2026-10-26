@@ -164,8 +164,9 @@ describe('fix-catalogue-names (#1556 A, reworked after the review of #1588)', ()
     });
 
     it('needs a key from the environment (no live call in tests)', () => {
-      expect(() => callerFromEnv({})).toThrow('GEMINI_API_KEY');
-      expect(() => callerFromEnv({ AI_PROVIDER: 'openai', OPENAI_API_KEY: 'x' })).toThrow('NAME_FIX_MODEL or OPENAI_MODEL');
+      expect(() => callerFromEnv({})).toThrow('no AI provider variable is set');
+      // any provider of the gateway chain is enough (the job no longer insists on Gemini or OpenAI)
+      expect(() => callerFromEnv({ GROQ_API_KEY: 'x' })).not.toThrow();
     });
 
     it('run is resumable with a stubbed client', async () => {

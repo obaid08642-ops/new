@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 
-import { AppHeader, Button, Card, EmptyState, FIcon, Icon, Screen, Stepper, StickyFooter } from '../../../packages/ui-native/src';
+import { AppHeader, Button, Card, EmptyState, FIcon, Icon, Screen, Stepper, StickyFooter, useCountUp } from '../../../packages/ui-native/src';
 import ProductImage from '../../src/components/ProductImage';
 import { Glyph, Notice, PHARMACY_TONE, Pill, goBack } from '../../src/components/pharmacy/PharmacyKit';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
@@ -39,8 +39,8 @@ function Line({ item, last }: { item: CartItem; last: boolean }) {
         {item.activeIngredient ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{item.activeIngredient}</Text> : null}
         {item.rx ? <Pill label={k('pharmacy.needsRx')} tone="warning" /> : null}
         {item.onlineOnly ? (
-          <View style={{ alignSelf: 'flex-start', height: 28, paddingHorizontal: 10, borderRadius: 14, backgroundColor: c.action.selected.bg, justifyContent: 'center' }}>
-            <Text style={{ ...scale(t, 'meta'), color: c.action.selected.fg }}>{k('pharmacy.product.exclusive')}</Text>
+          <View style={{ alignSelf: 'flex-start', height: 28, paddingHorizontal: 10, borderRadius: 14, backgroundColor: c.service.coral.bg, justifyContent: 'center' }}>
+            <Text style={{ ...scale(t, 'meta'), color: c.service.coral.fg }}>{k('pharmacy.product.exclusive')}</Text>
           </View>
         ) : null}
         <Stepper
@@ -73,6 +73,7 @@ function Line({ item, last }: { item: CartItem; last: boolean }) {
 export default function PharmacyCartScreen() {
   const { theme, t, c, dir, flow, k, num } = useScreenUi();
   const { items, hasRxItems, clearCart, ready } = useCart();
+  const shownCount = useCountUp(items.length); // the count under the title counts to its new value
   const [consulting, setConsulting] = useState(false);
   const consultBusy = useRef(false);
 
@@ -117,7 +118,7 @@ export default function PharmacyCartScreen() {
         title={k('pharmacy.cart')}
         onBack={goBack}
         backLabel={k('pharmacy.back')}
-        actions={items.length ? [{ key: 'clear', label: k('pharmacy.cart.clear'), icon: <Glyph name="trash" size={20} color={c.icon.primary} />, onPress: confirmClear }] : []}
+        actions={items.length ? [{ key: 'clear', label: k('pharmacy.cart.clear'), icon: <Glyph name="trash" size={20} color={c.text.secondary} />, onPress: confirmClear }] : []}
         theme={theme}
         direction={dir}
       />
@@ -164,7 +165,7 @@ export default function PharmacyCartScreen() {
     <Screen theme={theme} direction={dir} header={header} footer={footer} testID="cart-screen">
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24, gap: 16 }}>
         <Text style={{ ...scale(t, 'label', 'medium'), color: c.text.secondary, ...flow }}>
-          {items.length === 1 ? k('pharmacy.hub.oneItem') : k('pharmacy.hub.items', { n: num(items.length) })}
+          {items.length === 1 ? k('pharmacy.hub.oneItem') : k('pharmacy.hub.items', { n: num(shownCount) })}
         </Text>
 
         <Card padding="none" theme={theme}>
