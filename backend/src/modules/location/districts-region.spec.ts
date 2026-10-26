@@ -1,7 +1,8 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { REGIONS, queryOverpass, regionBoundariesQuery, regionQuery, regionToRows } from '../../../scripts/geo/fetch-osm-districts-region';
+import { SAUDI_LOCATIONS_SEED } from './seeds/saudi-locations.data';
+import { REGIONS, backoffMs, queryOverpass, regionBoundariesQuery, regionQuery, regionToRows } from '../../../scripts/geo/fetch-osm-districts-region';
 import { buildBoundaries, cityKey, pointInRings, resolveCentres, stitchRings, type OsmAny } from '../../../scripts/geo/district-assign';
 import { mergeParts, type Assignment } from '../../../scripts/geo/merge-districts-parts';
 import { assignmentSummaryMarkdown, cleanEnglishName, validateExtract } from '../../../scripts/geo/validate-districts-extract';
@@ -24,6 +25,74 @@ const square = (id: number, level: number, ar: string, en: string, minLat: numbe
     { type: 'way', role: 'outer', geometry: [{ lat: minLat, lon: minLon }, { lat: maxLat, lon: minLon }, { lat: maxLat, lon: maxLon }] }, // reversed half
   ],
 } as OsmAny);
+
+// REAL Overpass answers saved on 2026-10-25 (see _source in each file): the shapes the synthetic cases below stand in for.
+const fixture = (name: string): OsmAny[] => JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', name), 'utf8')).elements;
+const seed = (...codes: string[]) => SAUDI_LOCATIONS_SEED.filter((l) => l.type === 'city' && codes.includes(l.code));
+
+describe('real Overpass samples', () => {
+  it('the boundaries query asks for `out geom;`; with the `tags` modifier Overpass prints no members at all', () => {
+    expect(regionBoundariesQuery('SA-02')).toMatch(/out geom;$/);
+    expect(regionBoundariesQuery('SA-02')).not.toContain('geom tags');
+  });
+
+  it('Bahrah governorate (real relation): its ways come in any order and direction and still close into rings; the town is inside, Mecca and Jeddah are not', () => {
+    const { boundaries, unclosed } = buildBoundaries(fixture('overpass-bahrah-boundary.json'));
+    expect(unclosed).toBe(0);
+    expect(boundaries).toHaveLength(1);
+    const rings = boundaries[0].rings;
+    expect(rings.length).toBeGreaterThanOrEqual(1);
+    expect(pointInRings({ lat: 21.4012724, lng: 39.4500096 }, rings)).toBe(true); // Bahrah town (node 1237963667)
+    expect(pointInRings({ lat: 21.420847, lng: 39.826869 }, rings)).toBe(false); // Mecca (node 4308338842)
+    expect(pointInRings({ lat: 21.54, lng: 39.17 }, rings)).toBe(false); // Jeddah
+  });
+
+  it('a way that joins the START of the chain (the real order of Bahrah) is attached, not left over', () => {
+    const a = { lat: 0, lng: 0 }; const b = { lat: 0, lng: 1 }; const c = { lat: 1, lng: 1 }; const d = { lat: 1, lng: 0 };
+    // way 2 ends where way 1 starts; way 3 closes the other side in reverse
+    expect(stitchRings([[a, b, c], [d, a], [c, d]])).toHaveLength(1);
+    expect(stitchRings([[a, b], [c, d], [b, c], [d, a]])).toHaveLength(1);
+  });
+
+  it('Makkah region (real city and town nodes): Makkah, Jeddah, Bahrah, Al Jumum and Taif each get a centre; none is ambiguous', () => {
+    const r = resolveCentres(fixture('overpass-makkah-towns.json'), [], seed('sa-makkah', 'sa-jeddah', 'sa-bahrah', 'sa-al-jumum', 'sa-taif'));
+    expect(r.ambiguous).toEqual([]);
+    expect(r.missing).toEqual([]);
+    expect(r.centres.get('sa-makkah')?.source).toBe('osm:node/4308338842');
+    expect(r.centres.get('sa-jeddah')?.source).toBe('osm:node/1933393717');
+    expect(r.centres.get('sa-bahrah')?.source).toBe('osm:node/1237963667');
+    expect(r.centres.get('sa-al-jumum')?.source).toBe('osm:node/1236466181');
+    expect(r.centres.get('sa-taif')?.source).toBe('osm:node/1236468526');
+  });
+
+  it('Riyadh region: Riyadh, Diriyah, Al Majmaah, Al Muzahimiyah get centres from their place nodes', () => {
+    const r = resolveCentres(fixture('overpass-riyadh-towns.json'), [], seed('sa-riyadh', 'sa-diriyah', 'sa-al-majmaah', 'sa-al-muzahimiyah', 'sa-al-kharj'));
+    for (const code of ['sa-riyadh', 'sa-diriyah', 'sa-al-majmaah', 'sa-al-muzahimiyah']) expect([code, r.centres.has(code)]).toEqual([code, true]);
+    // OSM has no place=city|town node for Al-Kharj (only landuse ways): its centre must come from its governorate boundary
+    expect(r.centres.has('sa-al-kharj')).toBe(false);
+    expect(r.missing).toEqual(['sa-al-kharj']);
+  });
+
+  it('Makkah\'s own neighbourhood goes to Makkah by its governorate boundary, Jeddah\'s to Jeddah (the run that gave Makkah 0 districts)', () => {
+    const els: OsmAny[] = [
+      ...fixture('overpass-makkah-towns.json'), ...fixture('overpass-jeddah-makkah-boundaries.json'),
+      place('suburb', 1, 21.456, 39.797, 'حي العزيزية', 'Al Aziziyah'), // inside the Makkah governorate, 33 km from Jeddah's centre
+      place('suburb', 2, 21.5433, 39.1728, 'حي الروضة', 'Ar Rawdah'), // inside the Jeddah governorate
+    ];
+    const r = regionToRows(els, seed('sa-makkah', 'sa-jeddah', 'sa-bahrah', 'sa-al-jumum'));
+    expect(r.boundaries).toEqual({ used: 2, unclosed: 0 });
+    expect(r.rows.map((x) => [x.city_code, x.name_en]).sort()).toEqual([['sa-jeddah', 'Ar Rawdah'], ['sa-makkah', 'Al Aziziyah']]);
+    expect(r.per_city).toEqual({ 'sa-makkah': { boundary: 1, nearest: 0 }, 'sa-jeddah': { boundary: 1, nearest: 0 } });
+  });
+
+  it('a neighbourhood inside the Bahrah governorate goes to Bahrah by BOUNDARY, ahead of the nearer-by-distance city', () => {
+    const els: OsmAny[] = [...fixture('overpass-makkah-towns.json'), ...fixture('overpass-bahrah-boundary.json'), place('suburb', 1, 21.2, 39.45, 'حي الصفا', 'Al Safa')];
+    const r = regionToRows(els, seed('sa-makkah', 'sa-jeddah', 'sa-bahrah', 'sa-al-jumum'));
+    expect(r.boundaries.unclosed).toBe(0);
+    expect(r.rows.map((x) => x.city_code)).toEqual(['sa-bahrah']);
+    expect(r.per_city['sa-bahrah']).toEqual({ boundary: 1, nearest: 0 });
+  });
+});
 
 describe('geometry', () => {
   it('stitches ways into a closed ring in either direction and drops a chain that never closes', () => {
@@ -151,14 +220,43 @@ describe('districts by region', () => {
     const ok = { ok: true, status: 200, json: async () => ({ elements: [] }) } as unknown as Response;
     const calls: number[] = [];
     const f1 = jest.fn(async () => { calls.push(1); return calls.length < 3 ? ({ ok: false, status: 504 } as Response) : ok; });
-    expect(await queryOverpass('http://x', 'ua', 'q', { attempts: 3, attemptTimeoutMs: 1000, gapMs: 1, fetchImpl: f1 as unknown as typeof fetch })).toEqual({ elements: [] });
+    expect(await queryOverpass('http://x', 'ua', 'q', { attempts: 3, attemptTimeoutMs: 1000, gapMs: 1, sleep: async () => undefined, fetchImpl: f1 as unknown as typeof fetch })).toEqual({ elements: [] });
     expect(f1).toHaveBeenCalledTimes(3);
     const f2 = jest.fn(async () => ({ ok: false, status: 400 } as Response));
-    expect((await queryOverpass('http://x', 'ua', 'q', { attempts: 3, attemptTimeoutMs: 1000, gapMs: 1, fetchImpl: f2 as unknown as typeof fetch })).error).toBe('http 400');
+    expect((await queryOverpass('http://x', 'ua', 'q', { attempts: 3, attemptTimeoutMs: 1000, gapMs: 1, sleep: async () => undefined, fetchImpl: f2 as unknown as typeof fetch })).error).toBe('http 400');
     expect(f2).toHaveBeenCalledTimes(1);
     const f3 = jest.fn(async () => { throw Object.assign(new Error('t'), { name: 'TimeoutError' }); });
-    const r3 = await queryOverpass('http://x', 'ua', 'q', { attempts: 2, attemptTimeoutMs: 5, gapMs: 1, fetchImpl: f3 as unknown as typeof fetch });
+    const r3 = await queryOverpass('http://x', 'ua', 'q', { attempts: 2, attemptTimeoutMs: 5, gapMs: 1, sleep: async () => undefined, fetchImpl: f3 as unknown as typeof fetch });
     expect(r3.error).toContain('timeout after 5 ms');
+  });
+});
+
+describe('Overpass retries (the SA-07 502 "at capacity")', () => {
+  const sleeps: number[] = [];
+  const opts = (fetchImpl: unknown, attempts = 6) => ({ attempts, attemptTimeoutMs: 1000, gapMs: 12000, maxWaitMs: 300000, random: () => 0.5, sleep: async (ms: number) => { sleeps.push(ms); }, fetchImpl: fetchImpl as typeof fetch });
+  beforeEach(() => { sleeps.length = 0; });
+
+  it('waits longer each time up to a cap, and rotates through the endpoints', async () => {
+    const urls: string[] = [];
+    const f = jest.fn(async (url: string) => { urls.push(url); return urls.length < 6 ? ({ ok: false, status: 502 } as Response) : ({ ok: true, status: 200, json: async () => ({ elements: [] }) } as unknown as Response); });
+    const out = await queryOverpass(['https://a/x', 'https://b/x', 'https://c/x'], 'ua', 'q', opts(f));
+    expect(out).toEqual({ elements: [] });
+    expect(urls).toEqual(['https://a/x', 'https://b/x', 'https://c/x', 'https://a/x', 'https://b/x', 'https://c/x']);
+    expect(sleeps).toEqual([24000, 48000, 96000, 192000, 300000]); // gap · 2^n, capped at 5 minutes
+  });
+
+  it('keeps asking after a 200 whose body says "runtime error" (an abandoned query), and gives the error when it never recovers', async () => {
+    const f = jest.fn(async () => ({ ok: true, status: 200, json: async () => ({ elements: [], remark: 'runtime error: Query timed out in "query" at line 1' }) } as unknown as Response));
+    const out = await queryOverpass('https://a/x', 'ua', 'q', opts(f, 3));
+    expect(out.error).toContain('runtime error');
+    expect(out.error).toContain('after 3 attempts');
+    expect(f).toHaveBeenCalledTimes(3);
+  });
+
+  it('backoff has ±20% jitter and a cap', () => {
+    expect(backoffMs(1, 10000, 300000, () => 0)).toBe(16000);
+    expect(backoffMs(1, 10000, 300000, () => 1)).toBe(24000);
+    expect(backoffMs(10, 10000, 300000, () => 0.5)).toBe(300000);
   });
 });
 

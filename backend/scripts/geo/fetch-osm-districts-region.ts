@@ -33,10 +33,14 @@ export function regionQuery(iso: string, timeoutS = 600): string {
   return `[out:json][timeout:${timeoutS}];rel["boundary"="administrative"]["admin_level"="4"]["ISO3166-2"="${iso}"];map_to_area->.r;(node(area.r)["place"~"^(suburb|neighbourhood|quarter)$"];way(area.r)["place"~"^(suburb|neighbourhood|quarter)$"];node(area.r)["place"~"^(city|town|village)$"];way(area.r)["place"~"^(city|town|village)$"];);out center tags;`;
 }
 
-/** The governorate / municipality boundaries (admin_level 6–8) of the region, with their outlines, to decide which city contains a district. */
+/**
+ * The governorate / municipality boundaries (admin_level 6–8) of the region, with their outlines, to decide which city contains a district.
+ * `out geom;` and NOT `out geom tags;`: with the `tags` modifier Overpass prints the tags (and bounds) only, no members, so no ring could
+ * ever be assembled and every district fell back to the nearest city (the first by-region run: "by boundary 0", all relations unclosed).
+ */
 export function regionBoundariesQuery(iso: string, timeoutS = 600): string {
   if (!/^SA-\d{2}$/.test(iso)) throw new Error(`bad region code: ${iso}`);
-  return `[out:json][timeout:${timeoutS}];rel["boundary"="administrative"]["admin_level"="4"]["ISO3166-2"="${iso}"];map_to_area->.r;rel(area.r)["boundary"="administrative"]["admin_level"~"^(6|7|8)$"];out geom tags;`;
+  return `[out:json][timeout:${timeoutS}];rel["boundary"="administrative"]["admin_level"="4"]["ISO3166-2"="${iso}"];map_to_area->.r;rel(area.r)["boundary"="administrative"]["admin_level"~"^(6|7|8)$"];out geom;`;
 }
 
 export type RegionSkipped = { no_ar_or_en_name: number; no_point: number; duplicate: number; too_far: number; no_city_centre: number };
@@ -89,20 +93,57 @@ export function regionToRows(elements: OsmAny[], cities: SeedCity[], maxKm = 25)
   };
 }
 
-/** POST with a per-attempt timeout; network errors, timeouts and 429/5xx are retried with a growing wait. Returns the parsed answer or the error text. */
-export async function queryOverpass(endpoint: string, ua: string, query: string, opts: { attempts: number; attemptTimeoutMs: number; gapMs: number; fetchImpl?: typeof fetch }): Promise<{ elements?: OsmAny[]; error?: string }> {
+/** The public Overpass instances, tried in turn: one busy mirror answers 502 "at capacity" for minutes while another is free. */
+export const DEFAULT_OVERPASS_ENDPOINTS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://lz4.overpass-api.de/api/interpreter',
+  'https://z.overpass-api.de/api/interpreter',
+];
+
+export interface OverpassOptions {
+  attempts: number;
+  attemptTimeoutMs: number;
+  gapMs: number;
+  /** longest wait between two attempts; the wait doubles each attempt up to this */
+  maxWaitMs?: number;
+  fetchImpl?: typeof fetch;
+  sleep?: (ms: number) => Promise<void>;
+  random?: () => number;
+}
+
+/** The wait before attempt n+1: gap · 2^n, capped, with ±20% jitter so parallel runs do not retry in step. */
+export function backoffMs(attempt: number, gapMs: number, maxWaitMs: number, random: () => number = Math.random): number {
+  const base = Math.min(maxWaitMs, gapMs * 2 ** attempt);
+  return Math.round(base * (0.8 + 0.4 * random()));
+}
+
+/**
+ * POST with a per-attempt timeout. Network errors, timeouts, 429/502/503/504 and a 200 whose body says "runtime error" (Overpass answers a
+ * query it had to abandon that way, with partial or no elements) are retried with a growing wait, rotating through the endpoints. Returns the
+ * parsed answer or the last error text; never throws.
+ */
+export async function queryOverpass(endpoints: string | string[], ua: string, query: string, opts: OverpassOptions): Promise<{ elements?: OsmAny[]; error?: string }> {
+  const list = Array.isArray(endpoints) ? endpoints : [endpoints];
   const doFetch = opts.fetchImpl ?? fetch;
+  const sleep = opts.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
+  const maxWait = opts.maxWaitMs ?? 300_000;
   let last = 'no attempt';
   for (let attempt = 1; attempt <= opts.attempts; attempt++) {
+    const endpoint = list[(attempt - 1) % list.length];
     try {
       const res = await doFetch(endpoint, { method: 'POST', headers: { 'User-Agent': ua, 'Content-Type': 'application/x-www-form-urlencoded' }, body: `data=${encodeURIComponent(query)}`, signal: AbortSignal.timeout(opts.attemptTimeoutMs) });
-      if (res.ok) return (await res.json()) as { elements?: OsmAny[] };
-      last = `http ${res.status}`;
-      if (![429, 502, 503, 504].includes(res.status)) return { error: last };
+      if (res.ok) {
+        const body = (await res.json()) as { elements?: OsmAny[]; remark?: string };
+        if (typeof body.remark === 'string' && /runtime error/i.test(body.remark)) last = `overpass: ${body.remark.slice(0, 120)}`;
+        else return body;
+      } else {
+        last = `http ${res.status}`;
+        if (![429, 502, 503, 504].includes(res.status)) return { error: last };
+      }
     } catch (e) {
       last = (e as Error)?.name === 'TimeoutError' ? `timeout after ${opts.attemptTimeoutMs} ms` : `network: ${(e as Error)?.message ?? e}`;
     }
-    if (attempt < opts.attempts) await new Promise((r) => setTimeout(r, opts.gapMs * 2 * attempt));
+    if (attempt < opts.attempts) await sleep(backoffMs(attempt, opts.gapMs, maxWait, opts.random));
   }
   return { error: `${last} (after ${opts.attempts} attempts)` };
 }
@@ -114,17 +155,19 @@ async function main() {
   if (!REGIONS.some((r) => r.iso === region)) throw new Error(`unknown region ${region}`);
   const gapMs = Number(arg('gap-ms')) || 12000; const maxKm = Number(arg('max-km')) || 25;
   const attemptTimeoutMs = (Number(arg('attempt-timeout-s')) || 900) * 1000;
+  const attempts = Number(arg('attempts')) || 7;
   const cities: SeedCity[] = SAUDI_LOCATIONS_SEED.filter((l) => l.type === 'city' && l.is_active);
   const ua = process.env.GEO_USER_AGENT || 'NabdPlus-backend/1.0 (+https://nabd.plus)';
-  const endpoint = process.env.OVERPASS_URL || 'https://overpass-api.de/api/interpreter';
+  const endpoints = (process.env.OVERPASS_URL || '').split(',').map((v) => v.trim()).filter(Boolean);
+  if (!endpoints.length) endpoints.push(...DEFAULT_OVERPASS_ENDPOINTS);
   const result: { cities: RegionResult['cities']; districts: OutDistrict[] } = { cities: [], districts: [] };
   const report: Record<string, unknown> = {};
   try {
-    const places = await queryOverpass(endpoint, ua, regionQuery(region), { attempts: 3, attemptTimeoutMs, gapMs });
+    const places = await queryOverpass(endpoints, ua, regionQuery(region), { attempts, attemptTimeoutMs, gapMs });
     if (places.error) report[`region:${region}`] = { error: places.error };
     else {
       await new Promise((r) => setTimeout(r, gapMs));
-      const bounds = await queryOverpass(endpoint, ua, regionBoundariesQuery(region), { attempts: 3, attemptTimeoutMs, gapMs });
+      const bounds = await queryOverpass(endpoints, ua, regionBoundariesQuery(region), { attempts, attemptTimeoutMs, gapMs });
       const r = regionToRows([...(places.elements ?? []), ...(bounds.elements ?? [])], cities, maxKm);
       result.districts.push(...r.rows);
       result.cities.push(...r.cities);
