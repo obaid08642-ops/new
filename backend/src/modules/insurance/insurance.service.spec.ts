@@ -230,8 +230,10 @@ describe('InsuranceService', () => {
     });
 
     it('should persist an unverified policy built only from provided data', async () => {
-      // Implementation upserts via findOneAndUpdate (not create)
+      // Implementation upserts via findOneAndUpdate (not create); the catalogue and the saved policy are read first (one writer, one shape)
       patientModel.findOneAndUpdate = jest.fn().mockResolvedValue({});
+      patientModel.findOne = jest.fn().mockReturnValue({ lean: async () => null });
+      companyModel.findOne = jest.fn().mockReturnValue({ lean: async () => null });
       const res = await service.uploadPolicy(
         { provider: 'bupa', policy_number: 'POL-1', network: 'gold' } as any,
         'p1',

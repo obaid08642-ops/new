@@ -23,6 +23,14 @@ describe("the header favourites button", () => {
     expect(html).not.toContain("wishlist-badge");
   });
 
+  it("reads the saved count only for a signed-in patient: a visitor or a guest account never calls /wishlist (it answers 401)", () => {
+    const source = read("components-next/core/wishlist-link.tsx");
+    expect(source).toContain("useSessionIdentity()");
+    expect(source).toContain('identity.status === "user" && !identity.isGuest');
+    expect(source.indexOf("if (!canRead)")).toBeGreaterThan(-1);
+    expect(source.indexOf("if (!canRead)")).toBeLessThan(source.indexOf('fetch("/api/patient/users/me/wishlist"'));
+  });
+
   it("sits before the cart and the menu is the last item in the phone header of the core and home shells", () => {
     const core = read("components-next/core/core-shell.tsx");
     const phone = core.slice(core.indexOf("every page carries favourites"));
