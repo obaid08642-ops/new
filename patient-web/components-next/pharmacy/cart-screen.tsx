@@ -14,6 +14,7 @@ import { Stepper } from "@/components-next/ui-generated/components/Inputs";
 import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX } from "@/components-next/ui-generated/icons/fill";
 import { useCart, type CartItem } from "@/lib/context/CartContext";
 import { formatNumber } from "@/lib/format-price";
+import { CountUp } from "@/components-next/motion/count-up";
 import { allowedImageUrl } from "@/lib/image-hosts";
 import type { Locale } from "@/lib/i18n";
 import { AddressCard } from "./address-card";
@@ -67,7 +68,7 @@ export function CartScreen({ locale, signedIn }: { locale: Locale; signedIn: boo
       <div className={rx.bar}>
         <div className={rx.barTotal}>
           <span className={rx.barLabel}>{t("itemsTotal")}</span>
-          <span className={rx.barAmount}>{formatNumber(locale, itemCount)}</span>
+          <span className={rx.barAmount}><CountUp value={itemCount} locale={locale} /></span>
         </div>
         {requestButton}
       </div>
@@ -200,7 +201,7 @@ export function CartScreen({ locale, signedIn }: { locale: Locale; signedIn: boo
 
         <div className={cs.side}>
           <section className={`${rx.card} ${cs.summary}`} aria-label={t("summaryLabel")}>
-            <div className={cs.line}><span>{t("itemsTotal")}</span><span className={cs.lineValue}>{formatNumber(locale, itemCount)}</span></div>
+            <div className={cs.line}><span>{t("itemsTotal")}</span><span className={cs.lineValue}><CountUp value={itemCount} locale={locale} /></span></div>
             <div className={cs.line}><span>{t("delivery")}</span><span className={cs.lineValue}>{t("deliveryFromOffer")}</span></div>
             <div className={`${cs.line} ${cs.totalLine}`}><span>{t("finalPrice")}</span><span className={cs.lineValue}>{t("finalPriceFromOffer")}</span></div>
             <div className={rx.deskActions}>{requestButton}</div>
