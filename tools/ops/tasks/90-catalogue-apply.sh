@@ -16,6 +16,8 @@
 # The districts extract ships INSIDE the image (backend/src/modules/location/data/districts-extract.v1.json) and is used by default.
 # Optional inputs on the host (skipped when absent): $IN/districts.json  (an OVERRIDE of the packaged extract, same format)
 #                                                    $IN/approved-name-fixes.csv  (the owner-approved rows of fix-catalogue-names)
+#                                                    $IN/product-translations.json  (missing product texts translated from the existing ones by
+#                                                       scripts/translate-product-content.ts; written only into EMPTY fields, marked machine-translated)
 # After a change of medicine names, add `cf-purge-api` to tools/ops/RUN for that run so the cached product pages refresh.
 set -u
 EXPECT_PLAN_SHA=""
@@ -45,7 +47,10 @@ fi
 if sudo -n test -f "$IN/approved-name-fixes.csv"; then
   sudo -n cat "$IN/approved-name-fixes.csv" | $DK exec -i "$CT" sh -c 'cat > /tmp/cat-name-fixes.csv' && ARGS="$ARGS --name-fixes=/tmp/cat-name-fixes.csv" && say "input approved-name-fixes.csv copied in"
 fi
-cleanup_inputs() { $DK exec "$CT" sh -c 'rm -f /tmp/cat-districts.json /tmp/cat-name-fixes.csv' >/dev/null 2>&1; }
+if sudo -n test -f "$IN/product-translations.json"; then
+  sudo -n cat "$IN/product-translations.json" | $DK exec -i "$CT" sh -c 'cat > /tmp/cat-product-translations.json' && ARGS="$ARGS --product-translations=/tmp/cat-product-translations.json" && say "input product-translations.json copied in"
+fi
+cleanup_inputs() { $DK exec "$CT" sh -c 'rm -f /tmp/cat-districts.json /tmp/cat-name-fixes.csv /tmp/cat-product-translations.json' >/dev/null 2>&1; }
 
 # --- 1. plan
 PLAN=$(tool plan $ARGS); RC=$?
