@@ -6,7 +6,7 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 
 ## Coverage
 
-- Scenarios: 17 done, 40 partial, 4 blocked (reason given), 13 not started, of 74 total.
+- Scenarios: 20 done, 40 partial, 4 blocked (reason given), 10 not started, of 74 total.
 - Screens: 0 of 274 patient-web routes fully scanned (public pages sampled in findings). Admin and provider screens not started.
 - The sweep is not finished. It is finished only when both counts reach 100%, or each remaining line gives its reason.
 
@@ -21,9 +21,9 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 | P-05 | pharmacy | accept offer and pay (card, test double) | DONE | j_pharmacy.py: payment intent created with the server amount, "payment verified as paid", delivered paid by card. DB: pharmacy_orders completed (4 delivered) |
 | P-06 | pharmacy | preparing → courier → delivered → rated | PARTIAL | j_pharmacy.py: "pharmacy: out for delivery", "delivered", "patient rates the pharmacy" pass. The preparing step is not a named step, so it is not proven |
 | P-07 | pharmacy | cancel at each step | DONE | j_pharmacy.py: admin cancel, patient cancel, "order is cancelled", second cancel refused, delivered order cannot be cancelled. DB: pharmacy_orders cancelled (9) |
-| P-08 | pharmacy | no offers | TODO | |
-| P-09 | pharmacy | offer expired | TODO | |
-| P-10 | pharmacy | pharmacy rejects | TODO | |
+| P-08 | pharmacy | no offers | DONE | tools/live/j_qa_pharmacy_paths.py (72/72): order sent, no answer; local test DB round timers moved to the past, then POST /admin/admin/pharmacy/broadcasts/expire-due until closed; MongoDB: broadcast closed, order manual_review, no selected offer; patient sees manual_review after reload. Each expiry widens the round (round_advanced_by_durable_command), as designed |
+| P-09 | pharmacy | offer expired | DONE | tools/live/j_qa_pharmacy_paths.py: pharmacy offer submitted, patient sees it; quote timer moved to the past (local test DB), expiry command run; MongoDB offer status expired; patient select refused; order has no selected offer |
+| P-10 | pharmacy | pharmacy rejects | DONE | tools/live/j_qa_pharmacy_paths.py: POST /provider/pharmacy/broadcasts/:id/reject; MongoDB pharmacy_broadcasts responses has the declined entry, broadcast still open; patient sees no offer; a repeat decline replaces the entry (one response per pharmacy). Order-level POST /orders/:id/reject not covered here |
 | P-11 | pharmacy | payment fails / declined / 3DS | TODO | fake Moyasar at :9100 |
 | P-12 | pharmacy | payment retry | TODO | |
 | P-13 | pharmacy | refund | TODO | |
@@ -105,7 +105,7 @@ Per-screen scan (every element, sizes 390/768/1280, six languages, dark mode) is
 - Auth-gated patient-web routes (signed in, 72): swept on the production layout. Table: docs/qa/screens/patient-web-auth.md. Findings: docs/qa/findings/web-sweep-auth.md.
 - Admin pages (65 files): swept signed in, on the admin build of 03:12, then re-checked on the rebuilt admin from merged main. Findings: docs/qa/findings/admin-sweep.md. Dynamic admin routes (orders/[kind]/[id]) not tested (need IDs).
 - Dynamic patient-web routes (53): 5 routes tested with a real seeded doctor (docs/qa/findings/web-sweep-dynamic.md). Found P1: /consultations/doctors/<id> returns 503 (server-to-client function prop). The other ~48 need seeded IDs for articles, facilities, community, orders, appointments, labs, radiology, packages, results, clinics: NOT TESTED, reason: no seeded records of those types yet.
-- Scenarios: 17 done, 40 partial, 4 blocked (reason given), 13 not started, of 74 total.
+- Scenarios: 20 done, 40 partial, 4 blocked (reason given), 10 not started, of 74 total.
 - Open P1s: guest job publish (no route); admin system logs API 404 (AdminLogsController dropped in the P5.3 merge).
 - Corrected: hydration P1 retracted (local setup; production layout passes).
 - Environment: services drop between turns. Recover with /tmp/claude-0-scratch/stack_up.sh (patient-web via the nonce server). Kill stale next-server processes by PID (comm next-server) before restarting admin.
