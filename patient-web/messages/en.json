@@ -148,7 +148,11 @@
     "recordsMaternity": "Maternity",
     "recordsPregnancy": "Pregnancy tracking",
     "recordsCycle": "Cycle tracking",
-    "notificationsUnread": "Notifications, you have new ones"
+    "notificationsUnread": "Notifications, you have new ones",
+    "orderAgain": "Order again",
+    "orderAgainOneItem": "1 item",
+    "orderAgainItems": "{n, number} items",
+    "orderAgainAction": "Order"
   },
   "Login": {
     "title": "Sign in",

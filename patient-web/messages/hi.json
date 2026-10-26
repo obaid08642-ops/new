@@ -148,7 +148,11 @@
     "recordsMaternity": "मातृत्व",
     "recordsPregnancy": "गर्भावस्था ट्रैकिंग",
     "recordsCycle": "चक्र ट्रैकिंग",
-    "notificationsUnread": "सूचनाएँ, नई सूचनाएँ हैं"
+    "notificationsUnread": "सूचनाएँ, नई सूचनाएँ हैं",
+    "orderAgain": "अपना पिछला ऑर्डर फिर से करें",
+    "orderAgainOneItem": "1 वस्तु",
+    "orderAgainItems": "{n, number} वस्तुएं",
+    "orderAgainAction": "ऑर्डर करें"
   },
   "Login": {
     "title": "साइन इन करें",

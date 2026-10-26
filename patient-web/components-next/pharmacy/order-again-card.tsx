@@ -35,7 +35,7 @@ export async function readLatestOrder(): Promise<Last | null> {
 }
 
 export function OrderAgainCard({ locale }: { locale: string }) {
-  const t = useTranslations("PharmacyBrowse");
+  const t = useTranslations("HomeWeb");
   const [last, setLast] = useState<Last | null>(null);
 
   useEffect(() => {
@@ -49,13 +49,13 @@ export function OrderAgainCard({ locale }: { locale: string }) {
     <Link className={styles.row} href={`/${locale}/pharmacy/reorder?orderId=${encodeURIComponent(last.id)}`} data-testid="hub-order-again">
       <span className={styles.rowMedia}><FIcon icon="clock-counter-clockwise" tone={PHARMACY_TONE} size={44} /></span>
       <span className={styles.rowBody}>
-        <span className={styles.rowName}>{t("hubOrderAgain")}</span>
+        <span className={styles.rowName}>{t("orderAgain")}</span>
         <span className={styles.rowSub}>
-          {last.count === 1 ? t("hubOneItem") : t("hubItems", { n: last.count })}
+          {last.count === 1 ? t("orderAgainOneItem") : t("orderAgainItems", { n: last.count })}
           {last.at ? <> · <LocalDate iso={last.at} locale={locale} /></> : null}
         </span>
       </span>
-      <span className={styles.rowEnd}>{t("hubOrderAgainAction")}</span>
+      <span className={styles.rowEnd}>{t("orderAgainAction")}</span>
     </Link>
   );
 }
