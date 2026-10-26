@@ -178,6 +178,7 @@ export async function CategoryView({ params, searchParams }: Props) {
             oldPrice: it.old_price,
             image: it.image,
             thumb: productCardImageSrc(it.image),
+            images: it.images,
             form: it.form,
             strength: it.strength,
             packageSize: it.package_size,

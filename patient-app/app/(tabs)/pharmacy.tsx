@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScopedSuggest } from '../../src/components/search/ScopedSuggest';
 import { SUGGEST_SCOPES } from '../../src/utils/searchSuggest';
 import { FlatList, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
@@ -20,7 +20,7 @@ import {
   useTabBarHeight,
 } from '../../../packages/ui-native/src';
 import type { FillIconName, ServiceTone } from '../../../packages/ui/icons/fill';
-import ProductImage from '../../src/components/ProductImage';
+import { RotatingProductImage } from '../../src/components/pharmacy/RotatingProductImage';
 import { MapEntryButton } from '../../src/components/account/MapEntryButton';
 import { FilterSheet } from '../../src/components/pharmacy/FilterSheet';
 import { CartButton, WishlistButton, CountBadge, GlyphRound, GlyphSquare, MedAddControl, PHARMACY_TONE, SECONDARY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
@@ -88,6 +88,8 @@ function ProductSkeleton({ cols }: { cols: number }) {
   );
 }
 
+const VIEWABLE = { itemVisiblePercentThreshold: 60 };
+
 export default function PharmacyHub() {
   const { theme, t, c, dir, flow, k, money, num, lang } = useScreenUi();
   const barHeight = useTabBarHeight();
@@ -95,6 +97,11 @@ export default function PharmacyHub() {
   const cols = width >= 768 ? 3 : 2;
   const { itemCount } = useCart();
   const addToCart = useAddMedToCart();
+  // the cards on screen turn through their pictures; the ones scrolled away stop (the list tells us which are viewable)
+  const [visibleIds, setVisibleIds] = useState<Set<string>>(() => new Set());
+  const onViewable = useRef(({ viewableItems }: { viewableItems: Array<{ item: { id?: unknown } }> }) => {
+    setVisibleIds(new Set(viewableItems.map((v) => String(v.item?.id ?? ''))));
+  }).current;
   const isMember = useSelector((s: { auth?: { isAuthenticated?: boolean; isGuest?: boolean } }) => Boolean(s.auth?.isAuthenticated && !s.auth?.isGuest));
 
   // what the filter sheet hands back (the filters live in the URL)
@@ -369,6 +376,8 @@ export default function PharmacyHub() {
         ListEmptyComponent={empty}
         keyboardShouldPersistTaps="handled"
         initialNumToRender={8}
+        onViewableItemsChanged={onViewable}
+        viewabilityConfig={VIEWABLE}
         maxToRenderPerBatch={8}
         windowSize={7}
         contentContainerStyle={{ width: '100%', maxWidth: 720, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 7, paddingBottom: barHeight + 40, flexGrow: 1 }}
@@ -383,7 +392,7 @@ export default function PharmacyHub() {
                 meta={medMeta(item) || undefined}
                 price={price ? money(price) : ''}
                 currency={price ? k('pharmacy.currency') : undefined}
-                image={<ProductImage uri={medGallery(item)[0]} style={{ width: '100%', height: '100%' }} iconSize={40} />}
+                image={<RotatingProductImage uris={medGallery(item)} active={visibleIds.has(String(item.id))} iconSize={40} />}
                 discountLabel={pct > 0 ? k('pharmacy.discount', { n: num(pct) }) : undefined}
                 rxLabel={productNote(item, { rx: k('pharmacy.needsRx'), online: k('pharmacy.product.exclusive') })}
                 addLabel={k('pharmacy.addToCart')}
