@@ -123,11 +123,9 @@ type HoloPressEvent = { nativeEvent: { features?: { id?: string | number; proper
 export function HologramLayer({ data, selectedId, onSelect, onCluster }: { data: HoloFeatureCollection; selectedId: string | null; onSelect: (id: string) => void; onCluster: (lngLat: [number, number]) => void }) {
   const { c } = useScreenUi();
   const by = (pick: (kind: HoloKind) => string) => matchByKind(Object.fromEntries(HOLO_KINDS.map((kind) => [kind, pick(kind)])) as Record<HoloKind, string>, c.service.map.glyph);
-  const fg = by((kind) => c.service[HOLO_LOOK[kind].tone].fg);
   // one pin image per kind, drawn from this theme's service tones (re-made when the theme changes)
   const images = useMemo(() => Object.fromEntries(HOLO_KINDS.map((kind) => [`holo-${kind}`, { uri: holoPinUri(kind, c.service[HOLO_LOOK[kind].tone].fg, c.service[HOLO_LOOK[kind].tone].bg) }])), [c]);
   const glow = by((kind) => tint(c.service[HOLO_LOOK[kind].tone].fg, 0.22));
-  const plate = by((kind) => tint(c.service[HOLO_LOOK[kind].tone].fg, 0.32));
   const single = ['all', ['!', ['has', 'point_count']], ['!=', ['get', 'id'], selectedId ?? '']];
   return (
     <>
@@ -138,20 +136,20 @@ export function HologramLayer({ data, selectedId, onSelect, onCluster }: { data:
       cluster
       clusterRadius={CLUSTER.radius}
       clusterMaxZoom={CLUSTER.maxZoom}
-      onPress={(e: HoloPressEvent) => {
+      onPress={((e: HoloPressEvent) => {
         const f = e.nativeEvent.features?.[0];
         if (!f) return;
         if (f.properties?.point_count !== undefined) {
           const at = f.geometry?.coordinates;
           if (at && at.length >= 2) onCluster([at[0], at[1]]);
         } else if (typeof f.properties?.id === 'string') onSelect(f.properties.id);
-      }}
+      }) as never}
     >
       <Layer id="holo-cluster-halo" type="circle" filter={['has', 'point_count']} style={{ circleRadius: 26, circleColor: tint(c.service.map.glyph, 0.2), circlePitchAlignment: 'map', circleBlur: 0.6 }} />
       <Layer id="holo-cluster" type="circle" filter={['has', 'point_count']} style={{ circleRadius: 17, circleColor: c.service.map.bg, circleStrokeColor: c.service.map.glyph, circleStrokeWidth: 2 }} />
       <Layer id="holo-cluster-count" type="symbol" filter={['has', 'point_count']} style={{ textField: ['get', 'point_count_abbreviated'], textSize: 13, textColor: c.service.map.glyph, textAllowOverlap: true }} />
-      <Layer id="holo-halo" type="circle" filter={single} style={{ circleRadius: 24, circleTranslate: [0, -6], circleColor: glow, circleBlur: 0.8, circlePitchAlignment: 'map' }} />
-      <Layer id="holo-pin" type="symbol" filter={single} style={{ iconImage: ['concat', 'holo-', ['get', 'kind']], iconAnchor: 'bottom', iconSize: 1, iconAllowOverlap: true, iconPitchAlignment: 'viewport' }} />
+      <Layer id="holo-halo" type="circle" filter={single as never} style={{ circleRadius: 24, circleTranslate: [0, -6], circleColor: glow as never, circleBlur: 0.8, circlePitchAlignment: 'map' }} />
+      <Layer id="holo-pin" type="symbol" filter={single as never} style={{ iconImage: ['concat', 'holo-', ['get', 'kind']], iconAnchor: 'bottom', iconSize: 1, iconAllowOverlap: true, iconPitchAlignment: 'viewport' }} />
     </GeoJSONSource>
     </>
   );
