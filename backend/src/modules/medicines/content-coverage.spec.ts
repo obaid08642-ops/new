@@ -47,10 +47,11 @@ describe('addProduct', () => {
 });
 
 describe('slugs', () => {
-  it('a product with a slug of its own or a root slug resolves; an id-only product does not (the route would answer 404)', () => {
-    expect(slugOf({ id: 'a', slug: 'root', translations: { ur: { slug: 'اردو-سلاگ' } } }, 'ur')).toEqual({ slug: 'اردو-سلاگ', resolvable: true, own: true });
-    expect(slugOf({ id: 'a', slug: 'root' }, 'hi')).toEqual({ slug: 'root', resolvable: true, own: false });
-    expect(slugOf({ id: 'a' }, 'en')).toEqual({ slug: 'a', resolvable: false, own: false });
+  it('a product with a slug of its own, a root slug or only an id resolves; one with nothing at all does not', () => {
+    expect(slugOf({ id: 'a', slug: 'root', translations: { ur: { slug: 'اردو-سلاگ' } } }, 'ur')).toEqual({ slug: 'اردو-سلاگ', resolvable: true, own: true, id_only: false });
+    expect(slugOf({ id: 'a', slug: 'root' }, 'hi')).toEqual({ slug: 'root', resolvable: true, own: false, id_only: false });
+    expect(slugOf({ id: 'a' }, 'en')).toEqual({ slug: 'a', resolvable: true, own: false, id_only: true });
+    expect(slugOf({}, 'en')).toEqual({ slug: null, resolvable: false, own: false, id_only: false });
   });
   it('counts duplicates per locale (two products answering the same slug)', () => {
     const rows = [
@@ -58,8 +59,9 @@ describe('slugs', () => {
       { id: '2', slug: 'y', translations: { ur: { slug: 'same' } } },
       { id: '3', slug: 'z' },
       { id: '4' },
+      {},
     ];
-    expect(slugHealth(rows, 'ur')).toEqual({ products: 4, own_slug: 2, root_slug_only: 1, unresolvable: 1, duplicates: 2 });
-    expect(slugHealth(rows, 'en')).toEqual({ products: 4, own_slug: 0, root_slug_only: 3, unresolvable: 1, duplicates: 0 });
+    expect(slugHealth(rows, 'ur')).toEqual({ products: 5, own_slug: 2, root_slug_only: 1, id_only: 1, unresolvable: 1, duplicates: 2 });
+    expect(slugHealth(rows, 'en')).toEqual({ products: 5, own_slug: 0, root_slug_only: 3, id_only: 1, unresolvable: 1, duplicates: 0 });
   });
 });

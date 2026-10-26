@@ -4,12 +4,16 @@
  * hygiene and the owner-approved name fixes (#1556), districts (item 5).
  */
 import { Types } from 'mongoose';
+import { CATALOG_COLLECTIONS } from './catalog-collections';
+import { storagePath, type TranslationFile } from '../medicines/content-translation';
+import { storedContentText } from '../medicines/med-i18n';
+import { publicMedicineFilter } from '../medicines/public-medicine-filter';
 import { SAUDI_LOCATIONS_SEED } from '../location/seeds/saudi-locations.data';
 import { planImport, type Extract } from '../location/districts-plan';
 import { FillChange, loadTranslations, planFill } from '../medicines/medicine-translation-fill';
 import { applyApproved, parseCsv, type AuditCollection, type UpdateCollection } from '../../scripts/fix-catalogue-names';
 import insuranceSeed from './seed-data/insurance.json';
-import type { Change, DbLike, SetChange } from './catalogue-apply.core';
+import { sha256, type Change, type DbLike, type SetChange } from './catalogue-apply.core';
 
 const blank = (v: unknown) => typeof v !== 'string' || v.trim() === '';
 
@@ -112,4 +116,38 @@ export async function planDistricts(db: DbLike, extract: Extract): Promise<{ cha
     } });
   }
   return { changes, perCity: plan.perCity, rejected: plan.rejected.length };
+}
+
+export interface ProductTranslationReport {
+  items: number; to_write: number; already_translated: number; skipped_not_published: number; skipped_source_changed: number;
+  by_locale: Record<string, number>;
+}
+
+/**
+ * Step 7 — missing product texts, translated from the existing text by the batch tool (`scripts/translate-product-content.ts`) and
+ * reviewed as a file (owner complaint 2026-10-26). Each item becomes a guarded set on an EMPTY field of a published product, and only while
+ * the source text is still the one that was translated; a provenance mark (`translation_provenance.<locale>.<field>`) says it is machine
+ * translated. Nothing is overwritten, so a second plan is empty.
+ */
+export async function planProductTranslations(db: DbLike, file: TranslationFile): Promise<{ changes: Change[]; report: ProductTranslationReport }> {
+  const report: ProductTranslationReport = { items: file.items.length, to_write: 0, already_translated: 0, skipped_not_published: 0, skipped_source_changed: 0, by_locale: {} };
+  const changes: Change[] = [];
+  const ids = [...new Set(file.items.map((i) => i.id))];
+  const docs = new Map<string, Record<string, any>>();
+  for (let s = 0; s < ids.length; s += 500) {
+    for (const d of await db.collection(CATALOG_COLLECTIONS.medicines).find({ ...publicMedicineFilter(), id: { $in: ids.slice(s, s + 500) } }, {}).toArray()) docs.set(String(d.id), d);
+  }
+  for (const item of file.items) {
+    const doc = docs.get(item.id);
+    if (!doc) { report.skipped_not_published += 1; continue; }
+    if (storedContentText(doc, item.field, item.target) !== null) { report.already_translated += 1; continue; }
+    const source = storedContentText(doc, item.field, item.source);
+    if (source === null || sha256(source) !== item.source_sha) { report.skipped_source_changed += 1; continue; }
+    const key = { _id: doc._id };
+    changes.push({ kind: 'set', step: 'product_translations', collection: CATALOG_COLLECTIONS.medicines, key, path: storagePath(item.field, item.target), before: null, after: item.text });
+    changes.push({ kind: 'set', step: 'product_translations', collection: CATALOG_COLLECTIONS.medicines, key, path: `translation_provenance.${item.target}.${item.field}`, before: null, after: `machine:${file.model}` });
+    report.to_write += 1;
+    report.by_locale[item.target] = (report.by_locale[item.target] ?? 0) + 1;
+  }
+  return { changes, report };
 }
