@@ -166,13 +166,15 @@ export const CATEGORY_ART: Record<CategoryArtKey, readonly CategoryArtShape[]> =
  */
 const STEMS: ReadonlyArray<readonly [CategoryArtKey, readonly string[]]> = [
   ['skin', ['بشرة', 'skin', 'جلد', 'جلدی', 'त्वचा', 'ত্বক', 'balat']],
-  ['hair', ['شعر', 'hair', 'बाल', 'চুল', 'buhok']],
-  ['makeup', ['مكياج', 'تجميل', 'إكسسوار', 'اكسسوار', 'makeup', 'make-up', 'cosmetic', 'beauty', 'accessor', 'میک اپ', 'مینک', 'मेकअप', 'মেকআপ', 'kolorete', 'pampaganda']],
+  ['hair', ['شعر', 'hair', 'बाल', 'চুল', 'buhok', 'بالوں']],
+  ['makeup', ['مكياج', 'تجميل', 'إكسسوار', 'اكسسوار', 'makeup', 'make-up', 'cosmetic', 'beauty', 'accessor', 'میک اپ', 'مینک', 'मेकअप', 'মেকআপ', 'kolorete', 'pampaganda', 'کاسمیٹکس', 'सौंदर्य', 'कॉस्मेटिक', 'প্রসাধনী', 'kosmetiko']],
   ['motherBaby', ['أم ', 'الأم', 'طفل', 'رضع', 'حفاض', 'mother', 'baby', 'infant', 'diaper', 'ماں', 'بچ', 'माँ', 'मां', 'बच्च', 'শিশু', 'মা ', 'nanay', 'sanggol', 'bata']],
-  ['vitamins', ['فيتامين', 'مكمل', 'تغذية', 'vitamin', 'supplement', 'nutrition', 'وٹامن', 'غذائیت', 'विटामिन', 'पोषण', 'ভিটামিন', 'পুষ্টি', 'bitamina', 'nutrisyon']],
-  ['devices', ['أجهزة', 'مستلزمات', 'منزلي', 'device', 'equipment', 'supplies', 'home health', 'آلات', 'آلے', 'उपकरण', 'যন্ত্র', 'kagamitan', 'aparato']],
-  ['personal', ['شخصية', 'personal', 'hygiene', 'oral', 'فم', 'أسنان', 'ذاتی', 'व्यक्तिगत', 'ব্যক্তিগত', 'pansariling', 'pangkalinisan']],
+  ['vitamins', ['فيتامين', 'مكمل', 'تغذية', 'vitamin', 'supplement', 'nutrition', 'وٹامن', 'غذائیت', 'विटामिन', 'पोषण', 'ভিটামিন', 'পুষ্টি', 'bitamina', 'nutrisyon', 'سپلیمنٹ', 'अनुपूरक', 'পরিপূরক']],
+  ['devices', ['أجهزة', 'مستلزمات', 'منزلي', 'device', 'equipment', 'supplies', 'home health', 'آلات', 'آلے', 'उपकरण', 'যন্ত্র', 'kagamitan', 'aparato', 'সরঞ্জাম', 'গৃহ স্বাস্থ্য']],
+  ['personal', ['شخصية', 'personal', 'hygiene', 'oral', 'فم', 'أسنان', 'ذاتی', 'व्यक्तिगत', 'ব্যক্তিগত', 'pansariling', 'pangkalinisan', 'استحمام', 'bath', 'body', 'غسل', 'جسم', 'स्नान', 'शरीर', 'স্নান', 'শরীর', 'paliligo', 'katawan']],
   ['medicines', ['أدوية', 'دواء', 'علاج', 'medicin', 'drug', 'pharma', 'دوا', 'दवा', 'औषध', 'ওষুধ', 'gamot']],
+  // "Specialized wellness" has no art of its own: it shares the vitamins art (after devices, whose Filipino name also holds "kalusugan")
+  ['vitamins', ['العافية', 'wellness', 'تندرستی', 'कल्याण', 'সুস্থতা', 'kalusugan']],
 ];
 
 /** The illustration of a category by its (localized) name. The "All" entry passes `'all'` itself. */
