@@ -1,3 +1,4 @@
+import { SUGGEST_SCOPES } from "@/lib/search/suggest";
 import { notFound, redirect } from "next/navigation";
 import { pickName } from "@/lib/i18n/localized";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -70,7 +71,7 @@ export default async function HomeCarePage({ params, searchParams }: Props) {
       <div className={consult.actions}>
         <ButtonLink href={`/${locale}/nursing/visits`} label={t("visitsLink")} variant="outline" size="sm" />
       </div>
-      <SearchForm placeholder={t("searchPlaceholder")} label={t("searchLabel")} submitLabel={t("searchSubmit")} defaultValue={search} below={pay === "insurance" ? <input type="hidden" name="pay" value="insurance" /> : undefined} />
+      <SearchForm suggest={{ locale, scope: SUGGEST_SCOPES.nursing }} placeholder={t("searchPlaceholder")} label={t("searchLabel")} submitLabel={t("searchSubmit")} defaultValue={search} below={pay === "insurance" ? <input type="hidden" name="pay" value="insurance" /> : undefined} />
       <nav className={consult.segLinks} aria-label={t("formMethod")}>
         <Link href={payHref("card")} replace aria-current={pay === "card" ? "page" : undefined}>{t("method_card")}</Link>
         <Link href={payHref("insurance")} replace aria-current={pay === "insurance" ? "page" : undefined}>{t("method_insurance")}</Link>

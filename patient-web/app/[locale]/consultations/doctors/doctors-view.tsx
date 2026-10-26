@@ -1,5 +1,6 @@
 import { StaleWhileRevalidate } from "@/components-next/nav/stale-while-revalidate";
 import Link from "next/link";
+import { SuggestInput } from "@/components-next/search/suggest-input";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SPECIALTY_SLUGS, isSpecialtySlug, specialtyLabel } from "@/lib/specialties";
@@ -110,11 +111,9 @@ export async function DoctorsView({ params, searchParams }: Props) {
     <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/consultations`} width="wide" mapType="doctor" mapLabel={home("svcMap")}>
       <StaleWhileRevalidate maxAgeSeconds={searchParams === undefined ? DOCTORS_REVALIDATE_SECONDS : undefined} />
       <form className={styles.search} method="get" role="search">
-        <label className={styles.searchField}>
+        <SuggestInput locale={locale} id="doctor-search" name="q" defaultValue={sp.q ?? (specialtyName ? "" : sp.specialty ?? "")} placeholder={t("searchPlaceholder")} label={t("searchLabel")} fieldClassName={styles.searchField} inputClassName={styles.searchInput}>
           <Icon name="search" size={20} tone="secondary" />
-          <span className="sr-only">{t("searchLabel")}</span>
-          <input id="doctor-search" name="q" defaultValue={sp.q ?? (specialtyName ? "" : sp.specialty ?? "")} placeholder={t("searchPlaceholder")} className={styles.searchInput} />
-        </label>
+        </SuggestInput>
         {[...filterPageParams(filters)].map(([name, value]) => <input key={name} type="hidden" name={name} value={value} />)}
         <label className={`${styles.searchField} ${styles.searchSelect}`}>
           <span className="sr-only">{t("specialtyLabel")}</span>
