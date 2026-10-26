@@ -300,3 +300,21 @@ export async function planProductTranslations(db: DbLike, file: TranslationFile)
   }
   return { changes, report };
 }
+
+/**
+ * Step 9 — the patient's saved insurance class under both names (QA P1: one writer, one shape). Policies saved by `POST /insurance/save-policy`
+ * before the single writer have only `plan_class`; ones saved by `/users/me/insurance` have only `class`. Readers of `class` (the broadcast tier,
+ * the coverage check) saw none on the first kind. Each missing name is set from the other, never overwriting anything.
+ */
+export async function planInsuranceShape(db: DbLike): Promise<{ changes: Change[]; report: { policies_checked: number; class_added: number; plan_class_added: number } }> {
+  const rows = await db.collection('patient_profiles').find({ insurance: { $type: 'object' } }, { projection: { _id: 1, 'insurance.class': 1, 'insurance.plan_class': 1 } }).toArray();
+  const changes: Change[] = [];
+  const report = { policies_checked: rows.length, class_added: 0, plan_class_added: 0 };
+  const text = (v: unknown) => (typeof v === 'string' && v.trim() ? v.trim() : '');
+  for (const r of rows) {
+    const cls = text(r.insurance?.class); const plan = text(r.insurance?.plan_class);
+    if (plan && !cls) { changes.push({ kind: 'set', step: 'insurance_shape', collection: 'patient_profiles', key: { _id: r._id }, path: 'insurance.class', before: null, after: plan }); report.class_added += 1; }
+    else if (cls && !plan) { changes.push({ kind: 'set', step: 'insurance_shape', collection: 'patient_profiles', key: { _id: r._id }, path: 'insurance.plan_class', before: null, after: cls }); report.plan_class_added += 1; }
+  }
+  return { changes, report };
+}
