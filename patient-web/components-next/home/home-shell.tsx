@@ -94,7 +94,7 @@ export async function HomeShell({
         <LocaleSelector current={locale} label={shared("language")} />
         <ThemeButton label={shared("theme")} />
         <Link href={`${base}/map`} className={styles.iconBtn} aria-label={t("svcMap")} data-map-entry="all">
-          <FIcon icon="map-trifold" tone="ink" chip="none" size={20} />
+          <FIcon icon="map-trifold" tone="amber" chip="none" size={20} />
         </Link>
         {signedIn === undefined ? <HomeNotificationsLink locale={locale} label={t("notifications")} unreadLabel={t("notificationsUnread")} /> : null}
         {knownSignedIn ? (
