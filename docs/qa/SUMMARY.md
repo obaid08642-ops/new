@@ -28,15 +28,15 @@ Rows proven this session with DB checks (journeys in `tools/live/`): D-05 (famil
 
 | Sev | Count | Open as last tested | Closed or retracted |
 |---|---|---|---|
-| P1 | 7 rows | 3: admin system logs API 404 (admin-sweep.md); booking-by-id page 503 (web-sweep-dynamic.md); hospital provider token cannot post jobs (jobs-inbox.md) | 2: guest job publish (admin publish passes on the API now, re-test in j_jobs.py); insurance copay not stored (fixed on main, #1916). 2 more: hydration (retracted: local setup error, production layout passes); the two-writers insurance row (verify) |
+| P1 | 8 rows | 3: admin system logs API 404 (admin-sweep.md); booking-by-id page 503 (web-sweep-dynamic.md); hospital provider token cannot post jobs (jobs-inbox.md) | 2 hydration rows: retracted (local setup error, production layout passes). 1 guest job publish: passes on the API now (re-test in j_jobs.py). 1 insurance copay not stored: fixed on main (#1916). 1 two-writers insurance row: to verify |
 | P2 | 15 rows | open: insurance delete endpoint missing; candidate not notified on job status change; no job messages; family invite 404 for non-owner (should be 403); unnamed controls on labs pages; catalog-manager broken images; CDN lab/radiology image 404s; others in the findings files | - |
-| P3 | 19 rows | open (see the findings files) | - |
+| P3 | 20 rows | open (see the findings files) | - |
 
 Counts are rows marked P1/P2/P3 in docs/qa/findings/*.md. Rows in the findings files were not all re-tested in this session, so the status column above is the honest state, not a fresh sweep.
 
 ## Messages sent to the owners
 
-- S (backend): admin system logs 404 (18:01 UTC earlier), job publish, COD and family 403 items; this session: hospital provider token cannot post jobs (P1), no candidate notification on status change (P2), no job messages (owner decision), status transitions unchecked (P3).
+- S (backend): admin system logs 404 (18:01 UTC earlier), job publish, COD and family 403 items; since the last message: hospital provider token cannot post jobs (P1), no candidate notification on status change (P2), no job messages (owner decision), status transitions unchecked (P3).
 - Design: booking-by-id 503 (19:02 UTC earlier).
 
 ## Not done
