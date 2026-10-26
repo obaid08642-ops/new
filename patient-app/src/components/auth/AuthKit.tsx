@@ -68,7 +68,7 @@ export function AuthTopBar({ onBack }: { onBack?: () => void }) {
       ) : (
         <View style={{ width: 44 }} />
       )}
-      <NabdLogo size={30} variant="text" theme={theme} label={tr('نبض بلس')} />
+      <NabdLogo size={30} label={tr('نبض بلس')} />
       <View style={{ width: 44 }} />
     </View>
   );
