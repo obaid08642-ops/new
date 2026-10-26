@@ -25,7 +25,7 @@
   color: var(--nabd-color-text-primary); text-decoration: none; border-radius: var(--nabd-radius-3xl);
   background: var(--nabd-color-bg-sunken); border: 1px solid var(--nabd-color-border-hairline);
 }
-.kind[aria-current="page"] { background: var(--nabd-color-bg-surface); border: 2px solid var(--nabd-color-action-selected-bg); box-shadow: var(--nabd-shadow-card); }
+.kind[aria-current="page"] { background: var(--nabd-color-bg-surface); border: 2px solid var(--nabd-color-action-primary-bg); box-shadow: var(--nabd-shadow-card); }
 .kindText { display: flex; flex-direction: column; gap: 2px; min-inline-size: 0; }
 .kindTitle { font-size: var(--nabd-font-size-row); font-weight: 700; overflow-wrap: anywhere; }
 .kindSub { font-size: var(--nabd-font-size-micro); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
@@ -65,7 +65,7 @@
 .packFoot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
 .packCta {
   display: inline-flex; align-items: center; justify-content: center; min-block-size: 44px; padding-inline: 16px; border-radius: var(--nabd-radius-xl);
-  background: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg); font-size: var(--nabd-font-size-control); font-weight: 600;
+  background: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg); font-size: var(--nabd-font-size-control); font-weight: 600;
 }
 
 /* ---- prices ---- */

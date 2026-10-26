@@ -122,7 +122,7 @@ export function AddToCartButton({ line, addLabel, announce, disabled = false }: 
       className={clsx("nabd-product-card__add", { "nabd-product-card__add--inert": disabled, "nabd-product-card__add--disabled": disabled })}
     >
       <svg width={18} height={18} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true">
-        <path d={PLUS_SQUARE_PATH} fill="var(--nabd-color-action-selected-fg)" />
+        <path d={PLUS_SQUARE_PATH} fill="var(--nabd-color-action-primary-fg)" />
       </svg>
       {/* 40 to look at, 44 to hit */}
       <span aria-hidden className="nabd-product-card__hit" />

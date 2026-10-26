@@ -4,7 +4,8 @@ import { useId, useState, useSyncExternalStore } from "react";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import styles from "./product-detail.module.css";
 
-export type DetailSection = { id: string; title: string; items: string[] };
+/** `lang` / `dir` / `note` are set when the text is not in the page's language (it says which one, in the reader's language). */
+export type DetailSection = { id: string; title: string; items: string[]; lang?: string; dir?: "rtl" | "ltr"; note?: string };
 export type DetailGroup = { id: string; title: string; sections: DetailSection[] };
 
 const WIDE = "(min-width: 768px)";
@@ -66,9 +67,12 @@ export function ProductSections({ groups, label }: { groups: DetailGroup[]; labe
           {group.sections.map((section) => {
             const isOpen = open.has(section.id);
             const body = (
-              <ul className={styles.bullets}>
-                {section.items.map((item, i) => <li key={i}>{item}</li>)}
-              </ul>
+              <>
+                {section.note ? <p className={styles.langNote} data-testid={`lang-note-${section.id}`}>{section.note}</p> : null}
+                <ul className={styles.bullets} lang={section.lang} dir={section.dir}>
+                  {section.items.map((item, i) => <li key={i}>{item}</li>)}
+                </ul>
+              </>
             );
             return (
               <section key={section.id} data-open={wide ? "true" : String(isOpen)} className={styles.section}>
