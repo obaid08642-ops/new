@@ -1,5 +1,11 @@
-# 2026-10-26 lead reviewer: run 31, APPLY the numbered-districts plan reviewed from run 30's dry run (main@9878f74e is live; no
-# deploy in this run, so the plan is the same): plan bea7a073…, 2018 deletes of numbered placeholder districts ("X District 7")
-# after re-pointing any reference to the nearest real district of the same city. Backup first, guarded writes, verify, rollback.
-90-catalogue-apply
+# 2026-10-26 lead reviewer: run 32, deploy main@d3fc4da1: medicine ranking (#1979: most viewed/searched/carted/ordered first;
+# score job every 30 min), labs layout app (#1988), header favourites + menu edge (#1981), colour follow-up (#1980), hologram map
+# app (#2007), AI: env key sync + OpenCode + text/vision chains with free-tier windows (#2016-#2018), symptom helper red flags
+# (#2019), call-flake fix. 97 keeps one local copy of each backup first (disk). Then 96-ai-providers-check (READ-ONLY) to show
+# the chains as deployed, and cf-purge-api.
+release:d3fc4da185d1022759d76b42e2d229521e82f35b
+97-free-old-predeploy
+93-free-unused-images
+60-deploy-main
+96-ai-providers-check
 cf-purge-api
