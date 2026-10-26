@@ -3,7 +3,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { randomUUID } from 'crypto';
 import { recordAudit } from '../../common/audit-record';
-import { hasInsuranceContract, policyClass, policyCompanyKeys } from '../../common/insurance-policy';
+import { buildPatientPolicy, hasInsuranceContract, policyClass, policyCompanyKeys } from '../../common/insurance-policy';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { LabsService } from '../labs/labs.service';
 import { MedicalOrdersService } from '../medical-orders/medical-orders.service';
@@ -204,7 +204,7 @@ export class OrderingService implements OnModuleInit {
     if (!body.class?.trim()) throw bad('insurance_class_required');
     await this.conn.collection('family_members').updateOne(
       { id: memberId },
-      { $set: { insurance: { provider: body.provider.trim(), class: body.class.trim(), policy_number: body.policy_number?.trim() ?? null, verified: false, updated_at: new Date() } } },
+      { $set: { insurance: { ...buildPatientPolicy(null, { provider: body.provider, class: body.class, policy_number: body.policy_number }, null), updated_at: new Date() } } },
     );
     return { success: true, verified: false };
   }
