@@ -58,6 +58,8 @@
   .signIn { block-size: 40px; padding-inline: 12px; border-radius: 20px; min-inline-size: 0; flex-shrink: 1; overflow: hidden; text-overflow: ellipsis; }
 }
 @media (min-width: 540px) { .brand { display: inline-flex; } }
+/* the Map is a tile of the services grid right below on a phone: the header icon gives its room to the Sign-in label (it was cut: "تسجيل الدخ") */
+@media (max-width: 539px) { .iconBtnMap { display: none; } }
 @media (min-width: 768px) {
   .wordmark { display: inline; }
 }
