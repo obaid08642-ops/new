@@ -5,7 +5,9 @@
  */
 export interface ExtractDistrict { city_code: string; name_ar: string; name_en: string; lat: number; lng: number; source: string; source_url?: string }
 export interface ExtractCity { code: string; lat: number; lng: number; source: string }
-export interface Extract { cities?: ExtractCity[]; districts: ExtractDistrict[] }
+/** A city of OpenStreetMap that the seed lacks: it is inserted with both names, its macro region (`sa-*-region`) and its centre. */
+export interface ExtractNewCity { code: string; name_ar: string; name_en: string; region_code: string; lat: number; lng: number; source: string }
+export interface Extract { cities?: ExtractCity[]; new_cities?: ExtractNewCity[]; districts: ExtractDistrict[] }
 export interface ExistingRow { code: string; name_ar: string; name_en: string; type: string; parent_code?: string | null; coordinates?: { lat?: number; lng?: number } | null }
 
 export type CityCounts = { city: string; existing: number; extract: number; matched: number; centroid_fills: number; already_has_centroid: number; new: number; rejected: number };
@@ -13,6 +15,7 @@ export interface Plan {
   fills: Array<{ code: string; lat: number; lng: number; source: string }>;
   inserts: Array<{ code: string; city_code: string; name_ar: string; name_en: string; lat: number; lng: number; source: string; source_url?: string }>;
   cityFills: Array<{ code: string; lat: number; lng: number; source: string }>;
+  newCities: ExtractNewCity[];
   rejected: Array<{ city_code: string; name: string; reason: string }>;
   perCity: CityCounts[];
 }
@@ -38,7 +41,20 @@ export function planImport(existing: ExistingRow[], extract: Extract): Plan {
   const cities = new Map(existing.filter((r) => r.type === 'city').map((r) => [r.code, r]));
   const districtsByCity = new Map<string, ExistingRow[]>();
   for (const r of existing) if (r.type === 'district' && r.parent_code) districtsByCity.set(r.parent_code, [...(districtsByCity.get(r.parent_code) ?? []), r]);
-  const plan: Plan = { fills: [], inserts: [], cityFills: [], rejected: [], perCity: [] };
+  const plan: Plan = { fills: [], inserts: [], cityFills: [], newCities: [], rejected: [], perCity: [] };
+  const regions = new Set(existing.filter((r) => r.type === 'region').map((r) => r.code));
+  const taken = new Set(existing.map((r) => r.code));
+  for (const n of extract.new_cities ?? []) {
+    const bad = !/^sa-[a-z0-9]+(-[a-z0-9]+)*$/.test(n.code ?? '') || taken.has(n.code) ? 'new_city_code'
+      : !n.name_ar?.trim() || !n.name_en?.trim() ? 'name_required'
+      : !regions.has(n.region_code) ? 'unknown_region'
+      : !validPoint(n.lat, n.lng) ? 'invalid_point'
+      : !n.source?.trim() ? 'source_required' : null;
+    if (bad) { plan.rejected.push({ city_code: n.code ?? '', name: n.name_en || n.name_ar || '', reason: bad }); continue; }
+    plan.newCities.push({ ...n, name_ar: n.name_ar.trim(), name_en: n.name_en.trim() });
+    taken.add(n.code);
+    cities.set(n.code, { code: n.code, name_ar: n.name_ar, name_en: n.name_en, type: 'city', parent_code: n.region_code, coordinates: { lat: n.lat, lng: n.lng } });
+  }
 
   for (const c of extract.cities ?? []) {
     const row = cities.get(c.code);
