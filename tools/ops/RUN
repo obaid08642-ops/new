@@ -1,9 +1,6 @@
-# 2026-10-26 lead reviewer: run 26 (replaces run 25, which was not approved yet). Deploy main@d355336b: everything in run 25
-# (Urdu/Arabic 502 fix, scoped suggestions, no cite box, app colours, cities +159 / 3010 districts) PLUS one language per product
-# section or marked (#1978), web colours: no ink on interactive elements (#1974), app header favourites (#1982).
-# Then 90-catalogue-apply as a DRY RUN (EXPECT_PLAN_SHA empty; counts + plan hash, writes nothing).
-release:d355336bc5a650ed4d00da9c46cc270f669fa00d
-93-free-unused-images
-60-deploy-main
+# 2026-10-26 lead reviewer: run 27, APPLY the locations plan reviewed from run 26's dry run (main@d355336b is live; no deploy in
+# this run, so the plan is the same): plan 7530fd32…, 4133 changes: districts set 1218 + insert 2679 (159 new cities, 2520 new
+# districts, 490 centroid fills); placeholder cities delete 236 rows (sa-central-city-1..12, the *-new rows, duba3, al-many,
+# umran, taraf); references to them: none. Backup first, guarded writes, verify, rollback on mismatch.
 90-catalogue-apply
 cf-purge-api
