@@ -8,6 +8,8 @@ import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { formatPrice } from "@/lib/format-price";
 import { allowedImageUrl } from "@/lib/image-hosts";
 import { LiveFilter } from "./live-filter";
+import { SuggestSearchForm } from "./suggest-search-form";
+import type { SuggestScope } from "@/lib/search/suggest";
 import { PhotoWithFallback } from "./photo-with-fallback";
 import consult from "@/components-next/consult/consult.module.css";
 import styles from "./diag.module.css";
@@ -51,7 +53,8 @@ export function SectionHead({ id, title, href, linkLabel }: { id: string; title:
  * The search pill of the hub and the catalogues: a GET form (the query is in the URL, it works before the page is
  * interactive). `children` are the hidden inputs or extra fields the screen's filters need.
  */
-export function SearchForm({ action, name = "q", defaultValue, placeholder, label, submitLabel, below, live = false, sticky = false }: { action?: string; name?: string; defaultValue?: string; placeholder: string; label: string; submitLabel: string; below?: ReactNode; /** Filter as you type (a list on the same page). */ live?: boolean; /** The search stays under the header while a long list scrolls. */ sticky?: boolean }) {
+export function SearchForm({ action, name = "q", defaultValue, placeholder, label, submitLabel, below, live = false, sticky = false, suggest }: { action?: string; name?: string; defaultValue?: string; placeholder: string; label: string; submitLabel: string; below?: ReactNode; /** Filter as you type (a list on the same page). */ live?: boolean; /** Live suggestions of this service under the field (the page's language and the service's scope). */ suggest?: { locale: string; scope: SuggestScope }; /** The search stays under the header while a long list scrolls. */ sticky?: boolean }) {
+  if (suggest && !live) return <SuggestSearchForm action={action} name={name} defaultValue={defaultValue} placeholder={placeholder} label={label} submitLabel={submitLabel} below={below} sticky={sticky} locale={suggest.locale} scope={suggest.scope} />;
   return (
     <form method="get" action={action} role="search" className={sticky ? `${styles.searchForm} ${styles.searchSticky}` : styles.searchForm}>
       <div className={consult.search}>

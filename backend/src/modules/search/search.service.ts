@@ -40,6 +40,17 @@ export function suggestMinLength(query: string): number {
   return /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/.test(query) ? 1 : 2;
 }
 
+/** A service screen's own suggestions: one section (its types), and optionally only some of its types (labs without scans). Nothing = home (everything). */
+export interface SuggestScope { section?: SearchSection; types?: SearchType[] }
+
+/** The types a scoped suggestion may return (null = every type, the home search). `types` narrows `section`; with no section it stands alone. */
+export function suggestTypes(scope: SuggestScope): SearchType[] | null {
+  const inSection = scope.section ? SECTION_TYPES[scope.section] : null;
+  const wanted = scope.types && scope.types.length ? scope.types.filter((t) => SEARCH_TYPES.includes(t)) : null;
+  if (inSection && wanted) return wanted.filter((t) => inSection.includes(t));
+  return inSection ?? wanted;
+}
+
 export interface SuggestItem {
   id: string;
   type: SearchType;
@@ -303,12 +314,14 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
    * Arabic script starts from the first letter, other scripts from two.
    * The "search suggestions" kill switch answers `{ suggestions: [], disabled: true }`: the clients draw no dropdown.
    */
-  async suggest(q: string, locale: SearchLocale = 'ar'): Promise<{ suggestions: SuggestItem[]; disabled?: true }> {
+  async suggest(q: string, locale: SearchLocale = 'ar', scope: SuggestScope = {}): Promise<{ suggestions: SuggestItem[]; disabled?: true }> {
     if (await isKilled('searchSuggestions', connectionFlagSource(this.conn))) return { suggestions: [], disabled: true };
     const query = normalizeSearchText(q || '').slice(0, 60);
     if (query.length < suggestMinLength(query)) return { suggestions: [] };
 
-    const { rows: pool, fromMeili } = await this.suggestPool(query);
+    const allowed = suggestTypes(scope);
+    if (allowed && !allowed.length) return { suggestions: [] };   // a scope no type fits (a type outside the section): nothing, not everything
+    const { rows: pool, fromMeili } = await this.suggestPool(query, allowed);
     const seen = new Set<string>();
     const candidates: Array<{ row: SuggestRow; judged: JudgedSuggestion }> = [];
     const collect = (rows: SuggestRow[], meili: boolean) => {
@@ -323,7 +336,7 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
     collect(pool, fromMeili);
     // The inside-a-word tier: a second, bounded query, only when the first tiers cannot fill the list.
     if (candidates.filter((c) => c.judged.tier <= 4).length < SUGGEST_LIMIT) {
-      collect(await this.suggestInfix(query, [...seen]), false);
+      collect(await this.suggestInfix(query, [...seen], allowed), false);
     }
 
     const ranked = candidates
@@ -346,25 +359,25 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
   }
 
   /** The candidates of the first tiers: Meilisearch's prefix and typo-tolerant pool, or the MongoDB word-start pool. */
-  private async suggestPool(query: string): Promise<{ rows: SuggestRow[]; fromMeili: boolean }> {
+  private async suggestPool(query: string, allowed: SearchType[] | null): Promise<{ rows: SuggestRow[]; fromMeili: boolean }> {
     if (this.meili) {
       try {
-        return { rows: await this.meili.suggest(query, SUGGEST_POOL), fromMeili: true };
+        return { rows: await this.meili.suggest(query, SUGGEST_POOL, allowed), fromMeili: true };
       } catch (e) {
         this.log.warn(`meilisearch suggest failed, answering from MongoDB: ${(e as Error).message}`);
       }
     }
     // The projection (SUGGEST_PROJECTION) is the SuggestRow shape; the driver types the rows loosely.
     const rows = (await this.index
-      .find({ text: new RegExp(`(^| )${escapeRegex(query)}`) }, { projection: SUGGEST_PROJECTION })
+      .find({ text: new RegExp(`(^| )${escapeRegex(query)}`), ...(allowed ? { type: { $in: allowed } } : {}) }, { projection: SUGGEST_PROJECTION })
       .sort({ boost: -1 }).limit(SUGGEST_POOL).maxTimeMS(3000).toArray()) as unknown as SuggestRow[];
     return { rows, fromMeili: false };
   }
 
   /** The inside-a-word tier: names holding the text anywhere, popular first, bounded and time-limited. */
-  private async suggestInfix(query: string, exclude: string[]): Promise<SuggestRow[]> {
+  private async suggestInfix(query: string, exclude: string[], allowed: SearchType[] | null): Promise<SuggestRow[]> {
     return (await this.index
-      .find({ key: { $nin: exclude }, text: new RegExp(escapeRegex(query)) }, { projection: SUGGEST_PROJECTION })
+      .find({ key: { $nin: exclude }, text: new RegExp(escapeRegex(query)), ...(allowed ? { type: { $in: allowed } } : {}) }, { projection: SUGGEST_PROJECTION })
       .sort({ boost: -1 }).limit(SUGGEST_INFIX_POOL).maxTimeMS(1500).toArray()) as unknown as SuggestRow[];
   }
 

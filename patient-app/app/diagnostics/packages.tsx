@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { ScopedSuggest } from '../../src/components/search/ScopedSuggest';
+import { SUGGEST_SCOPES } from '../../src/utils/searchSuggest';
 import { ScrollView, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 
@@ -57,6 +59,7 @@ export default function DiagnosticsPackages() {
   const top = (
     <View style={{ gap: 12 }}>
       <Search theme={theme} variant="inline" value={query} onChange={setQuery} onClear={() => setQuery('')} clearLabel={k('diag.clear')} placeholder={k('diag.packages.search')} label={k('diag.packages.search')} />
+      <ScopedSuggest query={query} scope={{ section: 'labs', types: ['lab_package'] }} />
       {cats.length > 0 ? (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -16 }}>
           <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: 16 }}>

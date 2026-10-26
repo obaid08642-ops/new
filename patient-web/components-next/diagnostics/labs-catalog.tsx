@@ -1,3 +1,4 @@
+import { SUGGEST_SCOPES } from "@/lib/search/suggest";
 import { getTranslations } from "next-intl/server";
 import { extractLabServices } from "@/lib/api/labs";
 import { getPublicLabServices } from "@/lib/api/labs-server";
@@ -40,6 +41,7 @@ export async function LabsCatalog({ locale, search, homeOnly, backHref, basePath
     <ConsultPage locale={locale} title={t("title")} backHref={backHref} resultsHref={`/${locale}/diagnostics/results`}>
       <p className={styles.flowNote}>{t("subtitle")}</p>
       <SearchForm
+        suggest={{ locale, scope: SUGGEST_SCOPES.labs }}
         defaultValue={search}
         placeholder={t("searchPlaceholder")}
         label={t("searchLabel")}
