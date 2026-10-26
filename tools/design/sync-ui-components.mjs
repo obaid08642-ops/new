@@ -74,7 +74,11 @@ const FILES = [
   { from: 'packages/ui/icons/fill-glyphs.ts', to: 'patient-web/components-next/ui-generated/icons/fill-glyphs.ts' },
   { from: 'packages/ui/icons/line.ts', to: 'patient-web/components-next/ui-generated/icons/line.ts' },
   { from: 'packages/ui/components/contract.ts', to: 'patient-web/components-next/ui-generated/components/contract.ts' },
-  ...['Button', 'Spinner', 'FIcon', 'Inputs', 'Controls', 'Surfaces', 'Cards', 'Feedback'].map((name) => ({
+  // FIcon is NOT a Client Component: it only uses useId, which a Server Component may call, and as a server module the whole
+  // outline record (icons/fill.ts) stays out of the browser bundle of every page that draws it from the server (the doctors page
+  // is at its script budget).
+  { from: 'packages/ui/components/FIcon.tsx', to: 'patient-web/components-next/ui-generated/components/FIcon.tsx' },
+  ...['Button', 'Spinner', 'Inputs', 'Controls', 'Surfaces', 'Cards', 'Feedback'].map((name) => ({
     from: `packages/ui/components/${name}.tsx`,
     to: `patient-web/components-next/ui-generated/components/${name}.tsx`,
     useClient: true,
