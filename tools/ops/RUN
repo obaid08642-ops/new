@@ -1,9 +1,16 @@
-# 2026-10-26 lead reviewer: run 28, deploy main@9878f74e (72 commits since d355336b): social sign-up on register, one cart per
-# service, cart stepper + fly-to-cart, card image rotation, web/app motion, web "order these medicines" from a prescription,
-# facility jobs fix, insurance single writer, Sentry fixes (category N+1 as one $facet, no provider bodies in errors + scrubbing,
-# sharp smoke at build). Then 90-catalogue-apply as a DRY RUN for the numbered fake districts (#1997): counts only, no writes.
+# 2026-10-26 lead reviewer: run 29. Run 28 ABORTED its deploy (disk: 0.88 GB free before cleanup; production unchanged on
+# d355336b); its catalogue dry run ran on the old code (0 changes). This run, in order:
+#  97-free-old-predeploy: the owner's Approve allows removing LOCAL pre-deploy dumps and catalogue backups except the 2 newest of
+#    each (nightly backups and everything else stay); truncate container logs over 20 MB.
+#  93-free-unused-images, then deploy main@9878f74e (everything from run 28 + #2012/#2013 if merged).
+#  90-catalogue-apply DRY RUN (numbered fake districts, #1997): counts only, no writes.
+#  73-mail-test: Mailjet first (3 mails) + 1 per other provider with keys, to the owner's alert address.
+#  96-ai-providers-check: READ-ONLY, AI key names, DB registry vs env, a live probe per provider, 24 h usage.
 release:9878f74e82e5d4c6b968ebdf8671c1ed77625c18
+97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
 90-catalogue-apply
+73-mail-test
+96-ai-providers-check
 cf-purge-api
