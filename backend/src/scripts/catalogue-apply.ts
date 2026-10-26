@@ -10,7 +10,8 @@
  *
  * Exit codes: 0 ok · 2 the plan differs from --expect (nothing written) · 3 verify failed after the writes (the task rolls back) · 1 error.
  * Steps: medicine translations (#1844, the packaged CSV), Arabic/English names of regions, cities and insurers, medicine-name hygiene
- * and the owner-approved name fixes (#1556), districts (the extract packaged in the image; `--districts=<file>` overrides it).
+ * and the owner-approved name fixes (#1556), districts (the extract packaged in the image; `--districts=<file>` overrides it),
+ * placeholder and suspect cities (inactive, never deleted; the plan prints the reference counts).
  * The name-fixes file is optional and skipped when not given.
  */
 import * as fs from 'fs';
@@ -21,7 +22,7 @@ import {
   applyChanges, countsOf, decodeBackup, encodeBackup, expectedCounts, planSha, rollbackChanges, sha256, summarize,
   type Change, type DbLike,
 } from '../modules/catalogs/catalogue-apply.core';
-import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn } from '../modules/catalogs/catalogue-apply.steps';
+import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn, planPlaceholderCities } from '../modules/catalogs/catalogue-apply.steps';
 
 const TRANSLATIONS_CSV = path.join(__dirname, '../modules/medicines/data/medicine-translations-2026-10-24.csv');
 /** The districts extract shipped in the image (nest-cli asset, like the CSV above). A `--districts=<file>` on the command line overrides it. */
@@ -65,6 +66,10 @@ export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> 
   const planned = await planDistricts(db, JSON.parse(text));
   changes.push(...planned.changes);
   report.districts = { source: override ? 'host_file_override' : 'packaged', rejected_rows: planned.rejected, cities_with_new_rows: planned.perCity.filter((c) => c.new > 0).length, new_rows: planned.perCity.reduce((n, c) => n + c.new, 0), centroid_fills: planned.perCity.reduce((n, c) => n + c.centroid_fills, 0) };
+
+  const placeholders = await planPlaceholderCities(db);
+  changes.push(...placeholders.changes);
+  report.placeholder_cities = placeholders.report;
 
   return { changes, inputs, sha: planSha(changes, inputs), report };
 }

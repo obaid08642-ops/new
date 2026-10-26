@@ -1,11 +1,12 @@
 /**
  * The steps of the production catalogue apply. Each step reads the database and returns CHANGES (see catalogue-apply.core.ts);
  * none of them writes. Order: translations of the medicines (#1844), Arabic/English names of cities and insurers, medicine-name
- * hygiene and the owner-approved name fixes (#1556), districts (item 5).
+ * hygiene and the owner-approved name fixes (#1556), districts (item 5), placeholder and suspect cities (owner decision 2026-10-26).
  */
 import { Types } from 'mongoose';
 import { SAUDI_LOCATIONS_SEED } from '../location/seeds/saudi-locations.data';
 import { planImport, type Extract } from '../location/districts-plan';
+import { CITY_REFERENCE_FIELDS, LISTED_ONLY_CITY_CODES, PLACEHOLDER_CITY_CODES, SUSPECT_CITY_RULES, spellingsOf, withDistricts, type LocationRow } from '../location/placeholder-cities';
 import { FillChange, loadTranslations, planFill } from '../medicines/medicine-translation-fill';
 import { applyApproved, parseCsv, type AuditCollection, type UpdateCollection } from '../../scripts/fix-catalogue-names';
 import insuranceSeed from './seed-data/insurance.json';
@@ -112,4 +113,94 @@ export async function planDistricts(db: DbLike, extract: Extract): Promise<{ cha
     } });
   }
   return { changes, perCity: plan.perCity, rejected: plan.rejected.length };
+}
+
+export interface PlaceholderCityReport {
+  /** placeholder / suspect city -> documents that hold one of its spellings, per collection (only non-zero collections) */
+  references: Record<string, Record<string, number>>;
+  deactivated_cities: string[];
+  deactivated_rows: number;
+  blocked_by_references: string[];
+  merged: Array<{ code: string; into: string; reason: string; rewritten_references: number }>;
+  listed_only: string[];
+  missing_in_database: string[];
+}
+
+/** Documents that hold one of `spellings` as a city, per reference field. */
+async function countReferences(db: DbLike, spellings: string[]): Promise<Record<string, number>> {
+  const out: Record<string, number> = {};
+  for (const f of CITY_REFERENCE_FIELDS) {
+    const field = f.array ? `${f.path}.city` : f.path;
+    const n = await db.collection(f.collection).countDocuments({ [field]: { $in: spellings } });
+    if (n > 0) out[`${f.collection}.${field}`] = n;
+  }
+  return out;
+}
+
+/** The spelling of `to` in the same form as the stored value `from` (code, English or Arabic). */
+const sameForm = (stored: string, from: LocationRow, to: LocationRow): string => (stored === from.code ? to.code : stored === from.name_en ? (to.name_en as string) : (to.name_ar as string));
+
+/**
+ * Step 6 — placeholder and suspect cities (owner decision 2026-10-26). Nothing is deleted:
+ *  - the 21 placeholders (and their districts) become `is_active=false`, unless some document still holds the city, which is then listed;
+ *  - sa-duba3, sa-al-umran and sa-al-taraf: the references (a city written as text) are rewritten to the city that carries them
+ *    (sa-duba, sa-al-ahsa), then the row and its districts go inactive; sa-al-many goes inactive;
+ *  - sa-sudair and sa-yanbu-al-nakhal are only listed.
+ * Every write is a compare-and-set on the value the plan saw, so a second plan is empty.
+ */
+export async function planPlaceholderCities(db: DbLike): Promise<{ changes: Change[]; report: PlaceholderCityReport }> {
+  const rows = (await db.collection('locations').find({ type: { $in: ['city', 'district'] } }, { projection: { _id: 0, code: 1, name_ar: 1, name_en: 1, type: 1, parent_code: 1, is_active: 1 } }).toArray()) as LocationRow[];
+  const byCode = new Map(rows.map((r) => [r.code, r]));
+  const changes: Change[] = [];
+  const report: PlaceholderCityReport = { references: {}, deactivated_cities: [], deactivated_rows: 0, blocked_by_references: [], merged: [], listed_only: [], missing_in_database: [] };
+  const deactivate = (roots: string[]) => {
+    for (const code of withDistricts(roots, rows)) {
+      const row = byCode.get(code);
+      if (!row || row.is_active === false) continue;
+      changes.push({ kind: 'set', step: 'placeholder_cities', collection: 'locations', key: { code }, path: 'is_active', before: true, after: false });
+      report.deactivated_rows += 1;
+    }
+  };
+
+  for (const code of PLACEHOLDER_CITY_CODES) {
+    const city = byCode.get(code);
+    if (!city) { report.missing_in_database.push(code); continue; }
+    const refs = await countReferences(db, spellingsOf(city));
+    if (Object.keys(refs).length) { report.references[code] = refs; report.blocked_by_references.push(code); continue; }
+    if (city.is_active !== false) report.deactivated_cities.push(code);
+    deactivate([code]);
+  }
+
+  for (const rule of SUSPECT_CITY_RULES) {
+    const city = byCode.get(rule.code);
+    if (!city) { report.missing_in_database.push(rule.code); continue; }
+    const refs = await countReferences(db, spellingsOf(city));
+    if (Object.keys(refs).length) report.references[rule.code] = refs;
+    let rewritten = 0;
+    if (rule.action === 'merge') {
+      const target = byCode.get(rule.into as string);
+      if (!target) { report.missing_in_database.push(rule.into as string); continue; }
+      const spellings = spellingsOf(city);
+      for (const f of CITY_REFERENCE_FIELDS) {
+        const field = f.array ? `${f.path}.city` : f.path;
+        const docs = await db.collection(f.collection).find({ [field]: { $in: spellings } }, { projection: { _id: 1, [f.path]: 1 } }).toArray();
+        for (const d of docs) {
+          if (f.array) {
+            (d[f.path] as Array<{ city?: unknown }> | undefined)?.forEach((a, i) => {
+              if (typeof a?.city === 'string' && spellings.includes(a.city)) { changes.push({ kind: 'set', step: 'placeholder_cities', collection: f.collection, key: { _id: d._id }, path: `${f.path}.${i}.city`, before: a.city, after: sameForm(a.city, city, target) }); rewritten += 1; }
+            });
+          } else {
+            const stored = f.path.split('.').reduce<any>((v, k) => v?.[k], d);
+            if (typeof stored === 'string' && spellings.includes(stored)) { changes.push({ kind: 'set', step: 'placeholder_cities', collection: f.collection, key: { _id: d._id }, path: f.path, before: stored, after: sameForm(stored, city, target) }); rewritten += 1; }
+          }
+        }
+      }
+      report.merged.push({ code: rule.code, into: rule.into as string, reason: rule.reason, rewritten_references: rewritten });
+    }
+    if (city.is_active !== false) report.deactivated_cities.push(rule.code);
+    deactivate([rule.code]);
+  }
+
+  for (const code of LISTED_ONLY_CITY_CODES) { if (byCode.has(code)) report.listed_only.push(code); else report.missing_in_database.push(code); }
+  return { changes, report };
 }
