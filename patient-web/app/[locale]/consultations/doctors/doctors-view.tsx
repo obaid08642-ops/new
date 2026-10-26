@@ -87,7 +87,6 @@ export async function DoctorsView({ params, searchParams }: Props) {
   const guaranteeText = guarantee ? t("guaranteeLine", { minutes: guarantee.minutes, points: guarantee.points }) : null;
   // the busiest specialties with their doctor counts, as chips (the board's specialty row); a failed read leaves them out
   const specialtyRes = await getCachedSpecialties();
-  const count = new Intl.NumberFormat(locale);
   const chips = (specialtyRes?.ok ? extractSpecialties(await specialtyRes.json().catch(() => null)) : [])
     .flatMap((row) => (row.slug && isSpecialtySlug(row.slug) && row.count ? [{ slug: row.slug, count: row.count }] : []))
     .sort((a, b) => b.count - a.count)
@@ -158,7 +157,7 @@ export async function DoctorsView({ params, searchParams }: Props) {
         <LinkSegmented
           label={t("specialtyLabel")}
           value={sp.specialty ?? ""}
-          options={[{ value: "", label: t("allSpecialties"), href: pageHref(filterPageParams(filters, { q: sp.q, sort: sp.sort })) }, ...chips.map((chip) => ({ value: chip.slug, label: `${names(chip.slug)} (${count.format(chip.count)})`, href: pageHref(filterPageParams(filters, { q: sp.q, specialty: chip.slug, sort: sp.sort })) }))]}
+          options={[{ value: "", label: t("allSpecialties"), href: pageHref(filterPageParams(filters, { q: sp.q, sort: sp.sort })) }, ...chips.map((chip) => ({ value: chip.slug, label: names(chip.slug), href: pageHref(filterPageParams(filters, { q: sp.q, specialty: chip.slug, sort: sp.sort })) }))]}
         />
       ) : null}
       <VisitTypeCards
