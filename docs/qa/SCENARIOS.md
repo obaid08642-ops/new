@@ -6,7 +6,7 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 
 ## Coverage
 
-- Scenarios: 22 done, 41 partial, 4 blocked (reason given), 7 not started, of 74 total.
+- Scenarios: 23 done, 41 partial, 4 blocked (reason given), 6 not started, of 74 total.
 - Screens: 0 of 274 patient-web routes fully scanned (public pages sampled in findings). Admin and provider screens not started.
 - The sweep is not finished. It is finished only when both counts reach 100%, or each remaining line gives its reason.
 
@@ -78,7 +78,7 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 | PR-02 | pharmacy B2B | admin review, quotation, cancel, complete; pharmacy sees each status | PARTIAL | Full lifecycle verified over API with DB status at each step (IDs in findings/b2b-map-jobs.md). Admin web buttons not clicked yet |
 | PR-03 | pharmacy B2B | pharmacy approves quotation (feedback) | DONE | POST /pharmacy/procurement/:id/feedback 201; DB APPROVED_BY_PHARMACY, then complete by admin 200 → COMPLETED |
 | PR-04 | pharmacy B2B | analyze-file (upload or text) | BLOCKED | Validation verified (400 with clear message). Text analysis returns 503 ai_provider_unavailable: no AI key on the test stack |
-| PR-05 | pharmacy B2B | rejection and cancellation by the pharmacy | TODO | |
+| PR-05 | pharmacy B2B | rejection and cancellation by the pharmacy | DONE | tools/live/j_qa_procurement.py (57/57): pharmacy declines the issued quotation (feedback CANCELLED); MongoDB procurementrequests CANCELLED; pharmacy list after reload; pharmacy cannot approve it again or the admin complete it (400). Pharmacy cannot cancel: the admin cancel route answers 404 to a pharmacy (route hidden), MongoDB unchanged; admin cancel of a waiting request works |
 | MP-01 | providers map | GET /providers/map and type filters | PARTIAL | API 200 (13 active, 2 pharmacies, 5 doctors within 50 km). Map page, markers and cards not yet checked in the browser |
 | MP-02 | providers map | provider card → profile → book | TODO | |
 | DI-01 | drug index | search and detail as pharmacy | PARTIAL | API 200 (search, categories). Detail and web UI not yet checked |
@@ -105,7 +105,7 @@ Per-screen scan (every element, sizes 390/768/1280, six languages, dark mode) is
 - Auth-gated patient-web routes (signed in, 72): swept on the production layout. Table: docs/qa/screens/patient-web-auth.md. Findings: docs/qa/findings/web-sweep-auth.md.
 - Admin pages (65 files): swept signed in, on the admin build of 03:12, then re-checked on the rebuilt admin from merged main. Findings: docs/qa/findings/admin-sweep.md. Dynamic admin routes (orders/[kind]/[id]) not tested (need IDs).
 - Dynamic patient-web routes (53): 5 routes tested with a real seeded doctor (docs/qa/findings/web-sweep-dynamic.md). Found P1: /consultations/doctors/<id> returns 503 (server-to-client function prop). The other ~48 need seeded IDs for articles, facilities, community, orders, appointments, labs, radiology, packages, results, clinics: NOT TESTED, reason: no seeded records of those types yet.
-- Scenarios: 22 done, 41 partial, 4 blocked (reason given), 7 not started, of 74 total.
+- Scenarios: 23 done, 41 partial, 4 blocked (reason given), 6 not started, of 74 total.
 - Open P1s: guest job publish (no route); admin system logs API 404 (AdminLogsController dropped in the P5.3 merge).
 - Corrected: hydration P1 retracted (local setup; production layout passes).
 - Environment: services drop between turns. Recover with /tmp/claude-0-scratch/stack_up.sh (patient-web via the nonce server). Kill stale next-server processes by PID (comm next-server) before restarting admin.
