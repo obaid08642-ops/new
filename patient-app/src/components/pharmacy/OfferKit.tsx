@@ -225,10 +225,10 @@ export function PharmacyOfferCard({ offer, now, best, selected, busy, onPick }: 
           accessibilityState={{ disabled, selected }}
           disabled={disabled}
           onPress={onPick}
-          style={({ pressed }) => ({ minHeight: 46, minWidth: 96, paddingHorizontal: 20, paddingVertical: 6, borderRadius: 16, flexDirection: 'row', gap: 6, alignItems: 'center', justifyContent: 'center', backgroundColor: disabled ? c.bg.sunken : c.action.selected.bg, opacity: pressed ? 0.85 : 1 })}
+          style={({ pressed }) => ({ minHeight: 46, minWidth: 96, paddingHorizontal: 20, paddingVertical: 6, borderRadius: 16, flexDirection: 'row', gap: 6, alignItems: 'center', justifyContent: 'center', backgroundColor: disabled ? c.bg.sunken : c.action.primary.bg, opacity: pressed ? 0.85 : 1 })}
         >
-          {selected ? <Glyph name="check-circle" size={18} color={c.action.selected.fg} /> : null}
-          <Text style={{ flexShrink: 1, textAlign: 'center', ...scale(t, 'bodyStrong'), color: disabled ? c.text.secondary : c.action.selected.fg }}>{expired ? k('pharmacy.offers.expiredShort') : selected ? k('pharmacy.offers.chosen') : k('pharmacy.offers.choose')}</Text>
+          {selected ? <Glyph name="check-circle" size={18} color={c.action.primary.fg} /> : null}
+          <Text style={{ flexShrink: 1, textAlign: 'center', ...scale(t, 'bodyStrong'), color: disabled ? c.text.secondary : c.action.primary.fg }}>{expired ? k('pharmacy.offers.expiredShort') : selected ? k('pharmacy.offers.chosen') : k('pharmacy.offers.choose')}</Text>
         </Pressable>
       </View>
     </View>

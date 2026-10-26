@@ -80,7 +80,7 @@ export function AppHeader({ title, onBack, backLabel = 'Back', actions = [], tra
         {onBack ? (
           <Pressable accessibilityRole="button" accessibilityLabel={backLabel} onPress={onBack} hitSlop={4} style={roundButton}>
             <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-              <Path d={CHEVRON[dir]} stroke={t.text} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
+              <Path d={CHEVRON[dir]} stroke={t.muted} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
             </Svg>
           </Pressable>
         ) : (

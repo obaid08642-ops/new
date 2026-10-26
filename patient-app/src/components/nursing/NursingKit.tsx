@@ -79,8 +79,8 @@ export function ServiceCard({ title, desc, image, icon, price, onPress, actionLa
         ) : null}
         {price !== null ? <Price amount={price} size="bodyStrong" /> : null}
       </Pressable>
-      <Pressable accessibilityRole="button" accessibilityLabel={`${actionLabel}, ${title}`} onPress={onAction} style={({ pressed }) => ({ minHeight: 44, paddingHorizontal: 14, paddingVertical: 6, borderRadius: 14, backgroundColor: c.action.selected.bg, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.85 : 1 })}>
-        <Text style={{ ...scale(t, 'small', 'bold'), color: c.action.selected.fg, textAlign: 'center' }}>{actionLabel}</Text>
+      <Pressable accessibilityRole="button" accessibilityLabel={`${actionLabel}, ${title}`} onPress={onAction} style={({ pressed }) => ({ minHeight: 44, paddingHorizontal: 14, paddingVertical: 6, borderRadius: 14, backgroundColor: c.action.primary.bg, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.85 : 1 })}>
+        <Text style={{ ...scale(t, 'small', 'bold'), color: c.action.primary.fg, textAlign: 'center' }}>{actionLabel}</Text>
       </Pressable>
     </View>
   );

@@ -58,9 +58,9 @@ function Row({ item, onRemove, onAdd, onOpen }: { item: Med; onRemove: (m: Med) 
             accessibilityState={{ disabled: unavailable }}
             disabled={unavailable}
             onPress={() => onAdd(item)}
-            style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 14, backgroundColor: c.action.selected.bg, alignItems: 'center', justifyContent: 'center', opacity: unavailable ? 0.4 : pressed ? 0.8 : 1 })}
+            style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 14, backgroundColor: c.action.primary.bg, alignItems: 'center', justifyContent: 'center', opacity: unavailable ? 0.4 : pressed ? 0.8 : 1 })}
           >
-            <Icon name="plus" size={18} color={c.action.selected.fg} />
+            <Icon name="plus" size={18} color={c.action.primary.fg} />
           </Pressable>
         </View>
       </View>

@@ -309,8 +309,8 @@ export default function Consultations() {
         onBack={() => goBack('/(tabs)' as Href)}
         backLabel={k('consult.back')}
         actions={[
-          { key: 'map', label: k('services.cat.map'), icon: <Glyph name="map-pin-line" size={20} color={c.icon.primary} />, onPress: () => router.push(mapHref('doctor') as Href) },
-          { key: 'appointments', label: k('consult.appt.title'), icon: <Glyph name="calendar-dots" size={20} color={c.icon.primary} />, onPress: () => router.push('/consultations/appointments' as Href) },
+          { key: 'map', label: k('services.cat.map'), icon: <Glyph name="map-pin-line" size={20} color={c.service.map.glyph} />, onPress: () => router.push(mapHref('doctor') as Href) },
+          { key: 'appointments', label: k('consult.appt.title'), icon: <Glyph name="calendar-dots" size={20} color={c.text.secondary} />, onPress: () => router.push('/consultations/appointments' as Href) },
         ]}
         theme={theme}
         direction={dir}
@@ -328,9 +328,9 @@ export default function Consultations() {
           {(['clinic', 'home', 'online'] as VisitMode[]).map((m) => {
             const on = activeVt === m;
             return (
-              <Pressable key={m} accessibilityRole="radio" accessibilityState={{ selected: on }} accessibilityLabel={k(`consult.mode.${m}`)} onPress={() => setActiveVt(m)} style={{ flex: 1, minWidth: 0, minHeight: 48, borderRadius: 16, paddingHorizontal: 6, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: on ? c.action.selected.bg : c.bg.surface, borderWidth: on ? 0 : 1, borderColor: c.border.hairline }}>
-                <Glyph name={MODE_LOOK[m].icon} size={18} color={on ? c.action.selected.fg : c.icon.primary} />
-                <Text style={{ ...scale(t, 'small', 'bold'), color: on ? c.action.selected.fg : c.text.primary, flexShrink: 1 }}>{k(`consult.mode.${m}`)}</Text>
+              <Pressable key={m} accessibilityRole="radio" accessibilityState={{ selected: on }} accessibilityLabel={k(`consult.mode.${m}`)} onPress={() => setActiveVt(m)} style={{ flex: 1, minWidth: 0, minHeight: 48, borderRadius: 16, paddingHorizontal: 6, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: on ? c.service.coral.bg : c.bg.surface, borderWidth: on ? 0 : 1, borderColor: c.border.hairline }}>
+                <Glyph name={MODE_LOOK[m].icon} size={18} color={on ? c.service.coral.fg : c.icon.primary} />
+                <Text style={{ ...scale(t, 'small', 'bold'), color: on ? c.service.coral.fg : c.text.primary, flexShrink: 1 }}>{k(`consult.mode.${m}`)}</Text>
               </Pressable>
             );
           })}
@@ -390,7 +390,7 @@ export default function Consultations() {
                   const look = specialtyLook(s.name_ar || name);
                   return (
                     <Pressable key={s.slug || i} accessibilityRole="button" accessibilityState={{ selected: on }} accessibilityLabel={name} onPress={() => setActiveSpec(on ? '' : s.name_ar || '')} style={{ width: 72, minHeight: 44, alignItems: 'center', gap: 6 }}>
-                      <View style={{ borderRadius: 22, borderWidth: on ? 2 : 0, borderColor: c.action.selected.bg, padding: on ? 2 : 0 }}>
+                      <View style={{ borderRadius: 22, borderWidth: on ? 2 : 0, borderColor: c.action.primary.bg, padding: on ? 2 : 0 }}>
                         <FIcon icon={look.icon} tone={look.tone} size={58} theme={theme} />
                       </View>
                       <Text style={{ ...scale(t, 'meta', on ? 'bold' : 'medium'), color: c.text.primary, textAlign: 'center' }}>{name}</Text>
