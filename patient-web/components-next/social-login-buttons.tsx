@@ -12,7 +12,13 @@ import { acceptCallback, authorizeUrl, newPkce, type CodeProvider } from "@/lib/
 import type { SocialButtons } from "@/lib/auth/social-config";
 import styles from "./auth/auth.module.css";
 
-type Props = { locale: string; social: SocialButtons; onWrongApp?: () => void };
+type Props = {
+  locale: string;
+  social: SocialButtons;
+  onWrongApp?: () => void;
+  /** `register` is the sign-up page: the same buttons and divider, without the "no account yet" and guest links under them. */
+  variant?: "login" | "register";
+};
 
 declare global {
   interface Window { google?: any; AppleID?: { auth: { init(config: Record<string, unknown>): void; signIn(): Promise<{ authorization?: { id_token?: string }; user?: { email?: string; name?: { firstName?: string; lastName?: string } } }> } } }
@@ -36,7 +42,7 @@ const APPLE_SDK = "https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/
  * provider's token; X and Snapchat (code + PKCE in a popup, like the app) send the authorization code and the verifier, and the
  * BACKEND exchanges them with its own client secret. The backend verifies every one.
  */
-export function SocialLoginButtons({ locale, social, onWrongApp }: Props) {
+export function SocialLoginButtons({ locale, social, onWrongApp, variant = "login" }: Props) {
   const router = useRouter();
   const t = useTranslations("Login");
   const [busy, setBusy] = useState<string | null>(null);
@@ -189,12 +195,12 @@ export function SocialLoginButtons({ locale, social, onWrongApp }: Props) {
         <button type="button" className={`${styles.socialButton} socialBrandButton socialBrandSnapchat`} disabled={busy !== null} onClick={() => codeLogin("snapchat")} data-configured={showSnapchat ? "1" : "0"}><SocialMark brand="snapchat" /> {t("snapchat")}</button>
       </div>
     </>
-    <div className={styles.foot}>
-      <span>{t("noAccount")} <Link className={styles.link} href={`/${locale}/register`}>{t("createAccount")}</Link></span>
-      <button type="button" className={`${styles.link} ${styles.guest}`} onClick={guestLogin} disabled={busy !== null}>
-        {busy === "guest" ? t("guestLoading") : t("guestContinue")}
-      </button>
-    </div>
+    {variant === "login" ? <div className={styles.foot}>
+        <span>{t("noAccount")} <Link className={styles.link} href={`/${locale}/register`}>{t("createAccount")}</Link></span>
+        <button type="button" className={`${styles.link} ${styles.guest}`} onClick={guestLogin} disabled={busy !== null}>
+          {busy === "guest" ? t("guestLoading") : t("guestContinue")}
+        </button>
+      </div> : null}
     {error ? <p className={styles.error} role="alert">{error}</p> : null}
   </>;
 }

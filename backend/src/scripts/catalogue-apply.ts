@@ -23,7 +23,7 @@ import {
   applyChanges, countsOf, decodeBackup, encodeBackup, expectedCounts, planSha, rollbackChanges, sha256, summarize,
   type Change, type DbLike,
 } from '../modules/catalogs/catalogue-apply.core';
-import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn, planPlaceholderCities, planProductTranslations } from '../modules/catalogs/catalogue-apply.steps';
+import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn, planNumberedDistricts, planPlaceholderCities, planProductTranslations } from '../modules/catalogs/catalogue-apply.steps';
 import { isTranslationFile } from '../modules/medicines/content-translation';
 
 const TRANSLATIONS_CSV = path.join(__dirname, '../modules/medicines/data/medicine-translations-2026-10-24.csv');
@@ -72,6 +72,10 @@ export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> 
   const placeholders = await planPlaceholderCities(db);
   changes.push(...placeholders.changes);
   report.placeholder_cities = placeholders.report;
+
+  const numbered = await planNumberedDistricts(db);
+  changes.push(...numbered.changes);
+  report.numbered_districts = { ...numbered.report, cities: undefined, per_city: numbered.report.cities };
 
   const translationsPath = arg(argv, 'product-translations');
   if (translationsPath) {
