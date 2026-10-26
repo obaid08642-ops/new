@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   INITIAL_SUGGEST_STATE, SuggestController, highlightParts,
-  type SuggestState, type SuggestType, type Suggestion, type TextRange,
+  type SuggestScope, type SuggestState, type SuggestType, type Suggestion, type TextRange,
 } from "@/lib/search/suggest";
 import styles from "./search-suggest.module.css";
 
@@ -23,13 +23,13 @@ export interface SuggestFieldProps {
 }
 
 /** One controller per field: the dropdown's state follows the controller's rules (lib/search/suggest.ts). */
-export function useSearchSuggest(locale: string) {
+export function useSearchSuggest(locale: string, scope?: SuggestScope) {
   const [state, setState] = useState<SuggestState>(INITIAL_SUGGEST_STATE);
   const ref = useRef<SuggestController | null>(null);
   if (!ref.current) {
     // The browser never keeps an answer (no-store): turning the suggestions kill switch off must apply on the next letter.
     // The edge still caches the shared answer (the route forwards the API's public s-maxage) and is purged on every change.
-    ref.current = new SuggestController({ locale, fetcher: (url, init) => fetch(url, { ...init, cache: "no-store" }), onChange: setState });
+    ref.current = new SuggestController({ locale, scope, fetcher: (url, init) => fetch(url, { ...init, cache: "no-store" }), onChange: setState });
   }
   const controller = ref.current;
   useEffect(() => () => controller.dispose(), [controller]);
@@ -54,6 +54,8 @@ export interface SearchSuggestProps {
   renderField: (props: SuggestFieldProps) => ReactNode;
   /** The full results page for the typed text (shown under the suggestions); none on the results page itself. */
   allResultsHref?: (query: string) => string;
+  /** Extra class on the wrapper, for fields that size themselves inside a flex row. */
+  className?: string;
 }
 
 /**
@@ -62,7 +64,7 @@ export interface SearchSuggestProps {
  * "search suggestions" kill switch is off (the controller's status "off"), nothing is drawn and the field is a plain
  * search field.
  */
-export function SearchSuggest({ state, controller, renderField, allResultsHref }: SearchSuggestProps) {
+export function SearchSuggest({ state, controller, renderField, allResultsHref, className }: SearchSuggestProps) {
   const t = useTranslations("SearchSuggest");
   const kinds = useTranslations("Search");
   const router = useRouter();
@@ -106,7 +108,7 @@ export function SearchSuggest({ state, controller, renderField, allResultsHref }
   const items: Suggestion[] = open && state.status === "ready" ? state.items : [];
 
   return (
-    <div className={styles.wrap} onBlur={onBlur}>
+    <div className={className ? `${styles.wrap} ${className}` : styles.wrap} onBlur={onBlur}>
       {field}
       <div className={styles.popup} hidden={!open}>
         <ul id={listId} role="listbox" aria-label={t("listLabel")} className={styles.list}>
@@ -135,6 +137,35 @@ export function SearchSuggest({ state, controller, renderField, allResultsHref }
       </div>
       {/* how many suggestions there are, for a screen reader (the list itself is not read until the arrows move) */}
       <span role="status" className="sr-only">{open && state.status === "ready" ? t("count", { count: state.items.length }) : ""}</span>
+    </div>
+  );
+}
+
+/**
+ * Makes a field drawn by the shared Search component (generated from packages/ui, shared with the native renderer, so it has no ARIA
+ * combobox props) the combobox of the dropdown: the keys and the focus are caught on the way up, and the ARIA attributes are set on its input.
+ * Used by the service screens' search fields (issue 1544 follow-up: live suggestions on every service screen).
+ */
+export function ComboboxHost({ combobox, children }: { combobox: SuggestFieldProps; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const input = ref.current?.querySelector<HTMLInputElement>('input[type="search"]');
+    if (!input) return;
+    input.setAttribute("role", combobox.role);
+    input.setAttribute("aria-expanded", String(combobox["aria-expanded"]));
+    input.setAttribute("aria-controls", combobox["aria-controls"]);
+    input.setAttribute("aria-autocomplete", combobox["aria-autocomplete"]);
+    input.setAttribute("autocomplete", combobox.autoComplete);
+    if (combobox["aria-activedescendant"]) input.setAttribute("aria-activedescendant", combobox["aria-activedescendant"]);
+    else input.removeAttribute("aria-activedescendant");
+  }, [combobox]);
+  return (
+    <div
+      ref={ref}
+      onKeyDown={(event) => { if ((event.target as HTMLElement).tagName === "INPUT") combobox.onKeyDown(event as unknown as KeyboardEvent<HTMLInputElement>); }}
+      onFocusCapture={(event) => { if ((event.target as HTMLElement).tagName === "INPUT") combobox.onFocus(); }}
+    >
+      {children}
     </div>
   );
 }

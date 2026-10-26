@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ScopedSuggest } from '../../src/components/search/ScopedSuggest';
+import { SUGGEST_SCOPES } from '../../src/utils/searchSuggest';
 import { RefreshControl, ScrollView, Text, View } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
 
@@ -216,6 +218,7 @@ export default function DiagnosticsHub() {
           onFilterPress={() => setSheet(true)}
           filterLabel={k('diag.hub.filter')}
         />
+        <ScopedSuggest query={query} scope={isLab ? SUGGEST_SCOPES.labs : SUGGEST_SCOPES.radiology} />
         {isLab ? <ActiveFilters items={activeItems} onClearAll={() => setFilter('all')} tone={LAB_TONE} testIdPrefix="diag" /> : null}
       </View>
       <ScrollView

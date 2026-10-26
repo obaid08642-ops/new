@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { ScopedSuggest } from '../../../src/components/search/ScopedSuggest';
+import { SUGGEST_SCOPES } from '../../../src/utils/searchSuggest';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
@@ -380,6 +382,7 @@ export default function Consultations() {
             ) : null}
           </Pressable>
         </View>
+        <ScopedSuggest query={searchQuery} scope={SUGGEST_SCOPES.consultations} />
         <ActiveFilters items={activeItems} onClearAll={clearAll} tone={CONSULT_TONE} testIdPrefix="consult" />
       </View>
     </View>

@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ScopedSuggest } from '../../src/components/search/ScopedSuggest';
+import { SUGGEST_SCOPES } from '../../src/utils/searchSuggest';
 import { FlatList, Pressable, Text, View, useWindowDimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
@@ -236,6 +238,7 @@ export default function PharmacyHub() {
             testID="pharmacy-search"
             theme={theme}
           />
+          <ScopedSuggest query={searchQuery} scope={SUGGEST_SCOPES.pharmacy} />
         </View>
         <GlyphSquare name="camera" label={k('pharmacy.hub.photoRx')} onPress={() => go('/pharmacy/rx-order?via=photo')} />
       </View>

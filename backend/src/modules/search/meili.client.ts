@@ -88,8 +88,10 @@ export class MeiliClient {
    * word as it is typed, and its typo tolerance (typoTolerance in meiliSettings) finds a misspelt name. The tiers and the
    * highlights are computed by the caller (suggest-rank.ts), not by Meilisearch's own ranking.
    */
-  async suggest(q: string, limit: number): Promise<MeiliHit[]> {
-    const r = await this.req('POST', `/indexes/${MEILI_INDEX}/search`, { q, limit });
+  async suggest(q: string, limit: number, types?: SearchType[] | null): Promise<MeiliHit[]> {
+    // A service screen asks for its own types only (`type` is a filterable attribute).
+    const filter = types && types.length ? `type IN [${types.map((t) => `"${t}"`).join(', ')}]` : undefined;
+    const r = await this.req('POST', `/indexes/${MEILI_INDEX}/search`, { q, limit, ...(filter ? { filter } : {}) });
     return Array.isArray(r?.hits) ? r.hits : [];
   }
 
