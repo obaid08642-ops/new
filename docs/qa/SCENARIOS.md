@@ -6,7 +6,7 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 
 ## Coverage
 
-- Scenarios: 8 done, 18 partial, 5 blocked (reason given), 43 not started, of 74 total.
+- Scenarios: 11 done, 21 partial, 5 blocked (reason given), 37 not started, of 74 total.
 - Screens: 0 of 274 patient-web routes fully scanned (public pages sampled in findings). Admin and provider screens not started.
 - The sweep is not finished. It is finished only when both counts reach 100%, or each remaining line gives its reason.
 
@@ -16,18 +16,18 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 |---|---|---|---|---|
 | P-01 | pharmacy | build cart (local-first), guest | DONE | Retested on rebuilt main (20:05 UTC): product page hydrates, Add to cart updates the header badge to 1, cart page lists the item. Cart is kept in the browser by design (owner decision 2026-10-06), so no DB write to prove. Earlier P1 was a local setup error (findings web-patient.md CORRECTION) |
 | P-02 | pharmacy | build cart, signed in | DONE | Same retest as P-01, signed in as the QA patient: badge 1, cart page shows the item, no API errors |
-| P-03 | pharmacy | send order (broadcast) | TODO | needs P-01 |
-| P-04 | pharmacy | compare offers | TODO | |
-| P-05 | pharmacy | accept offer and pay (card, test double) | TODO | |
-| P-06 | pharmacy | preparing → courier → delivered → rated | TODO | |
-| P-07 | pharmacy | cancel at each step | TODO | |
+| P-03 | pharmacy | send order (broadcast) | DONE | tools/live/j_pharmacy.py (193/193 on 00:55 UTC run): "submit = broadcast to nearby pharmacies", "the nearby pharmacy sees the broadcast". DB: pharmacy_orders holds broadcasting and cancelled orders from the run |
+| P-04 | pharmacy | compare offers | PARTIAL | j_pharmacy.py: offer submitted, "patient sees the offer", "select offer (cash)" pass. Offers are not in ordering_offers (empty), so the DB location is not proven yet |
+| P-05 | pharmacy | accept offer and pay (card, test double) | DONE | j_pharmacy.py: payment intent created with the server amount, "payment verified as paid", delivered paid by card. DB: pharmacy_orders completed (4 delivered) |
+| P-06 | pharmacy | preparing → courier → delivered → rated | PARTIAL | j_pharmacy.py: "pharmacy: out for delivery", "delivered", "patient rates the pharmacy" pass. The preparing step is not a named step, so it is not proven |
+| P-07 | pharmacy | cancel at each step | DONE | j_pharmacy.py: admin cancel, patient cancel, "order is cancelled", second cancel refused, delivered order cannot be cancelled. DB: pharmacy_orders cancelled (9) |
 | P-08 | pharmacy | no offers | TODO | |
 | P-09 | pharmacy | offer expired | TODO | |
 | P-10 | pharmacy | pharmacy rejects | TODO | |
 | P-11 | pharmacy | payment fails / declined / 3DS | TODO | fake Moyasar at :9100 |
 | P-12 | pharmacy | payment retry | TODO | |
 | P-13 | pharmacy | refund | TODO | |
-| P-14 | pharmacy | return | TODO | |
+| P-14 | pharmacy | return | PARTIAL | j_pharmacy.py only lists returns (GET /pharmacy/returns/provider/list). The return flow itself is not tested |
 | P-15 | pharmacy | prescription required; upload | BLOCKED | uploads closed on the server: expect the clear message (verify the message) |
 | P-16 | pharmacy | cash on delivery, first order (D-25) | BLOCKED | backend accepts COD on first order; journey expects refusal (findings P2) |
 | D-01 | doctor | search, filters, sort (incl. available today) | TODO | |
@@ -105,7 +105,7 @@ Per-screen scan (every element, sizes 390/768/1280, six languages, dark mode) is
 - Auth-gated patient-web routes (signed in, 72): swept on the production layout. Table: docs/qa/screens/patient-web-auth.md. Findings: docs/qa/findings/web-sweep-auth.md.
 - Admin pages (65 files): swept signed in, on the admin build of 03:12, then re-checked on the rebuilt admin from merged main. Findings: docs/qa/findings/admin-sweep.md. Dynamic admin routes (orders/[kind]/[id]) not tested (need IDs).
 - Dynamic patient-web routes (53): 5 routes tested with a real seeded doctor (docs/qa/findings/web-sweep-dynamic.md). Found P1: /consultations/doctors/<id> returns 503 (server-to-client function prop). The other ~48 need seeded IDs for articles, facilities, community, orders, appointments, labs, radiology, packages, results, clinics: NOT TESTED, reason: no seeded records of those types yet.
-- Scenarios: 8 done, 18 partial, 5 blocked (reason given), 43 not started, of 74 total.
+- Scenarios: 11 done, 21 partial, 5 blocked (reason given), 37 not started, of 74 total.
 - Open P1s: guest job publish (no route); admin system logs API 404 (AdminLogsController dropped in the P5.3 merge).
 - Corrected: hydration P1 retracted (local setup; production layout passes).
 - Environment: services drop between turns. Recover with /tmp/claude-0-scratch/stack_up.sh (patient-web via the nonce server). Kill stale next-server processes by PID (comm next-server) before restarting admin.
