@@ -1,14 +1,14 @@
-/* The card's quantity stepper and the "removed - undo" toast. Tokens only, logical properties only, no inline styles (the CSP
-   refuses them). The same motion numbers as lib/motion/motion.ts; with reduced motion nothing slides. */
+/* The card's quantity stepper and the "removed - undo" toast. Tokens only (colours, spacing and the motion tokens), logical
+   properties only, no inline styles (the CSP refuses them). With reduced motion nothing slides. */
 .stepper {
   display: inline-flex; align-items: center; gap: var(--nabd-space-xs); block-size: 40px; padding-inline: 4px; box-sizing: border-box;
   border-radius: 14px; background: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg);
 }
 .stepButton {
   position: relative; inline-size: 32px; block-size: 32px; padding: 0; border: 0; border-radius: 10px; display: inline-grid; place-items: center;
-  background: transparent; color: inherit; cursor: pointer; transition: transform 120ms cubic-bezier(0.22, 1, 0.36, 1);
+  background: transparent; color: inherit; cursor: pointer; transition: transform var(--nabd-motion-duration-press) var(--nabd-motion-easing-enter);
 }
-.stepButton:active { transform: scale(0.97); }
+.stepButton:active { transform: scale(0.97); } /* token motion.press.scale */
 .stepButton:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 1px; }
 .qty { min-inline-size: 20px; text-align: center; font-size: var(--nabd-font-size-control); font-weight: 700; font-variant-numeric: tabular-nums; }
 
@@ -16,7 +16,7 @@
   position: fixed; inset-block-end: var(--nabd-space-lg); inset-inline: var(--nabd-space-md); margin-inline: auto; z-index: 40; max-inline-size: 420px;
   display: flex; align-items: center; justify-content: space-between; gap: var(--nabd-space-sm); padding: var(--nabd-space-sm) var(--nabd-space-md);
   box-sizing: border-box; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-text-primary); color: var(--nabd-color-bg-surface);
-  box-shadow: var(--nabd-shadow-card); font-size: var(--nabd-font-size-row); animation: toastIn 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: var(--nabd-shadow-card); font-size: var(--nabd-font-size-row); animation: toastIn var(--nabd-motion-duration-enterMax) var(--nabd-motion-easing-enter);
 }
 .toastUndo {
   min-block-size: 44px; padding-inline: var(--nabd-space-sm); border: 0; background: transparent; color: inherit; font: inherit; font-weight: 700;
