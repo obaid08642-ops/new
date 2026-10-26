@@ -109,7 +109,7 @@
 .okText { margin: 0; font-size: var(--nabd-font-size-control); color: var(--nabd-color-status-success-fg); line-height: 1.6; overflow-wrap: anywhere; }
 
 /* the board draws the select button in ink (canvas/PharmacyOffers): the selected-action pair of the tokens, so it flips in dark */
-.pickAction > :global(.nabd-button) { background: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg); border: 0; }
+.pickAction > :global(.nabd-button) { background: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg); border: 0; }
 .pickAction > :global(.nabd-button--inert) { opacity: .5; }
 
 .privacy { margin: 0; text-align: center; font-size: var(--nabd-font-size-caption); color: var(--nabd-color-text-secondary); line-height: 1.7; }
@@ -157,7 +157,7 @@
 .messages { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
 .message { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: var(--nabd-radius-xl); min-inline-size: 0; box-sizing: border-box; max-inline-size: 88%; }
 .theirs { align-self: flex-start; background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); }
-.mine { align-self: flex-end; background: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg); }
+.mine { align-self: flex-end; background: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg); }
 .system { align-self: center; background: var(--nabd-color-bg-sunken); text-align: center; max-inline-size: 100%; }
 .sender { font-size: var(--nabd-font-size-small); font-weight: 700; opacity: .8; }
 .when { font-size: var(--nabd-font-size-small); opacity: .7; }

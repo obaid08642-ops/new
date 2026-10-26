@@ -177,7 +177,7 @@
   border: 0;
   padding: 0;
   position: relative;
-  background: var(--nabd-color-action-selected-bg);
+  background: var(--nabd-color-action-primary-bg);
   display: grid;
   place-items: center;
   cursor: pointer;

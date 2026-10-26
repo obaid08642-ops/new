@@ -134,7 +134,7 @@
 .messageMine { align-self: flex-end; align-items: flex-end; }
 .messageTheirs { align-self: flex-start; align-items: flex-start; }
 .bubble { margin: 0; padding: 10px 14px; border-radius: var(--nabd-radius-2xl); font-size: var(--nabd-font-size-body); line-height: 1.6; overflow-wrap: anywhere; white-space: pre-line; }
-.bubbleMine { background: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg); }
+.bubbleMine { background: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg); }
 .bubbleTheirs { background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); color: var(--nabd-color-text-primary); }
 .messageMeta { font-size: var(--nabd-font-size-micro); color: var(--nabd-color-text-secondary); }
 .offer { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: var(--nabd-radius-2xl); background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-subtle); }

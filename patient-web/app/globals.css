@@ -490,8 +490,8 @@ body { background: var(--nabd-color-bg-canvas); }
 }
 
 .theme-option[data-active] {
-  background: var(--nabd-color-bg-surface);
-  color: var(--nabd-color-text-primary);
+  background: var(--nabd-color-service-coral-bg);
+  color: var(--nabd-color-service-coral-fg);
   box-shadow: var(--nabd-shadow-card);
 }
 
