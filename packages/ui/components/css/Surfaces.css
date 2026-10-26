@@ -37,8 +37,9 @@
 }
 .nabd-chip__pill--selected {
   font-weight: 700;
-  background: var(--nabd-color-action-selected-bg);
-  color: var(--nabd-color-action-selected-fg);
+  /* owner ink override 2026-10-26: a selected chip is the soft action tint, never solid ink */
+  background: var(--nabd-color-service-coral-bg);
+  color: var(--nabd-color-service-coral-fg);
   border: 0;
 }
 .nabd-chip__count { font-size: var(--nabd-font-size-meta); opacity: 0.7; }
@@ -64,7 +65,7 @@
   color: var(--nabd-color-action-secondary-fg);
 }
 .nabd-badge--neutral { background: var(--nabd-color-text-secondary); }
-.nabd-badge--primary { background: var(--nabd-color-text-primary); }
+.nabd-badge--primary { background: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg); }
 .nabd-badge--success { background: var(--nabd-color-status-success-fg); }
 .nabd-badge--warning { background: var(--nabd-color-status-warning-fg); }
 .nabd-badge--danger { background: var(--nabd-color-status-danger-fg); }
@@ -118,7 +119,7 @@
   opacity: 1;
   border-radius: var(--nabd-radius-md);
 }
-.nabd-list-item--selected { background: var(--nabd-color-action-selected-bg); }
+.nabd-list-item--selected { background: var(--nabd-color-service-coral-bg); }
 .nabd-list-item--disabled { opacity: 0.5; }
 .nabd-list-item__body { flex: 1; min-width: 0; }
 .nabd-list-item__title { font-size: var(--nabd-font-size-body); font-weight: 600; color: var(--nabd-color-text-primary); overflow-wrap: anywhere; }
@@ -282,7 +283,7 @@
 .nabd-nav-bar__title { flex: 1; margin: 0; font-size: var(--nabd-font-size-h4); color: var(--nabd-color-text-primary); }
 
 /* BottomTabBar (canvas/HomeApp.dc.html nav): the floating glass pill, 68 tall
-   (radius 34); items 52 (radius 26), the active one an ink pill with icon and
+   (radius 34); items 52 (radius 26), the active one a coral pill with icon and
    label; the raised coral centre a 66 disc (radius 33) lifted 34 above the bar.
    Geometry and colours as the native shell TabBar. */
 .nabd-bottom-tab-bar {
@@ -346,8 +347,9 @@
 }
 .nabd-bottom-tab-bar__item--active {
   padding-inline: 18px;
-  background: var(--nabd-color-action-selected-bg);
-  color: var(--nabd-color-action-selected-fg);
+  /* owner ink override 2026-10-26: the active tab is the brand coral pill, not ink */
+  background: var(--nabd-color-action-primary-bg);
+  color: var(--nabd-color-action-primary-fg);
 }
 .nabd-bottom-tab-bar__badge { position: absolute; inset-block-start: 4px; inset-inline-end: 4px; }
 
@@ -379,6 +381,6 @@
   font-size: var(--nabd-font-size-body);
   font-weight: 500;
 }
-.nabd-sidebar__item--active { background: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg); font-weight: 700; }
+.nabd-sidebar__item--active { background: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg); font-weight: 700; }
 .nabd-sidebar__item--disabled { cursor: not-allowed; }
 .nabd-sidebar--collapsed .nabd-sidebar__item { justify-content: center; }

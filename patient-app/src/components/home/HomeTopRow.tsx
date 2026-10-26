@@ -8,7 +8,7 @@ import Svg, { Path } from 'react-native-svg';
 import { Avatar, Icon, IconButton } from '../../../../packages/ui-native/src';
 import { withAlpha } from '../../../../packages/ui-native/src/shells/shellTokens';
 import { LANGUAGES, useApp, type LangCode } from '../../context/AppContext';
-import { CartButton } from '../pharmacy/PharmacyKit';
+import { CartButton, WishlistButton } from '../pharmacy/PharmacyKit';
 import { Plain, Txt, useScreenUi } from './homeKit';
 
 /**
@@ -75,6 +75,7 @@ export function HomeTopRow({ name }: { name: string | null }) {
           </Svg>
         </View>
       </Pressable>
+      <WishlistButton testID="home-wishlist-button" />
       <CartButton testID="home-cart-button" />
       <View>
         <IconButton name="bell" label={tr('common.notifications')} variant="outlined" theme={theme} onPress={() => router.push('/notifications')} />
