@@ -10,7 +10,8 @@
  *
  * Exit codes: 0 ok · 2 the plan differs from --expect (nothing written) · 3 verify failed after the writes (the task rolls back) · 1 error.
  * Steps: medicine translations (#1844, the packaged CSV), Arabic/English names of regions, cities and insurers, medicine-name hygiene
- * and the owner-approved name fixes (#1556), districts (the extract packaged in the image; `--districts=<file>` overrides it).
+ * and the owner-approved name fixes (#1556), districts (the extract packaged in the image; `--districts=<file>` overrides it),
+ * placeholder and duplicate cities (deleted after their references are re-pointed; the plan prints the reference counts).
  * The name-fixes file is optional and skipped when not given; so is the product-translations file (`--product-translations=<file>`, made by
  * scripts/translate-product-content.ts): missing product texts translated from the existing ones, written only into empty fields.
  */
@@ -22,7 +23,7 @@ import {
   applyChanges, countsOf, decodeBackup, encodeBackup, expectedCounts, planSha, rollbackChanges, sha256, summarize,
   type Change, type DbLike,
 } from '../modules/catalogs/catalogue-apply.core';
-import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn, planProductTranslations } from '../modules/catalogs/catalogue-apply.steps';
+import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn, planPlaceholderCities, planProductTranslations } from '../modules/catalogs/catalogue-apply.steps';
 import { isTranslationFile } from '../modules/medicines/content-translation';
 
 const TRANSLATIONS_CSV = path.join(__dirname, '../modules/medicines/data/medicine-translations-2026-10-24.csv');
@@ -66,7 +67,11 @@ export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> 
   inputs.districts_extract = sha256(text);
   const planned = await planDistricts(db, JSON.parse(text));
   changes.push(...planned.changes);
-  report.districts = { source: override ? 'host_file_override' : 'packaged', rejected_rows: planned.rejected, cities_with_new_rows: planned.perCity.filter((c) => c.new > 0).length, new_rows: planned.perCity.reduce((n, c) => n + c.new, 0), centroid_fills: planned.perCity.reduce((n, c) => n + c.centroid_fills, 0) };
+  report.districts = { source: override ? 'host_file_override' : 'packaged', rejected_rows: planned.rejected, new_cities: planned.newCities, cities_with_new_rows: planned.perCity.filter((c) => c.new > 0).length, new_rows: planned.perCity.reduce((n, c) => n + c.new, 0), centroid_fills: planned.perCity.reduce((n, c) => n + c.centroid_fills, 0) };
+
+  const placeholders = await planPlaceholderCities(db);
+  changes.push(...placeholders.changes);
+  report.placeholder_cities = placeholders.report;
 
   const translationsPath = arg(argv, 'product-translations');
   if (translationsPath) {

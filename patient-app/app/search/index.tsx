@@ -212,7 +212,7 @@ function UploadCard() {
       onPress={() => router.push('/pharmacy/rx-order?via=photo' as Href)}
       style={{ flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 44, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 22, borderWidth: 1, borderStyle: 'dashed', borderColor: c.border.strong }}
     >
-      <FIcon icon="prescription" tone="ink" chip="none" size={24} theme={theme} />
+      <FIcon icon="prescription" tone={SERVICE_ICONS.pharmacy.tone} chip="none" size={24} theme={theme} />
       <LocalizedText style={{ flex: 1, ...scale(t, 'small', 'regular'), color: c.text.primary, ...flow }}>
         لم تجد ما تبحث عنه؟ ارفع الوصفة وتبحث الصيدليات عنه لك
       </LocalizedText>

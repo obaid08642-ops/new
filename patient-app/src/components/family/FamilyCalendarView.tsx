@@ -107,7 +107,7 @@ export function FamilyCalendarView() {
   return (
     <FamilyScreen
       title={k('family.calendar.title')}
-      actions={data.data?.noGroup ? undefined : [{ key: 'add', label: k('family.calendar.add'), icon: <Glyph name="plus" size={20} color={c.icon.primary} />, onPress: openForm }]}
+      actions={data.data?.noGroup ? undefined : [{ key: 'add', label: k('family.calendar.add'), icon: <Glyph name="plus" size={20} color={c.text.secondary} />, onPress: openForm }]}
       testID="family-calendar"
     >
       {data.data?.noGroup ? <NoFamilyState /> : (
@@ -128,7 +128,7 @@ export function FamilyCalendarView() {
                   caption={e.member}
                   trailing={e.can_delete === true ? (
                     <Pressable accessibilityRole="button" accessibilityLabel={k('family.calendar.delete')} onPress={() => remove(e)} hitSlop={8} style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }} testID={`event-delete-${e.id}`}>
-                      <FIcon icon="trash" tone="ink" size={20} chip="none" theme={theme} />
+                      <FIcon icon="trash" tone="peach" size={20} chip="none" theme={theme} />
                     </Pressable>
                   ) : undefined}
                   last={i === events.length - 1}

@@ -106,9 +106,9 @@ export function AddToggle({ on, label, onPress }: { on: boolean; label: string; 
       accessibilityLabel={label}
       accessibilityState={{ selected: on }}
       onPress={onPress}
-      style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? c.action.selected.bg : c.bg.surface, borderWidth: on ? 0 : 1.5, borderColor: c.border.strong, opacity: pressed ? 0.8 : 1 })}
+      style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? c.service.coral.bg : c.bg.surface, borderWidth: on ? 0 : 1.5, borderColor: c.border.strong, opacity: pressed ? 0.8 : 1 })}
     >
-      <Mark kind={on ? 'check' : 'plus'} color={on ? c.action.selected.fg : c.text.primary} />
+      <Mark kind={on ? 'check' : 'plus'} color={on ? c.service.coral.fg : c.text.primary} />
     </Pressable>
   );
 }
@@ -207,8 +207,8 @@ export function PackageCard({ name, desc, count, price, oldPrice, icon, tone, ac
           {oldPrice ? <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.secondary, textDecorationLine: 'line-through' }}>{money(oldPrice)} {k('pharmacy.currency')}</Text> : null}
           {price !== null ? <Price amount={price} size="h3" /> : null}
         </View>
-        <View style={{ minHeight: 40, paddingHorizontal: 16, paddingVertical: 6, borderRadius: 14, backgroundColor: c.action.selected.bg, justifyContent: 'center', flexShrink: 1 }}>
-          <Text style={{ ...scale(t, 'small', 'bold'), color: c.action.selected.fg, textAlign: 'center' }}>{actionLabel}</Text>
+        <View style={{ minHeight: 40, paddingHorizontal: 16, paddingVertical: 6, borderRadius: 14, backgroundColor: c.action.primary.bg, justifyContent: 'center', flexShrink: 1 }}>
+          <Text style={{ ...scale(t, 'small', 'bold'), color: c.action.primary.fg, textAlign: 'center' }}>{actionLabel}</Text>
         </View>
       </View>
     </Pressable>
@@ -247,8 +247,8 @@ export function LabCard({ name, line, tags, selected, onPress, width, icon, top,
           {line ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{line}</Text> : null}
         </View>
         {selected && !noCheck ? (
-          <View accessibilityLabel={k('diag.selected')} style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: c.action.selected.bg, alignItems: 'center', justifyContent: 'center' }}>
-            <Mark kind="check" size={16} color={c.action.selected.fg} />
+          <View accessibilityLabel={k('diag.selected')} style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: c.service.coral.bg, alignItems: 'center', justifyContent: 'center' }}>
+            <Mark kind="check" size={16} color={c.service.coral.fg} />
           </View>
         ) : null}
       </View>

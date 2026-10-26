@@ -591,8 +591,8 @@ export default function ProductDetailScreen() {
                 </View>
               ) : null}
               {onlineOnly(med) ? (
-                <View style={{ height: 28, paddingHorizontal: 10, borderRadius: 14, backgroundColor: c.action.selected.bg, justifyContent: 'center' }}>
-                  <Text style={{ ...scale(t, 'meta'), color: c.action.selected.fg }}>{k('pharmacy.product.exclusive')}</Text>
+                <View style={{ height: 28, paddingHorizontal: 10, borderRadius: 14, backgroundColor: c.service.coral.bg, justifyContent: 'center' }}>
+                  <Text style={{ ...scale(t, 'meta'), color: c.service.coral.fg }}>{k('pharmacy.product.exclusive')}</Text>
                 </View>
               ) : null}
             </View>

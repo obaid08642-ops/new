@@ -14,7 +14,7 @@
 import * as fs from 'fs';
 import { SAUDI_LOCATIONS_SEED } from '../../src/modules/location/seeds/saudi-locations.data';
 import { overpassToRows, type OutDistrict } from './fetch-osm-districts';
-import { assignPoint, buildBoundaries, pointOf, resolveCentres, type AssignedBy, type OsmAny, type OsmTagged, type SeedCity } from './district-assign';
+import { assignPoint, buildBoundaries, discoverNewCities, pointOf, resolveCentres, type AssignedBy, type NewCity, type OsmAny, type OsmTagged, type SeedCity } from './district-assign';
 
 /** The 13 regions of the kingdom by ISO 3166-2 (SA-13 is not used). */
 export const REGIONS: ReadonlyArray<{ iso: string; name_en: string }> = [
@@ -24,6 +24,15 @@ export const REGIONS: ReadonlyArray<{ iso: string; name_en: string }> = [
   { iso: 'SA-10', name_en: 'Najran' }, { iso: 'SA-11', name_en: 'Al Bahah' }, { iso: 'SA-12', name_en: 'Al Jawf' },
   { iso: 'SA-14', name_en: 'Asir' },
 ];
+
+/** The macro region of the seed (`sa-*-region`) each ISO region belongs to: the seed groups Qassim with the centre, Madinah with the west, Hail/Tabuk/Al Jawf/Northern Borders with the north and Asir/Jazan/Najran/Al Bahah with the south. */
+export const MACRO_REGION_OF_ISO: Readonly<Record<string, string>> = {
+  'SA-01': 'sa-central-region', 'SA-05': 'sa-central-region',
+  'SA-02': 'sa-western-region', 'SA-03': 'sa-western-region',
+  'SA-04': 'sa-eastern-region',
+  'SA-06': 'sa-northern-region', 'SA-07': 'sa-northern-region', 'SA-08': 'sa-northern-region', 'SA-12': 'sa-northern-region',
+  'SA-14': 'sa-southern-region', 'SA-09': 'sa-southern-region', 'SA-10': 'sa-southern-region', 'SA-11': 'sa-southern-region',
+};
 
 const DISTRICT_PLACES = new Set(['suburb', 'neighbourhood', 'quarter']);
 
@@ -47,6 +56,9 @@ export type RegionSkipped = { no_ar_or_en_name: number; no_point: number; duplic
 export interface RegionResult {
   rows: OutDistrict[];
   cities: Array<{ code: string; lat: number; lng: number; source: string }>;
+  /** cities of OpenStreetMap that no seed city matches (added with both names, the macro region and the centre) */
+  new_cities: Array<NewCity & { region_code: string }>;
+  new_cities_report: { found: number; skipped_no_english_name: string[]; ambiguous: string[] };
   skipped: RegionSkipped;
   per_city: Record<string, { boundary: number; nearest: number }>;
   centre_from: Record<string, 'place' | 'boundary'>;
@@ -56,8 +68,11 @@ export interface RegionResult {
 }
 
 /** The region's answers → rows per city, the centres found for our cities, and what was assigned how; nothing is guessed. */
-export function regionToRows(elements: OsmAny[], cities: SeedCity[], maxKm = 25): RegionResult {
+export function regionToRows(elements: OsmAny[], seedCities: SeedCity[], maxKm = 25, iso?: string, takenCodes: Set<string> = new Set()): RegionResult {
   const { boundaries, unclosed } = buildBoundaries(elements);
+  // cities the seed lacks join the seed cities, so their districts are assigned to them like any other city's
+  const discovered = iso ? discoverNewCities(elements, boundaries, seedCities, iso, takenCodes) : { found: [], skipped_no_english_name: [], ambiguous: [] };
+  const cities: SeedCity[] = [...seedCities, ...discovered.found.map((n) => ({ code: n.code, name_ar: n.name_ar, name_en: n.name_en }))];
   const res = resolveCentres(elements, boundaries, cities);
   const skipped: RegionSkipped = { no_ar_or_en_name: 0, no_point: 0, duplicate: 0, too_far: 0, no_city_centre: 0 };
   const grouped = new Map<string, OsmTagged[]>();
@@ -87,6 +102,8 @@ export function regionToRows(elements: OsmAny[], cities: SeedCity[], maxKm = 25)
   return {
     rows, skipped, per_city, centre_from,
     cities: [...res.centres].map(([code, c]) => ({ code, lat: c.lat, lng: c.lng, source: c.source })),
+    new_cities: discovered.found.map((n) => ({ ...n, region_code: MACRO_REGION_OF_ISO[n.iso] })),
+    new_cities_report: { found: discovered.found.length, skipped_no_english_name: discovered.skipped_no_english_name, ambiguous: discovered.ambiguous },
     ambiguous_cities: res.ambiguous,
     cities_without_centre: res.missing,
     boundaries: { used: boundaries.length, unclosed },
@@ -160,7 +177,7 @@ async function main() {
   const ua = process.env.GEO_USER_AGENT || 'NabdPlus-backend/1.0 (+https://nabd.plus)';
   const endpoints = (process.env.OVERPASS_URL || '').split(',').map((v) => v.trim()).filter(Boolean);
   if (!endpoints.length) endpoints.push(...DEFAULT_OVERPASS_ENDPOINTS);
-  const result: { cities: RegionResult['cities']; districts: OutDistrict[] } = { cities: [], districts: [] };
+  const result: { cities: RegionResult['cities']; new_cities: RegionResult['new_cities']; districts: OutDistrict[] } = { cities: [], new_cities: [], districts: [] };
   const report: Record<string, unknown> = {};
   try {
     const places = await queryOverpass(endpoints, ua, regionQuery(region), { attempts, attemptTimeoutMs, gapMs });
@@ -168,14 +185,16 @@ async function main() {
     else {
       await new Promise((r) => setTimeout(r, gapMs));
       const bounds = await queryOverpass(endpoints, ua, regionBoundariesQuery(region), { attempts, attemptTimeoutMs, gapMs });
-      const r = regionToRows([...(places.elements ?? []), ...(bounds.elements ?? [])], cities, maxKm);
+      const r = regionToRows([...(places.elements ?? []), ...(bounds.elements ?? [])], cities, maxKm, region, new Set(SAUDI_LOCATIONS_SEED.map((l) => l.code)));
       result.districts.push(...r.rows);
       result.cities.push(...r.cities);
+      result.new_cities.push(...r.new_cities);
       report[`region:${region}`] = {
         kept: r.rows.length, ...r.skipped,
         ...(bounds.error ? { boundaries_error: bounds.error } : {}),
         boundaries: r.boundaries,
         cities_with_centre: r.cities.length,
+        new_cities: r.new_cities_report,
         centre_from: r.centre_from,
         ambiguous_cities: r.ambiguous_cities,
         cities_without_centre: r.cities_without_centre,
@@ -188,7 +207,7 @@ async function main() {
   // Always written, even for a failed region: the workflow uploads it as a partial result.
   fs.writeFileSync(out, JSON.stringify(result, null, 1));
   fs.writeFileSync(`${out}.report.json`, JSON.stringify(report, null, 1));
-  console.log(JSON.stringify({ region, districts: result.districts.length, cities: result.cities.length, report: Object.values(report)[0] && { ...(Object.values(report)[0] as object), per_city: undefined, cities_without_centre: undefined } }));
+  console.log(JSON.stringify({ region, districts: result.districts.length, cities: result.cities.length, new_cities: result.new_cities.length, report: Object.values(report)[0] && { ...(Object.values(report)[0] as object), per_city: undefined, cities_without_centre: undefined } }));
 }
 
 if (require.main === module) {

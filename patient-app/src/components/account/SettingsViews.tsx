@@ -56,7 +56,7 @@ export function SettingsHubView() {
         <Row icon="shield-check" tone={CARE_TONE} title={k('set.security')} subtitle={k('set.securityHint')} onPress={go('/settings/security')} testID="settings-security" />
         <Row icon="globe" tone="blue" title={k('set.language')} subtitle={k('set.languageHint')} onPress={go('/settings/language')} testID="settings-language" />
         <Row icon="headset" tone="mint" title={k('set.help')} subtitle={k('set.helpHint')} onPress={go('/settings/help')} testID="settings-help" />
-        <Row icon="info" tone="ink" title={k('set.about')} subtitle={k('set.aboutHint')} onPress={go('/settings/about')} last testID="settings-about" />
+        <Row icon="info" tone="blue" title={k('set.about')} subtitle={k('set.aboutHint')} onPress={go('/settings/about')} last testID="settings-about" />
       </Panel>
       <Button label={k('set.signOut')} variant="outline" size="lg" fullWidth startIcon="sign-out" onPress={signOut} theme={theme} testID="settings-sign-out" />
       {version ? <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.tertiary, textAlign: 'center' }}>{k('set.version', { version })}</Text> : null}
@@ -223,7 +223,7 @@ export function SecuritySettingsView() {
                 <Row
                   key={row.id}
                   icon="user-circle"
-                  tone={row.current ? 'mint' : 'ink'}
+                  tone={row.current ? 'mint' : 'blue'}
                   title={row.device || k('set.security.thisDevice')}
                   subtitle={[row.location, row.time].filter(Boolean).join(' · ')}
                   caption={row.current ? k('set.security.current') : undefined}

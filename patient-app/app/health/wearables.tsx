@@ -72,7 +72,7 @@ export default function WearablesScreen() {
   };
 
   return (
-    <HealthScreen title={k('health.wearables.title')} onRefresh={() => void reload(true)} actions={[{ key: 'sleep', icon: <Glyph name="moon" size={20} color={c.icon.primary} />, label: k('health.hub.sleep'), onPress: () => router.push('/health/sleep' as Href) }]} testID="wearables-screen">
+    <HealthScreen title={k('health.wearables.title')} onRefresh={() => void reload(true)} actions={[{ key: 'sleep', icon: <Glyph name="moon" size={20} color={c.text.secondary} />, label: k('health.hub.sleep'), onPress: () => router.push('/health/sleep' as Href) }]} testID="wearables-screen">
       <Gate status={status} onRetry={() => void reload()}>
         {metrics.length > 0 ? (
           <Section title={k('health.wearables.latest')}>

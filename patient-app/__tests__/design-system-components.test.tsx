@@ -285,7 +285,8 @@ describe('handoff §3 — native controls (components 2/4) keep the web semantic
     const radios = findAll(nodes, byRole('radio'));
     expect(radios).toHaveLength(3);
     expect(radios.map((r) => r.props.accessibilityState.checked)).toEqual([false, true, false]);
-    expect(StyleSheet.flatten(radios[1].props.style).backgroundColor).toBe(light.color.bg.surface);
+    // owner ink override 2026-10-26: the chosen segment is the soft coral tint, not a white pill
+    expect(StyleSheet.flatten(radios[1].props.style).backgroundColor).toBe(light.color.service.coral.bg);
   });
 
   it('Toggle is a named switch that reports its state, green when on', () => {

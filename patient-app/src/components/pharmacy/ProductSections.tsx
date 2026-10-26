@@ -181,8 +181,8 @@ export function MiniProduct({
           </View>
         ) : null}
         {onAdd ? (
-          <Pressable accessibilityRole="button" accessibilityLabel={addLabel} onPress={onAdd} hitSlop={4} style={{ width: 36, height: 36, borderRadius: 12, backgroundColor: c.action.selected.bg, alignItems: 'center', justifyContent: 'center' }}>
-            <Icon name="plus" size={16} color={c.action.selected.fg} />
+          <Pressable accessibilityRole="button" accessibilityLabel={addLabel} onPress={onAdd} hitSlop={4} style={{ width: 36, height: 36, borderRadius: 12, backgroundColor: c.action.primary.bg, alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="plus" size={16} color={c.action.primary.fg} />
           </Pressable>
         ) : null}
       </View>
