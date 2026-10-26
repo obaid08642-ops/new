@@ -1,0 +1,64 @@
+# Doctor booking by video: hub -> doctor -> the video mode -> a slot -> the card (hosted checkout of the test double, completed by the helper)
+# -> the booking is placed. The telehealth consent is part of the confirm step; the video appointment then shows in My appointments.
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: ""
+- tapOn:
+    text: "الاستشارات"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "hub-doctor-0"
+    timeout: 30000
+- tapOn:
+    id: "hub-doctor-0"
+- extendedWaitUntil:
+    visible:
+      id: "doctor-screen"
+    timeout: 20000
+- assertVisible:
+    id: "mode-video"
+- tapOn:
+    id: "mode-video"
+- tapOn:
+    id: "day-1"
+- extendedWaitUntil:
+    visible:
+      id: "slot-.*"
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      id: "slot-14"
+- tapOn:
+    id: "slot-14"
+- tapOn:
+    id: "doctor-book"
+- extendedWaitUntil:
+    visible:
+      id: "booking-confirm-screen"
+    timeout: 30000
+- tapOn:
+    id: "booking-pay-method-card"
+- tapOn:
+    id: "booking-confirm-submit"
+# a video visit asks a new patient for the telehealth consent before the first online consultation (D-38)
+- extendedWaitUntil:
+    visible:
+      id: "telehealth-consent-accept"
+    timeout: 30000
+- tapOn:
+    id: "telehealth-consent-accept"
+- runScript:
+    file: scripts/pay_complete.js
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "booking-success-screen|payment-result-screen"
+    timeout: 60000
+- takeScreenshot: patient_doctor_video_placed
+- runFlow: common_my_appointments.yaml
+- assertVisible:
+    id: "appointment-card"
