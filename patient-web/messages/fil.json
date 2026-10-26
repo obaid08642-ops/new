@@ -1003,6 +1003,7 @@
     "timesPerDay": "{count, plural, one {Isang beses sa isang araw} other {# beses sa isang araw}}",
     "durationDays": "{days, plural, one {Sa loob ng # araw} other {Sa loob ng # araw}}",
     "orderCta": "I-order ang mga gamot na ito",
+    "notInCart": "{count} sa {total} na gamot ang isinulat ng doktor nang mano-mano at hindi maidaragdag sa cart",
     "notOrderable": "Hindi na maaaring mag-order mula sa resetang ito.",
     "back": "Bumalik sa mga reseta"
   },

@@ -1003,6 +1003,7 @@
     "timesPerDay": "{count, plural, one {दिन में एक बार} other {दिन में # बार}}",
     "durationDays": "{days, plural, one {# दिन के लिए} other {# दिन के लिए}}",
     "orderCta": "ये दवाएँ मँगवाएँ",
+    "notInCart": "{total} में से {count} दवाएँ डॉक्टर ने हाथ से लिखी हैं और कार्ट में नहीं जोड़ी जा सकतीं",
     "notOrderable": "इस पर्चे से अब ऑर्डर नहीं किया जा सकता।",
     "back": "पर्चों पर वापस"
   },
