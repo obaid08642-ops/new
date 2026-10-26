@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { LayoutAnimation, Pressable, Text, View } from 'react-native';
 
-import { FIcon, Icon } from '../../../../packages/ui-native/src';
+import { FIcon, Icon, NATIVE_MOTION, reduceMotionNow } from '../../../../packages/ui-native/src';
 import type { FillIconName, ServiceTone } from '../../../../packages/ui/icons/fill';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import ProductImage from '../ProductImage';
@@ -102,7 +102,11 @@ export function DetailAccordion({ sections }: { sections: AccordionSection[] }) 
               accessibilityRole="button"
               accessibilityState={{ expanded: isOpen }}
               accessibilityLabel={s.items.length > 1 ? `${s.title} ${s.items.length}` : s.title}
-              onPress={() => setOpen(isOpen ? -1 : i)}
+              onPress={() => {
+                // the section opens and closes smoothly (the enter duration of the tokens); not with reduced motion
+                if (!reduceMotionNow()) LayoutAnimation.configureNext({ duration: NATIVE_MOTION.enter, update: { type: LayoutAnimation.Types.easeInEaseOut }, create: { type: LayoutAnimation.Types.easeInEaseOut, property: LayoutAnimation.Properties.opacity }, delete: { type: LayoutAnimation.Types.easeInEaseOut, property: LayoutAnimation.Properties.opacity } });
+                setOpen(isOpen ? -1 : i);
+              }}
               style={{ minHeight: 54, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 10 }}
             >
               <Text style={{ flex: 1, ...scale(t, 'row', isOpen ? 'bold' : 'medium'), color: c.text.primary, ...flow }}>{s.title}</Text>

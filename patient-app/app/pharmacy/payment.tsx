@@ -155,7 +155,7 @@ export default function PharmacyPaymentScreen() {
   }
 
   if (view.kind === 'paid') {
-    return state(<EmptyState icon="check-circle" tone="mint" title={k('pharmacy.pay.paidTitle')} body={k('pharmacy.pay.paidBody')} actionLabel={k('pharmacy.quote.orderStatus')} onAction={toTracking} theme={theme} />);
+    return state(<EmptyState popIcon icon="check-circle" tone="mint" title={k('pharmacy.pay.paidTitle')} body={k('pharmacy.pay.paidBody')} actionLabel={k('pharmacy.quote.orderStatus')} onAction={toTracking} theme={theme} />);
   }
   if (view.kind === 'covered') {
     return state(<EmptyState icon="shield-check" tone="blue" title={k('pharmacy.pay.coveredTitle')} body={k('pharmacy.pay.coveredBody')} actionLabel={k('pharmacy.quote.orderStatus')} onAction={toTracking} theme={theme} />);
