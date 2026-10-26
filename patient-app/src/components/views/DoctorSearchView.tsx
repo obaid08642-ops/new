@@ -21,7 +21,7 @@ import { dateLocaleFor } from '../../../src/utils/dates';
 import { DoctorListCard } from '../consult/DoctorListCard';
 import { DOCTOR_GENDERS, DOCTOR_SORTS, doctorRows, doctorsQuery, sortFromParam, type DoctorGender, type DoctorSort } from '../../../src/utils/doctorSearch';
 import { GuaranteeLine, useLateGuarantee } from '../../../src/components/consult/Differentiators';
-import { suggestionRoute } from '../../../src/utils/searchSuggest';
+import { SUGGEST_SCOPES, suggestionRoute } from '../../../src/utils/searchSuggest';
 import { useSearchSuggest } from '../../../src/hooks/useSearchSuggest';
 import { SearchSuggestList } from '../../../src/components/search/SearchSuggestList';
 
@@ -35,7 +35,7 @@ export default function DoctorSearchView() {
   // the route's `specialty` is a filter the server understands, not text to type into the search box
   const specialty = typeof params.specialty === "string" ? params.specialty : "";
   const [query, setQuery] = useState(typeof params.q === "string" ? params.q : "");
-  const suggest = useSearchSuggest(query, lang);
+  const suggest = useSearchSuggest(query, lang, SUGGEST_SCOPES.consultations);
   // a "book now" entry arrives with ?sort=available_today (owner decision 2026-10-24)
   const [sort, setSort] = useState<DoctorSort>(sortFromParam(params.sort) ?? "rating");
   const [gender, setGender] = useState<DoctorGender | 'any'>('any');
