@@ -1,0 +1,13 @@
+/* A product card's turning pictures: the second layer that crossfades over the card's own picture, and the small dots.
+   Tokens only, logical properties only; the box does not change size (no layout shift). */
+.layer {
+  position: absolute; inset: 0; inline-size: 100%; block-size: 100%; object-fit: contain; opacity: 0; pointer-events: none;
+  transition: opacity 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.visible { opacity: 1; }
+.dots {
+  position: absolute; inset-block-end: 6px; inset-inline: 0; display: flex; justify-content: center; gap: 4px; pointer-events: none;
+}
+.dot { inline-size: 6px; block-size: 6px; border-radius: var(--nabd-radius-pill); background: var(--nabd-color-border-hairline); }
+.dotOn { background: var(--nabd-color-action-primary-bg); }
+@media (prefers-reduced-motion: reduce) { .layer { transition: none; } }

@@ -300,6 +300,7 @@ export async function readPublicCategoryProducts(
         ...it,
         name: cleanProductName(it.name, it.official_name),
         image: resolveImageUri(it.image) || (Array.isArray(it.images) && it.images[0] ? resolveImageUri(it.images[0]) : null),
+        images: Array.isArray(it.images) ? it.images.map((src) => resolveImageUri(src)).filter((src): src is string => Boolean(src)) : undefined,
       })),
     },
   };
