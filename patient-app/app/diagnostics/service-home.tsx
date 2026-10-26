@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ScopedSuggest } from '../../src/components/search/ScopedSuggest';
+import { SUGGEST_SCOPES } from '../../src/utils/searchSuggest';
 import { Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
@@ -116,6 +118,7 @@ export default function ServiceHome() {
       <ContextGate ctx={ctx}>
         <ContextBar ctx={ctx} />
         <Search theme={theme} variant="inline" value={query} onChange={setQuery} onClear={() => setQuery('')} clearLabel={k('diag.clear')} placeholder={k(searchKey)} label={k(searchKey)} />
+        <ScopedSuggest query={query} scope={kind === 'radiology' ? SUGGEST_SCOPES.radiology : kind === 'nursing' ? SUGGEST_SCOPES.nursing : SUGGEST_SCOPES.labs} />
         <Gate status={status} onRetry={() => void load()}>
           {needle && shown.length === 0 ? (
             <EmptyState icon="magnifying-glass" tone={kind === 'radiology' ? RAD_TONE : LAB_TONE} title={k('ordering.home.emptyTitle', { q: query.trim() })} body={k('ordering.home.emptySub')} theme={theme} />
