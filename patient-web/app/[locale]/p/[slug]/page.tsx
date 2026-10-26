@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { fallbackMark, fallbackNoteKey, type FallbackMark } from "@/lib/content-language";
 import { cdnImage, getPublicEquivalents, getPublicVariants, readPublicProduct, type PublicProduct, type PublicProductCard } from "@/lib/api/public-products-server";
 import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
 import { JsonLd } from "@/components-next/json-ld";
@@ -233,36 +234,42 @@ export default async function PublicProductPage({ params }: Props) {
   const alternatives = related.equivalents.map(toGrid);
   const similar = related.similar.map(toGrid);
 
-  const section = (id: string, title: string, items: string[]): DetailSection | null => (items.length ? { id, title, items } : null);
+  // A section the API had to take from another language says so: lang/dir on its text and a note in the reader's language.
+  const section = (id: string, title: string, items: string[], field?: string): DetailSection | null => {
+    if (!items.length) return null;
+    const mark = field ? fallbackMark(product.fallback_langs, field, locale) : null;
+    const noteKey = mark ? fallbackNoteKey(mark.lang) : null;
+    return mark && noteKey ? { id, title, items, lang: mark.lang, dir: mark.dir, note: t(noteKey) } : { id, title, items };
+  };
   const group = (id: string, title: string, parts: Array<DetailSection | null>): DetailGroup | null => {
     const sections = parts.filter((p): p is DetailSection => p !== null);
     return sections.length ? { id, title, sections } : null;
   };
   const groups = [
     group("usage", b("groupUsage"), [
-      section("description", t("description"), lines(product.description)),
-      section("indications", t("indications"), product.indications || []),
-      section("dosage", t("dosage"), lines(product.dosage_instructions)),
-      section("howToUse", t("howToUse"), product.how_to_use || []),
+      section("description", t("description"), lines(product.description), "description"),
+      section("indications", t("indications"), product.indications || [], "indications"),
+      section("dosage", t("dosage"), lines(product.dosage_instructions), "dosage_instructions"),
+      section("howToUse", t("howToUse"), product.how_to_use || [], "how_to_use"),
     ]),
     // issue 1819: the active ingredients recorded as interacting with this product (leaflet information, as stored)
-    group("warnings", t("warnings"), [section("warnings", t("warnings"), product.warnings || []), section("interactions", t("interactions"), product.interactions || [])]),
-    group("sideEffects", t("sideEffects"), [section("sideEffects", t("sideEffects"), product.side_effects || [])]),
+    group("warnings", t("warnings"), [section("warnings", t("warnings"), product.warnings || [], "warnings"), section("interactions", t("interactions"), product.interactions || [])]),
+    group("sideEffects", t("sideEffects"), [section("sideEffects", t("sideEffects"), product.side_effects || [], "side_effects")]),
     group("more", b("groupMore"), [
-      section("storage", t("storage"), lines(product.storage_conditions)),
-      section("packageContent", t("packageContent"), lines(product.package_content_details)),
-      section("brandBenefits", t("brandBenefits"), lines(product.brand_benefits)),
+      section("storage", t("storage"), lines(product.storage_conditions), "storage_conditions"),
+      section("packageContent", t("packageContent"), lines(product.package_content_details), "package_content_details"),
+      section("brandBenefits", t("brandBenefits"), lines(product.brand_benefits), "brand_benefits"),
     ]),
   ].filter((g): g is DetailGroup => g !== null);
 
-  const facts: Array<[string, string]> = ([
-    [t("form"), product.form],
-    [t("strength"), product.strength],
-    [t("packageSize"), product.package_size || product.package_content_details],
-    [t("manufacturer"), product.manufacturer],
-    [t("origin"), product.country_of_origin],
-    [medicines("prescription"), product.is_rx ? medicines("yes") : medicines("no")],
-  ] as Array<[string, string | null | undefined]>).filter((row): row is [string, string] => Boolean(row[1]));
+  const facts: Array<[string, string, FallbackMark | null]> = ([
+    [t("form"), product.form, fallbackMark(product.fallback_langs, "form", locale)],
+    [t("strength"), product.strength, fallbackMark(product.fallback_langs, "strength", locale)],
+    [t("packageSize"), product.package_size || product.package_content_details, fallbackMark(product.fallback_langs, "package_size", locale)],
+    [t("manufacturer"), product.manufacturer, null],
+    [t("origin"), product.country_of_origin, null],
+    [medicines("prescription"), product.is_rx ? medicines("yes") : medicines("no"), null],
+  ] as Array<[string, string | null | undefined, FallbackMark | null]>).filter((row): row is [string, string, FallbackMark | null] => Boolean(row[1]));
 
   // Decision E (issue 1556): ur, hi and bn show the English name under the localized one, so patient and pharmacist read the same product.
   const englishName = englishNameUnder(locale, name, product.english_name);
@@ -406,10 +413,10 @@ export default async function PublicProductPage({ params }: Props) {
                 <section className={styles.factsBlock} aria-label={t("facts")}>
                   <h2 className={styles.blockTitle}>{t("facts")}</h2>
                   <dl className={styles.factsList}>
-                    {facts.map(([label, value]) => (
+                    {facts.map(([label, value, mark]) => (
                       <div className={styles.fact} key={label}>
                         <dt className={styles.factLabel}>{label}</dt>
-                        <dd className={styles.factValue}>{value}</dd>
+                        <dd className={styles.factValue} lang={mark?.lang} dir={mark?.dir}>{value}</dd>
                       </div>
                     ))}
                   </dl>
