@@ -135,7 +135,7 @@ export class PharmacyBroadcastService {
           name: p.full_name || null,
           national_id: p.national_id || null,
         },
-        insurance_tier: pi.class || pi.tier || pi.network || null,
+        insurance_tier: policyClass(pi) || pi.tier || pi.network || null,
       };
     } catch {
       return {};
