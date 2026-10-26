@@ -169,7 +169,7 @@ a.row:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd
 .filterPanel[open] { padding-block-end: 16px; }
 .filterSummary { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-block-size: 52px; cursor: pointer; font-size: var(--nabd-font-size-control); font-weight: 600; color: var(--nabd-color-text-primary); }
 .filterSummary:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
-.filterCount { min-inline-size: 24px; min-block-size: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--nabd-radius-pill); background: var(--nabd-color-action-selected-bg); color: var(--nabd-color-action-selected-fg); font-size: var(--nabd-font-size-caption); font-weight: 700; }
+.filterCount { min-inline-size: 24px; min-block-size: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--nabd-radius-pill); background: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg); font-size: var(--nabd-font-size-caption); font-weight: 700; }
 .filterControl { flex: 1; min-inline-size: 0; min-block-size: 44px; border: 0; background: transparent; color: var(--nabd-color-text-primary); font: inherit; font-size: var(--nabd-font-size-body); outline: 0; }
 .filterPrices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .filterActions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
