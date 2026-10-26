@@ -66,6 +66,8 @@ const FILES = [
   // component file, so a page uses the same renderer the gallery and the board comparisons do.
   // Component files hold state, refs or handlers, so they are Client Components here.
   { from: 'packages/ui/icons/fill.ts', to: 'patient-web/components-next/ui-generated/icons/fill.ts', transform: filterFill },
+  // Pharmacy category illustrations: framework-neutral path data (the app draws the same module with react-native-svg).
+  { from: 'packages/ui/icons/category-art.ts', to: 'patient-web/components-next/ui-generated/icons/category-art.ts' },
   { from: 'packages/ui/icons/marks.ts', to: 'patient-web/components-next/ui-generated/icons/marks.ts' },
   { from: 'packages/ui/icons/social-brands.ts', to: 'patient-web/components-next/ui-generated/icons/social-brands.ts' },
   { from: 'packages/ui/icons/social-brands.css', to: 'patient-web/components-next/ui-generated/icons/social-brands.css' },

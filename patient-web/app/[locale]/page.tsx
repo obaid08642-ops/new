@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { JsonLd } from "@/components-next/json-ld";
 import { HomeShell } from "@/components-next/home/home-shell";
 import { AiCard, CuratedSections, DoctorsSection, HeroCard, ServiceGrid } from "@/components-next/home/home-parts";
+import { HomeQuickTiles } from "@/components-next/pharmacy/home-quick-tiles";
 import styles from "@/components-next/home/home.module.css";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl, siteOrigin } from "@/lib/seo";
@@ -125,6 +126,7 @@ export default async function LandingPage({ params }: Props) {
           <HeroCard locale={locale} t={t} eyebrow={home("heroBadge")} title={home("heroTitle")} headingId="home-title" />
         </div>
         <ServiceGrid locale={locale} t={t} disabled={disabled} />
+        <HomeQuickTiles locale={locale} disabled={disabled} />
         <AiCard locale={locale} t={t} disabled={disabled} />
         <CuratedSections sections={homeSections} locale={locale} t={t} disabled={disabled} />
         <DoctorsSection doctors={isPathHidden(`/${locale}/consultations`, disabled) ? [] : doctors} locale={locale} t={t} specialties={specialties} />
