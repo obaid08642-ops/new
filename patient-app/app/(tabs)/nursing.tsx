@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { ScopedSuggest } from '../../src/components/search/ScopedSuggest';
+import { SUGGEST_SCOPES } from '../../src/utils/searchSuggest';
 import { RefreshControl, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 
@@ -123,6 +125,7 @@ export default function NursingHub() {
         </View>
 
         <Search theme={theme} variant="inline" value={search} onChange={setSearch} onClear={() => setSearch('')} clearLabel={k('nur.clear')} placeholder={k('nur.hub.search')} label={k('nur.hub.search')} onFilterPress={() => setSheet(true)} filterLabel={k('nur.hub.filter')} />
+        <ScopedSuggest query={search} scope={SUGGEST_SCOPES.nursing} />
 
         {failed === 'error' ? <ErrorState title={k('consult.error.title')} body={k('consult.error.body')} retryLabel={k('consult.retry')} onRetry={() => void load()} theme={theme} /> : null}
         {failed === 'offline' ? <OfflineState title={k('consult.offline.title')} body={k('consult.offline.body')} retryLabel={k('consult.retry')} onRetry={() => void load()} theme={theme} /> : null}

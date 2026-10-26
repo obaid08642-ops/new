@@ -78,7 +78,7 @@ export async function HomeShell({
   const topBar = (
     <div className={styles.top}>
       <Link href={base} className={styles.brand} aria-label={shared("brand")}>
-        <NabdMark size={34} />
+        <NabdMark size={34} variant="text" />
         <span className={styles.wordmark} aria-hidden="true">
           {shared("wordmark")}<span className={styles.plus}>+</span>
         </span>

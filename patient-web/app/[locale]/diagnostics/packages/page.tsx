@@ -54,6 +54,7 @@ export default async function LabsPackagesPage({ params, searchParams }: Props) 
     <ConsultPage locale={locale} title={t("title")} backHref={backHref}>
       <p className={styles.flowNote}>{t("subtitle")}</p>
       <SearchForm
+        suggest={{ locale, scope: { section: "labs", types: ["lab_package"] } }}
         defaultValue={search}
         placeholder={t("searchPlaceholder")}
         label={t("searchLabel")}
