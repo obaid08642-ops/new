@@ -1,0 +1,69 @@
+# Family-member booking: from the member's page "Book" the doctor booking is for that member (the confirm screen says so, the request carries for_member_id) and succeeds.
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: "family=1"
+- tapOn:
+    id: "home-profile"
+- tapOn:
+    id: "account-family"
+- assertVisible:
+    id: "family-hub"
+- tapOn:
+    text: ".*native-member.*"
+- assertVisible:
+    id: "family-member"
+- tapOn:
+    id: "member-book"
+- extendedWaitUntil:
+    visible:
+      id: "consultations-hub"
+    timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: "hub-doctor-0"
+    timeout: 30000
+- tapOn:
+    id: "hub-doctor-0"
+- extendedWaitUntil:
+    visible:
+      id: "doctor-screen"
+    timeout: 20000
+- runFlow:
+    when:
+      visible:
+        id: "mode-clinic"
+    commands:
+      - tapOn:
+          id: "mode-clinic"
+- tapOn:
+    id: "day-1"
+- extendedWaitUntil:
+    visible:
+      id: "slot-.*"
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      id: "slot-16"
+- tapOn:
+    id: "slot-16"
+- tapOn:
+    id: "doctor-book"
+- extendedWaitUntil:
+    visible:
+      id: "booking-confirm-screen"
+    timeout: 30000
+# the confirm screen names the member the visit is for
+- assertVisible:
+    text: ".*native-member.*"
+- tapOn:
+    id: "booking-pay-method-cash"
+- tapOn:
+    id: "booking-confirm-submit"
+- extendedWaitUntil:
+    visible:
+      id: "booking-success-screen"
+    timeout: 40000
+- takeScreenshot: patient_family_booking_success
