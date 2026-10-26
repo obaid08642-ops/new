@@ -6,7 +6,7 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 
 ## Coverage
 
-- Scenarios: 11 done, 21 partial, 5 blocked (reason given), 37 not started, of 74 total.
+- Scenarios: 13 done, 26 partial, 5 blocked (reason given), 30 not started, of 74 total.
 - Screens: 0 of 274 patient-web routes fully scanned (public pages sampled in findings). Admin and provider screens not started.
 - The sweep is not finished. It is finished only when both counts reach 100%, or each remaining line gives its reason.
 
@@ -30,16 +30,16 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 | P-14 | pharmacy | return | PARTIAL | j_pharmacy.py only lists returns (GET /pharmacy/returns/provider/list). The return flow itself is not tested |
 | P-15 | pharmacy | prescription required; upload | BLOCKED | uploads closed on the server: expect the clear message (verify the message) |
 | P-16 | pharmacy | cash on delivery, first order (D-25) | BLOCKED | backend accepts COD on first order; journey expects refusal (findings P2) |
-| D-01 | doctor | search, filters, sort (incl. available today) | TODO | |
-| D-02 | doctor | doctor page → slot → book, video, free | TODO | |
-| D-03 | doctor | book clinic visit, paid | TODO | |
-| D-04 | doctor | book with insurance (copay/cap estimate) | TODO | |
+| D-01 | doctor | search, filters, sort (incl. available today) | PARTIAL | tools/live/j_consultation.py (123/123 on the 01:00 UTC run): "doctor search lists the approved doctor". Filters, sort and "available today" not checked |
+| D-02 | doctor | doctor page → slot → book, video, free | PARTIAL | j_consultation.py: slot held (10 min lock), same slot cannot be booked twice, booking shows paid (video, card). Free booking not checked |
+| D-03 | doctor | book clinic visit, paid | DONE | j_consultation.py matrix: clinic + cash appointment created and cash booking recorded. DB via the journey read-backs |
+| D-04 | doctor | book with insurance (copay/cap estimate) | PARTIAL | j_consultation.py matrix: home + insurance appointment created, insurance request opened, provider decision visible. Copay/cap estimate not checked |
 | D-05 | doctor | book for a family member | TODO | |
-| D-06 | doctor | telehealth consent → call | TODO | |
-| D-07 | doctor | visit summary actions → prescription | TODO | |
+| D-06 | doctor | telehealth consent → call | PARTIAL | j_consultation.py reads GET /calls/provider/waiting-room. Consent and the call itself not tested |
+| D-07 | doctor | visit summary actions → prescription | DONE | j_consultation.py: visit summary opens; stored summary and prescription are ciphertext in the database (16.9 steps); the patient reads plaintext; prescription listed; access log written |
 | D-08 | doctor | no-show | TODO | |
 | D-09 | doctor | reschedule | TODO | |
-| D-10 | doctor | cancel and refund | TODO | |
+| D-10 | doctor | cancel and refund | PARTIAL | j_consultation.py: admin cannot mark refunded without a refund; booking stays paid; refund queue closed. An actual refund is not tested |
 | D-11 | doctor | guaranteed-appointment credit | TODO | |
 | L-01 | lab | book → provider accepts / rejects → visit → result | TODO | |
 | R-01 | radiology | book → accept / reject → visit → result | TODO | |
@@ -105,7 +105,7 @@ Per-screen scan (every element, sizes 390/768/1280, six languages, dark mode) is
 - Auth-gated patient-web routes (signed in, 72): swept on the production layout. Table: docs/qa/screens/patient-web-auth.md. Findings: docs/qa/findings/web-sweep-auth.md.
 - Admin pages (65 files): swept signed in, on the admin build of 03:12, then re-checked on the rebuilt admin from merged main. Findings: docs/qa/findings/admin-sweep.md. Dynamic admin routes (orders/[kind]/[id]) not tested (need IDs).
 - Dynamic patient-web routes (53): 5 routes tested with a real seeded doctor (docs/qa/findings/web-sweep-dynamic.md). Found P1: /consultations/doctors/<id> returns 503 (server-to-client function prop). The other ~48 need seeded IDs for articles, facilities, community, orders, appointments, labs, radiology, packages, results, clinics: NOT TESTED, reason: no seeded records of those types yet.
-- Scenarios: 11 done, 21 partial, 5 blocked (reason given), 37 not started, of 74 total.
+- Scenarios: 13 done, 26 partial, 5 blocked (reason given), 30 not started, of 74 total.
 - Open P1s: guest job publish (no route); admin system logs API 404 (AdminLogsController dropped in the P5.3 merge).
 - Corrected: hydration P1 retracted (local setup; production layout passes).
 - Environment: services drop between turns. Recover with /tmp/claude-0-scratch/stack_up.sh (patient-web via the nonce server). Kill stale next-server processes by PID (comm next-server) before restarting admin.
