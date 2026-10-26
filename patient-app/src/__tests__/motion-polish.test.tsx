@@ -20,7 +20,8 @@ describe('native motion polish', () => {
   it('every skeleton variant is drawn (hidden from the accessibility tree) and keeps its size', async () => {
     const view = await render(<><Skeleton variant="tile" testID="s-tile" /><Skeleton variant="circle" testID="s-circle" /><Skeleton variant="text" lines={2} testID="s-text" /></>);
     for (const id of ['s-tile', 's-circle', 's-text']) {
-      expect(view.getByTestId(id).props.accessibilityElementsHidden).toBe(true);
+      // hidden from the accessibility tree on purpose, so the query has to ask for hidden elements
+      expect(view.getByTestId(id, { includeHiddenElements: true }).props.accessibilityElementsHidden).toBe(true);
     }
   });
 
