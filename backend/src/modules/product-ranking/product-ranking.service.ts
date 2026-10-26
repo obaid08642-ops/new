@@ -188,6 +188,31 @@ export class ProductRankingService {
       await this.writeRankScore(record.drug_id, compositeScore);
       updated++;
     }
+    // A product a provider or an admin created has no metrics row until its first event, so the job gives it its boost
+    // from here (the boost is the only score such a product has); a product that is no longer new and has no signals
+    // goes back to 0. The imported catalogue is never selected.
+    if (this.conn) {
+      const medicines = this.conn.collection('medicines');
+      const since = new Date(Date.now() - this.COLD_START_BOOST_DAYS * 86400000);
+      const withMetrics = new Set<string>(
+        (await this.metricsModel.find({ pharmacy_id: 'global' }).select({ drug_id: 1 }).lean().exec().catch(() => []) as any[]).map((r) => String(r.drug_id)),
+      );
+      const fresh: any[] = await medicines.find({
+        source: { $in: [...ProductRankingService.COLD_START_SOURCES] }, source_product_id: { $exists: false }, createdAt: { $gte: since },
+      }, { projection: { id: 1, createdAt: 1, availability_status: 1 } }).toArray();
+      const seeded = new Set<string>();
+      for (const m of fresh) {
+        if (!m?.id || withMetrics.has(String(m.id))) continue;
+        const score = Math.round(this.getColdStartBonus(new Date(m.createdAt)) * this.getAvailabilityMultiplier(m.availability_status) * 100) / 100;
+        await this.writeRankScore(String(m.id), score);
+        seeded.add(String(m.id));
+        updated++;
+      }
+      const stale: any[] = await medicines.find({ rank_score: { $gt: 0 } }, { projection: { id: 1 } }).toArray();
+      for (const m of stale) {
+        if (m?.id && !withMetrics.has(String(m.id)) && !seeded.has(String(m.id))) await this.writeRankScore(String(m.id), 0);
+      }
+    }
     return { updated };
   }
 

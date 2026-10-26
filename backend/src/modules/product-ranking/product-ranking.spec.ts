@@ -308,3 +308,32 @@ describe('cold start boost belongs to products a provider or admin created', () 
     expect(s.calculateCompositeScore({ views_count: 1, availability_status: 'in_stock', last_event_at: new Date(), first_published_at: new Date(0) }).compositeScore).toBeCloseTo(1, 0);
   });
 });
+
+describe('the score job gives a new provider or admin product its boost before its first event', () => {
+  it('seeds the boost for a new admin product, never for the imported catalogue, and zeroes a stale score', async () => {
+    const day = 86400000;
+    const created = new Date(Date.now() - 1 * day);
+    const updates: Array<{ id: string; score: number }> = [];
+    const medicines = {
+      find: jest.fn((filter: any) => ({
+        toArray: async () => (filter.rank_score
+          ? [{ id: 'old-one' }, { id: 'seeded-now' }]
+          : [{ id: 'seeded-now', createdAt: created, availability_status: 'in_stock' }, { id: 'out-of-stock', createdAt: created, availability_status: 'out_of_stock' }]),
+      })),
+      updateOne: jest.fn(async (q: any, u: any) => { updates.push({ id: q.id.$eq, score: u.$set.rank_score }); return {}; }),
+    };
+    const metricsModel: any = {
+      find: jest.fn(() => ({ cursor: () => (async function* () { /* no metrics rows */ })(), select: () => ({ lean: () => ({ exec: async () => [] }) }) })),
+    };
+    const svc = new ProductRankingService(metricsModel, {} as any, { collection: () => medicines } as any);
+    await svc.recomputeAll();
+    const seeded = updates.find((u) => u.id === 'seeded-now' && u.score > 0);
+    expect(seeded?.score).toBeGreaterThan(10); // 15 * (1 - 1/7) = 12.86
+    expect(updates.find((u) => u.id === 'out-of-stock')?.score).toBe(0); // out of stock: availability multiplier 0
+    expect(updates.find((u) => u.id === 'old-one')?.score).toBe(0); // no longer new, no signals
+    // the query only ever selects what a provider or an admin created, never the imported catalogue
+    const q = medicines.find.mock.calls.find((c: any[]) => c[0].createdAt)![0];
+    expect(q.source.$in).toEqual(['admin', 'pharmacy', 'provider']);
+    expect(q.source_product_id).toEqual({ $exists: false });
+  });
+});

@@ -30,8 +30,9 @@ def create(admin, tag, letter):
     return mid
 
 
-def order_of(anon, tag, ids):
-    r = anon.get(f'/public/categories/ar/items?category=all&q={tag}&limit=48')
+def order_of(anon, tag, ids, round_no):
+    # the public list is cached per URL: each round asks with its own parameter, so the second answer is a fresh one
+    r = anon.get(f'/public/categories/ar/items?category=all&q={tag}&limit=48&round={round_no}')
     found = [i.get('id') for i in r.items() if i.get('id') in ids]
     return r, found
 
@@ -48,9 +49,9 @@ def main():
     ids = {a, b, c}
 
     journey('medicine ranking: no signal, no order')
-    r = admin.post('/admin/ranking/recompute')
+    r = admin.post('/admin/admin/ranking/recompute')
     step('admin runs the score job', r.ok, r)
-    r, before = order_of(anon, tag, ids)
+    r, before = order_of(anon, tag, ids, 1)
     step('the three test medicines are listed', set(before) == ids, r.body if not r.ok else before)
 
     journey('medicine ranking: what patients do moves a product up')
@@ -67,13 +68,18 @@ def main():
     step('the patient adds C to the cart (the server records the event)', add.ok, add)
 
     journey('medicine ranking: the score job, then the lists')
-    r = admin.post('/admin/ranking/recompute')
+    r = admin.post('/admin/admin/ranking/recompute')
     step('admin runs the score job again', r.ok and (r.get('updated') or 0) >= 2, r)
-    r, after = order_of(anon, tag, ids)
-    step('public category list (web): C, then B, then A', after == [c, b, a], after)
-    page = anon.get('/medicines?page=1&limit=100&category=vitamins')
-    got = [m.get('id') for m in page.items() if m.get('id') in ids]
-    step('medicines list without a text query (app): C, then B, then A', got == [c, b, a], got)
+    r, after = order_of(anon, tag, ids, 2)
+    step('public category list (web): C, then B, then A', after == [c, b, a], {'got': after, 'A': a, 'B': b, 'C': c})
+    # the app's list has no text query: walk its pages (100 a page) until the three test medicines have all been seen
+    got, pageno, total_pages = [], 1, 1
+    while pageno <= min(total_pages, 30) and len(got) < 3:
+        page = anon.get(f'/medicines?page={pageno}&limit=100&category=vitamins&sort=smart_ranking')
+        total_pages = page.get('total_pages', default=1) or 1
+        got += [m.get('id') for m in page.items() if m.get('id') in ids and m.get('id') not in got]
+        pageno += 1
+    step('medicines list without a text query (app): C, then B, then A', got == [c, b, a], {'got': got, 'A': a, 'B': b, 'C': c})
 
 
 if __name__ == '__main__':
