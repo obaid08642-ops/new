@@ -2,10 +2,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScopedSuggest } from '../../src/components/search/ScopedSuggest';
 import { SUGGEST_SCOPES } from '../../src/utils/searchSuggest';
 import { RefreshControl, ScrollView, Text, View } from 'react-native';
-import { MapEntryButton } from '../../src/components/account/MapEntryButton';
 import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
 
-import { Chip, EmptyState, ErrorState, OfflineState, Radio, Screen, Search, Segmented, useTabBarHeight } from '../../../packages/ui-native/src';
+import { Chip, EmptyState, ErrorState, OfflineState, Radio, Screen, Search, Segmented, Skeleton, useTabBarHeight } from '../../../packages/ui-native/src';
 import { CARE_TONE, Section, Sheet } from '../../src/components/consult/ConsultKit';
 import {
   CartBar,
@@ -16,7 +15,6 @@ import {
   LinkCard,
   ListCard,
   PackageCard,
-  PillLink,
   PlaceRow,
   RAD_TONE,
   ShortcutTile,
@@ -26,6 +24,8 @@ import {
   diagLook,
   useDiagText,
 } from '../../src/components/diagnostics/DiagKit';
+import { ActiveFilters, type ActiveFilter } from '../../src/components/pharmacy/ActiveFilters';
+import { GlyphRound } from '../../src/components/pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
@@ -198,25 +198,16 @@ export default function DiagnosticsHub() {
   const tabCount = tabLines.reduce((n, i) => n + (i.qty > 0 ? i.qty : 1), 0);
   const tabTotal = tabLines.reduce((n, i) => n + i.price * (i.qty > 0 ? i.qty : 1), 0);
   const barSpace = tabCount > 0 ? 84 : 0;
+  const activeItems: ActiveFilter[] = filter === 'all' ? [] : [{ key: filter, label: k(FILTERS.find((f) => f.id === filter)?.key ?? 'diag.filter.all'), onRemove: () => setFilter('all') }];
 
   return (
     <View style={{ flex: 1 }}>
-    <Screen
-      theme={theme}
-      direction={dir}
-      edges={['top', 'start', 'end']}
-      scroll
-      bottomSpace={barHeight + barSpace + 16}
-      refreshControl={<RefreshControl refreshing={false} onRefresh={() => void load()} tintColor={c.text.primary} />}
-      testID="diagnostics-hub"
-    >
-      <View style={{ width: '100%', maxWidth: 440, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 12, gap: 16 }}>
+    <Screen theme={theme} direction={dir} edges={['top', 'start', 'end']} testID="diagnostics-hub">
+      {/* fixed under the top while the lists scroll (owner layout addition b): the title row with "My orders and results", the search, the filters that are on */}
+      <View style={{ width: '100%', maxWidth: 440, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 12, paddingBottom: 10, gap: 12, backgroundColor: c.bg.canvas }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <Text accessibilityRole="header" style={{ flex: 1, minWidth: 0, ...scale(t, 'h1'), color: c.text.primary, ...flow }}>{k('diag.hub.title')}</Text>
-          <MapEntryButton kind="lab" testID="diagnostics-map-entry" />
-          <View style={{ flexShrink: 1 }}>
-            <PillLink icon="receipt" label={k('diag.hub.myOrders')} onPress={() => router.push('/diagnostics/orders' as Href)} />
-          </View>
+          <GlyphRound name="receipt" label={k('diag.hub.myOrders')} onPress={() => router.push('/diagnostics/orders' as Href)} testID="diagnostics-orders-entry" />
         </View>
 
         <Search
@@ -232,6 +223,15 @@ export default function DiagnosticsHub() {
           filterLabel={k('diag.hub.filter')}
         />
         <ScopedSuggest query={query} scope={isLab ? SUGGEST_SCOPES.labs : SUGGEST_SCOPES.radiology} />
+        {isLab ? <ActiveFilters items={activeItems} onClearAll={() => setFilter('all')} tone={LAB_TONE} testIdPrefix="diag" /> : null}
+      </View>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: barHeight + barSpace + 16, flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+        refreshControl={<RefreshControl refreshing={false} onRefresh={() => void load()} tintColor={c.text.primary} />}
+      >
+      <View style={{ width: '100%', maxWidth: 440, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 4, gap: 16 }}>
 
         {failed === 'error' ? <ErrorState title={k('consult.error.title')} body={k('consult.error.body')} retryLabel={k('consult.retry')} onRetry={() => void load()} theme={theme} /> : null}
         {failed === 'offline' ? <OfflineState title={k('consult.offline.title')} body={k('consult.offline.body')} retryLabel={k('consult.retry')} onRetry={() => void load()} theme={theme} /> : null}
@@ -273,7 +273,10 @@ export default function DiagnosticsHub() {
         {loading ? (
           <View accessibilityLabel={k('consult.loading')} accessibilityState={{ busy: true }} style={{ gap: 12 }}>
             {[0, 1, 2].map((i) => (
-              <View key={i} style={{ height: 96, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }} />
+              <View key={i} style={{ minHeight: 96, borderRadius: 24, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }}>
+                <Skeleton variant="circle" theme={theme} />
+                <View style={{ flex: 1 }}><Skeleton lines={2} theme={theme} /></View>
+              </View>
             ))}
           </View>
         ) : null}
@@ -380,7 +383,7 @@ export default function DiagnosticsHub() {
           </View>
         ) : null}
       </View>
-
+      </ScrollView>
 
       <Sheet open={sheet} title={k('diag.filter.title')} onClose={() => setSheet(false)} closeLabel={k('diag.filter.close')}>
         <View>

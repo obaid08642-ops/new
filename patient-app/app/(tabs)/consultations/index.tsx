@@ -397,7 +397,6 @@ export default function Consultations() {
                         <FIcon icon={look.icon} tone={look.tone} size={58} theme={theme} />
                       </View>
                       <Text style={{ ...scale(t, 'meta', on ? 'bold' : 'medium'), color: c.text.primary, textAlign: 'center' }}>{name}</Text>
-                      {typeof s.count === 'number' ? <Text style={{ ...scale(t, 'micro', 'regular'), color: c.text.tertiary }}>{k('consult.spec.count', { n: num(s.count) })}</Text> : null}
                     </Pressable>
                   );
                 })}
@@ -458,8 +457,8 @@ export default function Consultations() {
             ))
           )}
           {filteredDocs.length > 10 ? (
-            <Pressable accessibilityRole="button" accessibilityLabel={k('consult.hub.seeAll', { n: num(filteredDocs.length) })} onPress={() => router.push('/consultations/doctor-search' as Href)} style={{ minHeight: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }}>
-              <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.link }}>{k('consult.hub.seeAll', { n: num(filteredDocs.length) })}</Text>
+            <Pressable accessibilityRole="button" accessibilityLabel={k('consult.hub.seeAll')} onPress={() => router.push('/consultations/doctor-search' as Href)} style={{ minHeight: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }}>
+              <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.link }}>{k('consult.hub.seeAll')}</Text>
             </Pressable>
           ) : null}
         </Section>

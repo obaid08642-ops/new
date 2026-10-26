@@ -168,7 +168,7 @@ function Block({ block, term, filter, count, onOpen, onSeeAll }: { block: Result
     <View style={{ gap: 10 }}>
       <SectionHeader
         title={tr(section.title)}
-        actionLabel={seeAll ? `${tr('الكل')} (${count})` : undefined}
+        actionLabel={seeAll ? tr('الكل') : undefined}
         onActionPress={seeAll ? () => onSeeAll(seeAll.key) : undefined}
         theme={theme}
       />
@@ -406,7 +406,7 @@ function SearchScreen({ initialQuery }: { initialQuery: string }) {
         <View style={COLUMN}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 8, paddingStart: 16 + startInset, paddingEnd: 16 + endInset }}>
             {chips.map((f) => (
-              <Chip key={f.key} label={tr(f.label)} count={counts[f.key]} selected={filter === f.key} onPress={() => setFilter(f.key)} theme={theme} />
+              <Chip key={f.key} label={tr(f.label)} selected={filter === f.key} onPress={() => setFilter(f.key)} theme={theme} />
             ))}
           </ScrollView>
         </View>

@@ -70,7 +70,6 @@ export default function SpecialtySelectScreen() {
                 <FIcon icon={look.icon} tone={look.tone} size={52} theme={theme} />
                 <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
                   <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{name}</Text>
-                  {typeof sp.count === 'number' ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.spec.count', { n: num(sp.count) })}</Text> : null}
                 </View>
                 <Chevron />
               </View>
