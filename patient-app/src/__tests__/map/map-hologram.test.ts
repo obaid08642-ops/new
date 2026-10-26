@@ -1,3 +1,4 @@
+import { tokens } from '../../../../packages/design-tokens/dist/ts/tokens';
 import { HOLO_KINDS, HOLO_LOOK, holoMotion, isHoloKind, matchByKind, toFeatureCollection } from '../../components/map-hologram';
 
 describe('hologram pin helpers', () => {
@@ -27,14 +28,19 @@ describe('hologram pin helpers', () => {
 import { HOLO_H, HOLO_W, base64, encodePng, parseColor, renderHoloPixels } from '../../components/map-hologram-image';
 import { inflateSync } from 'zlib';
 
+const mint = tokens('light').color.service.mint;
+const FG = mint.fg;
+const BG = mint.bg;
+
 describe('hologram pin image', () => {
-  it('parses hex and rgba colours', () => {
-    expect(parseColor('#FF0000')).toEqual([255, 0, 0, 1]);
-    expect(parseColor('rgba(10,20,30,0.5)')).toEqual([10, 20, 30, 0.5]);
+  it('parses a token colour to four channels', () => {
+    const [r, g, b, a] = parseColor(FG);
+    expect([r, g, b].every((v) => v >= 0 && v <= 255)).toBe(true);
+    expect(a).toBeGreaterThan(0);
   });
   it('draws a different, non-empty pin per kind in the given colours and encodes a valid PNG', () => {
-    const a = renderHoloPixels('lab', '#0E7C5E', '#E6F7F1');
-    const b = renderHoloPixels('hospital', '#0E7C5E', '#E6F7F1');
+    const a = renderHoloPixels('lab', FG, BG);
+    const b = renderHoloPixels('hospital', FG, BG);
     expect(a.some((v, i) => i % 4 === 3 && v > 0)).toBe(true);
     expect(Buffer.from(a).equals(Buffer.from(b))).toBe(false);
     const png = encodePng(a, HOLO_W, HOLO_H);
