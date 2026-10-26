@@ -1,9 +1,7 @@
-# 2026-10-26 lead reviewer: run 23. Run 22 freed the disk (9.1 GB) and its deploy passed every check, but it re-deployed 5e6cd1a6:
-# 60-deploy-main.sh pins its SHA in a default the workflow does not override, and I had not updated it. Now pinned to
-# main@b600f427 (all merges since 5e6cd1a6: product pages, doctor page, admin logs, Snapchat fix + app bridge page, brand
-# social buttons, districts fix, colour slice 1, guest-job review, family 403). 93-free-unused-images first (owner-approved:
-# only images no container uses), then deploy, then cf-purge-api.
-release:b600f427ec64a904cb8f7000fe3d9bbd546b42c8
+# 2026-10-26 lead reviewer: run 24, deploy main@fd8cb3bd: the logo is never black (#1968), district boundaries (#1969),
+# doctors page budget (#1970), public-page ink sweep (#1971). 93-free-unused-images first (owner-approved: only images no
+# container uses), then deploy (SHA pinned in 60-deploy-main.sh), then cf-purge-api.
+release:fd8cb3bd713b66e8e612f909e4b45566551b780d
 93-free-unused-images
 60-deploy-main
 cf-purge-api
