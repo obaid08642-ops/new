@@ -149,7 +149,11 @@
     "recordsMaternity": "মাতৃত্ব",
     "recordsPregnancy": "গর্ভাবস্থা ট্র্যাকিং",
     "recordsCycle": "চক্র ট্র্যাকিং",
-    "notificationsUnread": "বিজ্ঞপ্তি, নতুন বিজ্ঞপ্তি আছে"
+    "notificationsUnread": "বিজ্ঞপ্তি, নতুন বিজ্ঞপ্তি আছে",
+    "orderAgain": "আপনার আগের অর্ডার আবার করুন",
+    "orderAgainOneItem": "১টি আইটেম",
+    "orderAgainItems": "{n, number}টি আইটেম",
+    "orderAgainAction": "অর্ডার করুন"
   },
   "Login": {
     "title": "সাইন ইন করুন",

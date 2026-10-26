@@ -149,7 +149,11 @@
     "recordsMaternity": "الأمومة",
     "recordsPregnancy": "متابعة الحمل",
     "recordsCycle": "متابعة الدورة",
-    "notificationsUnread": "الإشعارات، يوجد جديد"
+    "notificationsUnread": "الإشعارات، يوجد جديد",
+    "orderAgain": "أعد طلبك السابق",
+    "orderAgainOneItem": "صنف واحد",
+    "orderAgainItems": "{n, number} أصناف",
+    "orderAgainAction": "اطلب"
   },
   "Login": {
     "title": "تسجيل الدخول",
