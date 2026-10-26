@@ -6,7 +6,7 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 
 ## Coverage
 
-- Scenarios: 13 done, 29 partial, 5 blocked (reason given), 27 not started, of 74 total.
+- Scenarios: 13 done, 35 partial, 5 blocked (reason given), 21 not started, of 74 total.
 - Screens: 0 of 274 patient-web routes fully scanned (public pages sampled in findings). Admin and provider screens not started.
 - The sweep is not finished. It is finished only when both counts reach 100%, or each remaining line gives its reason.
 
@@ -50,7 +50,7 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 | I-04 | insurance | CHI link | TODO | |
 | A-01 | account | sign in, email | DONE | Sign-in with registered patient lands on /en/dashboard; document created by registration (users collection) verified |
 | A-02 | account | sign up, email OTP | PARTIAL | Registration via API flow (send-otp, verify-otp, register) 2xx; user document verified; web sign-up page not yet clicked through |
-| A-03 | account | sign up / sign in, phone OTP | TODO | |
+| A-03 | account | sign up / sign in, phone OTP | PARTIAL | tools/live/j_accounts.py: login by phone (app payload) passes. Phone OTP sign-up not separately tested |
 | A-04 | account | sign in, wrong password | DONE | Generic error shown; 401 on POST /api/auth/login |
 | A-05 | account | Google / Apple / X / Snapchat | TODO | gated: check the gate message |
 | A-06 | account | forgot password | PARTIAL | API journey tools/live/j_qa_password.py: forgot, reset token from mail, reset, old password refused, new password logs in (all pass). Web forgot page not clicked yet |
@@ -63,15 +63,15 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 | A-13 | account | support / chat | PARTIAL | API journey tools/live/j_qa_support.py: send, read back in the thread (from patient), state read (all pass). Web chat UI not clicked yet |
 | A-14 | account | legal pages | PARTIAL | Production (read-only GET): /en/privacy, /en/terms, /en/refund-policy return 200. Local test database has no legal text, so 404 locally is a data gap, not a defect. Content and links not reviewed yet |
 | A-15 | account | delete account | PARTIAL | API journey tools/live/j_qa_delete.py on a throwaway account: export works, wrong password refused, erasure with password 2xx, login refused afterwards (all pass). Web settings UI not clicked yet |
-| V-01 | provider, pharmacy | registration, every field and step | TODO | |
-| V-02 | provider, doctor | registration, every field and step | TODO | |
+| V-01 | provider, pharmacy | registration, every field and step | PARTIAL | tools/live/j_onboarding.py (112/112): pharmacy registration steps, licence and logo uploads, approval with commissions, unconfirmed SCFHS licence refused. Not every field of every step checked |
+| V-02 | provider, doctor | registration, every field and step | PARTIAL | tools/live/j_loyalty.py (117/117): doctor registration steps 2 and 3 as sent by DoctorRegistration.tsx, signature upload, approval with commissions. Not every field checked |
 | V-03 | provider, lab | registration, every field and step | TODO | |
 | V-04 | provider, radiology | registration, every field and step | TODO | |
 | V-05 | provider, home_care | registration, every field and step | TODO | |
 | V-06 | provider, hospital | registration, every field and step | TODO | |
-| V-07 | provider, all types | admin approval and rejection | TODO | |
-| V-08 | provider, all types | dashboard, receive request, accept / reject / offer | TODO | |
-| V-09 | provider, all types | schedule, leaves, templates, blacklist, payouts | TODO | |
+| V-07 | provider, all types | admin approval and rejection | PARTIAL | j_onboarding.py: approval with commissions, unconfirmed licence refused (fails closed). Admin rejection of an applicant not tested |
+| V-08 | provider, all types | dashboard, receive request, accept / reject / offer | PARTIAL | pharmacy, lab, radiology, nursing journeys: provider inbox shows the new request, provider accepts and completes. Rejection and offers per type not all covered |
+| V-09 | provider, all types | schedule, leaves, templates, blacklist, payouts | PARTIAL | j_consultation.py: doctor submits clinic hours, admin approves the slots change. Leaves, templates, blacklist and payouts not tested |
 | AD-01 | admin | every list, filter, approve / reject, edit, report | TODO | admin panel :3001 |
 
 | PR-01 | pharmacy B2B | pharmacy submits shortage request → admin sees it | PARTIAL | API as pharmacy 201; DB `procurementrequests` PENDING_ADMIN_REVIEW; pharmacy list shows it; admin list shows it (admin API, admin web page not yet clicked) |
@@ -105,7 +105,7 @@ Per-screen scan (every element, sizes 390/768/1280, six languages, dark mode) is
 - Auth-gated patient-web routes (signed in, 72): swept on the production layout. Table: docs/qa/screens/patient-web-auth.md. Findings: docs/qa/findings/web-sweep-auth.md.
 - Admin pages (65 files): swept signed in, on the admin build of 03:12, then re-checked on the rebuilt admin from merged main. Findings: docs/qa/findings/admin-sweep.md. Dynamic admin routes (orders/[kind]/[id]) not tested (need IDs).
 - Dynamic patient-web routes (53): 5 routes tested with a real seeded doctor (docs/qa/findings/web-sweep-dynamic.md). Found P1: /consultations/doctors/<id> returns 503 (server-to-client function prop). The other ~48 need seeded IDs for articles, facilities, community, orders, appointments, labs, radiology, packages, results, clinics: NOT TESTED, reason: no seeded records of those types yet.
-- Scenarios: 13 done, 29 partial, 5 blocked (reason given), 27 not started, of 74 total.
+- Scenarios: 13 done, 35 partial, 5 blocked (reason given), 21 not started, of 74 total.
 - Open P1s: guest job publish (no route); admin system logs API 404 (AdminLogsController dropped in the P5.3 merge).
 - Corrected: hydration P1 retracted (local setup; production layout passes).
 - Environment: services drop between turns. Recover with /tmp/claude-0-scratch/stack_up.sh (patient-web via the nonce server). Kill stale next-server processes by PID (comm next-server) before restarting admin.
