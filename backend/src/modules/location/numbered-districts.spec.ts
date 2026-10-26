@@ -101,7 +101,9 @@ describe('planNumberedDistricts on a database', () => {
     expect((await raw().collection('facilities').findOne({}))!.district).toBe('sa-riyadh-001'); // stored as a code: written as a code
     for (const code of ['sa-riyadh-090', 'sa-riyadh-091', 'sa-duba-001', 'sa-duba-002']) expect(await exists(code)).toBe(false);
     for (const code of ['sa-riyadh-001', 'sa-riyadh-002', 'sa-jeddah-001', 'sa-jeddah-050']) expect(await exists(code)).toBe(true); // real kept; jeddah waits
-    expect((await planNumberedDistricts(db)).changes.filter((c) => c.kind === 'delete').length).toBe(1); // only the deferred one remains
+    const again = await planNumberedDistricts(db); // a second plan has nothing left to do; the deferred city still waits
+    expect(again.changes).toHaveLength(0);
+    expect(again.report).toMatchObject({ deferred_rows: 1, deleted_rows: 0 });
   });
 
   it('once the deferred city has a centroid, the next plan handles it', async () => {
