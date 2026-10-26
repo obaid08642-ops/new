@@ -116,7 +116,7 @@ def nurse_hours(key='home_care_stock'):
     tok = lib.Client().post('/provider/auth/login', {'email': acc['email'], 'password': acc['password']}).get('access_token')
     account_id = lib.Client(tok, 'nurse').get('/provider/me').get('account', 'id')
     code = ("const m=require('mongoose');(async()=>{await m.connect(process.env.MONGO_URL,{dbName:process.env.DB_NAME});"
-            "const r=await m.connection.db.collection('provider_profiles').updateOne({account_id:process.argv[1]},{$set:{working_hours:[{day:'all',open:'08:00',close:'18:00',open_evening:null,close_evening:null,closed:false}]}});"
+            "const H=[{day:'all',open:'08:00',close:'18:00',open_evening:null,close_evening:null,closed:false}];const r=await m.connection.db.collection('provider_profiles').updateOne({account_id:process.argv[1]},{$set:{working_hours:H,schedule_lab:H,schedule_clinic:H}});"
             "console.log(JSON.stringify(r));await m.disconnect();})().catch(e=>{console.error(e);process.exit(1)})")
     backend = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'backend')
     r = subprocess.run(['node', '-e', code, str(account_id)], cwd=backend, capture_output=True, text=True, timeout=60,
