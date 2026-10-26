@@ -22,6 +22,23 @@
   font-size: var(--nabd-font-size-micro); font-weight: 700; line-height: 1;
 }
 .phoneCart { margin-inline-start: auto; }
+/* the cart chooser (Home, and pages of no service): a small list of the carts that are not empty */
+.cartWrap { position: relative; display: inline-flex; }
+.cartMenu {
+  position: absolute; inset-block-start: calc(100% + var(--nabd-space-xs)); inset-inline-end: 0; z-index: 30; margin: 0; padding: var(--nabd-space-xs); list-style: none;
+  min-inline-size: 220px; box-sizing: border-box; background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline);
+  border-radius: var(--nabd-radius-xl); box-shadow: var(--nabd-shadow-card);
+}
+.cartMenuItem {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--nabd-space-sm); min-block-size: 44px; padding-inline: var(--nabd-space-sm);
+  border-radius: var(--nabd-radius-lg); color: var(--nabd-color-text-primary); text-decoration: none; font-size: var(--nabd-font-size-row);
+}
+.cartMenuItem:hover, .cartMenuItem:focus-visible { background: var(--nabd-color-bg-sunken); }
+.cartMenuItem:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: -2px; }
+.cartMenuCount {
+  min-inline-size: 24px; block-size: 24px; padding-inline: 6px; box-sizing: border-box; border-radius: var(--nabd-radius-pill); display: inline-grid; place-items: center;
+  background: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg); font-size: var(--nabd-font-size-micro); font-weight: 700;
+}
 .iconLink:focus-visible, .section:focus-visible, .cancel:focus-visible, .brand:focus-visible {
   outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px;
 }
