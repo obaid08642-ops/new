@@ -42,7 +42,7 @@ export function AuthWelcome({ locale }: { locale: Locale }) {
       <span className={`${styles.orbit} ${styles.o2}`}><FIcon icon={SERVICE_ICONS.consult.icon} tone={SERVICE_ICONS.consult.tone} chip="none" size={36} /></span>
       <span className={`${styles.orbit} ${styles.o3}`}><FIcon icon={SERVICE_ICONS.lab.icon} tone={SERVICE_ICONS.lab.tone} chip="none" size={34} /></span>
       <span className={`${styles.orbit} ${styles.o4}`}><FIcon icon={SERVICE_ICONS.nursing.icon} tone={SERVICE_ICONS.nursing.tone} chip="none" size={38} /></span>
-      <NabdMark size={150} variant="text" pulse />
+      <NabdMark size={150} pulse />
     </div>
     <div className={styles.identity}>
       <h1 className={styles.welcomeWord}>{shared("wordmark")}<span className={styles.plus}>+</span></h1>

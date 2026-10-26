@@ -109,7 +109,7 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
       {!search && title ? <h1 className={`${styles.phoneTitle} ${styles.phoneOnly}`}>{title}</h1> : null}
 
       <Link href={`/${locale}`} className={`${styles.brand} ${styles.wideOnly}`} aria-label={shared("brand")}>
-        <NabdMark size={34} variant="text" />
+        <NabdMark size={34} />
         <span className={styles.wordmark} aria-hidden="true">
           {shared("wordmark")}<span className={styles.plus}>+</span>
         </span>

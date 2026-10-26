@@ -85,7 +85,7 @@ export default function OnboardingIntro() {
         {/* the mark, centred, with Skip at the end and a balance at the start */}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View style={{ minWidth: 64 }} />
-          <NabdLogo size={30} variant="text" theme={theme} label={tr('نبض بلس')} />
+          <NabdLogo size={30} label={tr('نبض بلس')} />
           <Pressable accessibilityRole="button" accessibilityLabel={tr('تخطي')} onPress={() => void finish()} hitSlop={8} testID="onboarding-skip" style={{ minWidth: 64, minHeight: 44, alignItems: 'flex-end', justifyContent: 'center' }}>
             <LocalizedText style={{ ...scale(t, 'body', 'medium'), color: c.text.primary }}>تخطي</LocalizedText>
           </Pressable>
