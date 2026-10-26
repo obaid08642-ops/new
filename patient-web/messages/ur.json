@@ -35,6 +35,8 @@
     "mainNav": "مرکزی نیویگیشن",
     "sections": "سیکشنز",
     "cartCount": "کارٹ ({n, number})",
+    "wishlist": "پسندیدہ",
+    "wishlistCount": "پسندیدہ ({n, number})",
     "cartChooser": "کارٹ منتخب کریں",
     "cartPharmacy": "فارمیسی کارٹ",
     "cartLab": "لیب ٹیسٹ کارٹ",

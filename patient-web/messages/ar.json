@@ -35,6 +35,8 @@
     "mainNav": "التنقل الرئيسي",
     "sections": "الأقسام",
     "cartCount": "السلة ({n, number})",
+    "wishlist": "المفضلة",
+    "wishlistCount": "المفضلة ({n, number})",
     "cartChooser": "اختر السلة",
     "cartPharmacy": "سلة الصيدلية",
     "cartLab": "سلة التحاليل",

@@ -259,7 +259,7 @@ export default function PharmacyPaymentScreen() {
         </View>
 
         <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
-          <FIcon icon="lock" tone="ink" chip="soft" size={32} theme={theme} />
+          <FIcon icon="lock" tone="violet" chip="soft" size={32} theme={theme} />
           <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'meta', 'regular'), lineHeight: 21, color: c.text.secondary, ...flow }}>{k('pharmacy.pay.secureNote')}</Text>
         </View>
       </View>

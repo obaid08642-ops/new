@@ -35,6 +35,8 @@
     "mainNav": "Main navigation",
     "sections": "Sections",
     "cartCount": "Cart ({n, number})",
+    "wishlist": "Favourites",
+    "wishlistCount": "Favourites ({n, number})",
     "cartChooser": "Choose a cart",
     "cartPharmacy": "Pharmacy cart",
     "cartLab": "Lab tests cart",

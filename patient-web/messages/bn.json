@@ -35,6 +35,8 @@
     "mainNav": "প্রধান নেভিগেশন",
     "sections": "বিভাগসমূহ",
     "cartCount": "কার্ট ({n, number})",
+    "wishlist": "প্রিয়",
+    "wishlistCount": "প্রিয় ({n, number})",
     "cartChooser": "কার্ট বেছে নিন",
     "cartPharmacy": "ফার্মেসি কার্ট",
     "cartLab": "ল্যাব টেস্ট কার্ট",
