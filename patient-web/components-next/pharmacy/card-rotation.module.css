@@ -2,7 +2,7 @@
    Tokens only, logical properties only; the box does not change size (no layout shift). */
 .layer {
   position: absolute; inset: 0; inline-size: 100%; block-size: 100%; object-fit: contain; opacity: 0; pointer-events: none;
-  transition: opacity 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 300ms var(--nabd-motion-easing-enter); /* 300 ms: the crossfade (lib/motion MOTION.fade; the tokens have no crossfade) */
 }
 .visible { opacity: 1; }
 .dots {
