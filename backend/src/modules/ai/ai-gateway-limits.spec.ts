@@ -180,3 +180,21 @@ describe('AI gateway free-tier routing', () => {
     expect(Object.keys(pipeline)).toEqual(expect.arrayContaining(['used_today', 'month_requests', 'month_tokens', 'month_key']));
   });
 });
+
+describe('AI usage recording is never silent when it fails', () => {
+  it('warns once a minute and still serves the request', async () => {
+    (global as any).fetch = jest.fn(async () => ({ ok: true, status: 200, headers: { get: () => null }, json: async () => ({ choices: [{ message: { content: 'x' } }] }) }));
+    const providers = {
+      countDocuments: jest.fn(async () => 1),
+      find: jest.fn(() => ({ sort: () => ({ toArray: async () => [{ key: 'groq', enabled: true, api_key: 'k', model: 'm', priority: 1, daily_quota: 0, used_today: 0, usage_date: '', base_url: 'https://groq.example.test/v1', requests_per_minute: 0, reset_tz: 'UTC' }] }), toArray: async () => [] })),
+      updateOne: jest.fn(async () => ({ modifiedCount: 0 })),
+    };
+    const conn: any = { collection: jest.fn((n: string) => n === 'ai_providers' ? providers : n === 'ai_usage' ? { insertOne: jest.fn(async () => { throw new Error('disk full'); }) } : n === 'featureflags' ? { findOne: async () => ({ key: 'ai_mode', value: 'auto' }), updateOne: jest.fn() } : { findOne: async () => null, find: () => ({ toArray: async () => [] }) }) };
+    const svc = new AiGatewayService(conn, undefined as any);
+    const warn = jest.spyOn((svc as any).logger, 'warn').mockImplementation(() => undefined);
+    await expect(svc.generate({ prompt: 'a', feature: 't' })).resolves.toMatchObject({ provider: 'groq' });
+    await svc.generate({ prompt: 'b', feature: 't' });
+    const usageWarns = warn.mock.calls.filter((c) => String(c[0]).includes('AI usage log was not recorded'));
+    expect(usageWarns).toHaveLength(1);
+  });
+});

@@ -597,13 +597,22 @@ export class AiGatewayService {
           },
         },
       ] as any,
-    ).catch(() => {});
+    ).catch((e: Error) => this.usageWriteFailed('counters', e));
     await this.conn.collection('ai_usage').insertOne({
       provider: p.key, model: this.modelFor(p), feature,
       elapsed_ms: ms, ok, fell_back: fellBack, error: error || null, tokens,
       ...extra,
       createdAt: new Date(),
-    }).catch(() => {});
+    }).catch((e: Error) => this.usageWriteFailed('log', e));
+  }
+
+  private lastUsageWarn = 0;
+  /** A failing usage write must not fail the request, but it must not be silent either (an empty `ai_usage` was once unexplained). */
+  private usageWriteFailed(what: string, e: Error): void {
+    const now = Date.now();
+    if (now - this.lastUsageWarn < 60_000) return;
+    this.lastUsageWarn = now;
+    this.logger.warn(`AI usage ${what} was not recorded: ${String(e?.message || e).slice(0, 120)}`);
   }
 
   // ── Admin management API ────────────────────────────────────────────────
