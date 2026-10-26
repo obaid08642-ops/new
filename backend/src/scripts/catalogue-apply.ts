@@ -22,7 +22,7 @@ import {
   applyChanges, countsOf, decodeBackup, encodeBackup, expectedCounts, planSha, rollbackChanges, sha256, summarize,
   type Change, type DbLike,
 } from '../modules/catalogs/catalogue-apply.core';
-import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn, planPlaceholderCities } from '../modules/catalogs/catalogue-apply.steps';
+import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn, planNumberedDistricts, planPlaceholderCities } from '../modules/catalogs/catalogue-apply.steps';
 
 const TRANSLATIONS_CSV = path.join(__dirname, '../modules/medicines/data/medicine-translations-2026-10-24.csv');
 /** The districts extract shipped in the image (nest-cli asset, like the CSV above). A `--districts=<file>` on the command line overrides it. */
@@ -70,6 +70,10 @@ export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> 
   const placeholders = await planPlaceholderCities(db);
   changes.push(...placeholders.changes);
   report.placeholder_cities = placeholders.report;
+
+  const numbered = await planNumberedDistricts(db);
+  changes.push(...numbered.changes);
+  report.numbered_districts = { ...numbered.report, cities: undefined, per_city: numbered.report.cities };
 
   return { changes, inputs, sha: planSha(changes, inputs), report };
 }

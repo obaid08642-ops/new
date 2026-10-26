@@ -6,6 +6,7 @@
 import { Types } from 'mongoose';
 import { SAUDI_LOCATIONS_SEED } from '../location/seeds/saudi-locations.data';
 import { planImport, type Extract } from '../location/districts-plan';
+import { DISTRICT_REFERENCE_FIELDS, getPath, isNumberedDistrict, nearestDistrict, pointOfRecord, type DistrictRow } from '../location/numbered-districts';
 import { CITY_REFERENCE_FIELDS, DELETE_CITY_RULES, LISTED_ONLY_CITY_CODES, REGION_DEFAULT_CITY, spellingsOf, withDistricts, type LocationRow } from '../location/placeholder-cities';
 import { FillChange, loadTranslations, planFill } from '../medicines/medicine-translation-fill';
 import { applyApproved, parseCsv, type AuditCollection, type UpdateCollection } from '../../scripts/fix-catalogue-names';
@@ -194,5 +195,70 @@ export async function planPlaceholderCities(db: DbLike): Promise<{ changes: Chan
     report.deleted_cities.push(rule.code);
   }
   for (const code of LISTED_ONLY_CITY_CODES) { if (byCode.has(code)) report.listed_only.push(code); else report.missing_in_database.push(code); }
+  return { changes, report };
+}
+
+export interface NumberedDistrictCity {
+  city: string; numbered: number; real: number; real_with_centroid: number; referenced: number; repointed: number; cleared: number;
+  action: 'deleted' | 'deferred_no_real_district_has_a_centroid_yet';
+}
+export interface NumberedDistrictReport { numbered_rows: number; deleted_rows: number; cities: NumberedDistrictCity[]; deferred_rows: number; references_repointed: number; references_cleared: number }
+
+/**
+ * Step 8 — the numbered placeholder districts (owner ruling 2026-10-26: fake rows are deleted). Per city:
+ *  - the city has real districts WITH a centroid: every reference to a numbered district (an address, order, provider, facility or branch
+ *    that holds one of its names or code) is re-pointed to the nearest real district by the reference's own point (same language as the
+ *    stored value), or its district text is cleared when the record has no point; then the numbered rows are deleted;
+ *  - the city has real districts but none has a centroid yet: nothing is done for it (it waits for the districts step, which fills them);
+ *  - the city has no real district at all: references are cleared and the numbered rows deleted; the city keeps its centre and shows
+ *    without districts until the extract adds real ones.
+ * The plan lists the counts per city. Every write is a compare-and-set or a same-_id delete, so a second plan is empty.
+ */
+export async function planNumberedDistricts(db: DbLike): Promise<{ changes: Change[]; report: NumberedDistrictReport }> {
+  const rows = (await db.collection('locations').find({ type: 'district' }, {}).toArray()) as Array<DistrictRow & { _id: unknown }>;
+  const byCity = new Map<string, Array<DistrictRow & { _id: unknown }>>();
+  for (const r of rows) if (r.parent_code) byCity.set(r.parent_code, [...(byCity.get(r.parent_code) ?? []), r]);
+  const changes: Change[] = [];
+  const report: NumberedDistrictReport = { numbered_rows: 0, deleted_rows: 0, cities: [], deferred_rows: 0, references_repointed: 0, references_cleared: 0 };
+
+  for (const [city, list] of [...byCity].sort(([a], [b]) => a.localeCompare(b))) {
+    const numbered = list.filter(isNumberedDistrict);
+    if (!numbered.length) continue;
+    report.numbered_rows += numbered.length;
+    const real = list.filter((r) => !isNumberedDistrict(r) && r.is_active !== false);
+    const withCentroid = real.filter((r) => typeof r.coordinates?.lat === 'number' && typeof r.coordinates?.lng === 'number');
+    const entry: NumberedDistrictCity = { city, numbered: numbered.length, real: real.length, real_with_centroid: withCentroid.length, referenced: 0, repointed: 0, cleared: 0, action: 'deleted' };
+    if (real.length > 0 && withCentroid.length === 0) {
+      entry.action = 'deferred_no_real_district_has_a_centroid_yet';
+      report.deferred_rows += numbered.length;
+      report.cities.push(entry);
+      continue;
+    }
+    const spellings = new Set(numbered.flatMap((r) => [r.code, r.name_ar, r.name_en].filter((v): v is string => typeof v === 'string' && v.trim() !== '')));
+    const spellingList = [...spellings];
+    for (const f of DISTRICT_REFERENCE_FIELDS) {
+      const field = f.array ? `${f.array}.${f.district}` : f.district;
+      const docs = await db.collection(f.collection).find({ [field]: { $in: spellingList } }, {}).toArray();
+      for (const d of docs) {
+        const targets: Array<{ path: string; stored: string; rec: unknown }> = f.array
+          ? ((getPath(d, f.array) as unknown[]) ?? []).flatMap((el, i) => (typeof getPath(el, f.district) === 'string' && spellings.has(getPath(el, f.district) as string) ? [{ path: `${f.array}.${i}.${f.district}`, stored: getPath(el, f.district) as string, rec: el }] : []))
+          : typeof getPath(d, f.district) === 'string' && spellings.has(getPath(d, f.district) as string) ? [{ path: f.district, stored: getPath(d, f.district) as string, rec: d }] : [];
+        for (const t of targets) {
+          entry.referenced += 1;
+          const point = pointOfRecord(t.rec, f.points);
+          const near = point && withCentroid.length ? nearestDistrict(point, withCentroid) : null;
+          const after = near ? (numbered.some((r) => r.code === t.stored) ? near.code : /[\u0600-\u06FF]/.test(t.stored) ? (near.name_ar ?? '') : (near.name_en ?? '')) : '';
+          changes.push({ kind: 'set', step: 'numbered_districts', collection: f.collection, key: { _id: d._id }, path: t.path, before: t.stored, after });
+          if (near && after) entry.repointed += 1; else entry.cleared += 1;
+        }
+      }
+    }
+    for (const r of numbered) {
+      changes.push({ kind: 'delete', step: 'numbered_districts', collection: 'locations', key: { code: r.code }, doc: r as unknown as Record<string, unknown> });
+      report.deleted_rows += 1;
+    }
+    report.references_repointed += entry.repointed; report.references_cleared += entry.cleared;
+    report.cities.push(entry);
+  }
   return { changes, report };
 }
