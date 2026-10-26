@@ -1708,6 +1708,8 @@
     "sar": "SAR"
   },
   "PublicProduct": {
+    "contentOnlyEnglish": "Available in English only",
+    "contentOnlyArabic": "Available in Arabic only",
     "backToCatalog": "Back to catalog",
     "home": "Home",
     "products": "Products",

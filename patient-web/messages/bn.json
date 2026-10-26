@@ -1708,6 +1708,8 @@
     "sar": "SAR"
   },
   "PublicProduct": {
+    "contentOnlyEnglish": "শুধু ইংরেজিতে পাওয়া যায়",
+    "contentOnlyArabic": "শুধু আরবিতে পাওয়া যায়",
     "backToCatalog": "ক্যাটালগে ফিরুন",
     "home": "হোম",
     "products": "পণ্যসমূহ",
