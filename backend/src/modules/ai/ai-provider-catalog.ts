@@ -43,9 +43,29 @@ export interface ProviderConfig {
   tokens_per_day: number;       // 0 = unlimited
   tokens_used_today?: number;
   tokens_usage_date?: string;
+  // Free-tier windows (owner decision 2026-10-26: every AI feature runs on free plans). The day and the month are counted in
+  // `reset_tz` (the provider's own reset zone); a window that is used up keeps the provider out of the chain until it resets.
+  requests_per_month?: number;  // 0/absent = not counted by month
+  tokens_per_month?: number;    // 0/absent = not counted by month
+  reset_tz?: string;            // IANA zone of the provider's daily/monthly reset (default UTC)
+  month_requests?: number;
+  month_tokens?: number;
+  month_key?: string;           // YYYY-MM in reset_tz
+  /** Text requests prefer providers WITHOUT this flag, so the vision-capable provider's quota is kept for images. */
+  reserve_for_vision?: boolean;
+  /** Where the limits above come from (official URL + date), and whether the numbers were read from that page. */
+  limits_source?: string;
+  limits_verified?: boolean;
+  // Health, shown in the admin: a rejected key (401/403) sets needs_attention until a new key is saved or a call succeeds.
+  needs_attention?: boolean;
+  attention_reason?: string;
+  attention_at?: Date;
+  last_ok_at?: Date;
+  last_error_code?: string;
+  last_error_at?: Date;
 }
 
-export const DEFAULT_PROVIDERS: ProviderConfig[] = [
+const BASE_PROVIDERS: ProviderConfig[] = [
   { key: 'gemini', enabled: true, api_key: '', model: 'gemini-2.0-flash', vision_model: 'gemini-2.0-flash', priority: 1, daily_quota: 1500, used_today: 0, usage_date: '', requests_per_minute: 30, requests_per_day: 1500, tokens_per_day: 1000000, note: 'native SDK + vision' },
   { key: 'groq', enabled: true, api_key: '', model: 'llama-3.3-70b-versatile', vision_model: 'meta-llama/llama-4-scout-17b-16e-instruct', priority: 2, daily_quota: 1000, used_today: 0, usage_date: '', base_url: 'https://api.groq.com/openai/v1', requests_per_minute: 30, requests_per_day: 1000, tokens_per_day: 500000, note: 'fastest inference' },
   { key: 'openai', enabled: true, api_key: '', model: 'gpt-4o-mini', vision_model: 'gpt-4o-mini', priority: 3, daily_quota: 500, used_today: 0, usage_date: '', requests_per_minute: 60, requests_per_day: 10000, tokens_per_day: 2000000 },
@@ -59,6 +79,26 @@ export const DEFAULT_PROVIDERS: ProviderConfig[] = [
   { key: 'replicate', enabled: false, api_key: '', model: 'stability-ai/sdxl', priority: 8, daily_quota: 100, used_today: 0, usage_date: '', requests_per_minute: 10, requests_per_day: 100, tokens_per_day: 0, note: 'image generation only — not a chat provider' },
 ];
 
+const CHECKED = 'checked 2026-10-26 from the official page';
+/**
+ * Free-tier facts per provider, from the official documentation (read 2026-10-26 through a page summary, not verbatim; re-check
+ * before relying on a number). `limits_verified: true` only where the NUMBERS below were on the official page. Everything else
+ * keeps the conservative defaults above and is flagged unverified in the admin: Gemini and Groq publish their per-model free
+ * limits only inside their consoles (AI Studio, console.groq.com/settings/limits), so an admin must copy them there.
+ */
+const LIMIT_META: Partial<Record<AiProviderName, Partial<ProviderConfig>>> = {
+  gemini: { reset_tz: 'America/Los_Angeles', reserve_for_vision: true, limits_verified: false, limits_source: `https://ai.google.dev/gemini-api/docs/rate-limits (${CHECKED}): daily quota resets at midnight Pacific; per-model free limits are shown only in AI Studio` },
+  groq: { reset_tz: 'UTC', limits_verified: false, limits_source: `https://console.groq.com/docs/rate-limits (${CHECKED}): limits are shown only in console.groq.com/settings/limits; 429 sends retry-after (seconds) and x-ratelimit-reset-requests (duration); the daily reset time is not stated, UTC assumed` },
+  openai: { reset_tz: 'UTC', limits_verified: false, limits_source: 'paid provider: limits depend on the account tier' },
+  deepseek: { reset_tz: 'UTC', limits_verified: false, limits_source: `https://api-docs.deepseek.com/quick_start/rate_limit (${CHECKED}): concurrency limits only (HTTP 429 when exceeded), no free tier stated` },
+  openrouter: { reset_tz: 'UTC', requests_per_minute: 20, requests_per_day: 50, daily_quota: 50, limits_verified: true, limits_source: `https://openrouter.ai/docs/api-reference/limits (${CHECKED}): ':free' models 20 requests/minute and 50/day with under 10 credits bought (1000/day with at least 10); the day is the UTC day` },
+  cerebras: { reset_tz: 'UTC', requests_per_minute: 5, requests_per_day: 0, daily_quota: 0, tokens_per_day: 1_000_000, limits_verified: true, limits_source: `https://inference-docs.cerebras.ai/support/rate-limits (${CHECKED}): free trial 5 requests/minute and 1M tokens/day per model; capacity replenishes continuously, so UTC day is a safe approximation` },
+  qwen: { reset_tz: 'UTC', reserve_for_vision: true, limits_verified: false, limits_source: `https://www.alibabacloud.com/help/en/model-studio/new-free-quota (${CHECKED}): a one-time free quota per model (typically 1M tokens, 90 days from activation), not a monthly allowance; rate limits not read` },
+  opencode: { reset_tz: 'UTC', limits_verified: false, limits_source: `https://opencode.ai/docs/zen (${CHECKED}): pay-as-you-go; the free models are only for the OpenCode client; rate limits not stated` },
+  replicate: { reset_tz: 'UTC', limits_verified: false, limits_source: `https://replicate.com/docs/topics/predictions/rate-limits (${CHECKED}): no free tier; not a chat provider` },
+};
+
+export const DEFAULT_PROVIDERS: ProviderConfig[] = BASE_PROVIDERS.map((p) => ({ ...p, ...LIMIT_META[p.key] }));
 
 /** Maps a provider HTTP failure to a stable code. 401/403 are `ai_provider_auth_failed`; nothing from the response body is kept. */
 export function providerHttpErrorCode(providerKey: string, status: number): string {

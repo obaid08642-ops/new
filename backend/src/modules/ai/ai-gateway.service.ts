@@ -24,6 +24,7 @@ import { connectionFlagSource, isKilled } from '../../common/killswitches/killsw
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { RedisService } from '../redis/redis.service';
 
+import { dayKey, monthKey, nextDayReset, nextMonthReset, retryAfterSeconds } from './ai-windows';
 import { AiProviderName, DEFAULT_PROVIDERS, NON_CHAT_PROVIDERS, PROVIDER_ENV_KEY, ProviderConfig, providerHttpErrorCode } from './ai-provider-catalog';
 export type { AiProviderName };
 
@@ -107,6 +108,14 @@ export interface AiGenerateResult {
 
 export { providerHttpErrorCode };
 
+/** A provider call that failed: the HTTP status and the wait the provider asked for (429) are kept, never its response body. */
+export class AiProviderError extends BadGatewayException {
+  constructor(code: string, readonly httpStatus?: number, readonly retryAfterSec?: number) { super(code); }
+}
+
+/** Why a provider was left out of a request's chain; stored in `ai_usage.skipped`. */
+export interface SkippedProvider { provider: AiProviderName; reason: string }
+
 @Injectable()
 export class AiGatewayService {
   private readonly logger = new Logger('AiGateway');
@@ -142,14 +151,21 @@ export class AiGatewayService {
         if (v !== null) return v;
       } catch { /* fall through */ }
     }
-    return this.mem.get(key)?.v ?? null;
+    const hit = this.mem.get(key);
+    if (hit && hit.exp > 0 && hit.exp <= Date.now()) { this.mem.delete(key); return null; }
+    return hit?.v ?? null;
+  }
+
+  private async kvDel(key: string): Promise<void> {
+    this.mem.delete(key);
+    if (this.redis) { try { await this.redis.del(key); } catch { /* the 1 s TTL set above ends it */ } }
   }
 
   private async kvSet(key: string, value: string, ttlSeconds?: number): Promise<void> {
     if (this.redis) {
       try { await this.redis.set(key, value, ttlSeconds); return; } catch { /* fall through */ }
     }
-    this.mem.set(key, { v: value, exp: 0 });
+    this.mem.set(key, { v: value, exp: ttlSeconds ? Date.now() + ttlSeconds * 1000 : 0 });
   }
 
   private get providers() { return this.conn.collection('ai_providers'); }
@@ -206,6 +222,13 @@ export class AiGatewayService {
       const have = new Set(((await this.providers.find({}).toArray()) as unknown as Array<{ key: string }>).map((r) => r.key));
       for (const p of DEFAULT_PROVIDERS) {
         if (!have.has(p.key)) await this.providers.updateOne({ key: p.key }, { $setOnInsert: { ...p } }, { upsert: true });
+        else {
+          // rows seeded before the free-tier windows existed: add the window metadata only (never the numbers an admin may have edited)
+          await this.providers.updateOne(
+            { key: p.key, reset_tz: { $exists: false } },
+            { $set: { reset_tz: p.reset_tz ?? 'UTC', reserve_for_vision: !!p.reserve_for_vision, limits_source: p.limits_source ?? null, limits_verified: !!p.limits_verified } },
+          );
+        }
         const envKey = String(process.env[PROVIDER_ENV_KEY[p.key]] || '').trim();
         if (!envKey) continue;
         let stored = envKey;
@@ -282,50 +305,89 @@ export class AiGatewayService {
     return `ai:rpm:${key}:${minute}`;
   }
 
-  private async cooledDown(key: string): Promise<boolean> {
-    return (await this.kvGet(this.cooldownKey(key))) !== null;
+  /** Epoch ms until which the provider is parked, or null. (A value of '1' is the older marker: parked, end unknown.) */
+  private async parkedUntil(key: string): Promise<number | null> {
+    const v = await this.kvGet(this.cooldownKey(key));
+    if (v === null) return null;
+    const n = Number(v);
+    return Number.isFinite(n) && n > 1e12 ? n : Date.now() + 1000;
   }
 
-  /** P13-R21: park a failing provider for 5 minutes (priority order resumes it after). */
+  /** Park a provider for `seconds`; it rejoins the chain by priority when the time is up. */
   private async coolDown(key: string, seconds = 300): Promise<void> {
-    await this.kvSet(this.cooldownKey(key), '1', seconds);
+    await this.kvSet(this.cooldownKey(key), String(Date.now() + seconds * 1000), Math.max(1, Math.ceil(seconds)));
   }
 
-  /** Eligible providers in attempt order (auto: priority asc, quota-aware). */
-  private async attemptChain(feature?: string, vision = false): Promise<ProviderConfig[]> {
+  /** The day/month window keys of a provider (counted in its own reset zone). */
+  private windows(p: ProviderConfig, at: Date = new Date()) {
+    return { day: dayKey(p.reset_tz, at), month: monthKey(p.reset_tz, at) };
+  }
+
+  /** Daily request limit: the stricter of `daily_quota` and `requests_per_day` (0 = none). */
+  private dayRequestLimit(p: ProviderConfig): number {
+    const lims = [Number(p.daily_quota || 0), Number(p.requests_per_day || 0)].filter((n) => n > 0);
+    return lims.length ? Math.min(...lims) : 0;
+  }
+
+  /** The window that is used up for this provider right now, if any. */
+  private exhaustedWindow(p: ProviderConfig, at: Date = new Date()): string | null {
+    const w = this.windows(p, at);
+    const dayLimit = this.dayRequestLimit(p);
+    if (dayLimit > 0 && p.usage_date === w.day && Number(p.used_today || 0) >= dayLimit) return 'quota_day';
+    if (Number(p.tokens_per_day || 0) > 0 && p.tokens_usage_date === w.day && Number(p.tokens_used_today || 0) >= Number(p.tokens_per_day)) return 'tokens_day';
+    if (p.month_key === w.month) {
+      if (Number(p.requests_per_month || 0) > 0 && Number(p.month_requests || 0) >= Number(p.requests_per_month)) return 'quota_month';
+      if (Number(p.tokens_per_month || 0) > 0 && Number(p.month_tokens || 0) >= Number(p.tokens_per_month)) return 'tokens_month';
+    }
+    return null;
+  }
+
+  /**
+   * The chain for one request, and why every other provider was left out (kept in `ai_usage.skipped`).
+   *  - vision request: only providers with a vision model, by priority;
+   *  - text request: providers WITHOUT `reserve_for_vision` first (their quota is for text), then the reserved ones as a last resort;
+   *  - a provider whose minute/day/month window is used up is out until that window resets; a parked one until its park ends.
+   */
+  private async attemptPlan(feature?: string, vision = false): Promise<{ chain: ProviderConfig[]; skipped: SkippedProvider[] }> {
     const { providers, mode, pinned, purposeOverrides } = await this.loadRegistry();
-    const today = this.today();
-    // A vision request only goes to providers that have a vision model (prescription and card OCR); non-chat providers never join.
-    const usable = (p: ProviderConfig) =>
-      !NON_CHAT_PROVIDERS.has(p.key) && (!vision || !!p.vision_model) &&
-      p.enabled && p.api_key && (p.daily_quota === 0 || p.usage_date !== today || p.used_today < p.daily_quota);
-    const chain: ProviderConfig[] = [];
-    for (const p of providers.filter(usable)) {
-      // P13-R21: per-minute free-tier limits + 429/5xx cooldowns. Cooled
-      // providers are skipped; when the window resets they rejoin by
-      // priority automatically (nothing to "switch back" manually).
-      if (await this.cooledDown(p.key)) continue;
+    const skipped: SkippedProvider[] = [];
+    let chain: ProviderConfig[] = [];
+    for (const p of providers) {
+      const skip = (reason: string) => { skipped.push({ provider: p.key, reason }); };
+      if (NON_CHAT_PROVIDERS.has(p.key)) { skip('not_chat'); continue; }
+      if (!p.enabled) { skip('disabled'); continue; }
+      if (!p.api_key) { skip('no_key'); continue; }
+      if (vision && !p.vision_model) { skip('no_vision'); continue; }
+      const used = this.exhaustedWindow(p);
+      if (used) { skip(used); continue; }
+      // P13-R21: per-minute free-tier limits + parks (429 wait, rejected key, repeated 5xx). When the time is up the provider
+      // rejoins by priority automatically (nothing to "switch back" manually).
+      if (await this.parkedUntil(p.key)) { skip('parked'); continue; }
       if (Number(p.requests_per_minute || 0) > 0) {
-        const used = Number(await this.kvGet(this.rpmKey(p.key)) || 0);
-        if (used >= Number(p.requests_per_minute)) continue;
+        const n = Number(await this.kvGet(this.rpmKey(p.key)) || 0);
+        if (n >= Number(p.requests_per_minute)) { skip('rpm'); continue; }
       }
-      if (Number(p.tokens_per_day || 0) > 0 && p.tokens_usage_date === today &&
-          Number(p.tokens_used_today || 0) >= Number(p.tokens_per_day)) continue;
       chain.push(p);
     }
+    if (!vision) chain = [...chain.filter((p) => !p.reserve_for_vision), ...chain.filter((p) => p.reserve_for_vision)];
 
     if (mode === 'manual' && pinned) {
       const p = chain.find((x: any) => x.key === pinned);
-      return p ? [p] : chain;
+      return { chain: p ? [p] : chain, skipped };
     }
     // Per-feature override: pinned provider for this feature goes first,
     // full chain behind it preserves automatic fallback.
     const override = feature && purposeOverrides?.[feature];
     if (override) {
       const first = chain.find((x: any) => x.key === override);
-      if (first) return [first, ...chain.filter((x: any) => x.key !== override)];
+      if (first) return { chain: [first, ...chain.filter((x: any) => x.key !== override)], skipped };
     }
-    return chain;
+    return { chain, skipped };
+  }
+
+  /** Eligible providers in attempt order (see attemptPlan). */
+  private async attemptChain(feature?: string, vision = false): Promise<ProviderConfig[]> {
+    return (await this.attemptPlan(feature, vision)).chain;
   }
 
   private async markAttempt(p: ProviderConfig): Promise<void> {
@@ -360,7 +422,7 @@ export class AiGatewayService {
         }
       } catch { /* cache miss behaves like no cache */ }
     }
-    const chain = await this.attemptChain(opts.feature, !!opts.imageBase64);
+    const { chain, skipped } = await this.attemptPlan(opts.feature, !!opts.imageBase64);
     if (chain.length === 0) throw new ServiceUnavailableException('ai_provider_unavailable');
 
     // P13-R21: names, phones and IDs never leave for a provider.
@@ -371,6 +433,7 @@ export class AiGatewayService {
 
     let lastErr: any = null;
     let fellBack = false;
+    const failed: Array<{ provider: AiProviderName; code: string }> = [];
     for (const p of chain) {
       await this.markAttempt(p);
       const start = Date.now();
@@ -386,31 +449,68 @@ export class AiGatewayService {
         // P13-R21: medical safety footer on health answers.
         const text = health ? `${gen.text}\n\n${HEALTH_DISCLAIMER_AR}\n${HEALTH_DISCLAIMER_EN}` : gen.text;
         const elapsed = Date.now() - start;
-        await this.recordUsage(p, opts.feature, elapsed, true, fellBack, undefined, gen.tokens);
+        await this.onSuccess(p);
+        await this.recordUsage(p, opts.feature, elapsed, true, fellBack, undefined, gen.tokens, { served_by: p.key, vision: !!opts.imageBase64, skipped, failed });
         const out = { text, provider: p.key, model: this.modelFor(p, !!opts.imageBase64), elapsed_ms: elapsed, fell_back: fellBack };
         if (cacheKey) await this.kvSet(cacheKey, JSON.stringify(out), Number(opts.cacheTtlSec)).catch(() => null);
         return out;
       } catch (e: any) {
         const elapsed = Date.now() - start;
-        await this.recordUsage(p, opts.feature, elapsed, false, fellBack, e.message?.slice(0, 160));
-        const msg = String(e.message || '');
-        // Rate limit / quota / connection → cool down, move to next provider
-        // A rejected key (401/403) does not heal in minutes: park it for 30 minutes so every request does not pay for it.
-        const authFailed = /ai_provider_auth_failed/.test(msg);
-        if (authFailed || /429|rate.?limit|quota|insufficient|timeout|ECONN|ENOTFOUND|_http_5\d\d|503|529|credit/i.test(msg)) {
-          this.logger.warn(`[AI-Gateway] ${p.key} failed (${msg.slice(0, 60)}) → cooldown + fallback`);
-          await this.coolDown(p.key, authFailed ? 1800 : 300);
-          fellBack = true;
-          lastErr = e;
-          continue;
-        }
-        // Non-transient errors: still try next but mark fallback
+        const code = String(e?.message || 'error').slice(0, 160);
+        failed.push({ provider: p.key, code: code.slice(0, 80) });
+        await this.recordUsage(p, opts.feature, elapsed, false, fellBack, code);
+        await this.onFailure(p, e);
         fellBack = true;
         lastErr = e;
       }
     }
     if (lastErr instanceof BadGatewayException || lastErr instanceof ServiceUnavailableException) throw lastErr;
     throw new BadGatewayException('ai_upstream_error');
+  }
+
+  /** A good answer ends the failure streak and clears a "bad key" flag. */
+  private async onSuccess(p: ProviderConfig): Promise<void> {
+    await this.kvSet(this.failsKey(p.key), '0', 1).catch(() => null);
+    if (p.needs_attention) {
+      await this.providers.updateOne({ key: p.key }, { $set: { needs_attention: false }, $unset: { attention_reason: '' } }).catch(() => null);
+      this.registryCache = null;
+    }
+  }
+
+  private failsKey(key: string): string { return `ai:fails:${key}`; }
+
+  /**
+   * What a failed call means for the provider (the request itself always moves on to the next provider):
+   *  - 401/403: the key is bad. Park it for 30 minutes and flag it for the admin (needs_attention, error log);
+   *  - 429 / quota text: park it for the wait the provider asked for (Retry-After / reset header), else 5 minutes;
+   *  - 5xx / timeout / network: count it, and park for 5 minutes after 2 in a row;
+   *  - anything else (empty reply...): just fall through.
+   */
+  private async onFailure(p: ProviderConfig, e: any): Promise<void> {
+    const msg = String(e?.message || '');
+    const status: number | undefined = e instanceof AiProviderError ? e.httpStatus : undefined;
+    if (status === 401 || status === 403 || /ai_provider_auth_failed/.test(msg)) {
+      await this.coolDown(p.key, 1800);
+      this.logger.error(`[AI-Gateway] ${p.key}: the key was rejected (${status ?? 'auth'}); parked 30 min, check the key in the admin`);
+      await this.providers.updateOne({ key: p.key }, { $set: { needs_attention: true, attention_reason: 'ai_provider_auth_failed', attention_at: new Date() } }).catch(() => null);
+      this.registryCache = null;
+      return;
+    }
+    if (status === 429 || /429|rate.?limit|quota|insufficient|credit/i.test(msg)) {
+      const wait = (e instanceof AiProviderError && e.retryAfterSec) || 300;
+      this.logger.warn(`[AI-Gateway] ${p.key} limited (${msg.slice(0, 60)}) → parked ${wait}s`);
+      await this.coolDown(p.key, wait);
+      return;
+    }
+    if ((status !== undefined && status >= 500) || /timeout|timed out|ECONN|ENOTFOUND|aborted|fetch failed|_http_5\d\d|503|529/i.test(msg)) {
+      const n = await this.kvIncr(this.failsKey(p.key));
+      await this.kvExpire(this.failsKey(p.key), 600);
+      if (n >= 2) {
+        this.logger.warn(`[AI-Gateway] ${p.key} failed ${n} times in a row (${msg.slice(0, 60)}) → parked 5 min`);
+        await this.coolDown(p.key, 300);
+        await this.kvSet(this.failsKey(p.key), '0', 1).catch(() => null);
+      }
+    }
   }
 
   private modelFor(p: ProviderConfig, vision = false): string {
@@ -426,7 +526,19 @@ export class AiGatewayService {
     if (opts.imageBase64) {
       payload.push({ inlineData: { data: opts.imageBase64, mimeType: opts.mimeType || 'image/jpeg' } });
     }
-    const result = await withTimeout(model.generateContent(payload), 30_000, 'gemini_timeout');
+    let result: Awaited<ReturnType<typeof model.generateContent>>;
+    try {
+      result = await withTimeout(model.generateContent(payload), 30_000, 'gemini_timeout');
+    } catch (e: any) {
+      // The SDK's message can quote the provider's reply: keep the status and the retry hint, not the text.
+      const status = Number(e?.status);
+      if (Number.isFinite(status) && status > 0) {
+        const delay = (Array.isArray(e?.errorDetails) ? e.errorDetails : []).map((d: any) => String(d?.retryDelay || '')).find(Boolean);
+        const sec = delay ? Number(String(delay).replace(/s$/, '')) : NaN;
+        throw new AiProviderError(providerHttpErrorCode('gemini', status), status, Number.isFinite(sec) && sec > 0 ? Math.min(86400, Math.ceil(sec)) : undefined);
+      }
+      throw e;
+    }
     const tokens = Number((result as any)?.response?.usageMetadata?.totalTokenCount || 0);
     return { text: result.response.text(), tokens };
   }
@@ -451,7 +563,7 @@ export class AiGatewayService {
     if (!resp.ok) {
       // The provider's body is never put in the message: a 401 body can carry part of the API key (Sentry NABD-BACKEND-21).
       await resp.body?.cancel().catch(() => undefined);
-      throw new BadGatewayException(providerHttpErrorCode(p.key, resp.status));
+      throw new AiProviderError(providerHttpErrorCode(p.key, resp.status), resp.status, resp.status === 429 ? retryAfterSeconds(resp.headers) : undefined);
     }
     const json: any = await resp.json();
     const text = json?.choices?.[0]?.message?.content;
@@ -459,24 +571,27 @@ export class AiGatewayService {
     return { text, tokens: Number(json?.usage?.total_tokens || 0) };
   }
 
-  /** Daily-quota-aware usage recording + request log. */
-  private async recordUsage(p: ProviderConfig, feature: string, ms: number, ok: boolean, fellBack: boolean, error?: string, tokens = 0) {
-    const today = this.today();
+  /** Per-window usage recording (minute is counted separately) + the request log with who served it and who was skipped. */
+  private async recordUsage(p: ProviderConfig, feature: string, ms: number, ok: boolean, fellBack: boolean, error?: string, tokens = 0, extra: Record<string, unknown> = {}) {
+    const w = this.windows(p);
     await this.providers.updateOne(
       { key: p.key },
       [
         {
           $set: {
-            used_today: { $cond: [{ $eq: ['$usage_date', today] }, { $add: ['$used_today', 1] }, 1] },
-            usage_date: today,
+            used_today: { $cond: [{ $eq: ['$usage_date', w.day] }, { $add: [{ $ifNull: ['$used_today', 0] }, 1] }, 1] },
+            usage_date: w.day,
             tokens_used_today: {
               $cond: [
-                { $eq: ['$tokens_usage_date', today] },
+                { $eq: ['$tokens_usage_date', w.day] },
                 { $add: [{ $ifNull: ['$tokens_used_today', 0] }, tokens] },
                 tokens,
               ],
             },
-            tokens_usage_date: today,
+            tokens_usage_date: w.day,
+            month_requests: { $cond: [{ $eq: ['$month_key', w.month] }, { $add: [{ $ifNull: ['$month_requests', 0] }, 1] }, 1] },
+            month_tokens: { $cond: [{ $eq: ['$month_key', w.month] }, { $add: [{ $ifNull: ['$month_tokens', 0] }, tokens] }, tokens] },
+            month_key: w.month,
             // admin view: last success, last error code
             ...(ok ? { last_ok_at: new Date() } : { last_error_code: { $literal: String(error || 'error').slice(0, 80) }, last_error_at: new Date() }),
           },
@@ -486,6 +601,7 @@ export class AiGatewayService {
     await this.conn.collection('ai_usage').insertOne({
       provider: p.key, model: this.modelFor(p), feature,
       elapsed_ms: ms, ok, fell_back: fellBack, error: error || null, tokens,
+      ...extra,
       createdAt: new Date(),
     }).catch(() => {});
   }
@@ -503,7 +619,6 @@ export class AiGatewayService {
     await this.ensureRegistry();
     const providers = await this.providers.find({}).sort({ priority: 1 }).toArray();
     const modeDoc: any = await this.settings.findOne({ key: 'ai_mode' });
-    const today = this.today();
     // P13-R21: live status per provider — remaining quota, 24h error rate and
     // latency, usage per feature — from the same ai_usage log as usageReport.
     let stats: any[] = [];
@@ -526,27 +641,42 @@ export class AiGatewayService {
       mode: modeDoc?.value || 'auto',
       pinned_provider: modeDoc?.pinned_provider || null,
       purpose_overrides: modeDoc?.purpose_overrides || {},
-      providers: providers.map((p: any) => {
+      providers: await Promise.all(providers.map(async (p: any) => {
         const masked = this.maskKey(p.api_key);
         const st: any = byKey.get(p.key) || {};
-        const quota = Number(p.daily_quota || 0);
-        const used = p.usage_date === today ? Number(p.used_today || 0) : 0;
+        const w = this.windows(p);
+        const dayLimit = this.dayRequestLimit(p);
+        const used = p.usage_date === w.day ? Number(p.used_today || 0) : 0;
+        const monthSame = p.month_key === w.month;
+        const parkedUntil = await this.parkedUntil(p.key);
+        const chat = !NON_CHAT_PROVIDERS.has(p.key);
+        const chains = chat ? [...(p.vision_model ? ['vision'] : []), 'text'] : [];
         return {
           key: p.key, enabled: p.enabled, model: p.model, vision_model: p.vision_model,
           priority: p.priority, daily_quota: p.daily_quota, used_today: used,
           requests_per_minute: p.requests_per_minute ?? null,
           requests_per_day: p.requests_per_day ?? null,
           tokens_per_day: p.tokens_per_day ?? null,
-          tokens_used_today: p.tokens_usage_date === today ? Number(p.tokens_used_today || 0) : 0,
-          quota_remaining: quota === 0 ? null : Math.max(0, quota - used),
+          tokens_used_today: p.tokens_usage_date === w.day ? Number(p.tokens_used_today || 0) : 0,
+          quota_remaining: dayLimit === 0 ? null : Math.max(0, dayLimit - used),
           error_rate_24h: st.calls ? Math.round((st.failures / st.calls) * 1000) / 1000 : 0,
           avg_ms_24h: st.avg_ms != null ? Math.round(st.avg_ms) : null,
           calls_24h: st.calls || 0,
           last_ok_at: p.last_ok_at ?? null, last_error_code: p.last_error_code ?? null, last_error_at: p.last_error_at ?? null,
-          supports_vision: !!p.vision_model, chat: !NON_CHAT_PROVIDERS.has(p.key),
+          supports_vision: !!p.vision_model, chat,
+          // owner decision 2026-10-26: which chain, usage against each window, the next reset, health
+          chains, text_tier: chat ? (p.reserve_for_vision ? 'last' : 'preferred') : null,
+          day: { used, limit: dayLimit || null, tokens_used: p.tokens_usage_date === w.day ? Number(p.tokens_used_today || 0) : 0, tokens_limit: Number(p.tokens_per_day || 0) || null, resets_at: nextDayReset(p.reset_tz).toISOString() },
+          month: (Number(p.requests_per_month || 0) > 0 || Number(p.tokens_per_month || 0) > 0)
+            ? { used: monthSame ? Number(p.month_requests || 0) : 0, limit: Number(p.requests_per_month || 0) || null, tokens_used: monthSame ? Number(p.month_tokens || 0) : 0, tokens_limit: Number(p.tokens_per_month || 0) || null, resets_at: nextMonthReset(p.reset_tz).toISOString() }
+            : null,
+          reset_tz: p.reset_tz || 'UTC',
+          parked_until: parkedUntil ? new Date(parkedUntil).toISOString() : null,
+          needs_attention: !!p.needs_attention, attention_reason: p.attention_reason ?? null,
+          limits_source: p.limits_source ?? null, limits_verified: p.limits_verified ?? false,
           has_key: masked.has_key, key_preview: masked.key_preview, ...(masked.key_unreadable ? { key_unreadable: true } : {}), note: p.note,
         };
-      }),
+      })),
     };
   }
 
@@ -559,6 +689,8 @@ export class AiGatewayService {
         set.api_key = '';
       } else {
         set.api_key = encryptApiKey(String(patch.api_key));
+        set.needs_attention = false; // a new key: the "rejected key" flag and park are over
+        await this.kvDel(this.cooldownKey(key));
       }
     }
     await this.providers.updateOne({ key }, { $set: set });
