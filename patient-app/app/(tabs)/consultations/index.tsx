@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { ScopedSuggest } from '../../../src/components/search/ScopedSuggest';
+import { SUGGEST_SCOPES } from '../../../src/utils/searchSuggest';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
@@ -322,6 +324,7 @@ export default function Consultations() {
     <Screen theme={theme} direction={dir} header={header} scroll edges={['top', 'start', 'end']} testID="consultations-hub">
       <View style={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: barHeight + 40, gap: 16 }}>
         <Search value={searchQuery} onChange={setSearchQuery} placeholder={k('consult.hub.search')} label={k('consult.hub.search')} onFilterPress={() => setShowFilter(true)} filterLabel={k('consult.hub.filter')} onClear={() => setSearchQuery('')} clearLabel={k('consult.hub.clear')} theme={theme} testID="hub-search" />
+        <ScopedSuggest query={searchQuery} scope={SUGGEST_SCOPES.consultations} />
         {filtersOn ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.filtersOn')}</Text> : null}
 
         <View accessibilityRole="radiogroup" accessibilityLabel={k('consult.hub.visitType')} style={{ flexDirection: 'row', gap: 8 }}>
