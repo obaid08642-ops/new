@@ -241,7 +241,7 @@ export default function Welcome() {
                 <FIcon icon={x.icon} tone={x.tone} chip="none" size={x.glyph} theme={theme} />
               </View>
             ))}
-            <NabdLogo size={150} variant="text" theme={theme} pulse label={tr('common.appName')} />
+            <NabdLogo size={150} pulse label={tr('common.appName')} />
           </View>
         </View>
 
