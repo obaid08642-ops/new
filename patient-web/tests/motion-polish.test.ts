@@ -27,6 +27,20 @@ describe("the shared motion rules are off with reduced motion", () => {
   });
 });
 
+describe("lists stagger and a picked slot pops", () => {
+  const css = read("app/motion.css");
+  it("each row waits one token step (stagger.min) more than the one before, up to a cap", () => {
+    expect(css).toContain("var(--nabd-motion-stagger-min) * 1");
+    expect(css).toContain("var(--nabd-motion-stagger-min) * 7");
+    expect(css).toMatch(/nth-child\(n \+ 9\)/);
+  });
+  it("the nursing catalogue list and the booking slot buttons carry the hooks the CSS uses", () => {
+    expect(read("components-next/nursing/nursing-parts.tsx")).toContain("data-stagger");
+    expect(read("components-next/appointment-booking-form.tsx")).toContain("data-slot-chip");
+    expect(read("components-next/appointment-booking-form.tsx")).toContain("nabd-pop-in");
+  });
+});
+
 describe("the product page's sections open and close smoothly", () => {
   const css = read("components-next/pharmacy/product-detail.module.css");
   it("animate the row height, leave the accessibility tree when closed, and do not move with reduced motion", () => {

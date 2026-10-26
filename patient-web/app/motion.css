@@ -23,8 +23,24 @@
 
   /* the check after an order, a booking or a payment pops once */
   .nabd-success-pop .nabd-state > :first-child { animation: nabd-check-pop calc(var(--nabd-motion-duration-enterMax) * 2) var(--nabd-motion-easing-enter) both; }
+  /* a picked time slot (aria-pressed) pops once; the booked confirmation rises in and its check pops */
+  [data-slot-chip][aria-pressed="true"] { animation: nabd-chip-pop var(--nabd-motion-duration-enter) var(--nabd-motion-easing-enter); }
+  .nabd-enter { animation: nabd-fade-in var(--nabd-motion-duration-enterMax) var(--nabd-motion-easing-enter) both; }
+  .nabd-pop-in { display: inline-flex; animation: nabd-check-pop calc(var(--nabd-motion-duration-enterMax) * 2) var(--nabd-motion-easing-enter) both; }
+
+  /* a list of tiles or rows rises in one after the other, a token step apart (stagger.min, 40 ms) */
+  [data-stagger] > li { animation: nabd-fade-in var(--nabd-motion-duration-enterMax) var(--nabd-motion-easing-enter) both; }
+  [data-stagger] > li:nth-child(2) { animation-delay: calc(var(--nabd-motion-stagger-min) * 1); }
+  [data-stagger] > li:nth-child(3) { animation-delay: calc(var(--nabd-motion-stagger-min) * 2); }
+  [data-stagger] > li:nth-child(4) { animation-delay: calc(var(--nabd-motion-stagger-min) * 3); }
+  [data-stagger] > li:nth-child(5) { animation-delay: calc(var(--nabd-motion-stagger-min) * 4); }
+  [data-stagger] > li:nth-child(6) { animation-delay: calc(var(--nabd-motion-stagger-min) * 5); }
+  [data-stagger] > li:nth-child(7) { animation-delay: calc(var(--nabd-motion-stagger-min) * 6); }
+  [data-stagger] > li:nth-child(8) { animation-delay: calc(var(--nabd-motion-stagger-min) * 7); }
+  [data-stagger] > li:nth-child(n + 9) { animation-delay: calc(var(--nabd-motion-stagger-min) * 8); }
 }
 
 @keyframes nabd-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
 @keyframes nabd-fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @keyframes nabd-check-pop { 0% { opacity: 0; transform: scale(0.6); } 60% { opacity: 1; transform: scale(1.12); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes nabd-chip-pop { 0% { transform: scale(0.94); } 60% { transform: scale(1.06); } 100% { transform: scale(1); } }
