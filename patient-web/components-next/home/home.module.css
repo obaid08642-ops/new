@@ -73,6 +73,8 @@
   .navLink { padding-inline: 8px; }
   .tools { gap: 4px; }
 }
+/* at 1024-1099 the wordmark next to the brand mark gives way (the mark stays) */
+@media (min-width: 1024px) and (max-width: 1099px) { .wordmark { display: none; } }
 
 /* ---- page ---- */
 .page { display: flex; flex-direction: column; gap: 22px; padding-block: var(--nabd-space-sm) var(--nabd-space-xl); }
