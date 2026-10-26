@@ -49,7 +49,8 @@
     "menuFamily": "Pamilya",
     "menuArticles": "Mga artikulo",
     "menuSettings": "Mga setting",
-    "menuHelp": "Tulong"
+    "menuHelp": "Tulong",
+    "menuResults": "Mga order at resulta ko"
   },
   "Home": {
     "eyebrow": "Digital na portal ng pasyente",
@@ -153,7 +154,11 @@
     "recordsMaternity": "Pangangalaga sa ina",
     "recordsPregnancy": "Pagsubaybay sa pagbubuntis",
     "recordsCycle": "Pagsubaybay sa cycle",
-    "notificationsUnread": "Mga abiso, may bago"
+    "notificationsUnread": "Mga abiso, may bago",
+    "orderAgain": "Ulitin ang nakaraang order",
+    "orderAgainOneItem": "1 aytem",
+    "orderAgainItems": "{n, number} aytem",
+    "orderAgainAction": "Mag-order"
   },
   "Login": {
     "title": "Mag-sign in",
@@ -1477,6 +1482,9 @@
     "searchLabel": "Maghanap ng serbisyo",
     "searchPlaceholder": "Maghanap ayon sa test o kategorya",
     "homeOnly": "Kolekta sa bahay",
+    "activeFilters": "Mga aktibong filter",
+    "removeFilter": "Alisin ang filter: {filter}",
+    "clearAll": "Burahin lahat",
     "apply": "Ilapat",
     "price": "Mula {value}",
     "fasting": "Maaaring kailangan ang fasting",
@@ -1595,7 +1603,6 @@
     "clear": "Burahin",
     "cancel": "Kanselahin",
     "resultsFor": "Mga resulta para sa “{query}”",
-    "resultsCount": "{count} resulta",
     "emptyHint": "Subukan ang ibang salita o suriin ang baybay.",
     "tabAll": "Lahat",
     "tabMedicines": "Gamot",
@@ -1728,7 +1735,6 @@
     "origin": "Bansa ng pinagmulan",
     "disclaimer": "Ang impormasyon ng produkto ay mula sa beripikadong katalogo ng Nabd Plus at hindi kapalit ng payo ng doktor o parmasyutiko. Mga presyo sa Saudi Riyal (SAR).",
     "browseCategory": "Tingnan ang {category}",
-    "productsInCategory": "{count} produkto sa kategoryang ito",
     "emptyCategory": "Walang naka-publish na produkto sa kategoryang ito.",
     "allCategories": "Lahat ng kategorya",
     "loadMore": "Mag-load pa",
@@ -2425,7 +2431,6 @@
     "clear": "Burahin",
     "filter": "I-filter",
     "scan": "Mag-scan ng barcode",
-    "productsCount": "{count, number} produkto",
     "categories": "Mga kategorya",
     "subcategories": "Mga subkategorya",
     "allIn": "Lahat sa {category}",
@@ -2550,10 +2555,8 @@
     "inCartCta": "Nasa cart ({n, number})",
     "hubUploadTitle": "I-upload ang reseta",
     "hubUploadBody": "Kunan ito ng litrato at ihahanda ng mga kalapit na botika ang iyong mga gamot at magpapaligsahan sa presyo",
-    "hubFavorites": "Mga paborito",
     "hubReminders": "Mga paalala",
     "hubOrders": "Aking mga order",
-    "hubCart": "Kariton",
     "hubShortcuts": "Mga shortcut ng parmasya",
     "hubOrderAgain": "Ulitin ang nakaraang order",
     "hubOrderAgainAction": "Mag-order",
@@ -2566,7 +2569,11 @@
     "filterRxOnly": "May reseta lang",
     "filterRxNone": "Walang reseta",
     "filterPriceMin": "Pinakamababang presyo",
-    "filterPriceMax": "Pinakamataas na presyo"
+    "filterPriceMax": "Pinakamataas na presyo",
+    "pageTitle": "Parmasya",
+    "activeFilters": "Mga aktibong filter",
+    "removeFilter": "Alisin ang filter: {filter}",
+    "clearAll": "Burahin lahat"
   },
   "PharmacyOffers": {
     "backToOrder": "Bumalik sa order",
@@ -5254,7 +5261,6 @@
     "total": "Kabuuan",
     "choose": "Piliin ang provider na ito",
     "compare": "Ikumpara mo mismo",
-    "count": "{n} provider",
     "sort": "Ayusin ayon sa",
     "sCheap": "Pinakamura",
     "sNear": "Pinakamalapit",

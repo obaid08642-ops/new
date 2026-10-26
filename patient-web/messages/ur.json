@@ -49,7 +49,8 @@
     "menuFamily": "خاندان",
     "menuArticles": "مضامین",
     "menuSettings": "ترتیبات",
-    "menuHelp": "مدد"
+    "menuHelp": "مدد",
+    "menuResults": "میرے آرڈرز اور نتائج"
   },
   "Home": {
     "eyebrow": "ڈیجیٹل مریض پورٹل",
@@ -153,7 +154,11 @@
     "recordsMaternity": "زچگی",
     "recordsPregnancy": "حمل کی پیروی",
     "recordsCycle": "سائیکل کی پیروی",
-    "notificationsUnread": "اطلاعات، نئی اطلاعات ہیں"
+    "notificationsUnread": "اطلاعات، نئی اطلاعات ہیں",
+    "orderAgain": "اپنا پچھلا آرڈر دوبارہ کریں",
+    "orderAgainOneItem": "ایک آئٹم",
+    "orderAgainItems": "{n, number} آئٹمز",
+    "orderAgainAction": "آرڈر کریں"
   },
   "Login": {
     "title": "سائن ان کریں",
@@ -1477,6 +1482,9 @@
     "searchLabel": "لیب سروسز تلاش کریں",
     "searchPlaceholder": "ٹیسٹ یا زمرہ تلاش کریں",
     "homeOnly": "گھر سے نمونہ",
+    "activeFilters": "فعال فلٹرز",
+    "removeFilter": "فلٹر ہٹائیں: {filter}",
+    "clearAll": "سب صاف کریں",
     "apply": "لاگو کریں",
     "price": "شروع {value} سے",
     "fasting": "روزہ ضروری ہو سکتا ہے",
@@ -1595,7 +1603,6 @@
     "clear": "صاف کریں",
     "cancel": "منسوخ کریں",
     "resultsFor": "“{query}” کے نتائج",
-    "resultsCount": "{count} نتائج",
     "emptyHint": "دوسرے الفاظ آزمائیں یا ہجے چیک کریں۔",
     "tabAll": "سب",
     "tabMedicines": "ادویات",
@@ -1728,7 +1735,6 @@
     "origin": "ملکِ پیداوار",
     "disclaimer": "مصنوعات کی معلومات نبض پلس کے تصدیق شدہ کیٹالاگ سے ہیں اور ڈاکٹر یا فارماسسٹ کے مشورے کا بدل نہیں۔ قیمتیں ر.س میں ہیں۔",
     "browseCategory": "{category} دیکھیں",
-    "productsInCategory": "اس زمرے میں {count} مصنوعات",
     "emptyCategory": "اس زمرے میں فی الحال کوئی شائع شدہ مصنوعات نہیں۔",
     "allCategories": "تمام زمرے",
     "loadMore": "مزید دیکھیں",
@@ -2425,7 +2431,6 @@
     "clear": "صاف کریں",
     "filter": "فلٹر",
     "scan": "بارکوڈ اسکین کریں",
-    "productsCount": "{count, number} مصنوعات",
     "categories": "زمرے",
     "subcategories": "ذیلی زمرے",
     "allIn": "{category} کی تمام",
@@ -2550,10 +2555,8 @@
     "inCartCta": "کارٹ میں ({n, number})",
     "hubUploadTitle": "نسخہ اپ لوڈ کریں",
     "hubUploadBody": "اس کی تصویر لیں، قریبی فارمیسیاں آپ کی ادویات تیار کریں گی اور قیمت پر مقابلہ کریں گی",
-    "hubFavorites": "پسندیدہ",
     "hubReminders": "یاد دہانیاں",
     "hubOrders": "میرے آرڈر",
-    "hubCart": "ٹوکری",
     "hubShortcuts": "فارمیسی کے شارٹ کٹ",
     "hubOrderAgain": "اپنا پچھلا آرڈر دوبارہ کریں",
     "hubOrderAgainAction": "آرڈر کریں",
@@ -2566,7 +2569,11 @@
     "filterRxOnly": "صرف نسخے کے ساتھ",
     "filterRxNone": "نسخے کے بغیر",
     "filterPriceMin": "کم از کم قیمت",
-    "filterPriceMax": "زیادہ سے زیادہ قیمت"
+    "filterPriceMax": "زیادہ سے زیادہ قیمت",
+    "pageTitle": "فارمیسی",
+    "activeFilters": "فعال فلٹرز",
+    "removeFilter": "فلٹر ہٹائیں: {filter}",
+    "clearAll": "سب صاف کریں"
   },
   "PharmacyOffers": {
     "backToOrder": "آرڈر پر واپس",
@@ -5254,7 +5261,6 @@
     "total": "کل",
     "choose": "اس فراہم کنندہ کو چنیں",
     "compare": "خود موازنہ کریں",
-    "count": "{n} فراہم کنندگان",
     "sort": "ترتیب",
     "sCheap": "سب سے سستا",
     "sNear": "قریب ترین",
