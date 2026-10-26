@@ -44,7 +44,8 @@
     "menuFamily": "Family",
     "menuArticles": "Articles",
     "menuSettings": "Settings",
-    "menuHelp": "Help"
+    "menuHelp": "Help",
+    "menuResults": "My orders and results"
   },
   "Home": {
     "eyebrow": "Digital patient portal",
@@ -1407,7 +1408,7 @@
     "allSpecialties": "All specialties",
     "paymentLabel": "Payment",
     "payment_insurance": "Insurance",
-    "payment_self_pay": "Self-pay",
+    "payment_self_pay": "Without insurance (cash)",
     "paymentInsuranceNoPolicy": "Add your insurance to see only the doctors contracted with your company and class. For now every doctor who accepts insurance is shown.",
     "paymentAddPolicy": "Add insurance",
     "doctorPhotoAlt": "Photo of {name}",
@@ -1466,7 +1467,19 @@
     "sortAvailableToday": "Available today",
     "guaranteeLine": "Late more than {minutes} minutes? You get {points} Nabd points.",
     "licenseLine": "Licensed by SCFHS, no. {number}",
-    "licenseVerified": "Verified"
+    "licenseVerified": "Verified",
+    "visitSubClinic": "Visit the doctor at the clinic",
+    "visitSubVideo": "Talk to the doctor by video",
+    "visitSubHome": "The doctor comes to your home",
+    "filters": "Filters",
+    "filtersTitle": "Filter doctors",
+    "filtersApply": "Apply",
+    "filtersClearAll": "Clear all",
+    "filtersClose": "Close filters",
+    "filtersWithCount": "Filters, {n} active",
+    "activeFilters": "Active filters",
+    "removeFilter": "Remove filter {filter}",
+    "filterAll": "All"
   },
   "LabsServices": {
     "eyebrow": "Laboratory care",
@@ -1475,6 +1488,9 @@
     "searchLabel": "Search lab services",
     "searchPlaceholder": "Search by test or category",
     "homeOnly": "Home collection",
+    "activeFilters": "Active filters",
+    "removeFilter": "Remove filter: {filter}",
+    "clearAll": "Clear all",
     "apply": "Apply",
     "price": "From {value}",
     "fasting": "Fasting may be required",

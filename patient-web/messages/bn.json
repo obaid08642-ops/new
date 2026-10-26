@@ -44,7 +44,8 @@
     "menuFamily": "পরিবার",
     "menuArticles": "নিবন্ধ",
     "menuSettings": "সেটিংস",
-    "menuHelp": "সহায়তা"
+    "menuHelp": "সহায়তা",
+    "menuResults": "আমার অর্ডার ও ফলাফল"
   },
   "Home": {
     "eyebrow": "ডিজিটাল রোগী পোর্টাল",
@@ -1407,7 +1408,7 @@
     "allSpecialties": "সব বিশেষত্ব",
     "paymentLabel": "পেমেন্ট",
     "payment_insurance": "বিমা",
-    "payment_self_pay": "নিজে পরিশোধ",
+    "payment_self_pay": "বিমা ছাড়া (নগদ)",
     "paymentInsuranceNoPolicy": "শুধু আপনার কোম্পানি ও শ্রেণির সাথে চুক্তিবদ্ধ ডাক্তার দেখতে আপনার বিমা যোগ করুন। এখন বিমা গ্রহণকারী সব ডাক্তার দেখানো হচ্ছে।",
     "paymentAddPolicy": "বিমা যোগ করুন",
     "doctorPhotoAlt": "{name}-এর ছবি",
@@ -1466,7 +1467,19 @@
     "sortAvailableToday": "আজ পাওয়া যাচ্ছে",
     "guaranteeLine": "আপনার অ্যাপয়েন্টমেন্ট {minutes} মিনিটের বেশি দেরি হলে আপনি {points} নাবদ পয়েন্ট পান।",
     "licenseLine": "সৌদি কমিশন ফর হেলথ স্পেশালিটিজ কর্তৃক লাইসেন্সপ্রাপ্ত, নম্বর {number}",
-    "licenseVerified": "যাচাইকৃত"
+    "licenseVerified": "যাচাইকৃত",
+    "visitSubClinic": "ক্লিনিকে ডাক্তারের সাথে দেখা করুন",
+    "visitSubVideo": "ভিডিওতে ডাক্তারের সাথে কথা বলুন",
+    "visitSubHome": "ডাক্তার আপনার বাড়িতে আসেন",
+    "filters": "ফিল্টার",
+    "filtersTitle": "ডাক্তার ফিল্টার করুন",
+    "filtersApply": "প্রয়োগ করুন",
+    "filtersClearAll": "সব মুছুন",
+    "filtersClose": "ফিল্টার বন্ধ করুন",
+    "filtersWithCount": "ফিল্টার, {n}টি সক্রিয়",
+    "activeFilters": "সক্রিয় ফিল্টার",
+    "removeFilter": "ফিল্টার {filter} সরান",
+    "filterAll": "সব"
   },
   "LabsServices": {
     "eyebrow": "ল্যাবরেটরি কেয়ার",
@@ -1475,6 +1488,9 @@
     "searchLabel": "ল্যাব সেবা খুঁজুন",
     "searchPlaceholder": "টেস্ট বা বিভাগ খুঁজুন",
     "homeOnly": "বাড়ি থেকে নমুনা",
+    "activeFilters": "সক্রিয় ফিল্টার",
+    "removeFilter": "ফিল্টার সরান: {filter}",
+    "clearAll": "সব মুছুন",
     "apply": "প্রয়োগ করুন",
     "price": "{value} থেকে শুরু",
     "fasting": "উপবাস প্রয়োজন হতে পারে",

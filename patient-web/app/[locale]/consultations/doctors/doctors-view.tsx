@@ -23,9 +23,10 @@ import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { DoctorListCard } from "@/components-next/consult/doctor-list-card";
-import { DoctorQuickFilters } from "@/components-next/consult/doctor-quick-filters";
+import { DoctorFiltersSheet } from "@/components-next/consult/doctor-filters-sheet";
+import { VisitTypeCards } from "@/components-next/consult/visit-type-cards";
 import { InsurerFromPolicy } from "@/components-next/consult/insurer-from-policy";
-import { DEGREES, effectiveType, GENDER_FILTERS, type GenderFilter, filterPageParams, nearestApplies, parseDoctorFilters, PAYMENT_FILTERS, serverOrdersList, VISIT_TYPES, type Degree, type DoctorFilters, type PaymentFilter, type VisitType } from "@/lib/consult/doctor-filters";
+import { effectiveType, filterPageParams, nearestApplies, parseDoctorFilters, type DoctorFilters, type VisitType } from "@/lib/consult/doctor-filters";
 import { formatPrice } from "@/lib/format-price";
 import { cardFacts } from "@/lib/consult/doctor-card-facts";
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
@@ -63,7 +64,6 @@ export async function DoctorsView({ params, searchParams }: Props) {
   const { locale } = await params; const sp = (await searchParams) ?? {}; if (!isLocale(locale)) notFound(); setRequestLocale(locale);
   const t = await getTranslations("Doctors");
   const c = await getTranslations("ConsultWeb");
-  const home = await getTranslations("HomeWeb");
   const names = await getTranslations("SpecialtyNames");
   let doctors: ReturnType<typeof extractDoctors> = [];
   const filters = parseDoctorFilters(sp);
@@ -96,20 +96,27 @@ export async function DoctorsView({ params, searchParams }: Props) {
   // every link keeps the text search and the chosen filters, so the URL is the whole state (shareable)
   const text = { q: sp.q, specialty: sp.specialty };
   const pageHref = (params: URLSearchParams) => `/${locale}/consultations/doctors${params.size ? `?${params.toString()}` : ""}`;
-  const sortHref = (sort: string) => pageHref(filterPageParams(filters, { ...text, sort }));
   const withFilters = (next: Partial<DoctorFilters>, sort = sp.sort) => pageHref(filterPageParams({ ...filters, ...next }, { ...text, sort }));
   const typeHref = (type: VisitType) => withFilters({ type: filters.type === type ? undefined : type, nearest: filters.nearest && nearestApplies(type) });
-  const genderHref = (gender: GenderFilter | undefined) => withFilters({ gender });
-  const paymentHref = (payment: PaymentFilter) => withFilters({ payment: filters.payment === payment ? undefined : payment });
-  const nearestBase = filterPageParams({ ...filters, nearest: false, place: null }, { ...text, sort: sp.sort });
-  nearestBase.set("nearest", "1");
-  const degreeHref = (degree: Degree) => withFilters({ degree: filters.degree === degree ? undefined : degree });
-  const filtered = Boolean(filters.type || filters.gender || filters.degree || filters.payment || filters.availableNow || filters.nearest);
+  const paramsWithout = (next: Partial<DoctorFilters>, sort = sp.sort) => filterPageParams({ ...filters, ...next }, { ...text, sort });
+  // "Clear all": every filter and the sort off; the search, the specialty and the visit type stay
+  const clearHref = pageHref(filterPageParams({ type: filters.type, availableNow: false, nearest: false, place: null }, text));
+  const sortChip = sp.sort === "rating" ? t("sortRating") : sp.sort === "price" ? t("sortPrice") : sp.sort === "wait" ? t("sortWait") : sp.sort === "available_today" ? t("sortAvailableToday") : undefined;
+  const activeChips: Array<{ key: string; label: string; href: string }> = [
+    ...(filters.gender ? [{ key: "gender", label: t(filters.gender === "male" ? "genderMale" : "genderFemale"), href: pageHref(paramsWithout({ gender: undefined })) }] : []),
+    ...(filters.degree ? [{ key: "degree", label: t(`degree_${filters.degree}`), href: pageHref(paramsWithout({ degree: undefined })) }] : []),
+    ...(filters.payment ? [{ key: "payment", label: t(`payment_${filters.payment}`), href: pageHref(paramsWithout({ payment: undefined })) }] : []),
+    ...(filters.availableNow ? [{ key: "available", label: t("availableNow"), href: pageHref(paramsWithout({ availableNow: false })) }] : []),
+    ...(filters.nearest ? [{ key: "nearest", label: t("nearest"), href: pageHref(paramsWithout({ nearest: false, place: null })) }] : []),
+    ...(sortChip && sp.sort ? [{ key: "sort", label: sortChip, href: pageHref(paramsWithout({}, undefined)) }] : []),
+  ];
+  const filtered = Boolean(filters.type || activeChips.length > 0);
   const typeLabels: Record<VisitType, string> = { clinic: t("service_clinic"), video: t("service_video"), home_visit: t("service_home") };
 
   return (
-    <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/consultations`} width="wide" mapType="doctor" mapLabel={home("svcMap")}>
+    <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/consultations`} width="wide">
       <StaleWhileRevalidate maxAgeSeconds={searchParams === undefined ? DOCTORS_REVALIDATE_SECONDS : undefined} />
+      <div className={styles.searchSticky}>
       <form className={styles.search} method="get" role="search">
         <SuggestInput locale={locale} id="doctor-search" name="q" defaultValue={sp.q ?? (specialtyName ? "" : sp.specialty ?? "")} placeholder={t("searchPlaceholder")} label={t("searchLabel")} fieldClassName={styles.searchField} inputClassName={styles.searchInput}>
           <Icon name="search" size={20} tone="secondary" />
@@ -122,8 +129,21 @@ export async function DoctorsView({ params, searchParams }: Props) {
             {SPECIALTY_SLUGS.map((slug) => <option key={slug} value={slug}>{names(slug)}</option>)}
           </select>
         </label>
+        <DoctorFiltersSheet locale={locale} filters={filters} q={sp.q} specialty={sp.specialty} sort={sp.sort} clearHref={clearHref} count={activeChips.length} />
         <Button type="submit" label={t("search")} size="lg" />
       </form>
+      </div>
+      {activeChips.length > 0 ? (
+        <div className={styles.chipsRow} role="group" aria-label={t("activeFilters")}>
+          {activeChips.map((chip) => (
+            <Link key={chip.key} href={chip.href} replace className={styles.activeChip} aria-label={t("removeFilter", { filter: chip.label })}>
+              <bdi>{chip.label}</bdi>
+              <span aria-hidden="true" className={styles.activeChipX}>×</span>
+            </Link>
+          ))}
+          <Link href={clearHref} replace className={styles.activeFilterClear}>{t("filtersClearAll")}</Link>
+        </div>
+      ) : null}
       <Link className={styles.activeFilterClear} href={`/${locale}/appointments`}>{c("actionMyAppointments")}</Link>
       {specialtyName ? (
         <div className={styles.activeFilter}>
@@ -138,25 +158,14 @@ export async function DoctorsView({ params, searchParams }: Props) {
           options={[{ value: "", label: t("allSpecialties"), href: pageHref(filterPageParams(filters, { q: sp.q, sort: sp.sort })) }, ...chips.map((chip) => ({ value: chip.slug, label: `${names(chip.slug)} (${count.format(chip.count)})`, href: pageHref(filterPageParams(filters, { q: sp.q, specialty: chip.slug, sort: sp.sort })) }))]}
         />
       ) : null}
-      <LinkSegmented
+      <VisitTypeCards
         label={t("visitType")}
         value={shownType ?? ""}
-        options={VISIT_TYPES.map((type) => ({ value: type, label: typeLabels[type], href: typeHref(type) }))}
-      />
-      <LinkSegmented
-        label={t("genderLabel")}
-        value={filters.gender ?? "any"}
-        options={[{ value: "any", label: t("genderAny"), href: genderHref(undefined) }, ...GENDER_FILTERS.map((gender) => ({ value: gender, label: t(gender === "male" ? "genderMale" : "genderFemale"), href: genderHref(gender) }))]}
-      />
-      <LinkSegmented
-        label={t("gradeLabel")}
-        value={filters.degree ?? ""}
-        options={DEGREES.map((degree) => ({ value: degree, label: t(`degree_${degree}`), href: degreeHref(degree) }))}
-      />
-      <LinkSegmented
-        label={t("paymentLabel")}
-        value={filters.payment ?? ""}
-        options={PAYMENT_FILTERS.map((payment) => ({ value: payment, label: t(`payment_${payment}`), href: paymentHref(payment) }))}
+        cards={[
+          { value: "clinic", title: typeLabels.clinic, subtitle: t("visitSubClinic"), href: typeHref("clinic"), icon: "hospital", tone: "blue" },
+          { value: "video", title: typeLabels.video, subtitle: t("visitSubVideo"), href: typeHref("video"), icon: "video-camera", tone: "violet" },
+          { value: "home_visit", title: typeLabels.home_visit, subtitle: t("visitSubHome"), href: typeHref("home_visit"), icon: "house", tone: "peach" },
+        ]}
       />
       {filters.payment === "insurance" && !filters.insurer ? (
         <InsurerFromPolicy
@@ -166,27 +175,6 @@ export async function DoctorsView({ params, searchParams }: Props) {
           addPolicyText={t("paymentAddPolicy")}
         />
       ) : null}
-      <DoctorQuickFilters
-        availableHref={withFilters({ availableNow: !filters.availableNow })}
-        availableOn={filters.availableNow}
-        nearestOffHref={withFilters({ nearest: false, place: null })}
-        nearestOnBase={pageHref(nearestBase)}
-        nearestOn={filters.nearest}
-        nearestBlocked={!nearestApplies(shownType)}
-        nearestCity={filters.place?.kind === "city" ? filters.place.city : undefined}
-      />
-      {serverOrdersList(filters) ? null : (
-        <LinkSegmented
-          label={t("sortLabel")}
-          value={sp.sort ?? ""}
-          options={[
-            { value: "rating", label: t("sortRating"), href: sortHref("rating") },
-            { value: "price", label: t("sortPrice"), href: sortHref("price") },
-            { value: "wait", label: t("sortWait"), href: sortHref("wait") },
-            { value: "available_today", label: t("sortAvailableToday"), href: sortHref("available_today") },
-          ]}
-        />
-      )}
       {failed ? (
         <ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailableBody")} retryLabel={t("retry")} />
       ) : doctors.length === 0 ? (

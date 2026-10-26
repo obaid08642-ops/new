@@ -44,7 +44,8 @@
     "menuFamily": "Pamilya",
     "menuArticles": "Mga artikulo",
     "menuSettings": "Mga setting",
-    "menuHelp": "Tulong"
+    "menuHelp": "Tulong",
+    "menuResults": "Mga order at resulta ko"
   },
   "Home": {
     "eyebrow": "Digital na portal ng pasyente",
@@ -1407,7 +1408,7 @@
     "allSpecialties": "Lahat ng espesyalidad",
     "paymentLabel": "Bayad",
     "payment_insurance": "Seguro",
-    "payment_self_pay": "Sariling bayad",
+    "payment_self_pay": "Walang seguro (cash)",
     "paymentInsuranceNoPolicy": "Idagdag ang iyong seguro para makita lang ang mga doktor na may kontrata sa iyong kompanya at klase. Sa ngayon, lahat ng doktor na tumatanggap ng seguro ang ipinapakita.",
     "paymentAddPolicy": "Idagdag ang seguro",
     "doctorPhotoAlt": "Larawan ni {name}",
@@ -1466,7 +1467,19 @@
     "sortAvailableToday": "Available ngayong araw",
     "guaranteeLine": "Mahigit {minutes} minuto bang late? Makakakuha ka ng {points} puntos ng Nabd.",
     "licenseLine": "Lisensyado ng SCFHS, blg. {number}",
-    "licenseVerified": "Beripikado"
+    "licenseVerified": "Beripikado",
+    "visitSubClinic": "Magpatingin sa klinika",
+    "visitSubVideo": "Kausapin ang doktor sa bidyo",
+    "visitSubHome": "Pupunta ang doktor sa bahay mo",
+    "filters": "Mga filter",
+    "filtersTitle": "I-filter ang mga doktor",
+    "filtersApply": "Ilapat",
+    "filtersClearAll": "Burahin lahat",
+    "filtersClose": "Isara ang mga filter",
+    "filtersWithCount": "Mga filter, {n} aktibo",
+    "activeFilters": "Mga aktibong filter",
+    "removeFilter": "Alisin ang filter na {filter}",
+    "filterAll": "Lahat"
   },
   "LabsServices": {
     "eyebrow": "Pangangalaga sa laboratoryo",
@@ -1475,6 +1488,9 @@
     "searchLabel": "Maghanap ng serbisyo",
     "searchPlaceholder": "Maghanap ayon sa test o kategorya",
     "homeOnly": "Kolekta sa bahay",
+    "activeFilters": "Mga aktibong filter",
+    "removeFilter": "Alisin ang filter: {filter}",
+    "clearAll": "Burahin lahat",
     "apply": "Ilapat",
     "price": "Mula {value}",
     "fasting": "Maaaring kailangan ang fasting",

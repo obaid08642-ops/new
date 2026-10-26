@@ -44,7 +44,8 @@
     "menuFamily": "العائلة",
     "menuArticles": "المقالات",
     "menuSettings": "الإعدادات",
-    "menuHelp": "المساعدة"
+    "menuHelp": "المساعدة",
+    "menuResults": "طلباتي ونتائجي"
   },
   "Home": {
     "eyebrow": "بوابة المريض الرقمية",
@@ -1407,7 +1408,7 @@
     "allSpecialties": "كل التخصصات",
     "paymentLabel": "الدفع",
     "payment_insurance": "تأمين",
-    "payment_self_pay": "دفع ذاتي",
+    "payment_self_pay": "بدون تأمين (كاش)",
     "paymentInsuranceNoPolicy": "أضف تأمينك لعرض الأطباء المتعاقدين مع شركتك وفئتك فقط. يظهر الآن كل طبيب يقبل التأمين.",
     "paymentAddPolicy": "أضف التأمين",
     "doctorPhotoAlt": "صورة {name}",
@@ -1466,7 +1467,19 @@
     "sortAvailableToday": "متاح اليوم",
     "guaranteeLine": "إذا تأخر موعدك أكثر من {minutes} دقيقة تحصل على {points} نقطة من نقاط نبض.",
     "licenseLine": "مرخّص من الهيئة السعودية للتخصصات الصحية، رقم {number}",
-    "licenseVerified": "موثّق"
+    "licenseVerified": "موثّق",
+    "visitSubClinic": "قابل الطبيب في العيادة",
+    "visitSubVideo": "تحدث مع الطبيب بالفيديو",
+    "visitSubHome": "يأتيك الطبيب إلى المنزل",
+    "filters": "الفلاتر",
+    "filtersTitle": "تصفية الأطباء",
+    "filtersApply": "تطبيق",
+    "filtersClearAll": "مسح الكل",
+    "filtersClose": "إغلاق الفلاتر",
+    "filtersWithCount": "الفلاتر، {n} مفعّل",
+    "activeFilters": "الفلاتر المفعّلة",
+    "removeFilter": "إزالة الفلتر {filter}",
+    "filterAll": "الكل"
   },
   "LabsServices": {
     "eyebrow": "الرعاية المخبرية",
@@ -1475,6 +1488,9 @@
     "searchLabel": "بحث في خدمات المختبر",
     "searchPlaceholder": "ابحث عن تحليل أو تصنيف",
     "homeOnly": "سحب عينة من المنزل",
+    "activeFilters": "الفلاتر النشطة",
+    "removeFilter": "إزالة التصفية: {filter}",
+    "clearAll": "مسح الكل",
     "apply": "تطبيق",
     "price": "يبدأ من {value}",
     "fasting": "قد يتطلب صياماً",

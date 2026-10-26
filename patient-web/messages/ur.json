@@ -44,7 +44,8 @@
     "menuFamily": "خاندان",
     "menuArticles": "مضامین",
     "menuSettings": "ترتیبات",
-    "menuHelp": "مدد"
+    "menuHelp": "مدد",
+    "menuResults": "میرے آرڈرز اور نتائج"
   },
   "Home": {
     "eyebrow": "ڈیجیٹل مریض پورٹل",
@@ -1407,7 +1408,7 @@
     "allSpecialties": "تمام تخصصات",
     "paymentLabel": "ادائیگی",
     "payment_insurance": "انشورنس",
-    "payment_self_pay": "خود ادائیگی",
+    "payment_self_pay": "بغیر انشورنس (نقد)",
     "paymentInsuranceNoPolicy": "صرف اپنی کمپنی اور کلاس سے معاہدہ رکھنے والے ڈاکٹر دیکھنے کے لیے اپنی انشورنس شامل کریں۔ ابھی انشورنس قبول کرنے والے تمام ڈاکٹر دکھائے جا رہے ہیں۔",
     "paymentAddPolicy": "انشورنس شامل کریں",
     "doctorPhotoAlt": "{name} کی تصویر",
@@ -1466,7 +1467,19 @@
     "sortAvailableToday": "آج دستیاب",
     "guaranteeLine": "اگر آپ کا اپوائنٹمنٹ {minutes} منٹ سے زیادہ لیٹ ہو تو آپ کو {points} نبض پوائنٹس ملتے ہیں۔",
     "licenseLine": "سعودی کمیشن برائے طبی تخصصات سے لائسنس یافتہ، نمبر {number}",
-    "licenseVerified": "تصدیق شدہ"
+    "licenseVerified": "تصدیق شدہ",
+    "visitSubClinic": "کلینک میں ڈاکٹر سے ملیں",
+    "visitSubVideo": "ویڈیو پر ڈاکٹر سے بات کریں",
+    "visitSubHome": "ڈاکٹر آپ کے گھر آتا ہے",
+    "filters": "فلٹر",
+    "filtersTitle": "ڈاکٹرز فلٹر کریں",
+    "filtersApply": "لاگو کریں",
+    "filtersClearAll": "سب صاف کریں",
+    "filtersClose": "فلٹر بند کریں",
+    "filtersWithCount": "فلٹر، {n} فعال",
+    "activeFilters": "فعال فلٹر",
+    "removeFilter": "فلٹر {filter} ہٹائیں",
+    "filterAll": "سب"
   },
   "LabsServices": {
     "eyebrow": "لیبارٹری کیئر",
@@ -1475,6 +1488,9 @@
     "searchLabel": "لیب سروسز تلاش کریں",
     "searchPlaceholder": "ٹیسٹ یا زمرہ تلاش کریں",
     "homeOnly": "گھر سے نمونہ",
+    "activeFilters": "فعال فلٹرز",
+    "removeFilter": "فلٹر ہٹائیں: {filter}",
+    "clearAll": "سب صاف کریں",
     "apply": "لاگو کریں",
     "price": "شروع {value} سے",
     "fasting": "روزہ ضروری ہو سکتا ہے",
