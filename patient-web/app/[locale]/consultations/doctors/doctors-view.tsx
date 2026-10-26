@@ -1,5 +1,6 @@
 import { StaleWhileRevalidate } from "@/components-next/nav/stale-while-revalidate";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { SuggestInput } from "@/components-next/search/suggest-input";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -21,7 +22,6 @@ import { Button } from "@/components-next/ui-generated/components/Button";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { ConsultPage } from "@/components-next/consult/consult-page";
-import { ConsultState } from "@/components-next/consult/consult-state";
 import { DoctorListCard } from "@/components-next/consult/doctor-list-card";
 import { DoctorFiltersSheet } from "@/components-next/consult/doctor-filters-sheet";
 import { VisitTypeCards } from "@/components-next/consult/visit-type-cards";
@@ -31,6 +31,9 @@ import { formatPrice } from "@/lib/format-price";
 import { cardFacts } from "@/lib/consult/doctor-card-facts";
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import styles from "@/components-next/consult/consult.module.css";
+
+// The empty and error states are rare: their chunk (it carries the Feedback components and the icon record) loads only when one is drawn, so the list page stays under its script budget.
+const ConsultState = dynamic(() => import("@/components-next/consult/consult-state").then((m) => m.ConsultState));
 
 export type DoctorsViewProps = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string; specialty?: string; sort?: DoctorSort; type?: string; gender?: string; degree?: string; payment?: string; insurance?: string; insurance_class?: string; available?: string; nearest?: string; lat?: string; lng?: string; city?: string }> };
 type Props = DoctorsViewProps;

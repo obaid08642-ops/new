@@ -3,6 +3,11 @@ const state=vi.hoisted(()=>({get:vi.fn(),config:vi.fn()})); vi.mock("@/lib/api/p
   const { createElement } = await import("react");
   return { CoreShell: ({ children, backHref }: { children: unknown; backHref?: string }) => createElement("div", { "data-shell": true }, createElement("a", { href: backHref }, "back"), children as never) };
 });
+// the view loads the empty/error state lazily (script budget); the synchronous renderer here needs it at once
+vi.mock("next/dynamic", async () => {
+  const { ConsultState } = await import("@/components-next/consult/consult-state");
+  return { default: () => ConsultState };
+});
 // F82-3: the static page and its dynamic twin (app/[locale]/q/consultations/doctors) render this one view
 import { DoctorsView as DoctorsPage } from "./doctors-view";
 describe("doctors SSR",()=>{beforeEach(()=>{state.get.mockReset();state.config.mockReset();state.config.mockResolvedValue(null);});it("renders public doctor fields without private data",async()=>{state.get.mockResolvedValue(new Response(JSON.stringify([{id:"doc-1",name_en:"Verified Doctor",patient_id:"private"}]),{status:200}));const html=renderToStaticMarkup(await DoctorsPage({params:Promise.resolve({locale:"en"})}));expect(html).toContain("Verified Doctor");expect(html).not.toContain("private");});it("passes the quick filters from the URL to the API and keeps q",async()=>{state.get.mockResolvedValue(new Response(JSON.stringify([{id:"doc-2",name_en:"Nearby Doctor"}]),{status:200}));const html=renderToStaticMarkup(await DoctorsPage({params:Promise.resolve({locale:"en"}),searchParams:Promise.resolve({q:"heart",type:"clinic",nearest:"1",lat:"24.7136",lng:"46.6753"})}));expect(state.get).toHaveBeenCalledWith(expect.objectContaining({search:"heart",filters:expect.objectContaining({type:"clinic",nearest:true,place:{kind:"coords",lat:24.7136,lng:46.6753}})}));expect(html).toContain("Nearby Doctor");expect(html).toContain("filtersWithCount");expect(html).toContain("nearest");expect(html).toContain("q=heart");});
