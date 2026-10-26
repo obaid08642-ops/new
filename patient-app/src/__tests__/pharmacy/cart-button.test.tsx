@@ -56,6 +56,14 @@ describe('cart button', () => {
     expect(mockRouter.push).toHaveBeenCalledWith('/pharmacy/cart');
   });
 
+  it('has a favourites button next to the cart that opens the wishlist screen', async () => {
+    const view = await render(wrap(<HomeTopRow name="Test" />));
+    const button = await view.findByTestId('home-wishlist-button');
+    expect(button.props.accessibilityLabel).toBe(k('pharmacy.favorites'));
+    fireEvent.press(button);
+    expect(mockRouter.push).toHaveBeenCalledWith('/pharmacy/wishlist');
+  });
+
   it('shows the count and its accessible name right after an add, and drops it after the remove', async () => {
     const view = await render(wrap(<CartButton />));
     const button = await view.findByTestId('cart-button');

@@ -352,6 +352,8 @@
   "pharmacy.section.warnings": "चेतावनियां",
   "pharmacy.section.precautions": "सावधानियां",
   "pharmacy.section.sideEffects": "दुष्प्रभाव",
+  "pharmacy.section.onlyEnglish": "केवल अंग्रेज़ी में उपलब्ध",
+  "pharmacy.section.onlyArabic": "केवल अरबी में उपलब्ध",
   "pharmacy.section.contra": "उपयोग के निषेध",
   "pharmacy.section.interactions": "दवाओं की पारस्परिक क्रिया",
   "pharmacy.section.pregnancyBreastfeeding": "गर्भावस्था और स्तनपान",

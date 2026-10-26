@@ -11,7 +11,7 @@
 .iconLink {
   flex: none; inline-size: 44px; block-size: 44px; box-sizing: border-box; border-radius: var(--nabd-radius-pill);
   display: inline-grid; place-items: center; text-decoration: none;
-  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-onGlass); color: var(--nabd-color-icon-primary);
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-onGlass); color: var(--nabd-color-icon-secondary);
 }
 /* the cart's count (canvas/ProductFull: the action colour on the icon's corner) */
 .cartLink { position: relative; }

@@ -8,6 +8,7 @@ import { Card, Chip, EmptyState, ErrorState, FIcon, Icon, OfflineState, Screen, 
 import PharmacyProductSearchView from '../../src/components/views/PharmacyProductSearchView';
 import DoctorSearchView from '../../src/components/views/DoctorSearchView';
 import { ServiceCartButton } from '../../src/components/cart/ServiceCartButton';
+import { WishlistButton } from '../../src/components/pharmacy/PharmacyKit';
 import { LocalizedText } from '../../src/components/LocalizedText';
 import { COLUMN, FONT, tint, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
@@ -395,6 +396,7 @@ function SearchScreen({ initialQuery }: { initialQuery: string }) {
             theme={theme}
           />
         </View>
+        <WishlistButton testID="search-wishlist-button" />
         <ServiceCartButton testID="search-cart-button" />
         <Pressable accessibilityRole="button" accessibilityLabel={tr('إلغاء')} onPress={leave} hitSlop={8} style={{ minHeight: 44, minWidth: 44, alignItems: 'center', justifyContent: 'center' }}>
           <LocalizedText style={{ ...scale(t, 'body', 'regular'), color: c.text.primary }}>إلغاء</LocalizedText>

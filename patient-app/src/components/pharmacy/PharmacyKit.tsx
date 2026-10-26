@@ -90,6 +90,12 @@ export function CartButton({ testID }: { testID?: string }) {
   );
 }
 
+/** The favourites button next to the cart in every header that carries it: opens GET /users/me/wishlist's screen. */
+export function WishlistButton({ testID }: { testID?: string }) {
+  const { k } = useScreenUi();
+  return <GlyphRound name="heart" label={k('pharmacy.favorites')} onPress={() => router.push('/pharmacy/wishlist' as Href)} testID={testID ?? 'wishlist-button'} />;
+}
+
 /**
  * The one way a medicine goes into the local cart. A prescription medicine says, once per tap, that the prescription
  * is asked for in the cart (the same notice the screens showed before). Returns nothing: the cart's count is the feedback.

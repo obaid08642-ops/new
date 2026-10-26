@@ -141,7 +141,7 @@
 }
 /* canvas/Search: a 28px sunken disc with the cross, inside a 44 hit area */
 .nabd-search__clear-disc { width: 28px; height: 28px; border-radius: 14px; background: var(--nabd-color-bg-sunken); display: grid; place-items: center; }
-/* the filter is the 52px ink square beside the field */
+/* the filter is the 52px coral square beside the field */
 .nabd-search__filter {
   width: 52px;
   height: 52px;
@@ -152,8 +152,8 @@
   display: grid;
   place-items: center;
   cursor: pointer;
-  background: var(--nabd-color-action-selected-bg);
-  color: var(--nabd-color-action-selected-fg);
+  background: var(--nabd-color-action-primary-bg);
+  color: var(--nabd-color-action-primary-fg);
 }
 
 /* Stepper (canvas/Cart): a 36 tall pill in the canvas colour, two 30px discs, 14/700 between */

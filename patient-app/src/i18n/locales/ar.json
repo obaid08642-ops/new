@@ -352,6 +352,8 @@
   "pharmacy.section.warnings": "التحذيرات",
   "pharmacy.section.precautions": "الاحتياطات",
   "pharmacy.section.sideEffects": "الآثار الجانبية",
+  "pharmacy.section.onlyEnglish": "متوفر بالإنجليزية فقط",
+  "pharmacy.section.onlyArabic": "متوفر بالعربية فقط",
   "pharmacy.section.contra": "موانع الاستعمال",
   "pharmacy.section.interactions": "التداخلات الدوائية",
   "pharmacy.section.pregnancyBreastfeeding": "الحمل والرضاعة",

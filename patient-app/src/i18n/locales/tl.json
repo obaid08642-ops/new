@@ -352,6 +352,8 @@
   "pharmacy.section.warnings": "Mga babala",
   "pharmacy.section.precautions": "Mga pag-iingat",
   "pharmacy.section.sideEffects": "Mga masamang epekto",
+  "pharmacy.section.onlyEnglish": "Makukuha lamang sa Ingles",
+  "pharmacy.section.onlyArabic": "Makukuha lamang sa Arabe",
   "pharmacy.section.contra": "Mga kontraindikasyon",
   "pharmacy.section.interactions": "Mga interaksyon ng gamot",
   "pharmacy.section.pregnancyBreastfeeding": "Pagbubuntis at pagpapasuso",

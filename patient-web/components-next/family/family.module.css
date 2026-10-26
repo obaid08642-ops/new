@@ -54,7 +54,7 @@ a.memberRow:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(
   display: flex; align-items: center; gap: 12px; min-block-size: 44px; padding-inline: 4px; cursor: pointer;
   font-size: var(--nabd-font-size-row); font-weight: 500; overflow-wrap: anywhere;
 }
-.grant input { flex: none; inline-size: 20px; block-size: 20px; accent-color: var(--nabd-color-action-selected-bg); }
+.grant input { flex: none; inline-size: 20px; block-size: 20px; accent-color: var(--nabd-color-action-primary-bg); }
 .grant input:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
 .actionsRow { display: flex; flex-wrap: wrap; gap: 8px; }
 .actionsRow > * { flex: 1 1 10rem; min-inline-size: 0; }
