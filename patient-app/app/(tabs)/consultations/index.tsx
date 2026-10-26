@@ -7,7 +7,8 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { AppHeader, Chip, DoctorCard, EmptyState, ErrorState, FIcon, Icon, OfferCard, Screen, Search, Skeleton, useTabBarHeight } from '../../../../packages/ui-native/src';
 import { COLUMN, step as scale, useScreenUi } from '../../../src/components/screen/ScreenKit';
 import { CONSULT_TONE, MODE_LOOK, Section, Sheet, goBack, visitMode, specialtyLook, type VisitMode } from '../../../src/components/consult/ConsultKit';
-import { GlyphRound } from '../../../src/components/pharmacy/PharmacyKit';
+import { GlyphRound, WishlistButton } from '../../../src/components/pharmacy/PharmacyKit';
+import { ServiceCartButton } from '../../../src/components/cart/ServiceCartButton';
 import { HeaderMenuButton } from '../../../src/components/nav/HeaderMenuButton';
 import { ActiveFilters, type ActiveFilter } from '../../../src/components/pharmacy/ActiveFilters';
 import { apiFetch } from '../../../src/utils/api';
@@ -358,6 +359,8 @@ export default function Consultations() {
         trailing={
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <GlyphRound name="calendar-dots" label={k('consult.appt.title')} onPress={() => router.push('/consultations/appointments' as Href)} testID="consult-appointments-entry" />
+            <WishlistButton />
+            <ServiceCartButton />
             <HeaderMenuButton testID="consult-menu-button" />
           </View>
         }
