@@ -1,11 +1,3 @@
-# 2026-10-26 lead reviewer: run 32, deploy main@d3fc4da1: medicine ranking (#1979: most viewed/searched/carted/ordered first;
-# score job every 30 min), labs layout app (#1988), header favourites + menu edge (#1981), colour follow-up (#1980), hologram map
-# app (#2007), AI: env key sync + OpenCode + text/vision chains with free-tier windows (#2016-#2018), symptom helper red flags
-# (#2019), call-flake fix. 97 keeps one local copy of each backup first (disk). Then 96-ai-providers-check (READ-ONLY) to show
-# the chains as deployed, and cf-purge-api.
-release:d3fc4da185d1022759d76b42e2d229521e82f35b
-97-free-old-predeploy
-93-free-unused-images
-60-deploy-main
-96-ai-providers-check
-cf-purge-api
+# 2026-10-26 lead reviewer: run 33, READ-ONLY. The owner receives alert mails from the no-reply address. 99-alert-mails groups the
+# last 48 h of mail_log by subject (no addresses, no bodies) and prints the SLO alert states, so each alert source can be fixed.
+99-alert-mails
