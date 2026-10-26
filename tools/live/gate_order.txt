@@ -65,6 +65,7 @@ j_pharmacy_insurance_inline
 j_admin_kill_switches
 j_web_call
 j_pharmacy_owner_decisions
+j_medicine_ranking
 j_lab_preparation_langs
 j_localized_name_english
 j_mail_rotation

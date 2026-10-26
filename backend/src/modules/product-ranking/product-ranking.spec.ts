@@ -211,12 +211,12 @@ describe('Continuous Dynamic Product Ranking Engine (Part 1 & 2)', () => {
       expect(ranked.drugIds[0]).toBe('prod-B');
       expect(ranked.drugIds[1]).toBe('prod-A');
 
-      // Step 4: Product C enters with 5 purchases -> C dynamically overtakes both to become #1!
+      // Step 4: Product C enters with 6 purchases -> C dynamically overtakes both to become #1! (no cold start boost: it counts only for products a provider or admin created)
       await eventService.recordEvent({
         eventType: 'purchase_completed',
         drugId: 'prod-C',
         category: 'baby_products',
-        quantity: 5, // 5 * 5 = 25
+        quantity: 6, // 6 * 5 = 30, more than B's 27
       });
 
       ranked = await rankingService.getRankedDrugIds({});
@@ -280,5 +280,31 @@ describe('Continuous Dynamic Product Ranking Engine (Part 1 & 2)', () => {
       });
       expect(r3.counted).toBe(true);
     });
+  });
+});
+
+describe('cold start boost belongs to products a provider or admin created', () => {
+  const svc = (medicine: any) => {
+    const conn: any = { collection: () => ({ findOne: async () => medicine, updateOne: async () => ({}) }) };
+    return new ProductRankingService({} as any, {} as any, conn);
+  };
+  const recent = new Date(Date.now() - 2 * 86400000);
+
+  it('the imported catalogue never gets it', async () => {
+    expect((await svc({ source: 'bulk_import', createdAt: recent }).coldStartPublishedAt('m')).getTime()).toBe(0);
+    expect((await svc({ source: 'master', createdAt: recent }).coldStartPublishedAt('m')).getTime()).toBe(0);
+    expect((await svc({ source: 'admin', source_product_id: 17, createdAt: recent }).coldStartPublishedAt('m')).getTime()).toBe(0);
+    expect((await svc(null).coldStartPublishedAt('m')).getTime()).toBe(0);
+  });
+
+  it('a product an admin or a pharmacy created recently gets it, from its creation date', async () => {
+    expect((await svc({ source: 'admin', createdAt: recent }).coldStartPublishedAt('m')).getTime()).toBe(recent.getTime());
+    expect((await svc({ source: 'pharmacy', createdAt: recent }).coldStartPublishedAt('m')).getTime()).toBe(recent.getTime());
+  });
+
+  it('a score with no publication date has no boost, and a view of a never-seen product is worth one point', () => {
+    const s = svc(null);
+    expect(s.calculateCompositeScore({ availability_status: 'in_stock' }).compositeScore).toBe(0);
+    expect(s.calculateCompositeScore({ views_count: 1, availability_status: 'in_stock', last_event_at: new Date(), first_published_at: new Date(0) }).compositeScore).toBeCloseTo(1, 0);
   });
 });
