@@ -3091,6 +3091,7 @@
   "map.kind.hospital": "Hospitals",
   "map.kind.pharmacy": "Pharmacies",
   "map.kind.lab": "Labs",
+  "map.kind.radiology": "Radiology",
   "map.kind.nursing": "Nursing",
   "map.book.doctor": "Book an appointment",
   "map.book.hospital": "Book an appointment",

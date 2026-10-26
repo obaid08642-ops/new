@@ -1,0 +1,35 @@
+[
+ {
+  "batch": "hologram-map",
+  "app": "patient-app",
+  "screen": "/map",
+  "suspect": "route pending",
+  "review_status": "open",
+  "element": "hospital sheet link",
+  "file": "patient-app/src/components/account/ProvidersMapView.tsx",
+  "line": 236,
+  "found": "[client] hospital sheet still opens /consultations/clinic/[id]; /facility/[id] does not exist yet (only app/facility/[slug].tsx, a link resolver); relink when the facility session lands"
+ },
+ {
+  "batch": "hologram-map",
+  "app": "patient-app",
+  "screen": "/map",
+  "suspect": "no radiology booking route",
+  "review_status": "open",
+  "element": "radiology booking",
+  "file": "patient-app/src/components/account/ProvidersMapView.tsx",
+  "line": 233,
+  "found": "[owner] radiology pin books through /diagnostics/book-sample (the lab flow) until radiology has its own entry"
+ },
+ {
+  "batch": "hologram-map",
+  "app": "patient-app",
+  "screen": "/map",
+  "suspect": "unverified rendering",
+  "review_status": "open",
+  "element": "hologram layers on device",
+  "file": "patient-app/src/components/MapPrimitives.native.tsx",
+  "line": 122,
+  "found": "[client] native layers (GeoJSONSource/Layer, clustering, circlePitchAlignment) are typed loosely and only the pure helpers are unit-tested; @maplibre/maplibre-react-native is not installed in this sandbox, so not run on a device or emulator. Non-selected pins differ by tone only (no per-kind base shape or icon; those are on the selected React marker)"
+ }
+]

@@ -1,8 +1,9 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { Camera, Map as MLMap, Marker as MLMarker, UserLocation, type CameraRef } from '@maplibre/maplibre-react-native';
+import { Camera, GeoJSONSource, Layer, Map as MLMap, Marker as MLMarker, UserLocation, type CameraRef } from '@maplibre/maplibre-react-native';
 import { MAP_ATTRIBUTION, mapStyleFor, regionFromView, zoomForRegion, type Region } from './map-geometry';
-import { useScreenUi } from './screen/ScreenKit';
+import { useScreenUi, tint } from './screen/ScreenKit';
+import { CLUSTER, HOLO_KINDS, HOLO_LOOK, matchByKind, type HoloFeatureCollection, type HoloKind } from './map-hologram';
 
 /**
  * The map of the app on MapLibre Native with OpenFreeMap's keyless OpenStreetMap vector tiles (owner decision 2026-10-25: no Google
@@ -108,6 +109,46 @@ export function Marker({ coordinate, pinColor, onPress, children }: MarkerProps)
     <MLMarker lngLat={[coordinate.longitude, coordinate.latitude]} anchor={children ? 'center' : 'bottom'} onPress={onPress ? () => onPress({}) : undefined}>
       {children ?? <DefaultPin color={pinColor} />}
     </MLMarker>
+  );
+}
+
+type HoloPressEvent = { nativeEvent: { features?: { id?: string | number; properties?: Record<string, unknown>; geometry?: { coordinates?: number[] } }[] } };
+
+/**
+ * The hologram pins of every provider, drawn by the map's native layers from one clustered GeoJSON source (no React view per pin):
+ * a flattened (map-aligned) translucent base in the kind's service tone, a soft halo, and a core lifted above the base. The selected
+ * provider is left out here; the screen draws it as a React marker. Colours are the tokens' service tones, light or dark.
+ */
+export function HologramLayer({ data, selectedId, onSelect, onCluster }: { data: HoloFeatureCollection; selectedId: string | null; onSelect: (id: string) => void; onCluster: (lngLat: [number, number]) => void }) {
+  const { c } = useScreenUi();
+  const by = (pick: (kind: HoloKind) => string) => matchByKind(Object.fromEntries(HOLO_KINDS.map((kind) => [kind, pick(kind)])) as Record<HoloKind, string>, c.service.map.glyph);
+  const fg = by((kind) => c.service[HOLO_LOOK[kind].tone].fg);
+  const glow = by((kind) => tint(c.service[HOLO_LOOK[kind].tone].fg, 0.22));
+  const plate = by((kind) => tint(c.service[HOLO_LOOK[kind].tone].fg, 0.32));
+  const single = ['all', ['!', ['has', 'point_count']], ['!=', ['get', 'id'], selectedId ?? '']];
+  return (
+    <GeoJSONSource
+      id="providers"
+      data={data as never}
+      cluster
+      clusterRadius={CLUSTER.radius}
+      clusterMaxZoom={CLUSTER.maxZoom}
+      onPress={(e: HoloPressEvent) => {
+        const f = e.nativeEvent.features?.[0];
+        if (!f) return;
+        if (f.properties?.point_count !== undefined) {
+          const at = f.geometry?.coordinates;
+          if (at && at.length >= 2) onCluster([at[0], at[1]]);
+        } else if (typeof f.properties?.id === 'string') onSelect(f.properties.id);
+      }}
+    >
+      <Layer id="holo-cluster-halo" type="circle" filter={['has', 'point_count']} style={{ circleRadius: 26, circleColor: tint(c.service.map.glyph, 0.2), circlePitchAlignment: 'map', circleBlur: 0.6 }} />
+      <Layer id="holo-cluster" type="circle" filter={['has', 'point_count']} style={{ circleRadius: 17, circleColor: c.service.map.bg, circleStrokeColor: c.service.map.glyph, circleStrokeWidth: 2 }} />
+      <Layer id="holo-cluster-count" type="symbol" filter={['has', 'point_count']} style={{ textField: ['get', 'point_count_abbreviated'], textSize: 13, textColor: c.service.map.glyph, textAllowOverlap: true }} />
+      <Layer id="holo-halo" type="circle" filter={single} style={{ circleRadius: 24, circleColor: glow, circleBlur: 0.8, circlePitchAlignment: 'map' }} />
+      <Layer id="holo-plate" type="circle" filter={single} style={{ circleRadius: 12, circleColor: plate, circleStrokeColor: fg, circleStrokeWidth: 1.5, circleStrokeOpacity: 0.6, circlePitchAlignment: 'map' }} />
+      <Layer id="holo-core" type="circle" filter={single} style={{ circleRadius: 7, circleColor: fg, circleStrokeColor: c.bg.surface, circleStrokeWidth: 2, circleTranslate: [0, -14], circleBlur: 0.1 }} />
+    </GeoJSONSource>
   );
 }
 
