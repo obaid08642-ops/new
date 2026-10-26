@@ -102,3 +102,4 @@ j_checkout_contact
 j_guest_lifecycle
 j_user_history
 j_web_qa_account
+j_web_qa_notifications
