@@ -6,7 +6,8 @@
  * SHA-256 of every input file) and the apply refuses unless it is given exactly that hash, so only what the dry run showed is
  * applied. A change is either
  *   set     one field of one document, written only while the field still holds the value the plan saw (compare-and-set), or
- *   insert  one new document.
+ *   insert  one new document, or
+ *   delete  one document, only while it is still the one the plan saw (same _id), after every set (references are re-pointed first).
  * The backup holds the before-image of every set and the key of every insert, so a rollback restores exactly those.
  */
 import { createHash } from 'crypto';
@@ -15,7 +16,9 @@ import { Types } from 'mongoose';
 
 export type SetChange = { kind: 'set'; step: string; collection: string; key: Record<string, unknown>; path: string; before: unknown; after: unknown };
 export type InsertChange = { kind: 'insert'; step: string; collection: string; doc: Record<string, unknown> };
-export type Change = SetChange | InsertChange;
+/** Owner-approved removal (2026-10-26): the whole before-image is in the plan, so the backup can put the document back. */
+export type DeleteChange = { kind: 'delete'; step: string; collection: string; key: Record<string, unknown>; doc: Record<string, unknown> };
+export type Change = SetChange | InsertChange | DeleteChange;
 
 /** The slice of the MongoDB driver the apply uses (so it can be tested with a fake or the in-memory server). */
 export interface CollectionLike {
@@ -62,10 +65,10 @@ export function planSha(changes: Change[], inputs: Record<string, string>): stri
   return sha256(stable({ inputs, changes: lines }));
 }
 
-export function summarize(changes: Change[]): Record<string, { set: number; insert: number }> {
-  const out: Record<string, { set: number; insert: number }> = {};
+export function summarize(changes: Change[]): Record<string, { set: number; insert: number; delete: number }> {
+  const out: Record<string, { set: number; insert: number; delete: number }> = {};
   for (const c of changes) {
-    const row = (out[c.step] ||= { set: 0, insert: 0 });
+    const row = (out[c.step] ||= { set: 0, insert: 0, delete: 0 });
     row[c.kind] += 1;
   }
   return out;
@@ -122,9 +125,10 @@ async function runUpdates(db: DbLike, collection: string, ops: Array<{ filter: R
   return { modified, total: ops.length };
 }
 
-export async function applyChanges(db: DbLike, changes: Change[], now: Date = new Date()): Promise<{ applied: number; skipped_changed_since_plan: number; inserted: number; retried_batches: number }> {
+export async function applyChanges(db: DbLike, changes: Change[], now: Date = new Date()): Promise<{ applied: number; skipped_changed_since_plan: number; inserted: number; deleted: number; retried_batches: number }> {
   const stats: RetryStats = { retried_batches: 0 };
-  let applied = 0; let skipped = 0; let inserted = 0;
+  let applied = 0; let skipped = 0; let inserted = 0; let deleted = 0;
+  const removals: DeleteChange[] = [];
   const sets = new Map<string, Array<{ filter: Record<string, unknown>; update: Record<string, unknown> }>>();
   for (const c of changes) {
     if (c.kind === 'insert') {
@@ -136,6 +140,8 @@ export async function applyChanges(db: DbLike, changes: Change[], now: Date = ne
         return true;
       }, stats);
       if (wrote) inserted += 1; else skipped += 1;
+    } else if (c.kind === 'delete') {
+      removals.push(c);
     } else {
       const list = sets.get(c.collection) ?? [];
       list.push({ filter: { ...c.key, [c.path]: beforeGuard(c.before) }, update: { $set: { [c.path]: c.after } } });
@@ -146,7 +152,12 @@ export async function applyChanges(db: DbLike, changes: Change[], now: Date = ne
     const r = await runUpdates(db, collection, ops, stats);
     applied += r.modified; skipped += r.total - r.modified;
   }
-  return { applied, skipped_changed_since_plan: skipped, inserted, retried_batches: stats.retried_batches };
+  // deletes last: the references were re-pointed above. A document that is no longer the one the plan saw (other _id) is left alone.
+  for (const c of removals) {
+    const res = await withRetry(() => db.collection(c.collection).deleteOne({ ...c.key, _id: c.doc._id }), stats);
+    if (res.deletedCount) deleted += 1; else skipped += 1;
+  }
+  return { applied, skipped_changed_since_plan: skipped, inserted, deleted, retried_batches: stats.retried_batches };
 }
 
 /**
@@ -159,6 +170,16 @@ export async function rollbackChanges(db: DbLike, changes: Change[]): Promise<{ 
   const sets = new Map<string, Array<{ filter: Record<string, unknown>; update: Record<string, unknown> }>>();
   const parents = new Map<string, Array<{ filter: Record<string, unknown>; update: Record<string, unknown> }>>();
   for (const c of [...changes].reverse()) {
+    if (c.kind === 'delete') {
+      // put the document back (with its _id) unless something with that key exists again
+      const back = await withRetry(async () => {
+        if (await db.collection(c.collection).countDocuments(c.key)) return false;
+        await db.collection(c.collection).insertOne(c.doc);
+        return true;
+      }, stats);
+      if (back) restored += 1; else skipped += 1;
+      continue;
+    }
     if (c.kind === 'insert') {
       const res = await withRetry(() => db.collection(c.collection).deleteOne({ code: c.doc.code, source: c.doc.source }), stats);
       if (res.deletedCount) deleted += 1; else skipped += 1;
@@ -208,6 +229,9 @@ export async function countsOf(db: DbLike, collections: string[]): Promise<Recor
 
 export function expectedCounts(before: Record<string, number>, changes: Change[]): Record<string, number> {
   const out = { ...before };
-  for (const c of changes) if (c.kind === 'insert') out[c.collection] = (out[c.collection] ?? 0) + 1;
+  for (const c of changes) {
+    if (c.kind === 'insert') out[c.collection] = (out[c.collection] ?? 0) + 1;
+    if (c.kind === 'delete') out[c.collection] = (out[c.collection] ?? 0) - 1;
+  }
   return out;
 }
