@@ -348,6 +348,8 @@
   "pharmacy.section.warnings": "انتباہات",
   "pharmacy.section.precautions": "احتیاطی تدابیر",
   "pharmacy.section.sideEffects": "مضر اثرات",
+  "pharmacy.section.onlyEnglish": "صرف انگریزی میں دستیاب",
+  "pharmacy.section.onlyArabic": "صرف عربی میں دستیاب",
   "pharmacy.section.contra": "استعمال کی ممانعتیں",
   "pharmacy.section.interactions": "ادویات کے باہمی اثرات",
   "pharmacy.section.pregnancyBreastfeeding": "حمل اور دودھ پلانا",

@@ -55,6 +55,8 @@ export type PublicProduct = {
   /** Decision D (issue 1556): the product's variant group (powers, colours, shades), null when it has none. */
   variant_group?: string | null;
   variant?: PublicVariantAttr | null;
+  /** Sections shown in another language than the page's: field → the language the text is in (absent on answers from before the rule). */
+  fallback_langs?: Record<string, string>;
 };
 
 /** A record's own attribute inside its variant group (decision D). Colour and shade are words of the English name. */
