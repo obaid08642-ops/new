@@ -1,8 +1,8 @@
-# 2026-10-26 lead reviewer: run 25 (morning). Deploy main@8d228714: Urdu/Arabic product pages no longer 502 (#1976), live
-# suggestions per service (#1973), no cite box on medicines (#1977), app colours (#1975), locations: fake cities and numbered
-# districts deleted after re-pointing, +159 cities, 3010 districts by boundary (#1972, #1983). Then 90-catalogue-apply as a
-# DRY RUN (EXPECT_PLAN_SHA empty: counts + plan hash, writes nothing) so the owner sees the locations plan before any write.
-release:8d228714de022b29509c22be19757eb3b68c1c8a
+# 2026-10-26 lead reviewer: run 26 (replaces run 25, which was not approved yet). Deploy main@d355336b: everything in run 25
+# (Urdu/Arabic 502 fix, scoped suggestions, no cite box, app colours, cities +159 / 3010 districts) PLUS one language per product
+# section or marked (#1978), web colours: no ink on interactive elements (#1974), app header favourites (#1982).
+# Then 90-catalogue-apply as a DRY RUN (EXPECT_PLAN_SHA empty; counts + plan hash, writes nothing).
+release:d355336bc5a650ed4d00da9c46cc270f669fa00d
 93-free-unused-images
 60-deploy-main
 90-catalogue-apply
