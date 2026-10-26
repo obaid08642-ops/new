@@ -2,7 +2,6 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { countUpValue } from "@/components-next/motion/count-up";
-import { MOTION } from "@/lib/motion/motion";
 
 const read = (file: string) => readFileSync(resolve(process.cwd(), file), "utf8");
 
@@ -19,9 +18,12 @@ describe("the shared motion rules are off with reduced motion", () => {
     expect(css).toContain("nabd-fade-in");
     expect(css).toContain("nabd-check-pop");
   });
-  it("the press and fade durations are the motion tokens", () => {
-    expect(css).toContain(`${MOTION.press}ms`);
-    expect(css).toContain(`${MOTION.fade}ms`);
+  it("the durations and the easing are the design tokens, not numbers of its own", () => {
+    expect(css).toContain("var(--nabd-motion-duration-press)");
+    expect(css).toContain("var(--nabd-motion-duration-skeleton)");
+    expect(css).toContain("var(--nabd-motion-duration-enterMax)");
+    expect(css).toContain("var(--nabd-motion-easing-enter)");
+    expect(css).not.toMatch(/\d+ms/);
   });
 });
 

@@ -1,10 +1,10 @@
-/* The shared motion rules of the website (owner, 2026-10-26). Durations and the ease are the numbers of lib/motion/motion.ts
-   (press 120, fade 300, pop 220; ease-out cubic-bezier(0.22, 1, 0.36, 1)). Everything here is off with reduced motion: it all
-   sits in the no-preference media query. Tokens only; no colour of its own. */
+/* The shared motion rules of the website (owner, 2026-10-26). Durations and the ease are the design tokens (--nabd-motion-*:
+   press 120 ms, enter 200 ms, enterMax 240 ms, skeleton 1400 ms, the enter easing, press scale 0.97). Everything here is off with
+   reduced motion: it all sits in the no-preference media query. Tokens only; no colour of its own. */
 @media (prefers-reduced-motion: no-preference) {
   /* press feedback: tiles, cards and buttons shrink to 0.97 while pressed */
   .nabd-button, .nabd-product-card__link, .nabd-offer-card, .nabd-doctor-card, .nabd-service-tile {
-    transition: transform 120ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform var(--nabd-motion-duration-press) var(--nabd-motion-easing-enter);
   }
   .nabd-button:active:not(:disabled):not(.nabd-button--disabled),
   .nabd-product-card__link:active, .nabd-offer-card:active, .nabd-doctor-card:active, .nabd-service-tile:active {
@@ -15,14 +15,14 @@
   .nabd-skeleton--circle, .nabd-skeleton--tile, .nabd-skeleton--block, .nabd-skeleton--title {
     background: linear-gradient(90deg, var(--nabd-color-bg-sunken) 0%, var(--nabd-color-border-hairline) 50%, var(--nabd-color-bg-sunken) 100%);
     background-size: 200% 100%;
-    animation: nabd-shimmer 1.4s linear infinite;
+    animation: nabd-shimmer var(--nabd-motion-duration-skeleton) linear infinite;
   }
 
   /* an empty, error or offline state fades in gently */
-  .nabd-state { animation: nabd-fade-in 300ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .nabd-state { animation: nabd-fade-in var(--nabd-motion-duration-enterMax) var(--nabd-motion-easing-enter) both; }
 
   /* the check after an order, a booking or a payment pops once */
-  .nabd-success-pop .nabd-state > :first-child { animation: nabd-check-pop 420ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .nabd-success-pop .nabd-state > :first-child { animation: nabd-check-pop calc(var(--nabd-motion-duration-enterMax) * 2) var(--nabd-motion-easing-enter) both; }
 }
 
 @keyframes nabd-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
