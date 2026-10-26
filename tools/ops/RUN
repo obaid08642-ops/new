@@ -1,6 +1,9 @@
-# 2026-10-26 lead reviewer: run 27, APPLY the locations plan reviewed from run 26's dry run (main@d355336b is live; no deploy in
-# this run, so the plan is the same): plan 7530fd32…, 4133 changes: districts set 1218 + insert 2679 (159 new cities, 2520 new
-# districts, 490 centroid fills); placeholder cities delete 236 rows (sa-central-city-1..12, the *-new rows, duba3, al-many,
-# umran, taraf); references to them: none. Backup first, guarded writes, verify, rollback on mismatch.
+# 2026-10-26 lead reviewer: run 28, deploy main@9878f74e (72 commits since d355336b): social sign-up on register, one cart per
+# service, cart stepper + fly-to-cart, card image rotation, web/app motion, web "order these medicines" from a prescription,
+# facility jobs fix, insurance single writer, Sentry fixes (category N+1 as one $facet, no provider bodies in errors + scrubbing,
+# sharp smoke at build). Then 90-catalogue-apply as a DRY RUN for the numbered fake districts (#1997): counts only, no writes.
+release:9878f74e82e5d4c6b968ebdf8671c1ed77625c18
+93-free-unused-images
+60-deploy-main
 90-catalogue-apply
 cf-purge-api
