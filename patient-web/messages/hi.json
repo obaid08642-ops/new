@@ -1689,6 +1689,8 @@
     "sar": "SAR"
   },
   "PublicProduct": {
+    "contentOnlyEnglish": "केवल अंग्रेज़ी में उपलब्ध",
+    "contentOnlyArabic": "केवल अरबी में उपलब्ध",
     "backToCatalog": "कैटलॉग पर वापस",
     "home": "होम",
     "products": "उत्पाद",

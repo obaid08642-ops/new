@@ -258,6 +258,79 @@ function publicInteractions(value: unknown): string[] {
   return out;
 }
 
+/** Product-facing locale of a stored one (`tl` is Filipino). */
+export type ContentLocale = 'ar' | 'en' | 'ur' | 'hi' | 'bn' | 'fil';
+const DB_TO_CONTENT: Record<DbLang, ContentLocale> = { ar: 'ar', en: 'en', ur: 'ur', hi: 'hi', bn: 'bn', tl: 'fil' };
+
+/**
+ * Owner rule (2026-10-26): a section is shown in the page's language. When that language has no text for it, another language is used
+ * and the section says so: Arabic pages fall back to English; English pages to Arabic; ur, hi, bn and fil pages to English, then Arabic.
+ */
+export function contentFallbackOrder(productLocale: string): ContentLocale[] {
+  const l = DB_TO_CONTENT[productLocaleToDb(productLocale)];
+  if (l === 'ar') return ['ar', 'en'];
+  if (l === 'en') return ['en', 'ar'];
+  return [l, 'en', 'ar'];
+}
+
+/**
+ * What is STORED for one content field in one language (null when empty), with the same slots and keys the public DTO reads. Long texts
+ * live in `<field>_ar` / `<field>_en` and in translations[db][key]; the short facts have an Arabic root and translations[db][key] only.
+ */
+export const CONTENT_FIELDS = [
+  'description', 'indications', 'dosage_instructions', 'how_to_use', 'warnings', 'side_effects', 'storage_conditions', 'package_content_details',
+  'active_ingredient', 'form', 'package_size', 'category', 'sub_category',
+] as const;
+export type ContentField = (typeof CONTENT_FIELDS)[number];
+const LONG_FIELD: Partial<Record<ContentField, { column: string; key: string }>> = {
+  description: { column: 'description', key: 'description' },
+  indications: { column: 'indications', key: 'indications_uses' },
+  dosage_instructions: { column: 'dosage', key: 'dosage_instructions' },
+  how_to_use: { column: 'usage_instructions', key: 'how_to_use' },
+  warnings: { column: 'warnings', key: 'warnings_precautions' },
+  side_effects: { column: 'side_effects', key: 'side_effects' },
+  storage_conditions: { column: 'storage_conditions', key: 'storage_conditions' },
+  package_content_details: { column: 'package_content_details', key: 'package_content_details' },
+};
+const FACT_FIELD: Partial<Record<ContentField, { root: string; key: string }>> = {
+  active_ingredient: { root: 'active_ingredient', key: 'active_ingredient' },
+  form: { root: 'form', key: 'dosage_form' },
+  package_size: { root: 'package_size', key: 'size_volume' },
+  category: { root: 'category', key: 'main_category' },
+  sub_category: { root: 'sub_category', key: 'sub_category' },
+};
+const DB_OF: Record<ContentLocale, DbLang> = { ar: 'ar', en: 'en', ur: 'ur', hi: 'hi', bn: 'bn', fil: 'tl' };
+
+export function storedContentText(raw: Record<string, any>, field: ContentField, locale: ContentLocale): string | null {
+  const db = DB_OF[locale];
+  const tr = raw?.translations?.[db];
+  const long = LONG_FIELD[field];
+  if (long) {
+    if (db === 'ar' || db === 'en') return pick(raw?.[`${long.column}_${db}`], tr?.[long.key]);
+    return pick(tr?.[long.key]);
+  }
+  const fact = FACT_FIELD[field] as { root: string; key: string };
+  if (db === 'ar') return pick(raw?.[fact.root], tr?.[fact.key]);
+  return pick(tr?.[fact.key]);
+}
+
+/** Text direction of a content language (Arabic and Urdu are right-to-left). */
+export const contentDir = (l: ContentLocale): 'rtl' | 'ltr' => (l === 'ar' || l === 'ur' ? 'rtl' : 'ltr');
+
+/**
+ * The language a stored text is really written in. A slot named `_ar` or `_en` is not trusted when the letters say otherwise (an English
+ * leaflet imported into an Arabic column): Arabic-script letters and Latin letters are counted, the majority wins. Urdu, Hindi, Bengali
+ * and Filipino slots are taken as labelled (Urdu shares the Arabic script, so letters cannot tell it from Arabic).
+ */
+export function textLanguage(value: string, slot: ContentLocale): ContentLocale {
+  if (slot !== 'ar' && slot !== 'en') return slot;
+  const arabic = (value.match(/[\u0600-\u06FF]/g) || []).length;
+  const latin = (value.match(/[A-Za-z]/g) || []).length;
+  if (slot === 'ar' && latin >= 12 && latin > arabic * 2) return 'en';
+  if (slot === 'en' && arabic >= 12 && arabic > latin * 2) return 'ar';
+  return slot;
+}
+
 export function resolveMedicinePublicDto(raw: Record<string, any>, productLocale: string) {
   const lang = productLocaleToDb(productLocale);
   const tr = raw?.translations?.[lang] || {};
@@ -268,27 +341,43 @@ export function resolveMedicinePublicDto(raw: Record<string, any>, productLocale
   // translations map is a secondary source. For ur/hi/bn/tl only the map exists.
   const COLUMN_ALIAS: Record<string, string> = { dosage_instructions: 'dosage', how_to_use: 'usage_instructions' };
   const column = (base: string, l: DbLang) => (raw as any)?.[`${COLUMN_ALIAS[base] || base}_${l}`] ?? (raw as any)?.[`${base}_${l}`];
-  const text = (base: string, trKey: string): string | null => {
-    if (lang === 'ar') return pick(column(base, 'ar'), trAr[trKey], column(base, 'en'), trEn[trKey]);
-    if (lang === 'en') return pick(column(base, 'en'), trEn[trKey], column(base, 'ar'), trAr[trKey]);
-    return pick(tr[trKey], column(base, 'en'), trEn[trKey], column(base, 'ar'), trAr[trKey]);
+  // The stored text of one section in each language, in the order of the fallback rule; the first non-empty one wins.
+  const slots = (base: string, trKey: string): Array<{ lang: ContentLocale; value: unknown }> => {
+    const by: Record<ContentLocale, unknown[]> = {
+      ar: [column(base, 'ar'), trAr[trKey]],
+      en: [column(base, 'en'), trEn[trKey]],
+      ur: [raw?.translations?.ur?.[trKey]], hi: [raw?.translations?.hi?.[trKey]], bn: [raw?.translations?.bn?.[trKey]], fil: [raw?.translations?.tl?.[trKey]],
+    };
+    return contentFallbackOrder(productLocale).flatMap((l) => by[l].map((value) => ({ lang: l, value })));
   };
-  const list = (base: string, trKey: string): string[] => {
-    const order: unknown[] = lang === 'ar'
-      ? [column(base, 'ar'), trAr[trKey], column(base, 'en'), trEn[trKey]]
-      : lang === 'en'
-        ? [column(base, 'en'), trEn[trKey], column(base, 'ar'), trAr[trKey]]
-        : [tr[trKey], column(base, 'en'), trEn[trKey], column(base, 'ar'), trAr[trKey]];
-    for (const v of order) {
-      const items = bulletList(v);
-      if (items.length) return items;
+  /** Which language each shown section really is in, only where it is not the page's language. */
+  const fallback_langs: Record<string, ContentLocale> = {};
+  const pageLang = DB_TO_CONTENT[lang];
+  const note = (field: string, used: ContentLocale | null) => { if (used && used !== pageLang) fallback_langs[field] = used; };
+  const text = (base: string, trKey: string, field = base): string | null => {
+    for (const { lang: l, value } of slots(base, trKey)) {
+      const v = pick(value);
+      if (v) { note(field, textLanguage(v, l)); return v; }
+    }
+    return null;
+  };
+  const list = (base: string, trKey: string, field = base): string[] => {
+    for (const { lang: l, value } of slots(base, trKey)) {
+      const items = bulletList(value);
+      if (items.length) { note(field, textLanguage(items.join(' '), l)); return items; }
     }
     return [];
   };
 
-  const fact = (base: string, arabicRoot: string) =>
-    lang === 'ar' ? pick(arabicRoot, trAr[TR_KEY[base] || base])
-      : localizeFactField(base, arabicRoot, tr[TR_KEY[base] || base] ?? trEn[TR_KEY[base] || base], lang);
+  const fact = (base: string, arabicRoot: string) => {
+    const key = TR_KEY[base] || base;
+    const own = lang === 'ar' ? null : pick(tr[key]);
+    if (own) return own;
+    const value = lang === 'ar' ? pick(arabicRoot, trAr[key]) : localizeFactField(base, arabicRoot, trEn[key], lang);
+    if (value && lang !== 'ar') note(base, textLanguage(value, value === arabicRoot ? 'ar' : 'en'));
+    else if (value) note(base, textLanguage(value, 'ar'));
+    return value;
+  };
 
   const images = [
     ...(Array.isArray(raw?.images) ? raw.images : []),
@@ -325,10 +414,10 @@ export function resolveMedicinePublicDto(raw: Record<string, any>, productLocale
     description: text('description', LONG_TEXT_TR_KEYS.description),
     indications: list('indications', LONG_TEXT_TR_KEYS.indications),
     dosage_instructions: text('dosage_instructions', LONG_TEXT_TR_KEYS.dosage_instructions),
-    side_effects: bulletList(text('side_effects', LONG_TEXT_TR_KEYS.side_effects)),
+    side_effects: list('side_effects', LONG_TEXT_TR_KEYS.side_effects),
     warnings: list('warnings', LONG_TEXT_TR_KEYS.warnings),
     storage_conditions: text('storage_conditions', LONG_TEXT_TR_KEYS.storage_conditions),
-    how_to_use: list('usage_instructions', LONG_TEXT_TR_KEYS.how_to_use),
+    how_to_use: list('usage_instructions', LONG_TEXT_TR_KEYS.how_to_use, 'how_to_use'),
     package_content_details: text('package_content_details', LONG_TEXT_TR_KEYS.package_content_details)
       || fact('package_content_details', String(raw?.package_size || '')),
     brand_benefits: text('brand_benefits', LONG_TEXT_TR_KEYS.brand_benefits),
@@ -362,6 +451,8 @@ export function resolveMedicinePublicDto(raw: Record<string, any>, productLocale
     // Decision D (issue 1556): the record's variant group and its own attribute (power / colour / shade / picture order).
     variant_group: typeof raw?.variant_group === 'string' && raw.variant_group ? raw.variant_group : null,
     variant: publicVariant(raw?.variant),
+    /** Sections shown in another language than `locale` (field → the language the text is in); empty when nothing fell back. */
+    fallback_langs,
     search_aliases: Array.isArray(tr?.search_aliases) ? tr.search_aliases : (Array.isArray(trEn?.search_aliases) ? trEn.search_aliases : []),
   };
 }
