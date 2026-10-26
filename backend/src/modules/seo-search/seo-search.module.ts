@@ -942,12 +942,15 @@ export class SeoSearchService {
             const pinIds = new Set(pins.map((i: any) => i.id));
             const ingCount = new Map<string, number>();
             const canonicals = [...new Set(Object.values(CANONICAL_CATEGORY_MAP))];
-            const perCat: any[][] = await Promise.all(canonicals.map((cat) =>
-              this.conn.collection(CATALOG_COLLECTIONS.medicines).find(
-                { ...this.publicProductFilter(), $or: [{ category: cat }, { [key('category')]: cat }] },
-                { projection: { _id: 0 } },
-              ).sort({ usage_count: -1, rating: -1 }).limit(6).toArray().catch(() => []),
-            ));
+            // One aggregation for all canonical categories (a $facet branch each), not one query per category (Sentry N+1, NABD-BACKEND-1B/1C).
+            const catMatch = (cat: string) => ({ $or: [{ category: cat }, { [key('category')]: cat }] });
+            const facetRows: Record<string, any>[] = await this.conn.collection(CATALOG_COLLECTIONS.medicines).aggregate([
+              { $match: { ...this.publicProductFilter(), $or: canonicals.flatMap((cat) => catMatch(cat).$or) } },
+              { $sort: { usage_count: -1, rating: -1 } },
+              { $project: { _id: 0 } },
+              { $facet: Object.fromEntries(canonicals.map((cat, n) => [`c${n}`, [{ $match: catMatch(cat) }, { $limit: 6 }]])) },
+            ], { allowDiskUse: true }).toArray().catch(() => []);
+            const perCat: any[][] = canonicals.map((_, n) => (facetRows[0]?.[`c${n}`] as any[]) || []);
             // Seed dedupe + ingredient budget from the usage-ordered base page
             // (DTOs carry no ingredient, so resolve via the per-category raws).
             // onPage = every base id (fill must be genuinely new); pins stay a
