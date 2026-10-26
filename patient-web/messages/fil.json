@@ -1687,6 +1687,8 @@
     "sar": "SAR"
   },
   "PublicProduct": {
+    "contentOnlyEnglish": "Makukuha lamang sa Ingles",
+    "contentOnlyArabic": "Makukuha lamang sa Arabe",
     "backToCatalog": "Bumalik sa katalogo",
     "home": "Home",
     "products": "Mga Produkto",
@@ -5568,5 +5570,10 @@
     "errUnavailable": "Hindi available ang address service ngayon. Punan ang mga detalye sa ibaba, o subukan muli.",
     "errNetwork": "Mukhang offline ka. Punan ang mga detalye sa ibaba, o subukan muli.",
     "retry": "Subukan muli"
+  },
+  "AppCallback": {
+    "title": "Bumabalik sa app…",
+    "open": "Buksan ang app",
+    "invalid": "Hindi valid ang sign-in link na ito. Isara ang window na ito at subukan ulit mula sa app."
   }
 }

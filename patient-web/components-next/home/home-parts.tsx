@@ -47,7 +47,7 @@ function PulseLine() {
 export function HeroCard({ locale, t, eyebrow, title, headingId }: { locale: Locale; t: T; eyebrow?: string; title: string; headingId: string }) {
   return (
     <section className={`${styles.hero} ${styles.riseInPlace}`} aria-labelledby={headingId}>
-      <span className={styles.heroMark}><NabdMark size={34} variant="text" /></span>
+      <span className={styles.heroMark}><NabdMark size={34} /></span>
       <div className={styles.heroText}>
         {eyebrow ? <p className={styles.eyebrow}>{eyebrow}</p> : null}
         <h1 id={headingId} className={styles.title}>{title}</h1>

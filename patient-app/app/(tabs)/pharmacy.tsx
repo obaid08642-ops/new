@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ScopedSuggest } from '../../src/components/search/ScopedSuggest';
+import { SUGGEST_SCOPES } from '../../src/utils/searchSuggest';
 import { FlatList, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
@@ -21,7 +23,7 @@ import type { FillIconName, ServiceTone } from '../../../packages/ui/icons/fill'
 import ProductImage from '../../src/components/ProductImage';
 import { MapEntryButton } from '../../src/components/account/MapEntryButton';
 import { FilterSheet } from '../../src/components/pharmacy/FilterSheet';
-import { CartButton, CountBadge, GlyphRound, GlyphSquare, PHARMACY_TONE, SECONDARY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
+import { CartButton, WishlistButton, CountBadge, GlyphRound, GlyphSquare, PHARMACY_TONE, SECONDARY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useCart } from '../../src/context/CartContext';
 import { dateLocaleFor } from '../../src/utils/dates';
@@ -230,6 +232,7 @@ export default function PharmacyHub() {
         <Text accessibilityRole="header" style={{ flex: 1, ...scale(t, 'h1'), letterSpacing: -0.3, color: c.text.primary, ...flow }}>{k('pharmacy.title')}</Text>
         <MapEntryButton kind="pharmacy" testID="pharmacy-map-entry" />
         <GlyphRound name="receipt" label={k('pharmacy.hub.orders')} onPress={() => go('/orders')} />
+        <WishlistButton />
         <CartButton />
       </View>
 
@@ -248,6 +251,7 @@ export default function PharmacyHub() {
             testID="pharmacy-search"
             theme={theme}
           />
+          <ScopedSuggest query={searchQuery} scope={SUGGEST_SCOPES.pharmacy} />
         </View>
         <GlyphSquare name="camera" label={k('pharmacy.hub.photoRx')} onPress={() => go('/pharmacy/rx-order?via=photo')} />
       </View>
@@ -309,8 +313,8 @@ export default function PharmacyHub() {
               {[lastOrder.count === 1 ? k('pharmacy.hub.oneItem') : k('pharmacy.hub.items', { n: num(lastOrder.count) }), lastOrder.at ? new Date(lastOrder.at).toLocaleDateString(dateLocaleFor(lang), { year: 'numeric', month: 'short', day: 'numeric' }) : ''].filter(Boolean).join(' · ')}
             </Text>
           </View>
-          <View style={{ minHeight: 36, paddingHorizontal: 14, borderRadius: 12, backgroundColor: c.action.selected.bg, justifyContent: 'center' }}>
-            <Text style={{ ...scale(t, 'small', 'bold'), color: c.action.selected.fg }}>{k('pharmacy.hub.order')}</Text>
+          <View style={{ minHeight: 36, paddingHorizontal: 14, borderRadius: 12, backgroundColor: c.action.primary.bg, justifyContent: 'center' }}>
+            <Text style={{ ...scale(t, 'small', 'bold'), color: c.action.primary.fg }}>{k('pharmacy.hub.order')}</Text>
           </View>
         </Pressable>
       ) : null}

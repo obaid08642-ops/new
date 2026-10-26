@@ -7,6 +7,9 @@ name: districts-extract
 # One Overpass query per REGION (13 admin_level 4 regions, a matrix job each, one at a time), not per city: the first run (one query per
 # city, ~150 cities with a 12 s pause) hit the 2 h job limit and was cancelled with nothing saved. Each region job uploads its part even when
 # it fails, and the merge job validates whatever parts exist, so one stuck region never loses the others.
+# Each region job makes two queries (places + the admin_level 6-8 boundaries); a district goes to the city whose boundary contains it, else to
+# the nearest city centre within 25 km, else it is rejected with a reason (scripts/geo/district-assign.ts). The summary lists, per city, the
+# count by boundary, the nearest-city fallback count, and how many already exist in the seed (their codes are kept by the import) or are new.
 on:
   workflow_dispatch:
     inputs:

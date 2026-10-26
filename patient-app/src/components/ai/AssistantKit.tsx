@@ -29,8 +29,8 @@ export function MyBubble({ text, testID }: { text: string; testID?: string }) {
   const { t, c, flow } = useScreenUi();
   return (
     <View style={{ width: '100%', alignItems: 'flex-end' }} testID={testID}>
-      <View style={{ maxWidth: '85%', paddingHorizontal: 14, paddingVertical: 10, borderRadius: 18, backgroundColor: c.action.selected.bg }}>
-        <Text style={{ ...scale(t, 'body', 'regular'), color: c.action.selected.fg, ...flow }}>{text}</Text>
+      <View style={{ maxWidth: '85%', paddingHorizontal: 14, paddingVertical: 10, borderRadius: 18, backgroundColor: c.service.coral.bg }}>
+        <Text style={{ ...scale(t, 'body', 'regular'), color: c.service.coral.fg, ...flow }}>{text}</Text>
       </View>
     </View>
   );

@@ -120,7 +120,7 @@ export function SupportTicketsView() {
     <AccountScreen
       title={k('support.tickets.title')}
       fallback={HELP}
-      actions={[{ key: 'new', label: k('support.tickets.new'), icon: <Glyph name="plus" size={20} color={c.icon.primary} />, onPress: chat }]}
+      actions={[{ key: 'new', label: k('support.tickets.new'), icon: <Glyph name="plus" size={20} color={c.text.secondary} />, onPress: chat }]}
       testID="support-tickets-screen"
     >
       <Gate status={list.status} errorTitle={k('support.tickets.loadError')} onRetry={() => void list.reload()}>

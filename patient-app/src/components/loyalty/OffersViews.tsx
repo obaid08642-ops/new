@@ -174,7 +174,7 @@ export function OfferDetailView() {
               <Section title={k('offers.terms')}>
                 <Panel>
                   {terms.map((item, i) => (
-                    <Row key={`${item}-${i}`} icon="info" tone="ink" title={item} last={i === terms.length - 1} />
+                    <Row key={`${item}-${i}`} icon="info" tone="amber" title={item} last={i === terms.length - 1} />
                   ))}
                 </Panel>
               </Section>

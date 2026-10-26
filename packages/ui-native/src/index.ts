@@ -19,6 +19,8 @@ export {
 export { FIcon } from './components/FIcon';
 export { BrandMark } from './components/BrandMark';
 export type { BrandMarkProps, BrandName } from './components/BrandMark';
+export { SocialMark } from './components/SocialMark';
+export type { SocialMarkProps } from './components/SocialMark';
 export { FILL_ICON_NAMES, FILL_ICON_PATHS, SERVICE_ICONS, SERVICE_TONES } from '../../ui/icons/fill';
 export type { FillIconName, ServiceName, ServiceTone } from '../../ui/icons/fill';
 export { EmptyState, ErrorState, OfflineState, Modal, Skeleton, Toast } from './components/Feedback';

@@ -235,8 +235,8 @@ export default function ShareReportScreen() {
           <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: on }} accessibilityLabel={title(r)} onPress={() => toggle(r.id)} style={{ minHeight: 44 }}>
             <Card theme={theme} padding="sm" testID={`report-${r.id}`}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <View style={{ width: 28, height: 28, borderRadius: 14, borderWidth: on ? 0 : 1.5, borderColor: c.border.strong, backgroundColor: on ? c.action.selected.bg : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
-                  {on ? <Glyph name="check-circle" size={20} color={c.action.selected.fg} /> : null}
+                <View style={{ width: 28, height: 28, borderRadius: 14, borderWidth: on ? 0 : 1.5, borderColor: c.border.strong, backgroundColor: on ? c.service.coral.bg : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
+                  {on ? <Glyph name="check-circle" size={20} color={c.service.coral.fg} /> : null}
                 </View>
                 <FIcon icon={icon} tone={r.lab_booking_id ? 'violet' : r.radiology_booking_id ? 'violet' : 'blue'} size={44} theme={theme} />
                 <View style={{ flex: 1, minWidth: 0, gap: 2 }}>

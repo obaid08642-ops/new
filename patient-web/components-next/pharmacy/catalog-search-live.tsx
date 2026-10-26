@@ -1,0 +1,79 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Search } from "@/components-next/ui-generated/components/Inputs";
+import { ComboboxHost, SearchSuggest, useSearchSuggest } from "@/components-next/search/search-suggest";
+import { SUGGEST_SCOPES } from "@/lib/search/suggest";
+
+/**
+ * The hub's search field (canvas/PharmacyHub: the 52 tall field, the ink filter square and the barcode button inside).
+ * Live suggestions (medicines only) drop under the field after 2-3 letters; picking one opens the medicine, Enter still runs the full search.
+ * Submitting goes to the catalogue's own search URL; the barcode button opens "scan a medicine". The categories are the chips under the field (the old filters page is a redirect to them).
+ */
+export function CatalogSearchLive({
+  locale,
+  target = "c",
+  initial = "",
+  tools = true,
+  focusOnMount = false,
+}: {
+  locale: string;
+  /** The listing the query is sent to: the public catalogue (`c`), the medicines list or the published catalogue (`medicine-catalog`). */
+  target?: "c" | "medicines" | "medicine-catalog";
+  initial?: string;
+  /** The barcode button (the hub's); the top bar's field has none. */
+  tools?: boolean;
+  /** The plain field was focused before this code loaded. */
+  focusOnMount?: boolean;
+}) {
+  const t = useTranslations("PharmacyBrowse");
+  const router = useRouter();
+  const [value, setValue] = useState(initial);
+  const { state, controller } = useSearchSuggest(locale, SUGGEST_SCOPES.pharmacy);
+  const host = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!focusOnMount) return;
+    const input = host.current?.querySelector<HTMLInputElement>('input[type="search"]');
+    if (!input) return;
+    input.focus();
+    const n = input.value.length;
+    input.setSelectionRange(n, n);
+    if (n) controller.input(input.value);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on mount
+  }, []);
+  return (
+    <SearchSuggest
+      state={state}
+      controller={controller}
+      allResultsHref={(q) => `/${locale}/${target}?q=${encodeURIComponent(q)}`}
+      renderField={(combobox) => (
+    <div ref={host}><ComboboxHost combobox={combobox}>
+    <form
+      role="search"
+      aria-label={t("searchLabel")}
+      action={`/${locale}/${target}`}
+      method="get"
+      onSubmit={(event) => {
+        event.preventDefault();
+        const q = value.trim();
+        router.push(`/${locale}/${target}${q ? `?q=${encodeURIComponent(q)}` : ""}`);
+      }}
+    >
+      <Search
+        value={value}
+        onChange={(next) => { setValue(next); controller.input(next); }}
+        placeholder={t("searchPlaceholder")}
+        label={t("searchLabel")}
+        onClear={() => { setValue(""); controller.input(""); }}
+        clearLabel={t("clear")}
+        onScanPress={tools ? () => router.push(`/${locale}/pharmacy/barcode`) : undefined}
+        scanLabel={t("scan")}
+      />
+    </form>
+    </ComboboxHost></div>
+      )}
+    />
+  );
+}

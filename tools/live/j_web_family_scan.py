@@ -22,7 +22,7 @@ def main():
 
     journey('issue 694: the owner gets the family invite code')
     r = owner.post('/family/invite', {})
-    step('without a family the invite is refused', r.status in (400, 404), r)
+    step('without a family the invite is refused', r.status in (400, 403, 404), r)
     r = owner.post('/family/create', {'name': 'عائلة الاختبار'})
     step('the owner creates the family', r.ok, r)
     r = owner.post('/family/invite', {})

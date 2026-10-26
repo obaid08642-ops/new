@@ -67,6 +67,8 @@ const FILES = [
   // Component files hold state, refs or handlers, so they are Client Components here.
   { from: 'packages/ui/icons/fill.ts', to: 'patient-web/components-next/ui-generated/icons/fill.ts', transform: filterFill },
   { from: 'packages/ui/icons/marks.ts', to: 'patient-web/components-next/ui-generated/icons/marks.ts' },
+  { from: 'packages/ui/icons/social-brands.ts', to: 'patient-web/components-next/ui-generated/icons/social-brands.ts' },
+  { from: 'packages/ui/icons/social-brands.css', to: 'patient-web/components-next/ui-generated/icons/social-brands.css' },
   { from: 'packages/ui/icons/fill-glyphs.ts', to: 'patient-web/components-next/ui-generated/icons/fill-glyphs.ts' },
   { from: 'packages/ui/icons/line.ts', to: 'patient-web/components-next/ui-generated/icons/line.ts' },
   { from: 'packages/ui/components/contract.ts', to: 'patient-web/components-next/ui-generated/components/contract.ts' },

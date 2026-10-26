@@ -1687,6 +1687,8 @@
     "sar": "SAR"
   },
   "PublicProduct": {
+    "contentOnlyEnglish": "Available in English only",
+    "contentOnlyArabic": "Available in Arabic only",
     "backToCatalog": "Back to catalog",
     "home": "Home",
     "products": "Products",
@@ -5568,5 +5570,10 @@
     "errUnavailable": "The address service is not available right now. Fill in the details below, or try again.",
     "errNetwork": "You seem to be offline. Fill in the details below, or try again.",
     "retry": "Try again"
+  },
+  "AppCallback": {
+    "title": "Returning to the app…",
+    "open": "Open the app",
+    "invalid": "This sign-in link is not valid. Close this window and try again from the app."
   }
 }

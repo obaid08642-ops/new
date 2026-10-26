@@ -78,8 +78,8 @@ export default function ClinicProfile() {
               {data.image ? (
                 <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors accessibilityLabel={name} source={{ uri: optimizedImageUri(data.image, 400) }} contentFit="cover" style={{ width: '100%', height: 180, borderTopLeftRadius: 24, borderTopRightRadius: 24 }} />
               ) : (
-                <View style={{ height: 120, alignItems: 'center', justifyContent: 'center', backgroundColor: c.bg.media, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
-                  <Glyph name="hospital" size={44} color={c.icon.secondary} />
+                <View style={{ height: 120, alignItems: 'center', justifyContent: 'center', backgroundColor: c.service.blue.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
+                  <FIcon icon="hospital" tone="blue" chip="none" size={44} theme={theme} />
                 </View>
               )}
               <View style={{ padding: 16, gap: 6 }}>

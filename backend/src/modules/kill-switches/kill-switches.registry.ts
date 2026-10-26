@@ -7,7 +7,7 @@
  * a missing entry means ON (fail-open, as before).
  *
  * Removed from the old hard-coded list:
- * - `emergency_system` (SOS / ambulance dispatch): the ambulance system is removed (owner decision 14).
+ * - `emergency_system` (emergency dispatch): that system is removed (owner decision 14).
  * - `online_payments` ("cash only"): online consultations, home visits and nursing are online-pay only (owner
  *   decision 25), so "cash only" cannot exist; pharmacy cash on delivery has its own control (config portal).
  */

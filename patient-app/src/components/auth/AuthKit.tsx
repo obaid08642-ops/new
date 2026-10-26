@@ -3,7 +3,8 @@ import { Platform, Pressable, Text, TextInput, View, type KeyboardTypeOptions, t
 import * as AppleAuthentication from 'expo-apple-authentication';
 
 import { tokens, type ThemeName } from '../../../../packages/design-tokens/dist/ts/tokens';
-import { BrandMark, Icon, IconButton, SHELL_FONT } from '../../../../packages/ui-native/src';
+import { SocialMark, Icon, IconButton, SHELL_FONT } from '../../../../packages/ui-native/src';
+import { SOCIAL_BUTTON_COLORS } from '../../../../packages/ui/icons/social-brands';
 import { withAlpha } from '../../../../packages/ui-native/src/shells/shellTokens';
 import { useApp } from '../../context/AppContext';
 import type { SocialRuntimeConfig } from '../../hooks/useSocialConfig';
@@ -68,7 +69,7 @@ export function AuthTopBar({ onBack }: { onBack?: () => void }) {
       ) : (
         <View style={{ width: 44 }} />
       )}
-      <NabdLogo size={30} variant="text" theme={theme} label={tr('نبض بلس')} />
+      <NabdLogo size={30} label={tr('نبض بلس')} />
       <View style={{ width: 44 }} />
     </View>
   );
@@ -237,14 +238,14 @@ export function AuthCheckbox({ checked, onToggle, label, children }: { checked: 
           height: 22,
           marginTop: 1,
           borderRadius: 7,
-          backgroundColor: checked ? c.text.primary : c.bg.surface,
+          backgroundColor: checked ? c.action.primary.bg : c.bg.surface,
           borderWidth: checked ? 0 : 1.5,
           borderColor: c.border.strong,
           alignItems: 'center',
           justifyContent: 'center',
         }}
       >
-        {checked ? <Icon name="check" size={14} theme={theme} color={c.bg.canvas} /> : null}
+        {checked ? <Icon name="check" size={14} theme={theme} color={c.action.primary.fg} /> : null}
       </Pressable>
       <View style={{ flex: 1 }}>{children}</View>
     </View>
@@ -285,10 +286,9 @@ export function availableSocialProviders(_config?: SocialRuntimeConfig | null): 
 
 const PROVIDER_NAME: Record<SocialProvider, string> = { apple: 'Apple', google: 'Google', x: 'X', snapchat: 'Snapchat' };
 
-// Apple is always the official AppleAuthentication button (never a glyph); the rest are the BrandMark of ui-native.
+// Apple is always the official AppleAuthentication button (black / white per theme, with its own logo); the others are drawn in their own brand colours from packages/ui/icons/social-brands.ts (the one brand-colour module).
 function ProviderGlyph({ provider, color, size = 20 }: { provider: SocialProvider; color: string; size?: number }) {
-  if (provider === 'apple') return null;
-  return <BrandMark brand={provider} color={color} size={size} />;
+  return <SocialMark brand={provider} color={color} size={size} />;
 }
 
 /**
@@ -299,6 +299,7 @@ function ProviderGlyph({ provider, color, size = 20 }: { provider: SocialProvide
 export function SocialButtons({ providers, onPress, layout, disabled }: { providers: SocialProvider[]; onPress: (p: SocialProvider) => void; layout: 'icons' | 'labelled'; disabled?: boolean }) {
   const { theme, c, tr } = useAuthUi();
   if (!providers.length) return null;
+  const brand = (p: SocialProvider) => SOCIAL_BUTTON_COLORS[p][theme === 'dark' ? 'dark' : 'light'];
   const aria = (p: SocialProvider) => `${tr('المتابعة مع')} ${PROVIDER_NAME[p]}`;
   const apple = (width: number | '100%', height: number, radius: number) => (
     <View style={{ width, height, opacity: disabled ? 0.5 : 1 }} pointerEvents={disabled ? 'none' : 'auto'}>
@@ -327,15 +328,15 @@ export function SocialButtons({ providers, onPress, layout, disabled }: { provid
               height: 52,
               borderRadius: 16,
               borderWidth: 1,
-              borderColor: c.border.subtle,
-              backgroundColor: c.bg.surface,
+              borderColor: brand(p).border,
+              backgroundColor: brand(p).background,
               alignItems: 'center',
               justifyContent: 'center',
               opacity: disabled ? 0.5 : 1,
               transform: [{ scale: pressed ? 0.98 : 1 }],
             })}
           >
-            <ProviderGlyph provider={p} color={c.text.primary} size={22} />
+            <ProviderGlyph provider={p} color={brand(p).foreground} size={22} />
           </Pressable>
         ))}
       </View>
@@ -355,10 +356,10 @@ export function SocialButtons({ providers, onPress, layout, disabled }: { provid
               accessibilityLabel={aria(p)}
               disabled={disabled}
               onPress={() => onPress(p)}
-              style={{ flex: 1, height: 52, borderRadius: 16, borderWidth: 1, borderColor: c.border.subtle, backgroundColor: c.bg.surface, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+              style={{ flex: 1, height: 52, borderRadius: 16, borderWidth: 1, borderColor: brand(p).border, backgroundColor: brand(p).background, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}
             >
-              <ProviderGlyph provider={p} color={c.text.primary} size={18} />
-              <Text style={{ fontFamily: FONT.medium, fontSize: 14, color: c.text.primary }}>{PROVIDER_NAME[p]}</Text>
+              <ProviderGlyph provider={p} color={brand(p).foreground} size={18} />
+              <Text style={{ fontFamily: FONT.medium, fontSize: 14, color: brand(p).foreground }}>{PROVIDER_NAME[p]}</Text>
             </Pressable>
           ))}
         </View>
