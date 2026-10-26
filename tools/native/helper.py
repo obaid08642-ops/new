@@ -4,6 +4,7 @@
   GET /fresh                    -> {email, phone, password, name}   unused sign-up data (nothing is created)
   GET /otp?to=<email>[&since=ms] -> {code}                           newest 6-digit code mailed to <email> (smtp_sink), waits up to 25 s
   GET /patient/new[?address=1][&family=1] -> {email, phone, password, name}   a patient created through the real API (for flows that change or delete the account); address=1 adds a saved address, family=1 a family with one member
+  GET /family/member-appointments -> {ok, count, ids}   the appointments the last family member (of /patient/new?family=1) sees
   GET /api?path=/x&token=...    -> the backend's JSON answer (GET), for checks on the other side of a journey
 Test stack only; every address is @nabd.test.
 """
@@ -20,6 +21,7 @@ def fresh():
 
 ACCOUNTS = os.environ.get('NATIVE_ACCOUNTS', '/tmp/native/accounts.json')
 OFFERED = set()
+MEMBER = {}   # the family member the last /patient/new?family=1 created (its sign-up token)
 
 
 def accounts():
@@ -196,7 +198,14 @@ class H(BaseHTTPRequestHandler):
                     me.post('/family/create', {'name': 'عائلة الاختبار'})
                     code = me.post('/family/invite', {}).get('invite_code')
                     lib.Client(other['token']).post('/family/join', {'invite_code': code or '', 'relation': 'child'})
+                    MEMBER['token'] = other['token']
                 return self._send(200, {'email': p['email'], 'phone': p['phone'], 'password': p['password'], 'name': 'اختبار native-extra'})
+            if u.path == '/family/member-appointments':
+                # what the family member sees after the account holder booked for them: their own appointment list
+                if not MEMBER.get('token'):
+                    return self._send(200, {'ok': False, 'detail': 'no family member created by this helper'})
+                r = lib.Client(MEMBER['token']).get('/care/appointments')
+                return self._send(200, {'ok': r.ok, 'count': len(r.items()), 'ids': [x.get('id') for x in r.items()]})
             if u.path == '/meds':
                 return self._send(200, accounts().get('meds', []))
             if u.path == '/pay/complete':

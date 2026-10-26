@@ -66,4 +66,7 @@ appId: com.patient.nabd
     visible:
       id: "booking-success-screen"
     timeout: 40000
+# and the appointment belongs to the member: they see it in their own list
+- runScript:
+    file: scripts/family_member_booking.js
 - takeScreenshot: patient_family_booking_success
