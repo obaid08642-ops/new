@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const state = vi.hoisted(() => ({ getPublicSpecialties: vi.fn() }));
+vi.mock("next-intl", async () => (await import("@/tests/helpers/intl")).nextIntlMock("en"));
 vi.mock("next/navigation", () => ({ notFound: vi.fn(), useRouter: () => ({ refresh: vi.fn(), push: vi.fn() }) }));
 vi.mock("next-intl/server", () => ({
   getTranslations: async (namespace?: string) =>

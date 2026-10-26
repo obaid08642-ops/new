@@ -1,3 +1,4 @@
+import { SUGGEST_SCOPES } from "@/lib/search/suggest";
 import { notFound } from "next/navigation";
 import { StaleWhileRevalidate } from "@/components-next/nav/stale-while-revalidate";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -76,7 +77,7 @@ export default async function NursingCatalogPage({ params, searchParams }: Props
   return (
     <ConsultPage locale={locale} title={t("catalogTitle")} backHref={`/${locale}/home-care`}>
       <StaleWhileRevalidate />
-      {items.length > 0 ? <SearchForm defaultValue={q} placeholder={t("searchPlaceholder")} label={t("searchLabel")} submitLabel={t("searchSubmit")} /> : null}
+      {items.length > 0 ? <SearchForm suggest={{ locale, scope: SUGGEST_SCOPES.nursing }} defaultValue={q} placeholder={t("searchPlaceholder")} label={t("searchLabel")} submitLabel={t("searchSubmit")} /> : null}
       {items.length === 0 ? (
         <ConsultState kind="empty" icon={NURSING.icon} tone={NURSING.tone} title={t("catalogEmptyTitle")} body={t("catalogEmptyBody")} />
       ) : shown.length === 0 ? (
