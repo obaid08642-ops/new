@@ -22,7 +22,11 @@ describe('category listing filters (form, brand, rx, price)', () => {
 
   it('reaches the query: the listing ANDs the clauses and keeps no-price items out of a price range', async () => {
     let seen: any;
-    const col = { find: (f: any) => { seen = f; return { sort: () => ({ skip: () => ({ limit: () => ({ toArray: async () => [] }) }) }) }; }, countDocuments: async () => 0 };
+    const col = {
+      find: (f: any) => { seen = f; return { sort: () => ({ skip: () => ({ limit: () => ({ toArray: async () => [] }) }) }) }; },
+      aggregate: (stages: any[]) => { seen = stages[0].$match; return { toArray: async () => [] }; }, // the default (popular) order is an aggregation
+      countDocuments: async () => 0,
+    };
     const svc: any = Object.create(SeoSearchService.prototype);
     svc.conn = { collection: () => col };
     svc.publicProductFilter = () => ({ approved: true });
