@@ -91,12 +91,35 @@ export class ApiSecurityService {
 
   async blacklist(key: string, reason: string, ttlSeconds = 3600) {
     const c = this.client();
-    if (c) await c.set(key, reason, 'EX', ttlSeconds);
+    // Redis refusing the write (MISCONF, closed connection) must not fail the request that triggered it.
+    if (c) await c.set(key, reason, 'EX', ttlSeconds).catch((e: Error) => this.redisDown('blacklist', e));
     this.logger.warn(`BLACKLISTED ${key} — ${reason}`);
   }
 
-  /** Granular rate limit: per (class, ip, user, device). Returns verdict. */
+  private lastRedisWarn = 0;
+  /** Redis failures are a degraded mode, not an error: one warning a minute, never a thrown error. */
+  private redisDown(what: string, e: Error) {
+    const now = Date.now();
+    if (now - this.lastRedisWarn < 60_000) return;
+    this.lastRedisWarn = now;
+    this.logger.warn(`rate limiting skipped, Redis unavailable (${what}): ${String(e?.message || e).slice(0, 120)}`);
+  }
+
+  /**
+   * Granular rate limit: per (class, ip, user, device). Returns verdict.
+   * A Redis failure (timeout, closed connection, offline-queue reject, MISCONF) lets the request through: the limiter is
+   * a protection layer, and it must never turn a cache outage into a 5xx on every route (Sentry NABD-BACKEND-9/12/17/19).
+   */
   async checkRate(req: Request, userId?: string): Promise<{ allowed: boolean; className: string; retryAfter?: number }> {
+    try {
+      return await this.checkRateUnsafe(req, userId);
+    } catch (e) {
+      this.redisDown('checkRate', e as Error);
+      return { allowed: true, className: 'redis-unavailable' };
+    }
+  }
+
+  private async checkRateUnsafe(req: Request, userId?: string): Promise<{ allowed: boolean; className: string; retryAfter?: number }> {
     const url = (req as any).originalUrl || req.url || '';
     const ip = (req as any).ip || 'unknown';
     const deviceId = (req.headers?.['x-device-id'] as string) || undefined;
