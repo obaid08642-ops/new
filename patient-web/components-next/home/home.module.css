@@ -65,6 +65,14 @@
   .nav { display: flex; }
   .top { gap: 28px; }
 }
+/* 1024-1279: the sections plus the language, theme, bell, favourites, cart, map and Sign-in controls need tighter spacing, or the last
+   control is pushed past the window edge */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .top { gap: 10px; }
+  .nav { gap: 0; }
+  .navLink { padding-inline: 8px; }
+  .tools { gap: 4px; }
+}
 
 /* ---- page ---- */
 .page { display: flex; flex-direction: column; gap: 22px; padding-block: var(--nabd-space-sm) var(--nabd-space-xl); }
