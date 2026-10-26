@@ -179,6 +179,7 @@
 .sectionTitle { margin: 0 0 10px; font-size: var(--nabd-font-size-body-lg); font-weight: 700; }
 .sectionBody { padding: 0 16px 16px; }
 .section[data-open="false"] .sectionBody { display: none; }
+.langNote { margin: 0 0 8px; font-size: var(--nabd-font-size-caption); line-height: 1.5; color: var(--nabd-color-text-tertiary); }
 .bullets { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .bullets li { position: relative; padding-inline-start: 16px; font-size: var(--nabd-font-size-control); line-height: 1.7; color: var(--nabd-color-text-tertiary); overflow-wrap: anywhere; white-space: pre-line; }
 .bullets li::before { content: ""; position: absolute; inset-inline-start: 0; inset-block-start: 0.7em; inline-size: 6px; block-size: 6px; border-radius: 3px; background: var(--nabd-color-action-primary-bg); }
