@@ -6,7 +6,7 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 
 ## Coverage
 
-- Scenarios: 24 done, 41 partial, 4 blocked (reason given), 5 not started, of 74 total.
+- Scenarios: 24 done, 43 partial, 4 blocked (reason given), 3 not started, of 74 total.
 - Screens: 0 of 274 patient-web routes fully scanned (public pages sampled in findings). Admin and provider screens not started.
 - The sweep is not finished. It is finished only when both counts reach 100%, or each remaining line gives its reason.
 
@@ -47,12 +47,12 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 | I-01 | insurance | add card (company → copay) | PARTIAL | Retested on rebuilt main: save 201, MongoDB patient_profiles holds copay_percent 20 and copay_cap_sar 500 (P1 fixed). Still open: no class field in the form (P2) |
 | I-02 | insurance | edit card | PARTIAL | API overwrite with read-back passes (tools/live/j_qa_insurance.py). UI Change button not clicked yet |
 | I-03 | insurance | delete card | BLOCKED | No delete exists (P2, findings/insurance-delete.md). Test once an endpoint exists |
-| I-04 | insurance | CHI link | TODO | |
+| I-04 | insurance | CHI link | PARTIAL | tools/live/j_qa_chi.py (11/11): GET /config links.chi_inquiry is https on chi.gov.sa; save without insurer refused 400, MongoDB no insurance stored; save with insurer stores the copied number, verified not false-positive from client (MongoDB verified false/absent), read back. The CHI button click (external page) is not driven in a browser |
 | A-01 | account | sign in, email | DONE | Sign-in with registered patient lands on /en/dashboard; document created by registration (users collection) verified |
 | A-02 | account | sign up, email OTP | PARTIAL | Registration via API flow (send-otp, verify-otp, register) 2xx; user document verified; web sign-up page not yet clicked through |
 | A-03 | account | sign up / sign in, phone OTP | PARTIAL | tools/live/j_accounts.py: login by phone (app payload) passes. Phone OTP sign-up not separately tested |
 | A-04 | account | sign in, wrong password | DONE | Generic error shown; 401 on POST /api/auth/login |
-| A-05 | account | Google / Apple / X / Snapchat | TODO | gated: check the gate message |
+| A-05 | account | Google / Apple / X / Snapchat | PARTIAL | tools/live/j_qa_social.py (6/6): GET /auth/social/config: all four disabled on the test stack. POST /auth/social-login real answers: google 503 {message: social_login_not_configured}, apple 503 same, x 400 social_code_required, snapchat 400 social_code_required; MongoDB users count unchanged. Verified sign-in needs provider credentials (not on the test stack); UI buttons not clicked |
 | A-06 | account | forgot password | PARTIAL | API journey tools/live/j_qa_password.py: forgot, reset token from mail, reset, old password refused, new password logs in (all pass). Web forgot page not clicked yet |
 | A-07 | account | 8-character password rule | PARTIAL | API: register rejects a 7-character password with a 400 naming the limit (j_qa_password.py). Web form not checked yet |
 | A-08 | account | profile edit | PARTIAL | Health basics (height, weight) proven: UI Save → PATCH /api/medical-profile 200; reload shows 172 / 70; MongoDB medicalprofiles doc updated (height_cm 172, weight_kg 70, updatedAt set). Name, email and phone not tested yet |
@@ -105,7 +105,7 @@ Per-screen scan (every element, sizes 390/768/1280, six languages, dark mode) is
 - Auth-gated patient-web routes (signed in, 72): swept on the production layout. Table: docs/qa/screens/patient-web-auth.md. Findings: docs/qa/findings/web-sweep-auth.md.
 - Admin pages (65 files): swept signed in, on the admin build of 03:12, then re-checked on the rebuilt admin from merged main. Findings: docs/qa/findings/admin-sweep.md. Dynamic admin routes (orders/[kind]/[id]) not tested (need IDs).
 - Dynamic patient-web routes (53): 5 routes tested with a real seeded doctor (docs/qa/findings/web-sweep-dynamic.md). Found P1: /consultations/doctors/<id> returns 503 (server-to-client function prop). The other ~48 need seeded IDs for articles, facilities, community, orders, appointments, labs, radiology, packages, results, clinics: NOT TESTED, reason: no seeded records of those types yet.
-- Scenarios: 24 done, 41 partial, 4 blocked (reason given), 5 not started, of 74 total.
+- Scenarios: 24 done, 43 partial, 4 blocked (reason given), 3 not started, of 74 total.
 - Open P1s: guest job publish (no route); admin system logs API 404 (AdminLogsController dropped in the P5.3 merge).
 - Corrected: hydration P1 retracted (local setup; production layout passes).
 - Environment: services drop between turns. Recover with /tmp/claude-0-scratch/stack_up.sh (patient-web via the nonce server). Kill stale next-server processes by PID (comm next-server) before restarting admin.
