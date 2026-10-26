@@ -1,27 +1,30 @@
 /**
- * Placeholder and suspect city rows of the central seed (owner decision 2026-10-26): they must never show to users, and they are
- * never deleted. They are set inactive (`is_active=false`, with their districts), after a reference check; the plan prints the counts.
+ * Placeholder and duplicate city rows of the central seed. Owner decision 2026-10-26 (replaces "inactive"): there are no real users
+ * yet, so they are DELETED with their synthetic districts, after every reference is re-pointed to the right real city. The plan
+ * prints the reference counts; a row whose references have no real counterpart is not deleted.
  *
  * Reference check: the clients store a city as TEXT (the Arabic or English name, sometimes the code), so a row is "referenced" when
- * an address, provider, facility, branch or order holds one of the row's three spellings. A placeholder that is referenced is NOT
- * deactivated by the plan (it is listed instead), so no one is left pointing at a hidden city.
+ * an address, provider, facility, branch or order holds one of the row's three spellings.
  */
 
-/** `sa-central-city-1..12` and the nine `*-new` rows: invented names, no real place behind them. */
-export const PLACEHOLDER_CITY_CODES: readonly string[] = [
-  ...Array.from({ length: 12 }, (_, i) => `sa-central-city-${i + 1}`),
-  'sa-al-kharj-new', 'sa-jeddah-new', 'sa-makkah-new', 'sa-dammam-new', 'sa-khobar-new',
-  'sa-abha-new', 'sa-jazan-new', 'sa-tabuk-new', 'sa-arar-new',
+/**
+ * What happens to a row before it is deleted. `into` is the real city that takes over its references (a city written as text in an
+ * address, provider, facility, branch or order); a row with no real counterpart is deleted only while nothing references it.
+ */
+export interface DeleteRule { code: string; into?: string; reason: string }
+
+const NEW_ROWS: ReadonlyArray<[string, string]> = [
+  ['sa-al-kharj-new', 'sa-al-kharj'], ['sa-jeddah-new', 'sa-jeddah'], ['sa-makkah-new', 'sa-makkah'], ['sa-dammam-new', 'sa-dammam'],
+  ['sa-khobar-new', 'sa-al-khobar'], ['sa-abha-new', 'sa-abha'], ['sa-jazan-new', 'sa-jazan'], ['sa-tabuk-new', 'sa-tabuk'], ['sa-arar-new', 'sa-arar'],
 ];
 
-/** A suspect row and what happens to it. `into` is the city that now carries its references (the row itself goes inactive). */
-export interface SuspectRule { code: string; action: 'merge' | 'inactive'; into?: string; reason: string }
-
-export const SUSPECT_CITY_RULES: readonly SuspectRule[] = [
-  { code: 'sa-duba3', action: 'merge', into: 'sa-duba', reason: 'duplicate of sa-duba' },
-  { code: 'sa-al-many', action: 'inactive', reason: 'broken name ("ال many"); no matching place in OpenStreetMap' },
-  { code: 'sa-al-umran', action: 'merge', into: 'sa-al-ahsa', reason: 'a district of Al-Ahsa (sa-al-ahsa-035 already exists)' },
-  { code: 'sa-al-taraf', action: 'merge', into: 'sa-al-ahsa', reason: 'a district of Al-Ahsa (sa-al-ahsa-034 already exists)' },
+export const DELETE_CITY_RULES: readonly DeleteRule[] = [
+  ...Array.from({ length: 12 }, (_, i): DeleteRule => ({ code: `sa-central-city-${i + 1}`, reason: 'invented placeholder, no real place' })),
+  ...NEW_ROWS.map(([code, into]): DeleteRule => ({ code, into, reason: 'placeholder copy of a real city' })),
+  { code: 'sa-duba3', into: 'sa-duba', reason: 'duplicate of sa-duba' },
+  { code: 'sa-al-many', reason: 'broken name ("ال many"); no matching place found' },
+  { code: 'sa-al-umran', into: 'sa-al-ahsa', reason: 'a district of Al-Ahsa (sa-al-ahsa-035 exists)' },
+  { code: 'sa-al-taraf', into: 'sa-al-ahsa', reason: 'a district of Al-Ahsa (sa-al-ahsa-034 exists)' },
 ];
 
 /** Left as they are, listed in the plan: no governorate boundary centre is available to the apply. */

@@ -1,11 +1,11 @@
 /**
- * Placeholder and suspect cities (owner decision 2026-10-26): inactive, never deleted, references checked first. In-memory MongoDB.
+ * Placeholder and suspect cities (owner decision 2026-10-26): deleted, references re-pointed first. In-memory MongoDB.
  */
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { applyChanges, rollbackChanges, type DbLike } from './catalogue-apply.core';
 import { planPlaceholderCities } from './catalogue-apply.steps';
-import { LISTED_ONLY_CITY_CODES, PLACEHOLDER_CITY_CODES, SUSPECT_CITY_RULES } from '../location/placeholder-cities';
+import { DELETE_CITY_RULES, LISTED_ONLY_CITY_CODES } from '../location/placeholder-cities';
 import { SAUDI_LOCATIONS_SEED } from '../location/seeds/saudi-locations.data';
 
 jest.setTimeout(120_000);
@@ -25,6 +25,8 @@ beforeEach(async () => {
   await raw().collection('locations').insertMany([
     loc('sa-riyadh', 'city', 'sa-central-region', 'الرياض', 'Riyadh'),
     loc('sa-central-city-1', 'city', 'sa-central-region', 'مدينة وسطى 1', 'Central City 1'),
+    loc('sa-jeddah', 'city', 'sa-western-region', 'جدة', 'Jeddah'),
+    loc('sa-jeddah-new', 'city', 'sa-western-region', 'جدة الجديدة', 'Jeddah New'),
     loc('sa-central-city-1-001', 'district', 'sa-central-city-1', 'حي مدينة وسطى 1 1', 'Central City 1 District 1'),
     loc('sa-central-city-2', 'city', 'sa-central-region', 'مدينة وسطى 2', 'Central City 2'),
     loc('sa-duba', 'city', 'sa-northern-region', 'ضباء', 'Duba'),
@@ -37,44 +39,40 @@ beforeEach(async () => {
   ]);
 });
 
-const active = async (code: string) => (await raw().collection('locations').findOne({ code }))!.is_active;
+const exists = async (code: string) => !!(await raw().collection('locations').findOne({ code }));
 
 describe('the seed', () => {
-  const rows = new Map(SAUDI_LOCATIONS_SEED.map((l) => [l.code, l]));
-  it('has every listed code, and they are inactive with their districts', () => {
-    for (const code of [...PLACEHOLDER_CITY_CODES, ...SUSPECT_CITY_RULES.map((r) => r.code)]) {
-      expect(rows.get(code)?.type).toBe('city');
-      expect(rows.get(code)?.is_active).toBe(false);
-    }
-    const roots = new Set([...PLACEHOLDER_CITY_CODES, ...SUSPECT_CITY_RULES.map((r) => r.code)]);
-    const kids = SAUDI_LOCATIONS_SEED.filter((l) => l.parent_code && roots.has(l.parent_code));
-    expect(kids.length).toBeGreaterThan(0);
-    expect(kids.every((k) => k.is_active === false)).toBe(true);
-    for (const code of LISTED_ONLY_CITY_CODES) expect(rows.get(code)?.is_active).toBe(true);
+  const codes = new Set(SAUDI_LOCATIONS_SEED.map((l) => l.code));
+  it('no longer has the deleted rows or their districts', () => {
+    const roots = new Set(DELETE_CITY_RULES.map((r) => r.code));
+    expect(SAUDI_LOCATIONS_SEED.filter((l) => roots.has(l.code) || (l.parent_code && roots.has(l.parent_code)))).toEqual([]);
   });
-  it('keeps the real cities active (nothing else was switched off)', () => {
-    const off = SAUDI_LOCATIONS_SEED.filter((l) => l.type === 'city' && !l.is_active).map((l) => l.code).sort();
-    expect(off).toEqual([...PLACEHOLDER_CITY_CODES, ...SUSPECT_CITY_RULES.map((r) => r.code)].sort());
+  it('keeps the listed-only cities and every re-point target as active cities', () => {
+    const rows = new Map(SAUDI_LOCATIONS_SEED.map((l) => [l.code, l]));
+    for (const c of LISTED_ONLY_CITY_CODES) expect(rows.get(c)?.is_active).toBe(true);
+    for (const r of DELETE_CITY_RULES) if (r.into) expect(rows.get(r.into)).toMatchObject({ type: 'city', is_active: true });
+    expect(codes.has('sa-al-ahsa-034') && codes.has('sa-al-ahsa-035')).toBe(true);
   });
-  it('merge targets exist as active cities', () => {
-    for (const r of SUSPECT_CITY_RULES) if (r.into) expect(rows.get(r.into)?.is_active).toBe(true);
+  it('every city still has a known parent', () => {
+    for (const l of SAUDI_LOCATIONS_SEED) if (l.parent_code) expect(codes.has(l.parent_code)).toBe(true);
   });
 });
 
 describe('planPlaceholderCities', () => {
-  it('deactivates an unreferenced placeholder and its districts, deletes nothing, and a second plan is empty', async () => {
+  it('deletes an unreferenced placeholder with its districts, nothing else, and a second plan is empty', async () => {
     const before = await raw().collection('locations').countDocuments();
     const { changes, report } = await planPlaceholderCities(db);
-    expect(report.deactivated_cities).toContain('sa-central-city-1');
-    await applyChanges(db, changes);
-    expect(await active('sa-central-city-1')).toBe(false);
-    expect(await active('sa-central-city-1-001')).toBe(false);
-    expect(await active('sa-riyadh')).toBe(true);
-    expect(await raw().collection('locations').countDocuments()).toBe(before);
+    expect(report.deleted_cities).toContain('sa-central-city-1');
+    const res = await applyChanges(db, changes);
+    expect(res.deleted).toBe(report.deleted_rows);
+    expect(await exists('sa-central-city-1')).toBe(false);
+    expect(await exists('sa-central-city-1-001')).toBe(false);
+    expect(await exists('sa-riyadh')).toBe(true);
+    expect(await raw().collection('locations').countDocuments()).toBe(before - report.deleted_rows);
     expect((await planPlaceholderCities(db)).changes).toHaveLength(0);
   });
 
-  it('does not touch a placeholder that an address, provider or order still holds, and prints the counts', async () => {
+  it('keeps a placeholder that something references and has no real counterpart, and prints the counts', async () => {
     await raw().collection('patient_profiles').insertOne({ addresses: [{ id: 'a', city: 'Central City 2' }, { id: 'b', city: 'الرياض' }] });
     await raw().collection('orders').insertOne({ address: { city: 'مدينة وسطى 2' } });
     await raw().collection('provider_profiles').insertOne({ city: 'sa-central-city-2' });
@@ -82,52 +80,65 @@ describe('planPlaceholderCities', () => {
     expect(report.blocked_by_references).toEqual(['sa-central-city-2']);
     expect(report.references['sa-central-city-2']).toEqual({ 'patient_profiles.addresses.city': 1, 'provider_profiles.city': 1, 'orders.address.city': 1 });
     await applyChanges(db, changes);
-    expect(await active('sa-central-city-2')).toBe(true);
-    expect(await active('sa-central-city-1')).toBe(false);
+    expect(await exists('sa-central-city-2')).toBe(true);
+    expect(await exists('sa-central-city-1')).toBe(false);
   });
 
-  it('merges sa-duba3 into sa-duba: references are rewritten in the same language, then the row goes inactive', async () => {
+  it('re-points a *-new row to its real city before deleting it', async () => {
+    await raw().collection('provider_branches').insertOne({ city: 'جدة الجديدة' });
+    const { changes, report } = await planPlaceholderCities(db);
+    expect(report.repointed.find((m) => m.code === 'sa-jeddah-new')).toMatchObject({ into: 'sa-jeddah', rewritten_references: 1 });
+    await applyChanges(db, changes);
+    expect((await raw().collection('provider_branches').findOne({}))!.city).toBe('جدة');
+    expect(await exists('sa-jeddah-new')).toBe(false);
+  });
+
+  it('merges sa-duba3 into sa-duba: references rewritten in the same language, rows deleted', async () => {
     await raw().collection('patient_profiles').insertOne({ addresses: [{ id: 'a', city: 'ضبا' }, { id: 'b', city: 'Duba3' }, { id: 'c', city: 'تبوك' }] });
     await raw().collection('users').insertOne({ city: 'ضبا' });
     await raw().collection('orders').insertOne({ address: { city: 'sa-duba3' } });
     const { changes, report } = await planPlaceholderCities(db);
-    expect(report.merged.find((m) => m.code === 'sa-duba3')).toMatchObject({ into: 'sa-duba', rewritten_references: 4 });
+    expect(report.repointed.find((m) => m.code === 'sa-duba3')).toMatchObject({ into: 'sa-duba', rewritten_references: 4 });
     await applyChanges(db, changes);
     expect((await raw().collection('patient_profiles').findOne({}))!.addresses.map((a: any) => a.city)).toEqual(['ضباء', 'Duba', 'تبوك']);
     expect((await raw().collection('users').findOne({}))!.city).toBe('ضباء');
     expect((await raw().collection('orders').findOne({}))!.address.city).toBe('sa-duba');
-    expect(await active('sa-duba3')).toBe(false);
-    expect(await active('sa-duba3-001')).toBe(false);
-    expect(await active('sa-duba')).toBe(true);
+    expect(await exists('sa-duba3')).toBe(false);
+    expect(await exists('sa-duba3-001')).toBe(false);
+    expect(await exists('sa-duba')).toBe(true);
     expect((await planPlaceholderCities(db)).changes).toHaveLength(0);
   });
 
-  it('moves Al Umran to Al-Ahsa, makes Al Many inactive, and only lists Sudair', async () => {
+  it('moves Al Umran to Al-Ahsa, deletes Al Many, and only lists Sudair', async () => {
     await raw().collection('facilities').insertOne({ city: 'العمران' });
     const { changes, report } = await planPlaceholderCities(db);
     await applyChanges(db, changes);
     expect((await raw().collection('facilities').findOne({}))!.city).toBe('الأحساء');
-    expect(await active('sa-al-umran')).toBe(false);
-    expect(await active('sa-al-many')).toBe(false);
-    expect(await active('sa-sudair')).toBe(true);
+    expect(await exists('sa-al-umran')).toBe(false);
+    expect(await exists('sa-al-many')).toBe(false);
+    expect(await exists('sa-sudair')).toBe(true);
     expect(report.listed_only).toEqual(['sa-sudair']);
   });
 
-  it('rolls back to the exact before-images', async () => {
+  it('rolls back: the rows come back with the same _id, and the references go back', async () => {
     await raw().collection('users').insertOne({ city: 'ضبا' });
+    const id = (await raw().collection('locations').findOne({ code: 'sa-duba3' }))!._id;
     const { changes } = await planPlaceholderCities(db);
     await applyChanges(db, changes);
     await rollbackChanges(db, changes);
-    expect(await active('sa-central-city-1')).toBe(true);
-    expect(await active('sa-duba3')).toBe(true);
+    expect((await raw().collection('locations').findOne({ code: 'sa-duba3' }))!._id).toEqual(id);
+    expect(await exists('sa-central-city-1-001')).toBe(true);
     expect((await raw().collection('users').findOne({}))!.city).toBe('ضبا');
   });
 
-  it('does not write a change when the value moved since the plan (compare-and-set)', async () => {
+  it('does not delete a row that was replaced since the plan (different _id), nor write a moved value', async () => {
     await raw().collection('users').insertOne({ city: 'ضبا' });
     const { changes } = await planPlaceholderCities(db);
+    await raw().collection('locations').deleteOne({ code: 'sa-central-city-1' });
+    await raw().collection('locations').insertOne(loc('sa-central-city-1', 'city', 'sa-central-region', 'مدينة وسطى 1', 'Central City 1'));
     await raw().collection('users').updateOne({}, { $set: { city: 'تبوك' } });
     await applyChanges(db, changes);
+    expect(await exists('sa-central-city-1')).toBe(true);
     expect((await raw().collection('users').findOne({}))!.city).toBe('تبوك');
   });
 });
