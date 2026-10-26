@@ -80,7 +80,10 @@ def main():
         total_pages = page.get('total_pages', default=1) or 1
         got += [m.get('id') for m in page.items() if m.get('id') in ids and m.get('id') not in got]
         pageno += 1
-    step('medicines list without a text query (app): C, then B, then A', got == [c, b, a], {'got': got, 'pages': total_pages, 'status': page.status, 'A': a, 'B': b, 'C': c})
+    probe = anon.get(f'/medicines?page=1&limit=100&q={tag}&pharmacyId=ranking-{tag}')
+    last = anon.get(f'/medicines?page=1&limit=100&category=vitamins&sort=smart_ranking&pharmacyId=ranking-{tag}')
+    diag = {'by_text': [m.get('id') for m in probe.items()], 'first_page_len': len(last.items()), 'total': last.get('total'), 'keys': list(last.body.keys()) if isinstance(last.body, dict) else type(last.body).__name__}
+    step('medicines list without a text query (app): C, then B, then A', got == [c, b, a], {'got': got, 'pages': total_pages, 'status': page.status, 'diag': diag, 'A': a, 'B': b, 'C': c})
 
 
 if __name__ == '__main__':
