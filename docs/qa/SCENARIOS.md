@@ -6,7 +6,7 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 
 ## Coverage
 
-- Scenarios: 25 done, 43 partial, 4 blocked (reason given), 2 not started, of 74 total.
+- Scenarios: 25 done, 46 partial, 3 blocked (reason given), 0 not started, of 74 total.
 - Screens: 0 of 274 patient-web routes fully scanned (public pages sampled in findings). Admin and provider screens not started.
 - The sweep is not finished. It is finished only when both counts reach 100%, or each remaining line gives its reason.
 
@@ -80,15 +80,15 @@ Stack: local MongoDB rs0 (`nabd_live`), backend :8002, admin :3001, patient-web 
 | PR-04 | pharmacy B2B | analyze-file (upload or text) | BLOCKED | Validation verified (400 with clear message). Text analysis returns 503 ai_provider_unavailable: no AI key on the test stack |
 | PR-05 | pharmacy B2B | rejection and cancellation by the pharmacy | DONE | tools/live/j_qa_procurement.py (57/57): pharmacy declines the issued quotation (feedback CANCELLED); MongoDB procurementrequests CANCELLED; pharmacy list after reload; pharmacy cannot approve it again or the admin complete it (400). Pharmacy cannot cancel: the admin cancel route answers 404 to a pharmacy (route hidden), MongoDB unchanged; admin cancel of a waiting request works |
 | MP-01 | providers map | GET /providers/map and type filters | PARTIAL | API 200 (13 active, 2 pharmacies, 5 doctors within 50 km). Map page, markers and cards not yet checked in the browser |
-| MP-02 | providers map | provider card → profile → book | TODO | |
+| MP-02 | providers map | provider card → profile → book | PARTIAL | tools/live/j_qa_map_book.py (42/42): doctor card on GET /providers/map by profile id; card opens GET /care/doctors/:id with the same name; free clinic slots, slot hold, booking for the card id, MongoDB appointment doctor_id/patient_id, card payment verified, MongoDB paid. The browser click path (map marker, card, profile, book button) is not driven |
 | DI-01 | drug index | search and detail as pharmacy | PARTIAL | API 200 (search, categories). Detail and web UI not yet checked |
 | DI-02 | drug index | guest search | DONE | Guest gets 401 Missing token: recorded as "cannot search" |
 | JB-01 | jobs, guest | device-bound post | PARTIAL | POST /recruitment/jobs/guest 201 draft; DB job_postings has it; guest/mine lists it. Web UI not checked |
 | JB-02 | jobs, guest | guest apply to an unpublished draft | DONE | 404 (correctly refused) |
-| JB-03 | jobs, guest | admin publishes guest draft → public listing | BLOCKED | Defect (P1): no route publishes a guest draft; admin PUT returns 404. Finding in findings/b2b-map-jobs.md |
-| JB-04 | jobs, signed-in hospital | post a job → public listing | PARTIAL | POST /recruitment/jobs 201, public list shows 1. DB status check pending |
+| JB-03 | jobs, guest | admin publishes guest draft → public listing | PARTIAL | tools/live/j_jobs.py re-run 2026-10-26: guest draft is admin-published via the API and listed public (PASS). The admin app has no jobs screen, so the UI path is not testable |
+| JB-04 | jobs, signed-in hospital | post a job → public listing | PARTIAL | tools/live/j_jobs.py re-run 2026-10-26 FAILS at "facility posts a job": 403 for the hospital provider token (role provider in JWT). Open P1, see docs/qa/findings/jobs-inbox.md |
 | JB-05 | jobs, signed-in doctor | candidate profile → apply → hospital updates status → doctor sees it | DONE | Profile 201, apply 201, DB job_applications submitted → under_review, doctor view shows under_review (findings/b2b-map-jobs.md) |
-| JB-06 | jobs | inbox and messages between the two sides | TODO | |
+| JB-06 | jobs | inbox and messages between the two sides | PARTIAL | tools/live/j_qa_jobs_inbox.py + docs/qa/findings/jobs-inbox.md: apply, MongoDB under_review, candidate reads it back: PASS. Candidate notification on status change: NOT sent (P2). Messages between the sides: no routes (404), feature not built (P2, owner decision). A hospital provider cannot post a job to start it (P1, see findings) |
 
 ## B. Screens
 
@@ -105,7 +105,7 @@ Per-screen scan (every element, sizes 390/768/1280, six languages, dark mode) is
 - Auth-gated patient-web routes (signed in, 72): swept on the production layout. Table: docs/qa/screens/patient-web-auth.md. Findings: docs/qa/findings/web-sweep-auth.md.
 - Admin pages (65 files): swept signed in, on the admin build of 03:12, then re-checked on the rebuilt admin from merged main. Findings: docs/qa/findings/admin-sweep.md. Dynamic admin routes (orders/[kind]/[id]) not tested (need IDs).
 - Dynamic patient-web routes (53): 5 routes tested with a real seeded doctor (docs/qa/findings/web-sweep-dynamic.md). Found P1: /consultations/doctors/<id> returns 503 (server-to-client function prop). The other ~48 need seeded IDs for articles, facilities, community, orders, appointments, labs, radiology, packages, results, clinics: NOT TESTED, reason: no seeded records of those types yet.
-- Scenarios: 25 done, 43 partial, 4 blocked (reason given), 2 not started, of 74 total.
-- Open P1s: guest job publish (no route); admin system logs API 404 (AdminLogsController dropped in the P5.3 merge).
+- Scenarios: 25 done, 46 partial, 3 blocked (reason given), 0 not started, of 74 total. Summary: docs/qa/SUMMARY.md.
+- Open P1s: admin system logs API 404 (AdminLogsController dropped in the P5.3 merge); hospital provider token cannot post jobs (jobs-inbox.md); booking-by-id 503. Guest job publish now passes on the API (re-test).
 - Corrected: hydration P1 retracted (local setup; production layout passes).
 - Environment: services drop between turns. Recover with /tmp/claude-0-scratch/stack_up.sh (patient-web via the nonce server). Kill stale next-server processes by PID (comm next-server) before restarting admin.
