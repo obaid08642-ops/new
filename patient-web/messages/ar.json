@@ -1687,6 +1687,8 @@
     "sar": "ر.س"
   },
   "PublicProduct": {
+    "contentOnlyEnglish": "متوفر بالإنجليزية فقط",
+    "contentOnlyArabic": "متوفر بالعربية فقط",
     "backToCatalog": "العودة إلى الكتالوج",
     "home": "الرئيسية",
     "products": "المنتجات",
