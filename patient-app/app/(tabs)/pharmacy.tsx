@@ -23,7 +23,7 @@ import type { FillIconName, ServiceTone } from '../../../packages/ui/icons/fill'
 import ProductImage from '../../src/components/ProductImage';
 import { MapEntryButton } from '../../src/components/account/MapEntryButton';
 import { FilterSheet } from '../../src/components/pharmacy/FilterSheet';
-import { CartButton, WishlistButton, CountBadge, GlyphRound, GlyphSquare, PHARMACY_TONE, SECONDARY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
+import { CartButton, WishlistButton, CountBadge, GlyphRound, GlyphSquare, MedAddControl, PHARMACY_TONE, SECONDARY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useCart } from '../../src/context/CartContext';
 import { dateLocaleFor } from '../../src/utils/dates';
@@ -389,6 +389,7 @@ export default function PharmacyHub() {
                 addLabel={k('pharmacy.addToCart')}
                 onPress={() => openProduct(item)}
                 onAdd={() => addToCart(item)}
+                addControl={<MedAddControl med={item} size={40} disabled={!price} addLabel={k('pharmacy.addToCart')} />}
                 testID={`pharmacy-card-${item.id}`}
                 theme={theme}
               />
