@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent, render } from '@testing-library/react-native';
+import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
@@ -42,7 +42,10 @@ const wrap = (ui: React.ReactElement) => (
     </Provider>
   </SafeAreaProvider>
 );
-const press = (node: Parameters<typeof fireEvent.press>[0]) => fireEvent.press(node, { nativeEvent: { pageX: 120, pageY: 300 } });
+// the cart store updates asynchronously: a press is wrapped in act so the render that follows it is flushed before the next look
+const press = async (node: Parameters<typeof fireEvent.press>[0]) => {
+  await act(async () => { fireEvent.press(node, { nativeEvent: { pageX: 120, pageY: 300 } }); });
+};
 
 describe('the card add control', () => {
   beforeEach(() => {
@@ -53,22 +56,22 @@ describe('the card add control', () => {
   it('is the + button until the product is in the cart, then a stepper with the cart quantity; + and - change it', async () => {
     const view = await render(wrap(<MedAddControl med={med} />));
     expect(view.queryByTestId('med-stepper-m1')).toBeNull();
-    press(await view.findByTestId('med-add-m1'));
+    await press(await view.findByTestId('med-add-m1'));
     expect(await view.findByTestId('med-stepper-m1')).toBeTruthy();
     expect(view.getByTestId('med-stepper-m1-qty').props.children).toBe('1');
-    press(view.getByTestId('med-stepper-m1-plus'));
-    expect(view.getByTestId('med-stepper-m1-qty').props.children).toBe('2');
-    press(view.getByTestId('med-stepper-m1-minus'));
-    expect(view.getByTestId('med-stepper-m1-qty').props.children).toBe('1');
+    await press(view.getByTestId('med-stepper-m1-plus'));
+    await waitFor(() => expect(view.getByTestId('med-stepper-m1-qty').props.children).toBe('2'));
+    await press(view.getByTestId('med-stepper-m1-minus'));
+    await waitFor(() => expect(view.getByTestId('med-stepper-m1-qty').props.children).toBe('1'));
     expect(view.getByTestId('med-stepper-m1-plus').props.accessibilityLabel).toBe(k('pharmacy.stepper.increase', { name: 'Panadol' }));
     await act(async () => { await cart.removeItem('m1'); });
   });
 
   it('- at quantity 1 removes the line and offers undo, which puts it back', async () => {
     const view = await render(wrap(<MedAddControl med={med} />));
-    press(await view.findByTestId('med-add-m1'));
-    press(await view.findByTestId('med-stepper-m1-minus'));
-    expect(view.queryByTestId('med-stepper-m1')).toBeNull();
+    await press(await view.findByTestId('med-add-m1'));
+    await press(await view.findByTestId('med-stepper-m1-minus'));
+    await waitFor(() => expect(view.queryByTestId('med-stepper-m1')).toBeNull());
     expect(showUndoToast).toHaveBeenCalledWith(k('pharmacy.removedFromCart', { name: 'Panadol' }), k('common.undo'), expect.any(Function));
     await act(async () => { (showUndoToast as jest.Mock).mock.calls[0][2](); });
     expect(await view.findByTestId('med-stepper-m1')).toBeTruthy();
