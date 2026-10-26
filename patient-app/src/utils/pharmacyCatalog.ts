@@ -1,4 +1,4 @@
-import { pickDbField } from './localize';
+import { currentDbLang, pickDbField, pickDbFieldSource, type DbLang } from './localize';
 import { resolveGallery } from './imageUrl';
 
 /**
@@ -53,6 +53,14 @@ export const medName = (m: Med): string => (pickDbField<string>(m, 'name') || m.
  * A catalogue field in the app's language: the six-language columns (`*_ar`, `*_en`, translations) first, then the plain
  * column of the same name (active ingredient, form, strength and category are stored without a language suffix).
  */
+/** `medField` plus the language of the text when it is not the app's (see `pickDbFieldSource`). A root column (Arabic) counts as Arabic. */
+export function medFieldSource<T = unknown>(m: Med, base: string): { value: T | undefined; lang: DbLang | null } {
+  const picked = pickDbFieldSource<T>(m, base);
+  if (picked.value) return picked;
+  const root = m[base] as T | undefined;
+  return root ? { value: root, lang: currentDbLang() === 'ar' ? null : 'ar' } : { value: undefined, lang: null };
+}
+
 export function medField<T = unknown>(m: Med, base: string): T | undefined {
   const localized = pickDbField<T>(m, base);
   return (localized ?? (m[base] as T | undefined)) || undefined;

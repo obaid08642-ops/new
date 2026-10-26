@@ -1687,6 +1687,8 @@
     "sar": "SAR"
   },
   "PublicProduct": {
+    "contentOnlyEnglish": "Makukuha lamang sa Ingles",
+    "contentOnlyArabic": "Makukuha lamang sa Arabe",
     "backToCatalog": "Bumalik sa katalogo",
     "home": "Home",
     "products": "Mga Produkto",
