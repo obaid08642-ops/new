@@ -288,7 +288,7 @@ describe('merge and validate', () => {
   it('drops a city whose centre two regions disagree on', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'parts-'));
     part(dir, 'SA-01', { cities: [{ code: 'sa-bahrah', lat: 21.4, lng: 39.45, source: 'osm:node/1' }], districts: [] }, { 'region:SA-01': {} });
-    part(dir, 'SA-02', { cities: [{ code: 'sa-bahrah', lat: 19.9, lng: 40.6, source: 'osm:node/2' }], districts: [] }, { 'region:SA-02': {} });
+    part(dir, 'SA-05', { cities: [{ code: 'sa-bahrah', lat: 19.9, lng: 40.6, source: 'osm:node/2' }], districts: [] }, { 'region:SA-05': {} });
     const { merged, report } = mergeParts(dir);
     expect(merged.cities).toEqual([]);
     expect((report.assignment as Assignment).conflicting_centres).toEqual(['sa-bahrah']);
