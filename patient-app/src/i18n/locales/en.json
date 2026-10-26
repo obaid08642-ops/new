@@ -348,6 +348,8 @@
   "pharmacy.section.warnings": "Warnings",
   "pharmacy.section.precautions": "Precautions",
   "pharmacy.section.sideEffects": "Side effects",
+  "pharmacy.section.onlyEnglish": "Available in English only",
+  "pharmacy.section.onlyArabic": "Available in Arabic only",
   "pharmacy.section.contra": "Contraindications",
   "pharmacy.section.interactions": "Drug interactions",
   "pharmacy.section.pregnancyBreastfeeding": "Pregnancy and breastfeeding",

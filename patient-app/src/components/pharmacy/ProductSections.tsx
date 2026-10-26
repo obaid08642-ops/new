@@ -86,6 +86,9 @@ export interface AccordionSection {
   key: string;
   title: string;
   items: string[];
+  /** Set when the text is not in the app's language: its writing direction, and the note that says which language it is in. */
+  dir?: 'rtl' | 'ltr';
+  note?: string;
 }
 
 /** "Medicine details": one section open at a time, the count shown when there is more than one item, bullets in the action colour. */
@@ -111,10 +114,11 @@ export function DetailAccordion({ sections }: { sections: AccordionSection[] }) 
             </Pressable>
             {isOpen ? (
               <View style={{ paddingHorizontal: 16, paddingBottom: 16, gap: 8 }}>
+                {s.note ? <Text testID={`lang-note-${s.key}`} style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, writingDirection: dir, textAlign: dir === 'rtl' ? 'right' : 'left' }}>{s.note}</Text> : null}
                 {s.items.map((it, k) => (
                   <View key={k} style={{ flexDirection: 'row', gap: 10 }}>
                     <View style={{ width: 6, height: 6, borderRadius: 3, marginTop: 10, backgroundColor: c.action.primary.bg }} />
-                    <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'control', 'regular'), lineHeight: 24, color: c.text.tertiary, writingDirection: dir, textAlign: dir === 'rtl' ? 'right' : 'left' }}>{it}</Text>
+                    <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'control', 'regular'), lineHeight: 24, color: c.text.tertiary, writingDirection: s.dir ?? dir, textAlign: (s.dir ?? dir) === 'rtl' ? 'right' : 'left' }}>{it}</Text>
                   </View>
                 ))}
               </View>

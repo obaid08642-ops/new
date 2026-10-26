@@ -184,3 +184,79 @@ export function assignPoint(p: Pt, res: CentreResult, maxKm: number): AssignOutc
   }
   return near && near.m <= maxKm * 1000 ? { city: near.city, by: 'nearest' } : { rejected: 'too_far' };
 }
+
+// ── Cities our seed does not have ────────────────────────────────────────────────────────────────────────────────────
+/** A city or governorate seat found in OpenStreetMap that no seed city matches; it is added with both names, its region and its centre. */
+export interface NewCity { code: string; name_ar: string; name_en: string; iso: string; lat: number; lng: number; source: string; rank: 'city' | 'town' | 'seat' }
+export interface DiscoverResult { found: NewCity[]; skipped_no_english_name: string[]; ambiguous: string[] }
+
+const ARABIC = /[\u0600-\u06FF]/;
+/** English names from OSM carry transliteration marks and sometimes Arabic diacritics; none belongs in a name_en. */
+const latinName = (raw: string) => raw.replace(/[`´ʿʾʻʼ]/g, '').replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/\s+/g, ' ').trim();
+/** «محافظة X» / "X Governorate" → X: the kind of area is not part of the city's name. */
+const stripKind = (v: string) => v.replace(/^\s*(محافظة|مدينة|بلدية)\s+/, '').replace(/\s+(governorate|municipality)\s*$/i, '').trim();
+export const slugOf = (en: string) => en.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+/**
+ * Every city/town of the region (and every village that is the seat of a governorate) that none of our cities matches by name. Both names
+ * are required (nothing is transliterated); a name that two places of the same rank share far apart is ambiguous and skipped. `takenCodes`
+ * are the codes already used, so a new code never collides (the region number is appended when the plain slug is taken).
+ */
+export function discoverNewCities(places: OsmAny[], boundaries: Boundary[], known: SeedCity[], iso: string, takenCodes: Set<string>): DiscoverResult {
+  const knownKeys = new Set<string>();
+  for (const c of known) for (const k of seedKeys(c)) knownKeys.add(k);
+  const governorates = boundaries.filter((b) => b.level === 6);
+  const governorateKeys = new Set(governorates.flatMap((b) => [...b.keys]));
+  const candidates: NewCity[] = [];
+  const noEnglish = new Set<string>();
+  const ambiguous: string[] = [];
+
+  const consider = (name_ar: string | undefined, name_en: string | undefined, p: Pt, source: string, rank: NewCity['rank']) => {
+    const ar = name_ar ? stripKind(name_ar) : '';
+    if (!ar || !ARABIC.test(ar)) return null;
+    const en = name_en ? latinName(stripKind(name_en)) : '';
+    if (!en) { noEnglish.add(ar); return null; }
+    const keys = [cityKey(ar), cityKey(en)].filter(Boolean);
+    if (!keys.length || keys.some((k) => knownKeys.has(k))) return null;
+    return { name_ar: ar, name_en: en, key: keys[0], p, source, rank };
+  };
+
+  type Cand = NonNullable<ReturnType<typeof consider>>;
+  const found: Cand[] = [];
+  for (const e of places) {
+    const place = e.tags?.place; const p = pointOf(e);
+    if (e.type === 'relation' || !place || !p) continue;
+    const key = cityKey(e.tags?.['name:ar'] ?? e.tags?.name ?? '');
+    const seat = place === 'village' && governorateKeys.has(key);
+    if (place !== 'city' && place !== 'town' && !seat) continue;
+    const arabicName = e.tags?.['name:ar'] ?? (ARABIC.test(e.tags?.name ?? '') ? e.tags?.name : undefined);
+    const c = consider(arabicName, e.tags?.['name:en'], p, `osm:${e.type}/${e.id}`, seat ? 'seat' : (place as 'city' | 'town'));
+    if (c) found.push(c);
+  }
+  // a governorate whose seat is not a place node of its own: the middle of its boundary
+  for (const b of governorates) {
+    const ar = b.names.find((n) => ARABIC.test(n)); const en = b.names.find((n) => !ARABIC.test(n));
+    const c = consider(ar, en, b.centre, `osm:relation/${b.id}`, 'seat');
+    if (c) found.push(c);
+  }
+
+  const byKey = new Map<string, Cand[]>();
+  for (const c of found) byKey.set(c.key, [...(byKey.get(c.key) ?? []), c]);
+  const rankOf = (c: Cand) => (c.rank === 'city' ? 3 : c.rank === 'town' ? 2 : 1);
+  const used = new Set(takenCodes);
+  for (const [, list] of [...byKey].sort(([a], [b]) => a.localeCompare(b))) {
+    const best = Math.max(...list.map(rankOf));
+    // a place node beats the middle of a boundary of the same name
+    const top = list.filter((c) => rankOf(c) === best && (c.source.startsWith('osm:relation/') ? !list.some((o) => !o.source.startsWith('osm:relation/')) : true));
+    if (!top.every((c) => distanceM(top[0].p, c.p) < 3000)) { ambiguous.push(top[0].name_en); continue; }
+    const c = top[0];
+    const base = `sa-${slugOf(c.name_en)}`;
+    if (base === 'sa-') continue;
+    let code = base;
+    if (used.has(code)) code = `${base}-${iso.slice(3)}`;
+    if (used.has(code)) continue;
+    used.add(code);
+    candidates.push({ code, name_ar: c.name_ar, name_en: c.name_en, iso, lat: c.p.lat, lng: c.p.lng, source: c.source, rank: c.rank });
+  }
+  return { found: candidates.sort((a, b) => a.code.localeCompare(b.code)), skipped_no_english_name: [...noEnglish].sort(), ambiguous: ambiguous.sort() };
+}

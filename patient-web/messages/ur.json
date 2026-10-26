@@ -1696,6 +1696,8 @@
     "sar": "ر.س"
   },
   "PublicProduct": {
+    "contentOnlyEnglish": "صرف انگریزی میں دستیاب",
+    "contentOnlyArabic": "صرف عربی میں دستیاب",
     "backToCatalog": "کیٹالاگ پر واپس",
     "home": "ہوم",
     "products": "مصنوعات",
