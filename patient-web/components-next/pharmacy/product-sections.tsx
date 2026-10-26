@@ -89,7 +89,7 @@ export function ProductSections({ groups, label }: { groups: DetailGroup[]; labe
                     </button>
                   </h3>
                 )}
-                <div id={`${base}-body-${section.id}`} className={styles.sectionBody}>{body}</div>
+                <div id={`${base}-body-${section.id}`} className={styles.sectionBody}><div className={styles.sectionBodyInner}>{body}</div></div>
               </section>
             );
           })}

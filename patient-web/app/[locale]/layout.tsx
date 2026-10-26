@@ -3,6 +3,7 @@ import { OfflineSupport } from "@/components-next/offline-support";
 import { OfflineBanner } from "@/components-next/network/offline-banner";
 import Link from "next/link";
 import "../globals.css";
+import "../motion.css";
 import { THEME_COLOR } from "../design-tokens/theme-color";
 // DEVICE_STANDARD §1 web shells (<AppShell>, <StickyFooter>), mirrored from packages/ui/shells.
 import "@/components-next/ui-generated/shells/shells.css";
