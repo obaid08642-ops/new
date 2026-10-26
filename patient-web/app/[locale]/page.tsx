@@ -57,6 +57,7 @@ export default async function LandingPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: "HomeWeb" });
   const home = await getTranslations({ locale, namespace: "Home" });
   const metadata = await getTranslations({ locale, namespace: "Metadata" });
+  const browse = await getTranslations({ locale, namespace: "PharmacyBrowse" });
   const url = localizedUrl(locale);
   const specialties = await getTranslations({ locale, namespace: "SpecialtyNames" });
 
@@ -126,7 +127,7 @@ export default async function LandingPage({ params }: Props) {
           <HeroCard locale={locale} t={t} eyebrow={home("heroBadge")} title={home("heroTitle")} headingId="home-title" />
         </div>
         <ServiceGrid locale={locale} t={t} disabled={disabled} />
-        <HomeQuickTiles locale={locale} disabled={disabled} />
+        <HomeQuickTiles locale={locale} disabled={disabled} labels={{ shortcuts: browse("hubShortcuts"), reminders: browse("hubReminders"), orders: browse("hubOrders") }} />
         <AiCard locale={locale} t={t} disabled={disabled} />
         <CuratedSections sections={homeSections} locale={locale} t={t} disabled={disabled} />
         <DoctorsSection doctors={isPathHidden(`/${locale}/consultations`, disabled) ? [] : doctors} locale={locale} t={t} specialties={specialties} />
