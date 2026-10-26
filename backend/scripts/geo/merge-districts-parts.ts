@@ -12,6 +12,7 @@ import { distanceM } from './district-assign';
 import { REGIONS } from './fetch-osm-districts-region';
 
 type PartCity = { code: string; lat: number; lng: number; source: string };
+export type PartNewCity = PartCity & { name_ar: string; name_en: string; region_code: string; iso?: string };
 export interface Assignment {
   per_city: Record<string, { boundary: number; nearest: number }>;
   totals: { boundary: number; nearest: number; too_far: number; no_city_centre: number };
@@ -20,24 +21,28 @@ export interface Assignment {
   cities_without_centre: string[];
   conflicting_centres: string[];
   ambiguous_cities: string[];
+  /** cities of OpenStreetMap the seed lacks: how many each region found, and the codes two regions both produced (dropped with their districts) */
+  new_cities: { found: number; conflicting_codes: string[] };
 }
 
-export function mergeParts(dir: string): { merged: { cities: PartCity[]; districts: unknown[] }; report: Record<string, unknown> } {
-  const merged: { cities: PartCity[]; districts: unknown[] } = { cities: [], districts: [] };
+export function mergeParts(dir: string): { merged: { cities: PartCity[]; new_cities: PartNewCity[]; districts: unknown[] }; report: Record<string, unknown> } {
+  const merged: { cities: PartCity[]; new_cities: PartNewCity[]; districts: unknown[] } = { cities: [], new_cities: [], districts: [] };
+  const newByCode = new Map<string, PartNewCity[]>();
   const report: Record<string, unknown> = {};
   const files = fs.existsSync(dir) ? fs.readdirSync(dir, { recursive: true }).map(String) : [];
   const centres = new Map<string, PartCity[]>();
   const assignment: Assignment = {
     per_city: {}, totals: { boundary: 0, nearest: 0, too_far: 0, no_city_centre: 0 },
-    centres: { found: 0, from_place: 0, from_boundary: 0 }, cities_without_centre: [], conflicting_centres: [], ambiguous_cities: [],
+    centres: { found: 0, from_place: 0, from_boundary: 0 }, cities_without_centre: [], conflicting_centres: [], ambiguous_cities: [], new_cities: { found: 0, conflicting_codes: [] },
   };
   const ambiguous = new Set<string>();
   for (const { iso } of REGIONS) {
     const part = files.find((f) => path.basename(f) === `part-${iso}.json`);
     if (!part) { report[`region:${iso}`] = { error: 'part missing (the region job did not upload)' }; continue; }
     try {
-      const body = JSON.parse(fs.readFileSync(path.join(dir, part), 'utf8')) as { districts?: unknown[]; cities?: PartCity[] };
+      const body = JSON.parse(fs.readFileSync(path.join(dir, part), 'utf8')) as { districts?: unknown[]; cities?: PartCity[]; new_cities?: PartNewCity[] };
       merged.districts.push(...(body.districts ?? []));
+      for (const n of body.new_cities ?? []) newByCode.set(n.code, [...(newByCode.get(n.code) ?? []), n]);
       for (const c of body.cities ?? []) centres.set(c.code, [...(centres.get(c.code) ?? []), c]);
       const rep = path.join(dir, `${part}.report.json`);
       const partReport = fs.existsSync(rep) ? JSON.parse(fs.readFileSync(rep, 'utf8')) : { [`region:${iso}`]: { error: 'report missing' } };
@@ -60,6 +65,13 @@ export function mergeParts(dir: string): { merged: { cities: PartCity[]; distric
     if (list.some((c) => distanceM(list[0], c) > 2000)) conflicting.add(code);
     else merged.cities.push(list[0]);
   }
+  // a new city two regions both produced (same code) is dropped with its districts: they cannot be told apart
+  const clashing = new Set<string>();
+  for (const [code, list] of newByCode) {
+    if (list.length > 1) clashing.add(code);
+    else merged.new_cities.push(list[0]);
+  }
+  assignment.new_cities = { found: merged.new_cities.length, conflicting_codes: [...clashing].sort() };
   assignment.conflicting_centres = [...conflicting].sort();
   assignment.centres.found = merged.cities.length;
   assignment.centres.from_place = merged.cities.filter((c) => !c.source.startsWith('osm:relation/')).length;
@@ -78,5 +90,5 @@ if (require.main === module) {
   fs.writeFileSync(out, JSON.stringify(merged, null, 1));
   fs.writeFileSync(`${out}.report.json`, JSON.stringify(report, null, 1));
   const failed = Object.entries(report).filter(([k, v]) => k.startsWith('region:') && (v as { error?: unknown }).error);
-  console.log(JSON.stringify({ districts: merged.districts.length, cities: merged.cities.length, failed_regions: failed.map(([k]) => k) }));
+  console.log(JSON.stringify({ districts: merged.districts.length, cities: merged.cities.length, new_cities: merged.new_cities.length, failed_regions: failed.map(([k]) => k) }));
 }

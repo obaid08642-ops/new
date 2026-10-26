@@ -3,8 +3,8 @@
  */
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { applyChanges, rollbackChanges, type DbLike } from './catalogue-apply.core';
-import { planPlaceholderCities } from './catalogue-apply.steps';
+import { applyChanges, rollbackChanges, type DbLike, type InsertChange } from './catalogue-apply.core';
+import { planDistricts, planPlaceholderCities } from './catalogue-apply.steps';
 import { DELETE_CITY_RULES, LISTED_ONLY_CITY_CODES } from '../location/placeholder-cities';
 import { SAUDI_LOCATIONS_SEED } from '../location/seeds/saudi-locations.data';
 
@@ -140,5 +140,31 @@ describe('planPlaceholderCities', () => {
     await applyChanges(db, changes);
     expect(await exists('sa-central-city-1')).toBe(true);
     expect((await raw().collection('users').findOne({}))!.city).toBe('تبوك');
+  });
+});
+
+describe('new cities from the extract (planDistricts)', () => {
+  const extract = {
+    new_cities: [{ code: 'sa-ad-dilam', name_ar: 'الدلم', name_en: 'Ad Dilam', region_code: 'sa-central-region', lat: 23.99, lng: 47.16, source: 'osm:node/1' }],
+    districts: [{ city_code: 'sa-ad-dilam', name_ar: 'النزهة', name_en: 'An Nuzha', lat: 24, lng: 47.1, source: 'osm:node/2' }],
+  };
+  beforeEach(async () => { await raw().collection('locations').insertOne(loc('sa-central-region', 'region', 'sa', 'المنطقة الوسطى', 'Central Region')); });
+
+  it('inserts the city (with its region, centre and source) before its districts, and a second plan is empty', async () => {
+    const plan = await planDistricts(db, extract);
+    expect(plan.newCities).toBe(1);
+    const inserts = plan.changes.filter((c) => c.kind === 'insert');
+    expect(inserts.map((c) => String((c as InsertChange).doc.code))).toEqual(['sa-ad-dilam', 'sa-ad-dilam-001']);
+    await applyChanges(db, plan.changes);
+    expect(await raw().collection('locations').findOne({ code: 'sa-ad-dilam' })).toMatchObject({ type: 'city', parent_code: 'sa-central-region', is_active: true, coordinates: { lat: 23.99, lng: 47.16 }, source: 'osm:node/1' });
+    expect(await raw().collection('locations').findOne({ code: 'sa-ad-dilam-001' })).toMatchObject({ type: 'district', parent_code: 'sa-ad-dilam' });
+    expect((await planDistricts(db, extract)).changes).toHaveLength(0);
+  });
+
+  it('rolls back: the inserted rows are deleted again', async () => {
+    const plan = await planDistricts(db, extract);
+    await applyChanges(db, plan.changes);
+    await rollbackChanges(db, plan.changes);
+    expect(await raw().collection('locations').countDocuments({ code: /^sa-ad-dilam/ })).toBe(0);
   });
 });

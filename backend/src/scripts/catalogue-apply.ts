@@ -65,7 +65,7 @@ export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> 
   inputs.districts_extract = sha256(text);
   const planned = await planDistricts(db, JSON.parse(text));
   changes.push(...planned.changes);
-  report.districts = { source: override ? 'host_file_override' : 'packaged', rejected_rows: planned.rejected, cities_with_new_rows: planned.perCity.filter((c) => c.new > 0).length, new_rows: planned.perCity.reduce((n, c) => n + c.new, 0), centroid_fills: planned.perCity.reduce((n, c) => n + c.centroid_fills, 0) };
+  report.districts = { source: override ? 'host_file_override' : 'packaged', rejected_rows: planned.rejected, new_cities: planned.newCities, cities_with_new_rows: planned.perCity.filter((c) => c.new > 0).length, new_rows: planned.perCity.reduce((n, c) => n + c.new, 0), centroid_fills: planned.perCity.reduce((n, c) => n + c.centroid_fills, 0) };
 
   const placeholders = await planPlaceholderCities(db);
   changes.push(...placeholders.changes);

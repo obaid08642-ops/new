@@ -94,8 +94,8 @@ export async function planNameFixes(db: DbLike, csvText: string): Promise<{ chan
 }
 
 /** Step 5 — districts (item 5): centroids for the ones that exist, new rows for the rest, from the extract (every row names its source). */
-export async function planDistricts(db: DbLike, extract: Extract): Promise<{ changes: Change[]; perCity: ReturnType<typeof planImport>['perCity']; rejected: number }> {
-  const existing = await db.collection('locations').find({ type: { $in: ['city', 'district'] } }, { projection: { _id: 0, code: 1, name_ar: 1, name_en: 1, type: 1, parent_code: 1, coordinates: 1 } }).toArray();
+export async function planDistricts(db: DbLike, extract: Extract): Promise<{ changes: Change[]; perCity: ReturnType<typeof planImport>['perCity']; rejected: number; newCities: number }> {
+  const existing = await db.collection('locations').find({ type: { $in: ['region', 'city', 'district'] } }, { projection: { _id: 0, code: 1, name_ar: 1, name_en: 1, type: 1, parent_code: 1, coordinates: 1 } }).toArray();
   const plan = planImport(existing as any, extract);
   const changes: Change[] = [];
   for (const f of plan.cityFills) {
@@ -106,13 +106,20 @@ export async function planDistricts(db: DbLike, extract: Extract): Promise<{ cha
     changes.push({ kind: 'set', step: 'districts', collection: 'locations', key: { code: f.code, type: 'district' }, path: 'coordinates', before: null, after: { lat: f.lat, lng: f.lng } });
     changes.push({ kind: 'set', step: 'districts', collection: 'locations', key: { code: f.code, type: 'district' }, path: 'source', before: null, after: f.source });
   }
+  // new cities first, so the districts under them have a parent
+  for (const n of plan.newCities) {
+    changes.push({ kind: 'insert', step: 'districts', collection: 'locations', doc: {
+      code: n.code, name_ar: n.name_ar, name_en: n.name_en, type: 'city', parent_code: n.region_code, aliases: [], coordinates: { lat: n.lat, lng: n.lng },
+      coverage: { pharmacy_delivery: true, home_healthcare: true, lab_collection: true }, is_active: true, source: n.source,
+    } });
+  }
   for (const i of plan.inserts) {
     changes.push({ kind: 'insert', step: 'districts', collection: 'locations', doc: {
       code: i.code, name_ar: i.name_ar, name_en: i.name_en, type: 'district', parent_code: i.city_code, aliases: [], coordinates: { lat: i.lat, lng: i.lng },
       coverage: { pharmacy_delivery: true, home_healthcare: true, lab_collection: true }, is_active: true, source: i.source,
     } });
   }
-  return { changes, perCity: plan.perCity, rejected: plan.rejected.length };
+  return { changes, perCity: plan.perCity, rejected: plan.rejected.length, newCities: plan.newCities.length };
 }
 
 export interface PlaceholderCityReport {
