@@ -44,7 +44,8 @@
     "menuFamily": "Pamilya",
     "menuArticles": "Mga artikulo",
     "menuSettings": "Mga setting",
-    "menuHelp": "Tulong"
+    "menuHelp": "Tulong",
+    "menuResults": "Mga order at resulta ko"
   },
   "Home": {
     "eyebrow": "Digital na portal ng pasyente",
@@ -1471,6 +1472,9 @@
     "searchLabel": "Maghanap ng serbisyo",
     "searchPlaceholder": "Maghanap ayon sa test o kategorya",
     "homeOnly": "Kolekta sa bahay",
+    "activeFilters": "Mga aktibong filter",
+    "removeFilter": "Alisin ang filter: {filter}",
+    "clearAll": "Burahin lahat",
     "apply": "Ilapat",
     "price": "Mula {value}",
     "fasting": "Maaaring kailangan ang fasting",

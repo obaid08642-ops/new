@@ -44,7 +44,8 @@
     "menuFamily": "পরিবার",
     "menuArticles": "নিবন্ধ",
     "menuSettings": "সেটিংস",
-    "menuHelp": "সহায়তা"
+    "menuHelp": "সহায়তা",
+    "menuResults": "আমার অর্ডার ও ফলাফল"
   },
   "Home": {
     "eyebrow": "ডিজিটাল রোগী পোর্টাল",
@@ -1471,6 +1472,9 @@
     "searchLabel": "ল্যাব সেবা খুঁজুন",
     "searchPlaceholder": "টেস্ট বা বিভাগ খুঁজুন",
     "homeOnly": "বাড়ি থেকে নমুনা",
+    "activeFilters": "সক্রিয় ফিল্টার",
+    "removeFilter": "ফিল্টার সরান: {filter}",
+    "clearAll": "সব মুছুন",
     "apply": "প্রয়োগ করুন",
     "price": "{value} থেকে শুরু",
     "fasting": "উপবাস প্রয়োজন হতে পারে",

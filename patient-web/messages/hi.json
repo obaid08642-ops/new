@@ -44,7 +44,8 @@
     "menuFamily": "परिवार",
     "menuArticles": "लेख",
     "menuSettings": "सेटिंग्स",
-    "menuHelp": "सहायता"
+    "menuHelp": "सहायता",
+    "menuResults": "मेरे ऑर्डर और नतीजे"
   },
   "Home": {
     "eyebrow": "डिजिटल मरीज़ पोर्टल",
@@ -1471,6 +1472,9 @@
     "searchLabel": "लैब सेवाएँ खोजें",
     "searchPlaceholder": "टेस्ट या श्रेणी खोजें",
     "homeOnly": "घर से नमूना",
+    "activeFilters": "सक्रिय फ़िल्टर",
+    "removeFilter": "फ़िल्टर हटाएँ: {filter}",
+    "clearAll": "सब साफ़ करें",
     "apply": "लागू करें",
     "price": "{value} से शुरू",
     "fasting": "उपवास आवश्यक हो सकता है",
