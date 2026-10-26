@@ -77,8 +77,8 @@ export default async function SettingsAboutPage({ params }: Props) {
           locale={locale}
           label={t("aboutLegal")}
           rows={[
-            { href: `/${locale}/terms`, icon: "file-text", tone: "ink", title: t("aboutTerms"), sub: versionSub("patient_terms") },
-            { href: `/${locale}/privacy`, icon: "shield-check", tone: "teal", title: t("aboutPrivacy"), sub: versionSub("privacy_policy") },
+            { href: `/${locale}/terms`, icon: "file-text", tone: "violet", title: t("aboutTerms"), sub: versionSub("patient_terms") },
+            { href: `/${locale}/privacy`, icon: "shield-check", tone: "violet", title: t("aboutPrivacy"), sub: versionSub("privacy_policy") },
           ]}
         />
       </Group>

@@ -13,6 +13,8 @@ import type { Locale } from "@/lib/i18n";
 import { getDisabledModules } from "@/lib/api/public-config-server";
 import { isPathHidden } from "@/lib/modules";
 import { CartLink } from "@/components-next/core/cart-link";
+import { WishlistLink } from "@/components-next/core/wishlist-link";
+import { PhoneMenu } from "@/components-next/core/phone-menu";
 import { HomeTabBar } from "./home-tab-bar";
 import { HomeAccountTools, HomeNavLink, HomeNotificationsLink, NotificationBellLink } from "./home-identity";
 import styles from "./home.module.css";
@@ -44,9 +46,10 @@ export async function HomeShell({
   surface: "home" | "dashboard";
   children: React.ReactNode;
 }) {
-  const [t, shared, disabled] = await Promise.all([
+  const [t, shared, shell, disabled] = await Promise.all([
     getTranslations({ locale, namespace: "HomeWeb" }),
     getTranslations({ locale, namespace: "Shared" }),
+    getTranslations({ locale, namespace: "CoreShell" }),
     getDisabledModules(),
   ]);
   const base = `/${locale}`;
@@ -90,12 +93,13 @@ export async function HomeShell({
         ))}
       </nav>
       <div className={styles.tools}>
-        <LocaleSelector current={locale} label={shared("language")} />
+        <LocaleSelector current={locale} label={shared("language")} compactOnPhone />
         <ThemeButton label={shared("theme")} />
         {signedIn === undefined ? <HomeNotificationsLink locale={locale} label={t("notifications")} unreadLabel={t("notificationsUnread")} /> : null}
         {knownSignedIn ? (
           <NotificationBellLink href={`${base}/notifications`} label={t("notifications")} unreadLabel={t("notificationsUnread")} />
         ) : null}
+        <WishlistLink locale={locale} className={`${styles.iconBtn} ${styles.cartLink}`} badgeClassName={styles.cartBadge} />
         <CartLink locale={locale} className={`${styles.iconBtn} ${styles.cartLink}`} badgeClassName={styles.cartBadge} />
         {signedIn === undefined ? (
           <HomeAccountTools locale={locale} signInLabel={t("signIn")} accountLabel={t("account")} />
@@ -108,6 +112,21 @@ export async function HomeShell({
           </>
         ) : (
           <Link href={`${base}/login`} className={styles.signIn}>{t("signIn")}</Link>
+        )}
+        {/* the menu is the last item at the inline-end edge (owner layout decision 1) */}
+        {signedIn === false ? null : (
+          <PhoneMenu
+            labels={{ open: shell("menuOpen"), close: shell("menuClose") }}
+            items={[
+              { label: shell("menuProfile"), href: `${base}/profile` },
+              { label: shell("menuOrders"), href: `${base}/orders` },
+              { label: shell("menuFamily"), href: `${base}/family` },
+              { label: shell("menuArticles"), href: `${base}/articles` },
+              { label: shell("notifications"), href: `${base}/notifications` },
+              { label: shell("menuSettings"), href: `${base}/settings` },
+              { label: shell("menuHelp"), href: `${base}/settings/help` },
+            ].filter((item) => !isPathHidden(item.href, disabled))}
+          />
         )}
       </div>
     </div>

@@ -2,9 +2,10 @@
   <title id="nabd-mark-ink-title">Nabd+</title>
   <!--
     MARK ON INK — the dark lockup from the canvas (Main.dc.html, "Mark on dark").
-    An off-white bowl with the coral dot, for the ink canvas #0B1B2B.
-    Generated from logo-mark.svg: only the bowl colour changes.
+    The coral mark (coral bowl, coral dot) on the ink canvas #0B1B2B, as the
+    splash-dark (owner-delegated 2026-10-26; the bowl was off-white).
+    Generated from logo-mark.svg: same colours, kept as a separate file because scripts list it.
   -->
-  <path d="M40 104 C40 196 200 196 200 104" fill="none" stroke="#F5F5F7" stroke-width="36" stroke-linecap="round"/>
+  <path d="M40 104 C40 196 200 196 200 104" fill="none" stroke="#FF4B55" stroke-width="36" stroke-linecap="round"/>
   <circle cx="120" cy="58" r="24" fill="#FF4B55"/>
 </svg>
