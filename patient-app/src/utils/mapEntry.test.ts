@@ -20,8 +20,9 @@ describe('providers map entry', () => {
     expect(parseMapKind(undefined)).toBeNull();
   });
 
-  it('is offered on Home, pharmacy, diagnostics and consultations with the right type', () => {
-    expect(read('src/components/home/HomeTopRow.tsx')).toContain('<MapEntryButton');
+  it('is offered as a Home service tile (not in the top bar, owner 2026-10-26) and on pharmacy, diagnostics and consultations with the right type', () => {
+    expect(read('src/components/home/HomeTopRow.tsx')).not.toContain('MapEntryButton');
+    expect(read('src/features/home/homeItems.ts')).toContain("route: '/map'");
     expect(read('app/(tabs)/pharmacy.tsx')).toContain('<MapEntryButton kind="pharmacy"');
     expect(read('app/(tabs)/diagnostics.tsx')).toContain('<MapEntryButton kind="lab"');
     expect(read('app/(tabs)/consultations/index.tsx')).toContain("mapHref('doctor')");
