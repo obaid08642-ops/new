@@ -18,6 +18,19 @@ const ALL: SocialButtons = {
   snapchat: { clientId: "s" },
 };
 
+describe("the same buttons on the register page", () => {
+  it("shows the divider and all four providers, without the create-account and guest links", () => {
+    const html = renderToStaticMarkup(<SocialLoginButtons locale="en" social={ALL} variant="register" />);
+    expect(html).toContain("Or continue with");
+    for (const label of ["Google</button>", " Apple</button>", "X</button>", "Snapchat</button>"]) expect(html).toContain(label);
+    expect(html).not.toContain("/en/register");
+    expect(html).not.toContain("guest");
+  });
+  it("the login page keeps its create-account link", () => {
+    expect(render(ALL)).toContain("/en/register");
+  });
+});
+
 describe("social sign-in buttons are shown per configuration", () => {
   // Owner, 2026-10-25: all four always show (the providers review the live button before they approve the app);
   // a provider the server has no keys for answers "not available" on tap, and data-configured says which are live.

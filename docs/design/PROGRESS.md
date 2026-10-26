@@ -3,7 +3,7 @@
 > **Session start (owner, 2026-10-06): read only this file's "Next", then grep `SCREEN_INVENTORY.md` and `WIRING_REPORT.md` for the routes of the current batch. Do not read those two files in full.** History: `PROGRESS_ARCHIVE.md` (do not read at session start). Rules: `/AGENTS.md`, `QUALITY_STANDARDS.md`, `README.md`.
 > After every PR: update this file (keep it under 8 KB). Context low: commit, push, update this file, stop.
 
-_Updated 2026-10-10._
+_Updated 2026-10-26._
 
 ## State
 
@@ -12,6 +12,7 @@ _Updated 2026-10-10._
 | Patient app + web, Batches 0-14 (incl. merge maps 1-2, insurance relay-only D35, AI, loyalty, settings, public pages) | **Merged** on main (reviewer batches #1254 and earlier) |
 | Provider app (layout, pharmacy, merges, M9 wizard, ambulance removed, D1, My offers, returns, N1) | **Merged** (#1205, #1242, #1249, #1228) |
 | Admin (mobile layout, DataTable, today/approvals/catalogue essentials, provider approval screen) | **Merged** (#732, #1204, #1248) |
+| Owner colour + layout decisions 2026-10-25/26 (social brand buttons, logo never black, no ink on interactive elements, header favourites, pharmacy/labs/consultations layout) | **Open PRs**, see Next 0 |
 | Audits (patient journeys, provider, admin wiring + journeys) | Merged; open lines live in `needs-review/*.json` |
 | UI issues list (OpenCode plan 2026-10-09 s.10, 169 issues) | Walked; the client fixes are merged; the rest wait on owner decisions or OC-A/B/C |
 | F82-3 static/ISR [#308](https://github.com/obaid08642-ops/new/pull/308) | Open; batch-13 static opt-ins wait on it (`design/batch-13-f82-optins`) |
@@ -19,6 +20,9 @@ _Updated 2026-10-10._
 
 ## Next
 
+0. **Owner colour + layout stack (2026-10-25/26), all open, none merged by the design session.** Colour: social buttons #1961; logo never black #1968 (+ `docs/design/LOGO_RULE.md`); public web ink sweep #1971; no ink on interactive elements #1974 (web, shared `packages/ui`; the app part #1975 is merged); follow-up (coral dark splash, Sign-in clip at 390, no ink tiles) #1980, stacked on #1974. Layout (each PR stacked on the one before, review/merge in order): header #1981 web, #1982 app; pharmacy #1984 web, #1985 app; labs/radiology #1986 web, #1988 app; consultations #1989 web, #1990 app. Most of it is **not seen at runtime** (no backend or no render tool in the sandbox): PR bodies say what was and was not seen.
+   - **Open owner/reviewer questions:** pharmacy category art is picked by keywords in the localized name, needs a backend `categoryKey`; the app has no hamburger menu (what would it open?) and no favourites count badge; consultations app: price-band filter removed, "Shortest wait" not offered (no backend value), `DoctorSearchView` still has its own chips; web grade filter shows six degrees (brief said three); labs still say "Self-pay" (`needs-review/layout-consult-web.json`); next-slot only on `/care/doctors` rows (`needs-review/layout-consult-app.json`).
+   - Colour audit tables: `docs/design/COLOUR_AUDIT.md` (index), `COLOUR_AUDIT_web-slice1.md`, `_web-public.md`, `_app.md` (these land with #1965/#1971/#1975/#1974). Signed-in screens were never seen at runtime (no backend in the sandbox).
 1. **Ordering M6 (M1 and M2 backend on main, #1759):**
    - This batch (one PR): "My medical orders" Ord20 and Ord21, web and app. Order button per group (prefill request, then the group's flow), "later" per item, expired orders disabled. Six languages (`MedicalOrders`, `medorders.*`).
    - **Built in #1775 (`design/m6-ord22-ord30`):** Ord22 doctor's composer (`POST /doctors/appointments/:id/medical-order`) and Ord30–33 provider declaration (`/provider/ordering/*`), provider-app ar/en. Open rows: `needs-review/m6-ord22.json` (5), `m6-ord30.json` (13).
