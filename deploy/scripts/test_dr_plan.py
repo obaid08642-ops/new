@@ -21,6 +21,16 @@ class DrPlan(unittest.TestCase):
         self.assertEqual(r["end"], "500 0")
         self.assertEqual(r["rpo_seconds"], 1380)
 
+    def test_zero_width_slice_does_not_loop(self):
+        # two runs saw the same newest oplog entry: the slice starts and ends at 200 and must neither hang nor break the chain
+        s = [sl(100, 200, NOW - 900), sl(200, 200, NOW - 600), sl(200, 300, NOW - 300)]
+        r = plan({"now": NOW, "dumps": [{"key": "mongodb/a.gz", "base": "100 0"}], "slices": s})
+        self.assertTrue(r["ok"])
+        self.assertEqual(r["end"], "300 0")
+        s = [sl(100, 200, NOW - 600), sl(200, 200, NOW - 300)]
+        r = plan({"now": NOW, "dumps": [{"key": "mongodb/a.gz", "base": "100 0"}], "slices": s})
+        self.assertEqual(r["end"], "200 0")
+
     def test_gap_in_chain_stops_replay_there(self):
         s = [sl(100, 200, NOW - 900), sl(300, 400, NOW - 300)]
         r = plan({"now": NOW, "dumps": [{"key": "mongodb/a.gz", "base": "100 0"}], "slices": s})
