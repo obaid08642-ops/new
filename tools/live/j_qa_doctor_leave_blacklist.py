@@ -6,7 +6,8 @@
   - blacklist: the doctor blacklists a patient (POST /provider/ops/doctor/blacklist/:patientId); it is read back
     (GET /provider/ops/doctor/blacklist) and stored in MongoDB doctor_blacklist as active;
   - unblock: the doctor unblocks the patient (DELETE /provider/ops/doctor/blacklist/:patientId); it is no longer listed.
-Schedule (hours), payouts and templates are not covered here."""
+  - templates: the doctor saves a prescription template, uses it (usage count 1 in MongoDB) and deletes it.
+Payouts are not covered here."""
 import datetime
 import json
 import subprocess
@@ -67,6 +68,23 @@ def main():
     step('the doctor unblocks the patient (DELETE /provider/ops/doctor/blacklist/:patientId)', r.ok, r)
     r = doc.get('/provider/ops/doctor/blacklist')
     step('the unblocked patient is no longer on the blacklist', r.ok and not any(patient_id in str(x) for x in items(r)), r.status)
+
+    journey('doctor V-09: a prescription template is saved, listed, used and deleted')
+    r = doc.post('/provider/ops/doctor/templates', {'name': 'QA template', 'items': [{'name': 'Paracetamol', 'dose': '500mg'}], 'notes': 'QA'})
+    tid = ((r.body or {}).get('template') or {}).get('id') if isinstance(r.body, dict) else None
+    step('the doctor saves a template (POST /provider/ops/doctor/templates)', r.ok and tid, r)
+    row = mongo_one(f'db.prescription_templates.findOne({{id: "{tid}"}}, {{_id: 0, name: 1, usage_count: 1}})') if tid else None
+    step('MongoDB: the template is stored (prescription_templates)', bool(row) and row.get('name') == 'QA template', row)
+    r = doc.get('/provider/ops/doctor/templates')
+    step('the template is listed (GET /provider/ops/doctor/templates)', r.ok and any(x.get('id') == tid for x in items(r)), r.status)
+    r = doc.post(f'/provider/ops/doctor/templates/{tid}/use', {})
+    step('the doctor uses the template (POST .../use)', r.ok, r)
+    row = mongo_one(f'db.prescription_templates.findOne({{id: "{tid}"}}, {{_id: 0, usage_count: 1}})') if tid else None
+    step('MongoDB: the usage count is 1 after use', bool(row) and row.get('usage_count') == 1, row)
+    r = doc.req('DELETE', f'/provider/ops/doctor/templates/{tid}')
+    step('the doctor deletes the template (DELETE .../templates/:id)', r.ok, r)
+    r = doc.get('/provider/ops/doctor/templates')
+    step('the deleted template is no longer listed', r.ok and not any(x.get('id') == tid for x in items(r)), r.status)
     summary()
 
 
