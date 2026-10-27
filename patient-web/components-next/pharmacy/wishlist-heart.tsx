@@ -12,7 +12,7 @@ import { requestWishlistToggle } from "@/lib/pharmacy/wishlist-toggle";
 import styles from "./product-detail.module.css";
 
 /** The message of the confirmation after a press that the server accepted: what the list is now. */
-export const wishlistToastKey = (inListNow: boolean) => (inListNow ? "wishlistAddedToast" : "wishlistRemovedToast") as const;
+export const wishlistToastKey = (inListNow: boolean): "wishlistAddedToast" | "wishlistRemovedToast" => (inListNow ? "wishlistAddedToast" : "wishlistRemovedToast");
 
 /**
  * The heart of canvas/ProductWeb and ProductFull: puts this medicine on the patient's wishlist or takes it off
