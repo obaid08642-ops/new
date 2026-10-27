@@ -32,6 +32,27 @@ describe('ContractPdfService signature source', () => {
     fetchSpy.mockRestore();
   });
 
+  it.each([
+    ['pending_scan', { scan_status: 'pending_scan' }],
+    ['scanning', { scan_status: 'scanning' }],
+    ['infected', { scan_status: 'infected' }],
+    ['quarantine key', { external_key: 'pending/sig.png', backend: 's3' }],
+  ])('never embeds a signature that has not passed the scan (%s)', async (_n, extra) => {
+    const png = Buffer.from('iVBORw0KGgo=', 'base64').toString('base64');
+    const collection = { findOne: jest.fn().mockResolvedValue({ id: 'signature-1', data_base64: png, ...extra }) };
+    const service = new ContractPdfService({ collection: () => collection } as unknown as Connection);
+    const load = (service as unknown as { loadSignature(value: string): Promise<Buffer | null> }).loadSignature;
+    await expect(load.call(service, 'signature-1')).resolves.toBeNull();
+  });
+
+  it('embeds a scanned signature', async () => {
+    const png = Buffer.from('iVBORw0KGgo=', 'base64').toString('base64');
+    const collection = { findOne: jest.fn().mockResolvedValue({ id: 'signature-1', data_base64: png, scan_status: 'clean' }) };
+    const service = new ContractPdfService({ collection: () => collection } as unknown as Connection);
+    const load = (service as unknown as { loadSignature(value: string): Promise<Buffer | null> }).loadSignature;
+    await expect(load.call(service, 'signature-1')).resolves.toBeInstanceOf(Buffer);
+  });
+
   // Live finding: a corrupt signature upload made submit answer 500.
   it('a corrupt signature image is a 400 (sign again), not a crash', async () => {
     const service = new ContractPdfService({ collection: () => ({ findOne: jest.fn() }) } as unknown as Connection);

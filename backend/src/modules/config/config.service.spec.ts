@@ -27,9 +27,11 @@ describe('CHI inquiry link in /config', () => {
   it('carries uploads_enabled from the scanner signal, and the admin flag row can still override it', async () => {
     const rows: any[] = [];
     const conn = { collection: () => ({ find: () => ({ project: () => ({ toArray: async () => rows }) }), findOne: async () => null }) };
-    const clamav = { uploadsAvailable: jest.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(true) };
+    const clamav = { uploadsAvailable: jest.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(true), uploadsPendingScan: jest.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(true) };
     const svc = new ConfigService(conn as never, clamav as never);
     expect((await svc.getClientConfig()).features.uploads_enabled).toBe(false);
-    expect((await svc.getClientConfig()).features.uploads_enabled).toBe(true);
+    const open = (await svc.getClientConfig()).features;
+    expect(open.uploads_enabled).toBe(true);
+    expect(open.uploads_pending_scan).toBe(true); // accepted, but the file waits for its scan before anyone can open it
   });
 });
