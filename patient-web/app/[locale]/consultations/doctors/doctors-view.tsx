@@ -18,7 +18,6 @@ import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
 import type { Metadata } from "next";
 import type { ConsultMode } from "@/components-next/ui-generated/components/contract";
-import { Button } from "@/components-next/ui-generated/components/Button";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { ConsultPage } from "@/components-next/consult/consult-page";
@@ -122,12 +121,11 @@ export async function DoctorsView({ params, searchParams }: Props) {
       <StaleWhileRevalidate maxAgeSeconds={searchParams === undefined ? DOCTORS_REVALIDATE_SECONDS : undefined} />
       <div className={styles.searchSticky}>
       <form className={styles.doctorSearch} method="get" role="search">
-        {/* one row: the search field, the Search action, the Filters button at the inline end (owner review 2026-10-27, G2) */}
+        {/* one row: the search field (its magnifier submits), the Filters button at the inline end (owner review 2026-10-27, G2) */}
         <div className={styles.searchRow}>
-          <SuggestInput locale={locale} id="doctor-search" name="q" defaultValue={sp.q ?? (specialtyName ? "" : sp.specialty ?? "")} placeholder={t("searchPlaceholder")} label={t("searchLabel")} fieldClassName={styles.searchField} inputClassName={styles.searchInput}>
+          <SuggestInput locale={locale} id="doctor-search" name="q" defaultValue={sp.q ?? (specialtyName ? "" : sp.specialty ?? "")} placeholder={t("searchPlaceholder")} label={t("searchLabel")} fieldClassName={styles.searchField} inputClassName={styles.searchInput} submitLabel={t("search")} submitClassName={styles.searchSubmit}>
             <Icon name="search" size={20} tone="secondary" />
           </SuggestInput>
-          <Button type="submit" label={t("search")} size="lg" />
           <DoctorFiltersSheet locale={locale} filters={filters} q={sp.q} specialty={sp.specialty} sort={sp.sort} clearHref={clearHref} count={filterCount} />
         </div>
         {[...filterPageParams(filters)].map(([name, value]) => <input key={name} type="hidden" name={name} value={value} />)}
