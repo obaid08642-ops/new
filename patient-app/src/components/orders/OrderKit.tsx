@@ -4,7 +4,7 @@ import { Pressable, Text, View } from 'react-native';
 import { Card, FIcon } from '../../../../packages/ui-native/src';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { Money } from '../pharmacy/OfferKit';
-import { dateLocaleFor } from '../../utils/dates';
+import { dateLocaleFor, numberingFor } from '../../utils/dates';
 import { KIND_ICON, hashRef, type OrderRow, type PillTone, type RowAction } from '../../utils/orderCenter';
 
 /**
@@ -19,13 +19,13 @@ export function useOrderDate() {
   return (at: number | null, withTime = false): string =>
     at === null
       ? ''
-      : new Date(at).toLocaleDateString(dateLocaleFor(lang), { year: 'numeric', month: 'short', day: 'numeric', numberingSystem: 'latn', ...(withTime ? { hour: '2-digit', minute: '2-digit' } : {}) });
+      : new Date(at).toLocaleDateString(dateLocaleFor(lang), { year: 'numeric', month: 'short', day: 'numeric', numberingSystem: numberingFor(lang), ...(withTime ? { hour: '2-digit', minute: '2-digit' } : {}) });
 }
 
 /** A time of day in the language's own format. */
 export function useClock() {
   const { lang } = useScreenUi();
-  return (at: number): string => new Date(at).toLocaleTimeString(dateLocaleFor(lang), { hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' });
+  return (at: number): string => new Date(at).toLocaleTimeString(dateLocaleFor(lang), { hour: '2-digit', minute: '2-digit', numberingSystem: numberingFor(lang) });
 }
 
 /** The board's status pill: 26 tall, radius 13, the tone's own background and ink; wraps in a long language. */

@@ -71,7 +71,7 @@ export function GlyphRound({ name, label, onPress, children, testID }: { name: F
  * count goes up the bubble pops (scale 1 -> 1.2 -> 1, MOTION.pop); with reduced motion only the number changes.
  */
 export function CountBadge({ count }: { count: number }) {
-  const { theme } = useScreenUi();
+  const { theme, num } = useScreenUi();
   const scaleValue = useRef(new Animated.Value(1)).current;
   const before = useRef(count);
   useEffect(() => {
@@ -86,7 +86,7 @@ export function CountBadge({ count }: { count: number }) {
   if (count <= 0) return null;
   return (
     <Animated.View pointerEvents="none" style={{ position: 'absolute', top: -3, end: -3, transform: [{ scale: scaleValue }] }}>
-      <Badge content={count} tone="danger" theme={theme} />
+      <Badge content={count} tone="danger" theme={theme} format={(n) => num(n)} />
     </Animated.View>
   );
 }
