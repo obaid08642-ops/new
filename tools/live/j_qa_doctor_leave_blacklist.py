@@ -7,10 +7,12 @@
     (GET /provider/ops/doctor/blacklist) and stored in MongoDB doctor_blacklist as active;
   - unblock: the doctor unblocks the patient (DELETE /provider/ops/doctor/blacklist/:patientId); it is no longer listed.
   - templates: the doctor saves a prescription template, uses it (usage count 1 in MongoDB) and deletes it.
-Payouts are not covered here."""
+  - payouts: the balance reads; a payout is refused without a verified bank account and without an idempotency key; history reads.
+Paying a payout out (admin approval) is not covered here: it needs earned money and a verified bank account."""
 import datetime
 import json
 import subprocess
+import time
 
 from lib import Client, journey, step
 
@@ -85,6 +87,16 @@ def main():
     step('the doctor deletes the template (DELETE .../templates/:id)', r.ok, r)
     r = doc.get('/provider/ops/doctor/templates')
     step('the deleted template is no longer listed', r.ok and not any(x.get('id') == tid for x in items(r)), r.status)
+
+    journey('doctor V-09: payouts (balance, refused without a verified bank account, history)')
+    r = doc.get('/provider/payouts/balance')
+    step('the balance reads (GET /provider/payouts/balance)', r.ok, r.status)
+    r = doc.post('/provider/payouts/request', {'amount': 10, 'idempotency_key': f'qa-payout-{int(time.time())}-abcdef'})
+    step('a payout is refused without a verified bank account', r.status == 400 and 'verified_bank_account_required' in json.dumps(r.body), r)
+    r = doc.post('/provider/payouts/request', {'amount': 10})
+    step('a payout without an idempotency key is refused', r.status == 400 and 'idempotency_key_required' in json.dumps(r.body), r)
+    r = doc.get('/provider/payouts/mine')
+    step('the payout history reads (GET /provider/payouts/mine)', r.ok, r.status)
     summary()
 
 
