@@ -1,5 +1,5 @@
 import { SeoSearchService } from './seo-search.module';
-import { POPULAR_KEY_STAGES, POPULAR_ORDER_STAGES, POPULAR_SORT_PROJECTION } from '../product-ranking/product-ranking.service';
+import { POPULAR_KEY_STAGES, POPULAR_MIX_KEY_STAGES, POPULAR_MIX_SORT_PROJECTION, POPULAR_ORDER_STAGES, POPULAR_SORT_PROJECTION } from '../product-ranking/product-ranking.service';
 
 const doc = (id: string, extra: any = {}) => ({ id, slug: `med-${id}`, name_ar: `دواء ${id}`, category: 'الأدوية والعلاج', usage_count: 0, ...extra });
 
@@ -34,14 +34,21 @@ describe('publicCategoryProducts popularity ordering', () => {
     expect(finds).toEqual([]);
     const stages = pipelines[0];
     expect(stages[0]).toHaveProperty('$match');
-    // the sort sees only the six fields it reads, never the whole document
-    expect(stages[1]).toEqual({ $project: POPULAR_SORT_PROJECTION });
-    expect(stages.slice(2, 2 + POPULAR_KEY_STAGES.length)).toEqual(POPULAR_KEY_STAGES);
+    // "All": the sort sees only the fields it reads (plus the category round-robin position), never the whole document
+    expect(stages[1]).toEqual({ $project: POPULAR_MIX_SORT_PROJECTION });
+    expect(stages.slice(2, 2 + POPULAR_MIX_KEY_STAGES.length)).toEqual(POPULAR_MIX_KEY_STAGES);
     expect(POPULAR_ORDER_STAGES.slice(0, POPULAR_KEY_STAGES.length)).toEqual(POPULAR_KEY_STAGES);
     const sortStage = POPULAR_ORDER_STAGES.find((s) => '$sort' in s) as any;
     expect(Object.keys(sortStage.$sort).slice(0, 3)).toEqual(['_rank', '_in_stock', '_has_image']);
     expect(stages).toContainEqual({ $skip: 0 });
     expect(stages).toContainEqual({ $limit: 24 });
+  });
+
+  it('a chosen category keeps the plain order (no round-robin)', async () => {
+    const { service, pipelines } = svc([doc('a')]);
+    await service.publicCategoryProducts('ar', 'skincare', undefined, 1, 24);
+    expect(pipelines[0][1]).toEqual({ $project: POPULAR_SORT_PROJECTION });
+    expect(pipelines[0].slice(2, 2 + POPULAR_KEY_STAGES.length)).toEqual(POPULAR_KEY_STAGES);
   });
 
   it('pages with skip and limit and never pins or re-orders page 1 afterwards', async () => {
