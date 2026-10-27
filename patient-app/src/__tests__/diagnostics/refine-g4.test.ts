@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 jest.mock('react-native-localize', () => ({ getLocales: () => [], findBestLanguageTag: () => undefined }));
 jest.mock('../../context/AppContext', () => ({ useApp: () => ({ isDark: false, lang: 'en', isRTL: false }) }));
 
-import { DIAG_ART, DIAG_ART_KEYS, DIAG_ART_TONE, LAB_ART_KEYS, RAD_ART_KEYS, diagArtKey, filterByArt, mostRequested } from '../../../../packages/ui/icons/diag-art';
+import { DIAG_ART, DIAG_ART_KEYS, DIAG_ART_TONE, LAB_ART_KEYS, RAD_ART_KEYS, diagArtKey, filterByArt, isMachineValue, itemSubtitle, mostRequested } from '../../../../packages/ui/icons/diag-art';
 import { SERVICE_TONES } from '../../../../packages/ui/icons/fill';
 import { catalogArt, isNearEnd } from '../../utils/diagCatalog';
 import { normalizeLabService } from '../../utils/labMappers';
@@ -109,5 +109,27 @@ describe('new keys in the six languages', () => {
       expect(m[key]?.trim()).toBeTruthy();
       if (loc !== 'en' && !/^(CT|MRI)$/.test(en[key])) expect(m[key]).not.toBe(en[key]);
     }
+  });
+});
+
+describe('item card subtitle never shows a raw machine value', () => {
+  const label = 'Mammography (translated)';
+  it('detects the raw catalogue strings', () => {
+    for (const raw of ['xray', 'ct', 'mri', 'ultrasound', 'mammography', 'ecg', 'blood_test']) expect(isMachineValue(raw)).toBe(true);
+    expect(isMachineValue('MRI', ['mri'])).toBe(true);
+    expect(isMachineValue('Chest X-ray, front view')).toBe(false);
+    expect(isMachineValue('أشعة على الصدر')).toBe(false);
+    expect(isMachineValue('')).toBe(false);
+  });
+  it('shows the real description, else the translated category name', () => {
+    expect(itemSubtitle('Scan of both breasts', ['mammography'], label)).toBe('Scan of both breasts');
+    expect(itemSubtitle('mammography', ['mammography'], label)).toBe(label);
+    expect(itemSubtitle('xray', [], label)).toBe(label);
+    expect(itemSubtitle(undefined, [], label)).toBe(label);
+    expect(itemSubtitle('  ', [], label)).toBe(label);
+  });
+  it('the new illustrations stay token-only and distinct', () => {
+    const shapes = (k: (typeof DIAG_ART_KEYS)[number]) => JSON.stringify(DIAG_ART[k]);
+    expect(new Set(['mammography', 'ecg', 'xray', 'liver', 'sugar', 'blood', 'vitamins'].map((k) => shapes(k as (typeof DIAG_ART_KEYS)[number]))).size).toBe(7);
   });
 });

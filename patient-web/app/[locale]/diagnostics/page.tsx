@@ -23,9 +23,9 @@ import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
-import { ReferralNote, ItemCard, LabCard, LAB, PackageCard, RADIOLOGY, Rail, SearchForm, SectionHead, hoursText, money, pickText, type Tag } from "@/components-next/diagnostics/diag-parts";
+import { CAT_LABEL, ReferralNote, ItemCard, LabCard, LAB, PackageCard, RADIOLOGY, Rail, SearchForm, SectionHead, hoursText, money, pickText, type Tag } from "@/components-next/diagnostics/diag-parts";
 import { ItemCatalog, type CatalogChip, type CatalogRow } from "@/components-next/diagnostics/item-catalog";
-import { diagArtKey, diagArtKeysOf, mostRequested, parseDiagArt, type DiagArtKey } from "@/components-next/ui-generated/icons/diag-art";
+import { diagArtKey, diagArtKeysOf, mostRequested, parseDiagArt } from "@/components-next/ui-generated/icons/diag-art";
 import { diagStatus } from "@/components-next/diagnostics/status";
 import { RowCard } from "@/components-next/consult/consult-parts";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
@@ -43,9 +43,6 @@ type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ kin
 const LIMIT_PACKAGES = 6;
 const LIMIT_BOOKINGS = 3;
 const MOST_REQUESTED = 6;
-/** The message key of each category chip (DiagWeb). */
-const CAT_LABEL = { blood: "catBlood", hormones: "catHormones", vitamins: "catVitamins", sugar: "catSugar", urine: "catUrine", liver: "catLiver", xray: "catXray", ct: "catCt", mri: "catMri", ultrasound: "catUltrasound", mammography: "catMammography", ecg: "catEcg" } as const satisfies Record<DiagArtKey, string>;
-
 export async function generateMetadata({ params }: Pick<Props, "params">): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
