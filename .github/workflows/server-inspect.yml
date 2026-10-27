@@ -13,7 +13,7 @@ jobs:
   ops:
     runs-on: ubuntu-latest
     environment: production
-    timeout-minutes: 150
+    timeout-minutes: 200
     steps:
       - uses: actions/checkout@v4
       - name: SSH setup

@@ -1,5 +1,4 @@
-# 2026-10-27 lead reviewer: run 38, TRANSLATION ar+en (owner: Arabic and English first). Sends the 1,404 requests of the run-37 dry run
-# (27,215 empty ar/en texts, each filled ONLY from the same product's same field in the other language) through the free-tier provider
-# chain, detached, up to 1,500 requests. Answers are saved on the host; NOTHING is written to the database (next: STEP=plan, then the
-# 90-catalogue-apply dry run, then the owner's Approve for the write with backup and rollback).
-98-translate-content
+# 2026-10-27 lead reviewer: run 39, READ-ONLY. Run 38 (ar+en translation) outlived the workflow's 120-min poll; the task keeps running
+# detached on the server and saves its answers to the host when it ends. This prints its progress (counts only). Nothing is sent or written.
+# Also: the job timeout is raised to 200 min so a detached task's full 120-min poll fits.
+98b-translate-progress
