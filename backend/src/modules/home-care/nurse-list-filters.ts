@@ -16,12 +16,18 @@ const coord = (v: unknown, lim: number): number | null => {
   return Number.isFinite(n) && Math.abs(n) <= lim ? n : null;
 };
 
+/**
+ * Whole-value match that ignores case. The stored nationality and gender are free text ("Saudi", "saudi", "SAUDI"), and the
+ * clients spell them differently, so an exact $eq missed profiles. The text is escaped: nothing the caller sends is a pattern.
+ */
+export const caseInsensitiveEq = (value: string): { $regex: RegExp } => ({ $regex: new RegExp(`^${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') });
+
 /** Clauses to merge into the profile filter. */
 export function nurseFilterClauses(q: NurseListQuery): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   const nationality = str(q?.nationality, 60);
   // the clients send `nationality=any` (and `availability=any`) for "no filter": that is not a nationality to match
-  if (nationality && !/^(any|all)$/i.test(nationality)) out.nationality = { $eq: nationality };
+  if (nationality && !/^(any|all)$/i.test(nationality)) out.nationality = caseInsensitiveEq(nationality);
   if (q?.available === 'true') out['availability.accepting'] = { $ne: false };
   return out;
 }

@@ -44,6 +44,7 @@ export class Medicine {
   @Prop() approved_at?: Date;
   @Prop() rejected_reason?: string;
   @Prop({ default: 0 }) usage_count: number; // how many times referenced
+  @Prop() category_pos?: number; // place inside its top-level category (1 = best), set by the ranking job: the "All" list round-robins on it
   @Prop({ default: 0 }) orders_count: number; // delivered orders that contain this product ("Most ordered"); +1 per order, never per unit
   @Prop({ default: 0, index: true }) rank_score: number; // the ranking's composite score, copied here by ProductRankingService so every list can sort by it
   @Prop({ index: true }) barcode?: string; // EAN13 / UPC / GTIN
@@ -143,6 +144,11 @@ MedicineSchema.index({ ...PUBLIC_KEYS, orders_count: -1, _id: 1 }, { name: 'publ
 MedicineSchema.index(
   { ...PUBLIC_KEYS, rank_score: -1, requires_prescription: 1, availability_status: 1, image_1: 1, image: 1, usage_count: -1, _id: 1 },
   { name: 'public_popular_covering' },
+);
+// The same for the "All" page, whose round-robin adds category_pos (see POPULAR_MIX_KEY_STAGES).
+MedicineSchema.index(
+  { ...PUBLIC_KEYS, rank_score: -1, category_pos: 1, requires_prescription: 1, availability_status: 1, image_1: 1, image: 1, usage_count: -1, _id: 1 },
+  { name: 'public_popular_mix_covering' },
 );
 // The product id (a uuid string, not _id) is how the product page's related reads, the cart and orders find a product.
 MedicineSchema.index({ id: 1 }, { name: 'id_1' });
