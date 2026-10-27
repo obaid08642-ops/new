@@ -1,10 +1,4 @@
-# 2026-10-27 lead reviewer: run 34. Deploy main@47a5650a (consultations web/app layout, hologram map web, home map tile, app menu,
-# SLO alert hysteresis + digest, /public popular top-k + index, oplog quiet skip, Redis-down limiter for sensitive routes). Free disk first (keeps one local copy of each backup kind).
-# After the deploy: 95-content-coverage (READ-ONLY) and 98-translate-content STEP=gaps (DRY RUN: counts only, no AI call, no write).
-release:47a5650a9a6576d20a570473897b23c7f3f26bec
-97-free-old-predeploy
-93-free-unused-images
-60-deploy-main
-95-content-coverage
+# 2026-10-27 lead reviewer: run 35, DRY RUN only. Run 34b deployed main@47a5650a (health ok) but its public status lines were capped at 40 by the
+# content-coverage output, so the translation counts did not show. 98-translate-content STEP=gaps: reads the published products, counts the missing
+# texts per language pair and field, prints the token count and the requests SHA. No AI call, no database write.
 98-translate-content
-cf-purge-api
