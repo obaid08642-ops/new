@@ -17,6 +17,7 @@ export const NATIVE_MOTION = {
   enterMax: ms(m.duration.enterMax),
   skeleton: ms(m.duration.skeleton),
   success: ms(m.duration.success),
+  stagger: ms(m.stagger.min),
   enterOffset: px(m.enter.translateY),
   pressScale: m.press.scale,
   easing: Easing.bezier(0.22, 1, 0.36, 1), // motion.easing.enter, written out because Easing.bezier takes numbers
@@ -45,13 +46,18 @@ export function setReduceMotionForTest(value: boolean): void {
   reduced = value;
 }
 
-/** A state (empty, error, offline) or any block that fades and rises into place once, over the enter duration. Static with reduced motion. */
-export function FadeIn({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
+/** How long the `index`-th item of a list waits before it rises in: one token step (`motion.stagger.min`) per place, at most five steps so a long list is not slow. */
+export function staggerDelay(index: number): number {
+  return Math.min(Math.max(Math.trunc(index) || 0, 0), 5) * NATIVE_MOTION.stagger;
+}
+
+/** A state (empty, error, offline) or any block that fades and rises into place once, over the enter duration (an item of a list: `index` staggers it). Static with reduced motion. */
+export function FadeIn({ children, style, index = 0 }: { children: React.ReactNode; style?: StyleProp<ViewStyle>; index?: number }) {
   const progress = React.useRef(new Animated.Value(reduceMotionNow() ? 1 : 0)).current;
   React.useEffect(() => {
     if (reduceMotionNow()) { progress.setValue(1); return; }
-    Animated.timing(progress, { toValue: 1, duration: NATIVE_MOTION.enterMax, easing: NATIVE_MOTION.easing, useNativeDriver: true }).start();
-  }, [progress]);
+    Animated.timing(progress, { toValue: 1, delay: staggerDelay(index), duration: NATIVE_MOTION.enterMax, easing: NATIVE_MOTION.easing, useNativeDriver: true }).start();
+  }, [progress, index]);
   return (
     <Animated.View style={[style, { opacity: progress, transform: [{ translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [NATIVE_MOTION.enterOffset, 0] }) }] }]}>
       {children}
