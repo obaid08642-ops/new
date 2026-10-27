@@ -130,3 +130,4 @@ j_web_qa_insurance
 j_web_qa_insurance_edit
 j_web_qa_chi
 j_qa_doctor_leave_blacklist
+j_qa_medicine_reject
