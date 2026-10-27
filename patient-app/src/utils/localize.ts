@@ -118,5 +118,19 @@ export function pickDbFieldSource<T = string>(obj: any, base: string): { value: 
   return { value: undefined, lang: null };
 }
 
+/**
+ * A leaflet section's text in the app's OWN language, or nothing (owner rule 2026-10-27, replacing the marked fallback of 2026-10-26): a translated
+ * field over a mixed language. The Arabic page never shows the English text and the English page never shows the Arabic one; a text whose
+ * letters are in the other language than its column is not an own-language text either. A section that returns undefined is not drawn.
+ */
+export function pickDbFieldOwn<T = string>(obj: any, base: string): T | undefined {
+  if (!obj) return undefined;
+  const page = currentDbLang();
+  const key = TRANSLATION_KEY_MAP[base] || base;
+  const own = page === 'ar' ? obj[`${base}_ar`] : page === 'en' ? obj[`${base}_en`] : obj?.translations?.[page]?.[key];
+  if (!hasContent(own)) return undefined;
+  return textLang(flatText(own), page) === page ? (own as T) : undefined;
+}
+
 /** Writing direction of a stored language (Arabic and Urdu are right-to-left). */
 export const dbLangDir = (l: DbLang): 'rtl' | 'ltr' => (l === 'ar' || l === 'ur' ? 'rtl' : 'ltr');

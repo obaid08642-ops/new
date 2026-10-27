@@ -5,7 +5,7 @@
  */
 import { Types } from 'mongoose';
 import { CATALOG_COLLECTIONS } from './catalog-collections';
-import { storagePath, type TranslationFile } from '../medicines/content-translation';
+import { afterMove, applyMoves, findMoves, movePaths, storagePath, type MoveItem, type TranslationFile } from '../medicines/content-translation';
 import { storedContentText } from '../medicines/med-i18n';
 import { publicMedicineFilter } from '../medicines/public-medicine-filter';
 import { SAUDI_LOCATIONS_SEED } from '../location/seeds/saudi-locations.data';
@@ -270,6 +270,8 @@ export async function planNumberedDistricts(db: DbLike): Promise<{ changes: Chan
 export interface ProductTranslationReport {
   items: number; to_write: number; already_translated: number; skipped_not_published: number; skipped_source_changed: number;
   by_locale: Record<string, number>;
+  /** Texts in the wrong column (an Arabic text in the English column), fixed as part of the same apply. */
+  language_moves?: { items: number; planned: number; skipped_not_published: number; skipped_changed_since_plan: number; by_kind: Record<string, number>; by_field: Record<string, number>; retranslated_in_place: number };
 }
 
 /**
@@ -277,24 +279,74 @@ export interface ProductTranslationReport {
  * reviewed as a file (owner complaint 2026-10-26). Each item becomes a guarded set on an EMPTY field of a published product, and only while
  * the source text is still the one that was translated; a provenance mark (`translation_provenance.<locale>.<field>`) says it is machine
  * translated. Nothing is overwritten, so a second plan is empty.
+ *
+ * Also the texts in the WRONG column (owner 2026-10-27: fixed, not skipped): the file's `moves`. A text whose letters are in the other of Arabic /
+ * English is moved to its own column when that is empty (the wrong column is emptied), or only the wrong column is emptied when the right one already
+ * has its text, or the two trade places. Every path is a compare-and-set on the EXACT old value, the moved text is marked `machine_moved`, and a column
+ * the move emptied that the file also translates (from the corrected product) is written with the translation in the same set, so the order of the
+ * writes cannot matter. A move whose text changed since the dry run is skipped, and a second plan is empty.
  */
 export async function planProductTranslations(db: DbLike, file: TranslationFile): Promise<{ changes: Change[]; report: ProductTranslationReport }> {
   const report: ProductTranslationReport = { items: file.items.length, to_write: 0, already_translated: 0, skipped_not_published: 0, skipped_source_changed: 0, by_locale: {} };
+  const moveReport = { items: (file.moves ?? []).length, planned: 0, skipped_not_published: 0, skipped_changed_since_plan: 0, by_kind: {} as Record<string, number>, by_field: {} as Record<string, number>, retranslated_in_place: 0 };
+  if (file.moves) report.language_moves = moveReport;
   const changes: Change[] = [];
-  const ids = [...new Set(file.items.map((i) => i.id))];
+  const ids = [...new Set([...file.items.map((i) => i.id), ...(file.moves ?? []).map((m) => m.id)])];
   const docs = new Map<string, Record<string, any>>();
   for (let s = 0; s < ids.length; s += 500) {
     for (const d of await db.collection(CATALOG_COLLECTIONS.medicines).find({ ...publicMedicineFilter(), id: { $in: ids.slice(s, s + 500) } }, {}).toArray()) docs.set(String(d.id), d);
   }
+  const collection = CATALOG_COLLECTIONS.medicines;
+  const setAt = new Map<string, SetChange>();          // `${_id}|${path}` → the change, so a translation can fold into a move's empty-out
+  const push = (c: SetChange) => { changes.push(c); setAt.set(`${String(c.key._id)}|${c.path}`, c); };
+
+  // 1. the moves: only while the stored text is still the one the dry run saw
+  const virtual = new Map<string, Record<string, any>>();
+  const moved = new Map<string, MoveItem[]>();
+  for (const m of file.moves ?? []) {
+    const doc = docs.get(m.id);
+    if (!doc) { moveReport.skipped_not_published += 1; continue; }
+    const current = findMoves(doc).find((x) => x.field === m.field && x.wrong === m.wrong && x.kind === m.kind && x.text_sha === m.text_sha);
+    if (!current) { moveReport.skipped_changed_since_plan += 1; continue; }
+    moved.set(m.id, [...(moved.get(m.id) ?? []), current]);
+  }
+  for (const [id, list] of moved) {
+    const doc = docs.get(id) as Record<string, any>;
+    virtual.set(id, applyMoves(doc, list));
+    const key = { _id: doc._id };
+    for (const m of list) {
+      const after = afterMove(doc, m);
+      for (const p of movePaths(doc, m, after)) push({ kind: 'set', step: 'language_moves', collection, key, path: p.path, before: p.before, after: p.after });
+      // the column that received a text is marked as moved by a machine; a swap marks both
+      for (const locale of ['ar', 'en'] as const) {
+        const received = m.kind === 'swap' || locale === m.right;
+        if (received && after[locale] !== null && m.kind !== 'clear') {
+          push({ kind: 'set', step: 'language_moves', collection, key, path: `translation_provenance.${locale}.${m.field}`, before: null, after: 'machine_moved' });
+        }
+      }
+      moveReport.planned += 1;
+      moveReport.by_kind[m.kind] = (moveReport.by_kind[m.kind] ?? 0) + 1;
+      moveReport.by_field[m.field] = (moveReport.by_field[m.field] ?? 0) + 1;
+    }
+  }
+
+  // 2. the translations, planned against the product as it will be after the moves
   for (const item of file.items) {
     const doc = docs.get(item.id);
     if (!doc) { report.skipped_not_published += 1; continue; }
-    if (storedContentText(doc, item.field, item.target) !== null) { report.already_translated += 1; continue; }
-    const source = storedContentText(doc, item.field, item.source);
+    const view = virtual.get(item.id) ?? doc;
+    if (storedContentText(view, item.field, item.target) !== null) { report.already_translated += 1; continue; }
+    const source = storedContentText(view, item.field, item.source);
     if (source === null || sha256(source) !== item.source_sha) { report.skipped_source_changed += 1; continue; }
     const key = { _id: doc._id };
-    changes.push({ kind: 'set', step: 'product_translations', collection: CATALOG_COLLECTIONS.medicines, key, path: storagePath(item.field, item.target), before: null, after: item.text });
-    changes.push({ kind: 'set', step: 'product_translations', collection: CATALOG_COLLECTIONS.medicines, key, path: `translation_provenance.${item.target}.${item.field}`, before: null, after: `machine:${file.model}` });
+    const path = storagePath(item.field, item.target);
+    const folded = setAt.get(`${String(doc._id)}|${path}`);
+    if (folded && folded.after === '') { folded.after = item.text; moveReport.retranslated_in_place += 1; }
+    else push({ kind: 'set', step: 'product_translations', collection, key, path, before: null, after: item.text });
+    const mark = `translation_provenance.${item.target}.${item.field}`;
+    const markedByMove = setAt.get(`${String(doc._id)}|${mark}`);
+    if (markedByMove) markedByMove.after = `machine:${file.model}`;
+    else push({ kind: 'set', step: 'product_translations', collection, key, path: mark, before: null, after: `machine:${file.model}` });
     report.to_write += 1;
     report.by_locale[item.target] = (report.by_locale[item.target] ?? 0) + 1;
   }

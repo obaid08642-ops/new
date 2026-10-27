@@ -4,7 +4,10 @@
  *
  *   gaps  --out requests.jsonl [--targets ar,en,ur,hi,bn,fil] [--limit 5000]
  *         DRY RUN. Reads the published products (MONGO_URL / DB_NAME), counts the missing texts per target and field, the texts in the
- *         wrong column (listed, never translated from), and prints the token count and the price at the configured model. Writes the requests.
+ *         WRONG column (an Arabic text in the English column) per field and pair, and prints the token count and the price at the configured
+ *         model. A wrong-column text is FIXED, not skipped (owner 2026-10-27): it is a "move" (the right column is empty: the text moves there),
+ *         a "clear" (the right column already has its text: only the wrong one is emptied) or a "swap". The missing texts it leaves behind are
+ *         planned from the corrected product. Writes the requests and, next to them, `<out>.moves.json` (the moves, read by `plan`).
  *   run   --requests requests.jsonl --out responses.jsonl [--rpm 60] [--max N]
  *         Calls the model. Resumable: request ids already in --out are skipped. Needs an AI provider key in the environment (any provider of the
  *         gateway chain: GEMINI_API_KEY, GROQ_API_KEY, ... OPENCODE_API_KEY; they are tried in order); without one it says so and stops. Model: TRANSLATE_MODEL (default as the classify job).
@@ -20,7 +23,7 @@ import { mongoDirectConnection } from '../common/database/mongo-uri';
 import { sha256 } from '../modules/catalogs/catalogue-apply.core';
 import { CATALOG_COLLECTIONS } from '../modules/catalogs/catalog-collections';
 import { publicMedicineFilter } from '../modules/medicines/public-medicine-filter';
-import { TARGET_ORDER, buildRequests, checkTranslation, findGaps, parseAnswers, type Gap, type Rejection, type TranslateRequest, type TranslationFile, type TranslationItem } from '../modules/medicines/content-translation';
+import { TARGET_ORDER, buildRequests, checkTranslation, findGaps, parseAnswers, type Gap, type MoveItem, type Rejection, type TranslateRequest, type TranslationFile, type TranslationItem } from '../modules/medicines/content-translation';
 import type { ContentLocale } from '../modules/medicines/med-i18n';
 import { DEFAULT_MODEL, PRICES, approxTokens, callerFromEnv, runRequests } from './classify-catalogue-batch';
 import { providerVariableNames } from '../modules/ai/env-chain';
@@ -75,6 +78,19 @@ export function planFromResponses(reqs: TranslateRequest[], responses: Map<strin
   return { file: { version: 1, model, generated_at: generatedAt, items }, accepted: items.length, rejected, by_target };
 }
 
+export interface MoveSummary { total: number; by_kind: Record<string, number>; per_pair: Record<string, Record<string, number>> }
+
+/** Counts of the wrong-column texts: by kind, and per language pair (`wrong>right`) and field. */
+export function summarizeMoves(moves: MoveItem[]): MoveSummary {
+  const out: MoveSummary = { total: moves.length, by_kind: {}, per_pair: {} };
+  for (const m of moves) {
+    out.by_kind[m.kind] = (out.by_kind[m.kind] ?? 0) + 1;
+    const pair = (out.per_pair[`${m.wrong}>${m.right}`] ??= {});
+    pair[m.field] = (pair[m.field] ?? 0) + 1;
+  }
+  return out;
+}
+
 const readJsonl = <T>(file: string): T[] => (fs.existsSync(file) ? fs.readFileSync(file, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l) as T) : []);
 const out = (o: Record<string, unknown>) => console.log(JSON.stringify(o));
 
@@ -88,11 +104,13 @@ export async function main(argv: string[]): Promise<number> {
     const limit = Number(arg(argv, 'limit')) || Infinity;
     const conn = await mongoose.createConnection(uri, { dbName: process.env.DB_NAME || 'nabd_nestjs', directConnection: mongoDirectConnection(uri), maxPoolSize: 1 }).asPromise();
     const gaps: Gap[] = []; let mislabelled = 0; let products = 0;
+    const moves: MoveItem[] = [];
     try {
       for await (const raw of conn.db!.collection(CATALOG_COLLECTIONS.medicines).find(publicMedicineFilter() as never, { projection: { _id: 0 } })) {
         products += 1;
         const r = findGaps(raw);
         mislabelled += r.mislabelled;
+        moves.push(...r.moves);
         for (const g of r.gaps) if (targets.has(g.target) && gaps.length < limit) gaps.push(g);
       }
     } finally { await conn.close().catch(() => undefined); }
@@ -100,7 +118,12 @@ export async function main(argv: string[]): Promise<number> {
     fs.writeFileSync(outFile, reqs.map((r) => JSON.stringify(r)).join('\n') + (reqs.length ? '\n' : ''));
     const per: Record<string, number> = {};
     for (const g of gaps) per[`${g.source}>${g.target}`] = (per[`${g.source}>${g.target}`] ?? 0) + 1;
-    out({ step, dry_run: true, published_products: products, missing_texts: gaps.length, text_in_wrong_column_not_translated: mislabelled, per_pair: per, requests_file: outFile, ...estimateRequests(reqs, process.env.TRANSLATE_MODEL || DEFAULT_MODEL) });
+    const movesFile = `${outFile}.moves.json`;
+    fs.writeFileSync(movesFile, JSON.stringify({ version: 1, generated_at: new Date().toISOString(), moves }, null, 1));
+    out({
+      step, dry_run: true, published_products: products, missing_texts: gaps.length, per_pair: per, requests_file: outFile, ...estimateRequests(reqs, process.env.TRANSLATE_MODEL || DEFAULT_MODEL),
+      text_in_wrong_column: summarizeMoves(moves), text_in_wrong_column_still_unresolved: mislabelled, moves_file: movesFile,
+    });
     return 0;
   }
   if (step === 'run') {
@@ -122,8 +145,11 @@ export async function main(argv: string[]): Promise<number> {
     const model = process.env.TRANSLATE_MODEL || DEFAULT_MODEL;
     const map = new Map(readJsonl<{ id: string; text: string }>(responses).map((r) => [r.id, r.text]));
     const plan = planFromResponses(readJsonl<TranslateRequest>(requests), map, model, new Date().toISOString());
+    const movesPath = arg(argv, 'moves') ?? `${requests}.moves.json`;
+    const moves: MoveItem[] = fs.existsSync(movesPath) ? ((JSON.parse(fs.readFileSync(movesPath, 'utf8')) as { moves?: MoveItem[] }).moves ?? []) : [];
+    if (moves.length) plan.file.moves = moves;
     fs.writeFileSync(outFile, JSON.stringify(plan.file, null, 1));
-    out({ step, accepted: plan.accepted, rejected: plan.rejected, by_target: plan.by_target, file: outFile, file_sha256: sha256(fs.readFileSync(outFile, 'utf8')) });
+    out({ step, moves: summarizeMoves(moves), accepted: plan.accepted, rejected: plan.rejected, by_target: plan.by_target, file: outFile, file_sha256: sha256(fs.readFileSync(outFile, 'utf8')) });
     return 0;
   }
   throw new Error('usage: translate-product-content <gaps|run|plan>');

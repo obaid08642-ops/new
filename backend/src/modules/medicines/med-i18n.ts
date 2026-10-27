@@ -265,6 +265,8 @@ const DB_TO_CONTENT: Record<DbLang, ContentLocale> = { ar: 'ar', en: 'en', ur: '
 /**
  * Owner rule (2026-10-26): a section is shown in the page's language. When that language has no text for it, another language is used
  * and the section says so: Arabic pages fall back to English; English pages to Arabic; ur, hi, bn and fil pages to English, then Arabic.
+ * SUPERSEDED for the leaflet sections by the owner's rule of 2026-10-27 (see `strict` in resolveMedicinePublicDto): they are shown in the page
+ * language or not at all. This order still serves names, which are the same brand in every language.
  */
 export function contentFallbackOrder(productLocale: string): ContentLocale[] {
   const l = DB_TO_CONTENT[productLocaleToDb(productLocale)];
@@ -354,17 +356,31 @@ export function resolveMedicinePublicDto(raw: Record<string, any>, productLocale
   const fallback_langs: Record<string, ContentLocale> = {};
   const pageLang = DB_TO_CONTENT[lang];
   const note = (field: string, used: ContentLocale | null) => { if (used && used !== pageLang) fallback_langs[field] = used; };
-  const text = (base: string, trKey: string, field = base): string | null => {
+  /**
+   * `strict` is a SECTION of the page (description, uses, dosage, warnings...): owner rule 2026-10-27, a translated field over a mixed language.
+   * Only the page language's own text is used, and only when its letters really are in that language (an Arabic leaflet sitting in the English
+   * column is not an English text). Without it the section is absent, so the page hides it; no foreign-language paragraph is shown. Names and
+   * short facts keep the fallback below (a brand name is the same in every language).
+   */
+  const text = (base: string, trKey: string, field = base, strict = false): string | null => {
     for (const { lang: l, value } of slots(base, trKey)) {
+      if (strict && l !== pageLang) continue;
       const v = pick(value);
-      if (v) { note(field, textLanguage(v, l)); return v; }
+      if (!v) continue;
+      if (strict && textLanguage(v, l) !== pageLang) continue;
+      note(field, textLanguage(v, l));
+      return v;
     }
     return null;
   };
-  const list = (base: string, trKey: string, field = base): string[] => {
+  const list = (base: string, trKey: string, field = base, strict = false): string[] => {
     for (const { lang: l, value } of slots(base, trKey)) {
+      if (strict && l !== pageLang) continue;
       const items = bulletList(value);
-      if (items.length) { note(field, textLanguage(items.join(' '), l)); return items; }
+      if (!items.length) continue;
+      if (strict && textLanguage(items.join(' '), l) !== pageLang) continue;
+      note(field, textLanguage(items.join(' '), l));
+      return items;
     }
     return [];
   };
@@ -411,16 +427,16 @@ export function resolveMedicinePublicDto(raw: Record<string, any>, productLocale
     official_name: text('official_name', LONG_TEXT_TR_KEYS.official_name),
     slug: slugs[productLocale] || raw?.slug || raw?.id,
     slugs,
-    description: text('description', LONG_TEXT_TR_KEYS.description),
-    indications: list('indications', LONG_TEXT_TR_KEYS.indications),
-    dosage_instructions: text('dosage_instructions', LONG_TEXT_TR_KEYS.dosage_instructions),
-    side_effects: list('side_effects', LONG_TEXT_TR_KEYS.side_effects),
-    warnings: list('warnings', LONG_TEXT_TR_KEYS.warnings),
-    storage_conditions: text('storage_conditions', LONG_TEXT_TR_KEYS.storage_conditions),
-    how_to_use: list('usage_instructions', LONG_TEXT_TR_KEYS.how_to_use, 'how_to_use'),
-    package_content_details: text('package_content_details', LONG_TEXT_TR_KEYS.package_content_details)
+    description: text('description', LONG_TEXT_TR_KEYS.description, 'description', true),
+    indications: list('indications', LONG_TEXT_TR_KEYS.indications, 'indications', true),
+    dosage_instructions: text('dosage_instructions', LONG_TEXT_TR_KEYS.dosage_instructions, 'dosage_instructions', true),
+    side_effects: list('side_effects', LONG_TEXT_TR_KEYS.side_effects, 'side_effects', true),
+    warnings: list('warnings', LONG_TEXT_TR_KEYS.warnings, 'warnings', true),
+    storage_conditions: text('storage_conditions', LONG_TEXT_TR_KEYS.storage_conditions, 'storage_conditions', true),
+    how_to_use: list('usage_instructions', LONG_TEXT_TR_KEYS.how_to_use, 'how_to_use', true),
+    package_content_details: text('package_content_details', LONG_TEXT_TR_KEYS.package_content_details, 'package_content_details', true)
       || fact('package_content_details', String(raw?.package_size || '')),
-    brand_benefits: text('brand_benefits', LONG_TEXT_TR_KEYS.brand_benefits),
+    brand_benefits: text('brand_benefits', LONG_TEXT_TR_KEYS.brand_benefits, 'brand_benefits', true),
     category: fact('category', String(raw?.category || '')),
     sub_category: fact('sub_category', String(raw?.sub_category || '')),
     sub_sub_category: fact('sub_sub_category', String((raw as any)?.sub_sub_category || '')),
