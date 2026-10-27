@@ -1,4 +1,5 @@
-# 2026-10-27 lead reviewer: run 37, DRY RUN. Owner: Arabic and English first, the other languages after. Run 36 (all languages) was cut by the
-# 7-minute SSH limit before its answers were saved (exit 124); 98 now runs detached (ops-detach, up to 120 min).
-# STEP=gaps TARGETS=ar,en: counts the missing ar/en texts and prints the requests SHA. No AI call, no database write.
+# 2026-10-27 lead reviewer: run 38, TRANSLATION ar+en (owner: Arabic and English first). Sends the 1,404 requests of the run-37 dry run
+# (27,215 empty ar/en texts, each filled ONLY from the same product's same field in the other language) through the free-tier provider
+# chain, detached, up to 1,500 requests. Answers are saved on the host; NOTHING is written to the database (next: STEP=plan, then the
+# 90-catalogue-apply dry run, then the owner's Approve for the write with backup and rollback).
 98-translate-content

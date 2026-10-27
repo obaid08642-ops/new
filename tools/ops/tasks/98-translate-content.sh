@@ -16,9 +16,9 @@
 #              rejected counts by reason. Then run 90-catalogue-apply: its dry run prints the plan hash, the owner approves, EXPECT_PLAN_SHA applies it
 #              (backup, guarded writes into EMPTY fields only, marked machine-translated, verify, rollback). After it, add `cf-purge-api` to tools/ops/RUN.
 set -u
-STEP="gaps"
-EXPECT_REQUESTS_SHA=""
-MAX_REQUESTS=300
+STEP="run"
+EXPECT_REQUESTS_SHA="db94514369d78d4f45171a2c5eee25254661f42d3c603047e687d6d4"
+MAX_REQUESTS=1500
 RPM=20
 TARGETS="ar,en"          # e.g. "ur,hi,bn,fil" to restrict the target languages; empty = all six
 LIMIT=""            # cap on the number of missing texts collected by the dry run; empty = all
@@ -68,7 +68,8 @@ run)
   [ ${#EXPECT_REQUESTS_SHA} -ge 32 ] || { say "ABORT EXPECT_REQUESTS_SHA must have at least 32 hex characters"; cleanup; exit 1; }
   sudo -n test -f "$W/requests.jsonl" || { say "ABORT no $W/requests.jsonl: run STEP=gaps first"; cleanup; exit 1; }
   SHA=$(sudo -n sha256sum "$W/requests.jsonl" | cut -d' ' -f1)
-  case "$SHA" in "$EXPECT_REQUESTS_SHA"*) ;; *) say "ABORT the requests changed (expected ${EXPECT_REQUESTS_SHA:0:12}, now ${SHA:0:12}): nothing was sent, run the dry run again"; cleanup; exit 1;; esac
+  # the public log masks part of a long hex string, so the hash may be given as its leading OR trailing 32+ characters
+  case "$SHA" in "$EXPECT_REQUESTS_SHA"*|*"$EXPECT_REQUESTS_SHA") ;; *) say "ABORT the requests changed (expected ${EXPECT_REQUESTS_SHA:0:12}, now ${SHA:0:12}): nothing was sent, run the dry run again"; cleanup; exit 1;; esac
   put "$W/requests.jsonl" "$CW/requests.jsonl" || { say "ABORT cannot copy the requests in"; cleanup; exit 1; }
   if sudo -n test -f "$W/responses.jsonl"; then put "$W/responses.jsonl" "$CW/responses.jsonl"; else $DK exec "$CT" sh -c ": > $CW/responses.jsonl"; fi
   OUT=$(tool run --requests="$CW/requests.jsonl" --out="$CW/responses.jsonl" --rpm="$RPM" --max="$MAX_REQUESTS"); RC=$?
