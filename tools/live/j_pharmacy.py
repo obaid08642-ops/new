@@ -16,6 +16,26 @@ def mongo_one(js):
     return json.loads(out) if out and out != 'null' else None
 
 
+def returns_flow(pat, pharm, admin, oid):
+    """P-14: the patient asks for a return of the delivered order, the pharmacy agrees, the admin approves (MongoDB returnrequests)."""
+    journey('pharmacy return P-14: the patient asks for a return of the delivered order')
+    r = pat.get(f'/pharmacy/returns/eligibility/{oid}')
+    step('return eligibility for the delivered order (GET /pharmacy/returns/eligibility)', r.ok, r)
+    r = pat.post('/pharmacy/returns', {'serviceType': 'pharmacy', 'reason': 'QA return: منتج غير مطابق', 'orderId': oid})
+    rid = r.get('id') if r.ok else None
+    step('patient asks for a return (POST /pharmacy/returns)', r.ok and rid, r)
+    if not rid:
+        return
+    row = mongo_one(f'db.returnrequests.findOne({{id: "{rid}"}}, {{_id: 0, status: 1}})')
+    step('MongoDB: the return request is processing', bool(row) and row.get('status') == 'processing', row)
+    r = pharm.post(f'/pharmacy/returns/provider/{rid}/respond', {'agree': True, 'note': 'QA'})
+    step('pharmacy agrees to the return (POST provider/:id/respond)', r.ok, r)
+    r = admin.post(f'/admin/admin/returns/{rid}/decide', {'decision': 'approved', 'note': 'QA'})
+    step('admin approves the return (POST /admin/returns/:id/decide)', r.ok, r)
+    row = mongo_one(f'db.returnrequests.findOne({{id: "{rid}"}}, {{_id: 0, status: 1}})')
+    step('MongoDB: the return is approved', bool(row) and row.get('status') in ('approved', 'completed'), row)
+
+
 def alloc_status(aid):
     """The status of one pharmacy allocation row (MongoDB pharmacy_allocations)."""
     out = subprocess.run(['docker', 'exec', 'mongo', 'mongosh', '--quiet', 'nabd_live', '--eval',
@@ -286,6 +306,7 @@ def run(pat, pharm, admin=None, meds=None):
     step('patient rates the pharmacy (reviews screen)', r.ok, r)
     review = mongo_one(f'db.reviews.findOne({{booking_kind: "pharmacy", booking_id: "{oid}"}}, {{_id: 0, rating: 1, status: 1}})')
     step('MongoDB: the rating is stored for this pharmacy order (reviews)', bool(review) and review.get('rating') == 4, review)
+    returns_flow(pat, pharm, admin, oid)
     pharmacy_screens(pharm, oid, total)
     if admin:
         admin_console(admin, oid)
