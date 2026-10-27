@@ -264,7 +264,14 @@ export default function DoctorProfile() {
     status === 'ready' && doc ? (
       <>
         <Text accessibilityLiveRegion="polite" style={{ ...scale(t, 'small', barLabel ? 'bold' : 'regular'), color: barLabel ? c.text.primary : c.text.secondary, textAlign: 'center' }}>{barLabel ?? k('consult.doc.stickyChooseTime')}</Text>
-        <Button label={k('consult.doc.stickyBook')} size="lg" fullWidth disabled={!barLabel} onPress={book} theme={theme} testID="doctor-book" />
+        {barLabel ? (
+          <Button label={k('consult.doc.stickyBook')} size="lg" fullWidth onPress={book} theme={theme} testID="doctor-book" />
+        ) : (
+          // disabled: sunken background with primary text (declared contrast pair), not a half-transparent red
+          <View accessible accessibilityRole="button" accessibilityState={{ disabled: true }} accessibilityLabel={k('consult.doc.stickyBook')} testID="doctor-book" style={{ minHeight: 56, borderRadius: 18, backgroundColor: c.bg.sunken, borderWidth: 1, borderColor: c.border.subtle, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 }}>
+            <Text style={{ ...scale(t, 'h4', 'bold'), color: c.text.primary }}>{k('consult.doc.stickyBook')}</Text>
+          </View>
+        )}
       </>
     ) : undefined;
 
@@ -316,14 +323,6 @@ export default function DoctorProfile() {
                   </View>
                 ) : null}
               </View>
-              {(doc.years_experience ?? 0) > 0 || ratingCount > 0 || ratingAvg > 0 || (doc.wait_time ?? 0) > 0 ? (
-                <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
-                  {(doc.years_experience ?? 0) > 0 ? <Stat value={`${num(doc.years_experience ?? 0)}+`} label={k('consult.doc.years')} tone="blue" /> : null}
-                  {typeof doc.wait_time === 'number' && doc.wait_time > 0 ? <Stat value={num(doc.wait_time)} label={k('consult.doc.waitMinutes')} tone="violet" /> : null}
-                  {ratingCount > 0 ? <Stat value={num(ratingCount)} label={k('consult.doc.reviews')} tone="mint" /> : null}
-                  {ratingAvg > 0 ? <Stat value={num(ratingAvg, { maximumFractionDigits: 1 })} label={k('consult.doc.average')} tone="amber" /> : null}
-                </View>
-              ) : null}
             </Card>
 
             <Section title={k('consult.book.visitType')}>
@@ -335,6 +334,12 @@ export default function DoctorProfile() {
               <SlotGrid loading={loadingSlots} value={selectedSlot} onChange={setSelectedSlot} emptyText={k(slotsEmptyKey(slotsReason))} slots={daySlots.map((s) => ({ id: s.start, label: clock(s.start), available: Boolean(s.available) }))} />
               {!loadingSlots && slotsReason === 'error' ? <Button label={k('consult.retry')} variant="secondary" size="md" onPress={() => setSlotsAttempt((n) => n + 1)} theme={theme} testID="doctor-slots-retry" /> : null}
             </Section>
+
+            {(doc.years_experience ?? 0) > 0 ? (
+              <View style={{ flexDirection: 'row', gap: 8 }} testID="doctor-stats">
+                <Stat value={`${num(doc.years_experience ?? 0)}+`} label={k('consult.doc.years')} tone="blue" />
+              </View>
+            ) : null}
 
             {[
               { key: 'clinic', title: k('consult.doc.clinicPhotos'), urls: (doc.clinic_images ?? doc.clinicPhotos ?? []).map((u) => apiMediaUri(u)).filter((u): u is string => Boolean(u)), w: 180 },

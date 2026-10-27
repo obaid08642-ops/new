@@ -32,11 +32,11 @@ export function StickyBookBar({ locale, bookHref, feeTexts, labels }: {
   return (
     <StickyFooter label={labels.region}>
       <div className={`${rx.bar} ${own.bar}`}>
-        <p className={state.enabled ? own.when : own.hint} aria-live="polite">{state.enabled ? state.label : labels.choose}</p>
+        <p className={`${own.barText} ${state.enabled ? own.when : own.hint}`} aria-live="polite">{state.enabled ? state.label : labels.choose}</p>
         {state.enabled ? (
-          <ButtonLink href={bookingHref(bookHref, state.type, selection?.start)} label={labels.book} fullWidth />
+          <ButtonLink href={bookingHref(bookHref, state.type, selection?.start)} label={labels.book} size="md" className={own.bookBtn} />
         ) : (
-          <button type="button" disabled aria-disabled="true" className="nabd-button nabd-button--primary nabd-button--lg nabd-button--full nabd-button--disabled">
+          <button type="button" disabled aria-disabled="true" className={`nabd-button nabd-button--md ${own.bookOff}`}>
             <span className="nabd-button__label">{labels.book}</span>
           </button>
         )}

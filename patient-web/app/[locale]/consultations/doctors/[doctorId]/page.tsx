@@ -76,10 +76,8 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
 
   const name = doctorDisplayName(doctor, locale) ?? t("nameUnavailable");
   const stats: ProfileStat[] = [];
-  if (doctor.rating !== undefined) stats.push({ value: formatNumber(locale, doctor.rating), label: c("statRating") });
-  if (doctor.reviews !== undefined) stats.push({ value: formatNumber(locale, doctor.reviews), label: c("statReviews") });
+  // rating, review count and fee are in the summary line under the photo; the tiles carry only what it does not
   if (doctor.experienceYears !== undefined) stats.push({ value: formatNumber(locale, doctor.experienceYears), label: c("statYears") });
-  if (doctor.price !== undefined) stats.push({ value: formatPrice(locale, doctor.price).text, label: c("statPrice") });
   const where = [doctorPlace(doctor, locale), doctor.district, doctor.city].filter(Boolean).join(" · ");
   const languageNames = new Intl.DisplayNames(locale, { type: "language" });
   const spoken = (doctor.languages ?? []).map((code) => { try { return languageNames.of(code) ?? code; } catch { return code; } }).join(", ");
@@ -117,8 +115,7 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
           bookHref={bookHref}
           labels={{ daysLabel: t("scheduleDaysLabel"), timesLabel: t("scheduleTimesLabel"), typesLabel: t("serviceTypeLabel"), today: t("scheduleToday"), tomorrow: t("scheduleTomorrow"), loading: t("scheduleLoading"), empty: t("scheduleEmpty"), noDays: t("scheduleNoDays"), error: t("scheduleError"), retry: t("scheduleRetry"), signIn: t("scheduleSignIn"), book: t("chooseDayTime") }}
         />
-        {/* The existing booking page keeps the slot hold, the address of a home visit and the payment. */}
-        <ButtonLink href={`${bookHref}?service_type=${serviceType}`} label={t("chooseDayTime")} variant="outline" fullWidth />
+        {/* Book is the sticky bar's job; the booking page keeps the slot hold, the address of a home visit and the payment. */}
       </SectionCard>
       {doctor.clinicPhotos?.length ? (
         <SectionCard id="clinic-photos-title" title={t("clinicPhotosTitle")}>

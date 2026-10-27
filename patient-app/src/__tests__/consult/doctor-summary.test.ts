@@ -34,7 +34,8 @@ describe('sticky bar label (app)', () => {
 
 describe('doctor profile sticky bar and summary wiring (app)', () => {
   it('disables the Book button until a slot is chosen, in the screen footer', () => {
-    expect(source).toContain('disabled={!barLabel}');
+    expect(source).toContain('accessibilityState={{ disabled: true }}');
+    expect(source).toContain('{barLabel ? (');
     expect(source).toContain("k('consult.doc.stickyChooseTime')");
     expect(source).toContain('footer={footer}');
   });
