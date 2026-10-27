@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 import {
-  DIAG_ART, DIAG_ART_FALLBACK, DIAG_ART_KEYS, DIAG_ART_TONE, LAB_ART_KEYS, RAD_ART_KEYS, diagArtKey, diagArtKeysOf, filterByArt, mostRequested, parseDiagArt,
+  DIAG_ART, DIAG_ART_FALLBACK, DIAG_ART_KEYS, DIAG_ART_TONE, LAB_ART_KEYS, RAD_ART_KEYS, diagArtKey, diagArtKeysOf, filterByArt, isMachineValue, itemSubtitle, mostRequested, parseDiagArt,
 } from "@/components-next/ui-generated/icons/diag-art";
 import { SERVICE_TONES } from "@/components-next/ui-generated/icons/fill";
 import { DiagArt } from "@/components-next/diagnostics/diag-art";
@@ -208,5 +208,22 @@ describe("new keys in all six languages", () => {
     }
     expect(String(m.OrderingFlow.singleNote ?? "").trim()).not.toBe("");
     if (loc !== "en") expect(m.OrderingFlow.singleNote).not.toBe(en.OrderingFlow.singleNote);
+  });
+});
+
+describe("card subtitles never show a raw machine value", () => {
+  it("shows the description, else the translated category", () => {
+    for (const raw of ["xray", "ct", "mri", "ultrasound", "mammography", "ecg"]) {
+      expect(isMachineValue(raw)).toBe(true);
+      expect(itemSubtitle(raw, [], "Translated")).toBe("Translated");
+    }
+    expect(itemSubtitle("MRI", ["mri"], "Translated")).toBe("Translated");
+    expect(itemSubtitle("Scan of the chest", ["xray"], "Translated")).toBe("Scan of the chest");
+    expect(itemSubtitle(undefined, [], "Translated")).toBe("Translated");
+  });
+  it("the radiology list shows the translated category, not the upper-cased modality", () => {
+    const page = code("app/[locale]/diagnostics/radiology/page.tsx");
+    expect(page).toContain("CAT_LABEL[diagArtKey(");
+    expect(page).not.toContain("service.modality?.toUpperCase()");
   });
 });

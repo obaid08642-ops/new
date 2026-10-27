@@ -33,7 +33,7 @@ import { fetchPublicList } from '../../src/utils/publicCache';
 import { visibleRows } from '../../src/utils/diagPaging';
 import { catalogArt, isNearEnd } from '../../src/utils/diagCatalog';
 import { singleOrderRoute } from '../../src/utils/singleOrder';
-import { diagArtKeysOf, filterByArt, mostRequested, type DiagArtKey } from '../../../packages/ui/icons/diag-art';
+import { diagArtKeysOf, filterByArt, itemSubtitle, mostRequested, type DiagArtKey } from '../../../packages/ui/icons/diag-art';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { insuranceOffered, normalizeLabList, normalizeProviders, type CatalogItem, type LabProvider } from '../../src/utils/labMappers';
@@ -242,7 +242,7 @@ export default function DiagnosticsHub() {
       art={art}
       width={width}
       image={rad.image}
-      note={rad.desc || undefined}
+      note={itemSubtitle(rad.desc, [rad.category, rad.modality, rad.bodyPart, rad.sampleType], k(`diag.cat.${art}`))}
       price={rad.price}
       inCart={inCart(rad.id)}
       addLabel={k('diag.detail.addToCart')}

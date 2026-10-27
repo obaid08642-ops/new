@@ -71,12 +71,13 @@ export const DIAG_ART: Record<DiagArtKey, readonly CategoryArtShape[]> = {
   ],
   // the pharmacy vitamins art: a supplement bottle
   vitamins: CATEGORY_ART.vitamins,
-  // a glucose meter with a drop
+  // a glucose meter (screen, button, test strip) with a blood drop beside it
   sugar: [
-    { d: rr(18, 14, 28, 44, 6), fill: 'surface', stroke: 'ink', sw: 2 },
-    { d: rr(23, 20, 18, 12, 3), fill: 'fg' },
-    { d: circle(32, 44, 5), fill: 'coral' },
-    { d: 'M32 3C32 3 38 9 38 12A6 6 0 0 1 26 12C26 9 32 3 32 3Z', fill: 'coral' },
+    { d: rr(8, 18, 32, 42, 7), fill: 'fg' },
+    { d: rr(13, 24, 22, 14, 3), fill: 'surface' },
+    { d: circle(24, 49, 5), fill: 'surface' },
+    { d: rr(20, 6, 8, 14, 2), fill: 'surface', stroke: 'ink', sw: 2 },
+    { d: 'M47 20C47 20 58 32 58 40A11 11 0 0 1 36 40C36 32 47 20 47 20Z', fill: 'coral', stroke: 'surface', sw: 2.5 },
   ],
   // a specimen cup
   urine: [
@@ -85,19 +86,20 @@ export const DIAG_ART: Record<DiagArtKey, readonly CategoryArtShape[]> = {
     { d: 'M19.5 34h25l-1.5 22H21z', fill: 'fg' },
     { d: 'M26 26h8', stroke: 'ink', sw: 2 },
   ],
-  // a kidney-shaped organ
+  // a liver (wedge) with a smaller kidney (bean) overlapping it
   liver: [
-    { d: 'M40 10C26 6 14 18 17 33C20 48 31 56 41 53C50 50 48 42 41 40C36 38 37 34 43 32C52 28 54 13 40 10Z', fill: 'coral' },
-    { d: 'M40 10C26 6 14 18 17 33C20 48 31 56 41 53C50 50 48 42 41 40C36 38 37 34 43 32C52 28 54 13 40 10Z', stroke: 'ink', sw: 2 },
-    { d: circle(31, 30, 4), fill: 'surface' },
+    { d: 'M4 22C4 14 14 10 26 12L52 17C60 19 61 27 56 33C48 46 36 52 24 48C10 44 4 34 4 22Z', fill: 'fg' },
+    { d: 'M30 13C30 22 31 30 38 38', stroke: 'surface', sw: 2.5 },
+    { d: 'M8 28C12 36 18 41 24 43', stroke: 'surface', sw: 2.5 },
+    { d: 'M46 31C38 31 34 39 38 47C42 55 55 56 58 48C59 43 53 43 53 40C53 36 51 31 46 31Z', fill: 'coral', stroke: 'surface', sw: 2.5 },
   ],
-  // a film with a bone
+  // a chest film: a frame with a spine and three pairs of ribs
   xray: [
-    { d: rr(10, 8, 44, 48, 5), fill: 'surface', stroke: 'ink', sw: 2 },
-    { d: 'M22 42L42 22', stroke: 'fg', sw: 6 },
-    { d: circle(21, 43, 5), fill: 'fg' },
-    { d: circle(43, 21, 5), fill: 'fg' },
-    { d: 'M16 50h10', stroke: 'coral', sw: 2 },
+    { d: rr(8, 6, 48, 52, 6), fill: 'surface', stroke: 'ink', sw: 2 },
+    { d: 'M32 13V51', stroke: 'fg', sw: 5 },
+    { d: 'M32 21C24 19 18 23 16 29M32 31C23 29 16 33 14 40M32 41C25 40 20 43 19 48', stroke: 'fg', sw: 3.5 },
+    { d: 'M32 21C40 19 46 23 48 29M32 31C41 29 48 33 50 40M32 41C39 40 44 43 45 48', stroke: 'fg', sw: 3.5 },
+    { d: rr(44, 10, 7, 4, 1.5), fill: 'coral' },
   ],
   // a ring scanner seen from the front, on a bed
   ct: [
@@ -120,12 +122,13 @@ export const DIAG_ART: Record<DiagArtKey, readonly CategoryArtShape[]> = {
     { d: 'M16 16a22 22 0 0 1 32 0', stroke: 'coral', sw: 3 },
     { d: 'M23 10a12 12 0 0 1 18 0', stroke: 'coral', sw: 3 },
   ],
-  // a ribbon over two compression plates
+  // a breast in profile pressed between a paddle above and a platform below
   mammography: [
-    { d: rr(10, 8, 44, 7, 3), fill: 'fg' },
-    { d: rr(10, 49, 44, 7, 3), fill: 'fg' },
-    { d: 'M32 40C20 32 24 20 32 24C40 20 44 32 32 40Z', fill: 'coral' },
-    { d: 'M32 24L24 10M32 24L40 10', stroke: 'coral', sw: 3 },
+    { d: rr(6, 6, 52, 8, 3), fill: 'fg' },
+    { d: rr(6, 50, 52, 8, 3), fill: 'fg' },
+    { d: 'M8 14H34C46 14 52 22 52 32C52 42 46 50 34 50H8Z', fill: 'surface', stroke: 'ink', sw: 2.5 },
+    { d: circle(55, 32, 3), fill: 'surface', stroke: 'ink', sw: 2 },
+    { d: circle(30, 32, 5), fill: 'coral' },
   ],
   // a heart and its pulse line
   ecg: [
@@ -187,6 +190,22 @@ export function diagArtKey(input: DiagArtInput): DiagArtKey {
     return firstMatch(RAD_RULES, lower(input.modality)) ?? firstMatch(RAD_RULES, lower(input.bodyPart, ...(input.names ?? []))) ?? DIAG_ART_FALLBACK.radiology;
   }
   return firstMatch(LAB_RULES, lower(input.category, ...(input.names ?? []))) ?? firstMatch(LAB_RULES, lower(input.sampleType)) ?? DIAG_ART_FALLBACK.lab;
+}
+
+/**
+ * True when a text is just a machine value of the catalogue ("xray", "ct", "mammography", "blood_test"): one lower-case token with no
+ * spaces, or the same as one of the row's own raw fields (category, modality, sample type, body part) in any case.
+ */
+export function isMachineValue(text: string | undefined, rawFields: ReadonlyArray<string | undefined> = []): boolean {
+  const t = (text ?? '').trim();
+  if (!t) return false;
+  return /^[a-z0-9_-]+$/.test(t) || rawFields.some((f) => typeof f === 'string' && f.trim().toLowerCase() === t.toLowerCase());
+}
+
+/** The subtitle of an item card: the real description when there is one, else the TRANSLATED category name; a raw machine value is never shown. */
+export function itemSubtitle(description: string | undefined, rawFields: ReadonlyArray<string | undefined>, categoryLabel: string): string {
+  const d = (description ?? '').trim();
+  return d && !isMachineValue(d, rawFields) ? d : categoryLabel;
 }
 
 /** The chips of a kind: the art keys that kind's catalogue is grouped by. */
