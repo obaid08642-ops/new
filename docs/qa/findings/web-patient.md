@@ -58,3 +58,11 @@ Lesson for the sweep: all results recorded under plain `next start` (the anonymo
 | P2 | `backend/src/modules/auth/auth.service.ts:884` (register, `otp_required` check) with `patient-web/app/api/auth/register/route.ts:45` (proxy) | A browser sign-up with a valid 8-character password and terms accepted gets `400 otp_required` on the second attempt of the same run. The request body is the same shape that gets a 2xx for A-02 (`name`, `identifier`, `password`, `locale`, `consents` terms and privacy v1). The difference is server-side state (the one-time-code marker in Redis, `otpVerifiedKey`), not the request. | Either the sign-up is accepted with the same inputs, or the website shows the code step before the register request. Owner or S to confirm which. |
 
 Evidence: `tools/live/j_web_qa_password_rule.py` first half passes (7 characters refused on the website, no request sent, no MongoDB row). The second half fails as above. `tools/live/j_web_qa_signup.py` (A-02) passes on the same stack.
+
+## A-13: support chat thread is empty after a reload (test run 2026-10-27)
+
+| Sev | Where | What happens | Expected |
+|---|---|---|---|
+| P2 | `patient-web/components-next/support-chat-client.tsx:17` (`parseHistory`, `list` looks for `data`, `messages` or `history` on the root) | The server returns a top-level array (`GET /api/patient/support/chat` = `[{id, from, text, time, isBot}]`). The parser reads the array's own keys, finds no list, and returns []. After any reload the page shows only the greeting; the sent messages are not drawn, although they are stored (MongoDB `supportrequests`) and returned by the API. | The thread of earlier messages is shown after a reload. |
+
+Evidence: `tools/live/j_web_qa_support.py`: 9/10 steps pass (sign-in, POST 2xx, bubble on screen, MongoDB thread row, `GET /support/chat/messages` read-back). The reload step fails. A diagnostic run showed the history GET returns the message with status 200 while the page shows 0 matches. The journey is not in `gate_order.txt` until the client is fixed (design or client owner).
