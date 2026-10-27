@@ -72,11 +72,10 @@ describe("A: one illustration per category", () => {
     }
     expect(code("components-next/diagnostics/diag-art.module.css")).toContain("var(--nabd-tone-fg)");
   });
-  it("uses the item's own photo only when the backend sends one", () => {
+  it("shows the item's own photo first and the category art only as the fallback", () => {
     const card = code("components-next/diagnostics/item-card.tsx");
-    expect(card).toContain("allowedImageUrl(imageUrl)");
-    expect(card).toContain("image ? <PhotoWithFallback");
-    expect(card).toContain("fallback={picture}");
+    expect(card).toContain("<ItemPicture imageUrl={imageUrl} fallback={<DiagArt art={art} size={56} />} />");
+    expect(code("components-next/diagnostics/item-picture.tsx")).toContain("fallback={fallback}");
   });
 });
 
