@@ -5257,7 +5257,7 @@
     "browseLab": "Browse labs",
     "addAria": "Add to basket",
     "removeAria": "Remove from basket",
-    "basketBar": "Basket · {n} items",
+    "basketBar": "Basket · {n, plural, one {# item} other {# items}}",
     "viewBasket": "View basket",
     "secPrep": "Preparation",
     "secTurn": "Result time",
