@@ -1,5 +1,5 @@
 import { SeoSearchService } from './seo-search.module';
-import { POPULAR_ORDER_STAGES } from '../product-ranking/product-ranking.service';
+import { POPULAR_KEY_STAGES, POPULAR_ORDER_STAGES, POPULAR_SORT_PROJECTION } from '../product-ranking/product-ranking.service';
 
 const doc = (id: string, extra: any = {}) => ({ id, slug: `med-${id}`, name_ar: `دواء ${id}`, category: 'الأدوية والعلاج', usage_count: 0, ...extra });
 
@@ -9,11 +9,13 @@ describe('publicCategoryProducts popularity ordering', () => {
     const finds: any[] = [];
     const cols: any = {
       medicines: {
+        // the page is two reads now: the ordered ids (aggregate over the six sort fields), then the full documents of those ids
         aggregate: jest.fn().mockImplementation((pipeline: any[]) => {
           pipelines.push(pipeline);
-          return { toArray: jest.fn().mockResolvedValue(medicines) };
+          return { toArray: jest.fn().mockResolvedValue(medicines.map((m, i) => ({ _id: `oid-${i}` }))) };
         }),
-        find: jest.fn().mockImplementation(() => {
+        find: jest.fn().mockImplementation((filter: any) => {
+          if (filter?._id?.$in) return { toArray: () => Promise.resolve(filter._id.$in.map((id: string) => ({ _id: id, ...medicines[Number(id.slice(4))] }))) };
           const sort = jest.fn().mockImplementation((s: any) => { finds.push(s); return { skip: () => ({ limit: () => ({ toArray: () => Promise.resolve(medicines) }) }) }; });
           return { sort };
         }),
@@ -32,7 +34,10 @@ describe('publicCategoryProducts popularity ordering', () => {
     expect(finds).toEqual([]);
     const stages = pipelines[0];
     expect(stages[0]).toHaveProperty('$match');
-    expect(stages.slice(1, 1 + POPULAR_ORDER_STAGES.length)).toEqual(POPULAR_ORDER_STAGES);
+    // the sort sees only the six fields it reads, never the whole document
+    expect(stages[1]).toEqual({ $project: POPULAR_SORT_PROJECTION });
+    expect(stages.slice(2, 2 + POPULAR_KEY_STAGES.length)).toEqual(POPULAR_KEY_STAGES);
+    expect(POPULAR_ORDER_STAGES.slice(0, POPULAR_KEY_STAGES.length)).toEqual(POPULAR_KEY_STAGES);
     const sortStage = POPULAR_ORDER_STAGES.find((s) => '$sort' in s) as any;
     expect(Object.keys(sortStage.$sort).slice(0, 3)).toEqual(['_rank', '_in_stock', '_has_image']);
     expect(stages).toContainEqual({ $skip: 0 });
