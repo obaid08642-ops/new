@@ -1,0 +1,31 @@
+# Doctor (provider app): Settings -> "Prescription Templates": save a template, it is listed, then delete it and it is gone.
+appId: com.nabd.provider
+---
+- runFlow: common_provider_login.yaml
+- extendedWaitUntil:
+    visible: "الإعدادات|Settings"
+    timeout: 90000
+- tapOn: "الإعدادات|Settings"
+- scrollUntilVisible:
+    element: "قوالب الوصفات|Prescription Templates"
+    timeout: 30000
+- tapOn: "قوالب الوصفات|Prescription Templates"
+- extendedWaitUntil:
+    visible: "حفظ القالب|Save Template"
+    timeout: 30000
+# the fields show their examples as placeholders
+- tapOn: "مثال: باقة البرد|e.g. Flu pack"
+- inputText: "Maestro pack"
+- tapOn: ".*Paracetamol 500.*"
+- inputText: "Panadol - 1x3"
+- hideKeyboard
+- tapOn: "حفظ القالب|Save Template"
+- extendedWaitUntil:
+    visible: ".*Panadol \\(1x3\\).*"
+    timeout: 30000
+- takeScreenshot: provider_doctor_templates_added
+- tapOn:
+    id: "template-delete"
+- extendedWaitUntil:
+    notVisible: ".*Panadol \\(1x3\\).*"
+    timeout: 30000

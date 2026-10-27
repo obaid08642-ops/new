@@ -195,7 +195,7 @@ export function PrescriptionTemplatesScreen({ onBack }: { onBack: () => void }) 
                 </Text>
                 {t.usage_count > 0 && <NBadge label={`${AR ? 'استُخدم' : 'used'} ×${t.usage_count}`} variant="info" size="xs" />}
               </View>
-              <TouchableOpacity onPress={() => remove(t.id)}>
+              <TouchableOpacity onPress={() => remove(t.id)} testID="template-delete" accessibilityLabel={AR ? 'حذف القالب' : 'Delete template'}>
                 <I name="trash" size={20} color={theme.danger} />
               </TouchableOpacity>
             </View>
