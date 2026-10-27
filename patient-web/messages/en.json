@@ -2496,6 +2496,8 @@
     "zoomImage": "Enlarge image",
     "wishlistAdd": "Add to wishlist",
     "wishlistRemove": "Remove from wishlist",
+    "wishlistAddedToast": "Added to your favourites",
+    "wishlistRemovedToast": "Removed from your favourites",
     "wishlistError": "The wishlist could not be updated. Try again.",
     "closeImage": "Close",
     "activeIngredientLine": "Active ingredient: {value}",

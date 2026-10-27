@@ -396,6 +396,8 @@
   "pharmacy.wishlist.empty": "Walang laman ang listahan ng nais",
   "pharmacy.wishlist.emptyBody": "I-tap ang puso sa pahina ng produkto at lalabas ito rito.",
   "pharmacy.wishlist.shop": "Magsimula ng pamimili",
+  "pharmacy.wishlist.addedToast": "Naidagdag sa iyong mga paborito",
+  "pharmacy.wishlist.removedToast": "Inalis sa iyong mga paborito",
   "pharmacy.filters.title": "I-filter ang mga resulta",
   "pharmacy.filters.reset": "I-reset",
   "pharmacy.filters.clearAll": "I-clear lahat",

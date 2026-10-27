@@ -396,6 +396,8 @@
   "pharmacy.wishlist.empty": "فہرستِ خواہشات خالی ہے",
   "pharmacy.wishlist.emptyBody": "کسی پروڈکٹ کے صفحے پر دل دبائیں تو وہ یہاں نظر آئے گا۔",
   "pharmacy.wishlist.shop": "خریداری شروع کریں",
+  "pharmacy.wishlist.addedToast": "پسندیدہ میں شامل ہو گیا",
+  "pharmacy.wishlist.removedToast": "پسندیدہ سے ہٹا دیا گیا",
   "pharmacy.filters.title": "نتائج کو فلٹر کریں",
   "pharmacy.filters.reset": "ری سیٹ کریں",
   "pharmacy.filters.clearAll": "سب صاف کریں",

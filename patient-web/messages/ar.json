@@ -2496,6 +2496,8 @@
     "zoomImage": "تكبير الصورة",
     "wishlistAdd": "أضف إلى المفضلة",
     "wishlistRemove": "أزل من المفضلة",
+    "wishlistAddedToast": "تمت الإضافة إلى المفضلة",
+    "wishlistRemovedToast": "تمت الإزالة من المفضلة",
     "wishlistError": "تعذّر تحديث المفضلة. حاول مرة أخرى.",
     "closeImage": "إغلاق",
     "activeIngredientLine": "المادة الفعالة: {value}",

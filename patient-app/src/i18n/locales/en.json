@@ -396,6 +396,8 @@
   "pharmacy.wishlist.empty": "Wishlist is empty",
   "pharmacy.wishlist.emptyBody": "Tap the heart on a product's page and it will appear here.",
   "pharmacy.wishlist.shop": "Start shopping",
+  "pharmacy.wishlist.addedToast": "Added to your favourites",
+  "pharmacy.wishlist.removedToast": "Removed from your favourites",
   "pharmacy.filters.title": "Filter results",
   "pharmacy.filters.reset": "Reset",
   "pharmacy.filters.clearAll": "Clear all",

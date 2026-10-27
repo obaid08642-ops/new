@@ -396,6 +396,8 @@
   "pharmacy.wishlist.empty": "ইচ্ছেতালিকা খালি",
   "pharmacy.wishlist.emptyBody": "কোনো পণ্যের পেজে হার্ট চাপুন, এটি এখানে দেখা যাবে।",
   "pharmacy.wishlist.shop": "কেনাকাটা শুরু করুন",
+  "pharmacy.wishlist.addedToast": "প্রিয় তালিকায় যোগ করা হয়েছে",
+  "pharmacy.wishlist.removedToast": "প্রিয় তালিকা থেকে সরানো হয়েছে",
   "pharmacy.filters.title": "ফলাফল ফিল্টার করুন",
   "pharmacy.filters.reset": "রিসেট করুন",
   "pharmacy.filters.clearAll": "সব মুছুন",

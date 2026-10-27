@@ -2496,6 +2496,8 @@
     "zoomImage": "Palakihin ang larawan",
     "wishlistAdd": "Idagdag sa wishlist",
     "wishlistRemove": "Alisin sa wishlist",
+    "wishlistAddedToast": "Naidagdag sa iyong mga paborito",
+    "wishlistRemovedToast": "Inalis sa iyong mga paborito",
     "wishlistError": "Hindi na-update ang wishlist. Subukan muli.",
     "closeImage": "Isara",
     "activeIngredientLine": "Aktibong sangkap: {value}",
