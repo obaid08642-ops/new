@@ -1,4 +1,4 @@
 {
-  "_doc": "P14.24: Android bundle (Hermes bytecode) budget in bytes, checked by scripts/bundle-size.mjs in CI. Set 2026-10-16 at the measured size (20,889,901 bytes, with FlashList v2) plus 2%. Lower it when the bundle shrinks; never raise it without a reason in the PR. Raised 2026-10-22 (reviewer): the M6 ordering screens (Ord01–Ord11, PRs #1784–#1787) add 131,639 bytes; new budget = measured 21,439,339 + 1%.",
-  "android_bundle_bytes": 21653732
+  "_doc": "P14.24: Android bundle (Hermes bytecode) budget in bytes, checked by scripts/bundle-size.mjs in CI. Set 2026-10-16 at the measured size (20,889,901 bytes, with FlashList v2) plus 2%. Lower it when the bundle shrinks; never raise it without a reason in the PR. Raised 2026-10-22 (reviewer): the M6 ordering screens (Ord01–Ord11, PRs #1784–#1787) add 131,639 bytes; new budget = measured 21,439,339 + 1%. Raised 2026-10-27 (reviewer): the facility page (PD-767, PR #2004) adds 1,706 bytes over the old budget; new budget = measured 21,655,438 + 1%.",
+  "android_bundle_bytes": 21871992
 }
