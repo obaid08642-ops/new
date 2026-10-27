@@ -155,6 +155,7 @@ export default function DoctorProfile() {
   const [slotsReason, setSlotsReason] = useState<string | null>(null);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [slotsAttempt, setSlotsAttempt] = useState(0);
 
   useEffect(() => {
     if (!doc?.id) return;
@@ -179,7 +180,7 @@ export default function DoctorProfile() {
     return () => {
       active = false;
     };
-  }, [doc?.id, day, activeVt, days]);
+  }, [doc?.id, day, activeVt, days, slotsAttempt]);
 
   const handleShare = async () => {
     try {
@@ -222,9 +223,7 @@ export default function DoctorProfile() {
   const ratingCount = doc?.rating_count ?? doc?.reviews_count ?? 0;
   const reviews = Array.isArray(doc?.reviews_data) ? doc.reviews_data : [];
   const education = doc?.education ? (Array.isArray(doc.education) ? doc.education.map((e) => `${e.degree} — ${e.school}`).join('\n') : String(doc.education)) : '';
-  const info: Array<{ icon: 'file-text' | 'globe' | 'identification-card' | 'shield-check'; label: string; value: string }> = [
-    // education is not in the backend model yet: an honest empty line, never an invented degree
-    { icon: 'file-text' as const, label: k('consult.doc.education'), value: education || k('consult.doc.noEducation') },
+  const info: Array<{ icon: 'globe' | 'shield-check'; label: string; value: string }> = [
     ...(Array.isArray(doc?.languages) && doc.languages.length > 0 ? [{ icon: 'globe' as const, label: k('consult.doc.languages'), value: doc.languages.map(languageName).join('، ') }] : []),
     ...(doc?.accepts_insurance ? [{ icon: 'shield-check' as const, label: k('consult.doc.insurance'), value: k('consult.doc.acceptsInsurance') }] : []),
   ];
@@ -263,14 +262,16 @@ export default function DoctorProfile() {
         {doc ? (
           <>
             <Card theme={theme}>
-              <View style={{ alignItems: 'center', gap: 8 }}>
-                {photo ? (
-                  <Pressable accessibilityRole="imagebutton" accessibilityLabel={name} onPress={() => setPhotoOpen(true)}>
-                    <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: optimizedImageUri(photo, 120) }} contentFit="cover" style={{ width: 120, height: 120, borderRadius: 40, backgroundColor: c.bg.media }} />
-                  </Pressable>
-                ) : (
+              {photo ? (
+                <Pressable accessibilityRole="imagebutton" accessibilityLabel={name} onPress={() => setPhotoOpen(true)} style={{ marginBottom: 12 }}>
+                  <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: optimizedImageUri(photo, 640) }} contentFit="cover" contentPosition="top" style={{ width: '100%', aspectRatio: 4 / 3, borderRadius: 24, backgroundColor: c.bg.media }} />
+                </Pressable>
+              ) : (
+                <View style={{ width: '100%', aspectRatio: 4 / 3, borderRadius: 24, backgroundColor: c.bg.media, alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
                   <FIcon icon={look.icon} tone={look.tone} size={96} theme={theme} />
-                )}
+                </View>
+              )}
+              <View style={{ alignItems: 'center', gap: 8 }}>
                 {doc.is_online ? <StatusTag label={k('consult.doc.availableNow')} tone="success" /> : null}
                 {doc.verified === true ? <StatusTag label={k('consult.doc.verified')} tone="info" /> : null}
                 <Text accessibilityRole="header" style={{ ...scale(t, 'h2'), color: c.text.primary, textAlign: 'center' }}>{name}</Text>
@@ -313,7 +314,59 @@ export default function DoctorProfile() {
             <Section title={k('consult.doc.bookTitle')}>
               <DayStrip days={days} value={day} onChange={setDay} label={k('consult.book.day')} />
               <SlotGrid loading={loadingSlots} value={selectedSlot} onChange={setSelectedSlot} emptyText={k(slotsEmptyKey(slotsReason))} slots={daySlots.map((s) => ({ id: s.start, label: clock(s.start), available: Boolean(s.available) }))} />
+              {!loadingSlots && slotsReason === 'error' ? <Button label={k('consult.retry')} variant="secondary" size="md" onPress={() => setSlotsAttempt((n) => n + 1)} theme={theme} testID="doctor-slots-retry" /> : null}
             </Section>
+
+            {[
+              { key: 'clinic', title: k('consult.doc.clinicPhotos'), urls: (doc.clinic_images ?? doc.clinicPhotos ?? []).map((u) => apiMediaUri(u)).filter((u): u is string => Boolean(u)), w: 180 },
+              { key: 'facility', title: k('consult.doc.facilityPhotos'), urls: doc.facility_images, w: 200 },
+            ]
+              .filter((g) => Array.isArray(g.urls) && g.urls.length > 0)
+              .map((g) => (
+                <Section key={g.key} title={g.title}>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+                    {(g.urls ?? []).map((uri) => (
+                      <Image cachePolicy="memory-disk" key={uri} accessibilityIgnoresInvertColors accessibilityLabel={g.title} source={{ uri: optimizedImageUri(uri, g.w) }} contentFit="cover" style={{ width: g.w, height: 130, borderRadius: 16, backgroundColor: c.bg.media }} />
+                    ))}
+                  </ScrollView>
+                </Section>
+              ))}
+
+            {bio ? (
+              <Section title={k('consult.doc.about')}>
+                <Card theme={theme}>
+                  <Text numberOfLines={bioOpen ? undefined : 4} style={{ ...scale(t, 'small', 'regular'), lineHeight: 24, color: c.text.secondary, ...flow }}>{bio}</Text>
+                  {!bioOpen ? (
+                    <Pressable accessibilityRole="button" accessibilityLabel={k('consult.doc.readMore')} onPress={() => setBioOpen(true)} style={{ minHeight: 44, justifyContent: 'center' }}>
+                      <Text style={{ ...scale(t, 'small', 'medium'), color: c.text.link, ...flow }}>{k('consult.doc.readMore')}</Text>
+                    </Pressable>
+                  ) : null}
+                  {Array.isArray(doc.sub_specialties) && doc.sub_specialties.length > 0 ? (
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                      {doc.sub_specialties.map((s) => (
+                        <StatusTag key={s} label={s} tone="neutral" />
+                      ))}
+                    </View>
+                  ) : null}
+                </Card>
+              </Section>
+            ) : null}
+
+            {info.length > 0 ? (
+              <Section title={k('consult.doc.more')}>
+                <Card theme={theme}>
+                  {info.map((row, i) => (
+                    <View key={row.label} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: c.border.hairline }}>
+                      <Glyph name={row.icon} size={20} color={c.icon.secondary} />
+                      <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                        <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{row.label}</Text>
+                        <Text style={{ ...scale(t, 'small', 'medium'), color: c.text.primary, ...flow }}>{row.value}</Text>
+                      </View>
+                    </View>
+                  ))}
+                </Card>
+              </Section>
+            ) : null}
 
             {services.length > 0 || followUp ? (
               <Section title={k('consult.doc.services')}>
@@ -348,56 +401,14 @@ export default function DoctorProfile() {
               </Section>
             ) : null}
 
-            {bio ? (
-              <Section title={k('consult.doc.about')}>
-                <Card theme={theme}>
-                  <Text numberOfLines={bioOpen ? undefined : 4} style={{ ...scale(t, 'small', 'regular'), lineHeight: 24, color: c.text.secondary, ...flow }}>{bio}</Text>
-                  {!bioOpen ? (
-                    <Pressable accessibilityRole="button" accessibilityLabel={k('consult.doc.readMore')} onPress={() => setBioOpen(true)} style={{ minHeight: 44, justifyContent: 'center' }}>
-                      <Text style={{ ...scale(t, 'small', 'medium'), color: c.text.link, ...flow }}>{k('consult.doc.readMore')}</Text>
-                    </Pressable>
-                  ) : null}
-                  {Array.isArray(doc.sub_specialties) && doc.sub_specialties.length > 0 ? (
-                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
-                      {doc.sub_specialties.map((s) => (
-                        <StatusTag key={s} label={s} tone="neutral" />
-                      ))}
-                    </View>
-                  ) : null}
-                </Card>
-              </Section>
-            ) : null}
-
-            {[
-              { key: 'clinic', title: k('consult.doc.clinicPhotos'), urls: (doc.clinic_images ?? doc.clinicPhotos ?? []).map((u) => apiMediaUri(u)).filter((u): u is string => Boolean(u)), w: 180 },
-              { key: 'facility', title: k('consult.doc.facilityPhotos'), urls: doc.facility_images, w: 200 },
-            ]
-              .filter((g) => Array.isArray(g.urls) && g.urls.length > 0)
-              .map((g) => (
-                <Section key={g.key} title={g.title}>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
-                    {(g.urls ?? []).map((uri) => (
-                      <Image cachePolicy="memory-disk" key={uri} accessibilityIgnoresInvertColors accessibilityLabel={g.title} source={{ uri: optimizedImageUri(uri, g.w) }} contentFit="cover" style={{ width: g.w, height: 130, borderRadius: 16, backgroundColor: c.bg.media }} />
-                    ))}
-                  </ScrollView>
-                </Section>
-              ))}
-
-            {info.length > 0 ? (
-              <Section title={k('consult.doc.more')}>
-                <Card theme={theme}>
-                  {info.map((row, i) => (
-                    <View key={row.label} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: c.border.hairline }}>
-                      <Glyph name={row.icon} size={20} color={c.icon.secondary} />
-                      <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
-                        <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{row.label}</Text>
-                        <Text style={{ ...scale(t, 'small', 'medium'), color: c.text.primary, ...flow }}>{row.value}</Text>
-                      </View>
-                    </View>
-                  ))}
-                </Card>
-              </Section>
-            ) : null}
+            <Section title={k('consult.doc.education')}>
+              <Card theme={theme}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  <Glyph name="file-text" size={20} color={c.icon.secondary} />
+                  <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'small', 'medium'), color: education ? c.text.primary : c.text.secondary, ...flow }}>{education || k('consult.doc.noEducation')}</Text>
+                </View>
+              </Card>
+            </Section>
 
             <Section title={k('consult.doc.patientReviews')}>
               {reviews.length === 0 ? (

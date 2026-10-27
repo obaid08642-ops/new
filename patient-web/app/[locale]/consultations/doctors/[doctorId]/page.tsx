@@ -16,7 +16,7 @@ import { GuaranteeLine, LicenseLine } from "@/components-next/consult/differenti
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { formatPrice, formatNumber } from "@/lib/format-price";
 import { ConsultPage } from "@/components-next/consult/consult-page";
-import { LinkSegmented } from "@/components-next/consult/link-segmented";
+import { DoctorSchedule } from "@/components-next/consult/doctor-schedule";
 import { ProfileHeader, type ProfileStat } from "@/components-next/consult/profile-header";
 import { Notice, SectionCard } from "@/components-next/consult/consult-parts";
 import { ClinicMap, PriceRows, ReviewList, type ReviewItem } from "@/components-next/consult/doctor-sections";
@@ -88,14 +88,31 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
   const followUpRows = doctor.followUp?.price !== undefined ? [{ label: t("followUpTitle"), price: formatPrice(locale, doctor.followUp.price).text }] : [];
   const followUpWindow = doctor.followUp?.days !== undefined ? t("followUpWindow", { n: formatNumber(locale, doctor.followUp.days) }) : undefined;
   const guarantee = parseLateGuarantee(await getPublicConfig().catch(() => null));
-  const base = `/${locale}/consultations/doctors/${doctor.id}`;
+  const bookHref = `/${locale}/consultations/book/${encodeURIComponent(doctor.id)}`;
+  const flags = { clinic: doctor.clinic, video: doctor.online, home: doctor.home } as const;
+  const offeredTypes = serviceTypes.filter((type) => flags[type]);
 
   return (
     <ConsultPage locale={locale} title={name} backHref={`/${locale}/consultations/doctors`}>
       <JsonLd data={[physician({ name, path: `/consultations/doctors/${doctor.id}`, locale, specialty: doctor.specialty ?? null }), breadcrumbList([{ name: t("title"), locale, path: "/consultations/doctors" }, { name, locale, path: `/consultations/doctors/${doctor.id}` }])]} />
-      <ProfileHeader photoSrc={doctor.photo} photoAlt={doctor.photo ? t("doctorPhotoAlt", { name }) : undefined} line={[doctor.degree, specialtyLabel(names, doctor.specialty)].filter(Boolean).join(" · ") || undefined} tags={tags} stats={stats} />
+      <ProfileHeader photoSrc={doctor.photo} photoAlt={doctor.photo ? t("doctorPhotoAlt", { name }) : undefined} largePhoto line={[doctor.degree, specialtyLabel(names, doctor.specialty)].filter(Boolean).join(" · ") || undefined} tags={tags} stats={stats} />
       <LicenseLine text={doctor.license ? t("licenseLine", { number: doctor.license.number }) : null} verifiedLabel={doctor.license?.verified ? t("licenseVerified") : undefined} />
       <GuaranteeLine text={guarantee ? t("guaranteeLine", { minutes: guarantee.minutes, points: guarantee.points }) : null} />
+      <SectionCard id="slots-title" title={t("slotsTitle")}>
+        <DoctorSchedule
+          doctorId={doctor.id}
+          locale={locale}
+          types={offeredTypes.map((type) => {
+            const fee = priceForVisit(doctor, type);
+            return { value: type, label: fee !== undefined ? `${t(`service_${type}`)} · ${formatPrice(locale, fee).text}` : t(`service_${type}`) };
+          })}
+          initialType={serviceType}
+          bookHref={bookHref}
+          labels={{ daysLabel: t("scheduleDaysLabel"), timesLabel: t("scheduleTimesLabel"), typesLabel: t("serviceTypeLabel"), today: t("scheduleToday"), tomorrow: t("scheduleTomorrow"), loading: t("scheduleLoading"), empty: t("scheduleEmpty"), noDays: t("scheduleNoDays"), error: t("scheduleError"), retry: t("scheduleRetry"), signIn: t("scheduleSignIn"), book: t("chooseDayTime") }}
+        />
+        {/* The existing booking page keeps the slot hold, the address of a home visit and the payment. */}
+        <ButtonLink href={`${bookHref}?service_type=${serviceType}`} label={t("chooseDayTime")} variant="outline" fullWidth />
+      </SectionCard>
       {doctor.clinicPhotos?.length ? (
         <SectionCard id="clinic-photos-title" title={t("clinicPhotosTitle")}>
           <ul className={styles.gallery}>
@@ -153,18 +170,6 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
       {serviceType === "clinic" && doctor.clinic ? (
         <ClinicMap id="clinic-location-title" title={t("clinicLocationTitle")} address={doctor.clinicAddress} point={doctor.location} mapTitle={t("clinicMapTitle")} openLabel={t("openInMaps")} />
       ) : null}
-      <SectionCard id="slots-title" title={t("slotsTitle")}>
-        <LinkSegmented
-          label={t("serviceTypeLabel")}
-          value={serviceType}
-          options={serviceTypes.map((type) => {
-            const fee = priceForVisit(doctor, type);
-            return { value: type, label: fee !== undefined ? `${t(`service_${type}`)} · ${formatPrice(locale, fee).text}` : t(`service_${type}`), href: `${base}?service_type=${type}` };
-          })}
-        />
-        {/* One booking path: the booking page has the day strip, the slots, the slot hold, the address of a home visit and the payment. */}
-        <ButtonLink href={`/${locale}/consultations/book/${encodeURIComponent(doctor.id)}?service_type=${serviceType}`} label={t("chooseDayTime")} fullWidth />
-      </SectionCard>
       <SectionCard id="faq-title" title={t("faqTitle")}>
         {([["faqCancelQ", "faqCancelA"], ["faqPayQ", "faqPayA"]] as const).map(([q, a]) => (
           <details key={q} className={styles.faq}>

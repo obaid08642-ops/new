@@ -10,7 +10,8 @@ describe("doctor page: booking", () => {
   it("sends every visit type to the full booking page, with the visit type", () => {
     const source = readFileSync(resolve(process.cwd(), "app/[locale]/consultations/doctors/[doctorId]/page.tsx"), "utf8");
     expect(source).not.toContain("AppointmentBookingForm");
-    expect(source).toContain("/consultations/book/${encodeURIComponent(doctor.id)}?service_type=${serviceType}");
+    expect(source).toContain("/consultations/book/${encodeURIComponent(doctor.id)}");
+    expect(source).toContain("`${bookHref}?service_type=${serviceType}`");
     expect(source).toContain('label={t("chooseDayTime")}');
   });
 

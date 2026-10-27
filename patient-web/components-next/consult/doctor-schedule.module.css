@@ -1,0 +1,11 @@
+/* The doctor profile (owner review G3): a large photo, the appointments straight after the main info, then the sections. Tokens and logical properties only. */
+.photo { margin: 0; inline-size: 100%; aspect-ratio: 4 / 3; max-block-size: 22rem; border-radius: var(--nabd-radius-xl); overflow: hidden; background: var(--nabd-color-bg-sunken); display: flex; align-items: center; justify-content: center; }
+.photoImg { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; object-position: center 20%; }
+.schedule { display: flex; flex-direction: column; gap: 12px; min-inline-size: 0; }
+.types { display: flex; flex-wrap: wrap; gap: 8px; }
+.days { display: flex; gap: 8px; overflow-x: auto; padding-block-end: 4px; scroll-snap-type: x proximity; }
+.dayBtn { scroll-snap-align: start; }
+.times { display: grid; grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr)); gap: 8px; }
+.state { margin: 0; padding-block: 12px; text-align: center; color: var(--nabd-color-text-secondary); font-size: var(--nabd-font-size-control); line-height: 1.6; }
+.skeleton { block-size: 44px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-sunken); }
+.stateActions { display: flex; justify-content: center; }
