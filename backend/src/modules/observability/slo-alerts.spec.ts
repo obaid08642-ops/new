@@ -88,7 +88,7 @@ describe('the rules fire once, with their runbook, and resolve', () => {
   it('p95 per route group: only the slow group is named', async () => {
     const { metrics, svc } = setup();
     const sent: any[] = [];
-    for (let i = 0; i < 20; i += 1) sent.push(...await minute(svc, metrics, i, () => { hits(metrics, '/api/v1/search', 60, 0, 900); hits(metrics, '/api/v1/doctors/:id', 60, 0, 30); }));
+    for (let i = 0; i < 40; i += 1) sent.push(...await minute(svc, metrics, i, () => { hits(metrics, '/api/v1/search', 60, 0, 900); hits(metrics, '/api/v1/doctors/:id', 60, 0, 30); }));
     const f = sent.filter((e) => e.rule === 'p95_latency' && e.state === 'firing');
     expect(f).toHaveLength(1);
     expect(f[0].key).toBe('p95_latency:/search');
@@ -96,11 +96,11 @@ describe('the rules fire once, with their runbook, and resolve', () => {
     expect(f[0].runbook).toContain('docs/runbooks/slow-api.md');
   });
 
-  it('event-loop delay over 100 ms for five checks in a row', async () => {
+  it('event-loop delay over 100 ms for five checks in a row, held for 15 checks (a warning: recorded, not mailed)', async () => {
     const { metrics, svc } = setup();
     jest.spyOn(metrics, 'snapshot').mockImplementation(() => ({ routes: {}, eventLoopLagMs: 180 }));
     const sent: any[] = [];
-    for (let i = 0; i < 8; i += 1) sent.push(...await svc.tick(T0 + i * MIN));
+    for (let i = 0; i < 25; i += 1) sent.push(...await svc.tick(T0 + i * MIN));
     expect(sent.filter((e) => e.rule === 'event_loop_lag' && e.state === 'firing')).toHaveLength(1);
   });
 
@@ -170,5 +170,93 @@ describe('the rules match the declared objectives and runbooks', () => {
     const ids = new Set(SLO_TARGETS.map((s) => s.id));
     const status = setup().svc.status();
     for (const r of status.rules) expect(ids.has(r.slo)).toBe(true);
+  });
+});
+
+// ── Alert fatigue (owner, 2026-10-27): hysteresis, warnings recorded not mailed, one digest a day ─────────────────────────────────────────────
+describe('warnings: hysteresis, no mail of their own, at most one record per 6 h, one digest a day', () => {
+  const slow = (m: MetricsService) => { hits(m, '/api/v1/public/categories/:locale/items', 60, 0, 900); hits(m, '/api/v1/doctors/:id', 60, 0, 30); };
+  const fast = (m: MetricsService) => { hits(m, '/api/v1/public/categories/:locale/items', 60, 0, 30); hits(m, '/api/v1/doctors/:id', 60, 0, 30); };
+  const slowGroup = (e: any) => e.rule === 'p95_latency' && e.key === 'p95_latency:/public';
+
+  it('a condition that flaps (8 checks on, 8 off) never fires: it never holds for 15 consecutive checks', async () => {
+    const { metrics, mail, svc } = setup({ OPS_ALERT_EMAIL: 'owner@example.test', TELEGRAM_BOT_TOKEN: 't', TELEGRAM_ALERT_CHAT_ID: 'c' });
+    let i = 0;
+    jest.spyOn(metrics, 'snapshot').mockImplementation(() => ({ routes: {}, eventLoopLagMs: Math.floor(i / 8) % 2 === 0 ? 180 : 10 }));
+    const sent: any[] = [];
+    for (i = 0; i < 240; i += 1) sent.push(...await svc.tick(T0 + i * MIN));
+    expect(sent.filter((e) => e.rule === 'event_loop_lag')).toEqual([]);
+    expect(mail.send).not.toHaveBeenCalled();
+  });
+
+  it('...and one that holds does fire, once, after 15 consecutive checks', async () => {
+    const { metrics, svc } = setup();
+    jest.spyOn(metrics, 'snapshot').mockImplementation(() => ({ routes: {}, eventLoopLagMs: 180 }));
+    const at: number[] = [];
+    for (let i = 0; i < 40; i += 1) for (const e of await svc.tick(T0 + i * MIN)) if (e.rule === 'event_loop_lag' && e.state === 'firing') at.push(i);
+    expect(at).toHaveLength(1);
+    expect(at[0]).toBe(4 + 14);           // active from the 5th sample on, fires on the 15th active check
+  });
+
+  it('a sustained breach fires only after 15 consecutive checks, is recorded but NOT mailed, and resolves only after 30 clear checks', async () => {
+    const { metrics, mail, svc } = setup({ OPS_ALERT_EMAIL: 'owner@example.test' });
+    const events: Array<{ i: number; e: any }> = [];
+    const BREACH_FROM = 20; const BREACH_TO = 70;
+    for (let i = 0; i < 160; i += 1) for (const e of await minute(svc, metrics, i, () => (i >= BREACH_FROM && i < BREACH_TO ? slow(metrics) : fast(metrics)))) if (slowGroup(e)) events.push({ i, e });
+    const firing = events.filter((x) => x.e.state === 'firing');
+    const resolved = events.filter((x) => x.e.state === 'resolved');
+    expect(firing).toHaveLength(1);
+    expect(firing[0].i).toBeGreaterThanOrEqual(BREACH_FROM + 14);     // the 15th consecutive breached check, not the 3rd
+    expect(resolved).toHaveLength(1);
+    expect(resolved[0].i).toBeGreaterThanOrEqual(BREACH_TO + 30);     // 30 clear checks before it resolves
+    expect(firing[0].e.severity).toBe('warning');
+    expect(firing[0].e.channels).toEqual({});
+    expect(mail.send).not.toHaveBeenCalled();                         // a warning never mails on its own
+  });
+
+  it('a warning that stays open is recorded again at most every 6 hours', async () => {
+    const { metrics, svc } = setup();
+    const states: Array<{ i: number; s: string }> = [];
+    for (let i = 0; i < 800; i += 1) for (const e of await minute(svc, metrics, i, () => (i >= 20 ? slow(metrics) : fast(metrics)))) if (slowGroup(e)) states.push({ i, s: e.state });
+    expect(states.map((x) => x.s)).toEqual(['firing', 'repeat', 'repeat']);
+    expect(states[1].i - states[0].i).toBeGreaterThanOrEqual(360);
+    expect(states[2].i - states[1].i).toBeGreaterThanOrEqual(360);
+  });
+
+  it('a critical alert still goes out at once by mail, and resolves after 5 clear checks', async () => {
+    const { metrics, mail, svc } = setup();
+    const sent: any[] = [];
+    for (let i = 0; i < 30; i += 1) sent.push(...await minute(svc, metrics, i, () => hits(metrics, '/api/v1/orders/:id', 100, i === 0 || i > 10 ? 0 : 50)));
+    const firing = sent.filter((e) => e.rule === 'api_availability_fast' && e.state === 'firing');
+    expect(firing).toHaveLength(1);
+    expect(firing[0].channels).toEqual({ email: true });
+    expect((mail.send.mock.calls[0] as any[])[1]).toContain('CRITICAL');
+    expect(sent.filter((e) => e.rule === 'api_availability_fast' && e.state === 'resolved')).toHaveLength(1);
+  });
+
+  it('the daily digest: one mail with the warnings of the last 24 h and the open ones, once a day, nothing when there is nothing', async () => {
+    const { metrics, mail, svc } = setup({ OPS_ALERT_EMAIL: 'owner@example.test' });
+    expect(await svc.sendDigest(T0)).toBe(false);                      // nothing recorded: no mail
+    for (let i = 0; i < 60; i += 1) await minute(svc, metrics, i, () => (i >= 20 ? slow(metrics) : fast(metrics)));
+    expect(mail.send).not.toHaveBeenCalled();
+    const day = new Date(T0 + 60 * MIN); day.setUTCHours(6, 0, 0, 0);   // after 05:00 UTC
+    const next = day.getTime() < T0 + 60 * MIN ? day.getTime() + 24 * 3_600_000 : day.getTime();
+    expect(await svc.maybeDigest(next - 3 * 3_600_000)).toBe(false);   // before the digest hour
+    expect(await svc.maybeDigest(next)).toBe(true);
+    expect(await svc.maybeDigest(next + 10 * MIN)).toBe(false);        // already sent today
+    expect(mail.send).toHaveBeenCalledTimes(1);
+    const [to, subject, , text] = mail.send.mock.calls[0] as any[];
+    expect(to).toBe('owner@example.test');
+    expect(subject).toContain('[Nabd+ DIGEST]');
+    expect(text).toContain('(/public)');
+    expect(text).toContain('STILL OPEN');
+    expect(text).toContain('fired 1x');
+  });
+
+  it('a drill of a warning rule still reaches the channels (it exists to test them)', async () => {
+    const { mail, svc } = setup();
+    const ev = await svc.drill('p95_latency');
+    expect(ev.channels).toEqual({ email: true });
+    expect(mail.send).toHaveBeenCalledTimes(1);
   });
 });
