@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 
-import { WishlistHeart, wishlistToastKey } from "./wishlist-heart";
+import { WishlistHeart, wishlistToastKey } from "@/components-next/pharmacy/wishlist-heart";
 
 describe("WishlistHeart", () => {
   it("draws one button whose label says what a press does, with no error before anything was pressed", () => {
