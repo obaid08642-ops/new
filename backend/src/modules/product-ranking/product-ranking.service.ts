@@ -59,7 +59,7 @@ export interface CandidateRelevance {
  * score first, then in stock before out of stock, then with an image before without, then the old usage count and the
  * id (stable). Products with no signals have no score and come after the ones with signals.
  */
-export const POPULAR_ORDER_STAGES: Record<string, unknown>[] = [
+export const POPULAR_KEY_STAGES: Record<string, unknown>[] = [
   {
     $addFields: {
       // a prescription-only item is never promoted by popularity (owner decisions 10 and 29): it keeps its natural place
@@ -69,8 +69,40 @@ export const POPULAR_ORDER_STAGES: Record<string, unknown>[] = [
     },
   },
   { $sort: { _rank: -1, _in_stock: -1, _has_image: -1, usage_count: -1, _id: 1 } },
+];
+export const POPULAR_ORDER_STAGES: Record<string, unknown>[] = [
+  ...POPULAR_KEY_STAGES,
   { $project: { _rank: 0, _in_stock: 0, _has_image: 0 } },
 ];
+
+/** The only fields POPULAR_KEY_STAGES reads. */
+export const POPULAR_SORT_PROJECTION = { rank_score: 1, requires_prescription: 1, availability_status: 1, image_1: 1, image: 1, usage_count: 1 } as const;
+
+type PageCollection = {
+  aggregate(pipeline: Record<string, unknown>[]): { toArray(): Promise<any[]> };
+  find(filter: Record<string, unknown>, options?: Record<string, unknown>): { toArray(): Promise<any[]> };
+};
+
+/**
+ * One page of the popular order, read the cheap way. The aggregate above carried EVERY matching document (translations in six
+ * languages, ~20 KB each) through its $addFields and $sort, then threw all but 24 away: on ~19k public products that is a
+ * scan plus an in-memory sort of hundreds of MB (the `/public` p95 alerts of 2026-10-25..27). Here the sort sees only the six
+ * fields it reads (a few hundred bytes a document, a top-k sort of skip+limit), and the full documents are fetched by `_id` for
+ * the page alone. Same order as POPULAR_ORDER_STAGES (same stages), same rows, same projection.
+ */
+export async function popularPage(col: PageCollection, filter: Record<string, unknown>, skip: number, limit: number, projection: Record<string, unknown>): Promise<any[]> {
+  const picked = await col.aggregate([{ $match: filter }, { $project: POPULAR_SORT_PROJECTION }, ...POPULAR_KEY_STAGES, { $skip: skip }, { $limit: limit }, { $project: { _id: 1 } }]).toArray();
+  if (!picked.length) return [];
+  const order = picked.map((d) => d._id);
+  const docs = await col.find({ _id: { $in: order } }, { projection: { ...projection, _id: 1 } }).toArray();
+  const byId = new Map(docs.map((d) => [String(d._id), d]));
+  const dropId = (projection as { _id?: unknown })._id === 0;
+  return order.map((id) => byId.get(String(id))).filter((d): d is Record<string, unknown> => !!d).map((d) => {
+    if (!dropId) return d;
+    const { _id, ...rest } = d;
+    return rest;
+  });
+}
 
 @Injectable()
 export class ProductRankingService {

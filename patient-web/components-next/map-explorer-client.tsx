@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
@@ -10,7 +11,11 @@ import { peekSwr, putSwr } from "@/lib/swr-lite";
 import { mapBookHref } from "@/lib/map/book-href";
 import { cityLabel, type CityNames } from "@/lib/api/city-names";
 import forms from "@/components-next/consult/consult.module.css";
+import { webglAvailable } from "@/lib/geo/map";
 import styles from "./map-explorer.module.css";
+
+// MapLibre (~800 KB) loads only when this page opens, never on the server
+const ProviderMap = dynamic(() => import("./provider-map-canvas"), { ssr: false, loading: () => null });
 
 /** Issue 1550: the public read (no session needed); the patient proxy answered 401 to a guest and the map stayed empty. */
 const MAP_URL = "/api/map/providers";
@@ -22,13 +27,14 @@ type Labels = {
   filterHospitals: string;
   filterPharmacies: string;
   filterLabs: string;
+  filterRadiology: string;
   filterNursing: string;
   directions: string;
   book: string;
   noProviders: string;
 };
 
-type ProviderType = "doctor" | "hospital" | "pharmacy" | "lab" | "nursing";
+type ProviderType = "doctor" | "hospital" | "pharmacy" | "lab" | "radiology" | "nursing";
 
 type Provider = {
   id: string;
@@ -45,6 +51,7 @@ type Provider = {
 
 /** The handoff service map's glyph and tone for each kind of provider (never written as colour names). */
 const TYPE_ICON: Record<ProviderType, { icon: FillIconName; tone: ServiceTone }> = {
+  radiology: SERVICE_ICONS.radiology,
   doctor: SERVICE_ICONS.consult,
   hospital: { icon: "hospital", tone: "violet" }, // the app map: a hospital is violet, a doctor blue
   pharmacy: SERVICE_ICONS.pharmacy,
@@ -67,6 +74,22 @@ export function MapExplorerClient({ locale, labels, cityNames, initialType = nul
   const [selectedType, setSelectedType] = useState<string>(initialType ?? "all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
+  // "near me": a new request each press; the browser asks for the position only then
+  const [focus, setFocus] = useState<{ lat: number; lng: number; seq: number } | null>(null);
+  const [locate, setLocate] = useState<"idle" | "busy" | "denied">("idle");
+  const [mapOff, setMapOff] = useState(false);
+  const [canWebgl, setCanWebgl] = useState(true);
+  useEffect(() => setCanWebgl(webglAvailable()), []);
+
+  function nearMe() {
+    if (typeof navigator === "undefined" || !navigator.geolocation) { setLocate("denied"); return; }
+    setLocate("busy");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { setLocate("idle"); setFocus((f) => ({ lat: pos.coords.latitude, lng: pos.coords.longitude, seq: (f?.seq ?? 0) + 1 })); },
+      () => setLocate("denied"),
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 },
+    );
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -125,6 +148,7 @@ export function MapExplorerClient({ locale, labels, cityNames, initialType = nul
     { id: "hospital", label: labels.filterHospitals },
     { id: "pharmacy", label: labels.filterPharmacies },
     { id: "lab", label: labels.filterLabs },
+    { id: "radiology", label: labels.filterRadiology },
     { id: "nursing", label: labels.filterNursing },
   ];
 
@@ -195,21 +219,55 @@ export function MapExplorerClient({ locale, labels, cityNames, initialType = nul
         )}
       </div>
 
-      {/* The map pane: OpenStreetMap (open data, no tracking). */}
+      {/* The map pane: MapLibre with the hologram pins (OpenFreeMap tiles, no key, no tracking). */}
       <section className={styles.pane} aria-label={t("mapPane")}>
-        {selectedProvider && selectedProvider.lat && selectedProvider.lng ? (
-          <iframe
-            title={selectedProvider.name}
-            className={styles.frame}
-            loading="lazy"
-            src={`https://www.openstreetmap.org/export/embed.html?bbox=${selectedProvider.lng - 0.015}%2C${selectedProvider.lat - 0.015}%2C${selectedProvider.lng + 0.015}%2C${selectedProvider.lat + 0.015}&layer=mapnik&marker=${selectedProvider.lat}%2C${selectedProvider.lng}`}
-          />
+        {canWebgl && !mapOff ? (
+          <>
+            <ProviderMap
+              providers={filtered}
+              selectedId={selectedProvider?.id ?? null}
+              onSelect={(id) => setSelectedProvider(filtered.find((p) => p.id === id) ?? null)}
+              focus={focus}
+              onUnavailable={() => setMapOff(true)}
+              label={t("mapCanvasLabel")}
+              zoomIn={t("mapZoomIn")}
+              zoomOut={t("mapZoomOut")}
+            />
+            <button type="button" className={`nabd-button nabd-button--outline nabd-button--sm ${styles.nearMe}`} onClick={nearMe} disabled={locate === "busy"}>
+              <span className="nabd-button__label">{locate === "busy" ? t("mapLocating") : t("mapNearMe")}</span>
+            </button>
+            {locate === "denied" ? <p className={styles.nearMeNote} role="status">{t("mapNearMeDenied")}</p> : null}
+            {selectedProvider ? (
+              <div className={styles.sheet} role="dialog" aria-label={selectedProvider.name}>
+                <FIcon icon={(TYPE_ICON[selectedProvider.type] ?? TYPE_ICON.doctor).icon} tone={(TYPE_ICON[selectedProvider.type] ?? TYPE_ICON.doctor).tone} size={44} />
+                <div className={styles.sheetText}>
+                  <p className={styles.cardTitle}>{selectedProvider.name}</p>
+                  {selectedProvider.specialty || selectedProvider.address ? <p className={styles.cardSub}>{[selectedProvider.specialty, selectedProvider.address].filter(Boolean).join(" - ")}</p> : null}
+                </div>
+                <div className={styles.cardActions}>
+                  <a
+                    href={selectedProvider.lat && selectedProvider.lng ? `https://www.openstreetmap.org/directions?to=${selectedProvider.lat}%2C${selectedProvider.lng}` : `https://www.openstreetmap.org/search?query=${encodeURIComponent(selectedProvider.name)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`nabd-button nabd-button--outline nabd-button--sm ${styles.action}`}
+                  >
+                    <span className="nabd-button__label">{labels.directions}</span>
+                  </a>
+                  <Link href={bookHref(selectedProvider)} className={`nabd-button nabd-button--primary nabd-button--sm ${styles.action}`}>
+                    <span className="nabd-button__label">{selectedProvider.type === "hospital" ? t("mapViewFacility") : labels.book}</span>
+                  </Link>
+                  <button type="button" className={`nabd-button nabd-button--outline nabd-button--sm ${styles.action}`} onClick={() => setSelectedProvider(null)}>
+                    <span className="nabd-button__label">{t("mapSheetClose")}</span>
+                  </button>
+                </div>
+              </div>
+            ) : null}
+          </>
         ) : (
           <div className={styles.idle}>
             <FIcon icon={SERVICE_ICONS.map.icon} tone={SERVICE_ICONS.map.tone} size={64} chip="solid" />
             <h2 className={styles.idleTitle}>{t("mapIdleTitle")}</h2>
-            <p className={styles.idleBody}>{t("mapIdleBody")}</p>
-            <p className={styles.idleNote}>{t("mapIdleNote")}</p>
+            <p className={styles.idleBody}>{t("mapNoWebgl")}</p>
           </div>
         )}
       </section>
