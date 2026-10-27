@@ -4,6 +4,7 @@
   - the anonymous visitor opens /ar/map: the list (aria-label mapList) shows the doctor's card by name;
   - the card's main button selects it (aria-pressed true), and its booking link points at the doctor profile;
   - after a reload the card is still listed.
+MP-02 (same run): the card's booking link opens this doctor's profile page, which shows the doctor's name. The payment is not in this journey.
 The map markers and the type filter buttons are not clicked here (the type filter is covered by the API, GET ?type=).
 A missing browser or website is a FAIL, never a PASS."""
 import os
@@ -57,6 +58,14 @@ def main():
         lst = page.locator('ul[aria-label]').first
         lst.wait_for(timeout=60000)
         step('after reload the doctor card is still listed', lst.locator('li', has=page.locator(f'a[href*="{profile_id}"]')).count() > 0, profile_id)
+
+        journey('providers map MP-02 (web): the card opens the doctor profile')
+        row = lst.locator('li', has=page.locator(f'a[href*="{profile_id}"]')).first
+        profile_link = row.locator(f'a[href*="/consultations/doctors/{profile_id}"]').first
+        profile_link.click()
+        page.wait_for_url(f'**/consultations/doctors/{profile_id}**', timeout=60000)
+        step('the card opens the doctor profile page (this doctor)', profile_id in page.url, page.url)
+        step('the profile shows the doctor name from the card', name in page.inner_text('body'), name)
     finally:
         browser.close()
         pw.stop()
