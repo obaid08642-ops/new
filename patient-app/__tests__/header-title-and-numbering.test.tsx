@@ -29,8 +29,8 @@ function layout(tree: TestRenderer.ReactTestRenderer, width: number, endWidth: n
   });
 }
 
-const titleCount = (tree: TestRenderer.ReactTestRenderer) => tree.root.findAll((n) => typeof n.type === 'string' && n.type === 'Text' && JSON.stringify(n.props.children) === '"Consultations"').length;
-const row = (tree: TestRenderer.ReactTestRenderer) => tree.root.findAll((n) => n.props.accessibilityRole === 'header' && typeof n.type === 'string' && n.type === 'View')[0];
+const titleCount = (tree: TestRenderer.ReactTestRenderer) => tree.root.findAll((n) => String(n.type) === 'Text' && JSON.stringify(n.props.children) === '"Consultations"').length;
+const row = (tree: TestRenderer.ReactTestRenderer) => tree.root.findAll((n) => n.props.accessibilityRole === 'header' && String(n.type) === 'View')[0];
 
 describe('AppHeader title never shares a row it cannot fit', () => {
   const trailing = <View><Text>buttons</Text></View>;
