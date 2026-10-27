@@ -171,12 +171,13 @@ export default function NursingHub() {
 
             <Section title={k('nur.hub.services')}>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-                {shownServices.map((svc) => {
+                {shownServices.map((svc, position) => {
                   const title = text(pickDbField(svc, 'name') ?? svc.name_ar ?? svc.name_en ?? svc.title);
                   const look = serviceGlyph(svc.id);
                   return (
                     <ServiceCard
                       key={text(svc.id)}
+                      enterIndex={position}
                       title={title}
                       desc={text(pickDbField(svc, 'description')) || undefined}
                       image={text(svc.image_url ?? svc.image) || null}
