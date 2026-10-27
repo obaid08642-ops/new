@@ -10,10 +10,10 @@ const page = read("app/[locale]/consultations/doctors/[doctorId]/page.tsx");
 const rule = (selector: string) => css.split("\n").find((l) => l.startsWith(selector)) ?? "";
 
 describe("doctor profile render fixes (G3)", () => {
-  it("the summary line has no list bullets and its separator cannot start a line", () => {
+  it("the summary line has no list bullets and no separator character that could start or end a wrapped line", () => {
     expect(rule(".summaryList {")).toContain("list-style: none");
     expect(css).not.toMatch(/li \+ li::before/);
-    expect(css).toMatch(/li:not\(:last-child\)::after[^}]*position: absolute[^}]*inset-inline-end/);
+    expect(css).not.toMatch(/::after\s*\{[^}]*content/);
   });
   it("rating, reviews and fee are not repeated in the stat tiles", () => {
     expect(page).not.toContain('c("statRating")');

@@ -75,7 +75,7 @@ export function DoctorSchedule({ doctorId, locale, types, initialType, bookHref,
           <div className={own.times} role="radiogroup" aria-label={labels.timesLabel}>
             {slots.map((s) => {
               const chosen = selection?.start === s.start && selection.type === type;
-              return <button key={s.start} type="button" role="radio" aria-checked={chosen} className={`${styles.choice} ${own.timeChip}`} onClick={() => setSelection({ type, start: s.start })}>{slotTimeLabel(locale, s.start)}</button>;
+              return <button key={s.start} type="button" role="radio" aria-checked={chosen} className={`${styles.choice} ${own.timeChip}`} onClick={() => setSelection({ type, start: s.start })}><bdi>{slotTimeLabel(locale, s.start)}</bdi></button>;
             })}
           </div>
         ) : state === "ready" ? (

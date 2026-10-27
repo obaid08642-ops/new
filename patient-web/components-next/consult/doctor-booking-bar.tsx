@@ -32,7 +32,7 @@ export function StickyBookBar({ locale, bookHref, feeTexts, labels }: {
   return (
     <StickyFooter label={labels.region}>
       <div className={`${rx.bar} ${own.bar}`}>
-        <p className={`${own.barText} ${state.enabled ? own.when : own.hint}`} aria-live="polite">{state.enabled ? state.label : labels.choose}</p>
+        <p className={`${own.barText} ${state.enabled ? own.when : own.hint}`} aria-live="polite">{state.enabled ? <bdi>{state.label}</bdi> : labels.choose}</p>
         {state.enabled ? (
           <ButtonLink href={bookingHref(bookHref, state.type, selection?.start)} label={labels.book} size="md" className={own.bookBtn} />
         ) : (
