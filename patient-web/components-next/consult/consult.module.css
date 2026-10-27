@@ -256,6 +256,12 @@ textarea.control { resize: vertical; line-height: 1.6; overflow-wrap: anywhere; 
   font: inherit; font-size: var(--nabd-font-size-control); font-weight: 600;
 }
 .filtersButton:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.filtersChip {
+  display: inline-flex; align-items: center; min-block-size: 44px; padding-inline: 14px; box-sizing: border-box; cursor: pointer; white-space: nowrap;
+  border-radius: var(--nabd-radius-pill); border: 1px solid var(--nabd-color-service-coral-fg); background: var(--nabd-color-service-coral-bg); color: var(--nabd-color-service-coral-fg);
+  font: inherit; font-size: var(--nabd-font-size-label); font-weight: 600;
+}
+.filtersChip:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
 .filtersBadge {
   display: inline-grid; place-items: center; min-inline-size: 22px; min-block-size: 22px; padding-inline: 6px; box-sizing: border-box; border-radius: var(--nabd-radius-pill);
   background: var(--nabd-color-service-coral-bg); color: var(--nabd-color-service-coral-fg); font-size: var(--nabd-font-size-label); font-weight: 700;

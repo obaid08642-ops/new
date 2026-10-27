@@ -22,6 +22,7 @@ import { VariantGallery, VariantPicker } from "@/components-next/pharmacy/varian
 import { ProductGallery } from "@/components-next/pharmacy/product-gallery";
 import { ProductShare } from "@/components-next/pharmacy/product-share";
 import { SuggestChange } from "@/components-next/pharmacy/suggest-change";
+import { ProductViewBeacon } from "@/components-next/pharmacy/product-view-beacon";
 import { ProductGrid, type GridProduct } from "@/components-next/pharmacy/product-grid";
 import { productCardImageSrc } from "@/components-next/pharmacy/catalog-image";
 import { promoOldPrice, promoPercent } from "@/lib/discount";
@@ -474,6 +475,7 @@ export default async function PublicProductPage({ params }: Props) {
           </div>
 
           <SuggestChange medicineId={product.id} locale={locale} />
+          <ProductViewBeacon medicineId={product.id} />
         </div>
       </CoreShell>
     </BuyProvider>

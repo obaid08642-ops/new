@@ -101,6 +101,7 @@ export class ProductRankingEventService {
         break;
     }
 
+    const firstPublishedAt = await this.rankingService.coldStartPublishedAt(drugId);
     // Atomic increment in MongoDB
     await this.metricsModel.findOneAndUpdate(
       { drug_id: { $eq: drugId }, pharmacy_id: { $eq: pharmacyId } },
@@ -108,7 +109,7 @@ export class ProductRankingEventService {
         $inc: incField,
         $setOnInsert: {
           category: category.trim().toLowerCase(),
-          first_published_at: new Date(),
+          first_published_at: firstPublishedAt,
         },
         $set: {
           last_event_at: new Date(),

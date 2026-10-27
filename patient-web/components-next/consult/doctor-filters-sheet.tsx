@@ -35,6 +35,9 @@ export function DoctorFiltersSheet({ count, ...panel }: Props) {
         <span>{t("filters")}</span>
         {count > 0 ? <span className={styles.filtersBadge} aria-hidden="true">{new Intl.NumberFormat(panel.locale).format(count)}</span> : null}
       </button>
+      {panel.filters.payment ? (
+        <button type="button" className={styles.filtersChip} aria-haspopup="dialog" onClick={() => setOpen(true)}>{t(`payment_${panel.filters.payment}`)}</button>
+      ) : null}
       {open ? <Suspense fallback={null}><Panel {...panel} onClose={close} /></Suspense> : null}
     </>
   );

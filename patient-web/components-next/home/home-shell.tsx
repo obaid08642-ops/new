@@ -3,7 +3,6 @@ import { NavLink } from "@/components-next/nav/nav-link";
 import { getTranslations } from "next-intl/server";
 import { AppShell } from "@/components-next/ui-generated/shells";
 import { Avatar } from "@/components-next/ui-generated/components/Surfaces";
-import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import type { BottomTabItem } from "@/components-next/ui-generated/components/contract";
 import { NabdMark } from "@/components-next/nabd-mark";
 import { LocaleSelector } from "@/components-next/locale-selector";
@@ -96,9 +95,6 @@ export async function HomeShell({
       <div className={styles.tools}>
         <LocaleSelector current={locale} label={shared("language")} compactOnPhone />
         <ThemeButton label={shared("theme")} />
-        <Link href={`${base}/map`} className={`${styles.iconBtn} ${styles.iconBtnMap}`} aria-label={t("svcMap")} data-map-entry="all">
-          <FIcon icon="map-trifold" tone="amber" chip="none" size={20} />
-        </Link>
         {signedIn === undefined ? <HomeNotificationsLink locale={locale} label={t("notifications")} unreadLabel={t("notificationsUnread")} /> : null}
         {knownSignedIn ? (
           <NotificationBellLink href={`${base}/notifications`} label={t("notifications")} unreadLabel={t("notificationsUnread")} />
