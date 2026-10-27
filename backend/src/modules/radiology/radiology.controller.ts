@@ -24,10 +24,17 @@ export class RadiologyController {
     @Query('nearest') nr?: string,
     @Query('lowest_price') lp?: string,
     @Query('lat') lat?: string,
-    @Query('lng') lng?: string
+    @Query('lng') lng?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('category') category?: string,
   ) {
     return this.svc.list({ 
-      modality: m, 
+      // with `page` the answer is { data, total, page, limit, total_pages }; without it, the array as before
+      page: page !== undefined ? Number(page) : undefined,
+      limit: limit !== undefined ? Number(limit) : undefined,
+      // a scan's category is its modality (the client picks the illustration from it); `modality` wins when both are sent
+      modality: m ?? category, 
       body_part: bp, 
       search: q, 
       home_only: ho === '1' || hv === 'true' || hv === '1',

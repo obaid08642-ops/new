@@ -23,9 +23,14 @@ export class LabsController {
     @Query('nearest') nr?: string,
     @Query('lowest_price') lp?: string,
     @Query('lat') lat?: string,
-    @Query('lng') lng?: string
+    @Query('lng') lng?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
   ) {
     return this.svc.list({
+      // with `page` the answer is { data, total, page, limit, total_pages }; without it, the array as before
+      page: page !== undefined ? Number(page) : undefined,
+      limit: limit !== undefined ? Number(limit) : undefined,
       category: cat,
       search: q,
       home_only: ho === '1' || hv === 'true' || hv === '1',
