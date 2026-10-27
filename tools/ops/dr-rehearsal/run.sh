@@ -60,6 +60,35 @@ LIVE=$(counts); echo "live:     $LIVE"
 # the oplog backup refuses to run without a key (never uploads in the clear)
 ( unset BACKUP_ENCRYPTION_PASSPHRASE_FILE; bash $S/oplog-backup.sh >"$W/nokey.log" 2>&1 ); [ $? -ne 0 ]; check "no passphrase -> oplog backup fails" $?
 
+# a deploy (lock held) makes the slice skip quietly: exit 0, nothing reported, the state does not move, so no gap
+export NABD_DEPLOY_LOCK="$W/deploy.lock"
+STATE_BEFORE=$(cat "$BACKUP_DIR/oplog.state")
+touch "$NABD_DEPLOY_LOCK"
+bash $S/oplog-backup.sh >"$W/lock.log" 2>&1; check "deploy lock held -> slice skipped, exit 0" $?
+grep -q 'skipped (deploy in progress)' "$W/lock.log" && ! grep -q 'FAIL oplog' "$W/lock.log"; check "skip is quiet (no FAIL report)" $?
+[ "$(cat "$BACKUP_DIR/oplog.state")" = "$STATE_BEFORE" ]; check "state not advanced by a skipped run" $?
+rm -f "$NABD_DEPLOY_LOCK"
+
+# a transient failure (mongodump fails once, like Mongo restarting) is retried once and succeeds with no report of failure
+mkdir -p "$W/shim"; cat > "$W/shim/docker" <<SHIM
+#!/bin/bash
+if [ "\$1" = exec ] && [[ " \$* " == *" mongodump "* ]] && [ ! -e "$W/dumped-once" ]; then touch "$W/dumped-once"; exit 1; fi
+exec $(command -v docker) "\$@"
+SHIM
+chmod +x "$W/shim/docker"
+OPLOG_RETRY_DELAY=1 OPLOG_RESTART_GRACE=0 PATH="$W/shim:$PATH" bash $S/oplog-backup.sh >"$W/retry.log" 2>&1; check "transient failure -> retried once and succeeds" $?
+grep -q 'retrying once' "$W/retry.log" && grep -q 'slice uploaded' "$W/retry.log" && ! grep -q 'FAIL oplog' "$W/retry.log"; check "retry uploaded the slice without a failure report" $?
+aws_b s3 ls "s3://$BACKUP_S3_BUCKET/oplog/" | grep -c 'oplog_.*\.bson\.gz\.gpg' | grep -q '^3$'; check "the skipped interval is covered by the next slice (3 slices, chain unbroken)" $?
+
+# a failure that persists after the retry is reported
+cat > "$W/shim/docker" <<SHIM
+#!/bin/bash
+if [ "\$1" = exec ] && [[ " \$* " == *" mongodump "* ]]; then exit 1; fi
+exec $(command -v docker) "\$@"
+SHIM
+( OPLOG_RETRY_DELAY=1 OPLOG_RESTART_GRACE=0 PATH="$W/shim:$PATH" bash $S/oplog-backup.sh >"$W/hard.log" 2>&1 ); [ $? -ne 0 ] && grep -q 'FAIL oplog slice: mongodump of the oplog failed (after one retry)' "$W/hard.log"; check "a failure that survives the retry is reported" $?
+bash $S/oplog-backup.sh >"$W/o3.log" 2>&1; check "next run after the failure covers the interval (no gap)" $?
+
 bash $S/dr-drill.sh >"$W/drill.log" 2>&1; rc=$?; cat "$W/drill.log"
 check "DR drill passes from the off-site copies" $rc
 RESTORED=$(sed -n 's/.*restored collections: //p' "$W/drill.log" | tail -1); echo "restored: $RESTORED"
