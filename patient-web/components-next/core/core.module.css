@@ -8,6 +8,13 @@
 /* ---- top bar ---- */
 .bar { display: flex; align-items: center; gap: var(--nabd-space-xs); inline-size: 100%; min-inline-size: 0; }
 
+.barDense { flex-wrap: wrap; row-gap: var(--nabd-space-2xs); }
+/* phone: back and the buttons on the first line, the title under them across the full width (it had 78 px beside four buttons) */
+@media (max-width: 1023px) {
+  .barDense .phoneTitle { order: 2; flex: 1 1 100%; }
+  .toolsStart { margin-inline-start: auto; }
+}
+
 .iconLink {
   flex: none; inline-size: 44px; block-size: 44px; box-sizing: border-box; border-radius: var(--nabd-radius-pill);
   display: inline-grid; place-items: center; text-decoration: none;

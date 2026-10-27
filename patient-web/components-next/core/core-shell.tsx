@@ -105,7 +105,8 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
   useRoutePrefetch(tabs.map((t) => t.href), { signedIn: true });
 
   const topBar = (
-    <div className={styles.bar}>
+    // with the results button the phone header has too little width for the title: the title takes its own line under the buttons
+    <div className={`${styles.bar}${resultsHref ? ` ${styles.barDense}` : ""}`}>
       {!search && backHref ? (
         <Link href={backHref} className={`${styles.iconLink} ${styles.phoneOnly}`} aria-label={shell("back")}>
           <Icon name={rtl ? "caret-right" : "caret-left"} size={22} tone="currentColor" />
@@ -137,7 +138,7 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
       )}
 
       {resultsHref ? (
-        <Link href={resultsHref} className={`${styles.iconLink} ${styles.phoneOnly}`} aria-label={shell("menuResults")} title={shell("menuResults")}>
+        <Link href={resultsHref} className={`${styles.iconLink} ${styles.phoneOnly} ${styles.toolsStart}`} aria-label={shell("menuResults")} title={shell("menuResults")}>
           <FIcon icon="chart-line-up" tone={SERVICE_ICONS.lab.tone} size={24} />
         </Link>
       ) : null}
