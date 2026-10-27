@@ -49,6 +49,14 @@ describe('MedicinesService.filtered', () => {
     expect(calls.sort).toEqual({ createdAt: -1, id: 1 });
   });
 
+  it('"Most ordered" orders by the delivered-order count (id breaks ties) and is not the ranked path', async () => {
+    const { service, calls } = serviceWith([{ id: 'a' }]);
+    await service.filtered(undefined, undefined, { forms: ['Tablet'], brands: [], rx_only: false }, 'most_ordered', undefined, 20);
+    expect(calls.sort).toEqual({ orders_count: -1, id: 1 });
+    expect(calls.ranked).toBeUndefined();
+    expect(calls.query.price).toBeUndefined(); // unlike a price order, it does not drop products without a price
+  });
+
   it('escapes the filter text (a regex character is matched literally)', async () => {
     const { service, calls } = serviceWith();
     await service.filtered(undefined, undefined, { forms: ['a+(b'], brands: [], rx_only: false }, 'relevant', undefined, 20);

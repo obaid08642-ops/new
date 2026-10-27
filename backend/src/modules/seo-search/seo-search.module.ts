@@ -189,7 +189,7 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 import { timedFetch } from '../../common/external-call';
 import { NOT_PROMOTABLE_FILTER } from '../medicines/promotion-rules';
 /** Orders of the public catalogue (#816); anything else is the default popularity order. */
-export const CATALOGUE_SORTS = ['popular', 'price_asc', 'price_desc', 'newest'] as const;
+export const CATALOGUE_SORTS = ['popular', 'most_ordered', 'price_asc', 'price_desc', 'newest'] as const;
 export type CatalogueSort = (typeof CATALOGUE_SORTS)[number];
 
 const SITE = process.env.API_PUBLIC_URL?.replace('/api/v1', '') || 'https://api.nabd.plus';
@@ -892,6 +892,7 @@ export class SeoSearchService {
     const sortClause: any = sort === 'price_asc' ? { price: 1, _id: 1 }
       : sort === 'price_desc' ? { price: -1, _id: 1 }
       : sort === 'newest' ? { createdAt: -1, _id: 1 }
+      : sort === 'most_ordered' ? { orders_count: -1, _id: 1 }
       : { usage_count: -1, rating: -1, _id: 1 };
     // An explicit price order skips items without a real price (a 0 is "no price", never the cheapest).
     if (sort === 'price_asc' || sort === 'price_desc') filter.price = { $gt: 0 };
