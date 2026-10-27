@@ -43,6 +43,8 @@ function addPinImages(map: MapLibreMap) {
   }
 }
 
+const MAP_START_DELAY_MS = 1500;
+
 export default function ProviderMapCanvas({ providers, selectedId, onSelect, focus, onUnavailable, label, zoomIn, zoomOut }: ProviderMapProps) {
   const host = useRef<HTMLDivElement>(null);
   const map = useRef<MapLibreMap | null>(null);
@@ -72,6 +74,19 @@ export default function ProviderMapCanvas({ providers, selectedId, onSelect, foc
   }
 
   useEffect(() => {
+    if (!host.current) return;
+    // style, glyph and tile fetches start after the page settles, so the page reaches network idle first
+    let teardown: (() => void) | undefined;
+    const timer = window.setTimeout(() => { teardown = mount(); }, MAP_START_DELAY_MS);
+    return () => {
+      window.clearTimeout(timer);
+      teardown?.();
+    };
+    // created once; labels only matter at creation
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function mount(): (() => void) | undefined {
     if (!host.current) return;
     let live = true;
     let instance: MapLibreMap;
@@ -167,9 +182,7 @@ export default function ProviderMapCanvas({ providers, selectedId, onSelect, foc
       map.current = null;
       instance.remove();
     };
-    // created once; labels only matter at creation
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }
 
   useEffect(paint, [providers]);
 
