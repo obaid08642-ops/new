@@ -13,6 +13,7 @@ import { SuggestSearchForm } from "./suggest-search-form";
 import type { SuggestScope } from "@/lib/search/suggest";
 import { PhotoWithFallback } from "./photo-with-fallback";
 import consult from "@/components-next/consult/consult.module.css";
+import type { DiagArtKey } from "@/components-next/ui-generated/icons/diag-art";
 import styles from "./diag.module.css";
 
 /** The laboratory and radiology services' own icon and tone, from the handoff service map (never written as a colour name). */
@@ -209,3 +210,6 @@ export function TagRow({ tags }: { tags: Tag[] }) {
 
 // the catalogue card and "Show more" live in their own small module (the infinite list is a client island that draws them)
 export { ItemCard, ShowMore } from "./item-card";
+
+/** The message key of each category chip / card subtitle (DiagWeb). */
+export const CAT_LABEL = { blood: "catBlood", hormones: "catHormones", vitamins: "catVitamins", sugar: "catSugar", urine: "catUrine", liver: "catLiver", xray: "catXray", ct: "catCt", mri: "catMri", ultrasound: "catUltrasound", mammography: "catMammography", ecg: "catEcg" } as const satisfies Record<DiagArtKey, string>;

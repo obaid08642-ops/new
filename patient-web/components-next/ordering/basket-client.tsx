@@ -115,7 +115,7 @@ export function BasketClient({ locale, kind, place, pay, item, point, hubHref }:
         {pay === "insurance" ? <p className={styles.sub}>{t("covNote")}</p> : null}
         {pay === "insurance" ? <p className={styles.sub}>{t("cashNote")}</p> : null}
         {canContinue ? <Link href={providersHref} className={`${styles.linkBtn} ${styles.cta}`}>{t("basketCta")}</Link> : <p className={styles.sub}>{t("noProviderYet")}</p>}
-        <Link href={hubHref} className={styles.linkBtn}>{t("addMore")}</Link>
+        {isSingle ? null : <Link href={hubHref} className={styles.linkBtn}>{t("addMore")}</Link>}
       </section>
     </div>
   );

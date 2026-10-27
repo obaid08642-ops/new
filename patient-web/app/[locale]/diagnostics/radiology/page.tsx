@@ -8,7 +8,7 @@ import { localizedUrl } from "@/lib/seo";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import consult from "@/components-next/consult/consult.module.css";
-import { CheckField, RADIOLOGY, RadiologyTile, SearchForm, hoursText, minutesText, money, type Tag } from "@/components-next/diagnostics/diag-parts";
+import { CAT_LABEL, CheckField, RADIOLOGY, RadiologyTile, SearchForm, hoursText, minutesText, money, type Tag } from "@/components-next/diagnostics/diag-parts";
 import styles from "@/components-next/diagnostics/diag.module.css";
 import type { Metadata } from "next";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
@@ -16,6 +16,7 @@ import { pickName } from "@/lib/i18n/localized";
 import Link from "next/link";
 import { radiologyFilterCount } from "@/lib/diagnostics-filter-count";
 import { byPrice } from "@/lib/diagnostics-hub";
+import { diagArtKey, isMachineValue } from "@/components-next/ui-generated/icons/diag-art";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<Record<string, string | string[] | undefined>> };
 
@@ -115,8 +116,8 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
               ...(service.contrastRequired ? [{ label: w("tagContrast"), tone: DIAG_TONES.warn } as Tag] : []),
             ];
             const sub = [
-              service.modality?.toUpperCase(),
-              service.bodyPart,
+              w(CAT_LABEL[diagArtKey({ kind: "radiology", modality: [service.modality, service.modalityCategory].filter(Boolean).join(" "), bodyPart: service.bodyPart, names: Object.values(service.names) })]),
+              isMachineValue(service.bodyPart) ? undefined : service.bodyPart,
               service.price !== undefined ? w("fromPrice", { price: money(locale, service.price) }) : undefined,
               service.durationMinutes !== undefined ? minutesText(locale, service.durationMinutes) : undefined,
               service.turnaroundHours !== undefined ? w("resultWithin", { time: hoursText(locale, service.turnaroundHours) }) : undefined,
