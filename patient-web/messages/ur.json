@@ -5263,7 +5263,7 @@
     "browseLab": "لیبز دیکھیں",
     "addAria": "ٹوکری میں شامل کریں",
     "removeAria": "ٹوکری سے ہٹائیں",
-    "basketBar": "ٹوکری · {n} آئٹمز",
+    "basketBar": "ٹوکری · {n, plural, one {# آئٹم} other {# آئٹمز}}",
     "viewBasket": "ٹوکری دیکھیں",
     "secPrep": "تیاری",
     "secTurn": "نتیجے کا وقت",

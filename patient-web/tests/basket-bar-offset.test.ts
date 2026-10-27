@@ -16,3 +16,13 @@ describe("basket bar sits above the tab bar (owner review G5)", () => {
     expect(tsx).toContain("ResizeObserver");
   });
 });
+
+describe("the count reads right at one item (render check 2026-10-27)", () => {
+  it("has plural forms in English, Arabic and Urdu", async () => {
+    const { readFileSync } = await import("node:fs");
+    for (const l of ["en", "ar", "ur"]) {
+      const m = JSON.parse(readFileSync(`messages/${l}.json`, "utf8")) as { OrderingFlow: { basketBar: string } };
+      expect(m.OrderingFlow.basketBar, l).toContain("plural");
+    }
+  });
+});
