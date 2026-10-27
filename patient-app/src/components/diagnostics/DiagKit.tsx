@@ -419,6 +419,14 @@ export function PlaceRow({ text, actionLabel, onAction }: { text: string; action
   );
 }
 
+/** Gap between the tab bar's top edge and the cart bar: the raised centre button stands 16 above the pill, so 20 clears it. */
+export const CART_BAR_LIFT = 20;
+
+/** Bottom offset of the floating cart bar: the tab bar's height (button row + safe-area inset, `useTabBarHeight()`) plus the lift. */
+export function cartBarBottom(tabBarHeight: number): number {
+  return tabBarHeight + CART_BAR_LIFT;
+}
+
 /** The cart bar the hub floats above the tab bar: the count, the total and the one action. */
 export function CartBar({ count, total, actionLabel, countLabel, totalLabel, bottom, onPress }: { count: number; total: number; actionLabel: string; countLabel: string; totalLabel: string; bottom: number; onPress: () => void }) {
   const { t, c, flow, money, k } = useScreenUi();
