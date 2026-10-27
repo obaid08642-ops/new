@@ -83,3 +83,12 @@ describe('consultations header', () => {
     expect(screen.getByLabelText(k('pharmacy.favorites'))).toBeTruthy();
   });
 });
+
+describe('consultations hub spacing (render check 2026-10-27)', () => {
+  it('does not add the top inset twice: the header pads it, so the scroll content has no top edge', () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const source = require('node:fs').readFileSync(require('node:path').join(__dirname, '../app/(tabs)/consultations/index.tsx'), 'utf8') as string;
+    expect(source).toContain("edges={['start', 'end']} testID=\"consultations-hub\"");
+    expect(source).not.toContain("edges={['top', 'start', 'end']} testID=\"consultations-hub\"");
+  });
+});
