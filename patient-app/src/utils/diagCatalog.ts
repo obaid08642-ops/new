@@ -13,3 +13,8 @@ export function catalogArt(kind: DiagKind, item: Pick<CatalogItem, 'name' | 'cat
 export function isNearEnd(m: { layoutHeight: number; contentHeight: number; offsetY: number }, threshold = 500): boolean {
   return m.contentHeight > 0 && m.layoutHeight > 0 && m.offsetY + m.layoutHeight >= m.contentHeight - threshold;
 }
+
+/** The rating of a card, or null: shown only for a rating above 0 with its count above 0 (the server sends them for a rated service). */
+export function itemRating(item: Pick<CatalogItem, 'rating' | 'ratingCount'>): { rating: number; count: number } | null {
+  return item.rating !== null && item.rating > 0 && item.ratingCount > 0 ? { rating: item.rating, count: item.ratingCount } : null;
+}

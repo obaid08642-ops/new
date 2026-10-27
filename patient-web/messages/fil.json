@@ -3552,6 +3552,7 @@
     "sortRating": "Pinakamataas ang rating",
     "sortPrice": "Pinakamababang presyo",
     "showMore": "Magpakita pa",
+    "ratingLine": "Marka {value} ({count})",
     "mostRequested": "Pinakamadalas hilingin",
     "allTestsTitle": "Lahat ng test",
     "allScansTitle": "Lahat ng scan",

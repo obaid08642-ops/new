@@ -2,32 +2,18 @@
 // the full tests and scans (paged), a large card per item with "Add to cart" and "Order now".
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { HUB_PAGE_SIZE, pageRows, parseHubPages } from "@/lib/diagnostics-hub";
+import { MAX_HUB_PAGES, parseHubPages } from "@/lib/diagnostics-hub";
 
 const code = (file: string) => readFileSync(file, "utf8");
 const hub = code("app/[locale]/diagnostics/page.tsx");
 
 describe("hub paging (pure)", () => {
-  const rows = Array.from({ length: 45 }, (_, i) => i);
-  it("opens one page first, then one more per step, until every row is shown", () => {
-    expect(pageRows(rows, 1).shown).toHaveLength(HUB_PAGE_SIZE);
-    expect(pageRows(rows, 1).hasMore).toBe(true);
-    expect(pageRows(rows, 2).shown).toHaveLength(HUB_PAGE_SIZE * 2);
-    const last = pageRows(rows, 3);
-    expect(last.shown).toEqual(rows);
-    expect(last.hasMore).toBe(false);
-    expect(last.remaining).toBe(0);
-  });
-  it("never drops rows and tolerates a short list or a bad page", () => {
-    expect(pageRows([1, 2], 1)).toEqual({ shown: [1, 2], hasMore: false, remaining: 0 });
-    expect(pageRows(rows, 0).shown).toHaveLength(HUB_PAGE_SIZE);
-  });
-  it("reads ?more= safely", () => {
+  it("reads ?more= safely (the open server pages, at most MAX_HUB_PAGES)", () => {
     expect(parseHubPages(undefined)).toBe(1);
     expect(parseHubPages("abc")).toBe(1);
     expect(parseHubPages("-3")).toBe(1);
     expect(parseHubPages("3")).toBe(3);
-    expect(parseHubPages("999999")).toBe(500);
+    expect(parseHubPages("999999")).toBe(MAX_HUB_PAGES);
   });
 });
 
@@ -43,12 +29,12 @@ describe("hub layout", () => {
     expect(hub).not.toMatch(/LIMIT_(TESTS|RADIOLOGY)/);
     // the full list is the infinite client island; the server-rendered "Show more" link is its no-script step
     expect(hub).toContain("<ItemCatalog");
-    expect(hub).toContain("initialCount: pages * HUB_PAGE_SIZE");
+    expect(hub).toContain("page: okLoads.length");
     expect(hub).toContain('moreLabel: t("showMore")');
   });
   it("gives each item a card with both actions, keyed to its own service basket", () => {
-    expect(hub).toContain('<ItemCatalog {...catalogProps} kind="lab"');
-    expect(hub).toContain('<ItemCatalog {...catalogProps} kind="radiology"');
+    expect(hub).toContain("{...catalogProps} kind=\"lab\"");
+    expect(hub).toContain("{...catalogProps} kind=\"radiology\"");
     expect(code("components-next/diagnostics/item-catalog.tsx")).toContain("<ItemActions kind={kind}");
     const actions = code("components-next/ordering/add-to-basket.tsx");
     expect(actions).toContain('t("ctaOne")');

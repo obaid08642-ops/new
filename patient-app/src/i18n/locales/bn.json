@@ -2008,6 +2008,7 @@
   "diag.turnaround": "ফলাফল {time} এর মধ্যে",
   "diag.km": "{n} কিমি",
   "diag.rating": "রেটিং {n}",
+  "diag.ratingLine": "রেটিং {n} ({count})",
   "diag.tag.homeSample": "বাসায় নমুনা",
   "diag.tag.fasting": "উপবাস",
   "diag.tag.fastingHours": "উপবাস {n}",

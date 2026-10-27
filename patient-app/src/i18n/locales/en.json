@@ -2008,6 +2008,7 @@
   "diag.turnaround": "Result within {time}",
   "diag.km": "{n} km",
   "diag.rating": "Rating {n}",
+  "diag.ratingLine": "Rating {n} ({count})",
   "diag.tag.homeSample": "Home sample",
   "diag.tag.fasting": "Fasting",
   "diag.tag.fastingHours": "Fasting {n}",

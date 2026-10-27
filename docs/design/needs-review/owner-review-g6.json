@@ -5,10 +5,10 @@
     "screen": "GET /radiology/services",
     "element": "lowest_price / highest_rated params",
     "file": "backend/src/modules/radiology/radiology.service.ts",
-    "line": 445,
-    "found": "[backend] list() ignores highest_rated and lowest_price (always sorts by popularity); radiology services also carry no rating field.",
-    "suspect": "Clients now sort by price on the loaded list (web radiology page, app) and the highest-rated option was removed for scans. Backend decision: implement the sorts or keep it client-side.",
-    "review_status": "open"
+    "line": 446,
+    "found": "[backend] RESOLVED by #2041: GET /radiology/services now sorts by lowest_price (a scan without a real price is not the cheapest) and by highest_rated (the mean rating of the centres that perform the scan), and every row carries rating / rating_count / category. The web radiology page and hub and the app send both flags instead of sorting on the client.",
+    "suspect": "None.",
+    "review_status": "fixed #2041"
   },
   {
     "batch": "owner-review-g6",
@@ -16,10 +16,10 @@
     "screen": "GET /labs/services",
     "element": "highest_rated",
     "file": "backend/src/modules/labs/labs.service.ts",
-    "line": 81,
-    "found": "[backend] highest_rated sorts by a `rating` field on the service document; ratings live on lab providers (rating_avg), so the sort probably orders nothing.",
-    "suspect": "Clients use it only for the approved-labs strip (client-side sort by provider rating); the tests list has no rating order.",
-    "review_status": "open"
+    "line": 111,
+    "found": "[backend] RESOLVED by #2041: highest_rated now ranks a test by the labs that run it (provider rating_avg weighted by rating_count) and returns rating / rating_count (null while unrated). The hub sends highest_rated=true for the tests list, so the tests are ordered too, not only the labs strip.",
+    "suspect": "None.",
+    "review_status": "fixed #2041"
   },
   {
     "batch": "owner-review-g6",
@@ -28,9 +28,9 @@
     "element": "nationality match",
     "file": "backend/src/modules/home-care/home-care-compat.module.ts",
     "line": 80,
-    "found": "[backend] nationality is matched with an exact $eq on the stored string; the app sent lowercase ids (saudi), the web sends Saudi/Filipino/Egyptian. Client now sends the capitalised value; stored values are free text, so a profile saved as another spelling never matches.",
-    "suspect": "Case-insensitive match or a fixed nationality enum on the provider profile.",
-    "review_status": "open"
+    "found": "[backend] RESOLVED by #2042: nationality (and gender) are matched ignoring case. The clients keep sending the readable spelling (Saudi, Filipino, Egyptian; male, female); no client-side case handling is needed.",
+    "suspect": "None.",
+    "review_status": "fixed #2042"
   },
   {
     "batch": "owner-review-g6",
@@ -39,9 +39,9 @@
     "element": "gender and available params",
     "file": "backend/src/modules/home-care/home-care-compat.module.ts",
     "line": 79,
-    "found": "[backend] gender is an exact match on profile.gender; the app sent `availability=now` which the endpoint never reads (it reads `available=true`). Client fixed; confirm stored gender values are exactly male/female.",
-    "suspect": "Unseeded/unverified stored values.",
-    "review_status": "open"
+    "found": "[backend] RESOLVED by #2042: gender is matched ignoring case, and the clients read/send available=true (the endpoint's own param).",
+    "suspect": "None.",
+    "review_status": "fixed #2042"
   },
   {
     "batch": "owner-review-g6",
@@ -49,10 +49,10 @@
     "screen": "/diagnostics (labs view)",
     "element": "Highest rated sort",
     "file": "patient-web/app/[locale]/diagnostics/page.tsx",
-    "line": 207,
-    "found": "[client] Highest rated orders only the approved-labs strip; the tests and packages lists have no rating to order by, so with this sort the tests keep the default order.",
-    "suspect": "Rename to make the scope clear or show it only when the strip is visible (owner decision).",
-    "review_status": "open"
+    "line": 230,
+    "found": "[client] RESOLVED: Highest rated is offered on labs and radiology and sends highest_rated=true to the catalogue endpoint, which now orders the tests / scans by the labs' / centres' rating (the approved-labs strip is ordered by it too). A rating line (Rating 4.5 (12)) shows on a card only when the server sent a rating above 0.",
+    "suspect": "None.",
+    "review_status": "fixed #2041"
   },
   {
     "batch": "owner-review-g6",
@@ -60,10 +60,10 @@
     "screen": "/diagnostics (labs tab)",
     "element": "Highest rated filter",
     "file": "patient-app/app/(tabs)/diagnostics.tsx",
-    "line": 192,
-    "found": "[client] Same as the web: the option orders the labs strip only; tests and packages stay in catalogue order.",
-    "suspect": "Owner decision on the label.",
-    "review_status": "open"
+    "line": 150,
+    "found": "[client] RESOLVED: the option is offered on both tabs and sends highest_rated=true; the tests and scans come back in rating order (useDiagCatalog). The rating line shows on a card only when the server sent a rating above 0.",
+    "suspect": "None.",
+    "review_status": "fixed #2041"
   },
   {
     "batch": "owner-review-g6",
@@ -71,7 +71,7 @@
     "screen": "/diagnostics/radiology",
     "element": "Search is not a counted filter",
     "file": "patient-web/app/[locale]/diagnostics/radiology/page.tsx",
-    "line": 71,
+    "line": 72,
     "found": "[owner] The applied count counts scan type, body part, home visit and lowest price, not the search text; Reset also clears the search.",
     "suspect": "Confirm that is the wanted rule.",
     "review_status": "open"

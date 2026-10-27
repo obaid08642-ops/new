@@ -3552,6 +3552,7 @@
     "sortRating": "سب سے زیادہ ریٹنگ",
     "sortPrice": "کم سے کم قیمت",
     "showMore": "مزید دکھائیں",
+    "ratingLine": "ریٹنگ {value} ({count})",
     "mostRequested": "سب سے زیادہ مطلوب",
     "allTestsTitle": "تمام ٹیسٹ",
     "allScansTitle": "تمام اسکین",

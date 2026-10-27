@@ -29,7 +29,7 @@ const AVAILABILITY = [
   { id: 'any', key: 'nur.filter.all' },
   { id: 'now', key: 'nur.filter.now' },
 ];
-// the id is what the nurse's profile stores: the server matches the nationality exactly (the web sends the same values)
+// the id is the readable spelling the web sends too (Saudi, Filipino, Egyptian); the server matches nationality and gender ignoring case (#2042)
 const NATIONALITIES = [
   { id: 'any', key: 'nur.filter.all' },
   { id: 'Saudi', key: 'nur.filter.saudi' },

@@ -29,6 +29,9 @@ export interface CatalogItem {
   allNames: string[];
   /** The backend's own request score (`popularity`); the lists arrive sorted by it. 0 when the row has none. */
   popularity: number;
+  /** The mean rating (0-5) of the labs / centres that run the service and the ratings behind it; null / 0 while unrated (the server sends them when the list is sorted by rating). */
+  rating: number | null;
+  ratingCount: number;
   /** The names of the tests a package includes. */
   testsList: string[];
   testsCount: number;
@@ -79,6 +82,8 @@ export function normalizeLabService(raw: unknown): CatalogItem | null {
     bodyPart: asText(r.body_part),
     allNames: ['name', 'name_ar', 'name_en', 'name_ur', 'name_hi', 'name_bn', 'name_tl'].map((key) => asText(r[key])).filter(Boolean),
     popularity: asNumber(r.popularity) ?? 0,
+    rating: asNumber(r.rating),
+    ratingCount: asNumber(r.rating_count) ?? 0,
     testsList,
     testsCount: testsList.length,
     preparation: lang ? lang.split('\n').filter(Boolean) : [],

@@ -1,8 +1,9 @@
 /**
  * The filter sheet of the labs / radiology hub (owner review G6). Each tab offers only the options that change its own lists:
- * - labs: tests only, packages only, labs only, highest rated (orders the labs strip), lowest price (orders packages and tests),
- *   home collection (keeps the services and labs that do home visits);
- * - radiology: lowest price (orders the scans) and home visit (keeps the scans that do home visits). The scan type chips are a filter too.
+ * - labs: tests only, packages only, labs only, highest rated (the server orders the tests; it orders the labs strip too), lowest price
+ *   (the server orders the tests; packages are ordered here), home collection (keeps the services and labs that do home visits);
+ * - radiology: highest rated, lowest price (both ordered by the server) and home visit (keeps the scans that do home visits). The scan type
+ *   chips are a filter too (the server filters by category).
  */
 export type FilterId = 'all' | 'tests' | 'packages' | 'labs' | 'highest_rated' | 'lowest_price' | 'home_visit';
 export type FilterOption = { id: FilterId; key: string };
@@ -19,6 +20,7 @@ export const LAB_FILTERS: FilterOption[] = [
 ];
 export const RAD_FILTERS: FilterOption[] = [
   { id: 'all', key: 'diag.filter.all' },
+  { id: 'highest_rated', key: 'diag.filter.rating' },
   { id: 'lowest_price', key: 'diag.filter.price' },
   { id: 'home_visit', key: 'diag.filter.home' },
 ];
