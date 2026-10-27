@@ -75,10 +75,11 @@ describe('pharmacy hub sort chips', () => {
 });
 
 describe('consultations header', () => {
-  it('carries favourites, cart and menu at the end, next to the appointments button', async () => {
+  it('carries favourites and menu at the end, next to the appointments button, and no cart (nothing to add here)', async () => {
     const Consult = require('../app/(tabs)/consultations/index').default;
     await render(wrap(<Consult />));
-    for (const id of ['consult-appointments-entry', 'cart-button', 'consult-menu-button']) expect(screen.getByTestId(id)).toBeTruthy();
+    for (const id of ['consult-appointments-entry', 'consult-menu-button']) expect(screen.getByTestId(id)).toBeTruthy();
+    expect(screen.queryByTestId('cart-button')).toBeNull();
     expect(screen.getByLabelText(k('pharmacy.favorites'))).toBeTruthy();
   });
 });

@@ -1,0 +1,13 @@
+[
+  {
+    "batch": "owner-review-g1",
+    "app": "patient-app",
+    "screen": "/nursing/service-details",
+    "element": "Cart button on the nursing screens",
+    "file": "patient-app/app/diagnostics/service-home.tsx",
+    "line": 117,
+    "found": "[client] Owner review 2026-10-27 G1 lists nursing among the screens with a cart. The app has no nursing cart (a home visit is booked straight away; utils/serviceCarts.ts has pharmacy, lab and radiology only), so the nursing screens draw none. The website keeps a nursing basket and shows its button.",
+    "suspect": "Owner: decide whether the app gets a nursing basket (a new cart store and screen) or the web nursing basket goes.",
+    "review_status": "open"
+  }
+]

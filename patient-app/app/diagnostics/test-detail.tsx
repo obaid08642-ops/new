@@ -5,6 +5,7 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { Button } from '../../../packages/ui-native/src';
 import { ConsultScreen, Gate, InfoRow, Section, type GateStatus } from '../../src/components/consult/ConsultKit';
 import { Block, DetailHead, ListCard, Price, diagLook, goBackDiag, useDiagText } from '../../src/components/diagnostics/DiagKit';
+import { useServiceCartAction } from '../../src/components/cart/ServiceCartButton';
 import { ItemOrderingPanel } from '../../src/components/ordering/ItemOrderingPanel';
 import { Notice } from '../../src/components/pharmacy/OfferKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
@@ -24,6 +25,7 @@ export default function TestDetail() {
   const isRadiology = params.type === 'radiology' || params.isRadiology === 'true';
   const kind = isRadiology ? 'radiology' : 'lab';
   const { addItem, items } = useDiagnosticsCart();
+  const cartActions = useServiceCartAction(kind);
   const [data, setData] = useState<CatalogItem | null>(null);
   const [status, setStatus] = useState<GateStatus>('loading');
 
@@ -77,7 +79,7 @@ export default function TestDetail() {
     ) : undefined;
 
   return (
-    <ConsultScreen testID="diagnostics-test-detail" title={isRadiology ? k('diag.detail.scanTitle') : k('diag.detail.testTitle')} onBack={goBackDiag} footer={footer} onRefresh={() => void load()}>
+    <ConsultScreen testID="diagnostics-test-detail" title={isRadiology ? k('diag.detail.scanTitle') : k('diag.detail.testTitle')} onBack={goBackDiag} actions={cartActions} footer={footer} onRefresh={() => void load()}>
       <Gate status={status} onRetry={() => void load()}>
         {data ? (
           <>

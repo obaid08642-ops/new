@@ -1,11 +1,11 @@
 /**
  * One cart per service (owner, 2026-10-26). The app keeps the pharmacy cart (CartContext) and the diagnostics cart
  * (DiagnosticsCartContext, whose lines say `lab` or `radiology`); home nursing has no cart (a visit is booked straight away).
- * The header cart button opens the cart of the screen's service with that service's count; Home and the screens of no service
- * get a chooser of the carts that are not empty. The rule lives here, with no React, the same as the website's lib/cart/service-carts.ts.
+ * The header cart button is drawn only on the screens where something can be added (pharmacy list and product, labs, radiology
+ * and their item screens), opens the cart of that service and counts only it. Home, consultations, the doctor profile, the account
+ * and every other screen have none. The rule lives here, with no React, the same as the website's lib/cart/service-carts.ts.
  */
 export type CartService = 'pharmacy' | 'lab' | 'radiology';
-export const CART_SERVICES: readonly CartService[] = ['pharmacy', 'lab', 'radiology'];
 export type CartCounts = Record<CartService, number>;
 
 export function cartRoute(service: CartService): string {
@@ -24,18 +24,10 @@ export function diagnosticsCounts(items: ReadonlyArray<{ kind: 'lab' | 'radiolog
   return { lab, radiology };
 }
 
-export type CartTarget =
-  | { kind: 'cart'; service: CartService; route: string; count: number }
-  | { kind: 'chooser'; carts: Array<{ service: CartService; count: number; route: string }>; count: number };
+export type CartTarget = { kind: 'cart'; service: CartService; route: string; count: number } | { kind: 'none' };
 
+/** The button exists only where something can be added (owner review 2026-10-27, G1): on a screen of no service there is none. */
 export function cartTargetFor(pageService: CartService | null, counts: CartCounts): CartTarget {
-  if (pageService) return { kind: 'cart', service: pageService, route: cartRoute(pageService), count: counts[pageService] };
-  const carts = CART_SERVICES.flatMap((service) => (counts[service] > 0 ? [{ service, count: counts[service], route: cartRoute(service) }] : []));
-  const count = carts.reduce((n, cart) => n + cart.count, 0);
-  // exactly one cart has something in it: open it at once; none: the pharmacy cart's empty screen
-  if (carts.length <= 1) {
-    const service = carts[0]?.service ?? 'pharmacy';
-    return { kind: 'cart', service, route: cartRoute(service), count };
-  }
-  return { kind: 'chooser', carts, count };
+  if (!pageService) return { kind: 'none' };
+  return { kind: 'cart', service: pageService, route: cartRoute(pageService), count: counts[pageService] };
 }
