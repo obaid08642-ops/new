@@ -33,11 +33,11 @@ describe("the shared cart button", () => {
     expect(html).toContain('aria-label="Cart (3)"');
   });
 
-  it("is the one cart button of the core shell (every phone header) and of the home header", () => {
+  it("is the one cart button of the core shell (every phone header); the home header has none (owner review 2026-10-27)", () => {
     const core = read("components-next/core/core-shell.tsx");
     expect(core).toContain("<CartLink");
     expect(core).not.toMatch(/hideTabs && !search \? cartLink/);
-    expect(read("components-next/home/home-shell.tsx")).toContain("<CartLink");
+    expect(read("components-next/home/home-shell.tsx")).not.toContain("<CartLink");
   });
 });
 
@@ -63,18 +63,11 @@ describe("one cart per service: the header button", () => {
     expect(render()).toContain('href="/en/labs/basket?kind=nursing"');
     expect(render()).toContain('aria-label="Cart (1)"');
   });
-  it("on Home with carts in two services it is a chooser button (the list opens on click), with the total as its badge", () => {
-    reset(); path = "/en"; count = 3; basketLines = { lab: [], radiology: [], nursing: [{}] };
-    const html = render();
-    expect(html).toContain('data-cart-service="chooser"');
-    expect(html).toContain('aria-haspopup="true"');
-    expect(html).toContain('aria-label="Cart (4)"');
-  });
-  it("on Home with one non-empty cart it opens that cart, with none the pharmacy cart", () => {
-    reset(); path = "/en"; basketLines = { lab: [{}], radiology: [], nursing: [] };
-    expect(render()).toContain('href="/en/labs/basket"');
-    reset();
-    expect(render()).toContain('href="/en/cart"');
+  it("on Home, the doctor profile, consultations and the account there is no cart button, whatever the carts hold", () => {
+    for (const p of ["/en", "/en/doctor/dr-test", "/en/consultations/doctors", "/en/profile", "/en/pharmacy/final-quote"]) {
+      reset(); path = p; count = 3; basketLines = { lab: [{}], radiology: [], nursing: [{}] };
+      expect(render(), p).toBe("");
+    }
   });
 });
 

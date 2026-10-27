@@ -4,6 +4,7 @@ import { useLocalSearchParams } from 'expo-router';
 
 import { Button } from '../../../packages/ui-native/src';
 import { ConsultScreen, Gate, InfoRow, Section, type GateStatus } from '../../src/components/consult/ConsultKit';
+import { useServiceCartAction } from '../../src/components/cart/ServiceCartButton';
 import { DetailHead, ListCard, Mark, Price, diagLook, goBackDiag, useDiagText } from '../../src/components/diagnostics/DiagKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
@@ -20,6 +21,7 @@ export default function PackageDetail() {
   const params = useLocalSearchParams<{ id?: string }>();
   const id = String(params.id ?? '');
   const { addItem, items } = useDiagnosticsCart();
+  const cartActions = useServiceCartAction('lab');
   const [pkg, setPkg] = useState<CatalogItem | null>(null);
   const [status, setStatus] = useState<GateStatus>('loading');
 
@@ -70,7 +72,7 @@ export default function PackageDetail() {
     ) : undefined;
 
   return (
-    <ConsultScreen testID="diagnostics-package-detail" title={k('diag.detail.packageTitle')} onBack={goBackDiag} footer={footer} onRefresh={() => void load()}>
+    <ConsultScreen testID="diagnostics-package-detail" title={k('diag.detail.packageTitle')} onBack={goBackDiag} actions={cartActions} footer={footer} onRefresh={() => void load()}>
       <Gate status={status} onRetry={() => void load()}>
         {pkg ? (
           <>

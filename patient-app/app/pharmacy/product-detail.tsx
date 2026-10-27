@@ -40,7 +40,7 @@ import {
 import { rowsOf } from '../../src/components/health/HealthKit';
 import { loadPolicy } from '../../src/components/insurance/InsuranceKit';
 import ProductImage from '../../src/components/ProductImage';
-import { CountBadge, Glyph, MedAddControl, PHARMACY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
+import { CartButton, CountBadge, Glyph, MedAddControl, PHARMACY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
 import { DetailAccordion, FactsGrid, MiniProduct, Pill, SafetyCard, type AccordionSection } from '../../src/components/pharmacy/ProductSections';
 import { COLUMN, step as scale, tint, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useCart } from '../../src/context/CartContext';
@@ -467,7 +467,7 @@ export default function ProductDetailScreen() {
       <EmptyState icon="magnifying-glass" tone={PHARMACY_TONE} title={k('pharmacy.product.notFound')} actionLabel={k('pharmacy.title')} onAction={() => router.replace('/(tabs)/pharmacy' as Href)} theme={theme} />
     );
     return (
-      <Screen theme={theme} direction={dir} header={<View style={COLUMN}><AppHeader onBack={back} backLabel={k('pharmacy.back')} theme={theme} direction={dir} /></View>} scroll testID="product-detail">
+      <Screen theme={theme} direction={dir} header={<View style={COLUMN}><AppHeader onBack={back} backLabel={k('pharmacy.back')} trailing={<CartButton />} theme={theme} direction={dir} /></View>} scroll testID="product-detail">
         {stateBody}
       </Screen>
     );
