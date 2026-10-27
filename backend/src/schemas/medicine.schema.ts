@@ -139,17 +139,19 @@ MedicineSchema.index({ ...PUBLIC_KEYS, price: -1, _id: 1 }, { name: 'public_pric
 MedicineSchema.index({ ...PUBLIC_KEYS, createdAt: -1, _id: 1 }, { name: 'public_newest' });
 // "Most ordered": delivered-order count first (orders.service adds 1 per delivered order), the id breaks ties. Expand-only.
 MedicineSchema.index({ ...PUBLIC_KEYS, orders_count: -1, _id: 1 }, { name: 'public_most_ordered' });
-// The default (popular) page reads the sort through six fields only (popularPage in product-ranking.service.ts): this index holds every one
-// of them (and `_id`, the tie-break) after the public flags, so for the unfiltered "all" list the database answers from the index and never loads a document to sort.
-MedicineSchema.index(
-  { ...PUBLIC_KEYS, rank_score: -1, requires_prescription: 1, availability_status: 1, image_1: 1, image: 1, usage_count: -1, _id: 1 },
-  { name: 'public_popular_covering' },
-);
-// The same for the "All" page, whose round-robin adds category_pos (see POPULAR_MIX_KEY_STAGES).
-MedicineSchema.index(
-  { ...PUBLIC_KEYS, rank_score: -1, category_pos: 1, requires_prescription: 1, availability_status: 1, image_1: 1, image: 1, usage_count: -1, _id: 1 },
-  { name: 'public_popular_mix_covering' },
-);
+// 2026-10-27, `GET /public/categories/:locale/items` took 1.1-1.8 s for ONE row. The public filter is `publicMedicineFilter()`: public_eligibility,
+// medical_review_status AND `is_deleted: { $ne: true }`. The covering indexes below did not hold `is_deleted`, so Mongo fetched every one of the ~21k
+// documents (about 20 KB each) to test it: explain (21k documents) examined 21000 documents with the old index and 0 with `is_deleted` in it, for the
+// page and for the count. `is_deleted` therefore sits right after the two flags in every index that serves the public filter.
+const PUBLIC_LIVE = { ...PUBLIC_KEYS, is_deleted: 1 } as const;
+const POPULAR_FIELDS = { rank_score: -1, requires_prescription: 1, availability_status: 1, image_1: 1, image: 1, usage_count: -1, category_pos: 1, _id: 1 } as const;
+// "All": the sort reads only these fields (popularPage in product-ranking.service.ts), the plain and the round-robin order alike (category_pos), so the
+// database answers from the index and never loads a document to sort or to count.
+MedicineSchema.index({ ...PUBLIC_LIVE, ...POPULAR_FIELDS }, { name: 'public_popular_covering_v2' });
+// A category page, the category tree and the counts: the category (and sub-category) lead, in Arabic (the root) and in English. Other languages
+// read the same shape from their translations and are served from the response cache (see seo-search.module.ts).
+MedicineSchema.index({ ...PUBLIC_LIVE, category: 1, sub_category: 1, ...POPULAR_FIELDS }, { name: 'public_category_covering_v2' });
+MedicineSchema.index({ ...PUBLIC_LIVE, 'translations.en.main_category': 1, 'translations.en.sub_category': 1, ...POPULAR_FIELDS }, { name: 'public_category_en_covering_v2' });
 // The product id (a uuid string, not _id) is how the product page's related reads, the cart and orders find a product.
 MedicineSchema.index({ id: 1 }, { name: 'id_1' });
 

@@ -18,15 +18,32 @@ describe('public catalogue total (P14.3)', () => {
     expect(count).toHaveBeenCalledTimes(1);
   });
 
-  it('counts again after a minute, and a failed count is not kept', async () => {
+  it('a failed first count is not kept', async () => {
     const count = jest.fn().mockRejectedValueOnce(new Error('down')).mockResolvedValue(5);
     const svc = service(count);
     await expect(svc.publicProductSearch('', 'en', 20, 1)).rejects.toThrow('down');
     expect((await svc.publicProductSearch('', 'en', 20, 1) as any).total).toBe(5);
+  });
+
+  it('a total older than 5 minutes is shown at once and refreshed behind the response (stale-while-revalidate)', async () => {
+    const count = jest.fn().mockResolvedValue(5);
+    const svc = service(count);
+    await svc.publicProductSearch('', 'en', 20, 1);
     const now = Date.now();
-    jest.spyOn(Date, 'now').mockReturnValue(now + 61_000);
+    const spy = jest.spyOn(Date, 'now').mockReturnValue(now + 301_000);
     count.mockResolvedValue(6);
-    expect((await svc.publicProductSearch('', 'en', 20, 1) as any).total).toBe(6);
+    expect((await svc.publicProductSearch('', 'en', 20, 1) as any).total).toBe(5);   // stale, no wait
+    await new Promise((r) => setImmediate(r));
+    expect((await svc.publicProductSearch('', 'en', 20, 1) as any).total).toBe(6);   // refreshed
+    expect(count).toHaveBeenCalledTimes(2);
+    // past the stale window the visitor waits for a fresh count
+    spy.mockReturnValue(now + 301_000 + 3_700_000);
+    count.mockResolvedValue(7);
+    expect((await svc.publicProductSearch('', 'en', 20, 1) as any).total).toBe(7);
+    // a failing refresh keeps serving the last good total
+    spy.mockReturnValue(now + 301_000 + 3_700_000 + 301_000);
+    count.mockRejectedValue(new Error('down'));
+    expect((await svc.publicProductSearch('', 'en', 20, 1) as any).total).toBe(7);
     jest.restoreAllMocks();
   });
 });
