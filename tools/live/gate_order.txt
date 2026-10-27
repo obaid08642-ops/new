@@ -128,3 +128,4 @@ j_web_qa_legal
 j_qa_doctor_search
 j_web_qa_insurance
 j_web_qa_insurance_edit
+j_web_qa_chi
