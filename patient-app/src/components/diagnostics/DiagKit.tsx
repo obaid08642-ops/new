@@ -11,6 +11,8 @@ import { Money } from '../pharmacy/OfferKit';
 import { Chevron } from '../consult/ConsultKit';
 import { statusLook, type OrderKind } from '../../utils/orderCenter';
 import { optimizedImageUri } from '../../utils/optimizedImage';
+import type { DiagArtKey } from '../../../../packages/ui/icons/diag-art';
+import { DiagArt } from './DiagArt';
 
 /**
  * What the labs and radiology screens share (Batch 3, slice 3-app): the look of a service, the tags, the test row with its
@@ -164,9 +166,11 @@ export function TestRow({ name, tags, note, price, onPress, toggle, icon, last =
 
 export interface ItemCardProps {
   name: string;
-  icon: FillIconName;
-  tone: ServiceTone;
+  /** The category illustration (blood, X-ray ...); the item's own `image` replaces it only when the backend sent one. */
+  art: DiagArtKey;
   image?: string;
+  /** A fixed width for a sideways strip; omitted = the full width of the list. */
+  width?: number;
   tags?: Array<{ label: string; tone: ServiceTone | 'neutral' }>;
   note?: string;
   price: number | null;
@@ -181,15 +185,15 @@ export interface ItemCardProps {
 }
 
 /** A catalogue test or scan as a large card: its illustration next to the name, the tags, the note and the price, then "Add to cart" and "Order now". */
-export function ItemCard({ name, icon, tone, image, tags, note, price, inCart, addLabel, inCartLabel, orderLabel, onPress, onAdd, onOrder, testID }: ItemCardProps) {
+export function ItemCard({ name, art, image, width, tags, note, price, inCart, addLabel, inCartLabel, orderLabel, onPress, onAdd, onOrder, testID }: ItemCardProps) {
   const { theme, t, c, flow } = useScreenUi();
   return (
-    <View testID={testID} style={{ borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, padding: 16, gap: 14 }}>
+    <View testID={testID} style={{ width, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, padding: 16, gap: 14 }}>
       <Pressable accessibilityRole="button" accessibilityLabel={name} onPress={onPress} style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 56, opacity: pressed ? 0.85 : 1 })}>
         {image ? (
           <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: optimizedImageUri(image, 56) }} style={{ width: 56, height: 56, borderRadius: 16, backgroundColor: c.bg.sunken }} contentFit="cover" />
         ) : (
-          <FIcon icon={icon} tone={tone} size={56} theme={theme} />
+          <DiagArt art={art} size={56} />
         )}
         <View style={{ flex: 1, minWidth: 0, gap: 6 }}>
           <Text style={{ ...scale(t, 'bodyStrong', 'medium'), color: c.text.primary, ...flow }}>{name}</Text>
@@ -514,13 +518,15 @@ export function PersonRow({ icon, tone, title, line, actionIcon, actionLabel, on
 }
 
 /** The head of a detail page (package, test, lab): a tone wash with the glyph or the catalogue image, the name and a line. */
-export function DetailHead({ icon, tone, image, title, body }: { icon: FillIconName; tone: ServiceTone; image?: string; title: string; body?: string }) {
+export function DetailHead({ icon, tone, image, title, body, art }: { icon: FillIconName; tone: ServiceTone; image?: string; title: string; body?: string; /** A test or scan shows its category illustration in place of the service glyph. */ art?: DiagArtKey }) {
   const { theme, t, c } = useScreenUi();
   return (
     <Card theme={theme} tint={tone} padding="lg">
       <View style={{ alignItems: 'center', gap: 10 }}>
         {image ? (
           <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: optimizedImageUri(image, 96) }} style={{ width: 96, height: 96, borderRadius: 24, backgroundColor: c.bg.surface }} contentFit="cover" />
+        ) : art ? (
+          <DiagArt art={art} size={72} />
         ) : (
           <FIcon icon={icon} tone={tone} size={72} theme={theme} />
         )}

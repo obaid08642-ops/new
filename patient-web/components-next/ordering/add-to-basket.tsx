@@ -7,7 +7,9 @@ import { Button } from "@/components-next/ui-generated/components/Button";
 import styles from "@/components-next/diagnostics/diag.module.css";
 import { hasLine, type LineNames } from "@/lib/ordering/basket";
 import type { ServiceKind } from "@/lib/ordering/quote";
+import { serializeSingle, withItem } from "@/lib/ordering/single";
 import { useBasket } from "./use-basket";
+import { rememberSingle } from "./use-order-lines";
 
 type Line = { id: string; nameAr?: string; nameEn?: string; names?: LineNames };
 
@@ -39,7 +41,7 @@ export function AddToBasketButton({ kind, line }: { kind: ServiceKind; line: Lin
 
 /**
  * The two actions of a catalogue card and of the item page: "Add to cart" (the local basket of its service, `lab` or `radiology`) and "Order now"
- * (adds the item if it is not there yet, then opens the basket of that service; the flow has no single-item entry, so the lines already in the basket stay).
+ * (skips the cart: it opens that service's ordering steps with THIS item only, `item=<id>` in the URL; the basket is neither read nor changed).
  */
 export function ItemActions({ kind, line, orderHref }: { kind: ServiceKind; line: Line; orderHref: string }) {
   const t = useTranslations("OrderingFlow");
@@ -54,8 +56,8 @@ export function ItemActions({ kind, line, orderHref }: { kind: ServiceKind; line
         size="md"
         fullWidth
         onClick={() => {
-          if (!inBasket) add(kind, line);
-          router.push(orderHref);
+          rememberSingle(serializeSingle(line));
+          router.push(withItem(orderHref, line.id));
         }}
       />
     </>

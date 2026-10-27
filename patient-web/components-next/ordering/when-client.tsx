@@ -16,7 +16,7 @@ import type { WindowsAnswer } from "@/lib/ordering/windows";
 import { QuoteError, QuoteLoading } from "./quote-parts";
 import styles from "./ordering.module.css";
 
-type Props = { locale: string; kind: ServiceKind; place: OrderMode; pay: Payer; point: Point | null };
+type Props = { locale: string; kind: ServiceKind; place: OrderMode; pay: Payer; item?: string; point: Point | null };
 type Load = { status: "loading" } | { status: "ready"; answer: WindowsAnswer } | { status: "error"; errorKey: string };
 
 const POLL_MS = 5000; // the backend moves a stage on read; 5 s keeps the load low and the clock honest (the clock itself ticks locally from seconds_left)
@@ -27,7 +27,7 @@ function readStore<T>(key: string, parse: (raw: string | null) => T): T {
 }
 
 /** Ord06: the time per booking. Home: 2-hour windows for 3 days + ASAP (3/5/8 km stages). Centre: slots of a day, or walk-in. All from GET /ordering/windows and /ordering/asap. */
-export function WhenClient({ locale, kind, place, pay, point }: Props) {
+export function WhenClient({ locale, kind, place, pay, item, point }: Props) {
   const t = useTranslations("OrderingFlow");
   const router = useRouter();
   const [choice, setChoice] = useState<ProviderChoice | null | undefined>(undefined);
@@ -53,7 +53,7 @@ export function WhenClient({ locale, kind, place, pay, point }: Props) {
     });
   }, []);
 
-  const providersHref = `/${locale}/labs/providers${contextQuery({ kind, place, pay })}`;
+  const providersHref = `/${locale}/labs/providers${contextQuery({ kind, place, pay, item })}`;
   if (choice === undefined) return <QuoteLoading label={t("whenLoading")} />;
   if (!choice || !schedule || (!choice.home && !choice.facility)) {
     return <EmptyState icon={SERVICE_ICONS.lab.icon} tone={SERVICE_ICONS.lab.tone} title={t("whenNoChoiceTitle")} body={t("whenNoChoiceSub")} actionLabel={t("whenBackProviders")} onAction={() => router.push(providersHref)} />;
@@ -63,7 +63,7 @@ export function WhenClient({ locale, kind, place, pay, point }: Props) {
   const active: OrderMode = modes.includes(tab) ? tab : modes[0];
   const ready = modes.every((m) => !!schedule[m]);
   const itemIds = modes.flatMap((m) => choice.groups?.[m]?.itemIds ?? []);
-  const confirmHref = `/${locale}/labs/confirm${contextQuery({ kind, place, pay })}${itemIds.length ? `${contextQuery({ kind, place, pay }) ? "&" : "?"}ids=${encodeURIComponent(itemIds.slice(0, 12).join(","))}` : ""}`;
+  const confirmHref = `/${locale}/labs/confirm${contextQuery({ kind, place, pay, item })}${itemIds.length ? `${contextQuery({ kind, place, pay, item }) ? "&" : "?"}ids=${encodeURIComponent(itemIds.slice(0, 12).join(","))}` : ""}`;
 
   return (
     <div className={styles.stack}>

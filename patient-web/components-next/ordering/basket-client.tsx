@@ -11,17 +11,16 @@ import { contextQuery, type Point } from "@/lib/ordering/context";
 import { summarize, type OrderMode, type Payer, type QuoteGroup, type ServiceKind } from "@/lib/ordering/quote";
 import { moneyText, pickLineName } from "@/lib/ordering/format";
 import { QuoteError, QuoteLoading } from "./quote-parts";
-import { useBasket } from "./use-basket";
+import { useOrderLines } from "./use-order-lines";
 import { useQuote } from "./use-quote";
 import styles from "./ordering.module.css";
 
-type Props = { locale: string; kind: ServiceKind; place: OrderMode; pay: Payer; point: Point | null; hubHref: string };
+type Props = { locale: string; kind: ServiceKind; place: OrderMode; pay: Payer; item?: string; point: Point | null; hubHref: string };
 
 /** Ord04: the basket with the automatic split. The lines are local; prices, split, facility-only labels and alternatives are the quote's. */
-export function BasketClient({ locale, kind, place, pay, point, hubHref }: Props) {
+export function BasketClient({ locale, kind, place, pay, item, point, hubHref }: Props) {
   const t = useTranslations("OrderingFlow");
-  const { basket, remove } = useBasket();
-  const lines = basket[kind];
+  const { lines, isSingle, remove } = useOrderLines(kind, item);
   const request = useMemo(
     () => (point && lines.length ? { service_kind: kind, items: lines.map((l) => l.id), context: { mode: place, lat: point.lat, lng: point.lng, payer: pay } } : null),
     [point, lines, kind, place, pay],
@@ -49,8 +48,8 @@ export function BasketClient({ locale, kind, place, pay, point, hubHref }: Props
 
   const { quote } = state;
   const sum = summarize(quote.groups);
-  const providersHref = `/${locale}/labs/providers${contextQuery({ kind, place, pay })}`;
-  const centreHref = `/${locale}/labs/basket${contextQuery({ kind, place: "facility", pay })}`;
+  const providersHref = `/${locale}/labs/providers${contextQuery({ kind, place, pay, item })}`;
+  const centreHref = `/${locale}/labs/basket${contextQuery({ kind, place: "facility", pay, item })}`;
   const canContinue = quote.groups.length > 0 && quote.groups.every((g) => g.bestMatch || g.split);
   const multi = quote.groups.length > 1;
 
@@ -59,6 +58,7 @@ export function BasketClient({ locale, kind, place, pay, point, hubHref }: Props
 
   return (
     <div className={styles.stack}>
+      {isSingle ? <p className={styles.note}>{t("singleNote")}</p> : null}
       {multi ? <p className={styles.note}>{t("splitNote")}</p> : null}
       {quote.groups.map((g) => (
         <section key={g.mode} className={styles.card} aria-label={groupTitle(g)}>
@@ -82,7 +82,7 @@ export function BasketClient({ locale, kind, place, pay, point, hubHref }: Props
                     ) : null}
                   </span>
                   {line ? <span className={styles.price}><bdi>{moneyText(locale, line.price)}</bdi></span> : null}
-                  <button type="button" className={`${styles.linkBtn} ${styles.removeBtn}`} aria-label={`${t("removeAria")}: ${name ?? ""}`} onClick={() => remove(kind, it.catalogId)}>{t("remove")}</button>
+                  {isSingle ? null : <button type="button" className={`${styles.linkBtn} ${styles.removeBtn}`} aria-label={`${t("removeAria")}: ${name ?? ""}`} onClick={() => remove(kind, it.catalogId)}>{t("remove")}</button>}
                 </li>
               );
             })}

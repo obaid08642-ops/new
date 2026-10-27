@@ -5,10 +5,10 @@
     "screen": "/diagnostics",
     "element": "Order now on a test or scan card and on the item page",
     "file": "patient-web/components-next/ordering/add-to-basket.tsx",
-    "line": 44,
-    "found": "[client] The ordering flow (basket, providers, when, confirm) reads only the local basket and has no single-item entry, so Order now adds the item if it is not in the basket and opens the basket of that service; lines already there stay.",
-    "suspect": "Owner/reviewer: decide whether Order now should run a one-item flow that ignores the basket (needs an items parameter through basket, providers, when and confirm).",
-    "review_status": "open"
+    "line": 59,
+    "found": "[client] RESOLVED (lead review round): Order now skips the cart. It stores the item's names in session storage and opens /labs/basket with item=<id>; basket, providers, when and confirm read that one item (use-order-lines.ts, lib/ordering/single.ts) and never read or change the basket; after booking the cart keeps its lines. The patient still chooses the lab or home visit, time and payment in the normal steps. No backend change needed.",
+    "suspect": "None. Owner: confirm packages (lab kind) may also be ordered alone.",
+    "review_status": "resolved"
   },
   {
     "batch": "owner-review-g4",
@@ -16,10 +16,10 @@
     "screen": "/(tabs)/diagnostics",
     "element": "Order now on a test or scan card",
     "file": "patient-app/app/(tabs)/diagnostics.tsx",
-    "line": 158,
-    "found": "[client] The diagnostics checkout reads the whole cart from DiagnosticsCartContext and takes no item parameter, so Order now adds the item to its service cart and opens the cart screen; other lines stay.",
-    "suspect": "Owner/reviewer: a single-item checkout needs a checkout parameter; cart logic was not changed (design-only scope).",
-    "review_status": "open"
+    "line": 145,
+    "found": "[client] RESOLVED (lead review round): Order now opens /diagnostics/lab-comparison with single=1 and the item (singleOrderRoute); the quote, the lab choice, the time and the payment run from a draft made of that one item (draft.single). The cart is not read, added to or changed, and confirm.tsx leaves its lines after booking.",
+    "suspect": "None. The legacy ?id= entry of lab-comparison (adds to the cart then opens it) is unchanged.",
+    "review_status": "resolved"
   },
   {
     "batch": "owner-review-g4",
@@ -48,10 +48,10 @@
     "app": "patient-web",
     "screen": "/diagnostics",
     "element": "Full list of tests and scans",
-    "file": "patient-web/app/[locale]/diagnostics/page.tsx",
-    "line": 142,
-    "found": "[backend] GET /labs/services and GET /radiology/services take no page or limit (labs.controller.ts services(), radiology.controller.ts services()); they return every row. The page and the app page the full list on the client (20 per step, Show more), so every row is still downloaded.",
-    "suspect": "Backend: add page/limit to both catalogue endpoints if the lists grow large.",
+    "file": "patient-web/components-next/diagnostics/item-catalog.tsx",
+    "line": 60,
+    "found": "[backend] GET /labs/services and GET /radiology/services take no page or limit (labs.controller.ts services(), radiology.controller.ts services()); they return every row. The web (IntersectionObserver island, server-rendered Show more link without script) and the app (scroll to the end) open 20 rows per step, but every row is still downloaded and the web page sends them all to the island.",
+    "suspect": "Backend: add page/limit (and a category filter) to both catalogue endpoints if the lists grow large.",
     "review_status": "open"
   },
   {
@@ -60,8 +60,8 @@
     "screen": "/diagnostics/package-detail",
     "element": "Order now on the package page",
     "file": "patient-app/app/diagnostics/package-detail.tsx",
-    "line": 79,
-    "found": "[client] Added next to Add to cart (owner words: the test and scan detail pages; applied to the package page too for consistency). Same cart-then-cart-screen behaviour as the cards.",
+    "line": 83,
+    "found": "[client] Added next to Add to cart (owner words: the test and scan detail pages; applied to the package page too for consistency). It now skips the cart like the cards: the package alone goes to the lab choice, time and payment.",
     "suspect": "Owner: confirm packages should carry Order now.",
     "review_status": "open"
   },
@@ -70,10 +70,67 @@
     "app": "patient-web",
     "screen": "/diagnostics",
     "element": "Per-test illustration",
-    "file": "patient-web/components-next/diagnostics/diag-parts.tsx",
+    "file": "packages/ui/icons/diag-art.ts",
     "line": 1,
-    "found": "[owner] Per-test artwork from git history was not found as separate files; the cards use the service icon of the tokens (lab or radiology; the scan's own image when the backend sends one). The app also varies the icon by category (diagLook).",
-    "suspect": "Owner: if a per-test illustration set exists outside the repo, name it.",
+    "found": "[client] RESOLVED (lead review round): one vector illustration per CATEGORY (blood, hormones, vitamins, sugar, urine/stool, liver/kidney, X-ray, CT, MRI, ultrasound, mammography, ECG/echo) in packages/ui/icons/diag-art.ts, token roles only, drawn by the web (DiagArt) and the app (DiagArt.tsx); vitamins reuses the pharmacy art. A per-item image is used only when the backend sends image_url.",
+    "suspect": "Owner: review the twelve drawings against the boards (not rendered here).",
+    "review_status": "resolved"
+  },
+  {
+    "batch": "owner-review-g4",
+    "app": "patient-web",
+    "screen": "/diagnostics",
+    "element": "Category of a test or scan (illustration and chips)",
+    "file": "packages/ui/icons/diag-art.ts",
+    "line": 171,
+    "found": "[backend] A test's category is free text (lab category, sample type) and a scan's is its modality; neither is a fixed key. The category is guessed from those fields and every name by word lists (Arabic, English, Urdu, Hindi, Bengali, Filipino), with blood (labs) and X-ray (scans) as the fallback, so a test with unusual wording can sit in the wrong chip.",
+    "suspect": "Backend: a structured category key on lab and radiology services (the twelve above) would replace the word lists.",
+    "backend": "backend/src/modules/labs/labs.dto.ts:263",
+    "review_status": "open"
+  },
+  {
+    "batch": "owner-review-g4",
+    "app": "patient-app",
+    "screen": "/(tabs)/diagnostics",
+    "element": "Scan-type chips (GET /radiology/modalities) replaced by category chips",
+    "file": "patient-app/app/(tabs)/diagnostics.tsx",
+    "line": 209,
+    "found": "[client] The radiology side now filters on the client by the six categories (X-ray, CT, MRI, ultrasound, mammography, ECG/echo) mapped from each scan's modality, as the lead review asked; the server-side modality chips and their call were removed from the hub. A modality outside the six (for example bone density) is grouped under X-ray.",
+    "suspect": "Owner: confirm the six categories are enough for the scan catalogue.",
+    "review_status": "open"
+  },
+  {
+    "batch": "owner-review-g4",
+    "app": "patient-app",
+    "screen": "/(tabs)/diagnostics",
+    "element": "Infinite list on the app",
+    "file": "patient-app/app/(tabs)/diagnostics.tsx",
+    "line": 257,
+    "found": "[client] FlashList is not installed in this checkout and the hub is a ScrollView of sections, so the end of the list is detected from the scroll position (isNearEnd) instead of onEndReached; there is no Show more button. Not run on a device.",
+    "suspect": "Reviewer: confirm on a device that the next page opens when the end is reached and that screen readers can still reach the later rows.",
+    "review_status": "open"
+  },
+  {
+    "batch": "owner-review-g4",
+    "app": "patient-web",
+    "screen": "/labs/providers",
+    "element": "Price of each lab in the lab choice step",
+    "file": "patient-web/components-next/ordering/providers-client.tsx",
+    "line": 83,
+    "found": "[backend] Every lab is listed with its own total for the chosen items (ProviderRow.total of POST /ordering/quote, home fee included for a home visit), best match first. Only the best match carries per-item prices (bestMatch.items); the other labs have a total only, so a basket of several items does not show each lab's price per item.",
+    "suspect": "Backend: return items[] with prices for every compare row if a per-item price per lab is wanted.",
+    "backend": "backend/src/modules/ordering/ordering.service.ts",
+    "review_status": "open"
+  },
+  {
+    "batch": "owner-review-g4",
+    "app": "patient-web",
+    "screen": "/diagnostics",
+    "element": "Most requested strip",
+    "file": "patient-web/app/[locale]/diagnostics/page.tsx",
+    "line": 180,
+    "found": "[client] Uses the backend's own `popularity` field (lab and radiology services; the lists already arrive sorted by it): the first six by popularity, ties in catalogue order. If the seeded catalogue has no popularity values the strip is simply the first six rows of the catalogue.",
+    "suspect": "Reviewer: check the seeded data has popularity values.",
     "review_status": "open"
   }
 ]

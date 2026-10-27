@@ -41,13 +41,15 @@ describe("hub layout", () => {
   });
   it("lists every test and scan (no fixed LIMIT slice) with a Show more step", () => {
     expect(hub).not.toMatch(/LIMIT_(TESTS|RADIOLOGY)/);
-    expect(hub).toContain("pageRows(allTests, pages)");
-    expect(hub).toContain("pageRows(allScans, pages)");
-    expect(hub).toContain('t("showMore")');
+    // the full list is the infinite client island; the server-rendered "Show more" link is its no-script step
+    expect(hub).toContain("<ItemCatalog");
+    expect(hub).toContain("initialCount: pages * HUB_PAGE_SIZE");
+    expect(hub).toContain('moreLabel: t("showMore")');
   });
   it("gives each item a card with both actions, keyed to its own service basket", () => {
-    expect(hub).toContain('<ItemActions kind="lab"');
-    expect(hub).toContain('<ItemActions kind="radiology"');
+    expect(hub).toContain('<ItemCatalog {...catalogProps} kind="lab"');
+    expect(hub).toContain('<ItemCatalog {...catalogProps} kind="radiology"');
+    expect(code("components-next/diagnostics/item-catalog.tsx")).toContain("<ItemActions kind={kind}");
     const actions = code("components-next/ordering/add-to-basket.tsx");
     expect(actions).toContain('t("ctaOne")');
     expect(actions).toContain('t("orderNow")');

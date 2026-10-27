@@ -1,3 +1,4 @@
+import { DiagArt } from "@/components-next/diagnostics/diag-art";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
@@ -91,7 +92,7 @@ export default async function OrderingItemPage({ params, searchParams }: Props) 
 
   return (
     <ConsultPage locale={locale} title={name} backHref={hub}>
-      <Hero icon={tone.icon} tone={tone.tone} title={name} sub={description} />
+      <Hero icon={tone.icon} tone={tone.tone} title={name} sub={description} picture={item.art ? <DiagArt art={item.art} size={56} /> : undefined} />
       <SectionCard id="item-prep" title={t("secPrep")}>
         {item.fastingHours !== undefined || prep.length > 0 ? (
           <>
