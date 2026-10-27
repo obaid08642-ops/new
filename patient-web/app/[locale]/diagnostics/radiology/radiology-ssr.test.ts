@@ -23,6 +23,27 @@ describe("Radiology Services SSR", () => {
     expect(html).not.toContain("style=");
     expect(state.services).toHaveBeenCalledWith(expect.objectContaining({ modality: "xray", homeVisit: "true", search: "chest" }));
   });
+  it("G6: each offered filter is real, lowest price orders here, reset and the count agree", async () => {
+    state.services.mockResolvedValue(new Response(JSON.stringify([
+      { _id: "6a7600a27b25eeca204de283", name_en: "Pricey Scan", modality: "mri", price: 900 },
+      { _id: "6a7600a27b25eeca204de284", name_en: "Cheap Scan", modality: "mri", price: 90 },
+    ]), { status: 200 }));
+    const html = await render({ modality: "MRI", home_visit: "1", lowest_price: "1", highest_rated: "1" });
+    // the backend ignores highest_rated / lowest_price, so neither is sent and "highest rated" is not offered
+    const sent = state.services.mock.calls[0][0] as Record<string, unknown>;
+    expect(sent).toMatchObject({ modality: "MRI", homeVisit: "true" });
+    expect(sent).not.toHaveProperty("lowestPrice");
+    expect(sent).not.toHaveProperty("highestRated");
+    expect(html).not.toContain('name="highest_rated"');
+    expect(html.indexOf("Cheap Scan")).toBeLessThan(html.indexOf("Pricey Scan"));
+    expect(html).toContain("Filters on: 3");
+    expect(html).toContain('href="/en/diagnostics/radiology"');
+    expect(html).toContain("Reset filters");
+  });
+  it("G6: no filters, no reset row", async () => {
+    state.services.mockResolvedValue(new Response(JSON.stringify([{ _id: "6a7600a27b25eeca204de283", name_en: "Chest X-Ray", price: 90 }]), { status: 200 }));
+    expect(await render({})).not.toContain("Reset filters");
+  });
   it("renders an alert when the live catalog fails", async () => {
     state.services.mockResolvedValue(new Response("", { status: 503 }));
     expect(await render({})).toMatch(/role="alert"/);

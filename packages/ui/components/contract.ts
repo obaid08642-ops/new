@@ -244,6 +244,8 @@ export interface SearchProps extends StateProps, A11yProps {
   /** The ink filter square beside the field (Consult). */
   onFilterPress?: () => void;
   filterLabel?: string;
+  /** How many filters are on: a small count badge on the filter square (native renderer; 0 or absent = none). */
+  filterCount?: number;
   /** The clear button, shown while there is text. */
   onClear?: () => void;
   clearLabel?: string;

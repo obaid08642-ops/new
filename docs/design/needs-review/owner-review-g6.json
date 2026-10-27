@@ -1,0 +1,90 @@
+[
+  {
+    "batch": "owner-review-g6",
+    "app": "backend",
+    "screen": "GET /radiology/services",
+    "element": "lowest_price / highest_rated params",
+    "file": "backend/src/modules/radiology/radiology.service.ts",
+    "line": 445,
+    "found": "[backend] list() ignores highest_rated and lowest_price (always sorts by popularity); radiology services also carry no rating field.",
+    "suspect": "Clients now sort by price on the loaded list (web radiology page, app) and the highest-rated option was removed for scans. Backend decision: implement the sorts or keep it client-side.",
+    "review_status": "open"
+  },
+  {
+    "batch": "owner-review-g6",
+    "app": "backend",
+    "screen": "GET /labs/services",
+    "element": "highest_rated",
+    "file": "backend/src/modules/labs/labs.service.ts",
+    "line": 81,
+    "found": "[backend] highest_rated sorts by a `rating` field on the service document; ratings live on lab providers (rating_avg), so the sort probably orders nothing.",
+    "suspect": "Clients use it only for the approved-labs strip (client-side sort by provider rating); the tests list has no rating order.",
+    "review_status": "open"
+  },
+  {
+    "batch": "owner-review-g6",
+    "app": "backend",
+    "screen": "GET /home-care/providers",
+    "element": "nationality match",
+    "file": "backend/src/modules/home-care/home-care-compat.module.ts",
+    "line": 80,
+    "found": "[backend] nationality is matched with an exact $eq on the stored string; the app sent lowercase ids (saudi), the web sends Saudi/Filipino/Egyptian. Client now sends the capitalised value; stored values are free text, so a profile saved as another spelling never matches.",
+    "suspect": "Case-insensitive match or a fixed nationality enum on the provider profile.",
+    "review_status": "open"
+  },
+  {
+    "batch": "owner-review-g6",
+    "app": "backend",
+    "screen": "GET /home-care/providers",
+    "element": "gender and available params",
+    "file": "backend/src/modules/home-care/home-care-compat.module.ts",
+    "line": 79,
+    "found": "[backend] gender is an exact match on profile.gender; the app sent `availability=now` which the endpoint never reads (it reads `available=true`). Client fixed; confirm stored gender values are exactly male/female.",
+    "suspect": "Unseeded/unverified stored values.",
+    "review_status": "open"
+  },
+  {
+    "batch": "owner-review-g6",
+    "app": "patient-web",
+    "screen": "/diagnostics (labs view)",
+    "element": "Highest rated sort",
+    "file": "patient-web/app/[locale]/diagnostics/page.tsx",
+    "line": 207,
+    "found": "[client] Highest rated orders only the approved-labs strip; the tests and packages lists have no rating to order by, so with this sort the tests keep the default order.",
+    "suspect": "Rename to make the scope clear or show it only when the strip is visible (owner decision).",
+    "review_status": "open"
+  },
+  {
+    "batch": "owner-review-g6",
+    "app": "patient-app",
+    "screen": "/diagnostics (labs tab)",
+    "element": "Highest rated filter",
+    "file": "patient-app/app/(tabs)/diagnostics.tsx",
+    "line": 192,
+    "found": "[client] Same as the web: the option orders the labs strip only; tests and packages stay in catalogue order.",
+    "suspect": "Owner decision on the label.",
+    "review_status": "open"
+  },
+  {
+    "batch": "owner-review-g6",
+    "app": "patient-web",
+    "screen": "/diagnostics/radiology",
+    "element": "Search is not a counted filter",
+    "file": "patient-web/app/[locale]/diagnostics/radiology/page.tsx",
+    "line": 71,
+    "found": "[owner] The applied count counts scan type, body part, home visit and lowest price, not the search text; Reset also clears the search.",
+    "suspect": "Confirm that is the wanted rule.",
+    "review_status": "open"
+  },
+  {
+    "batch": "owner-review-g6",
+    "app": "patient-app",
+    "screen": "/diagnostics, /nursing",
+    "element": "Filter badge on web search field",
+    "file": "packages/ui/components/contract.ts",
+    "line": 248,
+    "found": "[client] The new filterCount badge is drawn by the native Search only; the web renderer of the shared Search contract ignores it (web screens show the count in the sheet summary/chip row instead).",
+    "suspect": "Add the same badge to packages/ui/components/Inputs.tsx if the owner wants it on web.",
+    "review_status": "open"
+  }
+]

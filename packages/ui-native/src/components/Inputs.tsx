@@ -306,6 +306,7 @@ export function Search({
   variant = 'inline',
   onFilterPress,
   filterLabel,
+  filterCount = 0,
   onClear,
   clearLabel,
   onScanPress,
@@ -395,6 +396,14 @@ export function Search({
           style={{ width: 52, height: 52, borderRadius: 18, backgroundColor: c.action.primary.bg, alignItems: 'center', justifyContent: 'center' }}
         >
           <Icon name="sliders" size={20} theme={theme} color={c.action.primary.fg} />
+          {filterCount > 0 ? (
+            <View
+              testID={testID ? `${testID}-filter-count` : 'search-filter-count'}
+              style={{ position: 'absolute', top: -6, end: -6, minWidth: 22, height: 22, paddingHorizontal: 5, borderRadius: 11, backgroundColor: c.bg.canvas, borderWidth: 2, borderColor: c.action.primary.bg, alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Text style={{ fontSize: 12, fontWeight: '700', color: c.text.primary }}>{filterCount}</Text>
+            </View>
+          ) : null}
         </Pressable>
       ) : null}
     </View>
