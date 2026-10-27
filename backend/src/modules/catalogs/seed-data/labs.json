@@ -3482,7 +3482,7 @@
     "preparation_ar": [
       "لا يتطلب صيام"
     ],
-    "image_url": "https://cdn.nabd.plus/labs/hiv.png",
+    "image_url": null,
     "is_active": true,
     "preparation_en": [
       "No fasting is needed.",
@@ -3520,7 +3520,7 @@
     "popularity": 65,
     "description_ar": "فحص مبكر لسرطان عنق الرحم.",
     "description_en": "Cervical cancer screening.",
-    "image_url": "https://cdn.nabd.plus/labs/pap.png",
+    "image_url": null,
     "is_active": true,
     "preparation_ar": [
       "احجزي في غير أيام الدورة الشهرية، وتجنّبي قبلها بيومين الجماع والكريمات المهبلية والغسول المهبلي."
@@ -3556,7 +3556,7 @@
     "popularity": 55,
     "description_ar": "تقييم الخصوبة: العدد والحركة والشكل.",
     "description_en": "Fertility assessment: count, motility, morphology.",
-    "image_url": "https://cdn.nabd.plus/labs/semen.png",
+    "image_url": null,
     "is_active": true,
     "preparation_ar": [
       "امتنع عن القذف من 2 إلى 7 أيام قبل العينة، واجمع العينة كاملة في العلبة المعقمة المخصصة."
@@ -3592,7 +3592,7 @@
     "popularity": 45,
     "description_ar": "كشف عدوى الدرن الكامنة بدقة أعلى من اختبار الجلد.",
     "description_en": "Latent TB detection, more accurate than skin test.",
-    "image_url": "https://cdn.nabd.plus/labs/qft.png",
+    "image_url": null,
     "is_active": true,
     "preparation_ar": [
       "لا يحتاج إلى صيام."
@@ -3628,7 +3628,7 @@
     "popularity": 50,
     "description_ar": "تقييم التبويض ومتابعة الحمل المبكر.",
     "description_en": "Ovulation assessment and early pregnancy follow-up.",
-    "image_url": "https://cdn.nabd.plus/labs/prog.png",
+    "image_url": null,
     "is_active": true,
     "preparation_ar": [
       "لا يحتاج إلى صيام.",
@@ -3670,7 +3670,7 @@
     "popularity": 45,
     "description_ar": "كشف فقر الدم المنجلي والثلاسيميا.",
     "description_en": "Sickle cell and thalassemia screening.",
-    "image_url": "https://cdn.nabd.plus/labs/hbe.png",
+    "image_url": null,
     "is_active": true,
     "preparation_ar": [
       "لا يحتاج إلى صيام."
