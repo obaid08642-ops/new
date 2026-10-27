@@ -1,3 +1,4 @@
+import { isServable } from '../storage/pending-scan';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -110,6 +111,8 @@ export class ContractPdfService {
       if (/^https?:\/\//i.test(url) || url.length > 256) return null;
       const obj: any = await this.conn.collection('storage_objects').findOne({ id: { $eq: url }, deleted: { $ne: true } });
       if (!obj) return null;
+      // A signature still in quarantine (or infected) is never embedded in a contract.
+      if (!isServable(obj)) return null;
       if (typeof obj.data_base64 === 'string' && obj.data_base64.length <= 1_400_000) {
         const decoded = Buffer.from(obj.data_base64, 'base64');
         if (decoded.length <= 1_000_000) return decoded;

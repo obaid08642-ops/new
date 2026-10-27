@@ -16,7 +16,7 @@
  * warning, so a missing scanner can never become the production behaviour.
  */
 import { BadRequestException, Injectable, Logger, Optional, ServiceUnavailableException } from '@nestjs/common';
-import { ClamavService, uploadScanRequired } from './clamav.service';
+import { ClamavService, uploadScanMode, uploadScanRequired } from './clamav.service';
 
 export type Purpose = 'prescription' | 'avatar' | 'lab_report' | 'chat_attachment' | 'catalogue';
 
@@ -145,7 +145,12 @@ export interface UploadInspection {
   reencoded: boolean;
   exif_stripped: boolean;
   random_name: string;
+  /** 'deferred': the scanner could not answer, so the file must be stored in quarantine (UPLOAD_SCAN=defer). */
+  scan: ScanOutcome;
 }
+
+/** What the antivirus step came to: scanned clean, held for a later scan, or not run at all (optional mode, no scanner). */
+export type ScanOutcome = 'clean' | 'deferred' | 'skipped';
 
 @Injectable()
 export class UploadSecurityService {
@@ -162,6 +167,8 @@ export class UploadSecurityService {
     declared_mime: string;
     data_base64: string;
     original_name?: string;
+    /** The caller can hold the file in quarantine (see assertClean). */
+    allow_defer?: boolean;
   }): Promise<UploadInspection> {
     const purpose = input.purpose;
     if (!(purpose in PURPOSE_LIMITS)) throw new BadRequestException('unknown_upload_purpose');
@@ -191,7 +198,7 @@ export class UploadSecurityService {
     }
 
     // 16.5: the antivirus sees the bytes as they were sent, before anything is re-encoded.
-    await this.assertClean(bytes);
+    const scan = await this.assertClean(bytes, { allowDefer: input.allow_defer });
     if (normaliseMime(detectedMime) === 'application/pdf') this.assertNoActivePdfContent(bytes);
 
     let out: Buffer = bytes;
@@ -211,6 +218,7 @@ export class UploadSecurityService {
       exif_stripped: reencoded,
       // 16.5: random object names, never the caller's.
       random_name: crypto.randomUUID(),
+      scan,
     };
   }
 
@@ -220,7 +228,7 @@ export class UploadSecurityService {
    * is refused, the antivirus scans the bytes, a photo is re-encoded without its EXIF/GPS, a PDF may not carry active content,
    * and the object name and extension are chosen here, never taken from the caller's file name.
    */
-  async inspectMedia(input: { purpose: Purpose; declared_mime: string; bytes: Buffer }): Promise<{ bytes: Buffer; mime: string; ext: string; kind: MediaType['kind']; size_bytes: number }> {
+  async inspectMedia(input: { purpose: Purpose; declared_mime: string; bytes: Buffer; allow_defer?: boolean }): Promise<{ bytes: Buffer; mime: string; ext: string; kind: MediaType['kind']; size_bytes: number; scan: ScanOutcome }> {
     const { purpose, declared_mime: declared } = input;
     if (!(purpose in PURPOSE_LIMITS)) throw new BadRequestException('unknown_upload_purpose');
     if (!input.bytes?.length) throw new BadRequestException('empty_upload');
@@ -244,7 +252,7 @@ export class UploadSecurityService {
       throw new BadRequestException('file_type_does_not_match_declared_mime');
     }
 
-    await this.assertClean(input.bytes);
+    const scan = await this.assertClean(input.bytes, { allowDefer: input.allow_defer });
     if (type.kind === 'pdf') this.assertNoActivePdfContent(input.bytes);
 
     let out = input.bytes;
@@ -254,7 +262,7 @@ export class UploadSecurityService {
       const clean = await this.reencodeWithoutMetadata(out);
       if (clean) { out = clean; mime = 'image/jpeg'; ext = 'jpg'; }
     }
-    return { bytes: out, mime, ext, kind: type.kind, size_bytes: out.length };
+    return { bytes: out, mime, ext, kind: type.kind, size_bytes: out.length, scan };
   }
 
   /**
@@ -280,21 +288,30 @@ export class UploadSecurityService {
 
   /**
    * 16.5: scan with ClamAV. An infected file is refused in every environment. When the scanner cannot answer (not configured,
-   * unreachable, timed out, an unreadable reply) the upload is refused with 503 in production or when UPLOAD_SCAN=required;
-   * elsewhere it is let through with a warning (a developer's machine has no ClamAV).
+   * unreachable, timed out, an unreadable reply):
+   *   - UPLOAD_SCAN=defer and the caller can hold a file in quarantine (`allowDefer`): returns 'deferred'. The caller stores the file
+   *     under `pending/` and nobody can open it until the scan worker has passed it;
+   *   - otherwise the upload is refused with 503 in production or when UPLOAD_SCAN=required (or `defer` without a quarantine);
+   *   - elsewhere it is let through with a warning (a developer's machine has no ClamAV).
+   * Returns 'clean' when the scanner said so, 'deferred' (quarantine), or 'skipped' (optional mode without a scanner).
    */
-  async assertClean(data: Buffer): Promise<void> {
+  async assertClean(data: Buffer, opts: { allowDefer?: boolean } = {}): Promise<ScanOutcome> {
     const verdict = this.clamav ? await this.clamav.scan(data) : ({ status: 'unavailable', reason: 'clamd_not_wired' } as const);
-    if (verdict.status === 'clean') return;
+    if (verdict.status === 'clean') return 'clean';
     if (verdict.status === 'infected') {
       this.logger.warn(`upload refused: infected (${verdict.signature})`);
       throw new BadRequestException({ message: 'file_infected', code: 'file_infected', statusCode: 400 });
+    }
+    if (uploadScanMode() === 'defer' && opts.allowDefer) {
+      this.logger.warn(`virus scanner unavailable (${verdict.reason}); upload held in quarantine until it is scanned`);
+      return 'deferred';
     }
     if (this.scanRequired()) {
       this.logger.error(`upload refused: the virus scanner is unavailable (${verdict.reason})`);
       throw new ServiceUnavailableException('virus_scanner_unavailable');
     }
     this.logger.warn(`virus scan unavailable (${verdict.reason}); upload allowed outside production`);
+    return 'skipped';
   }
 
   private scanRequired(): boolean {
