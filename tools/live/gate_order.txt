@@ -122,3 +122,4 @@ j_qa_support
 j_web_qa_signup
 j_web_qa_social
 j_web_qa_addresses
+j_web_qa_loyalty
