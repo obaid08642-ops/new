@@ -16,6 +16,8 @@ import { GuaranteeLine, LicenseLine } from "@/components-next/consult/differenti
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { formatPrice, formatNumber } from "@/lib/format-price";
 import { ConsultPage } from "@/components-next/consult/consult-page";
+import { BookingSelectionProvider, StickyBookBar } from "@/components-next/consult/doctor-booking-bar";
+import { summaryItems } from "@/lib/consult/doctor-summary";
 import { DoctorSchedule } from "@/components-next/consult/doctor-schedule";
 import { ProfileHeader, type ProfileStat } from "@/components-next/consult/profile-header";
 import { Notice, SectionCard } from "@/components-next/consult/consult-parts";
@@ -91,11 +93,16 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
   const bookHref = `/${locale}/consultations/book/${encodeURIComponent(doctor.id)}`;
   const flags = { clinic: doctor.clinic, video: doctor.online, home: doctor.home } as const;
   const offeredTypes = serviceTypes.filter((type) => flags[type]);
+  const feeTexts: Partial<Record<(typeof serviceTypes)[number], string>> = {};
+  for (const type of offeredTypes) { const fee = priceForVisit(doctor, type); if (fee !== undefined) feeTexts[type] = formatPrice(locale, fee).text; }
+  const headerFee = priceForVisit(doctor, serviceType) ?? doctor.price;
+  const summary = summaryItems({ locale, specialty: specialtyLabel(names, doctor.specialty) || undefined, rating: doctor.rating, reviews: doctor.reviews, feeText: headerFee !== undefined ? formatPrice(locale, headerFee).text : undefined, waitMinutes: doctor.waitMinutes, waitText: (time) => t("summaryWait", { time }) });
 
   return (
-    <ConsultPage locale={locale} title={name} backHref={`/${locale}/consultations/doctors`}>
+    <BookingSelectionProvider>
+    <ConsultPage locale={locale} title={name} backHref={`/${locale}/consultations/doctors`} footer={<StickyBookBar locale={locale} bookHref={bookHref} feeTexts={feeTexts} labels={{ region: t("stickyBarLabel"), book: t("stickyBook"), choose: t("stickyChooseTime") }} />}>
       <JsonLd data={[physician({ name, path: `/consultations/doctors/${doctor.id}`, locale, specialty: doctor.specialty ?? null }), breadcrumbList([{ name: t("title"), locale, path: "/consultations/doctors" }, { name, locale, path: `/consultations/doctors/${doctor.id}` }])]} />
-      <ProfileHeader photoSrc={doctor.photo} photoAlt={doctor.photo ? t("doctorPhotoAlt", { name }) : undefined} largePhoto line={[doctor.degree, specialtyLabel(names, doctor.specialty)].filter(Boolean).join(" · ") || undefined} tags={tags} stats={stats} />
+      <ProfileHeader photoSrc={doctor.photo} photoAlt={doctor.photo ? t("doctorPhotoAlt", { name }) : undefined} largePhoto summary={summary} summaryLabel={t("summaryLabel")} line={doctor.degree || undefined} tags={tags} stats={stats} />
       <LicenseLine text={doctor.license ? t("licenseLine", { number: doctor.license.number }) : null} verifiedLabel={doctor.license?.verified ? t("licenseVerified") : undefined} />
       <GuaranteeLine text={guarantee ? t("guaranteeLine", { minutes: guarantee.minutes, points: guarantee.points }) : null} />
       <SectionCard id="slots-title" title={t("slotsTitle")}>
@@ -180,5 +187,6 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
       </SectionCard>
       <Notice>{t("detailNotice")}</Notice>
     </ConsultPage>
+    </BookingSelectionProvider>
   );
 }

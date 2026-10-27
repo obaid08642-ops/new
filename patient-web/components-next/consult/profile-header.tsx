@@ -23,6 +23,8 @@ export function ProfileHeader({
   photoSrc,
   photoAlt,
   largePhoto = false,
+  summary = [],
+  summaryLabel,
   children,
 }: {
   icon?: FillIconName;
@@ -35,6 +37,9 @@ export function ProfileHeader({
   photoAlt?: string;
   /** The doctor profile: the photo fills the top of the card (4:3, cropped to the face) instead of the 88 px round one. */
   largePhoto?: boolean;
+  /** One compact line under the photo: specialty, rating and review count, fee, waiting time (only what the server sent). */
+  summary?: string[];
+  summaryLabel?: string;
   children?: ReactNode;
 }) {
   return (
@@ -44,6 +49,7 @@ export function ProfileHeader({
           {photoSrc ? <img src={optimizedImageSrc(photoSrc, 640)} alt={photoAlt ?? ""} className={own.photoImg} width={640} height={480} decoding="async" fetchPriority="high" /> : <FIcon icon={icon} tone={tone} size={88} />}
         </figure>
       ) : photoSrc ? <img src={optimizedImageSrc(photoSrc, 88)} alt={photoAlt ?? ""} className={styles.profilePhoto} width={88} height={88} decoding="async" /> : <FIcon icon={icon} tone={tone} size={88} />}
+      {summary.length > 0 ? <ul className={own.summaryList} aria-label={summaryLabel}>{summary.map((item) => <li key={item}>{item}</li>)}</ul> : null}
       {line ? <p className={styles.heroSub}>{line}</p> : null}
       {tags.length > 0 ? <div className={styles.chips}>{tags.map((tag) => <span key={tag} className={styles.tag}>{tag}</span>)}</div> : null}
       {stats.length > 0 ? (

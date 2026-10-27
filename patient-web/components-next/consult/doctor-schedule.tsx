@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { buildScheduleDays, groupSlotsByDay, slotTimeLabel } from "@/lib/consult/doctor-schedule";
+import { useBookingSelection } from "./doctor-booking-bar";
 import styles from "./consult.module.css";
 import own from "./doctor-schedule.module.css";
 
@@ -16,8 +17,8 @@ type State = "loading" | "ready" | "error" | "signin";
 
 /**
  * The appointments of a doctor: a day strip (weekday and date in the active locale) and, under the chosen day, the time
- * chips from the existing slots endpoint. A time chip opens the existing booking page; visit type, day and times load
- * with the same request the booking page makes.
+ * chips from the existing slots endpoint. A time chip is a radio-like choice: it sets the selection the sticky Book bar reads (the bar goes to the
+ * existing booking page); visit type, day and times load with the same request the booking page makes.
  */
 export function DoctorSchedule({ doctorId, locale, types, initialType, bookHref, labels }: {
   doctorId: string; locale: string; types: Array<{ value: ScheduleType; label: string }>; initialType: ScheduleType; bookHref: string; labels: ScheduleLabels;
@@ -29,6 +30,7 @@ export function DoctorSchedule({ doctorId, locale, types, initialType, bookHref,
   const [slots, setSlots] = useState<Slot[]>([]);
   const [attempt, setAttempt] = useState(0);
   const day = days[dayIndex];
+  const { selection, setSelection } = useBookingSelection();
 
   useEffect(() => {
     if (types.length === 0 || !day) return;
@@ -53,12 +55,12 @@ export function DoctorSchedule({ doctorId, locale, types, initialType, bookHref,
     <div className={own.schedule}>
       {types.length > 1 ? (
         <div className={own.types} role="group" aria-label={labels.typesLabel}>
-          {types.map((x) => <button key={x.value} type="button" className={styles.choice} aria-pressed={x.value === type} onClick={() => setType(x.value)}>{x.label}</button>)}
+          {types.map((x) => <button key={x.value} type="button" className={styles.choice} aria-pressed={x.value === type} onClick={() => { setSelection(null); setType(x.value); }}>{x.label}</button>)}
         </div>
       ) : null}
       <div className={own.days} role="group" aria-label={labels.daysLabel}>
         {days.map((d, i) => (
-          <button key={d.iso} type="button" className={`${styles.choice} ${styles.day} ${own.dayBtn}`} aria-pressed={i === dayIndex} onClick={() => setDayIndex(i)}>
+          <button key={d.iso} type="button" className={`${styles.choice} ${styles.day} ${own.dayBtn}`} aria-pressed={i === dayIndex} onClick={() => { setSelection(null); setDayIndex(i); }}>
             <span className={styles.dayMeta}>{d.relative === "today" ? labels.today : d.relative === "tomorrow" ? labels.tomorrow : d.weekday}</span>
             <span className={styles.dayNum}>{d.dayNumber}</span>
             <span className={styles.dayMeta}>{d.month}</span>
@@ -69,8 +71,11 @@ export function DoctorSchedule({ doctorId, locale, types, initialType, bookHref,
         {state === "loading" ? (
           <div className={own.times} role="status" aria-label={labels.loading}>{[0, 1, 2, 3, 4, 5].map((n) => <span key={n} className={own.skeleton} />)}</div>
         ) : state === "ready" && slots.length > 0 ? (
-          <div className={own.times}>
-            {slots.map((s) => <Link key={s.start} href={href} className={styles.choice}>{slotTimeLabel(locale, s.start)}</Link>)}
+          <div className={own.times} role="radiogroup" aria-label={labels.timesLabel}>
+            {slots.map((s) => {
+              const chosen = selection?.start === s.start && selection.type === type;
+              return <button key={s.start} type="button" role="radio" aria-checked={chosen} className={`${styles.choice} ${own.timeChip}`} onClick={() => setSelection({ type, start: s.start })}>{slotTimeLabel(locale, s.start)}</button>;
+            })}
           </div>
         ) : state === "ready" ? (
           <p className={own.state}>{labels.empty}</p>

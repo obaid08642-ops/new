@@ -17,6 +17,8 @@ import { logError } from '../../../src/utils/logger';
 import { apiMediaUri } from '../../../src/utils/mediaUri';
 import { pickLocalized } from '../../../src/utils/localize';
 import { optimizedImageUri } from '../../../src/utils/optimizedImage';
+import { dateLocaleFor } from '../../../src/utils/dates';
+import { slotBarLabel, summaryItems } from '../../../src/utils/doctorSummary';
 
 /**
  * Doctor page — board DoctorFull (canvas/DoctorFull.dc.html) and docs/design/SPEC_PRODUCT_DOCTOR_DETAIL.md §B. The
@@ -245,9 +247,25 @@ export default function DoctorProfile() {
     else router.push({ pathname: '/consultations/book/[id]', params: { id: doc.id, visit_type: activeVt } } as unknown as Href);
   };
 
+  // The compact line under the photo and name: only what the server sent (the wait is not sent yet, see needs-review).
+  const summary = summaryItems({
+    specialty: doc?.specialty || doc?.sp,
+    rating: ratingAvg,
+    reviews: ratingCount,
+    feeText: price !== null ? `${num(price)} ${k('consult.currency')}` : undefined,
+    waitMinutes: doc?.wait_time,
+    num,
+    waitText: (minutes) => k('consult.card.wait', { n: minutes }),
+  });
+  // The sticky bar: the chosen day, time and fee; disabled with a hint until a time is chosen.
+  const barLabel = slotBarLabel(dateLocaleFor(lang), selectedSlot, price !== null ? `${num(price)} ${k('consult.currency')}` : undefined);
+
   const footer =
     status === 'ready' && doc ? (
-      <Button label={selectedSlot ? (price !== null ? k('consult.doc.confirmPrice', { price: `${num(price)} ${k('consult.currency')}` }) : k('consult.doc.confirm')) : k('consult.doc.book')} size="lg" fullWidth onPress={book} theme={theme} testID="doctor-book" />
+      <>
+        <Text accessibilityLiveRegion="polite" style={{ ...scale(t, 'small', barLabel ? 'bold' : 'regular'), color: barLabel ? c.text.primary : c.text.secondary, textAlign: 'center' }}>{barLabel ?? k('consult.doc.stickyChooseTime')}</Text>
+        <Button label={k('consult.doc.stickyBook')} size="lg" fullWidth disabled={!barLabel} onPress={book} theme={theme} testID="doctor-book" />
+      </>
     ) : undefined;
 
   return (
@@ -275,7 +293,8 @@ export default function DoctorProfile() {
                 {doc.is_online ? <StatusTag label={k('consult.doc.availableNow')} tone="success" /> : null}
                 {doc.verified === true ? <StatusTag label={k('consult.doc.verified')} tone="info" /> : null}
                 <Text accessibilityRole="header" style={{ ...scale(t, 'h2'), color: c.text.primary, textAlign: 'center' }}>{name}</Text>
-                {[doc.title, doc.specialty || doc.sp].filter(Boolean).length > 0 ? <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{[doc.title, doc.specialty || doc.sp].filter(Boolean).join(' — ')}</Text> : null}
+                {doc.title ? <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{doc.title}</Text> : null}
+                {summary.length > 0 ? <Text accessibilityLabel={`${k('consult.doc.summaryLabel')}: ${summary.join(', ')}`} testID="doctor-summary" style={{ ...scale(t, 'small', 'medium'), color: c.text.primary, textAlign: 'center' }}>{summary.join(' \u00b7 ')}</Text> : null}
                 {facilityName ? (
                   <Pressable accessibilityRole="link" accessibilityLabel={facilityName} onPress={() => doc.facility_id && router.push(`/consultations/clinic/${doc.facility_id}` as Href)} style={{ minHeight: 44, justifyContent: 'center' }}>
                     <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.link, textAlign: 'center' }}>{facilityName}</Text>

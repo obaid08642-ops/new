@@ -9,3 +9,9 @@
 .state { margin: 0; padding-block: 12px; text-align: center; color: var(--nabd-color-text-secondary); font-size: var(--nabd-font-size-control); line-height: 1.6; }
 .skeleton { block-size: 44px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-sunken); }
 .stateActions { display: flex; justify-content: center; }
+.summaryList { margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-control); line-height: 1.5; }
+.summaryList > li + li::before { content: "\00b7"; margin-inline-end: 12px; color: var(--nabd-color-text-secondary); }
+.bar { flex-direction: column; align-items: stretch; }
+.when { margin: 0; font-weight: 600; color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-control); text-align: center; }
+.hint { margin: 0; color: var(--nabd-color-text-secondary); font-size: var(--nabd-font-size-control); text-align: center; }
+.timeChip { min-block-size: 44px; }
