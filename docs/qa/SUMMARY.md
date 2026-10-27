@@ -7,8 +7,8 @@ Test data only. Nothing written to nabd.plus except read-only GETs. No product c
 
 | Status | Rows |
 |---|---|
-| DONE (UI, API, DB and reload verified, or the row states its scope) | 40 |
-| PARTIAL (some of that proven, reason in the row) | 29 |
+| DONE (UI, API, DB and reload verified, or the row states its scope) | 43 |
+| PARTIAL (some of that proven, reason in the row) | 26 |
 | BLOCKED (cannot be tested now, reason in the row) | 5: P-15, I-03, A-03 (no SMS), A-08 (no profile edit control), PR-04 |
 | TODO | 0 |
 
@@ -37,6 +37,7 @@ Counts are rows marked P1/P2/P3 in docs/qa/findings/*.md. Rows in the findings f
 ## Open findings and questions (2026-10-27)
 
 New P1 candidates and open P1s, to decide:
+- **MP-02 booking on the website (web-patient.md, MP-02):** `patient-web/components-next/booking-flow.tsx:164` sends `duration_minutes`, and `patient-web/app/api/appointments/book/route.ts:8-28` (`.strict()`) refuses it with `400 invalid_appointment_payload`, so a web visit with a duration cannot be booked. The rest of the flow passes once the field is removed in the test browser only. Owner or lead decision on the fix; `tools/live/j_web_qa_map_book.py` stays out of the gate until then.
 - **V-07 (provider-onboarding.md):** an admin-rejected applicant keeps an active user (`provider-admin.service.ts:207-212`) and can still sign in with `201` (`provider.controllers.ts:32`). Owner decision on what a rejected applicant may do.
 - **JB-04 (jobs-inbox.md):** the hospital's job post returns 403 (re-run 2026-10-27). The hospital token carries the provider role, which `recruitment.module.ts:322` does not accept.
 

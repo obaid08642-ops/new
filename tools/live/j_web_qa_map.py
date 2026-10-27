@@ -4,15 +4,30 @@
   - the anonymous visitor opens /ar/map: the list (aria-label mapList) shows the doctor's card by name;
   - the card's main button selects it (aria-pressed true), and its booking link points at the doctor profile;
   - after a reload the card is still listed.
-MP-02 (same run): the card's booking link opens this doctor's profile page, which shows the doctor's name. The payment is not in this journey.
-The map markers and the type filter buttons are not clicked here (the type filter is covered by the API, GET ?type=).
+MP-02 (same run): the card's booking link opens this doctor's profile page, which shows the doctor's name.
+  The booking and card payment on the website are in j_web_qa_map_book.py.
+The map markers are not clicked here. The type filter buttons are clicked (doctor, then pharmacy, then doctor again): the doctor card follows the filter.
 A missing browser or website is a FAIL, never a PASS."""
+import json
 import os
 
 from lib import Client, journey, step
 
 WEB = os.environ.get('NABD_WEB_JOURNEYS_URL', 'http://127.0.0.1:3100')
 HOME = {'lat': 24.7136, 'lng': 46.6753}
+HERE = os.path.dirname(os.path.abspath(__file__))
+
+
+def find_key(node, key):
+    """The Arabic label of a message key (patient-web/messages/ar.json), so the journey clicks the text the patient sees."""
+    if isinstance(node, dict):
+        if isinstance(node.get(key), str):
+            return node[key]
+        for v in node.values():
+            found = find_key(v, key)
+            if found:
+                return found
+    return None
 
 
 def main():
@@ -58,6 +73,23 @@ def main():
         lst = page.locator('ul[aria-label]').first
         lst.wait_for(timeout=60000)
         step('after reload the doctor card is still listed', lst.locator('li', has=page.locator(f'a[href*="{profile_id}"]')).count() > 0, profile_id)
+
+        journey('providers map MP-01 (web): the type filter narrows the list')
+        msgs = json.load(open(os.path.join(HERE, '..', '..', 'patient-web', 'messages', 'ar.json'), encoding='utf-8'))
+        doc_btn = page.locator('button[aria-pressed]', has_text=find_key(msgs, 'filterDoctors')).first
+        pharm_btn = page.locator('button[aria-pressed]', has_text=find_key(msgs, 'filterPharmacies')).first
+
+        def card_listed():
+            return page.locator('ul[aria-label]').first.locator('li', has=page.locator(f'a[href*="{profile_id}"]')).count() > 0
+
+        doc_btn.click()
+        step('the doctor filter is pressed', doc_btn.get_attribute('aria-pressed') == 'true', doc_btn.get_attribute('aria-pressed'))
+        step('the doctor card is listed under the doctor filter', card_listed(), profile_id)
+        pharm_btn.click()
+        step('the pharmacy filter is pressed', pharm_btn.get_attribute('aria-pressed') == 'true', pharm_btn.get_attribute('aria-pressed'))
+        step('the doctor card leaves the list under the pharmacy filter', not card_listed(), profile_id)
+        doc_btn.click()
+        step('the doctor card is listed again under the doctor filter', card_listed(), profile_id)
 
         journey('providers map MP-02 (web): the card opens the doctor profile')
         row = lst.locator('li', has=page.locator(f'a[href*="{profile_id}"]')).first

@@ -18,3 +18,5 @@ j_web_qa_password_rule
 j_web_qa_support
 # A-14 (P2): a published policy change is not shown on the website until the 3600s public cache revalidates (patient-web/lib/api/public-read.ts:16,21-22)
 j_web_qa_legal
+# Open product defect (P1 candidate): the website booking sends duration_minutes, which POST /api/appointments/book rejects (.strict()), so no web visit with a duration can be booked
+j_web_qa_map_book

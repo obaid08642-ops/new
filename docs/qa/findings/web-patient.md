@@ -91,3 +91,10 @@ Evidence: `tools/live/j_web_qa_password_rule.py` first half passes (7 characters
 ### CI note (2026-10-27, live job on PR #2015)
 - A-14 reproduced in CI: `tools/live/j_web_qa_legal.py` publishes new policy text through the admin API, then the public pages answer 200 with the old text (the page reads the cache filled by the earlier a11y visit, `patient-web/lib/api/public-read.ts:16,21-22`, revalidate 3600s). The API read-back in the same journey passes. Locally, with a cold cache, all 29 steps pass. Open for the owner: is a one-hour delay acceptable for a published legal text? The journey is kept out of the gate (`tools/live/gate_skip.txt`) until that decision.
 - A-07 and A-13 stay in `gate_skip.txt` with their journeys (`j_web_qa_password_rule`, `j_web_qa_support`), so the live gate is not red on a known defect.
+
+## MP-02 (P1 candidate): the website cannot book a consultation that has a duration (400)
+| Severity | Where | What happens |
+|---|---|---|
+| P1 candidate | `patient-web/components-next/booking-flow.tsx:164` sends `duration_minutes`; `patient-web/app/api/appointments/book/route.ts:8-28` is `.strict()` without that field | POST /api/appointments/book answers 400 `invalid_appointment_payload` for every slot that carries a duration (the seeded doctors all do: 30 minutes). The backend DTO accepts the field (`backend/src/modules/care/appointments.dto.ts:39`), so the fault is the website route's schema. |
+
+Evidence: `tools/live/j_web_qa_map_book.py`, run 2026-10-27: the signed-in patient picks tomorrow's first free clinic slot and submits, and the request carries `duration_minutes: 30`; the booking step fails with 400. The journey is in `tools/live/gate_skip.txt` until the owner decides the fix (the route schema or the client payload). With the field removed in the test browser only (not a product change), the rest of the same flow passes 43/43: the appointment page, the card checkout, the verified payment and the paid visit in MongoDB.
