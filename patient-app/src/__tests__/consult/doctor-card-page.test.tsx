@@ -82,7 +82,9 @@ describe('doctor page', () => {
     expect(screen.getByText('MD, Test University')).toBeTruthy();
     expect(screen.getByText('Ultrasound')).toBeTruthy();
     expect(screen.getByText(k('consult.doc.followUpWindow', { n: '14' }))).toBeTruthy();
-    expect(screen.getByText(k('consult.doc.waitMinutes'))).toBeTruthy();
+    // the wait is in the summary line under the name (once), not in a stat tile
+    expect(screen.getByTestId('doctor-summary').props.children).toContain(k('consult.card.wait', { n: '20' }));
+    expect(screen.queryByText(k('consult.doc.waitMinutes'))).toBeNull();
     expect(screen.getByTestId('clinic-map')).toBeTruthy();
     expect(screen.getByText('Rev1')).toBeTruthy();
     expect(screen.queryByText('Rev4')).toBeNull();

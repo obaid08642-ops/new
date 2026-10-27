@@ -22,9 +22,10 @@ import { familyMemberRef } from "@/lib/api/family-member-ref";
 import { getPatientInsurancePolicy } from "@/lib/api/insurance-server";
 import { parseInsuranceSummary } from "@/lib/api/insurance";
 import { BOOKING_FOR_COOKIE, isMemberRef } from "@/lib/consult/booking-for";
+import { parseBookingParams } from "@/lib/consult/booking-params";
 import type { Metadata } from "next";
 
-type Props = { params: Promise<{ locale: string; doctorId: string }>; searchParams?: Promise<{ service_type?: string }> };
+type Props = { params: Promise<{ locale: string; doctorId: string }>; searchParams?: Promise<{ service_type?: string; slot_start?: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, doctorId } = await params;
@@ -41,7 +42,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 /** Book a consultation (canvas/BookingConfirm): the doctor, the visit type, day, time and payment, and the confirm bar. */
 export default async function BookConsultationPage({ params, searchParams }: Props) {
   const { locale, doctorId } = await params;
-  const initialType = (await searchParams)?.service_type;
+  const carried = parseBookingParams((await searchParams) ?? {});
+  const initialType = carried.type;
   if (!isLocale(locale) || !parseDoctorId(doctorId).success) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("BookConsultation");
@@ -87,6 +89,7 @@ export default async function BookConsultationPage({ params, searchParams }: Pro
       locale={locale}
       doctor={doctor}
       initialType={initialType}
+      initialSlotStart={carried.slotStart}
       policy={policy}
       homeAddresses={homeAddresses}
       consent={await readTelehealthConsent(locale)}
