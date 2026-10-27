@@ -192,6 +192,8 @@ Hot spot: `GET /medicines` (list, with and without `smart_ranking`) is ~300 ms a
 | `/api/v1/entity-graph/related/doctor/7210a983-9756-4682-ae68-dcc5978d4ab5` | 316 | 515 | +52 |
 | `/api/v1/doctors?limit=20` | 295 | 368 | +31 |
 
+Result: the payload fell 81% but the list's p50 moved only 561 -> 527 ms (smart_ranking 558 -> 438), so the payload was not the main cost; the rest is server time (every response still says `x-cache-status: MISS`, TTFB 380-480 ms vs ~270 ms floor) and the 5 KB/card that remain (`translations` is still ~6 KB per card: names, official names, slugs for six languages). Next candidates: confirm the Redis list cache is hit for the web's server-side calls (the header says MISS on every call), and send only the active language's translation on cards. Needs backend profiling with access to logs/metrics.
+
 ## App (emulator, `patient_perf_tabs.yaml`, run 40582536500)
 
 PASS: after a fresh sign-in, the first content of each tab shows within its budget after the tap: home 5 s, pharmacy 3 s, labs 3 s, nursing 3 s, back to home 2 s. These are pass/fail budgets on a warm app on the emulator, not measured times; a true cold start and per-tab milliseconds still need an adb `am start -W` step in the workflow.
