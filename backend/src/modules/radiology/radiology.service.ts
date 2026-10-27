@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, ForbiddenException, BadRequestException,
 import { randomUUID } from 'crypto';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Connection, Model, Types } from 'mongoose';
+import { byRating, paged, parsePage, withProviderRating, type CataloguePage } from '../../common/catalogue-page';
 import { pick } from '../../common/sanitize';
 import { escapeRegex } from '../../common/slug.util';
 import { pickAttribution } from '../../common/attribution';
@@ -449,6 +450,15 @@ export class RadiologyOpsService {
     // Issue 1833: the name search reads all six name fields (no text index needed for the 34 scans in the catalogue).
     if (opts.search?.trim()) q.$or = radiologySearchClause(opts.search).$or;
     if (opts.home_only) q.home_visit_supported = true;
+    const page = parsePage(opts.page, opts.limit);
+    const finish = <T,>(rows: T[]): T[] | CataloguePage<T> => (page ? paged(rows, page) : rows);
+    // every scan carries its category (= its modality) so a client can pick the illustration
+    const withCategory = <T extends { modality?: string }>(rows: T[]) => rows.map((r) => ({ ...r, category: r.modality ?? null }));
+    // the centre performs the scan when its equipment_list holds the scan id or its modality (same rule as compatibleProviders)
+    const performs = (svc: any, centre: any) => {
+      const has: unknown[] = Array.isArray(centre.equipment_list) ? centre.equipment_list : [];
+      return has.includes(svc.id) || (!!svc.modality && has.includes(svc.modality));
+    };
 
     // #623: "nearest" orders scans by the closest approved centre that performs them (same rule as
     // compatibleProviders: the centre's equipment_list holds the scan id or its modality).
@@ -459,15 +469,28 @@ export class RadiologyOpsService {
         'geo.lat': { $type: 'number' }, 'geo.lng': { $type: 'number' },
       }, { _id: 0, geo: 1, equipment_list: 1 }).lean();
       const services: any[] = await this.svcModel.find(q).lean();
-      return nearestFirst(services, centres, here, (svc, centre) => {
-        const has: unknown[] = Array.isArray(centre.equipment_list) ? centre.equipment_list : [];
-        return has.includes(svc.id) || (!!svc.modality && has.includes(svc.modality));
-      }).slice(0, 120);
+      return finish(withCategory(nearestFirst(services, centres, here, performs).slice(0, 120)));
     }
 
-    if (!this.redis?.getWithSWR) return this.svcModel.find(q).sort({ popularity: -1 }).lean();
-    const cacheKey = `cache:radiology-services:public:v1:${JSON.stringify(opts)}`;
-    return this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q).sort({ popularity: -1 }).lean());
+    const load = async () => {
+      const services: any[] = await this.svcModel.find(q).sort({ popularity: -1 }).lean();
+      if (opts.highest_rated) {
+        // ratings are on the centres, not on the scans: a scan is ranked by the centres that perform it
+        const centres: any[] = await this.profileModel.find({
+          type: { $in: ['radiology', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
+        }, { _id: 0, equipment_list: 1, rating_avg: 1, rating_count: 1 }).lean();
+        return finish(withCategory(withProviderRating(services, centres, performs).sort(byRating)));
+      }
+      // lowest price first; a scan without a real price (0 or missing) is not the cheapest
+      if (opts.lowest_price) {
+        const cost = (s: any) => (Number(s.price) > 0 ? Number(s.price) : Number.POSITIVE_INFINITY);
+        services.sort((a, b) => cost(a) - cost(b) || (b.popularity ?? 0) - (a.popularity ?? 0));
+      }
+      return finish(withCategory(services));
+    };
+    if (!this.redis?.getWithSWR) return load();
+    const cacheKey = `cache:radiology-services:public:v2:${JSON.stringify(opts)}`;
+    return this.redis.getWithSWR(cacheKey, 900, load);
   }
 
 
