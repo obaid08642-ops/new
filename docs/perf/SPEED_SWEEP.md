@@ -178,6 +178,20 @@ Hot spot: `GET /medicines` (list, with and without `smart_ranking`) is ~300 ms a
 4. **JS (corrected):** the ~310 KB figure on auth-gated routes is a measurement artifact, not bundle bloat. Those routes redirect to `/login?next=…`, and the sweep counted the scripts of both documents (identical chunks listed twice, e.g. `/ar/orders`: 28 script responses = 2 × 14). The final document ships ~155–170 KB like public pages; the cost of a gated route is the extra redirect round trip. Rows marked `JS>250KB` below should be read that way.
 5. **LCP > 1.5 s:** `/login` (cold), `/nursing/service-info`, `/labs/when`, `/pharmacy/filters`, `/medical-orders`, `/labs/CBC`.
 
-## App
 
-Not measured yet (needs native-e2e emulator run).
+## Re-measure after the medicine card payload fix (#2051, deployed)
+
+`GET /medicines?page=1&limit=20`: 545,768 B -> 102,587 B uncompressed (-81%). API p50/p95 (20 GETs, same floor 264 ms):
+
+| endpoint | p50 ms | p95 ms | net p50 |
+|---|---|---|---|
+| `/api/v1/medicines?page=1&limit=20` | 527 | 876 | +263 |
+| `/api/v1/medicines?page=1&limit=20&sort=smart_ranking` | 438 | 633 | +174 |
+| `/api/v1/articles?limit=10` | 333 | 494 | +69 |
+| `/api/v1/medicines/categories` | 318 | 866 | +54 |
+| `/api/v1/entity-graph/related/doctor/7210a983-9756-4682-ae68-dcc5978d4ab5` | 316 | 515 | +52 |
+| `/api/v1/doctors?limit=20` | 295 | 368 | +31 |
+
+## App (emulator, `patient_perf_tabs.yaml`, run 40582536500)
+
+PASS: after a fresh sign-in, the first content of each tab shows within its budget after the tap: home 5 s, pharmacy 3 s, labs 3 s, nursing 3 s, back to home 2 s. These are pass/fail budgets on a warm app on the emulator, not measured times; a true cold start and per-tab milliseconds still need an adb `am start -W` step in the workflow.
