@@ -9,6 +9,7 @@ import { AmountLine, Block, LAB_TONE, Price, goBackDiag } from '../../src/compon
 import { Notice } from '../../src/components/pharmacy/OfferKit';
 import { useOrderDates } from '../../src/components/ordering/OrderingKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
+import { cartIdsToClear } from '../../src/utils/singleOrder';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
@@ -89,7 +90,7 @@ export default function DiagnosticsConfirm() {
   // The booking's insured line: the server's estimate from the card's copay % and cap, else only the acceptance (owner decision 2026-10-24).
   const share = insuredShare(picks.map((x) => x.p.estimatedShare ?? null));
   const notCovered = picks.some((x) => x.p.items.some((i) => i.coverage === 'not_covered'));
-  const nameOf = (id: string) => cartItems.find((i) => i.id === id)?.name ?? names[id] ?? '';
+  const nameOf = (id: string) => draft.names?.[id] || cartItems.find((i) => i.id === id)?.name || names[id] || '';
   const when = (m: OrderingMode): string => {
     const x = draft.times[m];
     if (!x) return '';
@@ -127,7 +128,8 @@ export default function DiagnosticsConfirm() {
       const result = await createBookings(draft, { paymentMethod: method, genderPreference: hasHome ? gender : null, medicalOrderId: orderId, documents: orderId ? [] : docs });
       setNames(known);
       setCreated(result);
-      for (const id of catalogIds) {
+      // a one-item order ("Order now") never touched the cart, so the cart keeps its lines
+      for (const id of cartIdsToClear(draft, catalogIds)) {
         const line = cartItems.find((i) => i.id === id);
         if (line) await removeItem(id, line.kind);
       }

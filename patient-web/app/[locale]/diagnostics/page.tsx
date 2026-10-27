@@ -23,7 +23,9 @@ import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
-import { ReferralNote, ItemCard, LabCard, LAB, PackageCard, RADIOLOGY, Rail, SearchForm, SectionHead, ShowMore, hoursText, money, pickText, type Tag } from "@/components-next/diagnostics/diag-parts";
+import { ReferralNote, ItemCard, LabCard, LAB, PackageCard, RADIOLOGY, Rail, SearchForm, SectionHead, hoursText, money, pickText, type Tag } from "@/components-next/diagnostics/diag-parts";
+import { ItemCatalog, type CatalogChip, type CatalogRow } from "@/components-next/diagnostics/item-catalog";
+import { diagArtKey, diagArtKeysOf, mostRequested, parseDiagArt, type DiagArtKey } from "@/components-next/ui-generated/icons/diag-art";
 import { diagStatus } from "@/components-next/diagnostics/status";
 import { RowCard } from "@/components-next/consult/consult-parts";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
@@ -32,16 +34,19 @@ import consult from "@/components-next/consult/consult.module.css";
 import type { Metadata } from "next";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 import { diagnosticBookingHref } from "@/lib/diagnostics-links";
-import { byPrice, byRating, matchesQuery, pageRows, parseHubFilter, parseHubPages } from "@/lib/diagnostics-hub";
+import { byPrice, byRating, matchesQuery, parseHubFilter, parseHubPages, HUB_PAGE_SIZE } from "@/lib/diagnostics-hub";
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import { publicReadSignal } from "@/lib/api/public-timeout";
 import { hubFilterCount, hubSortFor } from "@/lib/diagnostics-filter-count";
 import { pickName, pickTexts } from "@/lib/i18n/localized";
 
-type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string; q?: string; show?: string; sort?: string; more?: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string; q?: string; show?: string; sort?: string; more?: string; cat?: string }> };
 
 const LIMIT_PACKAGES = 6;
 const LIMIT_BOOKINGS = 3;
+const MOST_REQUESTED = 6;
+/** The message key of each category chip (DiagWeb). */
+const CAT_LABEL = { blood: "catBlood", hormones: "catHormones", vitamins: "catVitamins", sugar: "catSugar", urine: "catUrine", liver: "catLiver", xray: "catXray", ct: "catCt", mri: "catMri", ultrasound: "catUltrasound", mammography: "catMammography", ecg: "catEcg" } as const satisfies Record<DiagArtKey, string>;
 
 export async function generateMetadata({ params }: Pick<Props, "params">): Promise<Metadata> {
   const { locale } = await params;
@@ -74,6 +79,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   const filter = { ...parsed, sort: hubSortFor(parsed.sort, kind) };
   const filterCount = hubFilterCount(filter, kind);
   const pages = parseHubPages(query.more);
+  const cat = parseDiagArt(query.cat, kind === "radiology" ? "radiology" : "lab");
   const place = query.place === "facility" ? "facility" : "home";
   // Decision 30 (owner 2026-10-14, question 5): insurance or self-pay first; self-pay is the default.
   const wantedPay = query.pay === "insurance" ? "insurance" : "self_pay";
@@ -123,8 +129,8 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   const pay = wantedPay === "insurance" && anyInsurance ? "insurance" : "self_pay";
   const catalogFailed = !(labsRes && labsRes.ok) && !(radRes && radRes.ok);
 
-  const href = (over: Partial<{ kind: string; place: string; pay: string; show: string; sort: string; more: number }>) => {
-    const next = { kind, place, pay, show: filter.show ?? "", sort: filter.sort ?? "", more: 1, ...over };
+  const href = (over: Partial<{ kind: string; place: string; pay: string; show: string; sort: string; more: number; cat: string }>) => {
+    const next = { kind, place, pay, show: filter.show ?? "", sort: filter.sort ?? "", more: 1, cat: cat === "all" ? "" : cat, ...over };
     // "highest rated" orders the approved-labs strip, which only the labs view has: it does not follow the patient to radiology
     if (next.kind !== "labs" && next.sort === "rating") next.sort = "";
     const params = new URLSearchParams();
@@ -134,6 +140,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
     if (next.kind !== "labs") params.set("kind", next.kind);
     if (next.place !== "home") params.set("place", next.place);
     if (next.pay !== "self_pay") params.set("pay", next.pay);
+    if (next.cat && next.kind === kind) params.set("cat", next.cat);
     if (next.more > 1) params.set("more", String(next.more));
     const qs = params.toString();
     return `/${locale}/diagnostics${qs ? `?${qs}` : ""}`;
@@ -144,13 +151,11 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   const ordered = <T extends { price?: number }>(rows: T[]) => (filter.sort === "price" ? byPrice(rows) : rows);
   const named = (s: { nameAr?: string; nameEn?: string }) => matchesQuery(filter.q, s.nameAr, s.nameEn);
   // the FULL catalogue, paged on the page (the backend list has no page/limit): "Show more" opens the next step
-  const allTests = filter.show === "packages" ? [] : ordered(labServices.filter((s) => s.isPackage !== true && !s.unavailable && fits(s) && pays(s) && named(s)));
-  const testPage = pageRows(allTests, pages);
-  const tests = testPage.shown;
-  const shownPackages = filter.show === "tests" ? [] : ordered(packages.filter((p) => !p.unavailable && pays(p) && named(p))).slice(0, LIMIT_PACKAGES);
-  const allScans = ordered(radiologyServices.filter((s) => fits(s) && named(s)));
-  const scanPage = pageRows(allScans, pages);
-  const scans = scanPage.shown;
+  const testPool = filter.show === "packages" ? [] : labServices.filter((s) => s.isPackage !== true && !s.unavailable && fits(s) && pays(s) && named(s));
+  const allTests = ordered(testPool);
+    const shownPackages = filter.show === "tests" ? [] : ordered(packages.filter((p) => !p.unavailable && pays(p) && named(p))).slice(0, LIMIT_PACKAGES);
+  const scanPool = radiologyServices.filter((s) => fits(s) && named(s));
+  const allScans = ordered(scanPool);
 
   const testTags = (s: LabService): Tag[] => [
     ...(s.homeVisitSupported ? [{ label: t("tagHome"), tone: LAB.tone } as Tag] : []),
@@ -160,6 +165,37 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   const orderPay = pay === "insurance" ? "insurance" : "cash";
   const itemHref = (id: string, itemKind: "lab" | "radiology") => `/${locale}/labs/${encodeURIComponent(id)}${contextQuery({ kind: itemKind, place: orderPlace, pay: orderPay })}`;
   const orderHref = (itemKind: "lab" | "radiology") => `/${locale}/labs/basket${contextQuery({ kind: itemKind, place: orderPlace, pay: orderPay })}`;
+  const textsOf = (names: Record<string, string | undefined>) => Object.values(names);
+  const labArt = (s: LabService) => diagArtKey({ kind: "lab", category: s.category, sampleType: s.sampleType, names: [s.nameAr, s.nameEn, ...textsOf(s.names)] });
+  const scanArt = (s: (typeof radiologyServices)[number]) => diagArtKey({ kind: "radiology", modality: [s.modality, s.modalityCategory].filter(Boolean).join(" "), bodyPart: s.bodyPart, names: [s.nameAr, s.nameEn, ...textsOf(s.names)] });
+  const labRow = (s: LabService): CatalogRow => ({
+    id: s.id, art: labArt(s), href: itemHref(s.id, "lab"), title: pickName(locale, s.names) ?? "", tags: testTags(s),
+    note: s.turnaroundHours !== undefined ? t("resultWithin", { time: hoursText(locale, s.turnaroundHours) }) : undefined,
+    price: s.price !== undefined ? money(locale, s.price) : undefined, imageUrl: s.imageUrl, line: { id: s.id, nameAr: s.nameAr, nameEn: s.nameEn },
+  });
+  const scanRow = (s: (typeof radiologyServices)[number]): CatalogRow => ({
+    id: s.id, art: scanArt(s), href: itemHref(s.id, "radiology"), title: pickName(locale, s.names) ?? "",
+    note: s.price !== undefined ? t("fromPrice", { price: money(locale, s.price) }) : undefined, imageUrl: s.imageUrl, line: { id: s.id, nameAr: s.nameAr, nameEn: s.nameEn },
+  });
+  const chipsOf = (chipKind: "lab" | "radiology"): CatalogChip[] => [
+    { key: "all", label: t("catAll"), href: href({ cat: "" }) },
+    ...diagArtKeysOf(chipKind).map((key) => ({ key, label: t(CAT_LABEL[key]), href: href({ cat: key }) })),
+  ];
+  const testRows = allTests.map(labRow);
+  const scanRows = allScans.map(scanRow);
+  const popularTests = filter.q ? [] : mostRequested(testPool, MOST_REQUESTED).map(labRow);
+  const popularScans = filter.q ? [] : mostRequested(scanPool, MOST_REQUESTED).map(scanRow);
+  const catalogProps = { initialCount: pages * HUB_PAGE_SIZE, moreHref: href({ more: pages + 1 }), moreLabel: t("showMore"), chipsLabel: t("catLabel"), cat };
+  const strip = (rows: CatalogRow[], itemKind: "lab" | "radiology", id: string) => (
+    <section className={styles.stack} aria-labelledby={id}>
+      <SectionHead id={id} title={t("mostRequested")} />
+      <ul className={styles.itemRail} aria-label={t("mostRequested")}>
+        {rows.map((row) => (
+          <ItemCard key={row.id} href={row.href} title={row.title} tags={row.tags} note={row.note} price={row.price} art={row.art} imageUrl={row.imageUrl} actions={<ItemActions kind={itemKind} line={row.line} orderHref={orderHref(itemKind)} />} />
+        ))}
+      </ul>
+    </section>
+  );
   const caret = <Icon name={rtl ? "caret-left" : "caret-right"} size={20} tone="currentColor" />;
   const mine = domains.filter((entry) => entry.bookings.length > 0);
 
@@ -291,57 +327,26 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
             </section>
           ) : null}
 
+          {popularTests.length > 0 ? strip(popularTests, "lab", "hub-popular-tests") : null}
+
           <section className={styles.stack} aria-labelledby="hub-tests">
-            <SectionHead id="hub-tests" title={t("testsTitle")} href={`/${locale}/diagnostics/labs`} linkLabel={t("testsAll")} />
-            {tests.length === 0 ? (
+            <SectionHead id="hub-tests" title={t("allTestsTitle")} />
+            {testRows.length === 0 ? (
               <ConsultState kind="empty" icon="test-tube" tone={LAB.tone} title={t("noTestsTitle")} body={t("noTestsBody")} />
             ) : (
-              <>
-              <ul className={styles.itemGrid} aria-label={t("testsTitle")}>
-                {tests.map((s) => {
-                  const name = pickName(locale, s.names) ?? "";
-                  return (
-                    <ItemCard
-                      key={s.id}
-                      href={itemHref(s.id, "lab")}
-                      title={name}
-                      tags={testTags(s)}
-                      note={s.turnaroundHours !== undefined ? t("resultWithin", { time: hoursText(locale, s.turnaroundHours) }) : undefined}
-                      price={s.price !== undefined ? money(locale, s.price) : undefined}
-                      kind="lab"
-                      actions={<ItemActions kind="lab" line={{ id: s.id, nameAr: s.nameAr, nameEn: s.nameEn }} orderHref={orderHref("lab")} />}
-                    />
-                  );
-                })}
-              </ul>
-              {testPage.hasMore ? <ShowMore href={href({ more: pages + 1 })} label={t("showMore")} /> : null}
-              </>
+              <ItemCatalog {...catalogProps} kind="lab" rows={testRows} chips={chipsOf("lab")} orderHref={orderHref("lab")} listLabel={t("allTestsTitle")} emptyTitle={t("noTestsTitle")} emptyBody={t("noTestsBody")} />
             )}
           </section>
         </>
       ) : (
         <section className={styles.stack} aria-labelledby="hub-scans">
           <ReferralNote>{t("referralNote")}</ReferralNote>
-          <SectionHead id="hub-scans" title={t("scansTitle")} href={`/${locale}/diagnostics/radiology`} linkLabel={t("scansAll")} />
-          {scans.length === 0 ? (
+          {popularScans.length > 0 ? strip(popularScans, "radiology", "hub-popular-scans") : null}
+          <SectionHead id="hub-scans" title={t("allScansTitle")} />
+          {scanRows.length === 0 ? (
             <ConsultState kind="empty" icon="scan" tone={RADIOLOGY.tone} title={t("noScansTitle")} body={t("noScansBody")} />
           ) : (
-            <>
-              <ul className={styles.itemGrid} aria-label={t("scansTitle")}>
-                {scans.map((s) => (
-                  <ItemCard
-                    key={s.id}
-                    href={itemHref(s.id, "radiology")}
-                    title={pickName(locale, s.names) ?? ""}
-                    note={s.price !== undefined ? t("fromPrice", { price: money(locale, s.price) }) : undefined}
-                    kind="radiology"
-                    imageUrl={s.imageUrl}
-                    actions={<ItemActions kind="radiology" line={{ id: s.id, nameAr: s.nameAr, nameEn: s.nameEn }} orderHref={orderHref("radiology")} />}
-                  />
-                ))}
-              </ul>
-              {scanPage.hasMore ? <ShowMore href={href({ more: pages + 1 })} label={t("showMore")} /> : null}
-            </>
+            <ItemCatalog {...catalogProps} kind="radiology" rows={scanRows} chips={chipsOf("radiology")} orderHref={orderHref("radiology")} listLabel={t("allScansTitle")} emptyTitle={t("noScansTitle")} emptyBody={t("noScansBody")} />
           )}
         </section>
       )}

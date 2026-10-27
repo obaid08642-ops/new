@@ -31,6 +31,10 @@ export interface OrderingDraft {
   placeLine: string | null;
   picks: Partial<Record<OrderingMode, ProviderPick>>;
   times: Partial<Record<OrderingMode, TimePick>>;
+  /** "Order now" on one test or scan: the draft was made from that one item, not from the cart, so booking it leaves the cart as it is. */
+  single?: boolean;
+  /** Catalogue id -> name of a one-item order (the cart does not hold it, so the pay screen cannot look it up there). */
+  names?: Record<string, string>;
 }
 
 let draft: OrderingDraft | null = null;
@@ -40,7 +44,7 @@ export const clearDraft = (): void => { draft = null; };
 /** Starts (or, for the same quote, keeps) the draft; a new quote drops every pick and time. */
 export function startDraft(init: Omit<OrderingDraft, 'picks' | 'times'>): OrderingDraft {
   if (draft && draft.quote.quote_id === init.quote.quote_id) {
-    draft = { ...draft, placeLine: init.placeLine, payer: init.payer };
+    draft = { ...draft, placeLine: init.placeLine, payer: init.payer, single: init.single, names: init.names };
     return draft;
   }
   draft = { ...init, picks: {}, times: {} };

@@ -47,9 +47,9 @@ describe('filter options are real (pure)', () => {
     expect(filterForTab('lowest_price', 'radiology')).toBe('lowest_price');
   });
   it('the count ignores defaults', () => {
-    expect(activeFilterCount('all', 'labs', '')).toBe(0);
-    expect(activeFilterCount('tests', 'labs', 'mri')).toBe(1);
-    expect(activeFilterCount('lowest_price', 'radiology', 'mri')).toBe(2);
+    expect(activeFilterCount('all', '')).toBe(0);
+    expect(activeFilterCount('tests', 'mri')).toBe(2);
+    expect(activeFilterCount('lowest_price', 'mri')).toBe(2);
   });
 });
 
@@ -67,7 +67,7 @@ describe('Diagnostics hub, radiology tab (G6)', () => {
 
   it('sheet lists only the options that work here, the home visit option filters, count and reset agree', async () => {
     await render(wrap(<DiagnosticsHub />));
-    await waitFor(() => expect(screen.getByText('Test CT chest')).toBeTruthy(), { timeout: 15000 });
+    await waitFor(() => expect(screen.getAllByText('Test CT chest').length).toBeGreaterThan(0), { timeout: 15000 });
     expect(screen.queryByTestId('search-filter-count')).toBeNull();
     await fireEvent.press(screen.getByLabelText(k('diag.hub.filter')));
     for (const key of ['diag.filter.tests', 'diag.filter.packages', 'diag.filter.labs', 'diag.filter.rating']) expect(screen.queryByText(k(key))).toBeNull();
@@ -75,25 +75,26 @@ describe('Diagnostics hub, radiology tab (G6)', () => {
     await fireEvent.press(screen.getByText(k('diag.filter.price')));
     await waitFor(() => expect(screen.getByLabelText(`${k('diag.hub.filter')} (1)`)).toBeTruthy());
     expect(screen.getByTestId('diag-active-lowest_price')).toBeTruthy();
-    // a scan type adds the second filter
-    await fireEvent.press(screen.getByText('MRI'));
+    // a category chip adds the second filter
+    await fireEvent.press(screen.getByTestId('diag-cat-ct'));
     await waitFor(() => expect(screen.getByLabelText(`${k('diag.hub.filter')} (2)`)).toBeTruthy());
-    expect(screen.getByTestId('diag-active-modality-mri')).toBeTruthy();
+    expect(screen.getByTestId('diag-active-cat-ct')).toBeTruthy();
     // clear all removes both and the badge
     await fireEvent.press(screen.getByTestId('diag-clear-all'));
-    await waitFor(() => expect(screen.getByText('Test ultrasound')).toBeTruthy());
+    await waitFor(() => expect(screen.getAllByText('Test ultrasound').length).toBeGreaterThan(0));
     expect(screen.getByLabelText(k('diag.hub.filter'))).toBeTruthy();
     expect(screen.queryByTestId('diag-active-lowest_price')).toBeNull();
-    expect(mockApi).toHaveBeenCalledWith('/radiology/services?modality=mri');
+    expect(screen.queryByTestId('diag-active-cat-ct')).toBeNull();
   });
 
   it('home visit keeps the scans that do home visits, and lowest price orders by price', async () => {
     await render(wrap(<DiagnosticsHub />));
-    await waitFor(() => expect(screen.getByText('Test CT chest')).toBeTruthy(), { timeout: 15000 });
+    await waitFor(() => expect(screen.getAllByText('Test CT chest').length).toBeGreaterThan(0), { timeout: 15000 });
     await fireEvent.press(screen.getByLabelText(k('diag.hub.filter')));
     await fireEvent.press(screen.getByText(k('diag.filter.price')));
     const names = screen.getAllByText(/^Test (MRI|ultrasound|CT)/).map((n) => n.props.children);
-    expect(names.indexOf('Test ultrasound')).toBeLessThan(names.indexOf('Test CT chest'));
+    // the strip repeats names above the "All scans" list: compare the list's own (last) occurrences
+    expect(names.lastIndexOf('Test ultrasound')).toBeLessThan(names.lastIndexOf('Test CT chest'));
   });
 
   it('switching to the labs tab drops a filter the labs tab does not have', async () => {

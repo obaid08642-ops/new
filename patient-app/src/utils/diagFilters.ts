@@ -28,5 +28,5 @@ export const filtersFor = (tab: DiagTab): FilterOption[] => (tab === 'labs' ? LA
 /** A filter chosen on one tab that the other tab does not offer falls back to "all" (it would change nothing there). */
 export const filterForTab = (filter: FilterId, tab: DiagTab): FilterId => (filtersFor(tab).some((o) => o.id === filter) ? filter : 'all');
 
-/** Filters that are on: the chosen option (not "all") plus the scan type on the radiology tab. Defaults are not counted. */
-export const activeFilterCount = (filter: FilterId, tab: DiagTab, modality: string): number => (filter === 'all' ? 0 : 1) + (tab === 'radiology' && modality !== '' ? 1 : 0);
+/** Filters that are on: the chosen option (not "all") plus the chosen category chip. Defaults are not counted. */
+export const activeFilterCount = (filter: FilterId, category: string): number => (filter === 'all' ? 0 : 1) + (category !== '' ? 1 : 0);

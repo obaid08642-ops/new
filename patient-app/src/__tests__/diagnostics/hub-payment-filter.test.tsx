@@ -47,18 +47,18 @@ describe('Diagnostics hub: insurance or self-pay first (decision 30)', () => {
 
   it('self-pay is the first choice and lists only what the patient can pay for', async () => {
     await render(wrap(<DiagnosticsHub />));
-    await waitFor(() => expect(screen.getByText('Test on both')).toBeTruthy(), { timeout: 15000 });
+    await waitFor(() => expect(screen.getAllByText('Test on both').length).toBeGreaterThan(0), { timeout: 15000 });
     expect(screen.getByText(k('diag.pay.selfPay'))).toBeTruthy();
-    expect(screen.getByText('Test self-pay only')).toBeTruthy();
+    expect(screen.getAllByText('Test self-pay only').length).toBeGreaterThan(0);
     expect(screen.queryByText('Test insurance only')).toBeNull();
   });
 
   it('insurance lists only the services that take insurance', async () => {
     await render(wrap(<DiagnosticsHub />));
-    await waitFor(() => expect(screen.getByText('Test on both')).toBeTruthy(), { timeout: 15000 });
+    await waitFor(() => expect(screen.getAllByText('Test on both').length).toBeGreaterThan(0), { timeout: 15000 });
     await fireEvent.press(screen.getByText(k('diag.pay.insurance')));
-    await waitFor(() => expect(screen.getByText('Test insurance only')).toBeTruthy());
-    expect(screen.getByText('Test on both')).toBeTruthy();
+    await waitFor(() => expect(screen.getAllByText('Test insurance only').length).toBeGreaterThan(0));
+    expect(screen.getAllByText('Test on both').length).toBeGreaterThan(0);
     expect(screen.queryByText('Test self-pay only')).toBeNull();
   });
 });

@@ -9,8 +9,8 @@ import { defaultAddressLine, insuranceClass } from "./order-context";
  * The context bar of an ordering page (Ord01) with the profile read it needs: the default address (and its point for the quote) and the
  * saved insurance class. Returns the bar and the point so the page can hand the point to its client part.
  */
-export async function loadOrderingContext(args: { locale: string; token: string; path: string; kind: ServiceKind; place: OrderMode; pay: Payer }): Promise<{ bar: React.ReactNode; point: Point | null }> {
-  const { locale, token, path, kind, place, pay } = args;
+export async function loadOrderingContext(args: { locale: string; token: string; path: string; kind: ServiceKind; place: OrderMode; pay: Payer; item?: string }): Promise<{ bar: React.ReactNode; point: Point | null }> {
+  const { locale, token, path, kind, place, pay, item } = args;
   const d = await getTranslations("DiagWeb");
   const oc = await getTranslations("OrderContext");
   const t = await getTranslations("OrderingFlow");
@@ -20,7 +20,7 @@ export async function loadOrderingContext(args: { locale: string; token: string;
   ]);
   const addresses = addressesResponse?.ok ? await addressesResponse.json().catch(() => null) : null;
   const insurance = insuranceResponse?.ok ? insuranceClass(await insuranceResponse.json().catch(() => null)) : { hasPolicy: false, cls: null };
-  const href = (over: Partial<{ place: OrderMode; pay: Payer }>) => `/${locale}${path}${contextQuery({ kind, place, pay, ...over })}`;
+  const href = (over: Partial<{ place: OrderMode; pay: Payer }>) => `/${locale}${path}${contextQuery({ kind, place, pay, item, ...over })}`;
   const bar = (
     <OrderContextBar
       label={t("ctxAria")}

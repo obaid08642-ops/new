@@ -30,11 +30,12 @@ export function pointFromAddresses(payload: unknown): Point | null {
 }
 
 /** The query string that carries the context from page to page. */
-export function contextQuery(c: { kind?: string; place: OrderMode; pay: Payer }): string {
+export function contextQuery(c: { kind?: string; place: OrderMode; pay: Payer; item?: string }): string {
   const p = new URLSearchParams();
   if (c.kind && c.kind !== "lab") p.set("kind", c.kind);
   if (c.place !== "home") p.set("place", c.place);
   if (c.pay !== "cash") p.set("pay", "insurance");
+  if (c.item) p.set("item", c.item); // a one-item order (Order now): the steps work on this item, not on the basket
   const s = p.toString();
   return s ? `?${s}` : "";
 }
