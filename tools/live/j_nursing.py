@@ -157,7 +157,25 @@ def run(pat, nurse, admin=None):
     matrix_shift_booking(pat, nurse, admin)
     if admin:
         insurance_matrix(pat, nurse, admin)
+    nurse_rejects(pat, nurse, nurse_id, svc, body)
     return bid
+
+
+def nurse_rejects(pat, nurse, nurse_id, svc, body):
+    """N-01: the nurse rejects a paid home visit with a reason; the patient reads the visit back as rejected."""
+    journey('nursing N-01: the nurse rejects a paid visit')
+    r = pat.post('/nursing/bookings', {**body, 'scheduled_at': tomorrow_at(11)})
+    bid = r.get('id')
+    step('a second visit is booked and paid for the rejection case', bool(bid), r)
+    if not bid:
+        return
+    card_payment(pat, 'nursing', bid)
+    r = nurse.post(f'/provider/jobs/nursing/{bid}/reject', {'reason': 'QA: غير متاح في هذا الوقت'})
+    step('the nurse rejects the visit with a reason', r.ok, r)
+    r = pat.get('/nursing/bookings/mine')
+    mine = next((x for x in (r.body if isinstance(r.body, list) else r.items()) if x.get('id') == bid), None)
+    print(f'    rejected visit as the patient reads it: state={mine and mine.get("state")} payment={mine and mine.get("payment_status")}')
+    step('the patient sees the rejected visit (not accepted, not completed)', bool(mine) and mine.get('state') not in ('PROVIDER_ASSIGNED', 'COMPLETED', 'ACCEPTED'), mine and mine.get('state'))
 
 
 def insurance_matrix(pat, nurse, admin):
