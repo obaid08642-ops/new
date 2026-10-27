@@ -1,0 +1,79 @@
+[
+  {
+    "batch": "owner-review-g4",
+    "app": "patient-web",
+    "screen": "/diagnostics",
+    "element": "Order now on a test or scan card and on the item page",
+    "file": "patient-web/components-next/ordering/add-to-basket.tsx",
+    "line": 44,
+    "found": "[client] The ordering flow (basket, providers, when, confirm) reads only the local basket and has no single-item entry, so Order now adds the item if it is not in the basket and opens the basket of that service; lines already there stay.",
+    "suspect": "Owner/reviewer: decide whether Order now should run a one-item flow that ignores the basket (needs an items parameter through basket, providers, when and confirm).",
+    "review_status": "open"
+  },
+  {
+    "batch": "owner-review-g4",
+    "app": "patient-app",
+    "screen": "/(tabs)/diagnostics",
+    "element": "Order now on a test or scan card",
+    "file": "patient-app/app/(tabs)/diagnostics.tsx",
+    "line": 158,
+    "found": "[client] The diagnostics checkout reads the whole cart from DiagnosticsCartContext and takes no item parameter, so Order now adds the item to its service cart and opens the cart screen; other lines stay.",
+    "suspect": "Owner/reviewer: a single-item checkout needs a checkout parameter; cart logic was not changed (design-only scope).",
+    "review_status": "open"
+  },
+  {
+    "batch": "owner-review-g4",
+    "app": "patient-app",
+    "screen": "/(tabs)/diagnostics",
+    "element": "My orders and results top-bar button",
+    "file": "patient-app/app/(tabs)/diagnostics.tsx",
+    "line": 224,
+    "found": "[client] No screen lists orders and results together: /diagnostics/orders lists bookings with status and amount and the report is opened from the booking, /diagnostics/my-results lists results only. The button opens the orders screen; my-results is no longer linked from the hub.",
+    "suspect": "Owner/reviewer: merge my-results into the orders list (a Results tab), or confirm the booking-first route.",
+    "review_status": "open"
+  },
+  {
+    "batch": "owner-review-g4",
+    "app": "patient-web",
+    "screen": "/diagnostics",
+    "element": "My orders and results top-bar button",
+    "file": "patient-web/app/[locale]/diagnostics/page.tsx",
+    "line": 161,
+    "found": "[client] The button opens /diagnostics/bookings (requests of labs and radiology, each with its report); /diagnostics/results (reports only) is no longer linked from the hub, labs or radiology headers.",
+    "suspect": "Owner/reviewer: confirm bookings as the combined screen, or fold /diagnostics/results into it.",
+    "review_status": "open"
+  },
+  {
+    "batch": "owner-review-g4",
+    "app": "patient-web",
+    "screen": "/diagnostics",
+    "element": "Full list of tests and scans",
+    "file": "patient-web/app/[locale]/diagnostics/page.tsx",
+    "line": 142,
+    "found": "[backend] GET /labs/services and GET /radiology/services take no page or limit (labs.controller.ts services(), radiology.controller.ts services()); they return every row. The page and the app page the full list on the client (20 per step, Show more), so every row is still downloaded.",
+    "suspect": "Backend: add page/limit to both catalogue endpoints if the lists grow large.",
+    "review_status": "open"
+  },
+  {
+    "batch": "owner-review-g4",
+    "app": "patient-app",
+    "screen": "/diagnostics/package-detail",
+    "element": "Order now on the package page",
+    "file": "patient-app/app/diagnostics/package-detail.tsx",
+    "line": 79,
+    "found": "[client] Added next to Add to cart (owner words: the test and scan detail pages; applied to the package page too for consistency). Same cart-then-cart-screen behaviour as the cards.",
+    "suspect": "Owner: confirm packages should carry Order now.",
+    "review_status": "open"
+  },
+  {
+    "batch": "owner-review-g4",
+    "app": "patient-web",
+    "screen": "/diagnostics",
+    "element": "Per-test illustration",
+    "file": "patient-web/components-next/diagnostics/diag-parts.tsx",
+    "line": 1,
+    "found": "[owner] Per-test artwork from git history was not found as separate files; the cards use the service icon of the tokens (lab or radiology; the scan's own image when the backend sends one). The app also varies the icon by category (diagLook).",
+    "suspect": "Owner: if a per-test illustration set exists outside the repo, name it.",
+    "review_status": "open"
+  }
+]

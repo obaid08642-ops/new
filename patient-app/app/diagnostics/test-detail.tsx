@@ -67,7 +67,7 @@ export default function TestDetail() {
               theme={theme}
               size="lg"
               fullWidth
-              label={k('diag.detail.bookNow')}
+              label={k('diag.detail.orderNow')}
               onPress={() => {
                 add();
                 router.push('/diagnostics/cart' as Href);

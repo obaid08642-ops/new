@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Button } from '../../../packages/ui-native/src';
 import { ConsultScreen, Gate, InfoRow, Section, type GateStatus } from '../../src/components/consult/ConsultKit';
@@ -59,15 +59,32 @@ export default function PackageDetail() {
             </View>
           ) : null}
         </View>
-        <Button
-          theme={theme}
-          size="lg"
-          fullWidth
-          variant={inCart ? 'outline' : 'primary'}
-          label={inCart ? k('diag.detail.inCart') : k('diag.detail.addToCart')}
-          disabled={inCart || pkg.price === null}
-          onPress={() => void addItem({ id, name: pkg.name, price: pkg.price ?? 0, kind: 'lab' })}
-        />
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          <View style={{ flex: 1 }}>
+            <Button
+              theme={theme}
+              size="lg"
+              fullWidth
+              variant="outline"
+              label={inCart ? k('diag.detail.inCart') : k('diag.detail.addToCart')}
+              disabled={inCart || pkg.price === null}
+              onPress={() => void addItem({ id, name: pkg.name, price: pkg.price ?? 0, kind: 'lab' })}
+            />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Button
+              theme={theme}
+              size="lg"
+              fullWidth
+              label={k('diag.detail.orderNow')}
+              disabled={pkg.price === null}
+              onPress={() => {
+                if (!inCart) void addItem({ id, name: pkg.name, price: pkg.price ?? 0, kind: 'lab' });
+                router.push('/diagnostics/cart' as Href);
+              }}
+            />
+          </View>
+        </View>
       </>
     ) : undefined;
 

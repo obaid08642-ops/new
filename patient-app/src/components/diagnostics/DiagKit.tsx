@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 import { router, type Href } from 'expo-router';
 import Svg, { Path } from 'react-native-svg';
 
-import { Card, FIcon, SERVICE_ICONS, type FillIconName, type ServiceTone } from '../../../../packages/ui-native/src';
+import { Button, Card, FIcon, SERVICE_ICONS, type FillIconName, type ServiceTone } from '../../../../packages/ui-native/src';
 import { step as scale, tint, useScreenUi } from '../screen/ScreenKit';
 import { Glyph } from '../pharmacy/PharmacyKit';
 import { Money } from '../pharmacy/OfferKit';
@@ -158,6 +158,60 @@ export function TestRow({ name, tags, note, price, onPress, toggle, icon, last =
         <View style={{ flex: 1, minWidth: 0 }}>{body}</View>
       )}
       {toggle ? <AddToggle on={toggle.on} label={toggle.label} onPress={toggle.onPress} /> : null}
+    </View>
+  );
+}
+
+export interface ItemCardProps {
+  name: string;
+  icon: FillIconName;
+  tone: ServiceTone;
+  image?: string;
+  tags?: Array<{ label: string; tone: ServiceTone | 'neutral' }>;
+  note?: string;
+  price: number | null;
+  inCart: boolean;
+  addLabel: string;
+  inCartLabel: string;
+  orderLabel: string;
+  onPress: () => void;
+  onAdd: () => void;
+  onOrder: () => void;
+  testID?: string;
+}
+
+/** A catalogue test or scan as a large card: its illustration next to the name, the tags, the note and the price, then "Add to cart" and "Order now". */
+export function ItemCard({ name, icon, tone, image, tags, note, price, inCart, addLabel, inCartLabel, orderLabel, onPress, onAdd, onOrder, testID }: ItemCardProps) {
+  const { theme, t, c, flow } = useScreenUi();
+  return (
+    <View testID={testID} style={{ borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, padding: 16, gap: 14 }}>
+      <Pressable accessibilityRole="button" accessibilityLabel={name} onPress={onPress} style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 56, opacity: pressed ? 0.85 : 1 })}>
+        {image ? (
+          <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: optimizedImageUri(image, 56) }} style={{ width: 56, height: 56, borderRadius: 16, backgroundColor: c.bg.sunken }} contentFit="cover" />
+        ) : (
+          <FIcon icon={icon} tone={tone} size={56} theme={theme} />
+        )}
+        <View style={{ flex: 1, minWidth: 0, gap: 6 }}>
+          <Text style={{ ...scale(t, 'bodyStrong', 'medium'), color: c.text.primary, ...flow }}>{name}</Text>
+          {tags && tags.length > 0 ? (
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+              {tags.map((g) => (
+                <Tag key={g.label} label={g.label} tone={g.tone} />
+              ))}
+            </View>
+          ) : null}
+          {note ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{note}</Text> : null}
+          {price !== null ? <Price amount={price} /> : null}
+        </View>
+      </Pressable>
+      <View style={{ flexDirection: 'row', gap: 10 }}>
+        <View style={{ flex: 1 }}>
+          <Button theme={theme} size="md" fullWidth variant="outline" label={inCart ? inCartLabel : addLabel} disabled={inCart} onPress={onAdd} testID={testID ? `${testID}-add` : undefined} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Button theme={theme} size="md" fullWidth label={orderLabel} onPress={onOrder} testID={testID ? `${testID}-order` : undefined} />
+        </View>
+      </View>
     </View>
   );
 }

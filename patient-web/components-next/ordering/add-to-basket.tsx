@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { Button } from "@/components-next/ui-generated/components/Button";
@@ -34,4 +35,29 @@ export function AddToBasketButton({ kind, line }: { kind: ServiceKind; line: Lin
   const { basket, add, remove } = useBasket();
   const inBasket = hasLine(basket, kind, line.id);
   return <Button label={inBasket ? t("removeFromBasket") : t("ctaOne")} variant={inBasket ? "outline" : "primary"} size="lg" fullWidth onClick={() => (inBasket ? remove(kind, line.id) : add(kind, line))} />;
+}
+
+/**
+ * The two actions of a catalogue card and of the item page: "Add to cart" (the local basket of its service, `lab` or `radiology`) and "Order now"
+ * (adds the item if it is not there yet, then opens the basket of that service; the flow has no single-item entry, so the lines already in the basket stay).
+ */
+export function ItemActions({ kind, line, orderHref }: { kind: ServiceKind; line: Line; orderHref: string }) {
+  const t = useTranslations("OrderingFlow");
+  const router = useRouter();
+  const { basket, add, remove } = useBasket();
+  const inBasket = hasLine(basket, kind, line.id);
+  return (
+    <>
+      <Button label={inBasket ? t("removeFromBasket") : t("ctaOne")} variant="outline" size="md" fullWidth onClick={() => (inBasket ? remove(kind, line.id) : add(kind, line))} />
+      <Button
+        label={t("orderNow")}
+        size="md"
+        fullWidth
+        onClick={() => {
+          if (!inBasket) add(kind, line);
+          router.push(orderHref);
+        }}
+      />
+    </>
+  );
 }

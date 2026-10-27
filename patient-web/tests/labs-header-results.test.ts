@@ -14,7 +14,7 @@ describe("labs and radiology layout", () => {
   });
   it("passes the results route to the shell, which draws the icon and the menu entry from the same href", () => {
     for (const file of ["app/[locale]/diagnostics/page.tsx", "app/[locale]/diagnostics/radiology/page.tsx", "components-next/diagnostics/labs-catalog.tsx"]) {
-      expect(code(file), file).toContain("resultsHref={`/${locale}/diagnostics/results`}");
+      expect(code(file), file).toContain("resultsHref={`/${locale}/diagnostics/bookings`}");
     }
     const shell = code("components-next/core/core-shell.tsx");
     expect(shell).toContain('{ label: shell("menuResults"), href: resultsHref }');

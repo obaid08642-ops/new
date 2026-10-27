@@ -5,7 +5,8 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { BulletList, Facts, Hero, Notice, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
 import { LAB, RADIOLOGY, hoursText, minutesText } from "@/components-next/diagnostics/diag-parts";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
-import { AddToBasketButton } from "@/components-next/ordering/add-to-basket";
+import { ItemActions } from "@/components-next/ordering/add-to-basket";
+import styles from "@/components-next/diagnostics/diag.module.css";
 import { BasketBar } from "@/components-next/ordering/basket-bar";
 import { NURSING } from "@/components-next/nursing/nursing-parts";
 import { CoverageChip } from "@/components-next/ordering/quote-parts";
@@ -18,7 +19,7 @@ import { extractLabServices, includedTestNames } from "@/lib/api/labs";
 import { getPublicLabServices } from "@/lib/api/labs-server";
 import { pickTexts, pickName } from "@/lib/i18n/localized";
 import { loadItem } from "@/lib/ordering/load-item";
-import { payOf, placeOf } from "@/lib/ordering/context";
+import { contextQuery, payOf, placeOf } from "@/lib/ordering/context";
 import { parseQuote, type Quote } from "@/lib/ordering/quote";
 import { kindOf, optionalToken, patientPoint } from "@/lib/ordering/server";
 
@@ -131,7 +132,9 @@ export default async function OrderingItemPage({ params, searchParams }: Props) 
         {item.isPackage ? <Notice>{t("pkgCashNote")}</Notice> : null}
       </SectionCard>
 
-      <AddToBasketButton kind={kind} line={{ id: item.id, nameAr: item.nameAr, nameEn: item.nameEn }} />
+      <div className={styles.itemActions}>
+        <ItemActions kind={kind} line={{ id: item.id, nameAr: item.nameAr, nameEn: item.nameEn }} orderHref={`/${locale}/labs/basket${contextQuery({ kind, place, pay })}`} />
+      </div>
       <BasketBar locale={locale} kind={kind} place={place} pay={pay} />
     </ConsultPage>
   );

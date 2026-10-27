@@ -23,7 +23,7 @@ export async function LabsCatalog({ locale, search, homeOnly, backHref, basePath
   const response = await getPublicLabServices({ search, homeOnly });
   if (!response || !response.ok) {
     return (
-      <ConsultPage locale={locale} title={t("title")} backHref={backHref} resultsHref={`/${locale}/diagnostics/results`}>
+      <ConsultPage locale={locale} title={t("title")} backHref={backHref} resultsHref={`/${locale}/diagnostics/bookings`}>
         <ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailableBody")} retryLabel={t("retry")} />
       </ConsultPage>
     );
@@ -38,7 +38,7 @@ export async function LabsCatalog({ locale, search, homeOnly, backHref, basePath
   ];
 
   return (
-    <ConsultPage locale={locale} title={t("title")} backHref={backHref} resultsHref={`/${locale}/diagnostics/results`}>
+    <ConsultPage locale={locale} title={t("title")} backHref={backHref} resultsHref={`/${locale}/diagnostics/bookings`}>
       <p className={styles.flowNote}>{t("subtitle")}</p>
       <SearchForm
         suggest={{ locale, scope: SUGGEST_SCOPES.labs }}

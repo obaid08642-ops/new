@@ -7,6 +7,7 @@ import { SERVICE_ICONS, type FillIconName, type ServiceTone } from "@/components
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { formatPrice } from "@/lib/format-price";
 import { allowedImageUrl } from "@/lib/image-hosts";
+import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { LiveFilter } from "./live-filter";
 import { SuggestSearchForm } from "./suggest-search-form";
 import type { SuggestScope } from "@/lib/search/suggest";
@@ -204,4 +205,35 @@ export function ReferralNote({ children, tone = RADIOLOGY.tone }: { children: Re
 export function TagRow({ tags }: { tags: Tag[] }) {
   if (tags.length === 0) return null;
   return <div className={styles.tags}>{tags.map((tag) => <StatusChip key={tag.label} label={tag.label} tone={tag.tone} />)}</div>;
+}
+
+/**
+ * A catalogue test or scan as a large card: its illustration (the service icon, or the scan's own image) next to the name, the tags / note and
+ * the price, and the two actions (`actions`: "Add to cart" and "Order now", a client island).
+ */
+export function ItemCard({ href, title, tags = [], note, price, kind, imageUrl, actions }: { href: string; title: string; tags?: Tag[]; note?: string; price?: string; kind: "lab" | "radiology"; imageUrl?: string; actions: ReactNode }) {
+  const look = kind === "radiology" ? RADIOLOGY : LAB;
+  const image = allowedImageUrl(imageUrl);
+  const icon = <FIcon icon={look.icon} tone={look.tone} size={56} />;
+  return (
+    <li>
+      <article className={styles.itemCard}>
+        <Link href={href} className={styles.itemMain}>
+          {image ? <PhotoWithFallback src={image} sizes="56px" wrapClassName={styles.itemPhoto} className={styles.photoImage} fallback={icon} /> : icon}
+          <span className={styles.testMain}>
+            <span className={styles.testName}>{title}</span>
+            {tags.length > 0 ? <span className={styles.tags}>{tags.map((tag) => <StatusChip key={tag.label} label={tag.label} tone={tag.tone} />)}</span> : null}
+            {note ? <span className={styles.tagNote}>{note}</span> : null}
+            {price ? <span className={styles.price}><bdi>{price}</bdi></span> : null}
+          </span>
+        </Link>
+        <div className={styles.itemActions}>{actions}</div>
+      </article>
+    </li>
+  );
+}
+
+/** "Show more" under a paged catalogue list: a link, so the next step works without script. */
+export function ShowMore({ href, label }: { href: string; label: string }) {
+  return <div className={styles.showMore}><ButtonLink href={href} label={label} variant="outline" size="md" /></div>;
 }

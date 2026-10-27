@@ -185,3 +185,16 @@
 .catChip input { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; margin: 0; opacity: 0; cursor: pointer; }
 .catChip:has(input:checked) { background: var(--nabd-color-action-primary-bg); border-color: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg); }
 .catChip:has(input:focus-visible) { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+
+/* ---- the full catalogue: a large card per test or scan (illustration, name, price, two actions) ---- */
+.itemGrid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; list-style: none; margin: 0; padding: 0; }
+@media (min-width: 768px) { .itemGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.itemCard {
+  display: flex; flex-direction: column; gap: 14px; padding: 16px; box-sizing: border-box; min-inline-size: 0; block-size: 100%;
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-3xl); box-shadow: var(--nabd-shadow-card);
+}
+.itemMain { display: flex; align-items: center; gap: 14px; flex: 1; min-inline-size: 0; min-block-size: 56px; color: inherit; text-decoration: none; }
+.itemMain:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.itemPhoto { flex: none; position: relative; inline-size: 56px; block-size: 56px; border-radius: var(--nabd-radius-xl); overflow: hidden; background: var(--nabd-color-bg-media); display: grid; place-items: center; }
+.itemActions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.showMore { display: flex; justify-content: center; }

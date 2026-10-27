@@ -3533,7 +3533,8 @@
     "filterTests": "Mga pagsusuri lang",
     "sortDefault": "Karaniwan",
     "sortRating": "Pinakamataas ang rating",
-    "sortPrice": "Pinakamababang presyo"
+    "sortPrice": "Pinakamababang presyo",
+    "showMore": "Magpakita pa"
   },
   "OrderContext": {
     "hint": "Agad na nag-a-update ang presyo at coverage kapag may binago",
@@ -5555,7 +5556,8 @@
     "resDiscuss": "Talakayin sa doktor",
     "resTrend": "Takbo ng iyong mga resulta",
     "shareEstimate": "Tinatayang bahagi mo: {p} (pagtatantya; pinal pagkatapos kumpirmahin ng provider)",
-    "shareAccepted": "Tinatanggap ang insurance. Kukumpirmahin ng provider ang bahagi mo."
+    "shareAccepted": "Tinatanggap ang insurance. Kukumpirmahin ng provider ang bahagi mo.",
+    "orderNow": "Mag-order na"
   },
   "InstantConsult": {
     "title": "Instant na konsultasyon",

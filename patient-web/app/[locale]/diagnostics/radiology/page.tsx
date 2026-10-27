@@ -55,7 +55,7 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
   const backHref = `/${locale}/diagnostics?kind=radiology`;
   if (!servicesResult?.ok) {
     return (
-      <ConsultPage locale={locale} title={t("title")} backHref={backHref} resultsHref={`/${locale}/diagnostics/results`}>
+      <ConsultPage locale={locale} title={t("title")} backHref={backHref} resultsHref={`/${locale}/diagnostics/bookings`}>
         <ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailableBody")} retryLabel={t("retry")} />
       </ConsultPage>
     );
@@ -65,7 +65,7 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
   const modalityList = Array.isArray(modalityValues) ? modalityValues.filter((x): x is string => typeof x === "string") : [];
 
   return (
-    <ConsultPage locale={locale} title={t("title")} backHref={backHref} resultsHref={`/${locale}/diagnostics/results`}>
+    <ConsultPage locale={locale} title={t("title")} backHref={backHref} resultsHref={`/${locale}/diagnostics/bookings`}>
       <p className={styles.flowNote}>{t("subtitle")}</p>
       <SearchForm
         suggest={{ locale, scope: SUGGEST_SCOPES.radiology }}

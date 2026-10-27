@@ -13,7 +13,7 @@ import { getPublicRadiologyServices } from "@/lib/api/radiology-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { callPatientApi, patientApiUrl } from "@/lib/api/upstream";
 import { OrderContextBar } from "@/components-next/ordering/order-context-bar";
-import { AddToBasketIcon } from "@/components-next/ordering/add-to-basket";
+import { ItemActions } from "@/components-next/ordering/add-to-basket";
 import { BasketBar } from "@/components-next/ordering/basket-bar";
 import { defaultAddressLine, insuranceClass } from "@/components-next/ordering/order-context";
 import { isLocale, locales } from "@/lib/i18n";
@@ -23,25 +23,22 @@ import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
-import { ReferralNote, LabCard, LAB, PackageCard, QuickLink, RADIOLOGY, RadiologyTile, Rail, SearchForm, SectionHead, TestList, TestRow, hoursText, money, pickText, type Tag } from "@/components-next/diagnostics/diag-parts";
+import { ReferralNote, ItemCard, LabCard, LAB, PackageCard, RADIOLOGY, Rail, SearchForm, SectionHead, ShowMore, hoursText, money, pickText, type Tag } from "@/components-next/diagnostics/diag-parts";
 import { diagStatus } from "@/components-next/diagnostics/status";
-import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { RowCard } from "@/components-next/consult/consult-parts";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import styles from "@/components-next/diagnostics/diag.module.css";
 import type { Metadata } from "next";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 import { diagnosticBookingHref } from "@/lib/diagnostics-links";
-import { byPrice, byRating, matchesQuery, parseHubFilter } from "@/lib/diagnostics-hub";
+import { byPrice, byRating, matchesQuery, pageRows, parseHubFilter, parseHubPages } from "@/lib/diagnostics-hub";
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import { publicReadSignal } from "@/lib/api/public-timeout";
 import { pickName, pickTexts } from "@/lib/i18n/localized";
 
-type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string; q?: string; show?: string; sort?: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string; q?: string; show?: string; sort?: string; more?: string }> };
 
-const LIMIT_TESTS = 8;
 const LIMIT_PACKAGES = 6;
-const LIMIT_RADIOLOGY = 8;
 const LIMIT_BOOKINGS = 3;
 
 export async function generateMetadata({ params }: Pick<Props, "params">): Promise<Metadata> {
@@ -72,6 +69,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   const query = (await searchParams) ?? {};
   const kind = query.kind === "radiology" ? "radiology" : "labs";
   const filter = parseHubFilter(query);
+  const pages = parseHubPages(query.more);
   const place = query.place === "facility" ? "facility" : "home";
   // Decision 30 (owner 2026-10-14, question 5): insurance or self-pay first; self-pay is the default.
   const wantedPay = query.pay === "insurance" ? "insurance" : "self_pay";
@@ -121,8 +119,8 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   const pay = wantedPay === "insurance" && anyInsurance ? "insurance" : "self_pay";
   const catalogFailed = !(labsRes && labsRes.ok) && !(radRes && radRes.ok);
 
-  const href = (over: Partial<{ kind: string; place: string; pay: string; show: string; sort: string }>) => {
-    const next = { kind, place, pay, show: filter.show ?? "", sort: filter.sort ?? "", ...over };
+  const href = (over: Partial<{ kind: string; place: string; pay: string; show: string; sort: string; more: number }>) => {
+    const next = { kind, place, pay, show: filter.show ?? "", sort: filter.sort ?? "", more: 1, ...over };
     const params = new URLSearchParams();
     if (filter.q) params.set("q", filter.q);
     if (next.show && next.kind === "labs") params.set("show", next.show);
@@ -130,6 +128,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
     if (next.kind !== "labs") params.set("kind", next.kind);
     if (next.place !== "home") params.set("place", next.place);
     if (next.pay !== "self_pay") params.set("pay", next.pay);
+    if (next.more > 1) params.set("more", String(next.more));
     const qs = params.toString();
     return `/${locale}/diagnostics${qs ? `?${qs}` : ""}`;
   };
@@ -138,9 +137,14 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   const pays = (s: LabService) => labPaymentFits(pay, s);
   const ordered = <T extends { price?: number }>(rows: T[]) => (filter.sort === "price" ? byPrice(rows) : rows);
   const named = (s: { nameAr?: string; nameEn?: string }) => matchesQuery(filter.q, s.nameAr, s.nameEn);
-  const tests = filter.show === "packages" ? [] : ordered(labServices.filter((s) => s.isPackage !== true && !s.unavailable && fits(s) && pays(s) && named(s))).slice(0, LIMIT_TESTS);
+  // the FULL catalogue, paged on the page (the backend list has no page/limit): "Show more" opens the next step
+  const allTests = filter.show === "packages" ? [] : ordered(labServices.filter((s) => s.isPackage !== true && !s.unavailable && fits(s) && pays(s) && named(s)));
+  const testPage = pageRows(allTests, pages);
+  const tests = testPage.shown;
   const shownPackages = filter.show === "tests" ? [] : ordered(packages.filter((p) => !p.unavailable && pays(p) && named(p))).slice(0, LIMIT_PACKAGES);
-  const scans = ordered(radiologyServices.filter((s) => fits(s) && named(s))).slice(0, LIMIT_RADIOLOGY);
+  const allScans = ordered(radiologyServices.filter((s) => fits(s) && named(s)));
+  const scanPage = pageRows(allScans, pages);
+  const scans = scanPage.shown;
 
   const testTags = (s: LabService): Tag[] => [
     ...(s.homeVisitSupported ? [{ label: t("tagHome"), tone: LAB.tone } as Tag] : []),
@@ -149,16 +153,13 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   const orderPlace = place === "facility" ? "facility" : "home";
   const orderPay = pay === "insurance" ? "insurance" : "cash";
   const itemHref = (id: string, itemKind: "lab" | "radiology") => `/${locale}/labs/${encodeURIComponent(id)}${contextQuery({ kind: itemKind, place: orderPlace, pay: orderPay })}`;
+  const orderHref = (itemKind: "lab" | "radiology") => `/${locale}/labs/basket${contextQuery({ kind: itemKind, place: orderPlace, pay: orderPay })}`;
   const caret = <Icon name={rtl ? "caret-left" : "caret-right"} size={20} tone="currentColor" />;
   const mine = domains.filter((entry) => entry.bookings.length > 0);
 
   return (
-    <ConsultPage locale={locale} title={t("hubTitle")} backHref={`/${locale}`} resultsHref={`/${locale}/diagnostics/results`}>
+    <ConsultPage locale={locale} title={t("hubTitle")} backHref={`/${locale}`} resultsHref={`/${locale}/diagnostics/bookings`}>
       <StaleWhileRevalidate />
-      <div className={styles.sectionHead}>
-        <span />
-        <ButtonLink href={`/${locale}/diagnostics/bookings`} label={t("myRequests")} variant="outline" size="sm" />
-      </div>
       {/* The search filters the lists of the chosen kind in place (the app does; radiology has no search page), the URL keeps it. */}
       <SearchForm
         suggest={{ locale, scope: kind === "labs" ? SUGGEST_SCOPES.labs : SUGGEST_SCOPES.radiology }}
@@ -232,10 +233,6 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
         copy={{ hint: oc("hint"), addAddress: oc("addAddress"), addInsurance: oc("addInsurance"), insuranceSub: oc("insuranceSub"), insuranceName: t("payInsurance") }}
       />
 
-      <div className={styles.quickGrid}>
-        <QuickLink href={`/${locale}/diagnostics/results`} icon="chart-line-up" tone={DIAG_TONES.good} label={t("quickResults")} />
-        <QuickLink href={`/${locale}/diagnostics/search`} icon="arrows-left-right" tone={DIAG_TONES.facility} label={t("quickCompare")} />
-      </div>
       {/* "Use your insurance / upload your card" opens the policy form, not the bookings list (needs-review issue 1062). */}
       <RowCard href={`/${locale}/insurance/add-policy`} icon={SERVICE_ICONS.insurance.icon} tone={SERVICE_ICONS.insurance.tone} title={t("insuranceTitle")} sub={t("insuranceSub")} caret={caret} />
 
@@ -292,22 +289,26 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
             {tests.length === 0 ? (
               <ConsultState kind="empty" icon="test-tube" tone={LAB.tone} title={t("noTestsTitle")} body={t("noTestsBody")} />
             ) : (
-              <TestList label={t("testsTitle")}>
+              <>
+              <ul className={styles.itemGrid} aria-label={t("testsTitle")}>
                 {tests.map((s) => {
                   const name = pickName(locale, s.names) ?? "";
                   return (
-                    <TestRow
+                    <ItemCard
                       key={s.id}
                       href={itemHref(s.id, "lab")}
                       title={name}
                       tags={testTags(s)}
                       note={s.turnaroundHours !== undefined ? t("resultWithin", { time: hoursText(locale, s.turnaroundHours) }) : undefined}
                       price={s.price !== undefined ? money(locale, s.price) : undefined}
-                      addSlot={<AddToBasketIcon kind="lab" line={{ id: s.id, nameAr: s.nameAr, nameEn: s.nameEn }} name={name} />}
+                      kind="lab"
+                      actions={<ItemActions kind="lab" line={{ id: s.id, nameAr: s.nameAr, nameEn: s.nameEn }} orderHref={orderHref("lab")} />}
                     />
                   );
                 })}
-              </TestList>
+              </ul>
+              {testPage.hasMore ? <ShowMore href={href({ more: pages + 1 })} label={t("showMore")} /> : null}
+              </>
             )}
           </section>
         </>
@@ -318,17 +319,22 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
           {scans.length === 0 ? (
             <ConsultState kind="empty" icon="scan" tone={RADIOLOGY.tone} title={t("noScansTitle")} body={t("noScansBody")} />
           ) : (
-            <ul className={styles.radGrid} aria-label={t("scansTitle")}>
-              {scans.map((s) => (
-                <RadiologyTile
-                  key={s.id}
-                  href={itemHref(s.id, "radiology")}
-                  title={pickName(locale, s.names) ?? ""}
-                  sub={s.price !== undefined ? t("fromPrice", { price: money(locale, s.price) }) : undefined}
-                  imageUrl={s.imageUrl}
-                />
-              ))}
-            </ul>
+            <>
+              <ul className={styles.itemGrid} aria-label={t("scansTitle")}>
+                {scans.map((s) => (
+                  <ItemCard
+                    key={s.id}
+                    href={itemHref(s.id, "radiology")}
+                    title={pickName(locale, s.names) ?? ""}
+                    note={s.price !== undefined ? t("fromPrice", { price: money(locale, s.price) }) : undefined}
+                    kind="radiology"
+                    imageUrl={s.imageUrl}
+                    actions={<ItemActions kind="radiology" line={{ id: s.id, nameAr: s.nameAr, nameEn: s.nameEn }} orderHref={orderHref("radiology")} />}
+                  />
+                ))}
+              </ul>
+              {scanPage.hasMore ? <ShowMore href={href({ more: pages + 1 })} label={t("showMore")} /> : null}
+            </>
           )}
         </section>
       )}
