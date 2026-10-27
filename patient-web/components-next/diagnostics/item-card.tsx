@@ -3,27 +3,24 @@ import Link from "next/link";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import type { ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import type { DiagArtKey } from "@/components-next/ui-generated/icons/diag-art";
-import { allowedImageUrl } from "@/lib/image-hosts";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { DiagArt } from "./diag-art";
-import { PhotoWithFallback } from "./photo-with-fallback";
+import { ItemPicture } from "./item-picture";
 import styles from "./diag.module.css";
 
 export type ItemTag = { label: string; tone: ServiceTone };
 
 /**
  * A catalogue test or scan as a large card: its picture next to the name, the tags / note and the price, and the two actions (`actions`:
- * "Add to cart" and "Order now", a client island). The picture is the CATEGORY illustration (`art`: blood, X-ray ...), one per category;
- * the item's own photo replaces it only when the backend sent one.
+ * "Add to cart" and "Order now", a client island). The picture is the item's OWN image (`imageUrl`); the CATEGORY illustration (`art`: blood, X-ray ...) is only the fallback
+ * when it has none or it fails to load.
  */
 export function ItemCard({ href, title, tags = [], note, rating, price, art, imageUrl, actions }: { href: string; title: string; tags?: ItemTag[]; note?: string; rating?: string; price?: string; art: DiagArtKey; imageUrl?: string; actions: ReactNode }) {
-  const image = allowedImageUrl(imageUrl);
-  const picture = <DiagArt art={art} size={56} />;
   return (
     <li>
       <article className={styles.itemCard}>
         <Link href={href} className={styles.itemMain}>
-          {image ? <PhotoWithFallback src={image} sizes="56px" wrapClassName={styles.itemPhoto} className={styles.photoImage} fallback={picture} /> : picture}
+          <ItemPicture imageUrl={imageUrl} fallback={<DiagArt art={art} size={56} />} />
           <span className={styles.testMain}>
             <span className={styles.testName}>{title}</span>
             {tags.length > 0 ? <span className={styles.tags}>{tags.map((tag) => <StatusChip key={tag.label} label={tag.label} tone={tag.tone} />)}</span> : null}

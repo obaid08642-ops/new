@@ -72,7 +72,7 @@
     "element": "Per-test illustration",
     "file": "packages/ui/icons/diag-art.ts",
     "line": 1,
-    "found": "[client] RESOLVED (lead review round): one vector illustration per CATEGORY (blood, hormones, vitamins, sugar, urine/stool, liver/kidney, X-ray, CT, MRI, ultrasound, mammography, ECG/echo) in packages/ui/icons/diag-art.ts, token roles only, drawn by the web (DiagArt) and the app (DiagArt.tsx); vitamins reuses the pharmacy art. A per-item image is used only when the backend sends image_url.",
+    "found": "[client] RESOLVED: the item's OWN image (`image_url` of the lab / radiology service, sent by the list, carousel and detail endpoints) is drawn first on every hub card and detail page (web ItemPicture, app ItemPhoto, same host allow-list and optimizer sizes); the per-CATEGORY vector illustration (packages/ui/icons/diag-art.ts, web DiagArt, app DiagArt.tsx, token roles only) is only the fallback when an item has no image or the file fails to load (onError).",
     "suspect": "Owner: review the twelve drawings against the boards (not rendered here).",
     "review_status": "fixed (lead review round)"
   },
@@ -155,6 +155,18 @@
     "found": "[backend] rating / rating_count are returned on the services only when the list is sorted by rating (highest_rated=true); in the default order they are absent, so the rating line on a card shows after the patient picks Highest rated.",
     "suspect": "Backend: return rating / rating_count on every row of the services endpoints (the same provider mean) if the rating should show by default.",
     "backend": "backend/src/modules/labs/labs.service.ts:111",
+    "review_status": "open"
+  },
+  {
+    "batch": "owner-review-g4",
+    "app": "patient-web, patient-app",
+    "screen": "/diagnostics, /labs/[testSlug], diagnostics/test-detail",
+    "element": "lab and radiology item pictures 404 on the CDN",
+    "file": "backend/src/modules/catalogs/seed-data/labs.json",
+    "line": 3485,
+    "found": "[backend] The item picture is `image_url` (lab_services / radiology_services). The seed builds it as https://cdn.nabd.plus/labs/<code>.png (labs.json:3485 hiv, :3523 pap, :3559 semen, also hbe, prog, qft) and https://cdn.nabd.plus/radiology/<code>.png (radiology seed-data :1876 hsg, :1930 panorex, :1975 barium, also petct). QA saw 404 for hsg, barium, semen, pap, hiv: the files were never uploaded. The clients now fall back to the category art for these, so nothing breaks. Other rows use res.cloudinary.com/.../nabd/catalog/*.png.",
+    "suspect": "Upload the files to the CDN or repoint the rows (see diag-images.json).",
+    "backend": "backend/src/modules/catalogs/seed-data/radiology.json:1876",
     "review_status": "open"
   }
 ]

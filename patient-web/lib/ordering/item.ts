@@ -28,6 +28,8 @@ export type ItemView = {
   duration?: string;
   /** The category illustration of a lab test or scan (not of a package or a nursing service). */
   art?: DiagArtKey;
+  /** The item's own picture (`image_url`); the page draws it first and `art` only as the fallback. */
+  imageUrl?: string;
 };
 
 export function fromLab(s: LabService): ItemView {
@@ -35,7 +37,7 @@ export function fromLab(s: LabService): ItemView {
     names: s.names, descriptions: s.descriptions, preparations: s.preparations,
     id: s.id, nameAr: s.nameAr, nameEn: s.nameEn, descriptionAr: s.descriptionAr, descriptionEn: s.descriptionEn,
     preparationAr: s.preparationAr ?? [], preparationEn: s.preparationEn ?? [], fastingHours: s.fastingRequired ? s.fastingHours ?? 0 : undefined,
-    turnaroundHours: s.turnaroundHours, sampleType: s.sampleType, included: s.includedServices ?? [], isPackage: s.isPackage === true,
+    imageUrl: s.imageUrl, turnaroundHours: s.turnaroundHours, sampleType: s.sampleType, included: s.includedServices ?? [], isPackage: s.isPackage === true,
     ...(s.isPackage === true ? {} : { art: diagArtKey({ kind: "lab", category: s.category, sampleType: s.sampleType, names: [s.nameAr, s.nameEn, ...Object.values(s.names)] }) }),
   };
 }
@@ -45,7 +47,7 @@ export function fromRadiology(s: RadiologyService): ItemView {
     names: s.names, descriptions: s.descriptions, preparations: s.preparations,
     id: s.id, nameAr: s.nameAr, nameEn: s.nameEn, descriptionAr: s.descriptionAr, descriptionEn: s.descriptionEn,
     preparationAr: s.preparationAr ?? [], preparationEn: s.preparationEn ?? [], fastingHours: s.fastingRequired ? 0 : undefined,
-    turnaroundHours: s.turnaroundHours, included: [], isPackage: false,
+    imageUrl: s.imageUrl, turnaroundHours: s.turnaroundHours, included: [], isPackage: false,
     art: diagArtKey({ kind: "radiology", modality: [s.modality, s.modalityCategory].filter(Boolean).join(" "), bodyPart: s.bodyPart, names: [s.nameAr, s.nameEn, ...Object.values(s.names)] }),
   };
 }

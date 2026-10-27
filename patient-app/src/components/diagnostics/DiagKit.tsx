@@ -10,7 +10,7 @@ import { Glyph } from '../pharmacy/PharmacyKit';
 import { Money } from '../pharmacy/OfferKit';
 import { Chevron } from '../consult/ConsultKit';
 import { statusLook, type OrderKind } from '../../utils/orderCenter';
-import { optimizedImageUri } from '../../utils/optimizedImage';
+import { ItemPhoto } from './ItemPhoto';
 import type { DiagArtKey } from '../../../../packages/ui/icons/diag-art';
 import { DiagArt } from './DiagArt';
 
@@ -166,7 +166,7 @@ export function TestRow({ name, tags, note, price, onPress, toggle, icon, last =
 
 export interface ItemCardProps {
   name: string;
-  /** The category illustration (blood, X-ray ...); the item's own `image` replaces it only when the backend sent one. */
+  /** The category illustration (blood, X-ray ...), only the FALLBACK: the item's own `image` is drawn first. */
   art: DiagArtKey;
   image?: string;
   /** A fixed width for a sideways strip; omitted = the full width of the list. */
@@ -192,11 +192,7 @@ export function ItemCard({ name, art, image, width, tags, note, rating, price, i
   return (
     <View testID={testID} style={{ width, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, padding: 16, gap: 14 }}>
       <Pressable accessibilityRole="button" accessibilityLabel={name} onPress={onPress} style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 56, opacity: pressed ? 0.85 : 1 })}>
-        {image ? (
-          <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: optimizedImageUri(image, 56) }} style={{ width: 56, height: 56, borderRadius: 16, backgroundColor: c.bg.sunken }} contentFit="cover" />
-        ) : (
-          <DiagArt art={art} size={56} />
-        )}
+        <ItemPhoto image={image} size={56} radius={16} bg={c.bg.sunken} fallback={<DiagArt art={art} size={56} />} />
         <View style={{ flex: 1, minWidth: 0, gap: 6 }}>
           <Text style={{ ...scale(t, 'bodyStrong', 'medium'), color: c.text.primary, ...flow }}>{name}</Text>
           {tags && tags.length > 0 ? (
@@ -534,13 +530,7 @@ export function DetailHead({ icon, tone, image, title, body, art }: { icon: Fill
   return (
     <Card theme={theme} tint={tone} padding="lg">
       <View style={{ alignItems: 'center', gap: 10 }}>
-        {image ? (
-          <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: optimizedImageUri(image, 96) }} style={{ width: 96, height: 96, borderRadius: 24, backgroundColor: c.bg.surface }} contentFit="cover" />
-        ) : art ? (
-          <DiagArt art={art} size={72} />
-        ) : (
-          <FIcon icon={icon} tone={tone} size={72} theme={theme} />
-        )}
+        <ItemPhoto image={image} size={96} radius={24} bg={c.bg.surface} fallback={art ? <DiagArt art={art} size={72} /> : <FIcon icon={icon} tone={tone} size={72} theme={theme} />} />
         <Text accessibilityRole="header" style={{ ...scale(t, 'h2'), color: c.text.primary, textAlign: 'center' }}>{title}</Text>
         {body ? <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, textAlign: 'center' }}>{body}</Text> : null}
       </View>
