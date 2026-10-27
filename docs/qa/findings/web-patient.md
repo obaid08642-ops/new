@@ -50,3 +50,11 @@ The CSP/nonce hydration failure on /en/c, /en/p/<slug>, /en/consultations/doctor
 Re-tested on the production layout (nonce server on :3000, standalone Next on :3999, twice): /en/c, /en/consultations/doctors and /en/medicine all hydrate, 0 CSP errors, no stuck loader. The P1 is closed as a test-setup error. Production behaviour was also observed read-only earlier and showed no chunk errors.
 
 Lesson for the sweep: all results recorded under plain `next start` (the anonymous static sweep and the first signed-in sweep) must be treated as provisional. The signed-in sweep is being rerun on the production layout.
+
+## A-07: 8-character sign-up with e-mail returns otp_required (test run 2026-10-27)
+
+| Sev | Where | What happens | Expected |
+|---|---|---|---|
+| P2 | `backend/src/modules/auth/auth.service.ts:884` (register, `otp_required` check) with `patient-web/app/api/auth/register/route.ts:45` (proxy) | A browser sign-up with a valid 8-character password and terms accepted gets `400 otp_required` on the second attempt of the same run. The request body is the same shape that gets a 2xx for A-02 (`name`, `identifier`, `password`, `locale`, `consents` terms and privacy v1). The difference is server-side state (the one-time-code marker in Redis, `otpVerifiedKey`), not the request. | Either the sign-up is accepted with the same inputs, or the website shows the code step before the register request. Owner or S to confirm which. |
+
+Evidence: `tools/live/j_web_qa_password_rule.py` first half passes (7 characters refused on the website, no request sent, no MongoDB row). The second half fails as above. `tools/live/j_web_qa_signup.py` (A-02) passes on the same stack.
