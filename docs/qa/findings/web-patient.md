@@ -66,3 +66,14 @@ Evidence: `tools/live/j_web_qa_password_rule.py` first half passes (7 characters
 | P2 | `patient-web/components-next/support-chat-client.tsx:17` (`parseHistory`, `list` looks for `data`, `messages` or `history` on the root) | The server returns a top-level array (`GET /api/patient/support/chat` = `[{id, from, text, time, isBot}]`). The parser reads the array's own keys, finds no list, and returns []. After any reload the page shows only the greeting; the sent messages are not drawn, although they are stored (MongoDB `supportrequests`) and returned by the API. | The thread of earlier messages is shown after a reload. |
 
 Evidence: `tools/live/j_web_qa_support.py`: 9/10 steps pass (sign-in, POST 2xx, bubble on screen, MongoDB thread row, `GET /support/chat/messages` read-back). The reload step fails. A diagnostic run showed the history GET returns the message with status 200 while the page shows 0 matches. The journey is not in `gate_order.txt` until the client is fixed (design or client owner).
+
+## A-14: a legal page stays 404 for an hour after its policy is published (test run 2026-10-27)
+
+| Sev | Where | What happens | Expected |
+|---|---|---|---|
+| P2 | `backend/src/modules/legal/legal.module.ts:166` (`GET legal/policy/:key`) | With no policy row the endpoint answers `200 OK` with an empty body, not 404. | `404` when the policy does not exist. |
+| P2 | `patient-web/lib/api/public-read.ts:16,21-22` (`readPublicEntity`, `next: { revalidate: 3600 }`) | The empty 200 is read as `null` and cached by Next's fetch cache for 3600 s. The terms, privacy and refund pages then answer 404 even after the policy is published, until the cache expires. | The page shows the policy as soon as it exists (or the cache is not kept for a missing policy). |
+
+Evidence: `tools/live/j_web_qa_legal.py`. On a stack where the pages were visited before the policies existed, the API read-back passes (text present) while the six pages answer 404. Clearing the Next fetch cache of the local standalone build (`.next/cache/fetch-cache`) and restarting patient-web makes the same run pass 29/29. The journey seeds the policies before it visits the pages, so it passes on a fresh stack.
+
+Seed note: the local test database holds the seeded policy text, marked "QA test data" (admin route `PUT /admin/admin/legal/policy/:key`). Production was not touched.
