@@ -1,14 +1,5 @@
-# 2026-10-27 lead reviewer: run 40. (1) Pause the ar+en translation WITHOUT losing answers (146 of 1,404 after 2.5 h on free tiers; it would
-# take ~24 h and a deploy restarts the backend): copy the container's answers to the host, then stop; it resumes later from where it stopped.
-# (2) Free disk (keep one local copy of each backup kind), (3) deploy main@61c95ace: pharmacy "Most ordered" + All mix, upload quarantine,
-# doctor page payload, public slots, diagnostics paging/sort, owner design round G1–G6, public catalogue speed (covering indexes, cache),
-# list payload 545 KB → 30 KB, wrong-language texts. (4) DRY RUNS only: 94-ranking-recompute and 91b-upload-scan-defer print what they
-# would change; applying them is the next run, after the owner reads the numbers.
-98c-translate-pause
-release:61c95ace5d418c64f01ef36574d47f001c3a0b72
-97-free-old-predeploy
-93-free-unused-images
-60-deploy-main
+# 2026-10-27 lead reviewer: run 41, APPLY the ranking recompute (dry run in run 40: 20,990 products without category_pos, 13 categories,
+# first page of "All" has 3 categories; 0 delivered orders to recount). Fills category_pos so "All" mixes every category, and recomputes
+# the scores with the same code as the 30-minute job. Prints the first page's category count after.
 94-ranking-recompute
-91b-upload-scan-defer
 cf-purge-api
