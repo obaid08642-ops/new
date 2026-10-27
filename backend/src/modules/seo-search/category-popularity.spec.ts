@@ -59,6 +59,13 @@ describe('publicCategoryProducts popularity ordering', () => {
     expect(cols.product_ranking_metrics.find).not.toHaveBeenCalled();
   });
 
+  it('"most_ordered" reads the delivered-order count (id breaks ties) through the plain sort', async () => {
+    const { service, pipelines, finds } = svc([doc('a')]);
+    await service.publicCategoryProducts('ar', 'all', undefined, 1, 24, undefined, 'most_ordered');
+    expect(pipelines).toEqual([]);
+    expect(finds[0]).toEqual({ orders_count: -1, _id: 1 });
+  });
+
   it('an explicit price order keeps the plain sort', async () => {
     const { service, pipelines, finds } = svc([doc('a')]);
     await service.publicCategoryProducts('ar', 'all', undefined, 1, 24, undefined, 'price_asc');

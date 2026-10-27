@@ -5,6 +5,7 @@ const PDFDocument = require('pdfkit');
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Inject, ServiceUnavailableException, Optional } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
+import { countDeliveredOrder } from './ordered-count';
 import { Connection } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Order, OrderDocument, PharmacyBid } from '../../schemas/order.schema';
@@ -295,6 +296,9 @@ export class OrdersService {
             { patient_id: order.patient_id, refill_pending_order_id: order.id },
             { $set: { order_id: order.id, refill_fulfilled_at: new Date() }, $unset: { refill_pending_order_id: 1 } },
           );
+
+          // "Most ordered": +1 on each distinct product of a delivered order (DELIVERED is reached once per order).
+          await countDeliveredOrder(this.conn, order.items);
 
           // Continuous Dynamic Re-Ranking: Ingest completed purchases
           if (Array.isArray(order.items) && this.rankingEvents) {

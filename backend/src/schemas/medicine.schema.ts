@@ -45,6 +45,7 @@ export class Medicine {
   @Prop() rejected_reason?: string;
   @Prop({ default: 0 }) usage_count: number; // how many times referenced
   @Prop() category_pos?: number; // place inside its top-level category (1 = best), set by the ranking job: the "All" list round-robins on it
+  @Prop({ default: 0 }) orders_count: number; // delivered orders that contain this product ("Most ordered"); +1 per order, never per unit
   @Prop({ default: 0, index: true }) rank_score: number; // the ranking's composite score, copied here by ProductRankingService so every list can sort by it
   @Prop({ index: true }) barcode?: string; // EAN13 / UPC / GTIN
   // ============ MEDICAL INFO (production-ready medicine details) ============
@@ -136,6 +137,8 @@ MedicineSchema.index({ ...PUBLIC_KEYS, usage_count: -1, rating: -1, _id: 1 }, { 
 MedicineSchema.index({ ...PUBLIC_KEYS, price: 1, _id: 1 }, { name: 'public_price_asc' });
 MedicineSchema.index({ ...PUBLIC_KEYS, price: -1, _id: 1 }, { name: 'public_price_desc' });
 MedicineSchema.index({ ...PUBLIC_KEYS, createdAt: -1, _id: 1 }, { name: 'public_newest' });
+// "Most ordered": delivered-order count first (orders.service adds 1 per delivered order), the id breaks ties. Expand-only.
+MedicineSchema.index({ ...PUBLIC_KEYS, orders_count: -1, _id: 1 }, { name: 'public_most_ordered' });
 // The default (popular) page reads the sort through six fields only (popularPage in product-ranking.service.ts): this index holds every one
 // of them (and `_id`, the tie-break) after the public flags, so for the unfiltered "all" list the database answers from the index and never loads a document to sort.
 MedicineSchema.index(

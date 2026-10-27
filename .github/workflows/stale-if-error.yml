@@ -1,0 +1,52 @@
+name: stale-if-error
+# Sentry PATIENT-WEB-1/8/9/A (2026-10-26/27): "public data unavailable" during a deploy. The REAL production build of patient-web (Redis cache handler,
+# as the Docker image builds it) runs against a stand-in backend (test data) that goes down: the last good copy of a cached public page keeps being
+# served, a page nobody had cached answers a 5xx that is not cached, and Sentry (a local stand-in) hears of the outage as a WARNING, never an error.
+on:
+  pull_request:
+    paths:
+      - 'patient-web/lib/api/**'
+      - 'patient-web/lib/observability/**'
+      - 'patient-web/instrumentation.ts'
+      - 'patient-web/cache-handler.cjs'
+      - 'patient-web/next.config.ts'
+      - 'patient-web/app/*/p/**'
+      - 'tools/perf/stale-if-error/**'
+      - '.github/workflows/stale-if-error.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  outage:
+    name: last good copy during a backend outage
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          version: 10.4.1
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: patient-web/pnpm-lock.yaml
+      - name: Install
+        working-directory: patient-web
+        run: corepack enable && pnpm install --frozen-lockfile
+      - name: Build as the Docker image builds it (Redis cache handler; the Sentry DSN points at the local stand-in)
+        working-directory: patient-web
+        env:
+          NODE_ENV: production
+          NEXT_TELEMETRY_DISABLED: "1"
+          NEXT_CACHE_HANDLER: redis
+          NEXT_PUBLIC_SENTRY_DSN: http://pub@127.0.0.1:4020/1
+          NEXT_PUBLIC_SITE_ORIGIN: https://nabd.plus
+        run: npx next build
+      - name: Redis
+        run: sudo apt-get install -y -q redis-server >/dev/null
+      - name: Outage rehearsal
+        run: bash tools/perf/stale-if-error/run-standalone.sh

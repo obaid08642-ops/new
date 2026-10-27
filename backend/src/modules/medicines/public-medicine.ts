@@ -23,7 +23,7 @@ export const MEDICINE_INTERNAL_FIELDS: ReadonlySet<string> = new Set([
   'verified', 'approved_by', 'approved_at', 'rejected_reason', 'change_requests', 'version',
   'created_by', 'created_by_user_id', 'created_by_role', 'updated_by', 'deleted_at', 'deleted_by', 'is_deleted',
   // Stock and analytics.
-  'aggregate_stock', 'pharmacies_count', 'usage_count', 'score',
+  'aggregate_stock', 'pharmacies_count', 'usage_count', 'orders_count', 'score',
   // Price source bookkeeping (the price itself stays).
   'sfda_price_source', 'sfda_price_updated_at',
 ]);

@@ -1,3 +1,4 @@
+import { assertScanned } from '../storage/pending-scan';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { Injectable, NotFoundException, Inject, BadRequestException, Logger, Optional } from '@nestjs/common';
 import { Permission } from '../../common/permissions';
@@ -791,10 +792,11 @@ export class MedicinesService {
       q.price = { $gt: 0 }; // a missing price is not the cheapest
     }
     if (and.length) q.$and = and;
-    const byRank = sort !== 'price_asc' && sort !== 'price_desc' && sort !== 'newest' && !search;
+    const byRank = sort !== 'price_asc' && sort !== 'price_desc' && sort !== 'newest' && sort !== 'most_ordered' && !search;
     const order: any = sort === 'price_asc' ? { price: 1, id: 1 }
       : sort === 'price_desc' ? { price: -1, id: 1 }
       : sort === 'newest' ? { createdAt: -1, id: 1 }
+      : sort === 'most_ordered' ? { orders_count: -1, id: 1 }
       : { verified: -1, usage_count: -1, name_ar: 1 };
     const safeLimit = clampPageInt(limit, 30, 100);
     const safePage = page === undefined ? 1 : clampPageInt(page, 1);
@@ -1169,7 +1171,7 @@ export class MedicinesService {
       // Needs-review #449: only forms that exist in the public catalogue (no invented fallback list).
       forms: forms.filter(Boolean),
       // #450: the ids GET /medicines accepts as `sort` (the screens translate them); no display text from the server.
-      sortOptions: ['relevant', 'price_asc', 'price_desc', 'newest'],
+      sortOptions: ['relevant', 'most_ordered', 'price_asc', 'price_desc', 'newest'],
     };
   }
 
@@ -1602,6 +1604,7 @@ export class MedicinesService {
     if (body.storage_id) {
       const obj: any = await this.storageObjects.findOne({ id: body.storage_id, deleted: { $ne: true } });
       if (!obj) throw new NotFoundException('Uploaded image not found');
+      assertScanned(obj);
       resolvedUrl = obj.external_url || `/api/v1/storage/${obj.id}`;
     }
 

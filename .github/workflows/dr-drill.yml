@@ -8,6 +8,8 @@ on:
       - 'deploy/scripts/*backup*'
       - 'deploy/scripts/dr*'
       - 'deploy/scripts/test_dr_plan.py'
+      - 'deploy/scripts/clamav-window.sh'
+      - 'deploy/scripts/test_clamav_window.py'
       - 'deploy/cron/nabd-backups'
       - 'tools/ops/dr-rehearsal/**'
       - '.github/workflows/dr-drill.yml'
@@ -24,7 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Recovery plan logic (unit tests)
-        run: cd deploy/scripts && python3 -m unittest test_dr_plan -v
+        run: cd deploy/scripts && python3 -m unittest test_dr_plan test_clamav_window -v
       - name: Shell syntax
         run: for f in deploy/scripts/*.sh tools/ops/dr-rehearsal/run.sh; do bash -n "$f"; done
   real-mongo:
