@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleInit, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, NotFoundException, Optional } from '@nestjs/common';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
 import { Condition, ConditionDocument } from './schemas/condition.schema';
@@ -8,6 +8,8 @@ import { LocationService } from '../location/location.service';
 import { escapeRegex } from '../../common/slug.util';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { NOT_PROMOTABLE_FILTER } from '../medicines/promotion-rules';
+import { publicDoctorProfile } from '../care/public-doctor-profile';
+import { RatingsService } from '../ratings/ratings.module';
 
 export interface RelatedGraphResponse {
   entity_type: string;
@@ -58,6 +60,7 @@ export class EntityGraphService implements OnModuleInit {
     @InjectModel(EntityRelation.name) private readonly relationModel: Model<EntityRelationDocument>,
     @InjectConnection() private readonly connection: Connection,
     private readonly locationService: LocationService,
+    @Optional() private readonly ratings?: RatingsService,
   ) {}
 
   async onModuleInit() {
@@ -164,6 +167,12 @@ export class EntityGraphService implements OnModuleInit {
     };
   }
 
+  /** First page (5) of a doctor's published reviews: score, comment, date, the reviewer's first name. Empty when the service is not wired. */
+  private async latestReviews(doctorId: string) {
+    if (!this.ratings || !doctorId) return { data: [], total: 0, page: 1, total_pages: 0, avg: 0, count: 0 };
+    return this.ratings.forProvider(String(doctorId), 1, 5);
+  }
+
   private async getRelatedDoctor(identifier: string): Promise<RelatedGraphResponse> {
     const docCol = this.connection.collection('provider_profiles');
     const doctor = await docCol.findOne({
@@ -204,9 +213,16 @@ export class EntityGraphService implements OnModuleInit {
         name_ar: doctor.name_ar || doctor.full_name,
         name_en: doctor.name_en,
         specialty: doctor.specialty,
-        // a real rating or none: never a default (owner rule, nothing invented)
+        // the same photo, clinic photos, bio, languages, education and rating as GET /care/doctors/:id (care/public-doctor-profile.ts)
+        ...publicDoctorProfile(doctor),
+        // a real rating or none: never a default (owner rule, nothing invented); these keep the page's old reading of the two fields
         rating: typeof doctor.rating === 'number' ? doctor.rating : (typeof doctor.rating_avg === 'number' ? doctor.rating_avg : null),
-        reviews_count: typeof doctor.reviews_count === 'number' ? doctor.reviews_count : null,
+        // the count of ratings the doctor really has (the profile keeps it as rating_count); none, not 0, when it has no count
+        reviews_count: typeof doctor.reviews_count === 'number' ? doctor.reviews_count : (typeof doctor.rating_count === 'number' ? doctor.rating_count : null),
+        rating_avg: typeof doctor.rating_avg === 'number' ? doctor.rating_avg : null,
+        rating_count: typeof doctor.rating_count === 'number' ? doctor.rating_count : null,
+        // the first page of the published written reviews; more pages: GET /ratings/provider/:id?page=
+        reviews: await this.latestReviews(doctor.id),
         consultation_modes: Array.isArray(doctor.consultation_modes) ? doctor.consultation_modes : [],
         experience_years: doctor.experience_years,
         city: doctor.city,
