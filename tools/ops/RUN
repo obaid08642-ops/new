@@ -1,7 +1,7 @@
-# 2026-10-27 lead reviewer: run 34. Deploy main@2a78f0d0 (consultations web/app layout, hologram map web, home map tile, app menu,
-# SLO alert hysteresis + digest, /public popular top-k + index, oplog quiet skip). Free disk first (keeps one local copy of each backup kind).
+# 2026-10-27 lead reviewer: run 34. Deploy main@47a5650a (consultations web/app layout, hologram map web, home map tile, app menu,
+# SLO alert hysteresis + digest, /public popular top-k + index, oplog quiet skip, Redis-down limiter for sensitive routes). Free disk first (keeps one local copy of each backup kind).
 # After the deploy: 95-content-coverage (READ-ONLY) and 98-translate-content STEP=gaps (DRY RUN: counts only, no AI call, no write).
-release:2a78f0d0e8b04f533fa5c725ccbc7f3018c7c8ac
+release:47a5650a9a6576d20a570473897b23c7f3f26bec
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
