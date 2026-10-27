@@ -91,6 +91,48 @@ describe('AssistantService rules (D-15)', () => {
     expect(checkRules(locale, body)).toEqual([]);
   });
 
+  // owner product rule 2026-10-26: these answer with the emergency button first, in every language, without consulting the model
+  it.each([
+    ['en', 'My father has severe bleeding from a cut and it will not stop'],
+    ['en', 'She is coughing up blood since this morning'],
+    ['en', 'My son is having a seizure right now'],
+    ['en', 'My mother is unconscious and not responding'],
+    ['en', 'My child swallowed bleach and I think it is poison'],
+    ['en', 'His face is swollen and his throat is closing after the injection'],
+    ['en', 'I want to die and I have a plan'],
+    ['ar', 'ابني عنده نزيف شديد ولا يتوقف'],
+    ['ar', 'أبي فقد الوعي فجأة'],
+    ['ar', 'أختي تعرضت لتسمم بعد أن شربت منظفاً'],
+    ['ar', 'لدي أفكار انتحار'],
+    ['ur', 'میرے بھائی کو شدید خون بہہ رہا ہے'],
+    ['ur', 'میری ماں بے ہوش ہو گئی ہیں'],
+    ['hi', 'मेरे पापा को बहुत खून बह रहा है'],
+    ['hi', 'बच्चे को दौरा पड़ रहा है'],
+    ['bn', 'আমার ভাইয়ের প্রচুর রক্ত পড়ছে'],
+    ['bn', 'মা অজ্ঞান হয়ে গেছেন'],
+    ['fil', 'Nawalan ng malay ang tatay ko'],
+    ['fil', 'Matinding pagdurugo ang nararanasan ng nanay ko'],
+  ])('red flag %s (%s): emergency button first, model not consulted', async (locale, message) => {
+    const svc: any = serviceFor();
+    const body: any = await ask(svc, message, locale);
+    expect(body.kind).toBe('red_flag');
+    expect(body.actions[0]).toEqual({ type: 'emergency_call', tel: '997' });
+    expect(checkRules(locale, body)).toEqual([]);
+    expect(svc.gateway.generate).not.toHaveBeenCalled();
+  });
+
+  it('a red flag still names the specialty after the emergency button', async () => {
+    const body: any = await ask(serviceFor(), 'My three year old son is having a seizure', 'en');
+    expect(body.actions).toEqual([{ type: 'emergency_call', tel: '997' }, { type: 'book_consultation', specialty: 'pediatrics' }]);
+  });
+
+  it('ordinary mentions are not emergencies ("my gums bleed when I brush", a poison-ivy rash)', async () => {
+    for (const message of ['My gums bleed a little when I brush my teeth', 'I have an itchy rash after touching a plant']) {
+      const body: any = await ask(serviceFor(), message, 'en');
+      expect(body.kind).not.toBe('red_flag');
+    }
+  });
+
   it('answers red flags even when the model is down, without consulting it', async () => {
     const svc: any = serviceFor(true);
     const body: any = await ask(svc, 'I keep thinking about ending my life', 'en');

@@ -20,10 +20,13 @@ describe('providers map entry', () => {
     expect(parseMapKind(undefined)).toBeNull();
   });
 
-  it('is offered on Home, pharmacy, diagnostics and consultations with the right type', () => {
-    expect(read('src/components/home/HomeTopRow.tsx')).toContain('<MapEntryButton');
-    expect(read('app/(tabs)/pharmacy.tsx')).toContain('<MapEntryButton kind="pharmacy"');
-    expect(read('app/(tabs)/diagnostics.tsx')).toContain('<MapEntryButton kind="lab"');
+  it('is offered as a Home quick tile (not in the top bar, owner 2026-10-26) and on consultations with the right type; not on the pharmacy or labs hubs', () => {
+    expect(read('src/components/home/HomeTopRow.tsx')).not.toContain('MapEntryButton');
+    expect(read('src/components/home/HomeQuick.tsx')).toContain("route: '/map'");
+    // owner layout decision 4: the map lives on Home, not under the pharmacy header
+    expect(read('app/(tabs)/pharmacy.tsx')).not.toContain('<MapEntryButton');
+    // owner layout decision 10: nor under the labs and radiology header
+    expect(read('app/(tabs)/diagnostics.tsx')).not.toContain('<MapEntryButton');
     expect(read('app/(tabs)/consultations/index.tsx')).toContain("mapHref('doctor')");
   });
 
