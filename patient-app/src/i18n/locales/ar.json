@@ -396,6 +396,8 @@
   "pharmacy.wishlist.empty": "قائمة الأمنيات فارغة",
   "pharmacy.wishlist.emptyBody": "أضف منتجًا بقلب صفحته ليظهر هنا.",
   "pharmacy.wishlist.shop": "ابدأ التسوق",
+  "pharmacy.wishlist.addedToast": "تمت الإضافة إلى المفضلة",
+  "pharmacy.wishlist.removedToast": "تمت الإزالة من المفضلة",
   "pharmacy.filters.title": "تصفية النتائج",
   "pharmacy.filters.reset": "إعادة تعيين",
   "pharmacy.filters.clearAll": "مسح الكل",

@@ -2496,6 +2496,8 @@
     "zoomImage": "تصویر بڑی کریں",
     "wishlistAdd": "پسندیدہ فہرست میں شامل کریں",
     "wishlistRemove": "پسندیدہ فہرست سے ہٹائیں",
+    "wishlistAddedToast": "پسندیدہ میں شامل ہو گیا",
+    "wishlistRemovedToast": "پسندیدہ سے ہٹا دیا گیا",
     "wishlistError": "پسندیدہ فہرست اپ ڈیٹ نہیں ہو سکی۔ دوبارہ کوشش کریں۔",
     "closeImage": "بند کریں",
     "activeIngredientLine": "مؤثر جزو: {value}",

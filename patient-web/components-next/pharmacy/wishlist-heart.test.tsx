@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 
-import { WishlistHeart } from "./wishlist-heart";
+import { WishlistHeart, wishlistToastKey } from "./wishlist-heart";
 
 describe("WishlistHeart", () => {
   it("draws one button whose label says what a press does, with no error before anything was pressed", () => {
@@ -12,5 +12,11 @@ describe("WishlistHeart", () => {
     expect(html).toContain('aria-label="wishlistAdd"');
     expect(html).not.toContain("wishlistError");
     expect(html.match(/<button/g)?.length).toBe(1);
+  });
+
+  it("confirms with the message of the new state, and draws no confirmation before a press", () => {
+    expect(wishlistToastKey(true)).toBe("wishlistAddedToast");
+    expect(wishlistToastKey(false)).toBe("wishlistRemovedToast");
+    expect(renderToStaticMarkup(<WishlistHeart itemId="med-1" locale="en" />)).not.toContain("aria-live");
   });
 });

@@ -396,6 +396,8 @@
   "pharmacy.wishlist.empty": "इच्छा-सूची खाली है",
   "pharmacy.wishlist.emptyBody": "किसी उत्पाद के पेज पर दिल दबाएं, वह यहां दिखाई देगा।",
   "pharmacy.wishlist.shop": "खरीदारी शुरू करें",
+  "pharmacy.wishlist.addedToast": "पसंदीदा में जोड़ा गया",
+  "pharmacy.wishlist.removedToast": "पसंदीदा से हटाया गया",
   "pharmacy.filters.title": "परिणाम फ़िल्टर करें",
   "pharmacy.filters.reset": "रीसेट करें",
   "pharmacy.filters.clearAll": "सभी साफ़ करें",

@@ -2496,6 +2496,8 @@
     "zoomImage": "चित्र बड़ा करें",
     "wishlistAdd": "पसंद की सूची में जोड़ें",
     "wishlistRemove": "पसंद की सूची से हटाएँ",
+    "wishlistAddedToast": "पसंदीदा में जोड़ा गया",
+    "wishlistRemovedToast": "पसंदीदा से हटाया गया",
     "wishlistError": "पसंद की सूची अपडेट नहीं हो सकी। फिर कोशिश करें।",
     "closeImage": "बंद करें",
     "activeIngredientLine": "सक्रिय तत्व: {value}",
