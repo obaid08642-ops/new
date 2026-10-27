@@ -25,8 +25,9 @@ import { CATALOG_COLLECTIONS } from '../modules/catalogs/catalog-collections';
 import { publicMedicineFilter } from '../modules/medicines/public-medicine-filter';
 import { TARGET_ORDER, buildRequests, checkTranslation, findGaps, parseAnswers, type Gap, type MoveItem, type Rejection, type TranslateRequest, type TranslationFile, type TranslationItem } from '../modules/medicines/content-translation';
 import type { ContentLocale } from '../modules/medicines/med-i18n';
-import { DEFAULT_MODEL, PRICES, approxTokens, callerFromEnv, runRequests } from './classify-catalogue-batch';
-import { providerVariableNames } from '../modules/ai/env-chain';
+import { DEFAULT_MODEL, PRICES, approxTokens } from './classify-catalogue-batch';
+import { providerCallersFromEnv, providerVariableNames } from '../modules/ai/env-chain';
+import { runParallel, ParallelProvider, ProviderLimits } from './parallel-runner';
 
 const arg = (argv: string[], name: string): string | undefined => argv.find((a) => a.startsWith(`--${name}=`))?.split('=').slice(1).join('=');
 export const PROVIDER_VARIABLES: readonly string[] = providerVariableNames();
@@ -47,6 +48,27 @@ export function estimateRequests(reqs: TranslateRequest[], model = DEFAULT_MODEL
     usd_batch_api: Math.round(((input * p.batchInput + output * p.batchOutput) / 1e6) * 100) / 100,
     price_source: p.source,
   };
+}
+
+/**
+ * One entry per provider whose key is set, each with its own limits: the catalogue's requests/minute, requests/day and tokens/day, of which
+ * a run uses TRANSLATE_DAILY_SHARE (default 0.6) because the same keys serve the live assistant. `TRANSLATE_LIMITS` (JSON, by provider name,
+ * e.g. {"groq":{"rpm":10,"lanes":2}}) overrides a number; `--rpm` caps every provider.
+ */
+export function translateProviders(env: NodeJS.ProcessEnv, rpmCap?: number): ParallelProvider[] {
+  const share = Math.min(1, Math.max(0.05, Number(env.TRANSLATE_DAILY_SHARE) || 0.6));
+  const over: Record<string, Partial<ProviderLimits>> = env.TRANSLATE_LIMITS ? JSON.parse(env.TRANSLATE_LIMITS) : {};
+  return providerCallersFromEnv({ ...env, CLASSIFY_MODEL: env.TRANSLATE_MODEL || env.CLASSIFY_MODEL }, { model: env.TRANSLATE_MODEL || env.CLASSIFY_MODEL }).map(({ provider, call }) => {
+    const base: ProviderLimits = {
+      rpm: provider.requests_per_minute || 10,
+      rpd: provider.requests_per_day ? Math.floor(provider.requests_per_day * share) : 0,
+      tokens_per_day: provider.tokens_per_day ? Math.floor(provider.tokens_per_day * share) : 0,
+      lanes: 3,
+    };
+    const limits = { ...base, ...(over[provider.key] ?? {}) };
+    if (rpmCap) limits.rpm = Math.min(limits.rpm, rpmCap);
+    return { name: provider.key, call, limits };
+  });
 }
 
 /** The requests still to send: those without an answer yet, at most `max` (a bounded batch per run keeps a free-tier day within its limit). */
@@ -133,10 +155,13 @@ export async function main(argv: string[]): Promise<number> {
     if (!requests || !outFile) throw new Error('--requests and --out are required');
     const reqs = readJsonl<TranslateRequest>(requests);
     const done = new Set(readJsonl<{ id: string }>(outFile).map((r) => r.id));
-    const call = callerFromEnv({ ...process.env, CLASSIFY_MODEL: process.env.TRANSLATE_MODEL || process.env.CLASSIFY_MODEL });
     const batch = pendingRequests(reqs, done, Number(arg(argv, 'max')) || Infinity);
-    const res = await runRequests(batch.map((r) => ({ id: r.id, record_ids: [], prompt: r.prompt })), call, { done, write: (l) => fs.appendFileSync(outFile, `${l}\n`), sleep: (ms) => new Promise((r) => setTimeout(r, ms)) }, Number(arg(argv, 'rpm')) || 60);
-    out({ step, ...res, batch: batch.length, remaining: reqs.length - done.size });
+    const providers = translateProviders(process.env, Number(arg(argv, 'rpm')) || undefined);
+    const t0 = Date.now();
+    const res = await runParallel(batch.map((r) => ({ id: r.id, prompt: r.prompt })), providers, {
+      done, write: (l) => fs.appendFileSync(outFile, `${l}\n`), sleep: (ms) => new Promise((r) => setTimeout(r, ms)), now: Date.now, log: (l) => process.stderr.write(`${l}\n`),
+    }, { tokensOf: approxTokens });
+    out({ step, sent: res.sent, skipped: res.skipped, failed: res.failed, providers: res.providers, minutes: Math.round((Date.now() - t0) / 600) / 100, batch: batch.length, remaining: reqs.length - done.size });
     return res.failed ? 1 : 0;
   }
   if (step === 'plan') {
