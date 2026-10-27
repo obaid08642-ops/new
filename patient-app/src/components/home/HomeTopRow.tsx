@@ -9,6 +9,7 @@ import { Avatar, Icon, IconButton } from '../../../../packages/ui-native/src';
 import { withAlpha } from '../../../../packages/ui-native/src/shells/shellTokens';
 import { LANGUAGES, useApp, type LangCode } from '../../context/AppContext';
 import { ServiceCartButton } from '../cart/ServiceCartButton';
+import { HeaderMenuButton } from '../nav/HeaderMenuButton';
 import { WishlistButton } from '../pharmacy/PharmacyKit';
 import { Plain, Txt, useScreenUi } from './homeKit';
 
@@ -90,6 +91,7 @@ export function HomeTopRow({ name }: { name: string | null }) {
           />
         ) : null}
       </View>
+      <HeaderMenuButton testID="home-menu-button" />
       <LanguageSheet visible={langOpen} onClose={() => setLangOpen(false)} />
     </View>
   );

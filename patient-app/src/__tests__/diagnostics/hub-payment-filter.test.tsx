@@ -20,6 +20,8 @@ jest.mock('expo-router', () => ({
 }));
 jest.mock('react-native-localize', () => ({ getLocales: () => [], findBestLanguageTag: () => undefined }));
 jest.mock('../../context/AppContext', () => ({ useApp: () => ({ isDark: false, lang: 'en', isRTL: false }) }));
+// the header carries the service cart button (owner layout decision 2), which reads the pharmacy cart count
+jest.mock('../../context/CartContext', () => ({ useCart: () => ({ itemCount: 0 }) }));
 jest.mock('../../context/DiagnosticsCartContext', () => ({
   useDiagnosticsCart: () => ({ items: [], itemCount: 0, total: 0, addItem: jest.fn(), removeItem: jest.fn() }),
 }));
