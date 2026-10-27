@@ -19,7 +19,7 @@ import { ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { UserRole } from '../../common/enums';
 import { CreateBookingDto, RespondDto, AssignDto, CheckInDto, GpsDto, VisitReportDto, CreateCarePlanDto, SetAvailabilityDto, InventoryRequestDto, PostMessageDto, PostLegacyDto, ProviderSendDto } from './home-care-compat.dto';
 
-import { nurseFilterClauses, nearestOrigin, distanceKmTo } from './nurse-list-filters';
+import { nurseFilterClauses, nearestOrigin, distanceKmTo, caseInsensitiveEq } from './nurse-list-filters';
 import { NAME_PROJECTION, withServiceNames } from '../../common/booking-names';
 
 const ACTIVE_STATES = ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'ARRIVED', 'CARE_STARTED'];
@@ -76,7 +76,7 @@ export class HomeCareCompatController {
     const svc: any = serviceId ? await this.services.findOne({ id: { $eq: String(serviceId) } }).lean() : null;
     if (serviceId) filter['nursing_services.key'] = { $eq: String(serviceId) };
     const gender = typeof q?.gender === 'string' ? q.gender : '';
-    if (gender && gender !== 'any') filter.gender = { $eq: gender };
+    if (gender && gender !== 'any') filter.gender = caseInsensitiveEq(gender.slice(0, 20));
     Object.assign(filter, nurseFilterClauses(q));
     if (typeof q?.search === 'string' && q.search.trim()) {
       const rx = new RegExp(q.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
