@@ -35,4 +35,14 @@ describe("consultations doctors list layout", () => {
       for (const key of ["filters", "filtersApply", "filtersClearAll", "visitSubClinic", "visitSubVideo", "visitSubHome", "removeFilter", "filterAll"]) expect(message(l)[key], `${l}.${key}`).toBeTruthy();
     }
   });
+  it("the doctors search is one row: the field, the Search action, then Filters at the inline end; the label is the Doctors.search key in every language", () => {
+    const view = code("app/[locale]/consultations/doctors/doctors-view.tsx");
+    const row = view.slice(view.indexOf("styles.searchRow"), view.indexOf("</form>"));
+    expect(row.indexOf("<SuggestInput")).toBeLessThan(row.indexOf('<Button type="submit"'));
+    expect(row.indexOf('<Button type="submit"')).toBeLessThan(row.indexOf("<DoctorFiltersSheet"));
+    expect(row).toContain('label={t("search")}');
+    expect(message("ar").search).toBe("بحث");
+    for (const l of ["ar", "en", "ur", "hi", "bn", "fil"]) expect(message(l).search?.length, l).toBeGreaterThan(0);
+    expect(code("components-next/consult/consult.module.css")).toMatch(/\.searchRow button \{[^}]*font-family: inherit/);
+  });
 });

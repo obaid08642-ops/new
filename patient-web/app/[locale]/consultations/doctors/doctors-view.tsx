@@ -120,10 +120,15 @@ export async function DoctorsView({ params, searchParams }: Props) {
     <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/consultations`} width="wide">
       <StaleWhileRevalidate maxAgeSeconds={searchParams === undefined ? DOCTORS_REVALIDATE_SECONDS : undefined} />
       <div className={styles.searchSticky}>
-      <form className={styles.search} method="get" role="search">
-        <SuggestInput locale={locale} id="doctor-search" name="q" defaultValue={sp.q ?? (specialtyName ? "" : sp.specialty ?? "")} placeholder={t("searchPlaceholder")} label={t("searchLabel")} fieldClassName={styles.searchField} inputClassName={styles.searchInput}>
-          <Icon name="search" size={20} tone="secondary" />
-        </SuggestInput>
+      <form className={styles.doctorSearch} method="get" role="search">
+        {/* one row: the search field, the Search action, the Filters button at the inline end (owner review 2026-10-27, G2) */}
+        <div className={styles.searchRow}>
+          <SuggestInput locale={locale} id="doctor-search" name="q" defaultValue={sp.q ?? (specialtyName ? "" : sp.specialty ?? "")} placeholder={t("searchPlaceholder")} label={t("searchLabel")} fieldClassName={styles.searchField} inputClassName={styles.searchInput}>
+            <Icon name="search" size={20} tone="secondary" />
+          </SuggestInput>
+          <Button type="submit" label={t("search")} size="lg" />
+          <DoctorFiltersSheet locale={locale} filters={filters} q={sp.q} specialty={sp.specialty} sort={sp.sort} clearHref={clearHref} count={activeChips.length} />
+        </div>
         {[...filterPageParams(filters)].map(([name, value]) => <input key={name} type="hidden" name={name} value={value} />)}
         <label className={`${styles.searchField} ${styles.searchSelect}`}>
           <span className="sr-only">{t("specialtyLabel")}</span>
@@ -132,8 +137,6 @@ export async function DoctorsView({ params, searchParams }: Props) {
             {SPECIALTY_SLUGS.map((slug) => <option key={slug} value={slug}>{names(slug)}</option>)}
           </select>
         </label>
-        <DoctorFiltersSheet locale={locale} filters={filters} q={sp.q} specialty={sp.specialty} sort={sp.sort} clearHref={clearHref} count={activeChips.length} />
-        <Button type="submit" label={t("search")} size="lg" />
       </form>
       </div>
       {activeChips.length > 0 ? (
