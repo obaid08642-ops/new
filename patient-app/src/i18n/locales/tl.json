@@ -1140,7 +1140,7 @@
   "consult.hub.visitType": "Uri ng konsultasyon",
   "consult.hub.payment": "Bayad",
   "consult.hub.payAll": "Lahat",
-  "consult.hub.payCash": "Pera",
+  "consult.hub.payCash": "Walang seguro (cash)",
   "consult.hub.payInsurance": "Seguro",
   "consult.hub.specialties": "Mga espesyalidad",
   "consult.hub.viewAll": "Tingnan lahat",
@@ -3813,5 +3813,13 @@
   "picker.choose": "Pumili",
   "picker.reversing": "Binabasa ang address mula sa pin…",
   "picker.outsideArea": "Nasa labas ng service area ang lugar na ito. Ilipat ang pin sa loob ng kaharian o i-type mismo ang address.",
-  "picker.reverseFailed": "Hindi nabasa ang address mula sa iyong lokasyon. I-type ito mismo."
+  "picker.reverseFailed": "Hindi nabasa ang address mula sa iyong lokasyon. I-type ito mismo.",
+  "consult.hub.visitSubClinic": "Magpatingin sa klinika",
+  "consult.hub.visitSubVideo": "Kausapin ang doktor sa bidyo",
+  "consult.hub.visitSubHome": "Pupunta ang doktor sa bahay mo",
+  "consult.hub.filters": "Mga filter",
+  "consult.hub.filtersTitle": "I-filter ang mga doktor",
+  "consult.hub.filtersClearAll": "Burahin lahat",
+  "consult.hub.filtersClose": "Isara ang mga filter",
+  "consult.hub.filtersWithCount": "Mga filter, {n} aktibo"
 }

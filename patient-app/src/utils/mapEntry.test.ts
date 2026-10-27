@@ -25,9 +25,8 @@ describe('providers map entry', () => {
     expect(read('src/components/home/HomeQuick.tsx')).toContain("route: '/map'");
     // owner layout decision 4: the map lives on Home, not under the pharmacy header
     expect(read('app/(tabs)/pharmacy.tsx')).not.toContain('<MapEntryButton');
-    // owner layout decision 10: nor under the labs and radiology header
     expect(read('app/(tabs)/diagnostics.tsx')).not.toContain('<MapEntryButton');
-    expect(read('app/(tabs)/consultations/index.tsx')).toContain("mapHref('doctor')");
+    expect(read('app/(tabs)/consultations/index.tsx')).not.toContain('mapHref');
   });
 
   it('the map screen reads the type param to filter', () => {

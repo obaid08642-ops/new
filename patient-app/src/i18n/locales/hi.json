@@ -1140,7 +1140,7 @@
   "consult.hub.visitType": "परामर्श का प्रकार",
   "consult.hub.payment": "भुगतान",
   "consult.hub.payAll": "सभी",
-  "consult.hub.payCash": "नकद",
+  "consult.hub.payCash": "बिना बीमा (नकद)",
   "consult.hub.payInsurance": "बीमा",
   "consult.hub.specialties": "विशेषज्ञताएँ",
   "consult.hub.viewAll": "सभी देखें",
@@ -3813,5 +3813,13 @@
   "picker.choose": "चुनें",
   "picker.reversing": "पिन की जगह से पता पढ़ा जा रहा है…",
   "picker.outsideArea": "यह जगह सेवा क्षेत्र से बाहर है। पिन को सऊदी अरब के अंदर ले जाएँ या पता खुद लिखें।",
-  "picker.reverseFailed": "आपके स्थान से पता नहीं पढ़ा जा सका। खुद लिखें।"
+  "picker.reverseFailed": "आपके स्थान से पता नहीं पढ़ा जा सका। खुद लिखें।",
+  "consult.hub.visitSubClinic": "क्लिनिक में डॉक्टर से मिलें",
+  "consult.hub.visitSubVideo": "वीडियो पर डॉक्टर से बात करें",
+  "consult.hub.visitSubHome": "डॉक्टर आपके घर आते हैं",
+  "consult.hub.filters": "फ़िल्टर",
+  "consult.hub.filtersTitle": "डॉक्टर फ़िल्टर करें",
+  "consult.hub.filtersClearAll": "सब हटाएँ",
+  "consult.hub.filtersClose": "फ़िल्टर बंद करें",
+  "consult.hub.filtersWithCount": "फ़िल्टर, {n} सक्रिय"
 }

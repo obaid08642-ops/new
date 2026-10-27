@@ -1140,7 +1140,7 @@
   "consult.hub.visitType": "مشاورت کی قسم",
   "consult.hub.payment": "ادائیگی",
   "consult.hub.payAll": "سب",
-  "consult.hub.payCash": "نقد",
+  "consult.hub.payCash": "بغیر انشورنس (نقد)",
   "consult.hub.payInsurance": "بیمہ",
   "consult.hub.specialties": "شعبے",
   "consult.hub.viewAll": "سب دیکھیں",
@@ -3813,5 +3813,13 @@
   "picker.choose": "منتخب کریں",
   "picker.reversing": "پن کی جگہ سے پتہ پڑھا جا رہا ہے…",
   "picker.outsideArea": "یہ جگہ سروس کے علاقے سے باہر ہے۔ پن کو مملکت کے اندر لائیں یا پتہ خود لکھیں۔",
-  "picker.reverseFailed": "آپ کے مقام سے پتہ نہیں پڑھا جا سکا۔ خود لکھیں۔"
+  "picker.reverseFailed": "آپ کے مقام سے پتہ نہیں پڑھا جا سکا۔ خود لکھیں۔",
+  "consult.hub.visitSubClinic": "کلینک میں ڈاکٹر سے ملیں",
+  "consult.hub.visitSubVideo": "ویڈیو پر ڈاکٹر سے بات کریں",
+  "consult.hub.visitSubHome": "ڈاکٹر آپ کے گھر آتا ہے",
+  "consult.hub.filters": "فلٹر",
+  "consult.hub.filtersTitle": "ڈاکٹرز فلٹر کریں",
+  "consult.hub.filtersClearAll": "سب صاف کریں",
+  "consult.hub.filtersClose": "فلٹر بند کریں",
+  "consult.hub.filtersWithCount": "فلٹر، {n} فعال"
 }
