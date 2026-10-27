@@ -1,3 +1,4 @@
+import { assertScanned } from '../storage/pending-scan';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { Injectable, NotFoundException, Inject, BadRequestException, Logger, Optional } from '@nestjs/common';
 import { Permission } from '../../common/permissions';
@@ -1602,6 +1603,7 @@ export class MedicinesService {
     if (body.storage_id) {
       const obj: any = await this.storageObjects.findOne({ id: body.storage_id, deleted: { $ne: true } });
       if (!obj) throw new NotFoundException('Uploaded image not found');
+      assertScanned(obj);
       resolvedUrl = obj.external_url || `/api/v1/storage/${obj.id}`;
     }
 

@@ -21,3 +21,12 @@ export class FilePendingScanException extends HttpException {
     super({ statusCode: HttpStatus.LOCKED, message: 'file_pending_scan', code: 'file_pending_scan', retry_after_seconds: 60 }, HttpStatus.LOCKED);
   }
 }
+
+/** True when a storage_objects row may be read or linked: it was scanned (or predates the deferral) and does not sit in quarantine. */
+export const isServable = (row: Record<string, unknown> | null | undefined): boolean =>
+  !!row && !isUnscanned(row.scan_status) && row.scan_status !== 'infected' && !isPendingKey(row.external_key) && !isPendingKey(row.key);
+
+/** Guard for code that reads a storage_objects row directly (bytes or a URL) instead of going through StorageService. */
+export function assertScanned(row: Record<string, unknown>): void {
+  if (!isServable(row)) throw new FilePendingScanException();
+}
