@@ -77,3 +77,13 @@ Evidence: `tools/live/j_web_qa_support.py`: 9/10 steps pass (sign-in, POST 2xx, 
 Evidence: `tools/live/j_web_qa_legal.py`. On a stack where the pages were visited before the policies existed, the API read-back passes (text present) while the six pages answer 404. Clearing the Next fetch cache of the local standalone build (`.next/cache/fetch-cache`) and restarting patient-web makes the same run pass 29/29. The journey seeds the policies before it visits the pages, so it passes on a fresh stack.
 
 Seed note: the local test database holds the seeded policy text, marked "QA test data" (admin route `PUT /admin/admin/legal/policy/:key`). Production was not touched.
+
+### A-07 correction: the cause is the website proxy, not otp_required (2026-10-27)
+
+The `otp_required` attribution above is wrong. The patient sign-up does not reach the F63 `register` branch (`auth.service.ts:884` is only in that method; `auth.controller.ts:166` routes the patient contract to `registerPatientContract`).
+
+| Sev | Where | What happens | Expected |
+|---|---|---|---|
+| P2 | `patient-web/app/api/auth/register/route.ts:10` (`password: z.string().min(10)`) against `patient-web/lib/auth/password-rule.ts:2` (`MIN_PASSWORD_LENGTH = 8`) and the backend | The form accepts an 8-character password. The proxy refuses 8 to 9 characters with `400 {"message":"invalid_registration"}` before the backend sees the request. The form maps every 400 to the generic `t("invalid")` message (`register-form.tsx:24-31`), so the user is not told that the minimum on this site is 10. The backend accepts 8 characters (`POST /auth/register` returns 201 for `Longer8x` with the live policy versions). | One minimum everywhere. Either the proxy accepts 8 (as the form and backend do), or the form asks for 10 and says so. |
+
+Evidence: `tools/live/j_web_qa_password_rule.py` first half passes (7 characters refused on the website). The second half (8 characters accepted, code page reached) stays on `/register` and fails. Direct proxy probe: `Longer8x` → `400 invalid_registration`; `Longer10xx` → `201 {"registered":true}`. The journey stays ungated until the minimum is aligned.
