@@ -121,7 +121,7 @@ export default function LabComparison() {
             ) : null}
 
             {group.compare.length > 0 ? (
-              <Section title={`${k('ordering.match.compare')} · ${k('ordering.match.count', { n: num(rows.length) })}`}>
+              <Section title={k('ordering.match.compare')}>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }} accessibilityLabel={k('ordering.match.sort')}>
                   {SORTS.map((s) => (
                     <Chip key={s.id} theme={theme} label={k(s.key)} selected={sort === s.id} onPress={() => setSort(sort === s.id ? null : s.id)} />

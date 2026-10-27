@@ -1,0 +1,35 @@
+[
+ {
+  "batch": "hologram-map",
+  "app": "patient-app",
+  "screen": "/map",
+  "suspect": "route pending",
+  "review_status": "open",
+  "element": "hospital sheet link",
+  "file": "patient-app/src/components/account/ProvidersMapView.tsx",
+  "line": 236,
+  "found": "[client] hospital sheet still opens /consultations/clinic/[id]; /facility/[id] does not exist yet (only app/facility/[slug].tsx, a link resolver); relink when the facility session lands"
+ },
+ {
+  "batch": "hologram-map",
+  "app": "patient-app",
+  "screen": "/map",
+  "suspect": "no radiology booking route",
+  "review_status": "open",
+  "element": "radiology booking",
+  "file": "patient-app/src/components/account/ProvidersMapView.tsx",
+  "line": 233,
+  "found": "[owner] radiology pin books through /diagnostics/book-sample (the lab flow) until radiology has its own entry"
+ },
+ {
+  "batch": "hologram-map",
+  "app": "patient-app",
+  "screen": "/map",
+  "suspect": "unverified rendering",
+  "review_status": "open",
+  "element": "hologram layers on device",
+  "file": "patient-app/src/components/MapPrimitives.native.tsx",
+  "line": 122,
+  "found": "[client] unselected pins are a native symbol layer using per-kind PNGs generated at runtime from the token tones (map-hologram-image.ts) and registered with Images as data: URIs; not run on a device or emulator (@maplibre/maplibre-react-native is not installed here): check that v11 Images accepts data-URI PNGs and that GeoJSONSource/Layer props are right. The mark inside each bubble is a simple figure, not the Phosphor glyph (icon fonts cannot be rasterised without assets)"
+ }
+]

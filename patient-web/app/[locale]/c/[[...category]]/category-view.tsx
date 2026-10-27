@@ -8,18 +8,18 @@ import { JsonLd } from "@/components-next/json-ld";
 import { StaleWhileRevalidate } from "@/components-next/nav/stale-while-revalidate";
 import { isLocale, locales, type Locale } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
-import { MapEntryLink } from "@/components-next/map-entry-link";
 import { CoreShell } from "@/components-next/core/core-shell";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { CatalogSearch } from "@/components-next/pharmacy/catalog-search";
 import { CatalogueFilterPanel, filtersQuery } from "@/components-next/pharmacy/catalogue-filters";
 import { ChipLink } from "@/components-next/pharmacy/chip-link";
-import { OrderAgainCard } from "@/components-next/pharmacy/order-again-card";
+import { CategoryTile } from "@/components-next/pharmacy/category-tile";
 import { ProductGrid } from "@/components-next/pharmacy/product-grid";
 import { productCardImageSrc } from "@/components-next/pharmacy/catalog-image";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
 import styles from "@/components-next/pharmacy/pharmacy.module.css";
+import consult from "@/components-next/consult/consult.module.css";
 
 /**
  * F82-3: the category list is one view with two routes. The static/ISR page (no `searchParams`: page 1, no search) is the
@@ -88,8 +88,7 @@ export async function CategoryView({ params, searchParams }: Props) {
   const typedLocale = locale as Locale;
   setRequestLocale(typedLocale);
   const t = await getTranslations("PharmacyBrowse");
-  const mapLabel = (await getTranslations("HomeWeb"))("svcMap");
-    const decoded = (category || []).map((c) => decodeURIComponent(c));
+  const decoded = (category || []).map((c) => decodeURIComponent(c));
   if (decoded.length > 2) notFound();
   const sParams = (await searchParams) ?? {};
   const page = parsePage(sParams.page);
@@ -112,7 +111,7 @@ export async function CategoryView({ params, searchParams }: Props) {
   const data = dataRead.data;
 
   const isAll = !main || main === "all" || main === "الكل";
-  const heading = q ? t("resultsFor", { query: q }) : isAll ? t("allTitle") : (sub || main);
+  const heading = q ? t("resultsFor", { query: q }) : isAll ? t("pageTitle") : (sub || main);
   const totalProducts = data?.total ?? 0;
   const pages = Math.max(Math.ceil(totalProducts / (data?.limit || 24)), 1);
   const qParam = `${q ? `&q=${encodeURIComponent(q)}` : ""}${sort !== "popular" ? `&sort=${sort}` : ""}${filterQuery ? `&${filterQuery}` : ""}`;
@@ -123,7 +122,24 @@ export async function CategoryView({ params, searchParams }: Props) {
   // The category rail is the API's own tree for this language (names and live counts), not a fixed list.
   const categories = tree?.categories || [];
   const activeCategory = isAll ? undefined : categories.find((c) => c.name === main);
+  // the API sends a count per sub-category; it orders the chips and is never shown (owner, 2026-10-26)
   const subs = activeCategory ? Object.entries(activeCategory.subs).sort((a, b) => b[1] - a[1]) : [];
+
+  // The active filters as removable chips (addition a): each link is the same page without that one filter.
+  const hrefWithout = (drop: Array<keyof typeof filters>) => {
+    const kept = Object.fromEntries(Object.entries(filters).filter(([k, v]) => v && !drop.includes(k as keyof typeof filters))) as typeof filters;
+    const query = [q ? `q=${encodeURIComponent(q)}` : "", sort !== "popular" ? `sort=${sort}` : "", filtersQuery(kept)].filter(Boolean).join("&");
+    return query ? `${basePath}?${query}` : basePath;
+  };
+  const activeChips = [
+    filters.form ? { key: "form", label: filters.form, href: hrefWithout(["form"]) } : null,
+    filters.brand ? { key: "brand", label: filters.brand, href: hrefWithout(["brand"]) } : null,
+    filters.rx ? { key: "rx", label: filters.rx === "true" ? t("filterRxOnly") : t("filterRxNone"), href: hrefWithout(["rx"]) } : null,
+    filters.price_min || filters.price_max
+      ? { key: "price", label: [filters.price_min ? `${t("filterPriceMin")} ${filters.price_min}` : "", filters.price_max ? `${t("filterPriceMax")} ${filters.price_max}` : ""].filter(Boolean).join(" · "), href: hrefWithout(["price_min", "price_max"]) }
+      : null,
+  ].filter((chip): chip is { key: string; label: string; href: string } => chip !== null);
+  const resetAllHref = hrefWithout(["form", "brand", "rx", "price_min", "price_max"]);
 
   const items = data?.items || [];
   const jsonLd = [
@@ -178,6 +194,7 @@ export async function CategoryView({ params, searchParams }: Props) {
             oldPrice: it.old_price,
             image: it.image,
             thumb: productCardImageSrc(it.image),
+            images: it.images,
             form: it.form,
             strength: it.strength,
             packageSize: it.package_size,
@@ -211,14 +228,12 @@ export async function CategoryView({ params, searchParams }: Props) {
       <div className={styles.page}>
         <div className={styles.head}>
           <h1 className={styles.title}>{heading}</h1>
-          {totalProducts > 0 ? <p className={styles.count}>{t("productsCount", { count: totalProducts })}</p> : null}
         </div>
-        <MapEntryLink locale={locale} type="pharmacy" label={mapLabel} />
         <div className={styles.searchWrap}>
           <CatalogSearch locale={locale} initial={sParams.q || ""} />
         </div>
-        {/* The PharmacyHub board's shortcuts (the app's hub): upload the prescription, favorites, reminders, orders and cart.
-            Plain links, so the cached page stays the same for everyone; "order again" needs the patient's orders and is on /orders. */}
+        {/* The upload-prescription shortcut. Reminders and My orders moved to Home (two quick tiles), favourites and the cart to the header
+            (owner layout decisions, 2026-10-26). A plain link, so the cached page stays the same for everyone. */}
         {isAll && !q && page === 1 ? (
           <nav aria-label={t("hubShortcuts")} className={styles.hub}>
             <Link className={`${styles.row} ${styles.hubUpload}`} href={`/${locale}/pharmacy/rx-order?via=photo`}>
@@ -228,39 +243,36 @@ export async function CategoryView({ params, searchParams }: Props) {
                 <span className={styles.rowSub}>{t("hubUploadBody")}</span>
               </span>
             </Link>
-            <ul className={styles.hubQuick}>
-              {([
-                { key: "favorites", href: `/${locale}/wishlist`, icon: "heart", tone: PHARMACY_TONE, label: t("hubFavorites") },
-                { key: "reminders", href: `/${locale}/health/medications?tab=all`, icon: "bell", tone: "violet", label: t("hubReminders") },
-                { key: "orders", href: `/${locale}/orders`, icon: "file-text", tone: PHARMACY_TONE, label: t("hubOrders") },
-                { key: "cart", href: `/${locale}/cart`, icon: "package", tone: PHARMACY_TONE, label: t("hubCart") },
-              ] as const).map((shortcut) => (
-                <li key={shortcut.key}>
-                  <Link className={styles.hubTile} href={shortcut.href}>
-                    <FIcon icon={shortcut.icon} tone={shortcut.tone} size={42} />
-                    <span className={styles.hubLabel}>{shortcut.label}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <OrderAgainCard locale={locale} />
           </nav>
         ) : null}
         {categories.length > 0 ? (
-          <nav aria-label={t("categories")} className={styles.chips}>
-            <ChipLink href={`/${locale}/c`} label={t("all")} selected={isAll && !q} />
-            {categories.map((c) => (
-              <ChipLink key={c.name} href={`/${locale}/c/${encodeURIComponent(c.name)}`} label={c.name} count={c.count} selected={!isAll && main === c.name && !sub} />
-            ))}
+          <nav aria-label={t("categories")}>
+            <ul className={styles.catGrid}>
+              <li><CategoryTile href={`/${locale}/c`} label={t("all")} art="all" selected={isAll && !q} /></li>
+              {categories.map((c) => (
+                <li key={c.name}><CategoryTile href={`/${locale}/c/${encodeURIComponent(c.name)}`} label={c.name} selected={!isAll && main === c.name && !sub} /></li>
+              ))}
+            </ul>
           </nav>
         ) : null}
         {subs.length > 0 && activeCategory ? (
           <nav aria-label={t("subcategories")} className={styles.chips}>
             <ChipLink href={`/${locale}/c/${encodeURIComponent(activeCategory.name)}`} label={t("allIn", { category: activeCategory.name })} selected={!sub} />
-            {subs.map(([name, count]) => (
-              <ChipLink key={name} href={`/${locale}/c/${encodeURIComponent(activeCategory.name)}/${encodeURIComponent(name)}`} label={name} count={count} selected={sub === name} />
+            {subs.map(([name]) => (
+              <ChipLink key={name} href={`/${locale}/c/${encodeURIComponent(activeCategory.name)}/${encodeURIComponent(name)}`} label={name} selected={sub === name} />
             ))}
           </nav>
+        ) : null}
+        {activeChips.length > 0 ? (
+          <div className={styles.chipsRow} role="group" aria-label={t("activeFilters")}>
+            {activeChips.map((chip) => (
+              <Link key={chip.key} href={chip.href} className={styles.activeChip} aria-label={t("removeFilter", { filter: chip.label })}>
+                <bdi>{chip.label}</bdi>
+                <span aria-hidden="true" className={styles.activeChipX}>×</span>
+              </Link>
+            ))}
+            <Link href={resetAllHref} className={consult.activeFilterClear}>{t("clearAll")}</Link>
+          </div>
         ) : null}
         <CatalogueFilterPanel
           locale={locale}
@@ -277,7 +289,6 @@ export async function CategoryView({ params, searchParams }: Props) {
             })}
           </nav>
         ) : null}
-        {totalProducts > 0 ? <p className={styles.phoneCount}>{t("productsCount", { count: totalProducts })}</p> : null}
         {content}
       </div>
     </CoreShell>

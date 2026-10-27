@@ -21,6 +21,7 @@ import { FIcon } from './FIcon';
 import type { FillIconName, ServiceTone } from '../../../ui/icons/fill';
 import { tokens } from '../../../design-tokens/dist/ts/tokens';
 import { Button } from './Button';
+import { FadeIn, PopIn, Pulse } from '../motion';
 
 /**
  * Status, overlays and loading — 12.A7, React Native.
@@ -42,17 +43,17 @@ export function Skeleton({ variant = 'text', lines = 1, width = 'full', testID, 
   const w = SKELETON_W[width];
 
   if (variant === 'circle') {
-    return <View testID={testID} accessibilityElementsHidden style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: bg }} />;
+    return <Pulse testID={testID} style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: bg }}><View /></Pulse>;
   }
   if (variant === 'tile') {
-    return <View testID={testID} accessibilityElementsHidden style={{ width: 128, height: 128, borderRadius: 24, backgroundColor: bg }} />;
+    return <Pulse testID={testID} style={{ width: 128, height: 128, borderRadius: 24, backgroundColor: bg }}><View /></Pulse>;
   }
   if (variant === 'block' || variant === 'title') {
-    return <View testID={testID} accessibilityElementsHidden style={{ width: w, height: variant === 'title' ? 28 : 64, borderRadius: 12, backgroundColor: bg }} />;
+    return <Pulse testID={testID} style={{ width: w, height: variant === 'title' ? 28 : 64, borderRadius: 12, backgroundColor: bg }}><View /></Pulse>;
   }
 
   return (
-    <View testID={testID} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{ gap: 8, width: w }}>
+    <Pulse testID={testID} style={{ gap: 8, width: w }}>
       {Array.from({ length: lines }).map((_, i) => (
         <View
           key={i}
@@ -66,7 +67,7 @@ export function Skeleton({ variant = 'text', lines = 1, width = 'full', testID, 
           }}
         />
       ))}
-    </View>
+    </Pulse>
   );
 }
 
@@ -83,6 +84,7 @@ function StateLayout({
   testID,
   role,
   theme,
+  popIcon = false,
 }: {
   icon: FillIconName;
   tone: ServiceTone;
@@ -93,16 +95,19 @@ function StateLayout({
   testID?: string;
   role?: 'alert' | 'summary';
   theme: 'light' | 'dark';
+  /** The picture pops in once (the check after a success). */
+  popIcon?: boolean;
 }) {
   const c = tokens(theme).color;
   return (
+    <FadeIn>
     <View
       testID={testID}
       accessibilityRole={role}
       accessibilityLiveRegion={role === 'alert' ? 'assertive' : role === 'summary' ? 'polite' : undefined}
       style={{ alignItems: 'center', gap: 14, paddingHorizontal: 32, paddingVertical: 32 }}
     >
-      <FIcon icon={icon} tone={tone} size={112} theme={theme} />
+      {popIcon ? <PopIn><FIcon icon={icon} tone={tone} size={112} theme={theme} /></PopIn> : <FIcon icon={icon} tone={tone} size={112} theme={theme} />}
       <Text accessibilityRole="header" style={{ fontSize: 22, fontFamily: 'ReadexPro-700', color: c.text.primary, textAlign: 'center' }}>
         {title}
       </Text>
@@ -110,6 +115,7 @@ function StateLayout({
       {detail ? <Text style={{ fontSize: 11.5, fontFamily: 'ReadexPro-400', color: c.text.tertiary, textAlign: 'center' }}>{detail}</Text> : null}
       {children ? <View style={{ alignSelf: 'stretch', marginTop: 10, gap: 4 }}>{children}</View> : null}
     </View>
+    </FadeIn>
   );
 }
 
@@ -123,13 +129,15 @@ function TextAction({ label, onPress, theme }: { label: string; onPress?: () => 
 }
 
 export interface NativeEmptyStateProps extends EmptyStateProps, Themed {
+  /** The picture pops in once: set it on a success screen (an order, a booking, a payment). */
+  popIcon?: boolean;
   onAction?: () => void;
   onSecondaryAction?: () => void;
 }
 
-export function EmptyState({ icon, tone, title, body, actionLabel, secondaryActionLabel, onAction, onSecondaryAction, testID, theme = 'light' }: NativeEmptyStateProps) {
+export function EmptyState({ icon, tone, title, body, actionLabel, secondaryActionLabel, onAction, onSecondaryAction, testID, popIcon = false, theme = 'light' }: NativeEmptyStateProps) {
   return (
-    <StateLayout icon={icon} tone={tone} title={title} body={body} testID={testID} theme={theme}>
+    <StateLayout icon={icon} tone={tone} title={title} body={body} testID={testID} popIcon={popIcon} theme={theme}>
       {actionLabel ? <Button label={actionLabel} size="lg" fullWidth onPress={onAction} theme={theme} /> : null}
       {secondaryActionLabel ? <TextAction label={secondaryActionLabel} onPress={onSecondaryAction} theme={theme} /> : null}
     </StateLayout>

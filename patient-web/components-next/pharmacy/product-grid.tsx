@@ -17,6 +17,18 @@ function cardImage(src: string | null | undefined): string | undefined {
   return getImageProps({ src: allowed, alt: "", width: 128, height: 128 }).props.src;
 }
 
+/** The product's pictures after the card's own, as the optimizer's renditions, with no repeats. */
+function otherImages(item: { thumb?: string; image: string | null; images?: string[] }): string[] | undefined {
+  const own = new Set([item.thumb, item.image].filter(Boolean));
+  const seen = new Set<string>();
+  const more: string[] = [];
+  for (const src of item.images ?? []) {
+    const rendition = src && !own.has(src) ? cardImage(src) : undefined;
+    if (rendition && !seen.has(rendition)) { seen.add(rendition); more.push(rendition); }
+  }
+  return more.length ? more.slice(0, 4) : undefined;
+}
+
 /** One product of a listing, as the page's API sent it (the public catalogue's card fields). */
 export type GridProduct = {
   id: string;
@@ -27,6 +39,8 @@ export type GridProduct = {
   image: string | null;
   /** The card's rendition of `image` (productCardImageSrc, made by the server page); `image` itself goes to the cart. */
   thumb?: string;
+  /** The other pictures of the product (the card turns through them while it is on screen). */
+  images?: string[];
   form: string | null;
   strength: string | null;
   packageSize: string | null;
@@ -76,6 +90,7 @@ export function ProductGrid({
                 price={priced ? money.amount : t("priceUnavailable")}
                 currency={priced ? money.currency : undefined}
                 imageSrc={cardImage(item.thumb || item.image)}
+                moreImages={otherImages(item)}
                 discountLabel={(item.rx ? undefined : item.badge) || (percent > 0 ? product("discount", { percent: formatNumber(locale, percent) }) : undefined)}
                 rxLabel={item.rx ? product("rxRequired") : undefined}
                 onlineLabel={item.onlineOnly === true ? product("onlineOnly") : undefined}
