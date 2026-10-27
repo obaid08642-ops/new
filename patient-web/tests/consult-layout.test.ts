@@ -24,9 +24,12 @@ describe("consultations doctors list layout", () => {
     const sheet = code("components-next/consult/doctor-filters-panel.tsx");
     for (const needle of ['role="dialog"', 'aria-modal="true"', 'event.key === "Escape"', 'event.key !== "Tab"', "aria-labelledby"]) expect(sheet, needle).toContain(needle);
   });
-  it("words self-pay as 'Without insurance (cash)' in all six languages", () => {
-    expect(message("en").payment_self_pay).toBe("Without insurance (cash)");
-    expect(message("ar").payment_self_pay).toBe("بدون تأمين (كاش)");
+  it("keeps the existing self-pay key and draws the chosen payment next to the Filters button", () => {
+    expect(message("en").payment_self_pay).toBe("Self-pay");
+    expect(message("ar").payment_self_pay).toBe("دفع ذاتي");
+    const trigger = code("components-next/consult/doctor-filters-sheet.tsx");
+    expect(trigger).toContain("panel.filters.payment");
+    expect(trigger).toContain("t(`payment_${panel.filters.payment}`)");
     for (const l of ["ar", "en", "ur", "hi", "bn", "fil"]) {
       expect(message(l).payment_self_pay.length, l).toBeGreaterThan(0);
       for (const key of ["filters", "filtersApply", "filtersClearAll", "visitSubClinic", "visitSubVideo", "visitSubHome", "removeFilter", "filterAll"]) expect(message(l)[key], `${l}.${key}`).toBeTruthy();
