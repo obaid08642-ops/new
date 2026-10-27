@@ -9,3 +9,5 @@
 30 4  3   *   *   root /opt/nabdah/deploy/scripts/dr-drill.sh >> /var/log/nabd-backups.log 2>&1
 # 20.10 capacity sampler: one line of capacity signals every 15 min (deploy/scripts/capacity-sample.sh; review: docs/perf/CAPACITY_REVIEW.md)
 */15 *  *   *   *   root /opt/nabdah/deploy/scripts/capacity-sample.sh >> /var/log/nabd-backups.log 2>&1
+# UPLOAD_SCAN=defer on a small server: start ClamAV when uploads wait for a scan and the memory is there, stop it when the queue is empty (off unless CLAMAV_ON_DEMAND=1)
+*/2  *  *   *   *   root /opt/nabdah/deploy/scripts/clamav-window.sh >> /var/log/nabd-backups.log 2>&1

@@ -44,7 +44,7 @@ describe('the antivirus decides an upload (16.5)', () => {
     await expect(new UploadSecurityService(down).assertClean(PDF)).rejects.toThrow('virus_scanner_unavailable');
     process.env.NODE_ENV = 'production';
     process.env.UPLOAD_SCAN = 'optional';
-    await expect(new UploadSecurityService(down).assertClean(PDF)).resolves.toBeUndefined();
+    await expect(new UploadSecurityService(down).assertClean(PDF)).resolves.toBe('skipped'); // allowed, but not scanned
   });
 
   it('a PDF with JavaScript, a launch action or an embedded file is refused', async () => {
