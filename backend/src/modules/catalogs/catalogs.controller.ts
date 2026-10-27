@@ -78,7 +78,7 @@ export class CatalogsController {
     }));
   }
 
-  private async dbCatalog(type: string, collection: string) {
+  private async dbCatalog(_type: string, collection: string) {
     // P5.1: DB is the single source of truth — no static fallback.
     // Boot seeds (CatalogsSeedService, insert-only) populate fresh envs.
     const rows = await this.conn.collection(collection)
@@ -91,9 +91,11 @@ export class CatalogsController {
       // P5.1: canonical per-collection name fields first (labs use test_name_*).
       name_ar: r.test_name_ar || r.name_ar || r.name,
       name_en: r.test_name_en || r.name_en || r.name,
-      image_url: r.image_url || `https://cdn.nabd.plus/${type}/${r.short_code || r.code || r.id}.png`,
       is_active: true,
       ...r,
+      // The stored picture or none. This used to invent `https://cdn.nabd.plus/<type>/<code>.png`, a file that was never uploaded: on production
+      // all 83 lab, 25 radiology and 15 nursing addresses it made answered 404 (QA 2026-10-26). From `null` the client draws its own icon.
+      image_url: (typeof r.image_url === 'string' && r.image_url.trim()) || null,
     }));
   }
 

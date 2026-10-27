@@ -1873,7 +1873,7 @@
     "requires_referral": true,
     "description_ar": "فحص قنوات فالوب لعيادات الخصوبة.",
     "description_en": "Fallopian tube imaging for fertility clinics.",
-    "image_url": "https://cdn.nabd.plus/radiology/hsg.png",
+    "image_url": null,
     "is_active": true,
     "preparation_ar": [
       "يُجرى بعد انتهاء الدورة الشهرية وقبل التبويض، عادة بين اليوم 7 و10 من الدورة، وقد ينصحك الطبيب بمسكّن قبله.",
@@ -1927,7 +1927,7 @@
     "popularity": 60,
     "description_ar": "صورة شاملة للفك والأسنان.",
     "description_en": "Full jaw and teeth imaging.",
-    "image_url": "https://cdn.nabd.plus/radiology/panorex.png",
+    "image_url": null,
     "is_active": true,
     "preparation_ar": [
       "انزع المجوهرات والأشياء المعدنية، والبس ملابس مريحة خالية من المعادن.",
@@ -1972,7 +1972,7 @@
     "requires_referral": true,
     "description_ar": "فحص الجهاز الهضمي بالصبغة.",
     "description_en": "GI tract contrast study.",
-    "image_url": "https://cdn.nabd.plus/radiology/barium.png",
+    "image_url": null,
     "is_active": true,
     "preparation_ar": [
       "لا تأكل ولا تشرب قبل الفحص بـ8 ساعات ما لم يُطلب غير ذلك، وستشرب أو تُعطى سائل الباريوم أثناء الفحص.",
@@ -2023,7 +2023,7 @@
     "requires_referral": true,
     "description_ar": "مسح شامل للأورام — متوفر في مراكز متخصصة فقط.",
     "description_en": "Whole-body oncology scan — specialized centers only.",
-    "image_url": "https://cdn.nabd.plus/radiology/petct.png",
+    "image_url": null,
     "is_active": true,
     "preparation_ar": [
       "صُم 6 ساعات وتجنّب المجهود الشاق قبل الفحص بـ24 ساعة. إذا كنت مصابًا بالسكري فاسأل المركز عن طريقة أخذ أدويتك في ذلك اليوم.",
