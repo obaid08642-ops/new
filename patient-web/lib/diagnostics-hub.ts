@@ -1,7 +1,7 @@
 /**
  * The diagnostics hub's search and filter sheet (the app's filter sheet: all, packages, labs, highest rated, lowest price). The state is
- * in the page URL: `q` filters the loaded lists of the chosen kind in place, `show` picks packages or tests only (labs), and `sort` is
- * "rating" (the approved labs strip, best first) or "price" (lowest price first). Home visit is the place switch that is already on the page.
+ * in the page URL: `q` is the server's name search for the chosen kind, `show` picks packages or tests only (labs), and `sort` is
+ * "rating" (best rated first: the server orders the tests or scans, and the approved labs strip) or "price" (lowest price first, by the server). Home visit is the place switch that is already on the page.
  */
 export const HUB_SHOW = ["packages", "tests"] as const;
 export const HUB_SORT = ["rating", "price"] as const;
@@ -22,28 +22,19 @@ export function matchesQuery(q: string, ...names: Array<string | undefined>): bo
   return !needle || names.some((name) => name?.toLocaleLowerCase().includes(needle));
 }
 
-/** Lowest price first; rows without a price go last. Returns a new list. */
+/** Lowest price first; rows without a price go last. Returns a new list (packages; the tests and scans are ordered by the server). */
 export function byPrice<T extends { price?: number }>(rows: T[]): T[] {
   return [...rows].sort((a, b) => (a.price ?? Number.POSITIVE_INFINITY) - (b.price ?? Number.POSITIVE_INFINITY));
 }
 
-/** Best rating first; rows without a rating go last. Returns a new list. */
+/** Best rating first; rows without a rating go last. Returns a new list (the approved-labs strip; the tests and scans are ordered by the server). */
 export function byRating<T extends { rating?: number }>(rows: T[]): T[] {
   return [...rows].sort((a, b) => (b.rating ?? Number.NEGATIVE_INFINITY) - (a.rating ?? Number.NEGATIVE_INFINITY));
 }
 
-/** The full catalogue is paged on the page: this many tests or scans per step, "Show more" adds the next step (the backend list has no page/limit, it returns every row). */
-export const HUB_PAGE_SIZE = 20;
-
-/** `more` from the URL = how many steps are open (1 = the first page). Anything else is 1; capped so a hand-edited URL cannot ask for thousands. */
+/** `more` from the URL = how many server pages are open on the page (1 = the first page). Anything else is 1; capped so a hand-edited URL cannot ask for dozens of requests. */
+export const MAX_HUB_PAGES = 10;
 export function parseHubPages(raw: string | undefined): number {
   const n = Number.parseInt(raw ?? "", 10);
-  return Number.isInteger(n) && n >= 1 ? Math.min(n, 500) : 1;
-}
-
-/** The rows to show for `pages` open steps, and whether more remain. */
-export function pageRows<T>(rows: T[], pages: number, size = HUB_PAGE_SIZE): { shown: T[]; hasMore: boolean; remaining: number } {
-  const count = Math.max(1, Math.floor(pages)) * size;
-  const shown = rows.slice(0, count);
-  return { shown, hasMore: rows.length > shown.length, remaining: Math.max(0, rows.length - shown.length) };
+  return Number.isInteger(n) && n >= 1 ? Math.min(n, MAX_HUB_PAGES) : 1;
 }

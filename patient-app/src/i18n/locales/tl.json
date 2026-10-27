@@ -2008,6 +2008,7 @@
   "diag.turnaround": "Resulta sa loob ng {time}",
   "diag.km": "{n} km",
   "diag.rating": "Marka {n}",
+  "diag.ratingLine": "Marka {n} ({count})",
   "diag.tag.homeSample": "Sample sa bahay",
   "diag.tag.fasting": "Pag-aayuno",
   "diag.tag.fastingHours": "Pag-aayuno {n}",

@@ -3554,6 +3554,7 @@
     "sortRating": "सबसे अधिक रेटिंग",
     "sortPrice": "सबसे कम कीमत",
     "showMore": "और दिखाएं",
+    "ratingLine": "रेटिंग {value} ({count})",
     "mostRequested": "सबसे ज़्यादा मांगे गए",
     "allTestsTitle": "सभी टेस्ट",
     "allScansTitle": "सभी स्कैन",

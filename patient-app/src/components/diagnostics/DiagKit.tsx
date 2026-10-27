@@ -173,6 +173,8 @@ export interface ItemCardProps {
   width?: number;
   tags?: Array<{ label: string; tone: ServiceTone | 'neutral' }>;
   note?: string;
+  /** "Rating 4.5 (12)" already formatted; omitted unless the server sent a rating above 0. */
+  rating?: string;
   price: number | null;
   inCart: boolean;
   addLabel: string;
@@ -185,7 +187,7 @@ export interface ItemCardProps {
 }
 
 /** A catalogue test or scan as a large card: its illustration next to the name, the tags, the note and the price, then "Add to cart" and "Order now". */
-export function ItemCard({ name, art, image, width, tags, note, price, inCart, addLabel, inCartLabel, orderLabel, onPress, onAdd, onOrder, testID }: ItemCardProps) {
+export function ItemCard({ name, art, image, width, tags, note, rating, price, inCart, addLabel, inCartLabel, orderLabel, onPress, onAdd, onOrder, testID }: ItemCardProps) {
   const { theme, t, c, flow } = useScreenUi();
   return (
     <View testID={testID} style={{ width, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, padding: 16, gap: 14 }}>
@@ -205,6 +207,7 @@ export function ItemCard({ name, art, image, width, tags, note, price, inCart, a
             </View>
           ) : null}
           {note ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{note}</Text> : null}
+          {rating ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{rating}</Text> : null}
           {price !== null ? <Price amount={price} /> : null}
         </View>
       </Pressable>

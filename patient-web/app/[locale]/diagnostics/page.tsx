@@ -5,11 +5,8 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractDiagnosticBookings, type DiagnosticBooking } from "@/lib/api/diagnostics";
 import { getDiagnosticBookings } from "@/lib/api/diagnostics-server";
-import { extractLabServices, insuranceOffered, labPaymentFits, type LabService } from "@/lib/api/labs";
-import { getPublicLabServices } from "@/lib/api/labs-server";
+import { extractLabServices, insuranceOffered } from "@/lib/api/labs";
 import { extractLabProviders } from "@/lib/api/lab-providers";
-import { extractRadiologyServices } from "@/lib/api/radiology";
-import { getPublicRadiologyServices } from "@/lib/api/radiology-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { callPatientApi, patientApiUrl } from "@/lib/api/upstream";
 import { OrderContextBar } from "@/components-next/ordering/order-context-bar";
@@ -23,21 +20,22 @@ import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
-import { CAT_LABEL, ReferralNote, ItemCard, LabCard, LAB, PackageCard, RADIOLOGY, Rail, SearchForm, SectionHead, hoursText, money, pickText, type Tag } from "@/components-next/diagnostics/diag-parts";
+import { CAT_LABEL, ReferralNote, ItemCard, LabCard, LAB, PackageCard, RADIOLOGY, Rail, SearchForm, SectionHead, money, pickText } from "@/components-next/diagnostics/diag-parts";
 import { ItemCatalog, type CatalogChip, type CatalogRow } from "@/components-next/diagnostics/item-catalog";
-import { diagArtKey, diagArtKeysOf, mostRequested, parseDiagArt } from "@/components-next/ui-generated/icons/diag-art";
+import { catalogRows, loadCatalogPage, type CatalogLoad } from "@/components-next/diagnostics/catalog-load";
+import { diagArtKeysOf, parseDiagArt } from "@/components-next/ui-generated/icons/diag-art";
 import { diagStatus } from "@/components-next/diagnostics/status";
 import { RowCard } from "@/components-next/consult/consult-parts";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import styles from "@/components-next/diagnostics/diag.module.css";
 import consult from "@/components-next/consult/consult.module.css";
 import type { Metadata } from "next";
-import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 import { diagnosticBookingHref } from "@/lib/diagnostics-links";
-import { byPrice, byRating, matchesQuery, parseHubFilter, parseHubPages, HUB_PAGE_SIZE } from "@/lib/diagnostics-hub";
+import { byPrice, byRating, matchesQuery, parseHubFilter, parseHubPages, MAX_HUB_PAGES as MAX_PAGES } from "@/lib/diagnostics-hub";
+import { CATALOG_PAGE_SIZE, catalogSortOf, serverCategoryOf } from "@/lib/diagnostics-catalog";
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import { publicReadSignal } from "@/lib/api/public-timeout";
-import { hubFilterCount, hubSortFor } from "@/lib/diagnostics-filter-count";
+import { hubFilterCount } from "@/lib/diagnostics-filter-count";
 import { pickName, pickTexts } from "@/lib/i18n/localized";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string; q?: string; show?: string; sort?: string; more?: string; cat?: string }> };
@@ -73,7 +71,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   const query = (await searchParams) ?? {};
   const kind = query.kind === "radiology" ? "radiology" : "labs";
   const parsed = parseHubFilter(query);
-  const filter = { ...parsed, sort: hubSortFor(parsed.sort, kind) };
+  const filter = parsed;
   const filterCount = hubFilterCount(filter, kind);
   const pages = parseHubPages(query.more);
   const cat = parseDiagArt(query.cat, kind === "radiology" ? "radiology" : "lab");
@@ -109,27 +107,37 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
     domains = await Promise.all([toDomain("labs", labsResponse), toDomain("radiology", radiologyResponse)]);
   }
 
-  const [labsRes, radRes, pkgsRes] = await Promise.all([
-    getPublicLabServices().catch(() => null),
-    getPublicRadiologyServices().catch(() => null),
+  // The full list is paged by the SERVER (page / limit / category / search / sort on the catalogue endpoints): the open steps are the first
+  // `pages` pages; "Most requested" is the first six rows in the server's own popularity order (no search, sort or category).
+  const listKind = kind === "radiology" ? "radiology" : "lab";
+  const sortFlag = catalogSortOf(filter.sort);
+  const serverCategory = serverCategoryOf(listKind, cat);
+  const wantsTests = !(listKind === "lab" && filter.show === "packages");
+  const pageNumbers = Array.from({ length: pages }, (_, i) => i + 1);
+  const [pageLoads, stripLoad, labsForPay, pkgsRes] = await Promise.all([
+    wantsTests ? Promise.all(pageNumbers.map((n) => loadCatalogPage({ kind: listKind, page: n, search: filter.q || undefined, sort: sortFlag, category: serverCategory }))) : Promise.resolve([] as CatalogLoad[]),
+    wantsTests && !filter.q ? loadCatalogPage({ kind: listKind, page: 1, limit: MOST_REQUESTED }) : Promise.resolve(null),
+    // the radiology view still needs to know whether any lab takes insurance (the payment choice of the order)
+    listKind === "radiology" && wantedPay === "insurance" ? loadCatalogPage({ kind: "lab", page: 1 }) : Promise.resolve(null),
     fetch(patientApiUrl("/labs/packages"), { signal: publicReadSignal(), headers: { Accept: "application/json" }, cache: "no-store" }).catch(() => null),
   ]);
   // the approved labs strip (GET /providers?type=lab, public); a failed read leaves the strip out
   const providersRes = kind === "labs" ? await fetch(patientApiUrl("/providers?type=lab"), { signal: publicReadSignal(), headers: { Accept: "application/json" }, next: { revalidate: 300 } }).catch(() => null) : null;
   const providerRows = providersRes && providersRes.ok ? extractLabProviders(await providersRes.json().catch(() => null)) : [];
   const approvedLabs = (filter.sort === "rating" ? byRating(providerRows) : providerRows).filter((lab) => matchesQuery(filter.q, lab.nameAr, lab.nameEn)).slice(0, 8);
-  const labServices = labsRes && labsRes.ok ? extractLabServices(await labsRes.json().catch(() => null)) : [];
-  const radiologyServices = radRes && radRes.ok ? extractRadiologyServices(await radRes.json().catch(() => null)) : [];
   const packages = pkgsRes && pkgsRes.ok ? extractLabServices(await pkgsRes.json().catch(() => null)) : [];
+  // the pages that arrived, in order (a failed later page ends the list there); the first page failing is a failed catalogue
+  const okLoads: CatalogLoad[] = [];
+  for (const load of pageLoads) { if (!load.ok) break; okLoads.push(load); }
+  const catalogFailed = wantsTests && okLoads.length === 0;
+  const lastLoad = okLoads[okLoads.length - 1];
   // Nothing takes insurance: the choice is not offered (no empty list behind it) and a pay=insurance link falls back to self-pay.
-  const anyInsurance = insuranceOffered([...labServices.filter((s) => s.isPackage !== true), ...packages]);
+  const labsLoaded = listKind === "lab" ? okLoads.flatMap((l) => l.labs) : labsForPay?.labs ?? [];
+  const anyInsurance = insuranceOffered([...labsLoaded.filter((s) => s.isPackage !== true), ...packages]);
   const pay = wantedPay === "insurance" && anyInsurance ? "insurance" : "self_pay";
-  const catalogFailed = !(labsRes && labsRes.ok) && !(radRes && radRes.ok);
 
   const href = (over: Partial<{ kind: string; place: string; pay: string; show: string; sort: string; more: number; cat: string }>) => {
     const next = { kind, place, pay, show: filter.show ?? "", sort: filter.sort ?? "", more: 1, cat: cat === "all" ? "" : cat, ...over };
-    // "highest rated" orders the approved-labs strip, which only the labs view has: it does not follow the patient to radiology
-    if (next.kind !== "labs" && next.sort === "rating") next.sort = "";
     const params = new URLSearchParams();
     if (filter.q) params.set("q", filter.q);
     if (next.show && next.kind === "labs") params.set("show", next.show);
@@ -143,52 +151,34 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
     return `/${locale}/diagnostics${qs ? `?${qs}` : ""}`;
   };
 
-  const fits = (service: { homeVisitSupported?: boolean; facilityVisitSupported?: boolean }) => (place === "home" ? service.homeVisitSupported !== false : service.facilityVisitSupported !== false);
-  const pays = (s: LabService) => labPaymentFits(pay, s);
   const ordered = <T extends { price?: number }>(rows: T[]) => (filter.sort === "price" ? byPrice(rows) : rows);
-  const named = (s: { nameAr?: string; nameEn?: string }) => matchesQuery(filter.q, s.nameAr, s.nameEn);
-  // the FULL catalogue, paged on the page (the backend list has no page/limit): "Show more" opens the next step
-  const testPool = filter.show === "packages" ? [] : labServices.filter((s) => s.isPackage !== true && !s.unavailable && fits(s) && pays(s) && named(s));
-  const allTests = ordered(testPool);
-    const shownPackages = filter.show === "tests" ? [] : ordered(packages.filter((p) => !p.unavailable && pays(p) && named(p))).slice(0, LIMIT_PACKAGES);
-  const scanPool = radiologyServices.filter((s) => fits(s) && named(s));
-  const allScans = ordered(scanPool);
+  const named = (x: { nameAr?: string; nameEn?: string }) => matchesQuery(filter.q, x.nameAr, x.nameEn);
+  const pays = (x: (typeof packages)[number]) => pay === "insurance" ? x.insuranceAvailable === true : x.cashAvailable !== false;
+  const shownPackages = filter.show === "tests" ? [] : ordered(packages.filter((p) => !p.unavailable && pays(p) && named(p))).slice(0, LIMIT_PACKAGES);
 
-  const testTags = (s: LabService): Tag[] => [
-    ...(s.homeVisitSupported ? [{ label: t("tagHome"), tone: LAB.tone } as Tag] : []),
-    ...(s.fastingRequired ? [{ label: t("tagFasting"), tone: DIAG_TONES.warn } as Tag] : []),
-  ];
-  const orderPlace = place === "facility" ? "facility" : "home";
+  const orderPlace: "home" | "facility" = place === "facility" ? "facility" : "home";
   const orderPay = pay === "insurance" ? "insurance" : "cash";
   const itemHref = (id: string, itemKind: "lab" | "radiology") => `/${locale}/labs/${encodeURIComponent(id)}${contextQuery({ kind: itemKind, place: orderPlace, pay: orderPay })}`;
   const orderHref = (itemKind: "lab" | "radiology") => `/${locale}/labs/basket${contextQuery({ kind: itemKind, place: orderPlace, pay: orderPay })}`;
-  const textsOf = (names: Record<string, string | undefined>) => Object.values(names);
-  const labArt = (s: LabService) => diagArtKey({ kind: "lab", category: s.category, sampleType: s.sampleType, names: [s.nameAr, s.nameEn, ...textsOf(s.names)] });
-  const scanArt = (s: (typeof radiologyServices)[number]) => diagArtKey({ kind: "radiology", modality: [s.modality, s.modalityCategory].filter(Boolean).join(" "), bodyPart: s.bodyPart, names: [s.nameAr, s.nameEn, ...textsOf(s.names)] });
-  const labRow = (s: LabService): CatalogRow => ({
-    id: s.id, art: labArt(s), href: itemHref(s.id, "lab"), title: pickName(locale, s.names) ?? "", tags: testTags(s),
-    note: s.turnaroundHours !== undefined ? t("resultWithin", { time: hoursText(locale, s.turnaroundHours) }) : undefined,
-    price: s.price !== undefined ? money(locale, s.price) : undefined, imageUrl: s.imageUrl, line: { id: s.id, nameAr: s.nameAr, nameEn: s.nameEn },
-  });
-  const scanRow = (s: (typeof radiologyServices)[number]): CatalogRow => ({
-    id: s.id, art: scanArt(s), href: itemHref(s.id, "radiology"), title: pickName(locale, s.names) ?? "",
-    note: s.price !== undefined ? t("fromPrice", { price: money(locale, s.price) }) : undefined, imageUrl: s.imageUrl, line: { id: s.id, nameAr: s.nameAr, nameEn: s.nameEn },
-  });
+  const rowCtx = { locale, tr: (key: Parameters<typeof t>[0], values?: Record<string, string | number>) => t(key, values), itemHref };
+  const order = { place: orderPlace, pay: (pay === "insurance" ? "insurance" : "self_pay") as "insurance" | "self_pay" };
   const chipsOf = (chipKind: "lab" | "radiology"): CatalogChip[] => [
     { key: "all", label: t("catAll"), href: href({ cat: "" }) },
     ...diagArtKeysOf(chipKind).map((key) => ({ key, label: t(CAT_LABEL[key]), href: href({ cat: key }) })),
   ];
-  const testRows = allTests.map(labRow);
-  const scanRows = allScans.map(scanRow);
-  const popularTests = filter.q ? [] : mostRequested(testPool, MOST_REQUESTED).map(labRow);
-  const popularScans = filter.q ? [] : mostRequested(scanPool, MOST_REQUESTED).map(scanRow);
-  const catalogProps = { initialCount: pages * HUB_PAGE_SIZE, moreHref: href({ more: pages + 1 }), moreLabel: t("showMore"), chipsLabel: t("catLabel"), cat };
+  const listRows: CatalogRow[] = catalogRows(listKind, okLoads, order, rowCtx);
+  const popularRows: CatalogRow[] = stripLoad?.ok ? catalogRows(listKind, [stripLoad], order, rowCtx) : [];
+  const catalogProps = {
+    rows: listRows, page: okLoads.length, hasMore: lastLoad?.hasMore ?? false, cat,
+    query: { locale, q: filter.q || undefined, sort: filter.sort, place: orderPlace, pay: order.pay },
+    moreHref: href({ more: Math.min(pages + 1, MAX_PAGES) }), moreLabel: t("showMore"), chipsLabel: t("catLabel"), errorLabel: t("catalogErrorBody"),
+  };
   const strip = (rows: CatalogRow[], itemKind: "lab" | "radiology", id: string) => (
     <section className={styles.stack} aria-labelledby={id}>
       <SectionHead id={id} title={t("mostRequested")} />
       <ul className={styles.itemRail} aria-label={t("mostRequested")}>
         {rows.map((row) => (
-          <ItemCard key={row.id} href={row.href} title={row.title} tags={row.tags} note={row.note} price={row.price} art={row.art} imageUrl={row.imageUrl} actions={<ItemActions kind={itemKind} line={row.line} orderHref={orderHref(itemKind)} />} />
+          <ItemCard key={row.id} href={row.href} title={row.title} tags={row.tags} note={row.note} rating={row.rating} price={row.price} art={row.art} imageUrl={row.imageUrl} actions={<ItemActions kind={itemKind} line={row.line} orderHref={orderHref(itemKind)} />} />
         ))}
       </ul>
     </section>
@@ -237,7 +227,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
             value={filter.sort ?? ""}
             options={[
               { value: "", label: t("sortDefault"), href: href({ sort: "" }) },
-              ...(kind === "labs" ? [{ value: "rating", label: t("sortRating"), href: href({ sort: "rating" }) }] : []),
+              { value: "rating", label: t("sortRating"), href: href({ sort: "rating" }) },
               { value: "price", label: t("sortPrice"), href: href({ sort: "price" }) },
             ]}
           />
@@ -324,26 +314,26 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
             </section>
           ) : null}
 
-          {popularTests.length > 0 ? strip(popularTests, "lab", "hub-popular-tests") : null}
+          {popularRows.length > 0 ? strip(popularRows, "lab", "hub-popular-tests") : null}
 
           <section className={styles.stack} aria-labelledby="hub-tests">
             <SectionHead id="hub-tests" title={t("allTestsTitle")} />
-            {testRows.length === 0 ? (
+            {listRows.length === 0 && cat === "all" && !catalogProps.hasMore ? (
               <ConsultState kind="empty" icon="test-tube" tone={LAB.tone} title={t("noTestsTitle")} body={t("noTestsBody")} />
             ) : (
-              <ItemCatalog {...catalogProps} kind="lab" rows={testRows} chips={chipsOf("lab")} orderHref={orderHref("lab")} listLabel={t("allTestsTitle")} emptyTitle={t("noTestsTitle")} emptyBody={t("noTestsBody")} />
+              <ItemCatalog key={`lab|${filter.q}|${filter.sort ?? ""}|${orderPlace}|${order.pay}|${pages}`} {...catalogProps} kind="lab" chips={chipsOf("lab")} orderHref={orderHref("lab")} listLabel={t("allTestsTitle")} emptyTitle={t("noTestsTitle")} emptyBody={t("noTestsBody")} />
             )}
           </section>
         </>
       ) : (
         <section className={styles.stack} aria-labelledby="hub-scans">
           <ReferralNote>{t("referralNote")}</ReferralNote>
-          {popularScans.length > 0 ? strip(popularScans, "radiology", "hub-popular-scans") : null}
+          {popularRows.length > 0 ? strip(popularRows, "radiology", "hub-popular-scans") : null}
           <SectionHead id="hub-scans" title={t("allScansTitle")} />
-          {scanRows.length === 0 ? (
+          {listRows.length === 0 && cat === "all" && !catalogProps.hasMore ? (
             <ConsultState kind="empty" icon="scan" tone={RADIOLOGY.tone} title={t("noScansTitle")} body={t("noScansBody")} />
           ) : (
-            <ItemCatalog {...catalogProps} kind="radiology" rows={scanRows} chips={chipsOf("radiology")} orderHref={orderHref("radiology")} listLabel={t("allScansTitle")} emptyTitle={t("noScansTitle")} emptyBody={t("noScansBody")} />
+            <ItemCatalog key={`radiology|${filter.q}|${filter.sort ?? ""}|${orderPlace}|${order.pay}|${pages}`} {...catalogProps} kind="radiology" chips={chipsOf("radiology")} orderHref={orderHref("radiology")} listLabel={t("allScansTitle")} emptyTitle={t("noScansTitle")} emptyBody={t("noScansBody")} />
           )}
         </section>
       )}

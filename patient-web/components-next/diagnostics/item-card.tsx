@@ -16,7 +16,7 @@ export type ItemTag = { label: string; tone: ServiceTone };
  * "Add to cart" and "Order now", a client island). The picture is the CATEGORY illustration (`art`: blood, X-ray ...), one per category;
  * the item's own photo replaces it only when the backend sent one.
  */
-export function ItemCard({ href, title, tags = [], note, price, art, imageUrl, actions }: { href: string; title: string; tags?: ItemTag[]; note?: string; price?: string; art: DiagArtKey; imageUrl?: string; actions: ReactNode }) {
+export function ItemCard({ href, title, tags = [], note, rating, price, art, imageUrl, actions }: { href: string; title: string; tags?: ItemTag[]; note?: string; rating?: string; price?: string; art: DiagArtKey; imageUrl?: string; actions: ReactNode }) {
   const image = allowedImageUrl(imageUrl);
   const picture = <DiagArt art={art} size={56} />;
   return (
@@ -28,6 +28,7 @@ export function ItemCard({ href, title, tags = [], note, price, art, imageUrl, a
             <span className={styles.testName}>{title}</span>
             {tags.length > 0 ? <span className={styles.tags}>{tags.map((tag) => <StatusChip key={tag.label} label={tag.label} tone={tag.tone} />)}</span> : null}
             {note ? <span className={styles.tagNote}>{note}</span> : null}
+            {rating ? <span className={styles.tagNote}>{rating}</span> : null}
             {price ? <span className={styles.price}><bdi>{price}</bdi></span> : null}
           </span>
         </Link>

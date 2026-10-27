@@ -3554,6 +3554,7 @@
     "sortRating": "الأعلى تقييمًا",
     "sortPrice": "الأقل سعرًا",
     "showMore": "عرض المزيد",
+    "ratingLine": "التقييم {value} ({count})",
     "mostRequested": "الأكثر طلبًا",
     "allTestsTitle": "كل التحاليل",
     "allScansTitle": "كل الأشعة",

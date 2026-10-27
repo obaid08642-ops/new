@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react-nativ
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import DiagnosticsHub from '../../../app/(tabs)/diagnostics';
+import { serveCatalog } from './catalogServer';
 import { message } from '../../components/screen/ScreenKit';
 
 /**
@@ -42,7 +43,7 @@ const TESTS = [
 describe('Diagnostics hub: insurance or self-pay first (decision 30)', () => {
   beforeEach(() => {
     mockApi.mockReset();
-    mockApi.mockImplementation(async (path: string) => (path === '/labs/services' ? TESTS : []));
+    mockApi.mockImplementation(async (path: string) => serveCatalog(path, { labs: TESTS }));
   });
 
   it('self-pay is the first choice and lists only what the patient can pay for', async () => {

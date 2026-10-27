@@ -1,11 +1,13 @@
 import React from 'react';
 import { readFileSync } from 'node:fs';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import DiagnosticsHub from '../../../app/(tabs)/diagnostics';
 import { message } from '../../components/screen/ScreenKit';
-import { DIAG_PAGE_SIZE, visibleRows } from '../../utils/diagPaging';
+import { DIAG_PAGE_SIZE } from '../../utils/diagCatalogApi';
+import { serveCatalog } from './catalogServer';
 
 /** Owner review G4: one "My orders and results" button, no results / compare shortcuts, the full lists, a card per item with two actions. TEST values. */
 
@@ -37,11 +39,13 @@ const TESTS = Array.from({ length: 45 }, (_, i) => ({ id: `t-${i}`, name_en: `Te
 const END = { nativeEvent: { contentOffset: { x: 0, y: 5000 }, contentSize: { width: 390, height: 5600 }, layoutMeasurement: { width: 390, height: 800 } } };
 
 describe('Diagnostics hub (owner review G4)', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    // the public catalogue cache keeps answers between tests: start clean so every page is asked of the (mock) server
+    await AsyncStorage.clear();
     mockApi.mockReset();
     mockPush.mockReset();
     mockAdd.mockReset();
-    mockApi.mockImplementation(async (path: string) => (path === '/labs/services' ? TESTS : []));
+    mockApi.mockImplementation(async (path: string) => serveCatalog(path, { labs: TESTS }));
   });
 
   it('has the single orders-and-results button and no results / compare shortcuts', async () => {
@@ -54,16 +58,34 @@ describe('Diagnostics hub (owner review G4)', () => {
     expect(mockPush).toHaveBeenCalledWith('/diagnostics/orders');
   });
 
-  it('opens the full list a page at a time as the end of the scroll is reached (no Show more button)', async () => {
+  it('asks the SERVER for the next page as the end of the scroll is reached (no Show more button, no full download)', async () => {
     await render(wrap(<DiagnosticsHub />));
     await waitFor(() => expect(screen.getByTestId('diag-test-t-0')).toBeTruthy(), { timeout: 15000 });
+    const pagePaths = () => mockApi.mock.calls.map(([path]) => String(path)).filter((path) => path.startsWith('/labs/services?page='));
     expect(screen.queryByText(k('diag.hub.showMore'))).toBeNull();
     expect(screen.queryByTestId(`diag-test-t-${DIAG_PAGE_SIZE}`)).toBeNull();
+    expect(pagePaths()).toContain('/labs/services?page=1&limit=20');
+    expect(pagePaths().some((path) => path.includes('page=2'))).toBe(false);
     await fireEvent.scroll(screen.getByTestId('diag-scroll'), END);
     await waitFor(() => expect(screen.getByTestId(`diag-test-t-${DIAG_PAGE_SIZE}`)).toBeTruthy());
+    expect(pagePaths()).toContain('/labs/services?page=2&limit=20');
     expect(screen.queryByTestId('diag-test-t-40')).toBeNull();
     await fireEvent.scroll(screen.getByTestId('diag-scroll'), END);
-    await waitFor(() => expect(screen.getByTestId('diag-test-t-44')).toBeTruthy());
+    await waitFor(() => expect(screen.getByTestId('diag-test-t-43')).toBeTruthy());
+    expect(pagePaths()).toContain('/labs/services?page=3&limit=20');
+    // the last page was the end: scrolling again asks nothing more
+    await fireEvent.scroll(screen.getByTestId('diag-scroll'), END);
+    expect(pagePaths().some((path) => path.includes('page=4'))).toBe(false);
+  });
+
+  it('shows the real rating on a card, only when the server sent one above 0', async () => {
+    mockApi.mockImplementation(async (path: string) =>
+      serveCatalog(path, { labs: [{ id: 'rated', name_en: 'Test rated', price: 20, rating: 4.5, rating_count: 12 }, { id: 'plain', name_en: 'Test plain', price: 30, rating: null, rating_count: 0 }] }),
+    );
+    await render(wrap(<DiagnosticsHub />));
+    await waitFor(() => expect(screen.getByTestId('diag-test-rated')).toBeTruthy(), { timeout: 15000 });
+    expect(screen.getAllByText(k('diag.ratingLine', { n: '4.5', count: '12' })).length).toBeGreaterThan(0);
+    expect(screen.queryAllByText(/^Rating /)).toHaveLength(screen.getAllByText(k('diag.ratingLine', { n: '4.5', count: '12' })).length);
   });
 
   it('shows the most requested strip first (the backend popularity) and the all-tests list after it', async () => {
@@ -83,15 +105,6 @@ describe('Diagnostics hub (owner review G4)', () => {
     await fireEvent.press(screen.getByTestId('diag-test-t-4-order'));
     expect(mockAdd).not.toHaveBeenCalled(); // the cart is not touched
     expect(mockPush).toHaveBeenCalledWith({ pathname: '/diagnostics/lab-comparison', params: { kind: 'lab', id: 't-4', name: 'Test number 4', single: '1', mode: 'home', payer: 'cash' } });
-  });
-});
-
-describe('paging (pure)', () => {
-  it('shows page by page and reports what is hidden', () => {
-    const rows = Array.from({ length: 45 }, (_, i) => i);
-    expect(visibleRows(rows, 1)).toEqual({ shown: rows.slice(0, DIAG_PAGE_SIZE), remaining: 45 - DIAG_PAGE_SIZE });
-    expect(visibleRows(rows, 3)).toEqual({ shown: rows, remaining: 0 });
-    expect(visibleRows([], 0)).toEqual({ shown: [], remaining: 0 });
   });
 });
 

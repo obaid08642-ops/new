@@ -2008,6 +2008,7 @@
   "diag.turnaround": "نتیجہ {time} میں",
   "diag.km": "{n} کلومیٹر",
   "diag.rating": "ریٹنگ {n}",
+  "diag.ratingLine": "ریٹنگ {n} ({count})",
   "diag.tag.homeSample": "گھر پر نمونہ",
   "diag.tag.fasting": "روزہ",
   "diag.tag.fastingHours": "روزہ {n}",

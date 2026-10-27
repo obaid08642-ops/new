@@ -1,28 +1,24 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { hubFilterCount, hubSortFor, nurseFilterCount, radiologyFilterCount } from "./diagnostics-filter-count";
-import { pageRows, parseHubFilter } from "./diagnostics-hub";
+import { hubFilterCount, nurseFilterCount, radiologyFilterCount } from "./diagnostics-filter-count";
+import { parseHubFilter } from "./diagnostics-hub";
 
 /** Owner review G6: the filters of labs, radiology and nursing on the web. */
 describe("applied filter counts never count a default", () => {
-  it("hub: show is labs-only, sort counts for both, rating sort belongs to labs", () => {
+  it("hub: show is labs-only, sort counts for both, sort counts as one filter for both", () => {
     expect(hubFilterCount({}, "labs")).toBe(0);
     expect(hubFilterCount({ show: "packages", sort: "price" }, "labs")).toBe(2);
     expect(hubFilterCount({ show: "packages", sort: "price" }, "radiology")).toBe(1);
-    expect(hubSortFor("rating", "radiology")).toBeUndefined();
-    expect(hubSortFor("rating", "labs")).toBe("rating");
+    // highest rated is real on the tests and the scans now (the server orders both)
+    expect(hubFilterCount({ sort: "rating" }, "radiology")).toBe(1);
     expect(parseHubFilter({ sort: "bogus", show: "x" })).toEqual({ q: "" });
   });
   it("radiology page and nurse list", () => {
     expect(radiologyFilterCount({})).toBe(0);
     expect(radiologyFilterCount({ modality: "mri", bodyPart: "knee", homeVisit: true, lowestPrice: true })).toBe(4);
+    expect(radiologyFilterCount({ highestRated: true })).toBe(1);
     expect(nurseFilterCount({ sort: "any", gender: "any", availableNow: false, nationality: "any" })).toBe(0);
     expect(nurseFilterCount({ sort: "rating", gender: "female", availableNow: true, nationality: "Saudi" })).toBe(4);
-  });
-  it("applying a filter starts at the first page again (the page size is the only step)", () => {
-    const rows = Array.from({ length: 45 }, (_, i) => i);
-    expect(pageRows(rows, 1).shown).toHaveLength(20);
-    expect(pageRows(rows.slice(0, 5), 1).hasMore).toBe(false);
   });
 });
 

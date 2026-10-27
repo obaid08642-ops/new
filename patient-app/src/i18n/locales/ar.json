@@ -2008,6 +2008,7 @@
   "diag.turnaround": "النتيجة خلال {time}",
   "diag.km": "{n} كم",
   "diag.rating": "تقييم {n}",
+  "diag.ratingLine": "تقييم {n} ({count})",
   "diag.tag.homeSample": "عينة منزلية",
   "diag.tag.fasting": "صيام",
   "diag.tag.fastingHours": "صيام {n}",

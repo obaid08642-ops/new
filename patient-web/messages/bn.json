@@ -3554,6 +3554,7 @@
     "sortRating": "সর্বোচ্চ রেটিং",
     "sortPrice": "সর্বনিম্ন মূল্য",
     "showMore": "আরও দেখান",
+    "ratingLine": "রেটিং {value} ({count})",
     "mostRequested": "সবচেয়ে বেশি চাওয়া",
     "allTestsTitle": "সব পরীক্ষা",
     "allScansTitle": "সব স্ক্যান",

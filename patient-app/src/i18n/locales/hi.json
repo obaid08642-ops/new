@@ -2008,6 +2008,7 @@
   "diag.turnaround": "नतीजा {time} में",
   "diag.km": "{n} किमी",
   "diag.rating": "रेटिंग {n}",
+  "diag.ratingLine": "रेटिंग {n} ({count})",
   "diag.tag.homeSample": "घर पर सैंपल",
   "diag.tag.fasting": "उपवास",
   "diag.tag.fastingHours": "उपवास {n}",

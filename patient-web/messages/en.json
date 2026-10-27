@@ -3554,6 +3554,7 @@
     "sortRating": "Highest rated",
     "sortPrice": "Lowest price",
     "showMore": "Show more",
+    "ratingLine": "Rating {value} ({count})",
     "mostRequested": "Most requested",
     "allTestsTitle": "All tests",
     "allScansTitle": "All scans",

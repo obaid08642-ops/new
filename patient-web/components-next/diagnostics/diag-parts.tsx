@@ -5,7 +5,6 @@ import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { SERVICE_ICONS, type FillIconName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
-import { formatPrice } from "@/lib/format-price";
 import { allowedImageUrl } from "@/lib/image-hosts";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { LiveFilter } from "./live-filter";
@@ -26,20 +25,7 @@ export function pickText(locale: string, ar: string | undefined, en: string | un
   return (rtl ? ar ?? en : en ?? ar) || undefined;
 }
 
-/** A price exactly as the server sent it, in the page's locale (a SAR amount through `Intl`, never hand-built). */
-export function money(locale: string, value: number): string {
-  return formatPrice(locale, value).text;
-}
-
-/** A duration in hours, in the page's locale. */
-export function hoursText(locale: string, value: number): string {
-  return new Intl.NumberFormat(locale, { style: "unit", unit: "hour", unitDisplay: "long", maximumFractionDigits: 0 }).format(value);
-}
-
-/** A duration in minutes, in the page's locale. */
-export function minutesText(locale: string, value: number): string {
-  return new Intl.NumberFormat(locale, { style: "unit", unit: "minute", unitDisplay: "long", maximumFractionDigits: 0 }).format(value);
-}
+export { money, hoursText, minutesText } from "@/lib/diagnostics-format";
 
 /** A section heading with an optional link to the whole list ("كل الباقات"). */
 export function SectionHead({ id, title, href, linkLabel }: { id: string; title: string; href?: string; linkLabel?: string }) {

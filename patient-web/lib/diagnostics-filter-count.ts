@@ -9,14 +9,9 @@ export function hubFilterCount(filter: Pick<HubFilter, "show" | "sort">, kind: "
   return (kind === "labs" && filter.show ? 1 : 0) + (filter.sort ? 1 : 0);
 }
 
-/** The sorts the hub offers for a kind: "rating" orders the approved-labs strip, so it exists for labs only. */
-export function hubSortFor(sort: HubFilter["sort"], kind: "labs" | "radiology"): HubFilter["sort"] {
-  return kind === "radiology" && sort === "rating" ? undefined : sort;
-}
-
-/** The radiology catalogue page: scan type, body part, home visit, lowest price first. The search text is not a filter. */
-export function radiologyFilterCount(f: { modality?: string; bodyPart?: string; homeVisit?: boolean; lowestPrice?: boolean }): number {
-  return (f.modality ? 1 : 0) + (f.bodyPart ? 1 : 0) + (f.homeVisit ? 1 : 0) + (f.lowestPrice ? 1 : 0);
+/** The radiology catalogue page: scan type, body part, home visit, lowest price first, highest rated first. The search text is not a filter. */
+export function radiologyFilterCount(f: { modality?: string; bodyPart?: string; homeVisit?: boolean; lowestPrice?: boolean; highestRated?: boolean }): number {
+  return (f.modality ? 1 : 0) + (f.bodyPart ? 1 : 0) + (f.homeVisit ? 1 : 0) + (f.lowestPrice ? 1 : 0) + (f.highestRated ? 1 : 0);
 }
 
 /** The nurse list of a service: order, gender, available now, nationality (each counts only away from "any"). */
