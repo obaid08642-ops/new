@@ -13,6 +13,8 @@ import { UploadDto, UploadSuggestionImageDto } from './storage.dto';
 import { Purpose, UploadSecurityService } from './upload-security.service';
 import { ClamavService } from './clamav.service';
 import { logEvent } from '../../common/structured-logger';
+import { PendingScanService } from './pending-scan.service';
+import { FilePendingScanException, PENDING_PREFIX, isPendingKey, isUnscanned } from './pending-scan';
 
 export enum StorageBackend { BASE64 = 'base64', S3 = 's3', CLOUDINARY = 'cloudinary', SUPABASE = 'supabase' }
 
@@ -38,9 +40,16 @@ export class StorageObject extends Document {
     width: number; height: number; size: number; format: string; version: number; createdAt: string;
   };
   @Prop({ default: false }) deleted: boolean;
+  /** UPLOAD_SCAN=defer: 'pending_scan' | 'scanning' until the worker has passed the file; absent on rows that were scanned before they were stored. */
+  @Prop({ type: String, enum: ['pending_scan', 'scanning', 'clean', 'infected'] }) scan_status?: string;
+  @Prop() scan_claimed_at?: Date;
+  @Prop() scanned_at?: Date;
+  @Prop({ default: undefined }) scan_attempts?: number;
 }
 export const StorageObjectSchema = SchemaFactory.createForClass(StorageObject);
 StorageObjectSchema.index({ owner_account_id: 1, createdAt: -1 });
+// the scan worker's queue: unscanned files, oldest first (sparse: rows scanned before they were stored never enter it)
+StorageObjectSchema.index({ scan_status: 1, createdAt: 1 }, { sparse: true, name: 'scan_queue' });
 
 export interface StorageAdapter {
   put(payload: { mime: string; data_base64?: string; original_name: string; customKey?: string }): Promise<{ backend: StorageBackend; external_url?: string; external_key?: string; data_base64?: string }>;
@@ -245,7 +254,7 @@ export class StorageService {
    *  target='cloudinary' routes provider/user content (profile images, clinic
    *  galleries, KYC documents) to Cloudinary; the default stays R2 so the
    *  medicine catalogue is never affected. */
-  async upload(input: { owner_account_id: string; owner_kind?: string; mime: string; data_base64: string; original_name?: string; visibility?: 'private' | 'public_read'; customKey?: string; target?: 'r2' | 'cloudinary'; purpose?: Purpose }) {
+  async upload(input: { owner_account_id: string; owner_kind?: string; mime: string; data_base64: string; original_name?: string; visibility?: 'private' | 'public_read'; customKey?: string; target?: 'r2' | 'cloudinary'; purpose?: Purpose; defer_ok?: boolean }) {
     if (!ALLOWED_MIME.has(input.mime)) throw new BadRequestException('unsupported mime: ' + input.mime);
     // 16.5: the type comes from the bytes, the name is random and EXIF/GPS never survives.
     const inspected = await this.uploadSecurity.inspect({
@@ -253,7 +262,10 @@ export class StorageService {
       declared_mime: input.mime,
       data_base64: input.data_base64,
       original_name: input.original_name,
+      // UPLOAD_SCAN=defer: a private object may wait in quarantine for its scan (a Cloudinary object cannot; it is served by Cloudinary)
+      allow_defer: input.defer_ok === true && input.target !== 'cloudinary',
     });
+    const deferred = inspected.scan === 'deferred';
     const dataBase64 = inspected.bytes.toString('base64');
     const approxBytes = inspected.size_bytes;
     if (approxBytes > MAX_BYTES) throw new BadRequestException('file exceeds the hard size limit');
@@ -267,7 +279,9 @@ export class StorageService {
     const checksum = crypto.createHash('sha256').update(inspected.bytes).digest('hex');
     let adapterRes;
     try {
-      adapterRes = await this.adapter.put({ mime: input.mime, data_base64: dataBase64, original_name: inspected.random_name, customKey: input.customKey });
+      // quarantine: the object is written under `pending/` and nothing signs, links or reads a key under it until the scan worker moves it
+      const key = input.customKey || `${uuidv4()}-${inspected.random_name}`;
+      adapterRes = await this.adapter.put({ mime: input.mime, data_base64: dataBase64, original_name: inspected.random_name, customKey: deferred ? `${PENDING_PREFIX}${key}` : key });
     } catch (e: any) {
       this.logger.error(`S3/R2 put failed (${e.message}) — private upload refused`);
       throw new ServiceUnavailableException('PRIVATE_OBJECT_STORAGE_UNAVAILABLE');
@@ -284,8 +298,9 @@ export class StorageService {
       owner_account_id: input.owner_account_id,
       owner_kind: input.owner_kind || 'provider_account',
       visibility: 'private',
+      ...(deferred ? { scan_status: 'pending_scan' } : {}),
     });
-    return { id: obj.id, mime: obj.mime, size_bytes: obj.size_bytes, url: `/api/v1/storage/${obj.id}` };
+    return { id: obj.id, mime: obj.mime, size_bytes: obj.size_bytes, url: `/api/v1/storage/${obj.id}`, ...(deferred ? { scan_status: 'pending_scan' } : {}) };
   }
 
   /**
@@ -330,6 +345,8 @@ export class StorageService {
     const o = await this.model.findOne({ id, deleted: false });
     if (!o) throw new NotFoundException();
     if (!canRead(o, requester) && !(await this.orderPharmacyMayRead(o, requester)) && !(await this.radiologyPatientMayRead(o, requester))) throw new ForbiddenException();
+    // a file that has not been scanned is not opened by anyone: not its owner, not staff
+    if (isUnscanned(o.scan_status) || isPendingKey(o.external_key)) throw new FilePendingScanException();
     const data = await this.adapter.get(o);
     if (o.visibility !== 'public_read') delete (data as any).external_url;
     return { id: o.id, mime: o.mime, original_name: o.original_name, size_bytes: o.size_bytes, ...data };
@@ -343,6 +360,7 @@ export class StorageService {
   async publicProfileImage(id: string): Promise<{ mime: string; data?: Buffer; url?: string } | null> {
     const o: any = await this.model.findOne({ id, deleted: false }).lean();
     if (!o || !String(o.mime || '').startsWith('image/')) return null;
+    if (isUnscanned(o.scan_status) || isPendingKey(o.external_key)) return null; // a public profile never shows a file that is still waiting for its scan
     if (o.backend === StorageBackend.BASE64 && o.data_base64) return { mime: o.mime, data: Buffer.from(o.data_base64, 'base64') };
     if (o.visibility === 'public_read' && o.external_url) return { mime: o.mime, url: o.external_url };
     if (o.external_key && S3R2Adapter.configured()) {
@@ -369,6 +387,7 @@ export class StorageService {
     const o: any = await this.model.findOne({ id, deleted: false });
     if (!o) throw new NotFoundException();
     if (!canRead(o, requester) && !(await this.orderPharmacyMayRead(o, requester)) && !(await this.radiologyPatientMayRead(o, requester))) throw new ForbiddenException();
+    if (isUnscanned(o.scan_status) || isPendingKey(o.external_key)) throw new FilePendingScanException();
 
     // Cloudinary-hosted: build signed delivery URL
     if (o.backend === 'cloudinary' && o.external_key) {
@@ -501,6 +520,7 @@ export class StorageController {
       data_base64: body.data_base64,
       original_name: body.original_name,
       target: 'r2',
+      defer_ok: true, // UPLOAD_SCAN=defer: an account's own upload may wait in quarantine for its scan
     });
   }
   @Get(':id')
@@ -552,7 +572,7 @@ export class StorageController {
 @Module({
   imports: [MongooseModule.forFeature([{ name: 'StorageObject', schema: StorageObjectSchema }])],
   controllers: [StorageController],
-  providers: [StorageService, UploadSecurityService, ClamavService],
-  exports: [StorageService, UploadSecurityService, ClamavService, MongooseModule],
+  providers: [StorageService, UploadSecurityService, ClamavService, PendingScanService],
+  exports: [StorageService, UploadSecurityService, ClamavService, PendingScanService, MongooseModule],
 })
 export class StorageModule {}

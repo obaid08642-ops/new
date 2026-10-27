@@ -92,7 +92,7 @@ export class ProviderProfileService {
     if (!body?.file?.data_base64 || !body?.file?.mime) throw new BadRequestException('file required');
     // KYC artifacts are retained only in the private object store selected by
     // server policy; neither client nor this business route chooses a CDN target.
-    const sto = await this.storage.upload({ owner_account_id: user.id, owner_kind: 'provider_account', mime: body.file.mime, data_base64: body.file.data_base64, original_name: body.file.original_name || body.doc_type, target: 'r2' });
+    const sto = await this.storage.upload({ owner_account_id: user.id, owner_kind: 'provider_account', mime: body.file.mime, data_base64: body.file.data_base64, original_name: body.file.original_name || body.doc_type, target: 'r2', defer_ok: true });
     // delete previous PENDING/NEEDS_REPLACEMENT of same type? keep history but mark prior as superseded by leaving them.
     const existing = await this.docs.findOne({ account_id: user.id, doc_type: body.doc_type, review_status: { $in: [DocumentReviewStatus.PENDING, DocumentReviewStatus.NEEDS_REPLACEMENT, DocumentReviewStatus.UNDER_REVIEW] } });
     if (existing) {
