@@ -1473,7 +1473,19 @@
     "sortAvailableToday": "Available ngayong araw",
     "guaranteeLine": "Mahigit {minutes} minuto bang late? Makakakuha ka ng {points} puntos ng Nabd.",
     "licenseLine": "Lisensyado ng SCFHS, blg. {number}",
-    "licenseVerified": "Beripikado"
+    "licenseVerified": "Beripikado",
+    "visitSubClinic": "Magpatingin sa klinika",
+    "visitSubVideo": "Kausapin ang doktor sa bidyo",
+    "visitSubHome": "Pupunta ang doktor sa bahay mo",
+    "filters": "Mga filter",
+    "filtersTitle": "I-filter ang mga doktor",
+    "filtersApply": "Ilapat",
+    "filtersClearAll": "Burahin lahat",
+    "filtersClose": "Isara ang mga filter",
+    "filtersWithCount": "Mga filter, {n} aktibo",
+    "activeFilters": "Mga aktibong filter",
+    "removeFilter": "Alisin ang filter na {filter}",
+    "filterAll": "Lahat"
   },
   "LabsServices": {
     "eyebrow": "Pangangalaga sa laboratoryo",

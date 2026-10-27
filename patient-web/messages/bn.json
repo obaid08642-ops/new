@@ -1473,7 +1473,19 @@
     "sortAvailableToday": "আজ পাওয়া যাচ্ছে",
     "guaranteeLine": "আপনার অ্যাপয়েন্টমেন্ট {minutes} মিনিটের বেশি দেরি হলে আপনি {points} নাবদ পয়েন্ট পান।",
     "licenseLine": "সৌদি কমিশন ফর হেলথ স্পেশালিটিজ কর্তৃক লাইসেন্সপ্রাপ্ত, নম্বর {number}",
-    "licenseVerified": "যাচাইকৃত"
+    "licenseVerified": "যাচাইকৃত",
+    "visitSubClinic": "ক্লিনিকে ডাক্তারের সাথে দেখা করুন",
+    "visitSubVideo": "ভিডিওতে ডাক্তারের সাথে কথা বলুন",
+    "visitSubHome": "ডাক্তার আপনার বাড়িতে আসেন",
+    "filters": "ফিল্টার",
+    "filtersTitle": "ডাক্তার ফিল্টার করুন",
+    "filtersApply": "প্রয়োগ করুন",
+    "filtersClearAll": "সব মুছুন",
+    "filtersClose": "ফিল্টার বন্ধ করুন",
+    "filtersWithCount": "ফিল্টার, {n}টি সক্রিয়",
+    "activeFilters": "সক্রিয় ফিল্টার",
+    "removeFilter": "ফিল্টার {filter} সরান",
+    "filterAll": "সব"
   },
   "LabsServices": {
     "eyebrow": "ল্যাবরেটরি কেয়ার",

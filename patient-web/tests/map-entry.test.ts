@@ -24,7 +24,7 @@ describe("providers map entry", () => {
     expect(read("components-next/home/home-parts.tsx")).toContain("${base}/map");
     // owner layout decisions 2026-10-26, item 4: the map lives on Home, not under the pharmacy header
     expect(read("app/[locale]/c/[[...category]]/category-view.tsx")).not.toContain("MapEntryLink");
-    expect(read("app/[locale]/consultations/doctors/doctors-view.tsx")).toContain('mapType="doctor"');
+    expect(read("app/[locale]/consultations/doctors/doctors-view.tsx")).not.toContain("mapType=");
     // owner layout decision 10: no map button on the labs hub
     expect(read("app/[locale]/diagnostics/page.tsx")).not.toContain("mapType=");
     expect(read("components-next/consult/consult-page.tsx")).toContain("<MapEntryLink");

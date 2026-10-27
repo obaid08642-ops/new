@@ -1473,7 +1473,19 @@
     "sortAvailableToday": "आज उपलब्ध",
     "guaranteeLine": "अगर आपकी अपॉइंटमेंट {minutes} मिनट से ज़्यादा देर से शुरू हो, तो आपको {points} नब्ज़ पॉइंट्स मिलते हैं।",
     "licenseLine": "सऊदी हेल्थ स्पेशलिटीज़ कमीशन से लाइसेंस प्राप्त, नंबर {number}",
-    "licenseVerified": "सत्यापित"
+    "licenseVerified": "सत्यापित",
+    "visitSubClinic": "क्लिनिक में डॉक्टर से मिलें",
+    "visitSubVideo": "वीडियो पर डॉक्टर से बात करें",
+    "visitSubHome": "डॉक्टर आपके घर आते हैं",
+    "filters": "फ़िल्टर",
+    "filtersTitle": "डॉक्टर फ़िल्टर करें",
+    "filtersApply": "लागू करें",
+    "filtersClearAll": "सब हटाएँ",
+    "filtersClose": "फ़िल्टर बंद करें",
+    "filtersWithCount": "फ़िल्टर, {n} सक्रिय",
+    "activeFilters": "सक्रिय फ़िल्टर",
+    "removeFilter": "फ़िल्टर {filter} हटाएँ",
+    "filterAll": "सभी"
   },
   "LabsServices": {
     "eyebrow": "प्रयोगशाला देखभाल",
