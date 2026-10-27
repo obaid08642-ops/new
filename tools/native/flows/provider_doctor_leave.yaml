@@ -1,0 +1,32 @@
+# Doctor (provider app): Settings -> "Leaves & Closings": add a leave for a future date range, it is listed, then cancel it and it is gone.
+appId: com.nabd.provider
+---
+- runFlow: common_provider_login.yaml
+- extendedWaitUntil:
+    visible: "الإعدادات|Settings"
+    timeout: 90000
+- tapOn: "الإعدادات|Settings"
+- scrollUntilVisible:
+    element: "إجازاتي وإغلاقاتي|Leaves & Closings"
+    timeout: 30000
+- tapOn: "إجازاتي وإغلاقاتي|Leaves & Closings"
+- extendedWaitUntil:
+    visible: "إضافة إجازة|Add Leave"
+    timeout: 30000
+# the date fields show their sample dates as placeholders (YYYY-MM-DD)
+- tapOn: "2026-08-10"
+- inputText: "2027-03-10"
+- tapOn: "2026-08-15"
+- inputText: "2027-03-12"
+- hideKeyboard
+- tapOn:
+    text: "إضافة الإجازة|Add Leave"
+    index: 1
+- extendedWaitUntil:
+    visible: ".*2027-03-10 → 2027-03-12.*"
+    timeout: 30000
+- takeScreenshot: provider_doctor_leave_added
+- tapOn: "إلغاء|Cancel"
+- extendedWaitUntil:
+    notVisible: ".*2027-03-10 → 2027-03-12.*"
+    timeout: 30000
