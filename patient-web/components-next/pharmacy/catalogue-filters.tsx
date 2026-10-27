@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { formatNumber } from "@/lib/format-price";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import type { CatalogueFilters } from "@/lib/api/public-products-server";
 import consult from "@/components-next/consult/consult.module.css";
@@ -39,7 +40,7 @@ export async function CatalogueFilterPanel({
     <details className={styles.filterPanel} open={count > 0 ? true : undefined}>
       <summary className={styles.filterSummary}>
         <span>{t("filtersTitle")}</span>
-        {count > 0 ? <span className={styles.filterCount}>{count}</span> : null}
+        {count > 0 ? <span className={styles.filterCount}>{formatNumber(locale, count)}</span> : null}
       </summary>
       <form method="get" className={consult.stack} aria-label={t("filtersTitle")}>
         {Object.entries(hidden).map(([name, value]) => <input key={name} type="hidden" name={name} value={value} />)}

@@ -108,6 +108,7 @@
     "greetingEvening": "শুভ সন্ধ্যা",
     "searchLabel": "খুঁজুন",
     "searchPlaceholder": "ওষুধ, ডাক্তার বা পরীক্ষা খুঁজুন…",
+    "searchPlaceholderShort": "ওষুধ, ডাক্তার…",
     "searchButton": "খুঁজুন",
     "services": "সেবা",
     "svcConsult": "পরামর্শ",

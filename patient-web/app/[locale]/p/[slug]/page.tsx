@@ -452,7 +452,7 @@ export default async function PublicProductPage({ params }: Props) {
                 <>
                   <h2 className={styles.blockTitle}>{b("detailsTitle")}</h2>
                   <div className={styles.detailsCard}>
-                    <ProductSections groups={groups} label={b("detailsTitle")} />
+                    <ProductSections groups={groups} label={b("detailsTitle")} locale={locale} />
                     <div className={styles.legal}>
                       <p>{t("disclaimer")}</p>
                       <div className={styles.ids}>

@@ -108,6 +108,7 @@
     "greetingEvening": "Good evening",
     "searchLabel": "Search",
     "searchPlaceholder": "Search for a medicine, doctor or test…",
+    "searchPlaceholderShort": "Search Nabd…",
     "searchButton": "Search",
     "services": "Services",
     "svcConsult": "Consultations",

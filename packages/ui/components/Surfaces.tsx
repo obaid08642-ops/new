@@ -268,16 +268,17 @@ export function PriceTag({ amount, currency, was, note, testID }: PriceTagProps)
  * DoctorCard board rating: one filled star, the value (14/700) and the count in
  * brackets (12/400). Nothing at all when there are no real ratings.
  */
-export function Rating({ value, count, max = 5, size = 'sm', surface = 'default', formatLabel, testID }: RatingProps) {
+export function Rating({ value, count, max = 5, size = 'sm', surface = 'default', formatLabel, locale, testID }: RatingProps) {
   if (value == null || !(count > 0)) return null;
   const px = size === 'sm' ? 16 : 20;
-  const shown = value.toFixed(1);
+  const shown = locale ? new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(value) : value.toFixed(1);
+  const shownCount = locale ? new Intl.NumberFormat(locale).format(count) : String(count);
   const onBrand = surface === 'onBrand';
   return (
     <span
       data-testid={testID}
       role="img"
-      aria-label={formatLabel ? formatLabel(value, count) : `${shown} out of ${max}, ${count} ratings`}
+      aria-label={formatLabel ? formatLabel(value, count) : `${shown} out of ${max}, ${shownCount} ratings`}
       className={clsx('nabd-rating', `nabd-rating--${size}`, { 'nabd-rating--on-brand': onBrand })}
     >
       <svg aria-hidden="true" width={px} height={px} viewBox="0 0 256 256">
@@ -286,7 +287,7 @@ export function Rating({ value, count, max = 5, size = 'sm', surface = 'default'
       <span aria-hidden className="nabd-rating__value">
         {shown}
       </span>
-      <span aria-hidden className="nabd-rating__count">({count})</span>
+      <span aria-hidden className="nabd-rating__count">({shownCount})</span>
     </span>
   );
 }

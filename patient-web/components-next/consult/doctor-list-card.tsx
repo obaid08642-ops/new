@@ -54,6 +54,7 @@ export function DoctorListCard({ locale, href, name, grade, specialty, place, mo
       place={place}
       modes={modes}
       rating={rating}
+      locale={locale}
       nextSlot={nextSlot}
       price={money?.amount}
       currency={money?.currency}

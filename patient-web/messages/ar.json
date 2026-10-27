@@ -108,6 +108,7 @@
     "greetingEvening": "مساء الخير",
     "searchLabel": "بحث",
     "searchPlaceholder": "ابحث عن دواء، طبيب، تحليل…",
+    "searchPlaceholderShort": "دواء، طبيب…",
     "searchButton": "بحث",
     "services": "الخدمات",
     "svcConsult": "استشارات",

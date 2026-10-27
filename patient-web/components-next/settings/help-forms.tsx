@@ -2,7 +2,8 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { formatNumber } from "@/lib/format-price";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import forms from "@/components-next/consult/consult.module.css";
@@ -23,6 +24,7 @@ export const ratingOf = (stars: number): "positive" | "neutral" | "negative" | u
 /** "Share your feedback" (the help screen's second tab): POST /api/support/feedback with the same payload as the app: message, rating (positive, neutral, negative) and category. */
 export function FeedbackForm({ doneHref }: { doneHref: string }) {
   const t = useTranslations("SettingsWeb");
+  const locale = useLocale();
   const [rating, setRating] = useState(0);
   const [kind, setKind] = useState<string>("");
   const [text, setText] = useState("");
@@ -67,7 +69,7 @@ export function FeedbackForm({ doneHref }: { doneHref: string }) {
         <div className={forms.choices} role="group" aria-labelledby="fb-rating">
           {[1, 2, 3, 4, 5].map((n) => (
             <button key={n} type="button" className={forms.choice} aria-pressed={rating === n} aria-label={t("fbStars", { count: n })} onClick={() => setRating(n)}>
-              <bdi>{n}</bdi>
+              <bdi>{formatNumber(locale, n)}</bdi>
             </button>
           ))}
         </div>
