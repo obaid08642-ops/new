@@ -1,0 +1,39 @@
+# Speed budget of the main tabs on the real Android build, signed in as a fresh API-created patient: each tab's first content must
+# show within its budget after the tap (warm app, emulator, seeded backend). A budget miss fails the flow, so the
+# NATIVE_REPORT shows which tab is slow. The tab labels are the Arabic ones of MAIN_TAB_ITEMS (a fresh install is Arabic).
+# The budget is the emulator's, not the phone's: the target on a device is lower.
+appId: com.patient.nabd
+---
+- runFlow: common_fresh_session.yaml
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 5000
+- tapOn:
+    text: "الصيدلية"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "pharmacy-hub"
+    timeout: 3000
+- tapOn:
+    text: "التحاليل"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "diagnostics-hub"
+    timeout: 3000
+- tapOn:
+    text: "التمريض"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "nursing-hub"
+    timeout: 3000
+- tapOn:
+    text: "الرئيسية"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 2000
