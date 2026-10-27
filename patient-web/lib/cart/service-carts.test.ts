@@ -26,9 +26,15 @@ describe("one cart per service: the header button", () => {
     expect(cartTarget("radiology", counts({ pharmacy: 2, radiology: 1 }), "ar")).toEqual({ kind: "cart", service: "radiology", href: "/ar/labs/basket?kind=radiology", count: 1 });
     expect(cartTarget("lab", counts({ pharmacy: 2 }), "en")).toMatchObject({ service: "lab", count: 0, href: "/en/labs/basket" });
   });
-  it("on Home and on pages where nothing can be added there is no cart button", () => {
-    expect(cartTarget(null, counts({ pharmacy: 3, nursing: 1 }), "en")).toEqual({ kind: "none" });
+  it("on Home and on pages where nothing can be added there is no cart button while every cart is empty", () => {
     expect(cartTarget(null, counts({}), "en")).toEqual({ kind: "none" });
+  });
+  it("on those pages with any non-empty cart the chooser lists only the non-empty carts with counts, the badge is the total", () => {
+    expect(cartTarget(null, counts({ pharmacy: 3, nursing: 1 }), "en")).toEqual({
+      kind: "chooser", count: 4,
+      carts: [{ service: "pharmacy", href: "/en/cart", count: 3 }, { service: "nursing", href: "/en/labs/basket?kind=nursing", count: 1 }],
+    });
+    expect(cartTarget(null, counts({ lab: 2 }), "ar")).toEqual({ kind: "chooser", count: 2, carts: [{ service: "lab", href: "/ar/labs/basket", count: 2 }] });
   });
   it("the pharmacy order flow and the cart page itself have none", () => {
     for (const path of ["/en/pharmacy/final-quote", "/ar/pharmacy/payment", "/en/pharmacy/broadcast-status", "/en/cart", "/en/doctor/dr-test", "/en/consultations/doctors"]) expect(serviceOfPath(path), path).toBeNull();

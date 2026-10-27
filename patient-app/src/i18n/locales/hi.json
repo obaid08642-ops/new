@@ -252,7 +252,7 @@
   "pharmacy.stepper.qty": "कार्ट में {n}",
   "pharmacy.removedFromCart": "{name} को कार्ट से हटा दिया गया",
   "common.undo": "पूर्ववत करें",
-  "cart.chooser.title": "कार्ट चुनें",
+  "cart.chooser.title": "आपके कार्ट",
   "cart.name.pharmacy": "फ़ार्मेसी कार्ट",
   "cart.name.lab": "लैब टेस्ट कार्ट",
   "cart.name.radiology": "रेडियोलॉजी कार्ट",

@@ -33,11 +33,11 @@ describe("the shared cart button", () => {
     expect(html).toContain('aria-label="Cart (3)"');
   });
 
-  it("is the one cart button of the core shell (every phone header); the home header has none (owner review 2026-10-27)", () => {
+  it("is the one cart button of the core shell (every phone header); the home header carries it too (owner, 2026-10-27)", () => {
     const core = read("components-next/core/core-shell.tsx");
     expect(core).toContain("<CartLink");
     expect(core).not.toMatch(/hideTabs && !search \? cartLink/);
-    expect(read("components-next/home/home-shell.tsx")).not.toContain("<CartLink");
+    expect(read("components-next/home/home-shell.tsx")).toContain("<CartLink");
   });
 });
 
@@ -63,11 +63,29 @@ describe("one cart per service: the header button", () => {
     expect(render()).toContain('href="/en/labs/basket?kind=nursing"');
     expect(render()).toContain('aria-label="Cart (1)"');
   });
-  it("on Home, the doctor profile, consultations and the account there is no cart button, whatever the carts hold", () => {
+  it("on Home, the doctor profile, consultations and the account there is no cart button while every cart is empty", () => {
     for (const p of ["/en", "/en/doctor/dr-test", "/en/consultations/doctors", "/en/profile", "/en/pharmacy/final-quote"]) {
-      reset(); path = p; count = 3; basketLines = { lab: [{}], radiology: [], nursing: [{}] };
+      reset(); path = p;
       expect(render(), p).toBe("");
     }
+  });
+  it("on those pages with items in any cart it shows a popup button with the total badge, closed at first", () => {
+    for (const p of ["/en", "/en/doctor/dr-test", "/en/consultations/doctors", "/en/profile"]) {
+      reset(); path = p; count = 3; basketLines = { lab: [{}], radiology: [], nursing: [{}] };
+      const html = render();
+      expect(html, p).toContain('aria-haspopup="true"');
+      expect(html).toContain('aria-expanded="false"');
+      expect(html).toContain('aria-label="Cart (5)"');
+      expect(html).not.toContain("cart-chooser");
+    }
+  });
+  it("the chooser is titled 'Your carts', lists a name and count per cart, closes on Escape and outside click, and uses tokens only", () => {
+    expect(en.CoreShell.cartChooser).toBe("Your carts");
+    const src = read("components-next/core/cart-link.tsx");
+    expect(src).toContain('event.key === "Escape"');
+    expect(src).toContain("pointerdown");
+    expect(src).toContain("href={cart.href}");
+    expect(src).not.toContain("style=");
   });
 });
 

@@ -11,6 +11,7 @@ import { ThemeButton } from "./theme-button";
 import type { Locale } from "@/lib/i18n";
 import { getDisabledModules } from "@/lib/api/public-config-server";
 import { isPathHidden } from "@/lib/modules";
+import { CartLink } from "@/components-next/core/cart-link";
 import { WishlistLink } from "@/components-next/core/wishlist-link";
 import { PhoneMenu } from "@/components-next/core/phone-menu";
 import { HomeTabBar } from "./home-tab-bar";
@@ -98,6 +99,7 @@ export async function HomeShell({
           <NotificationBellLink href={`${base}/notifications`} label={t("notifications")} unreadLabel={t("notificationsUnread")} />
         ) : null}
         <WishlistLink locale={locale} className={`${styles.iconBtn} ${styles.cartLink}`} badgeClassName={styles.cartBadge} />
+        <CartLink locale={locale} className={`${styles.iconBtn} ${styles.cartLink}`} badgeClassName={styles.cartBadge} />
         {signedIn === undefined ? (
           <HomeAccountTools locale={locale} signInLabel={t("signIn")} accountLabel={t("account")} />
         ) : knownSignedIn ? (

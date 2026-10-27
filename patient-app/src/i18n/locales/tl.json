@@ -252,7 +252,7 @@
   "pharmacy.stepper.qty": "{n} sa kariton",
   "pharmacy.removedFromCart": "Inalis ang {name} sa iyong kariton",
   "common.undo": "I-undo",
-  "cart.chooser.title": "Pumili ng kariton",
+  "cart.chooser.title": "Mga cart mo",
   "cart.name.pharmacy": "Kariton ng parmasya",
   "cart.name.lab": "Kariton ng lab test",
   "cart.name.radiology": "Kariton ng radiology",

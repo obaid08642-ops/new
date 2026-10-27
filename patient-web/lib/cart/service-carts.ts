@@ -4,9 +4,9 @@
  *   lab       - the ordering basket's `lab` list, opened at /labs/basket
  *   radiology - the ordering basket's `radiology` list, opened at /labs/basket?kind=radiology
  *   nursing   - the ordering basket's `nursing` list, opened at /labs/basket?kind=nursing
- * The header cart icon is drawn only on the pages where something can be added (pharmacy list and product, labs, radiology,
- * nursing and their item pages); it opens that service's cart and its badge shows that service's count. Home, consultations,
- * the doctor profile, the account and every other page have none. The rule is here, in one place, with no React.
+ * On the pages where something can be added (pharmacy list and product, labs, radiology, nursing and their item pages) the header
+ * cart icon opens that service's cart with that service's count. On every other page it appears only when some cart has items
+ * (badge = total) and opens a "Your carts" chooser of the non-empty carts. The rule is here, in one place, with no React.
  */
 export type CartService = "pharmacy" | "lab" | "radiology" | "nursing";
 export const CART_SERVICES: readonly CartService[] = ["pharmacy", "lab", "radiology", "nursing"];
@@ -42,13 +42,20 @@ export function cartHref(service: CartService, locale: string): string {
   return `/${locale}/labs/basket${service === "lab" ? "" : `?kind=${service}`}`;
 }
 
-/** What the header button does for this page: open the cart of the page's service (with its badge count), or not be drawn. */
+/** What the header button does for this page: open the cart of the page's service, open a "Your carts" chooser of the non-empty carts, or not be drawn. */
 export type CartTarget =
   | { kind: "cart"; service: CartService; href: string; count: number }
+  | { kind: "chooser"; carts: Array<{ service: CartService; href: string; count: number }>; count: number }
   | { kind: "none" };
 
-/** The button exists only where something can be added (owner review 2026-10-27, G1): on a page of no service there is none. */
+/**
+ * On a page where something can be added: that service's cart, always shown, with its own count. On every other page (Home,
+ * consultations, the doctor profile, the account, search): nothing while every cart is empty (owner, 2026-10-27); otherwise a
+ * chooser of the non-empty carts whose badge is the total.
+ */
 export function cartTarget(pageService: CartService | null, counts: CartCounts, locale: string): CartTarget {
-  if (!pageService) return { kind: "none" };
-  return { kind: "cart", service: pageService, href: cartHref(pageService, locale), count: counts[pageService] };
+  if (pageService) return { kind: "cart", service: pageService, href: cartHref(pageService, locale), count: counts[pageService] };
+  const carts = CART_SERVICES.flatMap((service) => (counts[service] > 0 ? [{ service, href: cartHref(service, locale), count: counts[service] }] : []));
+  if (carts.length === 0) return { kind: "none" };
+  return { kind: "chooser", carts, count: carts.reduce((n, cart) => n + cart.count, 0) };
 }
