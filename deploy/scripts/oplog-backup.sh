@@ -62,6 +62,13 @@ slice_once() {
     exit 0
   fi
 
+  if [ "$TO_S" = "$FROM_S" ] && [ "$TO_I" = "$FROM_I" ]; then
+    # nothing was written since the last slice: a slice from X to X would cover nothing (and once looped the DR planner for ever)
+    echo "[$(date)] oplog: no new entries since $FROM_S.$FROM_I, no slice written"
+    report oplog true 0
+    return 0
+  fi
+
   NAME="oplog_${FROM_S}.${FROM_I}_${TO_S}.${TO_I}.bson.gz.gpg"
   QUERY=$(printf '{"ts":{"$gt":{"$timestamp":{"t":%s,"i":%s}},"$lte":{"$timestamp":{"t":%s,"i":%s}}},"op":{"$ne":"n"},"$or":[{"ns":{"$regex":"^%s\\\\."}},{"ns":"admin.$cmd","o.applyOps":{"$exists":true}}]}' \
     "$FROM_S" "$FROM_I" "$TO_S" "$TO_I" "$DB_NAME")
