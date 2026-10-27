@@ -11,6 +11,9 @@
 #     2. the window cron (/etc/cron.d/nabd-clamav-window, one line) unless some file in /etc/cron.d already runs clamav-window.sh
 #     3. the backend ONLY is recreated (same image, nothing else restarted), then /config must say features.uploads_enabled=true
 #     4. any failure: the env copy is put back, the cron file this run created is removed, the backend is recreated on the same image, exit 1
+#   The window script and the helper it sources (deploy/scripts/clamav-window.sh, _backup-common.sh) are NOT written by the deploy task (it writes the
+#   compose and nginx files only). This task installs them itself from the uploaded release (REL/deploy.tgz, after `sha256sum -c SHA256SUMS`), only
+#   when the server's copy is missing or differs; the old copy is saved in $B first. The dry run says which would be installed.
 #   ROLLBACK=yes (set in this file): restores the newest env copy this task saved, removes the cron file this task installed, recreates the backend.
 # Not touched: the ClamAV container (a `docker compose up -d` of the deploy script starts it again; with CLAMAV_ON_DEMAND=1 the window stops it when idle).
 # The clients must handle the "being checked" state (423 file_pending_scan, features.uploads_pending_scan) before this is applied.
@@ -23,6 +26,8 @@ CRON_DIR=${OPS_CRON_DIR:-/etc/cron.d}
 ENVF=$D/.env.production
 CT=${BACKEND_CONTAINER:-nabdah-backend}
 CRON_FILE=$CRON_DIR/nabd-clamav-window
+REL_ROOT=${OPS_RELEASE_DIR:-/opt/nabdah/releases}
+WINDOW_FILES="clamav-window.sh _backup-common.sh"
 CRON_LINE="*/2 * * * * root $D/scripts/clamav-window.sh >> /var/log/nabd-backups.log 2>&1"
 TS=$(date -u +%Y%m%dT%H%M%SZ)
 DK="sudo -n docker"
@@ -42,6 +47,24 @@ config_once() { curl -sk --max-time 8 -H 'Host: api.nabd.plus' https://127.0.0.1
 config_uploads_enabled() { for i in $(seq 1 "${OPS_WAIT_TRIES_API:-12}"); do config_once && return 0; sleep "${OPS_WAIT_SLEEP:-5}"; done; return 1; }
 recreate_backend() { $COMPOSE up -d --no-deps --no-build --force-recreate backend >/dev/null 2>&1 && wait_healthy "$CT"; }
 
+
+# --- the window script from the release: newest release dir with a checksummed deploy.tgz; its files are staged and compared, never trusted unchecked
+STAGE=""
+stage_window_files() {
+  local r d
+  for d in $(sudo -n ls -1t "$REL_ROOT" 2>/dev/null); do
+    sudo -n test -f "$REL_ROOT/$d/deploy.tgz" && sudo -n test -f "$REL_ROOT/$d/SHA256SUMS" && { r="$REL_ROOT/$d"; break; }
+  done
+  [ -n "${r:-}" ] || return 1
+  sudo -n sh -c "cd '$r' && sha256sum -c --quiet SHA256SUMS" >/dev/null 2>&1 || return 2
+  STAGE=$(sudo -n mktemp -d) || return 3
+  sudo -n tar -xzf "$r/deploy.tgz" -C "$STAGE" $(for f in $WINDOW_FILES; do printf 'deploy/scripts/%s ' "$f"; done) 2>/dev/null || return 3
+  for f in $WINDOW_FILES; do sudo -n test -s "$STAGE/deploy/scripts/$f" || return 3; done
+  REL_USED=$(basename "$r")
+}
+window_differs() { local f; for f in $WINDOW_FILES; do sudo -n cmp -s "$STAGE/deploy/scripts/$f" "$D/scripts/$f" || return 0; done; return 1; }
+window_ok_on_server() { local f; for f in $WINDOW_FILES; do sudo -n test -f "$D/scripts/$f" || return 1; done; sudo -n test -x "$D/scripts/clamav-window.sh"; }
+
 # --- ROLLBACK mode
 if [ "$ROLLBACK" = yes ]; then
   LAST=$(sudo -n sh -c "ls -1t $B/env-pre-upload-scan-* 2>/dev/null" | head -1)
@@ -49,6 +72,11 @@ if [ "$ROLLBACK" = yes ]; then
   RUNIMG=$($DK inspect -f '{{.Image}}' "$CT" 2>/dev/null)
   sudo -n sh -c "cat '$LAST' > '$ENVF'" || { say "ABORT cannot restore the env copy"; exit 1; }
   [ -f "$CRON_FILE" ] && sudo -n rm -f "$CRON_FILE" && say "cron file removed"
+  for f in $WINDOW_FILES; do
+    SAVED=$(sudo -n sh -c "ls -1t $B/window-pre-$f-* 2>/dev/null" | head -1)
+    [ -n "$SAVED" ] && sudo -n cp -p "$SAVED" "$D/scripts/$f" && say "$f restored from $(basename "$SAVED")"
+    [ -f "$B/window-new-$f" ] && sudo -n rm -f "$D/scripts/$f" "$B/window-new-$f" && say "$f (installed by this task) removed"
+  done
   [ -n "$RUNIMG" ] && $DK tag "$RUNIMG" nabdah-prod-backend:latest
   recreate_backend || { say "ROLLBACK INCOMPLETE - the backend is not healthy, needs attention (env copy: $(basename "$LAST"))"; exit 1; }
   say "rolled back: env restored from $(basename "$LAST"), backend recreated and healthy; UPLOAD_SCAN is now $(envstate UPLOAD_SCAN)"
@@ -60,14 +88,38 @@ STATE=$(health "$CT")
 [ "$STATE" = healthy ] || { say "ABORT $CT is not healthy ($STATE)"; exit 1; }
 sudo -n test -r "$ENVF" || { say "ABORT $ENVF is not readable"; exit 1; }
 $DK exec "$CT" test -f dist/modules/storage/pending-scan.service.js || { say "ABORT the running image has no quarantine worker (PR #2029): deploy the release first"; exit 1; }
-sudo -n test -x "$D/scripts/clamav-window.sh" || { say "ABORT deploy/scripts/clamav-window.sh is not on the server: deploy the release first"; exit 1; }
+stage_window_files; SRC=$?
+if [ $SRC -ne 0 ] && ! window_ok_on_server; then
+  case $SRC in
+    1) say "ABORT the window script is not on the server and no uploaded release ($REL_ROOT/<sha>/deploy.tgz) holds it";;
+    2) say "ABORT the uploaded release fails its checksums: nothing was installed";;
+    *) say "ABORT the uploaded release has no usable window script";;
+  esac
+  exit 1
+fi
+if [ $SRC -eq 0 ] && window_differs; then WINDOW_INSTALL=1; say "window script: will be installed from release $REL_USED (checksums ok): $(for f in $WINDOW_FILES; do sudo -n test -f "$D/scripts/$f" && echo "$f differs" || echo "$f missing"; done | tr '\n' ' ')"
+else WINDOW_INSTALL=""; say "window script: already on the server${REL_USED:+ and equal to release $REL_USED}"; fi
 say "pre-checks ok: backend healthy, quarantine worker in the image"
 say "now: UPLOAD_SCAN=$(envstate UPLOAD_SCAN) CLAMAV_ON_DEMAND=$(envstate CLAMAV_ON_DEMAND) window cron $(cron_present && echo installed || echo missing)"
 if config_once; then say "/config now: uploads_enabled=true"; else say "/config now: uploads_enabled=false"; fi
 if [ "$APPLY" != yes ]; then
+  [ -n "$STAGE" ] && sudo -n rm -rf "$STAGE"
   say "dry run only: nothing was written. To apply, set APPLY=yes in this task (the clients must show the \"being checked\" state first)"
   exit 0
 fi
+
+# --- 0b. the window script and its helper, from the verified release (old copies saved first)
+if [ -n "$WINDOW_INSTALL" ]; then
+  sudo -n mkdir -p "$B" "$D/scripts"
+  for f in $WINDOW_FILES; do
+    if sudo -n test -f "$D/scripts/$f"; then sudo -n cp -p "$D/scripts/$f" "$B/window-pre-$f-$TS" || { say "ABORT cannot save the old $f"; exit 1; }
+    else sudo -n touch "$B/window-new-$f"; fi
+    sudo -n install -m 755 "$STAGE/deploy/scripts/$f" "$D/scripts/$f" || { say "ABORT cannot install $f"; exit 1; }
+  done
+  say "window script installed from release $REL_USED (old copies, if any, saved in $B)"
+fi
+[ -n "$STAGE" ] && sudo -n rm -rf "$STAGE"
+sudo -n test -x "$D/scripts/clamav-window.sh" || { say "ABORT $D/scripts/clamav-window.sh is not executable after the install"; exit 1; }
 
 # --- 1. env copy, then the two names
 RUNIMG=$($DK inspect -f '{{.Image}}' "$CT")
