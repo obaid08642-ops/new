@@ -5,6 +5,7 @@ import type { FillIconName, ServiceTone } from "@/components-next/ui-generated/i
 import { CONSULT } from "./consult-parts";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "./consult.module.css";
+import own from "./doctor-schedule.module.css";
 
 export type ProfileStat = { value: string; label: string };
 
@@ -21,6 +22,9 @@ export function ProfileHeader({
   stats = [],
   photoSrc,
   photoAlt,
+  largePhoto = false,
+  summary = [],
+  summaryLabel,
   children,
 }: {
   icon?: FillIconName;
@@ -31,11 +35,21 @@ export function ProfileHeader({
   /** A real photo (the doctor's own, 2-web#3) in place of the service icon; its alt text names the person. */
   photoSrc?: string;
   photoAlt?: string;
+  /** The doctor profile: the photo fills the top of the card (4:3, cropped to the face) instead of the 88 px round one. */
+  largePhoto?: boolean;
+  /** One compact line under the photo: specialty, rating and review count, fee, waiting time (only what the server sent). */
+  summary?: string[];
+  summaryLabel?: string;
   children?: ReactNode;
 }) {
   return (
     <section className={`${rx.card} ${styles.profile}`}>
-      {photoSrc ? <img src={optimizedImageSrc(photoSrc, 88)} alt={photoAlt ?? ""} className={styles.profilePhoto} width={88} height={88} decoding="async" /> : <FIcon icon={icon} tone={tone} size={88} />}
+      {largePhoto ? (
+        <figure className={own.photo}>
+          {photoSrc ? <img src={optimizedImageSrc(photoSrc, 640)} alt={photoAlt ?? ""} className={own.photoImg} width={640} height={480} decoding="async" fetchPriority="high" /> : <FIcon icon={icon} tone={tone} size={88} />}
+        </figure>
+      ) : photoSrc ? <img src={optimizedImageSrc(photoSrc, 88)} alt={photoAlt ?? ""} className={styles.profilePhoto} width={88} height={88} decoding="async" /> : <FIcon icon={icon} tone={tone} size={88} />}
+      {summary.length > 0 ? <ul className={own.summaryList} aria-label={summaryLabel}>{summary.map((item) => <li key={item}>{item}</li>)}</ul> : null}
       {line ? <p className={styles.heroSub}>{line}</p> : null}
       {tags.length > 0 ? <div className={styles.chips}>{tags.map((tag) => <span key={tag} className={styles.tag}>{tag}</span>)}</div> : null}
       {stats.length > 0 ? (
