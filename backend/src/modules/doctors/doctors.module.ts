@@ -10,6 +10,8 @@ import { UserRole } from '../../common/enums';
 import { Doctor, DoctorSchema, DoctorAppointment, DoctorAppointmentSchema, DoctorChatMessage, DoctorChatMessageSchema, ConsultationNote, ConsultationNoteSchema, NotificationItem, NotificationItemSchema, AppointmentState } from './doctors.schemas';
 import { EventBusService } from '../events/event-bus.service';
 import { escapeRegex } from '../../common/slug.util';
+import { PublicCache } from '../../common/public-cache.decorator';
+import { PurgeBus } from '../../common/purge-bus';
 import { BookDto, TrDto, PostMsgDto, AvailDto, ConsultationNoteDto } from './doctors.dto';
 
 export const SEED_DOCTORS = [
@@ -43,6 +45,7 @@ export class DoctorsService implements OnModuleInit {
     @InjectModel('NotificationItem') private notifs: Model<NotificationItem>,
     private bus: EventBusService,
     @Optional() private readonly killSwitches?: KillSwitchesService,
+    @Optional() private readonly purgeBus?: PurgeBus,
   ) {}
 
   async onModuleInit() {
@@ -267,6 +270,7 @@ export class DoctorsService implements OnModuleInit {
     if (typeof data.is_online === 'boolean') $set.is_online = data.is_online;
     if (typeof data.is_accepting === 'boolean') $set.is_accepting = data.is_accepting;
     const r = await this.doctors.updateMany({ account_id: user.id }, { $set });
+    this.purgeBus?.purge(['doctors']).catch(() => null);   // the edge copy of the doctor lists and pages
     this.bus.emit({ type: 'provider.availability_changed', entity_type: 'provider', entity_id: user.id, actor_account_id: user.id, actor_role: user.role, meta: $set }).catch(() => null);
     return { ok: true, updated: r.modifiedCount };
   }
@@ -277,10 +281,23 @@ export class DoctorsService implements OnModuleInit {
 export class DoctorsController {
   constructor(private svc: DoctorsService) {}
 
-  @Public() @Get('') list(@Query() q: any) { return this.svc.listDoctors(q); }
-  @Public() @Get('specialties') specs() { return this.svc.specialties(); }
-  @Public() @Get(':id') detail(@Param('id') id: string) { return this.svc.doctorDetail(id); }
-  @Public() @Get(':id/slots') slots(@Param('id') id: string, @Query('date') date: string) { return this.svc.availableSlots(id, date); }
+  // 2026-10-27 (edge cache): the public doctor reads are shared-cacheable (no user is read; the response is the same for everyone).
+  // Online/accepting flags and the lists are at most a minute old, the specialties five; the slots only 20 s (a booking is checked again on the server).
+  @PublicCache(60, ['doctors'])
+  @Public() @Get('')
+  list(@Query() q: any) { return this.svc.listDoctors(q); }
+
+  @PublicCache(300, ['doctors'])
+  @Public() @Get('specialties')
+  specs() { return this.svc.specialties(); }
+
+  @PublicCache(120, ['doctors'])
+  @Public() @Get(':id')
+  detail(@Param('id') id: string) { return this.svc.doctorDetail(id); }
+
+  @PublicCache(20, ['doctor-slots'], { cacheControl: 'public, s-maxage=20' })
+  @Public() @Get(':id/slots')
+  slots(@Param('id') id: string, @Query('date') date: string) { return this.svc.availableSlots(id, date); }
 
   @Post('appointments') book(@Body() body: BookDto, @CurrentUser() user: any) { return this.svc.book(user, body); }
   @Get('appointments/mine') mine(@CurrentUser() user: any) { return this.svc.myAppointments(user); }

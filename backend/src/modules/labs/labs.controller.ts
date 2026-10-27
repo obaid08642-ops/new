@@ -273,6 +273,7 @@ export class LabsController {
     return this.svc.compatibleProviders(ids);
   }
 
+  @PublicCache(20, ['provider-slots'], { cacheControl: 'public, s-maxage=20' })
   @Public() @Get('providers/:providerAccountId/slots')
   providerSlots(
     @Param('providerAccountId') providerAccountId: string,
