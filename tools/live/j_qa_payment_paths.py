@@ -1,6 +1,7 @@
 """Journey (QA P-11, P-12, P-13): card payment for a pharmacy order when it fails, is retried, and is refunded by cancel.
   P-11 the hosted checkout is declined (fake Moyasar status=failed): the order stays unpaid, the payment record is failed.
-       3DS challenge is not modelled by the test double, so it is not covered here.
+       3DS (P-11 part 2): the challenge-open state is modelled as an initiated payment on the invoice (the test double
+       takes any status on /__pay), and the product must report it as pending, not paid.
   P-12 the patient retries: a new payment intent is created for the same order and the second checkout is paid.
   P-13 the paid order is cancelled by the patient: money goes back through the cancel path (patient-ux refund route
        answers Gone, see patient-ux.module.ts), checked in MongoDB (pharmacy_orders, transactions).
@@ -77,9 +78,18 @@ def run(pat, ph, admin, meds, addr):
     journey('payment P-12: the patient retries and pays')
     r, txn2 = intent(pat, oid)
     step('a new payment intent is created for the retry', r.ok and txn2.get('id') and txn2.get('id') != txn.get('id'), r)
+    # 3DS: the bank challenge is open (the payer has not completed it). The test double takes any status on /__pay, so the
+    # challenge-open state is an initiated payment on the invoice; the product must not treat it as paid.
+    fake_pay(txn2.get('gateway_intent_id'), status='initiated')
+    r = pat.post(f"/payments/verify/{txn2.get('id')}", {})
+    step('3DS: the challenge still open is verified as pending, not paid', r.ok and r.get('status') == 'pending', r)
+    row = order_row(oid)
+    step('3DS: the order stays unpaid while the challenge is open', bool(row) and str(row.get('payment_status') or '').lower() != 'paid', row)
+    pending = [p for p in payments_for(oid) if p.get('id') == txn2.get('id')]
+    step('3DS: the retry payment record is pending, not paid', bool(pending) and pending[0].get('status') != 'paid', pending)
     fake_pay(txn2.get('gateway_intent_id'), status='paid')
     r = pat.post(f"/payments/verify/{txn2.get('id')}", {})
-    step('the retry is verified as paid', r.ok and r.get('status') == 'paid', r)
+    step('the retry is verified as paid after the challenge', r.ok and r.get('status') == 'paid', r)
     row = order_row(oid)
     step('MongoDB: the order is paid after the retry', bool(row) and str(row.get('payment_status') or '').lower() == 'paid', row)
     pays = payments_for(oid)
