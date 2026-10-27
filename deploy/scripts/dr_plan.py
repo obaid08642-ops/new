@@ -29,11 +29,13 @@ def chain_from(slices, base):
     if not first:
         return []
     chain = [min(first, key=lambda s: s["from"])]
-    while True:
-        nxt = [s for s in slices if s["from"] == chain[-1]["to"]]
+    while len(chain) <= len(slices):
+        # a slice that starts and ends at the same point covers nothing; following it would repeat it for ever
+        nxt = [s for s in slices if s["from"] == chain[-1]["to"] and s["to"] > s["from"]]
         if not nxt:
             return chain
         chain.append(nxt[0])
+    return chain
 
 
 def rpo(slices, now, window):

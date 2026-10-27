@@ -244,3 +244,68 @@ textarea.control { resize: vertical; line-height: 1.6; overflow-wrap: anywhere; 
 .voiceRange { flex: 1 1 120px; min-inline-size: 0; min-block-size: 44px; accent-color: var(--nabd-color-action-primary-bg); }
 .voiceRange:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
 .voiceTime { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); font-variant-numeric: tabular-nums; }
+
+/* ---- doctors: sticky search, the Filters button, the visit-type cards, the active chips, the filter sheet (owner layout decisions 13, 15, a, b) ---- */
+.searchSticky {
+  position: sticky; inset-block-start: var(--nabd-shell-top-h, 56px); z-index: var(--nabd-z-sticky, 10);
+  background: var(--nabd-color-bg-canvas); padding-block: 6px; margin-block: -6px;
+}
+.filtersButton {
+  display: inline-flex; align-items: center; gap: 8px; min-block-size: 52px; padding-inline: 16px; box-sizing: border-box; cursor: pointer;
+  border-radius: var(--nabd-radius-xl); border: 1px solid var(--nabd-color-border-strong); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary);
+  font: inherit; font-size: var(--nabd-font-size-control); font-weight: 600;
+}
+.filtersButton:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.filtersChip {
+  display: inline-flex; align-items: center; min-block-size: 44px; padding-inline: 14px; box-sizing: border-box; cursor: pointer; white-space: nowrap;
+  border-radius: var(--nabd-radius-pill); border: 1px solid var(--nabd-color-service-coral-fg); background: var(--nabd-color-service-coral-bg); color: var(--nabd-color-service-coral-fg);
+  font: inherit; font-size: var(--nabd-font-size-label); font-weight: 600;
+}
+.filtersChip:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.filtersBadge {
+  display: inline-grid; place-items: center; min-inline-size: 22px; min-block-size: 22px; padding-inline: 6px; box-sizing: border-box; border-radius: var(--nabd-radius-pill);
+  background: var(--nabd-color-service-coral-bg); color: var(--nabd-color-service-coral-fg); font-size: var(--nabd-font-size-label); font-weight: 700;
+}
+.visitCards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--nabd-space-sm); }
+.visitCard {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; box-sizing: border-box; min-inline-size: 0; text-align: center; text-decoration: none;
+  border-radius: var(--nabd-radius-2xl); border: 2px solid var(--nabd-color-border-hairline); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary);
+}
+.visitCard[aria-current="page"] { border-color: var(--nabd-color-service-coral-fg); background: var(--nabd-color-service-coral-bg); }
+.visitCard:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.visitCardTitle { font-size: var(--nabd-font-size-control); font-weight: 700; line-height: 1.35; overflow-wrap: anywhere; }
+.visitCardSub { font-size: var(--nabd-font-size-label); line-height: 1.4; color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.visitCard[aria-current="page"] .visitCardSub { color: var(--nabd-color-text-primary); }
+.filterScrim { position: fixed; inset: 0; z-index: var(--nabd-z-modal); display: flex; align-items: flex-end; justify-content: center; background: color-mix(in srgb, var(--nabd-color-bg-inverse) 55%, transparent); }
+.filterPanel {
+  inline-size: 100%; max-block-size: 85dvh; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden;
+  background: var(--nabd-color-bg-elevated); color: var(--nabd-color-text-primary); box-shadow: var(--nabd-shadow-raised);
+  border-start-start-radius: var(--nabd-radius-3xl); border-start-end-radius: var(--nabd-radius-3xl);
+}
+.filterPanel:focus-visible { outline: none; }
+.filterHead { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: var(--nabd-space-lg) var(--nabd-space-lg) var(--nabd-space-sm); }
+.filterTitle { margin: 0; font-size: var(--nabd-font-size-h3); }
+.filterBody { flex: 1; overflow-y: auto; padding: 0 var(--nabd-space-lg); display: flex; flex-direction: column; gap: var(--nabd-space-md); }
+.filterGroup { border: 0; margin: 0; padding: 0; min-inline-size: 0; display: flex; flex-direction: column; gap: 8px; }
+.filterGroup legend { padding: 0; margin-block-end: 8px; font-size: var(--nabd-font-size-control); font-weight: 700; }
+.filterChoices { display: flex; flex-wrap: wrap; gap: 8px; }
+.filterChoice {
+  position: relative; display: inline-flex; align-items: center; justify-content: center; min-block-size: 44px; padding-inline: 14px; box-sizing: border-box; cursor: pointer; text-align: center;
+  border-radius: var(--nabd-radius-lg); border: 1px solid var(--nabd-color-border-strong); background: var(--nabd-color-bg-surface); font-size: var(--nabd-font-size-segment); overflow-wrap: anywhere;
+}
+.filterChoice:has(input:checked) { background: var(--nabd-color-service-coral-bg); color: var(--nabd-color-service-coral-fg); border-color: transparent; font-weight: 700; }
+.filterChoice:has(input:focus-visible) { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.filterChoice[data-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+.filterFoot { display: flex; flex-direction: column; gap: 8px; padding: var(--nabd-space-md) var(--nabd-space-lg) var(--nabd-space-lg); border-block-start: 1px solid var(--nabd-color-border-hairline); }
+@media (min-width: 768px) {
+  .filterScrim { align-items: stretch; justify-content: flex-end; }
+  .filterPanel { inline-size: min(420px, 100vw); max-block-size: none; block-size: 100%; border-radius: 0; border-start-start-radius: var(--nabd-radius-3xl); border-end-start-radius: var(--nabd-radius-3xl); }
+}
+.chipsRow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.activeChip {
+  display: inline-flex; align-items: center; gap: 6px; min-block-size: 36px; padding-inline: 12px 8px; box-sizing: border-box; text-decoration: none;
+  border-radius: var(--nabd-radius-pill); background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline);
+  color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-label); font-weight: 600;
+}
+.activeChip:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.activeChipX { font-size: var(--nabd-font-size-body); line-height: 1; color: var(--nabd-color-text-secondary); }

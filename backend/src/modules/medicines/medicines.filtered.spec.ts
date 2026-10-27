@@ -12,6 +12,12 @@ function serviceWith(rows: any[] = []) {
   };
   service.model = {
     find: (q: any) => { calls.query = q; return chain; },
+    aggregate: (pipeline: any[]) => {
+      calls.query = pipeline[0].$match;
+      for (const st of pipeline) { if ('$skip' in st) calls.skip = st.$skip; if ('$limit' in st) calls.limit = st.$limit; }
+      calls.ranked = true;
+      return Promise.resolve(rows);
+    },
     countDocuments: jest.fn().mockResolvedValue(41),
   };
   service.withBadges = (m: any) => m;

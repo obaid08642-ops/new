@@ -34,6 +34,11 @@ function mockModel(captured: { skip?: any; limit?: any; query?: any }) {
       };
       return sortChain;
     }),
+    aggregate: jest.fn(async (pipeline: any[]) => {
+      captured.query = pipeline[0].$match;
+      for (const st of pipeline) { if ('$skip' in st) captured.skip = st.$skip; if ('$limit' in st) captured.limit = st.$limit; }
+      return ROWS;
+    }),
     countDocuments: jest.fn(async () => 2),
   };
 }

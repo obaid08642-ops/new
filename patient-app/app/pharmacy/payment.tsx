@@ -155,7 +155,7 @@ export default function PharmacyPaymentScreen() {
   }
 
   if (view.kind === 'paid') {
-    return state(<EmptyState icon="check-circle" tone="mint" title={k('pharmacy.pay.paidTitle')} body={k('pharmacy.pay.paidBody')} actionLabel={k('pharmacy.quote.orderStatus')} onAction={toTracking} theme={theme} />);
+    return state(<EmptyState popIcon icon="check-circle" tone="mint" title={k('pharmacy.pay.paidTitle')} body={k('pharmacy.pay.paidBody')} actionLabel={k('pharmacy.quote.orderStatus')} onAction={toTracking} theme={theme} />);
   }
   if (view.kind === 'covered') {
     return state(<EmptyState icon="shield-check" tone="blue" title={k('pharmacy.pay.coveredTitle')} body={k('pharmacy.pay.coveredBody')} actionLabel={k('pharmacy.quote.orderStatus')} onAction={toTracking} theme={theme} />);
@@ -259,7 +259,7 @@ export default function PharmacyPaymentScreen() {
         </View>
 
         <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
-          <FIcon icon="lock" tone="ink" chip="soft" size={32} theme={theme} />
+          <FIcon icon="lock" tone="violet" chip="soft" size={32} theme={theme} />
           <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'meta', 'regular'), lineHeight: 21, color: c.text.secondary, ...flow }}>{k('pharmacy.pay.secureNote')}</Text>
         </View>
       </View>

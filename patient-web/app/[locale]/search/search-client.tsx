@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { useDisabledModules } from "@/components-next/modules/modules-provider";
 import { visibleItems } from "@/lib/modules";
 import { Chip, SectionHeader, ServiceTile } from "@/components-next/ui-generated/components/Surfaces";
-import { EmptyState, ErrorState } from "@/components-next/ui-generated/components/Feedback";
+import { EmptyState, ErrorState, Skeleton } from "@/components-next/ui-generated/components/Feedback";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { SearchSuggest, useSearchSuggest } from "@/components-next/search/search-suggest";
 import { SuggestSearchField } from "@/components-next/search/search-suggest-field";
@@ -238,7 +238,12 @@ export function SearchClient({ locale, initialQuery = "" }: { locale: string; in
     </section>
     </>;
   } else if (state === "loading") {
-    content = <p role="status" className={styles.status}>{t("searching")}</p>;
+    content = <>
+      <p role="status" className={styles.status}>{t("searching")}</p>
+      <Skeleton variant="block" />
+      <Skeleton variant="block" />
+      <Skeleton variant="block" />
+    </>;
   } else if (state === "error") {
     content = <ErrorState title={t("error")} retryLabel={routeState("retry")} onRetry={() => setAttempt((n) => n + 1)} />;
   } else if (results.length === 0) {
@@ -250,11 +255,10 @@ export function SearchClient({ locale, initialQuery = "" }: { locale: string; in
     content = <>
       <div className={styles.summary}>
         <h1 className={styles.heading}>{t("resultsFor", { query: q })}</h1>
-        <p className={styles.count}>{t("resultsCount", { count: results.length })}</p>
       </div>
       <div className={styles.chips} role="group" aria-label={t("title")}>
         {tabs.filter((x) => x.id === "all" || counts[x.id] > 0).map((x) => (
-          <Chip key={x.id} label={x.label} count={counts[x.id]} selected={tab === x.id} onClick={() => setTab(x.id)} />
+          <Chip key={x.id} label={x.label} selected={tab === x.id} onClick={() => setTab(x.id)} />
         ))}
       </div>
       {sections.map((section) => {

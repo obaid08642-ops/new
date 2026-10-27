@@ -33,6 +33,47 @@ const LIMITS: Array<{ pattern: RegExp; name: string; perMinute: number; perHour:
   { pattern: /.*/, name: 'general', perMinute: 120, perHour: 3000 },
 ];
 
+/**
+ * Routes whose protection must survive a Redis outage (brute force, OTP abuse, password reset, payment). When Redis is down the
+ * general limiter fails open, but these use the in-process limiter below: same keys, same budget per instance, bounded memory.
+ * Payment webhooks (provider callbacks) are not a user-driven surface and stay out.
+ */
+const SENSITIVE_FALLBACK: Array<{ pattern: RegExp; name: string; perMinute: number }> = [
+  { pattern: /\/auth\/(login|register|social-login)/, name: 'login', perMinute: 5 },
+  { pattern: /\/auth\/(send-otp|verify-otp|verify-2fa|forgot-password)/, name: 'otp', perMinute: 3 },
+  { pattern: /\/(auth|users)\/(reset-password|change-password)/, name: 'reset', perMinute: 5 },
+  { pattern: /\/payments\/(?!webhook)/, name: 'payment', perMinute: 20 },
+];
+
+/** Per-instance fixed-window counters (one minute); at most MAX_KEYS entries, expired ones are dropped first, then the oldest. */
+export class LocalRateLimiter {
+  static readonly MAX_KEYS = 10_000;
+  private readonly hits = new Map<string, { n: number; resetAt: number }>();
+  constructor(private readonly now: () => number = Date.now) {}
+
+  /** Counts one hit for `key`; true while the key is within `perMinute`. */
+  hit(key: string, perMinute: number): boolean {
+    const t = this.now();
+    const cur = this.hits.get(key);
+    if (!cur || cur.resetAt <= t) {
+      if (this.hits.size >= LocalRateLimiter.MAX_KEYS) this.evict(t);
+      this.hits.set(key, { n: 1, resetAt: t + 60_000 });
+      return true;
+    }
+    cur.n += 1;
+    return cur.n <= perMinute;
+  }
+
+  private evict(t: number) {
+    for (const [k, v] of this.hits) if (v.resetAt <= t) this.hits.delete(k);
+    // still full: drop the oldest insertions (Map keeps insertion order)
+    for (const k of this.hits.keys()) {
+      if (this.hits.size < LocalRateLimiter.MAX_KEYS) break;
+      this.hits.delete(k);
+    }
+  }
+}
+
 // Honeypot routes — legit clients NEVER call these; any hit = bot signal
 const HONEYPOTS = new Set([
   '/api/v1/admin/secret-config',
@@ -91,12 +132,53 @@ export class ApiSecurityService {
 
   async blacklist(key: string, reason: string, ttlSeconds = 3600) {
     const c = this.client();
-    if (c) await c.set(key, reason, 'EX', ttlSeconds);
+    // Redis refusing the write (MISCONF, closed connection) must not fail the request that triggered it.
+    if (c) await c.set(key, reason, 'EX', ttlSeconds).catch((e: Error) => this.redisDown('blacklist', e));
     this.logger.warn(`BLACKLISTED ${key} — ${reason}`);
   }
 
-  /** Granular rate limit: per (class, ip, user, device). Returns verdict. */
+  private lastRedisWarn = 0;
+  /** Redis failures are a degraded mode, not an error: one warning a minute, never a thrown error. */
+  private redisDown(what: string, e: Error) {
+    const now = Date.now();
+    if (now - this.lastRedisWarn < 60_000) return;
+    this.lastRedisWarn = now;
+    this.logger.warn(`rate limiting skipped, Redis unavailable (${what}): ${String(e?.message || e).slice(0, 120)}`);
+  }
+
+  /**
+   * Granular rate limit: per (class, ip, user, device). Returns verdict.
+   * A Redis failure (timeout, closed connection, offline-queue reject, MISCONF) lets the request through: the limiter is
+   * a protection layer, and it must never turn a cache outage into a 5xx on every route (Sentry NABD-BACKEND-9/12/17/19).
+   */
   async checkRate(req: Request, userId?: string): Promise<{ allowed: boolean; className: string; retryAfter?: number }> {
+    try {
+      return await this.checkRateUnsafe(req, userId);
+    } catch (e) {
+      this.redisDown('checkRate', e as Error);
+      return this.checkRateLocal(req, userId);
+    }
+  }
+
+  private readonly local = new LocalRateLimiter();
+
+  /**
+   * Redis is down: login, OTP, password reset and payment keep an in-process limit (same ip/user/device keys, same per-minute
+   * budget, per instance); everything else is let through.
+   */
+  private checkRateLocal(req: Request, userId?: string): { allowed: boolean; className: string; retryAfter?: number } {
+    const url = (req as any).originalUrl || req.url || '';
+    const cls = SENSITIVE_FALLBACK.find((l) => l.pattern.test(url));
+    if (!cls) return { allowed: true, className: 'redis-unavailable' };
+    const ip = (req as any).ip || 'unknown';
+    const deviceId = (req.headers?.['x-device-id'] as string) || undefined;
+    const keys = [`rl:${cls.name}:ip:${ip}`, ...(userId ? [`rl:${cls.name}:user:${userId}`] : []), ...(deviceId ? [`rl:${cls.name}:dev:${deviceId}`] : [])];
+    let allowed = true;
+    for (const k of keys) if (!this.local.hit(k, cls.perMinute)) allowed = false;
+    return allowed ? { allowed: true, className: `${cls.name}-local` } : { allowed: false, className: cls.name, retryAfter: 60 };
+  }
+
+  private async checkRateUnsafe(req: Request, userId?: string): Promise<{ allowed: boolean; className: string; retryAfter?: number }> {
     const url = (req as any).originalUrl || req.url || '';
     const ip = (req as any).ip || 'unknown';
     const deviceId = (req.headers?.['x-device-id'] as string) || undefined;

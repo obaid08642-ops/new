@@ -60,6 +60,7 @@ export default async function MapExplorerPage({ params, searchParams }: Props) {
           filterHospitals: t("filterHospitals"),
           filterPharmacies: t("filterPharmacies"),
           filterLabs: t("filterLabs"),
+          filterRadiology: t("filterRadiology"),
           filterNursing: t("filterNursing"),
           directions: t("directions"),
           book: t("book"),
