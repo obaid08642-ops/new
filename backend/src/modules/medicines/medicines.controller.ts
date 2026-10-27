@@ -47,7 +47,7 @@ export class MedicinesController {
     const list = (v?: string) => (clean(v) || '').split(',').map((x) => x.trim()).filter(Boolean).slice(0, 20);
     const price = (v?: string) => { const n = Number(clean(v)); return Number.isFinite(n) && n >= 0 ? n : undefined; };
     const filters = { forms: list(forms), brands: list(brands), rx_only: rxOnly === '1' || rxOnly === 'true', min_price: price(minPrice), max_price: price(maxPrice) };
-    const ordered = sort === 'price_asc' || sort === 'price_desc' || sort === 'newest';
+    const ordered = sort === 'price_asc' || sort === 'price_desc' || sort === 'newest' || sort === 'most_ordered';
     if (ordered || filters.forms.length || filters.brands.length || filters.rx_only || filters.min_price !== undefined || filters.max_price !== undefined) {
       return toPublicMedicine(await this.svc.filtered(term, category, filters, ordered ? sort! : 'relevant', page === undefined ? undefined : queryInt(page, 1), queryInt(limit, 30)));
     }

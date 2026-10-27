@@ -120,6 +120,27 @@ describe("pages", () => {
     await expect(FacilityCanonicalPage({ params: Promise.resolve({ locale: "en", slug: "x" }) })).rejects.toThrow("NEXT_NOT_FOUND");
   });
 
+  it("a facility page shows the address, logo, pin, hours, doctors and directions it has, and hides what it has not (issue 767)", async () => {
+    answer({
+      entity: { name_en: "TEST Hospital", type: "hospital", city: "TEST city", address: "TEST street 1", logo: "https://cdn.test/logo.png", lat: 24.7, lng: 46.6, phone: "+966000000", working_hours: [{ day: "sat", open: "08:00", close: "22:00" }, { day: "fri", closed: true }] },
+      relationships: { departments: [], doctors: [{ id: "d1", slug: "dr-test", name_en: "TEST Doctor", specialty: "TEST specialty" }, { id: "d2" }] },
+    });
+    const html = renderToStaticMarkup(await FacilityCanonicalPage({ params: Promise.resolve({ locale: "en", slug: "test-hospital" }) }));
+    expect(html).toContain("TEST street 1");
+    expect(html).toContain('src="https://cdn.test/logo.png"');
+    expect(html).toContain("Saturday");
+    expect(html).toContain("08:00–22:00");
+    expect(html).toContain("facility.closed");
+    expect(html).toContain('href="/en/doctor/dr-test"'); // the doctor's own page
+    expect(html).not.toContain("/doctor/d2"); // a doctor with no name is not drawn
+    expect(html).toContain('href="tel:+966000000"');
+    expect(html).toContain("https://www.google.com/maps/dir/?api=1&amp;destination=24.7,46.6");
+    // a bare record: no logo, no hours, no doctors, no directions, no call
+    answer({ entity: { name_en: "TEST Clinic", type: "clinic" }, relationships: { departments: [], doctors: [] } });
+    const bare = renderToStaticMarkup(await FacilityCanonicalPage({ params: Promise.resolve({ locale: "en", slug: "test-clinic" }) }));
+    for (const absent of ["<img", "facility.hours", "facility.doctors", "google.com/maps", "tel:"]) expect(bare).not.toContain(absent);
+  });
+
   it("the pharmacies page says nothing about stock: the order goes to nearby pharmacies, which answer with offers", async () => {
     answer({ facilities: [{ id: "p1", name_en: "TEST Pharmacy", city: "TEST city" }] });
     const html = renderToStaticMarkup(await PharmaciesCityPage({ params: Promise.resolve({ locale: "en", citySlug: "riyadh" }) }));

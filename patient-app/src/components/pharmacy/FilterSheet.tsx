@@ -15,7 +15,8 @@ import { logError } from '../../utils/logger';
  * `filter_*` route params as before, so the filters live in the URL.
  */
 
-const SORT_OPTIONS = [
+/** The orders the catalogue takes (the hub's chip row uses the same list); none chosen = the ranking, "Recommended". */
+export const SORT_OPTIONS = [
   { id: 'relevant', label: 'pharmacy.filters.sortRelevant' },
   { id: 'price_asc', label: 'pharmacy.filters.sortPriceAsc' },
   { id: 'price_desc', label: 'pharmacy.filters.sortPriceDesc' },
@@ -56,7 +57,7 @@ export function FilterSheet({ open, onClose, initial, onApply }: { open: boolean
   const [activeForm, setActiveForm] = useState<string[]>(splitList(initial.filter_forms));
   const [activeBrand, setActiveBrand] = useState<string[]>(splitList(initial.filter_brands));
   const [rxOnly, setRxOnly] = useState(initial.filter_rx === '1');
-  const [activeSort, setActiveSort] = useState(initial.filter_sort || 'relevant');
+  const [activeSort, setActiveSort] = useState(initial.filter_sort || '');
   const [brandSearch, setBrandSearch] = useState('');
   const [minPrice, setMinPrice] = useState(initial.filter_min_price || '');
   const [maxPrice, setMaxPrice] = useState(initial.filter_max_price || '');
@@ -74,7 +75,7 @@ export function FilterSheet({ open, onClose, initial, onApply }: { open: boolean
     setActiveForm(splitList(initial.filter_forms));
     setActiveBrand(splitList(initial.filter_brands));
     setRxOnly(initial.filter_rx === '1');
-    setActiveSort(initial.filter_sort || 'relevant');
+    setActiveSort(initial.filter_sort || '');
     setMinPrice(initial.filter_min_price || '');
     setMaxPrice(initial.filter_max_price || '');
     setBrandSearch('');
@@ -121,7 +122,7 @@ export function FilterSheet({ open, onClose, initial, onApply }: { open: boolean
     setActiveForm([]);
     setActiveBrand([]);
     setRxOnly(false);
-    setActiveSort('relevant');
+    setActiveSort('');
     setMinPrice('');
     setMaxPrice('');
     setBrandSearch('');
@@ -141,7 +142,7 @@ export function FilterSheet({ open, onClose, initial, onApply }: { open: boolean
             <SectionHeader title={k('pharmacy.filters.sort')} theme={theme} />
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
               {SORT_OPTIONS.map((o) => (
-                <Chip key={o.id} label={k(o.label)} selected={activeSort === o.id} onPress={() => setActiveSort(o.id)} theme={theme} />
+                <Chip key={o.id} label={k(o.label)} selected={activeSort === o.id} onPress={() => setActiveSort(activeSort === o.id ? '' : o.id)} theme={theme} />
               ))}
             </View>
           </View>

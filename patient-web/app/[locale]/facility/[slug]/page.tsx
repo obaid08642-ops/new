@@ -8,9 +8,12 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { patientApiUrl } from "@/lib/api/upstream";
 import { readPublicEntity } from "@/lib/api/public-read";
-import { CONSULT, ActionLinks, Facts, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
+import { CONSULT, ActionLinks, Facts, RowCard, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
 import { ChipSet, LandingPage, LandingSection } from "@/components-next/landing/landing-kit";
+import { FacilityMap } from "@/components-next/facility/facility-map";
+import { directionsHref, facilityHoursRows, facilityPoint, type FacilityHoursRow } from "@/lib/facility/hours";
 import { pickText } from "@/components-next/diagnostics/diag-parts";
+import facilityStyles from "@/components-next/facility/facility.module.css";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -23,9 +26,14 @@ type FacilityAnswer = {
     city?: string | null;
     district?: string | null;
     phone?: string | null;
+    address?: string | null;
+    logo?: string | null;
+    lat?: number | null;
+    lng?: number | null;
+    working_hours?: FacilityHoursRow[] | null;
     accepted_insurance?: string[] | null;
   } | null;
-  relationships?: { departments?: string[] | null; doctors?: Array<{ id?: string }> | null } | null;
+  relationships?: { departments?: string[] | null; doctors?: Array<{ id?: string; slug?: string | null; name_ar?: string | null; name_en?: string | null; specialty?: string | null }> | null } | null;
 };
 
 function getFacility(slug: string) {
@@ -69,7 +77,21 @@ export default async function FacilityCanonicalPage({ params }: Props) {
   ];
   const facts: FactRow[] = [
     ...(place ? [{ label: t("facility.location"), value: place, icon: "map-pin" as const, tone: CONSULT.tone }] : []),
+    ...(fac.address ? [{ label: t("facility.address"), value: fac.address }] : []),
     ...(fac.phone ? [{ label: t("facility.phone"), value: <span dir="ltr">{fac.phone}</span> }] : []),
+  ];
+  // only what the record has: no pin, no hours, no doctors → the section is not drawn
+  const point = facilityPoint(fac.lat, fac.lng);
+  const hours = facilityHoursRows(locale, fac.working_hours ?? [], t("facility.closed"));
+  const doctors = (data.relationships?.doctors ?? []).flatMap((doc) => {
+    const docName = pickText(locale, doc.name_ar ?? undefined, doc.name_en ?? undefined);
+    const key = doc.slug || doc.id;
+    return docName && key ? [{ key, name: docName, specialty: doc.specialty ?? undefined }] : [];
+  });
+  const actions = [
+    ...(fac.phone ? [{ href: `tel:${fac.phone}`, label: t("facility.call"), external: true }] : []),
+    ...(point ? [{ href: directionsHref(point), label: t("facility.directions"), external: true }] : []),
+    { href: `/${locale}/consultations`, label: t("facility.book") },
   ];
 
   return (
@@ -78,10 +100,29 @@ export default async function FacilityCanonicalPage({ params }: Props) {
       <DirectAnswer sentences={directAnswer} />
       <JsonLd data={[medicalWebPage({ title: name, locale: locale as Locale, path: `/facility/${slug}`, speakable: true }), schemaBuilder({ name, path: `/facility/${slug}`, locale: locale as Locale, city: fac.city, district: fac.district }), breadcrumbList([{ name: "Nabd Plus", locale: locale as Locale, path: "/" }, { name: t("ld.crumbFacilities"), locale: locale as Locale, path: "/consultations" }, { name, locale: locale as Locale, path: `/facility/${slug}` }])]} />
 
+      {fac.logo ? (
+        // eslint-disable-next-line @next/next/no-img-element -- the facility's own logo, any host; alt is its name
+        <img src={fac.logo} alt={name} width={72} height={72} loading="lazy" className={facilityStyles.logo} />
+      ) : null}
+
       {facts.length ? (
         <SectionCard id="facility-facts">
           <Facts rows={facts} />
         </SectionCard>
+      ) : null}
+
+      {point ? <FacilityMap lat={point.lat} lng={point.lng} label={name} hint={fac.address ?? undefined} pinLabel={t("facility.pinLabel", { name })} /> : null}
+
+      {hours.length ? (
+        <SectionCard id="facility-hours" title={t("facility.hours")}>
+          <Facts rows={hours} />
+        </SectionCard>
+      ) : null}
+
+      {doctors.length ? (
+        <LandingSection id="doctors" title={t("facility.doctors")}>
+          {doctors.map((doc) => <RowCard key={doc.key} href={`/${locale}/doctor/${encodeURIComponent(doc.key)}`} title={doc.name} sub={doc.specialty} />)}
+        </LandingSection>
       ) : null}
 
       {departments.length ? (
@@ -96,7 +137,7 @@ export default async function FacilityCanonicalPage({ params }: Props) {
         </LandingSection>
       ) : null}
 
-      <ActionLinks actions={[{ href: `/${locale}/consultations`, label: t("facility.book") }]} />
+      <ActionLinks actions={actions} />
     </LandingPage>
   );
 }

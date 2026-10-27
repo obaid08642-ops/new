@@ -4,11 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import { MOTION, reducedMotion } from "@/lib/motion/motion";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { Toast } from "@/components-next/feedback/toast";
 import { IconButton } from "@/components-next/ui-generated/components/Button";
 import { extractWishlist } from "@/lib/api/wishlist";
 import { newIdempotencyKey } from "@/lib/pharmacy/broadcast";
 import { requestWishlistToggle } from "@/lib/pharmacy/wishlist-toggle";
 import styles from "./product-detail.module.css";
+
+/** The message of the confirmation after a press that the server accepted: what the list is now. */
+export const wishlistToastKey = (inListNow: boolean): "wishlistAddedToast" | "wishlistRemovedToast" => (inListNow ? "wishlistAddedToast" : "wishlistRemovedToast");
 
 /**
  * The heart of canvas/ProductWeb and ProductFull: puts this medicine on the patient's wishlist or takes it off
@@ -23,6 +27,7 @@ export function WishlistHeart({ itemId, locale }: { itemId: string; locale: stri
   const [signedIn, setSignedIn] = useState(true);
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
   const running = useRef(false);
   const box = useRef<HTMLDivElement>(null);
   const wasIn = useRef(false);
@@ -59,7 +64,10 @@ export function WishlistHeart({ itemId, locale }: { itemId: string; locale: stri
     const was = inList;
     setInList(!was);
     const result = await requestWishlistToggle(itemId, was, newIdempotencyKey());
-    if (result.state === "ok") setInList(result.inList);
+    if (result.state === "ok") {
+      setInList(result.inList);
+      setToast(t(wishlistToastKey(result.inList)));
+    }
     else {
       setInList(was);
       if (result.state === "signed_out") setSignedIn(false);
@@ -72,6 +80,7 @@ export function WishlistHeart({ itemId, locale }: { itemId: string; locale: stri
   return (
     <div className={styles.wishlist} ref={box}>
       <IconButton name="heart" label={inList ? t("wishlistRemove") : t("wishlistAdd")} variant={inList ? "filled" : "outlined"} loading={busy} onClick={toggle} />
+      <Toast message={toast} onDone={() => setToast(null)} />
       {failed ? <p role="status" className={styles.wishlistError}>{t("wishlistError")}</p> : null}
     </div>
   );

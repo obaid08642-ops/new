@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScopedSuggest } from '../../src/components/search/ScopedSuggest';
 import { SUGGEST_SCOPES } from '../../src/utils/searchSuggest';
-import { FlatList, Pressable, RefreshControl, Text, View, useWindowDimensions } from 'react-native';
+import { FlatList, Pressable, RefreshControl, ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
@@ -19,8 +19,9 @@ import {
   useTabBarHeight,
 } from '../../../packages/ui-native/src';
 import { RotatingProductImage } from '../../src/components/pharmacy/RotatingProductImage';
-import { FilterSheet } from '../../src/components/pharmacy/FilterSheet';
+import { FilterSheet, SORT_OPTIONS } from '../../src/components/pharmacy/FilterSheet';
 import { CartButton, WishlistButton, GlyphSquare, MedAddControl, PHARMACY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
+import { HeaderMenuButton } from '../../src/components/nav/HeaderMenuButton';
 import { ActiveFilters, type ActiveFilter } from '../../src/components/pharmacy/ActiveFilters';
 import { CategoryTiles } from '../../src/components/pharmacy/CategoryTiles';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
@@ -205,7 +206,7 @@ export default function PharmacyHub() {
   };
   const csv = (v?: string) => (v ? v.split(',').filter(Boolean) : []);
   const without = (v: string | undefined, one: string) => csv(v).filter((x) => x !== one).join(',');
-  const SORT_LABELS: Record<string, string> = { price_asc: 'pharmacy.filters.sortPriceAsc', price_desc: 'pharmacy.filters.sortPriceDesc', newest: 'pharmacy.filters.sortNewest' };
+  const SORT_LABELS: Record<string, string> = { relevant: 'pharmacy.filters.sortRelevant', price_asc: 'pharmacy.filters.sortPriceAsc', price_desc: 'pharmacy.filters.sortPriceDesc', newest: 'pharmacy.filters.sortNewest' };
   // the filters that are on, each removable (owner layout addition a)
   const activeItems: ActiveFilter[] = [];
   if (activeCat !== 'all') {
@@ -228,6 +229,7 @@ export default function PharmacyHub() {
         <Text accessibilityRole="header" style={{ flex: 1, ...scale(t, 'h1'), letterSpacing: -0.3, color: c.text.primary, ...flow }}>{k('pharmacy.title')}</Text>
         <WishlistButton />
         <CartButton />
+        <HeaderMenuButton testID="pharmacy-menu-button" />
       </View>
 
       {/* search with the barcode, and the ink camera square */}
@@ -274,6 +276,13 @@ export default function PharmacyHub() {
         activeId={activeCat}
         onSelect={setActiveCat}
       />
+
+      {/* sort: no chip selected = the ranking ("Recommended"); the same values the filter sheet sends */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -16 }} contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }} accessibilityLabel={`${k('pharmacy.filters.sort')}: ${filters.sort && SORT_LABELS[filters.sort] ? k(SORT_LABELS[filters.sort]) : k('pharmacy.filters.sortRecommended')}`} testID="pharmacy-sort-row">
+        {SORT_OPTIONS.map((o) => (
+          <Chip key={o.id} label={k(o.label)} selected={filters.sort === o.id} onPress={() => router.setParams({ filter_sort: filters.sort === o.id ? '' : o.id })} theme={theme} />
+        ))}
+      </ScrollView>
 
       {/* filter results, then the filters that are on */}
       <View style={{ flexDirection: 'row' }}>

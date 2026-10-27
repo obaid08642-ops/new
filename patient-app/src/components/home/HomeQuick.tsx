@@ -11,7 +11,7 @@ import { PHARMACY_TONE, SECONDARY_TONE } from '../pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 
 /**
- * Home, under the service grid: the two quick tiles that left the pharmacy (Reminders, My orders), in the tile style of
+ * Home, under the service grid: the quick tiles (Reminders, My orders from the pharmacy, and the Map from the top bar), in the tile style of
  * the pharmacy categories, and the "Order again" row (owner layout decisions 6 and e).
  */
 
@@ -20,6 +20,8 @@ const go = (href: string) => router.push(href as Href);
 const TILES: { key: string; label: string; icon: FillIconName; tone: ServiceTone; route: string }[] = [
   { key: 'reminders', label: 'pharmacy.hub.reminders', icon: 'bell', tone: SERVICE_ICONS.mind.tone, route: '/health/medications?tab=reminders' },
   { key: 'orders', label: 'pharmacy.hub.orders', icon: 'receipt', tone: PHARMACY_TONE, route: '/orders' },
+  // the map left the Home top bar (owner 2026-10-26): it sits here, next to the other quick tiles
+  { key: 'map', label: 'services.cat.map', icon: SERVICE_ICONS.map.icon, tone: SERVICE_ICONS.map.tone, route: '/map' },
 ];
 
 /** Reminders and My orders. `hidden` lists the routes of switched-off modules. */

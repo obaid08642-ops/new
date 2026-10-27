@@ -30,6 +30,25 @@ export const PUBLIC_FACILITY = { is_active: true, public_eligibility: true, medi
 export const PUBLIC_TYPED_PROVIDER = { status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
 export const PUBLIC_MEDICINE = { public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
 
+/**
+ * What a facility page may show beyond its name: the address, the logo, the pin and the opening hours, each only when the
+ * record has it (a missing field is absent, never a placeholder). A provider profile keeps its pin in `location`, a seeded
+ * facility likewise; `logo_url` and `logo` are the two spellings of the logo.
+ */
+function facilityPlace(source: any) {
+  const loc = source?.location;
+  const lat = Number(loc?.lat), lng = Number(loc?.lng);
+  const hours = Array.isArray(source?.working_hours) ? source.working_hours.filter((h: any) => h && typeof h.day === 'string') : [];
+  const text = (v: unknown) => (typeof v === 'string' && v.trim() ? v.trim() : null);
+  return {
+    address: text(source?.address),
+    logo: text(source?.logo_url) ?? text(source?.logo),
+    lat: Number.isFinite(lat) && loc?.lat != null ? lat : null,
+    lng: Number.isFinite(lng) && loc?.lng != null ? lng : null,
+    working_hours: hours.map((h: any) => ({ day: h.day, open: h.open ?? null, close: h.close ?? null, open_evening: h.open_evening ?? null, close_evening: h.close_evening ?? null, closed: h.closed === true })),
+  };
+}
+
 @Injectable()
 export class EntityGraphService implements OnModuleInit {
   private readonly logger = new Logger(EntityGraphService.name);
@@ -300,6 +319,7 @@ export class EntityGraphService implements OnModuleInit {
           city: profile.city,
           district: profile.district,
           phone: null, // a provider profile publishes no phone number
+          ...facilityPlace(profile),
           accepted_insurance: Array.isArray(profile.accepted_insurance) ? profile.accepted_insurance : [],
         },
         relationships: { doctors, departments: Array.isArray(profile.departments) ? profile.departments : [] },
@@ -326,6 +346,7 @@ export class EntityGraphService implements OnModuleInit {
         city: facility.city,
         district: facility.district,
         phone: facility.phone,
+        ...facilityPlace(facility),
         accepted_insurance: facility.accepted_insurance || [],
       },
       relationships: {

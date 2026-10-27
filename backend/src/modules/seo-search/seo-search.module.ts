@@ -1,5 +1,5 @@
 
-import { POPULAR_ORDER_STAGES } from '../product-ranking/product-ranking.service';
+import { popularPage } from '../product-ranking/product-ranking.service';
 import { BackfillSlugsDto } from './seo-search.dto';
 import { safeDecode } from '../../common/slug.util';
 import { buildMedicineReport, medicineReportMarkdown } from './medicine-publication-report';
@@ -189,7 +189,7 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 import { timedFetch } from '../../common/external-call';
 import { NOT_PROMOTABLE_FILTER } from '../medicines/promotion-rules';
 /** Orders of the public catalogue (#816); anything else is the default popularity order. */
-export const CATALOGUE_SORTS = ['popular', 'price_asc', 'price_desc', 'newest'] as const;
+export const CATALOGUE_SORTS = ['popular', 'most_ordered', 'price_asc', 'price_desc', 'newest'] as const;
 export type CatalogueSort = (typeof CATALOGUE_SORTS)[number];
 
 const SITE = process.env.API_PUBLIC_URL?.replace('/api/v1', '') || 'https://api.nabd.plus';
@@ -892,6 +892,7 @@ export class SeoSearchService {
     const sortClause: any = sort === 'price_asc' ? { price: 1, _id: 1 }
       : sort === 'price_desc' ? { price: -1, _id: 1 }
       : sort === 'newest' ? { createdAt: -1, _id: 1 }
+      : sort === 'most_ordered' ? { orders_count: -1, _id: 1 }
       : { usage_count: -1, rating: -1, _id: 1 };
     // An explicit price order skips items without a real price (a 0 is "no price", never the cheapest).
     if (sort === 'price_asc' || sort === 'price_desc') filter.price = { $gt: 0 };
@@ -901,10 +902,12 @@ export class SeoSearchService {
     const skip = (Math.max(page, 1) - 1) * perPage;
     const medicines = this.conn.collection(CATALOG_COLLECTIONS.medicines);
     // The default order is the ranking's composite score (in stock and with an image first among equals), not the old usage counter.
-    const cursor = sort === 'popular'
-      ? medicines.aggregate([{ $match: filter }, ...POPULAR_ORDER_STAGES, { $skip: skip }, { $limit: perPage }, { $project: projection }] as any)
-      : medicines.find(filter, { projection } as any).sort(sortClause).skip(skip).limit(perPage);
-    const [rows, total] = await Promise.all([cursor.toArray(), this.publicListingCount(filter)]);
+    const [rows, total] = await Promise.all([
+      sort === 'popular'
+        ? popularPage(medicines as any, filter, skip, perPage, projection)
+        : medicines.find(filter, { projection } as any).sort(sortClause).skip(skip).limit(perPage).toArray(),
+      this.publicListingCount(filter),
+    ]);
     const items = rows.map((m: any) => {
       const dto = resolveMedicinePublicDto(m, locale);
       return {

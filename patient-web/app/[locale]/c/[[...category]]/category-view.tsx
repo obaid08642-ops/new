@@ -94,6 +94,8 @@ export async function CategoryView({ params, searchParams }: Props) {
   const page = parsePage(sParams.page);
   const q = (sParams.q || "").trim();
   const sort = parseSort(sParams.sort);
+  // no chip is selected until the patient picks one: the default order is the ranking, shown as "Recommended"
+  const pickedSort = SORTS.find((x) => x.id === sParams.sort)?.id;
   const [main, sub] = decoded;
   // issue 1819: dosage form, maker, Rx and price range (the app's filter sheet); only the dynamic twin ever carries them
   const filters = parseCatalogueFilters(sParams);
@@ -282,10 +284,10 @@ export async function CategoryView({ params, searchParams }: Props) {
           hidden={{ ...(q ? { q } : {}), ...(sort !== "popular" ? { sort } : {}) }}
         />
         {totalProducts > 1 ? (
-          <nav aria-label={t("sortLabel")} className={styles.chips}>
+          <nav aria-label={`${t("sortLabel")}: ${pickedSort ? t(SORTS.find((x) => x.id === pickedSort)!.label) : t("sortRecommended")}`} className={styles.chips}>
             {SORTS.map((o) => {
-              const query = [q ? `q=${encodeURIComponent(q)}` : "", o.id !== "popular" ? `sort=${o.id}` : "", filterQuery].filter(Boolean).join("&");
-              return <ChipLink key={o.id} href={query ? `${basePath}?${query}` : basePath} label={t(o.label)} selected={sort === o.id} />;
+              const query = [q ? `q=${encodeURIComponent(q)}` : "", `sort=${o.id}`, filterQuery].filter(Boolean).join("&");
+              return <ChipLink key={o.id} href={query ? `${basePath}?${query}` : basePath} label={t(o.label)} selected={pickedSort === o.id} />;
             })}
           </nav>
         ) : null}

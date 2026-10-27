@@ -46,6 +46,7 @@ import { COLUMN, step as scale, tint, useScreenUi } from '../../src/components/s
 import { useCart } from '../../src/context/CartContext';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { apiFetch, hasSession } from '../../src/utils/api';
+import { wishlistToastKey } from '../../src/utils/wishlistToast';
 import { dateLocaleFor } from '../../src/utils/dates';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
@@ -222,7 +223,11 @@ export default function ProductDetailScreen() {
       rollback: () => setInWishlist(was),
       onFail: () => notice.show(k('common.optimisticUndone')),
     });
-    if (done.ok) setInWishlist(done.value?.in_wishlist ?? !was);
+    if (done.ok) {
+      const now = done.value?.in_wishlist ?? !was;
+      setInWishlist(now);
+      notice.show(k(wishlistToastKey(now)));
+    }
     setWishlistBusy(false);
   };
 

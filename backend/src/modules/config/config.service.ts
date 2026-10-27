@@ -52,6 +52,8 @@ export class ConfigService {
     // Public signal for every upload entry point (prescription, insurance card, chat photo, profile photo, nurse/lab files):
     // false while the virus scanner cannot answer, so the clients hide the button instead of showing a form that fails.
     featureFlags['uploads_enabled'] = await this.clamav.uploadsAvailable();
+    // true while a new upload is accepted but waits for its virus scan before anyone can open it (UPLOAD_SCAN=defer, scanner down)
+    featureFlags['uploads_pending_scan'] = await this.clamav.uploadsPendingScan();
     const featureRollouts: Record<string, number> = {};
     try {
       const rows = await this.conn.collection('feature_flags').find({}).project({ _id: 0, key: 1, enabled: 1, rollout_percentage: 1 }).toArray();

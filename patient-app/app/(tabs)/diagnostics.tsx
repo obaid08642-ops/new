@@ -25,7 +25,9 @@ import {
   useDiagText,
 } from '../../src/components/diagnostics/DiagKit';
 import { ActiveFilters, type ActiveFilter } from '../../src/components/pharmacy/ActiveFilters';
-import { GlyphRound } from '../../src/components/pharmacy/PharmacyKit';
+import { GlyphRound, WishlistButton } from '../../src/components/pharmacy/PharmacyKit';
+import { ServiceCartButton } from '../../src/components/cart/ServiceCartButton';
+import { HeaderMenuButton } from '../../src/components/nav/HeaderMenuButton';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
@@ -208,6 +210,9 @@ export default function DiagnosticsHub() {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <Text accessibilityRole="header" style={{ flex: 1, minWidth: 0, ...scale(t, 'h1'), color: c.text.primary, ...flow }}>{k('diag.hub.title')}</Text>
           <GlyphRound name="receipt" label={k('diag.hub.myOrders')} onPress={() => router.push('/diagnostics/orders' as Href)} testID="diagnostics-orders-entry" />
+          <WishlistButton />
+          <ServiceCartButton service={mainTab === 'radiology' ? 'radiology' : 'lab'} />
+          <HeaderMenuButton testID="diagnostics-menu-button" />
         </View>
 
         <Search
