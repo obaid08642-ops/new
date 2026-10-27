@@ -1,12 +1,20 @@
 """Journey: pharmacy order, patient-app -> pharmacy (provider-app) -> patient -> delivery -> admin.
 Payloads copied from patient-app app/pharmacy/{checkout,broadcast-status,final-quote}.tsx,
 src/utils/pharmacy-draft.ts and provider-app screens/pharmacy/PharmacyDashboard.tsx."""
-import json, time, uuid, urllib.parse
+import json, subprocess, time, uuid, urllib.parse
 from lib import Client, journey, step
 from j_nursing import card_payment
 
 KEY = lambda tag: f'mobile-{tag}-{uuid.uuid4()}'
 
+
+
+def offer_row(oid):
+    """The pharmacy offer of this order (MongoDB pharmacy_offers; the offer rows are not in ordering_offers)."""
+    out = subprocess.run(['docker', 'exec', 'mongo', 'mongosh', '--quiet', 'nabd_live', '--eval',
+                          f'JSON.stringify(db.pharmacy_offers.findOne({{order_id: "{oid}"}}, {{_id: 0, id: 1, status: 1}}))'],
+                         capture_output=True, text=True).stdout.strip()
+    return json.loads(out) if out and out != 'null' else None
 
 
 def has_delivered_order(pat):
@@ -162,6 +170,8 @@ def run(pat, pharm, admin=None, meds=None):
     step('offer draft', r.ok and offer_id, r)
     r = pharm.post(f'/provider/pharmacy/broadcasts/{oid}/offers/{offer_id}/submit')
     step('offer submitted', r.ok, r)
+    row = offer_row(oid)
+    step('MongoDB: the submitted offer is stored for this order (pharmacy_offers)', bool(row) and row.get('id') == offer_id and row.get('status') == 'submitted', row)
 
     journey('pharmacy order: patient picks the offer and confirms')
     r = pat.get(f'/patient/pharmacy/orders/{oid}/offers')
@@ -172,6 +182,8 @@ def run(pat, pharm, admin=None, meds=None):
     of = offers[0]
     r = pat.post(f"/patient/pharmacy/orders/{oid}/offers/{of.get('id') or of.get('offer_id')}/select", {'coverage_mode': 'cash'}, headers={'Idempotency-Key': KEY('offer')})
     step('select offer (cash)', r.ok, r)
+    row = offer_row(oid)
+    step('MongoDB: the chosen offer is stored as selected (pharmacy_offers)', bool(row) and row.get('id') == (of.get('id') or of.get('offer_id')) and row.get('status') == 'selected', row)
     # P3: the pharmacy's "My offers" shows this offer as chosen.
     oid_offer = of.get('id') or of.get('offer_id')
     r = pharm.get('/provider/pharmacy/offers')
