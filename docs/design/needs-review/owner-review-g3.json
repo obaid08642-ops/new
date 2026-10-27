@@ -2,43 +2,10 @@
   {
     "batch": "owner-review-g3",
     "app": "patient-web",
-    "screen": "/doctor/[slug]",
-    "element": "Doctor photo, clinic photos, about, education and reviews on the public doctor page",
-    "file": "backend/src/modules/entity-graph/entity-graph.service.ts",
-    "line": 202,
-    "found": "[backend] GET /entity-graph/related/doctor/:slug (the only read of this ISR page) sends no photo, clinic photos, bio, languages, education or reviews, so the public page cannot draw the large photo, the gallery or the sections below the appointments. The full profile (all of them) is /consultations/doctors/[doctorId], built from GET /care/doctors/:id.",
-    "suspect": "Reviewer: add photo_url, clinicPhotos, bio, languages, education and reviews to the public entity payload, or make the canonical page read the public doctor row; then pass them to ProfileHeader (largePhoto) and the sections.",
-    "review_status": "open"
-  },
-  {
-    "batch": "owner-review-g3",
-    "app": "patient-web",
-    "screen": "/doctor/[slug]",
-    "element": "Large photo slot of the public doctor page",
-    "file": "patient-web/app/[locale]/doctor/[slug]/page.tsx",
-    "line": 143,
-    "found": "[client] ProfileHeader is drawn with the service icon and not largePhoto because the entity record has no photo; a big empty tile would be a placeholder.",
-    "suspect": "Turn on largePhoto here once the backend item above sends photo_url.",
-    "review_status": "open"
-  },
-  {
-    "batch": "owner-review-g3",
-    "app": "patient-web",
-    "screen": "/doctor/[slug]",
-    "element": "Times for a signed-out visitor",
-    "file": "patient-web/app/api/consultations/doctors/[doctorId]/slots/route.ts",
-    "line": 38,
-    "found": "[backend] The web slots route answers 401 without a session although GET /care/doctors/:id/slots has a public read (getPublicDoctorSlots in doctors-server.ts); a signed-out visitor sees a sign-in message instead of the times.",
-    "suspect": "Reviewer: serve the times to signed-out visitors through the public read (no cookie).",
-    "review_status": "open"
-  },
-  {
-    "batch": "owner-review-g3",
-    "app": "patient-web",
     "screen": "/consultations/doctors/[doctorId]",
     "element": "Waiting time piece of the summary line",
     "file": "patient-web/app/[locale]/consultations/doctors/[doctorId]/page.tsx",
-    "line": 99,
+    "line": 96,
     "found": "[backend] The waiting time is drawn only when GET /care/doctors/:id sends avg_wait_minutes / average_wait / wait_time; if the field is absent the piece is left out (not confirmed that the public doctor row sends it).",
     "suspect": "Reviewer: confirm the field on the public doctor row; no value is invented in the client.",
     "review_status": "open"
@@ -49,7 +16,7 @@
     "screen": "/consultations/doctor/[id]",
     "element": "Waiting time piece of the summary line",
     "file": "patient-app/app/consultations/doctor/[id].tsx",
-    "line": 256,
+    "line": 294,
     "found": "[backend] `wait_time` is not sent by GET /care/doctors/:id (see doctor-card-app.json), so the waiting-time piece of the summary line is omitted.",
     "suspect": "Reviewer: send the average waiting time on the public doctor row; the piece appears without a client change.",
     "review_status": "open"

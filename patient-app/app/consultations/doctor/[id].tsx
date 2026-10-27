@@ -28,14 +28,27 @@ import { slotBarLabel, summaryItems } from '../../../src/utils/doctorSummary';
  * to choose one, as before.
  */
 
+/** One row of the public GET /ratings/provider/:id list: score, comment, date and the reviewer's first name only. */
+interface PublicReview {
+  score?: number;
+  comment?: string | null;
+  createdAt?: string | null;
+  reviewer?: string | null;
+}
+interface ReviewsPage {
+  data?: PublicReview[];
+  total?: number;
+  page?: number;
+  total_pages?: number;
+}
 interface Review {
-  id?: string;
   rating?: number;
   text?: string;
   date?: string;
-  /** First name only (the public list never carries the full name). */
   reviewer?: string | null;
 }
+const REVIEWS_PAGE_SIZE = 5;
+const toReview = (r: PublicReview): Review[] => (typeof r.score === 'number' && r.score > 0 ? [{ rating: r.score, text: r.comment || undefined, date: r.createdAt || undefined, reviewer: r.reviewer }] : []);
 interface Doctor {
   id: string;
   slug?: string;
@@ -46,7 +59,6 @@ interface Doctor {
   specialty?: string;
   sp?: string;
   photo_url?: string;
-  img?: string;
   facility_id?: string;
   facility?: { name_ar?: string };
   hospital?: string;
@@ -60,14 +72,13 @@ interface Doctor {
   price_online?: number;
   price_home?: number;
   bio?: string;
-  biography?: string;
   sub_specialties?: string[];
   years_experience?: number;
   rating_avg?: number;
   rating_count?: number;
-  clinic_images?: string[];
   facility_images?: string[];
-  education?: string | Array<{ degree?: string; school?: string }>;
+  /** The public row sends university, graduation year and fellowship / board per entry. */
+  education?: Array<{ university?: string | null; graduation_year?: number | null; fellowship_board?: string | null }>;
   languages?: string[];
   license_number?: string;
   scfhs_license_number?: string;
@@ -81,7 +92,6 @@ interface Doctor {
   reviews_count?: number;
   clinicPhotos?: string[];
   accepts_insurance?: boolean;
-  reviews_data?: Review[];
   /** Not sent by the backend yet (docs/design/needs-review/doctor-card-app.json): drawn only when present. */
   wait_time?: number;
   services?: Array<{ id?: string; name?: string; name_ar?: string; name_en?: string; price?: number }>;
@@ -111,7 +121,10 @@ export default function DoctorProfile() {
   const [faqOpen, setFaqOpen] = useState<Record<number, boolean>>({});
   const [bioOpen, setBioOpen] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
-  const [reviewsAll, setReviewsAll] = useState(false);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewsTotal, setReviewsTotal] = useState(0);
+  const [reviewsPage, setReviewsPage] = useState(1);
+  const [reviewsBusy, setReviewsBusy] = useState(false);
   const days = useDays(30);
   // The late-appointment guarantee of the same /system-config/public answer the cancellation numbers come from.
   const guarantee = useLateGuarantee(policy);
@@ -144,6 +157,30 @@ export default function DoctorProfile() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // The written reviews: the first page of the public list, more pages on request (GET /ratings/provider/:id).
+  const loadReviews = useCallback(
+    async (page: number) => {
+      if (!doc?.id) return;
+      setReviewsBusy(true);
+      try {
+        const res = await apiFetch<ReviewsPage>(`/ratings/provider/${encodeURIComponent(doc.id)}?page=${page}&limit=${REVIEWS_PAGE_SIZE}`);
+        const rows = Array.isArray(res?.data) ? res.data.flatMap(toReview) : [];
+        setReviews((prev) => (page === 1 ? rows : [...prev, ...rows]));
+        setReviewsTotal(typeof res?.total === 'number' ? res.total : rows.length);
+        setReviewsPage(page);
+      } catch (e) {
+        logError('consultations:doctor:reviews', e);
+      } finally {
+        setReviewsBusy(false);
+      }
+    },
+    [doc?.id],
+  );
+
+  useEffect(() => {
+    void loadReviews(1);
+  }, [loadReviews]);
 
   // Real per-mode prices from the provider profile — no invented multipliers
   const getPrice = (type: string): number | null => {
@@ -209,10 +246,10 @@ export default function DoctorProfile() {
   };
 
   const name = pickLocalized(doc?.name_ar, doc?.name_en) || doc?.n || '';
-  const photo = apiMediaUri(doc?.img || doc?.photo_url);
+  const photo = apiMediaUri(doc?.photo_url);
   const facilityName = pickLocalized(doc?.facility?.name_ar, doc?.hospital);
   const place = [[doc?.district, doc?.city].filter(Boolean).join('، '), doc?.address].filter(Boolean).join(' · ');
-  const bio = doc?.bio || doc?.biography || '';
+  const bio = doc?.bio || '';
   const modes = Array.isArray(doc?.consultation_modes) && doc.consultation_modes.length > 0 ? doc.consultation_modes : ['clinic', 'video', 'home'];
   const tiles: ModeTile[] = modes.flatMap((m) => {
     const mode = visitMode(m);
@@ -221,10 +258,12 @@ export default function DoctorProfile() {
   const price = getPrice(activeVt);
   const look = specialtyLook(doc?.specialty || doc?.sp);
   const license = readLicenseLine(doc);
-  const ratingAvg = doc?.rating_avg ?? doc?.rating ?? 0;
-  const ratingCount = doc?.rating_count ?? doc?.reviews_count ?? 0;
-  const reviews = Array.isArray(doc?.reviews_data) ? doc.reviews_data : [];
-  const education = doc?.education ? (Array.isArray(doc.education) ? doc.education.map((e) => `${e.degree} — ${e.school}`).join('\n') : String(doc.education)) : '';
+  const ratingAvg = doc?.rating ?? doc?.rating_avg ?? 0;
+  const ratingCount = doc?.reviews_count ?? doc?.rating_count ?? 0;
+  const education = (Array.isArray(doc?.education) ? doc.education : [])
+    .map((e) => [e.fellowship_board, e.university, typeof e.graduation_year === 'number' ? num(e.graduation_year) : undefined].filter(Boolean).join(' · '))
+    .filter(Boolean)
+    .join('\n');
   const info: Array<{ icon: 'globe' | 'shield-check'; label: string; value: string }> = [
     ...(Array.isArray(doc?.languages) && doc.languages.length > 0 ? [{ icon: 'globe' as const, label: k('consult.doc.languages'), value: doc.languages.map(languageName).join('، ') }] : []),
     ...(doc?.accepts_insurance ? [{ icon: 'shield-check' as const, label: k('consult.doc.insurance'), value: k('consult.doc.acceptsInsurance') }] : []),
@@ -239,7 +278,6 @@ export default function DoctorProfile() {
   const mapLng = doc?.location?.lng;
   // the map belongs to the clinic visit only
   const showMap = activeVt === 'clinic' && typeof mapLat === 'number' && typeof mapLng === 'number';
-  const shownReviews = reviewsAll ? reviews : reviews.slice(0, 3);
 
   const book = () => {
     if (!doc) return;
@@ -342,7 +380,7 @@ export default function DoctorProfile() {
             ) : null}
 
             {[
-              { key: 'clinic', title: k('consult.doc.clinicPhotos'), urls: (doc.clinic_images ?? doc.clinicPhotos ?? []).map((u) => apiMediaUri(u)).filter((u): u is string => Boolean(u)), w: 180 },
+              { key: 'clinic', title: k('consult.doc.clinicPhotos'), urls: (doc.clinicPhotos ?? []).map((u) => apiMediaUri(u)).filter((u): u is string => Boolean(u)), w: 180 },
               { key: 'facility', title: k('consult.doc.facilityPhotos'), urls: doc.facility_images, w: 200 },
             ]
               .filter((g) => Array.isArray(g.urls) && g.urls.length > 0)
@@ -440,8 +478,8 @@ export default function DoctorProfile() {
                   <Text testID="doctor-reviews-empty" style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.doc.noReviews')}</Text>
                 </Card>
               ) : null}
-              {shownReviews.map((r, i) => (
-                <Card key={r.id || i} theme={theme} padding="sm">
+              {reviews.map((r, i) => (
+                <Card key={`${i}-${r.date ?? ''}`} theme={theme} padding="sm">
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
                     {[1, 2, 3, 4, 5].map((n) => (
                       <Glyph key={n} name="star" size={14} color={n <= (r.rating || 0) ? c.icon.ratingStar : c.border.strong} />
@@ -452,9 +490,9 @@ export default function DoctorProfile() {
                   {r.text ? <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, marginTop: 6, ...flow }}>{r.text}</Text> : null}
                 </Card>
               ))}
-              {reviews.length > 3 ? (
-                <Pressable accessibilityRole="button" accessibilityLabel={reviewsAll ? k('consult.doc.showLess') : k('consult.doc.seeAllReviews', { n: num(reviews.length) })} onPress={() => setReviewsAll((v) => !v)} style={{ minHeight: 44, justifyContent: 'center' }}>
-                  <Text style={{ ...scale(t, 'small', 'medium'), color: c.text.link, ...flow }}>{reviewsAll ? k('consult.doc.showLess') : k('consult.doc.seeAllReviews', { n: num(reviews.length) })}</Text>
+              {reviews.length < reviewsTotal ? (
+                <Pressable accessibilityRole="button" accessibilityState={{ busy: reviewsBusy, disabled: reviewsBusy }} accessibilityLabel={k('consult.doc.seeAllReviews', { n: num(reviewsTotal) })} disabled={reviewsBusy} onPress={() => void loadReviews(reviewsPage + 1)} style={{ minHeight: 44, justifyContent: 'center' }} testID="doctor-reviews-more">
+                  <Text style={{ ...scale(t, 'small', 'medium'), color: c.text.link, ...flow }}>{k('consult.doc.seeAllReviews', { n: num(reviewsTotal) })}</Text>
                 </Pressable>
               ) : null}
             </Section>

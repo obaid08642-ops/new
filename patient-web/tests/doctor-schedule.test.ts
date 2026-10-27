@@ -56,7 +56,8 @@ describe("doctor profile order (web)", () => {
   });
 
   it("hides the gallery when the server sent no clinic photos", () => {
-    expect(page).toMatch(/doctor\.clinicPhotos\?\.length \? \(\s*<SectionCard id="clinic-photos-title"/);
+    expect(page).toContain('<ClinicGallery id="clinic-photos-title"');
+    expect(read("components-next/consult/doctor-sections.tsx")).toMatch(/if \(!photos\?\.length\) return null;/);
   });
 
   it("keeps the booking link and stays a server page", () => {
@@ -73,12 +74,30 @@ describe("doctor profile order (web)", () => {
   });
 });
 
+describe("schedule has no sign-in gate (the slots route is public)", () => {
+  it("the schedule never branches on 401 and the route does not read a session", () => {
+    const schedule = read("components-next/consult/doctor-schedule.tsx");
+    expect(schedule).not.toMatch(/401|signin|signIn/);
+    const route = read("app/api/consultations/doctors/[doctorId]/slots/route.ts");
+    expect(route).toContain("getPublicDoctorSlots");
+    expect(route).not.toMatch(/cookies\(|401/);
+  });
+});
+
+describe("public doctor page (slug) uses the enriched payload", () => {
+  const slug = read("app/[locale]/doctor/[slug]/page.tsx");
+  it("draws photo, summary, gallery, about, education and reviews, appointments kept", () => {
+    for (const needle of ["largePhoto=", "summary={summary}", "<ClinicGallery", "<BioSection", "<EducationSection", "extractEntityReviews(doctor)", "<DoctorSchedule"]) expect(slug).toContain(needle);
+    expect(slug).not.toContain('"use client"');
+  });
+});
+
 describe("schedule styles and six-language keys", () => {
   const css = read("components-next/consult/doctor-schedule.module.css");
   it("uses tokens and logical properties only", () => {
     expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b|rgb\(|\bleft\b|\bright\b|margin-left|margin-right/);
   });
-  const keys = ["scheduleDaysLabel", "scheduleTimesLabel", "scheduleToday", "scheduleTomorrow", "scheduleLoading", "scheduleEmpty", "scheduleNoDays", "scheduleError", "scheduleRetry", "scheduleSignIn"];
+  const keys = ["scheduleDaysLabel", "scheduleTimesLabel", "scheduleToday", "scheduleTomorrow", "scheduleLoading", "scheduleEmpty", "scheduleNoDays", "scheduleError", "scheduleRetry"];
   const en = JSON.parse(read("messages/en.json")).Doctors as Record<string, string>;
   it.each(["ar", "en", "ur", "hi", "bn", "fil"])("%s has every key, non-empty", (lang) => {
     const ns = JSON.parse(read(`messages/${lang}.json`)).Doctors as Record<string, string>;

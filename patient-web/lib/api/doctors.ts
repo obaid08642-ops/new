@@ -8,7 +8,7 @@ const doctorSchema = z.object({
   name_ar: z.string().max(180).optional().nullable(), name_en: z.string().max(180).optional().nullable(), name: z.string().max(180).optional().nullable(), display_name: z.string().max(180).optional().nullable(),
   degree: z.string().max(120).optional().nullable(), title: z.string().max(120).optional().nullable(),
   specialty_ar: z.string().max(180).optional().nullable(), specialty: z.string().max(180).optional().nullable(), academic_degree: z.string().max(120).optional().nullable(),
-  rating: z.number().min(0).max(5).optional().nullable(), review_count: z.number().int().nonnegative().optional().nullable(), reviews_count: z.number().int().nonnegative().optional().nullable(),
+  rating: z.number().min(0).max(5).optional().nullable(), rating_avg: z.number().min(0).max(5).optional().nullable(), rating_count: z.number().int().nonnegative().optional().nullable(), review_count: z.number().int().nonnegative().optional().nullable(), reviews_count: z.number().int().nonnegative().optional().nullable(),
   consultation_fee: z.number().nonnegative().optional().nullable(), price: z.number().nonnegative().optional().nullable(), price_clinic: z.number().nonnegative().optional().nullable(), price_online: z.number().nonnegative().optional().nullable(), price_home: z.number().nonnegative().optional().nullable(), average_wait: z.number().nonnegative().optional().nullable(), years_experience: z.number().int().nonnegative().optional().nullable(), experience_years: z.number().int().nonnegative().optional().nullable(),
   offers_online: z.boolean().optional().nullable(), offers_clinic: z.boolean().optional().nullable(), offers_home: z.boolean().optional().nullable(), accepts_insurance: z.boolean().optional().nullable(), verified: z.boolean().optional().nullable(), scfhs_license_no: z.string().max(80).optional().nullable(), license: z.object({ number: z.string().max(80).optional().nullable(), verified: z.boolean().optional().nullable() }).passthrough().optional().nullable(), photo_url: z.string().max(400).optional().nullable(), clinicPhotos: z.array(z.string().max(400)).max(20).optional().nullable(), facility_name: z.string().max(180).optional().nullable(), facility_name_ar: z.string().max(180).optional().nullable(), facility_name_en: z.string().max(180).optional().nullable(), clinic_name: z.string().max(180).optional().nullable(), hospital: z.string().max(180).optional().nullable(), next_available_slot: z.string().max(80).optional().nullable(), next_available_at: z.string().max(80).optional().nullable(), consultation_modes: z.array(z.string().max(24)).max(8).optional().nullable(),
   gender: z.enum(["male", "female"]).optional().nullable(), is_online: z.boolean().optional().nullable(), wait_time: z.number().nonnegative().optional().nullable(), avg_wait_minutes: z.number().nonnegative().optional().nullable(),
@@ -74,8 +74,8 @@ export function extractDoctors(payload: unknown): DoctorRow[] {
       nameEn: d.name_en || d.name || d.display_name || undefined,
       degree: d.degree ?? d.academic_degree ?? d.title ?? undefined,
       specialty: d.specialty ?? d.specialty_ar ?? undefined,
-      rating: d.rating ?? undefined,
-      reviews: d.review_count ?? d.reviews_count ?? undefined,
+      rating: d.rating ?? d.rating_avg ?? undefined,
+      reviews: d.review_count ?? d.reviews_count ?? d.rating_count ?? undefined,
       price: firstPrice(d.price_clinic, d.price_online, d.price_home, d.consultation_fee, d.price),
       prices: { clinic: firstPrice(d.price_clinic), video: firstPrice(d.price_online), home: firstPrice(d.price_home) },
       experienceYears: d.years_experience ?? d.experience_years ?? undefined,
@@ -174,4 +174,16 @@ export function extractPublicRatings(payload: unknown): { items: PublicRating[];
     return [{ score: r.score, comment: typeof r.comment === "string" && r.comment ? r.comment.slice(0, 2000) : undefined, date: typeof r.createdAt === "string" ? r.createdAt : undefined, reviewer: typeof r.reviewer === "string" && r.reviewer ? r.reviewer.slice(0, 60) : undefined }];
   });
   return { items, total: typeof root.total === "number" ? root.total : undefined };
+}
+
+/** The first page of reviews in the public entity payload (`reviews` of GET /entity-graph/related/doctor/:slug, the shape of GET /ratings/provider/:id): rows and total. */
+export function extractEntityReviews(entity: unknown): { items: PublicRating[]; total?: number } {
+  const reviews = entity && typeof entity === "object" ? (entity as Record<string, unknown>).reviews : undefined;
+  return extractPublicRatings(reviews);
+}
+/** A spoken-language list ("ar", "en") as the page language names them; a code the runtime does not know is kept as sent. */
+export function spokenLanguages(locale: string, codes: string[] | undefined): string {
+  if (!codes?.length) return "";
+  const names = new Intl.DisplayNames(locale, { type: "language" });
+  return codes.map((code) => { try { return names.of(code) ?? code; } catch { return code; } }).join(", ");
 }
