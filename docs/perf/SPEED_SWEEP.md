@@ -197,3 +197,9 @@ Result: the payload fell 81% but the list's p50 moved only 561 -> 527 ms (smart_
 ## App (emulator, `patient_perf_tabs.yaml`, run 40582536500)
 
 PASS: after a fresh sign-in, the first content of each tab shows within its budget after the tap: home 5 s, pharmacy 3 s, labs 3 s, nursing 3 s, back to home 2 s. These are pass/fail budgets on a warm app on the emulator, not measured times; a true cold start and per-tab milliseconds still need an adb `am start -W` step in the workflow.
+
+## Why the medicine list is not edge-cached (finding, not changed)
+
+`x-cache-status: MISS` is not set by the app (no such header in `backend/src`): it comes from the layer in front. The app's own header is `X-Cache-Hint: private` with `Cache-Control: private, no-store`, because `MedicinesController.list` has no `@PublicCache` (`common/cache-control.interceptor.ts`: no decorator => `private, no-store`). So the paged list is never cached at the edge; only the Redis cache in `paginate()` (`med:page:governed-v2:…`) helps, and every call still pays origin + Redis + proxy.
+
+Fix to propose (needs the owner's call, not done here): serve the anonymous paged branch (`?page=`) with `public, s-maxage=60, stale-while-revalidate`. The handler cannot just take `@PublicCache`: the same route also serves the unpaged branch, which reads the caller's id from the Authorization header (`optionalUserId`) for ranking, and the route-cache gate (`route-cache-table.p14.spec.ts`) forbids a public route that reads the user. It needs the paged list split into its own route (or the user read removed), plus the `Cache-Tag` for purge on catalogue changes. Auth requests already fail closed to `private, no-store`.
