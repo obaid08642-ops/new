@@ -8,6 +8,11 @@
 #
 #   STEP=gaps  (default, DRY RUN): reads the published products (read-only), counts the missing texts per language pair and field, prints the token
 #              count and the price at the configured model, and writes the requests file to $W/requests.jsonl with its SHA-256. No AI call.
+#              Also counts the texts in the WRONG column (an Arabic text in the English column) per field and pair: they are FIXED, not skipped
+#              (owner 2026-10-27): moved to their own column when it is empty, or only the wrong column is emptied when the right one has its text,
+#              or the two trade places. They are written to $W/requests.jsonl.moves.json, which STEP=plan puts into the reviewed file; the catalogue
+#              apply then moves them as guarded steps (compare-and-set on the exact old text, backup, marked machine_moved). The columns they empty
+#              are in the requests, translated from the corrected product. A page shows a leaflet section in its language or hides it meanwhile.
 #   STEP=run   : sends at most MAX_REQUESTS not-yet-answered requests (a bounded batch keeps a free-tier day inside its limit; run again for the
 #              next batch, it resumes). REQUIRES EXPECT_REQUESTS_SHA = the hash printed by the dry run (32+ hex characters), so the reviewer's
 #              numbers are the requests that are sent. Answers append to $W/responses.jsonl on the host after every run.
@@ -51,6 +56,7 @@ gaps)
   [ $RC -eq 0 ] || { say "ABORT gaps failed (exit $RC): $(echo "$OUT" | tail -1 | cut -c1-200)"; cleanup; exit 1; }
   echo "$OUT" | sed 's/^/status: translate-content: gaps /' | cut -c1-900
   get "$CW/requests.jsonl" "$W/requests.jsonl"
+  get "$CW/requests.jsonl.moves.json" "$W/requests.jsonl.moves.json"
   SHA=$(sudo -n sha256sum "$W/requests.jsonl" | cut -d' ' -f1)
   N=$(sudo -n wc -l < "$W/requests.jsonl")
   # which provider variables exist in the container (names only)
@@ -82,6 +88,8 @@ run)
 plan)
   sudo -n test -f "$W/requests.jsonl" && sudo -n test -f "$W/responses.jsonl" || { say "ABORT need $W/requests.jsonl and $W/responses.jsonl: run STEP=gaps and STEP=run first"; cleanup; exit 1; }
   put "$W/requests.jsonl" "$CW/requests.jsonl" && put "$W/responses.jsonl" "$CW/responses.jsonl" || { say "ABORT cannot copy the files in"; cleanup; exit 1; }
+  # the wrong-column moves found by STEP=gaps travel with the translations (the tool reads <requests>.moves.json when it is there)
+  if sudo -n test -f "$W/requests.jsonl.moves.json"; then put "$W/requests.jsonl.moves.json" "$CW/requests.jsonl.moves.json" || { say "ABORT cannot copy the moves file in"; cleanup; exit 1; }; fi
   OUT=$(tool plan --requests="$CW/requests.jsonl" --responses="$CW/responses.jsonl" --out="$CW/product-translations.json"); RC=$?
   echo "$OUT" | sed 's/^/status: translate-content: plan /' | cut -c1-900
   [ $RC -eq 0 ] || { say "ABORT plan failed (exit $RC)"; cleanup; exit 1; }
