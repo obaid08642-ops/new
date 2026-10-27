@@ -3,6 +3,7 @@ import { pickName } from "@/lib/i18n/localized";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { nurseFilterCount } from "@/lib/diagnostics-filter-count";
 import { extractHomeCareService, parseHomeCareServiceId } from "@/lib/api/home-care-services";
 import { getPatientHomeCareService } from "@/lib/api/home-care-services-server";
 import { callPatientApi } from "@/lib/api/upstream";
@@ -72,11 +73,18 @@ export default async function HomeCareBookPage({ params, searchParams }: Props) 
   };
   const profileHref = (id: string) => `/${locale}/nursing/nurses/${encodeURIComponent(id)}?${new URLSearchParams({ serviceId, ...(pay === "insurance" ? { pay: "insurance" } : {}) }).toString()}`;
   const number = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
+  const filterCount = nurseFilterCount({ sort, gender, availableNow, nationality });
   return (
     <ConsultPage locale={locale} title={t("bookTitle")} backHref={back}>
       <Hero icon={serviceIcon(service.nameAr, service.nameEn)} tone={NURSING.tone} title={name} sub={service.price !== undefined ? money(locale, service.price) : t("eyebrow")} />
       {/* Injections and drips need a prescription the nurse can see (the catalogue says which services do); an unknown answer asks for it too, as the app does. */}
       {service.requiresPrescription !== false ? <Notice warn>{t("rxNotice")}</Notice> : null}
+      {filterCount > 0 ? (
+        <div className={consult.segLinks} role="group" aria-label={t("filtersOn", { count: filterCount })}>
+          <span>{t("filtersOn", { count: filterCount })}</span>
+          <Link href={href({ sort: "any", gender: "any", availableNow: false, nationality: "any" })} replace className={consult.activeFilterClear}>{t("resetFilters")}</Link>
+        </div>
+      ) : null}
       <nav className={consult.segLinks} aria-label={t("sortTitle")}>
         <Link href={href({ sort: "any" })} replace aria-current={sort === "any" ? "page" : undefined}>{t("sortAny")}</Link>
         <Link href={href({ sort: "rating" })} replace aria-current={sort === "rating" ? "page" : undefined}>{t("sortRating")}</Link>

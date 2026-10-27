@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScopedSuggest } from '../../src/components/search/ScopedSuggest';
 import { SUGGEST_SCOPES } from '../../src/utils/searchSuggest';
 import { RefreshControl, ScrollView, Text, View } from 'react-native';
@@ -31,6 +31,7 @@ import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
 import { fetchPublicList } from '../../src/utils/publicCache';
 import { visibleRows } from '../../src/utils/diagPaging';
+import { activeFilterCount, filterForTab, filtersFor, type FilterId } from '../../src/utils/diagFilters';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { insuranceOffered, normalizeLabList, normalizeProviders, type CatalogItem, type LabProvider } from '../../src/utils/labMappers';
@@ -40,17 +41,6 @@ type MainTab = 'labs' | 'radiology';
 type Place = 'home' | 'clinic';
 /** Decision 30: insurance or self-pay is chosen first; the lists show only the services that take that payment. */
 type Pay = 'self_pay' | 'insurance';
-type FilterId = 'all' | 'tests' | 'packages' | 'labs' | 'highest_rated' | 'lowest_price' | 'home_visit';
-const FILTERS: Array<{ id: FilterId; key: string }> = [
-  { id: 'all', key: 'diag.filter.all' },
-  { id: 'tests', key: 'diag.filter.tests' },
-  { id: 'packages', key: 'diag.filter.packages' },
-  { id: 'labs', key: 'diag.filter.labs' },
-  { id: 'highest_rated', key: 'diag.filter.rating' },
-  { id: 'lowest_price', key: 'diag.filter.price' },
-  { id: 'home_visit', key: 'diag.filter.home' },
-];
-
 /** The hub of labs and radiology (board ServiceHub): what to book, where, and what is already in the cart. */
 export default function DiagnosticsHub() {
   const { theme, dir, t, c, k, num, flow } = useScreenUi();
@@ -76,6 +66,7 @@ export default function DiagnosticsHub() {
   // radiology: the scan types GET /radiology/modalities lists, and the one chosen (the server filters, as on the web)
   const [modalities, setModalities] = useState<string[]>([]);
   const [modality, setModality] = useState('');
+  const modalityRef = useRef('');
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState<'error' | 'offline' | null>(null);
   const [address, setAddress] = useState<Awaited<ReturnType<typeof resolveEffectiveAddress>>>(null);
@@ -110,7 +101,8 @@ export default function DiagnosticsHub() {
     const [pkgsRes, testsRes, radsRes, labsRes] = await Promise.all([
       fetchPublicList<unknown>('/labs/packages').catch(miss),
       fetchPublicList<unknown>('/labs/services').catch(miss),
-      fetchPublicList<unknown>('/radiology/services').catch(miss),
+      // a pull-to-refresh keeps the scan type that is chosen (the chips and the list stay in step)
+      (modalityRef.current ? apiFetch<unknown>(`/radiology/services?modality=${encodeURIComponent(modalityRef.current)}`) : fetchPublicList<unknown>('/radiology/services')).catch(miss),
       apiFetch<unknown>('/providers?type=lab').catch(miss),
     ]);
     setPackages(normalizeLabList(pkgsRes));
@@ -139,15 +131,28 @@ export default function DiagnosticsHub() {
 
   // choosing a scan type asks the server for that type only; the first load already holds "all"
   const pickModality = (value: string) => {
+    modalityRef.current = value;
     setModality(value);
     apiFetch<unknown>(`/radiology/services${value ? `?modality=${encodeURIComponent(value)}` : ''}`)
-      .then((res) => setRads(normalizeLabList(res)))
+      .then((res) => {
+        if (modalityRef.current === value) setRads(normalizeLabList(res));
+      })
       .catch((err) => logError('diagnostics:tab:modality', err));
   };
 
   useEffect(() => {
     setPages(1);
   }, [query, place, pay, filter, mainTab, modality]);
+
+  // a filter the other tab does not offer would change nothing there: it goes back to "all" with the tab
+  const switchTab = (next: MainTab) => {
+    setMainTab(next);
+    setFilter((current) => filterForTab(current, next));
+  };
+  const resetFilters = () => {
+    setFilter('all');
+    if (modalityRef.current) pickModality('');
+  };
 
   const inCart = (id: string) => items.some((i) => i.id === id);
   // one cart per service: a test goes to the lab cart, a scan to the radiology cart
@@ -178,6 +183,7 @@ export default function DiagnosticsHub() {
       p = p.filter((x) => x.homeVisit);
       ls = ls.filter((x) => x.homeVisit);
     }
+    if (filter === 'home_visit') rs = rs.filter((x) => x.homeVisit);
     if (filter === 'lowest_price') {
       p = [...p].sort(byPrice);
       ts = [...ts].sort(byPrice);
@@ -212,7 +218,12 @@ export default function DiagnosticsHub() {
   const tabCount = tabLines.reduce((n, i) => n + (i.qty > 0 ? i.qty : 1), 0);
   const tabTotal = tabLines.reduce((n, i) => n + i.price * (i.qty > 0 ? i.qty : 1), 0);
   const barSpace = tabCount > 0 ? 84 : 0;
-  const activeItems: ActiveFilter[] = filter === 'all' ? [] : [{ key: filter, label: k(FILTERS.find((f) => f.id === filter)?.key ?? 'diag.filter.all'), onRemove: () => setFilter('all') }];
+  const options = filtersFor(mainTab);
+  const filterCount = activeFilterCount(filter, mainTab, modality);
+  const activeItems: ActiveFilter[] = [
+    ...(filter === 'all' ? [] : [{ key: filter, label: k(options.find((f) => f.id === filter)?.key ?? 'diag.filter.all'), onRemove: () => setFilter('all') }]),
+    ...(!isLab && modality ? [{ key: `modality-${modality}`, label: modality.toUpperCase(), onRemove: () => pickModality('') }] : []),
+  ];
 
   return (
     <View style={{ flex: 1 }}>
@@ -237,10 +248,11 @@ export default function DiagnosticsHub() {
           placeholder={isLab ? k('diag.hub.searchLab') : k('diag.hub.searchRad')}
           label={isLab ? k('diag.hub.searchLab') : k('diag.hub.searchRad')}
           onFilterPress={() => setSheet(true)}
-          filterLabel={k('diag.hub.filter')}
+          filterLabel={filterCount > 0 ? `${k('diag.hub.filter')} (${num(filterCount)})` : k('diag.hub.filter')}
+          filterCount={filterCount}
         />
         <ScopedSuggest query={query} scope={isLab ? SUGGEST_SCOPES.labs : SUGGEST_SCOPES.radiology} />
-        {isLab ? <ActiveFilters items={activeItems} onClearAll={() => setFilter('all')} tone={LAB_TONE} testIdPrefix="diag" /> : null}
+        <ActiveFilters items={activeItems} onClearAll={resetFilters} tone={isLab ? LAB_TONE : RAD_TONE} testIdPrefix="diag" />
       </View>
       <ScrollView
         style={{ flex: 1 }}
@@ -256,8 +268,8 @@ export default function DiagnosticsHub() {
         {failed ? null : (
           <>
             <View accessibilityRole="tablist" style={{ flexDirection: 'row', gap: 10 }}>
-              <KindTile icon="test-tube" tone={LAB_TONE} title={k('diag.kind.lab')} line={k('diag.kind.labLine')} selected={isLab} onPress={() => setMainTab('labs')} />
-              <KindTile icon="scan" tone={RAD_TONE} title={k('diag.kind.rad')} line={k('diag.kind.radLine')} selected={!isLab} onPress={() => setMainTab('radiology')} />
+              <KindTile icon="test-tube" tone={LAB_TONE} title={k('diag.kind.lab')} line={k('diag.kind.labLine')} selected={isLab} onPress={() => switchTab('labs')} />
+              <KindTile icon="scan" tone={RAD_TONE} title={k('diag.kind.rad')} line={k('diag.kind.radLine')} selected={!isLab} onPress={() => switchTab('radiology')} />
             </View>
 
             <View style={{ gap: 4 }}>
@@ -414,19 +426,24 @@ export default function DiagnosticsHub() {
 
       <Sheet open={sheet} title={k('diag.filter.title')} onClose={() => setSheet(false)} closeLabel={k('diag.filter.close')}>
         <View>
-          {FILTERS.map((f, i) => (
+          {options.map((f, i) => (
             <Radio
               key={f.id}
               theme={theme}
               label={k(f.key)}
               selected={filter === f.id}
-              divider={i < FILTERS.length - 1}
+              divider={i < options.length - 1}
               onChange={() => {
                 setFilter(f.id);
                 setSheet(false);
               }}
             />
           ))}
+          {filterCount > 0 ? (
+            <View style={{ paddingTop: 12 }}>
+              <Button theme={theme} size="lg" fullWidth variant="outline" label={k('pharmacy.filters.reset')} onPress={() => { resetFilters(); setSheet(false); }} testID="diag-filter-reset" />
+            </View>
+          ) : null}
         </View>
       </Sheet>
     </Screen>

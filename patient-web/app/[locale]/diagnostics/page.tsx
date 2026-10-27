@@ -28,12 +28,14 @@ import { diagStatus } from "@/components-next/diagnostics/status";
 import { RowCard } from "@/components-next/consult/consult-parts";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import styles from "@/components-next/diagnostics/diag.module.css";
+import consult from "@/components-next/consult/consult.module.css";
 import type { Metadata } from "next";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 import { diagnosticBookingHref } from "@/lib/diagnostics-links";
 import { byPrice, byRating, matchesQuery, pageRows, parseHubFilter, parseHubPages } from "@/lib/diagnostics-hub";
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import { publicReadSignal } from "@/lib/api/public-timeout";
+import { hubFilterCount, hubSortFor } from "@/lib/diagnostics-filter-count";
 import { pickName, pickTexts } from "@/lib/i18n/localized";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string; q?: string; show?: string; sort?: string; more?: string }> };
@@ -68,7 +70,9 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   setRequestLocale(locale);
   const query = (await searchParams) ?? {};
   const kind = query.kind === "radiology" ? "radiology" : "labs";
-  const filter = parseHubFilter(query);
+  const parsed = parseHubFilter(query);
+  const filter = { ...parsed, sort: hubSortFor(parsed.sort, kind) };
+  const filterCount = hubFilterCount(filter, kind);
   const pages = parseHubPages(query.more);
   const place = query.place === "facility" ? "facility" : "home";
   // Decision 30 (owner 2026-10-14, question 5): insurance or self-pay first; self-pay is the default.
@@ -121,6 +125,8 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
 
   const href = (over: Partial<{ kind: string; place: string; pay: string; show: string; sort: string; more: number }>) => {
     const next = { kind, place, pay, show: filter.show ?? "", sort: filter.sort ?? "", more: 1, ...over };
+    // "highest rated" orders the approved-labs strip, which only the labs view has: it does not follow the patient to radiology
+    if (next.kind !== "labs" && next.sort === "rating") next.sort = "";
     const params = new URLSearchParams();
     if (filter.q) params.set("q", filter.q);
     if (next.show && next.kind === "labs") params.set("show", next.show);
@@ -178,9 +184,10 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
           </>
         }
       />
-      <details className={styles.filterSheet} open={Boolean(filter.show || filter.sort)}>
-        <summary className={styles.filterSummary}>{t("filterTitle")}</summary>
+      <details className={styles.filterSheet} open={filterCount > 0}>
+        <summary className={styles.filterSummary}>{filterCount > 0 ? t("filterSummary", { count: filterCount }) : t("filterTitle")}</summary>
         <div className={styles.stack}>
+          {filterCount > 0 ? <Link href={href({ show: "", sort: "" })} replace className={consult.activeFilterClear}>{t("filterReset")}</Link> : null}
           {kind === "labs" ? (
             <LinkSegmented
               label={t("filterShow")}
