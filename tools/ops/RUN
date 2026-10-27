@@ -1,4 +1,4 @@
-# 2026-10-27 lead reviewer: run 36, FIRST TRANSLATION BATCH (quality check). Run 35 dry run: 20,990 products, 152,318 missing texts, 8,841 requests,
-# requests sha 4e6236a0. STEP=run sends at most 300 requests through the free-tier provider chain (Gemini, Groq, OpenAI, DeepSeek, OpenRouter, Cerebras).
-# Answers are saved on the host only; NOTHING is written to the database (that needs STEP=plan, then 90-catalogue-apply dry run, then a second Approve).
+# 2026-10-27 lead reviewer: run 37, DRY RUN. Owner: Arabic and English first, the other languages after. Run 36 (all languages) was cut by the
+# 7-minute SSH limit before its answers were saved (exit 124); 98 now runs detached (ops-detach, up to 120 min).
+# STEP=gaps TARGETS=ar,en: counts the missing ar/en texts and prints the requests SHA. No AI call, no database write.
 98-translate-content

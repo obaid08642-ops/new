@@ -1,4 +1,5 @@
 #!/bin/bash
+# ops-detach (a run batch takes longer than the 7-minute SSH limit: run detached, the workflow polls the log for up to 120 min)
 # Product-content translation (owner complaint 2026-10-26: product pages with sections in mixed languages; #1978). GUARDED, three steps, one per run,
 # set STEP below. It only ever fills EMPTY product texts by TRANSLATING the text that exists (never invents content); every answer is checked (same
 # numbers, right script, sane length, no markup) and the result is written only by the guarded `90-catalogue-apply` run, never by this task.
@@ -15,11 +16,11 @@
 #              rejected counts by reason. Then run 90-catalogue-apply: its dry run prints the plan hash, the owner approves, EXPECT_PLAN_SHA applies it
 #              (backup, guarded writes into EMPTY fields only, marked machine-translated, verify, rollback). After it, add `cf-purge-api` to tools/ops/RUN.
 set -u
-STEP="run"
-EXPECT_REQUESTS_SHA="4e6236a0a828a9adf36b520afb367a6ade8c282c82d102544cc99fa88cea6589"
+STEP="gaps"
+EXPECT_REQUESTS_SHA=""
 MAX_REQUESTS=300
 RPM=20
-TARGETS=""          # e.g. "ur,hi,bn,fil" to restrict the target languages; empty = all six
+TARGETS="ar,en"          # e.g. "ur,hi,bn,fil" to restrict the target languages; empty = all six
 LIMIT=""            # cap on the number of missing texts collected by the dry run; empty = all
 IN=${OPS_CATALOGUE_DIR:-/opt/nabdah/catalogue}
 W=${OPS_TRANSLATE_DIR:-$IN/translate-work}
