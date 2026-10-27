@@ -12,7 +12,7 @@ import { getPublicConfig } from "@/lib/api/public-config-server";
 import { parseLateGuarantee } from "@/lib/consult/late-guarantee";
 import { extractDoctors, extractEntityReviews, licenseOf, spokenLanguages } from "@/lib/api/doctors";
 import { GuaranteeLine, LicenseLine } from "@/components-next/consult/differentiators";
-import { formatNumber } from "@/lib/format-price";
+import { formatNumber, formatYear } from "@/lib/format-price";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import styles from "@/components-next/consult/consult.module.css";
 import { ProfileHeader, type ProfileStat } from "@/components-next/consult/profile-header";
@@ -106,7 +106,7 @@ export default async function DoctorCanonicalPage({ params }: Props) {
   const profile = extractDoctors([doctor])[0];
   const summary = summaryItems({ locale, specialty: specialtyName || undefined, rating: profile?.rating, reviews: profile?.reviews, waitText: () => "" });
   const spoken = spokenLanguages(locale, profile?.languages);
-  const educationRows = (profile?.education ?? []).map((e) => [e.degree, e.institution, e.year !== undefined ? formatNumber(locale, e.year) : undefined].filter(Boolean).join(" · "));
+  const educationRows = (profile?.education ?? []).map((e) => [e.degree, e.institution, e.year !== undefined ? formatYear(locale, e.year) : undefined].filter(Boolean).join(" · "));
   const entityReviews = extractEntityReviews(doctor);
   const reviews = reviewItems(entityReviews.items, locale, { anonymous: doctorsT("reviewerAnonymous"), subLabels: {} });
   const MODE_KEYS = { clinic: "modeClinic", video: "modeVideo", home: "modeHome" } as const;

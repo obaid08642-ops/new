@@ -25,3 +25,8 @@ export function formatPrice(locale: string, value: number): { amount: string; cu
 export function formatNumber(locale: string, value: number): string {
   return new Intl.NumberFormat(locale).format(value);
 }
+
+/** A calendar year in the locale's digits without a thousands separator (2010, not 2,010). */
+export function formatYear(locale: string, value: number): string {
+  return new Intl.NumberFormat(locale, { useGrouping: false }).format(value);
+}

@@ -39,6 +39,7 @@
   min-inline-size: 220px; box-sizing: border-box; background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline);
   border-radius: var(--nabd-radius-xl); box-shadow: var(--nabd-shadow-card);
 }
+.cartMenuTitle { padding: var(--nabd-space-xs) var(--nabd-space-sm); color: var(--nabd-color-text-secondary); font-size: var(--nabd-font-size-micro); font-weight: 700; }
 .cartMenuItem {
   display: flex; align-items: center; justify-content: space-between; gap: var(--nabd-space-sm); min-block-size: 44px; padding-inline: var(--nabd-space-sm);
   border-radius: var(--nabd-radius-lg); color: var(--nabd-color-text-primary); text-decoration: none; font-size: var(--nabd-font-size-row);

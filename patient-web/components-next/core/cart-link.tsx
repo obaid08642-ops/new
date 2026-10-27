@@ -66,6 +66,7 @@ export function CartLink({ locale, className = "", badgeClassName = "" }: { loca
       </button>
       {open ? (
         <ul id={menuId} className={styles.cartMenu} aria-label={shell("cartChooser")} data-testid="cart-chooser">
+          <li role="presentation" className={styles.cartMenuTitle} aria-hidden="true">{shell("cartChooser")}</li>
           {target.carts.map((cart) => (
             <li key={cart.service}>
               <Link href={cart.href} className={styles.cartMenuItem} data-cart-service={cart.service} onClick={() => setOpen(false)}>

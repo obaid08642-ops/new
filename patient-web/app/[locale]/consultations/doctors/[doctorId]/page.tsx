@@ -13,7 +13,7 @@ import { getPublicConfig } from "@/lib/api/public-config-server";
 import { parseLateGuarantee } from "@/lib/consult/late-guarantee";
 import { GuaranteeLine, LicenseLine } from "@/components-next/consult/differentiators";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
-import { formatPrice, formatNumber } from "@/lib/format-price";
+import { formatPrice, formatNumber, formatYear } from "@/lib/format-price";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { BookingSelectionProvider, StickyBookBar } from "@/components-next/consult/doctor-booking-bar";
 import { summaryItems } from "@/lib/consult/doctor-summary";
@@ -80,7 +80,7 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
   const where = [doctorPlace(doctor, locale), doctor.district, doctor.city].filter(Boolean).join(" · ");
   const spoken = spokenLanguages(locale, doctor.languages);
   const tags = [doctor.isOnline ? t("onlineNow") : undefined, doctor.gender ? t(doctor.gender === "male" ? "genderMale" : "genderFemale") : undefined, doctor.verified ? t("verifiedDoctor") : undefined, doctorPlace(doctor, locale), doctor.acceptsInsurance ? c("acceptsInsurance") : undefined].filter((tag): tag is string => Boolean(tag));
-  const educationRows = (doctor.education ?? []).map((e) => `${[e.degree, e.institution, e.year !== undefined ? formatNumber(locale, e.year) : undefined].filter(Boolean).join(" · ")}${e.verified ? ` · ${t("certVerified")}` : ""}`);
+  const educationRows = (doctor.education ?? []).map((e) => `${[e.degree, e.institution, e.year !== undefined ? formatYear(locale, e.year) : undefined].filter(Boolean).join(" · ")}${e.verified ? ` · ${t("certVerified")}` : ""}`);
   const subLabels = { communication: t("subRatingCommunication"), punctuality: t("subRatingPunctuality"), cleanliness: t("subRatingCleanliness"), value: t("subRatingValue") };
   const reviews: ReviewItem[] = reviewItems(doctor.reviewsData ?? [], locale, { anonymous: t("reviewerAnonymous"), subLabels }).slice(0, 3);
   const services = (doctor.services ?? []).map((x) => ({ label: (locale === "ar" ? x.nameAr ?? x.nameEn : x.nameEn ?? x.nameAr) ?? x.name ?? "", price: x.price !== undefined ? formatPrice(locale, x.price).text : undefined })).filter((x) => x.label);
@@ -133,7 +133,7 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
       {doctor.certificates?.length ? (
         <SectionCard id="certificates-title" title={t("certificatesTitle")}>
           <ul className={styles.plain}>
-            {doctor.certificates.map((c, i) => <li key={`${c.name}-${i}`}>{[c.name, c.issuer, c.year !== undefined ? formatNumber(locale, c.year) : undefined].filter(Boolean).join(" · ")}{c.verified ? ` · ${t("certVerified")}` : ""}</li>)}
+            {doctor.certificates.map((c, i) => <li key={`${c.name}-${i}`}>{[c.name, c.issuer, c.year !== undefined ? formatYear(locale, c.year) : undefined].filter(Boolean).join(" · ")}{c.verified ? ` · ${t("certVerified")}` : ""}</li>)}
           </ul>
         </SectionCard>
       ) : null}
