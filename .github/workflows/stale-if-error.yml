@@ -10,7 +10,7 @@ on:
       - 'patient-web/instrumentation.ts'
       - 'patient-web/cache-handler.cjs'
       - 'patient-web/next.config.ts'
-      - 'patient-web/app/[[]locale]/p/**'
+      - 'patient-web/app/*/p/**'
       - 'tools/perf/stale-if-error/**'
       - '.github/workflows/stale-if-error.yml'
   workflow_dispatch:
