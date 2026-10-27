@@ -11,7 +11,7 @@
 # position, and the first 24 of "All" counted again. Prints counts only, never a document, a name or a value of the environment.
 # Idempotent: a second apply writes the same numbers. Safe to run while the shop is open (the same work the timer does every 30 minutes).
 set -u
-APPLY="yes"
+APPLY=""
 CT=${RANKING_CONTAINER:-nabdah-backend}
 DK="sudo -n docker"
 TOOL="node dist/scripts/ranking-recompute.js"

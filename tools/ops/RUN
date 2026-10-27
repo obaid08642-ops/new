@@ -1,5 +1,10 @@
-# 2026-10-27 lead reviewer: run 41, APPLY the ranking recompute (dry run in run 40: 20,990 products without category_pos, 13 categories,
-# first page of "All" has 3 categories; 0 delivered orders to recount). Fills category_pos so "All" mixes every category, and recomputes
-# the scores with the same code as the 30-minute job. Prints the first page's category count after.
-94-ranking-recompute
+# 2026-10-27 lead reviewer: run 42. Deploy main@2bd42709 (adds #2053: the translation sends to every provider in parallel, each within its
+# own free-tier limit, with per-provider stats and a progress line every 50 answers). Then RESUME the ar+en translation: the 165 saved
+# answers are copied back in and only the 1,239 unanswered requests are sent (detached, up to 120 min; answers saved on the host).
+# Nothing is written to the database (that needs STEP=plan, the catalogue-apply dry run, then the owner's Approve).
+release:2bd427097ad01b868b1ec62f5bfe483cbe27f0ed
+97-free-old-predeploy
+93-free-unused-images
+60-deploy-main
+98-translate-content
 cf-purge-api
