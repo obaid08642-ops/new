@@ -31,3 +31,19 @@ export function byPrice<T extends { price?: number }>(rows: T[]): T[] {
 export function byRating<T extends { rating?: number }>(rows: T[]): T[] {
   return [...rows].sort((a, b) => (b.rating ?? Number.NEGATIVE_INFINITY) - (a.rating ?? Number.NEGATIVE_INFINITY));
 }
+
+/** The full catalogue is paged on the page: this many tests or scans per step, "Show more" adds the next step (the backend list has no page/limit, it returns every row). */
+export const HUB_PAGE_SIZE = 20;
+
+/** `more` from the URL = how many steps are open (1 = the first page). Anything else is 1; capped so a hand-edited URL cannot ask for thousands. */
+export function parseHubPages(raw: string | undefined): number {
+  const n = Number.parseInt(raw ?? "", 10);
+  return Number.isInteger(n) && n >= 1 ? Math.min(n, 500) : 1;
+}
+
+/** The rows to show for `pages` open steps, and whether more remain. */
+export function pageRows<T>(rows: T[], pages: number, size = HUB_PAGE_SIZE): { shown: T[]; hasMore: boolean; remaining: number } {
+  const count = Math.max(1, Math.floor(pages)) * size;
+  const shown = rows.slice(0, count);
+  return { shown, hasMore: rows.length > shown.length, remaining: Math.max(0, rows.length - shown.length) };
+}

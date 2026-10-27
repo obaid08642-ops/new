@@ -215,3 +215,16 @@ export type CompareFilters = { inNetworkOnly: boolean };
 export function filterCompare(rows: ProviderRow[], f: CompareFilters): ProviderRow[] {
   return f.inNetworkOnly ? rows.filter((r) => r.inNetwork) : rows;
 }
+
+/**
+ * The lab choice step's price list: EVERY provider of the group with ITS OWN total for the chosen items (the server's per-provider `total`,
+ * home fee included when the group is a home visit), the best match first and then the rest in the server's order. A provider that lacks
+ * some of the items still appears (with `coversAll` false) so the patient sees why it cannot be chosen. Nothing is computed here.
+ */
+export type PriceRow = { row: ProviderRow; best: boolean };
+export function providerPriceList(g: Pick<QuoteGroup, "bestMatch" | "compare">, f: CompareFilters = { inNetworkOnly: false }): PriceRow[] {
+  const bestId = g.bestMatch?.providerId;
+  const rows = filterCompare(g.compare, f);
+  const best = bestId ? rows.find((r) => r.providerId === bestId) ?? (g.bestMatch && (!f.inNetworkOnly || g.bestMatch.inNetwork) ? g.bestMatch : undefined) : undefined;
+  return [...(best ? [{ row: best as ProviderRow, best: true }] : []), ...rows.filter((r) => r.providerId !== best?.providerId).map((row) => ({ row, best: false }))];
+}

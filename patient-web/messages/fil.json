@@ -3548,7 +3548,25 @@
     "filterTests": "Mga pagsusuri lang",
     "sortDefault": "Karaniwan",
     "sortRating": "Pinakamataas ang rating",
-    "sortPrice": "Pinakamababang presyo"
+    "sortPrice": "Pinakamababang presyo",
+    "showMore": "Magpakita pa",
+    "mostRequested": "Pinakamadalas hilingin",
+    "allTestsTitle": "Lahat ng test",
+    "allScansTitle": "Lahat ng scan",
+    "catLabel": "Mga kategorya",
+    "catAll": "Lahat",
+    "catBlood": "Dugo",
+    "catHormones": "Mga hormone",
+    "catVitamins": "Bitamina",
+    "catSugar": "Asukal at diabetes",
+    "catUrine": "Ihi at dumi",
+    "catLiver": "Atay at bato",
+    "catXray": "Mga X-ray",
+    "catCt": "CT",
+    "catMri": "MRI",
+    "catUltrasound": "Mga ultrasound",
+    "catMammography": "Mamograpiya",
+    "catEcg": "ECG at echo"
   },
   "OrderContext": {
     "hint": "Agad na nag-a-update ang presyo at coverage kapag may binago",
@@ -5282,6 +5300,7 @@
     "prepNone": "Walang kailangang paghahanda",
     "basketTitle": "Kariton",
     "splitNote": "Awtomatiko naming hinati ang order mo: dalawang booking, isang bayad, at hiwalay na status ng bawat booking",
+    "singleNote": "Ito lang ang inoorder mo. Walang magbabago sa cart mo.",
     "gHome": "Sa bahay · {n} item",
     "gHomeSub": "Bibisita ang technician sa oras na pipiliin mo",
     "gCentreSub": "Pupunta ka sa provider na may slot o walk-in gamit ang QR code",
@@ -5570,7 +5589,8 @@
     "resDiscuss": "Talakayin sa doktor",
     "resTrend": "Takbo ng iyong mga resulta",
     "shareEstimate": "Tinatayang bahagi mo: {p} (pagtatantya; pinal pagkatapos kumpirmahin ng provider)",
-    "shareAccepted": "Tinatanggap ang insurance. Kukumpirmahin ng provider ang bahagi mo."
+    "shareAccepted": "Tinatanggap ang insurance. Kukumpirmahin ng provider ang bahagi mo.",
+    "orderNow": "Mag-order na"
   },
   "InstantConsult": {
     "title": "Instant na konsultasyon",

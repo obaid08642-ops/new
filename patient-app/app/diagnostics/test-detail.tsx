@@ -13,6 +13,8 @@ import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
+import { catalogArt } from '../../src/utils/diagCatalog';
+import { singleOrderRoute } from '../../src/utils/singleOrder';
 import { normalizeLabService, recordOf, type CatalogItem } from '../../src/utils/labMappers';
 
 /** One lab test or scan: what it is, how to prepare, when the result comes, the price and the add / book actions. */
@@ -67,11 +69,9 @@ export default function TestDetail() {
               theme={theme}
               size="lg"
               fullWidth
-              label={k('diag.detail.bookNow')}
-              onPress={() => {
-                add();
-                router.push('/diagnostics/cart' as Href);
-              }}
+              label={k('diag.detail.orderNow')}
+              // "Order now" skips the cart: this one item goes to the lab choice, the time and the payment
+              onPress={() => router.push(singleOrderRoute({ kind, id, name: data.name }) as unknown as Href)}
             />
           </View>
         </View>
@@ -83,7 +83,7 @@ export default function TestDetail() {
       <Gate status={status} onRetry={() => void load()}>
         {data ? (
           <>
-            <DetailHead icon={look.icon} tone={look.tone} image={data.image} title={data.name} />
+            <DetailHead icon={look.icon} tone={look.tone} art={catalogArt(kind, data)} image={data.image} title={data.name} />
             {data.desc ? (
               <Section title={k('diag.detail.about')}>
                 <Block>

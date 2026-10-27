@@ -44,10 +44,10 @@ export function BulletList({ items, label }: { items: string[]; label?: string }
 }
 
 /** The tile, a title and a line at the top of a detail page. */
-export function Hero({ icon = CONSULT.icon, tone = CONSULT.tone, title, sub, children }: { icon?: FillIconName; tone?: ServiceTone; title: string; sub?: string; children?: ReactNode }) {
+export function Hero({ icon = CONSULT.icon, tone = CONSULT.tone, title, sub, children, picture }: { icon?: FillIconName; tone?: ServiceTone; title: string; sub?: string; children?: ReactNode; /** Replaces the service icon (a test or scan shows its category illustration). */ picture?: ReactNode }) {
   return (
     <section className={`${rx.card} ${styles.hero}`}>
-      <FIcon icon={icon} tone={tone} size={52} />
+      {picture ?? <FIcon icon={icon} tone={tone} size={52} />}
       <div className={styles.heroText}>
         <h2 className={styles.heroTitle}>{title}</h2>
         {sub ? <span className={styles.heroSub}>{sub}</span> : null}
