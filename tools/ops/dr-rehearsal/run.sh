@@ -94,7 +94,18 @@ SHIM
 : # bump (probe)
 bash $S/oplog-backup.sh >"$W/o3.log" 2>&1; check "next run after the failure covers the interval (no gap)" $?
 
-timeout 240 bash $S/dr-drill.sh >"$W/drill.log" 2>&1; rc=$?; cat "$W/drill.log"; [ $rc -eq 124 ] && { echo "--- drill timed out; processes:"; ps aux | grep -E "mongo|docker|gpg|gzip|aws" | grep -v grep | cut -c1-200; docker ps -a | cut -c1-160; }
+# a stuck drill must fail within 4 minutes and say where it is stuck (timeout alone only stops the shell, not a hung docker exec under it)
+bash $S/dr-drill.sh >"$W/drill.log" 2>&1 &
+dp=$!
+for _ in $(seq 1 120); do kill -0 $dp 2>/dev/null || break; sleep 2; done
+if kill -0 $dp 2>/dev/null; then
+  echo "--- drill still running after 240 s; processes:"; ps -eo pid,ppid,etime,args | grep -E "dr-drill|mongo|docker|gpg|gzip|aws" | grep -v grep | cut -c1-220
+  docker ps -a | cut -c1-160
+  pkill -KILL -P $dp 2>/dev/null; kill -KILL $dp 2>/dev/null; rc=124
+else
+  wait $dp; rc=$?
+fi
+cat "$W/drill.log"
 check "DR drill passes from the off-site copies" $rc
 RESTORED=$(sed -n 's/.*restored collections: //p' "$W/drill.log" | tail -1); echo "restored: $RESTORED"
 [ -n "$RESTORED" ] && [ "$RESTORED" = "$LIVE" ]; check "restored collection counts equal the live database (post-dump writes included)" $?
