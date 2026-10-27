@@ -52,6 +52,8 @@ const MODE: Record<ConsultMode, { icon: FillIconName; tone: 'blue' | 'mint' | 'v
 };
 
 export interface NativeDoctorCardProps extends DoctorCardProps, Themed {
+  /** The review count in the language's own digits (the app passes its number formatter). */
+  formatCount?: (n: number) => string;
   /** The whole card opens the doctor's page. */
   onPress?: () => void;
   onBook?: () => void;
@@ -74,6 +76,7 @@ export function DoctorCard({
   bookLabel,
   onPress,
   onBook,
+  formatCount,
   testID,
   theme = 'light',
 }: NativeDoctorCardProps) {
@@ -157,7 +160,7 @@ export function DoctorCard({
         <GradientFill from={c.action.primary.gradient.from} to={c.action.primary.gradient.to} id={gid} />
         {/* above the gradient: a positioned sibling paints over static content on web */}
         <View style={{ paddingVertical: 12, paddingStart: 12, paddingEnd: 14, flexDirection: 'row', alignItems: 'center', gap: 10, zIndex: 1 }}>
-        {rating ? <Rating value={rating.value} count={rating.count} surface="onBrand" theme={theme} /> : null}
+        {rating ? <Rating value={rating.value} count={rating.count} surface="onBrand" formatCount={formatCount} theme={theme} /> : null}
         {nextSlot ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
             <Svg width={15} height={15} viewBox={MARK_VIEWBOX_24}>

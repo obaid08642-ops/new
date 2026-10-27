@@ -307,6 +307,7 @@ export function Search({
   onFilterPress,
   filterLabel,
   filterCount = 0,
+  formatCount,
   onClear,
   clearLabel,
   onScanPress,
@@ -317,7 +318,7 @@ export function Search({
   invalid = false,
   testID,
   theme = 'light',
-}: SearchProps & { theme?: ThemeName }) {
+}: SearchProps & { theme?: ThemeName; /** The filter count in the language's own digits (the app passes its number formatter). */ formatCount?: (n: number) => string }) {
   const t = tokens(theme);
   const c = t.color;
   const [focused, setFocused] = React.useState(false);
@@ -401,7 +402,7 @@ export function Search({
               testID={testID ? `${testID}-filter-count` : 'search-filter-count'}
               style={{ position: 'absolute', top: -6, end: -6, minWidth: 22, height: 22, paddingHorizontal: 5, borderRadius: 11, backgroundColor: c.bg.canvas, borderWidth: 2, borderColor: c.action.primary.bg, alignItems: 'center', justifyContent: 'center' }}
             >
-              <Text style={{ fontSize: 12, fontWeight: '700', color: c.text.primary }}>{filterCount}</Text>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: c.text.primary }}>{formatCount ? formatCount(filterCount) : filterCount}</Text>
             </View>
           ) : null}
         </Pressable>

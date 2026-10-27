@@ -86,7 +86,7 @@ export function Price({ amount, size = 'bodyStrong', unit = 'tag' }: { amount: n
 
 /** A label and an amount on one row (subtotal, discount, total). `strong` is the total line, `success` the saving. */
 export function AmountLine({ label, amount, strong = false, success = false, minus = false }: { label: string; amount: number; strong?: boolean; success?: boolean; minus?: boolean }) {
-  const { t, c, flow, money, k } = useScreenUi();
+  const { t, c, flow, money, k, num } = useScreenUi();
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
       <Text style={{ flex: 1, minWidth: 0, ...scale(t, strong ? 'bodyStrong' : 'small', strong ? 'bold' : 'regular'), color: success ? c.status.success.fg : strong ? c.text.primary : c.text.secondary, ...flow }}>{label}</Text>
@@ -237,7 +237,7 @@ export interface PackageCardProps {
 
 /** The board's package card (ServiceHub): a tone wash, icon and count, name, line, price and the ink action. */
 export function PackageCard({ name, desc, count, price, oldPrice, icon, tone, actionLabel, onPress, width, testID }: PackageCardProps) {
-  const { theme, t, c, flow, money, k } = useScreenUi();
+  const { theme, t, c, flow, money, k, num } = useScreenUi();
   const look = c.service[tone];
   return (
     <Pressable
@@ -428,12 +428,12 @@ export function cartBarBottom(tabBarHeight: number): number {
 
 /** The cart bar the hub floats above the tab bar: the count, the total and the one action. */
 export function CartBar({ count, total, actionLabel, countLabel, totalLabel, bottom, onPress }: { count: number; total: number; actionLabel: string; countLabel: string; totalLabel: string; bottom: number; onPress: () => void }) {
-  const { t, c, flow, money, k } = useScreenUi();
+  const { t, c, flow, money, k, num } = useScreenUi();
   return (
     <View style={{ position: 'absolute', start: 16, end: 16, bottom }}>
       <View style={{ borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, padding: 12, flexDirection: 'row', alignItems: 'center', gap: 12, boxShadow: t.shadow.card }}>
         <View accessibilityLabel={countLabel} style={{ minWidth: 40, height: 40, borderRadius: 14, backgroundColor: c.service[SERVICE_ICONS.pharmacy.tone].bg, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.service[SERVICE_ICONS.pharmacy.tone].fg }}>{count}</Text>
+          <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.service[SERVICE_ICONS.pharmacy.tone].fg }}>{num(count)}</Text>
         </View>
         <View style={{ flex: 1, minWidth: 0 }}>
           <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.secondary, ...flow }}>{totalLabel}</Text>
