@@ -12,6 +12,7 @@ import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { groupsMissingPick, setPick, startDraft } from '../../src/utils/orderingBooking';
 import { formatAddressLine } from '../../src/utils/selectedAddress';
 import { providerName, sortRows, type OrderingKind, type OrderingMode, type OrderingSort, type ProviderRow } from '../../src/utils/ordering';
+import { isSingleOrder } from '../../src/utils/singleOrder';
 import { useOrderingContext } from '../../src/utils/useOrderingContext';
 import { useOrderingQuote } from '../../src/utils/useOrderingQuote';
 
@@ -29,9 +30,11 @@ const SORTS: Array<{ id: OrderingSort; key: string }> = [
  */
 export default function LabComparison() {
   const { theme, t, c, k, num, flow, money, lang } = useScreenUi();
-  const p = useLocalSearchParams<{ kind?: string; id?: string; name?: string; mode?: string; payer?: string }>();
+  const p = useLocalSearchParams<{ kind?: string; id?: string; name?: string; mode?: string; payer?: string; single?: string }>();
   const kind: OrderingKind = first(p.kind) === 'radiology' ? 'radiology' : 'lab';
   const id = first(p.id);
+  // "Order now" (single=1 with the item id): this one item goes to the lab choice, the time and the payment; the cart is not read, added to or changed
+  const single = isSingleOrder(p);
   const { items, addItem } = useDiagnosticsCart();
   const ids = useMemo(() => (id ? [id] : items.filter((i) => (kind === 'radiology') === (i.kind === 'radiology')).map((i) => i.id)), [id, items, kind]);
   const ctx = useOrderingContext(first(p.mode) === 'facility' ? 'facility' : 'home', first(p.payer) === 'insurance' ? 'insurance' : first(p.payer) === 'cash' ? 'cash' : null);
@@ -47,7 +50,7 @@ export default function LabComparison() {
 
   const choose = async (row: ProviderRow) => {
     const name = providerName(row, lang);
-    if (id) {
+    if (id && !single) {
       const known = items.find((i) => i.id === id);
       await addItem({ id, name: first(p.name) ?? known?.name ?? id, price: known?.price ?? row.total, kind, provider: name, lockedProviderId: row.provider_id, isHomeVisit: group?.mode === 'home' });
       router.push('/diagnostics/cart' as Href);
@@ -55,7 +58,7 @@ export default function LabComparison() {
     }
     if (!quote || !group || !ctx.body) return;
     // the quote, the provider of this group and (for a split basket) the other group's provider travel to the time picker in the draft
-    startDraft({ kind, payer: ctx.payer, quote, lat: ctx.body.lat, lng: ctx.body.lng, placeLine: ctx.place ? formatAddressLine(ctx.place) : null });
+    startDraft({ kind, payer: ctx.payer, quote, lat: ctx.body.lat, lng: ctx.body.lng, placeLine: ctx.place ? formatAddressLine(ctx.place) : null, ...(single && id ? { single: true, names: { [id]: first(p.name) ?? '' } } : {}) });
     const next = setPick(group, row);
     const missing = next ? groupsMissingPick(next) : [];
     if (missing.length > 0) {
@@ -74,7 +77,7 @@ export default function LabComparison() {
     <ConsultScreen testID="diagnostics-lab-comparison" title={k('ordering.match.title')} onBack={goBackDiag} onRefresh={() => void q.reload()}>
       <ContextGate ctx={ctx}>
         <ContextBar ctx={ctx} />
-        <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{k('ordering.match.basket', { n: num(ids.length) })}</Text>
+        <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{single ? k('ordering.match.single') : k('ordering.match.basket', { n: num(ids.length) })}</Text>
         {ids.length === 0 ? (
           <EmptyState icon="test-tube" tone={LAB_TONE} title={k('ordering.basket.emptyTitle')} body={k('ordering.basket.emptySub')} actionLabel={k('ordering.common.back')} onAction={goBackDiag} theme={theme} />
         ) : q.status === 'loading' || q.status === 'idle' ? (

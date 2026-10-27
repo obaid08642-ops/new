@@ -29,7 +29,7 @@ export function BasketBar({ locale, kind, place, pay }: { locale: string; kind: 
   }, [n]);
   if (n === 0) return null;
   return (
-    <div ref={ref} className={styles.basketBar} role="region" aria-label={t("basket")}>
+    <div ref={ref} className={styles.basketBar} data-testid="basket-bar" role="region" aria-label={t("basket")}>
       <span className={styles.basketBarText}>{t("basketBar", { n })}</span>
       <Link href={`/${locale}/labs/basket${contextQuery({ kind, place, pay })}`} className={styles.basketBarLink}>{t("viewBasket")}</Link>
     </div>

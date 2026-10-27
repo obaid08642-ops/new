@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { singleOrderRoute } from '../../src/utils/singleOrder';
 import { Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
@@ -78,10 +79,8 @@ export default function PackageDetail() {
               fullWidth
               label={k('diag.detail.orderNow')}
               disabled={pkg.price === null}
-              onPress={() => {
-                if (!inCart) void addItem({ id, name: pkg.name, price: pkg.price ?? 0, kind: 'lab' });
-                router.push('/diagnostics/cart' as Href);
-              }}
+              // "Order now" skips the cart: the package alone goes to the lab choice, the time and the payment
+              onPress={() => router.push(singleOrderRoute({ kind: 'lab', id, name: pkg.name }) as unknown as Href)}
             />
           </View>
         </View>

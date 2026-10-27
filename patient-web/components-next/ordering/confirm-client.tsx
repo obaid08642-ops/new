@@ -15,11 +15,11 @@ import { moneyText, pickLineName, pickName } from "@/lib/ordering/format";
 import { orderingErrorKey, type OrderMode, type Payer, type ServiceKind, type StaffGender } from "@/lib/ordering/quote";
 import { buildBookingRequest, DOC_MAX_CHARS, evidenceReady, orderCovers, parseSchedule, payableNow, SCHEDULE_KEY, whenSummary, type Evidence, type Schedule } from "@/lib/ordering/schedule";
 import { CoverageChip, QuoteLoading } from "./quote-parts";
-import { useBasket } from "./use-basket";
+import { useOrderLines } from "./use-order-lines";
 import styles from "./ordering.module.css";
 import { UploadsGate } from "@/components-next/uploads/uploads-provider";
 
-type Props = { locale: string; kind: ServiceKind; place: OrderMode; pay: Payer; orders: MedicalOrder[] | null; prep: Record<string, string[]> };
+type Props = { locale: string; kind: ServiceKind; place: OrderMode; pay: Payer; item?: string; orders: MedicalOrder[] | null; prep: Record<string, string[]> };
 type Doc = { filename: string; data: string };
 
 const keyOf = (e: unknown) => (e instanceof OrderingApiError ? (e.code === "network" ? "errNetwork" : orderingErrorKey(e.code)) : "errGeneric");
@@ -31,10 +31,11 @@ const r2 = (n: number) => Math.round(n * 100) / 100;
  * booking's own total on the server (POST /payments/intent/lab/:id takes no amount). The booking group is created once (the quote can be
  * used once: the server answers 409 `quote_already_booked` to a repeat) and each payment tap is guarded against a second submit.
  */
-export function ConfirmClient({ locale, kind, place, pay, orders, prep }: Props) {
+export function ConfirmClient({ locale, kind, place, pay, item, orders, prep }: Props) {
   const t = useTranslations("OrderingFlow");
   const router = useRouter();
-  const { basket, remove } = useBasket();
+  // a one-item order ("Order now") leaves the cart alone: `remove` does nothing then
+  const { lines, remove } = useOrderLines(kind, item);
   const [choice, setChoice] = useState<ProviderChoice | null | undefined>(undefined);
   const [schedule, setSchedule] = useState<Schedule | null>(null);
   const [gender, setGender] = useState<StaffGender | undefined>(undefined);
@@ -62,13 +63,12 @@ export function ConfirmClient({ locale, kind, place, pay, orders, prep }: Props)
   const eligible = useMemo(() => (orders ?? []).filter((o) => orderCovers(o, allIds)), [orders, allIds]);
   useEffect(() => { if (insured && eligible.length === 1) setOrderId((cur) => cur ?? eligible[0].id); }, [insured, eligible]);
 
-  const timeHref = `/${locale}/labs/when${contextQuery({ kind, place, pay })}`;
+  const timeHref = `/${locale}/labs/when${contextQuery({ kind, place, pay, item })}`;
   if (choice === undefined) return <QuoteLoading label={t("whenLoading")} />;
   if (!choice || !schedule || modes.length === 0 || modes.some((m) => !schedule[m])) {
     return <EmptyState icon={SERVICE_ICONS.lab.icon} tone={SERVICE_ICONS.lab.tone} title={t("payNoTimeTitle")} body={t("payNoTimeSub")} actionLabel={t("payBackTime")} onAction={() => router.push(timeHref)} />;
   }
 
-  const lines = basket[kind];
   const nameOf = (id: string) => { const l = lines.find((x) => x.id === id); return l ? pickLineName(locale, l) : undefined; };
   const evidence: Evidence = { ...(orderId ? { medicalOrderId: orderId } : {}), ...(doc && !orderId ? { documents: [{ kind: "doctor_request" as const, url_or_b64: doc.data, filename: doc.filename }] } : {}) };
   const ready = evidenceReady(insured, evidence);

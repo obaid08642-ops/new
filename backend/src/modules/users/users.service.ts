@@ -1,3 +1,4 @@
+import { assertScanned } from '../storage/pending-scan';
 import { insuranceCompanyFilter } from '../../common/insurance-policy';
 import { Injectable, Optional, NotFoundException, ForbiddenException, UnauthorizedException, BadRequestException, Inject } from '@nestjs/common';
 import { describeClient, maskIp } from '../../common/request-meta';
@@ -170,6 +171,7 @@ export class UsersService {
       const mediaId = String(body.avatar_media_id).trim();
       const media = await this.conn.db.collection('storage_objects').findOne({ id: mediaId, owner_account_id: userId });
       if (!media?.public_url || !String(media.public_url).startsWith('https://')) throw new BadRequestException('avatar_media_not_owned');
+      assertScanned(media);
       userPatch.avatar = String(media.public_url);
     }
     if (body.gender !== undefined) profilePatch.gender = body.gender;

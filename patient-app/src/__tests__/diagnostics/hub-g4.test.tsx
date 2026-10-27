@@ -32,7 +32,9 @@ const k = (key: string, vars?: Record<string, string | number>) => message('en',
 const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 47, bottom: 34, left: 0, right: 0 } };
 const wrap = (ui: React.ReactElement) => <SafeAreaProvider initialMetrics={metrics}>{ui}</SafeAreaProvider>;
 
-const TESTS = Array.from({ length: 45 }, (_, i) => ({ id: `t-${i}`, name_en: `Test number ${i}`, price: 10 + i, cash_availability: true, insurance_availability: true }));
+// the last test is the most requested (backend `popularity`), so the strip and the list never show the same names at the start
+const TESTS = Array.from({ length: 45 }, (_, i) => ({ id: `t-${i}`, name_en: `Test number ${i}`, price: 10 + i, cash_availability: true, insurance_availability: true, popularity: i === 44 ? 90 : 0 }));
+const END = { nativeEvent: { contentOffset: { x: 0, y: 5000 }, contentSize: { width: 390, height: 5600 }, layoutMeasurement: { width: 390, height: 800 } } };
 
 describe('Diagnostics hub (owner review G4)', () => {
   beforeEach(() => {
@@ -44,7 +46,7 @@ describe('Diagnostics hub (owner review G4)', () => {
 
   it('has the single orders-and-results button and no results / compare shortcuts', async () => {
     await render(wrap(<DiagnosticsHub />));
-    await waitFor(() => expect(screen.getByText('Test number 0')).toBeTruthy(), { timeout: 15000 });
+    await waitFor(() => expect(screen.getByTestId('diag-test-t-0')).toBeTruthy(), { timeout: 15000 });
     expect(screen.getAllByLabelText(k('diag.hub.myOrders'))).toHaveLength(1);
     expect(screen.queryByText(k('diag.hub.results'))).toBeNull();
     expect(screen.queryByText(k('diag.hub.compare'))).toBeNull();
@@ -52,26 +54,35 @@ describe('Diagnostics hub (owner review G4)', () => {
     expect(mockPush).toHaveBeenCalledWith('/diagnostics/orders');
   });
 
-  it('shows the full list a page at a time', async () => {
+  it('opens the full list a page at a time as the end of the scroll is reached (no Show more button)', async () => {
     await render(wrap(<DiagnosticsHub />));
-    await waitFor(() => expect(screen.getByText('Test number 0')).toBeTruthy(), { timeout: 15000 });
-    expect(screen.queryByText(`Test number ${DIAG_PAGE_SIZE}`)).toBeNull();
-    await fireEvent.press(screen.getByText(k('diag.hub.showMore')));
-    await waitFor(() => expect(screen.getByText(`Test number ${DIAG_PAGE_SIZE}`)).toBeTruthy());
-    await fireEvent.press(screen.getByText(k('diag.hub.showMore')));
-    await waitFor(() => expect(screen.getByText('Test number 44')).toBeTruthy());
+    await waitFor(() => expect(screen.getByTestId('diag-test-t-0')).toBeTruthy(), { timeout: 15000 });
     expect(screen.queryByText(k('diag.hub.showMore'))).toBeNull();
+    expect(screen.queryByTestId(`diag-test-t-${DIAG_PAGE_SIZE}`)).toBeNull();
+    await fireEvent.scroll(screen.getByTestId('diag-scroll'), END);
+    await waitFor(() => expect(screen.getByTestId(`diag-test-t-${DIAG_PAGE_SIZE}`)).toBeTruthy());
+    expect(screen.queryByTestId('diag-test-t-40')).toBeNull();
+    await fireEvent.scroll(screen.getByTestId('diag-scroll'), END);
+    await waitFor(() => expect(screen.getByTestId('diag-test-t-44')).toBeTruthy());
   });
 
-  it('every card has Add to cart and Order now; the lab test goes to the lab cart', async () => {
+  it('shows the most requested strip first (the backend popularity) and the all-tests list after it', async () => {
+    await render(wrap(<DiagnosticsHub />));
+    await waitFor(() => expect(screen.getByTestId('diag-popular-t-44')).toBeTruthy(), { timeout: 15000 });
+    expect(screen.getByText(k('diag.hub.popular'))).toBeTruthy();
+    expect(screen.getByText(k('diag.hub.allTests'))).toBeTruthy();
+  });
+
+  it('every card has Add to cart and Order now; Add goes to the lab cart, Order now skips the cart for the lab choice with that one item', async () => {
     await render(wrap(<DiagnosticsHub />));
     await waitFor(() => expect(screen.getByTestId('diag-test-t-3')).toBeTruthy(), { timeout: 15000 });
     await fireEvent.press(screen.getByTestId('diag-test-t-3-add'));
     expect(mockAdd).toHaveBeenCalledWith({ id: 't-3', name: 'Test number 3', price: 13, kind: 'lab' });
     expect(mockPush).not.toHaveBeenCalled();
+    mockAdd.mockClear();
     await fireEvent.press(screen.getByTestId('diag-test-t-4-order'));
-    expect(mockAdd).toHaveBeenLastCalledWith({ id: 't-4', name: 'Test number 4', price: 14, kind: 'lab' });
-    expect(mockPush).toHaveBeenCalledWith('/diagnostics/cart');
+    expect(mockAdd).not.toHaveBeenCalled(); // the cart is not touched
+    expect(mockPush).toHaveBeenCalledWith({ pathname: '/diagnostics/lab-comparison', params: { kind: 'lab', id: 't-4', name: 'Test number 4', single: '1', mode: 'home', payer: 'cash' } });
   });
 });
 
@@ -87,7 +98,7 @@ describe('paging (pure)', () => {
 describe('new keys in the six languages', () => {
   it.each(['ar', 'en', 'ur', 'hi', 'bn', 'tl'])('%s', (loc) => {
     const m = JSON.parse(readFileSync(`src/i18n/locales/${loc}.json`, 'utf8')) as Record<string, string>;
-    for (const key of ['diag.detail.orderNow', 'diag.hub.showMore']) {
+    for (const key of ['diag.detail.orderNow']) {
       expect(m[key]?.trim()).toBeTruthy();
       if (loc !== 'en') expect(m[key]).not.toBe(JSON.parse(readFileSync('src/i18n/locales/en.json', 'utf8'))[key]);
     }
