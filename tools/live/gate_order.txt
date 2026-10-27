@@ -126,3 +126,4 @@ j_web_qa_addresses
 j_web_qa_loyalty
 j_web_qa_legal
 j_qa_doctor_search
+j_web_qa_insurance
