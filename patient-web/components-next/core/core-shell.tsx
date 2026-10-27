@@ -185,7 +185,7 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
 
   return (
     <AppShell
-      className={`nabd-core ${styles.root}`}
+      className={`nabd-core ${styles.root}${resultsHref ? ` ${styles.rootDense}` : ""}`}
       topBar={topBar}
       tabBarLabel={shell("mainNav")}
       footer={footer}

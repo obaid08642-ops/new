@@ -13,6 +13,9 @@
 @media (max-width: 1023px) {
   .barDense .phoneTitle { order: 2; flex: 1 1 100%; }
   .toolsStart { margin-inline-start: auto; }
+  /* the shell's top slot has a fixed height: two lines of the bar need 112 px, not 64 (otherwise the title spills over the page, seen in the render check) */
+  .root.rootDense { --nabd-shell-top-h: calc(112px + env(safe-area-inset-top)); }
+  .barDense { align-content: center; }
 }
 
 .iconLink {
