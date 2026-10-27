@@ -94,7 +94,7 @@ a.rowCard:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--
 }
 .searchField:focus-within { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
 .searchInput { flex: 1; min-inline-size: 0; min-block-size: 44px; border: 0; background: transparent; color: var(--nabd-color-text-primary); font: inherit; font-size: var(--nabd-font-size-body); outline: 0; }
-.searchInput::placeholder { color: var(--nabd-color-text-tertiary); }
+.searchInput::placeholder { color: var(--nabd-color-text-tertiary); text-overflow: ellipsis; }
 .segLinks { display: flex; padding: 4px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-sunken); gap: 2px; }
 .segLinks > a {
   flex: 1 1 0; display: inline-flex; align-items: center; justify-content: center; min-block-size: 44px; padding-inline: 12px; text-align: center; box-sizing: border-box;

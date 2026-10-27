@@ -9,6 +9,9 @@ describe("render check fixes of the labs hub (2026-10-27)", () => {
     expect(read("components-next/core/core-shell.tsx")).toContain("styles.barDense");
     expect(read("components-next/core/core-shell.tsx")).toContain("styles.toolsStart");
     expect(read("components-next/core/core.module.css")).toMatch(/\.barDense \.phoneTitle \{[^}]*flex: 1 1 100%/);
+    // the shell top slot has a fixed height: the two-line bar needs the taller slot
+    expect(read("components-next/core/core.module.css")).toMatch(/\.root\.rootDense \{ --nabd-shell-top-h: calc\(112px/);
+    expect(read("components-next/core/core-shell.tsx")).toContain("styles.rootDense");
   });
   it("the single-item basket has no Add more link", () => {
     expect(read("components-next/ordering/basket-client.tsx")).toContain('isSingle ? null : <Link href={hubHref} className={styles.linkBtn}>{t("addMore")}</Link>');
@@ -16,7 +19,7 @@ describe("render check fixes of the labs hub (2026-10-27)", () => {
   it("counts of items and providers have plural forms in en, ar and ur", () => {
     for (const l of ["en", "ar", "ur"]) {
       const o = msg(l).OrderingFlow;
-      for (const k of ["gHome", "matchBasket", "gCentre", "splitItems", "whenTabHome", "altCentre"]) expect(o[k], `${l}.${k}`).toContain("plural");
+      for (const k of ["gHome", "matchBasket", "gCentre", "splitItems", "whenTabHome", "altCentre", "providers", "fromLine"]) expect(o[k], `${l}.${k}`).toContain("plural");
     }
   });
 });
