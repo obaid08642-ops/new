@@ -1,5 +1,5 @@
 
-import { POPULAR_ORDER_STAGES } from '../product-ranking/product-ranking.service';
+import { popularPage } from '../product-ranking/product-ranking.service';
 import { BackfillSlugsDto } from './seo-search.dto';
 import { safeDecode } from '../../common/slug.util';
 import { buildMedicineReport, medicineReportMarkdown } from './medicine-publication-report';
@@ -901,10 +901,12 @@ export class SeoSearchService {
     const skip = (Math.max(page, 1) - 1) * perPage;
     const medicines = this.conn.collection(CATALOG_COLLECTIONS.medicines);
     // The default order is the ranking's composite score (in stock and with an image first among equals), not the old usage counter.
-    const cursor = sort === 'popular'
-      ? medicines.aggregate([{ $match: filter }, ...POPULAR_ORDER_STAGES, { $skip: skip }, { $limit: perPage }, { $project: projection }] as any)
-      : medicines.find(filter, { projection } as any).sort(sortClause).skip(skip).limit(perPage);
-    const [rows, total] = await Promise.all([cursor.toArray(), this.publicListingCount(filter)]);
+    const [rows, total] = await Promise.all([
+      sort === 'popular'
+        ? popularPage(medicines as any, filter, skip, perPage, projection)
+        : medicines.find(filter, { projection } as any).sort(sortClause).skip(skip).limit(perPage).toArray(),
+      this.publicListingCount(filter),
+    ]);
     const items = rows.map((m: any) => {
       const dto = resolveMedicinePublicDto(m, locale);
       return {
