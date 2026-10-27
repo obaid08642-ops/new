@@ -27,6 +27,7 @@ import {
 import { ActiveFilters, type ActiveFilter } from '../../src/components/pharmacy/ActiveFilters';
 import { GlyphRound, WishlistButton } from '../../src/components/pharmacy/PharmacyKit';
 import { ServiceCartButton } from '../../src/components/cart/ServiceCartButton';
+import { HeaderMenuButton } from '../../src/components/nav/HeaderMenuButton';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
@@ -211,6 +212,7 @@ export default function DiagnosticsHub() {
           <GlyphRound name="receipt" label={k('diag.hub.myOrders')} onPress={() => router.push('/diagnostics/orders' as Href)} testID="diagnostics-orders-entry" />
           <WishlistButton />
           <ServiceCartButton service={mainTab === 'radiology' ? 'radiology' : 'lab'} />
+          <HeaderMenuButton testID="diagnostics-menu-button" />
         </View>
 
         <Search

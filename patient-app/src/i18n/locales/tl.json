@@ -3821,5 +3821,14 @@
   "consult.hub.filtersTitle": "I-filter ang mga doktor",
   "consult.hub.filtersClearAll": "Burahin lahat",
   "consult.hub.filtersClose": "Isara ang mga filter",
-  "consult.hub.filtersWithCount": "Mga filter, {n} aktibo"
+  "consult.hub.filtersWithCount": "Mga filter, {n} aktibo",
+  "menu.open": "Higit pa",
+  "menu.close": "Isara ang listahan",
+  "menu.profile": "Aking account",
+  "menu.orders": "Aking mga order",
+  "menu.family": "Pamilya",
+  "menu.articles": "Mga artikulo",
+  "menu.notifications": "Mga Abiso",
+  "menu.settings": "Mga setting",
+  "menu.help": "Tulong"
 }

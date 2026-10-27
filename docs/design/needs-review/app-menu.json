@@ -1,0 +1,13 @@
+[
+  {
+    "batch": 2,
+    "app": "patient-app",
+    "screen": "/(tabs)/diagnostics",
+    "element": "Menu item 'My orders and results'",
+    "file": "patient-app/app/(tabs)/diagnostics.tsx",
+    "line": 212,
+    "found": "[owner] The web phone menu lists 'My orders and results' on the labs pages; the app already has its own header button for it (/diagnostics/orders) beside the new menu, so the menu list does not repeat it. All other seven web destinations map to existing app routes (/profile, /orders, /family, /articles, /notifications, /settings, /settings/help).",
+    "suspect": "Confirm the button stays separate.",
+    "review_status": "open"
+  }
+]

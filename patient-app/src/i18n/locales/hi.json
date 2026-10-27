@@ -3821,5 +3821,14 @@
   "consult.hub.filtersTitle": "डॉक्टर फ़िल्टर करें",
   "consult.hub.filtersClearAll": "सब हटाएँ",
   "consult.hub.filtersClose": "फ़िल्टर बंद करें",
-  "consult.hub.filtersWithCount": "फ़िल्टर, {n} सक्रिय"
+  "consult.hub.filtersWithCount": "फ़िल्टर, {n} सक्रिय",
+  "menu.open": "मेनू",
+  "menu.close": "मेनू बंद करें",
+  "menu.profile": "मेरा खाता",
+  "menu.orders": "मेरे ऑर्डर",
+  "menu.family": "परिवार",
+  "menu.articles": "लेख",
+  "menu.notifications": "सूचनाएं",
+  "menu.settings": "सेटिंग्स",
+  "menu.help": "सहायता"
 }
