@@ -19,6 +19,7 @@ import {
   RAD_TONE,
   Strip,
   ToneNote,
+  cartBarBottom,
   diagLook,
   useDiagText,
 } from '../../src/components/diagnostics/DiagKit';
@@ -203,7 +204,7 @@ export default function DiagnosticsHub() {
   const tabLines = items.filter((i) => (i.kind === 'radiology') === (mainTab === 'radiology'));
   const tabCount = tabLines.reduce((n, i) => n + (i.qty > 0 ? i.qty : 1), 0);
   const tabTotal = tabLines.reduce((n, i) => n + i.price * (i.qty > 0 ? i.qty : 1), 0);
-  const barSpace = tabCount > 0 ? 84 : 0;
+  const barSpace = tabCount > 0 ? 96 : 0;
   const activeItems: ActiveFilter[] = filter === 'all' ? [] : [{ key: filter, label: k(FILTERS.find((f) => f.id === filter)?.key ?? 'diag.filter.all'), onRemove: () => setFilter('all') }];
 
   const catChips = (
@@ -449,7 +450,7 @@ export default function DiagnosticsHub() {
       </Sheet>
     </Screen>
     {tabCount > 0 ? (
-      <CartBar count={tabCount} total={tabTotal} bottom={barHeight + 8} actionLabel={k('diag.bar.continue')} countLabel={k('diag.bar.count', { n: num(tabCount) })} totalLabel={k('diag.bar.total')} onPress={() => router.push('/diagnostics/cart' as Href)} />
+      <CartBar count={tabCount} total={tabTotal} bottom={cartBarBottom(barHeight)} actionLabel={k('diag.bar.continue')} countLabel={k('diag.bar.count', { n: num(tabCount) })} totalLabel={k('diag.bar.total')} onPress={() => router.push('/diagnostics/cart' as Href)} />
     ) : null}
     </View>
   );
