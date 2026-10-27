@@ -1,3 +1,10 @@
-# 2026-10-26 lead reviewer: run 33, READ-ONLY. The owner receives alert mails from the no-reply address. 99-alert-mails groups the
-# last 48 h of mail_log by subject (no addresses, no bodies) and prints the SLO alert states, so each alert source can be fixed.
-99-alert-mails
+# 2026-10-27 lead reviewer: run 34. Deploy main@2a78f0d0 (consultations web/app layout, hologram map web, home map tile, app menu,
+# SLO alert hysteresis + digest, /public popular top-k + index, oplog quiet skip). Free disk first (keeps one local copy of each backup kind).
+# After the deploy: 95-content-coverage (READ-ONLY) and 98-translate-content STEP=gaps (DRY RUN: counts only, no AI call, no write).
+release:2a78f0d0e8b04f533fa5c725ccbc7f3018c7c8ac
+97-free-old-predeploy
+93-free-unused-images
+60-deploy-main
+95-content-coverage
+98-translate-content
+cf-purge-api
