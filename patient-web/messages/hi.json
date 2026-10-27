@@ -1414,7 +1414,7 @@
     "allSpecialties": "सभी विशेषज्ञताएं",
     "paymentLabel": "भुगतान",
     "payment_insurance": "बीमा",
-    "payment_self_pay": "बिना बीमा (नकद)",
+    "payment_self_pay": "स्वयं भुगतान",
     "paymentInsuranceNoPolicy": "केवल अपनी कंपनी और श्रेणी से अनुबंधित डॉक्टर देखने के लिए अपना बीमा जोड़ें। अभी बीमा स्वीकार करने वाले सभी डॉक्टर दिखाए जा रहे हैं।",
     "paymentAddPolicy": "बीमा जोड़ें",
     "doctorPhotoAlt": "{name} की तस्वीर",

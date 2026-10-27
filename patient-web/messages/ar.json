@@ -1414,7 +1414,7 @@
     "allSpecialties": "كل التخصصات",
     "paymentLabel": "الدفع",
     "payment_insurance": "تأمين",
-    "payment_self_pay": "بدون تأمين (كاش)",
+    "payment_self_pay": "دفع ذاتي",
     "paymentInsuranceNoPolicy": "أضف تأمينك لعرض الأطباء المتعاقدين مع شركتك وفئتك فقط. يظهر الآن كل طبيب يقبل التأمين.",
     "paymentAddPolicy": "أضف التأمين",
     "doctorPhotoAlt": "صورة {name}",

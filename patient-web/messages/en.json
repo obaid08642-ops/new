@@ -1414,7 +1414,7 @@
     "allSpecialties": "All specialties",
     "paymentLabel": "Payment",
     "payment_insurance": "Insurance",
-    "payment_self_pay": "Without insurance (cash)",
+    "payment_self_pay": "Self-pay",
     "paymentInsuranceNoPolicy": "Add your insurance to see only the doctors contracted with your company and class. For now every doctor who accepts insurance is shown.",
     "paymentAddPolicy": "Add insurance",
     "doctorPhotoAlt": "Photo of {name}",
