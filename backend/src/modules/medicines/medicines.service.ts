@@ -22,7 +22,7 @@ import { checkReviewedIngredients } from './ingredients';
 import { InteractionHit, pairInteractions } from '../ai/interaction-rules';
 import { publicMedicineFilter } from './public-medicine-filter';
 import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, PUBLIC_CATALOG_LOCALES } from './med-i18n';
-import { normalizeRankingSort, POPULAR_ORDER_STAGES, ProductRankingService } from '../product-ranking/product-ranking.service';
+import { normalizeRankingSort, popularOrderStages, ProductRankingService } from '../product-ranking/product-ranking.service';
 import { ManualBoostsService } from '../product-ranking/manual-boosts.service';
 import { escapeRegex } from '../../common/slug.util';
 
@@ -652,7 +652,7 @@ export class MedicinesService {
     if (rows.length < 3 || (!search && normalizeRankingSort(sort) === 'smart_ranking')) {
       const filter = this.buildQuery(search, (category && category !== 'all') ? category : undefined, includeUnverified);
       rows = (!search && normalizeRankingSort(sort) === 'smart_ranking')
-        ? await this.model.aggregate([{ $match: filter }, ...POPULAR_ORDER_STAGES, { $limit: cap }, { $project: MedicinesService.CARD_PROJECTION }] as any)
+        ? await this.model.aggregate([{ $match: filter }, ...popularOrderStages(!(category && category !== 'all')), { $limit: cap }, { $project: MedicinesService.CARD_PROJECTION }] as any)
         : await this.model.find(filter, MedicinesService.CARD_PROJECTION).sort({ verified: -1, usage_count: -1, name_ar: 1 }).limit(cap);
     }
 
@@ -751,7 +751,7 @@ export class MedicinesService {
     const skipN = (safePage - 1) * safeLimit;
     const [data, total] = await Promise.all([
       byRank
-        ? this.model.aggregate([{ $match: q }, ...POPULAR_ORDER_STAGES, { $skip: skipN }, { $limit: safeLimit }, { $project: MedicinesService.CARD_PROJECTION }] as any)
+        ? this.model.aggregate([{ $match: q }, ...popularOrderStages(!(category && category !== 'all')), { $skip: skipN }, { $limit: safeLimit }, { $project: MedicinesService.CARD_PROJECTION }] as any)
         : this.model.find(q, MedicinesService.CARD_PROJECTION)
           .sort({ verified: -1, usage_count: -1, name_ar: 1 })
           .skip(skipN).limit(safeLimit),
@@ -799,7 +799,7 @@ export class MedicinesService {
     const safeLimit = clampPageInt(limit, 30, 100);
     const safePage = page === undefined ? 1 : clampPageInt(page, 1);
     const find = byRank
-      ? this.model.aggregate([{ $match: q }, ...POPULAR_ORDER_STAGES, { $skip: (safePage - 1) * safeLimit }, { $limit: safeLimit }, { $project: MedicinesService.CARD_PROJECTION }] as any)
+      ? this.model.aggregate([{ $match: q }, ...popularOrderStages(!(category && category !== 'all')), { $skip: (safePage - 1) * safeLimit }, { $limit: safeLimit }, { $project: MedicinesService.CARD_PROJECTION }] as any)
       : this.model.find(q, MedicinesService.CARD_PROJECTION).sort(order).skip((safePage - 1) * safeLimit).limit(safeLimit);
     const rows = (await find as any[]).map((m: any) => this.withBadges(m?.toObject ? m.toObject() : m));
     if (page === undefined) return rows;

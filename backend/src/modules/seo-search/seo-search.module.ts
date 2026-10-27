@@ -903,7 +903,7 @@ export class SeoSearchService {
     // The default order is the ranking's composite score (in stock and with an image first among equals), not the old usage counter.
     const [rows, total] = await Promise.all([
       sort === 'popular'
-        ? popularPage(medicines as any, filter, skip, perPage, projection)
+        ? popularPage(medicines as any, filter, skip, perPage, projection, decodedCat === 'all' && !q)
         : medicines.find(filter, { projection } as any).sort(sortClause).skip(skip).limit(perPage).toArray(),
       this.publicListingCount(filter),
     ]);
