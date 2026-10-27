@@ -1,10 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScopedSuggest } from '../../src/components/search/ScopedSuggest';
 import { SUGGEST_SCOPES } from '../../src/utils/searchSuggest';
-import { FlatList, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
+import { FlatList, Pressable, RefreshControl, Text, View, useWindowDimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
-import { useSelector } from 'react-redux';
 
 import {
   Card,
@@ -19,14 +18,14 @@ import {
   Search,
   useTabBarHeight,
 } from '../../../packages/ui-native/src';
-import type { FillIconName, ServiceTone } from '../../../packages/ui/icons/fill';
-import ProductImage from '../../src/components/ProductImage';
-import { MapEntryButton } from '../../src/components/account/MapEntryButton';
+import { RotatingProductImage } from '../../src/components/pharmacy/RotatingProductImage';
 import { FilterSheet } from '../../src/components/pharmacy/FilterSheet';
-import { CartButton, WishlistButton, CountBadge, GlyphRound, GlyphSquare, PHARMACY_TONE, SECONDARY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
+import { CartButton, WishlistButton, GlyphSquare, MedAddControl, PHARMACY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
+import { HeaderMenuButton } from '../../src/components/nav/HeaderMenuButton';
+import { ActiveFilters, type ActiveFilter } from '../../src/components/pharmacy/ActiveFilters';
+import { CategoryTiles } from '../../src/components/pharmacy/CategoryTiles';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useCart } from '../../src/context/CartContext';
-import { dateLocaleFor } from '../../src/utils/dates';
 import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
@@ -58,16 +57,10 @@ import {
  * route params, as before.
  */
 
-type PharmacyOrder = { id: string; createdAt?: string; governed_state?: string; items?: unknown[] };
 type Cell = Med | { id: string; pad: true };
 
 /** A route that is a screen of the app (the typed router only knows the generated list). */
 const go = (href: string) => router.push(href as Href);
-
-const QUICK: { key: string; label: string; icon: FillIconName; tone: ServiceTone; route: string }[] = [
-  { key: 'favorites', label: 'pharmacy.favorites', icon: 'heart', tone: PHARMACY_TONE, route: '/pharmacy/wishlist' },
-  { key: 'reminders', label: 'pharmacy.hub.reminders', icon: 'bell', tone: 'violet', route: '/health/medications?tab=reminders' },
-];
 
 function ProductSkeleton({ cols }: { cols: number }) {
   const { c, k } = useScreenUi();
@@ -88,6 +81,8 @@ function ProductSkeleton({ cols }: { cols: number }) {
   );
 }
 
+const VIEWABLE = { itemVisiblePercentThreshold: 60 };
+
 export default function PharmacyHub() {
   const { theme, t, c, dir, flow, k, money, num, lang } = useScreenUi();
   const barHeight = useTabBarHeight();
@@ -95,7 +90,11 @@ export default function PharmacyHub() {
   const cols = width >= 768 ? 3 : 2;
   const { itemCount } = useCart();
   const addToCart = useAddMedToCart();
-  const isMember = useSelector((s: { auth?: { isAuthenticated?: boolean; isGuest?: boolean } }) => Boolean(s.auth?.isAuthenticated && !s.auth?.isGuest));
+  // the cards on screen turn through their pictures; the ones scrolled away stop (the list tells us which are viewable)
+  const [visibleIds, setVisibleIds] = useState<Set<string>>(() => new Set());
+  const onViewable = useRef(({ viewableItems }: { viewableItems: Array<{ item: { id?: unknown } }> }) => {
+    setVisibleIds(new Set(viewableItems.map((v) => String(v.item?.id ?? ''))));
+  }).current;
 
   // what the filter sheet hands back (the filters live in the URL)
   const params = useLocalSearchParams<{
@@ -126,7 +125,6 @@ export default function PharmacyHub() {
   const [searchQuery, setSearchQuery] = useState('');
   const [term, setTerm] = useState('');
   const [reloadKey, setReloadKey] = useState(0);
-  const [lastOrder, setLastOrder] = useState<{ id: string; count: number; at: string } | null>(null);
   /** #451: the catalogue's own categories (GET /medicines/categories); a chip whose category has no item is not drawn. */
   const [catalogCats, setCatalogCats] = useState<Set<string> | null>(null);
   useEffect(() => {
@@ -181,30 +179,6 @@ export default function PharmacyHub() {
     };
   }, [term, activeCat, filters, reloadKey]);
 
-  // "order again": the patient's latest real pharmacy order (a guest has none, so nothing is asked)
-  useEffect(() => {
-    if (!isMember) {
-      setLastOrder(null);
-      return;
-    }
-    let stale = false;
-    apiFetch<PharmacyOrder[] | { data?: PharmacyOrder[] }>('/patient/pharmacy/orders')
-      .then((res) => {
-        if (stale) return;
-        const list = Array.isArray(res) ? res : res?.data || [];
-        const latest = list
-          .filter((o) => o.governed_state !== 'CART_DRAFT' && Array.isArray(o.items) && o.items.length > 0)
-          .sort((a, b) => String(b.createdAt ?? '').localeCompare(String(a.createdAt ?? '')))[0];
-        setLastOrder(latest ? { id: latest.id, count: latest.items?.length ?? 0, at: latest.createdAt ?? '' } : null);
-      })
-      .catch(() => {
-        if (!stale) setLastOrder(null);
-      });
-    return () => {
-      stale = true;
-    };
-  }, [isMember]);
-
   const filtered = useMemo(() => filterMeds(medicines, { activeCat, search: term, filters }), [medicines, activeCat, term, filters]);
   useEffect(() => {
     setVisibleProductIds(filtered.map((x) => String(x.id)));
@@ -225,15 +199,37 @@ export default function PharmacyHub() {
   const caretIcon = dir === 'rtl' ? 'caret-left' : 'caret-right';
   const chevron = <Icon name={caretIcon} size={18} theme={theme} tone="secondary" />;
 
-  const header = (
-    <View style={{ gap: 16 }}>
-      {/* title, my orders, cart */}
+  const FILTER_PARAMS = ['filter_category', 'filter_forms', 'filter_brands', 'filter_rx', 'filter_min_price', 'filter_max_price', 'filter_sort'] as const;
+  const clearAll = () => {
+    router.setParams(Object.fromEntries(FILTER_PARAMS.map((p) => [p, ''])));
+    setActiveCat('all');
+  };
+  const csv = (v?: string) => (v ? v.split(',').filter(Boolean) : []);
+  const without = (v: string | undefined, one: string) => csv(v).filter((x) => x !== one).join(',');
+  const SORT_LABELS: Record<string, string> = { price_asc: 'pharmacy.filters.sortPriceAsc', price_desc: 'pharmacy.filters.sortPriceDesc', newest: 'pharmacy.filters.sortNewest' };
+  // the filters that are on, each removable (owner layout addition a)
+  const activeItems: ActiveFilter[] = [];
+  if (activeCat !== 'all') {
+    const cat = PHARMACY_CATEGORIES.find((x) => x.id === activeCat);
+    activeItems.push({ key: 'cat', label: cat ? k(cat.labelKey) : activeCat, onRemove: () => { router.setParams({ filter_category: '' }); setActiveCat('all'); } });
+  }
+  csv(filters.forms).forEach((f) => activeItems.push({ key: `form-${f}`, label: f, onRemove: () => router.setParams({ filter_forms: without(filters.forms, f) }) }));
+  csv(filters.brands).forEach((b) => activeItems.push({ key: `brand-${b}`, label: b, onRemove: () => router.setParams({ filter_brands: without(filters.brands, b) }) }));
+  if (filters.rx === '1') activeItems.push({ key: 'rx', label: k('pharmacy.filters.rxOnly'), onRemove: () => router.setParams({ filter_rx: '' }) });
+  if (filters.minPrice || filters.maxPrice) {
+    activeItems.push({ key: 'price', label: [filters.minPrice ? num(Number(filters.minPrice)) : '', filters.maxPrice ? num(Number(filters.maxPrice)) : ''].join(' - ').trim(), onRemove: () => router.setParams({ filter_min_price: '', filter_max_price: '' }) });
+  }
+  if (filters.sort && SORT_LABELS[filters.sort]) activeItems.push({ key: 'sort', label: k(SORT_LABELS[filters.sort]), onRemove: () => router.setParams({ filter_sort: '' }) });
+
+  // fixed under the top of the screen while the list scrolls (owner layout addition b): the title row and the search
+  const pinned = (
+    <View style={{ gap: 12, paddingHorizontal: 16, paddingTop: 7, paddingBottom: 10, width: '100%', maxWidth: 720, alignSelf: 'center', backgroundColor: c.bg.canvas }}>
+      {/* title, favourites, cart (the map lives on Home; my orders and reminders are tiles on Home) */}
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
         <Text accessibilityRole="header" style={{ flex: 1, ...scale(t, 'h1'), letterSpacing: -0.3, color: c.text.primary, ...flow }}>{k('pharmacy.title')}</Text>
-        <MapEntryButton kind="pharmacy" testID="pharmacy-map-entry" />
-        <GlyphRound name="receipt" label={k('pharmacy.hub.orders')} onPress={() => go('/orders')} />
         <WishlistButton />
         <CartButton />
+        <HeaderMenuButton testID="pharmacy-menu-button" />
       </View>
 
       {/* search with the barcode, and the ink camera square */}
@@ -255,7 +251,11 @@ export default function PharmacyHub() {
         </View>
         <GlyphSquare name="camera" label={k('pharmacy.hub.photoRx')} onPress={() => go('/pharmacy/rx-order?via=photo')} />
       </View>
+    </View>
+  );
 
+  const header = (
+    <View style={{ gap: 16 }}>
       {/* upload the prescription */}
       <Pressable accessibilityRole="link" accessibilityLabel={k('pharmacy.uploadRx')} onPress={() => go('/pharmacy/rx-order?via=photo')}>
         <Card tint={PHARMACY_TONE} padding="md" elevation="flat" theme={theme}>
@@ -270,64 +270,18 @@ export default function PharmacyHub() {
         </Card>
       </Pressable>
 
-      {/* quick links */}
-      <View style={{ flexDirection: 'row', gap: 8 }}>
-        {QUICK.map((q) => (
-          <Pressable
-            key={q.key}
-            accessibilityRole="link"
-            accessibilityLabel={k(q.label)}
-            onPress={() => go(q.route)}
-            style={({ pressed }) => ({
-              flex: 1,
-              minHeight: 96,
-              borderRadius: 20,
-              backgroundColor: c.bg.surface,
-              borderWidth: 1,
-              borderColor: c.border.hairline,
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              paddingHorizontal: 6,
-              opacity: pressed ? 0.8 : 1,
-            })}
-          >
-            <FIcon icon={q.icon} tone={q.tone} size={42} theme={theme} />
-            <Text style={{ ...scale(t, 'micro', 'bold'), color: c.text.primary, textAlign: 'center' }}>{k(q.label)}</Text>
-          </Pressable>
-        ))}
-      </View>
+      {/* the categories: large tiles, two rows */}
+      <CategoryTiles
+        items={PHARMACY_CATEGORIES.filter((cat) => cat.id === 'all' || !catalogCats || catalogCats.has(cat.dbName)).map((cat) => ({ id: cat.id, label: k(cat.labelKey) }))}
+        activeId={activeCat}
+        onSelect={setActiveCat}
+      />
 
-      {/* order again */}
-      {lastOrder ? (
-        <Pressable
-          accessibilityRole="link"
-          accessibilityLabel={k('pharmacy.hub.reorder')}
-          onPress={() => router.push({ pathname: '/pharmacy/reorder', params: { orderId: lastOrder.id } })}
-          style={{ borderRadius: 22, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, paddingVertical: 12, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 12 }}
-        >
-          <FIcon icon="clock-counter-clockwise" tone={SECONDARY_TONE} size={44} theme={theme} />
-          <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
-            <Text style={{ ...scale(t, 'bodyStrong'), lineHeight: 21, color: c.text.primary, ...flow }}>{k('pharmacy.hub.reorder')}</Text>
-            <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>
-              {[lastOrder.count === 1 ? k('pharmacy.hub.oneItem') : k('pharmacy.hub.items', { n: num(lastOrder.count) }), lastOrder.at ? new Date(lastOrder.at).toLocaleDateString(dateLocaleFor(lang), { year: 'numeric', month: 'short', day: 'numeric' }) : ''].filter(Boolean).join(' · ')}
-            </Text>
-          </View>
-          <View style={{ minHeight: 36, paddingHorizontal: 14, borderRadius: 12, backgroundColor: c.action.primary.bg, justifyContent: 'center' }}>
-            <Text style={{ ...scale(t, 'small', 'bold'), color: c.action.primary.fg }}>{k('pharmacy.hub.order')}</Text>
-          </View>
-        </Pressable>
-      ) : null}
-
-      {/* the filter chip and the categories */}
-      <View style={{ marginHorizontal: -16 }}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingHorizontal: 16 }}>
-          <Chip label={k('pharmacy.hub.filter')} startIcon="sliders" count={activeFilterCount > 0 ? activeFilterCount : undefined} selected={activeFilterCount > 0} onPress={() => setFilterOpen(true)} theme={theme} />
-          {PHARMACY_CATEGORIES.filter((cat) => cat.id === 'all' || !catalogCats || catalogCats.has(cat.dbName)).map((cat) => (
-            <Chip key={cat.id} label={k(cat.labelKey)} selected={activeCat === cat.id} onPress={() => setActiveCat(cat.id)} theme={theme} />
-          ))}
-        </ScrollView>
+      {/* filter results, then the filters that are on */}
+      <View style={{ flexDirection: 'row' }}>
+        <Chip label={k('pharmacy.hub.filter')} startIcon="sliders" count={activeFilterCount > 0 ? activeFilterCount : undefined} selected={activeFilterCount > 0} onPress={() => setFilterOpen(true)} theme={theme} />
       </View>
+      <ActiveFilters items={activeItems} onClearAll={clearAll} />
     </View>
   );
 
@@ -358,6 +312,7 @@ export default function PharmacyHub() {
 
   return (
     <Screen theme={theme} direction={dir} edges={['top', 'start', 'end']} testID="pharmacy-hub">
+      {pinned}
       <FlatList
         key={`cols-${cols}-${lang}`}
         style={{ flex: 1 }}
@@ -368,10 +323,14 @@ export default function PharmacyHub() {
         ListHeaderComponent={<View style={{ marginBottom: 16 }}>{header}</View>}
         ListEmptyComponent={empty}
         keyboardShouldPersistTaps="handled"
+        // pull down to reload the list (the same reload the retry button asks for)
+        refreshControl={<RefreshControl refreshing={loading && medicines.length > 0} onRefresh={() => setReloadKey((n) => n + 1)} tintColor={c.text.primary} />}
         initialNumToRender={8}
+        onViewableItemsChanged={onViewable}
+        viewabilityConfig={VIEWABLE}
         maxToRenderPerBatch={8}
         windowSize={7}
-        contentContainerStyle={{ width: '100%', maxWidth: 720, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 7, paddingBottom: barHeight + 40, flexGrow: 1 }}
+        contentContainerStyle={{ width: '100%', maxWidth: 720, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 6, paddingBottom: barHeight + 40, flexGrow: 1 }}
         renderItem={({ item }) => {
           if ('pad' in item) return <View style={{ flex: 1 }} />;
           const price = medPrice(item);
@@ -383,12 +342,13 @@ export default function PharmacyHub() {
                 meta={medMeta(item) || undefined}
                 price={price ? money(price) : ''}
                 currency={price ? k('pharmacy.currency') : undefined}
-                image={<ProductImage uri={medGallery(item)[0]} style={{ width: '100%', height: '100%' }} iconSize={40} />}
+                image={<RotatingProductImage uris={medGallery(item)} active={visibleIds.has(String(item.id))} iconSize={40} />}
                 discountLabel={pct > 0 ? k('pharmacy.discount', { n: num(pct) }) : undefined}
                 rxLabel={productNote(item, { rx: k('pharmacy.needsRx'), online: k('pharmacy.product.exclusive') })}
                 addLabel={k('pharmacy.addToCart')}
                 onPress={() => openProduct(item)}
                 onAdd={() => addToCart(item)}
+                addControl={<MedAddControl med={item} size={40} disabled={!price} addLabel={k('pharmacy.addToCart')} />}
                 testID={`pharmacy-card-${item.id}`}
                 theme={theme}
               />

@@ -9,6 +9,7 @@ import { apiFetch } from '../../src/utils/api';
 import { BOOK_NOW_HREF } from '../../src/utils/consultNearby';
 import { healthDayT } from '../../src/i18n/health-day';
 import HomeSections from '../../src/components/HomeSections';
+import { HomeQuickTiles, OrderAgainRow } from '../../src/components/home/HomeQuick';
 import { HomeTopRow } from '../../src/components/home/HomeTopRow';
 import { PHONE_COLUMN, useScreenUi } from '../../src/components/home/homeKit';
 import {
@@ -157,6 +158,8 @@ export default function HomeScreen() {
         {failed > 0 && !loading ? <LoadBanner message={t('error')} retryLabel={t('retry')} onRetry={() => void load(true)} /> : null}
         {loading ? <Skeleton variant="block" theme={theme} /> : reminder ? <ReminderCard label={tr('home.reminder')} title={reminder.title} subtitle={reminder.subtitle} onPress={goReminders} /> : null}
         <ServiceGrid items={services} />
+        <HomeQuickTiles isHidden={isHidden} />
+        {isHidden('/pharmacy') ? null : <OrderAgainRow />}
         {isHidden('/ai') ? null : <AiCard onPress={() => router.push('/ai')} />}
         {tools.length ? <ToolsRow tools={tools} /> : null}
         <AllServicesRow onPress={() => router.push('/(tabs)/services')} />

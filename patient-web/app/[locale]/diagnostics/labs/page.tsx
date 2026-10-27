@@ -30,5 +30,5 @@ export default async function LabsPage({ params, searchParams }: Props) {
   const query = (await searchParams) ?? {};
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  return <LabsCatalog locale={locale} search={(query.q ?? "").trim()} homeOnly={query.home === "1"} backHref={`/${locale}/diagnostics`} />;
+  return <LabsCatalog locale={locale} search={(query.q ?? "").trim()} homeOnly={query.home === "1"} backHref={`/${locale}/diagnostics`} basePath={`/${locale}/diagnostics/labs`} />;
 }

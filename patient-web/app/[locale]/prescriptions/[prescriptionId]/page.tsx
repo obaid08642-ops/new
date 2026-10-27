@@ -11,6 +11,7 @@ import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { ShareButton } from "@/components-next/health/share-button";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { RxOrderThese } from "@/components-next/pharmacy/rx-order-these";
 import { RxMedicineList } from "@/components-next/pharmacy/rx-medicines";
 import { prescriptionStateTone } from "@/components-next/pharmacy/rx-state";
 import { PHARMACY_TONE } from "@/components-next/pharmacy/tones";
@@ -95,9 +96,9 @@ export default async function PrescriptionDetailPage({ params }: Props) {
           <p className={rx.note}>{t("noMedicines")}</p>
         )}
 
-        {/* Owner decision 39 (issue 1043): like the app, the checkout opens on this prescription. */}
+        {/* Decision 18 (OD-18), as in the app: the medicines go into the pharmacy cart with their quantities, prescription attached. */}
         {orderable && detail.items.length > 0 ? (
-          <ButtonLink href={`/${locale}/cart/checkout?prescriptionId=${encodeURIComponent(detail.id)}`} label={t("orderCta")} fullWidth />
+          <RxOrderThese locale={locale} prescriptionId={detail.id} lines={detail.items.map((item) => ({ medicineId: item.medicineId, name: item.name, quantity: item.quantity }))} />
         ) : null}
         {!orderable ? <p className={rx.note} role="status">{t("notOrderable")}</p> : null}
         <ShareButton

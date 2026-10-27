@@ -1,6 +1,6 @@
 import type { MapProviderType } from "@/lib/map/book-href";
 
-export const MAP_PROVIDER_TYPES: readonly MapProviderType[] = ["doctor", "hospital", "pharmacy", "lab", "nursing"];
+export const MAP_PROVIDER_TYPES: readonly MapProviderType[] = ["doctor", "hospital", "pharmacy", "lab", "radiology", "nursing"];
 
 /** The kind a `?type=` value names, or null (missing, unknown, repeated): the map then lists every kind. */
 export function parseMapType(raw: string | string[] | undefined | null): MapProviderType | null {

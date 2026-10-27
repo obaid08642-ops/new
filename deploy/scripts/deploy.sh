@@ -5,6 +5,7 @@
 # Steps: secrets → env → IPs → build → up → indexes → certs → health
 # ═══════════════════════════════════════════════════════════════════
 set -euo pipefail
+source "$(dirname "$0")/_deploy-lock.sh"
 cd "$(dirname "$0")/.."
 DEPLOY_DIR=$(pwd)
 exec > >(tee -a /var/log/nabdah-deploy.log) 2>&1

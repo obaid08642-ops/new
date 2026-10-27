@@ -9,7 +9,6 @@ export const HOME_SERVICES: HomeService[] = [
   { service: 'nursing', label: 'services.cat.nursing', route: '/(tabs)/nursing' },
   { service: 'nutrition', label: 'services.cat.nutrition', route: '/nutrition/hub' },
   { service: 'maternity', label: 'services.cat.motherhood', route: '/maternity/hub' },
-  { service: 'map', label: 'services.cat.map', route: '/map' },
   { service: 'health', label: 'services.cat.myHealth', route: '/(tabs)/health' },
   { service: 'emergency', label: 'emergency.title', route: '/emergency' },
 ];

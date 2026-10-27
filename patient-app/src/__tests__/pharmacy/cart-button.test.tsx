@@ -6,6 +6,7 @@ import { configureStore } from '@reduxjs/toolkit';
 
 import { CartProvider, useCart } from '../../context/CartContext';
 import { CartButton } from '../../components/pharmacy/PharmacyKit';
+import { ServiceCartButton } from '../../components/cart/ServiceCartButton';
 import { HomeTopRow } from '../../components/home/HomeTopRow';
 import { message } from '../../components/screen/ScreenKit';
 
@@ -20,6 +21,9 @@ jest.mock('../../context/AppContext', () => ({
   useApp: () => ({ isDark: false, lang: 'en', isRTL: false, toggleTheme: jest.fn(), setLang: jest.fn() }),
   LANGUAGES: [],
 }));
+// the diagnostics cart (labs and scans) is its own cart: a test sets its lines here
+let mockDiagItems: Array<{ id: string; kind: 'lab' | 'radiology'; qty: number }> = [];
+jest.mock('../../context/DiagnosticsCartContext', () => ({ useDiagnosticsCart: () => ({ items: mockDiagItems }) }));
 jest.mock('../../store/middleware/listenerMiddleware', () => ({ startAppListening: () => () => undefined }));
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -73,5 +77,55 @@ describe('cart button', () => {
       await cart.removeItem('m1');
     });
     expect(view.getByTestId('cart-button').props.accessibilityLabel).toBe(k('pharmacy.cart'));
+  });
+
+  it('one cart per service: a pharmacy screen counts only the pharmacy cart', async () => {
+    mockDiagItems = [{ id: 't1', kind: 'lab', qty: 3 }];
+    const view = await render(wrap(<ServiceCartButton service="pharmacy" testID="svc-cart" />));
+    await act(async () => {
+      await cart.addItem({ id: 'm1', name: 'Test medicine', rx: false, qty: 2 });
+    });
+    expect(view.getByTestId('svc-cart').props.accessibilityLabel).toBe(k('pharmacy.cartCount', { count: 2 }));
+    fireEvent.press(view.getByTestId('svc-cart'));
+    expect(mockRouter.push).toHaveBeenLastCalledWith('/pharmacy/cart');
+    // leave the device cart as it was found (not inside act: an act scope left open by the press made the next test render nothing)
+    await cart.removeItem('m1');
+    mockDiagItems = [];
+  });
+
+  it('a radiology screen counts only the scans and opens the diagnostics cart', async () => {
+    mockDiagItems = [{ id: 't1', kind: 'lab', qty: 3 }, { id: 'r1', kind: 'radiology', qty: 1 }];
+    const view = await render(wrap(<ServiceCartButton service="radiology" testID="svc-cart" />));
+    expect((await view.findByTestId('svc-cart')).props.accessibilityLabel).toBe(k('pharmacy.cartCount', { count: 1 }));
+    fireEvent.press(view.getByTestId('svc-cart'));
+    expect(mockRouter.push).toHaveBeenLastCalledWith('/diagnostics/cart');
+    mockDiagItems = [];
+  });
+
+  it('on Home with two non-empty carts it offers the chooser with each count, and each entry opens its cart', async () => {
+    mockDiagItems = [{ id: 't1', kind: 'lab', qty: 3 }];
+    const view = await render(wrap(<ServiceCartButton testID="svc-cart" />));
+    await act(async () => {
+      await cart.addItem({ id: 'm1', name: 'Test medicine', rx: false, qty: 2 });
+    });
+    mockRouter.push.mockClear();
+    fireEvent.press(await view.findByTestId('svc-cart'));
+    expect(mockRouter.push).not.toHaveBeenCalled();
+    expect(await view.findByTestId('cart-chooser')).toBeTruthy();
+    expect(view.getByTestId('cart-chooser-pharmacy').props.accessibilityLabel).toContain(k('cart.name.pharmacy'));
+    expect(view.getByTestId('cart-chooser-lab').props.accessibilityLabel).toContain(k('cart.name.lab'));
+    fireEvent.press(view.getByTestId('cart-chooser-lab'));
+    expect(mockRouter.push).toHaveBeenLastCalledWith('/diagnostics/cart');
+    // leave the device cart as it was found (not inside act: an act scope left open by the press made the next test render nothing)
+    await cart.removeItem('m1');
+    mockDiagItems = [];
+  });
+
+  it('on Home with one non-empty cart it opens that cart at once', async () => {
+    mockDiagItems = [{ id: 'r1', kind: 'radiology', qty: 1 }];
+    const view = await render(wrap(<ServiceCartButton testID="svc-cart" />));
+    fireEvent.press(await view.findByTestId('svc-cart'));
+    expect(mockRouter.push).toHaveBeenLastCalledWith('/diagnostics/cart');
+    mockDiagItems = [];
   });
 });

@@ -32,6 +32,16 @@
   min-block-size: 280px; overflow: hidden; display: flex; align-items: center; justify-content: center;
   background: var(--nabd-color-bg-sunken); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-3xl);
 }
+.pane { position: relative; }
+.nearMe { position: absolute; inset-block-start: 12px; inset-inline-start: 12px; z-index: 2; background: var(--nabd-color-bg-surface); }
+.nearMeNote { position: absolute; inset-block-start: 56px; inset-inline-start: 12px; z-index: 2; margin: 0; padding: 6px 10px; max-inline-size: calc(100% - 24px); border-radius: var(--nabd-radius-xl); background: var(--nabd-color-status-danger-bg); color: var(--nabd-color-status-danger-fg); font-size: var(--nabd-font-size-label); }
+.sheet {
+  position: absolute; inset-inline: 12px; inset-block-end: 12px; z-index: 3; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 14px;
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-3xl); box-shadow: var(--nabd-shadow-card);
+}
+.sheetText { flex: 1 1 10rem; min-inline-size: 0; }
+.sheetText > p { margin: 0; }
+.sheet .cardActions { flex: 1 1 100%; }
 .frame { inline-size: 100%; block-size: 100%; min-block-size: 280px; border: 0; }
 .idle { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: var(--nabd-space-lg); text-align: center; max-inline-size: 420px;
   /* On the sunken pane, secondary text is 4.15:1; the idle note sits on a surface card like the list rows, which gives it 4.5:1+. */
