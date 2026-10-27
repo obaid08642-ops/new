@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
@@ -10,6 +11,11 @@ import type { ServiceKind } from "@/lib/ordering/quote";
 import { serializeSingle, withItem } from "@/lib/ordering/single";
 import { useBasket } from "./use-basket";
 import { rememberSingle } from "./use-order-lines";
+
+/** The flight of the pressed button to the basket bar; loaded on the first add only, so the page's script does not grow. */
+function fly(from: HTMLElement) {
+  void import("@/lib/motion/fly-to-basket").then((m) => m.flyToBasket(from)).catch(() => undefined);
+}
 
 type Line = { id: string; nameAr?: string; nameEn?: string; names?: LineNames };
 
@@ -24,7 +30,11 @@ export function AddToBasketIcon({ kind, line, name }: { kind: ServiceKind; line:
       className={styles.addBtn}
       aria-pressed={inBasket}
       aria-label={`${inBasket ? t("removeAria") : t("addAria")}: ${name}`}
-      onClick={() => (inBasket ? remove(kind, line.id) : add(kind, line))}
+      onClick={(event) => {
+        if (inBasket) return remove(kind, line.id);
+        add(kind, line);
+        fly(event.currentTarget);
+      }}
     >
       <Icon name={inBasket ? "check" : "plus"} size={18} tone="currentColor" />
     </button>
@@ -35,8 +45,19 @@ export function AddToBasketIcon({ kind, line, name }: { kind: ServiceKind; line:
 export function AddToBasketButton({ kind, line }: { kind: ServiceKind; line: Line }) {
   const t = useTranslations("OrderingFlow");
   const { basket, add, remove } = useBasket();
+  const box = useRef<HTMLDivElement>(null);
   const inBasket = hasLine(basket, kind, line.id);
-  return <Button label={inBasket ? t("removeFromBasket") : t("ctaOne")} variant={inBasket ? "outline" : "primary"} size="lg" fullWidth onClick={() => (inBasket ? remove(kind, line.id) : add(kind, line))} />;
+  const press = () => {
+    if (inBasket) return remove(kind, line.id);
+    add(kind, line);
+    const button = box.current?.querySelector("button");
+    if (button) fly(button);
+  };
+  return (
+    <div ref={box}>
+      <Button label={inBasket ? t("removeFromBasket") : t("ctaOne")} variant={inBasket ? "outline" : "primary"} size="lg" fullWidth onClick={press} />
+    </div>
+  );
 }
 
 /**
