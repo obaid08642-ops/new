@@ -10,7 +10,12 @@ import subprocess
 from lib import Client, journey, step
 from j_accounts import app_signup
 
-BUPA = 'a3f5d742-23d4-49ae-8267-5118275ca9d5'
+def first_insurer(client):
+    """An insurer the app lists (GET /insurance/companies). The app sends its code as company_id (add-policy.tsx), so the same is sent here."""
+    comps = client.get('/insurance/companies').items()
+    comp = next((x for x in comps if x.get('code')), None)
+    step('an insurer is listed for the patient', comp is not None, len(comps))
+    return comp.get('code') if comp else None
 
 
 def mongo_json(js):
@@ -29,6 +34,7 @@ def main():
     pat_acc = app_signup(label='chi')
     pat = Client(pat_acc['token'], 'patient')
     user_id = pat.get('/auth/me').get('id')
+    insurer = first_insurer(pat)
 
     journey('insurance I-04: the save after the CHI lookup')
     r = pat.post('/insurance/save-policy', {'policy_number': 'CHI-SCRAPED', 'verified': True, 'copay_percent': 20})
@@ -36,7 +42,7 @@ def main():
     row = mongo_json(f'db.patient_profiles.findOne({{user_id: "{user_id}"}}, {{_id: 0, insurance: 1}})')
     step('MongoDB: no insurance stored after the refused save', not (row or {}).get('insurance'), row)
 
-    r = pat.post('/insurance/save-policy', {'company_id': BUPA, 'policy_number': 'QA-CHI-0001', 'verified': True, 'copay_percent': 20, 'copay_cap_sar': 500})
+    r = pat.post('/insurance/save-policy', {'company_id': insurer, 'policy_number': 'QA-CHI-0001', 'verified': True, 'copay_percent': 20, 'copay_cap_sar': 500})
     step('the save with the insurer and the copied policy number succeeds', r.ok, r)
     row = mongo_json(f'db.patient_profiles.findOne({{user_id: "{user_id}"}}, {{_id: 0, insurance: 1}})')
     ins = (row or {}).get('insurance') or {}

@@ -2,7 +2,7 @@
 Notification settings, addresses (add, edit, delete) and loyalty reads. Each write is followed by a read
 that must show the change, so a write that returns 2xx without persisting fails here.
 Payloads copied from backend/src/modules/users/users.addresses.dto.ts, users.settings.dto.ts and loyalty.controller.ts."""
-from lib import Client, journey, step
+from lib import Client, journey, step, summary
 from j_accounts import app_signup
 
 
@@ -51,3 +51,4 @@ def run():
 
 if __name__ == '__main__':
     run()
+    summary()

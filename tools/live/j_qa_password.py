@@ -2,7 +2,7 @@
 The reset link carries a token; it is read from the mail sink (tools/live/fake_mail or smtp_sink), as the
 live journeys do for OTP codes. A password change is proven by logging in with the new password only."""
 import re, time
-from lib import Client, journey, step, mail_to
+from lib import Client, journey, step, mail_to, summary
 from j_accounts import app_signup
 
 
@@ -32,3 +32,4 @@ def run():
 
 if __name__ == '__main__':
     run()
+    summary()

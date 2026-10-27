@@ -1,7 +1,7 @@
 """Journey: support chat (A-13) over the API: send a message, read it back, read the thread state.
 Payload copied from backend/src/modules/support/support-chat.controller.ts (POST /support/chat, body field)."""
 import time
-from lib import Client, journey, step
+from lib import Client, journey, step, summary
 from j_accounts import app_signup
 
 
@@ -21,3 +21,4 @@ def run():
 
 if __name__ == '__main__':
     run()
+    summary()

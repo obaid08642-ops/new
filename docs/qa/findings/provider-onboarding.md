@@ -10,3 +10,6 @@
 Two reject paths exist: `providers.service.ts` (deactivates the user) and `provider-admin.service.ts` (does not). The admin route hits the second one.
 
 Evidence: `tools/live/j_qa_provider_reject.py`, run 2026-10-27: 19 of 22 steps pass (pending list, rejection, the list no longer shows it, provider_accounts and provider_profiles rejected). The three failing steps are the user row (active true), and the sign-in (201). The journey is not gated until the reject path and the login gate are fixed (product owner or S to confirm which).
+
+### CI note (2026-10-27, live job on PR #2015)
+- V-07 is the reason `tools/live/j_qa_provider_reject.py` is listed in `tools/live/gate_skip.txt`. The journey stays in the repo and fails on purpose until the owner decides the expected behaviour.

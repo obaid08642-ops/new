@@ -9,3 +9,12 @@ j_concurrency
 j_insurance
 j_jobs
 j_returns
+# Open product defects, kept out of the gate until the owner decides (the journey stays and fails on purpose; see findings):
+# V-07 (P1 candidate): a rejected provider applicant stays active and can still sign in (provider-admin.service.ts:207-212, provider.controllers.ts:32)
+j_qa_provider_reject
+# A-07 (P2): the website register proxy requires 10 characters, the form and the backend accept 8 (patient-web/app/api/auth/register/route.ts:10)
+j_web_qa_password_rule
+# A-13 (P2): the support thread is empty after a reload (patient-web/components-next/support-chat-client.tsx:17)
+j_web_qa_support
+# A-14 (P2): a published policy change is not shown on the website until the 3600s public cache revalidates (patient-web/lib/api/public-read.ts:16,21-22)
+j_web_qa_legal

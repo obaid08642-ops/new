@@ -13,3 +13,7 @@ Stack: local test stack, backend :8002, test data only.
 Passing in the same runs: the candidate saves a profile, applies (201), the application is `submitted` in MongoDB (`job_applications`), the job side moves it to `under_review` (MongoDB updated), the candidate reads it back via `GET /recruitment/applications/my`. Guest draft publish by the admin (`j_jobs.py`, JB-03) passes on the API. The admin job screen is not in the admin app, so only the API path is proven.
 
 Note for the matrix: JB-04 (hospital posts a job) was PARTIAL and now fails at the facility step; treat it as open until the P1 above is fixed.
+
+### CI note (2026-10-27, live job on PR #2015)
+- The notification step in `tools/live/j_qa_jobs_inbox.py` is now recorded as the gap it is: recruitment writes no candidate notification on a status change (no notification write in `backend/src/modules/recruitment/`), so the step expects none for this application. The earlier check passed on CI only because its loose text match caught an unrelated notification.
+- The three message-route probes are recorded as the JB-06 gap (404 expected). If a route is added, those steps turn red and the row must be re-read.

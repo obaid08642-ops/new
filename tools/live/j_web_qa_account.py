@@ -9,7 +9,6 @@ Not covered here: entering a new password on the reset page (the API reset is in
 A missing browser or website is a FAIL, never a PASS."""
 import json
 import os
-import subprocess
 import time
 
 from lib import Client, journey, step, mail_to, web_login
@@ -17,13 +16,43 @@ from lib import Client, journey, step, mail_to, web_login
 WEB = os.environ.get('NABD_WEB_JOURNEYS_URL', 'http://127.0.0.1:3100')
 
 
+def _redis(*args):
+    """One Redis command over a plain socket (RESP): the CI runner has Redis as a service only, no redis-cli."""
+    import socket
+    sock = socket.create_connection((os.environ.get('REDIS_HOST', '127.0.0.1'), int(os.environ.get('REDIS_PORT', '6379'))), timeout=10)
+    try:
+        sock.sendall(b''.join([b'*%d\r\n' % len(args)] + [b'$%d\r\n%s\r\n' % (len(a.encode()), a.encode()) for a in map(str, args)]))
+        f = sock.makefile('rb')
+
+        def read():
+            line = f.readline().rstrip(b'\r\n')
+            kind, rest = line[:1], line[1:]
+            if kind in (b'+', b':'):
+                return rest.decode()
+            if kind == b'-':
+                raise RuntimeError(rest.decode())
+            if kind == b'$':
+                n = int(rest)
+                return None if n < 0 else f.read(n + 2)[:-2].decode()
+            if kind == b'*':
+                return [read() for _ in range(int(rest))]
+            raise RuntimeError(f'unexpected reply {line!r}')
+        return read()
+    finally:
+        sock.close()
+
+
 def redis_keys(pattern):
-    out = subprocess.run(['redis-cli', '--scan', '--pattern', pattern], capture_output=True, text=True).stdout
-    return [k for k in out.splitlines() if k]
+    keys, cursor = [], '0'
+    while True:
+        cursor, batch = _redis('SCAN', cursor, 'MATCH', pattern, 'COUNT', '1000')
+        keys += batch
+        if cursor == '0':
+            return keys
 
 
 def redis_get(key):
-    return subprocess.run(['redis-cli', 'GET', key], capture_output=True, text=True).stdout.strip()
+    return _redis('GET', key) or ''
 
 
 def main():

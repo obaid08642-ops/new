@@ -1,7 +1,7 @@
 """Journey: account deletion (A-15) on a throwaway account, over the API.
 Export works before erasure; erasure needs the password; login is refused afterwards.
 Payload copied from backend/src/modules/users/users.controller.ts (DELETE /users/me, body.password)."""
-from lib import Client, journey, step
+from lib import Client, journey, step, summary
 from j_accounts import app_signup
 
 
@@ -21,3 +21,4 @@ def run():
 
 if __name__ == '__main__':
     run()
+    summary()
