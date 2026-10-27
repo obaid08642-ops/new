@@ -89,7 +89,7 @@ export function AppHeader({ title, onBack, backLabel = 'Back', actions = [], tra
         <Text
           accessibilityRole="header"
           numberOfLines={2}
-          style={{ flex: 1, textAlign: 'center', fontSize: 19, lineHeight: 26, fontFamily: SHELL_FONT.bold, color: t.text }}
+          style={{ flex: 1, minWidth: 0, textAlign: 'center', fontSize: 19, lineHeight: 26, fontFamily: SHELL_FONT.bold, color: t.text }}
         >
           {title}
         </Text>

@@ -2246,6 +2246,20 @@
         "text": "تقييم تجريبي",
         "date": "2026-09-20"
       }
+    ],
+    "clinicPhotos": [
+      "https://cdn.example.test/test/photo.svg",
+      "https://cdn.example.test/test/photo.svg?2"
+    ],
+    "facility_images": [
+      "https://cdn.example.test/test/photo.svg?3"
+    ],
+    "education": [
+      {
+        "university": "جامعة تجريبية",
+        "graduation_year": 2008,
+        "fellowship_board": "بورد تجريبي"
+      }
     ]
   },
   "/care/doctors/test-doc/slots": {
@@ -4715,5 +4729,196 @@
     "seconds_left": 540,
     "doctors_notified": 6,
     "payment_status": "not_charged"
+  },
+  "/labs/services?page=1&limit=20": {
+    "data": [
+      {
+        "id": "test-lab-test",
+        "name_ar": "تحليل تجريبي ١",
+        "name_en": "تحليل تجريبي ١",
+        "price": 90,
+        "category": "blood",
+        "home_visit_supported": true,
+        "facility_visit_supported": true,
+        "turnaround_hours": 24,
+        "fasting_required": true,
+        "fasting_hours": 8,
+        "preparation_ar": [
+          "خطوة تحضير تجريبية ١",
+          "خطوة تحضير تجريبية ٢"
+        ],
+        "preparation_en": [
+          "خطوة تحضير تجريبية ١",
+          "خطوة تحضير تجريبية ٢"
+        ],
+        "description_ar": "وصف تجريبي للتحليل",
+        "image_url": "https://cdn.example.test/test/photo.svg"
+      },
+      {
+        "id": "test-lab-test-2",
+        "name_ar": "تحليل تجريبي ٢",
+        "name_en": "تحليل تجريبي ٢",
+        "price": 120,
+        "category": "hormones",
+        "home_visit_supported": false,
+        "facility_visit_supported": true,
+        "turnaround_hours": 48
+      },
+      {
+        "id": "test-lab-test-3",
+        "name_ar": "تحليل تجريبي ٣",
+        "name_en": "تحليل تجريبي ٣",
+        "price": 60,
+        "category": "vitamins",
+        "home_visit_supported": true,
+        "facility_visit_supported": true,
+        "turnaround_hours": 24
+      },
+      {
+        "id": "test-lab-test-4",
+        "name_ar": "تحليل تجريبي ٤",
+        "name_en": "تحليل تجريبي ٤",
+        "price": 75,
+        "category": "immunity",
+        "home_visit_supported": true,
+        "facility_visit_supported": true,
+        "turnaround_hours": 24,
+        "fasting_required": true,
+        "fasting_hours": 10
+      }
+    ],
+    "total": 45,
+    "page": 1,
+    "limit": 20,
+    "total_pages": 3
+  },
+  "/radiology/services?page=1&limit=20": {
+    "data": [
+      {
+        "id": "test-rad",
+        "name_ar": "فحص أشعة تجريبي",
+        "name_en": "فحص أشعة تجريبي",
+        "price": 250,
+        "category": "xray",
+        "home_visit_supported": true,
+        "facility_visit_supported": true,
+        "turnaround_hours": 12,
+        "description_ar": "وصف تجريبي للأشعة",
+        "image_url": "https://cdn.example.test/test/photo.svg"
+      },
+      {
+        "id": "test-rad-2",
+        "name_ar": "فحص رنين تجريبي",
+        "name_en": "فحص رنين تجريبي",
+        "price": 900,
+        "category": "mri",
+        "home_visit_supported": false,
+        "facility_visit_supported": true,
+        "turnaround_hours": 24
+      }
+    ],
+    "total": 31,
+    "page": 1,
+    "limit": 20,
+    "total_pages": 2
+  },
+  "/ratings/provider/test-doc": {
+    "data": [
+      {
+        "score": 5,
+        "comment": "تقييم تجريبي",
+        "createdAt": "2026-09-20T10:00:00Z",
+        "reviewer": "مريض تجريبي"
+      },
+      {
+        "score": 4,
+        "comment": "تقييم تجريبي ثان",
+        "createdAt": "2026-09-10T10:00:00Z",
+        "reviewer": "مريض تجريبي"
+      }
+    ],
+    "total": 5
+  },
+  "/labs/services?page=1&limit=20&home_visit=true": {
+    "data": [
+      {
+        "id": "test-lab-test",
+        "name_ar": "تحليل تجريبي ١",
+        "name_en": "تحليل تجريبي ١",
+        "price": 90,
+        "category": "blood",
+        "home_visit_supported": true,
+        "facility_visit_supported": true,
+        "turnaround_hours": 24,
+        "fasting_required": true,
+        "fasting_hours": 8,
+        "preparation_ar": [
+          "خطوة تحضير تجريبية ١",
+          "خطوة تحضير تجريبية ٢"
+        ],
+        "preparation_en": [
+          "خطوة تحضير تجريبية ١",
+          "خطوة تحضير تجريبية ٢"
+        ],
+        "description_ar": "وصف تجريبي للتحليل",
+        "image_url": "https://cdn.example.test/test/photo.svg"
+      },
+      {
+        "id": "test-lab-test-3",
+        "name_ar": "تحليل تجريبي ٣",
+        "name_en": "تحليل تجريبي ٣",
+        "price": 60,
+        "category": "vitamins",
+        "home_visit_supported": true,
+        "facility_visit_supported": true,
+        "turnaround_hours": 24
+      },
+      {
+        "id": "test-lab-test-4",
+        "name_ar": "تحليل تجريبي ٤",
+        "name_en": "تحليل تجريبي ٤",
+        "price": 75,
+        "category": "immunity",
+        "home_visit_supported": true,
+        "facility_visit_supported": true,
+        "turnaround_hours": 24,
+        "fasting_required": true,
+        "fasting_hours": 10
+      }
+    ],
+    "total": 3,
+    "page": 1,
+    "limit": 20,
+    "total_pages": 1
+  },
+  "/radiology/services?page=1&limit=20&home_visit=true": {
+    "data": [
+      {
+        "id": "test-rad",
+        "name_ar": "فحص أشعة تجريبي",
+        "name_en": "فحص أشعة تجريبي",
+        "price": 250,
+        "category": "xray",
+        "home_visit_supported": true,
+        "facility_visit_supported": true,
+        "turnaround_hours": 12,
+        "description_ar": "وصف تجريبي للأشعة",
+        "image_url": "https://cdn.example.test/test/photo.svg"
+      },
+      {
+        "id": "test-rad-2",
+        "name_ar": "فحص رنين تجريبي",
+        "name_en": "فحص رنين تجريبي",
+        "price": 900,
+        "category": "mri",
+        "home_visit_supported": true,
+        "facility_visit_supported": true,
+        "turnaround_hours": 24
+      }
+    ],
+    "total": 2,
+    "page": 1,
+    "limit": 20,
+    "total_pages": 1
   }
 }
