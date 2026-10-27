@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { buildScheduleDays, groupSlotsByDay, slotTimeLabel } from "@/lib/consult/doctor-schedule";
+import { bookingHref } from "@/lib/consult/booking-params";
 import { useBookingSelection } from "./doctor-booking-bar";
 import styles from "./consult.module.css";
 import own from "./doctor-schedule.module.css";
@@ -49,7 +50,7 @@ export function DoctorSchedule({ doctorId, locale, types, initialType, bookHref,
     return () => controller.abort();
   }, [doctorId, type, day, attempt, types.length]);
 
-  const href = `${bookHref}?service_type=${type}`;
+  const href = bookingHref(bookHref, type, selection?.type === type ? selection.start : undefined);
   if (types.length === 0) return <p className={own.state}>{labels.noDays}</p>;
   return (
     <div className={own.schedule}>

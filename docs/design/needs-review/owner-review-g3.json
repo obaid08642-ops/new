@@ -24,34 +24,12 @@
   {
     "batch": "owner-review-g3",
     "app": "patient-web",
-    "screen": "/consultations/doctors/[doctorId]",
-    "element": "Time chip opens the booking page without the chosen day and time",
-    "file": "patient-web/components-next/consult/doctor-schedule.tsx",
-    "line": 50,
-    "found": "[client] The booking page (booking-flow.tsx) reads only service_type from the link, so a tapped time chip opens the booking page on the visit type and the patient picks the day and time again there. No endpoint was invented and the booking flow was not changed.",
-    "suspect": "Owner: let the booking page take a preselected date and slot_start in the link, then add them to this href.",
-    "review_status": "open"
-  },
-  {
-    "batch": "owner-review-g3",
-    "app": "patient-web",
     "screen": "/doctor/[slug]",
     "element": "Times for a signed-out visitor",
     "file": "patient-web/app/api/consultations/doctors/[doctorId]/slots/route.ts",
     "line": 38,
     "found": "[backend] The web slots route answers 401 without a session although GET /care/doctors/:id/slots has a public read (getPublicDoctorSlots in doctors-server.ts); a signed-out visitor sees a sign-in message instead of the times.",
     "suspect": "Reviewer: serve the times to signed-out visitors through the public read (no cookie).",
-    "review_status": "open"
-  },
-  {
-    "batch": "owner-review-g3",
-    "app": "patient-web",
-    "screen": "/consultations/doctors/[doctorId]",
-    "element": "Sticky Book bar cannot carry the chosen day and time",
-    "file": "patient-web/app/[locale]/consultations/book/[doctorId]/page.tsx",
-    "line": 44,
-    "found": "[client] The booking page reads only `service_type`, so the sticky bar sends the visit type but not the day and time the patient chose; the booking page asks for them again.",
-    "suspect": "Reviewer: let the booking page accept the chosen slot (for example `slot_start`, as the app's booking-status route does) and preselect it; then add it to the bar's link in doctor-booking-bar.tsx.",
     "review_status": "open"
   },
   {

@@ -3,6 +3,7 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import { StickyFooter } from "@/components-next/ui-generated/shells";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { bookingHref } from "@/lib/consult/booking-params";
 import { barState, type BookSelection } from "@/lib/consult/doctor-summary";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import own from "./doctor-schedule.module.css";
@@ -20,8 +21,7 @@ export const useBookingSelection = () => useContext(SelectionContext);
 
 /**
  * The sticky "Book" bar (shell `footer`): the chosen day, time and fee, and the button to the existing booking page.
- * Disabled with a hint until a time chip is chosen. The booking page reads only `service_type`, so the chosen day and
- * time are not carried (needs-review).
+ * Disabled with a hint until a time chip is chosen. The link carries `service_type` and `slot_start`; the booking page preselects them.
  */
 export function StickyBookBar({ locale, bookHref, feeTexts, labels }: {
   locale: string; bookHref: string; feeTexts: Partial<Record<BookSelection["type"], string>>;
@@ -34,7 +34,7 @@ export function StickyBookBar({ locale, bookHref, feeTexts, labels }: {
       <div className={`${rx.bar} ${own.bar}`}>
         <p className={state.enabled ? own.when : own.hint} aria-live="polite">{state.enabled ? state.label : labels.choose}</p>
         {state.enabled ? (
-          <ButtonLink href={`${bookHref}?service_type=${state.type}`} label={labels.book} fullWidth />
+          <ButtonLink href={bookingHref(bookHref, state.type, selection?.start)} label={labels.book} fullWidth />
         ) : (
           <button type="button" disabled aria-disabled="true" className="nabd-button nabd-button--primary nabd-button--lg nabd-button--full nabd-button--disabled">
             <span className="nabd-button__label">{labels.book}</span>
