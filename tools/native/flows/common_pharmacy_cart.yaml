@@ -18,9 +18,9 @@ appId: com.patient.nabd
     visible:
       id: "pharmacy-card-.*"
     timeout: 30000
-# the "+" on the result card adds it to the cart: the count shows 1 on the pharmacy header
+# the "+" of the result card (the add control of the stepper) adds it to the cart: the count shows 1 on the pharmacy header
 - tapOn:
-    id: "pharmacy-card-.*"
+    id: "med-add-.*"
 - assertVisible:
     id: "cart-count"
     text: "1"
