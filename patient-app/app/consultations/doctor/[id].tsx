@@ -261,7 +261,7 @@ export default function DoctorProfile() {
   const ratingAvg = doc?.rating ?? doc?.rating_avg ?? 0;
   const ratingCount = doc?.reviews_count ?? doc?.rating_count ?? 0;
   const education = (Array.isArray(doc?.education) ? doc.education : [])
-    .map((e) => [e.fellowship_board, e.university, typeof e.graduation_year === 'number' ? num(e.graduation_year) : undefined].filter(Boolean).join(' · '))
+    .map((e) => [e.fellowship_board, e.university, typeof e.graduation_year === 'number' ? num(e.graduation_year, { useGrouping: false }) : undefined].filter(Boolean).join(' · '))
     .filter(Boolean)
     .join('\n');
   const info: Array<{ icon: 'globe' | 'shield-check'; label: string; value: string }> = [

@@ -20,7 +20,7 @@ import { step as scale, useScreenUi } from '../screen/ScreenKit';
 export function ServiceCartButton({ service = null, testID }: { service?: CartService | null; testID?: string }) {
   const { itemCount } = useCart();
   const { items } = useDiagnosticsCart();
-  const { c, k, num, flow } = useScreenUi();
+  const { c, t, k, num, flow } = useScreenUi();
   const insets = useSafeAreaInsets();
   const [open, setOpen] = useState(false);
   const diag = diagnosticsCounts(items);
@@ -51,7 +51,7 @@ export function ServiceCartButton({ service = null, testID }: { service?: CartSe
               testID="cart-chooser"
               style={{ width: '100%', maxWidth: 440, alignSelf: 'center', backgroundColor: c.bg.surface, borderTopStartRadius: 28, borderTopEndRadius: 28, paddingTop: 20, paddingHorizontal: 16, paddingBottom: Math.max(insets.bottom, 16) + 8, gap: 4 }}
             >
-              <Text accessibilityRole="header" style={{ color: c.text.primary, fontSize: 18, fontWeight: '700', marginBottom: 8, paddingHorizontal: 4, ...flow }}>{k('cart.chooser.title')}</Text>
+              <Text accessibilityRole="header" style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, marginBottom: 8, paddingHorizontal: 4, ...flow }}>{k('cart.chooser.title')}</Text>
               {target.carts.map((cart) => (
                 <Pressable
                   key={cart.service}
@@ -61,8 +61,8 @@ export function ServiceCartButton({ service = null, testID }: { service?: CartSe
                   onPress={() => { setOpen(false); go(cart.route); }}
                   style={{ minHeight: 52, borderRadius: 16, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 12 }}
                 >
-                  <Text style={{ flex: 1, color: c.text.primary, fontSize: 16, fontWeight: '500', ...flow }}>{k(`cart.name.${cart.service}`)}</Text>
-                  <Text style={{ color: c.text.secondary, fontSize: 16, fontWeight: '700' }}>{num(cart.count)}</Text>
+                  <Text style={{ flex: 1, ...scale(t, 'body', 'medium'), color: c.text.primary, ...flow }}>{k(`cart.name.${cart.service}`)}</Text>
+                  <Text style={{ ...scale(t, 'body', 'bold'), color: c.text.secondary }}>{num(cart.count)}</Text>
                 </Pressable>
               ))}
             </View>
@@ -71,6 +71,13 @@ export function ServiceCartButton({ service = null, testID }: { service?: CartSe
       ) : null}
     </>
   );
+}
+
+/** True when some cart has items, i.e. when the page-less cart button (Home, consultations, search) is drawn. */
+export function useAnyCartItems(): boolean {
+  const { itemCount } = useCart();
+  const { items } = useDiagnosticsCart();
+  return itemCount > 0 || items.length > 0;
 }
 
 /**
