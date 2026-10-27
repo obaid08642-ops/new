@@ -133,3 +133,4 @@ j_qa_doctor_leave_blacklist
 j_qa_medicine_reject
 j_qa_delta_reject
 j_web_qa_admin_procurement
+j_web_qa_map
