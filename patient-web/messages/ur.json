@@ -4059,6 +4059,13 @@
       "insurance": "قبول شدہ انشورنس",
       "phone": "فون",
       "location": "مقام",
+      "address": "پتہ",
+      "hours": "اوقاتِ کار",
+      "closed": "بند",
+      "doctors": "اس ادارے کے ڈاکٹر",
+      "call": "کال کریں",
+      "directions": "راستہ دیکھیں",
+      "pinLabel": "نقشے پر {name} کا مقام",
       "book": "اپائنٹمنٹ بک کریں"
     },
     "homeNursing": {

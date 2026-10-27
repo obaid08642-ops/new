@@ -4059,6 +4059,13 @@
       "insurance": "स्वीकृत बीमा",
       "phone": "फ़ोन",
       "location": "स्थान",
+      "address": "पता",
+      "hours": "कार्य समय",
+      "closed": "बंद",
+      "doctors": "इस संस्था के डॉक्टर",
+      "call": "कॉल करें",
+      "directions": "रास्ता देखें",
+      "pinLabel": "नक्शे पर {name} का स्थान",
       "book": "अपॉइंटमेंट बुक करें"
     },
     "homeNursing": {

@@ -4059,6 +4059,13 @@
       "insurance": "Tinatanggap na insurance",
       "phone": "Telepono",
       "location": "Lokasyon",
+      "address": "Tirahan",
+      "hours": "Oras ng trabaho",
+      "closed": "Sarado",
+      "doctors": "Mga doktor sa pasilidad na ito",
+      "call": "Tumawag",
+      "directions": "Mga direksyon",
+      "pinLabel": "Lokasyon ng {name} sa mapa",
       "book": "Mag-book ng appointment"
     },
     "homeNursing": {
