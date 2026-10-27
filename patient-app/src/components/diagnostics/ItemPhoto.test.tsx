@@ -25,14 +25,14 @@ describe('resolveDiagImage', () => {
 describe('ItemPhoto', () => {
   const fb = <Text>art-fallback</Text>;
   it('draws the own image, the art when there is none', async () => {
-    const a = await render(<ItemPhoto image="https://cdn.nabd.plus/labs/hiv.png" size={56} radius={16} bg="#000" fallback={fb} />);
+    const a = await render(<ItemPhoto image="https://cdn.nabd.plus/labs/hiv.png" size={56} radius={16} bg="transparent" fallback={fb} />);
     expect(a.queryByTestId('item-photo')).toBeTruthy();
     expect(a.queryByText('art-fallback')).toBeNull();
-    const b = await render(<ItemPhoto size={56} radius={16} bg="#000" fallback={fb} />);
+    const b = await render(<ItemPhoto size={56} radius={16} bg="transparent" fallback={fb} />);
     expect(b.queryByText('art-fallback')).toBeTruthy();
   });
   it('falls back to the art when the image fails to load', async () => {
-    const r = await render(<ItemPhoto image="https://cdn.nabd.plus/radiology/hsg.png" size={56} radius={16} bg="#000" fallback={fb} />);
+    const r = await render(<ItemPhoto image="https://cdn.nabd.plus/radiology/hsg.png" size={56} radius={16} bg="transparent" fallback={fb} />);
     await act(async () => { r.getByTestId('item-photo').props.onError(); });
     expect(r.queryByTestId('item-photo')).toBeNull();
     expect(r.queryByText('art-fallback')).toBeTruthy();
