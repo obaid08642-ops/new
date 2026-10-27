@@ -35,7 +35,8 @@
 .chip[aria-pressed="true"] { background: var(--nabd-color-service-coral-bg); color: var(--nabd-color-service-coral-fg); border-color: transparent; }
 .note { margin: 0; padding: 10px 12px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-status-info-bg); font-size: var(--nabd-font-size-label); line-height: 1.7; overflow-wrap: anywhere; }
 .basketBar {
-  position: sticky; inset-block-end: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; box-sizing: border-box;
+  /* above the shell's bottom area (tab bar) and the safe area; the height is measured in basket-bar.tsx */
+  position: sticky; inset-block-end: calc(var(--nabd-basket-bottom-h, 0px) + max(12px, env(safe-area-inset-bottom))); z-index: var(--nabd-z-sticky); margin-block-end: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; box-sizing: border-box;
   background: var(--nabd-color-bg-inverse); border-radius: var(--nabd-radius-2xl); box-shadow: var(--nabd-shadow-card);
 }
 .basketBarText { font-size: var(--nabd-font-size-control); font-weight: 600; color: var(--nabd-color-text-onInverse); }

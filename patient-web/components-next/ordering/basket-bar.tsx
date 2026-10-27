@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { contextQuery } from "@/lib/ordering/context";
@@ -12,9 +13,23 @@ export function BasketBar({ locale, kind, place, pay }: { locale: string; kind: 
   const t = useTranslations("OrderingFlow");
   const { basket } = useBasket();
   const n = basket[kind].length;
+  const ref = useRef<HTMLDivElement>(null);
+  // The shell's bottom area (page CTA + tab bar, with its safe-area padding) is sticky at the viewport edge and draws over a
+  // sticky bar inside the page: lift the bar by that area's height (0 when the page hides the tabs).
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const bottom = document.querySelector<HTMLElement>(".nabd-shell__bottom");
+    const set = () => el.style.setProperty("--nabd-basket-bottom-h", `${bottom && getComputedStyle(bottom).display !== "none" ? bottom.offsetHeight : 0}px`);
+    set();
+    if (!bottom || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(set);
+    ro.observe(bottom);
+    return () => ro.disconnect();
+  }, [n]);
   if (n === 0) return null;
   return (
-    <div className={styles.basketBar} role="region" aria-label={t("basket")}>
+    <div ref={ref} className={styles.basketBar} role="region" aria-label={t("basket")}>
       <span className={styles.basketBarText}>{t("basketBar", { n })}</span>
       <Link href={`/${locale}/labs/basket${contextQuery({ kind, place, pay })}`} className={styles.basketBarLink}>{t("viewBasket")}</Link>
     </div>
