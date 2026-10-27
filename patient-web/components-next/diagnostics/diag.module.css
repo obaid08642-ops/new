@@ -185,3 +185,29 @@
 .catChip input { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; margin: 0; opacity: 0; cursor: pointer; }
 .catChip:has(input:checked) { background: var(--nabd-color-action-primary-bg); border-color: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg); }
 .catChip:has(input:focus-visible) { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+
+/* ---- the full catalogue: a large card per test or scan (illustration, name, price, two actions) ---- */
+.itemGrid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; list-style: none; margin: 0; padding: 0; }
+@media (min-width: 768px) { .itemGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.itemCard {
+  display: flex; flex-direction: column; gap: 14px; padding: 16px; box-sizing: border-box; min-inline-size: 0; block-size: 100%;
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-3xl); box-shadow: var(--nabd-shadow-card);
+}
+.itemMain { display: flex; align-items: center; gap: 14px; flex: 1; min-inline-size: 0; min-block-size: 56px; color: inherit; text-decoration: none; }
+.itemMain:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.itemPhoto { flex: none; position: relative; inline-size: 56px; block-size: 56px; border-radius: var(--nabd-radius-xl); overflow: hidden; background: var(--nabd-color-bg-media); display: grid; place-items: center; }
+.itemActions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.showMore { display: flex; justify-content: center; }
+
+/* ---- category chips (links; the island filters on the client, without script they go to the same list) and the "Most requested" strip ---- */
+.catRow { display: flex; gap: 8px; overflow-x: auto; padding-block-end: 4px; margin-inline: calc(var(--nabd-shell-gutter, 16px) * -1); padding-inline: var(--nabd-shell-gutter, 16px); scroll-snap-type: x proximity; }
+.catLink {
+  flex: none; display: inline-flex; align-items: center; justify-content: center; min-block-size: 44px; padding-inline: 16px; box-sizing: border-box; scroll-snap-align: start; text-decoration: none; white-space: nowrap;
+  border-radius: var(--nabd-radius-pill); border: 1px solid var(--nabd-color-border-strong); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-label);
+}
+.catLinkOn { background: var(--nabd-color-action-primary-bg); border-color: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg); }
+.catLink:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.itemRail { display: flex; gap: 12px; overflow-x: auto; list-style: none; margin: 0; padding: 0 var(--nabd-shell-gutter, 16px) 4px; margin-inline: calc(var(--nabd-shell-gutter, 16px) * -1); scroll-snap-type: x proximity; }
+.itemRail > li { flex: none; inline-size: min(300px, 82vw); scroll-snap-align: start; }
+.emptyBox { display: flex; flex-direction: column; gap: 6px; align-items: center; text-align: center; padding: 24px 16px; border-radius: var(--nabd-radius-3xl); background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); }
+.endMark { block-size: 1px; }

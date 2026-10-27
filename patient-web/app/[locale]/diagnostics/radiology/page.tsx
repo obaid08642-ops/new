@@ -8,11 +8,15 @@ import { localizedUrl } from "@/lib/seo";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import consult from "@/components-next/consult/consult.module.css";
-import { CheckField, RADIOLOGY, RadiologyTile, SearchForm, hoursText, minutesText, money, type Tag } from "@/components-next/diagnostics/diag-parts";
+import { CAT_LABEL, CheckField, RADIOLOGY, RadiologyTile, SearchForm, hoursText, minutesText, money, type Tag } from "@/components-next/diagnostics/diag-parts";
 import styles from "@/components-next/diagnostics/diag.module.css";
 import type { Metadata } from "next";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 import { pickName } from "@/lib/i18n/localized";
+import Link from "next/link";
+import { radiologyFilterCount } from "@/lib/diagnostics-filter-count";
+import { byPrice } from "@/lib/diagnostics-hub";
+import { diagArtKey, isMachineValue } from "@/components-next/ui-generated/icons/diag-art";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<Record<string, string | string[] | undefined>> };
 
@@ -47,7 +51,7 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
   const modality = first(query.modality) ?? "";
   const bodyPart = first(query.body_part) ?? "";
   const [servicesResult, modalitiesResult] = await Promise.all([
-    getPublicRadiologyServices({ modality, bodyPart, search, homeVisit: on(query.home_visit) ? "true" : undefined, homeOnly: on(query.home_only) ? "true" : undefined, highestRated: on(query.highest_rated) ? "true" : undefined, nearest: on(query.nearest) ? "true" : undefined, lowestPrice: on(query.lowest_price) ? "true" : undefined }),
+    getPublicRadiologyServices({ modality, bodyPart, search, homeVisit: on(query.home_visit) ? "true" : undefined, homeOnly: on(query.home_only) ? "true" : undefined }),
     getPublicRadiologyModalities(),
   ]);
   const t = await getTranslations("RadiologyServices");
@@ -55,17 +59,22 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
   const backHref = `/${locale}/diagnostics?kind=radiology`;
   if (!servicesResult?.ok) {
     return (
-      <ConsultPage locale={locale} title={t("title")} backHref={backHref} resultsHref={`/${locale}/diagnostics/results`}>
+      <ConsultPage locale={locale} title={t("title")} backHref={backHref} resultsHref={`/${locale}/diagnostics/bookings`}>
         <ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailableBody")} retryLabel={t("retry")} />
       </ConsultPage>
     );
   }
-  const services = extractRadiologyServices(await servicesResult.json().catch(() => null));
+  // "Lowest price" orders the loaded list here: GET /radiology/services ignores lowest_price (it always sorts by popularity), and it returns every row.
+  const lowestPrice = on(query.lowest_price);
+  const rows = extractRadiologyServices(await servicesResult.json().catch(() => null));
+  const services = lowestPrice ? byPrice(rows) : rows;
+  const homeVisit = on(query.home_visit);
+  const activeCount = radiologyFilterCount({ modality, bodyPart, homeVisit, lowestPrice });
   const modalityValues = modalitiesResult?.ok ? ((await modalitiesResult.json().catch(() => null)) as unknown) : [];
   const modalityList = Array.isArray(modalityValues) ? modalityValues.filter((x): x is string => typeof x === "string") : [];
 
   return (
-    <ConsultPage locale={locale} title={t("title")} backHref={backHref} resultsHref={`/${locale}/diagnostics/results`}>
+    <ConsultPage locale={locale} title={t("title")} backHref={backHref} resultsHref={`/${locale}/diagnostics/bookings`}>
       <p className={styles.flowNote}>{t("subtitle")}</p>
       <SearchForm
         suggest={{ locale, scope: SUGGEST_SCOPES.radiology }}
@@ -84,15 +93,20 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
               <input className={consult.control} name="body_part" defaultValue={bodyPart} placeholder={t("bodyPartPlaceholder")} aria-label={t("bodyPartLabel")} />
             </div>
             <div className={styles.checks}>
-              <CheckField name="home_visit" label={t("homeVisit")} defaultChecked={on(query.home_visit)} />
-              <CheckField name="highest_rated" label={t("highestRated")} defaultChecked={on(query.highest_rated)} />
+              <CheckField name="home_visit" label={t("homeVisit")} defaultChecked={homeVisit} />
               <CheckField name="lowest_price" label={t("lowestPrice")} defaultChecked={on(query.lowest_price)} />
             </div>
           </>
         }
       />
+      {activeCount > 0 || search ? (
+        <div className={styles.chipsRow} role="group" aria-label={t("filtersOn", { count: activeCount })}>
+          <span>{t("filtersOn", { count: activeCount })}</span>
+          <Link href={`/${locale}/diagnostics/radiology`} className={consult.activeFilterClear}>{t("reset")}</Link>
+        </div>
+      ) : null}
       {services.length === 0 ? (
-        <ConsultState kind="empty" icon="scan" tone={RADIOLOGY.tone} title={t("emptyTitle")} body={search || modality || bodyPart ? t("noMatch") : t("emptyBody")} />
+        <ConsultState kind="empty" icon="scan" tone={RADIOLOGY.tone} title={t("emptyTitle")} body={search || activeCount > 0 ? t("noMatch") : t("emptyBody")} />
       ) : (
         <ul className={styles.radGrid} aria-label={t("title")}>
           {services.map((service) => {
@@ -102,8 +116,8 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
               ...(service.contrastRequired ? [{ label: w("tagContrast"), tone: DIAG_TONES.warn } as Tag] : []),
             ];
             const sub = [
-              service.modality?.toUpperCase(),
-              service.bodyPart,
+              w(CAT_LABEL[diagArtKey({ kind: "radiology", modality: [service.modality, service.modalityCategory].filter(Boolean).join(" "), bodyPart: service.bodyPart, names: Object.values(service.names) })]),
+              isMachineValue(service.bodyPart) ? undefined : service.bodyPart,
               service.price !== undefined ? w("fromPrice", { price: money(locale, service.price) }) : undefined,
               service.durationMinutes !== undefined ? minutesText(locale, service.durationMinutes) : undefined,
               service.turnaroundHours !== undefined ? w("resultWithin", { time: hoursText(locale, service.turnaroundHours) }) : undefined,

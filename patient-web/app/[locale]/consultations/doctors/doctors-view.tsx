@@ -108,22 +108,28 @@ export async function DoctorsView({ params, searchParams }: Props) {
   const activeChips: Array<{ key: string; label: string; href: string }> = [
     ...(filters.gender ? [{ key: "gender", label: t(filters.gender === "male" ? "genderMale" : "genderFemale"), href: pageHref(paramsWithout({ gender: undefined })) }] : []),
     ...(filters.degree ? [{ key: "degree", label: t(`degree_${filters.degree}`), href: pageHref(paramsWithout({ degree: undefined })) }] : []),
-    ...(filters.payment ? [{ key: "payment", label: t(`payment_${filters.payment}`), href: pageHref(paramsWithout({ payment: undefined })) }] : []),
     ...(filters.availableNow ? [{ key: "available", label: t("availableNow"), href: pageHref(paramsWithout({ availableNow: false })) }] : []),
     ...(filters.nearest ? [{ key: "nearest", label: t("nearest"), href: pageHref(paramsWithout({ nearest: false, place: null })) }] : []),
     ...(sortChip && sp.sort ? [{ key: "sort", label: sortChip, href: pageHref(paramsWithout({}, undefined)) }] : []),
   ];
-  const filtered = Boolean(filters.type || activeChips.length > 0);
+  // the chosen payment is the summary chip beside the Filters button (doctor-filters-sheet), not a second chip in the row below
+  const filterCount = activeChips.length + (filters.payment ? 1 : 0);
+  const filtered = Boolean(filters.type || filterCount > 0);
   const typeLabels: Record<VisitType, string> = { clinic: t("service_clinic"), video: t("service_video"), home_visit: t("service_home") };
 
   return (
     <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/consultations`} width="wide">
       <StaleWhileRevalidate maxAgeSeconds={searchParams === undefined ? DOCTORS_REVALIDATE_SECONDS : undefined} />
       <div className={styles.searchSticky}>
-      <form className={styles.search} method="get" role="search">
-        <SuggestInput locale={locale} id="doctor-search" name="q" defaultValue={sp.q ?? (specialtyName ? "" : sp.specialty ?? "")} placeholder={t("searchPlaceholder")} label={t("searchLabel")} fieldClassName={styles.searchField} inputClassName={styles.searchInput}>
-          <Icon name="search" size={20} tone="secondary" />
-        </SuggestInput>
+      <form className={styles.doctorSearch} method="get" role="search">
+        {/* one row: the search field, the Search action, the Filters button at the inline end (owner review 2026-10-27, G2) */}
+        <div className={styles.searchRow}>
+          <SuggestInput locale={locale} id="doctor-search" name="q" defaultValue={sp.q ?? (specialtyName ? "" : sp.specialty ?? "")} placeholder={t("searchPlaceholder")} label={t("searchLabel")} fieldClassName={styles.searchField} inputClassName={styles.searchInput}>
+            <Icon name="search" size={20} tone="secondary" />
+          </SuggestInput>
+          <Button type="submit" label={t("search")} size="lg" />
+          <DoctorFiltersSheet locale={locale} filters={filters} q={sp.q} specialty={sp.specialty} sort={sp.sort} clearHref={clearHref} count={filterCount} />
+        </div>
         {[...filterPageParams(filters)].map(([name, value]) => <input key={name} type="hidden" name={name} value={value} />)}
         <label className={`${styles.searchField} ${styles.searchSelect}`}>
           <span className="sr-only">{t("specialtyLabel")}</span>
@@ -132,8 +138,6 @@ export async function DoctorsView({ params, searchParams }: Props) {
             {SPECIALTY_SLUGS.map((slug) => <option key={slug} value={slug}>{names(slug)}</option>)}
           </select>
         </label>
-        <DoctorFiltersSheet locale={locale} filters={filters} q={sp.q} specialty={sp.specialty} sort={sp.sort} clearHref={clearHref} count={activeChips.length} />
-        <Button type="submit" label={t("search")} size="lg" />
       </form>
       </div>
       {activeChips.length > 0 ? (

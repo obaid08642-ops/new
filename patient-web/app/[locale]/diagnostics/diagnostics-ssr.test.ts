@@ -41,6 +41,22 @@ describe("diagnostics SSR boundary", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(json([])));
   });
 
+  it("G6: the filter sheet shows its applied count and a Reset that clears show and sort and starts at page 1", async () => {
+    state.getDiagnosticBookings.mockResolvedValue(json([]));
+    const html = await hub({ show: "packages", sort: "price", more: "3" });
+    expect(html).toContain("Filter and sort (2)");
+    expect(html).toMatch(/href="\/en\/diagnostics"[^>]*>Reset filters/);
+    expect(await hub({})).not.toContain("Reset filters");
+  });
+
+  it("G6: on radiology the labs-only rating sort and the packages option are not offered or counted", async () => {
+    state.getDiagnosticBookings.mockResolvedValue(json([]));
+    const html = await hub({ kind: "radiology", sort: "rating", show: "tests" });
+    expect(html).not.toContain("Filter and sort (");
+    expect(html).not.toContain("Reset filters");
+    expect(html).not.toContain("Highest rated");
+  });
+
   // The timeout is explicit and generous because this is a RENDERING assertion, not a performance one: it checks that
   // the server boundary does not serialise the token or private fields (a 5 s default measured how busy the machine was).
   it("renders list data through both server boundaries without embedding the token or sensitive fields", { timeout: 30_000 }, async () => {

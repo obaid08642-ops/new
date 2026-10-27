@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { singleOrderRoute } from '../../src/utils/singleOrder';
 import { Text, View } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Button } from '../../../packages/ui-native/src';
 import { ConsultScreen, Gate, InfoRow, Section, type GateStatus } from '../../src/components/consult/ConsultKit';
+import { useServiceCartAction } from '../../src/components/cart/ServiceCartButton';
 import { DetailHead, ListCard, Mark, Price, diagLook, goBackDiag, useDiagText } from '../../src/components/diagnostics/DiagKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
@@ -20,6 +22,7 @@ export default function PackageDetail() {
   const params = useLocalSearchParams<{ id?: string }>();
   const id = String(params.id ?? '');
   const { addItem, items } = useDiagnosticsCart();
+  const cartActions = useServiceCartAction('lab');
   const [pkg, setPkg] = useState<CatalogItem | null>(null);
   const [status, setStatus] = useState<GateStatus>('loading');
 
@@ -57,20 +60,35 @@ export default function PackageDetail() {
             </View>
           ) : null}
         </View>
-        <Button
-          theme={theme}
-          size="lg"
-          fullWidth
-          variant={inCart ? 'outline' : 'primary'}
-          label={inCart ? k('diag.detail.inCart') : k('diag.detail.addToCart')}
-          disabled={inCart || pkg.price === null}
-          onPress={() => void addItem({ id, name: pkg.name, price: pkg.price ?? 0, kind: 'lab' })}
-        />
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          <View style={{ flex: 1 }}>
+            <Button
+              theme={theme}
+              size="lg"
+              fullWidth
+              variant="outline"
+              label={inCart ? k('diag.detail.inCart') : k('diag.detail.addToCart')}
+              disabled={inCart || pkg.price === null}
+              onPress={() => void addItem({ id, name: pkg.name, price: pkg.price ?? 0, kind: 'lab' })}
+            />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Button
+              theme={theme}
+              size="lg"
+              fullWidth
+              label={k('diag.detail.orderNow')}
+              disabled={pkg.price === null}
+              // "Order now" skips the cart: the package alone goes to the lab choice, the time and the payment
+              onPress={() => router.push(singleOrderRoute({ kind: 'lab', id, name: pkg.name }) as unknown as Href)}
+            />
+          </View>
+        </View>
       </>
     ) : undefined;
 
   return (
-    <ConsultScreen testID="diagnostics-package-detail" title={k('diag.detail.packageTitle')} onBack={goBackDiag} footer={footer} onRefresh={() => void load()}>
+    <ConsultScreen testID="diagnostics-package-detail" title={k('diag.detail.packageTitle')} onBack={goBackDiag} actions={cartActions} footer={footer} onRefresh={() => void load()}>
       <Gate status={status} onRetry={() => void load()}>
         {pkg ? (
           <>

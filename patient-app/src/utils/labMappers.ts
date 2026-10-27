@@ -21,6 +21,14 @@ export interface CatalogItem {
   price: number | null;
   oldPrice: number | null;
   category: string;
+  /** Lab: the sample (blood, urine, stool ...). Scans: the modality and its category (mri, ct, ultrasound ...) and the body part. They only feed the category illustration. */
+  sampleType: string;
+  modality: string;
+  bodyPart: string;
+  /** Every name the row holds (any language), for the category mapping. */
+  allNames: string[];
+  /** The backend's own request score (`popularity`); the lists arrive sorted by it. 0 when the row has none. */
+  popularity: number;
   /** The names of the tests a package includes. */
   testsList: string[];
   testsCount: number;
@@ -66,6 +74,11 @@ export function normalizeLabService(raw: unknown): CatalogItem | null {
     price: asNumber(r.price ?? r.base_price),
     oldPrice: asNumber(r.old_price),
     category: asText(r.category),
+    sampleType: asText(r.sample_type),
+    modality: [asText(r.modality), asText(r.modality_category)].filter(Boolean).join(' '),
+    bodyPart: asText(r.body_part),
+    allNames: ['name', 'name_ar', 'name_en', 'name_ur', 'name_hi', 'name_bn', 'name_tl'].map((key) => asText(r[key])).filter(Boolean),
+    popularity: asNumber(r.popularity) ?? 0,
     testsList,
     testsCount: testsList.length,
     preparation: lang ? lang.split('\n').filter(Boolean) : [],

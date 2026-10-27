@@ -1,26 +1,25 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScopedSuggest } from '../../src/components/search/ScopedSuggest';
 import { SUGGEST_SCOPES } from '../../src/utils/searchSuggest';
-import { RefreshControl, ScrollView, Text, View } from 'react-native';
+import { RefreshControl, ScrollView, Text, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
 
-import { Chip, EmptyState, ErrorState, OfflineState, Radio, Screen, Search, Segmented, Skeleton, useTabBarHeight } from '../../../packages/ui-native/src';
-import { CARE_TONE, Section, Sheet } from '../../src/components/consult/ConsultKit';
+import { Button, Chip, EmptyState, ErrorState, OfflineState, Radio, Screen, Search, Segmented, Skeleton, useTabBarHeight } from '../../../packages/ui-native/src';
+import { Section, Sheet } from '../../src/components/consult/ConsultKit';
 import {
   CartBar,
   INSURANCE_TONE,
+  ItemCard,
   KindTile,
   LAB_TONE,
   LabCard,
   LinkCard,
-  ListCard,
   PackageCard,
   PlaceRow,
   RAD_TONE,
-  ShortcutTile,
   Strip,
-  TestRow,
   ToneNote,
+  cartBarBottom,
   diagLook,
   useDiagText,
 } from '../../src/components/diagnostics/DiagKit';
@@ -32,6 +31,11 @@ import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKi
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
 import { fetchPublicList } from '../../src/utils/publicCache';
+import { visibleRows } from '../../src/utils/diagPaging';
+import { activeFilterCount, filterForTab, filtersFor, type FilterId } from '../../src/utils/diagFilters';
+import { catalogArt, isNearEnd } from '../../src/utils/diagCatalog';
+import { singleOrderRoute } from '../../src/utils/singleOrder';
+import { diagArtKeysOf, filterByArt, itemSubtitle, mostRequested, type DiagArtKey } from '../../../packages/ui/icons/diag-art';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { insuranceOffered, normalizeLabList, normalizeProviders, type CatalogItem, type LabProvider } from '../../src/utils/labMappers';
@@ -41,23 +45,12 @@ type MainTab = 'labs' | 'radiology';
 type Place = 'home' | 'clinic';
 /** Decision 30: insurance or self-pay is chosen first; the lists show only the services that take that payment. */
 type Pay = 'self_pay' | 'insurance';
-type FilterId = 'all' | 'tests' | 'packages' | 'labs' | 'highest_rated' | 'lowest_price' | 'home_visit';
-const FILTERS: Array<{ id: FilterId; key: string }> = [
-  { id: 'all', key: 'diag.filter.all' },
-  { id: 'tests', key: 'diag.filter.tests' },
-  { id: 'packages', key: 'diag.filter.packages' },
-  { id: 'labs', key: 'diag.filter.labs' },
-  { id: 'highest_rated', key: 'diag.filter.rating' },
-  { id: 'lowest_price', key: 'diag.filter.price' },
-  { id: 'home_visit', key: 'diag.filter.home' },
-];
-
 /** The hub of labs and radiology (board ServiceHub): what to book, where, and what is already in the cart. */
 export default function DiagnosticsHub() {
   const { theme, dir, t, c, k, num, flow } = useScreenUi();
   const text = useDiagText();
   const barHeight = useTabBarHeight();
-  const { items, addItem, removeItem } = useDiagnosticsCart();
+  const { items, addItem } = useDiagnosticsCart();
 
   // `?tab=radiology` opens the radiology side (the services catalogue's imaging entry; needs-review issue 414).
   const { tab } = useLocalSearchParams<{ tab?: string }>();
@@ -67,14 +60,15 @@ export default function DiagnosticsHub() {
   const [query, setQuery] = useState('');
   const [sheet, setSheet] = useState(false);
   const [filter, setFilter] = useState<FilterId>('all');
+  // the full tests and scans open a page at a time as the list is scrolled to its end (the catalogue endpoints return every row); a new search, filter or category starts again at page 1
+  const [pages, setPages] = useState(1);
+  // the category chips (blood, hormones ... for tests; X-ray, CT ... for scans) filter the loaded rows by their mapped category
+  const [cat, setCat] = useState<DiagArtKey | 'all'>('all');
 
   const [packages, setPackages] = useState<CatalogItem[]>([]);
   const [tests, setTests] = useState<CatalogItem[]>([]);
   const [rads, setRads] = useState<CatalogItem[]>([]);
   const [labs, setLabs] = useState<LabProvider[]>([]);
-  // radiology: the scan types GET /radiology/modalities lists, and the one chosen (the server filters, as on the web)
-  const [modalities, setModalities] = useState<string[]>([]);
-  const [modality, setModality] = useState('');
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState<'error' | 'offline' | null>(null);
   const [address, setAddress] = useState<Awaited<ReturnType<typeof resolveEffectiveAddress>>>(null);
@@ -125,29 +119,32 @@ export default function DiagnosticsHub() {
   }, [load]);
 
   useEffect(() => {
-    let live = true;
-    fetchPublicList<unknown>('/radiology/modalities')
-      .then((res) => {
-        if (live && Array.isArray(res)) setModalities(res.filter((x): x is string => typeof x === 'string' && x.length > 0));
-      })
-      .catch((err) => logError('diagnostics:tab:modalities', err));
-    return () => {
-      live = false;
-    };
-  }, []);
+    setPages(1);
+  }, [query, place, pay, filter, mainTab, cat]);
 
-  // choosing a scan type asks the server for that type only; the first load already holds "all"
-  const pickModality = (value: string) => {
-    setModality(value);
-    apiFetch<unknown>(`/radiology/services${value ? `?modality=${encodeURIComponent(value)}` : ''}`)
-      .then((res) => setRads(normalizeLabList(res)))
-      .catch((err) => logError('diagnostics:tab:modality', err));
+  // a category of the other kind does not exist: switching between labs and radiology starts at "All"
+  useEffect(() => {
+    setCat('all');
+  }, [mainTab]);
+
+  // a filter the other tab does not offer would change nothing there: it goes back to "all" with the tab
+  const switchTab = (next: MainTab) => {
+    setMainTab(next);
+    setFilter((current) => filterForTab(current, next));
+  };
+  const resetFilters = () => {
+    setFilter('all');
+    setCat('all');
   };
 
   const inCart = (id: string) => items.some((i) => i.id === id);
-  const toggle = (item: CatalogItem, kind: 'lab' | 'radiology') => {
-    if (inCart(item.id)) void removeItem(item.id, kind);
-    else void addItem({ id: item.id, name: item.name, price: item.price ?? 0, kind });
+  // one cart per service: a test goes to the lab cart, a scan to the radiology cart
+  const addToCart = (item: CatalogItem, kind: 'lab' | 'radiology') => {
+    if (!inCart(item.id)) void addItem({ id: item.id, name: item.name, price: item.price ?? 0, kind });
+  };
+  // "Order now" skips the cart: this one item goes to the lab choice (every lab with its price), then the time and the payment; the cart is not touched
+  const orderNow = (item: CatalogItem, kind: 'lab' | 'radiology') => {
+    router.push(singleOrderRoute({ kind, id: item.id, name: item.name, place, payer: kind === 'lab' && effectivePay === 'insurance' ? 'insurance' : 'cash' }) as unknown as Href);
   };
 
   // search and filter run on what the screen already loaded
@@ -168,6 +165,7 @@ export default function DiagnosticsHub() {
       p = p.filter((x) => x.homeVisit);
       ls = ls.filter((x) => x.homeVisit);
     }
+    if (filter === 'home_visit') rs = rs.filter((x) => x.homeVisit);
     if (filter === 'lowest_price') {
       p = [...p].sort(byPrice);
       ts = [...ts].sort(byPrice);
@@ -178,6 +176,14 @@ export default function DiagnosticsHub() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [packages, tests, rads, labs, needle, place, effectivePay, filter]);
 
+  const testRows = useMemo(() => view.ts.map((item) => ({ item, art: catalogArt('lab', item) })), [view.ts]);
+  const radRows = useMemo(() => view.rs.map((item) => ({ item, art: catalogArt('radiology', item) })), [view.rs]);
+  const chipRows = mainTab === 'radiology' ? radRows : testRows;
+  const testPage = visibleRows(filterByArt(testRows, cat), pages);
+  const radPage = visibleRows(filterByArt(radRows, cat), pages);
+  // "Most requested": the first few by the backend's popularity, for the unfiltered hub
+  const popular = needle === '' && (filter === 'all' || mainTab === 'radiology') ? mostRequested(mainTab === 'radiology' ? view.rs : view.ts, 6) : [];
+  const moreRows = (mainTab === 'radiology' ? radPage.remaining : testPage.remaining) > 0;
   const showPackages = filter === 'all' || filter === 'packages' || filter === 'lowest_price' || filter === 'home_visit' || filter === 'highest_rated';
   const showTests = filter !== 'packages' && filter !== 'labs';
   const showLabs = filter !== 'packages' && filter !== 'tests';
@@ -199,8 +205,66 @@ export default function DiagnosticsHub() {
   const tabLines = items.filter((i) => (i.kind === 'radiology') === (mainTab === 'radiology'));
   const tabCount = tabLines.reduce((n, i) => n + (i.qty > 0 ? i.qty : 1), 0);
   const tabTotal = tabLines.reduce((n, i) => n + i.price * (i.qty > 0 ? i.qty : 1), 0);
-  const barSpace = tabCount > 0 ? 84 : 0;
-  const activeItems: ActiveFilter[] = filter === 'all' ? [] : [{ key: filter, label: k(FILTERS.find((f) => f.id === filter)?.key ?? 'diag.filter.all'), onRemove: () => setFilter('all') }];
+  const barSpace = tabCount > 0 ? 96 : 0;
+  const options = filtersFor(mainTab);
+  const filterCount = activeFilterCount(filter, cat === 'all' ? '' : cat);
+  const activeItems: ActiveFilter[] = [
+    ...(filter === 'all' ? [] : [{ key: filter, label: k(options.find((f) => f.id === filter)?.key ?? 'diag.filter.all'), onRemove: () => setFilter('all') }]),
+    ...(cat === 'all' ? [] : [{ key: `cat-${cat}`, label: k(`diag.cat.${cat}`), onRemove: () => setCat('all') }]),
+  ];
+
+  const catChips = (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} accessibilityLabel={k('diag.cat.group')} contentContainerStyle={{ gap: 8 }} testID="diag-cat-chips">
+      <Chip label={k('diag.filter.all')} selected={cat === 'all'} onPress={() => setCat('all')} theme={theme} testID="diag-cat-all" />
+      {diagArtKeysOf(isLab ? 'lab' : 'radiology').map((key) => (
+        <Chip key={key} label={k(`diag.cat.${key}`)} selected={cat === key} onPress={() => setCat(key)} theme={theme} testID={`diag-cat-${key}`} />
+      ))}
+    </ScrollView>
+  );
+  const testCard = (test: CatalogItem, art: DiagArtKey, idPrefix: string, width?: number) => (
+    <ItemCard
+      key={`${idPrefix}-${test.id}`}
+      testID={`${idPrefix}-${test.id}`}
+      name={test.name}
+      art={art}
+      width={width}
+      image={test.image}
+      tags={text.testTags(test, place === 'home')}
+      note={test.turnaroundHours !== null ? text.turnaround(test.turnaroundHours) : undefined}
+      price={test.price}
+      inCart={inCart(test.id)}
+      addLabel={k('diag.detail.addToCart')}
+      inCartLabel={k('diag.detail.inCart')}
+      orderLabel={k('diag.detail.orderNow')}
+      onPress={() => router.push(`/diagnostics/test-detail?id=${test.id}` as Href)}
+      onAdd={() => addToCart(test, 'lab')}
+      onOrder={() => orderNow(test, 'lab')}
+    />
+  );
+  const scanCard = (rad: CatalogItem, art: DiagArtKey, idPrefix: string, width?: number) => (
+    <ItemCard
+      key={`${idPrefix}-${rad.id}`}
+      testID={`${idPrefix}-${rad.id}`}
+      name={rad.name}
+      art={art}
+      width={width}
+      image={rad.image}
+      note={itemSubtitle(rad.desc, [rad.category, rad.modality, rad.bodyPart, rad.sampleType], k(`diag.cat.${art}`))}
+      price={rad.price}
+      inCart={inCart(rad.id)}
+      addLabel={k('diag.detail.addToCart')}
+      inCartLabel={k('diag.detail.inCart')}
+      orderLabel={k('diag.detail.orderNow')}
+      onPress={() => router.push(`/diagnostics/test-detail?id=${rad.id}&isRadiology=true` as Href)}
+      onAdd={() => addToCart(rad, 'radiology')}
+      onOrder={() => orderNow(rad, 'radiology')}
+    />
+  );
+  // the end of the list opens the next page (a ScrollView's scroll position in place of a list's onEndReached)
+  const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const m = e.nativeEvent;
+    if (moreRows && isNearEnd({ layoutHeight: m.layoutMeasurement.height, contentHeight: m.contentSize.height, offsetY: m.contentOffset.y })) setPages((p) => p + 1);
+  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -225,15 +289,19 @@ export default function DiagnosticsHub() {
           placeholder={isLab ? k('diag.hub.searchLab') : k('diag.hub.searchRad')}
           label={isLab ? k('diag.hub.searchLab') : k('diag.hub.searchRad')}
           onFilterPress={() => setSheet(true)}
-          filterLabel={k('diag.hub.filter')}
+          filterLabel={filterCount > 0 ? `${k('diag.hub.filter')} (${num(filterCount)})` : k('diag.hub.filter')}
+          filterCount={filterCount}
         />
         <ScopedSuggest query={query} scope={isLab ? SUGGEST_SCOPES.labs : SUGGEST_SCOPES.radiology} />
-        {isLab ? <ActiveFilters items={activeItems} onClearAll={() => setFilter('all')} tone={LAB_TONE} testIdPrefix="diag" /> : null}
+        <ActiveFilters items={activeItems} onClearAll={resetFilters} tone={isLab ? LAB_TONE : RAD_TONE} testIdPrefix="diag" />
       </View>
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingBottom: barHeight + barSpace + 16, flexGrow: 1 }}
         keyboardShouldPersistTaps="handled"
+        onScroll={onScroll}
+        scrollEventThrottle={100}
+        testID="diag-scroll"
         refreshControl={<RefreshControl refreshing={false} onRefresh={() => void load()} tintColor={c.text.primary} />}
       >
       <View style={{ width: '100%', maxWidth: 440, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 4, gap: 16 }}>
@@ -244,13 +312,8 @@ export default function DiagnosticsHub() {
         {failed ? null : (
           <>
             <View accessibilityRole="tablist" style={{ flexDirection: 'row', gap: 10 }}>
-              <KindTile icon="test-tube" tone={LAB_TONE} title={k('diag.kind.lab')} line={k('diag.kind.labLine')} selected={isLab} onPress={() => setMainTab('labs')} />
-              <KindTile icon="scan" tone={RAD_TONE} title={k('diag.kind.rad')} line={k('diag.kind.radLine')} selected={!isLab} onPress={() => setMainTab('radiology')} />
-            </View>
-
-            <View style={{ flexDirection: 'row', gap: 10 }}>
-              <ShortcutTile icon="chart-line-up" tone="mint" label={k('diag.hub.results')} onPress={() => router.push('/diagnostics/my-results' as Href)} />
-              <ShortcutTile icon="arrows-left-right" tone={CARE_TONE} label={k('diag.hub.compare')} onPress={() => router.push('/diagnostics/search' as Href)} />
+              <KindTile icon="test-tube" tone={LAB_TONE} title={k('diag.kind.lab')} line={k('diag.kind.labLine')} selected={isLab} onPress={() => switchTab('labs')} />
+              <KindTile icon="scan" tone={RAD_TONE} title={k('diag.kind.rad')} line={k('diag.kind.radLine')} selected={!isLab} onPress={() => switchTab('radiology')} />
             </View>
 
             <View style={{ gap: 4 }}>
@@ -315,22 +378,19 @@ export default function DiagnosticsHub() {
               </Section>
             ) : null}
 
+            {showTests && popular.length > 0 ? (
+              <Section title={k('diag.hub.popular')}>
+                <Strip>{popular.map((test) => testCard(test, catalogArt('lab', test), 'diag-popular', 300))}</Strip>
+              </Section>
+            ) : null}
+
             {showTests && view.ts.length > 0 ? (
-              <Section title={k('diag.hub.tests')} actionLabel={k('diag.hub.allTests')} onAction={() => router.push('/diagnostics/search' as Href)}>
-                <ListCard>
-                  {view.ts.map((test, i) => (
-                    <TestRow
-                      key={test.id}
-                      name={test.name}
-                      tags={text.testTags(test, place === 'home')}
-                      note={test.turnaroundHours !== null ? text.turnaround(test.turnaroundHours) : undefined}
-                      price={test.price}
-                      last={i === view.ts.length - 1}
-                      onPress={() => router.push(`/diagnostics/test-detail?id=${test.id}` as Href)}
-                      toggle={{ on: inCart(test.id), label: inCart(test.id) ? k('diag.cart.remove', { name: test.name }) : k('diag.cart.add', { name: test.name }), onPress: () => toggle(test, 'lab') }}
-                    />
-                  ))}
-                </ListCard>
+              <Section title={k('diag.hub.allTests')}>
+                <View style={{ gap: 12 }}>
+                  {catChips}
+                  {testPage.shown.length === 0 ? <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('diag.empty.noMatch')}</Text> : null}
+                  {testPage.shown.map(({ item, art }) => testCard(item, art, 'diag-test'))}
+                </View>
               </Section>
             ) : null}
 
@@ -358,30 +418,18 @@ export default function DiagnosticsHub() {
         {!loading && !failed && !nothing && !isLab ? (
           <View style={{ gap: 14 }}>
             <ToneNote icon="info" tone={RAD_TONE} text={place === 'home' ? k('diag.hub.radNoteHome') : k('diag.hub.radNoteClinic')} />
-            <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{k('diag.hub.radTitle')}</Text>
-            {modalities.length > 0 ? (
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} accessibilityLabel={k('diag.rad.modality')} contentContainerStyle={{ gap: 8 }} testID="rad-modality-filter">
-                <Chip label={k('diag.filter.all')} selected={modality === ''} onPress={() => pickModality('')} theme={theme} testID="rad-modality-all" />
-                {modalities.map((m) => (
-                  <Chip key={m} label={m.toUpperCase()} selected={modality === m} onPress={() => pickModality(m)} theme={theme} testID={`rad-modality-${m}`} />
-                ))}
-              </ScrollView>
+            {popular.length > 0 ? (
+              <Section title={k('diag.hub.popular')}>
+                <Strip>{popular.map((rad) => scanCard(rad, catalogArt('radiology', rad), 'diag-popular', 300))}</Strip>
+              </Section>
             ) : null}
+            <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{k('diag.hub.allScans')}</Text>
             {view.rs.length > 0 ? (
-              <ListCard>
-                {view.rs.map((rad, i) => (
-                  <TestRow
-                    key={rad.id}
-                    name={rad.name}
-                    icon={{ icon: 'scan', tone: RAD_TONE }}
-                    note={rad.desc || undefined}
-                    price={rad.price}
-                    last={i === view.rs.length - 1}
-                    onPress={() => router.push(`/diagnostics/test-detail?id=${rad.id}&isRadiology=true` as Href)}
-                    toggle={{ on: inCart(rad.id), label: inCart(rad.id) ? k('diag.cart.remove', { name: rad.name }) : k('diag.cart.add', { name: rad.name }), onPress: () => toggle(rad, 'radiology') }}
-                  />
-                ))}
-              </ListCard>
+              <View style={{ gap: 12 }}>
+                {catChips}
+                {radPage.shown.length === 0 ? <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('diag.empty.noMatch')}</Text> : null}
+                {radPage.shown.map(({ item, art }) => scanCard(item, art, 'diag-scan'))}
+              </View>
             ) : (
               <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('diag.empty.noMatch')}</Text>
             )}
@@ -392,24 +440,29 @@ export default function DiagnosticsHub() {
 
       <Sheet open={sheet} title={k('diag.filter.title')} onClose={() => setSheet(false)} closeLabel={k('diag.filter.close')}>
         <View>
-          {FILTERS.map((f, i) => (
+          {options.map((f, i) => (
             <Radio
               key={f.id}
               theme={theme}
               label={k(f.key)}
               selected={filter === f.id}
-              divider={i < FILTERS.length - 1}
+              divider={i < options.length - 1}
               onChange={() => {
                 setFilter(f.id);
                 setSheet(false);
               }}
             />
           ))}
+          {filterCount > 0 ? (
+            <View style={{ paddingTop: 12 }}>
+              <Button theme={theme} size="lg" fullWidth variant="outline" label={k('pharmacy.filters.reset')} onPress={() => { resetFilters(); setSheet(false); }} testID="diag-filter-reset" />
+            </View>
+          ) : null}
         </View>
       </Sheet>
     </Screen>
     {tabCount > 0 ? (
-      <CartBar count={tabCount} total={tabTotal} bottom={barHeight + 8} actionLabel={k('diag.bar.continue')} countLabel={k('diag.bar.count', { n: num(tabCount) })} totalLabel={k('diag.bar.total')} onPress={() => router.push('/diagnostics/cart' as Href)} />
+      <CartBar count={tabCount} total={tabTotal} bottom={cartBarBottom(barHeight)} actionLabel={k('diag.bar.continue')} countLabel={k('diag.bar.count', { n: num(tabCount) })} totalLabel={k('diag.bar.total')} onPress={() => router.push('/diagnostics/cart' as Href)} />
     ) : null}
     </View>
   );

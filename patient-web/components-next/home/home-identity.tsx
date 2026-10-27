@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { useSessionIdentity } from "@/lib/auth/session-identity";
 import { Avatar } from "@/components-next/ui-generated/components/Surfaces";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
-import { SignOutButton } from "@/components-next/sign-out-button";
 import { fetchUnreadCount } from "@/lib/notifications/unread-count";
 import type { Locale } from "@/lib/i18n";
 import styles from "./home.module.css";
@@ -57,7 +56,7 @@ export function HomeNotificationsLink({ locale, label, unreadLabel }: { locale: 
   return <NotificationBellLink href={`/${locale}/notifications`} label={label} unreadLabel={unreadLabel} />;
 }
 
-/** Sign out and the account avatar for a signed-in patient, the sign-in button for a visitor, a stand-in until known. */
+/** The account avatar for a signed-in patient (sign-out is in My account), the sign-in button for a visitor, a stand-in until known. */
 export function HomeAccountTools({ locale, signInLabel, accountLabel }: { locale: Locale; signInLabel: string; accountLabel: string }) {
   const { status } = useSessionIdentity();
   if (status === "loading") {
@@ -66,7 +65,6 @@ export function HomeAccountTools({ locale, signInLabel, accountLabel }: { locale
   if (status === "user") {
     return (
       <>
-        <SignOutButton locale={locale} className={styles.iconBtn} />
         <Link href={`/${locale}/profile`} className={styles.accountLink} aria-label={accountLabel}>
           <Avatar name="" size="md" />
         </Link>

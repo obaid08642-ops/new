@@ -10,24 +10,23 @@ import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import { chosenGroup, SELECTION_KEY } from "@/lib/ordering/basket";
 import { contextQuery, type Point } from "@/lib/ordering/context";
-import { filterCompare, insuredShareLine, type OrderMode, type Payer, type ProviderRow, type QuoteGroup, type ServiceKind, type SortKey, type StaffGender } from "@/lib/ordering/quote";
+import { filterCompare, insuredShareLine, providerPriceList, type OrderMode, type Payer, type ProviderRow, type QuoteGroup, type ServiceKind, type SortKey, type StaffGender } from "@/lib/ordering/quote";
 import { hoursUnit, moneyText, pickName, whenText } from "@/lib/ordering/format";
 import { CoverageChip, QuoteError, QuoteLoading } from "./quote-parts";
-import { useBasket } from "./use-basket";
+import { useOrderLines } from "./use-order-lines";
 import { useQuote } from "./use-quote";
 import styles from "./ordering.module.css";
 
-type Props = { locale: string; kind: ServiceKind; place: OrderMode; pay: Payer; point: Point | null };
+type Props = { locale: string; kind: ServiceKind; place: OrderMode; pay: Payer; item?: string; point: Point | null };
 const SORTS: Array<{ key: SortKey; labelKey: "sCheap" | "sNear" | "sFast" | "sRating" }> = [
   { key: "cheapest", labelKey: "sCheap" }, { key: "nearest", labelKey: "sNear" }, { key: "fastest", labelKey: "sFast" }, { key: "rating", labelKey: "sRating" },
 ];
 
 /** Ord05: best match per group, the compare list (sort and filters) and, when no single provider covers a group, the suggested split. */
-export function ProvidersClient({ locale, kind, place, pay, point }: Props) {
+export function ProvidersClient({ locale, kind, place, pay, item, point }: Props) {
   const t = useTranslations("OrderingFlow");
   const router = useRouter();
-  const { basket } = useBasket();
-  const lines = basket[kind];
+  const { lines } = useOrderLines(kind, item);
   const [sort, setSort] = useState<SortKey>("cheapest");
   const [gender, setGender] = useState<StaffGender | undefined>(undefined);
   const [inNetworkOnly, setInNetworkOnly] = useState(false);
@@ -38,7 +37,7 @@ export function ProvidersClient({ locale, kind, place, pay, point }: Props) {
     [point, lines, kind, place, pay, sort, gender],
   );
   const { state, reload } = useQuote(request);
-  const basketHref = `/${locale}/labs/basket${contextQuery({ kind, place, pay })}`;
+  const basketHref = `/${locale}/labs/basket${contextQuery({ kind, place, pay, item })}`;
 
   if (lines.length === 0) return <EmptyState icon={SERVICE_ICONS.lab.icon} tone={SERVICE_ICONS.lab.tone} title={t("basketEmptyTitle")} body={t("basketEmptySub")} actionLabel={t("basket")} onAction={() => router.push(basketHref)} />;
   if (!point) return <div className={styles.card}><p className={styles.title}>{t("needAddressTitle")}</p><p className={styles.sub}>{t("needAddressBody")}</p><Link href={`/${locale}/profile/addresses`} className={styles.linkBtn}>{t("addAddress")}</Link></div>;
@@ -81,7 +80,7 @@ export function ProvidersClient({ locale, kind, place, pay, point }: Props) {
     const multi = quote.groups.length > 1;
     const section = (g: QuoteGroup) => {
       const rows = filterCompare(g.compare, { inNetworkOnly });
-      const rest = rows.filter((r) => r.providerId !== g.bestMatch?.providerId);
+      const rest = providerPriceList(g, { inNetworkOnly }).filter((x) => !x.best).map((x) => x.row); // every lab with its own price for the chosen items
       const nameById = (id: string) => nameOfRow(g.compare.find((r) => r.providerId === id) ?? ({ nameAr: null, nameEn: null } as ProviderRow));
       return (
         <section key={g.mode} className={styles.stack} aria-label={g.mode === "home" ? t("gHome", { n: g.items.length }) : t("gCentre", { n: g.items.length })}>
@@ -142,7 +141,7 @@ export function ProvidersClient({ locale, kind, place, pay, point }: Props) {
       try {
         window.sessionStorage.setItem(SELECTION_KEY, JSON.stringify({ quoteId: quote.quoteId, home: chosen.home, facility: chosen.facility, groups: Object.fromEntries(quote.groups.flatMap((g) => { const c = chosen[g.mode] ? chosenGroup(g, chosen[g.mode] as string) : undefined; return c ? [[g.mode, c]] : []; })) }));
       } catch { /* the next step also reads the choice from the address when storage is blocked */ }
-      router.push(`/${locale}/labs/when${contextQuery({ kind, place, pay })}`);
+      router.push(`/${locale}/labs/when${contextQuery({ kind, place, pay, item })}`);
     };
     return (
       <>

@@ -17,6 +17,7 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import styles from "@/components-next/consult/consult.module.css";
 import { ProfileHeader, type ProfileStat } from "@/components-next/consult/profile-header";
 import { ActionLinks, SectionCard } from "@/components-next/consult/consult-parts";
+import { DoctorSchedule, type ScheduleType } from "@/components-next/consult/doctor-schedule";
 import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
 
 type Props = { params: Promise<{ locale: string; slug: string; city?: string }> };
@@ -113,6 +114,8 @@ export default async function DoctorCanonicalPage({ params }: Props) {
   const doctorsT = await getTranslations("Doctors");
   // the entity record carries the licence only when the server sends `license` / `scfhs_license_no` on it; otherwise the line stays hidden
   const license = licenseOf(doctor.license, doctor.scfhs_license_no);
+  // the visit types the entity record offers (clinic first, as the booking page opens), in the order the booking page lists them
+  const scheduleTypes = (["clinic", "video", "home"] as const).filter((type): type is ScheduleType => Array.isArray(doctor.consultation_modes) && doctor.consultation_modes.includes(type));
   const insurers: string[] = Array.isArray(relationships.accepted_insurance) ? relationships.accepted_insurance : [];
 
   return (
@@ -140,6 +143,18 @@ export default async function DoctorCanonicalPage({ params }: Props) {
       <ProfileHeader line={[specialtyLabel(names, doctor.specialty), facilityName].filter(Boolean).join(" · ") || undefined} stats={stats} />
       <LicenseLine text={license ? doctorsT("licenseLine", { number: license.number }) : null} verifiedLabel={license?.verified ? doctorsT("licenseVerified") : undefined} />
       <GuaranteeLine text={guarantee ? doctorsT("guaranteeLine", { minutes: guarantee.minutes, points: guarantee.points }) : null} />
+      {scheduleTypes.length > 0 && doctor.id ? (
+        <SectionCard id="doctor-appointments" title={doctorsT("slotsTitle")}>
+          <DoctorSchedule
+            doctorId={String(doctor.id)}
+            locale={locale}
+            types={scheduleTypes.map((type) => ({ value: type, label: doctorsT(`service_${type}`) }))}
+            initialType={scheduleTypes[0]}
+            bookHref={`/${locale}/consultations/book/${encodeURIComponent(String(doctor.id))}`}
+            labels={{ daysLabel: doctorsT("scheduleDaysLabel"), timesLabel: doctorsT("scheduleTimesLabel"), typesLabel: doctorsT("serviceTypeLabel"), today: doctorsT("scheduleToday"), tomorrow: doctorsT("scheduleTomorrow"), loading: doctorsT("scheduleLoading"), empty: doctorsT("scheduleEmpty"), noDays: doctorsT("scheduleNoDays"), error: doctorsT("scheduleError"), retry: doctorsT("scheduleRetry"), signIn: doctorsT("scheduleSignIn"), book: doctorsT("chooseDayTime") }}
+          />
+        </SectionCard>
+      ) : null}
       {insurers.length > 0 ? (
         <SectionCard id="doctor-insurance" title={c("acceptedInsurance")}>
           <div className={styles.chips}>{insurers.map((ins) => <span key={ins} className={styles.tag}>{ins}</span>)}</div>

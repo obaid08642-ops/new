@@ -40,7 +40,7 @@ import {
 import { rowsOf } from '../../src/components/health/HealthKit';
 import { loadPolicy } from '../../src/components/insurance/InsuranceKit';
 import ProductImage from '../../src/components/ProductImage';
-import { CountBadge, Glyph, MedAddControl, PHARMACY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
+import { CartButton, CountBadge, Glyph, MedAddControl, PHARMACY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
 import { DetailAccordion, FactsGrid, MiniProduct, Pill, SafetyCard, type AccordionSection } from '../../src/components/pharmacy/ProductSections';
 import { COLUMN, step as scale, tint, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useCart } from '../../src/context/CartContext';
@@ -50,14 +50,14 @@ import { wishlistToastKey } from '../../src/utils/wishlistToast';
 import { dateLocaleFor } from '../../src/utils/dates';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
-import { currentDbLang, dbLangDir } from '../../src/utils/localize';
+import { currentDbLang, pickDbFieldOwn } from '../../src/utils/localize';
 import { prefetchAlternatives, prefetchHotMedicines } from '../../src/utils/prefetch';
 import { getVisibleProductIds } from '../../src/utils/productNav';
 import { VariantPicker } from '../../src/components/pharmacy/VariantPicker';
 import { productLocaleOf, type ProductVariant } from '../../src/utils/variantPicker';
 import { coveringInsurerName, type InsurerCompany } from '../../src/utils/productInsurance';
 import { englishNameUnder } from '../../src/utils/englishNameUnder';
-import { canShowPromo, discountPercent, medField, medFieldSource, medGallery, medMeta, medName, medPrice, needsRx, oldPriceOf, onlineOnly, productNote, type Med } from '../../src/utils/pharmacyCatalog';
+import { canShowPromo, discountPercent, medField, medGallery, medMeta, medName, medPrice, needsRx, oldPriceOf, onlineOnly, productNote, type Med } from '../../src/utils/pharmacyCatalog';
 
 /**
  * Product page — board ProductFull (canvas/ProductFull.dc.html), field mapping in SPEC_PRODUCT_DOCTOR_DETAIL §A.
@@ -381,7 +381,7 @@ export default function ProductDetailScreen() {
     const oldPrice = oldPriceOf(med);
     const lastReviewed = med.last_reviewed ? new Date(med.last_reviewed) : null;
     const stock = pharmacyCount ?? 0;
-    const storage = textOf(medField(med, 'storage_conditions'));
+    const storage = textOf(pickDbFieldOwn(med, 'storage_conditions'));
     // `label` is a translation key; `value` is data, or a key when `valueIsKey`
     const shortFacts: { key: string; icon: 'pill' | 'scales' | 'package' | 'thermometer' | 'globe' | 'file-text'; label: string; value: string; valueIsKey?: boolean }[] = [];
     const add = (key: string, icon: (typeof shortFacts)[number]['icon'], label: string, value: string) => value && shortFacts.push({ key, icon, label, value });
@@ -392,16 +392,10 @@ export default function ProductDetailScreen() {
     add('origin', 'globe', 'pharmacy.fact.origin', textOf(med.country_of_origin));
     shortFacts.push({ key: 'rx', icon: 'file-text', label: 'pharmacy.fact.rx', value: rx ? 'pharmacy.fact.rxRequired' : 'pharmacy.fact.rxNotRequired', valueIsKey: true });
 
-    const pregnancy = textOf(medField(med, 'pregnancy_info'));
-    const breastfeeding = textOf(medField(med, 'breastfeeding_info'));
-    // A section the catalogue has only in another language is drawn in that language and says so (owner rule 2026-10-26).
-    const sec = (key: string, title: string, field: string): AccordionSection => {
-      const { value, lang: used } = medFieldSource(med, field);
-      const items = linesOf(value);
-      return used === 'en' || used === 'ar'
-        ? { key, title, items, dir: dbLangDir(used), note: k(used === 'en' ? 'pharmacy.section.onlyEnglish' : 'pharmacy.section.onlyArabic') }
-        : { key, title, items };
-    };
+    const pregnancy = textOf(pickDbFieldOwn(med, 'pregnancy_info'));
+    const breastfeeding = textOf(pickDbFieldOwn(med, 'breastfeeding_info'));
+    // A section is in the app's language or it is not drawn (owner rule 2026-10-27): a translated field over a mixed language.
+    const sec = (key: string, title: string, field: string): AccordionSection => ({ key, title, items: linesOf(pickDbFieldOwn(med, field)) });
     const sections: AccordionSection[] = [
       sec('description', 'pharmacy.section.description', 'description'),
       sec('indications', 'pharmacy.section.indications', 'indications'),
@@ -467,7 +461,7 @@ export default function ProductDetailScreen() {
       <EmptyState icon="magnifying-glass" tone={PHARMACY_TONE} title={k('pharmacy.product.notFound')} actionLabel={k('pharmacy.title')} onAction={() => router.replace('/(tabs)/pharmacy' as Href)} theme={theme} />
     );
     return (
-      <Screen theme={theme} direction={dir} header={<View style={COLUMN}><AppHeader onBack={back} backLabel={k('pharmacy.back')} theme={theme} direction={dir} /></View>} scroll testID="product-detail">
+      <Screen theme={theme} direction={dir} header={<View style={COLUMN}><AppHeader onBack={back} backLabel={k('pharmacy.back')} trailing={<CartButton />} theme={theme} direction={dir} /></View>} scroll testID="product-detail">
         {stateBody}
       </Screen>
     );

@@ -7,11 +7,13 @@ import { SERVICE_ICONS, type FillIconName, type ServiceTone } from "@/components
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { formatPrice } from "@/lib/format-price";
 import { allowedImageUrl } from "@/lib/image-hosts";
+import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { LiveFilter } from "./live-filter";
 import { SuggestSearchForm } from "./suggest-search-form";
 import type { SuggestScope } from "@/lib/search/suggest";
 import { PhotoWithFallback } from "./photo-with-fallback";
 import consult from "@/components-next/consult/consult.module.css";
+import type { DiagArtKey } from "@/components-next/ui-generated/icons/diag-art";
 import styles from "./diag.module.css";
 
 /** The laboratory and radiology services' own icon and tone, from the handoff service map (never written as a colour name). */
@@ -205,3 +207,9 @@ export function TagRow({ tags }: { tags: Tag[] }) {
   if (tags.length === 0) return null;
   return <div className={styles.tags}>{tags.map((tag) => <StatusChip key={tag.label} label={tag.label} tone={tag.tone} />)}</div>;
 }
+
+// the catalogue card and "Show more" live in their own small module (the infinite list is a client island that draws them)
+export { ItemCard, ShowMore } from "./item-card";
+
+/** The message key of each category chip / card subtitle (DiagWeb). */
+export const CAT_LABEL = { blood: "catBlood", hormones: "catHormones", vitamins: "catVitamins", sugar: "catSugar", urine: "catUrine", liver: "catLiver", xray: "catXray", ct: "catCt", mri: "catMri", ultrasound: "catUltrasound", mammography: "catMammography", ecg: "catEcg" } as const satisfies Record<DiagArtKey, string>;

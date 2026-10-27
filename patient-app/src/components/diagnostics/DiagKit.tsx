@@ -4,13 +4,15 @@ import { Image } from 'expo-image';
 import { router, type Href } from 'expo-router';
 import Svg, { Path } from 'react-native-svg';
 
-import { Card, FIcon, SERVICE_ICONS, type FillIconName, type ServiceTone } from '../../../../packages/ui-native/src';
+import { Button, Card, FIcon, SERVICE_ICONS, type FillIconName, type ServiceTone } from '../../../../packages/ui-native/src';
 import { step as scale, tint, useScreenUi } from '../screen/ScreenKit';
 import { Glyph } from '../pharmacy/PharmacyKit';
 import { Money } from '../pharmacy/OfferKit';
 import { Chevron } from '../consult/ConsultKit';
 import { statusLook, type OrderKind } from '../../utils/orderCenter';
 import { optimizedImageUri } from '../../utils/optimizedImage';
+import type { DiagArtKey } from '../../../../packages/ui/icons/diag-art';
+import { DiagArt } from './DiagArt';
 
 /**
  * What the labs and radiology screens share (Batch 3, slice 3-app): the look of a service, the tags, the test row with its
@@ -158,6 +160,62 @@ export function TestRow({ name, tags, note, price, onPress, toggle, icon, last =
         <View style={{ flex: 1, minWidth: 0 }}>{body}</View>
       )}
       {toggle ? <AddToggle on={toggle.on} label={toggle.label} onPress={toggle.onPress} /> : null}
+    </View>
+  );
+}
+
+export interface ItemCardProps {
+  name: string;
+  /** The category illustration (blood, X-ray ...); the item's own `image` replaces it only when the backend sent one. */
+  art: DiagArtKey;
+  image?: string;
+  /** A fixed width for a sideways strip; omitted = the full width of the list. */
+  width?: number;
+  tags?: Array<{ label: string; tone: ServiceTone | 'neutral' }>;
+  note?: string;
+  price: number | null;
+  inCart: boolean;
+  addLabel: string;
+  inCartLabel: string;
+  orderLabel: string;
+  onPress: () => void;
+  onAdd: () => void;
+  onOrder: () => void;
+  testID?: string;
+}
+
+/** A catalogue test or scan as a large card: its illustration next to the name, the tags, the note and the price, then "Add to cart" and "Order now". */
+export function ItemCard({ name, art, image, width, tags, note, price, inCart, addLabel, inCartLabel, orderLabel, onPress, onAdd, onOrder, testID }: ItemCardProps) {
+  const { theme, t, c, flow } = useScreenUi();
+  return (
+    <View testID={testID} style={{ width, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, padding: 16, gap: 14 }}>
+      <Pressable accessibilityRole="button" accessibilityLabel={name} onPress={onPress} style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 56, opacity: pressed ? 0.85 : 1 })}>
+        {image ? (
+          <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: optimizedImageUri(image, 56) }} style={{ width: 56, height: 56, borderRadius: 16, backgroundColor: c.bg.sunken }} contentFit="cover" />
+        ) : (
+          <DiagArt art={art} size={56} />
+        )}
+        <View style={{ flex: 1, minWidth: 0, gap: 6 }}>
+          <Text style={{ ...scale(t, 'bodyStrong', 'medium'), color: c.text.primary, ...flow }}>{name}</Text>
+          {tags && tags.length > 0 ? (
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+              {tags.map((g) => (
+                <Tag key={g.label} label={g.label} tone={g.tone} />
+              ))}
+            </View>
+          ) : null}
+          {note ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{note}</Text> : null}
+          {price !== null ? <Price amount={price} /> : null}
+        </View>
+      </Pressable>
+      <View style={{ flexDirection: 'row', gap: 10 }}>
+        <View style={{ flex: 1 }}>
+          <Button theme={theme} size="md" fullWidth variant="outline" label={inCart ? inCartLabel : addLabel} disabled={inCart} onPress={onAdd} testID={testID ? `${testID}-add` : undefined} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Button theme={theme} size="md" fullWidth label={orderLabel} onPress={onOrder} testID={testID ? `${testID}-order` : undefined} />
+        </View>
+      </View>
     </View>
   );
 }
@@ -361,6 +419,14 @@ export function PlaceRow({ text, actionLabel, onAction }: { text: string; action
   );
 }
 
+/** Gap between the tab bar's top edge and the cart bar: the raised centre button stands 16 above the pill, so 20 clears it. */
+export const CART_BAR_LIFT = 20;
+
+/** Bottom offset of the floating cart bar: the tab bar's height (button row + safe-area inset, `useTabBarHeight()`) plus the lift. */
+export function cartBarBottom(tabBarHeight: number): number {
+  return tabBarHeight + CART_BAR_LIFT;
+}
+
 /** The cart bar the hub floats above the tab bar: the count, the total and the one action. */
 export function CartBar({ count, total, actionLabel, countLabel, totalLabel, bottom, onPress }: { count: number; total: number; actionLabel: string; countLabel: string; totalLabel: string; bottom: number; onPress: () => void }) {
   const { t, c, flow, money, k } = useScreenUi();
@@ -460,13 +526,15 @@ export function PersonRow({ icon, tone, title, line, actionIcon, actionLabel, on
 }
 
 /** The head of a detail page (package, test, lab): a tone wash with the glyph or the catalogue image, the name and a line. */
-export function DetailHead({ icon, tone, image, title, body }: { icon: FillIconName; tone: ServiceTone; image?: string; title: string; body?: string }) {
+export function DetailHead({ icon, tone, image, title, body, art }: { icon: FillIconName; tone: ServiceTone; image?: string; title: string; body?: string; /** A test or scan shows its category illustration in place of the service glyph. */ art?: DiagArtKey }) {
   const { theme, t, c } = useScreenUi();
   return (
     <Card theme={theme} tint={tone} padding="lg">
       <View style={{ alignItems: 'center', gap: 10 }}>
         {image ? (
           <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: optimizedImageUri(image, 96) }} style={{ width: 96, height: 96, borderRadius: 24, backgroundColor: c.bg.surface }} contentFit="cover" />
+        ) : art ? (
+          <DiagArt art={art} size={72} />
         ) : (
           <FIcon icon={icon} tone={tone} size={72} theme={theme} />
         )}

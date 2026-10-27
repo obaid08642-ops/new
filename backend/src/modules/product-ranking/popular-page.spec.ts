@@ -1,5 +1,7 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
+import { MedicineSchema } from '../../schemas/medicine.schema';
+import { publicMedicineFilter } from '../medicines/public-medicine-filter';
 import { POPULAR_KEY_STAGES, POPULAR_ORDER_STAGES, POPULAR_SORT_PROJECTION, popularPage } from './product-ranking.service';
 
 /**
@@ -41,16 +43,17 @@ describe('popularPage = the old popular order, read the cheap way', () => {
     expect(got).toEqual(expected);                            // same projection too (no _id leaks)
   });
 
-  it('the unfiltered list is answered from the covering index: no document is loaded to sort', async () => {
-    await col.createIndex(
-      { public_eligibility: 1, medical_review_status: 1, rank_score: -1, requires_prescription: 1, availability_status: 1, image_1: 1, image: 1, usage_count: -1, _id: 1 },
-      { name: 'public_popular_covering' },
-    );
-    const plan: any = await col.aggregate([{ $match: filter }, { $project: POPULAR_SORT_PROJECTION }, ...POPULAR_KEY_STAGES, { $skip: 0 }, { $limit: 24 }, { $project: { _id: 1 } }] as any, { explain: 'executionStats' } as any).next();
+  it('the production filter (with is_deleted) is answered from the real schema index: no document is loaded for the page or the count', async () => {
+    const [spec, options] = MedicineSchema.indexes().find(([, o]) => o?.name === 'public_popular_covering_v2')!;
+    await col.createIndex(spec as never, { name: options!.name });
+    const prod = publicMedicineFilter();
+    const plan: any = await col.aggregate([{ $match: prod }, { $project: POPULAR_SORT_PROJECTION }, ...POPULAR_KEY_STAGES, { $skip: 0 }, { $limit: 24 }, { $project: { _id: 1 } }] as any, { explain: 'executionStats' } as any).next();
     const cursorStage = plan.stages?.[0]?.$cursor ?? plan;
-    const text = JSON.stringify(cursorStage);
-    expect(text).toContain('IXSCAN');
+    expect(JSON.stringify(cursorStage)).toContain('IXSCAN');
     expect(cursorStage.executionStats.totalDocsExamined).toBe(0);
+    const count: any = await col.aggregate([{ $match: prod }, { $count: 'n' }] as any, { explain: 'executionStats' } as any).next();
+    const countStage = count.stages?.[0]?.$cursor ?? count;
+    expect(countStage.executionStats.totalDocsExamined).toBe(0);
   });
 
   it('keeps _id when the projection asks for it, and never returns the hidden product', async () => {

@@ -6,9 +6,10 @@ import { ProvidersClient } from "@/components-next/ordering/providers-client";
 import { loadOrderingContext } from "@/components-next/ordering/ordering-context";
 import { isLocale } from "@/lib/i18n";
 import { contextQuery, payOf, placeOf } from "@/lib/ordering/context";
+import { parseSingleItem } from "@/lib/ordering/single";
 import { kindOf, optionalToken } from "@/lib/ordering/server";
 
-type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ item?: string; kind?: string; place?: string; pay?: string }> };
 
 export async function generateMetadata({ params }: Pick<Props, "params">): Promise<Metadata> {
   const { locale } = await params;
@@ -26,14 +27,15 @@ export default async function ProvidersPage({ params, searchParams }: Props) {
   const kind = kindOf(query.kind);
   const place = placeOf(query.place);
   const pay = payOf(query.pay);
+  const item = parseSingleItem(query.item); // "Order now": a one-item order that skips the basket
   const token = await optionalToken(locale);
   if (!token) redirect(`/${locale}/login`);
   const t = await getTranslations("OrderingFlow");
-  const { bar, point } = await loadOrderingContext({ locale, token, path: "/labs/providers", kind, place, pay });
+  const { bar, point } = await loadOrderingContext({ locale, token, path: "/labs/providers", kind, place, pay, item });
   return (
-    <ConsultPage locale={locale} title={t("matchTitle")} backHref={`/${locale}/labs/basket${contextQuery({ kind, place, pay })}`}>
+    <ConsultPage locale={locale} title={t("matchTitle")} backHref={`/${locale}/labs/basket${contextQuery({ kind, place, pay, item })}`}>
       {bar}
-      <ProvidersClient locale={locale} kind={kind} place={place} pay={pay} point={point} />
+      <ProvidersClient locale={locale} kind={kind} place={place} pay={pay} item={item} point={point} />
     </ConsultPage>
   );
 }

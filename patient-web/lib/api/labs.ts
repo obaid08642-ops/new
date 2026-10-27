@@ -37,6 +37,7 @@ const labServiceSchema = z.object({
   unavailable: z.boolean().optional(),
   image_url: z.string().url().max(2048).optional(),
   icon: z.string().max(120).optional(),
+  popularity: z.number().finite().optional(),
 }).strip();
 
 export type LabService = {
@@ -51,6 +52,8 @@ export type LabService = {
   cashAvailable?: boolean;
   homeCollectionAvailable?: boolean; inLabAvailable?: boolean; referralRequired?: boolean;
   unavailable?: boolean; imageUrl?: string; icon?: string;
+  /** The backend's own request count/score (`popularity`); the catalogue list arrives sorted by it. */
+  popularity?: number;
 };
 
 function rowsFrom(payload: unknown): unknown[] {
@@ -79,7 +82,7 @@ function parseLabService(value: unknown): LabService | null {
     isPackage: item.is_package, includedServices: item.included_services, specialNotes: item.special_notes,
     insuranceAvailable: item.insurance_availability, cashAvailable: item.cash_availability, homeCollectionAvailable: item.home_collection_availability,
     inLabAvailable: item.in_lab_availability, referralRequired: item.medical_referral_required,
-    unavailable: item.unavailable, imageUrl: item.image_url, icon: item.icon,
+    unavailable: item.unavailable, imageUrl: item.image_url, icon: item.icon, popularity: item.popularity,
   };
 }
 

@@ -25,10 +25,12 @@ describe('findGaps', () => {
     expect(by.get('ar.description')).toBeUndefined(); // already there
     expect(gaps.findIndex((g) => g.target === 'ur')).toBeGreaterThan(gaps.findIndex((g) => g.target === 'en'));
   });
-  it('never translates from a text sitting in the wrong column; counts it instead', () => {
+  it('never translates from a text sitting in the wrong column: it is moved first, and the gaps are those of the corrected product', () => {
     const r = findGaps(product({ description_en: '', usage_instructions_en: 'نص عربي طويل جدا يوضع خطأ في العمود الإنجليزي هنا' }));
-    expect(r.mislabelled).toBeGreaterThan(0);
-    expect(r.gaps.some((g) => g.field === 'how_to_use' && g.source === 'en')).toBe(false);
+    expect(r.mislabelled).toBe(0);
+    expect(r.moves).toEqual([expect.objectContaining({ field: 'how_to_use', wrong: 'en', right: 'ar', kind: 'move' })]);
+    expect(r.gaps.some((g) => g.field === 'how_to_use' && g.source === 'en')).toBe(false);                          // not translated FROM the Arabic in the English column
+    expect(r.gaps.find((g) => g.field === 'how_to_use' && g.target === 'en')).toMatchObject({ source: 'ar', text: 'نص عربي طويل جدا يوضع خطأ في العمود الإنجليزي هنا' }); // the emptied column is a normal gap, from the moved text
   });
   it('invents nothing: a field that exists nowhere is not a gap', () => {
     expect(findGaps(product()).gaps.some((g) => g.field === 'side_effects')).toBe(false);
