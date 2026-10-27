@@ -4,7 +4,7 @@
   - the admin opens this run's request ("طلب #" + last 8 characters of its id) with "مراجعة وإصدار عرض", enters a unit price for
     each item and clicks "إصدار عرض السعر للصيدلية";
   - MongoDB procurementrequests: this request is QUOTATION_ISSUED, and the pharmacy's list shows it (API read-back).
-Admin cancel and completion are in j_qa_procurement.py (API). A missing browser or admin app is a FAIL, never a PASS."""
+Admin cancel and completion are in j_qa_procurement.py (API). The fresh browser device is enrolled first (D-35), as j_admin_clicks.py does. A missing browser or admin app is a FAIL, never a PASS."""
 import os
 import time
 
@@ -34,6 +34,14 @@ def main():
     pw = sync_playwright().start()
     browser = pw.chromium.launch(executable_path=os.environ.get('CHROMIUM') or None)
     ctx = browser.new_context(locale='ar-SA', viewport={'width': 1280, 'height': 900})
+    # D-35: reuse the gate run's saved browser device (the 2-device limit is per admin account), as j_admin_clicks.py does.
+    try:
+        with open(j_admin.DEVICE_FILE) as f:
+            saved = f.read().strip()
+    except OSError:
+        saved = ''
+    if len(saved) >= 16:
+        ctx.add_cookies([{'name': 'admin_device', 'value': saved, 'domain': '127.0.0.1', 'path': '/'}])
     page = ctx.new_page()
     try:
         journey('procurement PR-02 (admin web): the admin issues a quotation for the request')
@@ -50,6 +58,12 @@ def main():
         page.click('button[type="submit"]')
         page.wait_for_url('**/admin**', timeout=30000)
         step('the admin is signed in to the panel', True, page.url)
+        # D-35: a fresh browser mints its own admin device; enroll it (as j_admin_clicks.py does) or the panel sends it back to login.
+        from lib import enroll_device_flow
+        dev = next((c['value'] for c in ctx.cookies() if c.get('name') == 'admin_device'), None)
+        if dev != saved:
+            _, enroll_client = j_admin.login()
+            enroll_device_flow(enroll_client, dev, EMAIL, 'gate-run-playwright-browser')
 
         page.goto(f'{ADMIN_WEB}/admin/pharmacy-procurement', wait_until='load', timeout=60000)
         card = page.locator('div.rounded-xl', has_text=f'طلب #{row_key}').first
@@ -61,9 +75,9 @@ def main():
         for i in range(prices.count()):
             prices.nth(i).fill(str(10 + i))
         step('the admin enters a unit price for each item', prices.count() >= 1, prices.count())
-        with page.expect_response(lambda resp: '/quotation' in resp.url and resp.request.method == 'POST', timeout=60000) as quoted:
+        with page.expect_response(lambda resp: '/issue-quote/' in resp.url and resp.request.method == 'PATCH', timeout=60000) as quoted:
             page.get_by_role('button', name='إصدار عرض السعر للصيدلية').click()
-        step('the quotation is issued (POST /admin/admin/procurement/:id/quotation)', 200 <= quoted.value.status < 300, quoted.value.status)
+        step('the quotation is issued (PATCH /admin/admin/extended-operations/issue-quote/:id)', 200 <= quoted.value.status < 300, quoted.value.status)
 
         row = j_qa_procurement.request_row(pid)
         step('MongoDB: this request is QUOTATION_ISSUED', bool(row) and row.get('status') == 'QUOTATION_ISSUED', row)
