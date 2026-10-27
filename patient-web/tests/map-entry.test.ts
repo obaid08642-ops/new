@@ -18,8 +18,9 @@ describe("providers map entry", () => {
     expect(parseMapType(undefined)).toBeNull();
   });
 
-  it("is offered on Home and the pharmacy, doctors and diagnostics lists with the right type", () => {
-    expect(read("components-next/home/home-shell.tsx")).toContain("${base}/map");
+  it("is offered on the Home service grid and the doctors list with the right type (not in the Home top bar, owner 2026-10-26)", () => {
+    expect(read("components-next/home/home-shell.tsx")).not.toContain("${base}/map");
+    expect(read("components-next/home/home-parts.tsx")).toContain("${base}/map");
     // owner layout decisions 2026-10-26, item 4: the map lives on Home, not under the pharmacy header
     expect(read("app/[locale]/c/[[...category]]/category-view.tsx")).not.toContain("MapEntryLink");
     expect(read("app/[locale]/consultations/doctors/doctors-view.tsx")).toContain('mapType="doctor"');

@@ -44,6 +44,7 @@ export class Medicine {
   @Prop() approved_at?: Date;
   @Prop() rejected_reason?: string;
   @Prop({ default: 0 }) usage_count: number; // how many times referenced
+  @Prop({ default: 0, index: true }) rank_score: number; // the ranking's composite score, copied here by ProductRankingService so every list can sort by it
   @Prop({ index: true }) barcode?: string; // EAN13 / UPC / GTIN
   // ============ MEDICAL INFO (production-ready medicine details) ============
   @Prop() dosage_ar?: string;
