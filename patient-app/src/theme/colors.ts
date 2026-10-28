@@ -45,8 +45,8 @@ export function colorsFor(theme: 'light' | 'dark'): Colors {
  * have to land on a value. The `#000` fallbacks are unchanged.
  */
 export function resolveColor(c: string | undefined | null, colors?: Record<string, string>) {
-  if (!c) return '#000';
-  if (typeof c !== 'string') return '#000';
+  if (!c) return 'transparent';
+  if (typeof c !== 'string') return 'transparent';
   if (c.startsWith('var(')) {
     const v = c.replace('var(--', '').replace(')', '');
     if (colors && colors[v]) return colors[v];
