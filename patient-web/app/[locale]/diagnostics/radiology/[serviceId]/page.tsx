@@ -86,7 +86,8 @@ export default async function RadiologyServiceDetailPage({ params }: Props) {
     ...(service.fastingRequired ? [{ label: w("tagFasting"), tone: DIAG_TONES.warn } as Tag] : []),
   ];
   const rows: FactRow[] = [
-    ...(service.price !== undefined ? [{ label: w("factPrice"), value: <bdi>{money(locale, service.price)}</bdi>, icon: "tag", tone: RADIOLOGY.tone } as FactRow] : []),
+    // with the offer summary the price is what the centres below charge; the catalogue's base price is the fallback of an older answer
+    ...(service.price !== undefined && service.offer === undefined ? [{ label: w("factPrice"), value: <bdi>{money(locale, service.price)}</bdi>, icon: "tag", tone: RADIOLOGY.tone } as FactRow] : []),
     ...(service.modality ? [{ label: w("factModality"), value: service.modality.toUpperCase(), icon: "scan", tone: RADIOLOGY.tone } as FactRow] : []),
     ...(service.bodyPart ? [{ label: w("factBodyPart"), value: service.bodyPart, icon: "heartbeat", tone: DIAG_TONES.health } as FactRow] : []),
     ...(service.durationMinutes !== undefined ? [{ label: w("factDuration"), value: minutesText(locale, service.durationMinutes), icon: "clock-counter-clockwise", tone: DIAG_TONES.facility } as FactRow] : []),
