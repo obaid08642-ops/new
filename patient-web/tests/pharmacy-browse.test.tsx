@@ -78,7 +78,7 @@ describe("pharmacy browse building blocks", () => {
 
   it("the details keep every section's text in the HTML and open the first one", () => {
     const html = renderToStaticMarkup(
-      <ProductSections
+      <ProductSections locale="en"
         label="details"
         groups={[
           { id: "usage", title: "Usage", sections: [{ id: "dose", title: "Dose", items: ["Adults: one", "Children: half"] }] },

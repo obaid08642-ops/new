@@ -10,9 +10,15 @@ describe('one cart per service', () => {
     expect(cartTargetFor('pharmacy', counts({ pharmacy: 2, lab: 5 }))).toEqual({ kind: 'cart', service: 'pharmacy', route: '/pharmacy/cart', count: 2 });
     expect(cartTargetFor('radiology', counts({ pharmacy: 2, lab: 5, radiology: 1 }))).toEqual({ kind: 'cart', service: 'radiology', route: '/diagnostics/cart', count: 1 });
   });
-  it('Home and the screens of no service have no cart', () => {
-    expect(cartTargetFor(null, counts({ pharmacy: 3, radiology: 1 }))).toEqual({ kind: 'none' });
+  it('Home and the screens of no service have no cart while every cart is empty', () => {
     expect(cartTargetFor(null, counts({}))).toEqual({ kind: 'none' });
+  });
+  it('Home with any non-empty cart offers the chooser: only the non-empty carts, each with its count, the badge is the total', () => {
+    expect(cartTargetFor(null, counts({ pharmacy: 3, radiology: 1 }))).toEqual({
+      kind: 'chooser', count: 4,
+      carts: [{ service: 'pharmacy', count: 3, route: '/pharmacy/cart' }, { service: 'radiology', count: 1, route: '/diagnostics/cart' }],
+    });
+    expect(cartTargetFor(null, counts({ lab: 2 }))).toEqual({ kind: 'chooser', count: 2, carts: [{ service: 'lab', count: 2, route: '/diagnostics/cart' }] });
   });
   it('the routes', () => {
     expect(cartRoute('pharmacy')).toBe('/pharmacy/cart');

@@ -53,7 +53,7 @@ export function HeroCard({ locale, t, eyebrow, title, headingId }: { locale: Loc
         <h1 id={headingId} className={styles.title}>{title}</h1>
       </div>
       <PulseLine />
-      <HeroSearch locale={locale} placeholder={t("searchPlaceholder")} label={t("searchLabel")} button={t("searchButton")} />
+      <HeroSearch locale={locale} placeholder={t("searchPlaceholderShort")} label={t("searchLabel")} button={t("searchButton")} />
     </section>
   );
 }
@@ -266,6 +266,7 @@ export function DoctorsSection({ doctors, locale, t, specialties }: { doctors: D
               specialty={specialtyLabel(specialties, d.specialty) ?? undefined}
               place={d.facility}
               rating={d.rating && d.reviews ? { value: d.rating, count: d.reviews } : undefined}
+              locale={locale}
               nextSlot={formatNextSlot(d.nextSlot, locale) ?? undefined}
               price={d.price ? number.format(d.price) : undefined}
               currency={d.price ? t("currency") : undefined}

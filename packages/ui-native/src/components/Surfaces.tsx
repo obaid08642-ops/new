@@ -120,9 +120,10 @@ export function Chip({ label, count, startIcon, selected = false, loading = fals
   );
 }
 
-export function Badge({ content, tone = 'danger', max = 99, testID, theme = 'light' }: BadgeProps & { theme?: 'light' | 'dark' }) {
+export function Badge({ content, tone = 'danger', max = 99, testID, theme = 'light', format }: BadgeProps & { theme?: 'light' | 'dark'; format?: (n: number) => string }) {
   const n = typeof content === 'number' ? content : Number.parseInt(content, 10);
-  const shown = Number.isFinite(n) && n > max ? `${max}+` : String(content);
+  const fmt = (v: number | string): string => (format && typeof v === 'number' ? format(v) : String(v));
+  const shown = Number.isFinite(n) && n > max ? `${fmt(max)}+` : typeof content === 'number' ? fmt(content) : String(content);
 
   return (
     <View
@@ -438,7 +439,7 @@ export function PriceTag({ amount, currency, was, note, testID, theme = 'light' 
 }
 
 /** DoctorCard board rating: one filled star, value, (count). Nothing without real ratings. */
-export function Rating({ value, count, max = 5, size = 'sm', surface = 'default', formatLabel, testID, theme = 'light' }: RatingProps & { theme?: 'light' | 'dark' }) {
+export function Rating({ value, count, max = 5, size = 'sm', surface = 'default', formatLabel, formatCount, testID, theme = 'light' }: RatingProps & { theme?: 'light' | 'dark'; /** The count in the language's own digits (the app passes its number formatter). */ formatCount?: (n: number) => string }) {
   if (value == null || !(count > 0)) return null;
   const t = tokens(theme);
   const px = size === 'sm' ? 16 : 20;
@@ -457,7 +458,7 @@ export function Rating({ value, count, max = 5, size = 'sm', surface = 'default'
         <Path d={FILL_ICON_PATHS.star} fill={onBrand ? t.color.icon.ratingStarOnBrand : t.color.icon.ratingStar} />
       </Svg>
       <Text style={{ fontSize: size === 'sm' ? 14 : 16, fontWeight: '700', color: ink }}>{shown}</Text>
-      <Text style={{ fontSize: 12, color: ink, opacity: 0.85 }}>{`(${count})`}</Text>
+      <Text style={{ fontSize: 12, color: ink, opacity: 0.85 }}>{`(${formatCount ? formatCount(count) : count})`}</Text>
     </View>
   );
 }

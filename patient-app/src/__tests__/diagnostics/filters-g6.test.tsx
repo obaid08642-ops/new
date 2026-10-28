@@ -1,11 +1,13 @@
 import React from 'react';
 import { readFileSync } from 'node:fs';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import DiagnosticsHub from '../../../app/(tabs)/diagnostics';
 import NursingHub from '../../../app/(tabs)/nursing';
 import { message } from '../../components/screen/ScreenKit';
+import { serveCatalog } from './catalogServer';
 import { activeFilterCount, filterForTab, filtersFor, LAB_FILTERS, RAD_FILTERS } from '../../utils/diagFilters';
 
 /** Owner review G6: the filters of labs, radiology and nursing. TEST values. */
@@ -33,18 +35,19 @@ const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top:
 const wrap = (ui: React.ReactElement) => <SafeAreaProvider initialMetrics={metrics}>{ui}</SafeAreaProvider>;
 
 const SCANS = [
-  { id: 'r-mri', name_en: 'Test MRI knee', price: 500, home_visit_supported: false },
-  { id: 'r-us', name_en: 'Test ultrasound', price: 100, home_visit_supported: true },
-  { id: 'r-ct', name_en: 'Test CT chest', price: 300, home_visit_supported: true },
+  { id: 'r-mri', name_en: 'Test MRI knee', category: 'mri', price: 500, home_visit_supported: false },
+  { id: 'r-us', name_en: 'Test ultrasound', category: 'ultrasound', price: 100, home_visit_supported: true },
+  { id: 'r-ct', name_en: 'Test CT chest', category: 'ct', price: 300, home_visit_supported: true },
 ];
 
 describe('filter options are real (pure)', () => {
   it('each tab offers only options that change its own lists', () => {
-    expect(RAD_FILTERS.map((f) => f.id)).toEqual(['all', 'lowest_price', 'home_visit']);
+    expect(RAD_FILTERS.map((f) => f.id)).toEqual(['all', 'highest_rated', 'lowest_price', 'home_visit']);
     expect(LAB_FILTERS.map((f) => f.id)).toEqual(['all', 'tests', 'packages', 'labs', 'highest_rated', 'lowest_price', 'home_visit']);
     expect(filtersFor('radiology')).toBe(RAD_FILTERS);
     expect(filterForTab('packages', 'radiology')).toBe('all');
     expect(filterForTab('lowest_price', 'radiology')).toBe('lowest_price');
+    expect(filterForTab('highest_rated', 'radiology')).toBe('highest_rated'); // the server rates scans now
   });
   it('the count ignores defaults', () => {
     expect(activeFilterCount('all', '')).toBe(0);
@@ -54,15 +57,12 @@ describe('filter options are real (pure)', () => {
 });
 
 describe('Diagnostics hub, radiology tab (G6)', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    // the public catalogue cache keeps answers between tests: start clean so every page is asked of the (mock) server
+    await AsyncStorage.clear();
     mockTab = 'radiology';
     mockApi.mockReset();
-    mockApi.mockImplementation(async (path: string) => {
-      if (path === '/radiology/modalities') return ['mri', 'ultrasound'];
-      if (path === '/radiology/services?modality=mri') return [SCANS[0]];
-      if (path === '/radiology/services') return SCANS;
-      return [];
-    });
+    mockApi.mockImplementation(async (path: string) => serveCatalog(path, { scans: SCANS }));
   });
 
   it('sheet lists only the options that work here, the home visit option filters, count and reset agree', async () => {
@@ -70,7 +70,7 @@ describe('Diagnostics hub, radiology tab (G6)', () => {
     await waitFor(() => expect(screen.getAllByText('Test CT chest').length).toBeGreaterThan(0), { timeout: 15000 });
     expect(screen.queryByTestId('search-filter-count')).toBeNull();
     await fireEvent.press(screen.getByLabelText(k('diag.hub.filter')));
-    for (const key of ['diag.filter.tests', 'diag.filter.packages', 'diag.filter.labs', 'diag.filter.rating']) expect(screen.queryByText(k(key))).toBeNull();
+    for (const key of ['diag.filter.tests', 'diag.filter.packages', 'diag.filter.labs']) expect(screen.queryByText(k(key))).toBeNull();
     expect(screen.queryByTestId('diag-filter-reset')).toBeNull();
     await fireEvent.press(screen.getByText(k('diag.filter.price')));
     await waitFor(() => expect(screen.getByLabelText(`${k('diag.hub.filter')} (1)`)).toBeTruthy());
@@ -92,9 +92,21 @@ describe('Diagnostics hub, radiology tab (G6)', () => {
     await waitFor(() => expect(screen.getAllByText('Test CT chest').length).toBeGreaterThan(0), { timeout: 15000 });
     await fireEvent.press(screen.getByLabelText(k('diag.hub.filter')));
     await fireEvent.press(screen.getByText(k('diag.filter.price')));
+    await waitFor(() => expect(mockApi.mock.calls.some(([path]) => /^\/radiology\/services\?page=1&limit=20&home_visit=true&lowest_price=true$/.test(String(path)))).toBe(true));
     const names = screen.getAllByText(/^Test (MRI|ultrasound|CT)/).map((n) => n.props.children);
     // the strip repeats names above the "All scans" list: compare the list's own (last) occurrences
     expect(names.lastIndexOf('Test ultrasound')).toBeLessThan(names.lastIndexOf('Test CT chest'));
+    // the server orders (lowest_price=true), and the place home asks for home_visit=true: the knee MRI that is not done at home is not listed
+    expect(screen.queryByText('Test MRI knee')).toBeNull();
+  });
+
+  it('highest rated is offered on the scans and sent to the server as highest_rated=true', async () => {
+    await render(wrap(<DiagnosticsHub />));
+    await waitFor(() => expect(screen.getAllByText('Test CT chest').length).toBeGreaterThan(0), { timeout: 15000 });
+    await fireEvent.press(screen.getByLabelText(k('diag.hub.filter')));
+    await fireEvent.press(screen.getByText(k('diag.filter.rating')));
+    await waitFor(() => expect(mockApi.mock.calls.some(([path]) => String(path).includes('highest_rated=true') && String(path).startsWith('/radiology/services'))).toBe(true));
+    expect(screen.getByTestId('diag-active-highest_rated')).toBeTruthy();
   });
 
   it('switching to the labs tab drops a filter the labs tab does not have', async () => {

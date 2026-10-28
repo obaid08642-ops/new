@@ -10,7 +10,7 @@ import { Glyph } from '../pharmacy/PharmacyKit';
 import { Money } from '../pharmacy/OfferKit';
 import { Chevron } from '../consult/ConsultKit';
 import { statusLook, type OrderKind } from '../../utils/orderCenter';
-import { optimizedImageUri } from '../../utils/optimizedImage';
+import { ItemPhoto } from './ItemPhoto';
 import type { DiagArtKey } from '../../../../packages/ui/icons/diag-art';
 import { DiagArt } from './DiagArt';
 
@@ -86,7 +86,7 @@ export function Price({ amount, size = 'bodyStrong', unit = 'tag' }: { amount: n
 
 /** A label and an amount on one row (subtotal, discount, total). `strong` is the total line, `success` the saving. */
 export function AmountLine({ label, amount, strong = false, success = false, minus = false }: { label: string; amount: number; strong?: boolean; success?: boolean; minus?: boolean }) {
-  const { t, c, flow, money, k } = useScreenUi();
+  const { t, c, flow, money, k, num } = useScreenUi();
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
       <Text style={{ flex: 1, minWidth: 0, ...scale(t, strong ? 'bodyStrong' : 'small', strong ? 'bold' : 'regular'), color: success ? c.status.success.fg : strong ? c.text.primary : c.text.secondary, ...flow }}>{label}</Text>
@@ -166,13 +166,15 @@ export function TestRow({ name, tags, note, price, onPress, toggle, icon, last =
 
 export interface ItemCardProps {
   name: string;
-  /** The category illustration (blood, X-ray ...); the item's own `image` replaces it only when the backend sent one. */
+  /** The category illustration (blood, X-ray ...), only the FALLBACK: the item's own `image` is drawn first. */
   art: DiagArtKey;
   image?: string;
   /** A fixed width for a sideways strip; omitted = the full width of the list. */
   width?: number;
   tags?: Array<{ label: string; tone: ServiceTone | 'neutral' }>;
   note?: string;
+  /** "Rating 4.5 (12)" already formatted; omitted unless the server sent a rating above 0. */
+  rating?: string;
   price: number | null;
   inCart: boolean;
   addLabel: string;
@@ -185,16 +187,12 @@ export interface ItemCardProps {
 }
 
 /** A catalogue test or scan as a large card: its illustration next to the name, the tags, the note and the price, then "Add to cart" and "Order now". */
-export function ItemCard({ name, art, image, width, tags, note, price, inCart, addLabel, inCartLabel, orderLabel, onPress, onAdd, onOrder, testID }: ItemCardProps) {
+export function ItemCard({ name, art, image, width, tags, note, rating, price, inCart, addLabel, inCartLabel, orderLabel, onPress, onAdd, onOrder, testID }: ItemCardProps) {
   const { theme, t, c, flow } = useScreenUi();
   return (
     <View testID={testID} style={{ width, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, padding: 16, gap: 14 }}>
       <Pressable accessibilityRole="button" accessibilityLabel={name} onPress={onPress} style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 56, opacity: pressed ? 0.85 : 1 })}>
-        {image ? (
-          <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: optimizedImageUri(image, 56) }} style={{ width: 56, height: 56, borderRadius: 16, backgroundColor: c.bg.sunken }} contentFit="cover" />
-        ) : (
-          <DiagArt art={art} size={56} />
-        )}
+        <ItemPhoto image={image} size={56} radius={16} bg={c.bg.sunken} fallback={<DiagArt art={art} size={56} />} />
         <View style={{ flex: 1, minWidth: 0, gap: 6 }}>
           <Text style={{ ...scale(t, 'bodyStrong', 'medium'), color: c.text.primary, ...flow }}>{name}</Text>
           {tags && tags.length > 0 ? (
@@ -205,6 +203,7 @@ export function ItemCard({ name, art, image, width, tags, note, price, inCart, a
             </View>
           ) : null}
           {note ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{note}</Text> : null}
+          {rating ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{rating}</Text> : null}
           {price !== null ? <Price amount={price} /> : null}
         </View>
       </Pressable>
@@ -238,7 +237,7 @@ export interface PackageCardProps {
 
 /** The board's package card (ServiceHub): a tone wash, icon and count, name, line, price and the ink action. */
 export function PackageCard({ name, desc, count, price, oldPrice, icon, tone, actionLabel, onPress, width, testID }: PackageCardProps) {
-  const { theme, t, c, flow, money, k } = useScreenUi();
+  const { theme, t, c, flow, money, k, num } = useScreenUi();
   const look = c.service[tone];
   return (
     <Pressable
@@ -429,12 +428,12 @@ export function cartBarBottom(tabBarHeight: number): number {
 
 /** The cart bar the hub floats above the tab bar: the count, the total and the one action. */
 export function CartBar({ count, total, actionLabel, countLabel, totalLabel, bottom, onPress }: { count: number; total: number; actionLabel: string; countLabel: string; totalLabel: string; bottom: number; onPress: () => void }) {
-  const { t, c, flow, money, k } = useScreenUi();
+  const { t, c, flow, money, k, num } = useScreenUi();
   return (
     <View style={{ position: 'absolute', start: 16, end: 16, bottom }}>
       <View style={{ borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, padding: 12, flexDirection: 'row', alignItems: 'center', gap: 12, boxShadow: t.shadow.card }}>
         <View accessibilityLabel={countLabel} style={{ minWidth: 40, height: 40, borderRadius: 14, backgroundColor: c.service[SERVICE_ICONS.pharmacy.tone].bg, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.service[SERVICE_ICONS.pharmacy.tone].fg }}>{count}</Text>
+          <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.service[SERVICE_ICONS.pharmacy.tone].fg }}>{num(count)}</Text>
         </View>
         <View style={{ flex: 1, minWidth: 0 }}>
           <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.secondary, ...flow }}>{totalLabel}</Text>
@@ -531,13 +530,7 @@ export function DetailHead({ icon, tone, image, title, body, art }: { icon: Fill
   return (
     <Card theme={theme} tint={tone} padding="lg">
       <View style={{ alignItems: 'center', gap: 10 }}>
-        {image ? (
-          <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: optimizedImageUri(image, 96) }} style={{ width: 96, height: 96, borderRadius: 24, backgroundColor: c.bg.surface }} contentFit="cover" />
-        ) : art ? (
-          <DiagArt art={art} size={72} />
-        ) : (
-          <FIcon icon={icon} tone={tone} size={72} theme={theme} />
-        )}
+        <ItemPhoto image={image} size={96} radius={24} bg={c.bg.surface} fallback={art ? <DiagArt art={art} size={72} /> : <FIcon icon={icon} tone={tone} size={72} theme={theme} />} />
         <Text accessibilityRole="header" style={{ ...scale(t, 'h2'), color: c.text.primary, textAlign: 'center' }}>{title}</Text>
         {body ? <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, textAlign: 'center' }}>{body}</Text> : null}
       </View>

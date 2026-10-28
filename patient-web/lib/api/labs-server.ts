@@ -35,6 +35,9 @@ export async function getPublicLabService(serviceId: string): Promise<Response |
 
 export async function getPublicLabServices(
   params: {
+    /** with `page` the answer is { data, total, page, limit, total_pages }; without it the plain array */
+    page?: number;
+    limit?: number;
     category?: string;
     search?: string;
     homeOnly?: boolean;
@@ -44,6 +47,10 @@ export async function getPublicLabServices(
   } = {}
 ): Promise<Response | null> {
   const query = new URLSearchParams();
+  if (params.page !== undefined && Number.isInteger(params.page) && params.page >= 1) {
+    query.set("page", String(params.page));
+    query.set("limit", String(params.limit !== undefined && Number.isInteger(params.limit) && params.limit >= 1 ? Math.min(params.limit, 100) : 20));
+  }
   const category = validQuery(params.category);
   const search = validQuery(params.search);
   if (category) query.set("category", category);

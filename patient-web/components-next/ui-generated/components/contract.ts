@@ -542,6 +542,8 @@ export interface RatingProps extends A11yProps {
   surface?: 'default' | 'onBrand';
   /** Supplied by the caller so the sentence is localised by the app, not here. */
   formatLabel?: (value: number, count: number) => string;
+  /** The reader's locale: the value and the count are written in its own digits (one numbering system per screen). */
+  locale?: string;
 }
 
 /* ------------------------------------------------------------- navigation */

@@ -9,7 +9,6 @@ import {
 } from "@/components-next/ui-generated/icons/diag-art";
 import { SERVICE_TONES } from "@/components-next/ui-generated/icons/fill";
 import { DiagArt } from "@/components-next/diagnostics/diag-art";
-import { CATALOG_STEP, nextCount, openRows } from "@/lib/catalog-window";
 import { addLine, emptyBasket, parseBasket, serializeBasket } from "@/lib/ordering/basket";
 import { contextQuery } from "@/lib/ordering/context";
 import { providerPriceList, type ProviderRow } from "@/lib/ordering/quote";
@@ -73,11 +72,10 @@ describe("A: one illustration per category", () => {
     }
     expect(code("components-next/diagnostics/diag-art.module.css")).toContain("var(--nabd-tone-fg)");
   });
-  it("uses the item's own photo only when the backend sends one", () => {
+  it("shows the item's own photo first and the category art only as the fallback", () => {
     const card = code("components-next/diagnostics/item-card.tsx");
-    expect(card).toContain("allowedImageUrl(imageUrl)");
-    expect(card).toContain("image ? <PhotoWithFallback");
-    expect(card).toContain("fallback={picture}");
+    expect(card).toContain("<ItemPicture imageUrl={imageUrl} fallback={<DiagArt art={art} size={56} />} />");
+    expect(code("components-next/diagnostics/item-picture.tsx")).toContain("fallback={fallback}");
   });
 });
 
@@ -108,19 +106,10 @@ describe("B: chips filter, search stays, most requested, infinite window", () =>
     expect(mostRequested([], 6)).toEqual([]);
     expect(rows.map((r) => r.id)).toEqual(["a", "b", "c", "d"]); // the input is not reordered
   });
-  it("opens the list a step at a time and stops at the end", () => {
-    const list = Array.from({ length: 45 }, (_, i) => i);
-    expect(openRows(list, 20)).toEqual({ shown: list.slice(0, 20), hasMore: true });
-    expect(openRows(list, nextCount(20, 45)).shown).toHaveLength(40);
-    expect(nextCount(40, 45)).toBe(45);
-    expect(openRows(list, nextCount(45, 45))).toEqual({ shown: list, hasMore: false });
-    expect(openRows([1, 2], 0)).toEqual({ shown: [1, 2], hasMore: false });
-    expect(CATALOG_STEP).toBe(20);
-  });
   it("the page wires chips, search, the strip and the island", () => {
     const hub = code("app/[locale]/diagnostics/page.tsx");
-    expect(hub).toContain("mostRequested(testPool, MOST_REQUESTED)");
-    expect(hub).toContain("filter.q ? [] :"); // the strip is for the unfiltered hub
+    expect(hub).toContain("limit: MOST_REQUESTED"); // the strip is the first six in the server\u0027s popularity order
+    expect(hub).toContain("wantsTests && !filter.q ?"); // the strip is for the unfiltered hub
     expect(hub).toContain('t("allTestsTitle")');
     expect(hub).toContain('t("allScansTitle")');
     const island = code("components-next/diagnostics/item-catalog.tsx");

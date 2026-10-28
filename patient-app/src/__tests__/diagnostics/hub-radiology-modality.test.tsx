@@ -4,8 +4,9 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import DiagnosticsHub from '../../../app/(tabs)/diagnostics';
 import { message } from '../../components/screen/ScreenKit';
+import { serveCatalog } from './catalogServer';
 
-/** Owner review G4 (lead round): the radiology side filters by category chips (X-ray, CT, MRI, ultrasound, mammography, ECG/echo) on the client, from each scan's modality. TEST values. */
+/** Owner review G4 (lead round): the radiology side filters by category chips (X-ray, CT, MRI, ultrasound, mammography, ECG/echo) on the SERVER (the scan's category = its modality). TEST values. */
 
 jest.setTimeout(30000);
 const mockApi = jest.fn();
@@ -31,8 +32,8 @@ const k = (key: string) => message('en', key);
 const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 47, bottom: 34, left: 0, right: 0 } };
 
 const ALL = [
-  { id: 'r-mri', name_en: 'Test knee scan', modality: 'mri', price: 500, home_visit_supported: true, popularity: 5 },
-  { id: 'r-us', name_en: 'Test belly scan', modality: 'ultrasound', price: 100, home_visit_supported: true, popularity: 1 },
+  { id: 'r-mri', name_en: 'Test knee scan', modality: 'mri', category: 'mri', price: 500, home_visit_supported: true, popularity: 5 },
+  { id: 'r-us', name_en: 'Test belly scan', modality: 'ultrasound', category: 'ultrasound', price: 100, home_visit_supported: true, popularity: 1 },
 ];
 
 describe('Diagnostics hub, radiology: category chips', () => {
@@ -40,10 +41,10 @@ describe('Diagnostics hub, radiology: category chips', () => {
     mockApi.mockReset();
     mockPush.mockReset();
     mockAdd.mockReset();
-    mockApi.mockImplementation(async (path: string) => (path === '/radiology/services' ? ALL : []));
+    mockApi.mockImplementation(async (path: string) => serveCatalog(path, { scans: ALL }));
   });
 
-  it('filters the loaded scans by their category on the client and back to all (no server call per chip)', async () => {
+  it('filters the scans by their category on the server and back to all', async () => {
     await render(<SafeAreaProvider initialMetrics={metrics}><DiagnosticsHub /></SafeAreaProvider>);
     await waitFor(() => expect(screen.getByTestId('diag-scan-r-us')).toBeTruthy(), { timeout: 15000 });
     expect(screen.getByLabelText(k('diag.cat.group'))).toBeTruthy();
@@ -53,7 +54,9 @@ describe('Diagnostics hub, radiology: category chips', () => {
     expect(screen.getByTestId('diag-scan-r-mri')).toBeTruthy();
     await fireEvent.press(screen.getByTestId('diag-cat-all'));
     await waitFor(() => expect(screen.getByTestId('diag-scan-r-us')).toBeTruthy());
-    expect(mockApi.mock.calls.filter(([path]) => String(path).includes('modality'))).toHaveLength(0);
+    const paths = mockApi.mock.calls.map(([path]) => String(path));
+    expect(paths.some((path) => path.startsWith('/radiology/services?page=1&limit=20&category=mri'))).toBe(true);
+    expect(paths.some((path) => path.includes('/radiology/modalities'))).toBe(false);
   });
 
   it('shows a category with nothing in it as an empty line, not a blank screen', async () => {

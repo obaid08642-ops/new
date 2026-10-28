@@ -38,7 +38,8 @@ describe("the header favourites button", () => {
     expect(phone.indexOf("cartLink(styles.phoneOnly)")).toBeLessThan(phone.indexOf("<PhoneMenu"));
     expect(phone.indexOf("<PhoneMenu")).toBeLessThan(phone.indexOf("styles.tools"));
     const home = read("components-next/home/home-shell.tsx");
-    expect(home).not.toContain("<CartLink");
+    expect(home.indexOf("<CartLink")).toBeGreaterThan(-1);
+    expect(home.indexOf("<CartLink")).toBeLessThan(home.indexOf("<PhoneMenu"));
     expect(home).not.toContain("<SignOutButton");
   });
 });

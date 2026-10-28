@@ -4,7 +4,7 @@ import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-nati
 import { Avatar, Card } from '../../../../packages/ui-native/src';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { Glyph } from '../pharmacy/PharmacyKit';
-import { dateLocaleFor } from '../../utils/dates';
+import { dateLocaleFor, numberingFor } from '../../utils/dates';
 import { MODE_LOOK, type VisitMode } from './ConsultKit';
 
 /**
@@ -33,7 +33,7 @@ export function useDays(count: number): DayItem[] {
         iso: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
         name: i === 0 ? k('consult.today') : i === 1 ? k('consult.tomorrow') : new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(d),
         day: num(d.getDate(), { useGrouping: false }),
-        month: new Intl.DateTimeFormat(locale, { month: 'short', numberingSystem: 'latn' }).format(d),
+        month: new Intl.DateTimeFormat(locale, { month: 'short', numberingSystem: numberingFor(lang) }).format(d),
       });
     }
     return out;

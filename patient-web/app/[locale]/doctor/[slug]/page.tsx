@@ -10,13 +10,17 @@ import { specialtyLabel } from "@/lib/specialties";
 import { getPublicDoctorEntity } from "@/lib/api/doctors-server";
 import { getPublicConfig } from "@/lib/api/public-config-server";
 import { parseLateGuarantee } from "@/lib/consult/late-guarantee";
-import { licenseOf } from "@/lib/api/doctors";
+import { extractDoctors, extractEntityReviews, licenseOf, spokenLanguages } from "@/lib/api/doctors";
 import { GuaranteeLine, LicenseLine } from "@/components-next/consult/differentiators";
-import { formatNumber } from "@/lib/format-price";
+import { formatNumber, formatYear } from "@/lib/format-price";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import styles from "@/components-next/consult/consult.module.css";
 import { ProfileHeader, type ProfileStat } from "@/components-next/consult/profile-header";
 import { ActionLinks, SectionCard } from "@/components-next/consult/consult-parts";
+import { BioSection, ClinicGallery, EducationSection, ReviewList } from "@/components-next/consult/doctor-sections";
+import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { reviewItems } from "@/lib/consult/doctor-reviews";
+import { summaryItems } from "@/lib/consult/doctor-summary";
 import { DoctorSchedule, type ScheduleType } from "@/components-next/consult/doctor-schedule";
 import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
 
@@ -95,9 +99,16 @@ export default async function DoctorCanonicalPage({ params }: Props) {
   const doctorPath = `/doctor/${slug}${city ? `/${encodeURIComponent(city)}` : ""}`;
 
   const stats: ProfileStat[] = [];
-  if (doctor.rating) stats.push({ value: formatNumber(locale, Number(doctor.rating)), label: c("statRating") });
   if (doctor.experience_years) stats.push({ value: formatNumber(locale, Number(doctor.experience_years)), label: c("statYears") });
+  const doctorsT = await getTranslations("Doctors");
   const specialtyName = specialtyLabel(names, doctor.specialty);
+  // the new public payload fields (photo, gallery, about, languages, education, rating, first page of reviews) read through the same mapper as the full profile
+  const profile = extractDoctors([doctor])[0];
+  const summary = summaryItems({ locale, specialty: specialtyName || undefined, rating: profile?.rating, reviews: profile?.reviews, waitText: () => "" });
+  const spoken = spokenLanguages(locale, profile?.languages);
+  const educationRows = (profile?.education ?? []).map((e) => [e.degree, e.institution, e.year !== undefined ? formatYear(locale, e.year) : undefined].filter(Boolean).join(" · "));
+  const entityReviews = extractEntityReviews(doctor);
+  const reviews = reviewItems(entityReviews.items, locale, { anonymous: doctorsT("reviewerAnonymous"), subLabels: {} });
   const MODE_KEYS = { clinic: "modeClinic", video: "modeVideo", home: "modeHome" } as const;
   const modes = (Array.isArray(doctor.consultation_modes) ? doctor.consultation_modes : [])
     .filter((m: string): m is keyof typeof MODE_KEYS => m in MODE_KEYS)
@@ -111,7 +122,6 @@ export default async function DoctorCanonicalPage({ params }: Props) {
     seo("doctorBook"),
   ];
   const guarantee = parseLateGuarantee(await getPublicConfig().catch(() => null));
-  const doctorsT = await getTranslations("Doctors");
   // the entity record carries the licence only when the server sends `license` / `scfhs_license_no` on it; otherwise the line stays hidden
   const license = licenseOf(doctor.license, doctor.scfhs_license_no);
   // the visit types the entity record offers (clinic first, as the booking page opens), in the order the booking page lists them
@@ -140,7 +150,7 @@ export default async function DoctorCanonicalPage({ params }: Props) {
         ]}
       />
       <DirectAnswer sentences={directAnswer} />
-      <ProfileHeader line={[specialtyLabel(names, doctor.specialty), facilityName].filter(Boolean).join(" · ") || undefined} stats={stats} />
+      <ProfileHeader photoSrc={profile?.photo} photoAlt={profile?.photo ? doctorsT("doctorPhotoAlt", { name: doctorName }) : undefined} largePhoto={Boolean(profile?.photo)} summary={summary} summaryLabel={doctorsT("summaryLabel")} line={[specialtyLabel(names, doctor.specialty), facilityName].filter(Boolean).join(" · ") || undefined} stats={stats} />
       <LicenseLine text={license ? doctorsT("licenseLine", { number: license.number }) : null} verifiedLabel={license?.verified ? doctorsT("licenseVerified") : undefined} />
       <GuaranteeLine text={guarantee ? doctorsT("guaranteeLine", { minutes: guarantee.minutes, points: guarantee.points }) : null} />
       {scheduleTypes.length > 0 && doctor.id ? (
@@ -150,14 +160,23 @@ export default async function DoctorCanonicalPage({ params }: Props) {
             locale={locale}
             types={scheduleTypes.map((type) => ({ value: type, label: doctorsT(`service_${type}`) }))}
             initialType={scheduleTypes[0]}
-            bookHref={`/${locale}/consultations/book/${encodeURIComponent(String(doctor.id))}`}
-            labels={{ daysLabel: doctorsT("scheduleDaysLabel"), timesLabel: doctorsT("scheduleTimesLabel"), typesLabel: doctorsT("serviceTypeLabel"), today: doctorsT("scheduleToday"), tomorrow: doctorsT("scheduleTomorrow"), loading: doctorsT("scheduleLoading"), empty: doctorsT("scheduleEmpty"), noDays: doctorsT("scheduleNoDays"), error: doctorsT("scheduleError"), retry: doctorsT("scheduleRetry"), signIn: doctorsT("scheduleSignIn"), book: doctorsT("chooseDayTime") }}
+            labels={{ daysLabel: doctorsT("scheduleDaysLabel"), timesLabel: doctorsT("scheduleTimesLabel"), typesLabel: doctorsT("serviceTypeLabel"), today: doctorsT("scheduleToday"), tomorrow: doctorsT("scheduleTomorrow"), loading: doctorsT("scheduleLoading"), empty: doctorsT("scheduleEmpty"), noDays: doctorsT("scheduleNoDays"), error: doctorsT("scheduleError"), retry: doctorsT("scheduleRetry") }}
           />
         </SectionCard>
       ) : null}
       {insurers.length > 0 ? (
         <SectionCard id="doctor-insurance" title={c("acceptedInsurance")}>
           <div className={styles.chips}>{insurers.map((ins) => <span key={ins} className={styles.tag}>{ins}</span>)}</div>
+        </SectionCard>
+      ) : null}
+      <ClinicGallery id="clinic-photos-title" title={doctorsT("clinicPhotosTitle")} photos={profile?.clinicPhotos} openLabel={(n) => doctorsT("clinicPhotoOpen", { n })} altLabel={(n) => doctorsT("clinicPhotoAlt", { n })} />
+      <BioSection id="bio-title" title={doctorsT("bioTitle")} bio={profile?.bio} />
+      {spoken ? <SectionCard id="info-title" title={doctorsT("infoTitle")}><p className={styles.body}>{doctorsT("languagesLabel")}: {spoken}</p></SectionCard> : null}
+      <EducationSection id="education-title" title={doctorsT("educationTitle")} rows={educationRows} />
+      {reviews.length > 0 ? (
+        <SectionCard id="reviews-title" title={doctorsT("reviewsTitle")}>
+          <ReviewList items={reviews} scoreLabel={(score) => c("ratingOutOf", { value: formatNumber(locale, score) })} />
+          {doctor.id ? <ButtonLink href={`/${locale}/consultations/doctors/${encodeURIComponent(String(doctor.id))}/reviews`} label={doctorsT("reviewsSeeAll")} variant="outline" /> : null}
         </SectionCard>
       ) : null}
       <ActionLinks actions={[{ href: `/${locale}/consultations/doctors/${doctor.id || slug}`, label: c("actionBookConsultation") }]} />

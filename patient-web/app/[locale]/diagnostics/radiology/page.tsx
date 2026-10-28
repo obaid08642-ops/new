@@ -15,7 +15,7 @@ import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 import { pickName } from "@/lib/i18n/localized";
 import Link from "next/link";
 import { radiologyFilterCount } from "@/lib/diagnostics-filter-count";
-import { byPrice } from "@/lib/diagnostics-hub";
+import { ratingLine } from "@/components-next/diagnostics/catalog-rows";
 import { diagArtKey, isMachineValue } from "@/components-next/ui-generated/icons/diag-art";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<Record<string, string | string[] | undefined>> };
@@ -51,7 +51,7 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
   const modality = first(query.modality) ?? "";
   const bodyPart = first(query.body_part) ?? "";
   const [servicesResult, modalitiesResult] = await Promise.all([
-    getPublicRadiologyServices({ modality, bodyPart, search, homeVisit: on(query.home_visit) ? "true" : undefined, homeOnly: on(query.home_only) ? "true" : undefined }),
+    getPublicRadiologyServices({ modality, bodyPart, search, homeVisit: on(query.home_visit) ? "true" : undefined, homeOnly: on(query.home_only) ? "true" : undefined, lowestPrice: on(query.lowest_price) ? "true" : undefined, highestRated: on(query.highest_rated) ? "true" : undefined }),
     getPublicRadiologyModalities(),
   ]);
   const t = await getTranslations("RadiologyServices");
@@ -64,12 +64,12 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
       </ConsultPage>
     );
   }
-  // "Lowest price" orders the loaded list here: GET /radiology/services ignores lowest_price (it always sorts by popularity), and it returns every row.
+  // "Lowest price" and "Highest rated" order the list on the SERVER (GET /radiology/services: lowest_price, highest_rated; the rating is the mean of the centres that perform the scan)
   const lowestPrice = on(query.lowest_price);
-  const rows = extractRadiologyServices(await servicesResult.json().catch(() => null));
-  const services = lowestPrice ? byPrice(rows) : rows;
+  const highestRated = on(query.highest_rated);
+  const services = extractRadiologyServices(await servicesResult.json().catch(() => null));
   const homeVisit = on(query.home_visit);
-  const activeCount = radiologyFilterCount({ modality, bodyPart, homeVisit, lowestPrice });
+  const activeCount = radiologyFilterCount({ modality, bodyPart, homeVisit, lowestPrice, highestRated });
   const modalityValues = modalitiesResult?.ok ? ((await modalitiesResult.json().catch(() => null)) as unknown) : [];
   const modalityList = Array.isArray(modalityValues) ? modalityValues.filter((x): x is string => typeof x === "string") : [];
 
@@ -94,7 +94,8 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
             </div>
             <div className={styles.checks}>
               <CheckField name="home_visit" label={t("homeVisit")} defaultChecked={homeVisit} />
-              <CheckField name="lowest_price" label={t("lowestPrice")} defaultChecked={on(query.lowest_price)} />
+              <CheckField name="lowest_price" label={t("lowestPrice")} defaultChecked={lowestPrice} />
+              <CheckField name="highest_rated" label={w("sortRating")} defaultChecked={highestRated} />
             </div>
           </>
         }
@@ -116,8 +117,9 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
               ...(service.contrastRequired ? [{ label: w("tagContrast"), tone: DIAG_TONES.warn } as Tag] : []),
             ];
             const sub = [
-              w(CAT_LABEL[diagArtKey({ kind: "radiology", modality: [service.modality, service.modalityCategory].filter(Boolean).join(" "), bodyPart: service.bodyPart, names: Object.values(service.names) })]),
+              w(CAT_LABEL[diagArtKey({ kind: "radiology", category: service.category, modality: [service.modality, service.modalityCategory].filter(Boolean).join(" "), bodyPart: service.bodyPart, names: Object.values(service.names) })]),
               isMachineValue(service.bodyPart) ? undefined : service.bodyPart,
+              ratingLine({ locale, tr: (key, values) => w(key, values) }, service.rating, service.ratingCount),
               service.price !== undefined ? w("fromPrice", { price: money(locale, service.price) }) : undefined,
               service.durationMinutes !== undefined ? minutesText(locale, service.durationMinutes) : undefined,
               service.turnaroundHours !== undefined ? w("resultWithin", { time: hoursText(locale, service.turnaroundHours) }) : undefined,

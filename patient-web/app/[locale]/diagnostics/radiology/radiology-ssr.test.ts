@@ -23,20 +23,19 @@ describe("Radiology Services SSR", () => {
     expect(html).not.toContain("style=");
     expect(state.services).toHaveBeenCalledWith(expect.objectContaining({ modality: "xray", homeVisit: "true", search: "chest" }));
   });
-  it("G6: each offered filter is real, lowest price orders here, reset and the count agree", async () => {
+  it("G6: each offered filter is real, the server orders by price and rating, reset and the count agree", async () => {
     state.services.mockResolvedValue(new Response(JSON.stringify([
-      { _id: "6a7600a27b25eeca204de283", name_en: "Pricey Scan", modality: "mri", price: 900 },
-      { _id: "6a7600a27b25eeca204de284", name_en: "Cheap Scan", modality: "mri", price: 90 },
+      { _id: "6a7600a27b25eeca204de284", name_en: "Cheap Scan", modality: "mri", price: 90, category: "mri", rating: 4.5, rating_count: 12 },
+      { _id: "6a7600a27b25eeca204de283", name_en: "Pricey Scan", modality: "mri", price: 900, category: "mri", rating: null, rating_count: 0 },
     ]), { status: 200 }));
     const html = await render({ modality: "MRI", home_visit: "1", lowest_price: "1", highest_rated: "1" });
-    // the backend ignores highest_rated / lowest_price, so neither is sent and "highest rated" is not offered
-    const sent = state.services.mock.calls[0][0] as Record<string, unknown>;
-    expect(sent).toMatchObject({ modality: "MRI", homeVisit: "true" });
-    expect(sent).not.toHaveProperty("lowestPrice");
-    expect(sent).not.toHaveProperty("highestRated");
-    expect(html).not.toContain('name="highest_rated"');
+    // the backend sorts now: both flags are sent, the list keeps the server's order
+    expect(state.services.mock.calls[0][0]).toMatchObject({ modality: "MRI", homeVisit: "true", lowestPrice: "true", highestRated: "true" });
+    expect(html).toContain('name="highest_rated"');
     expect(html.indexOf("Cheap Scan")).toBeLessThan(html.indexOf("Pricey Scan"));
-    expect(html).toContain("Filters on: 3");
+    expect(html).toContain("Rating 4.5 (12)");
+    expect(html.match(/Rating /g)).toHaveLength(1); // no rating line for the unrated scan
+    expect(html).toContain("Filters on: 4");
     expect(html).toContain('href="/en/diagnostics/radiology"');
     expect(html).toContain("Reset filters");
   });

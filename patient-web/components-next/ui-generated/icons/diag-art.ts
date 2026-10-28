@@ -161,9 +161,33 @@ const RAD_RULES: readonly Rule[] = [
   ['xray', /x-?ray|radiograph|dexa|densitom|fluorosc|أشعة سينية|اشعة سينية|إكس|ایکس رے|एक्स-रे|এক্স-রে/],
 ];
 
+/**
+ * The backend's own `category` of a row (`GET /labs/services`: the lab category; `GET /radiology/services`: the scan's modality, sent on every
+ * scan) when it IS one of the known values. Values are the ones the catalogue holds (seeded lab categories blood, hormones, vitamins, diabetes,
+ * liver, kidney; scan modalities xray, ct, mri, ultrasound, mammography); any other value is not guessed here and falls to the word lists.
+ */
+const BACKEND_CATEGORY_ART: Readonly<Record<string, DiagArtKey>> = {
+  blood: 'blood', blood_test: 'blood',
+  hormones: 'hormones', hormone: 'hormones',
+  vitamins: 'vitamins', vitamin: 'vitamins', supplements: 'vitamins',
+  sugar: 'sugar', diabetes: 'sugar', glucose: 'sugar',
+  urine: 'urine', stool: 'urine',
+  liver: 'liver', kidney: 'liver',
+  xray: 'xray', x_ray: 'xray',
+  ct: 'ct', mri: 'mri', ultrasound: 'ultrasound', mammography: 'mammography',
+  ecg: 'ecg', echo: 'ecg',
+};
+
+/** The art of a backend `category` value for a kind, or null when the value is empty, unknown, or belongs to the other kind. */
+export function artOfBackendCategory(kind: DiagKind, category: string | undefined): DiagArtKey | null {
+  const key = (category ?? '').trim().toLowerCase().replace(/[\s-]+/g, '_');
+  const art = Object.prototype.hasOwnProperty.call(BACKEND_CATEGORY_ART, key) ? BACKEND_CATEGORY_ART[key] : undefined;
+  return art && (diagArtKeysOf(kind) as readonly string[]).includes(art) ? art : null;
+}
+
 export type DiagArtInput = {
   kind: DiagKind;
-  /** The lab test's category (free text from the backend). */
+  /** The row's `category` from the backend (lab: free text; scan: the modality, sent on every scan). A known value decides the art first. */
   category?: string;
   /** The lab test's sample type (blood, urine, stool ...). */
   sampleType?: string;
@@ -185,6 +209,8 @@ const firstMatch = (rules: readonly Rule[], text: string): DiagArtKey | null => 
  * Nothing matches: the kind's fallback (blood for labs, X-ray for scans). Always one of the keys of that kind.
  */
 export function diagArtKey(input: DiagArtInput): DiagArtKey {
+  const direct = artOfBackendCategory(input.kind, input.category);
+  if (direct) return direct;
   const lower = (...parts: Array<string | undefined>) => parts.filter((p): p is string => typeof p === 'string' && p.trim().length > 0).join(' | ').toLowerCase();
   if (input.kind === 'radiology') {
     return firstMatch(RAD_RULES, lower(input.modality)) ?? firstMatch(RAD_RULES, lower(input.bodyPart, ...(input.names ?? []))) ?? DIAG_ART_FALLBACK.radiology;

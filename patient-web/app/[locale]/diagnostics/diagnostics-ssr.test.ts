@@ -49,12 +49,14 @@ describe("diagnostics SSR boundary", () => {
     expect(await hub({})).not.toContain("Reset filters");
   });
 
-  it("G6: on radiology the labs-only rating sort and the packages option are not offered or counted", async () => {
+  it("G6: on radiology the rating sort is offered, counted and sent to the server; the packages option is not", async () => {
     state.getDiagnosticBookings.mockResolvedValue(json([]));
     const html = await hub({ kind: "radiology", sort: "rating", show: "tests" });
-    expect(html).not.toContain("Filter and sort (");
-    expect(html).not.toContain("Reset filters");
-    expect(html).not.toContain("Highest rated");
+    expect(html).toContain("Filter and sort (1)");
+    expect(html).toContain("Reset filters");
+    expect(html).toContain("Highest rated");
+    expect(state.radiology).toHaveBeenCalledWith(expect.objectContaining({ page: 1, limit: 20, highestRated: "true" }));
+    expect(html).not.toContain("Packages only");
   });
 
   // The timeout is explicit and generous because this is a RENDERING assertion, not a performance one: it checks that
@@ -124,11 +126,28 @@ describe("diagnostics SSR boundary", () => {
     expect(detail).toContain("Sara Collector");
     expect(detail).toContain('href="tel:+966500000000"');
     state.requirePatientAccess.mockRejectedValue(new Error("no session"));
-    state.radiology.mockResolvedValue(json([{ id: "r1", name_en: "Chest X-ray", price: 100 }, { id: "r2", name_en: "Knee MRI", price: 400 }]));
+    // the SERVER searches and orders (search, lowest_price) and pages ({ data, total, page, limit, total_pages })
+    state.radiology.mockResolvedValue(json({ data: [{ id: "r2", name_en: "Knee MRI", price: 400, category: "mri" }], total: 1, page: 1, limit: 20, total_pages: 1 }));
     const filtered = await hub({ kind: "radiology", q: "knee", sort: "price" });
+    expect(state.radiology).toHaveBeenLastCalledWith(expect.objectContaining({ page: 1, limit: 20, search: "knee", lowestPrice: "true" }));
     expect(filtered).toContain("Knee MRI");
-    expect(filtered).not.toContain("Chest X-ray");
+    expect(filtered).toContain('data-art="mri"');
+    expect(filtered).not.toContain("Show more");
     expect(filtered).toContain("Filter and sort");
+  });
+
+  it("opens `more` server pages and keeps the no-script Show more link while the server has more", async () => {
+    state.requirePatientAccess.mockRejectedValue(new Error("no session"));
+    const page = (n: number) => json({ data: [{ id: `r${n}`, name_en: `Scan ${n}`, price: 10 * n }], total: 3, page: n, limit: 20, total_pages: 3 });
+    state.radiology.mockImplementation(async (q: { page?: number; limit?: number }) => (q.limit === 6 ? page(1) : page(q.page ?? 1)));
+    const html = await hub({ kind: "radiology", more: "2" });
+    const pages = state.radiology.mock.calls.map((c) => c[0] as { page: number; limit: number }).filter((q) => q.limit === 20).map((q) => q.page).sort();
+    expect(pages).toEqual([1, 2]);
+    expect(html).toContain("Scan 2");
+    expect(html).toContain("/en/diagnostics?kind=radiology&amp;more=3");
+    expect(html).toContain("Show more");
+    // "Most requested" is the first six in the server's own order: its own small request
+    expect(state.radiology).toHaveBeenCalledWith(expect.objectContaining({ page: 1, limit: 6 }));
   });
 
   it("shows the error state with a retry when the whole catalogue fails", async () => {

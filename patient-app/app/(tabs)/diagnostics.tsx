@@ -31,11 +31,12 @@ import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKi
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
 import { fetchPublicList } from '../../src/utils/publicCache';
-import { visibleRows } from '../../src/utils/diagPaging';
+import { DIAG_PAGE_SIZE, sortOfFilter, serverCategoryOf } from '../../src/utils/diagCatalogApi';
+import { useDiagCatalog } from '../../src/utils/useDiagCatalog';
 import { activeFilterCount, filterForTab, filtersFor, type FilterId } from '../../src/utils/diagFilters';
-import { catalogArt, isNearEnd } from '../../src/utils/diagCatalog';
+import { catalogArt, isNearEnd, itemRating } from '../../src/utils/diagCatalog';
 import { singleOrderRoute } from '../../src/utils/singleOrder';
-import { diagArtKeysOf, filterByArt, itemSubtitle, mostRequested, type DiagArtKey } from '../../../packages/ui/icons/diag-art';
+import { diagArtKeysOf, filterByArt, itemSubtitle, type DiagArtKey } from '../../../packages/ui/icons/diag-art';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { insuranceOffered, normalizeLabList, normalizeProviders, type CatalogItem, type LabProvider } from '../../src/utils/labMappers';
@@ -60,17 +61,14 @@ export default function DiagnosticsHub() {
   const [query, setQuery] = useState('');
   const [sheet, setSheet] = useState(false);
   const [filter, setFilter] = useState<FilterId>('all');
-  // the full tests and scans open a page at a time as the list is scrolled to its end (the catalogue endpoints return every row); a new search, filter or category starts again at page 1
-  const [pages, setPages] = useState(1);
-  // the category chips (blood, hormones ... for tests; X-ray, CT ... for scans) filter the loaded rows by their mapped category
+  // the category chips: scans filter on the SERVER by category (a scan's category is its modality); tests keep the chip as a filter of the loaded rows
   const [cat, setCat] = useState<DiagArtKey | 'all'>('all');
+  // the search text reaches the server (the catalogue's `search`) a moment after typing stops
+  const [search, setSearch] = useState('');
 
   const [packages, setPackages] = useState<CatalogItem[]>([]);
-  const [tests, setTests] = useState<CatalogItem[]>([]);
-  const [rads, setRads] = useState<CatalogItem[]>([]);
   const [labs, setLabs] = useState<LabProvider[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState<'error' | 'offline' | null>(null);
+  const [auxLoading, setAuxLoading] = useState(true);
   const [address, setAddress] = useState<Awaited<ReturnType<typeof resolveEffectiveAddress>>>(null);
   const [addressLoaded, setAddressLoaded] = useState(false);
 
@@ -91,36 +89,27 @@ export default function DiagnosticsHub() {
     }, []),
   );
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setFailed(null);
-    let failures = 0;
+  // the packages and the approved labs are short lists read whole; the tests and scans are paged by the server (useDiagCatalog)
+  const loadAux = useCallback(async () => {
+    setAuxLoading(true);
     const miss = (err: unknown) => {
-      failures += 1;
       logError('diagnostics:tab', err);
       return null;
     };
-    const [pkgsRes, testsRes, radsRes, labsRes] = await Promise.all([
-      fetchPublicList<unknown>('/labs/packages').catch(miss),
-      fetchPublicList<unknown>('/labs/services').catch(miss),
-      fetchPublicList<unknown>('/radiology/services').catch(miss),
-      apiFetch<unknown>('/providers?type=lab').catch(miss),
-    ]);
+    const [pkgsRes, labsRes] = await Promise.all([fetchPublicList<unknown>('/labs/packages').catch(miss), apiFetch<unknown>('/providers?type=lab').catch(miss)]);
     setPackages(normalizeLabList(pkgsRes));
-    setTests(normalizeLabList(testsRes));
-    setRads(normalizeLabList(radsRes));
     setLabs(normalizeProviders(labsRes));
-    if (failures === 4) setFailed((await isOffline()) ? 'offline' : 'error');
-    setLoading(false);
+    setAuxLoading(false);
   }, []);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    void loadAux();
+  }, [loadAux]);
 
   useEffect(() => {
-    setPages(1);
-  }, [query, place, pay, filter, mainTab, cat]);
+    const id = setTimeout(() => setSearch(query.trim()), query.trim() === '' ? 0 : 300);
+    return () => clearTimeout(id);
+  }, [query]);
 
   // a category of the other kind does not exist: switching between labs and radiology starts at "All"
   useEffect(() => {
@@ -131,6 +120,11 @@ export default function DiagnosticsHub() {
   const switchTab = (next: MainTab) => {
     setMainTab(next);
     setFilter((current) => filterForTab(current, next));
+  };
+  const reload = () => {
+    void loadAux();
+    catalog.reload();
+    popularCatalog.reload();
   };
   const resetFilters = () => {
     setFilter('all');
@@ -147,49 +141,63 @@ export default function DiagnosticsHub() {
     router.push(singleOrderRoute({ kind, id: item.id, name: item.name, place, payer: kind === 'lab' && effectivePay === 'insurance' ? 'insurance' : 'cash' }) as unknown as Href);
   };
 
-  // search and filter run on what the screen already loaded
+  // The tests and scans are paged, searched, sorted and (scans) filtered by category on the SERVER; packages and the labs strip are short
+  // lists filtered here. The place and payment of the order hide the rows of the loaded pages that do not fit.
   const needle = query.trim().toLowerCase();
   const match = (name: string) => needle === '' || name.toLowerCase().includes(needle);
   const byPrice = (a: CatalogItem, b: CatalogItem) => (a.price ?? Infinity) - (b.price ?? Infinity);
+  const isLab = mainTab === 'labs';
+  const sort = sortOfFilter(filter);
+  const homeOnly = filter === 'home_visit' || (!isLab && place === 'home');
+  const testCatalog = useDiagCatalog('lab', isLab, { search, sort, homeVisit: filter === 'home_visit' });
+  const radCatalog = useDiagCatalog('radiology', !isLab, { search, sort, homeVisit: homeOnly, category: serverCategoryOf('radiology', cat) });
+  // "Most requested": the first six in the server's own popularity order (no search, sort or category)
+  const popularTests = useDiagCatalog('lab', isLab, { limit: 6 });
+  const popularScans = useDiagCatalog('radiology', !isLab, { limit: 6 });
+  const popularCatalog = isLab ? popularTests : popularScans;
+  const catalog = isLab ? testCatalog : radCatalog;
+  const tests = testCatalog.items;
+  const rads = radCatalog.items;
+  const loading = auxLoading || (catalog.loading && catalog.items.length === 0);
+  const failed = catalog.failed && catalog.items.length === 0 ? catalog.failed : null;
   // Nothing takes insurance in the loaded catalogue: the choice is not offered (no empty list behind it) and self-pay applies.
   const anyInsurance = useMemo(() => insuranceOffered([...packages, ...tests]), [packages, tests]);
   const effectivePay: Pay = anyInsurance ? pay : 'self_pay';
+  const pays = (x: CatalogItem) => (effectivePay === 'insurance' ? x.insurance : x.selfPay);
   const view = useMemo(() => {
-    const pays = (x: CatalogItem) => (effectivePay === 'insurance' ? x.insurance : x.selfPay);
     let p = packages.filter((x) => match(x.name) && pays(x));
-    let ts = tests.filter((x) => match(x.name) && pays(x));
-    let rs = rads.filter((x) => match(x.name) && (place === 'clinic' || x.homeVisit));
     let ls = labs.filter((x) => match(x.name));
     if (filter === 'home_visit') {
-      ts = ts.filter((x) => x.homeVisit);
       p = p.filter((x) => x.homeVisit);
       ls = ls.filter((x) => x.homeVisit);
     }
-    if (filter === 'home_visit') rs = rs.filter((x) => x.homeVisit);
-    if (filter === 'lowest_price') {
-      p = [...p].sort(byPrice);
-      ts = [...ts].sort(byPrice);
-      rs = [...rs].sort(byPrice);
-    }
+    if (filter === 'lowest_price') p = [...p].sort(byPrice);
     if (filter === 'highest_rated') ls = [...ls].sort((a, b) => (b.rating ?? -1) - (a.rating ?? -1));
-    return { p, ts, rs, ls };
+    return { p, ls };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [packages, tests, rads, labs, needle, place, effectivePay, filter]);
+  }, [packages, labs, needle, effectivePay, filter]);
 
-  const testRows = useMemo(() => view.ts.map((item) => ({ item, art: catalogArt('lab', item) })), [view.ts]);
-  const radRows = useMemo(() => view.rs.map((item) => ({ item, art: catalogArt('radiology', item) })), [view.rs]);
-  const chipRows = mainTab === 'radiology' ? radRows : testRows;
-  const testPage = visibleRows(filterByArt(testRows, cat), pages);
-  const radPage = visibleRows(filterByArt(radRows, cat), pages);
-  // "Most requested": the first few by the backend's popularity, for the unfiltered hub
-  const popular = needle === '' && (filter === 'all' || mainTab === 'radiology') ? mostRequested(mainTab === 'radiology' ? view.rs : view.ts, 6) : [];
-  const moreRows = (mainTab === 'radiology' ? radPage.remaining : testPage.remaining) > 0;
+  const testRows = useMemo(() => tests.filter(pays).map((item) => ({ item, art: catalogArt('lab', item) })), [tests, effectivePay]); // eslint-disable-line react-hooks/exhaustive-deps
+  const radRows = useMemo(() => rads.filter((x) => place === 'clinic' || x.homeVisit).map((item) => ({ item, art: catalogArt('radiology', item) })), [rads, place]);
+  // scan rows are already the chip's (server); test rows are filtered by the chip here
+  const shownTests = filterByArt(testRows, cat);
+  const shownRads = radRows;
+  const popular =
+    needle === '' && (filter === 'all' || !isLab)
+      ? popularCatalog.items.filter((x) => (isLab ? pays(x) : place === 'clinic' || x.homeVisit)).slice(0, 6)
+      : [];
+  const moreRows = catalog.hasMore;
   const showPackages = filter === 'all' || filter === 'packages' || filter === 'lowest_price' || filter === 'home_visit' || filter === 'highest_rated';
   const showTests = filter !== 'packages' && filter !== 'labs';
   const showLabs = filter !== 'packages' && filter !== 'tests';
 
-  const isLab = mainTab === 'labs';
-  const nothing = !loading && !failed && packages.length === 0 && tests.length === 0 && rads.length === 0;
+  // a test chip that matches few of the loaded rows keeps asking pages (the stored test categories do not match the chips one to one)
+  useEffect(() => {
+    if (isLab && cat !== 'all' && testCatalog.hasMore && !testCatalog.loading && !testCatalog.loadingMore && shownTests.length < DIAG_PAGE_SIZE) testCatalog.loadMore();
+  }, [isLab, cat, testCatalog, shownTests.length]);
+
+  const unfiltered = needle === '' && filter === 'all' && cat === 'all';
+  const nothing = !loading && !failed && unfiltered && packages.length === 0 && catalog.items.length === 0;
   const placeOptions = isLab
     ? [
         { value: 'home', label: k('diag.place.homeLab') },
@@ -221,6 +229,10 @@ export default function DiagnosticsHub() {
       ))}
     </ScrollView>
   );
+  const ratingOf = (x: CatalogItem) => {
+    const r = itemRating(x);
+    return r ? k('diag.ratingLine', { n: num(r.rating, { maximumFractionDigits: 1 }), count: num(r.count) }) : undefined;
+  };
   const testCard = (test: CatalogItem, art: DiagArtKey, idPrefix: string, width?: number) => (
     <ItemCard
       key={`${idPrefix}-${test.id}`}
@@ -231,6 +243,7 @@ export default function DiagnosticsHub() {
       image={test.image}
       tags={text.testTags(test, place === 'home')}
       note={test.turnaroundHours !== null ? text.turnaround(test.turnaroundHours) : undefined}
+      rating={ratingOf(test)}
       price={test.price}
       inCart={inCart(test.id)}
       addLabel={k('diag.detail.addToCart')}
@@ -250,6 +263,7 @@ export default function DiagnosticsHub() {
       width={width}
       image={rad.image}
       note={itemSubtitle(rad.desc, [rad.category, rad.modality, rad.bodyPart, rad.sampleType], k(`diag.cat.${art}`))}
+      rating={ratingOf(rad)}
       price={rad.price}
       inCart={inCart(rad.id)}
       addLabel={k('diag.detail.addToCart')}
@@ -263,7 +277,7 @@ export default function DiagnosticsHub() {
   // the end of the list opens the next page (a ScrollView's scroll position in place of a list's onEndReached)
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const m = e.nativeEvent;
-    if (moreRows && isNearEnd({ layoutHeight: m.layoutMeasurement.height, contentHeight: m.contentSize.height, offsetY: m.contentOffset.y })) setPages((p) => p + 1);
+    if (moreRows && isNearEnd({ layoutHeight: m.layoutMeasurement.height, contentHeight: m.contentSize.height, offsetY: m.contentOffset.y })) catalog.loadMore();
   };
 
   return (
@@ -291,6 +305,7 @@ export default function DiagnosticsHub() {
           onFilterPress={() => setSheet(true)}
           filterLabel={filterCount > 0 ? `${k('diag.hub.filter')} (${num(filterCount)})` : k('diag.hub.filter')}
           filterCount={filterCount}
+          formatCount={num}
         />
         <ScopedSuggest query={query} scope={isLab ? SUGGEST_SCOPES.labs : SUGGEST_SCOPES.radiology} />
         <ActiveFilters items={activeItems} onClearAll={resetFilters} tone={isLab ? LAB_TONE : RAD_TONE} testIdPrefix="diag" />
@@ -302,12 +317,12 @@ export default function DiagnosticsHub() {
         onScroll={onScroll}
         scrollEventThrottle={100}
         testID="diag-scroll"
-        refreshControl={<RefreshControl refreshing={false} onRefresh={() => void load()} tintColor={c.text.primary} />}
+        refreshControl={<RefreshControl refreshing={false} onRefresh={reload} tintColor={c.text.primary} />}
       >
       <View style={{ width: '100%', maxWidth: 440, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 4, gap: 16 }}>
 
-        {failed === 'error' ? <ErrorState title={k('consult.error.title')} body={k('consult.error.body')} retryLabel={k('consult.retry')} onRetry={() => void load()} theme={theme} /> : null}
-        {failed === 'offline' ? <OfflineState title={k('consult.offline.title')} body={k('consult.offline.body')} retryLabel={k('consult.retry')} onRetry={() => void load()} theme={theme} /> : null}
+        {failed === 'error' ? <ErrorState title={k('consult.error.title')} body={k('consult.error.body')} retryLabel={k('consult.retry')} onRetry={reload} theme={theme} /> : null}
+        {failed === 'offline' ? <OfflineState title={k('consult.offline.title')} body={k('consult.offline.body')} retryLabel={k('consult.retry')} onRetry={reload} theme={theme} /> : null}
 
         {failed ? null : (
           <>
@@ -384,12 +399,13 @@ export default function DiagnosticsHub() {
               </Section>
             ) : null}
 
-            {showTests && view.ts.length > 0 ? (
+            {showTests && (tests.length > 0 || needle !== '' || cat !== 'all') ? (
               <Section title={k('diag.hub.allTests')}>
                 <View style={{ gap: 12 }}>
                   {catChips}
-                  {testPage.shown.length === 0 ? <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('diag.empty.noMatch')}</Text> : null}
-                  {testPage.shown.map(({ item, art }) => testCard(item, art, 'diag-test'))}
+                  {shownTests.length === 0 && !catalog.loading ? <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('diag.empty.noMatch')}</Text> : null}
+                  {shownTests.map(({ item, art }) => testCard(item, art, 'diag-test'))}
+                  {catalog.loadingMore ? <Skeleton lines={2} theme={theme} /> : null}
                 </View>
               </Section>
             ) : null}
@@ -411,7 +427,7 @@ export default function DiagnosticsHub() {
               </Section>
             ) : null}
 
-            {view.p.length === 0 && view.ts.length === 0 && view.ls.length === 0 ? <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('diag.empty.noMatch')}</Text> : null}
+            {view.p.length === 0 && testRows.length === 0 && view.ls.length === 0 ? <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('diag.empty.noMatch')}</Text> : null}
           </View>
         ) : null}
 
@@ -424,11 +440,12 @@ export default function DiagnosticsHub() {
               </Section>
             ) : null}
             <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{k('diag.hub.allScans')}</Text>
-            {view.rs.length > 0 ? (
+            {shownRads.length > 0 || cat !== 'all' ? (
               <View style={{ gap: 12 }}>
                 {catChips}
-                {radPage.shown.length === 0 ? <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('diag.empty.noMatch')}</Text> : null}
-                {radPage.shown.map(({ item, art }) => scanCard(item, art, 'diag-scan'))}
+                {shownRads.length === 0 && !catalog.loading ? <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('diag.empty.noMatch')}</Text> : null}
+                {shownRads.map(({ item, art }) => scanCard(item, art, 'diag-scan'))}
+                {catalog.loadingMore ? <Skeleton lines={2} theme={theme} /> : null}
               </View>
             ) : (
               <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('diag.empty.noMatch')}</Text>

@@ -2,6 +2,7 @@
 
 import { useRef, useState, type ComponentType, type ReactNode } from "react";
 import type { SuggestScope } from "@/lib/search/suggest";
+import { SuggestField } from "./suggest-field";
 
 interface Props {
   locale: string;
@@ -14,6 +15,9 @@ interface Props {
   fieldClassName: string;
   inputClassName: string;
   wrapClassName?: string;
+  /** When set, the leading icon (children) is a real submit button with this aria-label; otherwise it is a plain decoration. */
+  submitLabel?: string;
+  submitClassName?: string;
   children?: ReactNode;
 }
 type LiveProps = Props & { focusOnMount?: boolean };
@@ -33,9 +37,7 @@ export function SuggestInput(props: Props) {
     void import("./suggest-input-live").then((m) => setLive(() => m.SuggestInputLive));
   };
   return (
-    <label className={props.fieldClassName}>
-      {props.children}
-      <span className="sr-only">{props.label}</span>
+    <SuggestField id={props.id} className={props.fieldClassName} label={props.label} submitLabel={props.submitLabel} submitClassName={props.submitClassName} icon={props.children}>
       <input
         id={props.id}
         name={props.name}
@@ -45,8 +47,9 @@ export function SuggestInput(props: Props) {
         className={props.inputClassName}
         autoComplete="off"
         onFocus={load}
+        enterKeyHint="search"
         onChange={(event) => setValue(event.target.value)}
       />
-    </label>
+    </SuggestField>
   );
 }

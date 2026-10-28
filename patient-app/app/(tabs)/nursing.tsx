@@ -29,7 +29,7 @@ const AVAILABILITY = [
   { id: 'any', key: 'nur.filter.all' },
   { id: 'now', key: 'nur.filter.now' },
 ];
-// the id is what the nurse's profile stores: the server matches the nationality exactly (the web sends the same values)
+// the id is the readable spelling the web sends too (Saudi, Filipino, Egyptian); the server matches nationality and gender ignoring case (#2042)
 const NATIONALITIES = [
   { id: 'any', key: 'nur.filter.all' },
   { id: 'Saudi', key: 'nur.filter.saudi' },
@@ -134,7 +134,7 @@ export default function NursingHub() {
           </View>
         </View>
 
-        <Search theme={theme} variant="inline" value={search} onChange={setSearch} onClear={() => setSearch('')} clearLabel={k('nur.clear')} placeholder={k('nur.hub.search')} label={k('nur.hub.search')} onFilterPress={() => setSheet(true)} filterLabel={filterCount > 0 ? `${k('nur.hub.filter')} (${num(filterCount)})` : k('nur.hub.filter')} filterCount={filterCount} />
+        <Search theme={theme} variant="inline" value={search} onChange={setSearch} onClear={() => setSearch('')} clearLabel={k('nur.clear')} placeholder={k('nur.hub.search')} label={k('nur.hub.search')} onFilterPress={() => setSheet(true)} filterLabel={filterCount > 0 ? `${k('nur.hub.filter')} (${num(filterCount)})` : k('nur.hub.filter')} filterCount={filterCount} formatCount={num} />
         <ActiveFilters items={activeItems} onClearAll={reset} tone={CARE_TONE} testIdPrefix="nur" />
         <ScopedSuggest query={search} scope={SUGGEST_SCOPES.nursing} />
 
