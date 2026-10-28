@@ -27,6 +27,7 @@ import { ModuleRouteGate, ModulesProvider } from "@/components-next/modules/modu
 import { getDisabledModules, getUploadsEnabled } from "@/lib/api/public-config-server";
 import { UploadsProvider } from "@/components-next/uploads/uploads-provider";
 import { isPathHidden } from "@/lib/modules";
+import { ImageFallbackGuard } from "@/components-next/core/image-fallback-guard";
 import { BackToTopLoader } from "@/components-next/navigation/back-to-top-loader";
 import "@/components-next/navigation/navigation.css";
 
@@ -123,6 +124,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         <NextIntlClientProvider messages={messages}>
           <WebMcpLoader locale={typedLocale} />
           <OfflineSupport />
+          <ImageFallbackGuard />
           <WebVitalsReporter locale={typedLocale} />
           <div className={`shell ${fontVariables}`} lang={typedLocale} dir={getDirection(typedLocale)}>
             {/* 17.1: the first Tab stop, so a keyboard user can jump past the header to the page. */}

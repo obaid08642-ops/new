@@ -14,6 +14,8 @@ const nextConfig: NextConfig = {
     // The same hosts lib/image-hosts.ts lets the page render; any other host would make next/image throw.
     remotePatterns: IMAGE_HOSTS.map((hostname) => ({ protocol: "https" as const, hostname, pathname: "/**" })),
     formats: ["image/avif", "image/webp"],
+    // Optimized copies are kept 30 days (the sources are immutable: a new picture is a new file name), so the Node optimizer is hit once per size.
+    minimumCacheTTL: 60 * 60 * 24 * 30,
   },
   outputFileTracingIncludes: {
     "/*": ["./node_modules/@swc/helpers/**/*"],
