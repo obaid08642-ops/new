@@ -27,7 +27,7 @@ appId: com.nabd.provider
     file: common_provider_register_open.yaml
     env:
       TYPE: "مركز أشعة|Radiology Center"
-      TITLE: "متابعة|Next"
+      TITLE: "الحساب والتراخيص|Account & Licenses"
 - runFlow:
     file: common_provider_register_open.yaml
     env:
