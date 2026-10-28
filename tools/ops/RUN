@@ -1,15 +1,17 @@
 # 2026-10-28 lead reviewer: run 45, the owner's morning run.
 # 1. Pause the ar+en translation, saving its answers on the host.
-# 2. Free disk, deploy main@5d01bc98: translation fix (#2060: failed answers no longer counted, refused providers retired, stats file),
+# 2. Free disk, deploy main@7e5eb301: translation fix (#2060: failed answers no longer counted, refused providers retired, stats file),
 #    catalogue as the single source + notify-me (#2067), per-service provider options (#2069), radiology data step (#2062), test-data
 #    finder (#2064), OTA config (#2061), Cloudflare cache rules code (#2055/#2056).
 # 3. READ-ONLY: 77-test-data-find (ids + what each is linked to); 90-catalogue-apply DRY RUN (prints the radiology clean-up and the
 #    test-data removal plan with its hash; nothing written). Applying either is a separate run after the owner reads the numbers.
 # 4. Resume the ar+en translation (same requests; only unanswered ones are sent), then print its per-provider stats.
-# 5. Cloudflare: cache rules for the anonymous public API, public HTML pages and images; each apply proves itself (MISS→HIT, no HIT
+# 5. Open uploads (owner): 91b APPLY sets UPLOAD_SCAN=defer, installs the ClamAV window from the verified release and its cron,
+#    recreates only the backend, checks /config uploads_enabled=true; rollback restores the env backup. Clients show "being checked" (#2073).
+# 6. Cloudflare: cache rules for the anonymous public API, public HTML pages and images; each apply proves itself (MISS→HIT, no HIT
 #    with a session cookie or Authorization, no personal page cached) and puts the old rules back on any failed check.
 98c-translate-pause
-release:5d01bc9887ed63ab2032c074240192fe623e7169
+release:7e5eb301dd5dc487ac83b94fd7df1e1b80867ca6
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
@@ -17,6 +19,7 @@ release:5d01bc9887ed63ab2032c074240192fe623e7169
 90-catalogue-apply
 98-translate-content
 98b-translate-progress
+91b-upload-scan-defer
 cf:45-public-api-cache-apply
 cf:46-public-html-cache-apply
 cf:47-public-assets-api-cache-apply
