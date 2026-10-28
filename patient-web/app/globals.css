@@ -589,6 +589,10 @@ body { background: var(--nabd-color-bg-canvas); }
    header and footer would draw a second pair. Scoped to that wrapper class only. */
 .shell:has(> .nabd-core) > .topbar,
 .shell:has(> .nabd-core) > .site-footer { display: none; }
+/* The 4.6rem the phone .shell reserves under the page is for the legacy fixed tab bar. AppShell's tab bar is sticky and in flow
+   (packages/ui shells.css), so the reserve only stranded the bar 120px above the screen edge at the end of the page, with the page
+   scrolling past under it. Pages inside <AppShell> keep no reserve: the page ends where the bar starts. */
+.shell:has(> .nabd-core) { padding-bottom: 0; }
 
 /* Route-level error / not-found (components-next/core/route-state.tsx): the board's state card plus the way home. */
 .nabd-route-state { display: grid; gap: 12px; width: 100%; max-width: 440px; margin-inline: auto; }
