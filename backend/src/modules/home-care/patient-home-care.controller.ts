@@ -6,6 +6,7 @@ import { CurrentUser, JwtAuthGuard, SelfService } from '../../common/auth.guard'
 import { BookDto } from '../compat/compat.dto';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { HomeCareSvc } from './home-care.service';
+import { PublicCache } from '../../common/public-cache.decorator';
 import { nearestFirst } from '../provider/services/nearest-first';
 
 const uid = (u: any) => u?.id || u?._id || u?.user_id;
@@ -30,6 +31,7 @@ export class PatientHomeCareController {
     return { data: docs.map(({ _id, ...d }: any) => d) };
   }
 
+  @PublicCache(20, ['provider-slots'], { cacheControl: 'public, s-maxage=20' })
   @Public() @Get('providers/:providerAccountId/slots')
   providerSlots(
     @Param('providerAccountId') providerAccountId: string,
