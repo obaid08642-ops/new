@@ -1,4 +1,4 @@
-# Doctor booking, then move it from My appointments (Edit or cancel -> Reschedule -> another time -> Confirm new time); back on the list it is still an upcoming appointment.
+# Doctor booking, then move it from My appointments (Edit or cancel -> Reschedule -> another time -> Confirm new time); the reschedule screen closes after the confirm.
 appId: com.patient.nabd
 ---
 - runFlow:
