@@ -1,4 +1,6 @@
-# 2026-10-28 lead reviewer: run 43, READ-ONLY. Run 42 deployed main@2bd42709 (health ok); its ar+en translation (parallel providers)
-# outlived the 120-min poll and keeps running detached. This prints its progress: answers in the container and on the host, and the
-# task's last status lines (per-provider stats when it has ended). Nothing is sent or written.
-98b-translate-progress
+# 2026-10-28 lead reviewer: run 44 (owner: free the space, delete old images and backups, explain what fills the disk, open uploads).
+# 92c: full breakdown of the disk and memory, then removes old release folders, old rollback image tags and unused images, the build
+# cache, and every local backup except the newest of each kind (the nightlies stay on R2). Never touches the running release or any
+# docker volume (database, redis, search). 91b: DRY RUN of the upload switch (prints what it would change and the memory it needs).
+92c-free-deep
+91b-upload-scan-defer
