@@ -1,0 +1,86 @@
+name: EAS Update (over-the-air)
+
+# Pushes the JS and asset changes of patient-app / provider-app to the installed apps without a store release
+# (docs/ops/OTA_UPDATES.md). An update only reaches a binary with the same native code (runtimeVersion policy
+# "fingerprint"), on the channel of its build profile (eas.json: production, preview). Native changes (modules,
+# permissions, SDK upgrade) still need a store build.
+# Needs the repository secret EXPO_TOKEN and the variable EAS_PROJECT_ID (the owner's Expo project); without the secret
+# the run ends with a notice and succeeds.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'patient-app/**'
+      - 'provider-app/**'
+      - 'packages/ui*/**'
+      - '.github/workflows/eas-update.yml'
+  workflow_dispatch:
+    inputs:
+      app:
+        description: Which app to update
+        type: choice
+        options: [patient-app, provider-app]
+        default: patient-app
+      channel:
+        description: EAS channel (build profile) to publish to
+        type: choice
+        options: [production, preview]
+        default: preview
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eas-update-${{ github.ref }}-${{ github.event.inputs.app || 'push' }}-${{ github.event.inputs.channel || 'production' }}
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [patient-app, provider-app]
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      EAS_PROJECT_ID: ${{ vars.EAS_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 2
+      - name: Decide whether this app is updated
+        id: gate
+        run: |
+          set -eu
+          app='${{ matrix.app }}'
+          if [ '${{ github.event_name }}' = workflow_dispatch ]; then
+            channel='${{ github.event.inputs.channel }}'
+            if [ '${{ github.event.inputs.app }}' != "$app" ]; then echo "run=false" >> "$GITHUB_OUTPUT"; echo "Not the selected app ($app)."; exit 0; fi
+          else
+            channel=production
+            changed="$(git diff --name-only HEAD~1 HEAD)"
+            if ! printf '%s\n' "$changed" | grep -Eq "^($app/|packages/ui|\.github/workflows/eas-update\.yml)"; then
+              echo "run=false" >> "$GITHUB_OUTPUT"; echo "No change under $app or packages/ui*."; exit 0
+            fi
+          fi
+          if [ -z "${EXPO_TOKEN:-}" ] || [ -z "${EAS_PROJECT_ID:-}" ]; then
+            echo "::notice::EAS Update skipped: the EXPO_TOKEN secret or the EAS_PROJECT_ID variable is not set (docs/ops/OTA_UPDATES.md)."
+            echo "run=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          echo "run=true" >> "$GITHUB_OUTPUT"
+          echo "channel=$channel" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        if: steps.gate.outputs.run == 'true'
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ${{ matrix.app }}/package-lock.json
+      - name: Install
+        if: steps.gate.outputs.run == 'true'
+        working-directory: ${{ matrix.app }}
+        run: npm ci
+      - name: Publish the update
+        if: steps.gate.outputs.run == 'true'
+        working-directory: ${{ matrix.app }}
+        run: npx --yes eas-cli@26.0.0 update --channel '${{ steps.gate.outputs.channel }}' --auto --non-interactive
