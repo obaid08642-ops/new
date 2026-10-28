@@ -75,6 +75,19 @@ def patient_order():
     return {'ok': bool(r.ok), 'order_id': oid, 'token': p['token'], 'email': p['email'], 'password': p['password']}
 
 
+def doctor_blacklist():
+    """A new patient is blocked by the seeded doctor (as the doctor app does from the patient file); the provider flow finds it in Settings -> Patient Blacklist."""
+    import j_accounts
+    doc = provider('doctor_slots')
+    p = j_accounts.app_signup(label='native-blocked')
+    pid = (p.get('user') or {}).get('id') or (p.get('user') or {}).get('_id')
+    if not pid:
+        return {'ok': False, 'detail': 'no patient id: ' + str(p.get('user'))}
+    reason = 'Maestro ' + lib.uniq('')[-4:]
+    r = doc.post(f'/provider/ops/doctor/blacklist/{pid}', {'reason': reason})
+    return {'ok': r.ok, 'patient_id': pid, 'reason': reason, 'detail': '' if r.ok else str(r)}
+
+
 def doctor_appointment():
     """A new patient books the seeded doctor (clinic visit tomorrow, cash), as the patient app does; the provider flow then finds it in the doctor app."""
     import j_accounts, uuid, datetime
@@ -216,6 +229,8 @@ class H(BaseHTTPRequestHandler):
                 return self._send(200, nursing_booking())
             if u.path == '/lab/booking':
                 return self._send(200, lab_booking())
+            if u.path == '/doctor/blacklist':
+                return self._send(200, doctor_blacklist())
             if u.path == '/doctor/appointment':
                 return self._send(200, doctor_appointment())
             if u.path == '/pharmacy/order':
