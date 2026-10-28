@@ -28,7 +28,7 @@ export async function GET(request: Request) {
   const rows = catalogRows(kind, [result], { place, pay }, {
     locale,
     tr: (key, values) => t(key, values),
-    itemHref: (id, itemKind) => `/${locale}/labs/${encodeURIComponent(id)}${contextQuery({ kind: itemKind, place, pay: pay === "insurance" ? "insurance" : "cash" })}`,
+    itemHref: (id, itemKind, facilityOnly) => `/${locale}/labs/${encodeURIComponent(id)}${contextQuery({ kind: itemKind, place: facilityOnly ? "facility" : place, pay: pay === "insurance" ? "insurance" : "cash" })}`,
   });
   return NextResponse.json({ rows, page: result.page, hasMore: result.hasMore, total: result.total }, { headers: { "cache-control": "no-store" } });
 }

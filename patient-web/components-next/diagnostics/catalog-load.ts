@@ -45,12 +45,12 @@ export async function loadCatalogPage(request: CatalogRequest): Promise<CatalogL
 }
 
 /**
- * The rows of loaded pages. The place and payment of the order (home or at the lab, insurance or self-pay) hide the rows that do not fit,
- * as before, on the rows of the pages loaded; packages and unavailable tests are not rows of the tests list.
+ * The rows of loaded pages. The place and payment of the order (home or at the lab, insurance or self-pay) hide the TESTS that do not fit;
+ * scans are never hidden by the place (R1: only ultrasound is portable, so "home" hid x-ray, CT and MRI): a scan that cannot be done at home opens its order at the centre; packages and unavailable tests are not rows of the tests list.
  */
 export function catalogRows(kind: "lab" | "radiology", loads: readonly CatalogLoad[], order: { place: "home" | "facility"; pay: LabPay }, ctx: RowContext): CatalogRow[] {
   const fitsPlace = (s: { homeVisitSupported?: boolean; facilityVisitSupported?: boolean }) => (order.place === "home" ? s.homeVisitSupported !== false : s.facilityVisitSupported !== false);
   return kind === "lab"
     ? loads.flatMap((l) => l.labs).filter((s) => s.isPackage !== true && !s.unavailable && fitsPlace(s) && labPaymentFits(order.pay, s)).map((s) => labRow(s, ctx))
-    : loads.flatMap((l) => l.scans).filter(fitsPlace).map((s) => scanRow(s, ctx));
+    : loads.flatMap((l) => l.scans).map((s) => scanRow(s, ctx));
 }
