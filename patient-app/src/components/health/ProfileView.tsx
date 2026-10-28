@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Linking, Pressable, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 
@@ -12,6 +12,10 @@ import { BOOK_NOW_HREF } from '../../utils/consultNearby';
 import { HealthScreen, HealthTabs, Notice, Panel, Pill, Row, SheetForm, bodyOf, rowsOf, useRemote, useTab } from './HealthKit';
 import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
 import { UploadsUnavailable } from '../UploadsUnavailable';
+import { ScanStatusBadge } from '../ScanStatusBadge';
+import { scanStateOfError, scanStateOfUpload, type ScanState } from '../../utils/scanStatus';
+import { probeStoredFile, storedFilePath } from '../../utils/scanProbe';
+import { useScanGate } from '../../hooks/useScanGate';
 
 /**
  * Medical profile (board HealthHub "ملفي الطبي", merge map row "Medical profile"): the tabs Basics, Conditions and Emergency.
@@ -47,6 +51,16 @@ function BasicsTab() {
   const [avatar, setAvatar] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [scan, setScan] = useState<ScanState>('ok');
+  const [waiting, setWaiting] = useState<string | null>(null);
+  // the new photo is shown once its scan has passed: asked again every retry_after_seconds and when the app is foregrounded again
+  const waitingPath = storedFilePath(waiting);
+  const gate = useScanGate(waitingPath ? () => probeStoredFile(waitingPath) : null, scan);
+  useEffect(() => {
+    if (!waiting || scan !== 'pending') return;
+    if (gate === 'ok') { setAvatar(waiting); setWaiting(null); setScan('ok'); }
+    else if (gate === 'rejected') { setWaiting(null); setScan('rejected'); }
+  }, [gate, waiting, scan]);
   const uploadsOn = useUploadsEnabled();
   const [message, setMessage] = useState<{ tone: 'danger' | 'success'; text: string } | null>(null);
   const { status, reload } = useRemote(async () => {
@@ -77,6 +91,8 @@ function BasicsTab() {
   const pickAvatar = async () => {
     setUploading(true);
     setMessage(null);
+    setScan('ok');
+    setWaiting(null);
     try {
       const ImagePicker = await import('expo-image-picker');
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -91,8 +107,15 @@ function BasicsTab() {
       const url = upload?.url || upload?.data?.url;
       if (!url) throw new Error('upload_missing_url');
       await apiFetch('/users/me/profile', { method: 'PATCH', body: JSON.stringify({ avatar_url: url }) });
-      setAvatar(url);
-    } catch { setMessage({ tone: 'danger', text: k('health.profile.photoError') }); } finally { setUploading(false); }
+      // a photo that is still being checked is not shown yet; the previous one stays until it has passed
+      const state = scanStateOfUpload(upload);
+      setScan(state);
+      if (state === 'ok') setAvatar(url);
+      else if (state === 'pending') setWaiting(url);
+    } catch (e) {
+      // the scanner refused the file (400 file_infected): rejected, with a way to upload another
+      if (scanStateOfError(e) === 'rejected') setScan('rejected'); else setMessage({ tone: 'danger', text: k('health.profile.photoError') });
+    } finally { setUploading(false); }
   };
 
   return (
@@ -101,6 +124,7 @@ function BasicsTab() {
         <View style={{ alignItems: 'center', gap: 10 }}>
           <Avatar name={k('health.profile.photo')} size="lg" src={avatar ?? undefined} theme={theme} />
           {uploadsOn ? <Button label={uploading ? k('health.profile.uploading') : k('health.profile.changePhoto')} variant="outline" size="sm" loading={uploading} onPress={() => void pickAvatar()} theme={theme} testID="profile-photo" /> : <UploadsUnavailable />}
+          <ScanStatusBadge state={scan} onReupload={() => void pickAvatar()} testID="profile-photo-scan" />
           <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.tertiary, textAlign: 'center' }}>{k('health.profile.photoNote')}</Text>
         </View>
       </Card>
