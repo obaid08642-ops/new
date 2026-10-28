@@ -276,8 +276,8 @@ function EmergencyTab() {
   };
 
   const callButton = (number?: string | null, label?: string) => (number ? (
-    <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={() => call(number)} style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: c.status.success.bg }}>
-      <Glyph name="headset" size={20} color={c.status.success.fg} />
+    <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={() => call(number)} style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: c.service.emergency.bg }}>
+      <Glyph name="headset" size={20} color={c.service.emergency.glyph} />
     </Pressable>
   ) : null);
 
