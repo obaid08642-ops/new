@@ -75,6 +75,76 @@ def patient_order():
     return {'ok': bool(r.ok), 'order_id': oid, 'token': p['token'], 'email': p['email'], 'password': p['password']}
 
 
+def pharmacy_delivered():
+    """A new patient's pharmacy order, all the way to DELIVERED (offer, card payment on the Moyasar double, pharmacy confirm/preparing/ready/out-for-delivery/delivered),
+    not yet rated. The patient app's rate and refund screens only exist for a finished order (the lifecycle of tools/live/j_pharmacy.py)."""
+    import j_accounts, uuid
+    from j_nursing import card_payment
+    p = j_accounts.app_signup(label='native-delivered')
+    pat = lib.Client(p['token'], 'patient')
+    pat.post('/users/me/addresses', {'label': 'المنزل', 'street': 'شارع العليا 12', 'city': 'الرياض', 'lat': 24.7140, 'lng': 46.6760, 'is_default': True})
+    pharm = provider('pharmacy_stock')
+    med = accounts()['meds'][0]
+    KEY = lambda n: f'native-{n}-{uuid.uuid4()}'
+    draft = {'items': [{'raw_name': med['name_ar'], 'qty': 1, 'sku': med['id'], 'intake_source': 'cart'}],
+             'delivery_address': {'label': 'المنزل', 'street': 'شارع العليا 12', 'city': 'الرياض', 'lat': 24.7140, 'lng': 46.6760},
+             'prescription_attachments': []}
+    k = KEY('deliv')
+    oid = pat.post('/patient/pharmacy/orders', draft, headers={'Idempotency-Key': k}).get('id')
+    if not oid:
+        return {'ok': False, 'step': 'draft'}
+    if not pat.post(f'/patient/pharmacy/orders/{oid}/submit', {}, headers={'Idempotency-Key': k + '-submit'}).ok:
+        return {'ok': False, 'step': 'submit'}
+    end = time.time() + 45
+    mine = None
+    while time.time() < end and not mine:
+        mine = next((b for b in pharm.get('/provider/pharmacy/broadcasts').items() if b.get('order_id') == oid), None)
+        if not mine:
+            time.sleep(1.5)
+    if not mine:
+        return {'ok': False, 'step': 'broadcast'}
+    offer_items = [{'order_item_id': str(m.get('id') or m.get('order_item_id') or ''), 'availability': 'available',
+                    'qty_offered': int(m.get('qty_requested') or m.get('qty') or m.get('quantity') or 1)} for m in (mine.get('items') or mine.get('medicines') or [])]
+    d = pharm.post(f'/provider/pharmacy/broadcasts/{oid}/offers/draft', {'items': offer_items})
+    if not d.get('id') or not pharm.post(f"/provider/pharmacy/broadcasts/{oid}/offers/{d.get('id')}/submit").ok:
+        return {'ok': False, 'step': 'offer', 'detail': str(d)}
+    offers = pat.get(f'/patient/pharmacy/orders/{oid}/offers').items()
+    if not offers:
+        return {'ok': False, 'step': 'offers'}
+    of = offers[0]
+    r = pat.post(f"/patient/pharmacy/orders/{oid}/offers/{of.get('id') or of.get('offer_id')}/select", {'coverage_mode': 'cash'}, headers={'Idempotency-Key': KEY('offer')})
+    if not r.ok:
+        return {'ok': False, 'step': 'select', 'detail': str(r)}
+    o = pat.get(f'/patient/pharmacy/orders/{oid}')
+    order = o.body.get('data', o.body) if isinstance(o.body, dict) else {}
+    if order.get('governed_state') == 'FINAL_QUOTE_READY' or order.get('selected_offer_hash'):
+        fq = order.get('governed_state') == 'FINAL_QUOTE_READY'
+        pat.post(f'/patient/pharmacy/orders/{oid}/final-quote/accept',
+                 {'quote_hash': order.get('pending_final_quote_hash') if fq else order.get('selected_offer_hash'),
+                  'quote_revision': order.get('pending_final_quote_revision') if fq else order.get('selected_offer_revision')},
+                 headers={'Idempotency-Key': KEY('final-quote')})
+    if not card_payment(pat, 'pharmacy', oid):
+        return {'ok': False, 'step': 'card payment'}
+    alloc = next((a for a in pharm.get('/provider/pharmacy/allocations').items() if oid in (a.get('order_id'), a.get('id'), a.get('pharmacy_order_id'))), None)
+    if not alloc:
+        return {'ok': False, 'step': 'allocation'}
+    aid = alloc.get('id')
+    for action in ('confirm', 'preparing', 'ready'):
+        for _ in range(15):  # the payment evidence is recorded by an asynchronous handler: ask again until it is there
+            r = pharm.post(f'/provider/pharmacy/allocations/{aid}/{action}', {})
+            if r.ok or 'payment_confirmation_required' not in json.dumps(r.body, ensure_ascii=False):
+                break
+            time.sleep(1)
+        if not r.ok:
+            return {'ok': False, 'step': action, 'detail': str(r)}
+    r = pharm.post(f'/provider/pharmacy/allocations/{aid}/out-for-delivery', {'courier_name': 'مندوب', 'courier_phone': '+966500000555'})
+    if r.ok:
+        r = pharm.post(f'/provider/pharmacy/allocations/{aid}/delivered', {})
+    if not r.ok:
+        return {'ok': False, 'step': 'delivery', 'detail': str(r)}
+    return {'ok': True, 'order_id': oid, 'token': p['token'], 'email': p['email'], 'password': p['password']}
+
+
 def doctor_blacklist():
     """A new patient is blocked by the seeded doctor (as the doctor app does from the patient file); the provider flow finds it in Settings -> Patient Blacklist."""
     import j_accounts
@@ -229,6 +299,8 @@ class H(BaseHTTPRequestHandler):
                 return self._send(200, nursing_booking())
             if u.path == '/lab/booking':
                 return self._send(200, lab_booking())
+            if u.path == '/pharmacy/delivered':
+                return self._send(200, pharmacy_delivered())
             if u.path == '/doctor/blacklist':
                 return self._send(200, doctor_blacklist())
             if u.path == '/doctor/appointment':
