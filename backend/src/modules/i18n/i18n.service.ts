@@ -373,6 +373,8 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'notif.order_created.body': { ar: 'جاري إرساله للصيدلية', en: 'Sending to pharmacy', ur: 'فارمیسی بھیج رہے ہیں' },
   'notif.price_drop.title': { ar: 'انخفض سعر دواء في قائمتك', en: 'A medicine on your wishlist is cheaper', ur: 'آپ کی فہرست کی ایک دوا سستی ہو گئی ہے' },
   'notif.price_drop.body': { ar: 'انخفض سعره. اطّلع عليه الآن', en: 'The price went down. Take a look now', ur: 'قیمت کم ہوئی ہے۔ ابھی دیکھیں' },
+  'notif.service_available.title': { ar: 'الخدمة التي طلبتها صارت متاحة', en: 'The service you asked about is now available', ur: 'جس سروس کے بارے میں آپ نے پوچھا تھا وہ اب دستیاب ہے' },
+  'notif.service_available.body': { ar: '{name}: يوجد الآن مقدّم يقدّمها. اطّلع على العروض', en: '{name}: a provider now offers it. See the offers', ur: '{name}: اب ایک فراہم کنندہ یہ پیش کرتا ہے۔ پیشکشیں دیکھیں' },
   'notif.new_order.title': { ar: 'طلب جديد', en: 'New Order', ur: 'نیا آرڈر' },
   'pharmacy.new_allocation.title': { ar: 'تم اختيار عرضك', en: 'Your offer was chosen', ur: 'آپ کی پیشکش منتخب ہو گئی' },
   'pharmacy.new_allocation.body': { ar: 'اختار المريض عرضك ({items_count} صنف). جهّز الطلب.', en: 'The patient chose your offer ({items_count} items). Prepare the order.', ur: 'مریض نے آپ کی پیشکش منتخب کی ({items_count} اشیاء)۔ آرڈر تیار کریں۔' },

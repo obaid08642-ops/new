@@ -7,6 +7,9 @@ import { I, IBg } from '../../../components/icons';
 import { SP, R, FS, FW, publicPageUrl } from '../../../constants';
 import { useUploadsEnabled } from '../../../hooks/useUploadsEnabled';
 import { UploadsUnavailable } from '../../../components/UploadsUnavailable';
+import { announceScan } from '../../../components/ScanStatusBadge';
+import { scanStateOfRequestError, scanOfStored } from '../../../utils/scanRegistry';
+import { scanStateOfUpload } from '../../../utils/scanStatus';
 
 // One profile editor for every provider role. Same record, same calls for all:
 //   GET /provider/profile, PATCH /provider/profile (and the image calls inside NProfileImageUploader).
@@ -158,10 +161,11 @@ export function ProviderProfileEditor({ role, onBack, initialSection }: { role: 
       setUploadingClinic(true);
       const { ProviderApi } = await import('../../../api/provider');
       const id = await ProviderApi.uploadFile(asset.uri, asset.mimeType || 'image/jpeg', asset.name || 'clinic.jpg');
-      if (typeof id === 'string' && id) set('clinicImages', [...form.clinicImages, id]);
+      if (typeof id === 'string' && id) { set('clinicImages', [...form.clinicImages, id]); announceScan(show, lang, scanOfStored(id)); }
       else show(AR ? 'تعذر رفع الصورة' : 'Could not upload image', 'error');
-    } catch {
-      show(AR ? 'تعذر رفع الصورة' : 'Could not upload image', 'error');
+    } catch (e) {
+      if (scanStateOfRequestError(e) === 'rejected') announceScan(show, lang, 'rejected');
+      else show(AR ? 'تعذر رفع الصورة' : 'Could not upload image', 'error');
     } finally { setUploadingClinic(false); }
   }
 

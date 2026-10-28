@@ -66,7 +66,7 @@ const catalog = {
       url: `${origin}/api/appointments/book`,
       representativeQueries: [
         "How to book a doctor consultation online?",
-        "حجز موعد طبيب عبر الدفع الذاتي أو التأمين الصحي",
+        "حجز موعد طبيب بدون تأمين أو بتأمين صحي",
         "ڈاکٹر کے ساتھ اپائنٹمنٹ بک کریں",
         "डॉक्टर के साथ अपॉइंटमेंट बुक करें",
         "ডাক্তারের সাথে অ্যাপয়েন্টমেন্ট বুক করুন",

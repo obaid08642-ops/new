@@ -544,7 +544,7 @@ describe("the insurance decision", () => {
   it("a partial approval offers the share or the full price, and needs no payment method to accept", async () => {
     const html = await draw({ decision: "APPROVED_PARTIAL", co_pay_amount: 10, insurer_share: 30 });
     expect(html).toContain("Accept and pay my share");
-    expect(html).toContain("Pay the full price myself");
+    expect(html).toContain("Pay the full price without insurance");
     expect(html).not.toContain("Choose a payment method");
     expect(html).not.toContain("Cancel the order");
     expect(html).toContain("SAR 10.00");
@@ -554,7 +554,7 @@ describe("the insurance decision", () => {
   it("a rejection offers the full price or cancelling, and no share to accept", async () => {
     const html = await draw({ decision: "REJECTED", co_pay_amount: 40, insurer_share: 0 });
     expect(html).not.toContain("Accept and pay my share");
-    expect(html).toContain("Pay the full price myself");
+    expect(html).toContain("Pay the full price without insurance");
     expect(html).toContain("Cancel the order");
   });
 
