@@ -23,6 +23,7 @@ const ProviderMap = dynamic(() => import("./provider-map-canvas"), { ssr: false,
 const MAP_URL = "/api/map/providers";
 
 type Labels = {
+  subtitle: string;
   searchPh: string;
   filterAll: string;
   filterDoctors: string;
@@ -252,6 +253,7 @@ export function MapExplorerClient({ locale, labels, cityNames, initialType = nul
   return (
     <div className={styles.stage}>
       <div className={styles.top}>
+        <p id="map-subtitle" className={styles.lead}>{labels.subtitle}</p>
         <div className={styles.topRow}>
           <label className={`${forms.field} ${styles.search}`}>
             <span className={styles.srOnly}>{labels.searchPh}</span>
@@ -264,7 +266,7 @@ export function MapExplorerClient({ locale, labels, cityNames, initialType = nul
             </div>
           ) : null}
         </div>
-        <div className={styles.chips} role="group" aria-label={t("mapFilters")}>
+        <div className={styles.chips} role="group" aria-label={t("mapFilters")} aria-describedby="map-subtitle">
           {typeFilters.map((f) => (
             <button key={f.id} type="button" className={`${forms.choice} ${styles.chip}`} aria-pressed={selectedType === f.id} onClick={() => setSelectedType(f.id)}>
               {f.glyph ? <FIcon icon={f.glyph.icon} tone={f.glyph.tone} size={24} /> : null}

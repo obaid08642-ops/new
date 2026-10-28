@@ -52,6 +52,7 @@ export default async function MapExplorerPage({ params, searchParams }: Props) {
         cityNames={cityNames}
         initialType={initialType}
         labels={{
+          subtitle: t("subtitle"),
           searchPh: t("searchPh"),
           filterAll: t("filterAll"),
           filterDoctors: t("filterDoctors"),
