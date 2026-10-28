@@ -78,11 +78,12 @@ export class DoctorsService implements OnModuleInit {
 
   async listDoctors(filter: any) {
     const q: any = { is_accepting: true, is_deleted: { $ne: true }, status: 'published' };
-    if (filter.specialty) q.specialty = filter.specialty;
-    if (filter.gender) q.gender = filter.gender;
+    // query values are coerced to strings and matched with $eq, so a crafted object (e.g. {"$ne": ""}) can never become an operator
+    if (filter.specialty) q.specialty = { $eq: String(filter.specialty) };
+    if (filter.gender) q.gender = { $eq: String(filter.gender) };
     if (filter.home === '1') q.home_visit_enabled = true;
     if (filter.video === '1') q.video_enabled = true;
-    if (filter.insurance) q.insurance_supported = filter.insurance;
+    if (filter.insurance) q.insurance_supported = { $eq: String(filter.insurance) };
     if (filter.insurance_company) q.insurance_supported = { $regex: new RegExp(escapeRegex(String(filter.insurance_company)), 'i') };
     if (filter.search) {
       const s = escapeRegex(String(filter.search));
