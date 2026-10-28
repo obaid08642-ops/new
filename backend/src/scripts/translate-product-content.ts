@@ -18,6 +18,7 @@
  *   npx ts-node --transpile-only src/scripts/translate-product-content.ts <step> ...
  */
 import * as fs from 'fs';
+import * as path from 'path';
 import mongoose from 'mongoose';
 import { mongoDirectConnection } from '../common/database/mongo-uri';
 import { sha256 } from '../modules/catalogs/catalogue-apply.core';
@@ -58,7 +59,7 @@ export function estimateRequests(reqs: TranslateRequest[], model = DEFAULT_MODEL
 export function translateProviders(env: NodeJS.ProcessEnv, rpmCap?: number): ParallelProvider[] {
   const share = Math.min(1, Math.max(0.05, Number(env.TRANSLATE_DAILY_SHARE) || 0.6));
   const over: Record<string, Partial<ProviderLimits>> = env.TRANSLATE_LIMITS ? JSON.parse(env.TRANSLATE_LIMITS) : {};
-  return providerCallersFromEnv({ ...env, CLASSIFY_MODEL: env.TRANSLATE_MODEL || env.CLASSIFY_MODEL }, { model: env.TRANSLATE_MODEL || env.CLASSIFY_MODEL }).map(({ provider, call }) => {
+  return providerCallersFromEnv({ ...env, CLASSIFY_MODEL: env.TRANSLATE_MODEL || env.CLASSIFY_MODEL }, { model: env.TRANSLATE_MODEL || env.CLASSIFY_MODEL, timeoutMs: Number(env.TRANSLATE_TIMEOUT_MS) || 180_000 }).map(({ provider, call }) => {
     const base: ProviderLimits = {
       rpm: provider.requests_per_minute || 10,
       rpd: provider.requests_per_day ? Math.floor(provider.requests_per_day * share) : 0,
@@ -69,6 +70,25 @@ export function translateProviders(env: NodeJS.ProcessEnv, rpmCap?: number): Par
     if (rpmCap) limits.rpm = Math.min(limits.rpm, rpmCap);
     return { name: provider.key, call, limits };
   });
+}
+
+/**
+ * Why an answer is not worth writing (a fixed word), or null when at least one of its items passes the same checks `plan` applies. An answer where
+ * nothing passes would only be asked about again at the next gaps run, so the run asks another provider instead of recording it as done.
+ */
+export function rejectionOf(req: TranslateRequest | undefined, text: string): string | null {
+  if (!req) return null;
+  const answers = parseAnswers(text);
+  if (!answers.length) return 'no_json';
+  const byIndex = new Map(answers.map((a) => [a.i, a.t]));
+  let first: string | null = null;
+  for (const it of req.items) {
+    if (!byIndex.has(it.i)) { first ??= 'no_answer'; continue; }
+    const why = checkTranslation(it.text, byIndex.get(it.i) as string | null, req.target);
+    if (!why) return null;
+    first ??= why;
+  }
+  return first ?? 'no_answer';
 }
 
 /** The requests still to send: those without an answer yet, at most `max` (a bounded batch per run keeps a free-tier day within its limit). */
@@ -158,9 +178,19 @@ export async function main(argv: string[]): Promise<number> {
     const batch = pendingRequests(reqs, done, Number(arg(argv, 'max')) || Infinity);
     const providers = translateProviders(process.env, Number(arg(argv, 'rpm')) || undefined);
     const t0 = Date.now();
+    const byId = new Map(reqs.map((r) => [r.id, r]));
+    const statsFile = process.env.TRANSLATE_STATS_FILE || path.join(path.dirname(outFile), 'stats.json');
     const res = await runParallel(batch.map((r) => ({ id: r.id, prompt: r.prompt })), providers, {
       done, write: (l) => fs.appendFileSync(outFile, `${l}\n`), sleep: (ms) => new Promise((r) => setTimeout(r, ms)), now: Date.now, log: (l) => process.stderr.write(`${l}\n`),
-    }, { tokensOf: approxTokens });
+    }, {
+      tokensOf: approxTokens,
+      validate: (id, text) => rejectionOf(byId.get(id), text),
+      // counts only (no message, no prompt, no key); written whole, then renamed, so a reader never sees half a file
+      onSnapshot: (snap) => {
+        const body = JSON.stringify({ ...snap, answered_total: done.size, requests_total: reqs.length, remaining_total: reqs.length - done.size }, null, 1);
+        fs.writeFileSync(`${statsFile}.tmp`, body); fs.renameSync(`${statsFile}.tmp`, statsFile);
+      },
+    });
     out({ step, sent: res.sent, skipped: res.skipped, failed: res.failed, providers: res.providers, minutes: Math.round((Date.now() - t0) / 600) / 100, batch: batch.length, remaining: reqs.length - done.size });
     return res.failed ? 1 : 0;
   }

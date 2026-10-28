@@ -14,10 +14,12 @@ const labs = [
 function make() {
   const sorts: any[] = [];
   const svcModel: any = {
+    // the offers the list adds (providers_count, from_price...) read the provider collections: none here
+    db: { collection: () => ({ find: () => ({ toArray: async () => [] }) }) },
     find: jest.fn(() => {
       const chain: any = {
         sort: (s: any) => { sorts.push(s); return chain; },
-        limit: () => Promise.resolve(services),
+        limit: () => chain,
         lean: () => Promise.resolve([...services]),
         then: (res: any, rej: any) => Promise.resolve(services).then(res, rej),
       };
