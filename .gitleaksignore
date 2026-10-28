@@ -55,3 +55,5 @@ b3c1b6fba7d9334c78967bc0dab280ae5a12d63f:backend/test/security/p3-provider-crede
 5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:patient-web/lib/api/appointments-server.test.ts:generic-api-key:17
 5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:patient-web/lib/api/medicines-server.test.ts:generic-api-key:16
 fdaf728472475786d03b5e3da195766579907054:lib/api/appointments-server.test.ts:generic-api-key:16
+f1f7eca54632fca1913601402d9bee2baa621f4b:backend/src/scripts/parallel-runner.spec.ts:generic-api-key:147
+f1f7eca54632fca1913601402d9bee2baa621f4b:tools/ops/tests/test_translate_progress.py:generic-api-key:10

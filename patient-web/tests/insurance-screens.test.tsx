@@ -174,7 +174,7 @@ describe("the page of one insurance request", () => {
   it("declined: the server's reason and the self-pay acceptance", async () => {
     const html = await open({ state: "REJECTED", rejection_reason: "Not covered by plan" });
     expect(html).toContain("Not covered by plan");
-    expect(html).toContain("Accept self-pay");
+    expect(html).toContain("Continue without insurance");
   });
 
   it("covered in full: no payment, a way to the booking when the server names one", async () => {
@@ -201,7 +201,7 @@ describe("the page of one insurance request", () => {
     expect(html).toContain("16.00");
   });
 
-  it("self-pay due shows the options button; an unknown state or a bad id is not a page", async () => {
+  it("without-insurance payment due shows the options button; an unknown state or a bad id is not a page", async () => {
     expect(await open({ state: "SELF_PAY_PENDING", self_pay_amount: 30 })).toMatch(/Go to secure payment — SAR\s30\.00/);
     expect(await open({ state: "WHATEVER" })).toContain("Unable to load insurance");
     await expect(InsuranceRequestPage(page("nope"))).rejects.toThrow("not-found");
