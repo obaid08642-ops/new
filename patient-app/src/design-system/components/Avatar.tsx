@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import {
   View, Image, StyleSheet, StyleProp, ViewStyle, Text,
 } from 'react-native';
+import { tokens } from '../../../../packages/design-tokens/dist/ts/tokens';
 import { useApp } from '../../context/AppContext';
 import { BorderRadius, Typography } from '../tokens';
 import { DSBadge } from './Badge';
@@ -58,10 +59,10 @@ function getInitials(name?: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-const FALLBACK_COLORS = [
-  '#23B5CE', '#7C3AED', '#059669', '#D97706', '#DC2626',
-  '#2563EB', '#DB2777', '#0891B2', '#65A30D', '#9333EA',
-];
+// the 10 service tones' solid colours (white initials stay readable on every one)
+const FALLBACK_COLORS: string[] = Object.values(tokens('light').color.service)
+  .filter((tone): tone is { solid: { from: string } } => typeof tone === 'object' && tone !== null && 'solid' in tone)
+  .map((tone) => tone.solid.from);
 
 function getColorForName(name?: string): string {
   if (!name) return FALLBACK_COLORS[0];

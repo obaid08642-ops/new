@@ -9,6 +9,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useThemeColors, useApp } from '../context/AppContext';
 import { autoTranslate } from '../i18n';
 import { Icon, IconName } from './Icon';
+import { tokens } from '../../../packages/design-tokens/dist/ts/tokens';
 
 /* ----------------------------- Text ----------------------------- */
 // AppText guarantees Cairo font + correct RTL alignment, fixing the
@@ -222,9 +223,10 @@ interface DoctorCardProps {
 }
 
 export function DoctorCard({ doctor, onPress, onBook, style }: DoctorCardProps) {
-  const { colors } = useApp();
-  const cg = (String(doctor.id) === '2' ? ['#EDEBFD', '#DDD8FC'] : ['#DEF5F9', '#C8EEF4']) as [string, string];
-  const icColor = String(doctor.id) === '2' ? '#7A6BEA' : '#23B5CE';
+  const { colors, isDark } = useApp();
+  const tone = tokens(isDark ? 'dark' : 'light').color.service[String(doctor.id) === '2' ? 'violet' : 'blue'];
+  const cg = [tone.bg, tone.bg] as [string, string];
+  const icColor = tone.fg;
 
   return (
     <Card padding={0} style={[{ overflow: 'hidden' }, style]}>
@@ -284,9 +286,9 @@ export function DoctorCard({ doctor, onPress, onBook, style }: DoctorCardProps) 
         <View style={[styles_dc.bottomBar, { backgroundColor: colors.primary }]}>
           <View style={{ alignItems: 'flex-start', gap: 2 }}>
             {doctor.rating != null && (
-              <AppText variant="labelSM" color="#fff" style={{ fontWeight:'800' }}> {doctor.rating}{doctor.reviews != null ? ` (${doctor.reviews})` : ''}</AppText>
+              <AppText variant="labelSM" color={colors.textInverse} style={{ fontWeight:"800" }}> {doctor.rating}{doctor.reviews != null ? ` (${doctor.reviews})` : ''}</AppText>
             )}
-            {!!doctor.slot && <AppText variant="caption" color="rgba(255,255,255,0.85)" style={{ fontWeight:'400' }}> {doctor.slot}</AppText>}
+            {!!doctor.slot && <AppText variant="caption" color={colors.textInverse} style={{ fontWeight:'400' }}> {doctor.slot}</AppText>}
           </View>
           <TouchableOpacity onPress={onBook} activeOpacity={0.8} style={[styles_dc.bookBtn, { backgroundColor: colors.surface }]}>
             <AppText variant="labelSM" color={colors.primary} style={{ fontWeight: '800' }}>{doctor.price != null ? `احجز ${doctor.price} ر.س` : 'احجز الآن'}</AppText>
