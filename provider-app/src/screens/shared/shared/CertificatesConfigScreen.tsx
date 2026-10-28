@@ -28,6 +28,9 @@ import { SK, Vault } from '../../../security/Security';
 import { tokens, withAlpha } from '../../../theme/tokens';
 import { useUploadsEnabled } from '../../../hooks/useUploadsEnabled';
 import { UploadsUnavailable } from '../../../components/UploadsUnavailable';
+import { announceScan } from '../../../components/ScanStatusBadge';
+import { scanStateOfRequestError, scanOfStored } from '../../../utils/scanRegistry';
+import { scanStateOfUpload } from '../../../utils/scanStatus';
 
 export function CertificatesConfigScreen({ onBack }: { onBack: () => void }) {
   const uploadsOn = useUploadsEnabled();
@@ -81,13 +84,15 @@ export function CertificatesConfigScreen({ onBack }: { onBack: () => void }) {
  setPendingDocType(docType);
  setUploading(true);
  const base64 = await FileSystem.readAsStringAsync(asset.uri, { encoding: 'base64' });
- await client.post('/provider/kyc/documents', {
+ const saved = await client.post('/provider/kyc/documents', {
  doc_type: docType,
  file: { data_base64: base64, mime, original_name: asset.name || `${docType}.pdf` },
  });
  show(AR ? 'تم رفع المستند وهو الآن قيد مراجعة الإدارة' : 'Document uploaded and is now under admin review', 'success');
+ announceScan(show, lang, scanStateOfUpload(saved?.data));
  await loadDocs();
  } catch (err: any) {
+ if (scanStateOfRequestError(err) === 'rejected') { announceScan(show, lang, 'rejected'); return; }
  const m = err?.response?.data?.message;
  show(typeof m === 'string' ? m : (AR ? 'تعذر رفع المستند — تحقق من الملف والاتصال وحاول مجدداً' : 'Could not upload the document — check the file and connection and retry'), 'error');
  } finally {
