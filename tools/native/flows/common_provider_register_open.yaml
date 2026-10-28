@@ -29,6 +29,8 @@ appId: com.nabd.provider
     direction: DOWN
     timeout: 30000
 - tapOn: "متابعة|Next"
-- extendedWaitUntil:
-    visible: ".*(${TITLE}).*|متابعة|Next"
-    timeout: 10000
+# the page checked its fields and stayed: its title is still the page's (scrolled back up to it, since the page may have scrolled to the first error)
+- scrollUntilVisible:
+    element: ${TITLE}
+    direction: UP
+    timeout: 20000
