@@ -1,7 +1,7 @@
 import { extractLabService, parseLabServiceId } from "@/lib/api/labs";
 import { getPublicLabPackage, getPublicLabService } from "@/lib/api/labs-server";
 import { extractNursingCatalog } from "@/lib/api/nursing-catalog";
-import { getPublicNursingCatalog } from "@/lib/api/nursing-catalog-server";
+import { getPublicNursingCatalog, getPublicNursingService } from "@/lib/api/nursing-catalog-server";
 import { parseRadiologyService, parseRadiologyServiceId } from "@/lib/api/radiology";
 import { getPublicRadiologyServiceDetail } from "@/lib/api/radiology-server";
 import { fromLab, fromNursing, fromRadiology, type ItemView } from "./item";
@@ -19,6 +19,12 @@ export async function loadItem(kind: "lab" | "radiology" | "nursing", id: string
       return { item: parsed ? fromRadiology(parsed) : null, failed: !parsed };
     }
     if (kind === "nursing") {
+      // the service with its offers (GET /home-care/services/:id); the older catalogue list is the fallback when that read does not answer
+      const one = await getPublicNursingService(id);
+      if (one && one.ok) {
+        const found = extractNursingCatalog([await one.json().catch(() => null)])[0];
+        if (found) return { item: fromNursing(found), failed: false };
+      }
       const res = await getPublicNursingCatalog();
       if (!res || !res.ok) return { item: null, failed: true };
       const found = extractNursingCatalog(await res.json().catch(() => null)).find((s) => s.id === id);

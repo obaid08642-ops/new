@@ -10,6 +10,7 @@
  * (fasting, turnaround) come from the translation files.
  */
 import { pickDbField } from './localize';
+import { offerSummaryOf, offersOf, type OfferSummary, type ServiceOffer } from './catalogueOffers';
 
 type Raw = Record<string, unknown>;
 
@@ -49,6 +50,9 @@ export interface CatalogItem {
   insurance: boolean;
   /** Decision 30: the service can be paid by the patient (`cash_availability` not false). */
   selfPay: boolean;
+  /** What providers offer for it (the catalogue's summary and, on a detail, the offers); null when the payload has none. */
+  offer: OfferSummary | null;
+  offers: ServiceOffer[];
 }
 
 const asText = (v: unknown): string => (typeof v === 'string' || typeof v === 'number' ? String(v) : '');
@@ -96,6 +100,8 @@ export function normalizeLabService(raw: unknown): CatalogItem | null {
     isPopular: (asNumber(r.popularity) ?? 0) >= 80,
     insurance: r.insurance_availability === true,
     selfPay: r.cash_availability !== false,
+    offer: offerSummaryOf(r),
+    offers: offersOf(r),
   };
 }
 

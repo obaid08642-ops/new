@@ -9,7 +9,6 @@ import { Section, Sheet } from '../../src/components/consult/ConsultKit';
 import {
   CartBar,
   INSURANCE_TONE,
-  ItemCard,
   KindTile,
   LAB_TONE,
   LabCard,
@@ -23,6 +22,7 @@ import {
   diagLook,
   useDiagText,
 } from '../../src/components/diagnostics/DiagKit';
+import { CatalogueCard } from '../../src/components/diagnostics/CatalogueKit';
 import { ActiveFilters, type ActiveFilter } from '../../src/components/pharmacy/ActiveFilters';
 import { GlyphRound, WishlistButton } from '../../src/components/pharmacy/PharmacyKit';
 import { ServiceCartButton } from '../../src/components/cart/ServiceCartButton';
@@ -34,9 +34,8 @@ import { fetchPublicList } from '../../src/utils/publicCache';
 import { DIAG_PAGE_SIZE, sortOfFilter, serverCategoryOf } from '../../src/utils/diagCatalogApi';
 import { useDiagCatalog } from '../../src/utils/useDiagCatalog';
 import { activeFilterCount, filterForTab, filtersFor, type FilterId } from '../../src/utils/diagFilters';
-import { catalogArt, isNearEnd, itemRating } from '../../src/utils/diagCatalog';
-import { singleOrderRoute } from '../../src/utils/singleOrder';
-import { diagArtKeysOf, filterByArt, itemSubtitle, type DiagArtKey } from '../../../packages/ui/icons/diag-art';
+import { catalogArt, isNearEnd } from '../../src/utils/diagCatalog';
+import { diagArtKeysOf, filterByArt, type DiagArtKey } from '../../../packages/ui/icons/diag-art';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { insuranceOffered, normalizeLabList, normalizeProviders, type CatalogItem, type LabProvider } from '../../src/utils/labMappers';
@@ -51,7 +50,7 @@ export default function DiagnosticsHub() {
   const { theme, dir, t, c, k, num, flow } = useScreenUi();
   const text = useDiagText();
   const barHeight = useTabBarHeight();
-  const { items, addItem } = useDiagnosticsCart();
+  const { items } = useDiagnosticsCart();
 
   // `?tab=radiology` opens the radiology side (the services catalogue's imaging entry; needs-review issue 414).
   const { tab } = useLocalSearchParams<{ tab?: string }>();
@@ -131,16 +130,6 @@ export default function DiagnosticsHub() {
     setCat('all');
   };
 
-  const inCart = (id: string) => items.some((i) => i.id === id);
-  // one cart per service: a test goes to the lab cart, a scan to the radiology cart
-  const addToCart = (item: CatalogItem, kind: 'lab' | 'radiology') => {
-    if (!inCart(item.id)) void addItem({ id: item.id, name: item.name, price: item.price ?? 0, kind });
-  };
-  // "Order now" skips the cart: this one item goes to the lab choice (every lab with its price), then the time and the payment; the cart is not touched
-  const orderNow = (item: CatalogItem, kind: 'lab' | 'radiology') => {
-    router.push(singleOrderRoute({ kind, id: item.id, name: item.name, place: kind === 'radiology' && !item.homeVisit ? 'clinic' : place, payer: kind === 'lab' && effectivePay === 'insurance' ? 'insurance' : 'cash' }) as unknown as Href);
-  };
-
   // The tests and scans are paged, searched, sorted and (scans) filtered by category on the SERVER; packages and the labs strip are short
   // lists filtered here. The place and payment of the order hide the rows of the loaded pages that do not fit.
   const needle = query.trim().toLowerCase();
@@ -164,6 +153,7 @@ export default function DiagnosticsHub() {
   // Nothing takes insurance in the loaded catalogue: the choice is not offered (no empty list behind it) and self-pay applies.
   const anyInsurance = useMemo(() => insuranceOffered([...packages, ...tests]), [packages, tests]);
   const effectivePay: Pay = anyInsurance ? pay : 'self_pay';
+  // the payment always applies, offers or not: an insurance-only test never shows under "Without insurance" and a self-pay-only one never under "Insurance"
   const pays = (x: CatalogItem) => (effectivePay === 'insurance' ? x.insurance : x.selfPay);
   const view = useMemo(() => {
     let p = packages.filter((x) => match(x.name) && pays(x));
@@ -196,6 +186,10 @@ export default function DiagnosticsHub() {
   useEffect(() => {
     if (isLab && cat !== 'all' && testCatalog.hasMore && !testCatalog.loading && !testCatalog.loadingMore && shownTests.length < DIAG_PAGE_SIZE) testCatalog.loadMore();
   }, [isLab, cat, testCatalog, shownTests.length]);
+  // the same for scans when the place switch hides most of a page
+  useEffect(() => {
+    if (!isLab && radCatalog.hasMore && !radCatalog.loading && !radCatalog.loadingMore && shownRads.length < DIAG_PAGE_SIZE) radCatalog.loadMore();
+  }, [isLab, radCatalog, shownRads.length]);
 
   const unfiltered = needle === '' && filter === 'all' && cat === 'all';
   const nothing = !loading && !failed && unfiltered && packages.length === 0 && catalog.items.length === 0;
@@ -230,50 +224,12 @@ export default function DiagnosticsHub() {
       ))}
     </ScrollView>
   );
-  const ratingOf = (x: CatalogItem) => {
-    const r = itemRating(x);
-    return r ? k('diag.ratingLine', { n: num(r.rating, { maximumFractionDigits: 1 }), count: num(r.count) }) : undefined;
-  };
+  const payer = effectivePay === 'insurance' ? 'insurance' : 'cash';
   const testCard = (test: CatalogItem, art: DiagArtKey, idPrefix: string, width?: number) => (
-    <ItemCard
-      key={`${idPrefix}-${test.id}`}
-      testID={`${idPrefix}-${test.id}`}
-      name={test.name}
-      art={art}
-      width={width}
-      image={test.image}
-      tags={text.testTags(test, place === 'home')}
-      note={test.turnaroundHours !== null ? text.turnaround(test.turnaroundHours) : undefined}
-      rating={ratingOf(test)}
-      price={test.price}
-      inCart={inCart(test.id)}
-      addLabel={k('diag.detail.addToCart')}
-      inCartLabel={k('diag.detail.inCart')}
-      orderLabel={k('diag.detail.orderNow')}
-      onPress={() => router.push(`/diagnostics/test-detail?id=${test.id}` as Href)}
-      onAdd={() => addToCart(test, 'lab')}
-      onOrder={() => orderNow(test, 'lab')}
-    />
+    <CatalogueCard key={`${idPrefix}-${test.id}`} item={test} kind="lab" art={art} place={place} payer={payer} idPrefix={idPrefix} width={width} />
   );
   const scanCard = (rad: CatalogItem, art: DiagArtKey, idPrefix: string, width?: number) => (
-    <ItemCard
-      key={`${idPrefix}-${rad.id}`}
-      testID={`${idPrefix}-${rad.id}`}
-      name={rad.name}
-      art={art}
-      width={width}
-      image={rad.image}
-      note={itemSubtitle(rad.desc, [rad.category, rad.modality, rad.bodyPart, rad.sampleType], k(`diag.cat.${art}`))}
-      rating={ratingOf(rad)}
-      price={rad.price}
-      inCart={inCart(rad.id)}
-      addLabel={k('diag.detail.addToCart')}
-      inCartLabel={k('diag.detail.inCart')}
-      orderLabel={k('diag.detail.orderNow')}
-      onPress={() => router.push(`/diagnostics/test-detail?id=${rad.id}&isRadiology=true` as Href)}
-      onAdd={() => addToCart(rad, 'radiology')}
-      onOrder={() => orderNow(rad, 'radiology')}
-    />
+    <CatalogueCard key={`${idPrefix}-${rad.id}`} item={rad} kind="radiology" art={art} place={place} idPrefix={idPrefix} width={width} />
   );
   // the end of the list opens the next page (a ScrollView's scroll position in place of a list's onEndReached)
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {

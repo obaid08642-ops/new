@@ -3570,7 +3570,20 @@
     "catMri": "এমআরআই",
     "catUltrasound": "আল্ট্রাসাউন্ড",
     "catMammography": "ম্যামোগ্রাফি",
-    "catEcg": "ইসিজি ও ইকো"
+    "catEcg": "ইসিজি ও ইকো",
+    "offerCount": "{count}টি কেন্দ্র",
+    "offerCountNursing": "{count}জন সেবাদাতা",
+    "offerNone": "এখনও কোনো কেন্দ্র এই সেবা দিচ্ছে না",
+    "offerNoneBody": "কোনো কেন্দ্র এটি দেওয়া শুরু করলে আমরা আপনাকে জানাতে পারি।",
+    "offerAtCentre": "কেন্দ্রে",
+    "offerAtHome": "বাড়িতে",
+    "offerInsurance": "বিমা গ্রহণযোগ্য",
+    "offerNoPrice": "মূল্য নির্ধারিত নয়",
+    "offersTitle": "যেসব কেন্দ্র এই সেবা দেয়",
+    "notifyMe": "পাওয়া গেলে আমাকে জানান",
+    "notifyMeDone": "আপনি তালিকায় আছেন। কোনো কেন্দ্র এটি দিলে আমরা আপনাকে জানাব।",
+    "notifyMeSignIn": "জানতে সাইন ইন করুন",
+    "notifyMeFailed": "সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।"
   },
   "OrderContext": {
     "hint": "কিছু বদলালেই দাম ও কভারেজ সঙ্গে সঙ্গে হালনাগাদ হয়",

@@ -12,6 +12,7 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { ActionLinks, BulletList, Facts, Hero, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
 import { RADIOLOGY, TagRow, hoursText, minutesText, money, type Tag } from "@/components-next/diagnostics/diag-parts";
+import { OffersSection } from "@/components-next/diagnostics/offers-section";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 import { pickName, pickTexts } from "@/lib/i18n/localized";
 
@@ -85,7 +86,8 @@ export default async function RadiologyServiceDetailPage({ params }: Props) {
     ...(service.fastingRequired ? [{ label: w("tagFasting"), tone: DIAG_TONES.warn } as Tag] : []),
   ];
   const rows: FactRow[] = [
-    ...(service.price !== undefined ? [{ label: w("factPrice"), value: <bdi>{money(locale, service.price)}</bdi>, icon: "tag", tone: RADIOLOGY.tone } as FactRow] : []),
+    // with the offer summary the price is what the centres below charge; the catalogue's base price is the fallback of an older answer
+    ...(service.price !== undefined && service.offer === undefined ? [{ label: w("factPrice"), value: <bdi>{money(locale, service.price)}</bdi>, icon: "tag", tone: RADIOLOGY.tone } as FactRow] : []),
     ...(service.modality ? [{ label: w("factModality"), value: service.modality.toUpperCase(), icon: "scan", tone: RADIOLOGY.tone } as FactRow] : []),
     ...(service.bodyPart ? [{ label: w("factBodyPart"), value: service.bodyPart, icon: "heartbeat", tone: DIAG_TONES.health } as FactRow] : []),
     ...(service.durationMinutes !== undefined ? [{ label: w("factDuration"), value: minutesText(locale, service.durationMinutes), icon: "clock-counter-clockwise", tone: DIAG_TONES.facility } as FactRow] : []),
@@ -114,7 +116,9 @@ export default async function RadiologyServiceDetailPage({ params }: Props) {
       <DirectAnswer sentences={[seo("radiologyWho", { name: name ?? t("title") })]} />
       {rows.length > 0 ? <SectionCard id="rad-facts" title={t("detailTitle")}><Facts rows={rows} label={t("detailTitle")} /></SectionCard> : null}
       {preparation.length > 0 ? <SectionCard id="rad-prep" title={t("preparationTitle")}><BulletList items={preparation} /></SectionCard> : null}
-      <ActionLinks actions={[{ href: addHref, label: w("addToOrderCta") }]} />
+      <OffersSection locale={locale} t={w} kind="radiology" serviceId={service.id} offer={service.offer} offers={service.offers} />
+      {/* a scan no centre offers yet cannot be ordered: the section above says so and offers "Notify me" */}
+      {service.offer?.providersCount === 0 ? null : <ActionLinks actions={[{ href: addHref, label: w("addToOrderCta") }]} />}
     </ConsultPage>
   );
 }

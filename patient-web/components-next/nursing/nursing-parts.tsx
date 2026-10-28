@@ -83,12 +83,13 @@ export function Caret({ rtl }: { rtl: boolean }) {
 }
 
 /** The facts under a service's name: a duration and "accepts insurance" as chips (a fact the server did not send is not passed). */
-export function ServiceChips({ duration, insurance }: { duration?: string; insurance?: string }) {
-  if (!duration && !insurance) return null;
+export function ServiceChips({ duration, insurance, extras = [] }: { duration?: string; insurance?: string; /** where nurses do it (home, at the centre, insurance accepted), from the offer summary */ extras?: string[] }) {
+  if (!duration && !insurance && extras.length === 0) return null;
   return (
     <span className={styles.chips}>
       {duration ? <StatusChip label={duration} tone={NURSING.tone} /> : null}
       {insurance ? <StatusChip label={insurance} tone={DIAG_TONES.info} /> : null}
+      {extras.filter((label) => label !== insurance).map((label) => <StatusChip key={label} label={label} tone={DIAG_TONES.quiet} />)}
     </span>
   );
 }

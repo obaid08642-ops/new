@@ -57,6 +57,8 @@ export interface ServiceCardProps {
   image?: string | null;
   icon: FillIconName;
   price: number | null;
+  /** What nurses offer for it, already in words: "3 providers · From 120.00 SAR" and where / insurance (omitted when the server sent no summary). */
+  offerLine?: string;
   /** Open the service (the card). */
   onPress: () => void;
   actionLabel: string;
@@ -68,7 +70,7 @@ export interface ServiceCardProps {
 }
 
 /** The hub's service card (board ServiceHub): a nursing-tone wash, the image or glyph, name, line, price and the ink book button. Two to a row. */
-export function ServiceCard({ title, desc, image, icon, price, onPress, actionLabel, onAction, enterIndex = 0, testID }: ServiceCardProps) {
+export function ServiceCard({ title, desc, image, icon, price, offerLine, onPress, actionLabel, onAction, enterIndex = 0, testID }: ServiceCardProps) {
   const { theme, t, c, flow } = useScreenUi();
   const look = c.service[CARE_TONE];
   return (
@@ -80,6 +82,7 @@ export function ServiceCard({ title, desc, image, icon, price, onPress, actionLa
         {desc ? (
           <Text numberOfLines={2} style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{desc}</Text>
         ) : null}
+        {offerLine ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{offerLine}</Text> : null}
         {price !== null ? <Price amount={price} size="bodyStrong" /> : null}
       </Pressable>
       <Pressable accessibilityRole="button" accessibilityLabel={`${actionLabel}, ${title}`} onPress={onAction} style={({ pressed }) => ({ minHeight: 44, paddingHorizontal: 14, paddingVertical: 6, borderRadius: 14, backgroundColor: c.action.primary.bg, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.85 : 1 })}>
