@@ -1,0 +1,34 @@
+# Fresh install -> welcome -> the ${TYPE} card -> Account Options -> Register -> the first page of that type's registration wizard
+# (${TITLE}); pressing Next with nothing filled in keeps the person on that page (the page checks its own fields).
+appId: com.nabd.provider
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: ".*isn.t responding.*"
+    commands:
+      - tapOn: "Wait"
+- extendedWaitUntil:
+    visible: ".*(Nabd Plus|نبض بلس).*"
+    timeout: 60000
+- scrollUntilVisible:
+    element: ${TYPE}
+    direction: DOWN
+    timeout: 30000
+- tapOn: ${TYPE}
+- extendedWaitUntil:
+    visible: "إنشاء حساب جديد \\(Register\\)|Register"
+    timeout: 20000
+- tapOn: "إنشاء حساب جديد \\(Register\\)|Register"
+- extendedWaitUntil:
+    visible: ${TITLE}
+    timeout: 30000
+- scrollUntilVisible:
+    element: "متابعة|Next"
+    direction: DOWN
+    timeout: 30000
+- tapOn: "متابعة|Next"
+- extendedWaitUntil:
+    visible: ".*(${TITLE}).*|متابعة|Next"
+    timeout: 10000
