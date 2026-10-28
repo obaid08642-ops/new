@@ -26,6 +26,15 @@ export type CatalogueKind = 'lab' | 'radiology';
 /** Tests and scans nobody offers stay in every list, whatever the place or the payment the order has chosen. */
 export const isUnoffered = (item: Pick<CatalogItem, 'offer'>): boolean => item.offer?.providersCount === 0;
 
+/**
+ * Whether the order's place (at home / at the centre) fits a service: by what providers offer when the catalogue says (a service nobody offers
+ * stays), else by the catalogue's own home-visit flag (an older answer).
+ */
+export function fitsPlace(item: Pick<CatalogItem, 'offer' | 'homeVisit'>, place: 'home' | 'clinic'): boolean {
+  if (item.offer) return item.offer.providersCount === 0 || (place === 'home' ? item.offer.home : item.offer.premises);
+  return place === 'clinic' || item.homeVisit;
+}
+
 /** One test or scan of the catalogue as a card: tags, offer lines (centres, from-price, where, insurance), rating, "Add to cart" and "Order now". */
 export function CatalogueCard({ item, kind, art, place, payer, idPrefix, width }: { item: CatalogItem; kind: CatalogueKind; art: DiagArtKey; place: 'home' | 'clinic'; payer?: 'cash' | 'insurance'; idPrefix: string; width?: number }) {
   const { k, num, money, lang } = useScreenUi();

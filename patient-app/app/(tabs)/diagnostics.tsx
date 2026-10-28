@@ -22,7 +22,7 @@ import {
   diagLook,
   useDiagText,
 } from '../../src/components/diagnostics/DiagKit';
-import { CatalogueCard, isUnoffered } from '../../src/components/diagnostics/CatalogueKit';
+import { CatalogueCard, fitsPlace, isUnoffered } from '../../src/components/diagnostics/CatalogueKit';
 import { ActiveFilters, type ActiveFilter } from '../../src/components/pharmacy/ActiveFilters';
 import { GlyphRound, WishlistButton } from '../../src/components/pharmacy/PharmacyKit';
 import { ServiceCartButton } from '../../src/components/cart/ServiceCartButton';
@@ -169,13 +169,13 @@ export default function DiagnosticsHub() {
   }, [packages, labs, needle, effectivePay, filter]);
 
   const testRows = useMemo(() => tests.filter(pays).map((item) => ({ item, art: catalogArt('lab', item) })), [tests, effectivePay]); // eslint-disable-line react-hooks/exhaustive-deps
-  const radRows = useMemo(() => rads.filter((x) => isUnoffered(x) || place === 'clinic' || x.homeVisit).map((item) => ({ item, art: catalogArt('radiology', item) })), [rads, place]);
+  const radRows = useMemo(() => rads.filter((x) => fitsPlace(x, place)).map((item) => ({ item, art: catalogArt('radiology', item) })), [rads, place]);
   // scan rows are already the chip's (server); test rows are filtered by the chip here
   const shownTests = filterByArt(testRows, cat);
   const shownRads = radRows;
   const popular =
     needle === '' && (filter === 'all' || !isLab)
-      ? popularCatalog.items.filter((x) => (isLab ? pays(x) : isUnoffered(x) || place === 'clinic' || x.homeVisit)).slice(0, 6)
+      ? popularCatalog.items.filter((x) => (isLab ? pays(x) : fitsPlace(x, place))).slice(0, 6)
       : [];
   const moreRows = catalog.hasMore;
   const showPackages = filter === 'all' || filter === 'packages' || filter === 'lowest_price' || filter === 'home_visit' || filter === 'highest_rated';

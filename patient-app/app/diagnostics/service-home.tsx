@@ -8,7 +8,7 @@ import { Button, Card, EmptyState, FIcon, Search, Skeleton } from '../../../pack
 import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
 import { ConsultScreen, Gate, Section, type GateStatus } from '../../src/components/consult/ConsultKit';
 import { LAB_TONE, ListCard, RAD_TONE, TestRow, diagLook, goBackDiag } from '../../src/components/diagnostics/DiagKit';
-import { CatalogueCard, isUnoffered } from '../../src/components/diagnostics/CatalogueKit';
+import { CatalogueCard, fitsPlace } from '../../src/components/diagnostics/CatalogueKit';
 import { NursingServiceList } from '../../src/components/nursing/NursingServiceList';
 import { ContextBar } from '../../src/components/ordering/ContextBar';
 import { ContextGate } from '../../src/components/ordering/OrderingKit';
@@ -83,7 +83,7 @@ export default function ServiceHome() {
   const place = ctx.choice.mode === 'home' ? 'home' : 'clinic';
   const payer = ctx.choice.payer === 'insurance' ? 'insurance' : 'cash';
   // a service nobody offers yet stays in the list; the order's place and payment hide only the ones some provider offers differently
-  const rows = catalog.items.filter((x) => isUnoffered(x) || kind !== 'radiology' || place === 'clinic' || x.homeVisit);
+  const rows = catalog.items.filter((x) => kind !== 'radiology' || fitsPlace(x, place));
   const listFailed = !isNursing && catalog.failed && catalog.items.length === 0 ? catalog.failed : null;
   const effectiveStatus: GateStatus = listFailed ?? status;
   const nothing = needle !== '' && (isNursing ? nursingShown.length === 0 : rows.length === 0 && !catalog.loading);

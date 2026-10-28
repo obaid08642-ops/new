@@ -56,8 +56,13 @@ export async function loadCatalogPage(request: CatalogRequest): Promise<CatalogL
  * as before, on the rows of the pages loaded; packages and unavailable tests are not rows of the tests list.
  */
 export function catalogRows(kind: "lab" | "radiology", loads: readonly CatalogLoad[], order: { place: "home" | "facility" | "all"; pay: LabPay }, ctx: RowContext): CatalogRow[] {
-  // a service nobody offers yet is still listed (its page says so and offers "Notify me"), whatever the place
-  const fitsPlace = (s: { homeVisitSupported?: boolean; facilityVisitSupported?: boolean; offer?: { providersCount: number } }) => s.offer?.providersCount === 0 || order.place === "all" || (order.place === "home" ? s.homeVisitSupported !== false : s.facilityVisitSupported !== false);
+  // a service nobody offers yet is still listed (its page says so and offers "Notify me"); otherwise the place fits by what providers offer when the
+  // catalogue says (at home / at the centre), else by the catalogue's own visit flags (an older answer)
+  const fitsPlace = (s: { homeVisitSupported?: boolean; facilityVisitSupported?: boolean; offer?: { providersCount: number; homeAvailable: boolean; premisesAvailable: boolean } }) => {
+    if (order.place === "all") return true;
+    if (s.offer) return s.offer.providersCount === 0 || (order.place === "home" ? s.offer.homeAvailable : s.offer.premisesAvailable);
+    return order.place === "home" ? s.homeVisitSupported !== false : s.facilityVisitSupported !== false;
+  };
   return kind === "lab"
     ? loads.flatMap((l) => l.labs).filter((s) => s.isPackage !== true && !s.unavailable && fitsPlace(s) && (s.offer?.providersCount === 0 || labPaymentFits(order.pay, s))).map((s) => labRow(s, ctx))
     : loads.flatMap((l) => l.scans).filter(fitsPlace).map((s) => scanRow(s, ctx));
