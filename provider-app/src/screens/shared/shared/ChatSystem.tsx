@@ -30,6 +30,9 @@ import { st } from './MedicalDrugIndexScreen';
 import { mapThreads, mapMessages } from '../../../utils/chatMap';
 import { useUploadsEnabled } from '../../../hooks/useUploadsEnabled';
 import { UploadsUnavailable } from '../../../components/UploadsUnavailable';
+import { announceScan } from '../../../components/ScanStatusBadge';
+import { scanStateOfRequestError, scanOfStored } from '../../../utils/scanRegistry';
+import { scanStateOfUpload } from '../../../utils/scanStatus';
 
 export function ChatSystem({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
@@ -205,7 +208,10 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
         client_message_id: `prov-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       });
       await loadMessages(true);
+      // UPLOAD_SCAN=defer: the file is sent; the other side opens it once it has passed its scan
+      announceScan(show, lang, scanStateOfUpload(up?.data));
     } catch (e) {
+      if (scanStateOfRequestError(e) === 'rejected') { announceScan(show, lang, 'rejected'); return; }
       show(sendErrorText(e), 'error');
     }
   };
