@@ -80,11 +80,11 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
   const cartLink = (extra = "") => <CartLink locale={locale} className={`${styles.iconLink} ${styles.cartLink}${extra ? ` ${extra}` : ""}`} />;
 
   const allTabs: Array<BottomTabItem & { href: string }> = [
-    { id: "home", label: nav("navHome"), icon: "house", href: `/${locale}` },
-    { id: "pharmacy", label: nav("navPharmacy"), icon: "pill", href: hrefs.pharmacy },
-    { id: "consult", label: nav("navConsult"), icon: "stethoscope", href: hrefs.consult, raised: true },
-    { id: "labs", label: nav("navLabs"), icon: "test-tube", href: hrefs.labs },
-    { id: "nursing", label: nav("navNursing"), icon: "first-aid-kit", href: hrefs.nursing },
+    { id: "home", art: "home", label: nav("navHome"), icon: "house", href: `/${locale}` },
+    { id: "pharmacy", art: "pharmacy", label: nav("navPharmacy"), icon: "pill", href: hrefs.pharmacy },
+    { id: "consult", art: "consult", label: nav("navConsult"), icon: "stethoscope", href: hrefs.consult, raised: true },
+    { id: "labs", art: "labs", label: nav("navLabs"), icon: "test-tube", href: hrefs.labs },
+    { id: "nursing", art: "nursing", label: nav("navNursing"), icon: "first-aid-kit", href: hrefs.nursing },
   ];
 
   const tabs = allTabs.filter((tab) => !isPathHidden(tab.href, disabled));
@@ -192,7 +192,7 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
       tabBar={hideTabs ? undefined : (
         <BottomTabBar
           label={shell("sections")}
-          items={tabs.map(({ id, label, icon, raised }) => ({ id, label, icon, raised }))}
+          items={tabs.map(({ id, label, icon, art, raised }) => ({ id, label, icon, art, raised }))}
           value=""
           onChange={(id) => {
             const target = tabs.find((t) => t.id === id);

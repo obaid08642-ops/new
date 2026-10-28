@@ -31,7 +31,7 @@ export const SERVICE_TILES = [
 ] as const;
 
 export const TABS: TabItem[] = [
-  { id: 'home', label: 'Home', icon: 'home' },
+  { id: 'home', art: 'home', label: 'Home', icon: 'home' },
   { id: 'bookings', label: 'Bookings', icon: 'calendar', badge: 3 },
   { id: 'orders', label: 'Orders', icon: 'list' },
   { id: 'family', label: 'Family', icon: 'users' },
@@ -41,10 +41,10 @@ export const TABS: TabItem[] = [
 /** The main tab bar of canvas/HomeApp.dc.html, with the board's glyphs; Consultations is raised. */
 export const MAIN_TABS: BottomTabItem[] = [
   { id: 'home', label: 'Home', icon: 'house' },
-  { id: 'pharmacy', label: 'Pharmacy', icon: 'pill' },
-  { id: 'consult', label: 'Consultations', icon: 'stethoscope', raised: true },
-  { id: 'labs', label: 'Labs', icon: 'test-tube' },
-  { id: 'nursing', label: 'Nursing', icon: 'first-aid-kit' },
+  { id: 'pharmacy', art: 'pharmacy', label: 'Pharmacy', icon: 'pill' },
+  { id: 'consult', art: 'consult', label: 'Consultations', icon: 'stethoscope', raised: true },
+  { id: 'labs', art: 'labs', label: 'Labs', icon: 'test-tube' },
+  { id: 'nursing', art: 'nursing', label: 'Nursing', icon: 'first-aid-kit' },
 ];
 
 export const SEGMENTED: TabItem[] = [

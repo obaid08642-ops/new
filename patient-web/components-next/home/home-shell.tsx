@@ -64,11 +64,11 @@ export async function HomeShell({
   const sections = allSections.filter((s) => !isPathHidden(s.href, disabled));
   const home = knownSignedIn ? `${base}/dashboard` : base;
   const allTabs: BottomTabItem[] = [
-    { id: "home", label: t("navHome"), icon: "house" },
-    { id: "pharmacy", label: t("navPharmacy"), icon: "pill" },
-    { id: "consult", label: t("navConsult"), icon: "stethoscope", raised: true },
-    { id: "labs", label: t("navLabs"), icon: "test-tube" },
-    { id: "nursing", label: t("navNursing"), icon: "first-aid-kit" },
+    { id: "home", art: "home", label: t("navHome"), icon: "house" },
+    { id: "pharmacy", art: "pharmacy", label: t("navPharmacy"), icon: "pill" },
+    { id: "consult", art: "consult", label: t("navConsult"), icon: "stethoscope", raised: true },
+    { id: "labs", art: "labs", label: t("navLabs"), icon: "test-tube" },
+    { id: "nursing", art: "nursing", label: t("navNursing"), icon: "first-aid-kit" },
   ];
   const hrefs = Object.fromEntries([["home", home], ...sections.map((s) => [s.id, s.href])]);
   const tabs = allTabs.filter((tab) => tab.id === "home" || tab.id in hrefs);

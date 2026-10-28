@@ -351,6 +351,26 @@
   background: var(--nabd-color-action-primary-bg);
   color: var(--nabd-color-action-primary-fg);
 }
+/* Illustrated tabs (icons/nav-art.ts): the picture keeps its tone; the active tab is tinted with the tone and bold, the others are softer. */
+.nabd-nav-art { display: block; flex: none; stroke-linecap: round; stroke-linejoin: round; opacity: 0.72; transition: opacity 0.15s; }
+.nabd-nav-art__f-none { fill: none; }
+.nabd-nav-art__f-bg { fill: var(--nabd-tone-bg); }
+.nabd-nav-art__f-fg { fill: var(--nabd-tone-fg); }
+.nabd-nav-art__f-ink { fill: var(--nabd-color-text-primary); }
+.nabd-nav-art__f-coral { fill: var(--nabd-color-brand-coral); }
+.nabd-nav-art__f-surface { fill: var(--nabd-color-bg-surface); }
+.nabd-nav-art__s-bg { stroke: var(--nabd-tone-bg); }
+.nabd-nav-art__s-fg { stroke: var(--nabd-tone-fg); }
+.nabd-nav-art__s-ink { stroke: var(--nabd-color-text-primary); }
+.nabd-nav-art__s-coral { stroke: var(--nabd-color-brand-coral); }
+.nabd-nav-art__s-surface { stroke: var(--nabd-color-bg-surface); }
+.nabd-bottom-tab-bar__item--art.nabd-bottom-tab-bar__item--active {
+  padding-inline: 14px;
+  background: var(--nabd-tone-bg);
+  color: var(--nabd-color-text-primary);
+  font-weight: var(--nabd-font-weight-body-strong);
+}
+.nabd-bottom-tab-bar__item--art.nabd-bottom-tab-bar__item--active .nabd-nav-art { opacity: 1; }
 .nabd-bottom-tab-bar__badge { position: absolute; inset-block-start: 4px; inset-inline-end: 4px; }
 
 /* Sidebar */

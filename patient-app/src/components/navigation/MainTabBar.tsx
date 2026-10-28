@@ -20,11 +20,11 @@ export type MainTabId = 'home' | 'pharmacy' | 'consult' | 'labs' | 'nursing';
 
 /** The board's items (packages/ui/components/fixtures.ts MAIN_TABS), with Arabic source labels that go through the catalogue. */
 export const MAIN_TAB_ITEMS: (BottomTabItem & { id: MainTabId; route: string })[] = [
-  { id: 'home', label: 'الرئيسية', icon: 'house', route: '/(tabs)' },
-  { id: 'pharmacy', label: 'الصيدلية', icon: 'pill', route: '/(tabs)/pharmacy' },
-  { id: 'consult', label: 'الاستشارات', icon: 'stethoscope', route: '/(tabs)/consultations', raised: true },
-  { id: 'labs', label: 'التحاليل', icon: 'test-tube', route: '/(tabs)/diagnostics' },
-  { id: 'nursing', label: 'التمريض', icon: 'first-aid-kit', route: '/(tabs)/nursing' },
+  { id: 'home', art: 'home', label: 'الرئيسية', icon: 'house', route: '/(tabs)' },
+  { id: 'pharmacy', art: 'pharmacy', label: 'الصيدلية', icon: 'pill', route: '/(tabs)/pharmacy' },
+  { id: 'consult', art: 'consult', label: 'الاستشارات', icon: 'stethoscope', route: '/(tabs)/consultations', raised: true },
+  { id: 'labs', art: 'labs', label: 'التحاليل', icon: 'test-tube', route: '/(tabs)/diagnostics' },
+  { id: 'nursing', art: 'nursing', label: 'التمريض', icon: 'first-aid-kit', route: '/(tabs)/nursing' },
 ];
 
 /** Which tab a path belongs to; null for pages that are in the tabs group but have no tab (Services, Health). */
@@ -61,7 +61,7 @@ export default function MainTabBar() {
           theme={isDark ? 'dark' : 'light'}
           label={tr('التنقل الرئيسي')}
           value={active ?? ''}
-          items={tabs.map(({ id, label, icon, raised }) => ({ id, label: tr(label), icon, raised }))}
+          items={tabs.map(({ id, label, icon, art, raised }) => ({ id, label: tr(label), icon, art, raised }))}
           onChange={(id) => {
             const tab = tabs.find((item) => item.id === id);
             if (tab) router.push(tab.route as never);
