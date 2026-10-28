@@ -17,9 +17,9 @@ release:7e5eb301dd5dc487ac83b94fd7df1e1b80867ca6
 60-deploy-main
 77-test-data-find
 90-catalogue-apply
+91b-upload-scan-defer
 98-translate-content
 98b-translate-progress
-91b-upload-scan-defer
 cf:45-public-api-cache-apply
 cf:46-public-html-cache-apply
 cf:47-public-assets-api-cache-apply
