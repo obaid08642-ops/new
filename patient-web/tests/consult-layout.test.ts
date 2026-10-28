@@ -25,8 +25,8 @@ describe("consultations doctors list layout", () => {
     for (const needle of ['role="dialog"', 'aria-modal="true"', 'event.key === "Escape"', 'event.key !== "Tab"', "aria-labelledby"]) expect(sheet, needle).toContain(needle);
   });
   it("keeps the existing self-pay key and draws the chosen payment next to the Filters button", () => {
-    expect(message("en").payment_self_pay).toBe("Self-pay");
-    expect(message("ar").payment_self_pay).toBe("دفع ذاتي");
+    expect(message("en").payment_self_pay).toBe("Without insurance");
+    expect(message("ar").payment_self_pay).toBe("بدون تأمين");
     const trigger = code("components-next/consult/doctor-filters-sheet.tsx");
     expect(trigger).toContain("panel.filters.payment");
     expect(trigger).toContain("t(`payment_${panel.filters.payment}`)");

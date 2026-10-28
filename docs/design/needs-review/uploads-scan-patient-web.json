@@ -1,0 +1,46 @@
+[
+  {
+    "batch": "uploads-scan",
+    "app": "patient-web",
+    "screen": "/pharmacy/rx-order",
+    "element": "Prescription photo save",
+    "file": "patient-web/components-next/pharmacy/rx-upload-screen.tsx",
+    "line": 106,
+    "found": "[backend] Backend gap: POST /prescriptions/upload stores the base64 on the prescription row and returns no scan_status, so the patient apps cannot show \"being checked\" for it and no 423 can happen; if the photo is moved to the scanned store it must answer scan_status. (backend: backend/src/modules/prescriptions/prescriptions.service.ts:161)",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": "uploads-scan",
+    "app": "patient-web",
+    "screen": "/diagnostics/insurance-approval",
+    "element": "Lab document upload",
+    "file": "patient-web/components-next/diagnostics-document-upload.tsx",
+    "line": 41,
+    "found": "[backend] Backend gap: POST /labs/bookings/:id/documents takes a data URL and returns no scan_status; the page navigates away at once, so no pending or rejected state is shown.",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": "uploads-scan",
+    "app": "patient-web",
+    "screen": "/pharmacy/request",
+    "element": "Box photo pending badge",
+    "file": "patient-web/components-next/pharmacy/request-screen.tsx",
+    "line": 61,
+    "found": "[backend] Backend gap: the badge cannot clear by itself; patient-web has no GET route for /storage/:id or /media/:id/url (only the voice route), so it stays \"being checked\" until the page is left.",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": "uploads-scan",
+    "app": "patient-web",
+    "screen": "/support/chat",
+    "element": "Attachment pending badge",
+    "file": "patient-web/components-next/support-chat-client.tsx",
+    "line": 140,
+    "found": "[backend] Backend gap: no GET route in the web BFF to open the attachment, so the badge cannot retry and clear.",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  }
+]

@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Connection, Model, Types } from 'mongoose';
 import { byRating, paged, parsePage, withProviderRating, type CataloguePage } from '../../common/catalogue-page';
+import { withOfferSummary, withOffers, type OfferSummary } from '../../common/service-offers';
 import { pick } from '../../common/sanitize';
 import { escapeRegex } from '../../common/slug.util';
 import { pickAttribution } from '../../common/attribution';
@@ -449,9 +450,13 @@ export class RadiologyOpsService {
     if (opts.body_part) q.body_part = { $eq: opts.body_part };
     // Issue 1833: the name search reads all six name fields (no text index needed for the 34 scans in the catalogue).
     if (opts.search?.trim()) q.$or = radiologySearchClause(opts.search).$or;
-    if (opts.home_only) q.home_visit_supported = true;
     const page = parsePage(opts.page, opts.limit);
-    const finish = <T,>(rows: T[]): T[] | CataloguePage<T> => (page ? paged(rows, page) : rows);
+    // 2026-10-28: the list is the CATALOGUE; each scan carries what providers offer for it (count, from-price, where, insurance). The home and insurance
+    // filters read those offers, so a scan nobody offers yet is still listed (and found by "all") but never by "at home" or "insurance".
+    const finish = async <T extends { id: string }>(rows: T[]): Promise<Array<T & OfferSummary> | CataloguePage<T & OfferSummary>> => {
+      const enriched = await withOfferSummary(this.svcModel.db as never, 'radiology', rows, { home_only: !!opts.home_only, insurance: !!opts.insurance });
+      return page ? paged(enriched, page) : enriched;
+    };
     // every scan carries its category (= its modality) so a client can pick the illustration
     const withCategory = <T extends { modality?: string }>(rows: T[]) => rows.map((r) => ({ ...r, category: r.modality ?? null }));
     // the centre performs the scan when its equipment_list holds the scan id or its modality (same rule as compatibleProviders)
@@ -507,6 +512,13 @@ export class RadiologyOpsService {
     const svc = await this.svcModel.findOne({ ...base, $or: or }).lean();
     if (!svc) throw new NotFoundException();
     return svc;
+  }
+
+  /** The scan page: the catalogue row with what providers offer for it (centres, price, where, insurance) and `providers_count`; an unoffered scan still opens. */
+  async getByIdWithOffers(id: string) {
+    const svc: any = await this.getById(id);
+    const plain = typeof svc.toObject === 'function' ? svc.toObject() : svc;
+    return withOffers(this.svcModel.db as never, 'radiology', { ...plain, category: plain.modality ?? null });
   }
 
   /** Centers able to perform every requested scan (registration stores the scan ids in equipment_list). */

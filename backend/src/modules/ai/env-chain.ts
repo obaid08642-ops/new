@@ -14,6 +14,8 @@ export interface EnvChainOptions {
   /** Test seam / clock. */
   now?: () => number;
   fetchImpl?: typeof fetch;
+  /** Per call (default 60 s). A 20-item translation from a slow model (30-60 tokens/s) needs far longer than a chat answer. */
+  timeoutMs?: number;
 }
 
 const CHAT_PROVIDERS = DEFAULT_PROVIDERS.filter((p) => !NON_CHAT_PROVIDERS.has(p.key)).sort((a, b) => a.priority - b.priority);
@@ -30,13 +32,13 @@ export function providerVariableNames(): string[] {
   return CHAT_PROVIDERS.map((p) => PROVIDER_ENV_KEY[p.key]);
 }
 
-async function callProvider(p: ProviderConfig, key: string, model: string, prompt: string, f: typeof fetch): Promise<string> {
+async function callProvider(p: ProviderConfig, key: string, model: string, prompt: string, f: typeof fetch, timeoutMs = 60_000): Promise<string> {
   if (p.key === 'gemini') {
     const res = await f(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'x-goog-api-key': key },
       body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature: 0, responseMimeType: 'application/json' } }),
-      signal: AbortSignal.timeout(60_000),
+      signal: AbortSignal.timeout(timeoutMs),
     });
     // The response body is never read into an error: a 401 body can carry part of the key.
     if (!res.ok) { await res.body?.cancel().catch(() => undefined); throw new Error(providerHttpErrorCode(p.key, res.status)); }
@@ -50,7 +52,7 @@ async function callProvider(p: ProviderConfig, key: string, model: string, promp
     method: 'POST',
     headers,
     body: JSON.stringify({ model, temperature: 0, messages: [{ role: 'user', content: prompt }] }),
-    signal: AbortSignal.timeout(60_000),
+    signal: AbortSignal.timeout(timeoutMs),
   });
   if (!res.ok) { await res.body?.cancel().catch(() => undefined); throw new Error(providerHttpErrorCode(p.key, res.status)); }
   const body = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
@@ -99,7 +101,7 @@ export function providerCallersFromEnv(env: NodeJS.ProcessEnv = process.env, opt
     return {
       provider,
       call: async (prompt: string) => {
-        const text = await callProvider(provider, key, model, prompt, f);
+        const text = await callProvider(provider, key, model, prompt, f, opts.timeoutMs);
         if (!text.trim()) throw new Error(`${provider.key}_empty_response`);
         return text;
       },

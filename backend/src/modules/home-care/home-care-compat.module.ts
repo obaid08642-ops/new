@@ -1,3 +1,4 @@
+import { withOfferSummary, withOffers } from '../../common/service-offers';
 import { PROVIDER_ROLES } from '../../common/enums';
 /**
  * M2 — Home-care compatibility layer + nursing ops reference data + chat aliases.
@@ -48,18 +49,20 @@ export class HomeCareCompatController {
 
   // ---- Catalog ----
   @Public()
-  @Get('services') servicesList(@Query() q: any) {
+  @Get('services') async servicesList(@Query() q: any) {
     // Patients only see services that passed medical review (same rule as /nursing/catalog).
     const filter: any = { active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
     if (q?.category) filter.category = { $eq: String(q.category) };
-    return this.services.find(filter, { _id: 0, __v: 0 }).lean();
+    const rows: any[] = await this.services.find(filter, { _id: 0, __v: 0 }).lean();
+    // 2026-10-28: every catalogue service carries what nurses offer for it (providers_count, from_price, where, insurance); `insurance=1` keeps those some nurse offers with insurance.
+    return withOfferSummary(this.services.db as never, 'nursing', rows, { insurance: q?.insurance === '1' || q?.insurance === 'true' });
   }
 
   @Public()
   @Get('services/:id') async serviceOne(@Param('id') id: string) {
     const svc = await this.services.findOne({ id, ...{ active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' } }, { _id: 0, __v: 0 }).lean();
     if (!svc) throw new NotFoundException('service not found');
-    return svc;
+    return withOffers(this.services.db as never, 'nursing', svc as any);
   }
 
   @Public()
