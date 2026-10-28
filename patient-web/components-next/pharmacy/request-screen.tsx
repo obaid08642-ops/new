@@ -12,6 +12,8 @@ import type { ReactNode } from "react";
 import type { Locale } from "@/lib/i18n";
 import { newIdempotencyKey, sendBroadcast } from "@/lib/pharmacy/broadcast";
 import { checkRxFile, prepareRxImage } from "@/lib/pharmacy/rx-upload";
+import { ScanStatusBadge } from "@/components-next/uploads/scan-status-badge";
+import { scanStateOfUpload, type ScanState } from "@/lib/uploads/scan-status";
 import { AddressCard } from "./address-card";
 import { useDeliveryAddress } from "./use-delivery-address";
 import rx from "./rx.module.css";
@@ -39,6 +41,7 @@ export function RequestScreen({ locale, before, initialName = "" }: { locale: Lo
   const [qty, setQty] = useState("1");
   const [photo, setPhoto] = useState<{ id: string; preview: string } | null>(null);
   const [photoState, setPhotoState] = useState<"idle" | "uploading" | "failed" | "type">("idle");
+  const [photoScan, setPhotoScan] = useState<ScanState>("ok");
   const photoInput = useRef<HTMLInputElement | null>(null);
   const [sending, setSending] = useState(false);
   const [failure, setFailure] = useState<"session" | "send" | null>(null);
@@ -52,11 +55,15 @@ export function RequestScreen({ locale, before, initialName = "" }: { locale: Lo
     if (!file) return;
     if (checkRxFile(file) !== "ok") { setPhotoState("type"); return; }
     setPhotoState("uploading");
+    setPhotoScan("ok");
     try {
       const dataUrl = await prepareRxImage(file);
       const response = await fetch("/api/pharmacy/box-photo", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ data_url: dataUrl }), credentials: "same-origin" });
-      const body = await response.json().catch(() => null) as { id?: string } | null;
+      const body = await response.json().catch(() => null) as { id?: string; scan_status?: string; message?: string } | null;
+      if (!response.ok && scanStateOfUpload(body) === "rejected") { setPhoto(null); setPhotoScan("rejected"); setPhotoState("idle"); return; }
       if (!response.ok || !body?.id) { setPhotoState("failed"); return; }
+      // a photo that is still being checked can stay on the order: the pharmacies see it once it has passed
+      setPhotoScan(scanStateOfUpload(body));
       setPhoto({ id: body.id, preview: dataUrl });
       setPhotoState("idle");
     } catch {
@@ -116,6 +123,7 @@ export function RequestScreen({ locale, before, initialName = "" }: { locale: Lo
           <span className={rx.cardLabel}>{`${t("photo")} ${t("optional")}`}</span>
           <input ref={photoInput} type="file" accept="image/jpeg,image/png,image/webp" hidden aria-label={t("photo")} onChange={(event) => void pickPhoto(event.target.files?.[0])} />
           {photo ? <div className={rx.thumb}><img src={photo.preview} alt={t("photoAlt")} className={rx.thumbImage} /></div> : null}
+          <ScanStatusBadge state={photoScan} onReupload={() => photoInput.current?.click()} />
           {uploadsEnabled ? (
             <Button type="button" variant="outline" size="md" label={photoState === "uploading" ? t("photoUploading") : photo ? t("photoChange") : t("photoAdd")} loading={photoState === "uploading"} disabled={sending} onClick={() => photoInput.current?.click()} />
           ) : <UploadsUnavailable className={rx.note} />}

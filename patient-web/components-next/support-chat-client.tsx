@@ -8,6 +8,8 @@ import rx from "@/components-next/pharmacy/rx.module.css";
 import forms from "@/components-next/consult/consult.module.css";
 import styles from "@/components-next/settings/settings.module.css";
 import { useUploadsEnabled } from "@/components-next/uploads/uploads-provider";
+import { ScanStatusBadge } from "@/components-next/uploads/scan-status-badge";
+import { scanStateOfUpload, type ScanState } from "@/lib/uploads/scan-status";
 
 export type ChatMsg = { id: string; from: "user" | "agent"; text: string; time: string };
 const QUICK = ["quickCancel", "quickOrder", "quickRefund", "quickInsurance", "quickComplaint"] as const;
@@ -42,6 +44,7 @@ export function SupportChatClient() {
   const [typing, setTyping] = useState(false);
   const [attaching, setAttaching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [attachScan, setAttachScan] = useState<ScanState>("ok");
   const bottom = useRef<HTMLDivElement | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
   const greeting = t("greeting");
@@ -86,7 +89,7 @@ export function SupportChatClient() {
   }
 
   async function attach(file: File) {
-    setAttaching(true); setError(null);
+    setAttaching(true); setError(null); setAttachScan("ok");
     try {
       const dataUrl = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
@@ -105,7 +108,10 @@ export function SupportChatClient() {
       const rec = (data && typeof data === "object" ? data : {}) as Record<string, unknown>;
       const url = typeof rec.url === "string" ? rec.url : typeof (rec.data as Record<string, unknown> | undefined)?.url === "string"
         ? (rec.data as Record<string, unknown>).url as string : null;
+      if (!res.ok && scanStateOfUpload(data) === "rejected") { setAttachScan("rejected"); return; }
       if (!res.ok || !url) { setError(t("attachFailed")); return; }
+      // a file that is still being checked is still sent; the support agent sees it once it has passed
+      setAttachScan(scanStateOfUpload(data));
       await send(t("attachment", { url }));
     } catch { setError(t("attachFailed")); }
     finally { setAttaching(false); }
@@ -131,6 +137,7 @@ export function SupportChatClient() {
         {QUICK.map((key) => <button key={key} type="button" className={forms.choice} onClick={() => void send(t(key))} disabled={typing}>{t(key)}</button>)}
       </div>
       {error ? <p className={forms.error} role="alert">{error}</p> : null}
+      <ScanStatusBadge state={attachScan} onReupload={() => fileRef.current?.click()} />
       <form className={rx.composer} onSubmit={(event: FormEvent) => { event.preventDefault(); void send(draft); }}>
         <input ref={fileRef} type="file" accept="image/*" hidden
           onChange={(e) => { const f = e.target.files?.[0]; if (f) void attach(f); e.target.value = ""; }} />

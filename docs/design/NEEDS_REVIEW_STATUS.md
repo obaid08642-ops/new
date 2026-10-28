@@ -9,24 +9,24 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 0 | 333 | 97 | 4 | 0 |
-| Other | 360 | 307 | 50 | 3 | 0 | 0 |
+| Other | 372 | 319 | 50 | 3 | 0 | 0 |
 | Admin | 99 | 0 | 65 | 34 | 0 | 0 |
 | Admin journeys | 20 | 0 | 18 | 2 | 0 | 0 |
 | Final pass | 8 | 0 | 2 | 6 | 0 | 0 |
 | Patient journeys | 87 | 0 | 85 | 2 | 0 | 0 |
 | Provider app | 31 | 0 | 27 | 4 | 0 | 0 |
 | Provider journeys | 34 | 0 | 32 | 2 | 0 | 0 |
-| **Total** | **1073** | **307** | **612** | **150** | **4** | **0** |
+| **Total** | **1085** | **319** | **612** | **150** | **4** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 260 | 84 | 135 | 41 | 0 | 0 |
+| client | 264 | 88 | 135 | 41 | 0 | 0 |
 | owner | 149 | 49 | 57 | 42 | 1 | 0 |
-| backend | 425 | 173 | 222 | 30 | 0 | 0 |
+| backend | 433 | 181 | 222 | 30 | 0 | 0 |
 | untagged | 239 | 1 | 198 | 37 | 3 | 0 |
-| **Total** | **1073** | **307** | **612** | **150** | **4** | **0** |
+| **Total** | **1085** | **319** | **612** | **150** | **4** | **0** |
 
 ## By file
 
@@ -139,9 +139,12 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-web.json` | 7 | 0 | 7 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 0 | 0 | 1 | 0 | 0 |
 | `tooling.json` | 13 | 0 | 12 | 1 | 0 | 0 |
+| `uploads-scan-patient-app.json` | 4 | 4 | 0 | 0 | 0 | 0 |
+| `uploads-scan-patient-web.json` | 4 | 4 | 0 | 0 | 0 | 0 |
+| `uploads-scan-provider-app.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `web-public-ink.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `web-voice-notes.json` | 2 | 2 | 0 | 0 | 0 | 0 |
-| **Total** | **1073** | **307** | **612** | **150** | **4** | **0** |
+| **Total** | **1085** | **319** | **612** | **150** | **4** | **0** |
 
 ## Owner decisions (4)
 
@@ -152,7 +155,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 3 | `batch-1a-app.json#18` `patient-app/src/i18n/locales/en.json:0` | /pharmacy Six-language strings | 177 pharmacy.* keys were added to patient-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json. The English, Urdu, Hindi, Bengali and Filipino text was written by the design session (and, for reused phrases, taken from the phr… |
 | 4 | `batch-1d-web.json#1` `backend/src/modules/payments/payments.module.ts:154` | /pharmacy/payment Payment provider not exercised | No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only against a TEST stand-in outside the repo (… |
 
-## Open and unverified (307)
+## Open and unverified (319)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -457,6 +460,18 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `providers-map.json#0` | owner | open | /map Board | [owner] No map board exists in docs/design/canvas (no hologram glow/pulse, no list/map toggle drawn); the pins are token-coloured circles per kind, as in the Batch 12 restyle. |
 | `providers-map.json#1` | client | open | /[locale]/map Map pane | [client] The web draws the list beside one OpenStreetMap iframe for the chosen provider only: no pins for all providers, no bottom sheet, no list/map toggle (the app draws all pin… |
 | `providers-map.json#2` | backend | open | /map Open state and price | [backend] GET /providers/map sends no open state, price or radiology type, so the open dot, price stat and a radiology filter are not drawn. |
+| `uploads-scan-patient-app.json#0` | backend | open | /pharmacy/rx-order Prescription photo save | [backend] Backend gap: same as the web upload, POST /prescriptions/upload has no scan_status in its answer. (backend: backend/src/modules/prescriptions/prescriptions.service.ts:16… |
+| `uploads-scan-patient-app.json#1` | backend | open | /diagnostics/insurance-upload Lab document upload | [backend] Backend gap: POST /labs/bookings/:id/documents returns no scan_status (same as web). |
+| `uploads-scan-patient-app.json#2` | client | open | /support/chat Attachment pending badge | [client] Client-side: the app badge has no probe (the upload answers a URL the app cannot open through apiFetch with a known path); it stays until the screen is left. |
+| `uploads-scan-patient-app.json#3` | client | open | /returns/new-request Return photo pending badge | [client] Client-side: the badge has no probe; it stays until the request is sent. |
+| `uploads-scan-patient-web.json#0` | backend | open | /pharmacy/rx-order Prescription photo save | [backend] Backend gap: POST /prescriptions/upload stores the base64 on the prescription row and returns no scan_status, so the patient apps cannot show "being checked" for it and … |
+| `uploads-scan-patient-web.json#1` | backend | open | /diagnostics/insurance-approval Lab document upload | [backend] Backend gap: POST /labs/bookings/:id/documents takes a data URL and returns no scan_status; the page navigates away at once, so no pending or rejected state is shown. |
+| `uploads-scan-patient-web.json#2` | backend | open | /pharmacy/request Box photo pending badge | [backend] Backend gap: the badge cannot clear by itself; patient-web has no GET route for /storage/:id or /media/:id/url (only the voice route), so it stays "being checked" until … |
+| `uploads-scan-patient-web.json#3` | backend | open | /support/chat Attachment pending badge | [backend] Backend gap: no GET route in the web BFF to open the attachment, so the badge cannot retry and clear. |
+| `uploads-scan-provider-app.json#0` | backend | open | CertificatesConfigScreen KYC document upload | [backend] Backend gap: POST /provider/kyc/documents stores with defer_ok but returns the document row without scan_status, so a pending KYC file shows nothing; the client already … |
+| `uploads-scan-provider-app.json#1` | client | open | RadiologyOrdersTab Report file upload | [client] Client-side: the upload is recorded in the scan registry but no pending or rejected state is drawn. |
+| `uploads-scan-provider-app.json#2` | client | open | NurseVisitConsole Visit file upload | [client] Client-side: no pending or rejected state is drawn for visit files. |
+| `uploads-scan-provider-app.json#3` | backend | open | ProviderProfileEditor Profile image upload | [backend] Backend gap: /provider/profile/image/upload goes through the image processor, not the documented upload answer; its scan state is unknown to the client and nothing is dr… |
 | `web-public-ink.json#0` | owner | open | / (home header) header mark and nav active pill | [owner] two web boards disagree: HomeWeb.dc.html draws the mark with an ink bowl and an ink active nav pill (what the code does), WebHome.dc.html draws a coral bowl and an ink-tex… |
 | `web-public-ink.json#1` | client | open | / (home header, dark) active nav pill and Sign in button | [client] brand-ink pill on the ink dark canvas is nearly invisible in dark mode (the label stays readable); boards show no dark web header, so the dark treatment is not defined |
 | `web-public-ink.json#2` | owner | open | /login X and Snapchat buttons | [owner] AuthWeb.dc.html draws X and Snapchat as white buttons with a hairline; code uses the official brand colours (black X, yellow Snapchat with a black border) under the owner … |

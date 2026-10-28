@@ -19,6 +19,8 @@ export const CLIENT_NAMESPACES = [
   "Network",
   "NotificationSettings",
   "RouteState",
+  // the "being checked for safety" state of an uploaded file, shown wherever a file is uploaded or opened
+  "ScanStatus",
   "Search",
   // the instant suggestions of the home hero search box and the search page (issue 1544)
   "SearchSuggest",
