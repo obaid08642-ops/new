@@ -3862,5 +3862,8 @@
   "menu.articles": "Articles",
   "menu.notifications": "Notifications",
   "menu.settings": "Settings",
-  "menu.help": "Help"
+  "menu.help": "Help",
+  "scanStatus.checking": "Being checked for safety",
+  "scanStatus.rejected": "This file was rejected for safety. Please upload another.",
+  "scanStatus.uploadAnother": "Upload another file"
 }

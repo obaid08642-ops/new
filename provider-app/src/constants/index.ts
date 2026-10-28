@@ -284,6 +284,7 @@ export const TR = {
  labPrepTitle:'تحضير المريض — خطوة في كل سطر',
  labPrepHint:'اتركه فارغاً إذا لم يكن هناك تحضير؛ عندها يُبلَّغ المريض أن المختبر سيؤكد معه أي تحضير.',
  labPrepAr:'بالعربية', labPrepEn:'بالإنجليزية', labPrepUr:'بالأردية', labPrepHi:'بالهندية', labPrepBn:'بالبنغالية', labPrepTl:'بالفلبينية',
+ scanChecking:'جارٍ التحقق من أمان الملف', scanRejected:'تم رفض هذا الملف لأسباب تتعلق بالسلامة. يرجى رفع ملف آخر.', scanUploadAnother:'رفع ملف آخر',
  },
  en: {
  appName:'Nabd Plus', appSub:'Healthcare Provider App',
@@ -332,6 +333,7 @@ export const TR = {
  labPrepTitle:'Patient preparation — one step per line',
  labPrepHint:'Leave empty if there is none; the patient is then told the lab will confirm any preparation with them.',
  labPrepAr:'Arabic', labPrepEn:'English', labPrepUr:'Urdu', labPrepHi:'Hindi', labPrepBn:'Bengali', labPrepTl:'Filipino',
+ scanChecking:'Being checked for safety', scanRejected:'This file was rejected for safety. Please upload another.', scanUploadAnother:'Upload another file',
  },
 } as const;
 export type TKey = keyof typeof TR.ar;

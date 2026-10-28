@@ -5667,5 +5667,10 @@
     "title": "Bumabalik sa app…",
     "open": "Buksan ang app",
     "invalid": "Hindi valid ang sign-in link na ito. Isara ang window na ito at subukan ulit mula sa app."
+  },
+  "ScanStatus": {
+    "checking": "Sinusuri ang file para sa kaligtasan",
+    "rejected": "Tinanggihan ang file na ito para sa kaligtasan. Mag-upload ng iba.",
+    "uploadAnother": "Mag-upload ng ibang file"
   }
 }

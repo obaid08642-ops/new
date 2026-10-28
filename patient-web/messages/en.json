@@ -5667,5 +5667,10 @@
     "title": "Returning to the app…",
     "open": "Open the app",
     "invalid": "This sign-in link is not valid. Close this window and try again from the app."
+  },
+  "ScanStatus": {
+    "checking": "Being checked for safety",
+    "rejected": "This file was rejected for safety. Please upload another.",
+    "uploadAnother": "Upload another file"
   }
 }
