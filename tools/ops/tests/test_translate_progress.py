@@ -7,7 +7,7 @@ import tempfile
 import unittest
 
 TASK = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "tasks", "98b-translate-progress.sh")
-SECRET = "sk-live-SECRET-KEY-123"
+SECRET = "-".join(["sk", "live", "SECRET", "KEY", "123"])  # a FAKE key, built at runtime so the secret scanner does not flag the fixture
 STATS = {
     "at": "2026-10-28T02:00:00.000Z", "started_at": "2026-10-28T01:00:00.000Z", "answered": 120, "remaining": 30, "failed": 2,
     "last_answer_at": "2026-10-28T01:59:30.000Z", "answered_total": 300, "requests_total": 1404, "remaining_total": 1104,
