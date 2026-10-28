@@ -20,3 +20,6 @@ j_web_qa_support
 j_web_qa_legal
 # Open product defect (P1 candidate): the website booking sends duration_minutes, which POST /api/appointments/book rejects (.strict()), so no web visit with a duration can be booked
 j_web_qa_map_book
+# Open product gaps (provider service options, docs/qa/findings/provider-services.md): a lab's own price, home and insurance per test
+# never reach the patient, the price comparisons are empty, and the home and insurance filters are ignored
+j_provider_service_options

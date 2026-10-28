@@ -223,8 +223,9 @@ def screen_payloads(ptype):
     return out
 
 
-def register_type(ptype, overrides=None):
-    """overrides: {field: value} for choices the screen fills from live data (e.g. test_categories = catalog ids)."""
+def register_type(ptype, overrides=None, step3_extra=None):
+    """overrides: {field: value} for choices the screen fills from live data (e.g. test_categories = catalog ids).
+    step3_extra: keys added to the step3 body even when the screen does not send them (a choice the screen leaves to the default)."""
     journey(f'onboarding: {ptype} registers in the provider app')
     email = f'{uniq(ptype)}@nabd.test'
     pw = 'Prov-' + uniq('')[-6:] + 'x!'
@@ -239,6 +240,8 @@ def register_type(ptype, overrides=None):
     for url, body, at in screen_payloads(ptype):
         sent = {k for c in _calls() if c['at'] == at for k in (c.get('kinds') or {})}
         body = {**body, **{k: v for k, v in (overrides or {}).items() if k in body or k in sent}}
+        if url.endswith('step3') and step3_extra:
+            body = {**body, **step3_extra}
         r = c.post(url, body)
         step(f"{url.split('/')[-1]} as sent by {at.split('/')[-1]}", r.ok, f'{r} body_keys={sorted(body)}')
     sig = upload(c, 'signature.png', 'image/png')
