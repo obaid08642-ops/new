@@ -4,6 +4,7 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Button } from '../../../packages/ui-native/src';
 import { ConsultScreen, Gate, InfoRow, Section, type GateStatus } from '../../src/components/consult/ConsultKit';
+import { OffersSection, isUnoffered } from '../../src/components/diagnostics/CatalogueKit';
 import { Block, DetailHead, ListCard, Price, diagLook, goBackDiag, useDiagText } from '../../src/components/diagnostics/DiagKit';
 import { useServiceCartAction } from '../../src/components/cart/ServiceCartButton';
 import { ItemOrderingPanel } from '../../src/components/ordering/ItemOrderingPanel';
@@ -48,13 +49,15 @@ export default function TestDetail() {
   }, [load]);
 
   const inCart = items.some((i) => i.id === id);
+  // a service no provider offers yet can be asked for ("Notify me") but not ordered
+  const unoffered = data ? isUnoffered(data) : false;
   const look = diagLook(data?.category, kind);
   const add = () => {
     if (data && !inCart) void addItem({ id, name: data.name, price: data.price ?? 0, kind });
   };
 
   const footer =
-    data && status === 'ready' ? (
+    data && status === 'ready' && !unoffered ? (
       <>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
           <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary }}>{k('diag.detail.total')}</Text>
@@ -106,7 +109,8 @@ export default function TestDetail() {
                 ) : null}
               </Section>
             ) : null}
-            <ItemOrderingPanel kind={kind} catalogId={id} />
+            <OffersSection kind={kind} serviceId={id} offer={data.offer} offers={data.offers} />
+            {unoffered ? null : <ItemOrderingPanel kind={kind} catalogId={id} />}
             {data.turnaroundHours !== null ? (
               <ListCard>
                 <View style={{ paddingHorizontal: 14 }}>

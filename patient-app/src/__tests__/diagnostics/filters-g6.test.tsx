@@ -92,11 +92,11 @@ describe('Diagnostics hub, radiology tab (G6)', () => {
     await waitFor(() => expect(screen.getAllByText('Test CT chest').length).toBeGreaterThan(0), { timeout: 15000 });
     await fireEvent.press(screen.getByLabelText(k('diag.hub.filter')));
     await fireEvent.press(screen.getByText(k('diag.filter.price')));
-    await waitFor(() => expect(mockApi.mock.calls.some(([path]) => /^\/radiology\/services\?page=1&limit=20&home_visit=true&lowest_price=true$/.test(String(path)))).toBe(true));
+    await waitFor(() => expect(mockApi.mock.calls.some(([path]) => /^\/radiology\/services\?page=1&limit=20&lowest_price=true$/.test(String(path)))).toBe(true));
     const names = screen.getAllByText(/^Test (MRI|ultrasound|CT)/).map((n) => n.props.children);
     // the strip repeats names above the "All scans" list: compare the list's own (last) occurrences
     expect(names.lastIndexOf('Test ultrasound')).toBeLessThan(names.lastIndexOf('Test CT chest'));
-    // the server orders (lowest_price=true), and the place home asks for home_visit=true: the knee MRI that is not done at home is not listed
+    // the server orders (lowest_price=true); the place switch (home) hides the knee MRI that is not done at home on the rows loaded here, and no longer asks the server for home_visit (that filter keeps only services some provider offers at home, which would hide the ones nobody offers yet)
     expect(screen.queryByText('Test MRI knee')).toBeNull();
   });
 
