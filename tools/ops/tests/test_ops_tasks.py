@@ -1,8 +1,10 @@
 """tools/ops/tasks/94-ranking-recompute.sh and 91b-upload-scan-defer.sh against fake docker, sudo and curl (no server, no secrets)."""
+import hashlib
 import os
 import re
 import stat
 import subprocess
+import tarfile
 import tempfile
 import unittest
 
@@ -70,12 +72,14 @@ class Harness:
         self.backups = os.path.join(d, "backups")
         self.cron = os.path.join(d, "cron.d")
         self.log = os.path.join(d, "docker.log")
-        for p in (self.bin, os.path.join(self.deploy, "scripts"), self.backups, self.cron):
+        self.releases = os.path.join(d, "releases")
+        for p in (self.bin, os.path.join(self.deploy, "scripts"), self.backups, self.cron, self.releases):
             os.makedirs(p)
         write_exec(os.path.join(self.bin, "sudo"), FAKE_SUDO)
         write_exec(os.path.join(self.bin, "docker"), FAKE_DOCKER)
         write_exec(os.path.join(self.bin, "curl"), FAKE_CURL)
         write_exec(os.path.join(self.deploy, "scripts", "clamav-window.sh"), "#!/bin/bash\n")
+        write_exec(os.path.join(self.deploy, "scripts", "_backup-common.sh"), "# helper\n")
         self.envf = os.path.join(self.deploy, ".env.production")
         with open(self.envf, "w") as f:
             f.write(ENV_BEFORE)
@@ -95,11 +99,29 @@ class Harness:
         with open(script, "w") as f:
             f.write(src)
         env = dict(os.environ, PATH=self.bin + os.pathsep + os.environ["PATH"], OPS_DEPLOY_DIR=self.deploy, OPS_BACKUP_DIR=self.backups,
-                   OPS_CRON_DIR=self.cron, FAKE_LOG=self.log, FAKE_PLAN_OUT=self.plan_out, FAKE_APPLY_OUT=self.apply_out,
+                   OPS_CRON_DIR=self.cron, OPS_RELEASE_DIR=self.releases, FAKE_LOG=self.log, FAKE_PLAN_OUT=self.plan_out, FAKE_APPLY_OUT=self.apply_out,
                    OPS_WAIT_SLEEP="0", OPS_WAIT_TRIES="2", OPS_WAIT_TRIES_API="2", HOME=self.tmp.name)
         env.update({k: str(v) for k, v in extra.items()})
         p = subprocess.run(["bash", script], env=env, capture_output=True, text=True, timeout=60)
         return p
+
+    def make_release(self, sha8="61c95ace", window="#!/bin/bash\n# release copy\n", common="# helper release copy\n", corrupt=False):
+        """An uploaded release dir: deploy.tgz (the deploy/ dir) + SHA256SUMS, as tools/ops/release/build-release.sh writes them."""
+        r = os.path.join(self.releases, sha8)
+        os.makedirs(r)
+        src = os.path.join(self.tmp.name, "rel-src")
+        os.makedirs(os.path.join(src, "deploy", "scripts"), exist_ok=True)
+        for name, text in (("clamav-window.sh", window), ("_backup-common.sh", common)):
+            with open(os.path.join(src, "deploy", "scripts", name), "w") as f:
+                f.write(text)
+        tgz = os.path.join(r, "deploy.tgz")
+        with tarfile.open(tgz, "w:gz") as t:
+            t.add(os.path.join(src, "deploy"), arcname="deploy")
+        with open(tgz, "rb") as f:
+            digest = hashlib.sha256(f.read()).hexdigest()
+        with open(os.path.join(r, "SHA256SUMS"), "w") as f:
+            f.write(("0" * 64 if corrupt else digest) + "  deploy.tgz\n")
+        return r
 
     def docker_calls(self):
         if not os.path.exists(self.log):
@@ -268,6 +290,54 @@ class UploadScanDefer(unittest.TestCase):
         p = self.h.run(self.TASK, {"ROLLBACK": "yes"})
         self.assertEqual(p.returncode, 1)
         self.assertEqual(self.h.env_text(), ENV_BEFORE)
+
+    def script(self, name):
+        with open(os.path.join(self.h.deploy, "scripts", name)) as f:
+            return f.read()
+
+    def test_dry_run_reports_that_the_window_script_would_be_installed_and_writes_nothing(self):
+        self.h.make_release()
+        p = self.h.run(self.TASK)
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("window script: will be installed from release 61c95ace (checksums ok)", p.stdout)
+        self.assertEqual(self.script("clamav-window.sh"), "#!/bin/bash\n")
+        self.assertEqual(os.listdir(self.h.backups), [])
+
+    def test_apply_installs_the_window_script_from_the_verified_release_and_saves_the_old_copy(self):
+        self.h.make_release()
+        p = self.h.run(self.TASK, {"APPLY": "yes"})
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("release copy", self.script("clamav-window.sh"))
+        self.assertIn("helper release copy", self.script("_backup-common.sh"))
+        self.assertTrue(os.access(os.path.join(self.h.deploy, "scripts", "clamav-window.sh"), os.X_OK))
+        saved = [f for f in os.listdir(self.h.backups) if f.startswith("window-pre-clamav-window.sh-")]
+        self.assertEqual(len(saved), 1)
+
+    def test_a_script_missing_on_the_server_is_installed_from_the_release_and_rollback_removes_it(self):
+        os.remove(os.path.join(self.h.deploy, "scripts", "clamav-window.sh"))
+        self.h.make_release()
+        p = self.h.run(self.TASK, {"APPLY": "yes"})
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("release copy", self.script("clamav-window.sh"))
+        r = self.h.run(self.TASK, {"ROLLBACK": "yes"})
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertFalse(os.path.exists(os.path.join(self.h.deploy, "scripts", "clamav-window.sh")))
+
+    def test_a_release_that_fails_its_checksums_installs_nothing(self):
+        os.remove(os.path.join(self.h.deploy, "scripts", "clamav-window.sh"))
+        self.h.make_release(corrupt=True)
+        p = self.h.run(self.TASK, {"APPLY": "yes"})
+        self.assertEqual(p.returncode, 1)
+        self.assertIn("fails its checksums", p.stdout)
+        self.assertFalse(os.path.exists(os.path.join(self.h.deploy, "scripts", "clamav-window.sh")))
+        self.assertEqual(self.h.env_text(), ENV_BEFORE)
+
+    def test_equal_copies_on_the_server_are_left_alone(self):
+        self.h.make_release(window="#!/bin/bash\n", common="# helper\n")
+        p = self.h.run(self.TASK, {"APPLY": "yes"})
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("already on the server and equal to release 61c95ace", p.stdout)
+        self.assertEqual([f for f in os.listdir(self.h.backups) if f.startswith("window-")], [])
 
 
 if __name__ == "__main__":
