@@ -8,6 +8,8 @@ import { Avatar } from "@/components-next/ui-generated/components/Surfaces";
 import styles from "./health.module.css";
 import forms from "@/components-next/consult/consult.module.css";
 import { UploadsUnavailable, useUploadsEnabled } from "@/components-next/uploads/uploads-provider";
+import { ScanStatusBadge } from "@/components-next/uploads/scan-status-badge";
+import { scanStateOfUpload, type ScanState } from "@/lib/uploads/scan-status";
 
 const MAX_BYTES = 5_000_000;
 const TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -21,6 +23,7 @@ export function AvatarUpload({ name, src }: { name: string; src?: string }) {
   const [url, setUrl] = useState(src);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [scan, setScan] = useState<ScanState>("ok");
 
   async function onPick(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -37,9 +40,17 @@ export function AvatarUpload({ name, src }: { name: string; src?: string }) {
         reader.readAsDataURL(file);
       });
       const res = await fetch("/api/health/avatar", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ data_url: dataUrl, name: file.name.slice(0, 200) }) });
-      const body = (await res.json().catch(() => null)) as { url?: unknown } | null;
-      if (!res.ok || typeof body?.url !== "string") { setError(t("photoFailed")); return; }
-      setUrl(body.url);
+      const body = (await res.json().catch(() => null)) as { url?: unknown; scan_status?: unknown; message?: unknown } | null;
+      if (!res.ok) {
+        // the scanner refused the file (400 file_infected): shown as rejected, with a way to upload another
+        if (scanStateOfUpload(body) === "rejected") setScan("rejected"); else setError(t("photoFailed"));
+        return;
+      }
+      if (typeof body?.url !== "string") { setError(t("photoFailed")); return; }
+      const state = scanStateOfUpload(body);
+      setScan(state);
+      // a photo that is still being checked is not shown yet; the profile keeps the previous one until it has passed
+      if (state === "ok") setUrl(body.url);
       router.refresh();
     } catch {
       setError(t("photoFailed"));
@@ -54,6 +65,7 @@ export function AvatarUpload({ name, src }: { name: string; src?: string }) {
       <input ref={input} type="file" accept={TYPES.join(",")} hidden aria-label={t("photoChange")} onChange={(event) => void onPick(event)} />
       {uploadsEnabled ? <Button variant="outline" size="sm" label={busy ? t("photoUploading") : t("photoChange")} loading={busy} onClick={() => input.current?.click()} /> : null}
       {uploadsEnabled ? <span className={forms.muted}>{t("photoNote")}</span> : <UploadsUnavailable className={forms.muted} />}
+      {uploadsEnabled ? <ScanStatusBadge state={scan} onReupload={() => input.current?.click()} /> : null}
       {error ? <span className={forms.error} role="alert">{error}</span> : null}
     </div>
   );

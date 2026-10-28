@@ -26,6 +26,7 @@ describe("upload response", () => {
     expect(scanStateOfUpload({ id: "1", scan_status: "pending_scan" })).toBe("pending");
     expect(scanStateOfUpload({ data: { scan_status: "scanning" } })).toBe("pending");
     expect(scanStateOfUpload({ scan_status: "infected" })).toBe("rejected");
+    expect(scanStateOfUpload({ message: "file_infected" })).toBe("rejected");
     expect(scanStateOfUpload({ id: "1" })).toBe("ok");
     expect(scanStateOfUpload(null)).toBe("ok");
   });

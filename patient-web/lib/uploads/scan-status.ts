@@ -32,8 +32,16 @@ export function scanStatusOf(body: unknown): string | null {
   return inner && typeof inner.scan_status === 'string' ? inner.scan_status : null;
 }
 
+/** The upload itself was refused because the scanner found something: 400 `file_infected` (code or message). */
+export function isInfectedBody(body: unknown): boolean {
+  const top = record(body);
+  const inner = record(top?.data);
+  return [top?.code, top?.message, inner?.code, inner?.message].some((v) => v === 'file_infected');
+}
+
 /** State of a file straight after its upload: 'pending_scan' and 'scanning' wait, 'infected' is rejected, anything else is usable. */
 export function scanStateOfUpload(body: unknown): ScanState {
+  if (isInfectedBody(body)) return 'rejected';
   const status = scanStatusOf(body);
   if (status === 'pending_scan' || status === 'scanning') return 'pending';
   if (status === 'infected') return 'rejected';
@@ -58,7 +66,7 @@ export function retryAfterSecondsOf(body: unknown): number {
 export function classifyOpen(status: number, body: unknown, wasPending = false): OpenOutcome {
   if (status === 423) return { state: 'pending', retryAfterSeconds: retryAfterSecondsOf(body) };
   const scan = scanStatusOf(body);
-  if (scan === 'infected') return { state: 'rejected' };
+  if (scan === 'infected' || isInfectedBody(body)) return { state: 'rejected' };
   if (scan === 'pending_scan' || scan === 'scanning') return { state: 'pending', retryAfterSeconds: retryAfterSecondsOf(body) };
   if (status >= 200 && status < 300) return { state: 'ok' };
   if (wasPending && status >= 400 && status < 500 && status !== 401 && status !== 408 && status !== 429) return { state: 'rejected' };

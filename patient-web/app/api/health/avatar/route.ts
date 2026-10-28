@@ -28,12 +28,13 @@ export async function POST(request: Request) {
   form.append("file", new Blob([new Uint8Array(bytes)], { type: match[1] }), parsed.data.name);
   form.append("folder", "avatars");
   const upload = await callPatientApi("/media/upload", { method: "POST", body: form }, accessToken);
-  const uploaded = (await upload.json().catch(() => null)) as { url?: unknown; data?: { url?: unknown } } | null;
+  const uploaded = (await upload.json().catch(() => null)) as { url?: unknown; scan_status?: unknown; data?: { url?: unknown; scan_status?: unknown } } | null;
   if (!upload.ok) return boundedUpstreamError(uploaded, "upload_failed", upload.status);
   const url = typeof uploaded?.url === "string" ? uploaded.url : typeof uploaded?.data?.url === "string" ? uploaded.data.url : null;
   if (!url) return NextResponse.json({ message: "upload_missing_url" }, { status: 502 });
   const saved = await callPatientApi("/users/me/profile", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ avatar_url: url }) }, accessToken);
   const data = await saved.json().catch(() => null);
   if (!saved.ok) return boundedUpstreamError(data, "profile_update_failed", saved.status);
-  return NextResponse.json({ url }, { headers: { "cache-control": "no-store" } });
+  const scan = typeof uploaded?.scan_status === "string" ? uploaded.scan_status : typeof uploaded?.data?.scan_status === "string" ? uploaded.data.scan_status : undefined;
+  return NextResponse.json(scan ? { url, scan_status: scan } : { url }, { headers: { "cache-control": "no-store" } });
 }
