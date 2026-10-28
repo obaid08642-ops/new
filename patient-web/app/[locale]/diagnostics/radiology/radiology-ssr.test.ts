@@ -21,7 +21,8 @@ describe("Radiology Services SSR", () => {
     expect(html).toContain("Chest X-Ray");
     expect(html).toContain("/en/diagnostics/radiology/6a7600a27b25eeca204de283");
     expect(html).not.toContain("style=");
-    expect(state.services).toHaveBeenCalledWith(expect.objectContaining({ modality: "xray", homeVisit: "true", search: "chest" }));
+    // the shared catalogue list asks the first server page with the page's own filters (home visit travels as the server's home_only)
+    expect(state.services).toHaveBeenCalledWith(expect.objectContaining({ page: 1, modality: "xray", homeOnly: "true", search: "chest" }));
   });
   it("G6: each offered filter is real, the server orders by price and rating, reset and the count agree", async () => {
     state.services.mockResolvedValue(new Response(JSON.stringify([
@@ -30,7 +31,7 @@ describe("Radiology Services SSR", () => {
     ]), { status: 200 }));
     const html = await render({ modality: "MRI", home_visit: "1", lowest_price: "1", highest_rated: "1" });
     // the backend sorts now: both flags are sent, the list keeps the server's order
-    expect(state.services.mock.calls[0][0]).toMatchObject({ modality: "MRI", homeVisit: "true", lowestPrice: "true", highestRated: "true" });
+    expect(state.services.mock.calls[0][0]).toMatchObject({ modality: "MRI", homeOnly: "true", lowestPrice: "true", highestRated: "true" });
     expect(html).toContain('name="highest_rated"');
     expect(html.indexOf("Cheap Scan")).toBeLessThan(html.indexOf("Pricey Scan"));
     expect(html).toContain("Rating 4.5 (12)");

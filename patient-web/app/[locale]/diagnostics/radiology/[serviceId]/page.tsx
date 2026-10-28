@@ -12,6 +12,7 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { ActionLinks, BulletList, Facts, Hero, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
 import { RADIOLOGY, TagRow, hoursText, minutesText, money, type Tag } from "@/components-next/diagnostics/diag-parts";
+import { OffersSection } from "@/components-next/diagnostics/offers-section";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 import { pickName, pickTexts } from "@/lib/i18n/localized";
 
@@ -114,7 +115,9 @@ export default async function RadiologyServiceDetailPage({ params }: Props) {
       <DirectAnswer sentences={[seo("radiologyWho", { name: name ?? t("title") })]} />
       {rows.length > 0 ? <SectionCard id="rad-facts" title={t("detailTitle")}><Facts rows={rows} label={t("detailTitle")} /></SectionCard> : null}
       {preparation.length > 0 ? <SectionCard id="rad-prep" title={t("preparationTitle")}><BulletList items={preparation} /></SectionCard> : null}
-      <ActionLinks actions={[{ href: addHref, label: w("addToOrderCta") }]} />
+      <OffersSection locale={locale} t={w} kind="radiology" serviceId={service.id} offer={service.offer} offers={service.offers} />
+      {/* a scan no centre offers yet cannot be ordered: the section above says so and offers "Notify me" */}
+      {service.offer?.providersCount === 0 ? null : <ActionLinks actions={[{ href: addHref, label: w("addToOrderCta") }]} />}
     </ConsultPage>
   );
 }

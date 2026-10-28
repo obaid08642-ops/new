@@ -3,14 +3,15 @@ import { notFound } from "next/navigation";
 import { StaleWhileRevalidate } from "@/components-next/nav/stale-while-revalidate";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractNursingCatalog } from "@/lib/api/nursing-catalog";
-import { getPublicNursingCatalog } from "@/lib/api/nursing-catalog-server";
+import { getPublicNursingCatalog, getPublicNursingServices } from "@/lib/api/nursing-catalog-server";
 import { getDirection, isLocale, locales } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { RowCard } from "@/components-next/consult/consult-parts";
 import { Caret, NURSING, RowList, ServiceChips, serviceIcon } from "@/components-next/nursing/nursing-parts";
-import { SearchForm, money } from "@/components-next/diagnostics/diag-parts";
+import { nursingOfferLine } from "@/components-next/nursing/nursing-offers";
+import { SearchForm } from "@/components-next/diagnostics/diag-parts";
 import { pickName, pickTexts, textsInclude } from "@/lib/i18n/localized";
 import type { Metadata } from "next";
 import { AddToBasketIcon } from "@/components-next/ordering/add-to-basket";
@@ -60,9 +61,11 @@ export default async function NursingCatalogPage({ params, searchParams }: Props
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("NursingWeb");
+  const w = await getTranslations("DiagWeb");
   let items: ReturnType<typeof extractNursingCatalog> = [];
   try {
-    const response = await getPublicNursingCatalog();
+    // the same list as the home care hub (GET /home-care/services): every catalogue service with what nurses offer for it
+    const response = await getPublicNursingServices().then((r) => (r && r.ok ? r : getPublicNursingCatalog()));
     if (response && response.ok) {
       items = extractNursingCatalog(await response.json().catch(() => null));
     }
@@ -88,6 +91,7 @@ export default async function NursingCatalogPage({ params, searchParams }: Props
             const name = pickName(locale, item.names) ?? "";
             const description = pickTexts(locale, item.descriptions);
             const duration = localDuration(locale, item.durationValue, item.duration);
+            const offer = nursingOfferLine({ locale, tr: (key, values) => w(key, values), offer: item.offer, price: item.price });
             return (
               <li key={item.id} className={styles.rowWithAdd}>
                 <RowCard
@@ -95,8 +99,8 @@ export default async function NursingCatalogPage({ params, searchParams }: Props
                   icon={serviceIcon(item.id, item.category, item.nameAr, item.nameEn)}
                   tone={NURSING.tone}
                   title={name}
-                  sub={[description, item.price !== undefined ? money(locale, item.price) : ""].filter(Boolean).join(" · ") || undefined}
-                  extra={<ServiceChips duration={duration || undefined} insurance={item.insuranceAvailable ? t("insurance") : undefined} />}
+                  sub={[description, offer.line].filter(Boolean).join(" · ") || undefined}
+                  extra={<ServiceChips duration={duration || undefined} insurance={item.insuranceAvailable ? t("insurance") : undefined} extras={offer.chips} />}
                   caret={caret}
                 />
                 <AddToBasketIcon kind="nursing" line={{ id: item.id, nameAr: item.nameAr, nameEn: item.nameEn }} name={name} />

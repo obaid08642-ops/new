@@ -14,7 +14,7 @@ vi.mock("@/components-next/core/core-shell", () => ({
 }));
 vi.mock("@/lib/i18n", () => ({ isLocale: () => true, getDirection: () => "ltr", locales: ["en"] }));
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: state.access, getOptionalPatientAccessToken: state.token }));
-vi.mock("@/lib/api/nursing-catalog-server", () => ({ getPublicNursingCatalog: state.catalog }));
+vi.mock("@/lib/api/nursing-catalog-server", () => ({ getPublicNursingCatalog: state.catalog, getPublicNursingService: vi.fn().mockResolvedValue(null) }));
 vi.mock("@/lib/api/home-care-services-server", () => ({ getPatientHomeCareServices: state.list, getPatientHomeCareService: state.detail, getPublicHomeCareServices: vi.fn().mockResolvedValue(null), getPublicHomeCareService: vi.fn().mockResolvedValue(null) }));
 import HomeCareServicePage from "./[serviceId]/page";
 

@@ -26,7 +26,7 @@ type Props = {
   chips: CatalogChip[];
   chipsLabel: string;
   /** What the next page request carries besides the page: locale, search, sort, place and payment (the chip is added). */
-  query: { locale: string; q?: string; sort?: string; place: string; pay: string };
+  query: { locale: string; q?: string; sort?: string; place: string; pay: string; /** the radiology page's own filters (modality, body_part, home_visit), sent with every page */ extra?: Record<string, string> };
   /** The no-script "Show more" link (the next step, same filters). */
   moreHref: string;
   moreLabel: string;
@@ -44,6 +44,7 @@ async function fetchPage(kind: ServiceKind, query: Props["query"], chip: DiagArt
   const params = new URLSearchParams({ kind, page: String(page), locale: query.locale, place: query.place, pay: query.pay });
   if (query.q) params.set("q", query.q);
   if (query.sort) params.set("sort", query.sort);
+  for (const [key, value] of Object.entries(query.extra ?? {})) params.set(key, value);
   if (chip !== "all") params.set("cat", chip);
   try {
     const response = await fetch(`/api/diagnostics/catalog?${params}`, { headers: { Accept: "application/json" } });
@@ -150,7 +151,7 @@ export function ItemCatalog({ kind, rows: initialRows, page: initialPage, hasMor
       ) : (
         <ul className={styles.itemGrid} aria-label={listLabel} aria-busy={loading}>
           {shown.map((row) => (
-            <ItemCard key={row.id} href={row.href} title={row.title} tags={row.tags} note={row.note} rating={row.rating} price={row.price} art={row.art} imageUrl={row.imageUrl} actions={<ItemActions kind={kind} line={row.line} orderHref={orderHref} />} />
+            <ItemCard key={row.id} href={row.href} title={row.title} tags={row.tags} note={row.note} rating={row.rating} price={row.price} art={row.art} imageUrl={row.imageUrl} offer={row.offer} actions={<ItemActions kind={kind} line={row.line} orderHref={orderHref} />} />
           ))}
         </ul>
       )}

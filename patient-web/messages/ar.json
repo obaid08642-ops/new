@@ -3570,7 +3570,20 @@
     "catMri": "الرنين المغناطيسي",
     "catUltrasound": "الموجات فوق الصوتية",
     "catMammography": "الماموجرام",
-    "catEcg": "تخطيط القلب والإيكو"
+    "catEcg": "تخطيط القلب والإيكو",
+    "offerCount": "{count, plural, one {مركز واحد} two {مركزان} few {# مراكز} other {# مركزًا}}",
+    "offerCountNursing": "{count, plural, one {مزوّد رعاية واحد} two {مزوّدا رعاية} few {# مزوّدي رعاية} other {# مزوّد رعاية}}",
+    "offerNone": "لا يوفّر أي مركز هذه الخدمة بعد",
+    "offerNoneBody": "يمكنك أن نُبلغك عندما يبدأ أي مركز بتقديمها.",
+    "offerAtCentre": "في المركز",
+    "offerAtHome": "في المنزل",
+    "offerInsurance": "يقبل التأمين",
+    "offerNoPrice": "السعر غير محدد",
+    "offersTitle": "المراكز التي تقدّم هذه الخدمة",
+    "notifyMe": "أبلغني عند توفرها",
+    "notifyMeDone": "تم تسجيلك. سنُبلغك عندما يقدّمها أحد المراكز.",
+    "notifyMeSignIn": "سجّل الدخول لتصلك الإشعارات",
+    "notifyMeFailed": "تعذّر الحفظ. حاول مرة أخرى."
   },
   "OrderContext": {
     "hint": "تتحدّث الأسعار والتغطية فور أي تغيير",

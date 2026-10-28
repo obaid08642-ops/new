@@ -47,7 +47,7 @@ beforeEach(() => {
   state.routes = {
     "/home/offers": { status: 200, body: [{ id: "of-1", t: "عرض", t_en: "Spring checkup", price: 99, old: 150, disc: "34%", prov: "Clinic One" }] },
     "/insurance/companies": { status: 200, body: [{ id: "co-1", code: "ins1", name_ar: "تأمين", name_en: "Insure One", email: "private@x.y", plans: [{ id: "pl-1", name_en: "Gold", name_ar: "ذهبي", tier_level: 1 }] }] },
-    "/nursing/catalog": { status: 200, body: [{ id: "svc-1", name_en: "Wound care", name_ar: "العناية بالجروح", price: 200, active: true }] },
+    "/home-care/services": { status: 200, body: [{ id: "svc-1", name_en: "Wound care", name_ar: "العناية بالجروح", price: 200, active: true }] },
     "/providers?type=home_care": { status: 200, body: [{ id: "hc-1", name_en: "Care at Home", city: "Riyadh" }] },
     "/care/doctors?specialty=psychiatry": { status: 200, body: [DOCTOR] },
     "/care/doctors?specialty=gynecology": { status: 200, body: [{ ...DOCTOR, id: "doc-gyn-1", name_en: "Dr Bloom" }] },

@@ -78,6 +78,8 @@ const patientReadRoutes = [
   new RegExp("^/users/me/storage$"),
   new RegExp("^/users/me/sessions$"),
   new RegExp("^/articles/bookmarks/mine$"),
+  // "Notify me when available" on a catalogue service nobody offers yet (backend catalogue-interest, #2067): the services the patient already asked for.
+  new RegExp("^/catalogue-interest/mine$"),
   // the article page asks whether the signed-in patient saved the article (the Save button)
   new RegExp("^/articles/bookmarks/[A-Za-z0-9_-]{1,160}/status$"),
   new RegExp("^/chat/threads$"),
@@ -136,6 +138,8 @@ const healthMutationRoutes: Array<{ method: "POST" | "DELETE"; route: RegExp }> 
   { method: "POST", route: new RegExp("^/emergency/share-location$") },
   { method: "DELETE", route: new RegExp("^/health/emergency-contacts/[A-Za-z0-9_-]{1,128}$") },
   { method: "POST", route: new RegExp("^/articles/bookmarks/[A-Za-z0-9_-]{1,160}/toggle$") },
+  // "Notify me when available": one interest per patient and service (idempotent on the server).
+  { method: "POST", route: new RegExp("^/catalogue-interest$") },
   // ac-1-agent-oauth#1: settings, disconnect a connected AI assistant (backend PatientAgentConnectionsController)
   { method: "DELETE", route: new RegExp("^/patient/agent-connections/[A-Za-z0-9_.:-]{1,128}$") },
 ];
