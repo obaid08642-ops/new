@@ -60,9 +60,9 @@ function getInitials(name?: string): string {
 }
 
 // the 10 service tones' solid colours (white initials stay readable on every one)
-const FALLBACK_COLORS: string[] = Object.values(tokens('light').color.service)
-  .filter((tone): tone is { solid: { from: string } } => typeof tone === 'object' && tone !== null && 'solid' in tone)
-  .map((tone) => tone.solid.from);
+const FALLBACK_COLORS: string[] = (['coral', 'blue', 'mint', 'violet', 'amber', 'pink', 'lime', 'peach', 'teal', 'ink'] as const).map(
+  (tone) => tokens('light').color.service[tone].solid.from,
+);
 
 function getColorForName(name?: string): string {
   if (!name) return FALLBACK_COLORS[0];
@@ -124,7 +124,7 @@ export function DSAvatar({
             style={{
               fontSize,
               fontWeight: '700',
-              color: '#fff',
+              color: colors.textInverse,
               includeFontPadding: false,
             }}
             allowFontScaling={false}

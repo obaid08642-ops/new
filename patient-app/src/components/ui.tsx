@@ -107,12 +107,12 @@ export function Button({
     gradient: 'transparent',
   };
   const fg: Record<BtnVariant, string> = {
-    primary: '#fff',
-    secondary: '#fff',
+    primary: colors.textInverse,
+    secondary: colors.textInverse,
     outline: colors.primary,
     ghost: colors.primary,
-    danger: '#fff',
-    gradient: '#fff',
+    danger: colors.textInverse,
+    gradient: colors.textInverse,
   };
 
   const content = (
@@ -421,8 +421,8 @@ export function Chip({ label, active, onPress, icon }: ChipProps) {
         },
       ]}
     >
-      {icon && <Icon name={icon} size={15} color={active ? '#fff' : colors.textSecondary} />}
-      <AppText variant="labelMD" color={active ? '#fff' : colors.textSecondary} style={{ fontWeight: '700' }}>{translatedLabel}</AppText>
+      {icon && <Icon name={icon} size={15} color={active ? colors.textInverse : colors.textSecondary} />}
+      <AppText variant="labelMD" color={active ? colors.textInverse : colors.textSecondary} style={{ fontWeight: '700' }}>{translatedLabel}</AppText>
     </TouchableOpacity>
   );
 }
