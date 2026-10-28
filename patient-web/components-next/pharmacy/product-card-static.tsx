@@ -30,7 +30,7 @@ export function ProductCardStatic({ name, meta, price, currency, imageSrc, moreI
   return (
     <div className="nabd-product-card">
       <a href={href} className="nabd-product-card__link">
-        <div className="nabd-product-card__media">
+        <div className={`nabd-product-card__media${imageSrc ? " nabd-product-card__media--photo" : ""}`}>
           {imageSrc ? (
             <img
               src={imageSrc}
