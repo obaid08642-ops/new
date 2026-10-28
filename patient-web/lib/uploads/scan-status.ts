@@ -73,6 +73,14 @@ export function classifyOpen(status: number, body: unknown, wasPending = false):
   return { state: 'error' };
 }
 
+/** Clients that throw `Error(message)` for a non-2xx (apiFetch): the scan states carried by the message, or null for any other error. */
+export function scanStateOfError(error: unknown): ScanState | null {
+  const message = error instanceof Error ? error.message : typeof error === 'string' ? error : '';
+  if (message === 'file_pending_scan') return 'pending';
+  if (message === 'file_infected') return 'rejected';
+  return null;
+}
+
 export interface ScanProbeResult { status: number; body?: unknown }
 
 export interface ScanGateOptions {

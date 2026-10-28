@@ -3862,5 +3862,8 @@
   "menu.articles": "लेख",
   "menu.notifications": "सूचनाएं",
   "menu.settings": "सेटिंग्स",
-  "menu.help": "सहायता"
+  "menu.help": "सहायता",
+  "scanStatus.checking": "सुरक्षा के लिए फ़ाइल की जाँच हो रही है",
+  "scanStatus.rejected": "यह फ़ाइल सुरक्षा कारणों से अस्वीकार कर दी गई। कृपया दूसरी फ़ाइल अपलोड करें।",
+  "scanStatus.uploadAnother": "दूसरी फ़ाइल अपलोड करें"
 }

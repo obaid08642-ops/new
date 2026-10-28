@@ -3862,5 +3862,8 @@
   "menu.articles": "Mga artikulo",
   "menu.notifications": "Mga Abiso",
   "menu.settings": "Mga setting",
-  "menu.help": "Tulong"
+  "menu.help": "Tulong",
+  "scanStatus.checking": "Sinusuri ang file para sa kaligtasan",
+  "scanStatus.rejected": "Tinanggihan ang file na ito para sa kaligtasan. Mag-upload ng iba.",
+  "scanStatus.uploadAnother": "Mag-upload ng ibang file"
 }

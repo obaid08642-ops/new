@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { classifyOpen, createScanGate, retryAfterSecondsOf, scanStateOfUpload, type ScanProbeResult } from "./scan-status";
+import { classifyOpen, createScanGate, retryAfterSecondsOf, scanStateOfError, scanStateOfUpload, type ScanProbeResult } from "./scan-status";
 
 const flush = async () => { for (let i = 0; i < 5; i += 1) await Promise.resolve(); };
 
@@ -29,6 +29,15 @@ describe("upload response", () => {
     expect(scanStateOfUpload({ message: "file_infected" })).toBe("rejected");
     expect(scanStateOfUpload({ id: "1" })).toBe("ok");
     expect(scanStateOfUpload(null)).toBe("ok");
+  });
+});
+
+describe("scanStateOfError", () => {
+  it("reads the scan states carried by a thrown message and nothing else", () => {
+    expect(scanStateOfError(new Error("file_pending_scan"))).toBe("pending");
+    expect(scanStateOfError(new Error("file_infected"))).toBe("rejected");
+    expect(scanStateOfError(new Error("OFFLINE_ERROR"))).toBeNull();
+    expect(scanStateOfError(undefined)).toBeNull();
   });
 });
 
