@@ -1,10 +1,4 @@
-# 2026-10-27 lead reviewer: run 42. Deploy main@2bd42709 (adds #2053: the translation sends to every provider in parallel, each within its
-# own free-tier limit, with per-provider stats and a progress line every 50 answers). Then RESUME the ar+en translation: the 165 saved
-# answers are copied back in and only the 1,239 unanswered requests are sent (detached, up to 120 min; answers saved on the host).
-# Nothing is written to the database (that needs STEP=plan, the catalogue-apply dry run, then the owner's Approve).
-release:2bd427097ad01b868b1ec62f5bfe483cbe27f0ed
-97-free-old-predeploy
-93-free-unused-images
-60-deploy-main
-98-translate-content
-cf-purge-api
+# 2026-10-28 lead reviewer: run 43, READ-ONLY. Run 42 deployed main@2bd42709 (health ok); its ar+en translation (parallel providers)
+# outlived the 120-min poll and keeps running detached. This prints its progress: answers in the container and on the host, and the
+# task's last status lines (per-provider stats when it has ended). Nothing is sent or written.
+98b-translate-progress
