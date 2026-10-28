@@ -23,7 +23,8 @@ import { ConsultState } from "@/components-next/consult/consult-state";
 import { CAT_LABEL, ReferralNote, ItemCard, LabCard, LAB, PackageCard, RADIOLOGY, Rail, SearchForm, SectionHead, money, pickText } from "@/components-next/diagnostics/diag-parts";
 import { ItemCatalog, type CatalogChip, type CatalogRow } from "@/components-next/diagnostics/item-catalog";
 import { catalogRows, loadCatalogPage, type CatalogLoad } from "@/components-next/diagnostics/catalog-load";
-import { diagArtKeysOf, parseDiagArt } from "@/components-next/ui-generated/icons/diag-art";
+import { diagArtKey, diagArtKeysOf, parseDiagArt } from "@/components-next/ui-generated/icons/diag-art";
+import { DiagArt } from "@/components-next/diagnostics/diag-art";
 import { diagStatus } from "@/components-next/diagnostics/status";
 import { RowCard } from "@/components-next/consult/consult-parts";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
@@ -158,7 +159,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
 
   const orderPlace: "home" | "facility" = place === "facility" ? "facility" : "home";
   const orderPay = pay === "insurance" ? "insurance" : "cash";
-  const itemHref = (id: string, itemKind: "lab" | "radiology") => `/${locale}/labs/${encodeURIComponent(id)}${contextQuery({ kind: itemKind, place: orderPlace, pay: orderPay })}`;
+  const itemHref = (id: string, itemKind: "lab" | "radiology", facilityOnly = false) => `/${locale}/labs/${encodeURIComponent(id)}${contextQuery({ kind: itemKind, place: facilityOnly ? "facility" : orderPlace, pay: orderPay })}`;
   const orderHref = (itemKind: "lab" | "radiology") => `/${locale}/labs/basket${contextQuery({ kind: itemKind, place: orderPlace, pay: orderPay })}`;
   const rowCtx = { locale, tr: (key: Parameters<typeof t>[0], values?: Record<string, string | number>) => t(key, values), itemHref };
   const order = { place: orderPlace, pay: (pay === "insurance" ? "insurance" : "self_pay") as "insurance" | "self_pay" };
@@ -300,6 +301,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
                   return (
                     <PackageCard
                       key={pkg.id}
+                      art={diagArtKey({ kind: "lab", names: Object.values(pkg.names) })}
                       href={itemHref(pkg.id, "lab")}
                       title={name}
                       sub={pickTexts(locale, pkg.descriptions)}
@@ -350,6 +352,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
                 href={diagnosticBookingHref(locale, domain, booking.id)}
                 icon={domain === "labs" ? LAB.icon : RADIOLOGY.icon}
                 tone={domain === "labs" ? LAB.tone : RADIOLOGY.tone}
+                art={<DiagArt art={diagArtKey({ kind: domain === "labs" ? "lab" : "radiology", names: Object.values((domain === "labs" ? booking.testNames : booking.scanNames) ?? {}) })} size={48} />}
                 title={label}
                 sub={status.key === "unknown" ? d("statusUnavailable") : t(`status_${status.key}`)}
                 caret={caret}

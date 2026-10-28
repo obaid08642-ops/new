@@ -13,6 +13,7 @@ import type { SuggestScope } from "@/lib/search/suggest";
 import { PhotoWithFallback } from "./photo-with-fallback";
 import consult from "@/components-next/consult/consult.module.css";
 import type { DiagArtKey } from "@/components-next/ui-generated/icons/diag-art";
+import { DiagArt } from "./diag-art";
 import styles from "./diag.module.css";
 
 /** The laboratory and radiology services' own icon and tone, from the handoff service map (never written as a colour name). */
@@ -113,11 +114,11 @@ export function TestList({ label, children }: { label: string; children: ReactNo
 }
 
 /** A package of tests on a tinted card (ServiceHub "باقات الفحوصات"): the tile, how many tests, the name, the line, the price and "details". */
-export function PackageCard({ href, title, sub, count, price, was, cta, tone = LAB.tone, icon = LAB.icon, fluid = false }: { href: string; title: string; sub?: string; count?: string; price?: string; was?: string; cta: string; tone?: ServiceTone; icon?: FillIconName; fluid?: boolean }) {
+export function PackageCard({ href, title, sub, count, price, was, cta, tone = LAB.tone, icon = LAB.icon, art, fluid = false }: { href: string; title: string; sub?: string; count?: string; price?: string; was?: string; cta: string; tone?: ServiceTone; icon?: FillIconName; /** The package's category illustration, in place of the service glyph. */ art?: DiagArtKey; fluid?: boolean }) {
   return (
     <Link href={href} className={`${styles.pack} ${fluid ? styles.packFluid : ""} nabd-tone--${tone}`}>
       <span className={styles.packTop}>
-        <FIcon icon={icon} tone={tone} size={48} />
+        {art ? <DiagArt art={art} size={48} /> : <FIcon icon={icon} tone={tone} size={48} />}
         {count ? <span className={styles.packCount}>{count}</span> : null}
       </span>
       <span className={styles.packBody}>

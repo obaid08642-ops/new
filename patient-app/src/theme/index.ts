@@ -1,192 +1,125 @@
 import { Platform } from 'react-native';
 
+import { tokens } from '../../../packages/design-tokens/dist/ts/tokens';
+
 // ---------------------------------------------------------------------------
 // Brand tokens – single source of truth.
 // In the future, an Admin Dashboard can override `BrandColors` at runtime
 // through a remote config / API, and the rest of the system adapts automatically.
 // End-users only switch Light / Dark; they do NOT change brand colors.
 // ---------------------------------------------------------------------------
+// Every value below is read from packages/design-tokens (base palette + the 10 service tones, light and dark versions);
+// the historical key names stay because several hundred call sites use them. No colour literal lives in this file.
+const L = tokens('light').color;
+const D = tokens('dark').color;
+
 export const BrandColors = {
-  primary: '#23B5CE',
-  primaryLight: '#8FD4E3',
-  primaryDark: '#1A9FB6',
-  secondary: '#2BB89C',
-  secondaryLight: '#E2F7F2',
-  secondaryDark: '#0D9488',
-  accent: '#7A6BEA',
-  accentDark: '#9B8BFA',
-  success: '#5BA84F',
-  successLight: '#8FD4E3',
-  warning: '#F0A526',
-  warningLight: '#FEF4E0',
-  error: '#F0695C',
-  errorLight: '#FEEFED',
-  gold: '#F0A526',
-  silver: '#8C93A3',
-  bronze: '#F58634',
-  emergency: '#F0695C',
-  emergencyLight: '#FEEFED',
+  primary: L.action.primary.bg,
+  primaryLight: L.service.coral.solid.from,
+  primaryDark: L.action.primary.gradient.from,
+  secondary: L.service.blue.fg,
+  secondaryLight: L.service.blue.bg,
+  secondaryDark: L.service.blue.solid.to,
+  accent: L.service.violet.fg,
+  accentDark: L.service.violet.solid.to,
+  success: L.status.success.fg,
+  successLight: L.status.success.bg,
+  warning: L.status.warning.fg,
+  warningLight: L.status.warning.bg,
+  error: L.status.danger.fg,
+  errorLight: L.status.danger.bg,
+  gold: L.service.amber.fg,
+  silver: L.text.secondary,
+  bronze: L.service.peach.fg,
+  emergency: L.service.emergency.glyph,
+  emergencyLight: L.service.emergency.bg,
   // Maternity Module
-  maternity: '#EC4899',
-  maternityDark: '#9D174D',
-  maternityLight: '#FBCFE8',
-  planning: '#7A6BEA',
-  planningDark: '#5B21B6',
-  planningLight: '#EDEBFD',
+  maternity: L.service.maternity.glyph,
+  maternityDark: L.service.pink.solid.to,
+  maternityLight: L.service.maternity.bg,
+  planning: L.service.violet.fg,
+  planningDark: L.service.violet.solid.to,
+  planningLight: L.service.violet.bg,
 };
 
-// ---------------------------------------------------------------------------
-// Full palette – Light & Dark
-// ---------------------------------------------------------------------------
+type TokenColors = ReturnType<typeof tokens>['color'];
+const palette = (c: TokenColors) => ({
+  // Brand
+  primary: c.action.primary.bg,
+  primaryLight: c.service.coral.solid.from,
+  primaryDark: c.action.primary.gradient.from,
+  primarySurface: c.service.coral.bg,
+  secondary: c.service.blue.fg,
+  secondaryLight: c.service.blue.bg,
+  secondaryDark: c.service.blue.solid.to,
+  secondarySurface: c.service.blue.bg,
+  accent: c.service.violet.fg,
+  accentLight: c.service.violet.bg,
+  accentDark: c.service.violet.solid.to,
+  accentSurface: c.service.violet.bg,
+
+  // Semantic
+  success: c.status.success.fg,
+  successLight: c.status.success.bg,
+  successSurface: c.status.success.bg,
+  warning: c.status.warning.fg,
+  warningLight: c.status.warning.bg,
+  warningSurface: c.status.warning.bg,
+  error: c.status.danger.fg,
+  errorLight: c.status.danger.bg,
+  errorSurface: c.status.danger.bg,
+  info: c.status.info.fg,
+  infoSurface: c.status.info.bg,
+
+  // Neutral
+  white: c.icon.onSolid,
+  background: c.bg.canvas,
+  backgroundSecondary: c.bg.sunken,
+  surface: c.bg.surface,
+  surfaceSecondary: c.bg.canvas,
+  border: c.border.subtle,
+  borderLight: c.border.subtle,
+
+  // Text
+  textPrimary: c.text.primary,
+  textSecondary: c.text.secondary,
+  textTertiary: c.text.tertiary,
+  textDisabled: c.text.tertiary,
+  textInverse: c.text.onBrand,
+
+  // Special
+  emergency: c.service.emergency.glyph,
+  emergencyLight: c.service.emergency.bg,
+  gold: c.service.amber.fg,
+  silver: c.text.secondary,
+  bronze: c.service.peach.fg,
+  maternity: c.service.maternity.glyph,
+  maternityDark: c.service.pink.solid.to,
+  maternityLight: c.service.maternity.bg,
+  planning: c.service.violet.fg,
+  planningDark: c.service.violet.solid.to,
+  planningLight: c.service.violet.bg,
+
+  // Navigation
+  tabActive: c.action.primary.bg,
+  tabInactive: c.text.secondary,
+  navBackground: c.bg.surface,
+
+  // Effects
+  shadowColor: c.brand.ink,
+  overlay: D.glass.bg,
+  overlayLight: c.glass.scrim,
+  glassBg: c.glass.bg,
+  glassBorder: c.border.onGlass,
+
+  // Shimmer
+  shimmerBase: c.bg.sunken,
+  shimmerHighlight: c.bg.elevated,
+});
+
 export const Colors = {
-  light: {
-    // Brand
-    primary: BrandColors.primary,
-    primaryLight: BrandColors.primaryLight,
-    primaryDark: BrandColors.primaryDark,
-    primarySurface: '#DEF5F9',
-    secondary: BrandColors.secondary,
-    secondaryLight: BrandColors.secondaryLight,
-    secondaryDark: BrandColors.secondaryDark,
-    secondarySurface: '#E2F7F2',
-    accent: BrandColors.accent,
-    accentLight: '#EDEBFD',
-    accentDark: BrandColors.accentDark,
-    accentSurface: '#EDEBFD',
-
-    // Semantic
-    success: BrandColors.success,
-    successLight: BrandColors.successLight,
-    successSurface: '#EBF6E9',
-    warning: BrandColors.warning,
-    warningLight: BrandColors.warningLight,
-    warningSurface: '#FEF4E0',
-    error: BrandColors.error,
-    errorLight: BrandColors.errorLight,
-    errorSurface: '#FEEFED',
-    info: BrandColors.primary,
-    infoSurface: '#DEF5F9',
-
-    // Neutral
-    white: '#FFFFFF',
-    background: '#F2F4F7',
-    backgroundSecondary: '#E5E8EE',
-    surface: '#FFFFFF',
-    surfaceSecondary: '#F2F4F7',
-    border: '#E5E8EE',
-    borderLight: '#F2F4F7',
-
-    // Text
-    textPrimary: '#141A2A',
-    textSecondary: '#4C5566',
-    textTertiary: '#8C93A3',
-    textDisabled: '#D1D5DB',
-    textInverse: '#FFFFFF',
-
-    // Special
-    emergency: BrandColors.emergency,
-    emergencyLight: BrandColors.emergencyLight,
-    gold: BrandColors.gold,
-    silver: BrandColors.silver,
-    bronze: BrandColors.bronze,
-    maternity: BrandColors.maternity,
-    maternityDark: BrandColors.maternityDark,
-    maternityLight: BrandColors.maternityLight,
-    planning: BrandColors.planning,
-    planningDark: BrandColors.planningDark,
-    planningLight: BrandColors.planningLight,
-
-    // Navigation
-    tabActive: BrandColors.primary,
-    tabInactive: '#8C93A3',
-    navBackground: '#FFFFFF',
-
-    // Effects
-    shadowColor: '#141A2A',
-    shadowOpacity: 0.08,
-    overlay: 'rgba(20,26,42,0.45)',
-    overlayLight: 'rgba(20,26,42,0.15)',
-    glassBg: 'rgba(255,255,255,0.75)',
-    glassBorder: 'rgba(255,255,255,0.85)',
-
-    // Shimmer
-    shimmerBase: '#E5E8EE',
-    shimmerHighlight: '#F2F4F7',
-  },
-  dark: {
-    // Brand (brighter variants for dark bg)
-    primary: '#62C5D7',
-    primaryLight: '#8FD4E3',
-    primaryDark: '#23B5CE',
-    primarySurface: '#1A2234',
-    secondary: '#2BB89C',
-    secondaryLight: '#E2F7F2',
-    secondaryDark: '#0D9488',
-    secondarySurface: '#1A2234',
-    accent: '#9B8BFA',
-    accentLight: '#EDEBFD',
-    accentDark: '#7A6BEA',
-    accentSurface: '#1A2234',
-
-    // Semantic
-    success: '#5BA84F',
-    successLight: '#8FD4E3',
-    successSurface: '#1A2234',
-    warning: '#F0A526',
-    warningLight: '#FEF4E0',
-    warningSurface: '#1A2234',
-    error: '#F0695C',
-    errorLight: '#FEEFED',
-    errorSurface: '#1A2234',
-    info: '#62C5D7',
-    infoSurface: '#1A2234',
-
-    // Neutral
-    white: '#FFFFFF',
-    background: '#0E1422',
-    backgroundSecondary: '#2A3346',
-    surface: '#1A2234',
-    surfaceSecondary: '#0E1422',
-    border: '#2A3346',
-    borderLight: '#1A2234',
-
-    // Text
-    textPrimary: '#F2F4F7',
-    textSecondary: '#B8BEC9',
-    textTertiary: '#7C8494',
-    textDisabled: '#475569',
-    textInverse: '#0E1422',
-
-    // Special
-    emergency: '#F0695C',
-    emergencyLight: '#FEEFED',
-    gold: '#F0A526',
-    silver: '#7C8494',
-    bronze: '#F58634',
-    maternity: '#F472B6', // Lighter for dark mode
-    maternityDark: '#BE185D',
-    maternityLight: '#4D0E2B',
-    planning: '#A78BFA', // Lighter for dark mode
-    planningDark: '#6D28D9',
-    planningLight: '#2E1A47',
-
-    // Navigation
-    tabActive: '#62C5D7',
-    tabInactive: '#7C8494',
-    navBackground: '#1A2234',
-
-    // Effects
-    shadowColor: '#000000',
-    shadowOpacity: 0.5,
-    overlay: 'rgba(0,0,0,0.65)',
-    overlayLight: 'rgba(0,0,0,0.35)',
-    glassBg: 'rgba(26,34,52,0.65)',
-    glassBorder: 'rgba(255,255,255,0.08)',
-
-    // Shimmer
-    shimmerBase: '#2A3346',
-    shimmerHighlight: '#334155',
-  },
+  light: { ...palette(L), shadowOpacity: 0.08 },
+  dark: { ...palette(D), shadowOpacity: 0.5 },
 };
 
 // ---------------------------------------------------------------------------
@@ -230,28 +163,28 @@ export const BorderRadius = {
 
 export const Shadows = {
   sm: {
-    shadowColor: '#0F172A',
+    shadowColor: L.brand.ink,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
   },
   md: {
-    shadowColor: '#0F172A',
+    shadowColor: L.brand.ink,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 4,
   },
   lg: {
-    shadowColor: '#0F172A',
+    shadowColor: L.brand.ink,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.12,
     shadowRadius: 24,
     elevation: 8,
   },
   xl: {
-    shadowColor: '#0F172A',
+    shadowColor: L.brand.ink,
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.18,
     shadowRadius: 32,
@@ -296,14 +229,14 @@ export const ZIndex = {
 export const Gradients = {
   primary: [BrandColors.primary, BrandColors.primaryLight],
   secondary: [BrandColors.secondary, BrandColors.secondaryLight],
-  hero: [BrandColors.primary, BrandColors.success],
+  hero: [BrandColors.primary, BrandColors.primaryLight],
   accent: [BrandColors.accent, BrandColors.accentDark],
   emergency: [BrandColors.error, BrandColors.errorLight],
-  dark: ['#0F172A', '#1E293B'],
+  dark: [L.brand.ink, L.service.ink.solid.to],
   sunset: [BrandColors.warning, BrandColors.error],
   ocean: [BrandColors.primaryDark, BrandColors.primary],
-  mint: [BrandColors.success, BrandColors.successLight],
-  premium: ['#1E293B', '#334155'],
+  mint: [L.service.mint.solid.from, L.service.mint.solid.to],
+  premium: [L.service.ink.solid.to, L.brand.ink],
   gold: [BrandColors.gold, BrandColors.bronze],
   maternity: [BrandColors.maternityDark, BrandColors.maternity],
   planning: [BrandColors.planningDark, BrandColors.planning],

@@ -43,8 +43,8 @@ export function GuaranteeLine({ guarantee, center, testID }: { guarantee: LateGu
   if (!guarantee) return null;
   return (
     <View testID={testID} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: center ? 'center' : 'flex-start', gap: 8, minHeight: 24 }}>
-      <Glyph name="clock-counter-clockwise" size={16} color={c.status.success.fg} />
-      <Text style={{ ...scale(t, 'meta', 'medium'), color: c.status.success.fg, flexShrink: 1, ...flow }}>{k('consult.guarantee.line', { minutes: num(guarantee.minutes), points: num(guarantee.points) })}</Text>
+      <Glyph name="clock-counter-clockwise" size={16} color={c.service.consult.glyph} />
+      <Text style={{ ...scale(t, 'meta', 'medium'), color: c.service.consult.glyph, flexShrink: 1, ...flow }}>{k('consult.guarantee.line', { minutes: num(guarantee.minutes), points: num(guarantee.points) })}</Text>
     </View>
   );
 }

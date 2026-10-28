@@ -6,6 +6,7 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { Button } from '../../../packages/ui-native/src';
 import { ConsultScreen, Gate, InfoRow, Section, type GateStatus } from '../../src/components/consult/ConsultKit';
 import { useServiceCartAction } from '../../src/components/cart/ServiceCartButton';
+import { diagArtKey } from '../../../packages/ui/icons/diag-art';
 import { DetailHead, ListCard, Mark, Price, diagLook, goBackDiag, useDiagText } from '../../src/components/diagnostics/DiagKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
@@ -92,7 +93,7 @@ export default function PackageDetail() {
       <Gate status={status} onRetry={() => void load()}>
         {pkg ? (
           <>
-            <DetailHead icon={look.icon} tone={look.tone} image={pkg.image} title={pkg.name} body={pkg.desc} />
+            <DetailHead icon={look.icon} tone={look.tone} art={diagArtKey({ kind: 'lab', names: [pkg.name] })} image={pkg.image} title={pkg.name} body={pkg.desc} />
             <ListCard>
               <View style={{ paddingHorizontal: 14 }}>
                 <InfoRow label={k('diag.detail.testsCount')} value={pkg.testsCount > 0 ? k('diag.detail.testsN', { n: num(pkg.testsCount) }) : ''} />
