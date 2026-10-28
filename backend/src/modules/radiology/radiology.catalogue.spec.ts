@@ -14,6 +14,8 @@ const centres = [
 function make() {
   const queries: any[] = [];
   const svcModel: any = {
+    // the offers the list adds (providers_count, from_price...) read the provider collections: here the centres of `centres` have no capability rows
+    db: { collection: () => ({ find: () => ({ toArray: async () => [] }) }) },
     find: jest.fn((q: any) => { queries.push(q); return { sort: () => ({ lean: () => Promise.resolve([...scans].sort((a, b) => b.popularity - a.popularity)) }), lean: () => Promise.resolve([...scans]) }; }),
   };
   const profileModel: any = { find: jest.fn(() => ({ lean: () => Promise.resolve(centres) })) };
@@ -28,6 +30,7 @@ describe('GET /radiology/services catalogue', () => {
     const out = await svc.list({});
     expect(out.map((s: any) => s.id)).toEqual(['s2', 's4', 's1', 's3']);
     expect(out.map((s: any) => s.category)).toEqual(['mri', 'ct', 'xray', 'mri']);
+    expect(out.every((s: any) => s.providers_count === 0 && s.from_price === null)).toBe(true);   // the catalogue lists a scan nobody offers yet
   });
 
   it('a page returns the true total', async () => {
