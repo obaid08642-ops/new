@@ -30,6 +30,41 @@ describe('POST /users/me/insurance', () => {
   });
 });
 
+describe('DELETE /users/me/insurance (QA I-03)', () => {
+  it('removes the caller\'s policy and answers fixed JSON; asking again is harmless', async () => {
+    const users: any = { clearPatientInsurance: jest.fn().mockResolvedValueOnce(true).mockResolvedValueOnce(false) };
+    const ctrl = new UsersInsuranceController(users);
+    expect(await ctrl.removeInsurance('u1')).toEqual({ success: true, removed: true });
+    expect(await ctrl.removeInsurance('u1')).toEqual({ success: true, removed: false });
+    expect(users.clearPatientInsurance).toHaveBeenCalledWith('u1');
+  });
+
+  const service = (profile: any) => {
+    const writes: any[] = [];
+    const emitted: any[] = [];
+    const svc: any = Object.create(UsersService.prototype);
+    svc.patientRepository = { findOne: async () => profile, updateOne: async (q: any, u: any) => { writes.push([q, u]); return {}; } };
+    svc.events = { emit: (n: string, p: any) => emitted.push([n, p]) };
+    return { svc, writes, emitted };
+  };
+
+  it('unsets only the insurance field of that user and releases a card picture held as media', async () => {
+    const { svc, writes, emitted } = service({ insurance: { provider: 'bupa', class: 'A', card_image_url: 'media:m1', pdf_url: 'https://x/y.pdf' } });
+    expect(await svc.clearPatientInsurance('u1')).toBe(true);
+    expect(writes).toEqual([[{ user_id: 'u1' }, { $unset: { insurance: '' } }]]);
+    expect(emitted).toEqual([['media.release', { ids: ['m1'], owner_id: 'u1' }]]);
+  });
+
+  it('with no policy it writes nothing and says so', async () => {
+    for (const profile of [null, {}, { insurance: null }, { insurance: {} }]) {
+      const { svc, writes, emitted } = service(profile);
+      expect(await svc.clearPatientInsurance('u1')).toBe(false);
+      expect(writes).toEqual([]);
+      expect(emitted).toEqual([]);
+    }
+  });
+});
+
 describe('PATCH /users/me/profile cannot write the insurance policy (D-30)', () => {
   it('a patient\'s profile update drops `insurance`, so verified, company and class cannot be set through it', async () => {
     const written: any[] = [];
