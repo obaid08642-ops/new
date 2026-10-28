@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AccessibilityInfo, Animated, Easing, Keyboard, Linking, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, FlatList, Keyboard, Linking, Platform, Pressable, ScrollView, Text, View, useWindowDimensions, type ViewToken } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 import * as Location from 'expo-location';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button, Chip, FIcon, Search, type FillIconName, type ServiceTone } from '../../../../packages/ui-native/src';
+import { SERVICE_ICONS } from '../../../../packages/ui/icons/fill';
 import MapView, { HologramLayer, Marker, PROVIDER_DEFAULT } from '../MapPrimitives';
 import { HOLO_KINDS, HOLO_LOOK, holoMotion, isHoloKind, toFeatureCollection, type HoloKind } from '../map-hologram';
 import { Chevron, Sheet, goBack } from '../consult/ConsultKit';
@@ -15,6 +16,8 @@ import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { pickLocalized } from '../../utils/localize';
 import { parseMapKind } from '../../utils/mapEntry';
+import { getSelectedAddress } from '../../utils/selectedAddress';
+import { cardWidth, filterProviders, mapPhase, pickViewable, resolveCentre, savedPoint, sortNearest, type Point } from '../map-explorer';
 
 /**
  * The providers map (`/map`, restyle): GET /providers/map?type&lat&lng&radius around the phone's position, and GET /user/insurance for the
@@ -22,6 +25,11 @@ import { parseMapKind } from '../../utils/mapEntry';
  * and price are drawn only when the server sent them. Every provider is a hologram pin in its kind's service tone, drawn by the
  * map's native clustered layers; the selected one is a React marker with a beam, a lifted icon bubble and a pulse ring. A tap opens the
  * provider's sheet with directions and the way to book.
+ *
+ * Full-screen map first: the type chips on top, a bottom carousel of small provider cards ordered nearest first and kept in step with the
+ * markers (a tap on a marker scrolls its card in and a swipe to a card pans the map to it), and the list as a secondary toggle. The map is
+ * drawn when there is nothing to show too, with a friendly card on top. Without the phone's position it is centred on the selected
+ * (else default) saved address, else on the default centre.
  */
 
 type Kind = HoloKind;
@@ -109,6 +117,21 @@ function HologramPin({ kind, name }: { kind: Kind; name: string }) {
   );
 }
 
+/** A small provider card: the carousel's item and the list's row. The rating and the distance are drawn only when the server sent them. */
+function ProviderCard({ p, width, on, onPress }: { p: Provider; width: number | undefined; on: boolean; onPress: () => void }) {
+  const { k, theme, t, c, flow, num } = useScreenUi();
+  return (
+    <Pressable accessibilityRole="button" accessibilityState={{ selected: on }} accessibilityLabel={[p.name, k(`map.kind.${p.kind}`)].join(', ')} onPress={onPress} style={{ width, borderRadius: 20, padding: 12, gap: 6, backgroundColor: c.bg.surface, borderWidth: on ? 2 : 1, borderColor: on ? c.action.primary.bg : c.border.hairline }} testID={`map-card-${p.id}`}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+        <FIcon icon={LOOK[p.kind].icon} tone={LOOK[p.kind].tone} chip="soft" size={36} theme={theme} />
+        {p.isOpen !== null ? <Text style={{ ...scale(t, 'tag', 'bold'), color: p.isOpen ? c.status.success.fg : c.status.danger.fg }}>{k(p.isOpen ? 'map.open' : 'map.closed')}</Text> : null}
+      </View>
+      <Text numberOfLines={1} style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{p.name}</Text>
+      <Text numberOfLines={1} style={{ ...scale(t, 'tag', 'regular'), color: c.text.secondary, ...flow }}>{[k(`map.kind.${p.kind}`), p.rating !== null ? num(p.rating, { maximumFractionDigits: 1 }) : '', p.distance !== null ? k('map.km', { n: num(p.distance, { maximumFractionDigits: 1 }) }) : ''].filter(Boolean).join(' · ')}</Text>
+    </Pressable>
+  );
+}
+
 export function ProvidersMapView() {
   const insets = useSafeAreaInsets();
   const { k, theme, t, c, flow, isRTL, num, money } = useScreenUi();
@@ -123,6 +146,15 @@ export function ProvidersMapView() {
   }, [typeParam]);
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<Provider | null>(null);
+  // the sheet with directions and booking: opened from a card, not by the marker, so the carousel stays in view
+  const [detail, setDetail] = useState<Provider | null>(null);
+  const [view, setView] = useState<'map' | 'list'>('map');
+  const [headerH, setHeaderH] = useState(160);
+  const [saved, setSaved] = useState<Point | null>(null);
+  const { width: screenWidth } = useWindowDimensions();
+  const cardRef = useRef<FlatList<Provider>>(null);
+  const selectedId = useRef<string | null>(null);
+  const scrollTarget = useRef<string | null>(null);
   const [insurance, setInsurance] = useState<string | null>(null);
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -167,7 +199,11 @@ export function ProvidersMapView() {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
-          await fetchProviders();
+          // no position: the selected (else default) saved address centres the map and the area read
+          const here = savedPoint(await getSelectedAddress());
+          setSaved(here);
+          if (here) mapRef.current?.animateToRegion({ latitude: here.lat, longitude: here.lng, latitudeDelta: 0.06, longitudeDelta: 0.06 }, 800);
+          await fetchProviders(here?.lat, here?.lng);
           return;
         }
         const here = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
@@ -177,35 +213,57 @@ export function ProvidersMapView() {
         await fetchProviders(point.lat, point.lng);
       } catch (e) {
         logError('map:position', e);
-        await fetchProviders();
+        const here = savedPoint(await getSelectedAddress());
+        setSaved(here);
+        if (here) mapRef.current?.animateToRegion({ latitude: here.lat, longitude: here.lng, latitudeDelta: 0.06, longitudeDelta: 0.06 }, 800);
+        await fetchProviders(here?.lat, here?.lng);
       } finally {
         setLoading(false);
       }
     })();
   }, [fetchProviders]);
 
-  const shown = useMemo(
-    () =>
-      providers.filter((p) => {
-        const typeOk = kind === 'all' || p.kind === kind;
-        const text = query.trim().toLowerCase();
-        return typeOk && (!text || p.name.toLowerCase().includes(text) || p.specialties.some((s) => s.toLowerCase().includes(text)));
-      }),
-    [providers, kind, query],
-  );
+  const centre = useMemo(() => resolveCentre(position, saved).point, [position, saved]);
+  const shown = useMemo(() => sortNearest(filterProviders(providers, kind, query), centre), [providers, kind, query, centre]);
+  const phase = mapPhase({ loading, failed, total: providers.length, shown: shown.length, filtered: kind !== 'all' || query.trim() !== '' });
   const results = query.trim() ? shown.slice(0, 6) : [];
   const features = useMemo(() => toFeatureCollection(shown), [shown]);
   const viewDelta = useRef(START.latitudeDelta);
+  const shownRef = useRef<Provider[]>([]);
+  shownRef.current = shown;
 
   const focus = (p: Provider, delta = 0.015) => {
     if (p.lat !== null && p.lng !== null) mapRef.current?.animateToRegion({ latitude: p.lat, longitude: p.lng, latitudeDelta: delta, longitudeDelta: delta }, 800);
   };
+  const choose = (p: Provider) => {
+    selectedId.current = p.id;
+    setSelected(p);
+    focus(p);
+  };
+  /** A search hit or a marker: select it, pan to it and scroll its card in. */
   const pick = (p: Provider) => {
     Keyboard.dismiss();
     setQuery('');
-    focus(p);
-    setSelected(p);
+    choose(p);
+    const index = shown.findIndex((row) => row.id === p.id);
+    if (index >= 0 && view === 'map') {
+      scrollTarget.current = p.id;
+      cardRef.current?.scrollToIndex({ index, animated: true, viewPosition: 0.5 });
+    }
   };
+  /** A swipe settled on one card: the map pans to its provider. */
+  const onCardsViewable = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
+    const key = pickViewable(viewableItems.map((v) => ({ key: String(v.key), isViewable: v.isViewable })));
+    if (!key) return;
+    if (scrollTarget.current) {
+      // a scroll the screen started itself (marker, search): ignore the cards it passes until it arrives
+      if (key === scrollTarget.current) scrollTarget.current = null;
+      return;
+    }
+    if (key === selectedId.current) return;
+    const next = shownRef.current.find((row) => row.id === key);
+    if (next) choose(next);
+  }).current;
   const goToMe = async () => {
     try {
       let point = position;
@@ -227,7 +285,7 @@ export function ProvidersMapView() {
     if (url) void Linking.openURL(url).catch(() => undefined);
   };
   const book = (p: Provider) => {
-    setSelected(null);
+    setDetail(null);
     if (p.kind === 'doctor') router.push({ pathname: '/consultations/doctor-profile', params: { doctorId: p.id } } as unknown as Href);
     else if (p.kind === 'pharmacy') router.push('/(tabs)/pharmacy' as Href);
     else if (p.kind === 'lab' || p.kind === 'radiology') router.push('/diagnostics/book-sample' as Href);
@@ -238,12 +296,12 @@ export function ProvidersMapView() {
   };
 
   const panel = tint(c.bg.surface, 0.96);
-  const stats: { icon: FillIconName; value: string; label: string }[] = selected
+  const stats: { icon: FillIconName; value: string; label: string }[] = detail
     ? [
-        ...(selected.distance !== null ? [{ icon: 'map-pin' as FillIconName, value: k('map.km', { n: num(selected.distance, { maximumFractionDigits: 1 }) }), label: k('map.distance') }] : []),
-        ...(selected.eta !== null ? [{ icon: 'clock-counter-clockwise' as FillIconName, value: k('map.min', { n: num(selected.eta) }), label: k('map.eta') }] : []),
-        ...(selected.rating !== null ? [{ icon: 'star' as FillIconName, value: num(selected.rating, { maximumFractionDigits: 1 }), label: k('map.reviews', { n: num(selected.reviews) }) }] : []),
-        ...(selected.price !== null && selected.price > 0 ? [{ icon: 'receipt' as FillIconName, value: `${money(selected.price)} ${k('pharmacy.currency')}`, label: k('map.price') }] : []),
+        ...(detail.distance !== null ? [{ icon: 'map-pin' as FillIconName, value: k('map.km', { n: num(detail.distance, { maximumFractionDigits: 1 }) }), label: k('map.distance') }] : []),
+        ...(detail.eta !== null ? [{ icon: 'clock-counter-clockwise' as FillIconName, value: k('map.min', { n: num(detail.eta) }), label: k('map.eta') }] : []),
+        ...(detail.rating !== null ? [{ icon: 'star' as FillIconName, value: num(detail.rating, { maximumFractionDigits: 1 }), label: k('map.reviews', { n: num(detail.reviews) }) }] : []),
+        ...(detail.price !== null && detail.price > 0 ? [{ icon: 'receipt' as FillIconName, value: `${money(detail.price)} ${k('pharmacy.currency')}`, label: k('map.price') }] : []),
       ]
     : [];
 
@@ -253,17 +311,17 @@ export function ProvidersMapView() {
         <HologramLayer
           data={features}
           selectedId={selected?.id ?? null}
-          onSelect={(id) => { const p = providers.find((row) => row.id === id); if (p) { Keyboard.dismiss(); setSelected(p); } }}
+          onSelect={(id) => { const p = providers.find((row) => row.id === id); if (p) pick(p); }}
           onCluster={([lng, lat]) => mapRef.current?.animateToRegion({ latitude: lat, longitude: lng, latitudeDelta: viewDelta.current / 3, longitudeDelta: viewDelta.current / 3 }, 500)}
         />
         {selected && selected.lat !== null && selected.lng !== null ? (
-          <Marker coordinate={{ latitude: selected.lat, longitude: selected.lng }} tracksViewChanges={false} onPress={() => setSelected(null)}>
+          <Marker coordinate={{ latitude: selected.lat, longitude: selected.lng }} tracksViewChanges={false} onPress={() => setDetail(selected)}>
             <HologramPin kind={selected.kind} name={selected.name} />
           </Marker>
         ) : null}
       </MapView>
 
-      <View pointerEvents="box-none" style={{ position: 'absolute', top: 0, start: 0, end: 0, paddingTop: insets.top + 8, paddingBottom: 8, paddingHorizontal: 16, gap: 10, backgroundColor: panel }}>
+      <View pointerEvents="box-none" onLayout={(e) => setHeaderH(e.nativeEvent.layout.height)} style={{ position: 'absolute', top: 0, start: 0, end: 0, paddingTop: insets.top + 8, paddingBottom: 8, paddingHorizontal: 16, gap: 10, backgroundColor: panel }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <Pressable accessibilityRole="button" accessibilityLabel={k('consult.back')} onPress={() => goBack('/(tabs)' as Href)} style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }}>
             <Chevron back={!isRTL} />
@@ -287,6 +345,7 @@ export function ProvidersMapView() {
           </View>
         ) : null}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" accessibilityRole="tablist" contentContainerStyle={{ gap: 8 }}>
+          <Chip label={k(view === 'map' ? 'map.viewList' : 'map.viewMap')} selected={false} onPress={() => setView(view === 'map' ? 'list' : 'map')} theme={theme} testID="map-view-toggle" />
           <Chip label={k('map.kind.all')} selected={kind === 'all'} onPress={() => setKind('all')} theme={theme} testID="map-kind-all" />
           {KINDS.map((key) => (
             <Chip key={key} label={k(`map.kind.${key}`)} selected={kind === key} onPress={() => setKind(key)} theme={theme} testID={`map-kind-${key}`} />
@@ -299,36 +358,62 @@ export function ProvidersMapView() {
           </View>
         ) : loading ? (
           <Notice tone="info" text={k('common.loading')} />
-        ) : providers.length === 0 ? (
-          <Notice tone="info" text={k('map.empty')} />
         ) : null}
       </View>
 
-      <Pressable accessibilityRole="button" accessibilityLabel={k('map.myLocation')} onPress={() => void goToMe()} style={{ position: 'absolute', end: 16, bottom: insets.bottom + (shown.length > 0 && !selected ? 132 : 24), width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }} testID="map-my-location">
+      <Pressable accessibilityRole="button" accessibilityLabel={k('map.myLocation')} onPress={() => void goToMe()} style={{ position: 'absolute', end: 16, bottom: insets.bottom + (view === 'map' && shown.length > 0 ? 148 : 24), width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }} testID="map-my-location">
         <Glyph name="map-pin-line" size={22} color={c.service.map.glyph} />
       </Pressable>
 
-      {!selected && shown.length > 0 ? (
+      {view === 'map' && shown.length > 0 ? (
         <View pointerEvents="box-none" style={{ position: 'absolute', start: 0, end: 0, bottom: 0, paddingBottom: insets.bottom + 8 }}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}>
-            {shown.slice(0, 5).map((p) => (
-              <Pressable key={p.id} accessibilityRole="button" accessibilityLabel={[p.name, k(`map.kind.${p.kind}`)].join(', ')} onPress={() => pick(p)} style={{ width: 168, borderRadius: 20, padding: 12, gap: 6, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }} testID={`map-card-${p.id}`}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                  <FIcon icon={LOOK[p.kind].icon} tone={LOOK[p.kind].tone} chip="soft" size={36} theme={theme} />
-                  {p.isOpen !== null ? <Text style={{ ...scale(t, 'tag', 'bold'), color: p.isOpen ? c.status.success.fg : c.status.danger.fg }}>{k(p.isOpen ? 'map.open' : 'map.closed')}</Text> : null}
-                </View>
-                <Text numberOfLines={1} style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{p.name}</Text>
-                <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.secondary, ...flow }}>{[p.rating !== null ? num(p.rating, { maximumFractionDigits: 1 }) : '', p.distance !== null ? k('map.km', { n: num(p.distance, { maximumFractionDigits: 1 }) }) : ''].filter(Boolean).join(' · ')}</Text>
-              </Pressable>
-            ))}
-          </ScrollView>
+          <FlatList
+            ref={cardRef}
+            horizontal
+            data={shown.slice(0, 40)}
+            keyExtractor={(p) => p.id}
+            showsHorizontalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            snapToInterval={cardWidth(screenWidth) + 12}
+            decelerationRate="fast"
+            contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
+            getItemLayout={(_, index) => ({ length: cardWidth(screenWidth) + 12, offset: 16 + index * (cardWidth(screenWidth) + 12), index })}
+            viewabilityConfig={{ itemVisiblePercentThreshold: 80, minimumViewTime: 120 }}
+            onViewableItemsChanged={onCardsViewable}
+            onScrollToIndexFailed={() => { scrollTarget.current = null; }}
+            testID="map-carousel"
+            renderItem={({ item: p }) => <ProviderCard p={p} width={cardWidth(screenWidth)} on={selected?.id === p.id} onPress={() => { choose(p); setDetail(p); }} />}
+          />
         </View>
       ) : null}
 
-      <Sheet open={selected !== null} title={selected?.name ?? ''} onClose={() => setSelected(null)} closeLabel={k('consult.close')}>
-        {selected ? (
+      {view === 'list' ? (
+        <View style={{ position: 'absolute', top: 0, bottom: 0, start: 0, end: 0, backgroundColor: c.bg.canvas, paddingTop: headerH + 12 }} testID="map-list">
+          <FlatList
+            data={shown}
+            keyExtractor={(p) => p.id}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: insets.bottom + 24, gap: 12 }}
+            ListEmptyComponent={<Notice tone="info" text={k('map.empty')} />}
+            renderItem={({ item: p }) => <ProviderCard p={p} width={undefined} on={selected?.id === p.id} onPress={() => { choose(p); setDetail(p); }} />}
+          />
+        </View>
+      ) : null}
+
+      {phase === 'empty' || phase === 'emptyFiltered' ? (
+        <View pointerEvents="box-none" style={{ position: 'absolute', start: 16, end: 16, bottom: insets.bottom + 16 }} testID="map-empty-card">
+          <View style={{ borderRadius: 24, padding: 16, gap: 8, alignItems: 'center', backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }}>
+            <FIcon icon={SERVICE_ICONS.map.icon} tone={SERVICE_ICONS.map.tone} chip="soft" size={44} theme={theme} />
+            <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, textAlign: 'center' }}>{k(phase === 'empty' ? 'map.emptyNearTitle' : 'map.emptyKindTitle')}</Text>
+            <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k(phase === 'empty' ? 'map.emptyNearBody' : 'map.emptyKindBody')}</Text>
+            {phase === 'emptyFiltered' ? <Button label={k('map.showAll')} variant="outline" size="sm" onPress={() => { setKind('all'); setQuery(''); }} theme={theme} testID="map-show-all" /> : null}
+          </View>
+        </View>
+      ) : null}
+
+      <Sheet open={detail !== null} title={detail?.name ?? ''} onClose={() => setDetail(null)} closeLabel={k('consult.close')}>
+        {detail ? (
           <>
-            <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{[k(`map.kind.${selected.kind}`), selected.specialties.join(' · ')].filter(Boolean).join(' · ')}</Text>
+            <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{[k(`map.kind.${detail.kind}`), detail.specialties.join(' · ')].filter(Boolean).join(' · ')}</Text>
             {stats.length > 0 ? (
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
                 {stats.map((stat) => (
@@ -340,21 +425,21 @@ export function ProvidersMapView() {
                 ))}
               </View>
             ) : null}
-            {insurance && selected.insurance.includes(insurance) ? (
+            {insurance && detail.insurance.includes(insurance) ? (
               <Notice tone="success" text={k('map.insuranceOk', { name: insurance })} />
             ) : (
-              <Pressable accessibilityRole="button" accessibilityLabel={k('map.insuranceSetup')} onPress={() => { setSelected(null); router.push('/profile/insurance' as Href); }}>
+              <Pressable accessibilityRole="button" accessibilityLabel={k('map.insuranceSetup')} onPress={() => { setDetail(null); router.push('/profile/insurance' as Href); }}>
                 <Notice tone="info" text={k('map.insuranceSetup')} />
               </Pressable>
             )}
             <View style={{ flexDirection: 'row', gap: 10 }}>
-              {selected.lat !== null && selected.lng !== null ? (
+              {detail.lat !== null && detail.lng !== null ? (
                 <View style={{ flex: 1 }}>
-                  <Button label={k('map.directions')} variant="outline" size="lg" fullWidth onPress={() => directions(selected)} theme={theme} testID="map-directions" />
+                  <Button label={k('map.directions')} variant="outline" size="lg" fullWidth onPress={() => directions(detail)} theme={theme} testID="map-directions" />
                 </View>
               ) : null}
               <View style={{ flex: 1 }}>
-                <Button label={k(`map.book.${selected.kind}`)} size="lg" fullWidth onPress={() => book(selected)} theme={theme} testID="map-book" />
+                <Button label={k(`map.book.${detail.kind}`)} size="lg" fullWidth onPress={() => book(detail)} theme={theme} testID="map-book" />
               </View>
             </View>
           </>
