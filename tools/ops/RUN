@@ -1,6 +1,23 @@
-# 2026-10-28 lead reviewer: run 44 (owner: free the space, delete old images and backups, explain what fills the disk, open uploads).
-# 92c: full breakdown of the disk and memory, then removes old release folders, old rollback image tags and unused images, the build
-# cache, and every local backup except the newest of each kind (the nightlies stay on R2). Never touches the running release or any
-# docker volume (database, redis, search). 91b: DRY RUN of the upload switch (prints what it would change and the memory it needs).
-92c-free-deep
-91b-upload-scan-defer
+# 2026-10-28 lead reviewer: run 45, the owner's morning run.
+# 1. Pause the ar+en translation, saving its answers on the host.
+# 2. Free disk, deploy main@5d01bc98: translation fix (#2060: failed answers no longer counted, refused providers retired, stats file),
+#    catalogue as the single source + notify-me (#2067), per-service provider options (#2069), radiology data step (#2062), test-data
+#    finder (#2064), OTA config (#2061), Cloudflare cache rules code (#2055/#2056).
+# 3. READ-ONLY: 77-test-data-find (ids + what each is linked to); 90-catalogue-apply DRY RUN (prints the radiology clean-up and the
+#    test-data removal plan with its hash; nothing written). Applying either is a separate run after the owner reads the numbers.
+# 4. Resume the ar+en translation (same requests; only unanswered ones are sent), then print its per-provider stats.
+# 5. Cloudflare: cache rules for the anonymous public API, public HTML pages and images; each apply proves itself (MISS→HIT, no HIT
+#    with a session cookie or Authorization, no personal page cached) and puts the old rules back on any failed check.
+98c-translate-pause
+release:5d01bc9887ed63ab2032c074240192fe623e7169
+97-free-old-predeploy
+93-free-unused-images
+60-deploy-main
+77-test-data-find
+90-catalogue-apply
+98-translate-content
+98b-translate-progress
+cf:45-public-api-cache-apply
+cf:46-public-html-cache-apply
+cf:47-public-assets-api-cache-apply
+cf-purge-api

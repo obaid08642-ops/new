@@ -16,6 +16,12 @@
 # The districts extract ships INSIDE the image (backend/src/modules/location/data/districts-extract.v1.json) and is used by default.
 # Optional inputs on the host (skipped when absent): $IN/districts.json  (an OVERRIDE of the packaged extract, same format)
 #                                                    $IN/approved-name-fixes.csv  (the owner-approved rows of fix-catalogue-names)
+#                                                    $IN/product-translations.json  (missing product texts translated from the existing ones by
+#                                                       scripts/translate-product-content.ts; written only into EMPTY fields, marked machine-translated)
+#                                                    $IN/radiology-approve.json  ({"approve": ["MAMMO", ...]}: the radiology scans a medical reviewer approved to show to
+#                                                       patients; without it the radiology step only hides the legacy duplicates and approves nothing)
+#                                                    $IN/test-data-remove.json  ({"profile_ids": ["<provider profile id>", ...]}: the test providers the owner approved removing
+#                                                       after reading 77-test-data-find; each is deleted with its account, sessions and everything that points at it)
 # After a change of medicine names, add `cf-purge-api` to tools/ops/RUN for that run so the cached product pages refresh.
 set -u
 EXPECT_PLAN_SHA=""
@@ -45,7 +51,16 @@ fi
 if sudo -n test -f "$IN/approved-name-fixes.csv"; then
   sudo -n cat "$IN/approved-name-fixes.csv" | $DK exec -i "$CT" sh -c 'cat > /tmp/cat-name-fixes.csv' && ARGS="$ARGS --name-fixes=/tmp/cat-name-fixes.csv" && say "input approved-name-fixes.csv copied in"
 fi
-cleanup_inputs() { $DK exec "$CT" sh -c 'rm -f /tmp/cat-districts.json /tmp/cat-name-fixes.csv' >/dev/null 2>&1; }
+if sudo -n test -f "$IN/product-translations.json"; then
+  sudo -n cat "$IN/product-translations.json" | $DK exec -i "$CT" sh -c 'cat > /tmp/cat-product-translations.json' && ARGS="$ARGS --product-translations=/tmp/cat-product-translations.json" && say "input product-translations.json copied in"
+fi
+if sudo -n test -f "$IN/radiology-approve.json"; then
+  sudo -n cat "$IN/radiology-approve.json" | $DK exec -i "$CT" sh -c 'cat > /tmp/cat-radiology-approve.json' && ARGS="$ARGS --radiology-approve=/tmp/cat-radiology-approve.json" && say "input radiology-approve.json copied in"
+fi
+if sudo -n test -f "$IN/test-data-remove.json"; then
+  sudo -n cat "$IN/test-data-remove.json" | $DK exec -i "$CT" sh -c 'cat > /tmp/cat-test-data-remove.json' && ARGS="$ARGS --test-data-remove=/tmp/cat-test-data-remove.json" && say "input test-data-remove.json copied in"
+fi
+cleanup_inputs() { $DK exec "$CT" sh -c 'rm -f /tmp/cat-districts.json /tmp/cat-name-fixes.csv /tmp/cat-product-translations.json /tmp/cat-radiology-approve.json /tmp/cat-test-data-remove.json' >/dev/null 2>&1; }
 
 # --- 1. plan
 PLAN=$(tool plan $ARGS); RC=$?
