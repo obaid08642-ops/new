@@ -34,6 +34,8 @@ import type {
 import { Icon, IllustratedIconView } from '../Icon';
 import { FIcon } from './FIcon';
 import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, SERVICE_ICONS } from '../../../ui/icons/fill';
+import { NAV_ART, NAV_ART_TONE, NAV_ART_VIEWBOX, type NavArtKey } from '../../../ui/icons/nav-art';
+import type { CategoryArtRole } from '../../../ui/icons/category-art';
 import { TabBar as ShellTabBar } from '../shells/TabBar';
 import { tokens } from '../../../design-tokens/dist/ts/tokens';
 import { withAlpha } from '../shells/shellTokens';
@@ -640,6 +642,20 @@ export function NavBar({ title, showBack = false, backLabel = 'Back', actions = 
  * label, raised coral centre), fed the handoff fill glyphs. Render it inside a
  * SafeAreaProvider; it floats above the bottom inset.
  */
+/** The duotone picture of a tab (icons/nav-art.ts) with react-native-svg; each role reads the token its CSS variable names. */
+function NavArtView({ art, theme, size, selected }: { art: NavArtKey; theme: 'light' | 'dark'; size: number; selected: boolean }) {
+  const t = tokens(theme);
+  const tone = t.color.service[NAV_ART_TONE[art]];
+  const role: Record<CategoryArtRole, string> = { bg: tone.bg, fg: tone.fg, ink: t.color.text.primary, coral: t.color.brand.coral, surface: t.color.bg.surface };
+  return (
+    <Svg width={size} height={size} viewBox={NAV_ART_VIEWBOX} opacity={selected ? 1 : 0.72}>
+      {NAV_ART[art].map((sh, i) => (
+        <Path key={i} d={sh.d} fill={sh.fill ? role[sh.fill] : 'none'} stroke={sh.stroke ? role[sh.stroke] : undefined} strokeWidth={sh.sw} strokeLinecap="round" strokeLinejoin="round" />
+      ))}
+    </Svg>
+  );
+}
+
 export function BottomTabBar({ items, value, onChange, label = 'Main navigation', testID, theme = 'light' }: BottomTabBarProps & { theme?: 'light' | 'dark' }) {
   return (
     <ShellTabBar
@@ -648,16 +664,29 @@ export function BottomTabBar({ items, value, onChange, label = 'Main navigation'
       theme={theme}
       value={value}
       onChange={(key) => onChange?.(key)}
-      items={items.map((item) => ({
-        key: item.id,
-        label: item.label,
-        raised: item.raised,
-        icon: (color: string, size: number) => (
-          <Svg width={size} height={size} viewBox={FILL_ICON_VIEWBOX}>
-            <Path d={FILL_ICON_PATHS[item.icon]} fill={color} />
-          </Svg>
-        ),
-      }))}
+      items={items.map((item) => {
+        const art = item.art && !item.raised ? item.art : null;
+        if (art) {
+          const tone = tokens(theme).color.service[NAV_ART_TONE[art]];
+          const text = tokens(theme).color.text.primary;
+          return {
+            key: item.id,
+            label: item.label,
+            tint: { bg: tone.bg, fg: text },
+            icon: (_color: string, size: number, selected: boolean) => <NavArtView art={art} theme={theme} size={size} selected={selected} />,
+          };
+        }
+        return {
+          key: item.id,
+          label: item.label,
+          raised: item.raised,
+          icon: (color: string, size: number) => (
+            <Svg width={size} height={size} viewBox={FILL_ICON_VIEWBOX}>
+              <Path d={FILL_ICON_PATHS[item.icon]} fill={color} />
+            </Svg>
+          ),
+        };
+      })}
     />
   );
 }

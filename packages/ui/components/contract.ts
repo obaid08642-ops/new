@@ -58,6 +58,7 @@ export type Tone = 'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'i
 import type { ReactNode } from 'react';
 
 import type { IconName } from '../icons/names';
+import type { NavArtKey } from '../icons/nav-art';
 import type { FillIconName, ServiceName, ServiceTone } from '../icons/fill';
 
 /**
@@ -566,6 +567,8 @@ export interface BottomTabItem {
   id: string;
   label: string;
   icon: FillIconName;
+  /** Duotone illustration of the tab (icons/nav-art.ts); drawn in its service tone instead of the fill glyph. The raised centre button keeps the glyph. */
+  art?: NavArtKey;
   /** The raised coral centre button (Consultations). At most one item. */
   raised?: boolean;
   badge?: string | number;

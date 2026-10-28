@@ -525,6 +525,22 @@ describe("handoff §3 — states and the main tab bar (components 4/4) match the
     expect(html.match(/<span aria-hidden="true">/g)).toHaveLength(1);
     expect(html).toContain(`d="${FILL_ICON_PATHS.stethoscope}"`);
   });
+
+  it("BottomTabBar draws an illustrated tab in its service tone: tone class, role classes, no style attribute, tinted active pill", () => {
+    const html = markup(BottomTabBar, { label: "x", value: "labs", items: [
+      { id: "home", art: "home", label: "h", icon: "house" },
+      { id: "labs", art: "labs", label: "l", icon: "test-tube" },
+      { id: "consult", art: "consult", label: "c", icon: "stethoscope", raised: true },
+    ] });
+    expect(html).toContain("nabd-tone--amber");
+    expect(html).toContain("nabd-tone--mint");
+    expect(html).toContain("nabd-nav-art__f-fg");
+    expect(html).toContain("nabd-bottom-tab-bar__item--art");
+    expect(html).not.toContain(`d="${FILL_ICON_PATHS["test-tube"]}"`);
+    // the raised centre keeps the glyph on the coral button
+    expect(html).toContain(`d="${FILL_ICON_PATHS.stethoscope}"`);
+    expect(html.match(/aria-current="page"/g)).toHaveLength(1);
+  });
 });
 
 describe("12.A7 — the gallery has every component", () => {
