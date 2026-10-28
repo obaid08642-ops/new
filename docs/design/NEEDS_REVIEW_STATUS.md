@@ -9,24 +9,24 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 0 | 333 | 97 | 4 | 0 |
-| Other | 357 | 304 | 50 | 3 | 0 | 0 |
+| Other | 358 | 305 | 50 | 3 | 0 | 0 |
 | Admin | 99 | 0 | 65 | 34 | 0 | 0 |
 | Admin journeys | 20 | 0 | 18 | 2 | 0 | 0 |
 | Final pass | 8 | 0 | 2 | 6 | 0 | 0 |
 | Patient journeys | 87 | 0 | 85 | 2 | 0 | 0 |
 | Provider app | 31 | 0 | 27 | 4 | 0 | 0 |
 | Provider journeys | 34 | 0 | 32 | 2 | 0 | 0 |
-| **Total** | **1070** | **304** | **612** | **150** | **4** | **0** |
+| **Total** | **1071** | **305** | **612** | **150** | **4** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | client | 257 | 81 | 135 | 41 | 0 | 0 |
-| owner | 149 | 49 | 57 | 42 | 1 | 0 |
+| owner | 150 | 50 | 57 | 42 | 1 | 0 |
 | backend | 425 | 173 | 222 | 30 | 0 | 0 |
 | untagged | 239 | 1 | 198 | 37 | 3 | 0 |
-| **Total** | **1070** | **304** | **612** | **150** | **4** | **0** |
+| **Total** | **1071** | **305** | **612** | **150** | **4** | **0** |
 
 ## By file
 
@@ -111,8 +111,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `m6-visual-app.json` | 16 | 16 | 0 | 0 | 0 | 0 |
 | `m6-visual-web.json` | 10 | 8 | 2 | 0 | 0 | 0 |
 | `owner-review-g1.json` | 1 | 1 | 0 | 0 | 0 | 0 |
-| `owner-review-g3.json` | 5 | 5 | 0 | 0 | 0 | 0 |
-| `owner-review-g4.json` | 14 | 10 | 4 | 0 | 0 | 0 |
+| `owner-review-g3.json` | 2 | 2 | 0 | 0 | 0 | 0 |
+| `owner-review-g4.json` | 15 | 11 | 4 | 0 | 0 | 0 |
 | `owner-review-g5.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `owner-review-g6.json` | 8 | 2 | 6 | 0 | 0 | 0 |
 | `parity-account.json` | 16 | 16 | 0 | 0 | 0 | 0 |
@@ -134,13 +134,14 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `provider-radiology.json` | 1 | 0 | 1 | 0 | 0 | 0 |
 | `provider-shared.json` | 6 | 0 | 6 | 0 | 0 | 0 |
 | `providers-map.json` | 3 | 3 | 0 | 0 | 0 | 0 |
+| `r7-map.json` | 3 | 3 | 0 | 0 | 0 | 0 |
 | `rx-rules-app.json` | 6 | 0 | 6 | 0 | 0 | 0 |
 | `rx-rules-web.json` | 7 | 0 | 7 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 0 | 0 | 1 | 0 | 0 |
 | `tooling.json` | 13 | 0 | 12 | 1 | 0 | 0 |
 | `web-public-ink.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `web-voice-notes.json` | 2 | 2 | 0 | 0 | 0 | 0 |
-| **Total** | **1070** | **304** | **612** | **150** | **4** | **0** |
+| **Total** | **1071** | **305** | **612** | **150** | **4** | **0** |
 
 ## Owner decisions (4)
 
@@ -151,7 +152,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 3 | `batch-1a-app.json#18` `patient-app/src/i18n/locales/en.json:0` | /pharmacy Six-language strings | 177 pharmacy.* keys were added to patient-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json. The English, Urdu, Hindi, Bengali and Filipino text was written by the design session (and, for reused phrases, taken from the phr… |
 | 4 | `batch-1d-web.json#1` `backend/src/modules/payments/payments.module.ts:154` | /pharmacy/payment Payment provider not exercised | No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only against a TEST stand-in outside the repo (… |
 
-## Open and unverified (304)
+## Open and unverified (305)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -349,11 +350,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `m6-visual-web.json#8` | client | open | Ord11 results Results live inside the booking page; the board has a dedicated r… | [client] Values, flag, range bar and trend are now drawn from the endpoint; the rating form and instant-consultation sheet are not (no rating endpoint found). |
 | `m6-visual-web.json#9` | client | open | Ord02/Ord04 (1280) Sticky basket side card still not drawn | [client] Left from pass one (not cheap: needs a two-column hub layout). |
 | `owner-review-g1.json#0` | client | open | /nursing/service-details Cart button on the nursing screens | [client] Owner review 2026-10-27 G1 lists nursing among the screens with a cart. The app has no nursing cart (a home visit is booked straight away; utils/serviceCarts.ts has pharm… |
-| `owner-review-g3.json#0` | backend | open | /doctor/[slug] Doctor photo, clinic photos, about, education and reviews on the… | [backend] GET /entity-graph/related/doctor/:slug (the only read of this ISR page) sends no photo, clinic photos, bio, languages, education or reviews, so the public page cannot dr… |
-| `owner-review-g3.json#1` | client | open | /doctor/[slug] Large photo slot of the public doctor page | [client] ProfileHeader is drawn with the service icon and not largePhoto because the entity record has no photo; a big empty tile would be a placeholder. |
-| `owner-review-g3.json#2` | backend | open | /doctor/[slug] Times for a signed-out visitor | [backend] The web slots route answers 401 without a session although GET /care/doctors/:id/slots has a public read (getPublicDoctorSlots in doctors-server.ts); a signed-out visito… |
-| `owner-review-g3.json#3` | backend | open | /consultations/doctors/[doctorId] Waiting time piece of the summary line | [backend] The waiting time is drawn only when GET /care/doctors/:id sends avg_wait_minutes / average_wait / wait_time; if the field is absent the piece is left out (not confirmed … |
-| `owner-review-g3.json#4` | backend | open | /consultations/doctor/[id] Waiting time piece of the summary line | [backend] `wait_time` is not sent by GET /care/doctors/:id (see doctor-card-app.json), so the waiting-time piece of the summary line is omitted. |
+| `owner-review-g3.json#0` | backend | open | /consultations/doctors/[doctorId] Waiting time piece of the summary line | [backend] The waiting time is drawn only when GET /care/doctors/:id sends avg_wait_minutes / average_wait / wait_time; if the field is absent the piece is left out (not confirmed … |
+| `owner-review-g3.json#1` | backend | open | /consultations/doctor/[id] Waiting time piece of the summary line | [backend] `wait_time` is not sent by GET /care/doctors/:id (see doctor-card-app.json), so the waiting-time piece of the summary line is omitted. |
 | `owner-review-g4.json#2` | client | open | /(tabs)/diagnostics My orders and results top-bar button | [client] No screen lists orders and results together: /diagnostics/orders lists bookings with status and amount and the report is opened from the booking, /diagnostics/my-results … |
 | `owner-review-g4.json#3` | client | open | /diagnostics My orders and results top-bar button | [client] The button opens /diagnostics/bookings (requests of labs and radiology, each with its report); /diagnostics/results (reports only) is no longer linked from the hub, labs … |
 | `owner-review-g4.json#5` | client | open | /diagnostics/package-detail Order now on the package page | [client] Added next to Add to cart (owner words: the test and scan detail pages; applied to the package page too for consistency). It now skips the cart like the cards: the packag… |
@@ -364,6 +362,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `owner-review-g4.json#11` | client | open | /diagnostics Most requested strip | [client] The strip is the first six rows of the catalogue in the server's own order (popularity, highest first), one small request (limit=6) separate from the list, shown only for… |
 | `owner-review-g4.json#12` | client | open | /diagnostics Place and payment hide rows after the server page | [client] The catalogue endpoints have no 'at the facility' or payment (insurance / self-pay) filter, and packages are rows of GET /labs/services too. The hub hides them on each lo… |
 | `owner-review-g4.json#13` | backend | open | /(tabs)/diagnostics Rating line only with the rating sort | [backend] rating / rating_count are returned on the services only when the list is sorted by rating (highest_rated=true); in the default order they are absent, so the rating line … |
+| `owner-review-g4.json#14` | backend | open | /diagnostics, /labs/[testSlug], diagnostics/test-detail lab and radiology item … | [backend] The item picture is `image_url` (lab_services / radiology_services). The seed builds it as https://cdn.nabd.plus/labs/<code>.png (labs.json:3485 hiv, :3523 pap, :3559 se… |
 | `owner-review-g5.json#0` | client | open | Nursing tab cart summary bar (count / view cart) absent on the nursing tab and … | [client] the nursing tab has no cart bar in the app (service-home passes footer undefined for nursing, line 114); only the web nursing catalog has the bar. Adding one is a feature… |
 | `owner-review-g6.json#6` | owner | open | /diagnostics/radiology Search is not a counted filter | [owner] The applied count counts scan type, body part, home visit and lowest price, not the search text; Reset also clears the search. |
 | `owner-review-g6.json#7` | client | open | /diagnostics, /nursing Filter badge on web search field | [client] The new filterCount badge is drawn by the native Search only; the web renderer of the shared Search contract ignores it (web screens show the count in the sheet summary/c… |
@@ -453,6 +452,9 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `providers-map.json#0` | owner | open | /map Board | [owner] No map board exists in docs/design/canvas (no hologram glow/pulse, no list/map toggle drawn); the pins are token-coloured circles per kind, as in the Batch 12 restyle. |
 | `providers-map.json#1` | client | open | /[locale]/map Map pane | [client] The web draws the list beside one OpenStreetMap iframe for the chosen provider only: no pins for all providers, no bottom sheet, no list/map toggle (the app draws all pin… |
 | `providers-map.json#2` | backend | open | /map Open state and price | [backend] GET /providers/map sends no open state, price or radiology type, so the open dot, price stat and a radiology filter are not drawn. |
+| `r7-map.json#0` | client | open | /map Centre of the map when the position is not allowed | [client] The owner round 2 asks for the map to centre on the selected city when the location is denied. Neither client has a selected-city state: the app keeps a selected address … |
+| `r7-map.json#1` | backend | open | /map Providers read of the web map | [backend] The public read passes no lat, lng or radius_km (the backend GET /providers/map takes them and returns distance_km), so the web reads every published provider and measur… |
+| `r7-map.json#2` | owner | open | /map Carousel swipe to map pan, and the sheet | [owner] A tap on a marker or a search hit selects the provider, pans the map and scrolls its card in; a swipe that rests on one card pans the map to it. The sheet with directions … |
 | `web-public-ink.json#0` | owner | open | / (home header) header mark and nav active pill | [owner] two web boards disagree: HomeWeb.dc.html draws the mark with an ink bowl and an ink active nav pill (what the code does), WebHome.dc.html draws a coral bowl and an ink-tex… |
 | `web-public-ink.json#1` | client | open | / (home header, dark) active nav pill and Sign in button | [client] brand-ink pill on the ink dark canvas is nearly invisible in dark mode (the label stays readable); boards show no dark web header, so the dark treatment is not defined |
 | `web-public-ink.json#2` | owner | open | /login X and Snapchat buttons | [owner] AuthWeb.dc.html draws X and Snapchat as white buttons with a hairline; code uses the official brand colours (black X, yellow Snapchat with a black border) under the owner … |

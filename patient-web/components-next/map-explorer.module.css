@@ -1,9 +1,7 @@
-/* The facilities map (Batch 12; no board: the current layout on the shared tokens and controls). A list and a map pane, side by
-   side from 1024. Tokens only, logical properties only, no inline styles (the CSP refuses them). */
+/* The facilities map (no board: the full-screen map of the app on the shared tokens and controls). Tokens only, logical properties only,
+   no inline styles (the CSP refuses them). */
 
 .srOnly { position: absolute; inline-size: 1px; block-size: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
-.layout { display: flex; flex-direction: column; gap: var(--nabd-space-sm); min-inline-size: 0; }
-.side { display: flex; flex-direction: column; gap: var(--nabd-space-sm); min-inline-size: 0; }
 
 .state { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0; padding: var(--nabd-space-lg); text-align: center; color: var(--nabd-color-text-secondary); font-size: var(--nabd-font-size-control); }
 .stateError { flex-direction: column; }
@@ -28,21 +26,44 @@
 .cardActions { display: flex; flex-wrap: wrap; gap: 8px; }
 .cardActions > .action { flex: 1 1 8rem; min-inline-size: 0; text-decoration: none; }
 
-.pane {
-  min-block-size: 280px; overflow: hidden; display: flex; align-items: center; justify-content: center;
+.pane { position: absolute; inset: 0; overflow: hidden; background: var(--nabd-color-bg-sunken); }
+.paneOff { display: none; }
+.nearMe { position: absolute; inset-block-start: 12px; inset-inline-start: 12px; z-index: 2; background: var(--nabd-color-bg-surface); }
+.nearMeNote, .centreNote { position: absolute; inset-block-start: 56px; inset-inline-start: 12px; z-index: 2; margin: 0; padding: 6px 10px; max-inline-size: calc(100% - 24px); border-radius: var(--nabd-radius-xl); font-size: var(--nabd-font-size-label); }
+.nearMeNote { background: var(--nabd-color-status-danger-bg); color: var(--nabd-color-status-danger-fg); }
+.centreNote { background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-secondary); border: 1px solid var(--nabd-color-border-hairline); }
+
+/* The full-screen map page: the filters on top, the map filling the rest, the carousel of small cards over its bottom edge. */
+.stage {
+  display: flex; flex-direction: column; min-inline-size: 0; overflow: hidden;
+  block-size: clamp(30rem, calc(100dvh - 12rem), 60rem);
   background: var(--nabd-color-bg-sunken); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-3xl);
 }
-.pane { position: relative; }
-.nearMe { position: absolute; inset-block-start: 12px; inset-inline-start: 12px; z-index: 2; background: var(--nabd-color-bg-surface); }
-.nearMeNote { position: absolute; inset-block-start: 56px; inset-inline-start: 12px; z-index: 2; margin: 0; padding: 6px 10px; max-inline-size: calc(100% - 24px); border-radius: var(--nabd-radius-xl); background: var(--nabd-color-status-danger-bg); color: var(--nabd-color-status-danger-fg); font-size: var(--nabd-font-size-label); }
-.sheet {
-  position: absolute; inset-inline: 12px; inset-block-end: 12px; z-index: 3; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 14px;
-  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-3xl); box-shadow: var(--nabd-shadow-card);
+.top { flex: none; z-index: 4; display: flex; flex-direction: column; gap: var(--nabd-space-sm); padding: 10px 12px; background: var(--nabd-color-bg-surface); border-block-end: 1px solid var(--nabd-color-border-hairline); }
+.topRow { display: flex; align-items: center; gap: 8px; min-inline-size: 0; }
+.search { flex: 1; min-inline-size: 0; }
+.views { flex: none; display: flex; gap: 6px; }
+.chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-block-end: 2px; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { flex: none; gap: 6px; padding-inline: 12px; }
+.body { position: relative; flex: 1; min-block-size: 0; display: flex; flex-direction: column; justify-content: flex-end; }
+.floating { position: absolute; inset-inline: 12px; inset-block-end: 12px; z-index: 3; margin-inline: auto; max-inline-size: 420px; }
+.emptyCard {
+  display: flex; flex-direction: column; align-items: center; gap: 8px; padding: var(--nabd-space-lg); text-align: center;
+  background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-2xl); box-shadow: var(--nabd-shadow-card);
 }
-.sheetText { flex: 1 1 10rem; min-inline-size: 0; }
-.sheetText > p { margin: 0; }
-.sheet .cardActions { flex: 1 1 100%; }
-.frame { inline-size: 100%; block-size: 100%; min-block-size: 280px; border: 0; }
+.emptyCard > p { margin: 0; }
+.floating.state { background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-xl); padding: 10px 14px; inset-block-end: auto; inset-block-start: 12px; inline-size: max-content; }
+.list { position: relative; z-index: 2; flex: 1; overflow-y: auto; padding: 12px; background: var(--nabd-color-bg-canvas); }
+.track {
+  position: relative; z-index: 3; list-style: none; margin: 0; padding: 0 12px 12px; display: flex; gap: 12px; overflow-x: auto;
+  scroll-snap-type: x mandatory; scroll-padding-inline: 12px; scrollbar-width: none; overscroll-behavior-x: contain;
+}
+.track::-webkit-scrollbar { display: none; }
+.slide { flex: 0 0 min(18rem, 80%); scroll-snap-align: center; }
+.slide .cardActions > .action { flex-basis: 5rem; }
+/* the map's attribution stays visible above the carousel */
+.withCards :global(.maplibregl-ctrl-bottom-left), .withCards :global(.maplibregl-ctrl-bottom-right) { margin-block-end: 9.5rem; }
 .idle { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: var(--nabd-space-lg); text-align: center; max-inline-size: 420px;
   /* On the sunken pane, secondary text is 4.15:1; the idle note sits on a surface card like the list rows, which gives it 4.5:1+. */
   background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-2xl); }
@@ -51,9 +72,7 @@
 .idleNote { margin: 0; font-size: var(--nabd-font-size-caption); color: var(--nabd-color-text-tertiary); }
 
 @media (min-width: 1024px) {
-  .layout { flex-direction: row; align-items: stretch; }
-  .side { flex: 0 0 420px; max-block-size: calc(100dvh - 160px); overflow-y: auto; }
-  .pane { flex: 1; min-block-size: 480px; }
+  .slide { flex-basis: 20rem; }
 }
 
 /* the "Map" entry on the provider lists (a row with the shared outline button at the end) */

@@ -117,6 +117,9 @@ function HologramPin({ kind, name }: { kind: Kind; name: string }) {
   );
 }
 
+/** A card counts as on screen when 80% of it is (a stable object: the list refuses a new one on the fly). */
+const CARD_VIEWABILITY = { itemVisiblePercentThreshold: 80 } as const;
+
 /** A small provider card: the carousel's item and the list's row. The rating and the distance are drawn only when the server sent them. */
 function ProviderCard({ p, width, on, onPress }: { p: Provider; width: number | undefined; on: boolean; onPress: () => void }) {
   const { k, theme, t, c, flow, num } = useScreenUi();
@@ -154,7 +157,6 @@ export function ProvidersMapView() {
   const { width: screenWidth } = useWindowDimensions();
   const cardRef = useRef<FlatList<Provider>>(null);
   const selectedId = useRef<string | null>(null);
-  const scrollTarget = useRef<string | null>(null);
   const [insurance, setInsurance] = useState<string | null>(null);
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -247,23 +249,18 @@ export function ProvidersMapView() {
     choose(p);
     const index = shown.findIndex((row) => row.id === p.id);
     if (index >= 0 && view === 'map') {
-      scrollTarget.current = p.id;
       cardRef.current?.scrollToIndex({ index, animated: true, viewPosition: 0.5 });
     }
   };
-  /** A swipe settled on one card: the map pans to its provider. */
-  const onCardsViewable = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
-    const key = pickViewable(viewableItems.map((v) => ({ key: String(v.key), isViewable: v.isViewable })));
-    if (!key) return;
-    if (scrollTarget.current) {
-      // a scroll the screen started itself (marker, search): ignore the cards it passes until it arrives
-      if (key === scrollTarget.current) scrollTarget.current = null;
-      return;
-    }
-    if (key === selectedId.current) return;
+  /** The cards on screen right now (kept by the list); a swipe that comes to rest on exactly one of them selects its provider. */
+  const viewableNow = useRef<ViewToken[]>([]);
+  const onCardsViewable = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => { viewableNow.current = viewableItems; }).current;
+  const onSwipeSettled = () => {
+    const key = pickViewable(viewableNow.current.map((v) => ({ key: String(v.key), isViewable: v.isViewable })));
+    if (!key || key === selectedId.current) return;
     const next = shownRef.current.find((row) => row.id === key);
     if (next) choose(next);
-  }).current;
+  };
   const goToMe = async () => {
     try {
       let point = position;
@@ -361,7 +358,7 @@ export function ProvidersMapView() {
         ) : null}
       </View>
 
-      <Pressable accessibilityRole="button" accessibilityLabel={k('map.myLocation')} onPress={() => void goToMe()} style={{ position: 'absolute', end: 16, bottom: insets.bottom + (view === 'map' && shown.length > 0 ? 148 : 24), width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }} testID="map-my-location">
+      <Pressable accessibilityRole="button" accessibilityLabel={k('map.myLocation')} onPress={() => void goToMe()} style={{ position: 'absolute', end: 16, bottom: insets.bottom + (view === 'map' && shown.length > 0 ? 148 : phase === 'empty' || phase === 'emptyFiltered' ? 190 : 24), width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }} testID="map-my-location">
         <Glyph name="map-pin-line" size={22} color={c.service.map.glyph} />
       </Pressable>
 
@@ -378,9 +375,10 @@ export function ProvidersMapView() {
             decelerationRate="fast"
             contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
             getItemLayout={(_, index) => ({ length: cardWidth(screenWidth) + 12, offset: 16 + index * (cardWidth(screenWidth) + 12), index })}
-            viewabilityConfig={{ itemVisiblePercentThreshold: 80, minimumViewTime: 120 }}
+            viewabilityConfig={CARD_VIEWABILITY}
             onViewableItemsChanged={onCardsViewable}
-            onScrollToIndexFailed={() => { scrollTarget.current = null; }}
+            onMomentumScrollEnd={onSwipeSettled}
+            onScrollEndDrag={(e) => { if (Math.abs(e.nativeEvent.velocity?.x ?? 0) < 0.05) onSwipeSettled(); }}
             testID="map-carousel"
             renderItem={({ item: p }) => <ProviderCard p={p} width={cardWidth(screenWidth)} on={selected?.id === p.id} onPress={() => { choose(p); setDetail(p); }} />}
           />
