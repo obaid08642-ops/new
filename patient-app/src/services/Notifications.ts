@@ -1,6 +1,8 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { logger } from './Logger';
+import { tokens } from '../../../packages/design-tokens/dist/ts/tokens';
+const T = tokens('light').color;
 
 const log = logger.scope('Notifications');
 
@@ -45,7 +47,7 @@ class NotificationsManager {
         name: 'default',
         importance: Notifications.AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
+        lightColor: T.action.primary.bg,
       });
     }
 

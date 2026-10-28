@@ -26,6 +26,7 @@ import RadiologyPage from "@/app/[locale]/diagnostics/radiology/page";
 import RadiologyDetailPage from "@/app/[locale]/diagnostics/radiology/[serviceId]/page";
 import { parseOfferSummary, parseOffers } from "@/lib/api/offers";
 import { extractRadiologyServices } from "@/lib/api/radiology";
+import { extractLabServices } from "@/lib/api/labs";
 import { catalogRows } from "@/components-next/diagnostics/catalog-load";
 import { createTranslator } from "@/tests/helpers/intl";
 
@@ -117,5 +118,32 @@ describe("the detail", () => {
     expect(text(html)).toContain("No centre offers this yet");
     expect(html).toContain('data-notify="radiology:6a7600a27b25eeca204de282"');
     expect(text(html)).not.toContain("Add to my order");
+  });
+});
+
+describe("the payment filter keeps working on the catalogue lists", () => {
+  const lab = (id: string, extra: Record<string, unknown>) => ({ id: id.replace(/ /g, "-"), name_en: id, price: 30, ...extra });
+  const rows = (pay: "self_pay" | "insurance") => catalogRows("lab", [{ ok: true, labs: extractLabServices([
+    lab("Cash only", { cash_availability: true, insurance_availability: false, providers_count: 2, from_price: 25, premises_available: true }),
+    lab("Insurance only offered", { cash_availability: false, insurance_availability: true, providers_count: 2, from_price: 25, premises_available: true, insurance_accepted: true }),
+    lab("Insurance only unoffered", { cash_availability: false, insurance_availability: true, providers_count: 0 }),
+    lab("Both", { cash_availability: true, insurance_availability: true, providers_count: 1, from_price: 40, premises_available: true }),
+    lab("No offers field", { cash_availability: true }),
+  ]), scans: [], page: 1, hasMore: false, total: 5 }], { place: "all", pay }, { locale: "en", tr: (key, values) => createTranslator("en", "DiagWeb")(key, values), itemHref: (id) => `/x/${id}` }).map((r) => r.title);
+  it("Without insurance hides every insurance-only test, offered or not, and keeps the rest", () => {
+    expect(rows("self_pay")).toEqual(["Cash only", "Both", "No offers field"]);
+  });
+  it("With insurance shows the tests that take insurance and hides the self-pay-only ones", () => {
+    expect(rows("insurance")).toEqual(["Insurance only offered", "Insurance only unoffered", "Both"]);
+  });
+  it("a test with no offers field is judged by the catalogue flags alone", () => {
+    expect(rows("self_pay")).toContain("No offers field");
+    expect(rows("insurance")).not.toContain("No offers field");
+  });
+  it("the hub (self-pay by default) does not list the insurance-only test, even one nobody offers", async () => {
+    state.labs.mockImplementation(async () => json([lab("cash-t", { name_en: "Cash test", cash_availability: true, providers_count: 1, from_price: 20, premises_available: true, home_available: true }), lab("ins-t", { name_en: "Insurance test", cash_availability: false, insurance_availability: true, providers_count: 0 })]));
+    const html = text(await hub({ place: "home" }));
+    expect(html).toContain("Cash test");
+    expect(html).not.toContain("Insurance test");
   });
 });

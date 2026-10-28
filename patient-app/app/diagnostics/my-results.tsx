@@ -4,7 +4,7 @@ import { router, type Href } from 'expo-router';
 
 import { Card, FIcon } from '../../../packages/ui-native/src';
 import { ConsultList, StatusTag, useConsultFormat } from '../../src/components/consult/ConsultKit';
-import { RAD_TONE, LAB_TONE, diagStatus, goBackDiag } from '../../src/components/diagnostics/DiagKit';
+import { RAD_TONE, LAB_TONE, NameArt, diagStatus, goBackDiag } from '../../src/components/diagnostics/DiagKit';
 import { StatusPill } from '../../src/components/orders/OrderKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
@@ -89,7 +89,7 @@ export default function MyResults() {
           <Pressable accessibilityRole="button" accessibilityLabel={[title, meta, k(st.key)].filter(Boolean).join(', ')} onPress={() => router.push({ pathname: '/diagnostics/order/[id]', params: { id: r.id } } as unknown as Href)} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}>
             <Card theme={theme} padding="sm">
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <FIcon icon={r.radiology ? 'scan' : 'test-tube'} tone={r.radiology ? RAD_TONE : LAB_TONE} size={44} theme={theme} />
+                <NameArt kind={r.radiology ? 'radiology' : 'lab'} name={r.title} size={44} />
                 <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
                   <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>{title}</Text>
                   {meta ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{meta}</Text> : null}

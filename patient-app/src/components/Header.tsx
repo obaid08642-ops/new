@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../context/AppContext';
 import { lightColors, darkColors } from '../theme/colors';
+import { tokens } from '../../../packages/design-tokens/dist/ts/tokens';
 import { router, usePathname } from 'expo-router';
 
 export default function Header() {
@@ -21,6 +22,7 @@ export default function Header() {
   const goBack = () => router.back();
   const insets = useSafeAreaInsets();
   const colors = isDark ? darkColors : lightColors;
+  const tk = tokens(isDark ? 'dark' : 'light').color;
   const isRTL = lang === 'ar' || lang === 'ur';
 
   const [langMenuVisible, setLangMenuVisible] = useState(false);
@@ -49,8 +51,8 @@ export default function Header() {
     if (!canGoBack) return null;
     return (
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100, paddingTop: Math.max(insets.top, StatusBar.currentHeight || 44), paddingHorizontal: 16 }}>
-        <TouchableOpacity onPress={goBack} style={[styles.iconButton, { alignSelf: isRTL ? 'flex-end' : 'flex-start', backgroundColor: isDark ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.7)', borderRadius: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8 }]}>
-          <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 24, color: isDark ? '#fff' : '#141A2A' }}>
+        <TouchableOpacity onPress={goBack} style={[styles.iconButton, { alignSelf: isRTL ? 'flex-end' : 'flex-start', backgroundColor: tk.glass.bgStrong, borderRadius: 20, shadowColor: tk.brand.ink, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8 }]}>
+          <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 24, color: tk.text.primary }}>
             {isRTL ? 'arrow_forward' : 'arrow_back'}
           </Text>
         </TouchableOpacity>
@@ -59,9 +61,7 @@ export default function Header() {
   }
 
   // Premium gradient per theme
-  const gradColors: [string, string] = isDark
-    ? ['rgba(10,16,34,0.97)', 'rgba(18,26,52,0.97)']
-    : ['rgba(255,255,255,0.96)', 'rgba(240,248,255,0.96)'];
+  const gradColors: [string, string] = [tk.glass.bgStrong, tk.glass.bgStrong];
 
   return (
     <View style={styles.headerWrapper}>
@@ -75,7 +75,7 @@ export default function Header() {
 
       {/* Glowing cyan bottom line */}
       <LinearGradient
-        colors={['transparent', '#23B5CE55', '#23B5CEBB', '#23B5CE55', 'transparent']}
+        colors={['transparent', tk.border.strong, tk.action.primary.bg, tk.border.strong, 'transparent']}
         start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
         style={styles.glowBorder}
       />
@@ -97,11 +97,11 @@ export default function Header() {
           <TouchableOpacity
             onPress={toggleDark}
             style={[styles.pill, {
-              backgroundColor: isDark ? 'rgba(35,181,206,0.18)' : 'rgba(35,181,206,0.1)',
-              borderColor: isDark ? 'rgba(35,181,206,0.35)' : 'rgba(35,181,206,0.22)',
+              backgroundColor: tk.service.coral.bg,
+              borderColor: tk.border.subtle,
             }]}
           >
-            <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 18, color: '#23B5CE' }}>
+            <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 18, color: tk.service.coral.fg }}>
               {isDark ? 'dark_mode' : 'light_mode'}
             </Text>
           </TouchableOpacity>
@@ -110,8 +110,8 @@ export default function Header() {
           <TouchableOpacity
             onPress={() => setLangMenuVisible(true)}
             style={[styles.pill, {
-              backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)',
-              borderColor: isDark ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.1)',
+              backgroundColor: tk.bg.sunken,
+              borderColor: tk.border.subtle,
               minWidth: 42,
             }]}
           >
@@ -136,10 +136,10 @@ export default function Header() {
 
           <TouchableOpacity onPress={() => router.push('/profile')} style={styles.avatarBtn}>
             <LinearGradient
-              colors={['#23B5CE', '#1594AC']}
+              colors={[tk.action.primary.gradient.from, tk.action.primary.gradient.to]}
               style={{ width: '100%', height: '100%', borderRadius: 17, alignItems: 'center', justifyContent: 'center' }}
             >
-              <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 20, color: '#fff' }}>person</Text>
+              <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 20, color: tk.icon.onSolid }}>person</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     top: 5,
     width: 8, height: 8,
     borderRadius: 4,
-    backgroundColor: '#EF4444',
+    backgroundColor: lightColors.cr,
     borderWidth: 1.5,
     borderColor: 'white',
   },
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1.5,
     padding: 6,
-    shadowColor: 'rgba(20,26,42,0.15)',
+    shadowColor: lightColors.n,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 1,
     shadowRadius: 20,

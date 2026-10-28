@@ -26,15 +26,6 @@ export type CatalogueKind = 'lab' | 'radiology';
 /** Tests and scans nobody offers stay in every list, whatever the place or the payment the order has chosen. */
 export const isUnoffered = (item: Pick<CatalogItem, 'offer'>): boolean => item.offer?.providersCount === 0;
 
-/**
- * Whether the order's place (at home / at the centre) fits a service: by what providers offer when the catalogue says (a service nobody offers
- * stays), else by the catalogue's own home-visit flag (an older answer).
- */
-export function fitsPlace(item: Pick<CatalogItem, 'offer' | 'homeVisit'>, place: 'home' | 'clinic'): boolean {
-  if (item.offer) return item.offer.providersCount === 0 || (place === 'home' ? item.offer.home : item.offer.premises);
-  return place === 'clinic' || item.homeVisit;
-}
-
 /** One test or scan of the catalogue as a card: tags, offer lines (centres, from-price, where, insurance), rating, "Add to cart" and "Order now". */
 export function CatalogueCard({ item, kind, art, place, payer, idPrefix, width }: { item: CatalogItem; kind: CatalogueKind; art: DiagArtKey; place: 'home' | 'clinic'; payer?: 'cash' | 'insurance'; idPrefix: string; width?: number }) {
   const { k, num, money, lang } = useScreenUi();
@@ -61,7 +52,7 @@ export function CatalogueCard({ item, kind, art, place, payer, idPrefix, width }
       note={[offerNote, baseNote].filter(Boolean).join(' · ') || undefined}
       rating={rating ? k('diag.ratingLine', { n: num(rating.rating, { maximumFractionDigits: 1 }), count: num(rating.count) }) : undefined}
       // with the offer summary the price is the providers' own "from" (in the note); the catalogue's base price is the fallback of an older answer
-      price={item.offer ? null : item.price}
+      price={item.offer && item.offer.fromPrice !== null ? null : item.price}
       inCart={inCart}
       addLabel={k('diag.detail.addToCart')}
       inCartLabel={k('diag.detail.inCart')}
@@ -69,7 +60,7 @@ export function CatalogueCard({ item, kind, art, place, payer, idPrefix, width }
       onPress={open}
       // a service nobody offers cannot be added or ordered: both buttons open its page, where "Notify me when available" is
       onAdd={() => { if (isUnoffered(item)) open(); else if (!inCart) void addItem({ id: item.id, name: item.name, price: item.price ?? 0, kind }); }}
-      onOrder={() => isUnoffered(item) ? open() : router.push(singleOrderRoute({ kind, id: item.id, name: item.name, place, payer: kind === 'lab' && payer === 'insurance' ? 'insurance' : 'cash' }) as unknown as Href)}
+      onOrder={() => isUnoffered(item) ? open() : router.push(singleOrderRoute({ kind, id: item.id, name: item.name, place: kind === 'radiology' && !item.homeVisit ? 'clinic' : place, payer: kind === 'lab' && payer === 'insurance' ? 'insurance' : 'cash' }) as unknown as Href)}
     />
   );
 }

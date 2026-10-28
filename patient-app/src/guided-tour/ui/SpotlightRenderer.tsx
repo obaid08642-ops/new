@@ -1,5 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { tokens } from '../../../../packages/design-tokens/dist/ts/tokens';
+const T = tokens('light').color;
 
 export const SpotlightRenderer = ({ targetLayout, step, onNext, onSkip }: any) => {
   if (!targetLayout) return null;
@@ -36,30 +38,30 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     left: 0,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: T.glass.bg,
   },
   spotlight: {
     position: 'absolute',
     backgroundColor: 'transparent',
     borderWidth: 2,
-    borderColor: '#4A90E2',
+    borderColor: T.action.primary.bg,
     borderRadius: 8,
   },
   tooltip: {
     position: 'absolute',
     alignSelf: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: T.bg.surface,
     padding: 20,
     borderRadius: 16,
     width: '90%',
-    shadowColor: '#000',
+    shadowColor: T.brand.ink,
     shadowOpacity: 0.2,
     shadowRadius: 10,
     elevation: 10,
   },
   title: { fontSize: 16, fontWeight: 'bold', marginBottom: 8 },
-  desc: { fontSize: 14, color: '#666', marginBottom: 16 },
+  desc: { fontSize: 14, color: T.text.secondary, marginBottom: 16 },
   footer: { flexDirection: 'row', justifyContent: 'space-between' },
-  btn: { color: '#888', padding: 8 },
-  btnNext: { color: '#4A90E2', fontWeight: 'bold', padding: 8 },
+  btn: { color: T.text.tertiary, padding: 8 },
+  btnNext: { color: T.text.link, fontWeight: 'bold', padding: 8 },
 });

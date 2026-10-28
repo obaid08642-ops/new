@@ -2,6 +2,8 @@ import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 import { apiFetch } from './api';
+import { tokens } from '../../../packages/design-tokens/dist/ts/tokens';
+const T = tokens('light').color;
 
 // Configure notification behavior
 Notifications.setNotificationHandler({
@@ -84,7 +86,7 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
         name: 'Calls',
         importance: Notifications.AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF3B30',
+        lightColor: T.status.danger.fg,
         sound: 'default', // Can customize sound here
       });
 
@@ -92,7 +94,7 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
         name: 'Default',
         importance: Notifications.AndroidImportance.DEFAULT,
         vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#4F46E5',
+        lightColor: T.action.primary.bg,
       });
     }
 

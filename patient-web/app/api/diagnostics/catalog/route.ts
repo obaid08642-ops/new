@@ -31,7 +31,7 @@ export async function GET(request: Request) {
   const rows = catalogRows(kind, [result], { place, pay }, {
     locale,
     tr: (key, values) => t(key, values),
-    itemHref: (id, itemKind) => url.searchParams.get("detail") === "1" && itemKind === "radiology" ? `/${locale}/diagnostics/radiology/${encodeURIComponent(id)}` : `/${locale}/labs/${encodeURIComponent(id)}${contextQuery({ kind: itemKind, place: place === "all" ? "home" : place, pay: pay === "insurance" ? "insurance" : "cash" })}`,
+    itemHref: (id, itemKind, facilityOnly) => url.searchParams.get("detail") === "1" && itemKind === "radiology" ? `/${locale}/diagnostics/radiology/${encodeURIComponent(id)}` : `/${locale}/labs/${encodeURIComponent(id)}${contextQuery({ kind: itemKind, place: facilityOnly ? "facility" : place === "all" ? "home" : place, pay: pay === "insurance" ? "insurance" : "cash" })}`,
   });
   return NextResponse.json({ rows, page: result.page, hasMore: result.hasMore, total: result.total }, { headers: { "cache-control": "no-store" } });
 }

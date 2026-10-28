@@ -50,23 +50,21 @@ import { withAlpha } from '../shells/shellTokens';
 
 type TonePair = { fg: string; bg: string };
 
-const TONE_STYLE: Record<Tone, TonePair> = {
-  neutral: { fg: '#5B6673', bg: '#F4F6F8' },
-  primary: { fg: '#0B1B2B', bg: '#F4F6F8' },
-  success: { fg: '#1B7A4B', bg: '#E7F5EC' },
-  warning: { fg: '#8A5A00', bg: '#FDF3E0' },
-  danger: { fg: '#B3202C', bg: '#FDECEE' },
-  info: { fg: '#1F5FBF', bg: '#E8F0FD' },
-};
+const TL = tokens('light').color;
+const TD = tokens('dark').color;
+/** The token set of the active theme. */
+const tk = (dark: boolean) => (dark ? TD : TL);
 
-const DARK_TONE_STYLE: Record<Tone, TonePair> = {
-  neutral: { fg: '#C2CBD6', bg: '#12263A' },
-  primary: { fg: '#F5F5F7', bg: '#12263A' },
-  success: { fg: '#6FE0B8', bg: '#12301F' },
-  warning: { fg: '#FFD166', bg: '#2E2410' },
-  danger: { fg: '#FF9AA2', bg: '#33161A' },
-  info: { fg: '#9DB0FF', bg: '#16233F' },
-};
+const toneStyle = (c: typeof TL): Record<Tone, TonePair> => ({
+  neutral: { fg: c.status.neutral.fg, bg: c.status.neutral.bg },
+  primary: { fg: c.text.primary, bg: c.status.neutral.bg },
+  success: { fg: c.status.success.fg, bg: c.status.success.bg },
+  warning: { fg: c.status.warning.fg, bg: c.status.warning.bg },
+  danger: { fg: c.status.danger.fg, bg: c.status.danger.bg },
+  info: { fg: c.status.info.fg, bg: c.status.info.bg },
+});
+const TONE_STYLE = toneStyle(TL);
+const DARK_TONE_STYLE = toneStyle(TD);
 
 /** A function, not a const: the components below call it at render time
  *  and a `const` arrow declared after them would be in the temporal dead zone. */
@@ -260,12 +258,12 @@ export function ListItem({
           {title}
         </Text>
         {subtitle ? (
-          <Text style={{ fontSize: 12, fontFamily: 'ReadexPro-400', color: selected ? (dark ? '#0B1B2B' : '#C2CBD6') : dark ? '#C2CBD6' : '#5B6673' }}>
+          <Text style={{ fontSize: 12, fontFamily: 'ReadexPro-400', color: selected ? (dark ? TD.text.onBrand : TL.text.onInverseSecondary) : tk(dark).text.secondary }}>
             {subtitle}
           </Text>
         ) : null}
       </View>
-      {meta ? <Text style={{ fontSize: 15, fontFamily: 'ReadexPro-400', color: dark ? '#C2CBD6' : '#5B6673' }}>{meta}</Text> : null}
+      {meta ? <Text style={{ fontSize: 15, fontFamily: 'ReadexPro-400', color: tk(dark).text.secondary }}>{meta}</Text> : null}
       {endIcon ? <Icon name={endIcon} size={20} theme={theme} tone="secondary" /> : null}
       {/* the chevron points where the row leads: left when the page reads right to left, right otherwise */}
       {endContent === 'chevron' ? <Icon name={I18nManager.isRTL ? 'caret-left' : 'caret-right'} size={16} theme={theme} tone="secondary" /> : null}
@@ -280,7 +278,7 @@ export function ListItem({
             height: 26,
             borderRadius: 13,
             padding: 3,
-            backgroundColor: selected ? '#D42A38' : dark ? '#2A3A4D' : '#D5DBE4',
+            backgroundColor: selected ? tk(dark).action.primary.bg : tk(dark).border.strong,
             alignItems: selected ? 'flex-end' : 'flex-start',
           }}
         >
@@ -417,7 +415,7 @@ export function Avatar({ name, size = 'md', src, status = 'none', testID, theme 
             borderWidth: 2,
             borderColor: dark ? '#12263A' : '#FFFFFF',
             backgroundColor:
-              status === 'online' ? '#1B7A4B' : status === 'alert' ? '#B3202C' : '#8A94A0',
+              status === 'online' ? tk(dark).status.success.fill : status === 'alert' ? tk(dark).status.danger.fg : tk(dark).text.tertiary,
           }}
         />
       ) : null}
@@ -427,7 +425,7 @@ export function Avatar({ name, size = 'md', src, status = 'none', testID, theme 
 
 export function PriceTag({ amount, currency, was, note, testID, theme = 'light' }: PriceTagProps & { theme?: 'light' | 'dark' }) {
   const dark = theme === 'dark';
-  const dim = dark ? '#C2CBD6' : '#5B6673';
+  const dim = tk(dark).text.secondary;
   return (
     <View testID={testID} style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
       {was ? <Text style={{ fontSize: 15, color: dim, textDecorationLine: 'line-through' }}>{was}</Text> : null}
@@ -495,9 +493,9 @@ export function MapPinCard({
       <Icon name={startIcon} size={24} theme={theme} />
       <View style={{ flex: 1 }}>
         <Text style={{ fontSize: 15, fontWeight: '700', color: dark ? '#F5F5F7' : '#0B1B2B' }}>{title}</Text>
-        {address ? <Text style={{ fontSize: 11, color: dark ? '#C2CBD6' : '#5B6673' }}>{address}</Text> : null}
+        {address ? <Text style={{ fontSize: 11, color: tk(dark).text.secondary }}>{address}</Text> : null}
       </View>
-      {distance ? <Text style={{ fontSize: 12, color: dark ? '#C2CBD6' : '#5B6673' }}>{distance}</Text> : null}
+      {distance ? <Text style={{ fontSize: 12, color: tk(dark).text.secondary }}>{distance}</Text> : null}
       {actionLabel ? (
         <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
           <Icon name="caret-left" size={18} theme={theme} tone="secondary" />
@@ -522,7 +520,7 @@ function TabButton({
   layout: 'line' | 'segmented' | 'bar';
   dark: boolean;
 }) {
-  const ink = active ? (dark ? '#0B1B2B' : '#FFFFFF') : dark ? '#C2CBD6' : '#5B6673';
+  const ink = active ? (dark ? '#0B1B2B' : '#FFFFFF') : tk(dark).text.secondary;
   const bg =
     layout === 'segmented'
       ? active
@@ -583,7 +581,7 @@ export function Tabs({ items, value, onChange, variant = 'line', fullWidth = fal
         gap: variant === 'segmented' ? 4 : 0,
         padding: variant === 'segmented' ? 4 : 0,
         borderRadius: variant === 'segmented' ? 9999 : 0,
-        backgroundColor: variant === 'segmented' ? (dark ? '#12263A' : '#F4F6F8') : 'transparent',
+        backgroundColor: variant === 'segmented' ? (tk(dark).status.neutral.bg) : 'transparent',
         alignSelf: fullWidth ? 'stretch' : 'flex-start',
       }}
     >
@@ -607,7 +605,7 @@ export function NavBar({ title, showBack = false, backLabel = 'Back', actions = 
         paddingHorizontal: 8,
         backgroundColor: dark ? '#12263A' : '#FFFFFF',
         borderBottomWidth: 1,
-        borderBottomColor: dark ? '#6E8BFF' : '#D5DBE4',
+        borderBottomColor: tk(dark).border.strong,
       }}
     >
       {showBack ? (
@@ -677,10 +675,10 @@ export function Sidebar({ title, items, value, onChange, testID, theme = 'light'
         padding: 8,
         backgroundColor: dark ? '#12263A' : '#FFFFFF',
         borderEndWidth: 1,
-        borderEndColor: dark ? '#6E8BFF' : '#D5DBE4',
+        borderEndColor: tk(dark).border.strong,
       }}
     >
-      <Text style={{ fontSize: 12, fontWeight: '700', color: dark ? '#8A97A6' : '#8A94A0' }}>{title}</Text>
+      <Text style={{ fontSize: 12, fontWeight: '700', color: tk(dark).text.tertiary }}>{title}</Text>
       {items.map((item) => {
         const active = item.id === value;
         return (
@@ -703,7 +701,7 @@ export function Sidebar({ title, items, value, onChange, testID, theme = 'light'
             }}
           >
             <Icon name={item.icon} size={20} theme={dark ? 'dark' : 'light'} tone="secondary" />
-            <Text style={{ fontSize: 15, fontWeight: active ? '700' : '500', color: active ? (dark ? '#0B1B2B' : '#F5F5F7') : dark ? '#C2CBD6' : '#5B6673' }}>
+            <Text style={{ fontSize: 15, fontWeight: active ? '700' : '500', color: active ? (dark ? '#0B1B2B' : '#F5F5F7') : tk(dark).text.secondary }}>
               {item.label}
             </Text>
             {item.badge !== undefined ? <Badge content={item.badge} tone="neutral" theme={dark ? 'dark' : 'light'} /> : null}

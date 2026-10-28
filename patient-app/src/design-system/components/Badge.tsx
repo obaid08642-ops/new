@@ -81,7 +81,7 @@ export function DSBadge({
     >
       <DSText
         variant={size === 'sm' ? 'caption' : 'labelSM'}
-        color="#fff"
+        color={colors.textInverse}
         noScale
       >
         {displayCount}
@@ -232,10 +232,10 @@ function getTagColors(
   customText?: string,
 ): { bg: string; text: string } {
   switch (variant) {
-    case 'success': return { bg: '#EBF6E9', text: colors.success };
-    case 'warning': return { bg: '#FFF7E6', text: colors.warning };
-    case 'error':   return { bg: '#FEF2F2', text: colors.error };
-    case 'info':    return { bg: '#DEF5F9', text: colors.primary };
+    case 'success': return { bg: colors.successSurface, text: colors.success };
+    case 'warning': return { bg: colors.warningSurface, text: colors.warning };
+    case 'error':   return { bg: colors.errorSurface, text: colors.error };
+    case 'info':    return { bg: colors.primarySurface, text: colors.primary };
     case 'custom':  return { bg: customBg ?? colors.backgroundSecondary, text: customText ?? colors.textPrimary };
     default:        return { bg: colors.backgroundSecondary, text: colors.textSecondary };
   }

@@ -96,8 +96,12 @@ describe('Diagnostics hub, radiology tab (G6)', () => {
     const names = screen.getAllByText(/^Test (MRI|ultrasound|CT)/).map((n) => n.props.children);
     // the strip repeats names above the "All scans" list: compare the list's own (last) occurrences
     expect(names.lastIndexOf('Test ultrasound')).toBeLessThan(names.lastIndexOf('Test CT chest'));
-    // the server orders (lowest_price=true); the place switch (home) hides the knee MRI that is not done at home on the rows loaded here, and no longer asks the server for home_visit (that filter keeps only services some provider offers at home, which would hide the ones nobody offers yet)
-    expect(screen.queryByText('Test MRI knee')).toBeNull();
+    // the server orders (lowest_price=true); the place no longer hides scans (R1), so the knee MRI that is not done at home is listed
+    expect(screen.getAllByText('Test MRI knee').length).toBeGreaterThan(0);
+    // only the explicit home visit filter asks the server for home scans
+    await fireEvent.press(screen.getByLabelText(`${k('diag.hub.filter')} (1)`));
+    await fireEvent.press(screen.getByText(k('diag.filter.home')));
+    await waitFor(() => expect(mockApi.mock.calls.some(([path]) => /^\/radiology\/services\?page=1&limit=20&home_visit=true$/.test(String(path)))).toBe(true));
   });
 
   it('highest rated is offered on the scans and sent to the server as highest_rated=true', async () => {

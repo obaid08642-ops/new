@@ -128,6 +128,33 @@ describe('one list, every entry point', () => {
   });
 });
 
+describe('the payment filter and the price keep working on the catalogue lists', () => {
+  const LABS = [
+    { id: 'cash-t', name_en: 'Test cash test', category: 'blood', price: 20, cash_availability: true, popularity: 5, providers_count: 1, from_price: 20, premises_available: true, home_available: true },
+    { id: 'ins-t', name_en: 'Test insurance-only test', category: 'blood', price: 40, cash_availability: false, insurance_availability: true, popularity: 4, providers_count: 0 },
+    { id: 'ins-o', name_en: 'Test insurance-only offered', category: 'blood', price: 40, cash_availability: false, insurance_availability: true, popularity: 3, providers_count: 2, from_price: 35, premises_available: true, insurance_accepted: true },
+  ];
+  it('Without insurance (the default) hides the insurance-only tests, offered or not', async () => {
+    mockTab = undefined;
+    mockApi.mockImplementation(async (path: string) => serveCatalog(path, { labs: LABS }));
+    await render(wrap(<DiagnosticsHub />));
+    await waitFor(() => expect(screen.getByTestId('diag-test-cash-t')).toBeTruthy(), { timeout: 15000 });
+    expect(screen.queryByTestId('diag-test-ins-t')).toBeNull();
+    expect(screen.queryByTestId('diag-test-ins-o')).toBeNull();
+  });
+
+  it('the nursing list keeps the price of a service nobody offers, and uses the from-price when nurses do', async () => {
+    const services = [
+      { id: 'svc-a', name_en: 'Wound care', price: 200, providers_count: 0, from_price: null },
+      { id: 'svc-b', name_en: 'IV drip', price: 150, providers_count: 2, from_price: 120, home_available: true },
+    ];
+    await render(wrap(<NursingServiceList services={services} actionLabel="Book" onOpen={jest.fn()} onBook={jest.fn()} />));
+    expect(screen.getByText(/200/)).toBeTruthy();
+    expect(screen.getByText(/2 providers · From 120\.00 SAR/)).toBeTruthy();
+    expect(screen.queryByText(/150/)).toBeNull();
+  });
+});
+
 describe('the detail: who offers it, and "Notify me when available"', () => {
   it('lists the offers cheapest first', async () => {
     const offers = offersOf({ offers: [

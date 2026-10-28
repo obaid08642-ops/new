@@ -687,8 +687,8 @@ export default function ProductDetailScreen() {
               </View>
               {stockLine ? (
                 <View style={{ borderTopWidth: 1, borderTopColor: c.border.subtle, paddingTop: 12, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                  <View style={{ width: 36, height: 36, borderRadius: 12, backgroundColor: c.status.success.bg, alignItems: 'center', justifyContent: 'center' }}>
-                    <Glyph name="storefront" size={20} color={c.status.success.fg} />
+                  <View style={{ width: 36, height: 36, borderRadius: 12, backgroundColor: c.service.pharmacy.bg, alignItems: 'center', justifyContent: 'center' }}>
+                    <Glyph name="storefront" size={20} color={c.service.pharmacy.glyph} />
                   </View>
                   <Text style={{ flex: 1, ...scale(t, 'control'), color: c.text.primary, ...flow }}>{stockLine}</Text>
                 </View>

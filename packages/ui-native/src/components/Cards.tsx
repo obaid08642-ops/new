@@ -208,10 +208,12 @@ export function ProductCard({ name, meta, price, currency, imageSrc, image, disc
   const t = tokens(theme);
   const c = t.color;
   const inert = disabled || loading;
+  const cardRadius = Number.parseInt(t.radius['2xl'], 10);
   return (
-    <View testID={testID} style={{ borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, boxShadow: t.shadow.card, padding: 10, gap: 8 }}>
+    <View testID={testID} style={{ borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, boxShadow: t.shadow.card, paddingBottom: 10, gap: 8, overflow: 'hidden' }}>
       <Pressable accessibilityRole={onPress ? 'link' : undefined} onPress={onPress} style={{ gap: 8 }}>
-        <View style={{ height: 132, borderRadius: 18, backgroundColor: c.bg.media, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+        {/* R3: the picture spans the card edge to edge, square, top corners rounded with the card's radius token; a photo sits on the white paper token (white in both themes) */}
+        <View style={{ width: '100%', aspectRatio: 1, borderTopStartRadius: cardRadius, borderTopEndRadius: cardRadius, backgroundColor: image || imageSrc ? c.iconArt.paper : c.bg.media, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
           {image ?? (imageSrc ? (
             <Image source={{ uri: imageSrc }} accessibilityIgnoresInvertColors style={{ width: '100%', height: '100%' }} resizeMode="contain" />
           ) : (
@@ -223,10 +225,10 @@ export function ProductCard({ name, meta, price, currency, imageSrc, image, disc
             </View>
           ) : null}
         </View>
-        <Text style={{ fontSize: 14, lineHeight: 19.6, fontFamily: 'ReadexPro-700', color: c.text.primary }}>{name}</Text>
-        {meta ? <Text style={{ fontSize: 12, fontFamily: 'ReadexPro-400', color: c.text.secondary }}>{meta}</Text> : null}
+        <Text style={{ paddingHorizontal: 10, fontSize: 14, lineHeight: 19.6, fontFamily: 'ReadexPro-700', color: c.text.primary }}>{name}</Text>
+        {meta ? <Text style={{ paddingHorizontal: 10, fontSize: 12, fontFamily: 'ReadexPro-400', color: c.text.secondary }}>{meta}</Text> : null}
       </Pressable>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 10 }}>
         <View style={{ flex: 1, minWidth: 0 }}>
           {/* the price is drawn only when the API sent one (a made-up 0 is never shown) */}
           {price ? (

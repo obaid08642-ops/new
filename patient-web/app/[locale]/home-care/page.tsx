@@ -64,7 +64,7 @@ export default async function HomeCarePage({ params, searchParams }: Props) {
     callPatientApi("/home-care/packages", { cache: "no-store" }).catch(() => null),
   ]);
   const needle = search.toLocaleLowerCase();
-  const services = (servicesRead.failed ? [] : extractNursingCatalog(servicesRead.body)).filter((item) => matchesSearch(item, needle) && (pay === "card" || item.insuranceAvailable !== false || item.offer?.providersCount === 0));
+  const services = (servicesRead.failed ? [] : extractNursingCatalog(servicesRead.body)).filter((item) => matchesSearch(item, needle) && (pay === "card" || item.insuranceAvailable !== false));
   const packages = (packagesRead && packagesRead.ok ? extractNursingCatalog(await packagesRead.json().catch(() => null)) : []).filter((item) => matchesSearch(item, needle) && (pay === "card" || item.insuranceAvailable !== false));
   const payHref = (next: PayFlow) => `/${locale}/home-care?${new URLSearchParams({ ...(search ? { q: search } : {}), ...(next === "insurance" ? { pay: "insurance" } : {}) }).toString()}`;
   const serviceHref = (id: string) => `/${locale}/home-care/services/${encodeURIComponent(id)}${pay === "insurance" ? "?pay=insurance" : ""}`;

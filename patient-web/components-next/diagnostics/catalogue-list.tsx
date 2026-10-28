@@ -41,7 +41,7 @@ export async function catalogueList({ kind, locale, search, sort, cat, pages, fi
   const ok: CatalogLoad[] = [];
   for (const load of loads) { if (!load.ok) break; ok.push(load); }
   if (ok.length === 0) return <ConsultState kind="error" title={t("catalogErrorTitle")} body={t("catalogErrorBody")} retryLabel={t("retry")} />;
-  const itemHref = (id: string, itemKind: "lab" | "radiology") => detailHref && itemKind === "radiology" ? `/${locale}/diagnostics/radiology/${encodeURIComponent(id)}` : `/${locale}/labs/${encodeURIComponent(id)}${contextQuery({ kind: itemKind, place: "home", pay: "cash" })}`;
+  const itemHref = (id: string, itemKind: "lab" | "radiology", facilityOnly?: boolean) => detailHref && itemKind === "radiology" ? `/${locale}/diagnostics/radiology/${encodeURIComponent(id)}` : `/${locale}/labs/${encodeURIComponent(id)}${contextQuery({ kind: itemKind, place: facilityOnly ? "facility" : "home", pay: "cash" })}`;
   const order = { place: "all", pay: "self_pay" } as const;
   const rows = catalogRows(kind, ok, order, { locale, tr: (key, values) => t(key, values), itemHref });
   const last = ok[ok.length - 1];

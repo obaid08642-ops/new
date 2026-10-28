@@ -22,7 +22,7 @@ import {
   diagLook,
   useDiagText,
 } from '../../src/components/diagnostics/DiagKit';
-import { CatalogueCard, fitsPlace, isUnoffered } from '../../src/components/diagnostics/CatalogueKit';
+import { CatalogueCard } from '../../src/components/diagnostics/CatalogueKit';
 import { ActiveFilters, type ActiveFilter } from '../../src/components/pharmacy/ActiveFilters';
 import { GlyphRound, WishlistButton } from '../../src/components/pharmacy/PharmacyKit';
 import { ServiceCartButton } from '../../src/components/cart/ServiceCartButton';
@@ -137,7 +137,7 @@ export default function DiagnosticsHub() {
   const byPrice = (a: CatalogItem, b: CatalogItem) => (a.price ?? Infinity) - (b.price ?? Infinity);
   const isLab = mainTab === 'labs';
   const sort = sortOfFilter(filter);
-  // the place switch hides scans that cannot be done at home on the rows loaded here; only the explicit "home visit" filter asks the server (it keeps services some provider offers at home, so a service nobody offers yet stays listed)
+  // R1: the place never hides scans (only ultrasound is portable); only the explicit "home visit" filter asks the server for home scans
   const homeOnly = filter === 'home_visit';
   const testCatalog = useDiagCatalog('lab', isLab, { search, sort, homeVisit: filter === 'home_visit' });
   const radCatalog = useDiagCatalog('radiology', !isLab, { search, sort, homeVisit: homeOnly, category: serverCategoryOf('radiology', cat) });
@@ -153,8 +153,8 @@ export default function DiagnosticsHub() {
   // Nothing takes insurance in the loaded catalogue: the choice is not offered (no empty list behind it) and self-pay applies.
   const anyInsurance = useMemo(() => insuranceOffered([...packages, ...tests]), [packages, tests]);
   const effectivePay: Pay = anyInsurance ? pay : 'self_pay';
-  // a service nobody offers yet stays in the list whatever the order's payment or place (its page says so and offers "Notify me")
-  const pays = (x: CatalogItem) => isUnoffered(x) || (effectivePay === 'insurance' ? x.insurance : x.selfPay);
+  // the payment always applies, offers or not: an insurance-only test never shows under "Without insurance" and a self-pay-only one never under "Insurance"
+  const pays = (x: CatalogItem) => (effectivePay === 'insurance' ? x.insurance : x.selfPay);
   const view = useMemo(() => {
     let p = packages.filter((x) => match(x.name) && pays(x));
     let ls = labs.filter((x) => match(x.name));
@@ -169,13 +169,13 @@ export default function DiagnosticsHub() {
   }, [packages, labs, needle, effectivePay, filter]);
 
   const testRows = useMemo(() => tests.filter(pays).map((item) => ({ item, art: catalogArt('lab', item) })), [tests, effectivePay]); // eslint-disable-line react-hooks/exhaustive-deps
-  const radRows = useMemo(() => rads.filter((x) => fitsPlace(x, place)).map((item) => ({ item, art: catalogArt('radiology', item) })), [rads, place]);
+  const radRows = useMemo(() => rads.map((item) => ({ item, art: catalogArt('radiology', item) })), [rads]);
   // scan rows are already the chip's (server); test rows are filtered by the chip here
   const shownTests = filterByArt(testRows, cat);
   const shownRads = radRows;
   const popular =
     needle === '' && (filter === 'all' || !isLab)
-      ? popularCatalog.items.filter((x) => (isLab ? pays(x) : fitsPlace(x, place))).slice(0, 6)
+      ? popularCatalog.items.filter((x) => (isLab ? pays(x) : true)).slice(0, 6)
       : [];
   const moreRows = catalog.hasMore;
   const showPackages = filter === 'all' || filter === 'packages' || filter === 'lowest_price' || filter === 'home_visit' || filter === 'highest_rated';

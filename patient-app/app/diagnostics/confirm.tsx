@@ -5,7 +5,7 @@ import { router, type Href } from 'expo-router';
 
 import { Button, Card, Chip, EmptyState, FIcon, Radio } from '../../../packages/ui-native/src';
 import { ConsultScreen, Section } from '../../src/components/consult/ConsultKit';
-import { AmountLine, Block, LAB_TONE, Price, goBackDiag } from '../../src/components/diagnostics/DiagKit';
+import { AmountLine, Block, LAB_TONE, NameArt, Price, goBackDiag } from '../../src/components/diagnostics/DiagKit';
 import { Notice } from '../../src/components/pharmacy/OfferKit';
 import { useOrderDates } from '../../src/components/ordering/OrderingKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
@@ -231,7 +231,7 @@ export default function DiagnosticsConfirm() {
               const line = p.items.find((l) => l.catalog_id === i.catalog_id);
               return (
                 <View key={i.catalog_id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                  <FIcon icon={g.mode === 'facility' && i.facility_only ? 'scan' : 'test-tube'} tone={g.mode === 'facility' && i.facility_only ? 'violet' : LAB_TONE} size={36} theme={theme} />
+                  <NameArt kind={g.mode === 'facility' && i.facility_only ? 'radiology' : 'lab'} name={nameOf(i.catalog_id)} size={36} />
                   <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{nameOf(i.catalog_id) || k('ordering.pay.item')}</Text>
                   {line ? <Price amount={line.price} size="small" /> : null}
                 </View>

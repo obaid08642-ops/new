@@ -14,6 +14,8 @@ import { Icon } from "@/components-next/ui-generated/src/Icon";
 import consult from "@/components-next/consult/consult.module.css";
 import styles from "@/components-next/diagnostics/diag.module.css";
 import { diagnosticBookingHref } from "@/lib/diagnostics-links";
+import { DiagArt } from "@/components-next/diagnostics/diag-art";
+import { diagArtKey } from "@/components-next/ui-generated/icons/diag-art";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -58,7 +60,7 @@ export default async function DiagnosticsResultsPage({ params }: Props) {
               const status = diagStatus(b.state);
               return (
                 <li key={b.id}>
-                  <RowCard href={diagnosticBookingHref(locale, "labs", b.id)} icon={LAB.icon} tone={LAB.tone} title={pickName(locale, b.testNames) ?? d("labs.label")} sub={[b.scheduledAt && !Number.isNaN(Date.parse(b.scheduledAt)) ? new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(b.scheduledAt)) : null, b.hasReport ? d("reportReady") : status.key === "unknown" ? d("statusUnavailable") : t(`status_${status.key}`)].filter(Boolean).join(" · ")} caret={caret} />
+                  <RowCard href={diagnosticBookingHref(locale, "labs", b.id)} icon={LAB.icon} tone={LAB.tone} art={<DiagArt art={diagArtKey({ kind: "lab", names: Object.values(b.testNames ?? {}) })} size={48} />} title={pickName(locale, b.testNames) ?? d("labs.label")} sub={[b.scheduledAt && !Number.isNaN(Date.parse(b.scheduledAt)) ? new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(b.scheduledAt)) : null, b.hasReport ? d("reportReady") : status.key === "unknown" ? d("statusUnavailable") : t(`status_${status.key}`)].filter(Boolean).join(" · ")} caret={caret} />
                 </li>
               );
             })}
