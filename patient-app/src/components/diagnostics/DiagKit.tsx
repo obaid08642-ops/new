@@ -11,7 +11,7 @@ import { Money } from '../pharmacy/OfferKit';
 import { Chevron } from '../consult/ConsultKit';
 import { statusLook, type OrderKind } from '../../utils/orderCenter';
 import { ItemPhoto } from './ItemPhoto';
-import type { DiagArtKey } from '../../../../packages/ui/icons/diag-art';
+import { DIAG_ART_TONE, diagArtKey, type DiagArtKey } from '../../../../packages/ui/icons/diag-art';
 import { DiagArt } from './DiagArt';
 
 /**
@@ -524,11 +524,16 @@ export function PersonRow({ icon, tone, title, line, actionIcon, actionLabel, on
   );
 }
 
+/** The category illustration of a line that only knows its kind and name (a cart line, a booked item, a result): the same art the catalogue shows, never one test tube for every row. */
+export function NameArt({ kind, name, size = 44 }: { kind: DiagKind; name?: string; size?: number }) {
+  return <DiagArt art={diagArtKey({ kind, names: [name] })} size={size} />;
+}
+
 /** The head of a detail page (package, test, lab): a tone wash with the glyph or the catalogue image, the name and a line. */
 export function DetailHead({ icon, tone, image, title, body, art }: { icon: FillIconName; tone: ServiceTone; image?: string; title: string; body?: string; /** A test or scan shows its category illustration in place of the service glyph. */ art?: DiagArtKey }) {
   const { theme, t, c } = useScreenUi();
   return (
-    <Card theme={theme} tint={tone} padding="lg">
+    <Card theme={theme} tint={art ? DIAG_ART_TONE[art] : tone} padding="lg">
       <View style={{ alignItems: 'center', gap: 10 }}>
         <ItemPhoto image={image} size={96} radius={24} bg={c.bg.surface} fallback={art ? <DiagArt art={art} size={72} /> : <FIcon icon={icon} tone={tone} size={72} theme={theme} />} />
         <Text accessibilityRole="header" style={{ ...scale(t, 'h2'), color: c.text.primary, textAlign: 'center' }}>{title}</Text>
