@@ -1,0 +1,36 @@
+# Doctor booking, then move it from My appointments (Edit or cancel -> Reschedule -> another time -> Confirm new time); back on the list it is still an upcoming appointment.
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: ""
+- runFlow:
+    file: common_book_doctor.yaml
+    env:
+      SLOT: "14"
+- runFlow: common_my_appointments.yaml
+- tapOn:
+    text: "تعديل أو إلغاء"
+- extendedWaitUntil:
+    visible:
+      id: "choose-reschedule"
+    timeout: 20000
+- tapOn:
+    id: "choose-reschedule"
+- extendedWaitUntil:
+    visible:
+      id: "slot-.*"
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      id: "slot-3"
+- tapOn:
+    id: "slot-3"
+- tapOn:
+    id: "reschedule-confirm"
+- takeScreenshot: patient_doctor_rescheduled
+- extendedWaitUntil:
+    notVisible:
+      id: "reschedule-confirm"
+    timeout: 30000
