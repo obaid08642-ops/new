@@ -1,7 +1,7 @@
 /**
- * Owner rule (2026-10-26): a product section is shown in the page's language; when that language has no text for it, another language is
- * used (Arabic pages: English; English pages: Arabic; ur, hi, bn, fil: English, then Arabic) and the DTO says which one, so the page can
- * mark it. The mixing is never silent.
+ * Owner rule (2026-10-27, replacing the marked fallback of 2026-10-26): a leaflet section is shown in the page's language or not at all. A
+ * section whose own language has no text, or whose text is really in another language (an Arabic leaflet in the English column), is absent
+ * from the DTO, so the page hides it until it is translated. Names and short facts (a brand, a form, a category) still fall back and say so.
  */
 import { contentDir, contentFallbackOrder, resolveMedicinePublicDto, textLanguage } from './med-i18n';
 
@@ -32,28 +32,34 @@ describe('textLanguage', () => {
 describe('the Arabic page', () => {
   const raw = { ...base, indications_ar: '', indications_en: 'Pain relief\nFever', usage_instructions_ar: 'يؤخذ بعد الأكل', side_effects_en: 'Nausea', storage_conditions_ar: 'يحفظ في مكان بارد' };
   const dto = resolveMedicinePublicDto(raw, 'ar');
-  it('keeps what exists in Arabic unmarked and falls back field by field to English, marked', () => {
+  it('keeps what exists in Arabic and HIDES a section that has only an English text (owner 2026-10-27: a translated field over a mixed language)', () => {
     expect(dto.description).toBe('وصف عربي كامل للمنتج');
     expect(dto.how_to_use).toEqual(['يؤخذ بعد الأكل']);
     expect(dto.storage_conditions).toBe('يحفظ في مكان بارد');
-    expect(dto.indications).toEqual(['Pain relief', 'Fever']);
-    expect(dto.side_effects).toEqual(['Nausea']);
-    expect(dto.fallback_langs).toMatchObject({ indications: 'en', side_effects: 'en' });
-    expect(Object.keys(dto.fallback_langs).sort()).toEqual(['indications', 'side_effects']);
+    expect(dto.indications).toEqual([]);
+    expect(dto.side_effects).toEqual([]);
+    expect(dto.fallback_langs).toEqual({});
   });
-  it('an English text sitting in the Arabic column is marked English too', () => {
+  it('an English text sitting in the Arabic column is not an Arabic text: the section is hidden until it is moved and translated', () => {
     const d = resolveMedicinePublicDto({ ...base, dosage_ar: 'Adults: one tablet every eight hours with water' }, 'ar');
-    expect(d.dosage_instructions).toBe('Adults: one tablet every eight hours with water');
-    expect(d.fallback_langs.dosage_instructions).toBe('en');
+    expect(d.dosage_instructions).toBeNull();
+    expect(d.fallback_langs.dosage_instructions).toBeUndefined();
   });
 });
 
 describe('the English page', () => {
-  it('falls back to Arabic, marked', () => {
+  it('hides a section that has only an Arabic text', () => {
     const d = resolveMedicinePublicDto({ ...base, description_en: '', warnings_ar: 'لا يستعمل مع الكحول' }, 'en');
-    expect(d.description).toBe('وصف عربي كامل للمنتج');
-    expect(d.warnings).toEqual(['لا يستعمل مع الكحول']);
-    expect(d.fallback_langs).toMatchObject({ description: 'ar', warnings: 'ar' });
+    expect(d.description).toBeNull();
+    expect(d.warnings).toEqual([]);
+    expect(d.fallback_langs).toEqual({});
+  });
+  it('an Arabic text sitting in the English column is hidden too', () => {
+    const d = resolveMedicinePublicDto({ ...base, description_en: 'وصف عربي طويل موضوع في عمود اللغة الإنجليزية بالخطأ' }, 'en');
+    expect(d.description).toBeNull();
+  });
+  it('its own English text is shown', () => {
+    expect(resolveMedicinePublicDto(base, 'en').description).toBe('English description of the product');
   });
 });
 
@@ -63,26 +69,26 @@ describe('ur, hi, bn and fil pages', () => {
     indications_en: 'Pain relief', warnings_ar: 'تحذير بالعربية',
     translations: { hi: { name: 'दवा', description: 'हिंदी विवरण', how_to_use: 'भोजन के बाद लें' }, tl: { name: 'Gamot', description: 'Paglalarawan' } },
   };
-  it('hi: own text first, then English, then Arabic', () => {
+  it('hi: its own text only; the sections it lacks are absent (no English, no Arabic)', () => {
     const d = resolveMedicinePublicDto(raw, 'hi');
     expect(d.description).toBe('हिंदी विवरण');
     expect(d.how_to_use).toEqual(['भोजन के बाद लें']);
-    expect(d.indications).toEqual(['Pain relief']);
-    expect(d.warnings).toEqual(['تحذير بالعربية']);
-    expect(d.fallback_langs).toMatchObject({ indications: 'en', warnings: 'ar' });
-    expect(d.fallback_langs.description).toBeUndefined();
-    expect(d.fallback_langs.how_to_use).toBeUndefined();
+    expect(d.indications).toEqual([]);
+    expect(d.warnings).toEqual([]);
+    for (const field of ['description', 'indications', 'warnings', 'how_to_use']) expect(d.fallback_langs[field]).toBeUndefined();   // only short facts (form, category) may still say they fell back
   });
   it('fil is read from the `tl` key of the database', () => {
     const d = resolveMedicinePublicDto(raw, 'fil');
     expect(d.description).toBe('Paglalarawan');
     expect(d.fallback_langs.description).toBeUndefined();
   });
-  it('a locale with nothing of its own is entirely marked, never silently mixed', () => {
+  it('a locale with nothing of its own has no leaflet sections at all, but still a name', () => {
     const d = resolveMedicinePublicDto(raw, 'bn');
-    const shown = { description: d.description, indications: d.indications, warnings: d.warnings };
-    expect(shown.description).toBe('English description of the product');
-    for (const field of ['description', 'indications', 'warnings']) expect(d.fallback_langs[field]).toBeTruthy();
+    expect(d.description).toBeNull();
+    expect(d.indications).toEqual([]);
+    expect(d.warnings).toEqual([]);
+    expect(d.name).toBeTruthy();
+    expect(d.fallback_langs.description).toBeUndefined();
   });
 });
 

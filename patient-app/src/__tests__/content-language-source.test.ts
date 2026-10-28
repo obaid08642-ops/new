@@ -2,7 +2,7 @@
 let mockLocale = 'ar';
 jest.mock('../i18n/LanguageManager', () => ({ LanguageManager: { getInstance: () => ({ i18n: { get locale() { return mockLocale; } } }) } }));
 
-import { dbLangDir, pickDbFieldSource, textLang } from '../utils/localize';
+import { dbLangDir, pickDbFieldOwn, pickDbFieldSource, textLang } from '../utils/localize';
 import { medFieldSource } from '../utils/pharmacyCatalog';
 
 const med = {
@@ -60,5 +60,31 @@ describe('textLang / dbLangDir', () => {
   });
   it('Arabic and Urdu are right-to-left', () => {
     expect(['ar', 'ur', 'en', 'hi', 'bn', 'tl'].map((l) => dbLangDir(l as never))).toEqual(['rtl', 'rtl', 'ltr', 'ltr', 'ltr', 'ltr']);
+  });
+});
+
+describe('pickDbFieldOwn: a leaflet section in the app\'s own language or not at all (owner 2026-10-27)', () => {
+  it('Arabic: the Arabic text; an English-only or English-in-the-Arabic-column section is absent', () => {
+    mockLocale = 'ar';
+    expect(pickDbFieldOwn(med, 'description')).toBe('وصف عربي');
+    expect(pickDbFieldOwn(med, 'indications')).toBeUndefined();            // only English exists
+    expect(pickDbFieldOwn(med, 'dosage')).toBeUndefined();                 // English text sitting in the Arabic column
+  });
+  it('English: the English text; an Arabic-only section is absent', () => {
+    mockLocale = 'en';
+    expect(pickDbFieldOwn(med, 'description')).toBe('English description');
+    expect(pickDbFieldOwn(med, 'warnings')).toBeUndefined();
+    expect(pickDbFieldOwn({ description_en: 'وصف عربي طويل وضع بالخطأ في خانة اللغة الإنجليزية' }, 'description')).toBeUndefined();
+  });
+  it('Hindi: its own text only, never English or Arabic', () => {
+    mockLocale = 'hi';
+    expect(pickDbFieldOwn(med, 'description')).toBe('हिंदी विवरण');
+    expect(pickDbFieldOwn(med, 'indications')).toBeUndefined();
+    expect(pickDbFieldOwn(med, 'warnings')).toBeUndefined();
+  });
+  it('nothing stored: undefined', () => {
+    mockLocale = 'en';
+    expect(pickDbFieldOwn(med, 'side_effects')).toBeUndefined();
+    expect(pickDbFieldOwn(null, 'x')).toBeUndefined();
   });
 });

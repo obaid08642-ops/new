@@ -4,13 +4,14 @@ import { POPULAR_KEY_STAGES, POPULAR_MIX_KEY_STAGES, POPULAR_MIX_SORT_PROJECTION
 const doc = (id: string, extra: any = {}) => ({ id, slug: `med-${id}`, name_ar: `دواء ${id}`, category: 'الأدوية والعلاج', usage_count: 0, ...extra });
 
 describe('publicCategoryProducts popularity ordering', () => {
-  const svc = (medicines: any[]) => {
+  const svc = (medicines: any[], treeRows: any[] = []) => {
     const pipelines: any[][] = [];
     const finds: any[] = [];
     const cols: any = {
       medicines: {
         // the page is two reads now: the ordered ids (aggregate over the six sort fields), then the full documents of those ids
         aggregate: jest.fn().mockImplementation((pipeline: any[]) => {
+          if (pipeline.some((st) => '$group' in st)) return { toArray: jest.fn().mockResolvedValue(treeRows) };   // the category tree
           pipelines.push(pipeline);
           return { toArray: jest.fn().mockResolvedValue(medicines.map((m, i) => ({ _id: `oid-${i}` }))) };
         }),
@@ -76,5 +77,27 @@ describe('publicCategoryProducts popularity ordering', () => {
   it('a prescription-only item keeps its natural place (its score does not count)', () => {
     const add = POPULAR_ORDER_STAGES[0] as any;
     expect(JSON.stringify(add.$addFields._rank)).toContain('requires_prescription');
+  });
+
+  describe('category name fast path (2026-10-27)', () => {
+    const tree = [{ _id: { c: 'العناية بالبشرة', s: 'مرطبات' }, n: 5 }, { _id: { c: 'الأدوية والعلاج', s: 'مسكنات' }, n: 9 }];
+
+    it('an exact category name filters by equality on the indexed field, so the covering index answers it', async () => {
+      const { service, pipelines } = svc([doc('a')], tree);
+      await service.publicCategoryProducts('ar', 'العناية بالبشرة', undefined, 1, 24);
+      expect(pipelines[0][0].$match.$or).toEqual([{ category: 'العناية بالبشرة' }]);
+    });
+
+    it('a term that other category names also contain keeps the old regex match (same rows as before)', async () => {
+      const { service, pipelines } = svc([doc('a')], [...tree, { _id: { c: 'العناية بالبشرة والجسم', s: 'x' }, n: 1 }]);
+      await service.publicCategoryProducts('ar', 'العناية بالبشرة', undefined, 1, 24);
+      expect(pipelines[0][0].$match.$or).toHaveLength(4);
+    });
+
+    it('a name that is not a category keeps the old regex match', async () => {
+      const { service, pipelines } = svc([doc('a')], tree);
+      await service.publicCategoryProducts('ar', 'بشرة', undefined, 1, 24);
+      expect(pipelines[0][0].$match.$or).toHaveLength(4);
+    });
   });
 });

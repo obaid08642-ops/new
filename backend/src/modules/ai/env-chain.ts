@@ -84,3 +84,25 @@ export function chainCallerFromEnv(env: NodeJS.ProcessEnv = process.env, opts: E
     throw new Error(`ai_chain_exhausted: ${failures.join(' ') || 'every provider is parked'}`);
   };
 }
+
+/**
+ * One caller per provider whose key is set, for jobs that run the providers side by side (each within its own limits) instead of
+ * one after the other. A caller throws the same error codes as the chain; it never parks or retries (the job's scheduler does).
+ */
+export function providerCallersFromEnv(env: NodeJS.ProcessEnv = process.env, opts: EnvChainOptions = {}): Array<{ provider: ProviderConfig; call: Caller }> {
+  const providers = envChainProviders(env);
+  if (!providers.length) throw new Error(`no AI provider variable is set (${providerVariableNames().join(', ')}): nothing was sent`);
+  const f = opts.fetchImpl ?? fetch;
+  return providers.map((provider, i) => {
+    const key = String(env[PROVIDER_ENV_KEY[provider.key]]).trim();
+    const model = (i === 0 && opts.model) || provider.model;
+    return {
+      provider,
+      call: async (prompt: string) => {
+        const text = await callProvider(provider, key, model, prompt, f);
+        if (!text.trim()) throw new Error(`${provider.key}_empty_response`);
+        return text;
+      },
+    };
+  });
+}

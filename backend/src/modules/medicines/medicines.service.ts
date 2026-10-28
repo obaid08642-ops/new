@@ -545,6 +545,17 @@ export class MedicinesService {
    * For large catalogs use paginate() via ?page=&limit= instead.
    */
   /**
+   * Long translated text blocks never sent on cards, for every language (ar and en included: they were 26 KB of a 27 KB card).
+   * Names, slugs and official names stay for localized lists.
+   */
+  private static cardTranslationExclusions(): Record<string, 0> {
+    const heavy = ['more_information', 'indications_uses', 'dosage_instructions', 'side_effects', 'warnings_precautions', 'storage_conditions', 'how_to_use', 'package_content_details', 'description', 'search_aliases'];
+    const out: Record<string, 0> = {};
+    for (const lang of ['ar', 'en', 'ur', 'hi', 'bn', 'tl']) for (const k of heavy) out[`translations.${lang}.${k}`] = 0;
+    return out;
+  }
+
+  /**
    * Card-level projection for LIST responses — the full document (with the
    * 6-language translations map) weighs ~24KB; cards need ~2KB. Details()
    * still returns everything. This is what keeps the catalog fast at 21k docs.
@@ -554,10 +565,7 @@ export class MedicinesService {
     // Keep ONLY the translated display names per language on cards (needed so
     // ur/hi/bn/tl users see localized names in lists); exclude the heavy
     // translated long-text blocks. details() still returns everything.
-    'translations.ur.more_information': 0, 'translations.ur.indications_uses': 0, 'translations.ur.dosage_instructions': 0, 'translations.ur.side_effects': 0, 'translations.ur.warnings_precautions': 0, 'translations.ur.storage_conditions': 0, 'translations.ur.how_to_use': 0, 'translations.ur.package_content_details': 0,
-    'translations.hi.more_information': 0, 'translations.hi.indications_uses': 0, 'translations.hi.dosage_instructions': 0, 'translations.hi.side_effects': 0, 'translations.hi.warnings_precautions': 0, 'translations.hi.storage_conditions': 0, 'translations.hi.how_to_use': 0, 'translations.hi.package_content_details': 0,
-    'translations.bn.more_information': 0, 'translations.bn.indications_uses': 0, 'translations.bn.dosage_instructions': 0, 'translations.bn.side_effects': 0, 'translations.bn.warnings_precautions': 0, 'translations.bn.storage_conditions': 0, 'translations.bn.how_to_use': 0, 'translations.bn.package_content_details': 0,
-    'translations.tl.more_information': 0, 'translations.tl.indications_uses': 0, 'translations.tl.dosage_instructions': 0, 'translations.tl.side_effects': 0, 'translations.tl.warnings_precautions': 0, 'translations.tl.storage_conditions': 0, 'translations.tl.how_to_use': 0, 'translations.tl.package_content_details': 0,
+    ...MedicinesService.cardTranslationExclusions(),
     more_info_ar: 0, more_info_en: 0, description_ar: 0, description_en: 0,
     indications_ar: 0, indications_en: 0, warnings_ar: 0, warnings_en: 0,
     precautions_ar: 0, precautions_en: 0, side_effects_ar: 0, side_effects_en: 0,

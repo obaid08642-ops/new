@@ -141,7 +141,7 @@ export function expandMultilingualSearchTerms(input: string): string[] {
  * Auto metadata per entity (slug/canonical/OG/Twitter/JSON-LD/breadcrumbs),
  * sitemap.xml + robots.txt, universal home search, recommendation engine.
  */
-import { Module, Injectable, Controller, Get, Post, Body, NotFoundException, Param, Query, Res, Optional } from '@nestjs/common';
+import { Module, Injectable, Controller, Get, Post, Body, NotFoundException, Param, Query, Res, Optional, UseInterceptors } from '@nestjs/common';
 import { InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { Response } from 'express';
@@ -178,6 +178,7 @@ import { SeoIndexingListener } from './seo-indexing.listener';
 import { SeoIndexingService } from './seo-indexing.service';
 import { publicIndexableFilter, siteOrigin } from './seo-public-urls';
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
+import { Throttle } from '@nestjs/throttler';
 import { FacilityRepository } from './seo-repositories/facility.repository';
 import { HomeCareServiceRepository } from './seo-repositories/homecareservice.repository';
 import { LabServiceRepository } from './seo-repositories/labservice.repository';
@@ -236,7 +237,7 @@ export class SeoSearchService {
   }
   // R49: sitemap pages are 5000-doc reads (~10-12s live). Slugs change only via
   // backfill/indexing, so a 6h in-process cache is safe. Zero new deps by design.
-  private readonly sitemapCache = new Map<string, { exp: number; val: any }>();
+  private readonly sitemapCache = new Map<string, { exp: number; stale?: number; val: any }>();
   private static readonly SITEMAP_TTL_MS = 6 * 60 * 60 * 1000;
 
   /** F23: live medicine count for llms.txt (cached 1h). */
@@ -255,22 +256,27 @@ export class SeoSearchService {
    * Kept 60 s in the process; concurrent misses share one count. A publish shows in the total within a minute; the
    * items themselves are always read live.
    */
-  private readonly publicCountCache = new Map<string, { exp: number; val: number; pending: Promise<number> | null }>();
+  private readonly publicCountCache = new Map<string, { exp: number; staleUntil: number; val?: number; pending: Promise<number> | null }>();
+  private static readonly COUNT_FRESH_MS = 5 * 60_000;
+  private static readonly COUNT_STALE_MS = 60 * 60_000;
   private publicListingCount(filter: any): Promise<number> {
     // One entry per distinct filter (category, sub-category or search term), so a category page reuses its own total.
     const key = JSON.stringify(filter, (_k, v) => (v instanceof RegExp ? String(v) : v));
     const now = Date.now();
     const c = this.publicCountCache.get(key);
-    if (c && now < c.exp) return Promise.resolve(c.val);
-    if (c?.pending) return c.pending;
+    // Stale-while-revalidate (2026-10-27): a total a few minutes old is shown at once and refreshed behind the response, so only the
+    // very first ask of a filter waits for the count (and that count is answered from an index, see medicine.schema.ts).
+    if (c?.val !== undefined && now < c.exp) return Promise.resolve(c.val);
+    if (c?.pending) return c.val !== undefined && now < c.staleUntil ? Promise.resolve(c.val) : c.pending;
     if (this.publicCountCache.size >= 500) {
-      for (const [k, v] of this.publicCountCache) if (!v.pending && v.exp <= now) this.publicCountCache.delete(k);
+      for (const [k, v] of this.publicCountCache) if (!v.pending && v.staleUntil <= now) this.publicCountCache.delete(k);
       if (this.publicCountCache.size >= 500) this.publicCountCache.clear();
     }
-    const pending = this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments(filter)
-      .then((n) => { this.publicCountCache.set(key, { exp: Date.now() + 60_000, val: n, pending: null }); return n; })
-      .catch((e) => { this.publicCountCache.delete(key); throw e; });
-    this.publicCountCache.set(key, { exp: 0, val: 0, pending });
+    const pending: Promise<number> = this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments(filter)
+      .then((n) => { const t = Date.now(); this.publicCountCache.set(key, { exp: t + SeoSearchService.COUNT_FRESH_MS, staleUntil: t + SeoSearchService.COUNT_STALE_MS, val: n, pending: null }); return n; })
+      .catch((e) => { if (c?.val !== undefined) this.publicCountCache.set(key, { ...c, pending: null }); else this.publicCountCache.delete(key); throw e; });
+    this.publicCountCache.set(key, { exp: c?.exp ?? 0, staleUntil: c?.staleUntil ?? 0, val: c?.val, pending });
+    if (c?.val !== undefined && now < c.staleUntil) { pending.catch(() => undefined); return Promise.resolve(c.val); }
     return pending;
   }
 
@@ -768,10 +774,28 @@ export class SeoSearchService {
 
   /** Category cluster tree with live counts per locale. */
   async publicCategories(locale: string) {
-    // The tree is a group over the whole public catalogue (about 1.3 s); counts change slowly, so it is kept 5 minutes.
+    // The tree is a group over the whole public catalogue; counts change slowly, so it is kept 5 minutes and, once older, served stale
+    // for up to an hour while ONE refresh runs behind the response (2026-10-27: no visitor waits for the group after the first one).
     const cacheKey = `cattree:${locale}`;
     const hit = this.sitemapCache.get(cacheKey);
-    if (hit && hit.exp > Date.now()) return hit.val;
+    const now = Date.now();
+    if (hit && hit.exp > now) return hit.val;
+    if (hit && hit.stale > now) {
+      if (!this.treeRefresh.has(cacheKey)) {
+        const refresh = this.buildCategoryTree(locale).then((val) => this.sitemapCache.set(cacheKey, { exp: Date.now() + 5 * 60_000, stale: Date.now() + 60 * 60_000, val })).catch(() => undefined).finally(() => this.treeRefresh.delete(cacheKey));
+        this.treeRefresh.set(cacheKey, refresh);
+      }
+      return hit.val;
+    }
+    const pending = this.treeRefresh.get(cacheKey);
+    if (pending) { await pending; const again = this.sitemapCache.get(cacheKey); if (again) return again.val; }
+    const val = await this.buildCategoryTree(locale);
+    this.sitemapCache.set(cacheKey, { exp: Date.now() + 5 * 60_000, stale: Date.now() + 60 * 60_000, val });
+    return val;
+  }
+  private readonly treeRefresh = new Map<string, Promise<unknown>>();
+
+  private async buildCategoryTree(locale: string) {
     const db = productLocaleToDb(locale);
     const key = (f: string) => db === 'ar' ? f : `translations.${db}.${f === 'category' ? 'main_category' : f}`;
     const rows = await this.conn.collection(CATALOG_COLLECTIONS.medicines).aggregate([
@@ -786,9 +810,24 @@ export class SeoSearchService {
       tree[c].count += r.n;
       if (r._id?.s) tree[c].subs[r._id.s] = (tree[c].subs[r._id.s] || 0) + r.n;
     }
-    const val = { locale, categories: Object.values(tree) };
-    this.sitemapCache.set(cacheKey, { exp: Date.now() + 5 * 60 * 1000, val });
-    return val;
+    return { locale, categories: Object.values(tree) };
+  }
+
+  /** Equality clauses for a category name that matches exactly one tree entry in both the locale and Arabic trees, else null. */
+  private async exactCategoryClauses(locale: string, name: string, escaped: string, field: string) {
+    const rx = new RegExp(escaped, 'i');
+    const only = (tree: { categories: { name: string }[] }) => {
+      const hits = tree.categories.filter((c) => rx.test(c.name));
+      return hits.length === 1 && hits[0].name === name;
+    };
+    try {
+      if (!only(await this.publicCategories(locale))) return null;
+      if (field === 'category') return [{ category: name }];
+      if (!only(await this.publicCategories('ar'))) return null;
+      return [{ [field]: name }, { category: name }];
+    } catch {
+      return null;
+    }
   }
 
   /** Paginated products inside a localized category cluster. */
@@ -845,7 +884,10 @@ export class SeoSearchService {
     if (resolvedCat && resolvedCat !== 'all' && resolvedCat !== 'الكل') {
       const cleanTerm = resolvedCat.replace(/^ال/, '').replace(/[\u064B-\u065F\u0670\u0640]/g, '').trim();
       const escaped = cleanTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      filter.$or = [
+      // Fast path: when the name is a real category and no other category name contains the term, the regex
+      // branches add nothing, and plain equality lets the category-led covering index answer the query.
+      const exact = await this.exactCategoryClauses(locale, resolvedCat, escaped, key('category'));
+      filter.$or = exact ?? [
         { [key('category')]: resolvedCat },
         { [key('category')]: { $regex: escaped, $options: 'i' } },
         { category: resolvedCat },
@@ -1272,6 +1314,9 @@ export class SeoSearchController {
 
   /** Category cluster tree (per locale, live counts). */
   @Public()
+  @UseInterceptors(RedisCacheInterceptor)
+  @PublicCache(300, ['medicines', 'public-catalogue'], { cacheControl: 'public, s-maxage=300, stale-while-revalidate=600' })
+  @Throttle({ default: { limit: 1200, ttl: 60_000 } })
   @Get('public/categories/:locale')
   publicCategories(@Param('locale') locale: string) {
     if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
@@ -1280,6 +1325,9 @@ export class SeoSearchController {
 
   /** Category cluster products. */
   @Public()
+  @UseInterceptors(RedisCacheInterceptor)
+  @PublicCache(300, ['medicines', 'public-catalogue'], { cacheControl: 'public, s-maxage=300, stale-while-revalidate=600' })
+  @Throttle({ default: { limit: 1200, ttl: 60_000 } })
   @Get('public/categories/:locale/items')
   publicCategoryProducts(
     @Param('locale') locale: string,
