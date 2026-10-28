@@ -181,3 +181,9 @@ Hot spot: `GET /medicines` (list, with and without `smart_ranking`) is ~300 ms a
 ## App
 
 Not measured yet (needs native-e2e emulator run).
+
+## Private pages: where the TTFB goes (lead decision b)
+
+Measured on a local production build (`next start`, warm process, anonymous): `/ar/pharmacy/filters` 53–80 ms, `/ar/nursing/service-info` 40–67 ms, `/ar/labs/when` 37–71 ms (vs `/ar/articles` 37–50 ms). The first request of a cold process took 13 s (route compile), then every page renders in under 100 ms. `pharmacy/filters` and `nursing/service-info` do no fetch at all (13 and 15 lines of `page.tsx`), and `labs/when`/`labs/basket` make one `loadOrderingContext` call that is empty without a token.
+
+So the 0.4–0.9 s seen on production for these pages is not their server work: there are no waterfalls and no heavy payloads in the anonymous render. It is the path in front of the app (edge -> origin round trips on a `no-store` response, the nonce server) plus the ~270 ms floor of the measuring vantage. Cutting it further means caching, which the owner ruled out for private pages. Signed-in renders (the real cost of `/labs/basket` etc. is `loadOrderingContext` with a token) were not measured: they need a seeded patient session and are the next thing to profile, with the API calls of that context timed one by one.
