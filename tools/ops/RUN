@@ -1,6 +1,6 @@
 # 2026-10-28 lead reviewer: run 45, the owner's morning run.
 # 1. Pause the ar+en translation, saving its answers on the host.
-# 2. Free disk, deploy main@7e5eb301: translation fix (#2060: failed answers no longer counted, refused providers retired, stats file),
+# 2. Free disk, deploy main@cefa5d20: translation fix (#2060: failed answers no longer counted, refused providers retired, stats file),
 #    catalogue as the single source + notify-me (#2067), per-service provider options (#2069), radiology data step (#2062), test-data
 #    finder (#2064), OTA config (#2061), Cloudflare cache rules code (#2055/#2056).
 # 3. READ-ONLY: 77-test-data-find (ids + what each is linked to); 90-catalogue-apply DRY RUN (prints the radiology clean-up and the
@@ -8,10 +8,12 @@
 # 4. Resume the ar+en translation (same requests; only unanswered ones are sent), then print its per-provider stats.
 # 5. Open uploads (owner): 91b APPLY sets UPLOAD_SCAN=defer, installs the ClamAV window from the verified release and its cron,
 #    recreates only the backend, checks /config uploads_enabled=true; rollback restores the env backup. Clients show "being checked" (#2073).
+# 7. cdn.nabd.plus product images stall on old cache entries (p50 3.8 s, p95 30 s): 48 turns off Polish/Mirage/Rocket Loader if on,
+#    purges the host and measures p50/p95 before and after.
 # 6. Cloudflare: cache rules for the anonymous public API, public HTML pages and images; each apply proves itself (MISS→HIT, no HIT
 #    with a session cookie or Authorization, no personal page cached) and puts the old rules back on any failed check.
 98c-translate-pause
-release:7e5eb301dd5dc487ac83b94fd7df1e1b80867ca6
+release:cefa5d207a1b00a6db8f8edd52b104a92f503f0c
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
@@ -23,4 +25,5 @@ release:7e5eb301dd5dc487ac83b94fd7df1e1b80867ca6
 cf:45-public-api-cache-apply
 cf:46-public-html-cache-apply
 cf:47-public-assets-api-cache-apply
+cf:48-cdn-images-apply
 cf-purge-api
