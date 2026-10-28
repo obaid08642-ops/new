@@ -2,7 +2,7 @@
 usage: python3 tools/perf/api-sweep.py [base] > api.json"""
 import json, subprocess, sys
 base = sys.argv[1] if len(sys.argv) > 1 else "https://api.nabd.plus"
-EP = ["/api/v1/medicines?page=1&limit=20", "/api/v1/medicines?page=1&limit=20&sort=smart_ranking",
+EP = ["/api/v1/public/medicines?page=1&limit=24", "/api/v1/medicines?page=1&limit=20", "/api/v1/medicines?page=1&limit=20&sort=smart_ranking",
       "/api/v1/medicines/categories", "/api/v1/articles?limit=10",
       "/api/v1/doctors?limit=20",
       "/api/v1/entity-graph/related/doctor/7210a983-9756-4682-ae68-dcc5978d4ab5"]
