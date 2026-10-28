@@ -24,6 +24,7 @@ import {
   type Change, type DbLike,
 } from '../modules/catalogs/catalogue-apply.core';
 import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn, planInsuranceShape, planNumberedDistricts, planPlaceholderCities, planProductTranslations, planRadiologyCatalogue } from '../modules/catalogs/catalogue-apply.steps';
+import { planTestDataRemoval, scanDb } from '../modules/catalogs/test-data';
 import { isTranslationFile } from '../modules/medicines/content-translation';
 
 const TRANSLATIONS_CSV = path.join(__dirname, '../modules/medicines/data/medicine-translations-2026-10-24.csv');
@@ -106,6 +107,19 @@ export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> 
   const radiology = await planRadiologyCatalogue(db, approve);
   changes.push(...radiology.changes);
   report.radiology_catalogue = approvePath ? radiology.report : { ...radiology.report, note: 'no reviewed file given: nothing is approved' };
+
+  // test providers (owner, 2026-10-28): only the provider profiles listed in the reviewed file, with their accounts, sessions and everything that points at them
+  const removalPath = arg(argv, 'test-data-remove');
+  if (removalPath) {
+    const text = fs.readFileSync(removalPath, 'utf8');
+    inputs.test_data_remove = sha256(text);
+    const parsed: unknown = JSON.parse(text);
+    const ids = (parsed as { profile_ids?: unknown })?.profile_ids;
+    if (!Array.isArray(ids) || !ids.every((x) => typeof x === 'string' && /^[A-Za-z0-9-]{4,64}$/.test(x))) throw new Error('--test-data-remove must be {"profile_ids": ["<provider profile id>", ...]}');
+    const removal = await planTestDataRemoval(scanDb(db), ids as string[]);
+    changes.push(...removal.changes);
+    report.test_data = removal.report;
+  } else report.test_data = 'skipped: no reviewed file given';
 
   return { changes, inputs, sha: planSha(changes, inputs), report };
 }
