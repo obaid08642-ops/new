@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { NavLink } from "@/components-next/nav/nav-link";
 import { useDisabledModules } from "@/components-next/modules/modules-provider";
@@ -68,6 +68,7 @@ export type CoreShellProps = {
 
 export function CoreShell({ locale, title, backHref, search, cancelHref, width = "wide", topBarSearch, footer, hideTabs = false, resultsHref, children }: CoreShellProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const shell = useTranslations("CoreShell");
   const shared = useTranslations("Shared");
   const searchT = useTranslations("Search");
@@ -88,6 +89,10 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
   ];
 
   const tabs = allTabs.filter((tab) => !isPathHidden(tab.href, disabled));
+  // the tab of the section this page belongs to (the longest matching href; Home only on the home page itself)
+  const activeTab = tabs
+    .filter((tab) => pathname === tab.href || (tab.id !== "home" && pathname?.startsWith(`${tab.href}/`)))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.id ?? "";
 
   const allSections = [
     { id: "home", label: nav("navHome"), href: `/${locale}` },
@@ -193,7 +198,7 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
         <BottomTabBar
           label={shell("sections")}
           items={tabs.map(({ id, label, icon, art, raised }) => ({ id, label, icon, art, raised }))}
-          value=""
+          value={activeTab}
           onChange={(id) => {
             const target = tabs.find((t) => t.id === id);
             if (target) router.push(target.href);
