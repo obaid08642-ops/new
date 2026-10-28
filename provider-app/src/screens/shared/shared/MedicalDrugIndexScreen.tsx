@@ -34,6 +34,9 @@ import { DrugIndexHeader } from './DrugIndexHeader';
 
 import { DrugIndexDetail } from './DrugIndexDetail';
 import { timedFetch } from '../../../api/timedFetch';
+import { announceScan } from '../../../components/ScanStatusBadge';
+import { scanStateOfRequestError, scanOfStored } from '../../../utils/scanRegistry';
+import { scanStateOfUpload } from '../../../utils/scanStatus';
 
 export function MedicalDrugIndexScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
@@ -178,10 +181,12 @@ export function MedicalDrugIndexScreen({ onBack }: { onBack: () => void }) {
        note: suggestNote.trim() || undefined,
      });
      show(AR ? 'تم إرسال الصورة المقترحة — بانتظار موافقة الإدارة' : 'Image suggestion sent — pending admin approval', 'success');
+     announceScan(show, lang, scanStateOfUpload(up.data));
      setSuggestOpen(false);
      setSuggestImg(null);
    } catch (e: any) {
-     show(AR ? `فشل إرسال الصورة: ${e?.response?.data?.message || e?.message || ''}` : 'Failed to send image', 'error');
+     if (scanStateOfRequestError(e) === 'rejected') announceScan(show, lang, 'rejected');
+     else show(AR ? `فشل إرسال الصورة: ${e?.response?.data?.message || e?.message || ''}` : 'Failed to send image', 'error');
    } finally {
      setSuggestBusy(false);
    }
