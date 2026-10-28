@@ -81,11 +81,30 @@ describe("one cart per service: the header button", () => {
   });
   it("the chooser is titled 'Your carts', lists a name and count per cart, closes on Escape and outside click, and uses tokens only", () => {
     expect(en.CoreShell.cartChooser).toBe("Your carts");
-    const src = read("components-next/core/cart-link.tsx");
+    const src = read("components-next/core/cart-sheet.tsx");
     expect(src).toContain('event.key === "Escape"');
     expect(src).toContain("pointerdown");
     expect(src).toContain("href={cart.href}");
     expect(src).not.toContain("style=");
+  });
+  it("the sheet is a separate chunk, fetched on the first open only: the button file does not import it statically", async () => {
+    const link = read("components-next/core/cart-link.tsx");
+    expect(link).toContain('import("./cart-sheet")');
+    expect(link).not.toMatch(/^import .* from "\.\/cart-sheet"/m);
+    expect(link).not.toContain("createPortal");
+    expect(read("components-next/core/core.module.css")).not.toContain("cartMenu");
+    expect(read("components-next/core/cart-sheet.module.css")).toContain("max-width: 767px");
+    // the lazy chunk resolves to the sheet component
+    const mod = await import("@/components-next/core/cart-sheet");
+    expect(typeof mod.default).toBe("function");
+    const html = renderToStaticMarkup(
+      <NextIntlClientProvider locale="en" timeZone="UTC" messages={{ CoreShell: en.CoreShell }}>
+        <mod.default locale="en" carts={[{ service: "lab", href: "/en/labs/basket", count: 2 }]} wrap={{ current: null }} button={{ current: null }} onClose={() => {}} onId={() => {}} />
+      </NextIntlClientProvider>,
+    );
+    expect(html).toContain('data-testid="cart-chooser"');
+    expect(html).toContain("Your carts");
+    expect(html).toContain('href="/en/labs/basket"');
   });
 });
 
