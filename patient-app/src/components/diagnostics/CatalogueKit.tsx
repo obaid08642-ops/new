@@ -67,8 +67,9 @@ export function CatalogueCard({ item, kind, art, place, payer, idPrefix, width }
       inCartLabel={k('diag.detail.inCart')}
       orderLabel={k('diag.detail.orderNow')}
       onPress={open}
-      onAdd={() => { if (!inCart) void addItem({ id: item.id, name: item.name, price: item.price ?? 0, kind }); }}
-      onOrder={() => router.push(singleOrderRoute({ kind, id: item.id, name: item.name, place, payer: kind === 'lab' && payer === 'insurance' ? 'insurance' : 'cash' }) as unknown as Href)}
+      // a service nobody offers cannot be added or ordered: both buttons open its page, where "Notify me when available" is
+      onAdd={() => { if (isUnoffered(item)) open(); else if (!inCart) void addItem({ id: item.id, name: item.name, price: item.price ?? 0, kind }); }}
+      onOrder={() => isUnoffered(item) ? open() : router.push(singleOrderRoute({ kind, id: item.id, name: item.name, place, payer: kind === 'lab' && payer === 'insurance' ? 'insurance' : 'cash' }) as unknown as Href)}
     />
   );
 }

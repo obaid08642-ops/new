@@ -2986,7 +2986,12 @@
         "خطوة تحضير تجريبية ١",
         "خطوة تحضير تجريبية ٢"
       ],
-      "description_ar": "وصف تجريبي للتحليل"
+      "description_ar": "وصف تجريبي للتحليل",
+      "providers_count": 3,
+      "from_price": 85,
+      "premises_available": true,
+      "home_available": true,
+      "insurance_accepted": true
     },
     {
       "id": "test-lab-test-2",
@@ -2996,7 +3001,12 @@
       "category": "hormones",
       "home_visit_supported": false,
       "facility_visit_supported": true,
-      "turnaround_hours": 48
+      "turnaround_hours": 48,
+      "providers_count": 0,
+      "from_price": null,
+      "premises_available": false,
+      "home_available": false,
+      "insurance_accepted": false
     },
     {
       "id": "test-lab-test-3",
@@ -3006,7 +3016,12 @@
       "category": "vitamins",
       "home_visit_supported": true,
       "facility_visit_supported": true,
-      "turnaround_hours": 24
+      "turnaround_hours": 24,
+      "providers_count": 1,
+      "from_price": 60,
+      "premises_available": true,
+      "home_available": true,
+      "insurance_accepted": false
     },
     {
       "id": "test-lab-test-4",
@@ -3018,7 +3033,12 @@
       "facility_visit_supported": true,
       "turnaround_hours": 24,
       "fasting_required": true,
-      "fasting_hours": 10
+      "fasting_hours": 10,
+      "providers_count": 2,
+      "from_price": 70,
+      "premises_available": true,
+      "home_available": false,
+      "insurance_accepted": true
     }
   ],
   "/labs/services/test-lab-test": {
@@ -3040,7 +3060,59 @@
       "خطوة تحضير تجريبية ١",
       "خطوة تحضير تجريبية ٢"
     ],
-    "description_ar": "وصف تجريبي للتحليل"
+    "description_ar": "وصف تجريبي للتحليل",
+    "providers_count": 3,
+    "from_price": 85,
+    "premises_available": true,
+    "home_available": true,
+    "insurance_accepted": true,
+    "offers": [
+      {
+        "provider": {
+          "id": "test-provider-1",
+          "name_ar": "مركز تجريبي ١",
+          "name_en": "مركز تجريبي ١",
+          "logo": null,
+          "rating": 4.6,
+          "rating_count": 18
+        },
+        "price": 85,
+        "currency": "SAR",
+        "premises": true,
+        "home": true,
+        "insurance": true
+      },
+      {
+        "provider": {
+          "id": "test-provider-2",
+          "name_ar": "مركز تجريبي ٢",
+          "name_en": "مركز تجريبي ٢",
+          "logo": null,
+          "rating": null,
+          "rating_count": 0
+        },
+        "price": 110,
+        "currency": "SAR",
+        "premises": true,
+        "home": false,
+        "insurance": false
+      },
+      {
+        "provider": {
+          "id": "test-provider-3",
+          "name_ar": "مركز تجريبي ٣",
+          "name_en": "مركز تجريبي ٣",
+          "logo": null,
+          "rating": null,
+          "rating_count": 0
+        },
+        "price": null,
+        "currency": "SAR",
+        "premises": true,
+        "home": false,
+        "insurance": false
+      }
+    ]
   },
   "/labs/services/test-lab-test-2": {
     "id": "test-lab-test-2",
@@ -3050,7 +3122,13 @@
     "category": "hormones",
     "home_visit_supported": false,
     "facility_visit_supported": true,
-    "turnaround_hours": 48
+    "turnaround_hours": 48,
+    "providers_count": 0,
+    "from_price": null,
+    "premises_available": false,
+    "home_available": false,
+    "insurance_accepted": false,
+    "offers": []
   },
   "/radiology/services": [
     {
@@ -3062,7 +3140,12 @@
       "home_visit_supported": true,
       "facility_visit_supported": true,
       "turnaround_hours": 12,
-      "description_ar": "وصف تجريبي للأشعة"
+      "description_ar": "وصف تجريبي للأشعة",
+      "providers_count": 3,
+      "from_price": 230,
+      "premises_available": true,
+      "home_available": true,
+      "insurance_accepted": true
     },
     {
       "id": "test-rad-2",
@@ -3072,7 +3155,12 @@
       "category": "mri",
       "home_visit_supported": false,
       "facility_visit_supported": true,
-      "turnaround_hours": 24
+      "turnaround_hours": 24,
+      "providers_count": 0,
+      "from_price": null,
+      "premises_available": false,
+      "home_available": false,
+      "insurance_accepted": false
     }
   ],
   "/radiology/services/test-rad": {
@@ -3084,7 +3172,59 @@
     "home_visit_supported": true,
     "facility_visit_supported": true,
     "turnaround_hours": 12,
-    "description_ar": "وصف تجريبي للأشعة"
+    "description_ar": "وصف تجريبي للأشعة",
+    "providers_count": 3,
+    "from_price": 230,
+    "premises_available": true,
+    "home_available": true,
+    "insurance_accepted": true,
+    "offers": [
+      {
+        "provider": {
+          "id": "test-provider-1",
+          "name_ar": "مركز تجريبي ١",
+          "name_en": "مركز تجريبي ١",
+          "logo": null,
+          "rating": 4.6,
+          "rating_count": 18
+        },
+        "price": 85,
+        "currency": "SAR",
+        "premises": true,
+        "home": true,
+        "insurance": true
+      },
+      {
+        "provider": {
+          "id": "test-provider-2",
+          "name_ar": "مركز تجريبي ٢",
+          "name_en": "مركز تجريبي ٢",
+          "logo": null,
+          "rating": null,
+          "rating_count": 0
+        },
+        "price": 110,
+        "currency": "SAR",
+        "premises": true,
+        "home": false,
+        "insurance": false
+      },
+      {
+        "provider": {
+          "id": "test-provider-3",
+          "name_ar": "مركز تجريبي ٣",
+          "name_en": "مركز تجريبي ٣",
+          "logo": null,
+          "rating": null,
+          "rating_count": 0
+        },
+        "price": null,
+        "currency": "SAR",
+        "premises": true,
+        "home": false,
+        "insurance": false
+      }
+    ]
   },
   "/labs/categories": [
     {
@@ -3391,7 +3531,12 @@
       "name_en": "خدمة تمريض تجريبية ١",
       "description_ar": "وصف تجريبي للخدمة الأولى",
       "description_en": "وصف تجريبي للخدمة الأولى",
-      "price": 150
+      "price": 150,
+      "providers_count": 2,
+      "from_price": 140,
+      "premises_available": false,
+      "home_available": true,
+      "insurance_accepted": true
     },
     {
       "id": "svc-wound",
@@ -3399,7 +3544,12 @@
       "name_en": "خدمة تمريض تجريبية ٢",
       "description_ar": "وصف تجريبي للخدمة الثانية",
       "description_en": "وصف تجريبي للخدمة الثانية",
-      "price": 120
+      "price": 120,
+      "providers_count": 2,
+      "from_price": 140,
+      "premises_available": false,
+      "home_available": true,
+      "insurance_accepted": true
     },
     {
       "id": "test-svc",
@@ -3407,7 +3557,12 @@
       "name_en": "خدمة تمريض تجريبية ٣",
       "description_ar": "وصف تجريبي",
       "description_en": "وصف تجريبي",
-      "price": 90
+      "price": 90,
+      "providers_count": 0,
+      "from_price": null,
+      "premises_available": false,
+      "home_available": false,
+      "insurance_accepted": false
     }
   ],
   "/home-care/packages": [
@@ -3441,6 +3596,43 @@
     "preparation_en": [
       "تحضير تجريبي ١",
       "تحضير تجريبي ٢"
+    ],
+    "providers_count": 2,
+    "from_price": 140,
+    "premises_available": false,
+    "home_available": true,
+    "insurance_accepted": true,
+    "offers": [
+      {
+        "provider": {
+          "id": "test-provider-1",
+          "name_ar": "مركز تجريبي ١",
+          "name_en": "مركز تجريبي ١",
+          "logo": null,
+          "rating": 4.6,
+          "rating_count": 18
+        },
+        "price": 85,
+        "currency": "SAR",
+        "premises": false,
+        "home": true,
+        "insurance": true
+      },
+      {
+        "provider": {
+          "id": "test-provider-2",
+          "name_ar": "مركز تجريبي ٢",
+          "name_en": "مركز تجريبي ٢",
+          "logo": null,
+          "rating": null,
+          "rating_count": 0
+        },
+        "price": 110,
+        "currency": "SAR",
+        "premises": false,
+        "home": true,
+        "insurance": false
+      }
     ]
   },
   "/home-care/providers": [
@@ -4752,7 +4944,12 @@
           "خطوة تحضير تجريبية ٢"
         ],
         "description_ar": "وصف تجريبي للتحليل",
-        "image_url": "https://cdn.example.test/test/photo.svg"
+        "image_url": "https://cdn.example.test/test/photo.svg",
+        "providers_count": 3,
+        "from_price": 85,
+        "premises_available": true,
+        "home_available": true,
+        "insurance_accepted": true
       },
       {
         "id": "test-lab-test-2",
@@ -4762,7 +4959,12 @@
         "category": "hormones",
         "home_visit_supported": false,
         "facility_visit_supported": true,
-        "turnaround_hours": 48
+        "turnaround_hours": 48,
+        "providers_count": 0,
+        "from_price": null,
+        "premises_available": false,
+        "home_available": false,
+        "insurance_accepted": false
       },
       {
         "id": "test-lab-test-3",
@@ -4772,7 +4974,12 @@
         "category": "vitamins",
         "home_visit_supported": true,
         "facility_visit_supported": true,
-        "turnaround_hours": 24
+        "turnaround_hours": 24,
+        "providers_count": 1,
+        "from_price": 60,
+        "premises_available": true,
+        "home_available": true,
+        "insurance_accepted": false
       },
       {
         "id": "test-lab-test-4",
@@ -4784,7 +4991,12 @@
         "facility_visit_supported": true,
         "turnaround_hours": 24,
         "fasting_required": true,
-        "fasting_hours": 10
+        "fasting_hours": 10,
+        "providers_count": 2,
+        "from_price": 70,
+        "premises_available": true,
+        "home_available": false,
+        "insurance_accepted": true
       }
     ],
     "total": 45,
@@ -4804,7 +5016,12 @@
         "facility_visit_supported": true,
         "turnaround_hours": 12,
         "description_ar": "وصف تجريبي للأشعة",
-        "image_url": "https://cdn.example.test/test/photo.svg"
+        "image_url": "https://cdn.example.test/test/photo.svg",
+        "providers_count": 3,
+        "from_price": 230,
+        "premises_available": true,
+        "home_available": true,
+        "insurance_accepted": true
       },
       {
         "id": "test-rad-2",
@@ -4814,7 +5031,12 @@
         "category": "mri",
         "home_visit_supported": false,
         "facility_visit_supported": true,
-        "turnaround_hours": 24
+        "turnaround_hours": 24,
+        "providers_count": 0,
+        "from_price": null,
+        "premises_available": false,
+        "home_available": false,
+        "insurance_accepted": false
       }
     ],
     "total": 31,
@@ -4861,7 +5083,12 @@
           "خطوة تحضير تجريبية ٢"
         ],
         "description_ar": "وصف تجريبي للتحليل",
-        "image_url": "https://cdn.example.test/test/photo.svg"
+        "image_url": "https://cdn.example.test/test/photo.svg",
+        "providers_count": 3,
+        "from_price": 85,
+        "premises_available": true,
+        "home_available": true,
+        "insurance_accepted": true
       },
       {
         "id": "test-lab-test-3",
@@ -4871,7 +5098,12 @@
         "category": "vitamins",
         "home_visit_supported": true,
         "facility_visit_supported": true,
-        "turnaround_hours": 24
+        "turnaround_hours": 24,
+        "providers_count": 1,
+        "from_price": 60,
+        "premises_available": true,
+        "home_available": true,
+        "insurance_accepted": false
       },
       {
         "id": "test-lab-test-4",
@@ -4883,7 +5115,12 @@
         "facility_visit_supported": true,
         "turnaround_hours": 24,
         "fasting_required": true,
-        "fasting_hours": 10
+        "fasting_hours": 10,
+        "providers_count": 2,
+        "from_price": 70,
+        "premises_available": true,
+        "home_available": false,
+        "insurance_accepted": true
       }
     ],
     "total": 3,
@@ -4903,7 +5140,12 @@
         "facility_visit_supported": true,
         "turnaround_hours": 12,
         "description_ar": "وصف تجريبي للأشعة",
-        "image_url": "https://cdn.example.test/test/photo.svg"
+        "image_url": "https://cdn.example.test/test/photo.svg",
+        "providers_count": 3,
+        "from_price": 230,
+        "premises_available": true,
+        "home_available": true,
+        "insurance_accepted": true
       },
       {
         "id": "test-rad-2",
@@ -4913,12 +5155,48 @@
         "category": "mri",
         "home_visit_supported": true,
         "facility_visit_supported": true,
-        "turnaround_hours": 24
+        "turnaround_hours": 24,
+        "providers_count": 0,
+        "from_price": null,
+        "premises_available": false,
+        "home_available": false,
+        "insurance_accepted": false
       }
     ],
     "total": 2,
     "page": 1,
     "limit": 20,
     "total_pages": 1
-  }
+  },
+  "/radiology/services/test-rad-2": {
+    "id": "test-rad-2",
+    "name_ar": "فحص رنين تجريبي",
+    "name_en": "فحص رنين تجريبي",
+    "price": 900,
+    "category": "mri",
+    "home_visit_supported": false,
+    "facility_visit_supported": true,
+    "turnaround_hours": 24,
+    "providers_count": 0,
+    "from_price": null,
+    "premises_available": false,
+    "home_available": false,
+    "insurance_accepted": false,
+    "offers": []
+  },
+  "/home-care/services/test-svc": {
+    "id": "test-svc",
+    "name_ar": "خدمة تمريض تجريبية ٣",
+    "name_en": "خدمة تمريض تجريبية ٣",
+    "description_ar": "وصف تجريبي",
+    "description_en": "وصف تجريبي",
+    "price": 90,
+    "providers_count": 0,
+    "from_price": null,
+    "premises_available": false,
+    "home_available": false,
+    "insurance_accepted": false,
+    "offers": []
+  },
+  "/catalogue-interest/mine": []
 }
