@@ -23,7 +23,7 @@ import {
   applyChanges, countsOf, decodeBackup, encodeBackup, expectedCounts, planSha, rollbackChanges, sha256, summarize,
   type Change, type DbLike,
 } from '../modules/catalogs/catalogue-apply.core';
-import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn, planInsuranceShape, planNumberedDistricts, planPlaceholderCities, planProductTranslations } from '../modules/catalogs/catalogue-apply.steps';
+import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn, planInsuranceShape, planNumberedDistricts, planPlaceholderCities, planProductTranslations, planRadiologyCatalogue } from '../modules/catalogs/catalogue-apply.steps';
 import { isTranslationFile } from '../modules/medicines/content-translation';
 
 const TRANSLATIONS_CSV = path.join(__dirname, '../modules/medicines/data/medicine-translations-2026-10-24.csv');
@@ -91,6 +91,21 @@ export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> 
   const shape = await planInsuranceShape(db);
   changes.push(...shape.changes);
   report.insurance_shape = shape.report;
+
+  // radiology: hiding the legacy duplicates is always planned; approving a pending scan needs the reviewed file (a medical sign-off)
+  const approvePath = arg(argv, 'radiology-approve');
+  let approve: string[] = [];
+  if (approvePath) {
+    const text = fs.readFileSync(approvePath, 'utf8');
+    inputs.radiology_approve = sha256(text);
+    const parsed: unknown = JSON.parse(text);
+    const list = (parsed as { approve?: unknown })?.approve;
+    if (!Array.isArray(list) || !list.every((c) => typeof c === 'string')) throw new Error('--radiology-approve must be {"approve": ["CODE", ...]}');
+    approve = list as string[];
+  }
+  const radiology = await planRadiologyCatalogue(db, approve);
+  changes.push(...radiology.changes);
+  report.radiology_catalogue = approvePath ? radiology.report : { ...radiology.report, note: 'no reviewed file given: nothing is approved' };
 
   return { changes, inputs, sha: planSha(changes, inputs), report };
 }
