@@ -370,3 +370,69 @@ export async function planInsuranceShape(db: DbLike): Promise<{ changes: Change[
   }
   return { changes, report };
 }
+
+/**
+ * Step 10 — the radiology catalogue patients see (owner, 2026-10-28: "radiology must show all scans"). Production holds 49 catalogue rows and the patient list
+ * (`GET /radiology/services`) shows 23, because it shows only rows that are active, public AND medically approved. The other 26 are:
+ *   - 14 LEGACY duplicates of a visible scan under an old short code (CXR = XR_CHEST ...), pending and not public: they stay hidden, and are marked deleted
+ *     (`is_deleted`, `merged_into` the visible code) so they stop being counted as missing. A booking that points at one still resolves.
+ *   - 7 scans that exist only as a pending row (ECHO, MAMMO, DEXA, HSG, PANOREX, BARIUM, PETCT): approving a scan is a medical sign-off, so they become visible
+ *     ONLY when the reviewed file (`--radiology-approve=<file>`, `{"approve":["MAMMO",...]}`) lists their code; the oldest pending row of the code is the one approved.
+ *   - 5 extra rows of those codes with no flags at all (a second insert): marked deleted, the kept row stays.
+ * Every write is a compare-and-set on the exact current value, so a row an admin has touched since the dry run is left alone.
+ */
+export const LEGACY_RADIOLOGY_CODES: Readonly<Record<string, string>> = {
+  CXR: 'XR_CHEST', AXR: 'XR_ABDOMEN', KXR: 'XR_KNEE', SXR: 'XR_SPINE', MRIB: 'MRI_BRAIN', MRIK: 'MRI_KNEE', MRIS: 'MRI_LSPINE',
+  CTB: 'CT_BRAIN', CTC: 'CT_CHEST', CTAP: 'CT_ABDOMEN', USA: 'US_ABDOMEN', USP: 'US_PELVIS_TV', UST: 'US_THYROID', USPR: 'US_PREG',
+};
+
+export interface RadiologyCatalogueReport {
+  rows: number; visible: number; legacy_duplicates_hidden: number; extra_rows_hidden: number;
+  /** codes with only a pending row: they wait for the reviewed file */
+  awaiting_approval: string[]; approved_by_file: string[]; file_codes_not_found: string[];
+}
+
+export async function planRadiologyCatalogue(db: DbLike, approve: string[] = []): Promise<{ changes: Change[]; report: RadiologyCatalogueReport }> {
+  const coll = CATALOG_COLLECTIONS.radiology_services;
+  const rows: any[] = await db.collection(coll).find({}, { projection: { _id: 1, short_code: 1, code: 1, active: 1, is_deleted: 1, public_eligibility: 1, medical_review_status: 1, createdAt: 1 } }).toArray();
+  const codeOf = (r: any) => String(r.short_code || r.code || '');
+  const live = (r: any) => r.is_deleted !== true;
+  const visibleRow = (r: any) => live(r) && r.active !== false && r.public_eligibility === true && r.medical_review_status === 'approved';
+  const created = (r: any) => { const t = r.createdAt instanceof Date ? r.createdAt.getTime() : Date.parse(String(r.createdAt ?? '')); return Number.isFinite(t) ? t : (r._id?.getTimestamp?.().getTime?.() ?? 0); };
+  const byCode = new Map<string, any[]>();
+  for (const r of rows) { const c = codeOf(r); if (c) byCode.set(c, [...(byCode.get(c) ?? []), r]); }
+  const changes: Change[] = [];
+  const report: RadiologyCatalogueReport = { rows: rows.length, visible: rows.filter(visibleRow).length, legacy_duplicates_hidden: 0, extra_rows_hidden: 0, awaiting_approval: [], approved_by_file: [], file_codes_not_found: [] };
+  const hide = (r: any, into: string) => {
+    changes.push({ kind: 'set', step: 'radiology_catalogue', collection: coll, key: { _id: r._id }, path: 'is_deleted', before: r.is_deleted === undefined ? null : r.is_deleted, after: true });
+    changes.push({ kind: 'set', step: 'radiology_catalogue', collection: coll, key: { _id: r._id }, path: 'merged_into', before: null, after: into });
+  };
+  const approveSet = new Set(approve.map((c) => c.trim()).filter(Boolean));
+  for (const [code, group] of byCode) {
+    const alive = group.filter(live);
+    const canonical = LEGACY_RADIOLOGY_CODES[code];
+    if (canonical) {
+      // a legacy code is hidden only while its canonical scan is really visible and the legacy row itself is not
+      if (!(byCode.get(canonical) ?? []).some(visibleRow)) continue;
+      for (const r of alive) if (!visibleRow(r)) { hide(r, canonical); report.legacy_duplicates_hidden += 1; }
+      continue;
+    }
+    if (alive.some(visibleRow)) continue;
+    const pending = alive.filter((r) => r.public_eligibility !== true || r.medical_review_status !== 'approved');
+    if (!pending.length) continue;
+    // the kept row: the oldest one that carries the pending review state, else the oldest
+    const flagged = pending.filter((r) => r.medical_review_status === 'pending');
+    const keeper = [...(flagged.length ? flagged : pending)].sort((a, b) => created(a) - created(b) || String(a._id).localeCompare(String(b._id)))[0];
+    for (const r of alive) if (r !== keeper && r.public_eligibility === undefined && r.medical_review_status === undefined) { hide(r, code); report.extra_rows_hidden += 1; }
+    if (approveSet.has(code)) {
+      const set = (path: string, before: unknown, after: unknown) => changes.push({ kind: 'set', step: 'radiology_catalogue', collection: coll, key: { _id: keeper._id }, path, before, after });
+      set('public_eligibility', keeper.public_eligibility === undefined ? null : keeper.public_eligibility, true);
+      set('medical_review_status', keeper.medical_review_status === undefined ? null : keeper.medical_review_status, 'approved');
+      if (keeper.active === false) set('active', false, true);
+      report.approved_by_file.push(code);
+    } else report.awaiting_approval.push(code);
+  }
+  for (const c of approveSet) if (!byCode.has(c)) report.file_codes_not_found.push(c);
+  report.awaiting_approval.sort(); report.approved_by_file.sort(); report.file_codes_not_found.sort();
+  return { changes, report };
+}
