@@ -18,6 +18,8 @@
 #                                                    $IN/approved-name-fixes.csv  (the owner-approved rows of fix-catalogue-names)
 #                                                    $IN/product-translations.json  (missing product texts translated from the existing ones by
 #                                                       scripts/translate-product-content.ts; written only into EMPTY fields, marked machine-translated)
+#                                                    $IN/radiology-approve.json  ({"approve": ["MAMMO", ...]}: the radiology scans a medical reviewer approved to show to
+#                                                       patients; without it the radiology step only hides the legacy duplicates and approves nothing)
 # After a change of medicine names, add `cf-purge-api` to tools/ops/RUN for that run so the cached product pages refresh.
 set -u
 EXPECT_PLAN_SHA=""
@@ -50,7 +52,10 @@ fi
 if sudo -n test -f "$IN/product-translations.json"; then
   sudo -n cat "$IN/product-translations.json" | $DK exec -i "$CT" sh -c 'cat > /tmp/cat-product-translations.json' && ARGS="$ARGS --product-translations=/tmp/cat-product-translations.json" && say "input product-translations.json copied in"
 fi
-cleanup_inputs() { $DK exec "$CT" sh -c 'rm -f /tmp/cat-districts.json /tmp/cat-name-fixes.csv /tmp/cat-product-translations.json' >/dev/null 2>&1; }
+if sudo -n test -f "$IN/radiology-approve.json"; then
+  sudo -n cat "$IN/radiology-approve.json" | $DK exec -i "$CT" sh -c 'cat > /tmp/cat-radiology-approve.json' && ARGS="$ARGS --radiology-approve=/tmp/cat-radiology-approve.json" && say "input radiology-approve.json copied in"
+fi
+cleanup_inputs() { $DK exec "$CT" sh -c 'rm -f /tmp/cat-districts.json /tmp/cat-name-fixes.csv /tmp/cat-product-translations.json /tmp/cat-radiology-approve.json' >/dev/null 2>&1; }
 
 # --- 1. plan
 PLAN=$(tool plan $ARGS); RC=$?
