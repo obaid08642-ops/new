@@ -138,7 +138,7 @@ export default function DiagnosticsHub() {
   };
   // "Order now" skips the cart: this one item goes to the lab choice (every lab with its price), then the time and the payment; the cart is not touched
   const orderNow = (item: CatalogItem, kind: 'lab' | 'radiology') => {
-    router.push(singleOrderRoute({ kind, id: item.id, name: item.name, place, payer: kind === 'lab' && effectivePay === 'insurance' ? 'insurance' : 'cash' }) as unknown as Href);
+    router.push(singleOrderRoute({ kind, id: item.id, name: item.name, place: kind === 'radiology' && !item.homeVisit ? 'clinic' : place, payer: kind === 'lab' && effectivePay === 'insurance' ? 'insurance' : 'cash' }) as unknown as Href);
   };
 
   // The tests and scans are paged, searched, sorted and (scans) filtered by category on the SERVER; packages and the labs strip are short
@@ -148,7 +148,8 @@ export default function DiagnosticsHub() {
   const byPrice = (a: CatalogItem, b: CatalogItem) => (a.price ?? Infinity) - (b.price ?? Infinity);
   const isLab = mainTab === 'labs';
   const sort = sortOfFilter(filter);
-  const homeOnly = filter === 'home_visit' || (!isLab && place === 'home');
+  // R1: the place never hides scans (only ultrasound is portable); only the explicit "home visit" filter asks the server for home scans
+  const homeOnly = filter === 'home_visit';
   const testCatalog = useDiagCatalog('lab', isLab, { search, sort, homeVisit: filter === 'home_visit' });
   const radCatalog = useDiagCatalog('radiology', !isLab, { search, sort, homeVisit: homeOnly, category: serverCategoryOf('radiology', cat) });
   // "Most requested": the first six in the server's own popularity order (no search, sort or category)
@@ -178,13 +179,13 @@ export default function DiagnosticsHub() {
   }, [packages, labs, needle, effectivePay, filter]);
 
   const testRows = useMemo(() => tests.filter(pays).map((item) => ({ item, art: catalogArt('lab', item) })), [tests, effectivePay]); // eslint-disable-line react-hooks/exhaustive-deps
-  const radRows = useMemo(() => rads.filter((x) => place === 'clinic' || x.homeVisit).map((item) => ({ item, art: catalogArt('radiology', item) })), [rads, place]);
+  const radRows = useMemo(() => rads.map((item) => ({ item, art: catalogArt('radiology', item) })), [rads]);
   // scan rows are already the chip's (server); test rows are filtered by the chip here
   const shownTests = filterByArt(testRows, cat);
   const shownRads = radRows;
   const popular =
     needle === '' && (filter === 'all' || !isLab)
-      ? popularCatalog.items.filter((x) => (isLab ? pays(x) : place === 'clinic' || x.homeVisit)).slice(0, 6)
+      ? popularCatalog.items.filter((x) => (isLab ? pays(x) : true)).slice(0, 6)
       : [];
   const moreRows = catalog.hasMore;
   const showPackages = filter === 'all' || filter === 'packages' || filter === 'lowest_price' || filter === 'home_visit' || filter === 'highest_rated';

@@ -4815,6 +4815,26 @@
         "home_visit_supported": false,
         "facility_visit_supported": true,
         "turnaround_hours": 24
+      },
+      {
+        "id": "test-rad-3",
+        "name_ar": "فحص مقطعية تجريبي",
+        "name_en": "فحص مقطعية تجريبي",
+        "price": 600,
+        "category": "ct",
+        "home_visit_supported": false,
+        "facility_visit_supported": true,
+        "turnaround_hours": 24
+      },
+      {
+        "id": "test-rad-4",
+        "name_ar": "فحص سونار تجريبي",
+        "name_en": "فحص سونار تجريبي",
+        "price": 200,
+        "category": "ultrasound",
+        "home_visit_supported": true,
+        "facility_visit_supported": true,
+        "turnaround_hours": 6
       }
     ],
     "total": 31,

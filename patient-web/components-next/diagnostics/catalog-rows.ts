@@ -26,7 +26,7 @@ export type RowContext = {
   locale: string;
   tr: (key: RowKey, values?: Record<string, string | number>) => string;
   /** The item page for the patient's order context (place and payment). */
-  itemHref: (id: string, kind: "lab" | "radiology") => string;
+  itemHref: (id: string, kind: "lab" | "radiology", facilityOnly?: boolean) => string;
 };
 
 const names = (s: { nameAr?: string; nameEn?: string; names: Record<string, string | undefined> }) => [s.nameAr, s.nameEn, ...Object.values(s.names)];
@@ -60,7 +60,7 @@ export function scanRow(s: RadiologyService, ctx: RowContext): CatalogRow {
   return {
     id: s.id,
     art: diagArtKey({ kind: "radiology", category: s.category, modality: [s.modality, s.modalityCategory].filter(Boolean).join(" "), bodyPart: s.bodyPart, names: names(s) }),
-    href: ctx.itemHref(s.id, "radiology"),
+    href: ctx.itemHref(s.id, "radiology", s.homeVisitSupported !== true),
     title: pickName(ctx.locale, s.names) ?? "",
     note: s.price !== undefined ? ctx.tr("fromPrice", { price: money(ctx.locale, s.price) }) : undefined,
     rating: ratingLine(ctx, s.rating, s.ratingCount),

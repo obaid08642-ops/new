@@ -158,7 +158,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
 
   const orderPlace: "home" | "facility" = place === "facility" ? "facility" : "home";
   const orderPay = pay === "insurance" ? "insurance" : "cash";
-  const itemHref = (id: string, itemKind: "lab" | "radiology") => `/${locale}/labs/${encodeURIComponent(id)}${contextQuery({ kind: itemKind, place: orderPlace, pay: orderPay })}`;
+  const itemHref = (id: string, itemKind: "lab" | "radiology", facilityOnly = false) => `/${locale}/labs/${encodeURIComponent(id)}${contextQuery({ kind: itemKind, place: facilityOnly ? "facility" : orderPlace, pay: orderPay })}`;
   const orderHref = (itemKind: "lab" | "radiology") => `/${locale}/labs/basket${contextQuery({ kind: itemKind, place: orderPlace, pay: orderPay })}`;
   const rowCtx = { locale, tr: (key: Parameters<typeof t>[0], values?: Record<string, string | number>) => t(key, values), itemHref };
   const order = { place: orderPlace, pay: (pay === "insurance" ? "insurance" : "self_pay") as "insurance" | "self_pay" };
