@@ -11,8 +11,11 @@
       "axios": "high",
       "brace-expansion": "high",
       "compression": "high",
+      "decode-uri-component": "high",
       "expo": "high",
+      "expo-router": "high",
       "node-forge": "high",
+      "query-string": "high",
       "shell-quote": "critical",
       "source-map-js": "high",
       "zod": "high"
@@ -35,7 +38,7 @@
   },
   "reasons": {
     "backend": "fastify and nodemailer need a MAJOR upgrade (owner decision); same list the gate carried inline before",
-    "patient-app": "Expo SDK 57 / React Native / Metro build tooling and its transitive packages; fixes need an Expo SDK major upgrade (mobile team); nothing here runs on the server",
+    "patient-app": "Expo SDK 57 / React Native / Metro build tooling and its transitive packages; fixes need an Expo SDK major upgrade (mobile team); nothing here runs on the server; decode-uri-component, query-string and expo-router (2026-10-29, GHSA-qr28-fpjm-wq7f / GHSA-vcc3-ghjq-m6fr): needs a MAJOR upgrade (owner decision): expo-router 57.x (up to 57.0.29) depends on query-string 7 -> decode-uri-component 0.2.x, fixed only in expo-router 58 (Expo SDK 58); decode-uri-component 0.5.1 is ESM-only and cannot replace 0.2.2 under query-string 7 (require() of an ES module)",
     "provider-app": "Expo SDK 57 / React Native / Firebase / Metro; fixes need an Expo SDK and Firebase major upgrade (mobile team); @maplibre/maplibre-react-native is flagged only through its expo peer (@expo/cli, already listed), no advisory of its own"
   }
 }
