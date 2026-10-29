@@ -30,6 +30,8 @@ import { isTranslationFile } from '../modules/medicines/content-translation';
 const TRANSLATIONS_CSV = path.join(__dirname, '../modules/medicines/data/medicine-translations-2026-10-24.csv');
 /** The districts extract shipped in the image (nest-cli asset, like the CSV above). A `--districts=<file>` on the command line overrides it. */
 export const PACKAGED_DISTRICTS = path.join(__dirname, '../modules/location/data/districts-extract.v1.json');
+/** The reviewed list of test providers the owner approved removing (2026-10-29), shipped in the image; `--test-data-remove=packaged` reads it. */
+export const PACKAGED_TEST_REMOVAL = path.join(__dirname, '../modules/catalogs/seed-data/test-data-remove.2026-10-29.json');
 const TOUCHED = ['medicines', 'locations', 'insurance_companies'];
 
 const arg = (argv: string[], name: string): string | undefined => argv.find((a) => a.startsWith(`--${name}=`))?.split('=').slice(1).join('=');
@@ -38,10 +40,31 @@ const scrub = (e: unknown): string => String((e as Error)?.message || e).replace
 
 export interface Planned { changes: Change[]; inputs: Record<string, string>; sha: string; report: Record<string, unknown> }
 
+/** The test-provider removal step: only the provider profiles in the reviewed file (ids or 8+ character id prefixes), with their accounts, sessions and everything that points at them. */
+async function planTestData(db: DbLike, argv: string[], inputs: Record<string, string>, changes: Change[], report: Record<string, unknown>): Promise<void> {
+  const given = arg(argv, 'test-data-remove');
+  if (!given) { report.test_data = 'skipped: no reviewed file given'; return; }
+  const removalPath = given === 'packaged' ? PACKAGED_TEST_REMOVAL : given;
+  const text = fs.readFileSync(removalPath, 'utf8');
+  inputs.test_data_remove = sha256(text);
+  const parsed: unknown = JSON.parse(text);
+  const ids = (parsed as { profile_ids?: unknown })?.profile_ids;
+  if (!Array.isArray(ids) || !ids.every((x) => typeof x === 'string' && /^[A-Za-z0-9-]{4,64}$/.test(x))) throw new Error('--test-data-remove must be {"profile_ids": ["<provider profile id>", ...]}');
+  const removal = await planTestDataRemoval(scanDb(db), ids as string[]);
+  changes.push(...removal.changes);
+  report.test_data = removal.report;
+}
+
 export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> {
   const inputs: Record<string, string> = {};
   const changes: Change[] = [];
   const report: Record<string, unknown> = {};
+
+  // `--only=test_data`: the removal of the approved test providers on its own (task 78), none of the other steps
+  if (arg(argv, 'only') === 'test_data') {
+    await planTestData(db, argv, inputs, changes, report);
+    return { changes, inputs, sha: planSha(changes, inputs), report };
+  }
 
   const csv = fs.readFileSync(TRANSLATIONS_CSV, 'utf8');
   inputs.medicine_translations_csv = sha256(csv);
@@ -108,18 +131,8 @@ export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> 
   changes.push(...radiology.changes);
   report.radiology_catalogue = approvePath ? radiology.report : { ...radiology.report, note: 'no reviewed file given: nothing is approved' };
 
-  // test providers (owner, 2026-10-28): only the provider profiles listed in the reviewed file, with their accounts, sessions and everything that points at them
-  const removalPath = arg(argv, 'test-data-remove');
-  if (removalPath) {
-    const text = fs.readFileSync(removalPath, 'utf8');
-    inputs.test_data_remove = sha256(text);
-    const parsed: unknown = JSON.parse(text);
-    const ids = (parsed as { profile_ids?: unknown })?.profile_ids;
-    if (!Array.isArray(ids) || !ids.every((x) => typeof x === 'string' && /^[A-Za-z0-9-]{4,64}$/.test(x))) throw new Error('--test-data-remove must be {"profile_ids": ["<provider profile id>", ...]}');
-    const removal = await planTestDataRemoval(scanDb(db), ids as string[]);
-    changes.push(...removal.changes);
-    report.test_data = removal.report;
-  } else report.test_data = 'skipped: no reviewed file given';
+  // test providers (owner, 2026-10-28)
+  await planTestData(db, argv, inputs, changes, report);
 
   return { changes, inputs, sha: planSha(changes, inputs), report };
 }
