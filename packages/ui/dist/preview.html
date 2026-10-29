@@ -1346,10 +1346,26 @@
 
 /* BottomTabBar (canvas/HomeApp.dc.html nav): the floating glass pill, 68 tall
    (radius 34); items 52 (radius 26), the active one a coral pill with icon and
-   label; the raised coral centre a 66 disc (radius 33) lifted 34 above the bar.
+   label; the raised coral centre a 66 disc (radius 33) lifted 34 above the bar,
+   floating over a circular cut-out (5px transparent gap) of the bar. The pill is
+   drawn by ::before so the mask cuts the glass, border and shadow but not the
+   button; the mask box is 100px larger on every side so the shadow is not clipped.
    Geometry and colours as the native shell TabBar. */
 .nabd-bottom-tab-bar {
+  position: relative;
+  isolation: isolate;
   height: 68px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: 8px;
+}
+.nabd-bottom-tab-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   box-sizing: border-box;
   border-radius: 34px;
   background: var(--nabd-color-glass-bgStrong);
@@ -1357,10 +1373,16 @@
   backdrop-filter: blur(var(--nabd-color-glass-blur));
   border: 1px solid var(--nabd-color-border-onGlass);
   box-shadow: var(--nabd-shadow-tabBar);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-inline: 8px;
+}
+.nabd-bottom-tab-bar:has(.nabd-bottom-tab-bar__raised)::before {
+  -webkit-mask-image: radial-gradient(circle at 50% 117px, transparent 37.5px, #000 38.5px);
+  mask-image: radial-gradient(circle at 50% 117px, transparent 37.5px, #000 38.5px);
+  -webkit-mask-size: calc(100% + 200px) calc(100% + 200px);
+  mask-size: calc(100% + 200px) calc(100% + 200px);
+  -webkit-mask-position: -100px -100px;
+  mask-position: -100px -100px;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 .nabd-bottom-tab-bar--safe-area { margin-block-end: env(safe-area-inset-bottom); }
 .nabd-bottom-tab-bar__raised {
@@ -1382,7 +1404,6 @@
   box-sizing: border-box;
   border-radius: 33px;
   background: linear-gradient(180deg, var(--nabd-color-action-fab-from) 0%, var(--nabd-color-action-fab-to) 100%);
-  border: 5px solid var(--nabd-color-bg-canvas);
   box-shadow: var(--nabd-shadow-fab);
   display: flex;
   align-items: center;
