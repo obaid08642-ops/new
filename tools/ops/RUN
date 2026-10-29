@@ -1,17 +1,20 @@
 # 2026-10-29 lead reviewer: run 49.
 # 1. Pause the ar+en translation (answers are saved on the host; the deploy recreates the backend).
-# 2. Free disk, deploy main@b8b79725: test-provider removal task (#2091), lab/nursing home+insurance filters (#2087),
+# 2. Free disk, deploy main@d25081b3: test-provider removal task (#2091), lab/nursing home+insurance filters (#2087),
 #    refund cap after a late cancel (#2085), insurance card copay cap (#2086), provider per-service options re-landed (#2088),
-#    /diagnostics full list (#2089), web booking duration (#2090).
+#    /diagnostics full list (#2089), web booking duration (#2090), "Use your insurance" page (#2092), public catalogue fields only (#2093),
+#    translation round 3 (#2095: cerebras fallback, gemini lite with a 20 s timeout).
 # 3. 78-test-data-remove DRY RUN (owner approved the removal): prints the counts per collection, the resolved ids and the plan hash.
 #    Nothing is written. The delete is the next run, with EXPECT_PLAN_SHA set to this hash (backup, exact ids, verify, rollback).
-# 4. Resume ar+en (same reviewed requests, hash-guarded; only unanswered ones are sent), then per-provider progress counts.
+# 4. 99-translate-resume-cron DRY RUN: prints whether the daily 00:30 UTC resume is installed and the requests hash; installs nothing.
+# 5. Resume ar+en (same reviewed requests, hash-guarded; only unanswered ones are sent), then per-provider progress counts.
 98c-translate-pause
-release:b8b79725076836b97abb5b2902b7433437379d4c
+release:d25081b31a57e65d347c53a7324e10af5d45433e
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
 78-test-data-remove
 98-translate-content
 98b-translate-progress
+99-translate-resume-cron
 cf-purge-api
