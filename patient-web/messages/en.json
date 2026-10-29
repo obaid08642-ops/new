@@ -4234,6 +4234,10 @@
         "title": "{name} | Nabd Plus Healthcare",
         "description": "{name} in {city}. Specialized healthcare services, accepted insurances, and verified physicians.",
         "country": "Saudi Arabia"
+      },
+      "nursingService": {
+        "title": "{service} at home in {city} | Nabd Plus",
+        "description": "{service} at home in {city}: see the price and book a nurse visit online with Nabd Plus."
       }
     },
     "ld": {
@@ -4247,7 +4251,22 @@
       "crumbPharmacy": "Pharmacy",
       "crumbFacilities": "Hospitals and clinics",
       "crumbHealthGuide": "Health guide",
-      "crumbDoctors": "Doctors"
+      "crumbDoctors": "Doctors",
+      "nursingServiceCity": "{service} as a home nursing visit in {city}"
+    },
+    "nursingService": {
+      "title": "{service} at home in {city}",
+      "intro": "Book {service} at home in {city}: a nurse visits you through Nabd Plus.",
+      "about": "About this service",
+      "priceTitle": "Price",
+      "priceFrom": "From {price}",
+      "priceRange": "{low} to {high}",
+      "providers": "Nurses offering this service: {count}",
+      "book": "Book this service",
+      "emptyTitle": "No nurse offers {service} yet",
+      "emptyBody": "We will tell you when a nurse starts offering {service}. Ask to be notified.",
+      "relatedTitle": "More home nursing services in {city}",
+      "allServices": "All home nursing services in {city}"
     }
   },
   "InsuranceWeb": {
@@ -5017,7 +5036,8 @@
     "faqRx": "Does {name} need a prescription?",
     "faqIngredient": "What is the active ingredient of {name}?",
     "faqPrice": "How much is {name} on Nabd Plus?",
-    "howToTitle": "How to use {name}"
+    "howToTitle": "How to use {name}",
+    "nursingServiceWho": "{service} is a home nursing service on Nabd Plus: a nurse visits you at home in {city}. See the price and book online."
   },
   "LogForms": {
     "saveError": "Could not save. What you typed is kept; try again.",
