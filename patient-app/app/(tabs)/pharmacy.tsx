@@ -328,7 +328,7 @@ export default function PharmacyHub() {
         numColumns={cols}
         columnWrapperStyle={{ gap: 10, marginBottom: 10 }}
         ListHeaderComponent={<View style={{ marginBottom: 16 }}>{header}</View>}
-        ListEmptyComponent={empty}
+        ListEmptyComponent={empty ?? undefined}
         keyboardShouldPersistTaps="handled"
         // pull down to reload the list (the same reload the retry button asks for)
         refreshControl={<RefreshControl refreshing={loading && medicines.length > 0} onRefresh={() => setReloadKey((n) => n + 1)} tintColor={c.text.primary} />}

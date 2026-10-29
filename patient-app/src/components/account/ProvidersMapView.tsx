@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AccessibilityInfo, Animated, Easing, FlatList, Keyboard, Linking, Platform, Pressable, ScrollView, Text, View, useWindowDimensions, type ViewToken } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, FlatList, Keyboard, Linking, Platform, Pressable, ScrollView, Text, View, useWindowDimensions, type ListViewToken as ViewToken } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 import * as Location from 'expo-location';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
