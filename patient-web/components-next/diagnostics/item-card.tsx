@@ -17,7 +17,7 @@ export type ItemTag = { label: string; tone: ServiceTone };
  * "Add to cart" and "Order now", a client island). The picture is the item's OWN image (`imageUrl`); the CATEGORY illustration (`art`: blood, X-ray ...) is only the fallback
  * when it has none or it fails to load.
  */
-export function ItemCard({ href, title, tags = [], note, rating, price, art, imageUrl, offer, actions }: { href: string; title: string; tags?: ItemTag[]; note?: string; rating?: string; price?: string; art: DiagArtKey; imageUrl?: string; offer?: OfferLines; actions: ReactNode }) {
+export function ItemCard({ href, title, tags = [], note, meta, rating, price, art, imageUrl, offer, actions }: { href: string; title: string; tags?: ItemTag[]; note?: string; meta?: string; rating?: string; price?: string; art: DiagArtKey; imageUrl?: string; offer?: OfferLines; actions: ReactNode }) {
   return (
     <li>
       <article className={styles.itemCard}>
@@ -32,6 +32,7 @@ export function ItemCard({ href, title, tags = [], note, rating, price, art, ima
               </span>
             ) : null}
             {offer && offer.where.length > 0 ? <span className={styles.tags}>{offer.where.map((label) => <StatusChip key={label} label={label} tone={DIAG_TONES.quiet} />)}</span> : null}
+            {meta ? <span className={styles.tagNote}>{meta}</span> : null}
             {note ? <span className={styles.tagNote}>{note}</span> : null}
             {rating ? <span className={styles.tagNote}>{rating}</span> : null}
             {price ? <span className={styles.price}><bdi>{price}</bdi></span> : null}

@@ -3583,7 +3583,20 @@
     "notifyMe": "دستیاب ہونے پر مجھے بتائیں",
     "notifyMeDone": "آپ فہرست میں شامل ہیں۔ جب کوئی مرکز اسے فراہم کرے گا تو ہم آپ کو بتائیں گے۔",
     "notifyMeSignIn": "اطلاع پانے کے لیے سائن اِن کریں",
-    "notifyMeFailed": "محفوظ نہیں ہو سکا۔ دوبارہ کوشش کریں۔"
+    "notifyMeFailed": "محفوظ نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
+    "filterOpen": "فلٹر",
+    "filterOpenCount": "فلٹر ({n} فعال)",
+    "filterSheetTitle": "نتائج فلٹر کریں",
+    "filterClose": "فلٹر بند کریں",
+    "filterMore": "مزید اختیارات",
+    "sortPopular": "سب سے زیادہ طلب",
+    "noFasting": "روزے کے بغیر",
+    "sameDay": "اسی دن نتیجہ",
+    "showResults": "{count} نتائج دکھائیں",
+    "showResultsMore": "{count} سے زیادہ نتائج دکھائیں",
+    "filterCounting": "گنتی ہو رہی ہے…",
+    "filterClearAll": "سب صاف کریں",
+    "catPackages": "پیکجز"
   },
   "OrderContext": {
     "hint": "کچھ بھی بدلنے پر قیمتیں اور کوریج فوراً اپ ڈیٹ ہوتی ہیں",
