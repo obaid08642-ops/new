@@ -41,13 +41,14 @@ function mocks() {
     appts: { create: jest.fn(), cancel: jest.fn(), listMine: jest.fn(async () => []) },
     locks: { reserve: jest.fn(), releaseQuietly: jest.fn(async () => ({})) },
     labs: { book: jest.fn(), cancel: jest.fn(), getBooking: jest.fn() },
+    radiology: { book: jest.fn(async (_u: any, b: any) => ({ id: 'rad-1', scheduled_at: b.scheduled_at })), cancel: jest.fn(), getBooking: jest.fn() },
     nursing: { book: jest.fn(), cancel: jest.fn(), getBooking: jest.fn() },
     users: { getPatientProfile: jest.fn(async () => ({ addresses: [{ id: 'a1', label: 'home', city: 'Jeddah', lat: 21.5, lng: 39.1 }] })) },
     redis: { getClient: jest.fn(() => null) },
   };
   const service = new AgentToolsService(
     svc.pharmacyOrders as any, svc.pharmacyOffers as any, svc.care as any, svc.appts as any,
-    svc.locks as any, svc.labs as any, svc.nursing as any, svc.users as any, svc.redis as any, conn,
+    svc.locks as any, svc.labs as any, (svc as any).radiology as any, svc.nursing as any, svc.users as any, svc.redis as any, conn,
   );
   return { svc, service };
 }
@@ -109,5 +110,30 @@ describe('AgentToolsService (AC-3)', () => {
     expect(out.result.structuredContent.slots).toHaveLength(1);
     const bad: any = await service.dispatchPublic('my_orders', {}, 2);
     expect(bad.error.data.error_code).toBe('AUTHENTICATION_REQUIRED');
+  });
+
+  it('hold_radiology books card-unpaid through the radiology service and returns the Nabd checkout link', async () => {
+    const { svc, service } = mocks();
+    const out: any = await service.dispatch(
+      'hold_radiology',
+      { idempotency_key: 'k-r', service_id: 'xr-chest', provider_account_id: 'ctr-1', scheduled_at: '2099-01-01T07:00:00.000Z' },
+      PRINCIPAL as any, 1,
+    );
+    expect(svc.radiology.book).toHaveBeenCalledWith(
+      { id: 'pat-a', role: 'patient' },
+      expect.objectContaining({ service_id: 'xr-chest', provider_account_id: 'ctr-1', payment_method: 'card' }),
+    );
+    expect(out.result.structuredContent.checkout_url).toBe('https://nabd.plus/ar/diagnostics/bookings/radiology/rad-1');
+    expect(out.result.structuredContent.payment_url).toBe(out.result.structuredContent.checkout_url);
+    const missing: any = await service.dispatch('hold_radiology', { idempotency_key: 'k-r2', service_id: 'xr' }, PRINCIPAL as any, 2);
+    expect(missing.error.data.error_code).toBe('INVALID_PARAMS');
+  });
+
+  it('an OTC cart request returns a checkout_url the patient opens to pick an offer and pay', async () => {
+    const { service } = mocks();
+    const out: any = await service.dispatch(
+      'create_pharmacy_request', { idempotency_key: 'k-cart', items: [{ medicine_id: 'med-otc', qty: 3 }] }, PRINCIPAL as any, 1,
+    );
+    expect(out.result.structuredContent.checkout_url).toContain('/ar/pharmacy/broadcast-status?orderId=ord-1');
   });
 });

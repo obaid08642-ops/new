@@ -29,7 +29,7 @@ function mocks() {
   };
   const service = new AgentToolsService(
     svc.pharmacyOrders as any, svc.pharmacyOffers as any, svc.care as any, svc.appts as any,
-    svc.locks as any, svc.labs as any, svc.nursing as any, svc.users as any, svc.redis as any, conn,
+    svc.locks as any, svc.labs as any, (svc as any).radiology as any, svc.nursing as any, svc.users as any, svc.redis as any, conn,
   );
   return { svc, service };
 }
