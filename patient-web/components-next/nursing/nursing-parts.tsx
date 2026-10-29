@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
+import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { SERVICE_ICONS, type FillIconName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
@@ -87,7 +89,7 @@ export function ServiceChips({ duration, insurance, extras = [] }: { duration?: 
   if (!duration && !insurance && extras.length === 0) return null;
   return (
     <span className={styles.chips}>
-      {duration ? <StatusChip label={duration} tone={NURSING.tone} /> : null}
+      {duration ? <StatusChip label={duration} tone={DIAG_TONES.quiet} /> : null}
       {insurance ? <StatusChip label={insurance} tone={DIAG_TONES.info} /> : null}
       {extras.filter((label) => label !== insurance).map((label) => <StatusChip key={label} label={label} tone={DIAG_TONES.quiet} />)}
     </span>
@@ -123,7 +125,24 @@ export function NurseFacts({ facts, available }: { facts: string[]; available?: 
   return (
     <span className={styles.chips}>
       {available ? <StatusChip label={available.label} tone={available.good ? DIAG_TONES.good : DIAG_TONES.quiet} /> : null}
-      {facts.map((fact) => <StatusChip key={fact} label={fact} tone={NURSING.tone} />)}
+      {facts.map((fact) => <StatusChip key={fact} label={fact} tone={DIAG_TONES.quiet} />)}
     </span>
+  );
+}
+
+/** A care package on the hub rail: a white card; the nursing tone is only on the glyph chip. */
+export function NursingPackageCard({ href, title, sub, price, cta, icon }: { href: string; title: string; sub?: string; price?: string; cta: string; icon: FillIconName }) {
+  return (
+    <Link href={href} className={styles.pack}>
+      <FIcon icon={icon} tone={NURSING.tone} size={48} />
+      <span className={styles.packBody}>
+        <span className={styles.packName}>{title}</span>
+        {sub ? <span className={styles.packDesc}>{sub}</span> : null}
+      </span>
+      <span className={styles.packFoot}>
+        {price ? <span className={styles.packPrice}><bdi>{price}</bdi></span> : <span />}
+        <span className={styles.packCta}>{cta}</span>
+      </span>
+    </Link>
   );
 }
