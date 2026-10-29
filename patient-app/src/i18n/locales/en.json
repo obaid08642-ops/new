@@ -2846,6 +2846,8 @@
   "set.helpHint": "Questions, feedback and the support chat",
   "set.about": "About and legal",
   "set.aboutHint": "Version, terms and policies",
+  "set.helpPolicies": "Help & policies",
+  "set.helpPoliciesHint": "FAQ, support, version, terms and refund policy",
   "set.signOut": "Sign out",
   "set.version": "Version {version}",
   "set.saveFailed": "The change was not saved. Check your connection and try again.",
