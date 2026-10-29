@@ -38,6 +38,18 @@ export function rankedModels(provider: AiProviderName, available: string[], excl
   return (MODEL_PREFERENCE[provider] ?? []).filter((id) => set.has(id) && !exclude.has(id));
 }
 
+/** Ids that are not chat models (embeddings, speech, safety classifiers, images, rerankers): never picked by the unlisted-preference fallback. */
+const NON_CHAT_ID = /embed|whisper|guard|tts|moderation|audio|rerank|image|transcri|speech/i;
+
+/** The first listed chat model that is not in `exclude`; for a provider whose list has none of its preferred ids. Never for a free-only provider (it could bill). */
+export function firstListedChatModel(provider: AiProviderName, available: string[], exclude: ReadonlySet<string> = new Set()): string | null {
+  if (FREE_ONLY.has(provider)) return null;
+  return available.find((id) => !NON_CHAT_ID.test(id) && !exclude.has(id)) ?? null;
+}
+
+/** How many of the provider's preferred ids its list has (a count only). */
+export const countPreferredListed = (provider: AiProviderName, available: string[]): number => rankedModels(provider, available).length;
+
 /** The model to use among `available`: the first preferred id it has; else the configured id when it is listed (never for a free-only provider unless preferred). null = nothing usable. */
 export function pickModel(provider: AiProviderName, available: string[], configured?: string): string | null {
   const ranked = rankedModels(provider, available);

@@ -4,7 +4,7 @@
  * talks to one hard-wired provider: it tries every provider whose key is set, in priority order, and moves on when one is rejected
  * (401/403), limited (429), down (5xx) or slow; a failing provider is parked in-process for a while.
  */
-import { fetchModelList, rankedModels, FREE_ONLY, MODEL_PREFERENCE } from './ai-model-resolver';
+import { countPreferredListed, fetchModelList, firstListedChatModel, rankedModels, FREE_ONLY, MODEL_PREFERENCE } from './ai-model-resolver';
 import { AiProviderName, DEFAULT_PROVIDERS, NON_CHAT_PROVIDERS, PROVIDER_ENV_KEY, ProviderConfig, providerHttpErrorCode } from './ai-provider-catalog';
 
 export type Caller = (prompt: string) => Promise<string>;
@@ -17,6 +17,8 @@ export interface EnvChainOptions {
   fetchImpl?: typeof fetch;
   /** Per call (default 60 s). A 20-item translation from a slow model (30-60 tokens/s) needs far longer than a chat answer. */
   timeoutMs?: number;
+  /** Per-provider timeout, wins over `timeoutMs` (a provider that hangs under load fails fast instead of holding a lane). */
+  timeoutByProvider?: Partial<Record<AiProviderName, number>>;
   /** The `ai_providers` records the live gateway uses: its model ids and base URLs win over the built-in defaults (an admin changes them when a provider retires a model). */
   registry?: RegistryRecord[];
 }
@@ -101,7 +103,7 @@ async function callProvider(p: ProviderConfig, key: string, model: string, promp
  * `<key>_no_preferred_free_model`. The failed ids are remembered, so the same id is not tried twice.
  */
 const MAX_CANDIDATES = 3;
-function modelAwareCall(p: ProviderConfig, key: string, startModel: string, f: typeof fetch, timeoutMs?: number): { call: (prompt: string) => Promise<string>; model: () => string; listStatus: () => Promise<number> } {
+function modelAwareCall(p: ProviderConfig, key: string, startModel: string, f: typeof fetch, timeoutMs?: number): { call: (prompt: string) => Promise<string>; model: () => string; listStatus: () => Promise<number>; preferredListed: () => Promise<number | null> } {
   const preferred = MODEL_PREFERENCE[p.key] ?? [];
   const freeOnly = FREE_ONLY.has(p.key);
   let model = cleanModelId(startModel);
@@ -116,7 +118,9 @@ function modelAwareCall(p: ProviderConfig, key: string, startModel: string, f: t
       if (!/_http_(404|402)$/.test(String((e as Error)?.message || e))) throw e;
       failed.add(model);
       const { ids } = await getList();
-      const candidates = (ids ? rankedModels(p.key, ids, failed) : preferred.filter((id) => !failed.has(id))).slice(0, MAX_CANDIDATES);
+      let candidates = (ids ? rankedModels(p.key, ids, failed) : preferred.filter((id) => !failed.has(id))).slice(0, MAX_CANDIDATES);
+      // the list has none of the preferred ids (the provider renamed them): the first listed chat model is better than failing every call
+      if (ids && !candidates.length) { const any = firstListedChatModel(p.key, ids, failed); if (any) candidates = [any]; }
       if (freeOnly && ids && !candidates.length) throw new Error(`${p.key}_no_preferred_free_model`);
       for (const next of candidates) {
         try {
@@ -132,7 +136,7 @@ function modelAwareCall(p: ProviderConfig, key: string, startModel: string, f: t
       throw e;
     }
   };
-  return { call, model: () => model, listStatus: async () => (await getList()).status };
+  return { call, model: () => model, listStatus: async () => (await getList()).status, preferredListed: async () => { const { ids } = await getList(); return ids ? countPreferredListed(p.key, ids) : null; } };
 }
 
 /** Throws at once when no provider key is set at all (the job says so and stops, nothing is sent). */
@@ -166,17 +170,18 @@ export function chainCallerFromEnv(env: NodeJS.ProcessEnv = process.env, opts: E
  * One caller per provider whose key is set, for jobs that run the providers side by side (each within its own limits) instead of
  * one after the other. A caller throws the same error codes as the chain; it never parks or retries (the job's scheduler does).
  */
-export function providerCallersFromEnv(env: NodeJS.ProcessEnv = process.env, opts: EnvChainOptions = {}): Array<{ provider: ProviderConfig; call: Caller; model: () => string; listStatus: () => Promise<number> }> {
+export function providerCallersFromEnv(env: NodeJS.ProcessEnv = process.env, opts: EnvChainOptions = {}): Array<{ provider: ProviderConfig; call: Caller; model: () => string; listStatus: () => Promise<number>; preferredListed: () => Promise<number | null> }> {
   const providers = envChainProviders(env, opts.registry);
   if (!providers.length) throw new Error(`no AI provider variable is set (${providerVariableNames().join(', ')}): nothing was sent`);
   const f = opts.fetchImpl ?? fetch;
   return providers.map((provider, i) => {
     const key = String(env[PROVIDER_ENV_KEY[provider.key]]).trim();
-    const aware = modelAwareCall(provider, key, (i === 0 && opts.model) || provider.model, f, opts.timeoutMs);
+    const aware = modelAwareCall(provider, key, (i === 0 && opts.model) || provider.model, f, opts.timeoutByProvider?.[provider.key] ?? opts.timeoutMs);
     return {
       provider,
       model: aware.model,
       listStatus: aware.listStatus,
+      preferredListed: aware.preferredListed,
       call: async (prompt: string) => {
         const text = await aware.call(prompt);
         if (!text.trim()) throw new Error(`${provider.key}_empty_response`);
