@@ -29,7 +29,7 @@ describe.each(APPS)('OTA updates: %s', (app) => {
   });
 
   it('depends on expo-updates', () => {
-    expect(read(app, 'package.json').dependencies['expo-updates']).toMatch(/^~57\./);
+    expect(read(app, 'package.json').dependencies['expo-updates']).toMatch(/^~58\./);
   });
 
   it('maps the preview and production build profiles to their channels', () => {
