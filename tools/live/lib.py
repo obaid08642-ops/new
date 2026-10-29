@@ -76,10 +76,19 @@ _journey = ['?']
 
 def journey(name):
     _journey[0] = name
+    _last[0] = time.time()
     print(f'\n=== {name}', flush=True)
 
 
+_last = [time.time()]
+SLOW = []  # (seconds before the step, step): where a journey's time goes (printed by summary())
+
+
 def step(name, ok, detail=''):
+    now = time.time()
+    if now - _last[0] >= 8:
+        SLOW.append((now - _last[0], name))
+    _last[0] = now
     RESULTS.append({'journey': _journey[0], 'step': name, 'ok': bool(ok), 'detail': str(detail)[:600]})
     print(f"  {'PASS' if ok else 'FAIL'}  {name}" + ('' if ok else f'  ->  {str(detail)[:400]}'), flush=True)
     return bool(ok)
@@ -212,6 +221,8 @@ def phone():
 
 def summary(path=None):
     fails = [r for r in RESULTS if not r['ok']]
+    for secs, name in sorted(SLOW, reverse=True)[:5]:
+        print(f'  SLOW {secs:.0f}s before: {name[:120]}')
     print(f'\n##### {len(RESULTS) - len(fails)}/{len(RESULTS)} steps passed, {len(fails)} failed')
     for r in fails:
         print(f"  FAIL [{r['journey']}] {r['step']}: {r['detail'][:300]}")

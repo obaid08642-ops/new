@@ -16,9 +16,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  live:
+  # The journeys are split over GATE_SHARDS jobs, each with its own stack (MongoDB, Redis, backend, admin, patient-web): they take about 78
+  # minutes in one job (measured on run 40837646796), and every merge waits for them. tools/live/gate_shard.py gives each journey to exactly
+  # one shard (balanced by gate_weights.txt, proved by test_gate_shards.py); the job `live` below is the required check and passes only
+  # when every shard passed.
+  live-shard:
+    name: live gate (shard ${{ matrix.shard }}/5)
     runs-on: ubuntu-latest
-    timeout-minutes: 130
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5]
+    env:
+      GATE_SHARDS: 5
+      GATE_SHARD: ${{ matrix.shard }}
     services:
       redis:
         image: redis:7
@@ -99,6 +111,7 @@ jobs:
       # 17.8: axe-core (WCAG 2.x A and AA) on the 20 main public pages, in the browser the R7-1 step installed. It fails on a
       # serious or critical violation; minor findings are printed and left for the backlog (tools/a11y/axe-pages.py).
       - name: Accessibility (axe-core, 20 public pages)
+        if: matrix.shard == 1
         run: |
           npm install --no-save --prefix /tmp/axe axe-core@4.10.3
           # The policy pages answer 404 until their texts are published (the gate seeds them before its journeys, which run
@@ -117,3 +130,20 @@ jobs:
         run: |
           tail -n 200 /tmp/nabd-backend.log || true
           tail -n 50 /tmp/admin.log || true
+
+  live:
+    name: live
+    needs: live-shard
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.12'
+      - name: Every journey runs in exactly one shard
+        run: python3 tools/live/test_gate_shards.py
+      - name: Every shard passed
+        run: |
+          echo "shards: ${{ needs.live-shard.result }}"
+          [ "${{ needs.live-shard.result }}" = success ]
