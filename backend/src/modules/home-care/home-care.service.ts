@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject, Optional } from '@nestjs/common';
+import { ownPrices } from '../../common/service-offers';
 import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { Model } from 'mongoose';
 import { HomeCareService, HomeCareBooking, NursingBookingState, HomeCareBookingState, NursingVisitReport, CarePlan, MedicalSupplyRequest } from '../../schemas/home-care.schema';
@@ -101,7 +102,11 @@ export class HomeCareSvc {
     }).lean();
     if (dupe) return dupe;
     const sessions = Math.max(1, parseInt(data.sessions_count || 1, 10));
-    const total = svc.price * sessions;
+    // the chosen nurse's own price for the service (her choice, else what she registered with), else the catalogue price: the price the patient was shown is the price charged
+    const ownPrice = providerId ? (await ownPrices(this.svcModel.db as never, 'nursing', [providerId], [svc as any])).get(providerId)?.get(svc.id) : undefined;
+    const unitPrice = ownPrice ?? svc.price;
+    if (!(typeof unitPrice === 'number' && unitPrice > 0)) throw new BadRequestException('service_price_not_set');
+    const total = unitPrice * sessions;
     const booking = await this.bkgModel.create({
       patient_id: user.id,
       patient_name: data.contact?.name || user.full_name,
