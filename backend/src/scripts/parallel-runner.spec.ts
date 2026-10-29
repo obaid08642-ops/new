@@ -126,10 +126,22 @@ describe('one bad provider cannot stall the rest (offline reproduction with stub
 
   it('a provider refused with 400/404 again and again is retired, not parked forever', async () => {
     const h = harness();
-    const res = await runParallel(reqs(20), [stub('wrongmodel', h, () => new Error('wrongmodel_http_404')), stub('good', h, good, 8000)], h.io);
-    expect(res.sent).toBe(20);
+    const res = await runParallel(reqs(60), [stub('wrongmodel', h, () => new Error('wrongmodel_http_404')), stub('good', h, good, 8000)], h.io);
+    expect(res.sent).toBe(60);
     expect(res.providers.wrongmodel.retired).toBe('refused by the provider (http_404)');
-    expect(res.providers.wrongmodel.sent).toBeLessThanOrEqual(6);
+    expect(res.providers.wrongmodel.sent).toBeLessThanOrEqual(12);
+  });
+
+  it('a 429 parks the provider and never retires it; a few 404s at the start do not retire it either', async () => {
+    const h = harness();
+    let n = 0;
+    const flaky = stub('flaky', h, () => (++n <= 3 ? new Error('flaky_http_404') : 'ok:flaky'));
+    const limited = stub('limited', h, () => new Error('limited_http_429'));
+    const res = await runParallel(reqs(30), [flaky, limited, stub('good', h, good, 8000)], h.io);
+    expect(res.providers.limited.limited).toBeGreaterThan(0);
+    expect(res.providers.limited.retired).toBeNull();
+    expect(res.providers.flaky.retired).toBeNull();
+    expect(res.providers.flaky.ok).toBeGreaterThan(0);
   });
 
   it('every provider failing ends the run (nothing hangs) with the requests left unanswered', async () => {

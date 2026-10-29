@@ -16,13 +16,21 @@ export interface EnvChainOptions {
   fetchImpl?: typeof fetch;
   /** Per call (default 60 s). A 20-item translation from a slow model (30-60 tokens/s) needs far longer than a chat answer. */
   timeoutMs?: number;
+  /** The `ai_providers` records the live gateway uses: its model ids and base URLs win over the built-in defaults (an admin changes them when a provider retires a model). */
+  registry?: RegistryRecord[];
 }
+
+/** The fields of an `ai_providers` record that decide WHERE and WITH WHAT a call goes (never the key). */
+export interface RegistryRecord { key: string; model?: string; base_url?: string; enabled?: boolean }
 
 const CHAT_PROVIDERS = DEFAULT_PROVIDERS.filter((p) => !NON_CHAT_PROVIDERS.has(p.key)).sort((a, b) => a.priority - b.priority);
 
 /** Providers with a key in `env`, in the order they are tried (`AI_PROVIDER` first when it names one). */
-export function envChainProviders(env: NodeJS.ProcessEnv): ProviderConfig[] {
-  const set = CHAT_PROVIDERS.filter((p) => String(env[PROVIDER_ENV_KEY[p.key]] || '').trim() !== '');
+export function envChainProviders(env: NodeJS.ProcessEnv, registry: RegistryRecord[] = []): ProviderConfig[] {
+  const rec = new Map(registry.map((r) => [r.key, r]));
+  const set = CHAT_PROVIDERS
+    .filter((p) => String(env[PROVIDER_ENV_KEY[p.key]] || '').trim() !== '' && rec.get(p.key)?.enabled !== false)
+    .map((p) => { const r = rec.get(p.key); return r ? { ...p, model: r.model || p.model, base_url: r.base_url || p.base_url } : p; });
   const pinned = String(env.AI_PROVIDER || '').toLowerCase();
   const first = set.find((p) => p.key === pinned);
   return first ? [first, ...set.filter((p) => p !== first)] : set;
@@ -61,7 +69,7 @@ async function callProvider(p: ProviderConfig, key: string, model: string, promp
 
 /** Throws at once when no provider key is set at all (the job says so and stops, nothing is sent). */
 export function chainCallerFromEnv(env: NodeJS.ProcessEnv = process.env, opts: EnvChainOptions = {}): Caller {
-  const providers = envChainProviders(env);
+  const providers = envChainProviders(env, opts.registry);
   if (!providers.length) throw new Error(`no AI provider variable is set (${providerVariableNames().join(', ')}): nothing was sent`);
   const now = opts.now ?? Date.now;
   const f = opts.fetchImpl ?? fetch;
@@ -92,7 +100,7 @@ export function chainCallerFromEnv(env: NodeJS.ProcessEnv = process.env, opts: E
  * one after the other. A caller throws the same error codes as the chain; it never parks or retries (the job's scheduler does).
  */
 export function providerCallersFromEnv(env: NodeJS.ProcessEnv = process.env, opts: EnvChainOptions = {}): Array<{ provider: ProviderConfig; call: Caller }> {
-  const providers = envChainProviders(env);
+  const providers = envChainProviders(env, opts.registry);
   if (!providers.length) throw new Error(`no AI provider variable is set (${providerVariableNames().join(', ')}): nothing was sent`);
   const f = opts.fetchImpl ?? fetch;
   return providers.map((provider, i) => {

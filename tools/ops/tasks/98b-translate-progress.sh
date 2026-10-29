@@ -26,6 +26,7 @@ say "container: requests=$REQ_C answers=$RES_C | host: requests=$REQ_H answers=$
 
 # the runner's stats file (counts only), through a whitelist
 STATS=$($DK exec "$CT" sh -c 'cat /tmp/translate-work/stats.json' 2>/dev/null || true)
+[ -n "$STATS" ] || STATS=$(sudo -n cat "$W/stats.json" 2>/dev/null || true)   # 97 copies it to the host before it removes the container's work directory
 if [ -z "$STATS" ]; then
   say "stats: no stats file yet (the run in this container predates it, or has not written one)"
 else
