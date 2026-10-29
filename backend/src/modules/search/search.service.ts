@@ -304,6 +304,33 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
   }
 
   /**
+   * The ids a catalogue list's search box matches (labs, scans, nursing services), best match first, from the SAME engine as the home search: Meilisearch with typo tolerance and the
+   * Arabic / English synonyms (سكر تراكمي = HbA1c, صورة دم = CBC, سونار = ultrasound, رنين = MRI), or the search index in MongoDB when Meilisearch is off or fails.
+   * `null` = the engine could not answer or found nothing: the caller keeps its own text match, so a list never gets worse than it was.
+   */
+  async matchIds(q: string, types: SearchType[], limit = 60): Promise<string[] | null> {
+    const query = normalizeSearchText(q || '').slice(0, 120);
+    if (!query || !types.length) return null;
+    try {
+      let byType: Record<string, SearchItem[]> | null = null;
+      if (this.meili) {
+        try {
+          const hits = await this.meili.search(query, types, limit, []);
+          byType = Object.fromEntries(Object.entries(hits).map(([t, list]) => [t, list.map((h) => this.toItem(h, 'ar'))]));
+        } catch (e) {
+          this.log.warn(`meilisearch query failed, answering from MongoDB: ${(e as Error).message}`);
+        }
+      }
+      if (!byType) byType = await this.mongoSearch(query, types, limit, 'ar');
+      const ids = types.flatMap((t) => (byType![t] || []).map((i) => i.id));
+      return ids.length ? [...new Set(ids)] : null;
+    } catch (e) {
+      this.log.warn(`catalogue search failed, the list keeps its own match: ${(e as Error).message}`);
+      return null;
+    }
+  }
+
+  /**
    * Instant suggestions while typing (plan 17.3, issue 1544). Ranking, best first: a name that starts with the typed
    * text; a name where a later word starts with it; a name that holds it inside a word (the bounded second query, only
    * when the first tiers are short of the limit); then popularity, then the shorter name. Each suggestion carries the
