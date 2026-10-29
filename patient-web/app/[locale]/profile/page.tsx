@@ -146,7 +146,7 @@ export default async function ProfilePage({ params }: Props) {
         label={a("settingsRows")}
         rows={[
           { href: `${base}/settings`, icon: "gear", tone: SERVICE_ICONS.nursing.tone, title: a("rowSettings"), sub: a("rowSettingsSub") },
-          { href: `${base}/settings/help`, icon: "headset", tone: "mint", title: a("rowSupport") },
+          { href: `${base}/settings/help`, icon: "headset", tone: "ink", title: a("rowSupport") },
           { href: `${base}/settings/privacy`, icon: "key", tone: "violet", title: a("rowPrivacy") },
         ]}
       />

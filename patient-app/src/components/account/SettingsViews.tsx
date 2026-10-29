@@ -55,7 +55,7 @@ export function SettingsHubView() {
         <Row icon="lock" tone="violet" title={k('set.privacy')} subtitle={k('set.privacyHint')} onPress={go('/settings/privacy')} testID="settings-privacy" />
         <Row icon="shield-check" tone={CARE_TONE} title={k('set.security')} subtitle={k('set.securityHint')} onPress={go('/settings/security')} testID="settings-security" />
         <Row icon="globe" tone="blue" title={k('set.language')} subtitle={k('set.languageHint')} onPress={go('/settings/language')} testID="settings-language" />
-        <Row icon="headset" tone="mint" title={k('set.help')} subtitle={k('set.helpHint')} onPress={go('/settings/help')} testID="settings-help" />
+        <Row icon="headset" tone="ink" title={k('set.help')} subtitle={k('set.helpHint')} onPress={go('/settings/help')} testID="settings-help" />
         <Row icon="info" tone="blue" title={k('set.about')} subtitle={k('set.aboutHint')} onPress={go('/settings/about')} last testID="settings-about" />
       </Panel>
       <Button label={k('set.signOut')} variant="outline" size="lg" fullWidth startIcon="sign-out" onPress={signOut} theme={theme} testID="settings-sign-out" />

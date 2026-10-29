@@ -335,9 +335,9 @@ export default async function PublicProductPage({ params }: Props) {
 
             <div className={styles.info}>
               <div className={styles.chipsRow}>
-                <StatusChip label={product.is_rx ? t("rxRequired") : t("otc")} tone={product.is_rx ? "amber" : "mint"} />
+                <StatusChip label={product.is_rx ? t("rxRequired") : t("otc")} tone={product.is_rx ? "amber" : "ink"} />
                 <StatusChip label={product.available ? t("available") : discontinued ? t("unavailable") : t("limited")} tone={product.available ? "mint" : "amber"} />
-                {product.online_exclusive === true ? <StatusChip label={t("onlineOnly")} tone="mint" /> : null}
+                {product.online_exclusive === true ? <StatusChip label={t("onlineOnly")} tone="ink" /> : null}
                 {product.cold_chain === true ? <StatusChip label={t("coldChain")} tone="blue" /> : null}
                 <ProductShare name={name} url={canonical} />
               </div>

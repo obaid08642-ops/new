@@ -107,7 +107,7 @@ export function ResultItem({ result, locale, query, onOpen }: { result: SearchRe
         {rate ? <span className={styles.rate}>{t("rating", { value: rate })}</span> : null}
         {"label" in kind ? <StatusChip label={t(kind.label)} tone={kind.tone} /> : null}
         {result.requiresPrescription === true ? <StatusChip label={product("rxRequired")} tone="amber" /> : null}
-        {result.onlineOnly === true ? <StatusChip label={product("onlineOnly")} tone="mint" /> : null}
+        {result.onlineOnly === true ? <StatusChip label={product("onlineOnly")} tone="ink" /> : null}
       </span>
     </span>
   </>;

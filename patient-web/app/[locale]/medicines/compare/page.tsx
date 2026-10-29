@@ -14,6 +14,7 @@ import { CoreShell } from "@/components-next/core/core-shell";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import styles from "@/components-next/pharmacy/pharmacy.module.css";
+import { CORAL } from "@/lib/health/view";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ ids?: string }> };
 
@@ -68,7 +69,7 @@ export default async function MedicineComparePage({ params, searchParams }: Prop
         </div>
         {items.length < 2 ? (
           <div className={styles.state}>
-            <EmptyState icon="arrows-left-right" tone="mint" title={t("title")} body={t("emptyBody")} />
+            <EmptyState icon="arrows-left-right" tone={CORAL} title={t("title")} body={t("emptyBody")} />
             <Link href={back} className={`nabd-button nabd-button--primary nabd-button--lg nabd-button--full ${styles.linkButton}`}>
               <span className="nabd-button__label">{t("browse")}</span>
             </Link>

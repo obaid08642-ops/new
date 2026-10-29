@@ -164,7 +164,7 @@ export default async function NutritionPage({ params, searchParams }: Props) {
       <ul className={styles.tiles} aria-label={t("todayTitle")}>
         <li><VitalTile label={t("calories")} value={number.format(summary.calories)} unit={t("kcal")} icon="bowl-food" tone={NUTRITION.tone} /></li>
         <li><VitalTile label={t("water")} value={number.format(summary.waterMl)} unit={t("ml")} icon="drop" tone="blue" /></li>
-        {summary.proteinG !== null ? <li><VitalTile label={t("protein")} value={number.format(summary.proteinG)} unit={t("gram")} icon="heart" tone="mint" /></li> : null}
+        {summary.proteinG !== null ? <li><VitalTile label={t("protein")} value={number.format(summary.proteinG)} unit={t("gram")} icon="heart" tone={NUTRITION.tone} /></li> : null}
         {summary.carbsG !== null ? <li><VitalTile label={t("carbs")} value={number.format(summary.carbsG)} unit={t("gram")} icon="bowl-food" tone="amber" /></li> : null}
         {summary.fatG !== null ? <li><VitalTile label={t("fat")} value={number.format(summary.fatG)} unit={t("gram")} icon="drop" tone="violet" /></li> : null}
       </ul>

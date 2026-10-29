@@ -62,7 +62,7 @@ export function Chevron({ size = 18, back = false }: { size?: number; back?: boo
 
 /** The glyph and tone of a specialty (board Consult's specialty chips), found from the name the server sent. */
 const SPEC_LOOK: Array<[RegExp, FillIconName, ServiceTone]> = [
-  [/أسنان|dent|tooth/i, 'tooth', 'mint'],
+  [/أسنان|dent|tooth/i, 'tooth', 'blue'],
   [/جلد|derma|skin/i, 'hand-heart', 'pink'],
   [/عيون|عين|eye|ophth/i, 'eye', CARE_TONE],
   [/قلب|cardio|heart/i, 'heart', RX_TONE],

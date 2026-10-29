@@ -17,5 +17,5 @@ export const HOME_SERVICES: HomeService[] = [
 export const HOME_TOOLS: HomeTool[] = [
   { label: 'services.cat.symptomCheck', icon: 'heartbeat', tone: SERVICE_ICONS.nursing.tone, route: '/ai?mode=symptoms' },
   { label: 'services.cat.prescriptionTranslator', icon: 'translate', tone: 'violet', route: '/ai?mode=prescription' },
-  { label: 'services.cat.monthlyReport', icon: 'chart-line-up', tone: 'mint', route: '/ai/monthly-report' },
+  { label: 'services.cat.monthlyReport', icon: 'chart-line-up', tone: SERVICE_ICONS.pharmacy.tone, route: '/ai/monthly-report' },
 ];
