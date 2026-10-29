@@ -37,7 +37,7 @@ import { NAME_PROJECTION, withItemNames } from '../../common/booking-names';
 import { nearestFirst } from '../provider/services/nearest-first';
 import { publicLabFilter } from './labs-public';
 import { byRating, paged, parsePage, withProviderRating, type CataloguePage } from '../../common/catalogue-page';
-import { withOfferSummary, withOffers, type OfferSummary } from '../../common/service-offers';
+import { loadOffers, withOfferSummary, withOffers, type OfferSummary } from '../../common/service-offers';
 
 /** Public card for a provider in carousels and price lists: no contact or account details. */
 function publicProvider(p: any) {
@@ -149,7 +149,7 @@ export class LabsService {
     return s;
   }
 
-  async compatibleProviders(testIds: string[]) {
+  async compatibleProviders(testIds: string[], filters: { home?: boolean; insurance?: boolean } = {}) {
     const ids = [...new Set((testIds || []).filter(Boolean))];
     if (!ids.length) return [];
     const services = await this.svcModel.find({ id: { $in: ids }, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, category: 1, short_code: 1, name_ar: 1, price: 1 });
@@ -166,7 +166,13 @@ export class LabsService {
       $or: [{ test_categories: { $all: ids } }, ...(categories.length ? [{ test_categories: { $all: categories } }] : [])],
     }, { _id: 0, account_id: 1, id: 1, name_ar: 1, name_en: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1, logo: 1 }).limit(50).lean();
     const prices = await this.labPrices(profiles.map((p: any) => p.account_id), services as any[]);
-    return profiles.map((profile: any) => {
+    // Filters (QA PS gaps 4 and 5): a lab stays only when it offers EVERY requested test the asked way (home collection, insurance), by what the lab chose or registered per test.
+    let kept = profiles;
+    if (filters.home || filters.insurance) {
+      const offers = await loadOffers(this.svcModel.db as never, 'lab', services as any[]);
+      kept = profiles.filter((profile: any) => (services as any[]).every((svc: any) => (offers.get(svc.id) ?? []).some((o) => o.provider.id === profile.account_id && (!filters.home || o.home) && (!filters.insurance || o.insurance))));
+    }
+    return kept.map((profile: any) => {
       const own = prices.get(profile.account_id);
       // #631: the lab's own total for the requested tests (its capability prices, a missing one at the catalog price);
       // null only when neither the lab nor the catalog has a price for some test.

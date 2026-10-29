@@ -1,4 +1,4 @@
-import { withOfferSummary, withOffers } from '../../common/service-offers';
+import { loadOffers, withOfferSummary, withOffers } from '../../common/service-offers';
 import { PROVIDER_ROLES } from '../../common/enums';
 /**
  * M2 — Home-care compatibility layer + nursing ops reference data + chat aliases.
@@ -87,9 +87,13 @@ export class HomeCareCompatController {
     }
     const origin = nearestOrigin(q);
     // Nearest-first needs the whole candidate set (capped), then the closest 50; the other orders keep the first 50.
-    const rows: any[] = await this.profiles.find(filter).limit(origin ? 500 : 50).lean();
+    let rows: any[] = await this.profiles.find(filter).limit(origin ? 500 : 50).lean();
     const sort = String(q?.sort || '');
-    const list = rows.map((p) => ({ ...this.nurseView(p, svc), ...(origin ? { distance_km: distanceKmTo(p, origin) } : {}) }));
+    // What each nurse offers for this service (their own choice, else what they registered): insurance per nurse, and the `insurance=1` filter (QA PS gaps 8 and 9).
+    const offered = svc ? new Map((await loadOffers(this.services.db as never, 'nursing', [svc])).get(svc.id)?.map((o) => [o.provider.id, o]) ?? []) : new Map<string, any>();
+    const wantInsurance = q?.insurance === '1' || q?.insurance === 'true';
+    if (wantInsurance) rows = svc ? rows.filter((p) => offered.get(p.account_id)?.insurance === true) : rows.filter((p) => (p.nursing_services || []).some((n: any) => n?.insurance === true));
+    const list = rows.map((p) => ({ ...this.nurseView(p, svc), ...(svc ? { insurance: offered.get(p.account_id)?.insurance === true } : {}), ...(origin ? { distance_km: distanceKmTo(p, origin) } : {}) }));
     if (origin) return list.sort((a: any, b: any) => (a.distance_km ?? Infinity) - (b.distance_km ?? Infinity)).slice(0, 50);
     else if (sort === 'rating') list.sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0));
     return list;

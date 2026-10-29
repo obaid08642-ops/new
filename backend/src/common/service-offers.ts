@@ -35,6 +35,16 @@ export const PROVIDER_TYPES: Record<Vertical, string[]> = { lab: ['lab', 'hospit
 const CAPABILITY: Partial<Record<Vertical, string>> = { lab: 'provider_capabilities_lab', radiology: 'provider_capabilities_radiology' };
 const ci = (s: unknown) => String(s ?? '').trim().toLowerCase();
 const publicCard = (p: any): ServiceOffer['provider'] => ({ id: p.account_id, name_ar: p.name_ar ?? null, name_en: p.name_en ?? null, logo: p.logo ?? null, rating: p.rating_count > 0 ? p.rating_avg : null, rating_count: p.rating_count || 0 });
+/** A registration map value ({serviceId: true|"true"|1}) read as a yes; undefined when the map has no entry for any of the keys. */
+const flag = (map: unknown, ...keys: Array<string | undefined>): boolean | undefined => {
+  if (!map || typeof map !== 'object') return undefined;
+  for (const k of keys) {
+    if (!k || !(k in (map as Record<string, unknown>))) continue;
+    const v = (map as Record<string, unknown>)[k];
+    return v === true || v === 1 || (typeof v === 'string' && ['true', '1', 'yes'].includes(v.trim().toLowerCase()));
+  }
+  return undefined;
+};
 const priced = (n: unknown): number | null => (typeof n === 'number' && Number.isFinite(n) && n > 0 ? n : null);
 
 /** service id -> its offers (one per provider, the cheapest priced one when a provider holds several rows), cheapest first, unpriced last. */
@@ -44,7 +54,7 @@ export async function loadOffers(db: DbHandle, vertical: Vertical, services: any
   if (!services.length) return out;
   const profiles: any[] = await db.collection('provider_profiles').find({
     type: { $in: PROVIDER_TYPES[vertical] }, status: 'active', public_eligibility: true, medical_review_status: 'approved', account_id: { $exists: true, $ne: null },
-  }, { projection: { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1, home_visit_supported: 1, test_categories: 1, equipment_list: 1, nursing_services: 1 } }).toArray();
+  }, { projection: { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1, home_visit_supported: 1, test_categories: 1, equipment_list: 1, nursing_services: 1, test_home_map: 1, test_insurance_map: 1, scan_insurance_map: 1 } }).toArray();
   if (!profiles.length) return out;
   const accounts = profiles.map((p) => p.account_id);
   const capsColl = CAPABILITY[vertical];
@@ -73,13 +83,15 @@ export async function loadOffers(db: DbHandle, vertical: Vertical, services: any
         const own = caps.filter((c) => c.provider_account_id === p.account_id && (c.code === svc.id || (svc.short_code && c.code === svc.short_code) || (svc.name_ar && c.name_ar === svc.name_ar)));
         for (const c of own) put(svc, p, { price: priced(c.price), currency: c.currency || 'SAR', premises: c.premises_supported !== false, home: !!(c.home_collection_supported || c.home_supported), insurance: !!c.insurance_covered });
         const listed = Array.isArray(p.test_categories) && (p.test_categories.includes(svc.id) || (!!svc.category && p.test_categories.includes(svc.category)));
-        if (!own.length && listed) put(svc, p, { price: null, currency: 'SAR', premises: true, home: !!(p.home_visit_supported && svc.home_visit_supported), insurance: false });
+        // what the lab entered at registration (test_home_map / test_insurance_map, keyed by the test id) decides home and insurance when it has an entry
+        const keys = [svc.id, svc.short_code];
+        if (!own.length && listed) put(svc, p, { price: null, currency: 'SAR', premises: true, home: flag(p.test_home_map, ...keys) ?? !!(p.home_visit_supported && svc.home_visit_supported), insurance: flag(p.test_insurance_map, ...keys) ?? false });
       } else if (vertical === 'radiology') {
         const own = caps.filter((c) => c.provider_account_id === p.account_id && (c.service_id ? c.service_id === svc.id
           : ci(c.scan_type) === ci(svc.modality) && (!svc.body_part || ci(c.body_part) === ci(svc.body_part))));
         for (const c of own) put(svc, p, { price: priced(c.price), currency: c.currency || 'SAR', premises: c.premises_supported !== false, home: !!c.home_supported, insurance: !!c.insurance_covered });
         const listed = Array.isArray(p.equipment_list) && (p.equipment_list.includes(svc.id) || (!!svc.modality && p.equipment_list.includes(svc.modality)));
-        if (!own.length && listed) put(svc, p, { price: null, currency: 'SAR', premises: true, home: !!(p.home_visit_supported && svc.home_visit_supported), insurance: false });
+        if (!own.length && listed) put(svc, p, { price: null, currency: 'SAR', premises: true, home: !!(p.home_visit_supported && svc.home_visit_supported), insurance: flag(p.scan_insurance_map, svc.id, svc.modality) ?? false });
       } else {
         const entry = (Array.isArray(p.nursing_services) ? p.nursing_services : []).find((n: any) => n?.key === svc.id);
         if (entry) put(svc, p, { price: priced(entry.price), currency: entry.currency || 'SAR', premises: entry.premises === true, home: entry.home !== false, insurance: entry.insurance === true });
