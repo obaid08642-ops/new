@@ -4234,6 +4234,10 @@
         "title": "{name} | Nabd Plus স্বাস্থ্যসেবা",
         "description": "{city}-এ {name}। বিশেষায়িত স্বাস্থ্যসেবা, গ্রহণযোগ্য বিমা ও যাচাইকৃত ডাক্তার।",
         "country": "সৌদি আরব"
+      },
+      "nursingService": {
+        "title": "{city}-এ বাড়িতে {service} | নাবদ প্লাস",
+        "description": "{city}-এ বাড়িতে {service}: মূল্য দেখুন এবং নাবদ প্লাসে অনলাইনে নার্সের ভিজিট বুক করুন।"
       }
     },
     "ld": {
@@ -4247,7 +4251,22 @@
       "crumbPharmacy": "ফার্মেসি",
       "crumbFacilities": "হাসপাতাল ও ক্লিনিক",
       "crumbHealthGuide": "স্বাস্থ্য গাইড",
-      "crumbDoctors": "ডাক্তার"
+      "crumbDoctors": "ডাক্তার",
+      "nursingServiceCity": "{city}-এ হোম নার্সিং ভিজিট হিসেবে {service}"
+    },
+    "nursingService": {
+      "title": "{city}-এ বাড়িতে {service}",
+      "intro": "{city}-এ বাড়িতে {service} বুক করুন: নাবদ প্লাসের মাধ্যমে নার্স আপনার বাড়িতে আসেন।",
+      "about": "এই সেবা সম্পর্কে",
+      "priceTitle": "মূল্য",
+      "priceFrom": "{price} থেকে শুরু",
+      "priceRange": "{low} থেকে {high} পর্যন্ত",
+      "providers": "এই সেবা দেন এমন নার্সের সংখ্যা: {count}",
+      "book": "এই সেবা বুক করুন",
+      "emptyTitle": "এখনও কোনো নার্স {service} দিচ্ছেন না",
+      "emptyBody": "কোনো নার্স {service} দেওয়া শুরু করলে আমরা আপনাকে জানাব। জানানোর অনুরোধ করুন।",
+      "relatedTitle": "{city}-এ আরও হোম নার্সিং সেবা",
+      "allServices": "{city}-এ সব হোম নার্সিং সেবা"
     }
   },
   "InsuranceWeb": {
@@ -5017,7 +5036,8 @@
     "faqRx": "{name}-এর জন্য কি প্রেসক্রিপশন লাগে?",
     "faqIngredient": "{name}-এর সক্রিয় উপাদান কী?",
     "faqPrice": "নাবদ প্লাসে {name}-এর দাম কত?",
-    "howToTitle": "{name} কীভাবে ব্যবহার করবেন"
+    "howToTitle": "{name} কীভাবে ব্যবহার করবেন",
+    "nursingServiceWho": "{service} নাবদ প্লাসের একটি হোম নার্সিং সেবা: নার্স {city}-এ আপনার বাড়িতে আসেন। মূল্য দেখুন ও অনলাইনে বুক করুন।"
   },
   "LogForms": {
     "saveError": "সংরক্ষণ করা যায়নি। আপনি যা লিখেছেন তা রাখা আছে, আবার চেষ্টা করুন।",
