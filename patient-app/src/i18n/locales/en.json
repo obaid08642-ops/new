@@ -3864,7 +3864,7 @@
   "menu.open": "Menu",
   "menu.close": "Close menu",
   "menu.profile": "My account",
-  "menu.orders": "My orders",
+  "menu.orders": "My orders and results",
   "menu.family": "Family",
   "menu.articles": "Articles",
   "menu.notifications": "Notifications",
@@ -3890,5 +3890,15 @@
   "diag.offer.countNursingTwo": "{n} providers",
   "scanStatus.checking": "Being checked for safety",
   "scanStatus.rejected": "This file was rejected for safety. Please upload another.",
-  "scanStatus.uploadAnother": "Upload another file"
+  "scanStatus.uploadAnother": "Upload another file",
+  "menu.ordersNew": "My orders and results, {n} new results",
+  "orders.resultsTitle": "My orders and results",
+  "orders.tab.results": "Results and reports",
+  "orders.tab.resultsNew": "Results and reports ({n})",
+  "orders.results.partial": "Part of your results could not be loaded.",
+  "orders.results.emptyBody": "Lab results and radiology reports appear here when they are ready.",
+  "orders.results.new": "New",
+  "orders.results.view": "View",
+  "orders.results.share": "Share with your doctor",
+  "orders.results.book": "Book a consultation"
 }

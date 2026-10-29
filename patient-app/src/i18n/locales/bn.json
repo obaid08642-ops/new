@@ -3864,7 +3864,7 @@
   "menu.open": "মেনু",
   "menu.close": "মেনু বন্ধ করুন",
   "menu.profile": "আমার অ্যাকাউন্ট",
-  "menu.orders": "আমার অর্ডার",
+  "menu.orders": "আমার অর্ডার ও ফলাফল",
   "menu.family": "পরিবার",
   "menu.articles": "নিবন্ধ",
   "menu.notifications": "নোটিফিকেশন",
@@ -3890,5 +3890,15 @@
   "diag.offer.countNursingTwo": "{n}জন সেবাদাতা",
   "scanStatus.checking": "নিরাপত্তার জন্য ফাইলটি যাচাই করা হচ্ছে",
   "scanStatus.rejected": "নিরাপত্তার কারণে এই ফাইলটি প্রত্যাখ্যান করা হয়েছে। অনুগ্রহ করে অন্য একটি ফাইল আপলোড করুন।",
-  "scanStatus.uploadAnother": "অন্য ফাইল আপলোড করুন"
+  "scanStatus.uploadAnother": "অন্য ফাইল আপলোড করুন",
+  "menu.ordersNew": "আমার অর্ডার ও ফলাফল, {n}টি নতুন ফলাফল",
+  "orders.resultsTitle": "আমার অর্ডার ও ফলাফল",
+  "orders.tab.results": "ফলাফল ও রিপোর্ট",
+  "orders.tab.resultsNew": "ফলাফল ও রিপোর্ট ({n})",
+  "orders.results.partial": "আপনার কিছু ফলাফল লোড করা যায়নি।",
+  "orders.results.emptyBody": "ল্যাবের ফলাফল ও রেডিওলজি রিপোর্ট প্রস্তুত হলে এখানে দেখা যাবে।",
+  "orders.results.new": "নতুন",
+  "orders.results.view": "দেখুন",
+  "orders.results.share": "আপনার ডাক্তারের সাথে শেয়ার করুন",
+  "orders.results.book": "পরামর্শ বুক করুন"
 }
