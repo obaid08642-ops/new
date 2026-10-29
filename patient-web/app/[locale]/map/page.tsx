@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ConsultPage } from "@/components-next/consult/consult-page";
-import rx from "@/components-next/pharmacy/rx.module.css";
 import { MapExplorerClient } from "@/components-next/map-explorer-client";
 import { callPatientApi } from "@/lib/api/upstream";
 import { parseMapType } from "@/lib/map/entry";
@@ -47,13 +46,13 @@ export default async function MapExplorerPage({ params, searchParams }: Props) {
 
   return (
     <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}`} width="wide">
-      <p className={rx.lead}>{t("subtitle")}</p>
       <MapExplorerClient
         key={initialType ?? "all"}
         locale={locale}
         cityNames={cityNames}
         initialType={initialType}
         labels={{
+          subtitle: t("subtitle"),
           searchPh: t("searchPh"),
           filterAll: t("filterAll"),
           filterDoctors: t("filterDoctors"),

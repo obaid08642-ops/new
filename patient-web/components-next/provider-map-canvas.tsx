@@ -51,15 +51,16 @@ export default function ProviderMapCanvas({ providers, selectedId, onSelect, foc
   const ready = useRef(false);
   const marker = useRef<Marker | null>(null);
   const fitted = useRef(false);
-  const latest = useRef({ providers, onSelect, onUnavailable });
-  latest.current = { providers, onSelect, onUnavailable };
+  const latest = useRef({ providers, onSelect, onUnavailable, focus });
+  latest.current = { providers, onSelect, onUnavailable, focus };
 
   function paint() {
     const m = map.current;
     const src = m?.getSource(SRC) as GeoJSONSource | undefined;
     if (!m || !ready.current || !src) return;
     src.setData(holoFeatures(latest.current.providers));
-    if (!fitted.current && latest.current.providers.length > 0) {
+    // a centre known before the map existed (position or saved address) wins over fitting to the pins
+    if (!fitted.current && latest.current.providers.length > 0 && !latest.current.focus) {
       const pts = holoFeatures(latest.current.providers).features.map((f) => f.geometry.coordinates);
       if (pts.length > 1) {
         const lngs = pts.map((p) => p[0]);
@@ -94,8 +95,8 @@ export default function ProviderMapCanvas({ providers, selectedId, onSelect, foc
       instance = new MapLibreMap({
         container: host.current,
         style: MAP_STYLE_URL,
-        center: [MAP_DEFAULT_CENTER.lng, MAP_DEFAULT_CENTER.lat],
-        zoom: MAP_DEFAULT_ZOOM,
+        center: latest.current.focus ? [latest.current.focus.lng, latest.current.focus.lat] : [MAP_DEFAULT_CENTER.lng, MAP_DEFAULT_CENTER.lat],
+        zoom: latest.current.focus ? MAP_LOCATED_ZOOM - 3 : MAP_DEFAULT_ZOOM,
         dragRotate: false,
         pitchWithRotate: false,
         maxPitch: 0,
@@ -223,6 +224,7 @@ export default function ProviderMapCanvas({ providers, selectedId, onSelect, foc
 
   useEffect(() => {
     if (!focus || !map.current) return;
+    fitted.current = true;
     if (reduced()) map.current.jumpTo({ center: [focus.lng, focus.lat], zoom: MAP_LOCATED_ZOOM - 3 });
     else map.current.flyTo({ center: [focus.lng, focus.lat], zoom: MAP_LOCATED_ZOOM - 3, essential: true });
   }, [focus]);
