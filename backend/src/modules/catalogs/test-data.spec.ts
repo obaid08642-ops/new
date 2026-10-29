@@ -5,7 +5,7 @@
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { applyChanges, rollbackChanges, expectedCounts, countsOf, type DbLike } from './catalogue-apply.core';
-import { findTestRecords, looksLikeMash, matchedPatterns, planTestDataRemoval, scanDb, REMOVAL_CAP } from './test-data';
+import { resolveProfileIds, findTestRecords, looksLikeMash, matchedPatterns, planTestDataRemoval, scanDb, REMOVAL_CAP } from './test-data';
 import { run as runFinder } from '../../scripts/test-data-find';
 
 jest.setTimeout(120_000);
@@ -134,5 +134,27 @@ describe('planTestDataRemoval', () => {
   it('refuses a plan larger than the cap', async () => {
     await coll('orders').insertMany(Array.from({ length: REMOVAL_CAP + 1 }, (_, i) => ({ id: `bulk${i}`, provider_id: TEST.pharmacy })));
     await expect(planTestDataRemoval(scanDb(raw()), [TEST.pharmacy])).rejects.toThrow(/cap/);
+  });
+});
+
+describe('8-character id prefixes (the owner lists providers the way the finder prints them)', () => {
+  it('a prefix is resolved to the one exact id and the plan reports it; a whole id still works', async () => {
+    const { report } = await planTestDataRemoval(scanDb(raw()), ['7210a983', 'c142700b', TEST.clinic]);
+    expect(report.resolved_ids).toEqual({ '7210a983': TEST.doctor, c142700b: TEST.pharmacy });
+    expect(report.profiles_found.sort()).toEqual([TEST.clinic, TEST.doctor, TEST.pharmacy].sort());
+  });
+  it('a prefix that names no profile is reported, never guessed; one that names two stops the plan', async () => {
+    expect((await resolveProfileIds(scanDb(raw()), ['00000000'])).notFound).toEqual(['00000000']);
+    await coll('provider_profiles').insertOne({ id: '7210a983-2222-4222-8222-000000000099', type: 'doctor', name_ar: 'x' });
+    await expect(resolveProfileIds(scanDb(raw()), ['7210a983'])).rejects.toThrow(/names 2 provider profiles/);
+  });
+  it('a prefix is never used as a pattern: letters outside hex and short tokens find nothing', async () => {
+    expect((await resolveProfileIds(scanDb(raw()), ['.*', 'a', 'zzzzzzzz'])).ids).toEqual([]);
+  });
+  it('real products whose names only match the word test are not in scope: the catalogue is never touched', async () => {
+    await coll('lab_services').insertOne({ id: 'hiv', name_en: 'HIV test', name_ar: 'فحص' });
+    const { report } = await planTestDataRemoval(scanDb(raw()), ['7210a983', 'c142700b']);
+    expect(Object.keys(report.deletes)).not.toEqual(expect.arrayContaining(['medicines']));
+    expect(Object.keys(report.deletes)).not.toContain('lab_services');
   });
 });

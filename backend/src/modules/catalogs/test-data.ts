@@ -130,12 +130,31 @@ export async function linkedCounts(db: ScanDb, ids: string[], names?: Set<string
 }
 
 export const REMOVAL_CAP = 500;
-export interface TestRemovalReport { profiles_found: string[]; profiles_not_found: string[]; deletes: Record<string, number>; total: number }
+
+/**
+ * The owner lists providers by the first 8+ characters of their id (that is what the finder prints); the removal needs the exact id. A token that is a whole id
+ * is used as it is; a shorter hex token must name exactly ONE provider profile (none = reported as not found, several = the plan stops: a prefix never picks a guess).
+ */
+export async function resolveProfileIds(db: ScanDb, tokens: string[]): Promise<{ ids: string[]; notFound: string[]; resolved: Record<string, string> }> {
+  const ids: string[] = []; const notFound: string[] = []; const resolved: Record<string, string> = {};
+  for (const token of [...new Set(tokens.map((x) => x.trim()).filter(Boolean))]) {
+    const exact = await db.collection('provider_profiles').find({ id: token }, { projection: { id: 1 } }).toArray();
+    if (exact.length) { ids.push(token); continue; }
+    if (!/^[0-9a-f-]{8,36}$/i.test(token)) { notFound.push(token); continue; }
+    const found = await db.collection('provider_profiles').find({ id: { $regex: `^${token.replace(/[^0-9a-fA-F-]/g, '')}` } }, { projection: { id: 1 } }).toArray();
+    const unique = [...new Set(found.map((d) => String(d.id)))];
+    if (unique.length > 1) throw new Error(`id prefix ${token} names ${unique.length} provider profiles: list a longer prefix`);
+    if (!unique.length) { notFound.push(token); continue; }
+    ids.push(unique[0]); resolved[token] = unique[0];
+  }
+  return { ids, notFound, resolved };
+}
+export interface TestRemovalReport { profiles_found: string[]; profiles_not_found: string[]; resolved_ids: Record<string, string>; deletes: Record<string, number>; total: number }
 
 /** Plan only: nothing is written. The caller applies it with the same plan hash, backup, verify and rollback as every other step. */
 export async function planTestDataRemoval(db: ScanDb, profileIds: string[]): Promise<{ changes: Change[]; report: TestRemovalReport }> {
   const changes: Change[] = [];
-  const report: TestRemovalReport = { profiles_found: [], profiles_not_found: [], deletes: {}, total: 0 };
+  const report: TestRemovalReport = { profiles_found: [], profiles_not_found: [], resolved_ids: {}, deletes: {}, total: 0 };
   const names = new Set(await db.listCollectionNames());
   const taken = new Set<string>();
   const del = (collection: string, doc: any) => {
@@ -145,7 +164,9 @@ export async function planTestDataRemoval(db: ScanDb, profileIds: string[]): Pro
     changes.push({ kind: 'delete', step: 'test_data', collection, key: { _id: doc._id }, doc });
     report.deletes[collection] = (report.deletes[collection] ?? 0) + 1; report.total += 1;
   };
-  for (const pid of [...new Set(profileIds.map((x) => x.trim()).filter(Boolean))]) {
+  const resolved = await resolveProfileIds(db, profileIds);
+  report.profiles_not_found.push(...resolved.notFound); report.resolved_ids = resolved.resolved;
+  for (const pid of resolved.ids) {
     const profiles = await db.collection('provider_profiles').find({ id: pid }, {}).toArray();
     if (!profiles.length) { report.profiles_not_found.push(pid); continue; }
     report.profiles_found.push(pid);

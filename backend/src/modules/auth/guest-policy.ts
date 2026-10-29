@@ -31,7 +31,9 @@ const READ = ['GET', 'HEAD'];
 
 export const GUEST_ROUTE_RULES: GuestRouteRule[] = [
   // ── a full account is required (default off for guests) ──
-  { capability: 'insurance', path: /^\/(insurance|users\/me\/insurance|user\/insurance)(\/|$)/ },
+  // `GET /insurance/companies` (and its plans and networks) is the PUBLIC insurer list: a guest picking an insurer on /insurance/add-policy got a 403 from this row (QA 2026-10-29, "page unavailable").
+  // The patient's own policy, requests and claims under /insurance stay behind a full account.
+  { capability: 'insurance', path: /^\/(insurance(?!\/companies(\/|$))|users\/me\/insurance|user\/insurance)(\/|$)/ },
   { capability: 'insurance', path: /^\/patient\/pharmacy\/orders\/[^/]+\/insurance(\/|$)/ },
   { capability: 'insurance', path: /^\/(labs|radiology)\/bookings\/[^/]+\/insurance(\/|$)/ },
   { capability: 'family', path: /^\/family(\/|$)/ },
