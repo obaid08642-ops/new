@@ -1,4 +1,5 @@
-import { chainCallerFromEnv, envChainProviders, providerVariableNames } from './env-chain';
+import { chainCallerFromEnv, envChainProviders, providerCallersFromEnv, providerVariableNames, RegistryRecord } from './env-chain';
+import { DEFAULT_PROVIDERS, PROVIDER_ENV_KEY } from './ai-provider-catalog';
 
 /** Batch jobs go through the same fallback chain as the gateway (owner request 2026-10-26): no job talks to one hard-wired provider. */
 describe('env fallback chain (command-line jobs)', () => {
@@ -76,5 +77,64 @@ describe('env fallback chain (command-line jobs)', () => {
     const { fetchImpl } = fetchBy({ 'generativelanguage.googleapis.com': () => geminiOk('   ') });
     const call = chainCallerFromEnv({ GEMINI_API_KEY: 'a', GROQ_API_KEY: 'b' }, { fetchImpl });
     await expect(call('x')).resolves.toBe('from-api.groq.com');
+  });
+});
+
+/**
+ * 2026-10-28: the translation run got HTTP 404 from gemini, groq, deepseek and cerebras while the gateway worked: the per-provider callers used the
+ * built-in model ids, the gateway uses the `ai_providers` records. Each caller must hit the same URL with the same model as the gateway does for that record.
+ */
+describe('per-provider callers go where the gateway goes', () => {
+  const ENV = Object.fromEntries(['gemini', 'groq', 'openai', 'deepseek', 'openrouter', 'cerebras'].map((k) => [PROVIDER_ENV_KEY[k as keyof typeof PROVIDER_ENV_KEY], `key-${k}`]));
+  // the records an admin changed after the built-in models were retired
+  const REGISTRY: RegistryRecord[] = [
+    { key: 'gemini', model: 'gemini-2.5-flash' },
+    { key: 'groq', model: 'llama-3.1-8b-instant', base_url: 'https://api.groq.com/openai/v1' },
+    { key: 'openai', model: 'gpt-4.1-mini' },
+    { key: 'deepseek', model: 'deepseek-chat', base_url: 'https://api.deepseek.com/v1' },
+    { key: 'openrouter', model: 'meta-llama/llama-3.3-70b-instruct:free', base_url: 'https://openrouter.ai/api/v1' },
+    { key: 'cerebras', model: 'llama3.1-8b', base_url: 'https://api.cerebras.ai/v1' },
+  ];
+
+  async function requestsOf(registry?: RegistryRecord[]) {
+    const seen: Record<string, { url: string; model?: string }> = {};
+    const fetchImpl = jest.fn(async (url: string, init: { body: string }) => {
+      const body = JSON.parse(init.body);
+      const key = Object.keys(seen).length;
+      seen[`#${key}`] = { url, model: body.model };
+      return { ok: true, status: 200, json: async () => ({ choices: [{ message: { content: 'x' } }], candidates: [{ content: { parts: [{ text: 'x' }] } }] }) };
+    }) as unknown as typeof fetch;
+    const callers = providerCallersFromEnv(ENV, { fetchImpl, registry });
+    const byProvider: Record<string, { url: string; model?: string }> = {};
+    for (const { provider, call } of callers) {
+      const before = Object.keys(seen).length;
+      await call('hi');
+      byProvider[provider.key] = seen[`#${before}`];
+    }
+    return byProvider;
+  }
+
+  it('uses the gateway record: gemini models/<model>:generateContent, the others <base_url>/chat/completions with the record model', async () => {
+    const got = await requestsOf(REGISTRY);
+    expect(got.gemini.url).toBe('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent');
+    for (const r of REGISTRY.filter((x) => x.key !== 'gemini')) {
+      const base = r.base_url || 'https://api.openai.com/v1';
+      expect(got[r.key].url).toBe(`${base}/chat/completions`);
+      expect(got[r.key].model).toBe(r.model);
+    }
+  });
+
+  it('without records it falls back to the built-in catalogue, the same one the gateway seeds', async () => {
+    const got = await requestsOf();
+    for (const p of DEFAULT_PROVIDERS.filter((x) => got[x.key] && x.key !== 'gemini')) {
+      expect(got[p.key].url).toBe(`${p.base_url || 'https://api.openai.com/v1'}/chat/completions`);
+      expect(got[p.key].model).toBe(p.model);
+    }
+  });
+
+  it('a provider the gateway has switched off is not called', () => {
+    const keys = providerCallersFromEnv(ENV, { registry: [{ key: 'groq', enabled: false }] }).map((c) => c.provider.key);
+    expect(keys).not.toContain('groq');
+    expect(keys).toContain('gemini');
   });
 });

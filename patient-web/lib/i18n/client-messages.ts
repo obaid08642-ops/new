@@ -49,7 +49,7 @@ export function pickClientMessages<T extends Record<string, unknown>>(messages: 
  * when a listed section has no layout that provides its list.
  */
 export const ROUTE_GROUP_NAMESPACES: Record<string, readonly string[]> = {
-  "home-care": ["NursingWeb"],
+  "home-care": ["NursingWeb", "DiagWeb"],
   ai: ["AiHealthReport", "AssistantWeb", "Emergency", "RxUpload"],
   appointments: ["ConsultClient", "TelehealthConsent"],
   articles: ["Articles", "PharmacyBrowse"],
@@ -63,14 +63,14 @@ export const ROUTE_GROUP_NAMESPACES: Record<string, readonly string[]> = {
   "forgot-password": ["ForgotPassword"],
   health: ["HealthWeb"],
   insurance: ["InsuranceWeb"],
-  labs: ["OrderingFlow"],
+  labs: ["OrderingFlow", "DiagWeb"],
   login: ["Login"],
   loyalty: ["LoyaltyHubWeb"],
   map: ["AccountWeb"],
   maternity: ["LogForms", "MaternityWeb"],
   "mental-health": ["LogForms"],
   notifications: ["Notifications"],
-  nursing: ["NursingWeb", "OrderingFlow", "OrderTracking"],
+  nursing: ["NursingWeb", "OrderingFlow", "OrderTracking", "DiagWeb"],
   nutrition: ["LogForms", "NutritionWeb"],
   offers: ["OffersWeb"],
   medicines: ["PharmacyBrowse"],

@@ -211,8 +211,10 @@ describe("card subtitles never show a raw machine value", () => {
     expect(itemSubtitle(undefined, [], "Translated")).toBe("Translated");
   });
   it("the radiology list shows the translated category, not the upper-cased modality", () => {
+    // the radiology page draws the shared catalogue list; no row builder prints the modality in capitals
     const page = code("app/[locale]/diagnostics/radiology/page.tsx");
-    expect(page).toContain("CAT_LABEL[diagArtKey(");
+    expect(page).toContain("catalogueList(");
     expect(page).not.toContain("service.modality?.toUpperCase()");
+    expect(code("components-next/diagnostics/catalog-rows.ts")).not.toContain("toUpperCase");
   });
 });

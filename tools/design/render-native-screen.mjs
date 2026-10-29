@@ -242,6 +242,10 @@ const BOARD = {
   'd-lab': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-lab' } },
   'd-package-detail': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-lab-pkg' } },
   'd-test-detail': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-lab-test' } },
+  // #2067 catalogue offers: the detail of a scan with its offers, a test and a scan nobody offers yet ("Notify me when available"), the nursing service nobody offers
+  'd-test-detail-rad': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-rad', isRadiology: 'true' } },
+  'd-test-detail-none': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-lab-test-2' } },
+  'd-test-detail-rad-none': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-rad-2', isRadiology: 'true' } },
   'd-order': { component: 'OrderTracking', size: [390, 1120], params: { id: 'test-lab-order' } },
   'd-order-done': { component: 'OrderTracking', size: [390, 1120], params: { id: 'test-lab-done' } },
   'd-sample-tracking': { component: 'OrderTracking', size: [390, 1120], params: { bookingId: 'test-lab-order' } },
@@ -255,6 +259,7 @@ const BOARD = {
   // The ids select the TEST records of render-native-screen.fixtures.json (`svc-iv`, `test-nurse`, `test-visit`, `test-nur-ins`). Hub, lists and details draw on the ServiceHub board, visits on Orders, tracking on OrderTracking, the booking page on DoctorFull.
   'n-hub': { component: 'ServiceHub', size: [390, 1640], params: {} },
   'n-visits': { component: 'Orders', size: [390, 900], params: {} },
+  'n-service-info-none': { component: 'ServiceHub', size: [390, 1640], params: { serviceId: 'test-svc', flow: 'cash' } },
   'n-service-info': { component: 'ServiceHub', size: [390, 1640], params: { serviceId: 'svc-iv', flow: 'cash' } },
   'n-service-details': { component: 'ServiceHub', size: [390, 1640], params: { serviceId: 'svc-iv', title: 'خدمة تمريض تجريبية ١', flow: 'cash' } },
   'n-insurance-status': { component: 'ServiceHub', size: [390, 1640], params: { bookingId: 'test-nur-ins' } },
@@ -412,6 +417,8 @@ const MOCKS = {
       return key in EMPTY ? EMPTY[key] : {};
     }
     export const newIdempotencyKey = () => 'app-render-test-key';
+    // a render with fixtures is a signed-in patient (the "Notify me when available" button shows); the other modes are signed out
+    export async function hasSession() { return ((window.__SCREEN && window.__SCREEN.api) || 'empty') === 'fixture'; }
     export async function storeAuthSession() {}
     // the constants other modules read from the client (image URLs resolve against them); no real host in a render
     export const BASE_URL = 'https://api.example.test/api/v1';

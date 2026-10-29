@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { namesOf, pickName, textsOf, translatedColumns, type Texts } from "@/lib/i18n/localized";
 import { listsOf, type TextLists } from "@/lib/i18n/localized-lists";
+import { offersOf, type WithOffers } from "@/lib/api/offers";
 
 const labServiceIdSchema = z.string().regex(/^[A-Za-z0-9_-]{1,128}$/);
 const labServiceSchema = z.object({
@@ -58,7 +59,7 @@ export type LabService = {
   popularity?: number;
   /** The mean rating (0-5) of the labs that run the test and how many ratings it rests on; absent while unrated. */
   rating?: number; ratingCount?: number;
-};
+} & WithOffers;
 
 function rowsFrom(payload: unknown): unknown[] {
   if (Array.isArray(payload)) return payload;
@@ -88,6 +89,7 @@ function parseLabService(value: unknown): LabService | null {
     inLabAvailable: item.in_lab_availability, referralRequired: item.medical_referral_required,
     unavailable: item.unavailable, imageUrl: item.image_url, icon: item.icon, popularity: item.popularity,
     rating: item.rating ?? undefined, ratingCount: item.rating_count,
+    ...offersOf(value),
   };
 }
 

@@ -30,7 +30,7 @@ def write_exec(path, text):
 
 
 class TranslateProgress(unittest.TestCase):
-    def run_task(self, stats_text):
+    def run_task(self, stats_text, host_stats=None):
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
         b = os.path.join(tmp.name, "bin"); os.makedirs(b)
@@ -41,6 +41,11 @@ class TranslateProgress(unittest.TestCase):
         write_exec(os.path.join(b, "sudo"), '#!/bin/bash\n[ "$1" = -n ] && shift\nexec "$@"\n')
         write_exec(os.path.join(b, "docker"), f'#!/bin/bash\ncase "$*" in\n  *stats.json*) cat "{sf}" 2>/dev/null || exit 1;;\n  *requests.jsonl*) echo 1404;;\n  *responses.jsonl*) echo 181;;\nesac\n')
         env = dict(os.environ, PATH=b + os.pathsep + os.environ["PATH"], HOME=tmp.name)
+        if host_stats is not None:
+            wd = os.path.join(tmp.name, "work"); os.makedirs(wd)
+            with open(os.path.join(wd, "stats.json"), "w") as f:
+                f.write(host_stats)
+            env["OPS_TRANSLATE_DIR"] = wd
         return subprocess.run(["bash", TASK], env=env, capture_output=True, text=True, timeout=30)
 
     def test_prints_whitelisted_counts_per_provider_and_overall(self):
@@ -63,6 +68,11 @@ class TranslateProgress(unittest.TestCase):
     def test_no_stats_file_or_garbage_is_said_plainly(self):
         self.assertIn("no stats file yet", self.run_task(None).stdout)
         self.assertIn("stats: unreadable", self.run_task("{not json").stdout)
+
+    def test_reads_the_copy_on_the_host_when_the_container_work_directory_is_gone(self):
+        p = self.run_task(None, host_stats=json.dumps(STATS))
+        self.assertNotIn("no stats file yet", p.stdout)
+        self.assertIn("answered=300 of 1404, remaining=1104", p.stdout)
 
     def test_lines_are_status_lines_only(self):
         for line in self.run_task(json.dumps(STATS)).stdout.splitlines():

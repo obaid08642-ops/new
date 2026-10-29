@@ -13,6 +13,7 @@ import styles from "@/components-next/diagnostics/diag.module.css";
 import { BasketBar } from "@/components-next/ordering/basket-bar";
 import { NURSING } from "@/components-next/nursing/nursing-parts";
 import { CoverageChip } from "@/components-next/ordering/quote-parts";
+import { OffersSection } from "@/components-next/diagnostics/offers-section";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { moneyText } from "@/lib/ordering/format";
 import { callPatientApi } from "@/lib/api/upstream";
@@ -46,6 +47,7 @@ export default async function OrderingItemPage({ params, searchParams }: Props) 
   const place = placeOf(query.place);
   const pay = payOf(query.pay);
   const t = await getTranslations("OrderingFlow");
+  const w = await getTranslations("DiagWeb");
 
   const { item, failed } = await loadItem(kind, testSlug);
   if (!item && !failed) notFound();
@@ -58,11 +60,13 @@ export default async function OrderingItemPage({ params, searchParams }: Props) 
     );
   }
 
+  // A service no provider offers yet is shown (and can be asked for with "Notify me"), but it has no price to quote and cannot be ordered.
+  const unoffered = item.offer?.providersCount === 0;
   // The quote needs a session and a saved point; without them the page still shows the catalogue facts.
   const token = await optionalToken(locale);
   let quote: Quote | null = null;
   let quoteNote: "signin" | "address" | "failed" | null = token ? null : "signin";
-  if (token) {
+  if (token && !unoffered) {
     const point = await patientPoint(token);
     if (!point) quoteNote = "address";
     else {
@@ -110,7 +114,9 @@ export default async function OrderingItemPage({ params, searchParams }: Props) 
         <SectionCard id="item-included" title={t("pkgCount", { n: item.included.length })}><BulletList items={included} /></SectionCard>
       ) : null}
 
-      <SectionCard id="item-price" title={t("secPrice")}>
+      <OffersSection locale={locale} t={w} kind={kind} serviceId={item.id} offer={item.offer} offers={item.offers} />
+
+      {unoffered ? null : <SectionCard id="item-price" title={t("secPrice")}>
         {group?.fromPrice ? (
           <>
             <p><strong><bdi>{moneyText(locale, group.fromPrice.total)}</bdi></strong> · {t("providers", { m: group.fromPrice.providersCount })}</p>
@@ -133,11 +139,13 @@ export default async function OrderingItemPage({ params, searchParams }: Props) 
           </>
         ) : null}
         {item.isPackage ? <Notice>{t("pkgCashNote")}</Notice> : null}
-      </SectionCard>
+      </SectionCard>}
 
-      <div className={styles.itemActions}>
-        <ItemActions kind={kind} line={{ id: item.id, nameAr: item.nameAr, nameEn: item.nameEn }} orderHref={`/${locale}/labs/basket${contextQuery({ kind, place, pay })}`} />
-      </div>
+      {unoffered ? null : (
+        <div className={styles.itemActions}>
+          <ItemActions kind={kind} line={{ id: item.id, nameAr: item.nameAr, nameEn: item.nameEn }} orderHref={`/${locale}/labs/basket${contextQuery({ kind, place, pay })}`} />
+        </div>
+      )}
       <BasketBar locale={locale} kind={kind} place={place} pay={pay} />
     </ConsultPage>
   );

@@ -9,24 +9,24 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 0 | 333 | 97 | 4 | 0 |
-| Other | 370 | 317 | 50 | 3 | 0 | 0 |
+| Other | 375 | 322 | 50 | 3 | 0 | 0 |
 | Admin | 99 | 0 | 65 | 34 | 0 | 0 |
 | Admin journeys | 20 | 0 | 18 | 2 | 0 | 0 |
 | Final pass | 8 | 0 | 2 | 6 | 0 | 0 |
 | Patient journeys | 87 | 0 | 85 | 2 | 0 | 0 |
 | Provider app | 31 | 0 | 27 | 4 | 0 | 0 |
 | Provider journeys | 34 | 0 | 32 | 2 | 0 | 0 |
-| **Total** | **1083** | **317** | **612** | **150** | **4** | **0** |
+| **Total** | **1088** | **322** | **612** | **150** | **4** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 261 | 85 | 135 | 41 | 0 | 0 |
+| client | 265 | 89 | 135 | 41 | 0 | 0 |
 | owner | 150 | 50 | 57 | 42 | 1 | 0 |
-| backend | 433 | 181 | 222 | 30 | 0 | 0 |
+| backend | 434 | 182 | 222 | 30 | 0 | 0 |
 | untagged | 239 | 1 | 198 | 37 | 3 | 0 |
-| **Total** | **1083** | **317** | **612** | **150** | **4** | **0** |
+| **Total** | **1088** | **322** | **612** | **150** | **4** | **0** |
 
 ## By file
 
@@ -85,6 +85,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1c-web.json` | 13 | 0 | 10 | 3 | 0 | 0 |
 | `batch-1d-app.json` | 20 | 0 | 13 | 7 | 0 | 0 |
 | `batch-1d-web.json` | 10 | 0 | 6 | 3 | 1 | 0 |
+| `catalogue-lists.json` | 5 | 5 | 0 | 0 | 0 | 0 |
 | `diag-images.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `differentiators-app.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `differentiators-web.json` | 9 | 9 | 0 | 0 | 0 | 0 |
@@ -144,7 +145,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `uploads-scan-provider-app.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `web-public-ink.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `web-voice-notes.json` | 2 | 2 | 0 | 0 | 0 | 0 |
-| **Total** | **1083** | **317** | **612** | **150** | **4** | **0** |
+| **Total** | **1088** | **322** | **612** | **150** | **4** | **0** |
 
 ## Owner decisions (4)
 
@@ -155,12 +156,17 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 3 | `batch-1a-app.json#18` `patient-app/src/i18n/locales/en.json:0` | /pharmacy Six-language strings | 177 pharmacy.* keys were added to patient-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json. The English, Urdu, Hindi, Bengali and Filipino text was written by the design session (and, for reused phrases, taken from the phr… |
 | 4 | `batch-1d-web.json#1` `backend/src/modules/payments/payments.module.ts:154` | /pharmacy/payment Payment provider not exercised | No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only against a TEST stand-in outside the repo (… |
 
-## Open and unverified (317)
+## Open and unverified (322)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
 | `ac-1-agent-oauth.json#1` | client | open | Settings > Connected AI apps List and disconnect connected AI assistants | [client] No screen yet. Backend is ready: GET /api/v1/patient/agent-connections (client_id, client_name, logo_uri, scopes, connected_at) and DELETE /api/v1/patient/agent-connectio… |
 | `app-menu.json#0` | owner | open | /(tabs)/diagnostics Menu item 'My orders and results' | [owner] The web phone menu lists 'My orders and results' on the labs pages; the app already has its own header button for it (/diagnostics/orders) beside the new menu, so the menu… |
+| `catalogue-lists.json#0` | backend | open | /nursing/catalog, /home-care nursing list data source | [backend] GET /nursing/catalog (cached, public) does not carry providers_count/from_price/where/insurance; only GET /home-care/services does, so the web lists now read that and fa… |
+| `catalogue-lists.json#1` | client | open | /diagnostics (hub payment filter) insurance filter is applied on the loaded rows | [client] the hub still hides tests by the catalogue flag insurance_availability; the backend now takes insurance=1 and filters by what providers offer. Switching needs a decision … |
+| `catalogue-lists.json#2` | client | open | diagnostics tab (labs) insurance filter on loaded rows | [client] same as web: pays() reads insurance_availability, not the offers' insurance_accepted; the no-provider tests are exempt |
+| `catalogue-lists.json#3` | client | open | /diagnostics/radiology/[id], /labs/[id], /home-care/services/[id] notify-me con… | [client] the button, its confirmation and the signed-out link are unit-tested only as server markup and with a stub; the click, the 401 and the idempotent repeat were not run in a… |
+| `catalogue-lists.json#4` | client | open | diagnostics/test-detail signed-out sign-in state of Notify me | [client] rendered with a session (fixture) in ur light/dark; the signed-out sign-in button is covered by a jest test only, not seen |
 | `diag-images.json#0` | backend | open | /diagnostics/radiology, /diagnostics/labs, /labs lab and radiology catalogue pi… | [backend][owner] the seed points at https://cdn.nabd.plus/{labs/hiv,labs/pap,labs/semen,labs/hbe,labs/prog,labs/qft,radiology/hsg,radiology/barium,radiology/panorex,radiology/petc… |
 | `differentiators-app.json#0` | backend | open | /consultations/doctor/[id], doctors hub Late-appointment guarantee line (minute… | [backend] No late-compensation setting exists in GET /system-config/public on main or on any origin/s/* branch (the endpoint returns only cancellation_policy and returns_policy). … |
 | `differentiators-app.json#1` | backend | open | /loyalty (history), /notifications Late-compensation loyalty entry and notifica… | [backend] No late credit (points award, loyalty transaction reason or notification type) exists on main or on any origin/s/* branch. The client expects the loyalty reason and the … |

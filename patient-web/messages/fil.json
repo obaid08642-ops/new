@@ -3570,7 +3570,20 @@
     "catMri": "MRI",
     "catUltrasound": "Mga ultrasound",
     "catMammography": "Mamograpiya",
-    "catEcg": "ECG at echo"
+    "catEcg": "ECG at echo",
+    "offerCount": "{count} sentro",
+    "offerCountNursing": "{count} provider",
+    "offerNone": "Wala pang sentrong nag-aalok nito",
+    "offerNoneBody": "Maaari ka naming abisuhan kapag may sentrong nag-alok na nito.",
+    "offerAtCentre": "Sa sentro",
+    "offerAtHome": "Sa bahay",
+    "offerInsurance": "Tinatanggap ang insurance",
+    "offerNoPrice": "Walang itinakdang presyo",
+    "offersTitle": "Mga sentrong nag-aalok nito",
+    "notifyMe": "Ipaalam sa akin kapag available na",
+    "notifyMeDone": "Nasa listahan ka na. Aabisuhan ka namin kapag may sentrong nag-alok na nito.",
+    "notifyMeSignIn": "Mag-sign in para maabisuhan",
+    "notifyMeFailed": "Hindi ito na-save. Subukan muli."
   },
   "OrderContext": {
     "hint": "Agad na nag-a-update ang presyo at coverage kapag may binago",

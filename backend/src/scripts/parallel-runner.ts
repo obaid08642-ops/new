@@ -82,8 +82,9 @@ const isLimited = (cls: string): boolean => cls === 'http_429';
 const isAuth = (cls: string): boolean => cls === 'auth';
 const isClient4xx = (cls: string): boolean => /^http_4\d\d$/.test(cls) && cls !== 'http_429' && cls !== 'http_408';
 const MAX_PARK_MS = 10 * 60_000;
-const RETIRE_AFTER_LIMITED = 6;
-const RETIRE_AFTER_CLIENT_ERRORS = 3;
+// A 429 is a limit, not a verdict: the provider is parked longer and longer (up to MAX_PARK_MS), never retired for it. A 4xx other than 429/408 is retired only
+// after a long unbroken streak with no success in between, so one wrong setting at the start cannot end a run.
+const RETIRE_AFTER_CLIENT_ERRORS = 10;
 const RETIRE_AFTER_REJECTED = 10;
 
 export async function runParallel(reqs: ParallelRequest[], providers: ParallelProvider[], io: ParallelIo, opts: ParallelOptions = {}): Promise<ParallelResult> {
@@ -182,7 +183,6 @@ export async function runParallel(reqs: ParallelRequest[], providers: ParallelPr
           st.interval = Math.min(st.interval * 2, 60_000);
           park(st, s, Math.min(30_000 * 2 ** st.level, MAX_PARK_MS));
           st.level += 1;
-          if (st.limitedStreak >= RETIRE_AFTER_LIMITED) retire(p, 'limited again and again (daily limit presumed)');
         } else {
           s.errors += 1;
           // 400/402/404/405/422...: the request itself (or the model, or the account) is refused, parking does not heal it

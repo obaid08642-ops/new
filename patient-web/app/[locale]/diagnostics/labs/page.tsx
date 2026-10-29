@@ -5,7 +5,7 @@ import { localizedUrl } from "@/lib/seo";
 import { LabsCatalog } from "@/components-next/diagnostics/labs-catalog";
 import type { Metadata } from "next";
 
-type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string; home?: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string; home?: string; cat?: string; more?: string }> };
 
 export async function generateMetadata({ params }: Pick<Props, "params">): Promise<Metadata> {
   const { locale } = await params;
@@ -30,5 +30,5 @@ export default async function LabsPage({ params, searchParams }: Props) {
   const query = (await searchParams) ?? {};
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  return <LabsCatalog locale={locale} search={(query.q ?? "").trim()} homeOnly={query.home === "1"} backHref={`/${locale}/diagnostics`} basePath={`/${locale}/diagnostics/labs`} />;
+  return <LabsCatalog locale={locale} search={(query.q ?? "").trim()} homeOnly={query.home === "1"} cat={query.cat} more={Number.parseInt(query.more ?? "", 10) || 1} backHref={`/${locale}/diagnostics`} basePath={`/${locale}/diagnostics/labs`} />;
 }

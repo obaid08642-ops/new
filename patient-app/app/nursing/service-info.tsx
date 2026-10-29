@@ -4,12 +4,14 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Button } from '../../../packages/ui-native/src';
 import { ConsultScreen, Gate, Section, type GateStatus } from '../../src/components/consult/ConsultKit';
+import { OffersSection } from '../../src/components/diagnostics/CatalogueKit';
 import { Block, DetailHead, Price, Tag, goBackDiag } from '../../src/components/diagnostics/DiagKit';
 import { serviceGlyph } from '../../src/components/nursing/NursingKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
+import { offerSummaryOf, offersOf } from '../../src/utils/catalogueOffers';
 import { pickDbField, pickLocalized } from '../../src/utils/localize';
 
 type Rec = Record<string, unknown>;
@@ -50,6 +52,9 @@ export default function NursingServiceInfo() {
   const unit = text(svc?.duration);
   const duration = durationValue > 0 ? (unit === 'hour' ? k('nur.hours', { n: num(durationValue) }) : unit === 'day' ? k('nur.days', { n: num(durationValue) }) : `${num(durationValue)} ${unit}`.trim()) : '';
   const look = serviceGlyph(svc?.id);
+  const offer = offerSummaryOf(svc);
+  // a service no nurse offers yet can be asked for ("Notify me") but not booked
+  const unoffered = offer?.providersCount === 0;
 
   const goBook = () =>
     router.push({
@@ -58,7 +63,7 @@ export default function NursingServiceInfo() {
     } as unknown as Href);
 
   const footer =
-    svc && status === 'ready' ? (
+    svc && status === 'ready' && !unoffered ? (
       <>
         {price !== null ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
@@ -101,6 +106,7 @@ export default function NursingServiceInfo() {
                 </Block>
               </Section>
             ) : null}
+            <OffersSection kind="nursing" serviceId={text(svc.id) || String(serviceId ?? '')} offer={offer} offers={offersOf(svc)} />
           </>
         ) : null}
       </Gate>

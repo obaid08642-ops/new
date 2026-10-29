@@ -24,7 +24,9 @@ import { SHELL_FONT, resolveDirection, shellTokens, type Direction, type ThemeNa
 export interface TabBarItem {
   key: string;
   label: string;
-  icon: (color: string, size: number) => React.ReactNode;
+  icon: (color: string, size: number, selected: boolean) => React.ReactNode;
+  /** An illustrated tab: the selected pill is tinted with the tab's tone instead of the coral pill. */
+  tint?: { bg: string; fg: string };
   /** The raised centre button. At most one item should set it. */
   raised?: boolean;
 }
@@ -122,12 +124,12 @@ export function TabBar({ items, value, onChange, label = 'Main navigation', back
                   <Circle cx={FAB / 2} cy={FAB / 2} r={FAB / 2} fill={`url(#${gradientId})`} />
                 </Svg>
                 {/* above the gradient: a positioned sibling paints over static content on web */}
-                <View style={{ zIndex: 1 }}>{item.icon(t.fabFg, 28)}</View>
+                <View style={{ zIndex: 1 }}>{item.icon(t.fabFg, 28, selected)}</View>
               </View>
             </Pressable>
           );
         }
-        const color = selected ? t.selectedFg : t.muted;
+        const color = selected ? (item.tint?.fg ?? t.selectedFg) : t.muted;
         return (
           <Pressable
             key={item.key}
@@ -138,9 +140,9 @@ export function TabBar({ items, value, onChange, label = 'Main navigation', back
             style={({ pressed }) => ({
               height: ITEM,
               minWidth: ITEM,
-              paddingHorizontal: selected ? 18 : 0,
+              paddingHorizontal: selected ? (item.tint ? 14 : 18) : 0,
               borderRadius: ITEM / 2,
-              backgroundColor: selected ? t.selectedBg : 'transparent',
+              backgroundColor: selected ? (item.tint?.bg ?? t.selectedBg) : 'transparent',
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'center',
@@ -148,9 +150,9 @@ export function TabBar({ items, value, onChange, label = 'Main navigation', back
               transform: [{ scale: pressed ? t.pressScale : 1 }],
             })}
           >
-            {item.icon(color, 24)}
+            {item.icon(color, item.tint ? 32 : 24, selected)}
             {selected ? (
-              <Text numberOfLines={1} style={{ fontSize: 13.5, fontFamily: SHELL_FONT.medium, color }}>
+              <Text numberOfLines={1} style={{ fontSize: 13.5, fontFamily: item.tint ? SHELL_FONT.bold : SHELL_FONT.medium, color }}>
                 {item.label}
               </Text>
             ) : null}
