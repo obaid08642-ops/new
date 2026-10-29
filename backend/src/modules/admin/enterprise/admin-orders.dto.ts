@@ -21,6 +21,11 @@ export class RefundDto {
   @IsString()
   reason?: string;
 
+  /** Refund above the share a late cancellation computed: needs a written reason (10+ characters), kept in the audit entry. */
+  @IsOptional()
+  @IsString()
+  override_reason?: string;
+
 }
 
 export class CompensateDto {
