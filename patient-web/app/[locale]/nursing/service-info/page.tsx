@@ -11,5 +11,6 @@ export default async function NursingServiceInfoPage({ params, searchParams }: P
   setRequestLocale(locale);
   const sp = await searchParams;
   const serviceId = (sp.serviceId || "").trim();
-  redirect(serviceId ? `/${locale}/home-care/services/${encodeURIComponent(serviceId)}` : `/${locale}/home-care/services`);
+  // No id: straight to the catalogue (home-care/services is itself a redirect to it, a second hop on every visit).
+  redirect(serviceId ? `/${locale}/home-care/services/${encodeURIComponent(serviceId)}` : `/${locale}/nursing/catalog`);
 }

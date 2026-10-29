@@ -182,6 +182,22 @@ Hot spot: `GET /medicines` (list, with and without `smart_ranking`) is ~300 ms a
 
 Not measured yet (needs native-e2e emulator run).
 
+## After #2058 (public medicines list, deployed 2026-10-28)
+
+`GET /api/v1/public/medicines?page=1&limit=24` answers `200`, `Cache-Control: public, s-maxage=300, stale-while-revalidate=600`, `cf-cache-status: HIT` with an `Age` header (three consecutive reads: HIT, age 4-5 s), 125 KB uncompressed. Same sweep (20 sequential GETs per endpoint, from the same sandbox), measured while the vantage was noisier than on 10-27: the 404 floor was p50 447 ms / p95 3418 ms (vs 264 / 404), so only the ranking between rows is meaningful, and p95 is dominated by the vantage:
+
+| endpoint | p50 ms | p95 ms |
+|---|---|---|
+| `/api/v1/public/medicines?page=1&limit=24` (edge HIT) | 336 | 28202 |
+| `/api/v1/medicines?page=1&limit=20` (private, no-store) | 690 | 167807 |
+| `/api/v1/medicines?page=1&limit=20&sort=smart_ranking` | 552 | 132440 |
+| `/api/v1/medicines/categories` | 567 | 212049 |
+| `/api/v1/articles?limit=10` | 378 | 15971 |
+| `/api/v1/doctors?limit=20` | 610 | 67491 |
+| `/api/v1/entity-graph/related/doctor/<id>` | 357 | 7650 |
+
+Read: the cacheable route is the only one that answers under the (drifted) floor at p50 (336 vs 447), about half the private list's p50 (690), and the edge serves repeat reads without reaching the origin. The p95 columns here are not usable as latency numbers (a multi-second tail on every row, including the trivial 404): re-run `tools/perf/api-sweep.py` from a quiet vantage, or from the edge, before judging the 150 ms p95 target. Not checked yet: that the storefront's server-side list reads (`getPublicMedicines`) are on a web build that calls the new route.
+
 ## Private pages: where the TTFB goes (lead decision b)
 
 Measured on a local production build (`next start`, warm process, anonymous): `/ar/pharmacy/filters` 53–80 ms, `/ar/nursing/service-info` 40–67 ms, `/ar/labs/when` 37–71 ms (vs `/ar/articles` 37–50 ms). The first request of a cold process took 13 s (route compile), then every page renders in under 100 ms. `pharmacy/filters` and `nursing/service-info` do no fetch at all (13 and 15 lines of `page.tsx`), and `labs/when`/`labs/basket` make one `loadOrderingContext` call that is empty without a token.
