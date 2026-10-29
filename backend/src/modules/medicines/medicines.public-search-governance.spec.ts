@@ -184,7 +184,7 @@ describe('other modules: public and patient reads never return a medicine in med
   });
 
   it('agent ordering: a pending medicine is not found', async () => {
-    const tools = new AgentToolsService(...([null, null, null, null, null, null, null, null, null, conn] as unknown as ConstructorParameters<typeof AgentToolsService>));
+    const tools = new AgentToolsService(...([null, null, null, null, null, null, null, null, null, null, conn] as unknown as ConstructorParameters<typeof AgentToolsService>));
     await expect((tools as any).createPharmacyRequest({ id: 'patient-1', role: 'patient' }, { items: [{ medicine_id: PENDING_2.id, qty: 1 }] }))
       .rejects.toThrow(`medicine_not_found:${PENDING_2.id}`);
   });
