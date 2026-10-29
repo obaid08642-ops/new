@@ -50,6 +50,8 @@ export function pickClientMessages<T extends Record<string, unknown>>(messages: 
  */
 export const ROUTE_GROUP_NAMESPACES: Record<string, readonly string[]> = {
   "home-care": ["NursingWeb", "DiagWeb"],
+  // the public home-nursing service pages: only the notify-me button reads a client namespace (DiagWeb)
+  "home-nursing": ["DiagWeb"],
   ai: ["AiHealthReport", "AssistantWeb", "Emergency", "RxUpload"],
   appointments: ["ConsultClient", "TelehealthConsent"],
   articles: ["Articles", "PharmacyBrowse"],
