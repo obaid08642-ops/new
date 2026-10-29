@@ -4,15 +4,12 @@ import { SUGGEST_SCOPES } from '../../src/utils/searchSuggest';
 import { RefreshControl, ScrollView, Text, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
 
-import { Button, Chip, EmptyState, ErrorState, OfflineState, Radio, Screen, Search, Segmented, Skeleton, useTabBarHeight } from '../../../packages/ui-native/src';
+import { Button, Chip, EmptyState, ErrorState, OfflineState, Screen, Search, Segmented, Skeleton, Toggle, useTabBarHeight } from '../../../packages/ui-native/src';
 import { Section, Sheet } from '../../src/components/consult/ConsultKit';
 import {
   CartBar,
-  INSURANCE_TONE,
-  KindTile,
   LAB_TONE,
   LabCard,
-  LinkCard,
   PackageCard,
   PlaceRow,
   RAD_TONE,
@@ -31,9 +28,9 @@ import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKi
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
 import { fetchPublicList } from '../../src/utils/publicCache';
-import { DIAG_PAGE_SIZE, sortOfFilter, serverCategoryOf } from '../../src/utils/diagCatalogApi';
+import { DIAG_PAGE_SIZE, serverCategoryOf } from '../../src/utils/diagCatalogApi';
 import { useDiagCatalog } from '../../src/utils/useDiagCatalog';
-import { activeFilterCount, filterForTab, filtersFor, type FilterId } from '../../src/utils/diagFilters';
+import { DEFAULT_SHEET, passesSheet, resultCount, sheetFilterCount, sheetHomeVisit, sheetSort, type SheetFilters, type SheetPay } from '../../src/utils/diagHubFilters';
 import { catalogArt, isNearEnd } from '../../src/utils/diagCatalog';
 import { diagArtKeysOf, filterByArt, type DiagArtKey } from '../../../packages/ui/icons/diag-art';
 import { isOffline } from '../../src/utils/isOffline';
@@ -43,8 +40,8 @@ import { formatAddressLine, resolveEffectiveAddress } from '../../src/utils/sele
 
 type MainTab = 'labs' | 'radiology';
 type Place = 'home' | 'clinic';
-/** Decision 30: insurance or self-pay is chosen first; the lists show only the services that take that payment. */
-type Pay = 'self_pay' | 'insurance';
+/** The "Packages" chip is a category of the labs tab only; the other chips are the category art keys. */
+type Cat = DiagArtKey | 'all' | 'packages';
 /** The hub of labs and radiology (board ServiceHub): what to book, where, and what is already in the cart. */
 export default function DiagnosticsHub() {
   const { theme, dir, t, c, k, num, flow } = useScreenUi();
@@ -55,13 +52,15 @@ export default function DiagnosticsHub() {
   // `?tab=radiology` opens the radiology side (the services catalogue's imaging entry; needs-review issue 414).
   const { tab } = useLocalSearchParams<{ tab?: string }>();
   const [mainTab, setMainTab] = useState<MainTab>(tab === 'radiology' ? 'radiology' : 'labs');
-  const [place, setPlace] = useState<Place>('home');
-  const [pay, setPay] = useState<Pay>('self_pay');
+  // the filter sheet (payment, place, sort, toggles); the card's place stays "home" until the lab is chosen (the previous default)
+  const [sheetF, setSheetF] = useState<SheetFilters>(DEFAULT_SHEET);
+  const place: Place = sheetF.place === 'lab' ? 'clinic' : 'home';
+  const pay = sheetF.pay;
+  const patchSheet = (patch: Partial<SheetFilters>) => setSheetF((cur) => ({ ...cur, ...patch }));
   const [query, setQuery] = useState('');
   const [sheet, setSheet] = useState(false);
-  const [filter, setFilter] = useState<FilterId>('all');
   // the category chips: scans filter on the SERVER by category (a scan's category is its modality); tests keep the chip as a filter of the loaded rows
-  const [cat, setCat] = useState<DiagArtKey | 'all'>('all');
+  const [cat, setCat] = useState<Cat>('all');
   // the search text reaches the server (the catalogue's `search`) a moment after typing stops
   const [search, setSearch] = useState('');
 
@@ -115,10 +114,10 @@ export default function DiagnosticsHub() {
     setCat('all');
   }, [mainTab]);
 
-  // a filter the other tab does not offer would change nothing there: it goes back to "all" with the tab
+  // the lab-only options (no fasting, same day, at the lab) would change nothing on the scans: they go back with the tab
   const switchTab = (next: MainTab) => {
     setMainTab(next);
-    setFilter((current) => filterForTab(current, next));
+    setSheetF((cur) => (next === 'radiology' ? { ...cur, place: cur.place === 'lab' ? 'all' : cur.place, noFasting: false, sameDay: false } : cur));
   };
   const reload = () => {
     void loadAux();
@@ -126,7 +125,7 @@ export default function DiagnosticsHub() {
     popularCatalog.reload();
   };
   const resetFilters = () => {
-    setFilter('all');
+    setSheetF(DEFAULT_SHEET);
     setCat('all');
   };
 
@@ -136,11 +135,12 @@ export default function DiagnosticsHub() {
   const match = (name: string) => needle === '' || name.toLowerCase().includes(needle);
   const byPrice = (a: CatalogItem, b: CatalogItem) => (a.price ?? Infinity) - (b.price ?? Infinity);
   const isLab = mainTab === 'labs';
-  const sort = sortOfFilter(filter);
-  // R1: the place never hides scans (only ultrasound is portable); only the explicit "home visit" filter asks the server for home scans
-  const homeOnly = filter === 'home_visit';
-  const testCatalog = useDiagCatalog('lab', isLab, { search, sort, homeVisit: filter === 'home_visit' });
-  const radCatalog = useDiagCatalog('radiology', !isLab, { search, sort, homeVisit: homeOnly, category: serverCategoryOf('radiology', cat) });
+  const sort = sheetSort(sheetF.sort);
+  // R1: the place never hides scans (only ultrasound is portable); only the explicit "home collection" choice asks the server for home scans
+  const homeOnly = sheetHomeVisit(sheetF);
+  const artCat: DiagArtKey | 'all' = cat === 'packages' ? 'all' : cat;
+  const testCatalog = useDiagCatalog('lab', isLab, { search, sort, homeVisit: homeOnly });
+  const radCatalog = useDiagCatalog('radiology', !isLab, { search, sort, homeVisit: homeOnly, category: serverCategoryOf('radiology', artCat) });
   // "Most requested": the first six in the server's own popularity order (no search, sort or category)
   const popularTests = useDiagCatalog('lab', isLab, { limit: 6 });
   const popularScans = useDiagCatalog('radiology', !isLab, { limit: 6 });
@@ -152,56 +152,52 @@ export default function DiagnosticsHub() {
   const failed = catalog.failed && catalog.items.length === 0 ? catalog.failed : null;
   // Nothing takes insurance in the loaded catalogue: the choice is not offered (no empty list behind it) and self-pay applies.
   const anyInsurance = useMemo(() => insuranceOffered([...packages, ...tests]), [packages, tests]);
-  const effectivePay: Pay = anyInsurance ? pay : 'self_pay';
+  const effectivePay: SheetPay = anyInsurance ? pay : 'self_pay';
   // the payment always applies, offers or not: an insurance-only test never shows under "Without insurance" and a self-pay-only one never under "Insurance"
   const pays = (x: CatalogItem) => (effectivePay === 'insurance' ? x.insurance : x.selfPay);
   const view = useMemo(() => {
     let p = packages.filter((x) => match(x.name) && pays(x));
     let ls = labs.filter((x) => match(x.name));
-    if (filter === 'home_visit') {
+    if (sheetF.place === 'home') {
       p = p.filter((x) => x.homeVisit);
       ls = ls.filter((x) => x.homeVisit);
     }
-    if (filter === 'lowest_price') p = [...p].sort(byPrice);
-    if (filter === 'highest_rated') ls = [...ls].sort((a, b) => (b.rating ?? -1) - (a.rating ?? -1));
+    if (sheetF.place === 'lab') p = p.filter((x) => x.facilityVisit);
+    if (sheetF.noFasting) p = p.filter((x) => !x.fastingRequired);
+    if (sheetF.sort === 'lowest_price') p = [...p].sort(byPrice);
+    if (sheetF.sort === 'highest_rated') ls = [...ls].sort((a, b) => (b.rating ?? -1) - (a.rating ?? -1));
     return { p, ls };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [packages, labs, needle, effectivePay, filter]);
+  }, [packages, labs, needle, effectivePay, sheetF]);
 
-  const testRows = useMemo(() => tests.filter(pays).map((item) => ({ item, art: catalogArt('lab', item) })), [tests, effectivePay]); // eslint-disable-line react-hooks/exhaustive-deps
+  const testRows = useMemo(() => tests.filter(pays).filter((x) => passesSheet(x, sheetF, 'lab')).map((item) => ({ item, art: catalogArt('lab', item) })), [tests, effectivePay, sheetF]); // eslint-disable-line react-hooks/exhaustive-deps
   const radRows = useMemo(() => rads.map((item) => ({ item, art: catalogArt('radiology', item) })), [rads]);
   // scan rows are already the chip's (server); test rows are filtered by the chip here
-  const shownTests = filterByArt(testRows, cat);
+  const shownTests = filterByArt(testRows, artCat);
   const shownRads = radRows;
+  const defaultOrder = sheetF.sort === 'popular' && sheetF.place === 'all' && !sheetF.noFasting && !sheetF.sameDay;
   const popular =
-    needle === '' && (filter === 'all' || !isLab)
+    needle === '' && cat !== 'packages' && (defaultOrder || !isLab)
       ? popularCatalog.items.filter((x) => (isLab ? pays(x) : true)).slice(0, 6)
       : [];
   const moreRows = catalog.hasMore;
-  const showPackages = filter === 'all' || filter === 'packages' || filter === 'lowest_price' || filter === 'home_visit' || filter === 'highest_rated';
-  const showTests = filter !== 'packages' && filter !== 'labs';
-  const showLabs = filter !== 'packages' && filter !== 'tests';
+  const onlyPackages = cat === 'packages';
+  const showPackages = cat === 'all';
+  const showTests = !onlyPackages;
+  const showLabs = cat === 'all';
+  const clientKept = sheetF.noFasting || sheetF.sameDay || sheetF.place === 'lab';
 
   // a test chip that matches few of the loaded rows keeps asking pages (the stored test categories do not match the chips one to one)
   useEffect(() => {
-    if (isLab && cat !== 'all' && testCatalog.hasMore && !testCatalog.loading && !testCatalog.loadingMore && shownTests.length < DIAG_PAGE_SIZE) testCatalog.loadMore();
-  }, [isLab, cat, testCatalog, shownTests.length]);
+    if (isLab && !onlyPackages && (cat !== 'all' || clientKept) && testCatalog.hasMore && !testCatalog.loading && !testCatalog.loadingMore && shownTests.length < DIAG_PAGE_SIZE) testCatalog.loadMore();
+  }, [isLab, cat, onlyPackages, clientKept, testCatalog, shownTests.length]);
   // the same for scans when the place switch hides most of a page
   useEffect(() => {
     if (!isLab && radCatalog.hasMore && !radCatalog.loading && !radCatalog.loadingMore && shownRads.length < DIAG_PAGE_SIZE) radCatalog.loadMore();
   }, [isLab, radCatalog, shownRads.length]);
 
-  const unfiltered = needle === '' && filter === 'all' && cat === 'all';
+  const unfiltered = needle === '' && sheetFilterCount(sheetF) === 0 && cat === 'all';
   const nothing = !loading && !failed && unfiltered && packages.length === 0 && catalog.items.length === 0;
-  const placeOptions = isLab
-    ? [
-        { value: 'home', label: k('diag.place.homeLab') },
-        { value: 'clinic', label: k('diag.place.visitLab') },
-      ]
-    : [
-        { value: 'home', label: k('diag.place.homeRad') },
-        { value: 'clinic', label: k('diag.place.visitRad') },
-      ];
   const addressLine = address ? k('diag.addr.to', { address: formatAddressLine(address) }) : addressLoaded ? k('diag.addr.none') : k('diag.addr.loading');
 
   // one cart per service: the labs tab counts the lab tests, the radiology tab the scans (the cart screen lists both groups)
@@ -209,16 +205,23 @@ export default function DiagnosticsHub() {
   const tabCount = tabLines.reduce((n, i) => n + (i.qty > 0 ? i.qty : 1), 0);
   const tabTotal = tabLines.reduce((n, i) => n + i.price * (i.qty > 0 ? i.qty : 1), 0);
   const barSpace = tabCount > 0 ? 96 : 0;
-  const options = filtersFor(mainTab);
-  const filterCount = activeFilterCount(filter, cat === 'all' ? '' : cat);
+  // "Show N results": what the lists below hold now (packages when that chip is on), the server's total while nothing is kept back here
+  const shownRows = onlyPackages ? view.p.length : isLab ? shownTests.length : shownRads.length;
+  const shownCount = onlyPackages ? shownRows : resultCount(shownRows, catalog.total, shownRows !== catalog.items.length);
+  const filterCount = sheetFilterCount(sheetF) + (cat === 'all' ? 0 : 1);
   const activeItems: ActiveFilter[] = [
-    ...(filter === 'all' ? [] : [{ key: filter, label: k(options.find((f) => f.id === filter)?.key ?? 'diag.filter.all'), onRemove: () => setFilter('all') }]),
+    ...(sheetF.pay === DEFAULT_SHEET.pay ? [] : [{ key: `pay-${sheetF.pay}`, label: k('diag.pay.insurance'), onRemove: () => patchSheet({ pay: DEFAULT_SHEET.pay }) }]),
+    ...(sheetF.place === 'all' ? [] : [{ key: `place-${sheetF.place}`, label: k(sheetF.place === 'lab' ? 'diag.filter.placeLab' : 'diag.filter.placeHome'), onRemove: () => patchSheet({ place: 'all' }) }]),
+    ...(sheetF.sort === 'popular' ? [] : [{ key: `sort-${sheetF.sort}`, label: k(sheetF.sort === 'lowest_price' ? 'diag.filter.price' : 'diag.filter.rating'), onRemove: () => patchSheet({ sort: 'popular' }) }]),
+    ...(sheetF.noFasting ? [{ key: 'no-fasting', label: k('diag.filter.noFasting'), onRemove: () => patchSheet({ noFasting: false }) }] : []),
+    ...(sheetF.sameDay ? [{ key: 'same-day', label: k('diag.filter.sameDay'), onRemove: () => patchSheet({ sameDay: false }) }] : []),
     ...(cat === 'all' ? [] : [{ key: `cat-${cat}`, label: k(`diag.cat.${cat}`), onRemove: () => setCat('all') }]),
   ];
 
   const catChips = (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} accessibilityLabel={k('diag.cat.group')} contentContainerStyle={{ gap: 8 }} testID="diag-cat-chips">
       <Chip label={k('diag.filter.all')} selected={cat === 'all'} onPress={() => setCat('all')} theme={theme} testID="diag-cat-all" />
+      {isLab ? <Chip label={k('diag.cat.packages')} selected={cat === 'packages'} onPress={() => setCat('packages')} theme={theme} testID="diag-cat-packages" /> : null}
       {diagArtKeysOf(isLab ? 'lab' : 'radiology').map((key) => (
         <Chip key={key} label={k(`diag.cat.${key}`)} selected={cat === key} onPress={() => setCat(key)} theme={theme} testID={`diag-cat-${key}`} />
       ))}
@@ -250,6 +253,20 @@ export default function DiagnosticsHub() {
           <HeaderMenuButton testID="diagnostics-menu-button" />
         </View>
 
+        <Segmented
+          theme={theme}
+          label={k('diag.kind.group')}
+          options={[
+            { value: 'labs', label: k('diag.kind.lab') },
+            { value: 'radiology', label: k('diag.kind.rad') },
+          ]}
+          value={mainTab}
+          onChange={(v) => switchTab(v as MainTab)}
+          testID="diag-main-tabs"
+        />
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <View style={{ flex: 1, minWidth: 0 }}>
         <Search
           theme={theme}
           variant="inline"
@@ -264,6 +281,10 @@ export default function DiagnosticsHub() {
           filterCount={filterCount}
           formatCount={num}
         />
+        </View>
+        <GlyphRound name="prescription" label={k('diag.hub.rxOrder')} onPress={() => router.push('/diagnostics/insurance-approval' as Href)} testID="diag-rx-order" />
+        </View>
+        {catChips}
         <ScopedSuggest query={query} scope={isLab ? SUGGEST_SCOPES.labs : SUGGEST_SCOPES.radiology} />
         <ActiveFilters items={activeItems} onClearAll={resetFilters} tone={isLab ? LAB_TONE : RAD_TONE} testIdPrefix="diag" />
       </View>
@@ -283,30 +304,7 @@ export default function DiagnosticsHub() {
 
         {failed ? null : (
           <>
-            <View accessibilityRole="tablist" style={{ flexDirection: 'row', gap: 10 }}>
-              <KindTile icon="test-tube" tone={LAB_TONE} title={k('diag.kind.lab')} line={k('diag.kind.labLine')} selected={isLab} onPress={() => switchTab('labs')} />
-              <KindTile icon="scan" tone={RAD_TONE} title={k('diag.kind.rad')} line={k('diag.kind.radLine')} selected={!isLab} onPress={() => switchTab('radiology')} />
-            </View>
-
-            <View style={{ gap: 4 }}>
-              <Segmented theme={theme} label={k('diag.place.group')} options={placeOptions} value={place} onChange={(v) => setPlace(v as Place)} />
-              {place === 'home' ? <PlaceRow text={addressLine} actionLabel={address ? k('diag.addr.change') : k('diag.addr.choose')} onAction={() => router.push('/profile/addresses?select=1' as Href)} /> : null}
-            </View>
-
-            {isLab && anyInsurance ? (
-              <Segmented
-              theme={theme}
-              label={k('diag.pay.group')}
-              options={[
-                { value: 'self_pay', label: k('diag.pay.selfPay') },
-                { value: 'insurance', label: k('diag.pay.insurance') },
-              ]}
-              value={effectivePay}
-              onChange={(v) => setPay(v as Pay)}
-              />
-            ) : null}
-
-            <LinkCard icon="shield-check" tone={INSURANCE_TONE} title={k('diag.hub.insTitle')} body={k('diag.hub.insBody')} onPress={() => router.push('/diagnostics/insurance-approval' as Href)} />
+            {sheetF.place === 'home' ? <PlaceRow text={addressLine} actionLabel={address ? k('diag.addr.change') : k('diag.addr.choose')} onAction={() => router.push('/profile/addresses?select=1' as Href)} /> : null}
           </>
         )}
 
@@ -325,6 +323,15 @@ export default function DiagnosticsHub() {
 
         {!loading && !failed && !nothing && isLab ? (
           <View style={{ gap: 22 }}>
+            {onlyPackages ? (
+              <View style={{ gap: 12 }} testID="diag-packages-list">
+                {view.p.length === 0 ? <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('diag.empty.noMatch')}</Text> : null}
+                {view.p.map((pkg) => (
+                  <CatalogueCard key={`diag-pkg-${pkg.id}`} item={pkg} kind="lab" art={catalogArt('lab', pkg)} place={place} payer={payer} idPrefix="diag-pkg" isPackage />
+                ))}
+              </View>
+            ) : null}
+
             {showPackages && view.p.length > 0 ? (
               <Section title={k('diag.hub.packs')} actionLabel={k('diag.hub.allPacks')} onAction={() => router.push('/diagnostics/packages' as Href)}>
                 <Strip>
@@ -359,7 +366,6 @@ export default function DiagnosticsHub() {
             {showTests && (tests.length > 0 || needle !== '' || cat !== 'all') ? (
               <Section title={k('diag.hub.allTests')}>
                 <View style={{ gap: 12 }}>
-                  {catChips}
                   {shownTests.length === 0 && !catalog.loading ? <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('diag.empty.noMatch')}</Text> : null}
                   {shownTests.map(({ item, art }) => testCard(item, art, 'diag-test'))}
                   {catalog.loadingMore ? <Skeleton lines={2} theme={theme} /> : null}
@@ -384,7 +390,7 @@ export default function DiagnosticsHub() {
               </Section>
             ) : null}
 
-            {view.p.length === 0 && testRows.length === 0 && view.ls.length === 0 ? <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('diag.empty.noMatch')}</Text> : null}
+            {!onlyPackages && view.p.length === 0 && testRows.length === 0 && view.ls.length === 0 ? <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('diag.empty.noMatch')}</Text> : null}
           </View>
         ) : null}
 
@@ -399,7 +405,6 @@ export default function DiagnosticsHub() {
             <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{k('diag.hub.allScans')}</Text>
             {shownRads.length > 0 || cat !== 'all' ? (
               <View style={{ gap: 12 }}>
-                {catChips}
                 {shownRads.length === 0 && !catalog.loading ? <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{k('diag.empty.noMatch')}</Text> : null}
                 {shownRads.map(({ item, art }) => scanCard(item, art, 'diag-scan'))}
                 {catalog.loadingMore ? <Skeleton lines={2} theme={theme} /> : null}
@@ -413,25 +418,42 @@ export default function DiagnosticsHub() {
       </ScrollView>
 
       <Sheet open={sheet} title={k('diag.filter.title')} onClose={() => setSheet(false)} closeLabel={k('diag.filter.close')}>
-        <View>
-          {options.map((f, i) => (
-            <Radio
-              key={f.id}
-              theme={theme}
-              label={k(f.key)}
-              selected={filter === f.id}
-              divider={i < options.length - 1}
-              onChange={() => {
-                setFilter(f.id);
-                setSheet(false);
-              }}
-            />
-          ))}
-          {filterCount > 0 ? (
-            <View style={{ paddingTop: 12 }}>
-              <Button theme={theme} size="lg" fullWidth variant="outline" label={k('pharmacy.filters.reset')} onPress={() => { resetFilters(); setSheet(false); }} testID="diag-filter-reset" />
+        <View style={{ gap: 18 }}>
+          {isLab && anyInsurance ? (
+            <View style={{ gap: 8 }}>
+              <Text accessibilityRole="header" style={{ ...scale(t, 'small', 'medium'), color: c.text.secondary, ...flow }}>{k('diag.pay.group')}</Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                <Chip label={k('diag.pay.selfPay')} selected={sheetF.pay === 'self_pay'} onPress={() => patchSheet({ pay: 'self_pay' })} theme={theme} testID="diag-pay-self_pay" />
+                <Chip label={k('diag.pay.insurance')} selected={sheetF.pay === 'insurance'} onPress={() => patchSheet({ pay: 'insurance' })} theme={theme} testID="diag-pay-insurance" />
+              </View>
             </View>
           ) : null}
+          <View style={{ gap: 8 }}>
+            <Text accessibilityRole="header" style={{ ...scale(t, 'small', 'medium'), color: c.text.secondary, ...flow }}>{k('diag.place.group')}</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              <Chip label={k('diag.filter.all')} selected={sheetF.place === 'all'} onPress={() => patchSheet({ place: 'all' })} theme={theme} testID="diag-place-all" />
+              {isLab ? <Chip label={k('diag.filter.placeLab')} selected={sheetF.place === 'lab'} onPress={() => patchSheet({ place: 'lab' })} theme={theme} testID="diag-place-lab" /> : null}
+              <Chip label={k('diag.filter.placeHome')} selected={sheetF.place === 'home'} onPress={() => patchSheet({ place: 'home' })} theme={theme} testID="diag-place-home" />
+            </View>
+          </View>
+          <View style={{ gap: 8 }}>
+            <Text accessibilityRole="header" style={{ ...scale(t, 'small', 'medium'), color: c.text.secondary, ...flow }}>{k('diag.filter.sortBy')}</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              <Chip label={k('diag.hub.popular')} selected={sheetF.sort === 'popular'} onPress={() => patchSheet({ sort: 'popular' })} theme={theme} testID="diag-sort-popular" />
+              <Chip label={k('diag.filter.price')} selected={sheetF.sort === 'lowest_price'} onPress={() => patchSheet({ sort: 'lowest_price' })} theme={theme} testID="diag-sort-lowest_price" />
+              <Chip label={k('diag.filter.rating')} selected={sheetF.sort === 'highest_rated'} onPress={() => patchSheet({ sort: 'highest_rated' })} theme={theme} testID="diag-sort-highest_rated" />
+            </View>
+          </View>
+          {isLab ? (
+            <View style={{ gap: 12 }}>
+              <Toggle theme={theme} label={k('diag.filter.noFasting')} value={sheetF.noFasting} onChange={(v) => patchSheet({ noFasting: v })} testID="diag-toggle-no-fasting" />
+              <Toggle theme={theme} label={k('diag.filter.sameDay')} value={sheetF.sameDay} onChange={(v) => patchSheet({ sameDay: v })} testID="diag-toggle-same-day" />
+            </View>
+          ) : null}
+          <View style={{ gap: 8 }}>
+            <Button theme={theme} size="lg" fullWidth label={k('diag.filter.showCount', { n: num(shownCount) })} onPress={() => setSheet(false)} testID="diag-filter-apply" />
+            {filterCount > 0 ? <Button theme={theme} size="lg" fullWidth variant="outline" label={k('pharmacy.filters.reset')} onPress={() => { resetFilters(); setSheet(false); }} testID="diag-filter-reset" /> : null}
+          </View>
         </View>
       </Sheet>
     </Screen>

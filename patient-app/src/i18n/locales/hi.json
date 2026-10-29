@@ -3890,5 +3890,15 @@
   "diag.offer.countNursingTwo": "{n} प्रदाता",
   "scanStatus.checking": "सुरक्षा के लिए फ़ाइल की जाँच हो रही है",
   "scanStatus.rejected": "यह फ़ाइल सुरक्षा कारणों से अस्वीकार कर दी गई। कृपया दूसरी फ़ाइल अपलोड करें।",
-  "scanStatus.uploadAnother": "दूसरी फ़ाइल अपलोड करें"
+  "scanStatus.uploadAnother": "दूसरी फ़ाइल अपलोड करें",
+  "diag.kind.group": "सेवा का प्रकार",
+  "diag.tag.noFasting": "उपवास नहीं",
+  "diag.cat.packages": "पैकेज",
+  "diag.hub.rxOrder": "क्या आपके पास मेडिकल ऑर्डर है?",
+  "diag.filter.placeLab": "लैब में",
+  "diag.filter.placeHome": "घर से सैंपल",
+  "diag.filter.sortBy": "क्रम",
+  "diag.filter.noFasting": "उपवास नहीं चाहिए",
+  "diag.filter.sameDay": "उसी दिन रिज़ल्ट",
+  "diag.filter.showCount": "{n} नतीजे दिखाएँ"
 }

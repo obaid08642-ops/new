@@ -3890,5 +3890,15 @@
   "diag.offer.countNursingTwo": "{n} فراہم کنندگان",
   "scanStatus.checking": "سیکیورٹی کے لیے فائل کی جانچ ہو رہی ہے",
   "scanStatus.rejected": "یہ فائل حفاظتی وجوہات کی بنا پر مسترد کر دی گئی۔ براہ کرم دوسری فائل اپ لوڈ کریں۔",
-  "scanStatus.uploadAnother": "دوسری فائل اپ لوڈ کریں"
+  "scanStatus.uploadAnother": "دوسری فائل اپ لوڈ کریں",
+  "diag.kind.group": "سروس کی قسم",
+  "diag.tag.noFasting": "روزے کے بغیر",
+  "diag.cat.packages": "پیکجز",
+  "diag.hub.rxOrder": "کیا آپ کے پاس طبی آرڈر ہے؟",
+  "diag.filter.placeLab": "لیب میں",
+  "diag.filter.placeHome": "گھر سے نمونہ",
+  "diag.filter.sortBy": "ترتیب",
+  "diag.filter.noFasting": "بغیر فاقے کے",
+  "diag.filter.sameDay": "اسی دن نتیجہ",
+  "diag.filter.showCount": "{n} نتائج دکھائیں"
 }

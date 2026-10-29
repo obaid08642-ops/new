@@ -3890,5 +3890,15 @@
   "diag.offer.countNursingTwo": "{n} providers",
   "scanStatus.checking": "Being checked for safety",
   "scanStatus.rejected": "This file was rejected for safety. Please upload another.",
-  "scanStatus.uploadAnother": "Upload another file"
+  "scanStatus.uploadAnother": "Upload another file",
+  "diag.kind.group": "Service type",
+  "diag.tag.noFasting": "No fasting",
+  "diag.cat.packages": "Packages",
+  "diag.hub.rxOrder": "Have a medical order?",
+  "diag.filter.placeLab": "At the lab",
+  "diag.filter.placeHome": "Home collection",
+  "diag.filter.sortBy": "Sort by",
+  "diag.filter.noFasting": "No fasting",
+  "diag.filter.sameDay": "Same-day result",
+  "diag.filter.showCount": "Show {n} results"
 }

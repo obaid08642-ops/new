@@ -3890,5 +3890,15 @@
   "diag.offer.notifyFailed": "تعذّر الحفظ. حاول مرة أخرى.",
   "scanStatus.checking": "جارٍ التحقق من أمان الملف",
   "scanStatus.rejected": "تم رفض هذا الملف لأسباب تتعلق بالسلامة. يرجى رفع ملف آخر.",
-  "scanStatus.uploadAnother": "رفع ملف آخر"
+  "scanStatus.uploadAnother": "رفع ملف آخر",
+  "diag.kind.group": "نوع الخدمة",
+  "diag.tag.noFasting": "بدون صيام",
+  "diag.cat.packages": "باقات",
+  "diag.hub.rxOrder": "عندك أمر طبي؟",
+  "diag.filter.placeLab": "في المختبر",
+  "diag.filter.placeHome": "سحب منزلي",
+  "diag.filter.sortBy": "الترتيب",
+  "diag.filter.noFasting": "بدون صيام",
+  "diag.filter.sameDay": "نتيجة نفس اليوم",
+  "diag.filter.showCount": "اعرض {n} نتيجة"
 }
