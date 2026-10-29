@@ -42,7 +42,7 @@ export const TABS: TabItem[] = [
 export const MAIN_TABS: BottomTabItem[] = [
   { id: 'home', art: 'home', label: 'Home', icon: 'house' },
   { id: 'pharmacy', art: 'pharmacy', label: 'Pharmacy', icon: 'pill' },
-  { id: 'consult', art: 'consult', label: 'Consultations', icon: 'headset', raised: true },
+  { id: 'consult', art: 'consult', label: 'Consultations', icon: 'stethoscope', raised: true },
   { id: 'labs', art: 'labs', label: 'Labs', icon: 'test-tube' },
   { id: 'nursing', art: 'nursing', label: 'Nursing', icon: 'first-aid-kit' },
 ];

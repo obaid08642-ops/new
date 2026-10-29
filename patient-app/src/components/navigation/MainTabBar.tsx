@@ -22,7 +22,7 @@ export type MainTabId = 'home' | 'pharmacy' | 'consult' | 'labs' | 'nursing';
 export const MAIN_TAB_ITEMS: (BottomTabItem & { id: MainTabId; route: string })[] = [
   { id: 'home', art: 'home', label: 'الرئيسية', icon: 'house', route: '/(tabs)' },
   { id: 'pharmacy', art: 'pharmacy', label: 'الصيدلية', icon: 'pill', route: '/(tabs)/pharmacy' },
-  { id: 'consult', art: 'consult', label: 'الاستشارات', icon: 'headset', route: '/(tabs)/consultations', raised: true },
+  { id: 'consult', art: 'consult', label: 'الاستشارات', icon: 'stethoscope', route: '/(tabs)/consultations', raised: true },
   { id: 'labs', art: 'labs', label: 'التحاليل', icon: 'test-tube', route: '/(tabs)/diagnostics' },
   { id: 'nursing', art: 'nursing', label: 'التمريض', icon: 'first-aid-kit', route: '/(tabs)/nursing' },
 ];
