@@ -13,7 +13,7 @@ describe("savedAddressPoint on the public map", () => {
   });
 
   it("reads the addresses for a signed-in patient", async () => {
-    const doFetch = vi.fn(async () => new Response(JSON.stringify(addresses), { status: 200 }));
+    const doFetch = vi.fn(async (..._args: unknown[]) => new Response(JSON.stringify(addresses), { status: 200 }));
     await savedAddressPoint(doFetch as unknown as typeof fetch, { kind: "user", id: "p1", isGuest: false });
     expect(doFetch).toHaveBeenCalledTimes(1);
     expect(String(doFetch.mock.calls[0][0])).toContain("/api/patient/users/me/addresses");
