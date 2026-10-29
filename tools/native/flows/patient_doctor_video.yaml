@@ -25,6 +25,31 @@ appId: com.patient.nabd
     id: "mode-video"
 - tapOn:
     id: "day-1"
+# the seeded doctor may not take online visits on that day ("not available on this day"): take the next day that has times
+- runFlow:
+    when:
+      visible: ".*غير متاح في هذا اليوم.*"
+    commands:
+      - tapOn:
+          id: "day-2"
+- runFlow:
+    when:
+      visible: ".*غير متاح في هذا اليوم.*"
+    commands:
+      - tapOn:
+          id: "day-3"
+- runFlow:
+    when:
+      visible: ".*غير متاح في هذا اليوم.*"
+    commands:
+      - tapOn:
+          id: "day-4"
+- runFlow:
+    when:
+      visible: ".*غير متاح في هذا اليوم.*"
+    commands:
+      - tapOn:
+          id: "day-5"
 # the doctor page is a tall hero card now: the times are right under the day strip, below the fold. Bring them up one swipe (not a scroll to the
 # end: the online times load a moment after the day is chosen, and a scroll would run past them) and wait for them.
 - swipe:

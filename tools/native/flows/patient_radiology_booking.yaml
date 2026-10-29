@@ -5,14 +5,12 @@ appId: com.patient.nabd
     file: common_fresh_session.yaml
     env:
       FLAGS: "address=1"
-- tapOn:
-    text: "التحاليل"
-    index: 0
+# the hub's radiology side (the same screen opened on its scans: `?tab=radiology`)
+- openLink: "nabdplus:///diagnostics?tab=radiology"
 - extendedWaitUntil:
     visible:
       id: "diagnostics-hub"
     timeout: 20000
-# the scans are listed below the tests on the hub
 - scrollUntilVisible:
     element:
       id: "diag-scan-.*"
