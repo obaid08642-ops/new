@@ -74,16 +74,18 @@ appId: com.patient.nabd
     id: "booking-pay-method-card"
 - tapOn:
     id: "booking-confirm-submit"
-# a video visit asks a new patient for the telehealth consent before the first online consultation (D-38)
-- extendedWaitUntil:
-    visible:
-      id: "telehealth-consent-accept"
-    timeout: 30000
-- tapOn:
-    id: "telehealth-consent-accept"
+# the card payment opens the hosted checkout in the browser (its first-run screen is up); the test double completes it from here
 - runScript:
     file: scripts/pay_complete.js
 - launchApp
+# a video visit asks a new patient for the telehealth consent before the first online consultation (D-38): it is asked before or after the payment
+- runFlow:
+    when:
+      visible:
+        id: "telehealth-consent-accept"
+    commands:
+      - tapOn:
+          id: "telehealth-consent-accept"
 - extendedWaitUntil:
     visible:
       id: "booking-success-screen|payment-result-screen"
