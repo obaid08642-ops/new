@@ -9,7 +9,9 @@ Not covered here: entering a new password on the reset page (the API reset is in
 A missing browser or website is a FAIL, never a PASS."""
 import json
 import os
+import re
 import time
+import urllib.parse
 
 from lib import Client, journey, step, mail_to, web_login
 
@@ -94,6 +96,30 @@ def main():
         step('after reload the form is still there', page.locator('form input').count() > 0, 'form')
         r = web_login(ctx, WEB, email, acct['password'], path='/api/auth/login')
         step('the old password still signs in (nothing changed yet)', r.status == 200, r.status)
+
+        journey('account A-06 (web): the new password is set on the reset page and signs in')
+        blob = json.dumps(mails, ensure_ascii=False)
+        m = re.search(r'/password-reset\?token=([A-Za-z0-9_.%\-]+)', blob)
+        token = urllib.parse.unquote(m.group(1)) if m else ''
+        step('the reset e-mail token is present in the link', bool(token), len(token))
+        new_pw = 'Renewed!Web' + str(int(time.time()))[-6:]
+        page.goto(f'{WEB}/ar/password-reset?token={urllib.parse.quote(token)}', wait_until='load', timeout=60000)
+        pwd_inputs = page.locator('form input[type=password]')
+        step('the reset page shows the new-password fields', pwd_inputs.count() >= 2, pwd_inputs.count())
+        pwd_inputs.nth(0).fill(new_pw)
+        pwd_inputs.nth(1).fill(new_pw)
+        page.locator('form button[type=submit]').first.click()
+        success = page.locator('[role=status]').first
+        try:
+            success.wait_for(timeout=30000)
+            ok_text = success.inner_text().strip()
+        except Exception as e:
+            ok_text = f'no status: {e}'
+        step('the reset page confirms the new password (role=status)', bool(ok_text) and not ok_text.startswith('no status'), ok_text[:120])
+        r = web_login(ctx, WEB, email, new_pw, path='/api/auth/login')
+        step('the new password signs in on the website', r.status == 200, r.status)
+        r = web_login(ctx, WEB, email, acct['password'], path='/api/auth/login')
+        step('the old password is refused after the reset', r.status in (400, 401), r.status)
     finally:
         browser.close()
         pw.stop()

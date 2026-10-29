@@ -7,8 +7,8 @@ Test data only. Nothing written to nabd.plus except read-only GETs. No product c
 
 | Status | Rows |
 |---|---|
-| DONE (UI, API, DB and reload verified, or the row states its scope) | 43 |
-| PARTIAL (some of that proven, reason in the row) | 26 |
+| DONE (UI, API, DB and reload verified, or the row states its scope) | 44 |
+| PARTIAL (some of that proven, reason in the row) | 25 |
 | BLOCKED (cannot be tested now, reason in the row) | 5: P-15, I-03, A-03 (no SMS), A-08 (no profile edit control), PR-04 |
 | TODO | 0 |
 
