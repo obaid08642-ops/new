@@ -1,4 +1,4 @@
-import { chainCallerFromEnv, envChainProviders, providerCallersFromEnv, providerVariableNames, RegistryRecord } from './env-chain';
+import { isQuotaBody, cleanModelId, chainCallerFromEnv, envChainProviders, providerCallersFromEnv, providerVariableNames, RegistryRecord } from './env-chain';
 import { DEFAULT_PROVIDERS, PROVIDER_ENV_KEY } from './ai-provider-catalog';
 
 /** Batch jobs go through the same fallback chain as the gateway (owner request 2026-10-26): no job talks to one hard-wired provider. */
@@ -92,7 +92,7 @@ describe('per-provider callers go where the gateway goes', () => {
     { key: 'groq', model: 'llama-3.1-8b-instant', base_url: 'https://api.groq.com/openai/v1' },
     { key: 'openai', model: 'gpt-4.1-mini' },
     { key: 'deepseek', model: 'deepseek-chat', base_url: 'https://api.deepseek.com/v1' },
-    { key: 'openrouter', model: 'meta-llama/llama-3.3-70b-instruct:free', base_url: 'https://openrouter.ai/api/v1' },
+    { key: 'openrouter', model: 'google/gemma-4-31b-it:free', base_url: 'https://openrouter.ai/api/v1' },
     { key: 'cerebras', model: 'llama3.1-8b', base_url: 'https://api.cerebras.ai/v1' },
   ];
 
@@ -194,5 +194,84 @@ describe('retired models, empty accounts, free-only OpenRouter', () => {
     expect(err.message).not.toContain('SECRET');
     const [b] = providerCallersFromEnv({ OPENAI_API_KEY: 'k' }, { fetchImpl: rate });
     await expect(b.call('x')).rejects.toThrow('openai_http_429');
+  });
+
+  it('only the error CODE insufficient_quota is a quota; a Groq rate-limit text that links to billing is a rate limit', () => {
+    const groqRate = '{"error":{"message":"Rate limit reached for model `llama-3.1-8b-instant` in organization `org_x` on tokens per minute (TPM): Limit 6000. Visit https://console.groq.com/settings/billing to upgrade your plan.","type":"tokens","code":"rate_limit_exceeded"}}';
+    expect(isQuotaBody(groqRate)).toBe(false);
+    expect(isQuotaBody('{"error":{"message":"You exceeded your current quota, please check your plan and billing details.","type":"insufficient_quota","code":"insufficient_quota"}}')).toBe(true);
+    expect(isQuotaBody('{"error":{"type":"insufficient_quota"}}')).toBe(true);
+    expect(isQuotaBody('{"code":"insufficient_quota"}')).toBe(true);
+    expect(isQuotaBody('billing quota exceeded')).toBe(false);
+    expect(isQuotaBody('')).toBe(false);
+  });
+
+  it('a Groq-style 429 stays a rate limit end to end', async () => {
+    const body = '{"error":{"message":"Rate limit reached. Visit https://console.groq.com/settings/billing","type":"tokens","code":"rate_limit_exceeded"}}';
+    const fetchImpl = (async () => res(429, {}, body)) as unknown as typeof fetch;
+    const [g] = providerCallersFromEnv({ GROQ_API_KEY: 'k' }, { fetchImpl });
+    await expect(g.call('x')).rejects.toThrow('groq_http_429');
+  });
+
+  it('a stored id with the models/ prefix or spaces is cleaned before it is put in the URL', async () => {
+    expect(cleanModelId(' models/gemini-2.5-flash ')).toBe('gemini-2.5-flash');
+    const urls: string[] = [];
+    const fetchImpl = (async (url: string) => { urls.push(url); return res(200, { candidates: [{ content: { parts: [{ text: 'ok' }] } }] }); }) as unknown as typeof fetch;
+    const [g] = providerCallersFromEnv({ GEMINI_API_KEY: 'k' }, { fetchImpl, registry: [{ key: 'gemini', model: 'models/gemini-2.5-flash' }] });
+    await g.call('hi');
+    expect(urls[0]).toBe('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent');
+  });
+
+  it('gpt-oss gets reasoning_effort low (so its content is not empty); other models do not', async () => {
+    const bodies: Array<Record<string, unknown>> = [];
+    const fetchImpl = (async (_u: string, init: { body: string }) => { bodies.push(JSON.parse(init.body)); return chat('ok'); }) as unknown as typeof fetch;
+    const [a] = providerCallersFromEnv({ GROQ_API_KEY: 'k' }, { fetchImpl, registry: [{ key: 'groq', model: 'openai/gpt-oss-20b' }] });
+    await a.call('x');
+    const [b] = providerCallersFromEnv({ GROQ_API_KEY: 'k' }, { fetchImpl, registry: [{ key: 'groq', model: 'llama-3.1-8b-instant' }] });
+    await b.call('x');
+    expect(bodies[0].reasoning_effort).toBe('low');
+    expect(bodies[1].reasoning_effort).toBeUndefined();
+  });
+
+  it('a 402 on one model tries the next preferred model the list has before giving up (cerebras gpt-oss-120b -> llama3.1-8b)', async () => {
+    const tried: string[] = [];
+    const fetchImpl = (async (url: string, init: { body?: string }) => {
+      if (url.endsWith('/models')) return res(200, { data: [{ id: 'gpt-oss-120b' }, { id: 'llama3.1-8b' }] });
+      const m = JSON.parse(init.body as string).model as string; tried.push(m);
+      return m === 'gpt-oss-120b' ? res(402) : chat('ok');
+    }) as unknown as typeof fetch;
+    const [c] = providerCallersFromEnv({ CEREBRAS_API_KEY: 'k' }, { fetchImpl, registry: [{ key: 'cerebras', model: 'gpt-oss-120b' }] });
+    await expect(c.call('x')).resolves.toBe('ok');
+    expect(c.model()).toBe('llama3.1-8b');
+    expect(tried).toEqual(['gpt-oss-120b', 'llama3.1-8b']);
+  });
+
+  it('when every candidate is refused the original error is thrown (a real 402 retires the provider upstream)', async () => {
+    const fetchImpl = (async (url: string) => (url.endsWith('/models') ? res(200, { data: [{ id: 'llama3.1-8b' }] }) : res(402))) as unknown as typeof fetch;
+    const [c] = providerCallersFromEnv({ CEREBRAS_API_KEY: 'k' }, { fetchImpl, registry: [{ key: 'cerebras', model: 'gpt-oss-120b' }] });
+    await expect(c.call('x')).rejects.toThrow('cerebras_http_402');
+  });
+
+  it('when the model list cannot be read the preferred ids are tried directly (Gemini 404 with a key that cannot list)', async () => {
+    const tried: string[] = [];
+    const fetchImpl = (async (url: string) => {
+      if (url.includes('/v1beta/models?')) return res(403);
+      tried.push(url);
+      return url.includes('gemini-2.5-flash:') ? res(200, { candidates: [{ content: { parts: [{ text: 'ok' }] } }] }) : res(404);
+    }) as unknown as typeof fetch;
+    const [g] = providerCallersFromEnv({ GEMINI_API_KEY: 'k' }, { fetchImpl, registry: [{ key: 'gemini', model: 'gemini-2.0-flash' }] });
+    await expect(g.call('x')).resolves.toBe('ok');
+    expect(await g.listStatus()).toBe(403);
+  });
+
+  it('OpenRouter with a stored arbitrary free model starts from the preferred one; with none of the preferred listed it fails with a fixed code', async () => {
+    const models: string[] = [];
+    const ok = (async (_u: string, init: { body: string }) => { models.push(JSON.parse(init.body).model); return chat('ok'); }) as unknown as typeof fetch;
+    const [a] = providerCallersFromEnv({ OPENROUTER_API_KEY: 'k' }, { fetchImpl: ok, registry: [{ key: 'openrouter', model: 'recursive/flint-v1.0:free' }] });
+    await a.call('x');
+    expect(models[0]).toBe('google/gemma-4-31b-it:free');
+    const none = (async (url: string) => (url.endsWith('/models') ? res(200, { data: [{ id: 'recursive/flint-v1.0:free' }] }) : res(404))) as unknown as typeof fetch;
+    const [b] = providerCallersFromEnv({ OPENROUTER_API_KEY: 'k' }, { fetchImpl: none });
+    await expect(b.call('x')).rejects.toThrow('openrouter_no_preferred_free_model');
   });
 });

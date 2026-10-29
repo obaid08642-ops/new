@@ -1,4 +1,4 @@
-import { parseModelList, pickModel, resolveModel } from './ai-model-resolver';
+import { parseModelList, pickModel, rankedModels, resolveModel } from './ai-model-resolver';
 
 describe('ai-model-resolver', () => {
   it('reads Gemini (models/<id>, only generateContent) and OpenAI-style lists', () => {
@@ -14,10 +14,15 @@ describe('ai-model-resolver', () => {
     expect(pickModel('groq', ['something-else'], 'something-else')).toBe('something-else');   // the configured id is kept when it is listed
   });
 
-  it('OpenRouter: only :free ids ever qualify; an unknown free id is better than any paid one', () => {
-    expect(pickModel('openrouter', ['meta-llama/llama-3.3-70b-instruct', 'x/y:free'])).toBe('x/y:free');
-    expect(pickModel('openrouter', ['meta-llama/llama-3.3-70b-instruct'])).toBeNull();
-    expect(pickModel('openrouter', ['google/gemma-3-27b-it:free', 'meta-llama/llama-3.3-70b-instruct:free'])).toBe('meta-llama/llama-3.3-70b-instruct:free');
+  it('OpenRouter: only PREFERRED :free ids qualify; an arbitrary free model (79 s per answer) or a paid one never does', () => {
+    expect(pickModel('openrouter', ['recursive/flint-v1.0:free', 'meta-llama/llama-3.3-70b-instruct'])).toBeNull();
+    expect(pickModel('openrouter', ['recursive/flint-v1.0:free'], 'recursive/flint-v1.0:free')).toBeNull();
+    expect(pickModel('openrouter', ['recursive/flint-v1.0:free', 'google/gemma-4-26b-a4b-it:free', 'google/gemma-4-31b-it:free'])).toBe('google/gemma-4-31b-it:free');
+  });
+
+  it('groq prefers non-reasoning chat models over gpt-oss', () => {
+    expect(pickModel('groq', ['openai/gpt-oss-20b', 'meta-llama/llama-4-scout-17b-16e-instruct'])).toBe('meta-llama/llama-4-scout-17b-16e-instruct');
+    expect(rankedModels('groq', ['openai/gpt-oss-20b', 'llama-3.1-8b-instant'], new Set(['llama-3.1-8b-instant']))).toEqual(['openai/gpt-oss-20b']);
   });
 
   it('asks Gemini and the others at their model list URLs with the key in the header, and throws fixed codes only', async () => {

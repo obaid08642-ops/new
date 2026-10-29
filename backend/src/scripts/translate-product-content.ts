@@ -28,6 +28,8 @@ import { TARGET_ORDER, buildRequests, checkTranslation, findGaps, parseAnswers, 
 import type { ContentLocale } from '../modules/medicines/med-i18n';
 import { DEFAULT_MODEL, PRICES, approxTokens } from './classify-catalogue-batch';
 import { providerCallersFromEnv, providerVariableNames, RegistryRecord } from '../modules/ai/env-chain';
+import { resolveModel } from '../modules/ai/ai-model-resolver';
+import { PROVIDER_ENV_KEY } from '../modules/ai/ai-provider-catalog';
 import { runParallel, errorClass, ParallelProvider, ProviderLimits } from './parallel-runner';
 
 const arg = (argv: string[], name: string): string | undefined => argv.find((a) => a.startsWith(`--${name}=`))?.split('=').slice(1).join('=');
@@ -182,12 +184,24 @@ export async function main(argv: string[]): Promise<number> {
     const registry = await loadRegistry(process.env);
     const calls = providerCallersFromEnv(process.env, { registry, timeoutMs: Number(process.env.TRANSLATE_PROBE_TIMEOUT_MS) || 30_000 });
     const results: Array<{ provider: string; model: string; status: 'ok' | 'failed'; class: string; from: string }> = [];
-    await Promise.all(calls.map(async ({ provider, call, model }) => {
+    await Promise.all(calls.map(async ({ provider, call, model, listStatus }) => {
       let cls = 'ok';
       try { await call('Reply with the single word OK.'); } catch (e) { cls = errorClass(e); }
-      const r = { provider: provider.key, model: model(), status: cls === 'ok' ? 'ok' as const : 'failed' as const, class: cls, from: provider.model };
+      let chosen = model();
+      let status: 'ok' | 'failed' = cls === 'ok' ? 'ok' : 'failed';
+      const listHttp = await listStatus();      // the HTTP status of the provider's model-list call, a number only: 200 = this key can list models
+      if (step === 'models') {
+        // A record can sit on a model that works but is not the best one (a reasoning model, a slow free one): move to the best PREFERRED model only when it is proved to answer.
+        const key = String(process.env[PROVIDER_ENV_KEY[provider.key]] || '').trim();
+        const best = await resolveModel(provider.key, provider.base_url, key, undefined, fetch).catch(() => null);
+        if (best && best !== chosen) {
+          const [tryBest] = providerCallersFromEnv({ [PROVIDER_ENV_KEY[provider.key]]: key }, { registry: [{ key: provider.key, model: best, base_url: provider.base_url }], timeoutMs: Number(process.env.TRANSLATE_PROBE_TIMEOUT_MS) || 30_000 });
+          try { await tryBest.call('Reply with the single word OK.'); chosen = tryBest.model(); status = 'ok'; cls = 'ok'; } catch { /* the best one does not answer: the current model stays */ }
+        }
+      }
+      const r = { provider: provider.key, model: chosen, status, class: cls, from: provider.model };
       results.push(r);
-      out(step === 'probe' ? { provider: r.provider, model: r.model, status: r.status, class: r.class } : { provider: r.provider, from: r.from, to: r.model, status: r.status, class: r.class });
+      out(step === 'probe' ? { provider: r.provider, model: r.model, status: r.status, class: r.class, models_list_http: listHttp } : { provider: r.provider, from: r.from, to: r.model, status: r.status, class: r.class, models_list_http: listHttp });
     }));
     if (step === 'models') return (await applyModels(process.env, results, argv.includes('--apply')));
     return results.every((r) => r.status === 'failed') ? 1 : 0;
