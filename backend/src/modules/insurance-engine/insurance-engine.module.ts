@@ -22,7 +22,7 @@ import { JwtAuthGuard, CurrentUser, SelfService, Roles } from '../../common/auth
 import { InsuranceCompanySchema, InsuranceCompanyDocument } from '../../schemas/insurance.schema';
 import { PatientProfileSchema } from '../../schemas/patient-profile.schema';
 import { ProviderProfileSchema } from '../../schemas/provider-profile.schema';
-import { buildPatientPolicy, hasInsuranceContract, policyClass, policyCompanyKeys } from '../../common/insurance-policy';
+import { buildPatientPolicy, cardCopay, hasInsuranceContract, policyClass, policyCompanyKeys } from '../../common/insurance-policy';
 import { FraudService, RefundExecutor } from '../finance-engine/finance-engine.module';
 import { TransactionSchema } from '../../schemas/transaction.schema';
 import { OrderSchema } from '../../schemas/order.schema';
@@ -90,7 +90,9 @@ export class InsuranceServiceRequest {
     enum: ['PENDING_PROVIDER_REVIEW', 'APPROVED_FULL', 'APPROVED_PARTIAL', 'REJECTED', 'COPAY_PENDING', 'COPAY_PAID', 'EXPIRED', 'CANCELLED', 'APPEAL_PENDING'],
   }) state: string;
   @Prop() copay_percent?: number;       // patient share % when partial
-  @Prop() copay_amount?: number;        // computed = price * percent / 100
+  @Prop() copay_amount?: number;        // computed = price * percent / 100, never above the cap printed on the patient's card
+  @Prop() copay_cap_sar?: number;       // the card's cap when it limited the copay (INS-CAP-1)
+  @Prop() copay_uncapped_amount?: number; // what the copay would have been without the cap
   @Prop() rejection_reason?: string;
   @Prop() decided_by?: string;
   @Prop() decided_at?: Date;
@@ -622,6 +624,20 @@ export class InsuranceFlowService {
     throw new BadRequestException('status must be approved|partial|rejected');
   }
 
+  /**
+   * INS-CAP-1: the patient's card caps the copay (`insurance.copay_cap_sar`). The provider's percentage or amount is the starting figure; the patient never owes more than the
+   * cap. The uncapped figure and the cap are kept on the request, and the percentage is recomputed from the capped amount so the two always agree.
+   */
+  private async applyCardCap(req: any): Promise<void> {
+    const profile: any = await this.patients.findOne({ user_id: req.patient_id }, { _id: 0, insurance: 1 }).lean();
+    const cap = cardCopay(profile?.insurance)?.cap;
+    if (cap === null || cap === undefined || !(Number(req.copay_amount) > cap)) return;
+    req.copay_uncapped_amount = req.copay_amount;
+    req.copay_cap_sar = cap;
+    req.copay_amount = Math.round(cap * 100) / 100;
+    req.copay_percent = Math.min(99, Math.max(1, Math.round((req.copay_amount / Math.max(1, Number(req.price))) * 100)));
+  }
+
   /** Provider manual decision (BR-2.4): full | partial(copay_percent) | reject(reason). */
   async decide(user: any, id: string, body: any) {
     const req = await this.requests.findOne({ id: { $eq: id } });
@@ -652,6 +668,7 @@ export class InsuranceFlowService {
         req.copay_amount = Math.round(copayAmount * 100) / 100;
         req.copay_percent = Math.min(99, Math.max(1, Math.round((req.copay_amount / Math.max(1, req.price)) * 100)));
       }
+      await this.applyCardCap(req);
       req.approval_ref = approvalRef;
     } else if (decision === 'reject') {
       if (!body?.reason?.trim()) throw new BadRequestException('rejection reason is required');

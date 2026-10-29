@@ -77,6 +77,8 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   const pages = parseHubPages(query.more);
   const cat = parseDiagArt(query.cat, kind === "radiology" ? "radiology" : "lab");
   const place = query.place === "facility" ? "facility" : "home";
+  // The tests list is the same full list as /labs until the patient picks a place (CAT-1): only an explicit ?place= filters it
+  const placeExplicit = query.place === "facility" || query.place === "home";
   // Decision 30 (owner 2026-10-14, question 5): insurance or self-pay first; self-pay is the default.
   const wantedPay = query.pay === "insurance" ? "insurance" : "self_pay";
   const t = await getTranslations("DiagWeb");
@@ -144,7 +146,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
     if (next.show && next.kind === "labs") params.set("show", next.show);
     if (next.sort) params.set("sort", next.sort);
     if (next.kind !== "labs") params.set("kind", next.kind);
-    if (next.place !== "home") params.set("place", next.place);
+    if (next.place !== "home" || placeExplicit || over.place !== undefined) params.set("place", next.place);
     if (next.pay !== "self_pay") params.set("pay", next.pay);
     if (next.cat && next.kind === kind) params.set("cat", next.cat);
     if (next.more > 1) params.set("more", String(next.more));
@@ -167,11 +169,12 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
     { key: "all", label: t("catAll"), href: href({ cat: "" }) },
     ...diagArtKeysOf(chipKind).map((key) => ({ key, label: t(CAT_LABEL[key]), href: href({ cat: key }) })),
   ];
-  const listRows: CatalogRow[] = catalogRows(listKind, okLoads, order, rowCtx);
-  const popularRows: CatalogRow[] = stripLoad?.ok ? catalogRows(listKind, [stripLoad], order, rowCtx) : [];
+  const listOrder = { place: placeExplicit ? orderPlace : ("all" as const), pay: order.pay };
+  const listRows: CatalogRow[] = catalogRows(listKind, okLoads, listOrder, rowCtx);
+  const popularRows: CatalogRow[] = stripLoad?.ok ? catalogRows(listKind, [stripLoad], listOrder, rowCtx) : [];
   const catalogProps = {
     rows: listRows, page: okLoads.length, hasMore: lastLoad?.hasMore ?? false, cat,
-    query: { locale, q: filter.q || undefined, sort: filter.sort, place: orderPlace, pay: order.pay },
+    query: { locale, q: filter.q || undefined, sort: filter.sort, place: listOrder.place, pay: order.pay },
     moreHref: href({ more: Math.min(pages + 1, MAX_PAGES) }), moreLabel: t("showMore"), chipsLabel: t("catLabel"), errorLabel: t("catalogErrorBody"),
   };
   const strip = (rows: CatalogRow[], itemKind: "lab" | "radiology", id: string) => (
@@ -201,7 +204,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
         below={
           <>
             {kind !== "labs" ? <input type="hidden" name="kind" value={kind} /> : null}
-            {place !== "home" ? <input type="hidden" name="place" value={place} /> : null}
+            {place !== "home" || placeExplicit ? <input type="hidden" name="place" value={place} /> : null}
             {pay !== "self_pay" ? <input type="hidden" name="pay" value={pay} /> : null}
             {filter.show && kind === "labs" ? <input type="hidden" name="show" value={filter.show} /> : null}
             {filter.sort ? <input type="hidden" name="sort" value={filter.sort} /> : null}

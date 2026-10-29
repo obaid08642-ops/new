@@ -3,7 +3,7 @@ import { randomUUID } from 'crypto';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Connection, Model, Types } from 'mongoose';
 import { byRating, paged, parsePage, withProviderRating, type CataloguePage } from '../../common/catalogue-page';
-import { withOfferSummary, withOffers, type OfferSummary } from '../../common/service-offers';
+import { ownChoices, withOfferSummary, withOffers, type OfferSummary } from '../../common/service-offers';
 import { pick } from '../../common/sanitize';
 import { escapeRegex } from '../../common/slug.util';
 import { pickAttribution } from '../../common/attribution';
@@ -581,7 +581,11 @@ export class RadiologyOpsService {
       provider: publicProvider(byId.get(i.provider_account_id)), price: i.price, currency: i.currency || 'SAR',
       contrast_supported: !!i.contrast_supported, insurance_covered: !!i.insurance_covered,
     })).sort((a, b) => a.price - b.price);
-    return { service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null, offers };
+    // 2026-10-28: a centre's own per-service choice (provider_service_offers) wins over its older capability row: one it declined is not shown, one it priced is added
+    const own = await ownChoices(this.svcModel.db as never, 'radiology', svc);
+    const shown = offers.filter((o) => !own.hidden.has(o.provider.id) && !own.offers.some((x) => x.provider.id === o.provider.id));
+    const added = own.offers.map((x) => ({ provider: x.provider, price: x.price as number, currency: x.currency, contrast_supported: false, insurance_covered: x.insurance, premises: x.premises, home: x.home }));
+    return { service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null, offers: [...shown, ...added].sort((a: any, b: any) => a.price - b.price) };
   }
 
   async book(user: any, body: any) {

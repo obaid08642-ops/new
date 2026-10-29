@@ -3,7 +3,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { randomUUID } from 'crypto';
 import { recordAudit } from '../../common/audit-record';
-import { buildPatientPolicy, hasInsuranceContract, policyClass, policyCompanyKeys } from '../../common/insurance-policy';
+import { buildPatientPolicy, cardCopay, hasInsuranceContract, policyClass, policyCompanyKeys } from '../../common/insurance-policy';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { LabsService } from '../labs/labs.service';
 import { MedicalOrdersService } from '../medical-orders/medical-orders.service';
@@ -33,13 +33,7 @@ export const KIND_CATALOG: Record<Kind, string> = {
 const ORDER_GROUP: Record<Kind, 'labs' | 'radiology' | 'nursing'> = { lab: 'labs', radiology: 'radiology', nursing: 'nursing' };
 const QUOTE_TTL_MS = 30 * 60_000;
 const PURGE_AFTER_MS = 24 * 3_600_000;
-/** The copay percent and cap printed on the patient's card, when both are valid numbers (the cap is optional); null otherwise. */
-export function cardCopay(insurance: any): { percent: number; cap: number | null } | null {
-  const pct = insurance?.copay_percent;
-  const cap = insurance?.copay_cap_sar;
-  if (!(typeof pct === 'number' && Number.isFinite(pct) && pct >= 0 && pct <= 100)) return null;
-  return { percent: pct, cap: typeof cap === 'number' && Number.isFinite(cap) && cap >= 0 ? cap : null };
-}
+export { cardCopay };
 
 /** min(price x percent, cap) on each covered item, the full price on an uncovered one, plus whatever is not an item (the home fee). */
 export function estimatePatientShare(items: Array<{ price: number; covered: boolean }>, copay: { percent: number; cap: number | null }, extras = 0): number {

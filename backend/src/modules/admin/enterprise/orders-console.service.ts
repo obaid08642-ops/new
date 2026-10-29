@@ -116,6 +116,13 @@ export class OrdersConsoleService {
     return [...(moy as any[]).map((p) => ({ ...p, _source: 'moyasar_payments' })), ...(txn as any[]).map((p) => ({ ...p, _source: 'transactions' }))];
   }
 
+  /** The refund share (0-99) the cancellation stored on a cancelled order, else null (not cancelled, nothing stored, or a full refund: no cap applies). */
+  private cancellationRefundPercent(spec: OrderKindSpec, doc: any): number | null {
+    if (!isCancelled(spec, doc?.[spec.stateField])) return null;
+    const pct = doc?.refund_percentage;
+    return typeof pct === 'number' && Number.isFinite(pct) && pct >= 0 && pct < 100 ? pct : null;
+  }
+
   /** Finds the order in whichever collection of this kind holds it. */
   private async findOrder(kind: string, id: string): Promise<{ spec: OrderKindSpec; doc: any }> {
     for (const spec of getKindSpecs(kind)) {
@@ -352,7 +359,7 @@ export class OrdersConsoleService {
 
   /** Real refund through the original payment method (RefundExecutor — A2, no wallet).
    * Capped at net paid (gross − already refunded). */
-  async refund(kind: string, id: string, body: { amount?: number; mode?: 'partial' | 'full'; reason?: unknown }, admin: any) {
+  async refund(kind: string, id: string, body: { amount?: number; mode?: 'partial' | 'full'; reason?: unknown; override_reason?: unknown }, admin: any) {
     const reason = this.financialReason(body?.reason);
     const { spec, doc } = await this.findOrder(kind, id);
 
@@ -365,12 +372,22 @@ export class OrdersConsoleService {
     const maxRefundable = Math.round((paid - refunded) * 100) / 100;
     if (maxRefundable <= 0) throw new BadRequestException('fully_refunded_already');
 
+    // A cancelled order carries the share the cancellation computed (a late patient cancel keeps a penalty: 50 % by default). "Full" means that share, and nothing above it
+    // is refunded unless the admin gives an explicit override reason, which is audited with the policy percentage (REF-PEN-1).
+    const policyPct = this.cancellationRefundPercent(spec, doc);
+    const override = typeof body?.override_reason === 'string' && body.override_reason.trim().length >= 10 ? body.override_reason.trim().slice(0, 300) : null;
+    let ceiling = maxRefundable;
+    if (policyPct !== null && !override) {
+      ceiling = Math.max(0, Math.min(maxRefundable, Math.round((Math.round(paid * policyPct) / 100 - refunded) * 100) / 100));
+      if (ceiling <= 0) throw new BadRequestException('cancellation_refund_already_paid');
+    }
     let amount: number;
-    if ((body?.mode || 'full') === 'full') amount = maxRefundable;
+    if ((body?.mode || 'full') === 'full') amount = ceiling;
     else {
       amount = Math.round(Number(body?.amount) * 100) / 100;
       if (!Number.isFinite(amount) || amount <= 0) throw new BadRequestException('amount_required_positive');
       if (amount > maxRefundable) throw new BadRequestException(`amount_exceeds_refundable_${maxRefundable}`);
+      if (amount > ceiling) throw new BadRequestException(`amount_exceeds_cancellation_refund_${ceiling}`);
     }
 
     const { v4: uuidv4 } = require('uuid');
@@ -400,7 +417,7 @@ export class OrdersConsoleService {
     await this.audit.write({
       action: 'order_refund', actor: admin, target_type: spec.collection, target_id: id,
       reason, before: { refunded }, after: { refunded: refunded + amount, paid },
-      meta: { patient_id: doc[spec.patientField], mode: body?.mode || 'full' },
+      meta: { patient_id: doc[spec.patientField], mode: body?.mode || 'full', ...(policyPct !== null ? { cancellation_refund_percentage: policyPct, ...(override ? { override_reason: override } : {}) } : {}) },
     });
     return { ok: true, id, credited_amount: amount, refunded_total: Math.round((refunded + amount) * 100) / 100 };
   }

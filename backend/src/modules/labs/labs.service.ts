@@ -37,7 +37,7 @@ import { NAME_PROJECTION, withItemNames } from '../../common/booking-names';
 import { nearestFirst } from '../provider/services/nearest-first';
 import { publicLabFilter } from './labs-public';
 import { byRating, paged, parsePage, withProviderRating, type CataloguePage } from '../../common/catalogue-page';
-import { loadOffers, withOfferSummary, withOffers, type OfferSummary } from '../../common/service-offers';
+import { loadOffers, ownChoices, withOfferSummary, withOffers, type OfferSummary } from '../../common/service-offers';
 
 /** Public card for a provider in carousels and price lists: no contact or account details. */
 function publicProvider(p: any) {
@@ -275,7 +275,11 @@ export class LabsService {
     const items: any[] = await this.svcModel.db.collection('provider_capabilities_lab').find({
       available: true, $or: [{ code: { $in: codes } }, ...(svc.name_ar ? [{ name_ar: svc.name_ar }] : [])],
     }, { projection: { _id: 0, provider_account_id: 1, price: 1, currency: 1, home_collection_supported: 1, turnaround_hours: 1, insurance_covered: 1 } }).toArray();
-    return { service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null, offers: await this.priceOffers(items, ['lab', 'hospital']) };
+    // 2026-10-28: a lab's own per-service choice (provider_service_offers) wins over its older capability row: one it declined is not shown, one it priced is added
+    const own = await ownChoices(this.svcModel.db as never, 'lab', svc);
+    const legacy = (await this.priceOffers(items, ['lab', 'hospital'])).filter((o: any) => !own.hidden.has(o.provider.id) && !own.offers.some((x) => x.provider.id === o.provider.id));
+    const added = own.offers.map((x) => ({ provider: x.provider, price: x.price as number, currency: x.currency, home_collection_supported: x.home, turnaround_hours: null, insurance_covered: x.insurance, premises: x.premises }));
+    return { service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null, offers: [...legacy, ...added].sort((a: any, b: any) => a.price - b.price) };
   }
 
   private async priceOffers(items: any[], types: string[]) {
