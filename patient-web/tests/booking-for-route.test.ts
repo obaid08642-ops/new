@@ -29,4 +29,13 @@ describe("booking for a family member", () => {
     expect(res.status).toBeLessThan(300);
     expect(JSON.parse(mocks.api.mock.calls[0][1].body)).toMatchObject({ for_member_id: "member-1", insurance_provider: "company-9", insurance_member_id: "P-1" });
   });
+  it("passes the slot length on (the strict schema refused every web booking that carried it)", async () => {
+    mocks.api.mockResolvedValue(new Response(JSON.stringify({ id: "11111111-1111-4111-8111-111111111111", status: "pending" })));
+    const body = { doctor_id: "22222222-2222-4222-8222-222222222222", service_type: "video", slot_start: "2026-11-01T10:00:00+03:00", payment_method: "cash", duration_minutes: 30 };
+    const res = await book(new Request("http://x", { method: "POST", headers: { "idempotency-key": "k".repeat(20) }, body: JSON.stringify(body) }));
+    expect(res.status).toBeLessThan(300);
+    expect(JSON.parse(mocks.api.mock.calls[0][1].body)).toMatchObject({ duration_minutes: 30 });
+    const bad = await book(new Request("http://x", { method: "POST", headers: { "idempotency-key": "k".repeat(20) }, body: JSON.stringify({ ...body, duration_minutes: 5 }) }));
+    expect(bad.status).toBe(400);
+  });
 });

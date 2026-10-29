@@ -9,6 +9,8 @@ const bodySchema = z.object({
   doctor_id: z.string().uuid(),
   service_type: z.enum(["clinic", "video", "home"]),
   slot_start: z.string().datetime({ offset: true }),
+  // the chosen slot's length, as the booking form sends it; the backend DTO bounds it the same way (int, 10-120)
+  duration_minutes: z.number().int().min(10).max(120).optional(),
   payment_method: z.enum(["cash", "card", "insurance"]),
   patient_notes: z.string().trim().max(2000).optional(),
   // The booking form collects who the visit is for; the backend has no fields for them yet (R66), so they are
