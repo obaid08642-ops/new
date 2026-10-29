@@ -251,6 +251,9 @@ jobs:
           REHEARSE_FAIL_AT=backend REHEARSE_MISSING_IMAGE=patient-web REHEARSE_COMMIT_FAIL=patient-web bash tools/ops/tasks/60-deploy-main.sh 2>&1 | tee out.txt; rc=${PIPESTATUS[0]}
           grep -q 'patient-web ran an image no longer on the host' out.txt && echo "patient-web container committed as its rollback image" || exit 1
           grep -q 'commit of patient-web failed (forced in rehearsal); exporting its filesystem instead' out.txt && echo "export fallback used for the rollback image" || exit 1
+          # a scanner that cannot start is not a reason to roll the deploy back: the line says so and the run goes on to the forced point
+          grep -Eq 'status: deploy clamav=(FAILED_START|SKIPPED_LOW_MEMORY|starting|healthy)' out.txt && echo "clamav step reported" || exit 1
+          ! grep -q "FAILED at 'clamav" out.txt && echo "clamav did not trigger a rollback" || exit 1
           bash tools/ops/rehearsal/check-rollback.sh out.txt $rc backend
       - name: "Read-only check after a rollback (tasks/63, as run on production after run 38672346219)"
         run: |

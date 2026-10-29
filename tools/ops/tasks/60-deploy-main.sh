@@ -241,13 +241,16 @@ $COMPOSE config -q >/dev/null 2>&1 || rollback "compose config invalid"
 # ---------------------------------------------------------------- 5. up (named services only, no dependency restarts)
 # 16.5: the backend refuses every upload while ClamAV cannot answer (UPLOAD_SCAN=required), so the scanner is up and
 # healthy before the new backend starts. Its first start downloads the signatures (a few minutes) and it needs ~1.2 GB
-# of memory: with less available the deploy stops here and rolls back rather than starve the running services.
+# of memory: with less available it is not started, and a scanner that fails to start never fails the deploy (uploads stay refused).
 if [ "$(health nabdah-clamav)" != healthy ]; then
   MEMAV=$(awk '/^MemAvailable:/{print int($2/1024)}' /proc/meminfo)
   echo "status: deploy clamav=starting mem_available_mb=$MEMAV"
   if [ "${MEMAV:-0}" -ge 1500 ]; then
-    $COMPOSE up -d --no-build --no-deps clamav >/dev/null 2>&1 || rollback "clamav up"
-    wait_healthy nabdah-clamav 120 || rollback "clamav health"
+    # a scanner that does not start or does not become healthy does NOT fail the deploy (2026-10-29, lead): the backend keeps refusing uploads
+    # (UPLOAD_SCAN=required) exactly as with SKIPPED_LOW_MEMORY, nothing is accepted unscanned, and everything else is deployed
+    if ! $COMPOSE up -d --no-build --no-deps clamav >/dev/null 2>&1 || ! wait_healthy nabdah-clamav 120; then
+      echo "status: deploy clamav=FAILED_START uploads_refused_until_scanner_runs"
+    fi
   else
     # not enough memory: the scanner is not started (the stack ran without it before this deploy too, so uploads stay
     # refused exactly as before, never accepted unscanned); the owner is told the server needs more memory
