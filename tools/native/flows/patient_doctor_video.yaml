@@ -25,9 +25,13 @@ appId: com.patient.nabd
     id: "mode-video"
 - tapOn:
     id: "day-1"
-# the doctor page is a tall hero card now: the times are below the fold
-- scrollUntilVisible:
-    element:
+# the doctor page is a tall hero card now: the times are right under the day strip, below the fold. Bring them up one swipe (not a scroll to the
+# end: the online times load a moment after the day is chosen, and a scroll would run past them) and wait for them.
+- swipe:
+    start: 50%, 75%
+    end: 50%, 35%
+- extendedWaitUntil:
+    visible:
       id: "slot-.*"
     timeout: 40000
 - scrollUntilVisible:
