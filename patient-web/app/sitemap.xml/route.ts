@@ -20,6 +20,7 @@ export async function GET() {
     `${siteOrigin()}/sitemaps/conditions.xml`,
     `${siteOrigin()}/sitemaps/locations.xml`,
     `${siteOrigin()}/sitemaps/services.xml`,
+    `${siteOrigin()}/sitemaps/nursing.xml`,
     `${siteOrigin()}/sitemaps/pharmacies.xml`,
     `${siteOrigin()}/sitemaps/labs.xml`,
     `${siteOrigin()}/sitemaps/radiology.xml`,

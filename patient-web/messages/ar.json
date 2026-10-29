@@ -4234,6 +4234,10 @@
         "title": "{name} | نبض بلس للرعاية الصحية",
         "description": "{name} في {city}. خدمات صحية متخصصة والتأمينات المقبولة وأطباء موثقون.",
         "country": "المملكة العربية السعودية"
+      },
+      "nursingService": {
+        "title": "{service} في المنزل في {city} | نبض بلس",
+        "description": "{service} في المنزل في {city}: اطّلع على السعر واحجز زيارة ممرض عبر الإنترنت مع نبض بلس."
       }
     },
     "ld": {
@@ -4247,7 +4251,22 @@
       "crumbPharmacy": "الصيدلية",
       "crumbFacilities": "المراكز والمستشفيات",
       "crumbHealthGuide": "دليل الحالات الصحية",
-      "crumbDoctors": "الأطباء"
+      "crumbDoctors": "الأطباء",
+      "nursingServiceCity": "{service} كزيارة تمريض منزلي في {city}"
+    },
+    "nursingService": {
+      "title": "{service} في المنزل في {city}",
+      "intro": "احجز {service} في المنزل في {city}: تزورك ممرضة عبر نبض بلس.",
+      "about": "عن هذه الخدمة",
+      "priceTitle": "السعر",
+      "priceFrom": "ابتداءً من {price}",
+      "priceRange": "من {low} إلى {high}",
+      "providers": "عدد الممرضين الذين يقدمون الخدمة: {count}",
+      "book": "احجز هذه الخدمة",
+      "emptyTitle": "لا يوجد ممرض يقدّم {service} حتى الآن",
+      "emptyBody": "سنخبرك عندما يبدأ ممرض بتقديم {service}. اطلب أن يتم إشعارك.",
+      "relatedTitle": "خدمات تمريض منزلي أخرى في {city}",
+      "allServices": "كل خدمات التمريض المنزلي في {city}"
     }
   },
   "InsuranceWeb": {
@@ -5017,7 +5036,8 @@
     "faqRx": "هل يحتاج {name} وصفة طبية؟",
     "faqIngredient": "ما المادة الفعالة في {name}؟",
     "faqPrice": "كم سعر {name} في نبض بلس؟",
-    "howToTitle": "طريقة استخدام {name}"
+    "howToTitle": "طريقة استخدام {name}",
+    "nursingServiceWho": "{service} خدمة تمريض منزلي في نبض بلس: يزورك ممرض في منزلك في {city}. اطّلع على السعر واحجز عبر الإنترنت."
   },
   "LogForms": {
     "saveError": "تعذّر الحفظ. ما كتبته لم يُفقد، حاول مرة أخرى.",
