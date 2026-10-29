@@ -32,3 +32,5 @@ j_telehealth_consent_pages
 j_qa_refund_penalty
 # Open product defect RX-1 (P1, docs/qa/findings/prescription-upload.md): a prescription accepts a non-existent image reference
 j_qa_rx_upload
+# PR-04 needs tools/live/fake_openai.py on :9200 and the test database's OpenAI record pointed at it (local only; CI has no such provider)
+j_qa_pr04_analyze
