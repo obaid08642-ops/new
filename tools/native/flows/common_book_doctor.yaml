@@ -28,10 +28,11 @@ appId: com.patient.nabd
 # tomorrow: every slot of today may already be in the past
 - tapOn:
     id: "day-1"
-- extendedWaitUntil:
-    visible:
+# the doctor page is a tall hero card now: the times are below the fold
+- scrollUntilVisible:
+    element:
       id: "slot-.*"
-    timeout: 30000
+    timeout: 40000
 # the seed already booked the first slots of tomorrow; SLOT picks a later one (each flow its own)
 - scrollUntilVisible:
     element:
