@@ -26,6 +26,21 @@ discover_journeys() {
 }
 JOURNEYS=()
 while IFS= read -r j; do JOURNEYS+=("$j"); done < <(discover_journeys)
+# Sharding (live-gate.yml runs GATE_SHARDS jobs, each with its own stack, and GATE_SHARD=1..GATE_SHARDS): every journey runs in exactly one
+# shard, balanced by the measured time (gate_shard.py, gate_weights.txt). j_admin_clicks is one of the shared journeys here (it runs at the
+# end of its shard); j_log_scan reads the backend log of the whole run, so it runs last in EVERY shard (each shard's log).
+if [[ ${1:-} == --list ]]; then printf '%s\n' "${JOURNEYS[@]}" "${TAIL_JOURNEYS[@]}"; exit 0; fi
+SHARDS="${GATE_SHARDS:-1}"; SHARD="${GATE_SHARD:-1}"
+if [[ $SHARDS -gt 1 ]]; then
+  mine=(); while IFS= read -r j; do mine+=("$j"); done < <(printf '%s\n' "${JOURNEYS[@]}" j_admin_clicks | python3 gate_shard.py "$SHARD" "$SHARDS")
+  JOURNEYS=(); TAIL_RUN=()
+  for j in "${mine[@]}"; do if [[ $j == j_admin_clicks ]]; then TAIL_RUN+=("$j"); else JOURNEYS+=("$j"); fi; done
+  TAIL_RUN+=(j_log_scan)
+else
+  TAIL_RUN=("${TAIL_JOURNEYS[@]}")
+fi
+# `bash run_gate.sh --print-shard` lists what this shard would run, one per line, and stops (test_gate_shards.py proves the shards cover the gate).
+if [[ ${1:-} == --print-shard ]]; then printf '%s\n' "${JOURNEYS[@]}" "${TAIL_RUN[@]}"; exit 0; fi
 fail=0
 restarts=0
 # The journeys log in as admin@nabd.test and nothing else seeds it, so on a fresh
@@ -69,15 +84,18 @@ annotate_fail() {
   local first; first=$(grep -E '^\s+FAIL|Traceback' <<<"$3" | head -1 | sed -E 's/^\s+//' | cut -c1-200)
   echo "::error title=live journey failed::$1: ${2:-no summary (crashed)} ${first:+| $first}"
 }
-python3 gate_p1.py || fail=1
+[[ $SHARD -eq 1 ]] && { python3 gate_p1.py || fail=1; }
 for j in "${JOURNEYS[@]}"; do
   ensure_backend || fail=1
   # j_web_call waits on the real clock for the booking call window; near midnight UTC that window is tomorrow 00:00
   # (up to ~45 min away), so it gets a longer limit than the 20 minutes every other journey has.
   tmo=1200; [[ $j == j_web_call ]] && tmo=3600
+  t0=$SECONDS
   out=$(run_step "$tmo" python3 "$j.py" 2>&1)
   line=$(grep -E '^##### ' <<<"$out" | tail -1)
   echo "$j: ${line:-no summary (crashed)}"
+  echo "  TIME $((SECONDS - t0))s"
+  grep -E '^\s+SLOW ' <<<"$out" | head -5
   # NOTE lines are diagnostics a journey prints on purpose (e.g. a hidden duplicate element); shown even when it passes
   grep -E '^\s+NOTE ' <<<"$out" | head -5
   if [[ -z $line || ! $line =~ ", 0 failed" ]]; then
@@ -90,11 +108,14 @@ done
 # CHROMIUM=<path>). A missing browser is a FAIL, never a PASS.
 # The journey reads CHROME; forward the documented CHROMIUM override to it.
 export CHROME="${CHROME:-${CHROMIUM:-}}"
-for j in "${TAIL_JOURNEYS[@]}"; do
+for j in "${TAIL_RUN[@]}"; do
   ensure_backend || fail=1
+  t0=$SECONDS
   out=$(run_step 1800 python3 "$j.py" 2>&1)
   line=$(grep -E '^##### ' <<<"$out" | tail -1)
   echo "$j: ${line:-no summary (crashed)}"
+  echo "  TIME $((SECONDS - t0))s"
+  grep -E '^\s+SLOW ' <<<"$out" | head -5
   # NOTE lines are diagnostics a journey prints on purpose (e.g. a hidden duplicate element); shown even when it passes
   grep -E '^\s+NOTE ' <<<"$out" | head -5
   if [[ -z $line || ! $line =~ ", 0 failed" ]]; then
