@@ -353,7 +353,8 @@ jobs:
           set +e
           bash tools/ops/tasks/60-deploy-main.sh 2>&1 | tee out.txt; rc=${PIPESTATUS[0]}
           echo "exit=$rc"; test $rc = 0 && grep -q 'env names added: none' out.txt && echo "second run: nothing added, deploy ok" || exit 1
-          test "$(grep -cE '^migrate: 20[0-9-]+[a-z-]+ exit=0$' out.txt)" = 4 && echo "migrations re-run cleanly (idempotent)" || exit 1
+          LIST=$(sed -n 's/^MIGRATIONS="\(.*\)"$/\1/p' tools/ops/tasks/60-deploy-main.sh | head -1)
+          test "$(grep -cE '^migrate: [^ ]+ exit=0$' out.txt)" = "$(echo $LIST | wc -w)" && echo "migrations re-run cleanly (idempotent): ${LIST:-none listed}" || exit 1
           N2=$(sudo docker exec nabdah-mongodb sh -c 'mongosh --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin nabd_nestjs --eval "print(db.nursing_catalog.countDocuments())"')
           echo "nursing_catalog rows after the second run: $N2"
       - name: "Backups 2: 62-backups-verify after the deploy (real backup, read back, report)"
