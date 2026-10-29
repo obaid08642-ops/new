@@ -101,3 +101,11 @@ export function buildPatientPolicy(existing: any, input: PolicyInput, company: a
   merged.saved_at = now;
   return merged;
 }
+
+/** The copay percent and cap printed on the patient's card, when both are valid numbers (the cap is optional); null otherwise. */
+export function cardCopay(insurance: any): { percent: number; cap: number | null } | null {
+  const pct = insurance?.copay_percent;
+  const cap = insurance?.copay_cap_sar;
+  if (!(typeof pct === 'number' && Number.isFinite(pct) && pct >= 0 && pct <= 100)) return null;
+  return { percent: pct, cap: typeof cap === 'number' && Number.isFinite(cap) && cap >= 0 ? cap : null };
+}
