@@ -4,51 +4,65 @@ import { SUGGEST_SCOPES } from '../../src/utils/searchSuggest';
 import { Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
-import { Button, Card, EmptyState, FIcon, Search } from '../../../packages/ui-native/src';
+import { Button, Card, EmptyState, FIcon, Search, Skeleton } from '../../../packages/ui-native/src';
 import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
 import { ConsultScreen, Gate, Section, type GateStatus } from '../../src/components/consult/ConsultKit';
-import { LAB_TONE, ListCard, RAD_TONE, TestRow, diagLook, goBackDiag, useDiagText } from '../../src/components/diagnostics/DiagKit';
+import { LAB_TONE, ListCard, RAD_TONE, TestRow, diagLook, goBackDiag } from '../../src/components/diagnostics/DiagKit';
+import { CatalogueCard } from '../../src/components/diagnostics/CatalogueKit';
+import { NursingServiceList } from '../../src/components/nursing/NursingServiceList';
 import { ContextBar } from '../../src/components/ordering/ContextBar';
 import { ContextGate } from '../../src/components/ordering/OrderingKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
+import { catalogArt } from '../../src/utils/diagCatalog';
+import { useDiagCatalog } from '../../src/utils/useDiagCatalog';
 import { isOffline } from '../../src/utils/isOffline';
 import { normalizeLabList, type CatalogItem } from '../../src/utils/labMappers';
 import { logError } from '../../src/utils/logger';
+import { pickDbField } from '../../src/utils/localize';
 import type { OrderingKind } from '../../src/utils/ordering';
 import { useOrderingContext } from '../../src/utils/useOrderingContext';
-import { useFromPrices } from '../../src/utils/useOrderingQuote';
 
+type Rec = Record<string, unknown>;
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
-const PATHS: Record<OrderingKind, { items: string; packages: string | null }> = {
-  lab: { items: '/labs/services', packages: '/labs/packages' },
-  radiology: { items: '/radiology/services', packages: null },
-  nursing: { items: '/home-care/services', packages: null },
-};
+const textOf = (v: unknown): string => (typeof v === 'string' || typeof v === 'number' ? String(v) : '');
 
 /**
- * Ord02: the service home of labs, radiology and nursing (`?kind=lab|radiology|nursing`): search, the doctor's order entry, packages,
- * the most requested items with "From X SAR · n providers" for the context (POST /ordering/quote), and the basket bar.
+ * Ord02: the service home of labs, radiology and nursing (`?kind=lab|radiology|nursing`): search, the doctor's order entry, packages and the
+ * catalogue. The catalogue list is the SAME list as the hub's tabs (useDiagCatalog + CatalogueCard for tests and scans, NursingServiceList for
+ * nursing): every service, each with its centres, from-price, where and insurance, and one nobody offers yet stays listed.
  */
 export default function ServiceHome() {
   const { theme, t, c, k, num, flow } = useScreenUi();
-  const text = useDiagText();
   const p = useLocalSearchParams<{ kind?: string }>();
   const kind: OrderingKind = first(p.kind) === 'radiology' ? 'radiology' : first(p.kind) === 'nursing' ? 'nursing' : 'lab';
   const ctx = useOrderingContext('home');
-  const { items: cart, itemCount, addItem, removeItem } = useDiagnosticsCart();
+  const { itemCount } = useDiagnosticsCart();
   const [query, setQuery] = useState('');
-  const [catalog, setCatalog] = useState<CatalogItem[]>([]);
+  // the search text reaches the server (the catalogue's `search`) a moment after typing stops
+  const [search, setSearch] = useState('');
   const [packages, setPackages] = useState<CatalogItem[]>([]);
+  const [nursing, setNursing] = useState<Rec[]>([]);
   const [status, setStatus] = useState<GateStatus>('loading');
+  const isNursing = kind === 'nursing';
+  const catalog = useDiagCatalog(kind === 'radiology' ? 'radiology' : 'lab', !isNursing, { search });
 
+  useEffect(() => {
+    const id = setTimeout(() => setSearch(query.trim()), query.trim() === '' ? 0 : 300);
+    return () => clearTimeout(id);
+  }, [query]);
+
+  // the packages (labs) and the nursing services are short lists read whole; the tests and scans are paged by the server
   const load = useCallback(async () => {
     setStatus('loading');
     try {
-      const [list, pkgs] = await Promise.all([apiFetch<unknown>(PATHS[kind].items), PATHS[kind].packages ? apiFetch<unknown>(PATHS[kind].packages as string) : Promise.resolve(null)]);
-      setCatalog(normalizeLabList(list));
-      setPackages(pkgs ? normalizeLabList(pkgs) : []);
+      if (kind === 'nursing') {
+        const res = await apiFetch<unknown>('/home-care/services');
+        setNursing(Array.isArray(res) ? (res as Rec[]) : []);
+      } else if (kind === 'lab') {
+        setPackages(normalizeLabList(await apiFetch<unknown>('/labs/packages')));
+      }
       setStatus('ready');
     } catch (err) {
       logError('ordering:service-home', err);
@@ -61,42 +75,18 @@ export default function ServiceHome() {
   }, [load]);
 
   const needle = query.trim().toLowerCase();
-  const featured = useMemo(() => {
-    const popular = catalog.filter((x) => x.isPopular);
-    return (popular.length ? popular : catalog).slice(0, 4);
-  }, [catalog]);
-  const shown = needle ? catalog.filter((x) => x.name.toLowerCase().includes(needle)).slice(0, 30) : featured;
-  const from = useFromPrices(kind, featured.map((x) => x.id), ctx.status === 'ready' ? ctx.body : null);
-  const inCart = (id: string) => cart.some((i) => i.id === id);
+  const nursingShown = useMemo(
+    () => nursing.filter((svc) => !needle || [pickDbField(svc, 'name'), svc.name_ar, svc.name_en, svc.title].some((v) => textOf(v).toLowerCase().includes(needle))),
+    [nursing, needle],
+  );
   const cartKind = kind === 'radiology' ? 'radiology' : 'lab';
-  const atHome = ctx.choice.mode === 'home';
-
-  const open = (item: CatalogItem) => {
-    if (kind === 'nursing') router.push({ pathname: '/nursing/service-details', params: { serviceId: item.id, title: item.name } } as unknown as Href);
-    else router.push(`/diagnostics/test-detail?id=${item.id}${kind === 'radiology' ? '&type=radiology' : ''}` as Href);
-  };
-
-  const row = (item: CatalogItem, last: boolean) => {
-    const look = diagLook(item.category, cartKind);
-    const priceLine = !needle && from[item.id] ? k('ordering.home.fromLine', { p: `${num(from[item.id]!.total, { maximumFractionDigits: 2 })} ${k('ordering.common.sar')}`, m: num(from[item.id]!.providers_count) }) : undefined;
-    const tags = [
-      ...(kind === 'radiology' ? [item.portable ? { label: k('ordering.home.tag.portable'), tone: 'mint' as const } : { label: k('ordering.home.tag.centre'), tone: 'amber' as const }] : []),
-      ...(kind === 'lab' ? text.testTags(item, atHome) : []),
-    ];
-    return (
-      <TestRow
-        key={item.id}
-        name={item.name}
-        icon={look}
-        tags={tags}
-        note={[priceLine, item.turnaroundHours !== null ? text.turnaround(item.turnaroundHours) : ''].filter(Boolean).join(' · ') || undefined}
-        price={null}
-        last={last}
-        onPress={() => open(item)}
-        toggle={kind === 'nursing' ? undefined : { on: inCart(item.id), label: inCart(item.id) ? k('ordering.common.remove') : k('ordering.home.addAria'), onPress: () => void (inCart(item.id) ? removeItem(item.id, cartKind) : addItem({ id: item.id, name: item.name, price: item.price ?? 0, kind: cartKind })) }}
-      />
-    );
-  };
+  const place = ctx.choice.mode === 'home' ? 'home' : 'clinic';
+  const payer = ctx.choice.payer === 'insurance' ? 'insurance' : 'cash';
+  // R1: the place never hides scans; the payment of the order hides the tests that cannot be paid that way
+  const rows = catalog.items.filter((x) => kind !== 'lab' || (payer === 'insurance' ? x.insurance : x.selfPay));
+  const listFailed = !isNursing && catalog.failed && catalog.items.length === 0 ? catalog.failed : null;
+  const effectiveStatus: GateStatus = listFailed ?? status;
+  const nothing = needle !== '' && (isNursing ? nursingShown.length === 0 : rows.length === 0 && !catalog.loading);
 
   const searchKey = kind === 'radiology' ? 'ordering.home.search.rad' : kind === 'nursing' ? 'ordering.home.search.nur' : 'ordering.home.search.lab';
   const title = kind === 'radiology' ? k('ordering.nav.radiology') : kind === 'nursing' ? k('ordering.nav.nursing') : k('ordering.nav.lab');
@@ -112,15 +102,14 @@ export default function ServiceHome() {
     </View>
   );
   const footer = itemCount > 0 && kind !== 'nursing' ? <Button theme={theme} size="lg" fullWidth label={`${k('ordering.home.viewBasket')} · ${k('diag.checkout.count', { n: num(itemCount) })}`} onPress={() => router.push('/diagnostics/cart' as Href)} /> : undefined;
-
   return (
-    <ConsultScreen testID={`ordering-home-${kind}`} title={title} onBack={goBackDiag} footer={footer} actions={kind === 'nursing' ? undefined : [{ key: 'basket', label: k('ordering.home.viewBasket'), icon: basketIcon, onPress: () => router.push('/diagnostics/cart' as Href) }]} onRefresh={() => void load()}>
+    <ConsultScreen testID={`ordering-home-${kind}`} title={title} onBack={goBackDiag} footer={footer} actions={kind === 'nursing' ? undefined : [{ key: 'basket', label: k('ordering.home.viewBasket'), icon: basketIcon, onPress: () => router.push('/diagnostics/cart' as Href) }]} onRefresh={() => { void load(); catalog.reload(); }}>
       <ContextGate ctx={ctx}>
         <ContextBar ctx={ctx} />
         <Search theme={theme} variant="inline" value={query} onChange={setQuery} onClear={() => setQuery('')} clearLabel={k('diag.clear')} placeholder={k(searchKey)} label={k(searchKey)} />
         <ScopedSuggest query={query} scope={kind === 'radiology' ? SUGGEST_SCOPES.radiology : kind === 'nursing' ? SUGGEST_SCOPES.nursing : SUGGEST_SCOPES.labs} />
-        <Gate status={status} onRetry={() => void load()}>
-          {needle && shown.length === 0 ? (
+        <Gate status={effectiveStatus} onRetry={() => { void load(); catalog.reload(); }}>
+          {nothing ? (
             <EmptyState icon="magnifying-glass" tone={kind === 'radiology' ? RAD_TONE : LAB_TONE} title={k('ordering.home.emptyTitle', { q: query.trim() })} body={k('ordering.home.emptySub')} theme={theme} />
           ) : (
             <>
@@ -150,9 +139,24 @@ export default function ServiceHome() {
                   </ListCard>
                 </Section>
               ) : null}
-              {shown.length > 0 ? (
+              {isNursing ? (
+                nursingShown.length > 0 ? (
+                  <Section title={needle ? undefined : k('ordering.home.secPopular')}>
+                    <NursingServiceList
+                      services={nursingShown}
+                      actionLabel={k('nur.hub.book')}
+                      onOpen={(id) => router.push({ pathname: '/nursing/service-info', params: { serviceId: id } } as unknown as Href)}
+                      onBook={(id, name) => router.push({ pathname: '/nursing/service-details', params: { serviceId: id, title: name } } as unknown as Href)}
+                    />
+                  </Section>
+                ) : null
+              ) : rows.length > 0 ? (
                 <Section title={needle ? undefined : k('ordering.home.secPopular')}>
-                  <ListCard>{shown.map((item, i) => row(item, i === shown.length - 1))}</ListCard>
+                  <View style={{ gap: 12 }} testID="service-home-list">
+                    {rows.map((item) => <CatalogueCard key={item.id} item={item} kind={cartKind} art={catalogArt(cartKind, item)} place={place} payer={payer} idPrefix="ordering-item" />)}
+                    {catalog.loadingMore ? <Skeleton lines={2} theme={theme} /> : null}
+                    {catalog.hasMore && !catalog.loadingMore ? <Button theme={theme} size="lg" fullWidth variant="outline" label={k('diag.hub.showMore')} onPress={catalog.loadMore} testID="service-home-more" /> : null}
+                  </View>
                 </Section>
               ) : null}
             </>

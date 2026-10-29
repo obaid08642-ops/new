@@ -20,6 +20,7 @@ export class RadiologyController {
     @Query('search') q?: string,
     @Query('home_only') ho?: string,
     @Query('home_visit') hv?: string,
+    @Query('insurance') ins?: string,
     @Query('highest_rated') hr?: string,
     @Query('nearest') nr?: string,
     @Query('lowest_price') lp?: string,
@@ -38,6 +39,7 @@ export class RadiologyController {
       body_part: bp, 
       search: q, 
       home_only: ho === '1' || hv === 'true' || hv === '1',
+      insurance: ins === '1' || ins === 'true',
       highest_rated: hr === 'true' || hr === '1',
       nearest: nr === 'true' || nr === '1',
       lowest_price: lp === 'true' || lp === '1',
@@ -60,6 +62,7 @@ export class RadiologyController {
   @Public() @Get('compatible-providers')
   compatibleProviders(@Query('serviceIds') ids?: string) { return this.svc.compatibleProviders(ids ? ids.split(',') : []); }
 
+  @PublicCache(20, ['provider-slots'], { cacheControl: 'public, s-maxage=20' })
   @Public() @Get('providers/:providerAccountId/slots')
   providerSlots(
     @Param('providerAccountId') providerAccountId: string,
@@ -79,7 +82,7 @@ export class RadiologyController {
 
   @PublicCache(120, ['catalog', 'radiology'])
   @Public() @Get('services/:id')
-  one(@Param('id') id: string) { return this.svc.getById(id); }
+  one(@Param('id') id: string) { return this.svc.getByIdWithOffers(id); }
 
   @SelfService()
   @Post('bookings')

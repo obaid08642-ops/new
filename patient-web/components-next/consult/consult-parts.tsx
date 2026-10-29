@@ -83,10 +83,10 @@ export function ActionLinks({ actions }: { actions: LinkAction[] }) {
 }
 
 /** A row on a white card that goes to a page: a tile, a title, a line and a caret that mirrors in right-to-left. */
-export function RowCard({ href, icon = CONSULT.icon, tone = CONSULT.tone, title, sub, extra, caret }: { href?: string; icon?: FillIconName; tone?: ServiceTone; title: string; sub?: string; extra?: ReactNode; caret?: ReactNode }) {
+export function RowCard({ href, icon = CONSULT.icon, tone = CONSULT.tone, art, title, sub, extra, caret }: { href?: string; icon?: FillIconName; tone?: ServiceTone; /** Replaces the service glyph (a test or scan shows its category illustration). */ art?: ReactNode; title: string; sub?: string; extra?: ReactNode; caret?: ReactNode }) {
   const body = (
     <>
-      <FIcon icon={icon} tone={tone} size={44} />
+      {art ?? <FIcon icon={icon} tone={tone} size={44} />}
       <span className={styles.rowBody}>
         <span className={styles.rowTitle}>{title}</span>
         {sub ? <span className={styles.rowSub}>{sub}</span> : null}

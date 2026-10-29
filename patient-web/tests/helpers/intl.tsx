@@ -24,15 +24,49 @@ function lookup(locale: string, namespace: string | undefined, key: string): str
   return node;
 }
 
-function fill(message: string, values: Values) {
-  return message.replace(/\{(\w+)\}/g, (_, name: string) => String(values[name] ?? ""));
+/** `{count, plural, one {# centre} other {# centres}}` for the page's locale (the `=N`, zero/one/two/few/many/other selectors and `#`). */
+function plurals(message: string, values: Values, locale: string): string {
+  let out = "";
+  for (let i = 0; i < message.length; i += 1) {
+    const head = /^\{(\w+), plural,/.exec(message.slice(i));
+    if (!head) { out += message[i]; continue; }
+    let depth = 0;
+    let end = i;
+    for (; end < message.length; end += 1) {
+      if (message[end] === "{") depth += 1;
+      if (message[end] === "}") { depth -= 1; if (depth === 0) break; }
+    }
+    const body = message.slice(i + head[0].length, end);
+    const options = new Map<string, string>();
+    for (let j = 0; j < body.length;) {
+      const sel = /^\s*(=?\w+)\s*\{/.exec(body.slice(j));
+      if (!sel) break;
+      let d = 0;
+      let k = j + sel[0].length - 1;
+      for (; k < body.length; k += 1) {
+        if (body[k] === "{") d += 1;
+        if (body[k] === "}") { d -= 1; if (d === 0) break; }
+      }
+      options.set(sel[1], body.slice(j + sel[0].length, k));
+      j = k + 1;
+    }
+    const n = Number(values[head[1]] ?? 0);
+    const chosen = options.get(`=${n}`) ?? options.get(new Intl.PluralRules(locale).select(n)) ?? options.get("other") ?? "";
+    out += chosen.replace(/#/g, new Intl.NumberFormat(locale).format(n));
+    i = end;
+  }
+  return out;
+}
+
+function fill(message: string, values: Values, locale = "en") {
+  return plurals(message, values, locale).replace(/\{(\w+)\}/g, (_, name: string) => String(values[name] ?? ""));
 }
 
 /** The real message files with just enough ICU for tests: {placeholders} and rich <tag>chunks</tag>. */
 export function createTranslator(locale: string, namespace?: string) {
-  const t = (key: string, values: Values = {}) => fill(lookup(locale, namespace, key), values);
+  const t = (key: string, values: Values = {}) => fill(lookup(locale, namespace, key), values, locale);
   t.rich = (key: string, values: Record<string, unknown> = {}): ReactNode => {
-    const message = fill(lookup(locale, namespace, key), values);
+    const message = fill(lookup(locale, namespace, key), values, locale);
     const parts: ReactNode[] = [];
     const pattern = /<(\w+)>([\s\S]*?)<\/\1>/g;
     let last = 0;

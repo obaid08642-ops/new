@@ -30,7 +30,7 @@ describe("Ord01 order context (saved profile, existing reads only)", () => {
     ],
     payLabel: "Payment",
     pay: "self_pay",
-    payOptions: [{ value: "self_pay", label: "Self-pay", href: "/en/diagnostics" }, { value: "insurance", label: "Insurance", href: "/en/diagnostics?pay=insurance" }],
+    payOptions: [{ value: "self_pay", label: "Without insurance", href: "/en/diagnostics" }, { value: "insurance", label: "Insurance", href: "/en/diagnostics?pay=insurance" }],
     addressHref: "/en/profile/addresses",
     insuranceHref: "/en/profile",
     copy: { hint: "Prices update at once", addAddress: "Add your address", addInsurance: "Add your insurance", insuranceSub: "Estimate until approval", insuranceName: "Insurance" },

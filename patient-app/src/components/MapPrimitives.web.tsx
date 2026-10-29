@@ -1,5 +1,7 @@
 import React, { forwardRef, useImperativeHandle } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { tokens } from '../../../packages/design-tokens/dist/ts/tokens';
+const T = tokens('light').color;
 
 export const PROVIDER_DEFAULT = 'web-fallback';
 
@@ -47,15 +49,15 @@ export function Marker({ coordinate, title, children, style }: any) {
 
 const styles = StyleSheet.create({
   map: {
-    backgroundColor: '#e7f1f3',
+    backgroundColor: T.service.blue.bg,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
-  label: { color: '#24505a', fontWeight: '700' },
-  coordinates: { color: '#42737d', marginTop: 4 },
+  label: { color: T.text.primary, fontWeight: '700' },
+  coordinates: { color: T.text.secondary, marginTop: 4 },
   marker: { position: 'absolute', top: '50%', left: '50%' as any },
-  markerDot: { color: '#d9485f', fontSize: 22 },
+  markerDot: { color: T.action.primary.bg, fontSize: 22 },
 });
 
 /** The hologram pins need the native map layers; the web preview draws none. */

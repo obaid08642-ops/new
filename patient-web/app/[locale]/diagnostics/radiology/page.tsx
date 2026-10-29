@@ -1,22 +1,19 @@
 import { SUGGEST_SCOPES } from "@/lib/search/suggest";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { extractRadiologyServices } from "@/lib/api/radiology";
-import { getPublicRadiologyModalities, getPublicRadiologyServices } from "@/lib/api/radiology-server";
+import { getPublicRadiologyModalities } from "@/lib/api/radiology-server";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
 import { ConsultPage } from "@/components-next/consult/consult-page";
-import { ConsultState } from "@/components-next/consult/consult-state";
 import consult from "@/components-next/consult/consult.module.css";
-import { CAT_LABEL, CheckField, RADIOLOGY, RadiologyTile, SearchForm, hoursText, minutesText, money, type Tag } from "@/components-next/diagnostics/diag-parts";
+import { CheckField, SearchForm } from "@/components-next/diagnostics/diag-parts";
+import { catalogueList } from "@/components-next/diagnostics/catalogue-list";
 import styles from "@/components-next/diagnostics/diag.module.css";
 import type { Metadata } from "next";
-import { DIAG_TONES } from "@/components-next/diagnostics/tones";
-import { pickName } from "@/lib/i18n/localized";
 import Link from "next/link";
 import { radiologyFilterCount } from "@/lib/diagnostics-filter-count";
-import { ratingLine } from "@/components-next/diagnostics/catalog-rows";
-import { diagArtKey, isMachineValue } from "@/components-next/ui-generated/icons/diag-art";
+import { parseDiagArt, type DiagArtKey } from "@/components-next/ui-generated/icons/diag-art";
+import { parseHubPages } from "@/lib/diagnostics-hub";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<Record<string, string | string[] | undefined>> };
 
@@ -41,7 +38,11 @@ export async function generateMetadata({ params }: Pick<Props, "params">): Promi
 const first = (value: string | string[] | undefined) => Array.isArray(value) ? value[0] : value;
 const on = (value: string | string[] | undefined) => first(value) === "1";
 
-/** The radiology catalogue (canvas/ServiceHub, the scans): a search and the documented filters in the URL, one tile per live service. */
+/**
+ * The radiology catalogue (canvas/ServiceHub, the scans): a search and the documented filters in the URL. The list is the SAME
+ * component and data source as the hub's radiology tab (the catalogue, every scan with its centres, from-price, where and insurance;
+ * a scan no centre offers yet stays listed and its page offers "Notify me when available").
+ */
 export default async function RadiologyServicesPage({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
@@ -50,28 +51,46 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
   const search = (first(query.search) ?? "").trim();
   const modality = first(query.modality) ?? "";
   const bodyPart = first(query.body_part) ?? "";
-  const [servicesResult, modalitiesResult] = await Promise.all([
-    getPublicRadiologyServices({ modality, bodyPart, search, homeVisit: on(query.home_visit) ? "true" : undefined, homeOnly: on(query.home_only) ? "true" : undefined, lowestPrice: on(query.lowest_price) ? "true" : undefined, highestRated: on(query.highest_rated) ? "true" : undefined }),
-    getPublicRadiologyModalities(),
-  ]);
+  const cat = parseDiagArt(first(query.cat), "radiology");
+  const pages = parseHubPages(first(query.more));
   const t = await getTranslations("RadiologyServices");
   const w = await getTranslations("DiagWeb");
   const backHref = `/${locale}/diagnostics?kind=radiology`;
-  if (!servicesResult?.ok) {
-    return (
-      <ConsultPage locale={locale} title={t("title")} backHref={backHref} resultsHref={`/${locale}/diagnostics/bookings`}>
-        <ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailableBody")} retryLabel={t("retry")} />
-      </ConsultPage>
-    );
-  }
+  const modalitiesResult = await getPublicRadiologyModalities().catch(() => null);
   // "Lowest price" and "Highest rated" order the list on the SERVER (GET /radiology/services: lowest_price, highest_rated; the rating is the mean of the centres that perform the scan)
   const lowestPrice = on(query.lowest_price);
   const highestRated = on(query.highest_rated);
-  const services = extractRadiologyServices(await servicesResult.json().catch(() => null));
   const homeVisit = on(query.home_visit);
   const activeCount = radiologyFilterCount({ modality, bodyPart, homeVisit, lowestPrice, highestRated });
   const modalityValues = modalitiesResult?.ok ? ((await modalitiesResult.json().catch(() => null)) as unknown) : [];
   const modalityList = Array.isArray(modalityValues) ? modalityValues.filter((x): x is string => typeof x === "string") : [];
+  // the address keeps every filter of the page; a chip or "Show more" changes only its own part
+  const href = (over: { cat?: DiagArtKey | "all"; more?: number }) => {
+    const params = new URLSearchParams();
+    if (search) params.set("search", search);
+    if (modality) params.set("modality", modality);
+    if (bodyPart) params.set("body_part", bodyPart);
+    if (homeVisit) params.set("home_visit", "1");
+    if (lowestPrice) params.set("lowest_price", "1");
+    if (highestRated) params.set("highest_rated", "1");
+    const nextCat = over.cat ?? cat;
+    if (nextCat !== "all") params.set("cat", nextCat);
+    if (over.more && over.more > 1) params.set("more", String(over.more));
+    const qs = params.toString();
+    return `/${locale}/diagnostics/radiology${qs ? `?${qs}` : ""}`;
+  };
+
+  const list = await catalogueList({
+    kind: "radiology",
+    locale,
+    search,
+    cat,
+    pages,
+    filters: { modality: modality || undefined, bodyPart: bodyPart || undefined, homeVisit, lowestPrice, highestRated },
+    chipHref: (next) => href({ cat: next }),
+    moreHref: href({ more: Math.min(pages + 1, 10) }),
+    detailHref: true,
+  });
 
   return (
     <ConsultPage locale={locale} title={t("title")} backHref={backHref} resultsHref={`/${locale}/diagnostics/bookings`}>
@@ -106,28 +125,7 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
           <Link href={`/${locale}/diagnostics/radiology`} className={consult.activeFilterClear}>{t("reset")}</Link>
         </div>
       ) : null}
-      {services.length === 0 ? (
-        <ConsultState kind="empty" icon="scan" tone={RADIOLOGY.tone} title={t("emptyTitle")} body={search || activeCount > 0 ? t("noMatch") : t("emptyBody")} />
-      ) : (
-        <ul className={styles.radGrid} aria-label={t("title")}>
-          {services.map((service) => {
-            const tags: Tag[] = [
-              ...(service.homeVisitSupported ? [{ label: t("homeVisit"), tone: RADIOLOGY.tone } as Tag] : []),
-              ...(service.facilityVisitSupported ? [{ label: t("facilityVisit"), tone: DIAG_TONES.facility } as Tag] : []),
-              ...(service.contrastRequired ? [{ label: w("tagContrast"), tone: DIAG_TONES.warn } as Tag] : []),
-            ];
-            const sub = [
-              w(CAT_LABEL[diagArtKey({ kind: "radiology", category: service.category, modality: [service.modality, service.modalityCategory].filter(Boolean).join(" "), bodyPart: service.bodyPart, names: Object.values(service.names) })]),
-              isMachineValue(service.bodyPart) ? undefined : service.bodyPart,
-              ratingLine({ locale, tr: (key, values) => w(key, values) }, service.rating, service.ratingCount),
-              service.price !== undefined ? w("fromPrice", { price: money(locale, service.price) }) : undefined,
-              service.durationMinutes !== undefined ? minutesText(locale, service.durationMinutes) : undefined,
-              service.turnaroundHours !== undefined ? w("resultWithin", { time: hoursText(locale, service.turnaroundHours) }) : undefined,
-            ].filter(Boolean).join(" · ");
-            return <RadiologyTile key={service.id} href={`/${locale}/diagnostics/radiology/${encodeURIComponent(service.id)}`} title={pickName(locale, service.names) ?? ""} sub={sub || undefined} tags={tags} imageUrl={service.imageUrl} />;
-          })}
-        </ul>
-      )}
+      {list}
     </ConsultPage>
   );
 }

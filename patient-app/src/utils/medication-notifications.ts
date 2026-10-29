@@ -2,6 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { apiFetch } from './api';
+import { tokens } from '../../../packages/design-tokens/dist/ts/tokens';
+const T = tokens('light').color;
 
 const SCHEDULE_STORE = 'nabdah:medication-notification-ids:v1';
 const PREFERENCES_STORE = 'nabdah:medication-notification-preferences:v1';
@@ -98,14 +100,14 @@ export async function configureMedicationNotifications(copy: Pick<MedicationNoti
       name: 'Medication reminders',
       importance: Notifications.AndroidImportance.DEFAULT,
       vibrationPattern: [0, 180, 120, 180],
-      lightColor: '#4F46E5',
+      lightColor: T.action.primary.bg,
       sound: 'default',
     });
     await Notifications.setNotificationChannelAsync(MEDICATION_CHANNEL_IMPORTANT, {
       name: 'Important medication reminders',
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 300, 180, 300, 180, 300],
-      lightColor: '#E11D48',
+      lightColor: T.status.danger.fg,
       sound: 'default',
     });
   }

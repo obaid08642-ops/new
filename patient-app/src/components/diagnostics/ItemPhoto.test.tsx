@@ -44,8 +44,9 @@ describe('cards and detail pages use it', () => {
     const kit = read('src/components/diagnostics/DiagKit.tsx');
     expect(kit).toContain('<ItemPhoto image={image} size={56}');
     expect(kit).toContain('<ItemPhoto image={image} size={96}');
-    expect(read('app/(tabs)/diagnostics.tsx')).toContain('image={test.image}');
-    expect(read('app/(tabs)/diagnostics.tsx')).toContain('image={rad.image}');
+    // the hub tabs draw their rows through the shared catalogue card, which passes the item image
+    expect(read('app/(tabs)/diagnostics.tsx')).toContain('CatalogueCard');
+    expect(read('src/components/diagnostics/CatalogueKit.tsx')).toContain('image={item.image}');
     expect(read('app/diagnostics/test-detail.tsx')).toContain('image={data.image}');
     expect(read('app/diagnostics/package-detail.tsx')).toContain('image={pkg.image}');
   });

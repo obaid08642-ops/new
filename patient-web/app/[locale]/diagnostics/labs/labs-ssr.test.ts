@@ -15,7 +15,7 @@ vi.mock("next/navigation", () => ({ notFound: vi.fn(), useRouter: () => ({ refre
 
 import LabsServicesPage from "./page";
 
-// the page returns the async <LabsCatalog>, which a test renders by calling it
+// the page returns the async <LabsCatalog>, which a test renders by calling it (the list under it is the shared catalogue list)
 async function render(searchParams = {}) {
   const element = (await LabsServicesPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve(searchParams) })) as unknown as { type: (props: unknown) => Promise<never>; props: unknown };
   return renderToStaticMarkup(await element.type(element.props));
@@ -26,9 +26,9 @@ describe("Labs Services SSR", () => {
     state.getPublicLabServices.mockResolvedValue(new Response(JSON.stringify([{ id: "cbc", name_en: "CBC", price: 20 }]), { status: 200 }));
     const html = await render();
     expect(html).toContain("CBC");
-    expect(html).toContain("/en/labs/cbc?kind=lab");
+    expect(html).toContain("/en/labs/cbc");
     expect(html).not.toContain("style=");
-    expect(state.getPublicLabServices).toHaveBeenCalledWith({ search: "", homeOnly: false });
+    expect(state.getPublicLabServices).toHaveBeenCalledWith(expect.objectContaining({ page: 1, homeOnly: false }));
   });
   it("renders an alert state when the live endpoint fails", async () => {
     state.getPublicLabServices.mockResolvedValue(new Response("", { status: 503 }));

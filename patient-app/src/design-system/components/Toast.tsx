@@ -264,10 +264,10 @@ function ToastItem({
 // ─────────────────────────────────────────────────────────────────────────────
 function getToastColors(type: ToastType, colors: any) {
   switch (type) {
-    case 'success': return { accent: colors.success, bg: '#EBF6E9' };
-    case 'error':   return { accent: colors.error,   bg: '#FEF2F2' };
-    case 'warning': return { accent: colors.warning,  bg: '#FFF7E6' };
-    case 'info':    return { accent: colors.primary,  bg: '#DEF5F9' };
+    case 'success': return { accent: colors.success, bg: colors.successSurface };
+    case 'error':   return { accent: colors.error,   bg: colors.errorSurface };
+    case 'warning': return { accent: colors.warning,  bg: colors.warningSurface };
+    case 'info':    return { accent: colors.primary,  bg: colors.primarySurface };
   }
 }
 

@@ -24,6 +24,13 @@ export type CatalogRequest = {
   category?: string;
   search?: string;
   sort?: CatalogSort;
+  /** the radiology page's own filters (the hub sends none): the scan type, the body part, only the services done at home */
+  modality?: string;
+  bodyPart?: string;
+  homeVisit?: boolean;
+  /** both sort flags may be on at once on the radiology page (the server takes both); the hub's single `sort` sets one */
+  lowestPrice?: boolean;
+  highestRated?: boolean;
 };
 
 const none = (page: number): CatalogLoad => ({ ok: false, labs: [], scans: [], page, hasMore: false, total: null });
@@ -34,8 +41,8 @@ export async function loadCatalogPage(request: CatalogRequest): Promise<CatalogL
   const base = { page: request.page, limit, search: request.search };
   const response =
     request.kind === "lab"
-      ? await getPublicLabServices({ ...base, highestRated: request.sort === "highest_rated", lowestPrice: request.sort === "lowest_price" }).catch(() => null)
-      : await getPublicRadiologyServices({ ...base, category: request.category, highestRated: request.sort === "highest_rated" ? "true" : undefined, lowestPrice: request.sort === "lowest_price" ? "true" : undefined }).catch(() => null);
+      ? await getPublicLabServices({ ...base, homeOnly: request.homeVisit, highestRated: request.sort === "highest_rated" || request.highestRated, lowestPrice: request.sort === "lowest_price" || request.lowestPrice }).catch(() => null)
+      : await getPublicRadiologyServices({ ...base, category: request.category, modality: request.modality, bodyPart: request.bodyPart, homeOnly: request.homeVisit ? "true" : undefined, highestRated: request.sort === "highest_rated" || request.highestRated ? "true" : undefined, lowestPrice: request.sort === "lowest_price" || request.lowestPrice ? "true" : undefined }).catch(() => null);
   if (!response || !response.ok) return none(request.page);
   const info = parseCatalogPage(await response.json().catch(() => null));
   const hasMore = hasMorePages({ ...info, page: info.page ?? request.page }, limit);
@@ -45,12 +52,19 @@ export async function loadCatalogPage(request: CatalogRequest): Promise<CatalogL
 }
 
 /**
- * The rows of loaded pages. The place and payment of the order (home or at the lab, insurance or self-pay) hide the rows that do not fit,
- * as before, on the rows of the pages loaded; packages and unavailable tests are not rows of the tests list.
+ * The rows of loaded pages. The place and payment of the order (home or at the lab, insurance or self-pay) hide the TESTS that do not fit;
+ * scans are never hidden by the place (R1: only ultrasound is portable, so "home" hid x-ray, CT and MRI): a scan that cannot be done at home opens its order at the centre; packages and unavailable tests are not rows of the tests list.
  */
-export function catalogRows(kind: "lab" | "radiology", loads: readonly CatalogLoad[], order: { place: "home" | "facility"; pay: LabPay }, ctx: RowContext): CatalogRow[] {
-  const fitsPlace = (s: { homeVisitSupported?: boolean; facilityVisitSupported?: boolean }) => (order.place === "home" ? s.homeVisitSupported !== false : s.facilityVisitSupported !== false);
+export function catalogRows(kind: "lab" | "radiology", loads: readonly CatalogLoad[], order: { place: "home" | "facility" | "all"; pay: LabPay }, ctx: RowContext): CatalogRow[] {
+  // a test nobody offers yet is still listed (its page says so and offers "Notify me") whatever the place; otherwise the place fits by what providers
+  // offer when the catalogue says (at home / at the centre), else by the catalogue's own visit flags. The PAYMENT always applies, offers or not: a test
+  // that is insurance-only (cash_availability false) never shows under "Without insurance", and a self-pay-only test never under "Insurance"
+  const fitsPlace = (s: { homeVisitSupported?: boolean; facilityVisitSupported?: boolean; offer?: { providersCount: number; homeAvailable: boolean; premisesAvailable: boolean } }) => {
+    if (order.place === "all") return true;
+    if (s.offer) return s.offer.providersCount === 0 || (order.place === "home" ? s.offer.homeAvailable : s.offer.premisesAvailable);
+    return order.place === "home" ? s.homeVisitSupported !== false : s.facilityVisitSupported !== false;
+  };
   return kind === "lab"
     ? loads.flatMap((l) => l.labs).filter((s) => s.isPackage !== true && !s.unavailable && fitsPlace(s) && labPaymentFits(order.pay, s)).map((s) => labRow(s, ctx))
-    : loads.flatMap((l) => l.scans).filter(fitsPlace).map((s) => scanRow(s, ctx));
+    : loads.flatMap((l) => l.scans).map((s) => scanRow(s, ctx));
 }

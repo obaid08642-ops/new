@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { offersOf, type WithOffers } from "@/lib/api/offers";
 import { namesOf, textsOf, translatedColumns, type Texts } from "@/lib/i18n/localized";
 
 const serviceIdSchema = z.string().regex(/^[A-Za-z0-9_-]{1,128}$/);
@@ -43,7 +44,7 @@ export type HomeCareService = {
   requiresPrescription?: boolean;
   imageUrl?: string;
   icon?: string;
-};
+} & WithOffers;
 
 function rowsFrom(payload: unknown): unknown[] {
   if (Array.isArray(payload)) return payload;
@@ -70,7 +71,7 @@ function parseService(value: unknown): HomeCareService | null {
   const row = value as Record<string, unknown>;
   const names = { ...(item.name ? { ar: item.name, en: item.name } : {}), ...namesOf(row) };
   const descriptions = { ...(item.description ? { ar: item.description, en: item.description } : {}), ...textsOf(row, "description") };
-  return { names, descriptions, id: item.id, slug: item.slug, nameAr, nameEn, descriptionAr: item.description_ar ?? item.description, descriptionEn: item.description_en ?? item.description, price: item.price, durationValue: item.duration_value, duration: item.duration, insuranceAvailable: item.insurance_availability, preparationAr: lines(item.preparation_ar), preparationEn: lines(item.preparation_en), requiresPrescription: item.requires_patient_medication, imageUrl: item.image_url, icon: item.icon };
+  return { names, descriptions, id: item.id, slug: item.slug, nameAr, nameEn, descriptionAr: item.description_ar ?? item.description, descriptionEn: item.description_en ?? item.description, price: item.price, durationValue: item.duration_value, duration: item.duration, insuranceAvailable: item.insurance_availability, preparationAr: lines(item.preparation_ar), preparationEn: lines(item.preparation_en), requiresPrescription: item.requires_patient_medication, imageUrl: item.image_url, icon: item.icon, ...offersOf(value) };
 }
 
 export function parseHomeCareServiceId(value: string) { return serviceIdSchema.safeParse(value); }

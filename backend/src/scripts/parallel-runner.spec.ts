@@ -1,4 +1,4 @@
-import { runParallel, ParallelProvider } from './parallel-runner';
+import { runParallel, ParallelProvider, errorClass, RunSnapshot } from './parallel-runner';
 
 function harness() {
   let t = 0;
@@ -84,3 +84,98 @@ describe('runParallel (translation throughput)', () => {
     for (let i = 1; i < starts.length; i += 1) expect(starts[i] - starts[i - 1]).toBeGreaterThanOrEqual(900);   // 1 per second
   });
 });
+
+describe('one bad provider cannot stall the rest (offline reproduction with stub providers)', () => {
+  const stub = (name: string, h: ReturnType<typeof harness>, behaviour: (p: string) => string | Error, latency = 50): ParallelProvider => ({
+    name, limits: { rpm: 6000, lanes: 2 }, call: async (p) => { await h.io.sleep(latency); const r = behaviour(p); if (r instanceof Error) throw r; return r; },
+  });
+  const good = (p: string) => `ok:${p}`;
+
+  it('429 + 401 + answers that fail the checks + a timeout + one good provider: every request is answered by the good one, in bounded time', async () => {
+    const h = harness();
+    const providers = [
+      stub('limited', h, () => new Error('limited_http_429')),
+      stub('unauth', h, () => new Error('ai_provider_auth_failed')),
+      stub('junk', h, () => 'not a translation'),
+      stub('slow', h, () => Object.assign(new Error('The operation was aborted due to timeout'), { name: 'TimeoutError' })),
+      stub('good', h, good),
+    ];
+    const res = await runParallel(reqs(60), providers, h.io, { validate: (_id, t) => (t.startsWith('ok:') ? null : 'no_json') });
+    expect(res.sent).toBe(60);
+    expect(res.failed).toBe(0);
+    expect(res.providers.good.ok).toBe(60);
+    expect(res.providers.unauth.retired).toBe('key rejected');
+    expect(res.providers.junk.rejected).toBeGreaterThan(0);
+    expect(res.providers.junk.retired).toMatch(/failing the checks/);
+    expect(res.providers.limited.limited).toBeGreaterThan(0);
+    expect(res.providers.slow.error_classes.timeout).toBeGreaterThan(0);
+    expect(h.time()).toBeLessThan(10 * 60_000);                // virtual minutes: the bad ones cost the good one nothing
+    expect(h.lines).toHaveLength(60);
+    expect(h.lines.every((l) => JSON.parse(l).text.startsWith('ok:'))).toBe(true);   // no rejected answer was written
+  });
+
+  it('answers that fail the checks are asked of another provider and are not retried forever', async () => {
+    const h = harness();
+    const junk = stub('junk', h, () => 'x');
+    const res = await runParallel(reqs(5), [junk], h.io, { maxAttempts: 3, validate: () => 'numbers_differ' });
+    expect(res.sent).toBe(0);
+    expect(res.failed).toBe(5);                                  // given up, unanswered, not looping
+    expect(h.lines).toEqual([]);
+    expect(res.providers.junk.error_classes.rejected_numbers_differ).toBeGreaterThanOrEqual(5);
+  });
+
+  it('a provider refused with 400/404 again and again is retired, not parked forever', async () => {
+    const h = harness();
+    const res = await runParallel(reqs(60), [stub('wrongmodel', h, () => new Error('wrongmodel_http_404')), stub('good', h, good, 8000)], h.io);
+    expect(res.sent).toBe(60);
+    expect(res.providers.wrongmodel.retired).toBe('refused by the provider (http_404)');
+    expect(res.providers.wrongmodel.sent).toBeLessThanOrEqual(12);
+  });
+
+  it('a 429 parks the provider and never retires it; a few 404s at the start do not retire it either', async () => {
+    const h = harness();
+    let n = 0;
+    const flaky = stub('flaky', h, () => (++n <= 3 ? new Error('flaky_http_404') : 'ok:flaky'));
+    const limited = stub('limited', h, () => new Error('limited_http_429'));
+    const res = await runParallel(reqs(30), [flaky, limited, stub('good', h, good, 8000)], h.io);
+    expect(res.providers.limited.limited).toBeGreaterThan(0);
+    expect(res.providers.limited.retired).toBeNull();
+    expect(res.providers.flaky.retired).toBeNull();
+    expect(res.providers.flaky.ok).toBeGreaterThan(0);
+  });
+
+  it('every provider failing ends the run (nothing hangs) with the requests left unanswered', async () => {
+    const h = harness();
+    const res = await runParallel(reqs(10), [stub('a', h, () => new Error('a_http_404')), stub('b', h, () => new Error('ai_provider_auth_failed'))], h.io);
+    expect(res.sent).toBe(0);
+    expect(res.failed).toBe(10);
+    expect(res.providers.a.retired).toBeTruthy();
+    expect(res.providers.b.retired).toBe('key rejected');
+  });
+
+  it('writes snapshots with counts only: per provider sent/ok/limited/errors/rejected/retired/parked_until, and overall answered/remaining/last_answer_at', async () => {
+    const h = harness();
+    const snaps: RunSnapshot[] = [];
+    const secret = ['sk', 'live', 'SECRET', 'KEY', '123'].join('-'); // a FAKE key, built at runtime so the secret scanner does not flag the fixture
+    const leaky = stub('leaky', h, () => new Error(`leaky_http_500 Authorization: Bearer ${secret}`));
+    await runParallel(reqs(40), [leaky, stub('good', h, good, 2000)], h.io, { snapshotEveryMs: 1000, onSnapshot: (x) => snaps.push(x) });
+    expect(snaps.length).toBeGreaterThan(2);
+    const last = snaps[snaps.length - 1];
+    expect(last).toMatchObject({ answered: 40, remaining: 0, failed: 0 });
+    expect(last.last_answer_at).toMatch(/^\d{4}-/);
+    expect(Object.keys(last.providers.good).sort()).toEqual(['avg_latency_ms', 'error_classes', 'errors', 'limited', 'ok', 'parked_ms', 'parked_until', 'rejected', 'retired', 'sent']);
+    expect(snaps.some((x) => x.providers.leaky.parked_until !== null)).toBe(true);
+    const text = JSON.stringify(snaps) + h.logs.join('\n');
+    expect(text).not.toContain(secret);                           // the error text never leaves the class
+    expect(text).not.toContain('Bearer');
+    expect(last.providers.leaky.error_classes).toEqual(expect.objectContaining({ http_500: expect.any(Number) }));
+  });
+});
+
+describe('errorClass', () => {
+  it.each([
+    ['x_http_429', 'http_429'], ['gemini_http_503', 'http_503'], ['ai_provider_auth_failed', 'auth'], ['groq_empty_response', 'empty'],
+    ['The operation was aborted due to timeout', 'timeout'], ['fetch failed', 'network'], ['something with sk-123 in it', 'other'],
+  ])('%s -> %s', (msg, cls) => { expect(errorClass(new Error(msg))).toBe(cls); });
+});
+

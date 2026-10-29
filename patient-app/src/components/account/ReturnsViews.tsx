@@ -14,6 +14,8 @@ import { AccountScreen } from './AccountKit';
 import { PolicyCard } from './PolicyText';
 import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
 import { UploadsUnavailable } from '../UploadsUnavailable';
+import { ScanStatusBadge } from '../ScanStatusBadge';
+import { scanStateOfError, scanStateOfUpload } from '../../utils/scanStatus';
 
 /**
  * Returns (board Orders, restyle only): the list with the status filter, one request, and the three-step form
@@ -194,6 +196,8 @@ export function ReturnRequestView() {
   const [orderId, setOrderId] = useState('');
   const [details, setDetails] = useState('');
   const [docs, setDocs] = useState<string[]>([]);
+  const [rejectedPhoto, setRejectedPhoto] = useState(false);
+  const [pendingDocs, setPendingDocs] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -227,6 +231,7 @@ export function ReturnRequestView() {
   const uploadsOn = useUploadsEnabled();
   const attach = async (fromCamera: boolean) => {
     setMessage(null);
+    setRejectedPhoto(false);
     try {
       const ImagePicker = await import('expo-image-picker');
       const permission = fromCamera ? await ImagePicker.requestCameraPermissionsAsync() : await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -246,7 +251,11 @@ export function ReturnRequestView() {
       if (!upload.id) throw new Error('upload_missing_id');
       // The media reference is stored; the server signs a fresh URL on every read.
       setDocs((rows) => [...rows, `media:${upload.id}`]);
+      // a photo that is still being checked stays on the request: the pharmacy sees it once it has passed
+      if (scanStateOfUpload(upload) === 'pending') setPendingDocs((rows) => [...rows, `media:${upload.id}`]);
     } catch (e) {
+      // the scanner refused the file (400 file_infected): rejected, with a way to upload another
+      if (scanStateOfError(e) === 'rejected') { setRejectedPhoto(true); return; }
       logError('returns:attach', e);
       setMessage(k('returns.new.attachFailed'));
     } finally {
@@ -362,6 +371,7 @@ export function ReturnRequestView() {
             </View>
             ) : <UploadsUnavailable />}
             {uploading ? <Notice tone="info" text={k('returns.new.uploading')} /> : null}
+            <ScanStatusBadge state={rejectedPhoto ? 'rejected' : docs.some((d) => pendingDocs.includes(d)) ? 'pending' : 'ok'} onReupload={() => void attach(false)} testID="return-scan" />
             {docs.length > 0 ? (
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                 {docs.map((doc, i) => (

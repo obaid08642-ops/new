@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAppSelector } from '../../store/hooks';
+import { tokens } from '../../../../packages/design-tokens/dist/ts/tokens';
+const T = tokens('light').color;
 
 export interface AdminGuardProps {
   children: React.ReactNode;
@@ -30,7 +32,7 @@ export function AdminGuard({ children }: AdminGuardProps) {
   if (!isReady) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#0284c7" />
+        <ActivityIndicator size="large" color={T.action.primary.bg} />
       </View>
     );
   }
@@ -38,7 +40,7 @@ export function AdminGuard({ children }: AdminGuardProps) {
   if (!isAdmin) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-        <Text style={{ fontSize: 18, color: '#ef4444', textAlign: 'center' }}>
+        <Text style={{ fontSize: 18, color: T.status.danger.fg, textAlign: 'center' }}>
           Access Denied. Admin privileges required.
         </Text>
       </View>

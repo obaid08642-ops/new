@@ -8,12 +8,12 @@ import { Button, Chip, EmptyState, ErrorState, OfflineState, Screen, Search, Seg
 import { ActiveFilters, type ActiveFilter } from '../../src/components/pharmacy/ActiveFilters';
 import { CARE_TONE, Section, Sheet } from '../../src/components/consult/ConsultKit';
 import { PackageCard, PillLink, Strip } from '../../src/components/diagnostics/DiagKit';
-import { ServiceCard, serviceGlyph } from '../../src/components/nursing/NursingKit';
+import { NursingServiceList } from '../../src/components/nursing/NursingServiceList';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
-import { pickDbField, pickLocalized } from '../../src/utils/localize';
+import { pickLocalized } from '../../src/utils/localize';
 
 type Rec = Record<string, unknown>;
 type Flow = 'insurance' | 'cash';
@@ -181,26 +181,7 @@ export default function NursingHub() {
             </Section>
 
             <Section title={k('nur.hub.services')}>
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-                {shownServices.map((svc, position) => {
-                  const title = text(pickDbField(svc, 'name') ?? svc.name_ar ?? svc.name_en ?? svc.title);
-                  const look = serviceGlyph(svc.id);
-                  return (
-                    <ServiceCard
-                      key={text(svc.id)}
-                      enterIndex={position}
-                      title={title}
-                      desc={text(pickDbField(svc, 'description')) || undefined}
-                      image={text(svc.image_url ?? svc.image) || null}
-                      icon={look.icon}
-                      price={priceOf(svc.price)}
-                      onPress={() => toInfo(text(svc.id))}
-                      actionLabel={k('nur.hub.book')}
-                      onAction={() => toService(text(svc.id), title)}
-                    />
-                  );
-                })}
-              </View>
+              <NursingServiceList services={shownServices} actionLabel={k('nur.hub.book')} onOpen={(id) => toInfo(id)} onBook={(id, title) => toService(id, title)} />
               {needle && shownServices.length === 0 ? (
                 <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }} testID="nursing-no-match">{k('nur.hub.noMatch')}</Text>
               ) : null}

@@ -174,7 +174,7 @@ export function ProductCard({
   const inert = disabled || loading;
   const body = (
     <>
-      <div className="nabd-product-card__media">
+      <div className={`nabd-product-card__media${imageSrc ? " nabd-product-card__media--photo" : ""}`}>
         {imageSrc ? (
           <img
             src={imageSrc}

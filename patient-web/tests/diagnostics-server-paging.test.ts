@@ -116,3 +116,33 @@ describe("rows of the loaded pages", () => {
     expect(catalogRows("lab", [load([{ id: "a", name_en: "A" }, { id: "i", name_en: "I", insurance_availability: true }])], { place: "home", pay: "insurance" }, ctx).map((r) => r.id)).toEqual(["i"]);
   });
 });
+
+describe("R1: radiology with all four modalities", () => {
+  const raw = [
+    { id: "u1", name_en: "Abdomen ultrasound", category: "ultrasound", home_visit_supported: true },
+    { id: "x1", name_en: "Chest X-ray", category: "xray", home_visit_supported: false },
+    { id: "c1", name_en: "Head CT", category: "ct", home_visit_supported: false },
+    { id: "m1", name_en: "Knee MRI", category: "mri" },
+  ];
+  const scans = extractRadiologyServices(raw);
+  const loaded: CatalogLoad = { ok: true, labs: [], scans, page: 1, hasMore: false, total: 4 };
+  const placeCtx: RowContext = { ...ctx, itemHref: (id, kind, facilityOnly) => `/en/labs/${id}?kind=${kind}&place=${facilityOnly ? "facility" : "home"}` };
+  it("shows every scan with All, whatever the order's place (home used to hide x-ray, CT and MRI)", () => {
+    for (const place of ["home", "facility"] as const) {
+      expect(catalogRows("radiology", [loaded], { place, pay: "self_pay" }, placeCtx).map((r) => r.id)).toEqual(["u1", "x1", "c1", "m1"]);
+    }
+  });
+  it("opens a scan that cannot be done at home at the centre", () => {
+    const hrefs = catalogRows("radiology", [loaded], { place: "home", pay: "self_pay" }, placeCtx).map((r) => r.href.split("place=")[1]);
+    expect(hrefs).toEqual(["home", "facility", "facility", "facility"]);
+  });
+  it("each chip sends its own modality to the server and its art matches the rows", () => {
+    const rows = catalogRows("radiology", [loaded], { place: "home", pay: "self_pay" }, placeCtx);
+    expect(rows.map((r) => r.art)).toEqual(["ultrasound", "xray", "ct", "mri"]);
+    for (const key of ["ultrasound", "xray", "ct", "mri"] as const) {
+      expect(serverCategoryOf("radiology", key)).toBe(key);
+      expect(rows.filter((r) => r.art === key)).toHaveLength(1);
+    }
+    expect(serverCategoryOf("radiology", "all")).toBeUndefined();
+  });
+});
