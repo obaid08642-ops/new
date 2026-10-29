@@ -83,7 +83,7 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
   const allTabs: Array<BottomTabItem & { href: string }> = [
     { id: "home", art: "home", label: nav("navHome"), icon: "house", href: `/${locale}` },
     { id: "pharmacy", art: "pharmacy", label: nav("navPharmacy"), icon: "pill", href: hrefs.pharmacy },
-    { id: "consult", art: "consult", label: nav("navConsult"), icon: "stethoscope", href: hrefs.consult, raised: true },
+    { id: "consult", art: "consult", label: nav("navConsult"), icon: "headset", href: hrefs.consult, raised: true },
     { id: "labs", art: "labs", label: nav("navLabs"), icon: "test-tube", href: hrefs.labs },
     { id: "nursing", art: "nursing", label: nav("navNursing"), icon: "first-aid-kit", href: hrefs.nursing },
   ];

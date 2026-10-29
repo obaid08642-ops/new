@@ -66,7 +66,7 @@ export async function HomeShell({
   const allTabs: BottomTabItem[] = [
     { id: "home", art: "home", label: t("navHome"), icon: "house" },
     { id: "pharmacy", art: "pharmacy", label: t("navPharmacy"), icon: "pill" },
-    { id: "consult", art: "consult", label: t("navConsult"), icon: "stethoscope", raised: true },
+    { id: "consult", art: "consult", label: t("navConsult"), icon: "headset", raised: true },
     { id: "labs", art: "labs", label: t("navLabs"), icon: "test-tube" },
     { id: "nursing", art: "nursing", label: t("navNursing"), icon: "first-aid-kit" },
   ];
