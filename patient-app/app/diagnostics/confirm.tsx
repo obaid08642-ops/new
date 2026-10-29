@@ -184,9 +184,9 @@ export default function DiagnosticsConfirm() {
               <AmountLine label={k('ordering.pay.lTotal')} amount={b.total} strong />
               {b.status === 'awaiting_approval' ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('ordering.pay.dispatchHome')}</Text> : null}
               {method === 'card' ? (
-                <Button theme={theme} size="lg" fullWidth loading={paying === b.id} disabled={paying !== null} label={k('ordering.pay.btnPay', { a: money(b.total) })} onPress={() => void pay(b.id)} />
+                <Button theme={theme} size="lg" fullWidth loading={paying === b.id} disabled={paying !== null} label={k('ordering.pay.btnPay', { a: money(b.total) })} onPress={() => void pay(b.id)} testID="diag-pay" />
               ) : null}
-              <Button theme={theme} size="md" variant="outline" label={k('ordering.pay.viewOrder')} onPress={() => router.replace(statusHref(created.bookings.map((x) => x.id), b.id) as Href)} />
+              <Button theme={theme} size="md" variant="outline" label={k('ordering.pay.viewOrder')} onPress={() => router.replace(statusHref(created.bookings.map((x) => x.id), b.id) as Href)} testID="diag-view-order" />
             </Block>
           </Section>
         ))}
@@ -204,6 +204,7 @@ export default function DiagnosticsConfirm() {
         fullWidth
         loading={submitting}
         disabled={needsEvidence || submitting}
+        testID="diag-confirm-submit"
         label={needsEvidence ? k('ordering.pay.btnOff') : method === 'card' ? k('ordering.pay.btnContinue', { a: money(dueSum) }) : k('ordering.pay.btnConfirm')}
         onPress={() => void submit()}
       />

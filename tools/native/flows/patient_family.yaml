@@ -1,0 +1,23 @@
+# Family: a patient whose family has one member sees the family hub, opens the member and the member's actions.
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: "family=1"
+- tapOn:
+    id: "home-profile"
+- tapOn:
+    id: "account-family"
+- assertVisible:
+    id: "family-hub"
+- assertVisible:
+    text: ".*native-member.*"
+- tapOn:
+    text: ".*native-member.*"
+- assertVisible:
+    id: "family-member"
+- assertVisible:
+    id: "member-book"
+- assertVisible:
+    id: "member-chat"

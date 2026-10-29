@@ -1,0 +1,10 @@
+# Welcome -> Log in with ${EMAIL} / ${PASSWORD} -> home.
+appId: com.patient.nabd
+---
+- tapOn:
+    id: "welcome-login"
+- runFlow:
+    file: common_login_form.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}

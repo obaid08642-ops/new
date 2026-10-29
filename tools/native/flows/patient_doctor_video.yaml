@@ -1,0 +1,98 @@
+# Doctor booking by video: hub -> doctor -> the video mode -> a slot -> the card (hosted checkout of the test double, completed by the helper)
+# -> the booking is placed. The telehealth consent is part of the confirm step; the video appointment then shows in My appointments.
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: ""
+- tapOn:
+    text: "الاستشارات"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "hub-doctor-0"
+    timeout: 30000
+- tapOn:
+    id: "hub-doctor-0"
+- extendedWaitUntil:
+    visible:
+      id: "doctor-screen"
+    timeout: 20000
+- assertVisible:
+    id: "mode-video"
+- tapOn:
+    id: "mode-video"
+- tapOn:
+    id: "day-1"
+# the doctor page is a tall hero card: bring the day strip and the times under it up with one swipe (not a scroll to the end: the online
+# times load a moment after the day is chosen, and a scroll would run past them)
+- swipe:
+    start: 50%, 75%
+    end: 50%, 35%
+# the seeded doctor may not take online visits on that day ("not available on this day"): take the next day that has times
+- runFlow:
+    when:
+      visible: ".*غير متاح في هذا اليوم.*"
+    commands:
+      - tapOn:
+          id: "day-2"
+- runFlow:
+    when:
+      visible: ".*غير متاح في هذا اليوم.*"
+    commands:
+      - tapOn:
+          id: "day-3"
+- runFlow:
+    when:
+      visible: ".*غير متاح في هذا اليوم.*"
+    commands:
+      - tapOn:
+          id: "day-4"
+- runFlow:
+    when:
+      visible: ".*غير متاح في هذا اليوم.*"
+    commands:
+      - tapOn:
+          id: "day-5"
+- extendedWaitUntil:
+    visible:
+      id: "slot-.*"
+    timeout: 40000
+- scrollUntilVisible:
+    element:
+      id: "slot-14"
+- tapOn:
+    id: "slot-14"
+- tapOn:
+    id: "doctor-book"
+- extendedWaitUntil:
+    visible:
+      id: "booking-confirm-screen"
+    timeout: 30000
+- tapOn:
+    id: "booking-pay-method-card"
+- tapOn:
+    id: "booking-confirm-submit"
+# the card payment opens the hosted checkout in the browser (its first-run screen is up); the test double completes it from here
+- runScript:
+    file: scripts/pay_complete.js
+- launchApp
+# a video visit asks a new patient for the telehealth consent before the first online consultation (D-38): it is asked before or after the payment
+- runFlow:
+    when:
+      visible:
+        id: "telehealth-consent-accept"
+    commands:
+      - tapOn:
+          id: "telehealth-consent-accept"
+# launching the app again starts it on the home screen (the browser's return link is not followed on the emulator): the paid booking is checked on the
+# appointments list below
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 60000
+- takeScreenshot: patient_doctor_video_placed
+- runFlow: common_my_appointments.yaml
+- assertVisible:
+    id: "appointment-card"

@@ -1,0 +1,34 @@
+# Returns and refunds, with the seeded patient (the returns journey made him a return): the list shows the return, its detail opens, "new request" opens the request form.
+appId: com.patient.nabd
+---
+- runFlow: common_to_welcome.yaml
+- runFlow: common_sign_in.yaml
+- openLink: "nabdplus:///returns/hub"
+- extendedWaitUntil:
+    visible:
+      id: "returns-screen"
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: "return-.*"
+    timeout: 30000
+- takeScreenshot: patient_returns_list
+- tapOn:
+    id: "return-.*"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "return-detail-screen"
+    timeout: 30000
+- pressKey: back
+- extendedWaitUntil:
+    visible:
+      id: "returns-new"
+    timeout: 20000
+- tapOn:
+    id: "returns-new"
+- extendedWaitUntil:
+    visible:
+      id: "return-request-screen"
+    timeout: 30000
+- takeScreenshot: patient_returns_new_request

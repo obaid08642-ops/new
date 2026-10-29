@@ -1,0 +1,26 @@
+# Doctor booking, then cancel it from My appointments (Edit or cancel -> Cancel appointment -> a reason -> Confirm); the list shows it cancelled.
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: ""
+- runFlow:
+    file: common_book_doctor.yaml
+    env:
+      SLOT: "12"
+- runFlow: common_my_appointments.yaml
+- tapOn:
+    text: "تعديل أو إلغاء"
+- extendedWaitUntil:
+    visible:
+      id: "choose-cancel"
+    timeout: 20000
+- tapOn:
+    id: "choose-cancel"
+- tapOn:
+    id: "cancel-reason-.*"
+    index: 0
+- tapOn:
+    id: "cancel-confirm"
+- takeScreenshot: patient_doctor_cancelled

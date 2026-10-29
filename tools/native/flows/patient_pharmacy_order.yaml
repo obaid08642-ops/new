@@ -1,0 +1,36 @@
+# Pharmacy order, the whole way: search -> cart (count on the headers) -> send the order -> the pharmacy answers (API, as the provider app does)
+# -> the offer shows -> accept -> final quote -> pay (test payment double) -> tracking.
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: "address=1"
+- runFlow: common_pharmacy_cart.yaml
+- tapOn:
+    id: "cart-continue"
+- extendedWaitUntil:
+    visible:
+      id: "checkout-screen"
+    timeout: 20000
+- tapOn:
+    id: "checkout-submit"
+- extendedWaitUntil:
+    visible:
+      id: "broadcast-status-screen"
+    timeout: 40000
+- runScript:
+    file: scripts/pharmacy_offer.js
+- extendedWaitUntil:
+    visible:
+      id: "offer-card"
+    timeout: 90000
+- tapOn:
+    id: "offer-pick"
+- tapOn:
+    id: "offer-confirm"
+- extendedWaitUntil:
+    visible:
+      id: "order-tracking-screen"
+    timeout: 40000
+- takeScreenshot: patient_pharmacy_tracking

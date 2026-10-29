@@ -162,6 +162,7 @@ export default function DiagnosticsWhen() {
       fullWidth
       label={missing.length > 0 && missing[0] !== mode && draft.quote.groups.length > 1 ? k('ordering.when.nextBooking') : k('ordering.when.toPay')}
       disabled={open || (missing.length > 0 && missing[0] === mode)}
+      testID="diag-when-continue"
       onPress={() => (missing.length > 0 ? setMode(missing[0]) : router.push('/diagnostics/confirm' as Href))}
     />
   );

@@ -1,0 +1,13 @@
+# Pharmacy: Cancel order -> "Keep" ("تراجع") leaves the order open and still waiting for offers.
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: "address=1"
+- runFlow: common_pharmacy_send.yaml
+- tapOn:
+    id: "order-cancel"
+- tapOn: "تراجع"
+- assertVisible: "تظهر العروض هنا فور رد الصيدليات.*"
+- assertNotVisible: "تم إلغاء هذا الطلب"

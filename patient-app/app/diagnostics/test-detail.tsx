@@ -73,6 +73,7 @@ export default function TestDetail() {
               size="lg"
               fullWidth
               label={k('diag.detail.orderNow')}
+              testID="diag-order-now"
               // "Order now" skips the cart: this one item goes to the lab choice, the time and the payment
               onPress={() => router.push(singleOrderRoute({ kind, id, name: data.name }) as unknown as Href)}
             />

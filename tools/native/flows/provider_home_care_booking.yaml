@@ -1,0 +1,20 @@
+# Home care (provider app): a patient's nursing visit (made by the API, paid with the test double) reaches the nurse as a request with its address and time;
+# Accept moves the visit on (read by the API as the patient). The popup is titled "Emergency Nursing Request!" for a scheduled visit (findings #7).
+appId: com.nabd.provider
+---
+- runScript:
+    file: scripts/nursing_booking.js
+- runFlow: common_provider_login.yaml
+- extendedWaitUntil:
+    visible: "Accept|قبول"
+    timeout: 90000
+- assertVisible: ".*شارع الملك فهد 3.*"
+- takeScreenshot: provider_home_care_request
+- tapOn: "Accept|قبول"
+- runScript:
+    file: scripts/booking_state.js
+    env:
+      PATH: "/nursing/bookings/mine"
+      ID: ${output.bookingId}
+      TOKEN: ${output.patientToken}
+      STATE_WAS: "PROVIDER_ASSIGNED"

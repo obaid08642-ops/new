@@ -60,6 +60,7 @@ function Row({ item, onOpen }: { item: Extract<FeedItem, { kind: 'row' }>; onOpe
     >
       <Pressable
         accessibilityRole="button"
+        testID="notification-row"
         accessibilityLabel={[n.title, n.body, time, n.read ? '' : tr('notifications.new')].filter(Boolean).join('. ')}
         onPress={() => onOpen(n)}
         style={({ pressed }) => ({

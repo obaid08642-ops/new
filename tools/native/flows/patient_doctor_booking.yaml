@@ -1,0 +1,19 @@
+# Doctor booking (clinic visit, cash): hub -> doctor -> slot -> confirm -> the confirmation with its QR code -> the appointment is in My appointments.
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: ""
+- runFlow:
+    file: common_book_doctor.yaml
+    env:
+      SLOT: "10"
+- takeScreenshot: patient_doctor_booking_confirmation
+- runFlow: common_my_appointments.yaml
+- tapOn:
+    id: "appointment-card"
+- extendedWaitUntil:
+    visible:
+      id: "appointment-detail-screen"
+    timeout: 20000

@@ -24,6 +24,8 @@ import { UploadsUnavailable } from './UploadsUnavailable';
 
 // Layout constants shared with the tests (DEVICE_STANDARD §1).
 export const HEADER_BAR_MIN = 44;
+/** The test id of a form field: the one passed in, else `field:<label>` (what the person reads above it), so end-to-end flows find the field without a hand-written id per call site. */
+export const fieldTestId = (testID?: string, label?: string) => testID ?? (label ? `field:${label.replace(/\s*\*\s*$/, '').trim()}` : undefined);
 export const BOTTOM_NAV_MIN = 56;
 
 // ─── Logo ─────────────────────────────────────────────────────────────────────
@@ -118,14 +120,14 @@ export function NBtn({
 export function NInput({
   label, placeholder, value, onChange, secure, kbType, error, hint,
   icon, iconRight, onIconRight, multi, multiline, lines=4, maxLen, editable=true,
-  caps='none', required, style, returnKey, onSubmit, autoFocus, innerRef,
+  caps='none', required, style, returnKey, onSubmit, autoFocus, innerRef, testID,
 }: {
   label?:string; placeholder?:string; value:string; onChange:(v:string)=>void;
   secure?:boolean; kbType?:any; error?:string; hint?:string;
   icon?:string; iconRight?:string; onIconRight?:()=>void;
   multi?:boolean; multiline?:boolean; lines?:number; maxLen?:number; editable?:boolean;
   caps?:any; required?:boolean; style?:object;
-  returnKey?:any; onSubmit?:()=>void; autoFocus?:boolean; innerRef?:any;
+  returnKey?:any; onSubmit?:()=>void; autoFocus?:boolean; innerRef?:any; testID?:string;
 }) {
   multi = multi ?? multiline;
   const { theme } = useTheme();
@@ -166,6 +168,7 @@ export function NInput({
               : <Text style={[s.inputIcon, { color:focused?theme.primary:theme.textHint, paddingTop:multi?SP.xs:0 }]}>{icon}</Text>)}
             <TextInput
               ref={inputRef}
+              testID={fieldTestId(testID, label || placeholder)}
               value={value} onChangeText={onChange}
               placeholder={placeholder} placeholderTextColor={theme.textHint}
               secureTextEntry={secure && !showPass}
@@ -201,8 +204,8 @@ export function NInput({
 }
 
 // ─── Phone Input ──────────────────────────────────────────────────────────────
-export function NPhoneInput({ value, onChange, error, label, required, innerRef }:
-  { value:string; onChange:(v:string)=>void; error?:string; label?:string; required?:boolean; innerRef?:any }) {
+export function NPhoneInput({ value, onChange, error, label, required, innerRef, testID }:
+  { value:string; onChange:(v:string)=>void; error?:string; label?:string; required?:boolean; innerRef?:any; testID?:string }) {
   const { theme } = useTheme();
   const { isRTL, t } = useLang();
   const [focused, setFocused] = useState(false);
@@ -222,7 +225,7 @@ export function NPhoneInput({ value, onChange, error, label, required, innerRef 
             <View style={[s.phonePrefix, { borderRightWidth:isRTL?0:1, borderLeftWidth:isRTL?1:0, borderColor:theme.border }]}>
               <Text style={{ fontSize:FS.md, color:theme.text, fontWeight:FW.semi }}> +966</Text>
             </View>
-            <TextInput ref={inputRef} value={value} onChangeText={onChange} placeholder="5X XXX XXXX"
+            <TextInput ref={inputRef} testID={fieldTestId(testID, label || 'phone')} value={value} onChangeText={onChange} placeholder="5X XXX XXXX"
               placeholderTextColor={theme.textHint} keyboardType="phone-pad" maxLength={10}
               onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
               style={[s.textInput, { color:theme.text, paddingHorizontal:SP.lg, flex:1 }]} />
@@ -731,8 +734,8 @@ export function NScroll({ children, style, pad=true, refreshControl }:{ children
 }
 
 // ─── Price Input ──────────────────────────────────────────────────────────────
-export function NPriceInput({ label, value, onChange, error, required, innerRef }:
-  { label:string; value:string; onChange:(v:string)=>void; error?:string; required?:boolean; innerRef?:any }) {
+export function NPriceInput({ label, value, onChange, error, required, innerRef, testID }:
+  { label:string; value:string; onChange:(v:string)=>void; error?:string; required?:boolean; innerRef?:any; testID?:string }) {
   const { theme } = useTheme();
   const { isRTL } = useLang();
   const localRef = useRef<any>(null);
@@ -746,7 +749,7 @@ export function NPriceInput({ label, value, onChange, error, required, innerRef 
           </Text>
           <View style={[s.inputWrap, { backgroundColor:theme.inputBg, borderColor:error?theme.borderErr:theme.border,
             flexDirection:isRTL?'row-reverse':'row', minHeight:52, paddingVertical:0 }]}>
-            <TextInput ref={inputRef} value={value} onChangeText={v=>onChange(v.replace(/[^0-9.]/g,''))}
+            <TextInput ref={inputRef} testID={fieldTestId(testID, label)} value={value} onChangeText={v=>onChange(v.replace(/[^0-9.]/g,''))}
               placeholder="0" placeholderTextColor={theme.textHint} keyboardType="numeric"
               style={[s.textInput, { flex:1, color:theme.text, paddingHorizontal:SP.lg }]} />
             <View style={[s.priceSuffix, { borderColor:theme.border, borderLeftWidth:isRTL?0:1, borderRightWidth:isRTL?1:0 }]}>

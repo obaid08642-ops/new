@@ -1,0 +1,37 @@
+# Signed-in patient (with a saved address) -> Pharmacy -> search the seeded medicine -> add it to the cart (the count shows 1 on the pharmacy header); open the cart.
+appId: com.patient.nabd
+---
+- runScript:
+    file: scripts/meds.js
+- tapOn:
+    text: "الصيدلية"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "pharmacy-hub"
+    timeout: 20000
+- tapOn:
+    id: "pharmacy-search"
+- inputText: ${output.medTag}
+- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      id: "pharmacy-card-.*"
+    timeout: 30000
+# the "+" of the result card (the add control of the stepper) adds it to the cart: the count shows 1 on the pharmacy header
+# the result card sits under the bottom bar (its add control is "visible" there, but a tap would hit the bar): bring it up
+- swipe:
+    start: 50%, 70%
+    end: 50%, 30%
+- tapOn:
+    id: "med-add-.*"
+# the count is drawn in the screen's digits (Arabic-Indic in Arabic)
+- assertVisible:
+    id: "cart-count"
+    text: "1|١"
+- tapOn:
+    id: "cart-button"
+- extendedWaitUntil:
+    visible:
+      id: "cart-screen"
+    timeout: 20000

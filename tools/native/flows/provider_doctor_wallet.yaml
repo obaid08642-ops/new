@@ -1,0 +1,23 @@
+# Doctor (provider app): Wallet tab -> balance card -> "Request Withdrawal" -> the withdrawal screen loads the balance and, for a
+# doctor with no bank account yet, asks for the first-time bank setup. (A real payout needs a settled consultation and an
+# admin-approved bank account; that path is covered by the live gate, tools/live/j_admin_ops.py.)
+appId: com.nabd.provider
+---
+- runFlow: common_provider_login.yaml
+- extendedWaitUntil:
+    visible: "المحفظة|Wallet"
+    timeout: 90000
+- tapOn:
+    text: "المحفظة|Wallet"
+    index: 0
+- extendedWaitUntil:
+    visible: "الرصيد المتاح للسحب|Available Balance"
+    timeout: 30000
+- takeScreenshot: provider_doctor_wallet
+- tapOn: "طلب سحب|Request Withdrawal"
+- extendedWaitUntil:
+    visible: "الرصيد المتاح للسحب:.*|Available for withdrawal:.*"
+    timeout: 30000
+- scrollUntilVisible:
+    element: "إعداد الحساب البنكي.*|Bank Account Setup.*"
+    timeout: 30000

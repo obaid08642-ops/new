@@ -1,0 +1,18 @@
+# My appointments (opened by the app's own link), with the booked appointment as a card.
+appId: com.patient.nabd
+---
+- openLink: "nabdplus:///consultations/appointments"
+- extendedWaitUntil:
+    visible:
+      id: "appointments-screen"
+    timeout: 20000
+# a link opened a moment ago may be answered before the sign-in is restored: retry the list once (findings #5)
+- runFlow:
+    when:
+      visible: "إعادة المحاولة"
+    commands:
+      - tapOn: "إعادة المحاولة"
+- extendedWaitUntil:
+    visible:
+      id: "appointment-card"
+    timeout: 20000

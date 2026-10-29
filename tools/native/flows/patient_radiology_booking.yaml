@@ -1,0 +1,85 @@
+# Radiology booking: Lab tests tab -> a scan -> Order now (skips the cart) -> the best centre -> time -> confirm -> the booking is created (open the order).
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: "address=1"
+# the hub's radiology side (the same screen opened on its scans: `?tab=radiology`)
+- openLink: "nabdplus:///diagnostics?tab=radiology"
+- extendedWaitUntil:
+    visible:
+      id: "diagnostics-hub"
+    timeout: 20000
+- scrollUntilVisible:
+    element:
+      id: "diag-scan-.*"
+    timeout: 60000
+- tapOn:
+    id: "diag-scan-.*"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "diagnostics-test-detail"
+    timeout: 20000
+# "Order now" skips the cart: this one scan goes to the centre choice, then the time and the payment
+- tapOn:
+    id: "diag-order-now"
+- extendedWaitUntil:
+    visible:
+      id: "diagnostics-lab-comparison"
+    timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: "provider-choose"
+    timeout: 40000
+- tapOn:
+    id: "provider-choose"
+- extendedWaitUntil:
+    visible:
+      id: "diagnostics-when"
+    timeout: 30000
+# take the first of the offered days that has times
+- tapOn:
+    id: "time-day"
+    index: 0
+- runFlow:
+    when:
+      visible: "لا توجد مواعيد متاحة في هذا اليوم.*"
+    commands:
+      - tapOn:
+          id: "time-day"
+          index: 1
+- runFlow:
+    when:
+      visible: "لا توجد مواعيد متاحة في هذا اليوم.*"
+    commands:
+      - tapOn:
+          id: "time-day"
+          index: 2
+- extendedWaitUntil:
+    visible:
+      id: "time-window"
+    timeout: 20000
+- tapOn:
+    id: "time-window"
+    index: 0
+- tapOn:
+    id: "diag-when-continue"
+- extendedWaitUntil:
+    visible:
+      id: "diagnostics-confirm"
+    timeout: 20000
+- tapOn:
+    id: "diag-confirm-submit"
+- extendedWaitUntil:
+    visible:
+      id: "diag-view-order"
+    timeout: 40000
+- tapOn:
+    id: "diag-view-order"
+- extendedWaitUntil:
+    visible:
+      id: "diagnostics-booking-status"
+    timeout: 30000
+- takeScreenshot: patient_radiology_booking_status

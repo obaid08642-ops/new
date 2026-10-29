@@ -1,0 +1,29 @@
+# Sign in with the seeded patient, check the account screen, sign out (Welcome), restart: the app opens as a guest (the account screen offers sign-in, not sign-out).
+appId: com.patient.nabd
+---
+- runFlow: common_to_welcome.yaml
+- runFlow: common_sign_in.yaml
+- tapOn:
+    id: "home-profile"
+- assertVisible:
+    id: "profile-screen"
+- assertVisible:
+    id: "account-sign-out"
+- tapOn:
+    id: "account-sign-out"
+- extendedWaitUntil:
+    visible:
+      id: "welcome-login"
+    timeout: 20000
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 60000
+- tapOn:
+    id: "home-profile"
+- assertVisible:
+    id: "account-sign-in"
+- assertNotVisible:
+    id: "account-sign-out"

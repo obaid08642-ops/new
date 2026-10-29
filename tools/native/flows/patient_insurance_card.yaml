@@ -1,0 +1,75 @@
+# Insurance card: Account -> Insurance -> add a policy (company, number, member id and name) -> it shows on the hub -> edit its number -> the new number shows.
+# Delete: the app has no way to delete a policy (docs/qa/findings/native.md #2), so there is no step for it.
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: ""
+- tapOn:
+    id: "home-profile"
+- tapOn:
+    id: "account-insurance"
+- extendedWaitUntil:
+    visible:
+      id: "insurance-hub"
+    timeout: 20000
+- assertVisible:
+    id: "policy-none"
+- tapOn:
+    id: "policy-change"
+- extendedWaitUntil:
+    visible:
+      id: "insurance-add-policy"
+    timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: "add-company-(?!search).*"
+    timeout: 30000
+- tapOn:
+    id: "add-company-(?!search).*"
+- scrollUntilVisible:
+    element:
+      id: "add-policy-number"
+- tapOn:
+    id: "add-policy-number"
+- inputText: "POL123456"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "add-member-id"
+- tapOn:
+    id: "add-member-id"
+- inputText: "1098765432"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "add-member-name"
+- tapOn:
+    id: "add-member-name"
+- inputText: "Test Member"
+- hideKeyboard
+- tapOn:
+    id: "add-save"
+- extendedWaitUntil:
+    visible:
+      id: "policy-card"
+    timeout: 30000
+- assertVisible: ".*POL123456.*"
+- tapOn:
+    id: "policy-change"
+- extendedWaitUntil:
+    visible:
+      id: "insurer-sheet"
+    timeout: 20000
+- tapOn:
+    id: "insurer-policy"
+- eraseText: 20
+- inputText: "POL999888"
+- hideKeyboard
+- scrollUntilVisible:
+    element: "حفظ"
+- tapOn: "حفظ"
+- extendedWaitUntil:
+    visible: ".*POL999888.*"
+    timeout: 30000

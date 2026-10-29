@@ -223,7 +223,7 @@ export function AuthError({ message }: { message: string | null }) {
 }
 
 /** The register board's check box: 22, radius 7, ink when ticked. */
-export function AuthCheckbox({ checked, onToggle, label, children }: { checked: boolean; onToggle: () => void; label: string; children: React.ReactNode }) {
+export function AuthCheckbox({ checked, onToggle, label, children, testID }: { checked: boolean; onToggle: () => void; label: string; children: React.ReactNode; testID?: string }) {
   const { theme, c, tr } = useAuthUi();
   return (
     <View style={{ flexDirection: 'row', gap: 10, alignItems: 'flex-start' }}>
@@ -232,6 +232,7 @@ export function AuthCheckbox({ checked, onToggle, label, children }: { checked: 
         accessibilityState={{ checked }}
         accessibilityLabel={tr(label)}
         onPress={onToggle}
+        testID={testID}
         hitSlop={11}
         style={{
           width: 22,

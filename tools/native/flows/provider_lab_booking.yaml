@@ -1,0 +1,17 @@
+# Lab (provider app): a patient's booking (made by the API) is in the lab's Orders > Incoming list as a new cash request for 45 SAR (the order card shows
+# "Patient", not the name: findings #4); opening it shows the order.
+appId: com.nabd.provider
+---
+- runScript:
+    file: scripts/lab_booking.js
+- runFlow: common_provider_login.yaml
+- extendedWaitUntil:
+    visible: "الطلبات|Orders"
+    timeout: 90000
+- tapOn: "الطلبات|Orders"
+- extendedWaitUntil:
+    visible: "طلب جديد|New request"
+    timeout: 60000
+- assertVisible: ".*45.*"
+- tapOn: "طلب جديد|New request"
+- takeScreenshot: provider_lab_order_detail

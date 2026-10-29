@@ -85,7 +85,7 @@ export function CountBadge({ count }: { count: number }) {
   }, [count, scaleValue]);
   if (count <= 0) return null;
   return (
-    <Animated.View pointerEvents="none" style={{ position: 'absolute', top: -3, end: -3, transform: [{ scale: scaleValue }] }}>
+    <Animated.View pointerEvents="none" testID="cart-count" accessible accessibilityLabel={String(count)} style={{ position: 'absolute', top: -3, end: -3, transform: [{ scale: scaleValue }] }}>
       <Badge content={count} tone="danger" theme={theme} format={(n) => num(n)} />
     </Animated.View>
   );

@@ -44,7 +44,7 @@ export function HomeTopRow({ name }: { name: string | null }) {
 
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: cartShown ? 6 : 8 }}>
-      <Pressable accessibilityRole="button" accessibilityLabel={tr('common.profile')} onPress={() => router.push('/profile')} hitSlop={4}>
+      <Pressable accessibilityRole="button" accessibilityLabel={tr('common.profile')} onPress={() => router.push('/profile')} hitSlop={4} testID="home-profile">
         <Avatar name={first} size="md" theme={theme} />
       </Pressable>
       <View style={{ flex: 1 }} />

@@ -1,0 +1,13 @@
+# A patient created through the real API (FLAGS: address=1 / family=1 add a saved address / a family member), first launch to home, signed in.
+appId: com.patient.nabd
+---
+- runScript:
+    file: scripts/new_patient.js
+    env:
+      FLAGS: ${FLAGS}
+- runFlow: common_to_welcome.yaml
+- runFlow:
+    file: common_sign_in.yaml
+    env:
+      EMAIL: ${output.email}
+      PASSWORD: ${output.password}

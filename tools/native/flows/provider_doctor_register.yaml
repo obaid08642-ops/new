@@ -1,0 +1,35 @@
+# Provider app, signed out: the registration wizard opens for every provider type (one run, six fresh installs). Only the first page is
+# opened: the rest needs documents, an OTP and a signature, and the admin approval that follows is covered by the live gate (tools/live/j_onboarding.py).
+appId: com.nabd.provider
+---
+- runFlow:
+    file: common_provider_register_open.yaml
+    env:
+      TYPE: "طبيب مستقل|Independent Doctor"
+      TITLE: "الحساب والتوثيق|Account & Licensing"
+- takeScreenshot: provider_register_doctor
+- runFlow:
+    file: common_provider_register_open.yaml
+    env:
+      TYPE: "منشأة طبية|Medical Facility"
+      TITLE: "الحساب والتراخيص والموقع|Account, Legal & Location"
+- runFlow:
+    file: common_provider_register_open.yaml
+    env:
+      TYPE: "صيدلية|Pharmacy"
+      TITLE: "بيانات الصيدلية والتراخيص|Pharmacy & Licenses"
+- runFlow:
+    file: common_provider_register_open.yaml
+    env:
+      TYPE: "معمل تحاليل|Laboratory"
+      TITLE: "الحساب والتراخيص|Account & Licenses"
+- runFlow:
+    file: common_provider_register_open.yaml
+    env:
+      TYPE: "مركز أشعة|Radiology Center"
+      TITLE: "الحساب والتراخيص|Account & Licenses"
+- runFlow:
+    file: common_provider_register_open.yaml
+    env:
+      TYPE: "تمريض منزلي|Home Nursing"
+      TITLE: "الحساب والتراخيص|Account & Licensing"

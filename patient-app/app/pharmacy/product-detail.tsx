@@ -99,13 +99,14 @@ const linesOf = (v: unknown): string[] => {
 const textOf = (v: unknown): string => (typeof v === 'string' && v.trim() && v !== 'null' ? v.trim() : '');
 
 /** A 44 round glass button over the gallery (board: white 72% with a hairline ring). */
-function GlassButton({ label, onPress, children }: { label: string; onPress: () => void; children: React.ReactNode }) {
+function GlassButton({ label, onPress, children, testID }: { label: string; onPress: () => void; children: React.ReactNode; testID?: string }) {
   const { c } = useScreenUi();
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
+      testID={testID}
       style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 22, backgroundColor: c.glass.bgStrong, borderWidth: 1, borderColor: c.border.onGlass, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.8 : 1 })}
     >
       {children}
@@ -536,12 +537,13 @@ export default function ProductDetailScreen() {
           accessibilityRole="button"
           accessibilityLabel={inCartQty > 0 ? k('pharmacy.viewCart') : k('pharmacy.addToCart')}
           onPress={addOrOpenCart}
+          testID="product-add-to-cart"
           style={({ pressed }) => ({ width: 56, height: 56, borderRadius: 18, borderWidth: 1.5, borderColor: c.text.primary, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.8 : 1 })}
         >
           <Icon name="cart" size={24} theme={theme} />
         </Pressable>
         <View style={{ flex: 1 }}>
-          <Button label={k('pharmacy.product.buyNow')} size="lg" fullWidth onPress={buyNow} theme={theme} />
+          <Button label={k('pharmacy.product.buyNow')} size="lg" fullWidth onPress={buyNow} theme={theme} testID="product-buy-now" />
         </View>
       </View>
     </StickyFooter>
@@ -826,7 +828,7 @@ export default function ProductDetailScreen() {
               </PopWhen>
             </GlassButton>
             <View>
-              <GlassButton label={k('pharmacy.cart')} onPress={() => go('/pharmacy/cart' as Href)}>
+              <GlassButton label={k('pharmacy.cart')} onPress={() => go('/pharmacy/cart' as Href)} testID="product-cart">
                 <Icon name="cart" size={21} theme={theme} />
               </GlassButton>
               {cartBadge}

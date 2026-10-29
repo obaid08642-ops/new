@@ -1,0 +1,15 @@
+# Doctor (provider app): a patient's clinic booking (made by the API, cash, confirmed at once) is on the doctor's Schedule tab, with the patient's name.
+appId: com.nabd.provider
+---
+- runScript:
+    file: scripts/doctor_appointment.js
+- runFlow: common_provider_login.yaml
+- extendedWaitUntil:
+    visible: "الجدول|Schedule"
+    timeout: 90000
+- tapOn: "الجدول|Schedule"
+- takeScreenshot: provider_doctor_schedule
+- scrollUntilVisible:
+    element: ".*native-booker.*"
+    timeout: 30000
+- assertVisible: ".*native-booker.*"

@@ -1,0 +1,33 @@
+# A delivered pharmacy order (made by the API): Order tracking -> "Rate" -> stars -> send; the form thanks and closes.
+appId: com.patient.nabd
+---
+- runScript:
+    file: scripts/pharmacy_delivered.js
+- runFlow: common_to_welcome.yaml
+- runFlow:
+    file: common_sign_in.yaml
+    env:
+      EMAIL: ${output.email}
+      PASSWORD: ${output.password}
+- openLink: "nabdplus:///pharmacy/order-tracking?orderId=${output.orderId}"
+- extendedWaitUntil:
+    visible:
+      id: "tracking-rate"
+    timeout: 40000
+- takeScreenshot: patient_pharmacy_delivered
+- tapOn:
+    id: "tracking-rate"
+- extendedWaitUntil:
+    visible:
+      id: "reviews-send"
+    timeout: 20000
+- tapOn:
+    id: "reviews-overall"
+    point: "50%,50%"
+- tapOn:
+    id: "reviews-send"
+- extendedWaitUntil:
+    notVisible:
+      id: "reviews-send"
+    timeout: 30000
+- takeScreenshot: patient_pharmacy_rated

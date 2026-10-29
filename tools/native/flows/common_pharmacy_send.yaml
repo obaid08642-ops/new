@@ -1,0 +1,16 @@
+# Cart (one medicine) -> checkout -> the order is sent -> the offers screen (nothing answered yet).
+appId: com.patient.nabd
+---
+- runFlow: common_pharmacy_cart.yaml
+- tapOn:
+    id: "cart-continue"
+- extendedWaitUntil:
+    visible:
+      id: "checkout-screen"
+    timeout: 20000
+- tapOn:
+    id: "checkout-submit"
+- extendedWaitUntil:
+    visible:
+      id: "broadcast-status-screen"
+    timeout: 40000

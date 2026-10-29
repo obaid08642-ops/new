@@ -1,0 +1,17 @@
+# Notification settings open from Settings and show their kinds.
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: ""
+- tapOn:
+    id: "home-profile"
+- tapOn:
+    id: "account-settings"
+- tapOn:
+    id: "settings-notifications"
+- assertVisible:
+    id: "notification-settings-screen"
+- assertVisible:
+    id: "notification-kinds"

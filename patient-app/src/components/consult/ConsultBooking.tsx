@@ -51,6 +51,7 @@ export function DayStrip({ days, value, onChange, label }: { days: DayItem[]; va
         return (
           <Pressable
             key={d.iso}
+            testID={`day-${i}`}
             accessibilityRole="radio"
             accessibilityState={{ selected: on }}
             accessibilityLabel={`${d.name} ${d.day} ${d.month}`}
@@ -84,11 +85,12 @@ export function SlotGrid({ slots, value, onChange, loading, emptyText }: { slots
   }
   return (
     <View accessibilityRole="radiogroup" style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-      {slots.map((s) => {
+      {slots.map((s, i) => {
         const on = value === s.id;
         return (
           <Pressable
             key={s.id}
+            testID={`slot-${i}`}
             accessibilityRole="radio"
             accessibilityState={{ selected: on, disabled: !s.available }}
             accessibilityLabel={s.label}
@@ -137,6 +139,7 @@ export function ModeTiles({ tiles, value, onChange, label }: { tiles: ModeTile[]
         return (
           <Pressable
             key={m.id}
+            testID={`mode-${m.id}`}
             accessibilityRole="radio"
             accessibilityState={{ selected: on }}
             accessibilityLabel={k(`consult.mode.${m.mode}`)}

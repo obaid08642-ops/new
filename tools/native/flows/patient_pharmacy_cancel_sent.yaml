@@ -1,0 +1,18 @@
+# Pharmacy: cancel right after sending (no offers yet): the offers screen says nothing has arrived; Cancel order -> Confirm -> back on the pharmacy hub.
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: "address=1"
+- runFlow: common_pharmacy_send.yaml
+- assertVisible: "تظهر العروض هنا فور رد الصيدليات.*"
+- tapOn:
+    id: "order-cancel"
+- tapOn: "تأكيد الإلغاء"
+# the app returns to the pharmacy hub after the cancel
+- extendedWaitUntil:
+    visible:
+      id: "pharmacy-hub"
+    timeout: 20000
+- takeScreenshot: patient_pharmacy_cancelled

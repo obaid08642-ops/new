@@ -1,0 +1,13 @@
+# Pharmacy cart: add a medicine (count 1 on the pharmacy header), open the cart, take it out; the cart shows its empty state.
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: "address=1"
+- runFlow: common_pharmacy_cart.yaml
+- assertVisible:
+    id: "cart-remove-.*"
+- tapOn:
+    id: "cart-remove-.*"
+- assertVisible: "السلة فارغة"

@@ -1,0 +1,73 @@
+# Nursing booking: Nursing tab -> Book now on a service -> a nurse -> a time tomorrow -> confirm -> "booking sent".
+appId: com.patient.nabd
+---
+- runFlow:
+    file: common_fresh_session.yaml
+    env:
+      FLAGS: "address=1"
+- tapOn:
+    text: "التمريض"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "nursing-hub"
+    timeout: 20000
+- extendedWaitUntil:
+    visible: "احجز الآن"
+    timeout: 30000
+- tapOn:
+    text: "احجز الآن"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "nursing-nurse-.*"
+    timeout: 40000
+- tapOn: "اختيار"
+- extendedWaitUntil:
+    visible:
+      id: "nursing-nurse-profile"
+    timeout: 20000
+# the nurse works some days only: take the first of the next days that has times
+- tapOn:
+    id: "day-1"
+- runFlow:
+    when:
+      visible: "الطبيب غير متاح في هذا اليوم"
+    commands:
+      - tapOn:
+          id: "day-2"
+- runFlow:
+    when:
+      visible: "الطبيب غير متاح في هذا اليوم"
+    commands:
+      - tapOn:
+          id: "day-3"
+- runFlow:
+    when:
+      visible: "الطبيب غير متاح في هذا اليوم"
+    commands:
+      - tapOn:
+          id: "day-4"
+- runFlow:
+    when:
+      visible: "الطبيب غير متاح في هذا اليوم"
+    commands:
+      - tapOn:
+          id: "day-5"
+- extendedWaitUntil:
+    visible:
+      id: "slot-.*"
+    timeout: 30000
+- tapOn:
+    id: "slot-3"
+- tapOn:
+    id: "nursing-book-submit"
+# the visit is paid by card: the hosted checkout (the Moyasar test double) opens outside the app; the helper completes it and the app comes back
+- runScript:
+    file: scripts/pay_complete.js
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "payment-result-screen|nursing-booking-sent"
+    timeout: 60000
+- takeScreenshot: patient_nursing_booking_sent

@@ -60,6 +60,7 @@ function Line({ item, last }: { item: CartItem; last: boolean }) {
         accessibilityRole="button"
         accessibilityLabel={k('pharmacy.cart.remove', { name: item.name })}
         onPress={() => void removeItem(item.id)}
+        testID={`cart-remove-${item.id}`}
         hitSlop={4}
         style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1 })}
       >
