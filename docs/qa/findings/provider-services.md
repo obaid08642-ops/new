@@ -29,6 +29,11 @@ Setup note: `tools/live/j_onboarding.py` `register_type` gained an optional `ste
 - The nurse's insurance change is approved (`POST /provider/settings/delta` then the admin approval).
 - Lab A's own options (home, insurance) are stored correctly on its profile; the problem is that they are not shown to the patient.
 
+## Severity (added 2026-10-29)
+
+- P1: gaps 1, 2, 3, 4, 5, 6, 7, 8, 9 (wrong prices and filters shown to patients).
+- P2: gap 10 (type mismatch, no visible effect yet) and gap 11 (no route to change a price after registration; needs re-registration).
+
 ## Decision needed (owner)
 
 1. Gap 1 and gap 2 decide everything else for labs and centres: should the per-test prices and options from registration be copied into the capability collections (the source the patient reads), or should the patient read the profile? Either way, one source.
