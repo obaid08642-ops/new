@@ -1,19 +1,17 @@
-# 2026-10-29 lead reviewer: run 46.
-# 1. Pause the ar+en translation (saves its answers on the host; the deploy recreates the backend).
-# 2. Free disk, deploy main@ea8bdba3: translation providers use their ai_providers records (#2078: the 404s), Cloudflare rule prune (#2079),
-#    catalogue lists (#2075), cdn image fallback (#2076), illustrated nav icons (#2068).
-# 3. Translation: 98p probe (one tiny request per provider; prints provider, model, ok|failed only), then resume ar+en
-#    (same reviewed requests, hash-guarded; only unanswered ones are sent), then per-provider progress counts.
-# 4. Cloudflare: 49 deletes only DISABLED cache rules (free plan: 10 rules), then 47 adds the image + doctors-list rule
-#    (proves MISS→HIT, no HIT with a session cookie or Authorization; restores the old rules on any failed check), then purge the public API.
+# 2026-10-29 lead reviewer: run 47.
+# 1. Pause the stalled ar+en translation (every provider was retired or parked on retired model ids); answers are saved on the host.
+# 2. Free disk, deploy main@f3090020: retired model ids resolved from each provider's own model list, OpenRouter free models only,
+#    no-balance/quota providers retired at once (#2081); full-screen map (#2072); nursing redirect (#2080).
+# 3. 98m: probe every provider; where a retired model was replaced by one that ANSWERED, the ai_providers record's model moves to it
+#    (compare-and-set on the old id; prints provider, from, to, status only). 98p: probe again on the stored records.
+# 4. Resume ar+en (same reviewed requests, hash-guarded; only unanswered ones are sent), then per-provider progress counts.
 98c-translate-pause
-release:ea8bdba389d0f7166bed67d174c26a6679d44626
+release:f3090020ec17b2339946a57076ed3dac58830f61
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
+98m-translate-models
 98p-translate-probe
 98-translate-content
 98b-translate-progress
-cf:49-cache-rules-prune-apply
-cf:47-public-assets-api-cache-apply
 cf-purge-api

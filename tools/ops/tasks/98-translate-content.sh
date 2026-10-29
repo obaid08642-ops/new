@@ -21,6 +21,9 @@
 #              numbers are the requests that are sent. Answers append to $W/responses.jsonl on the host after every run.
 #   STEP=probe : one tiny request per provider that has a key, side by side, through the SAME model ids and URLs the gateway uses (its ai_providers records).
 #              Prints `provider, model, status (ok|failed), class (ok|http_404|auth|timeout ...)` only. Run it before STEP=run.
+#   STEP=models / STEP=models-apply : the probe, then (apply only) each ai_providers.model is moved to the model the probe PROVED answers (compare-and-set on
+#              the old id; a record changed meanwhile is left alone). A retired model (404) is replaced by the first preferred id the provider's own model list
+#              has (OpenRouter: only ':free' ids). Prints provider, from, to, status, class. Pause a running translation (98c) before STEP=models-apply.
 #   STEP=plan  : checks every answer and writes $IN/product-translations.json (the optional input of 90-catalogue-apply). Prints accepted and
 #              rejected counts by reason. Then run 90-catalogue-apply: its dry run prints the plan hash, the owner approves, EXPECT_PLAN_SHA applies it
 #              (backup, guarded writes into EMPTY fields only, marked machine-translated, verify, rollback). After it, add `cf-purge-api` to tools/ops/RUN.
@@ -109,5 +112,11 @@ probe)
   echo "$OUT" | grep -E '^\{"provider":' | cut -c1-200 | sed 's/^/status: translate-content: probe /'
   [ $RC -eq 0 ] && say "probe done: at least one provider answered" || say "probe: NO provider answered (or no key is set): do not start STEP=run"
   cleanup; exit $RC ;;
-*) say "ABORT STEP must be gaps, probe, run or plan"; cleanup; exit 1 ;;
+models|models-apply)
+  FLAG=""; [ "$STEP" = models-apply ] && FLAG="--apply"
+  OUT=$($DK exec "$CT" $TOOL models $FLAG 2>&1); RC=$?
+  echo "$OUT" | grep -E '^\{' | cut -c1-400 | sed 's/^/status: translate-content: models /'
+  [ $RC -eq 0 ] && say "models step done${FLAG:+ (records updated where the probe proved the new model)}" || say "models step failed (exit $RC)"
+  cleanup; exit $RC ;;
+*) say "ABORT STEP must be gaps, probe, models, models-apply, run or plan"; cleanup; exit 1 ;;
 esac
