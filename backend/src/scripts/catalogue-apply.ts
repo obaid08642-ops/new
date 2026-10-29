@@ -25,6 +25,7 @@ import {
 } from '../modules/catalogs/catalogue-apply.core';
 import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn, planInsuranceShape, planNumberedDistricts, planPlaceholderCities, planProductTranslations, planRadiologyCatalogue } from '../modules/catalogs/catalogue-apply.steps';
 import { planTestDataRemoval, scanDb } from '../modules/catalogs/test-data';
+import { planCatalogueDuplicates } from '../modules/catalogs/catalogue-duplicates';
 import { isTranslationFile } from '../modules/medicines/content-translation';
 
 const TRANSLATIONS_CSV = path.join(__dirname, '../modules/medicines/data/medicine-translations-2026-10-24.csv');
@@ -130,6 +131,11 @@ export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> 
   const radiology = await planRadiologyCatalogue(db, approve);
   changes.push(...radiology.changes);
   report.radiology_catalogue = approvePath ? radiology.report : { ...radiology.report, note: 'no reviewed file given: nothing is approved' };
+
+  // duplicate services (QA 2026-10-29): one row per service in labs and nursing, the radiology duplicates followed with their references
+  const duplicates = await planCatalogueDuplicates(db, { radiologyApprove: approve });
+  changes.push(...duplicates.changes);
+  report.catalogue_duplicates = duplicates.report;
 
   // test providers (owner, 2026-10-28)
   await planTestData(db, argv, inputs, changes, report);
