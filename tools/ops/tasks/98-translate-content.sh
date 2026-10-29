@@ -19,6 +19,8 @@
 #              `status:` lines (to stderr, so the detached log shows them) every 50 answers and per-provider stats at the end. Sends at most MAX_REQUESTS not-yet-answered requests (a bounded batch keeps a free-tier day inside its limit; run again for the
 #              next batch, it resumes). REQUIRES EXPECT_REQUESTS_SHA = the hash printed by the dry run (32+ hex characters), so the reviewer's
 #              numbers are the requests that are sent. Answers append to $W/responses.jsonl on the host after every run.
+#   STEP=probe : one tiny request per provider that has a key, side by side, through the SAME model ids and URLs the gateway uses (its ai_providers records).
+#              Prints `provider, model, status (ok|failed), class (ok|http_404|auth|timeout ...)` only. Run it before STEP=run.
 #   STEP=plan  : checks every answer and writes $IN/product-translations.json (the optional input of 90-catalogue-apply). Prints accepted and
 #              rejected counts by reason. Then run 90-catalogue-apply: its dry run prints the plan hash, the owner approves, EXPECT_PLAN_SHA applies it
 #              (backup, guarded writes into EMPTY fields only, marked machine-translated, verify, rollback). After it, add `cf-purge-api` to tools/ops/RUN.
@@ -84,6 +86,8 @@ run)
   echo "$OUT" | sed 's/^/status: translate-content: run /' | cut -c1-600
   # the answers are kept on the host after EVERY run, whatever the result, so the next run resumes
   get "$CW/responses.jsonl" "$W/responses.jsonl" && sudo -n chmod 600 "$W/responses.jsonl"
+  # the run's stats (counts only) outlive the work directory, which `cleanup` removes: 98b reads this copy when the container has none
+  get "$CW/stats.json" "$W/stats.json" && sudo -n chmod 600 "$W/stats.json"
   A=$(sudo -n wc -l < "$W/responses.jsonl")
   if [ $RC -eq 0 ]; then say "batch done; answers on the host: $A (run again until remaining=0, then STEP=plan)"
   elif [ $RC -eq 2 ]; then say "ABORT no AI provider key is set in the container: nothing was sent"
@@ -100,5 +104,10 @@ plan)
   get "$CW/product-translations.json" "$IN/product-translations.json" && sudo -n chmod 600 "$IN/product-translations.json"
   say "wrote $IN/product-translations.json (sha256 $(sudo -n sha256sum "$IN/product-translations.json" | cut -c1-12)). Next: the 90-catalogue-apply DRY RUN reads it; nothing is written to the database yet"
   cleanup; exit 0 ;;
-*) say "ABORT STEP must be gaps, run or plan"; cleanup; exit 1 ;;
+probe)
+  OUT=$($DK exec "$CT" $TOOL probe 2>&1); RC=$?
+  echo "$OUT" | grep -E '^\{"provider":' | cut -c1-200 | sed 's/^/status: translate-content: probe /'
+  [ $RC -eq 0 ] && say "probe done: at least one provider answered" || say "probe: NO provider answered (or no key is set): do not start STEP=run"
+  cleanup; exit $RC ;;
+*) say "ABORT STEP must be gaps, probe, run or plan"; cleanup; exit 1 ;;
 esac
