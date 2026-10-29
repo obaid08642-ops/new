@@ -86,9 +86,11 @@ appId: com.patient.nabd
     commands:
       - tapOn:
           id: "telehealth-consent-accept"
+# launching the app again starts it on the home screen (the browser's return link is not followed on the emulator): the paid booking is checked on the
+# appointments list below
 - extendedWaitUntil:
     visible:
-      id: "booking-success-screen|payment-result-screen"
+      id: "home-screen"
     timeout: 60000
 - takeScreenshot: patient_doctor_video_placed
 - runFlow: common_my_appointments.yaml
