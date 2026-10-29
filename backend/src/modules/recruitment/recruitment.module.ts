@@ -1,10 +1,13 @@
-import { Module, Controller, Get, Post, Put, Patch, Param, Query, Body, UseGuards, Injectable, ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Module, Controller, Get, Post, Put, Patch, Param, Query, Body, UseGuards, Injectable, Optional, ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { Logger } from '@nestjs/common';
+import { NotificationsModule } from '../notifications/notifications.module';
+import { NotificationsService } from '../notifications/notifications.service';
 import { JwtAuthGuard, Roles, CurrentUser, Public, SelfService, hasEffectiveRole } from '../../common/auth.guard';
 import { Audited } from '../../common/audit-log.interceptor';
-import { UserRole } from '../../common/enums';
+import { NotificationType, UserRole } from '../../common/enums';
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { CandidateProfile, CandidateProfileSchema, JobPosting, JobPostingSchema, JobApplication, JobApplicationSchema } from '../../schemas/job-board.schema';
 import { UpsertCandidateProfileDto, CreateJobDto, UpdateJobDto, GuestPostDto, GuestApplyDto, GuestJobReviewDto, ApplyForJobDto, UpdateApplicationStatusDto} from './recruitment.dto';
@@ -15,7 +18,10 @@ export class RecruitmentService {
     @InjectModel('CandidateProfile') private candidateModel: Model<any>,
     @InjectModel('JobPosting') private jobModel: Model<any>,
     @InjectModel('JobApplication') private appModel: Model<any>,
+    @Optional() private readonly notifications?: NotificationsService,
   ) {}
+
+  private readonly logger = new Logger('RecruitmentService');
 
   // --- Candidate Profile ---
   async getOrCreateCandidateProfile(userId: string): Promise<any> {
@@ -313,9 +319,32 @@ export class RecruitmentService {
       throw new BadRequestException('Invalid application status');
     }
 
+    const previous = app.status;
     app.status = status as any;
     await app.save();
+    if (previous !== status) await this.tellCandidate(app, job as any, status);
     return app.toObject();
+  }
+
+  /**
+   * The candidate hears of a status change from the job side (QA P2: the application moved to under_review and the candidate's inbox stayed empty).
+   * One notification per real change, never for the first status ("submitted"), and a failure to notify never undoes the change.
+   */
+  private async tellCandidate(app: any, job: any, status: string): Promise<void> {
+    if (!this.notifications || status === 'submitted') return;
+    try {
+      const candidate: any = await this.candidateModel.findOne({ id: app.candidate_id }, { user_id: 1 }).lean();
+      if (!candidate?.user_id) return;
+      await this.notifications.create({
+        user_id: candidate.user_id,
+        type: NotificationType.INFO,
+        title_key: 'notif.job_application.title',
+        body_key: `notif.job_application.${status}.body`,
+        params: { job_title: String(job?.title ?? '').slice(0, 120) },
+      });
+    } catch (err) {
+      this.logger.warn(`candidate not notified of application ${app.id}: ${(err as Error)?.message}`);
+    }
   }
 }
 
@@ -449,6 +478,7 @@ export class AdminRecruitmentController {
       { name: 'JobPosting', schema: JobPostingSchema },
       { name: 'JobApplication', schema: JobApplicationSchema },
     ]),
+    NotificationsModule,
   ],
   controllers: [RecruitmentController, AdminRecruitmentController],
   providers: [RecruitmentService],

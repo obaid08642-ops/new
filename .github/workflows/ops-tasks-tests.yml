@@ -1,0 +1,24 @@
+name: ops-tasks-tests
+# The server tasks in tools/ops/tasks that change something run here first against fake docker, sudo and curl (no server, no secrets):
+# dry run by default, names and counts only in the output, idempotent, and the rollback path. The full rehearsal on a copy of the server layout
+# is ops-rehearsal.yml (review/server-inspect).
+on:
+  pull_request:
+    paths:
+      - 'tools/ops/tasks/**'
+      - 'tools/ops/tests/**'
+      - '.github/workflows/ops-tasks-tests.yml'
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  tasks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Shell syntax of every task
+        run: for f in tools/ops/tasks/*.sh; do bash -n "$f"; done
+      - name: Task tests (fake docker)
+        run: python3 -W error -m unittest discover -s tools/ops/tests -v

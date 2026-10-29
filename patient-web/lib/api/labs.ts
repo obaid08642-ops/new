@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { namesOf, pickName, textsOf, translatedColumns, type Texts } from "@/lib/i18n/localized";
 import { listsOf, type TextLists } from "@/lib/i18n/localized-lists";
+import { offersOf, type WithOffers } from "@/lib/api/offers";
 
 const labServiceIdSchema = z.string().regex(/^[A-Za-z0-9_-]{1,128}$/);
 const labServiceSchema = z.object({
@@ -37,6 +38,9 @@ const labServiceSchema = z.object({
   unavailable: z.boolean().optional(),
   image_url: z.string().url().max(2048).optional(),
   icon: z.string().max(120).optional(),
+  popularity: z.number().finite().optional(),
+  // the mean of the ratings of the labs that run the test; the backend sends it (null while unrated) when the list is sorted by rating
+  rating: z.number().min(0).max(5).nullable().optional(), rating_count: z.number().int().nonnegative().optional(),
 }).strip();
 
 export type LabService = {
@@ -51,7 +55,11 @@ export type LabService = {
   cashAvailable?: boolean;
   homeCollectionAvailable?: boolean; inLabAvailable?: boolean; referralRequired?: boolean;
   unavailable?: boolean; imageUrl?: string; icon?: string;
-};
+  /** The backend's own request count/score (`popularity`); the catalogue list arrives sorted by it. */
+  popularity?: number;
+  /** The mean rating (0-5) of the labs that run the test and how many ratings it rests on; absent while unrated. */
+  rating?: number; ratingCount?: number;
+} & WithOffers;
 
 function rowsFrom(payload: unknown): unknown[] {
   if (Array.isArray(payload)) return payload;
@@ -79,7 +87,9 @@ function parseLabService(value: unknown): LabService | null {
     isPackage: item.is_package, includedServices: item.included_services, specialNotes: item.special_notes,
     insuranceAvailable: item.insurance_availability, cashAvailable: item.cash_availability, homeCollectionAvailable: item.home_collection_availability,
     inLabAvailable: item.in_lab_availability, referralRequired: item.medical_referral_required,
-    unavailable: item.unavailable, imageUrl: item.image_url, icon: item.icon,
+    unavailable: item.unavailable, imageUrl: item.image_url, icon: item.icon, popularity: item.popularity,
+    rating: item.rating ?? undefined, ratingCount: item.rating_count,
+    ...offersOf(value),
   };
 }
 

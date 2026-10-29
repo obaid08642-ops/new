@@ -8,7 +8,7 @@ import Svg, { Path } from 'react-native-svg';
 import { Avatar, Icon, IconButton } from '../../../../packages/ui-native/src';
 import { withAlpha } from '../../../../packages/ui-native/src/shells/shellTokens';
 import { LANGUAGES, useApp, type LangCode } from '../../context/AppContext';
-import { ServiceCartButton } from '../cart/ServiceCartButton';
+import { ServiceCartButton, useAnyCartItems } from '../cart/ServiceCartButton';
 import { HeaderMenuButton } from '../nav/HeaderMenuButton';
 import { WishlistButton } from '../pharmacy/PharmacyKit';
 import { Plain, Txt, useScreenUi } from './homeKit';
@@ -37,11 +37,13 @@ export function HomeTopRow({ name }: { name: string | null }) {
   // unread rows of GET /notifications (Home and the notifications screen report the count to the store); the dot
   // shows only when the count is known and above zero
   const unread = useSelector((state: { notifications?: { unreadCount?: number | null } }) => state.notifications?.unreadCount ?? 0);
+  // with the cart button drawn the row has seven 44 controls: the switch shrinks to its knob so the row fits 390 wide
+  const cartShown = useAnyCartItems();
   const first = name ? name.split(/\s+/)[0] : '';
   const ring = { height: HIT, borderRadius: HIT / 2, borderWidth: 1, borderColor: c.border.onGlass, backgroundColor: c.bg.surface };
 
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: cartShown ? 6 : 8 }}>
       <Pressable accessibilityRole="button" accessibilityLabel={tr('common.profile')} onPress={() => router.push('/profile')} hitSlop={4} testID="home-profile">
         <Avatar name={first} size="md" theme={theme} />
       </Pressable>
@@ -50,7 +52,6 @@ export function HomeTopRow({ name }: { name: string | null }) {
         accessibilityRole="button"
         accessibilityLabel={tr('common.language')}
         onPress={() => setLangOpen(true)}
-        testID="home-language"
         style={{ ...ring, minWidth: HIT, paddingHorizontal: 8, alignItems: 'center', justifyContent: 'center' }}
       >
         <Plain weight="medium" size={15} color={c.text.secondary} maxFontSizeMultiplier={1.3}>{LANG_SHORT[lang]}</Plain>
@@ -60,7 +61,7 @@ export function HomeTopRow({ name }: { name: string | null }) {
         accessibilityState={{ checked: isDark }}
         accessibilityLabel={tr('common.darkMode')}
         onPress={toggleTheme}
-        style={{ ...ring, width: 68, padding: 4, flexDirection: 'row', justifyContent: isDark ? 'flex-start' : 'flex-end', alignItems: 'center' }}
+        style={{ ...ring, width: cartShown ? HIT : 68, padding: 4, flexDirection: 'row', justifyContent: cartShown ? 'center' : isDark ? 'flex-start' : 'flex-end', alignItems: 'center' }}
       >
         <View
           style={{
@@ -81,7 +82,7 @@ export function HomeTopRow({ name }: { name: string | null }) {
       <WishlistButton testID="home-wishlist-button" />
       <ServiceCartButton testID="home-cart-button" />
       <View>
-        <IconButton name="bell" label={tr('common.notifications')} variant="outlined" theme={theme} onPress={() => router.push('/notifications')} testID="home-notifications" />
+        <IconButton name="bell" label={tr('common.notifications')} variant="outlined" theme={theme} onPress={() => router.push('/notifications')} />
         {unread > 0 ? (
           <View
             testID="home-bell-dot"

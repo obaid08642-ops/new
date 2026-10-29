@@ -396,7 +396,7 @@ export default function Consultations() {
   );
 
   return (
-    <Screen theme={theme} direction={dir} header={header} scroll edges={['top', 'start', 'end']} testID="consultations-hub">
+    <Screen theme={theme} direction={dir} header={header} scroll edges={['start', 'end']} testID="consultations-hub">
       <View style={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: barHeight + 40, gap: 16 }}>
         <View accessibilityRole="radiogroup" accessibilityLabel={k('consult.hub.visitType')} style={{ flexDirection: 'row', gap: 8 }}>
           {VISIT_CARDS.map(({ mode, tone, sub }) => {
@@ -498,6 +498,7 @@ export default function Consultations() {
                   return mode ? [{ mode, label: k(`consult.mode.${mode}`) }] : [];
                 })}
                 rating={d.r != null && d.r > 0 ? { value: d.r, count: d.rev } : undefined}
+                formatCount={num}
                 nextSlot={slotLabel(d.next_available_at)}
                 price={d.p != null ? money(Number(d.p)) : undefined}
                 currency={d.p != null ? k('consult.currency') : undefined}

@@ -52,6 +52,8 @@ const MODE: Record<ConsultMode, { icon: FillIconName; tone: 'blue' | 'mint' | 'v
 };
 
 export interface NativeDoctorCardProps extends DoctorCardProps, Themed {
+  /** The review count in the language's own digits (the app passes its number formatter). */
+  formatCount?: (n: number) => string;
   /** The whole card opens the doctor's page. */
   onPress?: () => void;
   onBook?: () => void;
@@ -74,6 +76,7 @@ export function DoctorCard({
   bookLabel,
   onPress,
   onBook,
+  formatCount,
   testID,
   theme = 'light',
 }: NativeDoctorCardProps) {
@@ -157,7 +160,7 @@ export function DoctorCard({
         <GradientFill from={c.action.primary.gradient.from} to={c.action.primary.gradient.to} id={gid} />
         {/* above the gradient: a positioned sibling paints over static content on web */}
         <View style={{ paddingVertical: 12, paddingStart: 12, paddingEnd: 14, flexDirection: 'row', alignItems: 'center', gap: 10, zIndex: 1 }}>
-        {rating ? <Rating value={rating.value} count={rating.count} surface="onBrand" theme={theme} /> : null}
+        {rating ? <Rating value={rating.value} count={rating.count} surface="onBrand" formatCount={formatCount} theme={theme} /> : null}
         {nextSlot ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
             <Svg width={15} height={15} viewBox={MARK_VIEWBOX_24}>
@@ -205,10 +208,12 @@ export function ProductCard({ name, meta, price, currency, imageSrc, image, disc
   const t = tokens(theme);
   const c = t.color;
   const inert = disabled || loading;
+  const cardRadius = Number.parseInt(t.radius['2xl'], 10);
   return (
-    <View testID={testID} style={{ borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, boxShadow: t.shadow.card, padding: 10, gap: 8 }}>
+    <View testID={testID} style={{ borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, boxShadow: t.shadow.card, paddingBottom: 10, gap: 8, overflow: 'hidden' }}>
       <Pressable accessibilityRole={onPress ? 'link' : undefined} onPress={onPress} style={{ gap: 8 }}>
-        <View style={{ height: 132, borderRadius: 18, backgroundColor: c.bg.media, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+        {/* R3: the picture spans the card edge to edge, square, top corners rounded with the card's radius token; a photo sits on the white paper token (white in both themes) */}
+        <View style={{ width: '100%', aspectRatio: 1, borderTopStartRadius: cardRadius, borderTopEndRadius: cardRadius, backgroundColor: image || imageSrc ? c.iconArt.paper : c.bg.media, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
           {image ?? (imageSrc ? (
             <Image source={{ uri: imageSrc }} accessibilityIgnoresInvertColors style={{ width: '100%', height: '100%' }} resizeMode="contain" />
           ) : (
@@ -220,10 +225,10 @@ export function ProductCard({ name, meta, price, currency, imageSrc, image, disc
             </View>
           ) : null}
         </View>
-        <Text style={{ fontSize: 14, lineHeight: 19.6, fontFamily: 'ReadexPro-700', color: c.text.primary }}>{name}</Text>
-        {meta ? <Text style={{ fontSize: 12, fontFamily: 'ReadexPro-400', color: c.text.secondary }}>{meta}</Text> : null}
+        <Text style={{ paddingHorizontal: 10, fontSize: 14, lineHeight: 19.6, fontFamily: 'ReadexPro-700', color: c.text.primary }}>{name}</Text>
+        {meta ? <Text style={{ paddingHorizontal: 10, fontSize: 12, fontFamily: 'ReadexPro-400', color: c.text.secondary }}>{meta}</Text> : null}
       </Pressable>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 10 }}>
         <View style={{ flex: 1, minWidth: 0 }}>
           {/* the price is drawn only when the API sent one (a made-up 0 is never shown) */}
           {price ? (

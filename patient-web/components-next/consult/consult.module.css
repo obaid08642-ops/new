@@ -71,9 +71,23 @@ a.rowCard:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--
 
 /* ---- the search field and the segmented controls of the lists (canvas/Consult) ---- */
 .search { display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; }
+.search > :first-child { flex: 1; min-inline-size: 0; }
+/* the doctors search: a column of the one row and the specialty select */
+.doctorSearch { display: flex; flex-direction: column; gap: 8px; }
+/* the search field takes what is left; the Search action and the Filters button keep their own width, all one row (owner review 2026-10-27, G2) */
+.searchRow { display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; }
+.searchRow > :first-child { flex: 1 1 0; min-inline-size: 0; }
+.searchRow button { font-family: inherit; flex: 0 0 auto; }
+/* at 390 the field keeps room: the Filters button gives up padding, never its label */
+.searchRow :global(.nabd-button) { padding-inline: 12px; font-size: var(--nabd-font-size-control); }
+/* the field itself gives up its chrome on a phone so the placeholder keeps room (it was 91 px wide at 390) */
+.searchRow .searchField { padding-inline: 0 10px; gap: 0; }
+.searchSubmit { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; inline-size: 44px; block-size: 44px; padding: 0; border: 0; background: transparent; border-radius: var(--nabd-radius-2xl); cursor: pointer; }
+.searchSubmit:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: -2px; }
+.searchRow .filtersButton { padding-inline: 12px; min-inline-size: 64px; justify-content: center; }
+.searchRow .filtersChip { flex: 1 1 100%; justify-content: flex-start; }
 .searchSelect { flex: 1 1 100%; order: 3; }
 .searchSelect select { flex: 1; min-inline-size: 0; min-block-size: 44px; border: 0; background: transparent; color: var(--nabd-color-text-primary); font: inherit; font-size: var(--nabd-font-size-body); outline: 0; }
-.search > :first-child { flex: 1; min-inline-size: 0; }
 .activeFilter { display: flex; flex-wrap: wrap; align-items: center; gap: var(--nabd-space-sm); }
 .activeFilterClear { display: inline-flex; align-items: center; min-block-size: 44px; font-size: var(--nabd-font-size-control); font-weight: 600; color: var(--nabd-color-text-link); }
 .searchField {
@@ -81,8 +95,8 @@ a.rowCard:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--
   background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-2xl);
 }
 .searchField:focus-within { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
-.searchInput { flex: 1; min-inline-size: 0; min-block-size: 44px; border: 0; background: transparent; color: var(--nabd-color-text-primary); font: inherit; font-size: var(--nabd-font-size-body); outline: 0; }
-.searchInput::placeholder { color: var(--nabd-color-text-tertiary); }
+.searchInput { flex: 1; min-inline-size: 0; min-block-size: 44px; border: 0; background: transparent; color: var(--nabd-color-text-primary); font: inherit; font-size: var(--nabd-font-size-body); outline: 0; text-overflow: ellipsis; }
+.searchInput::placeholder { color: var(--nabd-color-text-tertiary); text-overflow: ellipsis; }
 .segLinks { display: flex; padding: 4px; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-sunken); gap: 2px; }
 .segLinks > a {
   flex: 1 1 0; display: inline-flex; align-items: center; justify-content: center; min-block-size: 44px; padding-inline: 12px; text-align: center; box-sizing: border-box;

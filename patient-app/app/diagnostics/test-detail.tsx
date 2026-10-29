@@ -4,7 +4,9 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Button } from '../../../packages/ui-native/src';
 import { ConsultScreen, Gate, InfoRow, Section, type GateStatus } from '../../src/components/consult/ConsultKit';
+import { OffersSection, isUnoffered } from '../../src/components/diagnostics/CatalogueKit';
 import { Block, DetailHead, ListCard, Price, diagLook, goBackDiag, useDiagText } from '../../src/components/diagnostics/DiagKit';
+import { useServiceCartAction } from '../../src/components/cart/ServiceCartButton';
 import { ItemOrderingPanel } from '../../src/components/ordering/ItemOrderingPanel';
 import { Notice } from '../../src/components/pharmacy/OfferKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
@@ -12,6 +14,8 @@ import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
+import { catalogArt } from '../../src/utils/diagCatalog';
+import { singleOrderRoute } from '../../src/utils/singleOrder';
 import { normalizeLabService, recordOf, type CatalogItem } from '../../src/utils/labMappers';
 
 /** One lab test or scan: what it is, how to prepare, when the result comes, the price and the add / book actions. */
@@ -24,6 +28,7 @@ export default function TestDetail() {
   const isRadiology = params.type === 'radiology' || params.isRadiology === 'true';
   const kind = isRadiology ? 'radiology' : 'lab';
   const { addItem, items } = useDiagnosticsCart();
+  const cartActions = useServiceCartAction(kind);
   const [data, setData] = useState<CatalogItem | null>(null);
   const [status, setStatus] = useState<GateStatus>('loading');
 
@@ -44,13 +49,15 @@ export default function TestDetail() {
   }, [load]);
 
   const inCart = items.some((i) => i.id === id);
+  // a service no provider offers yet can be asked for ("Notify me") but not ordered
+  const unoffered = data ? isUnoffered(data) : false;
   const look = diagLook(data?.category, kind);
   const add = () => {
     if (data && !inCart) void addItem({ id, name: data.name, price: data.price ?? 0, kind });
   };
 
   const footer =
-    data && status === 'ready' ? (
+    data && status === 'ready' && !unoffered ? (
       <>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
           <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary }}>{k('diag.detail.total')}</Text>
@@ -58,19 +65,17 @@ export default function TestDetail() {
         </View>
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <View style={{ flex: 1 }}>
-            <Button theme={theme} size="lg" fullWidth variant="outline" label={inCart ? k('diag.detail.inCart') : k('diag.detail.addToCart')} disabled={inCart} onPress={add} testID="diag-add" />
+            <Button theme={theme} size="lg" fullWidth variant="outline" label={inCart ? k('diag.detail.inCart') : k('diag.detail.addToCart')} disabled={inCart} onPress={add} />
           </View>
           <View style={{ flex: 1 }}>
             <Button
               theme={theme}
               size="lg"
               fullWidth
-              label={k('diag.detail.bookNow')}
-              testID="diag-book-now"
-              onPress={() => {
-                add();
-                router.push('/diagnostics/cart' as Href);
-              }}
+              label={k('diag.detail.orderNow')}
+              testID="diag-order-now"
+              // "Order now" skips the cart: this one item goes to the lab choice, the time and the payment
+              onPress={() => router.push(singleOrderRoute({ kind, id, name: data.name }) as unknown as Href)}
             />
           </View>
         </View>
@@ -78,11 +83,11 @@ export default function TestDetail() {
     ) : undefined;
 
   return (
-    <ConsultScreen testID="diagnostics-test-detail" title={isRadiology ? k('diag.detail.scanTitle') : k('diag.detail.testTitle')} onBack={goBackDiag} footer={footer} onRefresh={() => void load()}>
+    <ConsultScreen testID="diagnostics-test-detail" title={isRadiology ? k('diag.detail.scanTitle') : k('diag.detail.testTitle')} onBack={goBackDiag} actions={cartActions} footer={footer} onRefresh={() => void load()}>
       <Gate status={status} onRetry={() => void load()}>
         {data ? (
           <>
-            <DetailHead icon={look.icon} tone={look.tone} image={data.image} title={data.name} />
+            <DetailHead icon={look.icon} tone={look.tone} art={catalogArt(kind, data)} image={data.image} title={data.name} />
             {data.desc ? (
               <Section title={k('diag.detail.about')}>
                 <Block>
@@ -105,7 +110,8 @@ export default function TestDetail() {
                 ) : null}
               </Section>
             ) : null}
-            <ItemOrderingPanel kind={kind} catalogId={id} />
+            <OffersSection kind={kind} serviceId={id} offer={data.offer} offers={data.offers} />
+            {unoffered ? null : <ItemOrderingPanel kind={kind} catalogId={id} />}
             {data.turnaroundHours !== null ? (
               <ListCard>
                 <View style={{ paddingHorizontal: 14 }}>

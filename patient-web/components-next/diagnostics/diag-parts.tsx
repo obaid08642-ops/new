@@ -5,13 +5,15 @@ import { StatusChip } from "@/components-next/ui-generated/components/Controls";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import { SERVICE_ICONS, type FillIconName, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
-import { formatPrice } from "@/lib/format-price";
 import { allowedImageUrl } from "@/lib/image-hosts";
+import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { LiveFilter } from "./live-filter";
 import { SuggestSearchForm } from "./suggest-search-form";
 import type { SuggestScope } from "@/lib/search/suggest";
 import { PhotoWithFallback } from "./photo-with-fallback";
 import consult from "@/components-next/consult/consult.module.css";
+import type { DiagArtKey } from "@/components-next/ui-generated/icons/diag-art";
+import { DiagArt } from "./diag-art";
 import styles from "./diag.module.css";
 
 /** The laboratory and radiology services' own icon and tone, from the handoff service map (never written as a colour name). */
@@ -24,20 +26,7 @@ export function pickText(locale: string, ar: string | undefined, en: string | un
   return (rtl ? ar ?? en : en ?? ar) || undefined;
 }
 
-/** A price exactly as the server sent it, in the page's locale (a SAR amount through `Intl`, never hand-built). */
-export function money(locale: string, value: number): string {
-  return formatPrice(locale, value).text;
-}
-
-/** A duration in hours, in the page's locale. */
-export function hoursText(locale: string, value: number): string {
-  return new Intl.NumberFormat(locale, { style: "unit", unit: "hour", unitDisplay: "long", maximumFractionDigits: 0 }).format(value);
-}
-
-/** A duration in minutes, in the page's locale. */
-export function minutesText(locale: string, value: number): string {
-  return new Intl.NumberFormat(locale, { style: "unit", unit: "minute", unitDisplay: "long", maximumFractionDigits: 0 }).format(value);
-}
+export { money, hoursText, minutesText } from "@/lib/diagnostics-format";
 
 /** A section heading with an optional link to the whole list ("كل الباقات"). */
 export function SectionHead({ id, title, href, linkLabel }: { id: string; title: string; href?: string; linkLabel?: string }) {
@@ -125,11 +114,11 @@ export function TestList({ label, children }: { label: string; children: ReactNo
 }
 
 /** A package of tests on a tinted card (ServiceHub "باقات الفحوصات"): the tile, how many tests, the name, the line, the price and "details". */
-export function PackageCard({ href, title, sub, count, price, was, cta, tone = LAB.tone, icon = LAB.icon, fluid = false }: { href: string; title: string; sub?: string; count?: string; price?: string; was?: string; cta: string; tone?: ServiceTone; icon?: FillIconName; fluid?: boolean }) {
+export function PackageCard({ href, title, sub, count, price, was, cta, tone = LAB.tone, icon = LAB.icon, art, fluid = false }: { href: string; title: string; sub?: string; count?: string; price?: string; was?: string; cta: string; tone?: ServiceTone; icon?: FillIconName; /** The package's category illustration, in place of the service glyph. */ art?: DiagArtKey; fluid?: boolean }) {
   return (
     <Link href={href} className={`${styles.pack} ${fluid ? styles.packFluid : ""} nabd-tone--${tone}`}>
       <span className={styles.packTop}>
-        <FIcon icon={icon} tone={tone} size={48} />
+        {art ? <DiagArt art={art} size={48} /> : <FIcon icon={icon} tone={tone} size={48} />}
         {count ? <span className={styles.packCount}>{count}</span> : null}
       </span>
       <span className={styles.packBody}>
@@ -205,3 +194,9 @@ export function TagRow({ tags }: { tags: Tag[] }) {
   if (tags.length === 0) return null;
   return <div className={styles.tags}>{tags.map((tag) => <StatusChip key={tag.label} label={tag.label} tone={tag.tone} />)}</div>;
 }
+
+// the catalogue card and "Show more" live in their own small module (the infinite list is a client island that draws them)
+export { ItemCard, ShowMore } from "./item-card";
+
+/** The message key of each category chip / card subtitle (DiagWeb). */
+export const CAT_LABEL = { blood: "catBlood", hormones: "catHormones", vitamins: "catVitamins", sugar: "catSugar", urine: "catUrine", liver: "catLiver", xray: "catXray", ct: "catCt", mri: "catMri", ultrasound: "catUltrasound", mammography: "catMammography", ecg: "catEcg" } as const satisfies Record<DiagArtKey, string>;

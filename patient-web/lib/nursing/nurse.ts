@@ -67,7 +67,7 @@ export function parseNurses(payload: unknown): Nurse[] {
 export type NurseSort = "any" | "rating";
 export const nurseSortOf = (value: unknown): NurseSort => (value === "rating" ? "rating" : "any");
 export type NurseGender = "any" | "male" | "female";
-/** issue 1819: the nationality choices of the app's filter sheet; the value is what the profile stores (the server matches it exactly). */
+/** issue 1819: the nationality choices of the app's filter sheet; the value is the readable spelling; the server matches it ignoring case (#2042). */
 export const NURSE_NATIONALITIES = ["Saudi", "Filipino", "Egyptian"] as const;
 export type NurseNationality = "any" | (typeof NURSE_NATIONALITIES)[number];
 export const nurseNationalityOf = (value: unknown): NurseNationality => (NURSE_NATIONALITIES as readonly unknown[]).includes(value) ? (value as NurseNationality) : "any";

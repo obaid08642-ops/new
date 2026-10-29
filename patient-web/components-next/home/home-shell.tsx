@@ -6,7 +6,6 @@ import { Avatar } from "@/components-next/ui-generated/components/Surfaces";
 import type { BottomTabItem } from "@/components-next/ui-generated/components/contract";
 import { NabdMark } from "@/components-next/nabd-mark";
 import { LocaleSelector } from "@/components-next/locale-selector";
-import { SignOutButton } from "@/components-next/sign-out-button";
 import { shellSectionHrefs } from "@/components-next/shell-links";
 import { ThemeButton } from "./theme-button";
 import type { Locale } from "@/lib/i18n";
@@ -65,11 +64,11 @@ export async function HomeShell({
   const sections = allSections.filter((s) => !isPathHidden(s.href, disabled));
   const home = knownSignedIn ? `${base}/dashboard` : base;
   const allTabs: BottomTabItem[] = [
-    { id: "home", label: t("navHome"), icon: "house" },
-    { id: "pharmacy", label: t("navPharmacy"), icon: "pill" },
-    { id: "consult", label: t("navConsult"), icon: "stethoscope", raised: true },
-    { id: "labs", label: t("navLabs"), icon: "test-tube" },
-    { id: "nursing", label: t("navNursing"), icon: "first-aid-kit" },
+    { id: "home", art: "home", label: t("navHome"), icon: "house" },
+    { id: "pharmacy", art: "pharmacy", label: t("navPharmacy"), icon: "pill" },
+    { id: "consult", art: "consult", label: t("navConsult"), icon: "stethoscope", raised: true },
+    { id: "labs", art: "labs", label: t("navLabs"), icon: "test-tube" },
+    { id: "nursing", art: "nursing", label: t("navNursing"), icon: "first-aid-kit" },
   ];
   const hrefs = Object.fromEntries([["home", home], ...sections.map((s) => [s.id, s.href])]);
   const tabs = allTabs.filter((tab) => tab.id === "home" || tab.id in hrefs);
@@ -105,7 +104,6 @@ export async function HomeShell({
           <HomeAccountTools locale={locale} signInLabel={t("signIn")} accountLabel={t("account")} />
         ) : knownSignedIn ? (
           <>
-            <SignOutButton locale={locale} className={styles.iconBtn} />
             <Link href={`${base}/profile`} className={styles.accountLink} aria-label={t("account")}>
               <Avatar name={name ?? ""} size="md" />
             </Link>

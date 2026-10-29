@@ -3,7 +3,7 @@ import { patientApiUrl } from "@/lib/api/upstream";
 import { publicReadSignal } from "@/lib/api/public-timeout";
 
 function publicMedicinePath(path: string) {
-  const listPath = /^\/medicines(?:\?(?:[A-Za-z0-9%_=&+-]+))?$/;
+  const listPath = /^\/public\/medicines(?:\?(?:[A-Za-z0-9%_=&+-]+))?$/;
   const detailPath = /^\/medicines\/[A-Za-z0-9_-]{1,64}\/details$/;
   if (!listPath.test(path) && !detailPath.test(path)) throw new Error("invalid_public_medicine_path");
   return path;
@@ -12,7 +12,7 @@ function publicMedicinePath(path: string) {
 /** Public catalog only: this function cannot send a patient credential or reach any private endpoint. */
 export async function getPublicMedicines(search: { q?: string; page: number; category?: string; sort?: string }): Promise<Response | null> {
   try {
-    return await fetch(patientApiUrl(publicMedicinePath(medicineQuery(search))), { signal: publicReadSignal(),
+    return await fetch(patientApiUrl(publicMedicinePath(medicineQuery(search).replace(/^\/medicines/, "/public/medicines"))), { signal: publicReadSignal(),
       headers: { Accept: "application/json" },
       cache: "force-cache",
     });

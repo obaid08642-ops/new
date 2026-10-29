@@ -93,7 +93,7 @@ export interface AccordionSection {
 
 /** "Medicine details": one section open at a time, the count shown when there is more than one item, bullets in the action colour. */
 export function DetailAccordion({ sections }: { sections: AccordionSection[] }) {
-  const { theme, t, c, flow, dir } = useScreenUi();
+  const { theme, t, c, flow, dir, num } = useScreenUi();
   const [open, setOpen] = useState(0);
   return (
     <View style={{ borderRadius: 22, backgroundColor: c.bg.surface, overflow: 'hidden' }}>
@@ -113,7 +113,7 @@ export function DetailAccordion({ sections }: { sections: AccordionSection[] }) 
               style={{ minHeight: 54, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 10 }}
             >
               <Text style={{ flex: 1, ...scale(t, 'row', isOpen ? 'bold' : 'medium'), color: c.text.primary, ...flow }}>{s.title}</Text>
-              {s.items.length > 1 ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary }}>{s.items.length}</Text> : null}
+              {s.items.length > 1 ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary }}>{num(s.items.length)}</Text> : null}
               <Icon name={isOpen ? 'caret-up' : 'caret-down'} size={18} theme={theme} tone="secondary" />
             </Pressable>
             {isOpen ? (
@@ -165,16 +165,17 @@ export function MiniProduct({
   const { t, c, flow } = useScreenUi();
   const chip = badge ? (badge.tone === 'success' ? { bg: c.status.success.bg, fg: c.status.success.fg } : { bg: c.status.neutral.bg, fg: c.text.tertiary }) : null;
   return (
-    <View style={{ width: 150, borderRadius: 22, backgroundColor: c.bg.surface, padding: 10, gap: 8 }}>
+    <View style={{ width: 150, borderRadius: 22, backgroundColor: c.bg.surface, paddingBottom: 10, gap: 8, overflow: 'hidden' }}>
       <Pressable accessibilityRole="link" accessibilityLabel={name} onPress={onPress} style={{ gap: 8 }}>
-        <View style={{ height: 110, borderRadius: 16, backgroundColor: c.bg.media, overflow: 'hidden' }}>
+        {/* R3: edge to edge and square, on the white paper token; the card's own rounding clips the top corners */}
+        <View style={{ width: '100%', aspectRatio: 1, backgroundColor: c.iconArt.paper, overflow: 'hidden' }}>
           <ProductImage uri={uri} style={{ width: '100%', height: '100%' }} iconSize={44} />
         </View>
-        <Text numberOfLines={2} style={{ ...scale(t, 'small', 'medium'), lineHeight: 19, color: c.text.primary, ...flow }}>{name}</Text>
-        {meta ? <Text numberOfLines={1} style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{meta}</Text> : null}
-        {note ? <Text style={{ ...scale(t, 'tag', 'bold'), color: c.status.warning.fg, ...flow }}>{note}</Text> : null}
+        <Text numberOfLines={2} style={{ paddingHorizontal: 10, ...scale(t, 'small', 'medium'), lineHeight: 19, color: c.text.primary, ...flow }}>{name}</Text>
+        {meta ? <Text numberOfLines={1} style={{ paddingHorizontal: 10, ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{meta}</Text> : null}
+        {note ? <Text style={{ paddingHorizontal: 10, ...scale(t, 'tag', 'bold'), color: c.status.warning.fg, ...flow }}>{note}</Text> : null}
       </Pressable>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 6, paddingHorizontal: 10 }}>
         {price ? (
           <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary }}>
             {price} <Text style={{ ...scale(t, 'tag', 'regular') }}>{currency}</Text>

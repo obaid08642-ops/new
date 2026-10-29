@@ -68,6 +68,8 @@ const FILES = [
   { from: 'packages/ui/icons/fill.ts', to: 'patient-web/components-next/ui-generated/icons/fill.ts', transform: filterFill },
   // Pharmacy category illustrations: framework-neutral path data (the app draws the same module with react-native-svg).
   { from: 'packages/ui/icons/category-art.ts', to: 'patient-web/components-next/ui-generated/icons/category-art.ts' },
+  { from: 'packages/ui/icons/diag-art.ts', to: 'patient-web/components-next/ui-generated/icons/diag-art.ts' },
+  { from: 'packages/ui/icons/nav-art.ts', to: 'patient-web/components-next/ui-generated/icons/nav-art.ts' },
   { from: 'packages/ui/icons/marks.ts', to: 'patient-web/components-next/ui-generated/icons/marks.ts' },
   { from: 'packages/ui/icons/social-brands.ts', to: 'patient-web/components-next/ui-generated/icons/social-brands.ts' },
   { from: 'packages/ui/icons/social-brands.css', to: 'patient-web/components-next/ui-generated/icons/social-brands.css' },

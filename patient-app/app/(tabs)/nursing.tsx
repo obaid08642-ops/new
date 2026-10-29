@@ -5,14 +5,15 @@ import { RefreshControl, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 
 import { Button, Chip, EmptyState, ErrorState, OfflineState, Screen, Search, Segmented, useTabBarHeight } from '../../../packages/ui-native/src';
+import { ActiveFilters, type ActiveFilter } from '../../src/components/pharmacy/ActiveFilters';
 import { CARE_TONE, Section, Sheet } from '../../src/components/consult/ConsultKit';
 import { PackageCard, PillLink, Strip } from '../../src/components/diagnostics/DiagKit';
-import { ServiceCard, serviceGlyph } from '../../src/components/nursing/NursingKit';
+import { NursingServiceList } from '../../src/components/nursing/NursingServiceList';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
-import { pickDbField, pickLocalized } from '../../src/utils/localize';
+import { pickLocalized } from '../../src/utils/localize';
 
 type Rec = Record<string, unknown>;
 type Flow = 'insurance' | 'cash';
@@ -28,16 +29,17 @@ const AVAILABILITY = [
   { id: 'any', key: 'nur.filter.all' },
   { id: 'now', key: 'nur.filter.now' },
 ];
+// the id is the readable spelling the web sends too (Saudi, Filipino, Egyptian); the server matches nationality and gender ignoring case (#2042)
 const NATIONALITIES = [
   { id: 'any', key: 'nur.filter.all' },
-  { id: 'saudi', key: 'nur.filter.saudi' },
-  { id: 'filipino', key: 'nur.filter.filipino' },
-  { id: 'egyptian', key: 'nur.filter.egyptian' },
+  { id: 'Saudi', key: 'nur.filter.saudi' },
+  { id: 'Filipino', key: 'nur.filter.filipino' },
+  { id: 'Egyptian', key: 'nur.filter.egyptian' },
 ];
 
 /** The hub of home nursing (board ServiceHub): my visits, search and filters, how the visit is paid, the care packages and the services. */
 export default function NursingHub() {
-  const { theme, dir, t, c, k, flow: textFlow } = useScreenUi();
+  const { theme, dir, t, c, k, num, flow: textFlow } = useScreenUi();
   const barHeight = useTabBarHeight();
   const [paymentFlow, setPaymentFlow] = useState<Flow>('cash');
   const [search, setSearch] = useState('');
@@ -83,6 +85,14 @@ export default function NursingHub() {
     setAvailability('any');
     setNationality('any');
   };
+  // the filters that are on (a default is not one): each chip removes its own, "Clear all" and Reset clear them together
+  const chosen = (options: Array<{ id: string; key: string }>, value: string) => k(options.find((o) => o.id === value)?.key ?? 'nur.filter.all');
+  const activeItems: ActiveFilter[] = [
+    ...(gender !== 'any' ? [{ key: 'gender', label: chosen(GENDERS, gender), onRemove: () => setGender('any') }] : []),
+    ...(availability !== 'any' ? [{ key: 'availability', label: chosen(AVAILABILITY, availability), onRemove: () => setAvailability('any') }] : []),
+    ...(nationality !== 'any' ? [{ key: 'nationality', label: chosen(NATIONALITIES, nationality), onRemove: () => setNationality('any') }] : []),
+  ];
+  const filterCount = activeItems.length;
   const group = (title: string, options: Array<{ id: string; key: string }>, value: string, set: (v: string) => void) => (
     <View style={{ gap: 10 }}>
       <Text accessibilityRole="header" style={{ ...scale(t, 'small', 'bold'), color: c.text.secondary, ...textFlow }}>{title}</Text>
@@ -124,7 +134,8 @@ export default function NursingHub() {
           </View>
         </View>
 
-        <Search theme={theme} variant="inline" value={search} onChange={setSearch} onClear={() => setSearch('')} clearLabel={k('nur.clear')} placeholder={k('nur.hub.search')} label={k('nur.hub.search')} onFilterPress={() => setSheet(true)} filterLabel={k('nur.hub.filter')} />
+        <Search theme={theme} variant="inline" value={search} onChange={setSearch} onClear={() => setSearch('')} clearLabel={k('nur.clear')} placeholder={k('nur.hub.search')} label={k('nur.hub.search')} onFilterPress={() => setSheet(true)} filterLabel={filterCount > 0 ? `${k('nur.hub.filter')} (${num(filterCount)})` : k('nur.hub.filter')} filterCount={filterCount} formatCount={num} />
+        <ActiveFilters items={activeItems} onClearAll={reset} tone={CARE_TONE} testIdPrefix="nur" />
         <ScopedSuggest query={search} scope={SUGGEST_SCOPES.nursing} />
 
         {failed === 'error' ? <ErrorState title={k('consult.error.title')} body={k('consult.error.body')} retryLabel={k('consult.retry')} onRetry={() => void load()} theme={theme} /> : null}
@@ -170,25 +181,7 @@ export default function NursingHub() {
             </Section>
 
             <Section title={k('nur.hub.services')}>
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-                {shownServices.map((svc) => {
-                  const title = text(pickDbField(svc, 'name') ?? svc.name_ar ?? svc.name_en ?? svc.title);
-                  const look = serviceGlyph(svc.id);
-                  return (
-                    <ServiceCard
-                      key={text(svc.id)}
-                      title={title}
-                      desc={text(pickDbField(svc, 'description')) || undefined}
-                      image={text(svc.image_url ?? svc.image) || null}
-                      icon={look.icon}
-                      price={priceOf(svc.price)}
-                      onPress={() => toInfo(text(svc.id))}
-                      actionLabel={k('nur.hub.book')}
-                      onAction={() => toService(text(svc.id), title)}
-                    />
-                  );
-                })}
-              </View>
+              <NursingServiceList services={shownServices} actionLabel={k('nur.hub.book')} onOpen={(id) => toInfo(id)} onBook={(id, title) => toService(id, title)} />
               {needle && shownServices.length === 0 ? (
                 <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, textAlign: 'center' }} testID="nursing-no-match">{k('nur.hub.noMatch')}</Text>
               ) : null}
@@ -203,8 +196,8 @@ export default function NursingHub() {
           {group(k('nur.filter.availability'), AVAILABILITY, availability, setAvailability)}
           {group(k('nur.filter.nationality'), NATIONALITIES, nationality, setNationality)}
           <View style={{ gap: 8 }}>
-            <Button theme={theme} size="lg" fullWidth label={k('nur.filter.apply')} onPress={() => setSheet(false)} />
-            <Button theme={theme} size="lg" fullWidth variant="outline" label={k('nur.filter.reset')} onPress={reset} />
+            <Button theme={theme} size="lg" fullWidth label={filterCount > 0 ? k('pharmacy.filters.applyCount', { n: num(filterCount) }) : k('nur.filter.apply')} onPress={() => setSheet(false)} testID="nur-filter-apply" />
+            <Button theme={theme} size="lg" fullWidth variant="outline" label={k('nur.filter.reset')} onPress={reset} testID="nur-filter-reset" />
           </View>
         </View>
       </Sheet>

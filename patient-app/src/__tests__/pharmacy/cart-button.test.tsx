@@ -10,7 +10,7 @@ import { ServiceCartButton } from '../../components/cart/ServiceCartButton';
 import { HomeTopRow } from '../../components/home/HomeTopRow';
 import { message } from '../../components/screen/ScreenKit';
 
-/** The cart button sits in the home, search and offers headers and reads the same cart context the add buttons write to. */
+/** The cart button sits in the pharmacy, labs and scans headers and item screens (and, with items in any cart, a "Your carts" chooser on Home, search and consultations; never on the offers flow) and reads the same cart context the add buttons write to. */
 
 jest.mock('expo-router', () => ({
   router: { push: jest.fn(), replace: jest.fn(), back: jest.fn(), canGoBack: jest.fn(() => true) },
@@ -49,13 +49,6 @@ const wrap = (ui: React.ReactElement) => (
 );
 
 describe('cart button', () => {
-  it('is in the home top row and opens the cart', async () => {
-    const view = await render(wrap(<HomeTopRow name="Test" />));
-    const button = await view.findByTestId('home-cart-button');
-    fireEvent.press(button);
-    expect(mockRouter.push).toHaveBeenCalledWith('/pharmacy/cart');
-  });
-
   it('has a favourites button next to the cart that opens the wishlist screen', async () => {
     const view = await render(wrap(<HomeTopRow name="Test" />));
     const button = await view.findByTestId('home-wishlist-button');
@@ -102,18 +95,29 @@ describe('cart button', () => {
     mockDiagItems = [];
   });
 
-  it('on Home with two non-empty carts it offers the chooser with each count, and each entry opens its cart', async () => {
-    mockDiagItems = [{ id: 't1', kind: 'lab', qty: 3 }];
+  it('Home and every screen of no service draw no cart button while all carts are empty', async () => {
     const view = await render(wrap(<ServiceCartButton testID="svc-cart" />));
+    expect(view.queryByTestId('svc-cart')).toBeNull();
+    const home = await render(wrap(<HomeTopRow name="Test" />));
+    expect(home.queryByTestId('home-cart-button')).toBeNull();
+  });
+
+  it('on Home with items in any cart the button shows the total and the sheet lists only the non-empty carts, each opening its own cart', async () => {
+    mockDiagItems = [{ id: 't1', kind: 'lab', qty: 3 }];
+    const view = await render(wrap(<HomeTopRow name="Test" />));
     await act(async () => {
       await cart.addItem({ id: 'm1', name: 'Test medicine', rx: false, qty: 2 });
     });
+    const button = await view.findByTestId('home-cart-button');
+    expect(button.props.accessibilityLabel).toBe(k('pharmacy.cartCount', { count: 5 }));
     mockRouter.push.mockClear();
-    fireEvent.press(await view.findByTestId('svc-cart'));
+    fireEvent.press(button);
     expect(mockRouter.push).not.toHaveBeenCalled();
     expect(await view.findByTestId('cart-chooser')).toBeTruthy();
+    expect(view.getByText(k('cart.chooser.title'))).toBeTruthy();
     expect(view.getByTestId('cart-chooser-pharmacy').props.accessibilityLabel).toContain(k('cart.name.pharmacy'));
     expect(view.getByTestId('cart-chooser-lab').props.accessibilityLabel).toContain(k('cart.name.lab'));
+    expect(view.queryByTestId('cart-chooser-radiology')).toBeNull();
     fireEvent.press(view.getByTestId('cart-chooser-lab'));
     expect(mockRouter.push).toHaveBeenLastCalledWith('/diagnostics/cart');
     // leave the device cart as it was found (not inside act: an act scope left open by the press made the next test render nothing)
@@ -121,10 +125,13 @@ describe('cart button', () => {
     mockDiagItems = [];
   });
 
-  it('on Home with one non-empty cart it opens that cart at once', async () => {
+  it('with one non-empty cart the sheet still opens (one entry) and that entry opens the cart', async () => {
     mockDiagItems = [{ id: 'r1', kind: 'radiology', qty: 1 }];
     const view = await render(wrap(<ServiceCartButton testID="svc-cart" />));
     fireEvent.press(await view.findByTestId('svc-cart'));
+    expect(await view.findByTestId('cart-chooser')).toBeTruthy();
+    expect(view.queryByTestId('cart-chooser-pharmacy')).toBeNull();
+    fireEvent.press(view.getByTestId('cart-chooser-radiology'));
     expect(mockRouter.push).toHaveBeenLastCalledWith('/diagnostics/cart');
     mockDiagItems = [];
   });

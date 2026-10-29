@@ -1,0 +1,46 @@
+[
+  {
+    "batch": "uploads-scan",
+    "app": "patient-app",
+    "screen": "/pharmacy/rx-order",
+    "element": "Prescription photo save",
+    "file": "patient-app/src/components/pharmacy/RxIntake.tsx",
+    "line": 76,
+    "found": "[backend] Backend gap: same as the web upload, POST /prescriptions/upload has no scan_status in its answer. (backend: backend/src/modules/prescriptions/prescriptions.service.ts:161)",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": "uploads-scan",
+    "app": "patient-app",
+    "screen": "/diagnostics/insurance-upload",
+    "element": "Lab document upload",
+    "file": "patient-app/src/components/diagnostics/InsuranceUploadForm.tsx",
+    "line": 218,
+    "found": "[backend] Backend gap: POST /labs/bookings/:id/documents returns no scan_status (same as web).",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": "uploads-scan",
+    "app": "patient-app",
+    "screen": "/support/chat",
+    "element": "Attachment pending badge",
+    "file": "patient-app/src/components/account/SupportViews.tsx",
+    "line": 113,
+    "found": "[client] Client-side: the app badge has no probe (the upload answers a URL the app cannot open through apiFetch with a known path); it stays until the screen is left.",
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
+  },
+  {
+    "batch": "uploads-scan",
+    "app": "patient-app",
+    "screen": "/returns/new-request",
+    "element": "Return photo pending badge",
+    "file": "patient-app/src/components/account/ReturnsViews.tsx",
+    "line": 374,
+    "found": "[client] Client-side: the badge has no probe; it stays until the request is sent.",
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
+  }
+]

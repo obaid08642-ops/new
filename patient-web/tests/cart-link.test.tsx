@@ -33,7 +33,7 @@ describe("the shared cart button", () => {
     expect(html).toContain('aria-label="Cart (3)"');
   });
 
-  it("is the one cart button of the core shell (every phone header) and of the home header", () => {
+  it("is the one cart button of the core shell (every phone header); the home header carries it too (owner, 2026-10-27)", () => {
     const core = read("components-next/core/core-shell.tsx");
     expect(core).toContain("<CartLink");
     expect(core).not.toMatch(/hideTabs && !search \? cartLink/);
@@ -63,18 +63,48 @@ describe("one cart per service: the header button", () => {
     expect(render()).toContain('href="/en/labs/basket?kind=nursing"');
     expect(render()).toContain('aria-label="Cart (1)"');
   });
-  it("on Home with carts in two services it is a chooser button (the list opens on click), with the total as its badge", () => {
-    reset(); path = "/en"; count = 3; basketLines = { lab: [], radiology: [], nursing: [{}] };
-    const html = render();
-    expect(html).toContain('data-cart-service="chooser"');
-    expect(html).toContain('aria-haspopup="true"');
-    expect(html).toContain('aria-label="Cart (4)"');
+  it("on Home, the doctor profile, consultations and the account there is no cart button while every cart is empty", () => {
+    for (const p of ["/en", "/en/doctor/dr-test", "/en/consultations/doctors", "/en/profile", "/en/pharmacy/final-quote"]) {
+      reset(); path = p;
+      expect(render(), p).toBe("");
+    }
   });
-  it("on Home with one non-empty cart it opens that cart, with none the pharmacy cart", () => {
-    reset(); path = "/en"; basketLines = { lab: [{}], radiology: [], nursing: [] };
-    expect(render()).toContain('href="/en/labs/basket"');
-    reset();
-    expect(render()).toContain('href="/en/cart"');
+  it("on those pages with items in any cart it shows a popup button with the total badge, closed at first", () => {
+    for (const p of ["/en", "/en/doctor/dr-test", "/en/consultations/doctors", "/en/profile"]) {
+      reset(); path = p; count = 3; basketLines = { lab: [{}], radiology: [], nursing: [{}] };
+      const html = render();
+      expect(html, p).toContain('aria-haspopup="true"');
+      expect(html).toContain('aria-expanded="false"');
+      expect(html).toContain('aria-label="Cart (5)"');
+      expect(html).not.toContain("cart-chooser");
+    }
+  });
+  it("the chooser is titled 'Your carts', lists a name and count per cart, closes on Escape and outside click, and uses tokens only", () => {
+    expect(en.CoreShell.cartChooser).toBe("Your carts");
+    const src = read("components-next/core/cart-sheet.tsx");
+    expect(src).toContain('event.key === "Escape"');
+    expect(src).toContain("pointerdown");
+    expect(src).toContain("href={cart.href}");
+    expect(src).not.toContain("style=");
+  });
+  it("the sheet is a separate chunk, fetched on the first open only: the button file does not import it statically", async () => {
+    const link = read("components-next/core/cart-link.tsx");
+    expect(link).toContain('import("./cart-sheet")');
+    expect(link).not.toMatch(/^import .* from "\.\/cart-sheet"/m);
+    expect(link).not.toContain("createPortal");
+    expect(read("components-next/core/core.module.css")).not.toContain("cartMenu");
+    expect(read("components-next/core/cart-sheet.module.css")).toContain("max-width: 767px");
+    // the lazy chunk resolves to the sheet component
+    const mod = await import("@/components-next/core/cart-sheet");
+    expect(typeof mod.default).toBe("function");
+    const html = renderToStaticMarkup(
+      <NextIntlClientProvider locale="en" timeZone="UTC" messages={{ CoreShell: en.CoreShell }}>
+        <mod.default locale="en" carts={[{ service: "lab", href: "/en/labs/basket", count: 2 }]} wrap={{ current: null }} button={{ current: null }} onClose={() => {}} onId={() => {}} />
+      </NextIntlClientProvider>,
+    );
+    expect(html).toContain('data-testid="cart-chooser"');
+    expect(html).toContain("Your carts");
+    expect(html).toContain('href="/en/labs/basket"');
   });
 });
 

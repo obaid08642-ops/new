@@ -35,6 +35,7 @@ import type {
 } from './contract';
 import { Icon } from '../src/Icon';
 import { FIcon } from './FIcon';
+import { NAV_ART, NAV_ART_TONE, NAV_ART_VIEWBOX, type NavArtKey } from '../icons/nav-art';
 import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, SERVICE_ICONS } from '../icons/fill';
 
 /**
@@ -283,16 +284,17 @@ export function PriceTag({ amount, currency, was, note, testID }: PriceTagProps)
  * DoctorCard board rating: one filled star, the value (14/700) and the count in
  * brackets (12/400). Nothing at all when there are no real ratings.
  */
-export function Rating({ value, count, max = 5, size = 'sm', surface = 'default', formatLabel, testID }: RatingProps) {
+export function Rating({ value, count, max = 5, size = 'sm', surface = 'default', formatLabel, locale, testID }: RatingProps) {
   if (value == null || !(count > 0)) return null;
   const px = size === 'sm' ? 16 : 20;
-  const shown = value.toFixed(1);
+  const shown = locale ? new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(value) : value.toFixed(1);
+  const shownCount = locale ? new Intl.NumberFormat(locale).format(count) : String(count);
   const onBrand = surface === 'onBrand';
   return (
     <span
       data-testid={testID}
       role="img"
-      aria-label={formatLabel ? formatLabel(value, count) : `${shown} out of ${max}, ${count} ratings`}
+      aria-label={formatLabel ? formatLabel(value, count) : `${shown} out of ${max}, ${shownCount} ratings`}
       className={clsx('nabd-rating', `nabd-rating--${size}`, { 'nabd-rating--on-brand': onBrand })}
     >
       <svg aria-hidden="true" width={px} height={px} viewBox="0 0 256 256">
@@ -301,7 +303,7 @@ export function Rating({ value, count, max = 5, size = 'sm', surface = 'default'
       <span aria-hidden className="nabd-rating__value">
         {shown}
       </span>
-      <span aria-hidden className="nabd-rating__count">({count})</span>
+      <span aria-hidden className="nabd-rating__count">({shownCount})</span>
     </span>
   );
 }
@@ -423,6 +425,22 @@ export function NavBar({ title, showBack = false, backLabel = 'Back', actions = 
  * native shell TabBar (packages/ui-native/src/shells/TabBar.tsx): bar 68, item 52,
  * raised centre 66, in css/Surfaces.css.
  */
+/** The duotone picture of a tab (icons/nav-art.ts). Roles are classes (css/Surfaces.css) that read the tone's tokens; decorative, the tab is named by aria-label. */
+function NavArt({ art }: { art: NavArtKey }) {
+  return (
+    <svg className="nabd-nav-art" width={32} height={32} viewBox={NAV_ART_VIEWBOX} aria-hidden="true" focusable="false">
+      {NAV_ART[art].map((shape, i) => (
+        <path
+          key={i}
+          d={shape.d}
+          className={clsx(shape.fill ? `nabd-nav-art__f-${shape.fill}` : 'nabd-nav-art__f-none', shape.stroke && `nabd-nav-art__s-${shape.stroke}`)}
+          strokeWidth={shape.stroke ? shape.sw ?? 2 : undefined}
+        />
+      ))}
+    </svg>
+  );
+}
+
 export function BottomTabBar({ items, value, onChange, label = 'Main navigation', safeAreaInset = false, testID }: BottomTabBarProps) {
   return (
     <nav
@@ -454,11 +472,13 @@ export function BottomTabBar({ items, value, onChange, label = 'Main navigation'
           <button
             key={item.id}
             {...common}
-            className={clsx('nabd-bottom-tab-bar__item', { 'nabd-bottom-tab-bar__item--active': active })}
+            className={clsx('nabd-bottom-tab-bar__item', item.art && `nabd-tone--${NAV_ART_TONE[item.art]}`, { 'nabd-bottom-tab-bar__item--active': active, 'nabd-bottom-tab-bar__item--art': item.art })}
           >
-            <svg width={24} height={24} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true">
-              <path d={FILL_ICON_PATHS[item.icon]} fill="currentColor" />
-            </svg>
+            {item.art ? <NavArt art={item.art} /> : (
+              <svg width={24} height={24} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true">
+                <path d={FILL_ICON_PATHS[item.icon]} fill="currentColor" />
+              </svg>
+            )}
             {active ? <span aria-hidden>{item.label}</span> : null}
             {item.badge !== undefined ? (
               <span className="nabd-bottom-tab-bar__badge" aria-hidden>

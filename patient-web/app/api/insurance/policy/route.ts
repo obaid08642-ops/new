@@ -53,3 +53,15 @@ export async function GET() {
   const insurer = insurerOf(data);
   return insurer ? NextResponse.json(insurer, { headers: noStore }) : NextResponse.json({ message: "no_policy" }, { status: 404, headers: noStore });
 }
+
+/** Removes the saved policy (QA I-03: a card could only be overwritten). Signed in only; the backend clears the caller's own policy. */
+export async function DELETE() {
+  const store = await cookies();
+  const accessToken = store.get(authCookieNames.access)?.value;
+  const noStore = { "cache-control": "no-store" };
+  if (!accessToken) return NextResponse.json({ message: "authentication_required" }, { status: 401, headers: noStore });
+  const upstream = await callPatientApi("/users/me/insurance", { method: "DELETE", cache: "no-store" }, accessToken);
+  const data = await upstream.json().catch(() => null);
+  if (!upstream.ok) return boundedUpstreamError(data, "policy_delete_failed", upstream.status);
+  return NextResponse.json({ success: true, removed: Boolean((data as { removed?: unknown } | null)?.removed) }, { headers: noStore });
+}

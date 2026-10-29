@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getCalendar } from 'react-native-localize';
+import { numberingFor } from './numbering';
 
 /**
  * Central calendar handling for the patient app.
@@ -75,6 +76,8 @@ const LANG_BASE: Record<string, string> = {
  * Default: Gregorian. The device calendar switches it to Hijri
  * (islamic-umalqura) automatically when the device uses Hijri.
  */
+export { numberingFor };
+
 export function dateLocaleFor(lang?: string): string {
   const base = LANG_BASE[lang || ''] || 'ar-SA';
   const p = getCalendarPref();
@@ -97,7 +100,7 @@ export function fmtTime(d: Date | string | number, opts?: Intl.DateTimeFormatOpt
 export function dateFormatterFor(lang?: string) {
   const locale = dateLocaleFor(lang);
   return {
-    fmtDate: (d: Date | string | number, opts?: Intl.DateTimeFormatOptions): string => new Date(d).toLocaleDateString(locale, { numberingSystem: 'latn', ...opts }),
-    fmtTime: (d: Date | string | number, opts?: Intl.DateTimeFormatOptions): string => new Date(d).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', numberingSystem: 'latn', ...opts }),
+    fmtDate: (d: Date | string | number, opts?: Intl.DateTimeFormatOptions): string => new Date(d).toLocaleDateString(locale, { numberingSystem: numberingFor(lang), ...opts }),
+    fmtTime: (d: Date | string | number, opts?: Intl.DateTimeFormatOptions): string => new Date(d).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', numberingSystem: numberingFor(lang), ...opts }),
   };
 }

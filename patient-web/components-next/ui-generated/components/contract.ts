@@ -71,6 +71,7 @@ export type Tone = 'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'i
 import type { ReactNode } from 'react';
 
 import type { IconName } from '../icons/names';
+import type { NavArtKey } from '../icons/nav-art';
 import type { FillIconName, ServiceName, ServiceTone } from '../icons/fill';
 
 /**
@@ -257,6 +258,8 @@ export interface SearchProps extends StateProps, A11yProps {
   /** The ink filter square beside the field (Consult). */
   onFilterPress?: () => void;
   filterLabel?: string;
+  /** How many filters are on: a small count badge on the filter square (native renderer; 0 or absent = none). */
+  filterCount?: number;
   /** The clear button, shown while there is text. */
   onClear?: () => void;
   clearLabel?: string;
@@ -540,6 +543,8 @@ export interface RatingProps extends A11yProps {
   surface?: 'default' | 'onBrand';
   /** Supplied by the caller so the sentence is localised by the app, not here. */
   formatLabel?: (value: number, count: number) => string;
+  /** The reader's locale: the value and the count are written in its own digits (one numbering system per screen). */
+  locale?: string;
 }
 
 /* ------------------------------------------------------------- navigation */
@@ -575,6 +580,8 @@ export interface BottomTabItem {
   id: string;
   label: string;
   icon: FillIconName;
+  /** Duotone illustration of the tab (icons/nav-art.ts); drawn in its service tone instead of the fill glyph. The raised centre button keeps the glyph. */
+  art?: NavArtKey;
   /** The raised coral centre button (Consultations). At most one item. */
   raised?: boolean;
   badge?: string | number;

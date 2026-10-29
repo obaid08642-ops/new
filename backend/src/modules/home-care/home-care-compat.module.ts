@@ -1,3 +1,4 @@
+import { withOfferSummary, withOffers } from '../../common/service-offers';
 import { PROVIDER_ROLES } from '../../common/enums';
 /**
  * M2 — Home-care compatibility layer + nursing ops reference data + chat aliases.
@@ -19,7 +20,7 @@ import { ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { UserRole } from '../../common/enums';
 import { CreateBookingDto, RespondDto, AssignDto, CheckInDto, GpsDto, VisitReportDto, CreateCarePlanDto, SetAvailabilityDto, InventoryRequestDto, PostMessageDto, PostLegacyDto, ProviderSendDto } from './home-care-compat.dto';
 
-import { nurseFilterClauses, nearestOrigin, distanceKmTo } from './nurse-list-filters';
+import { nurseFilterClauses, nearestOrigin, distanceKmTo, caseInsensitiveEq } from './nurse-list-filters';
 import { NAME_PROJECTION, withServiceNames } from '../../common/booking-names';
 
 const ACTIVE_STATES = ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE', 'ARRIVED', 'CARE_STARTED'];
@@ -48,18 +49,20 @@ export class HomeCareCompatController {
 
   // ---- Catalog ----
   @Public()
-  @Get('services') servicesList(@Query() q: any) {
+  @Get('services') async servicesList(@Query() q: any) {
     // Patients only see services that passed medical review (same rule as /nursing/catalog).
     const filter: any = { active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
     if (q?.category) filter.category = { $eq: String(q.category) };
-    return this.services.find(filter, { _id: 0, __v: 0 }).lean();
+    const rows: any[] = await this.services.find(filter, { _id: 0, __v: 0 }).lean();
+    // 2026-10-28: every catalogue service carries what nurses offer for it (providers_count, from_price, where, insurance); `insurance=1` keeps those some nurse offers with insurance.
+    return withOfferSummary(this.services.db as never, 'nursing', rows, { insurance: q?.insurance === '1' || q?.insurance === 'true' });
   }
 
   @Public()
   @Get('services/:id') async serviceOne(@Param('id') id: string) {
     const svc = await this.services.findOne({ id, ...{ active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' } }, { _id: 0, __v: 0 }).lean();
     if (!svc) throw new NotFoundException('service not found');
-    return svc;
+    return withOffers(this.services.db as never, 'nursing', svc as any);
   }
 
   @Public()
@@ -76,7 +79,7 @@ export class HomeCareCompatController {
     const svc: any = serviceId ? await this.services.findOne({ id: { $eq: String(serviceId) } }).lean() : null;
     if (serviceId) filter['nursing_services.key'] = { $eq: String(serviceId) };
     const gender = typeof q?.gender === 'string' ? q.gender : '';
-    if (gender && gender !== 'any') filter.gender = { $eq: gender };
+    if (gender && gender !== 'any') filter.gender = caseInsensitiveEq(gender.slice(0, 20));
     Object.assign(filter, nurseFilterClauses(q));
     if (typeof q?.search === 'string' && q.search.trim()) {
       const rx = new RegExp(q.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');

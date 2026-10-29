@@ -103,14 +103,14 @@ describe('offers screen', () => {
     expect(screen.getAllByText(/80\.00/).length).toBeGreaterThan(0);
   });
 
-  it('has the cart button in the header with the cart count, and it opens the cart', async () => {
+  it('has no cart button (the offers flow adds nothing; owner review 2026-10-27)', async () => {
     mockParams.current = { orderId: 'ord' };
     mockCartCount.current = 3;
     answer({ '/patient/pharmacy/orders/ord/offers': offers(), '/patient/pharmacy/orders/ord': searchingOrder });
     await render(wrap(<BroadcastStatusScreen />));
     await screen.findByText('Test pharmacy 1');
-    await tap(screen.getByLabelText(k('pharmacy.cartCount', { count: 3 })));
-    expect(mockRouter.push).toHaveBeenCalledWith('/pharmacy/cart');
+    expect(screen.queryByLabelText(k('pharmacy.cartCount', { count: 3 }))).toBeNull();
+    expect(screen.queryByTestId('cart-button')).toBeNull();
     mockCartCount.current = 0;
   });
 

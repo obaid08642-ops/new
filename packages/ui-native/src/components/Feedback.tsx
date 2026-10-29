@@ -39,7 +39,7 @@ import { FadeIn, PopIn, Pulse } from '../motion';
 const SKELETON_W = { auto: 'auto', full: '100%', half: '50%' } as const;
 
 export function Skeleton({ variant = 'text', lines = 1, width = 'full', testID, theme = 'light' }: SkeletonProps & { theme?: 'light' | 'dark' }) {
-  const bg = theme === 'dark' ? '#12263A' : '#F4F6F8';
+  const bg = tokens(theme === 'dark' ? 'dark' : 'light').color.status.neutral.bg;
   const w = SKELETON_W[width];
 
   if (variant === 'circle') {
@@ -204,13 +204,14 @@ export function Toast({
   theme = 'light',
 }: ToastProps & { theme?: 'light' | 'dark' }) {
   const dark = theme === 'dark';
+  const tc = tokens(dark ? 'dark' : 'light').color;
   const accent = {
-    neutral: '#8A94A0',
-    primary: '#D42A38',
-    success: '#1B7A4B',
-    warning: '#8A5A00',
-    danger: '#B3202C',
-    info: '#1F5FBF',
+    neutral: tc.text.tertiary,
+    primary: tc.action.primary.bg,
+    success: tc.status.success.fg,
+    warning: tc.status.warning.fg,
+    danger: tc.status.danger.fg,
+    info: tc.status.info.fg,
   }[tone];
 
   return (
@@ -281,7 +282,7 @@ export function Modal({
         accessibilityRole="alert"
         style={{
           flex: 1,
-          backgroundColor: 'rgba(18,38,58,0.55)',
+          backgroundColor: tokens('dark').color.glass.bg,
           justifyContent: isSheet ? 'flex-end' : 'center',
           padding: isSheet ? 0 : 24,
         }}
@@ -311,7 +312,7 @@ export function Modal({
               <Icon name="close" size={18} theme={dark ? 'dark' : 'light'} />
             </Pressable>
           </View>
-          {body ? <Text style={{ fontSize: 15, color: dark ? '#C2CBD6' : '#5B6673' }}>{body}</Text> : null}
+          {body ? <Text style={{ fontSize: 15, color: (dark ? tokens('dark') : tokens('light')).color.text.secondary }}>{body}</Text> : null}
           <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'flex-end' }}>
             {cancelLabel ? <Button label={cancelLabel} variant="ghost" size="sm" theme={dark ? 'dark' : 'light'} /> : null}
             <Button label={confirmLabel} size="sm" variant={destructive ? 'danger' : 'primary'} loading={loading} theme={dark ? 'dark' : 'light'} />

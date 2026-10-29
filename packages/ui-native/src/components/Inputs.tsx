@@ -26,6 +26,10 @@ import { tokens, type ThemeName } from '../../../design-tokens/dist/ts/tokens';
 import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX } from '../../../ui/icons/fill';
 import { Icon } from '../Icon';
 
+const TL = tokens('light').color;
+/** The token set of the active theme. */
+const tk = (dark: boolean) => (dark ? tokens('dark') : tokens('light')).color;
+
 /**
  * The form controls — 12.A7, React Native.
  *
@@ -48,17 +52,17 @@ const CONTROL: TextStyle = {
   paddingHorizontal: 20,
   paddingVertical: 12,
   fontSize: 15,
-  color: '#0B1B2B',
-  backgroundColor: '#FFFFFF',
+  color: TL.text.primary,
+  backgroundColor: TL.bg.surface,
   borderWidth: 1,
-  borderColor: '#D5DBE4',
+  borderColor: TL.border.strong,
   borderRadius: 12,
 };
 
 const CONTROL_INVALID: TextStyle = {
   ...CONTROL,
-  borderColor: '#D42A38',
-  backgroundColor: '#FDECEE',
+  borderColor: TL.action.danger.bg,
+  backgroundColor: TL.status.danger.bg,
 };
 
 function Field({
@@ -77,14 +81,14 @@ function Field({
   return (
     <View style={{ gap: 8 }}>
       {label ? (
-        <Text nativeID={nativeID ? `${nativeID}-label` : undefined} style={{ fontSize: 12, color: '#5B6673' }}>
+        <Text nativeID={nativeID ? `${nativeID}-label` : undefined} style={{ fontSize: 12, color: TL.text.secondary }}>
           {label}
         </Text>
       ) : null}
       {children}
-      {hint ? <Text style={{ fontSize: 11, color: '#5B6673' }}>{hint}</Text> : null}
+      {hint ? <Text style={{ fontSize: 11, color: TL.text.secondary }}>{hint}</Text> : null}
       {error ? (
-        <Text accessibilityRole="alert" style={{ fontSize: 11, color: '#B3202C' }}>
+        <Text accessibilityRole="alert" style={{ fontSize: 11, color: TL.status.danger.fg }}>
           {error}
         </Text>
       ) : null}
@@ -132,7 +136,7 @@ export function Input({
           value={value}
           onChangeText={onChange}
           placeholder={placeholder}
-          placeholderTextColor={dark ? '#8A97A6' : '#8A94A0'}
+          placeholderTextColor={tk(dark).text.tertiary}
           editable={!disabled && !readOnly && !loading}
           multiline={multiline}
           numberOfLines={multiline ? rows : 1}
@@ -226,7 +230,7 @@ export function Select({
                   height: 22,
                   borderRadius: 11,
                   borderWidth: 2,
-                  borderColor: selected ? '#D42A38' : dark ? '#6E8BFF' : '#D5DBE4',
+                  borderColor: selected ? tk(dark).action.primary.bg : tk(dark).border.strong,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
@@ -306,6 +310,8 @@ export function Search({
   variant = 'inline',
   onFilterPress,
   filterLabel,
+  filterCount = 0,
+  formatCount,
   onClear,
   clearLabel,
   onScanPress,
@@ -316,7 +322,7 @@ export function Search({
   invalid = false,
   testID,
   theme = 'light',
-}: SearchProps & { theme?: ThemeName }) {
+}: SearchProps & { theme?: ThemeName; /** The filter count in the language's own digits (the app passes its number formatter). */ formatCount?: (n: number) => string }) {
   const t = tokens(theme);
   const c = t.color;
   const [focused, setFocused] = React.useState(false);
@@ -395,6 +401,14 @@ export function Search({
           style={{ width: 52, height: 52, borderRadius: 18, backgroundColor: c.action.primary.bg, alignItems: 'center', justifyContent: 'center' }}
         >
           <Icon name="sliders" size={20} theme={theme} color={c.action.primary.fg} />
+          {filterCount > 0 ? (
+            <View
+              testID={testID ? `${testID}-filter-count` : 'search-filter-count'}
+              style={{ position: 'absolute', top: -6, end: -6, minWidth: 22, height: 22, paddingHorizontal: 5, borderRadius: 11, backgroundColor: c.bg.canvas, borderWidth: 2, borderColor: c.action.primary.bg, alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Text style={{ fontSize: 12, fontWeight: '700', color: c.text.primary }}>{formatCount ? formatCount(filterCount) : filterCount}</Text>
+            </View>
+          ) : null}
         </Pressable>
       ) : null}
     </View>
@@ -490,12 +504,12 @@ export function SlotPicker({
   const dark = theme === 'dark';
   return (
     <View style={{ gap: 8 }} testID={testID}>
-      <Text style={{ fontSize: 12, color: '#5B6673' }}>{dayLabel}</Text>
+      <Text style={{ fontSize: 12, color: TL.text.secondary }}>{dayLabel}</Text>
       {loading ? (
         <View accessibilityState={{ busy: true }}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {Array.from({ length: 6 }).map((_, i) => (
-              <View key={i} style={{ width: 72, height: 44, borderRadius: 9999, backgroundColor: dark ? '#12263A' : '#F4F6F8', marginInlineEnd: 8 }} />
+              <View key={i} style={{ width: 72, height: 44, borderRadius: 9999, backgroundColor: tk(dark).status.neutral.bg, marginInlineEnd: 8 }} />
             ))}
           </ScrollView>
         </View>
@@ -522,8 +536,8 @@ export function SlotPicker({
                   marginInlineEnd: 8,
                   borderRadius: 9999,
                   borderWidth: 1,
-                  borderColor: selected ? '#D42A38' : dark ? '#6E8BFF' : '#D5DBE4',
-                  backgroundColor: selected ? '#D42A38' : dark ? '#12263A' : '#FFFFFF',
+                  borderColor: selected ? tk(dark).action.primary.bg : tk(dark).border.strong,
+                  backgroundColor: selected ? tk(dark).action.primary.bg : dark ? '#12263A' : '#FFFFFF',
                   opacity: unavailable ? 0.5 : 1,
                 }}
               >

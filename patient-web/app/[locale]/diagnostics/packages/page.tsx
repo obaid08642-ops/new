@@ -9,6 +9,7 @@ import { isLocale } from "@/lib/i18n";
 import { hubMetadata } from "@/lib/seo";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
+import { diagArtKey } from "@/components-next/ui-generated/icons/diag-art";
 import { LAB, PackageCard, SearchForm, money } from "@/components-next/diagnostics/diag-parts";
 import styles from "@/components-next/diagnostics/diag.module.css";
 import { pickName, pickTexts } from "@/lib/i18n/localized";
@@ -81,6 +82,7 @@ export default async function LabsPackagesPage({ params, searchParams }: Props) 
             <li key={item.id}>
               <PackageCard
                 fluid
+                art={diagArtKey({ kind: "lab", names: Object.values(item.names) })}
                 href={`/${locale}/diagnostics/packages/${encodeURIComponent(item.id)}`}
                 title={pickName(locale, item.names) ?? ""}
                 sub={pickTexts(locale, item.descriptions)}

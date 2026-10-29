@@ -7,13 +7,14 @@ import { breadcrumbList, medicalWebPage, nursingService } from "@/lib/seo/struct
 import { localizedUrl } from "@/lib/seo";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractHomeCareService, findHomeCareServiceInCatalog, parseHomeCareServiceId } from "@/lib/api/home-care-services";
-import { getPublicNursingCatalog } from "@/lib/api/nursing-catalog-server";
+import { getPublicNursingCatalog, getPublicNursingService } from "@/lib/api/nursing-catalog-server";
 import { getPatientHomeCareService } from "@/lib/api/home-care-services-server";
 import { getOptionalPatientAccessToken } from "@/lib/auth/session";
 import { isLocale, locales } from "@/lib/i18n";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { BulletList, Facts, Hero, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
+import { OffersSection } from "@/components-next/diagnostics/offers-section";
 import { NURSING, ServiceChips, serviceIcon } from "@/components-next/nursing/nursing-parts";
 import { money, pickText } from "@/components-next/diagnostics/diag-parts";
 import consult from "@/components-next/consult/consult.module.css";
@@ -58,6 +59,7 @@ export default async function HomeCareServicePage({ params, searchParams }: Prop
   setRequestLocale(locale);
   const t = await getTranslations("NursingWeb");
   const seo = await getTranslations("SeoAnswer");
+  const w = await getTranslations("DiagWeb");
   // issue 650: the service page is public. A signed-in patient reads the service endpoint; everyone else (and a patient whose
   // session has ended) reads the service out of the public catalog. Signing in is asked for at booking, not here.
   if (!parseHomeCareServiceId(serviceId).success) notFound();
@@ -70,6 +72,11 @@ export default async function HomeCareServicePage({ params, searchParams }: Prop
     if (response.ok) service = extractHomeCareService(await response.json().catch(() => null));
     else if (response.status === 403 || response.status === 404) notFound();
     else if (response.status !== 401) reachable = false;
+  }
+  if (!service && reachable) {
+    // the service with what nurses offer for it (GET /home-care/services/:id, public); the older catalogue list is the fallback
+    const one = await getPublicNursingService(serviceId);
+    if (one && one.ok) service = extractHomeCareService(await one.json().catch(() => null));
   }
   if (!service && reachable) {
     const catalog = await getPublicNursingCatalog();
@@ -118,8 +125,9 @@ export default async function HomeCareServicePage({ params, searchParams }: Prop
           <Facts rows={rows} label={t("serviceTitle")} />
         </SectionCard>
       ) : null}
+      <OffersSection locale={locale} t={w} kind="nursing" serviceId={service.id} offer={service.offer} offers={service.offers} />
       {/* journeys#60 (issue 1069): the service is booked on the website too (the book page asks for sign-in) */}
-      <ButtonLink href={`/${locale}/home-care/services/${encodeURIComponent(serviceId)}/book${pay === "insurance" ? "?pay=insurance" : ""}`} label={t("bookCta")} fullWidth />
+      {service.offer?.providersCount === 0 ? null : <ButtonLink href={`/${locale}/home-care/services/${encodeURIComponent(serviceId)}/book${pay === "insurance" ? "?pay=insurance" : ""}`} label={t("bookCta")} fullWidth />}
     </ConsultPage>
   );
 }

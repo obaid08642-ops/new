@@ -10,6 +10,7 @@
  * (fasting, turnaround) come from the translation files.
  */
 import { pickDbField } from './localize';
+import { offerSummaryOf, offersOf, type OfferSummary, type ServiceOffer } from './catalogueOffers';
 
 type Raw = Record<string, unknown>;
 
@@ -21,6 +22,17 @@ export interface CatalogItem {
   price: number | null;
   oldPrice: number | null;
   category: string;
+  /** Lab: the sample (blood, urine, stool ...). Scans: the modality and its category (mri, ct, ultrasound ...) and the body part. They only feed the category illustration. */
+  sampleType: string;
+  modality: string;
+  bodyPart: string;
+  /** Every name the row holds (any language), for the category mapping. */
+  allNames: string[];
+  /** The backend's own request score (`popularity`); the lists arrive sorted by it. 0 when the row has none. */
+  popularity: number;
+  /** The mean rating (0-5) of the labs / centres that run the service and the ratings behind it; null / 0 while unrated (the server sends them when the list is sorted by rating). */
+  rating: number | null;
+  ratingCount: number;
   /** The names of the tests a package includes. */
   testsList: string[];
   testsCount: number;
@@ -38,6 +50,9 @@ export interface CatalogItem {
   insurance: boolean;
   /** Decision 30: the service can be paid by the patient (`cash_availability` not false). */
   selfPay: boolean;
+  /** What providers offer for it (the catalogue's summary and, on a detail, the offers); null when the payload has none. */
+  offer: OfferSummary | null;
+  offers: ServiceOffer[];
 }
 
 const asText = (v: unknown): string => (typeof v === 'string' || typeof v === 'number' ? String(v) : '');
@@ -66,6 +81,13 @@ export function normalizeLabService(raw: unknown): CatalogItem | null {
     price: asNumber(r.price ?? r.base_price),
     oldPrice: asNumber(r.old_price),
     category: asText(r.category),
+    sampleType: asText(r.sample_type),
+    modality: [asText(r.modality), asText(r.modality_category)].filter(Boolean).join(' '),
+    bodyPart: asText(r.body_part),
+    allNames: ['name', 'name_ar', 'name_en', 'name_ur', 'name_hi', 'name_bn', 'name_tl'].map((key) => asText(r[key])).filter(Boolean),
+    popularity: asNumber(r.popularity) ?? 0,
+    rating: asNumber(r.rating),
+    ratingCount: asNumber(r.rating_count) ?? 0,
     testsList,
     testsCount: testsList.length,
     preparation: lang ? lang.split('\n').filter(Boolean) : [],
@@ -78,6 +100,8 @@ export function normalizeLabService(raw: unknown): CatalogItem | null {
     isPopular: (asNumber(r.popularity) ?? 0) >= 80,
     insurance: r.insurance_availability === true,
     selfPay: r.cash_availability !== false,
+    offer: offerSummaryOf(r),
+    offers: offersOf(r),
   };
 }
 

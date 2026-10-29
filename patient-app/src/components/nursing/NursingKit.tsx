@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 
-import { FIcon, type FillIconName, type ServiceTone } from '../../../../packages/ui-native/src';
+import { FadeIn, FIcon, type FillIconName, type ServiceTone } from '../../../../packages/ui-native/src';
 import { CARE_TONE } from '../consult/ConsultKit';
 import { Tag, Price } from '../diagnostics/DiagKit';
 import { Glyph } from '../pharmacy/PharmacyKit';
@@ -57,32 +57,39 @@ export interface ServiceCardProps {
   image?: string | null;
   icon: FillIconName;
   price: number | null;
+  /** What nurses offer for it, already in words: "3 providers · From 120.00 SAR" and where / insurance (omitted when the server sent no summary). */
+  offerLine?: string;
   /** Open the service (the card). */
   onPress: () => void;
   actionLabel: string;
   /** The quick action under the price (book now). */
   onAction: () => void;
+  /** Its place in the list: the card rises in a token step after the one before it (at most five steps). */
+  enterIndex?: number;
   testID?: string;
 }
 
 /** The hub's service card (board ServiceHub): a nursing-tone wash, the image or glyph, name, line, price and the ink book button. Two to a row. */
-export function ServiceCard({ title, desc, image, icon, price, onPress, actionLabel, onAction, testID }: ServiceCardProps) {
+export function ServiceCard({ title, desc, image, icon, price, offerLine, onPress, actionLabel, onAction, enterIndex = 0, testID }: ServiceCardProps) {
   const { theme, t, c, flow } = useScreenUi();
   const look = c.service[CARE_TONE];
   return (
-    <View testID={testID} style={{ flexBasis: '47%', flexGrow: 1, minWidth: 148, borderRadius: 24, backgroundColor: look.bg, padding: 14, gap: 10 }}>
+    <FadeIn index={enterIndex} style={{ flexBasis: '47%', flexGrow: 1, minWidth: 148 }}>
+    <View testID={testID} style={{ flex: 1, borderRadius: 24, backgroundColor: look.bg, padding: 14, gap: 10 }}>
       <Pressable accessibilityRole="button" accessibilityLabel={[title, desc].filter(Boolean).join(', ')} onPress={onPress} style={({ pressed }) => ({ gap: 8, minHeight: 44, opacity: pressed ? 0.9 : 1 })}>
         {image ? <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: optimizedImageUri(image, 56) }} style={{ width: 56, height: 56, borderRadius: 18, backgroundColor: c.bg.surface }} contentFit="cover" /> : <FIcon icon={icon} tone={CARE_TONE} size={56} theme={theme} />}
         <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{title}</Text>
         {desc ? (
           <Text numberOfLines={2} style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{desc}</Text>
         ) : null}
+        {offerLine ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{offerLine}</Text> : null}
         {price !== null ? <Price amount={price} size="bodyStrong" /> : null}
       </Pressable>
       <Pressable accessibilityRole="button" accessibilityLabel={`${actionLabel}, ${title}`} onPress={onAction} style={({ pressed }) => ({ minHeight: 44, paddingHorizontal: 14, paddingVertical: 6, borderRadius: 14, backgroundColor: c.action.primary.bg, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.85 : 1 })}>
         <Text style={{ ...scale(t, 'small', 'bold'), color: c.action.primary.fg, textAlign: 'center' }}>{actionLabel}</Text>
       </Pressable>
     </View>
+    </FadeIn>
   );
 }
 

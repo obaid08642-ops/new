@@ -36,6 +36,8 @@ import { NAME_PROJECTION, withItemNames } from '../../common/booking-names';
 
 import { nearestFirst } from '../provider/services/nearest-first';
 import { publicLabFilter } from './labs-public';
+import { byRating, paged, parsePage, withProviderRating, type CataloguePage } from '../../common/catalogue-page';
+import { withOfferSummary, withOffers, type OfferSummary } from '../../common/service-offers';
 
 /** Public card for a provider in carousels and price lists: no contact or account details. */
 function publicProvider(p: any) {
@@ -68,18 +70,34 @@ export class LabsService {
     @Optional() private readonly insurance?: InsuranceFlowService,
   ) {}
 
-  async list(opts: { category?: string; search?: string; home_only?: boolean; packages_only?: boolean; highest_rated?: boolean; nearest?: boolean; lowest_price?: boolean; lat?: number; lng?: number }) {
+  async list(opts: { page?: number; limit?: number; category?: string; search?: string; home_only?: boolean; insurance?: boolean; packages_only?: boolean; highest_rated?: boolean; nearest?: boolean; lowest_price?: boolean; lat?: number; lng?: number }) {
     const q: any = { active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
     if (opts.category) q.category = opts.category;
-    if (opts.home_only) q.home_visit_supported = true;
     if (opts.packages_only) q.is_package = true;
     // Explicitly exclude any imaging entries — those belong to the separate Radiology module.
     q.$and = [{ category: { $ne: 'imaging' } }, { sample_type: { $ne: 'imaging' } }];
     if (opts.search) q.$or = labSearchClause(opts.search);
     
     let sortObj: any = { popularity: -1, name_ar: 1 };
-    if (opts.highest_rated) sortObj = { rating: -1, popularity: -1 };
-    else if (opts.lowest_price) sortObj = { price: 1, popularity: -1 };
+    if (opts.lowest_price) sortObj = { price: 1, popularity: -1 };
+    const page = parsePage(opts.page, opts.limit);
+    // 2026-10-28: the list is the CATALOGUE; each test carries what providers offer for it (count, from-price, where, insurance). The home and insurance
+    // filters read those offers, so a test nobody offers yet is still listed but never found by "at home" or "insurance".
+    const finish = async <T extends { id: string }>(rows: T[]): Promise<Array<T & OfferSummary> | CataloguePage<T & OfferSummary>> => {
+      const enriched = await withOfferSummary(this.svcModel.db as never, 'lab', rows, { home_only: !!opts.home_only, insurance: !!opts.insurance });
+      return page ? paged(enriched, page) : enriched;
+    };
+    // Ratings are on the labs, not on the tests: "highest rated" ranks a test by the labs that run it (compatibleProviders' rule).
+    const labsRunning = async () => {
+      const labs: any[] = await this.providerProfiles.find({
+        type: { $in: ['lab', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
+      }, { projection: { _id: 0, test_categories: 1, rating_avg: 1, rating_count: 1 } }).lean();
+      return labs;
+    };
+    const runs = (svc: any, lab: any) => {
+      const tests: unknown[] = Array.isArray(lab.test_categories) ? lab.test_categories : [];
+      return tests.includes(svc.id) || (!!svc.category && tests.includes(svc.category));
+    };
 
     // #623: "nearest" orders tests by the closest approved lab that runs them (same compatibility rule as
     // compatibleProviders: the lab's test_categories hold the test id or its category). Without a valid
@@ -91,15 +109,21 @@ export class LabsService {
         'geo.lat': { $type: 'number' }, 'geo.lng': { $type: 'number' },
       }, { projection: { _id: 0, geo: 1, test_categories: 1 } }).lean();
       const services: any[] = await this.svcModel.find(q, { _id: 0, __v: 0 }).lean();
-      return nearestFirst(services, labs, here, (svc, lab) => {
-        const runs: unknown[] = Array.isArray(lab.test_categories) ? lab.test_categories : [];
-        return runs.includes(svc.id) || (!!svc.category && runs.includes(svc.category));
-      }).slice(0, 120);
+      return finish(nearestFirst(services, labs, here, runs).slice(0, 120));
     }
 
-    if (!this.redis?.getWithSWR) return this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj).limit(120);
-    const cacheKey = `cache:lab-services:public:v1:${JSON.stringify(opts)}`;
-    return this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj).limit(120));
+    const load = async (): Promise<any[] | CataloguePage<any>> => {
+      if (opts.highest_rated) {
+        const services: any[] = await this.svcModel.find(q, { _id: 0, __v: 0 }).lean();
+        return finish(withProviderRating(services, await labsRunning(), runs).sort(byRating));
+      }
+      // the page asks for the true total, so it reads every match; the plain list is capped at 300 rows (the catalogue holds about 150)
+      const query = this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj);
+      return finish(page ? await query.lean() : await query.limit(300).lean());
+    };
+    if (!this.redis?.getWithSWR) return load();
+    const cacheKey = `cache:lab-services:public:v2:${JSON.stringify(opts)}`;
+    return this.redis.getWithSWR(cacheKey, 900, load);
   }
 
 
@@ -111,6 +135,12 @@ export class LabsService {
       { $sort: { count: -1 } },
     ]);
     return agg;
+  }
+
+  /** The test page: the catalogue row with what labs offer for it (labs, price, where, insurance) and `providers_count`; an unoffered test still opens. */
+  async getByIdWithOffers(id: string) {
+    const s: any = await this.getById(id);
+    return withOffers(this.svcModel.db as never, 'lab', typeof s.toObject === 'function' ? s.toObject() : s);
   }
 
   async getById(id: string) {

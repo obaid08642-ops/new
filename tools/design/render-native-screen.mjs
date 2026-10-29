@@ -87,6 +87,8 @@ const TABBAR = arg('--tabbar') ? resolve(REPO, arg('--tabbar')) : null;
 const HEADER = arg('--header') ? resolve(REPO, arg('--header')) : null;
 const PATHNAME = arg('--path', '/');
 const CROP_BOTTOM = Number(arg('--crop-bottom', 0));
+// --click '[data-testid="cart-button"],[data-testid="cart-chooser"]': CSS selectors clicked in order (comma-free list separated by ';') before the screenshot
+const CLICKS = arg('--click') ? arg('--click').split(';').filter(Boolean) : [];
 /** The board each screen is drawn on, and the route params the screen is opened with in the flow. */
 // `board` is the Auth.dc.html screen (Welcome/Login/Register/Otp/…Dark.dc.html are that component
 // with screen/theme set; Register and Otp have no Dark file, so the dark board is Auth itself with
@@ -230,6 +232,8 @@ const BOARD = {
   // of render-native-screen.fixtures.json (`test-lab-pkg`, `test-lab-test`, `test-lab`, `test-lab-order`). The list, detail and result screens
   // draw on the ServiceHub board (cards, rows, chips); the cart and checkout on Cart and CheckoutV2, tracking on OrderTracking.
   'd-hub': { component: 'ServiceHub', size: [390, 1640], params: {} },
+  // the labs / radiology tabs: `diagnostics:d-hub` and `diagnostics:d-hub-rad` (the `?tab=radiology` side), server pages from the fixtures' `?page=1&limit=20`
+  'd-hub-rad': { component: 'ServiceHub', size: [390, 1640], params: { tab: 'radiology' } },
   'd-packages': { component: 'ServiceHub', size: [390, 1640], params: {} },
   'd-search': { component: 'Search', size: [390, 844], params: {} },
   'd-my-results': { component: 'Orders', size: [390, 900], params: {} },
@@ -238,6 +242,10 @@ const BOARD = {
   'd-lab': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-lab' } },
   'd-package-detail': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-lab-pkg' } },
   'd-test-detail': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-lab-test' } },
+  // #2067 catalogue offers: the detail of a scan with its offers, a test and a scan nobody offers yet ("Notify me when available"), the nursing service nobody offers
+  'd-test-detail-rad': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-rad', isRadiology: 'true' } },
+  'd-test-detail-none': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-lab-test-2' } },
+  'd-test-detail-rad-none': { component: 'ServiceHub', size: [390, 1640], params: { id: 'test-rad-2', isRadiology: 'true' } },
   'd-order': { component: 'OrderTracking', size: [390, 1120], params: { id: 'test-lab-order' } },
   'd-order-done': { component: 'OrderTracking', size: [390, 1120], params: { id: 'test-lab-done' } },
   'd-sample-tracking': { component: 'OrderTracking', size: [390, 1120], params: { bookingId: 'test-lab-order' } },
@@ -251,6 +259,7 @@ const BOARD = {
   // The ids select the TEST records of render-native-screen.fixtures.json (`svc-iv`, `test-nurse`, `test-visit`, `test-nur-ins`). Hub, lists and details draw on the ServiceHub board, visits on Orders, tracking on OrderTracking, the booking page on DoctorFull.
   'n-hub': { component: 'ServiceHub', size: [390, 1640], params: {} },
   'n-visits': { component: 'Orders', size: [390, 900], params: {} },
+  'n-service-info-none': { component: 'ServiceHub', size: [390, 1640], params: { serviceId: 'test-svc', flow: 'cash' } },
   'n-service-info': { component: 'ServiceHub', size: [390, 1640], params: { serviceId: 'svc-iv', flow: 'cash' } },
   'n-service-details': { component: 'ServiceHub', size: [390, 1640], params: { serviceId: 'svc-iv', title: 'خدمة تمريض تجريبية ١', flow: 'cash' } },
   'n-insurance-status': { component: 'ServiceHub', size: [390, 1640], params: { bookingId: 'test-nur-ins' } },
@@ -408,6 +417,8 @@ const MOCKS = {
       return key in EMPTY ? EMPTY[key] : {};
     }
     export const newIdempotencyKey = () => 'app-render-test-key';
+    // a render with fixtures is a signed-in patient (the "Notify me when available" button shows); the other modes are signed out
+    export async function hasSession() { return ((window.__SCREEN && window.__SCREEN.api) || 'empty') === 'fixture'; }
     export async function storeAuthSession() {}
     // the constants other modules read from the client (image URLs resolve against them); no real host in a render
     export const BASE_URL = 'https://api.example.test/api/v1';
@@ -561,7 +572,13 @@ for (const s of SCREENS) {
     const errors = [];
     page.on('pageerror', (e) => errors.push(String(e)));
     // no backend in a design render: every request that is not this server fails like an offline phone
-    await page.route('**/*', (r) => (r.request().url().startsWith(BASE) ? r.continue() : r.abort()));
+    // the TEST picture host of the fixtures (R2_PUBLIC_URL in a render) answers a plain marked SVG; anything else fails
+    await page.route('**/*', (r) => {
+      const u = r.request().url();
+      if (u.startsWith(BASE)) return r.continue();
+      if (u.startsWith('https://cdn.example.test/')) return r.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="#8a9bb0"/><text x="100" y="105" font-size="22" text-anchor="middle" fill="#fff">TEST image</text></svg>' });
+      return r.abort();
+    });
     await page.goto(`${BASE}/__blank`);
     await page.evaluate(([th, lg]) => {
       localStorage.setItem('@nabdah_theme_mode', th);
@@ -578,9 +595,11 @@ for (const s of SCREENS) {
     });
     await page.evaluate(() => document.fonts.ready);
     await page.waitForTimeout(WAIT); // AppProvider hydrates theme/language from storage; entrance animations settle (the home ECG line draws for 1.7 s)
+    for (const sel of CLICKS) { await page.locator(sel).first().click(); await page.waitForTimeout(500); }
     const frameBox = await page.locator('#frame').boundingBox();
     const cropClip = CROP_BOTTOM ? { x: frameBox.x, y: frameBox.y + H - CROP_BOTTOM, width: W, height: CROP_BOTTOM } : null;
-    const shoot = (path) => (cropClip ? page.screenshot({ clip: cropClip, path }) : page.locator('#frame').screenshot({ path }));
+    // after a click the picture is the whole viewport: a modal (the carts chooser) is drawn outside #frame
+    const shoot = (path) => (cropClip ? page.screenshot({ clip: cropClip, path }) : CLICKS.length ? page.screenshot({ path }) : page.locator('#frame').screenshot({ path }));
     const shot = await shoot();
     if (errors.length) console.warn(`${s}/${theme}: page errors: ${errors.join('; ')}`);
     const measured = await page.evaluate(() => {

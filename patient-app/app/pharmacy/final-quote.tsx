@@ -3,7 +3,7 @@ import { RefreshControl, Text, View } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
 
 import { AppHeader, Button, Card, EmptyState, ErrorState, FIcon, OfflineState, Screen, StatusChip, StickyFooter } from '../../../packages/ui-native/src';
-import { CartButton, WishlistButton } from '../../src/components/pharmacy/PharmacyKit';
+import { WishlistButton } from '../../src/components/pharmacy/PharmacyKit';
 import { AmountRow, Money, Notice, QuoteLines } from '../../src/components/pharmacy/OfferKit';
 import { PHARMACY_TONE } from '../../src/components/pharmacy/PharmacyKit';
 import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
@@ -117,7 +117,7 @@ export default function PharmacyFinalQuoteScreen() {
 
   const header = (
     <View style={COLUMN}>
-      <AppHeader title={k('pharmacy.quote.title')} onBack={back} backLabel={k('pharmacy.back')} trailing={<View style={{ flexDirection: "row", gap: 8 }}><WishlistButton /><CartButton /></View>} theme={theme} direction={dir} />
+      <AppHeader title={k('pharmacy.quote.title')} onBack={back} backLabel={k('pharmacy.back')} trailing={<View style={{ flexDirection: "row", gap: 8 }}><WishlistButton /></View>} theme={theme} direction={dir} />
     </View>
   );
   const state = (node: React.ReactNode) => (

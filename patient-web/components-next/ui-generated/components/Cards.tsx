@@ -54,6 +54,8 @@ export interface WebDoctorCardProps extends DoctorCardProps {
   href?: string;
   /** Without `href`, the book button is a real button calling this. */
   onBook?: () => void;
+  /** The reader's locale, for the digits of the rating. */
+  locale?: string;
 }
 
 export function DoctorCard({
@@ -73,6 +75,7 @@ export function DoctorCard({
   bookLabel,
   href,
   onBook,
+  locale,
   testID,
 }: WebDoctorCardProps) {
   const Root = href ? 'a' : 'article';
@@ -121,7 +124,7 @@ export function DoctorCard({
         </div>
       </div>
       <div className="nabd-doctor-card__footer">
-        {rating ? <Rating value={rating.value} count={rating.count} surface="onBrand" /> : null}
+        {rating ? <Rating value={rating.value} count={rating.count} surface="onBrand" locale={locale} /> : null}
         {nextSlot ? (
           <span className="nabd-doctor-card__slot">
             <svg width={15} height={15} viewBox={MARK_VIEWBOX_24} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden="true">
@@ -186,7 +189,7 @@ export function ProductCard({
   const inert = disabled || loading;
   const body = (
     <>
-      <div className="nabd-product-card__media">
+      <div className={`nabd-product-card__media${imageSrc ? " nabd-product-card__media--photo" : ""}`}>
         {imageSrc ? (
           <img
             src={imageSrc}

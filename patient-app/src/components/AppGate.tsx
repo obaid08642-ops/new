@@ -6,6 +6,8 @@ import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'rea
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiFetch } from '../utils/api';
 import { isVersionBlocked, pickAppConfig } from '../utils/version';
+import { tokens } from '../../../packages/design-tokens/dist/ts/tokens';
+const T = tokens('light').color;
 
 const APP_VERSION: string = (() => {
   try {
@@ -48,7 +50,7 @@ export default function AppGate({ children }: { children: React.ReactNode }) {
   if (state === 'checking') {
     return (
       <View style={[styles.center, { paddingTop: insets.top }]}>
-        <ActivityIndicator size="large" color="#0E7C7B" />
+        <ActivityIndicator size="large" color={T.action.primary.bg} />
       </View>
     );
   }
@@ -64,9 +66,9 @@ export default function AppGate({ children }: { children: React.ReactNode }) {
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', padding: 24, gap: 12 },
-  title: { fontSize: 20, fontWeight: '800', color: '#101828', textAlign: 'center' },
-  body: { fontSize: 14, color: '#475467', textAlign: 'center', lineHeight: 22 },
-  retry: { backgroundColor: '#0E7C7B', borderRadius: 12, paddingHorizontal: 24, paddingVertical: 12, marginTop: 8 },
-  retryText: { color: '#FFFFFF', fontSize: 15, fontWeight: '700' },
+  center: { flex: 1, backgroundColor: T.bg.canvas, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 12 },
+  title: { fontSize: 20, fontWeight: '800', color: T.text.primary, textAlign: 'center' },
+  body: { fontSize: 14, color: T.text.secondary, textAlign: 'center', lineHeight: 22 },
+  retry: { backgroundColor: T.action.primary.bg, borderRadius: 12, paddingHorizontal: 24, paddingVertical: 12, marginTop: 8 },
+  retryText: { color: T.action.primary.fg, fontSize: 15, fontWeight: '700' },
 });

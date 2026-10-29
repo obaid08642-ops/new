@@ -33,10 +33,12 @@ const wrap = (ui: React.ReactElement) => <SafeAreaProvider initialMetrics={metri
 const pick = (ar: string | null, en: string | null) => en ?? ar;
 
 const base = { id: 'doc-1', name_en: 'Test Doctor', specialty: 'Test specialty', consultation_modes: ['clinic', 'video'], price_clinic: 150, price_online: 100 };
+const reviewsPage: { current: unknown } = { current: {} };
 function serve(doc: Record<string, unknown>) {
   apiFetch.mockImplementation(async (path: string) => {
     if (path.startsWith('/care/doctors/doc-1/slots')) return { slots: [] };
     if (path.startsWith('/care/doctors/doc-1')) return doc;
+    if (path.startsWith('/ratings/provider/doc-1')) return reviewsPage.current;
     return {};
   });
 }
@@ -74,21 +76,50 @@ describe('doctor page', () => {
     expect(screen.queryByText(k('consult.doc.services'))).toBeNull();
   });
 
-  it('draws services, follow-up, wait, the clinic map, reviewer names and a see-all list when sent', async () => {
-    const reviews = [1, 2, 3, 4].map((n) => ({ rating: 5, text: `Great ${n}`, date: '2026-10-01T00:00:00.000Z', reviewer: `Rev${n}` }));
-    serve({ ...base, education: 'MD, Test University', wait_time: 20, services: [{ id: 's1', name_en: 'Ultrasound', price: 80 }], follow_up_price: 50, follow_up_days: 14, location: { lat: 24.7, lng: 46.7 }, reviews_data: reviews });
+  it('draws services, follow-up, wait and the clinic map when sent', async () => {
+    serve({ ...base, wait_time: 20, services: [{ id: 's1', name_en: 'Ultrasound', price: 80 }], follow_up_price: 50, follow_up_days: 14, location: { lat: 24.7, lng: 46.7 } });
     await render(wrap(<DoctorProfile />));
     await screen.findByText('Test Doctor');
-    expect(screen.getByText('MD, Test University')).toBeTruthy();
     expect(screen.getByText('Ultrasound')).toBeTruthy();
     expect(screen.getByText(k('consult.doc.followUpWindow', { n: '14' }))).toBeTruthy();
-    expect(screen.getByText(k('consult.doc.waitMinutes'))).toBeTruthy();
+    // the wait is in the summary line under the name (once), not in a stat tile
+    expect(screen.getByTestId('doctor-summary').props.children).toContain(k('consult.card.wait', { n: '20' }));
+    expect(screen.queryByText(k('consult.doc.waitMinutes'))).toBeNull();
     expect(screen.getByTestId('clinic-map')).toBeTruthy();
-    expect(screen.getByText('Rev1')).toBeTruthy();
-    expect(screen.queryByText('Rev4')).toBeNull();
-    await act(async () => {
-      fireEvent.press(screen.getByText(k('consult.doc.seeAllReviews', { n: '4' })));
+  });
+
+  it('draws the public payload: photo, gallery, about, languages, education, rating and the first page of reviews with Show more', async () => {
+    const row = (n: number) => ({ score: 5, comment: `Great ${n}`, createdAt: '2026-10-01T00:00:00.000Z', reviewer: `Rev${n}` });
+    reviewsPage.current = { data: [1, 2].map(row), total: 3, page: 1, total_pages: 2 };
+    apiFetch.mockImplementation(async (path: string) => {
+      if (path.startsWith('/care/doctors/doc-1/slots')) return { slots: [] };
+      if (path.startsWith('/care/doctors/doc-1')) return { ...base, photo_url: 'https://cdn.example.test/p.jpg', clinicPhotos: ['https://cdn.example.test/c.jpg'], bio: 'About the doctor', languages: ['ar', 'en'], education: [{ university: 'KSU', graduation_year: 2010, fellowship_board: 'SB' }], rating: 4.5, reviews_count: 12 };
+      if (path === '/ratings/provider/doc-1?page=1&limit=5') return reviewsPage.current;
+      if (path === '/ratings/provider/doc-1?page=2&limit=5') return { data: [row(3)], total: 3, page: 2, total_pages: 2 };
+      return {};
     });
-    expect(await screen.findByText('Rev4')).toBeTruthy();
+    await render(wrap(<DoctorProfile />));
+    await screen.findByText('Test Doctor');
+    expect(screen.getAllByText('About the doctor').length).toBeGreaterThan(0);
+    expect(screen.getByText(/SB · KSU/)).toBeTruthy();
+    expect(screen.queryByText(k('consult.doc.noEducation'))).toBeNull();
+    expect(screen.getByText(k('consult.doc.clinicPhotos'))).toBeTruthy();
+    expect(screen.getByTestId('doctor-summary').props.children).toContain('4.5');
+    expect(await screen.findByText('Rev2')).toBeTruthy();
+    expect(screen.queryByText('Rev3')).toBeNull();
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('doctor-reviews-more'));
+    });
+    expect(await screen.findByText('Rev3')).toBeTruthy();
+    expect(screen.queryByTestId('doctor-reviews-more')).toBeNull();
+  });
+
+  it('hides the gallery and about when the server sent none', async () => {
+    reviewsPage.current = {};
+    serve({ ...base, clinicPhotos: [], bio: null });
+    await render(wrap(<DoctorProfile />));
+    await screen.findByText('Test Doctor');
+    expect(screen.queryByText(k('consult.doc.clinicPhotos'))).toBeNull();
+    expect(screen.queryByText(k('consult.doc.about'))).toBeNull();
   });
 });

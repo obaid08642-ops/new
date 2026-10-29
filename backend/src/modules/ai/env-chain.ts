@@ -14,13 +14,23 @@ export interface EnvChainOptions {
   /** Test seam / clock. */
   now?: () => number;
   fetchImpl?: typeof fetch;
+  /** Per call (default 60 s). A 20-item translation from a slow model (30-60 tokens/s) needs far longer than a chat answer. */
+  timeoutMs?: number;
+  /** The `ai_providers` records the live gateway uses: its model ids and base URLs win over the built-in defaults (an admin changes them when a provider retires a model). */
+  registry?: RegistryRecord[];
 }
+
+/** The fields of an `ai_providers` record that decide WHERE and WITH WHAT a call goes (never the key). */
+export interface RegistryRecord { key: string; model?: string; base_url?: string; enabled?: boolean }
 
 const CHAT_PROVIDERS = DEFAULT_PROVIDERS.filter((p) => !NON_CHAT_PROVIDERS.has(p.key)).sort((a, b) => a.priority - b.priority);
 
 /** Providers with a key in `env`, in the order they are tried (`AI_PROVIDER` first when it names one). */
-export function envChainProviders(env: NodeJS.ProcessEnv): ProviderConfig[] {
-  const set = CHAT_PROVIDERS.filter((p) => String(env[PROVIDER_ENV_KEY[p.key]] || '').trim() !== '');
+export function envChainProviders(env: NodeJS.ProcessEnv, registry: RegistryRecord[] = []): ProviderConfig[] {
+  const rec = new Map(registry.map((r) => [r.key, r]));
+  const set = CHAT_PROVIDERS
+    .filter((p) => String(env[PROVIDER_ENV_KEY[p.key]] || '').trim() !== '' && rec.get(p.key)?.enabled !== false)
+    .map((p) => { const r = rec.get(p.key); return r ? { ...p, model: r.model || p.model, base_url: r.base_url || p.base_url } : p; });
   const pinned = String(env.AI_PROVIDER || '').toLowerCase();
   const first = set.find((p) => p.key === pinned);
   return first ? [first, ...set.filter((p) => p !== first)] : set;
@@ -30,13 +40,13 @@ export function providerVariableNames(): string[] {
   return CHAT_PROVIDERS.map((p) => PROVIDER_ENV_KEY[p.key]);
 }
 
-async function callProvider(p: ProviderConfig, key: string, model: string, prompt: string, f: typeof fetch): Promise<string> {
+async function callProvider(p: ProviderConfig, key: string, model: string, prompt: string, f: typeof fetch, timeoutMs = 60_000): Promise<string> {
   if (p.key === 'gemini') {
     const res = await f(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'x-goog-api-key': key },
       body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature: 0, responseMimeType: 'application/json' } }),
-      signal: AbortSignal.timeout(60_000),
+      signal: AbortSignal.timeout(timeoutMs),
     });
     // The response body is never read into an error: a 401 body can carry part of the key.
     if (!res.ok) { await res.body?.cancel().catch(() => undefined); throw new Error(providerHttpErrorCode(p.key, res.status)); }
@@ -50,7 +60,7 @@ async function callProvider(p: ProviderConfig, key: string, model: string, promp
     method: 'POST',
     headers,
     body: JSON.stringify({ model, temperature: 0, messages: [{ role: 'user', content: prompt }] }),
-    signal: AbortSignal.timeout(60_000),
+    signal: AbortSignal.timeout(timeoutMs),
   });
   if (!res.ok) { await res.body?.cancel().catch(() => undefined); throw new Error(providerHttpErrorCode(p.key, res.status)); }
   const body = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
@@ -59,7 +69,7 @@ async function callProvider(p: ProviderConfig, key: string, model: string, promp
 
 /** Throws at once when no provider key is set at all (the job says so and stops, nothing is sent). */
 export function chainCallerFromEnv(env: NodeJS.ProcessEnv = process.env, opts: EnvChainOptions = {}): Caller {
-  const providers = envChainProviders(env);
+  const providers = envChainProviders(env, opts.registry);
   if (!providers.length) throw new Error(`no AI provider variable is set (${providerVariableNames().join(', ')}): nothing was sent`);
   const now = opts.now ?? Date.now;
   const f = opts.fetchImpl ?? fetch;
@@ -83,4 +93,26 @@ export function chainCallerFromEnv(env: NodeJS.ProcessEnv = process.env, opts: E
     }
     throw new Error(`ai_chain_exhausted: ${failures.join(' ') || 'every provider is parked'}`);
   };
+}
+
+/**
+ * One caller per provider whose key is set, for jobs that run the providers side by side (each within its own limits) instead of
+ * one after the other. A caller throws the same error codes as the chain; it never parks or retries (the job's scheduler does).
+ */
+export function providerCallersFromEnv(env: NodeJS.ProcessEnv = process.env, opts: EnvChainOptions = {}): Array<{ provider: ProviderConfig; call: Caller }> {
+  const providers = envChainProviders(env, opts.registry);
+  if (!providers.length) throw new Error(`no AI provider variable is set (${providerVariableNames().join(', ')}): nothing was sent`);
+  const f = opts.fetchImpl ?? fetch;
+  return providers.map((provider, i) => {
+    const key = String(env[PROVIDER_ENV_KEY[provider.key]]).trim();
+    const model = (i === 0 && opts.model) || provider.model;
+    return {
+      provider,
+      call: async (prompt: string) => {
+        const text = await callProvider(provider, key, model, prompt, f, opts.timeoutMs);
+        if (!text.trim()) throw new Error(`${provider.key}_empty_response`);
+        return text;
+      },
+    };
+  });
 }

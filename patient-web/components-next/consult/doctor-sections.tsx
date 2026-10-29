@@ -1,3 +1,4 @@
+import { optimizedImageSrc } from "@/lib/media/optimized-image";
 import { ReviewScore } from "./review-score";
 import { SectionCard } from "./consult-parts";
 import styles from "./consult.module.css";
@@ -60,6 +61,36 @@ export function ClinicMap({ id, title, address, mapTitle, openLabel, point }: { 
           <a className="nabd-button nabd-button--outline nabd-button--sm" href={`https://www.openstreetmap.org/?mlat=${point.lat}&mlon=${point.lng}#map=16/${point.lat}/${point.lng}`} target="_blank" rel="noopener noreferrer"><span className="nabd-button__label">{openLabel}</span></a>
         </>
       ) : null}
+    </SectionCard>
+  );
+}
+
+/** The clinic's photos; the whole section is left out when the server sent none. */
+export function ClinicGallery({ id, title, photos, openLabel, altLabel }: { id: string; title: string; photos: string[] | undefined; openLabel: (n: number) => string; altLabel: (n: number) => string }) {
+  if (!photos?.length) return null;
+  return (
+    <SectionCard id={id} title={title}>
+      <ul className={styles.gallery}>
+        {photos.map((src, index) => (
+          <li key={src}><a href={optimizedImageSrc(src, 1200)} target="_blank" rel="noopener noreferrer" aria-label={openLabel(index + 1)}><img src={optimizedImageSrc(src, 192)} alt={altLabel(index + 1)} className={styles.galleryImg} loading="lazy" decoding="async" /></a></li>
+        ))}
+      </ul>
+    </SectionCard>
+  );
+}
+
+/** The About text; left out when the server sent none. */
+export function BioSection({ id, title, bio }: { id: string; title: string; bio: string | undefined }) {
+  if (!bio) return null;
+  return <SectionCard id={id} title={title}><p className={styles.body}>{bio}</p></SectionCard>;
+}
+
+/** Education rows (already joined into one line each). With no rows: the empty text, or nothing when `emptyText` is not passed. */
+export function EducationSection({ id, title, rows, emptyText }: { id: string; title: string; rows: string[]; emptyText?: string }) {
+  if (rows.length === 0 && !emptyText) return null;
+  return (
+    <SectionCard id={id} title={title}>
+      {rows.length ? <ul className={styles.plain}>{rows.map((row, i) => <li key={`${row}-${i}`}>{row}</li>)}</ul> : <p className={`${styles.body} ${styles.muted}`}>{emptyText}</p>}
     </SectionCard>
   );
 }

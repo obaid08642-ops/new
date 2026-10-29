@@ -242,5 +242,6 @@ export class AdminRatingsController {
 @Module({
   controllers: [RatingsController, AdminRatingsController, PatientReviewsListController],
   providers: [RatingsService],
+  exports: [RatingsService],
 })
 export class RatingsModule {}

@@ -19,16 +19,23 @@ export class LabsController {
     @Query('search') q?: string,
     @Query('home_only') ho?: string,
     @Query('home_visit') hv?: string,
+    @Query('insurance') ins?: string,
     @Query('highest_rated') hr?: string,
     @Query('nearest') nr?: string,
     @Query('lowest_price') lp?: string,
     @Query('lat') lat?: string,
-    @Query('lng') lng?: string
+    @Query('lng') lng?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
   ) {
     return this.svc.list({
+      // with `page` the answer is { data, total, page, limit, total_pages }; without it, the array as before
+      page: page !== undefined ? Number(page) : undefined,
+      limit: limit !== undefined ? Number(limit) : undefined,
       category: cat,
       search: q,
       home_only: ho === '1' || hv === 'true' || hv === '1',
+      insurance: ins === '1' || ins === 'true',
       highest_rated: hr === 'true' || hr === '1',
       nearest: nr === 'true' || nr === '1',
       lowest_price: lp === 'true' || lp === '1',
@@ -47,7 +54,7 @@ export class LabsController {
 
   @PublicCache(120, ['catalog', 'labs'])
   @Public() @Get('services/:id')
-  one(@Param('id') id: string) { return this.svc.getById(id); }
+  one(@Param('id') id: string) { return this.svc.getByIdWithOffers(id); }
 
   @SelfService()
   @Post('bookings')
@@ -268,6 +275,7 @@ export class LabsController {
     return this.svc.compatibleProviders(ids);
   }
 
+  @PublicCache(20, ['provider-slots'], { cacheControl: 'public, s-maxage=20' })
   @Public() @Get('providers/:providerAccountId/slots')
   providerSlots(
     @Param('providerAccountId') providerAccountId: string,
