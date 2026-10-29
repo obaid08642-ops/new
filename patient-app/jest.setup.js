@@ -31,3 +31,11 @@ jest.mock('@maplibre/maplibre-react-native', () => {
   const plain = (name) => { const C = ({ children, ...props }) => React.createElement(View, { ...props, testID: props.testID || name }, children); C.displayName = name; return C; };
   return { Map: plain('MLMap'), Marker: plain('MLMarker'), UserLocation: plain('MLUserLocation'), Camera: React.forwardRef((_p, ref) => { React.useImperativeHandle(ref, () => ({ easeTo: jest.fn(), jumpTo: jest.fn(), flyTo: jest.fn() })); return null; }) };
 });
+
+// SDK 58 expo-asset throws for a font module that has no registered asset (the jest asset transform registers none);
+// icon fonts are not rendered under jest, so loading them is a no-op.
+jest.mock('expo-font', () => ({
+  ...jest.requireActual('expo-font'),
+  loadAsync: jest.fn(async () => undefined),
+  isLoaded: jest.fn(() => true),
+}));
