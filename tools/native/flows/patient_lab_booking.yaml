@@ -1,4 +1,4 @@
-# Lab booking: Lab tests tab -> a common test -> add to cart -> basket -> the best lab -> time -> confirm -> the booking is created (open the order).
+# Lab booking: Lab tests tab -> a test -> Order now (skips the cart) -> the best lab -> time -> confirm -> the booking is created (open the order).
 appId: com.patient.nabd
 ---
 - runFlow:
@@ -14,29 +14,18 @@ appId: com.patient.nabd
     timeout: 20000
 - scrollUntilVisible:
     element:
-      id: "diag-test-0"
+      id: "diag-test-.*"
+    timeout: 40000
 - tapOn:
-    id: "diag-test-0"
+    id: "diag-test-.*"
+    index: 0
 - extendedWaitUntil:
     visible:
       id: "diagnostics-test-detail"
     timeout: 20000
+# "Order now" skips the cart: this one test goes to the lab choice, then the time and the payment
 - tapOn:
-    id: "diag-book-now"
-- extendedWaitUntil:
-    visible:
-      id: "diagnostics-cart"
-    timeout: 20000
-# the basket opens on "at home" (the hub's place choice is not carried: findings #3) and the seeded tests have no home service in the area: choose "I will go myself"
-- tapOn:
-    id: "ordering-ctx-where"
-- tapOn: "سأذهب بنفسي"
-# the prices and coverage are asked again for the centre; the "no home service" line goes and the button turns on
-- extendedWaitUntil:
-    notVisible: "لا توجد خدمة منزلية.*"
-    timeout: 40000
-- tapOn:
-    id: "diag-cart-continue"
+    id: "diag-order-now"
 - extendedWaitUntil:
     visible:
       id: "diagnostics-lab-comparison"
