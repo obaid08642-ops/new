@@ -2,6 +2,7 @@
 
 /** The browser-only part of the providers map: the permission, the position (asked only when granted) and the saved address point. */
 import { parseDeliveryAddresses, pickDeliveryAddress } from "@/lib/pharmacy/delivery-address";
+import { readSessionHintFromDocument, type SessionHint } from "@/lib/auth/session-hint";
 import type { MapPoint } from "@/lib/map/explorer-model";
 
 export async function geolocationPermission(): Promise<"granted" | "prompt" | "denied"> {
@@ -25,8 +26,13 @@ export function currentPosition(timeoutMs = 8000): Promise<MapPoint | null> {
   });
 }
 
-/** The point of the default saved address (else the first with a point), read through the patient proxy; null for a guest. */
-export async function savedAddressPoint(doFetch: typeof fetch = fetch): Promise<MapPoint | null> {
+/**
+ * The point of the default saved address (else the first with a point), read through the patient proxy. Only a signed-in
+ * patient has addresses: for a guest, a visitor with no hint or an unreadable cookie nothing is requested (the endpoint
+ * would answer 401 and the public map must not make a request that is refused), and the caller falls back to the city.
+ */
+export async function savedAddressPoint(doFetch: typeof fetch = fetch, hint: SessionHint | null = readSessionHintFromDocument()): Promise<MapPoint | null> {
+  if (!hint || hint.kind !== "user" || hint.isGuest) return null;
   const response = await doFetch("/api/patient/users/me/addresses", { credentials: "same-origin", cache: "no-store" });
   if (!response.ok) return null;
   const picked = pickDeliveryAddress(parseDeliveryAddresses(await response.json().catch(() => null)));
