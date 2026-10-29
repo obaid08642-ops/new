@@ -48,6 +48,7 @@ const SITEMAPS: Array<[string, RegExp]> = [
   ["labs.xml", /\/labs\/CBC\/riyadh$/],
   ["radiology.xml", /\/diagnostics\/radiology\/r1$/],
   ["services.xml", /\/home-nursing\/riyadh$/],
+  ["nursing.xml", /\/home-nursing\/riyadh\/wound-care$/],
 ];
 
 describe("entity sitemaps: six locales, hreflang + x-default on every URL", () => {
@@ -130,7 +131,7 @@ describe("llms.txt names every public type and all six languages", () => {
     const { GET } = await import("@/app/llms.txt/route");
     const text = await GET().text();
     for (const l of LOCALES) expect(text).toContain(`](/${l})`);
-    for (const p of ["/{lang}/p/{slug}", "/{lang}/doctor/{slug}", "/{lang}/facility/{slug}", "/{lang}/pharmacy/{slug}", "/{lang}/labs/{test}/{city}", "/{lang}/diagnostics/radiology/{id}", "/{lang}/home-nursing/{city}", "/{lang}/articles/{slug}", "/{lang}/condition/{code}"]) {
+    for (const p of ["/{lang}/p/{slug}", "/{lang}/doctor/{slug}", "/{lang}/facility/{slug}", "/{lang}/pharmacy/{slug}", "/{lang}/labs/{test}/{city}", "/{lang}/diagnostics/radiology/{id}", "/{lang}/home-nursing/{city}", "/{lang}/home-nursing/{city}/{service}", "/{lang}/articles/{slug}", "/{lang}/condition/{code}"]) {
       expect(text).toContain(p);
     }
     expect(text).toContain("Moyasar");

@@ -4234,6 +4234,10 @@
         "title": "{name} | Nabd Plus स्वास्थ्य सेवा",
         "description": "{city} में {name}। विशेषज्ञ स्वास्थ्य सेवाएँ, स्वीकृत बीमा और सत्यापित डॉक्टर।",
         "country": "सऊदी अरब"
+      },
+      "nursingService": {
+        "title": "{city} में घर पर {service} | Nabd Plus",
+        "description": "{city} में घर पर {service}: कीमत देखें और Nabd Plus पर नर्स की विज़िट ऑनलाइन बुक करें।"
       }
     },
     "ld": {
@@ -4247,7 +4251,22 @@
       "crumbPharmacy": "फ़ार्मेसी",
       "crumbFacilities": "अस्पताल और क्लिनिक",
       "crumbHealthGuide": "स्वास्थ्य गाइड",
-      "crumbDoctors": "डॉक्टर"
+      "crumbDoctors": "डॉक्टर",
+      "nursingServiceCity": "{city} में होम नर्सिंग विज़िट के रूप में {service}"
+    },
+    "nursingService": {
+      "title": "{city} में घर पर {service}",
+      "intro": "{city} में घर पर {service} बुक करें: नब्ज़ प्लस के ज़रिए नर्स आपके घर आती है।",
+      "about": "इस सेवा के बारे में",
+      "priceTitle": "कीमत",
+      "priceFrom": "{price} से शुरू",
+      "priceRange": "{low} से {high} तक",
+      "providers": "यह सेवा देने वाली नर्सों की संख्या: {count}",
+      "book": "यह सेवा बुक करें",
+      "emptyTitle": "अभी कोई नर्स {service} नहीं दे रही",
+      "emptyBody": "जब कोई नर्स {service} देना शुरू करेगी, हम आपको बता देंगे। सूचना पाने का अनुरोध करें।",
+      "relatedTitle": "{city} में और होम नर्सिंग सेवाएँ",
+      "allServices": "{city} में सभी होम नर्सिंग सेवाएँ"
     }
   },
   "InsuranceWeb": {
@@ -5017,7 +5036,8 @@
     "faqRx": "क्या {name} के लिए पर्चा ज़रूरी है?",
     "faqIngredient": "{name} का सक्रिय तत्व क्या है?",
     "faqPrice": "नब्ज़ प्लस पर {name} की कीमत क्या है?",
-    "howToTitle": "{name} का उपयोग कैसे करें"
+    "howToTitle": "{name} का उपयोग कैसे करें",
+    "nursingServiceWho": "{service} नब्ज़ प्लस पर होम नर्सिंग सेवा है: नर्स {city} में आपके घर आती है। कीमत देखें और ऑनलाइन बुक करें।"
   },
   "LogForms": {
     "saveError": "सहेजा नहीं जा सका। आपने जो लिखा वह सुरक्षित है, फिर कोशिश करें।",
