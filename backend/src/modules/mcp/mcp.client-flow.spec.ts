@@ -58,7 +58,7 @@ describe('MCP client flow over HTTP (AI ordering)', () => {
     deps = built.deps;
     const tools = new AgentToolsService(
       deps.pharmacyOrders as any, deps.pharmacyOffers as any, deps.care as any, deps.appts as any, deps.locks as any,
-      deps.labs as any, deps.radiology as any, deps.nursing as any, deps.users as any, deps.redis as any, built.conn,
+      deps.labs as any, deps.nursing as any, deps.users as any, deps.redis as any, built.conn, deps.radiology as any,
     );
     const mod = await Test.createTestingModule({
       controllers: [McpController],

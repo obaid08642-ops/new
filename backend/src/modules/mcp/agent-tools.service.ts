@@ -76,11 +76,11 @@ export class AgentToolsService {
     private readonly appts: AppointmentsService,
     private readonly locks: SlotLocksService,
     private readonly labs: LabsService,
-    private readonly radiology: RadiologyOpsService,
     private readonly nursing: HomeCareSvc,
     private readonly users: UsersService,
     private readonly redis: RedisService,
     @InjectConnection() private readonly conn: Connection,
+    private readonly radiology: RadiologyOpsService,
   ) {}
 
   // ── entry point (called by McpController after auth; consultation_slots is public) ──
