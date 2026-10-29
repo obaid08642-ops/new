@@ -270,9 +270,10 @@ export class LabsController {
   }
 
   @Public() @Get('compatible-providers')
-  compatibleProviders(@Query('testIds') testIds?: string) {
+  compatibleProviders(@Query('testIds') testIds?: string, @Query('location') location?: string, @Query('insurance') insurance?: string) {
     const ids = testIds ? testIds.split(',') : [];
-    return this.svc.compatibleProviders(ids);
+    // `location=home` keeps the labs that collect at home for every requested test; `insurance=1` the labs that accept insurance for every one (QA PS gaps 4 and 5)
+    return this.svc.compatibleProviders(ids, { home: location === 'home', insurance: insurance === '1' || insurance === 'true' });
   }
 
   @PublicCache(20, ['provider-slots'], { cacheControl: 'public, s-maxage=20' })
