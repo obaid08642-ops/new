@@ -73,6 +73,7 @@ export function errorClass(e: unknown): string {
   if (http) return `http_${http[1]}`;
   if (msg === 'ai_provider_auth_failed') return 'auth';
   if (/_quota_exhausted$/.test(msg)) return 'quota';
+  if (/_no_preferred_free_model$/.test(msg)) return 'no_model';
   if (/_empty_response$/.test(msg)) return 'empty';
   if (/TimeoutError|AbortError/.test(name) || /aborted|timed? ?out|timeout/i.test(msg)) return 'timeout';
   if (/fetch failed|ECONN|ENOTFOUND|EAI_AGAIN|socket|network|certificate/i.test(msg)) return 'network';
@@ -182,6 +183,12 @@ export async function runParallel(reqs: ParallelRequest[], providers: ParallelPr
         item.attempts += 1; item.tried.add(p.name);
         if (isAuth(cls)) { retire(p, 'key rejected'); s.errors += 1; }
         else if (isExhausted(cls)) { retire(p, 'no balance or quota left'); s.errors += 1; }
+        else if (cls === 'no_model') { retire(p, 'no preferred free model'); s.errors += 1; }
+        else if (cls === 'empty') {
+          // the answer came back with no text (a reasoning model that spent its tokens thinking): the provider is up, so it is not parked; the request is asked again, of another provider first
+          s.errors += 1; st.clientStreak += 1;
+          if (st.clientStreak >= RETIRE_AFTER_CLIENT_ERRORS) retire(p, 'answers keep coming back empty');
+        }
         else if (isLimited(cls)) {
           s.limited += 1; st.limitedStreak += 1; st.clientStreak = 0;
           st.interval = Math.min(st.interval * 2, 60_000);

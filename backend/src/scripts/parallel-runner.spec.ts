@@ -154,6 +154,25 @@ describe('one bad provider cannot stall the rest (offline reproduction with stub
     expect(res.providers.empty.error_classes.quota).toBeLessThanOrEqual(3);
   });
 
+  it('an empty answer does not park or retire the provider early; the request goes on; a provider that is always empty is retired after a long streak', async () => {
+    const h = harness();
+    let n = 0;
+    const flaky = stub('flaky', h, () => (++n % 3 === 0 ? new Error('flaky_empty_response') : 'ok:flaky'));
+    const empty = stub('empty', h, () => new Error('empty_empty_response'));
+    const res = await runParallel(reqs(60), [flaky, empty, stub('good', h, good, 8000)], h.io);
+    expect(res.sent).toBe(60);
+    expect(res.providers.flaky.retired).toBeNull();
+    expect(res.providers.flaky.parked_ms).toBe(0);
+    expect(res.providers.empty.retired).toBe('answers keep coming back empty');
+  });
+
+  it('a free-only provider with no preferred model listed is retired with that reason', async () => {
+    const h = harness();
+    const res = await runParallel(reqs(10), [stub('openrouter', h, () => new Error('openrouter_no_preferred_free_model')), stub('good', h, good, 8000)], h.io);
+    expect(res.sent).toBe(10);
+    expect(res.providers.openrouter.retired).toBe('no preferred free model');
+  });
+
   it('every provider failing ends the run (nothing hangs) with the requests left unanswered', async () => {
     const h = harness();
     const res = await runParallel(reqs(10), [stub('a', h, () => new Error('a_http_404')), stub('b', h, () => new Error('ai_provider_auth_failed'))], h.io);
