@@ -1,18 +1,17 @@
-# 2026-10-29 lead reviewer: run 48.
-# 1. Pause the ar+en translation (answers are saved on the host).
-# 2. Free disk, deploy main@a93e8651: translation round 2 (#2083: a quota is read from the error code only, so a Groq rate limit
-#    no longer retires it; reasoning models last and empty answers retried elsewhere; 402/404 try the next preferred model;
-#    OpenRouter uses only its preferred free list); live gate in 5 shards (#2082).
-# 3. 98m: probe and move each ai_providers.model to the best preferred model that ANSWERED (compare-and-set on the old id);
-#    prints provider, from, to, status, class and the model-list HTTP status only. 98p: probe again on the stored records.
+# 2026-10-29 lead reviewer: run 49.
+# 1. Pause the ar+en translation (answers are saved on the host; the deploy recreates the backend).
+# 2. Free disk, deploy main@b8b79725: test-provider removal task (#2091), lab/nursing home+insurance filters (#2087),
+#    refund cap after a late cancel (#2085), insurance card copay cap (#2086), provider per-service options re-landed (#2088),
+#    /diagnostics full list (#2089), web booking duration (#2090).
+# 3. 78-test-data-remove DRY RUN (owner approved the removal): prints the counts per collection, the resolved ids and the plan hash.
+#    Nothing is written. The delete is the next run, with EXPECT_PLAN_SHA set to this hash (backup, exact ids, verify, rollback).
 # 4. Resume ar+en (same reviewed requests, hash-guarded; only unanswered ones are sent), then per-provider progress counts.
 98c-translate-pause
-release:a93e8651369faa35f5f41e5b3b3d853d100e7634
+release:b8b79725076836b97abb5b2902b7433437379d4c
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
-98m-translate-models
-98p-translate-probe
+78-test-data-remove
 98-translate-content
 98b-translate-progress
 cf-purge-api
