@@ -135,6 +135,36 @@ export function consultationRows(locale: string, payload: unknown, l: CenterLabe
 
 const DIAG_DONE = new Set(["report", "cancelled"]);
 
+/** A ready lab or radiology result, drawn in the "results and reports" tab. Only fields the booking payload carries. */
+export type ResultRow = {
+  key: string;
+  domain: "labs" | "radiology";
+  icon: FillIconName;
+  tone: ServiceTone;
+  title: string;
+  /** ISO instant of the booking (the payload has no report-ready time). */
+  at?: string;
+  /** The booking page, where the result is shown. */
+  viewHref: string;
+  /** The report file (labs only: GET labs/bookings/:id/reports/:reportId through the patient BFF); absent when the booking holds no file. */
+  pdfHref?: string;
+};
+
+/** The bookings whose report is ready (`hasReport`), newest first. */
+export function resultRows(locale: string, domain: "labs" | "radiology", payload: unknown, l: CenterLabels): ResultRow[] {
+  return extractDiagnosticBookings(payload)
+    .filter((booking) => booking.hasReport)
+    .map((booking) => ({
+      key: `result-${domain}-${booking.id}`,
+      domain,
+      ...KIND_VISUAL[domain],
+      title: domain === "labs" ? pickName(locale, booking.testNames) ?? l.diagnostics("labs.label") : pickName(locale, booking.scanNames) ?? l.diagnostics("radiology.label"),
+      at: booking.scheduledAt,
+      viewHref: diagnosticBookingHref(locale, domain, booking.id),
+      pdfHref: domain === "labs" && booking.reportIds?.[0] ? `/api/patient/labs/bookings/${encodeURIComponent(booking.id)}/reports/${encodeURIComponent(booking.reportIds[0])}` : undefined,
+    }));
+}
+
 export function diagnosticRows(locale: string, domain: "labs" | "radiology", payload: unknown, l: CenterLabels): CenterRow[] {
   return extractDiagnosticBookings(payload).map((booking) => {
     const status = diagStatus(booking.state);
