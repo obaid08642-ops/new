@@ -23,3 +23,5 @@ j_web_qa_map_book
 # Open product gaps (provider service options, docs/qa/findings/provider-services.md): a lab's own price, home and insurance per test
 # never reach the patient, the price comparisons are empty, and the home and insurance filters are ignored
 j_provider_service_options
+# Open product defect INS-CAP-1 (P1, docs/qa/findings/insurance-copay.md): the card's copay cap is not applied to insurance requests
+j_qa_copay_cap
