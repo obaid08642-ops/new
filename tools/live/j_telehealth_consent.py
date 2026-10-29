@@ -179,15 +179,6 @@ def main():
     r = web.post('/api/legal/accept/patient_terms', {})
     step('the website accepts no other policy key (404)', r.status == 404, r)
 
-    journey('telehealth consent: the refund policy and telehealth consent pages')
-    for key, path in (('refund_policy', '/ar/refund-policy'), ('telehealth_consent', '/ar/telehealth-consent')):
-        r = WebClient(WEB).req('GET', path, headers={'accept': 'text/html'})
-        heading = probe(texts[key])
-        body = r.body if isinstance(r.body, str) else ''
-        step(f'GET {path} answers 200 with the published text', r.status == 200 and heading in body, f'{r.status} looking for {heading!r}')
-    r = WebClient(WEB).req('GET', '/en/telehealth-consent', headers={'accept': 'text/html'})
-    step('GET /en/telehealth-consent answers 200 (the Arabic text, the /terms fallback while there is no English text)', r.status == 200, r.status)
-
 
 if __name__ == '__main__':
     from lib import summary

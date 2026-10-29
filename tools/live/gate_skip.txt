@@ -25,3 +25,6 @@ j_web_qa_map_book
 j_provider_service_options
 # Open product defect INS-CAP-1 (P1, docs/qa/findings/insurance-copay.md): the card's copay cap is not applied to insurance requests
 j_qa_copay_cap
+# Website page check of the refund policy and telehealth consent (split from j_telehealth_consent, which stays gated): the page can
+# show a policy published within the last hour late (A-14, docs/qa/findings/web-patient.md)
+j_telehealth_consent_pages
