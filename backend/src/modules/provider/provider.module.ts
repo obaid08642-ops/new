@@ -28,6 +28,7 @@ import { ProviderScheduleService } from './services/provider-schedule.service';
 import { ProviderDashboardService } from './services/provider-dashboard.service';
 import { ProviderSeedService } from './services/provider-seed.service';
 import { ServiceCapabilityService } from './services/service-capability.service';
+import { ProviderServiceOffersService } from './services/provider-service-offers.service';
 import { GeoEngineService } from './services/geo-engine.service';
 import { SchedulingEngineService } from './services/scheduling-engine.service';
 import { ProviderScoringService } from './services/provider-scoring.service';
@@ -50,7 +51,7 @@ import { ProviderOrderingService } from './services/provider-ordering.service';
 import {
   ProviderAuthController, ProviderProfileController, ProviderOperatorsController, ProviderAdminController,
   ProviderRequestsController, ProviderNotificationsController, ProviderScheduleController, ProviderDashboardController,
-  ProviderCapabilitiesController, ProviderZonesController, ProviderScheduleSlotsController, ProviderScoreController,
+  ProviderCapabilitiesController, ProviderServiceOffersController, AdminServiceOffersController, ProviderZonesController, ProviderScheduleSlotsController, ProviderScoreController,
   AdminMatchingController, ProviderWalletController
 } from './provider.controllers';
 import { DoctorSessionTypeRepository } from "./services/repositories/doctorsessiontype.repository";
@@ -155,6 +156,8 @@ import { ProviderDrugIndexController } from './provider-drug-index.controller';
     ProviderDashboardController,
     // Phase 1C
     ProviderCapabilitiesController,
+    ProviderServiceOffersController,
+    AdminServiceOffersController,
     ProviderZonesController,
     ProviderOrderingController,
     AdminOrderingController,
@@ -184,6 +187,7 @@ import { ProviderDrugIndexController } from './provider-drug-index.controller';
     ProviderSeedService,
     // Phase 1C
     ServiceCapabilityService,
+    ProviderServiceOffersService,
     ProviderOrderingService,
     GeoEngineService,
     SchedulingEngineService,
