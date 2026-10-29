@@ -329,8 +329,13 @@ jobs:
           bash tools/ops/tasks/60-deploy-main.sh 2>&1 | tee out.txt; rc=${PIPESTATUS[0]}
           echo "exit=$rc"; test $rc = 0 || exit 1
           grep -q 'deploy: DONE main@' out.txt || exit 1
-          test "$(grep -cE '^migrate: 20[0-9-]+[a-z-]+ exit=0$' out.txt)" = 4 && echo "4 migrations applied, exit=0" || exit 1
-          grep -E '^migrate:   \{"dry_run":false,"conflicts":0,' out.txt && echo "catalog migration on production-shaped data: no conflict" || exit 1
+          # the migrations this release ships are the ones the deploy script lists itself (MIGRATIONS=...); not a fixed count: a release may ship none
+          LIST=$(sed -n 's/^MIGRATIONS="\(.*\)"$/\1/p' tools/ops/tasks/60-deploy-main.sh | head -1)
+          echo "migrations this release ships: ${LIST:-none}"
+          grep -qE "^deploy: migrations applied: ${LIST} \(database " out.txt || { echo "the applied list does not match the script's own"; exit 1; }
+          for m in $LIST; do grep -qE "^migrate: $m exit=0$" out.txt && echo "migration $m exit=0" || { echo "migration $m missing or failed"; exit 1; }; done
+          test "$(grep -cE '^migrate: [^ ]+ exit=' out.txt)" = "$(echo $LIST | wc -w)" && echo "exactly the listed migrations ran" || exit 1
+          case " $LIST " in *" 2026-09-catalog-json-to-db "*) grep -E '^migrate:   \{"dry_run":false,"conflicts":0,' out.txt && echo "catalog migration on production-shaped data: no conflict" || exit 1;; esac
           ! grep -q E11000 out.txt || exit 1
           ! grep -qE 'link-provider-accounts|unify-provider-passwords|strip-facility-ratings|archive-ambulance|end-purchase-challenges' out.txt && echo "held migrations not run" || exit 1
           N=$(sudo docker exec nabdah-mongodb sh -c 'mongosh --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin nabd_nestjs --eval "print(db.nursing_catalog.countDocuments())"')
