@@ -72,6 +72,7 @@ export function errorClass(e: unknown): string {
   const http = /_http_(\d{3})\b/.exec(msg);
   if (http) return `http_${http[1]}`;
   if (msg === 'ai_provider_auth_failed') return 'auth';
+  if (/_quota_exhausted$/.test(msg)) return 'quota';
   if (/_empty_response$/.test(msg)) return 'empty';
   if (/TimeoutError|AbortError/.test(name) || /aborted|timed? ?out|timeout/i.test(msg)) return 'timeout';
   if (/fetch failed|ECONN|ENOTFOUND|EAI_AGAIN|socket|network|certificate/i.test(msg)) return 'network';
@@ -80,7 +81,9 @@ export function errorClass(e: unknown): string {
 
 const isLimited = (cls: string): boolean => cls === 'http_429';
 const isAuth = (cls: string): boolean => cls === 'auth';
-const isClient4xx = (cls: string): boolean => /^http_4\d\d$/.test(cls) && cls !== 'http_429' && cls !== 'http_408';
+/** No balance (402) or an account out of quota (429 insufficient_quota): neither heals by waiting, so the provider is retired at once and its requests go to the others. */
+const isExhausted = (cls: string): boolean => cls === 'quota' || cls === 'http_402';
+const isClient4xx = (cls: string): boolean => /^http_4\d\d$/.test(cls) && cls !== 'http_429' && cls !== 'http_408' && cls !== 'http_402';
 const MAX_PARK_MS = 10 * 60_000;
 // A 429 is a limit, not a verdict: the provider is parked longer and longer (up to MAX_PARK_MS), never retired for it. A 4xx other than 429/408 is retired only
 // after a long unbroken streak with no success in between, so one wrong setting at the start cannot end a run.
@@ -178,6 +181,7 @@ export async function runParallel(reqs: ParallelRequest[], providers: ParallelPr
         st.okStreak = 0;
         item.attempts += 1; item.tried.add(p.name);
         if (isAuth(cls)) { retire(p, 'key rejected'); s.errors += 1; }
+        else if (isExhausted(cls)) { retire(p, 'no balance or quota left'); s.errors += 1; }
         else if (isLimited(cls)) {
           s.limited += 1; st.limitedStreak += 1; st.clientStreak = 0;
           st.interval = Math.min(st.interval * 2, 60_000);

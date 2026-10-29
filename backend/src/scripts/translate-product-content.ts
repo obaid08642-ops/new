@@ -157,18 +157,40 @@ export async function loadRegistry(env: NodeJS.ProcessEnv): Promise<RegistryReco
   }
 }
 
+/** Moves each `ai_providers.model` to the model the probe proved works, only where it differs; the write names the old id, so a record changed meanwhile is left alone. */
+export async function applyModels(env: NodeJS.ProcessEnv, results: Array<{ provider: string; model: string; status: string; from: string }>, apply: boolean): Promise<number> {
+  const changes = results.filter((r) => r.status === 'ok' && r.model !== r.from);
+  out({ step: 'models', apply, would_change: changes.map((c) => ({ provider: c.provider, from: c.from, to: c.model })), unchanged: results.filter((r) => r.status === 'ok' && r.model === r.from).map((r) => r.provider), failed: results.filter((r) => r.status !== 'ok').map((r) => r.provider) });
+  if (!apply || !changes.length) return 0;
+  const uri = env.MONGO_URL; if (!uri) throw new Error('MONGO_URL is not set');
+  const conn = await mongoose.createConnection(uri, { dbName: env.DB_NAME || 'nabd_nestjs', directConnection: mongoDirectConnection(uri), maxPoolSize: 1 }).asPromise();
+  try {
+    for (const c of changes) {
+      const r = await conn.db!.collection('ai_providers').updateOne({ key: c.provider, model: c.from }, { $set: { model: c.model, previous_model: c.from, model_changed_at: new Date() } });
+      out({ provider: c.provider, from: c.from, to: c.model, updated: r.modifiedCount === 1 });
+    }
+  } finally { await conn.close(); }
+  return 0;
+}
+
 export async function main(argv: string[]): Promise<number> {
   const step = argv[0];
-  if (step === 'probe') {
-    // One tiny request per provider that has a key, side by side: prints provider, model, status (ok|failed) and class (ok | http_404 | auth | timeout ...). Nothing else.
-    const calls = providerCallersFromEnv(process.env, { registry: await loadRegistry(process.env), timeoutMs: Number(process.env.TRANSLATE_PROBE_TIMEOUT_MS) || 30_000 });
-    let failed = 0;
-    await Promise.all(calls.map(async ({ provider, call }) => {
+  if (step === 'probe' || step === 'models') {
+    // probe: one tiny request per provider that has a key, side by side. A 404 (retired model) makes the caller list the provider's models with the same key and
+    // retry with the first preferred one that exists. Prints provider, model (the one that answered), status (ok|failed) and class (ok | http_404 | quota | ...). Nothing else.
+    // models [--apply]: the same, then the `ai_providers` record's `model` is moved to the model that was PROVED to answer (compare-and-set on the old id; dry run without --apply).
+    const registry = await loadRegistry(process.env);
+    const calls = providerCallersFromEnv(process.env, { registry, timeoutMs: Number(process.env.TRANSLATE_PROBE_TIMEOUT_MS) || 30_000 });
+    const results: Array<{ provider: string; model: string; status: 'ok' | 'failed'; class: string; from: string }> = [];
+    await Promise.all(calls.map(async ({ provider, call, model }) => {
       let cls = 'ok';
-      try { await call('Reply with the single word OK.'); } catch (e) { cls = errorClass(e); failed += 1; }
-      out({ provider: provider.key, model: provider.model, status: cls === 'ok' ? 'ok' : 'failed', class: cls });
+      try { await call('Reply with the single word OK.'); } catch (e) { cls = errorClass(e); }
+      const r = { provider: provider.key, model: model(), status: cls === 'ok' ? 'ok' as const : 'failed' as const, class: cls, from: provider.model };
+      results.push(r);
+      out(step === 'probe' ? { provider: r.provider, model: r.model, status: r.status, class: r.class } : { provider: r.provider, from: r.from, to: r.model, status: r.status, class: r.class });
     }));
-    return failed === calls.length ? 1 : 0;
+    if (step === 'models') return (await applyModels(process.env, results, argv.includes('--apply')));
+    return results.every((r) => r.status === 'failed') ? 1 : 0;
   }
   if (step === 'gaps') {
     const uri = process.env.MONGO_URL;
@@ -239,7 +261,7 @@ export async function main(argv: string[]): Promise<number> {
     out({ step, moves: summarizeMoves(moves), accepted: plan.accepted, rejected: plan.rejected, by_target: plan.by_target, file: outFile, file_sha256: sha256(fs.readFileSync(outFile, 'utf8')) });
     return 0;
   }
-  throw new Error('usage: translate-product-content <gaps|run|plan>');
+  throw new Error('usage: translate-product-content <gaps|probe|models|run|plan>');
 }
 
 if (require.main === module) {

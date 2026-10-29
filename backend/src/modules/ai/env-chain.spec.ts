@@ -138,3 +138,61 @@ describe('per-provider callers go where the gateway goes', () => {
     expect(keys).toContain('gemini');
   });
 });
+
+/** 2026-10-29: groq, gemini and cerebras answered 404 because the model ids were retired; OpenAI answered 429 insufficient_quota (not a rate limit); OpenRouter 402 on paid models. */
+describe('retired models, empty accounts, free-only OpenRouter', () => {
+  const res = (status: number, body: unknown = {}, text = '') => ({ ok: status < 300, status, json: async () => body, text: async () => text, body: { cancel: async () => undefined } });
+  const chat = (content: string) => res(200, { choices: [{ message: { content } }] });
+
+  it('a 404 lists the provider models with the same key, retries once with the first preferred one, and keeps it', async () => {
+    const calls: string[] = [];
+    const fetchImpl = (async (url: string, init: { body?: string }) => {
+      if (url.endsWith('/models')) return res(200, { data: [{ id: 'llama-3.1-8b-instant' }, { id: 'other' }] });
+      const model = JSON.parse(init.body as string).model as string;
+      calls.push(model);
+      return model === 'llama-3.3-70b-versatile' ? res(404) : chat('ok');
+    }) as unknown as typeof fetch;
+    const [groq] = providerCallersFromEnv({ GROQ_API_KEY: 'k' }, { fetchImpl, registry: [{ key: 'groq', model: 'llama-3.3-70b-versatile' }] });
+    await expect(groq.call('hi')).resolves.toBe('ok');
+    expect(groq.model()).toBe('llama-3.1-8b-instant');
+    await groq.call('again');
+    expect(calls).toEqual(['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'llama-3.1-8b-instant']);   // the second call does not 404 again
+  });
+
+  it('when the list has nothing usable the 404 stays a 404 (no endless retry)', async () => {
+    const fetchImpl = (async (url: string) => (url.endsWith('/models') ? res(200, { data: [{ id: 'unrelated' }] }) : res(404))) as unknown as typeof fetch;
+    const [groq] = providerCallersFromEnv({ GROQ_API_KEY: 'k' }, { fetchImpl });
+    await expect(groq.call('hi')).rejects.toThrow('groq_http_404');
+  });
+
+  it('Gemini: 404 -> models list -> generateContent with the new model', async () => {
+    const urls: string[] = [];
+    const fetchImpl = (async (url: string) => {
+      urls.push(url);
+      if (url.includes('/v1beta/models?')) return res(200, { models: [{ name: 'models/gemini-2.5-flash', supportedGenerationMethods: ['generateContent'] }] });
+      return url.includes('gemini-2.0-flash:') ? res(404) : res(200, { candidates: [{ content: { parts: [{ text: 'ok' }] } }] });
+    }) as unknown as typeof fetch;
+    const [g] = providerCallersFromEnv({ GEMINI_API_KEY: 'k' }, { fetchImpl, registry: [{ key: 'gemini', model: 'gemini-2.0-flash' }] });
+    await expect(g.call('hi')).resolves.toBe('ok');
+    expect(urls[urls.length - 1]).toBe('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent');
+  });
+
+  it('OpenRouter never starts from a paid model', async () => {
+    const models: string[] = [];
+    const fetchImpl = (async (_u: string, init: { body: string }) => { models.push(JSON.parse(init.body).model); return chat('ok'); }) as unknown as typeof fetch;
+    const [or] = providerCallersFromEnv({ OPENROUTER_API_KEY: 'k' }, { fetchImpl, registry: [{ key: 'openrouter', model: 'meta-llama/llama-3.3-70b-instruct' }] });
+    await or.call('hi');
+    expect(models[0].endsWith(':free')).toBe(true);
+  });
+
+  it('a 429 whose body says insufficient_quota is its own code; a plain 429 stays a rate limit; no body text is kept', async () => {
+    const quota = (async () => res(429, {}, '{"error":{"code":"insufficient_quota","message":"You exceeded your current quota sk-SECRET"}}')) as unknown as typeof fetch;
+    const rate = (async () => res(429, {}, 'Rate limit reached')) as unknown as typeof fetch;
+    const [a] = providerCallersFromEnv({ OPENAI_API_KEY: 'k' }, { fetchImpl: quota });
+    const err = (await a.call('x').catch((e) => e)) as Error;
+    expect(err.message).toBe('openai_quota_exhausted');
+    expect(err.message).not.toContain('SECRET');
+    const [b] = providerCallersFromEnv({ OPENAI_API_KEY: 'k' }, { fetchImpl: rate });
+    await expect(b.call('x')).rejects.toThrow('openai_http_429');
+  });
+});
