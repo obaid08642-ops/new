@@ -80,7 +80,7 @@ export function errorClass(e: unknown): string {
   return 'other';
 }
 
-const isLimited = (cls: string): boolean => cls === 'http_429';
+const isLimited = (cls: string): boolean => cls === 'http_429' || cls === 'http_503';   // 503 = overloaded: backed off like a limit (30 s, doubling), not retried at once
 const isAuth = (cls: string): boolean => cls === 'auth';
 /** No balance (402) or an account out of quota (429 insufficient_quota): neither heals by waiting, so the provider is retired at once and its requests go to the others. */
 const isExhausted = (cls: string): boolean => cls === 'quota' || cls === 'http_402';

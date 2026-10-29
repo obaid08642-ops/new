@@ -159,6 +159,35 @@ describe('retired models, empty accounts, free-only OpenRouter', () => {
     expect(calls).toEqual(['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'llama-3.1-8b-instant']);   // the second call does not 404 again
   });
 
+  it('cerebras 404 with none of the preferred ids listed: the first listed chat model is tried (not an embedding), the count of preferred ids is 0', async () => {
+    const calls: string[] = [];
+    const fetchImpl = (async (url: string, init: { body?: string }) => {
+      if (url.endsWith('/models')) return res(200, { data: [{ id: 'text-embedding-x' }, { id: 'zai-glm-4.7' }, { id: 'other' }] });
+      const model = JSON.parse(init.body as string).model as string;
+      calls.push(model);
+      return model === 'zai-glm-4.7' ? chat('ok') : res(404);
+    }) as unknown as typeof fetch;
+    const [c] = providerCallersFromEnv({ CEREBRAS_API_KEY: 'k' }, { fetchImpl, registry: [{ key: 'cerebras', model: 'llama-4-scout-17b-16e-instruct' }] });
+    await expect(c.call('hi')).resolves.toBe('ok');
+    expect(c.model()).toBe('zai-glm-4.7');
+    expect(await c.preferredListed()).toBe(0);
+    expect(calls).not.toContain('text-embedding-x');
+  });
+
+  it('OpenRouter never falls back to an arbitrary listed model', async () => {
+    const fetchImpl = (async (url: string) => (url.endsWith('/models') ? res(200, { data: [{ id: 'x/y:free' }] }) : res(404))) as unknown as typeof fetch;
+    const [o] = providerCallersFromEnv({ OPENROUTER_API_KEY: 'k' }, { fetchImpl });
+    await expect(o.call('hi')).rejects.toThrow('openrouter_no_preferred_free_model');
+  });
+
+  it('a per-provider timeout option is accepted and the call goes through', async () => {
+    const seen: Array<number | undefined> = [];
+    const fetchImpl = (async (_u: string, init: { signal?: AbortSignal }) => { seen.push(init.signal ? 1 : undefined); return res(200, { candidates: [{ content: { parts: [{ text: 'ok' }] } }] }); }) as unknown as typeof fetch;
+    const [g] = providerCallersFromEnv({ GEMINI_API_KEY: 'k' }, { fetchImpl, timeoutMs: 180_000, timeoutByProvider: { gemini: 20_000 } });
+    await g.call('hi');
+    expect(seen.length).toBe(1);
+  });
+
   it('when the list has nothing usable the 404 stays a 404 (no endless retry)', async () => {
     const fetchImpl = (async (url: string) => (url.endsWith('/models') ? res(200, { data: [{ id: 'unrelated' }] }) : res(404))) as unknown as typeof fetch;
     const [groq] = providerCallersFromEnv({ GROQ_API_KEY: 'k' }, { fetchImpl });

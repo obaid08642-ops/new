@@ -61,7 +61,10 @@ export function estimateRequests(reqs: TranslateRequest[], model = DEFAULT_MODEL
 export function translateProviders(env: NodeJS.ProcessEnv, rpmCap?: number, registry: RegistryRecord[] = []): ParallelProvider[] {
   const share = Math.min(1, Math.max(0.05, Number(env.TRANSLATE_DAILY_SHARE) || 0.6));
   const over: Record<string, Partial<ProviderLimits>> = env.TRANSLATE_LIMITS ? JSON.parse(env.TRANSLATE_LIMITS) : {};
-  return providerCallersFromEnv({ ...env, CLASSIFY_MODEL: env.TRANSLATE_MODEL || env.CLASSIFY_MODEL }, { registry, model: env.TRANSLATE_MODEL || env.CLASSIFY_MODEL, timeoutMs: Number(env.TRANSLATE_TIMEOUT_MS) || 180_000 }).map(({ provider, call }) => {
+  // gemini: the lite model has the higher free limits and is overloaded less, and a call that hangs is cut at 20 s (a lane is not held for 76 s); both overridable
+  const geminiModel = env.TRANSLATE_GEMINI_MODEL || 'gemini-2.5-flash-lite';
+  const withLite = [...registry.filter((r) => r.key !== 'gemini'), { ...(registry.find((r) => r.key === 'gemini') ?? { key: 'gemini' }), model: geminiModel }];
+  return providerCallersFromEnv({ ...env, CLASSIFY_MODEL: env.TRANSLATE_MODEL || env.CLASSIFY_MODEL }, { registry: withLite, model: env.TRANSLATE_MODEL || env.CLASSIFY_MODEL, timeoutMs: Number(env.TRANSLATE_TIMEOUT_MS) || 180_000, timeoutByProvider: { gemini: Number(env.TRANSLATE_GEMINI_TIMEOUT_MS) || 20_000 } }).map(({ provider, call }) => {
     const base: ProviderLimits = {
       rpm: provider.requests_per_minute || 10,
       rpd: provider.requests_per_day ? Math.floor(provider.requests_per_day * share) : 0,
@@ -184,12 +187,13 @@ export async function main(argv: string[]): Promise<number> {
     const registry = await loadRegistry(process.env);
     const calls = providerCallersFromEnv(process.env, { registry, timeoutMs: Number(process.env.TRANSLATE_PROBE_TIMEOUT_MS) || 30_000 });
     const results: Array<{ provider: string; model: string; status: 'ok' | 'failed'; class: string; from: string }> = [];
-    await Promise.all(calls.map(async ({ provider, call, model, listStatus }) => {
+    await Promise.all(calls.map(async ({ provider, call, model, listStatus, preferredListed }) => {
       let cls = 'ok';
       try { await call('Reply with the single word OK.'); } catch (e) { cls = errorClass(e); }
       let chosen = model();
       let status: 'ok' | 'failed' = cls === 'ok' ? 'ok' : 'failed';
-      const listHttp = await listStatus();      // the HTTP status of the provider's model-list call, a number only: 200 = this key can list models
+      const listHttp = await listStatus();
+      const preferredIds = await preferredListed();      // how many of MODEL_PREFERENCE the provider's list has (a count; null = list unreadable)      // the HTTP status of the provider's model-list call, a number only: 200 = this key can list models
       if (step === 'models') {
         // A record can sit on a model that works but is not the best one (a reasoning model, a slow free one): move to the best PREFERRED model only when it is proved to answer.
         const key = String(process.env[PROVIDER_ENV_KEY[provider.key]] || '').trim();
@@ -201,7 +205,7 @@ export async function main(argv: string[]): Promise<number> {
       }
       const r = { provider: provider.key, model: chosen, status, class: cls, from: provider.model };
       results.push(r);
-      out(step === 'probe' ? { provider: r.provider, model: r.model, status: r.status, class: r.class, models_list_http: listHttp } : { provider: r.provider, from: r.from, to: r.model, status: r.status, class: r.class, models_list_http: listHttp });
+      out(step === 'probe' ? { provider: r.provider, model: r.model, status: r.status, class: r.class, models_list_http: listHttp, preferred_listed: preferredIds } : { provider: r.provider, from: r.from, to: r.model, status: r.status, class: r.class, models_list_http: listHttp });
     }));
     if (step === 'models') return (await applyModels(process.env, results, argv.includes('--apply')));
     return results.every((r) => r.status === 'failed') ? 1 : 0;

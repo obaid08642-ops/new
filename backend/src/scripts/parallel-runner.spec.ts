@@ -144,6 +144,15 @@ describe('one bad provider cannot stall the rest (offline reproduction with stub
     expect(res.providers.flaky.ok).toBeGreaterThan(0);
   });
 
+  it('a 503 (overloaded) backs the provider off like a limit and never retires it', async () => {
+    const h = harness();
+    const over = stub('over', h, () => new Error('over_http_503'));
+    const res = await runParallel(reqs(20), [over, stub('good', h, good, 8000)], h.io);
+    expect(res.providers.over.limited).toBeGreaterThan(0);
+    expect(res.providers.over.parked_ms).toBeGreaterThanOrEqual(30_000);
+    expect(res.providers.over.retired).toBeNull();
+  });
+
   it('no balance (402) and an account out of quota retire the provider at once; its requests go to the others', async () => {
     const h = harness();
     const res = await runParallel(reqs(20), [stub('broke', h, () => new Error('broke_http_402')), stub('empty', h, () => new Error('empty_quota_exhausted')), stub('good', h, good, 8000)], h.io);
