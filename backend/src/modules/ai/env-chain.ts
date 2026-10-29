@@ -4,6 +4,7 @@
  * talks to one hard-wired provider: it tries every provider whose key is set, in priority order, and moves on when one is rejected
  * (401/403), limited (429), down (5xx) or slow; a failing provider is parked in-process for a while.
  */
+import { resolveModel, FREE_ONLY, MODEL_PREFERENCE, isFreeModel } from './ai-model-resolver';
 import { AiProviderName, DEFAULT_PROVIDERS, NON_CHAT_PROVIDERS, PROVIDER_ENV_KEY, ProviderConfig, providerHttpErrorCode } from './ai-provider-catalog';
 
 export type Caller = (prompt: string) => Promise<string>;
@@ -40,6 +41,18 @@ export function providerVariableNames(): string[] {
   return CHAT_PROVIDERS.map((p) => PROVIDER_ENV_KEY[p.key]);
 }
 
+/** A 429 that says the account has no quota/credit left (OpenAI `insufficient_quota`) is not a rate limit: waiting never heals it. Only that one fact is taken from the body; the body itself is never kept. */
+const QUOTA_BODY = /insufficient_quota|exceeded your current quota|billing/i;
+async function failure(p: ProviderConfig, res: Response): Promise<Error> {
+  if (res.status === 429) {
+    const text = await res.text().then((t) => t.slice(0, 2000)).catch(() => '');
+    if (QUOTA_BODY.test(text)) return new Error(`${p.key}_quota_exhausted`);
+    return new Error(providerHttpErrorCode(p.key, 429));
+  }
+  await res.body?.cancel().catch(() => undefined);
+  return new Error(providerHttpErrorCode(p.key, res.status));
+}
+
 async function callProvider(p: ProviderConfig, key: string, model: string, prompt: string, f: typeof fetch, timeoutMs = 60_000): Promise<string> {
   if (p.key === 'gemini') {
     const res = await f(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
@@ -49,7 +62,7 @@ async function callProvider(p: ProviderConfig, key: string, model: string, promp
       signal: AbortSignal.timeout(timeoutMs),
     });
     // The response body is never read into an error: a 401 body can carry part of the key.
-    if (!res.ok) { await res.body?.cancel().catch(() => undefined); throw new Error(providerHttpErrorCode(p.key, res.status)); }
+    if (!res.ok) throw await failure(p, res);
     const body = (await res.json()) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
     return body.candidates?.[0]?.content?.parts?.map((x) => x.text || '').join('') || '';
   }
@@ -62,9 +75,31 @@ async function callProvider(p: ProviderConfig, key: string, model: string, promp
     body: JSON.stringify({ model, temperature: 0, messages: [{ role: 'user', content: prompt }] }),
     signal: AbortSignal.timeout(timeoutMs),
   });
-  if (!res.ok) { await res.body?.cancel().catch(() => undefined); throw new Error(providerHttpErrorCode(p.key, res.status)); }
+  if (!res.ok) throw await failure(p, res);
   const body = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
   return body.choices?.[0]?.message?.content || '';
+}
+
+/**
+ * One provider's caller that survives a retired model: on a 404 it lists the provider's models with the same key, picks the first preferred one that exists
+ * and retries once; the choice is kept for the next calls (`model()`). A free-only provider (OpenRouter) never starts from a paid id.
+ */
+function modelAwareCall(p: ProviderConfig, key: string, startModel: string, f: typeof fetch, timeoutMs?: number): { call: (prompt: string, ) => Promise<string>; model: () => string } {
+  let model = FREE_ONLY.has(p.key) && !isFreeModel(startModel) ? (MODEL_PREFERENCE[p.key]?.[0] ?? startModel) : startModel;
+  let resolving: Promise<string> | null = null;
+  const call = async (prompt: string): Promise<string> => {
+    try {
+      return await callProvider(p, key, model, prompt, f, timeoutMs);
+    } catch (e) {
+      if (!/_http_404$/.test(String((e as Error)?.message || e))) throw e;
+      resolving ??= resolveModel(p.key, p.base_url, key, model, f).finally(() => { resolving = null; });
+      const next = await resolving.catch(() => null);
+      if (!next || next === model) throw e;
+      model = next;
+      return callProvider(p, key, model, prompt, f, timeoutMs);
+    }
+  };
+  return { call, model: () => model };
 }
 
 /** Throws at once when no provider key is set at all (the job says so and stops, nothing is sent). */
@@ -74,14 +109,13 @@ export function chainCallerFromEnv(env: NodeJS.ProcessEnv = process.env, opts: E
   const now = opts.now ?? Date.now;
   const f = opts.fetchImpl ?? fetch;
   const parkedUntil = new Map<AiProviderName, number>();
+  const callers = new Map(providers.map((p, i) => [p.key, modelAwareCall(p, String(env[PROVIDER_ENV_KEY[p.key]]).trim(), (i === 0 && opts.model) || p.model, f)]));
   return async (prompt) => {
     const failures: string[] = [];
     for (const [i, p] of providers.entries()) {
       if ((parkedUntil.get(p.key) ?? 0) > now()) continue;
-      const key = String(env[PROVIDER_ENV_KEY[p.key]]).trim();
-      const model = (i === 0 && opts.model) || p.model;
       try {
-        const text = await callProvider(p, key, model, prompt, f);
+        const text = await callers.get(p.key)!.call(prompt);
         if (!text.trim()) throw new Error(`${p.key}_empty_response`);
         return text;
       } catch (e) {
@@ -99,17 +133,18 @@ export function chainCallerFromEnv(env: NodeJS.ProcessEnv = process.env, opts: E
  * One caller per provider whose key is set, for jobs that run the providers side by side (each within its own limits) instead of
  * one after the other. A caller throws the same error codes as the chain; it never parks or retries (the job's scheduler does).
  */
-export function providerCallersFromEnv(env: NodeJS.ProcessEnv = process.env, opts: EnvChainOptions = {}): Array<{ provider: ProviderConfig; call: Caller }> {
+export function providerCallersFromEnv(env: NodeJS.ProcessEnv = process.env, opts: EnvChainOptions = {}): Array<{ provider: ProviderConfig; call: Caller; model: () => string }> {
   const providers = envChainProviders(env, opts.registry);
   if (!providers.length) throw new Error(`no AI provider variable is set (${providerVariableNames().join(', ')}): nothing was sent`);
   const f = opts.fetchImpl ?? fetch;
   return providers.map((provider, i) => {
     const key = String(env[PROVIDER_ENV_KEY[provider.key]]).trim();
-    const model = (i === 0 && opts.model) || provider.model;
+    const aware = modelAwareCall(provider, key, (i === 0 && opts.model) || provider.model, f, opts.timeoutMs);
     return {
       provider,
+      model: aware.model,
       call: async (prompt: string) => {
-        const text = await callProvider(provider, key, model, prompt, f, opts.timeoutMs);
+        const text = await aware.call(prompt);
         if (!text.trim()) throw new Error(`${provider.key}_empty_response`);
         return text;
       },

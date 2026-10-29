@@ -144,6 +144,16 @@ describe('one bad provider cannot stall the rest (offline reproduction with stub
     expect(res.providers.flaky.ok).toBeGreaterThan(0);
   });
 
+  it('no balance (402) and an account out of quota retire the provider at once; its requests go to the others', async () => {
+    const h = harness();
+    const res = await runParallel(reqs(20), [stub('broke', h, () => new Error('broke_http_402')), stub('empty', h, () => new Error('empty_quota_exhausted')), stub('good', h, good, 8000)], h.io);
+    expect(res.sent).toBe(20);
+    expect(res.providers.broke.retired).toBe('no balance or quota left');
+    expect(res.providers.broke.sent).toBeLessThanOrEqual(3);     // at most the requests already in flight on its lanes
+    expect(res.providers.empty.retired).toBe('no balance or quota left');
+    expect(res.providers.empty.error_classes.quota).toBeLessThanOrEqual(3);
+  });
+
   it('every provider failing ends the run (nothing hangs) with the requests left unanswered', async () => {
     const h = harness();
     const res = await runParallel(reqs(10), [stub('a', h, () => new Error('a_http_404')), stub('b', h, () => new Error('ai_provider_auth_failed'))], h.io);
