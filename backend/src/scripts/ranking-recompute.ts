@@ -5,6 +5,8 @@
  * and no admin token. Run by `tools/ops/tasks/94-ranking-recompute.sh`.
  *   plan  (default)  READ-ONLY: what would change, and how many distinct top-level categories the first 24 of "All" hold now.
  *   apply            recount orders_count, recompute the ranking (scores, category_pos), verify, print the first 24 again.
+ * Since the catalogue ranking (2026-10-29) the same run also recomputes `rank_score` of the lab, radiology and nursing catalogues (steps `catalogue_ranking`: the orders
+ * recounted from the bookings of the last 90 days plus the stored daily counters); `plan` reports what would change, `apply` writes it and verifies that every row has a score.
  * Prints counts only (JSON lines), never a document or a value of the environment.
  */
 import mongoose, { Connection } from 'mongoose';
@@ -15,6 +17,8 @@ import { recountDeliveredOrders } from '../modules/orders/ordered-count';
 import { ProductRankingService, popularPage } from '../modules/product-ranking/product-ranking.service';
 import { ProductRankingMetrics, ProductRankingMetricsSchema } from '../schemas/product-ranking-metrics.schema';
 import { RedisService } from '../modules/redis/redis.service';
+import { recomputeCatalogueRanking, type Db } from '../modules/catalogue-ranking/catalogue-ranking.recompute';
+import { RANKED_VERTICALS, RANK_COLLECTION } from '../modules/catalogue-ranking/catalogue-ranking';
 
 const out = (o: Record<string, unknown>) => console.log(JSON.stringify(o));
 
@@ -44,6 +48,7 @@ export async function plan(conn: Connection | { collection(n: string): any }): P
   out({ step: 'category_pos', ...(await positions(c)) });
   out({ step: 'metrics', rows: await c.collection('product_ranking_metrics').countDocuments({ pharmacy_id: 'global' }) });
   out({ step: 'first_page', when: 'before', ...(await firstPageCategories(c)) });
+  for (const v of await recomputeCatalogueRanking(c as Db, false)) out({ step: 'catalogue_ranking', write: false, ...v });
   out({ step: 'plan', writes: false });
 }
 
@@ -59,7 +64,12 @@ export async function apply(conn: Connection | { collection(n: string): any }, r
   out({ step: 'category_pos', ...after });
   const page = await firstPageCategories(c);
   out({ step: 'first_page', when: 'after', ...page });
-  const ok = after.missing_category_pos === 0;
+  // the lab, radiology and nursing catalogues: orders recounted, counters added, rank_score written; every row must end with a number
+  for (const v of await recomputeCatalogueRanking(c as Db, true)) out({ step: 'catalogue_ranking', write: true, ...v });
+  const unscored: Record<string, number> = {};
+  for (const v of RANKED_VERTICALS) unscored[v] = await c.collection(RANK_COLLECTION[v]).countDocuments({ id: { $type: 'string' }, rank_score: { $not: { $type: 'number' } } });
+  out({ step: 'catalogue_ranking_verify', unscored });
+  const ok = after.missing_category_pos === 0 && Object.values(unscored).every((n) => n === 0);
   out({ step: 'verify', ok });
   return ok ? 0 : 1;
 }

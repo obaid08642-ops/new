@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Optional, ServiceUnavailableException } from '@nestjs/common';
+import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { randomUUID } from 'crypto';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Connection, Model, Types } from 'mongoose';
@@ -478,7 +479,7 @@ export class RadiologyOpsService {
     }
 
     const load = async () => {
-      const services: any[] = await this.svcModel.find(q).sort({ popularity: -1 }).lean();
+      const services: any[] = await this.svcModel.find(q).sort(catalogueSortSpec(opts.sort)).lean();
       if (opts.highest_rated) {
         // ratings are on the centres, not on the scans: a scan is ranked by the centres that perform it
         const centres: any[] = await this.profileModel.find({

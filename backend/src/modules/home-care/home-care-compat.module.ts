@@ -1,4 +1,5 @@
 import { loadOffers, withOfferSummary, withOffers } from '../../common/service-offers';
+import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { PROVIDER_ROLES } from '../../common/enums';
 /**
  * M2 — Home-care compatibility layer + nursing ops reference data + chat aliases.
@@ -53,7 +54,7 @@ export class HomeCareCompatController {
     // Patients only see services that passed medical review (same rule as /nursing/catalog).
     const filter: any = { active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
     if (q?.category) filter.category = { $eq: String(q.category) };
-    const rows: any[] = await this.services.find(filter, { _id: 0, __v: 0 }).lean();
+    const rows: any[] = await this.services.find(filter, { _id: 0, __v: 0 }).sort(catalogueSortSpec(q?.sort)).lean();
     // 2026-10-28: every catalogue service carries what nurses offer for it (providers_count, from_price, where, insurance); `insurance=1` keeps those some nurse offers with insurance.
     return withOfferSummary(this.services.db as never, 'nursing', rows, { insurance: q?.insurance === '1' || q?.insurance === 'true' });
   }

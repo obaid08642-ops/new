@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Query, ForbiddenException, BadRequestException, UseGuards, Param } from '@nestjs/common';
+import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { Public } from '../../common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -21,11 +22,12 @@ export class PatientHomeCareController {
   ) {}
 
   @Get('services')
-  async services(@Query('limit') limit = '50') {
+  async services(@Query('limit') limit = '50', @Query('sort') sort?: string) {
     const lim = Math.min(Math.max(parseInt(limit, 10) || 50, 1), 200);
     const docs = await this.conn.db
       .collection(CATALOG_COLLECTIONS.nursing_services)
       .find({ is_active: { $ne: false }, kind: { $ne: 'package' } } as any)
+      .sort(catalogueSortSpec(sort) as any)
       .limit(lim)
       .toArray();
     return { data: docs.map(({ _id, ...d }: any) => d) };
@@ -71,6 +73,7 @@ export class PatientHomeCareController {
     @Query('lng') lng?: string,
     @Query('limit') limit?: string,
     @Query('page') page?: string,
+    @Query('sort') sort?: string,
   ) {
     const filter: Record<string, any> = { is_active: { $ne: false }, kind: { $ne: 'package' } };
     const text = (q || '').trim().slice(0, 100);
@@ -92,6 +95,7 @@ export class PatientHomeCareController {
     const services: any[] = (await this.conn.db
       .collection(CATALOG_COLLECTIONS.nursing_services)
       .find(filter, { projection: { _id: 0 } })
+      .sort(catalogueSortSpec(sort))
       .limit(1000)
       .toArray());
 

@@ -6,7 +6,8 @@ function fakeConn(services: any[], nurses: any[]) {
     find: (filter: any) => {
       calls.push({ name, filter });
       const rows = name === 'provider_profiles' ? nurses : services;
-      return { limit: () => ({ toArray: async () => rows }), toArray: async () => rows };
+      const cursor = { limit: () => ({ toArray: async () => rows }), toArray: async () => rows };
+      return { ...cursor, sort: (spec: unknown) => { calls.push({ name, sort: spec }); return cursor; } };
     },
   });
   return { conn: { db: { collection } } as any, calls };
@@ -28,6 +29,7 @@ describe('GET /home-care/services/search (#645)', () => {
     const c = new PatientHomeCareController(conn, {} as any);
     const out: any = await c.searchServices('a.(b', 'wound_care', '50', '300', undefined, undefined, '2', '2');
     const f = calls[0].filter;
+    expect(calls.find((c: any) => c.sort)?.sort).toEqual({ rank_score: -1, popularity: -1, name_ar: 1 });          // the smart ranking is the default order
     expect(f.$or[0].name_ar.test('xa.(by')).toBe(true);
     expect(f.$or[0].name_ar.test('xaZZby')).toBe(false);
     expect(f.category).toBe('wound_care');

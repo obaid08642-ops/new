@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject, Optional } from '@nestjs/common';
+import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { Model } from 'mongoose';
 import { HomeCareService, HomeCareBooking, NursingBookingState, HomeCareBookingState, NursingVisitReport, CarePlan, MedicalSupplyRequest } from '../../schemas/home-care.schema';
@@ -40,7 +41,7 @@ export class HomeCareSvc {
     @Optional() private readonly insurance?: InsuranceFlowService,
   ) {}
 
-  async list(opts: { category?: string; search?: string; duration?: string }) {
+  async list(opts: { category?: string; search?: string; duration?: string; sort?: string }) {
     const q: any = { active: true };
     if (opts.category && opts.category !== 'all') q.category = opts.category;
     if (opts.duration && opts.duration !== 'all') q.duration = opts.duration;
@@ -48,9 +49,9 @@ export class HomeCareSvc {
       const re = new RegExp(opts.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
       q.$or = [{ name_ar: re }, { name_en: re }, { tags: re }];
     }
-    if (!this.redis?.getWithSWR) return this.svcModel.find(q, { _id: 0, __v: 0 }).sort({ popularity: -1, name_ar: 1 }).limit(120);
+    if (!this.redis?.getWithSWR) return this.svcModel.find(q, { _id: 0, __v: 0 }).sort(catalogueSortSpec(opts.sort)).limit(120);
     const cacheKey = `cache:home-care-services:public:v1:${JSON.stringify(opts)}`;
-    return this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q, { _id: 0, __v: 0 }).sort({ popularity: -1, name_ar: 1 }).limit(120));
+    return this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q, { _id: 0, __v: 0 }).sort(catalogueSortSpec(opts.sort)).limit(120));
   }
 
   async categoryCounts() {
