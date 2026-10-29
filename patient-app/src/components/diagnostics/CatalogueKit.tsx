@@ -37,7 +37,7 @@ export function CatalogueCard({ item, kind, art, place, payer, idPrefix, width, 
   const offerNote = lines ? [lines.providers, lines.from].filter(Boolean).join(' · ') : '';
   // a test says what it needs and when the result comes (owner decision 4): "No fasting · Result within 24 hours"
   const factsNote = kind === 'lab' && !isPackage
-    ? [item.fastingRequired ? (item.fastingHours !== null ? k('diag.tag.fastingHours', { n: text.hours(item.fastingHours) }) : k('diag.tag.fasting')) : k('diag.tag.noFasting'), item.turnaroundHours !== null ? text.turnaround(item.turnaroundHours) : ''].filter(Boolean).join(' · ')
+    ? [item.fastingRequired ? (item.fastingHours !== null ? k('diag.tag.fastingHours', { n: text.hours(item.fastingHours) }) : k('diag.tag.fasting')) : item.fastingKnown !== false ? k('diag.tag.noFasting') : '', item.turnaroundHours !== null ? text.turnaround(item.turnaroundHours) : ''].filter(Boolean).join(' · ')
     : '';
   const baseNote = isPackage ? (item.testsCount > 0 ? k('diag.pack.count', { n: num(item.testsCount) }) : '') : kind === 'lab' ? factsNote : itemSubtitle(item.desc, [item.category, item.modality, item.bodyPart, item.sampleType], k(`diag.cat.${art}`));
   const tags = [

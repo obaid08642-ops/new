@@ -39,6 +39,8 @@ export interface CatalogItem {
   /** The preparation steps the server listed, in the language asked. */
   preparation: string[];
   fastingRequired: boolean;
+  /** false when the server did not send `fasting_required`: the card then says nothing about fasting instead of "no fasting" */
+  fastingKnown?: boolean;
   fastingHours: number | null;
   turnaroundHours: number | null;
   homeVisit: boolean;
@@ -92,6 +94,7 @@ export function normalizeLabService(raw: unknown): CatalogItem | null {
     testsCount: testsList.length,
     preparation: lang ? lang.split('\n').filter(Boolean) : [],
     fastingRequired: Boolean(r.fasting_required),
+    fastingKnown: typeof r.fasting_required === 'boolean',
     fastingHours: asNumber(r.fasting_hours),
     turnaroundHours: asNumber(r.turnaround_hours),
     homeVisit: Boolean(r.home_visit_supported ?? r.homeAvailable),

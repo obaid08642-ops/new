@@ -35,9 +35,9 @@ export const sheetSort = (sort: SheetSort): CatalogSort | undefined => (sort ===
 export const sheetHomeVisit = (f: SheetFilters): boolean => f.place === 'home';
 
 /** The toggles and the lab place keep or drop a loaded row; scans are never hidden by them (R1). */
-export function passesSheet(item: Pick<CatalogItem, 'fastingRequired' | 'turnaroundHours' | 'facilityVisit'>, f: SheetFilters, kind: SheetKind): boolean {
+export function passesSheet(item: Pick<CatalogItem, 'fastingRequired' | 'fastingKnown' | 'turnaroundHours' | 'facilityVisit'>, f: SheetFilters, kind: SheetKind): boolean {
   if (kind === 'radiology') return true;
-  if (f.noFasting && item.fastingRequired) return false;
+  if (f.noFasting && (item.fastingRequired || item.fastingKnown === false)) return false;
   if (f.sameDay && !(item.turnaroundHours !== null && item.turnaroundHours <= SAME_DAY_HOURS)) return false;
   if (f.place === 'lab' && !item.facilityVisit) return false;
   return true;
