@@ -7,6 +7,7 @@ import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
 import { PublicCache } from '../../common/public-cache.decorator';
 import { CATALOG_COLLECTIONS } from './catalog-collections';
 import { toPublicMedicine } from '../medicines/public-medicine';
+import { toPublicCatalogRow } from './public-catalog-row';
 import { IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
@@ -86,13 +87,14 @@ export class CatalogsController {
       .limit(500).toArray().catch(() => []);
     const live = (rows as any[]).filter((r: any) => r.is_active !== false && r.active !== false);
     if (!live.length) throw new NotFoundException('catalog_unavailable');
-    return live.map(({ _id, ...r }: any) => ({
+    return live.map((r: any) => ({
       code: r.short_code || r.code || r.id,
       // P5.1: canonical per-collection name fields first (labs use test_name_*).
       name_ar: r.test_name_ar || r.name_ar || r.name,
       name_en: r.test_name_en || r.name_en || r.name,
       is_active: true,
-      ...r,
+      // public fields only: never the audit, soft-delete or machine-edit fields of the record (toPublicCatalogRow)
+      ...toPublicCatalogRow(r),
       // The stored picture or none. This used to invent `https://cdn.nabd.plus/<type>/<code>.png`, a file that was never uploaded: on production
       // all 83 lab, 25 radiology and 15 nursing addresses it made answered 404 (QA 2026-10-26). From `null` the client draws its own icon.
       image_url: (typeof r.image_url === 'string' && r.image_url.trim()) || null,
@@ -118,7 +120,7 @@ export class CatalogsController {
       name_en: c.name_en,
       image_url: c.logo_url || c.image_url || `https://cdn.nabd.plus/insurance/${c.code}.png`,
       is_active: c.is_active !== false,
-      plans: (byCompany.get(c.id) || []).sort((a: any, b: any) => (a.tier_level || 0) - (b.tier_level || 0)),
+      plans: (byCompany.get(c.id) || []).sort((a: any, b: any) => (a.tier_level || 0) - (b.tier_level || 0)).map(toPublicCatalogRow),
     }));
   }
 

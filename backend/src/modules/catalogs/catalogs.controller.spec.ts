@@ -58,3 +58,30 @@ describe('CatalogsController picture addresses', () => {
     expect(JSON.stringify(out)).not.toContain('cdn.nabd.plus');
   });
 });
+
+/** QA 2026-10-29: the public catalogue returned the record's audit and soft-delete fields (created_by, updated_by, deleted_at, is_deleted, __v). */
+describe('CatalogsController public fields', () => {
+  const INTERNAL = { _id: 'oid', __v: 0, created_by: 'admin-1', updated_by: 'admin-2', deleted_at: null, deleted_by: null, is_deleted: false, machine_moved: true, machine_translated_by: 'x' };
+  const make = (rows: any[]) => {
+    const col: any = { find: jest.fn().mockReturnValue({ limit: jest.fn().mockReturnValue({ toArray: jest.fn().mockResolvedValue(rows) }), sort: jest.fn().mockReturnValue({ toArray: jest.fn().mockResolvedValue(rows) }), toArray: jest.fn().mockResolvedValue(rows) }) };
+    return new CatalogsController({ collection: jest.fn().mockReturnValue(col) } as any);
+  };
+
+  it.each(['labs', 'radiology', 'nursing', 'specialties'])('%s: no audit, soft-delete or machine-edit field; the fields a client shows stay', async (type) => {
+    const out: any[] = await make([{ id: 'n1', short_code: 'IM', name_ar: 'حقن', name_en: 'Injection', price: 80, category: 'injections', duration: 30, image_url: 'https://x/y.png', description_ar: 'د', active: true, createdAt: new Date('2026-01-01'), ...INTERNAL }]).getCatalog(type) as any[];
+    expect(Object.keys(out[0]).filter((k) => ['_id', '__v', 'created_by', 'updated_by', 'deleted_at', 'deleted_by', 'is_deleted', 'machine_moved', 'machine_translated_by'].includes(k))).toEqual([]);
+    expect(out[0]).toMatchObject({ id: 'n1', code: 'IM', name_ar: 'حقن', name_en: 'Injection', price: 80, category: 'injections', duration: 30, image_url: 'https://x/y.png', description_ar: 'د' });
+    expect(out[0].createdAt).toEqual(new Date('2026-01-01'));
+  });
+
+  it('insurance: the plan tiers of a company carry no audit fields either', async () => {
+    const companies = [{ id: 'c1', code: 'bupa', name_ar: 'بوبا', name_en: 'Bupa', is_active: true, ...INTERNAL }];
+    const networks = [{ id: 'p1', company_id: 'c1', name_en: 'Gold', tier_level: 2, ...INTERNAL }];
+    const col = (rows: any[]) => ({ find: jest.fn().mockReturnValue({ sort: jest.fn().mockReturnValue({ toArray: jest.fn().mockResolvedValue(rows) }), toArray: jest.fn().mockResolvedValue(rows) }) });
+    const conn: any = { collection: jest.fn((name: string) => (name === 'insurance_networks' ? col(networks) : col(companies))) };
+    const out: any[] = await new CatalogsController(conn).getCatalog('insurance') as any[];
+    expect(out[0].plans).toHaveLength(1);
+    expect(Object.keys(out[0].plans[0])).toEqual(expect.arrayContaining(['id', 'name_en', 'tier_level']));
+    expect(JSON.stringify(out)).not.toMatch(/created_by|updated_by|deleted_at|is_deleted|__v|machine_/);
+  });
+});
