@@ -24,10 +24,10 @@ appId: com.patient.nabd
     timeout: 20000
 - extendedWaitUntil:
     visible:
-      id: "add-company-.*"
+      id: "add-company-(?!search).*"
     timeout: 30000
 - tapOn:
-    id: "add-company-.*"
+    id: "add-company-(?!search).*"
 - scrollUntilVisible:
     element:
       id: "add-policy-number"

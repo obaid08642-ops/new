@@ -19,11 +19,10 @@ appId: com.patient.nabd
       id: "pharmacy-card-.*"
     timeout: 30000
 # the "+" of the result card (the add control of the stepper) adds it to the cart: the count shows 1 on the pharmacy header
-# the result card sits under the bottom bar until it is scrolled into view: a tap there would hit the bar
-- scrollUntilVisible:
-    element:
-      id: "med-add-.*"
-    timeout: 30000
+# the result card sits under the bottom bar (its add control is "visible" there, but a tap would hit the bar): bring it up
+- swipe:
+    start: 50%, 70%
+    end: 50%, 30%
 - tapOn:
     id: "med-add-.*"
 # the count is drawn in the screen's digits (Arabic-Indic in Arabic)

@@ -25,10 +25,11 @@ appId: com.patient.nabd
     id: "mode-video"
 - tapOn:
     id: "day-1"
-- extendedWaitUntil:
-    visible:
+# the doctor page is a tall hero card now: the times are below the fold
+- scrollUntilVisible:
+    element:
       id: "slot-.*"
-    timeout: 30000
+    timeout: 40000
 - scrollUntilVisible:
     element:
       id: "slot-14"
