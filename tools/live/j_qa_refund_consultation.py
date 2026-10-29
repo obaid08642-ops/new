@@ -74,6 +74,18 @@ def main():
     row = mongo_json(f'db.appointments.findOne({{id: "{aid}"}}, {{_id: 0, payment_status: 1, patient_id: 1}})')
     step('MongoDB: the visit is paid and belongs to this patient', bool(row) and row.get('payment_status') == 'paid' and row.get('patient_id') == patient_id, row)
 
+    journey('refund D-10: the patient cancels the paid visit; the cancellation states its refund')
+    prev = pat.get(f'/care/appointments/{aid}/refund/preview')
+    pct = prev.get('refund_percentage')
+    step('the cancellation preview states a refund percentage (GET /care/appointments/:id/refund/preview)', prev.ok and pct is not None, prev)
+    r = pat.req('PATCH', f'/care/appointments/{aid}/cancel', {'reason': 'QA cancel probe D-10'})
+    step('the patient cancels the paid visit (PATCH /care/appointments/:id/cancel)', r.ok, r)
+    row = mongo_json(f'db.appointments.findOne({{id: "{aid}"}}, {{_id: 0, status: 1, refund_percentage: 1}})')
+    step('MongoDB: the visit is cancelled with the refund percentage', bool(row) and str(row.get('status')).lower() in ('cancelled', 'canceled') and row.get('refund_percentage') == pct, row)
+    paid_tx = mongo_json(f'db.transactions.findOne({{id: "{txn["id"]}"}}, {{_id: 0, amount: 1}})')
+    paid_amount = float((paid_tx or {}).get('amount') or 0)
+    expected_refund = round(paid_amount * float(pct or 0) / 100, 2)
+
     journey('refund D-10: the admin refunds the visit in full through the orders console')
     r = admin.post(f'/admin/admin/orders/consultation/{aid}/refund', {'mode': 'full', 'reason': 'QA refund probe D-10'})
     step('the admin refunds the full amount (POST /admin/admin/orders/consultation/:id/refund)', r.ok, r)
@@ -81,6 +93,7 @@ def main():
     step('MongoDB: the transaction is refunded', bool(tx) and str(tx.get('status')).lower() in ('refunded', 'partially_refunded'), tx)
     led = mongo_json(f'db.platformledgerentries.findOne({{type: "refund", order_id: "{aid}"}}, {{_id: 0, amount: 1}})')
     step('MongoDB: the refund is in the platform ledger for this visit', bool(led) and float(led.get('amount') or 0) > 0, led)
+    step(f'the refund amount is the cancellation percentage of the payment (expected {expected_refund})', bool(led) and round(float(led.get('amount') or 0), 2) == expected_refund, led)
     r = admin.post(f'/admin/admin/orders/consultation/{aid}/refund', {'mode': 'full', 'reason': 'QA refund probe D-10 again'})
     # After a full refund the confirmed payments total is zero, so the server refuses with no_confirmed_payment_to_refund.
     step('a second full refund is refused (no confirmed payment left, or already fully refunded)', not r.ok and any(k in str(r.body) for k in ('no_confirmed_payment_to_refund', 'fully_refunded')), r)
