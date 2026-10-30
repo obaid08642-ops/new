@@ -1,0 +1,30 @@
+{
+  "slice": "labs-hub-sheet-app", "batch": 3, "app": "patient-app",
+  "screens": [
+    { "route": "/diagnostics",
+      "elements": [
+        ["Two big tabs (labs / radiology)", "local tab state, Segmented", "ok"],
+        ["Search + filter button + order icon", "catalogue search; opens /diagnostics/insurance-approval", "ok"],
+        ["Category chips incl. Packages", "diag-art keys; GET /labs/packages (15 TEST packages)", "ok"],
+        ["Sheet: payment (without insurance / insurance)", "cash_availability / insurance_availability of the catalogue rows", "ok"],
+        ["Sheet: payment 'cash'", "no separate field (cash_availability is the without-insurance flag)", "hidden"],
+        ["Sheet: place all / at the lab / home collection", "facility_visit_supported (client), home_visit=true (server)", "ok"],
+        ["Sheet: sort most requested / lowest price / highest rated", "server popularity order, lowest_price=true, highest_rated=true", "ok"],
+        ["Sheet: sort nearest", "no distance field on the catalogue rows", "hidden"],
+        ["Sheet: no fasting, same-day result", "fasting_required, turnaround_hours <= 24 of the loaded rows", "ok"],
+        ["Sheet: open now", "no opening-hours field on the catalogue rows", "hidden"],
+        ["Show N results", "server total, or the loaded rows when a client filter is on", "ok"],
+        ["Card: fasting + result time, Add to cart, Order now", "fasting_required, fasting_hours, turnaround_hours; existing cart / single-order routes", "ok"],
+        ["Rows 'use your insurance' and 'browse labs'", "removed by the owner", "hidden"]
+      ],
+      "notes": [] }
+  ],
+  "needsReview": [
+    { "route": "/diagnostics", "element": "Sheet payment option 'cash' (دفع كاش)", "kind": "backend", "note": "No field apart from cash_availability, which already is 'without insurance'; the option is not drawn.", "file": "patient-app/app/(tabs)/diagnostics.tsx", "line": 426 },
+    { "route": "/diagnostics", "element": "Sort 'nearest' (الأقرب)", "kind": "backend", "note": "Looked for distance/nearest on the /labs/services and /radiology/services rows: none; not drawn.", "file": "patient-app/app/(tabs)/diagnostics.tsx", "line": 443 },
+    { "route": "/diagnostics", "element": "Toggle 'open now' (مفتوح الآن)", "kind": "backend", "note": "Looked for open_now / opening hours on the catalogue rows: none; not drawn.", "file": "patient-app/app/(tabs)/diagnostics.tsx", "line": 450 },
+    { "route": "/diagnostics", "element": "Same-day / no-fasting / at-the-lab filters work on the loaded pages only", "kind": "backend", "note": "The server has no fasting_required, turnaround or facility_visit query flag; the count shows the loaded rows.", "file": "patient-app/app/(tabs)/diagnostics.tsx", "line": 450 },
+    { "route": "/diagnostics", "element": "Order icon opens the insurance / prescription upload (insurance-approval)", "kind": "owner", "note": "The earlier row opened that screen; there was no 'medical order' row in the app, confirm the target.", "file": "patient-app/app/(tabs)/diagnostics.tsx", "line": 285 },
+    { "route": "/diagnostics", "element": "'No fasting' is drawn when fasting_required is false or missing", "kind": "backend", "note": "The mapper reads a missing field as false, so a test without the field says 'No fasting'.", "file": "patient-app/src/components/diagnostics/CatalogueKit.tsx", "line": 39 }
+  ]
+}

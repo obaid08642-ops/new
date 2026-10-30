@@ -71,6 +71,12 @@ function installTools() {
   // every call: one JSON line with the tool, its argv and the credentials it could see
   const record = `node -e 'const fs=require("fs");fs.appendFileSync(process.env.FAKE_LOG, JSON.stringify({tool:process.argv[1],args:process.argv.slice(2),key:process.env.AWS_ACCESS_KEY_ID||"",secret:process.env.AWS_SECRET_ACCESS_KEY||""})+"\\n")' "$(basename "$0")" "$@"`;
   writeTool('docker', `${record}
+if [ "$1" = inspect ]; then   # the one-off dump reads the image, network and address of the mongodb container
+  case "$*" in *IPAddress*) echo 10.0.0.2;; *Config.Image*) echo mongo:7.0;; *Networks*) echo internal;; esac; exit 0
+fi
+if [ "$1" = run ]; then   # docker run <flags> <image> mongodump ...: the one-off container runs the stand-in
+  shift; while [ $# -gt 0 ] && [ "$1" != mongodump ]; do shift; done; cmd="$1"; shift; exec "$(dirname "$0")/$cmd" "$@"
+fi
 [ "$1" = exec ] || exit 0
 shift
 while [ $# -gt 0 ] && [ "\${1#-}" != "$1" ]; do case "$1" in -e|-u|-w) shift 2;; *) shift;; esac; done

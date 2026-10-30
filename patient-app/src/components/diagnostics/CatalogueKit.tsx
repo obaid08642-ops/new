@@ -27,7 +27,7 @@ export type CatalogueKind = 'lab' | 'radiology';
 export const isUnoffered = (item: Pick<CatalogItem, 'offer'>): boolean => item.offer?.providersCount === 0;
 
 /** One test or scan of the catalogue as a card: tags, offer lines (centres, from-price, where, insurance), rating, "Add to cart" and "Order now". */
-export function CatalogueCard({ item, kind, art, place, payer, idPrefix, width }: { item: CatalogItem; kind: CatalogueKind; art: DiagArtKey; place: 'home' | 'clinic'; payer?: 'cash' | 'insurance'; idPrefix: string; width?: number }) {
+export function CatalogueCard({ item, kind, art, place, payer, idPrefix, width, isPackage = false }: { item: CatalogItem; kind: CatalogueKind; art: DiagArtKey; place: 'home' | 'clinic'; payer?: 'cash' | 'insurance'; idPrefix: string; width?: number; /** A lab package: opens the package page and shows how many tests it holds. */ isPackage?: boolean }) {
   const { k, num, money, lang } = useScreenUi();
   const text = useDiagText();
   const { items, addItem } = useDiagnosticsCart();
@@ -35,12 +35,16 @@ export function CatalogueCard({ item, kind, art, place, payer, idPrefix, width }
   const lines = offerLines(item.offer, { k, num, money, lang }, false, item.price);
   const rating = itemRating(item);
   const offerNote = lines ? [lines.providers, lines.from].filter(Boolean).join(' · ') : '';
-  const baseNote = kind === 'lab' ? (item.turnaroundHours !== null ? text.turnaround(item.turnaroundHours) : '') : itemSubtitle(item.desc, [item.category, item.modality, item.bodyPart, item.sampleType], k(`diag.cat.${art}`));
+  // a test says what it needs and when the result comes (owner decision 4): "No fasting · Result within 24 hours"
+  const factsNote = kind === 'lab' && !isPackage
+    ? [item.fastingRequired ? (item.fastingHours !== null ? k('diag.tag.fastingHours', { n: text.hours(item.fastingHours) }) : k('diag.tag.fasting')) : item.fastingKnown !== false ? k('diag.tag.noFasting') : '', item.turnaroundHours !== null ? text.turnaround(item.turnaroundHours) : ''].filter(Boolean).join(' · ')
+    : '';
+  const baseNote = isPackage ? (item.testsCount > 0 ? k('diag.pack.count', { n: num(item.testsCount) }) : '') : kind === 'lab' ? factsNote : itemSubtitle(item.desc, [item.category, item.modality, item.bodyPart, item.sampleType], k(`diag.cat.${art}`));
   const tags = [
-    ...(kind === 'lab' ? text.testTags(item, place === 'home') : []),
+    ...(kind === 'lab' && !isPackage ? text.testTags({ ...item, fastingRequired: false }, place === 'home') : []),
     ...(lines ? lines.where.map((label) => ({ label, tone: 'neutral' as const })) : []),
   ];
-  const open = () => router.push((kind === 'lab' ? `/diagnostics/test-detail?id=${item.id}` : `/diagnostics/test-detail?id=${item.id}&isRadiology=true`) as Href);
+  const open = () => router.push((isPackage ? `/diagnostics/package-detail?id=${item.id}&serviceType=${place}` : kind === 'lab' ? `/diagnostics/test-detail?id=${item.id}` : `/diagnostics/test-detail?id=${item.id}&isRadiology=true`) as Href);
   return (
     <ItemCard
       testID={`${idPrefix}-${item.id}`}

@@ -45,7 +45,7 @@ interface Join {
 }
 
 export default function VideoCallScreen() {
-  const { appointmentId } = useLocalSearchParams();
+  const { appointmentId, sessionId: ringingSessionId } = useLocalSearchParams<{ appointmentId?: string; sessionId?: string }>();
   const { c, k } = useCallUi();
 
   const [loading, setLoading] = useState(true);
@@ -74,11 +74,14 @@ export default function VideoCallScreen() {
 
         // M1-30: real LiveKit contract — POST /calls/initiate then /calls/:sessionId/join
         // (was calling non-existent /care/appointments/:id/video-token and falling back to a fake token)
-        if (appointmentId) {
-          const initRes = await apiFetch<Session & { data?: Session }>(`/calls/initiate`, {
-            method: 'POST',
-            body: JSON.stringify({ appointmentId, call_type: 'video' }),
-          });
+        if (ringingSessionId || appointmentId) {
+          // an answered incoming call joins the session that is ringing; only the caller starts one
+          const initRes: Session & { data?: Session } = ringingSessionId
+            ? { session_id: String(ringingSessionId) }
+            : await apiFetch<Session & { data?: Session }>(`/calls/initiate`, {
+              method: 'POST',
+              body: JSON.stringify({ appointmentId, call_type: 'video' }),
+            });
           const session = initRes?.data || initRes;
           const sessionId = session?.session_id || session?.id;
           if (sessionId) {
@@ -165,7 +168,7 @@ export default function VideoCallScreen() {
       }
       void stopCallAudio();
     };
-  }, [appointmentId, attempt]);
+  }, [appointmentId, ringingSessionId, attempt]);
 
   // Toggle Camera
   useEffect(() => {

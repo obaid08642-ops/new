@@ -15,9 +15,12 @@
 #     5. memory-report.sh is printed after
 #     6. any failure in 2-4: the failed service is recreated again WITHOUT limits (a generated override: mem_limit/mem_reservation/memswap_limit/oom_score_adj 0, i.e. how it ran
 #        before), waits for healthy, and the task exits 1. The data volumes are never touched.
+#   ONLY=mongodb (set in this file by the reviewer, with APPLY=yes): steps 2 and 4 are skipped, so only mongodb is recreated (compose limit 1600m, healthcheck, mongod.conf). Same backup first.
 # Secret values are never printed or passed as arguments (the containers' own environment is used for the database credentials).
 set -u
 APPLY=""
+# ONLY="mongodb": recreate ONLY mongodb (after the same backup); redis, livekit and coturn are left alone. Empty = all four as before.
+ONLY=""
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}
 ENVF=$D/.env.production
@@ -65,7 +68,7 @@ is_primary && say "mongod: PRIMARY" || { say "ABORT mongod is not PRIMARY"; exit
 CALLS=$(active_calls); say "active calls (window ${CALL_WINDOW_MIN} min): ${CALLS:-unknown}"
 say "meilisearch: restarts=$($DK inspect -f '{{.RestartCount}}' nabdah-meilisearch 2>/dev/null) started=$($DK inspect -f '{{.State.StartedAt}}' nabdah-meilisearch 2>/dev/null) use=$($DK stats --no-stream --format '{{.MemUsage}}' nabdah-meilisearch 2>/dev/null | awk -F' / ' '{print $1}')"
 if [ "$APPLY" != yes ]; then
-  say "dry run only: nothing was written or stopped. APPLY would: take a mongodump, recreate redis, then mongodb (MongoDB unavailable for the recreate, expect about a minute), livekit/coturn only when no call is active"
+  say "dry run only: nothing was written or stopped (ONLY=${ONLY:-all}). APPLY would: take a mongodump, recreate redis, then mongodb (MongoDB unavailable for the recreate, expect about a minute), livekit/coturn only when no call is active"
   exit 0
 fi
 
@@ -78,16 +81,44 @@ FREE_MB=$(df -Pm "$B" 2>/dev/null | awk 'NR==2 {print $4}')
 TMP_FREE_MB=$($DK exec nabdah-mongodb df -Pm /tmp 2>/dev/null | awk 'NR==2 {print $4}')
 say "backup room: host_free_mb=${FREE_MB:-?} container_tmp_free_mb=${TMP_FREE_MB:-?} MemAvailable=$(mem_available_mb)MB"
 [ "${FREE_MB:-0}" -ge "${MIN_FREE_MB:-2048}" ] 2>/dev/null || { say "ABORT only ${FREE_MB:-?} MB free where the backup goes (need ${MIN_FREE_MB:-2048}): nothing was stopped"; exit 1; }
-DUMP_ERR=$($DK exec nabdah-mongodb sh -c 'mongodump --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --gzip --archive=/tmp/pre-recreate.gz' 2>&1 >/dev/null); DUMP_RC=$?
-CP_RC=skipped; CP_ERR=""
-if [ $DUMP_RC -eq 0 ]; then CP_ERR=$($DK cp nabdah-mongodb:/tmp/pre-recreate.gz "$DUMP" 2>&1 >/dev/null); CP_RC=$?; fi
-$DK exec nabdah-mongodb rm -f /tmp/pre-recreate.gz >/dev/null 2>&1
-sudo -n chmod 600 "$DUMP" 2>/dev/null
+# mongodump in a ONE-OFF container (600m, no swap, oom_score_adj 1000) on mongod's network, not inside the capped nabdah-mongodb (runs 55/57: 0-byte dumps). The function is
+# deploy/scripts/_mongodump-oneoff.sh verbatim (a test keeps the two equal); the credentials come from the container's own environment, never from the command line.
+MONGO_ROOT_USER=$($DK exec nabdah-mongodb printenv MONGO_INITDB_ROOT_USERNAME 2>/dev/null); MONGO_ROOT_PASSWORD=$($DK exec nabdah-mongodb printenv MONGO_INITDB_ROOT_PASSWORD 2>/dev/null)
+MONGODUMP_DOCKER="$DK"; MONGO_CONTAINER=nabdah-mongodb
+mongodump_oneoff() {
+  local out=$1; shift
+  local dkr=${MONGODUMP_DOCKER:-docker} ctr=${MONGO_CONTAINER:-nabdah-mongodb} img net ip cfg="" err rc sz msg auth=()
+  img=$($dkr inspect -f '{{.Config.Image}}' "$ctr" 2>/dev/null)
+  net=$($dkr inspect -f '{{range $k, $v := .NetworkSettings.Networks}}{{$k}} {{end}}' "$ctr" 2>/dev/null | awk '{print $1}')
+  ip=$([ -n "$net" ] && $dkr inspect -f "{{(index .NetworkSettings.Networks \"$net\").IPAddress}}" "$ctr" 2>/dev/null)
+  if [ -z "$img" ] || [ -z "$net" ] || [ -z "$ip" ]; then echo "status: mongodump: ABORT cannot read the image, network or address of $ctr"; return 1; fi
+  err=$(mktemp) || { echo "status: mongodump: ABORT no temp file"; return 1; }
+  chmod 600 "$err"
+  if [ -n "${MONGO_ROOT_USER:-}" ]; then   # production always has the root user; a test database without one is dumped without credentials
+    cfg=$(mktemp) && chmod 600 "$cfg" || { echo "status: mongodump: ABORT no temp file"; rm -f "$err"; return 1; }
+    printf "password: '%s'\n" "${MONGO_ROOT_PASSWORD//\'/\'\'}" > "$cfg"
+    auth=(-v "$cfg:/cfg/mongodump.yml:ro")
+  fi
+  rc=0
+  ( umask 077; $dkr run --rm -i --user 0:0 --network "$net" --memory 600m --memory-swap 600m --oom-score-adj 1000 "${auth[@]}" --entrypoint mongodump "$img" \
+      --quiet ${cfg:+--config=/cfg/mongodump.yml --username="$MONGO_ROOT_USER" --authenticationDatabase=admin} --host="$ip" --port=27017 "$@" > "$out" 2> "$err" ) || rc=$?
+  sz=$(stat -c %s "$out" 2>/dev/null || echo 0)   # (no `set -e` surprises: a failing dump must reach the report below)
+  echo "status: mongodump: one-off container ($img on $net, 600m, no swap, oom_score_adj 1000) rc=$rc size_bytes=$sz"
+  if [ "$rc" -ne 0 ] || { [ "$sz" -le 0 ] && [ -z "${MONGODUMP_ALLOW_EMPTY:-}" ]; }; then
+    msg=$(tail -n 2 "$err" | tr '\n' ' '); [ -n "${MONGO_ROOT_PASSWORD:-}" ] && msg=${msg//"$MONGO_ROOT_PASSWORD"/<hidden>}; echo "status: mongodump: error: ${msg:0:250}"
+    rm -f "$cfg" "$err"; return 1
+  fi
+  rm -f "$cfg" "$err"; chmod 600 "$out" 2>/dev/null
+  return 0
+}
+DUMP_TMP=$(mktemp); mongodump_oneoff "$DUMP_TMP" --gzip --archive; DUMP_RC=$?
+CP_RC=skipped; if [ $DUMP_RC -eq 0 ]; then sudo -n install -m 600 "$DUMP_TMP" "$DUMP" 2>/dev/null; CP_RC=$?; fi
+rm -f "$DUMP_TMP"
 SZ=$(sudo -n stat -c %s "$DUMP" 2>/dev/null); STAT_RC=$?
 SZ=${SZ:-0}
 LAST=$(sudo -n sh -c "ls -t $B/nabd_*.gz 2>/dev/null | head -1")
 LASTSZ=$([ -n "$LAST" ] && sudo -n stat -c %s "$LAST" || echo 0)
-say "backup steps: mongodump rc=$DUMP_RC err=$(errclass "$DUMP_ERR") ; docker cp rc=$CP_RC err=$(errclass "$CP_ERR") ; stat rc=$STAT_RC size_bytes=$SZ ; last nightly $LASTSZ"
+say "backup steps: mongodump rc=$DUMP_RC ; install rc=$CP_RC ; stat rc=$STAT_RC size_bytes=$SZ ; last nightly $LASTSZ"
 [ "$SZ" -gt 1048576 ] && [ "$SZ" -ge $((LASTSZ / 2)) ] || { say "ABORT backup too small ($SZ bytes; last nightly $LASTSZ; see the steps above): nothing was stopped"; exit 1; }
 sudo -n gzip -t "$DUMP" 2>/dev/null || { say "ABORT backup is not a valid gzip: nothing was stopped"; exit 1; }
 say "backup ok ($(basename "$DUMP"), $((SZ / 1048576)) MB; last nightly $((LASTSZ / 1048576)) MB)"
@@ -109,6 +140,7 @@ fail() { # $1 = service being recreated, $2 = what failed
 }
 recreate() { $COMPOSE up -d --no-deps --force-recreate "$1" >/dev/null 2>&1; }
 
+if [ "$ONLY" = mongodb ]; then say "ONLY=mongodb: redis is left alone"; else
 # --- 2. redis
 recreate redis || fail redis "recreate"
 wait_healthy nabdah-redis || fail redis "health"
@@ -116,6 +148,7 @@ wait_healthy nabdah-redis || fail redis "health"
 [ "$(redis_maxmemory)" = "$(conf_maxmemory_bytes)" ] || fail redis "maxmemory is not the one in redis.conf"
 say "redis recreated: healthy, limit=$(limit_mb nabdah-redis), maxmemory as in redis.conf"
 wait_code /api/v1/health/readiness 200 || fail redis "API readiness after redis"
+fi
 
 # --- 3. mongodb
 T0=$(date +%s)
@@ -131,6 +164,7 @@ wait_healthy nabdah-backend || fail mongodb "backend health"
 say "mongodb recreated: healthy, PRIMARY, limit=$(limit_mb nabdah-mongodb), mongod.conf re-read; backend/worker healthy and the API ready without a restart of either"
 say "mongodb_downtime_seconds=$((T1 - T0))"
 
+if [ "$ONLY" = mongodb ]; then say "ONLY=mongodb: livekit and coturn are left alone"; else
 # --- 4. livekit and coturn, only when no call is active
 CALLS=$(active_calls)
 if [ "${CALLS:-x}" = 0 ]; then
@@ -143,6 +177,7 @@ if [ "${CALLS:-x}" = 0 ]; then
   done
 else
   say "livekit and coturn SKIPPED: active calls=${CALLS:-unknown} (window ${CALL_WINDOW_MIN} min); run the task again at a quieter time"
+fi
 fi
 
 # --- 5. the report

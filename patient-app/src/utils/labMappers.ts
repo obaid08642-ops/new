@@ -45,6 +45,8 @@ export interface CatalogItem {
   preparation: string[];
   prepMark?: FieldMark;
   fastingRequired: boolean;
+  /** false when the server did not send `fasting_required`: the card then says nothing about fasting instead of "no fasting" */
+  fastingKnown?: boolean;
   fastingHours: number | null;
   turnaroundHours: number | null;
   homeVisit: boolean;
@@ -103,6 +105,7 @@ export function normalizeLabService(raw: unknown): CatalogItem | null {
     preparation: prep.items,
     prepMark: prep.mark,
     fastingRequired: Boolean(r.fasting_required),
+    fastingKnown: typeof r.fasting_required === 'boolean',
     fastingHours: asNumber(r.fasting_hours),
     turnaroundHours: asNumber(r.turnaround_hours),
     homeVisit: Boolean(r.home_visit_supported ?? r.homeAvailable),
