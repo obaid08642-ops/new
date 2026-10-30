@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { apiFetch } from '../../utils/api';
 import { useCan } from '@/components/AdminGuard';
+import { MODES, MODE_OPTIONS, OPTION_VALUES, cleanOptions, modeOf, optionsError, toggleOption, type OptionKey } from '@/lib/booking-modes';
 
 /**
  * Catalog Manager — الأدمن يضيف/يعدل/يحذف أصناف كتالوج الخدمات:
@@ -149,6 +150,14 @@ export default function CatalogManagerPage() {
       }
       if (editing.medical_review_status) body.medical_review_status = editing.medical_review_status;
       if (tab === 'nursing' && !body.duration) body.duration = 'hour';
+      if (tab === 'nursing') {
+        // the service's mode decides the booking screen the patient gets; the options are what that screen offers
+        const mode = modeOf(editing.booking_mode);
+        const bad = optionsError(mode, editing.booking_options);
+        if (bad) { setMsg(bad); setSaving(false); return; }
+        body.booking_mode = mode;
+        body.booking_options = cleanOptions(mode, editing.booking_options);
+      }
       if (tab === 'packages') body.is_package = true;
       if (isNew) {
         await apiFetch(`${tabCfg.crudBase}`, { method: 'POST', body: JSON.stringify(body) });
@@ -356,6 +365,30 @@ export default function CatalogManagerPage() {
                   )}
                 </div>
               ))}
+              {tab === 'nursing' && (
+                <div style={{ gridColumn: '1 / -1', border: '1px solid currentColor', borderRadius: 12, padding: 12 }}>
+                  <label style={{ fontSize: 12, fontWeight: 700, display: 'block', marginBottom: 6 }}>نمط الحجز</label>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
+                    {MODES.map((m) => (
+                      <button key={m.key} type="button" title={m.hint} onClick={() => setEditing({ ...editing, booking_mode: m.key })}
+                        style={{ padding: '8px 14px', borderRadius: 10, border: modeOf(editing.booking_mode) === m.key ? '3px solid currentColor' : '1px solid currentColor', cursor: 'pointer', fontWeight: 700, background: 'transparent', color: 'inherit' }}>{m.label}</button>
+                    ))}
+                  </div>
+                  {MODE_OPTIONS[modeOf(editing.booking_mode)].map((k: OptionKey) => (
+                    <div key={k} style={{ marginBottom: 8 }}>
+                      <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 4 }}>{OPTION_VALUES[k].label}</div>
+                      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                        {OPTION_VALUES[k].values.map((v) => (
+                          <label key={String(v)} style={{ display: 'flex', gap: 4, alignItems: 'center', fontSize: 13 }}>
+                            <input type="checkbox" checked={(editing.booking_options?.[k] ?? []).includes(v)} onChange={() => setEditing({ ...editing, booking_options: toggleOption(editing.booking_options, k, v) })} />
+                            {OPTION_VALUES[k].names?.[String(v)] ?? v}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             {editing.image_url && <img src={editing.image_url} alt="" style={{ width: 72, height: 72, borderRadius: 12, objectFit: 'cover', marginTop: 12 }} />}
             <div style={{ display: 'flex', gap: 10, marginTop: 20, justifyContent: 'flex-end' }}>

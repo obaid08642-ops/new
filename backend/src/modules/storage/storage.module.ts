@@ -14,7 +14,7 @@ import { Purpose, UploadSecurityService } from './upload-security.service';
 import { ClamavService } from './clamav.service';
 import { logEvent } from '../../common/structured-logger';
 import { PendingScanService } from './pending-scan.service';
-import { FilePendingScanException, PENDING_PREFIX, isPendingKey, isUnscanned } from './pending-scan';
+import { FilePendingScanException, PENDING_PREFIX, assertScanned, isPendingKey, isUnscanned } from './pending-scan';
 
 export enum StorageBackend { BASE64 = 'base64', S3 = 's3', CLOUDINARY = 'cloudinary', SUPABASE = 'supabase' }
 
@@ -112,6 +112,13 @@ class S3R2Adapter implements StorageAdapter {
       return { mime: o.mime, data_base64: o.data_base64 };
     }
     return { mime: o.mime, external_url: o.external_url };
+  }
+
+  /** The stored bytes of an object (server-side delivery of a private file). */
+  async bytes(o: StorageObject): Promise<Buffer> {
+    const { GetObjectCommand } = require('@aws-sdk/client-s3');
+    const res = await this.client().send(new GetObjectCommand({ Bucket: process.env.S3_BUCKET, Key: o.external_key }));
+    return Buffer.from(await res.Body.transformToByteArray());
   }
 
   async delete(o: StorageObject) {
@@ -338,6 +345,30 @@ export class StorageService {
       { projection: { _id: 1 } },
     );
     return !!hit;
+  }
+
+  /**
+   * A private file a provider attaches to a medical result (a lab report): the provider must own it, it must be private, and it must have
+   * passed its scan (a file still in quarantine answers 423, an infected one is already deleted). Returns the object's id, mime and name.
+   */
+  async providerReportObject(id: string, ownerAccountId: string, mimes: ReadonlySet<string>): Promise<{ id: string; mime: string; original_name?: string }> {
+    const o: any = await this.model.findOne({ id, owner_account_id: ownerAccountId, visibility: 'private', deleted: false }).lean();
+    if (!o) throw new ForbiddenException('private_storage_object_not_owned');
+    assertScanned(o);
+    if (!mimes.has(o.mime)) throw new BadRequestException('report_file_type_not_allowed');
+    return { id: o.id, mime: o.mime, original_name: o.original_name };
+  }
+
+  /** The bytes of a scanned object for the caller's own delivery route (the caller has already checked who may have it). */
+  async fileBytes(id: string): Promise<{ mime: string; data: Buffer; name: string }> {
+    const o: any = await this.model.findOne({ id, deleted: false }).lean();
+    if (!o) throw new NotFoundException();
+    assertScanned(o);
+    let data: Buffer | null = null;
+    if (o.data_base64) data = Buffer.from(o.data_base64, 'base64');
+    else if (o.external_key && S3R2Adapter.configured()) data = await (this.adapter as any).bytes(o);
+    if (!data) throw new NotFoundException('file_unavailable');
+    return { mime: o.mime, data, name: String(o.original_name || id) };
   }
 
   /** Fetch object — enforces owner_account_id privacy unless visibility=public_read. */
