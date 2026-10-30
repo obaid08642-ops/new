@@ -44,6 +44,7 @@ import {
 import { MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderProfileEditor, WithdrawalWorkflow, ProviderHomeStats, GlobalSystemSettings } from '../shared/SharedScreens';
 import { NotificationsCenterScreen, SecurityManagementScreen } from '../shared/RealScreens';
 import { MyServicesScreen } from '../shared/MyServicesScreen';
+import { bookingChoiceLine } from './bookingChoice';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 const Stack = createNativeStackNavigator();
@@ -138,6 +139,9 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
                <Text style={{ fontSize: FS.md, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
                {AR ? 'موقع المريض:' : 'Patient Location:'} {addressLine(incomingRequest.address) || '—'}
                </Text>
+               {bookingChoiceLine(incomingRequest, AR) ? (
+               <Text style={{ fontSize: FS.sm, color: theme.text, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>{bookingChoiceLine(incomingRequest, AR)}</Text>
+               ) : null}
                {incomingRequest.scheduled_at ? (
                <Text style={{ fontSize: FS.sm, color: theme.primary, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>
                 {AR ? 'الموعد: ' : 'Scheduled: '}{new Date(incomingRequest.scheduled_at).toLocaleString(AR ? 'ar-SA-u-ca-gregory' : 'en-GB')}
@@ -337,6 +341,7 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
  <View style={{flex:1}}>
  <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{order.patient_name || order.patient || '—'}</Text>
  <Text style={{fontSize:FS.xs,color:theme.textSub}}>{addressShort(order.address)} | {order.date || new Date(order.scheduled_at).toLocaleTimeString()}</Text>
+ {bookingChoiceLine(order, AR) ? <Text style={{fontSize:FS.xs,color:theme.text,fontWeight:FW.bold}}>{bookingChoiceLine(order, AR)}</Text> : null}
  </View>
  <View style={{alignItems:'flex-end',gap:SP.xs}}>
  <NBadge label={AR?'نشط':'Active'} variant="primary" size="xs" />

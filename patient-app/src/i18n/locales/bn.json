@@ -3920,5 +3920,10 @@
   "diag.filter.sortBy": "সাজানোর ক্রম",
   "diag.filter.noFasting": "উপবাস লাগবে না",
   "diag.filter.sameDay": "একই দিনে ফলাফল",
-  "diag.filter.showCount": "{n}টি ফলাফল দেখুন"
+  "diag.filter.showCount": "{n}টি ফলাফল দেখুন",
+  "consult.chat.queued": "সংযোগের অপেক্ষায়",
+  "consult.chat.retry": "আবার চেষ্টা করতে ট্যাপ করুন",
+  "consult.chat.tick.sent": "পাঠানো হয়েছে",
+  "consult.chat.tick.delivered": "পৌঁছেছে",
+  "consult.chat.tick.read": "দেখা হয়েছে"
 }

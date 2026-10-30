@@ -10,6 +10,8 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useLang, useAuth, useToast } from '../../context';
 import client from '../../api/client';
+import { ProviderApi } from '../../api/provider';
+import * as DocumentPicker from 'expo-document-picker';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
 import { orderingStackScreens, ORDERING_ENTRY } from '../ordering';
 import { LabQcActions } from './LabQcActions';
@@ -795,6 +797,12 @@ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  const [unit, setUnit] = useState('');
  const [range, setRange] = useState('');
  const [isCritical, setIsCritical] = useState(false);
+ const [reportFile, setReportFile] = useState<{ uri: string; name?: string; mimeType?: string } | null>(null);
+ const pickReportFile = async () => {
+   const res = await DocumentPicker.getDocumentAsync({ type: ['application/pdf', 'image/*'], copyToCacheDirectory: true, multiple: false });
+   if (res.canceled || !res.assets?.[0]) return;
+   setReportFile(res.assets[0]);
+ };
  const addResultRow = () => {
    if (!analyte.trim() || !value.trim()) {
      show(AR ? 'أدخل اسم الفحص والنتيجة قبل الإضافة' : 'Enter an analyte and result before adding it', 'error');
@@ -804,20 +812,21 @@ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
    setAnalyte(''); setValue(''); setUnit(''); setRange(''); setIsCritical(false);
  };
  const handleConfirmSend = async () => {
- if (!resultRows.length) {
-   show(AR ? 'أضف نتيجة واحدة على الأقل قبل الإرسال' : 'Add at least one result before sending', 'error');
+ if (!resultRows.length && !reportFile) {
+   show(AR ? 'أضف نتيجة أو أرفق ملف التقرير قبل الإرسال' : 'Add a result or attach the report file before sending', 'error');
    return;
  }
  setLoading(true);
  try {
  // The server accepts a report once the booking is RESULT_UPLOADED, i.e. the sample reached result_ready.
  if (sample.stage === 'analyzing') await client.patch(`/labs/samples/${sample.id}/stage`, { stage: 'result_ready' });
- await client.post(`/labs/bookings/${sample.lab_order_id || sample.id}/upload-report`, { structuredData: resultRows, send_to: sendTo });
+ const reportStorageObjectId = reportFile ? await ProviderApi.uploadFile(reportFile.uri, reportFile.mimeType || 'application/pdf', reportFile.name || 'lab-report.pdf') : undefined;
+ await client.post(`/labs/bookings/${sample.lab_order_id || sample.id}/upload-report`, { ...(resultRows.length ? { structuredData: resultRows } : {}), ...(reportStorageObjectId ? { report_storage_object_id: reportStorageObjectId } : {}), send_to: sendTo });
  await client.patch(`/labs/samples/${sample.id}/stage`, { stage: 'sent' });
  show(AR ? 'تم إرسال النتيجة' : 'Result sent', 'success');
  onBack();
  } catch (err: any) {
- show(err.message || (AR ? 'فشل إرسال النتيجة' : 'Failed to send result'), 'error');
+ show(err?.response?.status === 423 ? (AR ? 'الملف قيد الفحص الأمني، حاول بعد دقيقة' : 'The file is still being security-checked, try again in a minute') : (err.message || (AR ? 'فشل إرسال النتيجة' : 'Failed to send result')), 'error');
  } finally {
  setLoading(false);
  }
@@ -870,6 +879,7 @@ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  </TouchableOpacity>
  ))}
  </NCard>
+ <NBtn label={reportFile ? (AR ? `ملف مرفق: ${reportFile.name || ''} (إزالة)` : `Attached: ${reportFile.name || 'file'} (remove)`) : (AR ? 'إرفاق ملف التقرير الممسوح (PDF أو صورة)' : 'Attach the scanned report (PDF or image)')} variant="outline" onPress={() => (reportFile ? setReportFile(null) : pickReportFile())} style={{ marginBottom: SP.md }} />
  <NBtn label={AR?'تأكيد وإرسال النتيجة':'Confirm & Send Result'} loading={loading} onPress={handleConfirmSend} />
  </NScroll>
  );
