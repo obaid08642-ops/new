@@ -62,8 +62,6 @@ export type CoreShellProps = {
   resultsHref?: string;
   /** Consultations: where "My appointments" goes; its button (with the badge of unopened results) takes the cart's place in the header. */
   appointmentsHref?: string;
-  /** Consultation pages: no cart button at all (owner 2026-10-30, "no cart button anywhere in consultations"); the slot is simply absent. */
-  hideCart?: boolean;
   /** The page's sticky bottom bar (a <StickyFooter>, canvas/ProductFull); it sits above the tab bar and goes away from 1024. */
   footer?: ReactNode;
   /** Pages with a sticky buy bar and no tab bar on phones (canvas/ProductFull). */
@@ -71,7 +69,7 @@ export type CoreShellProps = {
   children: ReactNode;
 };
 
-export function CoreShell({ locale, title, backHref, search, cancelHref, width = "wide", topBarSearch, footer, hideTabs = false, resultsHref, appointmentsHref, hideCart = false, children }: CoreShellProps) {
+export function CoreShell({ locale, title, backHref, search, cancelHref, width = "wide", topBarSearch, footer, hideTabs = false, resultsHref, appointmentsHref, children }: CoreShellProps) {
   const router = useRouter();
   const pathname = usePathname();
   const shell = useTranslations("CoreShell");
@@ -86,7 +84,6 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
   // consultations have no cart (owner 2026-10-30): their header carries the My appointments button there instead
   const cartLink = (extra = "") => appointmentsHref
     ? <AppointmentsLink locale={locale} href={appointmentsHref} className={extra} />
-    : hideCart ? null
     : <CartLink locale={locale} className={`${styles.iconLink} ${styles.cartLink}${extra ? ` ${extra}` : ""}`} />;
 
   const allTabs: Array<BottomTabItem & { href: string }> = [
