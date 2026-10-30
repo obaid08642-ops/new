@@ -356,6 +356,157 @@ if __name__ == "__main__":
     unittest.main()
 
 
+# a stateful fake docker for 92-recreate-datastores.sh: memory limits, health and maxmemory live in files, `compose up` applies the compose limits
+STATE_DOCKER = r"""#!/bin/bash
+echo "$@" >> "$FAKE_LOG"
+S="$FAKE_STATE"
+lim() { cat "$S/mem.$1" 2>/dev/null || echo 0; }
+case "$1" in
+  inspect)
+    [ "$2" = "-f" ] || exit 0   # `docker inspect nabdah-worker`: exists
+    c="${4#nabdah-}"
+    case "$3" in
+      *HostConfig.Memory*) lim "$c";;
+      *RestartCount*) echo 4;;
+      *OomScoreAdj*) echo 0;;
+      *StartedAt*) echo 2026-10-30T00:00:00Z;;
+      *State.Health*) if [ "$c" = "$FAKE_UNHEALTHY" ] && [ -f "$S/up.$c" ]; then echo unhealthy; else echo healthy; fi;;
+    esac; exit 0;;
+  stats) echo "10MiB";;
+  compose)
+    if [ -n "$FAKE_COMPOSE_FAIL" ] && echo "$*" | grep -q "force-recreate $FAKE_COMPOSE_FAIL\$"; then
+      echo "$*" | grep -q -- "-f /tmp/tmp\\." || exit 1
+    fi
+    last="${@: -1}"
+    case "$*" in *" up "*) touch "$S/up.$last"
+      if echo "$*" | grep -q -- "-f /tmp/tmp\\."; then echo 0 > "$S/mem.$last"; echo rolledback >> "$S/events"; else echo 536870912 > "$S/mem.$last"; echo "recreate $last" >> "$S/events"; fi;;
+    esac
+    case "$*" in *" config -q"*) [ -n "$FAKE_CONFIG_BAD" ] && exit 1;; esac
+    case "$*" in *" config"*) [ "$last" = config ] && printf 'services:\n  mongodb:\n    mem_limit: "1258291200"\n';; esac
+    exit 0;;
+  cp) python3 -c "import gzip,os,sys; open(sys.argv[1],'wb').write(gzip.compress(os.urandom(2*1024*1024), 0))" "$3"; exit 0;;
+  exec)
+    shift
+    [ "$1" = -i ] && shift
+    c="$1"; shift
+    case "$*" in
+      *mongodump*) exit "${FAKE_DUMP_RC:-0}";;
+      *"rm -f"*) exit 0;;
+      *isWritablePrimary*) echo "${FAKE_PRIMARY:-true}"; exit 0;;
+      *countDocuments*|*"sh -c"*"callsessions"*) echo "${FAKE_CALLS:-0}"; exit 0;;
+    esac
+    case "$*" in *callsessions*) echo "${FAKE_CALLS:-0}"; exit 0;; esac
+    if [ "$c" = nabdah-redis ]; then cat > /dev/null; echo "${FAKE_REDIS_MAX:-335544320}"; exit 0; fi
+    # mongosh through sh -c '...' sh <js>: the js is the last argument
+    last="${@: -1}"
+    case "$last" in *isWritablePrimary*) echo "${FAKE_PRIMARY:-true}";; *countDocuments*) echo "${FAKE_CALLS:-0}";; esac
+    exit 0;;
+esac
+exit 0
+"""
+STATE_CURL = '#!/bin/bash\necho "${FAKE_API_CODE:-200}"\n'
+
+
+class RecreateDatastores(unittest.TestCase):
+    TASK = "92-recreate-datastores.sh"
+
+    def setUp(self):
+        self.h = Harness(self)
+        self.state = os.path.join(self.h.tmp.name, "state")
+        os.makedirs(self.state)
+        write_exec(os.path.join(self.h.bin, "docker"), STATE_DOCKER)
+        write_exec(os.path.join(self.h.bin, "curl"), STATE_CURL)
+        for f in ("docker-compose.production.yml", "docker-compose.release.yml"):
+            with open(os.path.join(self.h.deploy, f), "w") as fh:
+                fh.write("services: {}\n")
+        os.makedirs(os.path.join(self.h.deploy, "redis"))
+        with open(os.path.join(self.h.deploy, "redis", "redis.conf"), "w") as f:
+            f.write("maxmemory 320mb\n")
+        os.makedirs(os.path.join(self.h.deploy, "scripts"), exist_ok=True)
+        write_exec(os.path.join(self.h.deploy, "scripts", "memory-report.sh"), "#!/bin/bash\necho 'status: memory host total=1MB'\necho noise\n")
+        with open(self.h.envf, "a") as f:
+            f.write("REDIS_PASSWORD=redis-pass-5e21\n")
+        with open(os.path.join(self.h.backups, "nabd_20261029.gz"), "wb") as f:
+            f.write(b"x" * 1024)
+
+    def run_task(self, settings=None, **extra):
+        return self.h.run(self.TASK, settings, FAKE_STATE=self.state, NABD_DEPLOY_LOCK=os.path.join(self.h.tmp.name, "deploy.lock"),
+                          OPS_MEMINFO="/proc/meminfo", **extra)
+
+    def events(self):
+        p = os.path.join(self.state, "events")
+        if not os.path.exists(p):
+            return []
+        with open(p) as f:
+            return f.read().split("\n")
+
+    def test_dry_run_stops_and_writes_nothing(self):
+        p = self.run_task()
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("dry run only", p.stdout)
+        self.assertIn("mongod: PRIMARY", p.stdout)
+        self.assertIn("active calls (window 180 min): 0", p.stdout)
+        self.assertEqual([e for e in self.events() if e], [])
+        self.assertEqual(os.listdir(self.h.backups), ["nabd_20261029.gz"])
+        self.assertNotIn(" up ", self.h.docker_calls())
+
+    def test_output_is_status_lines_only(self):
+        p = self.run_task({"APPLY": "yes"})
+        for line in p.stdout.splitlines():
+            self.assertTrue(line.startswith("status: ") or line.startswith("## "), line)
+
+    def test_apply_backs_up_then_recreates_redis_then_mongodb_then_the_call_services(self):
+        p = self.run_task({"APPLY": "yes"})
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertEqual([e for e in self.events() if e], ["recreate redis", "recreate mongodb", "recreate livekit", "recreate coturn"])
+        self.assertTrue(any(f.startswith("pre-recreate-") for f in os.listdir(self.h.backups)))
+        self.assertTrue(any(f.startswith("recreate-") and f.endswith("docker-compose.production.yml") for f in os.listdir(self.h.backups)))
+        for line in ("backup ok", "redis recreated", "mongodb recreated", "mongodb_downtime_seconds=", "livekit recreated", "coturn recreated", "status: memory host total=1MB"):
+            self.assertIn(line, p.stdout)
+        self.assertNotIn("noise", p.stdout)
+        calls = self.h.docker_calls()
+        self.assertEqual(len([l for l in calls.splitlines() if "force-recreate" in l]), 4)
+        self.assertTrue(all("--no-deps" in l for l in calls.splitlines() if "force-recreate" in l))   # nothing else is touched
+        self.assertNotIn("redis-pass-5e21", p.stdout + p.stderr + calls)                              # the password never an argument or output
+
+    def test_an_active_call_skips_livekit_and_coturn(self):
+        p = self.run_task({"APPLY": "yes"}, FAKE_CALLS=2)
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertEqual([e for e in self.events() if e], ["recreate redis", "recreate mongodb"])
+        self.assertIn("livekit and coturn SKIPPED: active calls=2", p.stdout)
+
+    def test_no_backup_no_recreate(self):
+        p = self.run_task({"APPLY": "yes"}, FAKE_DUMP_RC=1)
+        self.assertEqual(p.returncode, 1)
+        self.assertIn("ABORT backup too small", p.stdout)
+        self.assertEqual([e for e in self.events() if e], [])
+
+    def test_a_deploy_lock_aborts_before_anything(self):
+        open(os.path.join(self.h.tmp.name, "deploy.lock"), "w").close()
+        p = self.run_task({"APPLY": "yes"})
+        self.assertEqual(p.returncode, 1)
+        self.assertIn("deploy lock exists", p.stdout)
+        self.assertEqual([e for e in self.events() if e], [])
+
+    def test_mongod_not_primary_aborts_the_dry_run_too(self):
+        p = self.run_task(FAKE_PRIMARY="false")
+        self.assertEqual(p.returncode, 1)
+        self.assertIn("ABORT mongod is not PRIMARY", p.stdout)
+
+    def test_a_failed_mongodb_recreate_puts_it_back_without_limits_and_exits_1(self):
+        p = self.run_task({"APPLY": "yes"}, FAKE_COMPOSE_FAIL="mongodb")
+        self.assertEqual(p.returncode, 1, p.stdout + p.stderr)
+        self.assertIn("FAILED at 'recreate' on mongodb", p.stdout)
+        self.assertIn("rollback complete: mongodb is healthy again, without the memory limits", p.stdout)
+        self.assertEqual([e for e in self.events() if e][-1], "rolledback")
+        self.assertNotIn("recreate livekit", self.events())
+
+    def test_redis_that_does_not_hold_the_conf_maxmemory_is_a_failure(self):
+        p = self.run_task({"APPLY": "yes"}, FAKE_REDIS_MAX=1)
+        self.assertEqual(p.returncode, 1)
+        self.assertIn("FAILED at 'maxmemory is not the one in redis.conf' on redis", p.stdout)
+        self.assertNotIn("recreate mongodb", self.events())
+
 HOST_FILES = {
     "mongo/mongod.conf": "storage:\n  wiredTiger:\n    engineConfig:\n      cacheSizeGB: 0.5\n",
     "redis/redis.conf": "port 6379\nmaxmemory 320mb\nmaxmemory-policy volatile-lru\n",
