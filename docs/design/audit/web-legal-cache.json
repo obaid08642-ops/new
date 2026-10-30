@@ -1,0 +1,12 @@
+{
+  "slice": "web-legal-cache", "batch": 2, "app": "patient-web",
+  "screens": [
+    { "route": "/terms, /privacy, /refund",
+      "elements": [
+        ["patient-web/lib/api/public-read.ts: an empty 2xx or 4xx is re-read with no-store and never kept; found answers keep revalidate 3600", "GET /legal/policy/:key", "fixed"]
+      ], "notes": [] }
+  ],
+  "needsReview": [
+    { "route": "/terms, /privacy, /refund", "element": "GET legal/policy/:key answers 200 with an empty body for a missing policy", "kind": "backend", "note": "[backend] A-14: should answer 404 when no policy row exists (the website now copes either way).", "file": "backend/src/modules/legal/legal.module.ts", "line": 166 }
+  ]
+}
