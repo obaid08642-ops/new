@@ -44,7 +44,7 @@ export default async function InsuranceAddPolicyPage({ params, searchParams }: P
     const policyRes = await getPatientInsurancePolicy(token);
     const summary = policyRes.ok ? parseInsuranceSummary(await policyRes.json().catch(() => null)) : null;
     if (summary?.hasPolicy) {
-      const company = companies.find((c) => c.id === summary.insurerId) ?? companies.find((c) => c.name === summary.companyName);
+      const company = companies.find((c) => c.name === summary.companyName);
       initial = { companyId: company?.id, policyNumber: summary.policyNumber, memberId: summary.memberId, memberName: summary.memberName, expiry: summary.expiryDate?.slice(0, 10), network: summary.network };
     }
   } catch {

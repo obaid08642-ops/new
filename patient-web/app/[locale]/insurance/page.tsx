@@ -29,7 +29,6 @@ import { NetworkList } from "@/components-next/insurance/network-list";
 import forms from "@/components-next/consult/consult.module.css";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/insurance/insurance.module.css";
-import { localizedText } from "@/lib/i18n/localized-field";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string; q?: string; type?: string; company?: string }> };
 
@@ -158,7 +157,7 @@ export default async function InsurancePage({ params, searchParams }: Props) {
   return (
     <ConsultPage locale={locale} title={t("title")}>
       <PolicyCard
-        title={localizedText({ locale, ar: summary.companyName, en: summary.companyNameEn }) ?? t("noPolicyTitle")}
+        title={summary.companyName ?? t("noPolicyTitle")}
         sub={summary.planClass ? t("planLine", { plan: summary.planClass }) : undefined}
         badge={!summary.hasPolicy ? t("none") : summary.verified ? t("policyVerified") : t("policyInReview")}
         tone={!summary.hasPolicy ? "plain" : summary.verified ? "good" : "wait"}

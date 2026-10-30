@@ -72,13 +72,6 @@ const requests = { data: [
 beforeEach(() => server.api.mockReset());
 
 describe("the insurance hub", () => {
-  it("names the insurer in the page language: the stored Arabic name on /ar, the catalogue English name on /en", async () => {
-    const stored = { has_policy: true, policy: { company_name: "بوبا العربية", company_name_en: "Bupa Arabia", policy_number: "POL-9", verified: false } };
-    backend({ "/insurance/my-policy": stored, "/insurance/requests/my": requests });
-    const en = render(await InsurancePage(hub()));
-    expect(en).toContain("Bupa Arabia");
-    expect(en).not.toContain("بوبا العربية");
-  });
   it("shows the policy card, the shortcuts, the three tabs and the requests newest first, each linking to its request page", async () => {
     backend({ "/insurance/my-policy": policy, "/insurance/requests/my": requests });
     const html = render(await InsurancePage(hub()));
