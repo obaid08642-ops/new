@@ -65,10 +65,10 @@ export function FieldText({ text, mark, style, numberOfLines, note = true, testI
   const own = markTextProps(mark);
   // a centred text (a detail head) keeps its centring; only its writing direction follows the shown text
   const centered = StyleSheet.flatten(style)?.textAlign === 'center';
-  if (centered && own.style) delete own.style.textAlign;
+  const ownStyle: TextStyle | undefined = centered && own.style ? { writingDirection: own.style.writingDirection } : own.style;
   return (
     <>
-      <Text testID={testID} accessibilityRole={accessibilityRole} numberOfLines={numberOfLines} style={[style, own.style]} accessibilityLanguage={own.accessibilityLanguage} {...(own.lang ? ({ lang: own.lang } as object) : {})}>
+      <Text testID={testID} accessibilityRole={accessibilityRole} numberOfLines={numberOfLines} style={[style, ownStyle]} accessibilityLanguage={own.accessibilityLanguage} {...(own.lang ? ({ lang: own.lang } as object) : {})}>
         {children ? [text, children] : text}
       </Text>
       {note ? <MarkNote mark={mark} centered={centered} /> : null}
