@@ -13,7 +13,7 @@
         ],
         [
           "Specialty illustration",
-          "packages/ui/icons/specialty-art.ts registry by slug; fill icon (specialtyLook) when none",
+          "packages/ui/icons/specialty-art.ts registry by slug (35 pictures, all 42 slugs); fill icon (specialtyLook) only for a new slug with no picture",
           "ok"
         ],
         [
@@ -78,16 +78,8 @@
       "kind": "backend",
       "note": "GET /care/specialties sends only the published-doctor count, no booked-appointments count, so the row is ordered by doctors count (desc); a booked_count per specialty would let it order by bookings.",
       "file": "packages/ui/icons/specialty-art.ts",
-      "line": 258,
+      "line": 450,
       "backend": "backend/src/modules/care/care.service.ts:59"
-    },
-    {
-      "route": "/consultations",
-      "element": "Specialties without an illustration yet",
-      "kind": "owner",
-      "note": "Batch 1 illustrates 24 of 42 slugs (17 pictures); the other 18 draw the stethoscope fill icon until batch 2 (family_medicine, pediatric_surgery, speech_therapy, andrology, gastroenterology, hepatology, endoscopy, allergy_immunology, oncology, oncology_surgery, endocrinology, rheumatology, general_surgery, vascular_surgery, plastic_surgery, bariatric_surgery, physiotherapy, geriatrics).",
-      "file": "packages/ui/icons/specialty-art.ts",
-      "line": 183
     },
     {
       "route": "/consultations",

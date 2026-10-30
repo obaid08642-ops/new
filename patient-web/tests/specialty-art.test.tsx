@@ -18,6 +18,7 @@ const rows = [
   { slug: "dermatology", nameAr: "جلدية", nameEn: "Dermatology", count: 0 },
   { slug: "cardiology", nameAr: "قلب", nameEn: "Cardiology", count: 9 },
   { slug: "speech_therapy", nameAr: "تخاطب", nameEn: "Speech Therapy", count: 0 },
+  { slug: "future_specialty", nameAr: "جديد", nameEn: "Future", count: 4 },
   { slug: "pediatrics", nameAr: "أطفال", nameEn: "Pediatrics", count: 14 },
   { slug: "family_medicine", nameAr: "طب الأسرة", nameEn: "Family Medicine", count: 2 },
   { slug: "ent", nameAr: "أنف", nameEn: "ENT", count: 9 },
@@ -34,6 +35,21 @@ describe("specialty registry", () => {
     for (const slug of SPECIALTY_ART_SLUGS) {
       const choice = SPECIALTY_ART_BY_SLUG[slug];
       expect(choice === "fallback" || (SPECIALTY_ART_KEYS as readonly string[]).includes(choice), slug).toBe(true);
+      // batch 2: every KNOWN slug now has its own picture; "fallback" is only the typed escape for a slug added later
+      expect(choice, slug).not.toBe("fallback");
+    }
+  });
+
+  it("the 18 batch-2 pictures are each used, distinct from each other, and drawn on the 64 grid with the five roles only", () => {
+    const batch2 = (SPECIALTY_ART_KEYS as readonly string[]).slice(17, 35);
+    expect(batch2).toHaveLength(18);
+    const shapesOf = (k: string) => JSON.stringify(SPECIALTY_ART[k as keyof typeof SPECIALTY_ART]);
+    expect(new Set(batch2.map(shapesOf)).size).toBe(18);
+    for (const key of batch2) {
+      expect(Object.values(SPECIALTY_ART_BY_SLUG), key).toContain(key);
+      for (const shape of SPECIALTY_ART[key as keyof typeof SPECIALTY_ART]) {
+        for (const role of [shape.fill, shape.stroke]) if (role) expect(["bg", "fg", "ink", "coral", "surface"]).toContain(role);
+      }
     }
   });
 
@@ -48,7 +64,7 @@ describe("specialty registry", () => {
   });
 
   it("a specialty with no illustration (or an unknown slug) has no art key: the client draws its fill icon", () => {
-    expect(specialtyArtKey("family_medicine")).toBeNull();
+    expect(specialtyArtKey("family_medicine")).toBe("family");
     expect(specialtyArtKey("future_specialty")).toBeNull();
     expect(specialtyArtKey(undefined)).toBeNull();
   });
@@ -57,8 +73,8 @@ describe("specialty registry", () => {
 describe("specialty tile rules", () => {
   it("orders with-doctors first by most doctors (ties keep the registry order), then the rest in the registry order", () => {
     const tiles = orderSpecialties(rows, nameOf);
-    expect(tiles.map((t) => t.slug)).toEqual(["pediatrics", "cardiology", "ent", "family_medicine", "dermatology", "speech_therapy"]);
-    expect(tiles.map((t) => t.comingSoon)).toEqual([false, false, false, false, true, true]);
+    expect(tiles.map((t) => t.slug)).toEqual(["pediatrics", "cardiology", "ent", "future_specialty", "family_medicine", "dermatology", "speech_therapy"]);
+    expect(tiles.map((t) => t.comingSoon)).toEqual([false, false, false, false, false, true, true]);
   });
 
   it("flags coming soon when there is no published doctor", () => {
@@ -91,11 +107,11 @@ describe("specialty tiles", () => {
       <SpecialtyRow label="Specialty" allLabel="All" allHref="/en/consultations/doctors" allSelected={false} moreLabel="All specialties" moreHref="/en/consultations/specialties" comingSoonLabel="Coming soon" selectedSlug="cardiology" tiles={tiles} hrefOf={(slug) => `/en/consultations/doctors?specialty=${slug}`} />,
     );
     const labels = [...html.matchAll(/aria-label="([^"]+)"/g)].map((m) => m[1]).filter((l) => l !== "Specialty");
-    expect(labels).toEqual(["All", "Pediatrics", "Cardiology", "ENT", "Family Medicine", "Dermatology, Coming soon", "Speech Therapy, Coming soon", "All specialties"]);
+    expect(labels).toEqual(["All", "Pediatrics", "Cardiology", "ENT", "Future", "Family Medicine", "Dermatology, Coming soon", "Speech Therapy, Coming soon", "All specialties"]);
     expect(html).toContain('href="/en/consultations/doctors?specialty=cardiology"');
     expect(html).toMatch(/aria-current="true"[^>]*data-selected="true"/);
     expect(html).toContain('data-soon="true"');
-    // no illustration yet: the fill icon, never a blank tile
+    // a slug with no illustration (a new backend slug): the fill icon, never a blank tile
     expect(html).toMatch(/data-art="fallback"[^]*?<svg/);
     expect(html).not.toMatch(/style=/);
   });
