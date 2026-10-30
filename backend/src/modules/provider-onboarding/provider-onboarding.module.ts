@@ -1,6 +1,7 @@
 import { clinicFromRegistration, normalizeGender, normalizeEducation, normalizeProcedures, assertFollowUp, normalizeClinicLocation, normalizeIban, doctorSubmitProblems } from './doctor-profile-fields';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { Module, Controller, Post, Get, Body, Query, Param, UseGuards, Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
+import { assertNursingServicePrices } from '../../common/nursing-price';
 import { isEmail } from 'class-validator';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -234,9 +235,10 @@ export class ProviderOnboardingService {
       const catalog = ids.length ? await this.providerModel.db.collection(CATALOG_COLLECTIONS.nursing_services)
         .find({ id: { $in: ids }, is_deleted: { $ne: true } }, { projection: { _id: 0, id: 1, name_ar: 1, name_en: 1 } }).toArray() : [];
       const byId = new Map(catalog.map((c: any) => [c.id, c]));
-      body.nursing_services = body.nursing_services
-        .filter((x: any) => byId.has(String(x?.key)))
-        .map((x: any) => ({ key: String(x.key), name_ar: byId.get(String(x.key))!.name_ar, name_en: byId.get(String(x.key))!.name_en, price: Number(x.price) || 0 }));
+      const known = body.nursing_services.filter((x: any) => byId.has(String(x?.key)));
+      assertNursingServicePrices(known.map((x: any) => ({ key: String(x.key), price: typeof x.price === 'string' ? Number(x.price) : x.price })));   // price 0 (the old "not set") is refused
+      body.nursing_services = known
+        .map((x: any) => ({ key: String(x.key), name_ar: byId.get(String(x.key))!.name_ar, name_en: byId.get(String(x.key))!.name_en, price: Number(x.price) }));
     }
     if (profile.type === ProviderType.DOCTOR) {
       if (body.education !== undefined) body.education = normalizeEducation(body.education);
