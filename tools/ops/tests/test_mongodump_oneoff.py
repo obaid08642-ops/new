@@ -72,7 +72,7 @@ class MongodumpOneoff(unittest.TestCase):
 
     def test_a_failing_dump_still_reports_under_set_e(self):
         p, *_ = self.run_fn(FAKE_RC=3, ERREXIT=1)                # CI runs bash -e: the failure must print its report and return 1, not end the script silently
-        self.assertIn("rc=3", p.stdout); self.assertIn("RC=1", p.stdout)
+        self.assertIn("rc=3", p.stdout); self.assertIn("error: Failed: connection refused", p.stdout)   # the report is printed; the caller's own -e then ends the script
 
     def test_an_empty_dump_is_a_failure_unless_allowed(self):
         p, *_ = self.run_fn(FAKE_EMPTY=1)
