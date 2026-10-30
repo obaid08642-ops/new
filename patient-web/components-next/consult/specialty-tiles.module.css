@@ -31,8 +31,9 @@
 .grid .tile { inline-size: 100%; }
 .tile:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
 .tile[data-selected="true"] { border-color: var(--nabd-color-brand-coral); border-width: 2px; background: var(--nabd-tone-bg); }
-.tile[data-soon="true"] { background: var(--nabd-color-bg-sunken); color: var(--nabd-color-text-secondary); }
+/* a specialty without a doctor yet: the sunken surface and the faded picture say "not yet"; the text stays at full contrast (muted text on the sunken surface measured 4.15:1, below the 4.5:1 floor) */
+.tile[data-soon="true"] { background: var(--nabd-color-bg-sunken); color: var(--nabd-color-text-primary); }
 .tile[data-soon="true"] .picture { opacity: 0.55; }
 .picture { display: flex; align-items: center; justify-content: center; }
 .label { font-size: var(--nabd-font-size-label); font-weight: 700; overflow-wrap: anywhere; line-height: 1.25; }
-.soon { font-size: var(--nabd-font-size-caption); font-weight: 600; color: var(--nabd-color-text-secondary); }
+.soon { font-size: var(--nabd-font-size-caption); font-weight: 600; color: var(--nabd-color-text-primary); }
