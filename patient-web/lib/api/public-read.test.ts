@@ -15,18 +15,19 @@ describe("readPublicEntity (A-14)", () => {
     expect(mock().mock.calls[0][1].cache).toBeUndefined();
   });
 
-  it("re-reads an empty 200 with no-store, so the cached empty answer is not the one returned", async () => {
+  it("re-reads an empty 200 with a 60 s entry of its own, so the cached empty answer is not the one returned", async () => {
     mock().mockResolvedValueOnce(new Response("", { status: 200 })).mockResolvedValueOnce(new Response(JSON.stringify({ content: "new" }), { status: 200 }));
     expect(await readPublicEntity("https://api.test/p", 3600)).toEqual({ content: "new" });
-    expect(mock().mock.calls[1][1].cache).toBe("no-store");
-    expect(mock().mock.calls[1][1].next).toBeUndefined();
+    expect(mock().mock.calls[1][1].next).toEqual({ revalidate: 60 });
+    expect(mock().mock.calls[1][1].cache).toBeUndefined();
   });
 
-  it("returns null when it is still empty, and the next call reads again (nothing kept)", async () => {
+  it("returns null when it is still empty, and the next call reads again (never kept for the long time)", async () => {
     mock().mockImplementation(async () => new Response("", { status: 200 }));
     expect(await readPublicEntity("https://api.test/p", 3600)).toBeNull();
     expect(await readPublicEntity("https://api.test/p", 3600)).toBeNull();
-    expect(mock().mock.calls.filter(([, init]) => init.cache === "no-store")).toHaveLength(2);
+    expect(mock().mock.calls.filter(([, init]) => init.next.revalidate === 3600)).toHaveLength(2);
+    expect(mock().mock.calls.filter(([, init]) => init.next.revalidate === 60)).toHaveLength(2);
   });
 
   it("throws on a 5xx so the last good copy is kept", async () => {
