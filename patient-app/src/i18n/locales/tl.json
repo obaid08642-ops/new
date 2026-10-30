@@ -3925,5 +3925,15 @@
   "consult.chat.retry": "I-tap para subukan muli",
   "consult.chat.tick.sent": "Naipadala",
   "consult.chat.tick.delivered": "Naihatid",
-  "consult.chat.tick.read": "Nabasa"
+  "consult.chat.tick.read": "Nabasa",
+  "consult.call.route.speaker": "Malakas na tunog",
+  "consult.call.route.earpiece": "Sa tenga",
+  "consult.call.route.bluetooth": "Bluetooth na gamit",
+  "consult.call.route.headset": "Pandinig sa ulo",
+  "consult.call.flipCamera": "Ibalik ang camera",
+  "consult.call.onHold": "Naka-hold ang tawag habang may ibang tawag",
+  "consult.call.remoteMuted": "Naka-mute ang kausap",
+  "consult.call.micDenied": "Naka-off ang access sa mikropono, kaya hindi ka nila marinig",
+  "consult.call.camDenied": "Naka-off ang access sa camera, kaya hindi ka nila makita",
+  "consult.call.openSettings": "Buksan ang settings"
 }

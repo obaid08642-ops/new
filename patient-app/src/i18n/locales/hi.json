@@ -3925,5 +3925,15 @@
   "consult.chat.retry": "फिर कोशिश के लिए टैप करें",
   "consult.chat.tick.sent": "भेजा गया",
   "consult.chat.tick.delivered": "पहुँच गया",
-  "consult.chat.tick.read": "देख लिया"
+  "consult.chat.tick.read": "देख लिया",
+  "consult.call.route.speaker": "स्पीकर",
+  "consult.call.route.earpiece": "ईयरपीस",
+  "consult.call.route.bluetooth": "ब्लूटूथ",
+  "consult.call.route.headset": "हेडसेट",
+  "consult.call.flipCamera": "कैमरा पलटें",
+  "consult.call.onHold": "दूसरी कॉल के दौरान यह कॉल होल्ड पर है",
+  "consult.call.remoteMuted": "दूसरे व्यक्ति ने म्यूट किया है",
+  "consult.call.micDenied": "माइक्रोफ़ोन की अनुमति बंद है, इसलिए वे आपको सुन नहीं सकते",
+  "consult.call.camDenied": "कैमरे की अनुमति बंद है, इसलिए वे आपको देख नहीं सकते",
+  "consult.call.openSettings": "सेटिंग खोलें"
 }

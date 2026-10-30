@@ -3925,5 +3925,15 @@
   "consult.chat.retry": "Tap to try again",
   "consult.chat.tick.sent": "Sent",
   "consult.chat.tick.delivered": "Delivered",
-  "consult.chat.tick.read": "Seen"
+  "consult.chat.tick.read": "Seen",
+  "consult.call.route.speaker": "Speaker",
+  "consult.call.route.earpiece": "Earpiece",
+  "consult.call.route.bluetooth": "Bluetooth",
+  "consult.call.route.headset": "Headset",
+  "consult.call.flipCamera": "Flip camera",
+  "consult.call.onHold": "Call on hold while you are on another call",
+  "consult.call.remoteMuted": "The other person is muted",
+  "consult.call.micDenied": "Microphone access is off, so they cannot hear you",
+  "consult.call.camDenied": "Camera access is off, so they cannot see you",
+  "consult.call.openSettings": "Open settings"
 }
