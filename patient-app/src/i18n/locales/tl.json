@@ -3900,5 +3900,11 @@
   "orders.results.new": "Bago",
   "orders.results.view": "Tingnan",
   "orders.results.share": "Ibahagi sa iyong doktor",
-  "orders.results.book": "Mag-book ng konsulta"
+  "orders.results.book": "Mag-book ng konsulta",
+  "insurance.policy.delete": "Burahin ang card",
+  "insurance.policy.deleteTitle": "Burahin ang insurance card",
+  "insurance.policy.deleteBody": "Aalisin ang card na ito sa iyong account.",
+  "insurance.policy.deleteCancel": "Kanselahin",
+  "insurance.policy.deleteDone": "Nabura na ang insurance card.",
+  "insurance.policy.deleteFailed": "Hindi namin nabura ang card. Subukan muli."
 }

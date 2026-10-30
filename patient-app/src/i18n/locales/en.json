@@ -3900,5 +3900,11 @@
   "orders.results.new": "New",
   "orders.results.view": "View",
   "orders.results.share": "Share with your doctor",
-  "orders.results.book": "Book a consultation"
+  "orders.results.book": "Book a consultation",
+  "insurance.policy.delete": "Delete card",
+  "insurance.policy.deleteTitle": "Delete insurance card",
+  "insurance.policy.deleteBody": "This card will be removed from your account.",
+  "insurance.policy.deleteCancel": "Cancel",
+  "insurance.policy.deleteDone": "Insurance card deleted.",
+  "insurance.policy.deleteFailed": "We could not delete the card. Try again."
 }

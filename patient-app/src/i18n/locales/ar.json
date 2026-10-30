@@ -3900,5 +3900,11 @@
   "orders.results.new": "جديد",
   "orders.results.view": "عرض",
   "orders.results.share": "شارك مع دكتورك",
-  "orders.results.book": "احجز استشارة"
+  "orders.results.book": "احجز استشارة",
+  "insurance.policy.delete": "حذف البطاقة",
+  "insurance.policy.deleteTitle": "حذف بطاقة التأمين",
+  "insurance.policy.deleteBody": "ستُزال هذه البطاقة من حسابك.",
+  "insurance.policy.deleteCancel": "إلغاء",
+  "insurance.policy.deleteDone": "تم حذف بطاقة التأمين.",
+  "insurance.policy.deleteFailed": "تعذّر حذف البطاقة. حاول مرة أخرى."
 }

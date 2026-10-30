@@ -3900,5 +3900,11 @@
   "orders.results.new": "نیا",
   "orders.results.view": "دیکھیں",
   "orders.results.share": "اپنے ڈاکٹر کے ساتھ شیئر کریں",
-  "orders.results.book": "مشاورت بک کریں"
+  "orders.results.book": "مشاورت بک کریں",
+  "insurance.policy.delete": "کارڈ حذف کریں",
+  "insurance.policy.deleteTitle": "انشورنس کارڈ حذف کریں",
+  "insurance.policy.deleteBody": "یہ کارڈ آپ کے اکاؤنٹ سے ہٹا دیا جائے گا۔",
+  "insurance.policy.deleteCancel": "منسوخ کریں",
+  "insurance.policy.deleteDone": "انشورنس کارڈ حذف ہو گیا۔",
+  "insurance.policy.deleteFailed": "کارڈ حذف نہیں ہو سکا۔ دوبارہ کوشش کریں۔"
 }

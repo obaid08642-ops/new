@@ -3900,5 +3900,11 @@
   "orders.results.new": "नया",
   "orders.results.view": "देखें",
   "orders.results.share": "अपने डॉक्टर के साथ साझा करें",
-  "orders.results.book": "परामर्श बुक करें"
+  "orders.results.book": "परामर्श बुक करें",
+  "insurance.policy.delete": "कार्ड हटाएं",
+  "insurance.policy.deleteTitle": "बीमा कार्ड हटाएं",
+  "insurance.policy.deleteBody": "यह कार्ड आपके खाते से हटा दिया जाएगा।",
+  "insurance.policy.deleteCancel": "रद्द करें",
+  "insurance.policy.deleteDone": "बीमा कार्ड हटा दिया गया।",
+  "insurance.policy.deleteFailed": "कार्ड हटाया नहीं जा सका। फिर से कोशिश करें।"
 }
