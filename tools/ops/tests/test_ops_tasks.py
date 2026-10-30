@@ -717,6 +717,33 @@ class CatalogueApplyOnly(unittest.TestCase):
         self.assertEqual(both.returncode, 1)
         self.assertIn("separate runs", both.stdout)
 
+    def test_translations_plan_only_that_step_from_the_host_file_and_never_together_with_another_mode(self):
+        with open(os.path.join(self.cat, "product-translations.json"), "w") as f:
+            f.write("{}")
+        p = self.run_task({"TRANSLATIONS": "yes"})
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        calls = self.h.docker_calls()
+        self.assertIn("catalogue-apply.js plan --only=product_translations --product-translations=/tmp/cat-product-translations.json", calls)
+        self.assertNotIn("--districts", calls)                     # the other inputs are not used in this mode
+        self.assertIn("dry run only", p.stdout)
+        for other in ({"PRUNE": "yes"}, {"COMPLETION": "packaged"}):
+            both = self.run_task({"TRANSLATIONS": "yes", **other})
+            self.assertEqual(both.returncode, 1)
+            self.assertIn("separate runs", both.stdout)
+
+    def test_translations_without_the_plan_file_aborts_and_one_off_mounts_it(self):
+        p = self.run_task({"TRANSLATIONS": "yes"})
+        self.assertEqual(p.returncode, 1)
+        self.assertIn("run 97-translate-content STEP=plan first", p.stdout)
+        with open(os.path.join(self.cat, "product-translations.json"), "w") as f:
+            f.write("{}")
+        q = self.run_task({"TRANSLATIONS": "yes", "ONE_OFF": "yes"})
+        self.assertEqual(q.returncode, 0, q.stdout + q.stderr)
+        run = [l for l in self.h.docker_calls().splitlines() if l.startswith("run ")]
+        self.assertEqual(len(run), 1)
+        self.assertIn("--only=product_translations --product-translations=/in/product-translations.json", run[0])
+        self.assertIn("--memory 900m", run[0])
+
     def test_without_completion_the_full_plan_keeps_its_inputs(self):
         p = self.run_task()
         self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
