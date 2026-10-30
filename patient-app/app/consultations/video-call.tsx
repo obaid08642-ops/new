@@ -113,6 +113,7 @@ export default function VideoCallScreen() {
         // (adaptiveStream + dynacast), with DTX audio for clean voice on weak links.
         // (the options are built apart so the unchanged `audioBitrate` key stays as it was sent)
         const publishDefaults = {
+          videoCodec: 'vp8' as const, // plays on every browser and phone the doctor may use
           simulcast: true,
           videoSimulcastLayers: [VideoPresets.h180, VideoPresets.h360],
           videoEncoding: { maxBitrate: 1_700_000 },

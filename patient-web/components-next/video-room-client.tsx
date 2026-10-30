@@ -7,7 +7,7 @@ import { Button } from "@/components-next/ui-generated/components/Button";
 import { Spinner } from "@/components-next/ui-generated/components/Spinner";
 import { CallMediaToggles, type CallMediaPending } from "@/components-next/consult/call-media-toggles";
 import styles from "@/components-next/consult/consult.module.css";
-import { callRoomOptions, poorConnectionTracker, qualityLevel, reconnectClock, setVideo, stateAfterDisconnect, type QualityLevel } from "@/lib/consult/call-resilience";
+import { callRoomOptions, pickVideoCodec, poorConnectionTracker, qualityLevel, reconnectClock, setVideo, stateAfterDisconnect, type QualityLevel } from "@/lib/consult/call-resilience";
 
 type Labels = {
   connecting: string; live: string; waiting: string; ended: string; leave: string; microphone: string; camera: string; you: string; doctor: string;
@@ -47,7 +47,7 @@ export function VideoRoomClient({ token, serverUrl, labels, chatHref, ratingHref
         // Bundled and loaded on demand: the call screens are the only pages that need the LiveKit client.
         const { Room, RoomEvent, Track, VideoPresets, AudioPresets, ConnectionQuality, DisconnectReason } = await import("livekit-client");
         if (cancelled) return;
-        const room = new Room(callRoomOptions({ VideoPresets, AudioPresets }));
+        const room = new Room(callRoomOptions({ VideoPresets, AudioPresets }, pickVideoCodec(typeof RTCRtpSender !== "undefined" ? RTCRtpSender.getCapabilities?.("video")?.codecs : null)));
         roomRef.current = room;
         const attachRemote = (track: TrackType) => { if (track.kind === Track.Kind.Video || track.kind === Track.Kind.Audio) remoteTile.current?.appendChild(track.attach()); };
         const showLocal = (publication: LocalTrackPublication) => {

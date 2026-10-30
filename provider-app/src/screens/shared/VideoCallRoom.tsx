@@ -132,6 +132,7 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
         dynacast: true,
         videoCaptureDefaults: { resolution: VideoPresets.h720.resolution },
         publishDefaults: {
+          videoCodec: 'vp8', // plays on every browser and phone the patient may use
           simulcast: true,
           videoSimulcastLayers: [VideoPresets.h180, VideoPresets.h360],
           videoEncoding: { maxBitrate: 1_700_000 },

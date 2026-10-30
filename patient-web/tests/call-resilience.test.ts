@@ -132,3 +132,20 @@ describe("the web room is wired to it, in every language", () => {
     }
   });
 });
+
+describe("video codec (cross-platform matrix)", () => {
+  it("publishes VP8 by default and falls back to H.264 only when the sender lacks VP8", async () => {
+    const { pickVideoCodec } = await import("../lib/consult/call-resilience");
+    expect(pickVideoCodec(undefined)).toBe("vp8");
+    expect(pickVideoCodec([{ mimeType: "video/VP8" }, { mimeType: "video/H264" }])).toBe("vp8");
+    expect(pickVideoCodec([{ mimeType: "video/H264" }])).toBe("h264");
+    expect(pickVideoCodec([{ mimeType: "video/AV1" }])).toBe("vp8");
+  });
+
+  it("the room options carry the chosen codec", async () => {
+    const { callRoomOptions } = await import("../lib/consult/call-resilience");
+    const presets = { VideoPresets: { h720: { resolution: {} }, h180: {}, h360: {} }, AudioPresets: { speech: {} } } as never;
+    expect(callRoomOptions(presets).publishDefaults.videoCodec).toBe("vp8");
+    expect(callRoomOptions(presets, "h264").publishDefaults.videoCodec).toBe("h264");
+  });
+});
