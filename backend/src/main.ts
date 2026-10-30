@@ -34,7 +34,6 @@ import { SentryExceptionFilter } from './common/sentry.filter';
 import { processRole } from './common/process-role';
 import { affordableWorkers, clusterAllowedForRole, requestedClusterWorkers, restartDelayMs, shouldFork } from './common/cluster-config';
 import { listLimitMiddleware } from './common/list-limit.middleware';
-import { createLoadShed, loadShedEnabled } from './common/load-shed';
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
 import { WinstonModule } from 'nest-winston';
@@ -148,8 +147,6 @@ async function bootstrap() {
     const trustProxyHops = Number.parseInt(process.env.TRUST_PROXY_HOPS || '2', 10);
     app.getHttpAdapter().getInstance().set('trust proxy', Number.isFinite(trustProxyHops) ? trustProxyHops : 2);
     // P14.25: no list endpoint can be asked for an unbounded page
-    // docs/perf/load-test-2026-10-30.md §6: under saturation anonymous reads get a fast 503 + Retry-After (off unless LOAD_SHED=on)
-    if (loadShedEnabled()) app.use(createLoadShed().middleware);
     app.use(listLimitMiddleware);
     app.use((req: any, _res: any, next: any) => {
       if (req.body && typeof req.body === 'object') {
