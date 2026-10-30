@@ -364,10 +364,35 @@ export class LiveKitService {
   }
 
   /** Which path the media took (direct, through TURN, or LiveKit): the numbers behind the P2P success share in docs/perf/CALLS_SCALE.md. */
-  async reportPath(sessionId: string, userId: string, path: 'direct' | 'relay') {
+  async reportPath(sessionId: string, userId: string, path: 'direct' | 'relay', relayedBytes?: number) {
     const session = await this.findOwnedSession(sessionId, userId);
-    await this.callSessions.updateOne({ id: session.id }, { $set: { media_path: path, updatedAt: new Date() } });
+    // each side reports what it sent plus received over the relayed pair; the call's total is the sum of both sides, kept per user so a repeated report replaces, never adds
+    const set: Record<string, unknown> = { media_path: path, updatedAt: new Date() };
+    const counted = path === 'relay' && Number.isFinite(relayedBytes) && (relayedBytes as number) >= 0;
+    if (counted) set[`relayed_bytes_by.${String(userId).replace(/[.$]/g, '_')}`] = Math.floor(relayedBytes as number);
+    await this.callSessions.updateOne({ id: session.id }, { $set: set });
+    if (counted) await this.logRelayUsage(session.id, Math.floor(relayedBytes as number));
     return { success: true };
+  }
+
+  /**
+   * One log line per relayed report with this month's total across all calls (sum of every side's `relayed_bytes_by`), against the 1,000 GB a month that
+   * Cloudflare TURN gives free. Best effort: a failing aggregate never fails the report.
+   */
+  private async logRelayUsage(sessionId: string, bytes: number): Promise<void> {
+    try {
+      const start = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 1));
+      const rows: any[] = await this.callSessions.aggregate([
+        { $match: { createdAt: { $gte: start }, relayed_bytes_by: { $exists: true } } },
+        { $project: { sides: { $objectToArray: '$relayed_bytes_by' } } },
+        { $unwind: '$sides' },
+        { $group: { _id: null, bytes: { $sum: '$sides.v' }, calls: { $addToSet: '$_id' } } },
+      ]).toArray();
+      const total = Number(rows[0]?.bytes ?? 0);
+      this.logger.log(`turn usage: session=${sessionId} relayed_bytes=${bytes} month_total_gb=${(total / 1e9).toFixed(3)} of 1000 free (calls with relay: ${rows[0]?.calls?.length ?? 0})`);
+    } catch (e) {
+      this.logger.debug(`turn usage total unavailable: ${(e as Error).message}`);
+    }
   }
 
   /** Verified LiveKit server webhook (participant_joined/left, track published,

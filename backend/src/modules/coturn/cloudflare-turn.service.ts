@@ -21,8 +21,9 @@ export class CloudflareTurnService {
 
   constructor(private readonly fetchImpl: FetchLike = ((u, i) => fetch(u, i)) as FetchLike, private readonly now: () => number = Date.now) {}
 
+  /** CALLS_TURN_PROVIDER=coturn drops Cloudflare (our own coturn only) with an env change and a restart, no deploy; unset or `cloudflare` = Cloudflare first, coturn second. */
   isConfigured(env: NodeJS.ProcessEnv = process.env): boolean {
-    return !!env.CF_TURN_KEY_ID && !!env.CF_TURN_API_TOKEN;
+    return !!env.CF_TURN_KEY_ID && !!env.CF_TURN_API_TOKEN && String(env.CALLS_TURN_PROVIDER || 'cloudflare').trim().toLowerCase() !== 'coturn';
   }
 
   /** ICE servers for this user, or [] (not configured / Cloudflare failed). Never throws. */

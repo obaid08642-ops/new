@@ -27,6 +27,15 @@ earlier recommendation of buying a second IPv4 for coturn:443 (which stays possi
   `GET /unified-bookings/:id/call-token`, and `GET /calls/ice/config`. Order: Cloudflare first, our coturn (3478/5349) second.
 - **Clients.** The web room (`video-room-client.tsx`) and the provider app (`VideoCallRoom.tsx`) pass them to `room.connect(url, token, { rtcConfig: { iceServers } })`.
   The patient mobile app does not open LiveKit itself in this repo (no `room.connect` there), so nothing changes in it; a P2P client, when one exists, takes the same list.
+- **Switch.** `CALLS_TURN_PROVIDER=coturn` drops Cloudflare (our coturn only) with the env change and a backend restart, no deploy; unset or `cloudflare` = Cloudflare first, coturn second.
+  Task `70b-turn-env.sh` (PROVIDER line) sets it.
+- **Usage against the free 1,000 GB.** LiveKit's webhooks carry no relayed bytes, so the number must come from the clients: `POST /calls/:sessionId/path` now takes an optional
+  `relayed_bytes` (bytes sent + received on the relayed candidate pair, from WebRTC `getStats()`) next to `path: "relay"`; the backend stores it per side
+  (`callsessions.relayed_bytes_by.<user>`, a repeat replaces) and logs `turn usage: session=... relayed_bytes=... month_total_gb=... of 1000 free`. **No client sends it yet**
+  (the web room and the provider app would read the selected candidate pair at the end of the call and post it); until one does, the Cloudflare dashboard's TURN usage is the only meter.
+- **Keys to the server.** `tools/ops/tasks/70b-turn-env.sh` (on the model of 70-mail-env): the two GitHub secrets reach the server only on ssh stdin as a mode-600 file, the task checks
+  them with Cloudflare (HTTP status only), writes the NAMES into `.env.production` (copy saved first) and recreates only the backend. Dry run first; `APPLY=yes` set by the reviewer.
+  The workflow lines are in `docs/ops/server-inspect-turn-env.md`.
 - **Owner steps (not in chat or the repo).** Create a TURN key in the Cloudflare dashboard (Realtime > TURN), put `CF_TURN_KEY_ID` and `CF_TURN_API_TOKEN` in the backend's
   environment on the server, restart the backend. For the CI check add both as repository secrets.
 - **CI.** `.github/workflows/turn-relay.yml` runs `tools/live/turn-relay-check.mjs`: a real Chromium gathers ICE with `iceTransportPolicy: "relay"` using a fresh
