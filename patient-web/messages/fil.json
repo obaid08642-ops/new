@@ -1339,7 +1339,8 @@
         "a": "Oo, mula sa My appointments ayon sa patakaran।"
       }
     },
-    "faqTitle": "Mga FAQ"
+    "faqTitle": "Mga FAQ",
+    "comingSoon": "Paparating na"
   },
   "HomeCareServices": {
     "eyebrow": "Pangangalaga sa bahay",
@@ -1515,7 +1516,11 @@
     "filtersWithCount": "Mga filter, {n} aktibo",
     "activeFilters": "Mga aktibong filter",
     "removeFilter": "Alisin ang filter na {filter}",
-    "filterAll": "Lahat"
+    "filterAll": "Lahat",
+    "specialtyAll": "Lahat",
+    "comingSoon": "Paparating na",
+    "comingSoonTitle": "Paparating na ang {specialty}",
+    "comingSoonBody": "Wala pang doktor sa espesyalidad na ito. Pumili ng ibang espesyalidad."
   },
   "LabsServices": {
     "eyebrow": "Pangangalaga sa laboratoryo",

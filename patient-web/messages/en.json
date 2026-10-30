@@ -1339,7 +1339,8 @@
         "a": "Yes, from My appointments under the policy shown at booking."
       }
     },
-    "faqTitle": "FAQs"
+    "faqTitle": "FAQs",
+    "comingSoon": "Coming soon"
   },
   "HomeCareServices": {
     "eyebrow": "Home care",
@@ -1515,7 +1516,11 @@
     "filtersWithCount": "Filters, {n} active",
     "activeFilters": "Active filters",
     "removeFilter": "Remove filter {filter}",
-    "filterAll": "All"
+    "filterAll": "All",
+    "specialtyAll": "All",
+    "comingSoon": "Coming soon",
+    "comingSoonTitle": "{specialty} is coming soon",
+    "comingSoonBody": "There are no doctors in this specialty yet. Choose another specialty."
   },
   "LabsServices": {
     "eyebrow": "Laboratory care",
