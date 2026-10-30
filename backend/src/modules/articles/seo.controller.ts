@@ -1,4 +1,6 @@
 import { Controller, Get, Param, NotFoundException } from '@nestjs/common';
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { safeDecode } from '../../common/slug.util';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -10,6 +12,7 @@ import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
  * entity ids. Only published/active entities resolve — no fabricated redirects.
  */
 @Controller('seo')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 export class SeoController {
   constructor(@InjectConnection() private readonly conn: Connection) {}
 

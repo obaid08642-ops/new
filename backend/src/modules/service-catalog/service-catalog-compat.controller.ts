@@ -1,4 +1,6 @@
 import { Roles } from '../../common/auth.guard';
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { UserRole } from '../../common/enums';
 import { PROVIDER_ROLES } from '../../common/enums';
 import { Controller, Get, UseGuards } from '@nestjs/common';
@@ -9,6 +11,7 @@ import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { PREPARATION_LANGS } from '../labs/labs.service';
 
 @Controller('provider/capabilities')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 export class CapabilitiesCatalogController {
   constructor(@InjectConnection() private conn: Connection) {}
 
