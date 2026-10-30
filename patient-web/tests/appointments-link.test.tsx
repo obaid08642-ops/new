@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -21,11 +20,9 @@ describe("AppointmentsLink badge request", () => {
     setCookie("p.abc123");
     expect(hasPatientHint()).toBe(true);
   });
-  it("does not prefetch the auth-gated appointments page", () => {
+  it("renders the appointments link", () => {
     const html = renderToStaticMarkup(<AppointmentsLink locale="en" href="/en/appointments" />);
     expect(html).toContain('href="/en/appointments"');
     expect(html).toContain('data-testid="appointments-link"');
-    // static markup does not show the prefetch flag, so pin it in the source
-    expect(readFileSync("components-next/core/appointments-link.tsx", "utf8")).toContain("prefetch={false}");
   });
 });

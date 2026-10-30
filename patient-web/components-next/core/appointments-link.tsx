@@ -33,7 +33,7 @@ export function AppointmentsLink({ locale, href, className = "" }: { locale: Loc
     return () => { alive = false; };
   }, []);
   return (
-    <Link href={href} prefetch={false} className={`${styles.iconLink} ${styles.cartLink}${className ? ` ${className}` : ""}`} data-testid="appointments-link" aria-label={count > 0 ? shell("appointmentsNew", { n: count }) : shell("appointments")} title={shell("appointments")}>
+    <Link href={href} className={`${styles.iconLink} ${styles.cartLink}${className ? ` ${className}` : ""}`} data-testid="appointments-link" aria-label={count > 0 ? shell("appointmentsNew", { n: count }) : shell("appointments")} title={shell("appointments")}>
       <Icon name="calendar" size={20} tone="currentColor" />
       {count > 0 ? <span className={styles.cartBadge} aria-hidden="true" data-testid="appointments-badge">{formatNumber(locale, count)}</span> : null}
     </Link>
