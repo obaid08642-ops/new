@@ -1,8 +1,15 @@
-# 2026-10-30 lead reviewer: run 56.
-# 1. 97-free-old-predeploy: remove the old pre-deploy dumps (four deploys today, 337 MB each) so the backup disk has room.
-# 2. 92-recreate-datastores APPLY (#2142 + #2150): run 55 aborted safely with a 0-byte backup (nothing was stopped). This version prints the
-#    room (host and container /tmp), aborts under 2 GB free, and prints every backup step's result; then, only with a verified backup:
-#    recreate redis, then mongodb (about a minute of MongoDB unavailability, printed in seconds), livekit/coturn only with no active call;
-#    memory report after; any failure puts the service back without limits.
+# 2026-10-30 lead reviewer: run 57.
+# 1. Free disk, deploy main@251c574a: calls fixed in the patient app (#2156 WebRTC globals, #2157 reconnect), web call reconnect (#2159),
+#    provider-app call reconnect (#2160), no review fields in public APIs (#2154), one password rule (#2161), provider "My services and prices" (#2170),
+#    sitemap paging + MCP finds labs/radiology/nursing (#2152), notify-me pages (#2151), legal page cache (#2163), semantic duplicates (#2167), prune step (#2168).
+# 2. 90-catalogue-apply DRY RUN (COMPLETION=packaged, includes the duplicates step): the semantic duplicate groups to merge (HbA1c and the others). Nothing written.
+# 3. 90b-catalogue-prune DRY RUN (PRUNE=yes): hidden / duplicate / inactive / rejected rows that nothing references, counted per vertical. Nothing written.
+#    The owner approves the applies after reading both: duplicates first, then prune.
+# 4. Purge the API cache.
+release:251c574a8667f3161dc806d77641598cd8a78158
 97-free-old-predeploy
-92-recreate-datastores
+93-free-unused-images
+60-deploy-main
+90-catalogue-apply
+90b-catalogue-prune
+cf-purge-api
