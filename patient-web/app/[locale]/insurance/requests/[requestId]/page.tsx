@@ -5,6 +5,7 @@ import { parseInsuranceSummary } from "@/lib/api/insurance";
 import { parseInsuranceRequest } from "@/lib/api/insurance-request";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
+import { localizedText } from "@/lib/i18n/localized-field";
 import { insuranceBookingHref, parseRequestExtras, UUID } from "@/lib/insurance/view";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
@@ -60,7 +61,7 @@ export default async function InsuranceRequestPage({ params }: Props) {
   try {
     const policyRes = await getPatientInsurancePolicy(token);
     const summary = policyRes.ok ? parseInsuranceSummary(await policyRes.json().catch(() => null)) : null;
-    if (summary?.hasPolicy) policy = { company: summary.companyName, number: summary.policyNumber };
+    if (summary?.hasPolicy) policy = { company: localizedText({ locale, ar: summary.companyName, en: summary.companyNameEn }), number: summary.policyNumber };
   } catch { /* the panel is optional */ }
 
   return (

@@ -9,24 +9,24 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 0 | 333 | 97 | 4 | 0 |
-| Other | 406 | 340 | 50 | 3 | 13 | 0 |
+| Other | 408 | 341 | 50 | 3 | 14 | 0 |
 | Admin | 99 | 0 | 65 | 34 | 0 | 0 |
 | Admin journeys | 20 | 0 | 18 | 2 | 0 | 0 |
 | Final pass | 8 | 0 | 2 | 6 | 0 | 0 |
 | Patient journeys | 87 | 0 | 85 | 2 | 0 | 0 |
 | Provider app | 31 | 0 | 27 | 4 | 0 | 0 |
 | Provider journeys | 34 | 0 | 32 | 2 | 0 | 0 |
-| **Total** | **1119** | **340** | **612** | **150** | **17** | **0** |
+| **Total** | **1121** | **341** | **612** | **150** | **18** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | client | 267 | 91 | 135 | 41 | 0 | 0 |
-| owner | 163 | 50 | 57 | 42 | 14 | 0 |
-| backend | 450 | 198 | 222 | 30 | 0 | 0 |
+| owner | 164 | 50 | 57 | 42 | 15 | 0 |
+| backend | 451 | 199 | 222 | 30 | 0 | 0 |
 | untagged | 239 | 1 | 198 | 37 | 3 | 0 |
-| **Total** | **1119** | **340** | **612** | **150** | **17** | **0** |
+| **Total** | **1121** | **341** | **612** | **150** | **18** | **0** |
 
 ## By file
 
@@ -149,11 +149,12 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `uploads-scan-patient-app.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `uploads-scan-patient-web.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `uploads-scan-provider-app.json` | 4 | 4 | 0 | 0 | 0 | 0 |
+| `web-insurance-add-policy.json` | 2 | 1 | 0 | 0 | 1 | 0 |
 | `web-public-ink.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `web-voice-notes.json` | 2 | 2 | 0 | 0 | 0 | 0 |
-| **Total** | **1119** | **340** | **612** | **150** | **17** | **0** |
+| **Total** | **1121** | **341** | **612** | **150** | **18** | **0** |
 
-## Owner decisions (17)
+## Owner decisions (18)
 
 | # | Where | Screen / element | Question |
 |---:|---|---|---|
@@ -174,8 +175,9 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 15 | `mint-only-greens-web.json#0` `patient-web/lib/consult/appointment-view.ts:28` | /appointments Consult mode 'home' pairing (web) | [owner] [owner] same decision as above. |
 | 16 | `mint-only-greens-web.json#1` `patient-web/app/globals.css:285` | / --lime / --color-accent / --brand-lime* aliases | [owner] [owner] unused aliases of accent.lime in the web global stylesheet (no var() reader found); safe to delete in a cleanup. |
 | 17 | `orders-results-web.json#4` `patient-web/components-next/orders/order-list.tsx:84` | /orders Book a consultation with the result as context | [owner] [owner] /consultations/doctors takes no result id; opens the doctor list without context. |
+| 18 | `web-insurance-add-policy.json#1` `patient-web/app/[locale]/insurance/add-policy/page.tsx:31` | /insurance/add-policy Insurer list contains test-named insurers (Insure ins2a75… | [owner] Seed/test data in the local catalogue; nothing changed in the client. |
 
-## Open and unverified (340)
+## Open and unverified (341)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -513,6 +515,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `uploads-scan-provider-app.json#1` | client | open | RadiologyOrdersTab Report file upload | [client] Client-side: the upload is recorded in the scan registry but no pending or rejected state is drawn. |
 | `uploads-scan-provider-app.json#2` | client | open | NurseVisitConsole Visit file upload | [client] Client-side: no pending or rejected state is drawn for visit files. |
 | `uploads-scan-provider-app.json#3` | backend | open | ProviderProfileEditor Profile image upload | [backend] Backend gap: /provider/profile/image/upload goes through the image processor, not the documented upload answer; its scan state is unknown to the client and nothing is dr… |
+| `web-insurance-add-policy.json#0` | backend | open | /insurance Company name: stored Arabic only | [backend] my-policy returns company_name (always name_ar) plus company_name_en only; ur/hi/bn/fil show English via the shared helper; storing company_code/id with both names would… |
 | `web-public-ink.json#0` | owner | open | / (home header) header mark and nav active pill | [owner] two web boards disagree: HomeWeb.dc.html draws the mark with an ink bowl and an ink active nav pill (what the code does), WebHome.dc.html draws a coral bowl and an ink-tex… |
 | `web-public-ink.json#1` | client | open | / (home header, dark) active nav pill and Sign in button | [client] brand-ink pill on the ink dark canvas is nearly invisible in dark mode (the label stays readable); boards show no dark web header, so the dark treatment is not defined |
 | `web-public-ink.json#2` | owner | open | /login X and Snapchat buttons | [owner] AuthWeb.dc.html draws X and Snapchat as white buttons with a hairline; code uses the official brand colours (black X, yellow Snapchat with a black border) under the owner … |
