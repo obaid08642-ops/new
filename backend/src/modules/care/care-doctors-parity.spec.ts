@@ -22,9 +22,9 @@ describe('doctors: gender and price filters, is_online, reviews', () => {
       findOne: async () => rows[0],
       db: { collection: coll },
     };
-    const slots: any = { hasSlotsToday: async () => false, nextAvailable: async () => null };
+    const slots: any = { hasSlotsToday: async () => false, nextAvailable: jest.fn(async () => null) };
     const svc: any = new (CareService as any)(providerModel, {}, { findOne: async () => null }, slots);
-    return { svc, seen };
+    return { svc, seen, slots };
   };
 
   it('gender and a price band reach the query on the price of the chosen mode', async () => {
@@ -33,6 +33,15 @@ describe('doctors: gender and price filters, is_online, reviews', () => {
     expect(seen.providers).toMatchObject({ gender: 'female', price_clinic: { $gt: 0, $gte: 50, $lte: 150 } });
     await svc.listDoctors({ service_type: 'video', price_max: 80 });
     expect(seen.providers.price_online).toEqual({ $gt: 0, $lte: 80 });
+  });
+
+  it("the list reads each doctor's next free time once a minute, not on every request (five queries a doctor)", async () => {
+    const { svc, slots } = make();
+    await svc.listDoctors({});
+    expect(slots.nextAvailable).toHaveBeenCalledTimes(2);
+    await svc.listDoctors({});
+    await svc.listDoctors({ page: 1 });
+    expect(slots.nextAvailable).toHaveBeenCalledTimes(2);
   });
 
   it('the list marks the doctors who are online and accepting now', async () => {
