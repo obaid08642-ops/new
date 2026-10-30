@@ -743,7 +743,9 @@ export class PushService implements OnModuleInit {
   @OnEvent('chat.message_sent')
   async onChatMessage(evt: any) {
     if (!evt?.meta?.participant_ids) return;
-    const recipients = (evt.meta.participant_ids as string[]).filter(id => id !== evt.actor_account_id);
+    // Recipients with a live connection already got the message over the socket; push only the rest.
+    const offline: string[] | undefined = Array.isArray(evt.meta.offline_ids) ? evt.meta.offline_ids : undefined;
+    const recipients = (evt.meta.participant_ids as string[]).filter(id => id !== evt.actor_account_id && (!offline || offline.includes(id)));
     const senderName = evt.meta.sender_name || 'رسالة جديدة';
     for (const uid of recipients) {
       await this.queueNotification(uid, senderName, evt.meta.body || 'أرسل لك رسالة', { type: 'chat', thread_id: evt.meta.thread_id });
