@@ -11,6 +11,10 @@
 export type CartService = "pharmacy" | "lab" | "radiology" | "nursing";
 export const CART_SERVICES: readonly CartService[] = ["pharmacy", "lab", "radiology", "nursing"];
 
+/** The two diagnostics carts, shown as the Lab tests and Scans groups of one sheet; each completes its own booking flow. */
+export const DIAGNOSTICS_SERVICES = ["lab", "radiology"] as const;
+export const isDiagnostics = (service: CartService): service is (typeof DIAGNOSTICS_SERVICES)[number] => service === "lab" || service === "radiology";
+
 export type CartCounts = Record<CartService, number>;
 
 const PHARMACY_FLOW = new Set(["broadcast-status", "chat", "final-quote", "insurance-decision", "order-confirm", "payment", "waiting-for-pharmacy", "request", "reorder", "rx-order", "manual-order"]);
@@ -54,6 +58,12 @@ export type CartTarget =
  * chooser of the non-empty carts whose badge is the total.
  */
 export function cartTarget(pageService: CartService | null, counts: CartCounts, locale: string): CartTarget {
+  // the labs and radiology pages own both carts (owner, 2026-10-30): one chooser of the non-empty groups, the badge counts both
+  if (pageService === "lab" || pageService === "radiology") {
+    const groups = DIAGNOSTICS_SERVICES.flatMap((service) => (counts[service] > 0 ? [{ service, href: cartHref(service, locale), count: counts[service] }] : []));
+    if (groups.length === 0) return { kind: "cart", service: "lab", href: cartHref("lab", locale), count: 0 };
+    return { kind: "chooser", carts: groups, count: counts.lab + counts.radiology };
+  }
   if (pageService) return { kind: "cart", service: pageService, href: cartHref(pageService, locale), count: counts[pageService] };
   const carts = CART_SERVICES.flatMap((service) => (counts[service] > 0 ? [{ service, href: cartHref(service, locale), count: counts[service] }] : []));
   if (carts.length === 0) return { kind: "none" };

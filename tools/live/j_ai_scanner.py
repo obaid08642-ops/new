@@ -164,7 +164,15 @@ def web(acct):
         step('the patient signs in on the website', r.ok, f'{r.status}')
         page.goto(f'{WEB}/en/pharmacy/barcode', wait_until='load', timeout=60000)
         page.wait_for_function("() => { const i = document.querySelector('input[type=file]'); return !!i && Object.keys(i).some((k) => k.startsWith('__react')); }", timeout=30000)
-        page.locator('input[type=file]').set_input_files(files=[{'name': 'pack.png', 'mimeType': 'image/png', 'buffer': base64.b64decode(PNG)}])
+        try:
+            page.locator('input[type=file]').set_input_files(files=[{'name': 'pack.png', 'mimeType': 'image/png', 'buffer': base64.b64decode(PNG)}])
+        except Exception as err:
+            # the page must have exactly one scan input: say WHICH inputs it has (outerHTML + the ancestors' classes) before failing
+            found = page.eval_on_selector_all('input[type=file]', "els => els.map((e) => ({ html: e.outerHTML.slice(0, 220), inHidden: !!e.closest('[hidden]'), path: (() => { const p = []; let n = e.parentElement; while (n && p.length < 5) { p.push(n.tagName.toLowerCase() + (n.id ? '#' + n.id : '') + (n.className && typeof n.className === 'string' ? '.' + n.className.split(' ')[0] : '')); n = n.parentElement; } return p.join(' < '); })() }))")
+            print(f'scanner page file inputs ({len(found)}):')
+            for item in found:
+                print('  -', item)
+            raise err
         page.get_by_role('heading', name='Closest matches').wait_for(timeout=60000)
         links = page.locator('#scan-matches ~ ul a')
         step('the closest matches are listed', links.count() == 2, links.count())

@@ -62,3 +62,5 @@ export const MedicalReportSchema = SchemaFactory.createForClass(MedicalReport);
 MedicalReportSchema.plugin(healthFieldsPlugin, { registry: 'medicalreports' });
 MedicalReportSchema.index({ patient_id: 1, createdAt: -1 });
 MedicalReportSchema.index({ report_type: 1, patient_id: 1 });
+// the reports of one visit (GET /medical-reports/mine?appointment_id=, GET /care/appointments/:id/outcomes)
+MedicalReportSchema.index({ patient_id: 1, appointment_id: 1 });

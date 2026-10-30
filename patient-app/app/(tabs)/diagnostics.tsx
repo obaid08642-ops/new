@@ -246,7 +246,7 @@ export default function DiagnosticsHub() {
           <Text accessibilityRole="header" style={{ flex: 1, minWidth: 0, ...scale(t, 'h1'), color: c.text.primary, ...flow }}>{k('diag.hub.title')}</Text>
           <GlyphRound name="receipt" label={k('diag.hub.myOrders')} onPress={() => router.push('/diagnostics/orders' as Href)} testID="diagnostics-orders-entry" />
           <WishlistButton />
-          <ServiceCartButton service={mainTab === 'radiology' ? 'radiology' : 'lab'} />
+          <ServiceCartButton service="diagnostics" />
           <HeaderMenuButton testID="diagnostics-menu-button" />
         </View>
 

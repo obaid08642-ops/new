@@ -99,7 +99,7 @@ export async function HomeShell({
           <NotificationBellLink href={`${base}/notifications`} label={t("notifications")} unreadLabel={t("notificationsUnread")} />
         ) : null}
         <WishlistLink locale={locale} className={`${styles.iconBtn} ${styles.cartLink}`} badgeClassName={styles.cartBadge} />
-        <CartLink locale={locale} className={`${styles.iconBtn} ${styles.cartLink}`} badgeClassName={styles.cartBadge} />
+        <span className={styles.cartSlot} data-testid="home-cart-slot"><CartLink locale={locale} className={`${styles.iconBtn} ${styles.cartLink}`} badgeClassName={styles.cartBadge} /></span>
         {signedIn === undefined ? (
           <HomeAccountTools locale={locale} signInLabel={t("signIn")} accountLabel={t("account")} />
         ) : knownSignedIn ? (
