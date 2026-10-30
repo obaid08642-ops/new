@@ -1,7 +1,5 @@
-# 2026-10-30 lead reviewer: run 52.
-# 91c-host-files APPLY (#2139, the memory budget #2137): installs from the verified release fd73b53d the 5 host files the deploy does not write
-# (run 51's dry run: all 5 differ): deploy/mongo/mongod.conf (read at the next mongodb recreate; nothing restarts mongod now), deploy/redis/redis.conf
-# (redis maxmemory 512mb -> 320mb live with CONFIG SET, no restart), scripts/oplog-backup.sh + _oplog-mongo-wait.sh (the oplog backup waits for
-# Mongo to be healthy and retries once, one mail per real failure), scripts/memory-report.sh (then run: memory and per-container limits as status lines).
-# Each old file is copied to the backups dir first; any failure puts the copies back; ROLLBACK=yes restores them.
-91c-host-files
+# 2026-10-30 lead reviewer: run 53, READ-ONLY.
+# The owner sees "no nursing services available". The public API: 36 nursing services, 120 lab tests, 23 scans, and providers_count=0 on every one.
+# 99q counts the provider profiles by type/status/medical review/public, the per-service offers and the provider accounts (counts only, no names or ids),
+# to tell whether real providers exist but are pending review, or whether the 8 test providers removed in run 50 were the only ones.
+99q-provider-counts
