@@ -8,6 +8,12 @@
 import type { AudioPresets as LkAudioPresets, VideoPresets as LkVideoPresets } from "livekit-client";
 
 export const POOR_REPORTS_FOR_AUDIO_ONLY = 2;
+/** A call that has not come back within this long after the connection was lost is over ("dropped"); until then it is only "reconnecting". */
+export const RECONNECT_DEADLINE_MS = 30_000;
+
+export type QualityLevel = "excellent" | "good" | "poor" | "lost" | "unknown";
+export const qualityLevel = (q: unknown): QualityLevel => (q === "excellent" || q === "good" || q === "poor" || q === "lost" ? q : "unknown");
+
 
 type Presets = { VideoPresets: typeof LkVideoPresets; AudioPresets: typeof LkAudioPresets };
 
@@ -51,4 +57,20 @@ type MiniRoom = {
 export async function setVideo(room: MiniRoom, on: boolean): Promise<void> {
   room.remoteParticipants.forEach((p) => p.videoTrackPublications.forEach((pub) => pub.setSubscribed(on)));
   await room.localParticipant.setCameraEnabled(on).catch(() => undefined);
+}
+
+/**
+ * The clock of a lost connection: started by the first "reconnecting" event (a second one does not restart it), stopped when the call is
+ * back or over, and it fires `onExpire` once when the call has not come back within `ms`.
+ */
+export function reconnectClock(onExpire: () => void, ms = RECONNECT_DEADLINE_MS) {
+  let id: ReturnType<typeof setTimeout> | null = null;
+  return {
+    start() {
+      if (id !== null) return;
+      id = setTimeout(() => { id = null; onExpire(); }, ms);
+    },
+    stop() { if (id !== null) { clearTimeout(id); id = null; } },
+    running: () => id !== null,
+  };
 }

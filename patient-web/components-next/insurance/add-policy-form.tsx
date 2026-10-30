@@ -24,6 +24,21 @@ export function policyOptionals(input: { memberId: string; memberName: string; e
   return out;
 }
 
+/** The insurer's classes as pressable chips, drawn once a company is chosen and its classes are loaded; nothing when it has none. */
+export function ClassChoices({ networks, selected, label, onChoose }: { networks: NetworkRow[]; selected: string; label: string; onChoose: (item: NetworkRow) => void }) {
+  if (networks.length === 0) return null;
+  return (
+    <div className={forms.field} role="group" aria-label={label}>
+      <span className={forms.label}>{label}</span>
+      <div className={forms.choices}>
+        {networks.map((item) => (
+          <button key={item.code} type="button" className={forms.choice} aria-pressed={selected === item.code} onClick={() => onChoose(item)}>{item.name}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /** Add a policy (POST /api/insurance/policy, the body and the idempotency key as before), then the hub. The insurer is chosen here. */
 /** The saved policy, to change it in place (the app edits the saved values; the patient does not start from a blank form). */
 export type PolicyPrefill = { companyId?: string; policyNumber?: string; memberId?: string; memberName?: string; expiry?: string; network?: string };
@@ -155,16 +170,7 @@ export function AddPolicyForm({ companies, locale, returnTo, initial, chiUrl }: 
       {scanned ? <div role="status"><Notice>{t("add.scanned")}</Notice></div> : null}
       {chiUrl ? <a className={forms.body} href={chiUrl} target="_blank" rel="noopener noreferrer">{t("add.chiLink")}</a> : null}
       <CompanyPicker companies={companies} value={companyId} onChange={setCompanyId} label={t("add.company")} searchLabel={t("add.companySearch")} noneLabel={t("add.companyNone")} />
-      {networks.length > 0 ? (
-        <div className={forms.field} role="group" aria-label={t("add.class")}>
-          <span className={forms.label}>{t("add.class")}</span>
-          <div className={forms.choices}>
-            {networks.map((item) => (
-              <button key={item.code} type="button" className={forms.choice} aria-pressed={network === item.code} onClick={() => chooseClass(item)}>{item.name}</button>
-            ))}
-          </div>
-        </div>
-      ) : null}
+      <ClassChoices networks={networks} selected={network} label={t("add.class")} onChoose={chooseClass} />
       <label className={forms.field}>
         <span className={forms.label}>{t("add.policyNumber")}</span>
         <input className={forms.control} value={policyNumber} onChange={(event) => setPolicyNumber(event.target.value)} required minLength={3} maxLength={64} dir="ltr" autoComplete="off" />

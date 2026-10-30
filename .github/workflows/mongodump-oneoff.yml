@@ -1,0 +1,50 @@
+name: mongodump-oneoff
+# deploy/scripts/_mongodump-oneoff.sh against the REAL mongo:7.0 image (run 58: "open /cfg/mongodump.yml: permission denied" because the mode-600 file belongs to the host user and the
+# image's default user is uid 999). A throwaway authenticated mongod with test data; the dump runs as the unprivileged runner user, exactly as the ops tasks do (sudo docker).
+on:
+  pull_request:
+    paths:
+      - 'deploy/scripts/_mongodump-oneoff.sh'
+      - 'deploy/scripts/backup.sh'
+      - 'deploy/scripts/oplog-backup.sh'
+      - '.github/workflows/mongodump-oneoff.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Start an authenticated mongod (test data only)
+        run: |
+          PW=$(openssl rand -hex 16); echo "::add-mask::$PW"; echo "MONGO_ROOT_PASSWORD=$PW" >> "$GITHUB_ENV"
+          docker run -d --name nabdah-mongodb -e MONGO_INITDB_ROOT_USERNAME=root -e MONGO_INITDB_ROOT_PASSWORD="$PW" mongo:7.0 >/dev/null
+          for i in $(seq 1 40); do docker exec nabdah-mongodb mongosh --quiet -u root -p "$PW" --authenticationDatabase admin --eval 'db.adminCommand("ping").ok' >/dev/null 2>&1 && break; sleep 3; done
+          docker exec nabdah-mongodb mongosh --quiet -u root -p "$PW" --authenticationDatabase admin --eval 'db.getSiblingDB("nabd_test").patients.insertMany(Array.from({length: 200}, (_, i) => ({n: i, note: "x".repeat(200)})))' >/dev/null
+      - name: One-off dump as the unprivileged runner user
+        run: |
+          set -u
+          source deploy/scripts/_mongodump-oneoff.sh
+          export MONGO_ROOT_USER=root MONGO_CONTAINER=nabdah-mongodb
+          OUT=$(mktemp)
+          mongodump_oneoff "$OUT" --db=nabd_test --gzip --archive
+          test -s "$OUT" && gzip -t "$OUT"
+          # restore the archive into the same test mongod under another name and count the documents: the dump is complete and readable
+          IP=$(docker inspect -f '{{.NetworkSettings.IPAddress}}' nabdah-mongodb)
+          docker run --rm -i --entrypoint mongorestore mongo:7.0 --quiet --host "$IP" -u root -p "$MONGO_ROOT_PASSWORD" --authenticationDatabase admin \
+            --archive --gzip --nsFrom 'nabd_test.*' --nsTo 'restored.*' < "$OUT"
+          N=$(docker exec nabdah-mongodb mongosh --quiet -u root -p "$MONGO_ROOT_PASSWORD" --authenticationDatabase admin --eval 'db.getSiblingDB("restored").patients.countDocuments()')
+          echo "restored documents: $N"
+          test "$N" = 200
+          echo "archive bytes: $(stat -c %s "$OUT")"
+      - name: A wrong password fails and never prints the password
+        run: |
+          set -u
+          source deploy/scripts/_mongodump-oneoff.sh
+          export MONGO_ROOT_USER=root MONGO_CONTAINER=nabdah-mongodb MONGO_ROOT_PASSWORD="wrong-$(openssl rand -hex 8)"
+          echo "::add-mask::$MONGO_ROOT_PASSWORD"
+          if mongodump_oneoff "$(mktemp)" --db=nabd_test --gzip --archive > out.txt 2>&1; then echo "a wrong password must fail"; exit 1; fi
+          cat out.txt
+          ! grep -q "$MONGO_ROOT_PASSWORD" out.txt

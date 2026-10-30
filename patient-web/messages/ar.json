@@ -56,9 +56,7 @@
     "menuArticles": "المقالات",
     "menuSettings": "الإعدادات",
     "menuHelp": "المساعدة",
-    "menuResults": "طلباتي ونتائجي",
-    "appointments": "مواعيدي",
-    "appointmentsNew": "مواعيدي، {n, number} نتائج جديدة"
+    "menuResults": "طلباتي ونتائجي"
   },
   "Home": {
     "eyebrow": "بوابة المريض الرقمية",
@@ -453,8 +451,7 @@
       "time": "الوقت لا يناسبني",
       "payment": "مشكلة في الدفع",
       "other": "سبب آخر"
-    },
-    "emptyCurrent": "لا توجد مواعيد حالية"
+    }
   },
   "Medicines": {
     "eyebrow": "كتالوج خاص",
@@ -1339,8 +1336,7 @@
         "a": "نعم من صفحة مواعيدي وفق سياسة الإلغاء المعروضة عند الحجز."
       }
     },
-    "faqTitle": "الأسئلة الشائعة",
-    "comingSoon": "قريبًا"
+    "faqTitle": "الأسئلة الشائعة"
   },
   "HomeCareServices": {
     "eyebrow": "الرعاية المنزلية",
@@ -1516,11 +1512,7 @@
     "filtersWithCount": "الفلاتر، {n} مفعّل",
     "activeFilters": "الفلاتر المفعّلة",
     "removeFilter": "إزالة الفلتر {filter}",
-    "filterAll": "الكل",
-    "specialtyAll": "الكل",
-    "comingSoon": "قريبًا",
-    "comingSoonTitle": "{specialty} قريبًا",
-    "comingSoonBody": "لا يوجد أطباء في هذا التخصص حتى الآن. اختر تخصصًا آخر."
+    "filterAll": "الكل"
   },
   "LabsServices": {
     "eyebrow": "الرعاية المخبرية",
@@ -3106,6 +3098,13 @@
     "callTryVideo": "جرّب الفيديو مرة أخرى",
     "callDropped": "انقطعت المكالمة.",
     "callContinueInChat": "أكمل في المحادثة",
+    "callQualityYou": "اتصالك",
+    "callQualityOther": "اتصال الطرف الآخر",
+    "callQualityExcellent": "ممتاز",
+    "callQualityGood": "جيد",
+    "callQualityPoor": "ضعيف",
+    "callQualityLost": "منقطع",
+    "callQualityUnknown": "جارٍ الفحص",
     "statReviews": "تقييم",
     "copayTitle": "وصلت الموافقة",
     "copayBody": "تمت الموافقة. ادفع نسبة التحمل ({amount}) لفتح الاستشارة.",
@@ -3116,13 +3115,7 @@
     "ratingOutOf": "{value} من 5",
     "actionOrderPrescription": "اطلب الوصفة",
     "actionBookLabs": "احجز التحاليل",
-    "actionBookScans": "احجز الأشعة",
-    "tabCurrent": "حالية",
-    "outcomeNew": "جديد",
-    "outcomeSickLeave": "الإجازة المرضية",
-    "outcomeCertificates": "الشهادات الطبية",
-    "outcomeReports": "التقارير الطبية",
-    "outcomeDays": "{n, number} أيام"
+    "actionBookScans": "احجز الأشعة"
   },
   "ConsultClient": {
     "payHeading": "أكمل الدفع من خلال بوابة آمنة",
@@ -3379,7 +3372,7 @@
     "backToCart": "العودة إلى السلة",
     "callLab": "اتصل بالمختبر",
     "testTitle": "التحليل",
-    "noProviderBody": "لا يوجد مختبر يجري هذا التحليل الآن.",
+    "noProviderBody": "غير متوفرة في منطقتك بعد. افتح التحليل واختر «أبلغني عند توفرها».",
     "tagHome": "عينة منزلية",
     "tagFasting": "صيام",
     "addToOrderCta": "أضف إلى طلبي",
@@ -3600,8 +3593,9 @@
     "catEcg": "تخطيط القلب والإيكو",
     "offerCount": "{count, plural, one {مركز واحد} two {مركزان} few {# مراكز} other {# مركزًا}}",
     "offerCountNursing": "{count, plural, one {مزوّد رعاية واحد} two {مزوّدا رعاية} few {# مزوّدي رعاية} other {# مزوّد رعاية}}",
-    "offerNone": "لا يوفّر أي مركز هذه الخدمة بعد",
+    "offerNone": "غير متوفرة في منطقتك بعد",
     "offerNoneBody": "يمكنك أن نُبلغك عندما يبدأ أي مركز بتقديمها.",
+    "offerIndicative": "سعر استرشادي من الدليل. يظهر السعر المؤكد عندما يقدّمها مزوّد.",
     "offerAtCentre": "في المركز",
     "offerAtHome": "في المنزل",
     "offerInsurance": "يقبل التأمين",

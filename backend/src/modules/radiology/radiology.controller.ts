@@ -1,4 +1,6 @@
 import { PROVIDER_ROLES } from '../../common/enums';
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { BadRequestException, Body, Controller, Get, Post, Param, Query, Patch, Put, Delete, UseGuards, ServiceUnavailableException } from '@nestjs/common';
 import { RadiologyOpsService } from './radiology.service';
 import { Public, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
@@ -9,6 +11,7 @@ import { CreateRadiologyCatalogDto, UpdateRadiologyCatalogDto, ApproveCatalogDto
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { PublicCache } from '../../common/public-cache.decorator';
 @Controller('radiology')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 export class RadiologyController {
   constructor(private readonly svc: RadiologyOpsService) {}
 

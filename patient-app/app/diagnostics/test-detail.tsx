@@ -60,15 +60,17 @@ export default function TestDetail() {
   };
 
   const footer =
-    data && status === 'ready' && !unoffered ? (
+    data && status === 'ready' ? (
       <>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-          <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary }}>{k('diag.detail.total')}</Text>
-          {data.price !== null ? <Price amount={data.price} size="h3" /> : null}
-        </View>
+        {unoffered ? null : (
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+            <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary }}>{k('diag.detail.total')}</Text>
+            {data.price !== null ? <Price amount={data.price} size="h3" /> : null}
+          </View>
+        )}
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <View style={{ flex: 1 }}>
-            <Button theme={theme} size="lg" fullWidth variant="outline" label={inCart ? k('diag.detail.inCart') : k('diag.detail.addToCart')} disabled={inCart} onPress={add} />
+            <Button theme={theme} size="lg" fullWidth variant="outline" label={inCart ? k('diag.detail.inCart') : k('diag.detail.addToCart')} disabled={inCart || unoffered} onPress={add} />
           </View>
           <View style={{ flex: 1 }}>
             <Button
@@ -76,6 +78,7 @@ export default function TestDetail() {
               size="lg"
               fullWidth
               label={k('diag.detail.orderNow')}
+              disabled={unoffered}
               // "Order now" skips the cart: this one item goes to the lab choice, the time and the payment
               onPress={() => router.push(singleOrderRoute({ kind, id, name: data.name }) as unknown as Href)}
             />
@@ -113,7 +116,7 @@ export default function TestDetail() {
                 ) : null}
               </Section>
             ) : null}
-            <OffersSection kind={kind} serviceId={id} offer={data.offer} offers={data.offers} />
+            <OffersSection kind={kind} serviceId={id} offer={data.offer} offers={data.offers} price={data.price} />
             {unoffered ? null : <ItemOrderingPanel kind={kind} catalogId={id} />}
             {data.turnaroundHours !== null ? (
               <ListCard>

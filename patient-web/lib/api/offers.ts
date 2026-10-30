@@ -16,6 +16,9 @@ export type OfferSummary = {
   insuranceAccepted: boolean;
 };
 
+/** True when the catalogue lists the service but no provider offers it yet (the summary says 0; no summary = unknown, not unoffered). */
+export const isUnoffered = (offer?: OfferSummary): boolean => offer?.providersCount === 0;
+
 export type ServiceOffer = {
   providerId: string;
   names: { ar?: string; en?: string };

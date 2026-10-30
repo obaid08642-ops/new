@@ -8,16 +8,17 @@ import { isLocale } from "@/lib/i18n";
 import { specialtyLabel } from "@/lib/specialties";
 import { JsonLd } from "@/components-next/json-ld";
 import { hubMetadata } from "@/lib/seo";
-import { filterSpecialties, orderSpecialties } from "@/components-next/ui-generated/icons/specialty-art";
-import { SpecialtyGrid } from "@/components-next/consult/specialty-tiles";
+import { SERVICE_TONES, type ServiceTone } from "@/components-next/ui-generated/icons/fill";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
-import { SectionCard } from "@/components-next/consult/consult-parts";
+import { RowCard, SectionCard } from "@/components-next/consult/consult-parts";
 import styles from "@/components-next/consult/consult.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ q?: string }> };
+
+const TONES: ServiceTone[] = [SERVICE_TONES[0], SERVICE_TONES[1], SERVICE_TONES[2], SERVICE_TONES[3], SERVICE_TONES[4], SERVICE_TONES[5]];
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -26,7 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return hubMetadata(locale, "/consultations/specialties", t("consultations/specialties.title"), t("consultations/specialties.description"));
 }
 
-/** All specialties: a search field and a grid of illustrated tiles (those with doctors first, the rest "Coming soon"), each going to the doctors of that specialty. */
+/** The specialties (canvas/Consult): a search field and one row per specialty, each going to the doctors of that specialty. */
 export default async function SpecialtySelectPage({ params, searchParams }: Props) {
   const { locale } = await params;
   const { q = "" } = (await searchParams) ?? {};
@@ -40,26 +41,24 @@ export default async function SpecialtySelectPage({ params, searchParams }: Prop
 
   if (!response || !response.ok) {
     return (
-      <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/consultations`} appointmentsHref={`/${locale}/appointments`}>
+      <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/consultations`}>
         <ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailableBody")} retryLabel={t("retry")} />
       </ConsultPage>
     );
   }
 
   const specialties = extractSpecialties(await response.json().catch(() => null));
+  const query = q.trim().toLocaleLowerCase(locale);
   // the name in the page's language is the message for the slug (six languages); the server's Arabic/English text is the fallback for a slug this build does not list
-  const nameOf = (specialty: { slug?: string; nameAr?: string; nameEn?: string }) => specialtyLabel(names, specialty.slug) ?? (rtl ? specialty.nameAr ?? specialty.nameEn : specialty.nameEn ?? specialty.nameAr) ?? "";
-  const tiles = orderSpecialties(specialties, nameOf);
-  // search: the name in the page's language, the Arabic and the English name
-  const serverNames = Object.fromEntries(specialties.flatMap((specialty) => (specialty.slug ? [[specialty.slug, { nameAr: specialty.nameAr, nameEn: specialty.nameEn }]] : [])));
-  const filtered = filterSpecialties(tiles, q, serverNames);
+  const nameOf = (specialty: { slug?: string; nameAr?: string; nameEn?: string }) => specialtyLabel(names, specialty.slug) ?? (rtl ? specialty.nameAr ?? specialty.nameEn : specialty.nameEn ?? specialty.nameAr);
+  const filtered = specialties.filter((specialty) => [nameOf(specialty), specialty.nameAr, specialty.nameEn, specialty.slug].filter(Boolean).some((value) => value!.toLocaleLowerCase(locale).includes(query)));
   // F82-1: the catalogues are precompiled, which does not allow arrays, so the FAQ is a keyed object.
   // (t.raw throws on precompiled messages, which made this page fail whenever the specialties loaded: the keys are read with t.has.)
   const faqs: Array<{ q: string; a: string }> = [];
   for (let i = 0; t.has(`faq.${i}.q`); i += 1) faqs.push({ q: t(`faq.${i}.q`), a: t(`faq.${i}.a`) });
 
   return (
-    <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/consultations`} appointmentsHref={`/${locale}/appointments`}>
+    <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/consultations`}>
       <JsonLd data={[{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }]} />
       <form method="get" role="search" className={styles.search}>
         <SuggestInput locale={locale} id="specialty-search" name="q" defaultValue={q} placeholder={t("searchPlaceholder")} label={t("searchLabel")} fieldClassName={styles.searchField} inputClassName={styles.searchInput}>
@@ -71,7 +70,22 @@ export default async function SpecialtySelectPage({ params, searchParams }: Prop
       {filtered.length === 0 ? (
         <ConsultState kind="empty" icon="magnifying-glass" title={t("emptyTitle")} body={specialties.length === 0 ? t("emptyBody") : t("noMatch")} />
       ) : (
-        <SpecialtyGrid label={t("title")} comingSoonLabel={t("comingSoon")} tiles={filtered} hrefOf={(slug) => `/${locale}/consultations/doctors?specialty=${encodeURIComponent(slug)}`} />
+        <ul className={styles.list} aria-label={t("title")}>
+          {filtered.map((specialty, index) => {
+            const name = nameOf(specialty);
+            return (
+              <li key={specialty.slug ?? `${name}-${index}`}>
+                <RowCard
+                  href={specialty.slug ? `/${locale}/consultations/doctors?specialty=${encodeURIComponent(specialty.slug)}` : undefined}
+                  tone={TONES[index % TONES.length]}
+                  title={name ?? ""}
+                  sub={specialty.count !== undefined ? t("doctorCount", { count: specialty.count }) : undefined}
+                  caret={<Icon name={rtl ? "caret-left" : "caret-right"} size={20} tone="currentColor" />}
+                />
+              </li>
+            );
+          })}
+        </ul>
       )}
 
       <SectionCard id="specialties-faq" title={t("faqTitle")}>

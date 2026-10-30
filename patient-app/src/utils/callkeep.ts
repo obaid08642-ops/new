@@ -37,8 +37,18 @@ const options = {
     imageName: 'phone_talk',
     additionalPermissions: [],
     selfManaged: true,
+    // keeps the process alive while the call rings and during the call, with the types Android 14 requires
+    foregroundService: {
+      channelId: 'com.patient.nabd.calls',
+      channelName: 'Calls',
+      notificationTitle: 'Nabd',
+      notificationIcon: 'phone_talk',
+    },
   },
 };
+
+/** True on a build that has the native call module (not Expo Go, not web): only then does the app ring itself. */
+export const canRingNatively = (): boolean => !!getCallKeep();
 
 export const initCallKeep = async () => {
   if (Platform.OS === 'web') return;
@@ -116,6 +126,14 @@ export const displayNativeIncomingCall = async (sessionId: string, callerName: s
       },
     });
   }
+};
+
+/** Rings from a background/headless context: no router, only the system call screen. */
+export const ringNativeCall = async (sessionId: string, callerName: string, hasVideo = true) => {
+  await initCallKeep();
+  const callKeepInstance = getCallKeep();
+  if (!isCallKeepInitialized || !callKeepInstance) return;
+  callKeepInstance.displayIncomingCall(sessionId, callerName, callerName, 'generic', hasVideo);
 };
 
 export const endNativeCall = (sessionId: string) => {

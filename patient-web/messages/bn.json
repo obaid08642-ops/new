@@ -56,9 +56,7 @@
     "menuArticles": "নিবন্ধ",
     "menuSettings": "সেটিংস",
     "menuHelp": "সহায়তা",
-    "menuResults": "আমার অর্ডার ও ফলাফল",
-    "appointments": "আমার অ্যাপয়েন্টমেন্ট",
-    "appointmentsNew": "আমার অ্যাপয়েন্টমেন্ট, {n, number}টি নতুন ফলাফল"
+    "menuResults": "আমার অর্ডার ও ফলাফল"
   },
   "Home": {
     "eyebrow": "ডিজিটাল রোগী পোর্টাল",
@@ -506,8 +504,7 @@
       "time": "সময়টি আমার জন্য ঠিক নয়",
       "payment": "পেমেন্টে সমস্যা",
       "other": "অন্য কারণ"
-    },
-    "emptyCurrent": "কোনো চলমান অ্যাপয়েন্টমেন্ট নেই"
+    }
   },
   "Medicines": {
     "eyebrow": "ব্যক্তিগত ক্যাটালগ",
@@ -1339,8 +1336,7 @@
         "a": "হ্যাঁ, আমার অ্যাপয়েন্টমেন্ট থেকে নীতি অনুযায়ী।"
       }
     },
-    "faqTitle": "সাধারণ প্রশ্ন",
-    "comingSoon": "শীঘ্রই আসছে"
+    "faqTitle": "সাধারণ প্রশ্ন"
   },
   "HomeCareServices": {
     "eyebrow": "হোম কেয়ার",
@@ -1516,11 +1512,7 @@
     "filtersWithCount": "ফিল্টার, {n}টি সক্রিয়",
     "activeFilters": "সক্রিয় ফিল্টার",
     "removeFilter": "ফিল্টার {filter} সরান",
-    "filterAll": "সব",
-    "specialtyAll": "সব",
-    "comingSoon": "শীঘ্রই আসছে",
-    "comingSoonTitle": "{specialty} শীঘ্রই আসছে",
-    "comingSoonBody": "এই বিশেষত্বে এখনও কোনো ডাক্তার নেই। অন্য একটি বিশেষত্ব বেছে নিন।"
+    "filterAll": "সব"
   },
   "LabsServices": {
     "eyebrow": "ল্যাবরেটরি কেয়ার",
@@ -3106,6 +3098,13 @@
     "callTryVideo": "আবার ভিডিও চেষ্টা করুন",
     "callDropped": "কলটি কেটে গেছে।",
     "callContinueInChat": "চ্যাটে চালিয়ে যান",
+    "callQualityYou": "আপনার সংযোগ",
+    "callQualityOther": "অপর পক্ষের সংযোগ",
+    "callQualityExcellent": "চমৎকার",
+    "callQualityGood": "ভালো",
+    "callQualityPoor": "দুর্বল",
+    "callQualityLost": "বিচ্ছিন্ন",
+    "callQualityUnknown": "যাচাই হচ্ছে",
     "statReviews": "রিভিউ",
     "copayTitle": "অনুমোদন এসেছে",
     "copayBody": "অনুমোদিত। পরামর্শ চালু করতে কো-পে ({amount}) দিন।",
@@ -3116,13 +3115,7 @@
     "ratingOutOf": "5 এর মধ্যে {value}",
     "actionOrderPrescription": "প্রেসক্রিপশন অর্ডার করুন",
     "actionBookLabs": "ল্যাব পরীক্ষা বুক করুন",
-    "actionBookScans": "স্ক্যান বুক করুন",
-    "tabCurrent": "চলমান",
-    "outcomeNew": "নতুন",
-    "outcomeSickLeave": "অসুস্থতাজনিত ছুটি",
-    "outcomeCertificates": "মেডিকেল সার্টিফিকেট",
-    "outcomeReports": "মেডিকেল রিপোর্ট",
-    "outcomeDays": "{n, number} দিন"
+    "actionBookScans": "স্ক্যান বুক করুন"
   },
   "ConsultClient": {
     "payHeading": "নিরাপদ গেটওয়ের মাধ্যমে পেমেন্ট সম্পন্ন করুন",
@@ -3379,7 +3372,7 @@
     "backToCart": "ঝুড়িতে ফিরে যান",
     "callLab": "ল্যাবে কল করুন",
     "testTitle": "পরীক্ষা",
-    "noProviderBody": "এই মুহূর্তে কোনো ল্যাব এই পরীক্ষা করছে না।",
+    "noProviderBody": "আপনার এলাকায় এখনও পাওয়া যায় না। পরীক্ষাটি খুলে «পাওয়া গেলে আমাকে জানান» বেছে নিন।",
     "tagHome": "বাসায় নমুনা",
     "tagFasting": "খালি পেটে",
     "addToOrderCta": "আমার অর্ডারে যোগ করুন",
@@ -3600,8 +3593,9 @@
     "catEcg": "ইসিজি ও ইকো",
     "offerCount": "{count}টি কেন্দ্র",
     "offerCountNursing": "{count}জন সেবাদাতা",
-    "offerNone": "এখনও কোনো কেন্দ্র এই সেবা দিচ্ছে না",
+    "offerNone": "আপনার এলাকায় এখনও পাওয়া যায় না",
     "offerNoneBody": "কোনো কেন্দ্র এটি দেওয়া শুরু করলে আমরা আপনাকে জানাতে পারি।",
+    "offerIndicative": "তালিকার আনুমানিক মূল্য। কোনো প্রদানকারী দিলে নিশ্চিত মূল্য দেখানো হবে।",
     "offerAtCentre": "কেন্দ্রে",
     "offerAtHome": "বাড়িতে",
     "offerInsurance": "বিমা গ্রহণযোগ্য",

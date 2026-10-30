@@ -76,7 +76,7 @@ export class LiveKitController {
   @SelfService()
   @Post(':sessionId/path')
   path(@CurrentUser() u: any, @Param('sessionId') sessionId: string, @Body() body: MediaPathDto) {
-    return this.svc.reportPath(sessionId, u.id, body.path);
+    return this.svc.reportPath(sessionId, u.id, body.path, body.relayed_bytes);
   }
 
   @SelfService()

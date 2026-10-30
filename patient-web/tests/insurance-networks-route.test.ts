@@ -24,6 +24,11 @@ describe("insurance networks for the add-policy form", () => {
     expect((await GET(new Request("http://x/api/insurance/networks?company_id=bupa"))).status).toBe(401);
     expect(mocks.api).not.toHaveBeenCalled();
   });
+  it("forwards the chosen class (class and plan_class) with the policy instead of stripping it", async () => {
+    mocks.api.mockResolvedValue(new Response("{}"));
+    await POST(new Request("http://x", { method: "POST", body: JSON.stringify({ company_id: "bupa", policy_number: "P-123", network: "N1", class: "VIP", plan_class: "VIP" }) }));
+    expect(JSON.parse(mocks.api.mock.calls[0][1].body)).toMatchObject({ network: "N1", class: "VIP", plan_class: "VIP" });
+  });
   it("sends the chosen network with the policy", async () => {
     mocks.api.mockResolvedValue(new Response("{}"));
     await POST(new Request("http://x", { method: "POST", body: JSON.stringify({ company_id: "bupa", policy_number: "P-123", network: "N1" }) }));

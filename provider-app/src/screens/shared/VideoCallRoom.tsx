@@ -166,7 +166,11 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
         }
       });
 
-      await room.connect(serverUrl, token);
+      // TURN/STUN with short-lived credentials from the server: a relay for networks that allow only HTTPS out
+      const iceServers = (Array.isArray(joinRes.data?.ice_servers) ? joinRes.data.ice_servers : []).filter(
+        (s: any) => s && Array.isArray(s.urls) && s.urls.length && s.urls.every((u: unknown) => typeof u === 'string' && /^(stun|turn|turns):/.test(u)),
+      );
+      await room.connect(serverUrl, token, iceServers.length ? { rtcConfig: { iceServers } } : undefined);
       try { await AudioSession.startAudioSession(); } catch { /* best-effort on Android/iOS */ }
       if (voiceOnly) {
         await room.localParticipant.setMicrophoneEnabled(true);

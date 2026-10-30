@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, NotFoundException, Post, Put, Query, UseGuards, UseInterceptors, BadRequestException } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { Public, JwtAuthGuard, Roles } from '../../common/auth.guard';
@@ -40,7 +41,7 @@ const DB_COLLECTIONS: Record<string, string> = {
 const CATALOGS = ['insurance', 'labs', 'radiology', 'nursing', 'specialties', 'medicines'] as const;
 
 @Controller('catalogs')
-@UseInterceptors(RedisCacheInterceptor)
+@UseInterceptors(RedisCacheInterceptor, StripInternalReviewFieldsInterceptor)
 export class CatalogsController {
   constructor(@InjectConnection() private readonly conn: Connection) {}
 

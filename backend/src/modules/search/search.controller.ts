@@ -1,3 +1,5 @@
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { UserRateLimit, UserRateLimitGuard } from '../../common/user-rate-limit';
 import { Controller, Get, HttpCode, Module, Post, Query, UseGuards } from '@nestjs/common';
 import { IsIn, IsOptional, IsString, Matches, MaxLength } from 'class-validator';
@@ -36,6 +38,7 @@ export class SuggestQueryDto {
 
 /** D-29: one search for every section (`section`), and the grouped home search (no section). */
 @Controller('search')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 export class SearchController {
   constructor(private readonly svc: SearchService) {}
 
