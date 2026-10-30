@@ -80,7 +80,7 @@ describe('delete', () => {
     expect(msgDoc!.body).toBe('');
     expect(msgDoc!.is_deleted).toBe(true);
     expect(threadUpdates[0][1].$set.last_message).toBe('earlier');
-    expect(emitted.find(([n]) => n === 'chatstate.deleted')![1]).toMatchObject({ thread_id: 't1', msg_id: 'm1', participant_ids: ['p1', 'd1'] });
+    expect(emitted.find(([n]) => n === 'chatstate.deleted')![1]).toMatchObject({ kind: 'deleted', thread_id: 't1', msg_id: 'm1', participant_ids: ['p1', 'd1'] });
   });
   it('empties the preview when nothing is left', async () => {
     const { svc, threadUpdates } = setup({ msg: fresh(), last: null });

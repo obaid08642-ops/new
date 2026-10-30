@@ -3920,5 +3920,10 @@
   "diag.filter.sortBy": "Ayusin ayon sa",
   "diag.filter.noFasting": "Walang fasting",
   "diag.filter.sameDay": "Resulta sa parehong araw",
-  "diag.filter.showCount": "Ipakita ang {n} resulta"
+  "diag.filter.showCount": "Ipakita ang {n} resulta",
+  "consult.chat.queued": "Naghihintay ng koneksyon",
+  "consult.chat.retry": "I-tap para subukan muli",
+  "consult.chat.tick.sent": "Naipadala",
+  "consult.chat.tick.delivered": "Naihatid",
+  "consult.chat.tick.read": "Nabasa"
 }
