@@ -139,6 +139,7 @@ export class PatientHomeCareController {
       provider_id: body.provider_id,
       contact: body.contact,
       sessions_count: body.sessions_count,
+      booking_mode: body.booking_mode, recurrence: body.recurrence, hours: body.hours, shift: body.shift, period: body.period,
       ...(body.address ? { address: body.address } : body.address_id ? { address: { address_id: body.address_id } } : {}),
     });
     const { _id, ...out } = booking as any;

@@ -6,7 +6,7 @@ import { MedicinesService } from './medicines.service';
 describe('MedicinesService category NUL-byte hardening', () => {
   const make = (rows: any[] = []) => {
     const find = jest.fn().mockResolvedValue(rows);
-    const model: any = { aggregate: jest.fn().mockResolvedValue(rows), find: jest.fn().mockReturnValue({ sort: jest.fn().mockReturnValue({ limit: jest.fn().mockResolvedValue(rows) }) }) };
+    const model: any = { aggregate: jest.fn().mockResolvedValue(rows), db: { collection: () => ({ aggregate: (p: any[]) => ({ toArray: async () => (await model.aggregate(p)).map((r: any, i: number) => ({ _id: `k${i}`, ...r })) }), find: () => ({ toArray: async () => rows.map((r: any, i: number) => ({ _id: `k${i}`, ...r })) }) }) }, find: jest.fn().mockReturnValue({ sort: jest.fn().mockReturnValue({ limit: jest.fn().mockResolvedValue(rows) }) }) };
     const conn: any = { collection: jest.fn(() => ({ insertOne: jest.fn().mockResolvedValue({}) })) };
     const redis: any = { getJson: jest.fn().mockResolvedValue(null), setJson: jest.fn().mockResolvedValue(undefined) };
     const service = new MedicinesService(model as any, { emit: jest.fn() } as any, redis as any, conn as any, {} as any);

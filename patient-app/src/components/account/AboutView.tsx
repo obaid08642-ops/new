@@ -5,21 +5,19 @@ import { useLocalSearchParams } from 'expo-router';
 
 import { Card } from '../../../../packages/ui-native/src';
 import { Gate, Section, Sheet } from '../consult/ConsultKit';
-import { HealthTabs, Notice, Panel, Row, bodyOf, rowsOf, useRemote, useTab } from '../health/HealthKit';
+import { Notice, Panel, Row, bodyOf, rowsOf, useRemote } from '../health/HealthKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
-import { AccountScreen } from './AccountKit';
 import { PolicyCard } from './PolicyText';
 import { LegalDocumentBody, type PolicyKey } from '../legal/LegalKit';
 
 /**
- * About and legal (merge map section 3): `?tab=about` is the app, its version and the support link; `?tab=legal` is the
- * cancellation and returns policy (GET /system-config/public), then the published policy documents (GET /legal/policies,
- * and GET /legal/policy/:key?lang= for the text of the one opened). /settings/terms redirects to ?tab=legal.
+ * The About and Legal tabs of the one Help and policies screen (HelpView, `?tab=about` and `?tab=legal`): the app and its version, the
+ * cancellation and returns policy (GET /system-config/public), then the published policy documents (GET /legal/policies, and
+ * GET /legal/policy/:key?lang= for the text of the one opened). `?doc=` opens one policy section.
  */
 
-const TABS = ['about', 'legal'] as const;
 /** The two patient documents shown as sections of the legal tab; `?doc=` opens one (the old screens redirect with it). */
 const SECTIONS: { key: PolicyKey; title: string; icon: 'arrows-left-right' | 'video-camera'; tone: 'amber' | 'blue' }[] = [
   { key: 'refund_policy', title: 'legal.refund.title', icon: 'arrows-left-right', tone: 'amber' },
@@ -29,18 +27,7 @@ const SECTIONS: { key: PolicyKey; title: string; icon: 'arrows-left-right' | 'vi
 interface PolicyListItem { key: string; title_ar?: string; title_en?: string; version?: string | number }
 interface PolicyDoc { title?: string; version?: string | number; content?: string }
 
-export function AboutView() {
-  const { k } = useScreenUi();
-  const [tab, setTab] = useTab(TABS, 'about');
-  return (
-    <AccountScreen title={k('set.about')} testID="about-screen">
-      <HealthTabs tabs={TABS.map((key) => ({ key, label: k(`set.about.tab.${key}`) }))} value={tab} onChange={setTab} testID="about-tabs" />
-      {tab === 'about' ? <AboutTab /> : <LegalTab />}
-    </AccountScreen>
-  );
-}
-
-function AboutTab() {
+export function AboutTab() {
   const { k, theme, t, c, flow } = useScreenUi();
   const version = Constants.expoConfig?.version ?? '';
   return (
@@ -54,7 +41,7 @@ function AboutTab() {
   );
 }
 
-function LegalTab() {
+export function LegalTab() {
   const { k, lang } = useScreenUi();
   const list = useRemote(async () => rowsOf<PolicyListItem>(await apiFetch('/legal/policies')), [], 'settings:legal');
   const [openKey, setOpenKey] = useState<string | null>(null);

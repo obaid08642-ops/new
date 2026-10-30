@@ -34,7 +34,7 @@ import type {
 import { Icon, IllustratedIconView } from '../Icon';
 import { FIcon } from './FIcon';
 import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, SERVICE_ICONS } from '../../../ui/icons/fill';
-import { NAV_ART, NAV_ART_TONE, NAV_ART_VIEWBOX, type NavArtKey } from '../../../ui/icons/nav-art';
+import { NAV_ART, NAV_ART_TONE, NAV_FAB_ART, NAV_FAB_ROLE_TOKEN, NAV_ART_VIEWBOX, type NavArtKey } from '../../../ui/icons/nav-art';
 import type { CategoryArtRole } from '../../../ui/icons/category-art';
 import { TabBar as ShellTabBar } from '../shells/TabBar';
 import { tokens } from '../../../design-tokens/dist/ts/tokens';
@@ -656,6 +656,25 @@ function NavArtView({ art, theme, size, selected }: { art: NavArtKey; theme: 'li
   );
 }
 
+/** The raised button's stethoscope (icons/nav-art.ts NAV_FAB_ART): light on the coral gradient, roles from the fab tokens. */
+function NavFabArtView({ art, theme, size }: { art: keyof typeof NAV_FAB_ART; theme: 'light' | 'dark'; size: number }) {
+  const fab = tokens(theme).color.action.fab;
+  const role: Record<CategoryArtRole, string> = {
+    bg: fab[NAV_FAB_ROLE_TOKEN.bg],
+    fg: fab[NAV_FAB_ROLE_TOKEN.fg],
+    ink: fab[NAV_FAB_ROLE_TOKEN.ink],
+    coral: fab[NAV_FAB_ROLE_TOKEN.coral],
+    surface: fab[NAV_FAB_ROLE_TOKEN.surface],
+  };
+  return (
+    <Svg width={size} height={size} viewBox={NAV_ART_VIEWBOX}>
+      {NAV_FAB_ART[art].map((sh, i) => (
+        <Path key={i} d={sh.d} fill={sh.fill ? role[sh.fill] : 'none'} stroke={sh.stroke ? role[sh.stroke] : undefined} strokeWidth={sh.sw} strokeLinecap="round" strokeLinejoin="round" />
+      ))}
+    </Svg>
+  );
+}
+
 export function BottomTabBar({ items, value, onChange, label = 'Main navigation', testID, theme = 'light' }: BottomTabBarProps & { theme?: 'light' | 'dark' }) {
   return (
     <ShellTabBar
@@ -674,6 +693,15 @@ export function BottomTabBar({ items, value, onChange, label = 'Main navigation'
             label: item.label,
             tint: { bg: tone.bg, fg: text },
             icon: (_color: string, size: number, selected: boolean) => <NavArtView art={art} theme={theme} size={size} selected={selected} />,
+          };
+        }
+        if (item.raised && item.art && item.art in NAV_FAB_ART) {
+          const fabArt = item.art as keyof typeof NAV_FAB_ART;
+          return {
+            key: item.id,
+            label: item.label,
+            raised: true,
+            icon: (_color: string, size: number) => <NavFabArtView art={fabArt} theme={theme} size={Math.round(size * 1.25)} />,
           };
         }
         return {
