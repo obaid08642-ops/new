@@ -55,6 +55,7 @@ export class ChatMessage {
   @Prop() edited_at?: Date;
   @Prop({ default: false }) is_deleted: boolean;
   @Prop() deleted_at?: Date;
+  @Prop({ type: [String], default: [] }) deleted_for: string[]; // delete-for-me: hidden from these users only
   @Prop({ default: false }) is_pinned: boolean;
 }
 export type ChatMessageDocument = ChatMessage & Document;
