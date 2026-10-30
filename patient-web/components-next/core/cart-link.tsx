@@ -31,7 +31,10 @@ export function CartLink({ locale, className = "", badgeClassName = "" }: { loca
   const [kind, setKind] = useState<string | null>(null);
   useEffect(() => { setKind(new URLSearchParams(window.location.search).get("kind")); }, [pathname]);
   const counts: CartCounts = { pharmacy: itemCount, lab: basket.lab.length, radiology: basket.radiology.length, nursing: basket.nursing.length };
-  const target = cartTarget(serviceOfPath(pathname, kind), counts, locale);
+  const base = cartTarget(serviceOfPath(pathname, kind), counts, locale);
+  // the lines of each diagnostics group, named in the page language
+  const lineName = (l: (typeof basket.lab)[number]) => l.names?.[locale as keyof NonNullable<typeof l.names>] ?? (locale === "ar" ? l.nameAr ?? l.nameEn : l.nameEn ?? l.nameAr) ?? l.id;
+  const target = base.kind === "chooser" ? { ...base, carts: base.carts.map((c) => (c.service === "lab" || c.service === "radiology" ? { ...c, lines: basket[c.service].map(lineName) } : c)) } : base;
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLSpanElement>(null);
   const button = useRef<HTMLButtonElement>(null);

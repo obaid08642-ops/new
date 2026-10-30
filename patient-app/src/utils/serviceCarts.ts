@@ -25,6 +25,21 @@ export function diagnosticsCounts(items: ReadonlyArray<{ kind: 'lab' | 'radiolog
   return { lab, radiology };
 }
 
+/** The labs and radiology tab owns both diagnostics carts: its button counts lab tests and scans together and opens one sheet of two groups. */
+export type PageService = CartService | 'diagnostics';
+
+export type DiagnosticsLine = { id?: string; name?: string; provider?: string; kind: 'lab' | 'radiology'; qty?: number };
+export type DiagnosticsGroup<T extends DiagnosticsLine = DiagnosticsLine> = { kind: 'lab' | 'radiology'; lines: T[]; count: number; provider: string | null };
+
+/** The sheet groups, Lab tests then Scans, each with its lines, its count and its provider (the first named on its lines); an empty group is left out. */
+export function diagnosticsGroups<T extends DiagnosticsLine>(items: ReadonlyArray<T>): DiagnosticsGroup<T>[] {
+  return (['lab', 'radiology'] as const).flatMap((kind) => {
+    const lines = items.filter((i) => (kind === 'radiology') === (i.kind === 'radiology'));
+    if (lines.length === 0) return [];
+    return [{ kind, lines, count: lines.reduce((n, i) => n + (i.qty && i.qty > 0 ? i.qty : 1), 0), provider: lines.find((i) => i.provider)?.provider ?? null }];
+  });
+}
+
 export type CartTarget =
   | { kind: 'cart'; service: CartService; route: string; count: number }
   | { kind: 'chooser'; carts: Array<{ service: CartService; count: number; route: string }>; count: number }
@@ -35,7 +50,13 @@ export type CartTarget =
  * consultations, search): nothing while every cart is empty (owner, 2026-10-27); otherwise a "Your carts" chooser of the
  * non-empty carts whose badge is the total.
  */
-export function cartTargetFor(pageService: CartService | null, counts: CartCounts): CartTarget {
+export function cartTargetFor(pageService: PageService | null, counts: CartCounts): CartTarget {
+  if (pageService === 'diagnostics') {
+    const carts = (['lab', 'radiology'] as const).flatMap((service) => (counts[service] > 0 ? [{ service, count: counts[service], route: cartRoute(service) }] : []));
+    // both empty: the cart screen with its empty state
+    if (carts.length === 0) return { kind: 'cart', service: 'lab', route: cartRoute('lab'), count: 0 };
+    return { kind: 'chooser', carts, count: counts.lab + counts.radiology };
+  }
   if (pageService) return { kind: 'cart', service: pageService, route: cartRoute(pageService), count: counts[pageService] };
   const carts = CART_SERVICES.flatMap((service) => (counts[service] > 0 ? [{ service, count: counts[service], route: cartRoute(service) }] : []));
   if (carts.length === 0) return { kind: 'none' };

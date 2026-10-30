@@ -1,4 +1,4 @@
-import { cartRoute, cartTargetFor, diagnosticsCounts, type CartCounts } from './serviceCarts';
+import { cartRoute, cartTargetFor, diagnosticsCounts, diagnosticsGroups, type CartCounts } from './serviceCarts';
 
 const counts = (c: Partial<CartCounts>): CartCounts => ({ pharmacy: 0, lab: 0, radiology: 0, ...c });
 
@@ -23,5 +23,24 @@ describe('one cart per service', () => {
   it('the routes', () => {
     expect(cartRoute('pharmacy')).toBe('/pharmacy/cart');
     expect(cartRoute('lab')).toBe('/diagnostics/cart');
+  });
+});
+
+describe('labs and radiology tab: both carts in one sheet', () => {
+  it('the badge counts lab tests and scans together and the target is a chooser of the non-empty groups', () => {
+    expect(cartTargetFor('diagnostics', counts({ pharmacy: 9, lab: 2, radiology: 1 }))).toEqual({
+      kind: 'chooser', count: 3,
+      carts: [{ service: 'lab', count: 2, route: '/diagnostics/cart' }, { service: 'radiology', count: 1, route: '/diagnostics/cart' }],
+    });
+  });
+  it('an empty group is left out and both empty opens the cart screen', () => {
+    expect(cartTargetFor('diagnostics', counts({ radiology: 4 }))).toMatchObject({ kind: 'chooser', count: 4, carts: [{ service: 'radiology' }] });
+    expect(cartTargetFor('diagnostics', counts({}))).toEqual({ kind: 'cart', service: 'lab', route: '/diagnostics/cart', count: 0 });
+  });
+  it('groups the lines Lab tests then Scans with count and provider, hiding empty ones', () => {
+    const g = diagnosticsGroups([{ kind: 'radiology', name: 'MRI', provider: 'City Scan' }, { kind: 'lab', name: 'CBC', qty: 2 }, { kind: 'lab', name: 'TSH', provider: 'Al Noor' }]);
+    expect(g.map((x) => [x.kind, x.count, x.provider])).toEqual([['lab', 3, 'Al Noor'], ['radiology', 1, 'City Scan']]);
+    expect(diagnosticsGroups([{ kind: 'lab' }]).map((x) => x.kind)).toEqual(['lab']);
+    expect(diagnosticsGroups([])).toEqual([]);
   });
 });

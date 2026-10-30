@@ -253,6 +253,7 @@
   "pharmacy.removedFromCart": "Inalis ang {name} sa iyong kariton",
   "common.undo": "I-undo",
   "cart.chooser.title": "Mga cart mo",
+  "cart.chooser.complete": "Kumpletuhin ang booking",
   "cart.name.pharmacy": "Kariton ng parmasya",
   "cart.name.lab": "Kariton ng lab test",
   "cart.name.radiology": "Kariton ng radiology",
