@@ -32,6 +32,10 @@ on:
         description: Also crawl every screen after the flows (Android only, slow)
         type: boolean
         default: false
+      ios_build_run:
+        description: 'iOS only: id of an earlier run whose iOS build artifact to reuse (skips the 30-minute build; only valid when the app code did not change)'
+        type: string
+        default: ''
       target:
         description: 'Account/crawl target: patient shard 0/6..5/6, or provider type (pharmacy, doctor, lab, radiology, home_care, hospital). Empty = first one, "all" = every one'
         type: string
@@ -199,7 +203,7 @@ jobs:
 
   build-ios:
     needs: setup
-    if: needs.setup.outputs.ios == 'true'
+    if: needs.setup.outputs.ios == 'true' && inputs.ios_build_run == ''
     runs-on: macos-latest
     timeout-minutes: 90
     strategy:
@@ -223,7 +227,7 @@ jobs:
 
   run-ios:
     needs: [setup, build-ios]
-    if: needs.setup.outputs.ios == 'true'
+    if: ${{ !cancelled() && needs.setup.result == 'success' && needs.setup.outputs.ios == 'true' && (needs.build-ios.result == 'success' || (needs.build-ios.result == 'skipped' && inputs.ios_build_run != '')) }}
     runs-on: macos-latest
     timeout-minutes: 120
     strategy:
@@ -250,6 +254,8 @@ jobs:
         with:
           name: ios-${{ matrix.run.app }}-app
           path: /tmp/native
+          run-id: ${{ inputs.ios_build_run || github.run_id }}
+          github-token: ${{ github.token }}
       - name: Test stack (backend, DB, test doubles, admin BFF)
         run: bash tools/native/ci_stack.sh
       - name: Seed real test data (live journeys) and accounts

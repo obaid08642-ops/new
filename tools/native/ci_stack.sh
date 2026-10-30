@@ -16,11 +16,12 @@ else
   brew tap mongodb/brew >/dev/null
   # newer Homebrew refuses formulae from a tap it has not been told to trust ("Refusing to load formula ... from untrusted tap")
   brew trust mongodb/brew >/dev/null 2>&1 || true
-  brew install mongodb-community@7.0 redis >/dev/null
+  brew install mongodb-community@7.0 mongosh redis >/dev/null
   mkdir -p /tmp/mongo-data
   nohup "$(brew --prefix mongodb-community@7.0)/bin/mongod" --dbpath /tmp/mongo-data --replSet rs0 --bind_ip 127.0.0.1 > /tmp/mongod.log 2>&1 &
   nohup redis-server --port 6379 > /tmp/redis.log 2>&1 &
-  MONGOSH() { "$(brew --prefix mongodb-community@7.0)/bin/mongosh" --quiet --eval "$1"; }
+  # mongosh is its own formula (not in the mongodb-community keg): it is on PATH from Homebrew's bin
+  MONGOSH() { mongosh --quiet --eval "$1"; }
 fi
 for i in $(seq 1 30); do MONGOSH 'db.runCommand({ping:1})' && break; sleep 2; done
 MONGOSH 'rs.initiate({_id:"rs0",members:[{_id:0,host:"127.0.0.1:27017"}]})'
