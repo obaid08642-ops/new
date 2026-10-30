@@ -96,11 +96,12 @@ jobs:
       - name: Stack container (API + MongoDB + Redis), limited like the production host
         run: |
           docker build -t nabd-prod-shape tools/perf/prod-shape
-          # the same environment tools/live/start-backend.sh gives the backend, in a file the container reads
+          # the same environment tools/live/start-backend.sh gives the backend, in a file the container reads; the signing secret is made for this run
+          JWT_SECRET_RUN=$(openssl rand -hex 32)
           cat > /tmp/backend.env <<EOF
           NODE_ENV=development
           PORT=8002
-          JWT_SECRET=live-test-secret-0123456789abcdef-0123456789
+          JWT_SECRET=${JWT_SECRET_RUN}
           MONGO_URL=mongodb://127.0.0.1:27017/?replicaSet=rs0&directConnection=true
           DB_NAME=${DB_NAME}
           REDIS_URL=redis://127.0.0.1:6379
