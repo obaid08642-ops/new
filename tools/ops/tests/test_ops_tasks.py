@@ -509,7 +509,7 @@ class RecreateDatastores(unittest.TestCase):
         p = self.run_task({"APPLY": "yes"}, FAKE_DUMP_RC=1)
         self.assertEqual(p.returncode, 1)
         self.assertIn("ABORT backup too small", p.stdout)
-        self.assertIn("one-off container (mongo:7.0 on nabd_internal, 600m, no swap, oom_score_adj 1000) rc=1 size_bytes=0", p.stdout)
+        self.assertIn("attempt 2: one-off container (mongo:7.0 on nabd_internal, cap ", p.stdout)
         self.assertIn("backup steps: mongodump rc=1 ; install rc=skipped ; stat rc=1 size_bytes=0", p.stdout)
         self.assertEqual([e for e in self.events() if e], [])
 
@@ -519,8 +519,8 @@ class RecreateDatastores(unittest.TestCase):
         calls = self.h.docker_calls()
         run = [l for l in calls.splitlines() if l.startswith("run ") and "mongodump" in l]
         self.assertEqual(len(run), 1, calls)
-        self.assertIn("--rm", run[0]); self.assertIn("--network nabd_internal", run[0])
-        self.assertIn("--memory 600m --memory-swap 600m --oom-score-adj 1000", run[0])
+        self.assertNotIn("--rm", run[0]); self.assertIn("--name nabd-dump-", run[0]); self.assertIn("--network nabd_internal", run[0]); self.assertIn("--numParallelCollections=1", run[0])
+        self.assertRegex(run[0], r"--memory (\d+)m --memory-swap \1m --oom-score-adj 1000")   # 350m..600m by MemAvailable
         self.assertIn("--entrypoint mongodump mongo:7.0", run[0])
         self.assertFalse(any(l.startswith("exec nabdah-mongodb mongodump") or " mongodump " in l for l in calls.splitlines() if l.startswith("exec ")))   # never inside mongodb
         self.assertNotIn("mongo-pass-31d9", p.stdout + p.stderr + calls)             # not an argument, not output
