@@ -110,19 +110,33 @@ describe('events and the recompute (real MongoDB)', () => {
 
     const dry = await service.recompute(false, NOW);
     expect(await col('lab_services').countDocuments({ rank_score: { $exists: true } })).toBe(0);
-    expect(dry.find((d) => d.vertical === 'lab')).toMatchObject({ rows: 3, with_signals: 2, changed: 3, orders_counted: 2 });
+    expect(dry.find((d) => d.vertical === 'lab')).toMatchObject({ rows: 3, with_signals: 2, changed: 2, orders_counted: 2 });
 
     const first = await service.recompute(true, NOW);
-    expect(first.find((d) => d.vertical === 'lab')!.changed).toBe(3);
+    expect(first.find((d) => d.vertical === 'lab')!.changed).toBe(2);       // only the two rows with signals get a score
     const score = async (c: string, id: string) => (await col(c).findOne({ id }))!.rank_score;
     expect(await score('lab_services', 'lab-aaaa-1111')).toBeGreaterThan(0);        // 4 views + 1 order
     expect(await score('lab_services', 'lab-bbbb-2222')).toBe(5);                    // 1 order (the cancelled one does not count)
-    expect(await score('lab_services', 'lab-gone-3333')).toBe(0);
+    expect(await score('lab_services', 'lab-gone-3333')).toBeUndefined();         // no signals, no field (never a 0)
     expect(await score('radiology_services', 'rad-aaaa-1111')).toBe(5);
     expect(await score('nursing_services', 'nur-aaaa-1111')).toBe(5);                // the cancelled visit does not count
     expect(await col(DAILY_COLLECTION).countDocuments({ day: day(200) })).toBe(0);   // outside the window: dropped
     const second = await service.recompute(true, NOW);
     expect(second.every((d) => d.changed === 0)).toBe(true);
+  });
+
+  it('a service added after a recompute is not buried: rows without signals have no score, so it sorts among them by popularity', async () => {
+    await col('lab_services').deleteMany({});
+    await col('lab_services').insertMany([{ id: 'lab-old-0001', name_ar: 'ق', popularity: 5 }, { id: 'lab-old-0002', name_ar: 'ك', popularity: 50 }, { id: 'lab-sell-001', name_ar: 'م', popularity: 1 }] as never);
+    await col('labbookings').insertOne({ createdAt: NOW, state: 'COMPLETED', items: [{ service_id: 'lab-sell-001' }] } as never);
+    await service.recompute(true, NOW);
+    await col('lab_services').insertOne({ id: 'lab-new-0001', name_ar: 'ن', popularity: 100 } as never);       // added by an admin afterwards: no rank_score
+    const order = (await col('lab_services').find({}).sort(catalogueSortSpec(undefined)).toArray()).map((r) => r.id);
+    expect(order).toEqual(['lab-sell-001', 'lab-new-0001', 'lab-old-0002', 'lab-old-0001']);                  // the one that sells first, then by popularity
+    // an old zero is cleaned up by the next run
+    await col('lab_services').updateOne({ id: 'lab-old-0001' }, { $set: { rank_score: 0 } });
+    await service.recompute(true, NOW);
+    expect((await col('lab_services').findOne({ id: 'lab-old-0001' }))!.rank_score).toBeUndefined();
   });
 });
 

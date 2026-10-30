@@ -43,10 +43,13 @@ export async function recomputeCatalogueRanking(db: Db, write: boolean, now: Dat
     const orders = await ordersByDay(db, vertical, since);
     const scores = scoreServices([...daily, ...orders], now);
     const rows = await db.collection(RANK_COLLECTION[vertical]).find({ id: { $type: 'string' } }, { projection: { _id: 1, id: 1, rank_score: 1 } }).toArray();
-    const ops = rows.flatMap((r) => {
+    const ops = rows.flatMap((r): Array<Record<string, unknown>> => {
       const next = scores.get(String(r.id)) ?? 0;
-      // a row without a score gets one (0 at least), so every row sorts the same way
-      return typeof r.rank_score === 'number' && r.rank_score === next ? [] : [{ updateOne: { filter: { _id: r._id }, update: { $set: { rank_score: next } } } }];
+      const has = typeof r.rank_score === 'number';
+      // Only a row with signals carries a score. A row without one has NO field (never 0): a service added after this run has no field either,
+      // so both sort together by popularity instead of the new one being buried below every row that was given a 0.
+      if (next > 0) return has && r.rank_score === next ? [] : [{ updateOne: { filter: { _id: r._id }, update: { $set: { rank_score: next } } } }];
+      return has ? [{ updateOne: { filter: { _id: r._id }, update: { $unset: { rank_score: '' } } } }] : [];
     });
     if (write && ops.length) await db.collection(RANK_COLLECTION[vertical]).bulkWrite(ops, { ordered: false });
     if (write) await db.collection(DAILY_COLLECTION).deleteMany({ vertical, day: { $lt: dayKey(since) } });
