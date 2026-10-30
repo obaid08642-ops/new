@@ -366,6 +366,8 @@ case "$1" in
     [ "$2" = "-f" ] || exit 0   # `docker inspect nabdah-worker`: exists
     c="${4#nabdah-}"
     case "$3" in
+      *Config.Image*) echo mongo:7.0;;
+      *NetworkSettings.Networks*) echo "nabd_internal ";;
       *HostConfig.Memory*) lim "$c";;
       *RestartCount*) echo 4;;
       *OomScoreAdj*) echo 0;;
@@ -385,6 +387,13 @@ case "$1" in
     case "$*" in *" config -q"*) [ -n "$FAKE_CONFIG_BAD" ] && exit 1;; esac
     case "$*" in *" config"*) [ "$last" = config ] && printf 'services:\n  mongodb:\n    mem_limit: "1258291200"\n';; esac
     exit 0;;
+  run)
+    case "$*" in *mongodump*)
+      cfg=$(echo "$*" | sed -n 's/.*-v \([^ ]*\):\/cfg\/mongodump.yml:ro.*/\1/p')
+      [ -n "$cfg" ] && { cat "$cfg" > "$S/cfg.seen"; stat -c %a "$cfg" > "$S/cfg.mode"; }
+      [ "${FAKE_DUMP_RC:-0}" != 0 ] && { echo "Failed: cannot allocate memory" >&2; exit "${FAKE_DUMP_RC:-0}"; }
+      python3 -c "import gzip,os,sys; sys.stdout.buffer.write(gzip.compress(os.urandom(2*1024*1024), 0))"; exit 0;;
+    esac; exit 0;;
   cp) [ -n "$FAKE_CP_RC" ] && { echo "Error response from daemon: no space left on device" >&2; exit "$FAKE_CP_RC"; }
       python3 -c "import gzip,os,sys; open(sys.argv[1],'wb').write(gzip.compress(os.urandom(2*1024*1024), 0))" "$3"; exit 0;;
   exec)
@@ -392,7 +401,8 @@ case "$1" in
     [ "$1" = -i ] && shift
     c="$1"; shift
     case "$*" in
-      *mongodump*) [ "${FAKE_DUMP_RC:-0}" != 0 ] && echo "Failed: cannot allocate memory" >&2; exit "${FAKE_DUMP_RC:-0}";;
+      *printenv*USERNAME*) echo root; exit 0;;
+      *printenv*PASSWORD*) echo "mongo-pass-31d9"; exit 0;;
       *"df -Pm"*) printf 'Filesystem 1M-blocks Used Available Use%% Mounted\nx 10000 1000 %s 10%% /tmp\n' "${FAKE_TMP_FREE:-9000}"; exit 0;;
       *"rm -f"*) exit 0;;
       *isWritablePrimary*) echo "${FAKE_PRIMARY:-true}"; exit 0;;
@@ -482,16 +492,23 @@ class RecreateDatastores(unittest.TestCase):
         p = self.run_task({"APPLY": "yes"}, FAKE_DUMP_RC=1)
         self.assertEqual(p.returncode, 1)
         self.assertIn("ABORT backup too small", p.stdout)
-        self.assertIn("backup steps: mongodump rc=1 err=Failed ; docker cp rc=skipped err=none ; stat rc=1 size_bytes=0", p.stdout)
+        self.assertIn("one-off container (mongo:7.0 on nabd_internal, 600m, no swap, oom_score_adj 1000) rc=1 size_bytes=0", p.stdout)
+        self.assertIn("backup steps: mongodump rc=1 ; install rc=skipped ; stat rc=1 size_bytes=0", p.stdout)
         self.assertEqual([e for e in self.events() if e], [])
 
-    def test_a_failing_docker_cp_aborts_with_every_step_result_and_stops_nothing(self):
-        p = self.run_task({"APPLY": "yes"}, FAKE_CP_RC=1)
-        self.assertEqual(p.returncode, 1, p.stdout + p.stderr)
-        self.assertIn("backup steps: mongodump rc=0 err=none ; docker cp rc=1 err=Error ; stat rc=1 size_bytes=0", p.stdout)
-        self.assertIn("ABORT backup too small (0 bytes", p.stdout)
-        self.assertNotIn("no space left", p.stdout)                          # only the first word of an error is printed
-        self.assertEqual([e for e in self.events() if e], [])
+    def test_the_dump_runs_in_a_one_off_container_with_its_own_cap_and_the_password_in_a_private_file(self):
+        p = self.run_task({"APPLY": "yes"})
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        calls = self.h.docker_calls()
+        run = [l for l in calls.splitlines() if l.startswith("run ") and "mongodump" in l]
+        self.assertEqual(len(run), 1, calls)
+        self.assertIn("--rm", run[0]); self.assertIn("--network nabd_internal", run[0])
+        self.assertIn("--memory 600m --memory-swap 600m --oom-score-adj 1000", run[0])
+        self.assertIn("mongo:7.0 mongodump", run[0])
+        self.assertFalse(any(l.startswith("exec nabdah-mongodb mongodump") or " mongodump " in l for l in calls.splitlines() if l.startswith("exec ")))   # never inside mongodb
+        self.assertNotIn("mongo-pass-31d9", p.stdout + p.stderr + calls)             # not an argument, not output
+        self.assertIn("mongo-pass-31d9", open(os.path.join(self.state, "cfg.seen")).read())   # it reached the tool through the config file
+        self.assertEqual(open(os.path.join(self.state, "cfg.mode")).read().strip(), "600")
 
     def test_the_room_for_the_backup_is_printed(self):
         p = self.run_task({"APPLY": "yes"})
@@ -749,6 +766,48 @@ class CatalogueApplyOnly(unittest.TestCase):
     def test_output_is_status_lines_only(self):
         p = self.run_task({"COMPLETION": "packaged", "ONE_OFF": "yes"})
         for line in p.stdout.splitlines():
+            self.assertTrue(line.startswith("status: ") or line.startswith("## "), line)
+
+
+class MongodumpCheck(unittest.TestCase):
+    TASK = "96-mongodump-check.sh"
+
+    def setUp(self):
+        self.h = Harness(self)
+        self.state = os.path.join(self.h.tmp.name, "state")
+        os.makedirs(self.state)
+        write_exec(os.path.join(self.h.bin, "docker"), STATE_DOCKER)
+        for name, size in (("nabd_20261029.gz", 1024), ("pre-deploy-d8a6c703-x.gz", 0)):
+            with open(os.path.join(self.h.backups, name), "wb") as f:
+                f.write(b"x" * size)
+
+    def run_task(self, settings=None, **extra):
+        return self.h.run(self.TASK, settings, FAKE_STATE=self.state, **extra)
+
+    def test_dry_run_diagnoses_and_runs_no_dump(self):
+        p = self.run_task()
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("container nabdah-mongodb: state=", p.stdout)
+        self.assertIn("last pre-deploy-*.gz: pre-deploy-d8a6c703-x.gz=0", p.stdout)     # the symptom is visible
+        self.assertIn("one-off tool would use: image=mongo:7.0 network=nabd_internal", p.stdout)
+        self.assertIn("dry run only", p.stdout)
+        self.assertNotIn("run --rm", self.h.docker_calls())
+
+    def test_apply_takes_one_test_dump_in_the_one_off_container_and_deletes_it(self):
+        p = self.run_task({"APPLY": "yes"}, TMPDIR=self.h.tmp.name)
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("OK: the one-off dump works", p.stdout)
+        self.assertEqual(len([l for l in self.h.docker_calls().splitlines() if l.startswith("run ") and "mongodump" in l]), 1)
+        self.assertNotIn("mongo-pass", p.stdout + p.stderr + self.h.docker_calls())
+        self.assertEqual(sorted(os.listdir(self.h.backups)), ["nabd_20261029.gz", "pre-deploy-d8a6c703-x.gz"])   # nothing written to the backup dir
+
+    def test_a_failing_dump_fails_the_task(self):
+        p = self.run_task({"APPLY": "yes"}, FAKE_DUMP_RC=1)
+        self.assertEqual(p.returncode, 1)
+        self.assertIn("FAIL: the one-off dump did not produce a valid archive", p.stdout)
+
+    def test_output_is_status_lines_only(self):
+        for line in self.run_task().stdout.splitlines():
             self.assertTrue(line.startswith("status: ") or line.startswith("## "), line)
 
 

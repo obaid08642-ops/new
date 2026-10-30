@@ -78,16 +78,39 @@ FREE_MB=$(df -Pm "$B" 2>/dev/null | awk 'NR==2 {print $4}')
 TMP_FREE_MB=$($DK exec nabdah-mongodb df -Pm /tmp 2>/dev/null | awk 'NR==2 {print $4}')
 say "backup room: host_free_mb=${FREE_MB:-?} container_tmp_free_mb=${TMP_FREE_MB:-?} MemAvailable=$(mem_available_mb)MB"
 [ "${FREE_MB:-0}" -ge "${MIN_FREE_MB:-2048}" ] 2>/dev/null || { say "ABORT only ${FREE_MB:-?} MB free where the backup goes (need ${MIN_FREE_MB:-2048}): nothing was stopped"; exit 1; }
-DUMP_ERR=$($DK exec nabdah-mongodb sh -c 'mongodump --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --gzip --archive=/tmp/pre-recreate.gz' 2>&1 >/dev/null); DUMP_RC=$?
-CP_RC=skipped; CP_ERR=""
-if [ $DUMP_RC -eq 0 ]; then CP_ERR=$($DK cp nabdah-mongodb:/tmp/pre-recreate.gz "$DUMP" 2>&1 >/dev/null); CP_RC=$?; fi
-$DK exec nabdah-mongodb rm -f /tmp/pre-recreate.gz >/dev/null 2>&1
-sudo -n chmod 600 "$DUMP" 2>/dev/null
+# mongodump in a ONE-OFF container (600m, no swap, oom_score_adj 1000) on mongod's network, not inside the capped nabdah-mongodb (runs 55/57: 0-byte dumps). The function is
+# deploy/scripts/_mongodump-oneoff.sh verbatim (a test keeps the two equal); the credentials come from the container's own environment, never from the command line.
+MONGO_ROOT_USER=$($DK exec nabdah-mongodb printenv MONGO_INITDB_ROOT_USERNAME 2>/dev/null); MONGO_ROOT_PASSWORD=$($DK exec nabdah-mongodb printenv MONGO_INITDB_ROOT_PASSWORD 2>/dev/null)
+MONGODUMP_DOCKER="$DK"; MONGO_CONTAINER=nabdah-mongodb
+mongodump_oneoff() {
+  local out=$1; shift
+  local dkr=${MONGODUMP_DOCKER:-docker} ctr=${MONGO_CONTAINER:-nabdah-mongodb} img net cfg err rc sz msg
+  img=$($dkr inspect -f '{{.Config.Image}}' "$ctr" 2>/dev/null)
+  net=$($dkr inspect -f '{{range $k, $v := .NetworkSettings.Networks}}{{$k}} {{end}}' "$ctr" 2>/dev/null | awk '{print $1}')
+  if [ -z "$img" ] || [ -z "$net" ] || [ -z "${MONGO_ROOT_USER:-}" ]; then echo "status: mongodump: ABORT cannot read the image/network of $ctr or the root user"; return 1; fi
+  cfg=$(mktemp) && err=$(mktemp) || { echo "status: mongodump: ABORT no temp file"; return 1; }
+  chmod 600 "$cfg" "$err"
+  printf "password: '%s'\n" "${MONGO_ROOT_PASSWORD//\'/\'\'}" > "$cfg"
+  ( umask 077; $dkr run --rm -i --network "$net" --memory 600m --memory-swap 600m --oom-score-adj 1000 -v "$cfg:/cfg/mongodump.yml:ro" "$img" \
+      mongodump --quiet --config=/cfg/mongodump.yml --host="$ctr" --port=27017 --username="$MONGO_ROOT_USER" --authenticationDatabase=admin "$@" > "$out" 2> "$err" )
+  rc=$?
+  sz=$(stat -c %s "$out" 2>/dev/null || echo 0)
+  echo "status: mongodump: one-off container ($img on $net, 600m, no swap, oom_score_adj 1000) rc=$rc size_bytes=$sz"
+  if [ "$rc" -ne 0 ] || { [ "$sz" -le 0 ] && [ -z "${MONGODUMP_ALLOW_EMPTY:-}" ]; }; then
+    msg=$(tail -n 2 "$err" | tr '\n' ' '); msg=${msg//"$MONGO_ROOT_PASSWORD"/<hidden>}; echo "status: mongodump: error: ${msg:0:250}"
+    rm -f "$cfg" "$err"; return 1
+  fi
+  rm -f "$cfg" "$err"; chmod 600 "$out" 2>/dev/null
+  return 0
+}
+DUMP_TMP=$(mktemp); mongodump_oneoff "$DUMP_TMP" --gzip --archive; DUMP_RC=$?
+CP_RC=skipped; if [ $DUMP_RC -eq 0 ]; then sudo -n install -m 600 "$DUMP_TMP" "$DUMP" 2>/dev/null; CP_RC=$?; fi
+rm -f "$DUMP_TMP"
 SZ=$(sudo -n stat -c %s "$DUMP" 2>/dev/null); STAT_RC=$?
 SZ=${SZ:-0}
 LAST=$(sudo -n sh -c "ls -t $B/nabd_*.gz 2>/dev/null | head -1")
 LASTSZ=$([ -n "$LAST" ] && sudo -n stat -c %s "$LAST" || echo 0)
-say "backup steps: mongodump rc=$DUMP_RC err=$(errclass "$DUMP_ERR") ; docker cp rc=$CP_RC err=$(errclass "$CP_ERR") ; stat rc=$STAT_RC size_bytes=$SZ ; last nightly $LASTSZ"
+say "backup steps: mongodump rc=$DUMP_RC ; install rc=$CP_RC ; stat rc=$STAT_RC size_bytes=$SZ ; last nightly $LASTSZ"
 [ "$SZ" -gt 1048576 ] && [ "$SZ" -ge $((LASTSZ / 2)) ] || { say "ABORT backup too small ($SZ bytes; last nightly $LASTSZ; see the steps above): nothing was stopped"; exit 1; }
 sudo -n gzip -t "$DUMP" 2>/dev/null || { say "ABORT backup is not a valid gzip: nothing was stopped"; exit 1; }
 say "backup ok ($(basename "$DUMP"), $((SZ / 1048576)) MB; last nightly $((LASTSZ / 1048576)) MB)"
