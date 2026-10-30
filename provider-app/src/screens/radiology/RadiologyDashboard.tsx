@@ -441,7 +441,7 @@ function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) 
       });
       setPdfUploaded(true); setReportStatus('draft');
       show(AR ? 'تم رفع التقرير وحفظ المسودة' : 'Report uploaded and draft saved', 'success');
-    } catch (e: any) { show(e?.response?.data?.message || e.message, 'error'); } finally { setLoading(false); }
+    } catch (e: any) { show(e?.response?.status === 423 ? (AR ? 'الملف قيد الفحص الأمني، حاول بعد دقيقة' : 'The file is still being security-checked, try again in a minute') : (e?.response?.data?.message || e.message), 'error'); } finally { setLoading(false); }
   };
 
   const handleSubmitForReview = async () => {
@@ -454,7 +454,7 @@ function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) 
   const handleApproveAndPublish = async () => {
     setLoading(true);
     try { await client.post(`/radiology/bookings/${order.id}/approve-report`, {}); setReportStatus('ready'); show(AR?'تم نشر التقرير للمريض':'Report published','success'); onBack(); }
-    catch (e: any) { show(e.message, 'error'); } finally { setLoading(false); }
+    catch (e: any) { show(e?.response?.data?.message === 'report_reviewer_must_differ_from_uploader' ? (AR ? 'لا يمكنك نشر تقرير رفعتَه أو أرسلتَه للمراجعة. يجب أن يعتمده مراجع آخر.' : 'You cannot publish a report you uploaded or sent for review. Another reviewer must approve it.') : e.message, 'error'); } finally { setLoading(false); }
   };
 
   const STEPS = [{ key: 'draft', ar: 'رفع الملفات', en: 'Upload' }, { key: 'under_review', ar: 'مراجعة', en: 'Review' }, { key: 'ready', ar: 'نُشر', en: 'Published' }];
