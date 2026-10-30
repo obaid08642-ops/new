@@ -16,7 +16,7 @@
 #   from the restored redis.conf (if there is none, the value of the redis.conf on disk).
 # The redis password is read from .env.production and handed to redis-cli on stdin; it is never an argument, never printed.
 set -u
-APPLY=""
+APPLY="yes"
 ROLLBACK=""
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}
