@@ -1,4 +1,5 @@
 import { JsonLd } from "@/components-next/json-ld";
+import { CatalogueViewBeacon } from "@/components-next/diagnostics/catalogue-view-beacon";
 import { service as serviceLd, breadcrumbList, medicalWebPage } from "@/lib/seo/structured-data";
 import { DirectAnswer } from "@/components-next/seo/direct-answer";
 import type { Metadata } from "next";
@@ -99,6 +100,7 @@ export default async function RadiologyServiceDetailPage({ params }: Props) {
 
   return (
     <ConsultPage locale={locale} title={name ?? t("title")} backHref={backHref}>
+      <CatalogueViewBeacon vertical="radiology" serviceId={service.id} />
       <JsonLd data={[
         medicalWebPage({ title: name ?? t("title"), locale, path: `/diagnostics/radiology/${serviceId}`, description: description ?? null, speakable: true }),
         {
