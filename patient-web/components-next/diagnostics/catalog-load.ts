@@ -33,6 +33,9 @@ export type CatalogRequest = {
   highestRated?: boolean;
 };
 
+/** "Result the same day": the result is ready within this many hours (the card says "Result within 24 hours"). */
+export const SAME_DAY_HOURS = 24;
+
 const none = (page: number): CatalogLoad => ({ ok: false, labs: [], scans: [], page, hasMore: false, total: null });
 
 /** One page of the hub's full list as the server sends it: it pages, sorts, searches and (for scans) filters by category. */
@@ -55,7 +58,7 @@ export async function loadCatalogPage(request: CatalogRequest): Promise<CatalogL
  * The rows of loaded pages. The place and payment of the order (home or at the lab, insurance or self-pay) hide the TESTS that do not fit;
  * scans are never hidden by the place (R1: only ultrasound is portable, so "home" hid x-ray, CT and MRI): a scan that cannot be done at home opens its order at the centre; packages and unavailable tests are not rows of the tests list.
  */
-export function catalogRows(kind: "lab" | "radiology", loads: readonly CatalogLoad[], order: { place: "home" | "facility" | "all"; pay: LabPay }, ctx: RowContext): CatalogRow[] {
+export function catalogRows(kind: "lab" | "radiology", loads: readonly CatalogLoad[], order: { place: "home" | "facility" | "all"; pay: LabPay; /** only tests and scans not known to need fasting (fasting_required is not true) */ noFasting?: boolean; /** only those with a result within 24 hours (turnaround_hours <= 24) */ sameDay?: boolean }, ctx: RowContext): CatalogRow[] {
   // a test nobody offers yet is still listed (its page says so and offers "Notify me") whatever the place; otherwise the place fits by what providers
   // offer when the catalogue says (at home / at the centre), else by the catalogue's own visit flags. The PAYMENT always applies, offers or not: a test
   // that is insurance-only (cash_availability false) never shows under "Without insurance", and a self-pay-only test never under "Insurance"
@@ -64,7 +67,9 @@ export function catalogRows(kind: "lab" | "radiology", loads: readonly CatalogLo
     if (s.offer) return s.offer.providersCount === 0 || (order.place === "home" ? s.offer.homeAvailable : s.offer.premisesAvailable);
     return order.place === "home" ? s.homeVisitSupported !== false : s.facilityVisitSupported !== false;
   };
+  // the two toggles of the filter sheet read the catalogue's own fields; a row without turnaround_hours is not "same day"
+  const fitsToggles = (s: { fastingRequired?: boolean; turnaroundHours?: number }) => (!order.noFasting || s.fastingRequired !== true) && (!order.sameDay || (s.turnaroundHours !== undefined && s.turnaroundHours <= SAME_DAY_HOURS));
   return kind === "lab"
-    ? loads.flatMap((l) => l.labs).filter((s) => s.isPackage !== true && !s.unavailable && fitsPlace(s) && labPaymentFits(order.pay, s)).map((s) => labRow(s, ctx))
-    : loads.flatMap((l) => l.scans).map((s) => scanRow(s, ctx));
+    ? loads.flatMap((l) => l.labs).filter((s) => s.isPackage !== true && !s.unavailable && fitsPlace(s) && labPaymentFits(order.pay, s) && fitsToggles(s)).map((s) => labRow(s, ctx))
+    : loads.flatMap((l) => l.scans).filter(fitsToggles).map((s) => scanRow(s, ctx));
 }

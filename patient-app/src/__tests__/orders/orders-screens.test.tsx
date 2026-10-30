@@ -152,7 +152,7 @@ describe('order tracking', () => {
 
   it('draws the steps, the courier and the arrival time from the order, and calls the courier', async () => {
     mockParams.current = { orderId: 'ord-ccccdd334455' };
-    const open = jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
+    const open = jest.spyOn(Linking, 'openURL').mockResolvedValue();
     answer({ '/patient/pharmacy/orders/ord-ccccdd334455': moving });
     await render(wrap(<OrderTrackingScreen />));
     await screen.findByText(k('orders.track.eta'));
@@ -311,5 +311,30 @@ describe('delivery address (the address book in pick mode, ?select=1)', () => {
     answer({ '/users/me/addresses': list });
     await tap(screen.getByLabelText(k('consult.retry')));
     await screen.findByLabelText(new RegExp('Test home'));
+  });
+});
+
+describe('results and reports tab of My orders and results', () => {
+  it('shows the unseen count on the tab and the actions each result can really do', async () => {
+    mockParams.current = {};
+    answer({
+      '/lab-results/mine': [
+        { id: 'lr1', booking_id: 'lb1', service_name_en: 'Test lab result', reported_at: '2026-10-02T10:00:00Z', viewed_by_patient: false },
+        { id: 'lr2', booking_id: 'lb2', name: 'Test file', source: 'lab_booking', uploaded_at: '2026-10-01T10:00:00Z', viewed_by_patient: true },
+      ],
+      '/radiology/reports/mine': [{ id: 'rb1', items: [{ name_en: 'Test scan' }], updatedAt: '2026-10-03T10:00:00Z' }],
+    });
+    await render(wrap(<OrderCenterScreen />));
+    await tap(await screen.findByLabelText(k('orders.tab.resultsNew', { n: 1 })));
+    await screen.findByText('Test lab result');
+    // PDF only for the lab report file; view, share and book for every result
+    expect(screen.getAllByText(k('diag.order.pdf'))).toHaveLength(1);
+    expect(screen.getAllByText(k('orders.results.view'))).toHaveLength(3);
+    expect(screen.getAllByText(k('orders.results.share'))).toHaveLength(3);
+    expect(screen.getAllByText(k('orders.results.new'))).toHaveLength(1);
+    await tap(screen.getByTestId('orders-screen-results-lab-lr1-book'));
+    expect(mockRouter.push).toHaveBeenLastCalledWith({ pathname: '/diagnostics/discuss', params: { booking: 'lb1' } });
+    await tap(screen.getByTestId('orders-screen-results-rad-rb1-book'));
+    expect(mockRouter.push).toHaveBeenLastCalledWith('/(tabs)/consultations');
   });
 });

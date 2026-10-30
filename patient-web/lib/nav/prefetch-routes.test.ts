@@ -18,7 +18,7 @@ describe("isFullPrefetchRoute", () => {
   });
 
   it("never allows a page that reads the patient's own data", () => {
-    for (const path of ["/dashboard", "/cart", "/cart/checkout", "/orders", "/orders/1", "/profile", "/notifications", "/appointments", "/home-care", "/chat", "/settings", "/family", "/prescriptions", "/reports", "/loyalty", "/search", "/login", "/diagnostics/labs/book", "/diagnostics/bookings", "/diagnostics/results", "/articles/bookmarks", "/consultations/book/doc-1", "/pharmacy", "/"]) {
+    for (const path of ["/dashboard", "/cart", "/cart/checkout", "/orders", "/orders/1", "/profile", "/notifications", "/appointments", "/home-care", "/chat", "/settings", "/family", "/prescriptions", "/reports", "/loyalty", "/search", "/login", "/diagnostics/labs/book", "/orders", "/diagnostics/results", "/articles/bookmarks", "/consultations/book/doc-1", "/pharmacy", "/"]) {
       expect(isFullPrefetchRoute(`/ar${path}`, { signedIn: false }), path).toBe(false);
     }
   });

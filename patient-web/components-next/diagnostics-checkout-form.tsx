@@ -190,7 +190,7 @@ export function DiagnosticsCheckoutForm({
             </label>
             <p className={styles.flowNote}>
               {t("insuranceHint")}{" "}
-              <Link className={rx.textLink} href={`/${locale}/diagnostics/bookings`}>{t("insuranceHintLink")}</Link>
+              <Link className={rx.textLink} href={`/${locale}/orders`}>{t("insuranceHintLink")}</Link>
             </p>
           </>
         ) : null}

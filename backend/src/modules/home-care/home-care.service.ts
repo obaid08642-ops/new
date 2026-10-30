@@ -1,4 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject, Optional } from '@nestjs/common';
+import { ownPrices } from '../../common/service-offers';
+import { SearchService } from '../search/search.service';
+import { NURSING_TYPES, byRelevance, matchedIds } from '../search/catalogue-search';
 import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { Model } from 'mongoose';
 import { HomeCareService, HomeCareBooking, NursingBookingState, HomeCareBookingState, NursingVisitReport, CarePlan, MedicalSupplyRequest } from '../../schemas/home-care.schema';
@@ -8,7 +11,7 @@ import { pickAttribution } from '../../common/attribution';
 
 /** P3.3 (F15): writable catalog fields — id/_id/active/governance flags excluded. */
 export const HOMECARE_CATALOG_FIELDS = [
-  'name_ar', 'name_en', 'description_ar', 'description_en', 'category', 'icon', 'price', 'duration', 'duration_value', 'requires_patient_medication', 'requires_companion', 'cash_availability', 'insurance_availability', 'image_url', 'active', 'popularity',
+  'name_ar', 'name_en', 'description_ar', 'description_en', 'category', 'icon', 'price', 'duration', 'duration_value', 'requires_patient_medication', 'requires_companion', 'cash_availability', 'insurance_availability', 'image_url', 'active', 'popularity', 'booking_mode', 'booking_options',
 ] as const;
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EventBusService } from '../events/event-bus.service';
@@ -20,6 +23,7 @@ import { CarePlanRepository } from "./repositories/careplan.repository";
 import { MedicalSupplyRequestRepository } from "./repositories/medicalsupplyrequest.repository";
 import { RedisService } from '../redis/redis.service';
 import { hasEffectiveRole } from '../../common/auth.guard';
+import { resolveBookingChoice } from './booking-mode';
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
 import { isAdminUser } from '../../common/enums';
 import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
@@ -38,15 +42,21 @@ export class HomeCareSvc {
     @Optional() private readonly redis?: RedisService,
     @Optional() private readonly killSwitches?: KillSwitchesService,
     @Optional() private readonly insurance?: InsuranceFlowService,
+    @Optional() private readonly searchEngine?: SearchService,
   ) {}
 
   async list(opts: { category?: string; search?: string; duration?: string }) {
     const q: any = { active: true };
     if (opts.category && opts.category !== 'all') q.category = opts.category;
     if (opts.duration && opts.duration !== 'all') q.duration = opts.duration;
+    // the search box uses the home search's engine (typo tolerance, ar/en synonyms); its own text match is the fallback
+    const matched = opts.search ? await matchedIds(this.searchEngine, opts.search, NURSING_TYPES) : null;
     if (opts.search) {
-      const re = new RegExp(opts.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
-      q.$or = [{ name_ar: re }, { name_en: re }, { tags: re }];
+      if (matched) q.id = { $in: matched };
+      else {
+        const re = new RegExp(opts.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+        q.$or = [{ name_ar: re }, { name_en: re }, { tags: re }];
+      }
     }
     if (!this.redis?.getWithSWR) return this.svcModel.find(q, { _id: 0, __v: 0 }).sort({ popularity: -1, name_ar: 1 }).limit(120);
     const cacheKey = `cache:home-care-services:public:v1:${JSON.stringify(opts)}`;
@@ -100,8 +110,15 @@ export class HomeCareSvc {
       state: { $nin: ['CANCELLED', NursingBookingState.COMPLETED] },
     }).lean();
     if (dupe) return dupe;
-    const sessions = Math.max(1, parseInt(data.sessions_count || 1, 10));
-    const total = svc.price * sessions;
+    // booking mode (visit | continuous | programme): the service decides, the choice must be one it offers (booking-mode.ts)
+    const choice = resolveBookingChoice(svc as any, data);
+    const sessions = choice.sessions_count;
+    // the chosen nurse's own price for the service (her choice, else what she registered with), else the catalogue price: the price the patient was shown is the price charged.
+    // A row with no price anywhere (its providers set their own) cannot be priced: a clear refusal, not a NaN total.
+    const ownPrice = providerId ? (await ownPrices(this.svcModel.db as never, 'nursing', [providerId], [svc as any])).get(providerId)?.get(svc.id) : undefined;
+    const unitPrice = ownPrice ?? svc.price;
+    if (!(typeof unitPrice === 'number' && unitPrice > 0)) throw new BadRequestException('service_price_not_set');
+    const total = unitPrice * sessions;
     const booking = await this.bkgModel.create({
       patient_id: user.id,
       patient_name: data.contact?.name || user.full_name,
@@ -119,6 +136,9 @@ export class HomeCareSvc {
       notes: data.notes,
       payment_method: paymentMethod,
       sessions_count: sessions,
+      booking_mode: choice.booking_mode,
+      ...(choice.recurrence ? { recurrence: choice.recurrence } : {}),
+      ...(choice.hours !== undefined ? { hours: choice.hours, shift: choice.shift, period: choice.period } : {}),
       // P17-17.5: campaign attribution for the campaign report.
       attribution: pickAttribution(data) ?? undefined,
     });

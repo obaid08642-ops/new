@@ -14,7 +14,7 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { Facts, Hero, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
 import { NURSING, NurseFacts } from "@/components-next/nursing/nursing-parts";
-import { pickText } from "@/components-next/diagnostics/diag-parts";
+import { LocalizedField } from "@/components-next/ui/localized-field"; import { pickText } from "@/components-next/diagnostics/diag-parts";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { HomeCareBookingForm } from "@/components-next/home-care-booking-form";
 
@@ -72,7 +72,7 @@ export default async function NurseProfilePage({ params, searchParams }: Props) 
   const chips = [nurse.rating !== undefined ? t("ratingLine", { rating: number.format(nurse.rating), count: number.format(nurse.reviewCount ?? 0) }) : ""].filter(Boolean);
   const head = (
     <>
-      <Hero icon="user-circle" tone={NURSING.tone} title={name} sub={nurse.facility}>
+      <Hero icon="user-circle" tone={NURSING.tone} title={<LocalizedField locale={locale} ar={nurse.nameAr} en={nurse.nameEn} />} sub={nurse.facility}>
         <NurseFacts facts={chips} available={nurse.availableNow === undefined ? undefined : { label: nurse.availableNow ? t("availableNow") : t("notNow"), good: nurse.availableNow }} />
       </Hero>
       {facts.length > 0 ? <SectionCard id="nurse-facts"><Facts rows={facts} label={t("nurseTitle")} /></SectionCard> : null}
@@ -111,7 +111,7 @@ export default async function NurseProfilePage({ params, searchParams }: Props) 
   return (
     <ConsultPage locale={locale} title={t("nurseTitle")} backHref={back}>
       {head}
-      <SectionCard id="nurse-service" title={t("formService")}><p>{serviceName}</p></SectionCard>
+      <SectionCard id="nurse-service" title={t("formService")}><p><LocalizedField locale={locale} ar={service.nameAr} en={service.nameEn} /></p></SectionCard>
       <HomeCareBookingForm
         locale={locale}
         serviceId={serviceId}

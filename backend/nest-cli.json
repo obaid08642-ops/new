@@ -18,6 +18,10 @@
         "watchAssets": false
       },
       {
+        "include": "modules/medicines/data/translations-external/*.jsonl",
+        "watchAssets": false
+      },
+      {
         "include": "modules/location/data/*.json",
         "watchAssets": false
       }

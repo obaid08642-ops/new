@@ -63,7 +63,7 @@ export default async function BookingStatusPage({ params }: Props) {
   ]);
   if (view.status === 404) notFound();
   const booking: BookingView | null = parseBookingView(view.body);
-  const back = `/${locale}/diagnostics/bookings`;
+  const back = `/${locale}/orders`;
   if (!booking) {
     return (
       <ConsultPage locale={locale} title={t("trackTitle")} backHref={back}>

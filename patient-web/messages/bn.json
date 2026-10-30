@@ -25,7 +25,9 @@
     "readingProgress": "পড়ার অগ্রগতি",
     "dialogCancel": "বাতিল করুন",
     "dialogConfirm": "নিশ্চিত করুন",
-    "breadcrumbLabel": "নেভিগেশন পথ"
+    "breadcrumbLabel": "নেভিগেশন পথ",
+    "availableInEnglishOnly": "শুধু ইংরেজিতে পাওয়া যায়",
+    "availableInArabicOnly": "শুধু আরবিতে পাওয়া যায়"
   },
   "CoreShell": {
     "back": "ফিরে যান",
@@ -45,7 +47,7 @@
     "menuOpen": "মেনু",
     "menuClose": "মেনু বন্ধ করুন",
     "menuProfile": "আমার অ্যাকাউন্ট",
-    "menuOrders": "আমার অর্ডার",
+    "menuOrders": "আমার অর্ডার ও ফলাফল",
     "menuFamily": "পরিবার",
     "menuArticles": "নিবন্ধ",
     "menuSettings": "সেটিংস",
@@ -306,10 +308,17 @@
     "unavailable": "ক্যাটালগের তথ্য এখন পাওয়া যাচ্ছে না। অনুগ্রহ করে পরে আবার চেষ্টা করুন।"
   },
   "Orders": {
-    "title": "আমার অর্ডার",
+    "title": "আমার অর্ডার ও ফলাফল",
     "tabsLabel": "অর্ডারের অবস্থা",
     "tabCurrent": "চলমান",
     "tabPrevious": "আগের",
+    "tabResults": "ফলাফল ও রিপোর্ট",
+    "resultReady": "ফলাফল প্রস্তুত",
+    "resultView": "ফলাফল দেখুন",
+    "resultPdf": "PDF",
+    "resultBook": "পরামর্শ বুক করুন",
+    "emptyResultsTitle": "কোনো ফলাফল প্রস্তুত নেই",
+    "emptyResultsBody": "ল্যাব ও রেডিওলজির ফলাফল প্রস্তুত হলে এখানে দেখা যাবে।",
     "pharmacyOrder": "ফার্মেসি অর্ডার",
     "orderRef": "#{number}",
     "itemsCount": "{count, plural, one {# পণ্য} other {# পণ্য}}",
@@ -3583,7 +3592,20 @@
     "notifyMe": "পাওয়া গেলে আমাকে জানান",
     "notifyMeDone": "আপনি তালিকায় আছেন। কোনো কেন্দ্র এটি দিলে আমরা আপনাকে জানাব।",
     "notifyMeSignIn": "জানতে সাইন ইন করুন",
-    "notifyMeFailed": "সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।"
+    "notifyMeFailed": "সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
+    "filterOpen": "ফিল্টার",
+    "filterOpenCount": "ফিল্টার ({n}টি চালু)",
+    "filterSheetTitle": "ফলাফল ফিল্টার করুন",
+    "filterClose": "ফিল্টার বন্ধ করুন",
+    "filterMore": "আরও বিকল্প",
+    "sortPopular": "সবচেয়ে বেশি চাওয়া",
+    "noFasting": "উপবাস লাগে না",
+    "sameDay": "একই দিনে ফলাফল",
+    "showResults": "{count}টি ফলাফল দেখান",
+    "showResultsMore": "{count}টির বেশি ফলাফল দেখান",
+    "filterCounting": "গণনা চলছে…",
+    "filterClearAll": "সব মুছুন",
+    "catPackages": "প্যাকেজ"
   },
   "OrderContext": {
     "hint": "কিছু বদলালেই দাম ও কভারেজ সঙ্গে সঙ্গে হালনাগাদ হয়",
@@ -4454,7 +4476,14 @@
       "pharmacy": "ফার্মেসি",
       "lab": "ল্যাব"
     },
-    "networkCall": "কল"
+    "networkCall": "কল",
+    "deletePolicy": "কার্ড মুছুন",
+    "deleteTitle": "বিমা কার্ড মুছুন",
+    "deleteBody": "এই কার্ডটি আপনার অ্যাকাউন্ট থেকে সরিয়ে দেওয়া হবে।",
+    "deleteCancel": "বাতিল",
+    "deleting": "মুছে ফেলা হচ্ছে…",
+    "deleteDone": "বিমা কার্ড মুছে ফেলা হয়েছে।",
+    "deleteFailed": "কার্ডটি মুছতে পারিনি। আবার চেষ্টা করুন।"
   },
   "LoyaltyHubWeb": {
     "title": "নাবদ পয়েন্ট",

@@ -25,7 +25,9 @@
     "readingProgress": "تقدم القراءة",
     "dialogCancel": "إلغاء",
     "dialogConfirm": "تأكيد",
-    "breadcrumbLabel": "مسار التنقل"
+    "breadcrumbLabel": "مسار التنقل",
+    "availableInEnglishOnly": "متاح بالإنجليزية فقط",
+    "availableInArabicOnly": "متاح بالعربية فقط"
   },
   "CoreShell": {
     "back": "رجوع",
@@ -45,7 +47,7 @@
     "menuOpen": "القائمة",
     "menuClose": "إغلاق القائمة",
     "menuProfile": "حسابي",
-    "menuOrders": "طلباتي",
+    "menuOrders": "طلباتي ونتائجي",
     "menuFamily": "العائلة",
     "menuArticles": "المقالات",
     "menuSettings": "الإعدادات",
@@ -253,10 +255,17 @@
     "aiTriage": "الفرز الذكي"
   },
   "Orders": {
-    "title": "طلباتي",
+    "title": "طلباتي ونتائجي",
     "tabsLabel": "حالة الطلب",
     "tabCurrent": "الحالية",
     "tabPrevious": "السابقة",
+    "tabResults": "النتائج والتقارير",
+    "resultReady": "النتيجة جاهزة",
+    "resultView": "عرض النتيجة",
+    "resultPdf": "PDF",
+    "resultBook": "احجز استشارة",
+    "emptyResultsTitle": "لا توجد نتائج جاهزة",
+    "emptyResultsBody": "تظهر هنا نتائج التحاليل والأشعة عند جاهزيتها.",
     "pharmacyOrder": "طلب صيدلية",
     "orderRef": "#{number}",
     "itemsCount": "{count, plural, one {صنف واحد} two {صنفان} few {# أصناف} many {# صنفًا} other {# صنف}}",
@@ -3583,7 +3592,20 @@
     "notifyMe": "أبلغني عند توفرها",
     "notifyMeDone": "تم تسجيلك. سنُبلغك عندما يقدّمها أحد المراكز.",
     "notifyMeSignIn": "سجّل الدخول لتصلك الإشعارات",
-    "notifyMeFailed": "تعذّر الحفظ. حاول مرة أخرى."
+    "notifyMeFailed": "تعذّر الحفظ. حاول مرة أخرى.",
+    "filterOpen": "تصفية",
+    "filterOpenCount": "تصفية ({n} مفعّل)",
+    "filterSheetTitle": "تصفية النتائج",
+    "filterClose": "إغلاق التصفية",
+    "filterMore": "خيارات إضافية",
+    "sortPopular": "الأكثر طلبًا",
+    "noFasting": "بدون صيام",
+    "sameDay": "نتيجة نفس اليوم",
+    "showResults": "اعرض {count} نتيجة",
+    "showResultsMore": "اعرض أكثر من {count} نتيجة",
+    "filterCounting": "جارٍ العدّ…",
+    "filterClearAll": "مسح الكل",
+    "catPackages": "باقات"
   },
   "OrderContext": {
     "hint": "تتحدّث الأسعار والتغطية فور أي تغيير",
@@ -4454,7 +4476,14 @@
       "pharmacy": "صيدليات",
       "lab": "مختبرات"
     },
-    "networkCall": "اتصال"
+    "networkCall": "اتصال",
+    "deletePolicy": "حذف البطاقة",
+    "deleteTitle": "حذف بطاقة التأمين",
+    "deleteBody": "ستُزال هذه البطاقة من حسابك.",
+    "deleteCancel": "إلغاء",
+    "deleting": "جارٍ الحذف…",
+    "deleteDone": "تم حذف بطاقة التأمين.",
+    "deleteFailed": "تعذّر حذف البطاقة. حاول مرة أخرى."
   },
   "LoyaltyHubWeb": {
     "title": "نقاط نبض",

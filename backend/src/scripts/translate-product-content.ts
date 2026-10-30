@@ -11,9 +11,11 @@
  *   run   --requests requests.jsonl --out responses.jsonl [--rpm 60] [--max N]
  *         Calls the model. Resumable: request ids already in --out are skipped. Needs an AI provider key in the environment (any provider of the
  *         gateway chain: GEMINI_API_KEY, GROQ_API_KEY, ... OPENCODE_API_KEY; they are tried in order); without one it says so and stops. Model: TRANSLATE_MODEL (default as the classify job).
- *   plan  --requests requests.jsonl --responses responses.jsonl --out translations.json
+ *   plan  --requests requests.jsonl --responses responses.jsonl --out translations.json [--external=<dir>]
  *         Checks every answer (same numbers, right script, sane length, no markup) and writes the reviewed file that
  *         `catalogue-apply plan --product-translations=<file>` reads. Rejected answers are counted by reason and left out.
+ *         --external=<dir> also reads the `*.jsonl` answer files written outside the server (ar and en targets): lines {product_id, field, source_lang, target_lang, text},
+ *         checked by the same rules; a field a provider already answered keeps the provider's answer (shipped dir: src/modules/medicines/data/translations-external).
  *
  *   npx ts-node --transpile-only src/scripts/translate-product-content.ts <step> ...
  */
@@ -123,6 +125,59 @@ export function planFromResponses(reqs: TranslateRequest[], responses: Map<strin
   }
   items.sort((a, b) => TARGET_ORDER.indexOf(a.target) - TARGET_ORDER.indexOf(b.target) || a.id.localeCompare(b.id) || a.field.localeCompare(b.field));
   return { file: { version: 1, model, generated_at: generatedAt, items }, accepted: items.length, rejected, by_target };
+}
+
+export type ExternalRejection = Rejection | 'bad_line' | 'target_not_allowed' | 'unknown_gap' | 'source_mismatch' | 'duplicate' | 'provider_answered';
+export interface ExternalLine { product_id: string; field: string; source_lang: string; target_lang: string; text: string }
+export interface ExternalOutcome { accepted: number; rejected: Record<ExternalRejection, number>; by_target: Record<string, number> }
+/** Only these targets are read from the external answer files for now. */
+export const EXTERNAL_TARGETS: readonly string[] = ['ar', 'en'];
+
+/**
+ * Answers written outside the server (JSONL lines `{product_id, field, source_lang, target_lang, text}`) go through the SAME `checkTranslation` rules
+ * as the model's: the source text is the one the request file holds for that product, field and target. A field a provider already answered
+ * (`plan.file.items`) is left to the provider; the accepted lines are added to the file. Rejected lines are counted by reason.
+ */
+export function mergeExternal(plan: PlanOutcome, reqs: TranslateRequest[], lines: unknown[]): ExternalOutcome {
+  const rejected: ExternalOutcome['rejected'] = { empty: 0, numbers_differ: 0, wrong_script: 0, length: 0, format: 0, bad_line: 0, target_not_allowed: 0, unknown_gap: 0, source_mismatch: 0, duplicate: 0, provider_answered: 0 };
+  const by_target: Record<string, number> = {};
+  const sources = new Map<string, { req: TranslateRequest; text: string }>();
+  for (const req of reqs) for (const it of req.items) sources.set(`${it.id}|${it.field}|${req.target}`, { req, text: it.text });
+  const taken = new Set(plan.file.items.map((i) => `${i.id}|${i.field}|${i.target}`));
+  const seen = new Set<string>();
+  let accepted = 0;
+  for (const raw of lines) {
+    const l = raw as Partial<ExternalLine> | null;
+    if (!l || typeof l.product_id !== 'string' || typeof l.field !== 'string' || typeof l.source_lang !== 'string' || typeof l.target_lang !== 'string' || typeof l.text !== 'string') { rejected.bad_line += 1; continue; }
+    if (!EXTERNAL_TARGETS.includes(l.target_lang)) { rejected.target_not_allowed += 1; continue; }
+    const key = `${l.product_id}|${l.field}|${l.target_lang}`;
+    const src = sources.get(key);
+    if (!src) { rejected.unknown_gap += 1; continue; }
+    if (src.req.source !== l.source_lang) { rejected.source_mismatch += 1; continue; }
+    if (seen.has(key)) { rejected.duplicate += 1; continue; }
+    if (taken.has(key)) { rejected.provider_answered += 1; continue; }
+    const why = checkTranslation(src.text, l.text, src.req.target);
+    if (why) { rejected[why] += 1; continue; }
+    plan.file.items.push({ id: l.product_id, field: l.field as TranslationItem['field'], target: src.req.target, source: src.req.source, text: l.text.trim(), source_sha: sha256(src.text) });
+    by_target[src.req.target] = (by_target[src.req.target] ?? 0) + 1;
+    seen.add(key);
+    accepted += 1;
+  }
+  plan.file.items.sort((x, y) => TARGET_ORDER.indexOf(x.target) - TARGET_ORDER.indexOf(y.target) || x.id.localeCompare(y.id) || x.field.localeCompare(y.field));
+  return { accepted, rejected, by_target };
+}
+
+/** Every `*.jsonl` of a directory, in file-name order; a line that is not JSON is kept as `null` so it is counted as a bad line. */
+export function readExternalDir(dir: string): unknown[] {
+  if (!fs.existsSync(dir)) return [];
+  const out: unknown[] = [];
+  for (const f of fs.readdirSync(dir).filter((n) => n.endsWith('.jsonl')).sort()) {
+    for (const line of fs.readFileSync(path.join(dir, f), 'utf8').split('\n')) {
+      if (!line.trim()) continue;
+      try { out.push(JSON.parse(line)); } catch { out.push(null); }
+    }
+  }
+  return out;
 }
 
 export interface MoveSummary { total: number; by_kind: Record<string, number>; per_pair: Record<string, Record<string, number>> }
@@ -275,8 +330,10 @@ export async function main(argv: string[]): Promise<number> {
     const movesPath = arg(argv, 'moves') ?? `${requests}.moves.json`;
     const moves: MoveItem[] = fs.existsSync(movesPath) ? ((JSON.parse(fs.readFileSync(movesPath, 'utf8')) as { moves?: MoveItem[] }).moves ?? []) : [];
     if (moves.length) plan.file.moves = moves;
+    const externalDir = arg(argv, 'external');
+    const external = externalDir ? mergeExternal(plan, readJsonl<TranslateRequest>(requests), readExternalDir(externalDir)) : undefined;
     fs.writeFileSync(outFile, JSON.stringify(plan.file, null, 1));
-    out({ step, moves: summarizeMoves(moves), accepted: plan.accepted, rejected: plan.rejected, by_target: plan.by_target, file: outFile, file_sha256: sha256(fs.readFileSync(outFile, 'utf8')) });
+    out({ step, moves: summarizeMoves(moves), accepted: plan.accepted, rejected: plan.rejected, by_target: plan.by_target, ...(external ? { external } : {}), total_items: plan.file.items.length, file: outFile, file_sha256: sha256(fs.readFileSync(outFile, 'utf8')) });
     return 0;
   }
   throw new Error('usage: translate-product-content <gaps|probe|models|run|plan>');

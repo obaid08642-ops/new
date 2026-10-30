@@ -18,14 +18,16 @@ import { ConsultState } from "@/components-next/consult/consult-state";
 import { moneyText } from "@/lib/ordering/format";
 import { callPatientApi } from "@/lib/api/upstream";
 import { isLocale } from "@/lib/i18n";
-import { preparationFor } from "@/lib/ordering/item";
+import { preparationField } from "@/lib/ordering/item";
+import { LocalizedField, LocalizedList } from "@/components-next/ui/localized-field";
 import { extractLabServices, includedTestNames } from "@/lib/api/labs";
 import { getPublicLabServices } from "@/lib/api/labs-server";
-import { pickTexts, pickName } from "@/lib/i18n/localized";
+import { pickName, perLocaleOf } from "@/lib/i18n/localized";
 import { loadItem } from "@/lib/ordering/load-item";
 import { contextQuery, payOf, placeOf } from "@/lib/ordering/context";
 import { parseQuote, type Quote } from "@/lib/ordering/quote";
 import { kindOf, optionalToken, patientPoint } from "@/lib/ordering/server";
+import { CatalogueViewBeacon } from "@/components-next/diagnostics/catalogue-view-beacon";
 
 type Props = { params: Promise<{ locale: string; testSlug: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string }> };
 
@@ -77,11 +79,12 @@ export default async function OrderingItemPage({ params, searchParams }: Props) 
   }
 
   const name = pickName(locale, item.names ?? { ar: item.nameAr, en: item.nameEn }) ?? t("itemTitle");
-  const description = pickTexts(locale, item.descriptions ?? { ar: item.descriptionAr, en: item.descriptionEn });
   // a package stores its tests as Arabic names or codes: shown in the page's language where the lab list knows them
   const catalogue = item.isPackage && item.included.length > 0 ? await Promise.resolve().then(() => getPublicLabServices()).catch(() => null) : null;
   const included = item.isPackage ? includedTestNames(locale, item.included, catalogue && catalogue.ok ? extractLabServices(await catalogue.json().catch(() => null)) : []) : [];
-  const prep = preparationFor(locale, item);
+  const prep = preparationField(locale, item);
+  const nameTexts = item.names ?? { ar: item.nameAr, en: item.nameEn };
+  const descTexts = item.descriptions ?? { ar: item.descriptionAr, en: item.descriptionEn };
   const tone = kind === "radiology" ? RADIOLOGY : kind === "nursing" ? NURSING : LAB;
   const group = quote?.groups[0] ?? null;
   const best = group?.bestMatch ?? null;
@@ -98,12 +101,13 @@ export default async function OrderingItemPage({ params, searchParams }: Props) 
 
   return (
     <ConsultPage locale={locale} title={name} backHref={hub}>
-      <Hero icon={tone.icon} tone={tone.tone} title={name} sub={description} picture={item.imageUrl ? <ItemPicture imageUrl={item.imageUrl} fallback={item.art ? <DiagArt art={item.art} size={56} /> : <FIcon icon={tone.icon} tone={tone.tone} size={52} />} /> : item.art ? <DiagArt art={item.art} size={56} /> : undefined} />
+      <CatalogueViewBeacon vertical={kind} serviceId={item.id} />
+      <Hero icon={tone.icon} tone={tone.tone} title={<LocalizedField locale={locale} ar={nameTexts.ar} en={nameTexts.en} />} sub={<LocalizedField locale={locale} ar={descTexts.ar} en={descTexts.en} perLocale={perLocaleOf(item.descriptions)} />} picture={item.imageUrl ? <ItemPicture imageUrl={item.imageUrl} fallback={item.art ? <DiagArt art={item.art} size={56} /> : <FIcon icon={tone.icon} tone={tone.tone} size={52} />} /> : item.art ? <DiagArt art={item.art} size={56} /> : undefined} />
       <SectionCard id="item-prep" title={t("secPrep")}>
-        {item.fastingHours !== undefined || prep.length > 0 ? (
+        {item.fastingHours !== undefined || prep.items.length > 0 ? (
           <>
             {item.fastingHours !== undefined ? <p>{item.fastingHours > 0 ? t("fastHours", { n: item.fastingHours }) : t("fastRequired")}</p> : null}
-            {prep.length > 0 ? <BulletList items={prep} /> : null}
+            <LocalizedList locale={locale} field={prep}>{(items) => <BulletList items={items} />}</LocalizedList>
           </>
         ) : (
           <p>{t("prepNone")}</p>

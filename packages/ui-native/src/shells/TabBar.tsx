@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 
 import { SHELL_FONT, resolveDirection, shellTokens, type Direction, type ThemeName } from './shellTokens';
 
@@ -10,8 +10,12 @@ import { SHELL_FONT, resolveDirection, shellTokens, type Direction, type ThemeNa
  *  - a floating glass pill (68 tall, radius 34, 14 from each side) above the
  *    bottom inset (DEVICE_STANDARD §1: tab bar height + bottom inset);
  *  - the active item is a coral pill (owner override 2026-10-26) that shows its label;
- *  - the centre item (Consultations) is a raised 66 pt coral button ringed in
- *    the canvas colour;
+ *  - the centre item (Consultations) is a raised 66 pt coral button that floats
+ *    over a circular cut-out of the bar (a transparent gap, 5 pt wide, so the
+ *    content behind shows through) with the soft coral fab shadow under it.
+ *    The bar is drawn as an SVG path with the notch; when an app passes a
+ *    `background` (a real blur) the notch cannot be cut from it, and the
+ *    button keeps the canvas-coloured ring instead;
  *  - every item is at least 52×52, above the 44/48 minimum (DEVICE_STANDARD §3.3).
  *
  * Icons are passed in, so the shell does not decide the icon set; give each
@@ -46,7 +50,32 @@ export interface TabBarProps {
 const BAR_HEIGHT = 68;
 const ITEM = 52;
 const FAB = 66;
-const FAB_RING = 5;
+/** Width of the transparent gap between the button and the bar (the board's 5 pt ring). */
+const FAB_GAP = 5;
+/** Centre of the raised button, measured down from the top edge of the bar (item top 8 + 10 - 34 + 33). */
+const FAB_CENTER_Y = 17;
+
+/**
+ * The bar outline (a pill of `w` x `h`, inset by half the 1 pt hairline) with a circular notch of radius `r`
+ * centred at (w/2, cy), cut into the top edge. Arc from the left crossing to the right one, the long way round
+ * the bottom of the circle (large-arc 1, sweep 0).
+ */
+export function tabBarPath(w: number, h: number, r: number, cy: number): string {
+  const i = 0.5;
+  const rad = h / 2 - i;
+  const dx = Math.sqrt(Math.max(r * r - cy * cy, 0));
+  const cx = w / 2;
+  return [
+    `M ${i + rad} ${i}`,
+    `L ${(cx - dx).toFixed(2)} ${i}`,
+    `A ${r} ${r} 0 1 0 ${(cx + dx).toFixed(2)} ${i}`,
+    `L ${w - i - rad} ${i}`,
+    `A ${rad} ${rad} 0 0 1 ${w - i - rad} ${h - i}`,
+    `L ${i + rad} ${h - i}`,
+    `A ${rad} ${rad} 0 0 1 ${i + rad} ${i}`,
+    'Z',
+  ].join(' ');
+}
 const SIDE = 14;
 
 /** Height the bar takes from the bottom of the screen, so content can pad for it. */
@@ -60,10 +89,13 @@ export function TabBar({ items, value, onChange, label = 'Main navigation', back
   const t = shellTokens(theme);
   const dir = resolveDirection(direction);
   const gradientId = `nabd-fab-${theme}`;
+  const [barWidth, setBarWidth] = React.useState(0);
+  const cutOut = !background && barWidth > 0 && items.some((item) => item.raised);
 
   return (
     <View
       testID={testID}
+      onLayout={(e) => setBarWidth(e.nativeEvent.layout.width)}
       accessibilityRole="tablist"
       accessibilityLabel={label}
       style={{
@@ -73,9 +105,9 @@ export function TabBar({ items, value, onChange, label = 'Main navigation', back
         bottom: Math.max(insets.bottom, 16),
         height: BAR_HEIGHT,
         borderRadius: BAR_HEIGHT / 2,
-        borderWidth: 1,
+        borderWidth: cutOut ? 0 : 1,
         borderColor: t.hairline,
-        backgroundColor: background ? 'transparent' : t.glassStrong,
+        backgroundColor: background || cutOut ? 'transparent' : t.glassStrong,
         boxShadow: t.shadowTabBar,
         flexDirection: 'row',
         alignItems: 'center',
@@ -84,6 +116,11 @@ export function TabBar({ items, value, onChange, label = 'Main navigation', back
         zIndex: t.zSticky,
       }}
     >
+      {cutOut ? (
+        <Svg width={barWidth} height={BAR_HEIGHT} style={{ position: 'absolute', top: 0, start: 0 }} pointerEvents="none">
+          <Path d={tabBarPath(barWidth, BAR_HEIGHT, FAB / 2 + FAB_GAP, FAB_CENTER_Y)} fill={t.glassStrong} stroke={t.hairline} strokeWidth={1} />
+        </Svg>
+      ) : null}
       {background ? (
         <View style={{ position: 'absolute', top: 0, bottom: 0, start: 0, end: 0, borderRadius: BAR_HEIGHT / 2, overflow: 'hidden' }}>{background}</View>
       ) : null}
@@ -106,7 +143,7 @@ export function TabBar({ items, value, onChange, label = 'Main navigation', back
                   height: FAB,
                   marginTop: -34,
                   borderRadius: FAB / 2,
-                  borderWidth: FAB_RING,
+                  borderWidth: cutOut ? 0 : FAB_GAP,
                   borderColor: t.canvas,
                   boxShadow: t.shadowFab,
                   alignItems: 'center',
@@ -114,7 +151,7 @@ export function TabBar({ items, value, onChange, label = 'Main navigation', back
                   overflow: 'hidden',
                 }}
               >
-                <Svg width={FAB} height={FAB} style={{ position: 'absolute', top: -FAB_RING, start: -FAB_RING }}>
+                <Svg width={FAB} height={FAB} style={{ position: 'absolute', top: cutOut ? 0 : -FAB_GAP, start: cutOut ? 0 : -FAB_GAP }}>
                   <Defs>
                     <LinearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
                       <Stop offset="0" stopColor={t.fabFrom} />

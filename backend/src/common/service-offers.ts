@@ -46,6 +46,37 @@ const flag = (map: unknown, ...keys: Array<string | undefined>): boolean | undef
   return undefined;
 };
 const priced = (n: unknown): number | null => (typeof n === 'number' && Number.isFinite(n) && n > 0 ? n : null);
+const ASCII_DIGIT: Record<string, string> = { '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4', '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9', '۰': '0', '۱': '1', '۲': '2', '۳': '3', '۴': '4', '۵': '5', '۶': '6', '۷': '7', '۸': '8', '۹': '9' };
+/**
+ * A typed price as a number, or null when it is not certain what was meant (the caller then falls back to the catalogue price, never to a guess).
+ * Arabic-Indic and Persian digits become ASCII; "٫" is the decimal and "٬" the thousands separator; spaces are dropped. A comma followed by exactly three digits is a
+ * thousands separator ("1,200", "1,200.50"), a comma followed by one or two digits a decimal ("95,5"); anything else (units, signs, "1,2000", "1.2.3") is null.
+ */
+export const parsePriceText = (raw: string): number | null => {
+  const t = raw.replace(/[٠-٩۰-۹]/g, (d) => ASCII_DIGIT[d] ?? d).replace(/٫/g, '.').replace(/٬/g, ',').replace(/[\s\u00A0]/g, '');
+  if (!t) return null;
+  if (t.includes(',')) {
+    if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(t)) return Number(t.replace(/,/g, ''));
+    if (/^\d+,\d{1,2}$/.test(t)) return Number(t.replace(',', '.'));
+    return null;
+  }
+  return /^\d+(\.\d+)?$/.test(t) ? Number(t) : null;
+};
+/**
+ * A price the provider typed at registration (`test_prices`, `scan_prices`: { serviceId: 95 } or { serviceId: "95" } as the apps send it), read as a number; null when the
+ * map has no usable entry for any of the keys. This is the provider's own price when it has made no per-service choice yet (provider_service_offers) and has no capability row.
+ */
+export const registeredPrice = (map: unknown, ...keys: Array<string | undefined>): number | null => {
+  if (!map || typeof map !== 'object') return null;
+  for (const k of keys) {
+    if (!k || !(k in (map as Record<string, unknown>))) continue;
+    const raw = (map as Record<string, unknown>)[k];
+    const n = typeof raw === 'string' ? parsePriceText(raw) : raw;
+    const p = priced(n);
+    if (p !== null) return p;
+  }
+  return null;
+};
 
 /** service id -> its offers (one per provider, the cheapest priced one when a provider holds several rows), cheapest first, unpriced last. */
 export async function loadOffers(db: DbHandle, vertical: Vertical, services: any[]): Promise<Map<string, ServiceOffer[]>> {
@@ -54,7 +85,7 @@ export async function loadOffers(db: DbHandle, vertical: Vertical, services: any
   if (!services.length) return out;
   const profiles: any[] = await db.collection('provider_profiles').find({
     type: { $in: PROVIDER_TYPES[vertical] }, status: 'active', public_eligibility: true, medical_review_status: 'approved', account_id: { $exists: true, $ne: null },
-  }, { projection: { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1, home_visit_supported: 1, test_categories: 1, equipment_list: 1, nursing_services: 1, test_home_map: 1, test_insurance_map: 1, scan_insurance_map: 1 } }).toArray();
+  }, { projection: { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1, home_visit_supported: 1, test_categories: 1, equipment_list: 1, nursing_services: 1, test_home_map: 1, test_insurance_map: 1, scan_insurance_map: 1, test_prices: 1, scan_prices: 1 } }).toArray();
   if (!profiles.length) return out;
   const accounts = profiles.map((p) => p.account_id);
   const capsColl = CAPABILITY[vertical];
@@ -81,20 +112,23 @@ export async function loadOffers(db: DbHandle, vertical: Vertical, services: any
       }
       if (vertical === 'lab') {
         const own = caps.filter((c) => c.provider_account_id === p.account_id && (c.code === svc.id || (svc.short_code && c.code === svc.short_code) || (svc.name_ar && c.name_ar === svc.name_ar)));
-        for (const c of own) put(svc, p, { price: priced(c.price), currency: c.currency || 'SAR', premises: c.premises_supported !== false, home: !!(c.home_collection_supported || c.home_supported), insurance: !!c.insurance_covered });
+        // the price: the lab's own choice (above), else its capability row, else what it typed at registration (test_prices); the catalogue price is the patient lists' last resort, not here
+        const regPrice = registeredPrice(p.test_prices, svc.id, svc.short_code);
+        for (const c of own) put(svc, p, { price: priced(c.price) ?? regPrice, currency: c.currency || 'SAR', premises: c.premises_supported !== false, home: !!(c.home_collection_supported || c.home_supported), insurance: !!c.insurance_covered });
         const listed = Array.isArray(p.test_categories) && (p.test_categories.includes(svc.id) || (!!svc.category && p.test_categories.includes(svc.category)));
         // what the lab entered at registration (test_home_map / test_insurance_map, keyed by the test id) decides home and insurance when it has an entry
         const keys = [svc.id, svc.short_code];
-        if (!own.length && listed) put(svc, p, { price: null, currency: 'SAR', premises: true, home: flag(p.test_home_map, ...keys) ?? !!(p.home_visit_supported && svc.home_visit_supported), insurance: flag(p.test_insurance_map, ...keys) ?? false });
+        if (!own.length && listed) put(svc, p, { price: regPrice, currency: 'SAR', premises: true, home: flag(p.test_home_map, ...keys) ?? !!(p.home_visit_supported && svc.home_visit_supported), insurance: flag(p.test_insurance_map, ...keys) ?? false });
       } else if (vertical === 'radiology') {
         const own = caps.filter((c) => c.provider_account_id === p.account_id && (c.service_id ? c.service_id === svc.id
           : ci(c.scan_type) === ci(svc.modality) && (!svc.body_part || ci(c.body_part) === ci(svc.body_part))));
-        for (const c of own) put(svc, p, { price: priced(c.price), currency: c.currency || 'SAR', premises: c.premises_supported !== false, home: !!c.home_supported, insurance: !!c.insurance_covered });
+        const regPrice = registeredPrice(p.scan_prices, svc.id, svc.short_code, svc.modality);
+        for (const c of own) put(svc, p, { price: priced(c.price) ?? regPrice, currency: c.currency || 'SAR', premises: c.premises_supported !== false, home: !!c.home_supported, insurance: !!c.insurance_covered });
         const listed = Array.isArray(p.equipment_list) && (p.equipment_list.includes(svc.id) || (!!svc.modality && p.equipment_list.includes(svc.modality)));
-        if (!own.length && listed) put(svc, p, { price: null, currency: 'SAR', premises: true, home: !!(p.home_visit_supported && svc.home_visit_supported), insurance: flag(p.scan_insurance_map, svc.id, svc.modality) ?? false });
+        if (!own.length && listed) put(svc, p, { price: regPrice, currency: 'SAR', premises: true, home: !!(p.home_visit_supported && svc.home_visit_supported), insurance: flag(p.scan_insurance_map, svc.id, svc.modality) ?? false });
       } else {
         const entry = (Array.isArray(p.nursing_services) ? p.nursing_services : []).find((n: any) => n?.key === svc.id);
-        if (entry) put(svc, p, { price: priced(entry.price), currency: entry.currency || 'SAR', premises: entry.premises === true, home: entry.home !== false, insurance: entry.insurance === true });
+        if (entry) put(svc, p, { price: registeredPrice({ v: entry.price }, 'v'), currency: entry.currency || 'SAR', premises: entry.premises === true, home: entry.home !== false, insurance: entry.insurance === true });
       }
     }
   }
@@ -140,4 +174,25 @@ export async function ownChoices(db: DbHandle, vertical: Vertical, svc: { id: st
   const hidden = new Set(rows.filter((r) => r.offered !== true).map((r) => r.provider_account_id as string));
   const all = (await loadOffers(db, vertical, [svc])).get(svc.id) ?? [];
   return { hidden, offers: all.filter((o) => chosen.has(o.provider.id) && o.price !== null) };
+}
+
+/**
+ * The provider's own price for each service: account id -> service id -> price. One resolver for every place that shows or charges a provider's price (lists, detail, comparison,
+ * quote, booking): the provider's own per-service choice (provider_service_offers), else its capability row, else what it typed at registration. A service the provider has no
+ * price for is absent from its map, and the caller falls back to the catalogue price. Only active, approved providers are read.
+ */
+export async function ownPrices(db: DbHandle, vertical: Vertical, accountIds: string[], services: any[]): Promise<Map<string, Map<string, number>>> {
+  const out = new Map<string, Map<string, number>>();
+  const wanted = new Set(accountIds.filter((id) => typeof id === 'string' && id));
+  if (!wanted.size || !services.length) return out;
+  const offers = await loadOffers(db, vertical, services);
+  for (const [serviceId, list] of offers) {
+    for (const o of list) {
+      if (o.price === null || !wanted.has(o.provider.id)) continue;
+      const m = out.get(o.provider.id) ?? new Map<string, number>();
+      m.set(serviceId, o.price);
+      out.set(o.provider.id, m);
+    }
+  }
+  return out;
 }
