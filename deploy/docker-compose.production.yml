@@ -23,7 +23,7 @@ services:
     container_name: nabdah-mongodb
     restart: unless-stopped
     mem_limit: 1600m   # run 58: with 1200m mongod sat at the limit (memory.events max=6159) and was restarted 32 times in 6 hours; 1600m leaves room above the 0.5 GB cache
-    mem_reservation: 800m
+    mem_reservation: 1000m
     memswap_limit: 1600m   # no swap: a swapped-out mongodb is slower than a restart; the others absorb the swap
     oom_score_adj: -900
     environment:
@@ -39,9 +39,9 @@ services:
     healthcheck:
       test: ["CMD", "mongosh", "--quiet", "-u", "${MONGO_ROOT_USER}", "-p", "${MONGO_ROOT_PASSWORD}", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping').ok"]
       interval: 30s
-      timeout: 20s    # under memory pressure a ping answers slowly; that is not a reason to call mongod unhealthy
-      retries: 10
-      start_period: 90s
+      timeout: 10s    # a ping that needs more than 10 s means mongod is in trouble; docker only marks it unhealthy, it never restarts on its own
+      retries: 5
+      start_period: 60s
     logging: *logopts
 
   # ── Redis ────────────────────────────────────────────────────────
@@ -81,7 +81,7 @@ services:
     read_only: true
     tmpfs: ["/tmp:size=16m"]
     mem_limit: 384m
-    mem_reservation: 150m
+    mem_reservation: 130m
     oom_score_adj: 300   # rebuildable copies only
     networks: [cache]
     healthcheck:
@@ -98,7 +98,7 @@ services:
     container_name: nabdah-meilisearch
     restart: unless-stopped
     mem_limit: 640m
-    mem_reservation: 120m
+    mem_reservation: 100m
     oom_score_adj: 200
     environment:
       MEILI_ENV: production
@@ -252,7 +252,7 @@ services:
     container_name: nabdah-fastapi
     restart: unless-stopped
     mem_limit: 384m
-    mem_reservation: 100m
+    mem_reservation: 80m
     oom_score_adj: 300
     env_file: .env.production
     environment:
@@ -284,7 +284,7 @@ services:
     stop_grace_period: 30s   # 20.9: SIGTERM drain before SIGKILL (rolling deploys stop the old container with docker stop -t)
     restart: unless-stopped
     mem_limit: 384m
-    mem_reservation: 120m
+    mem_reservation: 100m
     oom_score_adj: 300
     environment:
       NODE_OPTIONS: --max-old-space-size=256   # of the 384m container limit

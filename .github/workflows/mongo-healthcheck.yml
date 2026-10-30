@@ -1,0 +1,75 @@
+name: mongo-healthcheck
+# The nabdah-mongodb healthcheck from docker-compose.production.yml, run against a REAL mongo:7.0 started with the production limits (1600m, no swap) and the production
+# mongod.conf (storage, net and profiling as they are; the security and replication blocks are left out because this test has no replica set or keyfile), root user from the
+# image's own init. Fails when the healthcheck command does not answer 1 within its own timeout, or when the settings the owner asked for drift.
+on:
+  pull_request:
+    paths:
+      - 'deploy/docker-compose.production.yml'
+      - 'deploy/mongo/**'
+      - '.github/workflows/mongo-healthcheck.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  healthcheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: The settings in the compose file are the asked-for ones
+        run: |
+          python3 - <<'PY'
+          import re, sys, yaml
+          c = yaml.safe_load(open("deploy/docker-compose.production.yml"))["services"]["mongodb"]
+          h = c["healthcheck"]
+          want = {"interval": "30s", "timeout": "10s", "retries": 5, "start_period": "60s"}
+          got = {k: h[k] for k in want}
+          assert got == want, got
+          assert str(c["mem_limit"]) == "1600m" and str(c["memswap_limit"]) == "1600m", (c["mem_limit"], c["memswap_limit"])
+          conf = yaml.safe_load(open("deploy/mongo/mongod.conf"))
+          assert conf["storage"]["wiredTiger"]["engineConfig"]["cacheSizeGB"] == 0.6
+          print("compose and mongod.conf settings as asked:", got, c["mem_limit"], c["memswap_limit"], "cache 0.6 GB")
+          PY
+      - name: Start mongo:7.0 with the production limits and storage/net settings
+        run: |
+          PW=$(openssl rand -hex 16); echo "::add-mask::$PW"; echo "MONGO_ROOT_PASSWORD=$PW" >> "$GITHUB_ENV"
+          python3 - <<'PY'
+          import yaml
+          conf = yaml.safe_load(open("deploy/mongo/mongod.conf"))
+          for k in ("security", "replication"):
+              conf.pop(k, None)
+          conf["net"]["bindIp"] = "0.0.0.0"
+          yaml.safe_dump(conf, open("/tmp/mongod-ci.conf", "w"))
+          PY
+          docker run -d --name nabdah-mongodb --memory 1600m --memory-swap 1600m -e MONGO_INITDB_ROOT_USERNAME=root -e MONGO_INITDB_ROOT_PASSWORD="$PW" \
+            -v /tmp/mongod-ci.conf:/etc/mongod.conf:ro mongo:7.0 mongod --config /etc/mongod.conf >/dev/null
+          echo "limit: $(docker inspect -f '{{.HostConfig.Memory}} {{.HostConfig.MemorySwap}}' nabdah-mongodb)"
+      - name: The healthcheck command answers 1 within its timeout
+        run: |
+          python3 - <<'PY'
+          import os, subprocess, sys, time, yaml
+          h = yaml.safe_load(open("deploy/docker-compose.production.yml"))["services"]["mongodb"]["healthcheck"]
+          cmd = [a.replace("${MONGO_ROOT_USER}", "root").replace("${MONGO_ROOT_PASSWORD}", os.environ["MONGO_ROOT_PASSWORD"]) for a in h["test"][1:]]
+          timeout = int(h["timeout"].rstrip("s"))
+          deadline = time.time() + 120
+          while True:
+              try:
+                  t0 = time.time()
+                  r = subprocess.run(["docker", "exec", "nabdah-mongodb"] + cmd, capture_output=True, text=True, timeout=timeout)
+                  took = time.time() - t0
+                  if r.returncode == 0 and r.stdout.strip() == "1":
+                      print(f"healthcheck answered 1 in {took:.1f}s (timeout {timeout}s)")
+                      break
+              except subprocess.TimeoutExpired:
+                  pass
+              if time.time() > deadline:
+                  print("the healthcheck never answered 1"); sys.exit(1)
+              time.sleep(3)
+          PY
+      - name: A wrong password does not pass the healthcheck
+        run: |
+          if docker exec nabdah-mongodb mongosh --quiet -u root -p "wrong-$(openssl rand -hex 4)" --authenticationDatabase admin --eval 'db.adminCommand("ping").ok' >/dev/null 2>&1; then
+            echo "a wrong password must fail"; exit 1
+          fi
+          echo "wrong password rejected"
