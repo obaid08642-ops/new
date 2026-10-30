@@ -512,8 +512,12 @@ describe("handoff §3 — states and the main tab bar (components 4/4) match the
       { id: "labs", label: "التحاليل", icon: "test-tube" },
     ] });
     expect(html).toMatch(/^<nav aria-label="التنقل الرئيسي"/);
-    expect(html).toContain("background:var(--nabd-color-glass-bgStrong)");
-    expect(html).toContain("box-shadow:var(--nabd-shadow-tabBar)");
+    // the pill (glass, shadow) is the ::before layer, so the circular cut-out under the raised button does not cut the button
+    const sheet = readFileSync(resolve(process.cwd(), "../packages/ui/components/css/Surfaces.css"), "utf8");
+    const before = sheet.slice(sheet.indexOf(".nabd-bottom-tab-bar::before"));
+    expect(before).toContain("background: var(--nabd-color-glass-bgStrong)");
+    expect(before).toContain("box-shadow: var(--nabd-shadow-tabBar)");
+    expect(before).toContain("mask-image: radial-gradient(circle at 50% 117px, transparent 37.5px");
     expect(html.match(/aria-current="page"/g)).toHaveLength(1);
     expect(html).toContain("background:var(--nabd-color-action-primary-bg)");
     expect(html).toContain("color:var(--nabd-color-action-primary-fg)");
@@ -537,8 +541,9 @@ describe("handoff §3 — states and the main tab bar (components 4/4) match the
     expect(html).toContain("nabd-nav-art__f-fg");
     expect(html).toContain("nabd-bottom-tab-bar__item--art");
     expect(html).not.toContain(`d="${FILL_ICON_PATHS["test-tube"]}"`);
-    // the raised centre keeps the glyph on the coral button
-    expect(html).toContain(`d="${FILL_ICON_PATHS.stethoscope}"`);
+    // the raised centre with art draws the illustrated stethoscope (NAV_FAB_ART), light on the coral button, not the glyph
+    expect(html).toContain("nabd-nav-art--fab");
+    expect(html).not.toContain(`d="${FILL_ICON_PATHS.stethoscope}"`);
     expect(html.match(/aria-current="page"/g)).toHaveLength(1);
   });
 });

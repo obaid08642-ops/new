@@ -152,7 +152,7 @@ export function ConfirmClient({ locale, kind, place, pay, item, orders, prep }: 
               {failedId ? <button type="button" className={`${styles.linkBtn} ${styles.cta}`} disabled={phase === "paying"} onClick={() => startPayment(failedId)}>{t("payTryAgain")}</button> : null}
             </div>
           ) : null}
-          <Link href={`/${locale}/diagnostics/bookings`} className={styles.linkBtn}>{t("whenOpenBookings")}</Link>
+          <Link href={`/${locale}/orders`} className={styles.linkBtn}>{t("whenOpenBookings")}</Link>
         </section>
       </div>
     );

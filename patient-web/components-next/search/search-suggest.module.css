@@ -12,7 +12,8 @@
   display: flex; align-items: center; gap: var(--nabd-space-2xs); min-block-size: 44px; box-sizing: border-box;
   padding: var(--nabd-space-2xs) var(--nabd-space-xs); color: inherit; text-decoration: none; cursor: pointer;
 }
-.option[aria-selected="true"], .option:hover { background: var(--nabd-color-bg-sunken); }
+.option[aria-selected="true"] { background: var(--nabd-color-bg-sunken); }
+@media (hover: hover) and (pointer: fine) { .option:hover { background: var(--hover-tint); } }
 .option:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: -3px; }
 .name { flex: 1; min-inline-size: 0; font-size: var(--nabd-font-size-row); line-height: 1.4; overflow-wrap: anywhere; }
 .mark { background: var(--nabd-color-service-amber-bg); color: inherit; border-radius: var(--nabd-radius-sm); padding-inline: 2px; font-weight: 700; }
@@ -31,5 +32,5 @@
   border-block-start: 1px solid var(--nabd-color-border-subtle); color: var(--nabd-color-text-primary);
   font-size: var(--nabd-font-size-body); font-weight: 700; text-decoration: none;
 }
-.all:hover { background: var(--nabd-color-bg-sunken); }
+@media (hover: hover) and (pointer: fine) { .all:hover { background: var(--hover-tint); } }
 .all:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: -3px; }

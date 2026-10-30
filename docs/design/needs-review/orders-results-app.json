@@ -1,0 +1,57 @@
+[
+  {
+    "batch": "orders-results",
+    "app": "patient-app",
+    "screen": "/orders",
+    "element": "Lab results list and new-results badge",
+    "file": "patient-app/src/hooks/useNewResultsCount.ts",
+    "line": 14,
+    "found": "[backend] GET /lab-results/mine sits under the class-level @Roles(LAB, HOSPITAL, ADMIN) and the handler adds no PATIENT, so a patient token is likely refused (403) and the lab results and the badge stay empty; only :id allows PATIENT. Verify against the seeded backend. (backend: backend/src/modules/labs/lab-results.controller.ts:12)",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": "orders-results",
+    "app": "patient-app",
+    "screen": "/orders",
+    "element": "Share with your doctor",
+    "file": "patient-app/src/components/orders/ResultsPanel.tsx",
+    "line": 102,
+    "found": "[client] There is no share endpoint for a lab result or radiology report; the button opens the medical-reports share screen without pre-selecting this result.",
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
+  },
+  {
+    "batch": "orders-results",
+    "app": "patient-app",
+    "screen": "/orders",
+    "element": "PDF of a lab result with values and of a radiology report",
+    "file": "patient-app/src/components/orders/ResultsPanel.tsx",
+    "line": 101,
+    "found": "[backend] Not drawn: the list carries no report file id for them and no protected PDF endpoint exists (only /labs/bookings/:id/reports/:reportId for uploaded lab files). (backend: backend/src/modules/labs/labs.controller.ts:70)",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": "orders-results",
+    "app": "patient-app",
+    "screen": "/orders",
+    "element": "New-results badge for radiology reports",
+    "file": "patient-app/src/utils/ordersResults.ts",
+    "line": 66,
+    "found": "[backend] GET /radiology/reports/mine has no viewed/seen field, so a new radiology report is not counted in the badge. (backend: backend/src/modules/radiology/radiology.controller.ts:113)",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": "orders-results",
+    "app": "patient-app",
+    "screen": "/orders",
+    "element": "Book a consultation with the result as context",
+    "file": "patient-app/src/components/orders/ResultsPanel.tsx",
+    "line": 64,
+    "found": "[client] Only a lab result with its booking opens the instant-consultation flow with the result attached; a radiology report opens the consultations tab (no radiology result context route exists).",
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
+  }
+]

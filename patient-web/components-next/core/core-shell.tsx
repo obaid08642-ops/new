@@ -155,7 +155,6 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
         <PhoneMenu
           labels={{ open: shell("menuOpen"), close: shell("menuClose") }}
           items={[
-            ...(resultsHref ? [{ label: shell("menuResults"), href: resultsHref }] : []),
             { label: shell("menuProfile"), href: `/${locale}/profile` },
             { label: shell("menuOrders"), href: `/${locale}/orders` },
             { label: shell("menuFamily"), href: `/${locale}/family` },

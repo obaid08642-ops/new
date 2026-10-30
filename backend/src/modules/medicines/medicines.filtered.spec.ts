@@ -19,6 +19,11 @@ function serviceWith(rows: any[] = []) {
       return Promise.resolve(rows);
     },
     countDocuments: jest.fn().mockResolvedValue(41),
+    db: { collection: () => ({
+      // the ranked page is read through popularPage (product-ranking.service.ts): the keys of the page, then the cards by key; both are answered from the same rows here
+      aggregate: (p: any[]) => ({ toArray: async () => (await (async (p: any[]) => { calls.query = p[0].$match; for (const st of p) { if ('$skip' in st) calls.skip = st.$skip; if ('$limit' in st) calls.limit = st.$limit; } calls.ranked = true; return rows; })(p)).map((r: any, i: number) => ({ _id: `k${i}`, ...r })) }),
+      find: () => ({ toArray: async () => rows.map((r: any, i: number) => ({ _id: `k${i}`, ...r })) }),
+    }) },
   };
   service.withBadges = (m: any) => m;
   service.normalizeSearchText = (s: string) => s.toLowerCase();

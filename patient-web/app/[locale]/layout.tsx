@@ -100,15 +100,19 @@ export default async function LocaleLayout({ children, params }: Props) {
   if (!isLocale(locale)) notFound();
   const typedLocale = locale as Locale;
   setRequestLocale(typedLocale);
+  // One round of reads for every page (they used to run one after the other, so a cold cache paid two API round trips in series before any page work started).
   // F82-1: only the namespaces client components read go into the HTML (lib/i18n/client-messages.ts).
-  const messages = pickClientMessages(await getMessages({ locale: typedLocale }));
-  const t = await getTranslations({ locale: typedLocale, namespace: "Shared" });
   // module switches (#953): a public fetch revalidated every 15 s (no cookie, no header, so static/ISR pages stay
   // cacheable), fail-open; hides entry points and stops deep links into a switched-off module
-  const disabled = await getDisabledModules();
-  const uploadsEnabled = await getUploadsEnabled();
-  const moduleCopy = await getTranslations({ locale: typedLocale, namespace: "Modules" });
-  const legalLinks = await getTranslations({ locale: typedLocale, namespace: "LegalLinks" });
+  const [allMessages, t, disabled, uploadsEnabled, moduleCopy, legalLinks] = await Promise.all([
+    getMessages({ locale: typedLocale }),
+    getTranslations({ locale: typedLocale, namespace: "Shared" }),
+    getDisabledModules(),
+    getUploadsEnabled(),
+    getTranslations({ locale: typedLocale, namespace: "Modules" }),
+    getTranslations({ locale: typedLocale, namespace: "LegalLinks" }),
+  ]);
+  const messages = pickClientMessages(allMessages);
 
   return (
     // The nonce server (from the theme cookie) or the theme script (app/theme.ts) sets data-theme, the class and
@@ -120,13 +124,13 @@ export default async function LocaleLayout({ children, params }: Props) {
         <link rel="dns-prefetch" href={apiOrigin} />
         <link rel="dns-prefetch" href="https://cdn.nabd.plus" />
       </head>
-      <body>
+      <body className={fontVariables}>
         <NextIntlClientProvider messages={messages}>
           <WebMcpLoader locale={typedLocale} />
           <OfflineSupport />
           <ImageFallbackGuard />
           <WebVitalsReporter locale={typedLocale} />
-          <div className={`shell ${fontVariables}`} lang={typedLocale} dir={getDirection(typedLocale)}>
+          <div className="shell" lang={typedLocale} dir={getDirection(typedLocale)}>
             {/* 17.1: the first Tab stop, so a keyboard user can jump past the header to the page. */}
             <a className="skip-link" href="#main-content">{t("skipToContent")}</a>
             {/* P15.4: the offline banner with the time this page was made ("last updated"). For a static/ISR page this

@@ -12,6 +12,8 @@ export type AppLinkPath = {
   comment: string;
   /** Only the locale-prefixed form is a link (the locale home: "/ar", "/en", ...). */
   localeOnly?: boolean;
+  /** A whole section ("/x/*" over pages that have their own fixed names, not one dynamic page): the section exists on the web and every link into it opens the app. */
+  section?: boolean;
 };
 
 export const PUBLIC_APP_LINK_PATHS: readonly AppLinkPath[] = [
@@ -45,6 +47,15 @@ export const PUBLIC_APP_LINK_PATHS: readonly AppLinkPath[] = [
   { path: "/articles", comment: "Health articles" },
   { path: "/articles/*", comment: "Health article" },
   { path: "/condition/*", comment: "Condition guide" },
+  // Whole sections, so a link into any page of them opens the matching screen (or the section's hub when the app has no screen for it)
+  { path: "/diagnostics", comment: "Labs and radiology hub" },
+  { path: "/diagnostics/*", comment: "Any labs and radiology page (list, detail, package, booking)", section: true },
+  { path: "/home-care", comment: "Home care hub" },
+  { path: "/home-care/*", comment: "Any home care page (service detail opens the service, the rest the nursing hub)", section: true },
+  { path: "/map", comment: "Provider map" },
+  { path: "/orders", comment: "Order list" },
+  { path: "/orders/*", comment: "Order tracking" },
+  { path: "/chat/*", comment: "Chat thread" },
 ];
 
 /** Every link pattern of one entry: the bare path (unless locale-only) and the path under each locale. */

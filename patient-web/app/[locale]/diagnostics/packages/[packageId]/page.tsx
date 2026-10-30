@@ -7,12 +7,13 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractLabService, extractLabServices, includedTestNames } from "@/lib/api/labs";
 import { getPublicLabPackage, getPublicLabServices } from "@/lib/api/labs-server";
-import { pickList } from "@/lib/i18n/localized-lists";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ActionLinks, BulletList, Facts, Hero, Notice, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
 import { LAB, TagRow, hoursText, money, type Tag } from "@/components-next/diagnostics/diag-parts";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
-import { pickName, pickTexts } from "@/lib/i18n/localized";
+import { pickName, pickTexts, perLocaleOf } from "@/lib/i18n/localized";
+import { LocalizedField, LocalizedList } from "@/components-next/ui/localized-field";
+import { preparationField } from "@/lib/ordering/item";
 
 type Props = { params: Promise<{ locale: string; packageId: string }> };
 
@@ -57,7 +58,7 @@ export default async function LabPackageDetailPage({ params }: Props) {
 
   const name = pickName(locale, pkg.names);
   const description = pickTexts(locale, pkg.descriptions);
-  const preparation = pickList(locale, pkg.preparations);
+  const preparation = preparationField(locale, pkg);
   // the package stores its tests as Arabic names or codes: shown in the page's language where the lab list knows them
   const catalogue = pkg.includedServices?.length ? await Promise.resolve().then(() => getPublicLabServices()).catch(() => null) : null;
   const included = pkg.includedServices?.length ? includedTestNames(locale, pkg.includedServices, catalogue && catalogue.ok ? extractLabServices(await catalogue.json().catch(() => null)) : []) : [];
@@ -77,12 +78,12 @@ export default async function LabPackageDetailPage({ params }: Props) {
   return (
     <ConsultPage locale={locale} title={name ?? t("title")} backHref={`/${locale}/diagnostics/packages`}>
       <JsonLd data={[medicalWebPage({ title: name ?? t("title"), description: description ?? null, locale, path: `/diagnostics/packages/${packageId}` }), breadcrumbList([{ name: t("title"), locale, path: "/diagnostics/packages" }, { name: name ?? t("title"), locale, path: `/diagnostics/packages/${packageId}` }])]} />
-      <Hero icon={LAB.icon} tone={LAB.tone} title={name ?? t("title")} sub={description}>
+      <Hero icon={LAB.icon} tone={LAB.tone} title={name ? <LocalizedField locale={locale} ar={pkg.names.ar} en={pkg.names.en} /> : t("title")} sub={description ? <LocalizedField locale={locale} ar={pkg.descriptions.ar} en={pkg.descriptions.en} perLocale={perLocaleOf(pkg.descriptions)} /> : undefined}>
         <TagRow tags={tags} />
       </Hero>
       {rows.length > 0 ? <SectionCard id="pkg-facts" title={t("facts")}><Facts rows={rows} label={t("facts")} /></SectionCard> : null}
       {pkg.includedServices?.length ? <SectionCard id="pkg-included" title={t("includedTitle")}><BulletList items={included} /></SectionCard> : null}
-      {preparation.length > 0 ? <SectionCard id="pkg-prep" title={t("preparationTitle")}><BulletList items={preparation} /></SectionCard> : null}
+      {preparation.items.length > 0 ? <SectionCard id="pkg-prep" title={t("preparationTitle")}><LocalizedList locale={locale} field={preparation}>{(items) => <BulletList items={items} />}</LocalizedList></SectionCard> : null}
       <Notice>{pkg.homeVisitSupported ? t("homeAvailable") : t("homeUnavailable")}</Notice>
       {/* Parity: the order item page (add to the basket, book now, providers), as the app. */}
       <ActionLinks actions={[{ href: addHref, label: w("addToOrderCta") }]} />

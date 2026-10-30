@@ -33,7 +33,7 @@ export default async function DiagnosticDetailPage({ params }: Props) {
   const response = await getDiagnosticBooking(token, domain, bookingId);
   if (response.status === 401) redirect(`/${locale}/login`);
   if (response.status === 403 || response.status === 404) notFound();
-  const backHref = `/${locale}/diagnostics/bookings`;
+  const backHref = `/${locale}/orders`;
   const booking = response.ok ? extractDiagnosticBooking(await response.json().catch(() => null)) : null;
   if (!booking) {
     return (

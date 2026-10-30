@@ -14,7 +14,9 @@ import { ActionLinks, BulletList, Facts, Hero, SectionCard, type FactRow } from 
 import { RADIOLOGY, TagRow, hoursText, minutesText, money, type Tag } from "@/components-next/diagnostics/diag-parts";
 import { OffersSection } from "@/components-next/diagnostics/offers-section";
 import { DIAG_TONES } from "@/components-next/diagnostics/tones";
-import { pickName, pickTexts } from "@/lib/i18n/localized";
+import { pickName, pickTexts, perLocaleOf } from "@/lib/i18n/localized";
+import { LocalizedField, LocalizedList } from "@/components-next/ui/localized-field";
+import { preparationField } from "@/lib/ordering/item";
 
 type Props = { params: Promise<{ locale: string; serviceId: string }> };
 
@@ -78,7 +80,7 @@ export default async function RadiologyServiceDetailPage({ params }: Props) {
 
   const name = pickName(locale, service.names);
   const description = pickTexts(locale, service.descriptions);
-  const preparation = (locale === "ar" || locale === "ur" ? service.preparationAr ?? service.preparationEn : service.preparationEn ?? service.preparationAr) ?? [];
+  const preparation = preparationField(locale, service);
   const tags: Tag[] = [
     ...(service.homeVisitSupported ? [{ label: t("homeVisit"), tone: RADIOLOGY.tone } as Tag] : []),
     ...(service.facilityVisitSupported ? [{ label: t("facilityVisit"), tone: DIAG_TONES.facility } as Tag] : []),
@@ -110,12 +112,12 @@ export default async function RadiologyServiceDetailPage({ params }: Props) {
           inLanguage: locale,
         },
         serviceLd({ name: name ?? t("title"), path: `/diagnostics/radiology/${serviceId}`, locale, description: description ?? null }), breadcrumbList([{ name: t("title"), locale, path: "/diagnostics/radiology" }, { name: name ?? t("title"), locale, path: `/diagnostics/radiology/${serviceId}` }])]} />
-      <Hero icon={RADIOLOGY.icon} tone={RADIOLOGY.tone} title={name ?? t("title")} sub={description ?? t("detailDescriptionUnavailable")}>
+      <Hero icon={RADIOLOGY.icon} tone={RADIOLOGY.tone} title={name ? <LocalizedField locale={locale} ar={service.names.ar} en={service.names.en} /> : t("title")} sub={description ? <LocalizedField locale={locale} ar={service.descriptions.ar} en={service.descriptions.en} perLocale={perLocaleOf(service.descriptions)} /> : t("detailDescriptionUnavailable")}>
         <TagRow tags={tags} />
       </Hero>
       <DirectAnswer sentences={[seo("radiologyWho", { name: name ?? t("title") })]} />
       {rows.length > 0 ? <SectionCard id="rad-facts" title={t("detailTitle")}><Facts rows={rows} label={t("detailTitle")} /></SectionCard> : null}
-      {preparation.length > 0 ? <SectionCard id="rad-prep" title={t("preparationTitle")}><BulletList items={preparation} /></SectionCard> : null}
+      {preparation.items.length > 0 ? <SectionCard id="rad-prep" title={t("preparationTitle")}><LocalizedList locale={locale} field={preparation}>{(items) => <BulletList items={items} />}</LocalizedList></SectionCard> : null}
       <OffersSection locale={locale} t={w} kind="radiology" serviceId={service.id} offer={service.offer} offers={service.offers} />
       {/* a scan no centre offers yet cannot be ordered: the section above says so and offers "Notify me" */}
       {service.offer?.providersCount === 0 ? null : <ActionLinks actions={[{ href: addHref, label: w("addToOrderCta") }]} />}

@@ -39,7 +39,7 @@ export async function LabsCatalog({ locale, search, homeOnly, backHref, basePath
   const list = await catalogueList({ kind: "lab", locale, search, cat, pages, filters: { homeVisit: homeOnly }, chipHref: (next) => href({ cat: next }), moreHref: href({ more: pages + 1 }) });
 
   return (
-    <ConsultPage locale={locale} title={t("title")} backHref={backHref} resultsHref={`/${locale}/diagnostics/bookings`}>
+    <ConsultPage locale={locale} title={t("title")} backHref={backHref} resultsHref={`/${locale}/orders`}>
       <p className={styles.flowNote}>{t("subtitle")}</p>
       <SearchForm
         suggest={{ locale, scope: SUGGEST_SCOPES.labs }}

@@ -33,10 +33,6 @@ export const EVENTS = {
   MEDICATION_REMINDER_FIRED: 'medication.reminder_fired',
   MEDICATION_TAKEN: 'medication.taken',
   MEDICATION_MISSED: 'medication.missed',
-  // Emergency
-  EMERGENCY_TRIGGERED: 'emergency.triggered',
-  EMERGENCY_ASSIGNED: 'emergency.assigned',
-  EMERGENCY_RESOLVED: 'emergency.resolved',
   // Delivery
   DELIVERY_ASSIGNED: 'delivery.assigned',
   DELIVERY_UPDATED: 'delivery.updated',
