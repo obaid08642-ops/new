@@ -645,6 +645,53 @@ export class SeoSearchService {
     return val;
   }
 
+  /**
+   * Google Merchant Center / Microsoft Merchant feed rows for one locale (patient-web renders the XML).
+   * Only indexable, over-the-counter, non-controlled products with a price: a prescription medicine is never advertised
+   * (Merchant policy and the owner's rule). `gtin` is sent only when the barcode is a valid GTIN-8/12/13/14.
+   */
+  async publicMerchantFeedPage(locale: string, page: number, perPage = 1000) {
+    const key = `merchant:${locale}:${page}:${perPage}`;
+    const hit = this.sitemapCache.get(key);
+    if (hit && hit.exp > Date.now()) return hit.val;
+    const filter = {
+      ...this.indexableProductFilter(),
+      requires_prescription: { $ne: true },
+      is_rx: { $ne: true },
+      controlled: { $ne: true },
+      price: { $gt: 0 },
+    } as any;
+    const col = this.conn.collection(CATALOG_COLLECTIONS.medicines);
+    const [rows, total] = await Promise.all([
+      col.find(filter, { projection: { _id: 0, interactions: 0, change_requests: 0 } } as any)
+        .sort({ id: 1 }).skip((page - 1) * perPage).limit(perPage).batchSize(perPage).toArray(),
+      col.countDocuments(filter),
+    ]);
+    const items = rows.map((m: any) => resolveMedicinePublicDto(m, locale)).filter((d: any) => !d.is_rx && d.slug && d.name).map((d: any) => {
+      const digits = String(d.barcode ?? '').replace(/\D/g, '');
+      return {
+        id: d.sku != null ? String(d.sku) : String(d.id),
+        slug: d.slug,
+        title: d.name,
+        description: d.description || null,
+        price: d.price,
+        currency: d.currency || 'SAR',
+        available: d.available === true && d.available_online !== false,
+        image: d.image || (Array.isArray(d.images) ? d.images[0] : null) || null,
+        brand: d.manufacturer || null,
+        gtin: [8, 12, 13, 14].includes(digits.length) ? digits : null,
+        category: [d.category, d.sub_category, d.sub_sub_category].filter(Boolean).join(' > ') || null,
+      };
+    });
+    const val = { locale, page, per_page: perPage, total, pages: Math.max(Math.ceil(total / perPage), 1), items };
+    this.sitemapCache.set(key, { exp: Date.now() + SeoSearchService.SITEMAP_TTL_MS, val });
+    if (this.sitemapCache.size > 40) {
+      const now = Date.now();
+      for (const [k, v] of this.sitemapCache) if (v.exp <= now) this.sitemapCache.delete(k);
+    }
+    return val;
+  }
+
   /** Image sitemap rows: a sitemap lists only indexable public products. */
   async imageSitemapMedicines(): Promise<any[]> {
     return this.conn.collection(CATALOG_COLLECTIONS.medicines)
@@ -1363,6 +1410,14 @@ export class SeoSearchController {
     const p = Math.max(parseInt(page || '1'), 1);
     const [urls, total] = await Promise.all([this.svc.publicProductSitemapPage(locale, p), this.svc.publicProductCount()]);
     return { locale, page: p, per_page: 5000, total, pages: Math.max(Math.ceil(total / 5000), 1), urls };
+  }
+
+  /** Merchant Center product feed rows (JSON); the web app renders the XML at /feeds/google-merchant/{locale}.xml. */
+  @Public()
+  @Get('public/feeds/merchant/:locale/:page')
+  async publicMerchantFeed(@Param('locale') locale: string, @Param('page') page: string) {
+    if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
+    return this.svc.publicMerchantFeedPage(locale, Math.min(Math.max(parseInt(page || '1', 10) || 1, 1), 1000));
   }
 
   /** Lightweight page-count for the sitemap index (countDocuments only — no 5MB bodies). */

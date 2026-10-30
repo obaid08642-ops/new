@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { PUBLIC_APP_LINK_PATHS, allAppLinkPatterns, appLinkPatterns } from "@/lib/app-links";
+import { APP_LINK_LOCALES, PUBLIC_APP_LINK_PATHS, allAppLinkPatterns, appLinkPatterns } from "@/lib/app-links";
 
 export async function GET() {
   const teamId = process.env.APPLE_TEAM_ID || "6AT2W85DBC";
@@ -25,7 +25,18 @@ export async function GET() {
       apps: [],
       details: [
         { appID: `${teamId}.${bundleId}`, ...applinksDetail },
-        { appID: `${teamId}.${providerBundleId}`, ...applinksDetail },
+        // The provider app takes only its own links: it does not open the patient pages, and two apps claiming one URL is ambiguous.
+        {
+          appID: `${teamId}.${providerBundleId}`,
+          paths: ["NOT /api/*", "NOT /.well-known/*", "NOT /admin/*", "/provider/*", ...APP_LINK_LOCALES.map((l) => `/${l}/provider/*`)],
+          components: [
+            { "/": "/api/*", exclude: true },
+            { "/": "/.well-known/*", exclude: true },
+            { "/": "/admin/*", exclude: true },
+            { "/": "/provider/*", comment: "Provider app deep links" },
+            ...APP_LINK_LOCALES.map((l) => ({ "/": `/${l}/provider/*` })),
+          ],
+        },
       ],
     },
     webcredentials: {

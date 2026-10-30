@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { localizedText } from "@/lib/i18n/localized-field";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getPatientWishlist } from "@/lib/api/wishlist-server";
@@ -49,7 +50,7 @@ export default async function WishlistPage({ params }: Props) {
         {items.length ? (
           <ul className={styles.rows} aria-label={t("title")}>
             {items.map((item) => {
-              const name = locale === "ar" ? item.nameAr || item.nameEn || t("untitled") : item.nameEn || item.nameAr || t("untitled");
+              const name = localizedText({ locale, ar: item.nameAr, en: item.nameEn }) ?? t("untitled");
               return (
                 <li key={item.id} className={styles.rowWrap}>
                   <Link className={styles.row} href={`/${locale}/medicines/${item.id}`}>

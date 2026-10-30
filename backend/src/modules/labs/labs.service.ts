@@ -1,4 +1,6 @@
 import { flattenResultEntries } from './lab-booking-results';
+import { SearchService } from '../search/search.service';
+import { LAB_TYPES, byRelevance, matchedIds } from '../search/catalogue-search';
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException, ServiceUnavailableException, Inject, Optional } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -68,6 +70,7 @@ export class LabsService {
     @Optional() private readonly redis?: RedisService,
     @Optional() private readonly pricing?: BusinessRulesService,
     @Optional() private readonly insurance?: InsuranceFlowService,
+    @Optional() private readonly searchEngine?: SearchService,
   ) {}
 
   async list(opts: { page?: number; limit?: number; category?: string; search?: string; home_only?: boolean; insurance?: boolean; packages_only?: boolean; highest_rated?: boolean; nearest?: boolean; lowest_price?: boolean; lat?: number; lng?: number }) {
@@ -76,7 +79,9 @@ export class LabsService {
     if (opts.packages_only) q.is_package = true;
     // Explicitly exclude any imaging entries — those belong to the separate Radiology module.
     q.$and = [{ category: { $ne: 'imaging' } }, { sample_type: { $ne: 'imaging' } }];
-    if (opts.search) q.$or = labSearchClause(opts.search);
+    // the search box uses the home search's engine (typo tolerance, ar/en synonyms); its own text match is the fallback
+    const matched = opts.search ? await matchedIds(this.searchEngine, opts.search, LAB_TYPES) : null;
+    if (opts.search) { if (matched) q.id = { $in: matched }; else q.$or = labSearchClause(opts.search); }
     
     let sortObj: any = { popularity: -1, name_ar: 1 };
     if (opts.lowest_price) sortObj = { price: 1, popularity: -1 };
@@ -119,7 +124,8 @@ export class LabsService {
       }
       // the page asks for the true total, so it reads every match; the plain list is capped at 300 rows (the catalogue holds about 150)
       const query = this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj);
-      return finish(page ? await query.lean() : await query.limit(300).lean());
+      const rows: any[] = page ? await query.lean() : await query.limit(300).lean();
+      return finish(matched && !opts.lowest_price ? byRelevance(rows, matched) : rows);
     };
     if (!this.redis?.getWithSWR) return load();
     const cacheKey = `cache:lab-services:public:v2:${JSON.stringify(opts)}`;

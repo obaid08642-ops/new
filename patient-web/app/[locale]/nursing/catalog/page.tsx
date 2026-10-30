@@ -12,7 +12,8 @@ import { RowCard } from "@/components-next/consult/consult-parts";
 import { Caret, NURSING, RowList, ServiceChips, serviceIcon } from "@/components-next/nursing/nursing-parts";
 import { nursingOfferLine } from "@/components-next/nursing/nursing-offers";
 import { SearchForm } from "@/components-next/diagnostics/diag-parts";
-import { pickName, pickTexts, textsInclude } from "@/lib/i18n/localized";
+import { pickName, pickTexts, perLocaleOf, textsInclude } from "@/lib/i18n/localized";
+import { LocalizedField } from "@/components-next/ui/localized-field";
 import type { Metadata } from "next";
 import { AddToBasketIcon } from "@/components-next/ordering/add-to-basket";
 import { BasketBar } from "@/components-next/ordering/basket-bar";
@@ -98,8 +99,8 @@ export default async function NursingCatalogPage({ params, searchParams }: Props
                   href={`/${locale}/home-care/services/${encodeURIComponent(item.id)}`}
                   icon={serviceIcon(item.id, item.category, item.nameAr, item.nameEn)}
                   tone={NURSING.tone}
-                  title={name}
-                  sub={[description, offer.line].filter(Boolean).join(" · ") || undefined}
+                  title={<LocalizedField locale={locale} ar={item.names.ar} en={item.names.en} />}
+                  sub={description || offer.line ? <>{description ? <LocalizedField locale={locale} ar={item.descriptions.ar} en={item.descriptions.en} perLocale={perLocaleOf(item.descriptions)} /> : null}{description && offer.line ? " · " : null}{offer.line}</> : undefined}
                   extra={<ServiceChips duration={duration || undefined} insurance={item.insuranceAvailable ? t("insurance") : undefined} extras={offer.chips} />}
                   caret={caret}
                 />

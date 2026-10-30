@@ -23,7 +23,6 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.trigger:hover,
 .trigger:focus-visible {
   border-color: var(--nabd-color-border-strong);
   background: var(--nabd-color-bg-sunken);
@@ -81,9 +80,9 @@
   transition: background 0.12s ease;
 }
 
-.option:hover {
-  background: var(--nabd-color-bg-sunken);
-  color: var(--nabd-color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .option:hover { background: var(--hover-tint); color: var(--nabd-color-text-primary); }
+  .trigger:hover { background: var(--hover-tint); }
 }
 
 .activeOption {

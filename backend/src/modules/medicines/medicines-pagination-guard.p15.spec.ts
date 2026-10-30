@@ -40,6 +40,11 @@ function mockModel(captured: { skip?: any; limit?: any; query?: any }) {
       return ROWS;
     }),
     countDocuments: jest.fn(async () => 2),
+    db: { collection: () => ({
+      // the ranked page is read through popularPage (product-ranking.service.ts): the keys of the page, then the cards by key; both are answered from the same rows here
+      aggregate: (p: any[]) => ({ toArray: async () => (await (async (p: any[]) => { captured.query = p[0].$match; for (const st of p) { if ('$skip' in st) captured.skip = st.$skip; if ('$limit' in st) captured.limit = st.$limit; } return ROWS; })(p)).map((r: any, i: number) => ({ _id: `k${i}`, ...r })) }),
+      find: () => ({ toArray: async () => ROWS.map((r: any, i: number) => ({ _id: `k${i}`, ...r })) }),
+    }) },
   };
 }
 

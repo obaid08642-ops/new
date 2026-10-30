@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { localizedText } from "./localized-field";
 
 /**
  * A catalogue field in every language the server holds it in. The catalogue rows (labs, scans, packages, nursing services,
@@ -27,15 +28,12 @@ export function textsOf(row: Record<string, unknown>, field: string): Texts {
 }
 
 /**
- * The text in the page's language. A row without that language falls back the way the pages always did (Arabic for Arabic and
- * Urdu, English for the others) and then to whatever language it has, so a row is never drawn blank.
+ * The text in the page's language, else the other language (never blank): rules in localized-field.ts (English before Arabic
+ * on ur/hi/bn/fil). Use LocalizedField where the page can also show the "available in X only" note.
  */
 export function pickTexts(locale: string, texts: Texts | undefined): string | undefined {
   if (!texts) return undefined;
-  const own = texts[SUFFIX[locale] ?? "en"];
-  if (own) return own;
-  const rtl = locale === "ar" || locale === "ur";
-  return (rtl ? texts.ar ?? texts.en : texts.en ?? texts.ar) || undefined;
+  return localizedText({ locale, ar: texts.ar, en: texts.en, perLocale: { ur: texts.ur, hi: texts.hi, bn: texts.bn, fil: texts.tl } });
 }
 
 /**
@@ -55,11 +53,16 @@ export function namesOf(row: Record<string, unknown>): Texts {
 /** The name for the page's language: Arabic on the Arabic page, English everywhere else, the other one when it is missing. */
 export function pickName(locale: string, names: Texts | undefined): string | undefined {
   if (!names) return undefined;
-  return (locale === "ar" ? names.ar ?? names.en : names.en ?? names.ar) || undefined;
+  return localizedText({ locale, ar: names.ar, en: names.en });
 }
 
 /** True when the query is inside any language of the field (so a search finds a service by its translated name). */
 export function textsInclude(texts: Texts | undefined, query: string, locale: string): boolean {
   if (!texts || !query) return false;
   return Object.values(texts).some((value) => value && value.toLocaleLowerCase(locale).includes(query));
+}
+
+/** The ur/hi/bn/fil columns of a multilingual field for resolveLocalizedField (presence marks the field as multilingual). */
+export function perLocaleOf(texts: Texts | undefined) {
+  return texts ? { ur: texts.ur, hi: texts.hi, bn: texts.bn, tl: texts.tl } : undefined;
 }

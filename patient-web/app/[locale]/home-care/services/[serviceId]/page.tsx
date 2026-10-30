@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { CatalogueViewBeacon } from "@/components-next/diagnostics/catalogue-view-beacon";
-import { pickName, pickTexts } from "@/lib/i18n/localized";
+import { pickName, pickTexts, perLocaleOf } from "@/lib/i18n/localized";
+import { LocalizedField, LocalizedList } from "@/components-next/ui/localized-field";
+import { preparationField } from "@/lib/ordering/item";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components-next/json-ld";
 import { DirectAnswer } from "@/components-next/seo/direct-answer";
@@ -94,7 +96,7 @@ export default async function HomeCareServicePage({ params, searchParams }: Prop
   if (!service) notFound();
   const name = pickName(locale, service.names) ?? "";
   const description = pickTexts(locale, service.descriptions);
-  const preparation = (locale === "ar" || locale === "ur" ? service.preparationAr ?? service.preparationEn : service.preparationEn ?? service.preparationAr) ?? [];
+  const preparation = preparationField(locale, service);
   const duration = [service.durationValue, service.duration].filter(Boolean).join(" ");
   const rows: FactRow[] = [
     ...(service.price !== undefined ? [{ label: t("priceLabel"), value: money(locale, service.price), icon: "tag" as const, tone: NURSING.tone }] : []),
@@ -108,18 +110,18 @@ export default async function HomeCareServicePage({ params, searchParams }: Prop
         nursingService({ name: name || t("serviceTitle"), locale, path: `/home-care/services/${serviceId}`, description: description ?? null }),
         breadcrumbList([{ name: t("serviceTitle"), locale, path: "/nursing/catalog" }, { name: name || t("serviceTitle"), locale, path: `/home-care/services/${serviceId}` }]),
       ]} />
-      <Hero icon={serviceIcon(service.nameAr, service.nameEn)} tone={NURSING.tone} title={name} sub={t("eyebrow")}>
+      <Hero icon={serviceIcon(service.nameAr, service.nameEn)} tone={NURSING.tone} title={<LocalizedField locale={locale} ar={service.names.ar} en={service.names.en} />} sub={t("eyebrow")}>
         <ServiceChips insurance={service.insuranceAvailable ? t("insurance") : undefined} />
       </Hero>
       <DirectAnswer sentences={[seo("homeCareWho", { name: name || t("serviceTitle") })]} />
       {description ? (
         <SectionCard id="service-about" title={t("aboutTitle")}>
-          <p className={consult.body}>{description}</p>
+          <LocalizedField as="p" className={consult.body} locale={locale} ar={service.descriptions.ar} en={service.descriptions.en} perLocale={perLocaleOf(service.descriptions)} />
         </SectionCard>
       ) : null}
-      {preparation.length > 0 ? (
+      {preparation.items.length > 0 ? (
         <SectionCard id="service-prep" title={t("prepTitle")}>
-          <BulletList items={preparation} />
+          <LocalizedList locale={locale} field={preparation}>{(items) => <BulletList items={items} />}</LocalizedList>
         </SectionCard>
       ) : null}
       {rows.length > 0 ? (
