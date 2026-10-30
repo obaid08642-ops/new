@@ -1,15 +1,17 @@
-# 2026-10-30 lead reviewer: run 57.
-# 1. Free disk, deploy main@251c574a: calls fixed in the patient app (#2156 WebRTC globals, #2157 reconnect), web call reconnect (#2159),
-#    provider-app call reconnect (#2160), no review fields in public APIs (#2154), one password rule (#2161), provider "My services and prices" (#2170),
-#    sitemap paging + MCP finds labs/radiology/nursing (#2152), notify-me pages (#2151), legal page cache (#2163), semantic duplicates (#2167), prune step (#2168).
-# 2. 90-catalogue-apply DRY RUN (COMPLETION=packaged, includes the duplicates step): the semantic duplicate groups to merge (HbA1c and the others). Nothing written.
-# 3. 90b-catalogue-prune DRY RUN (PRUNE=yes): hidden / duplicate / inactive / rejected rows that nothing references, counted per vertical. Nothing written.
-#    The owner approves the applies after reading both: duplicates first, then prune.
-# 4. Purge the API cache.
-release:251c574a8667f3161dc806d77641598cd8a78158
+# 2026-10-30 lead reviewer: run 58.
+# 1. 96-mongodump-check DIAGNOSIS (read-only, #2182): why runs 55/57 made 0-byte dumps (mongodb cap/OOM counters, killed processes by name, room, dump sizes).
+# 2. Free disk, deploy main@dfc6dfd1 with the pre-deploy dump taken in a ONE-OFF mongo container (600m, no swap), not inside the capped mongodb (#2182's patch);
+#    a failed or empty dump still aborts the deploy with production unchanged. Main adds: provider services & prices (#2170), calls network config (#2172),
+#    chat backend (#2173), the 18 specialty illustrations' base, notify-me, sitemap paging, call reconnect, and today's merges.
+# 3. 90-catalogue-apply DRY RUN (semantic duplicates, now in the image) and 90b DRY RUN (prune). Nothing written.
+# 4. 99-translate-resume-cron re-installed with 400 requests per night (owner: the free providers take over the remaining translations).
+# 5. Purge the API cache.
+96-mongodump-check
+release:dfc6dfd1836eca44acb68228330d22c0f9fe89e4
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
 90-catalogue-apply
 90b-catalogue-prune
+99-translate-resume-cron
 cf-purge-api
