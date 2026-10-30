@@ -122,7 +122,7 @@ export function AccountView() {
       </Panel>
       <Panel testID="account-settings-rows">
         <Row icon="gear" tone={CARE_TONE} title={k('account.settings')} subtitle={k('account.settingsHint')} onPress={go('/settings')} testID="account-settings" />
-        <Row icon="headset" tone="mint" title={k('account.support')} onPress={go('/settings/help')} testID="account-support" />
+        <Row icon="headset" tone="ink" title={k('account.support')} onPress={go('/settings/help')} testID="account-support" />
         <Row icon="lock" tone="violet" title={k('account.privacy')} onPress={go('/settings/privacy')} last testID="account-privacy" />
       </Panel>
       {isGuest ? null : <Button label={k('set.signOut')} variant="outline" size="lg" fullWidth startIcon="sign-out" onPress={signOut} theme={theme} testID="account-sign-out" />}

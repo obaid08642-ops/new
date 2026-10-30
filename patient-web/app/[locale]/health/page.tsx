@@ -172,7 +172,7 @@ export default async function HealthPage({ params }: Props) {
           { href: `${base}/records?tab=timeline`, icon: "clock-counter-clockwise" as const, tone: "blue" as const, label: t("tabTimeline") },
           { href: `${base}/medications`, icon: "pill" as const, tone: CORAL, label: t("medicationsTitle") },
           { href: `${base}/profile?tab=conditions`, icon: "heartbeat" as const, tone: CORAL, label: t("hubChronic"), sub: t("hubChronicHint") },
-          { href: `${base}/vitals?tab=trends`, icon: "chart-line-up" as const, tone: "mint" as const, label: t("hubTrends"), sub: t("hubTrendsHint") },
+          { href: `${base}/vitals?tab=trends`, icon: "chart-line-up" as const, tone: CORAL, label: t("hubTrends"), sub: t("hubTrendsHint") },
           { href: `${base}/sleep`, icon: "moon" as const, tone: "violet" as const, label: t("sleepTitle") },
           ...(wearablesOn() ? [{ href: `${base}/wearables`, icon: care.icon, tone: care.tone, label: t("wearablesTitle") }] : []),
         ].map((row) => (

@@ -238,7 +238,7 @@ export function ProductCard({ name, meta, price, currency, imageSrc, image, disc
             </Text>
           ) : null}
           {rxLabel ? <Text style={{ fontSize: 11, fontFamily: 'ReadexPro-700', color: c.status.warning.fg }}>{rxLabel}</Text> : null}
-          {onlineLabel ? <Text style={{ fontSize: 11, fontFamily: 'ReadexPro-700', color: c.service.mint.fg }}>{onlineLabel}</Text> : null}
+          {onlineLabel ? <Text style={{ fontSize: 11, fontFamily: 'ReadexPro-700', color: c.service.ink.fg }}>{onlineLabel}</Text> : null}
         </View>
         {addControl ?? <Pressable
           accessibilityRole="button"

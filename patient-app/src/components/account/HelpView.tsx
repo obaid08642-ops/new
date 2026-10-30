@@ -58,9 +58,9 @@ function HelpTab() {
   return (
     <>
       <Panel testID="help-contact">
-        <Row icon="chat-circle-text" tone="mint" title={k('set.help.chat')} subtitle={k('set.help.chatHint')} onPress={() => router.push('/support/chat' as Href)} testID="help-chat" />
-        <Row icon="clipboard-text" tone="mint" title={k('set.help.requests')} subtitle={k('set.help.requestsHint')} onPress={() => router.push('/support/ticket' as Href)} last={!phone} testID="help-requests" />
-        {phone ? <Row icon="headset" tone="mint" title={k('set.help.call')} subtitle={phone} onPress={() => void Linking.openURL(`tel:${phone}`).catch(() => undefined)} last testID="help-call" /> : null}
+        <Row icon="chat-circle-text" tone="ink" title={k('set.help.chat')} subtitle={k('set.help.chatHint')} onPress={() => router.push('/support/chat' as Href)} testID="help-chat" />
+        <Row icon="clipboard-text" tone="ink" title={k('set.help.requests')} subtitle={k('set.help.requestsHint')} onPress={() => router.push('/support/ticket' as Href)} last={!phone} testID="help-requests" />
+        {phone ? <Row icon="headset" tone="ink" title={k('set.help.call')} subtitle={phone} onPress={() => void Linking.openURL(`tel:${phone}`).catch(() => undefined)} last testID="help-call" /> : null}
       </Panel>
       <Section title={k('set.help.faq')}>
         <Gate status={faqs.status} onRetry={() => void faqs.reload()}>

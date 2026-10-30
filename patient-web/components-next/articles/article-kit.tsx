@@ -12,7 +12,7 @@ import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "./articles.module.css";
 
 /** The glyph tone of an article row: the articles tile of the home screen (never written as a colour). */
-export const ARTICLE_TONE: ServiceTone = "mint";
+export const ARTICLE_TONE: ServiceTone = "ink";
 
 /** The title in the reader's language, Arabic first for Arabic and English first for the rest, never an empty line. */
 export function articleTitle(locale: Locale, article: ArticleSummary, fallback: string): string {
