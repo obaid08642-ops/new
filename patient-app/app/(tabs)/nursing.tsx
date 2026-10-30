@@ -7,7 +7,8 @@ import { router, type Href } from 'expo-router';
 import { Button, Chip, EmptyState, ErrorState, OfflineState, Screen, Search, Segmented, useTabBarHeight } from '../../../packages/ui-native/src';
 import { ActiveFilters, type ActiveFilter } from '../../src/components/pharmacy/ActiveFilters';
 import { CARE_TONE, Section, Sheet } from '../../src/components/consult/ConsultKit';
-import { PackageCard, PillLink, Strip } from '../../src/components/diagnostics/DiagKit';
+import { PillLink, Strip } from '../../src/components/diagnostics/DiagKit';
+import { NursingPackageCard } from '../../src/components/nursing/NursingKit';
 import { NursingServiceList } from '../../src/components/nursing/NursingServiceList';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
@@ -135,7 +136,7 @@ export default function NursingHub() {
         </View>
 
         <Search theme={theme} variant="inline" value={search} onChange={setSearch} onClear={() => setSearch('')} clearLabel={k('nur.clear')} placeholder={k('nur.hub.search')} label={k('nur.hub.search')} onFilterPress={() => setSheet(true)} filterLabel={filterCount > 0 ? `${k('nur.hub.filter')} (${num(filterCount)})` : k('nur.hub.filter')} filterCount={filterCount} formatCount={num} />
-        <ActiveFilters items={activeItems} onClearAll={reset} tone={CARE_TONE} testIdPrefix="nur" />
+        <ActiveFilters items={activeItems} onClearAll={reset} testIdPrefix="nur" />
         <ScopedSuggest query={search} scope={SUGGEST_SCOPES.nursing} />
 
         {failed === 'error' ? <ErrorState title={k('consult.error.title')} body={k('consult.error.body')} retryLabel={k('consult.retry')} onRetry={() => void load()} theme={theme} /> : null}
@@ -172,7 +173,7 @@ export default function NursingHub() {
                   {shownPackages.map((pkg) => {
                     const name = text(pickLocalized(pkg.name_ar as string | undefined, pkg.title as string | undefined));
                     const kind = pkg.type === 'monthly' ? k('nur.hub.monthly') : pkg.type === 'weekly' ? k('nur.hub.weekly') : text(pkg.duration) || k('nur.hub.careService');
-                    return <PackageCard key={text(pkg.id)} width={268} name={name} desc={kind} price={priceOf(pkg.price)} icon="first-aid-kit" tone={CARE_TONE} actionLabel={k('nur.hub.book')} onPress={() => toService(text(pkg.id), name)} />;
+                    return <NursingPackageCard key={text(pkg.id)} width={268} name={name} desc={kind} price={priceOf(pkg.price)} icon="first-aid-kit" actionLabel={k('nur.hub.book')} onPress={() => toService(text(pkg.id), name)} />;
                   })}
                 </Strip>
               ) : (

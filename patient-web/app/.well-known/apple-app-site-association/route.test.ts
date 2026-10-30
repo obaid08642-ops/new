@@ -74,6 +74,13 @@ describe("apple-app-site-association", () => {
 
   it("every listed path is a real web page", () => {
     for (const entry of PUBLIC_APP_LINK_PATHS) {
+      if (entry.section) {
+        // a whole section: its folder exists on the web and holds pages of its own
+        const section = entry.path.replace(/\/\*$/, "").split("/").filter(Boolean);
+        const dir = path.join(LOCALE_DIR, ...section);
+        expect({ path: entry.path, ok: fs.existsSync(dir) && fs.readdirSync(dir, { withFileTypes: true }).some((e) => e.isDirectory() || e.name === "page.tsx") }).toEqual({ path: entry.path, ok: true });
+        continue;
+      }
       const sample = entry.path.endsWith("/*") ? `${entry.path.slice(0, -1)}test-1` : entry.path;
       const parts = sample.split("/").filter(Boolean);
       // "/x/*" pages that need two segments (/labs/{test}/{city}) are checked with two

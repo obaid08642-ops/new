@@ -42,7 +42,7 @@ Public pages that describe what each Nabd Plus feature does today (all six langu
 - Pharmacies: ${origin}/{lang}/pharmacy/{slug}; by city at ${origin}/{lang}/pharmacies/{city}.
 - [Lab tests](/ar/diagnostics/labs): lab tests by city at ${origin}/{lang}/labs/{test}/{city}; [lab packages](/ar/diagnostics/packages).
 - [Radiology](/ar/diagnostics/radiology): each service at ${origin}/{lang}/diagnostics/radiology/{id}.
-- [Home nursing](/ar/nursing/catalog): the nursing catalogue; by city at ${origin}/{lang}/home-nursing/{city}.
+- [Home nursing](/ar/nursing/catalog): the nursing catalogue; by city at ${origin}/{lang}/home-nursing/{city}, and one service in one city at ${origin}/{lang}/home-nursing/{city}/{service}.
 - [Arabic articles](/ar/articles), [English articles](/en/articles): health articles; each at ${origin}/{lang}/articles/{slug}.
 - Medical conditions: ${origin}/{lang}/condition/{code}.
 
@@ -55,6 +55,8 @@ Public pages that describe what each Nabd Plus feature does today (all six langu
 
 - [MCP server card](/.well-known/mcp/server-card.json): the Nabd Plus MCP server (${mcp}/api/v1/mcp). Search and detail tools are public; tools that act for a patient need the patient's sign-in (see auth.md).
 - [Auth instructions](/auth.md): how an assistant signs a patient in, and what it can and cannot do. The patient always confirms and pays on Nabd Plus.
+- Ordering through an assistant: connect the MCP server at ${mcp}/api/v1/mcp (OAuth sign-in with PKCE and dynamic client registration; metadata at ${mcp}/api/v1/oauth/protected-resource, also served at /.well-known/oauth-protected-resource on that host). Tools: create_pharmacy_request (cart of over-the-counter medicines), hold_consultation, hold_lab, hold_radiology, hold_nursing, cancel_hold, my_orders, my_bookings. Flow: search with the public tools, hold or request with the signed-in tools, give the patient the returned checkout_url; the patient confirms and pays on Nabd Plus. An assistant never pays, never picks a pharmacy offer, and prescription medicines are refused.
+- Crawling: search engines and AI crawlers may read all public pages (see /robots.txt, Content-Signal search=yes, ai-input=yes, ai-train=yes); signed-in areas and /api are not public.
 - [API catalog](/.well-known/api-catalog), [OpenAPI subset](/.well-known/openapi.json) and [AI catalog](/.well-known/ai-catalog.json): the public catalogue endpoints.
 - Product search: ${api}/api/v1/public/products/search?q={term}&locale={lang} (by SKU: ${api}/api/v1/public/products/by-sku/{sku}?locale={lang}).
 - Categories: ${api}/api/v1/public/categories/{lang}.

@@ -93,7 +93,7 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
   });
 
   return (
-    <ConsultPage locale={locale} title={t("title")} backHref={backHref} resultsHref={`/${locale}/diagnostics/bookings`}>
+    <ConsultPage locale={locale} title={t("title")} backHref={backHref} resultsHref={`/${locale}/orders`}>
       <p className={styles.flowNote}>{t("subtitle")}</p>
       <SearchForm
         suggest={{ locale, scope: SUGGEST_SCOPES.radiology }}

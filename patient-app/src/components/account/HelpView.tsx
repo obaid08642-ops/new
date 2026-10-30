@@ -9,19 +9,22 @@ import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { AccountScreen, SETTINGS_HOME, StarRating } from './AccountKit';
+import { AboutTab, LegalTab } from './AboutView';
 import { faqText, type ServerFaq } from './serverText';
 
 // The FAQ text by app language lives in serverText.ts; the Help screen keeps exporting it for its test.
 export { faqText };
 
 /**
- * Help and support (merge map sections 3 and 8): `?tab=help` has the ways to reach support (the chat, my requests, the support
- * phone from GET /config) and the FAQ (GET /support/faqs, grouped by the category the server sends); `?tab=feedback` sends
- * feedback (POST /support/feedback). /settings/feedback and /settings/support-chat redirect here; /support/chat and
+ * Help and policies (OD-6, merge map section 3): ONE screen with four sections as tabs. `?tab=help` has the ways to reach support (the chat,
+ * my requests, the support phone from GET /config) and the FAQ (GET /support/faqs); `?tab=feedback` sends feedback (POST /support/feedback);
+ * `?tab=about` is the app and its version; `?tab=legal` is the policies, `?doc=refund_policy|telehealth_consent` opens one. The old
+ * /settings/about, /terms, /refund-policy, /telehealth-consent, /feedback and /support-chat routes redirect here; /support/chat and
  * /support/ticket stay the flow screens.
  */
 
-const TABS = ['help', 'feedback'] as const;
+const TABS = ['help', 'feedback', 'about', 'legal'] as const;
+const TAB_LABEL: Record<(typeof TABS)[number], string> = { help: 'set.help.tab.help', feedback: 'set.help.tab.feedback', about: 'set.about.tab.about', legal: 'set.about.tab.legal' };
 const KINDS = ['suggestion', 'issue', 'complaint', 'praise', 'question'] as const;
 
 
@@ -29,9 +32,9 @@ export function HelpView() {
   const { k } = useScreenUi();
   const [tab, setTab] = useTab(TABS, 'help');
   return (
-    <AccountScreen title={k('set.help')} testID="help-screen">
-      <HealthTabs tabs={TABS.map((key) => ({ key, label: k(`set.help.tab.${key}`) }))} value={tab} onChange={setTab} testID="help-tabs" />
-      {tab === 'help' ? <HelpTab /> : <FeedbackTab />}
+    <AccountScreen title={k('set.helpPolicies')} testID="help-screen">
+      <HealthTabs tabs={TABS.map((key) => ({ key, label: k(TAB_LABEL[key]) }))} value={tab} onChange={setTab} testID="help-tabs" />
+      {tab === 'help' ? <HelpTab /> : tab === 'feedback' ? <FeedbackTab /> : tab === 'about' ? <AboutTab /> : <LegalTab />}
     </AccountScreen>
   );
 }

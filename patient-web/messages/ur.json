@@ -45,7 +45,7 @@
     "menuOpen": "مینو",
     "menuClose": "مینو بند کریں",
     "menuProfile": "میرا اکاؤنٹ",
-    "menuOrders": "میرے آرڈر",
+    "menuOrders": "میرے آرڈرز اور نتائج",
     "menuFamily": "خاندان",
     "menuArticles": "مضامین",
     "menuSettings": "ترتیبات",
@@ -306,10 +306,17 @@
     "unavailable": "کیٹلاگ کی معلومات ابھی دستیاب نہیں ہیں۔ براہ کرم بعد میں دوبارہ کوشش کریں۔"
   },
   "Orders": {
-    "title": "میرے آرڈرز",
+    "title": "میرے آرڈرز اور نتائج",
     "tabsLabel": "آرڈر کی حالت",
     "tabCurrent": "موجودہ",
     "tabPrevious": "پچھلے",
+    "tabResults": "نتائج اور رپورٹس",
+    "resultReady": "نتیجہ تیار ہے",
+    "resultView": "نتیجہ دیکھیں",
+    "resultPdf": "PDF",
+    "resultBook": "مشاورت بُک کریں",
+    "emptyResultsTitle": "کوئی نتیجہ تیار نہیں",
+    "emptyResultsBody": "لیب اور ریڈیالوجی کے نتائج تیار ہوتے ہی یہاں نظر آئیں گے۔",
     "pharmacyOrder": "فارمیسی آرڈر",
     "orderRef": "#{number}",
     "itemsCount": "{count, plural, one {# شے} other {# اشیاء}}",
@@ -3583,7 +3590,20 @@
     "notifyMe": "دستیاب ہونے پر مجھے بتائیں",
     "notifyMeDone": "آپ فہرست میں شامل ہیں۔ جب کوئی مرکز اسے فراہم کرے گا تو ہم آپ کو بتائیں گے۔",
     "notifyMeSignIn": "اطلاع پانے کے لیے سائن اِن کریں",
-    "notifyMeFailed": "محفوظ نہیں ہو سکا۔ دوبارہ کوشش کریں۔"
+    "notifyMeFailed": "محفوظ نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
+    "filterOpen": "فلٹر",
+    "filterOpenCount": "فلٹر ({n} فعال)",
+    "filterSheetTitle": "نتائج فلٹر کریں",
+    "filterClose": "فلٹر بند کریں",
+    "filterMore": "مزید اختیارات",
+    "sortPopular": "سب سے زیادہ طلب",
+    "noFasting": "روزے کے بغیر",
+    "sameDay": "اسی دن نتیجہ",
+    "showResults": "{count} نتائج دکھائیں",
+    "showResultsMore": "{count} سے زیادہ نتائج دکھائیں",
+    "filterCounting": "گنتی ہو رہی ہے…",
+    "filterClearAll": "سب صاف کریں",
+    "catPackages": "پیکجز"
   },
   "OrderContext": {
     "hint": "کچھ بھی بدلنے پر قیمتیں اور کوریج فوراً اپ ڈیٹ ہوتی ہیں",
@@ -4234,6 +4254,10 @@
         "title": "{name} | Nabd Plus صحت کی دیکھ بھال",
         "description": "{city} میں {name}۔ خصوصی طبی خدمات، قبول شدہ انشورنس اور تصدیق شدہ ڈاکٹر۔",
         "country": "سعودی عرب"
+      },
+      "nursingService": {
+        "title": "{city} میں گھر پر {service} | نبض پلس",
+        "description": "{city} میں گھر پر {service}: قیمت دیکھیں اور نبض پلس پر نرس کی وزٹ آن لائن بک کریں۔"
       }
     },
     "ld": {
@@ -4247,7 +4271,22 @@
       "crumbPharmacy": "فارمیسی",
       "crumbFacilities": "ہسپتال اور کلینک",
       "crumbHealthGuide": "صحت گائیڈ",
-      "crumbDoctors": "ڈاکٹر"
+      "crumbDoctors": "ڈاکٹر",
+      "nursingServiceCity": "{city} میں گھریلو نرسنگ وزٹ کے طور پر {service}"
+    },
+    "nursingService": {
+      "title": "{city} میں گھر پر {service}",
+      "intro": "{city} میں گھر پر {service} بک کریں: نبض پلس کے ذریعے نرس آپ کے پاس آتی ہے۔",
+      "about": "اس خدمت کے بارے میں",
+      "priceTitle": "قیمت",
+      "priceFrom": "{price} سے شروع",
+      "priceRange": "{low} سے {high} تک",
+      "providers": "یہ خدمت دینے والی نرسوں کی تعداد: {count}",
+      "book": "یہ خدمت بک کریں",
+      "emptyTitle": "ابھی کوئی نرس {service} فراہم نہیں کرتی",
+      "emptyBody": "جب کوئی نرس {service} فراہم کرنا شروع کرے گی تو ہم آپ کو بتا دیں گے۔ اطلاع کی درخواست کریں۔",
+      "relatedTitle": "{city} میں گھریلو نرسنگ کی مزید خدمات",
+      "allServices": "{city} میں گھریلو نرسنگ کی تمام خدمات"
     }
   },
   "InsuranceWeb": {
@@ -5017,7 +5056,8 @@
     "faqRx": "کیا {name} کے لیے نسخہ ضروری ہے؟",
     "faqIngredient": "{name} کا فعال جزو کیا ہے؟",
     "faqPrice": "نبض پلس پر {name} کی قیمت کیا ہے؟",
-    "howToTitle": "{name} استعمال کرنے کا طریقہ"
+    "howToTitle": "{name} استعمال کرنے کا طریقہ",
+    "nursingServiceWho": "{service} نبض پلس پر گھریلو نرسنگ کی خدمت ہے: نرس {city} میں آپ کے گھر آتی ہے۔ قیمت دیکھیں اور آن لائن بک کریں۔"
   },
   "LogForms": {
     "saveError": "محفوظ نہیں ہو سکا۔ آپ کا لکھا ہوا برقرار ہے، دوبارہ کوشش کریں۔",

@@ -55,8 +55,7 @@ export function SettingsHubView() {
         <Row icon="lock" tone="violet" title={k('set.privacy')} subtitle={k('set.privacyHint')} onPress={go('/settings/privacy')} testID="settings-privacy" />
         <Row icon="shield-check" tone={CARE_TONE} title={k('set.security')} subtitle={k('set.securityHint')} onPress={go('/settings/security')} testID="settings-security" />
         <Row icon="globe" tone="blue" title={k('set.language')} subtitle={k('set.languageHint')} onPress={go('/settings/language')} testID="settings-language" />
-        <Row icon="headset" tone="ink" title={k('set.help')} subtitle={k('set.helpHint')} onPress={go('/settings/help')} testID="settings-help" />
-        <Row icon="info" tone="blue" title={k('set.about')} subtitle={k('set.aboutHint')} onPress={go('/settings/about')} last testID="settings-about" />
+        <Row icon="headset" tone="ink" title={k('set.helpPolicies')} subtitle={k('set.helpPoliciesHint')} onPress={go('/settings/help')} last testID="settings-help" />
       </Panel>
       <Button label={k('set.signOut')} variant="outline" size="lg" fullWidth startIcon="sign-out" onPress={signOut} theme={theme} testID="settings-sign-out" />
       {version ? <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.tertiary, textAlign: 'center' }}>{k('set.version', { version })}</Text> : null}

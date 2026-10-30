@@ -171,6 +171,7 @@ describe("the 13 landing pages stay clean", () => {
     "doctors/[specialty]/[city]/[neighborhood]",
     "facility/[slug]",
     "home-nursing/[citySlug]",
+    "home-nursing/[citySlug]/[serviceSlug]",
     "labs/[testSlug]/[citySlug]",
     "radiology/[serviceSlug]/[citySlug]",
     "services/[serviceSlug]/[citySlug]",

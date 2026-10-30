@@ -151,6 +151,10 @@ MedicineSchema.index({ ...PUBLIC_LIVE, ...POPULAR_FIELDS }, { name: 'public_popu
 // A category page, the category tree and the counts: the category (and sub-category) lead, in Arabic (the root) and in English. Other languages
 // read the same shape from their translations and are served from the response cache (see seo-search.module.ts).
 MedicineSchema.index({ ...PUBLIC_LIVE, category: 1, sub_category: 1, ...POPULAR_FIELDS }, { name: 'public_category_covering_v2' });
+// The private list (GET /medicines, the app's) adds `verified: true` to the public gate (MedicinesService.buildQuery). The two indexes above do not hold `verified`, so that filter made the
+// database load every document it matched (translations in six languages, ~20 KB each) before the sort. These two carry it right after the gate, so the same page is answered from the index.
+MedicineSchema.index({ ...PUBLIC_LIVE, verified: 1, ...POPULAR_FIELDS }, { name: 'public_verified_popular_covering_v1' });
+MedicineSchema.index({ ...PUBLIC_LIVE, verified: 1, category: 1, sub_category: 1, ...POPULAR_FIELDS }, { name: 'public_verified_category_covering_v1' });
 MedicineSchema.index({ ...PUBLIC_LIVE, 'translations.en.main_category': 1, 'translations.en.sub_category': 1, ...POPULAR_FIELDS }, { name: 'public_category_en_covering_v2' });
 // The product id (a uuid string, not _id) is how the product page's related reads, the cart and orders find a product.
 MedicineSchema.index({ id: 1 }, { name: 'id_1' });

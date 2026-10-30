@@ -45,7 +45,7 @@
     "menuOpen": "মেনু",
     "menuClose": "মেনু বন্ধ করুন",
     "menuProfile": "আমার অ্যাকাউন্ট",
-    "menuOrders": "আমার অর্ডার",
+    "menuOrders": "আমার অর্ডার ও ফলাফল",
     "menuFamily": "পরিবার",
     "menuArticles": "নিবন্ধ",
     "menuSettings": "সেটিংস",
@@ -306,10 +306,17 @@
     "unavailable": "ক্যাটালগের তথ্য এখন পাওয়া যাচ্ছে না। অনুগ্রহ করে পরে আবার চেষ্টা করুন।"
   },
   "Orders": {
-    "title": "আমার অর্ডার",
+    "title": "আমার অর্ডার ও ফলাফল",
     "tabsLabel": "অর্ডারের অবস্থা",
     "tabCurrent": "চলমান",
     "tabPrevious": "আগের",
+    "tabResults": "ফলাফল ও রিপোর্ট",
+    "resultReady": "ফলাফল প্রস্তুত",
+    "resultView": "ফলাফল দেখুন",
+    "resultPdf": "PDF",
+    "resultBook": "পরামর্শ বুক করুন",
+    "emptyResultsTitle": "কোনো ফলাফল প্রস্তুত নেই",
+    "emptyResultsBody": "ল্যাব ও রেডিওলজির ফলাফল প্রস্তুত হলে এখানে দেখা যাবে।",
     "pharmacyOrder": "ফার্মেসি অর্ডার",
     "orderRef": "#{number}",
     "itemsCount": "{count, plural, one {# পণ্য} other {# পণ্য}}",
@@ -3583,7 +3590,20 @@
     "notifyMe": "পাওয়া গেলে আমাকে জানান",
     "notifyMeDone": "আপনি তালিকায় আছেন। কোনো কেন্দ্র এটি দিলে আমরা আপনাকে জানাব।",
     "notifyMeSignIn": "জানতে সাইন ইন করুন",
-    "notifyMeFailed": "সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।"
+    "notifyMeFailed": "সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
+    "filterOpen": "ফিল্টার",
+    "filterOpenCount": "ফিল্টার ({n}টি চালু)",
+    "filterSheetTitle": "ফলাফল ফিল্টার করুন",
+    "filterClose": "ফিল্টার বন্ধ করুন",
+    "filterMore": "আরও বিকল্প",
+    "sortPopular": "সবচেয়ে বেশি চাওয়া",
+    "noFasting": "উপবাস লাগে না",
+    "sameDay": "একই দিনে ফলাফল",
+    "showResults": "{count}টি ফলাফল দেখান",
+    "showResultsMore": "{count}টির বেশি ফলাফল দেখান",
+    "filterCounting": "গণনা চলছে…",
+    "filterClearAll": "সব মুছুন",
+    "catPackages": "প্যাকেজ"
   },
   "OrderContext": {
     "hint": "কিছু বদলালেই দাম ও কভারেজ সঙ্গে সঙ্গে হালনাগাদ হয়",
@@ -4234,6 +4254,10 @@
         "title": "{name} | Nabd Plus স্বাস্থ্যসেবা",
         "description": "{city}-এ {name}। বিশেষায়িত স্বাস্থ্যসেবা, গ্রহণযোগ্য বিমা ও যাচাইকৃত ডাক্তার।",
         "country": "সৌদি আরব"
+      },
+      "nursingService": {
+        "title": "{city}-এ বাড়িতে {service} | নাবদ প্লাস",
+        "description": "{city}-এ বাড়িতে {service}: মূল্য দেখুন এবং নাবদ প্লাসে অনলাইনে নার্সের ভিজিট বুক করুন।"
       }
     },
     "ld": {
@@ -4247,7 +4271,22 @@
       "crumbPharmacy": "ফার্মেসি",
       "crumbFacilities": "হাসপাতাল ও ক্লিনিক",
       "crumbHealthGuide": "স্বাস্থ্য গাইড",
-      "crumbDoctors": "ডাক্তার"
+      "crumbDoctors": "ডাক্তার",
+      "nursingServiceCity": "{city}-এ হোম নার্সিং ভিজিট হিসেবে {service}"
+    },
+    "nursingService": {
+      "title": "{city}-এ বাড়িতে {service}",
+      "intro": "{city}-এ বাড়িতে {service} বুক করুন: নাবদ প্লাসের মাধ্যমে নার্স আপনার বাড়িতে আসেন।",
+      "about": "এই সেবা সম্পর্কে",
+      "priceTitle": "মূল্য",
+      "priceFrom": "{price} থেকে শুরু",
+      "priceRange": "{low} থেকে {high} পর্যন্ত",
+      "providers": "এই সেবা দেন এমন নার্সের সংখ্যা: {count}",
+      "book": "এই সেবা বুক করুন",
+      "emptyTitle": "এখনও কোনো নার্স {service} দিচ্ছেন না",
+      "emptyBody": "কোনো নার্স {service} দেওয়া শুরু করলে আমরা আপনাকে জানাব। জানানোর অনুরোধ করুন।",
+      "relatedTitle": "{city}-এ আরও হোম নার্সিং সেবা",
+      "allServices": "{city}-এ সব হোম নার্সিং সেবা"
     }
   },
   "InsuranceWeb": {
@@ -5017,7 +5056,8 @@
     "faqRx": "{name}-এর জন্য কি প্রেসক্রিপশন লাগে?",
     "faqIngredient": "{name}-এর সক্রিয় উপাদান কী?",
     "faqPrice": "নাবদ প্লাসে {name}-এর দাম কত?",
-    "howToTitle": "{name} কীভাবে ব্যবহার করবেন"
+    "howToTitle": "{name} কীভাবে ব্যবহার করবেন",
+    "nursingServiceWho": "{service} নাবদ প্লাসের একটি হোম নার্সিং সেবা: নার্স {city}-এ আপনার বাড়িতে আসেন। মূল্য দেখুন ও অনলাইনে বুক করুন।"
   },
   "LogForms": {
     "saveError": "সংরক্ষণ করা যায়নি। আপনি যা লিখেছেন তা রাখা আছে, আবার চেষ্টা করুন।",

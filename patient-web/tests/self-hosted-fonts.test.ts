@@ -5,7 +5,7 @@ import { resolve } from "node:path";
 /*
  * Handoff §1: Readex Pro in all six languages with Noto fallbacks, self-hosted.
  * app/fonts.ts loads the faces through next/font/local; app/globals.css puts them
- * first on .shell, per locale. The order must stay the one in tokens.json
+ * first on <body> (html[lang] body), per locale. The order must stay the one in tokens.json
  * (font.family.locale), which is the single place a font stack is written down.
  */
 
@@ -45,14 +45,31 @@ describe("self-hosted fonts", () => {
     expect(css).not.toMatch(/fonts\.googleapis\.com|Tajawal|--font-tajawal/);
   });
 
-  it("puts the self-hosted faces first on .shell, in the token order for each locale", () => {
+  it("puts the self-hosted faces first on <body> (html[lang] body), in the token order for each locale", () => {
     for (const [locale, stack] of Object.entries(tokens.font.family.locale)) {
-      const rule = css.match(new RegExp(`\\.shell\\[lang="${locale}"\\]\\s*\\{\\s*font-family:\\s*([^;]+);`));
-      expect(rule, `.shell[lang="${locale}"] font-family`).not.toBeNull();
+      const rule = css.match(new RegExp(`html\\[lang="${locale}"\\] body\\s*\\{\\s*font-family:\\s*([^;]+);`));
+      expect(rule, `html[lang="${locale}"] body font-family`).not.toBeNull();
       const used = [...(rule?.[1] ?? "").matchAll(/var\((--[a-z-]+)\)/g)].map((m) => m[1]);
       const expected = families(stack).filter((f) => f in SELF_HOSTED).map((f) => SELF_HOSTED[f]);
       // the self-hosted faces in token order, then the token stack itself as the fallback
       expect(used, locale).toEqual([...expected, `--nabd-font-${locale}`]);
     }
+  });
+
+  it("sets the font variables on <body>, the ancestor of every portal, not on .shell", () => {
+    const layout = readFileSync(web("app/[locale]/layout.tsx"), "utf8");
+    expect(layout).toMatch(/<body className=\{fontVariables\}>/);
+    expect(layout).not.toMatch(/shell \$\{fontVariables\}/);
+  });
+
+  it("names a Nastaliq/Urdu face only in the ur rule, the generated stacks and the variable fallbacks", () => {
+    const rules = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].filter(([, , body]) => /font-family:[^;]*(Nastaliq|nastaliq)/.test(body));
+    for (const [, sel] of rules) {
+      const selector = sel.trim();
+      expect(/lang="ur"/.test(selector) || selector === "body" || selector.startsWith("@media"), selector).toBe(true);
+    }
+    const arRule = css.match(/html\[lang="ar"\] body\s*\{\s*font-family:\s*([^;]+);/)?.[1] ?? "";
+    expect(arRule).not.toMatch(/nastaliq|-ur\b/);
+    expect(arRule.split(",")[0]).toContain("--font-readex-pro");
   });
 });
