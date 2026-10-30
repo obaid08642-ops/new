@@ -8,6 +8,7 @@ import { CallButton, CallIdentity, useCallUi } from '../../src/components/consul
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
 import { TelehealthConsentSheet, isTelehealthConsentRefusal } from '../../src/components/legal/TelehealthConsent';
+import { ensureLiveKitGlobals, startCallAudio, stopCallAudio } from '../../src/calls/livekitNative';
 
 /**
  * Video call — no board (owner decision, 2026-10-04): the layout stays, drawn with the dark tokens, the font and
@@ -26,6 +27,9 @@ try {
 } catch {
   VideoView = null;
 }
+
+// WebRTC globals before the first Room (livekit-client needs them on a native build)
+ensureLiveKitGlobals();
 
 interface Session {
   session_id?: string;
@@ -101,6 +105,8 @@ export default function VideoCallScreen() {
           audioBitrate: 32_000,
           dtx: true,
         };
+        ensureLiveKitGlobals();
+        await startCallAudio();
         const newRoom = new Room({
           adaptiveStream: true,
           dynacast: true,
@@ -157,6 +163,7 @@ export default function VideoCallScreen() {
       if (activeRoom) {
         void activeRoom.disconnect();
       }
+      void stopCallAudio();
     };
   }, [appointmentId, attempt]);
 
