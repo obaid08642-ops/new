@@ -94,6 +94,9 @@ export function mapWebSegments(parts: readonly string[]): string | null {
       return '/services';
     case 'orders':
       return '/orders';
+    // The provider map (the home screen's map tile opens the same screen)
+    case 'map':
+      return '/map';
     // Web /chat redirects to the appointments list; a thread id is not an app appointment id
     case 'chat':
       return '/consultations/appointments';
