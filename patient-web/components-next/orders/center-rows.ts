@@ -1,5 +1,5 @@
 import { extractAppointmentRows } from "@/lib/api/appointments";
-import { pickName } from "@/lib/i18n/localized";
+import { resolveWithMark, type FieldMark } from "@/lib/i18n/localized-field";
 import { extractDiagnosticBookings } from "@/lib/api/diagnostics";
 import { extractNursingVisits } from "@/lib/api/nursing-visits";
 import { isPast, modeOf, statusKey as appointmentStatusKey, statusTone as appointmentTone } from "@/lib/consult/appointment-view";
@@ -36,6 +36,8 @@ export type CenterRow = {
   icon: FillIconName;
   tone: ServiceTone;
   title: string;
+  /** Set when the title is not in the page language (drawn with its own lang/dir and the "available in X only" note). */
+  titleMark?: FieldMark;
   /** The order number ("#A1B2C3") for a pharmacy order, otherwise the service kind; drawn before the date. */
   meta: string;
   /** ISO instant of the visit, or of the request when the service has no visit time. */
@@ -142,6 +144,7 @@ export type ResultRow = {
   icon: FillIconName;
   tone: ServiceTone;
   title: string;
+  titleMark?: FieldMark;
   /** ISO instant of the booking (the payload has no report-ready time). */
   at?: string;
   /** The booking page, where the result is shown. */
@@ -149,6 +152,13 @@ export type ResultRow = {
   /** The report file (labs only: GET labs/bookings/:id/reports/:reportId through the patient BFF); absent when the booking holds no file. */
   pdfHref?: string;
 };
+
+/** A booking's test or scan name: never blank, the page language first, else the other one with its mark (lib/i18n/localized-field.ts). */
+function bookingTitle(locale: string, domain: "labs" | "radiology", booking: { testNames?: Record<string, string | undefined>; scanNames?: Record<string, string | undefined> }, l: CenterLabels): { title: string; titleMark?: FieldMark } {
+  const names = domain === "labs" ? booking.testNames : booking.scanNames;
+  const { text, mark } = resolveWithMark({ locale, ar: names?.ar, en: names?.en });
+  return text ? { title: text, titleMark: mark } : { title: l.diagnostics(domain === "labs" ? "labs.label" : "radiology.label") };
+}
 
 /** The bookings whose report is ready (`hasReport`), newest first. */
 export function resultRows(locale: string, domain: "labs" | "radiology", payload: unknown, l: CenterLabels): ResultRow[] {
@@ -158,7 +168,7 @@ export function resultRows(locale: string, domain: "labs" | "radiology", payload
       key: `result-${domain}-${booking.id}`,
       domain,
       ...KIND_VISUAL[domain],
-      title: domain === "labs" ? pickName(locale, booking.testNames) ?? l.diagnostics("labs.label") : pickName(locale, booking.scanNames) ?? l.diagnostics("radiology.label"),
+      ...bookingTitle(locale, domain, booking, l),
       at: booking.scheduledAt,
       viewHref: diagnosticBookingHref(locale, domain, booking.id),
       pdfHref: domain === "labs" && booking.reportIds?.[0] ? `/api/patient/labs/bookings/${encodeURIComponent(booking.id)}/reports/${encodeURIComponent(booking.reportIds[0])}` : undefined,
@@ -169,15 +179,12 @@ export function diagnosticRows(locale: string, domain: "labs" | "radiology", pay
   return extractDiagnosticBookings(payload).map((booking) => {
     const status = diagStatus(booking.state);
     const href = diagnosticBookingHref(locale, domain, booking.id);
-    const title = domain === "labs"
-      ? pickName(locale, booking.testNames) ?? l.diagnostics("labs.label")
-      : pickName(locale, booking.scanNames) ?? l.diagnostics("radiology.label");
     return {
       key: `${domain}-${booking.id}`,
       kind: domain,
       href,
       ...KIND_VISUAL[domain],
-      title,
+      ...bookingTitle(locale, domain, booking, l),
       meta: l.orders(`kind.${domain}`),
       at: booking.scheduledAt,
       statusLabel: status.key === "unknown" ? l.diagnostics("statusUnavailable") : l.diagWeb(`status_${status.key}`),

@@ -2,6 +2,7 @@ import { getImageProps } from "next/image";
 import { useTranslations } from "next-intl";
 import { AddedRegion, AddToCartButton } from "./add-to-cart-button";
 import { ProductCardStatic } from "./product-card-static";
+import { markByScript } from "@/lib/i18n/localized-field";
 import { promoPercent } from "@/lib/discount";
 import { formatNumber, formatPrice } from "@/lib/format-price";
 import { allowedImageUrl } from "@/lib/image-hosts";
@@ -86,6 +87,7 @@ export function ProductGrid({
             <li key={item.id} className={styles.cell}>
               <ProductCardStatic
                 name={item.name}
+                nameMark={markByScript(locale, item.name)}
                 meta={[item.form, item.strength, item.packageSize].filter(Boolean).join(" · ") || undefined}
                 price={priced ? money.amount : t("priceUnavailable")}
                 currency={priced ? money.currency : undefined}

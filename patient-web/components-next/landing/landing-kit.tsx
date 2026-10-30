@@ -1,3 +1,5 @@
+import { FieldText } from "@/components-next/ui/localized-field";
+import type { FieldMark } from "@/lib/i18n/localized-field";
 import { DIRECT_ANSWER_CLASS } from "@/components-next/seo/direct-answer";
 import type { ReactNode } from "react";
 import { ConsultPage } from "@/components-next/consult/consult-page";
@@ -52,13 +54,13 @@ export function EntityRow({ locale, href, icon, tone, title, sub }: { locale: Lo
 }
 
 /** A listed service, test or pharmacy: its tile, name and line, short facts as chips, and one action as a page link. */
-export function ServiceCard({ icon, tone, title, sub, chips = [], chipTone, actionHref, actionLabel }: { icon: FillIconName; tone: ServiceTone; title: string; sub?: string; chips?: string[]; chipTone?: ServiceTone; actionHref: string; actionLabel: string }) {
+export function ServiceCard({ icon, tone, title, titleMark, sub, chips = [], chipTone, actionHref, actionLabel }: { icon: FillIconName; tone: ServiceTone; title: string; /** Set when the title is not in the page language (its lang/dir and the note). */ titleMark?: FieldMark; sub?: string; chips?: string[]; chipTone?: ServiceTone; actionHref: string; actionLabel: string }) {
   return (
     <article className={`${rx.card} ${styles.card}`}>
       <div className={styles.cardHead}>
         <FIcon icon={icon} tone={tone} size={44} />
         <div className={styles.cardText}>
-          <h3 className={styles.cardTitle}>{title}</h3>
+          <h3 className={styles.cardTitle}><FieldText text={title} mark={titleMark} /></h3>
           {sub ? <p className={styles.cardSub}>{sub}</p> : null}
         </div>
       </div>

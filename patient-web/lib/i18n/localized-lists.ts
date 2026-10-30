@@ -1,4 +1,5 @@
 import type { Texts } from "./localized";
+import { resolveLocalizedList } from "./localized-field";
 
 /** A catalogue list field (preparation steps) in every language the server holds it in: `<field>_<language>` arrays of text. */
 export type TextLists = Partial<Record<keyof Texts, string[]>>;
@@ -18,11 +19,8 @@ export function listsOf(row: Record<string, unknown>, field: string): TextLists 
   return out;
 }
 
-/** The list in the page's language, falling back as the pages always did (Arabic for ar and ur, English for the rest). */
+/** The list in the page's language, else the other language (English before Arabic on ur/hi/bn/fil; localized-field.ts). */
 export function pickList(locale: string, lists: TextLists | undefined): string[] {
   if (!lists) return [];
-  const own = lists[SUFFIX[locale] ?? "en"];
-  if (own?.length) return own;
-  const rtl = locale === "ar" || locale === "ur";
-  return (rtl ? lists.ar ?? lists.en : lists.en ?? lists.ar) ?? [];
+  return resolveLocalizedList({ locale, ar: lists.ar, en: lists.en, perLocale: { ur: lists.ur, hi: lists.hi, bn: lists.bn, tl: lists.tl } }).items;
 }
