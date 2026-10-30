@@ -1,10 +1,8 @@
-# 2026-10-30 lead reviewer: run 55 (owner approves after reading run 54's counts).
-# 1. 90-catalogue-apply APPLY of the owner-approved completion (plan 7fdffbb7..., 535 changes: radiology catalogue 42 sets, duplicates merged 264 sets,
-#    completion 121 sets + 108 new rows; nothing deleted). Backup of every changed field and inserted row first, guarded writes, a fresh plan must be empty,
-#    any mismatch rolls back from the backup. Runs in the worker (--only=catalogue_completion).
-# 2. 92-recreate-datastores APPLY (#2142): fresh mongodump verified first; redis recreated, then mongodb (about a minute of MongoDB unavailability,
-#    downtime printed in seconds), livekit/coturn only with no active call; memory report after; any failure puts the service back without limits.
-# 3. Purge the API cache so the catalogue changes show.
-90-catalogue-apply
+# 2026-10-30 lead reviewer: run 56.
+# 1. 97-free-old-predeploy: remove the old pre-deploy dumps (four deploys today, 337 MB each) so the backup disk has room.
+# 2. 92-recreate-datastores APPLY (#2142 + #2150): run 55 aborted safely with a 0-byte backup (nothing was stopped). This version prints the
+#    room (host and container /tmp), aborts under 2 GB free, and prints every backup step's result; then, only with a verified backup:
+#    recreate redis, then mongodb (about a minute of MongoDB unavailability, printed in seconds), livekit/coturn only with no active call;
+#    memory report after; any failure puts the service back without limits.
+97-free-old-predeploy
 92-recreate-datastores
-cf-purge-api

@@ -69,17 +69,26 @@ if [ "$APPLY" != yes ]; then
   exit 0
 fi
 
-# --- 1. backup (same dump as the deploy task) and copies of the compose files
+# --- 1. backup (the deploy task's own steps: mongodump inside nabdah-mongodb, docker cp to $B, size and gzip checks), with the result of EVERY step printed
+errclass() { printf '%s' "${1:-}" | tr -c 'A-Za-z0-9_\n-' ' ' | awk 'NF {print substr($1, 1, 24); f=1; exit} END {if (!f) print "none"}'; }
 sudo -n mkdir -p "$B"
 DUMP=$B/pre-recreate-$TS.gz
-$DK exec nabdah-mongodb sh -c 'mongodump --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --gzip --archive=/tmp/pre-recreate.gz' \
-  && $DK cp nabdah-mongodb:/tmp/pre-recreate.gz "$DUMP" >/dev/null 2>&1
-$DK exec nabdah-mongodb rm -f /tmp/pre-recreate.gz
+# room first: a full dump is a few hundred MB on the host disk (and in the container's /tmp on the same disk)
+FREE_MB=$(df -Pm "$B" 2>/dev/null | awk 'NR==2 {print $4}')
+TMP_FREE_MB=$($DK exec nabdah-mongodb df -Pm /tmp 2>/dev/null | awk 'NR==2 {print $4}')
+say "backup room: host_free_mb=${FREE_MB:-?} container_tmp_free_mb=${TMP_FREE_MB:-?} MemAvailable=$(mem_available_mb)MB"
+[ "${FREE_MB:-0}" -ge "${MIN_FREE_MB:-2048}" ] 2>/dev/null || { say "ABORT only ${FREE_MB:-?} MB free where the backup goes (need ${MIN_FREE_MB:-2048}): nothing was stopped"; exit 1; }
+DUMP_ERR=$($DK exec nabdah-mongodb sh -c 'mongodump --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --gzip --archive=/tmp/pre-recreate.gz' 2>&1 >/dev/null); DUMP_RC=$?
+CP_RC=skipped; CP_ERR=""
+if [ $DUMP_RC -eq 0 ]; then CP_ERR=$($DK cp nabdah-mongodb:/tmp/pre-recreate.gz "$DUMP" 2>&1 >/dev/null); CP_RC=$?; fi
+$DK exec nabdah-mongodb rm -f /tmp/pre-recreate.gz >/dev/null 2>&1
 sudo -n chmod 600 "$DUMP" 2>/dev/null
-SZ=$(sudo -n stat -c %s "$DUMP" 2>/dev/null || echo 0)
+SZ=$(sudo -n stat -c %s "$DUMP" 2>/dev/null); STAT_RC=$?
+SZ=${SZ:-0}
 LAST=$(sudo -n sh -c "ls -t $B/nabd_*.gz 2>/dev/null | head -1")
 LASTSZ=$([ -n "$LAST" ] && sudo -n stat -c %s "$LAST" || echo 0)
-[ "$SZ" -gt 1048576 ] && [ "$SZ" -ge $((LASTSZ / 2)) ] || { say "ABORT backup too small ($SZ bytes; last nightly $LASTSZ): nothing was stopped"; exit 1; }
+say "backup steps: mongodump rc=$DUMP_RC err=$(errclass "$DUMP_ERR") ; docker cp rc=$CP_RC err=$(errclass "$CP_ERR") ; stat rc=$STAT_RC size_bytes=$SZ ; last nightly $LASTSZ"
+[ "$SZ" -gt 1048576 ] && [ "$SZ" -ge $((LASTSZ / 2)) ] || { say "ABORT backup too small ($SZ bytes; last nightly $LASTSZ; see the steps above): nothing was stopped"; exit 1; }
 sudo -n gzip -t "$DUMP" 2>/dev/null || { say "ABORT backup is not a valid gzip: nothing was stopped"; exit 1; }
 say "backup ok ($(basename "$DUMP"), $((SZ / 1048576)) MB; last nightly $((LASTSZ / 1048576)) MB)"
 for f in docker-compose.production.yml docker-compose.release.yml; do sudo -n test -f "$D/$f" && sudo -n cp -p "$D/$f" "$B/recreate-$TS-$f"; done
