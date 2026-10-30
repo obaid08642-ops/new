@@ -1,4 +1,5 @@
 #!/bin/bash
+# ops-detach: runs detached on the server (see server-inspect.yml); run 60 fed it through `bash -s`, and the dump container's `docker run -i` read the rest of the script from stdin, so it ended silently after the dump.
 # Recreate ONLY nabdah-mongodb so the new memory settings apply (docker-compose.production.yml: limit and memswap 1600m, healthcheck 30s/10s/5/60s; mongod.conf: WiredTiger cache 0.6 GB).
 # Two runs of the same task. Prints `status:` lines only: names, counts and sizes, never a secret (the credentials come from the container's own environment, the dump tool gets the
 # password in a mode-600 file). The data volume is NEVER touched: no `down`, no `-v`, no volume removal; only `up -d --no-deps --force-recreate mongodb`.

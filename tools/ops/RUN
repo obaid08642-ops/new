@@ -1,10 +1,6 @@
-# 2026-10-30 lead reviewer: run 60 (URGENT: nabdah-mongodb restarts=37 under the old 1200m cap; the deployed compose now says 1600m).
-# 1. 94-mongo-recreate APPLY (#2186): pre-checks, a one-off backup (must be >1 MB, >= half the last nightly, gzip ok, mongorestore --dryRun lists it),
-#    compose files copied, then ONLY mongodb recreated with 1600m (about a minute of downtime); waits healthy + PRIMARY + API ready. Data volume untouched.
-# 2. 90b-catalogue-prune APPLY: run 59's plan (102 deletions of unreferenced duplicate rows, 0 referenced; owner: wrong/duplicate rows are deleted,
-#    never hidden). The task re-plans and writes only if the hash still ends with run 59's (the log masked its middle); backup first, verify, rollback.
-#    The 90 "duplicates" step (hides 38 rows) is NOT applied: the owner wants deletion, which the prune does.
-# 3. Purge the API cache.
+# 2026-10-30 lead reviewer: run 61 (URGENT: nabdah-mongodb restarts=38, 94.6% of the old 1200m cap).
+# Run 60: the catalogue prune applied and verified (102 unreferenced duplicates deleted, backup saved). 94-mongo-recreate stopped silently right
+# after its backup: it was piped through `bash -s` and the dump container's `docker run -i` swallowed the rest of the script. Nothing was
+# stopped. 94 now carries the ops-detach marker (runs as a file with stdin from /dev/null, like 60-deploy-main).
+# 1. 94-mongo-recreate APPLY: backup (size, gzip, mongorestore --dryRun listing) then ONLY mongodb recreated with 1600m; waits healthy, PRIMARY, API ready.
 94-mongo-recreate
-90b-catalogue-prune
-cf-purge-api
