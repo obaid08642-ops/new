@@ -153,6 +153,21 @@ jobs:
           node ../tools/perf/k6/seed-perf-data.js 21000 20000
           cd .. && python3 tools/perf/k6/fixtures.py > /tmp/k6-fixtures.json
 
+      - name: Memory sampler (peak RSS per process and the container's use, every 3 s)
+        run: |
+          mkdir -p /tmp/k6-ladder
+          cat > /tmp/memsample.sh <<'EOS'
+          #!/bin/bash
+          while :; do
+            ts=$(date +%s)
+            procs=$(docker exec stack sh -c 'for d in /proc/[0-9]*; do n=$(sed -n "s/^Name:[[:space:]]*//p" $d/status 2>/dev/null); r=$(sed -n "s/^VmRSS:[[:space:]]*\([0-9]*\) kB/\1/p" $d/status 2>/dev/null); [ -n "$r" ] && echo "$n $r"; done' 2>/dev/null | awk '{a[$1]+=$2} END{for(k in a) printf "%s=%d ",k,a[k]/1024; print ""}')
+            used=$(docker stats --no-stream --format '{{.MemUsage}}' stack 2>/dev/null | awk -F' / ' '{print $1}')
+            echo "$ts container=$used $procs"
+            sleep 3
+          done
+          EOS
+          nohup bash /tmp/memsample.sh > /tmp/k6-ladder/mem.log 2>&1 &
+
       - name: Ceiling ladder
         run: |
           mkdir -p /tmp/k6-ladder
@@ -167,6 +182,24 @@ jobs:
           k6 run -q -e VUS=16 -e DURATION=15s -e FIXTURES=/tmp/k6-fixtures.json -e ALLOW_WRITES=1 --summary-export /tmp/k6-ladder/endpoints.json tools/perf/k6/endpoints.js > /tmp/k6-ladder/endpoints.log 2>&1 || true
           python3 tools/perf/k6/endpoint-table.py /tmp/k6-ladder/endpoints.json 15 | tee /tmp/k6-ladder/endpoints.md
           { echo; echo "## Per-endpoint ceilings, ${LABEL} (16 VUs closed loop, no think time)"; echo; cat /tmp/k6-ladder/endpoints.md; } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Memory peaks
+        if: always()
+        run: |
+          pkill -f memsample.sh || true
+          python3 - <<'PY' | tee /tmp/k6-ladder/mem-peaks.md
+          import re, collections
+          peak = collections.Counter(); box = 0.0
+          for line in open('/tmp/k6-ladder/mem.log'):
+              for name, mb in re.findall(r'(\S+)=(\d+)(?=\s|$)', line):
+                  if name != 'container': peak[name] = max(peak[name], int(mb))
+              m = re.search(r'container=([\d.]+)(MiB|GiB)', line)
+              if m: box = max(box, float(m.group(1)) * (1024 if m.group(2) == 'GiB' else 1))
+          print('| process (peak resident, MB) | MB |\n|---|---|')
+          for k, v in peak.most_common(8): print(f'| {k} | {v} |')
+          print(f'\nContainer peak (docker stats, cache excluded): {box:.0f} MiB of the {int(__import__("os").environ["MEMORY"].rstrip("m"))} MiB limit')
+          PY
+          { echo; echo "## Memory, ${LABEL}"; echo; cat /tmp/k6-ladder/mem-peaks.md; } >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
