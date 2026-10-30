@@ -524,7 +524,7 @@ export function ConsultList<T>({
         style={{ flex: 1 }}
         data={status === 'loading' ? [] : data}
         keyExtractor={keyExtractor}
-        ListHeaderComponent={top ? <View style={{ paddingBottom: 16 }}>{top}</View> : null}
+        ListHeaderComponent={top ? <View style={{ paddingBottom: 16 }}>{top}</View> : undefined}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         ListEmptyComponent={
           status === 'loading' ? (
@@ -543,7 +543,7 @@ export function ConsultList<T>({
         windowSize={7}
         onEndReached={onEndReached}
         onEndReachedThreshold={0.3}
-        ListFooterComponent={listFooter}
+        ListFooterComponent={listFooter ?? undefined}
         renderItem={({ item, index }) => renderItem(item, index)}
         testID={testID ? `${testID}-list` : undefined}
       />

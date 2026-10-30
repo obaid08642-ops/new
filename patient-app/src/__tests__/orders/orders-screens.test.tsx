@@ -152,7 +152,7 @@ describe('order tracking', () => {
 
   it('draws the steps, the courier and the arrival time from the order, and calls the courier', async () => {
     mockParams.current = { orderId: 'ord-ccccdd334455' };
-    const open = jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
+    const open = jest.spyOn(Linking, 'openURL').mockResolvedValue();
     answer({ '/patient/pharmacy/orders/ord-ccccdd334455': moving });
     await render(wrap(<OrderTrackingScreen />));
     await screen.findByText(k('orders.track.eta'));

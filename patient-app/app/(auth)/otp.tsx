@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Text, TextInput, View } from 'react-native';
+import { Text, TextInput, View, type TextInputInstance } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
@@ -31,7 +31,7 @@ export default function OtpScreen() {
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
   const [timer, setTimer] = useState(60);
-  const inputs = useRef<(TextInput | null)[]>([]);
+  const inputs = useRef<(TextInputInstance | null)[]>([]);
 
   useEffect(() => { 
     if (timer > 0) { 
@@ -214,7 +214,7 @@ export default function OtpScreen() {
             return (
               <TextInput
                 key={i}
-                ref={(el: TextInput | null) => { inputs.current[i] = el; }}
+                ref={(el: TextInputInstance | null) => { inputs.current[i] = el; }}
                 style={{
                   flex: 1,
                   minWidth: 0,

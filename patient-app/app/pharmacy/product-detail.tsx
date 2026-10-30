@@ -11,7 +11,7 @@ import {
   Text,
   View,
   useWindowDimensions,
-  type ViewToken,
+  type ListViewToken as ViewToken,
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { router, useLocalSearchParams, type Href } from 'expo-router';

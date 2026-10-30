@@ -137,7 +137,7 @@ describe('doctor thread inside a booking', () => {
     await tap(screen.getByTestId('chat-call'));
     expect(mockRouter.push).toHaveBeenCalledWith({ pathname: '/consultations/virtual-waiting-room', params: { appointmentId: 'appt-1' } });
     expect(screen.getByText(k('consult.chat.emergency'))).toBeTruthy();
-    const dial = jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
+    const dial = jest.spyOn(Linking, 'openURL').mockResolvedValue();
     await tap(screen.getByTestId('chat-emergency'));
     expect(dial).toHaveBeenCalledWith('tel:997');
   });
