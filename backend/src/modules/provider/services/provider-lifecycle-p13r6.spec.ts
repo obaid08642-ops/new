@@ -55,4 +55,18 @@ describe('P13-R6 provider suspend/reactivate propagation', () => {
     expect(seoPipeline.processEntity).toHaveBeenCalledWith(expect.objectContaining({ action: 'deactivate' }));
     expect(publication.refresh).toHaveBeenCalledWith(expect.objectContaining({ entityType: 'provider' }));
   });
+
+  it('an expired licence is reactivated only with the renewed expiry date, which is stored', async () => {
+    const { svc, profileCol, account } = setup(ProviderAccountStatus.SUSPENDED);
+    profileCol.findOne.mockResolvedValue({ id: 'prof-1', account_id: 'acc-1', type: 'lab', license_expiry_date: new Date(Date.now() - 86400000) } as any);
+    await expect(svc.reactivate(ADMIN as any, 'acc-1', { reason: 'renewed' })).rejects.toThrow('license_expired_renew_first');
+    await expect(svc.reactivate(ADMIN as any, 'acc-1', { license_expiry_date: '2020-01-01' })).rejects.toThrow('license_expiry_date_must_be_in_the_future');
+    expect(account.status).toBe(ProviderAccountStatus.SUSPENDED);   // nothing changed by the refusals
+    const renewed = new Date(Date.now() + 200 * 86400000).toISOString();
+    await svc.reactivate(ADMIN as any, 'acc-1', { reason: 'renewed', license_expiry_date: renewed });
+    expect(profileCol.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({ account_id: 'acc-1' }),
+      expect.objectContaining({ $set: expect.objectContaining({ license_expiry_date: new Date(renewed), license_status: 'active' }), $unset: { suspended_reason: '', suspended_at: '' } }),
+    );
+  });
 });
