@@ -1,6 +1,33 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsInt, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsInt, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min, ValidateNested, registerDecorator, ValidationOptions } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { ProviderType } from '../../common/enums';
+import { parsePriceText } from '../../common/service-offers';
+
+/** A price typed or sent as a number or as text ("95", "٩٥", "1,200.50"); anything else is not a price. 0 is kept (the owner rejects it where the service is ticked, not here). */
+const priceOf = (v: unknown): number | null => {
+  if (typeof v === 'number') return Number.isFinite(v) && v >= 0 ? v : null;
+  if (typeof v === 'string') return parsePriceText(v);
+  return null;
+};
+/** {serviceId: price} map as the lab/radiology wizards send it: prices become numbers; a value that is not a price is left as is so the validator names the field. */
+const toPriceMap = ({ value }: { value: unknown }) => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return value;
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+    if (typeof v === 'string' && !v.trim()) continue; // an emptied price box means no price, not an error
+    out[k] = priceOf(v) ?? v;
+  }
+  return out;
+};
+/** Every value of the map is a finite price >= 0 (after the transform above it is a number). */
+const IsPriceMap = (options?: ValidationOptions) => (target: object, key: string) =>
+  registerDecorator({
+    name: 'isPriceMap', target: target.constructor, propertyName: key, options,
+    validator: {
+      validate: (v: unknown) => !!v && typeof v === 'object' && !Array.isArray(v) && Object.values(v as Record<string, unknown>).every((x) => typeof x === 'number' && Number.isFinite(x) && x >= 0),
+      defaultMessage: () => `${key} must map each id to a price (a number, 0 or more)`,
+    },
+  });
 
 /** One working-hours row as the wizards send it (pharmacy may send day 'All' for 24/7). */
 /** NursingRegistration: { key: catalog service id, name_ar, price } per ticked service. */
@@ -593,12 +620,14 @@ export class Step3Dto {
   // Lab / radiology wizard: price lists and home-collection settings
   // free-form: {testOrScanId: price} maps
   @IsOptional()
-  @IsObject()
+  @Transform(toPriceMap)
+  @IsPriceMap()
   test_prices?: Record<string, number>;
 
   // free-form: {scanId: price}
   @IsOptional()
-  @IsObject()
+  @Transform(toPriceMap)
+  @IsPriceMap()
   scan_prices?: Record<string, number>;
 
   @IsOptional()

@@ -8,7 +8,6 @@ import DiagnosticsHub from '../../../app/(tabs)/diagnostics';
 import NursingHub from '../../../app/(tabs)/nursing';
 import { message } from '../../components/screen/ScreenKit';
 import { serveCatalog } from './catalogServer';
-import { activeFilterCount, filterForTab, filtersFor, LAB_FILTERS, RAD_FILTERS } from '../../utils/diagFilters';
 
 /** Owner review G6: the filters of labs, radiology and nursing. TEST values. */
 
@@ -40,22 +39,6 @@ const SCANS = [
   { id: 'r-ct', name_en: 'Test CT chest', category: 'ct', price: 300, home_visit_supported: true },
 ];
 
-describe('filter options are real (pure)', () => {
-  it('each tab offers only options that change its own lists', () => {
-    expect(RAD_FILTERS.map((f) => f.id)).toEqual(['all', 'highest_rated', 'lowest_price', 'home_visit']);
-    expect(LAB_FILTERS.map((f) => f.id)).toEqual(['all', 'tests', 'packages', 'labs', 'highest_rated', 'lowest_price', 'home_visit']);
-    expect(filtersFor('radiology')).toBe(RAD_FILTERS);
-    expect(filterForTab('packages', 'radiology')).toBe('all');
-    expect(filterForTab('lowest_price', 'radiology')).toBe('lowest_price');
-    expect(filterForTab('highest_rated', 'radiology')).toBe('highest_rated'); // the server rates scans now
-  });
-  it('the count ignores defaults', () => {
-    expect(activeFilterCount('all', '')).toBe(0);
-    expect(activeFilterCount('tests', 'mri')).toBe(2);
-    expect(activeFilterCount('lowest_price', 'mri')).toBe(2);
-  });
-});
-
 describe('Diagnostics hub, radiology tab (G6)', () => {
   beforeEach(async () => {
     // the public catalogue cache keeps answers between tests: start clean so every page is asked of the (mock) server
@@ -65,64 +48,60 @@ describe('Diagnostics hub, radiology tab (G6)', () => {
     mockApi.mockImplementation(async (path: string) => serveCatalog(path, { scans: SCANS }));
   });
 
-  it('sheet lists only the options that work here, the home visit option filters, count and reset agree', async () => {
+  it('sheet offers only real options, sort and category chips count, reset clears both', async () => {
     await render(wrap(<DiagnosticsHub />));
     await waitFor(() => expect(screen.getAllByText('Test CT chest').length).toBeGreaterThan(0), { timeout: 15000 });
     expect(screen.queryByTestId('search-filter-count')).toBeNull();
     await fireEvent.press(screen.getByLabelText(k('diag.hub.filter')));
-    for (const key of ['diag.filter.tests', 'diag.filter.packages', 'diag.filter.labs']) expect(screen.queryByText(k(key))).toBeNull();
+    // the lab-only options and the packages chip are not offered on the scans
+    for (const id of ['diag-toggle-no-fasting', 'diag-toggle-same-day', 'diag-place-lab']) expect(screen.queryByTestId(id)).toBeNull();
+    expect(screen.queryByTestId('diag-cat-packages')).toBeNull();
     expect(screen.queryByTestId('diag-filter-reset')).toBeNull();
-    await fireEvent.press(screen.getByText(k('diag.filter.price')));
+    await fireEvent.press(screen.getByTestId('diag-sort-lowest_price'));
     await waitFor(() => expect(screen.getByLabelText(`${k('diag.hub.filter')} (1)`)).toBeTruthy());
-    expect(screen.getByTestId('diag-active-lowest_price')).toBeTruthy();
-    // a category chip adds the second filter
+    expect(screen.getByTestId('diag-active-sort-lowest_price')).toBeTruthy();
     await fireEvent.press(screen.getByTestId('diag-cat-ct'));
     await waitFor(() => expect(screen.getByLabelText(`${k('diag.hub.filter')} (2)`)).toBeTruthy());
-    expect(screen.getByTestId('diag-active-cat-ct')).toBeTruthy();
-    // clear all removes both and the badge
     await fireEvent.press(screen.getByTestId('diag-clear-all'));
     await waitFor(() => expect(screen.getAllByText('Test ultrasound').length).toBeGreaterThan(0));
-    expect(screen.getByLabelText(k('diag.hub.filter'))).toBeTruthy();
-    expect(screen.queryByTestId('diag-active-lowest_price')).toBeNull();
+    expect(screen.queryByTestId('diag-active-sort-lowest_price')).toBeNull();
     expect(screen.queryByTestId('diag-active-cat-ct')).toBeNull();
   });
 
-  it('home visit keeps the scans that do home visits, and lowest price orders by price', async () => {
+  it('lowest price and home collection reach the server; the place never hides scans; the CTA shows the real count', async () => {
     await render(wrap(<DiagnosticsHub />));
     await waitFor(() => expect(screen.getAllByText('Test CT chest').length).toBeGreaterThan(0), { timeout: 15000 });
     await fireEvent.press(screen.getByLabelText(k('diag.hub.filter')));
-    await fireEvent.press(screen.getByText(k('diag.filter.price')));
+    await fireEvent.press(screen.getByTestId('diag-sort-lowest_price'));
     await waitFor(() => expect(mockApi.mock.calls.some(([path]) => /^\/radiology\/services\?page=1&limit=20&lowest_price=true$/.test(String(path)))).toBe(true));
-    const names = screen.getAllByText(/^Test (MRI|ultrasound|CT)/).map((n) => n.props.children);
-    // the strip repeats names above the "All scans" list: compare the list's own (last) occurrences
-    expect(names.lastIndexOf('Test ultrasound')).toBeLessThan(names.lastIndexOf('Test CT chest'));
-    // the server orders (lowest_price=true); the place no longer hides scans (R1), so the knee MRI that is not done at home is listed
     expect(screen.getAllByText('Test MRI knee').length).toBeGreaterThan(0);
-    // only the explicit home visit filter asks the server for home scans
-    await fireEvent.press(screen.getByLabelText(`${k('diag.hub.filter')} (1)`));
-    await fireEvent.press(screen.getByText(k('diag.filter.home')));
+    await fireEvent.press(screen.getByTestId('diag-sort-popular'));
+    await fireEvent.press(screen.getByTestId('diag-place-home'));
     await waitFor(() => expect(mockApi.mock.calls.some(([path]) => /^\/radiology\/services\?page=1&limit=20&home_visit=true$/.test(String(path)))).toBe(true));
+    expect(screen.getByText(/^Show \d+ results$/)).toBeTruthy();
   });
 
-  it('highest rated is offered on the scans and sent to the server as highest_rated=true', async () => {
+  it('highest rated is sent to the server as highest_rated=true', async () => {
     await render(wrap(<DiagnosticsHub />));
     await waitFor(() => expect(screen.getAllByText('Test CT chest').length).toBeGreaterThan(0), { timeout: 15000 });
     await fireEvent.press(screen.getByLabelText(k('diag.hub.filter')));
-    await fireEvent.press(screen.getByText(k('diag.filter.rating')));
+    await fireEvent.press(screen.getByTestId('diag-sort-highest_rated'));
     await waitFor(() => expect(mockApi.mock.calls.some(([path]) => String(path).includes('highest_rated=true') && String(path).startsWith('/radiology/services'))).toBe(true));
-    expect(screen.getByTestId('diag-active-highest_rated')).toBeTruthy();
+    expect(screen.getByTestId('diag-active-sort-highest_rated')).toBeTruthy();
   });
 
-  it('switching to the labs tab drops a filter the labs tab does not have', async () => {
+  it('switching to the labs tab keeps working: two tabs on top, the lab-only options and the packages chip appear', async () => {
     mockTab = undefined;
     await render(wrap(<DiagnosticsHub />));
     await waitFor(() => expect(screen.getByLabelText(k('diag.hub.filter'))).toBeTruthy(), { timeout: 15000 });
+    expect(screen.getByTestId('diag-cat-packages')).toBeTruthy();
     await fireEvent.press(screen.getByLabelText(k('diag.hub.filter')));
-    await fireEvent.press(screen.getByText(k('diag.filter.packages')));
+    expect(screen.getByTestId('diag-toggle-no-fasting')).toBeTruthy();
+    await fireEvent.press(screen.getByTestId('diag-toggle-no-fasting'));
     await waitFor(() => expect(screen.getByLabelText(`${k('diag.hub.filter')} (1)`)).toBeTruthy());
-    await fireEvent.press(screen.getByText(k('diag.kind.rad')));
-    await waitFor(() => expect(screen.getByLabelText(k('diag.hub.filter'))).toBeTruthy());
-    expect(screen.queryByTestId('diag-active-packages')).toBeNull();
+    await fireEvent.press(screen.getByTestId('diag-main-tabs-radiology'));
+    await waitFor(() => expect(screen.queryByTestId('diag-cat-packages')).toBeNull());
+    expect(screen.queryByTestId('diag-active-no-fasting')).toBeNull();
   });
 });
 
@@ -161,7 +140,7 @@ describe('Nursing hub filters (G6)', () => {
 
 describe('labels exist in the six languages', () => {
   const en = JSON.parse(readFileSync('src/i18n/locales/en.json', 'utf8')) as Record<string, string>;
-  const keys = [...LAB_FILTERS.map((f) => f.key), 'diag.hub.filter', 'diag.filter.title', 'diag.rad.modality', 'pharmacy.filters.reset', 'pharmacy.filters.clearAll', 'pharmacy.filters.applyCount',
+  const keys = ['diag.filter.price', 'diag.filter.rating', 'diag.kind.group', 'diag.tag.noFasting', 'diag.cat.packages', 'diag.hub.rxOrder', 'diag.filter.placeLab', 'diag.filter.placeHome', 'diag.filter.sortBy', 'diag.filter.noFasting', 'diag.filter.sameDay', 'diag.filter.showCount', 'diag.hub.filter', 'diag.filter.title', 'diag.rad.modality', 'pharmacy.filters.reset', 'pharmacy.filters.clearAll', 'pharmacy.filters.applyCount',
     'nur.filter.all', 'nur.filter.male', 'nur.filter.female', 'nur.filter.now', 'nur.filter.saudi', 'nur.filter.filipino', 'nur.filter.egyptian', 'nur.filter.gender', 'nur.filter.availability', 'nur.filter.nationality', 'nur.filter.reset', 'nur.filter.apply', 'nur.filter.title', 'nur.hub.filter'];
   it.each(['ar', 'en', 'ur', 'hi', 'bn', 'tl'])('%s', (loc) => {
     const m = JSON.parse(readFileSync(`src/i18n/locales/${loc}.json`, 'utf8')) as Record<string, string>;

@@ -14,6 +14,8 @@ export interface DiagCatalog {
   /** A later page is loading. */
   loadingMore: boolean;
   hasMore: boolean;
+  /** The server's `total` for the current search / sort / category (null for a plain-array answer). */
+  total: number | null;
   failed: 'error' | 'offline' | null;
   loadMore: () => void;
   reload: () => void;
@@ -31,6 +33,7 @@ export function useDiagCatalog(kind: DiagKind, enabled: boolean, params: Params)
   const [loading, setLoading] = useState(enabled);
   const [loadingMore, setLoadingMore] = useState(false);
   const [more, setMore] = useState(false);
+  const [total, setTotal] = useState<number | null>(null);
   const [failed, setFailed] = useState<DiagCatalog['failed']>(null);
   const page = useRef(0);
   const token = useRef(0);
@@ -56,11 +59,13 @@ export function useDiagCatalog(kind: DiagKind, enabled: boolean, params: Params)
       page.current = 1;
       setItems(normalizeLabList(res.rows));
       setMore(hasMorePages(res, 1, limit));
+      setTotal(res.total);
     } catch (err) {
       const why = await fail(err);
       if (mine !== token.current) return;
       setItems([]);
       setMore(false);
+      setTotal(null);
       setFailed(why);
     } finally {
       if (mine === token.current) {
@@ -106,5 +111,5 @@ export function useDiagCatalog(kind: DiagKind, enabled: boolean, params: Params)
     })();
   }, [kind, more]);
 
-  return { items, loading, loadingMore, hasMore: more, failed, loadMore, reload: () => void loadFirst() };
+  return { items, loading, loadingMore, hasMore: more, total, failed, loadMore, reload: () => void loadFirst() };
 }

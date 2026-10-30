@@ -1,9 +1,8 @@
 import { readFileSync } from 'node:fs';
 
-import { catalogPath, DIAG_MAX_LIMIT, hasMorePages, parseCatalogPage, serverCategoryOf, sortOfFilter } from '../../utils/diagCatalogApi';
+import { catalogPath, DIAG_MAX_LIMIT, hasMorePages, parseCatalogPage, serverCategoryOf } from '../../utils/diagCatalogApi';
 import { catalogArt, itemRating } from '../../utils/diagCatalog';
 import { normalizeLabList } from '../../utils/labMappers';
-import { RAD_FILTERS } from '../../utils/diagFilters';
 import { artOfBackendCategory } from '../../../../packages/ui/icons/diag-art';
 
 jest.mock('react-native-localize', () => ({ getLocales: () => [], findBestLanguageTag: () => undefined }));
@@ -23,16 +22,10 @@ describe('parameters the backend takes', () => {
     expect(catalogPath('lab', { page: 0 })).toContain('page=1&');
     expect(catalogPath('lab', { page: 1, category: 'a&b=c' })).not.toContain('category');
   });
-  it('maps the sheet option to the backend flag and the scan chip to the category', () => {
-    expect(sortOfFilter('highest_rated')).toBe('highest_rated');
-    expect(sortOfFilter('lowest_price')).toBe('lowest_price');
-    expect(sortOfFilter('home_visit')).toBeUndefined();
+  it('maps the scan chip to the category', () => {
     expect(serverCategoryOf('radiology', 'ct')).toBe('ct');
     expect(serverCategoryOf('radiology', 'all')).toBeUndefined();
     expect(serverCategoryOf('lab', 'hormones')).toBeUndefined(); // test chips stay a client filter
-  });
-  it('offers highest rated on the scans too', () => {
-    expect(RAD_FILTERS.map((f) => f.id)).toContain('highest_rated');
   });
 });
 

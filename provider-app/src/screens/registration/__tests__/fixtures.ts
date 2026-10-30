@@ -75,7 +75,7 @@ const nursingBase = {
   scfhsNumber: '4455667', scfhsExpiry: '2027-05-01', nationalId: '1090000000', crNumber: '1010303030', mohLicense: 'MOH-N-5',
   iban: IBAN, accountHolderName: 'Huda Salem',
   scfhsUri: 'file:///cache/scfhs.jpg', crUri: 'file:///cache/cr.pdf', mohUri: 'file:///cache/moh.jpg', photoUri: 'file:///cache/photo.jpg',
-  enabledServices: ['injection', 'wound_care'], pricingModels: ['per_visit', 'per_hour'], priceVisit: '120', priceHour: '60', priceDay: '', priceMonth: '',
+  enabledServices: ['injection', 'wound_care'], servicePrices: { injection: '40', wound_care: '1,200' }, pricingModels: ['per_visit', 'per_hour'], priceVisit: '120', priceHour: '60', priceDay: '', priceMonth: '',
   city: 'riyadh_city', district: 'olaya', address: 'Olaya 5', location: LOCATION, coverageRadius: 12, region: 'riyadh',
   workDays: ['SUN', 'MON', 'WED'], shiftType: 'both' as const, openTime: '08:00', closeTime: '13:00', eveningOpenTime: '17:00', eveningCloseTime: '21:00',
   is24_7: false, vacationDate: '2026-12-15',
