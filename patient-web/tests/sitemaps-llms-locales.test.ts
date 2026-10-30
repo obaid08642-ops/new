@@ -16,6 +16,7 @@ const FEEDS: Record<string, unknown> = {
   "/public/sitemaps/doctor-cities/ar": { urls: [{ specialty: "cardiology", city: "Riyadh" }] },
   "/locations/cities": [{ code: "sa-riyadh" }, { code: "sa-jeddah" }],
   "/labs/services?limit=100": { items: [{ id: "l1", short_code: "CBC", name_en: "Complete blood count" }] },
+  "/labs/services?page=1&limit=100": { data: [{ id: "l1", short_code: "CBC", name_en: "Complete blood count", updatedAt: "2026-10-01T00:00:00.000Z" }], total: 1, total_pages: 1 },
   "/radiology/services?limit=100": { items: [{ id: "r1", short_code: "MRI Brain", name_en: "MRI brain" }] },
   "/public/ai-catalog/services": { items: [{ id: "svc-1" }] },
   "/home-care/services": [{ id: "h1", name_en: "Wound care" }],
@@ -45,10 +46,8 @@ const SITEMAPS: Array<[string, RegExp]> = [
   ["conditions.xml", /\/condition\/headache$/],
   ["articles.xml", /\/articles\/vitamin-d-a1$/],
   ["locations.xml", /\/doctors\/cardiology\/Riyadh$/],
-  ["labs.xml", /\/labs\/CBC\/riyadh$/],
   ["radiology.xml", /\/diagnostics\/radiology\/r1$/],
   ["services.xml", /\/home-nursing\/riyadh$/],
-  ["nursing.xml", /\/home-nursing\/riyadh\/wound-care$/],
 ];
 
 describe("entity sitemaps: six locales, hreflang + x-default on every URL", () => {

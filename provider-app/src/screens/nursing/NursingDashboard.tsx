@@ -43,6 +43,7 @@ import {
 } from '../shared/BlueprintScreens';
 import { MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderProfileEditor, WithdrawalWorkflow, ProviderHomeStats, GlobalSystemSettings } from '../shared/SharedScreens';
 import { NotificationsCenterScreen, SecurityManagementScreen } from '../shared/RealScreens';
+import { MyServicesScreen } from '../shared/MyServicesScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 const Stack = createNativeStackNavigator();
@@ -184,7 +185,7 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
       <Stack.Screen name="care_plan">{({ navigation, route }: any) => <CarePlan patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="progress">{({ navigation, route }: any) => <ProgressNotes patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="supplies">{({ navigation }: any) => <MedicalSupplies onBack={() => navigation.goBack()} />}</Stack.Screen>
-      <Stack.Screen name="nursing_services">{({ navigation }: any) => <NursingServicesSettings onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="nursing_services">{({ navigation }: any) => <MyServicesScreen vertical="nursing" onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="nursing_pricing">{({ navigation }: any) => <NursingPricingSettings onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="nursing_coverage">{({ navigation }: any) => <NursingCoverageSettings onBack={() => navigation.goBack()} />}</Stack.Screen>
 
@@ -773,7 +774,7 @@ return (
 <NSecHeader title={AR?'الملف الشخصي':'Profile'} />
  <NCard style={{marginBottom:SP.xl}}>
  <NSettingsRow icon="user" label={AR?'معلومات الحساب':'Account Info'} onPress={()=>onNav('profile_edit')} />
- <NSettingsRow icon="stethoscope" label={AR?'الخدمات المقدمة':'Services Offered'} onPress={()=>onNav('nursing_services')} />
+ <NSettingsRow icon="stethoscope" label={AR?'الخدمات والأسعار':'Services & Prices'} onPress={()=>onNav('nursing_services')} />
  <NSettingsRow icon="wallet" label={AR?'نموذج التسعير':'Pricing Model'} onPress={()=>onNav('nursing_pricing')} />
  <NSettingsRow icon="scan" label={AR?'نطاق التغطية':'Coverage Area'} onPress={()=>onNav('nursing_coverage')} />
  <NSettingsRow icon="calendar" label={AR?'مواعيد العمل':'Working Hours'} onPress={()=>onNav('working_hours')} />
@@ -828,90 +829,6 @@ return (
  );
 }
 
-// ══════════════════════════════════════════════════════════════════
-// NURSING SERVICES SETTINGS
-// ══════════════════════════════════════════════════════════════════
-function NursingServicesSettings({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
- const [services, setServices] = useState<Record<string,boolean>>({
- wound: true, vitals: true, inject: true, cath: false, elderly: false, postpart: false
- });
- const [includeKit, setIncludeKit] = useState(true);
- const [kitPrice, setKitPrice] = useState('25');
- const [covered, setCovered] = useState<Record<string,boolean>>({});
- const [loading, setLoading] = useState(false);
-
- const handleSave = async () => {
- setLoading(true);
- try {
-   await client.post('/provider/settings/delta', { newData: { services, includeKit, kitPrice, insurance_covered_services: covered } });
-   show(AR ? 'بانتظار موافقة الإدارة على التعديلات' : 'Pending admin approval for changes', 'success');
-   onBack();
- } catch(e) {
-   show(AR ? 'فشل إرسال التعديلات' : 'Failed to submit changes', 'error');
- }
- setLoading(false);
- };
-
- return (
- <NScroll>
- <NHeader title={AR ? 'الخدمات المقدمة والمستلزمات' : 'Services Offered & Supplies'} onBack={onBack} />
- 
- <NCard style={{ backgroundColor: theme.warnBg, borderColor: theme.warn, borderWidth: 1, marginBottom: SP.xl }}>
- <Text style={{ fontSize: FS.sm, color: theme.warn, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left', marginBottom: 4 }}>
- {AR ? 'تنبيه المستلزمات الطبية الهام:' : 'Important Clinical Supplies Kit Notice:'}
- </Text>
- <Text style={{ fontSize: FS.xs, color: theme.text, lineHeight: 18, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'يجب أن يحمل الممرض حقيبة المستلزمات الطبية المعتمدة للزيارة (القفازات، الشاش، والمطهرات). يمكنك تضمينها في السعر الأساسي أو فرض رسوم إضافية للحقيبة.'
- : 'The nurse must bring a certified medical supplies kit (gloves, gauze, sanitizers) to the visit. You can include it in the base price or add a surcharge.'}
- </Text>
- </NCard>
-
- <NSecHeader title={AR ? 'اختر الخدمات التي تقدمها:' : 'Select services you offer:'} />
- <NCard style={{ marginBottom: SP.xl, gap: SP.md }}>
- {[
- { id: 'wound', ar: 'تغيير الجروح والتضميد', en: 'Wound Dressing' },
- { id: 'vitals', ar: 'قياس العلامات الحيوية', en: 'Vital Signs Monitoring' },
- { id: 'inject', ar: 'إعطاء حقن طبية', en: 'Injection Administration' },
- { id: 'cath', ar: 'تركيب قسطرة بولية', en: 'Catheterization' },
- { id: 'elderly', ar: 'رعاية كبار السن', en: 'Elderly Care' },
- { id: 'postpart', ar: 'رعاية ما بعد الولادة', en: 'Postpartum Care' },
- ].map(svc => (
- <View key={svc.id} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: SP.xs }}>
- <TouchableOpacity style={{ flex: 1 }} onPress={() => setServices(s => ({ ...s, [svc.id]: !s[svc.id] }))}>
- <Text style={{ color: theme.text, fontSize: FS.md }}>{AR ? svc.ar : svc.en}</Text>
- </TouchableOpacity>
- <TouchableOpacity onPress={() => setCovered(c => ({ ...c, [svc.id]: !c[svc.id] }))} style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginHorizontal: SP.sm }}>
- <View style={{ width: 16, height: 16, borderRadius: 4, borderWidth: 2, borderColor: covered[svc.id] ? theme.success : theme.border, backgroundColor: covered[svc.id] ? theme.success : 'transparent' }} />
- <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'تأمين' : 'Ins.'}</Text>
- </TouchableOpacity>
- <NCheckbox value={services[svc.id]} onChange={() => setServices(s => ({ ...s, [svc.id]: !s[svc.id] }))} />
- </View>
- ))}
- </NCard>
-
- <NSecHeader title={AR ? 'تسعير حقيبة المستلزمات الطبية' : 'Clinical Supplies Pricing'} />
- <NCard style={{ marginBottom: SP.xl }}>
- <NToggle 
- label={AR ? 'تضمين حقيبة المستلزمات في السعر الأساسي' : 'Include supplies kit in base fee'} 
- value={includeKit} 
- onChange={setIncludeKit} 
- />
- {!includeKit && (
- <View style={{ marginTop: SP.md }}>
- <NPriceInput 
- label={AR ? 'تكلفة حقيبة المستلزمات الإضافية' : 'Extra Supplies Kit Fee'} 
- value={kitPrice} 
- onChange={setKitPrice} 
- />
- </View>
- )}
- </NCard>
-
- <NBtn label={AR ? 'حفظ الخدمات والتغييرات' : 'Save Services & Options'} loading={loading} onPress={handleSave} />
- </NScroll>
- );
-}
 
 // ══════════════════════════════════════════════════════════════════
 // NURSING PRICING SETTINGS

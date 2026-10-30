@@ -1,3 +1,5 @@
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { ownAppointmentId } from './appointment-link';
 import { protectHealthDoc } from '../../common/health-fields';
 import { PROVIDER_ROLES } from '../../common/enums';
@@ -552,6 +554,7 @@ export class ProviderCapabilitiesController {
  * offered or not, where (premises / home / both), insurance accepted, price. What the patient lists, filters and detail pages read.
  */
 @Controller('provider/services')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 @Roles(UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL)
 export class ProviderServiceOffersController {
   constructor(private readonly svc: ProviderServiceOffersService) {}

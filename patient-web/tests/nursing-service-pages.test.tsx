@@ -82,8 +82,15 @@ describe("the sitemap of home nursing by service and city", () => {
 
   it("lists every approved service in every city, in all six languages with hreflang and x-default, and no duplicate", async () => {
     backend();
-    const { GET } = await import("@/app/sitemaps/nursing.xml/route");
-    const urls = urlsOf(await (await GET()).text());
+    const { GET } = await import("@/app/sitemaps/nursing/[locale]/[page]/route");
+    const all: Array<{ loc: string; rest: string }> = [];
+    for (const l of ["ar", "en", "ur", "hi", "bn", "fil"]) {
+      const res = await GET(new Request("https://nabd.plus"), { params: Promise.resolve({ locale: l, page: "1.xml" }) });
+      const urls = urlsOf(await res.text());
+      expect(urls).toHaveLength(2 * 2); // 2 services x 2 cities, one language per file
+      all.push(...urls);
+    }
+    const urls = all;
     const locs = urls.map((u) => u.loc);
     expect(new Set(locs).size).toBe(locs.length);
     expect(urls).toHaveLength(2 * 2 * 6); // 2 services x 2 cities x 6 languages
@@ -99,8 +106,8 @@ describe("the sitemap of home nursing by service and city", () => {
 
   it("answers 503 with Retry-After and no URL when the backend is down", async () => {
     backend(true);
-    const mod = await import("@/app/sitemaps/nursing.xml/route");
-    const res: Response = await mod.GET();
+    const mod = await import("@/app/sitemaps/nursing/[locale]/[page]/route");
+    const res: Response = await mod.GET(new Request("https://nabd.plus"), { params: Promise.resolve({ locale: "ar", page: "1.xml" }) });
     expect(res.status).toBe(503);
     expect(res.headers.get("retry-after")).toBeTruthy();
     expect(await res.text()).not.toContain("<url>");
@@ -110,7 +117,7 @@ describe("the sitemap of home nursing by service and city", () => {
   it("is in the sitemap index", async () => {
     backend();
     const { GET } = await import("@/app/sitemap.xml/route");
-    expect(await (await GET()).text()).toContain("/sitemaps/nursing.xml");
+    expect(await (await GET()).text()).toContain("/sitemaps/nursing/ar/1.xml");
   });
 });
 

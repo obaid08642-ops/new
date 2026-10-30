@@ -1,4 +1,6 @@
 import { Controller, Get, Post, Body, Query, ForbiddenException, BadRequestException, Optional, UseGuards, Param } from '@nestjs/common';
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { SearchService } from '../search/search.service';
 import { NURSING_TYPES, byRelevance, matchedIds } from '../search/catalogue-search';
 import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
@@ -15,6 +17,7 @@ import { nearestFirst } from '../provider/services/nearest-first';
 const uid = (u: any) => u?.id || u?._id || u?.user_id;
 
 @Controller('home-care')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 @SelfService()
 @UseGuards(JwtAuthGuard)
 export class PatientHomeCareController {

@@ -26,6 +26,7 @@ import {
 import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn, planInsuranceShape, planNumberedDistricts, planPlaceholderCities, planProductTranslations, planRadiologyCatalogue } from '../modules/catalogs/catalogue-apply.steps';
 import { planTestDataRemoval, scanDb } from '../modules/catalogs/test-data';
 import { planCatalogueCompletion, type CompletionSeed } from '../modules/catalogs/catalogue-completion';
+import { planCataloguePrune } from '../modules/catalogs/catalogue-prune';
 import { planCatalogueDuplicates } from '../modules/catalogs/catalogue-duplicates';
 import { isTranslationFile } from '../modules/medicines/content-translation';
 
@@ -117,7 +118,14 @@ export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> 
     await planRadiologyAndCompletion(db, argv, inputs, changes, report);
     return { changes, inputs, sha: planSha(changes, inputs), report };
   }
-  if (arg(argv, 'only') !== undefined) throw new Error('--only must be test_data or catalogue_completion');
+  // `--only=catalogue_prune`: delete the hidden / duplicate / rejected / inactive rows that nothing references (owner 2026-10-30); run it after the duplicates step has been applied
+  if (arg(argv, 'only') === 'catalogue_prune') {
+    const pruned = await planCataloguePrune(db);
+    changes.push(...pruned.changes);
+    report.catalogue_prune = pruned.report;
+    return { changes, inputs, sha: planSha(changes, inputs), report };
+  }
+  if (arg(argv, 'only') !== undefined) throw new Error('--only must be test_data, catalogue_completion or catalogue_prune');
 
   const csv = fs.readFileSync(TRANSLATIONS_CSV, 'utf8');
   inputs.medicine_translations_csv = sha256(csv);

@@ -1,4 +1,6 @@
 import { Controller, Get, Param, NotFoundException, UseGuards } from '@nestjs/common';
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtAuthGuard, Public } from '../../common/auth.guard';
@@ -15,6 +17,7 @@ const PUBLIC_NURSE_FIELDS = [
 ] as const;
 
 @Controller('nursing')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 @UseGuards(JwtAuthGuard)
 export class PatientNurseProfileController {
   constructor(@InjectConnection() private conn: Connection) {}

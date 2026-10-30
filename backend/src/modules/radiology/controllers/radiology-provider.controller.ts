@@ -1,3 +1,5 @@
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../../common/strip-internal-fields';
 import {
   Controller,
   Post,
@@ -24,6 +26,7 @@ function bookingQuery(bookingId: string): any {
 }
 
 @Controller('radiology/provider')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.RADIOLOGY, UserRole.ADMIN, UserRole.SUPER_ADMIN)
 export class RadiologyProviderController {
