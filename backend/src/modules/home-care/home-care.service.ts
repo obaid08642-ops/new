@@ -11,7 +11,7 @@ import { pickAttribution } from '../../common/attribution';
 
 /** P3.3 (F15): writable catalog fields — id/_id/active/governance flags excluded. */
 export const HOMECARE_CATALOG_FIELDS = [
-  'name_ar', 'name_en', 'description_ar', 'description_en', 'category', 'icon', 'price', 'duration', 'duration_value', 'requires_patient_medication', 'requires_companion', 'cash_availability', 'insurance_availability', 'image_url', 'active', 'popularity',
+  'name_ar', 'name_en', 'description_ar', 'description_en', 'category', 'icon', 'price', 'duration', 'duration_value', 'requires_patient_medication', 'requires_companion', 'cash_availability', 'insurance_availability', 'image_url', 'active', 'popularity', 'booking_mode', 'booking_options',
 ] as const;
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EventBusService } from '../events/event-bus.service';
@@ -23,6 +23,7 @@ import { CarePlanRepository } from "./repositories/careplan.repository";
 import { MedicalSupplyRequestRepository } from "./repositories/medicalsupplyrequest.repository";
 import { RedisService } from '../redis/redis.service';
 import { hasEffectiveRole } from '../../common/auth.guard';
+import { resolveBookingChoice } from './booking-mode';
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
 import { isAdminUser } from '../../common/enums';
 import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
@@ -109,8 +110,11 @@ export class HomeCareSvc {
       state: { $nin: ['CANCELLED', NursingBookingState.COMPLETED] },
     }).lean();
     if (dupe) return dupe;
-    const sessions = Math.max(1, parseInt(data.sessions_count || 1, 10));
-    // the chosen nurse's own price for the service (her choice, else what she registered with), else the catalogue price: the price the patient was shown is the price charged
+    // booking mode (visit | continuous | programme): the service decides, the choice must be one it offers (booking-mode.ts)
+    const choice = resolveBookingChoice(svc as any, data);
+    const sessions = choice.sessions_count;
+    // the chosen nurse's own price for the service (her choice, else what she registered with), else the catalogue price: the price the patient was shown is the price charged.
+    // A row with no price anywhere (its providers set their own) cannot be priced: a clear refusal, not a NaN total.
     const ownPrice = providerId ? (await ownPrices(this.svcModel.db as never, 'nursing', [providerId], [svc as any])).get(providerId)?.get(svc.id) : undefined;
     const unitPrice = ownPrice ?? svc.price;
     if (!(typeof unitPrice === 'number' && unitPrice > 0)) throw new BadRequestException('service_price_not_set');
@@ -132,6 +136,9 @@ export class HomeCareSvc {
       notes: data.notes,
       payment_method: paymentMethod,
       sessions_count: sessions,
+      booking_mode: choice.booking_mode,
+      ...(choice.recurrence ? { recurrence: choice.recurrence } : {}),
+      ...(choice.hours !== undefined ? { hours: choice.hours, shift: choice.shift, period: choice.period } : {}),
       // P17-17.5: campaign attribution for the campaign report.
       attribution: pickAttribution(data) ?? undefined,
     });

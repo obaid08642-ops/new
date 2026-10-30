@@ -13,7 +13,7 @@ import styles from "./diag.module.css";
  * interactive) with the live suggestions of this service under it: 2-3 letters, only this service's items (the scope), a pick opens the
  * item, Enter and the button still run the screen's own search.
  */
-export function SuggestSearchForm({ action, name = "q", defaultValue, placeholder, label, submitLabel, below, sticky = false, locale, scope }: {
+export function SuggestSearchForm({ action, name = "q", defaultValue, placeholder, label, submitLabel, below, sticky = false, locale, scope, tools }: {
   action?: string;
   name?: string;
   defaultValue?: string;
@@ -25,6 +25,8 @@ export function SuggestSearchForm({ action, name = "q", defaultValue, placeholde
   sticky?: boolean;
   locale: string;
   scope: SuggestScope;
+  /** The hub's row: the magnifier submits, and these (the filter button, the prescription button) sit after the field in the same row. */
+  tools?: ReactNode;
 }) {
   const { state, controller } = useSearchSuggest(locale, scope);
   return (
@@ -37,13 +39,13 @@ export function SuggestSearchForm({ action, name = "q", defaultValue, placeholde
         allResultsHref={action ? (q) => `${action}?${name}=${encodeURIComponent(q)}` : undefined}
         renderField={(combobox) => (
           <form method="get" action={action} role="search" className={styles.searchForm}>
-            <div className={consult.search}>
+            <div className={tools ? consult.searchRow : consult.search}>
               <label className={consult.searchField}>
-                <Icon name="search" size={20} tone="secondary" />
+                {tools ? <button type="submit" className={consult.searchSubmit} aria-label={submitLabel}><Icon name="search" size={20} tone="secondary" /></button> : <Icon name="search" size={20} tone="secondary" />}
                 <span className="sr-only">{label}</span>
                 <input name={name} defaultValue={defaultValue} placeholder={placeholder} className={consult.searchInput} {...combobox} onChange={(event) => controller.input(event.target.value)} />
               </label>
-              <Button type="submit" label={submitLabel} size="lg" />
+              {tools ?? <Button type="submit" label={submitLabel} size="lg" />}
             </div>
             {below}
           </form>

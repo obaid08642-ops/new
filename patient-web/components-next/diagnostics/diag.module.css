@@ -19,18 +19,14 @@
 /* ---- the hub: the search pill, the two kinds, two quick links ---- */
 .searchPill { display: flex; gap: 8px; align-items: stretch; }
 .searchPill > :first-child { flex: 1; min-inline-size: 0; }
-.kinds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+/* hub: two big full-width tabs (labs / radiology) at the top */
+.kinds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 6px; box-sizing: border-box; border-radius: var(--nabd-radius-3xl); background: var(--nabd-color-bg-sunken); }
 .kind {
-  display: flex; align-items: center; gap: 10px; min-block-size: 84px; padding: 0 12px; box-sizing: border-box; min-inline-size: 0; text-align: start;
-  color: var(--nabd-color-text-primary); text-decoration: none; border-radius: var(--nabd-radius-3xl);
-  background: var(--nabd-color-bg-sunken); border: 1px solid var(--nabd-color-border-hairline);
+  display: flex; align-items: center; justify-content: center; gap: 10px; min-block-size: 64px; padding: 0 10px; box-sizing: border-box; min-inline-size: 0; text-align: center;
+  color: var(--nabd-color-text-primary); text-decoration: none; border-radius: var(--nabd-radius-2xl); border: 2px solid transparent;
 }
-.kind[aria-current="page"] { background: var(--nabd-color-bg-surface); border: 2px solid var(--nabd-color-action-primary-bg); box-shadow: var(--nabd-shadow-card); }
-.kindText { display: flex; flex-direction: column; gap: 2px; min-inline-size: 0; }
-.kindTitle { font-size: var(--nabd-font-size-row); font-weight: 700; overflow-wrap: anywhere; }
-.kindSub { font-size: var(--nabd-font-size-micro); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
-/* text.secondary on bg.sunken is 4.15:1 (needs 4.5): the sub line of the unselected kind uses text.primary */
-.kind:not([aria-current="page"]) .kindSub { color: var(--nabd-color-text-primary); }
+.kind[aria-current="page"] { background: var(--nabd-color-bg-surface); border-color: var(--nabd-color-action-primary-bg); box-shadow: var(--nabd-shadow-card); }
+.kindTitle { font-size: var(--nabd-font-size-row); font-weight: 700; overflow-wrap: anywhere; line-height: 1.35; }
 .quickGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .quick {
   display: flex; align-items: center; gap: 10px; min-block-size: 64px; padding: 0 12px; box-sizing: border-box; min-inline-size: 0;
@@ -168,17 +164,15 @@
   .rad:hover, .lab:hover, .pack:hover { transform: none; }
 }
 
-/* ---- hub: the filter and sort sheet (a disclosure; the choices are links that keep the URL the whole state) ---- */
-.filterSheet { display: flex; flex-direction: column; gap: 8px; min-inline-size: 0; }
-.filterSummary {
-  display: flex; align-items: center; min-block-size: 44px; padding-inline: 16px; box-sizing: border-box; cursor: pointer; list-style: none;
-  border-radius: var(--nabd-radius-lg); border: 1px solid var(--nabd-color-border-strong); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary);
-  font-size: var(--nabd-font-size-segment); font-weight: 500;
+/* ---- hub: the filter sheet shell (the form inside the dialog panel) ---- */
+.sheetForm { display: flex; flex-direction: column; flex: 1; min-block-size: 0; overflow: hidden; }
+/* the search row: field, filter button, prescription icon button */
+.searchTools { display: contents; }
+.rxButton {
+  display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; inline-size: 52px; min-block-size: 52px; box-sizing: border-box; text-decoration: none;
+  border-radius: var(--nabd-radius-xl); border: 1px solid var(--nabd-color-border-strong); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary);
 }
-.filterSummary::-webkit-details-marker { display: none; }
-.filterSummary:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
-.filterSheet[open] > .filterSummary { margin-block-end: 8px; }
-
+.rxButton:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
 /* Category chips of a GET filter form: a radio per chip, the checked one is filled. */
 .catChips { display: flex; flex-wrap: wrap; gap: 8px; border: 0; margin: 0; padding: 0; min-inline-size: 0; }
 .catChip { position: relative; display: inline-flex; align-items: center; justify-content: center; min-block-size: 44px; padding-inline: 16px; box-sizing: border-box; border-radius: var(--nabd-radius-pill); border: 1px solid var(--nabd-color-border-strong); background: var(--nabd-color-bg-surface); color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-label); cursor: pointer; overflow-wrap: anywhere; }

@@ -1,0 +1,113 @@
+{
+  "slice": "od7-one-assistant-app",
+  "batch": 9,
+  "app": "patient-app",
+  "screens": [
+    {
+      "route": "/",
+      "elements": [
+        [
+          "AI assistant tile (one entry; replaces symptom-check + prescription-translator tiles)",
+          "static route /ai",
+          "ok"
+        ],
+        [
+          "Monthly report tile",
+          "static route /ai/monthly-report",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/ai",
+      "elements": [
+        [
+          "Mode tabs",
+          "route param mode, same names and order as web",
+          "ok"
+        ],
+        [
+          "Symptom question",
+          "POST /ai/assistant (old POST /ai/triage in inventory is no longer called)",
+          "ok"
+        ],
+        [
+          "Prescription photo",
+          "POST /ai/ocr-translate",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/ai-assistant",
+      "elements": [
+        [
+          "Redirect to /ai?mode=symptoms",
+          "RedirectKeepingParams, query kept",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/ai/triage",
+      "elements": [
+        [
+          "Redirect to /ai?mode=symptoms",
+          "RedirectKeepingParams, query kept",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/ai/symptom-checker",
+      "elements": [
+        [
+          "Redirect to /ai?mode=symptoms",
+          "RedirectKeepingParams, query kept",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/ai/symptom-timeline",
+      "elements": [
+        [
+          "Redirect to /ai?mode=symptoms",
+          "RedirectKeepingParams, query kept",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/ai/prescription-translator",
+      "elements": [
+        [
+          "Redirect to /ai?mode=prescription",
+          "RedirectKeepingParams, query kept",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/ai/chat-doctor",
+      "elements": [
+        [
+          "Redirect to /consultations/appointments (as on web)",
+          "RedirectKeepingParams, query kept",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/voice",
+      "elements": [
+        [
+          "Redirect to /ai",
+          "RedirectKeepingParams, query kept",
+          "ok"
+        ]
+      ]
+    }
+  ],
+  "needsReview": []
+}

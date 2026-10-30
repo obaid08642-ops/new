@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { withRefunds } from './order-refund';
 import { escapeRegex } from '../../common/slug.util';
 // Use the CommonJS runtime export directly; namespace imports can be non-constructable in production bundles.
 const PDFDocument = require('pdfkit');
@@ -351,15 +352,32 @@ export class OrdersService {
       const subs = typeof (qSubs as any)?.lean === 'function' ? await (qSubs as any).lean() : await qSubs;
       (o as any).sub_orders = subs;
     }
+    // the patient who owns the order sees its refund status; staff reads are unchanged
+    const owner = String((o as any).patient_id || '');
+    if (user?.id && owner && owner === String(user.id)) {
+      try { return (await withRefunds(this.conn as never, owner, [o as any]))[0]; } catch { return o; }   // an unreadable refund record never hides the order
+    }
     return o;
   }
-  async listMine(patient_id: string, type?: string) {
+  /**
+   * The patient's own orders, each with its `refund` (null, or { state, amount, partial, method, reason, requested_at, refunded_at }: PD-819, the refund tab of the app).
+   * `refundsOnly` keeps only the orders that have a refund of any state.
+   */
+  async listMine(patient_id: string, type?: string, refundsOnly = false) {
     const q: any = { patient_id, parent_order_id: { $exists: false } };
     if (type) {
       q.type = type;
     }
     const query = this.orderModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100);
-    return typeof (query as any)?.lean === 'function' ? (query as any).lean() : query;
+    const rows: any[] = typeof (query as any)?.lean === 'function' ? await (query as any).lean() : await query;
+    try {
+      const withRefund = await withRefunds(this.conn as never, patient_id, rows);
+      return refundsOnly ? withRefund.filter((o) => o.refund !== null) : withRefund;
+    } catch (e) {
+      // the orders list never fails because the refund records could not be read; the refund tab itself has nothing to show without them
+      if (refundsOnly) throw e;
+      return rows;
+    }
   }
   async listForPharmacy(pharmacy_id: string, state?: OrderState) {
     const q: any = { pharmacy_id };

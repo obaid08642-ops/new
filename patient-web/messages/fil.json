@@ -3590,7 +3590,20 @@
     "notifyMe": "Ipaalam sa akin kapag available na",
     "notifyMeDone": "Nasa listahan ka na. Aabisuhan ka namin kapag may sentrong nag-alok na nito.",
     "notifyMeSignIn": "Mag-sign in para maabisuhan",
-    "notifyMeFailed": "Hindi ito na-save. Subukan muli."
+    "notifyMeFailed": "Hindi ito na-save. Subukan muli.",
+    "filterOpen": "I-filter",
+    "filterOpenCount": "I-filter ({n} naka-on)",
+    "filterSheetTitle": "I-filter ang resulta",
+    "filterClose": "Isara ang filter",
+    "filterMore": "Iba pang opsyon",
+    "sortPopular": "Pinakamadalas hingin",
+    "noFasting": "Walang fasting",
+    "sameDay": "Resulta sa parehong araw",
+    "showResults": "Ipakita ang {count} resulta",
+    "showResultsMore": "Ipakita ang higit sa {count} resulta",
+    "filterCounting": "Binibilang…",
+    "filterClearAll": "I-clear lahat",
+    "catPackages": "Mga package"
   },
   "OrderContext": {
     "hint": "Agad na nag-a-update ang presyo at coverage kapag may binago",

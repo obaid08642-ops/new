@@ -3590,7 +3590,20 @@
     "notifyMe": "أبلغني عند توفرها",
     "notifyMeDone": "تم تسجيلك. سنُبلغك عندما يقدّمها أحد المراكز.",
     "notifyMeSignIn": "سجّل الدخول لتصلك الإشعارات",
-    "notifyMeFailed": "تعذّر الحفظ. حاول مرة أخرى."
+    "notifyMeFailed": "تعذّر الحفظ. حاول مرة أخرى.",
+    "filterOpen": "تصفية",
+    "filterOpenCount": "تصفية ({n} مفعّل)",
+    "filterSheetTitle": "تصفية النتائج",
+    "filterClose": "إغلاق التصفية",
+    "filterMore": "خيارات إضافية",
+    "sortPopular": "الأكثر طلبًا",
+    "noFasting": "بدون صيام",
+    "sameDay": "نتيجة نفس اليوم",
+    "showResults": "اعرض {count} نتيجة",
+    "showResultsMore": "اعرض أكثر من {count} نتيجة",
+    "filterCounting": "جارٍ العدّ…",
+    "filterClearAll": "مسح الكل",
+    "catPackages": "باقات"
   },
   "OrderContext": {
     "hint": "تتحدّث الأسعار والتغطية فور أي تغيير",

@@ -1,8 +1,20 @@
-import type { MetadataRoute } from "next";
 import { locales } from "@/lib/i18n";
 import { siteOrigin } from "@/lib/seo";
 
-export default function robots(): MetadataRoute.Robots {
+export type RobotsRule = { userAgent: string | string[]; allow?: string[]; disallow?: string[] };
+export type RobotsPolicy = { rules: RobotsRule[]; sitemap: string };
+
+/** Owner decision 2026-10-29: every search and AI crawler may read the public pages (search, answers and training). */
+export const AI_CRAWLERS = [
+  "GPTBot", "ChatGPT-User", "OAI-SearchBot", "ClaudeBot", "Claude-SearchBot", "Claude-User", "anthropic-ai", "PerplexityBot", "Perplexity-User",
+  "Google-Extended", "Googlebot", "Amazonbot", "Applebot", "Applebot-Extended", "Bingbot", "CCBot", "meta-externalagent", "meta-externalfetcher",
+  "FacebookBot", "Bytespider", "Diffbot", "cohere-ai", "MistralAI-User", "DuckAssistBot", "YouBot", "omgili",
+];
+
+/** Content Signals (contentsignals.org): the site grants search, AI answers (ai-input) and AI training. */
+export const CONTENT_SIGNAL = "search=yes, ai-input=yes, ai-train=yes";
+
+export default function robots(): RobotsPolicy {
   // Auth-gated trees (whole families) — patient areas must never be indexed.
   const privateTreeFamilies = [
     "login", "register", "forgot-password", "password-reset", "otp",
@@ -42,7 +54,7 @@ export default function robots(): MetadataRoute.Robots {
       // surface (never the private trees). Explicit entry so AI bots do not
       // have to infer permissions from the wildcard rule.
       {
-        userAgent: ["GPTBot", "ChatGPT-User", "ClaudeBot", "Claude-SearchBot", "Claude-User", "PerplexityBot", "Perplexity-User", "Google-Extended", "Amazonbot", "Applebot", "Applebot-Extended", "OAI-SearchBot", "Bingbot"],
+        userAgent: AI_CRAWLERS,
         allow: ["/", "/llms.txt", ...publicExplicitAllows],
         disallow: [
           "/api/",
