@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import robots from "./robots";
+import robots from "@/lib/seo/robots-policy";
 import { GET as staticSitemap } from "./sitemaps/static.xml/route";
 
 describe("public discovery policy", () => {

@@ -135,3 +135,9 @@ nabd.plus 307→/ar  www 307  api 404(root)  app 200  provider 200  mcp 200  cdn
 admin 302→Access  staging 302→Access  staging + bogus service token 302
 ```
 `curl -sI https://api.nabd.plus/api/v1/radiology/reports/mine` must never show `cf-cache-status: HIT`.
+
+## AI crawlers (owner decision 2026-10-29: all allowed)
+The zone's managed robots.txt and "Block AI bots" blocked GPTBot, ClaudeBot, Google-Extended, Applebot-Extended, Amazonbot, CCBot, meta-externalagent and others with `Content-Signal: ai-train=no`.
+`tools/ops/cf/50-ai-crawlers-{check,apply}.sh` set `is_robots_txt_managed=false` and `ai_bots_protection=disabled` (other bot settings untouched), prove `/robots.txt` before and after and a request as each bot, and put the old values back on any failure.
+`/robots.txt` is then served by patient-web (`app/robots.txt/route.ts`): AI bots allowed on public pages, signed-in areas and `/api/` disallowed, `Content-Signal: search=yes, ai-input=yes, ai-train=yes`.
+Not listed in `tools/ops/RUN` yet: it needs the ops rehearsal and the owner's Approve of the run (deploy the patient-web release first, so the origin file is ready when the managed block goes).
