@@ -244,6 +244,37 @@ export class ProviderAdminService {
     return { ok: true, account_id: id, approved };
   }
 
+  /** Refuse the provider's payout bank account with a reason (the provider sends a corrected one through POST /provider/bank-account). Only an account still waiting for review can be refused. */
+  async rejectBank(user: any, id: string, body: { reason: string }) {
+    this.assertAdmin(user);
+    const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
+    const reason = String(body?.reason || '').trim();
+    if (!reason) throw new BadRequestException('reason_required');
+    const res: any = await this.banks.updateMany(
+      { account_id: id, review_status: { $in: [BankReviewStatus.PENDING, BankReviewStatus.UNDER_REVIEW] } },
+      { $set: { review_status: BankReviewStatus.REJECTED, reviewer_id: user.id, reviewer_note: reason, reviewed_at: new Date() } },
+    );
+    const rejected = Number(res?.modifiedCount ?? res?.nModified ?? 0);
+    await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_bank_rejected', after: { rejected, reason } });
+    if (!rejected) throw new NotFoundException('no_pending_bank_account');
+    return { ok: true, account_id: id, rejected };
+  }
+
+  /** Providers whose licence has expired or expires within `within_days` (default 60), soonest first: the list the admin works from before the daily monitor suspends them. */
+  async licenseExpiryList(user: any, q: { within_days?: number; type?: string }) {
+    this.assertAdmin(user);
+    const days = Math.min(Math.max(Number(q?.within_days) || 60, 1), 730);
+    const limit = new Date(Date.now() + days * 24 * 3600 * 1000);
+    const filter: Record<string, unknown> = { license_expiry_date: { $ne: null, $lte: limit }, status: { $ne: 'rejected' } };
+    if (q?.type) filter.type = { $eq: String(q.type) };
+    const rows: any[] = await this.accounts.model.db.collection('provider_profiles').find(filter, { projection: { _id: 0, id: 1, account_id: 1, user_id: 1, type: 1, display_name_ar: 1, display_name_en: 1, status: 1, license_status: 1, license_expiry_date: 1, suspended_reason: 1 } }).sort({ license_expiry_date: 1 }).limit(500).toArray();
+    const now = Date.now();
+    return rows.map((r) => {
+      const expiry = new Date(r.license_expiry_date);
+      return { ...r, days_left: Math.ceil((expiry.getTime() - now) / (24 * 3600 * 1000)), expired: expiry.getTime() <= now };
+    });
+  }
+
   /**
    * B-4 (#940): licence review per document. The account-level approve() used
    * to bulk-approve every pending document; reviewers now decide each licence

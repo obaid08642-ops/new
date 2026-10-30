@@ -2,7 +2,7 @@ import { Controller, Post, Get, Put, Delete, Body, Param, Query, UseGuards, Req 
 import { HospitalService } from '../services/hospital.service';
 import { JwtAuthGuard, CurrentUser, Roles } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
-import { AddStaffDto, OnboardDoctorDto, UpdateAppointmentStatusDto, CreateInvitationDto, RespondInvitationDto, CreateBranchDto, CreateDepartmentDto } from './hospital.dto';
+import { AddStaffDto, OnboardDoctorDto, UpdateAppointmentStatusDto, CreateInvitationDto, RespondInvitationDto, CreateBranchDto, CreateDepartmentDto, AdminFacilityQueryDto } from './hospital.dto';
 
 @Controller('hospital')
 @Roles(UserRole.HOSPITAL, UserRole.HOSPITAL_ADMIN, UserRole.ADMIN)
@@ -81,6 +81,12 @@ export class HospitalController {
     return this.hospitalService.listFacilityInvitations(user.id);
   }
 
+  // the facility withdraws an invitation nobody has answered yet
+  @Post('invitations/:id/cancel')
+  async cancelInvitation(@CurrentUser() user: any, @Param('id') id: string) {
+    return this.hospitalService.cancelInvitation(user.id, id, user);
+  }
+
   // the invited clinician (doctor / nurse) answers, not the facility
   @Roles(UserRole.DOCTOR, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.ADMIN)
   @Get('invitations/inbox')
@@ -100,5 +106,33 @@ export class HospitalController {
   @Post('leave-facility')
   async leaveFacility(@CurrentUser() user: any) {
     return this.hospitalService.leaveFacility(user.id);
+  }
+}
+
+/** Admin view of facility invitations and memberships (gap 8): list, withdraw an invitation, end a membership. */
+@Controller('admin/facilities')
+@Roles(UserRole.ADMIN)
+@UseGuards(JwtAuthGuard)
+export class AdminFacilityController {
+  constructor(private readonly hospitalService: HospitalService) {}
+
+  @Get('invitations')
+  async invitations(@Query() q: AdminFacilityQueryDto) {
+    return this.hospitalService.adminListInvitations({ status: q.status, facility_id: q.facility_id, limit: q.limit });
+  }
+
+  @Post('invitations/:id/cancel')
+  async cancelInvitation(@CurrentUser() user: any, @Param('id') id: string) {
+    return this.hospitalService.cancelInvitation(user.id, id, user, true);
+  }
+
+  @Get('memberships')
+  async memberships(@Query() q: AdminFacilityQueryDto) {
+    return this.hospitalService.adminListMemberships({ facility_id: q.facility_id, limit: q.limit });
+  }
+
+  @Post('memberships/:userId/end')
+  async endMembership(@CurrentUser() user: any, @Param('userId') userId: string) {
+    return this.hospitalService.adminEndMembership(user.id, userId);
   }
 }
