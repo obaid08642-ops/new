@@ -1339,8 +1339,7 @@
         "a": "হ্যাঁ, আমার অ্যাপয়েন্টমেন্ট থেকে নীতি অনুযায়ী।"
       }
     },
-    "faqTitle": "সাধারণ প্রশ্ন",
-    "comingSoon": "শীঘ্রই আসছে"
+    "faqTitle": "সাধারণ প্রশ্ন"
   },
   "HomeCareServices": {
     "eyebrow": "হোম কেয়ার",
@@ -1516,11 +1515,7 @@
     "filtersWithCount": "ফিল্টার, {n}টি সক্রিয়",
     "activeFilters": "সক্রিয় ফিল্টার",
     "removeFilter": "ফিল্টার {filter} সরান",
-    "filterAll": "সব",
-    "specialtyAll": "সব",
-    "comingSoon": "শীঘ্রই আসছে",
-    "comingSoonTitle": "{specialty} শীঘ্রই আসছে",
-    "comingSoonBody": "এই বিশেষত্বে এখনও কোনো ডাক্তার নেই। অন্য একটি বিশেষত্ব বেছে নিন।"
+    "filterAll": "সব"
   },
   "LabsServices": {
     "eyebrow": "ল্যাবরেটরি কেয়ার",

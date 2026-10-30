@@ -1339,8 +1339,7 @@
         "a": "جی ہاں، میری اپائنٹمنٹس سے پالیسی کے مطابق۔"
       }
     },
-    "faqTitle": "عام سوالات",
-    "comingSoon": "جلد آ رہا ہے"
+    "faqTitle": "عام سوالات"
   },
   "HomeCareServices": {
     "eyebrow": "گھر کی دیکھ بھال",
@@ -1516,11 +1515,7 @@
     "filtersWithCount": "فلٹر، {n} فعال",
     "activeFilters": "فعال فلٹر",
     "removeFilter": "فلٹر {filter} ہٹائیں",
-    "filterAll": "سب",
-    "specialtyAll": "سب",
-    "comingSoon": "جلد آ رہا ہے",
-    "comingSoonTitle": "{specialty} جلد آ رہا ہے",
-    "comingSoonBody": "اس شعبے میں ابھی کوئی ڈاکٹر نہیں ہے۔ کوئی اور شعبہ منتخب کریں۔"
+    "filterAll": "سب"
   },
   "LabsServices": {
     "eyebrow": "لیبارٹری کیئر",
