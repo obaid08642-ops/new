@@ -80,6 +80,34 @@ Other provider gaps:
 5. G8, G9: admin screens for service offers and refund policy.
 6. Radiology and lab booking chat; pharmacy stale text; admin facility membership view.
 
+## UX per flow (owner standing rule 2026-10-30)
+
+Rating is inferred from reading the code and screens, not from using the apps: smooth / clunky / broken. Clunky and broken rows are fixed in the PR that owns the flow.
+
+| Flow | UX | Why |
+|---|---|---|
+| Lab / radiology / nursing: set or change own price, home, insurance | broken | No screen calls the offers API (G1); lab edit changes the global catalogue through approval, nursing posts a delta that changes nothing the patient reads |
+| Nursing registration prices | clunky | Generic visit/hour/day/month fields, then price 0 per service (G2) |
+| Lab and radiology registration | smooth | One wizard, documents and maps in place; no expiry date (G7) |
+| Inbox and accept / decline (all types) | smooth | One queue, one tap each; nursing decline has a fixed reason only |
+| Nursing booking mode (visit / continuous / programme) | broken | Nurse cannot see the mode (G3) |
+| Lab results | clunky | Typed rows only, no scanned file (G4) |
+| Radiology report | clunky | Upload, submit, approve are three steps and the same person can do all (G5) |
+| Lab and radiology chat with the patient | broken | No booking thread (radiology has none at all) |
+| Payouts and bank approval (provider) | smooth | Withdrawal blocked with a clear state until the bank is approved |
+| Hospital staff (three creation flows, two `/hospital/staff` controllers, owner-set passwords) | clunky | Duplicated flows, existing users rejected |
+| Nursing "services" and "pricing" settings (two delta screens) | clunky | Duplicate screens that wait for approval and change nothing |
+| Pharmacy offers | smooth | Stale cap text at `PharmacyBroadcastResponse.tsx:164` is misleading |
+| Admin: reject provider | broken | Rejected applicant can still sign in (G6) |
+| Admin: payouts | clunky | Two parallel payout systems; decisions via `window.prompt` / `confirm` (`finance-suite.tsx:36`) |
+| Admin: users suspend, GDPR delete | clunky | Native `confirm()` (`users-management.tsx:119`, `gdpr.tsx:13`) |
+| Admin: nursing catalogue | clunky | Free-text duration instead of booking mode (G3) |
+| Admin: refund policy, provider service offers | broken | No screen (G8, G9) |
+| Admin: orders, returns, disputes, catalogue, logs, reports | smooth | Complete lists and actions |
+| Admin: provider approval | clunky | Two approve paths in the backend; approve bulk-approves pending documents and banks |
+
+Duplicates to merge (listed, not yet changed): two payout systems (admin), two approve paths (`providers.service.ts` and `provider-admin.service.ts`), three staff-creation flows, two nursing delta screens, two `/hospital/staff` controllers.
+
 ## State
 
 Audit only; no code changed. Next: item 1.
