@@ -1,5 +1,15 @@
-# 2026-10-30 lead reviewer: run 53, READ-ONLY.
-# The owner sees "no nursing services available". The public API: 36 nursing services, 120 lab tests, 23 scans, and providers_count=0 on every one.
-# 99q counts the provider profiles by type/status/medical review/public, the per-service offers and the provider accounts (counts only, no names or ids),
-# to tell whether real providers exist but are pending review, or whether the 8 test providers removed in run 50 were the only ones.
-99q-provider-counts
+# 2026-10-30 lead reviewer: run 54.
+# 1. Free disk, deploy main@d8a6c703: everything merged since fd73b53d: main fix + app bundle budget (#2140), catalogue-apply --only (#2141),
+#    labs/radiology/nursing ranking by most requested with the anti-inflation guard (#2109), provider-app Expo 58 (#2129), server speed pass (#2134).
+# 2. 90-catalogue-apply DRY RUN, COMPLETION=packaged (--only=catalogue_completion, in the worker): the counts per collection of the owner-approved
+#    radiology/lab/nursing completion and the plan hash. Nothing is written.
+# 3. 92-recreate-datastores DRY RUN (#2142): per container its memory limit now vs the compose file, restarts, MemAvailable, mongod PRIMARY, active calls.
+#    Nothing is stopped. The real recreate (seconds of MongoDB downtime) is a later run at a quiet hour, after the owner reads this.
+# 4. Purge the API cache.
+release:d8a6c7034a4382ef3518508806532185bdb6fc97
+97-free-old-predeploy
+93-free-unused-images
+60-deploy-main
+90-catalogue-apply
+92-recreate-datastores
+cf-purge-api
