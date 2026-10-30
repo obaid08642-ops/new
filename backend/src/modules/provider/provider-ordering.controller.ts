@@ -1,3 +1,5 @@
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { Body, Controller, Get, Header, Post, Put, Query } from '@nestjs/common';
 import { CurrentUser, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
@@ -8,6 +10,7 @@ import { ProviderOrderingService } from './services/provider-ordering.service';
 // M1: the provider's ordering declaration (lab, radiology, nursing). The kind of each write is checked in the service
 // against the provider's own type, so a lab cannot declare radiology items.
 @Controller('provider/ordering')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 @Roles(UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSING, UserRole.NURSE)
 export class ProviderOrderingController {
   constructor(private readonly svc: ProviderOrderingService) {}
