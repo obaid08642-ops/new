@@ -25,7 +25,7 @@ export function NursingServiceList({ services, actionLabel, onOpen, onBook }: { 
         const title = titleField.text || text(svc.title);
         const descField = rowField(svc, 'description');
         const offer = offerSummaryOf(svc);
-        const lines = offerLines(offer, { k, num, money, lang }, true);
+        const lines = offerLines(offer, { k, num, money, lang }, true, priceOf(svc.price));
         return (
           <ServiceCard
             key={id}
@@ -38,11 +38,12 @@ export function NursingServiceList({ services, actionLabel, onOpen, onBook }: { 
             image={text(svc.image_url ?? svc.image) || null}
             icon={serviceGlyph(svc.id).icon}
             // with the offer summary the price is the nurses' own "from" (in the offer line); the catalogue's base price is the fallback of an older answer
-            price={offer && offer.fromPrice !== null ? null : priceOf(svc.price)}
+            price={offer && (offer.fromPrice !== null || offer.providersCount === 0) ? null : priceOf(svc.price)}
             offerLine={lines ? [lines.providers, lines.from, ...lines.where].filter(Boolean).join(' · ') : undefined}
             onPress={() => onOpen(id, title)}
             actionLabel={actionLabel}
             onAction={() => onBook(id, title)}
+            actionDisabled={offer?.providersCount === 0}
           />
         );
       })}

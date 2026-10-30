@@ -189,11 +189,13 @@ export interface ItemCardProps {
   onPress: () => void;
   onAdd: () => void;
   onOrder: () => void;
+  /** Nobody offers the service yet: both buttons stay, switched off. */
+  disabled?: boolean;
   testID?: string;
 }
 
 /** A catalogue test or scan as a large card: its illustration next to the name, the tags, the note and the price, then "Add to cart" and "Order now". */
-export function ItemCard({ name, nameMark, art, image, width, tags, note, rating, price, inCart, addLabel, inCartLabel, orderLabel, onPress, onAdd, onOrder, testID }: ItemCardProps) {
+export function ItemCard({ name, nameMark, art, image, width, tags, note, rating, price, inCart, addLabel, inCartLabel, orderLabel, onPress, onAdd, onOrder, disabled = false, testID }: ItemCardProps) {
   const { theme, t, c, flow } = useScreenUi();
   return (
     <View testID={testID} style={{ width, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, padding: 16, gap: 14 }}>
@@ -215,10 +217,10 @@ export function ItemCard({ name, nameMark, art, image, width, tags, note, rating
       </Pressable>
       <View style={{ flexDirection: 'row', gap: 10 }}>
         <View style={{ flex: 1 }}>
-          <Button theme={theme} size="md" fullWidth variant="outline" label={inCart ? inCartLabel : addLabel} disabled={inCart} onPress={onAdd} testID={testID ? `${testID}-add` : undefined} />
+          <Button theme={theme} size="md" fullWidth variant="outline" label={inCart ? inCartLabel : addLabel} disabled={inCart || disabled} onPress={onAdd} testID={testID ? `${testID}-add` : undefined} />
         </View>
         <View style={{ flex: 1 }}>
-          <Button theme={theme} size="md" fullWidth label={orderLabel} onPress={onOrder} testID={testID ? `${testID}-order` : undefined} />
+          <Button theme={theme} size="md" fullWidth label={orderLabel} disabled={disabled} onPress={onOrder} testID={testID ? `${testID}-order` : undefined} />
         </View>
       </View>
     </View>

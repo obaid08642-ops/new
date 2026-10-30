@@ -129,7 +129,7 @@ export default async function HomeCareServicePage({ params, searchParams }: Prop
           <Facts rows={rows} label={t("serviceTitle")} />
         </SectionCard>
       ) : null}
-      <OffersSection locale={locale} t={w} kind="nursing" serviceId={service.id} offer={service.offer} offers={service.offers} />
+      <OffersSection locale={locale} t={w} kind="nursing" serviceId={service.id} offer={service.offer} offers={service.offers} price={service.price} bookLabel={t("bookCta")} />
       {/* journeys#60 (issue 1069): the service is booked on the website too (the book page asks for sign-in) */}
       {service.offer?.providersCount === 0 ? null : <ButtonLink href={`/${locale}/home-care/services/${encodeURIComponent(serviceId)}/book${pay === "insurance" ? "?pay=insurance" : ""}`} label={t("bookCta")} fullWidth />}
     </ConsultPage>

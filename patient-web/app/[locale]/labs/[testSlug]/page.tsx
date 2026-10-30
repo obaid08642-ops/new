@@ -118,7 +118,7 @@ export default async function OrderingItemPage({ params, searchParams }: Props) 
         <SectionCard id="item-included" title={t("pkgCount", { n: item.included.length })}><BulletList items={included} /></SectionCard>
       ) : null}
 
-      <OffersSection locale={locale} t={w} kind={kind} serviceId={item.id} offer={item.offer} offers={item.offers} />
+      <OffersSection locale={locale} t={w} kind={kind} serviceId={item.id} offer={item.offer} offers={item.offers} price={item.price} />
 
       {unoffered ? null : <SectionCard id="item-price" title={t("secPrice")}>
         {group?.fromPrice ? (
@@ -145,11 +145,10 @@ export default async function OrderingItemPage({ params, searchParams }: Props) 
         {item.isPackage ? <Notice>{t("pkgCashNote")}</Notice> : null}
       </SectionCard>}
 
-      {unoffered ? null : (
-        <div className={styles.itemActions}>
-          <ItemActions kind={kind} line={{ id: item.id, nameAr: item.nameAr, nameEn: item.nameEn }} orderHref={`/${locale}/labs/basket${contextQuery({ kind, place, pay })}`} />
-        </div>
-      )}
+      {/* a service nobody offers yet keeps its buttons, switched off: the section above says why and offers "Notify me" */}
+      <div className={styles.itemActions}>
+        <ItemActions kind={kind} line={{ id: item.id, nameAr: item.nameAr, nameEn: item.nameEn }} orderHref={`/${locale}/labs/basket${contextQuery({ kind, place, pay })}`} disabled={unoffered} />
+      </div>
       <BasketBar locale={locale} kind={kind} place={place} pay={pay} />
     </ConsultPage>
   );

@@ -12,7 +12,7 @@ export function nursingOfferLine({ locale, tr, offer, price }: { locale: string;
   if (!offer) return { line: price !== undefined ? money(locale, price) : undefined, chips: [], none: false };
   // the providers' own "from" price when there is one, else the catalogue's price (a service nobody offers yet, or offered without a price, keeps its price)
   const priceText = offer.fromPrice !== undefined ? tr("fromPrice", { price: money(locale, offer.fromPrice) }) : price !== undefined ? money(locale, price) : undefined;
-  if (offer.providersCount === 0) return { line: [tr("offerNone"), priceText].filter(Boolean).join(" · "), chips: [], none: true };
+  if (offer.providersCount === 0) return { line: [tr("offerNone"), price !== undefined ? tr("fromPrice", { price: money(locale, price) }) : undefined].filter(Boolean).join(" · "), chips: [], none: true };
   const parts = [tr("offerCountNursing", { count: offer.providersCount }), ...(priceText ? [priceText] : [])];
   return {
     line: parts.join(" · "),
