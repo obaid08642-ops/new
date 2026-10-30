@@ -10,6 +10,8 @@
  * (fasting, turnaround) come from the translation files.
  */
 import { pickDbField } from './localize';
+import type { FieldMark } from './localizedField';
+import { rowField, rowList } from './rowField';
 import { offerSummaryOf, offersOf, type OfferSummary, type ServiceOffer } from './catalogueOffers';
 
 type Raw = Record<string, unknown>;
@@ -17,7 +19,10 @@ type Raw = Record<string, unknown>;
 export interface CatalogItem {
   id: string;
   name: string;
+  /** Language fallback (owner 2026-10-30): set when the shown text is not in the app's language (its own lang/dir and the "available in ... only" note). */
+  nameMark?: FieldMark;
   desc: string;
+  descMark?: FieldMark;
   image: string | undefined;
   price: number | null;
   oldPrice: number | null;
@@ -38,6 +43,7 @@ export interface CatalogItem {
   testsCount: number;
   /** The preparation steps the server listed, in the language asked. */
   preparation: string[];
+  prepMark?: FieldMark;
   fastingRequired: boolean;
   /** false when the server did not send `fasting_required`: the card then says nothing about fasting instead of "no fasting" */
   fastingKnown?: boolean;
@@ -68,17 +74,21 @@ const asList = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is 
 export function normalizeLabService(raw: unknown): CatalogItem | null {
   if (!raw || typeof raw !== 'object') return null;
   const r = raw as Raw;
-  const prepAr = asList(r.preparation_ar);
-  const prepEn = asList(r.preparation_en);
-  const lang = pickDbField<string>({ preparation_ar: prepAr.join('\n'), preparation_en: prepEn.join('\n') }, 'preparation') ?? '';
+  const prep = rowList(r, 'preparation');
+  const nameField = rowField(r, 'name');
+  const descField = rowField(r, 'description');
+  const category = asText(r.category);
   const included = Array.isArray(r.included_services) ? r.included_services : [];
   const testsList = included
-    .map((t): string => (typeof t === 'string' ? t : t && typeof t === 'object' ? asText(pickDbField(t, 'name') ?? (t as Raw).name_ar ?? (t as Raw).name_en ?? (t as Raw).name) : ''))
+    .map((t): string => (typeof t === 'string' ? t : t && typeof t === 'object' ? (rowField(t as Raw, 'name').text || asText((t as Raw).name)) : ''))
     .filter(Boolean);
   return {
     id: asText(r.id ?? r._id),
-    name: asText(pickDbField(r, 'name') ?? r.name_ar ?? r.name_en ?? r.name),
-    desc: asText(pickDbField(r, 'description')) || (lang ? lang.split('\n').join(', ') : '') || asText(r.category),
+    name: nameField.text,
+    nameMark: nameField.mark,
+    // the description, else the preparation steps in one line (with the preparation's own mark), else the category
+    desc: descField.text || prep.items.join(', ') || category,
+    descMark: descField.text ? descField.mark : prep.items.length ? prep.mark : undefined,
     image: asText(r.image_url) || undefined,
     price: asNumber(r.price ?? r.base_price),
     oldPrice: asNumber(r.old_price),
@@ -92,7 +102,8 @@ export function normalizeLabService(raw: unknown): CatalogItem | null {
     ratingCount: asNumber(r.rating_count) ?? 0,
     testsList,
     testsCount: testsList.length,
-    preparation: lang ? lang.split('\n').filter(Boolean) : [],
+    preparation: prep.items,
+    prepMark: prep.mark,
     fastingRequired: Boolean(r.fasting_required),
     fastingKnown: typeof r.fasting_required === 'boolean',
     fastingHours: asNumber(r.fasting_hours),

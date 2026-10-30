@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { Animated, Pressable, Text, View, type GestureResponderEvent } from 'react-native';
+import { Animated, Pressable, Text, View, type GestureResponderEvent, type HostInstance } from 'react-native';
 import { router, type Href } from 'expo-router';
 import Svg, { Path } from 'react-native-svg';
 
 import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, type FillIconName } from '../../../../packages/ui/icons/fill';
 import { Badge, SERVICE_ICONS } from '../../../../packages/ui-native/src';
 import { useCart } from '../../context/CartContext';
+import { HEADER_BADGE_ANCHOR, HEADER_ICON, HeaderRound } from '../nav/HeaderRound';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { showLocalizedAlert } from '../LocalizedAlert';
 import { medGallery, medName, needsRx, onlineOnly, type Med } from '../../utils/pharmacyCatalog';
@@ -47,22 +48,13 @@ export function GlyphSquare({ name, label, onPress }: { name: FillIconName; labe
   );
 }
 
-/** A 44 round header button with a fill glyph (board PharmacyHub: "my orders", the cart): surface, hairline ring, ink glyph. */
+/** A round header button with a fill glyph (board PharmacyHub: "my orders", the cart): the shared header size (44 hit, 24 icon), surface, hairline ring, ink glyph. */
 export function GlyphRound({ name, label, onPress, children, testID }: { name: FillIconName; label: string; onPress: () => void; children?: React.ReactNode; testID?: string }) {
   const { c } = useScreenUi();
   return (
-    <View>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={label}
-        testID={testID}
-        onPress={onPress}
-        style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 22, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.onGlass, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.8 : 1 })}
-      >
-        <Glyph name={name} size={20} color={c.text.secondary} />
-      </Pressable>
-      {children}
-    </View>
+    <HeaderRound label={label} onPress={onPress} testID={testID} badge={children}>
+      <Glyph name={name} size={HEADER_ICON} color={c.text.secondary} />
+    </HeaderRound>
   );
 }
 
@@ -85,7 +77,7 @@ export function CountBadge({ count }: { count: number }) {
   }, [count, scaleValue]);
   if (count <= 0) return null;
   return (
-    <Animated.View pointerEvents="none" style={{ position: 'absolute', top: -3, end: -3, transform: [{ scale: scaleValue }] }}>
+    <Animated.View pointerEvents="none" style={{ ...HEADER_BADGE_ANCHOR, transform: [{ scale: scaleValue }] }}>
       <Badge content={count} tone="danger" theme={theme} format={(n) => num(n)} />
     </Animated.View>
   );
@@ -93,7 +85,7 @@ export function CountBadge({ count }: { count: number }) {
 
 /** The header cart button says where it is, so a product picture can fly to it (utils/flyToCart.ts). */
 function useCartTarget() {
-  const ref = useRef<View>(null);
+  const ref = useRef<HostInstance>(null);
   useEffect(() => registerCartTarget({ measure: (done) => { if (ref.current) ref.current.measureInWindow(done); else done(0, 0, 0, 0); } }), []);
   return ref;
 }

@@ -88,13 +88,13 @@ export function LoginForm({ locale, guestBlocked = false, social = {} }: { local
       <label className={styles.field}>
         <span className={styles.label}>{t("identifier")}</span>
         <span className={styles.control}>
-          <input required aria-invalid={Boolean(message) && !twoFactor && identifier.trim().length < 3} dir="ltr" autoComplete="username" autoCapitalize="none" spellCheck={false} value={identifier} disabled={twoFactor} onChange={(event) => setIdentifier(event.target.value)} />
+          <input required aria-describedby={message ? "login-message" : undefined} aria-invalid={Boolean(message) && !twoFactor && identifier.trim().length < 3} dir="ltr" autoComplete="username" autoCapitalize="none" spellCheck={false} value={identifier} disabled={twoFactor} onChange={(event) => setIdentifier(event.target.value)} />
         </span>
       </label>
       {!twoFactor ? <div className={styles.field}>
         <div className={styles.labelRow}><label className={styles.label} htmlFor="login-password">{t("password")}</label>{forgot}</div>
         <span className={styles.control}>
-          <input id="login-password" required aria-invalid={Boolean(message) && !password} type={showPassword ? "text" : "password"} autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} />
+          <input id="login-password" required aria-describedby={message ? "login-message" : undefined} aria-invalid={Boolean(message) && !password} type={showPassword ? "text" : "password"} autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} />
           <button type="button" className={styles.eye} onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? t("hidePassword") : t("showPassword")}>
             <Icon name={showPassword ? "eye-slash" : "eye"} size={20} tone="currentColor" />
           </button>
@@ -108,7 +108,7 @@ export function LoginForm({ locale, guestBlocked = false, social = {} }: { local
       <div className={`${styles.links} ${styles.forgotBelow}`}>
         <button type="button" className={styles.link} onClick={() => router.push(`/${locale}/forgot-password`)} disabled={submitting}>{t("forgotPassword")}</button>
       </div>
-      {message ? <p className={styles.error} role="alert">{message}</p> : null}
+      {message ? <p id="login-message" className={styles.error} role="alert">{message}</p> : null}
       <div className={styles.actions}>
         <Button type="submit" variant="primary" size="lg" fullWidth label={submitLabel} loading={submitting} />
         <SocialLoginButtons locale={locale} social={social} onWrongApp={() => setWrongApp(true)} />

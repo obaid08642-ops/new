@@ -4,6 +4,8 @@ import { Pressable, Text, View } from 'react-native';
 import { Card, FIcon } from '../../../../packages/ui-native/src';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { Money } from '../pharmacy/OfferKit';
+import { FieldText } from '../LocalizedField';
+import { bookingNameMark } from '../../utils/rowField';
 import { dateLocaleFor, numberingFor } from '../../utils/dates';
 import { KIND_ICON, hashRef, type OrderRow, type PillTone, type RowAction } from '../../utils/orderCenter';
 
@@ -58,6 +60,8 @@ export function OrderCard({ row, onPress }: { row: OrderRow; onPress?: () => voi
   const subLine = useSubLine()(row);
   const kind = KIND_ICON[row.kind];
   const title = row.title ?? k(`orders.kind.${row.kind}`);
+  // a doctor's name is a person's, not a catalogue text; labs, scans and nursing services are, and may be in the other language only
+  const titleMark = row.title && row.kind !== 'doctors' && row.kind !== 'pharmacy' ? bookingNameMark(row.title) : undefined;
   const status = k(`orders.status.${row.look.label}`);
   const meta = [row.number ? hashRef(row.number) : '', date(row.at)].filter(Boolean).join(' · ');
   const action = row.action && row.route ? k(ACTION_KEY[row.action]) : null;
@@ -68,7 +72,7 @@ export function OrderCard({ row, onPress }: { row: OrderRow; onPress?: () => voi
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
         <FIcon icon={kind.icon} tone={kind.tone} chip="soft" size={44} theme={theme} />
         <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
-          <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>{title}</Text>
+          <FieldText text={title} mark={titleMark} style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }} />
           {subLine ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{subLine}</Text> : null}
           {meta ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{meta}</Text> : null}
         </View>

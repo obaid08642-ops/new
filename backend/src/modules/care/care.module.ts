@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CareController, PublicSpecialtiesController } from './care.controller';
 import { AppointmentsController, AdminAppointmentsController } from './appointments.controller';
 import { CareService } from './care.service';
+import { AppointmentOutcomesService } from './appointment-outcomes.service';
 import { AppointmentsService } from './appointments.service';
 import { DoctorReferralsController } from './doctor-referrals.controller';
 import { EncounterReferral, EncounterReferralSchema } from './schemas/encounter-referrals.schema';
@@ -40,7 +41,7 @@ import { StorageModule } from '../storage/storage.module';
     ]),
   ],
   controllers: [CareController, PublicSpecialtiesController, AppointmentsController, AdminAppointmentsController, DoctorReferralsController, ConsultationsCompatController],
-  providers: [CareService, AppointmentsService, SlotService, { provide: 'AppointmentRepository', useClass: AppointmentRepository }, { provide: 'FacilityRepository', useClass: FacilityRepository }, { provide: 'ProviderProfileRepository', useClass: ProviderProfileRepository }, { provide: 'UserRepository', useClass: UserRepository }],
+  providers: [CareService, AppointmentsService, AppointmentOutcomesService, SlotService, { provide: 'AppointmentRepository', useClass: AppointmentRepository }, { provide: 'FacilityRepository', useClass: FacilityRepository }, { provide: 'ProviderProfileRepository', useClass: ProviderProfileRepository }, { provide: 'UserRepository', useClass: UserRepository }],
   exports: [CareService, AppointmentsService, SlotService],
 })
 export class CareModule {}

@@ -97,7 +97,7 @@ describe('LiveKit follow-up ownership fixes', () => {
     service.createBookingToken = jest.fn().mockResolvedValue('token-1');
 
     await expect(service.issueBookingCallToken('appt-1', { id: 'patient-1', name: 'Patient' }))
-      .resolves.toEqual({ provider: 'livekit', token: 'token-1', room: 'booking-appt-1' });
+      .resolves.toEqual({ provider: 'livekit', token: 'token-1', room: 'booking-appt-1', audio_only: false, audio_only_reason: null });
     expect(service.createBookingToken).toHaveBeenCalledWith('booking-appt-1', 'Patient');
   });
 
@@ -112,8 +112,25 @@ describe('LiveKit follow-up ownership fixes', () => {
     service.createBookingToken = jest.fn().mockResolvedValue('doctor-token');
 
     await expect(service.issueBookingCallToken('appt-1', { id: 'doctor-1', full_name: 'Doctor' }))
-      .resolves.toEqual({ provider: 'livekit', token: 'doctor-token', room: 'booking-appt-1' });
+      .resolves.toEqual({ provider: 'livekit', token: 'doctor-token', room: 'booking-appt-1', audio_only: false, audio_only_reason: null });
     expect(service.createBookingToken).toHaveBeenCalledWith('booking-appt-1', 'Doctor');
+  });
+
+  it('advises sound only in the booking token when the platform is under call pressure (the web room reads it)', async () => {
+    const findOne = jest.fn().mockReturnValue({
+      lean: jest.fn().mockResolvedValue({
+        id: 'appt-1', patient_id: 'patient-1', doctor_user_id: 'doctor-1', service_type: 'video',
+        status: 'CONFIRMED', slot_start: new Date().toISOString(),
+      }),
+    });
+    const service: any = new LiveKitService({ findOne } as any, conn, events as any);
+    service.createBookingToken = jest.fn().mockResolvedValue('token-p');
+    service.activeCallCount = jest.fn().mockResolvedValue(10_000);
+    await expect(service.issueBookingCallToken('appt-1', { id: 'patient-1', name: 'Patient' }))
+      .resolves.toMatchObject({ token: 'token-p', audio_only: true, audio_only_reason: 'server_pressure' });
+    service.activeCallCount = jest.fn().mockRejectedValue(new Error('db down'));
+    await expect(service.issueBookingCallToken('appt-1', { id: 'patient-1', name: 'Patient' }))
+      .resolves.toMatchObject({ token: 'token-p', audio_only: false, audio_only_reason: null });
   });
 
   it('returns 404 to a foreign identity without issuing a booking token', async () => {

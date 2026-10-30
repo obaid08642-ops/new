@@ -85,7 +85,7 @@ AIKEYFILE="${AI_KEYS_KEY_FILE:-/tmp/nabd-live-ai-keys-key}"
 [[ -s "$AIKEYFILE" ]] || { umask 077; openssl rand -base64 32 > "$AIKEYFILE"; }
 export AI_KEYS_ENC_KEY="${AI_KEYS_ENC_KEY:-$(cat "$AIKEYFILE")}"
 LOG="${BACKEND_LOG:-/tmp/nabd-backend.log}"
-nohup node --max-old-space-size=1500 dist/main.js > "$LOG" 2>&1 &
+nohup node --max-old-space-size=1500 ${NODE_EXTRA_FLAGS:-} dist/main.js > "$LOG" 2>&1 &
 echo $! > "$LOG.pid"
 for i in $(seq 1 90); do
   curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/api/v1/health/liveness" 2>/dev/null | grep -q 200 && { echo "backend up (db=$DB_NAME)"; exit 0; }

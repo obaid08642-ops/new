@@ -81,7 +81,7 @@ export default async function MentalHealthPage({ params }: Props) {
       <ul className={styles.tiles} aria-label={t("summary")}>
         <li><VitalTile label={t("moodEntries")} value={number.format(data.mood.totalEntries)} icon="heart" tone="pink" /></li>
         <li><VitalTile label={t("avgMood")} value={stat(data.mood.avgMood)} icon="sparkle" tone="amber" /></li>
-        <li><VitalTile label={t("avgEnergy")} value={stat(data.mood.avgEnergy)} icon="star" tone="mint" /></li>
+        <li><VitalTile label={t("avgEnergy")} value={stat(data.mood.avgEnergy)} icon="star" tone="violet" /></li>
         <li><VitalTile label={t("avgStress")} value={stat(data.mood.avgStress)} icon="heartbeat" tone="peach" /></li>
       </ul>
       <SectionHead id="care" title={t("careTitle")} />

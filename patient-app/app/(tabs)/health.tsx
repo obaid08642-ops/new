@@ -180,7 +180,7 @@ export default function HealthHub() {
           <Row icon="prescription" tone={RX_TONE} title={k('health.hub.prescriptions')} subtitle={k('health.hub.prescriptionsHint')} onPress={go('/health/records?tab=prescriptions')} />
           <Row icon="pill" tone={RX_TONE} title={k('health.hub.medications')} subtitle={k('health.hub.medicationsHint')} onPress={go('/health/medications')} />
           <Row icon="heartbeat" tone={RX_TONE} title={k('health.hub.chronic')} subtitle={k('health.hub.chronicHint')} onPress={go('/health/profile?tab=conditions')} />
-          <Row icon="chart-line-up" tone="mint" title={k('health.hub.trends')} subtitle={k('health.hub.trendsHint')} onPress={go('/health/vitals?tab=trends')} />
+          <Row icon="chart-line-up" tone={RX_TONE} title={k('health.hub.trends')} subtitle={k('health.hub.trendsHint')} onPress={go('/health/vitals?tab=trends')} />
           <Row icon="moon" tone="violet" title={k('health.hub.sleep')} subtitle={k('health.hub.sleepHint')} onPress={go('/health/sleep')} />
           <Row icon="heart" tone="blue" title={k('health.hub.wearables')} subtitle={k('health.hub.wearablesHint')} onPress={go('/health/wearables')} last />
         </Panel>

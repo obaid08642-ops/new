@@ -6,7 +6,7 @@
 # last_answer_at. Only WHITELISTED fields are printed, error classes only as fixed words (http_429, timeout, ...): never an error message,
 # a prompt or a key (a provider's error text once carried a key). Sends nothing to a model and writes nothing.
 set -u
-CT=${CATALOGUE_CONTAINER:-nabdah-backend}
+CT=${CATALOGUE_CONTAINER:-nabdah-worker}   # the translation run is background work: it runs in the worker container, so its memory is the worker's and never the API's (2026-10-30 OOM)
 IN=${OPS_CATALOGUE_DIR:-/opt/nabdah/catalogue}
 W=${OPS_TRANSLATE_DIR:-$IN/translate-work}
 DK="sudo -n docker"

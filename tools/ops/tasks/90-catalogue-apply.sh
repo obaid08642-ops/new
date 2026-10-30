@@ -23,17 +23,30 @@
 #                                                    $IN/test-data-remove.json  ({"profile_ids": ["<provider profile id>", ...]}: the test providers the owner approved removing
 #                                                       after reading 77-test-data-find; each is deleted with its account, sessions and everything that points at it)
 # After a change of medicine names, add `cf-purge-api` to tools/ops/RUN for that run so the cached product pages refresh.
-#   COMPLETION=packaged (set in this file by the reviewer): also plans the owner-approved catalogue completion (2026-10-29) shipped in the image, step `catalogue_completion`:
+#   COMPLETION=packaged (set in this file by the reviewer): plans ONLY the owner-approved catalogue completion (2026-10-29) shipped in the image, step `catalogue_completion`
+#                                                    (`--only=catalogue_completion`: it reads just the lab, radiology and nursing services and their offers, so it fits in the
+#                                                    worker's 640 MB; the full plan with 20,990 medicine names does not; the host input files are not used in this mode):
 #                                                    approves the 7 hidden radiology scans and every real pending lab and nursing row, adds the new radiology/lab/nursing rows,
 #                                                    sets the nursing booking modes; all marked reviewed_by lead-market-review-2026-10-29 and needs_clinical_review. The dry run
 #                                                    prints counts per collection and compares the pending counts with the expected ones (7 / 26 / 12).
+#   PRUNE=yes (set in this file by the reviewer; alone, never together with COMPLETION): plans ONLY the step `catalogue_prune` (owner 2026-10-30, `--only=catalogue_prune`): lab, radiology and nursing rows that
+#                                                    are hidden, duplicate (merged_into), deleted, inactive or rejected AND referenced by nothing are DELETED (whole before-image in the backup,
+#                                                    rollback puts them back). Delete only: a row something still points at stays, and the dry run counts both per vertical and the places that
+#                                                    keep a row. An unpublished draft is never touched. Run it after the duplicates step has been applied (that step re-points the references).
+#   ONE_OFF=yes (set in this file by the reviewer): runs the tool NOT inside $CT but in a one-off `docker run --rm` of $CT's image, on $CT's network, with the same env file
+#                                                    (plus MONGO_URL/DB_NAME built from it in a mode-600 temp file, removed at the end), `--memory 900m --memory-swap 900m
+#                                                    --oom-score-adj 1000` (if the host runs short, this container is the one the kernel kills), NODE_OPTIONS heap 700 MB.
+#                                                    For heavy steps; never in the API container. $B is mounted as /backup (the backup file lands there directly), $IN as /in (read-only).
 set -u
 EXPECT_PLAN_SHA=""
 COMPLETION=""
+PRUNE=""
+ONE_OFF=""
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}
 IN=${OPS_CATALOGUE_DIR:-/opt/nabdah/catalogue}
-CT=${CATALOGUE_CONTAINER:-nabdah-backend}
+CT=${CATALOGUE_CONTAINER:-nabdah-worker}
+ENVF=$D/.env.production
 TS=$(date -u +%Y%m%dT%H%M%SZ)
 DK="sudo -n docker"
 TOOL="node dist/scripts/catalogue-apply.js"
@@ -44,13 +57,46 @@ health() { $DK inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{
 # the value of a top-level JSON key from one line of the tool's output (numbers, hashes and booleans only)
 jval() { sed -n "s/.*\"$1\":\([^,}]*\).*/\1/p" | head -1 | tr -d '"'; }
 # the first output line of the tool that mentions \$1
-tool() { $DK exec "$CT" $TOOL "$@" 2>&1; }
+tool() {
+  if [ -n "$ONE_OFF" ]; then
+    $DK run --rm --user 0:0 --memory 900m --memory-swap 900m --oom-score-adj 1000 --network "$ONE_OFF_NET" --env-file "$ENVF" --env-file "$ONE_OFF_ENV" \
+      -e NODE_OPTIONS=--max-old-space-size=700 -v "$B:/backup" -v "$IN:/in:ro" "$ONE_OFF_IMG" $TOOL "$@" 2>&1
+  else
+    $DK exec "$CT" $TOOL "$@" 2>&1
+  fi
+}
+envval() { sudo -n sed -n "s/^$1=//p" "$ENVF" 2>/dev/null | tail -1 | tr -d "\"'"; }
+ONE_OFF_ENV=""
+one_off_cleanup() { [ -n "$ONE_OFF_ENV" ] && sudo -n rm -f "$ONE_OFF_ENV"; ONE_OFF_ENV=""; }
 
 # --- 0. pre-checks
 [ "$(health "$CT")" = healthy ] || { say "ABORT $CT is not healthy"; exit 1; }
 $DK exec "$CT" test -f dist/scripts/catalogue-apply.js || { say "ABORT the running image has no catalogue-apply tool: deploy the release first"; exit 1; }
+if [ -n "$ONE_OFF" ]; then
+  ONE_OFF_IMG=$($DK inspect -f '{{.Config.Image}}' "$CT" 2>/dev/null)
+  ONE_OFF_NET=$($DK inspect -f '{{range $k, $v := .NetworkSettings.Networks}}{{$k}} {{end}}' "$CT" 2>/dev/null | awk '{print $1}')
+  [ -n "$ONE_OFF_IMG" ] && [ -n "$ONE_OFF_NET" ] || { say "ABORT cannot read the image or network of $CT"; exit 1; }
+  sudo -n test -r "$ENVF" || { say "ABORT $ENVF is not readable"; exit 1; }
+  ONE_OFF_ENV=$(sudo -n mktemp) && sudo -n chmod 600 "$ONE_OFF_ENV" \
+    && printf 'MONGO_URL=mongodb://%s:%s@mongodb:27017/?authSource=admin\nDB_NAME=%s\n' "$(envval MONGO_ROOT_USER)" "$(envval MONGO_ROOT_PASSWORD)" "$(envval DB_NAME | grep . || echo nabd_nestjs)" | sudo -n tee "$ONE_OFF_ENV" >/dev/null \
+    || { say "ABORT cannot write the temp env file"; one_off_cleanup; exit 1; }
+  say "one-off container: image of $CT, network $ONE_OFF_NET, 900m memory, no swap, oom_score_adj 1000 (the tool does not run inside $CT)"
+fi
 ARGS=""
-[ "$COMPLETION" = packaged ] && ARGS="$ARGS --catalogue-completion=packaged" && say "catalogue completion (packaged) planned"
+if [ "$PRUNE" = yes ] && [ -n "$COMPLETION" ]; then say "ABORT PRUNE and COMPLETION are separate runs: set only one"; one_off_cleanup; exit 1; fi
+if [ "$COMPLETION" = packaged ]; then
+  ARGS="$ARGS --only=catalogue_completion --catalogue-completion=packaged"; say "catalogue completion (packaged) planned on its own (--only=catalogue_completion)"
+fi
+if [ "$PRUNE" = yes ]; then
+  ARGS="$ARGS --only=catalogue_prune"; say "catalogue prune planned on its own (--only=catalogue_prune): delete-only, unreferenced rows"
+fi
+if [ "$COMPLETION" = packaged ] || [ "$PRUNE" = yes ]; then :   # --only: the other inputs are not used
+elif [ -n "$ONE_OFF" ]; then
+  # the host files are mounted read-only at /in: no copy into a container
+  for f in districts.json:districts approved-name-fixes.csv:name-fixes product-translations.json:product-translations radiology-approve.json:radiology-approve test-data-remove.json:test-data-remove; do
+    sudo -n test -f "$IN/${f%%:*}" && ARGS="$ARGS --${f##*:}=/in/${f%%:*}" && say "input ${f%%:*} used from $IN"
+  done
+else
 if sudo -n test -f "$IN/districts.json"; then
   sudo -n cat "$IN/districts.json" | $DK exec -i "$CT" sh -c 'cat > /tmp/cat-districts.json' && ARGS="$ARGS --districts=/tmp/cat-districts.json" && say "input districts.json copied in"
 fi
@@ -66,7 +112,8 @@ fi
 if sudo -n test -f "$IN/test-data-remove.json"; then
   sudo -n cat "$IN/test-data-remove.json" | $DK exec -i "$CT" sh -c 'cat > /tmp/cat-test-data-remove.json' && ARGS="$ARGS --test-data-remove=/tmp/cat-test-data-remove.json" && say "input test-data-remove.json copied in"
 fi
-cleanup_inputs() { $DK exec "$CT" sh -c 'rm -f /tmp/cat-districts.json /tmp/cat-name-fixes.csv /tmp/cat-product-translations.json /tmp/cat-radiology-approve.json /tmp/cat-test-data-remove.json' >/dev/null 2>&1; }
+fi
+cleanup_inputs() { one_off_cleanup; [ -n "$ONE_OFF" ] && return 0; $DK exec "$CT" sh -c 'rm -f /tmp/cat-districts.json /tmp/cat-name-fixes.csv /tmp/cat-product-translations.json /tmp/cat-radiology-approve.json /tmp/cat-test-data-remove.json' >/dev/null 2>&1; }
 
 # --- 1. plan
 PLAN=$(tool plan $ARGS); RC=$?
@@ -88,13 +135,15 @@ case "$SHA" in "$EXPECT_PLAN_SHA"*) ;; *) say "ABORT the plan changed (expected 
 
 # --- 2+3. backup, apply, verify
 BK_IN=/tmp/catalogue-backup-$TS.json.gz
+[ -n "$ONE_OFF" ] && BK_IN=/backup/catalogue-$TS.json.gz   # the one-off container writes straight into $B
 sudo -n mkdir -p "$B"
 OUT=$(tool apply --expect="$SHA" --backup="$BK_IN" $ARGS); RC=$?
 echo "$OUT" | sed 's/^/status: catalogue-apply: /' | cut -c1-700
 FILE_SHA=$(echo "$OUT" | grep '"step":"backup"' | jval file_sha256)
 # a copy of the backup on the host, checked against the hash the tool reported
-if $DK cp "$CT:$BK_IN" "/tmp/cat-$TS.gz" >/dev/null 2>&1; then
-  sudo -n cp -p "/tmp/cat-$TS.gz" "$B/catalogue-$TS.json.gz" && sudo -n chmod 600 "$B/catalogue-$TS.json.gz"
+if [ -n "$ONE_OFF" ] && sudo -n test -f "$B/catalogue-$TS.json.gz" || $DK cp "$CT:$BK_IN" "/tmp/cat-$TS.gz" >/dev/null 2>&1; then
+  [ -z "$ONE_OFF" ] && sudo -n cp -p "/tmp/cat-$TS.gz" "$B/catalogue-$TS.json.gz"
+  sudo -n chmod 600 "$B/catalogue-$TS.json.gz"
   HOST_SHA=$(sudo -n sha256sum "$B/catalogue-$TS.json.gz" | cut -d' ' -f1); rm -f "/tmp/cat-$TS.gz"
   if [ -n "$FILE_SHA" ] && [ "$HOST_SHA" = "$FILE_SHA" ]; then say "backup saved (sha256 ${HOST_SHA:0:12})"; else say "WARNING host backup hash differs from the tool's"; fi
 fi

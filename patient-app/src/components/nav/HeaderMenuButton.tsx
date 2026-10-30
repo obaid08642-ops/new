@@ -6,6 +6,7 @@ import Svg, { Path } from 'react-native-svg';
 
 import { withAlpha } from '../../../../packages/ui-native/src/shells/shellTokens';
 import { useScreenUi } from '../screen/ScreenKit';
+import { HEADER_ICON, HeaderDot, HeaderRound } from './HeaderRound';
 import { useNewResultsCount } from '../../hooks/useNewResultsCount';
 
 /**
@@ -44,27 +45,11 @@ export function HeaderMenuButton({ testID = 'header-menu-button' }: { testID?: s
 
   return (
     <View>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={k('menu.open')}
-        accessibilityState={{ expanded: open }}
-        testID={testID}
-        onPress={openSheet}
-        style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 22, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.onGlass, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.8 : 1 })}
-      >
-        <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+      <HeaderRound label={k('menu.open')} state={{ expanded: open }} testID={testID} onPress={openSheet} badge={fresh.count > 0 ? <HeaderDot testID={`${testID}-dot`} /> : null}>
+        <Svg width={HEADER_ICON} height={HEADER_ICON} viewBox="0 0 24 24" fill="none">
           <Path d={BARS} stroke={c.text.secondary} strokeWidth={2} strokeLinecap="round" />
         </Svg>
-        {fresh.count > 0 ? (
-          <View
-            testID={`${testID}-dot`}
-            pointerEvents="none"
-            accessibilityElementsHidden
-            importantForAccessibility="no-hide-descendants"
-            style={{ position: 'absolute', top: 8, end: 9, width: 10, height: 10, borderRadius: 5, backgroundColor: c.avatar.ring, borderWidth: 2, borderColor: c.bg.surface }}
-          />
-        ) : null}
-      </Pressable>
+      </HeaderRound>
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
         <View style={{ flex: 1, justifyContent: 'flex-end' }}>
           <Pressable

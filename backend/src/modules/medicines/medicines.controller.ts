@@ -74,6 +74,7 @@ export class MedicinesController {
   }
 
   @Public()
+  @PublicCache(300, ['medicines'])
   @Get('autocomplete')
   async autocomplete(@Query('q') q: string) {
     return toPublicMedicine(await this.svc.autocomplete(q));
@@ -97,12 +98,14 @@ export class MedicinesController {
   }
 
   @Public()
+  @PublicCache(300, ['medicines', 'public-catalogue'])
   @Get('categories')
   categoriesList() {
     return this.svc.categories();
   }
 
   @Public()
+  @PublicCache(300, ['medicines', 'public-catalogue'])
   @Get('filters')
   filters() {
     return this.svc.filters();
@@ -119,6 +122,7 @@ export class MedicinesController {
 
   /** Smart Cache: Top 50 hot medicines (daily cron, weighted 50/30/20) */
   @Public()
+  @PublicCache(300, ['medicines'])
   @Get('hot')
   async hot() {
     return toPublicMedicine(await this.svc.hot());

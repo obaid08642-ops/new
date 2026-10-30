@@ -1,4 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject, Optional } from '@nestjs/common';
+import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
+import { ownPrices } from '../../common/service-offers';
 import { SearchService } from '../search/search.service';
 import { NURSING_TYPES, byRelevance, matchedIds } from '../search/catalogue-search';
 import { KillSwitchesService } from '../kill-switches/kill-switches.service';
@@ -44,7 +46,7 @@ export class HomeCareSvc {
     @Optional() private readonly searchEngine?: SearchService,
   ) {}
 
-  async list(opts: { category?: string; search?: string; duration?: string }) {
+  async list(opts: { category?: string; search?: string; duration?: string; sort?: string }) {
     const q: any = { active: true };
     if (opts.category && opts.category !== 'all') q.category = opts.category;
     if (opts.duration && opts.duration !== 'all') q.duration = opts.duration;
@@ -57,9 +59,9 @@ export class HomeCareSvc {
         q.$or = [{ name_ar: re }, { name_en: re }, { tags: re }];
       }
     }
-    if (!this.redis?.getWithSWR) return this.svcModel.find(q, { _id: 0, __v: 0 }).sort({ popularity: -1, name_ar: 1 }).limit(120);
+    if (!this.redis?.getWithSWR) return this.svcModel.find(q, { _id: 0, __v: 0 }).sort(catalogueSortSpec(opts.sort)).limit(120);
     const cacheKey = `cache:home-care-services:public:v1:${JSON.stringify(opts)}`;
-    return this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q, { _id: 0, __v: 0 }).sort({ popularity: -1, name_ar: 1 }).limit(120));
+    return this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q, { _id: 0, __v: 0 }).sort(catalogueSortSpec(opts.sort)).limit(120));
   }
 
   async categoryCounts() {
@@ -111,10 +113,13 @@ export class HomeCareSvc {
     if (dupe) return dupe;
     // booking mode (visit | continuous | programme): the service decides, the choice must be one it offers (booking-mode.ts)
     const choice = resolveBookingChoice(svc as any, data);
-    // a catalogue row without a price (its providers set their own) cannot be priced from the catalogue: a clear refusal, not a NaN total
-    if (!(typeof svc.price === 'number' && svc.price > 0)) throw new BadRequestException('service_price_not_set');
     const sessions = choice.sessions_count;
-    const total = svc.price * sessions;
+    // the chosen nurse's own price for the service (her choice, else what she registered with), else the catalogue price: the price the patient was shown is the price charged.
+    // A row with no price anywhere (its providers set their own) cannot be priced: a clear refusal, not a NaN total.
+    const ownPrice = providerId ? (await ownPrices(this.svcModel.db as never, 'nursing', [providerId], [svc as any])).get(providerId)?.get(svc.id) : undefined;
+    const unitPrice = ownPrice ?? svc.price;
+    if (!(typeof unitPrice === 'number' && unitPrice > 0)) throw new BadRequestException('service_price_not_set');
+    const total = unitPrice * sessions;
     const booking = await this.bkgModel.create({
       patient_id: user.id,
       patient_name: data.contact?.name || user.full_name,

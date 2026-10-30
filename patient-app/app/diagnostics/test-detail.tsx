@@ -15,6 +15,7 @@ import { apiFetch } from '../../src/utils/api';
 import { useReportServiceView } from '../../src/utils/rankingEvents';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
+import { FieldText, MarkNote, markTextProps } from '../../src/components/LocalizedField';
 import { catalogArt } from '../../src/utils/diagCatalog';
 import { singleOrderRoute } from '../../src/utils/singleOrder';
 import { normalizeLabService, recordOf, type CatalogItem } from '../../src/utils/labMappers';
@@ -59,15 +60,17 @@ export default function TestDetail() {
   };
 
   const footer =
-    data && status === 'ready' && !unoffered ? (
+    data && status === 'ready' ? (
       <>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-          <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary }}>{k('diag.detail.total')}</Text>
-          {data.price !== null ? <Price amount={data.price} size="h3" /> : null}
-        </View>
+        {unoffered ? null : (
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+            <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary }}>{k('diag.detail.total')}</Text>
+            {data.price !== null ? <Price amount={data.price} size="h3" /> : null}
+          </View>
+        )}
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <View style={{ flex: 1 }}>
-            <Button theme={theme} size="lg" fullWidth variant="outline" label={inCart ? k('diag.detail.inCart') : k('diag.detail.addToCart')} disabled={inCart} onPress={add} />
+            <Button theme={theme} size="lg" fullWidth variant="outline" label={inCart ? k('diag.detail.inCart') : k('diag.detail.addToCart')} disabled={inCart || unoffered} onPress={add} />
           </View>
           <View style={{ flex: 1 }}>
             <Button
@@ -75,6 +78,7 @@ export default function TestDetail() {
               size="lg"
               fullWidth
               label={k('diag.detail.orderNow')}
+              disabled={unoffered}
               // "Order now" skips the cart: this one item goes to the lab choice, the time and the payment
               onPress={() => router.push(singleOrderRoute({ kind, id, name: data.name }) as unknown as Href)}
             />
@@ -88,11 +92,11 @@ export default function TestDetail() {
       <Gate status={status} onRetry={() => void load()}>
         {data ? (
           <>
-            <DetailHead icon={look.icon} tone={look.tone} art={catalogArt(kind, data)} image={data.image} title={data.name} />
+            <DetailHead icon={look.icon} tone={look.tone} art={catalogArt(kind, data)} image={data.image} title={data.name} titleMark={data.nameMark} />
             {data.desc ? (
               <Section title={k('diag.detail.about')}>
                 <Block>
-                  <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 24, color: c.text.secondary, ...flow }}>{data.desc}</Text>
+                  <FieldText text={data.desc} mark={data.descMark} style={{ ...scale(t, 'small', 'regular'), lineHeight: 24, color: c.text.secondary, ...flow }} />
                 </Block>
               </Section>
             ) : null}
@@ -104,14 +108,15 @@ export default function TestDetail() {
                     {data.preparation.map((p, i) => (
                       <View key={`${p}-${i}`} style={{ flexDirection: 'row', gap: 8 }}>
                         <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.link }}>•</Text>
-                        <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, ...flow }}>{p}</Text>
+                        <Text {...markTextProps(data.prepMark)} style={[{ flex: 1, minWidth: 0, ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, ...flow }, markTextProps(data.prepMark).style]}>{p}</Text>
                       </View>
                     ))}
+                    <MarkNote mark={data.prepMark} />
                   </Block>
                 ) : null}
               </Section>
             ) : null}
-            <OffersSection kind={kind} serviceId={id} offer={data.offer} offers={data.offers} />
+            <OffersSection kind={kind} serviceId={id} offer={data.offer} offers={data.offers} price={data.price} />
             {unoffered ? null : <ItemOrderingPanel kind={kind} catalogId={id} />}
             {data.turnaroundHours !== null ? (
               <ListCard>

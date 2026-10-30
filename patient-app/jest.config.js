@@ -1,7 +1,12 @@
+const path = require('path');
+
+// RN 0.88 publishes these subpaths through its package `exports` map only; Jest 30 does not read it, so they are mapped to the files.
+const rn = (file) => path.join(__dirname, 'node_modules/react-native', file);
+
 module.exports = {
   preset: 'jest-expo',
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|@reduxjs/toolkit|immer|redux|redux-toolkit|react-redux)'
+    'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|@shopify/flash-list|@reduxjs/toolkit|immer|redux|redux-toolkit|react-redux)'
   ],
   testMatch: ['**/__tests__/**/*.test.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
   moduleNameMapper: {
@@ -20,7 +25,11 @@ module.exports = {
     '^react$': '<rootDir>/node_modules/react',
     '^react/(.*)$': '<rootDir>/node_modules/react/$1',
     '^react-native$': '<rootDir>/node_modules/react-native',
-    '^react-native/(.*)$': '<rootDir>/node_modules/react-native/$1',
+    // Only the file-path subpaths: RN 0.88 publishes others (react-native/asset-registry, /jest/...) through its package
+    // `exports` map, which a path mapping cannot follow.
+    '^react-native/react-private-interface$': rn('src/react-private-interface.js'),
+    '^react-native/setup-env$': rn('src/setup-env.js'),
+    '^react-native/(Libraries|src)/(.*)$': '<rootDir>/node_modules/react-native/$1/$2',
     '^react-native-svg$': '<rootDir>/node_modules/react-native-svg',
     // Same rule for the safe-area context: the shells (packages/ui-native/src/shells) and the
     // app must share one provider, or the shells read the default zero insets.

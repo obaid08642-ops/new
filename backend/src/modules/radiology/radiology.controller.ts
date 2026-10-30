@@ -1,4 +1,6 @@
 import { PROVIDER_ROLES } from '../../common/enums';
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { BadRequestException, Body, Controller, Get, Post, Param, Query, Patch, Put, Delete, UseGuards, ServiceUnavailableException } from '@nestjs/common';
 import { RadiologyOpsService } from './radiology.service';
 import { Public, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
@@ -9,6 +11,7 @@ import { CreateRadiologyCatalogDto, UpdateRadiologyCatalogDto, ApproveCatalogDto
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { PublicCache } from '../../common/public-cache.decorator';
 @Controller('radiology')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 export class RadiologyController {
   constructor(private readonly svc: RadiologyOpsService) {}
 
@@ -29,8 +32,10 @@ export class RadiologyController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('category') category?: string,
+    @Query('sort') sort?: string,
   ) {
     return this.svc.list({ 
+      sort,
       // with `page` the answer is { data, total, page, limit, total_pages }; without it, the array as before
       page: page !== undefined ? Number(page) : undefined,
       limit: limit !== undefined ? Number(limit) : undefined,
@@ -48,7 +53,7 @@ export class RadiologyController {
     });
   }
 
-  @Public() @Get('carousel')
+  @Public() @PublicCache(120, ['radiology', 'public-catalogue']) @Get('carousel')
   carousel(@Query('modality') modality?: string, @Query('limit') limit?: string) {
     return this.svc.getCarousel(modality, parseInt(limit || '20', 10));
   }

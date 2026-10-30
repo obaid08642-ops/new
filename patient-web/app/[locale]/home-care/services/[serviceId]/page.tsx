@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CatalogueViewBeacon } from "@/components-next/diagnostics/catalogue-view-beacon";
 import { pickName, pickTexts, perLocaleOf } from "@/lib/i18n/localized";
 import { LocalizedField, LocalizedList } from "@/components-next/ui/localized-field";
 import { preparationField } from "@/lib/ordering/item";
@@ -103,6 +104,7 @@ export default async function HomeCareServicePage({ params, searchParams }: Prop
   ];
   return (
     <ConsultPage locale={locale} title={name || t("serviceTitle")} backHref={back}>
+      <CatalogueViewBeacon vertical="nursing" serviceId={service.id} />
       <JsonLd data={[
         medicalWebPage({ title: name || t("serviceTitle"), locale, path: `/home-care/services/${serviceId}`, description: description ?? null, speakable: true }),
         nursingService({ name: name || t("serviceTitle"), locale, path: `/home-care/services/${serviceId}`, description: description ?? null }),
@@ -127,7 +129,7 @@ export default async function HomeCareServicePage({ params, searchParams }: Prop
           <Facts rows={rows} label={t("serviceTitle")} />
         </SectionCard>
       ) : null}
-      <OffersSection locale={locale} t={w} kind="nursing" serviceId={service.id} offer={service.offer} offers={service.offers} />
+      <OffersSection locale={locale} t={w} kind="nursing" serviceId={service.id} offer={service.offer} offers={service.offers} price={service.price} bookLabel={t("bookCta")} />
       {/* journeys#60 (issue 1069): the service is booked on the website too (the book page asks for sign-in) */}
       {service.offer?.providersCount === 0 ? null : <ButtonLink href={`/${locale}/home-care/services/${encodeURIComponent(serviceId)}/book${pay === "insurance" ? "?pay=insurance" : ""}`} label={t("bookCta")} fullWidth />}
     </ConsultPage>

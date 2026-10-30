@@ -115,6 +115,11 @@ export class IssueMedicalReportDto {
   @IsString()
   findings?: string;
 
+  /** The visit this report is for; stored only when it is this doctor's appointment of the report's patient. */
+  @IsOptional()
+  @IsString()
+  appointment_id?: string;
+
 
   @IsOptional()
   @IsString()

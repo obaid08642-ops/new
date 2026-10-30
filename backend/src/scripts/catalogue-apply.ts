@@ -26,6 +26,7 @@ import {
 import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn, planInsuranceShape, planNumberedDistricts, planPlaceholderCities, planProductTranslations, planRadiologyCatalogue } from '../modules/catalogs/catalogue-apply.steps';
 import { planTestDataRemoval, scanDb } from '../modules/catalogs/test-data';
 import { planCatalogueCompletion, type CompletionSeed } from '../modules/catalogs/catalogue-completion';
+import { planCataloguePrune } from '../modules/catalogs/catalogue-prune';
 import { planCatalogueDuplicates } from '../modules/catalogs/catalogue-duplicates';
 import { isTranslationFile } from '../modules/medicines/content-translation';
 
@@ -59,6 +60,46 @@ async function planTestData(db: DbLike, argv: string[], inputs: Record<string, s
   report.test_data = removal.report;
 }
 
+/** Radiology approvals and duplicates, then the catalogue completion: the three steps that read only the lab, radiology and nursing services (and their offers). */
+async function planRadiologyAndCompletion(db: DbLike, argv: string[], inputs: Record<string, string>, changes: Change[], report: Record<string, unknown>): Promise<void> {
+  // radiology: hiding the legacy duplicates is always planned; approving a pending scan needs the reviewed file (a medical sign-off)
+  const approvePath = arg(argv, 'radiology-approve');
+  let approve: string[] = [];
+  if (approvePath) {
+    const text = fs.readFileSync(approvePath, 'utf8');
+    inputs.radiology_approve = sha256(text);
+    const parsed: unknown = JSON.parse(text);
+    const list = (parsed as { approve?: unknown })?.approve;
+    if (!Array.isArray(list) || !list.every((c) => typeof c === 'string')) throw new Error('--radiology-approve must be {"approve": ["CODE", ...]}');
+    approve = list as string[];
+  }
+  // the lead's catalogue completion (2026-10-29): its radiology approvals join the reviewed file's, the rows are planned after the duplicates step
+  const completionArg = arg(argv, 'catalogue-completion');
+  let completionSeed: CompletionSeed | null = null;
+  if (completionArg) {
+    const text = fs.readFileSync(completionArg === 'packaged' ? PACKAGED_COMPLETION : completionArg, 'utf8');
+    inputs.catalogue_completion = sha256(text);
+    completionSeed = JSON.parse(text) as CompletionSeed;
+    approve = [...new Set([...approve, ...completionSeed.radiology_approve])];
+  }
+  const radiology = await planRadiologyCatalogue(db, approve);
+  changes.push(...radiology.changes);
+  report.radiology_catalogue = approvePath ? radiology.report : { ...radiology.report, note: 'no reviewed file given: nothing is approved' };
+
+  // duplicate services (QA 2026-10-29): one row per service in labs and nursing, the radiology duplicates followed with their references
+  const duplicates = await planCatalogueDuplicates(db, { radiologyApprove: approve });
+  changes.push(...duplicates.changes);
+  report.catalogue_duplicates = duplicates.report;
+
+  // completion of the radiology, lab and nursing catalogues (lead market review, owner approved 2026-10-29)
+  if (completionSeed) {
+    const approvedIds = radiology.changes.filter((c) => c.kind === 'set' && c.path === 'medical_review_status' && c.after === 'approved').map((c) => (c as SetChange).key._id);
+    const completion = await planCatalogueCompletion(db, { seed: completionSeed, duplicateChanges: duplicates.changes, radiologyApprovedIds: approvedIds });
+    changes.push(...completion.changes);
+    report.catalogue_completion = completion.report;
+  } else report.catalogue_completion = 'skipped: no --catalogue-completion given';
+}
+
 export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> {
   const inputs: Record<string, string> = {};
   const changes: Change[] = [];
@@ -69,6 +110,22 @@ export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> 
     await planTestData(db, argv, inputs, changes, report);
     return { changes, inputs, sha: planSha(changes, inputs), report };
   }
+
+  // `--only=catalogue_completion`: the owner-approved completion on its own (radiology approvals, duplicates, completion). It reads only the
+  // lab, radiology and nursing services and their offers, so it fits where the full plan (20,990 medicine names, districts, ...) does not.
+  if (arg(argv, 'only') === 'catalogue_completion') {
+    if (!arg(argv, 'catalogue-completion')) throw new Error('--only=catalogue_completion needs --catalogue-completion=packaged (or a file)');
+    await planRadiologyAndCompletion(db, argv, inputs, changes, report);
+    return { changes, inputs, sha: planSha(changes, inputs), report };
+  }
+  // `--only=catalogue_prune`: delete the hidden / duplicate / rejected / inactive rows that nothing references (owner 2026-10-30); run it after the duplicates step has been applied
+  if (arg(argv, 'only') === 'catalogue_prune') {
+    const pruned = await planCataloguePrune(db);
+    changes.push(...pruned.changes);
+    report.catalogue_prune = pruned.report;
+    return { changes, inputs, sha: planSha(changes, inputs), report };
+  }
+  if (arg(argv, 'only') !== undefined) throw new Error('--only must be test_data, catalogue_completion or catalogue_prune');
 
   const csv = fs.readFileSync(TRANSLATIONS_CSV, 'utf8');
   inputs.medicine_translations_csv = sha256(csv);
@@ -120,42 +177,7 @@ export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> 
   changes.push(...shape.changes);
   report.insurance_shape = shape.report;
 
-  // radiology: hiding the legacy duplicates is always planned; approving a pending scan needs the reviewed file (a medical sign-off)
-  const approvePath = arg(argv, 'radiology-approve');
-  let approve: string[] = [];
-  if (approvePath) {
-    const text = fs.readFileSync(approvePath, 'utf8');
-    inputs.radiology_approve = sha256(text);
-    const parsed: unknown = JSON.parse(text);
-    const list = (parsed as { approve?: unknown })?.approve;
-    if (!Array.isArray(list) || !list.every((c) => typeof c === 'string')) throw new Error('--radiology-approve must be {"approve": ["CODE", ...]}');
-    approve = list as string[];
-  }
-  // the lead's catalogue completion (2026-10-29): its radiology approvals join the reviewed file's, the rows are planned after the duplicates step
-  const completionArg = arg(argv, 'catalogue-completion');
-  let completionSeed: CompletionSeed | null = null;
-  if (completionArg) {
-    const text = fs.readFileSync(completionArg === 'packaged' ? PACKAGED_COMPLETION : completionArg, 'utf8');
-    inputs.catalogue_completion = sha256(text);
-    completionSeed = JSON.parse(text) as CompletionSeed;
-    approve = [...new Set([...approve, ...completionSeed.radiology_approve])];
-  }
-  const radiology = await planRadiologyCatalogue(db, approve);
-  changes.push(...radiology.changes);
-  report.radiology_catalogue = approvePath ? radiology.report : { ...radiology.report, note: 'no reviewed file given: nothing is approved' };
-
-  // duplicate services (QA 2026-10-29): one row per service in labs and nursing, the radiology duplicates followed with their references
-  const duplicates = await planCatalogueDuplicates(db, { radiologyApprove: approve });
-  changes.push(...duplicates.changes);
-  report.catalogue_duplicates = duplicates.report;
-
-  // completion of the radiology, lab and nursing catalogues (lead market review, owner approved 2026-10-29)
-  if (completionSeed) {
-    const approvedIds = radiology.changes.filter((c) => c.kind === 'set' && c.path === 'medical_review_status' && c.after === 'approved').map((c) => (c as SetChange).key._id);
-    const completion = await planCatalogueCompletion(db, { seed: completionSeed, duplicateChanges: duplicates.changes, radiologyApprovedIds: approvedIds });
-    changes.push(...completion.changes);
-    report.catalogue_completion = completion.report;
-  } else report.catalogue_completion = 'skipped: no --catalogue-completion given';
+  await planRadiologyAndCompletion(db, argv, inputs, changes, report);
 
   // test providers (owner, 2026-10-28)
   await planTestData(db, argv, inputs, changes, report);

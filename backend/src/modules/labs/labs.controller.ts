@@ -1,4 +1,6 @@
 import { Controller, Get, Post, Patch, Put, Delete, Param, Query, UseGuards, ServiceUnavailableException, BadRequestException, Body, Res } from '@nestjs/common';
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import type { Response } from 'express';
 import { LabsService } from './labs.service';
 import { Public, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
@@ -9,6 +11,7 @@ import { CreateLabCatalogDto, UpdateLabCatalogDto, ApproveCatalogDto, BulkApprov
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { PublicCache } from '../../common/public-cache.decorator';
 @Controller('labs')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 export class LabsController {
   constructor(private readonly svc: LabsService) {}
 
@@ -27,8 +30,10 @@ export class LabsController {
     @Query('lng') lng?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query('sort') sort?: string,
   ) {
     return this.svc.list({
+      sort,
       // with `page` the answer is { data, total, page, limit, total_pages }; without it, the array as before
       page: page !== undefined ? Number(page) : undefined,
       limit: limit !== undefined ? Number(limit) : undefined,
@@ -258,7 +263,7 @@ export class LabsController {
     return this.svc.getById(id);
   }
 
-  @Public() @Get('carousel')
+  @Public() @PublicCache(120, ['labs', 'public-catalogue']) @Get('carousel')
   carousel(@Query('category') category?: string, @Query('limit') limit?: string) {
     return this.svc.getCarousel(category, parseInt(limit || '20', 10));
   }

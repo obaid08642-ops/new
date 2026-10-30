@@ -82,7 +82,9 @@ describe('the offer fields of the catalogue payload', () => {
     expect(providersText(bn.k, bn.num, 'bn', 12, false)).toContain('১২');
     expect(offerLines(offerSummaryOf(SERVED), ui('en'))).toMatchObject({ providers: '3 centres', none: false, from: 'From 120.00 SAR', where: ['At the centre', 'At home', 'Insurance accepted'] });
     expect(offerLines(offerSummaryOf({ providers_count: 2, from_price: null }), ui('en'))).toMatchObject({ providers: '2 centres', from: undefined });
-    expect(offerLines(offerSummaryOf(NONE), ui('en'))).toMatchObject({ providers: 'No centre offers this yet', none: true, where: [] });
+    expect(offerLines(offerSummaryOf(NONE), ui('en'))).toMatchObject({ providers: 'Not available in your area yet', none: true, from: undefined, where: [] });
+    // the catalogue price of an unoffered service is an indicative From, not a provider's price
+    expect(offerLines(offerSummaryOf(NONE), ui('en'), false, 400)).toMatchObject({ none: true, from: 'From 400.00 SAR' });
     expect(offerLines(null, ui('en'))).toBeNull();
     expect(providersText(ui('en').k, ui('en').num, 'en', 1, true)).toBe('1 provider');
   });
@@ -97,7 +99,12 @@ describe('one list, every entry point', () => {
     expect(screen.getAllByText('Insurance accepted').length).toBeGreaterThan(0);
     // the scan nobody offers is listed with the reason, even though the order's place is "home" and it cannot be done at home
     expect(screen.getByTestId(`${idPrefix}-r-none`)).toBeTruthy();
-    expect(screen.getAllByText(/No centre offers this yet/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Not available in your area yet/).length).toBeGreaterThan(0);
+    // its buttons stay on the card, switched off; the offered scan's are live
+    for (const part of ['add', 'order']) {
+      expect(screen.getByTestId(`${idPrefix}-r-none-${part}`).props.accessibilityState).toMatchObject({ disabled: true });
+      expect(screen.getByTestId(`${idPrefix}-r-served-${part}`).props.accessibilityState?.disabled).toBeFalsy();
+    }
   };
 
   it("the hub's radiology tab lists every scan with its offer lines", async () => {
@@ -124,7 +131,9 @@ describe('one list, every entry point', () => {
     expect(screen.getByTestId('nursing-service-svc-a')).toBeTruthy();
     expect(screen.getByText(/4 providers · From 180\.00 SAR · At home · Insurance accepted/)).toBeTruthy();
     expect(screen.getByTestId('nursing-service-svc-b')).toBeTruthy();
-    expect(screen.getByText('No centre offers this yet')).toBeTruthy();
+    expect(screen.getByText('Not available in your area yet · From 150.00 SAR')).toBeTruthy();
+    // the booking action stays, switched off
+    expect(screen.getByTestId('nursing-service-svc-b-action').props.accessibilityState).toMatchObject({ disabled: true });
   });
 });
 
@@ -156,6 +165,11 @@ describe('the payment filter and the price keep working on the catalogue lists',
 });
 
 describe('the detail: who offers it, and "Notify me when available"', () => {
+  it('a service nobody offers shows its catalogue price as an indicative From next to the line', async () => {
+    await render(wrap(<OffersSection kind="radiology" serviceId="r-none" offer={offerSummaryOf(NONE)} offers={[]} price={400} />));
+    expect(screen.getByTestId('indicative-price').props.children).toBe(`${k('diag.offer.from', { price: '400.00 SAR' })} · ${k('diag.offer.indicative')}`);
+  });
+
   it('lists the offers cheapest first', async () => {
     const offers = offersOf({ offers: [
       { provider: { id: 'p1', name_en: 'Alpha Imaging', rating: 4.5, rating_count: 12 }, price: 120, premises: true, insurance: true },

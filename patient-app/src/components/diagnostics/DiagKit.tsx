@@ -13,6 +13,8 @@ import { statusLook, type OrderKind } from '../../utils/orderCenter';
 import { ItemPhoto } from './ItemPhoto';
 import { DIAG_ART_TONE, diagArtKey, type DiagArtKey } from '../../../../packages/ui/icons/diag-art';
 import { DiagArt } from './DiagArt';
+import { FieldText } from '../LocalizedField';
+import type { FieldMark } from '../../utils/localizedField';
 
 /**
  * What the labs and radiology screens share (Batch 3, slice 3-app): the look of a service, the tags, the test row with its
@@ -117,6 +119,8 @@ export function AddToggle({ on, label, onPress }: { on: boolean; label: string; 
 
 export interface TestRowProps {
   name: string;
+  /** Language fallback: the name's own direction/language and the one-line note when it is not in the app's language. */
+  nameMark?: FieldMark;
   tags?: Array<{ label: string; tone: ServiceTone | 'neutral' }>;
   /** The line under the tags (turnaround, category). */
   note?: string;
@@ -131,13 +135,13 @@ export interface TestRowProps {
 }
 
 /** The board's test row (ServiceHub "common tests"): name, tags, note, price and the add toggle. */
-export function TestRow({ name, tags, note, price, onPress, toggle, icon, last = false, testID }: TestRowProps) {
+export function TestRow({ name, nameMark, tags, note, price, onPress, toggle, icon, last = false, testID }: TestRowProps) {
   const { theme, t, c, flow } = useScreenUi();
   const body = (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, minHeight: 64 }}>
       {icon ? <FIcon icon={icon.icon} tone={icon.tone} size={44} theme={theme} /> : null}
       <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
-        <Text style={{ ...scale(t, 'bodyStrong', 'medium'), color: c.text.primary, ...flow }}>{name}</Text>
+        <FieldText text={name} mark={nameMark} style={{ ...scale(t, 'bodyStrong', 'medium'), color: c.text.primary, ...flow }} />
         {tags && tags.length > 0 ? (
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
             {tags.map((g) => (
@@ -166,6 +170,8 @@ export function TestRow({ name, tags, note, price, onPress, toggle, icon, last =
 
 export interface ItemCardProps {
   name: string;
+  /** Language fallback: the name's own direction/language and the one-line note when it is not in the app's language. */
+  nameMark?: FieldMark;
   /** The category illustration (blood, X-ray ...), only the FALLBACK: the item's own `image` is drawn first. */
   art: DiagArtKey;
   image?: string;
@@ -183,18 +189,20 @@ export interface ItemCardProps {
   onPress: () => void;
   onAdd: () => void;
   onOrder: () => void;
+  /** Nobody offers the service yet: both buttons stay, switched off. */
+  disabled?: boolean;
   testID?: string;
 }
 
 /** A catalogue test or scan as a large card: its illustration next to the name, the tags, the note and the price, then "Add to cart" and "Order now". */
-export function ItemCard({ name, art, image, width, tags, note, rating, price, inCart, addLabel, inCartLabel, orderLabel, onPress, onAdd, onOrder, testID }: ItemCardProps) {
+export function ItemCard({ name, nameMark, art, image, width, tags, note, rating, price, inCart, addLabel, inCartLabel, orderLabel, onPress, onAdd, onOrder, disabled = false, testID }: ItemCardProps) {
   const { theme, t, c, flow } = useScreenUi();
   return (
     <View testID={testID} style={{ width, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, padding: 16, gap: 14 }}>
       <Pressable accessibilityRole="button" accessibilityLabel={name} onPress={onPress} style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 56, opacity: pressed ? 0.85 : 1 })}>
         <ItemPhoto image={image} size={56} radius={16} bg={c.bg.sunken} fallback={<DiagArt art={art} size={56} />} />
         <View style={{ flex: 1, minWidth: 0, gap: 6 }}>
-          <Text style={{ ...scale(t, 'bodyStrong', 'medium'), color: c.text.primary, ...flow }}>{name}</Text>
+          <FieldText text={name} mark={nameMark} style={{ ...scale(t, 'bodyStrong', 'medium'), color: c.text.primary, ...flow }} />
           {tags && tags.length > 0 ? (
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
               {tags.map((g) => (
@@ -209,10 +217,10 @@ export function ItemCard({ name, art, image, width, tags, note, rating, price, i
       </Pressable>
       <View style={{ flexDirection: 'row', gap: 10 }}>
         <View style={{ flex: 1 }}>
-          <Button theme={theme} size="md" fullWidth variant="outline" label={inCart ? inCartLabel : addLabel} disabled={inCart} onPress={onAdd} testID={testID ? `${testID}-add` : undefined} />
+          <Button theme={theme} size="md" fullWidth variant="outline" label={inCart ? inCartLabel : addLabel} disabled={inCart || disabled} onPress={onAdd} testID={testID ? `${testID}-add` : undefined} />
         </View>
         <View style={{ flex: 1 }}>
-          <Button theme={theme} size="md" fullWidth label={orderLabel} onPress={onOrder} testID={testID ? `${testID}-order` : undefined} />
+          <Button theme={theme} size="md" fullWidth label={orderLabel} disabled={disabled} onPress={onOrder} testID={testID ? `${testID}-order` : undefined} />
         </View>
       </View>
     </View>
@@ -221,7 +229,9 @@ export function ItemCard({ name, art, image, width, tags, note, rating, price, i
 
 export interface PackageCardProps {
   name: string;
+  nameMark?: FieldMark;
   desc?: string;
+  descMark?: FieldMark;
   /** "Includes N tests" already formatted; omitted when the server sent no count. */
   count?: string;
   price: number | null;
@@ -236,7 +246,7 @@ export interface PackageCardProps {
 }
 
 /** The board's package card (ServiceHub): a tone wash, icon and count, name, line, price and the ink action. */
-export function PackageCard({ name, desc, count, price, oldPrice, icon, tone, actionLabel, onPress, width, testID }: PackageCardProps) {
+export function PackageCard({ name, nameMark, desc, descMark, count, price, oldPrice, icon, tone, actionLabel, onPress, width, testID }: PackageCardProps) {
   const { theme, t, c, flow, money, k, num } = useScreenUi();
   const look = c.service[tone];
   return (
@@ -256,8 +266,8 @@ export function PackageCard({ name, desc, count, price, oldPrice, icon, tone, ac
         ) : null}
       </View>
       <View style={{ gap: 4 }}>
-        <Text style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{name}</Text>
-        {desc ? <Text numberOfLines={2} style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{desc}</Text> : null}
+        <FieldText text={name} mark={nameMark} style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }} />
+        {desc ? <FieldText numberOfLines={2} text={desc} mark={descMark} note={false} style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }} /> : null}
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
         <View>
@@ -530,13 +540,13 @@ export function NameArt({ kind, name, size = 44 }: { kind: DiagKind; name?: stri
 }
 
 /** The head of a detail page (package, test, lab): a tone wash with the glyph or the catalogue image, the name and a line. */
-export function DetailHead({ icon, tone, image, title, body, art }: { icon: FillIconName; tone: ServiceTone; image?: string; title: string; body?: string; /** A test or scan shows its category illustration in place of the service glyph. */ art?: DiagArtKey }) {
+export function DetailHead({ icon, tone, image, title, titleMark, body, art }: { icon: FillIconName; tone: ServiceTone; image?: string; title: string; /** Language fallback mark of the title. */ titleMark?: FieldMark; body?: string; /** A test or scan shows its category illustration in place of the service glyph. */ art?: DiagArtKey }) {
   const { theme, t, c } = useScreenUi();
   return (
     <Card theme={theme} tint={art ? DIAG_ART_TONE[art] : tone} padding="lg">
       <View style={{ alignItems: 'center', gap: 10 }}>
         <ItemPhoto image={image} size={96} radius={24} bg={c.bg.surface} fallback={art ? <DiagArt art={art} size={72} /> : <FIcon icon={icon} tone={tone} size={72} theme={theme} />} />
-        <Text accessibilityRole="header" style={{ ...scale(t, 'h2'), color: c.text.primary, textAlign: 'center' }}>{title}</Text>
+        <FieldText accessibilityRole="header" text={title} mark={titleMark} style={{ ...scale(t, 'h2'), color: c.text.primary, textAlign: 'center' }} />
         {body ? <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, textAlign: 'center' }}>{body}</Text> : null}
       </View>
     </Card>

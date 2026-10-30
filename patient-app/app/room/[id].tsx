@@ -8,6 +8,7 @@ import { ErrorState } from '../../../packages/ui-native/src';
 import { CallButton, CallIdentity, useCallUi } from '../../src/components/consult/CallKit';
 import { step as scale } from '../../src/components/screen/ScreenKit';
 import { logError } from '../../src/utils/logger';
+import { ensureLiveKitGlobals, startCallAudio, stopCallAudio } from '../../src/calls/livekitNative';
 
 /**
  * Call room — no board (owner decision, 2026-10-04): the layout stays (the other side full screen, a small picture of
@@ -45,6 +46,9 @@ try {
 } catch {
   LIVEKIT_NATIVE_OK = false;
 }
+
+// WebRTC globals before the first LiveKitRoom connects (livekit-client needs them on a native build)
+ensureLiveKitGlobals();
 
 // Set up server URL (can be from env)
 const liveKitUrl = process.env.EXPO_PUBLIC_LIVEKIT_URL || 'wss://live.nabd.plus';
@@ -110,6 +114,12 @@ export default function RoomScreen() {
   const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const user = useAppSelector((state) => state.auth.user);
+
+  // the audio session lives as long as the room screen (voice routing, no silence in the background)
+  useEffect(() => {
+    void startCallAudio();
+    return () => { void stopCallAudio(); };
+  }, []);
 
   useEffect(() => {
     if (!LIVEKIT_NATIVE_OK) {

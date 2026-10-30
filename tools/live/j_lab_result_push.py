@@ -91,6 +91,12 @@ def main():
         r = web_login(ctx, WEB, acct['email'], acct['password'])
         step('patient signs in on the website', r.ok, f'{r.status}')
         page.goto(f'{WEB}/ar/diagnostics/results/{rid}', wait_until='load', timeout=60000)
+        # the result streams in after the load event (Suspense): wait for the first value to be drawn, then read the page; if it never
+        # appears the step below still fails with the page text, exactly as before
+        try:
+            page.wait_for_function("() => document.body.innerText.includes('Hemoglobin')", timeout=20000)
+        except Exception:
+            pass
         body = page.locator('body').inner_text()
         step('the page shows the values', 'Hemoglobin' in body and '14.1' in body and 'Potassium' in body, body[:300])
         # while the page streams in, React briefly holds a hidden copy of the section: count on the settled page

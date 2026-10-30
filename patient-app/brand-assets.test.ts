@@ -97,7 +97,8 @@ describe('Nabd+ brand assets shipped by the app', () => {
   it('app.json paints the splash and the adaptive icon in brand colours', () => {
     const expo = JSON.parse(readText(join(__dirname, 'app.json'))).expo;
     // #F5F5F7 = brand.canvas, #FF4B55 = brand.coral, #D42A38 = action.primary.
-    expect(expo.splash.backgroundColor).toBe('#F5F5F7');
+    const splash = (expo.plugins as unknown[]).find((p) => Array.isArray(p) && p[0] === 'expo-splash-screen') as [string, { backgroundColor: string }];
+    expect(splash[1].backgroundColor).toBe('#F5F5F7');
     expect(expo.android.adaptiveIcon.backgroundColor).toBe('#FF4B55');
     // The retired pre-2026-09-29 brand blue must not survive anywhere.
     expect(JSON.stringify(expo)).not.toContain('#0066CC');

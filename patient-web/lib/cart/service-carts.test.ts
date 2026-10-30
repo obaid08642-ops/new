@@ -23,8 +23,11 @@ describe("one cart per service: the header button", () => {
   it("on a service page it opens that service's cart and shows only that service's count", () => {
     const t = cartTarget("pharmacy", counts({ pharmacy: 2, lab: 5 }), "en");
     expect(t).toEqual({ kind: "cart", service: "pharmacy", href: "/en/cart", count: 2 });
-    expect(cartTarget("radiology", counts({ pharmacy: 2, radiology: 1 }), "ar")).toEqual({ kind: "cart", service: "radiology", href: "/ar/labs/basket?kind=radiology", count: 1 });
-    expect(cartTarget("lab", counts({ pharmacy: 2 }), "en")).toMatchObject({ service: "lab", count: 0, href: "/en/labs/basket" });
+    expect(cartTarget("radiology", counts({ pharmacy: 2, radiology: 1, lab: 2 }), "ar")).toEqual({
+      kind: "chooser", count: 3, carts: [{ service: "lab", href: "/ar/labs/basket", count: 2 }, { service: "radiology", href: "/ar/labs/basket?kind=radiology", count: 1 }],
+    });
+    expect(cartTarget("lab", counts({ radiology: 4 }), "en")).toMatchObject({ kind: "chooser", count: 4, carts: [{ service: "radiology" }] });
+    expect(cartTarget("lab", counts({ pharmacy: 2 }), "en")).toMatchObject({ kind: "cart", service: "lab", count: 0, href: "/en/labs/basket" });
   });
   it("on Home and on pages where nothing can be added there is no cart button while every cart is empty", () => {
     expect(cartTarget(null, counts({}), "en")).toEqual({ kind: "none" });

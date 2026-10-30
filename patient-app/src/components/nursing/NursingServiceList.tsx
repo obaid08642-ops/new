@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 
 import { offerLines, offerSummaryOf } from '../../utils/catalogueOffers';
-import { pickDbField } from '../../utils/localize';
+import { rowField } from '../../utils/rowField';
 import { useScreenUi } from '../screen/ScreenKit';
 import { ServiceCard, serviceGlyph } from './NursingKit';
 
@@ -21,24 +21,29 @@ export function NursingServiceList({ services, actionLabel, onOpen, onBook }: { 
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
       {services.map((svc, position) => {
         const id = text(svc.id);
-        const title = text(pickDbField(svc, 'name') ?? svc.name_ar ?? svc.name_en ?? svc.title);
+        const titleField = rowField(svc, 'name');
+        const title = titleField.text || text(svc.title);
+        const descField = rowField(svc, 'description');
         const offer = offerSummaryOf(svc);
-        const lines = offerLines(offer, { k, num, money, lang }, true);
+        const lines = offerLines(offer, { k, num, money, lang }, true, priceOf(svc.price));
         return (
           <ServiceCard
             key={id}
             testID={`nursing-service-${id}`}
             enterIndex={position}
             title={title}
-            desc={text(pickDbField(svc, 'description')) || undefined}
+            titleMark={titleField.text ? titleField.mark : undefined}
+            desc={descField.text || undefined}
+            descMark={descField.mark}
             image={text(svc.image_url ?? svc.image) || null}
             icon={serviceGlyph(svc.id).icon}
             // with the offer summary the price is the nurses' own "from" (in the offer line); the catalogue's base price is the fallback of an older answer
-            price={offer && offer.fromPrice !== null ? null : priceOf(svc.price)}
+            price={offer && (offer.fromPrice !== null || offer.providersCount === 0) ? null : priceOf(svc.price)}
             offerLine={lines ? [lines.providers, lines.from, ...lines.where].filter(Boolean).join(' · ') : undefined}
             onPress={() => onOpen(id, title)}
             actionLabel={actionLabel}
             onAction={() => onBook(id, title)}
+            actionDisabled={offer?.providersCount === 0}
           />
         );
       })}
