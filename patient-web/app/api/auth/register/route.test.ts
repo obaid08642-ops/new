@@ -13,4 +13,7 @@ describe("register BFF",()=>{
   it("accepts registered=true without returning upstream extras",async()=>{const response=await POST(request(valid));expect(response.status).toBe(201);expect(await response.json()).toEqual({registered:true});});
   it("sends the policies' current versions, never the browser's ids (issue 432)",async()=>{state.policies=[{key:"patient_terms",version:"2026-10-01"},{key:"privacy_policy",version:"3"},{key:"cookies",version:"1",requires_acceptance:false}];await POST(request(valid));expect(JSON.parse(registerCall()![1].body).consents).toEqual([{policy_id:"patient_terms",version:"2026-10-01"},{policy_id:"privacy_policy",version:"3"}]);});
   it("policies exist but neither required one: a clear 503, no account call",async()=>{state.policies=[{key:"cookies",version:"1"}];const response=await POST(request(valid));expect(response.status).toBe(503);expect(registerCall()).toBeUndefined();});
+  it("one minimum with the form and backend: 8 characters are forwarded, 7 are refused (A-07)",async()=>{
+    const ok=await POST(request({...valid,password:"12345678"}));expect(ok.status).toBe(201);expect(JSON.parse(registerCall()![1].body).password).toBe("12345678");
+    state.call.mockClear();const bad=await POST(request({...valid,password:"1234567"}));expect(bad.status).toBe(400);expect(await bad.json()).toEqual({message:"invalid_registration"});expect(state.call).not.toHaveBeenCalled();});
 });

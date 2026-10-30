@@ -3,11 +3,12 @@ import { z } from "zod";
 import { otpIdentifierCookie } from "@/lib/auth/cookies";
 import { callPatientApi } from "@/lib/api/upstream";
 import { guestMergeHeaders } from "@/lib/auth/guest-merge";
+import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "@/lib/auth/password-rule";
 
 const schema = z.object({
   name: z.string().trim().min(2).max(120),
   identifier: z.string().trim().min(3).max(320),
-  password: z.string().min(10).max(128),
+  password: z.string().min(MIN_PASSWORD_LENGTH).max(MAX_PASSWORD_LENGTH),
   locale: z.string().trim().min(2).max(12),
   consents: z.array(z.object({ policy_id: z.string().trim().min(1).max(120), version: z.string().trim().min(1).max(80) }).strict()).min(1).max(8),
 }).superRefine((value, context) => {
