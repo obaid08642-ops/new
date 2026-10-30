@@ -9,3 +9,28 @@ j_concurrency
 j_insurance
 j_jobs
 j_returns
+# Open product defects, kept out of the gate until the owner decides (the journey stays and fails on purpose; see findings):
+# V-07 (P1 candidate): a rejected provider applicant stays active and can still sign in (provider-admin.service.ts:207-212, provider.controllers.ts:32)
+j_qa_provider_reject
+# A-07 (P2): the website register proxy requires 10 characters, the form and the backend accept 8 (patient-web/app/api/auth/register/route.ts:10)
+j_web_qa_password_rule
+# A-13 (P2): the support thread is empty after a reload (patient-web/components-next/support-chat-client.tsx:17)
+j_web_qa_support
+# A-14 (P2): a published policy change is not shown on the website until the 3600s public cache revalidates (patient-web/lib/api/public-read.ts:16,21-22)
+j_web_qa_legal
+# Open product defect (P1 candidate): the website booking sends duration_minutes, which POST /api/appointments/book rejects (.strict()), so no web visit with a duration can be booked
+j_web_qa_map_book
+# Open product gaps (provider service options, docs/qa/findings/provider-services.md): a lab's own price, home and insurance per test
+# never reach the patient, the price comparisons are empty, and the home and insurance filters are ignored
+j_provider_service_options
+# Open product defect INS-CAP-1 (P1, docs/qa/findings/insurance-copay.md): the card's copay cap is not applied to insurance requests
+j_qa_copay_cap
+# Website page check of the refund policy and telehealth consent (split from j_telehealth_consent, which stays gated): the page can
+# show a policy published within the last hour late (A-14, docs/qa/findings/web-patient.md)
+j_telehealth_consent_pages
+# Open product defect REF-PEN-1 (P1, docs/qa/findings/refund-penalty.md): the console's full refund ignores a late cancellation's percentage
+j_qa_refund_penalty
+# Open product defect RX-1 (P1, docs/qa/findings/prescription-upload.md): a prescription accepts a non-existent image reference
+j_qa_rx_upload
+# PR-04 needs tools/live/fake_openai.py on :9200 and the test database's OpenAI record pointed at it (local only; CI has no such provider)
+j_qa_pr04_analyze
