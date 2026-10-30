@@ -317,8 +317,7 @@ services:
     ports:
       - "127.0.0.1:7880:7880"  # websocket — localhost only; public access via nginx wss://live.nabd.plus
       - "7881:7881"            # RTC over TCP
-      - "7882:7882/udp"        # RTC over UDP
-      - "50000-50100:50000-50100/udp"  # RTC UDP port range
+      - "7882:7882/udp"        # RTC over UDP: the one mux port (livekit.yaml rtc.udp_port), no range
     networks: [web]
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:7880/"]

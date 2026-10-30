@@ -373,6 +373,7 @@ case "$1" in
       *State.Health*) if [ "$c" = "$FAKE_UNHEALTHY" ] && [ -f "$S/up.$c" ]; then echo unhealthy; else echo healthy; fi;;
     esac; exit 0;;
   stats) echo "10MiB";;
+  logs) echo "${FAKE_LK_LOG:-starting LiveKit nodeIP=198.51.100.50 candidates}"; exit 0;;
   compose)
     if [ -n "$FAKE_COMPOSE_FAIL" ] && echo "$*" | grep -q "force-recreate $FAKE_COMPOSE_FAIL\$"; then
       echo "$*" | grep -q -- "-f /tmp/tmp\\." || exit 1
@@ -739,3 +740,125 @@ class CatalogueApplyOnly(unittest.TestCase):
         p = self.run_task({"COMPLETION": "packaged", "ONE_OFF": "yes"})
         for line in p.stdout.splitlines():
             self.assertTrue(line.startswith("status: ") or line.startswith("## "), line)
+
+
+LK_BEFORE = """port: 7880
+rtc:
+  tcp_port: 7881
+  udp_port: 7882
+  port_range_start: 50000
+  port_range_end: 50100
+  node_ip: 2001:41d0:701:1100::cbb3
+  use_external_ip: true
+keys:
+  nabd_realkey: realsecretvalue-9c7e
+turn:
+  enabled: false
+"""
+TC_BEFORE = "listening-port=3478\nrealm=nabd.plus\nuse-auth-secret\nstatic-auth-secret=turn-secret-4a1b\nexternal-ip=2001:41d0:701:1100::cbb3\nmin-port=40000\n"
+
+
+class CallsNetwork(unittest.TestCase):
+    TASK = "93-calls-network.sh"
+
+    def setUp(self):
+        self.h = Harness(self)
+        self.state = os.path.join(self.h.tmp.name, "state")
+        os.makedirs(self.state)
+        write_exec(os.path.join(self.h.bin, "docker"), STATE_DOCKER)
+        write_exec(os.path.join(self.h.bin, "ufw"), "#!/bin/bash\necho \"ufw $*\" >> \"$FAKE_LOG\"\nif [ \"$1\" = status ]; then echo '22/tcp ALLOW Anywhere'; fi\nexit \"${FAKE_UFW_RC:-0}\"\n")
+        for f in ("docker-compose.production.yml",):
+            with open(os.path.join(self.h.deploy, f), "w") as fh:
+                fh.write("services: {}\n")
+        os.makedirs(os.path.join(self.h.deploy, "livekit"))
+        os.makedirs(os.path.join(self.h.deploy, "coturn"))
+        self.lk = os.path.join(self.h.deploy, "livekit", "livekit.yaml")
+        self.tc = os.path.join(self.h.deploy, "coturn", "turnserver.rendered.conf")
+        with open(self.lk, "w") as f:
+            f.write(LK_BEFORE)
+        with open(self.tc, "w") as f:
+            f.write(TC_BEFORE)
+
+    def run_task(self, settings=None, **extra):
+        kw = dict(FAKE_STATE=self.state, OPS_PUBLIC_IPV4="198.51.100.50", OPS_PUBLIC_IPV6="2001:41d0:701:1100::cbb3", FAKE_LK_LOG="starting LiveKit nodeIP=198.51.100.50")
+        kw.update(extra)
+        return self.h.run(self.TASK, settings, **kw)
+
+    def read(self, path):
+        with open(path) as f:
+            return f.read()
+
+    def test_dry_run_prints_what_is_wrong_and_writes_nothing(self):
+        p = self.run_task()
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("node_ip: 2001:41d0:701:1100::cbb3", p.stdout)
+        self.assertIn("to change: livekit.node_ip livekit.port_range coturn.external-ip", p.stdout)
+        self.assertIn("dry run only", p.stdout)
+        self.assertEqual(self.read(self.lk), LK_BEFORE)
+        self.assertEqual(self.read(self.tc), TC_BEFORE)
+        self.assertNotIn("realsecretvalue-9c7e", p.stdout + p.stderr)
+        self.assertNotIn("turn-secret-4a1b", p.stdout + p.stderr)
+        self.assertNotIn("force-recreate", self.h.docker_calls())
+
+    def test_apply_edits_only_the_address_lines_and_keeps_the_keys(self):
+        p = self.run_task({"APPLY": "yes"})
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        lk = self.read(self.lk)
+        self.assertNotIn("node_ip", lk)
+        self.assertNotIn("port_range", lk)
+        self.assertIn("use_external_ip: true", lk)
+        self.assertIn("udp_port: 7882", lk)
+        self.assertIn("nabd_realkey: realsecretvalue-9c7e", lk)                 # the keys are untouched
+        self.assertIn("tcp_port: 7881", lk)
+        tc = self.read(self.tc)
+        self.assertEqual([l for l in tc.splitlines() if l.startswith("external-ip=")], ["external-ip=198.51.100.50", "external-ip=2001:41d0:701:1100::cbb3"])
+        self.assertIn("static-auth-secret=turn-secret-4a1b", tc)                # the secret is untouched
+        self.assertIn("min-port=40000", tc)
+        calls = self.h.docker_calls()
+        self.assertEqual(len([l for l in calls.splitlines() if "force-recreate" in l]), 2)
+        self.assertIn("ufw allow 7881/tcp", calls)
+        self.assertIn("ufw allow 7882/udp", calls)
+        self.assertIn("livekit advertises the IPv4 (198.51.100.50)", p.stdout)
+        for line in p.stdout.splitlines():
+            self.assertTrue(line.startswith("status: ") or line.startswith("## "), line)
+        self.assertNotIn("realsecretvalue-9c7e", p.stdout + p.stderr)
+        self.assertTrue(any(f.startswith("livekit.yaml.pre-calls-network.") for f in os.listdir(self.h.backups)))
+
+    def test_second_apply_changes_nothing(self):
+        self.run_task({"APPLY": "yes"})
+        n = len(os.listdir(self.h.backups))
+        p = self.run_task({"APPLY": "yes"})
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("nothing to change", p.stdout)
+        self.assertEqual(len(os.listdir(self.h.backups)), n)
+
+    def test_an_active_call_blocks_the_apply_unless_forced(self):
+        p = self.run_task({"APPLY": "yes"}, FAKE_CALLS=2)
+        self.assertEqual(p.returncode, 1)
+        self.assertIn("ABORT active calls=2", p.stdout)
+        self.assertEqual(self.read(self.lk), LK_BEFORE)
+        forced = self.run_task({"APPLY": "yes", "FORCE": "yes"}, FAKE_CALLS=2)
+        self.assertEqual(forced.returncode, 0, forced.stdout + forced.stderr)
+
+    def test_livekit_that_does_not_advertise_the_ipv4_is_rolled_back(self):
+        p = self.run_task({"APPLY": "yes"}, FAKE_LK_LOG="starting LiveKit nodeIP=10.0.0.5")
+        self.assertEqual(p.returncode, 1, p.stdout + p.stderr)
+        self.assertIn("FAILED at 'livekit does not log the IPv4'", p.stdout)
+        self.assertIn("rollback complete", p.stdout)
+        self.assertEqual(self.read(self.lk), LK_BEFORE)
+        self.assertEqual(self.read(self.tc), TC_BEFORE)
+
+    def test_a_failed_firewall_rule_is_rolled_back(self):
+        p = self.run_task({"APPLY": "yes"}, FAKE_UFW_RC=1)
+        self.assertEqual(p.returncode, 1)
+        self.assertEqual(self.read(self.lk), LK_BEFORE)
+
+    def test_no_public_ipv4_or_the_placeholder_aborts(self):
+        p = self.run_task(OPS_PUBLIC_IPV4="10.1.2.3")
+        self.assertEqual(p.returncode, 1)
+        self.assertIn("ABORT no public IPv4", p.stdout)
+        with open(self.tc, "w") as f:
+            f.write(TC_BEFORE.replace("2001:41d0:701:1100::cbb3", "203.0.113.1"))
+        p = self.run_task()
+        self.assertEqual(p.returncode, 1)
+        self.assertIn("documentation placeholder", p.stdout)
