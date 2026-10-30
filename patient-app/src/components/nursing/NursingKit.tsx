@@ -69,13 +69,12 @@ export interface ServiceCardProps {
   testID?: string;
 }
 
-/** The hub's service card (board ServiceHub): a nursing-tone wash, the image or glyph, name, line, price and the ink book button. Two to a row. */
+/** The hub's service card (board ServiceHub): a white card with the nursing-tone glyph chip, the image or glyph, name, line, price and the ink book button. Two to a row. */
 export function ServiceCard({ title, desc, image, icon, price, offerLine, onPress, actionLabel, onAction, enterIndex = 0, testID }: ServiceCardProps) {
   const { theme, t, c, flow } = useScreenUi();
-  const look = c.service[CARE_TONE];
   return (
     <FadeIn index={enterIndex} style={{ flexBasis: '47%', flexGrow: 1, minWidth: 148 }}>
-    <View testID={testID} style={{ flex: 1, borderRadius: 24, backgroundColor: look.bg, padding: 14, gap: 10 }}>
+    <View testID={testID} style={{ flex: 1, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, padding: 14, gap: 10 }}>
       <Pressable accessibilityRole="button" accessibilityLabel={[title, desc].filter(Boolean).join(', ')} onPress={onPress} style={({ pressed }) => ({ gap: 8, minHeight: 44, opacity: pressed ? 0.9 : 1 })}>
         {image ? <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: optimizedImageUri(image, 56) }} style={{ width: 56, height: 56, borderRadius: 18, backgroundColor: c.bg.surface }} contentFit="cover" /> : <FIcon icon={icon} tone={CARE_TONE} size={56} theme={theme} />}
         <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{title}</Text>
@@ -146,5 +145,42 @@ export function NurseCard({ name, facility, rating, distance, availableLabel, pr
         </Pressable>
       </View>
     </View>
+  );
+}
+
+export interface NursingPackageCardProps {
+  name: string;
+  desc?: string;
+  price: number | null;
+  icon: FillIconName;
+  actionLabel: string;
+  onPress: () => void;
+  width?: number;
+  testID?: string;
+}
+
+/** A care package of the nursing hub: a white card (hairline border); the nursing tone stays on the glyph chip only. */
+export function NursingPackageCard({ name, desc, price, icon, actionLabel, onPress, width, testID }: NursingPackageCardProps) {
+  const { theme, t, c, flow } = useScreenUi();
+  return (
+    <Pressable
+      testID={testID}
+      accessibilityRole="button"
+      accessibilityLabel={[name, desc].filter(Boolean).join(', ')}
+      onPress={onPress}
+      style={({ pressed }) => ({ width, borderRadius: 28, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, padding: 18, gap: 14, opacity: pressed ? 0.9 : 1 })}
+    >
+      <FIcon icon={icon} tone={CARE_TONE} size={48} theme={theme} />
+      <View style={{ gap: 4 }}>
+        <Text style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{name}</Text>
+        {desc ? <Text numberOfLines={2} style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{desc}</Text> : null}
+      </View>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+        {price !== null ? <Price amount={price} size="h3" /> : <View />}
+        <View style={{ minHeight: 40, paddingHorizontal: 16, paddingVertical: 6, borderRadius: 14, backgroundColor: c.action.primary.bg, justifyContent: 'center', flexShrink: 1 }}>
+          <Text style={{ ...scale(t, 'small', 'bold'), color: c.action.primary.fg, textAlign: 'center' }}>{actionLabel}</Text>
+        </View>
+      </View>
+    </Pressable>
   );
 }

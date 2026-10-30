@@ -21,10 +21,11 @@ import mongoose from 'mongoose';
 import { mongoDirectConnection } from '../common/database/mongo-uri';
 import {
   applyChanges, countsOf, decodeBackup, encodeBackup, expectedCounts, planSha, rollbackChanges, sha256, summarize,
-  type Change, type DbLike,
+  type Change, type DbLike, type SetChange,
 } from '../modules/catalogs/catalogue-apply.core';
 import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn, planInsuranceShape, planNumberedDistricts, planPlaceholderCities, planProductTranslations, planRadiologyCatalogue } from '../modules/catalogs/catalogue-apply.steps';
 import { planTestDataRemoval, scanDb } from '../modules/catalogs/test-data';
+import { planCatalogueCompletion, type CompletionSeed } from '../modules/catalogs/catalogue-completion';
 import { planCatalogueDuplicates } from '../modules/catalogs/catalogue-duplicates';
 import { isTranslationFile } from '../modules/medicines/content-translation';
 
@@ -33,7 +34,9 @@ const TRANSLATIONS_CSV = path.join(__dirname, '../modules/medicines/data/medicin
 export const PACKAGED_DISTRICTS = path.join(__dirname, '../modules/location/data/districts-extract.v1.json');
 /** The reviewed list of test providers the owner approved removing (2026-10-29), shipped in the image; `--test-data-remove=packaged` reads it. */
 export const PACKAGED_TEST_REMOVAL = path.join(__dirname, '../modules/catalogs/seed-data/test-data-remove.2026-10-29.json');
-const TOUCHED = ['medicines', 'locations', 'insurance_companies'];
+/** The reviewed catalogue completion (owner approved, 2026-10-29), shipped in the image; `--catalogue-completion=packaged` plans it. */
+export const PACKAGED_COMPLETION = path.join(__dirname, '../modules/catalogs/seed-data/catalogue-completion.2026-10-29.json');
+const TOUCHED = ['medicines', 'locations', 'insurance_companies', 'lab_services', 'radiology_services', 'nursing_services'];
 
 const arg = (argv: string[], name: string): string | undefined => argv.find((a) => a.startsWith(`--${name}=`))?.split('=').slice(1).join('=');
 /** Error text without anything that looks like a connection string. */
@@ -128,6 +131,15 @@ export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> 
     if (!Array.isArray(list) || !list.every((c) => typeof c === 'string')) throw new Error('--radiology-approve must be {"approve": ["CODE", ...]}');
     approve = list as string[];
   }
+  // the lead's catalogue completion (2026-10-29): its radiology approvals join the reviewed file's, the rows are planned after the duplicates step
+  const completionArg = arg(argv, 'catalogue-completion');
+  let completionSeed: CompletionSeed | null = null;
+  if (completionArg) {
+    const text = fs.readFileSync(completionArg === 'packaged' ? PACKAGED_COMPLETION : completionArg, 'utf8');
+    inputs.catalogue_completion = sha256(text);
+    completionSeed = JSON.parse(text) as CompletionSeed;
+    approve = [...new Set([...approve, ...completionSeed.radiology_approve])];
+  }
   const radiology = await planRadiologyCatalogue(db, approve);
   changes.push(...radiology.changes);
   report.radiology_catalogue = approvePath ? radiology.report : { ...radiology.report, note: 'no reviewed file given: nothing is approved' };
@@ -136,6 +148,14 @@ export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> 
   const duplicates = await planCatalogueDuplicates(db, { radiologyApprove: approve });
   changes.push(...duplicates.changes);
   report.catalogue_duplicates = duplicates.report;
+
+  // completion of the radiology, lab and nursing catalogues (lead market review, owner approved 2026-10-29)
+  if (completionSeed) {
+    const approvedIds = radiology.changes.filter((c) => c.kind === 'set' && c.path === 'medical_review_status' && c.after === 'approved').map((c) => (c as SetChange).key._id);
+    const completion = await planCatalogueCompletion(db, { seed: completionSeed, duplicateChanges: duplicates.changes, radiologyApprovedIds: approvedIds });
+    changes.push(...completion.changes);
+    report.catalogue_completion = completion.report;
+  } else report.catalogue_completion = 'skipped: no --catalogue-completion given';
 
   // test providers (owner, 2026-10-28)
   await planTestData(db, argv, inputs, changes, report);

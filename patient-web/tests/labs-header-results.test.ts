@@ -14,10 +14,11 @@ describe("labs and radiology layout", () => {
   });
   it("passes the results route to the shell, which draws the icon and the menu entry from the same href", () => {
     for (const file of ["app/[locale]/diagnostics/page.tsx", "app/[locale]/diagnostics/radiology/page.tsx", "components-next/diagnostics/labs-catalog.tsx"]) {
-      expect(code(file), file).toContain("resultsHref={`/${locale}/diagnostics/bookings`}");
+      expect(code(file), file).toContain("resultsHref={`/${locale}/orders`}");
     }
     const shell = code("components-next/core/core-shell.tsx");
-    expect(shell).toContain('{ label: shell("menuResults"), href: resultsHref }');
+    // the phone menu's "My orders and results" entry is the orders link (merged: results are a tab of /orders)
+    expect(shell).toContain('{ label: shell("menuOrders"), href: `/${locale}/orders` }');
     expect(shell.match(/aria-label=\{shell\("menuResults"\)\}/g)?.length).toBe(2);
   });
   it("labs: sticky search, chips only when a filter is active, each removable, plus Clear all", () => {

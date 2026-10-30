@@ -19,7 +19,7 @@ describe("hub paging (pure)", () => {
 
 describe("hub layout", () => {
   it("has a single orders-and-results entry (the shell button) and no separate results / compare / requests buttons", () => {
-    expect(hub).toContain("resultsHref={`/${locale}/diagnostics/bookings`}");
+    expect(hub).toContain("resultsHref={`/${locale}/orders`}");
     expect(hub).not.toContain("QuickLink");
     expect(hub).not.toContain("quickResults");
     expect(hub).not.toContain("quickCompare");
@@ -33,7 +33,7 @@ describe("hub layout", () => {
     expect(hub).toContain('moreLabel: t("showMore")');
   });
   it("gives each item a card with both actions, keyed to its own service basket", () => {
-    expect(hub).toContain("{...catalogProps} kind=\"lab\"");
+    expect(hub).toContain("{...catalogProps} packageRows={packagesOpen ? packageRows : undefined} kind=\"lab\"");
     expect(hub).toContain("{...catalogProps} kind=\"radiology\"");
     expect(code("components-next/diagnostics/item-catalog.tsx")).toContain("<ItemActions kind={kind}");
     const actions = code("components-next/ordering/add-to-basket.tsx");

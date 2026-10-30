@@ -34,3 +34,19 @@
 
 /* The OpenStreetMap pane of the nurse position (current_lat/current_lng). */
 .visitMap { display: block; inline-size: 100%; block-size: 240px; border: 0; border-radius: var(--nabd-radius-xl); background: var(--nabd-color-bg-sunken); }
+
+/* A care package on the hub rail: a white card with a hairline border; the nursing tone stays on the glyph chip only. */
+.pack {
+  flex: none; inline-size: min(268px, 78%); box-sizing: border-box; display: flex; flex-direction: column; gap: 14px; padding: 18px; min-inline-size: 0;
+  color: var(--nabd-color-text-primary); text-decoration: none; border-radius: var(--nabd-radius-4xl); background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline);
+}
+.pack:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }
+.packBody { display: flex; flex-direction: column; gap: 4px; min-inline-size: 0; }
+.packName { font-size: var(--nabd-font-size-body-lg); font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+.packDesc { font-size: var(--nabd-font-size-label); color: var(--nabd-color-text-secondary); overflow-wrap: anywhere; }
+.packFoot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.packPrice { font-size: var(--nabd-font-size-h4); font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.packCta {
+  display: inline-flex; align-items: center; justify-content: center; min-block-size: 44px; padding-inline: 16px; border-radius: var(--nabd-radius-xl);
+  background: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg); font-size: var(--nabd-font-size-control); font-weight: 600;
+}

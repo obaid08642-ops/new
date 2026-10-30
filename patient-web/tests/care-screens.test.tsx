@@ -163,6 +163,22 @@ describe("the nutrition hub", () => {
     expect(empty).toContain("/en/consultations/doctors?specialty=nutrition");
   });
 
+  it("plan tab: the plan and the body profile are asked together, not one after the other", async () => {
+    const started: string[] = [];
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => { release = resolve; });
+    server.api.mockImplementation(async (path: string) => {
+      started.push(path);
+      await gate;            // neither answer comes until both have been asked
+      return path === "/nutrition/plan" ? new Response(null, { status: 204 }) : json({ data: { height_cm: 170, weight_kg: 70 } });
+    });
+    const rendering = NutritionPage(page({ tab: "plan" }));
+    await new Promise((r) => setTimeout(r, 20));
+    expect(started.sort()).toEqual(["/nutrition/plan", "/nutrition/profile"]);
+    release();
+    expect(render(await rendering)).toContain("No nutrition plan yet");
+  });
+
   it("the summary down: the error state", async () => {
     backend({});
     expect(render(await NutritionPage(page()))).toContain("Nutrition data could not be loaded");

@@ -1,0 +1,2319 @@
+{
+ "reviewed_by": "lead-market-review-2026-10-29",
+ "needs_clinical_review": true,
+ "radiology_approve": [
+  "ECHO",
+  "MAMMO",
+  "DEXA",
+  "HSG",
+  "PANOREX",
+  "BARIUM",
+  "PETCT"
+ ],
+ "expected_pending": {
+  "radiology": 7,
+  "labs": 26,
+  "nursing": 12
+ },
+ "radiology": [
+  {
+   "code": "XR_HAND_WRIST",
+   "name_ar": "أشعة اليد والمعصم",
+   "name_en": "Hand & Wrist X-ray",
+   "modality": "xray",
+   "body_part": "hand/wrist",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة المجوهرات والأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove jewellery and metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "تصوير عظام اليد والمعصم لكشف الكسور والالتهابات.",
+   "description_en": "Imaging of the hand and wrist bones to look for fractures and inflammation.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "XR_ANKLE_FOOT",
+   "name_ar": "أشعة الكاحل والقدم",
+   "name_en": "Ankle & Foot X-ray",
+   "modality": "xray",
+   "body_part": "ankle/foot",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة المجوهرات والأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove jewellery and metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "تصوير عظام الكاحل والقدم لكشف الكسور والالتواءات.",
+   "description_en": "Imaging of the ankle and foot bones to look for fractures and injuries.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "XR_SHOULDER",
+   "name_ar": "أشعة الكتف",
+   "name_en": "Shoulder X-ray",
+   "modality": "xray",
+   "body_part": "shoulder",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة المجوهرات والأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove jewellery and metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "تصوير مفصل الكتف والعظام المحيطة به.",
+   "description_en": "Imaging of the shoulder joint and the surrounding bones.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "XR_CSPINE",
+   "name_ar": "أشعة العمود الفقري العنقي",
+   "name_en": "Cervical Spine X-ray",
+   "modality": "xray",
+   "body_part": "cervical spine",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة المجوهرات والأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove jewellery and metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "تصوير فقرات الرقبة لتقييم الألم والإصابات والتغيرات التنكسية.",
+   "description_en": "Imaging of the neck vertebrae for pain, injury and degenerative changes.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "XR_ELBOW",
+   "name_ar": "أشعة الكوع",
+   "name_en": "Elbow X-ray",
+   "modality": "xray",
+   "body_part": "elbow",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة المجوهرات والأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove jewellery and metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "تصوير مفصل الكوع لكشف الكسور والالتهابات.",
+   "description_en": "Imaging of the elbow joint to look for fractures and inflammation.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "XR_SKULL_FACE",
+   "name_ar": "أشعة الجمجمة وعظام الوجه",
+   "name_en": "Skull & Facial Bones X-ray",
+   "modality": "xray",
+   "body_part": "skull/face",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة المجوهرات والأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove jewellery and metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "تصوير عظام الجمجمة والوجه بعد الإصابات.",
+   "description_en": "Imaging of the skull and facial bones after injury.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "CT_KUB",
+   "name_ar": "أشعة مقطعية للكلى والحالب والمثانة (حصوات)",
+   "name_en": "CT KUB (Kidney Stones)",
+   "modality": "ct",
+   "body_part": "kidneys",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "شرب الماء حسب تعليمات المركز",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Drink water as the centre instructs",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "أشعة مقطعية بدون صبغة للكشف عن حصوات الكلى والحالب.",
+   "description_en": "Non-contrast CT to look for stones in the kidneys and ureters.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "CTA_CORONARY",
+   "name_ar": "أشعة مقطعية على شرايين القلب التاجية",
+   "name_en": "Coronary CT Angiography",
+   "modality": "ct",
+   "body_part": "heart",
+   "fasting_hours": 4,
+   "contrast_required": true,
+   "estimated_duration_minutes": 30,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "صيام 4 ساعات",
+    "الامتناع عن الكافيين قبل الفحص بـ 12 ساعة",
+    "إبلاغ الفني عن الحساسية للصبغة وأمراض الكلى",
+    "قد يُطلب تنظيم ضربات القلب بدواء قبل الفحص"
+   ],
+   "preparation_en": [
+    "Fast 4 hours",
+    "No caffeine for 12 hours before",
+    "Tell the technician about contrast allergy and kidney disease",
+    "A heart-rate medicine may be given before the scan"
+   ],
+   "description_ar": "تصوير مقطعي بالصبغة لتقييم الشرايين التاجية وتضيقاتها.",
+   "description_en": "Contrast CT to assess the coronary arteries and any narrowing.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": true
+  },
+  {
+   "code": "CBCT_DENTAL",
+   "name_ar": "أشعة مقطعية ثلاثية الأبعاد للأسنان (CBCT)",
+   "name_en": "Dental CBCT",
+   "modality": "ct",
+   "body_part": "dental",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة المجوهرات والأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove jewellery and metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "تصوير ثلاثي الأبعاد للأسنان والفكين لتخطيط الزراعة والعلاج.",
+   "description_en": "3D imaging of the teeth and jaws for implant and treatment planning.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "CT_NECK",
+   "name_ar": "أشعة مقطعية على الرقبة",
+   "name_en": "CT Neck",
+   "modality": "ct",
+   "body_part": "neck",
+   "fasting_hours": 4,
+   "contrast_required": true,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "صيام 4 ساعات إذا طُلبت صبغة",
+    "إبلاغ الفني عن الحساسية للصبغة وأمراض الكلى"
+   ],
+   "preparation_en": [
+    "Fast 4 hours if contrast is used",
+    "Tell the technician about contrast allergy and kidney disease"
+   ],
+   "description_ar": "تصوير مقطعي لأنسجة الرقبة والغدد والأوعية.",
+   "description_en": "CT imaging of the neck tissues, glands and vessels.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": true
+  },
+  {
+   "code": "CTPA",
+   "name_ar": "أشعة مقطعية على شرايين الرئة (جلطة الرئة)",
+   "name_en": "CT Pulmonary Angiography (CTPA)",
+   "modality": "ct",
+   "body_part": "chest",
+   "fasting_hours": 4,
+   "contrast_required": true,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 12,
+   "preparation_ar": [
+    "صيام 4 ساعات",
+    "إبلاغ الفني عن الحساسية للصبغة وأمراض الكلى والحمل"
+   ],
+   "preparation_en": [
+    "Fast 4 hours",
+    "Tell the technician about contrast allergy, kidney disease and pregnancy"
+   ],
+   "description_ar": "تصوير مقطعي بالصبغة للكشف عن الجلطات في شرايين الرئة.",
+   "description_en": "Contrast CT to look for clots in the lung arteries.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": true
+  },
+  {
+   "code": "MRI_CSPINE",
+   "name_ar": "رنين مغناطيسي للعمود الفقري العنقي",
+   "name_en": "MRI Cervical Spine",
+   "modality": "mri",
+   "body_part": "cervical spine",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 40,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "إبلاغ الفني عن أي أجهزة أو شرائح معدنية أو منظم قلب",
+    "إزالة جميع الأجسام المعدنية"
+   ],
+   "preparation_en": [
+    "Tell the technician about any implants, metal plates or pacemaker",
+    "Remove all metal objects"
+   ],
+   "description_ar": "تصوير بالرنين للفقرات والأقراص والحبل الشوكي في الرقبة.",
+   "description_en": "MRI of the neck vertebrae, discs and spinal cord.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": true,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "MRI_ABD_PELVIS",
+   "name_ar": "رنين مغناطيسي للبطن والحوض",
+   "name_en": "MRI Abdomen & Pelvis",
+   "modality": "mri",
+   "body_part": "abdomen/pelvis",
+   "fasting_hours": 6,
+   "contrast_required": false,
+   "estimated_duration_minutes": 45,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "صيام 6 ساعات",
+    "إبلاغ الفني عن أي أجهزة أو شرائح معدنية أو منظم قلب",
+    "إزالة جميع الأجسام المعدنية"
+   ],
+   "preparation_en": [
+    "Fast 6 hours",
+    "Tell the technician about any implants, metal plates or pacemaker",
+    "Remove all metal objects"
+   ],
+   "description_ar": "تصوير بالرنين لأعضاء البطن والحوض.",
+   "description_en": "MRI of the abdominal and pelvic organs.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": true,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "MRI_BREAST",
+   "name_ar": "رنين مغناطيسي للثدي",
+   "name_en": "MRI Breast",
+   "modality": "mri",
+   "body_part": "breast",
+   "fasting_hours": 4,
+   "contrast_required": true,
+   "estimated_duration_minutes": 45,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "صيام 4 ساعات",
+    "يُفضل إجراء الفحص في الأسبوع الثاني من الدورة الشهرية",
+    "إبلاغ الفني عن أي أجهزة أو شرائح معدنية أو منظم قلب",
+    "إزالة جميع الأجسام المعدنية"
+   ],
+   "preparation_en": [
+    "Fast 4 hours",
+    "Best done in the second week of the menstrual cycle",
+    "Tell the technician about any implants, metal plates or pacemaker",
+    "Remove all metal objects"
+   ],
+   "description_ar": "تصوير بالرنين بالصبغة لتقييم أنسجة الثدي.",
+   "description_en": "Contrast MRI to assess the breast tissue.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": true,
+   "requires_contrast_allergy_check": true
+  },
+  {
+   "code": "MRI_BRAIN_CONTRAST",
+   "name_ar": "رنين مغناطيسي للدماغ بالصبغة",
+   "name_en": "MRI Brain with Contrast",
+   "modality": "mri",
+   "body_part": "brain",
+   "fasting_hours": 4,
+   "contrast_required": true,
+   "estimated_duration_minutes": 45,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "صيام 4 ساعات",
+    "إبلاغ الفني عن أمراض الكلى والحساسية للصبغة",
+    "إبلاغ الفني عن أي أجهزة أو شرائح معدنية أو منظم قلب",
+    "إزالة جميع الأجسام المعدنية"
+   ],
+   "preparation_en": [
+    "Fast 4 hours",
+    "Tell the technician about kidney disease and contrast allergy",
+    "Tell the technician about any implants, metal plates or pacemaker",
+    "Remove all metal objects"
+   ],
+   "description_ar": "تصوير بالرنين للدماغ بعد حقن الصبغة لتوضيح الأورام والالتهابات.",
+   "description_en": "MRI of the brain after contrast to show tumours and inflammation.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": true,
+   "requires_contrast_allergy_check": true
+  },
+  {
+   "code": "MRI_CARDIAC",
+   "name_ar": "رنين مغناطيسي للقلب",
+   "name_en": "Cardiac MRI",
+   "modality": "mri",
+   "body_part": "heart",
+   "fasting_hours": 4,
+   "contrast_required": true,
+   "estimated_duration_minutes": 60,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "صيام 4 ساعات",
+    "الامتناع عن الكافيين قبل الفحص",
+    "إبلاغ الفني عن أي أجهزة أو شرائح معدنية أو منظم قلب",
+    "إزالة جميع الأجسام المعدنية"
+   ],
+   "preparation_en": [
+    "Fast 4 hours",
+    "No caffeine before the scan",
+    "Tell the technician about any implants, metal plates or pacemaker",
+    "Remove all metal objects"
+   ],
+   "description_ar": "تصوير بالرنين لتقييم عضلة القلب والصمامات.",
+   "description_en": "MRI to assess the heart muscle and valves.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": true,
+   "requires_contrast_allergy_check": true
+  },
+  {
+   "code": "MRCP",
+   "name_ar": "رنين مغناطيسي للقنوات المرارية والبنكرياس (MRCP)",
+   "name_en": "MRCP (Bile Ducts & Pancreas)",
+   "modality": "mri",
+   "body_part": "abdomen",
+   "fasting_hours": 6,
+   "contrast_required": false,
+   "estimated_duration_minutes": 40,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "صيام 6 ساعات",
+    "إبلاغ الفني عن أي أجهزة أو شرائح معدنية أو منظم قلب",
+    "إزالة جميع الأجسام المعدنية"
+   ],
+   "preparation_en": [
+    "Fast 6 hours",
+    "Tell the technician about any implants, metal plates or pacemaker",
+    "Remove all metal objects"
+   ],
+   "description_ar": "تصوير بالرنين للقنوات المرارية والبنكرياس بدون قسطرة.",
+   "description_en": "MRI of the bile ducts and pancreas without a catheter.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": true,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "US_FETAL_ANOMALY",
+   "name_ar": "سونار تشوهات الجنين (مفصل)",
+   "name_en": "Fetal Anomaly Scan",
+   "modality": "ultrasound",
+   "body_part": "obstetric",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 45,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "لا يتطلب تحضيراً خاصاً"
+   ],
+   "preparation_en": [
+    "No special preparation"
+   ],
+   "description_ar": "فحص مفصل بالموجات فوق الصوتية لتقييم نمو الجنين وأعضائه (عادة بين الأسبوع 18 و22).",
+   "description_en": "Detailed ultrasound of the baby's growth and organs (usually weeks 18-22).",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "US_FOLLICULAR",
+   "name_ar": "سونار متابعة التبويض (الحويصلات)",
+   "name_en": "Follicular Monitoring Ultrasound",
+   "modality": "ultrasound",
+   "body_part": "pelvis",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 12,
+   "preparation_ar": [
+    "التنسيق مع الطبيب لتحديد يوم الدورة المناسب"
+   ],
+   "preparation_en": [
+    "Agree the cycle day with your doctor"
+   ],
+   "description_ar": "سونار مهبلي لمتابعة نمو الحويصلات وموعد التبويض.",
+   "description_en": "Transvaginal ultrasound to follow follicle growth and ovulation timing.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "US_SCROTAL",
+   "name_ar": "سونار كيس الصفن والخصيتين",
+   "name_en": "Scrotal / Testicular Ultrasound",
+   "modality": "ultrasound",
+   "body_part": "pelvis",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 12,
+   "preparation_ar": [
+    "لا يتطلب تحضيراً خاصاً"
+   ],
+   "preparation_en": [
+    "No special preparation"
+   ],
+   "description_ar": "فحص بالموجات فوق الصوتية للخصيتين وكيس الصفن.",
+   "description_en": "Ultrasound of the testes and scrotum.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "US_SOFT_TISSUE",
+   "name_ar": "سونار الأنسجة الرخوة",
+   "name_en": "Soft Tissue Ultrasound",
+   "modality": "ultrasound",
+   "body_part": "soft tissue",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 12,
+   "preparation_ar": [
+    "لا يتطلب تحضيراً خاصاً"
+   ],
+   "preparation_en": [
+    "No special preparation"
+   ],
+   "description_ar": "فحص بالموجات فوق الصوتية لكتل الجلد والأنسجة تحت الجلد.",
+   "description_en": "Ultrasound of skin and subcutaneous lumps.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "FIBROSCAN",
+   "name_ar": "فايبروسكان الكبد",
+   "name_en": "Liver FibroScan",
+   "modality": "ultrasound",
+   "body_part": "abdomen",
+   "fasting_hours": 3,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 12,
+   "preparation_ar": [
+    "صيام 3 ساعات قبل الفحص"
+   ],
+   "preparation_en": [
+    "Fast 3 hours before the scan"
+   ],
+   "description_ar": "قياس مرونة الكبد غير الجراحي لتقدير التليف والدهون.",
+   "description_en": "Non-invasive liver stiffness measurement to estimate fibrosis and fat.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "US_NECK_NODES",
+   "name_ar": "سونار الغدد الليمفاوية بالرقبة",
+   "name_en": "Neck Lymph Nodes Ultrasound",
+   "modality": "ultrasound",
+   "body_part": "neck",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 12,
+   "preparation_ar": [
+    "لا يتطلب تحضيراً خاصاً"
+   ],
+   "preparation_en": [
+    "No special preparation"
+   ],
+   "description_ar": "فحص بالموجات فوق الصوتية لغدد الرقبة الليمفاوية.",
+   "description_en": "Ultrasound of the lymph nodes in the neck.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "US_DOPPLER_RENAL",
+   "name_ar": "دوبلر الشرايين الكلوية",
+   "name_en": "Renal Doppler Ultrasound",
+   "modality": "ultrasound",
+   "body_part": "kidneys",
+   "fasting_hours": 6,
+   "contrast_required": false,
+   "estimated_duration_minutes": 30,
+   "turnaround_hours": 12,
+   "preparation_ar": [
+    "صيام 6 ساعات"
+   ],
+   "preparation_en": [
+    "Fast 6 hours"
+   ],
+   "description_ar": "دوبلر لتقييم تدفق الدم في شرايين الكلى.",
+   "description_en": "Doppler ultrasound of the blood flow in the kidney arteries.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "US_DOPPLER_ARTERIAL_LEG",
+   "name_ar": "دوبلر شرايين الساقين",
+   "name_en": "Arterial Doppler of the Legs",
+   "modality": "ultrasound",
+   "body_part": "legs",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 30,
+   "turnaround_hours": 12,
+   "preparation_ar": [
+    "لا يتطلب تحضيراً خاصاً"
+   ],
+   "preparation_en": [
+    "No special preparation"
+   ],
+   "description_ar": "دوبلر لتقييم تدفق الدم في شرايين الساقين.",
+   "description_en": "Doppler ultrasound of the blood flow in the leg arteries.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "MAMMO_3D",
+   "name_ar": "ماموجرام ثلاثي الأبعاد (توموسنتز)",
+   "name_en": "3D Mammography (Tomosynthesis)",
+   "modality": "mammography",
+   "body_part": "breast",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "يُفضل إجراء الفحص بعد انتهاء الدورة الشهرية بأسبوع",
+    "عدم استخدام مزيل العرق أو البودرة يوم الفحص",
+    "إبلاغ الفني عن أي حمل محتمل"
+   ],
+   "preparation_en": [
+    "Best done one week after your period",
+    "No deodorant or powder on the day",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "تصوير الثدي بالأشعة من زوايا متعددة لبناء صور ثلاثية الأبعاد أدق.",
+   "description_en": "Breast X-ray from several angles, built into more detailed 3D images.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "ECG_RESTING",
+   "name_ar": "تخطيط القلب (ECG)",
+   "name_en": "Resting ECG",
+   "modality": "ecg",
+   "body_part": "heart",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 10,
+   "turnaround_hours": 1,
+   "preparation_ar": [
+    "تجنب الكريمات على الصدر",
+    "الراحة 5 دقائق قبل الفحص"
+   ],
+   "preparation_en": [
+    "Avoid chest creams",
+    "Rest for 5 minutes before the test"
+   ],
+   "description_ar": "تسجيل النشاط الكهربائي للقلب أثناء الراحة.",
+   "description_en": "Recording of the heart's electrical activity at rest.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "HOLTER_24H",
+   "name_ar": "جهاز هولتر لمراقبة القلب 24 ساعة",
+   "name_en": "24-hour Holter Monitor",
+   "modality": "ecg",
+   "body_part": "heart",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "الاستحمام قبل التركيب فقط",
+    "تسجيل الأعراض ووقتها في دفتر يُسلَّم مع الجهاز"
+   ],
+   "preparation_en": [
+    "Shower before fitting only",
+    "Note symptoms and their time in the diary provided"
+   ],
+   "description_ar": "جهاز محمول يسجل نبض القلب على مدار 24 ساعة.",
+   "description_en": "A portable device that records the heartbeat for 24 hours.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "STRESS_TREADMILL",
+   "name_ar": "اختبار الجهد على السير المتحرك",
+   "name_en": "Treadmill Stress Test",
+   "modality": "ecg",
+   "body_part": "heart",
+   "fasting_hours": 3,
+   "contrast_required": false,
+   "estimated_duration_minutes": 45,
+   "turnaround_hours": 12,
+   "preparation_ar": [
+    "صيام 3 ساعات",
+    "ارتداء ملابس وحذاء رياضي",
+    "سؤال الطبيب عن الأدوية المسموح بتناولها صباح الفحص"
+   ],
+   "preparation_en": [
+    "Fast 3 hours",
+    "Wear sports clothes and shoes",
+    "Ask your doctor which medicines to take that morning"
+   ],
+   "description_ar": "تخطيط القلب أثناء المشي على السير لتقييم الشرايين والتحمل.",
+   "description_en": "ECG during treadmill walking to assess the arteries and fitness.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "STRESS_ECHO",
+   "name_ar": "إيكو القلب بالجهد",
+   "name_en": "Stress Echocardiogram",
+   "modality": "ecg",
+   "body_part": "heart",
+   "fasting_hours": 4,
+   "contrast_required": false,
+   "estimated_duration_minutes": 60,
+   "turnaround_hours": 12,
+   "preparation_ar": [
+    "صيام 4 ساعات",
+    "ارتداء ملابس وحذاء رياضي",
+    "سؤال الطبيب عن الأدوية المسموح بتناولها صباح الفحص"
+   ],
+   "preparation_en": [
+    "Fast 4 hours",
+    "Wear sports clothes and shoes",
+    "Ask your doctor which medicines to take that morning"
+   ],
+   "description_ar": "إيكو للقلب قبل الجهد وبعده لتقييم حركة جدار القلب.",
+   "description_en": "Heart ultrasound before and after exercise to assess wall movement.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "ABPM_24H",
+   "name_ar": "مراقبة ضغط الدم على مدار 24 ساعة",
+   "name_en": "24-hour Ambulatory Blood Pressure Monitoring",
+   "modality": "ecg",
+   "body_part": "heart",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "ارتداء قميص بأكمام واسعة",
+    "عدم الاستحمام أثناء ارتداء الجهاز"
+   ],
+   "preparation_en": [
+    "Wear a loose-sleeved shirt",
+    "Do not shower while wearing the device"
+   ],
+   "description_ar": "جهاز يقيس ضغط الدم تلقائياً على مدار اليوم والليل.",
+   "description_en": "A device that measures blood pressure automatically through the day and night.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "BONE_SCAN",
+   "name_ar": "مسح العظام النووي",
+   "name_en": "Nuclear Bone Scan",
+   "modality": "nuclear",
+   "body_part": "whole_body",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 180,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "شرب كمية كافية من الماء بعد الحقن",
+    "إبلاغ الفني عن الحمل أو الرضاعة"
+   ],
+   "preparation_en": [
+    "Drink plenty of water after the injection",
+    "Tell the technician about pregnancy or breastfeeding"
+   ],
+   "description_ar": "مسح بمادة مشعة قليلة الجرعة لتقييم العظام.",
+   "description_en": "A scan with a low-dose radioactive tracer to assess the bones.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "THYROID_SCAN",
+   "name_ar": "مسح الغدة الدرقية النووي",
+   "name_en": "Thyroid Scan",
+   "modality": "nuclear",
+   "body_part": "thyroid",
+   "fasting_hours": 4,
+   "contrast_required": false,
+   "estimated_duration_minutes": 60,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "صيام 4 ساعات",
+    "الطبيب يحدد إيقاف أدوية الغدة والأطعمة الغنية باليود",
+    "إبلاغ الفني عن الحمل أو الرضاعة"
+   ],
+   "preparation_en": [
+    "Fast 4 hours",
+    "Your doctor will say which thyroid medicines and iodine-rich foods to stop",
+    "Tell the technician about pregnancy or breastfeeding"
+   ],
+   "description_ar": "مسح بمادة مشعة لتقييم وظيفة الغدة الدرقية وعقدها.",
+   "description_en": "A tracer scan to assess thyroid function and nodules.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "FLUORO_SWALLOW",
+   "name_ar": "تصوير البلع بالأشعة التنظيرية",
+   "name_en": "Fluoroscopy Swallow Study",
+   "modality": "fluoroscopy",
+   "body_part": "neck",
+   "fasting_hours": 4,
+   "contrast_required": false,
+   "estimated_duration_minutes": 30,
+   "turnaround_hours": 12,
+   "preparation_ar": [
+    "صيام 4 ساعات",
+    "إبلاغ الفني عن صعوبة البلع أو الاختناق"
+   ],
+   "preparation_en": [
+    "Fast 4 hours",
+    "Tell the technician about swallowing difficulty or choking"
+   ],
+   "description_ar": "تصوير مباشر للبلع بمادة تباين لتقييم البلعوم والمريء.",
+   "description_en": "Live X-ray of swallowing with contrast to assess the throat and oesophagus.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false
+  }
+ ],
+ "labs": [
+  {
+   "code": "AMH",
+   "name_ar": "هرمون AMH (مخزون المبيض)",
+   "name_en": "AMH (Ovarian Reserve)",
+   "category": "hormones",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 48,
+   "home_collection": true,
+   "description_ar": "يقيس مخزون المبيض لدى النساء.",
+   "description_en": "Measures the ovarian reserve in women.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "E2",
+   "name_ar": "هرمون الإستراديول (E2)",
+   "name_en": "Estradiol (E2)",
+   "category": "hormones",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 24,
+   "home_collection": true,
+   "description_ar": "يقيس مستوى هرمون الإستروجين الرئيسي.",
+   "description_en": "Measures the main oestrogen hormone.",
+   "preparation_ar": [
+    "يُحدد الطبيب يوم الدورة المناسب للتحليل"
+   ],
+   "preparation_en": [
+    "Your doctor will give the best cycle day"
+   ]
+  },
+  {
+   "code": "INSULIN",
+   "name_ar": "الأنسولين الصائم",
+   "name_en": "Fasting Insulin",
+   "category": "hormones",
+   "sample_type": "blood",
+   "fasting_hours": 8,
+   "turnaround_hours": 24,
+   "home_collection": true,
+   "description_ar": "يقيس مستوى الأنسولين في الدم أثناء الصيام.",
+   "description_en": "Measures blood insulin while fasting.",
+   "preparation_ar": [
+    "صيام 8 ساعات"
+   ],
+   "preparation_en": [
+    "Fast 8 hours"
+   ]
+  },
+  {
+   "code": "HOMA_IR",
+   "name_ar": "مقاومة الأنسولين (HOMA-IR)",
+   "name_en": "Insulin Resistance (HOMA-IR)",
+   "category": "hormones",
+   "sample_type": "blood",
+   "fasting_hours": 8,
+   "turnaround_hours": 24,
+   "home_collection": true,
+   "description_ar": "يُحسب من سكر وأنسولين الصيام لتقدير مقاومة الأنسولين.",
+   "description_en": "Calculated from fasting glucose and insulin to estimate insulin resistance.",
+   "preparation_ar": [
+    "صيام 8 ساعات"
+   ],
+   "preparation_en": [
+    "Fast 8 hours"
+   ]
+  },
+  {
+   "code": "FTESTO",
+   "name_ar": "التستوستيرون الحر",
+   "name_en": "Free Testosterone",
+   "category": "hormones",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 48,
+   "home_collection": true,
+   "description_ar": "يقيس الجزء النشط من هرمون التستوستيرون.",
+   "description_en": "Measures the active part of testosterone.",
+   "preparation_ar": [
+    "يُفضل سحب العينة صباحاً بين 7 و10"
+   ],
+   "preparation_en": [
+    "Best drawn in the morning between 7 and 10"
+   ]
+  },
+  {
+   "code": "DHEAS",
+   "name_ar": "هرمون DHEA-S",
+   "name_en": "DHEA-S",
+   "category": "hormones",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 48,
+   "home_collection": true,
+   "description_ar": "هرمون من الغدة الكظرية يفيد في تقييم زيادة الهرمونات الذكرية.",
+   "description_en": "An adrenal hormone used to assess excess male hormones.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "ACTH",
+   "name_ar": "هرمون ACTH",
+   "name_en": "ACTH",
+   "category": "hormones",
+   "sample_type": "blood",
+   "fasting_hours": 8,
+   "turnaround_hours": 72,
+   "home_collection": false,
+   "description_ar": "هرمون من الغدة النخامية ينظم الكورتيزول.",
+   "description_en": "A pituitary hormone that controls cortisol.",
+   "preparation_ar": [
+    "صيام 8 ساعات",
+    "الراحة 30 دقيقة قبل السحب",
+    "العينة تُنقل مبردة للمختبر"
+   ],
+   "preparation_en": [
+    "Fast 8 hours",
+    "Rest 30 minutes before the draw",
+    "The sample is sent chilled to the lab"
+   ]
+  },
+  {
+   "code": "GH",
+   "name_ar": "هرمون النمو (GH)",
+   "name_en": "Growth Hormone (GH)",
+   "category": "hormones",
+   "sample_type": "blood",
+   "fasting_hours": 8,
+   "turnaround_hours": 72,
+   "home_collection": false,
+   "description_ar": "يقيس هرمون النمو من الغدة النخامية.",
+   "description_en": "Measures growth hormone from the pituitary gland.",
+   "preparation_ar": [
+    "صيام 8 ساعات",
+    "الراحة 30 دقيقة قبل السحب"
+   ],
+   "preparation_en": [
+    "Fast 8 hours",
+    "Rest 30 minutes before the draw"
+   ]
+  },
+  {
+   "code": "IGF1",
+   "name_ar": "عامل النمو IGF-1",
+   "name_en": "IGF-1",
+   "category": "hormones",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 72,
+   "home_collection": true,
+   "description_ar": "مؤشر على نشاط هرمون النمو.",
+   "description_en": "A marker of growth hormone activity.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "ANTI_TPO",
+   "name_ar": "أجسام مضادة للبيروكسيديز الدرقي (Anti-TPO)",
+   "name_en": "Anti-TPO Antibodies",
+   "category": "hormones",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 48,
+   "home_collection": true,
+   "description_ar": "يكشف التهاب الغدة الدرقية المناعي.",
+   "description_en": "Detects autoimmune thyroid inflammation.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "ANTI_TG",
+   "name_ar": "أجسام مضادة للثيروجلوبيولين (Anti-TG)",
+   "name_en": "Anti-Thyroglobulin Antibodies",
+   "category": "hormones",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 48,
+   "home_collection": true,
+   "description_ar": "يساعد في تشخيص أمراض الغدة الدرقية المناعية ومتابعتها.",
+   "description_en": "Helps diagnose and follow autoimmune thyroid disease.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "FOLATE",
+   "name_ar": "حمض الفوليك (فيتامين B9)",
+   "name_en": "Folate (Vitamin B9)",
+   "category": "vitamins",
+   "sample_type": "blood",
+   "fasting_hours": 8,
+   "turnaround_hours": 24,
+   "home_collection": true,
+   "description_ar": "يقيس مستوى حمض الفوليك في الدم.",
+   "description_en": "Measures the folate level in the blood.",
+   "preparation_ar": [
+    "صيام 8 ساعات"
+   ],
+   "preparation_en": [
+    "Fast 8 hours"
+   ]
+  },
+  {
+   "code": "B6",
+   "name_ar": "فيتامين B6",
+   "name_en": "Vitamin B6",
+   "category": "vitamins",
+   "sample_type": "blood",
+   "fasting_hours": 8,
+   "turnaround_hours": 72,
+   "home_collection": true,
+   "description_ar": "يقيس مستوى فيتامين B6 في الدم.",
+   "description_en": "Measures the vitamin B6 level in the blood.",
+   "preparation_ar": [
+    "صيام 8 ساعات"
+   ],
+   "preparation_en": [
+    "Fast 8 hours"
+   ]
+  },
+  {
+   "code": "OMEGA3",
+   "name_ar": "مؤشر أوميغا 3",
+   "name_en": "Omega-3 Index",
+   "category": "vitamins",
+   "sample_type": "blood",
+   "fasting_hours": 8,
+   "turnaround_hours": 168,
+   "home_collection": false,
+   "description_ar": "يقيس نسبة أوميغا 3 في خلايا الدم الحمراء.",
+   "description_en": "Measures the omega-3 share in red blood cells.",
+   "preparation_ar": [
+    "صيام 8 ساعات"
+   ],
+   "preparation_en": [
+    "Fast 8 hours"
+   ]
+  },
+  {
+   "code": "TP_ALB",
+   "name_ar": "البروتين الكلي والألبومين",
+   "name_en": "Total Protein & Albumin",
+   "category": "chemistry",
+   "sample_type": "blood",
+   "fasting_hours": 8,
+   "turnaround_hours": 24,
+   "home_collection": true,
+   "description_ar": "يقيّم وظائف الكبد والتغذية.",
+   "description_en": "Assesses liver function and nutrition.",
+   "preparation_ar": [
+    "صيام 8 ساعات"
+   ],
+   "preparation_en": [
+    "Fast 8 hours"
+   ]
+  },
+  {
+   "code": "GGT",
+   "name_ar": "إنزيم GGT",
+   "name_en": "GGT",
+   "category": "chemistry",
+   "sample_type": "blood",
+   "fasting_hours": 8,
+   "turnaround_hours": 24,
+   "home_collection": true,
+   "description_ar": "إنزيم يرتفع في أمراض الكبد والقنوات المرارية.",
+   "description_en": "An enzyme raised in liver and bile duct disease.",
+   "preparation_ar": [
+    "صيام 8 ساعات"
+   ],
+   "preparation_en": [
+    "Fast 8 hours"
+   ]
+  },
+  {
+   "code": "AMYLASE",
+   "name_ar": "إنزيم الأميليز",
+   "name_en": "Amylase",
+   "category": "chemistry",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 24,
+   "home_collection": true,
+   "description_ar": "يساعد في تشخيص التهاب البنكرياس.",
+   "description_en": "Helps diagnose pancreatitis.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "LIPASE",
+   "name_ar": "إنزيم الليباز",
+   "name_en": "Lipase",
+   "category": "chemistry",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 24,
+   "home_collection": true,
+   "description_ar": "أدق من الأميليز لتشخيص التهاب البنكرياس.",
+   "description_en": "More specific than amylase for pancreatitis.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "HSCRP",
+   "name_ar": "بروتين سي التفاعلي عالي الحساسية (hs-CRP)",
+   "name_en": "High-Sensitivity CRP (hs-CRP)",
+   "category": "chemistry",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 24,
+   "home_collection": true,
+   "description_ar": "مؤشر التهاب يُستخدم لتقدير خطر أمراض القلب.",
+   "description_en": "An inflammation marker used to estimate heart risk.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "LPA",
+   "name_ar": "الدهون Lp(a)",
+   "name_en": "Lipoprotein(a) [Lp(a)]",
+   "category": "chemistry",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 72,
+   "home_collection": true,
+   "description_ar": "نوع من الدهون وراثي يزيد خطر أمراض القلب.",
+   "description_en": "An inherited fat particle that raises heart risk.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "APOB",
+   "name_ar": "أبوليبوبروتين B (ApoB)",
+   "name_en": "Apolipoprotein B (ApoB)",
+   "category": "chemistry",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 48,
+   "home_collection": true,
+   "description_ar": "يقيس عدد جزيئات الدهون الضارة.",
+   "description_en": "Counts the harmful fat particles.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "NTPROBNP",
+   "name_ar": "NT-proBNP (فشل القلب)",
+   "name_en": "NT-proBNP (Heart Failure)",
+   "category": "chemistry",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 24,
+   "home_collection": true,
+   "description_ar": "مؤشر يرتفع في فشل القلب.",
+   "description_en": "A marker that rises in heart failure.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "AMMONIA",
+   "name_ar": "الأمونيا",
+   "name_en": "Ammonia",
+   "category": "chemistry",
+   "sample_type": "blood",
+   "fasting_hours": 8,
+   "turnaround_hours": 24,
+   "home_collection": false,
+   "description_ar": "يقيس الأمونيا في الدم عند اضطراب الوعي أو أمراض الكبد.",
+   "description_en": "Measures blood ammonia in confusion or liver disease.",
+   "preparation_ar": [
+    "صيام 8 ساعات",
+    "العينة تُنقل على الثلج فوراً للمختبر"
+   ],
+   "preparation_en": [
+    "Fast 8 hours",
+    "The sample goes to the lab immediately on ice"
+   ]
+  },
+  {
+   "code": "COPPER",
+   "name_ar": "النحاس في الدم",
+   "name_en": "Serum Copper",
+   "category": "chemistry",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 72,
+   "home_collection": true,
+   "description_ar": "يقيس مستوى النحاس في الدم.",
+   "description_en": "Measures the copper level in the blood.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "CERULO",
+   "name_ar": "السيرولوبلازمين",
+   "name_en": "Ceruloplasmin",
+   "category": "chemistry",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 72,
+   "home_collection": true,
+   "description_ar": "يساعد في تشخيص مرض ويلسون.",
+   "description_en": "Helps diagnose Wilson's disease.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "RF",
+   "name_ar": "العامل الروماتويدي (RF)",
+   "name_en": "Rheumatoid Factor (RF)",
+   "category": "immunology",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 24,
+   "home_collection": true,
+   "description_ar": "يساعد في تشخيص التهاب المفاصل الروماتويدي.",
+   "description_en": "Helps diagnose rheumatoid arthritis.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "ASO",
+   "name_ar": "مضاد الستربتولايزين (ASO)",
+   "name_en": "ASO Titre",
+   "category": "immunology",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 24,
+   "home_collection": true,
+   "description_ar": "يكشف عدوى بكتيريا المكورات العقدية السابقة.",
+   "description_en": "Detects a recent streptococcal infection.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "ANTI_CCP",
+   "name_ar": "أجسام مضادة Anti-CCP",
+   "name_en": "Anti-CCP Antibodies",
+   "category": "immunology",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 48,
+   "home_collection": true,
+   "description_ar": "أدق من RF لتشخيص الروماتويد.",
+   "description_en": "More specific than RF for rheumatoid arthritis.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "HLAB27",
+   "name_ar": "مستضد HLA-B27",
+   "name_en": "HLA-B27",
+   "category": "immunology",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 120,
+   "home_collection": true,
+   "description_ar": "يساعد في تشخيص التهاب الفقار اللاصق.",
+   "description_en": "Helps diagnose ankylosing spondylitis.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "TTG_IGA",
+   "name_ar": "أجسام مضادة للداء الزلاقي (tTG-IgA)",
+   "name_en": "Celiac tTG-IgA",
+   "category": "immunology",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 48,
+   "home_collection": true,
+   "description_ar": "فحص أولي لمرض السيلياك (حساسية القمح).",
+   "description_en": "First test for celiac disease.",
+   "preparation_ar": [
+    "الاستمرار في تناول الغلوتين قبل التحليل حسب تعليمات الطبيب"
+   ],
+   "preparation_en": [
+    "Keep eating gluten before the test unless your doctor says otherwise"
+   ]
+  },
+  {
+   "code": "IGE",
+   "name_ar": "الغلوبيولين المناعي E الكلي (IgE)",
+   "name_en": "Total IgE",
+   "category": "immunology",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 48,
+   "home_collection": true,
+   "description_ar": "يرتفع في الحساسية والربو.",
+   "description_en": "Raised in allergy and asthma.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "BRUCELLA",
+   "name_ar": "أجسام مضادة للبروسيلا",
+   "name_en": "Brucella Antibodies",
+   "category": "infection",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 48,
+   "home_collection": true,
+   "description_ar": "يكشف عدوى البروسيلا (الحمى المالطية).",
+   "description_en": "Detects brucellosis (Malta fever).",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "WIDAL",
+   "name_ar": "فحص فيدال (التيفوئيد)",
+   "name_en": "Widal Test (Typhoid)",
+   "category": "infection",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 24,
+   "home_collection": true,
+   "description_ar": "يساعد في تشخيص حمى التيفوئيد.",
+   "description_en": "Helps diagnose typhoid fever.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "MALARIA",
+   "name_ar": "مسحة الملاريا",
+   "name_en": "Malaria Smear",
+   "category": "infection",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 4,
+   "home_collection": false,
+   "description_ar": "فحص مجهري للدم للكشف عن طفيل الملاريا.",
+   "description_en": "Blood smear under the microscope for malaria parasites.",
+   "preparation_ar": [
+    "يُفضل السحب أثناء ارتفاع الحرارة",
+    "إبلاغ المختبر عن السفر الأخير"
+   ],
+   "preparation_en": [
+    "Best drawn during a fever",
+    "Tell the lab about recent travel"
+   ]
+  },
+  {
+   "code": "DENGUE_NS1",
+   "name_ar": "حمى الضنك (NS1)",
+   "name_en": "Dengue NS1 Antigen",
+   "category": "infection",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 6,
+   "home_collection": true,
+   "description_ar": "كشف مبكر لعدوى حمى الضنك.",
+   "description_en": "Early detection of dengue infection.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "RUBELLA",
+   "name_ar": "الحصبة الألمانية IgG/IgM",
+   "name_en": "Rubella IgG/IgM",
+   "category": "infection",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 48,
+   "home_collection": true,
+   "description_ar": "يتحقق من المناعة ضد الحصبة الألمانية أو العدوى الحديثة.",
+   "description_en": "Checks immunity to rubella or a recent infection.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "TOXO",
+   "name_ar": "التوكسوبلازما IgG/IgM",
+   "name_en": "Toxoplasma IgG/IgM",
+   "category": "infection",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 48,
+   "home_collection": true,
+   "description_ar": "يكشف عدوى التوكسوبلازما، مهم قبل الحمل وأثناءه.",
+   "description_en": "Detects toxoplasma infection, important before and during pregnancy.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "CMV",
+   "name_ar": "الفيروس المضخم للخلايا IgG/IgM",
+   "name_en": "CMV IgG/IgM",
+   "category": "infection",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 48,
+   "home_collection": true,
+   "description_ar": "يكشف عدوى الفيروس المضخم للخلايا.",
+   "description_en": "Detects cytomegalovirus infection.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "HSV",
+   "name_ar": "فيروس الهربس 1/2",
+   "name_en": "Herpes Simplex Virus 1/2",
+   "category": "infection",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 72,
+   "home_collection": true,
+   "description_ar": "يكشف أجساماً مضادة لفيروس الهربس البسيط.",
+   "description_en": "Detects antibodies to herpes simplex virus.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "RPR",
+   "name_ar": "فحص الزهري (RPR/VDRL)",
+   "name_en": "Syphilis RPR/VDRL",
+   "category": "infection",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 24,
+   "home_collection": true,
+   "description_ar": "فحص أولي للزهري.",
+   "description_en": "First-line test for syphilis.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "HCV_PCR",
+   "name_ar": "فيروس سي PCR (الحمل الفيروسي)",
+   "name_en": "HCV RNA PCR",
+   "category": "infection",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 96,
+   "home_collection": true,
+   "description_ar": "يقيس الحمل الفيروسي لالتهاب الكبد سي.",
+   "description_en": "Measures the viral load of hepatitis C.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "HBV_PCR",
+   "name_ar": "فيروس بي PCR (الحمل الفيروسي)",
+   "name_en": "HBV DNA PCR",
+   "category": "infection",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 96,
+   "home_collection": true,
+   "description_ar": "يقيس الحمل الفيروسي لالتهاب الكبد بي.",
+   "description_en": "Measures the viral load of hepatitis B.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "HPV_DNA",
+   "name_ar": "فيروس الورم الحليمي HPV DNA",
+   "name_en": "HPV DNA",
+   "category": "infection",
+   "sample_type": "swab",
+   "fasting_hours": 0,
+   "turnaround_hours": 120,
+   "home_collection": false,
+   "description_ar": "يكشف الأنواع عالية الخطورة من فيروس HPV.",
+   "description_en": "Detects high-risk types of HPV.",
+   "preparation_ar": [
+    "عدم استخدام الغسولات المهبلية قبل 48 ساعة",
+    "تجنب الدورة الشهرية وقت العينة"
+   ],
+   "preparation_en": [
+    "No vaginal washes for 48 hours",
+    "Avoid sampling during your period"
+   ]
+  },
+  {
+   "code": "CT_NG_PCR",
+   "name_ar": "الكلاميديا والسيلان PCR",
+   "name_en": "Chlamydia & Gonorrhea PCR",
+   "category": "infection",
+   "sample_type": "swab",
+   "fasting_hours": 0,
+   "turnaround_hours": 72,
+   "home_collection": false,
+   "description_ar": "يكشف عدوى الكلاميديا والسيلان.",
+   "description_en": "Detects chlamydia and gonorrhoea.",
+   "preparation_ar": [
+    "عدم التبول قبل أخذ العينة بساعة",
+    "عدم استخدام الغسولات قبل 48 ساعة"
+   ],
+   "preparation_en": [
+    "Do not urinate for 1 hour before the sample",
+    "No washes for 48 hours"
+   ]
+  },
+  {
+   "code": "FLU_AB",
+   "name_ar": "الإنفلونزا A/B",
+   "name_en": "Influenza A/B",
+   "category": "infection",
+   "sample_type": "swab",
+   "fasting_hours": 0,
+   "turnaround_hours": 4,
+   "home_collection": false,
+   "description_ar": "فحص سريع لفيروسات الإنفلونزا.",
+   "description_en": "Rapid test for influenza viruses.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "RSV",
+   "name_ar": "الفيروس المخلوي التنفسي (RSV)",
+   "name_en": "RSV",
+   "category": "infection",
+   "sample_type": "swab",
+   "fasting_hours": 0,
+   "turnaround_hours": 4,
+   "home_collection": false,
+   "description_ar": "فحص سريع للفيروس المخلوي التنفسي.",
+   "description_en": "Rapid test for respiratory syncytial virus.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "STREP_A",
+   "name_ar": "المكورات العقدية A (فحص سريع)",
+   "name_en": "Strep A Rapid Test",
+   "category": "infection",
+   "sample_type": "swab",
+   "fasting_hours": 0,
+   "turnaround_hours": 2,
+   "home_collection": false,
+   "description_ar": "فحص سريع لالتهاب اللوزتين البكتيري.",
+   "description_en": "Rapid test for bacterial sore throat.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "COVID_AG",
+   "name_ar": "كوفيد-19 (فحص مستضد)",
+   "name_en": "COVID-19 Antigen",
+   "category": "infection",
+   "sample_type": "swab",
+   "fasting_hours": 0,
+   "turnaround_hours": 2,
+   "home_collection": false,
+   "description_ar": "فحص سريع لكوفيد-19.",
+   "description_en": "Rapid test for COVID-19.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "RETIC",
+   "name_ar": "عدد الخلايا الشبكية",
+   "name_en": "Reticulocyte Count",
+   "category": "blood",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 24,
+   "home_collection": true,
+   "description_ar": "يقيّم قدرة النخاع على إنتاج كريات الدم الحمراء.",
+   "description_en": "Assesses how well the marrow makes red blood cells.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "BLOOD_FILM",
+   "name_ar": "مسحة الدم المحيطية",
+   "name_en": "Peripheral Blood Film",
+   "category": "blood",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 24,
+   "home_collection": true,
+   "description_ar": "فحص مجهري لشكل خلايا الدم.",
+   "description_en": "Microscope exam of the shape of blood cells.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "CA153",
+   "name_ar": "واسم الأورام CA 15-3",
+   "name_en": "CA 15-3",
+   "category": "tumor_markers",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 48,
+   "home_collection": true,
+   "description_ar": "يُستخدم في متابعة سرطان الثدي.",
+   "description_en": "Used to follow breast cancer.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "CA199",
+   "name_ar": "واسم الأورام CA 19-9",
+   "name_en": "CA 19-9",
+   "category": "tumor_markers",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 48,
+   "home_collection": true,
+   "description_ar": "يُستخدم في متابعة أورام البنكرياس والقنوات المرارية.",
+   "description_en": "Used to follow pancreatic and bile duct tumours.",
+   "preparation_ar": [
+    "لا يتطلب صيام"
+   ],
+   "preparation_en": [
+    "No fasting required"
+   ]
+  },
+  {
+   "code": "FPSA",
+   "name_ar": "PSA الحر",
+   "name_en": "Free PSA",
+   "category": "tumor_markers",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 48,
+   "home_collection": true,
+   "description_ar": "يُقارن بـ PSA الكلي لتقدير خطر البروستاتا.",
+   "description_en": "Compared with total PSA to estimate prostate risk.",
+   "preparation_ar": [
+    "تجنب ممارسة الدراجة أو الجماع قبل التحليل بـ 48 ساعة"
+   ],
+   "preparation_en": [
+    "No cycling or sex for 48 hours before"
+   ]
+  },
+  {
+   "code": "CALCITONIN",
+   "name_ar": "الكالسيتونين",
+   "name_en": "Calcitonin",
+   "category": "tumor_markers",
+   "sample_type": "blood",
+   "fasting_hours": 8,
+   "turnaround_hours": 72,
+   "home_collection": false,
+   "description_ar": "واسم لأورام الغدة الدرقية النخاعية.",
+   "description_en": "A marker for medullary thyroid tumours.",
+   "preparation_ar": [
+    "صيام 8 ساعات"
+   ],
+   "preparation_en": [
+    "Fast 8 hours"
+   ]
+  },
+  {
+   "code": "FIT",
+   "name_ar": "الدم الخفي في البراز (FIT)",
+   "name_en": "Fecal Occult Blood (FIT)",
+   "category": "stool",
+   "sample_type": "stool",
+   "fasting_hours": 0,
+   "turnaround_hours": 24,
+   "home_collection": false,
+   "description_ar": "فحص الدم الخفي في البراز للكشف المبكر عن سرطان القولون.",
+   "description_en": "Stool test for hidden blood, for early bowel cancer screening.",
+   "preparation_ar": [
+    "جمع العينة في الوعاء المخصص حسب التعليمات",
+    "تجنب أخذ العينة أثناء الدورة الشهرية أو النزيف البواسيري"
+   ],
+   "preparation_en": [
+    "Collect the sample in the container as instructed",
+    "Avoid sampling during a period or piles bleeding"
+   ]
+  },
+  {
+   "code": "CALPROTECTIN",
+   "name_ar": "كالبروتكتين البراز",
+   "name_en": "Fecal Calprotectin",
+   "category": "stool",
+   "sample_type": "stool",
+   "fasting_hours": 0,
+   "turnaround_hours": 72,
+   "home_collection": false,
+   "description_ar": "يفرق بين التهاب الأمعاء ومتلازمة القولون العصبي.",
+   "description_en": "Separates bowel inflammation from irritable bowel syndrome.",
+   "preparation_ar": [
+    "جمع العينة في الوعاء المخصص حسب التعليمات"
+   ],
+   "preparation_en": [
+    "Collect the sample in the container as instructed"
+   ]
+  },
+  {
+   "code": "UACR",
+   "name_ar": "نسبة الألبومين إلى الكرياتينين في البول",
+   "name_en": "Urine Albumin/Creatinine Ratio",
+   "category": "urine",
+   "sample_type": "urine",
+   "fasting_hours": 0,
+   "turnaround_hours": 24,
+   "home_collection": false,
+   "description_ar": "يكشف مبكراً تضرر الكلى خاصة عند مرضى السكري.",
+   "description_en": "Detects early kidney damage, especially in diabetes.",
+   "preparation_ar": [
+    "عينة بول صباحية",
+    "تجنب التمارين الشاقة قبل التحليل بـ 24 ساعة"
+   ],
+   "preparation_en": [
+    "First-morning urine sample",
+    "No heavy exercise for 24 hours before"
+   ]
+  },
+  {
+   "code": "URINE_PROT_24H",
+   "name_ar": "بروتين البول لـ 24 ساعة",
+   "name_en": "24-hour Urine Protein",
+   "category": "urine",
+   "sample_type": "urine",
+   "fasting_hours": 0,
+   "turnaround_hours": 48,
+   "home_collection": false,
+   "description_ar": "يقيس كمية البروتين المفقودة في البول خلال يوم.",
+   "description_en": "Measures the protein lost in urine over a day.",
+   "preparation_ar": [
+    "جمع البول لمدة 24 ساعة في الوعاء المخصص",
+    "حفظ الوعاء في مكان بارد",
+    "عدم جمع أول تبول صباحي ثم جمع كل ما بعده حتى نفس الوقت من اليوم التالي"
+   ],
+   "preparation_en": [
+    "Collect all urine for 24 hours in the container",
+    "Keep the container cool",
+    "Discard the first morning urine, then collect everything until the same time next day"
+   ]
+  },
+  {
+   "code": "NIPT",
+   "name_ar": "فحص الحمل الجيني غير الجراحي (NIPT)",
+   "name_en": "Non-Invasive Prenatal Test (NIPT)",
+   "category": "prenatal",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 240,
+   "home_collection": false,
+   "description_ar": "فحص دم للأم يقدّر خطر بعض الاضطرابات الكروموسومية للجنين (من الأسبوع 10).",
+   "description_en": "A mother's blood test that estimates the risk of some chromosome conditions in the baby (from week 10).",
+   "preparation_ar": [
+    "من الأسبوع 10 من الحمل فصاعداً",
+    "إحضار تقرير السونار"
+   ],
+   "preparation_en": [
+    "From week 10 of pregnancy",
+    "Bring the ultrasound report"
+   ]
+  },
+  {
+   "code": "IGG_FOOD",
+   "name_ar": "حساسية الطعام IgG (لوحة تحمل الأطعمة)",
+   "name_en": "Food IgG Intolerance Panel",
+   "category": "intolerance",
+   "sample_type": "blood",
+   "fasting_hours": 0,
+   "turnaround_hours": 240,
+   "home_collection": false,
+   "description_ar": "لوحة تقيس أجساماً مضادة IgG لعدد من الأطعمة الشائعة.",
+   "description_en": "A panel measuring IgG antibodies to several common foods.",
+   "preparation_ar": [
+    "الاستمرار في تناول الأطعمة المعتادة قبل التحليل"
+   ],
+   "preparation_en": [
+    "Keep eating your usual foods before the test"
+   ]
+  }
+ ],
+ "nursing": [
+  {
+   "code": "HOME_DOCTOR_VISIT",
+   "name_ar": "زيارة طبيب منزلية",
+   "name_en": "Doctor Home Visit",
+   "category": "specialized_care",
+   "duration": "hour",
+   "duration_value": 1,
+   "booking_mode": "visit",
+   "description_ar": "طبيب مرخص يزور المريض في المنزل للفحص وتقييم الحالة.",
+   "description_en": "A licensed doctor visits the patient at home for an examination and assessment.",
+   "preparation_ar": [
+    "تجهيز التقارير والأدوية الحالية",
+    "توفير مكان مناسب للفحص"
+   ],
+   "preparation_en": [
+    "Have recent reports and current medicines ready",
+    "Provide a suitable place for the examination"
+   ],
+   "requires_patient_medication": false,
+   "requires_companion": false,
+   "icon": "stethoscope"
+  },
+  {
+   "code": "ECG_HOME",
+   "name_ar": "تخطيط القلب في المنزل",
+   "name_en": "ECG at Home",
+   "category": "vitals",
+   "duration": "hour",
+   "duration_value": 1,
+   "booking_mode": "visit",
+   "description_ar": "تسجيل تخطيط القلب في المنزل على يد ممرض مؤهل.",
+   "description_en": "A heart ECG recorded at home by a qualified nurse.",
+   "preparation_ar": [
+    "تجنب الكريمات على الصدر",
+    "الراحة 5 دقائق قبل الفحص"
+   ],
+   "preparation_en": [
+    "Avoid chest creams",
+    "Rest for 5 minutes before the test"
+   ],
+   "requires_patient_medication": false,
+   "requires_companion": false,
+   "icon": "monitor_heart"
+  },
+  {
+   "code": "GLUCOSE_MONITOR_VISIT",
+   "name_ar": "زيارة قياس سكر الدم ومتابعته",
+   "name_en": "Blood Glucose Monitoring Visit",
+   "category": "vitals",
+   "duration": "hour",
+   "duration_value": 1,
+   "booking_mode": "visit",
+   "description_ar": "قياس سكر الدم وتسجيله وتدريب المريض على استخدام الجهاز.",
+   "description_en": "Blood glucose measurement and logging, with training on the meter.",
+   "preparation_ar": [
+    "إحضار جهاز قياس السكر إن وُجد",
+    "تجهيز سجل القياسات السابقة"
+   ],
+   "preparation_en": [
+    "Have your glucose meter ready if you own one",
+    "Have your previous readings ready"
+   ],
+   "requires_patient_medication": false,
+   "requires_companion": false,
+   "icon": "glucose"
+  },
+  {
+   "code": "ENEMA",
+   "name_ar": "حقنة شرجية",
+   "name_en": "Enema",
+   "category": "basic_nursing",
+   "duration": "hour",
+   "duration_value": 1,
+   "booking_mode": "visit",
+   "description_ar": "إعطاء حقنة شرجية بحسب وصفة الطبيب.",
+   "description_en": "An enema given as prescribed by the doctor.",
+   "preparation_ar": [
+    "وجود وصفة الطبيب",
+    "توفير حمام قريب"
+   ],
+   "preparation_en": [
+    "The doctor's prescription is required",
+    "Have a bathroom nearby"
+   ],
+   "requires_patient_medication": true,
+   "requires_companion": false,
+   "icon": "medical_services"
+  },
+  {
+   "code": "HIJAMA",
+   "name_ar": "حجامة (على يد ممارس مرخص من وزارة الصحة)",
+   "name_en": "Cupping (Hijama) by a Licensed Practitioner",
+   "category": "specialized_care",
+   "duration": "hour",
+   "duration_value": 1,
+   "booking_mode": "visit",
+   "description_ar": "جلسة حجامة يؤديها ممارس مرخص من وزارة الصحة وبأدوات معقمة تُستخدم مرة واحدة.",
+   "description_en": "A cupping session done by a Ministry of Health-licensed practitioner with sterile single-use equipment.",
+   "preparation_ar": [
+    "إبلاغ الممارس عن أمراض الدم والأدوية المسيّلة للدم والحمل",
+    "عدم الأكل الثقيل قبل الجلسة بساعتين"
+   ],
+   "preparation_en": [
+    "Tell the practitioner about blood disorders, blood thinners and pregnancy",
+    "No heavy meal for 2 hours before"
+   ],
+   "requires_patient_medication": false,
+   "requires_companion": false,
+   "icon": "healing"
+  },
+  {
+   "code": "EAR_IRRIGATION",
+   "name_ar": "غسيل الأذن (إزالة الشمع)",
+   "name_en": "Ear Wax Irrigation",
+   "category": "basic_nursing",
+   "duration": "hour",
+   "duration_value": 1,
+   "booking_mode": "visit",
+   "description_ar": "إزالة شمع الأذن بالغسيل اللطيف.",
+   "description_en": "Gentle removal of ear wax by irrigation.",
+   "preparation_ar": [
+    "إبلاغ الممرض عن ثقب طبلة الأذن أو التهاب الأذن",
+    "استخدام قطرات الأذن المليّنة قبل الجلسة إذا وصفها الطبيب"
+   ],
+   "preparation_en": [
+    "Tell the nurse about a perforated eardrum or ear infection",
+    "Use softening ear drops beforehand if prescribed"
+   ],
+   "requires_patient_medication": false,
+   "requires_companion": false,
+   "icon": "hearing"
+  },
+  {
+   "code": "NEWBORN_BATH_CORD",
+   "name_ar": "حمام المولود والعناية بالحبل السري",
+   "name_en": "Newborn Bath & Cord Care",
+   "category": "baby",
+   "duration": "hour",
+   "duration_value": 1,
+   "booking_mode": "visit",
+   "description_ar": "تحميم المولود والعناية بالحبل السري وتدريب الأم.",
+   "description_en": "Bathing the newborn, cord care and teaching the mother.",
+   "preparation_ar": [
+    "تجهيز ملابس المولود ومستلزمات الاستحمام",
+    "غرفة دافئة"
+   ],
+   "preparation_en": [
+    "Have the baby's clothes and bath supplies ready",
+    "A warm room"
+   ],
+   "requires_patient_medication": false,
+   "requires_companion": false,
+   "icon": "child_care"
+  },
+  {
+   "code": "CIRCUMCISION_CARE",
+   "name_ar": "العناية بجرح الختان",
+   "name_en": "Circumcision Wound Care",
+   "category": "wound",
+   "duration": "hour",
+   "duration_value": 1,
+   "booking_mode": "visit",
+   "description_ar": "تنظيف جرح الختان وتغيير الضماد وتعليم الأهل.",
+   "description_en": "Cleaning the circumcision wound, changing the dressing and teaching the parents.",
+   "preparation_ar": [
+    "تجهيز تعليمات الطبيب والمراهم الموصوفة"
+   ],
+   "preparation_en": [
+    "Have the doctor's instructions and prescribed ointments ready"
+   ],
+   "requires_patient_medication": true,
+   "requires_companion": false,
+   "icon": "healing"
+  },
+  {
+   "code": "WOUND_VAC",
+   "name_ar": "علاج الجروح بالشفط المفرّغ (VAC)",
+   "name_en": "Wound VAC Therapy",
+   "category": "wound",
+   "duration": "hour",
+   "duration_value": 1,
+   "booking_mode": "programme",
+   "description_ar": "تغيير ضماد جهاز الشفط المفرّغ ومتابعة التئام الجرح.",
+   "description_en": "Changing the vacuum-assisted dressing and following wound healing.",
+   "preparation_ar": [
+    "وجود جهاز الشفط والمستلزمات من الطبيب",
+    "تجهيز تقرير الطبيب"
+   ],
+   "preparation_en": [
+    "The device and supplies from the doctor",
+    "Have the doctor's report ready"
+   ],
+   "requires_patient_medication": true,
+   "requires_companion": false,
+   "icon": "healing"
+  },
+  {
+   "code": "DIABETES_EDUCATION",
+   "name_ar": "زيارة تثقيف مرضى السكري",
+   "name_en": "Diabetes Education Visit",
+   "category": "specialized_care",
+   "duration": "hour",
+   "duration_value": 1,
+   "booking_mode": "programme",
+   "description_ar": "تثقيف المريض بالتغذية والأدوية وقياس السكر والعناية بالقدم.",
+   "description_en": "Teaching nutrition, medicines, glucose checks and foot care.",
+   "preparation_ar": [
+    "إحضار جهاز السكر وسجل القياسات",
+    "تجهيز قائمة الأدوية"
+   ],
+   "preparation_en": [
+    "Have the glucose meter and readings log ready",
+    "Have the medicine list ready"
+   ],
+   "requires_patient_medication": false,
+   "requires_companion": false,
+   "icon": "glucose"
+  },
+  {
+   "code": "NUTRITIONIST_VISIT",
+   "name_ar": "زيارة أخصائي تغذية منزلية",
+   "name_en": "Nutritionist Home Visit",
+   "category": "specialized_care",
+   "duration": "hour",
+   "duration_value": 1,
+   "booking_mode": "programme",
+   "description_ar": "تقييم غذائي وخطة تغذية مناسبة للحالة الصحية في المنزل.",
+   "description_en": "A nutrition assessment and a plan that fits the health condition, at home.",
+   "preparation_ar": [
+    "تسجيل ما يؤكل خلال 3 أيام",
+    "تجهيز نتائج التحاليل الأخيرة"
+   ],
+   "preparation_en": [
+    "Write down what you eat for 3 days",
+    "Have recent lab results ready"
+   ],
+   "requires_patient_medication": false,
+   "requires_companion": false,
+   "icon": "restaurant"
+  },
+  {
+   "code": "OT_SESSION",
+   "name_ar": "جلسة علاج وظيفي",
+   "name_en": "Occupational Therapy Session",
+   "category": "physio",
+   "duration": "hour",
+   "duration_value": 1,
+   "booking_mode": "programme",
+   "description_ar": "جلسة علاج وظيفي لتحسين الاستقلالية في الأنشطة اليومية.",
+   "description_en": "An occupational therapy session to improve independence in daily activities.",
+   "preparation_ar": [
+    "ارتداء ملابس مريحة",
+    "تجهيز تقرير الطبيب"
+   ],
+   "preparation_en": [
+    "Wear comfortable clothes",
+    "Have the doctor's report ready"
+   ],
+   "requires_patient_medication": false,
+   "requires_companion": false,
+   "icon": "accessibility"
+  },
+  {
+   "code": "PREGNANCY_NURSE_VISIT",
+   "name_ar": "زيارة ممرضة لمتابعة الحمل",
+   "name_en": "Pregnancy Follow-up Nurse Visit",
+   "category": "baby",
+   "duration": "hour",
+   "duration_value": 1,
+   "booking_mode": "programme",
+   "description_ar": "قياس الضغط والوزن ومتابعة الحمل وتثقيف الأم.",
+   "description_en": "Blood pressure and weight checks, pregnancy follow-up and teaching.",
+   "preparation_ar": [
+    "تجهيز ملف الحمل ونتائج التحاليل والسونار"
+   ],
+   "preparation_en": [
+    "Have the pregnancy file, lab results and scans ready"
+   ],
+   "requires_patient_medication": false,
+   "requires_companion": false,
+   "icon": "pregnant_woman"
+  },
+  {
+   "code": "CAREGIVER_HOURLY",
+   "name_ar": "مرافق رعاية بالساعة",
+   "name_en": "Hourly Caregiver",
+   "category": "elderly",
+   "duration": "hour",
+   "duration_value": 4,
+   "booking_mode": "continuous",
+   "description_ar": "مرافق مدرب لمساعدة المريض في الأنشطة اليومية بالساعة.",
+   "description_en": "A trained caregiver to help with daily activities by the hour.",
+   "preparation_ar": [
+    "تجهيز الأدوية ومواعيدها",
+    "توفير استراحة مناسبة للمرافق"
+   ],
+   "preparation_en": [
+    "Have medicines and their times ready",
+    "A suitable rest area for the caregiver"
+   ],
+   "requires_patient_medication": false,
+   "requires_companion": true,
+   "icon": "elderly"
+  }
+ ],
+ "nursing_booking_overrides": {
+  "continuous": [
+   "Elderly Companion & Care",
+   "Mother & Newborn Care",
+   "Home ICU Care",
+   "Elderly Daily Care",
+   "Elderly Overnight Care",
+   "Post-Surgery Care",
+   "Home Oxygen Therapy"
+  ],
+  "programme": [
+   "Physiotherapy Session",
+   "Elderly Mobility Rehab",
+   "Speech Therapy",
+   "Blood Pressure Follow-up Program",
+   "Home Dialysis Session",
+   "Antibiotic IV Course",
+   "Lactation Consultant",
+   "Child Vaccination at Home",
+   "Palliative Care Visit"
+  ]
+ },
+ "booking_options": {
+  "visit": {
+   "recurrence": [
+    "once",
+    "daily",
+    "weekly",
+    "monthly"
+   ]
+  },
+  "continuous": {
+   "hours": [
+    4,
+    8,
+    12,
+    24
+   ],
+   "shift": [
+    "day",
+    "night"
+   ],
+   "period": [
+    "day",
+    "week",
+    "month",
+    "open"
+   ]
+  },
+  "programme": {
+   "sessions": [
+    4,
+    6,
+    8,
+    10,
+    12
+   ]
+  }
+ }
+}

@@ -1,0 +1,73 @@
+{
+ "slice": "od6-app",
+ "batch": 12,
+ "app": "patient-app",
+ "screens": [
+  {
+   "route": "/settings",
+   "elements": [
+    [
+     "Rows: notifications, privacy and data, security, language and appearance, help and policies (one row replaces help + about)",
+     "routes",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/settings/help",
+   "elements": [
+    [
+     "Tabs Help | Feedback | About | Legal (?tab=, ?doc=)",
+     "route query",
+     "ok"
+    ],
+    [
+     "Support chat, my requests, call support",
+     "routes /support/chat, /support/ticket; GET /config",
+     "ok"
+    ],
+    [
+     "FAQ accordion",
+     "GET /support/faqs",
+     "ok"
+    ],
+    [
+     "Feedback form",
+     "POST /support/feedback",
+     "ok"
+    ],
+    [
+     "About: app name, version, description",
+     "expo config version; static key",
+     "ok"
+    ],
+    [
+     "Legal: cancellation, returns, refund policy, telehealth consent, published documents",
+     "GET /system-config/public, GET /legal/policies, GET /legal/policy/:key",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/settings/about",
+   "elements": [
+    [
+     "Redirect to /settings/help?tab=about; the policies it read (GET /system-config/public, GET /legal/policies, GET /legal/policy/:key) now render on the Legal tab of /settings/help; /settings/refund-policy and /settings/telehealth-consent redirect to ?tab=legal&doc=",
+     "RedirectKeepingParams",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/settings/terms",
+   "elements": [
+    [
+     "Redirect to /settings/help?tab=legal",
+     "RedirectKeepingParams",
+     "ok"
+    ]
+   ]
+  }
+ ],
+ "needsReview": []
+}

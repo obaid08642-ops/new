@@ -31,13 +31,13 @@ export default async function DiagnosticsInsuranceApprovalPage({ params, searchP
     // Opened from the hub with no booking: the insurance step belongs to a booking, so say so and point to the requests (the pre-booking upload form is a backend/owner item).
     return (
       <ConsultPage locale={locale} title={t("approvalTitle")} backHref={`/${locale}/diagnostics`}>
-        <ConsultState kind="empty" icon="shield-check" tone={INSURANCE.tone} title={t("approvalNoOrderTitle")} body={t("approvalNoOrderBody")} actionLabel={t("bookingsTitle")} actionHref={`/${locale}/diagnostics/bookings`} />
+        <ConsultState kind="empty" icon="shield-check" tone={INSURANCE.tone} title={t("approvalNoOrderTitle")} body={t("approvalNoOrderBody")} actionLabel={t("bookingsTitle")} actionHref={`/${locale}/orders`} />
       </ConsultPage>
     );
   }
   if (!idPattern.test(orderId)) notFound();
   return (
-    <ConsultPage locale={locale} title={t("approvalTitle")} backHref={`/${locale}/diagnostics/bookings`}>
+    <ConsultPage locale={locale} title={t("approvalTitle")} backHref={`/${locale}/orders`}>
       <p className={styles.flowNote}>{t("approvalSub")}</p>
       <DiagnosticsInsuranceApprovalClient orderId={orderId} labName={(sp.labName || "").trim() || t("approvalLabFallback")} visitType={(sp.visitType || "clinic").trim()} locale={locale} />
       <section aria-labelledby="ins-upload">

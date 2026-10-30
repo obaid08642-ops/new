@@ -1,6 +1,7 @@
 /** One catalogue item (lab test or package, radiology scan, nursing service) in the shape the item page draws. */
 import type { LabService } from "@/lib/api/labs";
-import { pickList, type TextLists } from "@/lib/i18n/localized-lists";
+import type { TextLists } from "@/lib/i18n/localized-lists";
+import { resolveLocalizedList, type LocalizedListResult } from "@/lib/i18n/localized-field";
 import type { Texts } from "@/lib/i18n/localized";
 import type { NursingCatalogItem } from "@/lib/api/nursing-catalog";
 import type { RadiologyService } from "@/lib/api/radiology";
@@ -60,12 +61,14 @@ export function fromNursing(s: NursingCatalogItem): ItemView {
   return { offer: s.offer, offers: s.offers, id: s.id, nameAr: s.nameAr, nameEn: s.nameEn, descriptionAr: s.descriptionAr, descriptionEn: s.descriptionEn, preparationAr: [], preparationEn: [], included: [], isPackage: false, durationValue: s.durationValue, duration: s.duration };
 }
 
-/** The preparation lines in the page's language (Arabic and Urdu read the Arabic list). */
+/** The preparation lines in the page's language, else the other language (lib/i18n/localized-field.ts); see preparationField for the mark. */
+export function preparationField(locale: string, item: { preparations?: TextLists; preparationAr?: string[]; preparationEn?: string[] }): LocalizedListResult {
+  const p = item.preparations;
+  const ar = p?.ar?.length ? p.ar : item.preparationAr;
+  const en = p?.en?.length ? p.en : item.preparationEn;
+  return resolveLocalizedList({ locale, ar, en, perLocale: p ? { ur: p.ur, hi: p.hi, bn: p.bn, tl: p.tl } : undefined });
+}
+
 export function preparationFor(locale: string, item: ItemView): string[] {
-  const own = pickList(locale, item.preparations);
-  if (own.length) return own;
-  const rtl = locale === "ar" || locale === "ur";
-  const first = rtl ? item.preparationAr : item.preparationEn;
-  const second = rtl ? item.preparationEn : item.preparationAr;
-  return first.length ? first : second;
+  return preparationField(locale, item).items;
 }

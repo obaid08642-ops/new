@@ -2,8 +2,9 @@
 
 import { Fragment, useEffect, useId, useRef, useState, type FocusEvent, type KeyboardEvent, type ReactNode } from "react";
 import Link from "next/link";
+import { markByScript, type FieldMark } from "@/lib/i18n/localized-field";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   INITIAL_SUGGEST_STATE, SuggestController, highlightParts,
   type SuggestScope, type SuggestState, type SuggestType, type Suggestion, type TextRange,
@@ -36,6 +37,9 @@ export function useSearchSuggest(locale: string, scope?: SuggestScope) {
   return { state, controller };
 }
 
+/** lang/dir for a suggestion whose script is not the page's (English name on an Arabic page: lang="en" dir="ltr"). */
+const langAttrs = (mark: FieldMark | undefined) => (mark ? { lang: mark.lang, dir: mark.dir } : {});
+
 /** The matched part of the name (the server's ranges) in a <mark>: text nodes only, nothing from the server is drawn as HTML. */
 export function SuggestName({ name, highlights }: { name: string; highlights: readonly TextRange[] }) {
   return <>{highlightParts(name, highlights).map((part, i) => (part.match ? <mark key={i} className={styles.mark}>{part.text}</mark> : <Fragment key={i}>{part.text}</Fragment>))}</>;
@@ -67,6 +71,7 @@ export interface SearchSuggestProps {
 export function SearchSuggest({ state, controller, renderField, allResultsHref, className }: SearchSuggestProps) {
   const t = useTranslations("SearchSuggest");
   const kinds = useTranslations("Search");
+  const locale = useLocale();
   const router = useRouter();
   const base = useId();
   const listId = `${base}-list`;
@@ -124,7 +129,7 @@ export function SearchSuggest({ state, controller, renderField, allResultsHref, 
                 onMouseMove={() => controller.hover(i)}
                 onClick={() => controller.close()}
               >
-                <span className={styles.name}><SuggestName name={item.name} highlights={item.highlights} /></span>
+                <span className={styles.name} {...langAttrs(markByScript(locale, item.name))}><SuggestName name={item.name} highlights={item.highlights} /></span>
                 <span className={styles.kind}>{kinds(KIND[item.type])}</span>
               </Link>
             </li>

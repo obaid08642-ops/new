@@ -1,10 +1,13 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
-import { router, useFocusEffect, type Href } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
 
 import { AppHeader, Chip, EmptyState, ErrorState, OfflineState, Screen, Segmented } from '../../../../packages/ui-native/src';
 import { OrderCard } from './OrderKit';
+import { ResultsPanel } from './ResultsPanel';
+import { useNewResultsCount } from '../../hooks/useNewResultsCount';
+import { parseOrdersTab, type OrdersTab } from '../../utils/ordersResults';
 import { Notice } from '../pharmacy/OfferKit';
 import { goBackDiag } from '../diagnostics/DiagKit';
 import { goBack as goBackPharmacy } from '../pharmacy/PharmacyKit';
@@ -55,8 +58,11 @@ export function backFor(endpoints: OrderEndpoints): () => void {
   };
 }
 
-export function OrderList({ endpoints, titleKey, testID }: { endpoints: OrderEndpoints; titleKey: string; testID: string }) {
+export function OrderList({ endpoints, titleKey, testID, withResults = false }: { endpoints: OrderEndpoints; titleKey: string; testID: string; withResults?: boolean }) {
   const { theme, dir, k, num, c } = useScreenUi();
+  const params = useLocalSearchParams<{ tab?: string }>();
+  const newResults = useNewResultsCount();
+  const [tab, setTab] = useState<OrdersTab>(() => (withResults ? parseOrdersTab(params.tab) : 'current'));
   const [rows, setRows] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -110,16 +116,47 @@ export function OrderList({ endpoints, titleKey, testID }: { endpoints: OrderEnd
       <AppHeader title={k(titleKey)} onBack={onBack} backLabel={k('pharmacy.back')} theme={theme} direction={dir} />
     </View>
   );
+  const tabs = withResults ? (
+    <Segmented
+      label={k(titleKey)}
+      value={tab}
+      onChange={(v) => {
+        const next = parseOrdersTab(v);
+        setTab(next);
+        if (next !== 'results') setBucket(next);
+        else newResults.refresh();
+      }}
+      options={[
+        { value: 'current', label: k('orders.tab.current') },
+        { value: 'results', label: newResults.count > 0 ? k('orders.tab.resultsNew', { n: num(newResults.count) }) : k('orders.tab.results') },
+        { value: 'previous', label: k('orders.tab.previous') },
+      ]}
+      theme={theme}
+      testID={`${testID}-tabs`}
+    />
+  ) : null;
   const state = (node: React.ReactNode) => (
     <Screen theme={theme} direction={dir} header={header} scroll testID={testID}>
-      <View style={{ ...COLUMN, paddingHorizontal: 16, paddingBottom: 32, flexGrow: 1, justifyContent: 'center' }}>{node}</View>
+      <View style={{ ...COLUMN, paddingHorizontal: 16, paddingBottom: 32, flexGrow: 1, justifyContent: 'center' }}>{tabs ? <View style={{ paddingBottom: 16 }}>{tabs}</View> : null}{node}</View>
     </Screen>
   );
 
+  // the results tab has its own endpoints: it does not wait for, or fail with, the orders
+  if (withResults && tab === 'results') {
+    return (
+      <Screen theme={theme} direction={dir} header={header} scroll testID={testID}>
+        <View style={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 40, gap: 16 }}>
+          {tabs}
+          <ResultsPanel onSeen={newResults.refresh} testID={`${testID}-results`} />
+        </View>
+      </Screen>
+    );
+  }
   if (loading) {
     return (
       <Screen theme={theme} direction={dir} header={header} scroll testID={testID}>
         <View accessibilityLabel={k('pharmacy.loading')} accessibilityState={{ busy: true }} style={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, gap: 12 }}>
+          {tabs}
           {[0, 1, 2].map((i) => (
             <View key={i} style={{ height: 120, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline }} />
           ))}
@@ -135,17 +172,19 @@ export function OrderList({ endpoints, titleKey, testID }: { endpoints: OrderEnd
 
   const top = (
     <View style={{ gap: 16, paddingBottom: 16 }}>
-      <Segmented
-        label={k(titleKey)}
-        value={bucket}
-        onChange={(v) => setBucket(v === 'previous' ? 'previous' : 'current')}
-        options={[
-          { value: 'current', label: k('orders.tab.current') },
-          { value: 'previous', label: k('orders.tab.previous') },
-        ]}
-        theme={theme}
-        testID={`${testID}-tabs`}
-      />
+      {tabs ?? (
+        <Segmented
+          label={k(titleKey)}
+          value={bucket}
+          onChange={(v) => setBucket(v === 'previous' ? 'previous' : 'current')}
+          options={[
+            { value: 'current', label: k('orders.tab.current') },
+            { value: 'previous', label: k('orders.tab.previous') },
+          ]}
+          theme={theme}
+          testID={`${testID}-tabs`}
+        />
+      )}
       {kinds.length > 1 ? (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} accessibilityLabel={k('orders.filter.label')} contentContainerStyle={{ gap: 8 }} testID={`${testID}-filter`}>
           <Chip label={k('orders.filter.all')} selected={activeKind === null} onPress={() => setKind(null)} theme={theme} testID={`${testID}-filter-all`} />

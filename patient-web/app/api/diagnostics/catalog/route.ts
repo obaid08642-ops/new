@@ -28,7 +28,7 @@ export async function GET(request: Request) {
   const bodyPart = url.searchParams.get("body_part") ?? undefined;
   const result = await loadCatalogPage({ kind, page, search: filter.q || undefined, sort: catalogSortOf(filter.sort), category: serverCategoryOf(kind, chip), modality, bodyPart, homeVisit: url.searchParams.get("home_visit") === "true", lowestPrice: url.searchParams.get("lowest_price") === "true", highestRated: url.searchParams.get("highest_rated") === "true" });
   if (!result.ok) return NextResponse.json({ message: "catalog_unavailable" }, { status: 502, headers: { "cache-control": "no-store" } });
-  const rows = catalogRows(kind, [result], { place, pay }, {
+  const rows = catalogRows(kind, [result], { place, pay, noFasting: url.searchParams.get("nofast") === "1", sameDay: url.searchParams.get("sameday") === "1" }, {
     locale,
     tr: (key, values) => t(key, values),
     itemHref: (id, itemKind, facilityOnly) => url.searchParams.get("detail") === "1" && itemKind === "radiology" ? `/${locale}/diagnostics/radiology/${encodeURIComponent(id)}` : `/${locale}/labs/${encodeURIComponent(id)}${contextQuery({ kind: itemKind, place: facilityOnly ? "facility" : place === "all" ? "home" : place, pay: pay === "insurance" ? "insurance" : "cash" })}`,
