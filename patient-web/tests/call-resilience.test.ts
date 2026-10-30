@@ -1,9 +1,9 @@
 // P14.22: the web call room on a bad network (lib/consult/call-resilience.ts, used by components-next/video-room-client.tsx).
 import fs from "node:fs";
 import path from "node:path";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { AudioPresets, ConnectionQuality, DisconnectReason, VideoPresets } from "livekit-client";
-import { POOR_REPORTS_FOR_AUDIO_ONLY, callRoomOptions, poorConnectionTracker, setVideo, stateAfterDisconnect } from "@/lib/consult/call-resilience";
+import { POOR_REPORTS_FOR_AUDIO_ONLY, RECONNECT_DEADLINE_MS, callRoomOptions, poorConnectionTracker, qualityLevel, reconnectClock, setVideo, stateAfterDisconnect } from "@/lib/consult/call-resilience";
 
 describe("call room settings", () => {
   it("adaptive stream, dynacast, simulcast 180p/360p, speech audio with DTX: the same as patient-app", () => {
@@ -69,6 +69,66 @@ describe("a dropped call", () => {
       const src = fs.readFileSync(path.join(__dirname, "..", page), "utf8");
       for (const k of ["callReconnecting", "callAudioOnly", "callTryVideo", "callDropped", "callContinueInChat"]) expect(src, `${page} ${k}`).toContain(`c("${k}")`);
       expect(src).toMatch(/chatHref=\{.*\/appointments\/\$\{appointmentId\}\/chat/);
+    }
+  });
+});
+
+describe("a lost connection resumes the same call; only ~30 s without it ends the call", () => {
+  afterEach(() => { vi.useRealTimers(); });
+
+  it("the deadline is 30 s, fires once, and a second 'reconnecting' does not restart the clock", () => {
+    vi.useFakeTimers();
+    const expired = vi.fn();
+    const clock = reconnectClock(expired);
+    expect(RECONNECT_DEADLINE_MS).toBe(30_000);
+    clock.start();
+    vi.advanceTimersByTime(20_000);
+    clock.start();
+    vi.advanceTimersByTime(9_999);
+    expect(expired).not.toHaveBeenCalled();
+    expect(clock.running()).toBe(true);
+    vi.advanceTimersByTime(1);
+    expect(expired).toHaveBeenCalledTimes(1);
+    expect(clock.running()).toBe(false);
+  });
+
+  it("coming back (stop) cancels it, and it can run again on the next loss", () => {
+    vi.useFakeTimers();
+    const expired = vi.fn();
+    const clock = reconnectClock(expired);
+    clock.start();
+    vi.advanceTimersByTime(10_000);
+    clock.stop();
+    vi.advanceTimersByTime(60_000);
+    expect(expired).not.toHaveBeenCalled();
+    clock.start();
+    vi.advanceTimersByTime(30_000);
+    expect(expired).toHaveBeenCalledTimes(1);
+  });
+
+  it("quality levels", () => {
+    expect(["excellent", "good", "poor", "lost", "weird", undefined].map(qualityLevel)).toEqual(["excellent", "good", "poor", "lost", "unknown", "unknown"]);
+  });
+});
+
+describe("the web room is wired to it, in every language", () => {
+  const read = (p: string) => fs.readFileSync(path.join(__dirname, "..", p), "utf8");
+
+  it("reconnecting (also the signal-only one) starts the clock, reconnected stops it, the server's advice starts sound only, each side has a quality label", () => {
+    const src = read("components-next/video-room-client.tsx");
+    for (const s of ["RoomEvent.Reconnecting", "RoomEvent.SignalReconnecting", "RoomEvent.Reconnected", "reconnectClock(", "startAudioOnly", "data-quality=\"local\"", "data-quality=\"remote\"", "labels.qualityYou", "labels.qualityOther"]) expect(src, s).toContain(s);
+    for (const page of ["app/[locale]/consultations/video-call/page.tsx", "app/[locale]/room/[id]/page.tsx"]) {
+      const p = read(page);
+      expect(p, page).toContain("startAudioOnly=");
+      expect(p, page).toContain("callQualityExcellent");
+    }
+  });
+
+  it.each(["ar", "en", "ur", "hi", "bn", "fil"])("%s has every call quality label", (l) => {
+    const web = JSON.parse(read(`messages/${l}.json`)).ConsultWeb;
+    for (const k of ["callQualityYou", "callQualityOther", "callQualityExcellent", "callQualityGood", "callQualityPoor", "callQualityLost", "callQualityUnknown"]) {
+      expect(typeof web[k], `${l}.${k}`).toBe("string");
+      expect(web[k].length).toBeGreaterThan(0);
     }
   });
 });

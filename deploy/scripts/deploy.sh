@@ -40,11 +40,14 @@ grep -q '^MEILI_MASTER_KEY=[0-9a-f]\{32,\}' "$ENV_FILE" || { sed -i '/^MEILI_MAS
 set -a; source "$ENV_FILE"; set +a
 
 echo "═══ [2/7] Inject public IP + bootstrap certs + payment placeholders ═══"
-EXTERNAL_IP=$(curl -fsSL https://ifconfig.me || curl -fsSL https://api.ipify.org)
-echo "Public IP: $EXTERNAL_IP"
-sed -i "s|external-ip=.*|external-ip=$EXTERNAL_IP|" coturn/turnserver.conf
+# 2026-10-30: the IPv4 explicitly (-4). `curl ifconfig.me` answers the IPv6 address on a dual-stack host and the calls then advertised only that,
+# so IPv4-only clients could not connect. LiveKit discovers its own public IPv4 (use_external_ip); coturn gets both families, IPv4 first.
+EXTERNAL_IP=$(curl -4 -fsSL https://ifconfig.me || curl -4 -fsSL https://api.ipify.org)
+EXTERNAL_IP6=$(curl -6 -fsSL --max-time 8 https://ifconfig.me 2>/dev/null || true)
+echo "Public IP: $EXTERNAL_IP${EXTERNAL_IP6:+ / $EXTERNAL_IP6}"
+sed -i "s|^external-ip=.*|external-ip=$EXTERNAL_IP${EXTERNAL_IP6:+\nexternal-ip=$EXTERNAL_IP6}|" coturn/turnserver.conf
 sed -i "s|^static-auth-secret=.*|static-auth-secret=$COTURN_SECRET|" coturn/turnserver.conf
-sed -i "s|node_ip: .*|node_ip: $EXTERNAL_IP|" livekit/livekit.yaml
+sed -i '/^  node_ip: /d' livekit/livekit.yaml
 sed -i "s|^  ${LIVEKIT_API_KEY}:.*|  ${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}|" livekit/livekit.yaml
 # Ensure the key line exists even after placeholder state
 grep -q "$LIVEKIT_API_KEY" livekit/livekit.yaml || sed -i "s|^keys:.*|keys:\n  ${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}|" livekit/livekit.yaml

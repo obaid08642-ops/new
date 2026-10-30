@@ -1,3 +1,5 @@
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { Body, Controller, Get, HttpCode, Post, Query } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { CurrentUser, Roles } from '../../common/auth.guard';
@@ -7,6 +9,7 @@ import { OrderingService } from './ordering.service';
 
 // M3: the patient's ordering engine. Patient tokens only; every query is scoped to the caller (the quote is theirs).
 @Controller('ordering')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 @Roles(UserRole.PATIENT)
 export class OrderingController {
   constructor(private readonly svc: OrderingService) {}
