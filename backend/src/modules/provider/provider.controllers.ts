@@ -1,3 +1,4 @@
+import { ownAppointmentId } from './appointment-link';
 import { protectHealthDoc } from '../../common/health-fields';
 import { PROVIDER_ROLES } from '../../common/enums';
 import { isProviderRole } from '../../common/enums';
@@ -388,7 +389,7 @@ export class ProviderRequestsController {
       doctor_name: u?.full_name || provider?.display_name || null,
       facility_id: provider?._id ? String(provider._id) : null,
       facility_name: provider?.display_name || null,
-      appointment_id: id !== 'new' ? id : (body.appointment_id || null),
+      appointment_id: await ownAppointmentId(this.conn, String(u?.id), String(body.patient_id), [body.appointment_id, id]),
       attachments: [],
       issued_at: new Date(),
       createdAt: new Date(),
@@ -440,7 +441,7 @@ export class ProviderRequestsController {
       doctor_name: u?.full_name || provider?.display_name || null,
       facility_id: provider?._id ? String(provider._id) : null,
       facility_name: provider?.display_name || null,
-      appointment_id: id,
+      appointment_id: await ownAppointmentId(this.conn, String(u?.id), String(patientId), [body.appointment_id, id]),
       attachments: Array.isArray(body.attachments) ? body.attachments : [],
       issued_at: new Date(),
       createdAt: new Date(),
