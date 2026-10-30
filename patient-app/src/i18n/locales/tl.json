@@ -3910,5 +3910,15 @@
   "insurance.policy.deleteBody": "Aalisin ang card na ito sa iyong account.",
   "insurance.policy.deleteCancel": "Kanselahin",
   "insurance.policy.deleteDone": "Nabura na ang insurance card.",
-  "insurance.policy.deleteFailed": "Hindi namin nabura ang card. Subukan muli."
+  "insurance.policy.deleteFailed": "Hindi namin nabura ang card. Subukan muli.",
+  "diag.kind.group": "Uri ng serbisyo",
+  "diag.tag.noFasting": "Walang fasting",
+  "diag.cat.packages": "Mga package",
+  "diag.hub.rxOrder": "May medical order ka ba?",
+  "diag.filter.placeLab": "Sa lab",
+  "diag.filter.placeHome": "Pagkuha sa bahay",
+  "diag.filter.sortBy": "Ayusin ayon sa",
+  "diag.filter.noFasting": "Walang fasting",
+  "diag.filter.sameDay": "Resulta sa parehong araw",
+  "diag.filter.showCount": "Ipakita ang {n} resulta"
 }
