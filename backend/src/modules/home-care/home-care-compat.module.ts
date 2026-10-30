@@ -1,4 +1,7 @@
 import { loadOffers, withOfferSummary, withOffers } from '../../common/service-offers';
+import { SearchModule } from '../search/search.controller';
+import { SearchService } from '../search/search.service';
+import { NURSING_TYPES, byRelevance, matchedIds } from '../search/catalogue-search';
 import { PROVIDER_ROLES } from '../../common/enums';
 /**
  * M2 — Home-care compatibility layer + nursing ops reference data + chat aliases.
@@ -37,6 +40,7 @@ export class HomeCareCompatController {
     @InjectModel('CarePlan') private carePlans: Model<any>,
     @Optional() private readonly emitter?: EventEmitter2,
     @Optional() @InjectConnection() private readonly conn?: Connection,
+    @Optional() private readonly searchEngine?: SearchService,
   ) {}
 
   /** Resolve a saved-address id to the caller's own address (never another patient's). */
@@ -53,7 +57,15 @@ export class HomeCareCompatController {
     // Patients only see services that passed medical review (same rule as /nursing/catalog).
     const filter: any = { active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
     if (q?.category) filter.category = { $eq: String(q.category) };
-    const rows: any[] = await this.services.find(filter, { _id: 0, __v: 0 }).lean();
+    // `search` uses the home search's engine (typo tolerance, ar/en synonyms); without a match it is a plain name match
+    const text = String(q?.search ?? '').trim().slice(0, 100);
+    const matched = text ? await matchedIds(this.searchEngine, text, NURSING_TYPES) : null;
+    if (text) {
+      if (matched) filter.id = { $in: matched };
+      else { const re = new RegExp(text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'); filter.$or = [{ name_ar: re }, { name_en: re }]; }
+    }
+    const found: any[] = await this.services.find(filter, { _id: 0, __v: 0 }).lean();
+    const rows: any[] = matched ? byRelevance(found, matched) : found;
     // 2026-10-28: every catalogue service carries what nurses offer for it (providers_count, from_price, where, insurance); `insurance=1` keeps those some nurse offers with insurance.
     return withOfferSummary(this.services.db as never, 'nursing', rows, { insurance: q?.insurance === '1' || q?.insurance === 'true' });
   }
@@ -464,6 +476,7 @@ export class ChatAliasController {
 @Module({
   imports: [
     ChatModule,
+    SearchModule,
     MongooseModule.forFeature([
       { name: 'HomeCareBooking', schema: HomeCareBookingSchema },
       { name: 'HomeCareService', schema: HomeCareServiceSchema },

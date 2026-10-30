@@ -1,4 +1,6 @@
-import { Controller, Get, Post, Body, Query, ForbiddenException, BadRequestException, UseGuards, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, ForbiddenException, BadRequestException, Optional, UseGuards, Param } from '@nestjs/common';
+import { SearchService } from '../search/search.service';
+import { NURSING_TYPES, byRelevance, matchedIds } from '../search/catalogue-search';
 import { Public } from '../../common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -18,6 +20,7 @@ export class PatientHomeCareController {
   constructor(
     @InjectConnection() private conn: Connection,
     private readonly homeSvc: HomeCareSvc,
+    @Optional() private readonly searchEngine?: SearchService,
   ) {}
 
   @Get('services')
@@ -74,9 +77,14 @@ export class PatientHomeCareController {
   ) {
     const filter: Record<string, any> = { is_active: { $ne: false }, kind: { $ne: 'package' } };
     const text = (q || '').trim().slice(0, 100);
+    // the search box uses the home search's engine (typo tolerance, ar/en synonyms); its own text match is the fallback
+    const matched = text ? await matchedIds(this.searchEngine, text, NURSING_TYPES) : null;
     if (text) {
-      const re = new RegExp(text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
-      filter.$or = [{ name_ar: re }, { name_en: re }];
+      if (matched) filter.id = { $in: matched };
+      else {
+        const re = new RegExp(text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+        filter.$or = [{ name_ar: re }, { name_en: re }];
+      }
     }
     if (category) filter.category = String(category);
     const min = parseFloat(minPrice || '');
@@ -97,7 +105,8 @@ export class PatientHomeCareController {
 
     const latNum = parseFloat(lat || '');
     const lngNum = parseFloat(lng || '');
-    let list: any[] = services;
+    // a text search shows the best match first (the engine's relevance); `nearest` below still reorders by distance
+    let list: any[] = matched ? byRelevance(services, matched) : services;
     if (Number.isFinite(latNum) && Number.isFinite(lngNum)) {
       const nurses = await this.conn.db.collection('provider_profiles').find({
         type: { $in: ['home_care', 'nursing', 'nurse'] }, status: 'active', public_eligibility: true,
