@@ -41,7 +41,13 @@ appId: com.patient.nabd
 - tapOn:
     id: "login-password"
 - inputText: ${PASSWORD}
-- hideKeyboard
+# Maestro cannot dismiss the iOS keyboard ("Couldn't hide the keyboard"); the submit button sits in a footer that rides above the
+# keyboard there, so it can be tapped without hiding it. Android hides it.
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - hideKeyboard
 - tapOn:
     id: "login-submit"
 # a successful sign-in replaces the screen with Home (the tabs)
