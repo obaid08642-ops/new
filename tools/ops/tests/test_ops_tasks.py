@@ -366,6 +366,7 @@ case "$1" in
     [ "$2" = "-f" ] || exit 0   # `docker inspect nabdah-worker`: exists
     c="${4#nabdah-}"
     case "$3" in
+      *IPAddress*) echo 172.20.0.5;;
       *Config.Image*) echo mongo:7.0;;
       *NetworkSettings.Networks*) echo "nabd_internal ";;
       *HostConfig.Memory*) lim "$c";;

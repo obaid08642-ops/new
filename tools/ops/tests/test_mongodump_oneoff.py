@@ -14,9 +14,9 @@ PW = "pa'ss\"w0rd$x|y"
 FAKE = r"""#!/bin/bash
 echo "$*" >> "$FAKE_LOG"
 case "$1" in
-  inspect) case "$*" in *Config.Image*) echo mongo:7.0;; *Networks*) echo "net_a net_b ";; esac; exit 0;;
+  inspect) case "$*" in *IPAddress*) echo 172.20.0.5;; *Config.Image*) echo mongo:7.0;; *Networks*) echo "net_a net_b ";; esac; exit 0;;
   run)
-    cfg=$(echo "$*" | sed -n 's/.*-v \([^ ]*\):\/cfg\/mongodump.yml:ro.*/\1/p'); cat "$cfg" > "$FAKE_CFG"; stat -c %a "$cfg" > "$FAKE_CFG.mode"
+    cfg=$(echo "$*" | sed -n 's/.*-v \([^ ]*\):\/cfg\/mongodump.yml:ro.*/\1/p'); [ -n "$cfg" ] && { cat "$cfg" > "$FAKE_CFG"; stat -c %a "$cfg" > "$FAKE_CFG.mode"; }
     [ "${FAKE_RC:-0}" != 0 ] && { echo "Failed: connection refused $FAKE_PW" >&2; exit "$FAKE_RC"; }
     [ -n "$FAKE_EMPTY" ] && exit 0
     printf 'archive-bytes';;
@@ -33,7 +33,8 @@ class MongodumpOneoff(unittest.TestCase):
         os.chmod(os.path.join(b, "docker"), 0o755)
         out = os.path.join(d, "out.gz")
         e = dict(os.environ, PATH=b + os.pathsep + os.environ["PATH"], FAKE_LOG=os.path.join(d, "log"), FAKE_CFG=os.path.join(d, "cfg"), FAKE_PW=PW,
-                 MONGO_ROOT_USER="root", MONGO_ROOT_PASSWORD=PW, **{k: str(v) for k, v in env.items()})
+                 MONGO_ROOT_USER="root", MONGO_ROOT_PASSWORD=PW)
+        e.update({k: str(v) for k, v in env.items()})
         p = subprocess.run(["bash", "-c", f'source "{LIB}"; {env.get("PRE", "")} mongodump_oneoff "{out}" --db=x --gzip --archive; echo "RC=$?"'], env=e, capture_output=True, text=True, timeout=30)
         log = open(os.path.join(d, "log")).read()
         cfg = open(os.path.join(d, "cfg")).read() if os.path.exists(os.path.join(d, "cfg")) else ""
@@ -54,6 +55,15 @@ class MongodumpOneoff(unittest.TestCase):
         self.assertEqual(mode, "600")
         self.assertEqual(data, b"archive-bytes")
         self.assertRegex(p.stdout, r"rc=0 size_bytes=13")
+
+    def test_the_host_is_the_container_address_and_a_test_database_without_a_root_user_gets_no_credentials(self):
+        p, log, cfg, _, _ = self.run_fn(MONGO_ROOT_USER="", MONGO_ROOT_PASSWORD="")
+        self.assertIn("RC=0", p.stdout)
+        run = [l for l in log.splitlines() if l.startswith("run ")][0]
+        self.assertIn("--host=172.20.0.5 --port=27017", run)       # the address: a default bridge network has no name resolution
+        self.assertNotIn("--username", run); self.assertNotIn("/cfg/mongodump.yml", run); self.assertEqual(cfg, "")
+        q, log2, *_ = self.run_fn()
+        self.assertIn("--username=root --authenticationDatabase=admin", [l for l in log2.splitlines() if l.startswith("run ")][0])
 
     def test_a_failed_dump_is_a_failure_and_its_error_has_no_password(self):
         p, _, _, _, _ = self.run_fn(FAKE_RC=3)

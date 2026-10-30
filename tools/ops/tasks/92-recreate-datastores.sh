@@ -84,20 +84,25 @@ MONGO_ROOT_USER=$($DK exec nabdah-mongodb printenv MONGO_INITDB_ROOT_USERNAME 2>
 MONGODUMP_DOCKER="$DK"; MONGO_CONTAINER=nabdah-mongodb
 mongodump_oneoff() {
   local out=$1; shift
-  local dkr=${MONGODUMP_DOCKER:-docker} ctr=${MONGO_CONTAINER:-nabdah-mongodb} img net cfg err rc sz msg
+  local dkr=${MONGODUMP_DOCKER:-docker} ctr=${MONGO_CONTAINER:-nabdah-mongodb} img net ip cfg="" err rc sz msg auth=()
   img=$($dkr inspect -f '{{.Config.Image}}' "$ctr" 2>/dev/null)
   net=$($dkr inspect -f '{{range $k, $v := .NetworkSettings.Networks}}{{$k}} {{end}}' "$ctr" 2>/dev/null | awk '{print $1}')
-  if [ -z "$img" ] || [ -z "$net" ] || [ -z "${MONGO_ROOT_USER:-}" ]; then echo "status: mongodump: ABORT cannot read the image/network of $ctr or the root user"; return 1; fi
-  cfg=$(mktemp) && err=$(mktemp) || { echo "status: mongodump: ABORT no temp file"; return 1; }
-  chmod 600 "$cfg" "$err"
-  printf "password: '%s'\n" "${MONGO_ROOT_PASSWORD//\'/\'\'}" > "$cfg"
-  ( umask 077; $dkr run --rm -i --network "$net" --memory 600m --memory-swap 600m --oom-score-adj 1000 -v "$cfg:/cfg/mongodump.yml:ro" "$img" \
-      mongodump --quiet --config=/cfg/mongodump.yml --host="$ctr" --port=27017 --username="$MONGO_ROOT_USER" --authenticationDatabase=admin "$@" > "$out" 2> "$err" )
+  ip=$([ -n "$net" ] && $dkr inspect -f "{{(index .NetworkSettings.Networks \"$net\").IPAddress}}" "$ctr" 2>/dev/null)
+  if [ -z "$img" ] || [ -z "$net" ] || [ -z "$ip" ]; then echo "status: mongodump: ABORT cannot read the image, network or address of $ctr"; return 1; fi
+  err=$(mktemp) || { echo "status: mongodump: ABORT no temp file"; return 1; }
+  chmod 600 "$err"
+  if [ -n "${MONGO_ROOT_USER:-}" ]; then   # production always has the root user; a test database without one is dumped without credentials
+    cfg=$(mktemp) && chmod 600 "$cfg" || { echo "status: mongodump: ABORT no temp file"; rm -f "$err"; return 1; }
+    printf "password: '%s'\n" "${MONGO_ROOT_PASSWORD//\'/\'\'}" > "$cfg"
+    auth=(-v "$cfg:/cfg/mongodump.yml:ro")
+  fi
+  ( umask 077; $dkr run --rm -i --network "$net" --memory 600m --memory-swap 600m --oom-score-adj 1000 "${auth[@]}" "$img" \
+      mongodump --quiet ${cfg:+--config=/cfg/mongodump.yml --username="$MONGO_ROOT_USER" --authenticationDatabase=admin} --host="$ip" --port=27017 "$@" > "$out" 2> "$err" )
   rc=$?
   sz=$(stat -c %s "$out" 2>/dev/null || echo 0)
   echo "status: mongodump: one-off container ($img on $net, 600m, no swap, oom_score_adj 1000) rc=$rc size_bytes=$sz"
   if [ "$rc" -ne 0 ] || { [ "$sz" -le 0 ] && [ -z "${MONGODUMP_ALLOW_EMPTY:-}" ]; }; then
-    msg=$(tail -n 2 "$err" | tr '\n' ' '); msg=${msg//"$MONGO_ROOT_PASSWORD"/<hidden>}; echo "status: mongodump: error: ${msg:0:250}"
+    msg=$(tail -n 2 "$err" | tr '\n' ' '); [ -n "${MONGO_ROOT_PASSWORD:-}" ] && msg=${msg//"$MONGO_ROOT_PASSWORD"/<hidden>}; echo "status: mongodump: error: ${msg:0:250}"
     rm -f "$cfg" "$err"; return 1
   fi
   rm -f "$cfg" "$err"; chmod 600 "$out" 2>/dev/null
