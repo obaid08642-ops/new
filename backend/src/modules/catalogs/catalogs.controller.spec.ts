@@ -103,3 +103,26 @@ describe('CatalogsController ranking order', () => {
     expect(((await make(rows()).getCatalog(type, 'nonsense')) as any[]).map((r) => r.code)).toEqual(['B', 'A', 'C']);
   });
 });
+
+/** Catalogue completion (2026-10-29): hidden duplicates stay out of the public list, the nursing booking mode and its options reach the client. */
+describe('CatalogsController hidden rows and nursing booking modes', () => {
+  const make = (rows: any[]) => {
+    const col: any = { find: jest.fn().mockReturnValue({ limit: jest.fn().mockReturnValue({ toArray: jest.fn().mockResolvedValue(rows) }) }) };
+    const conn: any = { collection: jest.fn().mockReturnValue(col) };
+    return { ctrl: new CatalogsController(conn), col };
+  };
+
+  it.each(['labs', 'radiology', 'nursing'])('%s: the query leaves out soft-deleted (merged duplicate) rows', async (type) => {
+    const { ctrl, col } = make([{ code: 'A', name_ar: 'أ', name_en: 'A', active: true }]);
+    await ctrl.getCatalog(type);
+    expect(col.find.mock.calls[0][0]).toMatchObject({ is_deleted: { $ne: true } });
+  });
+
+  it('nursing: booking_mode and booking_options are in the public row', async () => {
+    const options = { hours: [4, 8, 12, 24], shift: ['day', 'night'], period: ['day', 'week', 'month', 'open'] };
+    const { ctrl } = make([{ code: 'CAREGIVER_HOURLY', name_ar: 'مرافق', name_en: 'Caregiver', active: true, booking_mode: 'continuous', booking_options: options, created_by: 'x' }]);
+    const rows: any[] = (await ctrl.getCatalog('nursing')) as any[];
+    expect(rows[0]).toMatchObject({ booking_mode: 'continuous', booking_options: options });
+    expect(rows[0].created_by).toBeUndefined();
+  });
+});

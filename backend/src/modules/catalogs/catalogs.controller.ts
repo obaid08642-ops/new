@@ -83,7 +83,7 @@ export class CatalogsController {
     // P5.1: DB is the single source of truth — no static fallback.
     // Boot seeds (CatalogsSeedService, insert-only) populate fresh envs.
     const rows = await this.conn.collection(collection)
-      .find({ $or: [{ is_active: true }, { active: { $ne: false } }, { is_active: { $exists: false } }] } as any)
+      .find({ $or: [{ is_active: true }, { active: { $ne: false } }, { is_active: { $exists: false } }], is_deleted: { $ne: true } } as any)
       .limit(500).toArray().catch(() => []);
     const live = (rows as any[]).filter((r: any) => r.is_active !== false && r.active !== false);
     if (!live.length) throw new NotFoundException('catalog_unavailable');

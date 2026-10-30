@@ -130,6 +130,14 @@ describe('native shells (DEVICE_STANDARD §1)', () => {
     expect(root.find((n) => n.props.testID === 'icon-consult' && typeof n.type !== 'string').props.children).toBe(light.fabFg);
   });
 
+  it('TabBar: the bar path has a circular notch (transparent gap) around the raised button, none without a raised item', () => {
+    const { tabBarPath } = require('../../packages/ui-native/src/shells/TabBar');
+    const d: string = tabBarPath(400, 68, 38, 17);
+    // one arc of radius 38, long way round (large-arc 1, sweep 0), crossing the top edge at 200 +- sqrt(38^2-17^2)
+    expect(d).toContain('A 38 38 0 1 0 233.99 0.5');
+    expect(d).toContain('L 166.01 0.5');
+  });
+
   it('never uses React Native SafeAreaView or physical left/right in the shells', () => {
     const dir = join(__dirname, '../../packages/ui-native/src/shells');
     for (const file of readdirSync(dir)) {

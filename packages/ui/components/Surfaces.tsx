@@ -20,7 +20,7 @@ import type {
 } from './contract';
 import { Icon } from '../src/Icon';
 import { FIcon } from './FIcon';
-import { NAV_ART, NAV_ART_TONE, NAV_ART_VIEWBOX, type NavArtKey } from '../icons/nav-art';
+import { NAV_ART, NAV_ART_TONE, NAV_FAB_ART, NAV_ART_VIEWBOX, type NavArtKey } from '../icons/nav-art';
 import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX, SERVICE_ICONS } from '../icons/fill';
 
 /**
@@ -446,9 +446,22 @@ export function BottomTabBar({ items, value, onChange, label = 'Main navigation'
           return (
             <button key={item.id} {...common} className="nabd-bottom-tab-bar__raised">
               <span className="nabd-bottom-tab-bar__fab">
-                <svg width={28} height={28} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true">
-                  <path d={FILL_ICON_PATHS[item.icon]} fill="var(--nabd-color-action-fab-fg)" />
-                </svg>
+                {item.art && item.art in NAV_FAB_ART ? (
+                  <svg className="nabd-nav-art nabd-nav-art--fab" width={36} height={36} viewBox={NAV_ART_VIEWBOX} aria-hidden="true" focusable="false">
+                    {NAV_FAB_ART[item.art as 'consult'].map((shape, i) => (
+                      <path
+                        key={i}
+                        d={shape.d}
+                        className={clsx(shape.fill ? `nabd-nav-art__f-${shape.fill}` : 'nabd-nav-art__f-none', shape.stroke && `nabd-nav-art__s-${shape.stroke}`)}
+                        strokeWidth={shape.stroke ? shape.sw ?? 2 : undefined}
+                      />
+                    ))}
+                  </svg>
+                ) : (
+                  <svg width={28} height={28} viewBox={FILL_ICON_VIEWBOX} aria-hidden="true">
+                    <path d={FILL_ICON_PATHS[item.icon]} fill="var(--nabd-color-action-fab-fg)" />
+                  </svg>
+                )}
               </span>
             </button>
           );
