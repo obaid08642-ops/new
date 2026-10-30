@@ -1,4 +1,6 @@
 import { Controller, Get, Param, Post, Put, Delete, Query, UseGuards, Body, NotFoundException, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
@@ -17,6 +19,7 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 import { PublicCache } from '../../common/public-cache.decorator';
 @UseGuards(JwtAuthGuard)
 @Controller('nursing')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 export class NursingController {
   constructor(
     @InjectModel('HomeCareBooking') private readonly bkgModel: Model<HomeCareBooking>,
@@ -472,6 +475,7 @@ export class NursingController {
 /** Patient-web contract bridge. It deliberately exposes only a bounded booking view. */
 @UseGuards(JwtAuthGuard)
 @Controller('home-care')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 export class HomeCareContractController {
   constructor(@InjectModel('HomeCareBooking') private readonly bookings: Model<HomeCareBooking>) {}
 

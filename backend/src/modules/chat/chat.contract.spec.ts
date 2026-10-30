@@ -92,7 +92,7 @@ describe('Chat patient-web contract bridge', () => {
 
     expect(service.msgs.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({ createdAt: { $lte: new Date('2030-01-01T00:00:00.000Z') } }),
-      { $addToSet: { read_by: USER.id } },
+      { $addToSet: { read_by: USER.id, delivered_to: USER.id } },
     );
   });
 

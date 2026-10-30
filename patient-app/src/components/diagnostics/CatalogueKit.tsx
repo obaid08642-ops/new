@@ -27,20 +27,24 @@ export type CatalogueKind = 'lab' | 'radiology';
 export const isUnoffered = (item: Pick<CatalogItem, 'offer'>): boolean => item.offer?.providersCount === 0;
 
 /** One test or scan of the catalogue as a card: tags, offer lines (centres, from-price, where, insurance), rating, "Add to cart" and "Order now". */
-export function CatalogueCard({ item, kind, art, place, payer, idPrefix, width }: { item: CatalogItem; kind: CatalogueKind; art: DiagArtKey; place: 'home' | 'clinic'; payer?: 'cash' | 'insurance'; idPrefix: string; width?: number }) {
+export function CatalogueCard({ item, kind, art, place, payer, idPrefix, width, isPackage = false }: { item: CatalogItem; kind: CatalogueKind; art: DiagArtKey; place: 'home' | 'clinic'; payer?: 'cash' | 'insurance'; idPrefix: string; width?: number; /** A lab package: opens the package page and shows how many tests it holds. */ isPackage?: boolean }) {
   const { k, num, money, lang } = useScreenUi();
   const text = useDiagText();
   const { items, addItem } = useDiagnosticsCart();
   const inCart = items.some((i) => i.id === item.id);
-  const lines = offerLines(item.offer, { k, num, money, lang });
+  const lines = offerLines(item.offer, { k, num, money, lang }, false, item.price);
   const rating = itemRating(item);
   const offerNote = lines ? [lines.providers, lines.from].filter(Boolean).join(' · ') : '';
-  const baseNote = kind === 'lab' ? (item.turnaroundHours !== null ? text.turnaround(item.turnaroundHours) : '') : itemSubtitle(item.desc, [item.category, item.modality, item.bodyPart, item.sampleType], k(`diag.cat.${art}`));
+  // a test says what it needs and when the result comes (owner decision 4): "No fasting · Result within 24 hours"
+  const factsNote = kind === 'lab' && !isPackage
+    ? [item.fastingRequired ? (item.fastingHours !== null ? k('diag.tag.fastingHours', { n: text.hours(item.fastingHours) }) : k('diag.tag.fasting')) : item.fastingKnown !== false ? k('diag.tag.noFasting') : '', item.turnaroundHours !== null ? text.turnaround(item.turnaroundHours) : ''].filter(Boolean).join(' · ')
+    : '';
+  const baseNote = isPackage ? (item.testsCount > 0 ? k('diag.pack.count', { n: num(item.testsCount) }) : '') : kind === 'lab' ? factsNote : itemSubtitle(item.desc, [item.category, item.modality, item.bodyPart, item.sampleType], k(`diag.cat.${art}`));
   const tags = [
-    ...(kind === 'lab' ? text.testTags(item, place === 'home') : []),
+    ...(kind === 'lab' && !isPackage ? text.testTags({ ...item, fastingRequired: false }, place === 'home') : []),
     ...(lines ? lines.where.map((label) => ({ label, tone: 'neutral' as const })) : []),
   ];
-  const open = () => router.push((kind === 'lab' ? `/diagnostics/test-detail?id=${item.id}` : `/diagnostics/test-detail?id=${item.id}&isRadiology=true`) as Href);
+  const open = () => router.push((isPackage ? `/diagnostics/package-detail?id=${item.id}&serviceType=${place}` : kind === 'lab' ? `/diagnostics/test-detail?id=${item.id}` : `/diagnostics/test-detail?id=${item.id}&isRadiology=true`) as Href);
   return (
     <ItemCard
       testID={`${idPrefix}-${item.id}`}
@@ -53,15 +57,16 @@ export function CatalogueCard({ item, kind, art, place, payer, idPrefix, width }
       note={[offerNote, baseNote].filter(Boolean).join(' · ') || undefined}
       rating={rating ? k('diag.ratingLine', { n: num(rating.rating, { maximumFractionDigits: 1 }), count: num(rating.count) }) : undefined}
       // with the offer summary the price is the providers' own "from" (in the note); the catalogue's base price is the fallback of an older answer
-      price={item.offer && item.offer.fromPrice !== null ? null : item.price}
+      price={item.offer && (item.offer.fromPrice !== null || isUnoffered(item)) ? null : item.price}
       inCart={inCart}
       addLabel={k('diag.detail.addToCart')}
       inCartLabel={k('diag.detail.inCart')}
       orderLabel={k('diag.detail.orderNow')}
       onPress={open}
-      // a service nobody offers cannot be added or ordered: both buttons open its page, where "Notify me when available" is
-      onAdd={() => { if (isUnoffered(item)) open(); else if (!inCart) void addItem({ id: item.id, name: item.name, price: item.price ?? 0, kind }); }}
-      onOrder={() => isUnoffered(item) ? open() : router.push(singleOrderRoute({ kind, id: item.id, name: item.name, place: kind === 'radiology' && !item.homeVisit ? 'clinic' : place, payer: kind === 'lab' && payer === 'insurance' ? 'insurance' : 'cash' }) as unknown as Href)}
+      // a service nobody offers cannot be added or ordered: both buttons stay, switched off; its page has "Notify me when available"
+      disabled={isUnoffered(item)}
+      onAdd={() => { if (!isUnoffered(item) && !inCart) void addItem({ id: item.id, name: item.name, price: item.price ?? 0, kind }); }}
+      onOrder={() => isUnoffered(item) ? undefined : router.push(singleOrderRoute({ kind, id: item.id, name: item.name, place: kind === 'radiology' && !item.homeVisit ? 'clinic' : place, payer: kind === 'lab' && payer === 'insurance' ? 'insurance' : 'cash' }) as unknown as Href)}
     />
   );
 }
@@ -126,13 +131,14 @@ export function NotifyMeButton({ kind, serviceId }: { kind: Interest; serviceId:
  * comparison (the order flow still checks out one item). A service nobody offers yet says so and offers "Notify me when available".
  * Draws nothing when the payload has no summary (an older answer).
  */
-export function OffersSection({ kind, serviceId, offer, offers }: { kind: Interest; serviceId: string; offer: OfferSummary | null; offers: ServiceOffer[] }) {
+export function OffersSection({ kind, serviceId, offer, offers, price = null }: { kind: Interest; serviceId: string; offer: OfferSummary | null; offers: ServiceOffer[]; /** the catalogue price: an indicative "from" while nobody offers the service */ price?: number | null }) {
   const { t, c, k, num, money, flow } = useScreenUi();
   if (!offer) return null;
   if (offer.providersCount === 0) {
     return (
       <Section title={k('diag.offer.none')}>
         <Block>
+          {price !== null ? <Text testID="indicative-price" style={{ ...scale(t, 'small', 'medium'), lineHeight: 22, color: c.text.primary, ...flow }}>{`${k('diag.offer.from', { price: `${money(price)} ${k('pharmacy.currency')}` })} · ${k('diag.offer.indicative')}`}</Text> : null}
           <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, ...flow }}>{k('diag.offer.noneBody')}</Text>
           <NotifyMeButton kind={kind} serviceId={serviceId} />
         </Block>

@@ -35,6 +35,7 @@ import {
 import { MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderProfileEditor, WithdrawalWorkflow, ProviderHomeStats, GlobalSystemSettings, ChatSystem } from '../shared/SharedScreens';
 import { WorkingHoursEditorScreen, SecurityManagementScreen, NotificationsCenterScreen } from '../shared/RealScreens';
 import { LabBundlesScreen, LabHomeServiceScreen } from '../shared/RealScreensExtended';
+import { MyServicesScreen } from '../shared/MyServicesScreen';
 
 const { width: W } = Dimensions.get('window');
 
@@ -1513,61 +1514,15 @@ const s = StyleSheet.create({
 // ══════════════════════════════════════════════════════════════════
 // A lab test's preparation is written per test in the six patient-app languages (decision of 2026-10-15);
 // the patient app shows the one for its language, and with none only says the lab will confirm any preparation.
-const PREP_LANGS = [
-  { code: 'ar', label: 'labPrepAr' }, { code: 'en', label: 'labPrepEn' }, { code: 'ur', label: 'labPrepUr' },
-  { code: 'hi', label: 'labPrepHi' }, { code: 'bn', label: 'labPrepBn' }, { code: 'tl', label: 'labPrepTl' },
-] as const;
-type PrepLang = typeof PREP_LANGS[number]['code'];
-const emptyPrep = (): Record<PrepLang, string> => ({ ar: '', en: '', ur: '', hi: '', bn: '', tl: '' });
-const prepLines = (text: string): string[] => text.split('\n').map((x) => x.trim()).filter(Boolean);
 
 function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme();
-  const { lang, t } = useLang();
+  const { lang } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
-
-  const [loading, setLoading] = useState(true);
-  const [services, setServices] = useState<any[]>([]);
   const [showAddSheet, setShowAddSheet] = useState(false);
   const [newTitleAr, setNewTitleAr] = useState('');
   const [newTitleEn, setNewTitleEn] = useState('');
   const [newPrice, setNewPrice] = useState('');
-
-  const [editingService, setEditingService] = useState<any | null>(null);
-  const [editPrice, setEditPrice] = useState('');
-  const [editPrep, setEditPrep] = useState<Record<PrepLang, string>>(emptyPrep);
-
-  useEffect(() => { fetchServices(); }, []);
-
-  const fetchServices = async () => {
-    try {
-      const res = await client.get('/provider/capabilities/lab-services');
-      setServices(res.data || []);
-    } catch (e) {
-      show(AR ? 'فشل تحميل التحاليل' : 'Failed to load tests', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSaveEdit = async () => {
-    if (!editingService) return;
-    try {
-      await client.post('/approval-workflow/requests', {
-        entity_type: 'service',
-        entity_id: editingService.id,
-        change_data: {
-          price: parseFloat(editPrice) || 0,
-          ...Object.fromEntries(PREP_LANGS.map(({ code }) => [`preparation_${code}`, prepLines(editPrep[code])])),
-        }
-      });
-      show(AR ? 'تم إرسال التعديلات للمراجعة' : 'Changes sent for review', 'success');
-      setEditingService(null);
-    } catch (e) {
-      show(AR ? 'فشل إرسال التعديلات' : 'Failed to send changes', 'error');
-    }
-  };
 
   const handleAddService = async () => {
     if (!newPrice || !newTitleEn) {
@@ -1577,12 +1532,7 @@ function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
     try {
       await client.post('/approval-workflow/requests', {
         entity_type: 'service',
-        change_data: {
-          type: 'lab',
-          name_ar: newTitleAr,
-          name_en: newTitleEn,
-          price: parseFloat(newPrice) || 0,
-        }
+        change_data: { type: 'lab', name_ar: newTitleAr, name_en: newTitleEn, price: parseFloat(newPrice) || 0 },
       });
       show(AR ? 'تم إرسال طلب الإضافة للمراجعة' : 'Add request sent for review', 'success');
       setShowAddSheet(false);
@@ -1593,56 +1543,10 @@ function LabTestMenuScreen({ onBack }: { onBack: () => void }) {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'التحاليل والأسعار' : 'Test Menu & Pricing'} onBack={onBack} />
-      {loading ? <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: SP.xxl }} /> : (
-        <ScrollView contentContainerStyle={{ padding: SP.xl, paddingBottom: 100 }}>
-          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.xl }}>
-            <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.textSub }}>
-              {AR ? 'التحاليل المتاحة' : 'Available Tests'}
-            </Text>
-            <NBtn label={AR ? '+ إضافة تحليل' : '+ Add Test'} size="sm" onPress={() => setShowAddSheet(true)} full={false} />
-          </View>
-          
-          {services.map(srv => (
-            <NCard key={srv.id} style={{ marginBottom: SP.md }}>
-              <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
-                    {AR ? (srv.name_ar || srv.name_en) : srv.name_en}
-                  </Text>
-                  <Text style={{ fontSize: FS.sm, color: theme.primary, textAlign: AR ? 'right' : 'left', marginTop: 4 }}>
-                    {srv.price} {AR ? 'ر' : 'SAR'}
-                  </Text>
-                </View>
-                <NBtn label={t('labEditTest')} size="xs" variant="outline" full={false} onPress={() => {
-                  setEditingService(srv);
-                  setEditPrice(String(srv.price || ''));
-                  setEditPrep(Object.fromEntries(PREP_LANGS.map(({ code }) => {
-                    const list = srv[`preparation_${code}`];
-                    return [code, Array.isArray(list) ? list.filter((x: unknown) => typeof x === 'string').join('\n') : ''];
-                  })) as Record<PrepLang, string>);
-                }} />
-              </View>
-            </NCard>
-          ))}
-        </ScrollView>
-      )}
-
-      {/* Edit Sheet */}
-      <NSheet visible={!!editingService} onClose={() => setEditingService(null)} title={t('labEditTest')}>
-        <NPriceInput label={AR ? 'السعر داخل المختبر' : 'Lab Price'} value={editPrice} onChange={setEditPrice} />
-        <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginTop: SP.lg }}>{t('labPrepTitle')}</Text>
-        <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>{t('labPrepHint')}</Text>
-        {PREP_LANGS.map(({ code, label }) => (
-          <NInput key={code} label={t(label)} value={editPrep[code]} multiline lines={2}
-            onChange={(v) => setEditPrep((prev) => ({ ...prev, [code]: v }))} />
-        ))}
-        <NBtn label={AR ? 'إرسال التعديل للمراجعة' : 'Send for Review'} onPress={handleSaveEdit} style={{ marginTop: SP.xl }} />
-      </NSheet>
-
-      {/* Add Sheet */}
-      <NSheet visible={showAddSheet} onClose={() => setShowAddSheet(false)} title={AR ? 'إضافة تحليل جديد' : 'Add New Test'}>
+    <View style={{ flex: 1 }}>
+      <MyServicesScreen vertical="lab" onBack={onBack}
+        footer={<NBtn label={AR ? 'تحليل غير موجود؟ اطلب إضافته' : 'Test not listed? Ask to add it'} variant="outline" onPress={() => setShowAddSheet(true)} />} />
+      <NSheet visible={showAddSheet} onClose={() => setShowAddSheet(false)} title={AR ? 'طلب إضافة تحليل' : 'Request a new test'}>
         <NInput label={AR ? 'اسم التحليل (إنجليزي)' : 'Test Name (English)'} value={newTitleEn} onChange={setNewTitleEn} />
         <NInput label={AR ? 'اسم التحليل (عربي)' : 'Test Name (Arabic)'} value={newTitleAr} onChange={setNewTitleAr} />
         <NPriceInput label={AR ? 'السعر داخل المختبر' : 'Lab Price'} value={newPrice} onChange={setNewPrice} />

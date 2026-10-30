@@ -458,6 +458,16 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     }
   }
 
+  /** Delivered / read / deleted: state changes of messages already shown, sent to the thread room (not as new messages). */
+  @OnEvent('chatstate.*')
+  onChatState(payload: any) {
+    if (!payload?.thread_id) return;
+    this.realtime.emitToChannel(`thread:${payload.thread_id}`, 'chat:state', payload);
+    for (const uid of payload.participant_ids || []) {
+      if (uid !== payload.user_id) this.realtime.emitToUser(uid, 'chat:state', payload);
+    }
+  }
+
   @OnEvent('appointment.*')
   async onAppointment(payload: any) {
     if (!payload) return;

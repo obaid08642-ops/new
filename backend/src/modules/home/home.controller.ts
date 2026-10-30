@@ -1,8 +1,11 @@
 import { Controller, Get, UseGuards, Query } from '@nestjs/common';
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { HomeService } from './home.service';
 import { JwtAuthGuard, Public } from '../../common/auth.guard';
 
 @Controller('home')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 @UseGuards(JwtAuthGuard)
 export class HomeController {
   constructor(private readonly homeService: HomeService) {}

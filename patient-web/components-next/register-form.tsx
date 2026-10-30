@@ -9,7 +9,7 @@ import type { SocialButtons } from "@/lib/auth/social-config";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { authErrorKind } from "@/lib/auth/auth-errors";
 import { announceSignedIn } from "@/lib/auth/session-identity";
-import { MIN_PASSWORD_LENGTH, registerProblem } from "@/lib/auth/password-rule";
+import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH, registerProblem } from "@/lib/auth/password-rule";
 import type { Locale } from "@/lib/i18n";
 import styles from "./auth/auth.module.css";
 
@@ -21,7 +21,8 @@ const policyIds = {
 };
 
 /** What a failed registration means to the person. A 5xx may come AFTER the account was created (the code could not be sent), so it never says "no account was created". */
-export function registerErrorMessage(t: (key: string) => string, status: number): string {
+export function registerErrorMessage(t: (key: string) => string, status: number, passwordRuleBroken = false): string {
+  if (status === 400 && passwordRuleBroken) return t("errPassword");
   switch (authErrorKind(status)) {
     case "conflict": return t("alreadyRegistered");
     case "rateLimited": return t("rateLimited");
@@ -90,7 +91,11 @@ export function RegisterForm({ locale, social = {} }: { locale: Locale; social?:
       });
       if (!response.ok) {
         setMessageOk(false);
-        setMessage(registerErrorMessage(t, response.status));
+        // The proxy answers 400 invalid_registration when the password is outside its length rule.
+        const rejected: unknown = await response.json().catch(() => null);
+        const passwordRule = (rejected as { message?: unknown } | null)?.message === "invalid_registration"
+          && (form.password.length < MIN_PASSWORD_LENGTH || form.password.length > MAX_PASSWORD_LENGTH);
+        setMessage(registerErrorMessage(t, response.status, passwordRule));
         return;
       }
       // The account exists even when the code could not be sent (issue 434): the code page then says so and offers resend.

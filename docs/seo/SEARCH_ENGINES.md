@@ -25,3 +25,6 @@ The `review/server-inspect` workflow's Cloudflare step must pass both secrets as
 
 ## Sitemap / hreflang / canonical check
 `node tools/seo/verify-discovery.mjs [--site https://nabd.plus] [--per-sitemap 3]` reads the live sitemap index and samples each child sitemap: six language alternates + `x-default` in the sitemap, self-canonical, page hreflang equal to the sitemap's, alternates answer 200 and point back. Exit 1 on any problem.
+
+## Sitemap files and their limits (protocol: 50,000 URLs and 50 MB per file)
+Labs (`/labs/{test}/{city}`) and nursing (`/home-nursing/{city}/{service}`) are paged per language: `/sitemaps/labs/{lang}/{n}.xml` and `/sitemaps/nursing/{lang}/{n}.xml`, at most 25,000 URLs per file (a URL with its six hreflang links is about 1 KB, so the byte limit binds before the count). The index lists every page of every language; `tests/sitemap-paging.test.ts` fails if any file passes 45,000 URLs or 45 MB, or if a page loses a path. The lab feed is read page by page, so every reviewed test is listed (it used to stop at the first 100), and tests/services no provider offers yet stay listed. The old single files `/sitemaps/labs.xml` and `/sitemaps/nursing.xml` are gone (404); resubmit `https://nabd.plus/sitemap.xml` in Search Console and Bing.

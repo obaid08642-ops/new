@@ -1,0 +1,68 @@
+[
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics",
+    "element": "Sheet payment option 'cash' (دفع كاش)",
+    "file": "patient-app/app/(tabs)/diagnostics.tsx",
+    "line": 426,
+    "found": "[backend] No field apart from cash_availability, which already is 'without insurance'; the option is not drawn.",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics",
+    "element": "Sort 'nearest' (الأقرب)",
+    "file": "patient-app/app/(tabs)/diagnostics.tsx",
+    "line": 443,
+    "found": "[backend] Looked for distance/nearest on the /labs/services and /radiology/services rows: none; not drawn.",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics",
+    "element": "Toggle 'open now' (مفتوح الآن)",
+    "file": "patient-app/app/(tabs)/diagnostics.tsx",
+    "line": 450,
+    "found": "[backend] Looked for open_now / opening hours on the catalogue rows: none; not drawn.",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics",
+    "element": "Same-day / no-fasting / at-the-lab filters work on the loaded pages only",
+    "file": "patient-app/app/(tabs)/diagnostics.tsx",
+    "line": 450,
+    "found": "[backend] The server has no fasting_required, turnaround or facility_visit query flag; the count shows the loaded rows.",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics",
+    "element": "Order icon opens the insurance / prescription upload (insurance-approval)",
+    "file": "patient-app/app/(tabs)/diagnostics.tsx",
+    "line": 285,
+    "found": "[owner] The earlier row opened that screen; there was no 'medical order' row in the app, confirm the target.",
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision"
+  },
+  {
+    "batch": 3,
+    "app": "patient-app",
+    "screen": "/diagnostics",
+    "element": "'No fasting' is drawn when fasting_required is false or missing",
+    "file": "patient-app/src/components/diagnostics/CatalogueKit.tsx",
+    "line": 39,
+    "found": "[backend] The mapper reads a missing field as false, so a test without the field says 'No fasting'.",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  }
+]
