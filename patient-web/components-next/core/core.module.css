@@ -65,7 +65,7 @@
   display: inline-flex; align-items: center; min-block-size: 44px; padding-inline: 16px; border-radius: var(--nabd-radius-pill);
   font-size: var(--nabd-font-size-segment); font-weight: 600; color: var(--nabd-color-text-primary); text-decoration: none; white-space: nowrap;
 }
-.section:hover { background: var(--nabd-color-bg-sunken); }
+@media (hover: hover) and (pointer: fine) { .section:hover { background: var(--hover-tint); } }
 
 .tools { margin-inline-start: auto; align-items: center; gap: 8px; }
 /* between 1024 and 1439 the bar carries the five sections plus language, theme, bell, favourites, cart, profile and sign-out: tighten
@@ -128,5 +128,5 @@
   display: flex; align-items: center; min-block-size: 44px; padding: .5rem .75rem; border-radius: 8px;
   color: var(--nabd-color-text-primary); font-weight: 600; text-decoration: none;
 }
-.menuLink:hover { background: var(--nabd-color-bg-sunken); }
+@media (hover: hover) and (pointer: fine) { .menuLink:hover { background: var(--hover-tint); } }
 .menuLink:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color, currentColor); outline-offset: 2px; }

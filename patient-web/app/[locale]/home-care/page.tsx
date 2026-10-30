@@ -17,9 +17,9 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { LocalTimeLine } from "@/components-next/consult/local-time-line";
 import { RowCard, Notice } from "@/components-next/consult/consult-parts";
-import { Caret, MetaLine, NURSING, RowList, ServiceChips, StatusLine, nursingStatus, serviceIcon } from "@/components-next/nursing/nursing-parts";
+import { Caret, MetaLine, NURSING, NursingPackageCard, RowList, ServiceChips, StatusLine, nursingStatus, serviceIcon } from "@/components-next/nursing/nursing-parts";
 import { nursingOfferLine } from "@/components-next/nursing/nursing-offers";
-import { PackageCard, Rail, SearchForm, SectionHead, money, pickText } from "@/components-next/diagnostics/diag-parts";
+import { Rail, SearchForm, SectionHead, money, pickText } from "@/components-next/diagnostics/diag-parts";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { callPatientApi } from "@/lib/api/upstream";
 import { servicePayFlow, type PayFlow } from "@/lib/nursing/pay-flow";
@@ -84,7 +84,7 @@ export default async function HomeCarePage({ params, searchParams }: Props) {
           <SectionHead id="home-care-packages" title={t("carePackages")} />
           <Rail label={t("carePackages")}>
             {packages.map((item) => (
-              <PackageCard
+              <NursingPackageCard
                 key={item.id}
                 href={serviceHref(item.id)}
                 title={pickName(locale, item.names) ? <LocalizedField locale={locale} ar={item.names.ar} en={item.names.en} /> : t("serviceUnavailable")}
@@ -92,7 +92,6 @@ export default async function HomeCarePage({ params, searchParams }: Props) {
                 price={item.price !== undefined ? money(locale, item.price) : undefined}
                 cta={t("bookCta")}
                 icon={serviceIcon(item.id, item.category, item.nameAr, item.nameEn)}
-                tone={NURSING.tone}
               />
             ))}
           </Rail>

@@ -2,7 +2,9 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { AboutView } from '../../components/account/AboutView';
+import { HelpView } from '../../components/account/HelpView';
+import AboutRedirect from '../../../app/settings/about';
+import TermsRedirect from '../../../app/settings/terms';
 import RefundRedirect from '../../../app/settings/refund-policy';
 import TelehealthRedirect from '../../../app/settings/telehealth-consent';
 import { message } from '../../components/screen/ScreenKit';
@@ -44,7 +46,7 @@ describe('About and legal', () => {
   it('lists both documents as sections and opens one on its row', async () => {
     const fetchMock = jest.fn(() => answer({ content: 'Test refund text' }));
     global.fetch = fetchMock as unknown as typeof fetch;
-    await render(wrap(<AboutView />));
+    await render(wrap(<HelpView />));
     expect(screen.getByText(k('legal.refund.title'))).toBeTruthy();
     expect(screen.getByText(k('legal.telehealth.title'))).toBeTruthy();
     expect(fetchMock).not.toHaveBeenCalled();
@@ -57,7 +59,7 @@ describe('About and legal', () => {
     mockParams = { tab: 'legal', doc: 'telehealth_consent' };
     const fetchMock = jest.fn(() => answer({ content: 'Test consent text' }));
     global.fetch = fetchMock as unknown as typeof fetch;
-    await render(wrap(<AboutView />));
+    await render(wrap(<HelpView />));
     expect(await screen.findByText('Test consent text')).toBeTruthy();
     expect((fetchMock.mock.calls[0] as unknown as [string])[0]).toMatch(/\/legal\/policy\/telehealth_consent/);
     mockParams = { tab: 'legal' };
@@ -65,8 +67,12 @@ describe('About and legal', () => {
 
   it('redirects the old routes to the legal tab with the document anchor', async () => {
     await render(<RefundRedirect />);
-    expect(mockRedirect).toHaveBeenLastCalledWith({ pathname: '/settings/about', params: { tab: 'legal', doc: 'refund_policy' } });
+    expect(mockRedirect).toHaveBeenLastCalledWith({ pathname: '/settings/help', params: { tab: 'legal', doc: 'refund_policy' } });
+    await render(<AboutRedirect />);
+    expect(mockRedirect).toHaveBeenLastCalledWith({ pathname: '/settings/help', params: { tab: 'about' } });
+    await render(<TermsRedirect />);
+    expect(mockRedirect).toHaveBeenLastCalledWith({ pathname: '/settings/help', params: { tab: 'legal' } });
     await render(<TelehealthRedirect />);
-    expect(mockRedirect).toHaveBeenLastCalledWith({ pathname: '/settings/about', params: { tab: 'legal', doc: 'telehealth_consent' } });
+    expect(mockRedirect).toHaveBeenLastCalledWith({ pathname: '/settings/help', params: { tab: 'legal', doc: 'telehealth_consent' } });
   });
 });

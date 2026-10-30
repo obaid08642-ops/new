@@ -11,7 +11,7 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import type { Locale } from "@/lib/i18n";
 import { parseOrderRows } from "@/lib/pharmacy/order-view";
 import { callPatientApi } from "@/lib/api/upstream";
-import { consultationRows, diagnosticRows, legacyOrderRows, nursingRows, pharmacyRows, returnRows, sortCenterRows, type CenterLabels, type CenterRow } from "./center-rows";
+import { consultationRows, diagnosticRows, legacyOrderRows, nursingRows, resultRows, pharmacyRows, returnRows, sortCenterRows, type CenterLabels, type CenterRow, type ResultRow } from "./center-rows";
 import { OrderList } from "./order-list";
 import { parseOrdersQuery } from "./orders-query";
 import rx from "@/components-next/pharmacy/rx.module.css";
@@ -49,12 +49,13 @@ export async function OrdersScreen({ locale, query = {} }: { locale: Locale; que
   };
   const token = await requirePatientAccess(locale);
 
+  const results: ResultRow[] = [];
   const sources = await Promise.all([
     read(locale, () => callPatientApi("/patient/pharmacy/orders", {}, token), (payload) => pharmacyRows(locale, parseOrderRows(payload), labels)),
     read(locale, () => callPatientApi("/orders/mine", {}, token), (payload) => legacyOrderRows(locale, payload, labels)),
     read(locale, () => getPatientAppointments(token), (payload) => consultationRows(locale, payload, labels)),
-    read(locale, () => getDiagnosticBookings(token, "labs"), (payload) => diagnosticRows(locale, "labs", payload, labels)),
-    read(locale, () => getDiagnosticBookings(token, "radiology"), (payload) => diagnosticRows(locale, "radiology", payload, labels)),
+    read(locale, () => getDiagnosticBookings(token, "labs"), (payload) => { results.push(...resultRows(locale, "labs", payload, labels)); return diagnosticRows(locale, "labs", payload, labels); }),
+    read(locale, () => getDiagnosticBookings(token, "radiology"), (payload) => { results.push(...resultRows(locale, "radiology", payload, labels)); return diagnosticRows(locale, "radiology", payload, labels); }),
     read(locale, () => getPatientNursingVisits(token), (payload) => nursingRows(locale, payload, labels)),
     read(locale, () => callPatientApi("/pharmacy/returns", {}, token), (payload) => returnRows(locale, payload, labels)),
   ]);
@@ -72,7 +73,7 @@ export async function OrdersScreen({ locale, query = {} }: { locale: Locale; que
       </div>
     );
   } else {
-    body = <OrderList locale={locale} rows={rows} partialNote={failedCount > 0 ? t("partialNote") : undefined} initialTab={initial.tab} initialKind={initial.kind} />;
+    body = <OrderList locale={locale} rows={rows} results={results} partialNote={failedCount > 0 ? t("partialNote") : undefined} initialTab={initial.tab} initialKind={initial.kind} />;
   }
 
   return (

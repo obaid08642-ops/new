@@ -17,6 +17,90 @@ export interface McpToolDefinition {
   };
 }
 
+const IDEM = { type: 'string', description: 'Unique key per attempt; a retry with the same key returns the same result and creates nothing twice.' };
+const SCOPE_NOTE = (tool: string) => ` Needs the patient's Nabd sign-in (OAuth scope ${AGENT_TOOL_SCOPES[tool]}).`;
+const CHECKOUT_NOTE = ' Returns checkout_url: give it to the patient, who confirms and pays on Nabd Plus. The assistant never pays and cannot select an offer.';
+
+/**
+ * AC-3 tools advertised in tools/list so an assistant can discover and call them. Calling one
+ * without a token answers HTTP 401 with the RFC 9728 pointer, which starts the sign-in flow.
+ */
+function agentToolDefinitions(): McpToolDefinition[] {
+  const hold = (name: string, description: string, properties: Record<string, unknown>, required: string[]): McpToolDefinition => ({
+    name,
+    description: description + SCOPE_NOTE(name) + CHECKOUT_NOTE,
+    inputSchema: { type: 'object', properties: { ...properties, idempotency_key: IDEM }, required: [...required, 'idempotency_key'] },
+  });
+  return [
+    {
+      name: 'consultation_slots',
+      description: 'Real available consultation slots for a doctor on a date (public, no sign-in). Never invented.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          doctor_id: { type: 'string' }, date: { type: 'string', description: 'YYYY-MM-DD' },
+          mode: { type: 'string', enum: ['clinic', 'video', 'home'] },
+        },
+        required: ['doctor_id', 'date', 'mode'],
+      },
+    },
+    { name: 'my_orders', description: "The signed-in patient's pharmacy orders." + SCOPE_NOTE('my_orders'), inputSchema: { type: 'object', properties: {} } },
+    { name: 'my_bookings', description: "The signed-in patient's consultation bookings." + SCOPE_NOTE('my_bookings'), inputSchema: { type: 'object', properties: {} } },
+    {
+      name: 'create_pharmacy_request',
+      description: 'Cart-style OTC pharmacy order: send a list of over-the-counter medicines with quantities. Pharmacies answer with offers; the patient picks one and pays on Nabd Plus. Any prescription or controlled item refuses the whole request (RX_VERIFICATION_REQUIRED with upload and consultation links).'
+        + SCOPE_NOTE('create_pharmacy_request') + CHECKOUT_NOTE,
+      inputSchema: {
+        type: 'object',
+        properties: {
+          items: {
+            type: 'array', minItems: 1, maxItems: 50,
+            items: { type: 'object', properties: { medicine_id: { type: 'string' }, qty: { type: 'integer', minimum: 1 } }, required: ['medicine_id'] },
+          },
+          address_id: { type: 'string', description: "One of the patient's saved addresses (default address when omitted)." },
+          idempotency_key: IDEM,
+        },
+        required: ['items', 'idempotency_key'],
+      },
+    },
+    {
+      name: 'list_offers',
+      description: 'Pharmacy offers received for an order.' + SCOPE_NOTE('list_offers'),
+      inputSchema: { type: 'object', properties: { order_id: { type: 'string' }, include_closed: { type: 'boolean' } }, required: ['order_id'] },
+    },
+    {
+      name: 'choose_offer_link',
+      description: 'Link to the page where the patient selects an offer and pays. Selects nothing itself.' + SCOPE_NOTE('choose_offer_link'),
+      inputSchema: { type: 'object', properties: { order_id: { type: 'string' }, offer_id: { type: 'string' } }, required: ['order_id', 'offer_id'] },
+    },
+    hold(
+      'hold_consultation', 'Hold a real doctor slot for 10 minutes.',
+      { doctor_id: { type: 'string' }, slot: { type: 'string', description: 'ISO start time from consultation_slots' }, mode: { type: 'string', enum: ['clinic', 'video', 'home'] } },
+      ['doctor_id', 'slot', 'mode'],
+    ),
+    hold(
+      'hold_lab', 'Hold a lab test booking.',
+      { service_id: { type: 'string' }, items: { type: 'array', items: { type: 'object', properties: { service_id: { type: 'string' } } } }, scheduled_at: { type: 'string' }, provider_account_id: { type: 'string' }, location_type: { type: 'string', enum: ['facility', 'home'] } },
+      ['scheduled_at'],
+    ),
+    hold(
+      'hold_radiology', 'Hold a radiology scan booking at a centre that performs it.',
+      { service_id: { type: 'string' }, provider_account_id: { type: 'string', description: 'The radiology centre account' }, scheduled_at: { type: 'string' }, location_type: { type: 'string', enum: ['facility', 'home'] } },
+      ['service_id', 'provider_account_id', 'scheduled_at'],
+    ),
+    hold(
+      'hold_nursing', 'Hold a home-nursing visit.',
+      { service_id: { type: 'string' }, scheduled_at: { type: 'string' }, provider_id: { type: 'string' }, address: { type: 'object' }, notes: { type: 'string' } },
+      ['service_id', 'scheduled_at'],
+    ),
+    {
+      name: 'cancel_hold',
+      description: 'Cancel an unpaid hold this assistant created. Paid or foreign bookings are refused.' + SCOPE_NOTE('cancel_hold'),
+      inputSchema: { type: 'object', properties: { booking_id: { type: 'string' }, idempotency_key: IDEM }, required: ['booking_id', 'idempotency_key'] },
+    },
+  ];
+}
+
 export const MCP_TOOLS: McpToolDefinition[] = [
   {
     name: 'search_entities',
@@ -142,6 +226,7 @@ export const MCP_TOOLS: McpToolDefinition[] = [
       },
     },
   },
+  ...agentToolDefinitions(),
 ];
 
 /**
@@ -213,7 +298,7 @@ export function buildMcpServerCard() {
       scopes: {
         'agent:read': 'Read the patient’s own orders, bookings and pharmacy offers.',
         'agent:order': 'Send an OTC pharmacy request and read its offers. The patient selects an offer and pays on Nabd Plus.',
-        'agent:book': 'Hold a consultation, lab or nursing slot. The patient confirms and pays on Nabd Plus.',
+        'agent:book': 'Hold a consultation, lab, radiology or nursing slot. The patient confirms and pays on Nabd Plus.',
       },
       authenticated_tools: { ...AGENT_TOOL_SCOPES },
     },

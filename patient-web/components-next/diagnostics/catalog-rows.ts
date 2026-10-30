@@ -17,6 +17,8 @@ export type CatalogRow = {
   titleMark?: FieldMark;
   tags?: { label: string; tone: (typeof DIAG_TONES)[keyof typeof DIAG_TONES] }[];
   note?: string;
+  /** "No fasting · Result within 24 hours": only the parts the catalogue really sent (fasting_required, turnaround_hours). */
+  meta?: string;
   price?: string;
   /** "Rating 4.5 (12)": only when the backend sent a rating above 0 and the number of ratings behind it. */
   rating?: string;
@@ -36,7 +38,7 @@ export type OfferLines = {
   where: string[];
 };
 
-export type RowKey = "tagHome" | "tagFasting" | "resultWithin" | "fromPrice" | "ratingLine" | "offerCount" | "offerNone" | "offerAtCentre" | "offerAtHome" | "offerInsurance";
+export type RowKey = "tagHome" | "tagFasting" | "noFasting" | "resultWithin" | "fromPrice" | "ratingLine" | "offerCount" | "offerNone" | "offerAtCentre" | "offerAtHome" | "offerInsurance";
 export type RowContext = {
   locale: string;
   tr: (key: RowKey, values?: Record<string, string | number>) => string;
@@ -74,6 +76,15 @@ export function offerLines(ctx: Pick<RowContext, "locale" | "tr">, offer: OfferS
   };
 }
 
+/** The fasting and result-time line of a card; each part only when the catalogue sent it (fasting_required, turnaround_hours). */
+export function metaLine(ctx: Pick<RowContext, "locale" | "tr">, fastingRequired: boolean | undefined, turnaroundHours: number | undefined): string | undefined {
+  const parts = [
+    fastingRequired === undefined ? undefined : ctx.tr(fastingRequired ? "tagFasting" : "noFasting"),
+    turnaroundHours !== undefined ? ctx.tr("resultWithin", { time: hoursText(ctx.locale, turnaroundHours) }) : undefined,
+  ].filter((part): part is string => Boolean(part));
+  return parts.length > 0 ? parts.join(" · ") : undefined;
+}
+
 export function labRow(s: LabService, ctx: RowContext): CatalogRow {
   return {
     id: s.id,
@@ -83,9 +94,8 @@ export function labRow(s: LabService, ctx: RowContext): CatalogRow {
     ...titleOf(ctx.locale, s),
     tags: [
       ...(s.homeVisitSupported ? [{ label: ctx.tr("tagHome"), tone: DIAG_TONES.lab }] : []),
-      ...(s.fastingRequired ? [{ label: ctx.tr("tagFasting"), tone: DIAG_TONES.warn }] : []),
     ],
-    note: s.turnaroundHours !== undefined ? ctx.tr("resultWithin", { time: hoursText(ctx.locale, s.turnaroundHours) }) : undefined,
+    meta: metaLine(ctx, s.fastingRequired, s.turnaroundHours),
     // with the offer summary the price is the providers' own "from" (in the offer lines); the catalogue's base price is the fallback of an older answer
     price: (s.offer === undefined || s.offer.fromPrice === undefined) && s.price !== undefined ? money(ctx.locale, s.price) : undefined,
     rating: ratingLine(ctx, s.rating, s.ratingCount),
@@ -101,6 +111,7 @@ export function scanRow(s: RadiologyService, ctx: RowContext): CatalogRow {
     art: diagArtKey({ kind: "radiology", category: s.category, modality: [s.modality, s.modalityCategory].filter(Boolean).join(" "), bodyPart: s.bodyPart, names: names(s) }),
     href: ctx.itemHref(s.id, "radiology", s.homeVisitSupported !== true),
     ...titleOf(ctx.locale, s),
+    meta: metaLine(ctx, s.fastingRequired, s.turnaroundHours),
     note: (s.offer === undefined || s.offer.fromPrice === undefined) && s.price !== undefined ? ctx.tr("fromPrice", { price: money(ctx.locale, s.price) }) : undefined,
     rating: ratingLine(ctx, s.rating, s.ratingCount),
     imageUrl: s.imageUrl,

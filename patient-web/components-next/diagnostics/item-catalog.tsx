@@ -12,7 +12,13 @@ import { ItemCard, ShowMore } from "./item-card";
 import styles from "./diag.module.css";
 
 export type { CatalogRow } from "./catalog-rows";
-export type CatalogChip = { key: DiagArtKey | "all"; label: string; href: string };
+export type CatalogChip = {
+  key: DiagArtKey | "all" | "packages";
+  label: string;
+  href: string;
+  /** A full page navigation (the packages chip, and every chip while the packages are open): the server draws the other list. */
+  nav?: boolean;
+};
 
 type Props = {
   kind: ServiceKind;
@@ -36,6 +42,8 @@ type Props = {
   emptyTitle: string;
   emptyBody: string;
   errorLabel: string;
+  /** The packages chip is open: these rows are the whole list (no paging, no chip filter). */
+  packageRows?: CatalogRow[];
 };
 
 type More = { rows: CatalogRow[]; page: number; hasMore: boolean };
@@ -64,7 +72,7 @@ async function fetchPage(kind: ServiceKind, query: Props["query"], chip: DiagArt
  * pages while few rows match, because the stored test categories do not match the chips one to one. Without script the chips are links and
  * "Show more" is a link to the next step.
  */
-export function ItemCatalog({ kind, rows: initialRows, page: initialPage, hasMore: initialMore, cat: initialCat, chips, chipsLabel, query, moreHref, moreLabel, orderHref, listLabel, emptyTitle, emptyBody, errorLabel }: Props) {
+export function ItemCatalog({ kind, rows: initialRows, page: initialPage, hasMore: initialMore, cat: initialCat, chips, chipsLabel, query, moreHref, moreLabel, orderHref, listLabel, emptyTitle, emptyBody, errorLabel, packageRows }: Props) {
   const [cat, setCat] = useState<DiagArtKey | "all">(initialCat);
   const [rows, setRows] = useState<CatalogRow[]>(initialRows);
   const [page, setPage] = useState(initialPage);
@@ -76,10 +84,11 @@ export function ItemCatalog({ kind, rows: initialRows, page: initialPage, hasMor
   const serverFilter = kind === "radiology";
 
   // the rows shown: every loaded row for scans (the server already filtered), the chip's rows for tests
-  const shown = serverFilter ? rows : filterByArt(rows, cat);
+  const packagesOpen = packageRows !== undefined;
+  const shown = packageRows ?? (serverFilter ? rows : filterByArt(rows, cat));
 
   const loadMore = useCallback(async () => {
-    if (busy.current || !hasMore) return;
+    if (busy.current || !hasMore || packagesOpen) return;
     busy.current = true;
     setLoading(true);
     const next = await fetchPage(kind, query, cat, page + 1);
@@ -93,35 +102,35 @@ export function ItemCatalog({ kind, rows: initialRows, page: initialPage, hasMor
     setRows((current) => [...current, ...next.rows.filter((row) => !current.some((have) => have.id === row.id))]);
     setPage(next.page);
     setHasMore(next.hasMore);
-  }, [hasMore, kind, query, cat, page]);
+  }, [hasMore, kind, query, cat, page, packagesOpen]);
 
   useEffect(() => {
     const node = end.current;
-    if (!node || !hasMore || failed || typeof IntersectionObserver === "undefined") return;
+    if (!node || !hasMore || failed || packagesOpen || typeof IntersectionObserver === "undefined") return;
     const observer = new IntersectionObserver((entries) => {
       if (entries.some((entry) => entry.isIntersecting)) void loadMore();
     }, { rootMargin: "400px 0px" });
     observer.observe(node);
     return () => observer.disconnect();
-  }, [hasMore, failed, loadMore, shown.length]);
+  }, [hasMore, failed, loadMore, shown.length, packagesOpen]);
 
   // a test chip that matches few of the loaded rows keeps asking pages (the list would otherwise stay short with a "Show more" under it)
   useEffect(() => {
-    if (!serverFilter && cat !== "all" && hasMore && !loading && !failed && shown.length < CATALOG_PAGE_SIZE) void loadMore();
-  }, [serverFilter, cat, hasMore, loading, failed, shown.length, loadMore]);
+    if (!packagesOpen && !serverFilter && cat !== "all" && hasMore && !loading && !failed && shown.length < CATALOG_PAGE_SIZE) void loadMore();
+  }, [packagesOpen, serverFilter, cat, hasMore, loading, failed, shown.length, loadMore]);
 
   const pick = (chip: CatalogChip) => (event: MouseEvent<HTMLAnchorElement>) => {
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
+    if (chip.nav || chip.key === "packages" || event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
     event.preventDefault();
     if (chip.key === cat) return;
     try { window.history.replaceState(null, "", chip.href); } catch { /* the filter still applies on this page */ }
-    setCat(chip.key);
+    setCat(chip.key as DiagArtKey | "all");
     setFailed(false);
     if (!serverFilter) return;
     // scans: the server filters, so the list starts again from page 1 of the chip
     setLoading(true);
     busy.current = true;
-    void fetchPage(kind, query, chip.key, 1).then((first) => {
+    void fetchPage(kind, query, chip.key as DiagArtKey | "all", 1).then((first) => {
       busy.current = false;
       setLoading(false);
       if (!first) { setRows([]); setHasMore(false); setFailed(true); return; }
@@ -141,7 +150,7 @@ export function ItemCatalog({ kind, rows: initialRows, page: initialPage, hasMor
     <div className={styles.stack}>
       <nav className={styles.catRow} aria-label={chipsLabel}>
         {chips.map((chip) => (
-          <Link key={chip.key} href={chip.href} replace scroll={false} onClick={pick(chip)} aria-current={chip.key === cat ? "true" : undefined} className={`${styles.catLink} ${chip.key === cat ? styles.catLinkOn : ""}`}>{chip.label}</Link>
+          <Link key={chip.key} href={chip.href} replace scroll={false} onClick={pick(chip)} aria-current={chip.key === (packagesOpen ? "packages" : cat) ? "true" : undefined} className={`${styles.catLink} ${chip.key === (packagesOpen ? "packages" : cat) ? styles.catLinkOn : ""}`}>{chip.label}</Link>
         ))}
       </nav>
       {shown.length === 0 && !loading && !hasMore ? (
@@ -152,12 +161,12 @@ export function ItemCatalog({ kind, rows: initialRows, page: initialPage, hasMor
       ) : (
         <ul className={styles.itemGrid} aria-label={listLabel} aria-busy={loading}>
           {shown.map((row) => (
-            <ItemCard key={row.id} href={row.href} title={<FieldText text={row.title} mark={row.titleMark} />} tags={row.tags} note={row.note} rating={row.rating} price={row.price} art={row.art} imageUrl={row.imageUrl} offer={row.offer} actions={<ItemActions kind={kind} line={row.line} orderHref={orderHref} />} />
+            <ItemCard key={row.id} href={row.href} title={<FieldText text={row.title} mark={row.titleMark} />} tags={row.tags} note={row.note} meta={row.meta} rating={row.rating} price={row.price} art={row.art} imageUrl={row.imageUrl} offer={row.offer} actions={<ItemActions kind={kind} line={row.line} orderHref={orderHref} />} />
           ))}
         </ul>
       )}
       {failed ? <p className={styles.tagNote} role="alert">{errorLabel}</p> : null}
-      {hasMore ? <div onClickCapture={more}><ShowMore href={moreHref} label={moreLabel} /></div> : null}
+      {hasMore && !packagesOpen ? <div onClickCapture={more}><ShowMore href={moreHref} label={moreLabel} /></div> : null}
       <div ref={end} aria-hidden="true" className={styles.endMark} />
     </div>
   );

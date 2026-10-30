@@ -6,6 +6,7 @@ import { isLocale } from "@/lib/i18n";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ActionLinks, Facts, Notice, SectionCard, type FactRow, type LinkAction } from "@/components-next/consult/consult-parts";
 import { NURSING, nursingStatus } from "@/components-next/nursing/nursing-parts";
+import { DIAG_TONES } from "@/components-next/diagnostics/tones";
 import { Timeline } from "@/components-next/ui-generated/components/Cards";
 import { minutesText } from "@/components-next/diagnostics/diag-parts";
 import { StatusChip } from "@/components-next/ui-generated/components/Controls";
@@ -89,7 +90,7 @@ export default async function NursingVisitTrackingPage({ params, searchParams }:
             <span className={styles.etaLabel}>{etaMinutes !== null ? t("eta") : t("statusLabel")}</span>
             <div className={styles.etaValue}>{etaMinutes !== null ? minutesText(locale, etaMinutes) : t(`status.${look.key}`)}</div>
           </div>
-          {nurseName ? <StatusChip label={`${t("nurse")}: ${text(nurseName)}`} tone={NURSING.tone} /> : null}
+          {nurseName ? <StatusChip label={`${t("nurse")}: ${text(nurseName)}`} tone={DIAG_TONES.quiet} /> : null}
         </div>
         <Timeline
           label={t("trackingTitle")}

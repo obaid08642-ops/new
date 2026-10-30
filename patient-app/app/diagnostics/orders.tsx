@@ -9,5 +9,5 @@ const DIAGNOSTICS_ORDER_ENDPOINTS: OrderEndpoints = [
 ];
 
 export default function DiagnosticsOrders() {
-  return <OrderList endpoints={DIAGNOSTICS_ORDER_ENDPOINTS} titleKey="diag.orders.title" testID="diagnostics-orders-screen" />;
+  return <OrderList endpoints={DIAGNOSTICS_ORDER_ENDPOINTS} titleKey="diag.orders.title" withResults testID="diagnostics-orders-screen" />;
 }
