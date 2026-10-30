@@ -104,7 +104,11 @@ async function sendNursing(data: NurseRegData, uploads: Uploader): Promise<void>
   }));
 
   await ProviderApi.step3({
-    nursing_services: data.enabledServices.map((id: string) => ({ key: id, name_ar: id, price: parsePrice(data.servicePrices?.[id] ?? '') ?? 0 })),
+    nursing_services: data.enabledServices.map((id: string) => {
+      const price = parsePrice(data.servicePrices?.[id] ?? '');
+      if (price === null) throw new Error('nursing_service_price_required'); // the pre-check and step 3 stop this first
+      return { key: id, name_ar: id, price };
+    }),
     home_visit_radius_km: data.coverageRadius,
     working_hours: workingHours,
     pricingModel: data.pricingModels,
@@ -456,6 +460,7 @@ function NS3({ data, update, submitRef }: StepProps<NurseRegData>) {
  const nursingCatalog = useServicesCatalog('nursing');
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
 
+  const [showPriceErr, setShowPriceErr] = useState(false);
   const toggle = (id: string) => {
     const svcs = data.enabledServices.includes(id) ? data.enabledServices.filter(s => s !== id) : [...data.enabledServices, id];
     update({ enabledServices: svcs });
@@ -463,7 +468,7 @@ function NS3({ data, update, submitRef }: StepProps<NurseRegData>) {
 
   const validate = () => {
     if (data.enabledServices.length === 0) { Alert.alert(AR ? 'تنبيه' : 'Warning', AR ? 'اختر خدمة واحدة على الأقل' : 'Select at least one service'); return false; }
-    if (data.enabledServices.some((id: string) => parsePrice(data.servicePrices?.[id] ?? '') === null)) { Alert.alert(AR ? 'تنبيه' : 'Warning', AR ? 'أدخل سعراً أكبر من صفر لكل خدمة مختارة' : 'Enter a price above zero for each selected service'); return false; }
+    if (data.enabledServices.some((id: string) => parsePrice(data.servicePrices?.[id] ?? '') === null)) { setShowPriceErr(true); return false; }
     return true;
   };
 
@@ -508,7 +513,8 @@ return (
           </TouchableOpacity>
           {active && (
             <NPriceInput label={AR ? `سعرك لـ ${svc.ar} (ريال)` : `Your price for ${svc.en} (SAR)`} value={data.servicePrices?.[svc.id] ?? ''}
-              onChange={(v) => update({ servicePrices: { ...data.servicePrices, [svc.id]: v } })} required />
+              onChange={(v) => update({ servicePrices: { ...data.servicePrices, [svc.id]: v } })} required
+              error={showPriceErr && parsePrice(data.servicePrices?.[svc.id] ?? '') === null ? (AR ? 'أدخل سعراً أكبر من صفر' : 'Enter a price above zero') : undefined} />
           )}
           </View>
         );
