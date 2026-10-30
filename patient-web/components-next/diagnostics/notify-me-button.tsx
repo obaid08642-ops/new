@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
+import { loadInterestState, submitInterest, type InterestType } from "@/lib/catalogue-interest";
 import forms from "@/components-next/consult/consult.module.css";
 
 type State = "loading" | "guest" | "ready" | "done";
-export type InterestType = "lab" | "radiology" | "nursing";
+export type { InterestType };
 
 /**
  * "Notify me when available" on a catalogue service nobody offers yet (POST /catalogue-interest { service_type, service_id } through
@@ -23,40 +24,18 @@ export function NotifyMeButton({ serviceType, serviceId, locale }: { serviceType
 
   useEffect(() => {
     let live = true;
-    (async () => {
-      try {
-        const res = await fetch("/api/patient/catalogue-interest/mine", { cache: "no-store", credentials: "same-origin" });
-        if (!live) return;
-        if (res.status === 401) { setState("guest"); return; }
-        if (res.ok) {
-          const rows: unknown = await res.json().catch(() => null);
-          const asked = Array.isArray(rows) && rows.some((row) => !!row && typeof row === "object" && (row as { service_type?: unknown }).service_type === serviceType && (row as { service_id?: unknown }).service_id === serviceId);
-          if (asked) { setState("done"); return; }
-        }
-      } catch { /* unknown: the button still works */ }
-      if (live) setState("ready");
-    })();
+    void loadInterestState(serviceType, serviceId).then((next) => { if (live) setState(next === "asked" ? "done" : next); });
     return () => { live = false; };
   }, [serviceType, serviceId]);
 
   async function register() {
     setBusy(true);
     setError(false);
-    try {
-      const res = await fetch("/api/patient/catalogue-interest", {
-        method: "POST",
-        headers: { "content-type": "application/json", "idempotency-key": `web-interest-${crypto.randomUUID()}` },
-        credentials: "same-origin",
-        body: JSON.stringify({ service_type: serviceType, service_id: serviceId }),
-      });
-      if (res.status === 401) { setState("guest"); return; }
-      if (!res.ok) { setError(true); return; }
-      setState("done");
-    } catch {
-      setError(true);
-    } finally {
-      setBusy(false);
-    }
+    const result = await submitInterest(serviceType, serviceId);
+    setBusy(false);
+    if (result === "guest") setState("guest");
+    else if (result === "done") setState("done");
+    else setError(true);
   }
 
   if (state === "loading") return null;

@@ -102,7 +102,7 @@ describe("guest service pages (issue 1550)", () => {
       { id: "svc-2", name_en: "IV drip", price: 150, active: true, providers_count: 2, from_price: 120, premises_available: false, home_available: true, insurance_accepted: false },
     ] };
     const page = await html(await HomeCarePage({ params }));
-    expect(page).toMatch(/Wound care[\s\S]*No centre offers this yet[^<]*200\.00/);
+    expect(page).toMatch(/Wound care[\s\S]*Not available in your area yet[^<]*200\.00/);
     expect(page).toMatch(/IV drip[\s\S]*2 providers[^<]*120\.00/);
     expect(page).not.toContain("/en/login?next=%2Fen%2Fhome-care%2Fservices");
     noPersonalReads();

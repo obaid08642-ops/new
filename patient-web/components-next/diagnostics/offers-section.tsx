@@ -1,9 +1,10 @@
 import { Facts, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
 import { money } from "@/lib/diagnostics-format";
 import { pickName } from "@/lib/i18n/localized";
-import type { OfferSummary, ServiceOffer } from "@/lib/api/offers";
+import { isUnoffered, type OfferSummary, type ServiceOffer } from "@/lib/api/offers";
 import { ratingLine } from "./catalog-rows";
 import { DIAG_TONES } from "./tones";
+import { Button } from "@/components-next/ui-generated/components/Button";
 import { NotifyMeButton, type InterestType } from "./notify-me-button";
 
 /**
@@ -11,12 +12,14 @@ import { NotifyMeButton, type InterestType } from "./notify-me-button";
  * the centres side by side with price, where and insurance, cheapest first (a price comparison; the order flow still checks out one item).
  * A service nobody offers yet says so and offers "Notify me when available". Draws nothing when the payload has no summary (an older answer).
  */
-export function OffersSection({ locale, t, kind, serviceId, offer, offers }: { locale: string; /** the page's DiagWeb translator */ t: (key: string, values?: Record<string, string | number>) => string; kind: InterestType; serviceId: string; offer?: OfferSummary; offers?: ServiceOffer[] }) {
+export function OffersSection({ locale, t, kind, serviceId, offer, offers, price, bookLabel }: { locale: string; /** the page's DiagWeb translator */ t: (key: string, values?: Record<string, string | number>) => string; kind: InterestType; serviceId: string; offer?: OfferSummary; offers?: ServiceOffer[]; /** the catalogue price: shown as an indicative "from" price while nobody offers the service */ price?: number; /** the booking button, shown disabled while nobody offers the service */ bookLabel?: string }) {
   if (!offer) return null;
-  if (offer.providersCount === 0) {
+  if (isUnoffered(offer)) {
     return (
       <SectionCard id="item-offers" title={t("offerNone")}>
+        {price !== undefined ? <p data-testid="indicative-price"><strong><bdi>{t("fromPrice", { price: money(locale, price) })}</bdi></strong> · {t("offerIndicative")}</p> : null}
         <p>{t("offerNoneBody")}</p>
+        {bookLabel ? <Button label={bookLabel} variant="outline" size="lg" fullWidth disabled /> : null}
         <NotifyMeButton serviceType={kind} serviceId={serviceId} locale={locale} />
       </SectionCard>
     );
