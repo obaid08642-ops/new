@@ -3909,5 +3909,17 @@
   "insurance.policy.deleteBody": "This card will be removed from your account.",
   "insurance.policy.deleteCancel": "Cancel",
   "insurance.policy.deleteDone": "Insurance card deleted.",
-  "insurance.policy.deleteFailed": "We could not delete the card. Try again."
+  "insurance.policy.deleteFailed": "We could not delete the card. Try again.",
+  "consult.call.reconnecting": "Weak connection. Reconnecting your call…",
+  "consult.call.audioOnly": "Your connection is weak, so we turned video off and kept the sound.",
+  "consult.call.tryVideo": "Try video again",
+  "consult.call.dropped": "The call was cut off.",
+  "consult.call.continueInChat": "Continue in chat",
+  "consult.call.qualityYou": "Your connection",
+  "consult.call.qualityOther": "Other side's connection",
+  "consult.call.quality.excellent": "excellent",
+  "consult.call.quality.good": "good",
+  "consult.call.quality.poor": "weak",
+  "consult.call.quality.lost": "lost",
+  "consult.call.quality.unknown": "checking"
 }

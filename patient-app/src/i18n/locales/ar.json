@@ -3909,5 +3909,17 @@
   "insurance.policy.deleteBody": "ستُزال هذه البطاقة من حسابك.",
   "insurance.policy.deleteCancel": "إلغاء",
   "insurance.policy.deleteDone": "تم حذف بطاقة التأمين.",
-  "insurance.policy.deleteFailed": "تعذّر حذف البطاقة. حاول مرة أخرى."
+  "insurance.policy.deleteFailed": "تعذّر حذف البطاقة. حاول مرة أخرى.",
+  "consult.call.reconnecting": "الاتصال ضعيف، نعيد الاتصال بالمكالمة…",
+  "consult.call.audioOnly": "الاتصال ضعيف، فأوقفنا الفيديو وأبقينا الصوت.",
+  "consult.call.tryVideo": "جرّب الفيديو مرة أخرى",
+  "consult.call.dropped": "انقطعت المكالمة.",
+  "consult.call.continueInChat": "أكمل في المحادثة",
+  "consult.call.qualityYou": "اتصالك",
+  "consult.call.qualityOther": "اتصال الطرف الآخر",
+  "consult.call.quality.excellent": "ممتاز",
+  "consult.call.quality.good": "جيد",
+  "consult.call.quality.poor": "ضعيف",
+  "consult.call.quality.lost": "منقطع",
+  "consult.call.quality.unknown": "جارٍ الفحص"
 }
