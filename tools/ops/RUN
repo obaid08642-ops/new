@@ -1,15 +1,13 @@
-# 2026-10-30 lead reviewer: run 63.
-# Run 62: nabdah-mongodb recreated with 1600m (backup 337 MB, 503 namespaces listed; 20 s downtime; restarts back to 0).
-# 1. Free disk, deploy main@22610406: calls codec matrix (#2184), chat offline queue + ticks (#2185), lab/radiology results (#2177),
-#    nursing booking modes (#2179), insurance add-policy and web header fixes (#2164, #2165), refund policy admin page (#2189),
-#    catalogue no-hidden (#2190), mongo healthcheck/limits (#2186). The pre-deploy dump runs in a one-off container; a failed dump aborts.
-# 2. 90-catalogue-apply DRY RUN (catalogue completion with #2190: duplicates are now deleted, never hidden; one line per collection).
-# 3. 90c DRY RUN of the product translations (#2181): what the free providers' answers would fill (empty fields only). Nothing written.
+# 2026-10-30 lead reviewer: run 64.
+# Run 63: main@22610406 deployed (dump 354 MB, health ok). Catalogue completion dry run with #2190: 118 changes = duplicates re-pointed (85 set),
+# completion fields (6 set), and 27 hidden duplicate rows DELETED (lab 9, nursing 3, radiology 15); radiology visible 78 of 83 (5 wait for the owner).
+# 1. 90-catalogue-apply APPLY of that plan: re-plans and writes only if the hash still ends with run 63's (the log masked its middle);
+#    backup first, guarded writes, fresh plan must be empty, rollback on failure.
+# 2. 97-translate-content STEP=plan: checks the free providers' answers + the packaged ones and writes the reviewed product-translations.json.
+#    No database write.
+# 3. 90c DRY RUN of the product translations from that file (empty fields only). Nothing written.
 # 4. Purge the API cache.
-release:22610406df3e2b53db961ad06eeb99524c03f44d
-97-free-old-predeploy
-93-free-unused-images
-60-deploy-main
 90-catalogue-apply
+97-translate-content
 90c-catalogue-translations
 cf-purge-api
