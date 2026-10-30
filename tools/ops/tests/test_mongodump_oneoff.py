@@ -35,7 +35,7 @@ class MongodumpOneoff(unittest.TestCase):
         e = dict(os.environ, PATH=b + os.pathsep + os.environ["PATH"], FAKE_LOG=os.path.join(d, "log"), FAKE_CFG=os.path.join(d, "cfg"), FAKE_PW=PW,
                  MONGO_ROOT_USER="root", MONGO_ROOT_PASSWORD=PW)
         e.update({k: str(v) for k, v in env.items()})
-        p = subprocess.run(["bash", "-c", f'source "{LIB}"; {env.get("PRE", "")} mongodump_oneoff "{out}" --db=x --gzip --archive; echo "RC=$?"'], env=e, capture_output=True, text=True, timeout=30)
+        p = subprocess.run(["bash"] + (["-e"] if env.get("ERREXIT") else []) + ["-c", f'source "{LIB}"; {env.get("PRE", "")} mongodump_oneoff "{out}" --db=x --gzip --archive; echo "RC=$?"'], env=e, capture_output=True, text=True, timeout=30)
         log = open(os.path.join(d, "log")).read()
         cfg = open(os.path.join(d, "cfg")).read() if os.path.exists(os.path.join(d, "cfg")) else ""
         mode = open(os.path.join(d, "cfg.mode")).read().strip() if os.path.exists(os.path.join(d, "cfg.mode")) else ""
@@ -69,6 +69,10 @@ class MongodumpOneoff(unittest.TestCase):
         p, _, _, _, _ = self.run_fn(FAKE_RC=3)
         self.assertIn("RC=1", p.stdout); self.assertIn("rc=3", p.stdout)
         self.assertIn("Failed: connection refused", p.stdout); self.assertNotIn(PW, p.stdout + p.stderr)
+
+    def test_a_failing_dump_still_reports_under_set_e(self):
+        p, *_ = self.run_fn(FAKE_RC=3, ERREXIT=1)                # CI runs bash -e: the failure must print its report and return 1, not end the script silently
+        self.assertIn("rc=3", p.stdout); self.assertIn("RC=1", p.stdout)
 
     def test_an_empty_dump_is_a_failure_unless_allowed(self):
         p, *_ = self.run_fn(FAKE_EMPTY=1)

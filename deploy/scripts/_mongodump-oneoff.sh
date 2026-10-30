@@ -21,10 +21,10 @@ mongodump_oneoff() {
     printf "password: '%s'\n" "${MONGO_ROOT_PASSWORD//\'/\'\'}" > "$cfg"
     auth=(-v "$cfg:/cfg/mongodump.yml:ro")
   fi
+  rc=0
   ( umask 077; $dkr run --rm -i --user 0:0 --network "$net" --memory 600m --memory-swap 600m --oom-score-adj 1000 "${auth[@]}" "$img" \
-      mongodump --quiet ${cfg:+--config=/cfg/mongodump.yml --username="$MONGO_ROOT_USER" --authenticationDatabase=admin} --host="$ip" --port=27017 "$@" > "$out" 2> "$err" )
-  rc=$?
-  sz=$(stat -c %s "$out" 2>/dev/null || echo 0)
+      mongodump --quiet ${cfg:+--config=/cfg/mongodump.yml --username="$MONGO_ROOT_USER" --authenticationDatabase=admin} --host="$ip" --port=27017 "$@" > "$out" 2> "$err" ) || rc=$?
+  sz=$(stat -c %s "$out" 2>/dev/null || echo 0)   # (no `set -e` surprises: a failing dump must reach the report below)
   echo "status: mongodump: one-off container ($img on $net, 600m, no swap, oom_score_adj 1000) rc=$rc size_bytes=$sz"
   if [ "$rc" -ne 0 ] || { [ "$sz" -le 0 ] && [ -z "${MONGODUMP_ALLOW_EMPTY:-}" ]; }; then
     msg=$(tail -n 2 "$err" | tr '\n' ' '); [ -n "${MONGO_ROOT_PASSWORD:-}" ] && msg=${msg//"$MONGO_ROOT_PASSWORD"/<hidden>}; echo "status: mongodump: error: ${msg:0:250}"
