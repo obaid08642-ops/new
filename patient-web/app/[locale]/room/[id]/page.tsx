@@ -1,3 +1,4 @@
+import { iceServersFrom } from "@/lib/calls/ice-servers";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -42,6 +43,7 @@ export default async function CallRoomPage({ params }: Props) {
     <ConsultPage locale={locale} title={c("roomTitle")} backHref={`/${locale}/consultations`} width="wide">
       <VideoRoomClient
         startAudioOnly={jrec?.audio_only === true}
+        iceServers={iceServersFrom(jrec?.ice_servers)}
         token={roomToken}
         chatHref={appointmentId ? `/${locale}/appointments/${appointmentId}/chat` : undefined}
         serverUrl={livekitUrl()}

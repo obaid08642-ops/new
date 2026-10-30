@@ -55,11 +55,11 @@ describe('LiveKitService with the P2P flag', () => {
     delete process.env.CALLS_P2P_ENABLED; delete process.env.COTURN_HOST; delete process.env.COTURN_SECRET; delete process.env.CALLS_MAX_PER_HOST;
   });
 
-  it('flag off: LiveKit token, no ICE servers (unchanged behaviour)', async () => {
+  it('flag off: LiveKit token; the relay servers are returned for Room.connect too', async () => {
     const r: any = await service.initiateCall('patient-1', 'P', '', 'video', 'appt-1');
     expect(r.transport).toBe('livekit');
     expect(typeof r.token).toBe('string');
-    expect(r.ice_servers).toEqual([]);
+    expect(r.ice_servers).toHaveLength(2);
     expect(sessions.insertOne.mock.calls[0][0].transport).toBe('livekit');
   });
 
@@ -73,6 +73,19 @@ describe('LiveKitService with the P2P flag', () => {
     expect(r.ice_servers[1].username).not.toContain('patient-1');
     expect(JSON.stringify(r.ice_servers)).not.toContain('turn-secret');
     expect(sessions.insertOne.mock.calls[0][0].transport).toBe('p2p');
+  });
+
+  it('Cloudflare relay entries come first, our coturn second; a Cloudflare failure leaves coturn alone', async () => {
+    const { cloudflareTurn } = await import('../coturn/cloudflare-turn.service');
+    const cf = { urls: ['turns:turn.cloudflare.com:443?transport=tcp'], username: 'cfu', credential: 'cfc' };
+    const spy = jest.spyOn(cloudflareTurn, 'iceServers').mockResolvedValueOnce([cf]);
+    const r: any = await service.initiateCall('patient-1', 'P', '', 'video', 'appt-1');
+    expect(r.ice_servers[0]).toEqual(cf);
+    expect(r.ice_servers).toHaveLength(3);
+    spy.mockResolvedValueOnce([]);
+    const r2: any = await service.initiateCall('patient-1', 'P', '', 'video', 'appt-1');
+    expect(r2.ice_servers).toHaveLength(2);
+    spy.mockRestore();
   });
 
   it('flag on but the caller does not declare P2P support: LiveKit', async () => {

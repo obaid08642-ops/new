@@ -16,18 +16,29 @@ candidate**: a client on an IPv4-only network (many Wi-Fi networks and carrier-g
 | Server | not changed by a deploy | `tools/ops/tasks/93-calls-network.sh` (dry run first, then APPLY at a quiet hour; refuses while a call is active; both files back on any failure) |
 
 ## Not done, and why
-- **TURN over TLS on port 443.** On this shared server 443 is nginx's (HTTPS and QUIC for every site), and TURN/TLS needs the port to itself. Strict networks
-  that allow only HTTPS out reach coturn on 5349 only if their firewall allows it. Three ways, owner's call: (a) **a second IPv4 address** for
-  `turn.nabd.plus` (a provider "additional IP"), coturn `listening-ip=<it>` and `tls-listening-port=443`, `COTURN_TLS_PORT=443`: no change to nginx, the least risk;
-  (b) nginx `stream` with `ssl_preread` routing the SNI `turn.nabd.plus` to coturn and everything else to the HTTP server over PROXY protocol: one address, but
-  every server block, the QUIC listeners and the real-client-IP handling change (a redesign of the edge); (c) the calls server of `deploy/SCALING.md` step 2.6.
-- **LiveKit's own TURN.** The browser/app LiveKit clients get their ICE servers from LiveKit; coturn's time-limited credentials are for the P2P path
-  (`CoturnService`). Turning on LiveKit's embedded TURN (`turn.enabled`, its own UDP and TLS ports, the same certificate) gives the SFU path a relay too; it adds two
-  ports and a certificate mount, so it goes with the 443 decision above.
-- **A CI check from an IPv4-only, relay-only client.** Needs a LiveKit server with a TURN server in CI and a headless client with `iceTransportPolicy: "relay"`;
-  not built yet. Until then, check by hand after the ops task: from an IPv4-only machine, `curl -4 https://live.nabd.plus` works, a room joins, and the
-  LiveKit log of the join shows a candidate pair with the server's IPv4 (`docker logs nabdah-livekit | grep -i candidate`); for the UDP-blocked case block UDP out
-  on the test machine (`iptables -A OUTPUT -p udp ! --dport 53 -j DROP`) and the room must still join over TCP 7881.
+## TURN on 443 without a second IP: Cloudflare Realtime TURN (owner prefers free)
+`turn.cloudflare.com` serves TURN over TLS on 443 and UDP/TCP on 3478; 1,000 GB a month are free (shared with the SFU), then $0.05 per GB. It replaces the
+earlier recommendation of buying a second IPv4 for coturn:443 (which stays possible but is no longer needed), and nginx keeps port 443.
+
+- **Backend.** `CloudflareTurnService` (`modules/coturn/cloudflare-turn.service.ts`) asks `POST https://rtc.live.cloudflare.com/v1/turn/keys/<CF_TURN_KEY_ID>/credentials/generate`
+  with `CF_TURN_API_TOKEN` and a 1 h TTL (about a call), keeps the answer per user for 5 minutes, times out after 3 s, and on any failure (not configured, HTTP error,
+  Cloudflare down) returns nothing, so the call goes on with our coturn only. Only the short-lived `urls/username/credential` leave the server; the API token never does.
+- **Where clients get it.** `ice_servers` is now in every call answer, for both transports: `POST /calls/initiate`, `POST /calls/:id/join`, the fallback to LiveKit,
+  `GET /unified-bookings/:id/call-token`, and `GET /calls/ice/config`. Order: Cloudflare first, our coturn (3478/5349) second.
+- **Clients.** The web room (`video-room-client.tsx`) and the provider app (`VideoCallRoom.tsx`) pass them to `room.connect(url, token, { rtcConfig: { iceServers } })`.
+  The patient mobile app does not open LiveKit itself in this repo (no `room.connect` there), so nothing changes in it; a P2P client, when one exists, takes the same list.
+- **Owner steps (not in chat or the repo).** Create a TURN key in the Cloudflare dashboard (Realtime > TURN), put `CF_TURN_KEY_ID` and `CF_TURN_API_TOKEN` in the backend's
+  environment on the server, restart the backend. For the CI check add both as repository secrets.
+- **CI.** `.github/workflows/turn-relay.yml` runs `tools/live/turn-relay-check.mjs`: a real Chromium gathers ICE with `iceTransportPolicy: "relay"` using a fresh
+  Cloudflare credential and passes only if a relay candidate comes back. Without the secrets it prints "skipped" and passes. Not run here (no key in this session).
+
+## Not done, and why
+- **TURN over TLS on our own coturn at 443.** Superseded by Cloudflare TURN above; the options if it is wanted anyway: (a) a second IPv4 address for `turn.nabd.plus` with
+  `tls-listening-port=443` and `COTURN_TLS_PORT=443`; (b) nginx `stream` with `ssl_preread` (a redesign of the edge); (c) the calls server of `deploy/SCALING.md` step 2.6.
+- **LiveKit's own TURN.** Not needed for the relay now that the SFU path gets the same ICE servers from the call answer.
+- **A CI check against our own coturn and LiveKit.** Needs a TURN server in CI; the Cloudflare check above covers the relay path the clients will use first. By hand after the
+  ops task: from an IPv4-only machine `curl -4 https://live.nabd.plus` works, a room joins, and `docker logs nabdah-livekit | grep -i candidate` shows the server's IPv4;
+  for the UDP-blocked case block UDP out (`iptables -A OUTPUT -p udp ! --dport 53 -j DROP`) and the room must still join over TCP 7881.
 
 ## Capacity on the 3.8 GB host (from the measured ladder, not measured on production)
 `docs/perf/CALLS_14.22.md` measured LiveKit 1.10.1 on a 4 vCPU machine **shared with the load testers**: 40 concurrent 1:1 video calls (720p simulcast) clean at 70 % of

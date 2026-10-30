@@ -97,7 +97,7 @@ describe('LiveKit follow-up ownership fixes', () => {
     service.createBookingToken = jest.fn().mockResolvedValue('token-1');
 
     await expect(service.issueBookingCallToken('appt-1', { id: 'patient-1', name: 'Patient' }))
-      .resolves.toEqual({ provider: 'livekit', token: 'token-1', room: 'booking-appt-1', audio_only: false, audio_only_reason: null });
+      .resolves.toEqual({ provider: 'livekit', token: 'token-1', room: 'booking-appt-1', ice_servers: [], audio_only: false, audio_only_reason: null });
     expect(service.createBookingToken).toHaveBeenCalledWith('booking-appt-1', 'Patient');
   });
 
@@ -112,7 +112,7 @@ describe('LiveKit follow-up ownership fixes', () => {
     service.createBookingToken = jest.fn().mockResolvedValue('doctor-token');
 
     await expect(service.issueBookingCallToken('appt-1', { id: 'doctor-1', full_name: 'Doctor' }))
-      .resolves.toEqual({ provider: 'livekit', token: 'doctor-token', room: 'booking-appt-1', audio_only: false, audio_only_reason: null });
+      .resolves.toEqual({ provider: 'livekit', token: 'doctor-token', room: 'booking-appt-1', ice_servers: [], audio_only: false, audio_only_reason: null });
     expect(service.createBookingToken).toHaveBeenCalledWith('booking-appt-1', 'Doctor');
   });
 
@@ -130,7 +130,7 @@ describe('LiveKit follow-up ownership fixes', () => {
       .resolves.toMatchObject({ token: 'token-p', audio_only: true, audio_only_reason: 'server_pressure' });
     service.activeCallCount = jest.fn().mockRejectedValue(new Error('db down'));
     await expect(service.issueBookingCallToken('appt-1', { id: 'patient-1', name: 'Patient' }))
-      .resolves.toMatchObject({ token: 'token-p', audio_only: false, audio_only_reason: null });
+      .resolves.toMatchObject({ token: 'token-p', ice_servers: [], audio_only: false, audio_only_reason: null });
   });
 
   it('returns 404 to a foreign identity without issuing a booking token', async () => {

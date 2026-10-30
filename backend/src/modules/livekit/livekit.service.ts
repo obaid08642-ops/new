@@ -9,6 +9,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { APPT_STATES } from '../../schemas/appointment.schema';
 import { isChaosFail } from '../../common/chaos-switches';
 import { CoturnService } from '../coturn/coturn.service';
+import { cloudflareTurn } from '../coturn/cloudflare-turn.service';
 import { audioOnlyAdvice, chooseTransport, maxCallsPerHost, type LinkSample } from './call-transport';
 
 /** A ringing call that nobody answered stops counting against the host after this long; an active call after the longest consultation. */
@@ -86,7 +87,7 @@ export class LiveKitService {
     // the same advice as /calls/:id/join: sound only under server pressure (the web room also drops to sound only on a weak link by itself)
     // (best effort: a failing count never keeps the patient out of the call)
     const advice = audioOnlyAdvice({ activeCalls: await this.activeCallCount().catch(() => 0) });
-    return { provider: 'livekit', token, room, audio_only: advice.audio_only, audio_only_reason: advice.reason };
+    return { provider: 'livekit', token, room, ice_servers: await this.iceServersFor(String(user?.id)), audio_only: advice.audio_only, audio_only_reason: advice.reason };
   }
 
   async getProviderWaitingRoom(providerId: string) {
@@ -231,7 +232,7 @@ export class LiveKitService {
     this.events.emit('call.incoming', {
       callee_id: resolvedCallee, caller_id: callerId, caller_name: callerName, call_type: callType || 'video', session_id: sessionId, room_name: roomName,
     });
-    return { room_name: roomName, token, call_type: callType || 'video', session_id: sessionId, ...(await this.transportInfo(transport)) };
+    return { room_name: roomName, token, call_type: callType || 'video', session_id: sessionId, ...(await this.transportInfo(transport, callerId)) };
   }
 
   /** The host (provider) holds `CALLS_MAX_PER_HOST` calls at once; a further call is answered 409 provider_busy, never queued silently. */
@@ -254,9 +255,12 @@ export class LiveKitService {
    * STUN, then TURN with short-lived credentials (CoturnService, the same ones /coturn/credentials serves); empty when TURN is not configured.
    * The TURN name carries a random opaque tag, not the account or call id: coturn logs it, and relaying media needs no identity.
    */
-  private iceServersFor() {
+  private async iceServersFor(userId: string) {
     const turn = new CoturnService();
-    return turn.isConfigured() ? turn.getIceServers(randomUUID()).iceServers : [];
+    // Cloudflare's relay first (TLS on 443 gets through networks that block everything else), our coturn second; either may be absent.
+    const cloudflare = await cloudflareTurn.iceServers(userId);
+    const own = turn.isConfigured() ? turn.getIceServers(randomUUID()).iceServers : [];
+    return [...cloudflare, ...own];
   }
 
   private async activeCallCount(): Promise<number> {
@@ -264,11 +268,12 @@ export class LiveKitService {
   }
 
   /** What the client needs to start the media: the transport, the ICE servers for P2P, and whether to start audio only. */
-  private async transportInfo(transport: 'p2p' | 'livekit', sample?: LinkSample) {
+  private async transportInfo(transport: 'p2p' | 'livekit', userId: string, sample?: LinkSample) {
     const advice = audioOnlyAdvice({ activeCalls: await this.activeCallCount(), sample });
     return {
       transport,
-      ice_servers: transport === 'p2p' ? this.iceServersFor() : [],
+      // LiveKit rooms use them too (Room.connect rtcConfig): a relay is what a strict network needs on either transport
+      ice_servers: await this.iceServersFor(userId),
       audio_only: advice.audio_only,
       audio_only_reason: advice.reason,
     };
@@ -302,7 +307,7 @@ export class LiveKitService {
       { $set: { status: 'ACTIVE', started_at: new Date(), updatedAt: new Date() } },
     );
     // P14.22: the web call room links a dropped call to this appointment's chat
-    return { room_name: session.room_name, token, appointment_id: session.appointment_id ?? null, ...(await this.transportInfo(transport)) };
+    return { room_name: session.room_name, token, appointment_id: session.appointment_id ?? null, ...(await this.transportInfo(transport, userId)) };
   }
 
   async endCall(sessionId: string, userId: string) {
@@ -355,7 +360,7 @@ export class LiveKitService {
     );
     const other = String(session.patient_id) === String(userId) ? session.provider_id : session.patient_id;
     this.events.emit('call.transport', { callee_id: other, caller_id: userId, session_id: session.id, transport: 'livekit', reason });
-    return { room_name: session.room_name, token, transport: 'livekit' as const, ice_servers: [] };
+    return { room_name: session.room_name, token, transport: 'livekit' as const, ice_servers: await this.iceServersFor(userId) };
   }
 
   /** Which path the media took (direct, through TURN, or LiveKit): the numbers behind the P2P success share in docs/perf/CALLS_SCALE.md. */
