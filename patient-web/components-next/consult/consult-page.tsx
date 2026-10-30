@@ -41,12 +41,12 @@ export function ConsultPage({
   mapLabel?: string;
   /** Labs and radiology: the header icon and the phone-menu entry "My orders and results". */
   resultsHref?: string;
-  /** The consultations hubs: the header's My appointments button (it replaces the cart there). */
+  /** The consultations hubs: the header's My appointments button (it replaces the cart there); every other consultation page draws no cart at all. */
   appointmentsHref?: string;
   children: ReactNode;
 }) {
   return (
-    <CoreShell locale={locale} title={title} backHref={backHref} width={width} footer={footer} hideTabs={hideTabs} resultsHref={resultsHref} appointmentsHref={appointmentsHref}>
+    <CoreShell locale={locale} title={title} backHref={backHref} width={width} footer={footer} hideTabs={hideTabs} resultsHref={resultsHref} appointmentsHref={appointmentsHref} hideCart>
       <div className={rx.page}>
         {crumbs && crumbsLabel ? <Breadcrumbs label={crumbsLabel} items={crumbs} /> : null}
         <div className={rx.head}><h1 className={rx.title}>{title}</h1></div>
