@@ -1,0 +1,181 @@
+name: Capacity, production shape (k6)
+
+# docs/perf/load-test-2026-10-30.md. The API, MongoDB and Redis run in ONE container limited like the production host
+# (`docker run --cpus=4 --memory=3.8g`), with production-sized TEST data; k6 and the test doubles (S3, SMTP sink, payment gateway,
+# scanner, LiveKit) run beside it on the runner. Nothing leaves the runner and production is never touched. The ceiling is this
+# runner's: compare runs of this workflow with each other (same inputs apart from the one under test), not with the production host.
+on:
+  pull_request:
+    paths:
+      - 'tools/perf/prod-shape/**'
+      - 'tools/perf/k6/**'
+      - '.github/workflows/capacity-prod-shape.yml'
+  workflow_dispatch:
+    inputs:
+      label:
+        description: 'what this run tests (shown in the summary and the artifact name)'
+        default: 'baseline'
+      steps:
+        description: 'VU steps of the ladder'
+        default: '10 20 40 80'
+      duration:
+        description: 'seconds per step (k6 duration)'
+        default: '40s'
+      container_env:
+        description: 'extra container environment, space separated KEY=VALUE (e.g. WT_CACHE_GB=1 CLUSTER_WORKERS=2 PROCESS_ROLE=api HTTP_COMPRESSION=edge)'
+        default: ''
+      cpus:
+        description: 'CPUs of the container'
+        default: '4'
+      memory:
+        description: 'memory limit of the container'
+        default: '3800m'
+      endpoints:
+        description: 'also run the per-endpoint ceilings (true/false)'
+        default: 'true'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: capacity-prod-shape-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  capacity:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 75
+    env:
+      DB_NAME: nabd_perf
+      MOYASAR_WEBHOOK_SECRET: perf-webhook-secret-test-only
+      WEBHOOK_SECRET: perf-webhook-secret-test-only
+      ALLOW_WRITES: '1'
+      LABEL: ${{ github.event.inputs.label || 'baseline' }}
+      STEPS: ${{ github.event.inputs.steps || '10 20 40' }}
+      DURATION: ${{ github.event.inputs.duration || '30s' }}
+      CPUS: ${{ github.event.inputs.cpus || '4' }}
+      MEMORY: ${{ github.event.inputs.memory || '3800m' }}
+      CONTAINER_ENV: ${{ github.event.inputs.container_env || '' }}
+      RUN_ENDPOINTS: ${{ github.event.inputs.endpoints || 'true' }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.12'
+
+      - name: k6 (pinned release, checked)
+        run: |
+          curl -sSfL -o /tmp/k6.tgz https://github.com/grafana/k6/releases/download/v1.3.0/k6-v1.3.0-linux-amd64.tar.gz
+          echo "84d26fc1f7bc03e02f2e016b3b1b20c032e05dfe461fca82de4e3a6ebe72ddbd  /tmp/k6.tgz" | sha256sum -c -
+          tar -xzf /tmp/k6.tgz -C /tmp && sudo install /tmp/k6-v1.3.0-linux-amd64/k6 /usr/local/bin/k6 && k6 version
+
+      - name: Build the backend
+        working-directory: backend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Test doubles (S3, SMTP sink, payment gateway, scanner) and LiveKit, beside the container
+        run: |
+          pip install 'moto[server]==5.*' boto3 aiosmtpd
+          nohup moto_server -p 9000 > /tmp/moto.log 2>&1 &
+          nohup python3 tools/live/smtp_sink.py > /tmp/smtp.log 2>&1 &
+          nohup python3 tools/live/fake_moyasar.py > /tmp/moyasar.log 2>&1 &
+          nohup python3 tools/live/fake_clamd.py > /tmp/clamd.log 2>&1 &
+          for i in $(seq 1 30); do curl -s -o /dev/null http://127.0.0.1:9000 && break; sleep 1; done
+          python3 -c "import boto3; boto3.client('s3', endpoint_url='http://127.0.0.1:9000', aws_access_key_id='live', aws_secret_access_key='live-secret', region_name='us-east-1').create_bucket(Bucket='nabd-live')"
+          bash tools/live/start-livekit.sh
+
+      - name: Stack container (API + MongoDB + Redis), limited like the production host
+        run: |
+          docker build -t nabd-prod-shape tools/perf/prod-shape
+          # the same environment tools/live/start-backend.sh gives the backend, in a file the container reads
+          cat > /tmp/backend.env <<EOF
+          NODE_ENV=development
+          PORT=8002
+          JWT_SECRET=live-test-secret-0123456789abcdef-0123456789
+          MONGO_URL=mongodb://127.0.0.1:27017/?replicaSet=rs0&directConnection=true
+          DB_NAME=${DB_NAME}
+          REDIS_URL=redis://127.0.0.1:6379
+          REDIS_HOST=127.0.0.1
+          REDIS_PORT=6379
+          S3_ENDPOINT=http://127.0.0.1:9000
+          S3_BUCKET=nabd-live
+          S3_REGION=us-east-1
+          S3_ACCESS_KEY_ID=live
+          S3_SECRET_ACCESS_KEY=live-secret
+          SES_SMTP_HOST=127.0.0.1
+          SES_SMTP_PORT=2525
+          SES_SMTP_USER=live
+          SES_SMTP_PASS=live
+          SES_FROM=no-reply@nabd.test
+          MAIL_PROVIDER_ORDER=ses
+          CLAMD_HOST=127.0.0.1
+          CLAMD_PORT=3311
+          UPLOAD_SCAN=required
+          ALLOWED_ORIGINS=http://localhost:3000
+          CORS_ORIGINS=http://localhost:3000
+          DISABLE_RATE_LIMIT=true
+          THROTTLER_LIMIT=1000000
+          OTP_ISSUE_LIMIT=1000
+          PAYOUT_DUAL_APPROVAL_SAR=1
+          SETTLEMENT_DELAY_DAYS=0
+          PAYOUT_MINIMUM_SAR=1
+          MOYASAR_API_KEY=sk_test_live_journeys
+          MOYASAR_API_BASE=http://127.0.0.1:9100/v1
+          MOYASAR_WEBHOOK_SECRET=${MOYASAR_WEBHOOK_SECRET}
+          WEBHOOK_SECRET=${WEBHOOK_SECRET}
+          LIVEKIT_URL=http://127.0.0.1:7880
+          LIVEKIT_API_KEY=devkey
+          LIVEKIT_API_SECRET=secret
+          EOF
+          sed -i 's/^ *//' /tmp/backend.env
+          extra=""; for kv in $CONTAINER_ENV; do extra="$extra -e $kv"; done
+          mkdir -p /tmp/stack-logs
+          docker run -d --name stack --network host --cpus="$CPUS" --memory="$MEMORY" --memory-swap="$MEMORY" \
+            --env-file /tmp/backend.env $extra -v "$PWD/backend:/app:ro" -v /tmp/stack-logs:/logs nabd-prod-shape
+          for i in $(seq 1 120); do curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8002/api/v1/health/liveness 2>/dev/null | grep -q 200 && break; sleep 2; done
+          curl -s http://127.0.0.1:8002/api/v1/health/liveness || { docker logs stack | tail -50; exit 1; }
+          docker inspect stack --format 'cpus={{.HostConfig.NanoCpus}} memory={{.HostConfig.Memory}}'
+
+      - name: Test data and fixtures
+        working-directory: backend
+        run: |
+          node ../tools/live/seed_admin.js
+          node ../tools/perf/k6/seed-perf-data.js 21000 20000
+          cd .. && python3 tools/perf/k6/fixtures.py > /tmp/k6-fixtures.json
+
+      - name: Ceiling ladder
+        run: |
+          mkdir -p /tmp/k6-ladder
+          set -o pipefail
+          OUT=/tmp/k6-ladder FIXTURES=/tmp/k6-fixtures.json bash tools/perf/k6/ladder.sh | tee /tmp/k6-ladder/report.md
+          { echo "## Ladder, ${LABEL} (container: ${CPUS} CPUs, ${MEMORY}; test data)"; echo; sed -n '/^|/,$p' /tmp/k6-ladder/report.md; } >> "$GITHUB_STEP_SUMMARY"
+          docker stats --no-stream --format 'container {{.Name}}: cpu {{.CPUPerc}} mem {{.MemUsage}} ({{.MemPerc}})' stack | tee -a /tmp/k6-ladder/report.md
+
+      - name: Per-endpoint ceilings
+        if: env.RUN_ENDPOINTS == 'true'
+        run: |
+          k6 run -q -e VUS=16 -e DURATION=15s -e FIXTURES=/tmp/k6-fixtures.json -e ALLOW_WRITES=1 --summary-export /tmp/k6-ladder/endpoints.json tools/perf/k6/endpoints.js > /tmp/k6-ladder/endpoints.log 2>&1 || true
+          python3 tools/perf/k6/endpoint-table.py /tmp/k6-ladder/endpoints.json 15 | tee /tmp/k6-ladder/endpoints.md
+          { echo; echo "## Per-endpoint ceilings, ${LABEL} (16 VUs closed loop, no think time)"; echo; cat /tmp/k6-ladder/endpoints.md; } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: capacity-prod-shape-${{ github.run_id }}
+          path: |
+            /tmp/k6-ladder/
+            /tmp/stack-logs/
+          retention-days: 30
+
+      - name: Container log on failure
+        if: failure()
+        run: docker logs stack 2>&1 | tail -n 200 || true
