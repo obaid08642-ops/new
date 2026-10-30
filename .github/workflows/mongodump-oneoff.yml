@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - 'deploy/scripts/_mongodump-oneoff.sh'
+      - 'deploy/scripts/_mongorestore-list.sh'
       - 'deploy/scripts/backup.sh'
       - 'deploy/scripts/oplog-backup.sh'
       - '.github/workflows/mongodump-oneoff.yml'
@@ -39,6 +40,9 @@ jobs:
           echo "restored documents: $N"
           test "$N" = 200
           echo "archive bytes: $(stat -c %s "$OUT")"
+          # the archive listing the recreate task relies on (mongorestore --dryRun --verbose against the live mongod, nothing written)
+          source deploy/scripts/_mongorestore-list.sh
+          mongorestore_list_oneoff "$OUT"
       - name: A wrong password fails and never prints the password
         run: |
           set -u

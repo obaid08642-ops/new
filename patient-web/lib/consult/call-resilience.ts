@@ -17,12 +17,24 @@ export const qualityLevel = (q: unknown): QualityLevel => (q === "excellent" || 
 
 type Presets = { VideoPresets: typeof LkVideoPresets; AudioPresets: typeof LkAudioPresets };
 
-export function callRoomOptions({ VideoPresets, AudioPresets }: Presets) {
+/**
+ * Which codec the browser publishes video with. VP8 plays in every browser and in the apps (libwebrtc), supports simulcast everywhere and
+ * is what the other side decodes; H.264 is the fallback for a browser whose sender lacks VP8 (some locked-down or very old WebViews).
+ * `capabilities` is `RTCRtpSender.getCapabilities('video')?.codecs`.
+ */
+export function pickVideoCodec(capabilities: { mimeType: string }[] | undefined | null): 'vp8' | 'h264' {
+  const mimes = (capabilities ?? []).map((c) => c.mimeType.toLowerCase());
+  if (mimes.length === 0 || mimes.includes('video/vp8')) return 'vp8';
+  return mimes.includes('video/h264') ? 'h264' : 'vp8';
+}
+
+export function callRoomOptions({ VideoPresets, AudioPresets }: Presets, videoCodec: 'vp8' | 'h264' = 'vp8') {
   return {
     adaptiveStream: true,
     dynacast: true,
     videoCaptureDefaults: { resolution: VideoPresets.h720.resolution },
     publishDefaults: {
+      videoCodec,
       simulcast: true,
       videoSimulcastLayers: [VideoPresets.h180, VideoPresets.h360],
       videoEncoding: { maxBitrate: 1_700_000 },

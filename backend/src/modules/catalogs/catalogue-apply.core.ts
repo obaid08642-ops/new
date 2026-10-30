@@ -74,6 +74,21 @@ export function summarize(changes: Change[]): Record<string, { set: number; inse
   return out;
 }
 
+/** One short line per collection: rows touched, writes by kind, and the deletions by step (their reason). */
+export function collectionLines(changes: Change[]): string[] {
+  const by: Record<string, { set: number; insert: number; delete: number; reasons: Record<string, number> }> = {};
+  for (const c of changes) {
+    const row = (by[c.collection] ||= { set: 0, insert: 0, delete: 0, reasons: {} });
+    row[c.kind] += 1;
+    if (c.kind === 'delete') row.reasons[c.step] = (row.reasons[c.step] || 0) + 1;
+  }
+  return Object.keys(by).sort().map((k) => {
+    const r = by[k];
+    const why = Object.entries(r.reasons).map(([step, n]) => `${step}=${n}`).join(',');
+    return `${k}: rows=${r.set + r.insert + r.delete} set=${r.set} insert=${r.insert} delete=${r.delete}${why ? ` (${why})` : ''}`;
+  });
+}
+
 // ---------------------------------------------------------------------------
 // writes
 // ---------------------------------------------------------------------------

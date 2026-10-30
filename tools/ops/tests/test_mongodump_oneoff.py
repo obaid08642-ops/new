@@ -14,9 +14,13 @@ PW = "pa'ss\"w0rd$x|y"
 FAKE = r"""#!/bin/bash
 echo "$*" >> "$FAKE_LOG"
 case "$1" in
-  inspect) case "$*" in *IPAddress*) echo 172.20.0.5;; *Config.Image*) echo mongo:7.0;; *Networks*) echo "net_a net_b ";; esac; exit 0;;
+  rm) echo "$*" >> "$FAKE_LOG.rm"; exit 0;;
+  inspect) case "$*" in *State.ExitCode*) echo "${FAKE_EC:-0} ${FAKE_OOM:-false}";; *IPAddress*) echo 172.20.0.5;; *Config.Image*) echo mongo:7.0;; *Networks*) echo "net_a net_b ";; esac; exit 0;;
   run)
     cfg=$(echo "$*" | sed -n 's/.*-v \([^ ]*\):\/cfg\/mongodump.yml:ro.*/\1/p'); [ -n "$cfg" ] && { cat "$cfg" > "$FAKE_CFG"; stat -c %a "$cfg" > "$FAKE_CFG.mode"; }
+    n=$(cat "$FAKE_LOG.n" 2>/dev/null || echo 0); echo $((n+1)) > "$FAKE_LOG.n"
+    [ -n "$FAKE_SILENT_KILL" ] && [ "$n" = 0 -o -z "$FAKE_KILL_ONCE" ] && exit 137
+    [ -n "$FAKE_RC_ONCE" ] && [ "$n" = 0 ] && { echo "Failed: connection reset $FAKE_PW" >&2; exit 1; }
     [ "${FAKE_RC:-0}" != 0 ] && { echo "Failed: connection refused $FAKE_PW" >&2; exit "$FAKE_RC"; }
     [ -n "$FAKE_EMPTY" ] && exit 0
     printf 'archive-bytes';;
@@ -27,13 +31,13 @@ esac
 class MongodumpOneoff(unittest.TestCase):
     def run_fn(self, **env):
         tmp = tempfile.TemporaryDirectory(); self.addCleanup(tmp.cleanup)
-        d = tmp.name; b = os.path.join(d, "bin"); os.makedirs(b)
+        d = tmp.name; self.last_dir = d; b = os.path.join(d, "bin"); os.makedirs(b)
         with open(os.path.join(b, "docker"), "w") as f:
             f.write(FAKE)
         os.chmod(os.path.join(b, "docker"), 0o755)
         out = os.path.join(d, "out.gz")
         e = dict(os.environ, PATH=b + os.pathsep + os.environ["PATH"], FAKE_LOG=os.path.join(d, "log"), FAKE_CFG=os.path.join(d, "cfg"), FAKE_PW=PW,
-                 MONGO_ROOT_USER="root", MONGO_ROOT_PASSWORD=PW)
+                 MONGO_ROOT_USER="root", MONGO_ROOT_PASSWORD=PW, MONGODUMP_RETRY_WAIT="0")
         e.update({k: str(v) for k, v in env.items()})
         p = subprocess.run(["bash"] + (["-e"] if env.get("ERREXIT") else []) + ["-c", f'source "{LIB}"; {env.get("PRE", "")} mongodump_oneoff "{out}" --db=x --gzip --archive; echo "RC=$?"'], env=e, capture_output=True, text=True, timeout=30)
         log = open(os.path.join(d, "log")).read()
@@ -46,15 +50,17 @@ class MongodumpOneoff(unittest.TestCase):
         p, log, cfg, mode, data = self.run_fn()
         self.assertIn("RC=0", p.stdout)
         run = [l for l in log.splitlines() if l.startswith("run ")][0]
-        self.assertIn("--rm", run); self.assertIn("--user 0:0", run); self.assertIn("--network net_a", run)
-        self.assertIn("--memory 600m --memory-swap 600m --oom-score-adj 1000", run)
+        self.assertNotIn("--rm", run); self.assertIn("--name nabd-dump-", run); self.assertIn("--user 0:0", run); self.assertIn("--network net_a", run)
+        self.assertRegex(run, r"--memory (3[5-9]\d|[45]\d\d|600)m --memory-swap \1m --oom-score-adj 1000")   # sized from MemAvailable, 350m..600m
+        self.assertIn("--numParallelCollections=1", run)
         self.assertIn("--entrypoint mongodump mongo:7.0", run); self.assertIn("--db=x --gzip --archive", run)
         self.assertNotIn("exec", log)
         self.assertNotIn("pa'ss", log + p.stdout + p.stderr)                      # never an argument or output
         self.assertEqual(cfg.strip(), "password: 'pa''ss\"w0rd$x|y'")              # YAML single-quoted, apostrophe doubled
         self.assertEqual(mode, "600")
         self.assertEqual(data, b"archive-bytes")
-        self.assertRegex(p.stdout, r"rc=0 size_bytes=13")
+        self.assertRegex(p.stdout, r"rc=0 exit_code=0 oom_killed=false size_bytes=13")
+        self.assertIn("rm -f nabd-dump-", open(os.path.join(self.last_dir, "log.rm")).read())
 
     def test_the_host_is_the_container_address_and_a_test_database_without_a_root_user_gets_no_credentials(self):
         p, log, cfg, _, _ = self.run_fn(MONGO_ROOT_USER="", MONGO_ROOT_PASSWORD="")
@@ -67,8 +73,28 @@ class MongodumpOneoff(unittest.TestCase):
 
     def test_a_failed_dump_is_a_failure_and_its_error_has_no_password(self):
         p, _, _, _, _ = self.run_fn(FAKE_RC=3)
-        self.assertIn("RC=1", p.stdout); self.assertIn("rc=3", p.stdout)
+        self.assertIn("RC=1", p.stdout); self.assertIn("rc=3", p.stdout); self.assertIn("attempt 2", p.stdout)   # one retry, then a failure
         self.assertIn("Failed: connection refused", p.stdout); self.assertNotIn(PW, p.stdout + p.stderr)
+
+    def test_a_killed_container_reports_the_real_exit_code_and_oom_flag_not_an_empty_message(self):
+        p, log, *_ = self.run_fn(FAKE_SILENT_KILL=1, FAKE_EC=137, FAKE_OOM="true")   # run 61: rc=1 and no text at all
+        self.assertIn("RC=1", p.stdout)
+        self.assertIn("exit_code=137 oom_killed=true", p.stdout)
+        self.assertRegex(p.stdout, r"error: no error text \(exit 137, OOMKilled=true; 137 means")
+
+    def test_one_retry_and_only_exit_0_with_data_is_accepted(self):
+        p, log, _, _, data = self.run_fn(FAKE_RC_ONCE=1)
+        self.assertIn("RC=0", p.stdout); self.assertIn("attempt 1", p.stdout); self.assertIn("attempt 2", p.stdout)
+        self.assertEqual(data, b"archive-bytes"); self.assertEqual(len([l for l in log.splitlines() if l.startswith("run ")]), 2)
+        self.assertNotIn(PW, p.stdout + p.stderr)
+
+    def test_the_cap_follows_memavailable(self):
+        mem = "printf 'MemAvailable:  500000 kB\\n'"
+        p, log, *_ = self.run_fn(PRE='awk() { echo 400; }; ')           # 400 MB available -> 350m (floor)
+        run = [l for l in log.splitlines() if l.startswith("run ")][0]
+        self.assertIn("--memory 350m --memory-swap 350m", run)
+        q, log2, *_ = self.run_fn(PRE='awk() { echo 5000; }; ')         # plenty -> 600m
+        self.assertIn("--memory 600m --memory-swap 600m", [l for l in log2.splitlines() if l.startswith("run ")][0])
 
     def test_a_failing_dump_still_reports_under_set_e(self):
         p, *_ = self.run_fn(FAKE_RC=3, ERREXIT=1)                # CI runs bash -e: the failure must print its report and return 1, not end the script silently
