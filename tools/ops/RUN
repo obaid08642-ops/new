@@ -1,6 +1,15 @@
-# 2026-10-30 lead reviewer: run 62 (nabdah-mongodb still on the old 1200m cap, restarts 38+).
-# Run 61: the one-off dump ended rc=1 with no error text (300 MB, archive listing failed); the 94 guard aborted, nothing stopped.
-# #2186 now: real exit code + OOMKilled (no --rm, inspect, rm), one collection at a time, cap from MemAvailable (350-600m), one retry.
-# 1. 94-mongo-recreate APPLY (detached): backup (rc=0, >1 MB, >= half the last nightly, gzip ok, archive listing) then ONLY mongodb
-#    recreated with 1600m; waits healthy, PRIMARY, API ready. The data volume is never touched.
-94-mongo-recreate
+# 2026-10-30 lead reviewer: run 63.
+# Run 62: nabdah-mongodb recreated with 1600m (backup 337 MB, 503 namespaces listed; 20 s downtime; restarts back to 0).
+# 1. Free disk, deploy main@22610406: calls codec matrix (#2184), chat offline queue + ticks (#2185), lab/radiology results (#2177),
+#    nursing booking modes (#2179), insurance add-policy and web header fixes (#2164, #2165), refund policy admin page (#2189),
+#    catalogue no-hidden (#2190), mongo healthcheck/limits (#2186). The pre-deploy dump runs in a one-off container; a failed dump aborts.
+# 2. 90-catalogue-apply DRY RUN (catalogue completion with #2190: duplicates are now deleted, never hidden; one line per collection).
+# 3. 90c DRY RUN of the product translations (#2181): what the free providers' answers would fill (empty fields only). Nothing written.
+# 4. Purge the API cache.
+release:22610406df3e2b53db961ad06eeb99524c03f44d
+97-free-old-predeploy
+93-free-unused-images
+60-deploy-main
+90-catalogue-apply
+90c-catalogue-translations
+cf-purge-api
