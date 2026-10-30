@@ -194,6 +194,7 @@ describe("the other screens render their first state without inline styles", () 
     const barcode = renderToStaticMarkup(<BarcodeScreen locale="en" />);
     expect(barcode).toContain("Take or choose a photo"); // decision 36: the AI scanner, one photo of a pack, code or prescription
     expect(barcode).toContain('capture="environment"');
+    expect(barcode.match(/type="file"/g)).toHaveLength(1); // the journey (tools/live/j_ai_scanner.py) drives the one scan input; a second would break its strict locator
     expect(barcode).not.toContain("barcode printed");
     const chat = renderToStaticMarkup(<ChatScreen locale="en" orderId={ORDER} />);
     expect(chat).toContain("Loading the conversation");
