@@ -22,6 +22,7 @@ export interface HiddenDeleteReport { by_collection: Record<string, { marked: nu
 /** Assign `value` at a dot path of a document (numeric segments index arrays); false when the path does not exist. */
 function setPath(doc: Record<string, any>, path: string, value: unknown): boolean {
   const parts = path.split('.');
+  if (parts.some((k) => k === '__proto__' || k === 'constructor' || k === 'prototype')) return false;   // a plan path never names these: never write through them
   let node: any = doc;
   for (let i = 0; i < parts.length - 1; i++) { node = node?.[parts[i]]; if (node === null || node === undefined || typeof node !== 'object') return false; }
   node[parts[parts.length - 1]] = value;

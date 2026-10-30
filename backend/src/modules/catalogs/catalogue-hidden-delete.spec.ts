@@ -113,3 +113,12 @@ describe('collectionLines', () => {
     ]);
   });
 });
+
+describe('setPath guard', () => {
+  it('never writes through __proto__, constructor or prototype', async () => {
+    const { deleteUnreferencedHidden } = require('./catalogue-hidden-delete');
+    const changes = [{ kind: 'set', step: 'x', collection: 'lab_tests', key: { _id: 1 }, path: '__proto__.polluted', before: null, after: 'yes' }];
+    await deleteUnreferencedHidden({ collection: () => ({ find: () => ({ toArray: async () => [] }) }) } as never, changes as never).catch(() => undefined);
+    expect(({} as Record<string, unknown>).polluted).toBeUndefined();
+  });
+});
