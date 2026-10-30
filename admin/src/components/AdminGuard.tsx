@@ -57,6 +57,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/returns', label: 'طلبات الإرجاع والاسترداد' },
       { href: '/admin/financial-ledger', label: 'دفتر الأستاذ المالي' },
       { href: '/admin/commissions', label: 'العمولات والأستاذ', permission: 'finance.read' },
+      { href: '/admin/refund-policy', label: 'سياسة الإلغاء والاسترداد', permission: 'finance.read' },
     ],
   },
   {
@@ -152,6 +153,7 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/finance-suite': 'finance.read',
   '/admin/financial-ledger': 'finance.read',
   '/admin/commissions': 'finance.read',
+  '/admin/refund-policy': 'finance.read',
   '/admin/payouts': 'finance.payout.approve',
   '/admin/returns': 'finance.payout.approve',
   '/admin/disputes': 'disputes.resolve',

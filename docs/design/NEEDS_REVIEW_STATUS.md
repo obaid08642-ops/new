@@ -9,24 +9,24 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 0 | 333 | 97 | 4 | 0 |
-| Other | 411 | 343 | 50 | 3 | 15 | 0 |
+| Other | 412 | 343 | 50 | 3 | 16 | 0 |
 | Admin | 99 | 0 | 65 | 34 | 0 | 0 |
 | Admin journeys | 20 | 0 | 18 | 2 | 0 | 0 |
 | Final pass | 8 | 0 | 2 | 6 | 0 | 0 |
 | Patient journeys | 87 | 0 | 85 | 2 | 0 | 0 |
 | Provider app | 31 | 0 | 27 | 4 | 0 | 0 |
 | Provider journeys | 34 | 0 | 32 | 2 | 0 | 0 |
-| **Total** | **1124** | **343** | **612** | **150** | **19** | **0** |
+| **Total** | **1125** | **343** | **612** | **150** | **20** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | client | 268 | 92 | 135 | 41 | 0 | 0 |
-| owner | 165 | 50 | 57 | 42 | 16 | 0 |
+| owner | 166 | 50 | 57 | 42 | 17 | 0 |
 | backend | 452 | 200 | 222 | 30 | 0 | 0 |
 | untagged | 239 | 1 | 198 | 37 | 3 | 0 |
-| **Total** | **1124** | **343** | **612** | **150** | **19** | **0** |
+| **Total** | **1125** | **343** | **612** | **150** | **20** | **0** |
 
 ## By file
 
@@ -150,12 +150,13 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `uploads-scan-patient-app.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `uploads-scan-patient-web.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `uploads-scan-provider-app.json` | 4 | 4 | 0 | 0 | 0 | 0 |
+| `web-header-requests.json` | 1 | 0 | 0 | 0 | 1 | 0 |
 | `web-insurance-add-policy.json` | 2 | 1 | 0 | 0 | 1 | 0 |
 | `web-public-ink.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `web-voice-notes.json` | 2 | 2 | 0 | 0 | 0 | 0 |
-| **Total** | **1124** | **343** | **612** | **150** | **19** | **0** |
+| **Total** | **1125** | **343** | **612** | **150** | **20** | **0** |
 
-## Owner decisions (19)
+## Owner decisions (20)
 
 | # | Where | Screen / element | Question |
 |---:|---|---|---|
@@ -177,7 +178,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 16 | `mint-only-greens-web.json#0` `patient-web/lib/consult/appointment-view.ts:28` | /appointments Consult mode 'home' pairing (web) | [owner] [owner] same decision as above. |
 | 17 | `mint-only-greens-web.json#1` `patient-web/app/globals.css:285` | / --lime / --color-accent / --brand-lime* aliases | [owner] [owner] unused aliases of accent.lime in the web global stylesheet (no var() reader found); safe to delete in a cleanup. |
 | 18 | `orders-results-web.json#4` `patient-web/components-next/orders/order-list.tsx:84` | /orders Book a consultation with the result as context | [owner] [owner] /consultations/doctors takes no result id; opens the doctor list without context. |
-| 19 | `web-insurance-add-policy.json#1` `patient-web/app/[locale]/insurance/add-policy/page.tsx:31` | /insurance/add-policy Insurer list contains test-named insurers (Insure ins2a75… | [owner] Seed/test data in the local catalogue; nothing changed in the client. |
+| 19 | `web-header-requests.json#0` `patient-web/lib/security/csp.ts:74` | / Cloudflare Web Analytics beacon blocked by the CSP | [owner] [owner] The beacon (static.cloudflareinsights.com) is injected by the Cloudflare edge setting Web Analytics, not by the app, which has its own web-vitals beacon. Decide: switch the edge setting off (no code chan… |
+| 20 | `web-insurance-add-policy.json#1` `patient-web/app/[locale]/insurance/add-policy/page.tsx:31` | /insurance/add-policy Insurer list contains test-named insurers (Insure ins2a75… | [owner] Seed/test data in the local catalogue; nothing changed in the client. |
 
 ## Open and unverified (343)
 

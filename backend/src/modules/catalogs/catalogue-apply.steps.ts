@@ -390,9 +390,13 @@ export interface RadiologyCatalogueReport {
   rows: number; visible: number; legacy_duplicates_hidden: number; extra_rows_hidden: number;
   /** codes with only a pending row: they wait for the reviewed file */
   awaiting_approval: string[]; approved_by_file: string[]; file_codes_not_found: string[];
+  /** the reviewed file's `merge` ({from: to}) and `delete` entries: rows of those codes are marked, then deleted by the hidden-delete pass when nothing names them */
+  merged_by_file: string[]; removed_by_file: string[]; merge_target_not_visible: string[];
 }
 
-export async function planRadiologyCatalogue(db: DbLike, approve: string[] = []): Promise<{ changes: Change[]; report: RadiologyCatalogueReport }> {
+export interface RadiologyFileExtras { merge?: Record<string, string>; remove?: string[] }
+
+export async function planRadiologyCatalogue(db: DbLike, approve: string[] = [], extras: RadiologyFileExtras = {}): Promise<{ changes: Change[]; report: RadiologyCatalogueReport }> {
   const coll = CATALOG_COLLECTIONS.radiology_services;
   const rows: any[] = await db.collection(coll).find({}, { projection: { _id: 1, short_code: 1, code: 1, active: 1, is_deleted: 1, public_eligibility: 1, medical_review_status: 1, createdAt: 1 } }).toArray();
   const codeOf = (r: any) => String(r.short_code || r.code || '');
@@ -402,7 +406,7 @@ export async function planRadiologyCatalogue(db: DbLike, approve: string[] = [])
   const byCode = new Map<string, any[]>();
   for (const r of rows) { const c = codeOf(r); if (c) byCode.set(c, [...(byCode.get(c) ?? []), r]); }
   const changes: Change[] = [];
-  const report: RadiologyCatalogueReport = { rows: rows.length, visible: rows.filter(visibleRow).length, legacy_duplicates_hidden: 0, extra_rows_hidden: 0, awaiting_approval: [], approved_by_file: [], file_codes_not_found: [] };
+  const report: RadiologyCatalogueReport = { rows: rows.length, visible: rows.filter(visibleRow).length, legacy_duplicates_hidden: 0, extra_rows_hidden: 0, awaiting_approval: [], approved_by_file: [], file_codes_not_found: [], merged_by_file: [], removed_by_file: [], merge_target_not_visible: [] };
   const hide = (r: any, into: string) => {
     changes.push({ kind: 'set', step: 'radiology_catalogue', collection: coll, key: { _id: r._id }, path: 'is_deleted', before: r.is_deleted === undefined ? null : r.is_deleted, after: true });
     changes.push({ kind: 'set', step: 'radiology_catalogue', collection: coll, key: { _id: r._id }, path: 'merged_into', before: null, after: into });
@@ -432,7 +436,24 @@ export async function planRadiologyCatalogue(db: DbLike, approve: string[] = [])
       report.approved_by_file.push(code);
     } else report.awaiting_approval.push(code);
   }
+  // the reviewed file's merges and deletions (owner decision: no hidden rows; a duplicate is merged into the kept code, a wrong row is removed)
+  const marked = new Set(changes.filter((c) => c.kind === 'set' && c.path === 'is_deleted').map((c) => String((c as SetChange).key._id)));
+  const willBeVisible = (code: string) => (byCode.get(code) ?? []).some(visibleRow) || approveSet.has(code);
+  for (const [from, to] of Object.entries(extras.merge ?? {})) {
+    const rows = (byCode.get(from) ?? []).filter((r) => live(r) && !visibleRow(r) && !marked.has(String(r._id)));
+    if (!byCode.has(from)) { report.file_codes_not_found.push(from); continue; }
+    if (!willBeVisible(to)) { report.merge_target_not_visible.push(`${from}->${to}`); continue; }
+    for (const r of rows) { hide(r, to); marked.add(String(r._id)); }
+    if (rows.length) report.merged_by_file.push(`${from}->${to}`);
+  }
+  for (const code of extras.remove ?? []) {
+    if (!byCode.has(code)) { report.file_codes_not_found.push(code); continue; }
+    const rows = (byCode.get(code) ?? []).filter((r) => live(r) && !visibleRow(r) && !marked.has(String(r._id)));
+    for (const r of rows) { changes.push({ kind: 'set', step: 'radiology_catalogue', collection: coll, key: { _id: r._id }, path: 'is_deleted', before: r.is_deleted === undefined ? null : r.is_deleted, after: true }); marked.add(String(r._id)); }
+    if (rows.length) report.removed_by_file.push(code);
+  }
   for (const c of approveSet) if (!byCode.has(c)) report.file_codes_not_found.push(c);
-  report.awaiting_approval.sort(); report.approved_by_file.sort(); report.file_codes_not_found.sort();
+  report.awaiting_approval = report.awaiting_approval.filter((c) => !report.removed_by_file.includes(c) && !report.merged_by_file.some((m) => m.startsWith(`${c}->`)));
+  report.awaiting_approval.sort(); report.approved_by_file.sort(); report.file_codes_not_found.sort(); report.merged_by_file.sort(); report.removed_by_file.sort(); report.merge_target_not_visible.sort();
   return { changes, report };
 }

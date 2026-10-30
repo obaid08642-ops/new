@@ -80,7 +80,8 @@ exec $(command -v docker) "\$@"
 SHIM
 chmod +x "$W/shim/docker"
 OPLOG_RETRY_DELAY=1 OPLOG_RESTART_GRACE=0 PATH="$W/shim:$PATH" bash $S/oplog-backup.sh >"$W/retry.log" 2>&1; check "transient failure -> retried once and succeeds" $?
-grep -q 'retrying once' "$W/retry.log" && grep -q 'slice uploaded' "$W/retry.log" && ! grep -q 'FAIL oplog' "$W/retry.log"; check "retry uploaded the slice without a failure report" $?
+# the retry now happens inside mongodump_oneoff (2026-10-30, P0 run 61) and the oplog script discards its output, so the log cannot show it: the shim's marker proves the dump DID fail once
+[ -e "$W/dumped-once" ] && grep -q 'slice uploaded' "$W/retry.log" && ! grep -q 'FAIL oplog' "$W/retry.log"; check "retry uploaded the slice without a failure report" $?
 aws_b s3 ls "s3://$BACKUP_S3_BUCKET/oplog/" | grep -c 'oplog_.*\.bson\.gz\.gpg' | grep -q '^3$'; check "the skipped interval is covered by the next slice (3 slices, chain unbroken)" $?
 
 # a failure that persists after the retry is reported
