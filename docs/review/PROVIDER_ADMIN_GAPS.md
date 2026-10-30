@@ -108,6 +108,21 @@ Rating is inferred from reading the code and screens, not from using the apps: s
 
 Duplicates to merge (listed, not yet changed): two payout systems (admin), two approve paths (`providers.service.ts` and `provider-admin.service.ts`), three staff-creation flows, two nursing delta screens, two `/hospital/staff` controllers.
 
-## State
+## State (updated 2026-10-30)
 
-Audit only; no code changed. Next: item 1.
+G6 decided by the lead: a REJECTED applicant signs in, sees only the rejection reason and a fix-and-resubmit flow for the fields/documents admin named (REJECTED to PENDING_REVIEW, admin notified); no provider feature, listing or bookings until approved again; SUSPENDED stays blocked.
+
+| Item | PR | State |
+|---|---|---|
+| Audit | #2166 | merged |
+| G1 My services and prices | #2170 | merged |
+| G2 nursing registration price | #2175 | open |
+| G4 + G5 lab results via /storage, radiology two-person publish | #2177 | open |
+| G3 nursing booking modes (nurse inbox + admin catalogue) | | next |
+| G7 licence expiry for every type + reminder | | todo |
+| G6 reject: reason + fix and resubmit | | todo |
+| G8 admin per-provider service offers | | todo |
+| G9 admin refund-policy UI | | todo |
+| rest: radiology/lab booking chat, facility members admin view, SEO editor, jobs, merge duplicates (see UX table) | | todo |
+
+Method: one branch `p/<item>` from main per PR; provider-app and backend need `npm ci --legacy-peer-deps` (provider-app also `--ignore-scripts`); gate = jest of the touched area, `tsc --noEmit`, `nest build`, dtolint, dtocheck (run `node tools/audit/dtocheck.js` from the repo root).
