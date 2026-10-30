@@ -30,7 +30,7 @@
 set -u
 STEP="run"
 EXPECT_REQUESTS_SHA="db94514369d78d4f45171a2c5eee25254661f42d3c603047e687d6d4"
-MAX_REQUESTS=1500
+MAX_REQUESTS=150
 RPM=""            # optional cap on requests/minute PER PROVIDER; empty = each provider's own limit (catalogue; TRANSLATE_LIMITS overrides)
 TARGETS="ar,en"          # e.g. "ur,hi,bn,fil" to restrict the target languages; empty = all six
 LIMIT=""            # cap on the number of missing texts collected by the dry run; empty = all

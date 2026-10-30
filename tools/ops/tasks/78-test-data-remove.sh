@@ -8,7 +8,7 @@
 #          a copy on the host), deletion by exact _id only (each only while the document is still the one the plan saw), a fresh plan must be EMPTY; any mismatch rolls back from the backup.
 # Same mechanics and checks as 90-catalogue-apply. After it, add `cf-purge-api` to tools/ops/RUN so cached provider pages refresh.
 set -u
-EXPECT_PLAN_SHA=""
+EXPECT_PLAN_SHA="87bb034b3a9e7a4d34dc62ddb0b02808442763e1d240da10993a8311aa99df1c"
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}
 IN=${OPS_CATALOGUE_DIR:-/opt/nabdah/catalogue}
