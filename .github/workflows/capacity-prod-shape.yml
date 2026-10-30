@@ -51,7 +51,7 @@ jobs:
       WEBHOOK_SECRET: perf-webhook-secret-test-only
       ALLOW_WRITES: '1'
       LABEL: ${{ github.event.inputs.label || 'baseline' }}
-      STEPS: ${{ github.event.inputs.steps || '10 20 40' }}
+      STEPS: ${{ github.event.inputs.steps || '20 40 80 120 160' }}
       DURATION: ${{ github.event.inputs.duration || '30s' }}
       CPUS: ${{ github.event.inputs.cpus || '4' }}
       MEMORY: ${{ github.event.inputs.memory || '3800m' }}
