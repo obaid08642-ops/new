@@ -12,6 +12,7 @@ import { useTheme, useLang, useToast } from '../../context';
 import { NBtn, NCard, NInput, NPhoneInput, NPassStrength, NCheckbox, NToggle, NDivider, NPriceInput, NDatePickerSheet } from '../../components/ui';
 import { I, IBg } from '../../components/icons';
 import { Validate } from '../../security/Security';
+import { parsePrice } from '../shared/myServicesLogic';
 import { SP, R, FS, FW, LANGS } from '../../constants';
 import { LocationPickerModal } from '../../components/LocationPickerModal';
 import { GeoPicker } from '../../components/GeoPicker';
@@ -54,6 +55,7 @@ interface NurseRegData {
   scfhsUri: string; crUri: string; mohUri: string; photoUri: string;
   // Services
   enabledServices: string[];
+  servicePrices: Record<string, string>; // own price per chosen service (SAR), what the patient pays
   // Pricing
   pricingModels: string[];
   priceVisit: string; priceHour: string; priceDay: string; priceMonth: string;
@@ -74,7 +76,7 @@ const INIT: NurseRegData = {
   mode: 'individual', nameAr: '', nameEn: '', gender: '', managerName: '', managerPhone: '', managerEmail: '', password: '', confirmPass: '',
   scfhsNumber: '', scfhsExpiry: '', nationalId: '', crNumber: '', languages: [], mohLicense: '', iban: '', accountHolderName: '',
   scfhsUri: '', crUri: '', mohUri: '', photoUri: '',
-  enabledServices: [],
+  enabledServices: [], servicePrices: {},
   pricingModels: [], priceVisit: '', priceHour: '', priceDay: '', priceMonth: '',
   city: '', location: { lat: 0, lng: 0 }, district: '', address: '', coverageRadius: 0,
   workDays: [], shiftType: 'morning', openTime: '', closeTime: '', eveningOpenTime: '', eveningCloseTime: '', is24_7: false, vacationDate: '',
@@ -102,7 +104,7 @@ async function sendNursing(data: NurseRegData, uploads: Uploader): Promise<void>
   }));
 
   await ProviderApi.step3({
-    nursing_services: data.enabledServices.map((id: string) => ({ key: id, name_ar: id, price: 0 })),
+    nursing_services: data.enabledServices.map((id: string) => ({ key: id, name_ar: id, price: parsePrice(data.servicePrices?.[id] ?? '') ?? 0 })),
     home_visit_radius_km: data.coverageRadius,
     working_hours: workingHours,
     pricingModel: data.pricingModels,
@@ -211,6 +213,9 @@ const NURSING_WIZARD: WizardConfig<NurseRegData> = {
       }
       if (!data.enabledServices.length || !data.pricingModels.length) {
         return AR ? 'اختر خدمة ونموذج تسعير واحداً على الأقل' : 'Select at least one nursing service and pricing model';
+      }
+      if (data.enabledServices.some((id: string) => parsePrice(data.servicePrices?.[id] ?? '') === null)) {
+        return AR ? 'أدخل سعراً أكبر من صفر لكل خدمة مختارة' : 'Enter a price above zero for each selected service';
       }
       const priceByModel: Record<string, string> = { per_visit: data.priceVisit, per_hour: data.priceHour, per_day: data.priceDay, per_month: data.priceMonth };
       const missingPrice = data.pricingModels.find((model: string) => !String(priceByModel[model] || '').trim() || Number(priceByModel[model]) <= 0);
@@ -458,6 +463,7 @@ function NS3({ data, update, submitRef }: StepProps<NurseRegData>) {
 
   const validate = () => {
     if (data.enabledServices.length === 0) { Alert.alert(AR ? 'تنبيه' : 'Warning', AR ? 'اختر خدمة واحدة على الأقل' : 'Select at least one service'); return false; }
+    if (data.enabledServices.some((id: string) => parsePrice(data.servicePrices?.[id] ?? '') === null)) { Alert.alert(AR ? 'تنبيه' : 'Warning', AR ? 'أدخل سعراً أكبر من صفر لكل خدمة مختارة' : 'Enter a price above zero for each selected service'); return false; }
     return true;
   };
 
@@ -490,7 +496,8 @@ return (
       {nursingCatalog.map(svc => {
         const active = data.enabledServices.includes(svc.id);
         return (
-          <TouchableOpacity key={svc.id} onPress={() => toggle(svc.id)}
+          <View key={svc.id}>
+          <TouchableOpacity onPress={() => toggle(svc.id)}
             style={[st.svcRow, { backgroundColor: active ? withAlpha(tokens.pink, 0.08) : theme.surface2, borderColor: active ? tokens.pink : theme.border, flexDirection: AR ? 'row-reverse' : 'row' }]}>
             <View style={{ width: 22, height: 22, borderRadius: R.sm, borderWidth: 2, borderColor: active ? tokens.pink : theme.border, backgroundColor: active ? tokens.pink : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
               {active && <I name="check" size={10} color={theme.textInv} />}
@@ -499,6 +506,11 @@ return (
               <Text style={{ fontSize: FS.md, color: active ? tokens.pink : theme.text, fontWeight: active ? FW.bold : FW.reg, textAlign: AR ? 'right' : 'left' }}>{AR ? svc.ar : svc.en}</Text>
             </View>
           </TouchableOpacity>
+          {active && (
+            <NPriceInput label={AR ? `سعرك لـ ${svc.ar} (ريال)` : `Your price for ${svc.en} (SAR)`} value={data.servicePrices?.[svc.id] ?? ''}
+              onChange={(v) => update({ servicePrices: { ...data.servicePrices, [svc.id]: v } })} required />
+          )}
+          </View>
         );
       })}
       <View style={{ height: SP.xl }} />

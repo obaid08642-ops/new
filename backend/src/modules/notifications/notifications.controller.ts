@@ -25,7 +25,7 @@ export class NotificationsController {
   /**
    * Device-token registration — the mobile apps call this after obtaining
    * their push token. Accepts { token, device|platform, provider }.
-   * provider: expo | fcm | apns (auto-detected when omitted).
+   * provider: expo | fcm | apns | apns_voip (auto-detected when omitted).
    */
   @SelfService()
   @Post('register-token')
@@ -39,6 +39,7 @@ export class NotificationsController {
       platform: body.platform || body.device,
       device_id: body.device_id,
       device_name: body.device_name,
+      call_ring: body.call_ring,
     });
   }
 

@@ -60,6 +60,7 @@
 |---|---|
 | `LIVEKIT_API_KEY` / `LIVEKIT_API_SECRET` ⚠️ | مفاتيح خادم LiveKit لإصدار توكن الغرف |
 | `COTURN_HOST` / `COTURN_SECRET` / `COTURN_STUN_PORT` / `COTURN_TURN_PORT` ⚠️ | خادم TURN/STUN لعبور NAT في المكالمات |
+| `CF_TURN_KEY_ID` / `CF_TURN_API_TOKEN` ⚠️ | Cloudflare Realtime TURN (TLS 443): short-lived credentials for the clients; empty = coturn only. Never in the repo or chat |
 | `CALLS_P2P_ENABLED` | `true` يجعل مكالمة الاستشارة الفردية (شخصان) مباشرة بين الجهازين؛ الخادم يصادق ويمرّر الإشارة فقط، وTURN عند فشل المسار المباشر، وLiveKit للمجموعات وللتراجع. الافتراضي معطّل، ولا يعمل إلا مع عميل يعلن `supports_p2p` |
 | `CALLS_MAX_PER_HOST` | عدد المكالمات المتزامنة للمضيف (الطبيب) قبل الرد `409 provider_busy` (الافتراضي 1) |
 | `CALLS_PRESSURE_ACTIVE` | عدد المكالمات النشطة على المنصة الذي يبدأ عنده اقتراح «صوت فقط» للمكالمات الجديدة (الافتراضي 300) |

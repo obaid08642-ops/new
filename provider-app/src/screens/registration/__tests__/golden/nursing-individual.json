@@ -47,12 +47,12 @@
             {
               "key": "injection",
               "name_ar": "injection",
-              "price": 0
+              "price": 40
             },
             {
               "key": "wound_care",
               "name_ar": "wound_care",
-              "price": 0
+              "price": 1200
             }
           ],
           "home_visit_radius_km": 12,
@@ -178,6 +178,10 @@
               "injection",
               "wound_care"
             ],
+            "servicePrices": {
+              "injection": "40",
+              "wound_care": "1,200"
+            },
             "pricingModels": [
               "per_visit",
               "per_hour"

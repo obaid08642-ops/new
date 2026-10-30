@@ -125,7 +125,21 @@ export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> 
     report.catalogue_prune = pruned.report;
     return { changes, inputs, sha: planSha(changes, inputs), report };
   }
-  if (arg(argv, 'only') !== undefined) throw new Error('--only must be test_data, catalogue_completion or catalogue_prune');
+  // `--only=product_translations`: the machine translations (and the wrong-column moves that travel with them) on their own, from the reviewed file. Empty fields only:
+  // every write is a compare-and-set on the stored empty value, marked `machine:<model>`, with the before-image in the backup.
+  if (arg(argv, 'only') === 'product_translations') {
+    const translationsPath = arg(argv, 'product-translations');
+    if (!translationsPath) throw new Error('--only=product_translations needs --product-translations=<file>');
+    const text = fs.readFileSync(translationsPath, 'utf8');
+    inputs.product_translations = sha256(text);
+    const parsed: unknown = JSON.parse(text);
+    if (!isTranslationFile(parsed)) throw new Error('--product-translations is not a valid translations file');
+    const t = await planProductTranslations(db, parsed);
+    changes.push(...t.changes);
+    report.product_translations = t.report;
+    return { changes, inputs, sha: planSha(changes, inputs), report };
+  }
+  if (arg(argv, 'only') !== undefined) throw new Error('--only must be test_data, catalogue_completion, catalogue_prune or product_translations');
 
   const csv = fs.readFileSync(TRANSLATIONS_CSV, 'utf8');
   inputs.medicine_translations_csv = sha256(csv);

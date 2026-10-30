@@ -75,7 +75,7 @@ rm -f "$NABD_DEPLOY_LOCK"
 bump
 mkdir -p "$W/shim"; cat > "$W/shim/docker" <<SHIM
 #!/bin/bash
-if [ "\$1" = exec ] && [[ " \$* " == *" mongodump "* ]] && [ ! -e "$W/dumped-once" ]; then touch "$W/dumped-once"; exit 1; fi
+if { [ "\$1" = exec ] || [ "\$1" = run ]; } && [[ " \$* " == *" mongodump "* ]] && [ ! -e "$W/dumped-once" ]; then touch "$W/dumped-once"; exit 1; fi
 exec $(command -v docker) "\$@"
 SHIM
 chmod +x "$W/shim/docker"
@@ -87,7 +87,7 @@ aws_b s3 ls "s3://$BACKUP_S3_BUCKET/oplog/" | grep -c 'oplog_.*\.bson\.gz\.gpg' 
 bump
 cat > "$W/shim/docker" <<SHIM
 #!/bin/bash
-if [ "\$1" = exec ] && [[ " \$* " == *" mongodump "* ]]; then exit 1; fi
+if { [ "\$1" = exec ] || [ "\$1" = run ]; } && [[ " \$* " == *" mongodump "* ]]; then exit 1; fi
 exec $(command -v docker) "\$@"
 SHIM
 ( OPLOG_RETRY_DELAY=1 OPLOG_RESTART_GRACE=0 PATH="$W/shim:$PATH" bash $S/oplog-backup.sh >"$W/hard.log" 2>&1 ); [ $? -ne 0 ] && grep -q 'FAIL oplog slice: mongodump of the oplog failed (after one retry)' "$W/hard.log"; check "a failure that survives the retry is reported" $?

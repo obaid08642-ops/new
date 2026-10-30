@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDefined, IsIn, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class PingPatientDto {
   @IsDefined()
@@ -63,4 +63,11 @@ export class MediaPathDto {
   @IsDefined()
   @IsIn(['direct', 'relay'])
   path: 'direct' | 'relay';
+
+  /** Bytes this client sent plus received over the relayed candidate pair (WebRTC getStats), for the monthly TURN usage against the free 1,000 GB. */
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(1_000_000_000_000)
+  relayed_bytes?: number;
 }
