@@ -948,6 +948,33 @@ turn:
 TC_BEFORE = "listening-port=3478\nrealm=nabd.plus\nuse-auth-secret\nstatic-auth-secret=turn-secret-4a1b\nexternal-ip=2001:41d0:701:1100::cbb3\nmin-port=40000\n"
 
 
+class DockerRunStdin(unittest.TestCase):
+    """Run 60: a `docker run -i` inside a task fed by `ssh 'bash -s' < file` reads the REST of the script from stdin and ends it silently
+    with exit 0. A task that can run non-detached must not use `docker run -i` without an explicit stdin redirect."""
+
+    def test_no_bare_docker_run_i(self):
+        bad = []
+        for d in (TASKS, os.path.join(TASKS, "..", "..", "..", "deploy", "scripts")):
+            for name in sorted(os.listdir(d)):
+                if not name.endswith(".sh"):
+                    continue
+                path = os.path.join(d, name)
+                text = open(path, encoding="utf-8").read()
+                if "ops-detach" in text.splitlines()[1:2].__str__():
+                    continue
+                # join backslash continuations so a redirect on the next line counts
+                joined = re.sub(r"\\\n", " ", text)
+                for n, line in enumerate(joined.splitlines(), 1):
+                    if re.search(r"\brun\b[^|;#]*\s-[a-z]*i[a-z]*\b", line) and "docker" in line.lower() or re.search(r"\$dkr run\b[^|;#]*\s-[a-z]*i\b", line):
+                        if not re.search(r"<\s*(/dev/null|\"?\$)", line):
+                            bad.append(f"{name}:{n}")
+        self.assertEqual(bad, [], "docker run -i without a stdin redirect (use `< /dev/null`, or drop -i)")
+
+    def test_94_is_marked_detached(self):
+        with open(os.path.join(TASKS, "94-mongo-recreate.sh"), encoding="utf-8") as f:
+            self.assertEqual(f.read().splitlines()[1], "# ops-detach")
+
+
 class CallsNetwork(unittest.TestCase):
     TASK = "93-calls-network.sh"
 
