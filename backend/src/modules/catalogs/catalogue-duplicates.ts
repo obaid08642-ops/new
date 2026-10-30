@@ -14,7 +14,7 @@
 import type { Change, DbLike } from './catalogue-apply.core';
 import { duplicateGroups, missingFields, pickKeeper, weakRadiologyKey, type CatalogDoc } from './catalog-dedupe';
 import { CATALOG_COLLECTIONS } from './catalog-collections';
-import { planRadiologyCatalogue } from './catalogue-apply.steps';
+import { planRadiologyCatalogue, type RadiologyFileExtras } from './catalogue-apply.steps';
 
 type Vertical = 'lab' | 'radiology' | 'nursing';
 const STEP = 'catalogue_duplicates';
@@ -156,7 +156,7 @@ function mergeGroup(group: CatalogDoc[], collection: string, v: VerticalReport, 
   }
 }
 
-export async function planCatalogueDuplicates(db: DbLike, opts: { radiologyApprove?: string[] } = {}): Promise<{ changes: Change[]; report: DuplicatesReport }> {
+export async function planCatalogueDuplicates(db: DbLike, opts: { radiologyApprove?: string[]; radiologyExtras?: RadiologyFileExtras } = {}): Promise<{ changes: Change[]; report: DuplicatesReport }> {
   const changes: Change[] = [];
   const report: DuplicatesReport = { lab: emptyReport(0), radiology: emptyReport(0), nursing: emptyReport(0), total_hidden: 0, radiology_same_scan_candidates: [] };
 
@@ -175,7 +175,7 @@ export async function planCatalogueDuplicates(db: DbLike, opts: { radiologyAppro
     const coll = CATALOG_COLLECTIONS.radiology_services;
     const rows = (await db.collection(coll).find({}, {}).toArray()) as CatalogDoc[];
     const v = report.radiology; v.rows = rows.length;
-    const hidden = (await planRadiologyCatalogue(db, opts.radiologyApprove ?? [])).changes.filter((c) => c.kind === 'set' && c.path === 'merged_into');
+    const hidden = (await planRadiologyCatalogue(db, opts.radiologyApprove ?? [], opts.radiologyExtras ?? {})).changes.filter((c) => c.kind === 'set' && c.path === 'merged_into');
     const byId = new Map(rows.map((r) => [String(r._id), r]));
     const keeperOf = new Map<string, string>();
     for (const c of hidden) {
