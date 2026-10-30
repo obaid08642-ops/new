@@ -3920,5 +3920,10 @@
   "diag.filter.sortBy": "الترتيب",
   "diag.filter.noFasting": "بدون صيام",
   "diag.filter.sameDay": "نتيجة نفس اليوم",
-  "diag.filter.showCount": "اعرض {n} نتيجة"
+  "diag.filter.showCount": "اعرض {n} نتيجة",
+  "consult.chat.queued": "بانتظار الاتصال",
+  "consult.chat.retry": "اضغط لإعادة المحاولة",
+  "consult.chat.tick.sent": "أُرسلت",
+  "consult.chat.tick.delivered": "وصلت",
+  "consult.chat.tick.read": "تمت القراءة"
 }

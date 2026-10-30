@@ -3920,5 +3920,10 @@
   "diag.filter.sortBy": "Sort by",
   "diag.filter.noFasting": "No fasting",
   "diag.filter.sameDay": "Same-day result",
-  "diag.filter.showCount": "Show {n} results"
+  "diag.filter.showCount": "Show {n} results",
+  "consult.chat.queued": "Waiting for connection",
+  "consult.chat.retry": "Tap to try again",
+  "consult.chat.tick.sent": "Sent",
+  "consult.chat.tick.delivered": "Delivered",
+  "consult.chat.tick.read": "Seen"
 }
