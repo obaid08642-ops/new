@@ -40,6 +40,7 @@ const ALLOWED_SCREENS = new Set([
   '/pharmacy/cart',
   '/diagnostics/orders',
   '/diagnostics/my-results',
+  '/orders',
   '/nursing/insurance-status',
   '/emergency',
   '/insurance',
@@ -84,7 +85,7 @@ function resolveLegacyRoute(data: any): { pathname: string; params: Record<strin
       }
       return data.requestId ? { pathname: '/insurance/request', params: { id: data.requestId } } : { pathname: '/insurance', params: {} };
     case 'report_ready':
-      return { pathname: '/diagnostics/my-results', params: {} };
+      return { pathname: '/orders', params: { tab: 'results' } };
     case 'emergency_update':
       return { pathname: '/emergency', params: {} };
     case 'refund_status':

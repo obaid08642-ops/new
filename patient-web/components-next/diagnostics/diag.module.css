@@ -157,7 +157,7 @@
 }
 @media (hover: hover) and (pointer: fine) {
   .pack, .rad, .lab, .kind { transition: transform var(--nabd-motion-duration-fast, 160ms) ease, box-shadow var(--nabd-motion-duration-fast, 160ms) ease; }
-  .rad:hover, .lab:hover, .pack:hover { transform: translateY(-2px); }
+  .rad:hover, .lab:hover, .pack:hover { transform: translateY(-2px); background: var(--hover-tint); }
 }
 /* the file chooser of the upload: a design-system button around a visually hidden input */
 .fileBtn { cursor: pointer; text-decoration: none; }

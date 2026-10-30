@@ -4,6 +4,7 @@
  */
 import { createHash } from 'crypto';
 import { normalizeSearchText, MULTILINGUAL_SYNONYM_MAP } from '../seo-search/seo-search.module';
+import { CATALOGUE_SYNONYM_MAP } from './catalogue-synonyms';
 
 export const SEARCH_LOCALES = ['ar', 'en', 'ur', 'hi', 'bn', 'fil'] as const;
 export type SearchLocale = (typeof SEARCH_LOCALES)[number];
@@ -136,7 +137,7 @@ export function localeNames(raw: any): Partial<Record<SearchLocale, string>> {
 export function synonymVariants(words: string[]): string[] {
   const norm = words.map(normalizeSearchText).filter(Boolean);
   const out = new Set<string>();
-  for (const entry of MULTILINGUAL_SYNONYM_MAP) {
+  for (const entry of [...MULTILINGUAL_SYNONYM_MAP, ...CATALOGUE_SYNONYM_MAP]) {
     const variants = entry.variants.map(normalizeSearchText).filter(Boolean);
     if (variants.some((v) => norm.some((w) => w === v || ` ${w} `.includes(` ${v} `)))) for (const v of variants) out.add(v);
   }
@@ -167,7 +168,9 @@ export function toSearchDocument(source: SearchSource, raw: any): SearchDocument
   const name_text = nameList.map(normalizeSearchText).join(' | ');
   const text = [name_text, ...extra.map(normalizeSearchText), ...synonyms].filter(Boolean).join(' | ');
   const rx = raw?.requires_prescription === true;
-  const popularity = Number(raw?.usage_count ?? raw?.popularity ?? raw?.rating_count ?? 0);
+  // labs, radiology and nursing: the popularity ranking's score (visits, searches, cart adds, orders) when the row has one, else the editorial popularity
+  const ranked = (source === 'lab_services' || source === 'radiology_services' || source === 'nursing_services') && Number(raw?.rank_score) > 0;
+  const popularity = ranked ? Number(raw.rank_score) : Number(raw?.usage_count ?? raw?.popularity ?? raw?.rating_count ?? 0);
   const price = Number(raw?.price ?? raw?.price_clinic);
   const oldPrice = Number(raw?.old_price);
   return {

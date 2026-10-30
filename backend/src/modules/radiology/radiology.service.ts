@@ -1,4 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Optional, ServiceUnavailableException } from '@nestjs/common';
+import { SearchService } from '../search/search.service';
+import { RADIOLOGY_TYPES, byRelevance, matchedIds } from '../search/catalogue-search';
 import { randomUUID } from 'crypto';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Connection, Model, Types } from 'mongoose';
@@ -72,6 +74,7 @@ export class RadiologyOpsService {
     @Optional() private readonly insurance?: InsuranceFlowService,
     @Optional() private readonly approvals?: ApprovalWorkflowService,
     @Optional() @InjectConnection() private readonly conn?: Connection,
+    @Optional() private readonly searchEngine?: SearchService,
   ) {}
 
   // ──────────────────────────────────────────────
@@ -449,7 +452,9 @@ export class RadiologyOpsService {
     if (opts.modality) q.modality = { $eq: opts.modality };
     if (opts.body_part) q.body_part = { $eq: opts.body_part };
     // Issue 1833: the name search reads all six name fields (no text index needed for the 34 scans in the catalogue).
-    if (opts.search?.trim()) q.$or = radiologySearchClause(opts.search).$or;
+    // the search box uses the home search's engine (typo tolerance, ar/en synonyms); its own text match is the fallback
+    const matched = opts.search?.trim() ? await matchedIds(this.searchEngine, opts.search, RADIOLOGY_TYPES) : null;
+    if (opts.search?.trim()) { if (matched) q.id = { $in: matched }; else q.$or = radiologySearchClause(opts.search).$or; }
     const page = parsePage(opts.page, opts.limit);
     // 2026-10-28: the list is the CATALOGUE; each scan carries what providers offer for it (count, from-price, where, insurance). The home and insurance
     // filters read those offers, so a scan nobody offers yet is still listed (and found by "all") but never by "at home" or "insurance".
@@ -478,7 +483,8 @@ export class RadiologyOpsService {
     }
 
     const load = async () => {
-      const services: any[] = await this.svcModel.find(q).sort({ popularity: -1 }).lean();
+      let services: any[] = await this.svcModel.find(q).sort({ popularity: -1 }).lean();
+      if (matched) services = byRelevance(services, matched);   // the sorts below (rating, price) still reorder
       if (opts.highest_rated) {
         // ratings are on the centres, not on the scans: a scan is ranked by the centres that perform it
         const centres: any[] = await this.profileModel.find({

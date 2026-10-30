@@ -3864,7 +3864,7 @@
   "menu.open": "مینو",
   "menu.close": "مینو بند کریں",
   "menu.profile": "میرا اکاؤنٹ",
-  "menu.orders": "میرے آرڈرز",
+  "menu.orders": "میرے آرڈرز اور نتائج",
   "menu.family": "خاندان",
   "menu.articles": "مضامین",
   "menu.notifications": "اطلاعات",
@@ -3890,5 +3890,15 @@
   "diag.offer.countNursingTwo": "{n} فراہم کنندگان",
   "scanStatus.checking": "سیکیورٹی کے لیے فائل کی جانچ ہو رہی ہے",
   "scanStatus.rejected": "یہ فائل حفاظتی وجوہات کی بنا پر مسترد کر دی گئی۔ براہ کرم دوسری فائل اپ لوڈ کریں۔",
-  "scanStatus.uploadAnother": "دوسری فائل اپ لوڈ کریں"
+  "scanStatus.uploadAnother": "دوسری فائل اپ لوڈ کریں",
+  "menu.ordersNew": "میرے آرڈرز اور نتائج، {n} نئے نتائج",
+  "orders.resultsTitle": "میرے آرڈرز اور نتائج",
+  "orders.tab.results": "نتائج اور رپورٹس",
+  "orders.tab.resultsNew": "نتائج اور رپورٹس ({n})",
+  "orders.results.partial": "آپ کے کچھ نتائج لوڈ نہیں ہو سکے۔",
+  "orders.results.emptyBody": "لیب کے نتائج اور ریڈیالوجی رپورٹس تیار ہونے پر یہاں نظر آئیں گی۔",
+  "orders.results.new": "نیا",
+  "orders.results.view": "دیکھیں",
+  "orders.results.share": "اپنے ڈاکٹر کے ساتھ شیئر کریں",
+  "orders.results.book": "مشاورت بک کریں"
 }

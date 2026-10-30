@@ -3864,7 +3864,7 @@
   "menu.open": "Higit pa",
   "menu.close": "Isara ang listahan",
   "menu.profile": "Aking account",
-  "menu.orders": "Aking mga order",
+  "menu.orders": "Aking mga order at resulta",
   "menu.family": "Pamilya",
   "menu.articles": "Mga artikulo",
   "menu.notifications": "Mga Abiso",
@@ -3890,5 +3890,15 @@
   "diag.offer.countNursingTwo": "{n} provider",
   "scanStatus.checking": "Sinusuri ang file para sa kaligtasan",
   "scanStatus.rejected": "Tinanggihan ang file na ito para sa kaligtasan. Mag-upload ng iba.",
-  "scanStatus.uploadAnother": "Mag-upload ng ibang file"
+  "scanStatus.uploadAnother": "Mag-upload ng ibang file",
+  "menu.ordersNew": "Aking mga order at resulta, {n} bagong resulta",
+  "orders.resultsTitle": "Aking mga order at resulta",
+  "orders.tab.results": "Mga resulta at ulat",
+  "orders.tab.resultsNew": "Mga resulta at ulat ({n})",
+  "orders.results.partial": "Hindi nai-load ang bahagi ng iyong mga resulta.",
+  "orders.results.emptyBody": "Lalabas dito ang mga resulta ng lab at ulat ng radiology kapag handa na.",
+  "orders.results.new": "Bago",
+  "orders.results.view": "Tingnan",
+  "orders.results.share": "Ibahagi sa iyong doktor",
+  "orders.results.book": "Mag-book ng konsulta"
 }

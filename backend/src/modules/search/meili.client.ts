@@ -4,6 +4,7 @@
  */
 import { MULTILINGUAL_SYNONYM_MAP, normalizeSearchText } from '../seo-search/seo-search.module';
 import { SearchDocument, SearchType } from './search-documents';
+import { CATALOGUE_SYNONYM_MAP } from './catalogue-synonyms';
 
 export const MEILI_INDEX = 'nabd_search';
 
@@ -16,7 +17,7 @@ type FetchLike = (url: string, init?: any) => Promise<{ ok: boolean; status: num
 /** Every synonym variant maps to the other variants of its group (Meilisearch synonyms are one-way). */
 export function meiliSynonyms(): Record<string, string[]> {
   const out: Record<string, Set<string>> = {};
-  for (const entry of MULTILINGUAL_SYNONYM_MAP) {
+  for (const entry of [...MULTILINGUAL_SYNONYM_MAP, ...CATALOGUE_SYNONYM_MAP]) {
     const variants = [...new Set(entry.variants.map(normalizeSearchText).filter(Boolean))];
     for (const v of variants) {
       out[v] ??= new Set();

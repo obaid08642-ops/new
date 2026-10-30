@@ -277,7 +277,7 @@ export function BookingStatusClient({ locale, booking, approval, visit, reminder
               ))}
             </ul>
           ) : null}
-          <Link href={`/${locale}/diagnostics/results`} className={`${styles.linkBtn} ${styles.cta}`}>{t("trackResultsOpen")}</Link>
+          <Link href={`/${locale}/orders?tab=results`} className={`${styles.linkBtn} ${styles.cta}`}>{t("trackResultsOpen")}</Link>
           <Link href={`/${locale}/consultations/instant?booking=${encodeURIComponent(booking.id)}`} className={styles.linkBtn}>{t("resDiscuss")}</Link>
         </section>
       ) : null}
@@ -308,7 +308,7 @@ export function BookingStatusClient({ locale, booking, approval, visit, reminder
         </section>
       ) : null}
 
-      <Link href={`/${locale}/diagnostics/bookings`} className={styles.linkBtn}>{t("whenOpenBookings")}</Link>
+      <Link href={`/${locale}/orders`} className={styles.linkBtn}>{t("whenOpenBookings")}</Link>
     </div>
   );
 }
