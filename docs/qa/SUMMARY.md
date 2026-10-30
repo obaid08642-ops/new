@@ -7,9 +7,9 @@ Test data only. Nothing written to nabd.plus except read-only GETs. No product c
 
 | Status | Rows |
 |---|---|
-| DONE (UI, API, DB and reload verified, or the row states its scope) | 44 |
-| PARTIAL (some of that proven, reason in the row) | 25 |
-| BLOCKED (cannot be tested now, reason in the row) | 5, corrected 2026-10-29 (the product sends codes by push or e-mail, never SMS): P-15 (uploads go through the malware scan; the local stack needs UPLOAD_SCAN=required and the ClamAV double, not yet run), A-03 (sign-in code by push or e-mail; no push test double yet), PR-04 (analyze-file calls an AI provider; no OpenAI-compatible fake yet), I-03 (no delete endpoint: product gap, P2), A-08 (no profile edit control on web: product gap, P2) |
+| DONE (UI, API, DB and reload verified, or the row states its scope) | 46 |
+| PARTIAL (some of that proven, reason in the row) | 26 |
+| BLOCKED (cannot be tested now, reason in the row) | 2: I-03 and A-08 (product gaps, P2, docs/qa/findings/product-gaps-p2.md). P-15, PR-04 and A-03 moved out on 2026-10-30. |
 | TODO | 0 |
 
 Every row now has a status and a reason. Most PARTIAL rows lack a browser click path or a per-field UI walk; the API and DB side is proven for them where the row says so. Browser journeys added on 2026-10-27 (all in `tools/live/`, gated unless noted): `j_web_qa_loyalty`, `j_web_qa_legal`, `j_web_qa_insurance`, `j_web_qa_insurance_edit`, `j_web_qa_chi`, `j_web_qa_map`, `j_web_qa_drug_index`, `j_web_qa_admin_procurement` (gated); `j_web_qa_support` and `j_web_qa_password_rule` (ungated, failing on a product defect).
