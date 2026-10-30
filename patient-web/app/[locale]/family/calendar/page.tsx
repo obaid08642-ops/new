@@ -21,7 +21,7 @@ type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ add?
 /** The icon of each event type, as the app draws it. */
 const TYPE_LOOK: Record<string, { icon: FillIconName; tone: ServiceTone }> = {
   appointment: { icon: "stethoscope", tone: SERVICE_ICONS.consult.tone },
-  medication: { icon: "pill", tone: "mint" },
+  medication: { icon: "pill", tone: SERVICE_ICONS.pharmacy.tone },
   lab: { icon: "test-tube", tone: "violet" },
   reminder: { icon: "bell", tone: "amber" },
   order: { icon: "package", tone: "peach" },

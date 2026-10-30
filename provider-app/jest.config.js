@@ -1,4 +1,9 @@
-// jest-expo preset (matches Expo SDK 57) so component tests can render with @testing-library/react-native.
+// jest-expo preset (matches Expo SDK 58) so component tests can render with @testing-library/react-native.
+const path = require('path');
+
+// RN 0.88 publishes these subpaths through its package `exports` map only; Jest 30 does not read it, so they are mapped to the files.
+const rn = (file) => path.join(__dirname, 'node_modules/react-native', file);
+
 module.exports = {
   preset: 'jest-expo',
   transformIgnorePatterns: [
@@ -8,6 +13,8 @@ module.exports = {
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
   setupFiles: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
+    '^react-native/react-private-interface$': rn('src/react-private-interface.js'),
+    '^react-native/setup-env$': rn('src/setup-env.js'),
     '@react-native-async-storage/async-storage': '@react-native-async-storage/async-storage/jest/async-storage-mock',
   },
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Linking, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Linking, Pressable, ScrollView, Text, TextInput, View, type ScrollViewInstance } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { AppHeader, Avatar, Button, Screen, StickyFooter } from '../../../packages/ui-native/src';
@@ -87,7 +87,7 @@ export default function ChatWithDoctorScreen() {
   const [attaching, setAttaching] = useState(false);
   // GET /chat/threads/:id/permissions: the server's rules for this thread (decision 24); null until it answers or if it fails.
   const [perms, setPerms] = useState<ThreadPermissions | null>(null);
-  const scroller = useRef<ScrollView>(null);
+  const scroller = useRef<ScrollViewInstance>(null);
 
   // LJ-06: chat is always per booking — the appointment's booking thread, not a
   // bare direct thread. The doctor is resolved from the booking server-side.

@@ -4476,7 +4476,14 @@
       "pharmacy": "फ़ार्मेसी",
       "lab": "प्रयोगशालाएँ"
     },
-    "networkCall": "कॉल"
+    "networkCall": "कॉल",
+    "deletePolicy": "कार्ड हटाएं",
+    "deleteTitle": "बीमा कार्ड हटाएं",
+    "deleteBody": "यह कार्ड आपके खाते से हटा दिया जाएगा।",
+    "deleteCancel": "रद्द करें",
+    "deleting": "हटाया जा रहा है…",
+    "deleteDone": "बीमा कार्ड हटा दिया गया।",
+    "deleteFailed": "कार्ड हटाया नहीं जा सका। फिर से कोशिश करें।"
   },
   "LoyaltyHubWeb": {
     "title": "नब्ज़ पॉइंट्स",

@@ -81,5 +81,6 @@ bash scripts/issue-certs.sh || echo "⚠️ Cert issuance deferred (DNS not poin
 
 echo "═══ [7/7] Health verification ═══"
 bash scripts/health-check.sh
+bash scripts/memory-report.sh || true   # 2026-10-30: status: lines for MemAvailable, swap, OOM kills and every container's limit and use (never fails the deploy)
 
 echo "✅ DEPLOY COMPLETE — see report above."

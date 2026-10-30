@@ -7,6 +7,8 @@ import fs from 'fs';
 import path from 'path';
 
 const APPS = ['patient-app', 'provider-app'];
+// The Expo SDK each app is on.
+const EXPO_UPDATES: Record<string, RegExp> = { 'patient-app': /^~58\./, 'provider-app': /^~58\./ };
 const root = path.resolve(__dirname, '../../..');
 const read = (app: string, file: string) => JSON.parse(fs.readFileSync(path.join(root, app, file), 'utf8'));
 const configFor = (app: string, env: Record<string, string | undefined>) => {
@@ -29,7 +31,7 @@ describe.each(APPS)('OTA updates: %s', (app) => {
   });
 
   it('depends on expo-updates', () => {
-    expect(read(app, 'package.json').dependencies['expo-updates']).toMatch(/^~57\./);
+    expect(read(app, 'package.json').dependencies['expo-updates']).toMatch(EXPO_UPDATES[app]);
   });
 
   it('maps the preview and production build profiles to their channels', () => {

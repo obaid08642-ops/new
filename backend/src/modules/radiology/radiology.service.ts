@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Optional, ServiceUnavailableException } from '@nestjs/common';
+import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { SearchService } from '../search/search.service';
 import { RADIOLOGY_TYPES, byRelevance, matchedIds } from '../search/catalogue-search';
 import { randomUUID } from 'crypto';
@@ -483,7 +484,7 @@ export class RadiologyOpsService {
     }
 
     const load = async () => {
-      let services: any[] = await this.svcModel.find(q).sort({ popularity: -1 }).lean();
+      let services: any[] = await this.svcModel.find(q).sort(catalogueSortSpec(opts.sort)).lean();
       if (matched) services = byRelevance(services, matched);   // the sorts below (rating, price) still reorder
       if (opts.highest_rated) {
         // ratings are on the centres, not on the scans: a scan is ranked by the centres that perform it

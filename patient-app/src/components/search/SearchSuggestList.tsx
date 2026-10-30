@@ -2,6 +2,8 @@ import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useApp } from '../../context/AppContext';
 import { highlightParts, type Suggestion } from '../../utils/searchSuggest';
+import { markByScript } from '../../utils/localizedField';
+import { markTextProps } from '../LocalizedField';
 
 interface Props {
   items: Suggestion[];
@@ -12,7 +14,7 @@ interface Props {
 
 /** The instant suggestions under a search box. Names come from the server and are drawn as plain text. */
 export function SearchSuggestList({ items, query, onPick }: Props) {
-  const { colors } = useApp();
+  const { colors, lang } = useApp();
   if (items.length === 0) return null;
   return (
     <View style={[st.box, { backgroundColor: colors.surface, borderColor: colors.borderLight }]}>
@@ -24,7 +26,7 @@ export function SearchSuggestList({ items, query, onPick }: Props) {
             style={st.row}
             accessibilityRole="button"
           >
-            <Text style={[st.text, { color: colors.textPrimary }]}>
+            <Text style={[st.text, { color: colors.textPrimary }, markTextProps(markByScript(lang, item.name)).style]}>
               {highlightParts(item.name, query).map((part, i) => (
                 <Text key={i} style={part.match ? st.match : undefined}>{part.text}</Text>
               ))}

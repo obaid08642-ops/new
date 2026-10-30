@@ -1,0 +1,24 @@
+{
+  "slice": "mint-only-greens-web",
+  "batch": "design",
+  "app": "patient-web",
+  "screens": [],
+  "needsReview": [
+    {
+      "route": "/appointments",
+      "element": "Consult mode 'home' pairing (web)",
+      "kind": "owner",
+      "note": "[owner] same decision as above.",
+      "file": "patient-web/lib/consult/appointment-view.ts",
+      "line": 28
+    },
+    {
+      "route": "/",
+      "element": "--lime / --color-accent / --brand-lime* aliases",
+      "kind": "owner",
+      "note": "[owner] unused aliases of accent.lime in the web global stylesheet (no var() reader found); safe to delete in a cleanup.",
+      "file": "patient-web/app/globals.css",
+      "line": 285
+    }
+  ]
+}

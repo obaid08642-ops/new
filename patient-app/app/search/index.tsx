@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { markTextProps } from '../../src/components/LocalizedField';
+import { markByScript } from '../../src/utils/localizedField';
 import { FlatList, Pressable, ScrollView, Text, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
@@ -119,7 +121,7 @@ function ResultRow({ r, term, last, size, onOpen }: { r: SearchResult; term: str
         <FIcon icon={icon} tone={tone} size={48} theme={theme} />
       )}
       <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
-        <Highlight text={name} term={term} style={{ ...scale(t, 'segment', 'medium'), color: c.text.primary, ...flow }} />
+        <Highlight text={name} term={term} style={{ ...scale(t, 'segment', 'medium'), color: c.text.primary, ...flow, ...markTextProps(markByScript(lang, name)).style }} />
         {sub ? <Text numberOfLines={2} style={{ ...scale(t, 'label', 'regular'), color: c.text.secondary, ...flow }}>{sub}</Text> : null}
         {note ? <Text style={{ ...scale(t, 'tag', 'bold'), color: c.status.warning.fg, ...flow }}>{note}</Text> : null}
         {size === 'media' ? priceLine : null}
@@ -147,7 +149,7 @@ function DoctorCard({ r, term, onOpen }: { r: SearchResult; term: string; onOpen
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12 }}>
           <FIcon icon={icon} tone={tone} size={64} theme={theme} />
           <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
-            <Highlight text={name} term={term} style={{ ...scale(t, 'segment', 'bold'), color: c.text.primary, ...flow }} />
+            <Highlight text={name} term={term} style={{ ...scale(t, 'segment', 'bold'), color: c.text.primary, ...flow, ...markTextProps(markByScript(lang, name)).style }} />
             {sub ? <Text numberOfLines={2} style={{ ...scale(t, 'label', 'regular'), color: c.text.secondary, ...flow }}>{sub}</Text> : null}
             {price ? <Text style={{ ...scale(t, 'label', 'medium'), color: c.text.primary }}>{`${price} ${tr('ر.س')}`}</Text> : null}
           </View>

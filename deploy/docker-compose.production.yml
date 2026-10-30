@@ -22,6 +22,10 @@ services:
     image: mongo:7.0
     container_name: nabdah-mongodb
     restart: unless-stopped
+    mem_limit: 1200m
+    mem_reservation: 800m
+    memswap_limit: 1200m   # no swap: a swapped-out mongodb is slower than a restart; the others absorb the swap
+    oom_score_adj: -900
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
@@ -45,6 +49,10 @@ services:
     image: redis:7-alpine
     container_name: nabdah-redis
     restart: unless-stopped
+    mem_limit: 512m
+    mem_reservation: 160m
+    memswap_limit: 512m   # no swap: a swapped-out redis is slower than a restart; the others absorb the swap
+    oom_score_adj: -800
     command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--requirepass", "${REDIS_PASSWORD}"]
     volumes:
       - redis_data:/data
@@ -73,6 +81,8 @@ services:
     read_only: true
     tmpfs: ["/tmp:size=16m"]
     mem_limit: 384m
+    mem_reservation: 150m
+    oom_score_adj: 300   # rebuildable copies only
     networks: [cache]
     healthcheck:
       test: ["CMD-SHELL", "REDISCLI_AUTH=\"${REDIS_PASSWORD}\" redis-cli ping | grep -q PONG"]
@@ -87,6 +97,9 @@ services:
     image: getmeili/meilisearch:v1.10
     container_name: nabdah-meilisearch
     restart: unless-stopped
+    mem_limit: 640m
+    mem_reservation: 120m
+    oom_score_adj: 200
     environment:
       MEILI_ENV: production
       MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
@@ -112,8 +125,12 @@ services:
     container_name: nabdah-backend
     stop_grace_period: 40s   # 20.9: SIGTERM drain before SIGKILL (rolling deploys stop the old container with docker stop -t)
     restart: unless-stopped
+    mem_limit: 768m
+    mem_reservation: 400m
+    oom_score_adj: 0
     env_file: .env.production
     environment:
+      NODE_OPTIONS: --max-old-space-size=512   # of the 768m container limit
       NODE_ENV: production
       CLUSTER_MODE: "false"   # ops 2026-10-04: cluster mode crashed the deployed build; one process also saves RAM
       PORT: "8002"
@@ -170,8 +187,12 @@ services:
     container_name: nabdah-worker
     stop_grace_period: 60s   # 20.9: SIGTERM drain before SIGKILL (rolling deploys stop the old container with docker stop -t)
     restart: unless-stopped
+    mem_limit: 640m
+    mem_reservation: 200m
+    oom_score_adj: 300
     env_file: .env.production
     environment:
+      NODE_OPTIONS: --max-old-space-size=448   # of the 640m container limit
       NODE_ENV: production
       CLUSTER_MODE: "false"
       PROCESS_ROLE: worker
@@ -209,6 +230,9 @@ services:
     image: clamav/clamav:1.4
     container_name: nabdah-clamav
     restart: unless-stopped
+    mem_limit: 1536m
+    mem_reservation: 600m
+    oom_score_adj: 900
     volumes:
       - clamav_db:/var/lib/clamav
     networks: [internal]
@@ -227,6 +251,9 @@ services:
       dockerfile: ../../../deploy/docker/Dockerfile.fastapi
     container_name: nabdah-fastapi
     restart: unless-stopped
+    mem_limit: 384m
+    mem_reservation: 100m
+    oom_score_adj: 300
     env_file: .env.production
     environment:
       MONGO_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
@@ -256,7 +283,11 @@ services:
     container_name: nabdah-admin-web
     stop_grace_period: 30s   # 20.9: SIGTERM drain before SIGKILL (rolling deploys stop the old container with docker stop -t)
     restart: unless-stopped
+    mem_limit: 384m
+    mem_reservation: 120m
+    oom_score_adj: 300
     environment:
+      NODE_OPTIONS: --max-old-space-size=256   # of the 384m container limit
       NEXT_PUBLIC_API_URL: https://api.nabd.plus
       NEXT_PUBLIC_WS_URL: https://api.nabd.plus
       NEXT_PUBLIC_SITE_URL: https://admin.nabd.plus
@@ -277,6 +308,9 @@ services:
     image: livekit/livekit-server:v1.8.3
     container_name: nabdah-livekit
     restart: unless-stopped
+    mem_limit: 256m
+    mem_reservation: 80m
+    oom_score_adj: -100
     command: ["--config", "/etc/livekit.yaml"]
     volumes:
       - ./livekit/livekit.yaml:/etc/livekit.yaml:ro
@@ -299,6 +333,9 @@ services:
     image: coturn/coturn:4.6.2
     container_name: nabdah-coturn
     restart: unless-stopped
+    mem_limit: 128m
+    mem_reservation: 30m
+    oom_score_adj: -100
     command: ["-c", "/etc/coturn/turnserver.conf"]
     volumes:
       # The committed turnserver.conf is a template; the real static-auth-secret is
@@ -326,6 +363,9 @@ services:
     image: nginx:1.28.0-alpine   # pinned: upstream `resolve` (deploy/nginx/nginx.conf) needs >= 1.27.3
     container_name: nabdah-nginx
     restart: unless-stopped
+    mem_limit: 128m
+    mem_reservation: 30m
+    oom_score_adj: -500
     ports:
       - "80:80"
       - "443:443"
@@ -354,7 +394,11 @@ services:
     container_name: nabdah-patient-web
     stop_grace_period: 30s   # 20.9: SIGTERM drain before SIGKILL (rolling deploys stop the old container with docker stop -t)
     restart: unless-stopped
+    mem_limit: 640m
+    mem_reservation: 250m
+    oom_score_adj: 300
     environment:
+      NODE_OPTIONS: --max-old-space-size=384   # of the 640m container limit
       NABD_API_BASE_URL: http://backend:8002/api/v1
       NEXT_PUBLIC_SITE_ORIGIN: https://nabd.plus
       # P14.9: shared secret of the edge worker (deploy/cloudflare/edge-html-worker); empty = edge mode off

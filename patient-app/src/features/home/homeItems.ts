@@ -16,5 +16,5 @@ export const HOME_SERVICES: HomeService[] = [
 /** The AI tools row of the board: one entry to the one assistant (owner decision 7; its modes are inside it) and the monthly report. */
 export const HOME_TOOLS: HomeTool[] = [
   { label: 'ai.title', icon: 'heartbeat', tone: SERVICE_ICONS.nursing.tone, route: '/ai' },
-  { label: 'services.cat.monthlyReport', icon: 'chart-line-up', tone: 'mint', route: '/ai/monthly-report' },
+  { label: 'services.cat.monthlyReport', icon: 'chart-line-up', tone: SERVICE_ICONS.pharmacy.tone, route: '/ai/monthly-report' },
 ];

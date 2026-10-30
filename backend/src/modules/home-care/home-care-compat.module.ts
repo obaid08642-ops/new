@@ -2,6 +2,7 @@ import { loadOffers, withOfferSummary, withOffers } from '../../common/service-o
 import { SearchModule } from '../search/search.controller';
 import { SearchService } from '../search/search.service';
 import { NURSING_TYPES, byRelevance, matchedIds } from '../search/catalogue-search';
+import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { PROVIDER_ROLES } from '../../common/enums';
 /**
  * M2 — Home-care compatibility layer + nursing ops reference data + chat aliases.
@@ -64,7 +65,7 @@ export class HomeCareCompatController {
       if (matched) filter.id = { $in: matched };
       else { const re = new RegExp(text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'); filter.$or = [{ name_ar: re }, { name_en: re }]; }
     }
-    const found: any[] = await this.services.find(filter, { _id: 0, __v: 0 }).lean();
+    const found: any[] = await this.services.find(filter, { _id: 0, __v: 0 }).sort(catalogueSortSpec(q?.sort)).lean();
     const rows: any[] = matched ? byRelevance(found, matched) : found;
     // 2026-10-28: every catalogue service carries what nurses offer for it (providers_count, from_price, where, insurance); `insurance=1` keeps those some nurse offers with insurance.
     return withOfferSummary(this.services.db as never, 'nursing', rows, { insurance: q?.insurance === '1' || q?.insurance === 'true' });

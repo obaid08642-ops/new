@@ -133,7 +133,7 @@ export function SupportTicketsView() {
     >
       <Gate status={list.status} errorTitle={k('support.tickets.loadError')} onRetry={() => void list.reload()}>
         {rows.length === 0 ? (
-          <EmptyState icon="headset" tone="mint" title={k('support.tickets.empty')} body={k('support.tickets.emptyBody')} actionLabel={k('support.tickets.new')} onAction={chat} theme={theme} />
+          <EmptyState icon="headset" tone="ink" title={k('support.tickets.empty')} body={k('support.tickets.emptyBody')} actionLabel={k('support.tickets.new')} onAction={chat} theme={theme} />
         ) : (
           rows.map((row) => (
             <Pressable key={row.id} accessibilityRole="button" accessibilityLabel={[row.subject, row.status, row.date].filter(Boolean).join(', ')} onPress={chat} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })} testID={`ticket-${row.id}`}>

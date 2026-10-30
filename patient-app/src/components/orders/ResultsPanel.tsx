@@ -6,6 +6,8 @@ import { Button, Card, EmptyState, ErrorState, OfflineState } from '../../../../
 import { Notice } from '../pharmacy/OfferKit';
 import { useConsultFormat } from '../consult/ConsultKit';
 import { LAB_TONE, NameArt } from '../diagnostics/DiagKit';
+import { FieldText } from '../LocalizedField';
+import { bookingNameMark } from '../../utils/rowField';
 import { showLocalizedAlert } from '../LocalizedAlert';
 import { StatusTag } from '../consult/ConsultKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
@@ -91,7 +93,7 @@ export function ResultsPanel({ onSeen, testID }: { onSeen?: () => void; testID: 
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                 <NameArt kind={item.kind} name={item.title ?? ''} size={44} />
                 <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
-                  <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>{title}</Text>
+                  <FieldText text={title} mark={item.title ? bookingNameMark(item.title) : undefined} style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }} />
                   {date ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{date}</Text> : null}
                 </View>
                 {item.isNew ? <StatusTag label={k('orders.results.new')} tone="success" /> : null}

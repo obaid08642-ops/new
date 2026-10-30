@@ -172,6 +172,9 @@ def insurance_matrix(pat, nurse, admin):
     nurse_id = nurse.get('/provider/me').get('account', 'id')
     r = pat.get('/home-care/services')
     svcs = r.body if isinstance(r.body, list) else r.items()
+    # The shift booking made just before is the same patient's: booking its service again inside the 3-minute
+    # duplicate-submit guard returns that card booking, so the insurance visits use the hourly services only.
+    svcs = [s for s in svcs if s.get('duration') != 'shift'] or svcs
     addr = {'address': 'شارع الملك فهد 3، الرياض', 'city': 'الرياض', 'lat': 24.7001, 'lng': 46.7001}
     for i, outcome in enumerate(('approve_partial', 'approve_full', 'reject')):
         svc = svcs[(i + 1) % len(svcs)]  # a different service each time: the 3-minute duplicate-submit guard

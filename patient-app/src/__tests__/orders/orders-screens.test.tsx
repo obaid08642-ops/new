@@ -152,7 +152,7 @@ describe('order tracking', () => {
 
   it('draws the steps, the courier and the arrival time from the order, and calls the courier', async () => {
     mockParams.current = { orderId: 'ord-ccccdd334455' };
-    const open = jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
+    const open = jest.spyOn(Linking, 'openURL').mockResolvedValue();
     answer({ '/patient/pharmacy/orders/ord-ccccdd334455': moving });
     await render(wrap(<OrderTrackingScreen />));
     await screen.findByText(k('orders.track.eta'));
@@ -336,5 +336,20 @@ describe('results and reports tab of My orders and results', () => {
     expect(mockRouter.push).toHaveBeenLastCalledWith({ pathname: '/diagnostics/discuss', params: { booking: 'lb1' } });
     await tap(screen.getByTestId('orders-screen-results-rad-rb1-book'));
     expect(mockRouter.push).toHaveBeenLastCalledWith('/(tabs)/consultations');
+  });
+  it('says "Available in Arabic only" under a result whose only name is Arabic (language fallback), and not under an English one', async () => {
+    mockParams.current = {};
+    answer({
+      '/lab-results/mine': [
+        { id: 'lr1', booking_id: 'lb1', service_name_ar: 'فحص تجريبي', reported_at: '2026-10-02T10:00:00Z', viewed_by_patient: true },
+        { id: 'lr2', booking_id: 'lb2', service_name_en: 'Test english result', reported_at: '2026-10-01T10:00:00Z', viewed_by_patient: true },
+      ],
+      '/radiology/reports/mine': [],
+    });
+    await render(wrap(<OrderCenterScreen />));
+    await tap(await screen.findByLabelText(k('orders.tab.results')));
+    await screen.findByText('فحص تجريبي');
+    expect(screen.getAllByText(k('common.availableInArabicOnly'))).toHaveLength(1);
+    expect(screen.queryByText(k('common.availableInEnglishOnly'))).toBeNull();
   });
 });

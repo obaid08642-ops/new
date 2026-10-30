@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { Animated, Pressable, Text, View, type GestureResponderEvent } from 'react-native';
+import { Animated, Pressable, Text, View, type GestureResponderEvent, type HostInstance } from 'react-native';
 import { router, type Href } from 'expo-router';
 import Svg, { Path } from 'react-native-svg';
 
@@ -93,7 +93,7 @@ export function CountBadge({ count }: { count: number }) {
 
 /** The header cart button says where it is, so a product picture can fly to it (utils/flyToCart.ts). */
 function useCartTarget() {
-  const ref = useRef<View>(null);
+  const ref = useRef<HostInstance>(null);
   useEffect(() => registerCartTarget({ measure: (done) => { if (ref.current) ref.current.measureInWindow(done); else done(0, 0, 0, 0); } }), []);
   return ref;
 }
