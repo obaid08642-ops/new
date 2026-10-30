@@ -155,3 +155,36 @@ describe('planProductTranslations on a database (guarded, resumable, reversible)
     fs.rmSync(dir, { recursive: true, force: true });
   });
 });
+
+describe('catalogue-apply --only=product_translations', () => {
+  let mongod: MongoMemoryServer; let db: DbLike;
+  beforeAll(async () => { mongod = await MongoMemoryServer.create(); await mongoose.connect(mongod.getUri(), { dbName: 'only_translations_test' }); db = mongoose.connection.db as unknown as DbLike; });
+  afterAll(async () => { await mongoose.disconnect(); await mongod.stop(); });
+
+  it('plans only the translations from the file, needs the file, and never touches a filled field', async () => {
+    const fs = await import('fs'); const os = await import('os'); const path = await import('path');
+    const col = () => mongoose.connection.db!.collection('medicines');
+    await col().deleteMany({}); await col().insertOne(product());
+    await col().updateOne({ id: 'p1' }, { $set: { indications_ar: 'نص موجود' } });
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tr-only-')); const f = path.join(dir, 't.json');
+    fs.writeFileSync(f, JSON.stringify({
+      version: 1, model: 'fake-model', generated_at: 't',
+      items: [
+        { id: 'p1', field: 'indications', target: 'ar', source: 'en', text: 'يجب ألا يُكتب', source_sha: sha256('Pain relief 500 mg\nFever') },
+        { id: 'p1', field: 'warnings', target: 'en', source: 'ar', text: 'Do not use with alcohol', source_sha: sha256('لا يستعمل مع الكحول') },
+      ],
+    }));
+    await expect(computePlan(db, ['--only=product_translations'])).rejects.toThrow(/needs --product-translations/);
+    const p = await computePlan(db, ['--only=product_translations', `--product-translations=${f}`]);
+    expect(new Set(p.changes.map((c) => c.step))).toEqual(new Set(['product_translations']));
+    expect(Object.keys(p.report)).toEqual(['product_translations']);
+    expect(p.report.product_translations).toMatchObject({ to_write: 1, already_translated: 1 });
+    expect(p.changes.every((c) => c.kind === 'set' && c.before === null)).toBe(true);
+    await applyChanges(db, p.changes);
+    const doc = (await col().findOne({ id: 'p1' }))!;
+    expect(doc.indications_ar).toBe('نص موجود');
+    expect(doc.warnings_en).toBe('Do not use with alcohol');
+    expect((await computePlan(db, ['--only=product_translations', `--product-translations=${f}`])).changes).toEqual([]);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+});

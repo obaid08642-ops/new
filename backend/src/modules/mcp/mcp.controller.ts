@@ -1,3 +1,4 @@
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { Controller, Post, Get, Header, Body, HttpCode, UseInterceptors, Req, Res, HttpException, HttpStatus } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { Throttle } from '@nestjs/throttler';
@@ -10,6 +11,7 @@ import { AgentOAuthService } from '../agent-oauth/agent-oauth.service';
 import { AGENT_TOOL_SCOPES, authorizationServerMetadata, protectedResourceMetadata, resourceMetadataUrl } from '../agent-oauth/agent-oauth.constants';
 
 @Controller('mcp')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 @UseInterceptors(RedisCacheInterceptor)
 export class McpController {
   constructor(

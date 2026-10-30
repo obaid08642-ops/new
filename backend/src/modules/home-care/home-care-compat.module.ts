@@ -1,3 +1,5 @@
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { loadOffers, withOfferSummary, withOffers } from '../../common/service-offers';
 import { SearchModule } from '../search/search.controller';
 import { SearchService } from '../search/search.service';
@@ -32,6 +34,7 @@ const ACTIVE_STATES = ['NEW_REQUEST', 'PROVIDER_ASSIGNED', 'ACCEPTED', 'EN_ROUTE
 const NURSE_TYPES = ['home_care', 'nursing', 'nurse'];
 
 @Controller('home-care')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 @UseGuards(JwtAuthGuard)
 export class HomeCareCompatController {
   constructor(
@@ -406,6 +409,7 @@ const NURSING_SUPPLIES: any[] = [
 ];
 
 @Controller('provider/nursing')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 @UseGuards(JwtAuthGuard)
 export class NursingOpsController {
   @Roles(...PROVIDER_ROLES, 'provider', UserRole.ADMIN) // provider screens only: a patient gets 403 (provider-app audit)

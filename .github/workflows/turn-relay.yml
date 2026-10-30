@@ -1,0 +1,32 @@
+name: turn-relay
+# Relay-only check of Cloudflare Realtime TURN. Runs where the TURN key is a secret; without it the script says "skipped" and passes.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 5 * * 1'
+  pull_request:
+    paths:
+      - 'tools/live/turn-relay-check.mjs'
+      - 'backend/src/modules/coturn/cloudflare-turn.service.ts'
+      - '.github/workflows/turn-relay.yml'
+permissions:
+  contents: read
+jobs:
+  relay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CF_TURN_KEY_ID: ${{ secrets.CF_TURN_KEY_ID }}
+      CF_TURN_API_TOKEN: ${{ secrets.CF_TURN_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Install Chromium for Playwright
+        if: ${{ env.CF_TURN_KEY_ID != '' }}
+        run: npm install --no-save --prefix "$RUNNER_TEMP/pw" playwright@1.49.1 && "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Relay-only ICE check
+        run: node tools/live/turn-relay-check.mjs
+        env:
+          PLAYWRIGHT_MODULE: ${{ runner.temp }}/pw/node_modules/playwright

@@ -632,6 +632,38 @@ export class McpService {
     };
   }
 
+  /** Approved catalogue services matching a text, with the page URL of each; no provider data. Same visibility rules as the public lists. */
+  private async catalogueServices(kind: 'lab' | 'radiology' | 'nursing', query: string, locale: string, citySlug: string, limit: number) {
+    const text = query.trim();
+    const re = text ? new RegExp(text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') : null;
+    const name = [{ name_ar: re }, { name_en: re }, { short_code: re }, { tags: re }];
+    const approved = { is_deleted: { $ne: true }, active: true, public_eligibility: true, medical_review_status: 'approved' };
+    const spec = kind === 'lab'
+      ? { col: CATALOG_COLLECTIONS.lab_services, filter: { ...approved, category: { $ne: 'imaging' }, sample_type: { $ne: 'imaging' } } }
+      : kind === 'radiology'
+        ? { col: CATALOG_COLLECTIONS.radiology_services, filter: { ...approved } }
+        : { col: CATALOG_COLLECTIONS.nursing_services, filter: { is_deleted: { $ne: true }, active: true, merged_into: { $in: [null] }, medical_review_status: { $in: ['approved', null] } } };
+    const rows = await this.connection.collection(spec.col)
+      .find({ ...spec.filter, ...(re ? { $or: name } : {}) }, { projection: { _id: 0, id: 1, slug: 1, short_code: 1, name_ar: 1, name_en: 1, price: 1 } })
+      .limit(limit).toArray();
+    const origin = 'https://nabd.plus';
+    return rows.map((r: any) => {
+      const token = r.slug || r.short_code || r.id;
+      const path = kind === 'lab' ? `/labs/${encodeURIComponent(token)}/${citySlug}`
+        : kind === 'radiology' ? `/diagnostics/radiology/${encodeURIComponent(r.id)}`
+          : `/home-care/services/${encodeURIComponent(r.id)}`;
+      return {
+        entity_type: kind,
+        id: r.id,
+        name: locale === 'ar' ? (r.name_ar || r.name_en) : (r.name_en || r.name_ar),
+        price: typeof r.price === 'number' ? r.price : undefined,
+        currency: typeof r.price === 'number' ? 'SAR' : undefined,
+        canonical_url: `${origin}/${locale}${path}`,
+        deep_link: `nabdplus://${path.replace(/^\//, '')}`,
+      };
+    });
+  }
+
   private async toolSearchEntities(args: Record<string, any>) {
     const { query, entity_type, location, insurance, service_mode, locale = 'ar' } = args;
 
@@ -643,11 +675,14 @@ export class McpService {
     const resolvedCity = location || intent.location?.city?.name_ar || 'الرياض';
     const resolvedInsurance = insurance || intent.insurance;
 
-    const exploreResult = await this.entityGraphService.explore({
-      specialty: resolvedSpecialty,
-      city: resolvedCity,
-      insurance: resolvedInsurance,
-    });
+    const serviceKind = (['lab', 'radiology', 'nursing'] as const).find((k) => k === entity_type);
+    const exploreResult = serviceKind
+      ? { doctors: [], facilities: [] }
+      : await this.entityGraphService.explore({
+        specialty: resolvedSpecialty,
+        city: resolvedCity,
+        insurance: resolvedInsurance,
+      });
 
     const results: any[] = [];
 
@@ -678,6 +713,11 @@ export class McpService {
         deep_link: `nabdplus://facility/${fac.slug || fac.id}`,
       });
     }
+
+    // Lab tests, radiology scans and nursing services of the approved catalogue (also the ones no provider offers yet: the page offers "notify me").
+    const kinds = serviceKind ? [serviceKind] : (!entity_type || entity_type === 'all' ? (['lab', 'radiology', 'nursing'] as const) : []);
+    const citySlug = /^[a-z][a-z-]*$/i.test(String(location || '')) ? String(location).toLowerCase() : 'riyadh';
+    for (const kind of kinds) results.push(...await this.catalogueServices(kind, String(query || ''), locale, citySlug, serviceKind ? 20 : 3));
 
     return {
       query,

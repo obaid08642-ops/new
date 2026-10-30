@@ -8,9 +8,15 @@ import { EventBusService } from '../events/event-bus.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ChatThread, ChatThreadDocument, ChatMessage, ChatMessageDocument } from './chat.schemas';
 import { CONSULTATION_FOLLOWUP_HOURS_DEFAULT } from './followup-window';
+import { PresenceService } from '../presence/presence.service';
 import { consultationState, isAppointmentDoctor, isVoiceMessage, ConsultState } from './consultation-window';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const jwt = require('jsonwebtoken');
+
+/** Longest voice note, seconds. */
+export const VOICE_MAX_SECONDS = 600;
+/** Minutes after sending in which the sender may delete a message for everyone (CHAT_DELETE_WINDOW_MIN). */
+export const DEFAULT_DELETE_WINDOW_MIN = 60;
 
 // ─── Service ────────────────────────────────────────────────────────────────
 
@@ -24,6 +30,7 @@ export class ChatService {
     private readonly bus: EventBusService,
     private readonly events: EventEmitter2,
     @Optional() private readonly killSwitches?: KillSwitchesService,
+    @Optional() private readonly presence?: PresenceService,
   ) {}
 
   // ── Thread management ────────────────────────────────────────
@@ -322,6 +329,12 @@ export class ChatService {
     }
 
     if (!body?.body?.trim() && mediaIds.length === 0) throw new BadRequestException('empty_message');
+    if (body.type === 'voice') {
+      // A voice note is its recording: no file, or a length outside 1..VOICE_MAX_SECONDS, is not a voice note.
+      if (mediaIds.length !== 1) throw new BadRequestException('voice_requires_one_media');
+      const secs = Number(body.duration_seconds);
+      if (!Number.isFinite(secs) || secs < 1 || secs > VOICE_MAX_SECONDS) throw new BadRequestException('voice_duration_invalid');
+    }
 
     let msg: ChatMessageDocument;
     try {
@@ -366,10 +379,24 @@ export class ChatService {
       $set: { last_message: (body.body || (mediaIds.length ? '[مرفق]' : '')).slice(0, 150), last_message_at: new Date(), last_message_sender_id: senderId, ...unread },
     });
 
+    // Recipients with a live connection have it now (delivered); the others get a push.
+    const recipients = thread.participant_ids.filter((pid: string) => pid !== senderId);
+    const online: string[] = [];
+    if (this.presence) {
+      for (const pid of recipients) {
+        if (await this.presence.isOnline(pid).catch(() => false)) online.push(pid);
+      }
+    }
+    if (online.length) {
+      await this.msgs.updateOne({ id: { $eq: msg.id } }, { $addToSet: { delivered_to: { $each: online } } });
+      msg.delivered_to = [senderId, ...online];
+    }
     // Emit event for realtime delivery + push
     const chatPayload = {
+      offline_ids: recipients.filter((pid: string) => !online.includes(pid)),
       thread_id: threadId,
       msg_id: msg.id,
+      client_message_id: body.client_message_id,
       body: (body.body || '').slice(0, 120),
       type: msg.type,
       media_ids: mediaIds,
@@ -406,7 +433,7 @@ export class ChatService {
     this.assertParticipant(thread, userId);
 
     const limit = options.limit || 50;
-    const query: any = { thread_id: threadId, is_deleted: false };
+    const query: any = { thread_id: threadId, is_deleted: false, deleted_for: { $ne: userId } };
     if (options.before) {
       const ref = await this.msgs.findOne({ id: { $eq: options.before } }).lean<any>();
       if (ref) query.createdAt = { $lt: (ref as any).createdAt };
@@ -428,8 +455,25 @@ export class ChatService {
       if (!marker) throw new BadRequestException('invalid_up_to_message_id');
       query.createdAt = { $lte: marker.createdAt };
     }
-    await this.msgs.updateMany(query, { $addToSet: { read_by: userId } });
+    // Read implies delivered, so the sender never sees "read" without "delivered".
+    await this.msgs.updateMany(query, { $addToSet: { read_by: userId, delivered_to: userId } });
     await this.threads.updateOne({ id: { $eq: threadId } }, { $set: { [`unread_counts.${userId}`]: 0 } });
+    this.emitState('read', thread, userId);
+  }
+
+  /** Tick state for the sender's own message: sent < delivered < read (by every other participant). */
+  static statusFor(msg: { sender_id: string; delivered_to?: string[]; read_by?: string[] }, participantIds: string[]): 'sent' | 'delivered' | 'read' {
+    const others = participantIds.filter(p => p !== msg.sender_id);
+    if (others.length && others.every(p => (msg.read_by || []).includes(p))) return 'read';
+    if (others.length && others.every(p => (msg.delivered_to || []).includes(p))) return 'delivered';
+    return 'sent';
+  }
+
+  /** Tells the other participants (not a new message: a state change) over the realtime gateway's chatstate channel. */
+  private emitState(kind: 'delivered' | 'read' | 'deleted', thread: { id: string; participant_ids: string[] }, userId: string, extra: Record<string, unknown> = {}): void {
+    try {
+      this.events.emit(`chatstate.${kind}`, { kind, thread_id: thread.id, user_id: userId, participant_ids: thread.participant_ids, at: new Date(), ...extra });
+    } catch { /* realtime is best effort; the state is stored */ }
   }
 
   async markDelivered(threadId: string, userId: string): Promise<void> {
@@ -440,6 +484,7 @@ export class ChatService {
       { thread_id: threadId, sender_id: { $ne: userId }, delivered_to: { $ne: userId } },
       { $addToSet: { delivered_to: userId } },
     );
+    this.emitState('delivered', thread, userId);
   }
 
   async editMessage(msgId: string, userId: string, newBody: string): Promise<ChatMessage> {
@@ -454,10 +499,26 @@ export class ChatService {
     return msg.toObject();
   }
 
-  async deleteMessage(msgId: string, userId: string): Promise<void> {
+  /**
+   * `me`: hides the message from this participant only (any message of a thread they are in).
+   * `all`: sender only, within CHAT_DELETE_WINDOW_MIN of sending; blanks the body, releases the
+   * attachments, fixes the thread preview and tells the other participants.
+   */
+  async deleteMessage(msgId: string, userId: string, scope: 'me' | 'all' = 'all'): Promise<void> {
     const msg = await this.msgs.findOne({ id: { $eq: msgId } });
     if (!msg) throw new NotFoundException('message_not_found');
+    const thread = await this.threads.findOne({ id: { $eq: msg.thread_id } });
+    if (!thread) throw new NotFoundException('thread_not_found');
+    this.assertParticipant(thread, userId);
+    if (scope === 'me') {
+      await this.msgs.updateOne({ id: { $eq: msgId } }, { $addToSet: { deleted_for: userId } });
+      return;
+    }
     if (msg.sender_id !== userId) throw new ForbiddenException('not_sender');
+    if (msg.is_deleted) return;
+    const windowMin = Number(process.env.CHAT_DELETE_WINDOW_MIN) > 0 ? Number(process.env.CHAT_DELETE_WINDOW_MIN) : DEFAULT_DELETE_WINDOW_MIN;
+    const sentAt = new Date((msg as any).createdAt ?? 0).getTime();
+    if (Date.now() - sentAt > windowMin * 60_000) throw new BadRequestException('delete_window_passed');
     msg.is_deleted = true;
     msg.deleted_at = new Date();
     msg.body = '';
@@ -467,6 +528,14 @@ export class ChatService {
     if (mediaIds.length) {
       try { this.events.emit(MEDIA_RELEASE, { ids: mediaIds, owner_id: userId }); } catch { /* cleanup is best effort */ }
     }
+    // The list preview must not keep showing text that no longer exists.
+    const last: any = await this.msgs.findOne({ thread_id: msg.thread_id, is_deleted: false }, { body: 1, media_ids: 1, sender_id: 1, createdAt: 1 }).sort({ createdAt: -1 }).lean();
+    await this.threads.updateOne({ id: { $eq: msg.thread_id } }, {
+      $set: last
+        ? { last_message: (last.body || (last.media_ids?.length ? '[مرفق]' : '')).slice(0, 150), last_message_at: last.createdAt, last_message_sender_id: last.sender_id }
+        : { last_message: '' },
+    });
+    this.emitState('deleted', thread, userId, { msg_id: msgId });
   }
 
   async addReaction(msgId: string, userId: string, emoji: string): Promise<ChatMessage> {

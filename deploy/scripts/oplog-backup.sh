@@ -86,8 +86,9 @@ slice_once() {
     fail "GAP: the oplog rolled over before slice $FROM_S.$FROM_I (oldest entry $OLD_S.$OLD_I); a new chain starts at $TO_S.$TO_I, run backup.sh now"
   fi
 
-  docker exec "$MONGO_CONTAINER" mongodump --quiet "${ARGS[@]}" --db=local --collection=oplog.rs --query="$QUERY" --out - \
-    | gzip -c | backup_encrypt_stream > "$TMP/$NAME" || { transient "mongodump of the oplog failed"; return; }
+  MONGODUMP_ALLOW_EMPTY=1 mongodump_oneoff "$TMP/$NAME.raw" --db=local --collection=oplog.rs --query="$QUERY" --out - >/dev/null || { rm -f "$TMP/$NAME.raw"; transient "mongodump of the oplog failed"; return; }
+  gzip -c < "$TMP/$NAME.raw" | backup_encrypt_stream > "$TMP/$NAME" || { rm -f "$TMP/$NAME.raw"; transient "compressing or encrypting the oplog slice failed"; return; }
+  rm -f "$TMP/$NAME.raw"
   [ -s "$TMP/$NAME" ] || { transient "the oplog slice is empty (encryption failed)"; return; }
   SIZE=$(stat -c %s "$TMP/$NAME")
 

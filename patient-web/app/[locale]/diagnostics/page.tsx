@@ -179,7 +179,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
       <SectionHead id={id} title={t("mostRequested")} />
       <ul className={styles.itemRail} aria-label={t("mostRequested")}>
         {rows.map((row) => (
-          <ItemCard key={row.id} href={row.href} title={<FieldText text={row.title} mark={row.titleMark} />} tags={row.tags} note={row.note} meta={row.meta} rating={row.rating} price={row.price} art={row.art} imageUrl={row.imageUrl} offer={row.offer} actions={<ItemActions kind={itemKind} line={row.line} orderHref={orderHref(itemKind)} />} />
+          <ItemCard key={row.id} href={row.href} title={<FieldText text={row.title} mark={row.titleMark} />} tags={row.tags} note={row.note} meta={row.meta} rating={row.rating} price={row.price} art={row.art} imageUrl={row.imageUrl} offer={row.offer} actions={<ItemActions kind={itemKind} line={row.line} orderHref={orderHref(itemKind)} disabled={row.offer?.none === true} />} />
         ))}
       </ul>
     </section>

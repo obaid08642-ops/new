@@ -1,0 +1,173 @@
+{
+ "slice": "empty-provider-notify-me-web",
+ "batch": "2",
+ "app": "patient-web",
+ "screens": [
+  {
+   "route": "/diagnostics",
+   "elements": [
+    [
+     "Card/row of a service with providersCount 0: line 'Not available in your area yet' (offerNone)",
+     "GET /labs|radiology|home-care/services providers_count",
+     "ok"
+    ],
+    [
+     "Catalogue price of that service as 'From {price}' (indicative, never a provider price)",
+     "GET services price",
+     "ok"
+    ],
+    [
+     "Add to cart / Order now / '+' on that card: disabled, not hidden",
+     "providers_count === 0",
+     "ok"
+    ],
+    [
+     "Section 'Not available in your area yet' with indicative From price + note, disabled booking button, Notify me",
+     "GET services/:id offer + price",
+     "ok"
+    ],
+    [
+     "Notify me when available / You are on the list (replaces the button; read back after reload)",
+     "POST /catalogue-interest, GET /catalogue-interest/mine",
+     "ok"
+    ]
+   ],
+   "notes": []
+  },
+  {
+   "route": "/labs",
+   "elements": [
+    [
+     "Card/row of a service with providersCount 0: line 'Not available in your area yet' (offerNone)",
+     "GET /labs|radiology|home-care/services providers_count",
+     "ok"
+    ],
+    [
+     "Catalogue price of that service as 'From {price}' (indicative, never a provider price)",
+     "GET services price",
+     "ok"
+    ],
+    [
+     "Add to cart / Order now / '+' on that card: disabled, not hidden",
+     "providers_count === 0",
+     "ok"
+    ],
+    [
+     "Section 'Not available in your area yet' with indicative From price + note, disabled booking button, Notify me",
+     "GET services/:id offer + price",
+     "ok"
+    ],
+    [
+     "Notify me when available / You are on the list (replaces the button; read back after reload)",
+     "POST /catalogue-interest, GET /catalogue-interest/mine",
+     "ok"
+    ]
+   ],
+   "notes": []
+  },
+  {
+   "route": "/diagnostics/radiology/[serviceId]",
+   "elements": [
+    [
+     "Card/row of a service with providersCount 0: line 'Not available in your area yet' (offerNone)",
+     "GET /labs|radiology|home-care/services providers_count",
+     "ok"
+    ],
+    [
+     "Catalogue price of that service as 'From {price}' (indicative, never a provider price)",
+     "GET services price",
+     "ok"
+    ],
+    [
+     "Add to cart / Order now / '+' on that card: disabled, not hidden",
+     "providers_count === 0",
+     "ok"
+    ],
+    [
+     "Section 'Not available in your area yet' with indicative From price + note, disabled booking button, Notify me",
+     "GET services/:id offer + price",
+     "ok"
+    ],
+    [
+     "Notify me when available / You are on the list (replaces the button; read back after reload)",
+     "POST /catalogue-interest, GET /catalogue-interest/mine",
+     "ok"
+    ]
+   ],
+   "notes": []
+  },
+  {
+   "route": "/home-care/services/[serviceId]",
+   "elements": [
+    [
+     "Card/row of a service with providersCount 0: line 'Not available in your area yet' (offerNone)",
+     "GET /labs|radiology|home-care/services providers_count",
+     "ok"
+    ],
+    [
+     "Catalogue price of that service as 'From {price}' (indicative, never a provider price)",
+     "GET services price",
+     "ok"
+    ],
+    [
+     "Add to cart / Order now / '+' on that card: disabled, not hidden",
+     "providers_count === 0",
+     "ok"
+    ],
+    [
+     "Section 'Not available in your area yet' with indicative From price + note, disabled booking button, Notify me",
+     "GET services/:id offer + price",
+     "ok"
+    ],
+    [
+     "Notify me when available / You are on the list (replaces the button; read back after reload)",
+     "POST /catalogue-interest, GET /catalogue-interest/mine",
+     "ok"
+    ]
+   ],
+   "notes": []
+  },
+  {
+   "route": "/nursing/catalog",
+   "elements": [
+    [
+     "Card/row of a service with providersCount 0: line 'Not available in your area yet' (offerNone)",
+     "GET /labs|radiology|home-care/services providers_count",
+     "ok"
+    ],
+    [
+     "Catalogue price of that service as 'From {price}' (indicative, never a provider price)",
+     "GET services price",
+     "ok"
+    ],
+    [
+     "Add to cart / Order now / '+' on that card: disabled, not hidden",
+     "providers_count === 0",
+     "ok"
+    ],
+    [
+     "Section 'Not available in your area yet' with indicative From price + note, disabled booking button, Notify me",
+     "GET services/:id offer + price",
+     "ok"
+    ],
+    [
+     "Notify me when available / You are on the list (replaces the button; read back after reload)",
+     "POST /catalogue-interest, GET /catalogue-interest/mine",
+     "ok"
+    ]
+   ],
+   "notes": []
+  }
+ ],
+ "needsReview": [
+  {
+   "route": "/labs",
+   "element": "Notify me for a visitor who is not signed in",
+   "kind": "backend",
+   "note": "POST /catalogue-interest is signed-in only (JwtAuthGuard); there is no route that takes a phone or email from a guest, so a guest gets 'Sign in to be notified' instead of a contact form. Add a guest contact variant (phone/email in the DTO) if guests must be able to register.",
+   "file": "patient-web/components-next/diagnostics/notify-me-button.tsx",
+   "line": 41,
+   "backend": "backend/src/modules/catalogue-interest/catalogue-interest.controller.ts:14"
+  }
+ ]
+}

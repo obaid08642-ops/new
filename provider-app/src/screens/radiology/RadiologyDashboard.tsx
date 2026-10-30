@@ -10,6 +10,7 @@ import { IBg, I } from '../../components/icons';
 import { SP, R, FS, FW } from '../../constants';
 import { ProviderWalletScreen, WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen } from '../shared/SharedScreens';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
+import { MyServicesScreen } from '../shared/MyServicesScreen';
 import { orderingStackScreens, ORDERING_ENTRY } from '../ordering';
 
 // ══════ PILLAR 1: STATE MACHINE LABELS ══════
@@ -440,7 +441,7 @@ function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) 
       });
       setPdfUploaded(true); setReportStatus('draft');
       show(AR ? 'تم رفع التقرير وحفظ المسودة' : 'Report uploaded and draft saved', 'success');
-    } catch (e: any) { show(e?.response?.data?.message || e.message, 'error'); } finally { setLoading(false); }
+    } catch (e: any) { show(e?.response?.status === 423 ? (AR ? 'الملف قيد الفحص الأمني، حاول بعد دقيقة' : 'The file is still being security-checked, try again in a minute') : (e?.response?.data?.message || e.message), 'error'); } finally { setLoading(false); }
   };
 
   const handleSubmitForReview = async () => {
@@ -453,7 +454,7 @@ function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) 
   const handleApproveAndPublish = async () => {
     setLoading(true);
     try { await client.post(`/radiology/bookings/${order.id}/approve-report`, {}); setReportStatus('ready'); show(AR?'تم نشر التقرير للمريض':'Report published','success'); onBack(); }
-    catch (e: any) { show(e.message, 'error'); } finally { setLoading(false); }
+    catch (e: any) { show(e?.response?.data?.message === 'report_reviewer_must_differ_from_uploader' ? (AR ? 'لا يمكنك نشر تقرير رفعتَه أو أرسلتَه للمراجعة. يجب أن يعتمده مراجع آخر.' : 'You cannot publish a report you uploaded or sent for review. Another reviewer must approve it.') : e.message, 'error'); } finally { setLoading(false); }
   };
 
   const STEPS = [{ key: 'draft', ar: 'رفع الملفات', en: 'Upload' }, { key: 'under_review', ar: 'مراجعة', en: 'Review' }, { key: 'ready', ar: 'نُشر', en: 'Published' }];
@@ -507,8 +508,6 @@ function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) 
 function CatalogManagerTab() {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast();
   const AR = lang === 'ar';
-  const [services, setServices] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
   const [modality, setModality] = useState('MRI');
   const [nameAr, setNameAr] = useState('');
@@ -533,8 +532,6 @@ function CatalogManagerTab() {
 
   const MODALITIES = ['MRI', 'CT', 'X-Ray', 'Ultrasound', 'Mammography', 'DEXA', 'Fluoroscopy', 'PET'];
 
-  useEffect(() => { client.get('/provider/capabilities/radiology').then(r => setServices(r.data || [])).catch(() => {}).finally(() => setLoading(false)); }, []);
-
   const handleSubmitDelta = async () => {
     if (!nameEn || !price) return show(AR ? 'أدخل الاسم والسعر' : 'Enter name and price', 'warning');
     try {
@@ -546,33 +543,8 @@ function CatalogManagerTab() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'كتالوج الأشعة' : 'Radiology Catalog'} />
-      <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
-        <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.lg }}>
-          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.textSub }}>{AR ? 'الفحوصات المتاحة' : 'Available Scans'} ({services.length})</Text>
-          <NBtn label={AR ? '+ إضافة فحص' : '+ Add Scan'} size="sm" onPress={() => setShowAdd(true)} full={false} />
-        </View>
-        {loading && <ActivityIndicator color={tokens.mintDeep} />}
-        {services.map(s => (
-          <NCard key={s.id} style={{ marginBottom: SP.md }}>
-            <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <View style={{ flex: 1 }}>
-                <NBadge label={s.modality_category || s.modality || '—'} variant="info" size="xs" />
-                <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: 4 }}>{AR ? (s.name_ar || s.name_en) : s.name_en}</Text>
-                <Text style={{ fontSize: FS.xs, color: tokens.mintDeep }}>{s.price} {AR ? 'ر.س' : 'SAR'} | {s.estimated_duration_minutes || 30} {AR ? 'د' : 'min'}</Text>
-                <View style={{ flexDirection: 'row', gap: 4, marginTop: 4, flexWrap: 'wrap' }}>
-                  {s.requires_pregnancy_check && <View style={{ backgroundColor: withAlpha(tokens.warning, 0.20), borderRadius: 4, padding: 2 }}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}><I name="pregnancy" size={10} color={tokens.warning} /><Text style={{ fontSize: 8, color: tokens.warning }}>Pregnancy</Text></View></View>}
-                  {s.requires_metal_implant_check && <View style={{ backgroundColor: withAlpha(tokens.purple, 0.20), borderRadius: 4, padding: 2 }}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}><I name="wrench" size={10} color={tokens.purple} /><Text style={{ fontSize: 8, color: tokens.purple }}>Metal</Text></View></View>}
-                  {s.requires_contrast_allergy_check && <View style={{ backgroundColor: withAlpha(tokens.error, 0.20), borderRadius: 4, padding: 2 }}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}><I name="syringe" size={10} color={tokens.error} /><Text style={{ fontSize: 8, color: tokens.error }}>Contrast</Text></View></View>}
-                </View>
-              </View>
-              {/* Needs-review issue 1194: "Edit" only showed a toast; changes go through the add/delta request above. */}
-            </View>
-          </NCard>
-        ))}
-        {!loading && services.length === 0 && <NEmpty title={AR ? 'لا توجد فحوصات بعد' : 'No scans yet'} icon="scan" />}
-      </ScrollView>
-
+      <MyServicesScreen vertical="radiology"
+        footer={<NBtn label={AR ? 'فحص غير موجود؟ اطلب إضافته' : 'Scan not listed? Ask to add it'} variant="outline" onPress={() => setShowAdd(true)} />} />
       <NSheet visible={showAdd} onClose={() => setShowAdd(false)} title={AR ? 'إضافة فحص جديد' : 'Add New Scan'}>
         <Text style={{ fontSize: FS.xs, color:tokens.warning, textAlign: AR?'right':'left', marginBottom: SP.md }}>{AR?' يذهب للمراجعة الإدارية قبل ظهوره للمرضى.':' Goes for admin review before patient visibility.'}</Text>
         <Text style={{ fontSize: FS.sm, color: theme.text, marginBottom: SP.sm }}>{AR ? 'فئة الجهاز (Modality)' : 'Modality Category'}</Text>

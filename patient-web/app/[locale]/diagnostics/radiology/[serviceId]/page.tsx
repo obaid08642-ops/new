@@ -120,8 +120,8 @@ export default async function RadiologyServiceDetailPage({ params }: Props) {
       <DirectAnswer sentences={[seo("radiologyWho", { name: name ?? t("title") })]} />
       {rows.length > 0 ? <SectionCard id="rad-facts" title={t("detailTitle")}><Facts rows={rows} label={t("detailTitle")} /></SectionCard> : null}
       {preparation.items.length > 0 ? <SectionCard id="rad-prep" title={t("preparationTitle")}><LocalizedList locale={locale} field={preparation}>{(items) => <BulletList items={items} />}</LocalizedList></SectionCard> : null}
-      <OffersSection locale={locale} t={w} kind="radiology" serviceId={service.id} offer={service.offer} offers={service.offers} />
-      {/* a scan no centre offers yet cannot be ordered: the section above says so and offers "Notify me" */}
+      <OffersSection locale={locale} t={w} kind="radiology" serviceId={service.id} offer={service.offer} offers={service.offers} price={service.price} bookLabel={w("addToOrderCta")} />
+      {/* a scan no centre offers yet shows the order button disabled inside the section above, with the line and "Notify me" */}
       {service.offer?.providersCount === 0 ? null : <ActionLinks actions={[{ href: addHref, label: w("addToOrderCta") }]} />}
     </ConsultPage>
   );
