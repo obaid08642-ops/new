@@ -337,4 +337,19 @@ describe('results and reports tab of My orders and results', () => {
     await tap(screen.getByTestId('orders-screen-results-rad-rb1-book'));
     expect(mockRouter.push).toHaveBeenLastCalledWith('/(tabs)/consultations');
   });
+  it('says "Available in Arabic only" under a result whose only name is Arabic (language fallback), and not under an English one', async () => {
+    mockParams.current = {};
+    answer({
+      '/lab-results/mine': [
+        { id: 'lr1', booking_id: 'lb1', service_name_ar: 'فحص تجريبي', reported_at: '2026-10-02T10:00:00Z', viewed_by_patient: true },
+        { id: 'lr2', booking_id: 'lb2', service_name_en: 'Test english result', reported_at: '2026-10-01T10:00:00Z', viewed_by_patient: true },
+      ],
+      '/radiology/reports/mine': [],
+    });
+    await render(wrap(<OrderCenterScreen />));
+    await tap(await screen.findByLabelText(k('orders.tab.results')));
+    await screen.findByText('فحص تجريبي');
+    expect(screen.getAllByText(k('common.availableInArabicOnly'))).toHaveLength(1);
+    expect(screen.queryByText(k('common.availableInEnglishOnly'))).toBeNull();
+  });
 });
