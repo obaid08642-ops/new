@@ -55,7 +55,7 @@ export default function LabResultScreen() {
   ) : null);
 
   return (
-    <HealthScreen title={k('diag.result.title')} onBack={() => goBack('/diagnostics/my-results' as Href)} testID="lab-result-screen">
+    <HealthScreen title={k('diag.result.title')} onBack={() => goBack('/orders?tab=results' as Href)} testID="lab-result-screen">
       <Gate status={status} onRetry={() => void reload()} errorTitle={k('diag.result.error')}>
         {result ? (
           <>

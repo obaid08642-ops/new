@@ -19,7 +19,7 @@ describe("hub paging (pure)", () => {
 
 describe("hub layout", () => {
   it("has a single orders-and-results entry (the shell button) and no separate results / compare / requests buttons", () => {
-    expect(hub).toContain("resultsHref={`/${locale}/diagnostics/bookings`}");
+    expect(hub).toContain("resultsHref={`/${locale}/orders`}");
     expect(hub).not.toContain("QuickLink");
     expect(hub).not.toContain("quickResults");
     expect(hub).not.toContain("quickCompare");

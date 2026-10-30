@@ -191,7 +191,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
   const mine = domains.filter((entry) => entry.bookings.length > 0);
 
   return (
-    <ConsultPage locale={locale} title={t("hubTitle")} backHref={`/${locale}`} resultsHref={`/${locale}/diagnostics/bookings`}>
+    <ConsultPage locale={locale} title={t("hubTitle")} backHref={`/${locale}`} resultsHref={`/${locale}/orders`}>
       <StaleWhileRevalidate />
       {/* The search filters the lists of the chosen kind in place (the app does; radiology has no search page), the URL keeps it. */}
       <SearchForm
@@ -345,7 +345,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
 
       {mine.map(({ domain, bookings }) => (
         <section className={styles.stack} key={domain} aria-labelledby={`hub-${domain}`}>
-          <SectionHead id={`hub-${domain}`} title={d(`${domain}.title`)} href={`/${locale}/diagnostics/bookings`} linkLabel={t("allRequests")} />
+          <SectionHead id={`hub-${domain}`} title={d(`${domain}.title`)} href={`/${locale}/orders`} linkLabel={t("allRequests")} />
           {bookings.slice(0, LIMIT_BOOKINGS).map((booking) => {
             const label = domain === "labs" ? d("labs.label") : pickName(locale, booking.scanNames) ?? d("radiology.label");
             const status = diagStatus(booking.state);

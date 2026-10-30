@@ -172,7 +172,7 @@ describe("diagnostics SSR boundary", () => {
     expect(html).not.toContain("private");
     expect(html).toContain("500");
     expect(html).not.toContain(reportUrl);
-    expect(html).toContain('data-back="/en/diagnostics/bookings"');
+    expect(html).toContain('data-back="/en/orders"');
     expect(html).toContain("Confirmed");
     expect(html).not.toMatch(/href="[^"]*(report|pdf)/i);
     expect(html).not.toContain("CONFIRMED");

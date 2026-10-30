@@ -1,0 +1,158 @@
+{
+ "slice": "nursing-teal-only-web",
+ "batch": "design-decision-7",
+ "app": "patient-web",
+ "screens": [
+  {
+   "route": "/home-care",
+   "elements": [
+    [
+     "home-care/page.tsx:171 CareHero",
+     "KEEP: top strip of the screen",
+     "ok"
+    ],
+    [
+     "home-care/page.tsx:94 PackageCard (was teal wash card)",
+     "CHANGE: NursingPackageCard: white card + hairline, glyph chip teal",
+     "fixed"
+    ],
+    [
+     "home-care/page.tsx:109,116,117,132,182,198 RowCard icons",
+     "KEEP: icon chip on white row card",
+     "ok"
+    ],
+    [
+     "home-care/page.tsx:102,121 ConsultState icon",
+     "KEEP: icon chip",
+     "ok"
+    ],
+    [
+     "nursing-parts.tsx:90 ServiceChips duration chip (was teal)",
+     "CHANGE: DIAG_TONES.quiet (neutral ink)",
+     "fixed"
+    ]
+   ]
+  },
+  {
+   "route": "/home-care/providers",
+   "elements": [
+    [
+     "providers/page.tsx:38,46,73",
+     "KEEP: empty icon and row icon chips",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/home-care/services",
+   "elements": [
+    [
+     "services page rows",
+     "KEEP: same RowCard icon chips; chips via ServiceChips (fixed)",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/home-care/services/[serviceId]",
+   "elements": [
+    [
+     "[serviceId]/page.tsx:99-100 Facts icons, :109 Hero icon",
+     "KEEP: icon chips on white cards",
+     "ok"
+    ],
+    [
+     "book/page.tsx NurseFacts chips (nursing-parts.tsx:126, was teal)",
+     "CHANGE: DIAG_TONES.quiet",
+     "fixed"
+    ]
+   ]
+  },
+  {
+   "route": "/home-nursing",
+   "elements": [
+    [
+     "home-nursing/[citySlug]/page.tsx:123-124 ServiceCard",
+     "KEEP: white rx.card, icon chip only",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/home-nursing/[citySlug]",
+   "elements": [
+    [
+     "[serviceSlug]/page.tsx:113,125",
+     "KEEP: icon chips on white cards",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/nursing/catalog",
+   "elements": [
+    [
+     "catalog/page.tsx:85,87,100",
+     "KEEP: empty icon and row icon chips; ServiceChips fixed",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/nursing/visits",
+   "elements": [
+    [
+     "visits/page.tsx:36,45-46",
+     "KEEP: icon chips",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/nursing/visits/[visitId]",
+   "elements": [
+    [
+     "visits/[visitId]/page.tsx:79-81 Facts icons",
+     "KEEP: icon chips",
+     "ok"
+    ],
+    [
+     "visits/[visitId]/page.tsx:93 nurse StatusChip (was teal)",
+     "CHANGE: DIAG_TONES.quiet",
+     "fixed"
+    ]
+   ]
+  },
+  {
+   "route": "/nursing/nurses/[nurseId]",
+   "elements": [
+    [
+     "nurses/[nurseId]/page.tsx:69-70 Facts, :75 Hero icon, :86 empty icon",
+     "KEEP: icon chips",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/nursing/insurance-status",
+   "elements": [
+    [
+     "insurance-status/page.tsx uses the insurance tone",
+     "KEEP: not nursing teal",
+     "ok"
+    ]
+   ]
+  },
+  {
+   "route": "/nursing/service-info",
+   "elements": [
+    [
+     "service-info/page.tsx",
+     "KEEP: redirect/parity page, no tone",
+     "ok"
+    ]
+   ]
+  }
+ ],
+ "needsReview": []
+}

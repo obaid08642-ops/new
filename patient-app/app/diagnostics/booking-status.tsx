@@ -479,7 +479,7 @@ function Panel({ booking, approval, stage, now, nameOf, when, shareLine, onChang
               </View>
             ))}
             <Button theme={theme} size="md" label={k('ordering.res.discuss')} onPress={() => router.push({ pathname: '/diagnostics/discuss', params: { booking: booking.id } } as unknown as Href)} testID="booking-discuss" />
-            <Button theme={theme} size="md" variant="outline" label={k('ordering.track.allResults')} onPress={() => router.push('/diagnostics/my-results' as Href)} />
+            <Button theme={theme} size="md" variant="outline" label={k('ordering.track.allResults')} onPress={() => router.push('/orders?tab=results' as Href)} />
           </Block>
         </Section>
       ) : null}

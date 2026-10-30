@@ -45,7 +45,7 @@
     "menuOpen": "Listahan",
     "menuClose": "Isara ang menu",
     "menuProfile": "Aking account",
-    "menuOrders": "Mga order ko",
+    "menuOrders": "Mga order at resulta ko",
     "menuFamily": "Pamilya",
     "menuArticles": "Mga artikulo",
     "menuSettings": "Mga setting",
@@ -306,10 +306,17 @@
     "unavailable": "Hindi available ngayon ang impormasyon ng katalogo. Pakisubukang muli mamaya."
   },
   "Orders": {
-    "title": "Mga order ko",
+    "title": "Mga order at resulta ko",
     "tabsLabel": "Katayuan ng order",
     "tabCurrent": "Kasalukuyan",
     "tabPrevious": "Nakaraan",
+    "tabResults": "Mga resulta at ulat",
+    "resultReady": "Handa na ang resulta",
+    "resultView": "Tingnan ang resulta",
+    "resultPdf": "PDF",
+    "resultBook": "Mag-book ng konsultasyon",
+    "emptyResultsTitle": "Walang handang resulta",
+    "emptyResultsBody": "Lalabas dito ang iyong mga resulta sa lab at radiology kapag handa na.",
     "pharmacyOrder": "Order sa botika",
     "orderRef": "#{number}",
     "itemsCount": "{count, plural, one {# item} other {# na item}}",
@@ -4234,6 +4241,10 @@
         "title": "{name} | Nabd Plus Pangangalagang Pangkalusugan",
         "description": "{name} sa {city}. Mga espesyalisadong serbisyong pangkalusugan, tinatanggap na insurance at mga na-verify na doktor.",
         "country": "Kaharian ng Arabyang Saudita"
+      },
+      "nursingService": {
+        "title": "{service} sa bahay sa {city} | Nabd Plus",
+        "description": "{service} sa bahay sa {city}: tingnan ang presyo at mag-book online ng pagbisita ng nurse sa Nabd Plus."
       }
     },
     "ld": {
@@ -4247,7 +4258,22 @@
       "crumbPharmacy": "Botika",
       "crumbFacilities": "Mga ospital at klinika",
       "crumbHealthGuide": "Gabay sa kalusugan",
-      "crumbDoctors": "Mga doktor"
+      "crumbDoctors": "Mga doktor",
+      "nursingServiceCity": "{service} bilang home nursing visit sa {city}"
+    },
+    "nursingService": {
+      "title": "{service} sa bahay sa {city}",
+      "intro": "Mag-book ng {service} sa bahay sa {city}: bibisitahin ka ng nurse sa pamamagitan ng Nabd Plus.",
+      "about": "Tungkol sa serbisyong ito",
+      "priceTitle": "Presyo",
+      "priceFrom": "Magsisimula sa {price}",
+      "priceRange": "{low} hanggang {high}",
+      "providers": "Bilang ng mga nurse na nag-aalok nito: {count}",
+      "book": "I-book ang serbisyong ito",
+      "emptyTitle": "Wala pang nurse na nag-aalok ng {service}",
+      "emptyBody": "Sasabihin namin sa iyo kapag may nurse nang nag-aalok ng {service}. Humiling ng abiso.",
+      "relatedTitle": "Iba pang home nursing sa {city}",
+      "allServices": "Lahat ng serbisyo ng home nursing sa {city}"
     }
   },
   "InsuranceWeb": {
@@ -5017,7 +5043,8 @@
     "faqRx": "Kailangan ba ng reseta ang {name}?",
     "faqIngredient": "Ano ang aktibong sangkap ng {name}?",
     "faqPrice": "Magkano ang {name} sa Nabd Plus?",
-    "howToTitle": "Paano gamitin ang {name}"
+    "howToTitle": "Paano gamitin ang {name}",
+    "nursingServiceWho": "Ang {service} ay serbisyo ng home nursing sa Nabd Plus: bibisitahin ka ng nurse sa bahay mo sa {city}. Tingnan ang presyo at mag-book online."
   },
   "LogForms": {
     "saveError": "Hindi ma-save. Nananatili ang tinype mo; subukan ulit.",
