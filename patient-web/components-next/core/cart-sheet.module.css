@@ -21,7 +21,8 @@
   display: flex; align-items: center; justify-content: space-between; gap: var(--nabd-space-sm); min-block-size: 44px; padding-inline: var(--nabd-space-sm);
   border-radius: var(--nabd-radius-lg); color: var(--nabd-color-text-primary); text-decoration: none; font-size: var(--nabd-font-size-row);
 }
-.cartMenuItem:hover, .cartMenuItem:focus-visible { background: var(--nabd-color-bg-sunken); }
+.cartMenuItem:focus-visible { background: var(--nabd-color-bg-sunken); }
+@media (hover: hover) and (pointer: fine) { .cartMenuItem:hover { background: var(--hover-tint); } }
 .cartMenuItem:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: -2px; }
 .cartMenuCount {
   min-inline-size: 24px; block-size: 24px; padding-inline: 6px; box-sizing: border-box; border-radius: var(--nabd-radius-pill); display: inline-grid; place-items: center;

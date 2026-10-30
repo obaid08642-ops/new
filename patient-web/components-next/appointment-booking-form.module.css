@@ -5,7 +5,7 @@
 .badge { max-inline-size: 13rem; padding: .35rem .55rem; border-radius: 999px; color: var(--brand-deep); background: var(--brand-soft); font-size: .72rem; font-weight: 720; text-align: center; }
 .slotGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr)); gap: .55rem; }
 .slot, .slotSelected { min-block-size: 2.7rem; border: 1px solid var(--nabd-color-border-strong); border-radius: var(--radius-md); color: var(--ink); background: var(--nabd-color-bg-surface); font: inherit; font-size: .82rem; font-weight: 730; cursor: pointer; transition: transform var(--motion-fast) var(--ease-premium), border-color var(--motion-fast) var(--ease-premium), background var(--motion-fast) var(--ease-premium), color var(--motion-fast) var(--ease-premium); }
-.slot:hover:not(:disabled) { border-color: var(--brand); transform: translateY(-1px); }
+@media (hover: hover) and (pointer: fine) { .slot:hover:not(:disabled) { background: var(--hover-tint); transform: translateY(-1px); } }
 .slotSelected { border-color: var(--brand-deep); color: var(--nabd-color-action-primary-fg); background: var(--brand-deep); }
 .slot:focus-visible, .slotSelected:focus-visible, .submit:focus-visible, .notes textarea:focus-visible { outline: 3px solid var(--nabd-color-action-primary-bg); outline-offset: 3px; }
 .notes { display: grid; gap: .45rem; color: var(--ink); font-size: .82rem; font-weight: 700; }
