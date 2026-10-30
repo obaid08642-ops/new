@@ -157,6 +157,7 @@ import { WriteGuard } from './common/write-guard';
 import { AdminGateGuard } from './common/admin-gate.guard';
 import { StepUpGuard, StepUpService } from './common/step-up.guard';
 import { ProductRankingModule } from './modules/product-ranking/product-ranking.module';
+import { CatalogueRankingModule } from './modules/catalogue-ranking/catalogue-ranking.module';
 import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
 import { mongoDirectConnection } from './common/database/mongo-uri';
 
@@ -272,6 +273,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     ServiceCatalogModule,
     CartModule,
     ProductRankingModule,
+    CatalogueRankingModule,
     ProviderOnboardingModule,
     UnifiedBookingsModule,
     WorkflowEngineModule,

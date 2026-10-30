@@ -28,3 +28,15 @@
   min-inline-size: 24px; block-size: 24px; padding-inline: 6px; box-sizing: border-box; border-radius: var(--nabd-radius-pill); display: inline-grid; place-items: center;
   background: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg); font-size: var(--nabd-font-size-micro); font-weight: 700;
 }
+
+/* labs and radiology: one section of two groups (Lab tests, Scans), each with its lines and its own booking link */
+.cartSection { display: flex; flex-direction: column; gap: var(--nabd-space-xs); padding-block-start: var(--nabd-space-xs); }
+.cartGroups { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--nabd-space-sm); }
+.cartGroup { display: flex; flex-direction: column; gap: var(--nabd-space-xs); padding: var(--nabd-space-sm); border: 1px solid var(--nabd-color-border-hairline); border-radius: var(--nabd-radius-lg); }
+.cartGroupHead { display: flex; align-items: center; justify-content: space-between; gap: var(--nabd-space-sm); color: var(--nabd-color-text-primary); font-size: var(--nabd-font-size-row); font-weight: 700; }
+.cartGroupLine { color: var(--nabd-color-text-secondary); font-size: var(--nabd-font-size-micro); overflow-wrap: anywhere; }
+.cartGroupAction {
+  display: flex; align-items: center; justify-content: center; min-block-size: 44px; padding-inline: var(--nabd-space-md); border-radius: var(--nabd-radius-pill);
+  background: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg); text-decoration: none; font-size: var(--nabd-font-size-row); font-weight: 700;
+}
+.cartGroupAction:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px; }

@@ -15,6 +15,7 @@ const REVIEWED: Record<string, Record<string, number>> = {
   'modules/admin/enterprise/admin-search.controller.ts': { appointments: 1 },        // projection id/status/doctor/slot
   'modules/admin/notification-center/admin-notification-center.module.ts': { appointments: 2 }, // reminder flags
   'modules/care/care-compat.controller.ts': { appointments: 1 },                     // returns status/price/notes (top-level), not the summary
+  'modules/care/appointment-outcomes.service.ts': { appointments: 3, medicalreports: 2, prescriptions: 2 }, // the patient's own visit outcomes: prescriptions and reports revealed; appointments: ownership, summary (revealed), seen mark
   'modules/care/care.service.ts': { appointments: 1 },                               // projection doctor/slot
   'modules/compat/admin-spa.module.ts': { appointments: 5 },                         // counts, group-bys, a feed of id/status/createdAt
   'modules/family/family.service.ts': { prescriptions: 1, appointments: 1 },         // prescriptions revealed; appointments projection has no health field
@@ -22,6 +23,7 @@ const REVIEWED: Record<string, Record<string, number>> = {
   'modules/medical-orders/medical-orders.service.ts': { appointments: 2, prescriptions: 1 }, // M2 order: ownership + existence checks and the doctor's recent visits; projections carry id, status, patient id and dates only
   'modules/instant-consultation/instant-consultation.service.ts': { appointments: 1 }, // M8: inserts the visit row (no health field; no notes, no records)
   'modules/mcp/agent-tools.service.ts': { appointments: 1 },                         // state check
+  'modules/medical-reports/medical-reports.service.ts': { appointments: 1 },         // create: the linked visit must be the report's patient's (projection _id only)
   'modules/medical-reports/medical-reports.controller.ts': { appointments: 1, prescriptions: 1 }, // timeline projections
   'modules/nabd-extensions/nabd-extensions.service.ts': { appointments: 1 },         // fraud aggregate
   'modules/ops/ops.controller.ts': { appointments: 2 },                              // counts
@@ -30,6 +32,7 @@ const REVIEWED: Record<string, Record<string, number>> = {
   'modules/pharmacy/services/pharmacy-refill.service.ts': { prescriptions: 3 },       // refill: projection id/valid_until/refills_remaining only; the refill counter is a non-health update
   'modules/provider-ops/provider-ops.module.ts': { consultationnotes: 1, prescriptions: 1 }, // both writes protected
   'modules/provider-production/provider-production.module.ts': { appointments: 1 },  // ownership check
+  'modules/provider/appointment-link.ts': { appointments: 1 },                       // projection id: which of the ids is this doctor's visit of this patient
   'modules/provider/provider-facility.controller.ts': { appointments: 2 },           // schedule list, distinct patient ids
   'modules/provider/provider.controllers.ts': { medicalreports: 2, appointments: 1 }, // report inserts protected; sick-leave reason encrypted
   'modules/referral/referral.service.ts': { appointments: 1 },                       // count
@@ -88,6 +91,8 @@ describe('16.9 raw access to collections with encrypted health fields', () => {
       ['modules/health/health.service.ts', "revealHealthDocs('prescriptions'"],
       ['modules/family/family.service.ts', "revealHealthDocs('prescriptions'"],
       ['modules/timeline/timeline-compat.controller.ts', "revealHealthDoc('medicalreports'"],
+      ['modules/care/appointment-outcomes.service.ts', "revealHealthDocs('prescriptions'"],
+      ['modules/care/appointment-outcomes.service.ts', "revealHealthDocs('medicalreports'"],
       ['modules/users/pdpl.service.ts', 'revealHealthDocs(collection'],
     ];
     const missing = must.filter(([file, needle]) => !fs.readFileSync(path.join(SRC, file), 'utf8').includes(needle)).map(([f, n]) => `${f} lacks ${n}`);

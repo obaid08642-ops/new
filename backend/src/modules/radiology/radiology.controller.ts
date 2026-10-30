@@ -29,8 +29,10 @@ export class RadiologyController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('category') category?: string,
+    @Query('sort') sort?: string,
   ) {
     return this.svc.list({ 
+      sort,
       // with `page` the answer is { data, total, page, limit, total_pages }; without it, the array as before
       page: page !== undefined ? Number(page) : undefined,
       limit: limit !== undefined ? Number(limit) : undefined,
@@ -48,7 +50,7 @@ export class RadiologyController {
     });
   }
 
-  @Public() @Get('carousel')
+  @Public() @PublicCache(120, ['radiology', 'public-catalogue']) @Get('carousel')
   carousel(@Query('modality') modality?: string, @Query('limit') limit?: string) {
     return this.svc.getCarousel(modality, parseInt(limit || '20', 10));
   }

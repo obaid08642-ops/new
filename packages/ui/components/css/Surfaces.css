@@ -298,6 +298,9 @@
   align-items: center;
   justify-content: space-between;
   padding-inline: 8px;
+  /* the cut-out's centre: set by BottomTabBar to the raised slot's measured centre (px, in the bar); until then the bar centre
+     (a % resolves against the 200px-larger mask box, hence the -100px that the +100px below cancels) */
+  --nabd-fab-x: calc(50% - 100px);
 }
 .nabd-bottom-tab-bar::before {
   content: "";
@@ -313,8 +316,8 @@
   box-shadow: var(--nabd-shadow-tabBar);
 }
 .nabd-bottom-tab-bar:has(.nabd-bottom-tab-bar__raised)::before {
-  -webkit-mask-image: radial-gradient(circle at 50% 117px, transparent 37.5px, currentColor 38.5px);
-  mask-image: radial-gradient(circle at 50% 117px, transparent 37.5px, currentColor 38.5px);
+  -webkit-mask-image: radial-gradient(circle at calc(var(--nabd-fab-x) + 100px) 117px, transparent 37.5px, currentColor 38.5px);
+  mask-image: radial-gradient(circle at calc(var(--nabd-fab-x) + 100px) 117px, transparent 37.5px, currentColor 38.5px);
   -webkit-mask-size: calc(100% + 200px) calc(100% + 200px);
   mask-size: calc(100% + 200px) calc(100% + 200px);
   -webkit-mask-position: -100px -100px;

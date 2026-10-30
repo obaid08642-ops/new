@@ -6,7 +6,7 @@ import ConsultationsHub from '../../../app/(tabs)/consultations/index';
 import AppointmentsScreen from '../../../app/consultations/appointments';
 import { message } from '../../components/screen/ScreenKit';
 
-/** Owner 2026-10-30: the consultations header has no cart; it has the "My appointments" button with the count of unopened results. */
+/** Owner 2026-10-30: the consultations header has no cart; it has the "My appointments" button with the count of new outcomes (the outcomes badge endpoint). */
 const mockAppointments = [
   { id: 'u1', status: 'CONFIRMED', docName: 'Test Upcoming', at: '2026-11-01T09:00:00.000Z' },
   { id: 'c1', status: 'IN_PROGRESS', docName: 'Test Current', at: '2026-10-30T09:00:00.000Z' },
@@ -47,9 +47,9 @@ const wrap = (ui: React.ReactElement) => <SafeAreaProvider initialMetrics={metri
 beforeEach(() => jest.clearAllMocks());
 
 describe('consultations top bar', () => {
-  it('has no cart button and a My appointments button with the count of unopened results', async () => {
+  it('has no cart button and a My appointments button with the count of new outcomes (the outcomes badge endpoint)', async () => {
     apiFetch.mockImplementation(async (path: string) =>
-      path.startsWith('/medical-reports/mine') ? [{ id: 'r1', appointment_id: 'u1', viewed_by_patient: false }, { id: 'r2', appointment_id: 'p1', viewed_by_patient: true }] : [],
+      path === '/care/appointments/outcomes/badge' ? { unseen_total: 1, appointments: [{ appointment_id: 'u1', unseen: 1 }] } : [],
     );
     await render(wrap(<ConsultationsHub />));
     expect(screen.queryByTestId('cart-button')).toBeNull();

@@ -31,6 +31,8 @@ const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top:
 const wrap = (ui: React.ReactElement) => <SafeAreaProvider initialMetrics={metrics}>{ui}</SafeAreaProvider>;
 
 const appt = { id: 'appt-1', status: 'COMPLETED', doctor_id: 'doc-1', doctor_name: 'Test Doctor', service_type: 'video', scheduled_at: '2026-10-01T09:00:00.000Z' };
+/** Shaped like GET /care/appointments/:id/outcomes. */
+const outcomes = (over: Record<string, unknown>) => ({ appointment_id: 'appt-1', status: 'completed', doctor_id: 'doc-1', prescriptions: [], lab_tests: [], radiology_scans: [], referral: null, sick_leaves_and_certificates: [], reports: [], instructions: {}, seen_at: null, unseen_count: 0, ...over });
 function answer(map: Record<string, unknown>) {
   apiFetch.mockImplementation(async (path: string) => {
     const key = Object.keys(map).sort((a, b) => b.length - a.length).find((p) => path.startsWith(p));
@@ -47,15 +49,15 @@ describe('appointment outcome sections', () => {
     answer({
       '/care/appointments/appt-1/summary': { diagnosis: 'Test diagnosis' },
       '/care/appointments/appt-1': appt,
-      '/medical-reports/mine': [
-        { id: 'r1', appointment_id: 'appt-1', certificate_kind: 'sick_leave', report_type: 'medical_certificate', title_en: 'Test sick leave', sick_leave: { start_date: '2026-10-01', end_date: '2026-10-04', duration_days: 3 }, viewed_by_patient: false },
-        { id: 'r2', appointment_id: 'other', report_type: 'consultation_note', title_en: 'Other visit' },
-      ],
+      '/care/appointments/appt-1/outcomes': outcomes({
+        unseen_count: 1,
+        sick_leaves_and_certificates: [{ id: 'r1', report_type: 'medical_certificate', certificate_kind: 'sick_leave', title_en: 'Test sick leave', sick_leave: { start_date: '2026-10-01', end_date: '2026-10-04', duration_days: 3 }, viewed_by_patient: false, is_new: true }],
+      }),
     });
     await render(wrap(<AppointmentDetailScreen />));
     const row = await screen.findByTestId('outcome-sick-leave-r1');
     expect(screen.getByText(k('consult.outcome.new'))).toBeTruthy();
-    expect(screen.queryByText('Other visit')).toBeNull();
+    await waitFor(() => expect(apiFetch).toHaveBeenCalledWith('/care/appointments/appt-1/outcomes/seen', { method: 'PATCH' }));
     await act(async () => {
       fireEvent.press(row);
     });
@@ -64,11 +66,10 @@ describe('appointment outcome sections', () => {
 
   it('adds the referred tests to the labs cart and leaves unknown codes out', async () => {
     answer({
-      '/care/appointments/appt-1/summary': { diagnosis: 'Test diagnosis', referrals: { lab_tests: ['T1', 'T2'], radiology_scans: [] } },
+      '/care/appointments/appt-1/summary': { diagnosis: 'Test diagnosis' },
       '/care/appointments/appt-1': appt,
-      '/medical-reports/mine': [],
+      '/care/appointments/appt-1/outcomes': outcomes({ lab_tests: [{ code: 'T1', resolved: true, id: 'T1', short_code: 'T1', name_ar: null, name_en: 'Test CBC' }, { code: 'T2', resolved: false }] }),
       '/labs/services/T1': { id: 'T1', name_en: 'Test CBC', price: 40 },
-      '/labs/services/T2': new Error('404'),
     });
     await render(wrap(<AppointmentDetailScreen />));
     const book = await screen.findByTestId('referral-book-lab');
@@ -78,13 +79,14 @@ describe('appointment outcome sections', () => {
     await waitFor(() => expect(mockAddItem).toHaveBeenCalledTimes(1));
     expect(mockAddItem).toHaveBeenCalledWith(expect.objectContaining({ id: 'T1', kind: 'lab' }));
     expect(screen.queryByTestId('referral-book-radiology')).toBeNull();
+    expect(called('/labs/services/T2')).toBe(false);
   });
 
   it('draws neither section when the server has nothing', async () => {
-    answer({ '/care/appointments/appt-1/summary': new Error('404 summary not available'), '/care/appointments/appt-1': appt, '/medical-reports/mine': [] });
+    answer({ '/care/appointments/appt-1/summary': new Error('404 summary not available'), '/care/appointments/appt-1': appt, '/care/appointments/appt-1/outcomes': outcomes({}) });
     await render(wrap(<AppointmentDetailScreen />));
     await screen.findByTestId('appointment-detail-screen');
-    await waitFor(() => expect(called('/medical-reports/mine')).toBe(true));
+    await waitFor(() => expect(called('/care/appointments/appt-1/outcomes')).toBe(true));
     expect(screen.queryByTestId('detail-outcome-reports')).toBeNull();
     expect(screen.queryByTestId('referral-book-lab')).toBeNull();
   });

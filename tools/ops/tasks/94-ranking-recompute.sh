@@ -9,6 +9,9 @@
 # token on the wire): the delivered-orders recount (orders_count), then ProductRankingService.recomputeAll(), the very code behind
 # POST /admin/ranking/recompute and the 30-minute score job (scores, then category_pos), then a check that every product with a category has its
 # position, and the first 24 of "All" counted again. Prints counts only, never a document, a name or a value of the environment.
+# Since the catalogue ranking (2026-10-29) the same run also recomputes the popularity score (`rank_score`) of the LABS, RADIOLOGY and NURSING catalogues: the orders recounted
+# from the bookings of the last 90 days plus the daily counters of views, searches and cart adds (`catalogue_ranking_daily`); the plan lines `catalogue_ranking` show, per
+# catalogue, the rows, how many have signals and how many scores would change; the apply verifies that every catalogue row ends with a number. So one run recomputes all four.
 # Idempotent: a second apply writes the same numbers. Safe to run while the shop is open (the same work the timer does every 30 minutes).
 set -u
 APPLY=""
@@ -44,6 +47,8 @@ if [ $RC -ne 0 ]; then
   say "FAILED (exit $RC): $(echo "$OUT" | tail -1 | cut -c1-200). Nothing to roll back: the fields are recomputed values; run again once the cause is fixed"
   exit 1
 fi
+CATV=$(echo "$OUT" | grep '"step":"catalogue_ranking_verify"' | head -1 | cut -c1-200)
 AFTER=$(echo "$OUT" | grep '"when":"after"' | jval distinct_categories)
 OF=$(echo "$OUT" | grep '"when":"after"' | jval of)
 say "applied and verified: the first ${OF:-?} of All hold ${AFTER:-?} distinct top-level categories (before: ${BEFORE:-?})"
+say "catalogue ranking (labs, radiology, nursing): ${CATV:-no verify line}"

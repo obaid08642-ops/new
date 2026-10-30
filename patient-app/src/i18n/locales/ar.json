@@ -253,6 +253,7 @@
   "pharmacy.removedFromCart": "تمت إزالة {name} من السلة",
   "common.undo": "تراجع",
   "cart.chooser.title": "سلاتك",
+  "cart.chooser.complete": "إتمام الحجز",
   "cart.name.pharmacy": "سلة الصيدلية",
   "cart.name.lab": "سلة التحاليل",
   "cart.name.radiology": "سلة الأشعة",

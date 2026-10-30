@@ -15,6 +15,7 @@ import { OrdersService } from '../orders/orders.service';
 import { UsersModule } from '../users/users.module';
 import { UsersService } from '../users/users.service';
 import { ProductRankingEventService } from '../product-ranking/product-ranking-event.service';
+import { CatalogueRankingService } from '../catalogue-ranking/catalogue-ranking.service';
 import { AddContractItemDto, UpdateContractItemDto, AddDto, UpdDto, ClrDto, CheckoutDto } from './cart.dto';
 
 export type CartLineKind = 'lab' | 'radiology' | 'pharmacy' | 'doctor' | 'home_care';
@@ -50,6 +51,7 @@ export class CartService {
     private readonly orders: OrdersService,
     private readonly users: UsersService,
     @Optional() private readonly rankingEvents?: ProductRankingEventService,
+    @Optional() private readonly catalogueRanking?: CatalogueRankingService,
   ) {}
 
   private async ensureCart(patient_id: string) {
@@ -102,6 +104,10 @@ export class CartService {
     }
     c.last_action = 'add';
     await c.save();
+
+    // labs, scans and nursing services count toward their own popularity ranking (the server counts it; nothing about the patient is kept)
+    const rankedVertical = ({ lab: 'lab', radiology: 'radiology', home_care: 'nursing' } as Record<string, 'lab' | 'radiology' | 'nursing'>)[String(line.kind)];
+    if (rankedVertical && line.service_id && this.catalogueRanking) void this.catalogueRanking.recordCartAdd(rankedVertical, String(line.service_id));
 
     if (line.kind === 'pharmacy' && line.service_id && this.rankingEvents) {
       this.rankingEvents.recordEvent({

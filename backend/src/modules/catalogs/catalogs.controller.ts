@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, NotFoundException, Post, Put, UseGuards, UseInterceptors, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, NotFoundException, Post, Put, Query, UseGuards, UseInterceptors, BadRequestException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { Public, JwtAuthGuard, Roles } from '../../common/auth.guard';
@@ -49,11 +49,11 @@ export class CatalogsController {
   @Public()
   @PublicCache(300, ['catalogs'])
   @Get(':type')
-  async getCatalog(@Param('type') type: string) {
+  async getCatalog(@Param('type') type: string, @Query('sort') sort?: string) {
     if (!CATALOGS.includes(type as any)) throw new NotFoundException('catalog_not_found');
     if (type === 'insurance') return this.insuranceCatalog();
     if (type === 'medicines') return this.medicinesCatalog();
-    return this.dbCatalog(type, DB_COLLECTIONS[type]);
+    return this.dbCatalog(type, DB_COLLECTIONS[type], sort);
   }
 
   private async medicinesCatalog() {
@@ -79,7 +79,7 @@ export class CatalogsController {
     }));
   }
 
-  private async dbCatalog(_type: string, collection: string) {
+  private async dbCatalog(type: string, collection: string, sort?: string) {
     // P5.1: DB is the single source of truth — no static fallback.
     // Boot seeds (CatalogsSeedService, insert-only) populate fresh envs.
     const rows = await this.conn.collection(collection)
@@ -87,6 +87,11 @@ export class CatalogsController {
       .limit(500).toArray().catch(() => []);
     const live = (rows as any[]).filter((r: any) => r.is_active !== false && r.active !== false);
     if (!live.length) throw new NotFoundException('catalog_unavailable');
+    // labs, radiology and nursing: the smart ranking is the default order (rank_score, then the editorial popularity); `?sort=popularity` keeps the old one
+    if (['labs', 'radiology', 'nursing'].includes(type)) {
+      const score = (r: any) => (sort === 'popularity' ? 0 : Number(r.rank_score) || 0);
+      live.sort((a: any, b: any) => score(b) - score(a) || (Number(b.popularity) || 0) - (Number(a.popularity) || 0));
+    }
     return live.map((r: any) => ({
       code: r.short_code || r.code || r.id,
       // P5.1: canonical per-collection name fields first (labs use test_name_*).
