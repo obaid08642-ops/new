@@ -10,6 +10,7 @@ import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { normalizeLabList, type CatalogItem } from '../../src/utils/labMappers';
 import { useApp } from '../../src/context/AppContext';
+import { reportRankingEvent, verticalOfSuggestion } from '../../src/utils/rankingEvents';
 import { useSearchSuggest } from '../../src/hooks/useSearchSuggest';
 import { SearchSuggestList } from '../../src/components/search/SearchSuggestList';
 import { SUGGEST_SCOPES, suggestionRoute } from '../../src/utils/searchSuggest';
@@ -56,6 +57,8 @@ export default function DiagnosticsSearch() {
               onPick={(item) => {
                 const route = suggestionRoute(item);
                 if (!route) return;
+                const vertical = verticalOfSuggestion(item.type);
+                if (vertical) reportRankingEvent(vertical, item.id, 'search');
                 suggest.close();
                 router.push({ pathname: route.pathname, params: route.params } as unknown as Href);
               }}

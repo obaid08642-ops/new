@@ -1,5 +1,6 @@
 "use client";
 
+import { FieldText } from "@/components-next/ui/localized-field";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
 import { filterByArt, type DiagArtKey } from "@/components-next/ui-generated/icons/diag-art";
@@ -160,7 +161,7 @@ export function ItemCatalog({ kind, rows: initialRows, page: initialPage, hasMor
       ) : (
         <ul className={styles.itemGrid} aria-label={listLabel} aria-busy={loading}>
           {shown.map((row) => (
-            <ItemCard key={row.id} href={row.href} title={row.title} tags={row.tags} note={row.note} meta={row.meta} rating={row.rating} price={row.price} art={row.art} imageUrl={row.imageUrl} offer={row.offer} actions={<ItemActions kind={kind} line={row.line} orderHref={orderHref} />} />
+            <ItemCard key={row.id} href={row.href} title={<FieldText text={row.title} mark={row.titleMark} />} tags={row.tags} note={row.note} meta={row.meta} rating={row.rating} price={row.price} art={row.art} imageUrl={row.imageUrl} offer={row.offer} actions={<ItemActions kind={kind} line={row.line} orderHref={orderHref} />} />
           ))}
         </ul>
       )}

@@ -1,6 +1,7 @@
 import { IsArray, IsDateString, IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { AttributionDto } from '../../common/attribution';
+import { NursingBookingChoiceFields } from '../home-care/booking-mode';
 
 export class ManualRequestDto {
   @IsOptional()
@@ -91,7 +92,7 @@ export class CreateDto {
 
 }
 
-export class BookDto {
+export class BookDto extends NursingBookingChoiceFields {
   @IsOptional()
   @IsString()
   service_id?: string;

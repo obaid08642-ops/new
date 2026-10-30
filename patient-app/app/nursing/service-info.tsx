@@ -9,6 +9,7 @@ import { Block, DetailHead, Price, Tag, goBackDiag } from '../../src/components/
 import { serviceGlyph } from '../../src/components/nursing/NursingKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
+import { useReportServiceView } from '../../src/utils/rankingEvents';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { offerSummaryOf, offersOf } from '../../src/utils/catalogueOffers';
@@ -25,6 +26,7 @@ export default function NursingServiceInfo() {
   const { serviceId, flow: payFlow, gender, availability, nationality, search } = params;
   const [svc, setSvc] = useState<Rec | null>(null);
   const [status, setStatus] = useState<GateStatus>('loading');
+  useReportServiceView('nursing', serviceId);
 
   const load = useCallback(async () => {
     setStatus('loading');

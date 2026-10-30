@@ -65,6 +65,9 @@ export class HomeCareService extends Document {
   @Prop() last_reviewed?: Date;
   @Prop() provenance?: string;
   @Prop({ default: 0 }) popularity: number;
+  /** visit | continuous | programme, and what that mode lets the patient choose (modules/home-care/booking-mode.ts) */
+  @Prop({ type: String, enum: ['visit', 'continuous', 'programme'], default: undefined }) booking_mode?: string;
+  @Prop({ type: Object, default: undefined }) booking_options?: Record<string, unknown>;
 }
 export const HomeCareServiceSchema = SchemaFactory.createForClass(HomeCareService);
 
@@ -85,6 +88,12 @@ export class HomeCareBooking extends Document {
   /** P17-17.5: UTM campaign attribution (utm_source/medium/campaign/term/content). */
   @Prop({ type: Object, required: false }) attribution?: Record<string, string>;
   @Prop({ default: 1 }) sessions_count: number;
+  /** the patient's booking choice (modules/home-care/booking-mode.ts): visit recurrence, continuous hours/shift/period */
+  @Prop({ type: String, enum: ['visit', 'continuous', 'programme'], default: undefined }) booking_mode?: string;
+  @Prop() recurrence?: string;
+  @Prop() hours?: number;
+  @Prop() shift?: string;
+  @Prop() period?: string;
   @Prop({ required: true }) duration: string;
   @Prop({ required: true }) total: number;
   

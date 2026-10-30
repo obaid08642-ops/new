@@ -147,7 +147,7 @@ describe("public product page (catalog v14)", () => {
   it.each(["ur", "hi", "bn"])("a %s page shows the English name under the localized name", async (locale) => {
     state.getPublicProduct.mockResolvedValue({ ...product, locale, name: "ایبلیفائی 15 ملی گرام", english_name: "Abilify, Aripiprazole 15 Mg - 28 Tablets" });
     const html = renderToStaticMarkup(await PublicProductPage({ params: Promise.resolve({ locale, slug: "x" }) }));
-    expect(html).toMatch(/<h1[^>]*>ایبلیفائی 15 ملی گرام<\/h1><p[^>]*lang="en"[^>]*dir="ltr"[^>]*data-testid="english-name"[^>]*>Abilify, Aripiprazole 15 Mg - 28 Tablets<\/p>/);
+    expect(html).toMatch(/<h1[^>]*>(?:<span[^>]*>)?ایبلیفائی 15 ملی گرام(?:<\/span>)?<\/h1><p[^>]*lang="en"[^>]*dir="ltr"[^>]*data-testid="english-name"[^>]*>Abilify, Aripiprazole 15 Mg - 28 Tablets<\/p>/);
   });
 
   it.each(["ar", "en", "fil"])("a %s page has no English line under the name", async (locale) => {

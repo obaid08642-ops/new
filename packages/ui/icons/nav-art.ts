@@ -53,3 +53,29 @@ export const NAV_ART: Record<NavArtKey, readonly CategoryArtShape[]> = {
     { d: circle(49, 27, 3), fill: 'coral' },
   ],
 };
+
+/**
+ * The raised centre button's picture (Consultations): the same illustrated stethoscope as `NAV_ART.consult`, one
+ * step bolder (stroke 4, so it still reads at 30 pt) and drawn light on the coral fab gradient. Same roles as the
+ * other art; on the button they resolve to the fab tokens instead of the tone (NAV_FAB_ROLE_TOKEN): the outline and
+ * the light fills to `action.fab.fg`, the accent to `action.fab.to`. No colour of its own.
+ */
+export const NAV_FAB_ART: Record<'consult', readonly CategoryArtShape[]> = {
+  consult: [
+    { d: 'M17 10v16a11 11 0 0 0 22 0V10', stroke: 'ink', sw: 4 },
+    { d: circle(17, 10, 4.5), fill: 'fg' },
+    { d: circle(39, 10, 4.5), fill: 'fg' },
+    { d: 'M28 37v6a10 10 0 0 0 20 0v-5', stroke: 'ink', sw: 4 },
+    { d: circle(48, 34, 8), fill: 'fg', stroke: 'ink', sw: 3 },
+    { d: circle(48, 34, 3.5), fill: 'coral' },
+  ],
+};
+
+/** Which `action.fab` token each role takes on the raised button (web: the CSS variable; native: the token value). */
+export const NAV_FAB_ROLE_TOKEN = {
+  bg: 'fg',
+  fg: 'fg',
+  ink: 'fg',
+  surface: 'fg',
+  coral: 'to',
+} as const satisfies Record<'bg' | 'fg' | 'ink' | 'surface' | 'coral', 'fg' | 'to'>;

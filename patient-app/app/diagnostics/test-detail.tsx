@@ -12,6 +12,7 @@ import { Notice } from '../../src/components/pharmacy/OfferKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
+import { useReportServiceView } from '../../src/utils/rankingEvents';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { FieldText, MarkNote, markTextProps } from '../../src/components/LocalizedField';
@@ -32,6 +33,7 @@ export default function TestDetail() {
   const cartActions = useServiceCartAction(kind);
   const [data, setData] = useState<CatalogItem | null>(null);
   const [status, setStatus] = useState<GateStatus>('loading');
+  useReportServiceView(kind, id);
 
   const load = useCallback(async () => {
     setStatus('loading');
