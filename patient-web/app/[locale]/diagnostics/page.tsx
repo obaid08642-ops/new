@@ -1,3 +1,4 @@
+import { FieldText, LocalizedField } from "@/components-next/ui/localized-field";
 import { SUGGEST_SCOPES } from "@/lib/search/suggest";
 import { StaleWhileRevalidate } from "@/components-next/nav/stale-while-revalidate";
 import Link from "next/link";
@@ -37,7 +38,7 @@ import { CATALOG_PAGE_SIZE, catalogSortOf, serverCategoryOf } from "@/lib/diagno
 import { LinkSegmented } from "@/components-next/consult/link-segmented";
 import { publicReadSignal } from "@/lib/api/public-timeout";
 import { hubFilterCount } from "@/lib/diagnostics-filter-count";
-import { pickName, pickTexts } from "@/lib/i18n/localized";
+import { pickName, pickTexts , perLocaleOf } from "@/lib/i18n/localized";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string; q?: string; show?: string; sort?: string; more?: string; cat?: string }> };
 
@@ -182,7 +183,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
       <SectionHead id={id} title={t("mostRequested")} />
       <ul className={styles.itemRail} aria-label={t("mostRequested")}>
         {rows.map((row) => (
-          <ItemCard key={row.id} href={row.href} title={row.title} tags={row.tags} note={row.note} rating={row.rating} price={row.price} art={row.art} imageUrl={row.imageUrl} offer={row.offer} actions={<ItemActions kind={itemKind} line={row.line} orderHref={orderHref(itemKind)} />} />
+          <ItemCard key={row.id} href={row.href} title={<FieldText text={row.title} mark={row.titleMark} />} tags={row.tags} note={row.note} rating={row.rating} price={row.price} art={row.art} imageUrl={row.imageUrl} offer={row.offer} actions={<ItemActions kind={itemKind} line={row.line} orderHref={orderHref(itemKind)} />} />
         ))}
       </ul>
     </section>
@@ -282,7 +283,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
               <LabCard
                 key={lab.id}
                 href={`/${locale}/diagnostics/labs/${encodeURIComponent(lab.id)}`}
-                title={pickText(locale, lab.nameAr, lab.nameEn) ?? ""}
+                title={<LocalizedField locale={locale} ar={lab.nameAr} en={lab.nameEn} />}
                 sub={lab.rating !== undefined ? t("labRating", { n: new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(lab.rating) }) : undefined}
                 tags={lab.homeVisit ? [{ label: t("labHomeTag"), tone: LAB.tone }] : []}
               />
@@ -307,7 +308,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
                       art={diagArtKey({ kind: "lab", names: Object.values(pkg.names) })}
                       href={itemHref(pkg.id, "lab")}
                       title={name}
-                      sub={pickTexts(locale, pkg.descriptions)}
+                      sub={pickTexts(locale, pkg.descriptions) ? <LocalizedField locale={locale} ar={pkg.descriptions.ar} en={pkg.descriptions.en} perLocale={perLocaleOf(pkg.descriptions)} /> : undefined}
                       count={pkg.includedServices?.length ? t("packageCount", { count: pkg.includedServices.length }) : undefined}
                       price={pkg.price !== undefined ? money(locale, pkg.price) : undefined}
                       was={pkg.oldPrice !== undefined && pkg.price !== undefined && pkg.oldPrice > pkg.price ? money(locale, pkg.oldPrice) : undefined}

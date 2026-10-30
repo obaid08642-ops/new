@@ -44,7 +44,7 @@ export function BulletList({ items, label }: { items: string[]; label?: string }
 }
 
 /** The tile, a title and a line at the top of a detail page. */
-export function Hero({ icon = CONSULT.icon, tone = CONSULT.tone, title, sub, children, picture }: { icon?: FillIconName; tone?: ServiceTone; title: string; sub?: string; children?: ReactNode; /** Replaces the service icon (a test or scan shows its category illustration). */ picture?: ReactNode }) {
+export function Hero({ icon = CONSULT.icon, tone = CONSULT.tone, title, sub, children, picture }: { icon?: FillIconName; tone?: ServiceTone; title: ReactNode; sub?: ReactNode; children?: ReactNode; /** Replaces the service icon (a test or scan shows its category illustration). */ picture?: ReactNode }) {
   return (
     <section className={`${rx.card} ${styles.hero}`}>
       {picture ?? <FIcon icon={icon} tone={tone} size={52} />}
@@ -83,7 +83,7 @@ export function ActionLinks({ actions }: { actions: LinkAction[] }) {
 }
 
 /** A row on a white card that goes to a page: a tile, a title, a line and a caret that mirrors in right-to-left. */
-export function RowCard({ href, icon = CONSULT.icon, tone = CONSULT.tone, art, title, sub, extra, caret }: { href?: string; icon?: FillIconName; tone?: ServiceTone; /** Replaces the service glyph (a test or scan shows its category illustration). */ art?: ReactNode; title: string; sub?: string; extra?: ReactNode; caret?: ReactNode }) {
+export function RowCard({ href, icon = CONSULT.icon, tone = CONSULT.tone, art, title, sub, extra, caret }: { href?: string; icon?: FillIconName; tone?: ServiceTone; /** Replaces the service glyph (a test or scan shows its category illustration). */ art?: ReactNode; title: ReactNode; sub?: ReactNode; extra?: ReactNode; caret?: ReactNode }) {
   const body = (
     <>
       {art ?? <FIcon icon={icon} tone={tone} size={44} />}

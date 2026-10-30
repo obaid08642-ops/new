@@ -25,7 +25,9 @@
     "readingProgress": "पढ़ने की प्रगति",
     "dialogCancel": "रद्द करें",
     "dialogConfirm": "पुष्टि करें",
-    "breadcrumbLabel": "नेविगेशन पथ"
+    "breadcrumbLabel": "नेविगेशन पथ",
+    "availableInEnglishOnly": "केवल अंग्रेज़ी में उपलब्ध",
+    "availableInArabicOnly": "केवल अरबी में उपलब्ध"
   },
   "CoreShell": {
     "back": "वापस",

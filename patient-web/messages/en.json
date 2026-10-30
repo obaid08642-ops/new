@@ -25,7 +25,9 @@
     "readingProgress": "Reading progress",
     "dialogCancel": "Cancel",
     "dialogConfirm": "Confirm",
-    "breadcrumbLabel": "Breadcrumb"
+    "breadcrumbLabel": "Breadcrumb",
+    "availableInEnglishOnly": "Available in English only",
+    "availableInArabicOnly": "Available in Arabic only"
   },
   "CoreShell": {
     "back": "Back",

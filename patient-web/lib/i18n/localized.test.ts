@@ -20,8 +20,8 @@ describe("localized catalogue text", () => {
     expect(pickTexts("en", texts)).toBe("Vitals");
   });
 
-  it("falls back as the pages always did: Arabic for ar and ur, English for the rest, then anything", () => {
-    expect(pickTexts("ur", { ar: "عربي", en: "English" })).toBe("عربي");
+  it("falls back to English before Arabic on ur/hi/bn/fil (localized-field.ts), then anything", () => {
+    expect(pickTexts("ur", { ar: "عربي", en: "English" })).toBe("English");
     expect(pickTexts("hi", { ar: "عربي", en: "English" })).toBe("English");
     expect(pickTexts("hi", { ar: "عربي" })).toBe("عربي");
     expect(pickTexts("hi", {})).toBeUndefined();

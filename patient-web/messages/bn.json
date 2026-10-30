@@ -25,7 +25,9 @@
     "readingProgress": "পড়ার অগ্রগতি",
     "dialogCancel": "বাতিল করুন",
     "dialogConfirm": "নিশ্চিত করুন",
-    "breadcrumbLabel": "নেভিগেশন পথ"
+    "breadcrumbLabel": "নেভিগেশন পথ",
+    "availableInEnglishOnly": "শুধু ইংরেজিতে পাওয়া যায়",
+    "availableInArabicOnly": "শুধু আরবিতে পাওয়া যায়"
   },
   "CoreShell": {
     "back": "ফিরে যান",

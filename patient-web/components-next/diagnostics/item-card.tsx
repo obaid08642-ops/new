@@ -17,7 +17,7 @@ export type ItemTag = { label: string; tone: ServiceTone };
  * "Add to cart" and "Order now", a client island). The picture is the item's OWN image (`imageUrl`); the CATEGORY illustration (`art`: blood, X-ray ...) is only the fallback
  * when it has none or it fails to load.
  */
-export function ItemCard({ href, title, tags = [], note, rating, price, art, imageUrl, offer, actions }: { href: string; title: string; tags?: ItemTag[]; note?: string; rating?: string; price?: string; art: DiagArtKey; imageUrl?: string; offer?: OfferLines; actions: ReactNode }) {
+export function ItemCard({ href, title, tags = [], note, rating, price, art, imageUrl, offer, actions }: { href: string; title: ReactNode; tags?: ItemTag[]; note?: string; rating?: string; price?: string; art: DiagArtKey; imageUrl?: string; offer?: OfferLines; actions: ReactNode }) {
   return (
     <li>
       <article className={styles.itemCard}>

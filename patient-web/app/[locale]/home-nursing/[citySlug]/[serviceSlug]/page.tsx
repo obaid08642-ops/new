@@ -1,3 +1,4 @@
+import { resolveWithMark } from "@/lib/i18n/localized-field";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -123,7 +124,7 @@ export default async function HomeNursingServiceCityPage({ params }: Props) {
                 <ServiceCard
                   icon={serviceIcon(svc.nameAr, svc.nameEn)}
                   tone={NURSING.tone}
-                  title={pickName(locale, svc.names) ?? ""}
+                  title={resolveWithMark({ locale, ar: svc.names.ar, en: svc.names.en }).text} titleMark={resolveWithMark({ locale, ar: svc.names.ar, en: svc.names.en }).mark}
                   actionHref={`/${locale}${path(citySlug, other)}`}
                   actionLabel={t("nursingService.about")}
                 />

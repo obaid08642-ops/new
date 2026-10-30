@@ -6,9 +6,11 @@ import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { LAB, TestList, TestRow } from "@/components-next/diagnostics/diag-parts";
 import consult from "@/components-next/consult/consult.module.css";
+import { FieldText } from "@/components-next/ui/localized-field";
+import type { FieldMark } from "@/lib/i18n/localized-field";
 import { formatPrice } from "@/lib/format-price";
 
-export type SearchRow = { id: string; name: string; /** the name in every language, for the filter */ search?: string; category?: string; price?: number };
+export type SearchRow = { id: string; name: string; /** set when the name is not in the page language (lang/dir and the note) */ nameMark?: FieldMark; /** the name in every language, for the filter */ search?: string; category?: string; price?: number };
 
 /** The live filter of the diagnostics search (canvas/Search): one field over the tests the server sent; each result goes to the test's page. */
 export function DiagnosticsSearchClient({ services, initialQuery, locale }: { services: SearchRow[]; initialQuery: string; locale: string }) {
@@ -33,7 +35,7 @@ export function DiagnosticsSearchClient({ services, initialQuery, locale }: { se
             <TestRow
               key={s.id}
               href={`/${locale}/diagnostics/test-detail?testId=${encodeURIComponent(s.id)}`}
-              title={s.name}
+              title={<FieldText text={s.name} mark={s.nameMark} />}
               note={s.category}
               price={s.price !== undefined ? formatPrice(locale, s.price).text : undefined}
             />

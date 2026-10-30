@@ -25,7 +25,9 @@
     "readingProgress": "Progreso ng pagbabasa",
     "dialogCancel": "Kanselahin",
     "dialogConfirm": "Kumpirmahin",
-    "breadcrumbLabel": "Landas ng pahina"
+    "breadcrumbLabel": "Landas ng pahina",
+    "availableInEnglishOnly": "Makukuha lamang sa Ingles",
+    "availableInArabicOnly": "Makukuha lamang sa Arabe"
   },
   "CoreShell": {
     "back": "Bumalik",

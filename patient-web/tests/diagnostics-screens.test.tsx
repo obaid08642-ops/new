@@ -69,9 +69,10 @@ describe("the diagnostics parts (template of the catalogue screens)", () => {
     expect(diagStatus(undefined).key).toBe("unknown");
   });
 
-  it("picks the Arabic text for Arabic and Urdu, the English text for the others, and the other one when one is missing", () => {
+  it("picks the Arabic text for Arabic, the English text for the others (Urdu too), and the other one when one is missing (never hidden)", () => {
     expect(pickText("ar", "عربي", "English")).toBe("عربي");
-    expect(pickText("ur", "عربي", "English")).toBe("عربي");
+    expect(pickText("ur", "عربي", "English")).toBe("English");
+    expect(pickText("ar", undefined, "English")).toBe("English");
     expect(pickText("en", "عربي", "English")).toBe("English");
     expect(pickText("hi", "عربي", undefined)).toBe("عربي");
     expect(pickText("en", undefined, undefined)).toBeUndefined();

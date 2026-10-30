@@ -1,3 +1,4 @@
+import { LocalizedField } from "@/components-next/ui/localized-field";
 import { SUGGEST_SCOPES } from "@/lib/search/suggest";
 import { notFound, redirect } from "next/navigation";
 import { pickName } from "@/lib/i18n/localized";
@@ -86,7 +87,7 @@ export default async function HomeCarePage({ params, searchParams }: Props) {
               <PackageCard
                 key={item.id}
                 href={serviceHref(item.id)}
-                title={pickName(locale, item.names) ?? t("serviceUnavailable")}
+                title={pickName(locale, item.names) ? <LocalizedField locale={locale} ar={item.names.ar} en={item.names.en} /> : t("serviceUnavailable")}
                 sub={item.duration}
                 price={item.price !== undefined ? money(locale, item.price) : undefined}
                 cta={t("bookCta")}
@@ -106,7 +107,7 @@ export default async function HomeCarePage({ params, searchParams }: Props) {
             const offer = nursingOfferLine({ locale, tr: (key, values) => w(key, values), offer: item.offer, price: item.price });
             return (
               <li key={item.id}>
-                <RowCard href={serviceHref(item.id)} icon={serviceIcon(item.id, item.category, item.nameAr, item.nameEn)} tone={NURSING.tone} title={pickName(locale, item.names) ?? t("serviceUnavailable")} sub={offer.line} extra={<ServiceChips extras={offer.chips} />} caret={caret} />
+                <RowCard href={serviceHref(item.id)} icon={serviceIcon(item.id, item.category, item.nameAr, item.nameEn)} tone={NURSING.tone} title={pickName(locale, item.names) ? <LocalizedField locale={locale} ar={item.names.ar} en={item.names.en} /> : t("serviceUnavailable")} sub={offer.line} extra={<ServiceChips extras={offer.chips} />} caret={caret} />
               </li>
             );
           })}
@@ -180,7 +181,7 @@ async function GuestHomeCare({ locale }: { locale: Locale }) {
                   href={`/${locale}/home-care/services/${encodeURIComponent(item.id)}`}
                   icon={serviceIcon(item.id, item.category, item.nameAr, item.nameEn)}
                   tone={NURSING.tone}
-                  title={pickName(locale, item.names) ?? t("serviceUnavailable")}
+                  title={pickName(locale, item.names) ? <LocalizedField locale={locale} ar={item.names.ar} en={item.names.en} /> : t("serviceUnavailable")}
                   sub={offer.line}
                   extra={<ServiceChips extras={offer.chips} />}
                   caret={caret}
@@ -195,7 +196,7 @@ async function GuestHomeCare({ locale }: { locale: Locale }) {
         <RowList label={g("homeCare.providersTitle")}>
           {providers.slice(0, GUEST_ROWS).map((provider) => (
             <li key={provider.id}>
-              <RowCard icon="user-circle" tone={NURSING.tone} title={pickText(locale, provider.nameAr, provider.nameEn) ?? ""} sub={provider.city} />
+              <RowCard icon="user-circle" tone={NURSING.tone} title={<LocalizedField locale={locale} ar={provider.nameAr} en={provider.nameEn} />} sub={provider.city} />
             </li>
           ))}
         </RowList>
