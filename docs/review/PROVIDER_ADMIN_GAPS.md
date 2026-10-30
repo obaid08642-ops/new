@@ -118,11 +118,11 @@ G6 decided by the lead: a REJECTED applicant signs in, sees only the rejection r
 | G1 My services and prices | #2170 | merged |
 | G2 nursing registration price | #2175 | open |
 | G4 + G5 lab results via /storage, radiology two-person publish | #2177 | open |
-| G3 nursing booking modes (nurse inbox + admin catalogue) | | next |
-| G7 licence expiry for every type + reminder | | todo |
-| G6 reject: reason + fix and resubmit | | todo |
-| G8 admin per-provider service offers | | todo |
-| G9 admin refund-policy UI | | todo |
+| G3 nursing booking modes (nurse inbox + admin catalogue) | #2179 | open |
+| G7 licence expiry for every type + reminder | | next: add an expiry-date field to the pharmacy, hospital, lab, radiology and nursing registrations (doctor has it: `DoctorRegistration.tsx:357,373`), require it in `provider-onboarding.module.ts` submit like `doctorSubmitProblems`, make the expiry cron (`legal-enterprise.service.ts:253-283`) suspend the provider account (login reads `provider_accounts.status`), and give admin an expiring-soon list |
+| G6 reject: reason + fix and resubmit | | todo (backend `provider-admin.service.ts:204-222` + `provider-auth.service.ts:156`; app: a rejected-state screen with the reason and a resubmit action) |
+| G8 admin per-provider service offers | | todo (`GET admin/service-offers/:vertical` has no admin page) |
+| G9 admin refund-policy UI | | todo (`GET/PUT admin/refund-policy`, `refund-policy.controller.ts:23-36`; no admin page) |
 | rest: radiology/lab booking chat, facility members admin view, SEO editor, jobs, merge duplicates (see UX table) | | todo |
 
 Method: one branch `p/<item>` from main per PR; provider-app and backend need `npm ci --legacy-peer-deps` (provider-app also `--ignore-scripts`); gate = jest of the touched area, `tsc --noEmit`, `nest build`, dtolint, dtocheck (run `node tools/audit/dtocheck.js` from the repo root).
