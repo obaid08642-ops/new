@@ -122,7 +122,7 @@ export default async function HomeCarePage({ params, searchParams }: Props) {
       ) : (
         <RowList label={t("bookingsTitle")}>
           {bookings.map((booking) => {
-            const name = pickName(locale, booking.serviceNames) ?? t("serviceUnavailable");
+            const name = pickName(locale, booking.serviceNames) ? <LocalizedField locale={locale} ar={booking.serviceNames?.ar} en={booking.serviceNames?.en} /> : t("serviceUnavailable");
             const status = nursingStatus(booking.state);
             return (
               <li key={booking.id}>

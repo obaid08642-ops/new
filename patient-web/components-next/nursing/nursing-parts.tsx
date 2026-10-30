@@ -131,7 +131,7 @@ export function NurseFacts({ facts, available }: { facts: string[]; available?: 
 }
 
 /** A care package on the hub rail: a white card; the nursing tone is only on the glyph chip. */
-export function NursingPackageCard({ href, title, sub, price, cta, icon }: { href: string; title: string; sub?: string; price?: string; cta: string; icon: FillIconName }) {
+export function NursingPackageCard({ href, title, sub, price, cta, icon }: { href: string; title: ReactNode; sub?: string; price?: string; cta: string; icon: FillIconName }) {
   return (
     <Link href={href} className={styles.pack}>
       <FIcon icon={icon} tone={NURSING.tone} size={48} />
