@@ -253,6 +253,7 @@
   "pharmacy.removedFromCart": "{name} was removed from your cart",
   "common.undo": "Undo",
   "cart.chooser.title": "Your carts",
+  "cart.chooser.complete": "Complete booking",
   "cart.name.pharmacy": "Pharmacy cart",
   "cart.name.lab": "Lab tests cart",
   "cart.name.radiology": "Radiology cart",

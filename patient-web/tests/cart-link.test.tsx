@@ -49,16 +49,21 @@ describe("one cart per service: the header button", () => {
     expect(html).toContain('href="/en/cart"');
     expect(html).toContain('aria-label="Cart (2)"');
   });
-  it("on a labs page it opens the labs basket and counts only the labs basket", () => {
-    reset(); path = "/en/diagnostics"; count = 5; basketLines = { lab: [{}, {}, {}], radiology: [], nursing: [] };
+  it("on a labs page the badge counts the lab tests and the scans together (not the pharmacy cart) and opens the two-group sheet", () => {
+    reset(); path = "/en/diagnostics"; count = 5; basketLines = { lab: [{}, {}, {}], radiology: [{}], nursing: [] };
+    const html = render();
+    expect(html).toContain('aria-haspopup="true"');
+    expect(html).toContain('aria-label="Cart (4)"');
+  });
+  it("on a labs page with both baskets empty it still opens the labs basket and its empty state", () => {
+    reset(); path = "/en/diagnostics"; count = 5;
     const html = render();
     expect(html).toContain('href="/en/labs/basket"');
-    expect(html).toContain('aria-label="Cart (3)"');
+    expect(html).not.toContain("cart-badge");
   });
-  it("on a radiology page it opens the radiology basket, and on a nursing page the nursing basket", () => {
+  it("on a radiology page the badge is the same total, and on a nursing page the nursing basket opens", () => {
     reset(); path = "/en/diagnostics/radiology"; basketLines = { lab: [{}], radiology: [{}, {}], nursing: [{}] };
-    expect(render()).toContain('href="/en/labs/basket?kind=radiology"');
-    expect(render()).toContain('aria-label="Cart (2)"');
+    expect(render()).toContain('aria-label="Cart (3)"');
     path = "/en/nursing/catalog";
     expect(render()).toContain('href="/en/labs/basket?kind=nursing"');
     expect(render()).toContain('aria-label="Cart (1)"');
@@ -130,5 +135,36 @@ describe("the count the button reads updates in the same tick", () => {
     expect(total()).toBe(0);
     expect(seen[seen.length - 1]).toBe(0);
     expect(seen).toContain(2);
+  });
+});
+
+describe("the labs and radiology sheet", async () => {
+  const { default: CartSheet } = await import("@/components-next/core/cart-sheet");
+  const html = (carts: Parameters<typeof CartSheet>[0]["carts"]) =>
+    renderToStaticMarkup(
+      <NextIntlClientProvider locale="en" timeZone="UTC" messages={{ CoreShell: en.CoreShell }}>
+        <CartSheet locale="en" carts={carts} wrap={{ current: null }} button={{ current: null }} onClose={() => undefined} onId={() => undefined} />
+      </NextIntlClientProvider>,
+    );
+  it("shows a Lab tests group and a Scans group with their lines, each with its own Complete booking link into its own basket", () => {
+    const out = html([
+      { service: "lab", href: "/en/labs/basket", count: 2, lines: ["CBC", "TSH"] },
+      { service: "radiology", href: "/en/labs/basket?kind=radiology", count: 1, lines: ["Chest X-ray"] },
+    ]);
+    expect(out).toContain('data-cart-group="lab"');
+    expect(out).toContain('data-cart-group="radiology"');
+    expect(out).toContain("Lab tests");
+    expect(out).toContain("Scans");
+    expect(out).toContain("CBC");
+    expect(out).toContain("Chest X-ray");
+    expect(out.match(/Complete booking/g)).toHaveLength(2);
+    expect(out).toContain('href="/en/labs/basket"');
+    expect(out).toContain('href="/en/labs/basket?kind=radiology"');
+  });
+  it("hides an empty group and keeps the pharmacy cart as a row on Home", () => {
+    const out = html([{ service: "pharmacy", href: "/en/cart", count: 1 }, { service: "radiology", href: "/en/labs/basket?kind=radiology", count: 1, lines: ["MRI"] }]);
+    expect(out).not.toContain('data-cart-group="lab"');
+    expect(out).toContain('data-cart-group="radiology"');
+    expect(out).toContain('data-cart-service="pharmacy"');
   });
 });
