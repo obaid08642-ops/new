@@ -129,6 +129,8 @@ export class Appointment {
   @Prop({ type: [String], default: [] }) labRequests?: string[];
   @Prop({ type: [String], default: [] }) radiologyRequests?: string[];
   @Prop({ type: [{ days: Number, reason: String }], default: [] }) sickLeaves?: { days: number; reason: string }[];
+  /** The patient opened this visit's outcomes (prescription, referral, reports) at this time: later ones are "new" for the hub badge. */
+  @Prop() outcomes_seen_at?: Date;
   @Prop() consultation_id?: string;
   @Prop() cancellation_reason?: string;
   @Prop() rescheduled_from_id?: string;
