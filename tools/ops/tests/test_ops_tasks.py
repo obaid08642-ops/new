@@ -384,13 +384,15 @@ case "$1" in
     case "$*" in *" config -q"*) [ -n "$FAKE_CONFIG_BAD" ] && exit 1;; esac
     case "$*" in *" config"*) [ "$last" = config ] && printf 'services:\n  mongodb:\n    mem_limit: "1258291200"\n';; esac
     exit 0;;
-  cp) python3 -c "import gzip,os,sys; open(sys.argv[1],'wb').write(gzip.compress(os.urandom(2*1024*1024), 0))" "$3"; exit 0;;
+  cp) [ -n "$FAKE_CP_RC" ] && { echo "Error response from daemon: no space left on device" >&2; exit "$FAKE_CP_RC"; }
+      python3 -c "import gzip,os,sys; open(sys.argv[1],'wb').write(gzip.compress(os.urandom(2*1024*1024), 0))" "$3"; exit 0;;
   exec)
     shift
     [ "$1" = -i ] && shift
     c="$1"; shift
     case "$*" in
-      *mongodump*) exit "${FAKE_DUMP_RC:-0}";;
+      *mongodump*) [ "${FAKE_DUMP_RC:-0}" != 0 ] && echo "Failed: cannot allocate memory" >&2; exit "${FAKE_DUMP_RC:-0}";;
+      *"df -Pm"*) printf 'Filesystem 1M-blocks Used Available Use%% Mounted\nx 10000 1000 %s 10%% /tmp\n' "${FAKE_TMP_FREE:-9000}"; exit 0;;
       *"rm -f"*) exit 0;;
       *isWritablePrimary*) echo "${FAKE_PRIMARY:-true}"; exit 0;;
       *countDocuments*|*"sh -c"*"callsessions"*) echo "${FAKE_CALLS:-0}"; exit 0;;
@@ -479,6 +481,26 @@ class RecreateDatastores(unittest.TestCase):
         p = self.run_task({"APPLY": "yes"}, FAKE_DUMP_RC=1)
         self.assertEqual(p.returncode, 1)
         self.assertIn("ABORT backup too small", p.stdout)
+        self.assertIn("backup steps: mongodump rc=1 err=Failed ; docker cp rc=skipped err=none ; stat rc=1 size_bytes=0", p.stdout)
+        self.assertEqual([e for e in self.events() if e], [])
+
+    def test_a_failing_docker_cp_aborts_with_every_step_result_and_stops_nothing(self):
+        p = self.run_task({"APPLY": "yes"}, FAKE_CP_RC=1)
+        self.assertEqual(p.returncode, 1, p.stdout + p.stderr)
+        self.assertIn("backup steps: mongodump rc=0 err=none ; docker cp rc=1 err=Error ; stat rc=1 size_bytes=0", p.stdout)
+        self.assertIn("ABORT backup too small (0 bytes", p.stdout)
+        self.assertNotIn("no space left", p.stdout)                          # only the first word of an error is printed
+        self.assertEqual([e for e in self.events() if e], [])
+
+    def test_the_room_for_the_backup_is_printed(self):
+        p = self.run_task({"APPLY": "yes"})
+        self.assertRegex(p.stdout, r"backup room: host_free_mb=\d+ container_tmp_free_mb=9000 MemAvailable=\d+MB")
+
+    def test_too_little_room_aborts_before_the_dump(self):
+        p = self.run_task({"APPLY": "yes"}, MIN_FREE_MB=999999999)
+        self.assertEqual(p.returncode, 1)
+        self.assertIn("MB free where the backup goes", p.stdout)
+        self.assertNotIn("mongodump", self.h.docker_calls())
         self.assertEqual([e for e in self.events() if e], [])
 
     def test_a_deploy_lock_aborts_before_anything(self):
