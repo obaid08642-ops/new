@@ -6,13 +6,13 @@ import { ApptCard, ConsultList, appointmentStatus, useConsultFormat, visitMode, 
 import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
 import { useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useConsultations } from '../../src/context/ConsultationsContext';
-import { statusCode, statusIs } from '../../src/utils/statusCase';
-import { PAST, UPCOMING } from '../../src/utils/appointmentTabs';
+import { statusCode } from '../../src/utils/statusCase';
+import { onTab, type AppointmentTab } from '../../src/utils/appointmentTabs';
 import { BOOK_NOW_HREF } from '../../src/utils/consultNearby';
 
 /**
  * My appointments — board Appointments (canvas/Appointments.dc.html). The list is what GET /care/appointments returns
- * (through ConsultationsContext); the tabs split it by the server's status, and each card offers what that mode and
+ * (through ConsultationsContext); the three tabs (upcoming, current, past; utils/appointmentTabs) split it by the server's status, and each card offers what that mode and
  * status allow: the waiting room (online), the clinic's place (clinic), the visit tracking (home), edit or cancel, and
  * "book again" for a finished visit with a known doctor.
  */
@@ -20,11 +20,11 @@ import { BOOK_NOW_HREF } from '../../src/utils/consultNearby';
 export default function AppointmentsScreen() {
   const { theme, c, k, lang } = useScreenUi();
   const { date, dayMonth, time, clock, money } = useConsultFormat();
-  const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
+  const [tab, setTab] = useState<AppointmentTab>('upcoming');
   const { appointments, isLoading, error, fetchAppointments } = useConsultations();
   const [refreshing, setRefreshing] = useState(false);
 
-  const rows = appointments.filter((a) => statusIs(a.status, tab === 'upcoming' ? UPCOMING : PAST));
+  const rows = appointments.filter((a) => onTab(a.status, tab));
 
   const refresh = async () => {
     setRefreshing(true);
@@ -50,9 +50,10 @@ export default function AppointmentsScreen() {
         <Segmented
           label={k('consult.appt.title')}
           value={tab}
-          onChange={(v) => setTab(v === 'past' ? 'past' : 'upcoming')}
+          onChange={(v) => setTab(v === 'past' ? 'past' : v === 'current' ? 'current' : 'upcoming')}
           options={[
             { value: 'upcoming', label: k('consult.appt.upcoming') },
+            { value: 'current', label: k('consult.appt.current') },
             { value: 'past', label: k('consult.appt.past') },
           ]}
           theme={theme}
@@ -66,7 +67,7 @@ export default function AppointmentsScreen() {
       refreshing={refreshing}
       empty={{
         icon: 'calendar-dots',
-        title: k(tab === 'upcoming' ? 'consult.appt.emptyUpcoming' : 'consult.appt.emptyPast'),
+        title: k(tab === 'upcoming' ? 'consult.appt.emptyUpcoming' : tab === 'current' ? 'consult.appt.emptyCurrent' : 'consult.appt.emptyPast'),
         body: k('consult.appt.emptyBody'),
         actionLabel: tab === 'upcoming' ? k('consult.appt.bookNow') : undefined,
         onAction: () => router.push(BOOK_NOW_HREF as Href),

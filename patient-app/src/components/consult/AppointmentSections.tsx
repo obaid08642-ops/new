@@ -6,7 +6,7 @@
  * server did not send is not drawn.
  */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 
 import { Button, Card, FIcon } from '../../../../packages/ui-native/src';
@@ -14,6 +14,9 @@ import { RX_TONE, InfoRow, Section, StatusTag, appointmentStatus, useConsultForm
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { showLocalizedAlert } from '../LocalizedAlert';
 import { useCart } from '../../context/CartContext';
+import { useDiagnosticsCart } from '../../context/DiagnosticsCartContext';
+import { outcomesOf, readReferrals, type OutcomeReport } from '../../utils/appointmentOutcomes';
+import { normalizeLabService, recordOf } from '../../utils/labMappers';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { toMedicationViews, reminderPayload, type MedicationView } from '../../utils/prescription-view';
@@ -32,6 +35,8 @@ export interface Summary {
   recommendations?: string;
   follow_up_recommended?: boolean;
   follow_up_window_days?: number;
+  /** codes of the lab tests and scans the doctor requested (GET /care/appointments/:id/summary) */
+  referrals?: { lab_tests?: string[]; radiology_scans?: string[] };
 }
 interface Lab {
   id?: string;
@@ -339,5 +344,118 @@ export function HistorySection({ notes, history }: { notes?: string; history?: H
         </Section>
       ) : null}
     </View>
+  );
+}
+
+/**
+ * What the doctor issued besides the prescription, from GET /medical-reports/mine (rows with this appointment's id): the sick
+ * leave, the medical certificates and the medical reports. A kind the server has no row for is not drawn. Opening one
+ * is GET /medical-reports/:id (view-report), which is what clears its "new" mark.
+ */
+export function OutcomeReportsSection({ appointmentId }: { appointmentId: string }) {
+  const { theme, t, c, flow, k, num, lang } = useScreenUi();
+  const { date } = useConsultFormat();
+  const load = useSection<{ sickLeaves: OutcomeReport[]; certificates: OutcomeReport[]; reports: OutcomeReport[] }>(
+    '/medical-reports/mine?limit=100',
+    Boolean(appointmentId),
+    (raw) => {
+      const found = outcomesOf(raw, appointmentId);
+      return found.sickLeaves.length + found.certificates.length + found.reports.length > 0 ? found : null;
+    },
+  );
+  const data = load.data;
+  if (!data) return null;
+  const open = (id: string) => router.push({ pathname: '/reports/view-report', params: { id } } as unknown as Href);
+  const group = (titleKey: string, icon: 'calendar-dots' | 'file-text', rows: OutcomeReport[], testID: string) =>
+    rows.length === 0 ? null : (
+      <Section title={k(titleKey)}>
+        {rows.map((r) => {
+          const title = (lang === 'ar' ? r.title.ar ?? r.title.en : r.title.en ?? r.title.ar) ?? k(titleKey);
+          const leave = r.sickLeave;
+          const detail = [
+            leave?.days != null ? k('consult.outcome.days', { n: num(leave.days) }) : null,
+            leave?.start ? date(leave.start) : null,
+            leave?.end ? date(leave.end) : null,
+            !leave && r.issuedAt ? date(r.issuedAt) : null,
+          ]
+            .filter(Boolean)
+            .join(' · ');
+          return (
+            <Pressable key={r.id} accessibilityRole="button" accessibilityLabel={title} onPress={() => open(r.id)} testID={`${testID}-${r.id}`} style={{ minHeight: 44 }}>
+              <Card theme={theme} padding="sm">
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  <FIcon icon={icon} tone={RX_TONE} size={44} theme={theme} />
+                  <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                    <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{title}</Text>
+                    {detail ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{detail}</Text> : null}
+                  </View>
+                  {r.isNew ? <StatusTag label={k('consult.outcome.new')} tone="info" /> : null}
+                </View>
+              </Card>
+            </Pressable>
+          );
+        })}
+      </Section>
+    );
+  return (
+    <View style={{ gap: 16 }} testID="detail-outcome-reports">
+      {group('consult.outcome.sickLeave', 'calendar-dots', data.sickLeaves, 'outcome-sick-leave')}
+      {group('consult.outcome.certificates', 'file-text', data.certificates, 'outcome-certificate')}
+      {group('consult.outcome.reports', 'file-text', data.reports, 'outcome-report')}
+    </View>
+  );
+}
+
+/**
+ * The lab tests and scans the doctor requested (`referrals` of the visit summary). "Book" resolves each code through the
+ * catalogue the cards use (GET /labs/services/:code, GET /radiology/services/:code) and adds what it found to the labs and
+ * radiology cart; a code the catalogue does not know is counted and said, never invented.
+ */
+export function ReferralsSection({ summary }: { summary: Summary | null }) {
+  const { theme, t, c, flow, k, num } = useScreenUi();
+  const { addItem } = useDiagnosticsCart();
+  const [busy, setBusy] = useState<'lab' | 'radiology' | null>(null);
+  const referrals = readReferrals(summary);
+  if (!referrals) return null;
+  const book = async (kind: 'lab' | 'radiology', codes: string[]) => {
+    setBusy(kind);
+    let missing = 0;
+    try {
+      for (const code of codes) {
+        try {
+          const item = normalizeLabService(recordOf(await apiFetch<unknown>(`/${kind === 'lab' ? 'labs' : 'radiology'}/services/${encodeURIComponent(code)}`)));
+          if (!item) missing += 1;
+          else await addItem({ id: item.id || code, name: item.name, price: item.price ?? 0, kind });
+        } catch (e) {
+          logError('consultations:referral-add', e);
+          missing += 1;
+        }
+      }
+      if (missing > 0) showLocalizedAlert(k('consult.outcome.notFoundTitle'), k('consult.outcome.notFoundBody', { n: num(missing), total: num(codes.length) }));
+      if (missing < codes.length) router.push('/diagnostics/cart' as Href);
+    } finally {
+      setBusy(null);
+    }
+  };
+  const rows: Array<{ kind: 'lab' | 'radiology'; codes: string[]; titleKey: string; bookKey: string; icon: 'test-tube' | 'scan' }> = [
+    { kind: 'lab', codes: referrals.labs, titleKey: 'consult.outcome.labs', bookKey: 'consult.outcome.bookLabs', icon: 'test-tube' },
+    { kind: 'radiology', codes: referrals.scans, titleKey: 'consult.outcome.scans', bookKey: 'consult.outcome.bookScans', icon: 'scan' },
+  ];
+  return (
+    <Section title={k('consult.outcome.referrals')}>
+      {rows
+        .filter((row) => row.codes.length > 0)
+        .map((row) => (
+          <Card key={row.kind} theme={theme}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <FIcon icon={row.icon} tone="mint" size={44} theme={theme} />
+              <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, flex: 1, minWidth: 0, ...flow }}>{k(row.titleKey, { n: num(row.codes.length) })}</Text>
+            </View>
+            <View style={{ marginTop: 10 }}>
+              <Button label={k(row.bookKey)} variant="outline" size="md" fullWidth startIcon="package" loading={busy === row.kind} disabled={busy !== null} onPress={() => void book(row.kind, row.codes)} theme={theme} testID={`referral-book-${row.kind}`} />
+            </View>
+          </Card>
+        ))}
+    </Section>
   );
 }

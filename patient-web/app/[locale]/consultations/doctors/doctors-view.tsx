@@ -117,7 +117,7 @@ export async function DoctorsView({ params, searchParams }: Props) {
   const typeLabels: Record<VisitType, string> = { clinic: t("service_clinic"), video: t("service_video"), home_visit: t("service_home") };
 
   return (
-    <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/consultations`} width="wide">
+    <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/consultations`} width="wide" appointmentsHref={`/${locale}/appointments`}>
       <StaleWhileRevalidate maxAgeSeconds={searchParams === undefined ? DOCTORS_REVALIDATE_SECONDS : undefined} />
       <div className={styles.searchSticky}>
       <form className={styles.doctorSearch} method="get" role="search">
@@ -149,7 +149,6 @@ export async function DoctorsView({ params, searchParams }: Props) {
           <Link href={clearHref} replace className={styles.activeFilterClear}>{t("filtersClearAll")}</Link>
         </div>
       ) : null}
-      <Link className={styles.activeFilterClear} href={`/${locale}/appointments`}>{c("actionMyAppointments")}</Link>
       {specialtyName ? (
         <div className={styles.activeFilter}>
           <StatusChip label={specialtyName} tone="blue" />

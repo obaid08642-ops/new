@@ -3908,5 +3908,20 @@
   "insurance.policy.deleteBody": "This card will be removed from your account.",
   "insurance.policy.deleteCancel": "Cancel",
   "insurance.policy.deleteDone": "Insurance card deleted.",
-  "insurance.policy.deleteFailed": "We could not delete the card. Try again."
+  "insurance.policy.deleteFailed": "We could not delete the card. Try again.",
+  "consult.appt.titleNew": "My appointments, {n} new results",
+  "consult.appt.current": "Current",
+  "consult.appt.emptyCurrent": "No current appointments",
+  "consult.outcome.new": "New",
+  "consult.outcome.sickLeave": "Sick leave",
+  "consult.outcome.certificates": "Medical certificates",
+  "consult.outcome.reports": "Medical reports",
+  "consult.outcome.days": "{n} days",
+  "consult.outcome.referrals": "Requested tests and scans",
+  "consult.outcome.labs": "Lab tests ({n})",
+  "consult.outcome.scans": "Scans ({n})",
+  "consult.outcome.bookLabs": "Book the lab tests",
+  "consult.outcome.bookScans": "Book the scans",
+  "consult.outcome.notFoundTitle": "Some tests are not available",
+  "consult.outcome.notFoundBody": "{n} of {total} were not found in the catalogue and were not added to the cart."
 }

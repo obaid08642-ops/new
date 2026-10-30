@@ -3908,5 +3908,20 @@
   "insurance.policy.deleteBody": "এই কার্ডটি আপনার অ্যাকাউন্ট থেকে সরিয়ে দেওয়া হবে।",
   "insurance.policy.deleteCancel": "বাতিল",
   "insurance.policy.deleteDone": "বিমা কার্ড মুছে ফেলা হয়েছে।",
-  "insurance.policy.deleteFailed": "কার্ডটি মুছতে পারিনি। আবার চেষ্টা করুন।"
+  "insurance.policy.deleteFailed": "কার্ডটি মুছতে পারিনি। আবার চেষ্টা করুন।",
+  "consult.appt.titleNew": "আমার অ্যাপয়েন্টমেন্ট, {n}টি নতুন ফলাফল",
+  "consult.appt.current": "চলমান",
+  "consult.appt.emptyCurrent": "কোনো চলমান অ্যাপয়েন্টমেন্ট নেই",
+  "consult.outcome.new": "নতুন",
+  "consult.outcome.sickLeave": "অসুস্থতাজনিত ছুটি",
+  "consult.outcome.certificates": "মেডিকেল সার্টিফিকেট",
+  "consult.outcome.reports": "মেডিকেল রিপোর্ট",
+  "consult.outcome.days": "{n} দিন",
+  "consult.outcome.referrals": "অনুরোধকৃত পরীক্ষা ও স্ক্যান",
+  "consult.outcome.labs": "ল্যাব পরীক্ষা ({n})",
+  "consult.outcome.scans": "স্ক্যান ({n})",
+  "consult.outcome.bookLabs": "ল্যাব পরীক্ষা বুক করুন",
+  "consult.outcome.bookScans": "স্ক্যান বুক করুন",
+  "consult.outcome.notFoundTitle": "কিছু পরীক্ষা পাওয়া যায়নি",
+  "consult.outcome.notFoundBody": "{total}-এর মধ্যে {n}টি ক্যাটালগে পাওয়া যায়নি এবং কার্টে যোগ হয়নি।"
 }

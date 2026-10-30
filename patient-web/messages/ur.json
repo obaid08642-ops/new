@@ -52,7 +52,9 @@
     "menuArticles": "مضامین",
     "menuSettings": "ترتیبات",
     "menuHelp": "مدد",
-    "menuResults": "میرے آرڈرز اور نتائج"
+    "menuResults": "میرے آرڈرز اور نتائج",
+    "appointments": "میری ملاقاتیں",
+    "appointmentsNew": "میری ملاقاتیں، {n, number} نئے نتائج"
   },
   "Home": {
     "eyebrow": "ڈیجیٹل مریض پورٹل",
@@ -500,7 +502,8 @@
       "time": "وقت میرے لیے مناسب نہیں",
       "payment": "ادائیگی میں مسئلہ",
       "other": "کوئی اور وجہ"
-    }
+    },
+    "emptyCurrent": "کوئی جاری ملاقات نہیں"
   },
   "Medicines": {
     "eyebrow": "نجی کیٹلاگ",
@@ -3104,7 +3107,13 @@
     "ratingOutOf": "5 میں سے {value}",
     "actionOrderPrescription": "نسخہ منگوائیں",
     "actionBookLabs": "لیب ٹیسٹ بک کریں",
-    "actionBookScans": "اسکین بک کریں"
+    "actionBookScans": "اسکین بک کریں",
+    "tabCurrent": "جاری",
+    "outcomeNew": "نیا",
+    "outcomeSickLeave": "بیماری کی چھٹی",
+    "outcomeCertificates": "طبی سرٹیفکیٹ",
+    "outcomeReports": "طبی رپورٹیں",
+    "outcomeDays": "{n, number} دن"
   },
   "ConsultClient": {
     "payHeading": "محفوظ گیٹ وے کے ذریعے ادائیگی مکمل کریں",

@@ -3908,5 +3908,20 @@
   "insurance.policy.deleteBody": "یہ کارڈ آپ کے اکاؤنٹ سے ہٹا دیا جائے گا۔",
   "insurance.policy.deleteCancel": "منسوخ کریں",
   "insurance.policy.deleteDone": "انشورنس کارڈ حذف ہو گیا۔",
-  "insurance.policy.deleteFailed": "کارڈ حذف نہیں ہو سکا۔ دوبارہ کوشش کریں۔"
+  "insurance.policy.deleteFailed": "کارڈ حذف نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
+  "consult.appt.titleNew": "میری ملاقاتیں، {n} نئے نتائج",
+  "consult.appt.current": "جاری",
+  "consult.appt.emptyCurrent": "کوئی جاری ملاقات نہیں",
+  "consult.outcome.new": "نیا",
+  "consult.outcome.sickLeave": "بیماری کی چھٹی",
+  "consult.outcome.certificates": "طبی سرٹیفکیٹ",
+  "consult.outcome.reports": "طبی رپورٹیں",
+  "consult.outcome.days": "{n} دن",
+  "consult.outcome.referrals": "تجویز کردہ ٹیسٹ اور اسکین",
+  "consult.outcome.labs": "لیب ٹیسٹ ({n})",
+  "consult.outcome.scans": "اسکین ({n})",
+  "consult.outcome.bookLabs": "لیب ٹیسٹ بُک کریں",
+  "consult.outcome.bookScans": "اسکین بُک کریں",
+  "consult.outcome.notFoundTitle": "کچھ ٹیسٹ دستیاب نہیں",
+  "consult.outcome.notFoundBody": "{total} میں سے {n} کیٹلاگ میں نہیں ملے اور کارٹ میں شامل نہیں ہوئے۔"
 }

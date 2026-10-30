@@ -7,8 +7,8 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { AppHeader, Chip, DoctorCard, EmptyState, ErrorState, FIcon, Icon, OfferCard, Screen, Search, Skeleton, useTabBarHeight } from '../../../../packages/ui-native/src';
 import { COLUMN, step as scale, useScreenUi } from '../../../src/components/screen/ScreenKit';
 import { CONSULT_TONE, MODE_LOOK, Section, Sheet, goBack, visitMode, specialtyLook, type VisitMode } from '../../../src/components/consult/ConsultKit';
-import { GlyphRound, WishlistButton } from '../../../src/components/pharmacy/PharmacyKit';
-import { ServiceCartButton } from '../../../src/components/cart/ServiceCartButton';
+import { CountBadge, GlyphRound, WishlistButton } from '../../../src/components/pharmacy/PharmacyKit';
+import { useNewOutcomesCount } from '../../../src/hooks/useNewOutcomesCount';
 import { HeaderMenuButton } from '../../../src/components/nav/HeaderMenuButton';
 import { ActiveFilters, type ActiveFilter } from '../../../src/components/pharmacy/ActiveFilters';
 import { apiFetch } from '../../../src/utils/api';
@@ -116,6 +116,7 @@ const priceOf = (d: Doc): number => d.consultation_fee || Number(String(d.p ?? '
 
 export default function Consultations() {
   const { theme, t, c, flow, dir, lang, k, num, money } = useScreenUi();
+  const newOutcomes = useNewOutcomesCount();
   const barHeight = useTabBarHeight();
   const [activePay, setActivePay] = useState<PayF>('all');
   const [activeVt, setActiveVt] = useState<VisitMode>('clinic');
@@ -358,9 +359,15 @@ export default function Consultations() {
         backLabel={k('consult.back')}
         trailing={
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <GlyphRound name="calendar-dots" label={k('consult.appt.title')} onPress={() => router.push('/consultations/appointments' as Href)} testID="consult-appointments-entry" />
+            <GlyphRound
+              name="calendar-dots"
+              label={newOutcomes.count > 0 ? k('consult.appt.titleNew', { n: num(newOutcomes.count) }) : k('consult.appt.title')}
+              onPress={() => router.push('/consultations/appointments' as Href)}
+              testID="consult-appointments-entry"
+            >
+              <CountBadge count={newOutcomes.count} />
+            </GlyphRound>
             <WishlistButton />
-            <ServiceCartButton />
             <HeaderMenuButton testID="consult-menu-button" />
           </View>
         }

@@ -3908,5 +3908,20 @@
   "insurance.policy.deleteBody": "Aalisin ang card na ito sa iyong account.",
   "insurance.policy.deleteCancel": "Kanselahin",
   "insurance.policy.deleteDone": "Nabura na ang insurance card.",
-  "insurance.policy.deleteFailed": "Hindi namin nabura ang card. Subukan muli."
+  "insurance.policy.deleteFailed": "Hindi namin nabura ang card. Subukan muli.",
+  "consult.appt.titleNew": "Aking mga appointment, {n} bagong resulta",
+  "consult.appt.current": "Kasalukuyan",
+  "consult.appt.emptyCurrent": "Walang kasalukuyang appointment",
+  "consult.outcome.new": "Bago",
+  "consult.outcome.sickLeave": "Leave dahil sa sakit",
+  "consult.outcome.certificates": "Mga medical certificate",
+  "consult.outcome.reports": "Mga medical report",
+  "consult.outcome.days": "{n} araw",
+  "consult.outcome.referrals": "Mga hiniling na test at scan",
+  "consult.outcome.labs": "Mga lab test ({n})",
+  "consult.outcome.scans": "Mga scan ({n})",
+  "consult.outcome.bookLabs": "I-book ang mga lab test",
+  "consult.outcome.bookScans": "I-book ang mga scan",
+  "consult.outcome.notFoundTitle": "May mga test na hindi available",
+  "consult.outcome.notFoundBody": "{n} sa {total} ay hindi nahanap sa catalogue at hindi naidagdag sa cart."
 }

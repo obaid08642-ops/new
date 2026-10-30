@@ -41,7 +41,7 @@ export default async function SpecialtySelectPage({ params, searchParams }: Prop
 
   if (!response || !response.ok) {
     return (
-      <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/consultations`}>
+      <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/consultations`} appointmentsHref={`/${locale}/appointments`}>
         <ConsultState kind="error" title={t("unavailableTitle")} body={t("unavailableBody")} retryLabel={t("retry")} />
       </ConsultPage>
     );
@@ -58,7 +58,7 @@ export default async function SpecialtySelectPage({ params, searchParams }: Prop
   for (let i = 0; t.has(`faq.${i}.q`); i += 1) faqs.push({ q: t(`faq.${i}.q`), a: t(`faq.${i}.a`) });
 
   return (
-    <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/consultations`}>
+    <ConsultPage locale={locale} title={t("title")} backHref={`/${locale}/consultations`} appointmentsHref={`/${locale}/appointments`}>
       <JsonLd data={[{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }]} />
       <form method="get" role="search" className={styles.search}>
         <SuggestInput locale={locale} id="specialty-search" name="q" defaultValue={q} placeholder={t("searchPlaceholder")} label={t("searchLabel")} fieldClassName={styles.searchField} inputClassName={styles.searchInput}>

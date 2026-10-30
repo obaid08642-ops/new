@@ -3908,5 +3908,20 @@
   "insurance.policy.deleteBody": "ستُزال هذه البطاقة من حسابك.",
   "insurance.policy.deleteCancel": "إلغاء",
   "insurance.policy.deleteDone": "تم حذف بطاقة التأمين.",
-  "insurance.policy.deleteFailed": "تعذّر حذف البطاقة. حاول مرة أخرى."
+  "insurance.policy.deleteFailed": "تعذّر حذف البطاقة. حاول مرة أخرى.",
+  "consult.appt.titleNew": "مواعيدي، {n} نتائج جديدة",
+  "consult.appt.current": "حالية",
+  "consult.appt.emptyCurrent": "لا توجد مواعيد حالية",
+  "consult.outcome.new": "جديد",
+  "consult.outcome.sickLeave": "الإجازة المرضية",
+  "consult.outcome.certificates": "الشهادات الطبية",
+  "consult.outcome.reports": "التقارير الطبية",
+  "consult.outcome.days": "{n} أيام",
+  "consult.outcome.referrals": "التحاليل والأشعة المطلوبة",
+  "consult.outcome.labs": "تحاليل مخبرية ({n})",
+  "consult.outcome.scans": "أشعة ({n})",
+  "consult.outcome.bookLabs": "احجز التحاليل",
+  "consult.outcome.bookScans": "احجز الأشعة",
+  "consult.outcome.notFoundTitle": "بعض الفحوصات غير متاحة",
+  "consult.outcome.notFoundBody": "لم نجد {n} من {total} في الدليل، ولم تُضَف إلى السلة."
 }

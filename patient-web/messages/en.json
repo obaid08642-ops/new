@@ -52,7 +52,9 @@
     "menuArticles": "Articles",
     "menuSettings": "Settings",
     "menuHelp": "Help",
-    "menuResults": "My orders and results"
+    "menuResults": "My orders and results",
+    "appointments": "My appointments",
+    "appointmentsNew": "My appointments, {n, number} new results"
   },
   "Home": {
     "eyebrow": "Digital patient portal",
@@ -459,7 +461,8 @@
       "time": "The time does not suit me",
       "payment": "A payment problem",
       "other": "Another reason"
-    }
+    },
+    "emptyCurrent": "No current appointments"
   },
   "Medicines": {
     "eyebrow": "Private catalog",
@@ -3104,7 +3107,13 @@
     "ratingOutOf": "{value} out of 5",
     "actionOrderPrescription": "Order the prescription",
     "actionBookLabs": "Book the labs",
-    "actionBookScans": "Book the scans"
+    "actionBookScans": "Book the scans",
+    "tabCurrent": "Current",
+    "outcomeNew": "New",
+    "outcomeSickLeave": "Sick leave",
+    "outcomeCertificates": "Medical certificates",
+    "outcomeReports": "Medical reports",
+    "outcomeDays": "{n, number} days"
   },
   "ConsultClient": {
     "payHeading": "Complete the payment through a secure gateway",

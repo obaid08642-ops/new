@@ -3908,5 +3908,20 @@
   "insurance.policy.deleteBody": "यह कार्ड आपके खाते से हटा दिया जाएगा।",
   "insurance.policy.deleteCancel": "रद्द करें",
   "insurance.policy.deleteDone": "बीमा कार्ड हटा दिया गया।",
-  "insurance.policy.deleteFailed": "कार्ड हटाया नहीं जा सका। फिर से कोशिश करें।"
+  "insurance.policy.deleteFailed": "कार्ड हटाया नहीं जा सका। फिर से कोशिश करें।",
+  "consult.appt.titleNew": "मेरी अपॉइंटमेंट, {n} नए नतीजे",
+  "consult.appt.current": "वर्तमान",
+  "consult.appt.emptyCurrent": "कोई वर्तमान अपॉइंटमेंट नहीं",
+  "consult.outcome.new": "नया",
+  "consult.outcome.sickLeave": "बीमारी की छुट्टी",
+  "consult.outcome.certificates": "मेडिकल सर्टिफिकेट",
+  "consult.outcome.reports": "मेडिकल रिपोर्ट",
+  "consult.outcome.days": "{n} दिन",
+  "consult.outcome.referrals": "अनुरोधित जाँच और स्कैन",
+  "consult.outcome.labs": "लैब जाँच ({n})",
+  "consult.outcome.scans": "स्कैन ({n})",
+  "consult.outcome.bookLabs": "लैब जाँच बुक करें",
+  "consult.outcome.bookScans": "स्कैन बुक करें",
+  "consult.outcome.notFoundTitle": "कुछ जाँच उपलब्ध नहीं हैं",
+  "consult.outcome.notFoundBody": "{total} में से {n} कैटलॉग में नहीं मिले और कार्ट में नहीं जोड़े गए।"
 }

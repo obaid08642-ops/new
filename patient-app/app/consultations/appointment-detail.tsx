@@ -7,7 +7,7 @@ import { ConsultScreen, Dialog, Gate, InfoRow, ModePill, Section, StatusTag, app
 import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
 import { FollowUpActions } from '../../src/components/consult/Differentiators';
 import { readFollowUpActions } from '../../src/utils/differentiators';
-import { HistorySection, PrescriptionSection, SummarySection, openFollowUp, type HistoryRow, type Summary } from '../../src/components/consult/AppointmentSections';
+import { HistorySection, OutcomeReportsSection, PrescriptionSection, ReferralsSection, SummarySection, openFollowUp, type HistoryRow, type Summary } from '../../src/components/consult/AppointmentSections';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { apiFetch } from '../../src/utils/api';
@@ -182,6 +182,8 @@ export default function AppointmentDetailScreen() {
 
             {done ? <SummarySection appointmentId={id} doctorId={a.doctor_id || ''} onSummary={setSummary} /> : null}
             {done ? <PrescriptionSection appointmentId={id} fallback={summary?.prescription} /> : null}
+            {done ? <ReferralsSection summary={summary} /> : null}
+            {done ? <OutcomeReportsSection appointmentId={id} /> : null}
             {done ? <FollowUpActions actions={readFollowUpActions(a)} testID="detail-follow-up-actions" /> : null}
             <HistorySection notes={a.patient_notes} history={a.state_history} />
             {done && a.doctor_id ? <Button label={k('consult.rx.followUp')} variant="outline" size="md" fullWidth startIcon="calendar-dots" onPress={() => openFollowUp(a.doctor_id || '', id)} theme={theme} testID="detail-follow-up" /> : null}

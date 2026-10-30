@@ -52,7 +52,9 @@
     "menuArticles": "Mga artikulo",
     "menuSettings": "Mga setting",
     "menuHelp": "Tulong",
-    "menuResults": "Mga order at resulta ko"
+    "menuResults": "Mga order at resulta ko",
+    "appointments": "Aking mga appointment",
+    "appointmentsNew": "Aking mga appointment, {n, number} bagong resulta"
   },
   "Home": {
     "eyebrow": "Digital na portal ng pasyente",
@@ -500,7 +502,8 @@
       "time": "Hindi akma sa akin ang oras",
       "payment": "May problema sa bayad",
       "other": "Ibang dahilan"
-    }
+    },
+    "emptyCurrent": "Walang kasalukuyang appointment"
   },
   "Medicines": {
     "eyebrow": "Pribadong katalogo",
@@ -3104,7 +3107,13 @@
     "ratingOutOf": "{value} sa 5",
     "actionOrderPrescription": "I-order ang reseta",
     "actionBookLabs": "Mag-book ng mga lab test",
-    "actionBookScans": "Mag-book ng mga scan"
+    "actionBookScans": "Mag-book ng mga scan",
+    "tabCurrent": "Kasalukuyan",
+    "outcomeNew": "Bago",
+    "outcomeSickLeave": "Leave dahil sa sakit",
+    "outcomeCertificates": "Mga medical certificate",
+    "outcomeReports": "Mga medical report",
+    "outcomeDays": "{n, number} araw"
   },
   "ConsultClient": {
     "payHeading": "Kumpletuhin ang bayad sa pamamagitan ng ligtas na gateway",
