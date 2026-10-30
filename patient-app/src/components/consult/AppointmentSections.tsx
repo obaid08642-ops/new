@@ -6,7 +6,7 @@
  * server did not send is not drawn.
  */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 
 import { Button, Card, FIcon } from '../../../../packages/ui-native/src';
@@ -14,6 +14,10 @@ import { RX_TONE, InfoRow, Section, StatusTag, appointmentStatus, useConsultForm
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { showLocalizedAlert } from '../LocalizedAlert';
 import { useCart } from '../../context/CartContext';
+import { useDiagnosticsCart } from '../../context/DiagnosticsCartContext';
+import { hasOutcomes, readOutcomes, type OutcomeReport, type ReferralItem, type VisitOutcomes } from '../../utils/appointmentOutcomes';
+import { markOutcomesSeen } from '../../hooks/useNewOutcomesCount';
+import { normalizeLabService, recordOf } from '../../utils/labMappers';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { toMedicationViews, reminderPayload, type MedicationView } from '../../utils/prescription-view';
@@ -339,5 +343,125 @@ export function HistorySection({ notes, history }: { notes?: string; history?: H
         </Section>
       ) : null}
     </View>
+  );
+}
+
+/**
+ * The visit's outcomes in one read, GET /care/appointments/:id/outcomes (sick leave and certificates, reports, the lab tests and scans
+ * resolved to the catalogue). Once they are on screen the visit is marked seen (PATCH .../outcomes/seen), which clears the hub badge.
+ */
+export function useVisitOutcomes(appointmentId: string, enabled: boolean): VisitOutcomes | null {
+  const load = useSection<VisitOutcomes>(`/care/appointments/${encodeURIComponent(appointmentId)}/outcomes`, Boolean(appointmentId) && enabled, (raw) => {
+    const found = readOutcomes(raw);
+    return hasOutcomes(found) ? found : null;
+  });
+  const unseen = load.data?.unseen ?? 0;
+  useEffect(() => {
+    if (unseen > 0) void markOutcomesSeen(appointmentId);
+  }, [appointmentId, unseen]);
+  return load.data;
+}
+
+/**
+ * What the doctor issued besides the prescription (from `useVisitOutcomes`): the sick leave, the medical certificates and the
+ * medical reports. A kind the server has no row for is not drawn. Opening one is GET /medical-reports/:id (view-report).
+ */
+export function OutcomeReportsSection({ outcomes }: { outcomes: VisitOutcomes | null }) {
+  const { theme, t, c, flow, k, num, lang } = useScreenUi();
+  const { date } = useConsultFormat();
+  const data = outcomes && outcomes.sickLeaves.length + outcomes.certificates.length + outcomes.reports.length > 0 ? outcomes : null;
+  if (!data) return null;
+  const open = (id: string) => router.push({ pathname: '/reports/view-report', params: { id } } as unknown as Href);
+  const group = (titleKey: string, icon: 'calendar-dots' | 'file-text', rows: OutcomeReport[], testID: string) =>
+    rows.length === 0 ? null : (
+      <Section title={k(titleKey)}>
+        {rows.map((r) => {
+          const title = (lang === 'ar' ? r.title.ar ?? r.title.en : r.title.en ?? r.title.ar) ?? k(titleKey);
+          const leave = r.sickLeave;
+          const detail = [
+            leave?.days != null ? k('consult.outcome.days', { n: num(leave.days) }) : null,
+            leave?.start ? date(leave.start) : null,
+            leave?.end ? date(leave.end) : null,
+            !leave && r.issuedAt ? date(r.issuedAt) : null,
+          ]
+            .filter(Boolean)
+            .join(' · ');
+          return (
+            <Pressable key={r.id} accessibilityRole="button" accessibilityLabel={title} onPress={() => open(r.id)} testID={`${testID}-${r.id}`} style={{ minHeight: 44 }}>
+              <Card theme={theme} padding="sm">
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  <FIcon icon={icon} tone={RX_TONE} size={44} theme={theme} />
+                  <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                    <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{title}</Text>
+                    {detail ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{detail}</Text> : null}
+                  </View>
+                  {r.isNew ? <StatusTag label={k('consult.outcome.new')} tone="info" /> : null}
+                </View>
+              </Card>
+            </Pressable>
+          );
+        })}
+      </Section>
+    );
+  return (
+    <View style={{ gap: 16 }} testID="detail-outcome-reports">
+      {group('consult.outcome.sickLeave', 'calendar-dots', data.sickLeaves, 'outcome-sick-leave')}
+      {group('consult.outcome.certificates', 'file-text', data.certificates, 'outcome-certificate')}
+      {group('consult.outcome.reports', 'file-text', data.reports, 'outcome-report')}
+    </View>
+  );
+}
+
+/**
+ * The lab tests and scans the doctor requested (`lab_tests` / `radiology_scans` of the outcomes, already resolved by the server).
+ * "Book" reads the price of each resolved catalogue row (GET /labs/services/:id, GET /radiology/services/:id) and adds it to the labs
+ * and radiology cart; a code the server could not resolve is counted and said, never invented.
+ */
+export function ReferralsSection({ outcomes }: { outcomes: VisitOutcomes | null }) {
+  const { theme, t, c, flow, k, num } = useScreenUi();
+  const { addItem } = useDiagnosticsCart();
+  const [busy, setBusy] = useState<'lab' | 'radiology' | null>(null);
+  if (!outcomes || outcomes.labs.length + outcomes.scans.length === 0) return null;
+  const book = async (kind: 'lab' | 'radiology', items: ReferralItem[]) => {
+    setBusy(kind);
+    let missing = items.filter((i) => !i.resolved).length;
+    try {
+      for (const item of items) {
+        if (!item.resolved) continue;
+        try {
+          const row = normalizeLabService(recordOf(await apiFetch<unknown>(`/${kind === 'lab' ? 'labs' : 'radiology'}/services/${encodeURIComponent(item.id)}`)));
+          if (!row) missing += 1;
+          else await addItem({ id: row.id || item.id, name: row.name, price: row.price ?? 0, kind });
+        } catch (e) {
+          logError('consultations:referral-add', e);
+          missing += 1;
+        }
+      }
+      if (missing > 0) showLocalizedAlert(k('consult.outcome.notFoundTitle'), k('consult.outcome.notFoundBody', { n: num(missing), total: num(items.length) }));
+      if (missing < items.length) router.push('/diagnostics/cart' as Href);
+    } finally {
+      setBusy(null);
+    }
+  };
+  const rows: Array<{ kind: 'lab' | 'radiology'; items: ReferralItem[]; titleKey: string; bookKey: string; icon: 'test-tube' | 'scan' }> = [
+    { kind: 'lab', items: outcomes.labs, titleKey: 'consult.outcome.labs', bookKey: 'consult.outcome.bookLabs', icon: 'test-tube' },
+    { kind: 'radiology', items: outcomes.scans, titleKey: 'consult.outcome.scans', bookKey: 'consult.outcome.bookScans', icon: 'scan' },
+  ];
+  return (
+    <Section title={k('consult.outcome.referrals')}>
+      {rows
+        .filter((row) => row.items.length > 0)
+        .map((row) => (
+          <Card key={row.kind} theme={theme}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <FIcon icon={row.icon} tone="mint" size={44} theme={theme} />
+              <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, flex: 1, minWidth: 0, ...flow }}>{k(row.titleKey, { n: num(row.items.length) })}</Text>
+            </View>
+            <View style={{ marginTop: 10 }}>
+              <Button label={k(row.bookKey)} variant="outline" size="md" fullWidth startIcon="package" loading={busy === row.kind} disabled={busy !== null} onPress={() => void book(row.kind, row.items)} theme={theme} testID={`referral-book-${row.kind}`} />
+            </View>
+          </Card>
+        ))}
+    </Section>
   );
 }

@@ -56,7 +56,9 @@
     "menuArticles": "Articles",
     "menuSettings": "Settings",
     "menuHelp": "Help",
-    "menuResults": "My orders and results"
+    "menuResults": "My orders and results",
+    "appointments": "My appointments",
+    "appointmentsNew": "My appointments, {n, number} new results"
   },
   "Home": {
     "eyebrow": "Digital patient portal",
@@ -463,7 +465,8 @@
       "time": "The time does not suit me",
       "payment": "A payment problem",
       "other": "Another reason"
-    }
+    },
+    "emptyCurrent": "No current appointments"
   },
   "Medicines": {
     "eyebrow": "Private catalog",
@@ -1336,7 +1339,8 @@
         "a": "Yes, from My appointments under the policy shown at booking."
       }
     },
-    "faqTitle": "FAQs"
+    "faqTitle": "FAQs",
+    "comingSoon": "Coming soon"
   },
   "HomeCareServices": {
     "eyebrow": "Home care",
@@ -1512,7 +1516,11 @@
     "filtersWithCount": "Filters, {n} active",
     "activeFilters": "Active filters",
     "removeFilter": "Remove filter {filter}",
-    "filterAll": "All"
+    "filterAll": "All",
+    "specialtyAll": "All",
+    "comingSoon": "Coming soon",
+    "comingSoonTitle": "{specialty} is coming soon",
+    "comingSoonBody": "There are no doctors in this specialty yet. Choose another specialty."
   },
   "LabsServices": {
     "eyebrow": "Laboratory care",
@@ -3115,7 +3123,13 @@
     "ratingOutOf": "{value} out of 5",
     "actionOrderPrescription": "Order the prescription",
     "actionBookLabs": "Book the labs",
-    "actionBookScans": "Book the scans"
+    "actionBookScans": "Book the scans",
+    "tabCurrent": "Current",
+    "outcomeNew": "New",
+    "outcomeSickLeave": "Sick leave",
+    "outcomeCertificates": "Medical certificates",
+    "outcomeReports": "Medical reports",
+    "outcomeDays": "{n, number} days"
   },
   "ConsultClient": {
     "payHeading": "Complete the payment through a secure gateway",

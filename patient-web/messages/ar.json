@@ -56,7 +56,9 @@
     "menuArticles": "المقالات",
     "menuSettings": "الإعدادات",
     "menuHelp": "المساعدة",
-    "menuResults": "طلباتي ونتائجي"
+    "menuResults": "طلباتي ونتائجي",
+    "appointments": "مواعيدي",
+    "appointmentsNew": "مواعيدي، {n, number} نتائج جديدة"
   },
   "Home": {
     "eyebrow": "بوابة المريض الرقمية",
@@ -451,7 +453,8 @@
       "time": "الوقت لا يناسبني",
       "payment": "مشكلة في الدفع",
       "other": "سبب آخر"
-    }
+    },
+    "emptyCurrent": "لا توجد مواعيد حالية"
   },
   "Medicines": {
     "eyebrow": "كتالوج خاص",
@@ -1336,7 +1339,8 @@
         "a": "نعم من صفحة مواعيدي وفق سياسة الإلغاء المعروضة عند الحجز."
       }
     },
-    "faqTitle": "الأسئلة الشائعة"
+    "faqTitle": "الأسئلة الشائعة",
+    "comingSoon": "قريبًا"
   },
   "HomeCareServices": {
     "eyebrow": "الرعاية المنزلية",
@@ -1512,7 +1516,11 @@
     "filtersWithCount": "الفلاتر، {n} مفعّل",
     "activeFilters": "الفلاتر المفعّلة",
     "removeFilter": "إزالة الفلتر {filter}",
-    "filterAll": "الكل"
+    "filterAll": "الكل",
+    "specialtyAll": "الكل",
+    "comingSoon": "قريبًا",
+    "comingSoonTitle": "{specialty} قريبًا",
+    "comingSoonBody": "لا يوجد أطباء في هذا التخصص حتى الآن. اختر تخصصًا آخر."
   },
   "LabsServices": {
     "eyebrow": "الرعاية المخبرية",
@@ -3115,7 +3123,13 @@
     "ratingOutOf": "{value} من 5",
     "actionOrderPrescription": "اطلب الوصفة",
     "actionBookLabs": "احجز التحاليل",
-    "actionBookScans": "احجز الأشعة"
+    "actionBookScans": "احجز الأشعة",
+    "tabCurrent": "حالية",
+    "outcomeNew": "جديد",
+    "outcomeSickLeave": "الإجازة المرضية",
+    "outcomeCertificates": "الشهادات الطبية",
+    "outcomeReports": "التقارير الطبية",
+    "outcomeDays": "{n, number} أيام"
   },
   "ConsultClient": {
     "payHeading": "أكمل الدفع من خلال بوابة آمنة",

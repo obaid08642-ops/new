@@ -7,7 +7,7 @@ import { ConsultScreen, Dialog, Gate, InfoRow, ModePill, Section, StatusTag, app
 import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
 import { FollowUpActions } from '../../src/components/consult/Differentiators';
 import { readFollowUpActions } from '../../src/utils/differentiators';
-import { HistorySection, PrescriptionSection, SummarySection, openFollowUp, type HistoryRow, type Summary } from '../../src/components/consult/AppointmentSections';
+import { HistorySection, OutcomeReportsSection, PrescriptionSection, ReferralsSection, SummarySection, openFollowUp, useVisitOutcomes, type HistoryRow, type Summary } from '../../src/components/consult/AppointmentSections';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { apiFetch } from '../../src/utils/api';
@@ -91,6 +91,7 @@ export default function AppointmentDetailScreen() {
   const pay = a?.payment_method === 'insurance' ? 'consult.pay.insurance' : a?.payment_method === 'cash' ? 'consult.pay.cash' : a?.payment_method ? 'consult.pay.card' : '';
   const at = a?.scheduled_at;
   const id = String(a?.id || '');
+  const outcomes = useVisitOutcomes(id, done);
 
   const go = (pathname: string, extra?: Record<string, unknown>) => router.push({ pathname, params: { appointmentId: id, ...extra } } as unknown as Href);
 
@@ -182,6 +183,8 @@ export default function AppointmentDetailScreen() {
 
             {done ? <SummarySection appointmentId={id} doctorId={a.doctor_id || ''} onSummary={setSummary} /> : null}
             {done ? <PrescriptionSection appointmentId={id} fallback={summary?.prescription} /> : null}
+            {done ? <ReferralsSection outcomes={outcomes} /> : null}
+            {done ? <OutcomeReportsSection outcomes={outcomes} /> : null}
             {done ? <FollowUpActions actions={readFollowUpActions(a)} testID="detail-follow-up-actions" /> : null}
             <HistorySection notes={a.patient_notes} history={a.state_history} />
             {done && a.doctor_id ? <Button label={k('consult.rx.followUp')} variant="outline" size="md" fullWidth startIcon="calendar-dots" onPress={() => openFollowUp(a.doctor_id || '', id)} theme={theme} testID="detail-follow-up" /> : null}
