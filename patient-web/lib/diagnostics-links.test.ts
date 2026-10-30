@@ -11,8 +11,8 @@ describe("diagnostics links", () => {
     expect(diagnosticOrderNextHref("ar", { lines: [{ kind: "radiology", booking_id: "rb1" }] })).toBe("/ar/diagnostics/booking-success?bookingId=rb1&domain=radiology");
   });
   it("opens the bookings list when there is no single booking (never the order id)", () => {
-    expect(diagnosticOrderNextHref("ar", { id: "order-1", lines: [{ kind: "lab", booking_id: "a" }, { kind: "radiology", booking_id: "b" }] })).toBe("/ar/diagnostics/bookings");
-    expect(diagnosticOrderNextHref("ar", { id: "order-1", lines: [{ kind: "lab" }] })).toBe("/ar/diagnostics/bookings");
-    expect(diagnosticOrderNextHref("ar", null)).toBe("/ar/diagnostics/bookings");
+    expect(diagnosticOrderNextHref("ar", { id: "order-1", lines: [{ kind: "lab", booking_id: "a" }, { kind: "radiology", booking_id: "b" }] })).toBe("/ar/orders");
+    expect(diagnosticOrderNextHref("ar", { id: "order-1", lines: [{ kind: "lab" }] })).toBe("/ar/orders");
+    expect(diagnosticOrderNextHref("ar", null)).toBe("/ar/orders");
   });
 });

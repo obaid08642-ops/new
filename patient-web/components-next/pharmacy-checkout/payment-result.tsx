@@ -48,7 +48,7 @@ export function bookingHref(locale: string, booking: Booking | undefined): strin
     case "lab": return `/${locale}/diagnostics/bookings/labs/${id}`;
     case "radiology": return `/${locale}/diagnostics/bookings/radiology/${id}`;
     case "insurance": return `/${locale}/insurance/requests/${id}`;
-    case "diagnostics": return `/${locale}/diagnostics/bookings`;
+    case "diagnostics": return `/${locale}/orders`;
     default: return undefined;
   }
 }

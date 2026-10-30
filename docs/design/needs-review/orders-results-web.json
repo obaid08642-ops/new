@@ -1,0 +1,57 @@
+[
+  {
+    "batch": "orders-results",
+    "app": "patient-web",
+    "screen": "/orders",
+    "element": "Share result with your doctor",
+    "file": "patient-web/components-next/orders/order-list.tsx",
+    "line": 84,
+    "found": "[backend] [backend] No endpoint shares a lab or radiology result with a doctor (only POST /medical-reports/:id/share for medical reports); button left out.",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": "orders-results",
+    "app": "patient-web",
+    "screen": "/orders",
+    "element": "New-result badge (row and top bar)",
+    "file": "patient-web/components-next/core/core-shell.tsx",
+    "line": 145,
+    "found": "[backend] [backend] Bookings carry no viewed/seen flag, so 'new' and the count cannot be told truthfully; needs a field (e.g. results_unseen_count on /labs/bookings/mine) or a cheap count endpoint for the server-rendered header.",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": "orders-results",
+    "app": "patient-web",
+    "screen": "/orders",
+    "element": "Radiology PDF",
+    "file": "patient-web/components-next/orders/order-list.tsx",
+    "line": 83,
+    "found": "[backend] [backend] The radiology booking payload has no report file reference (only labs have reports[].has_file), so no PDF button for radiology.",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": "orders-results",
+    "app": "patient-web",
+    "screen": "/orders",
+    "element": "Result-ready notification",
+    "file": "patient-web/lib/api/notifications.ts",
+    "line": 59,
+    "found": "[backend] [backend] report.ready sends route /reports/:id (a medical report) and radiology writes a provider bell only; a patient notification with route /health/results/:id or /diagnostics/results-history is needed for lab/radiology results (the web maps both to the new area).",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": "orders-results",
+    "app": "patient-web",
+    "screen": "/orders",
+    "element": "Book a consultation with the result as context",
+    "file": "patient-web/components-next/orders/order-list.tsx",
+    "line": 84,
+    "found": "[owner] [owner] /consultations/doctors takes no result id; opens the doctor list without context.",
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision"
+  }
+]

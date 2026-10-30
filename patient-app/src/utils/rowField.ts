@@ -59,3 +59,13 @@ export function rowList(row: Row, base: string, locale: string = currentDbLang()
 
 /** A name the API already chose the language of (search suggestions, a booked item's name): only its script is checked. */
 export const nameMark = (text: string | null | undefined, locale: string = currentDbLang()): FieldMark | undefined => markByScript(locale, text);
+
+/**
+ * A booked catalogue item's name (orders list, results cards): the server's `names` map or `*_name_ar/en` columns were already picked
+ * for the page, so only its script is checked; a name in the other script than the page (an English lab test on an Arabic page, an Arabic
+ * scan on an English one) is drawn in its own direction and says so ("Available in English only"), like every other catalogue row.
+ */
+export const bookingNameMark = (text: string | null | undefined, locale: string = currentDbLang()): FieldMark | undefined => {
+  const mark = markByScript(locale, text);
+  return mark ? { ...mark, fallbackFrom: mark.lang === 'ar' ? 'ar' : 'en' } : undefined;
+};

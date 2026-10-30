@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { SearchModule } from '../search/search.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LabsController } from './labs.controller';
 import { LabResultsController } from './lab-results.controller';
@@ -21,6 +22,7 @@ import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-p
 @Module({
   imports: [
     WorkflowEngineModule,
+    SearchModule,
     BusinessRulesModule,
     InsuranceEngineModule,
     MongooseModule.forFeature([

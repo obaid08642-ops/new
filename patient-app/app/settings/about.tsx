@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { AboutView } from '../../src/components/account/AboutView';
+import { RedirectKeepingParams } from '../../src/components/health/RedirectKeepingParams';
 
-/** About (?tab=about) and legal (?tab=legal); absorbs /settings/terms. */
-export default function Screen() {
-  return <AboutView />;
+/** Old About screen: the about tab of the one Help and policies screen. */
+export default function Redirect() {
+  return <RedirectKeepingParams to="/settings/help" params={{ tab: 'about' }} />;
 }

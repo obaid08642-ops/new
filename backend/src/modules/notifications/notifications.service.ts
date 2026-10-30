@@ -823,10 +823,6 @@ export class NotificationsService {
     await this.create({ user_id: p.provider_id, title_key: `notif.${key}.title`, body_key: `notif.${key}.body`, params: { doc_type: p.doc_type || '' }, type: NotificationType.INFO, priority: NotificationPriority.HIGH });
     await this.providerDecisionBell(p.provider_id, key);
   }
-  @OnEvent('emergency.resolved')
-  async onEmergencyResolved(p: any) {
-    if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.emergency_resolved.title', body_key: 'notif.emergency_resolved.body', type: NotificationType.INFO });
-  }
   // ============ APPOINTMENT Lifecycle (EventBus payload shape: patient_account_id) ============
   @OnEvent('doctor_appointment.created')
   async onApptCreated(p: any) {
@@ -936,10 +932,6 @@ export class NotificationsService {
     });
   }
 
-  @OnEvent('emergency.triggered')
-  async onEmergency(p: any) {
-    await this.create({ role: 'admin', title_key: 'notif.emergency.title', body_key: 'notif.emergency.body', type: NotificationType.EMERGENCY, priority: NotificationPriority.CRITICAL });
-  }
   @OnEvent('prescription.created')
   async onRx(p: any) {
     if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.prescription_new.title', body_key: 'notif.prescription_new.body', type: NotificationType.PRESCRIPTION });

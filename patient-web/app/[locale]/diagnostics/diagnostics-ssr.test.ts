@@ -41,22 +41,43 @@ describe("diagnostics SSR boundary", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(json([])));
   });
 
-  it("G6: the filter sheet shows its applied count and a Reset that clears show and sort and starts at page 1", async () => {
+  it("the filter button next to the search shows how many filters are on, and the old filter / sort row and its Reset link are gone", async () => {
     state.getDiagnosticBookings.mockResolvedValue(json([]));
-    const html = await hub({ show: "packages", sort: "price", more: "3" });
-    expect(html).toContain("Filter and sort (2)");
-    expect(html).toMatch(/href="\/en\/diagnostics"[^>]*>Reset filters/);
-    expect(await hub({})).not.toContain("Reset filters");
+    const html = await hub({ sort: "price", nofast: "1", place: "facility", more: "3" });
+    expect(html).toContain('aria-label="Filter (3 on)"');
+    expect(html).toContain('aria-haspopup="dialog"');
+    expect(html).not.toContain("Filter and sort");
+    expect(html).not.toContain("Reset filters");
+    expect(await hub({})).toContain('aria-label="Filter"');
   });
 
-  it("G6: on radiology the rating sort is offered, counted and sent to the server; the packages option is not", async () => {
+  it("two big tabs sit above the search row, with the prescription icon button and without the insurance / browse-labs rows", async () => {
+    state.getDiagnosticBookings.mockResolvedValue(json([]));
+    const html = await hub({});
+    expect(html.indexOf("Lab tests")).toBeGreaterThan(-1);
+    expect(html.indexOf("Radiology and imaging")).toBeLessThan(html.indexOf('role="search"'));
+    expect(html).toMatch(/href="\/en\/medical-orders"[^>]*aria-label|aria-label="[^"]*"[^>]*href="\/en\/medical-orders"/);
+    expect(html).not.toContain("Use your insurance");
+    expect(html).not.toContain("Browse labs");
+  });
+
+  it("the Packages chip lists the packages as the same cards, with fasting and result time only when the package carries them", async () => {
+    state.getDiagnosticBookings.mockResolvedValue(json([]));
+    state.labs.mockResolvedValue(json([]));
+    vi.stubGlobal("fetch", vi.fn(async (url: string) => json(String(url).includes("/labs/packages") ? [{ id: "p1", name_en: "Full checkup", name_ar: "فحص شامل", price: 300, is_package: true, fasting_required: false, turnaround_hours: 24 }] : [])));
+    const html = await hub({ show: "packages" });
+    expect(html).toContain(">Packages</a>");
+    expect(html).toContain("Full checkup");
+    expect(html).toContain("No fasting · Result within");
+    expect(html).toContain("Add to basket");
+  });
+
+  it("G6: on radiology the rating sort is counted and sent to the server; the packages chip is not offered", async () => {
     state.getDiagnosticBookings.mockResolvedValue(json([]));
     const html = await hub({ kind: "radiology", sort: "rating", show: "tests" });
-    expect(html).toContain("Filter and sort (1)");
-    expect(html).toContain("Reset filters");
-    expect(html).toContain("Highest rated");
+    expect(html).toContain('aria-label="Filter (1 on)"');
     expect(state.radiology).toHaveBeenCalledWith(expect.objectContaining({ page: 1, limit: 20, highestRated: "true" }));
-    expect(html).not.toContain("Packages only");
+    expect(html).not.toContain(">Packages</a>");
   });
 
   // The timeout is explicit and generous because this is a RENDERING assertion, not a performance one: it checks that
@@ -133,7 +154,7 @@ describe("diagnostics SSR boundary", () => {
     expect(filtered).toContain("Knee MRI");
     expect(filtered).toContain('data-art="mri"');
     expect(filtered).not.toContain("Show more");
-    expect(filtered).toContain("Filter and sort");
+    expect(filtered).toContain('aria-label="Filter (1 on)"');
   });
 
   it("opens `more` server pages and keeps the no-script Show more link while the server has more", async () => {
@@ -172,7 +193,7 @@ describe("diagnostics SSR boundary", () => {
     expect(html).not.toContain("private");
     expect(html).toContain("500");
     expect(html).not.toContain(reportUrl);
-    expect(html).toContain('data-back="/en/diagnostics/bookings"');
+    expect(html).toContain('data-back="/en/orders"');
     expect(html).toContain("Confirmed");
     expect(html).not.toMatch(/href="[^"]*(report|pdf)/i);
     expect(html).not.toContain("CONFIRMED");
