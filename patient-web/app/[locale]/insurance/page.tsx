@@ -24,6 +24,7 @@ import { ConsultState } from "@/components-next/consult/consult-state";
 import { Notice } from "@/components-next/consult/consult-parts";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { InsuranceRow, InsuranceTabs, PolicyCard, RowsList, ShortcutGrid, StatusBadge } from "@/components-next/insurance/insurance-kit";
+import { DeletePolicyAction } from "@/components-next/insurance/delete-policy-action";
 import { NetworkList } from "@/components-next/insurance/network-list";
 import forms from "@/components-next/consult/consult.module.css";
 import rx from "@/components-next/pharmacy/rx.module.css";
@@ -180,6 +181,7 @@ export default async function InsurancePage({ params, searchParams }: Props) {
           { href: `${base}/coverage-check`, label: t("coverageCheck"), icon: "shield-check", tone: SERVICE_ICONS.insurance.tone },
         ]}
       />
+      {summary.hasPolicy ? <DeletePolicyAction /> : null}
       <InsuranceTabs
         label={t("tabs")}
         base={base}

@@ -93,7 +93,7 @@ export default function PackageDetail() {
       <Gate status={status} onRetry={() => void load()}>
         {pkg ? (
           <>
-            <DetailHead icon={look.icon} tone={look.tone} art={diagArtKey({ kind: 'lab', names: [pkg.name] })} image={pkg.image} title={pkg.name} body={pkg.desc} />
+            <DetailHead icon={look.icon} tone={look.tone} art={diagArtKey({ kind: 'lab', names: [pkg.name] })} image={pkg.image} title={pkg.name} titleMark={pkg.nameMark} body={pkg.desc} />
             <ListCard>
               <View style={{ paddingHorizontal: 14 }}>
                 <InfoRow label={k('diag.detail.testsCount')} value={pkg.testsCount > 0 ? k('diag.detail.testsN', { n: num(pkg.testsCount) }) : ''} />

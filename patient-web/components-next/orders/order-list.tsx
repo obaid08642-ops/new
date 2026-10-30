@@ -13,6 +13,7 @@ import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
 import type { CenterRow, OrderKind, ResultRow } from "./center-rows";
 import { KIND_ORDER, ordersQuery, type OrdersTab as Tab } from "./orders-query";
+import { FieldText } from "@/components-next/ui/localized-field";
 import { LocalDate } from "./local-date";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "./orders.module.css";
@@ -70,7 +71,7 @@ export function OrderList({ locale, rows, results, partialNote, initialTab, init
                 <Link className={styles.orderLink} href={row.viewHref}>
                   <FIcon icon={row.icon} tone={row.tone} size={44} />
                   <span className={styles.orderText}>
-                    <span className={styles.orderTitle}>{row.title}</span>
+                    <span className={styles.orderTitle}><FieldText text={row.title} mark={row.titleMark} /></span>
                     <span className={styles.orderMeta}>
                       <bdi>{t(`kind.${row.domain}`)}</bdi>
                       {row.at ? <> · <LocalDate iso={row.at} locale={locale} /></> : null}
@@ -105,7 +106,7 @@ export function OrderList({ locale, rows, results, partialNote, initialTab, init
               <Link className={styles.orderLink} href={row.href}>
                 <FIcon icon={row.icon} tone={row.tone} size={44} />
                 <span className={styles.orderText}>
-                  <span className={styles.orderTitle}>{row.title}</span>
+                  <span className={styles.orderTitle}><FieldText text={row.title} mark={row.titleMark} /></span>
                   <span className={styles.orderMeta}>
                     <bdi>{row.meta}</bdi>
                     {row.at ? <> · <LocalDate iso={row.at} locale={locale} /></> : null}

@@ -2,6 +2,7 @@
 
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { markByScript, type FieldMark } from "@/lib/i18n/localized-field";
 import { useTranslations } from "next-intl";
 import { useDisabledModules } from "@/components-next/modules/modules-provider";
 import { visibleItems } from "@/lib/modules";
@@ -72,6 +73,8 @@ const BROWSE: Array<{ name: ServiceName; label: "catPharmacy" | "catConsult" | "
 ];
 
 const kindOf = (r: SearchResult) => KINDS[r.typeEn || ""] || FALLBACK;
+/** lang/dir for a name whose script is not the page's (an English product name on an Arabic page is lang="en" dir="ltr"). */
+const langAttrs = (mark: FieldMark | undefined) => (mark ? { lang: mark.lang, dir: mark.dir } : {});
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /** The query inside the name, marked (the board's highlight), when it really occurs there. */
@@ -100,14 +103,14 @@ export function ResultItem({ result, locale, query, onOpen }: { result: SearchRe
   const body = <>
     <span className={styles.media}><FIcon icon={kind.icon} tone={kind.tone} chip="none" size={40} /></span>
     <span className={styles.main}>
-      <span className={styles.name}><Highlighted text={result.name} query={query} /></span>
+      <span className={styles.name} {...langAttrs(markByScript(locale, result.name))}><Highlighted text={result.name} query={query} /></span>
       {sub ? <span className={styles.sub}>{sub}</span> : null}
       <span className={styles.meta}>
         {price ? <span className={styles.price}>{t("price", { value: price })}</span> : null}
         {rate ? <span className={styles.rate}>{t("rating", { value: rate })}</span> : null}
         {"label" in kind ? <StatusChip label={t(kind.label)} tone={kind.tone} /> : null}
         {result.requiresPrescription === true ? <StatusChip label={product("rxRequired")} tone="amber" /> : null}
-        {result.onlineOnly === true ? <StatusChip label={product("onlineOnly")} tone="mint" /> : null}
+        {result.onlineOnly === true ? <StatusChip label={product("onlineOnly")} tone="ink" /> : null}
       </span>
     </span>
   </>;

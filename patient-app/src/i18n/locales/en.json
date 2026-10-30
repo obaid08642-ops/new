@@ -2846,8 +2846,6 @@
   "set.helpHint": "Questions, feedback and the support chat",
   "set.about": "About and legal",
   "set.aboutHint": "Version, terms and policies",
-  "set.helpPolicies": "Help & policies",
-  "set.helpPoliciesHint": "FAQ, support, version, terms and refund policy",
   "set.signOut": "Sign out",
   "set.version": "Version {version}",
   "set.saveFailed": "The change was not saved. Check your connection and try again.",
@@ -3891,6 +3889,10 @@
   "scanStatus.checking": "Being checked for safety",
   "scanStatus.rejected": "This file was rejected for safety. Please upload another.",
   "scanStatus.uploadAnother": "Upload another file",
+  "common.availableInEnglishOnly": "Available in English only",
+  "common.availableInArabicOnly": "Available in Arabic only",
+  "set.helpPolicies": "Help & policies",
+  "set.helpPoliciesHint": "FAQ, support, version, terms and refund policy",
   "menu.ordersNew": "My orders and results, {n} new results",
   "orders.resultsTitle": "My orders and results",
   "orders.tab.results": "Results and reports",
@@ -3900,5 +3902,11 @@
   "orders.results.new": "New",
   "orders.results.view": "View",
   "orders.results.share": "Share with your doctor",
-  "orders.results.book": "Book a consultation"
+  "orders.results.book": "Book a consultation",
+  "insurance.policy.delete": "Delete card",
+  "insurance.policy.deleteTitle": "Delete insurance card",
+  "insurance.policy.deleteBody": "This card will be removed from your account.",
+  "insurance.policy.deleteCancel": "Cancel",
+  "insurance.policy.deleteDone": "Insurance card deleted.",
+  "insurance.policy.deleteFailed": "We could not delete the card. Try again."
 }

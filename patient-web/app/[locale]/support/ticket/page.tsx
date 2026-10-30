@@ -53,7 +53,7 @@ export default async function Page({ params }: Props) {
   return (
     <ConsultPage locale={locale} title={t("title")} backHref={back}>
       {list.length === 0 ? (
-        <ConsultState kind="empty" icon="headset" tone="mint" title={t("empty")} actionLabel={t("newRequest")} actionHref={`/${locale}/support/chat`} />
+        <ConsultState kind="empty" icon="headset" tone="ink" title={t("empty")} actionLabel={t("newRequest")} actionHref={`/${locale}/support/chat`} />
       ) : (
         <ul className={forms.list} aria-label={t("title")}>
           {list.map((item) => (
@@ -61,7 +61,7 @@ export default async function Page({ params }: Props) {
               <RowCard
                 href={`/${locale}/support/chat`}
                 icon="headset"
-                tone="mint"
+                tone="ink"
                 title={item.title}
                 extra={
                   <>

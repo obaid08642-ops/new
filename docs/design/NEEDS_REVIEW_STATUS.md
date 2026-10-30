@@ -9,24 +9,24 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 0 | 333 | 97 | 4 | 0 |
-| Other | 375 | 322 | 50 | 3 | 0 | 0 |
+| Other | 389 | 335 | 50 | 3 | 1 | 0 |
 | Admin | 99 | 0 | 65 | 34 | 0 | 0 |
 | Admin journeys | 20 | 0 | 18 | 2 | 0 | 0 |
 | Final pass | 8 | 0 | 2 | 6 | 0 | 0 |
 | Patient journeys | 87 | 0 | 85 | 2 | 0 | 0 |
 | Provider app | 31 | 0 | 27 | 4 | 0 | 0 |
 | Provider journeys | 34 | 0 | 32 | 2 | 0 | 0 |
-| **Total** | **1088** | **322** | **612** | **150** | **4** | **0** |
+| **Total** | **1102** | **335** | **612** | **150** | **5** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 265 | 89 | 135 | 41 | 0 | 0 |
-| owner | 150 | 50 | 57 | 42 | 1 | 0 |
-| backend | 434 | 182 | 222 | 30 | 0 | 0 |
+| client | 267 | 91 | 135 | 41 | 0 | 0 |
+| owner | 151 | 50 | 57 | 42 | 2 | 0 |
+| backend | 445 | 193 | 222 | 30 | 0 | 0 |
 | untagged | 239 | 1 | 198 | 37 | 3 | 0 |
-| **Total** | **1088** | **322** | **612** | **150** | **4** | **0** |
+| **Total** | **1102** | **335** | **612** | **150** | **5** | **0** |
 
 ## By file
 
@@ -96,6 +96,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `final-pass.json` | 4 | 0 | 2 | 2 | 0 | 0 |
 | `hologram-map.json` | 3 | 3 | 0 | 0 | 0 | 0 |
 | `journeys.json` | 87 | 0 | 85 | 2 | 0 | 0 |
+| `labs-hub-sheet-web.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `layout-consult-app.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `layout-consult-web.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `m6-blocked.json` | 16 | 4 | 12 | 0 | 0 | 0 |
@@ -111,6 +112,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `m6-ord30.json` | 14 | 14 | 0 | 0 | 0 | 0 |
 | `m6-visual-app.json` | 16 | 16 | 0 | 0 | 0 | 0 |
 | `m6-visual-web.json` | 10 | 8 | 2 | 0 | 0 | 0 |
+| `orders-results-app.json` | 5 | 5 | 0 | 0 | 0 | 0 |
+| `orders-results-web.json` | 5 | 4 | 0 | 0 | 1 | 0 |
 | `owner-review-g1.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `owner-review-g3.json` | 2 | 2 | 0 | 0 | 0 | 0 |
 | `owner-review-g4.json` | 15 | 11 | 4 | 0 | 0 | 0 |
@@ -145,9 +148,9 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `uploads-scan-provider-app.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `web-public-ink.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `web-voice-notes.json` | 2 | 2 | 0 | 0 | 0 | 0 |
-| **Total** | **1088** | **322** | **612** | **150** | **4** | **0** |
+| **Total** | **1102** | **335** | **612** | **150** | **5** | **0** |
 
-## Owner decisions (4)
+## Owner decisions (5)
 
 | # | Where | Screen / element | Question |
 |---:|---|---|---|
@@ -155,8 +158,9 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 2 | `batch-0-web.json#7` `patient-web/next.config.ts:35` | /onboarding Whole screen (entry and outcome) | No link in the web points to /onboarding (grep over app, components-next, lib); /welcome is reached only from the login back button and the onboarding screens; finishing onboarding stores nothing (no flag, no API call). |
 | 3 | `batch-1a-app.json#18` `patient-app/src/i18n/locales/en.json:0` | /pharmacy Six-language strings | 177 pharmacy.* keys were added to patient-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json. The English, Urdu, Hindi, Bengali and Filipino text was written by the design session (and, for reused phrases, taken from the phr… |
 | 4 | `batch-1d-web.json#1` `backend/src/modules/payments/payments.module.ts:154` | /pharmacy/payment Payment provider not exercised | No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only against a TEST stand-in outside the repo (… |
+| 5 | `orders-results-web.json#4` `patient-web/components-next/orders/order-list.tsx:84` | /orders Book a consultation with the result as context | [owner] [owner] /consultations/doctors takes no result id; opens the doctor list without context. |
 
-## Open and unverified (322)
+## Open and unverified (335)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -207,6 +211,10 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `hologram-map.json#0` | client | open | /map hospital sheet link | [client] hospital sheet still opens /consultations/clinic/[id]; /facility/[id] does not exist yet (only app/facility/[slug].tsx, a link resolver); relink when the facility session… |
 | `hologram-map.json#1` | owner | open | /map radiology booking | [owner] radiology pin books through /diagnostics/book-sample (the lab flow) until radiology has its own entry |
 | `hologram-map.json#2` | client | open | /map hologram layers on device | [client] unselected pins are a native symbol layer using per-kind PNGs generated at runtime from the token tones (map-hologram-image.ts) and registered with Images as data: URIs; … |
+| `labs-hub-sheet-web.json#0` | backend | open | /diagnostics Payment option 'cash' | [backend] The sheet has no separate cash option: the backend has one cash flag (cash_availability), so cash and 'without insurance' would be the same filter. |
+| `labs-hub-sheet-web.json#1` | backend | open | /diagnostics Sort 'nearest' | [backend] Omitted: GET /labs/services and /radiology/services send no distance or location per service (looked for distance, distance_km, lat/lng). |
+| `labs-hub-sheet-web.json#2` | backend | open | /diagnostics Toggle 'open now' | [backend] Omitted: services carry no opening hours (looked for open_now, opening_hours, working_hours on the service payload). |
+| `labs-hub-sheet-web.json#3` | backend | open | /diagnostics No fasting / same-day filters are row filters | [backend] The catalogue endpoints have no fasting or turnaround query flags, so the two toggles filter the loaded pages (a page can hold fewer rows; the button shows N+ when the s… |
 | `layout-consult-app.json#0` | backend | open | /(tabs)/consultations Next available slot on the doctor card | [backend] The hub's default list (GET /providers?type=doctor, consultNearby.ts DOCTORS_PATH) does not carry next_available_at; only GET /care/doctors does. The card draws the slot… |
 | `layout-consult-app.json#1` | backend | open | /(tabs)/consultations Sort option 'Shortest wait' | [backend] Owner decision 15 lists Shortest wait in the sort section; GET /care/doctors has no waiting-time sort or value (patient-app/src/utils/doctorSearch.ts header), so the opt… |
 | `layout-consult-app.json#2` | client | open | /consultations/doctor-search Sort and gender chip rows on the 'View all doctors… | [client] Not converted in this PR (scope: the consultations hub). The full doctor search still shows its own sort and gender chip rows instead of the one Filters button. |
@@ -358,6 +366,15 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `m6-visual-web.json#7` | backend | open | Ord21 order detail Doctor name and specialty, per-item status chips (ordered/bo… | [backend] GET /medical-orders/:id has no doctor object and no booking link per item beyond status. |
 | `m6-visual-web.json#8` | client | open | Ord11 results Results live inside the booking page; the board has a dedicated r… | [client] Values, flag, range bar and trend are now drawn from the endpoint; the rating form and instant-consultation sheet are not (no rating endpoint found). |
 | `m6-visual-web.json#9` | client | open | Ord02/Ord04 (1280) Sticky basket side card still not drawn | [client] Left from pass one (not cheap: needs a two-column hub layout). |
+| `orders-results-app.json#0` | backend | open | /orders Lab results list and new-results badge | [backend] GET /lab-results/mine sits under the class-level @Roles(LAB, HOSPITAL, ADMIN) and the handler adds no PATIENT, so a patient token is likely refused (403) and the lab res… |
+| `orders-results-app.json#1` | client | open | /orders Share with your doctor | [client] There is no share endpoint for a lab result or radiology report; the button opens the medical-reports share screen without pre-selecting this result. |
+| `orders-results-app.json#2` | backend | open | /orders PDF of a lab result with values and of a radiology report | [backend] Not drawn: the list carries no report file id for them and no protected PDF endpoint exists (only /labs/bookings/:id/reports/:reportId for uploaded lab files). (backend:… |
+| `orders-results-app.json#3` | backend | open | /orders New-results badge for radiology reports | [backend] GET /radiology/reports/mine has no viewed/seen field, so a new radiology report is not counted in the badge. (backend: backend/src/modules/radiology/radiology.controller… |
+| `orders-results-app.json#4` | client | open | /orders Book a consultation with the result as context | [client] Only a lab result with its booking opens the instant-consultation flow with the result attached; a radiology report opens the consultations tab (no radiology result conte… |
+| `orders-results-web.json#0` | backend | open | /orders Share result with your doctor | [backend] [backend] No endpoint shares a lab or radiology result with a doctor (only POST /medical-reports/:id/share for medical reports); button left out. |
+| `orders-results-web.json#1` | backend | open | /orders New-result badge (row and top bar) | [backend] [backend] Bookings carry no viewed/seen flag, so 'new' and the count cannot be told truthfully; needs a field (e.g. results_unseen_count on /labs/bookings/mine) or a che… |
+| `orders-results-web.json#2` | backend | open | /orders Radiology PDF | [backend] [backend] The radiology booking payload has no report file reference (only labs have reports[].has_file), so no PDF button for radiology. |
+| `orders-results-web.json#3` | backend | open | /orders Result-ready notification | [backend] [backend] report.ready sends route /reports/:id (a medical report) and radiology writes a provider bell only; a patient notification with route /health/results/:id or /d… |
 | `owner-review-g1.json#0` | client | open | /nursing/service-details Cart button on the nursing screens | [client] Owner review 2026-10-27 G1 lists nursing among the screens with a cart. The app has no nursing cart (a home visit is booked straight away; utils/serviceCarts.ts has pharm… |
 | `owner-review-g3.json#0` | backend | open | /consultations/doctors/[doctorId] Waiting time piece of the summary line | [backend] The waiting time is drawn only when GET /care/doctors/:id sends avg_wait_minutes / average_wait / wait_time; if the field is absent the piece is left out (not confirmed … |
 | `owner-review-g3.json#1` | backend | open | /consultations/doctor/[id] Waiting time piece of the summary line | [backend] `wait_time` is not sent by GET /care/doctors/:id (see doctor-card-app.json), so the waiting-time piece of the summary line is omitted. |

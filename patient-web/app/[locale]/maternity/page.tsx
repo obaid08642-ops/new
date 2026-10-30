@@ -243,7 +243,7 @@ function BabyTab({ t, profile, number, date }: TabProps) {
   // issue 862: the baby's growth is logged on the website too (POST /maternity/infant-growth)
   const form = <QuickLogForm kind="growth" />;
   if (profile.growth.length === 0) {
-    return <>{form}<ConsultState kind="empty" icon="chart-line-up" tone="mint" title={t("growthTitle")} body={t("growthEmpty")} /></>;
+    return <>{form}<ConsultState kind="empty" icon="chart-line-up" tone="pink" title={t("growthTitle")} body={t("growthEmpty")} /></>;
   }
   return (
     <>
@@ -254,7 +254,7 @@ function BabyTab({ t, profile, number, date }: TabProps) {
           <li key={entry.id}>
             <RecordRow
               icon="chart-line-up"
-              tone="mint"
+              tone="pink"
               title={t("monthN", { month: number.format(entry.month) })}
               sub={[
                 entry.weightKg !== null ? t("weightKg", { value: number.format(entry.weightKg) }) : null,

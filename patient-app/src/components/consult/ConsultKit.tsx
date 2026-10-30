@@ -62,7 +62,7 @@ export function Chevron({ size = 18, back = false }: { size?: number; back?: boo
 
 /** The glyph and tone of a specialty (board Consult's specialty chips), found from the name the server sent. */
 const SPEC_LOOK: Array<[RegExp, FillIconName, ServiceTone]> = [
-  [/أسنان|dent|tooth/i, 'tooth', 'mint'],
+  [/أسنان|dent|tooth/i, 'tooth', 'blue'],
   [/جلد|derma|skin/i, 'hand-heart', 'pink'],
   [/عيون|عين|eye|ophth/i, 'eye', CARE_TONE],
   [/قلب|cardio|heart/i, 'heart', RX_TONE],
@@ -524,7 +524,7 @@ export function ConsultList<T>({
         style={{ flex: 1 }}
         data={status === 'loading' ? [] : data}
         keyExtractor={keyExtractor}
-        ListHeaderComponent={top ? <View style={{ paddingBottom: 16 }}>{top}</View> : null}
+        ListHeaderComponent={top ? <View style={{ paddingBottom: 16 }}>{top}</View> : undefined}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         ListEmptyComponent={
           status === 'loading' ? (
@@ -543,7 +543,7 @@ export function ConsultList<T>({
         windowSize={7}
         onEndReached={onEndReached}
         onEndReachedThreshold={0.3}
-        ListFooterComponent={listFooter}
+        ListFooterComponent={listFooter ?? undefined}
         renderItem={({ item, index }) => renderItem(item, index)}
         testID={testID ? `${testID}-list` : undefined}
       />

@@ -1,0 +1,1 @@
+.note { display: block; margin-block-start: 2px; font-size: var(--nabd-font-size-caption); line-height: 1.4; font-weight: 400; color: var(--nabd-color-text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-inline-size: 100%; }

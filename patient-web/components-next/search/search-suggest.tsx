@@ -2,13 +2,21 @@
 
 import { Fragment, useEffect, useId, useRef, useState, type FocusEvent, type KeyboardEvent, type ReactNode } from "react";
 import Link from "next/link";
+import { markByScript, type FieldMark } from "@/lib/i18n/localized-field";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   INITIAL_SUGGEST_STATE, SuggestController, highlightParts,
   type SuggestScope, type SuggestState, type SuggestType, type Suggestion, type TextRange,
 } from "@/lib/search/suggest";
+import { reportCatalogueEvent, verticalOfSuggestionType } from "@/lib/search/catalogue-events";
 import styles from "./search-suggest.module.css";
+
+/** Opening a lab, scan or nursing suggestion tells the ranking it was found by search (fire-and-forget). */
+function reportSearchOpen(item: Pick<Suggestion, "id" | "type"> | undefined) {
+  const vertical = item ? verticalOfSuggestionType(item.type) : null;
+  if (item && vertical) reportCatalogueEvent(vertical, "search", item.id);
+}
 
 /** The props the search field's <input> takes to be the combobox of the dropdown (ARIA 1.2 combobox pattern). */
 export interface SuggestFieldProps {
@@ -35,6 +43,9 @@ export function useSearchSuggest(locale: string, scope?: SuggestScope) {
   useEffect(() => () => controller.dispose(), [controller]);
   return { state, controller };
 }
+
+/** lang/dir for a suggestion whose script is not the page's (English name on an Arabic page: lang="en" dir="ltr"). */
+const langAttrs = (mark: FieldMark | undefined) => (mark ? { lang: mark.lang, dir: mark.dir } : {});
 
 /** The matched part of the name (the server's ranges) in a <mark>: text nodes only, nothing from the server is drawn as HTML. */
 export function SuggestName({ name, highlights }: { name: string; highlights: readonly TextRange[] }) {
@@ -67,6 +78,7 @@ export interface SearchSuggestProps {
 export function SearchSuggest({ state, controller, renderField, allResultsHref, className }: SearchSuggestProps) {
   const t = useTranslations("SearchSuggest");
   const kinds = useTranslations("Search");
+  const locale = useLocale();
   const router = useRouter();
   const base = useId();
   const listId = `${base}-list`;
@@ -80,7 +92,10 @@ export function SearchSuggest({ state, controller, renderField, allResultsHref, 
     const result = controller.key(event.key);
     if (result.kind === "none") return;
     event.preventDefault();
-    if (result.kind === "open") router.push(result.href);
+    if (result.kind === "open") {
+      reportSearchOpen(state.items.find((i) => i.href === result.href));
+      router.push(result.href);
+    }
   };
   const onBlur = (event: FocusEvent<HTMLDivElement>) => {
     if (!event.currentTarget.contains(event.relatedTarget as Node | null)) controller.close();
@@ -122,9 +137,9 @@ export function SearchSuggest({ state, controller, renderField, allResultsHref, 
                 href={item.href}
                 className={styles.option}
                 onMouseMove={() => controller.hover(i)}
-                onClick={() => controller.close()}
+                onClick={() => { reportSearchOpen(item); controller.close(); }}
               >
-                <span className={styles.name}><SuggestName name={item.name} highlights={item.highlights} /></span>
+                <span className={styles.name} {...langAttrs(markByScript(locale, item.name))}><SuggestName name={item.name} highlights={item.highlights} /></span>
                 <span className={styles.kind}>{kinds(KIND[item.type])}</span>
               </Link>
             </li>

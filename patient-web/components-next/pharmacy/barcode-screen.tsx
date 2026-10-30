@@ -141,7 +141,7 @@ export function BarcodeScreen({ locale }: { locale: Locale }) {
                       {medicine.requiresRx || medicine.onlineOnly ? (
                         <span className={rx.chips}>
                           {medicine.requiresRx ? <StatusChip label={t("needsRx")} tone="amber" /> : null}
-                          {medicine.onlineOnly ? <StatusChip label={t("onlineOnly")} tone="mint" /> : null}
+                          {medicine.onlineOnly ? <StatusChip label={t("onlineOnly")} tone="ink" /> : null}
                         </span>
                       ) : null}
                     </span>

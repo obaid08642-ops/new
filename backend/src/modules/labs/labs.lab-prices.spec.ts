@@ -3,13 +3,18 @@ import { LabsService } from './labs.service';
 /** #631/#639: each compatible lab carries its own price for the requested tests and its rating count. */
 function serviceFor(capabilities: any[]) {
   const service: any = Object.create(LabsService.prototype);
-  const find = jest.fn().mockReturnValue({ toArray: jest.fn().mockResolvedValue(capabilities) });
+  const profiles = [
+    { account_id: 'lab-a', type: 'lab', test_categories: ['cbc', 'tsh'] },
+    { account_id: 'lab-b', type: 'lab', test_categories: ['cbc', 'tsh'] },
+  ];
+  // the offers reader (common/service-offers) reads the approved lab profiles and the capability rows by collection
+  const find = jest.fn((q: any) => ({ toArray: jest.fn().mockResolvedValue(q?.provider_account_id ? capabilities : []) }));
   service.svcModel = {
     find: jest.fn().mockResolvedValue([
       { id: 'cbc', category: 'blood', short_code: 'CBC', name_ar: 'صورة دم', price: 80 },
       { id: 'tsh', category: 'hormones', short_code: 'TSH', name_ar: 'هرمون الغدة', price: 120 },
     ]),
-    db: { collection: jest.fn(() => ({ find })) },
+    db: { collection: jest.fn((name: string) => ({ find: name === 'provider_profiles' ? () => ({ toArray: async () => profiles }) : find })) },
   };
   service.providerProfiles = {
     find: jest.fn().mockReturnValue({ limit: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue([
@@ -32,6 +37,6 @@ describe('LabsService.compatibleProviders per-lab price', () => {
       ['lab-a', 160, 4.5, 12],
       ['lab-b', 190, null, 0],
     ]);
-    expect(find).toHaveBeenCalledWith(expect.objectContaining({ provider_account_id: { $in: ['lab-a', 'lab-b'] }, available: true }), expect.anything());
+    expect(find).toHaveBeenCalledWith(expect.objectContaining({ provider_account_id: { $in: ['lab-a', 'lab-b'] }, available: true }), expect.anything());   // only the capability rows of these labs
   });
 });

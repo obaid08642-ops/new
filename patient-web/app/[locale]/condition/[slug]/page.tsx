@@ -1,4 +1,5 @@
 import { JsonLd } from "@/components-next/json-ld";
+import { localizedText } from "@/lib/i18n/localized-field";
 import { medicalWebPage, medicalCondition, breadcrumbList } from "@/lib/seo/structured-data";
 import type { Metadata } from "next";
 import { localizedUrl } from "@/lib/seo";
@@ -40,9 +41,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const data = await getCondition(slug);
   if (!data?.entity) return { robots: { index: false, follow: false } };
   const t = await getTranslations({ locale, namespace: "PublicLanding" });
-  const name = (locale === "ar" ? data.entity.name_ar : data.entity.name_en) ?? "";
+  const name = localizedText({ locale, ar: data.entity.name_ar, en: data.entity.name_en }) ?? "";
   const canonical = localizedUrl(locale as Locale, `/condition/${encodeURIComponent(slug)}`);
-  const desc = (locale === "ar" ? data.entity.overview_ar : data.entity.overview_en) || "";
+  const desc = localizedText({ locale, ar: data.entity.overview_ar, en: data.entity.overview_en }) ?? "";
   return {
     title: t("meta.condition.title", { name }),
     description: desc.slice(0, 160),
@@ -107,7 +108,7 @@ export default async function ConditionCanonicalPage({ params }: Props) {
                   href={`/${locale}/p/${encodeURIComponent(m.slug)}`}
                   icon={SERVICE_ICONS.pharmacy.icon}
                   tone={SERVICE_ICONS.pharmacy.tone}
-                  title={(locale === "ar" ? m.name_ar : m.name_en || m.name_ar) ?? ""}
+                  title={localizedText({ locale, ar: m.name_ar, en: m.name_en }) ?? ""}
                   sub={[m.active_ingredient, m.price ? formatPrice(locale, m.price).text : ""].filter(Boolean).join(" · ") || undefined}
                 />
               </li>

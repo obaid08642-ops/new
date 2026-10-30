@@ -25,7 +25,9 @@
     "readingProgress": "পড়ার অগ্রগতি",
     "dialogCancel": "বাতিল করুন",
     "dialogConfirm": "নিশ্চিত করুন",
-    "breadcrumbLabel": "নেভিগেশন পথ"
+    "breadcrumbLabel": "নেভিগেশন পথ",
+    "availableInEnglishOnly": "শুধু ইংরেজিতে পাওয়া যায়",
+    "availableInArabicOnly": "শুধু আরবিতে পাওয়া যায়"
   },
   "CoreShell": {
     "back": "ফিরে যান",
@@ -4474,7 +4476,14 @@
       "pharmacy": "ফার্মেসি",
       "lab": "ল্যাব"
     },
-    "networkCall": "কল"
+    "networkCall": "কল",
+    "deletePolicy": "কার্ড মুছুন",
+    "deleteTitle": "বিমা কার্ড মুছুন",
+    "deleteBody": "এই কার্ডটি আপনার অ্যাকাউন্ট থেকে সরিয়ে দেওয়া হবে।",
+    "deleteCancel": "বাতিল",
+    "deleting": "মুছে ফেলা হচ্ছে…",
+    "deleteDone": "বিমা কার্ড মুছে ফেলা হয়েছে।",
+    "deleteFailed": "কার্ডটি মুছতে পারিনি। আবার চেষ্টা করুন।"
   },
   "LoyaltyHubWeb": {
     "title": "নাবদ পয়েন্ট",

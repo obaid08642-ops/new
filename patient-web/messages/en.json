@@ -25,7 +25,9 @@
     "readingProgress": "Reading progress",
     "dialogCancel": "Cancel",
     "dialogConfirm": "Confirm",
-    "breadcrumbLabel": "Breadcrumb"
+    "breadcrumbLabel": "Breadcrumb",
+    "availableInEnglishOnly": "Available in English only",
+    "availableInArabicOnly": "Available in Arabic only"
   },
   "CoreShell": {
     "back": "Back",
@@ -4474,7 +4476,14 @@
       "pharmacy": "Pharmacies",
       "lab": "Labs"
     },
-    "networkCall": "Call"
+    "networkCall": "Call",
+    "deletePolicy": "Delete card",
+    "deleteTitle": "Delete insurance card",
+    "deleteBody": "This card will be removed from your account.",
+    "deleteCancel": "Cancel",
+    "deleting": "Deleting…",
+    "deleteDone": "Insurance card deleted.",
+    "deleteFailed": "We could not delete the card. Try again."
   },
   "LoyaltyHubWeb": {
     "title": "Nabd points",

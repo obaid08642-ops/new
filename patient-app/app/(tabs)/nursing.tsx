@@ -14,7 +14,7 @@ import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKi
 import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
-import { pickLocalized } from '../../src/utils/localize';
+import { rowField } from '../../src/utils/rowField';
 
 type Rec = Record<string, unknown>;
 type Flow = 'insurance' | 'cash';
@@ -171,9 +171,10 @@ export default function NursingHub() {
               {shownPackages.length > 0 ? (
                 <Strip>
                   {shownPackages.map((pkg) => {
-                    const name = text(pickLocalized(pkg.name_ar as string | undefined, pkg.title as string | undefined));
+                    const nameField = rowField({ name_ar: pkg.name_ar, name_en: pkg.name_en ?? pkg.title }, 'name');
+                    const name = nameField.text;
                     const kind = pkg.type === 'monthly' ? k('nur.hub.monthly') : pkg.type === 'weekly' ? k('nur.hub.weekly') : text(pkg.duration) || k('nur.hub.careService');
-                    return <NursingPackageCard key={text(pkg.id)} width={268} name={name} desc={kind} price={priceOf(pkg.price)} icon="first-aid-kit" actionLabel={k('nur.hub.book')} onPress={() => toService(text(pkg.id), name)} />;
+                    return <NursingPackageCard key={text(pkg.id)} width={268} name={name} nameMark={nameField.mark} desc={kind} price={priceOf(pkg.price)} icon="first-aid-kit" actionLabel={k('nur.hub.book')} onPress={() => toService(text(pkg.id), name)} />;
                   })}
                 </Strip>
               ) : (

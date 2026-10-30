@@ -235,12 +235,12 @@ export function Toast({
         elevation: 6,
       }}
     >
-      <Text numberOfLines={2} style={{ flex: 1, fontSize: 15, color: dark ? '#0B1B2B' : '#F5F5F7' }}>
+      <Text numberOfLines={2} style={{ flex: 1, fontSize: 15, fontFamily: 'ReadexPro-400', color: dark ? '#0B1B2B' : '#F5F5F7' }}>
         {message}
       </Text>
       {actionLabel ? (
         <Pressable accessibilityRole="button" accessibilityLabel={actionLabel} style={{ padding: 8 }}>
-          <Text style={{ fontWeight: '700', color: dark ? '#0B1B2B' : '#F5F5F7' }}>{actionLabel}</Text>
+          <Text style={{ fontFamily: 'ReadexPro-700', color: dark ? '#0B1B2B' : '#F5F5F7' }}>{actionLabel}</Text>
         </Pressable>
       ) : null}
       {dismissible ? (
@@ -303,7 +303,7 @@ export function Modal({
           }}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Text style={{ flex: 1, fontSize: 20, fontWeight: '700', color: dark ? '#F5F5F7' : '#0B1B2B' }}>{title}</Text>
+            <Text style={{ flex: 1, fontSize: 20, fontFamily: 'ReadexPro-700', color: dark ? '#F5F5F7' : '#0B1B2B' }}>{title}</Text>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={closeLabel}
@@ -312,7 +312,7 @@ export function Modal({
               <Icon name="close" size={18} theme={dark ? 'dark' : 'light'} />
             </Pressable>
           </View>
-          {body ? <Text style={{ fontSize: 15, color: (dark ? tokens('dark') : tokens('light')).color.text.secondary }}>{body}</Text> : null}
+          {body ? <Text style={{ fontSize: 15, fontFamily: 'ReadexPro-400', color: (dark ? tokens('dark') : tokens('light')).color.text.secondary }}>{body}</Text> : null}
           <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'flex-end' }}>
             {cancelLabel ? <Button label={cancelLabel} variant="ghost" size="sm" theme={dark ? 'dark' : 'light'} /> : null}
             <Button label={confirmLabel} size="sm" variant={destructive ? 'danger' : 'primary'} loading={loading} theme={dark ? 'dark' : 'light'} />

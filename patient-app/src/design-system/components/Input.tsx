@@ -6,6 +6,7 @@ import React, { useState, useRef, useCallback, forwardRef } from 'react';
 import {
   View, TextInput, TouchableOpacity, StyleSheet,
   StyleProp, ViewStyle, TextInputProps, Animated,
+  type TextInputInstance,
 } from 'react-native';
 import { useApp } from '../../context/AppContext';
 import { Spacing, BorderRadius } from '../tokens';
@@ -38,7 +39,7 @@ export interface DSInputProps extends Omit<TextInputProps, 'style'> {
 // ─────────────────────────────────────────────────────────────────────────────
 // Component
 // ─────────────────────────────────────────────────────────────────────────────
-export const DSInput = forwardRef<TextInput, DSInputProps>(function DSInput(
+export const DSInput = forwardRef<TextInputInstance, DSInputProps>(function DSInput(
   {
     label,
     placeholder,
