@@ -31,8 +31,13 @@ jobs:
           OUT=$(mktemp)
           mongodump_oneoff "$OUT" --db=nabd_test --gzip --archive
           test -s "$OUT" && gzip -t "$OUT"
-          docker run --rm -i mongo:7.0 mongorestore --archive --gzip --dryRun --nsInclude='nabd_test.*' < "$OUT" 2>&1 | tee restore.txt
-          grep -q 'nabd_test.patients' restore.txt
+          # restore the archive into the same test mongod under another name and count the documents: the dump is complete and readable
+          IP=$(docker inspect -f '{{.NetworkSettings.IPAddress}}' nabdah-mongodb)
+          docker run --rm -i --entrypoint mongorestore mongo:7.0 --quiet --host "$IP" -u root -p "$MONGO_ROOT_PASSWORD" --authenticationDatabase admin \
+            --archive --gzip --nsFrom 'nabd_test.*' --nsTo 'restored.*' < "$OUT"
+          N=$(docker exec nabdah-mongodb mongosh --quiet -u root -p "$MONGO_ROOT_PASSWORD" --authenticationDatabase admin --eval 'db.getSiblingDB("restored").patients.countDocuments()')
+          echo "restored documents: $N"
+          test "$N" = 200
           echo "archive bytes: $(stat -c %s "$OUT")"
       - name: A wrong password fails and never prints the password
         run: |
