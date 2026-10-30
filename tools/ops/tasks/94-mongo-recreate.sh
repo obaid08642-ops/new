@@ -13,7 +13,7 @@
 #                        ($B/pre-mongo-recreate-<ts>.gz) is the restore point if the data itself is ever in doubt. 92-recreate-datastores.sh with ONLY=mongodb is the older way to
 #                        recreate it (it also rolls back to a limit-less container on a failure).
 set -u
-APPLY=""
+APPLY="yes"
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}
 ENVF=$D/.env.production
