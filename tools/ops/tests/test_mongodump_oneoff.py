@@ -48,7 +48,7 @@ class MongodumpOneoff(unittest.TestCase):
         run = [l for l in log.splitlines() if l.startswith("run ")][0]
         self.assertIn("--rm", run); self.assertIn("--user 0:0", run); self.assertIn("--network net_a", run)
         self.assertIn("--memory 600m --memory-swap 600m --oom-score-adj 1000", run)
-        self.assertIn("mongo:7.0 mongodump", run); self.assertIn("--db=x --gzip --archive", run)
+        self.assertIn("--entrypoint mongodump mongo:7.0", run); self.assertIn("--db=x --gzip --archive", run)
         self.assertNotIn("exec", log)
         self.assertNotIn("pa'ss", log + p.stdout + p.stderr)                      # never an argument or output
         self.assertEqual(cfg.strip(), "password: 'pa''ss\"w0rd$x|y'")              # YAML single-quoted, apostrophe doubled

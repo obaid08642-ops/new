@@ -514,7 +514,7 @@ class RecreateDatastores(unittest.TestCase):
         self.assertEqual(len(run), 1, calls)
         self.assertIn("--rm", run[0]); self.assertIn("--network nabd_internal", run[0])
         self.assertIn("--memory 600m --memory-swap 600m --oom-score-adj 1000", run[0])
-        self.assertIn("mongo:7.0 mongodump", run[0])
+        self.assertIn("--entrypoint mongodump mongo:7.0", run[0])
         self.assertFalse(any(l.startswith("exec nabdah-mongodb mongodump") or " mongodump " in l for l in calls.splitlines() if l.startswith("exec ")))   # never inside mongodb
         self.assertNotIn("mongo-pass-31d9", p.stdout + p.stderr + calls)             # not an argument, not output
         self.assertIn("mongo-pass-31d9", open(os.path.join(self.state, "cfg.seen")).read())   # it reached the tool through the config file
