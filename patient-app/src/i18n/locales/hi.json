@@ -3864,7 +3864,7 @@
   "menu.open": "मेनू",
   "menu.close": "मेनू बंद करें",
   "menu.profile": "मेरा खाता",
-  "menu.orders": "मेरे ऑर्डर",
+  "menu.orders": "मेरे ऑर्डर और नतीजे",
   "menu.family": "परिवार",
   "menu.articles": "लेख",
   "menu.notifications": "सूचनाएं",
@@ -3890,5 +3890,15 @@
   "diag.offer.countNursingTwo": "{n} प्रदाता",
   "scanStatus.checking": "सुरक्षा के लिए फ़ाइल की जाँच हो रही है",
   "scanStatus.rejected": "यह फ़ाइल सुरक्षा कारणों से अस्वीकार कर दी गई। कृपया दूसरी फ़ाइल अपलोड करें।",
-  "scanStatus.uploadAnother": "दूसरी फ़ाइल अपलोड करें"
+  "scanStatus.uploadAnother": "दूसरी फ़ाइल अपलोड करें",
+  "menu.ordersNew": "मेरे ऑर्डर और नतीजे, {n} नए नतीजे",
+  "orders.resultsTitle": "मेरे ऑर्डर और नतीजे",
+  "orders.tab.results": "नतीजे और रिपोर्ट",
+  "orders.tab.resultsNew": "नतीजे और रिपोर्ट ({n})",
+  "orders.results.partial": "आपके कुछ नतीजे लोड नहीं हो सके।",
+  "orders.results.emptyBody": "लैब के नतीजे और रेडियोलॉजी रिपोर्ट तैयार होने पर यहाँ दिखेंगी।",
+  "orders.results.new": "नया",
+  "orders.results.view": "देखें",
+  "orders.results.share": "अपने डॉक्टर के साथ साझा करें",
+  "orders.results.book": "परामर्श बुक करें"
 }

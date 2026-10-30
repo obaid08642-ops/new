@@ -3864,7 +3864,7 @@
   "menu.open": "القائمة",
   "menu.close": "إغلاق القائمة",
   "menu.profile": "حسابي",
-  "menu.orders": "طلباتي",
+  "menu.orders": "طلباتي ونتائجي",
   "menu.family": "العائلة",
   "menu.articles": "المقالات",
   "menu.notifications": "الإشعارات",
@@ -3890,5 +3890,15 @@
   "diag.offer.notifyFailed": "تعذّر الحفظ. حاول مرة أخرى.",
   "scanStatus.checking": "جارٍ التحقق من أمان الملف",
   "scanStatus.rejected": "تم رفض هذا الملف لأسباب تتعلق بالسلامة. يرجى رفع ملف آخر.",
-  "scanStatus.uploadAnother": "رفع ملف آخر"
+  "scanStatus.uploadAnother": "رفع ملف آخر",
+  "menu.ordersNew": "طلباتي ونتائجي، {n} نتيجة جديدة",
+  "orders.resultsTitle": "طلباتي ونتائجي",
+  "orders.tab.results": "النتائج والتقارير",
+  "orders.tab.resultsNew": "النتائج والتقارير ({n})",
+  "orders.results.partial": "تعذر تحميل جزء من النتائج.",
+  "orders.results.emptyBody": "ستظهر هنا نتائج التحاليل وتقارير الأشعة عندما تصبح جاهزة.",
+  "orders.results.new": "جديد",
+  "orders.results.view": "عرض",
+  "orders.results.share": "شارك مع دكتورك",
+  "orders.results.book": "احجز استشارة"
 }
