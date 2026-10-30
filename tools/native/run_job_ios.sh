@@ -44,5 +44,14 @@ for FLOW in tools/native/flows/${TARGET}_*.yaml; do
     echo "maestro flow failed (see maestro_${TAG}__${NAME}.log and its screenshots)" > "$OUT/flow_${TAG}__${NAME}.txt"
   fi
 done
+# say what happened in the job log too, and fail the job when a flow failed (the report job still merges every result)
+FAILED=0
+for R in "$OUT"/flow_${TAG}__*.txt; do
+  N=$(basename "$R" .txt); N=${N#flow_${TAG}__}
+  echo "flow $N: $(cat "$R")"
+  if [ "$(cat "$R")" != ok ]; then
+    FAILED=1; echo "----- tail of maestro_${TAG}__${N}.log"; tail -n 60 "$OUT/maestro_${TAG}__${N}.log" 2>/dev/null || true
+  fi
+done
 xcrun simctl spawn "$DEVICE" log show --last 10m --predicate 'process == "'"$(basename /tmp/native/app/*.app .app)"'" AND messageType == error' > "$OUT/syslog_errors_$TAG.txt" 2>/dev/null || true
-exit 0
+exit $FAILED
