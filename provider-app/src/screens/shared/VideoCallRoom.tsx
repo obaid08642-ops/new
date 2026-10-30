@@ -11,7 +11,8 @@
  */
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
-import { Room, RoomEvent, VideoPresets, AudioPresets, Track } from 'livekit-client';
+import { Room, RoomEvent, VideoPresets, AudioPresets, Track, ConnectionQuality, DisconnectReason } from 'livekit-client';
+import { bindCallResilience, callRoomOptions, qualityBars, type AudioOnlyReason, type QualityLevel } from '../../calls/callResilience';
 // @livekit/react-native is a NATIVE module — absent in Expo Go. Guarded require so
 // the bundle loads fine there; video UI is hidden and an honest error is shown.
 let VideoView: any = null;
@@ -31,7 +32,7 @@ import client from '../../api/client';
 import { useTheme, useLang } from '../../context';
 import { NBtn } from '../../components/ui';
 import { I } from '../../components/icons';
-import { SP, FS, FW, R } from '../../constants';
+import { C, SP, FS, FW, R } from '../../constants';
 
 let globalsRegistered = false;
 function ensureGlobals() {
@@ -64,6 +65,11 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
   const [micOn, setMicOn] = useState(true);
   const [camOn, setCamOn] = useState(!voiceOnly);
   const [ending, setEnding] = useState(false);
+  // a lost connection is resumed by LiveKit (ICE restart) on the same call; only ~30 s without it re-joins
+  const [reconnecting, setReconnecting] = useState(false);
+  const [audioOnly, setAudioOnly] = useState<AudioOnlyReason | null>(null);
+  const [quality, setQuality] = useState<{ local: QualityLevel; remote: QualityLevel }>({ local: 'unknown', remote: 'unknown' });
+  const resilienceRef = useRef<ReturnType<typeof bindCallResilience> | null>(null);
 
   const roomRef = useRef<Room | null>(null);
   const sessionRef = useRef<string | null>(null);
@@ -126,19 +132,10 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
       const token = joinRes.data?.token;
       if (!token) throw new Error('no_token');
       const serverUrl = joinRes.data?.server_url || joinRes.data?.serverUrl || 'wss://live.nabd.plus';
+      // the server's advice (weak link / server pressure): start with sound only
+      const advice: AudioOnlyReason | null = joinRes.data?.audio_only && (joinRes.data.audio_only_reason === 'weak_link' || joinRes.data.audio_only_reason === 'server_pressure') ? joinRes.data.audio_only_reason : null;
 
-      const room = new Room({
-        adaptiveStream: true,
-        dynacast: true,
-        videoCaptureDefaults: { resolution: VideoPresets.h720.resolution },
-        publishDefaults: {
-          simulcast: true,
-          videoSimulcastLayers: [VideoPresets.h180, VideoPresets.h360],
-          videoEncoding: { maxBitrate: 1_700_000 },
-          audioPreset: AudioPresets.speech,
-          dtx: true,
-        },
-      });
+      const room = new Room(callRoomOptions({ VideoPresets, AudioPresets }) as ConstructorParameters<typeof Room>[0]);
 
       room.on(RoomEvent.TrackSubscribed, (track: Track) => {
         if (track.kind === Track.Kind.Video) setRemoteTrack(track);
@@ -149,27 +146,38 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
       room.on(RoomEvent.LocalTrackPublished, (publication: any) => {
         if (publication.track?.kind === Track.Kind.Video) setLocalTrack(publication.track);
       });
-      room.on(RoomEvent.Disconnected, () => {
-        setRemoteTrack(null);
-        setLocalTrack(null);
-        if (!(endedRef.current as boolean)) {
-          // Unexpected drop (network/server) — auto-reconnect with backoff.
-          const n = ((reconnectRef.current as number) || 0) + 1;
-          (reconnectRef as any).current = n;
-          if (n <= 3) {
-            setPhase('connecting');
-            setTimeout(() => { if (!(endedRef.current as boolean)) connect(); }, Math.min(2000 * n, 8000));
-            return;
+      // Reconnecting / audio-only / quality / dropped: one tested state machine (src/calls/callResilience.ts)
+      resilienceRef.current?.dispose();
+      resilienceRef.current = bindCallResilience(room as any, { RoomEvent, ConnectionQuality, DisconnectReason } as any, {
+        onPhase: (next) => {
+          if (next === 'reconnecting') { setReconnecting(true); return; }
+          if (next === 'live') { setReconnecting(false); return; }
+          // 'dropped' (no connection for ~30 s, or the server ended it) or 'ended'
+          setReconnecting(false);
+          setRemoteTrack(null);
+          setLocalTrack(null);
+          if (next === 'dropped' && !(endedRef.current as boolean)) {
+            // The call did not come back by itself: join again with backoff.
+            const n = ((reconnectRef.current as number) || 0) + 1;
+            (reconnectRef as any).current = n;
+            if (n <= 3) {
+              setPhase('connecting');
+              setTimeout(() => { if (!(endedRef.current as boolean)) connect(); }, Math.min(2000 * n, 8000));
+              return;
+            }
+            setErrMsg(AR ? 'انقطع الاتصال — تحقق من الشبكة ثم أعد المحاولة' : 'Connection lost — check your network and retry');
+            setPhase('error');
           }
-          setErrMsg(AR ? 'انقطع الاتصال — تحقق من الشبكة ثم أعد المحاولة' : 'Connection lost — check your network and retry');
-          setPhase('error');
-        }
-      });
+        },
+        onAudioOnly: (on, reason) => { setAudioOnly(on ? reason : null); if (on) setCamOn(false); },
+        onQuality: (_identity, level, local) => setQuality((q) => (local ? { ...q, local: level } : { ...q, remote: level })),
+      }, { startAudioOnly: voiceOnly ? null : advice });
 
       await room.connect(serverUrl, token);
       try { await AudioSession.startAudioSession(); } catch { /* best-effort on Android/iOS */ }
-      if (voiceOnly) {
+      if (voiceOnly || advice) {
         await room.localParticipant.setMicrophoneEnabled(true);
+        await resilienceRef.current?.applyStartAdvice();
       } else {
         await room.localParticipant.enableCameraAndMicrophone();
       }
@@ -192,6 +200,8 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
       attemptRef.current++;
       endedRef.current = true;
       stopMetrics();
+      resilienceRef.current?.dispose();
+      resilienceRef.current = null;
       const room = roomRef.current;
       roomRef.current = null;
       if (room) room.disconnect();
@@ -271,14 +281,33 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
         </View>
       )}
 
+      {/* Status over the call: reconnecting (the same call resumes) and sound only (weak link) */}
+      <View style={st.status} pointerEvents="box-none">
+        {reconnecting ? <Text accessibilityLiveRegion="polite" style={[st.notice, { backgroundColor: theme.overlay }]}>{AR ? 'الاتصال ضعيف، نعيد الاتصال بالمكالمة…' : 'Weak connection. Reconnecting your call…'}</Text> : null}
+        {audioOnly ? <Text accessibilityLiveRegion="polite" style={[st.notice, { backgroundColor: theme.overlay }]}>{AR ? 'الاتصال ضعيف، فأوقفنا الفيديو وأبقينا الصوت.' : 'The connection is weak, so video is off and the sound is kept.'}</Text> : null}
+        <View style={{ flexDirection: 'row', gap: 16 }}>
+          <View accessible accessibilityLabel={`${AR ? 'اتصالك' : 'Your connection'}: ${qualityText(quality.local, AR)}`} style={st.bars}>
+            {[1, 2, 3].map((n) => <View key={n} style={[st.bar, { height: 4 + n * 4, opacity: n <= qualityBars(quality.local) ? 1 : 0.3 }]} />)}
+          </View>
+          <View accessible accessibilityLabel={`${AR ? 'اتصال الطرف الآخر' : "Other side's connection"}: ${qualityText(quality.remote, AR)}`} style={st.bars}>
+            {[1, 2, 3].map((n) => <View key={n} style={[st.bar, { height: 4 + n * 4, opacity: n <= qualityBars(quality.remote) ? 1 : 0.3 }]} />)}
+          </View>
+        </View>
+      </View>
+
       {/* Controls */}
       <View style={st.controls}>
         <TouchableOpacity style={st.ctrl} onPress={() => setMicOn(v => !v)} accessibilityLabel={AR ? 'كتم الصوت' : 'Mute'}>
           <I name={micOn ? 'mic' : 'mic-off'} size={22} color="#FFF" />
         </TouchableOpacity>
-        {!voiceOnly && (
+        {!voiceOnly && !audioOnly && (
           <TouchableOpacity style={st.ctrl} onPress={() => setCamOn(v => !v)} accessibilityLabel={AR ? 'الكاميرا' : 'Camera'}>
             <I name={camOn ? 'video' : 'video-off'} size={22} color="#FFF" />
+          </TouchableOpacity>
+        )}
+        {!voiceOnly && audioOnly && (
+          <TouchableOpacity style={st.ctrl} onPress={() => { setCamOn(true); void resilienceRef.current?.tryVideo(); }} accessibilityLabel={AR ? 'جرّب الفيديو مرة أخرى' : 'Try video again'}>
+            <I name="video" size={22} color={C.white} />
           </TouchableOpacity>
         )}
         <TouchableOpacity style={[st.ctrl, { backgroundColor: '#E53935' }]} onPress={handleEnd} accessibilityLabel={AR ? 'إنهاء المكالمة' : 'End call'}>
@@ -289,7 +318,18 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
   );
 }
 
+function qualityText(level: QualityLevel, ar: boolean): string {
+  const t: Record<QualityLevel, [string, string]> = {
+    excellent: ['ممتاز', 'excellent'], good: ['جيد', 'good'], poor: ['ضعيف', 'weak'], lost: ['منقطع', 'lost'], unknown: ['جارٍ الفحص', 'checking'],
+  };
+  return t[level][ar ? 0 : 1];
+}
+
 const st = StyleSheet.create({
+  status: { position: 'absolute', top: SP.md, start: 0, end: 0, alignItems: 'center', gap: 8 },
+  notice: { color: C.white, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, textAlign: 'center', maxWidth: '92%', overflow: 'hidden' },
+  bars: { flexDirection: 'row', alignItems: 'flex-end', gap: 3, height: 16 },
+  bar: { width: 4, borderRadius: 1, backgroundColor: C.white },
   box: { flex: 1, minHeight: 260, alignItems: 'center', justifyContent: 'center', borderRadius: R.lg, overflow: 'hidden' },
   dim: { color: 'rgba(255,255,255,0.75)', marginTop: SP.sm, textAlign: 'center', paddingHorizontal: SP.lg },
   name: { color: '#FFF', fontSize: FS.lg, fontWeight: FW.bold, marginTop: SP.sm },
