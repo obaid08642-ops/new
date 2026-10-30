@@ -1,18 +1,22 @@
-# 2026-10-30 lead reviewer: run 51.
-# 1. Pause the ar+en translation (answers saved on the host; the deploy recreates the backend; the daily 00:30 UTC cron resumes it).
-# 2. Free disk, deploy main@73088bc7: provider own price shown = charged (#2116), refund status (#2119), language fallback web (#2126),
-#    fonts (#2125 #2131), one assistant (#2120), help & policies (#2121), MCP ordering (#2104), deep links (#2101), search engines (#2112),
-#    catalogue search (#2113), nursing booking modes (#2106), catalogue completion step (#2103), medicines list speed (#2122), web TTFB (#2123),
-#    OD-14 (#2124), external translation import (#2128), orders & results (#2111 #2114), design (#2100 #2108 #2110 #2115).
+# 2026-10-30 lead reviewer: run 51 (moved to main@fd73b53d so one Approve covers everything merged overnight).
+# 1. Pause the ar+en translation (answers saved on the host; the deploy recreates the backend).
+# 2. Free disk, deploy main@fd73b53d: everything merged overnight, including the provider's own price shown = charged (#2116),
+#    the 3.8 GB memory budget (#2137: per-container limits, no swap for MongoDB/Redis, kill order, Node heap caps, oplog backup waits for
+#    Mongo, deploy-time memory report), patient-app Expo 58 (#2117, app-store build needed separately), language fallback app+web (#2126 #2127),
+#    fonts (#2125 #2131), refund status (#2119), help & policies (#2121), one assistant (#2120), MCP ordering (#2104), deep links (#2101),
+#    search engines (#2112), catalogue search and ranking events (#2113 #2132 #2133), nursing booking modes (#2106), catalogue completion step
+#    (#2103), insurance card delete (#2130), external translations (#2128 #2136), speed (#2122 #2123), OD-14 (#2124), design (#2100 #2107 #2108 #2110 #2115).
 # 3. 90-catalogue-apply DRY RUN with COMPLETION=packaged: counts per collection for the approved radiology/lab/nursing completion; nothing written.
-# 4. Cloudflare: AI crawlers allowed (owner 2026-10-29): Cloudflare's managed robots.txt and "Block AI bots" off; checked with GPTBot/ClaudeBot; old values back on failure.
-# 5. Translation progress counts, purge the API cache.
+# 4. 99-translate-resume-cron APPLY again: the daily 00:30 UTC resume now runs in the worker container (#2137), same pinned requests, 150/day.
+# 5. Cloudflare: AI crawlers allowed (owner 2026-10-29); checked with GPTBot/ClaudeBot; old values back on failure.
+# 6. Translation progress counts, purge the API cache.
 98c-translate-pause
-release:73088bc7a077395026748d516ca04e67abdbef31
+release:fd73b53d0f34625fc1dead9fee43d04ba9141d4e
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
 90-catalogue-apply
+99-translate-resume-cron
 98b-translate-progress
 cf:50-ai-crawlers-check
 cf:50-ai-crawlers-apply

@@ -19,7 +19,7 @@ CRON_DIR=${OPS_CRON_DIR:-/etc/cron.d}
 CRON_FILE=$CRON_DIR/nabd-translate-resume
 HELPER=${OPS_RESUME_HELPER:-/opt/nabdah/translate-resume.sh}
 LOG=${OPS_RESUME_LOG:-/var/log/nabd-translate-resume.log}
-CT=${CATALOGUE_CONTAINER:-nabdah-backend}
+CT=${CATALOGUE_CONTAINER:-nabdah-worker}   # #2137: background work runs in the worker container (2026-10-30 OOM)
 DK="sudo -n docker"
 CRON_LINE="30 0 * * * root $HELPER >> $LOG 2>&1"
 echo "## translate-resume-cron"
