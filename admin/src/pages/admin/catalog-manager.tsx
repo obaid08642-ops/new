@@ -366,17 +366,17 @@ export default function CatalogManagerPage() {
                 </div>
               ))}
               {tab === 'nursing' && (
-                <div style={{ gridColumn: '1 / -1', border: '1px solid #E2E8F0', borderRadius: 12, padding: 12 }}>
-                  <label style={{ fontSize: 12, fontWeight: 700, color: '#475569', display: 'block', marginBottom: 6 }}>نمط الحجز</label>
+                <div style={{ gridColumn: '1 / -1', border: '1px solid currentColor', borderRadius: 12, padding: 12 }}>
+                  <label style={{ fontSize: 12, fontWeight: 700, display: 'block', marginBottom: 6 }}>نمط الحجز</label>
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
                     {MODES.map((m) => (
                       <button key={m.key} type="button" title={m.hint} onClick={() => setEditing({ ...editing, booking_mode: m.key })}
-                        style={{ padding: '8px 14px', borderRadius: 10, border: '1px solid #E2E8F0', cursor: 'pointer', fontWeight: 700, background: modeOf(editing.booking_mode) === m.key ? '#0B1B2B' : '#fff', color: modeOf(editing.booking_mode) === m.key ? '#fff' : '#0B1B2B' }}>{m.label}</button>
+                        style={{ padding: '8px 14px', borderRadius: 10, border: modeOf(editing.booking_mode) === m.key ? '3px solid currentColor' : '1px solid currentColor', cursor: 'pointer', fontWeight: 700, background: 'transparent', color: 'inherit' }}>{m.label}</button>
                     ))}
                   </div>
                   {MODE_OPTIONS[modeOf(editing.booking_mode)].map((k: OptionKey) => (
                     <div key={k} style={{ marginBottom: 8 }}>
-                      <div style={{ fontSize: 12, color: '#475569', marginBottom: 4 }}>{OPTION_VALUES[k].label}</div>
+                      <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 4 }}>{OPTION_VALUES[k].label}</div>
                       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                         {OPTION_VALUES[k].values.map((v) => (
                           <label key={String(v)} style={{ display: 'flex', gap: 4, alignItems: 'center', fontSize: 13 }}>
