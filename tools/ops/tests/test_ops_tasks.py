@@ -389,6 +389,13 @@ case "$1" in
     case "$*" in *" config"*) [ "$last" = config ] && printf 'services:\n  mongodb:\n    mem_limit: "1258291200"\n';; esac
     exit 0;;
   run)
+    case "$*" in *mongorestore*)
+      cfg=$(echo "$*" | sed -n 's/.*-v \([^ ]*\):\/cfg\/mongorestore.yml:ro.*/\1/p')
+      [ -n "$cfg" ] && { cat "$cfg" > "$S/cfg.restore.seen"; }
+      cat > /dev/null
+      [ -n "$FAKE_LIST_EMPTY" ] || printf 'preparing collections to restore from\nfound collection `nabd_nestjs.users` bson to restore to `nabd_nestjs.users`\nfound collection `nabd_nestjs.patients` bson to restore to `nabd_nestjs.patients`\ndry run completed\n'
+      exit 0;;
+    esac
     case "$*" in *mongodump*)
       cfg=$(echo "$*" | sed -n 's/.*-v \([^ ]*\):\/cfg\/mongodump.yml:ro.*/\1/p')
       [ -n "$cfg" ] && { cat "$cfg" > "$S/cfg.seen"; stat -c %a "$cfg" > "$S/cfg.mode"; }
@@ -502,7 +509,7 @@ class RecreateDatastores(unittest.TestCase):
         p = self.run_task({"APPLY": "yes"}, FAKE_DUMP_RC=1)
         self.assertEqual(p.returncode, 1)
         self.assertIn("ABORT backup too small", p.stdout)
-        self.assertIn("one-off container (mongo:7.0 on nabd_internal, 600m, no swap, oom_score_adj 1000) rc=1 size_bytes=0", p.stdout)
+        self.assertIn("attempt 2: one-off container (mongo:7.0 on nabd_internal, cap ", p.stdout)
         self.assertIn("backup steps: mongodump rc=1 ; install rc=skipped ; stat rc=1 size_bytes=0", p.stdout)
         self.assertEqual([e for e in self.events() if e], [])
 
@@ -512,8 +519,8 @@ class RecreateDatastores(unittest.TestCase):
         calls = self.h.docker_calls()
         run = [l for l in calls.splitlines() if l.startswith("run ") and "mongodump" in l]
         self.assertEqual(len(run), 1, calls)
-        self.assertIn("--rm", run[0]); self.assertIn("--network nabd_internal", run[0])
-        self.assertIn("--memory 600m --memory-swap 600m --oom-score-adj 1000", run[0])
+        self.assertNotIn("--rm", run[0]); self.assertIn("--name nabd-dump-", run[0]); self.assertIn("--network nabd_internal", run[0]); self.assertIn("--numParallelCollections=1", run[0])
+        self.assertRegex(run[0], r"--memory (\d+)m --memory-swap \1m --oom-score-adj 1000")   # 350m..600m by MemAvailable
         self.assertIn("--entrypoint mongodump mongo:7.0", run[0])
         self.assertFalse(any(l.startswith("exec nabdah-mongodb mongodump") or " mongodump " in l for l in calls.splitlines() if l.startswith("exec ")))   # never inside mongodb
         self.assertNotIn("mongo-pass-31d9", p.stdout + p.stderr + calls)             # not an argument, not output
@@ -806,6 +813,83 @@ class CatalogueApplyOnly(unittest.TestCase):
             self.assertTrue(line.startswith("status: ") or line.startswith("## "), line)
 
 
+class MongoRecreate(unittest.TestCase):
+    TASK = "94-mongo-recreate.sh"
+
+    def setUp(self):
+        self.h = Harness(self)
+        self.state = os.path.join(self.h.tmp.name, "state")
+        os.makedirs(self.state)
+        write_exec(os.path.join(self.h.bin, "docker"), STATE_DOCKER)
+        write_exec(os.path.join(self.h.bin, "curl"), STATE_CURL)
+        for f in ("docker-compose.production.yml", "docker-compose.release.yml"):
+            with open(os.path.join(self.h.deploy, f), "w") as fh:
+                fh.write("services: {}\n")
+        with open(os.path.join(self.h.backups, "nabd_20261029.gz"), "wb") as f:
+            f.write(b"x" * 1024)
+
+    def run_task(self, settings=None, **extra):
+        return self.h.run(self.TASK, settings, FAKE_STATE=self.state, NABD_DEPLOY_LOCK=os.path.join(self.h.tmp.name, "deploy.lock"), OPS_MEMINFO="/proc/meminfo", **extra)
+
+    def ups(self):
+        return [l for l in self.h.docker_calls().splitlines() if " up " in l]
+
+    def test_dry_run_reads_only(self):
+        p = self.run_task()
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("restarts=4", p.stdout); self.assertIn("oom_killed=", p.stdout); self.assertIn("limit now=", p.stdout)
+        self.assertIn("dry run only", p.stdout)
+        self.assertEqual(self.ups(), []); self.assertNotIn("run --rm", self.h.docker_calls())
+        self.assertEqual(sorted(os.listdir(self.h.backups)), ["nabd_20261029.gz"])
+
+    def test_apply_backs_up_first_then_recreates_only_mongodb_and_never_touches_the_volume(self):
+        p = self.run_task({"APPLY": "yes"})
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        calls = self.h.docker_calls().splitlines()
+        dump_at = next(i for i, l in enumerate(calls) if l.startswith("run ") and "mongodump" in l)
+        list_at = next(i for i, l in enumerate(calls) if l.startswith("run ") and "mongorestore" in l)
+        up_at = next(i for i, l in enumerate(calls) if " up " in l)
+        self.assertTrue(dump_at < list_at < up_at, calls)                                  # backup, listing, and only then the recreate
+        self.assertEqual(len(self.ups()), 1); self.assertTrue(self.ups()[0].endswith("--no-deps --force-recreate mongodb"), self.ups())
+        for forbidden in (" down", "volume", " -v ", "rm -f"):
+            self.assertNotIn(forbidden, " ".join(l for l in calls if " up " in l or l.startswith("compose")))
+        kept = [n for n in os.listdir(self.h.backups) if n.startswith("pre-mongo-recreate-")]
+        self.assertEqual(len(kept), 1)
+        self.assertEqual(oct(os.stat(os.path.join(self.h.backups, kept[0])).st_mode & 0o777), "0o600")
+        self.assertTrue(any(n.startswith("mongo-recreate-") and n.endswith("docker-compose.production.yml") for n in os.listdir(self.h.backups)))
+        self.assertIn("archive lists 2 namespace(s)", p.stdout); self.assertIn("mongodb_downtime_seconds=", p.stdout)
+        self.assertNotIn("mongo-pass-31d9", p.stdout + p.stderr + self.h.docker_calls())   # never an argument or output
+
+    def test_a_failed_dump_or_an_empty_listing_stops_before_the_recreate(self):
+        a = self.run_task({"APPLY": "yes"}, FAKE_DUMP_RC=1)
+        self.assertEqual(a.returncode, 1); self.assertIn("ABORT the backup is not usable", a.stdout)
+        self.assertEqual(self.ups(), [])
+        b = self.run_task({"APPLY": "yes"}, FAKE_LIST_EMPTY=1)
+        self.assertEqual(b.returncode, 1); self.assertIn("archive listing=failed", b.stdout)
+        self.assertEqual(self.ups(), [])
+        self.assertFalse([n for n in os.listdir(self.h.backups) if n.startswith("pre-mongo-recreate-")])   # no unusable backup is kept
+
+    def test_a_deploy_lock_and_too_little_room_stop_everything(self):
+        open(os.path.join(self.h.tmp.name, "deploy.lock"), "w").close()
+        self.assertEqual(self.run_task({"APPLY": "yes"}).returncode, 1)
+        os.remove(os.path.join(self.h.tmp.name, "deploy.lock"))
+        q = self.run_task({"APPLY": "yes"}, MIN_FREE_MB=999999999)
+        self.assertEqual(q.returncode, 1); self.assertIn("MB free where the backup goes", q.stdout)
+        self.assertEqual(self.ups(), [])
+
+    def test_a_recreate_that_does_not_come_back_prints_the_rollback(self):
+        p = self.run_task({"APPLY": "yes"}, FAKE_UNHEALTHY="mongodb", OPS_WAIT_TRIES=2)
+        self.assertEqual(p.returncode, 1)
+        self.assertIn("ROLLBACK: put back", p.stdout); self.assertIn("data volume is untouched", p.stdout)
+
+    def test_the_copies_of_the_two_one_off_functions_equal_the_libraries(self):
+        root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "deploy", "scripts")
+        task = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "tasks", self.TASK)).read()
+        for lib, marker in (("_mongodump-oneoff.sh", "mongodump_oneoff() {"), ("_mongorestore-list.sh", "mongorestore_list_oneoff() {")):
+            text = open(os.path.join(root, lib)).read()
+            self.assertIn(text[text.index(marker):].rstrip("\n"), task, lib)
+
+
 class MongodumpCheck(unittest.TestCase):
     TASK = "96-mongodump-check.sh"
 
@@ -862,6 +946,33 @@ turn:
   enabled: false
 """
 TC_BEFORE = "listening-port=3478\nrealm=nabd.plus\nuse-auth-secret\nstatic-auth-secret=turn-secret-4a1b\nexternal-ip=2001:41d0:701:1100::cbb3\nmin-port=40000\n"
+
+
+class DockerRunStdin(unittest.TestCase):
+    """Run 60: a `docker run -i` inside a task fed by `ssh 'bash -s' < file` reads the REST of the script from stdin and ends it silently
+    with exit 0. A task that can run non-detached must not use `docker run -i` without an explicit stdin redirect."""
+
+    def test_no_bare_docker_run_i(self):
+        bad = []
+        for d in (TASKS, os.path.join(TASKS, "..", "..", "..", "deploy", "scripts")):
+            for name in sorted(os.listdir(d)):
+                if not name.endswith(".sh"):
+                    continue
+                path = os.path.join(d, name)
+                text = open(path, encoding="utf-8").read()
+                if "ops-detach" in text.splitlines()[1:2].__str__():
+                    continue
+                # join backslash continuations so a redirect on the next line counts
+                joined = re.sub(r"\\\n", " ", text)
+                for n, line in enumerate(joined.splitlines(), 1):
+                    if re.search(r"\brun\b[^|;#]*\s-[a-z]*i[a-z]*\b", line) and "docker" in line.lower() or re.search(r"\$dkr run\b[^|;#]*\s-[a-z]*i\b", line):
+                        if not re.search(r"<\s*(/dev/null|\"?\$)", line):
+                            bad.append(f"{name}:{n}")
+        self.assertEqual(bad, [], "docker run -i without a stdin redirect (use `< /dev/null`, or drop -i)")
+
+    def test_94_is_marked_detached(self):
+        with open(os.path.join(TASKS, "94-mongo-recreate.sh"), encoding="utf-8") as f:
+            self.assertEqual(f.read().splitlines()[1], "# ops-detach")
 
 
 class CallsNetwork(unittest.TestCase):
