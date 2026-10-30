@@ -517,7 +517,7 @@ describe("handoff §3 — states and the main tab bar (components 4/4) match the
     const before = sheet.slice(sheet.indexOf(".nabd-bottom-tab-bar::before"));
     expect(before).toContain("background: var(--nabd-color-glass-bgStrong)");
     expect(before).toContain("box-shadow: var(--nabd-shadow-tabBar)");
-    expect(before).toContain("mask-image: radial-gradient(circle at 50% 117px, transparent 37.5px");
+    expect(before).toContain("mask-image: radial-gradient(circle at calc(var(--nabd-fab-x) + 100px) 117px, transparent 37.5px");
     expect(html.match(/aria-current="page"/g)).toHaveLength(1);
     expect(html).toContain("background:var(--nabd-color-action-primary-bg)");
     expect(html).toContain("color:var(--nabd-color-action-primary-fg)");

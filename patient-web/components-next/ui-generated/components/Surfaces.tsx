@@ -441,9 +441,36 @@ function NavArt({ art }: { art: NavArtKey }) {
   );
 }
 
+/**
+ * Centre of the raised button's slot, in the bar's own coordinates. The CSS cut-out is centred on this one value
+ * (custom property --nabd-fab-x), so it follows the button when another tab grows into a labelled pill and
+ * moves the flex slot away from the bar centre.
+ */
+const useIsoLayoutEffect = typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
+
+export function fabAnchorX(slotOffsetLeft: number, slotWidth: number): number {
+  return slotOffsetLeft + slotWidth / 2;
+}
+
 export function BottomTabBar({ items, value, onChange, label = 'Main navigation', safeAreaInset = false, testID }: BottomTabBarProps) {
+  const barRef = React.useRef<HTMLElement>(null);
+  const hasRaised = items.some((item) => item.raised);
+  // one anchor: the raised slot's measured centre drives the cut-out (the button is centred in that slot)
+  useIsoLayoutEffect(() => {
+    const bar = barRef.current;
+    const slot = bar?.querySelector<HTMLElement>('.nabd-bottom-tab-bar__raised');
+    if (!bar || !slot) return undefined;
+    const place = () => bar.style.setProperty('--nabd-fab-x', `${fabAnchorX(slot.offsetLeft, slot.offsetWidth)}px`);
+    place();
+    if (typeof ResizeObserver === 'undefined') return undefined;
+    const observer = new ResizeObserver(place);
+    observer.observe(bar);
+    bar.querySelectorAll('button').forEach((button) => observer.observe(button));
+    return () => observer.disconnect();
+  }, [hasRaised, value, items.length]);
   return (
     <nav
+      ref={barRef}
       aria-label={label}
       data-testid={testID}
       className={clsx('nabd-bottom-tab-bar', { 'nabd-bottom-tab-bar--safe-area': safeAreaInset })}

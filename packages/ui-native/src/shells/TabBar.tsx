@@ -60,11 +60,10 @@ const FAB_CENTER_Y = 17;
  * centred at (w/2, cy), cut into the top edge. Arc from the left crossing to the right one, the long way round
  * the bottom of the circle (large-arc 1, sweep 0).
  */
-export function tabBarPath(w: number, h: number, r: number, cy: number): string {
+export function tabBarPath(w: number, h: number, r: number, cy: number, cx: number = w / 2): string {
   const i = 0.5;
   const rad = h / 2 - i;
   const dx = Math.sqrt(Math.max(r * r - cy * cy, 0));
-  const cx = w / 2;
   return [
     `M ${i + rad} ${i}`,
     `L ${(cx - dx).toFixed(2)} ${i}`,
@@ -78,6 +77,26 @@ export function tabBarPath(w: number, h: number, r: number, cy: number): string 
 }
 const SIDE = 14;
 
+/** Where the raised item's slot sits inside the bar (onLayout of the slot: x from the bar's left edge, physical). */
+export interface FabSlot {
+  x: number;
+  width: number;
+}
+
+/**
+ * The ONE anchor of the raised button: the centre of its own slot. The slot is a flex item, so it moves when
+ * the selected tab grows into a pill with a label (the other items change width); the bar centre does not.
+ * Before the slot has been measured the bar centre is used.
+ */
+export function fabCentre(slot: FabSlot | null, barWidth: number): number {
+  return slot ? slot.x + slot.width / 2 : barWidth / 2;
+}
+
+/** The cut-out is centred on the very same anchor as the button, never on a fixed fraction of the bar. */
+export function notchCentre(slot: FabSlot | null, barWidth: number): number {
+  return fabCentre(slot, barWidth);
+}
+
 /** Height the bar takes from the bottom of the screen, so content can pad for it. */
 export function useTabBarHeight(): number {
   const insets = useSafeAreaInsets();
@@ -90,6 +109,7 @@ export function TabBar({ items, value, onChange, label = 'Main navigation', back
   const dir = resolveDirection(direction);
   const gradientId = `nabd-fab-${theme}`;
   const [barWidth, setBarWidth] = React.useState(0);
+  const [fabSlot, setFabSlot] = React.useState<FabSlot | null>(null);
   const cutOut = !background && barWidth > 0 && items.some((item) => item.raised);
 
   return (
@@ -118,7 +138,7 @@ export function TabBar({ items, value, onChange, label = 'Main navigation', back
     >
       {cutOut ? (
         <Svg width={barWidth} height={BAR_HEIGHT} style={{ position: 'absolute', top: 0, start: 0 }} pointerEvents="none">
-          <Path d={tabBarPath(barWidth, BAR_HEIGHT, FAB / 2 + FAB_GAP, FAB_CENTER_Y)} fill={t.glassStrong} stroke={t.hairline} strokeWidth={1} />
+          <Path d={tabBarPath(barWidth, BAR_HEIGHT, FAB / 2 + FAB_GAP, FAB_CENTER_Y, notchCentre(fabSlot, barWidth))} fill={t.glassStrong} stroke={t.hairline} strokeWidth={1} />
         </Svg>
       ) : null}
       {background ? (
@@ -134,6 +154,10 @@ export function TabBar({ items, value, onChange, label = 'Main navigation', back
               accessibilityLabel={item.label}
               accessibilityState={{ selected }}
               onPress={() => onChange(item.key)}
+              onLayout={(e) => {
+                const { x, width } = e.nativeEvent.layout;
+                setFabSlot((prev) => (prev && prev.x === x && prev.width === width ? prev : { x, width }));
+              }}
               // centred like the board's 52 slot, so the -34 lift lands where HomeApp draws it
               style={({ pressed }) => ({ width: ITEM, height: ITEM, alignItems: 'center', justifyContent: 'center', transform: [{ scale: pressed ? t.pressScale : 1 }] })}
             >
