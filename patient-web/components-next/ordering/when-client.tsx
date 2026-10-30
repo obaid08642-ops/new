@@ -250,7 +250,7 @@ function AsapCard({ locale, kind, pay, point, group, schedule, update }: { local
         <div className={styles.note} role="status">
           <strong>{t("whenAsapAccepted")}</strong>
           <p className={styles.sub}>{t("whenAsapAcceptedSub")}</p>
-          <Link href={asap.bookingId ? `/${locale}/labs/bookings/${encodeURIComponent(asap.bookingId)}` : `/${locale}/diagnostics/bookings`} className={styles.linkBtn}>{asap.bookingId ? t("trackOpen") : t("whenOpenBookings")}</Link>
+          <Link href={asap.bookingId ? `/${locale}/labs/bookings/${encodeURIComponent(asap.bookingId)}` : `/${locale}/orders`} className={styles.linkBtn}>{asap.bookingId ? t("trackOpen") : t("whenOpenBookings")}</Link>
         </div>
       ) : null}
       {asap?.status === "expired" ? (
