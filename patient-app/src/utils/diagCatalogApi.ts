@@ -8,7 +8,6 @@
  * Pure helpers shared by the hub and the tests.
  */
 import type { DiagArtKey, DiagKind } from '../../../packages/ui/icons/diag-art';
-import type { FilterId } from './diagFilters';
 
 export const DIAG_PAGE_SIZE = 20;
 export const DIAG_MAX_LIMIT = 100;
@@ -61,9 +60,6 @@ export function hasMorePages(page: Pick<CatalogPage, 'rows' | 'page' | 'totalPag
   if (page.totalPages !== null) return (page.page ?? requested) < page.totalPages;
   return page.rows.length >= limit;
 }
-
-/** The sheet's sort option as the backend flag. Home visit and the other options are not sorts. */
-export const sortOfFilter = (filter: FilterId): CatalogSort | undefined => (filter === 'highest_rated' ? 'highest_rated' : filter === 'lowest_price' ? 'lowest_price' : undefined);
 
 /**
  * The scan chip -> server `category` (a scan's category IS its modality, so a chip sends its own key). The six test chips do not match the

@@ -9,28 +9,11 @@ import forms from "@/components-next/consult/consult.module.css";
 import styles from "@/components-next/settings/settings.module.css";
 import { useUploadsEnabled } from "@/components-next/uploads/uploads-provider";
 import { ScanStatusBadge } from "@/components-next/uploads/scan-status-badge";
+import { parseHistory, type ChatMsg } from "@/lib/support/parse-history";
 import { scanStateOfUpload, type ScanState } from "@/lib/uploads/scan-status";
 
-export type ChatMsg = { id: string; from: "user" | "agent"; text: string; time: string };
+export type { ChatMsg };
 const QUICK = ["quickCancel", "quickOrder", "quickRefund", "quickInsurance", "quickComplaint"] as const;
-
-function parseHistory(payload: unknown): ChatMsg[] {
-  const root = (payload && typeof payload === "object" ? payload : {}) as Record<string, unknown>;
-  const list = [root.data, root.messages, root.history].find(Array.isArray);
-  if (!Array.isArray(list)) return [];
-  return list.flatMap((m, i) => {
-    if (!m || typeof m !== "object") return [];
-    const o = m as Record<string, unknown>;
-    if (typeof o.text !== "string" || !o.text) return [];
-    const from = o.from === "agent" || o.role === "agent" ? "agent" : "user";
-    return [{
-      id: String(o.id ?? `h-${i}`),
-      from,
-      text: o.text,
-      time: typeof o.time === "string" ? o.time : typeof o.created_at === "string" ? o.created_at.slice(11, 16) : "",
-    }];
-  });
-}
 
 /**
  * The support chat (GET and POST /api/patient/support/chat, image upload through /api/support/upload): the history, a message

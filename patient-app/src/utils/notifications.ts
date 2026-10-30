@@ -1,4 +1,5 @@
 import * as Notifications from 'expo-notifications';
+import { canRingNatively } from './callkeep';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 import { apiFetch } from './api';
@@ -75,6 +76,8 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
         provider,
         platform: Platform.OS,
         device_name: Device.modelName || 'Device',
+        // this build rings incoming calls itself (see src/calls/ringTask.ts); false in Expo Go, where there is no native call module
+        call_ring: canRingNatively(),
       }),
     });
 

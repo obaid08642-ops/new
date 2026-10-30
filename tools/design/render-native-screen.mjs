@@ -232,6 +232,7 @@ const BOARD = {
   // of render-native-screen.fixtures.json (`test-lab-pkg`, `test-lab-test`, `test-lab`, `test-lab-order`). The list, detail and result screens
   // draw on the ServiceHub board (cards, rows, chips); the cart and checkout on Cart and CheckoutV2, tracking on OrderTracking.
   'd-hub': { component: 'ServiceHub', size: [390, 1640], params: {} },
+  // (owner decision 4) two segmented tabs on top, search + filter button + order icon, category chips (labs: with "Packages"), the filter sheet; the sheet and the chip are local state, so they show in the app and the jest tests, not in this still
   // the labs / radiology tabs: `diagnostics:d-hub` and `diagnostics:d-hub-rad` (the `?tab=radiology` side), server pages from the fixtures' `?page=1&limit=20`
   'd-hub-rad': { component: 'ServiceHub', size: [390, 1640], params: { tab: 'radiology' } },
   'd-packages': { component: 'ServiceHub', size: [390, 1640], params: {} },
