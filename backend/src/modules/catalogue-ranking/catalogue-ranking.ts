@@ -28,6 +28,9 @@ const num = (v: string | undefined, d: number): number => (Number.isFinite(Numbe
 export const weights = (env: NodeJS.ProcessEnv = process.env) => ({
   order: num(env.CATALOGUE_RANK_W_ORDER, 5), cart_add: num(env.CATALOGUE_RANK_W_CART_ADD, 3), search: num(env.CATALOGUE_RANK_W_SEARCH, 1.5), view: num(env.CATALOGUE_RANK_W_VIEW, 1),
   half_life_days: num(env.CATALOGUE_RANK_HALF_LIFE_DAYS, 30),
+  // What views and searches (signals a client reports, so the cheapest to inflate) may add on their own: a floor of points, plus a multiple of what the server
+  // itself counted (orders and cart adds). A service nobody orders can reach the floor, never more; one that sells gets room in proportion to its sales.
+  client_floor: num(env.CATALOGUE_RANK_CLIENT_FLOOR, 20), client_per_server_point: num(env.CATALOGUE_RANK_CLIENT_PER_SERVER_POINT, 4),
 });
 
 /** Crawlers, headless browsers and scripts. An empty user agent is not a browser or an app either. */
@@ -42,16 +45,25 @@ export interface DayCounts { service_id: string; day: string; views?: number; se
 /** The score of every service: the weighted counters of each day, decayed by the day's age. Days outside the window are ignored. */
 export function scoreServices(rows: DayCounts[], now: Date, env: NodeJS.ProcessEnv = process.env): Map<string, number> {
   const w = weights(env);
-  const out = new Map<string, number>();
+  const server = new Map<string, number>();   // orders and cart adds: counted by the server
+  const client = new Map<string, number>();   // views and searches: reported by a browser or an app
   const today = Date.parse(`${dayKey(now)}T00:00:00Z`);
   for (const r of rows) {
     const age = Math.max(0, Math.round((today - Date.parse(`${r.day}T00:00:00Z`)) / 86_400_000));
     if (!Number.isFinite(age) || age > WINDOW_DAYS) continue;
-    const raw = (r.orders ?? 0) * w.order + (r.cart_adds ?? 0) * w.cart_add + (r.searches ?? 0) * w.search + (r.views ?? 0) * w.view;
-    if (raw <= 0) continue;
-    out.set(r.service_id, (out.get(r.service_id) ?? 0) + raw * Math.pow(0.5, age / w.half_life_days));
+    const decay = Math.pow(0.5, age / w.half_life_days);
+    const s = ((r.orders ?? 0) * w.order + (r.cart_adds ?? 0) * w.cart_add) * decay;
+    const c = ((r.searches ?? 0) * w.search + (r.views ?? 0) * w.view) * decay;
+    if (s > 0) server.set(r.service_id, (server.get(r.service_id) ?? 0) + s);
+    if (c > 0) client.set(r.service_id, (client.get(r.service_id) ?? 0) + c);
   }
-  for (const [k, v] of out) out.set(k, Math.round(v * 100) / 100);
+  const out = new Map<string, number>();
+  for (const id of new Set([...server.keys(), ...client.keys()])) {
+    const sv = server.get(id) ?? 0;
+    const cl = Math.min(client.get(id) ?? 0, w.client_floor + w.client_per_server_point * sv);
+    const total = sv + cl;
+    if (total > 0) out.set(id, Math.round(total * 100) / 100);
+  }
   return out;
 }
 

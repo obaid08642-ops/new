@@ -4,7 +4,11 @@
  */
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, ExecutionContext, HttpException } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import express from 'express';
+import request from 'supertest';
+import { UserRateLimitGuard } from '../../common/user-rate-limit';
 import { CatalogueRankingController } from './catalogue-ranking.controller';
 import { CatalogueRankingService } from './catalogue-ranking.service';
 import { DAILY_COLLECTION, catalogueSortSpec, dayKey, isBotUserAgent, normalizeCatalogueSort, scoreServices } from './catalogue-ranking';
@@ -135,5 +139,99 @@ describe('the public events endpoint', () => {
     expect(ranking.recordClientSignal).toHaveBeenCalledWith('lab', 'lab-aaaa-1111', 'view', expect.objectContaining({ userAgent: BROWSER }));
     for (const event of ['cart_add', 'order']) await expect(ctrl.event({ vertical: 'lab', service_id: 'lab-aaaa-1111', event }, req)).rejects.toThrow(BadRequestException);
     expect(ranking.recordClientSignal).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('abuse: events that a visitor can inflate', () => {
+  it('views and searches add at most a floor of 20 points plus 4 per point the server counted (orders 5, cart adds 3)', () => {
+    const only = scoreServices([{ service_id: 'a', day: day(0), views: 100_000, searches: 100_000 }], NOW, {});
+    expect(only.get('a')).toBe(20);                                                  // no sales: capped at the floor
+    const sells = scoreServices([{ service_id: 'a', day: day(0), views: 100_000, orders: 1 }], NOW, {});
+    expect(sells.get('a')).toBe(45);                                                 // 5 (the order) + min(100000, 20 + 4 x 5)
+    const modest = scoreServices([{ service_id: 'a', day: day(0), views: 10, orders: 1 }], NOW, {});
+    expect(modest.get('a')).toBe(15);                                                // under the cap nothing changes: 10 + 5
+    const tuned = scoreServices([{ service_id: 'a', day: day(0), views: 100_000 }], NOW, { CATALOGUE_RANK_CLIENT_FLOOR: '8' } as never);
+    expect(tuned.get('a')).toBe(8);
+    // a service that sells always outranks a service that only collects views
+    expect(sells.get('a')!).toBeGreaterThan(only.get('a')!);
+  });
+
+  describe('the visitor', () => {
+    let mongo: MongoMemoryServer;
+    let service: CatalogueRankingService;
+    const mem = new Map<string, string>();
+    const redis: any = { exists: async (k: string) => mem.has(k), set: async (k: string, v: string) => { mem.set(k, v); } };
+    beforeAll(async () => {
+      mongo = await MongoMemoryServer.create();
+      await mongoose.connect(mongo.getUri(), { dbName: 'cat_rank_abuse' });
+      await mongoose.connection.collection('lab_services').insertOne({ id: 'lab-aaaa-1111', name_ar: 'أ' } as never);
+      service = new CatalogueRankingService(mongoose.connection as never, redis);
+    });
+    afterAll(async () => { await mongoose.disconnect(); await mongo.stop(); });
+    beforeEach(() => mem.clear());
+
+    it('rotating the session id from one address and browser counts once: the session is the caller\'s own choice', async () => {
+      const results = [];
+      for (let i = 0; i < 20; i++) results.push(await service.recordClientSignal('lab', 'lab-aaaa-1111', 'view', { ip: '203.0.113.9', userAgent: BROWSER, sessionId: `random-${i}` }));
+      expect(results.filter((r) => r.counted)).toHaveLength(1);
+    });
+
+    it('another address counts; with no address known the session id stands in', async () => {
+      expect((await service.recordClientSignal('lab', 'lab-aaaa-1111', 'view', { ip: '203.0.113.9', userAgent: BROWSER })).counted).toBe(true);
+      expect((await service.recordClientSignal('lab', 'lab-aaaa-1111', 'view', { ip: '198.51.100.2', userAgent: BROWSER })).counted).toBe(true);
+      expect((await service.recordClientSignal('lab', 'lab-aaaa-1111', 'view', { userAgent: BROWSER, sessionId: 'a' })).counted).toBe(true);
+      expect((await service.recordClientSignal('lab', 'lab-aaaa-1111', 'view', { userAgent: BROWSER, sessionId: 'a' })).counted).toBe(false);
+      expect((await service.recordClientSignal('lab', 'lab-aaaa-1111', 'view', { userAgent: BROWSER, sessionId: 'b' })).counted).toBe(true);
+    });
+  });
+
+  describe('the client address', () => {
+    const seen: Array<string | undefined> = [];
+    const app = (hops: number) => {
+      const a = express();
+      a.set('trust proxy', hops);
+      const ranking: any = { recordClientSignal: async (...args: unknown[]) => { seen.push((args[3] as { ip?: string }).ip); return { counted: true }; } };
+      const ctrl = new CatalogueRankingController(ranking);
+      a.use(express.json());
+      a.post('/events', async (req, res) => res.json(await ctrl.event(req.body, req)));
+      return a;
+    };
+    const body = { vertical: 'lab', service_id: 'lab-aaaa-1111', event: 'view' };
+
+    it('is the address the trusted proxy chain resolves, never an entry the caller wrote into X-Forwarded-For', async () => {
+      seen.length = 0;
+      // client -> CDN -> nginx -> backend: the chain the backend sees is "<what the caller sent>, <client as the CDN saw it>, <CDN as nginx saw it>"
+      await request(app(2)).post('/events').set('User-Agent', BROWSER).set('X-Forwarded-For', '6.6.6.6, 198.51.100.7, 172.70.0.1').send(body).expect(200);
+      expect(seen).toEqual(['198.51.100.7']);
+      // the web server forwards the chain it received (client, CDN) in the same shape, so one more entry from the caller cannot move the answer
+      seen.length = 0;
+      await request(app(2)).post('/events').set('User-Agent', BROWSER).set('X-Forwarded-For', '7.7.7.7, 8.8.8.8, 198.51.100.7, 172.70.0.1').send(body).expect(200);
+      expect(seen).toEqual(['198.51.100.7']);
+      // without any forwarded header it is the socket peer, not a header
+      seen.length = 0;
+      await request(app(2)).post('/events').set('User-Agent', BROWSER).send(body).expect(200);
+      expect(seen[0]).toMatch(/127\.0\.0\.1|::1|::ffff:127\.0\.0\.1/);
+    });
+  });
+
+  describe('the per-address limit', () => {
+    class FakeRedis {
+      counts = new Map<string, number>();
+      async checkRateLimit(key: string, limit: number) { const n = (this.counts.get(key) ?? 0) + 1; this.counts.set(key, n); return { allowed: n <= limit, remaining: Math.max(0, limit - n) }; }
+    }
+    const handler = CatalogueRankingController.prototype.event;
+    const ctx = (ip: string) => ({
+      getHandler: () => handler, getClass: () => CatalogueRankingController,
+      switchToHttp: () => ({ getRequest: () => ({ ip }), getResponse: () => ({ setHeader: () => undefined }) }),
+    }) as unknown as ExecutionContext;
+
+    it('60 a minute per address: the 61st is 429, another address is not affected', async () => {
+      const guard = new UserRateLimitGuard(new Reflector(), new FakeRedis() as never);
+      for (let i = 0; i < 60; i++) expect(await guard.canActivate(ctx('203.0.113.9'))).toBe(true);
+      const err = await guard.canActivate(ctx('203.0.113.9')).catch((e) => e as HttpException);
+      expect((err as HttpException).getStatus()).toBe(429);
+      expect((err as HttpException).getResponse()).toMatchObject({ code: 'rate_limited', bucket: 'ranking_events' });
+      expect(await guard.canActivate(ctx('198.51.100.2'))).toBe(true);
+    });
   });
 });

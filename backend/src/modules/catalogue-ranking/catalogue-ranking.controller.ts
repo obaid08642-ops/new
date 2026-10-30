@@ -1,8 +1,9 @@
-import { BadRequestException, Body, Controller, HttpCode, HttpStatus, Post, Req } from '@nestjs/common';
+import { BadRequestException, Body, Controller, HttpCode, HttpStatus, Post, Req, UseGuards } from '@nestjs/common';
 import { IsIn, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 import { Request } from 'express';
 import { Public } from '../../common/auth.guard';
 import { ShedOnOverload } from '../../common/load-shedding.guard';
+import { UserRateLimit, UserRateLimitGuard } from '../../common/user-rate-limit';
 import { CLIENT_SIGNALS, RANKED_VERTICALS, type RankedVertical } from './catalogue-ranking';
 import { CatalogueRankingService } from './catalogue-ranking.service';
 
@@ -21,6 +22,9 @@ export class CatalogueRankingController {
   /** The signals a browser or an app can honestly report: a service page viewed, a search result opened. Cart adds and orders are counted by the server. */
   @Public()
   @Post('events')
+  // 60 events a minute per client address (`req.ip`: the trusted proxy chain's answer, never a header the caller wrote). A page view sends one or two.
+  @UseGuards(UserRateLimitGuard)
+  @UserRateLimit('ranking_events', 60, 60)
   @HttpCode(HttpStatus.OK)
   async event(@Body() body: CatalogueRankingEventDto, @Req() req: Request) {
     if (!(CLIENT_SIGNALS as readonly string[]).includes(body.event)) throw new BadRequestException('event_recorded_by_server');

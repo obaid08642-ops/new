@@ -39,7 +39,10 @@ export class CatalogueRankingService {
     if (!known) return { counted: false, reason: 'unknown_service' };
     if (this.redis) {
       // a salted hash of the visitor, kept in Redis for minutes only: nothing that identifies a person is stored
-      const visitor = createHash('sha256').update(`${process.env.JWT_SECRET ?? 'catalogue-ranking'}|${ctx.sessionId ?? ''}|${ctx.ip ?? ''}|${ctx.userAgent ?? ''}`).digest('hex').slice(0, 24);
+      // The visitor is the client address (as the trusted proxy chain resolves it) and the browser; the session id is the caller's own choice, so it only
+      // stands in when no address is known. Rotating session ids therefore does not make one visitor count twice.
+      const who = ctx.ip ? `ip:${ctx.ip}` : `session:${ctx.sessionId ?? ''}`;
+      const visitor = createHash('sha256').update(`${process.env.JWT_SECRET ?? 'catalogue-ranking'}|${who}|${ctx.userAgent ?? ''}`).digest('hex').slice(0, 24);
       const key = `crk:${vertical}:${serviceId}:${signal}:${visitor}`;
       if (await this.redis.exists(key)) return { counted: false, reason: 'duplicate' };
       await this.redis.set(key, '1', DEDUPE_SECONDS[signal]);
