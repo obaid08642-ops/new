@@ -15,7 +15,8 @@ import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { showLocalizedAlert } from '../LocalizedAlert';
 import { useCart } from '../../context/CartContext';
 import { useDiagnosticsCart } from '../../context/DiagnosticsCartContext';
-import { outcomesOf, readReferrals, type OutcomeReport } from '../../utils/appointmentOutcomes';
+import { hasOutcomes, readOutcomes, type OutcomeReport, type ReferralItem, type VisitOutcomes } from '../../utils/appointmentOutcomes';
+import { markOutcomesSeen } from '../../hooks/useNewOutcomesCount';
 import { normalizeLabService, recordOf } from '../../utils/labMappers';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
@@ -35,8 +36,6 @@ export interface Summary {
   recommendations?: string;
   follow_up_recommended?: boolean;
   follow_up_window_days?: number;
-  /** codes of the lab tests and scans the doctor requested (GET /care/appointments/:id/summary) */
-  referrals?: { lab_tests?: string[]; radiology_scans?: string[] };
 }
 interface Lab {
   id?: string;
@@ -348,22 +347,29 @@ export function HistorySection({ notes, history }: { notes?: string; history?: H
 }
 
 /**
- * What the doctor issued besides the prescription, from GET /medical-reports/mine (rows with this appointment's id): the sick
- * leave, the medical certificates and the medical reports. A kind the server has no row for is not drawn. Opening one
- * is GET /medical-reports/:id (view-report), which is what clears its "new" mark.
+ * The visit's outcomes in one read, GET /care/appointments/:id/outcomes (sick leave and certificates, reports, the lab tests and scans
+ * resolved to the catalogue). Once they are on screen the visit is marked seen (PATCH .../outcomes/seen), which clears the hub badge.
  */
-export function OutcomeReportsSection({ appointmentId }: { appointmentId: string }) {
+export function useVisitOutcomes(appointmentId: string, enabled: boolean): VisitOutcomes | null {
+  const load = useSection<VisitOutcomes>(`/care/appointments/${encodeURIComponent(appointmentId)}/outcomes`, Boolean(appointmentId) && enabled, (raw) => {
+    const found = readOutcomes(raw);
+    return hasOutcomes(found) ? found : null;
+  });
+  const unseen = load.data?.unseen ?? 0;
+  useEffect(() => {
+    if (unseen > 0) void markOutcomesSeen(appointmentId);
+  }, [appointmentId, unseen]);
+  return load.data;
+}
+
+/**
+ * What the doctor issued besides the prescription (from `useVisitOutcomes`): the sick leave, the medical certificates and the
+ * medical reports. A kind the server has no row for is not drawn. Opening one is GET /medical-reports/:id (view-report).
+ */
+export function OutcomeReportsSection({ outcomes }: { outcomes: VisitOutcomes | null }) {
   const { theme, t, c, flow, k, num, lang } = useScreenUi();
   const { date } = useConsultFormat();
-  const load = useSection<{ sickLeaves: OutcomeReport[]; certificates: OutcomeReport[]; reports: OutcomeReport[] }>(
-    '/medical-reports/mine?limit=100',
-    Boolean(appointmentId),
-    (raw) => {
-      const found = outcomesOf(raw, appointmentId);
-      return found.sickLeaves.length + found.certificates.length + found.reports.length > 0 ? found : null;
-    },
-  );
-  const data = load.data;
+  const data = outcomes && outcomes.sickLeaves.length + outcomes.certificates.length + outcomes.reports.length > 0 ? outcomes : null;
   if (!data) return null;
   const open = (id: string) => router.push({ pathname: '/reports/view-report', params: { id } } as unknown as Href);
   const group = (titleKey: string, icon: 'calendar-dots' | 'file-text', rows: OutcomeReport[], testID: string) =>
@@ -407,52 +413,52 @@ export function OutcomeReportsSection({ appointmentId }: { appointmentId: string
 }
 
 /**
- * The lab tests and scans the doctor requested (`referrals` of the visit summary). "Book" resolves each code through the
- * catalogue the cards use (GET /labs/services/:code, GET /radiology/services/:code) and adds what it found to the labs and
- * radiology cart; a code the catalogue does not know is counted and said, never invented.
+ * The lab tests and scans the doctor requested (`lab_tests` / `radiology_scans` of the outcomes, already resolved by the server).
+ * "Book" reads the price of each resolved catalogue row (GET /labs/services/:id, GET /radiology/services/:id) and adds it to the labs
+ * and radiology cart; a code the server could not resolve is counted and said, never invented.
  */
-export function ReferralsSection({ summary }: { summary: Summary | null }) {
+export function ReferralsSection({ outcomes }: { outcomes: VisitOutcomes | null }) {
   const { theme, t, c, flow, k, num } = useScreenUi();
   const { addItem } = useDiagnosticsCart();
   const [busy, setBusy] = useState<'lab' | 'radiology' | null>(null);
-  const referrals = readReferrals(summary);
-  if (!referrals) return null;
-  const book = async (kind: 'lab' | 'radiology', codes: string[]) => {
+  if (!outcomes || outcomes.labs.length + outcomes.scans.length === 0) return null;
+  const book = async (kind: 'lab' | 'radiology', items: ReferralItem[]) => {
     setBusy(kind);
-    let missing = 0;
+    let missing = items.filter((i) => !i.resolved).length;
     try {
-      for (const code of codes) {
+      for (const item of items) {
+        if (!item.resolved) continue;
         try {
-          const item = normalizeLabService(recordOf(await apiFetch<unknown>(`/${kind === 'lab' ? 'labs' : 'radiology'}/services/${encodeURIComponent(code)}`)));
-          if (!item) missing += 1;
-          else await addItem({ id: item.id || code, name: item.name, price: item.price ?? 0, kind });
+          const row = normalizeLabService(recordOf(await apiFetch<unknown>(`/${kind === 'lab' ? 'labs' : 'radiology'}/services/${encodeURIComponent(item.id)}`)));
+          if (!row) missing += 1;
+          else await addItem({ id: row.id || item.id, name: row.name, price: row.price ?? 0, kind });
         } catch (e) {
           logError('consultations:referral-add', e);
           missing += 1;
         }
       }
-      if (missing > 0) showLocalizedAlert(k('consult.outcome.notFoundTitle'), k('consult.outcome.notFoundBody', { n: num(missing), total: num(codes.length) }));
-      if (missing < codes.length) router.push('/diagnostics/cart' as Href);
+      if (missing > 0) showLocalizedAlert(k('consult.outcome.notFoundTitle'), k('consult.outcome.notFoundBody', { n: num(missing), total: num(items.length) }));
+      if (missing < items.length) router.push('/diagnostics/cart' as Href);
     } finally {
       setBusy(null);
     }
   };
-  const rows: Array<{ kind: 'lab' | 'radiology'; codes: string[]; titleKey: string; bookKey: string; icon: 'test-tube' | 'scan' }> = [
-    { kind: 'lab', codes: referrals.labs, titleKey: 'consult.outcome.labs', bookKey: 'consult.outcome.bookLabs', icon: 'test-tube' },
-    { kind: 'radiology', codes: referrals.scans, titleKey: 'consult.outcome.scans', bookKey: 'consult.outcome.bookScans', icon: 'scan' },
+  const rows: Array<{ kind: 'lab' | 'radiology'; items: ReferralItem[]; titleKey: string; bookKey: string; icon: 'test-tube' | 'scan' }> = [
+    { kind: 'lab', items: outcomes.labs, titleKey: 'consult.outcome.labs', bookKey: 'consult.outcome.bookLabs', icon: 'test-tube' },
+    { kind: 'radiology', items: outcomes.scans, titleKey: 'consult.outcome.scans', bookKey: 'consult.outcome.bookScans', icon: 'scan' },
   ];
   return (
     <Section title={k('consult.outcome.referrals')}>
       {rows
-        .filter((row) => row.codes.length > 0)
+        .filter((row) => row.items.length > 0)
         .map((row) => (
           <Card key={row.kind} theme={theme}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <FIcon icon={row.icon} tone="mint" size={44} theme={theme} />
-              <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, flex: 1, minWidth: 0, ...flow }}>{k(row.titleKey, { n: num(row.codes.length) })}</Text>
+              <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, flex: 1, minWidth: 0, ...flow }}>{k(row.titleKey, { n: num(row.items.length) })}</Text>
             </View>
             <View style={{ marginTop: 10 }}>
-              <Button label={k(row.bookKey)} variant="outline" size="md" fullWidth startIcon="package" loading={busy === row.kind} disabled={busy !== null} onPress={() => void book(row.kind, row.codes)} theme={theme} testID={`referral-book-${row.kind}`} />
+              <Button label={k(row.bookKey)} variant="outline" size="md" fullWidth startIcon="package" loading={busy === row.kind} disabled={busy !== null} onPress={() => void book(row.kind, row.items)} theme={theme} testID={`referral-book-${row.kind}`} />
             </View>
           </Card>
         ))}

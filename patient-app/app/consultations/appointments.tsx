@@ -7,7 +7,7 @@ import { Glyph } from '../../src/components/pharmacy/PharmacyKit';
 import { useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useConsultations } from '../../src/context/ConsultationsContext';
 import { statusCode } from '../../src/utils/statusCase';
-import { onTab, type AppointmentTab } from '../../src/utils/appointmentTabs';
+import { tabOf, type AppointmentTab } from '../../src/utils/appointmentTabs';
 import { BOOK_NOW_HREF } from '../../src/utils/consultNearby';
 
 /**
@@ -24,7 +24,7 @@ export default function AppointmentsScreen() {
   const { appointments, isLoading, error, fetchAppointments } = useConsultations();
   const [refreshing, setRefreshing] = useState(false);
 
-  const rows = appointments.filter((a) => onTab(a.status, tab));
+  const rows = appointments.filter((a) => tabOf(a.status) === tab);
 
   const refresh = async () => {
     setRefreshing(true);
