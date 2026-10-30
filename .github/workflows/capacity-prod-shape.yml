@@ -50,12 +50,12 @@ jobs:
       MOYASAR_WEBHOOK_SECRET: perf-webhook-secret-test-only
       WEBHOOK_SECRET: perf-webhook-secret-test-only
       ALLOW_WRITES: '1'
-      LABEL: ${{ github.event.inputs.label || 'main-baseline-no-perf-changes' }}
+      LABEL: ${{ github.event.inputs.label || 'memory-plan-heap512-redis320' }}
       STEPS: ${{ github.event.inputs.steps || '20 40 80 120 160' }}
       DURATION: ${{ github.event.inputs.duration || '30s' }}
       CPUS: ${{ github.event.inputs.cpus || '4' }}
       MEMORY: ${{ github.event.inputs.memory || '3800m' }}
-      CONTAINER_ENV: ${{ github.event.inputs.container_env || '' }}
+      CONTAINER_ENV: ${{ github.event.inputs.container_env || 'NODE_FLAGS=--max-old-space-size=512 REDIS_MAXMEMORY=320mb' }}
       RUN_ENDPOINTS: ${{ github.event.inputs.endpoints || 'true' }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
