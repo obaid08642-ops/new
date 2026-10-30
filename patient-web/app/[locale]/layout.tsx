@@ -120,13 +120,13 @@ export default async function LocaleLayout({ children, params }: Props) {
         <link rel="dns-prefetch" href={apiOrigin} />
         <link rel="dns-prefetch" href="https://cdn.nabd.plus" />
       </head>
-      <body>
+      <body className={fontVariables}>
         <NextIntlClientProvider messages={messages}>
           <WebMcpLoader locale={typedLocale} />
           <OfflineSupport />
           <ImageFallbackGuard />
           <WebVitalsReporter locale={typedLocale} />
-          <div className={`shell ${fontVariables}`} lang={typedLocale} dir={getDirection(typedLocale)}>
+          <div className="shell" lang={typedLocale} dir={getDirection(typedLocale)}>
             {/* 17.1: the first Tab stop, so a keyboard user can jump past the header to the page. */}
             <a className="skip-link" href="#main-content">{t("skipToContent")}</a>
             {/* P15.4: the offline banner with the time this page was made ("last updated"). For a static/ISR page this
