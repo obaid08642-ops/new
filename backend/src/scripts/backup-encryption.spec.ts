@@ -23,8 +23,13 @@ d('16.9 encrypted backups', () => {
     for (const p of [bin, backups, s3]) fs.mkdirSync(p);
     pass = path.join(work, 'passphrase');
     fs.writeFileSync(pass, `${'p'.repeat(40)}\n`, { mode: 0o400 });
-    // docker exec <container> mongodump ...  -> the stand-in dump on stdout; mongorestore reads stdin to a file we can inspect
-    tool('docker', `shift; [ "$1" = -i ] && shift; shift; cmd="$1"; shift; exec "$(dirname "$0")/$cmd" "$@"`);
+    // docker exec <container> <tool> ... and the one-off docker run ... mongodump ...  -> the stand-in dump on stdout; mongorestore reads stdin to a file we can inspect
+    // docker inspect (the one-off dump reads the image, network and address of the mongodb container), docker run <flags> <image> mongodump ... (the one-off container)
+    tool('docker', `case "$1" in
+  inspect) case "$*" in *IPAddress*) echo 10.0.0.2;; *Config.Image*) echo mongo:7.0;; *Networks*) echo "internal ";; esac; exit 0;;
+  run) shift; while [ $# -gt 0 ] && [ "$1" != mongodump ]; do shift; done; cmd="$1"; shift; exec "$(dirname "$0")/$cmd" "$@";;
+esac
+shift; [ "$1" = -i ] && shift; shift; cmd="$1"; shift; exec "$(dirname "$0")/$cmd" "$@"`);
     tool('mongodump', `printf '%s' "${MARKER}"`);
     tool('mongorestore', `cat > "${work}/restored.bin"`);
     tool('mongosh', `echo 12`);

@@ -24,7 +24,7 @@
 #              the old id; a record changed meanwhile is left alone). A retired model (404) is replaced by the first preferred id the provider's own model list
 #              has (OpenRouter: only ':free' ids). Prints provider, from, to, status, class. Pause a running translation (98c) before STEP=models-apply.
 #   STEP=plan  : checks every answer and writes $IN/product-translations.json (the optional input of 90-catalogue-apply). Prints accepted and
-#              rejected counts by reason. Then run 90-catalogue-apply: its dry run prints the plan hash, the owner approves, EXPECT_PLAN_SHA applies it
+#              rejected counts by reason. With EXTERNAL=packaged (default) the answers shipped in the image (translations-external, ar/en) go into the SAME file; a field a provider answered keeps the provider's answer. Then run 90-catalogue-apply with TRANSLATIONS=yes (alone): its dry run prints the plan hash, the owner approves, EXPECT_PLAN_SHA applies it
 #              (backup, guarded writes into EMPTY fields only, marked machine-translated, verify, rollback). After it, add `cf-purge-api` to tools/ops/RUN.
 set -u
 STEP="gaps"
@@ -32,12 +32,14 @@ EXPECT_REQUESTS_SHA=""
 MAX_REQUESTS=300
 RPM=""            # optional cap on requests/minute PER PROVIDER; empty = each provider's own limit (catalogue; TRANSLATE_LIMITS overrides)
 TARGETS=""          # e.g. "ur,hi,bn,fil" to restrict the target languages; empty = all six
+EXTERNAL="packaged"   # STEP=plan also reads the answers written outside the server (shipped in the image, ar and en targets); "" = provider answers only
 LIMIT=""            # cap on the number of missing texts collected by the dry run; empty = all
 IN=${OPS_CATALOGUE_DIR:-/opt/nabdah/catalogue}
 W=${OPS_TRANSLATE_DIR:-$IN/translate-work}
 CT=${CATALOGUE_CONTAINER:-nabdah-worker}   # the translation run is background work: it runs in the worker container, so its memory is the worker's and never the API's (2026-10-30 OOM)
 DK="sudo -n docker"
 TOOL="node dist/scripts/translate-product-content.js"
+EXT_DIR="dist/modules/medicines/data/translations-external"
 CW=/tmp/translate-work
 echo "## translate-content (STEP=$STEP)"
 
@@ -99,7 +101,12 @@ plan)
   put "$W/requests.jsonl" "$CW/requests.jsonl" && put "$W/responses.jsonl" "$CW/responses.jsonl" || { say "ABORT cannot copy the files in"; cleanup; exit 1; }
   # the wrong-column moves found by STEP=gaps travel with the translations (the tool reads <requests>.moves.json when it is there)
   if sudo -n test -f "$W/requests.jsonl.moves.json"; then put "$W/requests.jsonl.moves.json" "$CW/requests.jsonl.moves.json" || { say "ABORT cannot copy the moves file in"; cleanup; exit 1; }; fi
-  OUT=$(tool plan --requests="$CW/requests.jsonl" --responses="$CW/responses.jsonl" --out="$CW/product-translations.json"); RC=$?
+  EXTARG=""
+  if [ "$EXTERNAL" = packaged ]; then
+    $DK exec "$CT" sh -c "ls $EXT_DIR/*.jsonl >/dev/null 2>&1" || { say "ABORT the running image has no $EXT_DIR/*.jsonl: deploy the release, or set EXTERNAL=\"\" for provider answers only"; cleanup; exit 1; }
+    EXTARG="--external=$EXT_DIR"; say "plan also reads the packaged external answers ($EXT_DIR: $($DK exec "$CT" sh -c "ls $EXT_DIR/*.jsonl | wc -l") files)"
+  elif [ -n "$EXTERNAL" ]; then say "ABORT EXTERNAL must be packaged or empty"; cleanup; exit 1; fi
+  OUT=$(tool plan --requests="$CW/requests.jsonl" --responses="$CW/responses.jsonl" --out="$CW/product-translations.json" $EXTARG); RC=$?
   echo "$OUT" | sed 's/^/status: translate-content: plan /' | cut -c1-900
   [ $RC -eq 0 ] || { say "ABORT plan failed (exit $RC)"; cleanup; exit 1; }
   get "$CW/product-translations.json" "$IN/product-translations.json" && sudo -n chmod 600 "$IN/product-translations.json"
