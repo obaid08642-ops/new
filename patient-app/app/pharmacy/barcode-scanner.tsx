@@ -10,7 +10,8 @@ import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
 import { InteractionResult } from '../../src/components/pharmacy/InteractionResult';
 import type { IxResult } from '../../src/utils/interactionCheck';
-import { medMeta, medName, medPrice, needsRx, onlineOnly, type Med } from '../../src/utils/pharmacyCatalog';
+import { FieldText } from '../../src/components/LocalizedField';
+import { medMeta, medName, medNameField, medPrice, needsRx, onlineOnly, type Med } from '../../src/utils/pharmacyCatalog';
 
 /**
  * The AI scanner beside search (decision 36, changed 2026-10-16; the PharmacyHub family, no board of its own). The camera
@@ -156,7 +157,7 @@ export default function BarcodeScannerScreen() {
           <Text accessibilityRole="header" style={{ ...scale(t, 'h4'), color: c.text.primary, textAlign: 'center' }}>{k('pharmacy.barcode.found')}</Text>
         </View>
         <View style={{ gap: 6, paddingVertical: 12, borderTopWidth: 1, borderBottomWidth: 1, borderColor: c.border.subtle }}>
-          <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>{medName(found.med)}</Text>
+          <FieldText text={medName(found.med)} mark={medNameField(found.med).mark} style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }} />
           {meta ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{meta}</Text> : null}
           {needsRx(found.med) ? <Pill label={k('pharmacy.needsRx')} tone="warning" /> : null}
           {onlineOnly(found.med) ? <Pill label={k('pharmacy.product.exclusive')} tone="info" /> : null}
@@ -203,7 +204,7 @@ export default function BarcodeScannerScreen() {
                 onPress={() => setFound({ med })}
                 style={{ minHeight: 56, paddingVertical: 10, paddingHorizontal: 12, gap: 4, borderWidth: 1, borderColor: c.border.subtle, borderRadius: 12 }}
               >
-                <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>{medName(med)}</Text>
+                <FieldText text={medName(med)} mark={medNameField(med).mark} style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }} />
                 {meta ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{meta}</Text> : null}
                 {needsRx(med) ? <Pill label={k('pharmacy.needsRx')} tone="warning" /> : null}
               </Pressable>

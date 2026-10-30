@@ -96,8 +96,8 @@
 .progress { display: flex; flex-direction: column; gap: 6px; }
 .progressBar { inline-size: 100%; block-size: 8px; border: 0; border-radius: var(--nabd-radius-pill); overflow: hidden; background: var(--nabd-color-track-rest); }
 .progressBar::-webkit-progress-bar { background: var(--nabd-color-track-rest); }
-.progressBar::-webkit-progress-value { background: var(--nabd-color-track-filled); border-radius: var(--nabd-radius-pill); }
-.progressBar::-moz-progress-bar { background: var(--nabd-color-track-filled); border-radius: var(--nabd-radius-pill); }
+.progressBar::-webkit-progress-value { background: var(--nabd-color-action-primary-bg); border-radius: var(--nabd-radius-pill); }
+.progressBar::-moz-progress-bar { background: var(--nabd-color-action-primary-bg); border-radius: var(--nabd-radius-pill); }
 .status { margin: 0; font-size: var(--nabd-font-size-control); color: var(--nabd-color-text-secondary); }
 .error {
   margin: 0; padding: 12px 14px; border-radius: var(--nabd-radius-xl); font-size: var(--nabd-font-size-control); overflow-wrap: anywhere;

@@ -6,6 +6,8 @@ import type { FillIconName, ServiceTone } from '../../../../packages/ui/icons/fi
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import ProductImage from '../ProductImage';
 import { Glyph } from './PharmacyKit';
+import { MarkNote, markTextProps } from '../LocalizedField';
+import type { FieldMark } from '../../utils/localizedField';
 
 /**
  * The blocks of the product page (board ProductFull, canvas/ProductFull.dc.html). Each takes the real values the
@@ -35,7 +37,7 @@ export function Pill({ label, glyph, tone, onPress }: { label: string; glyph?: F
 }
 
 /** "Key facts": a 3-column grid of white cells (icon, label, value); it reflows to the facts that exist (never fewer than 2 columns). */
-export function FactsGrid({ facts }: { facts: { key: string; icon: FillIconName; label: string; value: string }[] }) {
+export function FactsGrid({ facts }: { facts: { key: string; icon: FillIconName; label: string; value: string; mark?: FieldMark }[] }) {
   const { t, c, flow } = useScreenUi();
   const cols = Math.min(3, Math.max(2, facts.length));
   const rows: (typeof facts)[] = [];
@@ -52,7 +54,8 @@ export function FactsGrid({ facts }: { facts: { key: string; icon: FillIconName;
                   <View accessible accessibilityLabel={`${f.label}: ${f.value}`} style={{ flex: 1, borderRadius: 18, backgroundColor: c.bg.surface, paddingVertical: 12, paddingHorizontal: 10, gap: 6 }}>
                     <Glyph name={f.icon} size={20} color={c.action.primary.bg} />
                     <Text style={{ ...scale(t, 'micro', 'regular'), color: c.text.secondary, ...flow }}>{f.label}</Text>
-                    <Text style={{ ...scale(t, 'small', 'medium'), color: c.text.primary, ...flow }}>{f.value}</Text>
+                    <Text {...markTextProps(f.mark)} style={[{ ...scale(t, 'small', 'medium'), color: c.text.primary, ...flow }, markTextProps(f.mark).style]}>{f.value}</Text>
+                    <MarkNote mark={f.mark} />
                   </View>
                 ) : null}
               </View>
@@ -65,7 +68,7 @@ export function FactsGrid({ facts }: { facts: { key: string; icon: FillIconName;
 }
 
 /** The "Safety" card: one row per real safety note, a tinted icon tile, a title and its first lines. */
-export function SafetyCard({ rows }: { rows: { key: string; icon: FillIconName; tone: ServiceTone; title: string; text: string }[] }) {
+export function SafetyCard({ rows }: { rows: { key: string; icon: FillIconName; tone: ServiceTone; title: string; text: string; mark?: FieldMark }[] }) {
   const { theme, t, c, flow } = useScreenUi();
   return (
     <View style={{ borderRadius: 22, backgroundColor: c.bg.surface }}>
@@ -74,7 +77,8 @@ export function SafetyCard({ rows }: { rows: { key: string; icon: FillIconName; 
           <FIcon icon={r.icon} tone={r.tone} size={36} theme={theme} />
           <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
             <Text style={{ ...scale(t, 'control'), color: c.text.primary, ...flow }}>{r.title}</Text>
-            <Text numberOfLines={3} style={{ ...scale(t, 'label', 'regular'), lineHeight: 19, color: c.text.secondary, ...flow }}>{r.text}</Text>
+            <Text numberOfLines={3} {...markTextProps(r.mark)} style={[{ ...scale(t, 'label', 'regular'), lineHeight: 19, color: c.text.secondary, ...flow }, markTextProps(r.mark).style]}>{r.text}</Text>
+            <MarkNote mark={r.mark} />
           </View>
         </View>
       ))}
@@ -86,9 +90,8 @@ export interface AccordionSection {
   key: string;
   title: string;
   items: string[];
-  /** Set when the text is not in the app's language: its writing direction, and the note that says which language it is in. */
-  dir?: 'rtl' | 'ltr';
-  note?: string;
+  /** Set when the text is not in the app's language: its writing direction and language, and the note that says which language it is in. */
+  mark?: FieldMark;
 }
 
 /** "Medicine details": one section open at a time, the count shown when there is more than one item, bullets in the action colour. */
@@ -118,11 +121,11 @@ export function DetailAccordion({ sections }: { sections: AccordionSection[] }) 
             </Pressable>
             {isOpen ? (
               <View style={{ paddingHorizontal: 16, paddingBottom: 16, gap: 8 }}>
-                {s.note ? <Text testID={`lang-note-${s.key}`} style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, writingDirection: dir, textAlign: dir === 'rtl' ? 'right' : 'left' }}>{s.note}</Text> : null}
+                <MarkNote mark={s.mark} />
                 {s.items.map((it, k) => (
                   <View key={k} style={{ flexDirection: 'row', gap: 10 }}>
                     <View style={{ width: 6, height: 6, borderRadius: 3, marginTop: 10, backgroundColor: c.action.primary.bg }} />
-                    <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'control', 'regular'), lineHeight: 24, color: c.text.tertiary, writingDirection: s.dir ?? dir, textAlign: (s.dir ?? dir) === 'rtl' ? 'right' : 'left' }}>{it}</Text>
+                    <Text {...markTextProps(s.mark)} style={[{ flex: 1, minWidth: 0, ...scale(t, 'control', 'regular'), lineHeight: 24, color: c.text.tertiary, writingDirection: dir, textAlign: dir === 'rtl' ? 'right' : 'left' }, markTextProps(s.mark).style]}>{it}</Text>
                   </View>
                 ))}
               </View>
@@ -137,6 +140,7 @@ export function DetailAccordion({ sections }: { sections: AccordionSection[] }) 
 /** A 150 wide card of the alternatives and related rows: the picture on the media tile, name, maker and pack, price, and an end element. */
 export function MiniProduct({
   name,
+  nameMark,
   meta,
   price,
   currency,
@@ -149,6 +153,8 @@ export function MiniProduct({
   addControl,
 }: {
   name: string;
+  /** The name's language mark (language fallback): its own direction and the one-line note. */
+  nameMark?: FieldMark;
   meta?: string;
   price?: string;
   currency?: string;
@@ -171,7 +177,8 @@ export function MiniProduct({
         <View style={{ width: '100%', aspectRatio: 1, backgroundColor: c.iconArt.paper, overflow: 'hidden' }}>
           <ProductImage uri={uri} style={{ width: '100%', height: '100%' }} iconSize={44} />
         </View>
-        <Text numberOfLines={2} style={{ paddingHorizontal: 10, ...scale(t, 'small', 'medium'), lineHeight: 19, color: c.text.primary, ...flow }}>{name}</Text>
+        <Text numberOfLines={2} {...markTextProps(nameMark)} style={[{ paddingHorizontal: 10, ...scale(t, 'small', 'medium'), lineHeight: 19, color: c.text.primary, ...flow }, markTextProps(nameMark).style]}>{name}</Text>
+        {nameMark?.fallbackFrom ? <View style={{ paddingHorizontal: 10 }}><MarkNote mark={nameMark} /></View> : null}
         {meta ? <Text numberOfLines={1} style={{ paddingHorizontal: 10, ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{meta}</Text> : null}
         {note ? <Text style={{ paddingHorizontal: 10, ...scale(t, 'tag', 'bold'), color: c.status.warning.fg, ...flow }}>{note}</Text> : null}
       </Pressable>

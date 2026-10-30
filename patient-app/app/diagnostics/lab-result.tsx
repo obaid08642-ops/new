@@ -8,7 +8,8 @@ import { LAB_TONE } from '../../src/components/diagnostics/DiagKit';
 import { HealthScreen, Pill, bodyOf, useRemote } from '../../src/components/health/HealthKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
-import { pickLocalized } from '../../src/utils/localize';
+import { FieldText } from '../../src/components/LocalizedField';
+import { rowField } from '../../src/utils/rowField';
 import { RangeBar, Spark } from '../../src/components/ordering/ResultKit';
 import { trendFor, type TrendPoint } from '../../src/utils/result-trend';
 
@@ -44,7 +45,8 @@ export default function LabResultScreen() {
   const result = loaded?.result;
   const history = loaded?.history;
   const entries = Array.isArray(result?.entries) ? result.entries.filter((e) => e && e.name) : [];
-  const title = result ? pickLocalized(result.service_name_ar, result.service_name_en) || result.name || k('diag.result.title') : '';
+  const nameField = result ? rowField({ name_ar: result.service_name_ar, name_en: result.service_name_en }, 'name') : { text: '' };
+  const title = result ? nameField.text || result.name || k('diag.result.title') : '';
   const range = (e: Entry) => (e.ref_low !== undefined && e.ref_high !== undefined ? k('diag.result.range', { low: fmt.num(e.ref_low), high: fmt.num(e.ref_high) }) : e.range ? k('diag.result.rangeText', { range: e.range }) : '');
   const text = (label: string, value?: string) => (value ? (
     <Section title={label}>
@@ -64,7 +66,7 @@ export default function LabResultScreen() {
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                   <FIcon icon="file-text" tone={LAB_TONE} size={44} theme={theme} />
                   <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
-                    <Text accessibilityRole="header" style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{title}</Text>
+                    <FieldText accessibilityRole="header" text={title} mark={nameField.text ? nameField.mark : undefined} style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }} />
                     <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{[result.reported_by_name, fmt.date(result.reported_at, true)].filter(Boolean).join(' · ')}</Text>
                     {result.critical ? <Pill label={k('health.report.critical')} tone="danger" /> : null}
                   </View>

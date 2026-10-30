@@ -53,7 +53,7 @@ export default async function SettingsHubPage({ params }: Props) {
           { href: `${base}/security`, icon: "shield-check", tone: "teal", title: t("rowSecurity"), sub: t("rowSecuritySub") },
           { href: `${base}/connected-apps`, icon: "sparkle", tone: "blue", title: t("rowConnectedApps"), sub: t("rowConnectedAppsSub") },
           { href: `${base}/language`, icon: "translate", tone: "blue", title: t("rowLanguage"), sub: t("rowLanguageSub") },
-          { href: `${base}/help`, icon: "headset", tone: "mint", title: t("rowHelp"), sub: t("rowHelpSub") },
+          { href: `${base}/help`, icon: "headset", tone: "ink", title: t("rowHelp"), sub: t("rowHelpSub") },
           { href: `${base}/about`, icon: "info", tone: "blue", title: t("rowAbout"), sub: t("rowAboutSub") },
         ]}
       />
