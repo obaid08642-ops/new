@@ -20,7 +20,10 @@ describe('appointment tabs', () => {
     expect(tabOf('NO_SHOW')).toBe('past');
     expect(tabOf('something_else')).toBeNull();
     expect(onTab('arrived', 'current')).toBe(true);
-    expect(onTab('arrived', 'upcoming')).toBe(false);
+    expect(onTab('arrived', 'upcoming')).toBe(true); // the Q-18 bucket holds everything unfinished; tabOf puts it on Current
+    for (const s of ['pending', 'confirmed', 'rescheduled', 'checked_in', 'en_route', 'arrived', 'in_progress', 'completed', 'cancelled', 'no_show', 'pending_payment', 'pending_copay', 'scheduled']) {
+      expect(tabOf(s)).not.toBeNull();
+    }
   });
 });
 
