@@ -32,7 +32,7 @@ import client from '../../api/client';
 import { useTheme, useLang } from '../../context';
 import { NBtn } from '../../components/ui';
 import { I } from '../../components/icons';
-import { SP, FS, FW, R } from '../../constants';
+import { C, SP, FS, FW, R } from '../../constants';
 
 let globalsRegistered = false;
 function ensureGlobals() {
@@ -283,8 +283,8 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
 
       {/* Status over the call: reconnecting (the same call resumes) and sound only (weak link) */}
       <View style={st.status} pointerEvents="box-none">
-        {reconnecting ? <Text accessibilityLiveRegion="polite" style={st.notice}>{AR ? 'الاتصال ضعيف، نعيد الاتصال بالمكالمة…' : 'Weak connection. Reconnecting your call…'}</Text> : null}
-        {audioOnly ? <Text accessibilityLiveRegion="polite" style={st.notice}>{AR ? 'الاتصال ضعيف، فأوقفنا الفيديو وأبقينا الصوت.' : 'The connection is weak, so video is off and the sound is kept.'}</Text> : null}
+        {reconnecting ? <Text accessibilityLiveRegion="polite" style={[st.notice, { backgroundColor: theme.overlay }]}>{AR ? 'الاتصال ضعيف، نعيد الاتصال بالمكالمة…' : 'Weak connection. Reconnecting your call…'}</Text> : null}
+        {audioOnly ? <Text accessibilityLiveRegion="polite" style={[st.notice, { backgroundColor: theme.overlay }]}>{AR ? 'الاتصال ضعيف، فأوقفنا الفيديو وأبقينا الصوت.' : 'The connection is weak, so video is off and the sound is kept.'}</Text> : null}
         <View style={{ flexDirection: 'row', gap: 16 }}>
           <View accessible accessibilityLabel={`${AR ? 'اتصالك' : 'Your connection'}: ${qualityText(quality.local, AR)}`} style={st.bars}>
             {[1, 2, 3].map((n) => <View key={n} style={[st.bar, { height: 4 + n * 4, opacity: n <= qualityBars(quality.local) ? 1 : 0.3 }]} />)}
@@ -307,7 +307,7 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
         )}
         {!voiceOnly && audioOnly && (
           <TouchableOpacity style={st.ctrl} onPress={() => { setCamOn(true); void resilienceRef.current?.tryVideo(); }} accessibilityLabel={AR ? 'جرّب الفيديو مرة أخرى' : 'Try video again'}>
-            <I name="video" size={22} color="#FFF" />
+            <I name="video" size={22} color={C.white} />
           </TouchableOpacity>
         )}
         <TouchableOpacity style={[st.ctrl, { backgroundColor: '#E53935' }]} onPress={handleEnd} accessibilityLabel={AR ? 'إنهاء المكالمة' : 'End call'}>
@@ -326,10 +326,10 @@ function qualityText(level: QualityLevel, ar: boolean): string {
 }
 
 const st = StyleSheet.create({
-  status: { position: 'absolute', top: SP.md, left: 0, right: 0, alignItems: 'center', gap: 8 },
-  notice: { color: '#FFF', backgroundColor: 'rgba(255,255,255,0.18)', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, textAlign: 'center', maxWidth: '92%' },
+  status: { position: 'absolute', top: SP.md, start: 0, end: 0, alignItems: 'center', gap: 8 },
+  notice: { color: C.white, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, textAlign: 'center', maxWidth: '92%', overflow: 'hidden' },
   bars: { flexDirection: 'row', alignItems: 'flex-end', gap: 3, height: 16 },
-  bar: { width: 4, borderRadius: 1, backgroundColor: '#FFF' },
+  bar: { width: 4, borderRadius: 1, backgroundColor: C.white },
   box: { flex: 1, minHeight: 260, alignItems: 'center', justifyContent: 'center', borderRadius: R.lg, overflow: 'hidden' },
   dim: { color: 'rgba(255,255,255,0.75)', marginTop: SP.sm, textAlign: 'center', paddingHorizontal: SP.lg },
   name: { color: '#FFF', fontSize: FS.lg, fontWeight: FW.bold, marginTop: SP.sm },
