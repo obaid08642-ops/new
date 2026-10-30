@@ -1,15 +1,10 @@
-# 2026-10-30 lead reviewer: run 54.
-# 1. Free disk, deploy main@d8a6c703: everything merged since fd73b53d: main fix + app bundle budget (#2140), catalogue-apply --only (#2141),
-#    labs/radiology/nursing ranking by most requested with the anti-inflation guard (#2109), provider-app Expo 58 (#2129), server speed pass (#2134).
-# 2. 90-catalogue-apply DRY RUN, COMPLETION=packaged (--only=catalogue_completion, in the worker): the counts per collection of the owner-approved
-#    radiology/lab/nursing completion and the plan hash. Nothing is written.
-# 3. 92-recreate-datastores DRY RUN (#2142): per container its memory limit now vs the compose file, restarts, MemAvailable, mongod PRIMARY, active calls.
-#    Nothing is stopped. The real recreate (seconds of MongoDB downtime) is a later run at a quiet hour, after the owner reads this.
-# 4. Purge the API cache.
-release:d8a6c7034a4382ef3518508806532185bdb6fc97
-97-free-old-predeploy
-93-free-unused-images
-60-deploy-main
+# 2026-10-30 lead reviewer: run 55 (owner approves after reading run 54's counts).
+# 1. 90-catalogue-apply APPLY of the owner-approved completion (plan 7fdffbb7..., 535 changes: radiology catalogue 42 sets, duplicates merged 264 sets,
+#    completion 121 sets + 108 new rows; nothing deleted). Backup of every changed field and inserted row first, guarded writes, a fresh plan must be empty,
+#    any mismatch rolls back from the backup. Runs in the worker (--only=catalogue_completion).
+# 2. 92-recreate-datastores APPLY (#2142): fresh mongodump verified first; redis recreated, then mongodb (about a minute of MongoDB unavailability,
+#    downtime printed in seconds), livekit/coturn only with no active call; memory report after; any failure puts the service back without limits.
+# 3. Purge the API cache so the catalogue changes show.
 90-catalogue-apply
 92-recreate-datastores
 cf-purge-api

@@ -17,7 +17,7 @@
 #        before), waits for healthy, and the task exits 1. The data volumes are never touched.
 # Secret values are never printed or passed as arguments (the containers' own environment is used for the database credentials).
 set -u
-APPLY=""
+APPLY="yes"
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}
 ENVF=$D/.env.production

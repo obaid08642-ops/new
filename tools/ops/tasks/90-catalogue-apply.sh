@@ -34,7 +34,7 @@
 #                                                    --oom-score-adj 1000` (if the host runs short, this container is the one the kernel kills), NODE_OPTIONS heap 700 MB.
 #                                                    For heavy steps; never in the API container. $B is mounted as /backup (the backup file lands there directly), $IN as /in (read-only).
 set -u
-EXPECT_PLAN_SHA=""
+EXPECT_PLAN_SHA="7fdffbb789d514cc7c3d3d48c0ab245ee73b8da485790e64047666d6b61551b3"
 COMPLETION="packaged"
 ONE_OFF=""
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
