@@ -7,7 +7,6 @@ import { useTranslations } from "next-intl";
 import { Toast } from "@/components-next/feedback/toast";
 import { IconButton } from "@/components-next/ui-generated/components/Button";
 import { extractWishlist } from "@/lib/api/wishlist";
-import { getSessionIdentity } from "@/lib/auth/session-identity";
 import { newIdempotencyKey } from "@/lib/pharmacy/broadcast";
 import { requestWishlistToggle } from "@/lib/pharmacy/wishlist-toggle";
 import styles from "./product-detail.module.css";
@@ -42,15 +41,8 @@ export function WishlistHeart({ itemId, locale }: { itemId: string; locale: stri
 
   useEffect(() => {
     let active = true;
-    // a visitor (or a guest account) is never asked: the call could only answer 401
-    getSessionIdentity()
-      .then((who) => {
-        if (!active) return null;
-        if (who.status === "anonymous" || (who.status === "user" && who.isGuest)) { setSignedIn(false); return null; }
-        return fetch("/api/patient/users/me/wishlist", { credentials: "same-origin", cache: "no-store" });
-      })
+    fetch("/api/patient/users/me/wishlist", { credentials: "same-origin", cache: "no-store" })
       .then(async (response) => {
-        if (!response) return;
         if (!active) return;
         if (response.status === 401) return setSignedIn(false);
         if (!response.ok) return;
