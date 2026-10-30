@@ -8,6 +8,7 @@ import { CallButton, CallIdentity, useCallUi } from '../../src/components/consul
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
 import { TelehealthConsentSheet, isTelehealthConsentRefusal } from '../../src/components/legal/TelehealthConsent';
+import { ensureLiveKitGlobals, startCallAudio, stopCallAudio } from '../../src/calls/livekitNative';
 
 /**
  * Video call — no board (owner decision, 2026-10-04): the layout stays, drawn with the dark tokens, the font and
@@ -27,6 +28,9 @@ try {
   VideoView = null;
 }
 
+// WebRTC globals before the first Room (livekit-client needs them on a native build)
+ensureLiveKitGlobals();
+
 interface Session {
   session_id?: string;
   id?: string;
@@ -41,7 +45,7 @@ interface Join {
 }
 
 export default function VideoCallScreen() {
-  const { appointmentId } = useLocalSearchParams();
+  const { appointmentId, sessionId: ringingSessionId } = useLocalSearchParams<{ appointmentId?: string; sessionId?: string }>();
   const { c, k } = useCallUi();
 
   const [loading, setLoading] = useState(true);
@@ -70,11 +74,14 @@ export default function VideoCallScreen() {
 
         // M1-30: real LiveKit contract — POST /calls/initiate then /calls/:sessionId/join
         // (was calling non-existent /care/appointments/:id/video-token and falling back to a fake token)
-        if (appointmentId) {
-          const initRes = await apiFetch<Session & { data?: Session }>(`/calls/initiate`, {
-            method: 'POST',
-            body: JSON.stringify({ appointmentId, call_type: 'video' }),
-          });
+        if (ringingSessionId || appointmentId) {
+          // an answered incoming call joins the session that is ringing; only the caller starts one
+          const initRes: Session & { data?: Session } = ringingSessionId
+            ? { session_id: String(ringingSessionId) }
+            : await apiFetch<Session & { data?: Session }>(`/calls/initiate`, {
+              method: 'POST',
+              body: JSON.stringify({ appointmentId, call_type: 'video' }),
+            });
           const session = initRes?.data || initRes;
           const sessionId = session?.session_id || session?.id;
           if (sessionId) {
@@ -101,6 +108,8 @@ export default function VideoCallScreen() {
           audioBitrate: 32_000,
           dtx: true,
         };
+        ensureLiveKitGlobals();
+        await startCallAudio();
         const newRoom = new Room({
           adaptiveStream: true,
           dynacast: true,
@@ -157,8 +166,9 @@ export default function VideoCallScreen() {
       if (activeRoom) {
         void activeRoom.disconnect();
       }
+      void stopCallAudio();
     };
-  }, [appointmentId, attempt]);
+  }, [appointmentId, ringingSessionId, attempt]);
 
   // Toggle Camera
   useEffect(() => {

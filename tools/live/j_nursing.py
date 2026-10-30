@@ -59,7 +59,7 @@ def run(pat, nurse, admin=None):
     step('patient has a located address', r.ok, r)
     r = pat.get('/home-care/services')
     svcs = r.body if isinstance(r.body, list) else r.items()
-    step('nursing tab lists published services', r.ok and len(svcs) > 0 and all(s.get('medical_review_status') == 'approved' for s in svcs), f'{r.status} {len(svcs)}')
+    step('nursing tab lists published services', r.ok and len(svcs) > 0 and all(not any(k in s for k in ('medical_review_status', 'needs_clinical_review', 'reviewed_by')) for s in svcs), f'{r.status} {len(svcs)}')   # owner 2026-10-30: no review state in a patient response
     svc = svcs[0]
     r = pat.get(f"/home-care/services/{svc['id']}")
     step('service info opens', r.ok and r.get('id') == svc['id'], r)

@@ -68,15 +68,15 @@ export default function NursingServiceInfo() {
     } as unknown as Href);
 
   const footer =
-    svc && status === 'ready' && !unoffered ? (
+    svc && status === 'ready' ? (
       <>
-        {price !== null ? (
+        {price !== null && !unoffered ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary }}>{k('nur.info.price')}</Text>
             <Price amount={price} size="h3" />
           </View>
         ) : null}
-        <Button theme={theme} size="lg" fullWidth label={k('nur.info.book')} onPress={goBook} />
+        <Button theme={theme} size="lg" fullWidth label={k('nur.info.book')} disabled={unoffered} onPress={goBook} />
       </>
     ) : undefined;
 
@@ -112,7 +112,7 @@ export default function NursingServiceInfo() {
                 </Block>
               </Section>
             ) : null}
-            <OffersSection kind="nursing" serviceId={text(svc.id) || String(serviceId ?? '')} offer={offer} offers={offersOf(svc)} />
+            <OffersSection kind="nursing" serviceId={text(svc.id) || String(serviceId ?? '')} offer={offer} offers={offersOf(svc)} price={price} />
           </>
         ) : null}
       </Gate>

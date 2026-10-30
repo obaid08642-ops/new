@@ -26,6 +26,7 @@ import {
 import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn, planInsuranceShape, planNumberedDistricts, planPlaceholderCities, planProductTranslations, planRadiologyCatalogue } from '../modules/catalogs/catalogue-apply.steps';
 import { planTestDataRemoval, scanDb } from '../modules/catalogs/test-data';
 import { planCatalogueCompletion, type CompletionSeed } from '../modules/catalogs/catalogue-completion';
+import { planCataloguePrune } from '../modules/catalogs/catalogue-prune';
 import { planCatalogueDuplicates } from '../modules/catalogs/catalogue-duplicates';
 import { isTranslationFile } from '../modules/medicines/content-translation';
 
@@ -117,7 +118,28 @@ export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> 
     await planRadiologyAndCompletion(db, argv, inputs, changes, report);
     return { changes, inputs, sha: planSha(changes, inputs), report };
   }
-  if (arg(argv, 'only') !== undefined) throw new Error('--only must be test_data or catalogue_completion');
+  // `--only=catalogue_prune`: delete the hidden / duplicate / rejected / inactive rows that nothing references (owner 2026-10-30); run it after the duplicates step has been applied
+  if (arg(argv, 'only') === 'catalogue_prune') {
+    const pruned = await planCataloguePrune(db);
+    changes.push(...pruned.changes);
+    report.catalogue_prune = pruned.report;
+    return { changes, inputs, sha: planSha(changes, inputs), report };
+  }
+  // `--only=product_translations`: the machine translations (and the wrong-column moves that travel with them) on their own, from the reviewed file. Empty fields only:
+  // every write is a compare-and-set on the stored empty value, marked `machine:<model>`, with the before-image in the backup.
+  if (arg(argv, 'only') === 'product_translations') {
+    const translationsPath = arg(argv, 'product-translations');
+    if (!translationsPath) throw new Error('--only=product_translations needs --product-translations=<file>');
+    const text = fs.readFileSync(translationsPath, 'utf8');
+    inputs.product_translations = sha256(text);
+    const parsed: unknown = JSON.parse(text);
+    if (!isTranslationFile(parsed)) throw new Error('--product-translations is not a valid translations file');
+    const t = await planProductTranslations(db, parsed);
+    changes.push(...t.changes);
+    report.product_translations = t.report;
+    return { changes, inputs, sha: planSha(changes, inputs), report };
+  }
+  if (arg(argv, 'only') !== undefined) throw new Error('--only must be test_data, catalogue_completion, catalogue_prune or product_translations');
 
   const csv = fs.readFileSync(TRANSLATIONS_CSV, 'utf8');
   inputs.medicine_translations_csv = sha256(csv);

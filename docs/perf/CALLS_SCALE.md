@@ -58,6 +58,6 @@ LiveKit CPU is the second limit (70 % of one core at 40 calls on 4 vCPU, `CALLS_
 - Not tested here: a real coturn relay (no coturn on this machine, no apt access); the relay path is covered by the stats-parsing test with a relay candidate pair.
 
 ## Not in this PR (follow-ups, one PR each; flag stays off until they land)
-1. Wire the engine into the web call room and the realtime socket (`call:sdp_*`), then patient-app and provider-app (`react-native-webrtc` is already a dependency); each declares `supports_p2p: true` only when its wiring ships.
+1. Wire the engine into the web call room and the realtime socket (`call:sdp_*`), then patient-app and provider-app (`@livekit/react-native-webrtc` is already a dependency); each declares `supports_p2p: true` only when its wiring ships.
 2. Busy / audio-only messages in six languages in the three clients.
 3. A rehearsal with real coturn and a phone on mobile data, to replace the assumed direct share.

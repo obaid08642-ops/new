@@ -1,5 +1,7 @@
 /** The backend's password minimum (backend/src/common/password-security.service.ts MIN_PASSWORD_LENGTH). */
 export const MIN_PASSWORD_LENGTH = 8;
+/** The most the website proxy forwards (app/api/auth/register/route.ts). */
+export const MAX_PASSWORD_LENGTH = 128;
 
 export type RegisterProblem = "errName" | "errIdentifier" | "errPassword" | "errMismatch" | "errAgree";
 

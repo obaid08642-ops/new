@@ -1,3 +1,4 @@
+import { iceServersFrom } from "@/lib/calls/ice-servers";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -41,10 +42,12 @@ export default async function CallRoomPage({ params }: Props) {
   return (
     <ConsultPage locale={locale} title={c("roomTitle")} backHref={`/${locale}/consultations`} width="wide">
       <VideoRoomClient
+        startAudioOnly={jrec?.audio_only === true}
+        iceServers={iceServersFrom(jrec?.ice_servers)}
         token={roomToken}
         chatHref={appointmentId ? `/${locale}/appointments/${appointmentId}/chat` : undefined}
         serverUrl={livekitUrl()}
-        labels={{ connecting: c("roomPreparing"), live: c("callLive"), waiting: c("callWaitingForDoctor"), ended: c("callEnded"), leave: c("callLeave"), microphone: c("callMicrophone"), camera: c("callCamera"), you: c("callYou"), doctor: c("callDoctor"), reconnecting: c("callReconnecting"), audioOnly: c("callAudioOnly"), tryVideo: c("callTryVideo"), dropped: c("callDropped"), continueInChat: c("callContinueInChat") }}
+        labels={{ connecting: c("roomPreparing"), live: c("callLive"), waiting: c("callWaitingForDoctor"), ended: c("callEnded"), leave: c("callLeave"), microphone: c("callMicrophone"), camera: c("callCamera"), you: c("callYou"), doctor: c("callDoctor"), reconnecting: c("callReconnecting"), audioOnly: c("callAudioOnly"), tryVideo: c("callTryVideo"), dropped: c("callDropped"), continueInChat: c("callContinueInChat"), qualityYou: c("callQualityYou"), qualityOther: c("callQualityOther"), quality: { excellent: c("callQualityExcellent"), good: c("callQualityGood"), poor: c("callQualityPoor"), lost: c("callQualityLost"), unknown: c("callQualityUnknown") } }}
       />
     </ConsultPage>
   );

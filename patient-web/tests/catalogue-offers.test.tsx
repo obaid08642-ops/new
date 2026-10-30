@@ -74,7 +74,7 @@ describe("one list, every entry point", () => {
   it("a scan nobody offers is still listed, with no price and the reason, even where the place filter would hide it", async () => {
     for (const html of [text(await hub({ kind: "radiology", place: "home" })), text(await radiologyPage())]) {
       expect(html).toContain("Cardiac MRI");
-      expect(html).toContain("No centre offers this yet");
+      expect(html).toContain("Not available in your area yet");
     }
   });
 
@@ -83,15 +83,33 @@ describe("one list, every entry point", () => {
     expect(html).toContain("CBC");
     expect(html).toContain("2 centres");
     expect(html).toContain("Rare panel");
-    expect(html).toContain("No centre offers this yet");
+    expect(html).toContain("Not available in your area yet");
   });
 
   it("rows of the pure builder: the count is a number the locale formats, the from-price is the providers'", () => {
     const rows = catalogRows("radiology", [{ ok: true, labs: [], scans: extractRadiologyServices([SERVED, EMPTY]), page: 1, hasMore: false, total: 2 }], { place: "all", pay: "self_pay" }, { locale: "en", tr: (key, values) => createTranslator("en", "DiagWeb")(key, values), itemHref: (id) => `/x/${id}` });
-    expect(rows.map((r) => [r.title, r.offer?.providers, r.offer?.none])).toEqual([["Chest X-Ray", "3 centres", false], ["Cardiac MRI", "No centre offers this yet", true]]);
+    expect(rows.map((r) => [r.title, r.offer?.providers, r.offer?.none])).toEqual([["Chest X-Ray", "3 centres", false], ["Cardiac MRI", "Not available in your area yet", true]]);
     expect(rows[0].offer?.from).toMatch(/120/);
     expect(rows[0].price).toBeUndefined();
     expect(rows[1].offer?.from).toBeUndefined();
+  });
+
+  it("a priced scan nobody offers shows the catalogue price as an indicative From, never as a plain price", () => {
+    const priced = { ...EMPTY, price: 400 };
+    const rows = catalogRows("radiology", [{ ok: true, labs: [], scans: extractRadiologyServices([priced]), page: 1, hasMore: false, total: 1 }], { place: "all", pay: "self_pay" }, { locale: "en", tr: (key, values) => createTranslator("en", "DiagWeb")(key, values), itemHref: (id) => `/x/${id}` });
+    expect(rows[0].offer).toMatchObject({ none: true, providers: "Not available in your area yet" });
+    expect(rows[0].offer?.from).toMatch(/^From .*400/);
+    expect(rows[0].price).toBeUndefined();
+    expect(rows[0].note).toBeUndefined();
+  });
+
+  it("the buttons of a card nobody offers stay on the card, switched off", async () => {
+    const html = await radiologyPage();
+    const cards = html.split("<article").slice(1);
+    const [served, empty] = [cards.find((c) => c.includes("Chest X-Ray")) ?? "", cards.find((c) => c.includes("Cardiac MRI")) ?? ""];
+    expect(served).not.toContain("disabled");
+    expect(empty.match(/<button[^>]*disabled/g)?.length).toBe(2);
+    expect(text(empty)).toContain("Order now");
   });
 });
 
@@ -112,12 +130,14 @@ describe("the detail", () => {
     expect(html).toContain("Price not set");
     expect(html).toContain("Add to my order");
   });
-  it("says no centre offers it yet and offers Notify me, without an order button", async () => {
-    state.detail.mockResolvedValue(json({ ...EMPTY, offers: [] }));
+  it("says it is not available in the area yet: indicative From price, the line, a disabled order button and Notify me", async () => {
+    state.detail.mockResolvedValue(json({ ...EMPTY, price: 400, offers: [] }));
     const html = renderToStaticMarkup((await RadiologyDetailPage({ params: Promise.resolve({ locale: "en", serviceId: "6a7600a27b25eeca204de282" }) })) as never);
-    expect(text(html)).toContain("No centre offers this yet");
+    expect(text(html)).toContain("Not available in your area yet");
+    expect(html).toContain('data-testid="indicative-price"');
+    expect(text(html)).toMatch(/From .*400.*Indicative catalogue price/);
     expect(html).toContain('data-notify="radiology:6a7600a27b25eeca204de282"');
-    expect(text(html)).not.toContain("Add to my order");
+    expect(html).toMatch(/<button[^>]*disabled[^>]*>\s*<span[^>]*>Add to my order/);
   });
 });
 

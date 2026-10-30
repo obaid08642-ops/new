@@ -76,10 +76,10 @@ describe("the nursing catalogue", () => {
     expect(out).toContain("At home");
     expect(out).toContain("Insurance accepted");
     expect(out).toContain("IV drip");
-    expect(out).toContain("No centre offers this yet");
+    expect(out).toContain("Not available in your area yet");
     // the providers' own from-price replaces the catalogue's base price; the service nobody offers keeps its catalogue price
     expect(out).not.toMatch(/200\.00/);
-    expect(out).toMatch(/No centre offers this yet[^<]*150\.00/);
+    expect(out).toMatch(/Not available in your area yet[^<]*150\.00/);
   });
 
   it("falls back to the older catalogue list (no offer lines) when the services read does not answer", async () => {

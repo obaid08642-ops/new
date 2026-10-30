@@ -35,6 +35,8 @@ export type ItemView = {
   /** What providers offer for it (the catalogue detail's summary and offers); absent when the payload carries none. */
   offer?: OfferSummary;
   offers?: ServiceOffer[];
+  /** The catalogue's own price: shown only as an indicative "from" price while nobody offers the service. */
+  price?: number;
 };
 
 export function fromLab(s: LabService): ItemView {
@@ -42,7 +44,7 @@ export function fromLab(s: LabService): ItemView {
     names: s.names, descriptions: s.descriptions, preparations: s.preparations,
     id: s.id, nameAr: s.nameAr, nameEn: s.nameEn, descriptionAr: s.descriptionAr, descriptionEn: s.descriptionEn,
     preparationAr: s.preparationAr ?? [], preparationEn: s.preparationEn ?? [], fastingHours: s.fastingRequired ? s.fastingHours ?? 0 : undefined,
-    imageUrl: s.imageUrl, turnaroundHours: s.turnaroundHours, sampleType: s.sampleType, included: s.includedServices ?? [], isPackage: s.isPackage === true, offer: s.offer, offers: s.offers,
+    imageUrl: s.imageUrl, turnaroundHours: s.turnaroundHours, sampleType: s.sampleType, included: s.includedServices ?? [], isPackage: s.isPackage === true, offer: s.offer, offers: s.offers, price: s.price,
     art: diagArtKey({ kind: "lab", category: s.category, sampleType: s.sampleType, names: [s.nameAr, s.nameEn, ...Object.values(s.names)] }),
   };
 }
@@ -52,13 +54,13 @@ export function fromRadiology(s: RadiologyService): ItemView {
     names: s.names, descriptions: s.descriptions, preparations: s.preparations,
     id: s.id, nameAr: s.nameAr, nameEn: s.nameEn, descriptionAr: s.descriptionAr, descriptionEn: s.descriptionEn,
     preparationAr: s.preparationAr ?? [], preparationEn: s.preparationEn ?? [], fastingHours: s.fastingRequired ? 0 : undefined,
-    imageUrl: s.imageUrl, turnaroundHours: s.turnaroundHours, included: [], isPackage: false, offer: s.offer, offers: s.offers,
+    imageUrl: s.imageUrl, turnaroundHours: s.turnaroundHours, included: [], isPackage: false, offer: s.offer, offers: s.offers, price: s.price,
     art: diagArtKey({ kind: "radiology", category: s.category ?? undefined, modality: [s.modality, s.modalityCategory].filter(Boolean).join(" "), bodyPart: s.bodyPart, names: [s.nameAr, s.nameEn, ...Object.values(s.names)] }),
   };
 }
 
 export function fromNursing(s: NursingCatalogItem): ItemView {
-  return { offer: s.offer, offers: s.offers, id: s.id, nameAr: s.nameAr, nameEn: s.nameEn, descriptionAr: s.descriptionAr, descriptionEn: s.descriptionEn, preparationAr: [], preparationEn: [], included: [], isPackage: false, durationValue: s.durationValue, duration: s.duration };
+  return { offer: s.offer, offers: s.offers, price: s.price, id: s.id, nameAr: s.nameAr, nameEn: s.nameEn, descriptionAr: s.descriptionAr, descriptionEn: s.descriptionEn, preparationAr: [], preparationEn: [], included: [], isPackage: false, durationValue: s.durationValue, duration: s.duration };
 }
 
 /** The preparation lines in the page's language, else the other language (lib/i18n/localized-field.ts); see preparationField for the mark. */

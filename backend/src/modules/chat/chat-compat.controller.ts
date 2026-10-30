@@ -1,3 +1,4 @@
+import { UserRateLimit, UserRateLimitGuard } from '../../common/user-rate-limit';
 import { Controller, Get, Post, Body, Query, ForbiddenException, BadRequestException, UseGuards, Optional } from '@nestjs/common';
 import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -42,6 +43,8 @@ export class FamilyChatController {
   }
 
   @Post('messages')
+  @UseGuards(UserRateLimitGuard)
+  @UserRateLimit('chat_send', 60, 60)
   async send(@CurrentUser() u: any, @Body() body: SendDto) {
     await this.killSwitches?.assertOn('chat_enabled');
     if (!body?.text?.trim()) throw new BadRequestException('text_required');
