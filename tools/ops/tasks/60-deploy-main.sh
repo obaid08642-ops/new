@@ -19,7 +19,7 @@
 # REHEARSE_FAIL_AT=<step> forces a failure; REHEARSE_MISSING_IMAGE=<service> treats
 # that service's running image as gone from the host, as patient-web's is in production (rehearsal only).
 set -u
-SHA=${OPS_RELEASE_SHA:-d4b18b8bded8031775bbcbb0369d771296354b37}
+SHA=${OPS_RELEASE_SHA:-73088bc7a077395026748d516ca04e67abdbef31}
 S8=${SHA:0:8}
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}

@@ -23,8 +23,13 @@
 #                                                    $IN/test-data-remove.json  ({"profile_ids": ["<provider profile id>", ...]}: the test providers the owner approved removing
 #                                                       after reading 77-test-data-find; each is deleted with its account, sessions and everything that points at it)
 # After a change of medicine names, add `cf-purge-api` to tools/ops/RUN for that run so the cached product pages refresh.
+#   COMPLETION=packaged (set in this file by the reviewer): also plans the owner-approved catalogue completion (2026-10-29) shipped in the image, step `catalogue_completion`:
+#                                                    approves the 7 hidden radiology scans and every real pending lab and nursing row, adds the new radiology/lab/nursing rows,
+#                                                    sets the nursing booking modes; all marked reviewed_by lead-market-review-2026-10-29 and needs_clinical_review. The dry run
+#                                                    prints counts per collection and compares the pending counts with the expected ones (7 / 26 / 12).
 set -u
 EXPECT_PLAN_SHA=""
+COMPLETION="packaged"
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}
 IN=${OPS_CATALOGUE_DIR:-/opt/nabdah/catalogue}
@@ -45,6 +50,7 @@ tool() { $DK exec "$CT" $TOOL "$@" 2>&1; }
 [ "$(health "$CT")" = healthy ] || { say "ABORT $CT is not healthy"; exit 1; }
 $DK exec "$CT" test -f dist/scripts/catalogue-apply.js || { say "ABORT the running image has no catalogue-apply tool: deploy the release first"; exit 1; }
 ARGS=""
+[ "$COMPLETION" = packaged ] && ARGS="$ARGS --catalogue-completion=packaged" && say "catalogue completion (packaged) planned"
 if sudo -n test -f "$IN/districts.json"; then
   sudo -n cat "$IN/districts.json" | $DK exec -i "$CT" sh -c 'cat > /tmp/cat-districts.json' && ARGS="$ARGS --districts=/tmp/cat-districts.json" && say "input districts.json copied in"
 fi

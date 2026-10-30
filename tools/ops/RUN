@@ -1,22 +1,19 @@
-# 2026-10-30 lead reviewer: run 50.
-# 1. Read-only: why the alert mails came (backup/oplog results of 48 h as counts and failure classes, Mongo container health, memory,
-#    OOM kills, deploy times, upload-scan mode) and the alert mails grouped by subject.
-# 2. Pause the ar+en translation (answers saved on the host; the deploy recreates the backend).
-# 3. Free disk, deploy main@d4b18b8b: public home-nursing pages per service and city in six languages (#2098), duplicate-merge step (#2094).
-# 4. 78-test-data-remove APPLY (owner approved the removal; plan of run 49c: 8 test profiles, 135 documents, plan sha 87bb034b...):
-#    backup of every document first, delete by exact id only, a fresh plan must be empty, any mismatch rolls back from the backup.
-# 5. 99-translate-resume-cron APPLY: the daily 00:30 UTC resume of the same reviewed ar+en requests (hash-pinned), at most 150 per day
-#    on the free providers; the rest is translated outside the server and imported through the guarded apply.
-# 6. Resume ar+en now (at most 150 requests), then per-provider progress counts. 7. Purge the API cache.
-99e-alerts-diag
-99-alert-mails
+# 2026-10-30 lead reviewer: run 51.
+# 1. Pause the ar+en translation (answers saved on the host; the deploy recreates the backend; the daily 00:30 UTC cron resumes it).
+# 2. Free disk, deploy main@73088bc7: provider own price shown = charged (#2116), refund status (#2119), language fallback web (#2126),
+#    fonts (#2125 #2131), one assistant (#2120), help & policies (#2121), MCP ordering (#2104), deep links (#2101), search engines (#2112),
+#    catalogue search (#2113), nursing booking modes (#2106), catalogue completion step (#2103), medicines list speed (#2122), web TTFB (#2123),
+#    OD-14 (#2124), external translation import (#2128), orders & results (#2111 #2114), design (#2100 #2108 #2110 #2115).
+# 3. 90-catalogue-apply DRY RUN with COMPLETION=packaged: counts per collection for the approved radiology/lab/nursing completion; nothing written.
+# 4. Cloudflare: AI crawlers allowed (owner 2026-10-29): Cloudflare's managed robots.txt and "Block AI bots" off; checked with GPTBot/ClaudeBot; old values back on failure.
+# 5. Translation progress counts, purge the API cache.
 98c-translate-pause
-release:d4b18b8bded8031775bbcbb0369d771296354b37
+release:73088bc7a077395026748d516ca04e67abdbef31
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
-78-test-data-remove
-99-translate-resume-cron
-98-translate-content
+90-catalogue-apply
 98b-translate-progress
+cf:50-ai-crawlers-check
+cf:50-ai-crawlers-apply
 cf-purge-api
