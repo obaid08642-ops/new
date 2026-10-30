@@ -104,11 +104,11 @@ describe('events and the recompute (real MongoDB)', () => {
     await col('radiologybookings').insertOne({ createdAt: created(0), status: 'confirmed', items: [{ service_id: 'rad-aaaa-1111' }] } as never);
     await col('homecarebookings').insertMany([{ createdAt: created(0), state: 'NEW_REQUEST', service_id: 'nur-aaaa-1111' }, { createdAt: created(0), state: 'CANCELLED', service_id: 'nur-aaaa-1111' }] as never);
 
-    const dry = await service.recompute(false);
+    const dry = await service.recompute(false, NOW);
     expect(await col('lab_services').countDocuments({ rank_score: { $exists: true } })).toBe(0);
     expect(dry.find((d) => d.vertical === 'lab')).toMatchObject({ rows: 3, with_signals: 2, changed: 3, orders_counted: 2 });
 
-    const first = await service.recompute(true);
+    const first = await service.recompute(true, NOW);
     expect(first.find((d) => d.vertical === 'lab')!.changed).toBe(3);
     const score = async (c: string, id: string) => (await col(c).findOne({ id }))!.rank_score;
     expect(await score('lab_services', 'lab-aaaa-1111')).toBeGreaterThan(0);        // 4 views + 1 order
@@ -117,7 +117,7 @@ describe('events and the recompute (real MongoDB)', () => {
     expect(await score('radiology_services', 'rad-aaaa-1111')).toBe(5);
     expect(await score('nursing_services', 'nur-aaaa-1111')).toBe(5);                // the cancelled visit does not count
     expect(await col(DAILY_COLLECTION).countDocuments({ day: day(200) })).toBe(0);   // outside the window: dropped
-    const second = await service.recompute(true);
+    const second = await service.recompute(true, NOW);
     expect(second.every((d) => d.changed === 0)).toBe(true);
   });
 });

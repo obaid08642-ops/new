@@ -57,7 +57,7 @@ export class CatalogueRankingService {
     }
   }
 
-  recompute(write = true) {
-    return recomputeCatalogueRanking(this.conn.db as unknown as Db, write);
+  recompute(write = true, now: Date = new Date()) {
+    return recomputeCatalogueRanking(this.conn.db as unknown as Db, write, now);
   }
 }
