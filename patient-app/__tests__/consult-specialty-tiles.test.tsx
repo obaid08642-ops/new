@@ -22,6 +22,7 @@ const rows: Row[] = [
   { slug: 'dermatology', name_ar: 'جلدية', name_en: 'Dermatology', count: 0 },
   { slug: 'cardiology', name_ar: 'قلب', name_en: 'Cardiology', count: 9 },
   { slug: 'family_medicine', name_ar: 'طب الأسرة', name_en: 'Family Medicine', count: 3 },
+  { slug: 'future_specialty', name_ar: 'جديد', name_en: 'Future', count: 1 },
   { slug: 'pediatrics', name_ar: 'أطفال', name_en: 'Pediatrics', count: 14 },
 ];
 const nameOf = (slug: string, ar?: string, e?: string) => (specialtyNameKey(slug) ? (en as Record<string, string>)[specialtyNameKey(slug) as string] : e || ar || '');
@@ -30,14 +31,15 @@ describe('specialty tiles (app)', () => {
   it('every backend slug has an app name message and an illustration or the explicit fallback', () => {
     for (const slug of SPECIALTY_ART_SLUGS) {
       expect(SPECIALTY_ART_BY_SLUG[slug]).toBeTruthy();
+      expect(SPECIALTY_ART_BY_SLUG[slug]).not.toBe('fallback');
       expect((en as Record<string, string>)[specialtyNameKey(slug) as string]).toBeTruthy();
     }
   });
 
   it('orders with doctors first by most doctors, then the coming-soon ones', () => {
     const tiles = specialtyTileModels(rows, nameOf);
-    expect(tiles.map((t) => t.slug)).toEqual(['pediatrics', 'cardiology', 'family_medicine', 'dermatology']);
-    expect(tiles.map((t) => t.comingSoon)).toEqual([false, false, false, true]);
+    expect(tiles.map((t) => t.slug)).toEqual(['pediatrics', 'cardiology', 'family_medicine', 'future_specialty', 'dermatology']);
+    expect(tiles.map((t) => t.comingSoon)).toEqual([false, false, false, false, true]);
   });
 
   it('the row: All first, All specialties last, selection and taps; a fallback specialty still draws a picture', async () => {
@@ -45,15 +47,16 @@ describe('specialty tiles (app)', () => {
     const onAll = jest.fn();
     const onSelect = jest.fn();
     const onMore = jest.fn();
-    await render(<SpecialtyRow tiles={tiles} arabicNames={{ family_medicine: 'طب الأسرة' }} allLabel="All" moreLabel="All specialties" comingSoonLabel="Coming soon" activeSlug="cardiology" onAll={onAll} onSelect={onSelect} onMore={onMore} />);
+    await render(<SpecialtyRow tiles={tiles} arabicNames={{ future_specialty: 'جديد' }} allLabel="All" moreLabel="All specialties" comingSoonLabel="Coming soon" activeSlug="cardiology" onAll={onAll} onSelect={onSelect} onMore={onMore} />);
     const ids = screen.getAllByTestId(/^specialty-tile-/).map((n) => n.props.testID);
-    expect(ids).toEqual(['specialty-tile-all', 'specialty-tile-pediatrics', 'specialty-tile-cardiology', 'specialty-tile-family_medicine', 'specialty-tile-dermatology', 'specialty-tile-more']);
+    expect(ids).toEqual(['specialty-tile-all', 'specialty-tile-pediatrics', 'specialty-tile-cardiology', 'specialty-tile-family_medicine', 'specialty-tile-future_specialty', 'specialty-tile-dermatology', 'specialty-tile-more']);
     expect(screen.getByLabelText('Cardiology').props.accessibilityState).toEqual({ selected: true });
     expect(screen.getByLabelText('Dermatology, Coming soon')).toBeTruthy();
     expect(screen.getByTestId('specialty-art-cardiology', { includeHiddenElements: true })).toBeTruthy();
+    expect(screen.getByTestId('specialty-art-family', { includeHiddenElements: true })).toBeTruthy();
     expect(screen.queryByTestId('specialty-art-internal', { includeHiddenElements: true })).toBeNull();
-    // 6 tiles, 5 illustrated: the specialty with no illustration (family medicine) draws its fill icon instead, so it is not blank
-    expect(screen.getAllByTestId(/^specialty-art-/, { includeHiddenElements: true })).toHaveLength(5);
+    // 7 tiles, 6 illustrated: a slug with no illustration (a new backend slug) draws its fill icon instead, so it is not blank
+    expect(screen.getAllByTestId(/^specialty-art-/, { includeHiddenElements: true })).toHaveLength(6);
     await fireEvent.press(screen.getByLabelText('Cardiology'));
     expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ slug: 'cardiology' }));
     await fireEvent.press(screen.getByLabelText('Dermatology, Coming soon'));
