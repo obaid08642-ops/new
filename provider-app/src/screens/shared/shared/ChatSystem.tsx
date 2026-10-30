@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { AppointmentStatus } from '../../../types/contracts';
 import {
- View, Text, TouchableOpacity, ScrollView, StyleSheet,
+ View, Text, TouchableOpacity, ScrollView, type ScrollViewInstance, StyleSheet,
  Animated, FlatList, Alert, Dimensions, Switch, TextInput,
  KeyboardAvoidingView, Platform, Linking, ActivityIndicator, Image
 } from 'react-native';
@@ -126,7 +126,7 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
   const [loading, setLoading] = useState(true);
   const [showAttach, setShowAttach] = useState(false);
   const [callType, setCallType] = useState<'audio'|'video'|null>(null);
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ScrollViewInstance>(null);
 
   const { user } = useAuth();
   const me = String((user as { id?: string } | null)?.id || '');
