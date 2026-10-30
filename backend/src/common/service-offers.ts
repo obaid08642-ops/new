@@ -46,6 +46,22 @@ const flag = (map: unknown, ...keys: Array<string | undefined>): boolean | undef
   return undefined;
 };
 const priced = (n: unknown): number | null => (typeof n === 'number' && Number.isFinite(n) && n > 0 ? n : null);
+const ASCII_DIGIT: Record<string, string> = { '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4', '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9', '۰': '0', '۱': '1', '۲': '2', '۳': '3', '۴': '4', '۵': '5', '۶': '6', '۷': '7', '۸': '8', '۹': '9' };
+/**
+ * A typed price as a number, or null when it is not certain what was meant (the caller then falls back to the catalogue price, never to a guess).
+ * Arabic-Indic and Persian digits become ASCII; "٫" is the decimal and "٬" the thousands separator; spaces are dropped. A comma followed by exactly three digits is a
+ * thousands separator ("1,200", "1,200.50"), a comma followed by one or two digits a decimal ("95,5"); anything else (units, signs, "1,2000", "1.2.3") is null.
+ */
+export const parsePriceText = (raw: string): number | null => {
+  const t = raw.replace(/[٠-٩۰-۹]/g, (d) => ASCII_DIGIT[d] ?? d).replace(/٫/g, '.').replace(/٬/g, ',').replace(/[\s\u00A0]/g, '');
+  if (!t) return null;
+  if (t.includes(',')) {
+    if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(t)) return Number(t.replace(/,/g, ''));
+    if (/^\d+,\d{1,2}$/.test(t)) return Number(t.replace(',', '.'));
+    return null;
+  }
+  return /^\d+(\.\d+)?$/.test(t) ? Number(t) : null;
+};
 /**
  * A price the provider typed at registration (`test_prices`, `scan_prices`: { serviceId: 95 } or { serviceId: "95" } as the apps send it), read as a number; null when the
  * map has no usable entry for any of the keys. This is the provider's own price when it has made no per-service choice yet (provider_service_offers) and has no capability row.
@@ -55,7 +71,7 @@ export const registeredPrice = (map: unknown, ...keys: Array<string | undefined>
   for (const k of keys) {
     if (!k || !(k in (map as Record<string, unknown>))) continue;
     const raw = (map as Record<string, unknown>)[k];
-    const n = typeof raw === 'string' ? Number(raw.trim().replace(',', '.')) : raw;
+    const n = typeof raw === 'string' ? parsePriceText(raw) : raw;
     const p = priced(n);
     if (p !== null) return p;
   }

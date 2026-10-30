@@ -14,7 +14,7 @@ import { LabService, LabServiceSchema } from '../schemas/lab.schema';
 import { RadiologyService as RadiologyServiceDoc, RadiologyServiceSchema } from '../schemas/radiology.schema';
 import { HomeCareService, HomeCareServiceSchema } from '../schemas/home-care.schema';
 import { ProviderProfile, ProviderProfileSchema } from '../schemas/provider-profile.schema';
-import { registeredPrice, ownPrices } from './service-offers';
+import { registeredPrice, parsePriceText, ownPrices } from './service-offers';
 
 jest.setTimeout(120_000);
 let mongo: MongoMemoryServer;
@@ -54,6 +54,23 @@ describe('the reader of a registration price', () => {
     expect(registeredPrice({ c: ' 1,5 ' }, 'c')).toBe(1.5);
     for (const k of ['d', 'e', 'f', 'missing']) expect(registeredPrice({ d: 'x', e: 0, f: -4 }, k)).toBeNull();
     expect(registeredPrice(undefined, 'a')).toBeNull();
+  });
+});
+
+describe('parsePriceText: a typed price is read exactly or not at all', () => {
+  it.each([
+    ['1,200', 1200], ['1,200.50', 1200.5], ['95,5', 95.5], ['٩٥', 95], ['١٬٢٠٠', 1200], ['١٢٠٠٫٥', 1200.5], ['۱٬۲۰۰', 1200], [' 1 200 ', 1200], ['95', 95], ['95.5', 95.5], ['12,345,678', 12345678],
+  ])('%s -> %s', (raw, want) => expect(parsePriceText(raw)).toBe(want));
+  it.each(['95 SAR', '-5', '1,2000', '1.2.3', '', 'abc', '1,20,300', '12,5,5'])('%j is ambiguous or not a price -> null', (raw) => expect(parsePriceText(raw)).toBeNull());
+  it('a price that parses to zero is not a price: the catalogue price applies', () => {
+    expect(registeredPrice({ a: '0' }, 'a')).toBeNull();
+    expect(registeredPrice({ a: '-5' }, 'a')).toBeNull();
+    expect(registeredPrice({ a: '95 SAR' }, 'a')).toBeNull();
+    expect(registeredPrice({ a: '1,200' }, 'a')).toBe(1200);
+    expect(registeredPrice({ a: '1,200.50' }, 'a')).toBe(1200.5);
+    expect(registeredPrice({ a: '95,5' }, 'a')).toBe(95.5);
+    expect(registeredPrice({ a: '٩٥' }, 'a')).toBe(95);
+    expect(registeredPrice({ a: '١٬٢٠٠' }, 'a')).toBe(1200);
   });
 });
 
@@ -147,6 +164,66 @@ describe('radiology: centre A registered 210, centre B 190; the catalogue says 2
     const b = make();
     await b.svc.book({ ...patient, id: 'p2' }, { service_id: 'scan-1', provider_account_id: 'rad-b', scheduled_at: when(), payment_method: 'card' });
     expect(b.created[0].total).toBe(190);
+  });
+});
+
+describe('radiology: contrast and a missing price', () => {
+  const make = () => {
+    const { model, created } = bookingModel();
+    return { svc: new (RadiologyOpsService as any)(RadModel, model, {}, {}, {}, {}, ProfileModel, { announceCreated: async () => undefined }, { emit: jest.fn() }), created };
+  };
+  const seedOne = async (price: unknown, scanPrices: unknown) => {
+    await col('radiology_services').insertOne({ id: 'scan-2', name_ar: 'أشعة', name_en: 'Scan', short_code: 'SC2', modality: 'ct', body_part: 'chest', price, active: true, is_deleted: false, public_eligibility: true, medical_review_status: 'approved', home_visit_supported: false });
+    await col('provider_profiles').insertOne({ id: 'prof-cc', account_id: 'rad-c', type: 'radiology', name_ar: 'مركز ج', name_en: 'Centre C', equipment_list: ['scan-2'], scan_prices: scanPrices, ...approved } as never);
+  };
+
+  it('the comparison keeps contrast_supported from the capability row', async () => {
+    await seedOne(300, { 'scan-2': '1,200' });
+    await col('provider_capabilities_radiology').insertOne({ provider_account_id: 'rad-c', service_id: 'scan-2', available: true, contrast_supported: true, price: null });
+    const out = await make().svc.priceComparison('scan-2');
+    expect(out.offers.map((o: any) => [o.provider.id, o.price, o.contrast_supported])).toEqual([['rad-c', 1200, true]]);
+  });
+  it('a centre with no capability row says false', async () => {
+    await seedOne(300, { 'scan-2': 400 });
+    const out = await make().svc.priceComparison('scan-2');
+    expect(out.offers.map((o: any) => o.contrast_supported)).toEqual([false]);
+  });
+  it('a booking with no positive price anywhere is refused, never booked at 0', async () => {
+    await seedOne(0, {});
+    await expect(make().svc.book(patient, { service_id: 'scan-2', provider_account_id: 'rad-c', scheduled_at: when(), payment_method: 'card' })).rejects.toThrow('service_price_not_set');
+  });
+});
+
+describe('the price shown is the price charged, with only a registration price (lab, radiology, nursing)', () => {
+  it('lab: "1,200" typed at registration is listed and charged as 1200', async () => {
+    await col('lab_services').insertOne({ id: 'lt', name_ar: 'تحليل', name_en: 'T', short_code: 'LT', category: 'blood', price: 50, active: true, is_deleted: false, public_eligibility: true, medical_review_status: 'approved', home_visit_supported: true, facility_visit_supported: true });
+    await col('provider_profiles').insertOne({ id: 'pl', account_id: 'lab-z', type: 'lab', name_ar: 'م', name_en: 'L', test_categories: ['lt'], test_prices: { lt: '1,200' }, ...approved } as never);
+    const { model, created } = bookingModel();
+    const svc = new (LabsService as any)(LabModel, model, {}, ProfileModel, { emit: jest.fn() }, { emit: async () => undefined }, { announceCreated: async () => undefined }, {});
+    const listed = (await svc.compatibleProviders(['lt'])).find((r: any) => r.id === 'lab-z').price;
+    const cmp = (await svc.priceComparison('lt')).offers[0].price;
+    await svc.book(patient, { items: [{ service_id: 'lt' }], provider_account_id: 'lab-z', scheduled_at: when(), location_type: 'facility', payment_method: 'card' });
+    expect([listed, cmp, created[0].total, created[0].items[0].price]).toEqual([1200, 1200, 1200, 1200]);
+  });
+  it('radiology: "95,5" is listed and charged as 95.5', async () => {
+    await col('radiology_services').insertOne({ id: 'rt', name_ar: 'أشعة', name_en: 'S', short_code: 'RT', modality: 'xray', body_part: 'arm', price: 80, active: true, is_deleted: false, public_eligibility: true, medical_review_status: 'approved', home_visit_supported: false });
+    await col('provider_profiles').insertOne({ id: 'pr', account_id: 'rad-z', type: 'radiology', name_ar: 'م', name_en: 'R', equipment_list: ['rt'], scan_prices: { rt: '95,5' }, ...approved } as never);
+    const { model, created } = bookingModel();
+    const svc = new (RadiologyOpsService as any)(RadModel, model, {}, {}, {}, {}, ProfileModel, { announceCreated: async () => undefined }, { emit: jest.fn() });
+    const listed = (await svc.compatibleProviders(['rt'])).find((r: any) => r.id === 'rad-z').price;
+    const cmp = (await svc.priceComparison('rt')).offers[0].price;
+    await svc.book(patient, { service_id: 'rt', provider_account_id: 'rad-z', scheduled_at: when(), payment_method: 'card' });
+    expect([listed, cmp, created[0].total, created[0].items[0].price]).toEqual([95.5, 95.5, 95.5, 95.5]);
+  });
+  it('nursing: "١٬٢٠٠" is listed and charged as 1200', async () => {
+    await col('nursing_services').insertOne({ id: 'nt', name_ar: 'خدمة', name_en: 'S', category: 'basic_nursing', price: 100, duration: 'hour', duration_value: 1, active: true, is_deleted: false, public_eligibility: true, medical_review_status: 'approved' });
+    await col('provider_profiles').insertOne({ id: 'pn', account_id: 'nurse-z', type: 'home_care', name_ar: 'ممرضة', nursing_services: [{ key: 'nt', price: '١٬٢٠٠' }], ...approved } as never);
+    const controller = new (HomeCareCompatController as any)({}, NurseSvcModel, ProfileModel, {});
+    const listed = (await controller.providers({ type: 'nt' })).find((r: any) => r.id === 'nurse-z').price;
+    const { model, created } = bookingModel();
+    const svc = new (HomeCareSvc as any)(NurseSvcModel, model, {}, {}, {}, { emit: jest.fn() }, { announceCreated: async () => undefined }, { emit: async () => undefined });
+    await svc.book(patient, { service_id: 'nt', provider_id: 'nurse-z', scheduled_at: when(), payment_method: 'card' });
+    expect([listed, created[0].total]).toEqual([1200, 1200]);
   });
 });
 

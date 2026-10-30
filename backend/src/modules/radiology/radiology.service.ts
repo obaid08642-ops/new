@@ -577,9 +577,17 @@ export class RadiologyOpsService {
     if (!svc) throw new NotFoundException('service_not_found');
     if (!svc.modality) return { service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null, offers: [] };
     const offers = ((await loadOffers(this.svcModel.db as never, 'radiology', [svc])).get(svc.id) ?? []).filter((o) => o.price !== null);
+    // contrast is a fact of the centre's capability row for this scan (like turnaround_hours in the labs comparison); no row, no claim
+    const lc = (v: unknown) => String(v ?? '').trim().toLowerCase();
+    const caps: any[] = offers.length ? await this.svcModel.db.collection('provider_capabilities_radiology').find({
+      available: true, provider_account_id: { $in: offers.map((o) => o.provider.id) },
+    }, { projection: { _id: 0, provider_account_id: 1, contrast_supported: 1, service_id: 1, scan_type: 1, body_part: 1 } }).toArray() : [];
+    const contrast = new Map<string, boolean>(caps
+      .filter((c) => typeof c.contrast_supported === 'boolean' && (c.service_id ? c.service_id === svc.id : lc(c.scan_type) === lc(svc.modality) && (!svc.body_part || lc(c.body_part) === lc(svc.body_part))))
+      .map((c) => [c.provider_account_id, c.contrast_supported]));
     return {
       service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null,
-      offers: offers.map((o) => ({ provider: o.provider, price: o.price as number, currency: o.currency, contrast_supported: false, insurance_covered: o.insurance, premises: o.premises, home: o.home }))
+      offers: offers.map((o) => ({ provider: o.provider, price: o.price as number, currency: o.currency, contrast_supported: contrast.get(o.provider.id) ?? false, insurance_covered: o.insurance, premises: o.premises, home: o.home }))
         .sort((a, b) => a.price - b.price),
     };
   }
@@ -620,6 +628,7 @@ export class RadiologyOpsService {
     // the chosen centre's own price for this scan (its choice, its capability row, or what it registered with); the catalogue price only when it has none
     const ownPrice = providerId ? (await ownPrices(this.svcModel.db as never, 'radiology', [providerId], [svc])).get(providerId)?.get(svc.id) : undefined;
     const total = ownPrice ?? (Number(svc.price) || 0);
+    if (!(total > 0)) throw new BadRequestException('service_price_not_set');
     const booking = await this.bkgModel.create({
       id: require('uuid').v4(),
       patient_id: user.id, patient_name: user.full_name, patient_phone: user.phone,
