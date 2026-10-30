@@ -8,7 +8,14 @@ import {
   INITIAL_SUGGEST_STATE, SuggestController, highlightParts,
   type SuggestScope, type SuggestState, type SuggestType, type Suggestion, type TextRange,
 } from "@/lib/search/suggest";
+import { reportCatalogueEvent, verticalOfSuggestionType } from "@/lib/search/catalogue-events";
 import styles from "./search-suggest.module.css";
+
+/** Opening a lab, scan or nursing suggestion tells the ranking it was found by search (fire-and-forget). */
+function reportSearchOpen(item: Pick<Suggestion, "id" | "type"> | undefined) {
+  const vertical = item ? verticalOfSuggestionType(item.type) : null;
+  if (item && vertical) reportCatalogueEvent(vertical, "search", item.id);
+}
 
 /** The props the search field's <input> takes to be the combobox of the dropdown (ARIA 1.2 combobox pattern). */
 export interface SuggestFieldProps {
@@ -80,7 +87,10 @@ export function SearchSuggest({ state, controller, renderField, allResultsHref, 
     const result = controller.key(event.key);
     if (result.kind === "none") return;
     event.preventDefault();
-    if (result.kind === "open") router.push(result.href);
+    if (result.kind === "open") {
+      reportSearchOpen(state.items.find((i) => i.href === result.href));
+      router.push(result.href);
+    }
   };
   const onBlur = (event: FocusEvent<HTMLDivElement>) => {
     if (!event.currentTarget.contains(event.relatedTarget as Node | null)) controller.close();
@@ -122,7 +132,7 @@ export function SearchSuggest({ state, controller, renderField, allResultsHref, 
                 href={item.href}
                 className={styles.option}
                 onMouseMove={() => controller.hover(i)}
-                onClick={() => controller.close()}
+                onClick={() => { reportSearchOpen(item); controller.close(); }}
               >
                 <span className={styles.name}><SuggestName name={item.name} highlights={item.highlights} /></span>
                 <span className={styles.kind}>{kinds(KIND[item.type])}</span>

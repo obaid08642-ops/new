@@ -26,6 +26,7 @@ import { loadItem } from "@/lib/ordering/load-item";
 import { contextQuery, payOf, placeOf } from "@/lib/ordering/context";
 import { parseQuote, type Quote } from "@/lib/ordering/quote";
 import { kindOf, optionalToken, patientPoint } from "@/lib/ordering/server";
+import { CatalogueViewBeacon } from "@/components-next/diagnostics/catalogue-view-beacon";
 
 type Props = { params: Promise<{ locale: string; testSlug: string }>; searchParams?: Promise<{ kind?: string; place?: string; pay?: string }> };
 
@@ -98,6 +99,7 @@ export default async function OrderingItemPage({ params, searchParams }: Props) 
 
   return (
     <ConsultPage locale={locale} title={name} backHref={hub}>
+      <CatalogueViewBeacon vertical={kind} serviceId={item.id} />
       <Hero icon={tone.icon} tone={tone.tone} title={name} sub={description} picture={item.imageUrl ? <ItemPicture imageUrl={item.imageUrl} fallback={item.art ? <DiagArt art={item.art} size={56} /> : <FIcon icon={tone.icon} tone={tone.tone} size={52} />} /> : item.art ? <DiagArt art={item.art} size={56} /> : undefined} />
       <SectionCard id="item-prep" title={t("secPrep")}>
         {item.fastingHours !== undefined || prep.length > 0 ? (

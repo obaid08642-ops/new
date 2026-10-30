@@ -230,7 +230,7 @@ export default async function DiagnosticsPage({ params, searchParams }: Props) {
             label={t("filterSort")}
             value={filter.sort ?? ""}
             options={[
-              { value: "", label: t("sortDefault"), href: href({ sort: "" }) },
+              { value: "", label: t("mostRequested"), href: href({ sort: "" }) },
               { value: "rating", label: t("sortRating"), href: href({ sort: "rating" }) },
               { value: "price", label: t("sortPrice"), href: href({ sort: "price" }) },
             ]}
