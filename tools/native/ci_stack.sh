@@ -13,7 +13,10 @@ if command -v docker >/dev/null 2>&1; then
   MONGOSH() { docker exec mongo mongosh --quiet --eval "$1"; }
 else
   # macOS runner (iOS simulator job): no Docker, so MongoDB and Redis come from Homebrew
-  brew tap mongodb/brew >/dev/null && brew install mongodb-community@7.0 redis >/dev/null
+  brew tap mongodb/brew >/dev/null
+  # newer Homebrew refuses formulae from a tap it has not been told to trust ("Refusing to load formula ... from untrusted tap")
+  brew trust mongodb/brew >/dev/null 2>&1 || true
+  brew install mongodb-community@7.0 redis >/dev/null
   mkdir -p /tmp/mongo-data
   nohup "$(brew --prefix mongodb-community@7.0)/bin/mongod" --dbpath /tmp/mongo-data --replSet rs0 --bind_ip 127.0.0.1 > /tmp/mongod.log 2>&1 &
   nohup redis-server --port 6379 > /tmp/redis.log 2>&1 &
