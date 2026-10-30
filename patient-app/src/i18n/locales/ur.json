@@ -3910,5 +3910,15 @@
   "insurance.policy.deleteBody": "یہ کارڈ آپ کے اکاؤنٹ سے ہٹا دیا جائے گا۔",
   "insurance.policy.deleteCancel": "منسوخ کریں",
   "insurance.policy.deleteDone": "انشورنس کارڈ حذف ہو گیا۔",
-  "insurance.policy.deleteFailed": "کارڈ حذف نہیں ہو سکا۔ دوبارہ کوشش کریں۔"
+  "insurance.policy.deleteFailed": "کارڈ حذف نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
+  "diag.kind.group": "سروس کی قسم",
+  "diag.tag.noFasting": "روزے کے بغیر",
+  "diag.cat.packages": "پیکجز",
+  "diag.hub.rxOrder": "کیا آپ کے پاس طبی آرڈر ہے؟",
+  "diag.filter.placeLab": "لیب میں",
+  "diag.filter.placeHome": "گھر سے نمونہ",
+  "diag.filter.sortBy": "ترتیب",
+  "diag.filter.noFasting": "بغیر فاقے کے",
+  "diag.filter.sameDay": "اسی دن نتیجہ",
+  "diag.filter.showCount": "{n} نتائج دکھائیں"
 }
