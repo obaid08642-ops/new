@@ -19,11 +19,11 @@ mongorestore_list_oneoff() {
   fi
   $dkr run --rm -i --user 0:0 --network "$net" --memory 600m --memory-swap 600m --oom-score-adj 1000 "${auth[@]}" --entrypoint mongorestore "$img" \
       --dryRun --verbose ${cfg:+--config=/cfg/mongorestore.yml --username="$MONGO_ROOT_USER" --authenticationDatabase=admin} --host="$ip" --port=27017 --archive --gzip < "$archive" > "$out" 2>&1 || rc=$?
-  n=$(grep -c 'reading metadata for' "$out")
+  n=$(grep -c 'reading metadata for' "$out" || true)   # grep -c exits 1 on zero matches: never let that end a `set -e` caller silently
   echo "status: mongorestore: archive lists $n namespace(s) (dry run, rc=$rc)"
   if [ "$rc" -ne 0 ] || [ "$n" -lt 1 ]; then
-    local msg; msg=$(tail -n 2 "$out" | tr '\n' ' '); [ -n "${MONGO_ROOT_PASSWORD:-}" ] && msg=${msg//"$MONGO_ROOT_PASSWORD"/<hidden>}
-    echo "status: mongorestore: error: ${msg:0:250}"; rm -f "$cfg" "$out"; return 1
+    local msg; msg=$(tail -n 4 "$out" | tr '\n' ' '); [ -n "${MONGO_ROOT_PASSWORD:-}" ] && msg=${msg//"$MONGO_ROOT_PASSWORD"/<hidden>}
+    echo "status: mongorestore: error: ${msg:0:400}"; rm -f "$cfg" "$out"; return 1
   fi
   rm -f "$cfg" "$out"
   return 0
