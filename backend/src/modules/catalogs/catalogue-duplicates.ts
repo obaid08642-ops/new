@@ -12,7 +12,7 @@
  * The report lists counts and ids (never a name) and how many references each rule re-pointed. A second plan after the apply is empty.
  */
 import type { Change, DbLike } from './catalogue-apply.core';
-import { duplicateGroups, missingFields, pickKeeper, type CatalogDoc } from './catalog-dedupe';
+import { duplicateGroups, missingFields, pickKeeper, weakRadiologyKey, type CatalogDoc } from './catalog-dedupe';
 import { CATALOG_COLLECTIONS } from './catalog-collections';
 import { planRadiologyCatalogue } from './catalogue-apply.steps';
 
@@ -20,7 +20,16 @@ type Vertical = 'lab' | 'radiology' | 'nursing';
 const STEP = 'catalogue_duplicates';
 
 export interface VerticalReport { rows: number; groups: number; hidden_rows: number; fields_filled: number; skipped_group_without_id: number; sample: Array<{ keep: string; hidden: string[] }>; references: Record<string, number> }
-export interface DuplicatesReport { lab: VerticalReport; radiology: VerticalReport; nursing: VerticalReport; total_hidden: number }
+export interface DuplicatesReport { lab: VerticalReport; radiology: VerticalReport; nursing: VerticalReport; total_hidden: number; /** radiology rows with the same modality, body part and contrast under different names: reported for the owner, never merged (ids only) */ radiology_same_scan_candidates: string[][] }
+
+/** Radiology rows that share modality, body part and contrast but are not already one strong group: reported for the owner, never merged (a lumbar and a whole-spine MRI can share a body part). */
+export function weakRadiologyGroups<T extends CatalogDoc>(rows: T[], strong: T[][]): T[][] {
+  const strongOf = new Map<T, number>();
+  strong.forEach((g, i) => g.forEach((d) => strongOf.set(d, i)));
+  const byKey = new Map<string, T[]>();
+  for (const d of rows) { const k = weakRadiologyKey(d); if (k) byKey.set(k, [...(byKey.get(k) ?? []), d]); }
+  return [...byKey.values()].filter((g) => g.length > 1 && new Set(g.map((d) => (strongOf.has(d) ? `s${strongOf.get(d)}` : `r${idOf(d) || Math.random()}`))).size > 1);
+}
 
 const emptyReport = (rows: number): VerticalReport => ({ rows, groups: 0, hidden_rows: 0, fields_filled: 0, skipped_group_without_id: 0, sample: [], references: {} });
 const idOf = (d: CatalogDoc): string => (typeof d.id === 'string' && d.id ? d.id : '');
@@ -130,9 +139,26 @@ async function repoint(db: DbLike, vertical: Vertical, keeperOf: Map<string, str
   }
 }
 
+/** Merge one group of the same service into its keeper: hide the others (merged_into), copy what the keeper lacks, remember which id points at which. */
+function mergeGroup(group: CatalogDoc[], collection: string, v: VerticalReport, changes: Change[], keeperOf: Map<string, string>): void {
+  const keeper = pickKeeper(group);
+  const losers = group.filter((g) => g !== keeper);
+  if (!idOf(keeper) || losers.some((l) => !idOf(l))) { v.skipped_group_without_id += 1; return; }
+  v.groups += 1; v.hidden_rows += losers.length;
+  if (v.sample.length < SAMPLE) v.sample.push({ keep: idOf(keeper), hidden: losers.map(idOf) });
+  for (const [field, value] of Object.entries(missingFields(keeper, losers))) {
+    changes.push({ kind: 'set', step: STEP, collection, key: { _id: keeper._id }, path: field, before: null, after: value }); v.fields_filled += 1;
+  }
+  for (const l of losers) {
+    changes.push({ kind: 'set', step: STEP, collection, key: { _id: l._id }, path: 'is_deleted', before: l.is_deleted === undefined ? null : l.is_deleted, after: true });
+    changes.push({ kind: 'set', step: STEP, collection, key: { _id: l._id }, path: 'merged_into', before: null, after: idOf(keeper) });
+    keeperOf.set(idOf(l), idOf(keeper));
+  }
+}
+
 export async function planCatalogueDuplicates(db: DbLike, opts: { radiologyApprove?: string[] } = {}): Promise<{ changes: Change[]; report: DuplicatesReport }> {
   const changes: Change[] = [];
-  const report: DuplicatesReport = { lab: emptyReport(0), radiology: emptyReport(0), nursing: emptyReport(0), total_hidden: 0 };
+  const report: DuplicatesReport = { lab: emptyReport(0), radiology: emptyReport(0), nursing: emptyReport(0), total_hidden: 0, radiology_same_scan_candidates: [] };
 
   // labs and nursing: the groups of rows that are the same service
   for (const [vertical, collection] of [['lab', CATALOG_COLLECTIONS.lab_services], ['nursing', CATALOG_COLLECTIONS.nursing_services]] as const) {
@@ -140,21 +166,7 @@ export async function planCatalogueDuplicates(db: DbLike, opts: { radiologyAppro
     const live = rows.filter((r) => r.is_deleted !== true);
     const v = report[vertical]; v.rows = rows.length;
     const keeperOf = new Map<string, string>();
-    for (const group of duplicateGroups(live, { byPackage: vertical === 'lab' })) {
-      const keeper = pickKeeper(group);
-      const losers = group.filter((g) => g !== keeper);
-      if (!idOf(keeper) || losers.some((l) => !idOf(l))) { v.skipped_group_without_id += 1; continue; }
-      v.groups += 1; v.hidden_rows += losers.length;
-      if (v.sample.length < SAMPLE) v.sample.push({ keep: idOf(keeper), hidden: losers.map(idOf) });
-      for (const [field, value] of Object.entries(missingFields(keeper, losers))) {
-        changes.push({ kind: 'set', step: STEP, collection, key: { _id: keeper._id }, path: field, before: null, after: value }); v.fields_filled += 1;
-      }
-      for (const l of losers) {
-        changes.push({ kind: 'set', step: STEP, collection, key: { _id: l._id }, path: 'is_deleted', before: l.is_deleted === undefined ? null : l.is_deleted, after: true });
-        changes.push({ kind: 'set', step: STEP, collection, key: { _id: l._id }, path: 'merged_into', before: null, after: idOf(keeper) });
-        keeperOf.set(idOf(l), idOf(keeper));
-      }
-    }
+    for (const group of duplicateGroups(live, { byPackage: vertical === 'lab' })) mergeGroup(group, collection, v, changes, keeperOf);
     await repoint(db, vertical, keeperOf, changes, v.references);
   }
 
@@ -179,6 +191,12 @@ export async function planCatalogueDuplicates(db: DbLike, opts: { radiologyAppro
       if (v.sample.length < SAMPLE) v.sample.push({ keep: idOf(keeper), hidden: [idOf(loser)] });
     }
     v.groups = new Set(keeperOf.values()).size;
+    // the same scan under two names / an abbreviation (strong keys, as for labs and nursing), among the rows the legacy step does not already hide
+    const hiddenIds = new Set(keeperOf.keys());
+    const live = rows.filter((r) => r.is_deleted !== true && idOf(r) && !hiddenIds.has(idOf(r)));
+    const strong = duplicateGroups(live);
+    for (const group of strong) mergeGroup(group, coll, v, changes, keeperOf);
+    report.radiology_same_scan_candidates = weakRadiologyGroups(live, strong).map((g) => g.map(idOf));
     await repoint(db, 'radiology', keeperOf, changes, v.references);
   }
 
