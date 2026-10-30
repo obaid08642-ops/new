@@ -1,6 +1,6 @@
 import { startOnboardingAccount, firstMissingDoc, insurancePlansOf, useStepSaver } from '../registration/kit';
 import type { StepProps, Uploader, RequiredDoc } from '../registration/kit';
-import { DocCard, NoticeSection, useDocumentPicker } from '../registration/WizardParts';
+import { DocCard, LicenseExpiryField, NoticeSection, licenseExpiryError, useDocumentPicker } from '../registration/WizardParts';
 import type { NoticeText } from '../registration/WizardParts';
 import { RegistrationWizard } from '../registration/RegistrationWizard';
 import type { RegistrationProps, WizardConfig } from '../registration/RegistrationWizard';
@@ -34,7 +34,7 @@ interface DiagnosticsRegData {
   techOfficerName: string; techOfficerScfhs: string;
   password: string; confirmPass: string;
   // Step 2
-  crNumber: string; mohLicense: string; iban: string; accountHolderName: string;
+  crNumber: string; mohLicense: string; licenseExpiry: string; iban: string; accountHolderName: string;
   taxNumber: string;
   languages: string[];
   crUri: string; mohUri: string; logoUri: string;
@@ -77,7 +77,7 @@ const INIT: DiagnosticsRegData = {
   managerName: '', managerPhone: '', managerEmail: '',
   techOfficerName: '', techOfficerScfhs: '',
   password: '', confirmPass: '',
-  crNumber: '', mohLicense: '', iban: '', accountHolderName: '', taxNumber: '', languages: [],
+  crNumber: '', mohLicense: '', licenseExpiry: '', iban: '', accountHolderName: '', taxNumber: '', languages: [],
   crUri: '', mohUri: '', logoUri: '',
   city: '', location: { lat: 0, lng: 0 }, district: '', address: '',
   hasHomeSvc: false, homeRadius: 0, homeCollectorCount: '', homeCollectionFee: '', targetGenders: 'both', homeCollectorGender: 'both',
@@ -174,6 +174,7 @@ async function sendDiagnostics(data: DiagnosticsRegData, uploads: Uploader): Pro
     insurance_plans: insurancePlansOf(data.acceptedInsurance),
     cr_number: data.crNumber,
     moh_license_number: data.mohLicense,
+    license_expiry_date: data.licenseExpiry,
     tax_number: data.taxNumber,
     license_documents: docs,
     logo,
@@ -462,6 +463,7 @@ function LStep2({ data, update, submitRef, uploads }: StepProps<DiagnosticsRegDa
     const e: Record<string, string> = {};
     if (!Validate.cr(data.crNumber)) e.cr = AR ? 'السجل التجاري 10 أرقام' : 'CR must be 10 digits';
     if (!data.mohLicense.trim()) e.moh = AR ? 'مطلوب' : 'Required';
+    const expiryErr = licenseExpiryError(data.licenseExpiry, AR); if (expiryErr) e.expiry = expiryErr;
     if (!Validate.iban(data.iban)) e.iban = AR ? 'رقم الآيبان غير صحيح' : 'Invalid IBAN';
     
     // Custom validation for Lab/Radiology separation
@@ -533,6 +535,8 @@ function LStep2({ data, update, submitRef, uploads }: StepProps<DiagnosticsRegDa
         onChange={v => update({ mohLicense: v })}
         required error={errs.moh}
         hint={AR ? 'ترخيص المعمل/مركز الأشعة من MOH' : 'Lab/Radiology license from MOH'} />
+
+      <LicenseExpiryField value={data.licenseExpiry} onChange={v => update({ licenseExpiry: v })} error={errs.expiry} />
 
       {/* Lab Specific Setup */}
       {(data.centerType === 'lab' || data.centerType === 'both') && (
