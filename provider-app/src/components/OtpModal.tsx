@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, Modal, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, type TextInputInstance } from 'react-native';
 import { useTheme, useLang } from '../context';
 import { FS, FW, R, SP } from '../constants';
 import { NBtn } from './ui';
@@ -25,7 +25,7 @@ export const OtpModal = ({ visible, onClose, onVerify, target, type = 'email', o
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const inputs = useRef<Array<TextInput | null>>([]);
+  const inputs = useRef<Array<TextInputInstance | null>>([]);
 
   // Reset + autofocus the FIRST (leftmost, logical index 0) box whenever the modal opens.
   useEffect(() => {

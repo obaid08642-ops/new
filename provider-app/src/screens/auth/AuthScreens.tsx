@@ -44,7 +44,7 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
 
  return (
  <View style={{ flex: 1, backgroundColor: theme.primary, alignItems: 'center', justifyContent: 'center' }}>
- <StatusBar barStyle="light-content" backgroundColor={theme.primary} />
+ <StatusBar barStyle="light-content" />
  <Animated.View style={{ transform: [{ scale: sc }], opacity: op, alignItems: 'center' }}>
  <View style={{
  width: 100, height: 100, borderRadius: 32,
@@ -122,7 +122,7 @@ export function WelcomeScreen({
 
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
- <StatusBar barStyle={theme.statusBar} backgroundColor={theme.bg} />
+ <StatusBar barStyle={theme.statusBar} />
  <ScrollView
  contentContainerStyle={{ padding: SP.xl, paddingTop: insets.top + SP.sm, paddingBottom: SP.huge + insets.bottom }}
  showsVerticalScrollIndicator={false}
