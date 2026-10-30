@@ -706,6 +706,16 @@ class CatalogueApplyOnly(unittest.TestCase):
         self.assertNotIn("nabdah-backend", calls)
         self.assertIn("dry run only", p.stdout)
 
+    def test_prune_plans_only_that_step_and_never_together_with_the_completion(self):
+        p = self.run_task({"PRUNE": "yes"})
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        calls = self.h.docker_calls()
+        self.assertIn("catalogue-apply.js plan --only=catalogue_prune", calls)
+        self.assertNotIn("--districts", calls)
+        both = self.run_task({"PRUNE": "yes", "COMPLETION": "packaged"})
+        self.assertEqual(both.returncode, 1)
+        self.assertIn("separate runs", both.stdout)
+
     def test_without_completion_the_full_plan_keeps_its_inputs(self):
         p = self.run_task()
         self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
