@@ -1,4 +1,4 @@
-"""tools/ops/tasks/94-ranking-recompute.sh and 91b-upload-scan-defer.sh against fake docker, sudo and curl (no server, no secrets)."""
+"""tools/ops/tasks/94-ranking-recompute.sh, 91b-upload-scan-defer.sh and 91c-host-files.sh against fake docker, sudo and curl (no server, no secrets)."""
 import hashlib
 import os
 import re
@@ -26,6 +26,14 @@ case "$1" in
   run) case "$*" in *" apply "*) cat "$FAKE_APPLY_OUT";; *) cat "$FAKE_PLAN_OUT";; esac; exit 0;;
   compose) [ -n "$FAKE_COMPOSE_FAIL" ] && exit 1; exit 0;;
   exec)
+    if [ "$2" = -i ]; then   # redis-cli through sh -c; the password arrives on stdin, never as an argument
+      read -r PW; echo "$PW" >> "$FAKE_STDIN_LOG"
+      case "$*" in
+        *"config set maxmemory"*) [ -n "$FAKE_REDIS_SET_FAIL" ] && exit 1; v=$(echo "$*" | sed -n 's/.*config set maxmemory \([0-9]*\)mb.*/\1/p'); echo $((v*1048576)) > "$FAKE_REDIS_STATE"; echo OK; exit 0;;
+        *"config get maxmemory"*) cat "$FAKE_REDIS_STATE"; exit 0;;
+      esac
+      exit 0
+    fi
     shift; shift   # exec <container>
     case "$1" in
       test) case "$3" in
@@ -85,6 +93,9 @@ class Harness:
         with open(self.envf, "w") as f:
             f.write(ENV_BEFORE)
         os.chmod(self.envf, 0o600)
+        self.redis_state = os.path.join(d, "redis.state")
+        with open(self.redis_state, "w") as f:
+            f.write(str(512 * 1048576) + "\n")
         self.plan_out = os.path.join(d, "plan.out")
         self.apply_out = os.path.join(d, "apply.out")
         for p, t in ((self.plan_out, PLAN), (self.apply_out, APPLY)):
@@ -101,7 +112,7 @@ class Harness:
             f.write(src)
         env = dict(os.environ, PATH=self.bin + os.pathsep + os.environ["PATH"], OPS_DEPLOY_DIR=self.deploy, OPS_BACKUP_DIR=self.backups,
                    OPS_CRON_DIR=self.cron, OPS_RELEASE_DIR=self.releases, FAKE_LOG=self.log, FAKE_PLAN_OUT=self.plan_out, FAKE_APPLY_OUT=self.apply_out,
-                   OPS_WAIT_SLEEP="0", OPS_WAIT_TRIES="2", OPS_WAIT_TRIES_API="2", HOME=self.tmp.name)
+                   FAKE_STDIN_LOG=os.path.join(self.tmp.name, "stdin.log"), FAKE_REDIS_STATE=self.redis_state, OPS_WAIT_SLEEP="0", OPS_WAIT_TRIES="2", OPS_WAIT_TRIES_API="2", HOME=self.tmp.name)
         env.update({k: str(v) for k, v in extra.items()})
         p = subprocess.run(["bash", script], env=env, capture_output=True, text=True, timeout=60)
         return p
@@ -495,6 +506,151 @@ class RecreateDatastores(unittest.TestCase):
         self.assertEqual(p.returncode, 1)
         self.assertIn("FAILED at 'maxmemory is not the one in redis.conf' on redis", p.stdout)
         self.assertNotIn("recreate mongodb", self.events())
+
+HOST_FILES = {
+    "mongo/mongod.conf": "storage:\n  wiredTiger:\n    engineConfig:\n      cacheSizeGB: 0.5\n",
+    "redis/redis.conf": "port 6379\nmaxmemory 320mb\nmaxmemory-policy volatile-lru\n",
+    "scripts/oplog-backup.sh": "#!/bin/bash\n# new oplog backup\n",
+    "scripts/_oplog-mongo-wait.sh": "# new wait helper\n",
+    "scripts/memory-report.sh": "#!/bin/bash\necho 'status: memory host total=1MB'\necho 'not a status line'\n",
+}
+OLD_REDIS = "port 6379\nmaxmemory 256mb\n"
+
+
+class HostFiles(unittest.TestCase):
+    TASK = "91c-host-files.sh"
+
+    def setUp(self):
+        self.h = Harness(self)
+        with open(self.h.envf, "a") as f:
+            f.write("REDIS_PASSWORD=redis-pass-77c1\n")
+        for rel, text in (("mongo/mongod.conf", "old mongod\n"), ("redis/redis.conf", OLD_REDIS), ("scripts/oplog-backup.sh", "#!/bin/bash\n# old\n")):
+            self.put(rel, text)
+
+    def put(self, rel, text):
+        path = os.path.join(self.h.deploy, rel)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w") as f:
+            f.write(text)
+
+    def read(self, rel):
+        with open(os.path.join(self.h.deploy, rel)) as f:
+            return f.read()
+
+    def release(self, corrupt=False, drop=None):
+        r = os.path.join(self.h.releases, "aa11bb22")
+        os.makedirs(r)
+        src = os.path.join(self.h.tmp.name, "hf-src")
+        for rel, text in HOST_FILES.items():
+            if rel == drop:
+                continue
+            os.makedirs(os.path.dirname(os.path.join(src, "deploy", rel)), exist_ok=True)
+            with open(os.path.join(src, "deploy", rel), "w") as f:
+                f.write(text)
+        tgz = os.path.join(r, "deploy.tgz")
+        with tarfile.open(tgz, "w:gz") as t:
+            t.add(os.path.join(src, "deploy"), arcname="deploy")
+        with open(tgz, "rb") as f:
+            digest = hashlib.sha256(f.read()).hexdigest()
+        with open(os.path.join(r, "SHA256SUMS"), "w") as f:
+            f.write(("0" * 64 if corrupt else digest) + "  deploy.tgz\n")
+
+    def redis_live(self):
+        with open(self.h.redis_state) as f:
+            return int(f.read().strip())
+
+    def test_dry_run_names_the_differing_files_and_writes_nothing(self):
+        self.release()
+        p = self.h.run(self.TASK)
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("redis/redis.conf DIFFERS", p.stdout)
+        self.assertIn("scripts/memory-report.sh MISSING", p.stdout)
+        self.assertIn("dry run only", p.stdout)
+        self.assertEqual(self.read("redis/redis.conf"), OLD_REDIS)
+        self.assertEqual(os.listdir(self.h.backups), [])
+        self.assertEqual(self.redis_live(), 512 * 1048576)
+        self.assertNotIn("old mongod", p.stdout)                   # names and sha only, never content
+        self.assertNotIn("redis-pass-77c1", p.stdout + p.stderr + self.h.docker_calls())
+
+    def test_output_is_status_lines_only(self):
+        self.release()
+        p = self.h.run(self.TASK, {"APPLY": "yes"})
+        for line in p.stdout.splitlines():
+            self.assertTrue(line.startswith("status: ") or line.startswith("## "), line)
+
+    def test_apply_installs_saves_copies_reloads_redis_and_leaves_mongo_alone(self):
+        self.release()
+        p = self.h.run(self.TASK, {"APPLY": "yes"})
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        for rel, text in HOST_FILES.items():
+            self.assertEqual(self.read(rel), text)
+        self.assertTrue(os.access(os.path.join(self.h.deploy, "scripts", "memory-report.sh"), os.X_OK))
+        self.assertEqual(stat.S_IMODE(os.stat(os.path.join(self.h.deploy, "redis", "redis.conf")).st_mode), 0o644)
+        saved = sorted(os.listdir(self.h.backups))
+        self.assertEqual(len([f for f in saved if f.startswith("hostfiles-pre-")]), 3)
+        self.assertEqual(len([f for f in saved if f.startswith("hostfiles-new-")]), 2)
+        self.assertEqual(self.redis_live(), 320 * 1048576)         # CONFIG SET, live
+        calls = self.h.docker_calls()
+        self.assertNotIn("compose", calls)
+        self.assertNotIn("restart", calls)
+        self.assertNotIn("nabdah-mongodb", calls)
+        self.assertIn("mongod.conf written to disk only", p.stdout)
+        self.assertIn("status: memory host total=1MB", p.stdout)   # the report's status lines are printed
+        self.assertNotIn("not a status line", p.stdout)
+        self.assertNotIn("redis-pass-77c1", p.stdout + p.stderr + calls)
+        with open(os.path.join(self.h.tmp.name, "stdin.log")) as f:
+            self.assertIn("redis-pass-77c1", f.read())             # it went in on stdin
+
+    def test_second_apply_changes_nothing(self):
+        self.release()
+        self.h.run(self.TASK, {"APPLY": "yes"})
+        n = len(os.listdir(self.h.backups))
+        p = self.h.run(self.TASK, {"APPLY": "yes"})
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("nothing differs", p.stdout)
+        self.assertIn("redis maxmemory already 320mb", p.stdout)
+        self.assertEqual(len(os.listdir(self.h.backups)), n)
+
+    def test_a_release_that_fails_its_checksums_installs_nothing(self):
+        self.release(corrupt=True)
+        p = self.h.run(self.TASK, {"APPLY": "yes"})
+        self.assertEqual(p.returncode, 1)
+        self.assertEqual(self.read("redis/redis.conf"), OLD_REDIS)
+        self.assertEqual(os.listdir(self.h.backups), [])
+
+    def test_a_release_without_one_of_the_files_aborts(self):
+        self.release(drop="scripts/memory-report.sh")
+        p = self.h.run(self.TASK, {"APPLY": "yes"})
+        self.assertEqual(p.returncode, 1)
+        self.assertEqual(self.read("redis/redis.conf"), OLD_REDIS)
+
+    def test_no_release_aborts(self):
+        p = self.h.run(self.TASK, {"APPLY": "yes"})
+        self.assertEqual(p.returncode, 1)
+        self.assertIn("no uploaded release", p.stdout)
+
+    def test_a_failed_redis_set_puts_the_files_back(self):
+        self.release()
+        p = self.h.run(self.TASK, {"APPLY": "yes"}, FAKE_REDIS_SET_FAIL=1)
+        self.assertEqual(p.returncode, 1, p.stdout + p.stderr)
+        self.assertIn("putting the copies back", p.stdout)
+        self.assertEqual(self.read("redis/redis.conf"), OLD_REDIS)
+        self.assertEqual(self.read("mongo/mongod.conf"), "old mongod\n")
+        self.assertFalse(os.path.exists(os.path.join(self.h.deploy, "scripts", "memory-report.sh")))
+
+    def test_rollback_restores_the_copies_removes_new_files_and_resets_redis(self):
+        self.release()
+        self.h.run(self.TASK, {"APPLY": "yes"})
+        p = self.h.run(self.TASK, {"ROLLBACK": "yes"})
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertEqual(self.read("redis/redis.conf"), OLD_REDIS)
+        self.assertEqual(self.read("mongo/mongod.conf"), "old mongod\n")
+        self.assertFalse(os.path.exists(os.path.join(self.h.deploy, "scripts", "memory-report.sh")))
+        self.assertEqual(self.redis_live(), 256 * 1048576)
+
+    def test_rollback_without_copies_aborts(self):
+        p = self.h.run(self.TASK, {"ROLLBACK": "yes"})
+        self.assertEqual(p.returncode, 1)
 
 CAT_PLAN = '{"cmd":"plan","plan_sha":"%s","inputs":{},"steps":{"catalogue_completion":12},"total_changes":12}\n' % ("ab" * 32)
 CAT_APPLY = ('{"cmd":"apply","step":"backup","file_sha256":"%s","bytes":10,"changes":12}\n' % ("cd" * 32)
