@@ -20,7 +20,7 @@ function fly(from: HTMLElement) {
 type Line = { id: string; nameAr?: string; nameEn?: string; names?: LineNames };
 
 /** The "+" of a catalogue row: adds to / removes from the local basket (no backend call). */
-export function AddToBasketIcon({ kind, line, name }: { kind: ServiceKind; line: Line; name: string }) {
+export function AddToBasketIcon({ kind, line, name, disabled = false }: { kind: ServiceKind; line: Line; name: string; /** nobody offers the service yet */ disabled?: boolean }) {
   const t = useTranslations("OrderingFlow");
   const { basket, add, remove } = useBasket();
   const inBasket = hasLine(basket, kind, line.id);
@@ -29,6 +29,7 @@ export function AddToBasketIcon({ kind, line, name }: { kind: ServiceKind; line:
       type="button"
       className={styles.addBtn}
       aria-pressed={inBasket}
+      disabled={disabled}
       aria-label={`${inBasket ? t("removeAria") : t("addAria")}: ${name}`}
       onClick={(event) => {
         if (inBasket) return remove(kind, line.id);
@@ -64,18 +65,19 @@ export function AddToBasketButton({ kind, line }: { kind: ServiceKind; line: Lin
  * The two actions of a catalogue card and of the item page: "Add to cart" (the local basket of its service, `lab` or `radiology`) and "Order now"
  * (skips the cart: it opens that service's ordering steps with THIS item only, `item=<id>` in the URL; the basket is neither read nor changed).
  */
-export function ItemActions({ kind, line, orderHref }: { kind: ServiceKind; line: Line; orderHref: string }) {
+export function ItemActions({ kind, line, orderHref, disabled = false }: { kind: ServiceKind; line: Line; orderHref: string; /** nobody offers the service yet: both buttons stay, switched off */ disabled?: boolean }) {
   const t = useTranslations("OrderingFlow");
   const router = useRouter();
   const { basket, add, remove } = useBasket();
   const inBasket = hasLine(basket, kind, line.id);
   return (
     <>
-      <Button label={inBasket ? t("removeFromBasket") : t("ctaOne")} variant="outline" size="md" fullWidth onClick={() => (inBasket ? remove(kind, line.id) : add(kind, line))} />
+      <Button label={inBasket ? t("removeFromBasket") : t("ctaOne")} variant="outline" size="md" fullWidth disabled={disabled} onClick={() => (inBasket ? remove(kind, line.id) : add(kind, line))} />
       <Button
         label={t("orderNow")}
         size="md"
         fullWidth
+        disabled={disabled}
         onClick={() => {
           rememberSingle(serializeSingle(line));
           router.push(withItem(orderHref, line.id));

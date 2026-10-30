@@ -83,9 +83,10 @@ export interface OfferLines {
 }
 
 /** The words of a summary, ready to draw (every word from the translation files, every number in the language's format). */
-export function offerLines(summary: OfferSummary | null, ui: { k: K; num: (n: number) => string; money: (n: number) => string; lang: string }, nursing = false): OfferLines | null {
+export function offerLines(summary: OfferSummary | null, ui: { k: K; num: (n: number) => string; money: (n: number) => string; lang: string }, nursing = false, cataloguePrice: number | null = null): OfferLines | null {
   if (!summary) return null;
-  if (summary.providersCount === 0) return { providers: ui.k('diag.offer.none'), none: true, where: [] };
+  // nobody offers it: the catalogue price is an indicative "From" (never a provider's confirmed price)
+  if (summary.providersCount === 0) return { providers: ui.k('diag.offer.none'), none: true, from: cataloguePrice !== null ? ui.k('diag.offer.from', { price: `${ui.money(cataloguePrice)} ${ui.k('pharmacy.currency')}` }) : undefined, where: [] };
   return {
     providers: providersText(ui.k, ui.num, ui.lang, summary.providersCount, nursing),
     none: false,

@@ -61,13 +61,14 @@ export function ratingLine(ctx: Pick<RowContext, "locale" | "tr">, rating: numbe
 }
 
 /** The offer lines of a row from its summary (undefined when the payload has no summary: an older answer draws nothing). */
-export function offerLines(ctx: Pick<RowContext, "locale" | "tr">, offer: OfferSummary | undefined): OfferLines | undefined {
+export function offerLines(ctx: Pick<RowContext, "locale" | "tr">, offer: OfferSummary | undefined, cataloguePrice?: number): OfferLines | undefined {
   if (!offer) return undefined;
   const none = offer.providersCount === 0;
   return {
     providers: none ? ctx.tr("offerNone") : ctx.tr("offerCount", { count: offer.providersCount }),
     none,
-    from: !none && offer.fromPrice !== undefined ? ctx.tr("fromPrice", { price: money(ctx.locale, offer.fromPrice) }) : undefined,
+    // nobody offers it: the catalogue price is an indicative "From" (never a provider's confirmed price)
+    from: none ? (cataloguePrice !== undefined ? ctx.tr("fromPrice", { price: money(ctx.locale, cataloguePrice) }) : undefined) : offer.fromPrice !== undefined ? ctx.tr("fromPrice", { price: money(ctx.locale, offer.fromPrice) }) : undefined,
     where: none ? [] : [
       ...(offer.premisesAvailable ? [ctx.tr("offerAtCentre")] : []),
       ...(offer.homeAvailable ? [ctx.tr("offerAtHome")] : []),
@@ -97,10 +98,10 @@ export function labRow(s: LabService, ctx: RowContext): CatalogRow {
     ],
     meta: metaLine(ctx, s.fastingRequired, s.turnaroundHours),
     // with the offer summary the price is the providers' own "from" (in the offer lines); the catalogue's base price is the fallback of an older answer
-    price: (s.offer === undefined || s.offer.fromPrice === undefined) && s.price !== undefined ? money(ctx.locale, s.price) : undefined,
+    price: (s.offer === undefined || (s.offer.fromPrice === undefined && s.offer.providersCount > 0)) && s.price !== undefined ? money(ctx.locale, s.price) : undefined,
     rating: ratingLine(ctx, s.rating, s.ratingCount),
     imageUrl: s.imageUrl,
-    offer: offerLines(ctx, s.offer),
+    offer: offerLines(ctx, s.offer, s.price),
     line: { id: s.id, nameAr: s.nameAr, nameEn: s.nameEn },
   };
 }
@@ -112,10 +113,10 @@ export function scanRow(s: RadiologyService, ctx: RowContext): CatalogRow {
     href: ctx.itemHref(s.id, "radiology", s.homeVisitSupported !== true),
     ...titleOf(ctx.locale, s),
     meta: metaLine(ctx, s.fastingRequired, s.turnaroundHours),
-    note: (s.offer === undefined || s.offer.fromPrice === undefined) && s.price !== undefined ? ctx.tr("fromPrice", { price: money(ctx.locale, s.price) }) : undefined,
+    note: (s.offer === undefined || (s.offer.fromPrice === undefined && s.offer.providersCount > 0)) && s.price !== undefined ? ctx.tr("fromPrice", { price: money(ctx.locale, s.price) }) : undefined,
     rating: ratingLine(ctx, s.rating, s.ratingCount),
     imageUrl: s.imageUrl,
-    offer: offerLines(ctx, s.offer),
+    offer: offerLines(ctx, s.offer, s.price),
     line: { id: s.id, nameAr: s.nameAr, nameEn: s.nameEn },
   };
 }

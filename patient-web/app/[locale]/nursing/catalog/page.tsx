@@ -104,7 +104,7 @@ export default async function NursingCatalogPage({ params, searchParams }: Props
                   extra={<ServiceChips duration={duration || undefined} insurance={item.insuranceAvailable ? t("insurance") : undefined} extras={offer.chips} />}
                   caret={caret}
                 />
-                <AddToBasketIcon kind="nursing" line={{ id: item.id, nameAr: item.nameAr, nameEn: item.nameEn }} name={name} />
+                <AddToBasketIcon kind="nursing" line={{ id: item.id, nameAr: item.nameAr, nameEn: item.nameEn }} name={name} disabled={offer.none} />
               </li>
             );
           })}

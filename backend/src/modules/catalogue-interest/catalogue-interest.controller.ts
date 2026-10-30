@@ -1,4 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards, BadRequestException } from '@nestjs/common';
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { CurrentUser, JwtAuthGuard, Roles, SelfService } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { CatalogueInterestService } from './catalogue-interest.service';
@@ -11,6 +13,7 @@ const typeOf = (t: string): InterestServiceType => {
 
 /** "Notify me when available" on a catalogue service no provider offers yet (lab, radiology, nursing). Signed-in patients only. */
 @Controller('catalogue-interest')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 @UseGuards(JwtAuthGuard)
 export class CatalogueInterestController {
   constructor(private readonly svc: CatalogueInterestService) {}

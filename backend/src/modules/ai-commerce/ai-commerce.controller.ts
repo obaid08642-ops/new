@@ -1,9 +1,12 @@
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { Controller, Get, Post, Query, Body, HttpCode } from '@nestjs/common';
 import { AiCommerceService, ProductFeedQuery, ServiceFeedQuery } from './ai-commerce.service';
 import { CreateCheckoutSessionDto } from './ai-commerce.dto';
 import { Public } from '../../common/auth.guard';
 
 @Controller('public')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 export class AiCommerceController {
   constructor(private readonly aiCommerceService: AiCommerceService) {}
 
