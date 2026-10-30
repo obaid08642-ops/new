@@ -23,8 +23,11 @@ import { pick } from '../../common/sanitize';
 export const PREPARATION_LANGS = ['ar', 'en', 'ur', 'hi', 'bn', 'tl'] as const;
 /** A booking's report as listed to the clients: no file content (the file is served on its own route). */
 export function reportSummary(r: any) {
-  return { id: r?.id, name: r?.name, mime: r?.mime, uploaded_at: r?.uploaded_at, notes: r?.notes, has_file: typeof r?.base64 === 'string' && r.base64.length > 0 };
+  return { id: r?.id, name: r?.name, mime: r?.mime, uploaded_at: r?.uploaded_at, notes: r?.notes, has_file: (typeof r?.base64 === 'string' && r.base64.length > 0) || (typeof r?.storage_object_id === 'string' && r.storage_object_id.length > 0) };
 }
+
+/** The file types a lab report may be (the file itself is stored and scanned by /storage). */
+export const LAB_REPORT_MIMES: ReadonlySet<string> = new Set(['application/pdf', 'image/png', 'image/jpeg', 'image/webp']);
 
 export const LAB_CATALOG_FIELDS = [
   'name_ar', 'name_en', 'short_code', 'description_ar', 'description_en', 'category', 'sample_type', 'price', 'old_price', 'fasting_required', 'fasting_hours', 'home_visit_supported', 'facility_visit_supported', 'turnaround_hours', 'preparation_ar', 'preparation_en', 'preparation_ur', 'preparation_hi', 'preparation_bn', 'preparation_tl', 'is_package', 'included_services', 'popularity', 'active', 'unavailable', 'medical_referral_required',
@@ -33,6 +36,7 @@ import { getEffectiveRoles } from '../../common/auth.guard';
 import { UserRole, isAdminUser } from '../../common/enums';
 import { RedisService } from '../redis/redis.service';
 import { BusinessRulesService } from '../business-rules/business-rules.module';
+import { StorageService } from '../storage/storage.module';
 import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
 import { NAME_PROJECTION, withItemNames } from '../../common/booking-names';
@@ -72,6 +76,7 @@ export class LabsService {
     @Optional() private readonly pricing?: BusinessRulesService,
     @Optional() private readonly insurance?: InsuranceFlowService,
     @Optional() private readonly searchEngine?: SearchService,
+    @Optional() private readonly storage?: StorageService,
   ) {}
 
   async list(opts: { sort?: string; page?: number; limit?: number; category?: string; search?: string; home_only?: boolean; insurance?: boolean; packages_only?: boolean; highest_rated?: boolean; nearest?: boolean; lowest_price?: boolean; lat?: number; lng?: number }) {
@@ -686,6 +691,11 @@ export class LabsService {
     try { this.assertPatientOrAssignedProvider(user, b); } catch { throw new NotFoundException(); }
     const report = (Array.isArray(b.reports) ? b.reports : []).find((r: any) => r?.id === reportId);
     if (!report) throw new NotFoundException('report_not_found');
+    if (typeof report.storage_object_id === 'string' && report.storage_object_id) {
+      if (!this.storage) throw new NotFoundException('report_file_unavailable');
+      const f = await this.storage.fileBytes(report.storage_object_id);
+      return { name: String(report.name || f.name), mime: LAB_REPORT_MIMES.has(f.mime) ? f.mime : 'application/pdf', data: f.data };
+    }
     if (typeof report.base64 !== 'string' || !report.base64) throw new NotFoundException('report_file_unavailable');
     const mime = ['application/pdf', 'image/png', 'image/jpeg', 'image/webp'].includes(report.mime) ? report.mime : 'application/pdf';
     return { name: String(report.name || `report-${reportId}.pdf`), mime, data: Buffer.from(report.base64, 'base64') };
@@ -792,13 +802,21 @@ export class LabsService {
     return b.toObject();
   }
 
-  /** Provider: upload final report (base64 PDF/image) or JSON structured data. Pushes to reports[] and transitions to REPORTED. */
-  async uploadReport(id: string, user: any, body: { name?: string; mime?: string; base64?: string; url?: string; notes?: string; structuredData?: any[] }) {
+  /** Provider: attach the final report (a scanned /storage file) and/or typed result rows (a PDF is generated from them). Pushes to reports[] and transitions to REPORTED. */
+  async uploadReport(id: string, user: any, body: { name?: string; mime?: string; base64?: string; url?: string; report_storage_object_id?: string; notes?: string; structuredData?: any[] }) {
     if (!getEffectiveRoles(user).some(role => ['admin', 'lab', 'hospital'].includes(role))) throw new ForbiddenException();
     const b = await this.bkgModel.findOne({ id });
     if (!b) throw new NotFoundException();
     if (user.role !== 'admin' && b.provider_account_id && b.provider_account_id !== user.id) throw new ForbiddenException();
-    if (!body?.base64 && !body?.url && !body?.structuredData) throw new BadRequestException('report_file_required');
+    // A file reaches a result only through /storage (type check, scan, quarantine); raw base64 or a link would skip all of it.
+    if (body?.base64 || body?.url) throw new BadRequestException('raw_report_file_not_allowed');
+    const storageObjectId = String(body?.report_storage_object_id || '').trim();
+    if (!storageObjectId && !body?.structuredData) throw new BadRequestException('report_file_required');
+    let stored: { id: string; mime: string; original_name?: string } | null = null;
+    if (storageObjectId) {
+      if (!this.storage) throw new BadRequestException('report_storage_unavailable');
+      stored = await this.storage.providerReportObject(storageObjectId, String(user.id), LAB_REPORT_MIMES);
+    }
     // State machine: a report can only be uploaded once the sample is in the lab pipeline —
     // never on a fresh/cancelled booking (resurrecting terminal bookings corrupts the lifecycle).
     const reportable = [LabBookingState.RESULT_UPLOADED, LabBookingState.REPORTED];
@@ -806,10 +824,10 @@ export class LabsService {
       throw new BadRequestException(`invalid_transition_${b.state}_to_REPORTED`);
     }
     
-    let base64Data = body.base64;
-    let mimeType = body.mime || 'application/pdf';
+    let base64Data: string | undefined;
+    let mimeType = stored?.mime || 'application/pdf';
     
-    if (body.structuredData && body.structuredData.length > 0) {
+    if (!stored && body.structuredData && body.structuredData.length > 0) {
       base64Data = await this.pdfService.generateReport(b, body.structuredData);
       base64Data = base64Data.split(',')[1]; // remove data uri prefix
       mimeType = 'application/pdf';
@@ -827,10 +845,10 @@ export class LabsService {
     const report = {
       id: require('uuid').v4(),
       ...(entries.length ? { entries, critical: entries.some((e) => e.flag === 'critical') } : {}),
-      name: body.name || `report_${new Date().toISOString().slice(0,10)}.pdf`,
+      name: body.name || stored?.original_name || `report_${new Date().toISOString().slice(0,10)}.pdf`,
       mime: mimeType,
       base64: base64Data,
-      url: body.url,
+      ...(stored ? { storage_object_id: stored.id } : {}),
       notes: body.notes,
       uploaded_at: new Date(),
       uploaded_by: user.id,

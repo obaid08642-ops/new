@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Optional, ServiceUnavailableException } from '@nestjs/common';
+import { assertScanned } from '../storage/pending-scan';
 import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { SearchService } from '../search/search.service';
 import { RADIOLOGY_TYPES, byRelevance, matchedIds } from '../search/catalogue-search';
@@ -113,6 +114,7 @@ export class RadiologyOpsService {
   private async privateProviderStorage(id: string, user: any, requirePdf = false): Promise<any> {
     const object: any = await this.storageObjects.findOne({ id, owner_account_id: user.id, visibility: 'private', deleted: false }).lean();
     if (!object) throw new ForbiddenException('private_storage_object_not_owned');
+    assertScanned(object); // a file still in quarantine (423) cannot be attached to a result
     if (requirePdf && object.mime !== 'application/pdf') throw new BadRequestException('report_pdf_storage_object_required');
     return object;
   }
@@ -276,6 +278,9 @@ export class RadiologyOpsService {
     const b = await this.findBooking(id, user);
     if (!b) throw new NotFoundException();
     if ((b.state || b.status) !== RadiologyBookingState.UNDER_REVIEW) throw new BadRequestException('Report must be UNDER_REVIEW to approve');
+    // Two people: whoever uploaded the files or sent the report for review cannot publish it.
+    const handled = (Array.isArray(b.state_history) ? b.state_history : []).some((h: any) => String(h?.by_user_id) === String(user.id) && [RadiologyBookingState.REPORT_DRAFT, RadiologyBookingState.UNDER_REVIEW].includes(h?.to));
+    if (handled) throw new ForbiddenException('report_reviewer_must_differ_from_uploader');
     b.report_status = 'ready';
     b.report_approved_by = user.id;
     b.report_approved_at = new Date();

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { bookingChoiceLine } from './bookingChoice';
 import { View, Text, ActivityIndicator } from 'react-native';
 import client from '../../api/client';
 import { NHeader, NCard, NBtn, NScroll, NInput, NBadge, NSecHeader } from '../../components/ui';
@@ -18,6 +19,7 @@ import { UploadsUnavailable } from '../../components/UploadsUnavailable';
  */
 interface NursingVisitSummary {
   id?: string; state?: string; status?: string; scheduled_at?: string;
+  booking_mode?: string; recurrence?: string; hours?: number; shift?: string; period?: string; sessions_count?: number;
   patient_name?: string; patient?: string; address?: string | { address?: string };
 }
 
@@ -190,6 +192,7 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
                 </Text>
                 <NBadge label={state} />
               </View>
+              {bookingChoiceLine(visit, AR) ? <Text style={{ color: theme.text, fontWeight: FW.bold }}>{bookingChoiceLine(visit, AR)}</Text> : null}
               {visit?.scheduled_at ? (
                 <Text style={{ color: theme.textSub }}>{new Date(visit.scheduled_at).toLocaleString(AR ? 'ar-SA' : 'en-US')}</Text>
               ) : null}

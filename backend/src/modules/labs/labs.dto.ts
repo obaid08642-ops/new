@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { LabBookingState } from '../../schemas/lab.schema';
 import { AttributionDto } from '../../common/attribution';
@@ -158,6 +158,12 @@ export class UploadReportDto {
   @IsOptional()
   @IsString()
   url?: string;
+
+  /** The report file the lab uploaded through POST /storage/upload (private, owned, scanned). */
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  report_storage_object_id?: string;
 
   @IsOptional()
   @IsString()

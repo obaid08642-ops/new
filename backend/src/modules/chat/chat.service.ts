@@ -396,6 +396,7 @@ export class ChatService {
       offline_ids: recipients.filter((pid: string) => !online.includes(pid)),
       thread_id: threadId,
       msg_id: msg.id,
+      client_message_id: body.client_message_id,
       body: (body.body || '').slice(0, 120),
       type: msg.type,
       media_ids: mediaIds,
@@ -471,7 +472,7 @@ export class ChatService {
   /** Tells the other participants (not a new message: a state change) over the realtime gateway's chatstate channel. */
   private emitState(kind: 'delivered' | 'read' | 'deleted', thread: { id: string; participant_ids: string[] }, userId: string, extra: Record<string, unknown> = {}): void {
     try {
-      this.events.emit(`chatstate.${kind}`, { thread_id: thread.id, user_id: userId, participant_ids: thread.participant_ids, at: new Date(), ...extra });
+      this.events.emit(`chatstate.${kind}`, { kind, thread_id: thread.id, user_id: userId, participant_ids: thread.participant_ids, at: new Date(), ...extra });
     } catch { /* realtime is best effort; the state is stored */ }
   }
 

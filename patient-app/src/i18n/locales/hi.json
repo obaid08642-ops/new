@@ -3920,5 +3920,10 @@
   "diag.filter.sortBy": "क्रम",
   "diag.filter.noFasting": "उपवास नहीं चाहिए",
   "diag.filter.sameDay": "उसी दिन रिज़ल्ट",
-  "diag.filter.showCount": "{n} नतीजे दिखाएँ"
+  "diag.filter.showCount": "{n} नतीजे दिखाएँ",
+  "consult.chat.queued": "कनेक्शन की प्रतीक्षा",
+  "consult.chat.retry": "फिर कोशिश के लिए टैप करें",
+  "consult.chat.tick.sent": "भेजा गया",
+  "consult.chat.tick.delivered": "पहुँच गया",
+  "consult.chat.tick.read": "देख लिया"
 }
