@@ -441,8 +441,6 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'notif.rad_ready.body': { ar: 'تم نشر تقريرك — اطلع عليه وشاركه مع طبيبك', en: 'Your report is published — view it and share with your doctor', ur: 'رپورٹ دیکھیں' },
   'notif.rad_cancelled.title': { ar: 'أُلغي موعد الأشعة', en: 'Radiology Cancelled', ur: 'منسوخ' },
   'notif.rad_cancelled.body': { ar: 'أُلغي الحجز — يمكنك إعادة الجدولة', en: 'The booking was cancelled — you can reschedule', ur: 'منسوخ' },
-  'notif.emergency.title': { ar: ' طوارئ!', en: ' EMERGENCY!', ur: ' ایمرجنسی' },
-  'notif.emergency.body': { ar: 'مريض يحتاج تدخل فوري', en: 'Patient needs immediate help', ur: 'مریض مدد' },
   'notif.prescription_new.title': { ar: 'وصفة جديدة', en: 'New Prescription', ur: 'نئا نسخہ' },
   'notif.prescription_new.body': { ar: 'اضغط للعرض', en: 'Tap to view', ur: 'تھپکائیں' },
   'notif.medicine_pending.title': { ar: 'دواء جديد للمراجعة', en: 'New Medicine for Review', ur: 'نئی دوا' },
@@ -837,8 +835,6 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   // Notification texts the server already sends as keys (they were missing, so the raw key was shown).
   'notif.call_missed.title': { ar: 'مكالمة فائتة', en: 'Missed call', ur: 'مس کال' },
   'notif.call_missed.body': { ar: 'فاتتك مكالمة من طبيبك، يمكنك فتح الاستشارة للمتابعة.', en: 'You missed a call from your doctor. Open the consultation to follow up.', ur: 'آپ کے ڈاکٹر کی کال رہ گئی۔ مشاورت کھول کر رابطہ کریں۔' },
-  'notif.emergency_resolved.title': { ar: 'تم إغلاق الطلب', en: 'Request closed', ur: 'درخواست بند' },
-  'notif.emergency_resolved.body': { ar: 'تم إغلاق طلبك.', en: 'Your request was closed.', ur: 'آپ کی درخواست بند کر دی گئی۔' },
   'notif.provider_approved.title': { ar: 'تم اعتماد حسابك', en: 'Your account is approved', ur: 'آپ کا اکاؤنٹ منظور ہو گیا' },
   'notif.provider_approved.body': { ar: 'تمت الموافقة على حسابك في نبض. سجّل الدخول من جديد لتبدأ استقبال الطلبات.', en: 'Your Nabd account was approved. Sign in again to start receiving requests.', ur: 'آپ کا نبض اکاؤنٹ منظور ہو گیا۔ درخواستیں وصول کرنے کے لیے دوبارہ لاگ اِن کریں۔' },
   'notif.provider_rejected.title': { ar: 'لم يتم اعتماد حسابك', en: 'Your account was not approved', ur: 'آپ کا اکاؤنٹ منظور نہیں ہوا' },
