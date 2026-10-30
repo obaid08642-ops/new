@@ -21,6 +21,12 @@ describe("orders and results tabs", () => {
     expect(rows[0].pdfHref).toBe("/api/patient/labs/bookings/11111111-1111-4111-8111-111111111111/reports/33333333-3333-4333-8333-333333333333");
     expect(rows[0].viewHref).toBe("/en/diagnostics/bookings/labs/11111111-1111-4111-8111-111111111111");
   });
+  it("shows a booking name that exists only in the other language, with its mark for the fallback note", () => {
+    const payload = [{ id: "11111111-1111-4111-8111-111111111111", status: "REPORTED", items: [{ name_ar: "صورة دم كاملة" }], reports: [{ id: "33333333-3333-4333-8333-333333333333", has_file: true }] }];
+    const [row] = resultRows("en", "labs", payload, labels);
+    expect(row.title).toBe("صورة دم كاملة");
+    expect(row.titleMark).toEqual({ lang: "ar", dir: "rtl", fallbackFrom: "ar" });
+  });
   it("opens the results tab from a results-history notification", () => {
     expect(webRouteForNotification("/diagnostics/results-history", "en")).toBe("/en/orders?tab=results");
   });

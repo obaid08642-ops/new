@@ -2,7 +2,8 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { isLabCategory, type LabCategory } from "@/lib/lab-categories";
 import { isLocale } from "@/lib/i18n";
-import { namesOf, pickName } from "@/lib/i18n/localized";
+import { namesOf } from "@/lib/i18n/localized";
+import { resolveWithMark } from "@/lib/i18n/localized-field";
 import { callPatientApi } from "@/lib/api/upstream";
 import { DiagnosticsSearchClient, type SearchRow } from "@/components-next/diagnostics-search-client";
 import { ConsultPage } from "@/components-next/consult/consult-page";
@@ -24,13 +25,13 @@ function extractServices(payload: unknown, locale: string, categoryLabel: (code:
     const names = namesOf(o);
     // a row that sends only a generic `name` is that name in every language it lacks
     if (str(o.name)) { names.en = names.en ?? str(o.name); names.ar = names.ar ?? str(o.name); }
-    const name = pickName(locale, names);
+    const { text: name, mark: nameMark } = resolveWithMark({ locale, ar: names.ar, en: names.en });
     if (!name) return [];
     const code = typeof o.category === "string" ? o.category.trim().toLowerCase() : "";
     const category = isLabCategory(code) ? categoryLabel(code) : undefined;
     const rawPrice = o.price ?? o.base_price;
     // both names are searchable, so a patient may type the English name on a Hindi page
-    return [{ id, name, search: Object.values(names).join(" "), category, price: typeof rawPrice === "number" && Number.isFinite(rawPrice) ? rawPrice : undefined }];
+    return [{ id, name, nameMark, search: Object.values(names).join(" "), category, price: typeof rawPrice === "number" && Number.isFinite(rawPrice) ? rawPrice : undefined }];
   });
 }
 

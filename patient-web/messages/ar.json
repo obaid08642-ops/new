@@ -25,7 +25,9 @@
     "readingProgress": "تقدم القراءة",
     "dialogCancel": "إلغاء",
     "dialogConfirm": "تأكيد",
-    "breadcrumbLabel": "مسار التنقل"
+    "breadcrumbLabel": "مسار التنقل",
+    "availableInEnglishOnly": "متاح بالإنجليزية فقط",
+    "availableInArabicOnly": "متاح بالعربية فقط"
   },
   "CoreShell": {
     "back": "رجوع",

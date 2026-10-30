@@ -4,7 +4,7 @@ import type { RadiologyService } from "@/lib/api/radiology";
 import type { LineNames } from "@/lib/ordering/basket";
 import { hoursText, money } from "@/lib/diagnostics-format";
 import type { OfferSummary } from "@/lib/api/offers";
-import { pickName } from "@/lib/i18n/localized";
+import { resolveWithMark, type FieldMark } from "@/lib/i18n/localized-field";
 import { DIAG_TONES } from "./tones";
 
 /** One test or scan of the hub's full list, ready to draw (every word already in the page's language). */
@@ -13,6 +13,8 @@ export type CatalogRow = {
   art: DiagArtKey;
   href: string;
   title: string;
+  /** Set when the title is not in the page's language (its own lang/dir and the "available in X only" note). */
+  titleMark?: FieldMark;
   tags?: { label: string; tone: (typeof DIAG_TONES)[keyof typeof DIAG_TONES] }[];
   note?: string;
   /** "No fasting · Result within 24 hours": only the parts the catalogue really sent (fasting_required, turnaround_hours). */
@@ -42,6 +44,12 @@ export type RowContext = {
   tr: (key: RowKey, values?: Record<string, string | number>) => string;
   /** The item page for the patient's order context (place and payment). */
   itemHref: (id: string, kind: "lab" | "radiology", facilityOnly?: boolean) => string;
+};
+
+/** A catalogue name that is never blank: the page language, else the other one with its mark (lib/i18n/localized-field.ts). */
+const titleOf = (locale: string, s: { names: Record<string, string | undefined> }) => {
+  const { text, mark } = resolveWithMark({ locale, ar: s.names.ar, en: s.names.en });
+  return { title: text, titleMark: mark };
 };
 
 const names = (s: { nameAr?: string; nameEn?: string; names: Record<string, string | undefined> }) => [s.nameAr, s.nameEn, ...Object.values(s.names)];
@@ -83,7 +91,7 @@ export function labRow(s: LabService, ctx: RowContext): CatalogRow {
     // the backend's own `category` decides the illustration first (diagArtKey), then the sample type and the names
     art: diagArtKey({ kind: "lab", category: s.category, sampleType: s.sampleType, names: names(s) }),
     href: ctx.itemHref(s.id, "lab"),
-    title: pickName(ctx.locale, s.names) ?? "",
+    ...titleOf(ctx.locale, s),
     tags: [
       ...(s.homeVisitSupported ? [{ label: ctx.tr("tagHome"), tone: DIAG_TONES.lab }] : []),
     ],
@@ -102,7 +110,7 @@ export function scanRow(s: RadiologyService, ctx: RowContext): CatalogRow {
     id: s.id,
     art: diagArtKey({ kind: "radiology", category: s.category, modality: [s.modality, s.modalityCategory].filter(Boolean).join(" "), bodyPart: s.bodyPart, names: names(s) }),
     href: ctx.itemHref(s.id, "radiology", s.homeVisitSupported !== true),
-    title: pickName(ctx.locale, s.names) ?? "",
+    ...titleOf(ctx.locale, s),
     meta: metaLine(ctx, s.fastingRequired, s.turnaroundHours),
     note: (s.offer === undefined || s.offer.fromPrice === undefined) && s.price !== undefined ? ctx.tr("fromPrice", { price: money(ctx.locale, s.price) }) : undefined,
     rating: ratingLine(ctx, s.rating, s.ratingCount),

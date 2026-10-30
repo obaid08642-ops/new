@@ -1,6 +1,7 @@
 import { IsArray, IsDefined, IsNumber, IsObject, IsOptional, IsString, MaxLength, ValidateNested, IsBoolean, IsIn } from 'class-validator';
 import { Type } from 'class-transformer';
 import { AttributionDto } from '../../common/attribution';
+import { NursingBookingChoiceFields, NursingCatalogBookingFields } from './booking-mode';
 
 export class NursingVitalsDto {
   @IsOptional() @IsString() @MaxLength(20) bp?: string;
@@ -32,7 +33,7 @@ export class CreateNoteDto {
 
 }
 
-export class CreateBookingDto {
+export class CreateBookingDto extends NursingBookingChoiceFields {
   @IsOptional()
   @IsString()
   service_id?: string;
@@ -108,7 +109,7 @@ export class CompleteVisitDto {
 }
 
 // Admin catalog editor (admin/src/pages/admin/catalog-manager.tsx). medical_review_status publishes/unpublishes.
-export class CreateHomeCareCatalogDto {
+export class CreateHomeCareCatalogDto extends NursingCatalogBookingFields {
   @IsDefined() @IsString() name_ar: string;
   @IsDefined() @IsString() name_en: string;
   @IsOptional() @IsString() description_ar?: string;
@@ -128,7 +129,7 @@ export class CreateHomeCareCatalogDto {
   @IsOptional() @IsIn(['pending', 'approved', 'rejected', 'suspended']) medical_review_status?: string;
 }
 
-export class UpdateHomeCareCatalogDto {
+export class UpdateHomeCareCatalogDto extends NursingCatalogBookingFields {
   @IsOptional() @IsString() name_ar?: string;
   @IsOptional() @IsString() name_en?: string;
   @IsOptional() @IsString() description_ar?: string;

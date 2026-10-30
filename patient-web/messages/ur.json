@@ -25,7 +25,9 @@
     "readingProgress": "پڑھنے کی پیش رفت",
     "dialogCancel": "منسوخ کریں",
     "dialogConfirm": "تصدیق کریں",
-    "breadcrumbLabel": "راستہ"
+    "breadcrumbLabel": "راستہ",
+    "availableInEnglishOnly": "صرف انگریزی میں دستیاب",
+    "availableInArabicOnly": "صرف عربی میں دستیاب"
   },
   "CoreShell": {
     "back": "واپس",
