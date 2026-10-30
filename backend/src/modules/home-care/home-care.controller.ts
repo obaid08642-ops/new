@@ -1,4 +1,5 @@
 import { Controller, Get, Param, Post, Put, Delete, Query, UseGuards, Body, NotFoundException, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
+import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
 import { JwtAuthGuard, Public, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
@@ -102,8 +103,8 @@ export class NursingController {
   // 1. SERVICES CATALOG (Pillar 2)
   @PublicCache(120, ['catalog', 'nursing'])
   @Public() @Get('catalog')
-  async getCatalog() {
-    return this.serviceModel.find({ active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }).lean();
+  async getCatalog(@Query('sort') sort?: string) {
+    return this.serviceModel.find({ active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }).sort(catalogueSortSpec(sort)).lean();
   }
 
   // --- Admin Catalog CRUD (nursing/home-care services) ---

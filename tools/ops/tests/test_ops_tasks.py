@@ -23,6 +23,7 @@ case "$1" in
       *) echo "${FAKE_HEALTH:-healthy}"; exit 0;;
     esac;;
   tag) exit 0;;
+  run) case "$*" in *" apply "*) cat "$FAKE_APPLY_OUT";; *) cat "$FAKE_PLAN_OUT";; esac; exit 0;;
   compose) [ -n "$FAKE_COMPOSE_FAIL" ] && exit 1; exit 0;;
   exec)
     shift; shift   # exec <container>
@@ -494,3 +495,69 @@ class RecreateDatastores(unittest.TestCase):
         self.assertEqual(p.returncode, 1)
         self.assertIn("FAILED at 'maxmemory is not the one in redis.conf' on redis", p.stdout)
         self.assertNotIn("recreate mongodb", self.events())
+
+CAT_PLAN = '{"cmd":"plan","plan_sha":"%s","inputs":{},"steps":{"catalogue_completion":12},"total_changes":12}\n' % ("ab" * 32)
+CAT_APPLY = ('{"cmd":"apply","step":"backup","file_sha256":"%s","bytes":10,"changes":12}\n' % ("cd" * 32)
+             + '{"cmd":"apply","step":"apply","applied":12,"remaining_changes":0,"counts_ok":true,"ok":true}\n')
+
+
+class CatalogueApplyOnly(unittest.TestCase):
+    TASK = "90-catalogue-apply.sh"
+
+    def setUp(self):
+        self.h = Harness(self)
+        for p, t in ((self.h.plan_out, CAT_PLAN), (self.h.apply_out, CAT_APPLY)):
+            with open(p, "w") as f:
+                f.write(t)
+        with open(self.h.envf, "a") as f:
+            f.write("MONGO_ROOT_USER=root\nMONGO_ROOT_PASSWORD=mongo-pass-31d9\nDB_NAME=nabd_test\n")
+        self.cat = os.path.join(self.h.tmp.name, "catalogue")
+        os.makedirs(self.cat)
+        with open(os.path.join(self.cat, "districts.json"), "w") as f:
+            f.write("{}")
+
+    def run_task(self, settings=None, **extra):
+        return self.h.run(self.TASK, settings, OPS_CATALOGUE_DIR=self.cat, **extra)
+
+    def test_completion_plans_only_that_step_in_the_worker_by_default(self):
+        p = self.run_task({"COMPLETION": "packaged"})
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        calls = self.h.docker_calls()
+        self.assertIn("exec nabdah-worker node dist/scripts/catalogue-apply.js plan --only=catalogue_completion --catalogue-completion=packaged", calls)
+        self.assertNotIn("--districts", calls)                     # the other inputs are not used in this mode
+        self.assertNotIn("nabdah-backend", calls)
+        self.assertIn("dry run only", p.stdout)
+
+    def test_without_completion_the_full_plan_keeps_its_inputs(self):
+        p = self.run_task()
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertNotIn("--only", self.h.docker_calls())
+        self.assertIn("--districts=/tmp/cat-districts.json", self.h.docker_calls())
+
+    def test_one_off_runs_in_a_limited_container_not_in_the_worker(self):
+        p = self.run_task({"COMPLETION": "packaged", "ONE_OFF": "yes"})
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        calls = self.h.docker_calls()
+        run = [l for l in calls.splitlines() if l.startswith("run ")]
+        self.assertEqual(len(run), 1, calls)
+        self.assertIn("--rm", run[0])
+        self.assertIn("--memory 900m --memory-swap 900m --oom-score-adj 1000", run[0])
+        self.assertIn("--only=catalogue_completion", run[0])
+        self.assertNotIn("node dist/scripts/catalogue-apply.js plan", "\n".join(l for l in calls.splitlines() if l.startswith("exec ")))
+        self.assertNotIn("mongo-pass-31d9", p.stdout + p.stderr + calls)   # the password is never an argument or output
+        self.assertIn("one-off container", p.stdout)
+
+    def test_one_off_apply_writes_the_backup_into_the_backup_dir_mount(self):
+        sha = "ab" * 32
+        open(os.path.join(self.h.backups, "catalogue-x.json.gz"), "w").close()
+        p = self.run_task({"COMPLETION": "packaged", "ONE_OFF": "yes", "EXPECT_PLAN_SHA": sha})
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        run = [l for l in self.h.docker_calls().splitlines() if l.startswith("run ") and " apply " in l]
+        self.assertEqual(len(run), 1)
+        self.assertRegex(run[0], r"--backup=/backup/catalogue-\d{8}T\d{6}Z\.json\.gz")
+        self.assertIn("applied and verified", p.stdout)
+
+    def test_output_is_status_lines_only(self):
+        p = self.run_task({"COMPLETION": "packaged", "ONE_OFF": "yes"})
+        for line in p.stdout.splitlines():
+            self.assertTrue(line.startswith("status: ") or line.startswith("## "), line)

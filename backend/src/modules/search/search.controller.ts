@@ -41,6 +41,7 @@ export class SearchController {
 
   // 16.12: search hits the search engine; an account (a visitor: an address) gets 120 searches and 600 suggestions a minute
   @Public() @Get()
+  @PublicCache(300, ['search'])
   @UseGuards(UserRateLimitGuard)
   @UserRateLimit('search', 120, 60)
   search(@Query() dto: SearchQueryDto) {

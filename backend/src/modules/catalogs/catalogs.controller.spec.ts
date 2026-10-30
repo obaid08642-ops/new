@@ -86,6 +86,24 @@ describe('CatalogsController public fields', () => {
   });
 });
 
+/** Popularity ranking (2026-10-29): labs, radiology and nursing lists come ranked by default. */
+describe('CatalogsController ranking order', () => {
+  const make = (rows: any[]) => {
+    const col: any = { find: jest.fn().mockReturnValue({ limit: jest.fn().mockReturnValue({ toArray: jest.fn().mockResolvedValue(rows) }) }) };
+    return new CatalogsController({ collection: jest.fn().mockReturnValue(col) } as any);
+  };
+  const rows = () => [
+    { code: 'A', name_ar: 'أ', name_en: 'A', active: true, popularity: 90, rank_score: 0 },
+    { code: 'B', name_ar: 'ب', name_en: 'B', active: true, popularity: 10, rank_score: 40 },
+    { code: 'C', name_ar: 'ج', name_en: 'C', active: true, popularity: 50 },
+  ];
+  it.each(['labs', 'radiology', 'nursing'])('%s: smart_ranking by default (score, then popularity); sort=popularity keeps the old order', async (type) => {
+    expect(((await make(rows()).getCatalog(type)) as any[]).map((r) => r.code)).toEqual(['B', 'A', 'C']);
+    expect(((await make(rows()).getCatalog(type, 'popularity')) as any[]).map((r) => r.code)).toEqual(['A', 'C', 'B']);
+    expect(((await make(rows()).getCatalog(type, 'nonsense')) as any[]).map((r) => r.code)).toEqual(['B', 'A', 'C']);
+  });
+});
+
 /** Catalogue completion (2026-10-29): hidden duplicates stay out of the public list, the nursing booking mode and its options reach the client. */
 describe('CatalogsController hidden rows and nursing booking modes', () => {
   const make = (rows: any[]) => {

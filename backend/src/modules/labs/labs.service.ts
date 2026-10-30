@@ -1,4 +1,5 @@
 import { flattenResultEntries } from './lab-booking-results';
+import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { SearchService } from '../search/search.service';
 import { LAB_TYPES, byRelevance, matchedIds } from '../search/catalogue-search';
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException, ServiceUnavailableException, Inject, Optional } from '@nestjs/common';
@@ -73,7 +74,7 @@ export class LabsService {
     @Optional() private readonly searchEngine?: SearchService,
   ) {}
 
-  async list(opts: { page?: number; limit?: number; category?: string; search?: string; home_only?: boolean; insurance?: boolean; packages_only?: boolean; highest_rated?: boolean; nearest?: boolean; lowest_price?: boolean; lat?: number; lng?: number }) {
+  async list(opts: { sort?: string; page?: number; limit?: number; category?: string; search?: string; home_only?: boolean; insurance?: boolean; packages_only?: boolean; highest_rated?: boolean; nearest?: boolean; lowest_price?: boolean; lat?: number; lng?: number }) {
     const q: any = { active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
     if (opts.category) q.category = opts.category;
     if (opts.packages_only) q.is_package = true;
@@ -83,7 +84,8 @@ export class LabsService {
     const matched = opts.search ? await matchedIds(this.searchEngine, opts.search, LAB_TYPES) : null;
     if (opts.search) { if (matched) q.id = { $in: matched }; else q.$or = labSearchClause(opts.search); }
     
-    let sortObj: any = { popularity: -1, name_ar: 1 };
+    // default: the smart ranking (most visited, searched, added to a cart and ordered first), `sort=popularity` keeps the old editorial order
+    let sortObj: any = catalogueSortSpec(opts.sort);
     if (opts.lowest_price) sortObj = { price: 1, popularity: -1 };
     const page = parsePage(opts.page, opts.limit);
     // 2026-10-28: the list is the CATALOGUE; each test carries what providers offer for it (count, from-price, where, insurance). The home and insurance
