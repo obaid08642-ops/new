@@ -27,8 +27,10 @@ export class LabsController {
     @Query('lng') lng?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query('sort') sort?: string,
   ) {
     return this.svc.list({
+      sort,
       // with `page` the answer is { data, total, page, limit, total_pages }; without it, the array as before
       page: page !== undefined ? Number(page) : undefined,
       limit: limit !== undefined ? Number(limit) : undefined,
@@ -258,7 +260,7 @@ export class LabsController {
     return this.svc.getById(id);
   }
 
-  @Public() @Get('carousel')
+  @Public() @PublicCache(120, ['labs', 'public-catalogue']) @Get('carousel')
   carousel(@Query('category') category?: string, @Query('limit') limit?: string) {
     return this.svc.getCarousel(category, parseInt(limit || '20', 10));
   }

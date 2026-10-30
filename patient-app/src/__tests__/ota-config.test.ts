@@ -7,8 +7,8 @@ import fs from 'fs';
 import path from 'path';
 
 const APPS = ['patient-app', 'provider-app'];
-// The Expo SDK each app is on (provider-app follows patient-app in its own upgrade).
-const EXPO_UPDATES: Record<string, RegExp> = { 'patient-app': /^~58\./, 'provider-app': /^~57\./ };
+// The Expo SDK each app is on.
+const EXPO_UPDATES: Record<string, RegExp> = { 'patient-app': /^~58\./, 'provider-app': /^~58\./ };
 const root = path.resolve(__dirname, '../../..');
 const read = (app: string, file: string) => JSON.parse(fs.readFileSync(path.join(root, app, file), 'utf8'));
 const configFor = (app: string, env: Record<string, string | undefined>) => {
