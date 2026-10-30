@@ -335,7 +335,9 @@ export default function DiagnosticsHub() {
                         key={pkg.id}
                         width={268}
                         name={pkg.name}
+                        nameMark={pkg.nameMark}
                         desc={pkg.desc}
+                        descMark={pkg.descMark}
                         count={pkg.testsCount > 0 ? k('diag.pack.count', { n: num(pkg.testsCount) }) : undefined}
                         price={pkg.price}
                         oldPrice={pkg.oldPrice}

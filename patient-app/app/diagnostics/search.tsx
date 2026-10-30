@@ -70,7 +70,7 @@ export default function DiagnosticsSearch() {
       empty={{ icon: 'magnifying-glass', title: k('diag.search.empty') }}
       renderItem={(t) => (
         <ListCard>
-          <TestRow name={t.name} icon={diagLook(t.category)} price={t.price} last onPress={() => router.push(`/diagnostics/test-detail?id=${t.id}` as Href)} />
+          <TestRow name={t.name} nameMark={t.nameMark} icon={diagLook(t.category)} price={t.price} last onPress={() => router.push(`/diagnostics/test-detail?id=${t.id}` as Href)} />
         </ListCard>
       )}
     />

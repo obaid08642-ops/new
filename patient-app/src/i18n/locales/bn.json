@@ -3890,5 +3890,7 @@
   "diag.offer.countNursingTwo": "{n}জন সেবাদাতা",
   "scanStatus.checking": "নিরাপত্তার জন্য ফাইলটি যাচাই করা হচ্ছে",
   "scanStatus.rejected": "নিরাপত্তার কারণে এই ফাইলটি প্রত্যাখ্যান করা হয়েছে। অনুগ্রহ করে অন্য একটি ফাইল আপলোড করুন।",
-  "scanStatus.uploadAnother": "অন্য ফাইল আপলোড করুন"
+  "scanStatus.uploadAnother": "অন্য ফাইল আপলোড করুন",
+  "common.availableInEnglishOnly": "শুধু ইংরেজিতে পাওয়া যায়",
+  "common.availableInArabicOnly": "শুধু আরবিতে পাওয়া যায়"
 }

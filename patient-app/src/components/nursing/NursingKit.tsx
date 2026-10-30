@@ -7,6 +7,8 @@ import { CARE_TONE } from '../consult/ConsultKit';
 import { Tag, Price } from '../diagnostics/DiagKit';
 import { Glyph } from '../pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
+import { FieldText } from '../LocalizedField';
+import type { FieldMark } from '../../utils/localizedField';
 import { optimizedImageUri } from '../../utils/optimizedImage';
 
 /**
@@ -53,7 +55,10 @@ export function serviceGlyph(id: unknown): { icon: FillIconName; tone: ServiceTo
 
 export interface ServiceCardProps {
   title: string;
+  /** Language fallback marks: the shown text's own direction/language and the one-line note when it is not in the app's language. */
+  titleMark?: FieldMark;
   desc?: string;
+  descMark?: FieldMark;
   image?: string | null;
   icon: FillIconName;
   price: number | null;
@@ -70,7 +75,7 @@ export interface ServiceCardProps {
 }
 
 /** The hub's service card (board ServiceHub): a nursing-tone wash, the image or glyph, name, line, price and the ink book button. Two to a row. */
-export function ServiceCard({ title, desc, image, icon, price, offerLine, onPress, actionLabel, onAction, enterIndex = 0, testID }: ServiceCardProps) {
+export function ServiceCard({ title, titleMark, desc, descMark, image, icon, price, offerLine, onPress, actionLabel, onAction, enterIndex = 0, testID }: ServiceCardProps) {
   const { theme, t, c, flow } = useScreenUi();
   const look = c.service[CARE_TONE];
   return (
@@ -78,9 +83,9 @@ export function ServiceCard({ title, desc, image, icon, price, offerLine, onPres
     <View testID={testID} style={{ flex: 1, borderRadius: 24, backgroundColor: look.bg, padding: 14, gap: 10 }}>
       <Pressable accessibilityRole="button" accessibilityLabel={[title, desc].filter(Boolean).join(', ')} onPress={onPress} style={({ pressed }) => ({ gap: 8, minHeight: 44, opacity: pressed ? 0.9 : 1 })}>
         {image ? <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: optimizedImageUri(image, 56) }} style={{ width: 56, height: 56, borderRadius: 18, backgroundColor: c.bg.surface }} contentFit="cover" /> : <FIcon icon={icon} tone={CARE_TONE} size={56} theme={theme} />}
-        <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{title}</Text>
+        <FieldText text={title} mark={titleMark} style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }} />
         {desc ? (
-          <Text numberOfLines={2} style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{desc}</Text>
+          <FieldText numberOfLines={2} text={desc} mark={descMark} note={false} style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }} />
         ) : null}
         {offerLine ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{offerLine}</Text> : null}
         {price !== null ? <Price amount={price} size="bodyStrong" /> : null}

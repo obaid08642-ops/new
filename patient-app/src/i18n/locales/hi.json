@@ -3890,5 +3890,7 @@
   "diag.offer.countNursingTwo": "{n} प्रदाता",
   "scanStatus.checking": "सुरक्षा के लिए फ़ाइल की जाँच हो रही है",
   "scanStatus.rejected": "यह फ़ाइल सुरक्षा कारणों से अस्वीकार कर दी गई। कृपया दूसरी फ़ाइल अपलोड करें।",
-  "scanStatus.uploadAnother": "दूसरी फ़ाइल अपलोड करें"
+  "scanStatus.uploadAnother": "दूसरी फ़ाइल अपलोड करें",
+  "common.availableInEnglishOnly": "केवल अंग्रेज़ी में उपलब्ध",
+  "common.availableInArabicOnly": "केवल अरबी में उपलब्ध"
 }

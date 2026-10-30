@@ -24,6 +24,7 @@ import { CartButton, WishlistButton, GlyphSquare, MedAddControl, PHARMACY_TONE, 
 import { HeaderMenuButton } from '../../src/components/nav/HeaderMenuButton';
 import { ActiveFilters, type ActiveFilter } from '../../src/components/pharmacy/ActiveFilters';
 import { CategoryTiles } from '../../src/components/pharmacy/CategoryTiles';
+import { nameProps } from '../../src/components/LocalizedField';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useCart } from '../../src/context/CartContext';
 import { apiFetch } from '../../src/utils/api';
@@ -40,6 +41,7 @@ import {
   medGallery,
   medMeta,
   medName,
+  medNameField,
   medPrice,
   productNote,
   type HubFilters,
@@ -346,6 +348,7 @@ export default function PharmacyHub() {
             <View style={{ flex: 1, minWidth: 0 }}>
               <ProductCard
                 name={medName(item)}
+                {...nameProps(medNameField(item).mark, k)}
                 meta={medMeta(item) || undefined}
                 price={price ? money(price) : ''}
                 currency={price ? k('pharmacy.currency') : undefined}

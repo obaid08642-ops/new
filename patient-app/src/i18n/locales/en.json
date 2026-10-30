@@ -3890,5 +3890,7 @@
   "diag.offer.countNursingTwo": "{n} providers",
   "scanStatus.checking": "Being checked for safety",
   "scanStatus.rejected": "This file was rejected for safety. Please upload another.",
-  "scanStatus.uploadAnother": "Upload another file"
+  "scanStatus.uploadAnother": "Upload another file",
+  "common.availableInEnglishOnly": "Available in English only",
+  "common.availableInArabicOnly": "Available in Arabic only"
 }

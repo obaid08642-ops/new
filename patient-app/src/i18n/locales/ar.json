@@ -3890,5 +3890,7 @@
   "diag.offer.notifyFailed": "تعذّر الحفظ. حاول مرة أخرى.",
   "scanStatus.checking": "جارٍ التحقق من أمان الملف",
   "scanStatus.rejected": "تم رفض هذا الملف لأسباب تتعلق بالسلامة. يرجى رفع ملف آخر.",
-  "scanStatus.uploadAnother": "رفع ملف آخر"
+  "scanStatus.uploadAnother": "رفع ملف آخر",
+  "common.availableInEnglishOnly": "متاح بالإنجليزية فقط",
+  "common.availableInArabicOnly": "متاح بالعربية فقط"
 }

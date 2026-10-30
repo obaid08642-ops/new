@@ -14,6 +14,7 @@ import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
+import { FieldText, MarkNote, markTextProps } from '../../src/components/LocalizedField';
 import { catalogArt } from '../../src/utils/diagCatalog';
 import { singleOrderRoute } from '../../src/utils/singleOrder';
 import { normalizeLabService, recordOf, type CatalogItem } from '../../src/utils/labMappers';
@@ -86,11 +87,11 @@ export default function TestDetail() {
       <Gate status={status} onRetry={() => void load()}>
         {data ? (
           <>
-            <DetailHead icon={look.icon} tone={look.tone} art={catalogArt(kind, data)} image={data.image} title={data.name} />
+            <DetailHead icon={look.icon} tone={look.tone} art={catalogArt(kind, data)} image={data.image} title={data.name} titleMark={data.nameMark} />
             {data.desc ? (
               <Section title={k('diag.detail.about')}>
                 <Block>
-                  <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 24, color: c.text.secondary, ...flow }}>{data.desc}</Text>
+                  <FieldText text={data.desc} mark={data.descMark} style={{ ...scale(t, 'small', 'regular'), lineHeight: 24, color: c.text.secondary, ...flow }} />
                 </Block>
               </Section>
             ) : null}
@@ -102,9 +103,10 @@ export default function TestDetail() {
                     {data.preparation.map((p, i) => (
                       <View key={`${p}-${i}`} style={{ flexDirection: 'row', gap: 8 }}>
                         <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.link }}>•</Text>
-                        <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, ...flow }}>{p}</Text>
+                        <Text {...markTextProps(data.prepMark)} style={[{ flex: 1, minWidth: 0, ...scale(t, 'small', 'regular'), lineHeight: 22, color: c.text.secondary, ...flow }, markTextProps(data.prepMark).style]}>{p}</Text>
                       </View>
                     ))}
+                    <MarkNote mark={data.prepMark} />
                   </Block>
                 ) : null}
               </Section>

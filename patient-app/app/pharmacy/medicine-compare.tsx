@@ -9,7 +9,8 @@ import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/
 import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
-import { medField, medGallery, medName, medPrice, needsRx, onlineOnly, type Med } from '../../src/utils/pharmacyCatalog';
+import { FieldText } from '../../src/components/LocalizedField';
+import { medField, medGallery, medName, medNameField, medPrice, needsRx, onlineOnly, type Med } from '../../src/utils/pharmacyCatalog';
 
 /**
  * Medicine comparison — the PharmacyHub template (canvas/PharmacyHub.dc.html, "قارن البدائل"). The medicines are the ones
@@ -122,7 +123,7 @@ export default function MedicineCompareScreen() {
                 <View style={{ width: 88, height: 88, borderRadius: 18, backgroundColor: c.bg.media, overflow: 'hidden' }}>
                   <ProductImage uri={medGallery(m)[0]} style={{ width: '100%', height: '100%' }} iconSize={40} />
                 </View>
-                <Text numberOfLines={3} style={{ ...scale(t, 'small', 'medium'), lineHeight: 19, color: c.text.primary, textAlign: 'center' }}>{medName(m)}</Text>
+                <FieldText numberOfLines={3} text={medName(m)} mark={medNameField(m).mark} style={{ ...scale(t, 'small', 'medium'), lineHeight: 19, color: c.text.primary, textAlign: 'center' }} />
                 {text(m.manufacturer) ? <Text numberOfLines={1} style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, textAlign: 'center' }}>{text(m.manufacturer)}</Text> : null}
               </Pressable>
             ))}
