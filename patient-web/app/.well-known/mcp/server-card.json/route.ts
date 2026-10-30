@@ -48,7 +48,7 @@ export function GET() {
         scopes: {
           "agent:read": "Read the patient's own orders, bookings and pharmacy offers.",
           "agent:order": "Send an OTC pharmacy request and read its offers. The patient selects an offer and pays on Nabd Plus.",
-          "agent:book": "Hold a consultation, lab or nursing slot. The patient confirms and pays on Nabd Plus.",
+          "agent:book": "Hold a consultation, lab, radiology or nursing slot. The patient confirms and pays on Nabd Plus.",
         },
         authenticated_tools: {
           my_orders: "agent:read",
@@ -59,6 +59,7 @@ export function GET() {
           hold_consultation: "agent:book",
           hold_lab: "agent:book",
           hold_nursing: "agent:book",
+          hold_radiology: "agent:book",
           cancel_hold: "agent:book",
         },
       },
