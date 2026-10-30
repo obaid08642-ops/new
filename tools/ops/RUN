@@ -9,12 +9,14 @@
 # 3. 90-catalogue-apply DRY RUN with COMPLETION=packaged: counts per collection for the approved radiology/lab/nursing completion; nothing written.
 # 4. 99-translate-resume-cron APPLY again: the daily 00:30 UTC resume now runs in the worker container (#2137), same pinned requests, 150/day.
 # 5. Cloudflare: AI crawlers allowed (owner 2026-10-29); checked with GPTBot/ClaudeBot; old values back on failure.
-# 6. Translation progress counts, purge the API cache.
+# 6. 91c-host-files DRY RUN (#2139): which memory-budget host files (mongod.conf, redis.conf, oplog backup scripts, memory report) differ from the release; nothing written.
+# 7. Translation progress counts, purge the API cache.
 98c-translate-pause
 release:fd73b53d0f34625fc1dead9fee43d04ba9141d4e
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
+91c-host-files
 90-catalogue-apply
 99-translate-resume-cron
 98b-translate-progress
