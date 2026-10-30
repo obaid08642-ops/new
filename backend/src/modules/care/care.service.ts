@@ -210,15 +210,8 @@ export class CareService {
       const d: any = dRaw.toObject ? dRaw.toObject() : dRaw;
       let nextAvailableAt: string | null = null;
       if (i < 10) {
-        // the next free time is kept for a minute per doctor (the same cache sort=available_today uses): it costs five queries a doctor, and a booking
-        // is checked against the real slots when it is held, so a minute-old "next available" never lets a taken slot be booked
-        const cached = this.nextSlotCache.get(String(d.id));
-        if (cached.hit) nextAvailableAt = cached.value;
-        else {
-          const docFull = dRaw.toObject ? dRaw : await this.providerModel.findOne({ id: d.id });
-          nextAvailableAt = docFull ? await this.slots.nextAvailable(docFull as any) : null;
-          this.nextSlotCache.set(String(d.id), nextAvailableAt);
-        }
+        const docFull = dRaw.toObject ? dRaw : await this.providerModel.findOne({ id: d.id });
+        nextAvailableAt = docFull ? await this.slots.nextAvailable(docFull as any) : null;
       }
       return { ...this.toPublicDoctor(d, nextAvailableAt, d._distance_km), is_online: this.isOnlineDoc(d, online) };
     }));

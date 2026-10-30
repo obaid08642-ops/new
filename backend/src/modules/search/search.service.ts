@@ -417,12 +417,10 @@ export class SearchService implements OnApplicationBootstrap, OnModuleDestroy {
       if (!rows.length && query.replace(/\s+/g, '').length >= 4) {
         rows = await this.index.find({ type, text: { $regex: tolerantPattern(query) } }, { projection: { _id: 0 } }).limit(100).maxTimeMS(5000).toArray();
       }
-      // the score of a row is worked out once (it splits and scans the row's text), not on every comparison of the sort
-      const scored = rows.map((r) => ({ r, score: textScore(r, terms) + r.boost }));
-      scored.sort((a, b) => b.score - a.score
-        || Number(a.r.requires_prescription) - Number(b.r.requires_prescription)
-        || String(a.r.id).localeCompare(String(b.r.id)));
-      out[type] = scored.slice(0, limit).map(({ r }) => this.toItem(r, locale));
+      rows.sort((a, b) => (textScore(b, terms) + b.boost) - (textScore(a, terms) + a.boost)
+        || Number(a.requires_prescription) - Number(b.requires_prescription)
+        || String(a.id).localeCompare(String(b.id)));
+      out[type] = rows.slice(0, limit).map((r) => this.toItem(r, locale));
     }));
     return out;
   }

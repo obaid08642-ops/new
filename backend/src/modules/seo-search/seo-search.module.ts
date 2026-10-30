@@ -1314,9 +1314,8 @@ export class SeoSearchController {
     return this.svc.publicProductBySlug(locale, slug);
   }
 
-  /** AI-commerce: localized product search. Anonymous answers are shared for 2 minutes (purged by the catalogue tags on every write). */
+  /** AI-commerce: localized product search. */
   @Public()
-  @PublicCache(120, ['medicines', 'public-catalogue'])
   @Get('public/products/search')
   publicProductsSearch(
     @Query('q') q?: string,

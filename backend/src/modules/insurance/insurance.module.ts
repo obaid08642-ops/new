@@ -31,7 +31,6 @@ import { AiModule } from '../ai/ai.module';
 import { AiGatewayService } from '../ai/ai-gateway.service';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
-import { PublicCache } from '../../common/public-cache.decorator';
 @Injectable()
 export class InsuranceService {
   private readonly logger = new Logger(InsuranceService.name);
@@ -439,7 +438,6 @@ export class InsuranceController {
   }
 
   @Public()
-  @PublicCache(300, ['insurance'])
   @Get('companies')
   @ApiBearerAuth(NABDAH_ACCESS_TOKEN_SECURITY_SCHEME)
   @ApiOperation({

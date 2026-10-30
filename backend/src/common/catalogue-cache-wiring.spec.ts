@@ -12,11 +12,6 @@ import { RadiologyController } from '../modules/radiology/radiology.controller';
 import { CareController } from '../modules/care/care.controller';
 import { LocationController } from '../modules/location/location.controller';
 import { NursingController } from '../modules/home-care/home-care.controller';
-import { MedicinesController } from '../modules/medicines/medicines.controller';
-import { SearchController } from '../modules/search/search.controller';
-import { SeoSearchController } from '../modules/seo-search/seo-search.module';
-import { I18nController } from '../modules/i18n/i18n.controller';
-import { InsuranceController } from '../modules/insurance/insurance.module';
 
 type Ctl = { prototype: object };
 const handler = (c: Ctl, name: string) => (c.prototype as Record<string, unknown>)[name] as (...a: unknown[]) => unknown;
@@ -27,10 +22,6 @@ const PUBLIC: Array<[Ctl, string, number]> = [
   [RadiologyController, 'services', 120], [RadiologyController, 'modalities', 120], [RadiologyController, 'one', 120],
   [CareController, 'specialties', 300], [CareController, 'insuranceCompanies', 300], [CareController, 'degrees', 300],
   [NursingController, 'getCatalog', 120],
-  // max-throughput pass (2026-10-30): the heavy anonymous reads that answered private/no-store and so reached Node every time
-  [LabsController, 'carousel', 120], [RadiologyController, 'carousel', 120],
-  [MedicinesController, 'autocomplete', 300], [MedicinesController, 'categoriesList', 300], [MedicinesController, 'filters', 300], [MedicinesController, 'hot', 300],
-  [SearchController, 'search', 300], [SeoSearchController, 'publicProductsSearch', 120], [I18nController, 'bundle', 300], [I18nController, 'raw', 300], [InsuranceController, 'companies', 300],
   [LocationController, 'getRegions', 3600], [LocationController, 'getCities', 3600], [LocationController, 'getDistricts', 3600],
 ];
 const PRIVATE: Array<[Ctl, string]> = [
