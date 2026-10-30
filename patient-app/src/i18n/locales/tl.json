@@ -3890,5 +3890,11 @@
   "diag.offer.countNursingTwo": "{n} provider",
   "scanStatus.checking": "Sinusuri ang file para sa kaligtasan",
   "scanStatus.rejected": "Tinanggihan ang file na ito para sa kaligtasan. Mag-upload ng iba.",
-  "scanStatus.uploadAnother": "Mag-upload ng ibang file"
+  "scanStatus.uploadAnother": "Mag-upload ng ibang file",
+  "insurance.policy.delete": "Burahin ang card",
+  "insurance.policy.deleteTitle": "Burahin ang insurance card",
+  "insurance.policy.deleteBody": "Aalisin ang card na ito sa iyong account.",
+  "insurance.policy.deleteCancel": "Kanselahin",
+  "insurance.policy.deleteDone": "Nabura na ang insurance card.",
+  "insurance.policy.deleteFailed": "Hindi namin nabura ang card. Subukan muli."
 }

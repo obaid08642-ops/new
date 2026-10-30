@@ -3890,5 +3890,11 @@
   "diag.offer.countNursingTwo": "{n}জন সেবাদাতা",
   "scanStatus.checking": "নিরাপত্তার জন্য ফাইলটি যাচাই করা হচ্ছে",
   "scanStatus.rejected": "নিরাপত্তার কারণে এই ফাইলটি প্রত্যাখ্যান করা হয়েছে। অনুগ্রহ করে অন্য একটি ফাইল আপলোড করুন।",
-  "scanStatus.uploadAnother": "অন্য ফাইল আপলোড করুন"
+  "scanStatus.uploadAnother": "অন্য ফাইল আপলোড করুন",
+  "insurance.policy.delete": "কার্ড মুছুন",
+  "insurance.policy.deleteTitle": "বিমা কার্ড মুছুন",
+  "insurance.policy.deleteBody": "এই কার্ডটি আপনার অ্যাকাউন্ট থেকে সরিয়ে দেওয়া হবে।",
+  "insurance.policy.deleteCancel": "বাতিল",
+  "insurance.policy.deleteDone": "বিমা কার্ড মুছে ফেলা হয়েছে।",
+  "insurance.policy.deleteFailed": "কার্ডটি মুছতে পারিনি। আবার চেষ্টা করুন।"
 }

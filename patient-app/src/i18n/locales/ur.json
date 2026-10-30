@@ -3890,5 +3890,11 @@
   "diag.offer.countNursingTwo": "{n} فراہم کنندگان",
   "scanStatus.checking": "سیکیورٹی کے لیے فائل کی جانچ ہو رہی ہے",
   "scanStatus.rejected": "یہ فائل حفاظتی وجوہات کی بنا پر مسترد کر دی گئی۔ براہ کرم دوسری فائل اپ لوڈ کریں۔",
-  "scanStatus.uploadAnother": "دوسری فائل اپ لوڈ کریں"
+  "scanStatus.uploadAnother": "دوسری فائل اپ لوڈ کریں",
+  "insurance.policy.delete": "کارڈ حذف کریں",
+  "insurance.policy.deleteTitle": "انشورنس کارڈ حذف کریں",
+  "insurance.policy.deleteBody": "یہ کارڈ آپ کے اکاؤنٹ سے ہٹا دیا جائے گا۔",
+  "insurance.policy.deleteCancel": "منسوخ کریں",
+  "insurance.policy.deleteDone": "انشورنس کارڈ حذف ہو گیا۔",
+  "insurance.policy.deleteFailed": "کارڈ حذف نہیں ہو سکا۔ دوبارہ کوشش کریں۔"
 }

@@ -3890,5 +3890,11 @@
   "diag.offer.countNursingTwo": "{n} providers",
   "scanStatus.checking": "Being checked for safety",
   "scanStatus.rejected": "This file was rejected for safety. Please upload another.",
-  "scanStatus.uploadAnother": "Upload another file"
+  "scanStatus.uploadAnother": "Upload another file",
+  "insurance.policy.delete": "Delete card",
+  "insurance.policy.deleteTitle": "Delete insurance card",
+  "insurance.policy.deleteBody": "This card will be removed from your account.",
+  "insurance.policy.deleteCancel": "Cancel",
+  "insurance.policy.deleteDone": "Insurance card deleted.",
+  "insurance.policy.deleteFailed": "We could not delete the card. Try again."
 }

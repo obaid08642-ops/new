@@ -4454,7 +4454,14 @@
       "pharmacy": "Mga botika",
       "lab": "Mga laboratoryo"
     },
-    "networkCall": "Tumawag"
+    "networkCall": "Tumawag",
+    "deletePolicy": "Burahin ang card",
+    "deleteTitle": "Burahin ang insurance card",
+    "deleteBody": "Aalisin ang card na ito sa iyong account.",
+    "deleteCancel": "Kanselahin",
+    "deleting": "Binubura…",
+    "deleteDone": "Nabura na ang insurance card.",
+    "deleteFailed": "Hindi namin nabura ang card. Subukan muli."
   },
   "LoyaltyHubWeb": {
     "title": "Mga puntos ng Nabd",

@@ -4454,7 +4454,14 @@
       "pharmacy": "صيدليات",
       "lab": "مختبرات"
     },
-    "networkCall": "اتصال"
+    "networkCall": "اتصال",
+    "deletePolicy": "حذف البطاقة",
+    "deleteTitle": "حذف بطاقة التأمين",
+    "deleteBody": "ستُزال هذه البطاقة من حسابك.",
+    "deleteCancel": "إلغاء",
+    "deleting": "جارٍ الحذف…",
+    "deleteDone": "تم حذف بطاقة التأمين.",
+    "deleteFailed": "تعذّر حذف البطاقة. حاول مرة أخرى."
   },
   "LoyaltyHubWeb": {
     "title": "نقاط نبض",
