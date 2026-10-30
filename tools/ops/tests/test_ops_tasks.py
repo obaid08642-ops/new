@@ -483,6 +483,15 @@ class RecreateDatastores(unittest.TestCase):
         self.assertTrue(all("--no-deps" in l for l in calls.splitlines() if "force-recreate" in l))   # nothing else is touched
         self.assertNotIn("redis-pass-5e21", p.stdout + p.stderr + calls)                              # the password never an argument or output
 
+    def test_only_mongodb_recreates_nothing_else(self):
+        p = self.run_task({"APPLY": "yes", "ONLY": "mongodb"})
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertEqual([e for e in self.events() if e], ["recreate mongodb"])
+        self.assertIn("ONLY=mongodb: redis is left alone", p.stdout)
+        self.assertIn("ONLY=mongodb: livekit and coturn are left alone", p.stdout)
+        self.assertEqual(len([l for l in self.h.docker_calls().splitlines() if "force-recreate" in l]), 1)
+        self.assertIn("backup ok", p.stdout)                                    # the same backup first
+
     def test_an_active_call_skips_livekit_and_coturn(self):
         p = self.run_task({"APPLY": "yes"}, FAKE_CALLS=2)
         self.assertEqual(p.returncode, 0, p.stdout + p.stderr)

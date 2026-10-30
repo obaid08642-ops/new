@@ -46,7 +46,7 @@ class MongodumpOneoff(unittest.TestCase):
         p, log, cfg, mode, data = self.run_fn()
         self.assertIn("RC=0", p.stdout)
         run = [l for l in log.splitlines() if l.startswith("run ")][0]
-        self.assertIn("--rm", run); self.assertIn("--network net_a", run)
+        self.assertIn("--rm", run); self.assertIn("--user 0:0", run); self.assertIn("--network net_a", run)
         self.assertIn("--memory 600m --memory-swap 600m --oom-score-adj 1000", run)
         self.assertIn("mongo:7.0 mongodump", run); self.assertIn("--db=x --gzip --archive", run)
         self.assertNotIn("exec", log)

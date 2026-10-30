@@ -47,7 +47,7 @@ mongodump_oneoff() {
     printf "password: '%s'\n" "${MONGO_ROOT_PASSWORD//\'/\'\'}" > "$cfg"
     auth=(-v "$cfg:/cfg/mongodump.yml:ro")
   fi
-  ( umask 077; $dkr run --rm -i --network "$net" --memory 600m --memory-swap 600m --oom-score-adj 1000 "${auth[@]}" "$img" \
+  ( umask 077; $dkr run --rm -i --user 0:0 --network "$net" --memory 600m --memory-swap 600m --oom-score-adj 1000 "${auth[@]}" "$img" \
       mongodump --quiet ${cfg:+--config=/cfg/mongodump.yml --username="$MONGO_ROOT_USER" --authenticationDatabase=admin} --host="$ip" --port=27017 "$@" > "$out" 2> "$err" )
   rc=$?
   sz=$(stat -c %s "$out" 2>/dev/null || echo 0)

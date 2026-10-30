@@ -15,9 +15,12 @@
 #     5. memory-report.sh is printed after
 #     6. any failure in 2-4: the failed service is recreated again WITHOUT limits (a generated override: mem_limit/mem_reservation/memswap_limit/oom_score_adj 0, i.e. how it ran
 #        before), waits for healthy, and the task exits 1. The data volumes are never touched.
+#   ONLY=mongodb (set in this file by the reviewer, with APPLY=yes): steps 2 and 4 are skipped, so only mongodb is recreated (compose limit 1600m, healthcheck, mongod.conf). Same backup first.
 # Secret values are never printed or passed as arguments (the containers' own environment is used for the database credentials).
 set -u
 APPLY=""
+# ONLY="mongodb": recreate ONLY mongodb (after the same backup); redis, livekit and coturn are left alone. Empty = all four as before.
+ONLY=""
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}
 ENVF=$D/.env.production
@@ -65,7 +68,7 @@ is_primary && say "mongod: PRIMARY" || { say "ABORT mongod is not PRIMARY"; exit
 CALLS=$(active_calls); say "active calls (window ${CALL_WINDOW_MIN} min): ${CALLS:-unknown}"
 say "meilisearch: restarts=$($DK inspect -f '{{.RestartCount}}' nabdah-meilisearch 2>/dev/null) started=$($DK inspect -f '{{.State.StartedAt}}' nabdah-meilisearch 2>/dev/null) use=$($DK stats --no-stream --format '{{.MemUsage}}' nabdah-meilisearch 2>/dev/null | awk -F' / ' '{print $1}')"
 if [ "$APPLY" != yes ]; then
-  say "dry run only: nothing was written or stopped. APPLY would: take a mongodump, recreate redis, then mongodb (MongoDB unavailable for the recreate, expect about a minute), livekit/coturn only when no call is active"
+  say "dry run only: nothing was written or stopped (ONLY=${ONLY:-all}). APPLY would: take a mongodump, recreate redis, then mongodb (MongoDB unavailable for the recreate, expect about a minute), livekit/coturn only when no call is active"
   exit 0
 fi
 
@@ -96,7 +99,7 @@ mongodump_oneoff() {
     printf "password: '%s'\n" "${MONGO_ROOT_PASSWORD//\'/\'\'}" > "$cfg"
     auth=(-v "$cfg:/cfg/mongodump.yml:ro")
   fi
-  ( umask 077; $dkr run --rm -i --network "$net" --memory 600m --memory-swap 600m --oom-score-adj 1000 "${auth[@]}" "$img" \
+  ( umask 077; $dkr run --rm -i --user 0:0 --network "$net" --memory 600m --memory-swap 600m --oom-score-adj 1000 "${auth[@]}" "$img" \
       mongodump --quiet ${cfg:+--config=/cfg/mongodump.yml --username="$MONGO_ROOT_USER" --authenticationDatabase=admin} --host="$ip" --port=27017 "$@" > "$out" 2> "$err" )
   rc=$?
   sz=$(stat -c %s "$out" 2>/dev/null || echo 0)
@@ -137,6 +140,7 @@ fail() { # $1 = service being recreated, $2 = what failed
 }
 recreate() { $COMPOSE up -d --no-deps --force-recreate "$1" >/dev/null 2>&1; }
 
+if [ "$ONLY" = mongodb ]; then say "ONLY=mongodb: redis is left alone"; else
 # --- 2. redis
 recreate redis || fail redis "recreate"
 wait_healthy nabdah-redis || fail redis "health"
@@ -144,6 +148,7 @@ wait_healthy nabdah-redis || fail redis "health"
 [ "$(redis_maxmemory)" = "$(conf_maxmemory_bytes)" ] || fail redis "maxmemory is not the one in redis.conf"
 say "redis recreated: healthy, limit=$(limit_mb nabdah-redis), maxmemory as in redis.conf"
 wait_code /api/v1/health/readiness 200 || fail redis "API readiness after redis"
+fi
 
 # --- 3. mongodb
 T0=$(date +%s)
@@ -159,6 +164,7 @@ wait_healthy nabdah-backend || fail mongodb "backend health"
 say "mongodb recreated: healthy, PRIMARY, limit=$(limit_mb nabdah-mongodb), mongod.conf re-read; backend/worker healthy and the API ready without a restart of either"
 say "mongodb_downtime_seconds=$((T1 - T0))"
 
+if [ "$ONLY" = mongodb ]; then say "ONLY=mongodb: livekit and coturn are left alone"; else
 # --- 4. livekit and coturn, only when no call is active
 CALLS=$(active_calls)
 if [ "${CALLS:-x}" = 0 ]; then
@@ -171,6 +177,7 @@ if [ "${CALLS:-x}" = 0 ]; then
   done
 else
   say "livekit and coturn SKIPPED: active calls=${CALLS:-unknown} (window ${CALL_WINDOW_MIN} min); run the task again at a quieter time"
+fi
 fi
 
 # --- 5. the report
