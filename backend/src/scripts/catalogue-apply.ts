@@ -20,14 +20,15 @@ import * as path from 'path';
 import mongoose from 'mongoose';
 import { mongoDirectConnection } from '../common/database/mongo-uri';
 import {
-  applyChanges, countsOf, decodeBackup, encodeBackup, expectedCounts, planSha, rollbackChanges, sha256, summarize,
+  applyChanges, countsOf, decodeBackup, encodeBackup, expectedCounts, planSha, rollbackChanges, sha256, summarize, collectionLines,
   type Change, type DbLike, type SetChange,
 } from '../modules/catalogs/catalogue-apply.core';
-import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn, planInsuranceShape, planNumberedDistricts, planPlaceholderCities, planProductTranslations, planRadiologyCatalogue } from '../modules/catalogs/catalogue-apply.steps';
+import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn, planInsuranceShape, planNumberedDistricts, planPlaceholderCities, planProductTranslations, planRadiologyCatalogue, type RadiologyFileExtras } from '../modules/catalogs/catalogue-apply.steps';
 import { planTestDataRemoval, scanDb } from '../modules/catalogs/test-data';
 import { planCatalogueCompletion, type CompletionSeed } from '../modules/catalogs/catalogue-completion';
 import { planCataloguePrune } from '../modules/catalogs/catalogue-prune';
 import { planCatalogueDuplicates } from '../modules/catalogs/catalogue-duplicates';
+import { deleteUnreferencedHidden } from '../modules/catalogs/catalogue-hidden-delete';
 import { isTranslationFile } from '../modules/medicines/content-translation';
 
 const TRANSLATIONS_CSV = path.join(__dirname, '../modules/medicines/data/medicine-translations-2026-10-24.csv');
@@ -65,13 +66,26 @@ async function planRadiologyAndCompletion(db: DbLike, argv: string[], inputs: Re
   // radiology: hiding the legacy duplicates is always planned; approving a pending scan needs the reviewed file (a medical sign-off)
   const approvePath = arg(argv, 'radiology-approve');
   let approve: string[] = [];
+  const radiologyExtras: RadiologyFileExtras = {};
   if (approvePath) {
     const text = fs.readFileSync(approvePath, 'utf8');
     inputs.radiology_approve = sha256(text);
     const parsed: unknown = JSON.parse(text);
-    const list = (parsed as { approve?: unknown })?.approve;
-    if (!Array.isArray(list) || !list.every((c) => typeof c === 'string')) throw new Error('--radiology-approve must be {"approve": ["CODE", ...]}');
+    const file = parsed as { approve?: unknown; merge?: unknown; delete?: unknown };
+    const list = file?.approve;
+    if (!Array.isArray(list) || !list.every((c) => typeof c === 'string')) throw new Error('--radiology-approve must be {"approve": ["CODE", ...], "merge": {"FROM": "TO"}, "delete": ["CODE", ...]}');
     approve = list as string[];
+    if (file.merge !== undefined) {
+      const m = file.merge as Record<string, unknown>;
+      if (!m || typeof m !== 'object' || Array.isArray(m) || !Object.values(m).every((v) => typeof v === 'string')) throw new Error('--radiology-approve "merge" must be {"FROM": "TO"} with codes');
+      radiologyExtras.merge = m as Record<string, string>;
+    }
+    if (file.delete !== undefined) {
+      if (!Array.isArray(file.delete) || !file.delete.every((c) => typeof c === 'string')) throw new Error('--radiology-approve "delete" must be ["CODE", ...]');
+      radiologyExtras.remove = file.delete as string[];
+    }
+    const clash = approve.filter((c) => (radiologyExtras.remove ?? []).includes(c) || c in (radiologyExtras.merge ?? {}));
+    if (clash.length) throw new Error(`--radiology-approve lists ${clash.join(', ')} both as approved and as merged/deleted`);
   }
   // the lead's catalogue completion (2026-10-29): its radiology approvals join the reviewed file's, the rows are planned after the duplicates step
   const completionArg = arg(argv, 'catalogue-completion');
@@ -82,12 +96,12 @@ async function planRadiologyAndCompletion(db: DbLike, argv: string[], inputs: Re
     completionSeed = JSON.parse(text) as CompletionSeed;
     approve = [...new Set([...approve, ...completionSeed.radiology_approve])];
   }
-  const radiology = await planRadiologyCatalogue(db, approve);
+  const radiology = await planRadiologyCatalogue(db, approve, radiologyExtras);
   changes.push(...radiology.changes);
   report.radiology_catalogue = approvePath ? radiology.report : { ...radiology.report, note: 'no reviewed file given: nothing is approved' };
 
   // duplicate services (QA 2026-10-29): one row per service in labs and nursing, the radiology duplicates followed with their references
-  const duplicates = await planCatalogueDuplicates(db, { radiologyApprove: approve });
+  const duplicates = await planCatalogueDuplicates(db, { radiologyApprove: approve, radiologyExtras });
   changes.push(...duplicates.changes);
   report.catalogue_duplicates = duplicates.report;
 
@@ -98,6 +112,11 @@ async function planRadiologyAndCompletion(db: DbLike, argv: string[], inputs: Re
     changes.push(...completion.changes);
     report.catalogue_completion = completion.report;
   } else report.catalogue_completion = 'skipped: no --catalogue-completion given';
+
+  // owner rule: no hidden rows. A row the steps above marked as merged away or deleted is DELETED (before-image in the backup) when nothing names it after the plan's own re-pointing
+  const gone = await deleteUnreferencedHidden(db, changes);
+  changes.splice(0, changes.length, ...gone.changes);
+  report.hidden_rows_deleted = gone.report;
 }
 
 export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> {
@@ -222,6 +241,7 @@ export async function main(argv: string[]): Promise<number> {
     if (cmd === 'plan') {
       const p = await computePlan(db, argv);
       out({ cmd, plan_sha: p.sha, inputs: p.inputs, steps: summarize(p.changes), total_changes: p.changes.length, ...p.report });
+      for (const l of collectionLines(p.changes)) console.log(`collection_line ${l}`);
       return 0;
     }
     if (cmd === 'verify') {

@@ -17,7 +17,7 @@ type Vertical = 'lab' | 'radiology' | 'nursing';
 const SAMPLE = 12;
 const CHUNK = 500;
 
-const VERTICALS: Array<{ vertical: Vertical; collection: string; refs: Array<{ collection: string; path: string }> }> = [
+export const VERTICALS: Array<{ vertical: Vertical; collection: string; refs: Array<{ collection: string; path: string }> }> = [
   { vertical: 'lab', collection: CATALOG_COLLECTIONS.lab_services, refs: [
     { collection: 'labbookings', path: 'items.service_id' }, { collection: 'provider_capabilities_lab', path: 'code' }, { collection: 'provider_profiles', path: 'test_categories' } ] },
   { vertical: 'radiology', collection: CATALOG_COLLECTIONS.radiology_services, refs: [
@@ -26,7 +26,7 @@ const VERTICALS: Array<{ vertical: Vertical; collection: string; refs: Array<{ c
     { collection: 'homecarebookings', path: 'service_id' }, { collection: 'homecarebookings', path: 'service_ids' }, { collection: 'provider_profiles', path: 'nursing_services.key' } ] },
 ];
 /** Referenced from every vertical's rows by id. */
-const COMMON_REFS = [
+export const COMMON_REFS = [
   { collection: 'provider_service_offers', path: 'service_id' }, { collection: 'service_interests', path: 'service_id' },
   { collection: 'unified_carts', path: 'lines.service_id' }, { collection: 'medical_orders', path: 'items.catalog_id' },
 ];
@@ -71,7 +71,7 @@ async function referencedIds(db: DbLike, ids: string[], refs: Array<{ collection
 }
 
 /** Every string at a dot path of a document (arrays are walked). */
-function collect(node: unknown, path: string[]): string[] {
+export function collect(node: unknown, path: string[]): string[] {
   if (node === null || node === undefined) return [];
   if (Array.isArray(node)) return node.flatMap((n) => collect(n, path));
   if (!path.length) return typeof node === 'string' ? [node] : [];
