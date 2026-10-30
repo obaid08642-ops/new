@@ -1,4 +1,6 @@
-import { currentDbLang, pickDbField, pickDbFieldSource, type DbLang } from './localize';
+import { pickDbField } from './localize';
+import { rowField, rowList, type Resolved } from './rowField';
+import type { FieldMark } from './localizedField';
 import { resolveGallery } from './imageUrl';
 
 /**
@@ -47,20 +49,24 @@ export const PHARMACY_CATEGORIES = [
 ] as const;
 
 /** The name to show, in the app's language (the catalogue's six-language fields, then English, then Arabic). */
-export const medName = (m: Med): string => (pickDbField<string>(m, 'name') || m.name_en || m.name_ar || m.name || '') as string;
+export const medName = (m: Med): string => medNameField(m).text;
+
+/** The name with its language mark: a name with no text in the app's language is shown in the other language, tagged (never hidden). */
+export const medNameField = (m: Med): Resolved => {
+  const f = rowField(m as Record<string, unknown>, 'name');
+  return f.text ? f : { text: typeof m.name === 'string' ? m.name.trim() : '' };
+};
+
+/** A text field (form, strength, category, ingredient, description...) of a medicine with its language mark; the plain column of the same name is one more candidate. */
+export const medFieldMark = (m: Med, base: string): Resolved => rowField(m as Record<string, unknown>, base);
+
+/** A leaflet section (description, dosage, warnings...) as lines in one language, with its mark. */
+export const medListMark = (m: Med, base: string): { items: string[]; mark?: FieldMark } => rowList(m as Record<string, unknown>, base);
 
 /**
  * A catalogue field in the app's language: the six-language columns (`*_ar`, `*_en`, translations) first, then the plain
  * column of the same name (active ingredient, form, strength and category are stored without a language suffix).
  */
-/** `medField` plus the language of the text when it is not the app's (see `pickDbFieldSource`). A root column (Arabic) counts as Arabic. */
-export function medFieldSource<T = unknown>(m: Med, base: string): { value: T | undefined; lang: DbLang | null } {
-  const picked = pickDbFieldSource<T>(m, base);
-  if (picked.value) return picked;
-  const root = m[base] as T | undefined;
-  return root ? { value: root, lang: currentDbLang() === 'ar' ? null : 'ar' } : { value: undefined, lang: null };
-}
-
 export function medField<T = unknown>(m: Med, base: string): T | undefined {
   const localized = pickDbField<T>(m, base);
   return (localized ?? (m[base] as T | undefined)) || undefined;

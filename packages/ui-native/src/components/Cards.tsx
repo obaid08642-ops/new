@@ -202,9 +202,16 @@ export interface NativeProductCardProps extends ProductCardProps, Themed {
    * fills the 132 tall media box in place of `imageSrc`; the box, its colour and the discount badge stay the board's.
    */
   image?: React.ReactNode;
+  /**
+   * Language fallback (owner 2026-10-30): when the name is not in the page language its own language and direction (so an English name
+   * in an Arabic page reads left to right), and the one-line note that says so ("Available in English only", already translated).
+   */
+  nameLang?: string;
+  nameDir?: 'rtl' | 'ltr';
+  nameNote?: string;
 }
 
-export function ProductCard({ name, meta, price, currency, imageSrc, image, discountLabel, rxLabel, onlineLabel, addLabel, onPress, onAdd, addControl, loading = false, disabled = false, testID, theme = 'light' }: NativeProductCardProps) {
+export function ProductCard({ name, nameLang, nameDir, nameNote, meta, price, currency, imageSrc, image, discountLabel, rxLabel, onlineLabel, addLabel, onPress, onAdd, addControl, loading = false, disabled = false, testID, theme = 'light' }: NativeProductCardProps) {
   const t = tokens(theme);
   const c = t.color;
   const inert = disabled || loading;
@@ -225,7 +232,8 @@ export function ProductCard({ name, meta, price, currency, imageSrc, image, disc
             </View>
           ) : null}
         </View>
-        <Text style={{ paddingHorizontal: 10, fontSize: 14, lineHeight: 19.6, fontFamily: 'ReadexPro-700', color: c.text.primary }}>{name}</Text>
+        <Text accessibilityLanguage={nameLang} {...(nameLang ? ({ lang: nameLang } as object) : {})} style={{ paddingHorizontal: 10, fontSize: 14, lineHeight: 19.6, fontFamily: 'ReadexPro-700', color: c.text.primary, ...(nameDir ? { writingDirection: nameDir, textAlign: nameDir === 'rtl' ? 'right' : 'left' } : null) }}>{name}</Text>
+        {nameNote ? <Text numberOfLines={1} ellipsizeMode="tail" testID={testID ? `${testID}-language-note` : undefined} style={{ paddingHorizontal: 10, fontSize: 11, fontFamily: 'ReadexPro-400', color: c.text.secondary }}>{nameNote}</Text> : null}
         {meta ? <Text style={{ paddingHorizontal: 10, fontSize: 12, fontFamily: 'ReadexPro-400', color: c.text.secondary }}>{meta}</Text> : null}
       </Pressable>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 10 }}>

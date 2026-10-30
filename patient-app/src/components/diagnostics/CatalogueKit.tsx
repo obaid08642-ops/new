@@ -45,6 +45,7 @@ export function CatalogueCard({ item, kind, art, place, payer, idPrefix, width }
     <ItemCard
       testID={`${idPrefix}-${item.id}`}
       name={item.name}
+      nameMark={item.nameMark}
       art={art}
       width={width}
       image={item.image}
