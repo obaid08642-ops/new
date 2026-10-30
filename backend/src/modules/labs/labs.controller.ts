@@ -258,7 +258,7 @@ export class LabsController {
     return this.svc.getById(id);
   }
 
-  @Public() @Get('carousel')
+  @Public() @PublicCache(120, ['labs', 'public-catalogue']) @Get('carousel')
   carousel(@Query('category') category?: string, @Query('limit') limit?: string) {
     return this.svc.getCarousel(category, parseInt(limit || '20', 10));
   }

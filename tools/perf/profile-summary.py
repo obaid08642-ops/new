@@ -61,6 +61,24 @@ print('\nshare of busy CPU by package')
 for k, v in by_pkg.most_common(a.top):
     if k != '(native: (idle))':
         print(f'{100 * v / busy:6.1f}%  {k}')
+# self time of mongoose / bson / mongodb attributed to the nearest application function above it on the stack: who asks for the documents
+parent = {c: n['id'] for n in p['nodes'] for c in n.get('children', [])}
+asked = collections.Counter()
+for i, v in selft.items():
+    u = nodes[i]['callFrame']['url']
+    if not re.search(r'node_modules/(mongoose|bson|mongodb)/', u):
+        continue
+    j, who = i, '(no application frame)'
+    while j is not None:
+        cf = nodes[j]['callFrame']
+        if '/dist/' in cf['url'] and 'node_modules' not in cf['url']:
+            who = label(cf) + ':' + str(cf['lineNumber'])
+            break
+        j = parent.get(j)
+    asked[who] += v
+print('\nMongoose/BSON time by the application function that asked')
+for k, v in asked.most_common(a.top):
+    print(f'{v / 1000:8.0f} ms  {k}')
 print('\nhottest functions (self time)')
 for k, v in by_fn.most_common(a.top + 1):
     if '(idle)' not in k:

@@ -48,7 +48,7 @@ export class RadiologyController {
     });
   }
 
-  @Public() @Get('carousel')
+  @Public() @PublicCache(120, ['radiology', 'public-catalogue']) @Get('carousel')
   carousel(@Query('modality') modality?: string, @Query('limit') limit?: string) {
     return this.svc.getCarousel(modality, parseInt(limit || '20', 10));
   }
