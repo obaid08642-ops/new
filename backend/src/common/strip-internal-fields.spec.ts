@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import mongoose from 'mongoose';
 import { of, lastValueFrom } from 'rxjs';
 import { StreamableFile } from '@nestjs/common';
-import { StripInternalReviewFieldsInterceptor, isInternalReviewKey, stripInternalReviewFields } from './strip-internal-fields';
+import { StripInternalReviewFieldsInterceptor, isInternalReviewKey, seesReviewState, stripInternalReviewFields } from './strip-internal-fields';
 import { LabsController } from '../modules/labs/labs.controller';
 import { RadiologyController } from '../modules/radiology/radiology.controller';
 import { RadiologyProviderController } from '../modules/radiology/controllers/radiology-provider.controller';
@@ -81,6 +81,24 @@ describe('no review state in a public, patient or provider response (owner 2026-
     const i = new StripInternalReviewFieldsInterceptor();
     const out: any = await lastValueFrom(i.intercept({} as any, { handle: () => of({ data: [labRow] }) } as any) as any);
     expect(keysDeep(out).filter((k) => FORBIDDEN.test(k))).toEqual([]);
+  });
+});
+
+describe('the admin console still sees the review state it edits', () => {
+  const run = async (req: unknown, body: unknown) => {
+    const ctx: any = { switchToHttp: () => ({ getRequest: () => req }) };
+    return lastValueFrom(new StripInternalReviewFieldsInterceptor().intercept(ctx, { handle: () => of(body) } as any) as any);
+  };
+  it('an admin caller and an /admin/ route get the whole row; a patient, a provider and a guest get it stripped', async () => {
+    expect(await run({ user: { role: 'admin' }, originalUrl: '/api/v1/labs/services' }, labRow)).toEqual(labRow);
+    expect(await run({ user: { role: 'super_admin' }, originalUrl: '/api/v1/nursing/services' }, nurseRow)).toEqual(nurseRow);
+    expect(await run({ user: { role: 'lab' }, originalUrl: '/api/v1/labs/admin/catalog/x?y=1' }, labRow)).toEqual(labRow);   // the editors live on the vertical's controller
+    for (const role of ['patient', 'lab', 'radiology', 'nurse', 'doctor', 'pharmacy', undefined]) {
+      const out = await run({ user: role ? { role } : undefined, originalUrl: '/api/v1/labs/services' }, labRow);
+      expect(keysDeep(out).filter((k) => FORBIDDEN.test(k))).toEqual([]);
+    }
+    expect(seesReviewState(undefined)).toBe(false);
+    expect(seesReviewState({ originalUrl: '/api/v1/labs/administration' })).toBe(false);   // only a real /admin/ segment
   });
 });
 

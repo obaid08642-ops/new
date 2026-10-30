@@ -38,10 +38,22 @@ export function stripInternalReviewFields<T>(value: T, depth = 0): T {
   return out as T;
 }
 
-/** `@UseInterceptors(StripInternalReviewFieldsInterceptor)` on a controller whose responses reach patients or providers. Admin controllers do not use it. */
+const ADMIN_ROLES = new Set(['admin', 'super_admin']);
+
+/** The admin console edits the review state, so an admin caller and an `/admin/` route (the catalogue editors live on the labs / radiology / nursing controllers) see the whole row. */
+export function seesReviewState(req: { user?: { role?: string }; originalUrl?: string; url?: string; path?: string } | undefined): boolean {
+  if (!req) return false;
+  if (req.user?.role && ADMIN_ROLES.has(String(req.user.role))) return true;
+  const path = String(req.originalUrl ?? req.url ?? req.path ?? '').split('?')[0];
+  return /(^|\/)admin(\/|$)/.test(path);
+}
+
+/** `@UseInterceptors(StripInternalReviewFieldsInterceptor)` on a controller whose responses reach patients or providers. Admin controllers do not need it; an admin caller or an `/admin/` route passes through. */
 @Injectable()
 export class StripInternalReviewFieldsInterceptor implements NestInterceptor {
-  intercept(_ctx: ExecutionContext, next: CallHandler): Observable<unknown> {
+  intercept(ctx: ExecutionContext, next: CallHandler): Observable<unknown> {
+    const req = typeof ctx?.switchToHttp === 'function' ? ctx.switchToHttp().getRequest() : undefined;
+    if (seesReviewState(req)) return next.handle();
     return next.handle().pipe(map((body) => stripInternalReviewFields(body)));
   }
 }
