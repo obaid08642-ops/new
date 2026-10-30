@@ -43,6 +43,7 @@ on:
 
 permissions:
   contents: read
+  actions: read   # ios_build_run: download the iOS build artifact of an earlier run
 
 concurrency:
   group: native-e2e-${{ github.ref }}-${{ github.event_name }}
