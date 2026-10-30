@@ -1339,7 +1339,8 @@
         "a": "हां, मेरे अपॉइंटमेंट से नीति के अनुसार।"
       }
     },
-    "faqTitle": "सामान्य प्रश्न"
+    "faqTitle": "सामान्य प्रश्न",
+    "comingSoon": "जल्द आ रहा है"
   },
   "HomeCareServices": {
     "eyebrow": "होम केयर",
@@ -1515,7 +1516,11 @@
     "filtersWithCount": "फ़िल्टर, {n} सक्रिय",
     "activeFilters": "सक्रिय फ़िल्टर",
     "removeFilter": "फ़िल्टर {filter} हटाएँ",
-    "filterAll": "सभी"
+    "filterAll": "सभी",
+    "specialtyAll": "सभी",
+    "comingSoon": "जल्द आ रहा है",
+    "comingSoonTitle": "{specialty} जल्द आ रहा है",
+    "comingSoonBody": "इस विशेषता में अभी कोई डॉक्टर नहीं है। कोई दूसरी विशेषता चुनें।"
   },
   "LabsServices": {
     "eyebrow": "प्रयोगशाला देखभाल",
