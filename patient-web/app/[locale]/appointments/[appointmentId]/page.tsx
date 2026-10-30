@@ -4,8 +4,9 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractAppointmentDetail, parseAppointmentId, specialtyFor } from "@/lib/api/appointments";
 import { getPatientAppointment } from "@/lib/api/appointments-server";
 import { callPatientApi } from "@/lib/api/upstream";
-import { getMyMedicalReports } from "@/lib/api/reports-server";
-import { outcomesOf, type OutcomeReport } from "@/lib/consult/outcomes";
+import { getVisitOutcomes } from "@/lib/api/outcomes-server";
+import { NO_OUTCOMES, readOutcomes, type OutcomeReport } from "@/lib/consult/outcomes";
+import { OutcomesSeen } from "@/components-next/consult/outcomes-seen";
 import { formatDate } from "@/lib/format-date";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
@@ -94,12 +95,12 @@ export default async function AppointmentDetailPage({ params }: Props) {
       summaryReady = Boolean(summary);
     }
   }
-  // The doctor's sick leave, certificates and reports of this visit: GET /medical-reports/mine rows with this appointment's id.
-  let outcomes = { sickLeaves: [] as OutcomeReport[], certificates: [] as OutcomeReport[], reports: [] as OutcomeReport[] };
+  // The doctor's sick leave, certificates and reports of this visit: GET /care/appointments/:id/outcomes.
+  let outcomes = NO_OUTCOMES;
   if (done) {
-    const mr = await getMyMedicalReports(token);
+    const mr = await getVisitOutcomes(token, appointmentId);
     if (mr.status === 401) redirect(`/${locale}/login`);
-    if (mr.ok) outcomes = outcomesOf(await mr.json().catch(() => null), appointmentId);
+    if (mr.ok) outcomes = readOutcomes(await mr.json().catch(() => null));
   }
   const outcomeGroups: Array<{ id: string; title: string; rows: OutcomeReport[] }> = [
     { id: "appointment-sick-leave", title: c("outcomeSickLeave"), rows: outcomes.sickLeaves },
@@ -206,6 +207,7 @@ export default async function AppointmentDetailPage({ params }: Props) {
               ]}
             />
           </SectionCard>
+          {outcomes.unseen > 0 ? <OutcomesSeen appointmentId={appointmentId} /> : null}
           {outcomeGroups.map((group) => (
             <SectionCard key={group.id} id={group.id} title={group.title}>
               <ul className={styles.plain}>

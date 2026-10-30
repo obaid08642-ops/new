@@ -30,6 +30,7 @@ vi.mock("@/components-next/core/core-shell", () => ({
 }));
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: async () => "server-only-consult-token" }));
 vi.mock("@/lib/api/upstream", () => ({ callPatientApi: server.api }));
+vi.mock("@/lib/api/outcomes-server", () => ({ getVisitOutcomes: async () => new Response("{}", { status: 404 }), getOutcomesBadge: async () => new Response("{}", { status: 404 }) }));
 vi.mock("@/lib/api/appointments-server", () => ({ getPatientAppointments: server.list, getPatientAppointment: server.one }));
 vi.mock("@/lib/context/CartContext", () => ({ useCart: () => ({ addItem: vi.fn() }) }));
 vi.mock("@/lib/api/doctors-server", () => ({ getPublicDoctors: server.doctors, getPublicDoctor: vi.fn(), getPublicDoctorSlots: vi.fn() }));
