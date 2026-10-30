@@ -40,7 +40,7 @@ import { NAME_PROJECTION, withItemNames } from '../../common/booking-names';
 import { nearestFirst } from '../provider/services/nearest-first';
 import { publicLabFilter } from './labs-public';
 import { byRating, paged, parsePage, withProviderRating, type CataloguePage } from '../../common/catalogue-page';
-import { loadOffers, ownChoices, withOfferSummary, withOffers, type OfferSummary } from '../../common/service-offers';
+import { loadOffers, ownPrices, withOfferSummary, withOffers, type OfferSummary } from '../../common/service-offers';
 
 /** Public card for a provider in carousels and price lists: no contact or account details. */
 function publicProvider(p: any) {
@@ -205,12 +205,19 @@ export class LabsService {
   /** The public profile of an approved lab by account id (GET /labs/:id); its priced tests from its capabilities. */
   async publicLab(id: string) {
     if (typeof id !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(id)) throw new NotFoundException('lab_not_found');
-    const p: any = await this.providerProfiles.findOne(publicLabFilter(id), { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, description_ar: 1, description_en: 1, address: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1 }).lean();
+    const p: any = await this.providerProfiles.findOne(publicLabFilter(id), { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, description_ar: 1, description_en: 1, address: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1, test_categories: 1 }).lean();
     if (!p) throw new NotFoundException('lab_not_found');
     const items: any[] = await this.svcModel.db.collection('provider_capabilities_lab').find(
       { provider_account_id: { $eq: p.account_id }, available: true, price: { $gt: 0 } },
       { projection: { _id: 0, code: 1, name_ar: 1, name_en: 1, price: 1 } },
     ).limit(100).toArray();
+    // the tests the lab runs and has priced itself (its own choice or the price it registered with), next to its older capability rows
+    const runs: string[] = Array.isArray(p.test_categories) ? p.test_categories.filter((t: unknown) => typeof t === 'string') : [];
+    const catalogue: any[] = runs.length ? await this.svcModel.find({ id: { $in: runs }, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, name_ar: 1, name_en: 1, short_code: 1 }).lean() : [];
+    const mine = (await ownPrices(this.svcModel.db as never, 'lab', [p.account_id], catalogue)).get(p.account_id);
+    const known = new Set(items.map((i) => i.code));
+    const registered = catalogue.filter((c) => mine?.has(c.id) && !known.has(c.id) && !known.has(c.short_code))
+      .map((c) => ({ id: c.id, name_ar: c.name_ar ?? null, name_en: c.name_en ?? null, price: mine!.get(c.id) as number }));
     return {
       data: {
         id: p.account_id,
@@ -223,33 +230,17 @@ export class LabsService {
         home_visit: Boolean(p.home_visit_supported),
         rating: p.rating_count > 0 ? p.rating_avg : null,
         rating_count: p.rating_count || 0,
-        services: items.map((i) => ({ id: i.code, name_ar: i.name_ar ?? null, name_en: i.name_en ?? null, price: i.price })),
+        services: [...items.map((i) => ({ id: i.code, name_ar: i.name_ar ?? null, name_en: i.name_en ?? null, price: i.price })), ...registered],
       },
     };
   }
 
   /**
-   * Each lab's own price per catalog test, from the lab's capabilities (provider_capabilities_lab: code = the test id or
-   * short code, or the same Arabic name; available and priced). Map: lab account id -> test id -> price.
+   * Each lab's own price per catalog test: its own per-test choice (provider_service_offers), else its capability row (provider_capabilities_lab), else the price it typed
+   * at registration (test_prices) - see common/service-offers.ts ownPrices. Map: lab account id -> test id -> price; a test the lab has no price for falls back to the catalogue price.
    */
   private async labPrices(accountIds: string[], services: any[]): Promise<Map<string, Map<string, number>>> {
-    const out = new Map<string, Map<string, number>>();
-    const ids = [...new Set(accountIds.filter((id) => typeof id === 'string' && id))];
-    if (!ids.length || !services.length) return out;
-    const codes = [...new Set(services.flatMap((svc) => [svc.id, svc.short_code]).filter((c) => typeof c === 'string' && c))];
-    const names = [...new Set(services.map((svc) => svc.name_ar).filter((n) => typeof n === 'string' && n))];
-    const items: any[] = await this.svcModel.db.collection('provider_capabilities_lab').find({
-      provider_account_id: { $in: ids }, available: true, price: { $gt: 0 },
-      $or: [{ code: { $in: codes } }, ...(names.length ? [{ name_ar: { $in: names } }] : [])],
-    }, { projection: { _id: 0, provider_account_id: 1, code: 1, name_ar: 1, price: 1 } }).toArray();
-    for (const item of items) {
-      const svc = services.find((s) => item.code === s.id || (s.short_code && item.code === s.short_code) || (s.name_ar && item.name_ar === s.name_ar));
-      if (!svc || typeof item.price !== 'number') continue;
-      const lab = out.get(item.provider_account_id) ?? new Map<string, number>();
-      lab.set(svc.id, item.price);
-      out.set(item.provider_account_id, lab);
-    }
-    return out;
+    return ownPrices(this.svcModel.db as never, 'lab', accountIds, services);
   }
 
   // #624 carousel: popular approved tests, each with the approved labs that run it (the lab's
@@ -273,35 +264,25 @@ export class LabsService {
     });
   }
 
-  // #631 price comparison: each approved lab's own price for this test from its capabilities
-  // catalog (provider_capabilities_lab: code = the test's short code, or the same Arabic name,
-  // the rule ServiceCapabilityService uses). Labs with no priced entry are not listed.
+  // #631 price comparison: each approved lab's own price for this test - its own per-test choice, else its capability row, else the price it registered with - with whether
+  // it collects at home and takes insurance FOR THIS TEST (registration maps or its own choice). Labs with no price for the test are not listed.
   async priceComparison(serviceId: string) {
     const svc: any = await this.svcModel.findOne({ id: { $eq: String(serviceId) }, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, name_ar: 1, name_en: 1, short_code: 1, price: 1 }).lean();
     if (!svc) throw new NotFoundException('service_not_found');
+    const db = this.svcModel.db as never;
     const codes = [svc.id, svc.short_code].filter(Boolean);
-    const items: any[] = await this.svcModel.db.collection('provider_capabilities_lab').find({
+    const caps: any[] = await this.svcModel.db.collection('provider_capabilities_lab').find({
       available: true, $or: [{ code: { $in: codes } }, ...(svc.name_ar ? [{ name_ar: svc.name_ar }] : [])],
-    }, { projection: { _id: 0, provider_account_id: 1, price: 1, currency: 1, home_collection_supported: 1, turnaround_hours: 1, insurance_covered: 1 } }).toArray();
-    // 2026-10-28: a lab's own per-service choice (provider_service_offers) wins over its older capability row: one it declined is not shown, one it priced is added
-    const own = await ownChoices(this.svcModel.db as never, 'lab', svc);
-    const legacy = (await this.priceOffers(items, ['lab', 'hospital'])).filter((o: any) => !own.hidden.has(o.provider.id) && !own.offers.some((x) => x.provider.id === o.provider.id));
-    const added = own.offers.map((x) => ({ provider: x.provider, price: x.price as number, currency: x.currency, home_collection_supported: x.home, turnaround_hours: null, insurance_covered: x.insurance, premises: x.premises }));
-    return { service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null, offers: [...legacy, ...added].sort((a: any, b: any) => a.price - b.price) };
-  }
-
-  private async priceOffers(items: any[], types: string[]) {
-    const priced = items.filter((i) => typeof i.price === 'number' && i.price > 0);
-    if (!priced.length) return [];
-    const profiles: any[] = await this.providerProfiles.find({
-      account_id: { $in: [...new Set(priced.map((i) => i.provider_account_id))] }, type: { $in: types },
-      status: 'active', public_eligibility: true, medical_review_status: 'approved',
-    }, { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1 }).lean();
-    const byId = new Map(profiles.map((p) => [p.account_id, p]));
-    return priced.filter((i) => byId.has(i.provider_account_id)).map((i) => ({
-      provider: publicProvider(byId.get(i.provider_account_id)), price: i.price, currency: i.currency || 'SAR',
-      home_collection_supported: !!i.home_collection_supported, turnaround_hours: i.turnaround_hours ?? null, insurance_covered: !!i.insurance_covered,
-    })).sort((a, b) => a.price - b.price);
+    }, { projection: { _id: 0, provider_account_id: 1, turnaround_hours: 1 } }).toArray();
+    const turnaround = new Map<string, number>(caps.filter((c) => typeof c.turnaround_hours === 'number').map((c) => [c.provider_account_id, c.turnaround_hours]));
+    const offers = ((await loadOffers(db, 'lab', [svc])).get(svc.id) ?? []).filter((o) => o.price !== null);
+    return {
+      service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null,
+      offers: offers.map((o) => ({
+        provider: o.provider, price: o.price as number, currency: o.currency, home_collection_supported: o.home, turnaround_hours: turnaround.get(o.provider.id) ?? null,
+        insurance_covered: o.insurance, premises: o.premises,
+      })).sort((a, b) => a.price - b.price),
+    };
   }
 
   async book(user: any, data: any) {

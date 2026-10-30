@@ -15,12 +15,13 @@ describe("catalogue lists in every language", () => {
     expect(listsOf(lab, "preparation")).toEqual({ ar: ["بدون صيام"], en: ["No fasting"], hi: ["उपवास नहीं"], tl: ["Walang pag-aayuno"] });
   });
 
-  it("picks the page language with the old fallback (Arabic for ar/ur, English for the rest)", () => {
+  it("picks the page language, else English before Arabic (never hidden)", () => {
     const lists = listsOf(lab, "preparation");
     expect(pickList("hi", lists)).toEqual(["उपवास नहीं"]);
     expect(pickList("fil", lists)).toEqual(["Walang pag-aayuno"]);
     expect(pickList("bn", lists)).toEqual(["No fasting"]);
-    expect(pickList("ur", lists)).toEqual(["بدون صيام"]);
+    expect(pickList("ur", lists)).toEqual(["No fasting"]);
+    expect(pickList("ar", lists)).toEqual(["بدون صيام"]);
     expect(pickList("hi", undefined)).toEqual([]);
   });
 

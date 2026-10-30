@@ -25,7 +25,9 @@
     "readingProgress": "پڑھنے کی پیش رفت",
     "dialogCancel": "منسوخ کریں",
     "dialogConfirm": "تصدیق کریں",
-    "breadcrumbLabel": "راستہ"
+    "breadcrumbLabel": "راستہ",
+    "availableInEnglishOnly": "صرف انگریزی میں دستیاب",
+    "availableInArabicOnly": "صرف عربی میں دستیاب"
   },
   "CoreShell": {
     "back": "واپس",
@@ -4474,7 +4476,14 @@
       "pharmacy": "فارمیسیاں",
       "lab": "لیبارٹریاں"
     },
-    "networkCall": "کال"
+    "networkCall": "کال",
+    "deletePolicy": "کارڈ حذف کریں",
+    "deleteTitle": "انشورنس کارڈ حذف کریں",
+    "deleteBody": "یہ کارڈ آپ کے اکاؤنٹ سے ہٹا دیا جائے گا۔",
+    "deleteCancel": "منسوخ کریں",
+    "deleting": "حذف کیا جا رہا ہے…",
+    "deleteDone": "انشورنس کارڈ حذف ہو گیا۔",
+    "deleteFailed": "کارڈ حذف نہیں ہو سکا۔ دوبارہ کوشش کریں۔"
   },
   "LoyaltyHubWeb": {
     "title": "نبض پوائنٹس",

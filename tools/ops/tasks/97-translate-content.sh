@@ -35,7 +35,7 @@ TARGETS=""          # e.g. "ur,hi,bn,fil" to restrict the target languages; empt
 LIMIT=""            # cap on the number of missing texts collected by the dry run; empty = all
 IN=${OPS_CATALOGUE_DIR:-/opt/nabdah/catalogue}
 W=${OPS_TRANSLATE_DIR:-$IN/translate-work}
-CT=${CATALOGUE_CONTAINER:-nabdah-backend}
+CT=${CATALOGUE_CONTAINER:-nabdah-worker}   # the translation run is background work: it runs in the worker container, so its memory is the worker's and never the API's (2026-10-30 OOM)
 DK="sudo -n docker"
 TOOL="node dist/scripts/translate-product-content.js"
 CW=/tmp/translate-work

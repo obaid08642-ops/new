@@ -134,7 +134,7 @@ export default function ServiceHome() {
                 <Section title={k('ordering.home.secPkg')} actionLabel={k('diag.cat.all')} onAction={() => router.push('/diagnostics/packages' as Href)}>
                   <ListCard>
                     {packages.slice(0, 3).map((pkg, i, all) => (
-                      <TestRow key={pkg.id} name={pkg.name} icon={diagLook(pkg.category)} note={pkg.testsCount > 0 ? k('ordering.home.pkgCount', { n: num(pkg.testsCount) }) : undefined} price={pkg.price} last={i === all.length - 1} onPress={() => router.push(`/diagnostics/package-detail?id=${pkg.id}` as Href)} />
+                      <TestRow key={pkg.id} name={pkg.name} nameMark={pkg.nameMark} icon={diagLook(pkg.category)} note={pkg.testsCount > 0 ? k('ordering.home.pkgCount', { n: num(pkg.testsCount) }) : undefined} price={pkg.price} last={i === all.length - 1} onPress={() => router.push(`/diagnostics/package-detail?id=${pkg.id}` as Href)} />
                     ))}
                   </ListCard>
                 </Section>

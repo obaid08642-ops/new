@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { localizedText } from "@/lib/i18n/localized-field";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getPatientWishlist } from "@/lib/api/wishlist-server";
@@ -49,7 +50,7 @@ export default async function WishlistPage({ params }: Props) {
         {items.length ? (
           <ul className={styles.rows} aria-label={t("title")}>
             {items.map((item) => {
-              const name = locale === "ar" ? item.nameAr || item.nameEn || t("untitled") : item.nameEn || item.nameAr || t("untitled");
+              const name = localizedText({ locale, ar: item.nameAr, en: item.nameEn }) ?? t("untitled");
               return (
                 <li key={item.id} className={styles.rowWrap}>
                   <Link className={styles.row} href={`/${locale}/medicines/${item.id}`}>
@@ -61,7 +62,7 @@ export default async function WishlistPage({ params }: Props) {
                         {item.price !== undefined ? <span className={styles.rowPrice}>{formatPrice(locale, item.price).text}</span> : null}
                         {item.inStock === false ? <StatusChip label={t("outOfStock")} tone={PHARMACY_TONE} /> : item.inStock === true ? <StatusChip label={t("inStock")} tone="mint" /> : null}
                         {item.requiresPrescription === true ? <StatusChip label={t("needsRx")} tone="amber" /> : null}
-                        {item.onlineOnly === true ? <StatusChip label={product("onlineOnly")} tone="mint" /> : null}
+                        {item.onlineOnly === true ? <StatusChip label={product("onlineOnly")} tone="ink" /> : null}
                       </span>
                     </span>
                     <span className={styles.rowEnd}><Icon name={caret} size={16} tone="secondary" /></span>

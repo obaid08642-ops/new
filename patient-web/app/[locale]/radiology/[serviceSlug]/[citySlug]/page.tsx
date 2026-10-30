@@ -1,3 +1,4 @@
+import { resolveWithMark } from "@/lib/i18n/localized-field";
 import { JsonLd } from "@/components-next/json-ld";
 import { medicalWebPage, breadcrumbList, radiologyService } from "@/lib/seo/structured-data";
 import type { Metadata } from "next";
@@ -101,7 +102,7 @@ export default async function RadiologyCityPage({ params }: Props) {
                 <ServiceCard
                   icon={RADIOLOGY.icon}
                   tone={RADIOLOGY.tone}
-                  title={pickName(locale, service.names) ?? ""}
+                  title={resolveWithMark({ locale, ar: service.names.ar, en: service.names.en }).text} titleMark={resolveWithMark({ locale, ar: service.names.ar, en: service.names.en }).mark}
                   chips={[service.modality, service.price !== undefined ? money(locale, service.price) : undefined].filter((chip): chip is string => Boolean(chip))}
                   actionHref={`/${locale}/diagnostics/radiology`}
                   actionLabel={t("radiology.book")}

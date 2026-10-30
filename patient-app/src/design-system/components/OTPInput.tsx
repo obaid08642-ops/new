@@ -5,7 +5,7 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import {
   View, TextInput, StyleSheet, NativeSyntheticEvent,
-  TextInputKeyPressEventData, StyleProp, ViewStyle,
+  type TextInputKeyPressEvent, type TextInputInstance, StyleProp, ViewStyle,
   Clipboard, Platform,
 } from 'react-native';
 import { useApp } from '../../context/AppContext';
@@ -40,7 +40,7 @@ export function DSOTPInput({
   style,
 }: DSOTPInputProps) {
   const { colors } = useApp();
-  const refs = useRef<Array<TextInput | null>>(Array(length).fill(null));
+  const refs = useRef<Array<TextInputInstance | null>>(Array(length).fill(null));
   const [focusedIndex, setFocusedIndex] = useState<number | null>(autoFocus ? 0 : null);
 
   const digits = value.split('').slice(0, length);
@@ -88,7 +88,7 @@ export function DSOTPInput({
   );
 
   const handleKeyPress = useCallback(
-    (e: NativeSyntheticEvent<TextInputKeyPressEventData>, index: number) => {
+    (e: TextInputKeyPressEvent, index: number) => {
       if (e.nativeEvent.key === 'Backspace' && !digits[index] && index > 0) {
         refs.current[index - 1]?.focus();
         const newDigits = [...digits];

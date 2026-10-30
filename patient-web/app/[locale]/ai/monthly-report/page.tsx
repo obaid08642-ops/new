@@ -10,6 +10,7 @@ import { ActionLinks } from "@/components-next/consult/consult-parts";
 import { CareHero, RecordRow } from "@/components-next/care/care-kit";
 import { PartUnavailable, RowsCard, SectionHead, VitalTile } from "@/components-next/health/health-kit";
 import health from "@/components-next/health/health.module.css";
+import { CORAL } from "@/lib/health/view";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -96,22 +97,22 @@ export default async function AiMonthlyReportPage({ params }: Props) {
   if (!hasAny) {
     return frame(
       <>
-        <CareHero tone="mint" icon="chart-line-up" label={t("title")} title={month} lines={[t("heroLine")]} />
+        <CareHero tone={CORAL} icon="chart-line-up" label={t("title")} title={month} lines={[t("heroLine")]} />
         {partial}
-        <ConsultState kind="empty" icon="chart-line-up" tone="mint" title={t("emptyTitle")} body={t("emptyBody")} actionLabel={t("logReading")} actionHref={`/${locale}/health/vitals?tab=today&add=1`} />
+        <ConsultState kind="empty" icon="chart-line-up" tone={CORAL} title={t("emptyTitle")} body={t("emptyBody")} actionLabel={t("logReading")} actionHref={`/${locale}/health/vitals?tab=today&add=1`} />
       </>,
     );
   }
 
   return frame(
     <>
-      <CareHero tone="mint" icon="chart-line-up" label={t("title")} title={month} lines={[t("heroLine")]} />
+      <CareHero tone={CORAL} icon="chart-line-up" label={t("title")} title={month} lines={[t("heroLine")]} />
       {partial}
       <ul className={health.tiles} aria-label={t("glance")}>
         <li><VitalTile label={t("appointments")} value={apptsRes.ok ? number.format(appts.length) : dash} icon="stethoscope" tone="blue" /></li>
-        <li><VitalTile label={t("completed")} value={apptsRes.ok ? number.format(completed.length) : dash} icon="check-circle" tone="mint" /></li>
+        <li><VitalTile label={t("completed")} value={apptsRes.ok ? number.format(completed.length) : dash} icon="check-circle" tone={CORAL} /></li>
         <li><VitalTile label={t("upcoming")} value={apptsRes.ok ? number.format(upcoming.length) : dash} icon="calendar-dots" tone="amber" /></li>
-        <li><VitalTile label={t("chronicMeds")} value={medsRes.ok ? number.format(meds.length) : dash} icon="pill" tone="coral" /></li>
+        <li><VitalTile label={t("chronicMeds")} value={medsRes.ok ? number.format(meds.length) : dash} icon="pill" tone={CORAL} /></li>
       </ul>
 
       {vitals.length > 0 ? (
@@ -122,7 +123,7 @@ export default async function AiMonthlyReportPage({ params }: Props) {
               <li key={index}>
                 <RecordRow
                   icon="heartbeat"
-                  tone="coral"
+                  tone={CORAL}
                   title={pickName(v, locale) || dash}
                   end={<bdi>{`${String(v.value ?? v.latest ?? dash)}${typeof v.unit === "string" ? ` ${v.unit}` : ""}`}</bdi>}
                 />
@@ -147,7 +148,7 @@ export default async function AiMonthlyReportPage({ params }: Props) {
                 <li key={index}>
                   <RecordRow
                     icon="chart-line-up"
-                    tone="mint"
+                    tone={CORAL}
                     title={pickName(row, locale) || dash}
                     sub={[
                       t("readings", { count: pts.length }),

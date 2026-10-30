@@ -11,7 +11,8 @@ import { COLUMN, step as scale, useScreenUi } from '../../src/components/screen/
 import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
-import { medGallery, medName, medPrice, needsRx, type Med } from '../../src/utils/pharmacyCatalog';
+import { FieldText } from '../../src/components/LocalizedField';
+import { medGallery, medName, medNameField, medPrice, needsRx, type Med } from '../../src/utils/pharmacyCatalog';
 
 /**
  * Wishlist — the PharmacyHub template (canvas/PharmacyHub.dc.html: the media tile, name, price, the Rx note and the
@@ -31,7 +32,7 @@ function Row({ item, onRemove, onAdd, onOpen }: { item: Med; onRemove: (m: Med) 
             <ProductImage uri={medGallery(item)[0]} style={{ width: '100%', height: '100%' }} iconSize={34} />
           </View>
           <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
-            <Text numberOfLines={2} style={{ ...scale(t, 'small', 'medium'), lineHeight: 19, color: c.text.primary, ...flow }}>{medName(item)}</Text>
+            <FieldText numberOfLines={2} text={medName(item)} mark={medNameField(item).mark} style={{ ...scale(t, 'small', 'medium'), lineHeight: 19, color: c.text.primary, ...flow }} />
             {price ? (
               <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>
                 {money(price)} <Text style={{ ...scale(t, 'tag', 'regular') }}>{k('pharmacy.currency')}</Text>

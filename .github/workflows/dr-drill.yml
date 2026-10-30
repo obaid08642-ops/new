@@ -10,6 +10,14 @@ on:
       - 'deploy/scripts/test_dr_plan.py'
       - 'deploy/scripts/clamav-window.sh'
       - 'deploy/scripts/test_clamav_window.py'
+      - 'deploy/scripts/_oplog-mongo-wait.sh'
+      - 'deploy/scripts/test_oplog_mongo_wait.py'
+      - 'deploy/scripts/memory-report.sh'
+      - 'deploy/scripts/test_memory_report.py'
+      - 'deploy/scripts/test_compose_memory.py'
+      - 'deploy/docker-compose.production.yml'
+      - 'deploy/mongo/mongod.conf'
+      - 'deploy/redis/redis.conf'
       - 'deploy/cron/nabd-backups'
       - 'tools/ops/dr-rehearsal/**'
       - '.github/workflows/dr-drill.yml'
@@ -26,7 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Recovery plan logic (unit tests)
-        run: cd deploy/scripts && python3 -m unittest test_dr_plan test_clamav_window -v
+        run: cd deploy/scripts && python3 -m unittest test_dr_plan test_clamav_window test_oplog_mongo_wait test_memory_report test_compose_memory -v
       - name: Shell syntax
         run: for f in deploy/scripts/*.sh tools/ops/dr-rehearsal/run.sh; do bash -n "$f"; done
   real-mongo:

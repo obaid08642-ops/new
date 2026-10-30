@@ -7,6 +7,8 @@ import { CARE_TONE } from '../consult/ConsultKit';
 import { Tag, Price } from '../diagnostics/DiagKit';
 import { Glyph } from '../pharmacy/PharmacyKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
+import { FieldText } from '../LocalizedField';
+import type { FieldMark } from '../../utils/localizedField';
 import { optimizedImageUri } from '../../utils/optimizedImage';
 
 /**
@@ -53,7 +55,10 @@ export function serviceGlyph(id: unknown): { icon: FillIconName; tone: ServiceTo
 
 export interface ServiceCardProps {
   title: string;
+  /** Language fallback marks: the shown text's own direction/language and the one-line note when it is not in the app's language. */
+  titleMark?: FieldMark;
   desc?: string;
+  descMark?: FieldMark;
   image?: string | null;
   icon: FillIconName;
   price: number | null;
@@ -70,16 +75,16 @@ export interface ServiceCardProps {
 }
 
 /** The hub's service card (board ServiceHub): a white card with the nursing-tone glyph chip, the image or glyph, name, line, price and the ink book button. Two to a row. */
-export function ServiceCard({ title, desc, image, icon, price, offerLine, onPress, actionLabel, onAction, enterIndex = 0, testID }: ServiceCardProps) {
+export function ServiceCard({ title, titleMark, desc, descMark, image, icon, price, offerLine, onPress, actionLabel, onAction, enterIndex = 0, testID }: ServiceCardProps) {
   const { theme, t, c, flow } = useScreenUi();
   return (
     <FadeIn index={enterIndex} style={{ flexBasis: '47%', flexGrow: 1, minWidth: 148 }}>
     <View testID={testID} style={{ flex: 1, borderRadius: 24, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, padding: 14, gap: 10 }}>
       <Pressable accessibilityRole="button" accessibilityLabel={[title, desc].filter(Boolean).join(', ')} onPress={onPress} style={({ pressed }) => ({ gap: 8, minHeight: 44, opacity: pressed ? 0.9 : 1 })}>
         {image ? <Image cachePolicy="memory-disk" accessibilityIgnoresInvertColors source={{ uri: optimizedImageUri(image, 56) }} style={{ width: 56, height: 56, borderRadius: 18, backgroundColor: c.bg.surface }} contentFit="cover" /> : <FIcon icon={icon} tone={CARE_TONE} size={56} theme={theme} />}
-        <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{title}</Text>
+        <FieldText text={title} mark={titleMark} style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }} />
         {desc ? (
-          <Text numberOfLines={2} style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{desc}</Text>
+          <FieldText numberOfLines={2} text={desc} mark={descMark} note={false} style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }} />
         ) : null}
         {offerLine ? <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{offerLine}</Text> : null}
         {price !== null ? <Price amount={price} size="bodyStrong" /> : null}
@@ -150,7 +155,10 @@ export function NurseCard({ name, facility, rating, distance, availableLabel, pr
 
 export interface NursingPackageCardProps {
   name: string;
+  /** Language fallback marks (direction/language of the shown text and the one-line note when it is not in the app's language). */
+  nameMark?: FieldMark;
   desc?: string;
+  descMark?: FieldMark;
   price: number | null;
   icon: FillIconName;
   actionLabel: string;
@@ -160,7 +168,7 @@ export interface NursingPackageCardProps {
 }
 
 /** A care package of the nursing hub: a white card (hairline border); the nursing tone stays on the glyph chip only. */
-export function NursingPackageCard({ name, desc, price, icon, actionLabel, onPress, width, testID }: NursingPackageCardProps) {
+export function NursingPackageCard({ name, nameMark, desc, descMark, price, icon, actionLabel, onPress, width, testID }: NursingPackageCardProps) {
   const { theme, t, c, flow } = useScreenUi();
   return (
     <Pressable
@@ -172,8 +180,8 @@ export function NursingPackageCard({ name, desc, price, icon, actionLabel, onPre
     >
       <FIcon icon={icon} tone={CARE_TONE} size={48} theme={theme} />
       <View style={{ gap: 4 }}>
-        <Text style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }}>{name}</Text>
-        {desc ? <Text numberOfLines={2} style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{desc}</Text> : null}
+        <FieldText text={name} mark={nameMark} style={{ ...scale(t, 'h4'), color: c.text.primary, ...flow }} />
+        {desc ? <FieldText numberOfLines={2} text={desc} mark={descMark} note={false} style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }} /> : null}
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
         {price !== null ? <Price amount={price} size="h3" /> : <View />}

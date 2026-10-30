@@ -95,7 +95,7 @@ function WeekContent({ week }: { week: number }) {
         {content.articles.length ? (
           <Panel testID="maternity-read-this-week">
             {content.articles.map((article, index) => (
-              <Row key={article.slug} icon="file-text" tone="mint" title={article.title} subtitle={article.excerpt ?? undefined} onPress={() => openArticle(article.slug)} last={index === content.articles.length - 1} testID={`maternity-article-${article.slug}`} />
+              <Row key={article.slug} icon="file-text" tone="ink" title={article.title} subtitle={article.excerpt ?? undefined} onPress={() => openArticle(article.slug)} last={index === content.articles.length - 1} testID={`maternity-article-${article.slug}`} />
             ))}
           </Panel>
         ) : (

@@ -5383,6 +5383,7 @@
     "plugins": [
       "expo-router",
       "expo-font",
+      "@react-native-community/datetimepicker",
       [
         "expo-camera",
         {
@@ -5433,11 +5434,6 @@
     ],
     "experiments": {
       "typedRoutes": true
-    },
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#F5F5F7"
     },
     "runtimeVersion": {
       "policy": "fingerprint"

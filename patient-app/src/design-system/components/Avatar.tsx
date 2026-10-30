@@ -60,7 +60,7 @@ function getInitials(name?: string): string {
 }
 
 // the 10 service tones' solid colours (white initials stay readable on every one)
-const FALLBACK_COLORS: string[] = (['coral', 'blue', 'mint', 'violet', 'amber', 'pink', 'lime', 'peach', 'teal', 'ink'] as const).map(
+const FALLBACK_COLORS: string[] = (['coral', 'blue', 'violet', 'amber', 'pink', 'peach', 'teal', 'ink'] as const).map(
   (tone) => tokens('light').color.service[tone].solid.from,
 );
 

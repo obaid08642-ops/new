@@ -11,6 +11,7 @@ import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { useGuestGuard } from '../../hooks/useGuestGuard';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
+import { showLocalizedAlert } from '../LocalizedAlert';
 import { chiInquiryUrl } from '../../utils/insuranceAdd';
 import { CopayFields } from './CopayFields';
 import { parseCopay } from '../../utils/differentiators';
@@ -78,8 +79,35 @@ function PolicyTab() {
     apiFetch('/config').then((cfg) => setChiUrl(chiInquiryUrl(cfg))).catch(() => setChiUrl(null));
   }, []);
   const [form, setForm] = useState(false);
+  const [deleted, setDeleted] = useState(false);
+  const [deleteFailed, setDeleteFailed] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const p: InsurancePolicy | null = policy.data;
   const rows = requests.data ?? [];
+
+  // DELETE /users/me/insurance after a confirm; a failure keeps the card and the button stays as the retry.
+  const removePolicy = () =>
+    showLocalizedAlert(k('insurance.policy.deleteTitle'), k('insurance.policy.deleteBody'), [
+      { text: k('insurance.policy.deleteCancel'), style: 'cancel' },
+      {
+        text: k('insurance.policy.delete'),
+        style: 'destructive',
+        onPress: async () => {
+          setDeleting(true);
+          setDeleteFailed(false);
+          try {
+            await apiFetch('/users/me/insurance', { method: 'DELETE' });
+            setDeleted(true);
+            void policy.reload(true);
+          } catch (e) {
+            logError('insurance:policy-delete', e);
+            setDeleteFailed(true);
+          } finally {
+            setDeleting(false);
+          }
+        },
+      },
+    ]);
 
   return (
     <>
@@ -106,6 +134,8 @@ function PolicyTab() {
         ) : (
           <Notice tone="info" text={k('insurance.policy.none')} testID="policy-none" />
         )}
+        {deleted && !p ? <Notice tone="info" text={k('insurance.policy.deleteDone')} testID="policy-deleted" /> : null}
+        {deleteFailed ? <Notice tone="danger" text={k('insurance.policy.deleteFailed')} testID="policy-delete-failed" /> : null}
         <View style={{ flexDirection: 'row', gap: 8 }}>
           <View style={{ flex: 1 }}>
             <Button label={p ? k('insurance.policy.change') : k('insurance.policy.add')} variant="outline" fullWidth onPress={() => (p ? setForm(true) : router.push('/insurance/add-policy' as Href))} theme={theme} testID="policy-change" />
@@ -116,6 +146,7 @@ function PolicyTab() {
             </View>
           ) : null}
         </View>
+        {p ? <Button label={k('insurance.policy.delete')} variant="danger" fullWidth disabled={deleting} loading={deleting} onPress={removePolicy} theme={theme} testID="policy-delete" /> : null}
       </Gate>
 
       <View style={{ flexDirection: 'row', gap: 8 }}>
