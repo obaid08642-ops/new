@@ -17,6 +17,7 @@ import { LabBookingRepository } from "./repositories/labbooking.repository";
 import { LabResultRepository } from "./repositories/labresult.repository";
 import { LabSampleRepository } from "./repositories/labsample.repository";
 import { LabServiceRepository } from "./repositories/labservice.repository";
+import { StorageModule } from '../storage/storage.module';
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 
 @Module({
@@ -25,6 +26,7 @@ import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-p
     SearchModule,
     BusinessRulesModule,
     InsuranceEngineModule,
+    StorageModule,
     MongooseModule.forFeature([
       { name: 'LabService', schema: LabServiceSchema },
       { name: 'LabBooking', schema: LabBookingSchema },

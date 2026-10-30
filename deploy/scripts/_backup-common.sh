@@ -119,3 +119,6 @@ report_dr() {
   case "$code" in 20?) ;; *) echo "report $kind: not accepted (HTTP $code)" ;; esac
   return 0
 }
+
+# mongodump in a one-off container, not inside the capped nabdah-mongodb (2026-10-30: the dump was OOM-killed there and left 0 bytes)
+source "$(dirname "${BASH_SOURCE[0]}")/_mongodump-oneoff.sh"

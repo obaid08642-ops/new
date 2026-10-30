@@ -17,9 +17,7 @@ OPLOG_START=$(oplog_head)
 [ -n "$OPLOG_START" ] || echo "[$(date)] WARN: oplog position unreadable, this dump cannot be used as the base of a point-in-time recovery"
 
 echo "[$(date)] mongodump $DB_NAME"
-AUTH=(); while IFS= read -r a; do AUTH+=("$a"); done < <(mongo_auth)
-if ! docker exec "$MONGO_CONTAINER" mongodump --quiet "${AUTH[@]}" \
-       --db="$DB_NAME" --archive --gzip > "$FILE" || [ ! -s "$FILE" ]; then
+if ! mongodump_oneoff "$FILE" --db="$DB_NAME" --gzip --archive || [ ! -s "$FILE" ]; then
   rm -f "$FILE"
   echo "[$(date)] FAIL: mongodump failed or wrote nothing"
   report local false "" "mongodump failed or wrote nothing"

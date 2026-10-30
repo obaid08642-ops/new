@@ -38,7 +38,9 @@ const pushFetch = (url: string, init?: RequestInit) => timedFetch(url, init, { t
 export class PushToken {
   @Prop({ required: true, unique: true }) token: string;
   @Prop({ required: true, index: true }) user_id: string;
-  @Prop({ default: 'expo', enum: ['expo', 'fcm', 'apns', 'webpush'] }) provider: string;
+  @Prop({ default: 'expo', enum: ['expo', 'fcm', 'apns', 'apns_voip', 'webpush'] }) provider: string;
+  /** The app rings an incoming call from a data-only push (set by the app at registration); older apps keep the visible notification. */
+  @Prop({ default: false }) call_ring?: boolean;
   @Prop({ enum: ['ios', 'android', 'web'] }) platform: string;
   @Prop() device_id?: string;
   /** 21.7: the sign-in (JWT `sid`) this token was registered from, so signing it out removes the token. */
@@ -372,7 +374,7 @@ export class PushService implements OnModuleInit {
     }
   }
 
-  async register(user: any, body: { token: string; provider?: string; platform?: string; device_id?: string; device_name?: string }) {
+  async register(user: any, body: { token: string; provider?: string; platform?: string; device_id?: string; device_name?: string; call_ring?: boolean }) {
     if (!body?.token) return { ok: false, reason: 'missing_token' };
     await this.tokens.findOneAndUpdate(
       { token: { $eq: body.token } },
@@ -386,6 +388,7 @@ export class PushService implements OnModuleInit {
           // 21.7: the sign-in this token was registered from, so signing that device out removes it
           ...(user.sid ? { session_id: user.sid } : {}),
           device_name: body.device_name,
+          call_ring: body.call_ring === true,
           active: true,
           last_seen_at: new Date(),
           failure_count: 0,
@@ -515,6 +518,72 @@ export class PushService implements OnModuleInit {
     return this.sendToUser(userId, title, body, data);
   }
 
+  /** FCM v1 message; a ringing call to a device that rings itself is data-only, high priority and short-lived. */
+  private fcmMessage(token: string, title: string, body: string, data: any, ring: boolean) {
+    const flat = Object.keys(data).reduce((acc, k) => {
+      acc[k] = typeof data[k] === 'object' ? JSON.stringify(data[k]) : String(data[k]);
+      return acc;
+    }, {} as Record<string, string>);
+    if (ring) {
+      return {
+        message: {
+          token,
+          data: { ...flat, title, body },
+          android: { priority: 'HIGH', ttl: '30s' },
+          apns: { headers: { 'apns-priority': '10', 'apns-expiration': '0' }, payload: { aps: { 'content-available': 1 } } },
+        },
+      };
+    }
+    return {
+      message: {
+        token,
+        notification: { title, body },
+        data: flat,
+        android: { priority: 'high', notification: { sound: 'default', channel_id: data?.type === 'call' ? 'calls' : 'default' } },
+        apns: { payload: { aps: { sound: 'default', badge: 1 } } },
+      },
+    };
+  }
+
+  /** PushKit VoIP push: wakes the app so CallKit can show the incoming call (needs the APNs key; topic is `<bundle>.voip`). */
+  private sendApnsVoip(token: string, title: string, body: string, data: any): Promise<{ ok: boolean; status?: number; reason?: string }> {
+    return new Promise((resolve) => {
+      const jwt = this.getApnsJwt();
+      if (!jwt) return resolve({ ok: false, reason: 'apns_not_configured' });
+      const host = process.env.APNS_HOST || 'https://api.push.apple.com';
+      let client: http2.ClientHttp2Session;
+      try {
+        client = http2.connect(host);
+      } catch (e: any) {
+        return resolve({ ok: false, reason: `apns_connect_${e.message}` });
+      }
+      client.on('error', () => { client.close(); resolve({ ok: false, reason: 'apns_session_error' }); });
+      const req = client.request({
+        ':method': 'POST',
+        ':path': `/3/device/${token}`,
+        authorization: `bearer ${jwt}`,
+        'apns-topic': `${process.env.APNS_TOPIC || process.env.APNS_BUNDLE_ID}.voip`,
+        'apns-push-type': 'voip',
+        'apns-priority': '10',
+        'apns-expiration': String(Math.floor(Date.now() / 1000) + 30),
+        'content-type': 'application/json',
+      });
+      let status = 0;
+      let respBody = '';
+      req.on('response', (headers) => { status = headers[':status'] || 0; });
+      req.on('data', (chunk) => { respBody += chunk; });
+      req.on('end', () => {
+        client.close();
+        if (status === 200) return resolve({ ok: true, status });
+        let reason = `apns_${status}`;
+        try { reason = JSON.parse(respBody)?.reason || reason; } catch {}
+        resolve({ ok: false, status, reason });
+      });
+      req.on('error', () => { client.close(); resolve({ ok: false, reason: 'apns_request_error' }); });
+      req.end(JSON.stringify({ ...data, title, body }));
+    });
+  }
+
   private async deliverPush(payload: { userId: string; title: string; body: string; data?: any; priority?: string }) {
     const { userId, title, body, data = {}, priority = 'high' } = payload;
     const tokenDocs = await this.tokens.find({ user_id: userId, active: true, failure_count: { $lt: 10 } }).lean();
@@ -527,7 +596,24 @@ export class PushService implements OnModuleInit {
     const expoTokens = tokenDocs.filter(t => t.provider === 'expo').map(t => t.token);
     const fcmTokens = tokenDocs.filter(t => t.provider === 'fcm').map(t => t.token);
     const apnsTokens = tokenDocs.filter(t => t.provider === 'apns').map(t => t.token);
+    const voipTokens = tokenDocs.filter(t => t.provider === 'apns_voip').map(t => t.token);
+    const isCall = data?.type === 'call';
+    const ringTokens = new Set(tokenDocs.filter(t => t.call_ring === true).map(t => t.token));
     const results = { sent: 0, failed: 0, errors: [] as string[] };
+
+    // ── PushKit VoIP (CallKit rings from this, even when the app is killed) ──
+    if (isCall) {
+      for (const token of voipTokens) {
+        const r = await this.sendApnsVoip(token, title, body, data);
+        if (r.ok) results.sent++;
+        else {
+          results.failed++;
+          results.errors.push(r.reason || 'apns_voip_failed');
+          if (r.reason === 'BadDeviceToken' || r.reason === 'Unregistered') await this.tokens.updateOne({ token }, { $set: { active: false } });
+          else await this.tokens.updateOne({ token }, { $inc: { failure_count: 1 } });
+        }
+      }
+    }
 
     // ── APNs direct (native iOS tokens) ──────────────────────
     for (const token of apnsTokens) {
@@ -553,17 +639,19 @@ export class PushService implements OnModuleInit {
       const chunks = this.chunkArray(expoTokens, 100);
       for (const chunk of chunks) {
         try {
-          const messages = chunk.map(to => ({
-            to,
-            title,
-            body,
-            data,
-            sound: 'default',
-            priority,
-            channelId: data?.type === 'call' ? 'calls' : 'default',
-            categoryId: data?.type === 'call' ? 'call_actions' : data?.type === 'chat' ? 'chat_actions' : 'default',
-            badge: 1,
-          }));
+          const messages = chunk.map(to => isCall && ringTokens.has(to)
+            ? { to, data: { ...data, title, body }, priority: 'high', ttl: 30, channelId: 'calls', _contentAvailable: true }
+            : {
+              to,
+              title,
+              body,
+              data,
+              sound: 'default',
+              priority,
+              channelId: data?.type === 'call' ? 'calls' : 'default',
+              categoryId: data?.type === 'call' ? 'call_actions' : data?.type === 'chat' ? 'chat_actions' : 'default',
+              badge: 1,
+            });
           const resp = await pushFetch(this.EXPO_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'Accept-Encoding': 'gzip, deflate' },
@@ -612,49 +700,14 @@ export class PushService implements OnModuleInit {
                 Authorization: `Bearer ${accessToken}`,
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify({
-                message: {
-                  token,
-                  notification: { title, body },
-                  data: Object.keys(data).reduce((acc, k) => {
-                    acc[k] = typeof data[k] === 'object' ? JSON.stringify(data[k]) : String(data[k]);
-                    return acc;
-                  }, {} as Record<string, string>),
-                  android: {
-                    priority: 'high',
-                    notification: {
-                      sound: 'default',
-                      channel_id: data?.type === 'call' ? 'calls' : 'default',
-                    },
-                  },
-                  apns: {
-                    payload: {
-                      aps: {
-                        sound: 'default',
-                        badge: 1,
-                      },
-                    },
-                  },
-                },
-              }),
+              body: JSON.stringify(this.fcmMessage(token, title, body, data, isCall && ringTokens.has(token))),
             });
             // Token belongs to the OTHER Firebase project (e.g. patient-iOS app) — retry with secondary credentials
             if (resp.status === 404 && this.fcmProjects().length > 1) {
               const altToken = await this.getFcmAccessToken(1);
               const altProject = this.fcmProjects()[1].projectId;
               if (altToken) {
-                const payloadStr = JSON.stringify({
-                  message: {
-                    token,
-                    notification: { title, body },
-                    data: Object.keys(data).reduce((acc, k) => {
-                      acc[k] = typeof data[k] === 'object' ? JSON.stringify(data[k]) : String(data[k]);
-                      return acc;
-                    }, {} as Record<string, string>),
-                    android: { priority: 'high', notification: { sound: 'default', channel_id: data?.type === 'call' ? 'calls' : 'default' } },
-                    apns: { payload: { aps: { sound: 'default', badge: 1 } } },
-                  },
-                });
+                const payloadStr = JSON.stringify(this.fcmMessage(token, title, body, data, isCall && ringTokens.has(token)));
                 resp = await pushFetch(`https://fcm.googleapis.com/v1/projects/${altProject}/messages:send`, {
                   method: 'POST',
                   headers: { Authorization: `Bearer ${altToken}`, 'Content-Type': 'application/json' },
@@ -743,7 +796,9 @@ export class PushService implements OnModuleInit {
   @OnEvent('chat.message_sent')
   async onChatMessage(evt: any) {
     if (!evt?.meta?.participant_ids) return;
-    const recipients = (evt.meta.participant_ids as string[]).filter(id => id !== evt.actor_account_id);
+    // Recipients with a live connection already got the message over the socket; push only the rest.
+    const offline: string[] | undefined = Array.isArray(evt.meta.offline_ids) ? evt.meta.offline_ids : undefined;
+    const recipients = (evt.meta.participant_ids as string[]).filter(id => id !== evt.actor_account_id && (!offline || offline.includes(id)));
     const senderName = evt.meta.sender_name || 'رسالة جديدة';
     for (const uid of recipients) {
       await this.queueNotification(uid, senderName, evt.meta.body || 'أرسل لك رسالة', { type: 'chat', thread_id: evt.meta.thread_id });

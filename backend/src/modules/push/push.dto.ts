@@ -1,4 +1,4 @@
-import { IsDefined, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsBoolean, IsDefined, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class RegisterDto {
@@ -25,7 +25,10 @@ export class RegisterDto {
   @IsString()
   device_name?: string;
 
-
+  /** The app on this device rings an incoming call from a data-only push (background task / ConnectionService / CallKit). */
+  @IsOptional()
+  @IsBoolean()
+  call_ring?: boolean;
 }
 
 export class TrackDto {

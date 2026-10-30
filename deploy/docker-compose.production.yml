@@ -22,9 +22,9 @@ services:
     image: mongo:7.0
     container_name: nabdah-mongodb
     restart: unless-stopped
-    mem_limit: 1200m
+    mem_limit: 1600m   # run 58: with 1200m mongod sat at the limit (memory.events max=6159) and was restarted 32 times in 6 hours; 1600m leaves room above the 0.5 GB cache
     mem_reservation: 800m
-    memswap_limit: 1200m   # no swap: a swapped-out mongodb is slower than a restart; the others absorb the swap
+    memswap_limit: 1600m   # no swap: a swapped-out mongodb is slower than a restart; the others absorb the swap
     oom_score_adj: -900
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
@@ -38,10 +38,10 @@ services:
     networks: [internal]
     healthcheck:
       test: ["CMD", "mongosh", "--quiet", "-u", "${MONGO_ROOT_USER}", "-p", "${MONGO_ROOT_PASSWORD}", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping').ok"]
-      interval: 15s
-      timeout: 5s
+      interval: 30s
+      timeout: 20s    # under memory pressure a ping answers slowly; that is not a reason to call mongod unhealthy
       retries: 10
-      start_period: 20s
+      start_period: 90s
     logging: *logopts
 
   # ── Redis ────────────────────────────────────────────────────────
@@ -317,8 +317,7 @@ services:
     ports:
       - "127.0.0.1:7880:7880"  # websocket — localhost only; public access via nginx wss://live.nabd.plus
       - "7881:7881"            # RTC over TCP
-      - "7882:7882/udp"        # RTC over UDP
-      - "50000-50100:50000-50100/udp"  # RTC UDP port range
+      - "7882:7882/udp"        # RTC over UDP: the one mux port (livekit.yaml rtc.udp_port), no range
     networks: [web]
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:7880/"]

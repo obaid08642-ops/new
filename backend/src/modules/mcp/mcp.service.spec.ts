@@ -98,7 +98,7 @@ describe('McpService', () => {
           }),
         };
       }
-      return { findOne: jest.fn().mockResolvedValue(null) };
+      return { findOne: jest.fn().mockResolvedValue(null), find: jest.fn(() => ({ limit: () => ({ toArray: async () => [] }) })) };
     }),
   } as any;
 

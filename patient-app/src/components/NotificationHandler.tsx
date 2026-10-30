@@ -1,4 +1,6 @@
 import React, { useEffect } from 'react';
+import { registerCallRingTask } from '../calls/ringTask';
+import { registerVoipPush } from '../calls/voipPush';
 import { useSelector } from 'react-redux';
 import { router } from 'expo-router';
 import * as Notifications from 'expo-notifications';
@@ -104,6 +106,8 @@ export default function NotificationHandler() {
     // Register the token with the backend (only if notifications are already allowed: the phone's dialog is never shown here,
     // it comes from the in-context prompts) and reconcile explicit local medication actions.
     registerForPushNotificationsAsync();
+    void registerCallRingTask();
+    void registerVoipPush();
     flushMedicationDoseActions().catch(() => { /* a later app launch will retry */ });
 
     const navigateFromData = (data: any) => {

@@ -131,6 +131,11 @@ export class RegisterTokenDto {
   @IsOptional()
   @IsString()
   device_name?: string;
+
+  /** This device rings an incoming call itself (background task / ConnectionService / CallKit) from a data-only push. */
+  @IsOptional()
+  @IsBoolean()
+  call_ring?: boolean;
 }
 
 export class TemplateUpsertDto {

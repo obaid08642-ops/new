@@ -9,24 +9,24 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 0 | 333 | 97 | 4 | 0 |
-| Other | 405 | 339 | 50 | 3 | 13 | 0 |
+| Other | 413 | 345 | 50 | 3 | 15 | 0 |
 | Admin | 99 | 0 | 65 | 34 | 0 | 0 |
 | Admin journeys | 20 | 0 | 18 | 2 | 0 | 0 |
 | Final pass | 8 | 0 | 2 | 6 | 0 | 0 |
 | Patient journeys | 87 | 0 | 85 | 2 | 0 | 0 |
 | Provider app | 31 | 0 | 27 | 4 | 0 | 0 |
 | Provider journeys | 34 | 0 | 32 | 2 | 0 | 0 |
-| **Total** | **1118** | **339** | **612** | **150** | **17** | **0** |
+| **Total** | **1126** | **345** | **612** | **150** | **19** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | client | 269 | 93 | 135 | 41 | 0 | 0 |
-| owner | 163 | 50 | 57 | 42 | 14 | 0 |
-| backend | 447 | 195 | 222 | 30 | 0 | 0 |
+| owner | 165 | 50 | 57 | 42 | 16 | 0 |
+| backend | 453 | 201 | 222 | 30 | 0 | 0 |
 | untagged | 239 | 1 | 198 | 37 | 3 | 0 |
-| **Total** | **1118** | **339** | **612** | **150** | **17** | **0** |
+| **Total** | **1126** | **345** | **612** | **150** | **19** | **0** |
 
 ## By file
 
@@ -97,6 +97,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `final-pass.json` | 4 | 0 | 2 | 2 | 0 | 0 |
 | `hologram-map.json` | 3 | 3 | 0 | 0 | 0 | 0 |
 | `journeys.json` | 87 | 0 | 85 | 2 | 0 | 0 |
+| `labs-hub-sheet-app.json` | 6 | 5 | 0 | 0 | 1 | 0 |
 | `labs-hub-sheet-web.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `layout-consult-app.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `layout-consult-web.json` | 1 | 1 | 0 | 0 | 0 | 0 |
@@ -150,11 +151,12 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `uploads-scan-patient-app.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `uploads-scan-patient-web.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `uploads-scan-provider-app.json` | 4 | 4 | 0 | 0 | 0 | 0 |
+| `web-insurance-add-policy.json` | 2 | 1 | 0 | 0 | 1 | 0 |
 | `web-public-ink.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `web-voice-notes.json` | 2 | 2 | 0 | 0 | 0 | 0 |
-| **Total** | **1118** | **339** | **612** | **150** | **17** | **0** |
+| **Total** | **1126** | **345** | **612** | **150** | **19** | **0** |
 
-## Owner decisions (17)
+## Owner decisions (19)
 
 | # | Where | Screen / element | Question |
 |---:|---|---|---|
@@ -163,20 +165,22 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 3 | `batch-1a-app.json#18` `patient-app/src/i18n/locales/en.json:0` | /pharmacy Six-language strings | 177 pharmacy.* keys were added to patient-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json. The English, Urdu, Hindi, Bengali and Filipino text was written by the design session (and, for reused phrases, taken from the phr… |
 | 4 | `batch-1d-web.json#1` `backend/src/modules/payments/payments.module.ts:154` | /pharmacy/payment Payment provider not exercised | No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only against a TEST stand-in outside the repo (… |
 | 5 | `consult-my-appointments.json#2` `patient-web/components-next/core/core-shell.tsx:87` | /consultations Web: cart on other consultation pages | [owner] The My appointments button replaces the cart on the two consultation hubs (doctors, specialties); booking, call and detail pages still show the shell's cart chooser. |
-| 6 | `mint-only-greens-app.json#0` `packages/design-tokens/tokens.json:115` | / control.switchOn #1F9D6E (toggle ON track) | [owner] [owner] green token, used by every Toggle; semantic on/off, not a service tone; value not changed (no value invented): keep green or pick a non-green on-state? |
-| 7 | `mint-only-greens-app.json#1` `packages/design-tokens/tokens.json:110` | / presence.online #1F9D6E (doctor online dot) | [owner] [owner] green token for the online presence dot (doctor card); value not changed. |
-| 8 | `mint-only-greens-app.json#2` `packages/design-tokens/tokens.json:88` | / service.lime / nutrition (nutrition tile, protein tile, lime chips) | [owner] [owner] lime #4A7A00 / #EDF8D6 is a green service tone; nutrition tile keeps it until the owner picks another tone for nutrition. |
-| 9 | `mint-only-greens-app.json#3` `packages/design-tokens/tokens.json:68` | / accent.lime #D7FF00 and track.filled #D7FF00 (acid lime) | [owner] [owner] acid lime accent (Button variant lime on dark, progress fill); the light-canvas upload bar that used it now uses action.primary.bg; the token itself is unchanged. |
-| 10 | `mint-only-greens-app.json#4` `packages/ui/src/Illustrated.tsx:36` | / iconArt.mint #3FBF9A / mintSoft #6FE0B8 / lime #8EDC5E (illustrated icon fill… | [owner] [owner] flat artwork fills in the illustrated icon set (e.g. test-tube sample is lab-legit, lime sparkles in 6 scenes); mirrored as hex in packages/ui/src/Illustrated.tsx and ui-generated; value change belongs i… |
-| 11 | `mint-only-greens-app.json#5` `packages/ui-native/src/components/Cards.tsx:50` | /consultations/appointments Consult mode 'home' = house/mint tile (board pairin… | [owner] [owner] mint here is the consult home-visit identity, not labs; no non-green tone is free that the boards allow (blue=clinic, violet=online); left on mint until the owner picks one. Same pairing in 4 more places. |
-| 12 | `mint-only-greens-app.json#6` `patient-app/src/components/consult/ConsultKit.tsx:30` | /consultations/appointments Consult mode 'home' pairing (patient-app ConsultKit) | [owner] [owner] same decision as above. |
-| 13 | `mint-only-greens-app.json#7` `patient-app/app/consultations/home-visit-tracking.tsx:114` | /consultations/home-visit-tracking House icon + wait-time tile in mint | [owner] [owner] same decision as above. |
-| 14 | `mint-only-greens-app.json#8` `patient-app/src/components/care/MentalHealthViews.tsx:44` | /mental-health Mood 'great' = mint, 'good' = lime | [owner] [owner] a 5-step mood scale, treated as semantic good/ok scale and kept; the owner may want a non-green scale. |
-| 15 | `mint-only-greens-web.json#0` `patient-web/lib/consult/appointment-view.ts:28` | /appointments Consult mode 'home' pairing (web) | [owner] [owner] same decision as above. |
-| 16 | `mint-only-greens-web.json#1` `patient-web/app/globals.css:285` | / --lime / --color-accent / --brand-lime* aliases | [owner] [owner] unused aliases of accent.lime in the web global stylesheet (no var() reader found); safe to delete in a cleanup. |
-| 17 | `orders-results-web.json#4` `patient-web/components-next/orders/order-list.tsx:84` | /orders Book a consultation with the result as context | [owner] [owner] /consultations/doctors takes no result id; opens the doctor list without context. |
+| 6 | `labs-hub-sheet-app.json#4` `patient-app/app/(tabs)/diagnostics.tsx:285` | /diagnostics Order icon opens the insurance / prescription upload (insurance-ap… | [owner] The earlier row opened that screen; there was no 'medical order' row in the app, confirm the target. |
+| 7 | `mint-only-greens-app.json#0` `packages/design-tokens/tokens.json:115` | / control.switchOn #1F9D6E (toggle ON track) | [owner] [owner] green token, used by every Toggle; semantic on/off, not a service tone; value not changed (no value invented): keep green or pick a non-green on-state? |
+| 8 | `mint-only-greens-app.json#1` `packages/design-tokens/tokens.json:110` | / presence.online #1F9D6E (doctor online dot) | [owner] [owner] green token for the online presence dot (doctor card); value not changed. |
+| 9 | `mint-only-greens-app.json#2` `packages/design-tokens/tokens.json:88` | / service.lime / nutrition (nutrition tile, protein tile, lime chips) | [owner] [owner] lime #4A7A00 / #EDF8D6 is a green service tone; nutrition tile keeps it until the owner picks another tone for nutrition. |
+| 10 | `mint-only-greens-app.json#3` `packages/design-tokens/tokens.json:68` | / accent.lime #D7FF00 and track.filled #D7FF00 (acid lime) | [owner] [owner] acid lime accent (Button variant lime on dark, progress fill); the light-canvas upload bar that used it now uses action.primary.bg; the token itself is unchanged. |
+| 11 | `mint-only-greens-app.json#4` `packages/ui/src/Illustrated.tsx:36` | / iconArt.mint #3FBF9A / mintSoft #6FE0B8 / lime #8EDC5E (illustrated icon fill… | [owner] [owner] flat artwork fills in the illustrated icon set (e.g. test-tube sample is lab-legit, lime sparkles in 6 scenes); mirrored as hex in packages/ui/src/Illustrated.tsx and ui-generated; value change belongs i… |
+| 12 | `mint-only-greens-app.json#5` `packages/ui-native/src/components/Cards.tsx:50` | /consultations/appointments Consult mode 'home' = house/mint tile (board pairin… | [owner] [owner] mint here is the consult home-visit identity, not labs; no non-green tone is free that the boards allow (blue=clinic, violet=online); left on mint until the owner picks one. Same pairing in 4 more places. |
+| 13 | `mint-only-greens-app.json#6` `patient-app/src/components/consult/ConsultKit.tsx:30` | /consultations/appointments Consult mode 'home' pairing (patient-app ConsultKit) | [owner] [owner] same decision as above. |
+| 14 | `mint-only-greens-app.json#7` `patient-app/app/consultations/home-visit-tracking.tsx:114` | /consultations/home-visit-tracking House icon + wait-time tile in mint | [owner] [owner] same decision as above. |
+| 15 | `mint-only-greens-app.json#8` `patient-app/src/components/care/MentalHealthViews.tsx:44` | /mental-health Mood 'great' = mint, 'good' = lime | [owner] [owner] a 5-step mood scale, treated as semantic good/ok scale and kept; the owner may want a non-green scale. |
+| 16 | `mint-only-greens-web.json#0` `patient-web/lib/consult/appointment-view.ts:28` | /appointments Consult mode 'home' pairing (web) | [owner] [owner] same decision as above. |
+| 17 | `mint-only-greens-web.json#1` `patient-web/app/globals.css:285` | / --lime / --color-accent / --brand-lime* aliases | [owner] [owner] unused aliases of accent.lime in the web global stylesheet (no var() reader found); safe to delete in a cleanup. |
+| 18 | `orders-results-web.json#4` `patient-web/components-next/orders/order-list.tsx:84` | /orders Book a consultation with the result as context | [owner] [owner] /consultations/doctors takes no result id; opens the doctor list without context. |
+| 19 | `web-insurance-add-policy.json#1` `patient-web/app/[locale]/insurance/add-policy/page.tsx:31` | /insurance/add-policy Insurer list contains test-named insurers (Insure ins2a75… | [owner] Seed/test data in the local catalogue; nothing changed in the client. |
 
-## Open and unverified (339)
+## Open and unverified (345)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -229,6 +233,11 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `hologram-map.json#0` | client | open | /map hospital sheet link | [client] hospital sheet still opens /consultations/clinic/[id]; /facility/[id] does not exist yet (only app/facility/[slug].tsx, a link resolver); relink when the facility session… |
 | `hologram-map.json#1` | owner | open | /map radiology booking | [owner] radiology pin books through /diagnostics/book-sample (the lab flow) until radiology has its own entry |
 | `hologram-map.json#2` | client | open | /map hologram layers on device | [client] unselected pins are a native symbol layer using per-kind PNGs generated at runtime from the token tones (map-hologram-image.ts) and registered with Images as data: URIs; … |
+| `labs-hub-sheet-app.json#0` | backend | open | /diagnostics Sheet payment option 'cash' (دفع كاش) | [backend] No field apart from cash_availability, which already is 'without insurance'; the option is not drawn. |
+| `labs-hub-sheet-app.json#1` | backend | open | /diagnostics Sort 'nearest' (الأقرب) | [backend] Looked for distance/nearest on the /labs/services and /radiology/services rows: none; not drawn. |
+| `labs-hub-sheet-app.json#2` | backend | open | /diagnostics Toggle 'open now' (مفتوح الآن) | [backend] Looked for open_now / opening hours on the catalogue rows: none; not drawn. |
+| `labs-hub-sheet-app.json#3` | backend | open | /diagnostics Same-day / no-fasting / at-the-lab filters work on the loaded page… | [backend] The server has no fasting_required, turnaround or facility_visit query flag; the count shows the loaded rows. |
+| `labs-hub-sheet-app.json#5` | backend | open | /diagnostics 'No fasting' is drawn when fasting_required is false or missing | [backend] The mapper reads a missing field as false, so a test without the field says 'No fasting'. |
 | `labs-hub-sheet-web.json#0` | backend | open | /diagnostics Payment option 'cash' | [backend] The sheet has no separate cash option: the backend has one cash flag (cash_availability), so cash and 'without insurance' would be the same filter. |
 | `labs-hub-sheet-web.json#1` | backend | open | /diagnostics Sort 'nearest' | [backend] Omitted: GET /labs/services and /radiology/services send no distance or location per service (looked for distance, distance_km, lat/lng). |
 | `labs-hub-sheet-web.json#2` | backend | open | /diagnostics Toggle 'open now' | [backend] Omitted: services carry no opening hours (looked for open_now, opening_hours, working_hours on the service payload). |
@@ -513,6 +522,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `uploads-scan-provider-app.json#1` | client | open | RadiologyOrdersTab Report file upload | [client] Client-side: the upload is recorded in the scan registry but no pending or rejected state is drawn. |
 | `uploads-scan-provider-app.json#2` | client | open | NurseVisitConsole Visit file upload | [client] Client-side: no pending or rejected state is drawn for visit files. |
 | `uploads-scan-provider-app.json#3` | backend | open | ProviderProfileEditor Profile image upload | [backend] Backend gap: /provider/profile/image/upload goes through the image processor, not the documented upload answer; its scan state is unknown to the client and nothing is dr… |
+| `web-insurance-add-policy.json#0` | backend | open | /insurance Company name: stored Arabic only | [backend] my-policy returns company_name (always name_ar) plus company_name_en only; ur/hi/bn/fil show English via the shared helper; storing company_code/id with both names would… |
 | `web-public-ink.json#0` | owner | open | / (home header) header mark and nav active pill | [owner] two web boards disagree: HomeWeb.dc.html draws the mark with an ink bowl and an ink active nav pill (what the code does), WebHome.dc.html draws a coral bowl and an ink-tex… |
 | `web-public-ink.json#1` | client | open | / (home header, dark) active nav pill and Sign in button | [client] brand-ink pill on the ink dark canvas is nearly invisible in dark mode (the label stays readable); boards show no dark web header, so the dark treatment is not defined |
 | `web-public-ink.json#2` | owner | open | /login X and Snapchat buttons | [owner] AuthWeb.dc.html draws X and Snapchat as white buttons with a hairline; code uses the official brand colours (black X, yellow Snapchat with a black border) under the owner … |

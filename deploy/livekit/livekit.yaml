@@ -2,12 +2,13 @@
 port: 7880
 
 rtc:
+  # ICE over TCP straight to the SFU: the fallback for networks that block UDP
   tcp_port: 7881
+  # ONE UDP port for all media (ICE mux): one firewall rule instead of a range, and it works behind carrier NAT
   udp_port: 7882
-  port_range_start: 50000
-  port_range_end: 50100
-  # Public IP — replaced by deploy script with the real server IP
-  node_ip: 2001:41d0:701:1100::cbb3
+  # The public IPv4 is discovered with STUN (use_external_ip) and advertised next to the host addresses. It used to be a fixed node_ip that the deploy script
+  # filled with whatever `curl ifconfig.me` returned, which on a dual-stack host is the IPv6 address: IPv4-only clients (many Wi-Fi and CGNAT networks) then
+  # had no candidate to reach and could not join a call. Do not put a node_ip back.
   use_external_ip: true
 
 keys:

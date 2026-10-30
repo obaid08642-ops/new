@@ -1,0 +1,17 @@
+{
+  "slice": "web-signup-login", "batch": 2, "app": "patient-web",
+  "screens": [
+    { "route": "/register",
+      "elements": [
+        ["patient-web/app/api/auth/register/route.ts:10 password min(10) -> MIN_PASSWORD_LENGTH (8), same as form and backend", "password-rule.ts", "fixed"],
+        ["patient-web/components-next/register-form.tsx: 400 invalid_registration on a password length rule -> existing key Register.errPassword", "Register.errPassword", "fixed"]
+      ], "notes": [] },
+    { "route": "/login",
+      "elements": [
+        ["patient-web/components-next/login-form.tsx: empty submit already shows Login.checkDetails (role=alert) on main; inputs now point to it with aria-describedby", "Login.checkDetails", "fixed"]
+      ], "notes": [] }
+  ],
+  "needsReview": [
+    { "route": "/register", "element": "Second sign-up of the same run answers 400 otp_required", "kind": "backend", "note": "[backend] A-07 residual: auth.service.ts:884 otp_required check depends on the Redis otpVerifiedKey marker; owner/S to confirm whether sign-up should be accepted or the code step shown first.", "file": "backend/src/modules/auth/auth.service.ts", "line": 884 }
+  ]
+}
