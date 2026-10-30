@@ -2,6 +2,7 @@ import { Controller, Post, Get, Put, Delete, Body, Param, Query, UseGuards, Req 
 import { HospitalService } from '../services/hospital.service';
 import { JwtAuthGuard, CurrentUser, Roles } from '../../../common/auth.guard';
 import { UserRole } from '../../../common/enums';
+import { Permission, RequirePermissions } from '../../../common/permissions';
 import { AddStaffDto, OnboardDoctorDto, UpdateAppointmentStatusDto, CreateInvitationDto, RespondInvitationDto, CreateBranchDto, CreateDepartmentDto, AdminFacilityQueryDto } from './hospital.dto';
 
 @Controller('hospital')
@@ -121,6 +122,7 @@ export class AdminFacilityController {
     return this.hospitalService.adminListInvitations({ status: q.status, facility_id: q.facility_id, limit: q.limit });
   }
 
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post('invitations/:id/cancel')
   async cancelInvitation(@CurrentUser() user: any, @Param('id') id: string) {
     return this.hospitalService.cancelInvitation(user.id, id, user, true);
@@ -131,6 +133,7 @@ export class AdminFacilityController {
     return this.hospitalService.adminListMemberships({ facility_id: q.facility_id, limit: q.limit });
   }
 
+  @RequirePermissions(Permission.FACILITY_EDIT)
   @Post('memberships/:userId/end')
   async endMembership(@CurrentUser() user: any, @Param('userId') userId: string) {
     return this.hospitalService.adminEndMembership(user.id, userId);
