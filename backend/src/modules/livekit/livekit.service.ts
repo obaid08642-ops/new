@@ -83,7 +83,10 @@ export class LiveKitService {
     }
     const room = `booking-${appt.id}`;
     const token = await this.createBookingToken(room, user?.name || user?.full_name || user?.id);
-    return { provider: 'livekit', token, room };
+    // the same advice as /calls/:id/join: sound only under server pressure (the web room also drops to sound only on a weak link by itself)
+    // (best effort: a failing count never keeps the patient out of the call)
+    const advice = audioOnlyAdvice({ activeCalls: await this.activeCallCount().catch(() => 0) });
+    return { provider: 'livekit', token, room, audio_only: advice.audio_only, audio_only_reason: advice.reason };
   }
 
   async getProviderWaitingRoom(providerId: string) {
