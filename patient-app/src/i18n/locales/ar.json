@@ -3910,5 +3910,15 @@
   "insurance.policy.deleteBody": "ستُزال هذه البطاقة من حسابك.",
   "insurance.policy.deleteCancel": "إلغاء",
   "insurance.policy.deleteDone": "تم حذف بطاقة التأمين.",
-  "insurance.policy.deleteFailed": "تعذّر حذف البطاقة. حاول مرة أخرى."
+  "insurance.policy.deleteFailed": "تعذّر حذف البطاقة. حاول مرة أخرى.",
+  "consult.call.route.speaker": "مكبر الصوت",
+  "consult.call.route.earpiece": "سماعة الأذن",
+  "consult.call.route.bluetooth": "بلوتوث",
+  "consult.call.route.headset": "سماعة الرأس",
+  "consult.call.flipCamera": "قلب الكاميرا",
+  "consult.call.onHold": "المكالمة معلّقة أثناء مكالمة أخرى",
+  "consult.call.remoteMuted": "الطرف الآخر كاتم الصوت",
+  "consult.call.micDenied": "الوصول إلى الميكروفون متوقف، لذلك لا يسمعك الطرف الآخر",
+  "consult.call.camDenied": "الوصول إلى الكاميرا متوقف، لذلك لا يراك الطرف الآخر",
+  "consult.call.openSettings": "فتح الإعدادات"
 }

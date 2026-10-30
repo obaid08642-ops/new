@@ -3910,5 +3910,15 @@
   "insurance.policy.deleteBody": "یہ کارڈ آپ کے اکاؤنٹ سے ہٹا دیا جائے گا۔",
   "insurance.policy.deleteCancel": "منسوخ کریں",
   "insurance.policy.deleteDone": "انشورنس کارڈ حذف ہو گیا۔",
-  "insurance.policy.deleteFailed": "کارڈ حذف نہیں ہو سکا۔ دوبارہ کوشش کریں۔"
+  "insurance.policy.deleteFailed": "کارڈ حذف نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
+  "consult.call.route.speaker": "اسپیکر",
+  "consult.call.route.earpiece": "ایئرپیس",
+  "consult.call.route.bluetooth": "بلوٹوتھ",
+  "consult.call.route.headset": "ہیڈسیٹ",
+  "consult.call.flipCamera": "کیمرا بدلیں",
+  "consult.call.onHold": "آپ کی دوسری کال کے دوران یہ کال ہولڈ پر ہے",
+  "consult.call.remoteMuted": "دوسرے فرد نے آواز بند کی ہے",
+  "consult.call.micDenied": "مائیکروفون کی رسائی بند ہے، اس لیے وہ آپ کو نہیں سن سکتے",
+  "consult.call.camDenied": "کیمرے کی رسائی بند ہے، اس لیے وہ آپ کو نہیں دیکھ سکتے",
+  "consult.call.openSettings": "سیٹنگز کھولیں"
 }

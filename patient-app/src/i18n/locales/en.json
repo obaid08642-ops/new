@@ -3910,5 +3910,15 @@
   "insurance.policy.deleteBody": "This card will be removed from your account.",
   "insurance.policy.deleteCancel": "Cancel",
   "insurance.policy.deleteDone": "Insurance card deleted.",
-  "insurance.policy.deleteFailed": "We could not delete the card. Try again."
+  "insurance.policy.deleteFailed": "We could not delete the card. Try again.",
+  "consult.call.route.speaker": "Speaker",
+  "consult.call.route.earpiece": "Earpiece",
+  "consult.call.route.bluetooth": "Bluetooth",
+  "consult.call.route.headset": "Headset",
+  "consult.call.flipCamera": "Flip camera",
+  "consult.call.onHold": "Call on hold while you are on another call",
+  "consult.call.remoteMuted": "The other person is muted",
+  "consult.call.micDenied": "Microphone access is off, so they cannot hear you",
+  "consult.call.camDenied": "Camera access is off, so they cannot see you",
+  "consult.call.openSettings": "Open settings"
 }
