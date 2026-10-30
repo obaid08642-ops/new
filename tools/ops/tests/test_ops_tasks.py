@@ -393,7 +393,7 @@ case "$1" in
       cfg=$(echo "$*" | sed -n 's/.*-v \([^ ]*\):\/cfg\/mongorestore.yml:ro.*/\1/p')
       [ -n "$cfg" ] && { cat "$cfg" > "$S/cfg.restore.seen"; }
       cat > /dev/null
-      [ -n "$FAKE_LIST_EMPTY" ] || printf 'preparing collections to restore from\nreading metadata for nabd_nestjs.users from archive on stdin\nreading metadata for nabd_nestjs.patients from archive on stdin\n'
+      [ -n "$FAKE_LIST_EMPTY" ] || printf 'preparing collections to restore from\nfound collection `nabd_nestjs.users` bson to restore to `nabd_nestjs.users`\nfound collection `nabd_nestjs.patients` bson to restore to `nabd_nestjs.patients`\ndry run completed\n'
       exit 0;;
     esac
     case "$*" in *mongodump*)
