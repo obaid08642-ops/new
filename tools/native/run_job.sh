@@ -79,6 +79,10 @@ for R in "$OUT"/flow_${TAG}__*.txt; do
     # every text and id on the screen now: tells an error message or a stuck button from a screen that never opened
     echo "----- screen texts when the flow stopped"
     cat "$OUT/screen_${TAG}__${N}.txt" 2>/dev/null || true
+    # a dump that shows only system UI means the app left the foreground: a crash says why
+    echo "----- app crash log (adb, crash buffer and fatal errors)"
+    adb logcat -d -b crash -v time 2>/dev/null | tail -n 40 || true
+    adb logcat -d -v time 2>/dev/null | grep -E "FATAL EXCEPTION|ReactNativeJS.*(Error|error)|AndroidRuntime|Process com.patient.nabd .* has died|ANR in com.patient.nabd" | tail -n 30 || true
     echo "----- backend log, last requests"; tail -n 25 /tmp/nabd-backend.log 2>/dev/null || true
   fi
 done

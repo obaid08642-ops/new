@@ -28,6 +28,11 @@ appId: com.patient.nabd
     visible:
       id: "cart-screen"
     timeout: 30000
+# the cart screen id is also on its loading and empty states: wait for the button itself
+- extendedWaitUntil:
+    visible:
+      id: "cart-continue"
+    timeout: 30000
 - tapOn:
     id: "cart-continue"
 - extendedWaitUntil:
