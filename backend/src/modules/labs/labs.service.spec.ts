@@ -250,6 +250,18 @@ describe('LabsService', () => {
       );
       expect(booking.total).toBe(112);
     });
+    it('charges the lab\'s own home-collection fee when it set one at registration, else the platform fee', async () => {
+      bookMocks();
+      const mod = await withFees({ delivery_fee: 12, service_fee: 3 });
+      const svc: LabsService = mod.get(LabsService);
+      const profiles = mod.get(getModelToken('ProviderProfile')) as any;
+      profiles.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue({ home_collection_fee: 40 }) });
+      const own: any = await svc.book({ id: 'patient-1', role: 'patient' }, { items: [{ service_id: 'svc-1' }], scheduled_at: future(), location_type: 'home', provider_account_id: 'lab-1', payment_method: 'card' });
+      expect(own.total).toBe(140);
+      profiles.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue({}) });
+      const none: any = await svc.book({ id: 'patient-2', role: 'patient' }, { items: [{ service_id: 'svc-1' }], scheduled_at: future(), location_type: 'home', provider_account_id: 'lab-2', payment_method: 'card' });
+      expect(none.total).toBe(112);
+    });
     it('falls back to the legacy home fee when pricing is unavailable', async () => {
       bookMocks();
       const mod: TestingModule = await Test.createTestingModule({

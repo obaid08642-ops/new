@@ -1,4 +1,5 @@
 import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
+import { homeCollectionFee } from '../../common/provider-home-fees';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { randomUUID } from 'crypto';
@@ -273,6 +274,7 @@ export class OrderingService implements OnModuleInit {
     const settingsBy = new Map(settings.map((s) => [s.provider_account_id as string, s]));
     const cands: Candidate[] = [];
     const snapshot: Record<string, Snapshot> = {};
+    const platformHome = kind === 'lab' ? await this.labs.platformHomeFee() : 0;
     for (const p of profiles) {
       if (!live.has(p.account_id)) continue;
       const s = settingsBy.get(p.account_id);
@@ -299,7 +301,8 @@ export class OrderingService implements OnModuleInit {
       }
       if (!Object.keys(prices).length) continue;
       const inNetwork = !!policy && hasInsuranceContract(s.accepted_insurance, policy.keys, policy.cls);
-      const homeFee = mode === 'home' && typeof s.home_fee === 'number' ? s.home_fee : 0;
+      // a home lab visit is charged the provider's own fee (their ordering setting, else the one typed at registration), else the platform's
+      const homeFee = mode !== 'home' ? 0 : typeof s.home_fee === 'number' ? s.home_fee : kind === 'lab' ? homeCollectionFee(p, platformHome) : 0;
       cands.push({
         provider_id: p.id, name_ar: p.name_ar ?? null, name_en: p.name_en ?? null,
         rating: typeof p.rating === 'number' ? p.rating : null, reliability: reliability.get(p.account_id) ?? null,
