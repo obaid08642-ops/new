@@ -165,13 +165,26 @@ export function collectionLines(changes: Change[]): string[] {
 // writes
 // ---------------------------------------------------------------------------
 
-/** An absent or empty field is written as `null` in the plan; the guard then accepts absent, null or empty. */
-const beforeGuard = (before: unknown) => (before === null || before === undefined ? { $in: [null, ''] } : before);
+/**
+ * An absent or empty field is written as `null` in the plan; the guard then accepts absent, null, an empty string or an empty array: the same
+ * values the planners count as empty (`filled()` in catalog-dedupe), so a field they call empty is never refused by its own guard.
+ */
+const beforeGuard = (before: unknown) => (before === null || before === undefined ? { $in: [null, '', []] } : before);
 
 /** Small batches: a dropped connection loses at most this many updates, and the host (about 1 GB free) is never asked for one long write. */
 export const BATCH = 100;
-const RETRY_ATTEMPTS = 6;
-const RETRY_BASE_MS = 500;
+/**
+ * A restarting mongod takes tens of seconds to accept connections again, so the retry runs for minutes, not seconds: 12 attempts, 0.5 s doubling,
+ * never waiting more than 30 s between two (about 3 minutes in all). Tunable from the environment (the tests shrink it).
+ */
+const retryPolicy = () => ({
+  attempts: Math.max(1, Number(process.env.CATALOGUE_RETRY_ATTEMPTS) || 12),
+  baseMs: Math.max(1, Number(process.env.CATALOGUE_RETRY_BASE_MS) || 500),
+  maxWaitMs: Math.max(1, Number(process.env.CATALOGUE_RETRY_MAX_WAIT_MS) || 30_000),
+});
+/** One progress line per this many batches of updates (100 each). */
+const progressEvery = () => Math.max(1, Number(process.env.CATALOGUE_PROGRESS_BATCHES) || 20);
+export type ProgressFn = (line: string) => void;
 
 /** A network failure that a retry can cure: the driver's network/selection errors, or a closed/reset socket by message. */
 export function isTransientMongoError(e: unknown): boolean {
@@ -179,45 +192,68 @@ export function isTransientMongoError(e: unknown): boolean {
   if (!err) return false;
   if (err.name === 'MongoNetworkError' || err.name === 'MongoNetworkTimeoutError' || err.name === 'MongoServerSelectionError' || err.name === 'MongoNotConnectedError') return true;
   if (err.hasErrorLabel?.('RetryableWriteError') || err.errorLabels?.includes('RetryableWriteError') || err.errorLabels?.includes('TransientTransactionError')) return true;
-  return /\b(closed|ECONNRESET|EPIPE|ETIMEDOUT|socket|topology was destroyed|not connected)\b/i.test(`${err.code ?? ''} ${err.message ?? ''}`);
+  if (err.name === 'MongoPoolClearedError' || err.name === 'PoolClearedError') return true;
+  return /\b(closed|ECONNRESET|ECONNREFUSED|EHOSTUNREACH|EPIPE|ETIMEDOUT|socket|topology was destroyed|not connected|pool.*cleared)\b/i.test(`${err.code ?? ''} ${err.message ?? ''}`);
 }
 
 export interface RetryStats { retried_batches: number }
 
 /**
- * Runs `fn` again after a transient network error (up to 6 attempts, 0.5 s doubling). `fn` receives the attempt number (1-based).
+ * Runs `pass(db, n)`; when it still fails with a network error after its own retries (the connection stayed down), `reconnect` opens a fresh connection and
+ * `pass` runs again (n = 1, 2, ...), up to `reconnects` times. A pass is resumable by construction: every write is a guarded compare-and-set, so a pass over
+ * what is left cannot apply or undo anything twice. A real (non-network) error is thrown at once.
+ */
+export async function withReconnects<T>(db: DbLike, reconnect: () => Promise<DbLike>, pass: (db: DbLike, n: number) => Promise<T>, reconnects: number, log?: ProgressFn): Promise<{ result: T; db: DbLike; reconnected: number }> {
+  let current = db;
+  for (let n = 0; ; n++) {
+    try {
+      return { result: await pass(current, n), db: current, reconnected: n };
+    } catch (e) {
+      if (n >= reconnects || !isTransientMongoError(e)) throw e;
+      log?.(`connection stayed down (${(e as Error)?.name ?? 'error'}); reconnecting, pass ${n + 2} of ${reconnects + 1}`);
+      current = await reconnect();
+    }
+  }
+}
+
+/**
+ * Runs `fn` again after a transient network error (see retryPolicy: minutes, not seconds). `fn` receives the attempt number (1-based).
  * Every write here is guarded (compare-and-set, or insert-if-absent), so running a batch twice cannot apply anything twice.
  */
 export async function withRetry<T>(fn: (attempt: number) => Promise<T>, stats?: RetryStats, sleep: (ms: number) => Promise<void> = (ms) => new Promise((r) => setTimeout(r, ms))): Promise<T> {
+  const policy = retryPolicy();
   for (let attempt = 1; ; attempt++) {
     try {
       return await fn(attempt);
     } catch (e) {
-      if (attempt >= RETRY_ATTEMPTS || !isTransientMongoError(e)) throw e;
+      if (attempt >= policy.attempts || !isTransientMongoError(e)) throw e;
       if (stats) stats.retried_batches += 1;
-      await sleep(RETRY_BASE_MS * 2 ** (attempt - 1));
+      await sleep(Math.min(policy.maxWaitMs, policy.baseMs * 2 ** (attempt - 1)));
     }
   }
 }
 
 /** Runs the compare-and-set updates in batches of 100 (one round trip each, retried on a dropped connection); returns how many modified a document. */
-async function runUpdates(db: DbLike, collection: string, ops: Array<{ filter: Record<string, unknown>; update: Record<string, unknown> }>, stats?: RetryStats): Promise<{ modified: number; total: number }> {
+async function runUpdates(db: DbLike, collection: string, ops: Array<{ filter: Record<string, unknown>; update: Record<string, unknown> }>, stats?: RetryStats, progress?: { phase: string; log: ProgressFn }): Promise<{ modified: number; total: number }> {
   let modified = 0;
   for (let i = 0; i < ops.length; i += BATCH) {
+    if (progress && i > 0 && (i / BATCH) % progressEvery() === 0) progress.log(`${progress.phase} ${collection} ${i}/${ops.length} modified=${modified} retried_batches=${stats?.retried_batches ?? 0}`);
     const slice = ops.slice(i, i + BATCH);
     const res = await withRetry(() => db.collection(collection).bulkWrite(slice.map((o) => ({ updateOne: { filter: o.filter, update: o.update } })), { ordered: false }), stats);
     // After a retry the first attempt may have written before the connection dropped, so this count can be short; the verify step is the proof.
     modified += res.modifiedCount ?? 0;
   }
+  if (progress) progress.log(`${progress.phase} ${collection} ${ops.length}/${ops.length} modified=${modified} retried_batches=${stats?.retried_batches ?? 0}`);
   return { modified, total: ops.length };
 }
 
-export async function applyChanges(db: DbLike, changes: Change[], now: Date = new Date()): Promise<{ applied: number; skipped_changed_since_plan: number; inserted: number; deleted: number; retried_batches: number; skipped_by?: Record<string, number> }> {
+export async function applyChanges(db: DbLike, changes: Change[], now: Date = new Date(), log?: ProgressFn): Promise<{ applied: number; skipped_changed_since_plan: number; inserted: number; deleted: number; retried_batches: number; skipped_by?: Record<string, number>; skipped_state?: Record<string, Record<string, number>> }> {
   const stats: RetryStats = { retried_batches: 0 };
   let applied = 0; let skipped = 0; let inserted = 0; let deleted = 0;
   const removals: DeleteChange[] = [];
   const sets = new Map<string, Array<{ filter: Record<string, unknown>; update: Record<string, unknown>; label: string; path: string; after: unknown; key: Record<string, unknown> }>>();
   const skippedBy: Record<string, number> = {};
+  const skippedState: Record<string, Record<string, number>> = {};
   for (const c of changes) {
     if (c.kind === 'insert') {
       // On a retry, a document with this code may be the one the dropped first attempt wrote: that counts as inserted.
@@ -237,13 +273,18 @@ export async function applyChanges(db: DbLike, changes: Change[], now: Date = ne
     }
   }
   for (const [collection, ops] of sets) {
-    const r = await runUpdates(db, collection, ops, stats);
+    const r = await runUpdates(db, collection, ops, stats, log ? { phase: 'apply', log } : undefined);
     applied += r.modified; skipped += r.total - r.modified;
     // Name what did not land, by step and field (never values): a write whose field does not hold the planned value now was skipped.
+    // For each, also what the field holds now, by TYPE only ("missing", "empty_array", "string", "number"...): the reason a guard refused it.
     if (r.modified < r.total) {
       for (const o of ops) {
         const holds = await db.collection(collection).countDocuments({ ...o.key, [o.path]: o.after });
-        if (!holds) skippedBy[o.label] = (skippedBy[o.label] ?? 0) + 1;
+        if (holds) continue;
+        skippedBy[o.label] = (skippedBy[o.label] ?? 0) + 1;
+        const [doc] = await db.collection(collection).find(o.key, { projection: { [o.path]: 1 } }).toArray();
+        const shape = shapeOf(doc, o.path);
+        (skippedState[o.label] ||= {})[shape] = (skippedState[o.label][shape] ?? 0) + 1;
       }
     }
   }
@@ -252,14 +293,26 @@ export async function applyChanges(db: DbLike, changes: Change[], now: Date = ne
     const res = await withRetry(() => db.collection(c.collection).deleteOne({ ...c.key, _id: c.doc._id }), stats);
     if (res.deletedCount) deleted += 1; else skipped += 1;
   }
-  return { applied, skipped_changed_since_plan: skipped, inserted, deleted, retried_batches: stats.retried_batches, ...(Object.keys(skippedBy).length ? { skipped_by: skippedBy } : {}) };
+  return { applied, skipped_changed_since_plan: skipped, inserted, deleted, retried_batches: stats.retried_batches, ...(Object.keys(skippedBy).length ? { skipped_by: skippedBy, skipped_state: skippedState } : {}) };
+}
+
+/** The kind of value a field holds, never the value itself. */
+export function shapeOf(doc: Record<string, any> | undefined, path: string): string {
+  if (!doc) return 'row_missing';
+  let v: any = doc;
+  for (const part of path.split('.')) { if (v === null || v === undefined || typeof v !== 'object') { v = undefined; break; } v = v[part]; }
+  if (v === undefined) return 'missing';
+  if (v === null) return 'null';
+  if (Array.isArray(v)) return v.length ? 'array' : 'empty_array';
+  if (typeof v === 'string') return v === '' ? 'empty_string' : v.trim() === '' ? 'blank_string' : 'string';
+  return typeof v === 'object' ? 'object' : typeof v;
 }
 
 /**
  * Undo: a field goes back to its before-image only while it still holds what the apply wrote; an inserted document is deleted.
  * A nested field that did not exist (`translations.hi.name`) leaves its parents behind as {}: the ones that are empty now are dropped.
  */
-export async function rollbackChanges(db: DbLike, changes: Change[]): Promise<{ restored: number; skipped_changed_since: number; deleted: number; retried_batches: number }> {
+export async function rollbackChanges(db: DbLike, changes: Change[], log?: ProgressFn): Promise<{ restored: number; skipped_changed_since: number; deleted: number; retried_batches: number }> {
   const stats: RetryStats = { retried_batches: 0 };
   let restored = 0; let skipped = 0; let deleted = 0;
   const sets = new Map<string, Array<{ filter: Record<string, unknown>; update: Record<string, unknown> }>>();
@@ -295,7 +348,7 @@ export async function rollbackChanges(db: DbLike, changes: Change[]): Promise<{ 
     }
   }
   for (const [collection, ops] of sets) {
-    const r = await runUpdates(db, collection, ops, stats);
+    const r = await runUpdates(db, collection, ops, stats, log ? { phase: 'rollback', log } : undefined);
     restored += r.modified; skipped += r.total - r.modified;
   }
   for (const [collection, ops] of parents) await runUpdates(db, collection, ops, stats);
