@@ -3997,5 +3997,17 @@
   "consult.outcome.bookLabs": "لیب ٹیسٹ بُک کریں",
   "consult.outcome.bookScans": "اسکین بُک کریں",
   "consult.outcome.notFoundTitle": "کچھ ٹیسٹ دستیاب نہیں",
-  "consult.outcome.notFoundBody": "{total} میں سے {n} کیٹلاگ میں نہیں ملے اور کارٹ میں شامل نہیں ہوئے۔"
+  "consult.outcome.notFoundBody": "{total} میں سے {n} کیٹلاگ میں نہیں ملے اور کارٹ میں شامل نہیں ہوئے۔",
+  "consult.call.reconnecting": "کنکشن کمزور ہے۔ آپ کی کال دوبارہ جوڑ رہے ہیں…",
+  "consult.call.audioOnly": "آپ کا کنکشن کمزور ہے، اس لیے ہم نے ویڈیو بند کر کے آواز جاری رکھی ہے۔",
+  "consult.call.tryVideo": "ویڈیو دوبارہ آزمائیں",
+  "consult.call.dropped": "کال منقطع ہو گئی۔",
+  "consult.call.continueInChat": "چیٹ میں جاری رکھیں",
+  "consult.call.qualityYou": "آپ کا کنکشن",
+  "consult.call.qualityOther": "دوسری طرف کا کنکشن",
+  "consult.call.quality.excellent": "بہترین",
+  "consult.call.quality.good": "اچھا",
+  "consult.call.quality.poor": "کمزور",
+  "consult.call.quality.lost": "منقطع",
+  "consult.call.quality.unknown": "جانچ ہو رہی ہے"
 }

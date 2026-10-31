@@ -51,13 +51,25 @@ export function CallIdentity({ name, line }: { name: string; line?: string }) {
   );
 }
 
-/** A line about the call (held, other side muted, permission denied) with an optional action; read out when it appears. */
-export function CallNotice({ text, actionLabel, onAction }: { text: string; actionLabel?: string; onAction?: () => void }) {
+/** A line about the call (reconnecting, sound only, held, other side muted, permission denied) with an optional action: announced to screen readers, on a dark pill. */
+export function CallNotice({ text, testID, actionLabel, onAction }: { text: string; testID?: string; actionLabel?: string; onAction?: () => void }) {
   const { tk, c, flow } = useCallUi();
   return (
-    <View accessibilityLiveRegion="polite" style={{ alignItems: 'center', gap: 6, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 16, backgroundColor: tint(c.text.primary, 0.12) }}>
-      <Text style={{ ...scale(tk, 'small', 'regular'), color: c.text.primary, textAlign: 'center', writingDirection: flow.writingDirection }}>{text}</Text>
+    <View testID={testID} accessibilityRole="alert" accessibilityLiveRegion="polite" style={{ alignSelf: 'center', alignItems: 'center', gap: 6, maxWidth: '92%', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, backgroundColor: tint(c.text.primary, 0.18) }}>
+      <Text style={{ ...scale(tk, 'small', 'bold'), color: c.text.primary, textAlign: 'center', writingDirection: flow.writingDirection }}>{text}</Text>
       {actionLabel && onAction ? <CallButton label={actionLabel} onPress={onAction} testID="call-notice-action" /> : null}
+    </View>
+  );
+}
+
+/** Connection quality of one side as three bars (excellent 3, good 2, poor 1, lost/unknown 0); the label is read out, the bars are drawn. */
+export function QualityBars({ bars, label, testID }: { bars: number; label: string; testID?: string }) {
+  const { c } = useCallUi();
+  return (
+    <View testID={testID} accessible accessibilityLabel={label} style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 3, height: 16 }}>
+      {[1, 2, 3].map((n) => (
+        <View key={n} style={{ width: 4, height: 4 + n * 4, borderRadius: 1, backgroundColor: n <= bars ? c.text.primary : tint(c.text.primary, 0.3) }} />
+      ))}
     </View>
   );
 }

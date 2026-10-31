@@ -3997,5 +3997,17 @@
   "consult.outcome.bookLabs": "I-book ang mga lab test",
   "consult.outcome.bookScans": "I-book ang mga scan",
   "consult.outcome.notFoundTitle": "May mga test na hindi available",
-  "consult.outcome.notFoundBody": "{n} sa {total} ay hindi nahanap sa catalogue at hindi naidagdag sa cart."
+  "consult.outcome.notFoundBody": "{n} sa {total} ay hindi nahanap sa catalogue at hindi naidagdag sa cart.",
+  "consult.call.reconnecting": "Mahina ang koneksyon. Ikinokonekta muli ang tawag mo…",
+  "consult.call.audioOnly": "Mahina ang koneksyon mo, kaya pinatay namin ang video at pinanatili ang tunog.",
+  "consult.call.tryVideo": "Subukan muli ang video",
+  "consult.call.dropped": "Naputol ang tawag.",
+  "consult.call.continueInChat": "Ituloy sa chat",
+  "consult.call.qualityYou": "Ang koneksyon mo",
+  "consult.call.qualityOther": "Koneksyon ng kabilang panig",
+  "consult.call.quality.excellent": "napakahusay",
+  "consult.call.quality.good": "maayos",
+  "consult.call.quality.poor": "mahina",
+  "consult.call.quality.lost": "naputol",
+  "consult.call.quality.unknown": "sinusuri"
 }

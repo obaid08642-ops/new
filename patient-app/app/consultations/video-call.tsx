@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Platform, StatusBar, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
-import { LocalVideoTrack, Room, RoomEvent, VideoPresets, type LocalTrack, type RemoteTrack } from 'livekit-client';
+import { AudioPresets, ConnectionQuality, DisconnectReason, LocalVideoTrack, Room, RoomEvent, VideoPresets, type LocalTrack, type RemoteTrack } from 'livekit-client';
 
 import { ErrorState } from '../../../packages/ui-native/src';
-import { CallButton, CallIdentity, CallNotice, useCallUi } from '../../src/components/consult/CallKit';
+import { CallButton, CallIdentity, CallNotice, QualityBars, useCallUi } from '../../src/components/consult/CallKit';
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
 import { TelehealthConsentSheet, isTelehealthConsentRefusal } from '../../src/components/legal/TelehealthConsent';
@@ -12,6 +12,7 @@ import { ensureLiveKitGlobals, startCallAudio, stopCallAudio } from '../../src/c
 import { availableRoutes, defaultRoute, nextRoute, selectRoute, type AudioRoute } from '../../src/calls/audioRoute';
 import { onCallHold } from '../../src/calls/callHold';
 import { createRoomHandle } from '../../src/calls/roomHandle';
+import { bindCallResilience, callRoomOptions, qualityBars, type AudioOnlyReason, type CallPhase, type QualityLevel } from '../../src/calls/callResilience';
 
 const OS = Platform.OS === 'ios' ? 'ios' : 'android';
 
@@ -47,6 +48,9 @@ interface Join {
   livekit_token?: string;
   server_url?: string;
   serverUrl?: string;
+  /** The server's advice (weak link, server pressure): start with sound only. */
+  audio_only?: boolean;
+  audio_only_reason?: AudioOnlyReason | null;
 }
 
 export default function VideoCallScreen() {
@@ -74,6 +78,10 @@ export default function VideoCallScreen() {
   const [remoteTrack, setRemoteTrack] = useState<RemoteTrack | null>(null);
   const [localTrack, setLocalTrack] = useState<LocalTrack | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [phase, setPhase] = useState<CallPhase>('connecting');
+  const [audioOnly, setAudioOnly] = useState<AudioOnlyReason | 'user' | null>(null);
+  const [quality, setQuality] = useState<{ local: QualityLevel; remote: QualityLevel }>({ local: 'unknown', remote: 'unknown' });
+  const resilience = useRef<ReturnType<typeof bindCallResilience> | null>(null);
 
   useEffect(() => {
     const handle = createRoomHandle<Room>();
@@ -83,6 +91,7 @@ export default function VideoCallScreen() {
         // Fetch appointment details and token
         let token = '';
         let serverUrl = 'wss://live.nabd.plus'; // Default fallback
+        let advice: AudioOnlyReason | null = null;
 
         // M1-30: real LiveKit contract — POST /calls/initiate then /calls/:sessionId/join
         // (was calling non-existent /care/appointments/:id/video-token and falling back to a fake token)
@@ -101,6 +110,7 @@ export default function VideoCallScreen() {
             const resData = joinRes?.data || joinRes;
             token = resData?.token || resData?.livekit_token || '';
             serverUrl = resData?.server_url || resData?.serverUrl || serverUrl;
+            if (resData?.audio_only && (resData.audio_only_reason === 'weak_link' || resData.audio_only_reason === 'server_pressure')) advice = resData.audio_only_reason;
             setData(session?.appointment || session);
           }
         }
@@ -109,18 +119,8 @@ export default function VideoCallScreen() {
           throw new Error('call_token_missing');
         }
 
-        // FaceTime-class quality: capture HD 720p, publish with simulcast layers so
-        // LiveKit adapts each subscriber to the best layer their network can carry
-        // (adaptiveStream + dynacast), with DTX audio for clean voice on weak links.
-        // (the options are built apart so the unchanged `audioBitrate` key stays as it was sent)
-        const publishDefaults = {
-          videoCodec: 'vp8' as const, // plays on every browser and phone the doctor may use
-          simulcast: true,
-          videoSimulcastLayers: [VideoPresets.h180, VideoPresets.h360],
-          videoEncoding: { maxBitrate: 1_700_000 },
-          audioBitrate: 32_000,
-          dtx: true,
-        };
+        // FaceTime-class quality: capture HD 720p, publish with simulcast layers so LiveKit adapts each subscriber to the best layer
+        // their network can carry (adaptiveStream + dynacast), with DTX speech audio for clean voice on weak links.
         ensureLiveKitGlobals();
         await startCallAudio();
         if (handle.disposed) {
@@ -128,12 +128,7 @@ export default function VideoCallScreen() {
           return;
         }
         // the handle owns the room from here, so leaving the screen while it connects still disconnects it
-        const newRoom = handle.adopt(new Room({
-          adaptiveStream: true,
-          dynacast: true,
-          videoCaptureDefaults: { resolution: VideoPresets.h720.resolution },
-          publishDefaults,
-        }));
+        const newRoom = handle.adopt(new Room(callRoomOptions({ VideoPresets, AudioPresets }) as ConstructorParameters<typeof Room>[0]));
 
         // Event listeners
         newRoom.on(RoomEvent.TrackSubscribed, (track) => {
@@ -156,10 +151,15 @@ export default function VideoCallScreen() {
           if (participant !== newRoom.localParticipant && pub.kind === 'audio') setRemoteMuted(false);
         });
 
-        newRoom.on(RoomEvent.Disconnected, () => {
-          setIsConnected(false);
-          setRemoteTrack(null);
-        });
+        // Reconnecting / audio-only / quality / dropped: one tested state machine (src/calls/callResilience.ts)
+        resilience.current = bindCallResilience(newRoom as never, { RoomEvent, ConnectionQuality, DisconnectReason } as never, {
+          onPhase: (next) => {
+            setPhase(next);
+            if (next === 'dropped' || next === 'ended') { setIsConnected(false); setRemoteTrack(null); setRemoteMuted(false); }
+          },
+          onAudioOnly: (on, reason) => { setAudioOnly(on ? reason : null); if (on) setCamOn(false); },
+          onQuality: (identity, level, local) => setQuality((q) => (local ? { ...q, local: level } : { ...q, remote: level })),
+        }, { startAudioOnly: advice });
 
         newRoom.on(RoomEvent.LocalTrackPublished, (publication) => {
           if (publication.track?.kind === 'video') {
@@ -176,7 +176,10 @@ export default function VideoCallScreen() {
           setDenied('mic');
           setMicOn(false);
         }
-        if (isVideoCall) {
+        if (advice) {
+          // the server advises sound only (weak link / server pressure): the camera stays off until the user asks for it
+          await resilience.current?.applyStartAdvice();
+        } else if (isVideoCall) {
           try {
             await newRoom.localParticipant.setCameraEnabled(true);
           } catch {
@@ -198,6 +201,7 @@ export default function VideoCallScreen() {
         const initial = defaultRoute(isVideoCall, found);
         setRoute(initial);
         void selectRoute(initial, OS);
+        setPhase('live');
 
         setRoom(newRoom);
         setIsConnected(true);
@@ -219,6 +223,8 @@ export default function VideoCallScreen() {
     void connectToRoom();
 
     return () => {
+      resilience.current?.dispose();
+      resilience.current = null;
       void handle.dispose();
       void stopCallAudio();
     };
@@ -274,6 +280,14 @@ export default function VideoCallScreen() {
     router.replace({ pathname: '/consultations/post-call-rating', params: { appointmentId } } as unknown as Href);
   };
 
+  const continueInChat = () => {
+    router.replace({ pathname: '/consultations/chat-with-doctor', params: { appointmentId: String(appointmentId ?? '') } } as unknown as Href);
+  };
+  const tryVideo = () => {
+    setCamOn(true);
+    void resilience.current?.tryVideo();
+  };
+  const levelText = (level: QualityLevel) => k(`consult.call.quality.${level}`);
   const full = { width: '100%', height: '100%' } as const;
 
   if (consentAsked) {
@@ -308,9 +322,31 @@ export default function VideoCallScreen() {
     );
   }
 
+  if (phase === 'dropped') {
+    return (
+      <View style={{ flex: 1, backgroundColor: c.bg.canvas, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 16 }} testID="call-dropped">
+        <CallIdentity name={data?.doctor_name ?? ''} line={k('consult.call.dropped')} />
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 12 }}>
+          <CallButton label={k('consult.call.continueInChat')} onPress={continueInChat} testID="call-continue-chat" />
+          <CallButton label={k('consult.call.backToConsult')} tone="danger" onPress={() => router.replace('/consultations' as unknown as Href)} testID="call-dropped-back" />
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={{ flex: 1, backgroundColor: c.bg.canvas }} testID="video-call-screen">
       <StatusBar barStyle="light-content" hidden />
+
+      {/* Status over the call: reconnecting (the same call resumes) and sound only (weak link) */}
+      <View style={{ position: 'absolute', top: 12, start: 0, end: 0, zIndex: 2, gap: 8, alignItems: 'center' }} pointerEvents="box-none">
+        {phase === 'reconnecting' ? <CallNotice text={k('consult.call.reconnecting')} testID="call-reconnecting" /> : null}
+        {audioOnly ? <CallNotice text={k('consult.call.audioOnly')} testID="call-audio-only" /> : null}
+        <View style={{ flexDirection: 'row', gap: 16 }}>
+          <QualityBars bars={qualityBars(quality.local)} label={`${k('consult.call.qualityYou')}: ${levelText(quality.local)}`} testID="call-quality-local" />
+          <QualityBars bars={qualityBars(quality.remote)} label={`${k('consult.call.qualityOther')}: ${levelText(quality.remote)}`} testID="call-quality-remote" />
+        </View>
+      </View>
 
       {/* Remote Video Background */}
       <View style={{ position: 'absolute', top: 0, start: 0, end: 0, bottom: 0 }}>
@@ -342,7 +378,13 @@ export default function VideoCallScreen() {
         <CallButton label={k('consult.call.end')} tone="danger" onPress={handleEndCall} testID="call-end" />
         {routes.length > 1 ? <CallButton label={k(`consult.call.route.${route}`)} active onPress={cycleRoute} testID="call-route" /> : null}
         {isVideoCall && camOn ? <CallButton label={k('consult.call.flipCamera')} active onPress={flipCamera} testID="call-flip" /> : null}
-        {isVideoCall ? <CallButton label={camOn ? k('consult.call.cameraOff') : k('consult.call.cameraOn')} active={camOn} onPress={() => setCamOn(!camOn)} testID="call-camera" /> : null}
+        {isVideoCall ? (
+          audioOnly ? (
+            <CallButton label={k('consult.call.tryVideo')} onPress={tryVideo} testID="call-try-video" />
+          ) : (
+            <CallButton label={camOn ? k('consult.call.cameraOff') : k('consult.call.cameraOn')} active={camOn} onPress={() => setCamOn(!camOn)} testID="call-camera" />
+          )
+        ) : null}
       </View>
     </View>
   );

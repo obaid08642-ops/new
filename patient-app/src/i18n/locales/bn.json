@@ -3997,5 +3997,17 @@
   "consult.outcome.bookLabs": "ল্যাব পরীক্ষা বুক করুন",
   "consult.outcome.bookScans": "স্ক্যান বুক করুন",
   "consult.outcome.notFoundTitle": "কিছু পরীক্ষা পাওয়া যায়নি",
-  "consult.outcome.notFoundBody": "{total}-এর মধ্যে {n}টি ক্যাটালগে পাওয়া যায়নি এবং কার্টে যোগ হয়নি।"
+  "consult.outcome.notFoundBody": "{total}-এর মধ্যে {n}টি ক্যাটালগে পাওয়া যায়নি এবং কার্টে যোগ হয়নি।",
+  "consult.call.reconnecting": "সংযোগ দুর্বল। আপনার কল আবার যুক্ত করা হচ্ছে…",
+  "consult.call.audioOnly": "আপনার সংযোগ দুর্বল, তাই আমরা ভিডিও বন্ধ করে শব্দ চালু রেখেছি।",
+  "consult.call.tryVideo": "আবার ভিডিও চেষ্টা করুন",
+  "consult.call.dropped": "কলটি কেটে গেছে।",
+  "consult.call.continueInChat": "চ্যাটে চালিয়ে যান",
+  "consult.call.qualityYou": "আপনার সংযোগ",
+  "consult.call.qualityOther": "অপর পক্ষের সংযোগ",
+  "consult.call.quality.excellent": "চমৎকার",
+  "consult.call.quality.good": "ভালো",
+  "consult.call.quality.poor": "দুর্বল",
+  "consult.call.quality.lost": "বিচ্ছিন্ন",
+  "consult.call.quality.unknown": "যাচাই হচ্ছে"
 }

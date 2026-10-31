@@ -14,12 +14,14 @@ describe("call room settings", () => {
     expect(o.publishDefaults.videoSimulcastLayers).toEqual([VideoPresets.h180, VideoPresets.h360]);
     expect(o.publishDefaults.dtx).toBe(true);
     expect(o.publishDefaults.audioPreset).toBe(AudioPresets.speech);
-    // The app's live call screen (the old src/components/livekit-view.tsx was never imported and is removed). The app sets its
-    // voice bitrate explicitly (32 kbps with DTX) where the web uses the speech preset; both keep DTX on.
-    const app = fs.readFileSync(path.join(__dirname, "../../patient-app/app/consultations/video-call.tsx"), "utf8");
-    for (const s of ["adaptiveStream: true", "dynacast: true", "simulcast: true", "videoSimulcastLayers: [VideoPresets.h180, VideoPresets.h360]", "maxBitrate: 1_700_000", "audioBitrate: 32_000", "dtx: true"]) {
-      expect(app, s).toContain(s);
+    // The app builds its room from the same options (patient-app/src/calls/callResilience.ts, used by app/consultations/video-call.tsx):
+    // the web, the app and the app's own copy of the options must keep the same settings.
+    const appCopy = fs.readFileSync(path.join(__dirname, "../../patient-app/src/calls/callResilience.ts"), "utf8");
+    for (const s of ["adaptiveStream: true", "dynacast: true", "simulcast: true", "videoSimulcastLayers: [VideoPresets.h180, VideoPresets.h360]", "maxBitrate: 1_700_000", "audioPreset: AudioPresets.speech", "dtx: true"]) {
+      expect(appCopy, s).toContain(s);
     }
+    const appScreen = fs.readFileSync(path.join(__dirname, "../../patient-app/app/consultations/video-call.tsx"), "utf8");
+    expect(appScreen).toContain("callRoomOptions({ VideoPresets, AudioPresets })");
   });
 });
 

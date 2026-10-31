@@ -3997,5 +3997,17 @@
   "consult.outcome.bookLabs": "احجز التحاليل",
   "consult.outcome.bookScans": "احجز الأشعة",
   "consult.outcome.notFoundTitle": "بعض الفحوصات غير متاحة",
-  "consult.outcome.notFoundBody": "لم نجد {n} من {total} في الدليل، ولم تُضَف إلى السلة."
+  "consult.outcome.notFoundBody": "لم نجد {n} من {total} في الدليل، ولم تُضَف إلى السلة.",
+  "consult.call.reconnecting": "الاتصال ضعيف، نعيد الاتصال بالمكالمة…",
+  "consult.call.audioOnly": "الاتصال ضعيف، فأوقفنا الفيديو وأبقينا الصوت.",
+  "consult.call.tryVideo": "جرّب الفيديو مرة أخرى",
+  "consult.call.dropped": "انقطعت المكالمة.",
+  "consult.call.continueInChat": "أكمل في المحادثة",
+  "consult.call.qualityYou": "اتصالك",
+  "consult.call.qualityOther": "اتصال الطرف الآخر",
+  "consult.call.quality.excellent": "ممتاز",
+  "consult.call.quality.good": "جيد",
+  "consult.call.quality.poor": "ضعيف",
+  "consult.call.quality.lost": "منقطع",
+  "consult.call.quality.unknown": "جارٍ الفحص"
 }

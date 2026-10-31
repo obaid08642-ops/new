@@ -3997,5 +3997,17 @@
   "consult.outcome.bookLabs": "लैब जाँच बुक करें",
   "consult.outcome.bookScans": "स्कैन बुक करें",
   "consult.outcome.notFoundTitle": "कुछ जाँच उपलब्ध नहीं हैं",
-  "consult.outcome.notFoundBody": "{total} में से {n} कैटलॉग में नहीं मिले और कार्ट में नहीं जोड़े गए।"
+  "consult.outcome.notFoundBody": "{total} में से {n} कैटलॉग में नहीं मिले और कार्ट में नहीं जोड़े गए।",
+  "consult.call.reconnecting": "कनेक्शन कमज़ोर है। आपकी कॉल फिर से जोड़ रहे हैं…",
+  "consult.call.audioOnly": "आपका कनेक्शन कमज़ोर है, इसलिए हमने वीडियो बंद करके आवाज़ चालू रखी है।",
+  "consult.call.tryVideo": "वीडियो फिर से आज़माएँ",
+  "consult.call.dropped": "कॉल कट गई।",
+  "consult.call.continueInChat": "चैट में जारी रखें",
+  "consult.call.qualityYou": "आपका कनेक्शन",
+  "consult.call.qualityOther": "दूसरी तरफ़ का कनेक्शन",
+  "consult.call.quality.excellent": "बहुत अच्छा",
+  "consult.call.quality.good": "अच्छा",
+  "consult.call.quality.poor": "कमज़ोर",
+  "consult.call.quality.lost": "टूट गया",
+  "consult.call.quality.unknown": "जाँच हो रही है"
 }
