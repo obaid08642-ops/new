@@ -11,6 +11,7 @@ import { TelehealthConsentSheet, isTelehealthConsentRefusal } from '../../src/co
 import { ensureLiveKitGlobals, startCallAudio, stopCallAudio } from '../../src/calls/livekitNative';
 import { availableRoutes, defaultRoute, nextRoute, selectRoute, type AudioRoute } from '../../src/calls/audioRoute';
 import { onCallHold } from '../../src/calls/callHold';
+import { createRoomHandle } from '../../src/calls/roomHandle';
 
 const OS = Platform.OS === 'ios' ? 'ios' : 'android';
 
@@ -75,7 +76,7 @@ export default function VideoCallScreen() {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    let activeRoom: Room | null = null;
+    const handle = createRoomHandle<Room>();
 
     const connectToRoom = async () => {
       try {
@@ -122,12 +123,17 @@ export default function VideoCallScreen() {
         };
         ensureLiveKitGlobals();
         await startCallAudio();
-        const newRoom = new Room({
+        if (handle.disposed) {
+          void stopCallAudio();
+          return;
+        }
+        // the handle owns the room from here, so leaving the screen while it connects still disconnects it
+        const newRoom = handle.adopt(new Room({
           adaptiveStream: true,
           dynacast: true,
           videoCaptureDefaults: { resolution: VideoPresets.h720.resolution },
           publishDefaults,
-        });
+        }));
 
         // Event listeners
         newRoom.on(RoomEvent.TrackSubscribed, (track) => {
@@ -161,11 +167,12 @@ export default function VideoCallScreen() {
           }
         });
 
-        await newRoom.connect(serverUrl, token);
+        if (!(await handle.step(() => newRoom.connect(serverUrl, token)))) return;
         // each permission on its own: a denied camera must not take the voice down with it
         try {
           await newRoom.localParticipant.setMicrophoneEnabled(true);
         } catch {
+          if (handle.disposed) return;
           setDenied('mic');
           setMicOn(false);
         }
@@ -173,11 +180,20 @@ export default function VideoCallScreen() {
           try {
             await newRoom.localParticipant.setCameraEnabled(true);
           } catch {
+            if (handle.disposed) return;
             setDenied((d) => d ?? 'cam');
             setCamOn(false);
           }
         }
+        if (handle.disposed) {
+          await handle.dispose();
+          return;
+        }
         const found = await availableRoutes(OS);
+        if (handle.disposed) {
+          await handle.dispose();
+          return;
+        }
         setRoutes(found);
         const initial = defaultRoute(isVideoCall, found);
         setRoute(initial);
@@ -186,8 +202,9 @@ export default function VideoCallScreen() {
         setRoom(newRoom);
         setIsConnected(true);
         setLoading(false);
-        activeRoom = newRoom;
       } catch (error) {
+        if (handle.disposed) return;
+        void handle.dispose(); // a failed attempt must not leave a half-connected room behind (Retry makes a new one)
         if (isTelehealthConsentRefusal(error)) {
           setConsentAsked(true);
           setLoading(false);
@@ -202,9 +219,7 @@ export default function VideoCallScreen() {
     void connectToRoom();
 
     return () => {
-      if (activeRoom) {
-        void activeRoom.disconnect();
-      }
+      void handle.dispose();
       void stopCallAudio();
     };
   }, [appointmentId, ringingSessionId, attempt]);
