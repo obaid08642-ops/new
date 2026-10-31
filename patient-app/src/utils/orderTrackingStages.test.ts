@@ -39,7 +39,8 @@ describe('stage table, pickup', () => {
     expect(states({ ...pickup, status: 'in_fulfillment', allocations_detail: [{ status: 'ready_for_pickup' }] })).toEqual(['accepted:done', 'preparing:done', 'ready:current', 'collected:upcoming']);
   });
   it('delivered is collected', () => {
-    expect(states({ ...pickup, status: 'delivered' }).at(-1)).toBe('collected:done');
+    const all = states({ ...pickup, status: 'delivered' });
+    expect(all[all.length - 1]).toBe('collected:done');
   });
 });
 
