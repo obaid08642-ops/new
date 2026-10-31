@@ -32,7 +32,8 @@ function setup(opts: { online?: string[]; msg?: any; last?: any } = {}) {
   };
   const events: any = { emit: jest.fn((n: string, p: any) => { emitted.push([n, p]); }) };
   const presence: any = { isOnline: jest.fn(async (id: string) => (opts.online || []).includes(id)) };
-  const svc = new ChatService(threads, msgs, { emit: jest.fn().mockResolvedValue(undefined) } as any, events, undefined, presence);
+  const svc = new ChatService(threads, msgs, // the real bus stores the event and fans it out under its type: the one emit that push, notifications and realtime hear
+    { emit: jest.fn(async (input: any) => { emitted.push([input.type, input]); return { duplicate: false }; }) } as any, events, undefined, presence);
   jest.spyOn(svc as any, 'verifyCommunicationAllowed').mockResolvedValue({ allowed: true });
   jest.spyOn(svc as any, 'validateChatMediaIds').mockImplementation(async (_t: any, _s: any, ids: any) => ({ ids: ids || [], mimes: [] }));
   return { svc, created, msgUpdates, threadUpdates, emitted, msgDoc };

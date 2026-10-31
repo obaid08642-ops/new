@@ -164,6 +164,9 @@ const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }>
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/messages$`, "i") },
   // issue 806: the doctor thread composer sends one text message (backend chat.module POST /chat/threads/:id/messages)
   { method: "POST", route: new RegExp(`^/chat/threads/${threadId}/messages$`, "i") },
+  // seen and delivered receipts of the doctor thread (backend chat.module POST /chat/threads/:id/read and /delivered)
+  { method: "POST", route: new RegExp(`^/chat/threads/${threadId}/read$`, "i") },
+  { method: "POST", route: new RegExp(`^/chat/threads/${threadId}/delivered$`, "i") },
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/accept-substitute/[A-Za-z0-9_-]{1,128}$`, "i") },
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/reject$`, "i") },
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/remove-item$`, "i") },
