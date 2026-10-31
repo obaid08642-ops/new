@@ -40,6 +40,7 @@ import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { PharmacyInsuranceDecisionService } from './services/pharmacy-insurance-decision.service';
 import { PharmacyExpiryCommandService } from './services/pharmacy-expiry-command.service';
 import { PharmacyExpiryScheduler } from './services/pharmacy-expiry.scheduler';
+import { PharmacyBroadcastDispatchService } from './services/pharmacy-broadcast-dispatch.service';
 import { PharmacyPaymentEvidenceService } from './services/pharmacy-payment-evidence.service';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { GeoEngineService } from '../provider/services/geo-engine.service';
@@ -130,6 +131,7 @@ import { B2BVoiceController } from './pharmacy-b2b-voice.controller';
     PharmacyInsuranceDecisionService,
     PharmacyExpiryCommandService,
     PharmacyExpiryScheduler,
+    PharmacyBroadcastDispatchService,
     PharmacyPaymentEvidenceService,
     ProcurementService,
     GeoEngineService,

@@ -667,6 +667,8 @@ export class RadiologyOpsService {
       attribution: pickAttribution(body) ?? undefined,
     });
     this.events.emit('radiology.new_booking', { bookingId: booking.id, patientId: user.id });
+    // The provider hears about it too (bell row + push), as for labs and appointments; radiology.new_booking only notifies the patient.
+    await this.engine.announceCreated({ kind: 'radiology', entity_id: booking.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { payment_method: pm } }).catch(() => undefined);
     return booking;
   }
 
