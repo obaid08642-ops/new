@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Optional, ServiceUnavailableException } from '@nestjs/common';
+import { assertPaymentMethod } from '../../common/payment-policy';
 import { assertScanned } from '../storage/pending-scan';
 import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { SearchService } from '../search/search.service';
@@ -648,7 +649,7 @@ export class RadiologyOpsService {
     if (location === 'home' && !svc.home_visit_supported) throw new BadRequestException('scan_not_home_eligible');
     const pm = String(body?.payment_method || 'cash').toLowerCase();
     if (!['cash', 'card', 'insurance'].includes(pm)) throw new BadRequestException('invalid payment_method');
-    if (location === 'home' && pm === 'cash') throw new BadRequestException('payment_method_cash_not_allowed_for_home_visit');
+    if (location === 'home') assertPaymentMethod(pm, 'home_visit');
     const documents: any[] = Array.isArray(body?.documents) ? body.documents.map((d: any) => ({ kind: String(d?.kind || ''), url_or_b64: String(d?.url_or_b64 || ''), filename: d?.filename, uploaded_at: new Date() })) : [];
     // Home rule (mirror labs): insurance + home requires uploaded doctor_request OR preauth.
     if (location === 'home' && pm === 'insurance' && !documents.some((d) => d.kind === 'doctor_request' || d.kind === 'preauth')) {

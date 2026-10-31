@@ -1,4 +1,5 @@
 import { flattenResultEntries } from './lab-booking-results';
+import { assertPaymentMethod } from '../../common/payment-policy';
 import { homeCollectionFee } from '../../common/provider-home-fees';
 import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { SearchService } from '../search/search.service';
@@ -311,13 +312,7 @@ export class LabsService {
     if (!['home', 'facility'].includes(data.location_type)) data.location_type = 'home';
     // Enforce Nabd payment policy
     const svcCtx = data.location_type === 'home' ? 'home_visit' : 'in_clinic';
-    const pmAllowed: Record<string, string[]> = {
-      home_visit: ['card', 'insurance'],
-      in_clinic: ['cash', 'card', 'insurance'],
-    };
-    if (!pmAllowed[svcCtx]?.includes(paymentMethod)) {
-      throw new BadRequestException(`payment_method_${paymentMethod}_not_allowed_for_${svcCtx}`);
-    }
+    assertPaymentMethod(paymentMethod, svcCtx);
     // Phase Stabilization: explicit provider selection is mandatory for patient bookings.
     // Admin/system roles may create without provider_account_id (e.g. seeding, manual ops).
     if (!data.provider_account_id && user.role !== 'admin' && user.role !== 'system') {
