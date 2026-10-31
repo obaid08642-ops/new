@@ -207,13 +207,13 @@ export default function ProviderModeration() {
     }
   };
 
-  // Reject (final: the provider's images are deleted server-side) and request-changes (the provider can fix and resubmit).
+  // Reject (the reason is shown to the provider, who fixes and resubmits; the documents are kept, private) and request-changes (the same, for a specific change).
   // Both use the routes POST /admin/providers/:id/reject and :id/request-changes; the body field differs (reason / note).
   const handleDecision = async (id: string, kind: 'reject' | 'request-changes') => {
     const reject = kind === 'reject';
     const reason = window.prompt(
       reject
-        ? 'سبب رفض المزود (نهائي — تُحذف صور الوثائق، ويُحفظ السبب في سجل التدقيق، 5 أحرف على الأقل):'
+        ? 'سبب رفض المزود (يراه المزود ويصحّح ما طُلب ثم يعيد التقديم؛ تبقى الوثائق محفوظة بشكل خاص ولا تُحذف، ويُحفظ السبب في سجل التدقيق، 5 أحرف على الأقل):'
         : 'ما المطلوب تعديله؟ (يصل للمزود ويُحفظ في سجل التدقيق — 5 أحرف على الأقل):',
       '',
     );
