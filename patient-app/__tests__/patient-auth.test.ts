@@ -1,4 +1,4 @@
-import { currentConsents, forgotPassword, isValidIdentifier, normalizeIdentifier, registerPatient, requestOtp, resetPassword, verifyOtp } from '../src/auth/patientAuth';
+import { applyOtpInput, currentConsents, forgotPassword, isValidIdentifier, normalizeIdentifier, registerPatient, requestOtp, resetPassword, verifyOtp } from '../src/auth/patientAuth';
 
 const calls: { endpoint: string; body: any; skipAuth?: boolean }[] = [];
 const apiWith = (answers: Record<string, unknown>) => jest.fn(async (endpoint: string, o?: { body?: string; skipAuth?: boolean }) => {
@@ -53,4 +53,29 @@ test('forgot and reset use the link-flow endpoints', async () => {
   await resetPassword(api, 'tok', 'newpassword');
   expect(calls[0]).toMatchObject({ endpoint: '/auth/password/forgot', body: { identifier: '+966501234567' } });
   expect(calls[1]).toMatchObject({ endpoint: '/auth/password/reset', body: { reset_token: 'tok', new_password: 'newpassword' } });
+});
+
+describe('applyOtpInput (a pasted or auto-filled code)', () => {
+  const empty = ['', '', '', '', '', ''];
+  it('spreads a whole code pasted into the first box and focuses the last box', () => {
+    expect(applyOtpInput(empty, '123456', 0)).toEqual({ boxes: ['1', '2', '3', '4', '5', '6'], focus: 5 });
+  });
+  it('drops non-digits and never runs past the sixth box', () => {
+    expect(applyOtpInput(empty, '12-34 5678', 2)).toEqual({ boxes: ['', '', '1', '2', '3', '4'], focus: 5 });
+  });
+  it('a single digit fills its box and moves on; an empty text clears the box', () => {
+    expect(applyOtpInput(empty, '7', 1)).toEqual({ boxes: ['', '7', '', '', '', ''], focus: 2 });
+    expect(applyOtpInput(['1', '2', '', '', '', ''], '', 1)).toEqual({ boxes: ['1', '', '', '', '', ''], focus: 1 });
+  });
+  it('typing over a filled box keeps the new digit', () => {
+    expect(applyOtpInput(['1', '', '', '', '', ''], '12', 0).boxes[0]).toBe('2');
+  });
+});
+
+describe('normalizeIdentifier: a Saudi number typed with 966 and no plus', () => {
+  it('is international already; a local 0-number still gets +966', () => {
+    expect(normalizeIdentifier('966501234567')).toBe('+966501234567');
+    expect(normalizeIdentifier('0501234567')).toBe('+966501234567');
+    expect(normalizeIdentifier('501234567')).toBe('+966501234567');
+  });
 });

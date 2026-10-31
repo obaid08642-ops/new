@@ -15,6 +15,8 @@ export function normalizeIdentifier(raw: string): string {
   const digits = value.replace(/[\s()-]/g, '');
   if (digits.startsWith('+')) return digits;
   if (digits.startsWith('00')) return `+${digits.slice(2)}`;
+  // a full Saudi number typed without the plus (966 + 9 digits): it is already international, not a local number
+  if (/^966\d{9}$/.test(digits)) return `+${digits}`;
   return `+966${digits.replace(/^0+/, '')}`;
 }
 
@@ -71,3 +73,19 @@ export async function registerPatient(api: AuthApi, input: { name: string; ident
 
 export const forgotPassword = (api: AuthApi, identifier: string) => post(api, '/auth/password/forgot', { identifier: normalizeIdentifier(identifier) });
 export const resetPassword = (api: AuthApi, token: string, newPassword: string) => post(api, '/auth/password/reset', { reset_token: token, new_password: newPassword });
+
+/**
+ * The six code boxes after a change in box `index`: a pasted or auto-filled code (the whole code in one box, as the
+ * SMS autofill does) is spread over the boxes from there, anything that is not a digit is dropped, and the result is
+ * the new boxes plus the box that should take focus.
+ */
+export function applyOtpInput(boxes: readonly string[], text: string, index: number): { boxes: string[]; focus: number } {
+  let digits = text.replace(/\D/g, '');
+  // typing into a box that already holds a digit gives two characters: keep the new one
+  if (digits.length === 2 && boxes[index] && text.length === 2) digits = digits.replace(boxes[index], '') || digits[1];
+  const next = [...boxes];
+  if (!digits) { next[index] = ''; return { boxes: next, focus: index }; }
+  const placed = digits.length === 1 ? digits : digits.slice(0, boxes.length - index);
+  for (let i = 0; i < placed.length; i++) next[index + i] = placed[i];
+  return { boxes: next, focus: Math.min(index + placed.length, boxes.length - 1) };
+}
