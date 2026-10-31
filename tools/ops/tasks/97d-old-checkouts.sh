@@ -13,7 +13,7 @@
 # Also keeps only the current and the previous release dir in $OPS_RELEASE_DIR (tools/ops/release/prune-releases.sh; the upload calls the same script).
 # Prints `status:` lines only: paths, sizes and counts. Never the environment.
 set -u
-APPLY=""
+APPLY="yes"
 ROOT=${OPS_ROOT:-/opt/nabdah}
 B=${OPS_BACKUP_DIR:-$ROOT/backups}
 REL=${OPS_RELEASE_DIR:-$ROOT/releases}

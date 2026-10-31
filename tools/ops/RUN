@@ -1,8 +1,7 @@
-# 2026-10-31 lead reviewer: run 70 (read-only + dry runs; nothing is changed).
-# Run 69 showed the HOST out of memory (kernel OOM-killed mongod 15x and meilisearch 11x in 3 h; MemAvailable 535 MB).
-# 1. 98-memory-report (READ-ONLY, #2226): per container limit/reservation/use/oom_score_adj (configured vs real), host totals, and who the kernel kills and why.
-# 2. 97d-old-checkouts DRY RUN (#2218): evidence per old checkout dir that nothing uses it, and the MB it would free.
-# 3. 98c-swapfile DRY RUN (#2226): whether a 2 GB swap file fits (free space after it must stay >= 1.5 GB).
-98-memory-report
+# 2026-10-31 lead reviewer: run 71.
+# Run 70 (read-only): the host already has 4 GB swap (no swap task needed). The 491 OOM kills in 3 h were ALL meilisearch hitting its OWN
+# 640 MB limit (CONSTRAINT_MEMCG, 782 restarts): a crash loop, not the host. mongod was not killed in the window. Disk is at 91% (3.6 GB free).
+# Old checkouts: nabdah-backend and Napd-admin are compose build contexts (IN USE, left alone); patient-web is UNREFERENCED (967 MB).
+# 1. 97d-old-checkouts APPLY: re-proves each directory at that moment, archives patient-web without node_modules to the backups dir,
+#    reads the archive back, then deletes it (frees about 0.95 GB). The two in-use directories are never touched.
 97d-old-checkouts
-98c-swapfile
