@@ -226,6 +226,15 @@ export class FinanceSuiteService {
     if (body?.settlement_delay_days !== undefined) $set['settlement.delay_days.default'] = Number(body.settlement_delay_days);
     if (Object.keys($set).length === 2) throw new BadRequestException('nothing_to_update');
     await this.conn.collection('finance_config').updateOne({ key: 'commissions' }, { $set });
+    // The service default has one level: a service-scope rule is read before this config, so an old one would hide the percent just
+    // saved. Saving a percent supersedes the active service rules of those types (they stay in the history, inactive).
+    const types = Object.keys(percents);
+    if (types.length) {
+      await this.conn.collection('commissionrules').updateMany(
+        { scope: 'service', active: { $ne: false }, $or: [{ service_type: { $in: types } }, { scope_id: { $in: types } }] },
+        { $set: { active: false, superseded_at: new Date(), superseded_by: 'finance_config_update' } },
+      );
+    }
     const after: any = await this.conn.collection('finance_config').findOne({ key: 'commissions' }, { projection: { _id: 0 } });
     const pick = (d: any) => ({ service_types: d?.service_types ?? null, tax: d?.tax ?? null, payout_schedule: d?.payout_schedule ?? null, settlement: d?.settlement ?? null });
     await this.audit.write({
