@@ -21,6 +21,7 @@ import { ServiceState, ServiceDomain, UserRole } from '../../common/enums';
 import { toUniversal, domainStatesFor, WorkflowEngineService, WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
 import { AcceptDto, RejectDto, StartDto, CompleteDto, InsuranceDto, ArrivedDto } from './provider-jobs.dto';
 import { withholdBeforeAcceptance } from './provider-job-privacy';
+import { completionBlocker } from './complete-guard';
 
 type JobStatus = 'incoming' | 'active' | 'completed';
 
@@ -204,6 +205,9 @@ export class ProviderJobsService {
       if (entity.payment_method === 'insurance' && entity.insurance_status !== 'approved') throw new BadRequestException('insurance_booking_requires_coverage_decision');
       if (entity.payment_method === 'card' && entity.payment_status !== 'paid') throw new BadRequestException('card_payment_not_completed');
     }
+    // A lab job is completed by uploading its result (POST /labs/bookings/:id/upload-report), not by this generic call.
+    const blocked = completionBlocker(kind, target, entity);
+    if (blocked) throw new BadRequestException(blocked);
     // Map universal target → domain literal that the entity understands.
     const domainLiteralFor: Record<ServiceState, Record<ServiceDomain, string>> = {
       [ServiceState.REQUESTED]: { pharmacy: 'CREATED', lab: 'CREATED', radiology: 'PENDING', nursing: 'CREATED', consultation: 'PENDING' },
