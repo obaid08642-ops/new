@@ -13,14 +13,14 @@ Complete list of user scenarios, from the owner's request ("make sure there are 
 
 ## Counts
 
-| Measure | Before this catalogue | After this catalogue |
+| Measure | First catalogue (`qa/scenario-catalogue`) | Re-scored on main `c17aa3461` |
 |---|---|---|
-| Scenarios listed | (new list) | 100 |
-| COVERED | — | 52 |
-| PARTIAL | — | 16 |
-| NOT COVERED | — | 32 |
+| Scenarios listed | 100 | 100 |
+| COVERED | 52 | 55 |
+| PARTIAL | 16 | 16 |
+| NOT COVERED | 32 | 29 |
 
-Before/after: no new journeys were added in this pass. The uncovered count is the same before and after. The owner asked for uncovered scenarios to get a live journey or a test or be routed; this pass routes them (column "Route"). Writing the journeys is the next step per route.
+Change since the first catalogue: three P0 scenarios got live journeys and PASS on main (PT-36, PT-37, PT-47). Merged fixes on main for other scenarios (licence expiry, refund rules, staff flow, provider reject and resubmit, lab and radiology completion rules) do not count as COVERED here: a scenario needs a journey file to be COVERED. Their journeys are still to be written, so they stay NOT COVERED or PARTIAL.
 
 ---
 
@@ -63,8 +63,8 @@ Before/after: no new journeys were added in this pass. The uncovered count is th
 | PT-33 | Dark mode | NOT COVERED | none | P3 | D |
 | PT-34 | Session expiry while in use | COVERED | `j_patient_sessions.py` | P1 | — |
 | PT-35 | Multi-device sign-in and sign-out | COVERED | `j_patient_sessions.py` | P1 | — |
-| PT-36 | Account deletion (PDPL) | NOT COVERED | none | P0 | H, S |
-| PT-37 | Data export (PDPL) | NOT COVERED | none | P0 | S |
+| PT-36 | Account deletion (PDPL) | COVERED | `j_pdpl_export_erase.py` (12/12 on main c17aa3461): wrong password refused, right password erases, old token and sign-in refused | P0 | — |
+| PT-37 | Data export (PDPL) | COVERED | `j_pdpl_export_erase.py`: export answers with the patient's own id and no password hash | P0 | — |
 | PT-38 | Deep links into a booking or chat | NOT COVERED | none | P1 | H |
 | PT-39 | Offline and flaky network | COVERED | `j_throttled_network.py`, `j_web_offline.py` | P1 | — |
 | PT-40 | Accessibility basics (labels, focus, contrast) | NOT COVERED | none | P2 | D, H |
@@ -74,7 +74,7 @@ Before/after: no new journeys were added in this pass. The uncovered count is th
 | PT-44 | Account locked after bad passwords | COVERED | `j_password_lockout.py` | P1 | — |
 | PT-45 | Cancel a home visit (web) | COVERED | `j_web_cancel_home.py` (52/52) | P1 | — |
 | PT-46 | Cancel with refund (paid visit) | COVERED | `j_qa_refund_consultation.py` (55/55) | P0 | — |
-| PT-47 | Cancel after completion still refunds (P0 in the walk) | NOT COVERED | none; route S (`appointments.service.ts:518`) | P0 | S |
+| PT-47 | Cancel after completion still refunds (P0 in the walk) | COVERED | `j_cancel_after_completion.py` (54/54 on main c17aa3461): cancel on a completed visit refused (400/409/422), visit stays completed, no refund figure, second cancel refused. The state change now comes first in `appointments.service.ts` cancel(). | P0 | — |
 | PT-48 | Lab booking and results | COVERED | `j_lab.py` (144/144) | P1 | — |
 | PT-49 | Radiology booking and basket | COVERED | `j_radiology.py`, `j_radiology_basket.py` | P1 | — |
 | PT-50 | Nursing visit booking | COVERED | `j_nursing.py`, `j_web_nursing_visits.py` | P1 | — |
