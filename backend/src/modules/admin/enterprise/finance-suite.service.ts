@@ -290,50 +290,73 @@ export class FinanceSuiteService {
     };
   }
 
-  // ── Payout batches with maker-checker ────────────────────────
+  // ── Payouts: one state machine, maker-checker ────────────────
+  //
+  //   PENDING_ADMIN_APPROVAL ──approve──▶ APPROVED_FOR_PAYOUT ──execute──▶ PAID
+  //          │  (amount ≥ threshold: AWAITING_SECOND_APPROVAL, a second distinct admin)
+  //          └──reject (from any open state, releases the locked balance)──▶ REJECTED
+  //
+  // PAID and REJECTED are final. The provider app, the admin payouts page and the finance suite all read these states.
 
   private get withdrawals() { return this.conn.collection('providerwithdrawals'); }
-  private dualThreshold(): number { return Number(process.env.PAYOUT_DUAL_APPROVAL_SAR || 10000); }
+  /** The amount from which a second, distinct admin must approve: the finance approval config, else PAYOUT_DUAL_APPROVAL_SAR, else 10000. */
+  private async dualThreshold(): Promise<number> {
+    const cfg: any = await this.conn.collection('finance_config').findOne({ key: 'approval' }).catch(() => null);
+    const configured = Number(cfg?.large_payout_sar);
+    return Number.isFinite(configured) && configured > 0 ? configured : Number(process.env.PAYOUT_DUAL_APPROVAL_SAR || 10000);
+  }
+  private reservation(w: any) {
+    return this.conn.collection('platformledgerentries').findOne({ type: 'payout', state: 'locked', ref_type: 'withdrawal_reservation', ref_id: w.id, provider_account_id: w.provider_id });
+  }
 
   async payoutQueue(status?: string, page = 1, limit = 25) {
     const q: any = status ? { state: String(status).toUpperCase() } : {};
     const l = Math.min(100, Math.max(1, limit));
-    const [items, total, byState] = await Promise.all([
+    const [items, total, byState, threshold] = await Promise.all([
       this.withdrawals.find(q).sort({ createdAt: -1 }).skip((page - 1) * l).limit(l)
         .project({ _id: 0 }).toArray(),
       this.withdrawals.countDocuments(q),
       this.withdrawals.aggregate([{ $group: { _id: '$state', n: { $sum: 1 }, amount: { $sum: '$amount' } } }]).toArray().catch(() => []),
+      this.dualThreshold(),
     ]);
     return {
       data: items,
       total, page, pages: Math.ceil(total / l),
-      dual_approval_threshold_sar: this.dualThreshold(),
+      dual_approval_threshold_sar: threshold,
       by_state: (byState as any[]).map((s) => ({ state: s._id, count: s.n, amount: s.amount })),
     };
   }
 
   /**
-   * Two-step approval: stage-one (maker) then completion (checker).
-   * The same admin may never both request and approve, and large payouts
-   * (≥ PAYOUT_DUAL_APPROVAL_SAR) require two distinct approvers.
+   * Approve or reject. Approval is two-step (maker then checker) from the dual-approval threshold up; the same admin may never
+   * approve twice, nor approve a payout of their own. A reject, from any open state, gives the locked balance back to the provider.
    */
   async approvePayout(id: string, admin: any, rawReason: unknown, decision: 'approve' | 'reject') {
     const reason = validateReason(rawReason, MIN_FINANCIAL_REASON_LENGTH);
     const w: any = await this.withdrawals.findOne({ id });
     if (!w) throw new NotFoundException('payout_not_found');
     if (admin.id === w.provider_id) throw new ForbiddenException('cannot_approve_own_payout');
-    if (['COMPLETED', 'REJECTED'].includes(String(w.state))) throw new BadRequestException(`already_${w.state.toLowerCase()}`);
+    if (['PAID', 'COMPLETED', 'REJECTED'].includes(String(w.state))) throw new BadRequestException(`already_${String(w.state).toLowerCase()}`);
 
-    const needsDual = Number(w.amount) >= this.dualThreshold();
     if (decision === 'reject') {
-      if (w.state !== 'PENDING_ADMIN_APPROVAL') throw new BadRequestException('not_rejectable_in_state_' + w.state);
-      await this.withdrawals.updateOne({ id }, { $set: { state: 'REJECTED', rejected_by: admin.id, rejected_at: new Date(), rejection_reason: reason } });
+      const res = await this.withdrawals.updateOne({ id, state: { $in: ['PENDING_ADMIN_APPROVAL', 'AWAITING_SECOND_APPROVAL', 'APPROVED_FOR_PAYOUT'] } }, {
+        $set: { state: 'REJECTED', rejected_by: admin.id, rejected_at: new Date(), rejection_reason: reason, note: reason, decided_at: new Date() },
+      });
+      if (!res.modifiedCount) throw new BadRequestException('not_rejectable_in_state_' + w.state);
+      // the balance reserved for this request goes back to the provider
+      await this.conn.collection('platformledgerentries').updateOne(
+        { type: 'payout', state: 'locked', ref_type: 'withdrawal_reservation', ref_id: id, provider_account_id: w.provider_id },
+        { $set: { state: 'released', released_at: new Date(), release_reason: reason } },
+      );
       await this.audit.write({
         action: 'payout_reject', actor: admin, target_type: 'providerwithdrawals', target_id: id,
         reason, before: { state: w.state }, after: { state: 'REJECTED' },
       });
       return { ok: true, id, state: 'REJECTED' };
     }
+
+    if (!['PENDING_ADMIN_APPROVAL', 'AWAITING_SECOND_APPROVAL'].includes(String(w.state))) throw new BadRequestException('not_approvable_in_state_' + w.state);
+    const needsDual = Number(w.amount) >= await this.dualThreshold();
 
     if (needsDual) {
       if (!w.approved_stage_one_by) {
@@ -372,6 +395,35 @@ export class FinanceSuiteService {
       meta: { amount: w.amount },
     });
     return { ok: true, id, state: 'APPROVED_FOR_PAYOUT' };
+  }
+
+  /**
+   * The last step: the admin records that the transfer to the provider's bank account was made. Only an approved payout can be
+   * paid (every approval it needed has been taken), once: the locked balance becomes a cleared payout and the request becomes PAID.
+   */
+  async executePayout(id: string, admin: any, rawReason: unknown) {
+    const reason = validateReason(rawReason, MIN_FINANCIAL_REASON_LENGTH);
+    const w: any = await this.withdrawals.findOne({ id });
+    if (!w) throw new NotFoundException('payout_not_found');
+    if (admin.id === w.provider_id) throw new ForbiddenException('cannot_approve_own_payout');
+    if (String(w.state) !== 'APPROVED_FOR_PAYOUT') throw new BadRequestException('not_executable_in_state_' + w.state);
+    const reservation: any = await this.reservation(w);
+    if (!reservation || Number(reservation.amount) !== Number(w.amount)) throw new BadRequestException('withdrawal_reservation_missing_or_mismatched');
+
+    // the state is the claim: of two concurrent executions only one moves it to PAID
+    const res = await this.withdrawals.updateOne({ id, state: 'APPROVED_FOR_PAYOUT' }, {
+      $set: { state: 'PAID', paid_by: admin.id, paid_by_name: admin.full_name || admin.email || admin.id, paid_at: new Date(), decided_at: new Date(), payment_reason: reason },
+    });
+    if (!res.modifiedCount) throw new BadRequestException('not_executable_in_state_PAID');
+    await this.conn.collection('platformledgerentries').updateOne(
+      { id: reservation.id, state: 'locked' },
+      { $set: { state: 'cleared', cleared_at: new Date(), actor_id: admin.id } },
+    );
+    await this.audit.write({
+      action: 'payout_executed', actor: admin, target_type: 'providerwithdrawals', target_id: id,
+      reason, before: { state: 'APPROVED_FOR_PAYOUT' }, after: { state: 'PAID' }, meta: { amount: w.amount, provider_id: w.provider_id },
+    });
+    return { ok: true, id, state: 'PAID' };
   }
 
   /** Detailed provider account statement (orders + payouts + ledger). */
