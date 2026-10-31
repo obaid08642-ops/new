@@ -76,6 +76,39 @@ export class MeiliClient {
     if (docs.length) await this.req('POST', `/indexes/${MEILI_INDEX}/documents`, docs);
   }
 
+  /**
+   * What the engine holds and how much work it already has: `documents` is null while the index does not exist yet, `backlog` counts the tasks
+   * waiting or running. A sync that finds a backlog must not add to it (Meilisearch keeps its task queue across a restart, so a queue that
+   * killed it once kills it again after every restart).
+   */
+  async state(): Promise<{ documents: number | null; backlog: number }> {
+    let documents: number | null = null;
+    try {
+      const st = await this.req('GET', `/indexes/${MEILI_INDEX}/stats`);
+      documents = Number(st?.numberOfDocuments ?? 0);
+    } catch (e) {
+      if (!/\b404\b/.test((e as Error).message)) throw e;
+    }
+    const t = await this.req('GET', '/tasks?statuses=enqueued,processing&limit=1');
+    return { documents, backlog: Number(t?.total ?? 0) };
+  }
+
+  /** Sends documents and waits until the engine has applied them, so a long sync is one task at a time, never a queue of hundreds. */
+  async upsertAndWait(docs: SearchDocument[], timeoutMs = 120_000, pollMs = 500): Promise<void> {
+    if (!docs.length) return;
+    const r = await this.req('POST', `/indexes/${MEILI_INDEX}/documents`, docs);
+    const uid = r?.taskUid;
+    if (uid === undefined || uid === null) return;
+    const end = Date.now() + timeoutMs;
+    while (Date.now() < end) {
+      const t = await this.req('GET', `/tasks/${uid}`);
+      if (t?.status === 'succeeded') return;
+      if (t?.status === 'failed' || t?.status === 'canceled') throw new Error(`meilisearch task ${uid} ${t.status}`);
+      await new Promise((res) => setTimeout(res, pollMs));
+    }
+    throw new Error(`meilisearch task ${uid} still not done after ${Math.round(timeoutMs / 1000)} s`);
+  }
+
   async remove(keys: string[]): Promise<void> {
     if (keys.length) await this.req('POST', `/indexes/${MEILI_INDEX}/documents/delete-batch`, keys);
   }
