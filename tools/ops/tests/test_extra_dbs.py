@@ -19,7 +19,7 @@ def wx(path, text):
 
 
 class ExtraDbs(unittest.TestCase):
-    def run_task(self, env=None, apply=False, listed=2):
+    def run_task(self, env=None, apply=False, listed=2, cenv="MONGO_URL=mongodb://root:topsecret@mongodb:27017/?authSource=admin"):
         tmp = tempfile.TemporaryDirectory(); self.addCleanup(tmp.cleanup)
         d = tmp.name; b = os.path.join(d, "bin"); os.makedirs(b); self.bk = os.path.join(d, "backups"); os.makedirs(self.bk)
         dep = os.path.join(d, "deploy"); os.makedirs(os.path.join(dep, "scripts"))
@@ -31,13 +31,14 @@ class ExtraDbs(unittest.TestCase):
         wx(os.path.join(b, "docker"), f'''#!/bin/bash
 echo "$*" >> "{self.calls}"
 case "$*" in
+  "ps --format"*) printf 'nabdah-backend\\nnabdah-fastapi\\n';;
+  *inspect*Config.Env*) case "$*" in *nabdah-backend*) printf 'DB_NAME=nabd_nestjs\\nMONGO_URL=mongodb://root:topsecret@mongodb:27017/nabd_nestjs?authSource=admin\\nSOMETHING=else\\n';; *) printf '%s\\n' "{cenv}";; esac;;
   *"printenv DB_NAME"*) echo nabd_nestjs;;
   *printenv*) echo x;;
   *dropDatabase*) echo '{{"ok":1}}';;
   *) echo '{ALL}';;
 esac
 ''')
-        text = open(TASK).read()
         e = dict(os.environ, PATH=b + os.pathsep + os.environ["PATH"], OPS_DEPLOY_DIR=dep, OPS_BACKUP_DIR=self.bk, **(env or {}))
         if apply:
             e["APPLY"] = "yes"
@@ -62,6 +63,20 @@ esac
         self.assertEqual(len([f for f in os.listdir(self.bk) if f.startswith("extra-db-")]), 2)
         self.assertIn("--db=nabd_staging", calls); self.assertLess(calls.index("--db=nabd_staging"), calls.index("dropDatabase"))
         self.assertNotIn("getSiblingDB('nabd_nestjs').dropDatabase", calls)
+
+    def test_containers_are_proven_not_to_use_the_extra_databases_and_no_uri_is_printed(self):
+        p, _ = self.run_task()
+        o = p.stdout
+        self.assertIn("container nabdah-backend uses database(s): nabd_nestjs", o)
+        self.assertIn("nabd_staging: used by running containers: none", o); self.assertIn("temp_restore: used by running containers: none", o)
+        self.assertIn("nabd_staging: newest document date in any collection: 2026-08-01", o)
+        self.assertNotIn("topsecret", o + p.stderr); self.assertNotIn("mongodb://", o)
+
+    def test_a_database_that_a_running_container_uses_is_refused_even_when_named(self):
+        p, calls = self.run_task({"DROP_DBS": "temp_restore"}, apply=True, cenv="MONGO_URL=mongodb://root:topsecret@mongodb:27017/temp_restore?authSource=admin")
+        self.assertIn("container nabdah-fastapi uses database(s): temp_restore", p.stdout)
+        self.assertIn("temp_restore: REFUSED (running container(s) use it: nabdah-fastapi", p.stdout)
+        self.assertNotIn("dropDatabase", calls); self.assertEqual(os.listdir(self.bk), []); self.assertNotIn("topsecret", p.stdout)
 
     def test_the_app_database_system_databases_and_unknown_names_are_refused(self):
         p, calls = self.run_task({"DROP_DBS": "nabd_nestjs admin local config nope"}, apply=True)

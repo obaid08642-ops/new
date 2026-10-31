@@ -7,6 +7,8 @@
 #       2. dump it with the one-off dump (same image, caps and network as the nightly) to $OPS_BACKUP_DIR/extra-db-<name>-<timestamp>.archive.gz;
 #       3. verify: non-empty, gzip -t, and `mongorestore --dryRun` lists at least as many collections as were counted;
 #       4. only then dropDatabase on THAT database. Any failed step = that database is not dropped.
+#   Before any drop it also proves that no RUNNING container uses the database: for every container it reads MONGO_URL / MONGODB_URI / MONGO_URI / DATABASE_URL (the database is the path of the
+#   URI) and DB_NAME, and prints only the database NAMES each container uses, never a URI. A database used by any running container is refused.
 #   A database that is not named in DROP_DBS is never touched. The app database is never touched by this task.
 set -u
 APPLY=${APPLY:-no}
@@ -26,7 +28,21 @@ say "app database: $APP (never touched by this task)"
 say "databases: $(echo "$ALL" | jq -r 'to_entries | map("\(.key)=\(.value.mb)MB") | join(" ")')"
 EXTRA=$(echo "$ALL" | jq -r --arg a "$APP" 'keys[] | select(. != $a)')
 [ -n "$EXTRA" ] || { say "no database other than the app database: nothing to do"; exit 0; }
+# which database does every running container use? (names only: the URI is parsed and thrown away)
+CUSE=$(mktemp); trap 'rm -f "$CUSE"' EXIT
+for c in $($DK ps --format '{{.Names}}' 2>/dev/null); do
+  names=$($DK inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "$c" 2>/dev/null | awk -F= '
+    $1=="DB_NAME" { sub(/^[^=]*=/, ""); print; next }
+    $1=="MONGO_URL" || $1=="MONGODB_URI" || $1=="MONGO_URI" || $1=="DATABASE_URL" { v=$0; sub(/^[^=]*=/, "", v); sub(/^[a-zA-Z+]+:\/\/[^\/]*\/?/, "", v); sub(/\?.*/, "", v); if (v != "") print v }' | tr -d "\"' " | sort -u | tr '\n' ' ')
+  [ -n "$names" ] || continue
+  echo "$c $names" >> "$CUSE"
+  say "container $c uses database(s): $names"
+done
+[ -s "$CUSE" ] || say "no running container names a database in its environment (DB_NAME or a Mongo URI)"
+users_of() { awk -v d="$1" '{ for (i = 2; i <= NF; i++) if ($i == d) { printf "%s ", $1; break } }' "$CUSE"; }
 for db in $EXTRA; do
+  say "$db: used by running containers: $(users_of "$db")$([ -z "$(users_of "$db")" ] && echo none)"
+  say "$db: newest document date in any collection: $(echo "$ALL" | jq -r --arg d "$db" '[.[$d].c[].newest | select(. != null)] | max // "none"')"
   say "$db: $(echo "$ALL" | jq -r --arg d "$db" '.[$d] | "\(.mb) MB, \(.c|length) collection(s), \([.c[].n]|add // 0) document(s)"')"
   for c in $(echo "$ALL" | jq -r --arg d "$db" '.[$d].c | keys[]'); do
     say "$db.$c: $(echo "$ALL" | jq -r --arg d "$db" --arg c "$c" --arg a "$APP" '.[$d].c[$c] as $x | (.[$a].c[$c] // null) as $y | "\($x.n) docs, \($x.mb) MB, newest \($x.newest // "none"); same collection in \($a): \(if $y then "\($y.n) docs, newest \($y.newest // "none")" else "absent" end)"')"
@@ -46,6 +62,7 @@ for db in $DROP_DBS; do
   case "$db" in admin|local|config) say "$db: REFUSED (system database)"; RC_ALL=1; continue;; esac
   [ "$db" != "$APP" ] || { say "$db: REFUSED (this is the app database)"; RC_ALL=1; continue; }
   echo "$ALL" | jq -e --arg d "$db" 'has($d)' >/dev/null || { say "$db: REFUSED (no such database on the server)"; RC_ALL=1; continue; }
+  USERS=$(users_of "$db"); [ -z "$USERS" ] || { say "$db: REFUSED (running container(s) use it: $USERS)"; RC_ALL=1; continue; }
   NS=$(echo "$ALL" | jq -r --arg d "$db" '.[$d].c | length')
   OUT="$B/extra-db-${db}-$(date -u +%Y%m%d-%H%M%S).archive.gz"; TMP=$(mktemp)
   if ! mongodump_oneoff "$TMP" --db="$db" --gzip --archive || [ ! -s "$TMP" ]; then say "$db: ABORT the dump failed or is empty: not dropped"; rm -f "$TMP"; RC_ALL=1; continue; fi
