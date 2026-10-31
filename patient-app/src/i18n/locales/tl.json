@@ -1991,6 +1991,7 @@
   "diag.checkout.payFailed": "Hindi masimulan ang pagbabayad",
   "diag.checkout.payRetry": "Subukan muli mula sa mga detalye ng order",
   "diag.checkout.failed": "Hindi magawa ang booking",
+  "diag.checkout.onePayment": "Ang bayad sa card ay para sa isang booking lang bawat beses. I-book nang hiwalay ang mga lab test at ang bawat scan.",
   "diag.checkout.failedBody": "Suriin ang oras at paraan ng pagbabayad at subukan muli",
   "diag.pay.cash": "Bayad na cash",
   "diag.pay.card": "Kard",

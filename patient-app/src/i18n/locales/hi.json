@@ -1991,6 +1991,7 @@
   "diag.checkout.payFailed": "भुगतान शुरू नहीं हो सका",
   "diag.checkout.payRetry": "ऑर्डर विवरण से फिर कोशिश करें",
   "diag.checkout.failed": "बुकिंग नहीं बन सकी",
+  "diag.checkout.onePayment": "कार्ड से भुगतान एक बार में एक बुकिंग के लिए होता है। लैब टेस्ट और हर स्कैन की बुकिंग अलग-अलग करें।",
   "diag.checkout.failedBody": "समय और भुगतान का तरीका जांचकर फिर कोशिश करें",
   "diag.pay.cash": "नकद भुगतान",
   "diag.pay.card": "कार्ड",

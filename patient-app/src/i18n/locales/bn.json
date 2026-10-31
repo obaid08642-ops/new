@@ -1991,6 +1991,7 @@
   "diag.checkout.payFailed": "পেমেন্ট শুরু করা যায়নি",
   "diag.checkout.payRetry": "অর্ডারের বিবরণ থেকে আবার চেষ্টা করুন",
   "diag.checkout.failed": "বুকিং তৈরি করা যায়নি",
+  "diag.checkout.onePayment": "কার্ডে পেমেন্ট একবারে একটি বুকিংয়ের জন্য। ল্যাব টেস্ট এবং প্রতিটি স্ক্যান আলাদাভাবে বুক করুন।",
   "diag.checkout.failedBody": "সময় ও পেমেন্ট পদ্ধতি দেখে আবার চেষ্টা করুন",
   "diag.pay.cash": "নগদ পেমেন্ট",
   "diag.pay.card": "কার্ড",

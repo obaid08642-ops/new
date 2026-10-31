@@ -1991,6 +1991,7 @@
   "diag.checkout.payFailed": "تعذر بدء الدفع",
   "diag.checkout.payRetry": "حاول مجدداً من تفاصيل الطلب",
   "diag.checkout.failed": "تعذر إنشاء الحجز",
+  "diag.checkout.onePayment": "الدفع بالبطاقة يغطي حجزاً واحداً في كل مرة. احجز التحاليل وكل أشعة على حدة.",
   "diag.checkout.failedBody": "تحقق من الموعد وطريقة الدفع وحاول مجدداً",
   "diag.pay.cash": "دفع كاش",
   "diag.pay.card": "بطاقة",
