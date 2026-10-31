@@ -1991,6 +1991,7 @@
   "diag.checkout.payFailed": "ادائیگی شروع نہیں ہو سکی",
   "diag.checkout.payRetry": "آرڈر کی تفصیلات سے دوبارہ کوشش کریں",
   "diag.checkout.failed": "بکنگ نہیں بن سکی",
+  "diag.checkout.onePayment": "کارڈ سے ادائیگی ایک وقت میں ایک بکنگ کے لیے ہوتی ہے۔ لیب ٹیسٹ اور ہر اسکین کی بکنگ الگ الگ کریں۔",
   "diag.checkout.failedBody": "وقت اور ادائیگی کا طریقہ چیک کر کے دوبارہ کوشش کریں",
   "diag.pay.cash": "نقد ادائیگی",
   "diag.pay.card": "کارڈ",

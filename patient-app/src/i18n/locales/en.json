@@ -1991,6 +1991,7 @@
   "diag.checkout.payFailed": "Could not start the payment",
   "diag.checkout.payRetry": "Try again from the order details",
   "diag.checkout.failed": "Could not create the booking",
+  "diag.checkout.onePayment": "Card payment covers one booking at a time. Book the lab tests and each scan separately.",
   "diag.checkout.failedBody": "Check the time and the payment method and try again",
   "diag.pay.cash": "Cash payment",
   "diag.pay.card": "Card",
