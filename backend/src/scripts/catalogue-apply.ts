@@ -20,7 +20,7 @@ import * as path from 'path';
 import mongoose from 'mongoose';
 import { mongoDirectConnection } from '../common/database/mongo-uri';
 import {
-  applyChanges, countsOf, decodeBackup, encodeBackup, expectedCounts, planSha, rollbackChanges, sha256, summarize, collectionLines,
+  applyChanges, countsOf, decodeBackup, encodeBackup, expectedCounts, planSha, rollbackChanges, sha256, summarize, collectionLines, resolveSelfConflicts,
   type Change, type DbLike, type SetChange,
 } from '../modules/catalogs/catalogue-apply.core';
 import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn, planInsuranceShape, planNumberedDistricts, planPlaceholderCities, planProductTranslations, planRadiologyCatalogue, type RadiologyFileExtras } from '../modules/catalogs/catalogue-apply.steps';
@@ -36,6 +36,8 @@ const TRANSLATIONS_CSV = path.join(__dirname, '../modules/medicines/data/medicin
 export const PACKAGED_DISTRICTS = path.join(__dirname, '../modules/location/data/districts-extract.v1.json');
 /** The reviewed list of test providers the owner approved removing (2026-10-29), shipped in the image; `--test-data-remove=packaged` reads it. */
 export const PACKAGED_TEST_REMOVAL = path.join(__dirname, '../modules/catalogs/seed-data/test-data-remove.2026-10-29.json');
+/** The reviewed radiology decisions (owner 2026-10-31: approve the awaiting scans, merge the duplicate HSG), shipped in the image; `--radiology-approve=packaged` reads it. */
+export const PACKAGED_RADIOLOGY_APPROVE = path.join(__dirname, '../modules/catalogs/seed-data/radiology-approve.2026-10-31.json');
 /** The reviewed catalogue completion (owner approved, 2026-10-29), shipped in the image; `--catalogue-completion=packaged` plans it. */
 export const PACKAGED_COMPLETION = path.join(__dirname, '../modules/catalogs/seed-data/catalogue-completion.2026-10-29.json');
 const TOUCHED = ['medicines', 'locations', 'insurance_companies', 'lab_services', 'radiology_services', 'nursing_services'];
@@ -68,7 +70,7 @@ async function planRadiologyAndCompletion(db: DbLike, argv: string[], inputs: Re
   let approve: string[] = [];
   const radiologyExtras: RadiologyFileExtras = {};
   if (approvePath) {
-    const text = fs.readFileSync(approvePath, 'utf8');
+    const text = fs.readFileSync(approvePath === 'packaged' ? PACKAGED_RADIOLOGY_APPROVE : approvePath, 'utf8');
     inputs.radiology_approve = sha256(text);
     const parsed: unknown = JSON.parse(text);
     const file = parsed as { approve?: unknown; merge?: unknown; delete?: unknown };
@@ -119,7 +121,14 @@ async function planRadiologyAndCompletion(db: DbLike, argv: string[], inputs: Re
   report.hidden_rows_deleted = gone.report;
 }
 
+/** The plan with one write per field (see resolveSelfConflicts): the steps plan independently from the database, so two of them can name the same field. */
 export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> {
+  const raw = await computePlanRaw(db, argv);
+  const resolved = resolveSelfConflicts(raw.changes);
+  return { ...raw, changes: resolved.changes, sha: planSha(resolved.changes, raw.inputs), report: { ...raw.report, self_conflicts: resolved.report } };
+}
+
+async function computePlanRaw(db: DbLike, argv: string[]): Promise<Planned> {
   const inputs: Record<string, string> = {};
   const changes: Change[] = [];
   const report: Record<string, unknown> = {};
@@ -242,6 +251,8 @@ export async function main(argv: string[]): Promise<number> {
       const p = await computePlan(db, argv);
       out({ cmd, plan_sha: p.sha, inputs: p.inputs, steps: summarize(p.changes), total_changes: p.changes.length, ...p.report });
       for (const l of collectionLines(p.changes)) console.log(`collection_line ${l}`);
+      const sc = (p.report as { self_conflicts?: { by_pair: Record<string, number>; dropped: number; identical_collapsed: number } }).self_conflicts;
+      if (sc) console.log(`conflict_line self_conflicts dropped=${sc.dropped} identical_collapsed=${sc.identical_collapsed}${Object.entries(sc.by_pair).map(([k, n]) => ` | ${k} x${n}`).join('')}`);
       return 0;
     }
     if (cmd === 'verify') {

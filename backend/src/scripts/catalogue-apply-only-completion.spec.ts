@@ -25,7 +25,7 @@ describe('catalogue-apply --only=catalogue_completion', () => {
     const only = watched();
     const p = await computePlan(only.db, [...argv, '--only=catalogue_completion']);
     expect(p.changes.length).toBeGreaterThan(0);
-    expect(Object.keys(p.report)).toEqual(['radiology_catalogue', 'catalogue_duplicates', 'catalogue_completion', 'hidden_rows_deleted']);
+    expect(Object.keys(p.report)).toEqual(['radiology_catalogue', 'catalogue_duplicates', 'catalogue_completion', 'hidden_rows_deleted', 'self_conflicts']);
     // every change of the narrow plan is a change of the full plan, and the full plan's completion rows are all in it
     const key = (c: unknown) => JSON.stringify(c);
     const allKeys = new Set(all.changes.map(key));

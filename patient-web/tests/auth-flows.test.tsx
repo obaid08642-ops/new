@@ -107,6 +107,7 @@ describe("auth screens come from the message files in every language", () => {
     for (const locale of ["ur", "hi", "bn", "fil"] as const) {
       const html = inLocale(locale, () => renderToStaticMarkup(<LoginForm locale={locale} />));
       const loc = createTranslator(locale, "Login");
+      expect(html).toContain(loc("codeSignIn"));
       expect(html).toContain(loc("forgotPassword"));
       expect(html).toContain(loc("showPassword"));
       expect(html).toContain(loc("noAccount"));
@@ -142,6 +143,9 @@ describe("sign-in form details", () => {
     expect(html).toContain("<bdi dir=\"ltr\">patient@example.com</bdi>");
     const without = renderToStaticMarkup(<OtpScreen locale="en" />);
     expect(without).toContain(createTranslator("en", "Otp")("missing"));
+    // The 15-minute cookie is gone: the person can type where to send the code, and resend is not a dead end.
+    expect(without).toContain(createTranslator("en", "Otp")("sendCode"));
+    expect(without).toContain(createTranslator("en", "Otp")("identifierLabel"));
   });
 
   it("types the reset token in a plain text field (it is a long mixed-case string, not digits)", () => {

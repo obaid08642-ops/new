@@ -163,13 +163,17 @@ export default function CancelRescheduleScreen() {
         showLocalizedAlert(k('consult.cancel.doneTitle'), refundPct && refundPct > 0 && price > 0 ? k('consult.cancel.doneRefund', { pct: num(refundPct) }) : k('consult.cancel.doneBody'), [{ text: k('consult.ok'), onPress: () => router.replace('/consultations/appointments' as Href) }]);
       } else {
         const start = selectedSlot ? slotStart(selectedSlot) : '';
-        if (!start) throw new Error(k('consult.cancel.pickSlot'));
+        if (!start) {
+          showLocalizedAlert(k('consult.cancel.failedTitle'), k('consult.cancel.pickSlot'));
+          return;
+        }
         const iso = new Date(start).toISOString();
         await apiFetch(`/care/appointments/${appointmentId}/reschedule`, { method: 'PATCH', body: JSON.stringify({ slot_start: iso }) });
         showLocalizedAlert(k('consult.cancel.rescheduledTitle'), k('consult.cancel.rescheduledBody'), [{ text: k('consult.ok'), onPress: () => router.replace('/consultations/appointments' as Href) }]);
       }
     } catch (e) {
-      showLocalizedAlert(k('consult.cancel.failedTitle'), (e instanceof Error && e.message) || k('consult.cancel.failedBody'));
+      // never the server's raw code or English message
+      showLocalizedAlert(k('consult.cancel.failedTitle'), k('consult.cancel.failedBody'));
     } finally {
       setIsLoading(false);
     }

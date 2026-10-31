@@ -4,7 +4,8 @@ import { router } from 'expo-router';
 
 import { Button, Screen, StickyFooter } from '../../../packages/ui-native/src';
 import { apiFetch } from '../../src/utils/api';
-import { createRegistrationTransaction } from '../../src/services/auth/RegistrationTransaction';
+import { isValidIdentifier, registerPatient } from '../../src/auth/patientAuth';
+import { i18nManager } from '../../src/i18n/LanguageManager';
 import { serverMessage } from '../../src/utils/serverMessage';
 import { useSocialLogin, type SocialProvider } from '../../src/hooks/useSocialLogin';
 import { useSocialConfig } from '../../src/hooks/useSocialConfig';
@@ -29,7 +30,7 @@ import {
 export default function RegisterScreen() {
   const { theme, tr, c } = useAuthUi();
 
-  const [form, setForm] = useState({ name: '', phone: '', email: '', password: '', confirmPw: '' });
+  const [form, setForm] = useState({ name: '', identifier: '', password: '', confirmPw: '' });
   const [loading, setLoading] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -40,8 +41,7 @@ export default function RegisterScreen() {
   const validate = () => {
     setErrorMessage(null);
     if (!form.name || form.name.length < 3) { setErrorMessage('auth.register.errName'); return false; }
-    if (!form.phone || form.phone.length < 9) { setErrorMessage('auth.register.errPhone'); return false; }
-    if (!form.email || !form.email.includes('@')) { setErrorMessage('auth.register.errEmail'); return false; }
+    if (!isValidIdentifier(form.identifier)) { setErrorMessage('auth.err.identifier'); return false; }
     if (!form.password || form.password.length < 8) { setErrorMessage('auth.err.passwordShort'); return false; }
     if (form.password !== form.confirmPw) { setErrorMessage('auth.err.mismatch'); return false; }
     if (!agreed) { setErrorMessage('auth.register.errAgree'); return false; }
@@ -52,26 +52,9 @@ export default function RegisterScreen() {
     if (!validate()) return;
     setLoading(true);
     try {
-      await apiFetch('/auth/send-otp', {
-        method: 'POST',
-        body: JSON.stringify({ email: form.email.trim().toLowerCase(), purpose: 'register' }),
-      });
+      await registerPatient(apiFetch, { name: form.name, identifier: form.identifier, password: form.password, locale: i18nManager.currentLanguage });
       setLoading(false);
-      // Forcing +966 for real backend
-      const fullPhone = form.phone.startsWith('+') ? form.phone : `+966${form.phone.replace(/^0+/, '')}`;
-      const registrationTransactionId = createRegistrationTransaction({
-        fullName: form.name,
-        phone: fullPhone,
-        email: form.email.trim().toLowerCase(),
-        password: form.password,
-      });
-      router.push({
-        pathname: '/(auth)/otp',
-        params: {
-          transactionId: registrationTransactionId,
-          mode: 'register',
-        },
-      });
+      router.push({ pathname: '/(auth)/otp', params: { identifier: form.identifier.trim(), mode: 'register' } });
     } catch (err: any) {
       setErrorMessage(serverMessage(err, 'auth.forgot.sendFailed'));
       setLoading(false);
@@ -119,29 +102,15 @@ export default function RegisterScreen() {
           testID="register-name"
         />
         <AuthField
-          label="auth.email"
+          label="auth.identifier"
           placeholder="name@example.com"
-          hint="auth.register.emailHint"
           ltr
           keyboardType="email-address"
-          autoComplete="email"
-          textContentType="emailAddress"
-          value={form.email}
-          onChangeText={(t: string) => setForm({ ...form, email: t })}
-          testID="register-email"
-        />
-        <AuthField
-          label="auth.register.phone"
-          placeholder="auth.register.phonePlaceholder"
-          hint="auth.register.phoneHint"
-          prefix="+966"
-          ltr
-          keyboardType="phone-pad"
-          autoComplete="tel"
-          textContentType="telephoneNumber"
-          value={form.phone}
-          onChangeText={(t: string) => setForm({ ...form, phone: t.replace(/\D/g, '') })}
-          testID="register-phone"
+          autoComplete="username"
+          textContentType="username"
+          value={form.identifier}
+          onChangeText={(t: string) => setForm({ ...form, identifier: t })}
+          testID="register-identifier"
         />
         <AuthField
           label="auth.password"

@@ -2,10 +2,11 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authCookieNames, setSessionCookies } from "@/lib/auth/cookies";
+import { MIN_PASSWORD_LENGTH } from "@/lib/auth/password-rule";
 import { callPatientApi } from "@/lib/api/upstream";
 import { boundedUpstreamError } from "@/lib/api/error-response";
 
-const bodySchema = z.object({ current_password: z.string().min(1).max(200), new_password: z.string().min(10).max(200) }).strict();
+const bodySchema = z.object({ current_password: z.string().min(1).max(200), new_password: z.string().min(MIN_PASSWORD_LENGTH).max(200) }).strict();
 const tokensSchema = z.object({ access_token: z.string().min(1), refresh_token: z.string().min(1) });
 
 /**

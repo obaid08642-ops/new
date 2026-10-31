@@ -477,7 +477,16 @@ export class PaymentsService {
     // insurance copay intents charge the patient's copay share, not the full price
     let amount = governedPharmacy
       ? this.pharmacyDueAmount(booking)
-      : kind === 'insurance' ? (booking.copay_amount || 0) : (booking.total || booking.totals?.total || booking.price || 0);
+      : kind === 'insurance' ? (booking.copay_amount || 0)
+        // a consultation charges what its capabilities and screen show: total_price (fee + platform fee), never the bare fee
+        : kind === 'consultation' ? Number(booking.total_price ?? booking.price ?? 0)
+          : (booking.total || booking.totals?.total || booking.price || 0);
+    // Insured lab / radiology / nursing bookings: once the insurer decided, the patient pays the share the ordering approval
+    // computed (insurance_copay), the same figure the pay-share screen shows — never the booking total.
+    if (['lab', 'radiology', 'nursing'].includes(String(kind)) && booking.payment_method === 'insurance'
+        && ['approved', 'partial_approval'].includes(String(booking.insurance_status))) {
+      amount = Number(booking.insurance_copay || 0);
+    }
     // Pharmacy insurance orders: after provider approval the patient pays only the
     // provider-set copay — never the full order total (E1 S1/S2).
     if (kind === 'pharmacy' && booking.payment_method === 'insurance'

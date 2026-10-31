@@ -122,6 +122,8 @@ const diagnosticsMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp
   { method: "POST", route: new RegExp("^/nutrition/water$", "i") },
   { method: "POST", route: new RegExp("^/mental-health/mood$", "i") },
   { method: "POST", route: new RegExp("^/maternity/(kicks|contractions|infant-growth)$", "i") },
+  // components-next/video-room-client: leaving a call ends its session on the server (backend livekit.controller POST :sessionId/end; the service checks the caller is a party)
+  { method: "POST", route: new RegExp(`^/calls/${orderId}/end$`, "i") },
   { method: "POST", route: new RegExp("^/support/chat$", "i") },
   { method: "POST", route: new RegExp(`^/support/requests/[^/]+/reply$`, "i") },
   { method: "POST", route: new RegExp("^/medical/programs/complete-session$", "i") },

@@ -151,3 +151,92 @@ describe("video codec (cross-platform matrix)", () => {
     expect(callRoomOptions(presets, "h264").publishDefaults.videoCodec).toBe("h264");
   });
 });
+
+describe("poor link (T2 finding: ConnectionQualityChanged fires only on change)", () => {
+  afterEach(() => vi.useRealTimers());
+
+  it("a link that stays poor for POOR_LINK_MS drops to sound only, once; a better report first cancels it; a second poor report does not restart it", async () => {
+    const { poorLinkClock, POOR_LINK_MS } = await import("@/lib/consult/call-resilience");
+    vi.useFakeTimers();
+    const fired = vi.fn();
+    const clock = poorLinkClock(fired);
+    clock.report(true);
+    vi.advanceTimersByTime(POOR_LINK_MS - 1);
+    expect(fired).not.toHaveBeenCalled();
+    clock.report(true); // not restarted
+    vi.advanceTimersByTime(1);
+    expect(fired).toHaveBeenCalledTimes(1);
+    vi.advanceTimersByTime(POOR_LINK_MS * 3);
+    expect(fired).toHaveBeenCalledTimes(1);
+
+    clock.report(true);
+    vi.advanceTimersByTime(POOR_LINK_MS / 2);
+    clock.report(false); // got better in time
+    vi.advanceTimersByTime(POOR_LINK_MS * 2);
+    expect(fired).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("leaving ends the session, and why a call credential was refused", () => {
+  it("POST /api/patient/calls/:id/end with the session id; nothing without one; a failed request never throws", async () => {
+    const { endCallSession } = await import("@/lib/consult/call-session");
+    const ok = vi.fn(async () => new Response("{}", { status: 200 }));
+    expect(await endCallSession(ok as unknown as typeof fetch, "3f2b8a0e-1111-4222-8333-444455556666")).toBe(true);
+    expect(ok).toHaveBeenCalledWith("/api/patient/calls/3f2b8a0e-1111-4222-8333-444455556666/end", expect.objectContaining({ method: "POST", keepalive: true }));
+    expect(await endCallSession(ok as unknown as typeof fetch, undefined)).toBe(false);
+    expect(ok).toHaveBeenCalledTimes(1);
+    expect(await endCallSession((async () => { throw new Error("offline"); }) as unknown as typeof fetch, "x")).toBe(false);
+  });
+
+  it("the end route is allowed through the proxy for a call id only (POST)", async () => {
+    const { isAllowedPatientApiTarget } = await import("@/lib/api/patient-allowlist");
+    const id = "3f2b8a0e-1111-4222-8333-444455556666";
+    expect(isAllowedPatientApiTarget(`/calls/${id}/end`, "", "POST")).toBe(true);
+    expect(isAllowedPatientApiTarget(`/calls/${id}/end`, "", "GET")).toBe(false);
+    expect(isAllowedPatientApiTarget(`/calls/${id}/join`, "", "POST")).toBe(false);
+    expect(isAllowedPatientApiTarget(`/calls/not-an-id/end`, "", "POST")).toBe(false);
+  });
+
+  it("an early or late join is not ready / ended, not a generic failure", async () => {
+    const { callTokenFailure } = await import("@/lib/consult/call-session");
+    expect(callTokenFailure(409, "")).toBe("not_ready");
+    expect(callTokenFailure(400, '{"message":"call_token_outside_appointment_window"}')).toBe("not_ready");
+    expect(callTokenFailure(400, '{"message":"call_token_not_available_for_booking_state"}')).toBe("ended");
+    expect(callTokenFailure(400, '{"message":"call_token_only_available_for_video_booking"}')).toBe("unavailable");
+    expect(callTokenFailure(500, "")).toBe("unavailable");
+  });
+});
+
+describe("the call room client (source, there is no DOM harness in this repo)", () => {
+  const src = fs.readFileSync(path.join(__dirname, "../components-next/video-room-client.tsx"), "utf8");
+  it("camera and microphone are requested separately and a refusal is shown", () => {
+    expect(src).not.toContain("enableCameraAndMicrophone");
+    expect(src).toContain("setMicrophoneEnabled(true).then(() => true, () => false)");
+    expect(src).toContain("setCameraEnabled(true).then(() => true, () => false)");
+    expect(src).toContain("data-call-denied=\"microphone\"");
+    expect(src).toContain("data-call-denied=\"camera\"");
+  });
+  it("a connection failure shows an error with a retry, not 'call ended'", () => {
+    expect(src).toContain("setState(\"failed\")");
+    expect(src).toContain("data-call-failed");
+    expect(src).toContain("setAttempt((n) => n + 1)");
+  });
+  it("blocked autoplay shows a button that starts the audio", () => {
+    expect(src).toContain("RoomEvent.AudioPlaybackStatusChanged");
+    expect(src).toContain("room.canPlaybackAudio");
+    expect(src).toContain("roomRef.current?.startAudio()");
+  });
+  it("leaving ends the session and the poor-link detector is the time-based one", () => {
+    expect(src).toContain("void endCallSession(fetch, endSessionId);");
+    expect(src).toContain("poorLinkClock(");
+    expect(src).not.toContain("poorConnectionTracker");
+  });
+  it("room/[id] passes the session id; the booking page maps the refusal; every label exists in six languages", () => {
+    expect(fs.readFileSync(path.join(__dirname, "../app/[locale]/room/[id]/page.tsx"), "utf8")).toContain("endSessionId={id}");
+    expect(fs.readFileSync(path.join(__dirname, "../app/[locale]/consultations/video-call/page.tsx"), "utf8")).toContain("callTokenFailure(r.status");
+    for (const lang of ["en", "ar", "ur", "hi", "bn", "fil"]) {
+      const m = JSON.parse(fs.readFileSync(path.join(__dirname, `../messages/${lang}.json`), "utf8")).ConsultWeb;
+      for (const key of ["callMicDenied", "callCamDenied", "callConnectFailed", "callRetry", "callEnableSound"]) expect(typeof m[key] === "string" && m[key].length > 0, `${lang}.${key}`).toBe(true);
+    }
+  });
+});

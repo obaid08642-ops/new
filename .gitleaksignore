@@ -61,3 +61,5 @@ f1f7eca54632fca1913601402d9bee2baa621f4b:tools/ops/tests/test_translate_progress
 965e3dbd13d341d378932ab55c248c4ef1491171:.github/workflows/capacity-prod-shape.yml:generic-api-key:103
 # - Cloudflare TURN ops-task test: fake key/token fixture in the first version of test_turn_env.py (now built at runtime)
 6be49e560e2380c6fa148670869a56f81cc3ac6c:tools/ops/tests/test_turn_env.py:generic-api-key:12
+# - F.1 (#2212): a test idempotency key in a payments unit spec (not a credential; the literal is now 'idem-test-1'). The commit stays in history.
+c51da700ef932546ae288651e54624b5f3899d2e:backend/src/modules/payments/payment-charged-amount.spec.ts:generic-api-key:18
