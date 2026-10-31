@@ -1,13 +1,12 @@
 import { AUTONYMS, LANGS, isRtlLang, langFromCode, translate } from './index';
 
 const files: Record<string, Record<string, string>> = {
-  ar: require('./locales/ar.json'), en: require('./locales/en.json'), ur: require('./locales/ur.json'),
-  hi: require('./locales/hi.json'), bn: require('./locales/bn.json'), tl: require('./locales/tl.json'),
+  ar: require('./locales/ar.json'), en: require('./locales/en.json'),
 };
 
-describe('provider app translations: six languages', () => {
-  it('has a file for each of the six languages', () => {
-    expect([...LANGS].sort()).toEqual(['ar', 'bn', 'en', 'hi', 'tl', 'ur']);
+describe('provider app translations: Arabic and English (owner 2026-10-31)', () => {
+  it('has a file for each of the two languages', () => {
+    expect([...LANGS].sort()).toEqual(['ar', 'en']);
     for (const l of LANGS) expect(Object.keys(files[l]).length).toBeGreaterThan(100);
   });
 
@@ -26,25 +25,25 @@ describe('provider app translations: six languages', () => {
 
   it('translate: short common keys, full keys, placeholders; a missing key answers the key, never another language', () => {
     expect(translate('ar', 'login')).toBe(files.ar['common.login']);
-    expect(translate('ur', 'common.login')).toBe(files.ur['common.login']);
-    expect(translate('ur', 'login')).not.toBe(translate('en', 'login'));
-    expect(translate('hi', 'no.such.key')).toBe('no.such.key');
+    expect(translate('en', 'common.login')).toBe(files.en['common.login']);
+    expect(translate('ar', 'login')).not.toBe(translate('en', 'login'));
+    expect(translate('ar', 'no.such.key')).toBe('no.such.key');
     expect(translate('en', 'x.y')).toBe('x.y');
   });
 
-  it('knows the device codes, including Filipino ("fil" on the device, "tl" in the files)', () => {
-    expect(langFromCode('fil-PH')).toBe('tl');
-    expect(langFromCode('tl')).toBe('tl');
-    expect(langFromCode('ur_PK')).toBe('ur');
-    expect(langFromCode('fr')).toBeNull();
+  it('knows the device codes; anything else is not a supported language', () => {
+    expect(langFromCode('ar-SA')).toBe('ar');
+    expect(langFromCode('en_GB')).toBe('en');
+    expect(langFromCode('fil-PH')).toBeNull();
+    expect(langFromCode('ur')).toBeNull();
     expect(langFromCode(undefined)).toBeNull();
   });
 
-  it('Arabic and Urdu are right to left, the rest left to right', () => {
-    expect(LANGS.filter(isRtlLang)).toEqual(['ar', 'ur']);
+  it('Arabic is right to left, English left to right', () => {
+    expect(LANGS.filter(isRtlLang)).toEqual(['ar']);
   });
 
   it('each language is named in its own script', () => {
-    expect(AUTONYMS).toEqual({ ar: 'العربية', en: 'English', ur: 'اردو', hi: 'हिन्दी', bn: 'বাংলা', tl: 'Filipino' });
+    expect(AUTONYMS).toEqual({ ar: 'العربية', en: 'English' });
   });
 });

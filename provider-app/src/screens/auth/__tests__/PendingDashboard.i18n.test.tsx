@@ -26,8 +26,8 @@ jest.mock('../../../context', () => {
 
 const noop = () => {};
 
-describe('the rejected / pending status screen speaks all six languages', () => {
-  it.each(['ar', 'en', 'ur', 'hi', 'bn', 'tl'] as const)('%s: title, resubmit action and logout come from the language file', async (lang) => {
+describe('the rejected / pending status screen speaks Arabic and English', () => {
+  it.each(['ar', 'en'] as const)('%s: title, resubmit action and logout come from the language file', async (lang) => {
     (global as any).__lang = lang;
     await render(<PendingDashboard status="rejected" onExplore={noop} onLogout={noop} onOpenDocuments={noop} />);
     expect(await screen.findByText(translate(lang, 'status.rejected.title'))).toBeTruthy();
@@ -35,9 +35,9 @@ describe('the rejected / pending status screen speaks all six languages', () => 
     expect(screen.getByText(translate(lang, 'logout'))).toBeTruthy();
   });
 
-  it('the reason card shows the missing-reason text in the chosen language', async () => {
-    (global as any).__lang = 'ur';
+  it('the reason card shows the missing-reason text in Arabic', async () => {
+    (global as any).__lang = 'ar';
     await render(<PendingDashboard status="rejected" onExplore={noop} onLogout={noop} />);
-    expect(await screen.findByText(translate('ur', 'status.noReason'))).toBeTruthy();
+    expect(await screen.findByText(translate('ar', 'status.noReason'))).toBeTruthy();
   });
 });

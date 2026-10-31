@@ -77,7 +77,7 @@ export function LangProvider({ children }: { children: ReactNode }) {
  const deviceCode = (() => {
    try { return String(Intl.DateTimeFormat().resolvedOptions().locale || '').split('-')[0].toLowerCase(); } catch { return ''; }
  })();
- // the device language if the app has it (Filipino is "fil" on the device and "tl" in the files), else English
+ // the device language if the app has it (Arabic or English), else English
  const deviceLang: Lang = langFromCode(deviceCode) ?? 'en';
  const [lang, setLangState] = useState<Lang>(deviceLang);
 
@@ -99,7 +99,6 @@ export function LangProvider({ children }: { children: ReactNode }) {
     Vault.set('APP_LANG', l);
   }, []);
 
- // kept for the old two-language switch; the six-language choice is LanguagePicker (set)
  const toggle = useCallback(() => set(lang === 'ar' ? 'en' : 'ar'), [lang, set]);
 
  const t = useCallback((k: TKey, params?: Record<string, string | number>): string => translate(lang, k, params), [lang]);

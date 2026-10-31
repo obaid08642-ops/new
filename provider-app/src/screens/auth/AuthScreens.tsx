@@ -4,7 +4,6 @@
  * ║ Splash · Welcome · Login · ForgotPassword · OTP · PendingApproval ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
-import { LanguagePicker } from '../../components/LanguagePicker';
 import React, { useRef, useEffect, useState } from 'react';
 import {
  View, Text, TouchableOpacity, ScrollView, StyleSheet,
@@ -75,7 +74,7 @@ export function WelcomeScreen({
   onSelectType, onLogin, onGuestJobs, onGuestDrugIndex
 }: { onSelectType: (type: string) => void; onLogin: () => void; onGuestJobs?: () => void; onGuestDrugIndex?: () => void }) {
  const { theme, mode, toggle: toggleTheme } = useTheme();
- const { lang } = useLang();
+ const { lang, toggle: toggleLang } = useLang();
  const insets = useSafeAreaInsets();
  const AR = lang === 'ar';
  const [selectedPt, setSelectedPt] = useState<any | null>(null);
@@ -144,7 +143,21 @@ export function WelcomeScreen({
  </View>
  </View>
  <View style={{ flexDirection: 'row', gap: SP.sm, alignItems: 'center' }}>
- <LanguagePicker variant="menu" />
+ <TouchableOpacity onPress={toggleLang}
+ style={{
+ flexDirection: AR ? 'row-reverse' : 'row',
+ alignItems: 'center',
+ gap: 6,
+ paddingHorizontal: SP.md,
+ height: 34,
+ backgroundColor: theme.surface2,
+ borderRadius: 17,
+ borderWidth: 1,
+ borderColor: theme.border,
+ }}>
+ <I name="globe" size={14} color={theme.textSub} />
+ <Text style={{ fontSize: FS.sm, color: theme.text, fontWeight: FW.bold }}>{AR ? 'EN' : 'العربية'}</Text>
+ </TouchableOpacity>
  <NThemeSlider />
  </View>
  </Animated.View>

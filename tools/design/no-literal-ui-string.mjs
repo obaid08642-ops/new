@@ -225,7 +225,7 @@ if (UPDATE) {
 
 const worse = Object.entries(result).filter(([f, n]) => n > (base[f] ?? 0));
 if (worse.length) {
-  console.error('no-literal-ui-string: FAILED. User-visible text must come from the translation files (patient-web/messages, patient-app/src/i18n/locales, provider-app/src/i18n/locales), in all six languages:');
+  console.error('no-literal-ui-string: FAILED. User-visible text must come from the translation files (patient-web/messages, patient-app/src/i18n/locales, provider-app/src/i18n/locales, ar and en only), in every language the client has:');
   for (const [f] of worse.slice(0, 15)) for (const i of details[f].slice(0, 5)) console.error(`  ${f}:${i.line}  ${i.what}  "${i.value}"`);
   console.error(`  (${worse.length} file(s) over their baseline; list them with --list <path>)`);
   process.exit(1);
