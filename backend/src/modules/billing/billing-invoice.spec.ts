@@ -8,6 +8,7 @@ function build(opts: { booking?: any; txns?: any[]; cfg?: any; existing?: any })
   };
   const collections: Record<string, any> = {
     transactions: { find: jest.fn(() => ({ toArray: async () => opts.txns ?? [] })), findOne: jest.fn(async () => null) },
+    insuranceservicerequests: { find: jest.fn(() => ({ limit: () => ({ toArray: async () => [] }) })), findOne: jest.fn(async () => null) },
     finance_config: { findOne: jest.fn(async () => opts.cfg ?? null) },
     pharmacy_orders: { findOne: jest.fn(async () => null) },
     counters: { findOneAndUpdate: jest.fn(async () => ({ seq: 7 })) },
