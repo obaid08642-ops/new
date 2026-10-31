@@ -282,7 +282,7 @@ export class OpsController {
     const [pharmacy, lab, radiology, nursing, consultations] = await Promise.all([
       pick('pharmacy_orders', 'pharmacy', { status: { $nin: ['draft', 'cancelled', 'delivered', 'completed'] } }),
       pick('labbookings', 'lab', { state: { $nin: ['CANCELLED', 'REPORTED', 'SAMPLE_REJECTED'] } }),
-      pick('radiologybookings', 'radiology', { state: { $nin: ['CANCELLED', 'REPORT_PUBLISHED'] } }),
+      pick('radiologybookings', 'radiology', { state: { $nin: ['CANCELLED', 'REPORT_READY', 'REPORT_PUBLISHED'] } }),
       pick('homecarebookings', 'nursing', { state: { $nin: ['CANCELLED', 'COMPLETED', 'DONE', 'REJECTED'] } }),
       pick('appointments', 'consultation', { status: { $nin: ['CANCELLED', 'COMPLETED', 'NO_SHOW'] } }),
     ]);
