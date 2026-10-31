@@ -45,6 +45,7 @@ export default async function ProfilePage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("Profile");
   const a = await getTranslations("AccountWeb");
+  const receipts = await getTranslations("Receipt");
   const token = await requirePatientAccess(locale);
   // A guest has no account data: the board's card with sign-in and create-account, not empty cards.
   const hint = hintFromAccessToken(token);
@@ -139,6 +140,7 @@ export default async function ProfilePage({ params }: Props) {
           ...(showFamily ? [{ href: `${base}/family`, icon: "users-three", tone: "peach", title: a("rowFamily"), sub: familyCount === null ? undefined : a("familyCount", { count: nf.format(familyCount) }) } as const] : []),
           ...(showInsurance ? [{ href: `${base}/insurance`, icon: "shield-check", tone: "teal", title: t("insurance"), sub: insurer ? <bdi>{String(insurer.value)}</bdi> : undefined } as const] : []),
           { href: `${base}/prescriptions`, icon: "prescription", tone: "violet", title: a("rowPrescriptions") },
+          { href: `${base}/receipts`, icon: "file-text", tone: "blue", title: receipts("listTitle") },
         ]}
       />
       <NavRows
