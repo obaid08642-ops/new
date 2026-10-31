@@ -867,6 +867,8 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'notif.service.cancelled.body': { ar: 'تم إلغاء طلب الخدمة. افتح الطلب للتفاصيل.', en: 'The service request was cancelled. Open it for details.', ur: 'سروس کی درخواست منسوخ ہو گئی۔ تفصیل کے لیے کھولیں۔' },
   'notif.service.rollback.title': { ar: 'تم تعديل حالة الطلب', en: 'Request status changed', ur: 'درخواست کی حالت تبدیل' },
   'notif.service.rollback.body': { ar: 'أعيد طلبك إلى خطوة سابقة. افتح الطلب لمعرفة السبب.', en: 'Your request went back a step. Open it to see why.', ur: 'آپ کی درخواست پچھلے مرحلے پر واپس آ گئی۔ وجہ جاننے کے لیے کھولیں۔' },
+  'notif.booking_rescheduled.title': { ar: 'تغيّر موعد حجزك', en: 'Your booking time changed', ur: 'آپ کی بکنگ کا وقت بدل گیا' },
+  'notif.booking_rescheduled.body': { ar: 'الموعد الجديد: {date}. افتح الحجز للتفاصيل.', en: 'New time: {date}. Open the booking for details.', ur: 'نیا وقت: {date}۔ تفصیل کے لیے بکنگ کھولیں۔' },
   'pharmacy.alloc_confirmed.title': { ar: 'أكدت الصيدلية طلبك', en: 'The pharmacy confirmed your order', ur: 'فارمیسی نے آپ کا آرڈر کنفرم کر دیا' },
   'pharmacy.alloc_confirmed.body': { ar: 'بدأت الصيدلية تجهيز طلبك.', en: 'The pharmacy has started preparing your order.', ur: 'فارمیسی نے آپ کا آرڈر تیار کرنا شروع کر دیا۔' },
   'pharmacy.alloc_cancelled.title': { ar: 'ألغت الصيدلية جزءًا من طلبك', en: 'The pharmacy cancelled part of your order', ur: 'فارمیسی نے آرڈر کا حصہ منسوخ کر دیا' },
