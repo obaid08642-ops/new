@@ -1,11 +1,16 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { isPast, isUpcoming, KNOWN_STATUSES, statusKey } from "./appointment-view";
+import { isBooked, isCurrent, isPast, isUpcoming, KNOWN_STATUSES, statusKey } from "./appointment-view";
 
 const LOCALES = ["ar", "en", "ur", "hi", "bn", "fil"] as const;
 
 describe("appointment tabs and status labels", () => {
+  const API_STATES = ["PENDING", "CONFIRMED", "RESCHEDULED", "CHECKED_IN", "EN_ROUTE", "ARRIVED", "IN_PROGRESS", "COMPLETED", "CANCELLED", "NO_SHOW"];
+  it.each([...API_STATES, ...KNOWN_STATUSES])("%s lands on exactly one of Upcoming, Current, Past", (status) => {
+    expect([isBooked(status), isCurrent(status), isPast(status)].filter(Boolean)).toHaveLength(1);
+  });
+
   it.each(["rescheduled", "en_route", "arrived"])("%s is an upcoming visit, in the same tab as in the app", (status) => {
     expect(isUpcoming(status)).toBe(true);
     expect(isPast(status)).toBe(false);

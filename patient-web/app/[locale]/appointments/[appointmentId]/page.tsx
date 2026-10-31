@@ -1,8 +1,13 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractAppointmentDetail, parseAppointmentId, specialtyFor } from "@/lib/api/appointments";
 import { getPatientAppointment } from "@/lib/api/appointments-server";
 import { callPatientApi } from "@/lib/api/upstream";
+import { getVisitOutcomes } from "@/lib/api/outcomes-server";
+import { NO_OUTCOMES, readOutcomes, type OutcomeReport } from "@/lib/consult/outcomes";
+import { OutcomesSeen } from "@/components-next/consult/outcomes-seen";
+import { formatDate } from "@/lib/format-date";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { formatPrice } from "@/lib/format-price";
@@ -90,6 +95,18 @@ export default async function AppointmentDetailPage({ params }: Props) {
       summaryReady = Boolean(summary);
     }
   }
+  // The doctor's sick leave, certificates and reports of this visit: GET /care/appointments/:id/outcomes.
+  let outcomes = NO_OUTCOMES;
+  if (done) {
+    const mr = await getVisitOutcomes(token, appointmentId);
+    if (mr.status === 401) redirect(`/${locale}/login`);
+    if (mr.ok) outcomes = readOutcomes(await mr.json().catch(() => null));
+  }
+  const outcomeGroups: Array<{ id: string; title: string; rows: OutcomeReport[] }> = [
+    { id: "appointment-sick-leave", title: c("outcomeSickLeave"), rows: outcomes.sickLeaves },
+    { id: "appointment-certificates", title: c("outcomeCertificates"), rows: outcomes.certificates },
+    { id: "appointment-reports", title: c("outcomeReports"), rows: outcomes.reports },
+  ].filter((group) => group.rows.length > 0);
   const diagnosis = text(summary, "diagnosis");
   const summaryNotes = text(summary, "notes");
   const recommendations = text(summary, "recommendations");
@@ -190,6 +207,30 @@ export default async function AppointmentDetailPage({ params }: Props) {
               ]}
             />
           </SectionCard>
+          {outcomes.unseen > 0 ? <OutcomesSeen appointmentId={appointmentId} /> : null}
+          {outcomeGroups.map((group) => (
+            <SectionCard key={group.id} id={group.id} title={group.title}>
+              <ul className={styles.plain}>
+                {group.rows.map((row) => {
+                  const title = (locale === "ar" || locale === "ur" ? row.titleAr ?? row.titleEn : row.titleEn ?? row.titleAr) ?? group.title;
+                  const leave = row.sickLeave;
+                  const detail = [
+                    leave?.days != null ? c("outcomeDays", { n: leave.days }) : null,
+                    leave?.start ? formatDate(locale, leave.start) : null,
+                    leave?.end ? formatDate(locale, leave.end) : null,
+                    !leave && row.issuedAt ? formatDate(locale, row.issuedAt) : null,
+                  ].filter(Boolean).join(" · ");
+                  return (
+                    <li key={row.id}>
+                      <Link href={`/${locale}/reports/${encodeURIComponent(row.id)}`}>{title}</Link>
+                      {detail ? ` · ${detail}` : ""}
+                      {row.isNew ? <>{" "}<StatusChip label={c("outcomeNew")} tone="blue" /></> : null}
+                    </li>
+                  );
+                })}
+              </ul>
+            </SectionCard>
+          ))}
           <SectionCard id="appointment-prescription" title={c("prescriptionTitle")}>
             <PrescriptionClient locale={locale} appointmentId={appointmentId} />
           </SectionCard>

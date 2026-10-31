@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 import { router } from 'expo-router';
 import { apiFetch } from './api';
+import { emitCallHold } from '../calls/callHold';
 
 let isCallKeepInitialized = false;
 let RNCallKeep: any = null;
@@ -75,6 +76,9 @@ export const initCallKeep = async () => {
         params: { sessionId: callUUID },
       });
     });
+
+    // a phone call (or another app's call) takes the line: hold ours, resume when it ends
+    callKeepInstance.addEventListener('didToggleHoldCallAction', ({ hold }: { hold: boolean }) => emitCallHold(!!hold));
 
     callKeepInstance.addEventListener('endCall', async ({ callUUID }: { callUUID: string }) => {
       console.log('[CallKeep] End/Reject call event received:', callUUID);

@@ -27,11 +27,13 @@ jest.mock('react-native-localize', () => ({ getLocales: () => [], findBestLangua
 jest.mock('react-native-qrcode-svg', () => 'QRCode');
 jest.mock('../../components/MapPrimitives', () => ({ __esModule: true, default: 'MapView', Marker: 'Marker', PROVIDER_DEFAULT: undefined }));
 jest.mock('../../context/AppContext', () => ({ useApp: () => ({ isDark: false, lang: 'en', isRTL: false }) }));
+jest.mock('../../context/DiagnosticsCartContext', () => ({ useDiagnosticsCart: () => ({ addItem: jest.fn(async () => ({ success: true })), items: [] }) }));
 jest.mock('../../context/CartContext', () => ({ useCart: () => ({ addItem: jest.fn(async () => undefined) }) }));
 jest.mock('../../context/SocketContext', () => ({
   useSocket: () => ({ socket: null, onlineUsers: {}, sendTyping: jest.fn(), joinThread: jest.fn(), leaveThread: jest.fn(), isConnected: false }),
 }));
 jest.mock('../../components/LocalizedAlert', () => ({ showLocalizedAlert: jest.fn() }));
+jest.mock('react-redux', () => ({ useSelector: (select: (s: unknown) => unknown) => select({ auth: { user: { id: 'u1' } } }) }));
 jest.mock('../../utils/isOffline', () => ({ isOffline: jest.fn(async () => false) }));
 jest.mock('../../utils/logger', () => ({ logError: jest.fn() }));
 jest.mock('../../utils/api', () => ({ BASE_URL: 'https://api.example.test/api/v1', R2_PUBLIC_URL: 'https://cdn.example.test', apiFetch: jest.fn(), newIdempotencyKey: jest.fn(() => 'key-1') }));

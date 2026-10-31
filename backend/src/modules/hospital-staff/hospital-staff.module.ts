@@ -134,12 +134,11 @@ export class HospitalStaffService {
 @UseGuards(JwtAuthGuard)
 export class HospitalStaffController {
   constructor(private svc: HospitalStaffService) {}
-  @Get() list(@CurrentUser() u: any) { return this.svc.list(u); }
-  @Post() create(@CurrentUser() u: any, @Body() b: CreateDto) { return this.svc.create(u, b); }
+  // GET / and POST / and DELETE /:id are served by HospitalController ('hospital/staff', registered first, so these three were never reached and are removed):
+  // one handler per route. This controller keeps only what HospitalController does not have.
   @Patch(':id') update(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateDto) { return this.svc.update(u, id, b); }
   @Post(':id/suspend') suspend(@CurrentUser() u: any, @Param('id') id: string, @Body() b: SuspendStaffDto) { return this.svc.suspend(u, id, b?.suspended !== false); }
   @Post(':id/reset-password') reset(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ResetStaffPasswordDto) { return this.svc.resetPassword(u, id, b?.password); }
-  @Delete(':id') remove(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.remove(u, id); }
 }
 
 @Module({

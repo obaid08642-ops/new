@@ -50,3 +50,14 @@ export function CallIdentity({ name, line }: { name: string; line?: string }) {
     </View>
   );
 }
+
+/** A line about the call (held, other side muted, permission denied) with an optional action; read out when it appears. */
+export function CallNotice({ text, actionLabel, onAction }: { text: string; actionLabel?: string; onAction?: () => void }) {
+  const { tk, c, flow } = useCallUi();
+  return (
+    <View accessibilityLiveRegion="polite" style={{ alignItems: 'center', gap: 6, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 16, backgroundColor: tint(c.text.primary, 0.12) }}>
+      <Text style={{ ...scale(tk, 'small', 'regular'), color: c.text.primary, textAlign: 'center', writingDirection: flow.writingDirection }}>{text}</Text>
+      {actionLabel && onAction ? <CallButton label={actionLabel} onPress={onAction} testID="call-notice-action" /> : null}
+    </View>
+  );
+}

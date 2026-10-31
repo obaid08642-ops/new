@@ -5,7 +5,7 @@ import { getPatientAppointments } from "@/lib/api/appointments-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { formatPrice } from "@/lib/format-price";
-import { isPast, isUpcoming, isJoinable, isOpen, modeOf, statusKey, statusTone } from "@/lib/consult/appointment-view";
+import { isBooked, isCurrent, isPast, isJoinable, isOpen, modeOf, statusKey, statusTone } from "@/lib/consult/appointment-view";
 import { AppointmentCard, type CardAction } from "@/components-next/consult/appointment-card";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
@@ -15,9 +15,9 @@ import { ActionLinks } from "@/components-next/consult/consult-parts";
 import styles from "@/components-next/consult/consult.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<{ tab?: string }> };
-type Tab = "upcoming" | "past";
+type Tab = "upcoming" | "current" | "past";
 
-/** My appointments (canvas/Appointments): the upcoming and past tabs, one card per appointment. */
+/** My appointments (canvas/Appointments): the upcoming, current and past tabs, one card per appointment. */
 export default async function AppointmentsPage({ params, searchParams }: Props) {
   const { locale } = await params;
   const { tab: requestedTab } = (await searchParams) ?? {};
@@ -38,8 +38,8 @@ export default async function AppointmentsPage({ params, searchParams }: Props) 
     );
   }
   const appointments = extractAppointmentRows(await response.json().catch(() => null));
-  const activeTab: Tab = requestedTab === "past" ? "past" : "upcoming";
-  const shown = appointments.filter((appointment) => (activeTab === "upcoming" ? isUpcoming(appointment.status) : isPast(appointment.status)));
+  const activeTab: Tab = requestedTab === "past" ? "past" : requestedTab === "current" ? "current" : "upcoming";
+  const shown = appointments.filter((appointment) => (activeTab === "upcoming" ? isBooked(appointment.status) : activeTab === "current" ? isCurrent(appointment.status) : isPast(appointment.status)));
   const base = `/${locale}/appointments`;
   const serviceLabel = (serviceType?: string) => { const mode = modeOf(serviceType); return mode ? t(`services.${mode}`) : t("serviceUnavailable"); };
 
@@ -50,28 +50,29 @@ export default async function AppointmentsPage({ params, searchParams }: Props) 
         value={activeTab}
         options={[
           { value: "upcoming", label: c("tabUpcoming"), href: `${base}?tab=upcoming` },
+          { value: "current", label: c("tabCurrent"), href: `${base}?tab=current` },
           { value: "past", label: c("tabPast"), href: `${base}?tab=past` },
         ]}
       />
       {shown.length === 0 ? (
-        <ConsultState kind="empty" title={activeTab === "upcoming" ? t("emptyUpcoming") : t("emptyPast")} body={t("empty")} actionLabel={activeTab === "upcoming" ? c("actionBookConsultation") : undefined} actionHref={activeTab === "upcoming" ? `/${locale}/consultations/doctors?sort=available_today` : undefined} />
+        <ConsultState kind="empty" title={activeTab === "upcoming" ? t("emptyUpcoming") : activeTab === "current" ? t("emptyCurrent") : t("emptyPast")} body={t("empty")} actionLabel={activeTab === "upcoming" ? c("actionBookConsultation") : undefined} actionHref={activeTab === "upcoming" ? `/${locale}/consultations/doctors?sort=available_today` : undefined} />
       ) : (
         <>
-          <ul className={styles.list} aria-label={activeTab === "upcoming" ? c("tabUpcoming") : c("tabPast")}>
+          <ul className={styles.list} aria-label={activeTab === "upcoming" ? c("tabUpcoming") : activeTab === "current" ? c("tabCurrent") : c("tabPast")}>
             {shown.map((appointment) => {
               const mode = modeOf(appointment.serviceType);
               const id = encodeURIComponent(appointment.id);
               const detail: CardAction = { href: `${base}/${id}`, label: t("open") };
               let primary: CardAction | undefined = detail;
               // The visit-specific action only once the visit is confirmed (as the app); a booking still waiting only opens its details.
-              if (activeTab === "upcoming" && isJoinable(appointment.status)) {
+              if (activeTab !== "past" && isJoinable(appointment.status)) {
                 if (mode === "video") primary = { href: `/${locale}/consultations/virtual-waiting-room?appointmentId=${id}`, label: c("actionWaitingRoom") };
                 else if (mode === "clinic") primary = { href: `/${locale}/consultations/booking-status?appointmentId=${id}&view=location`, label: c("actionLocation") };
                 else if (mode === "home") primary = { href: `/${locale}/consultations/home-visit-tracking?appointmentId=${id}`, label: c("actionTrack") };
               } else if (activeTab === "past" && appointment.doctorId && appointment.status?.toLowerCase() === "completed") {
                 primary = { href: `/${locale}/consultations/book/${encodeURIComponent(appointment.doctorId)}`, label: t("bookAgain") };
               }
-              const secondary = activeTab === "upcoming" && isOpen(appointment.status) ? { href: `/${locale}/consultations/cancel-reschedule?appointmentId=${id}`, label: c("actionEdit") } : undefined;
+              const secondary = activeTab !== "past" && isOpen(appointment.status) ? { href: `/${locale}/consultations/cancel-reschedule?appointmentId=${id}`, label: c("actionEdit") } : undefined;
               const key = statusKey(appointment.status);
               return (
                 <AppointmentCard
@@ -87,7 +88,7 @@ export default async function AppointmentsPage({ params, searchParams }: Props) 
                   specialty={specialtyFor(appointment, locale)}
                   timeLine={appointment.slotStart ? <LocalTimeLine iso={appointment.slotStart} locale={locale} /> : undefined}
                   primary={primary}
-                  primaryInk={activeTab === "upcoming" && isJoinable(appointment.status) && (mode === "clinic" || mode === "home")}
+                  primaryInk={activeTab !== "past" && isJoinable(appointment.status) && (mode === "clinic" || mode === "home")}
                   secondary={secondary}
                   priceText={appointment.price !== undefined ? formatPrice(locale, appointment.price).text : undefined}
                 />

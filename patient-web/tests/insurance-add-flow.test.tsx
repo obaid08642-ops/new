@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }) }));
 vi.mock("next-intl", async () => (await import("./helpers/intl")).nextIntlMock("en"));
 
-import { AddPolicyForm } from "@/components-next/insurance/add-policy-form";
+import { AddPolicyForm, ClassChoices } from "@/components-next/insurance/add-policy-form";
 import { CompanyPicker, filterCompanies } from "@/components-next/insurance/company-picker";
 import { figuresForClass } from "@/lib/insurance/copay";
 import { parseNetworks } from "@/lib/insurance/view";
@@ -70,5 +70,19 @@ describe("the CHI inquiry link", () => {
   it("is not drawn when /config gave no address", () => {
     expect(renderToStaticMarkup(<AddPolicyForm companies={companies} locale="en" chiUrl={null} />)).not.toContain("Check your insurance");
     expect(renderToStaticMarkup(<AddPolicyForm companies={companies} locale="en" />)).not.toContain("chi.gov.sa");
+  });
+});
+
+describe("the class field", () => {
+  it("draws one pressable chip per class of the chosen insurer, the chosen one pressed, and nothing when it has none", () => {
+    const classes = [{ code: "VIP", name: "VIP" }, { code: "A", name: "Class A" }];
+    const html = renderToStaticMarkup(<ClassChoices networks={classes} selected="A" label="Class" onChoose={() => {}} />);
+    expect(html).toContain('aria-label="Class"');
+    expect(html).toMatch(/aria-pressed="true"[^>]*>Class A</);
+    expect(html).toMatch(/aria-pressed="false"[^>]*>VIP</);
+    expect(renderToStaticMarkup(<ClassChoices networks={[]} selected="" label="Class" onChoose={() => {}} />)).toBe("");
+  });
+  it("is not drawn before a company is chosen", () => {
+    expect(renderToStaticMarkup(<AddPolicyForm companies={companies} locale="en" />)).not.toContain('aria-label="Class"');
   });
 });
