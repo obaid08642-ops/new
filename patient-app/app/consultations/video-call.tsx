@@ -12,6 +12,8 @@ import { ensureLiveKitGlobals, startCallAudio, stopCallAudio } from '../../src/c
 import { availableRoutes, defaultRoute, nextRoute, selectRoute, type AudioRoute } from '../../src/calls/audioRoute';
 import { onCallHold } from '../../src/calls/callHold';
 import { createRoomHandle } from '../../src/calls/roomHandle';
+import { setActiveCall } from '../../src/calls/activeCall';
+import { endNativeCall } from '../../src/utils/callkeep';
 import { bindCallResilience, callRoomOptions, qualityBars, type AudioOnlyReason, type CallPhase, type QualityLevel } from '../../src/calls/callResilience';
 
 const OS = Platform.OS === 'ios' ? 'ios' : 'android';
@@ -44,6 +46,7 @@ interface Session {
   appointment?: { doctor_name?: string };
 }
 interface Join {
+  appointment_id?: string | null;
   token?: string;
   livekit_token?: string;
   server_url?: string;
@@ -82,6 +85,9 @@ export default function VideoCallScreen() {
   const [audioOnly, setAudioOnly] = useState<AudioOnlyReason | 'user' | null>(null);
   const [quality, setQuality] = useState<{ local: QualityLevel; remote: QualityLevel }>({ local: 'unknown', remote: 'unknown' });
   const resilience = useRef<ReturnType<typeof bindCallResilience> | null>(null);
+  // the session this screen is in and the appointment it belongs to (the join answers it; a call answered from the ring has no route param)
+  const sessionRef = useRef<string | null>(null);
+  const appointmentRef = useRef<string | null>(appointmentId ? String(appointmentId) : null);
 
   useEffect(() => {
     const handle = createRoomHandle<Room>();
@@ -106,8 +112,11 @@ export default function VideoCallScreen() {
           const session = initRes?.data || initRes;
           const sessionId = session?.session_id || session?.id;
           if (sessionId) {
+            sessionRef.current = String(sessionId);
+            setActiveCall(String(sessionId));
             const joinRes = await apiFetch<Join & { data?: Join }>(`/calls/${sessionId}/join`, { method: 'POST' });
             const resData = joinRes?.data || joinRes;
+            if (!appointmentRef.current && resData?.appointment_id) appointmentRef.current = String(resData.appointment_id);
             token = resData?.token || resData?.livekit_token || '';
             serverUrl = resData?.server_url || resData?.serverUrl || serverUrl;
             if (resData?.audio_only && (resData.audio_only_reason === 'weak_link' || resData.audio_only_reason === 'server_pressure')) advice = resData.audio_only_reason;
@@ -226,20 +235,13 @@ export default function VideoCallScreen() {
       resilience.current?.dispose();
       resilience.current = null;
       void handle.dispose();
+      setActiveCall(null);
       void stopCallAudio();
     };
   }, [appointmentId, ringingSessionId, attempt]);
 
-  // a phone call takes the line: stop sending while held, send again on resume
-  useEffect(() => {
-    return onCallHold((h) => {
-      setHeld(h);
-      if (room) {
-        void room.localParticipant.setMicrophoneEnabled(!h && micOn);
-        void room.localParticipant.setCameraEnabled(!h && camOn);
-      }
-    });
-  }, [room, micOn, camOn]);
+  // a phone call takes the line: the state only records it; the one effect below decides what is sent
+  useEffect(() => onCallHold(setHeld), []);
 
   const cycleRoute = async () => {
     const next = nextRoute(route, routes);
@@ -259,25 +261,30 @@ export default function VideoCallScreen() {
     }
   };
 
-  // Toggle Camera
+  // What this device sends: the microphone and camera follow the buttons, and nothing while the line is held. One effect, so a hold that
+  // arrived before the room existed, or a mute pressed during a hold, is applied in the right order.
   useEffect(() => {
-    if (room && room.localParticipant) {
-      void room.localParticipant.setCameraEnabled(camOn);
-    }
-  }, [camOn, room]);
-
-  // Toggle Mic
-  useEffect(() => {
-    if (room && room.localParticipant) {
-      void room.localParticipant.setMicrophoneEnabled(micOn);
-    }
-  }, [micOn, room]);
+    if (!room || !room.localParticipant) return;
+    void room.localParticipant.setMicrophoneEnabled(micOn && !held).catch(() => undefined);
+    if (isVideoCall) void room.localParticipant.setCameraEnabled(camOn && !held).catch(() => undefined);
+  }, [room, micOn, camOn, held, isVideoCall]);
 
   const handleEndCall = () => {
+    const sid = sessionRef.current;
+    if (sid) {
+      // the server closes the session (call history, the doctor's next call) and the native call screen goes away
+      void apiFetch(`/calls/${encodeURIComponent(sid)}/end`, { method: 'POST' }).catch((e) => logError('consultations:video-call:end', e));
+      endNativeCall(sid);
+    }
     if (room) {
       void room.disconnect();
     }
-    router.replace({ pathname: '/consultations/post-call-rating', params: { appointmentId } } as unknown as Href);
+    // the rating is for an appointment; a call without one (no booking behind it) has nothing to rate
+    if (appointmentRef.current) {
+      router.replace({ pathname: '/consultations/post-call-rating', params: { appointmentId: appointmentRef.current } } as unknown as Href);
+    } else {
+      router.replace('/(tabs)/consultations' as Href);
+    }
   };
 
   const continueInChat = () => {

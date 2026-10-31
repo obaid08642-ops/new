@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 import { apiFetch } from '../utils/api';
-import { canRingNatively, ringNativeCall } from '../utils/callkeep';
+import { canRingNatively } from '../utils/callkeep';
 import { handleRingPayload, type RingData } from './ringTask';
 
 /**
@@ -19,6 +19,9 @@ interface VoipModule {
 }
 
 let started = false;
+let pendingToken: string | null = null;
+let authReady = false;
+let tokenSent: string | null = null;
 
 function loadVoip(): VoipModule | null {
   try {
@@ -28,25 +31,51 @@ function loadVoip(): VoipModule | null {
   }
 }
 
-export async function registerVoipPush(): Promise<boolean> {
+/** Sends the PushKit token once the user is signed in (the endpoint needs the session); safe to call any number of times. */
+export async function flushVoipToken(): Promise<void> {
+  if (!authReady || !pendingToken || tokenSent === pendingToken) return;
+  const token = pendingToken;
+  try {
+    await apiFetch('/notifications/register-token', {
+      method: 'POST',
+      body: JSON.stringify({ token, provider: 'apns_voip', platform: 'ios', device_name: 'iOS VoIP', call_ring: true }),
+    });
+    tokenSent = token;
+  } catch {
+    /* retried at the next sign-in or app start */
+  }
+}
+
+/** Called by the app when the signed-in state changes. */
+export function setVoipAuth(ready: boolean): void {
+  authReady = ready;
+  if (ready) void flushVoipToken();
+}
+
+/**
+ * Starts listening for VoIP pushes. Not tied to being signed in: a VoIP push wakes a killed app before the session is restored and the
+ * system requires CallKit to show a call for it at once. Only the token upload waits for the session (setVoipAuth).
+ */
+export async function startVoipListeners(): Promise<boolean> {
   if (Platform.OS !== 'ios' || started || !canRingNatively()) return false;
   const voip = loadVoip();
   if (!voip) return false;
   started = true;
   voip.addEventListener('register', (token) => {
-    void apiFetch('/notifications/register-token', {
-      method: 'POST',
-      body: JSON.stringify({ token, provider: 'apns_voip', platform: 'ios', device_name: 'iOS VoIP', call_ring: true }),
-    }).catch(() => { /* retried at the next app start */ });
+    pendingToken = token;
+    void flushVoipToken();
   });
   voip.addEventListener('notification', (n) => {
     const data = n.data ?? n._data;
-    if (data?.session_id && (data.type === 'call' || data.type === 'incoming_call')) {
-      void ringNativeCall(data.session_id, data.caller_name || data.title || '', (data.call_type ?? 'video') !== 'voice');
-    } else {
-      void handleRingPayload(data);
-    }
+    void handleRingPayload(data);
   });
   voip.registerVoipToken();
   return true;
+}
+
+export function resetVoipPushForTests(): void {
+  started = false;
+  pendingToken = null;
+  authReady = false;
+  tokenSent = null;
 }
