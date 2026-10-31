@@ -16,7 +16,7 @@ const hasTexts = (key: string) => ['ar', 'en', 'ur'].every((l) => Boolean((DICTI
 
 describe('nursing visit steps notify the patient', () => {
   const visit = (state: string) => {
-    const b: any = { id: 'bk-1', patient_id: 'pat-1', provider_id: 'prov-1', state, timers: {}, state_history: [], referring_doctor_id: 'doc-1', markModified: jest.fn(), save: jest.fn(async () => b) };
+    const b: any = { id: 'bk-1', patient_id: 'pat-1', provider_id: 'prov-1', state, timers: {}, state_history: [], referring_doctor_id: 'doc-1', markModified: jest.fn(), save: jest.fn(async () => b), toObject() { return b; } };
     return b;
   };
   const controllerFor = (b: any) => {
@@ -25,6 +25,7 @@ describe('nursing visit steps notify the patient', () => {
     events.onAny((name: any, payload: any) => emitted.push([name, payload]));
     const c: any = Object.create(NursingController.prototype);
     c.events = events;
+    c.engine = { apply: jest.fn(async (a: any) => a.mutate()) };
     c.findVisit = jest.fn(async () => b);
     c.assertProviderMutation = jest.fn();
     return { c, emitted };
