@@ -14,6 +14,7 @@ import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { apiFetch, downloadProtected } from '../../utils/api';
 import { isOffline } from '../../utils/isOffline';
 import { logError } from '../../utils/logger';
+import { shareFile } from '../../utils/shareFile';
 import { labResultItems, radiologyResultItems, sortResults, type ResultItem } from '../../utils/ordersResults';
 
 /**
@@ -59,8 +60,7 @@ export function ResultsPanel({ onSeen, testID }: { onSeen?: () => void; testID: 
       showLocalizedAlert(k('diag.order.noReportTitle'), k('diag.order.noReportBody'));
       return;
     }
-    const { shareAsync } = await import('expo-sharing');
-    await shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: k('diag.order.pdf') });
+    await shareFile(uri, 'application/pdf', k('diag.order.pdf'));
   };
 
   const book = (item: ResultItem) => {
