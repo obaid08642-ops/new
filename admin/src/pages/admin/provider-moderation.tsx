@@ -61,6 +61,8 @@ export default function ProviderModeration() {
   const [licenseRef, setLicenseRef] = useState('');
   const [licenseExpiry, setLicenseExpiry] = useState('');
   const [bankBusy, setBankBusy] = useState(false);
+  const [bankRejectOpen, setBankRejectOpen] = useState(false);
+  const [bankReason, setBankReason] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [geo, setGeo] = useState<{ region?: string; city?: string; district?: string }>({});
 
@@ -170,6 +172,28 @@ export default function ProviderModeration() {
       setApproveError('خطأ في الاعتماد');
     } finally {
       setApproveBusy(false);
+    }
+  };
+
+  // Payout bank account refusal: POST /admin/providers/:id/reject-bank { reason } (the provider reads the reason and sends a corrected account).
+  const handleRejectBank = async (id: string) => {
+    const reason = bankReason.trim();
+    if (!reason) { alert('اكتب سبب رفض الحساب البنكي'); return; }
+    setBankBusy(true);
+    try {
+      const res = await fetchWithAdminGuard(`/api/admin/admin/providers/${id}/reject-bank`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason }) });
+      if (res.ok) {
+        setProviderDetail((prev: { bank?: Record<string, unknown> } | null) => (prev ? { ...prev, bank: { ...(prev.bank || {}), review_status: 'rejected' } } : prev));
+        setBankRejectOpen(false); setBankReason('');
+      } else {
+        const err = await res.json().catch(() => null);
+        alert('فشل رفض الحساب البنكي: ' + (err?.message || res.status));
+      }
+    } catch (e) {
+      console.error(e);
+      alert('خطأ في رفض الحساب البنكي');
+    } finally {
+      setBankBusy(false);
     }
   };
 
@@ -363,6 +387,17 @@ export default function ProviderModeration() {
                   <button onClick={() => handleApproveBank(selectedProvider.id)} disabled={bankBusy} className="flex-1 bg-white hover:bg-slate-100 text-slate-700 font-bold py-3 rounded-lg shadow-sm border border-slate-300 transition text-lg disabled:opacity-50">
                     Approve bank account (اعتماد الحساب البنكي)
                   </button>
+                )}
+                {['pending', 'under_review'].includes(String(providerDetail?.bank?.review_status)) && (
+                  <button onClick={() => setBankRejectOpen((v) => !v)} disabled={bankBusy} className="flex-1 bg-white hover:bg-red-50 text-red-700 font-bold py-3 rounded-lg shadow-sm border border-red-300 transition text-lg disabled:opacity-50">
+                    Reject bank account (رفض الحساب البنكي)
+                  </button>
+                )}
+                {bankRejectOpen && (
+                  <div className="w-full flex flex-col gap-2">
+                    <textarea value={bankReason} onChange={(e) => setBankReason(e.target.value)} maxLength={500} rows={2} placeholder="سبب الرفض (يظهر لمقدم الخدمة)" className="w-full border rounded-lg p-2" />
+                    <button onClick={() => handleRejectBank(selectedProvider.id)} disabled={bankBusy || !bankReason.trim()} className="bg-red-600 text-white font-bold py-2 rounded-lg disabled:opacity-50">تأكيد الرفض</button>
+                  </div>
                 )}
               </div>
             </div>
