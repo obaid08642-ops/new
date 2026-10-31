@@ -366,7 +366,7 @@ export class LabsService {
     // the lab's own home-collection fee when it set one at registration, else the platform's (R6-4: the saved platform pricing)
     let labProfile: any = null;
     try {
-      if (data.provider_account_id) labProfile = await this.providerProfiles.findOne({ account_id: data.provider_account_id }, { home_collection_fee: 1 }).lean();
+      if (typeof data.provider_account_id === 'string' && data.provider_account_id) labProfile = await this.providerProfiles.findOne({ account_id: { $eq: data.provider_account_id } }, { home_collection_fee: 1 }).lean();
     } catch { /* a booking never fails on the fee lookup: the platform fee applies */ }
     const homeFee = homeCollectionFee(labProfile, await this.platformHomeFee());
     const total = items.reduce((sum, i) => sum + (i.price || 0), 0) + (data.location_type === 'home' ? homeFee : 0);
