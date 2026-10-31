@@ -36,6 +36,7 @@ appId: com.patient.nabd
     timeout: 30000
 - tapOn:
     id: "login-identifier"
+- waitForAnimationToEnd
 # On the iOS simulator Maestro's inputText stopped at the "@" (run 99: the field held only the part before it and the app answered
 # "enter a valid email"), so iOS types the three parts separately. Android types the address in one go.
 - runFlow:
@@ -48,10 +49,22 @@ appId: com.patient.nabd
       platform: iOS
     commands:
       - inputText: ${EMAIL_LOCAL}
+      - waitForAnimationToEnd
       - inputText: "@"
+      - waitForAnimationToEnd
       - inputText: ${EMAIL_DOMAIN}
+      - waitForAnimationToEnd
+# Run 100 (iOS): the identifier field ended up holding "n@nabd.test" + the PASSWORD, and the password field stayed empty, so either the
+# first characters are dropped while the keyboard is still coming up, or the tap on the password field did not move the focus. Assert
+# what the identifier field holds before going on, so the next failure names which of the two it is.
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - assertVisible: ${EMAIL}
 - tapOn:
     id: "login-password"
+- waitForAnimationToEnd
 - inputText: ${PASSWORD}
 # Maestro cannot dismiss the iOS keyboard ("Couldn't hide the keyboard"); the submit button sits in a footer that rides above the
 # keyboard there, so it can be tapped without hiding it. Android hides it.
