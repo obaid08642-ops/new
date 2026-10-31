@@ -1,12 +1,10 @@
-# 2026-10-31 lead reviewer: run 77.
-# Run 76: main@c929c4ef live, health ok, dump guard ok (355.9 MB). meili with 1 GB holds the index (21,311 = Mongo 21,311),
-# but 89,117 old tasks are still enqueued. ClamAV was skipped at deploy for low memory (647 MB free).
-# 1. 98d-meili-state with CANCEL=yes APPLY=yes: cancel the enqueued/processing tasks. The index is already complete, so no document is lost and search stays on.
-# 2. 91b-upload-scan-defer as a DRY RUN (APPLY empty): report the upload scan mode, the window cron and /config uploads state.
-# 3. Read-only: memory report, DB counts, disk usage.
+# 2026-10-31 lead reviewer: run 78.
+# Run 77: meili still crash-loops at 1 GB (345 restarts in ~75 min, 834 kills by its own memcg, ~1 GB anon each, every ~18 s);
+# 89,117 stale tasks; the cancel cannot run (engine dies first). Mongo search_index holds 21,311 docs = the source of truth.
+# Uploads: UPLOAD_SCAN=defer is live, /config uploads_enabled=true (quarantine + scan window), so uploads work.
+# 1. 98f-meili-fresh APPLY: stop meili, RENAME its old data dir to backups (no delete), start empty, worker refills from Mongo (paced, #2261),
+#    watch 12 min; automatic rollback if the engine will not start. Search is already down while it loops, so no user loses anything.
+# 2. Read-only memory report after.
 release:c929c4efa59a60ff70b245284fb7f99b3520b0ed
-98d-meili-state
-91b-upload-scan-defer
+98f-meili-fresh
 98-memory-report
-99c-db-counts
-99d-disk-usage
