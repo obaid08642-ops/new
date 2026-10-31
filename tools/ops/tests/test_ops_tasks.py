@@ -106,7 +106,7 @@ class Harness:
         with open(os.path.join(TASKS, task)) as fh:
             src = fh.read()
         for k, v in (settings or {}).items():                     # the reviewer edits these lines in the task file
-            src = re.sub(rf'^{k}=""$', f'{k}="{v}"', src, count=1, flags=re.M)
+            src = re.sub(rf'^{k}="[^"]*"$', f'{k}="{v}"', src, count=1, flags=re.M)   # empty, or a default the reviewer overrides
         script = os.path.join(self.tmp.name, task)
         with open(script, "w") as f:
             f.write(src)
