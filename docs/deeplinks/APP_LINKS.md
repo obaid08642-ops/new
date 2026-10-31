@@ -4,7 +4,7 @@ One list drives everything: `patient-web/lib/app-links.ts` (`PUBLIC_APP_LINK_PAT
 
 | Piece | Where | Kept equal to the list by |
 |---|---|---|
-| iOS universal links | `/.well-known/apple-app-site-association` (patient-web route; nginx serves `deploy/nginx/well-known/apple-app-site-association`) | `patient-web/app/.well-known/apple-app-site-association/route.test.ts`, `patient-web/tests/app-links-static.test.ts` |
+| iOS universal links | `/.well-known/apple-app-site-association` (patient-web route only; no static copy, nginx passes it to Next) | `patient-web/app/.well-known/apple-app-site-association/route.test.ts`, `patient-web/tests/app-links-static.test.ts` |
 | Android app links | `patient-app/app.json` `intentFilters` (4 hosts), `/.well-known/assetlinks.json` | `patient-app/src/__tests__/native-intent.test.ts`, `patient-web/tests/app-links-static.test.ts` |
 | Link -> screen | `patient-app/src/navigation/webLinkMap.ts` (expo-router `+native-intent`) | `native-intent.test.ts`: every listed pattern maps to a route file that exists |
 | App not installed | nothing to do: a universal link / app link is an ordinary https URL, so the browser opens the web page | |
@@ -13,9 +13,15 @@ One list drives everything: `patient-web/lib/app-links.ts` (`PUBLIC_APP_LINK_PAT
 - iOS appID = `<Team ID>.<bundle id>`: Team ID `6AT2W85DBC` (`APNS_TEAM_ID` and `APPLE_TEAM_ID` in `deploy/.env.production.example`), patient bundle id `com.patient.nabd` (`patient-app/app.json` `ios.bundleIdentifier`), provider `com.nabd.provider`. (The nginx file used to say `com.nabd.patient`, which is not an app id, so no iPhone ever opened the app from a link.)
 - Android package `com.patient.nabd` / `com.nabd.provider`.
 
-## OWNER ACTION: Android signing fingerprint
-`assetlinks.json` carries `FA:C6:17:45:DC:09:03:78:6F:B9:ED:E6:2A:96:2B:39:9F:73:48:F0:BB:6F:89:9B:83:32:66:75:91:03:3B:9C`, which is the **sample fingerprint from Google's documentation**, not the key of the app. With it Android cannot verify the links, so app links open the browser. The repo cannot know the real value: it is the SHA-256 of the **app signing key certificate** in Play Console (Setup > App signing). The owner pastes it in `ANDROID_SHA256_FINGERPRINT` (patient-web env, `deploy/.env.production.example`) and in `deploy/nginx/well-known/assetlinks.json` (comma-separated for more than one key, e.g. the upload key for internal testing); the test keeps the two files equal.
+## OWNER ACTION: the two values (names to set in the patient-web environment)
+| Variable | What it is | Without it |
+|---|---|---|
+| `APPLE_TEAM_ID` | Apple Developer Team ID: 10 upper-case letters/digits (Apple Developer > Membership). Same value as `APNS_TEAM_ID`. | `/.well-known/apple-app-site-association` answers 503, `Cache-Control: no-store` |
+| `ANDROID_SHA256_FINGERPRINT` | SHA-256 of the **app signing key certificate** in Play Console (Setup > App signing), `AA:BB:...` 32 bytes; comma-separated to add the upload key for internal testing. | `/.well-known/assetlinks.json` answers 503, `no-store` |
 
-## Regenerating the static files
-`deploy/nginx/well-known/*` are what production serves (nginx answers before Next). After changing the list, regenerate them from the routes (the test fails when they differ):
-`cd patient-web && npx tsx <script that writes JSON.stringify(await GET().json(), null, 2) of both routes>`; the files are the routes' output, 2-space JSON.
+There is no default and no sample: a wrong value would make iOS/Android cache a failed verification and open every link in the browser, so the file is simply not served until the real value is set. Google's documentation sample fingerprint (`FA:C6:17:...`) and a malformed value are refused too. Optional (defaults are the apps' real ids): `APPLE_BUNDLE_ID`, `APPLE_PROVIDER_BUNDLE_ID`, `ANDROID_PACKAGE_NAME`, `ANDROID_PROVIDER_PACKAGE_NAME`. Both are passed to the container by `deploy/docker-compose.production.yml` (`APPLE_TEAM_ID`, `ANDROID_SHA256_FINGERPRINT` in `deploy/.env.production`).
+
+Both files are served with `Content-Type: application/json` and no redirect (`proxy.ts` passes any path containing a dot straight through, so `/.well-known/...` is never sent to a locale prefix). The 3-D Secure return and e-mail links reopen the app only once both values are set and the hosts below serve the files.
+
+## OWNER ACTION: hosts
+`patient-app/app.json` claims `app.nabd.plus`, `nabd.plus`, `www.nabd.plus` and `app.nabdahplus.com`. In this repo's nginx only `nabd.plus` and `www.nabd.plus` are served by patient-web (`deploy/nginx/conf.d/nabd-web.conf`); there is no server block for `app.nabd.plus` or `app.nabdahplus.com`, so unless DNS/Cloudflare routes them to the same patient-web they answer no association file, and Android `autoVerify` fails for the whole filter on those hosts. Point both hosts at patient-web, or remove them from `app.json`.
