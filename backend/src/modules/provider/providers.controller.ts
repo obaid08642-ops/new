@@ -2,8 +2,7 @@ import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/co
 import { ProvidersService } from './providers.service';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { ProviderType, ProviderStatus, UserRole } from '../../common/enums';
-import { ApplyDto, AdminCreateDto, RejectDto, SuspendDto} from './providers.dto';
-import { ApproveDto } from './provider.controllers.generated.dto';
+import { AdminCreateDto, RejectDto, SuspendDto} from './providers.dto';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
 @Controller('providers')
@@ -11,13 +10,6 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 @UseGuards(JwtAuthGuard)
 export class ProvidersController {
   constructor(private svc: ProvidersService) {}
-
-  /** Public self-registration */
-  @Public()
-  @Post('apply')
-  apply(@Body() body: ApplyDto) {
-    return this.svc.apply(body);
-  }
 
   /** Public listing for patient app */
   @Public()
@@ -76,13 +68,6 @@ export class ProvidersController {
   @Roles(UserRole.ADMIN)
   pending() {
     return this.svc.listPending();
-  }
-
-  @RequirePermissions(Permission.FACILITY_EDIT)
-  @Post(':id/approve')
-  @Roles(UserRole.ADMIN)
-  approve(@Param('id') id: string, @CurrentUser() admin: any, @Body() body: ApproveDto) {
-    return this.svc.approve(id, admin, body?.manual_license_check);
   }
 
   @RequirePermissions(Permission.FACILITY_EDIT)

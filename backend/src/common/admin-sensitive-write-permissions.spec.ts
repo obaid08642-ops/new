@@ -11,7 +11,7 @@ import { MedicinesController } from '../modules/medicines/medicines.controller';
 import { ProviderAdminController } from '../modules/provider/provider.controllers';
 import { AdminFinanceCoreController } from '../modules/insurance-engine/insurance-engine.module';
 import { AdminAppointmentsController } from '../modules/care/appointments.controller';
-import { FinanceController } from '../modules/admin/web-core/controllers/finance.controller';
+import { AdminFinanceSuiteController } from '../modules/admin/enterprise/admin-finance.controller';
 import { AdminController } from '../modules/admin/admin.controller';
 import { AdminCmsController } from '../modules/admin/enterprise/admin-cms.controller';
 import { ModuleSwitchesController } from '../modules/module-switches/module-switches.controller';
@@ -49,8 +49,7 @@ const CASES: Array<[Ctor, string, string, Permission]> = [
     .map((p): [Ctor, string, string, Permission] => [ProviderAdminController, 'POST', p, Permission.FACILITY_EDIT]),
   [AdminFinanceCoreController, 'POST', 'refunds/:id/decide', Permission.ORDER_REFUND],
   [AdminAppointmentsController, 'POST', ':id/cancel', Permission.ORDER_CANCEL],
-  [FinanceController, 'POST', 'withdrawals/:id/execute', Permission.FINANCE_PAYOUT_APPROVE],
-  [FinanceController, 'POST', 'withdrawals/:id/reject', Permission.FINANCE_PAYOUT_APPROVE],
+  ...['payouts/:id/approve', 'payouts/:id/execute', 'payouts/:id/reject'].map((p): [Ctor, string, string, Permission] => [AdminFinanceSuiteController, 'POST', p, Permission.FINANCE_PAYOUT_APPROVE]),
   [AdminController, 'POST', 'users/:userId/ban', Permission.USER_EDIT],
   [AdminController, 'POST', 'users/:userId/unban', Permission.USER_EDIT],
   [AdminCmsController, 'POST', ':id/publish', Permission.CMS_EDIT],

@@ -1991,6 +1991,7 @@
   "diag.checkout.payFailed": "भुगतान शुरू नहीं हो सका",
   "diag.checkout.payRetry": "ऑर्डर विवरण से फिर कोशिश करें",
   "diag.checkout.failed": "बुकिंग नहीं बन सकी",
+  "diag.checkout.onePayment": "कार्ड से भुगतान एक बार में एक बुकिंग के लिए होता है। लैब टेस्ट और हर स्कैन की बुकिंग अलग-अलग करें।",
   "diag.checkout.failedBody": "समय और भुगतान का तरीका जांचकर फिर कोशिश करें",
   "diag.pay.cash": "नकद भुगतान",
   "diag.pay.card": "कार्ड",
@@ -4009,5 +4010,17 @@
   "gate.maintenanceBody": "ऐप निर्धारित रखरखाव में है। कृपया बाद में कोशिश करें।",
   "gate.updateTitle": "अपडेट आवश्यक है",
   "gate.updateBody": "एक नया अनिवार्य संस्करण उपलब्ध है। जारी रखने के लिए ऐप अपडेट करें।",
-  "gate.retry": "फिर कोशिश करें"
+  "gate.retry": "फिर कोशिश करें",
+  "consult.call.reconnecting": "कनेक्शन कमज़ोर है। आपकी कॉल फिर से जोड़ रहे हैं…",
+  "consult.call.audioOnly": "आपका कनेक्शन कमज़ोर है, इसलिए हमने वीडियो बंद करके आवाज़ चालू रखी है।",
+  "consult.call.tryVideo": "वीडियो फिर से आज़माएँ",
+  "consult.call.dropped": "कॉल कट गई।",
+  "consult.call.continueInChat": "चैट में जारी रखें",
+  "consult.call.qualityYou": "आपका कनेक्शन",
+  "consult.call.qualityOther": "दूसरी तरफ़ का कनेक्शन",
+  "consult.call.quality.excellent": "बहुत अच्छा",
+  "consult.call.quality.good": "अच्छा",
+  "consult.call.quality.poor": "कमज़ोर",
+  "consult.call.quality.lost": "टूट गया",
+  "consult.call.quality.unknown": "जाँच हो रही है"
 }

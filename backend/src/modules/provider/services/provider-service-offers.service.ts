@@ -111,6 +111,20 @@ export class ProviderServiceOffersService {
     if (q.service_id) filter.service_id = q.service_id;
     if (q.provider_account_id) filter.provider_account_id = q.provider_account_id;
     const rows: any[] = await this.conn.collection(PROVIDER_OFFERS_COLLECTION).find(filter, { projection: { _id: 0, provider_account_id: 1, service_id: 1, offered: 1, where: 1, insurance: 1, price: 1, currency: 1, updatedAt: 1 } }).limit(1000).toArray();
-    return { vertical: v, total: rows.length, offered: rows.filter((r) => r.offered).length, items: rows };
+    // Names for the admin page (the rows themselves carry ids only): the catalogue service and the provider's display name.
+    const serviceIds = [...new Set(rows.map((r) => r.service_id).filter(Boolean))];
+    const providerIds = [...new Set(rows.map((r) => r.provider_account_id).filter(Boolean))];
+    const [services, accounts]: any[][] = await Promise.all([
+      serviceIds.length ? this.conn.collection(CATALOGUE[v].collection).find({ id: { $in: serviceIds } }, { projection: { _id: 0, id: 1, name_ar: 1, name_en: 1 } }).toArray() : [],
+      providerIds.length ? this.conn.collection('provider_accounts').find({ id: { $in: providerIds } }, { projection: { _id: 0, id: 1, display_name_ar: 1, display_name_en: 1 } }).toArray() : [],
+    ]);
+    const serviceName = new Map<string, any>(services.map((x) => [x.id, x]));
+    const providerName = new Map<string, any>(accounts.map((x) => [x.id, x]));
+    const items = rows.map((r) => ({
+      ...r,
+      service_name_ar: serviceName.get(r.service_id)?.name_ar ?? null, service_name_en: serviceName.get(r.service_id)?.name_en ?? null,
+      provider_name_ar: providerName.get(r.provider_account_id)?.display_name_ar ?? null, provider_name_en: providerName.get(r.provider_account_id)?.display_name_en ?? null,
+    }));
+    return { vertical: v, total: items.length, offered: items.filter((r) => r.offered).length, items };
   }
 }

@@ -194,6 +194,8 @@ export default function NursingMegaProfile() {
         service_id: serviceId || undefined,
         service_name_ar: nurse?.service_name_ar || undefined,
         scheduled_at: scheduled.toISOString(),
+        // the number of visits the total shown above is built from; the server prices unit price x sessions_count
+        sessions_count: daysCount,
         // with coordinates: the nurse navigates to it and the arrival geofence checks against it
         address: {
           address: addressObj ? formatAddressLine(addressObj) : undefined,

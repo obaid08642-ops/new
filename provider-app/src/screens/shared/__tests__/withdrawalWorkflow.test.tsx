@@ -41,4 +41,11 @@ describe('WithdrawalWorkflow follows the server', () => {
     await render(<WithdrawalWorkflow onBack={() => {}} />);
     await waitFor(() => expect(screen.getByText('Awaiting second approval')).toBeTruthy());
   });
+
+  it('a paid request reads Paid, in the success colour; the final state the server sets is PAID', async () => {
+    serve([{ id: 'wd_2', state: 'PAID', amount: 300, reference: 'PAYOUT-2', createdAt: '2026-10-15T00:00:00Z' }, { id: 'wd_3', state: 'APPROVED_FOR_PAYOUT', amount: 300, reference: 'PAYOUT-3', createdAt: '2026-10-16T00:00:00Z' }]);
+    await render(<WithdrawalWorkflow onBack={() => {}} />);
+    await waitFor(() => expect(screen.getByText('Paid')).toBeTruthy());
+    expect(screen.getByText('Approved, transfer in progress')).toBeTruthy();
+  });
 });

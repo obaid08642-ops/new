@@ -243,6 +243,8 @@ export function eligibleOrders(orders: MedicalOrder[], catalogIds: string[], now
 
 export interface CreatedBooking {
   id: string;
+  /** Which booking service made it: a lab booking (/ordering) or a radiology one (/radiology/bookings). Decides the payment and the tracking route. */
+  kind: 'lab' | 'radiology';
   mode: OrderingMode;
   status: string;
   total: number;
@@ -263,7 +265,7 @@ export function parseCreated(payload: unknown): CreatedGroup | null {
       const price = l ? num(l.price) : null;
       return l && typeof l.catalog_id === 'string' && price !== null ? [{ catalog_id: l.catalog_id, price, coverage: str(l.coverage) }] : [];
     });
-    return [{ id: x.id, mode: x.mode, status: str(x.status) ?? 'pending', total, items }];
+    return [{ id: x.id, kind: 'lab', mode: x.mode, status: str(x.status) ?? 'pending', total, items }];
   });
   if (bookings.length === 0) return null;
   const pay = obj(r.payment);
@@ -275,6 +277,44 @@ export async function createBookings(d: OrderingDraft, c: ConfirmChoices): Promi
   if (!created) throw new Error('invalid_booking');
   return created;
 }
+
+/**
+ * A radiology basket is booked on the radiology booking route (POST /radiology/bookings: one booking per scan, the provider named as the
+ * quote showed it), not on /ordering/bookings, which books labs only. Same draft, same sheet, same result shape; the card or insurance
+ * payment of each booking then goes through the radiology payment kind. A retry within a few minutes returns the bookings already made
+ * (the server's duplicate guard), so a failure part-way never doubles them.
+ */
+export async function createRadiologyBookings(d: OrderingDraft, c: ConfirmChoices): Promise<CreatedGroup> {
+  const bookings: CreatedBooking[] = [];
+  for (const g of d.quote.groups) {
+    const pick = d.picks[g.mode];
+    const time = d.times[g.mode];
+    if (!pick || !time) throw new Error('selection_required');
+    const scheduledAt = time.type === 'walk_in' ? new Date().toISOString() : time.start;
+    for (const it of g.items) {
+      const made = obj(await apiFetch<unknown>('/radiology/bookings', {
+        method: 'POST',
+        body: JSON.stringify({
+          service_id: it.catalog_id,
+          provider_id: pick.row.provider_id,
+          scheduled_at: scheduledAt,
+          location_type: g.mode === 'home' ? 'home' : 'facility',
+          payment_method: c.paymentMethod,
+          ...(c.documents.length ? { documents: c.documents } : {}),
+        }),
+      }));
+      const id = made && typeof made.id === 'string' ? made.id : null;
+      const total = made ? (num(made.total_price) ?? num(made.total)) : null;
+      if (!id || total === null) throw new Error('invalid_booking');
+      bookings.push({ id, kind: 'radiology', mode: g.mode, status: c.paymentMethod === 'insurance' ? 'awaiting_approval' : 'pending', total, items: [{ catalog_id: it.catalog_id, price: total, coverage: null }] });
+    }
+  }
+  if (bookings.length === 0) throw new Error('invalid_booking');
+  return { order_group_id: `radiology-${bookings[0].id}`, bookings, amount: Math.round(bookings.reduce((s, b) => s + b.total, 0) * 100) / 100, paymentStatus: 'pending' };
+}
+
+/** The booking of a basket: labs on the ordering route, radiology on the radiology booking route. */
+export const submitBookings = (d: OrderingDraft, c: ConfirmChoices): Promise<CreatedGroup> => (d.kind === 'radiology' ? createRadiologyBookings(d, c) : createBookings(d, c));
 
 /** Stable backend error codes (ordering.service.ts, ordering-broadcast.service.ts) -> the translation key of the message. */
 const CODES: Array<[string, string]> = [
@@ -302,6 +342,15 @@ const CODES: Array<[string, string]> = [
   ['asap_not_found', 'ordering.err.asapClosed'],
   ['asap_items_required', 'ordering.err.generic'],
   ['insurance_not_saved', 'ordering.err.insuranceNotSaved'],
+  // the radiology booking route's own codes (radiology.service.ts book()), in the same localized words
+  ['provider_cannot_perform_scan', 'ordering.err.providerGone'],
+  ['scan_not_home_eligible', 'ordering.err.providerGone'],
+  ['service_not_available', 'ordering.err.providerGone'],
+  ['service_price_not_set', 'ordering.err.providerGone'],
+  ['slot_expired', 'ordering.err.windowGone'],
+  ['scheduled_at_required', 'ordering.err.timeRequired'],
+  ['payment_method_cash_not_allowed_for_home_visit', 'ordering.err.cashHome'],
+  ['insurance_home_requires_doctor_request_or_preauth', 'ordering.err.orderRequired'],
 ];
 export function bookingErrorKey(error: unknown): string {
   const text = String((error as { message?: unknown } | null)?.message ?? error ?? '');

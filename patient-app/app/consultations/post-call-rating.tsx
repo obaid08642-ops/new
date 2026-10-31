@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
@@ -35,6 +35,12 @@ export default function PostCallRatingScreen() {
 
   const toggle = (id: string) => setActive((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
   const home = () => router.replace('/(tabs)/consultations' as Href);
+
+  // a rating belongs to an appointment: without one there is nothing to save, so do not pretend (the call screen no longer sends us here then)
+  useEffect(() => {
+    if (!appointmentId) home();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appointmentId]);
 
   const submit = async () => {
     if (rating === 0) return;

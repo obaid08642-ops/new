@@ -24,6 +24,11 @@ export class BookDto {
   @IsString()
   provider_account_id?: string;
 
+  // the provider as an ordering quote names it (the profile id); resolved to its account here, so a quote can be booked as it was shown
+  @IsOptional()
+  @IsString()
+  provider_id?: string;
+
   @IsOptional()
   @IsArray()
   documents?: unknown[];

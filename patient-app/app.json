@@ -5436,7 +5436,8 @@
         }
       ],
       "expo-status-bar",
-      "expo-asset"
+      "expo-asset",
+      "./plugins/with-android-lint-app-links"
     ],
     "experiments": {
       "typedRoutes": true

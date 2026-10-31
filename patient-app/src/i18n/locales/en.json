@@ -1991,6 +1991,7 @@
   "diag.checkout.payFailed": "Could not start the payment",
   "diag.checkout.payRetry": "Try again from the order details",
   "diag.checkout.failed": "Could not create the booking",
+  "diag.checkout.onePayment": "Card payment covers one booking at a time. Book the lab tests and each scan separately.",
   "diag.checkout.failedBody": "Check the time and the payment method and try again",
   "diag.pay.cash": "Cash payment",
   "diag.pay.card": "Card",
@@ -4009,5 +4010,17 @@
   "gate.maintenanceBody": "The app is under scheduled maintenance. Please try again later.",
   "gate.updateTitle": "Update required",
   "gate.updateBody": "A new required version is available. Update the app to continue.",
-  "gate.retry": "Try again"
+  "gate.retry": "Try again",
+  "consult.call.reconnecting": "Weak connection. Reconnecting your call…",
+  "consult.call.audioOnly": "Your connection is weak, so we turned video off and kept the sound.",
+  "consult.call.tryVideo": "Try video again",
+  "consult.call.dropped": "The call was cut off.",
+  "consult.call.continueInChat": "Continue in chat",
+  "consult.call.qualityYou": "Your connection",
+  "consult.call.qualityOther": "Other side's connection",
+  "consult.call.quality.excellent": "excellent",
+  "consult.call.quality.good": "good",
+  "consult.call.quality.poor": "weak",
+  "consult.call.quality.lost": "lost",
+  "consult.call.quality.unknown": "checking"
 }

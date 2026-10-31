@@ -204,6 +204,16 @@ const ERROR_KEYS: Record<string, string> = {
   asap_items_required: "errGeneric",
   too_many_requests: "errBusy",
   idempotency_key_required: "errGeneric",
+  // the radiology booking route's own codes (radiology.service.ts book()), and the lab-only refusal of the ordering route, in the same words
+  provider_cannot_perform_scan: "errModeNotOffered",
+  scan_not_home_eligible: "errModeNotOffered",
+  service_not_available: "errUnknownItem",
+  service_price_not_set: "errUnknownItem",
+  slot_expired: "errSlotGone",
+  scheduled_at_required: "errSlotGone",
+  payment_method_cash_not_allowed_for_home_visit: "errCashHome",
+  insurance_home_requires_doctor_request_or_preauth: "errOrderRequired",
+  service_kind_not_bookable_yet: "errModeNotOffered",
 };
 
 export function orderingErrorKey(code: unknown): string {

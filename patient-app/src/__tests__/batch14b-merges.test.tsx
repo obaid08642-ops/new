@@ -88,6 +88,49 @@ describe('insurance step (one screen, two states)', () => {
     expect(screen.getByTestId('diagnostics-insurance-approval')).toBeTruthy();
   });
 
+  const answered = (insurance_status: string, extra: Record<string, unknown> = {}) => async (path: string, init?: { method?: string }) => {
+    if (path === '/labs/bookings/b1') return { insurance_status, items: [{ service_id: 's1', name_ar: 'CBC', price: 100, isCovered: insurance_status !== 'rejected' }], ...extra };
+    if (path === '/payments/intent/lab/b1' && init?.method === 'POST') return { id: 'txn-1', checkout_url: 'https://pay.example.test/c/1', amount: 100 };
+    return {};
+  };
+
+  it('after a rejection "pay myself" pays the existing booking through the lab intent (no empty-cart checkout)', async () => {
+    mockParams.current = { orderId: 'b1', labName: 'Test lab' };
+    apiFetch.mockImplementation(answered('rejected'));
+    await render(wrap(<InsuranceApproval />));
+    const button = await screen.findByText(k('diag.ins.payOwn'), {}, { timeout: 6000 });
+    await act(async () => { fireEvent.press(button); });
+    const router = (require('expo-router') as { router: { push: jest.Mock; replace: jest.Mock } }).router;
+    expect(apiFetch).toHaveBeenCalledWith('/payments/intent/lab/b1', expect.objectContaining({ method: 'POST', body: JSON.stringify({ method: 'card' }) }));
+    expect(router.replace).toHaveBeenCalledWith({ pathname: '/payments/result', params: expect.objectContaining({ moyasarId: 'txn-1', bookingId: 'b1', bookingKind: 'lab' }) });
+    expect(router.push).not.toHaveBeenCalledWith(expect.objectContaining({ pathname: '/diagnostics/checkout' }));
+  }, 20000);
+
+  it('a failed payment intent shows the error and stays on the screen', async () => {
+    mockParams.current = { orderId: 'b1', labName: 'Test lab' };
+    apiFetch.mockImplementation(async (path: string, init?: { method?: string }) => {
+      if (init?.method === 'POST') throw new Error('payment_gateway_unavailable');
+      return answered('rejected')(path, init);
+    });
+    await render(wrap(<InsuranceApproval />));
+    const button = await screen.findByText(k('diag.ins.payOwn'), {}, { timeout: 6000 });
+    await act(async () => { fireEvent.press(button); });
+    expect(await screen.findByText(k('ordering.pay.failTitle'))).toBeTruthy();
+    const router = (require('expo-router') as { router: { replace: jest.Mock } }).router;
+    expect(router.replace).not.toHaveBeenCalled();
+  }, 20000);
+
+  it('a fully covered booking (nothing to pay) continues to its status, never to a checkout', async () => {
+    mockParams.current = { orderId: 'b1', labName: 'Test lab' };
+    apiFetch.mockImplementation(answered('approved', { insurance_copay: 0 }));
+    await render(wrap(<InsuranceApproval />));
+    const button = await screen.findByText(k('diag.ins.continue'), {}, { timeout: 6000 });
+    await act(async () => { fireEvent.press(button); });
+    const router = (require('expo-router') as { router: { push: jest.Mock; replace: jest.Mock } }).router;
+    expect(router.replace).toHaveBeenCalledWith({ pathname: '/diagnostics/booking-status', params: { id: 'b1' } });
+    expect(apiFetch).not.toHaveBeenCalledWith('/payments/intent/lab/b1', expect.anything());
+  }, 20000);
+
   it('says the facility asks the insurer, never that anything was retrieved or checked automatically', () => {
     for (const key of ['diag.upload.hint', 'diag.upload.readFailed', 'diag.ins.reviewing', 'diag.hub.insBody']) {
       expect(k(key)).not.toMatch(/automatic|instant|real-time|verif/i);

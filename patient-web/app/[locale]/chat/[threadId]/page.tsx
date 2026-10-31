@@ -14,6 +14,8 @@ import { voiceNoteAllowed } from "@/lib/chat/voice-note";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { ActionLinks, Notice, RowCard } from "@/components-next/consult/consult-parts";
 import { LocalTimeLine } from "@/components-next/consult/local-time-line";
+import { ReceiptSync } from "@/components-next/consult/receipt-sync";
+import { newestIncomingId } from "@/lib/chat/receipts";
 import styles from "@/components-next/consult/consult.module.css";
 
 type Props = { params: Promise<{ locale: string; threadId: string }> };
@@ -75,6 +77,7 @@ export default async function ChatThreadPage({ params }: Props) {
   const title = thread ? t(`types.${thread.type}`) : t("thread");
   return (
     <ConsultPage locale={locale} title={title} backHref={isConsultation ? `${back}/${encodeURIComponent(bookingId)}` : back}>
+      {thread ? <ReceiptSync threadId={threadId} upToMessageId={newestIncomingId(messages)} /> : null}
       <Notice>{t("emergency")} <a href={`tel:${permissions?.emergencyLine ?? "997"}`}>{t("emergencyCall")}</a></Notice>
       {banner ? <p className={styles.rowSub} data-testid="chat-window-banner">{t(`window.${banner.statusKey}`)}{banner.remaining ? ` · ${t(`window.${banner.remaining.key}`, { count: banner.remaining.count })}` : ""}</p> : null}
       {messages.length === 0 ? (

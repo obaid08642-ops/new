@@ -19,6 +19,8 @@ export type AppointmentRow = {
   doctorId?: string;
   price?: number;
   copayAmount?: number;
+  /** What cancelling right now gives back, as the server computed it (`cancellation.refund_now.percent`); absent when it sent none. */
+  refundNowPercent?: number;
 };
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -52,6 +54,11 @@ function firstUuid(record: Record<string, unknown>, keys: string[]) {
   return parsed.success ? parsed.data : undefined;
 }
 
+function refundNow(record: Record<string, unknown>) {
+  const percent = asRecord(asRecord(record.cancellation)?.refund_now)?.percent;
+  return typeof percent === "number" && Number.isFinite(percent) && percent >= 0 && percent <= 100 ? percent : undefined;
+}
+
 function appointmentFrom(value: unknown): AppointmentRow | null {
   const record = asRecord(value);
   const id = appointmentIdSchema.safeParse(record?.id);
@@ -70,6 +77,7 @@ function appointmentFrom(value: unknown): AppointmentRow | null {
     doctorId: firstText(record as Record<string, unknown>, ["doctor_id", "doctorId"]),
     price: firstNumber(record as Record<string, unknown>, ["price", "amount"]),
     copayAmount: firstNumber(record as Record<string, unknown>, ["copay_amount"]),
+    refundNowPercent: refundNow(record as Record<string, unknown>),
   };
 }
 

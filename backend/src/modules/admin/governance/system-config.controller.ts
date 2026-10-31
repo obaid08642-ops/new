@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { SystemConfig, SystemConfigDocument } from '../../../schemas/system-config.schema';
 import { UpdateConfigDto } from './system-config.dto';
+import { DEFAULT_REFUND_POLICY } from '../../refund-policy/refund-policy.defaults';
 
 import { Permission, RequirePermissions } from '../../../common/permissions';
 /**
@@ -54,8 +55,18 @@ export class PublicSystemConfigController {
   async getPublic() {
     const doc = await this.configModel.findOne({ key: 'system_config' }).lean();
     const v: any = doc?.value || {};
+    // One source for the consultation refund numbers: `refund_policy` (what the server applies when it cancels). The old
+    // `cancellation_policy` figures are never shown for them: the full refund starts at `full_refund_min_hours` and any later
+    // cancel gets `late_refund_percent`, so there is no separate half-refund window (`half_hours` 0).
+    const refundDoc: any = await this.configModel.findOne({ key: 'refund_policy' }).lean();
+    const consultation = refundDoc?.value?.consultation || DEFAULT_REFUND_POLICY.consultation;
     return {
-      cancellation_policy: v.cancellation_policy || null,
+      cancellation_policy: {
+        ...(v.cancellation_policy || {}),
+        full_hours: consultation.full_refund_min_hours ?? DEFAULT_REFUND_POLICY.consultation.full_refund_min_hours,
+        half_hours: 0,
+        half_refund_percent: consultation.late_refund_percent ?? DEFAULT_REFUND_POLICY.consultation.late_refund_percent,
+      },
       returns_policy: v.returns_policy || null,
     };
   }
