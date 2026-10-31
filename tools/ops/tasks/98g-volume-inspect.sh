@@ -20,7 +20,9 @@ $DK volume inspect "$VOL" >/dev/null 2>&1 || { say "volume $VOL does not exist: 
 USERS=$($DK ps -a --filter "volume=$VOL" --format '{{.Names}}' 2>/dev/null | tr '\n' ' ')
 MP=$($DK volume inspect -f '{{.Mountpoint}}' "$VOL" 2>/dev/null)
 SIZE=$(sudo -n du -sk "$MP" 2>/dev/null | cut -f1); SIZE=${SIZE:-0}
-say "volume $VOL: $(( (SIZE + 512) / 1024 )) MB; used by containers: ${USERS:-none}"
+NEWEST=$(sudo -n find "$MP" -type f -printf '%T@\n' 2>/dev/null | sort -n | tail -1 | cut -d. -f1)
+if [ -n "$NEWEST" ]; then NEWEST_TXT=$(date -u -d "@$NEWEST" +%Y-%m-%d 2>/dev/null || echo "$NEWEST"); else NEWEST_TXT=unknown; fi
+say "volume $VOL: $(( (SIZE + 512) / 1024 )) MB; newest file modified: $NEWEST_TXT; containers that mount it (running or stopped): ${USERS:-none}"
 IMG=$($DK inspect -f '{{.Config.Image}}' "$LIVE" 2>/dev/null)
 [ -n "$IMG" ] || { say "ABORT cannot read the mongo image of $LIVE"; exit 1; }
 NAME="nabd-volinspect-$$"
