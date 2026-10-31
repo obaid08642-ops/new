@@ -28,19 +28,19 @@ One one-off at a time: never start the catalogue apply while the nightly dump (0
 |---|---:|---:|---:|---:|---:|---|
 | mongodb | 1600m | 1000m | 0 (memswap = limit) | | -900 | none |
 | redis | 512m | 160m | 0 (memswap = limit) | | -800 | none |
-| redis-cache | 384m | 130m | 0 | | 300 | memswap = limit (a swapped-out cache is useless) |
+| redis-cache | 192m | 130m | 0 | | 300 | limit 384m -> 192m (uses 26 MB), memswap = limit (a swapped-out cache is useless) |
 | meilisearch | 1024m | 100m | 512m | indexing 128Mb, 1 thread | 200 | limit 640m -> 1024m (run 70: 491 kernel kills at its own 640m limit), `MEILI_MAX_INDEXING_MEMORY` 256Mb -> 128Mb, 1 indexing thread, larger swap allowance (index is rebuildable) |
-| backend | 768m | 400m | 256m | 512 | 0 | swap allowance (limit and heap unchanged: observed use 330 MB) |
+| backend | 576m | 400m | 192m | 416 | 0 | limit 768m -> 576m, heap 512 -> 416 (uses 330 MB), swap allowance |
 | worker | 640m | 200m | 256m | 448 | 300 | swap allowance (limit and heap unchanged: observed use 128 MB) |
 | fastapi | 384m | 80m | 128m | | 300 | swap allowance |
-| admin-web | 384m | 100m | 128m | 256 | 300 | swap allowance |
-| patient-web | 640m | 250m | 256m | 384 | 300 | swap allowance |
+| admin-web | 256m | 100m | 128m | 192 | 300 | limit 384m -> 256m, heap 256 -> 192 (uses 28 MB), swap allowance |
+| patient-web | 448m | 250m | 224m | 320 | 300 | limit 640m -> 448m, heap 384 -> 320 (uses 274 MB), swap allowance |
 | livekit | 256m | 80m | 0 | | -100 | memswap = limit (latency) |
 | coturn | 128m | 30m | 0 | | -100 | memswap = limit |
 | nginx | 128m | 30m | 0 | | -500 | memswap = limit |
 | clamav | 1536m | 600m | 0 | | 900 | memswap = limit; see below |
 
-Heaps are at most 75% of the limit (the rest is native memory). The swap allowances add up to 1536 MB, below the 4096 MB of swap the host has, so the allowances can never exceed the swap that exists. `mongodb` and `redis` are off swap by their own `memswap_limit` (a swapped-out database is slower than a restart); the swap is for the others to absorb spikes (indexing, a build, a leak) instead of the kernel killing a database.
+Heaps are at most 75% of the limit (the rest is native memory). The swap allowances add up to 1440 MB, below the 4096 MB of swap the host has, so the allowances can never exceed the swap that exists. `mongodb` and `redis` are off swap by their own `memswap_limit` (a swapped-out database is slower than a restart); the swap is for the others to absorb spikes (indexing, a build, a leak) instead of the kernel killing a database.
 
 One-off containers (not in the compose file): the nightly dump 350 to 600 MB (no swap, `oom_score_adj` 1000), the catalogue apply 700 MB (no swap, `oom_score_adj` 1000, heap 520). Both are the first thing the kernel kills.
 
@@ -58,7 +58,7 @@ With -900 its kernel score is at most 1, so the kernel should pick it last. The 
 
 ## Correction after run 70 (observed use)
 
-Run 70 showed the premise above was only half right: all 491 kernel kills in the following 3 hours were `meilisearch` hitting **its own** cgroup limit (CONSTRAINT_MEMCG, 640 MB), not the host running out. So this PR no longer cuts meilisearch, backend or worker; it gives meilisearch room (1024m with 512m swap) and caps its indexing (128Mb, 1 thread). The restart loop itself is fixed in the search service (PR #2261: no full re-send at every worker boot).
+Run 70 showed the premise above was only half right: all 491 kernel kills in the following 3 hours were `meilisearch` hitting **its own** cgroup limit (CONSTRAINT_MEMCG, 640 MB), not the host running out. So this PR does not cut meilisearch or the worker; it takes the room from the oversized limits (owner decision 2026-10-31: stay on this 3.8 GB host, keep every feature on, search stays on) and gives meilisearch room (1024m with 512m swap) and caps its indexing (128Mb, 1 thread). The restart loop itself is fixed in the search service (PR #2261: no full re-send at every worker boot).
 
 | container | observed use (MB, run 70) | reservation (MB) |
 |---|---:|---:|
@@ -70,3 +70,9 @@ Run 70 showed the premise above was only half right: all 491 kernel kills in the
 | worker | 128 | 200 |
 
 Honest reading: steady use is about 3.2 GB of 3.8 GB, so the margin is thin and a RAM upgrade (option A in `docs/ops/SERVER_MOVE.md`) is the real fix. The reservations stay as they are because `deploy/scripts/test_compose_memory.py` bounds their sum; they are not a measurement. The worker's `memory.events max=14065` means it was reclaimed at its limit, not killed: no worker kill appeared in the report, and its use (128 MB) is far under heap 448 of 640m.
+
+## Owner decision 2026-10-31: stay on this host
+
+OVH has no larger VPS in stock in Europe, so the host stays at 3.8 GB until one is available (fallback: Hetzner Cloud, see `docs/ops/SERVER_MOVE.md`). Every user-facing feature stays on, search included, ClamAV stays off (remote scanner). The room for meilisearch (+384 MB of limit) comes from limits that were far above use: patient-web 640 -> 448 (uses 274), backend 768 -> 576 (330), redis-cache 384 -> 192 (26), admin-web 384 -> 256 (28). Limits are ceilings, not reservations, so the steady sum in the rule above does not change.
+
+Heavy batch work (catalogue and translation applies, the nightly translation cron, dumps) runs only off-peak and in small batches; the nightly translation resume is already a 00:30 UTC cron (about 03:30 in Riyadh, capped at 600 requests per run), the nightly dump is 03:00 UTC, and the one-off cap rule above (one at a time, 700 MB) stays.
