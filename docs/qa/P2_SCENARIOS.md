@@ -18,4 +18,4 @@ From `docs/qa/SCENARIOS.md` (PR #2292). Evidence is unit tests and the existing 
 | PV-21 | Provider cancels after acceptance | FIXED (doctor) | a doctor or facility must give a reason, server and app; `appointments-provider-cancel.spec.ts`. **Open (FOR F):** no refund consumer for a lab, radiology or nursing cancel by the provider | #2314 |
 | PV-22 | No-show marked by the provider | FIXED (doctor) | only 10 minutes after the start, patient notified; `livekit.followup.spec.ts`. **Open:** no provider-app screen calls it; lab and pharmacy have no route; refund rule is F's | #2311 |
 
-Counts: 13 rows. COVERED by existing tests or journeys: 5 (PV-02, 03, 17, 19, plus the invite flow of 12). FIXED in a PR: 7 rows (PV-07, 08, 09, 12, 13, 21, 22). Still open: PV-10 (vacation fields unread), PV-15 (needs a backend link, S).
+Counts (13 rows): covered by existing tests or journeys, no change needed: 4 (PV-02, 03, 17, 19). Fixed in a PR: 7 (PV-07, 08, 09, 12, 13, 21, 22). Still open: 2 (PV-10, vacation fields nothing reads; PV-15, needs a backend link, S).
