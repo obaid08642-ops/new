@@ -157,7 +157,7 @@ function JoinTab() {
       if (res.ok) setJoined(true);
     } catch (e) {
       logError('family:join', e);
-      setError((e as { message?: string } | null)?.message || k('family.join.failed'));
+      setError(k('family.join.failed')); // never the server's message: it is a raw code or English
     } finally {
       setLoading(false);
     }
