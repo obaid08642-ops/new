@@ -420,6 +420,9 @@ services:
       NEXT_PUBLIC_SITE_ORIGIN: https://nabd.plus
       # P14.9: shared secret of the edge worker (deploy/cloudflare/edge-html-worker); empty = edge mode off
       NABD_EDGE_STAMP_TOKEN: ${NABD_EDGE_STAMP_TOKEN:-}
+      # App links (/.well-known/apple-app-site-association, /.well-known/assetlinks.json): the owner's real values; empty = that file is not served
+      APPLE_TEAM_ID: ${APPLE_TEAM_ID:-}
+      ANDROID_SHA256_FINGERPRINT: ${ANDROID_SHA256_FINGERPRINT:-}
       RUN_SANDBOX_TESTS: "false"
       RUN_SANDBOX_CREDENTIAL_TEST: "false"
       NODE_ENV: production
