@@ -10,8 +10,9 @@ import { apiFetch, newIdempotencyKey } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { buildPatientPharmacyDraft, extractPatientPharmacyOrderId } from '../../src/utils/pharmacy-draft';
-import { checkoutErrorKey, noAnswerYet } from '../../src/utils/pharmacyCheckout';
-import { idemKey, orderIdParam } from '../../src/utils/pharmacyOffers';
+import { checkoutErrorKey } from '../../src/utils/pharmacyCheckout';
+import { createPharmacyOrderSender } from '../../src/utils/pharmacyOrderSend';
+import { orderIdParam } from '../../src/utils/pharmacyOffers';
 import { ORDERS_TONE } from '../../src/utils/orderCenter';
 import { readReorderLines, readReorderMeta, reorderBody, type ReorderLine, type ReorderMeta } from '../../src/utils/reorder';
 import { resolveEffectiveAddress, type SelectedAddress } from '../../src/utils/selectedAddress';
@@ -39,8 +40,7 @@ export default function PharmacyReorderScreen() {
   const [needsLocation, setNeedsLocation] = useState(false);
 
   const busy = useRef(false);
-  const keys = useRef(new Map<string, { create: string; submit: string }>());
-  const created = useRef<{ body: string; orderId: string } | null>(null);
+  const sender = useRef(createPharmacyOrderSender('pharmacy-reorder'));
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -97,28 +97,12 @@ export default function PharmacyReorderScreen() {
     setProblemKey(null);
     setNeedsLocation(false);
     try {
-      const body = JSON.stringify(reorderBody(chosen, address, buildPatientPharmacyDraft, meta));
-      let pair = keys.current.get(body);
-      if (!pair) {
-        const nonce = newIdempotencyKey();
-        pair = { create: idemKey('pharmacy-reorder', [], nonce), submit: idemKey('pharmacy-reorder-submit', [], nonce) };
-        keys.current.set(body, pair);
-      }
-      let orderId = created.current?.body === body ? created.current.orderId : null;
-      if (!orderId) {
-        const response = await apiFetch('/patient/pharmacy/orders', { method: 'POST', headers: { 'Idempotency-Key': pair.create }, body });
-        orderId = extractPatientPharmacyOrderId(response);
-        if (!orderId) throw new Error('governed_pharmacy_order_id_missing');
-        created.current = { body, orderId };
-      }
-      await apiFetch(`/patient/pharmacy/orders/${orderId}/submit`, { method: 'POST', headers: { 'Idempotency-Key': pair.submit }, body: JSON.stringify({}) });
-      keys.current.delete(body);
-      created.current = null;
+      const orderId = await sender.current.send(reorderBody(chosen, address, buildPatientPharmacyDraft, meta) as Record<string, unknown>);
       router.replace({ pathname: '/pharmacy/broadcast-status', params: { orderId } });
     } catch (error) {
       logError('pharmacy:reorder:send', error);
       // a server answer ends the attempt (the next one takes new keys); after no answer the same keys go out again
-      if (!noAnswerYet(error)) keys.current.clear();
+      sender.current.failed(error);
       setProblemKey(checkoutErrorKey(error));
     } finally {
       busy.current = false;
