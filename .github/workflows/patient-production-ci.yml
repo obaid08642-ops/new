@@ -275,6 +275,8 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: packages/ui/package-lock.json
       # Same rule as the tokens and the brand: the generated icon sheets and the
       # preview page are committed so a reviewer can open dist/preview.html
       # without booting anything. This fails if anyone hand-edits a generated
@@ -346,6 +348,8 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: packages/shared-contracts/package-lock.json
       - name: Install compiler
         run: npm install --ignore-scripts --no-save typescript@5.9.3
       - name: Type check
