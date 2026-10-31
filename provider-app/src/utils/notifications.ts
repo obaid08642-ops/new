@@ -31,6 +31,7 @@ function getNotifications(): any {
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 import { apiFetch } from './api';
+import { canRingNatively } from './callkeep';
 
 // Configure notification behavior
 
@@ -95,6 +96,8 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
           provider,
           platform: Platform.OS,
           device_name: Device.modelName || 'Device',
+          // a device with the native call module rings itself from a data-only push (killed app, locked phone)
+          call_ring: canRingNatively(),
         }),
       });
     } catch {
