@@ -49,7 +49,7 @@ const FIXTURES = [
   [/\/ops\/alerts$/, () => ({ stuck_minutes_threshold: 30, stuck_orders: [{ kind: 'pharmacy', id: 'ord-1', state: 'QUOTED' }, { kind: 'lab', id: 'lab-7', state: 'CONFIRMED' }], stuck_count: 2, failed_payments: [{ id: 'tx1', booking_kind: 'pharmacy', booking_id: 'ord-1', amount: 80, status: 'failed' }], failed_count: 1 })],
   [/\/ops\/overview$/, () => ({ today: { total_requests: 1200, success: 1180, client_errors: 15, server_errors: 5, success_rate: 98.3 } })],
   [/\/ops\/domain-metrics$/, () => ({ pharmacy: { fill_rate_pct: 87, ordered: 100, filled: 87 }, consultations: { no_show: 3, no_show_rate_pct: 4 }, nursing: { by_state: { NEW: 1 } } })],
-  [/\/finance\/withdrawals\/pending$/, () => ({ data: [{ id: 'wd-100000000001', providerName: 'مزود تجريبي', amount: 500, iban: 'SA0380000000608010167519', source: 'provider_ops', createdAt: '2026-10-07T09:00:00Z' }, { id: 'wd-100000000002', providerName: 'مزود آخر', amount: 90, iban: 'SA0380000000608010167520', createdAt: '2026-10-07T09:30:00Z' }] })],
+  [/\/finance\/payouts(\?|$)/, () => ({ data: [{ id: 'wd-100000000001', provider_name: 'مزود تجريبي', amount: 500, iban: 'SA0380000000608010167519', state: 'PENDING_ADMIN_APPROVAL', reference: 'PAYOUT-000000000001', createdAt: '2026-10-07T09:00:00Z' }, { id: 'wd-100000000002', provider_name: 'مزود آخر', amount: 90, iban: 'SA0380000000608010167520', state: 'PENDING_ADMIN_APPROVAL', reference: 'PAYOUT-000000000002', createdAt: '2026-10-07T09:30:00Z' }], by_state: [{ state: 'PENDING_ADMIN_APPROVAL', count: 2, amount: 590 }], dual_approval_threshold_sar: 10000 })],
   [/\/orders(\?|$)/, () => ({ data: [order(1), order(2)], total: 2, page: 1, pages: 1 })],
   [/\/medicines\/lookup-barcode$/, () => ({ found: false, source: 'none', medicine: null, codes_tried: ['6281234567890'] })],
   [/\/medicines\/admin\/catalog\/[^/]+\/price-history/, () => ({ data: [{ id: 'h1', before_price: 9, after_price: 11, reason: 'تحديث سعر المورد', createdAt: '2026-10-01T10:00:00Z' }], total: 1, page: 1, pages: 1 })],
@@ -297,7 +297,7 @@ for (const width of [390, 1280]) {
   });
 
   await scenario('approvals failing row', browser, width, async (page) => {
-    await page.route('**/finance/withdrawals/pending', (route) => route.fulfill({ status: 500, contentType: 'application/json', body: '{"message":"x"}' }));
+    await page.route('**/finance/payouts?*', (route) => route.fulfill({ status: 500, contentType: 'application/json', body: '{"message":"x"}' }));
     await page.goto(`${BASE}/admin/approvals`);
     await page.waitForTimeout(800);
     ok(await page.getByRole('button', { name: /تعذر التحميل/ }).count() === 1, 'approvals failing row', width, 'failed row did not show a retry button (or showed a fake zero)');

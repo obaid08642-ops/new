@@ -27,6 +27,24 @@ jobs:
           ssh-keyscan -p "$PORT" -T 15 "$H" > ~/.ssh/known_hosts 2>/dev/null
           [ -s ~/.ssh/known_hosts ] || { echo "::error::server not reachable"; exit 1; }
           printf '%s\n' "$K" > ~/.ssh/id_deploy && chmod 600 ~/.ssh/id_deploy
+      - name: Hand the Cloudflare TURN keys to the server (only when RUN lists 70b-turn-env)
+        env:
+          H: ${{ secrets.DEPLOY_HOST }}
+          U: ${{ secrets.DEPLOY_USER }}
+          PORT: ${{ secrets.DEPLOY_PORT }}
+          CF_TURN_KEY_ID: ${{ secrets.CF_TURN_KEY_ID }}
+          CF_TURN_API_TOKEN: ${{ secrets.CF_TURN_API_TOKEN }}
+        run: |
+          grep -qE '^\s*70b-turn-env\s*$' tools/ops/RUN || { echo "skipped"; exit 0; }
+          if [ -z "$CF_TURN_KEY_ID" ] || [ -z "$CF_TURN_API_TOKEN" ]; then
+            echo "::warning::CF_TURN_KEY_ID or CF_TURN_API_TOKEN is not set in the production environment: the task keeps the names already on the server"
+            exit 0
+          fi
+          PORT=${PORT:-22}
+          # the values travel on ssh stdin into a mode-600 file the task reads and shreds; never on a command line, never echoed (GitHub also masks them)
+          printf 'CF_TURN_KEY_ID=%s\nCF_TURN_API_TOKEN=%s\n' "$CF_TURN_KEY_ID" "$CF_TURN_API_TOKEN" \
+            | ssh -p "$PORT" -o BatchMode=yes -o ConnectTimeout=20 -o StrictHostKeyChecking=yes -i ~/.ssh/id_deploy "$U@$H" 'umask 077; cat > "$HOME/ops-turn.env"'
+          echo "TURN keys handed to the server (names only)"
       - name: Run tasks
         env:
           H: ${{ secrets.DEPLOY_HOST }}
@@ -66,6 +84,17 @@ jobs:
           curl -s -X POST -H "Authorization: Bearer $CF" -H 'Content-Type: application/json' \
             "https://api.cloudflare.com/client/v4/zones/$Z/purge_cache" --data '{"hosts":["api.nabd.plus"]}' \
             | jq -r '"cf-purge: success=\(.success) errors=\(.errors|map(.message)|join("; "))"'
+      - name: Remove the TURN key file from the server if the task did not (only when RUN lists 70b-turn-env)
+        if: ${{ always() }}
+        env:
+          H: ${{ secrets.DEPLOY_HOST }}
+          U: ${{ secrets.DEPLOY_USER }}
+          PORT: ${{ secrets.DEPLOY_PORT }}
+        run: |
+          grep -qE '^\s*70b-turn-env\s*$' tools/ops/RUN || exit 0
+          [ -f ~/.ssh/id_deploy ] || exit 0
+          PORT=${PORT:-22}
+          ssh -p "$PORT" -o BatchMode=yes -o ConnectTimeout=20 -o StrictHostKeyChecking=yes -i ~/.ssh/id_deploy "$U@$H" 'shred -u "$HOME/ops-turn.env" 2>/dev/null || rm -f "$HOME/ops-turn.env"' || true
       - name: Cleanup key
         if: ${{ always() }}
         run: rm -f ~/.ssh/id_deploy

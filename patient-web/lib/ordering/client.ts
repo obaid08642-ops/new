@@ -51,6 +51,11 @@ export async function createBooking(body: BookingRequest): Promise<OrderingBooki
   return r;
 }
 
+/** POST /radiology/bookings through our route: one scan of a radiology basket. Answers the booking's id and total. */
+export async function postRadiologyBooking(body: import("./radiology").RadiologyBookingBody): Promise<unknown> {
+  return call("/api/ordering/radiology-bookings", { method: "POST", body: JSON.stringify(body) });
+}
+
 export type AsapRequest = { service_kind: "lab" | "radiology" | "nursing"; items: string[]; lat: number; lng: number; payer: "cash" | "insurance" };
 
 async function asapCall(url: string, init?: RequestInit): Promise<Asap> {
@@ -66,8 +71,8 @@ export const cancelAsap = (id: string) => asapCall(`/api/ordering/asap/${encodeU
 
 export type PaymentIntent = { checkoutUrl: string | null; status: string | null };
 /** POST /payments/intent/lab/:bookingId through our route: one intent per booking; the same key returns the same intent (no double charge). */
-export async function payBooking(bookingId: string, key: string): Promise<PaymentIntent> {
-  const r = await call(`/api/ordering/pay/${encodeURIComponent(bookingId)}`, { method: "POST", headers: { "idempotency-key": key }, body: "{}" });
+export async function payBooking(bookingId: string, key: string, kind: "lab" | "radiology" = "lab"): Promise<PaymentIntent> {
+  const r = await call(`/api/ordering/pay/${encodeURIComponent(bookingId)}${kind === "radiology" ? "?kind=radiology" : ""}`, { method: "POST", headers: { "idempotency-key": key }, body: "{}" });
   const o = r && typeof r === "object" ? (r as Record<string, unknown>) : {};
   return { checkoutUrl: typeof o.checkout_url === "string" && o.checkout_url.startsWith("https://") ? o.checkout_url : null, status: typeof o.status === "string" ? o.status : null };
 }

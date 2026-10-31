@@ -8769,30 +8769,6 @@
         ]
       }
     },
-    "/api/v1/providers/apply": {
-      "post": {
-        "operationId": "ProvidersController_apply",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ApplyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Providers"
-        ]
-      }
-    },
     "/api/v1/providers": {
       "get": {
         "operationId": "ProvidersController_list",
@@ -8977,29 +8953,6 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Providers"
-        ]
-      }
-    },
-    "/api/v1/providers/{id}/approve": {
-      "post": {
-        "operationId": "ProvidersController_approve",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
             "description": ""
           }
         },

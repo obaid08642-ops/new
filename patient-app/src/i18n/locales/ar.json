@@ -1991,6 +1991,7 @@
   "diag.checkout.payFailed": "تعذر بدء الدفع",
   "diag.checkout.payRetry": "حاول مجدداً من تفاصيل الطلب",
   "diag.checkout.failed": "تعذر إنشاء الحجز",
+  "diag.checkout.onePayment": "الدفع بالبطاقة يغطي حجزاً واحداً في كل مرة. احجز التحاليل وكل أشعة على حدة.",
   "diag.checkout.failedBody": "تحقق من الموعد وطريقة الدفع وحاول مجدداً",
   "diag.pay.cash": "دفع كاش",
   "diag.pay.card": "بطاقة",
@@ -4009,5 +4010,17 @@
   "gate.maintenanceBody": "التطبيق في صيانة مجدولة. حاول لاحقاً.",
   "gate.updateTitle": "تحديث مطلوب",
   "gate.updateBody": "يتوفر إصدار جديد إلزامي. حدّث التطبيق للمتابعة.",
-  "gate.retry": "إعادة المحاولة"
+  "gate.retry": "إعادة المحاولة",
+  "consult.call.reconnecting": "الاتصال ضعيف، نعيد الاتصال بالمكالمة…",
+  "consult.call.audioOnly": "الاتصال ضعيف، فأوقفنا الفيديو وأبقينا الصوت.",
+  "consult.call.tryVideo": "جرّب الفيديو مرة أخرى",
+  "consult.call.dropped": "انقطعت المكالمة.",
+  "consult.call.continueInChat": "أكمل في المحادثة",
+  "consult.call.qualityYou": "اتصالك",
+  "consult.call.qualityOther": "اتصال الطرف الآخر",
+  "consult.call.quality.excellent": "ممتاز",
+  "consult.call.quality.good": "جيد",
+  "consult.call.quality.poor": "ضعيف",
+  "consult.call.quality.lost": "منقطع",
+  "consult.call.quality.unknown": "جارٍ الفحص"
 }

@@ -16,10 +16,10 @@ import { logError } from '../../src/utils/logger';
 import { parseOrders, type MedicalOrder } from '../../src/utils/medicalOrders';
 import { providerName, type OrderingMode } from '../../src/utils/ordering';
 import {
-  bookingErrorKey, clearDraft, createBookings, eligibleOrders, getDraft, groupsMissingPick, groupsMissingTime, paymentErrorKey, paymentMethodsFor,
+  bookingErrorKey, clearDraft, submitBookings, eligibleOrders, getDraft, groupsMissingPick, groupsMissingTime, paymentErrorKey, paymentMethodsFor,
   type BookingDocument, type CreatedGroup, type PaymentMethod,
 } from '../../src/utils/orderingBooking';
-import { statusHref } from '../../src/utils/orderingStatus';
+import { bookingHref } from '../../src/utils/orderingStatus';
 import { insuredShare } from '../../src/utils/differentiators';
 import { paymentIntentHeaders } from '../../src/utils/payment-idempotency';
 
@@ -125,7 +125,7 @@ export default function DiagnosticsConfirm() {
     setError('');
     try {
       const known = Object.fromEntries(catalogIds.map((id) => [id, nameOf(id)]));
-      const result = await createBookings(draft, { paymentMethod: method, genderPreference: hasHome ? gender : null, medicalOrderId: orderId, documents: orderId ? [] : docs });
+      const result = await submitBookings(draft, { paymentMethod: method, genderPreference: hasHome ? gender : null, medicalOrderId: orderId, documents: orderId ? [] : docs });
       setNames(known);
       setCreated(result);
       // a one-item order ("Order now") never touched the cart, so the cart keeps its lines
@@ -149,8 +149,9 @@ export default function DiagnosticsConfirm() {
     setPaying(bookingId);
     setPayError('');
     try {
-      const headers = (keys.current[bookingId] ??= paymentIntentHeaders('lab', bookingId)); // the same key on a retry of this booking
-      const intent = await apiFetch<{ id?: string; checkout_url?: string; amount?: number; data?: { id?: string; checkout_url?: string; amount?: number } }>(`/payments/intent/lab/${bookingId}`, {
+      const kind = created?.bookings.find((b) => b.id === bookingId)?.kind ?? 'lab'; // a radiology booking is paid on the radiology kind
+      const headers = (keys.current[bookingId] ??= paymentIntentHeaders(kind, bookingId)); // the same key on a retry of this booking
+      const intent = await apiFetch<{ id?: string; checkout_url?: string; amount?: number; data?: { id?: string; checkout_url?: string; amount?: number } }>(`/payments/intent/${kind}/${bookingId}`, {
         method: 'POST',
         headers,
         body: JSON.stringify({}),
@@ -159,7 +160,7 @@ export default function DiagnosticsConfirm() {
       if (!txn?.id) throw new Error('payment_intent_missing');
       router.replace({
         pathname: '/payments/result',
-        params: { moyasarId: String(txn.id), paymentUrl: txn.checkout_url || '', bookingId, bookingKind: 'lab', amount: String(txn.amount ?? '') },
+        params: { moyasarId: String(txn.id), paymentUrl: txn.checkout_url || '', bookingId, bookingKind: kind, amount: String(txn.amount ?? '') },
       } as unknown as Href);
     } catch (err) {
       logError('ordering:pay', err);
@@ -173,7 +174,7 @@ export default function DiagnosticsConfirm() {
   // ---- created: the server's bookings and totals; card bookings are paid one by one ----
   if (created) {
     return (
-      <ConsultScreen testID="diagnostics-confirm" title={k('ordering.pay.createdTitle')} onBack={() => router.replace(statusHref(created.bookings.map((b) => b.id)) as Href)}>
+      <ConsultScreen testID="diagnostics-confirm" title={k('ordering.pay.createdTitle')} onBack={() => router.replace(bookingHref(created.bookings[0], created.bookings) as Href)}>
         <Notice tone="info" text={method === 'card' ? k('ordering.pay.createdCard') : k('ordering.pay.createdOther')} />
         {created.bookings.map((b) => (
           <Section key={b.id} title={b.mode === 'home' ? k('ordering.match.homeVisit') : k('ordering.match.atCentre')}>
@@ -186,7 +187,7 @@ export default function DiagnosticsConfirm() {
               {method === 'card' ? (
                 <Button theme={theme} size="lg" fullWidth loading={paying === b.id} disabled={paying !== null} label={k('ordering.pay.btnPay', { a: money(b.total) })} onPress={() => void pay(b.id)} />
               ) : null}
-              <Button theme={theme} size="md" variant="outline" label={k('ordering.pay.viewOrder')} onPress={() => router.replace(statusHref(created.bookings.map((x) => x.id), b.id) as Href)} />
+              <Button theme={theme} size="md" variant="outline" label={k('ordering.pay.viewOrder')} onPress={() => router.replace(bookingHref(b, created.bookings) as Href)} />
             </Block>
           </Section>
         ))}

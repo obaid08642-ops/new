@@ -8,7 +8,8 @@ import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
 import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import type { MedicalOrder } from "@/lib/medical-orders/medical-orders";
 import { parseChoice, SELECTION_KEY, type ChosenGroup, type ProviderChoice } from "@/lib/ordering/basket";
-import { createBooking, OrderingApiError, payBooking } from "@/lib/ordering/client";
+import { createBooking, OrderingApiError, payBooking, postRadiologyBooking } from "@/lib/ordering/client";
+import { bookingPath, buildRadiologyRequests, createRadiologyBookings } from "@/lib/ordering/radiology";
 import type { OrderingBookingResult } from "@/lib/ordering/bookings";
 import { contextQuery } from "@/lib/ordering/context";
 import { moneyText, pickLineName, pickName } from "@/lib/ordering/format";
@@ -93,7 +94,7 @@ export function ConfirmClient({ locale, kind, place, pay, item, orders, prep }: 
     busy.current = true; setPhase("paying"); setPayingId(bookingId); setErrorKey(null); setFailedId(null);
     attempts.current += 1;
     try {
-      const intent = await payBooking(bookingId, `web-ord-pay-${bookingId}-${attempts.current}`.padEnd(16, "0"));
+      const intent = await payBooking(bookingId, `web-ord-pay-${bookingId}-${attempts.current}`.padEnd(16, "0"), result?.bookings.find((b) => b.id === bookingId)?.kind ?? "lab");
       if (!intent.checkoutUrl) throw new OrderingApiError("request_failed", 502);
       window.location.assign(intent.checkoutUrl); // the hosted Moyasar page; the page stays in "processing" until the browser leaves
     } catch (e) {
@@ -103,11 +104,14 @@ export function ConfirmClient({ locale, kind, place, pay, item, orders, prep }: 
 
   const submit = async () => {
     if (busy.current || !ready || result) return;
-    const body = buildBookingRequest({ schedule, home: choice.home, facility: choice.facility, insured, gender: modes.includes("home") ? gender : undefined, evidence });
+    const body = kind === "radiology"
+      ? buildRadiologyRequests({ schedule, home: choice.home, facility: choice.facility, groups: choice.groups, insured, evidence })
+      : buildBookingRequest({ schedule, home: choice.home, facility: choice.facility, insured, gender: modes.includes("home") ? gender : undefined, evidence });
     if (!body) { setErrorKey("errGeneric"); return; }
     busy.current = true; setPhase("creating"); setErrorKey(null);
     try {
-      const made = await createBooking(body);
+      // labs on the ordering route, radiology on the radiology booking route (one booking per scan), the same sheet either way
+      const made = Array.isArray(body) ? await createRadiologyBookings(body, postRadiologyBooking) : await createBooking(body);
       setResult(made);
       for (const id of allIds) remove(kind, id);
       try { window.sessionStorage.removeItem(SELECTION_KEY); window.sessionStorage.removeItem(SCHEDULE_KEY); } catch { /* nothing to clear */ }
@@ -134,7 +138,7 @@ export function ConfirmClient({ locale, kind, place, pay, item, orders, prep }: 
                   <span className={styles.itemName}>{b.mode === "home" ? t("payB1") : t("payB2")}{result.bookings.length > 1 ? ` · ${i + 1}` : ""}</span>
                   <span className={styles.sub}>{b.status === "awaiting_approval" ? t("payStatusApproval") : t("payStatusPending")}</span>
                 </span>
-                <Link href={`/${locale}/labs/bookings/${encodeURIComponent(b.id)}`} className={`${styles.linkBtn} ${styles.removeBtn}`}>{t("trackOpen")}</Link>
+                <Link href={bookingPath(locale, b)} className={`${styles.linkBtn} ${styles.removeBtn}`}>{t("trackOpen")}</Link>
                 {!insured && payableNow(b) ? <span className={styles.price}><bdi>{moneyText(locale, b.total)}</bdi></span> : null}
                 {!insured && payableNow(b) && payable.length > 1 ? (
                   <button type="button" className={`${styles.linkBtn} ${styles.cta}`} disabled={phase === "paying"} onClick={() => startPayment(b.id)}>{t("payBookingBtn")}</button>

@@ -97,6 +97,31 @@ jobs:
             sleep 2
           done
           echo "server not ready"; tail -100 /tmp/next.log; exit 1
+      - name: Wait until the smoke pages and their RSC prefetch answer 200
+        # The first request to an ISR page (e.g. /ar/articles, which the pharmacy page prefetches) is generated from a live
+        # read of the production API; a cold API answer past the 8 s read timeout leaves no cached copy, and the prefetch of
+        # that page then gets a bare 500 (the translated 503 page is for documents only). Readiness is checked, not slept:
+        # every page the smoke loads, and what the pages prefetch, must answer 200 as a document and as an RSC prefetch,
+        # each polled for up to 2 minutes. A page that never answers fails the job here with the server log; the smoke
+        # itself still fails on any own-origin 5xx.
+        run: |
+          set -u
+          ready() { # $1 = path, $2 = "doc" | "rsc"
+            for i in $(seq 1 40); do
+              if [ "$2" = "rsc" ]; then
+                code=$(curl -s -L -o /dev/null -w '%{http_code}' -H 'RSC: 1' -H 'Next-Router-Prefetch: 1' "http://localhost:3000$1?_rsc=ready" || true)
+              else
+                code=$(curl -s -L -o /dev/null -w '%{http_code}' "http://localhost:3000$1" || true)
+              fi
+              if [ "$code" = "200" ]; then echo "ready: $2 $1 (try $i)"; return 0; fi
+              sleep 3
+            done
+            echo "NOT READY: $2 $1 last status ${code:-none}"; tail -100 /tmp/next.log; return 1
+          }
+          for path in /ar /ar/pharmacy /ar/consultations/doctors /ar/articles; do
+            ready "$path" doc || exit 1
+            ready "$path" rsc || exit 1
+          done
       - name: Browser smoke (${{ matrix.browser }})
         env:
           SMOKE_BROWSER: ${{ matrix.browser }}

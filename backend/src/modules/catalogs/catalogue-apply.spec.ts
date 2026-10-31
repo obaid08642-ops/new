@@ -6,7 +6,7 @@ import * as os from 'os';
 import * as path from 'path';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { applyChanges, BATCH, decodeBackup, isTransientMongoError, withRetry, encodeBackup, planSha, rollbackChanges, sha256, stable, type Change, type DbLike } from './catalogue-apply.core';
+import { applyChanges, BATCH, decodeBackup, isTransientMongoError, withRetry, withReconnects, shapeOf, resolveSelfConflicts, encodeBackup, planSha, rollbackChanges, sha256, stable, type Change, type DbLike } from './catalogue-apply.core';
 import { PACKAGED_DISTRICTS, computePlan, main } from '../../scripts/catalogue-apply';
 import { tidy } from './catalogue-apply.steps';
 
@@ -259,10 +259,13 @@ describe('a dropped connection (production run 17: "connection 1 closed")', () =
   });
 
   it('gives up with the error after the attempts are used (the task then rolls back)', async () => {
-    await seedMany(10);
-    const plan = await computePlan(db, ['plan']);
-    const f = flaky(1000, 1);
-    await expect(applyChanges(f.db, plan.changes)).rejects.toMatchObject({ name: 'MongoNetworkError' });
+    process.env.CATALOGUE_RETRY_ATTEMPTS = '3'; process.env.CATALOGUE_RETRY_BASE_MS = '1';
+    try {
+      await seedMany(10);
+      const plan = await computePlan(db, ['plan']);
+      const f = flaky(1000, 1);
+      await expect(applyChanges(f.db, plan.changes)).rejects.toMatchObject({ name: 'MongoNetworkError' });
+    } finally { delete process.env.CATALOGUE_RETRY_ATTEMPTS; delete process.env.CATALOGUE_RETRY_BASE_MS; }
   });
 
   it('a rollback also survives a dropped connection and restores the backup state', async () => {
@@ -283,5 +286,85 @@ describe('a dropped connection (production run 17: "connection 1 closed")', () =
     let tries = 0;
     await expect(withRetry(async () => { tries += 1; throw new Error('E11000 duplicate key'); }, undefined, async () => undefined)).rejects.toThrow('E11000');
     expect(tries).toBe(1);
+  });
+
+  describe('a restarting mongod, empty arrays, progress', () => {
+    afterEach(() => { delete process.env.CATALOGUE_RETRY_ATTEMPTS; delete process.env.CATALOGUE_RETRY_BASE_MS; delete process.env.CATALOGUE_PROGRESS_BATCHES; });
+
+    it('retries for minutes by default (12 attempts, waits capped at 30 s) and can be shortened from the environment', async () => {
+      const waits: number[] = [];
+      let tries = 0;
+      await expect(withRetry(async () => { tries += 1; throw netError(); }, undefined, async (ms) => { waits.push(ms); })).rejects.toMatchObject({ name: 'MongoNetworkError' });
+      expect(tries).toBe(12);
+      expect(Math.max(...waits)).toBe(30_000);
+      expect(waits.reduce((a, b) => a + b, 0)).toBeGreaterThan(120_000);   // minutes, not the 15 s of the first version
+      process.env.CATALOGUE_RETRY_ATTEMPTS = '2';
+      tries = 0;
+      await expect(withRetry(async () => { tries += 1; throw netError(); }, undefined, async () => undefined)).rejects.toBeDefined();
+      expect(tries).toBe(2);
+    });
+
+    it('a field the planners call empty (an empty array) is not refused by its own guard', async () => {
+      await raw().collection('lab_services').deleteMany({});
+      await raw().collection('lab_services').insertMany([{ _id: 'a' as never, preparation_en: [] }, { _id: 'b' as never, preparation_en: '' }, { _id: 'c' as never }, { _id: 'd' as never, preparation_en: null }]);
+      const set = (id: string): Change => ({ kind: 'set', step: 'catalogue_duplicates', collection: 'lab_services', key: { _id: id }, path: 'preparation_en', before: null, after: 'fast' });
+      const res = await applyChanges(db, ['a', 'b', 'c', 'd'].map(set));
+      expect(res).toMatchObject({ applied: 4, skipped_changed_since_plan: 0 });
+      expect(res.skipped_by).toBeUndefined();
+    });
+
+    it('a skipped write is explained by the type of what the field holds now, never by its value', async () => {
+      await raw().collection('lab_services').deleteMany({});
+      await raw().collection('lab_services').insertMany([{ _id: 'x' as never, preparation_en: 'secret text' }, { _id: 'y' as never, preparation_en: '   ' }, { _id: 'z' as never, preparation_en: ['a'] }]);
+      const set = (id: string): Change => ({ kind: 'set', step: 'catalogue_duplicates', collection: 'lab_services', key: { _id: id }, path: 'preparation_en', before: null, after: 'fast' });
+      const res = await applyChanges(db, ['x', 'y', 'z'].map(set));
+      expect(res.skipped_changed_since_plan).toBe(3);
+      expect(res.skipped_state).toEqual({ 'catalogue_duplicates lab_services.preparation_en': { string: 1, blank_string: 1, array: 1 } });
+      expect(JSON.stringify(res)).not.toContain('secret text');
+      expect(shapeOf(undefined, 'a.b')).toBe('row_missing');
+      expect(shapeOf({ a: {} }, 'a.b')).toBe('missing');
+    });
+
+    it('two losers filling one keeper field in one step: the first stands, the second is dropped, and the apply skips nothing', async () => {
+      await raw().collection('lab_services').deleteMany({});
+      await raw().collection('lab_services').insertMany([{ _id: 'keeper' as never, code: 'K' }]);
+      const fill = (after: string): Change => ({ kind: 'set', step: 'catalogue_duplicates', collection: 'lab_services', key: { _id: 'keeper' }, path: 'preparation_en', before: null, after });
+      const plan = [fill('from loser 1'), fill('from loser 2')];
+      expect(await applyChanges(db, plan)).toMatchObject({ skipped_changed_since_plan: 1 });   // unresolved: the second finds the first's value
+      await raw().collection('lab_services').updateOne({ _id: 'keeper' as never }, { $unset: { preparation_en: '' } });
+      const r = resolveSelfConflicts(plan);
+      expect(r.changes).toHaveLength(1);
+      expect((r.changes[0] as any).after).toBe('from loser 1');
+      expect(r.report).toMatchObject({ dropped: 1, by_pair: { 'catalogue_duplicates>catalogue_duplicates lab_services.preparation_en': 1 } });
+      expect(await applyChanges(db, r.changes)).toMatchObject({ applied: 1, skipped_changed_since_plan: 0 });
+    });
+
+    it('a connection that stays down is replaced by a fresh one and the rest of the apply and of the rollback runs there', async () => {
+      await seedMany(BATCH * 3);
+      const original = await snapshot();
+      process.env.CATALOGUE_RETRY_ATTEMPTS = '2'; process.env.CATALOGUE_RETRY_BASE_MS = '1';
+      const plan = await computePlan(db, ['plan']);
+      const dead = flaky(1000, 2);                       // from the second batch on, every write fails
+      const lines: string[] = [];
+      const run = await withReconnects(dead.db, async () => db, async (d, n) => applyChanges(d, n === 0 ? plan.changes : (await computePlan(d, ['plan'])).changes), 3, (l) => lines.push(l));
+      expect(run.reconnected).toBe(1);
+      expect(lines[0]).toMatch(/connection stayed down/);
+      expect((await computePlan(db, ['plan'])).changes).toHaveLength(0);          // nothing left: the first pass wrote batch 1, the second the rest
+      const dead2 = flaky(1000, 2);
+      const back = await withReconnects(dead2.db, async () => db, (d) => rollbackChanges(d, plan.changes), 3);
+      expect(back.reconnected).toBe(1);
+      expect(await snapshot()).toEqual(original);
+    });
+
+    it('a real failure is not retried by a reconnect, and progress is reported every N batches and at the end', async () => {
+      await expect(withReconnects(db, async () => db, async () => { throw Object.assign(new Error('E11000 duplicate key'), { code: 11000 }); }, 3)).rejects.toThrow('E11000');
+      await seedMany(BATCH * 3 + 5);
+      process.env.CATALOGUE_PROGRESS_BATCHES = '2';
+      const plan = await computePlan(db, ['plan']);
+      const lines: string[] = [];
+      await applyChanges(db, plan.changes, new Date(), (l) => lines.push(l));
+      expect(lines.some((l) => /^apply medicines 200\/\d+ modified=200/.test(l))).toBe(true);
+      expect(lines[lines.length - 1]).toMatch(/^apply medicines (\d+)\/\1 modified=\1 retried_batches=0$/);
+    });
   });
 });
