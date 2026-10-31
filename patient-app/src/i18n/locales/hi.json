@@ -4022,5 +4022,22 @@
   "consult.call.quality.good": "अच्छा",
   "consult.call.quality.poor": "कमज़ोर",
   "consult.call.quality.lost": "टूट गया",
-  "consult.call.quality.unknown": "जाँच हो रही है"
+  "consult.call.quality.unknown": "जाँच हो रही है",
+  "receipt.button": "रसीद",
+  "receipt.preparing": "रसीद तैयार हो रही है",
+  "receipt.failTitle": "रसीद उपलब्ध नहीं",
+  "receipt.failBody": "अभी रसीद जारी नहीं हो सकी। बाद में फिर कोशिश करें या सपोर्ट से संपर्क करें।",
+  "receipt.title": "रसीदें",
+  "receipt.loadError": "आपकी रसीदें लोड नहीं हो सकीं",
+  "receipt.empty": "अभी कोई रसीद नहीं",
+  "receipt.emptyBody": "बुकिंग या ऑर्डर का भुगतान करने के बाद आपके टैक्स इनवॉइस यहाँ दिखेंगे।",
+  "receipt.invoice": "इनवॉइस",
+  "receipt.cancelled": "रद्द",
+  "receipt.kind.appointment": "परामर्श",
+  "receipt.kind.lab": "लैब जाँच",
+  "receipt.kind.radiology": "रेडियोलॉजी",
+  "receipt.kind.nursing": "घर पर नर्सिंग",
+  "receipt.kind.pharmacy": "फ़ार्मेसी ऑर्डर",
+  "set.receipts": "रसीदें",
+  "set.receiptsHint": "आपके टैक्स इनवॉइस PDF में"
 }

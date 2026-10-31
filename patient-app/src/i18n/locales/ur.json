@@ -4022,5 +4022,22 @@
   "consult.call.quality.good": "اچھا",
   "consult.call.quality.poor": "کمزور",
   "consult.call.quality.lost": "منقطع",
-  "consult.call.quality.unknown": "جانچ ہو رہی ہے"
+  "consult.call.quality.unknown": "جانچ ہو رہی ہے",
+  "receipt.button": "رسید",
+  "receipt.preparing": "رسید تیار ہو رہی ہے",
+  "receipt.failTitle": "رسید دستیاب نہیں",
+  "receipt.failBody": "ابھی رسید جاری نہیں ہو سکی۔ بعد میں دوبارہ کوشش کریں یا سپورٹ سے رابطہ کریں۔",
+  "receipt.title": "رسیدیں",
+  "receipt.loadError": "آپ کی رسیدیں لوڈ نہیں ہو سکیں",
+  "receipt.empty": "ابھی کوئی رسید نہیں",
+  "receipt.emptyBody": "بکنگ یا آرڈر کی ادائیگی کے بعد آپ کے ٹیکس انوائس یہاں نظر آئیں گے۔",
+  "receipt.invoice": "انوائس",
+  "receipt.cancelled": "منسوخ",
+  "receipt.kind.appointment": "مشاورت",
+  "receipt.kind.lab": "لیب ٹیسٹ",
+  "receipt.kind.radiology": "ریڈیالوجی",
+  "receipt.kind.nursing": "گھریلو نرسنگ",
+  "receipt.kind.pharmacy": "فارمیسی آرڈر",
+  "set.receipts": "رسیدیں",
+  "set.receiptsHint": "آپ کے ٹیکس انوائس PDF میں"
 }
