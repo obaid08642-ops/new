@@ -20,7 +20,7 @@ import * as path from 'path';
 import mongoose from 'mongoose';
 import { mongoDirectConnection } from '../common/database/mongo-uri';
 import {
-  applyChanges, countsOf, decodeBackup, encodeBackup, expectedCounts, planSha, rollbackChanges, sha256, summarize, collectionLines, resolveSelfConflicts,
+  applyChanges, countsOf, decodeBackup, encodeBackup, expectedCounts, planSha, rollbackChanges, sha256, summarize, collectionLines, resolveSelfConflicts, rowIdentities,
   type Change, type DbLike, type SetChange,
 } from '../modules/catalogs/catalogue-apply.core';
 import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn, planInsuranceShape, planNumberedDistricts, planPlaceholderCities, planProductTranslations, planRadiologyCatalogue, type RadiologyFileExtras } from '../modules/catalogs/catalogue-apply.steps';
@@ -124,7 +124,7 @@ async function planRadiologyAndCompletion(db: DbLike, argv: string[], inputs: Re
 /** The plan with one write per field (see resolveSelfConflicts): the steps plan independently from the database, so two of them can name the same field. */
 export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> {
   const raw = await computePlanRaw(db, argv);
-  const resolved = resolveSelfConflicts(raw.changes);
+  const resolved = resolveSelfConflicts(raw.changes, await rowIdentities(db, raw.changes));
   return { ...raw, changes: resolved.changes, sha: planSha(resolved.changes, raw.inputs), report: { ...raw.report, self_conflicts: resolved.report } };
 }
 
