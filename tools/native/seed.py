@@ -18,7 +18,7 @@ OUT = sys.argv[1] if len(sys.argv) > 1 else '/tmp/native/accounts.json'
 JOURNEYS = ['pharmacy', 'consultation', 'lab', 'radiology', 'nursing', 'facility', 'chat', 'returns', 'loyalty']   # j_ambulance no longer exists: the provider types the journeys miss are registered below
 SHARED = {'consult-patient', 'buyer', 'lab-patient', 'rad-patient', 'nursing-patient', 'insured-patient', 'loyal',
           'support-patient', 'chat-patient', 'returner'}
-state = {'patient': None, 'providers': {}}
+state = {'patient': None, 'providers': {}, 'doctors': []}
 
 _signup = j_accounts.app_signup
 
@@ -38,6 +38,8 @@ def provider_after_approval(prov):
     tok = _after(prov)
     if tok:
         state['providers'][prov['type']] = {'email': prov['email'], 'password': prov['password']}
+        if prov['type'] == 'doctor':   # every approved doctor, not only the last: the chat flow needs the one of the patient's appointment
+            state['doctors'].append({'email': prov['email'], 'password': prov['password']})
     return tok
 
 
@@ -68,5 +70,5 @@ if 'pharmacy' not in state['providers'] or len(state['providers']) < 1 + len(j_o
 
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 p = state['patient'] or _signup(label='native')
-json.dump({'patient': {'email': p['email'], 'password': p['password']}, 'providers': state['providers']}, open(OUT, 'w'), indent=1)
+json.dump({'patient': {'email': p['email'], 'password': p['password']}, 'providers': state['providers'], 'doctors': state['doctors']}, open(OUT, 'w'), indent=1)
 print('accounts:', {'patient': p['email'], 'providers': sorted(state['providers'])})

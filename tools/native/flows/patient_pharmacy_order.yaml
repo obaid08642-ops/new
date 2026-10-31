@@ -1,0 +1,44 @@
+# Patient orders medicines through the real pharmacy screens up to the broadcast screen: Pharmacy tab -> add a medicine to the cart ->
+# cart -> checkout (the seeded patient's saved address, pay on delivery) -> send the request to the pharmacies -> "waiting for offers"
+# (pharmacy/broadcast-status). Pharmacy orders are broadcast and answered with offers, so the flow stops there. The catalogue, the
+# address and the order come from the seeded backend, nothing is mocked.
+appId: com.patient.nabd
+---
+- runFlow: lib/patient_signin.yaml
+- tapOn:
+    id: "main-tab-bar-pharmacy"
+- extendedWaitUntil:
+    visible:
+      id: "pharmacy-hub"
+    timeout: 30000
+# the first medicine of the catalogue that can be added from its card
+- scrollUntilVisible:
+    element:
+      id: "med-add-.*"
+    timeout: 60000
+- tapOn:
+    id: "med-add-.*"
+- tapOn:
+    id: "cart-button"
+- extendedWaitUntil:
+    visible:
+      id: "cart-screen"
+    timeout: 30000
+- tapOn:
+    id: "cart-continue"
+- extendedWaitUntil:
+    visible:
+      id: "checkout-screen"
+    timeout: 30000
+- tapOn:
+    id: "checkout-submit"
+# POST /patient/pharmacy/orders + /submit answered: the screen that waits for the pharmacies' offers
+- extendedWaitUntil:
+    visible:
+      id: "broadcast-status-screen"
+    timeout: 60000
+- extendedWaitUntil:
+    notVisible:
+      id: "checkout-screen"
+    timeout: 30000
+- takeScreenshot: patient_pharmacy_broadcast
