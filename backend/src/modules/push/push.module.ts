@@ -801,7 +801,7 @@ export class PushService implements OnModuleInit {
     const recipients = (evt.meta.participant_ids as string[]).filter(id => id !== evt.actor_account_id && (!offline || offline.includes(id)));
     const senderName = evt.meta.sender_name || 'رسالة جديدة';
     for (const uid of recipients) {
-      await this.queueNotification(uid, senderName, evt.meta.body || 'أرسل لك رسالة', { type: 'chat', thread_id: evt.meta.thread_id });
+      await this.queueNotification(uid, senderName, String(evt.meta.body || '').slice(0, 120) || 'أرسل لك رسالة', { type: 'chat', thread_id: evt.meta.thread_id });
     }
   }
 
