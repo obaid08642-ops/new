@@ -13,31 +13,10 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  # a newer push to the same PR replaces the older run; a run on main is never cancelled
+  # a newer commit on the same PR replaces the older run (the newest commit still runs every suite); a run on main, a schedule and a manual run are never cancelled
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # Which suites does this pull request need (tools/ci/path_groups.json)? Docs-only and ops-only changes need none; a push, a schedule and a
-  # manual run always run everything. Gated jobs are skipped, and a skipped job reports success, so the required checks still pass.
-  changes:
-    name: changes
-    runs-on: ubuntu-latest
-    outputs:
-      backend: ${{ steps.p.outputs.backend }}
-      web: ${{ steps.p.outputs.web }}
-      app: ${{ steps.p.outputs.app }}
-      provider: ${{ steps.p.outputs.provider }}
-      admin: ${{ steps.p.outputs.admin }}
-      design: ${{ steps.p.outputs.design }}
-      live: ${{ steps.p.outputs.live }}
-      acceptance: ${{ steps.p.outputs.acceptance }}
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          fetch-depth: 0
-      - id: p
-        uses: ./.github/actions/changed-paths
-
   policy:
     name: Policy and source guard
     runs-on: ubuntu-latest
@@ -65,11 +44,10 @@ jobs:
             echo 'Customer wallet payment code is prohibited by PAY-001.' >&2
             exit 1
           fi
-      - name: CI routing (path groups, concurrency on every pull-request workflow)
+      - name: CI routing (concurrency on every pull-request workflow)
         run: |
           set -euo pipefail
           python3 -c 'import yaml' 2>/dev/null || pip install --quiet pyyaml
-          (cd tools/ci && python3 -m unittest test_changed_paths)
           python3 -m unittest tools.ci.test_workflow_concurrency
       - name: Reject tracked secrets and application archives
         run: |
@@ -81,8 +59,6 @@ jobs:
 
   backend:
     name: Backend build and tests
-    needs: changes
-    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -110,8 +86,6 @@ jobs:
 
   design-system:
     name: Design tokens, brand assets and contrast
-    needs: changes
-    if: needs.changes.outputs.design == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -209,8 +183,7 @@ jobs:
   runtime-contrast:
     name: runtime contrast (rendered pages, both themes)
     runs-on: ubuntu-latest
-    needs: [changes, design-system]
-    if: needs.changes.outputs.design == 'true'
+    needs: [design-system]
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -272,8 +245,6 @@ jobs:
 
   brand-assets:
     name: Brand assets
-    needs: changes
-    if: needs.changes.outputs.design == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -295,8 +266,6 @@ jobs:
 
   design-artwork:
     name: Icon and illustration set (12.A6)
-    needs: changes
-    if: needs.changes.outputs.design == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -331,8 +300,6 @@ jobs:
 
   design-components:
     name: Component contract and conformance (12.A7)
-    needs: changes
-    if: needs.changes.outputs.design == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -370,8 +337,6 @@ jobs:
 
   shared-contracts:
     name: Governed shared contracts
-    needs: changes
-    if: needs.changes.outputs.design == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -392,8 +357,6 @@ jobs:
 
   patient-web:
     name: Patient Web build and tests
-    needs: changes
-    if: needs.changes.outputs.web == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -419,8 +382,6 @@ jobs:
 
   patient-mobile:
     name: Patient Mobile build and tests
-    needs: changes
-    if: needs.changes.outputs.app == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -459,8 +420,6 @@ jobs:
 
   provider-app:
     name: Provider App typecheck and tests
-    needs: changes
-    if: needs.changes.outputs.provider == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -482,8 +441,6 @@ jobs:
 
   admin:
     name: Admin Dashboard typecheck and build
-    needs: changes
-    if: needs.changes.outputs.admin == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
