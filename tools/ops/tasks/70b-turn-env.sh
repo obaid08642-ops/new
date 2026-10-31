@@ -2,17 +2,17 @@
 # Cloudflare Realtime TURN keys in the production env (owner, 2026-10-30), on the model of 70-mail-env. Two runs of the same task. Values are never printed, NAMES only.
 #   The keys CF_TURN_KEY_ID and CF_TURN_API_TOKEN (GitHub environment `production` secrets) reach the server only on ssh stdin, as a mode-600 file in $HOME that the workflow
 #   leaves; this task reads it and shreds it whatever happens. They are written into .env.production by NAME (copy saved first, mode 600), never to a command line.
-#   Run 1 (APPLY empty): DRY RUN. Reads the key file, asks Cloudflare once for a 10-minute credential with it (prints the HTTP status only: 200 = the key works), prints which
+#   Run 1 (APPLY empty): DRY RUN. Reads the key file, asks Cloudflare once for a 10-minute credential with it (prints `ok` or `fail` only: no status code, no body, no value), prints which
 #                        names would be set and what is already in the env. Writes nothing, restarts nothing.
-#   Run 2 (APPLY=yes, set in this file by the reviewer): the same check (aborts on anything but 200: a wrong key is never written), then the names are written into
+#   Run 2 (APPLY=yes, set in this file by the reviewer): the same check (aborts on anything but ok: a wrong key is never written), then the names are written into
 #                        .env.production, then ONLY the backend is recreated (`up -d --no-deps --force-recreate backend`), waited for healthy and for the API's readiness (200).
 #                        If the backend does not come back, the env copy is put back and the backend is recreated again; exit 1.
-#   PROVIDER (optional, set in this file): "cloudflare" or "coturn" -> CALLS_TURN_PROVIDER. Empty keeps what the env has (unset = Cloudflare first, our coturn second).
+#   PROVIDER (set in this file): "cloudflare" (the default here, owner 2026-10-31) or "coturn" -> CALLS_TURN_PROVIDER. Empty keeps what the env has (unset = Cloudflare first, our coturn second).
 #                        "coturn" drops Cloudflare at once with this task and no deploy (the keys stay in the env).
 # The backend reads the new names when its container is created, so the deploy that carries the TURN code must be live before the calls use them.
 set -u
 APPLY=""
-PROVIDER=""
+PROVIDER="cloudflare"
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}
 ENVF=$D/.env.production
@@ -51,8 +51,8 @@ if [ -z "$KEYID" ] || [ -z "$TOKEN" ]; then say "ABORT CF_TURN_KEY_ID or CF_TURN
 # the token goes to curl on stdin (--config -), never on a command line
 CODE=$(printf 'header = "Authorization: Bearer %s"\n' "$TOKEN" | curl -s -o /dev/null -w '%{http_code}' --max-time 20 --config - -X POST \
   -H 'Content-Type: application/json' -d '{"ttl":600}' "$CF_API/$KEYID/credentials/generate")
-say "cloudflare credential request: http=$CODE (200 = the key works)"
-[ "$CODE" = 200 ] || { say "ABORT Cloudflare did not accept the key (http=$CODE); the env is unchanged"; exit 1; }
+say "cloudflare credential request (10-minute credential): $([ "$CODE" = 200 ] && echo ok || echo fail)"
+[ "$CODE" = 200 ] || { say "ABORT Cloudflare did not accept the key; the env is unchanged"; exit 1; }
 say "names that would be set: $(cut -d= -f1 "$T" | tr '\n' ' ')| already in the env: $(for n in CF_TURN_KEY_ID CF_TURN_API_TOKEN CALLS_TURN_PROVIDER; do [ -n "$(envval $n)" ] && printf '%s ' "$n"; done)"
 if [ "$APPLY" != yes ]; then say "dry run only: nothing was written or restarted. APPLY writes the names and recreates only the backend"; exit 0; fi
 
