@@ -1,14 +1,7 @@
-# 2026-10-31 lead reviewer: run 74.
-# Run 73 sent the cancel for the 89k enqueued meili tasks. #2261 (no boot re-index loop; paced 500-doc batches) is merged.
-# 1. 98d-meili-state (READ-ONLY): did the cancel finish (enqueued -> 0), restarts stopped growing?
-# 2. Free disk, deploy main@95af576c: #2261 search fix, payouts, radiology booking, refunds, calls, provider resubmit and audit fixes,
-#    Cloudflare TURN task, invoices groundwork, about 40 PRs since cff60584. The pre-deploy dump is a one-off container; a failed dump aborts.
-# 3. 98d-meili-state again (READ-ONLY) after the deploy.
-# 4. Purge the API cache.
+# 2026-10-31 lead reviewer: run 75 (READ-ONLY, urgent check).
+# Run 74 deployed main@95af576c (health ok), but its pre-deploy dump was 3.5 MB where runs 59-68 dumped ~354 MB.
+# Also: the meili cancel of run 73 never ran (enqueued still 89,117; restarts 1973 -> 2016).
+# 1. 99c-db-counts (READ-ONLY): databases and sizes, every collection's count and size, the newest dumps with their sizes.
+# 2. 98d-meili-state (READ-ONLY).
+99c-db-counts
 98d-meili-state
-release:95af576c9ffa31aff4744e2e33ad5b647530a2f2
-97-free-old-predeploy
-93-free-unused-images
-60-deploy-main
-98d-meili-state
-cf-purge-api
