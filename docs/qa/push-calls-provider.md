@@ -12,12 +12,12 @@ Status: **PASS** = the code path is complete and proven by a test or a prebuild;
 ## Order or booking arrives (new_request)
 | State | Android | iOS |
 |---|---|---|
-| Token registered | **NEEDS-KEY**: FCM token via `getDevicePushTokenAsync`, sent to `/push/register` (`notifications.ts:62-91`); needs `google-services.json` in the build and the Firebase service account on the backend (`FIREBASE_*`) | **NEEDS-KEY**: Expo token needs `EXPO_PUBLIC_PROJECT_ID` (`notifications.ts:66`; without it no token at all) and an APNs key in the Expo or Firebase project |
-| App open | **PASS**: handler shows banner and sound (`notifications.ts:21-29`). The list does **not** refresh by itself: **FAIL** `App.tsx:102` passes an empty received-callback (register R4) | same |
+| Token registered | **NEEDS-KEY**: FCM token via `getDevicePushTokenAsync`, sent to `/push/register` (`notifications.ts:65-91`); needs `google-services.json` in the build and the Firebase service account on the backend (`FIREBASE_*`) | **NEEDS-KEY**: Expo token needs `EXPO_PUBLIC_PROJECT_ID` (`notifications.ts:75`; without it no token at all) and an APNs key in the Expo or Firebase project |
+| App open | **PASS**: handler shows banner and sound (`notifications.ts:15-22`). The list does **not** refresh by itself: **FAIL** `App.tsx:102` passes an empty received-callback (register R4) | same |
 | Background | **PASS (code)**: notification message, `priority: high`, channel `new_order` (`notifications.service.ts` `sendFcmPush`), test `notify-provider-push-channel.spec.ts` | **NEEDS-KEY**: APNs sound `new_order.wav` bundled by the plugin (prebuild checked) |
 | Killed | **PASS (code)**: the system shows a notification message without the app running; the tap starts the app and opens the target (`App.tsx:103`) | **NEEDS-KEY** (same) |
 | Phone locked | **PASS (code)**: channel is public on the lock screen, heads-up, sound and vibration. A user who turned the channel off or Do Not Disturb on is not overridden (Android rule) | **NEEDS-KEY**; an iOS Focus mode can silence it, and a time-sensitive entitlement is not set (**FAIL**, `app.json` has no `UNNotificationInterruptionLevel`; needs a native entitlement decision) |
-| Tap opens the order | doctor: **PASS** appointment detail (`pushRouting.ts:36`). lab, radiology, nursing, pharmacy, facility: **PARTIAL** the notifications list, because those dashboards have no order route (orders are cards in the dashboard); **FAIL** until each gets a detail route | same |
+| Tap opens the order | doctor: **PASS** appointment detail (`pushRouting.ts:33`). lab, radiology, nursing, pharmacy, facility: **PARTIAL** the notifications list, because those dashboards have no order route (orders are cards in the dashboard); **FAIL** until each gets a detail route | same |
 
 ## Chat message
 | State | Android | iOS |
@@ -29,7 +29,7 @@ Status: **PASS** = the code path is complete and proven by a test or a prebuild;
 ## Incoming call
 | State | Android | iOS |
 |---|---|---|
-| Any state | **FAIL**: the provider app has no CallKit / ConnectionService / PushKit. `grep -ri callkeep provider-app/src` finds nothing; the patient app has them (`patient-app/src/calls/*`, `react-native-callkeep`). The backend sends `call.incoming` as an alert push on the `calls` channel (`push.module.ts:808-820`): it appears like a notification, with the default sound once, and cannot be answered from the lock screen | **FAIL** (same); no `voip` background mode, no `apns_voip` token registered |
+| Any state | **FAIL**: the provider app has no CallKit / ConnectionService / PushKit. `grep -ri callkeep provider-app/src` finds nothing; the patient app has them (`patient-app/src/calls/*`, `react-native-callkeep`). The backend sends `call.incoming` as an alert push on the `calls` channel (`push.module.ts:809-820`): it appears like a notification, with the default sound once, and cannot be answered from the lock screen | **FAIL** (same); no `voip` background mode, no `apns_voip` token registered |
 | Tap on the call push | **FAIL**: resolves to the notifications list (`pushRouting.ts`); the room screen (`VideoCallRoom.tsx`) starts a call by appointment id, it cannot join a session id from a push | same |
 
 Needed from H (shared plumbing): port `callkeepLogic`, `ringTask`, `voipPush` and the `react-native-callkeep` / `react-native-voip-push-notification` config plugins to the provider app, a join-by-session entry in `VideoCallRoom`, a data-only FCM handler that rings in a killed app, and the APNs VoIP key. `@react-native-firebase/app` and `/messaging` are in `provider-app/package.json` but used nowhere and not configured; they are dead weight until that port decides whether to use them.
