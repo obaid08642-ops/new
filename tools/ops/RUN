@@ -1,6 +1,14 @@
-# 2026-10-31 lead reviewer: run 73 (stop the search crash loop).
-# Run 72 (read-only): meilisearch restarts=1029; the index is COMPLETE (21,311 documents = Mongo search_index 21,311), but 89,115 tasks
-# are enqueued (left by the boot re-index loop #2261 fixes). After every restart meili resumes them and is killed at its 640 MB limit.
-# 1. 98d-meili-state with CANCEL=yes APPLY=yes: cancel the enqueued/processing tasks only. The stored documents stay (search keeps working);
-#    nothing is deleted, no reset. The state is printed before and after.
+# 2026-10-31 lead reviewer: run 74.
+# Run 73 sent the cancel for the 89k enqueued meili tasks. #2261 (no boot re-index loop; paced 500-doc batches) is merged.
+# 1. 98d-meili-state (READ-ONLY): did the cancel finish (enqueued -> 0), restarts stopped growing?
+# 2. Free disk, deploy main@95af576c: #2261 search fix, payouts, radiology booking, refunds, calls, provider resubmit and audit fixes,
+#    Cloudflare TURN task, invoices groundwork, about 40 PRs since cff60584. The pre-deploy dump is a one-off container; a failed dump aborts.
+# 3. 98d-meili-state again (READ-ONLY) after the deploy.
+# 4. Purge the API cache.
 98d-meili-state
+release:95af576c9ffa31aff4744e2e33ad5b647530a2f2
+97-free-old-predeploy
+93-free-unused-images
+60-deploy-main
+98d-meili-state
+cf-purge-api
