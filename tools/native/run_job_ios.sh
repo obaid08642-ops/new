@@ -19,6 +19,9 @@ phones.sort(key=lambda t:t[0])
 print(phones[-1][1]['udid'])")
 xcrun simctl boot "$DEVICE" 2>/dev/null || true
 xcrun simctl bootstatus "$DEVICE" -b
+# A cold simulator on a loaded runner needs 1-2 minutes of first-boot data migration; Maestro's XCTest driver must get as long
+# ("iOS driver not ready in time" in run 97 at the default).
+export MAESTRO_DRIVER_STARTUP_TIMEOUT=300000
 rm -rf /tmp/native/app && mkdir -p /tmp/native/app && ditto -x -k "/tmp/native/${TARGET}-app.app.zip" /tmp/native/app
 xcrun simctl install "$DEVICE" /tmp/native/app/*.app
 xcrun simctl spawn "$DEVICE" defaults write "$PKG" AppleLanguages -array ar
@@ -38,7 +41,9 @@ for FLOW in tools/native/flows/${TARGET}_*.yaml; do
   NAME=$(basename "$FLOW" .yaml); NAME=${NAME#${TARGET}_}
   case "$FLOW_FILTER" in none) continue ;; all) ;; *) [[ "$NAME" == *"$FLOW_FILTER"* ]] || continue ;; esac
   if [ -z "$EMAIL" ]; then echo "no seeded account for $TARGET $ARG" > "$OUT/flow_${TAG}__${NAME}.txt"; continue; fi
-  if "$HOME/.maestro/bin/maestro" --device "$DEVICE" test -e EMAIL="$EMAIL" -e PASSWORD="$PASS" --test-output-dir "$OUT/maestro_${TAG}__${NAME}" "$FLOW" > "$OUT/maestro_${TAG}__${NAME}.log" 2>&1; then
+  run_flow() { "$HOME/.maestro/bin/maestro" --device "$DEVICE" test -e EMAIL="$EMAIL" -e PASSWORD="$PASS" --test-output-dir "$OUT/maestro_${TAG}__${NAME}" "$FLOW" > "$OUT/maestro_${TAG}__${NAME}.log" 2>&1; }
+  # one retry, and only when Maestro's driver itself did not start (before any step ran); a failed step is never retried
+  if run_flow || { grep -q "iOS driver not ready in time" "$OUT/maestro_${TAG}__${NAME}.log" && { echo "maestro driver did not start, retrying once"; run_flow; }; }; then
     echo ok > "$OUT/flow_${TAG}__${NAME}.txt"
   else
     echo "maestro flow failed (see maestro_${TAG}__${NAME}.log and its screenshots)" > "$OUT/flow_${TAG}__${NAME}.txt"
