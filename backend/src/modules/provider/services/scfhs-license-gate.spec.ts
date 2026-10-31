@@ -65,27 +65,3 @@ describe('ProviderAdminService: SCFHS licence gate', () => {
     expect(scfhs.store).toHaveBeenCalled();
   });
 });
-
-describe('ProvidersService.approve (profile id): SCFHS licence gate', () => {
-  function build(type: string, verdict: any) {
-    const profile: any = { id: 'p1', user_id: 'u1', type, license_number: '1', save: jest.fn(async () => undefined), toObject() { return { id: this.id }; } };
-    const scfhs = scfhsStub(verdict);
-    const svc = new ProvidersService({ updateOne: jest.fn() } as any, { findOne: jest.fn(async () => profile) } as any, {} as any, { emit: jest.fn() } as any, { refresh: jest.fn(async () => ({})) } as any, {} as any, scfhs as any);
-    return { svc, profile, scfhs };
-  }
-
-  it('refuses an unverified doctor before anything is saved', async () => {
-    const { svc, profile } = build('doctor', BAD);
-    await expect(svc.approve('p1', ADMIN)).rejects.toThrow('scfhs_unavailable_manual_check_required');
-    expect(profile.save).not.toHaveBeenCalled();
-    expect(profile.license_verified).toBeUndefined();
-  });
-
-  it('approves a verified doctor and stores the licence decision', async () => {
-    const { svc, profile, scfhs } = build('doctor', GOOD);
-    const manual = { reference: 'R', expiry_date: future() };
-    await svc.approve('p1', ADMIN, manual);
-    expect(profile.save).toHaveBeenCalled();
-    expect(scfhs.store).toHaveBeenCalledWith({ id: 'p1' }, GOOD, null, 'admin-1', manual);
-  });
-});

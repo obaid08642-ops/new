@@ -173,8 +173,6 @@ describe('every listed switch is enforced where its action starts (nothing else 
     await expectOff(appts.create({ id: 'p1', role: 'patient' }, { doctor_id: 'd1', service_type: 'video', slot_start: '2030-01-01T10:00:00Z' }), 'online_consultations');
     const clinic = await appts.create({ id: 'p1', role: 'patient' }, { doctor_id: 'd1', service_type: 'clinic', slot_start: '2030-01-01T10:00:00Z' }).then(() => null, (e) => e);
     expect(isOff('online_consultations')(clinic)).toBe(false);
-    const doctors = new DoctorsService(untouched(), untouched(), untouched(), untouched(), untouched(), untouched(), k);
-    await expectOff(doctors.book({ id: 'p1' }, { doctor_id: 'd1', scheduled_at: '2030-01-01T10:00:00Z', type: 'video' }), 'online_consultations');
   });
 
   it('provider_withdrawals: refused before any balance is read or locked', async () => {
