@@ -172,6 +172,10 @@ export class LiveKitService {
       throw new BadRequestException('appointment_not_no_show_eligible');
     }
 
+    // A no-show can only be recorded once the patient has been late for a while: never before the visit starts.
+    const startAt = appt.slot_start ? new Date(appt.slot_start).getTime() : 0;
+    if (startAt && Date.now() < startAt + 10 * 60_000) throw new BadRequestException('no_show_too_early');
+
     const from = appt.status;
     appt.status = 'NO_SHOW';
     appt.cancellation_reason = appt.cancellation_reason || 'provider_marked_no_show';
@@ -179,6 +183,8 @@ export class LiveKitService {
     appt.refund_destination = 'none';
     appt.state_history = [...(appt.state_history || []), { state: 'NO_SHOW', at: new Date(), by_user_id: providerId, by_role: 'doctor', note: 'no_show' }];
     await appt.save();
+    // the patient is told the visit was recorded as missed (the refund rule is the finance engine's, not decided here)
+    this.events.emit('doctor_appointment.no_show', { id: appt.id, patient_id: appt.patient_id, patient_account_id: appt.patient_account_id, doctor_id: providerId });
     return { success: true, message: 'Marked as no-show', previous_status: from };
   }
 
