@@ -1079,10 +1079,15 @@ export class LabsService {
     const b = await this.bkgModel.findOne({ id });
     if (!b) throw new NotFoundException('Booking not found');
     this.assertPatientOrAssignedProvider(user, b);
-    b.scheduled_at = new Date(body.new_date);
+    // Only a booking that is still to be done can move (a cancelled, reported or in-progress one could be moved before), to a valid future time.
+    if (![LabBookingState.NEW_REQUEST, LabBookingState.PENDING_INSURANCE, LabBookingState.WAITING_COPAY, LabBookingState.CONFIRMED].includes(b.state)) throw new BadRequestException('cannot_reschedule');
+    const when = new Date(body?.new_date);
+    if (Number.isNaN(when.getTime()) || when.getTime() < Date.now()) throw new BadRequestException('slot_expired');
+    b.scheduled_at = when;
     b.reschedule_reason = body.reason;
     b.state_history.push({ from: b.state, to: b.state, by_user_id: user.id, by_role: user.role, at: new Date(), note: `Rescheduled to ${b.scheduled_at}. Reason: ${body.reason}` });
     await b.save();
+    this.events.emit('booking.rescheduled', { entity_type: 'lab_booking', entity_id: b.id, actor_role: user.role, patient_account_id: b.patient_id, meta: { new_date: b.scheduled_at } });
     return b;
   }
 

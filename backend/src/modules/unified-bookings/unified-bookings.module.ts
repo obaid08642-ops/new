@@ -232,7 +232,7 @@ export class UnifiedBookingsService {
       if (!b) throw new NotFoundException();
       if (![LabBookingState.NEW_REQUEST, LabBookingState.CONFIRMED].includes(b.state)) throw new BadRequestException('cannot_reschedule');
       b.scheduled_at = nt; await b.save();
-      this.bus.emit({ type: 'service.confirmed', entity_type: 'lab_booking', entity_id: id, actor_account_id: user.id, actor_role: 'patient', meta: { rescheduled_to: nt, reason, kind: 'lab' } } as any).catch(() => null);
+      this.bus.emit({ type: 'booking.rescheduled', entity_type: 'lab_booking', entity_id: id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { new_date: nt, reason, kind: 'lab' } } as any).catch(() => null);
       return b.toObject();
     }
     if (k === 'radiology') {
@@ -240,7 +240,7 @@ export class UnifiedBookingsService {
       if (!b) throw new NotFoundException();
       if (![RadiologyBookingState.PENDING, RadiologyBookingState.CONFIRMED, RadiologyBookingState.CONFIRMED].includes(b.state)) throw new BadRequestException('cannot_reschedule');
       b.scheduled_at = nt; await b.save();
-      this.bus.emit({ type: 'service.confirmed', entity_type: 'radiology_booking', entity_id: id, actor_account_id: user.id, actor_role: 'patient', meta: { rescheduled_to: nt, reason, kind: 'radiology' } } as any).catch(() => null);
+      this.bus.emit({ type: 'booking.rescheduled', entity_type: 'radiology_booking', entity_id: id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { new_date: nt, reason, kind: 'radiology' } } as any).catch(() => null);
       return b.toObject();
     }
     if (k === 'nursing') {
@@ -248,7 +248,7 @@ export class UnifiedBookingsService {
       if (!b) throw new NotFoundException();
       if ([HomeCareBookingState.COMPLETED, HomeCareBookingState.CANCELLED].includes(b.state)) throw new BadRequestException('cannot_reschedule');
       b.scheduled_at = nt; await b.save();
-      this.bus.emit({ type: 'service.confirmed', entity_type: 'nursing_booking', entity_id: id, actor_account_id: user.id, actor_role: 'patient', meta: { rescheduled_to: nt, reason, kind: 'nursing' } } as any).catch(() => null);
+      this.bus.emit({ type: 'booking.rescheduled', entity_type: 'nursing_booking', entity_id: id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { new_date: nt, reason, kind: 'nursing' } } as any).catch(() => null);
       return b.toObject();
     }
     if (k === 'consultation') {
