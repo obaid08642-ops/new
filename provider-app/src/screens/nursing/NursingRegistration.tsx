@@ -1,6 +1,6 @@
 import { startOnboardingAccount, firstMissingDoc, useStepSaver } from '../registration/kit';
 import type { StepProps, Uploader, RequiredDoc } from '../registration/kit';
-import { DocCard, NoticeSection, useDocumentPicker } from '../registration/WizardParts';
+import { DocCard, LicenseExpiryField, NoticeSection, licenseExpiryError, useDocumentPicker } from '../registration/WizardParts';
 import type { NoticeText } from '../registration/WizardParts';
 import { RegistrationWizard } from '../registration/RegistrationWizard';
 import type { RegistrationProps, WizardConfig } from '../registration/RegistrationWizard';
@@ -104,7 +104,11 @@ async function sendNursing(data: NurseRegData, uploads: Uploader): Promise<void>
   }));
 
   await ProviderApi.step3({
-    nursing_services: data.enabledServices.map((id: string) => ({ key: id, name_ar: id, price: parsePrice(data.servicePrices?.[id] ?? '') ?? 0 })),
+    nursing_services: data.enabledServices.map((id: string) => {
+      const price = parsePrice(data.servicePrices?.[id] ?? '');
+      if (price === null) throw new Error('nursing_service_price_required'); // the pre-check and step 3 stop this first
+      return { key: id, name_ar: id, price };
+    }),
     home_visit_radius_km: data.coverageRadius,
     working_hours: workingHours,
     pricingModel: data.pricingModels,
@@ -131,6 +135,7 @@ async function sendNursing(data: NurseRegData, uploads: Uploader): Promise<void>
     moh_license_number: data.mohLicense,
     scfhs_license_number: data.scfhsNumber,
     scfhs_expiry: data.scfhsExpiry || undefined,
+    license_expiry_date: data.scfhsExpiry,
     license_documents: docs,
     profile_photo: data.photoUri ? photoUrl : undefined,
   });
@@ -363,6 +368,7 @@ function NS2({ data, update, submitRef, uploads }: StepProps<NurseRegData>) {
     const e: Record<string, string> = {};
     if (isIndiv && !data.scfhsNumber.trim()) e.scfhs = AR ? 'رقم SCFHS مطلوب' : 'SCFHS required';
     if (!isIndiv && !Validate.cr(data.crNumber)) e.cr = AR ? 'السجل التجاري 10 أرقام' : 'CR 10 digits';
+    const expiryErr = licenseExpiryError(data.scfhsExpiry, AR); if (expiryErr) e.expiry = expiryErr;
     if (!Validate.iban(data.iban)) e.iban = AR ? 'الآيبان غير صحيح' : 'Invalid IBAN';
     setErrs(e); return Object.keys(e).length === 0;
   };
@@ -421,7 +427,6 @@ function NS2({ data, update, submitRef, uploads }: StepProps<NurseRegData>) {
       {isIndiv ? (
         <>
           <NInput label={AR ? 'رقم ترخيص SCFHS' : 'SCFHS License Number'} placeholder="123456" value={data.scfhsNumber} onChange={v => update({ scfhsNumber: v.replace(/\D/g, '') })} required error={errs.scfhs} kbType="numeric" maxLen={8} />
-          <NInput label={AR ? 'تاريخ انتهاء الترخيص' : 'License Expiry'} placeholder="YYYY-MM-DD" value={data.scfhsExpiry} onChange={v => update({ scfhsExpiry: v })} />
           <NInput label={AR ? 'رقم الهوية الوطنية' : 'National ID'} placeholder="1XXXXXXXXX" value={data.nationalId} onChange={v => update({ nationalId: v.replace(/\D/g, '') })} kbType="numeric" maxLen={10} />
         </>
       ) : (
@@ -430,6 +435,8 @@ function NS2({ data, update, submitRef, uploads }: StepProps<NurseRegData>) {
           <NInput label={AR ? 'ترخيص وزارة الصحة MOH' : 'MOH License'} placeholder="MOH-NRS-XXXXX" value={data.mohLicense} onChange={v => update({ mohLicense: v })} required />
         </>
       )}
+
+      <LicenseExpiryField value={data.scfhsExpiry} onChange={v => update({ scfhsExpiry: v })} error={errs.expiry} />
 
       <NInput label={AR ? 'رقم الآيبان IBAN' : 'Bank IBAN'} placeholder="SA0000000000000000000000" value={data.iban} onChange={v => update({ iban: v.toUpperCase().replace(/\s/g, '') })} required error={errs.iban} maxLen={24} />
 
@@ -456,6 +463,7 @@ function NS3({ data, update, submitRef }: StepProps<NurseRegData>) {
  const nursingCatalog = useServicesCatalog('nursing');
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
 
+  const [showPriceErr, setShowPriceErr] = useState(false);
   const toggle = (id: string) => {
     const svcs = data.enabledServices.includes(id) ? data.enabledServices.filter(s => s !== id) : [...data.enabledServices, id];
     update({ enabledServices: svcs });
@@ -463,7 +471,7 @@ function NS3({ data, update, submitRef }: StepProps<NurseRegData>) {
 
   const validate = () => {
     if (data.enabledServices.length === 0) { Alert.alert(AR ? 'تنبيه' : 'Warning', AR ? 'اختر خدمة واحدة على الأقل' : 'Select at least one service'); return false; }
-    if (data.enabledServices.some((id: string) => parsePrice(data.servicePrices?.[id] ?? '') === null)) { Alert.alert(AR ? 'تنبيه' : 'Warning', AR ? 'أدخل سعراً أكبر من صفر لكل خدمة مختارة' : 'Enter a price above zero for each selected service'); return false; }
+    if (data.enabledServices.some((id: string) => parsePrice(data.servicePrices?.[id] ?? '') === null)) { setShowPriceErr(true); return false; }
     return true;
   };
 
@@ -508,7 +516,8 @@ return (
           </TouchableOpacity>
           {active && (
             <NPriceInput label={AR ? `سعرك لـ ${svc.ar} (ريال)` : `Your price for ${svc.en} (SAR)`} value={data.servicePrices?.[svc.id] ?? ''}
-              onChange={(v) => update({ servicePrices: { ...data.servicePrices, [svc.id]: v } })} required />
+              onChange={(v) => update({ servicePrices: { ...data.servicePrices, [svc.id]: v } })} required
+              error={showPriceErr && parsePrice(data.servicePrices?.[svc.id] ?? '') === null ? (AR ? 'أدخل سعراً أكبر من صفر' : 'Enter a price above zero') : undefined} />
           )}
           </View>
         );

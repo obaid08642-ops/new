@@ -32,6 +32,10 @@ export class HospitalInvitation {
   status: string;
 
   @Prop() responded_at?: Date;
+
+  /** Set when the facility (or an admin) withdraws a pending invitation. */
+  @Prop() cancelled_at?: Date;
+  @Prop() cancelled_by?: string;
 }
 
 export const HospitalInvitationSchema = SchemaFactory.createForClass(HospitalInvitation);
