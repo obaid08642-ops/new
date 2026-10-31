@@ -75,59 +75,6 @@ export class ProvidersService {
     });
   }
 
-  async createBranchStaffAccount(adminId: string, branchId: string, staffDto: any) {
-    const admin = await this.userModel.findOne({ id: adminId });
-    if (!admin) throw new NotFoundException('Admin not found');
-    if (![UserRole.HOSPITAL_ADMIN, UserRole.BRANCH_ADMIN].includes(admin.role)) {
-      throw new ForbiddenException('صلاحية مرفوضة. فقط إدارة المستشفى تملك حق تعيين الموظفين الفرعيين.');
-    }
-
-    // ProviderBranch._id is a UUID string (see provider-branch.schema), so
-    // findById matches the branch uuid directly — never a client ObjectId.
-    const branch = await this.branchModel.findById(branchId);
-    if (!branch) throw new NotFoundException('الفرع المحدد غير موجود بالمنظومة.');
-
-    // Create Sub-Account User
-    const generatedPassword = staffDto.password ? undefined : generateTempPassword();
-    const hash = await bcrypt.hash(staffDto.password || generatedPassword, 12);
-    const staffUser = await this.userModel.create({
-      full_name: staffDto.fullName,
-      email: staffDto.email,
-      phone: staffDto.phone,
-      password_hash: hash,
-      role: staffDto.role, // DOCTOR or RECEPTIONIST
-      parent_provider_account_id: admin.parent_provider_account_id,
-      assigned_branch_id: branch._id,
-      // a practitioner stays inactive until an admin approves the licence (same queue as self-registration); reception works at once
-      active: staffDto.role !== UserRole.DOCTOR,
-    });
-
-    if (staffDto.role === UserRole.DOCTOR) {
-      // Owner decision 2026-10-23: a facility never verifies a practitioner. The doctor starts pending licence
-      // verification, in the admin queue next to self-registered ones, and takes no bookings until an admin approves.
-      const profile = await this.providerModel.create({
-        user_id: staffUser.id,
-        type: ProviderType.DOCTOR,
-        status: ProviderStatus.PENDING,
-        license_verified: false,
-        license_number: staffDto.licenseNumber ?? staffDto.license_number,
-        name_ar: staffDto.fullNameAr || staffDto.fullName,
-        name_en: staffDto.fullNameEn || staffDto.fullName,
-        specialty: staffDto.specialty,
-        years_experience: staffDto.years_experience || 0,
-        price_clinic: staffDto.priceClinic || 100,
-        price_online: staffDto.priceOnline || 100,
-      });
-      this.events.emit('provider.pending_review', { provider_id: profile.id, type: ProviderType.DOCTOR });
-
-      // the roster is the branch's list of its own doctors; being on it grants no booking right
-      branch.doctors_roster.push(staffUser.id);
-      await branch.save();
-    }
-
-    return { success: true, message: staffDto.role === UserRole.DOCTOR ? 'تم إنشاء حساب الطبيب وهو بانتظار اعتماد الترخيص من الإدارة قبل استقبال الحجوزات.' : 'تم إنشاء الحساب الفرعي.', generated_password: generatedPassword };
-  }
-
   // ============ Admin-Assisted Creation ============
   async adminCreate(data: any, _admin: any) {
     // Admin can create with password OR auto-generate, status defaults to PENDING but admin

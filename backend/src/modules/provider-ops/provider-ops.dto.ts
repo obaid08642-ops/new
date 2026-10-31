@@ -163,6 +163,7 @@ export class PutTariffsDto {
 export class ReplyReviewDto {
   @IsOptional()
   @IsString()
+  @MaxLength(1000)
   reply?: string;
 
 }
