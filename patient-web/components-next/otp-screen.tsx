@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { authErrorKind } from "@/lib/auth/auth-errors";
 import { announceSignedIn } from "@/lib/auth/session-identity";
+import { codeRequestFailure, usableIdentifier, type CodeRequestFailure } from "@/lib/auth/otp-flow";
 import type { Locale } from "@/lib/i18n";
 import styles from "./auth/auth.module.css";
 
@@ -84,14 +85,28 @@ export function cellsAfterChange(current: string[], index: number, value: string
 }
 
 /** The page reads where the code went from a server-set cookie (never from the URL) and hands it down. */
-export function OtpScreen({ locale, identifier = "", codeNotSent = false }: { locale: Locale; identifier?: string; codeNotSent?: boolean }) {
+/** The message for a code that was not sent, by the failure named from the BFF answer. */
+export function requestFailureMessage(t: Translate, failure: CodeRequestFailure): string {
+  switch (failure) {
+    case "noChannel": return t("noChannel");
+    case "rateLimited": return t("resendLimited");
+    case "unavailable": return t("resendUnavailable");
+    default: return t("resendFailed");
+  }
+}
+
+export function OtpScreen({ locale, identifier: initialIdentifier = "", codeNotSent = false }: { locale: Locale; identifier?: string; codeNotSent?: boolean }) {
   const t = useTranslations("Otp");
   const router = useRouter();
+  // The cookie that names where the code went lasts 15 minutes: after that the person types it here and a new cookie is set.
+  const [identifier, setIdentifier] = useState(initialIdentifier);
+  const [typed, setTyped] = useState("");
   const [digits, setDigits] = useState(["", "", "", "", "", ""]);
   // The account was created but the first code was not sent: resend is open at once and the page says why.
   const [seconds, setSeconds] = useState(codeNotSent ? 0 : 300);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(identifier ? null : t("missing"));
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(codeNotSent && identifier ? t("notSent") : null);
   const refs = useRef<Array<HTMLInputElement | null>>([]);
   // Latin digits through the locale formatter, to match the digits typed into the code cells.
@@ -147,14 +162,29 @@ export function OtpScreen({ locale, identifier = "", codeNotSent = false }: { lo
     if (applyText(index, event.dataTransfer.getData("text"))) event.preventDefault();
   }
 
-  async function resend() {
-    if (!identifier || seconds > 0 || busy) return;
-    setError(null); setNotice(null);
+  // Asks for a code for `target`; the route answers with the new identifier cookie. Returns whether it was sent.
+  async function requestCode(target: string): Promise<boolean> {
+    setError(null); setNotice(null); setSending(true);
     try {
-      const response = await fetch("/api/auth/otp/request", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ identifier }) });
-      if (response.ok) { setSeconds(300); setNotice(t("resent")); return; }
-      setError(resendErrorMessage(t, response.status));
+      const response = await fetch("/api/auth/otp/request", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ identifier: target }) });
+      if (response.ok) { setSeconds(300); setNotice(t("resent")); return true; }
+      const body = await response.json().catch(() => null);
+      setError(requestFailureMessage(t, codeRequestFailure(response.status, body)));
     } catch { setError(t("resendUnavailable")); }
+    finally { setSending(false); }
+    return false;
+  }
+
+  async function resend() {
+    if (!identifier || seconds > 0 || busy || sending) return;
+    await requestCode(identifier);
+  }
+
+  async function sendTyped(event: React.FormEvent) {
+    event.preventDefault();
+    const target = usableIdentifier(typed);
+    if (!target) { setError(t("identifierInvalid")); return; }
+    if (await requestCode(target)) { setIdentifier(target); setDigits(["", "", "", "", "", ""]); }
   }
 
   async function verify(event: React.FormEvent) {
@@ -175,10 +205,27 @@ export function OtpScreen({ locale, identifier = "", codeNotSent = false }: { lo
 
   const minutes = minutesFormat.format(Math.floor(seconds / 60));
   const rest = secondsFormat.format(seconds % 60);
+  if (!identifier) return <>
+    <div className={styles.heading}>
+      <h1 className={styles.title}>{t("title")}</h1>
+      <p className={styles.subtitle}>{t("missing")}</p>
+    </div>
+    <form className={styles.form} onSubmit={sendTyped} aria-busy={sending} noValidate>
+      <label className={styles.field}>
+        <span className={styles.label}>{t("identifierLabel")}</span>
+        <span className={styles.control}><input required dir="ltr" autoComplete="username" autoCapitalize="none" spellCheck={false} aria-invalid={Boolean(error) || undefined} value={typed} onChange={(event) => setTyped(event.target.value)} /></span>
+      </label>
+      {error ? <p className={styles.error} role="alert">{error}</p> : null}
+      <div className={styles.actions}>
+        <Button type="submit" variant="primary" size="lg" fullWidth label={sending ? t("sending") : t("sendCode")} loading={sending} />
+        <p className={styles.foot}><button type="button" className={styles.link} onClick={() => router.back()}>{t("back")}</button></p>
+      </div>
+    </form>
+  </>;
   return <>
     <div className={styles.heading}>
       <h1 className={styles.title}>{t("title")}</h1>
-      <p className={styles.subtitle}>{identifier ? t.rich("body", { identifier, id: (chunks) => <bdi dir="ltr">{chunks}</bdi> }) : t("missing")}</p>
+      <p className={styles.subtitle}>{t.rich("body", { identifier, id: (chunks) => <bdi dir="ltr">{chunks}</bdi> })}</p>
     </div>
     <form className={styles.form} onSubmit={verify}>
       <fieldset className={styles.otp} disabled={!identifier || busy}>
@@ -186,7 +233,7 @@ export function OtpScreen({ locale, identifier = "", codeNotSent = false }: { lo
         <div className={styles.cells} dir="ltr">{digits.map((digit, index) => <input key={index} ref={(el) => { refs.current[index] = el; }} className={styles.cell} value={digit} inputMode="numeric" autoComplete={index === 0 ? "one-time-code" : "off"} aria-label={`${t("code")} ${index + 1}`} onChange={(event) => update(index, event.target.value)} onPaste={(event) => paste(event, index)} onDrop={(event) => drop(event, index)} onKeyDown={(event) => keyDown(index, event)} />)}</div>
       </fieldset>
       <div className={styles.resendRow}>
-        {seconds > 0 ? <><span className={styles.hint}>{t("wait")}</span><span className={styles.timer} dir="ltr">{minutes}:{rest}</span></> : <button type="button" className={styles.link} onClick={resend} disabled={!identifier || busy}>{t("resend")}</button>}
+        {seconds > 0 ? <><span className={styles.hint}>{t("wait")}</span><span className={styles.timer} dir="ltr">{minutes}:{rest}</span></> : <button type="button" className={styles.link} onClick={resend} disabled={busy || sending}>{t("resend")}</button>}
       </div>
       {notice ? <p className={styles.note} role="status">{notice}</p> : null}
       {error && identifier ? <p className={styles.error} role="alert">{error}</p> : null}
