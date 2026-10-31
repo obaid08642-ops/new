@@ -689,23 +689,9 @@ export class ProviderOpsService {
     return row;
   }
 
-  /**
-   * The commission percent of one provider's earning, in one order (most specific first): a campaign or provider rule of the
-   * commission rules, then the rate the admin set on the provider itself (`commission_insurance_pct` for an insured visit,
-   * else `commission_cash_pct`), then the service default, the finance config and the system default (CommissionResolver).
-   * The profile's `commission_rate` is not read: it carries a schema default of 10 for every provider, so it cannot tell
-   * "set by the admin" from "never set".
-   */
-  async commissionFor(serviceType: string, providerAccountId: string, paymentMethod?: string): Promise<{ percent: number; source: string }> {
-    const resolved = await new CommissionResolver(this.conn).resolve(serviceType, { providerId: providerAccountId });
-    if (resolved.source === 'campaign_override' || resolved.source === 'provider_override') return resolved;
-    const profile: any = await this.conn.collection('provider_profiles').findOne(
-      { $or: [{ account_id: providerAccountId }, { user_id: providerAccountId }] },
-      { projection: { _id: 0, commission_cash_pct: 1, commission_insurance_pct: 1 } },
-    );
-    const own = String(paymentMethod || '').toLowerCase() === 'insurance' ? profile?.commission_insurance_pct : profile?.commission_cash_pct;
-    if (typeof own === 'number' && Number.isFinite(own) && own >= 0 && own <= 100) return { percent: own, source: 'provider_profile' };
-    return resolved;
+  /** The commission percent of one provider's earning: CommissionResolver.forProvider (rules, the provider's own rate, the service default). */
+  commissionFor(serviceType: string, providerAccountId: string, paymentMethod?: string): Promise<{ percent: number; source: string }> {
+    return new CommissionResolver(this.conn).forProvider(serviceType, providerAccountId, paymentMethod);
   }
 
   /**

@@ -229,8 +229,9 @@ export class ProviderProfile {
     default: [],
   })
   working_hours: { day: string; open: string; close: string; open_evening?: string; close_evening?: string; closed?: boolean }[];
-  @Prop({ default: 10 }) commission_rate?: number;
-  // Per-payment-method commission (set by admin at approval; falls back to commission_rate)
+  // The older single rate: no default, so "set by the admin" is distinguishable from "never set"; the ledger reads the per-method rates and the rules.
+  @Prop() commission_rate?: number;
+  // Per-payment-method commission (set by admin at approval)
   @Prop() commission_cash_pct?: number;
   @Prop() commission_insurance_pct?: number;
   // ── Registration completeness (fields the wizard collects — declared so

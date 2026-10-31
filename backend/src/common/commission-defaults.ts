@@ -28,5 +28,18 @@ export const DEFAULT_COMMISSIONS = {
   tax: { vat_percent: 15, note: 'KSA VAT applied on commission only' },
 };
 
+/** The commission service type (a key of `service_types`) of each provider profile type. One mapping for every screen and ledger path. */
+export const COMMISSION_SERVICE_BY_PROVIDER_TYPE: Record<string, string> = {
+  pharmacy: 'pharmacy',
+  lab: 'lab',
+  radiology: 'radiology',
+  home_care: 'nursing',
+  nursing: 'nursing',
+  nurse: 'nursing',
+  doctor: 'doctor',
+  clinic: 'doctor',
+  hospital: 'doctor',
+};
+
 /** Service types whose commission the admin edits (the keys of `service_types`). */
 export const COMMISSION_SERVICE_TYPES = Object.keys(DEFAULT_COMMISSIONS.service_types);

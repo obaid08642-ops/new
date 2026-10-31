@@ -82,7 +82,7 @@ export class ProviderProfile extends Document {
   @Prop() delivery_fee?: number;
   @Prop() estimated_delivery_minutes?: number;
   @Prop({ default: [], type: [String] }) enabled_modules: string[];
-  @Prop({ default: 10 }) commission_rate?: number;
+  @Prop() commission_rate?: number; // no default: unset means the service default applies
   @Prop() commission_cash_pct?: number;
   @Prop() commission_insurance_pct?: number;
   @Prop({ default: 0 }) profile_completeness: number;
