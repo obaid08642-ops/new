@@ -1,6 +1,6 @@
-# 2026-10-31 lead reviewer: run 72 (read-only + dry run; nothing is changed).
-# Run 70: meilisearch crash loop (782 restarts, its own 640 MB limit). #2261 (approved) stops the boot re-index loop; this run measures first.
-# 1. 98d-meili-state (READ-ONLY, #2262): restarts, limit, indexing settings, data size vs used, documents per index, task queue by status.
-# 2. 98e-build-contexts DRY RUN (#2262): node_modules sizes in the two build contexts and whether .dockerignore excludes them.
+# 2026-10-31 lead reviewer: run 73 (stop the search crash loop).
+# Run 72 (read-only): meilisearch restarts=1029; the index is COMPLETE (21,311 documents = Mongo search_index 21,311), but 89,115 tasks
+# are enqueued (left by the boot re-index loop #2261 fixes). After every restart meili resumes them and is killed at its 640 MB limit.
+# 1. 98d-meili-state with CANCEL=yes APPLY=yes: cancel the enqueued/processing tasks only. The stored documents stay (search keeps working);
+#    nothing is deleted, no reset. The state is printed before and after.
 98d-meili-state
-98e-build-contexts
