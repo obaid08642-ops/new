@@ -4022,5 +4022,6 @@
   "consult.call.quality.good": "ভালো",
   "consult.call.quality.poor": "দুর্বল",
   "consult.call.quality.lost": "বিচ্ছিন্ন",
-  "consult.call.quality.unknown": "যাচাই হচ্ছে"
+  "consult.call.quality.unknown": "যাচাই হচ্ছে",
+  "payments.result.refundedBody": "টাকা আপনার মূল পেমেন্ট পদ্ধতিতে ফেরত দেওয়া হয়েছে। আপনার অ্যাকাউন্টে দেখাতে কয়েক দিন লাগতে পারে।"
 }

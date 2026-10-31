@@ -4022,5 +4022,6 @@
   "consult.call.quality.good": "अच्छा",
   "consult.call.quality.poor": "कमज़ोर",
   "consult.call.quality.lost": "टूट गया",
-  "consult.call.quality.unknown": "जाँच हो रही है"
+  "consult.call.quality.unknown": "जाँच हो रही है",
+  "payments.result.refundedBody": "राशि आपके मूल भुगतान माध्यम में लौटा दी गई है। इसे आपके खाते में दिखने में कुछ दिन लग सकते हैं।"
 }

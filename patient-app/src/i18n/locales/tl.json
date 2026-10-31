@@ -4022,5 +4022,6 @@
   "consult.call.quality.good": "maayos",
   "consult.call.quality.poor": "mahina",
   "consult.call.quality.lost": "naputol",
-  "consult.call.quality.unknown": "sinusuri"
+  "consult.call.quality.unknown": "sinusuri",
+  "payments.result.refundedBody": "Ibinalik ang halaga sa orihinal mong paraan ng pagbabayad. Maaaring abutin ng ilang araw bago ito lumabas sa iyong account."
 }

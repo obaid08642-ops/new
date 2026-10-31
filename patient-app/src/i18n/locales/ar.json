@@ -4022,5 +4022,6 @@
   "consult.call.quality.good": "جيد",
   "consult.call.quality.poor": "ضعيف",
   "consult.call.quality.lost": "منقطع",
-  "consult.call.quality.unknown": "جارٍ الفحص"
+  "consult.call.quality.unknown": "جارٍ الفحص",
+  "payments.result.refundedBody": "أُعيد المبلغ إلى وسيلة الدفع الأصلية. قد يستغرق ظهوره في حسابك بضعة أيام."
 }
