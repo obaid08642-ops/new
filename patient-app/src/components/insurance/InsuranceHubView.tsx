@@ -183,7 +183,7 @@ function PolicyTab() {
         </Gate>
       </Section>
 
-      <InsurerSheet open={form} onClose={() => setForm(false)} onSaved={() => { setForm(false); void policy.reload(true); }} />
+      <InsurerSheet current={p} open={form} onClose={() => setForm(false)} onSaved={() => { setForm(false); void policy.reload(true); }} />
     </>
   );
 }
@@ -205,7 +205,7 @@ interface Network { code?: string; id?: string; name_ar?: string; name_en?: stri
  * The insurer choice (the old /profile/insurance form): the companies and their networks come from the catalog
  * (GET /insurance/companies, GET /insurance/companies/:id/networks); the body is the one that screen always sent.
  */
-function InsurerSheet({ open, onClose, onSaved }: { open: boolean; onClose: () => void; onSaved: () => void }) {
+function InsurerSheet({ current, open, onClose, onSaved }: { current: InsurancePolicy | null; open: boolean; onClose: () => void; onSaved: () => void }) {
   const { k, theme, lang } = useScreenUi();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [networks, setNetworks] = useState<Network[]>([]);
@@ -223,9 +223,13 @@ function InsurerSheet({ open, onClose, onSaved }: { open: boolean; onClose: () =
 
   useEffect(() => {
     if (!open) return;
+    // an edit starts from what is saved: the number and the member id are shown, not asked for again
+    setPolicyNumber(current?.policy_number ?? '');
+    setMemberId(current?.member_id ?? '');
     setError(null);
     setCatalogFailed(false);
     apiFetch('/insurance/companies').then((list) => setCompanies(rowsOf<Company>(list))).catch((e) => { logError('insurance:companies', e); setCompanies([]); setCatalogFailed(true); });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- read the saved policy once per opening
   }, [open]);
 
   const pickCompany = async (company: Company) => {
@@ -263,7 +267,8 @@ function InsurerSheet({ open, onClose, onSaved }: { open: boolean; onClose: () =
           policy_number: policyNumber.trim(),
           member_id: memberId.trim(),
           network: networkCode || '',
-          class: 'A',
+          // the saved class is kept on an edit (the server requires one with an insurer; 'A' only when none was saved)
+          class: current?.class || 'A',
           ...copay.body,
         }),
       });

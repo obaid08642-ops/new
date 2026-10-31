@@ -73,5 +73,35 @@
     "file": "patient-web/app/[locale]/voice/page.tsx",
     "verdict": "static",
     "reason": "Launcher: seven links defined in the page plus components-next/voice-command-button.tsx, which uses the browser SpeechRecognition API and navigates by keyword; no API call."
+  },
+  "/delivery/address-select": {
+    "file": "patient-web/app/[locale]/delivery/address-select/page.tsx",
+    "verdict": "redirect",
+    "reason": "Server redirect to /profile/addresses?select=1 (the address book in pick mode), which calls the API."
+  },
+  "/diagnostics/insurance-upload": {
+    "file": "patient-web/app/[locale]/diagnostics/insurance-upload/page.tsx",
+    "verdict": "redirect",
+    "reason": "Server redirect to /diagnostics/insurance-approval, keeping the order id; that screen calls the API."
+  },
+  "/drug-scanner": {
+    "file": "patient-web/app/[locale]/drug-scanner/page.tsx",
+    "verdict": "redirect",
+    "reason": "Server redirect to /pharmacy/barcode (the scanner screen), which calls the API."
+  },
+  "/login/app-callback": {
+    "file": "patient-web/app/[locale]/login/app-callback/page.tsx",
+    "verdict": "static",
+    "reason": "Opens the native app with the sign-in result (window.location.replace to the app link built by lib/auth/app-callback); no API call of its own."
+  },
+  "/login/social-callback": {
+    "file": "patient-web/app/[locale]/login/social-callback/page.tsx",
+    "verdict": "static",
+    "reason": "Popup page: posts the OAuth code and state to the opener window (postMessage); the opener (login page) calls the API."
+  },
+  "/offline": {
+    "file": "patient-web/app/[locale]/offline/page.tsx",
+    "verdict": "static",
+    "reason": "Offline fallback state page (RouteState text and a retry link); nothing to fetch by design."
   }
 }

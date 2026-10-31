@@ -12,6 +12,7 @@ import { step as scale, useScreenUi } from '../../../src/components/screen/Scree
 import { apiFetch, downloadProtected } from '../../../src/utils/api';
 import { isOffline } from '../../../src/utils/isOffline';
 import { logError } from '../../../src/utils/logger';
+import { shareFile } from '../../../src/utils/shareFile';
 import { recordOf } from '../../../src/utils/labMappers';
 
 type Rec = Record<string, unknown>;
@@ -115,8 +116,7 @@ export default function OrderDetails() {
     if (labReport && str(labReport.id)) {
       const uri = await downloadProtected(`/labs/bookings/${encodeURIComponent(id)}/reports/${encodeURIComponent(str(labReport.id))}`, `lab-report-${str(labReport.id)}.pdf`);
       if (uri) {
-        const { shareAsync } = await import('expo-sharing');
-        await shareAsync(uri, { mimeType: str(labReport.mime) || 'application/pdf', dialogTitle: k('diag.order.pdf') });
+        await shareFile(uri, str(labReport.mime) || 'application/pdf', k('diag.order.pdf'));
         return;
       }
       showLocalizedAlert(k('diag.order.noReportTitle'), k('diag.order.noReportBody'));
