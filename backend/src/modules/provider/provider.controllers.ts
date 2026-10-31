@@ -7,7 +7,7 @@ import { isProviderRole } from '../../common/enums';
 import { Controller, Post, Get, Patch, Put, Delete, Body, Param, Query, Req, Inject } from '@nestjs/common';
 import { ServiceUnavailableException } from '@nestjs/common';
 import { DisableDto, EndConsultationDto, IssueSickLeaveDto, IssueMedicalReportDto, SetAvailDto, PreviewAdHocDto, DispatchDto, WithdrawAliasDto, UploadProfileImageDto, ReplaceImageDto, AssignStaffDto } from './provider.controllers.dto';
-import { RegisterDto, LoginDto, RefreshDto, LogoutDto, SendOtpDto, VerifyEmailDto, ForgotDto, VerifyResetCodeDto, ResetDto, AddPhoneDto, UploadDocDto, UploadDocDto2, UpsertBankDto, SubmitDeltaDto, SubmitDeltaDto2, InviteDto, AcceptDto, UpdateDto2, RejectDeltaDto, RejectDeltaDto2, ApproveDto, RejectDto, NeedsChangesDto, SuspendDto, ReactivateDto, ReviewDocumentDto, AcceptDto2, RejectDto2, StartDto, CompleteDto, CancelDto, UpsertPharmaDto, UpsertLabDto, UpsertLabDto2, UpsertRadDto, UpsertRadDto2, UpsertDocDto, UpsertDocDto2, UpsertHcDto, UpsertHcDto2, UpsertDto, UpsertDto2 } from './provider.controllers.generated.dto';
+import { RegisterDto, LoginDto, RefreshDto, LogoutDto, SendOtpDto, VerifyEmailDto, ForgotDto, VerifyResetCodeDto, ResetDto, AddPhoneDto, UploadDocDto, UploadDocDto2, UpsertBankDto, SubmitDeltaDto, SubmitDeltaDto2, InviteDto, AcceptDto, UpdateDto2, RejectDeltaDto, RejectDeltaDto2, RejectBankDto, LicenseExpiryQueryDto, ApproveDto, RejectDto, NeedsChangesDto, SuspendDto, ReactivateDto, ReviewDocumentDto, AcceptDto2, RejectDto2, StartDto, CompleteDto, CancelDto, UpsertPharmaDto, UpsertLabDto, UpsertLabDto2, UpsertRadDto, UpsertRadDto2, UpsertDocDto, UpsertDocDto2, UpsertHcDto, UpsertHcDto2, UpsertDto, UpsertDto2 } from './provider.controllers.generated.dto';
 import { LedgerService } from '../finance-engine/finance-engine.module';
 import { ChangePasswordDto, UpdateProfileDto, InsuranceCopayDto, SeedUnassignedDto } from './provider.patch.dto';
 import { ProviderAuthService } from './services/provider-auth.service';
@@ -166,6 +166,7 @@ export class ProviderAdminController {
   // Full provider file by USER id (users-management "عرض الملف" — the admin clicks
   // any provider user and must see every registration detail, same as moderation).
   @Get('by-user/:userId') byUser(@CurrentUser() u: any, @Param('userId') userId: string) { return this.svc.detailByUser(u, userId); }
+  @Get('license-expiry') licenseExpiry(@CurrentUser() u: any, @Query() q: LicenseExpiryQueryDto) { return this.svc.licenseExpiryList(u, q); }
   @Get('provider-deltas') getDeltas(@CurrentUser() u: any) { return this.svc.listDeltas(u); }
   @RequirePermissions(Permission.FACILITY_EDIT)
   @Post('provider-deltas/:id/approve') approveDelta(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.approveDelta(u, id); }
@@ -178,6 +179,8 @@ export class ProviderAdminController {
   @Post(':id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() body: RejectDto) { return this.svc.reject(u, id, body); }
   @RequirePermissions(Permission.FACILITY_EDIT)
   @Post(':id/approve-bank') approveBank(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.approveBank(u, id); }
+  @RequirePermissions(Permission.FACILITY_EDIT)
+  @Post(':id/reject-bank') rejectBank(@CurrentUser() u: any, @Param('id') id: string, @Body() body: RejectBankDto) { return this.svc.rejectBank(u, id, body); }
   // B-4 (#940): licence review per document — each licence file is decided
   // on its own instead of bulk-approving everything with the account.
   @RequirePermissions(Permission.FACILITY_EDIT)

@@ -1,6 +1,6 @@
 import { startOnboardingAccount, firstMissingDoc, useStepSaver } from '../registration/kit';
 import type { StepProps, Uploader, RequiredDoc } from '../registration/kit';
-import { DocCard, NoticeSection, useDocumentPicker } from '../registration/WizardParts';
+import { DocCard, LicenseExpiryField, NoticeSection, licenseExpiryError, useDocumentPicker } from '../registration/WizardParts';
 import type { NoticeText } from '../registration/WizardParts';
 import { RegistrationWizard } from '../registration/RegistrationWizard';
 import type { RegistrationProps, WizardConfig } from '../registration/RegistrationWizard';
@@ -37,7 +37,7 @@ interface PharmacyRegData {
   managerName: string; managerPhone: string; managerEmail: string;
   password: string; confirmPass: string; pharmacistName: string;
   // Step 2
-  crNumber: string; mohLicense: string; sfdaNumber: string;
+  crNumber: string; mohLicense: string; sfdaNumber: string; licenseExpiry: string;
   iban: string; accountHolderName: string; taxNumber: string;
   crUri: string; mohUri: string; sfdaUri: string; logoUri: string;
   // Step 3
@@ -66,7 +66,7 @@ const INIT: PharmacyRegData = {
   
   nameAr:'', nameEn:'', type:'', languages: [], managerName:'', managerPhone:'',
   managerEmail:'', password:'', confirmPass:'', pharmacistName:'',
-  crNumber:'', mohLicense:'', sfdaNumber:'', iban:'', taxNumber:'',
+  crNumber:'', mohLicense:'', sfdaNumber:'', licenseExpiry:'', iban:'', taxNumber:'',
   crUri:'', mohUri:'', sfdaUri:'', logoUri:'',
   region:'', city:'', district:'', address:'', deliveryRadius: 0, hasDelivery: false, hasOwnDrivers: false,
   workDays:[], is24_7: false, vacationDate: '',
@@ -134,6 +134,7 @@ async function sendPharmacy(data: PharmacyRegData, uploads: Uploader): Promise<v
       cr_number: data.crNumber,
       moh_license_number: data.mohLicense,
       sfda_license_number: data.sfdaNumber,
+      license_expiry_date: data.licenseExpiry,
       tax_number: data.taxNumber,
       license_documents: docs,
       logo,
@@ -328,6 +329,7 @@ function PStep2Legal({ data, update, submitRef, uploads }: StepProps<PharmacyReg
     if (!Validate.cr(data.crNumber)) e.cr = AR?'السجل التجاري 10 أرقام':'CR must be 10 digits';
     if (!data.mohLicense.trim()) e.moh = AR?'مطلوب':'Required';
     if (!data.sfdaNumber.trim()) e.sfda = AR?'رقم SFDA مطلوب':'SFDA number required';
+    const expiryErr = licenseExpiryError(data.licenseExpiry, AR); if (expiryErr) e.expiry = expiryErr;
     if (!Validate.iban(data.iban)) e.iban = AR?'رقم الآيبان غير صحيح':'Invalid IBAN';
     setErrs(e); return Object.keys(e).length === 0;
   };
@@ -363,6 +365,7 @@ function PStep2Legal({ data, update, submitRef, uploads }: StepProps<PharmacyReg
       <NInput label={AR?'رقم السجل التجاري CR':'CR Number'} placeholder="1234567890" value={data.crNumber} onChange={v=>update({crNumber:v.replace(/\D/g,'')})} required error={errs.cr} kbType="numeric" maxLen={10} />
       <NInput label={AR?'رقم ترخيص وزارة الصحة MOH':'MOH License Number'} placeholder="MOH-PHR-XXXXX" value={data.mohLicense} onChange={v=>update({mohLicense:v})} required error={errs.moh} hint={AR?'ترخيص الصيدلية من وزارة الصحة السعودية':'Saudi Ministry of Health pharmacy license'} />
       <NInput label={AR?'رقم ترخيص SFDA (هيئة الغذاء والدواء)':'SFDA License Number'} placeholder="SFDA-XXXXX" value={data.sfdaNumber} onChange={v=>update({sfdaNumber:v})} required error={errs.sfda} hint={AR?'ترخيص صرف الأدوية من هيئة الغذاء والدواء':'Saudi Food and Drug Authority license'} />
+      <LicenseExpiryField value={data.licenseExpiry} onChange={v=>update({licenseExpiry:v})} error={errs.expiry} />
       <NInput label={AR?'رقم الآيبان IBAN':'Bank IBAN'} placeholder="SA0000000000000000000000" value={data.iban} onChange={v=>update({iban:v.toUpperCase().replace(/\s/g,'')})} required error={errs.iban} maxLen={24} hint={AR?'SA + 22 رقم — لاستلام المدفوعات':'SA + 22 digits — to receive payments'} />
       <NInput label={AR?'الرقم الضريبي VAT (اختياري)':'VAT Number (Optional)'} placeholder="300XXXXXXXXX003" value={data.taxNumber} onChange={v=>update({taxNumber:v})} maxLen={15} />
 
