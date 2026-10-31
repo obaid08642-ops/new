@@ -140,8 +140,8 @@ esac
 
     def test_a_suspect_small_dump_is_never_counted_as_the_copy_that_stays_and_never_deleted(self):
         day = 24 * 60
-        self.make("nabd_x_1.gz.gpg", 300 * MB, 1 * day); self.make("nabd_x_2.gz.gpg", 290 * MB, 2 * day); self.make("nabd_x_3.gz.gpg", 280 * MB, 3 * day)
-        self.make("nabd_x_4.gz.gpg", 3 * MB, 120)                                                  # 2026-10-31: 3.5 MB next to 354 MB; it must not push a good dump out
+        self.make("nabd_x_1.gz.gpg", 1 * day, 300 * MB); self.make("nabd_x_2.gz.gpg", 2 * day, 290 * MB); self.make("nabd_x_3.gz.gpg", 3 * day, 280 * MB)
+        self.make("nabd_x_4.gz.gpg", 120, 3 * MB)                                                  # 2026-10-31: 3.5 MB next to 354 MB; it must not push a good dump out
         p = self.run_task(apply=True)
         left = self.left()
         self.assertIn("nabd_x_4.gz.gpg", left)                                                     # evidence is kept
