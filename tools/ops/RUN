@@ -1,7 +1,6 @@
-# 2026-10-31 lead reviewer: run 71.
-# Run 70 (read-only): the host already has 4 GB swap (no swap task needed). The 491 OOM kills in 3 h were ALL meilisearch hitting its OWN
-# 640 MB limit (CONSTRAINT_MEMCG, 782 restarts): a crash loop, not the host. mongod was not killed in the window. Disk is at 91% (3.6 GB free).
-# Old checkouts: nabdah-backend and Napd-admin are compose build contexts (IN USE, left alone); patient-web is UNREFERENCED (967 MB).
-# 1. 97d-old-checkouts APPLY: re-proves each directory at that moment, archives patient-web without node_modules to the backups dir,
-#    reads the archive back, then deletes it (frees about 0.95 GB). The two in-use directories are never touched.
-97d-old-checkouts
+# 2026-10-31 lead reviewer: run 72 (read-only + dry run; nothing is changed).
+# Run 70: meilisearch crash loop (782 restarts, its own 640 MB limit). #2261 (approved) stops the boot re-index loop; this run measures first.
+# 1. 98d-meili-state (READ-ONLY, #2262): restarts, limit, indexing settings, data size vs used, documents per index, task queue by status.
+# 2. 98e-build-contexts DRY RUN (#2262): node_modules sizes in the two build contexts and whether .dockerignore excludes them.
+98d-meili-state
+98e-build-contexts
