@@ -13,7 +13,11 @@ import { useSocket } from '../../src/context/SocketContext';
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
 import { addIncoming, applyState, chronological, confirmSent, fromServer, type ChatMsg, type ServerMsg, type StateEvent } from '../../src/chat/chatState';
-import { enqueue, flush, forThread, remove, type OutboxItem } from '../../src/chat/outbox';
+import { enqueue, forThread, isDead, resetAttempts, type OutboxItem } from '../../src/chat/outbox';
+import { flushOutbox, onOutboxEvent } from '../../src/chat/outboxRunner';
+import { MediaScanWatch } from '../../src/chat/MediaScanWatch';
+import { ScanStatusBadge } from '../../src/components/ScanStatusBadge';
+import type { ScanState } from '../../src/utils/scanStatus';
 import { pickLocalized } from '../../src/utils/localize';
 import { dateLocaleFor } from '../../src/utils/dates';
 
@@ -67,6 +71,8 @@ export default function ChatWithDoctorScreen() {
   const [mode, setMode] = useState<VisitMode | null>(null);
   const [readOnly, setReadOnly] = useState(false);
   const [attaching, setAttaching] = useState(false);
+  // attachments that are being scanned (pending) or were refused by the scan (rejected), by media id
+  const [scanning, setScanning] = useState<Record<string, ScanState>>({});
   // GET /chat/threads/:id/permissions: the server's rules for this thread (decision 24); null until it answers or if it fails.
   const [perms, setPerms] = useState<ThreadPermissions | null>(null);
   const scroller = useRef<ScrollViewInstance>(null);
@@ -136,7 +142,7 @@ export default function ChatWithDoctorScreen() {
           const known = new Set(loaded.map((m) => m.clientId).filter(Boolean));
           const extra: ChatMsg[] = queued
             .filter((q) => !known.has(q.clientId))
-            .map((q) => ({ id: q.clientId, clientId: q.clientId, sender: 'me' as const, text: q.type === 'voice' ? '' : q.body, time: stamp(q.createdAt), at: q.createdAt, kind: q.type, queued: true }));
+            .map((q) => ({ id: q.clientId, clientId: q.clientId, sender: 'me' as const, text: q.type === 'voice' ? '' : q.body, time: stamp(q.createdAt), at: q.createdAt, kind: q.type, queued: !isDead(q), failed: isDead(q) }));
           setMessages([...loaded, ...extra]);
         });
       })
@@ -192,55 +198,42 @@ export default function ChatWithDoctorScreen() {
     return true;
   };
 
-  /** One attempt to deliver a queued item: upload the file if it has one, then post with the item's client id (the server keeps one message per id). */
-  const deliver = async (item: OutboxItem) => {
-    let payload: Record<string, unknown> = { body: item.body, type: item.type };
-    if (item.asset) {
-      const form = new FormData();
-      form.append('file', { uri: item.asset.uri, name: item.asset.name, type: item.asset.mime } as unknown as Blob);
-      form.append('purpose', 'chat');
-      form.append('thread_id', item.threadId);
-      const up = await apiFetch<{ id?: string }>('/media/upload', { method: 'POST', body: form });
-      if (!up?.id) throw new Error('upload_failed');
-      payload = {
-        body: item.type === 'voice' ? '' : item.asset.name,
-        type: item.type,
-        media_ids: [up.id],
-        attachment_mime: item.asset.mime,
-        attachment_name: item.asset.name,
-        ...(item.asset.size ? { attachment_size: item.asset.size } : {}),
-        ...(item.durationSeconds ? { duration_seconds: item.durationSeconds } : {}),
-      };
-    }
-    const res = await apiFetch<{ id?: string; data?: { id?: string } }>(`/chat/threads/${item.threadId}/messages`, { method: 'POST', body: JSON.stringify({ ...payload, client_message_id: item.clientId }) });
-    setMessages((prev) => confirmSent(prev, item.clientId, (res?.data || res)?.id));
-  };
-
-  /** A failed send: no connection keeps it queued for later; a closed conversation drops it; anything else shows Retry. */
-  const sendFailed = (item: OutboxItem, e: unknown) => {
-    const offline = e instanceof Error && e.message === 'OFFLINE_ERROR';
-    if (offline) {
-      setMessages((prev) => prev.map((m) => (m.clientId === item.clientId ? { ...m, pending: false, failed: false, queued: true } : m)));
-      return;
-    }
-    const closed = closedByServer(e);
-    if (closed) void remove(item.clientId);
-    setMessages((prev) => prev.map((m) => (m.clientId === item.clientId ? { ...m, pending: false, queued: false, failed: true } : m)));
-    if (!closed) {
-      const media = item.type !== 'text';
+  // A queued message is sent by the shared outbox runner (src/chat/outboxRunner.ts), one at a time and in the order written, also when
+  // this screen is closed. This screen only shows what happens to the messages of its thread.
+  useEffect(() => {
+    return onOutboxEvent((e) => {
+      if (e.item.threadId !== threadRef.current) return;
+      const id = e.item.clientId;
+      if (e.type === 'sent') {
+        setMessages((prev) => confirmSent(prev, id, e.serverId));
+        return;
+      }
+      if (e.kind === 'transient') {
+        // no connection: it waits, shown as queued
+        setMessages((prev) => prev.map((m) => (m.clientId === id ? { ...m, pending: false, failed: false, queued: true } : m)));
+        return;
+      }
+      if (e.kind === 'closed') {
+        closedByServer(e.error);
+        setMessages((prev) => prev.map((m) => (m.clientId === id ? { ...m, pending: false, queued: false, failed: true } : m)));
+        return;
+      }
+      if (!e.dead) {
+        // the server refused it: it is tried again (up to MAX_ATTEMPTS) before it stops blocking the messages behind it
+        setMessages((prev) => prev.map((m) => (m.clientId === id ? { ...m, pending: false, failed: false, queued: true } : m)));
+        return;
+      }
+      setMessages((prev) => prev.map((m) => (m.clientId === id ? { ...m, pending: false, queued: false, failed: true } : m)));
+      const media = e.item.type !== 'text';
       showLocalizedAlert(k(media ? 'consult.chat.attachFailedTitle' : 'consult.chat.failedTitle'), k(media ? 'consult.chat.attachFailedBody' : 'consult.chat.failedBody'));
-    }
-  };
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const submit = async (item: OutboxItem) => {
     setMessages((prev) => [...prev, { id: item.clientId, clientId: item.clientId, sender: 'me', text: item.type === 'voice' ? '' : item.asset?.name ?? item.body, time: stamp(item.createdAt), at: item.createdAt, kind: item.type, pending: true }]);
     await enqueue(item);
-    try {
-      await deliver(item);
-      await remove(item.clientId);
-    } catch (e) {
-      sendFailed(item, e);
-    }
+    void flushOutbox();
   };
 
   const send = async () => {
@@ -268,24 +261,16 @@ export default function ChatWithDoctorScreen() {
     }
   };
 
-  /** Tap on a failed message: the same item goes out again with the same client id, so the server never stores it twice. */
+  /** Tap on a failed message: it gets its attempts back and goes out again with the same client id, so the server never stores it twice. */
   const retry = async (clientId: string) => {
-    const item = (await forThread(threadId)).find((i) => i.clientId === clientId);
-    if (!item) return;
+    await resetAttempts(clientId);
     setMessages((prev) => prev.map((m) => (m.clientId === clientId ? { ...m, pending: true, failed: false, queued: false } : m)));
-    try {
-      await deliver(item);
-      await remove(clientId);
-    } catch (e) {
-      sendFailed(item, e);
-    }
+    void flushOutbox();
   };
 
-  // the connection is back (or the thread just opened): queued messages go out in the order they were written
+  // the thread just opened or the connection is back: send what is queued (the runner also does this when the screen is closed)
   useEffect(() => {
-    if (!threadId || !isConnected) return;
-    void flush(threadId, deliver, sendFailed);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (threadId && isConnected) void flushOutbox();
   }, [threadId, isConnected]);
 
   /** Photo or file: pick, upload to the media store for this thread, then send it as a message that carries the media id. */
@@ -326,8 +311,12 @@ export default function ChatWithDoctorScreen() {
       const res = await apiFetch<{ url?: string }>(`/media/${encodeURIComponent(mediaId)}/url`);
       if (res?.url) await Linking.openURL(res.url);
       else throw new Error('no_url');
-    } catch {
-      showLocalizedAlert(k('consult.chat.attachFailedTitle'), k('consult.chat.openAttachmentFailed'));
+    } catch (e) {
+      // a file still being scanned (423) or one the scan refused is a state of the attachment, not an error
+      const message = e instanceof Error ? e.message : '';
+      if (message === 'file_pending_scan') setScanning((prev) => ({ ...prev, [mediaId]: 'pending' }));
+      else if (message === 'file_infected') setScanning((prev) => ({ ...prev, [mediaId]: 'rejected' }));
+      else showLocalizedAlert(k('consult.chat.attachFailedTitle'), k('consult.chat.openAttachmentFailed'));
     }
   };
 
@@ -438,10 +427,14 @@ export default function ChatWithDoctorScreen() {
                 <View key={m.id} style={{ alignItems: mine ? 'flex-end' : 'flex-start', opacity: m.pending ? 0.6 : 1 }}>
                   <View style={{ maxWidth: '78%', borderRadius: 18, padding: 12, backgroundColor: m.failed ? c.action.danger.bg : mine ? c.action.primary.bg : c.bg.surface, borderWidth: mine ? 0 : 1, borderColor: c.border.hairline }}>
                     {m.kind && m.kind !== 'text' ? (
-                      <Pressable accessibilityRole="button" accessibilityLabel={`${attachmentLabel(m.kind)} ${m.text}`.trim()} disabled={!m.mediaId} onPress={() => m.mediaId && void openMedia(m.mediaId)} style={{ minHeight: 44, justifyContent: 'center' }}>
-                        <Text style={{ ...scale(t, 'small', 'bold'), color: fg, ...flow }}>{attachmentLabel(m.kind)}</Text>
-                        {m.text ? <Text style={{ ...scale(t, 'meta', 'regular'), color: fg, ...flow }}>{m.text}</Text> : null}
-                      </Pressable>
+                      <>
+                        <Pressable accessibilityRole="button" accessibilityLabel={`${attachmentLabel(m.kind)} ${m.text}`.trim()} disabled={!m.mediaId} onPress={() => m.mediaId && void openMedia(m.mediaId)} style={{ minHeight: 44, justifyContent: 'center' }}>
+                          <Text style={{ ...scale(t, 'small', 'bold'), color: fg, ...flow }}>{attachmentLabel(m.kind)}</Text>
+                          {m.text ? <Text style={{ ...scale(t, 'meta', 'regular'), color: fg, ...flow }}>{m.text}</Text> : null}
+                        </Pressable>
+                        {m.mediaId && scanning[m.mediaId] === 'pending' ? <MediaScanWatch mediaId={m.mediaId} onState={(st) => setScanning((prev) => { const next = { ...prev }; if (st === 'ok') delete next[m.mediaId as string]; else next[m.mediaId as string] = st; return next; })} /> : null}
+                        {m.mediaId && scanning[m.mediaId] === 'rejected' ? <ScanStatusBadge state="rejected" testID={`chat-scan-${m.mediaId}`} /> : null}
+                      </>
                     ) : (
                       <Text style={{ ...scale(t, 'small', 'regular'), lineHeight: 20, color: fg, ...flow }}>{m.text}</Text>
                     )}
