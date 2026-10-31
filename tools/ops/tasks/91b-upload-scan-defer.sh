@@ -18,7 +18,7 @@
 # Not touched: the ClamAV container (a `docker compose up -d` of the deploy script starts it again; with CLAMAV_ON_DEMAND=1 the window stops it when idle).
 # The clients must handle the "being checked" state (423 file_pending_scan, features.uploads_pending_scan) before this is applied.
 set -u
-APPLY="yes"
+APPLY=""
 ROLLBACK=""
 D=${OPS_DEPLOY_DIR:-/opt/nabdah/deploy}
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}
