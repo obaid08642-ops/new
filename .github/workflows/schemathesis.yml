@@ -7,6 +7,8 @@ name: Schemathesis fuzz
 # contract path, and runs it. A missing harness fails LOUDLY with the
 # contract text — never a silent pass.
 on:
+  # Fuzzing the whole API is slow and does not change with a docs, app or web edit: it runs on main, every night and by hand, and on a pull
+  # request only when the server code or the harness changes (not for a spec file, a test or a document under backend/).
   push:
     branches: [main]
     paths:
@@ -14,16 +16,23 @@ on:
       - '.github/workflows/schemathesis.yml'
   pull_request:
     paths:
-      - 'backend/**'
+      - 'backend/src/**'
+      - '!backend/src/**/*.spec.ts'
+      - 'backend/scripts/schemathesis_fuzz.sh'
+      - 'backend/openapi.json'
+      - 'backend/package-lock.json'
       - '.github/workflows/schemathesis.yml'
+  schedule:
+    - cron: '40 1 * * *'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: schemathesis-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # a newer push to the same PR replaces the older run; a run on main is never cancelled
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   fuzz:

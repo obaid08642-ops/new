@@ -1,0 +1,13 @@
+{
+  "_doc": "Which changed files make which CI suites run on a pull request. Anything that matches no group (docs, deploy, ops tools, audit notes) runs no app, backend or live suite. Push, schedule and manual runs always run everything. A workflow that gates on a group lists its own file under it, so editing the workflow tests the workflow.",
+  "groups": {
+    "backend": ["backend/**", "tools/audit/**", "tools/live/**", ".github/actions/**", ".github/workflows/patient-production-ci.yml", "tools/ci/**"],
+    "web": ["patient-web/**", "packages/**", "tools/design/**", "tools/a11y/**", ".github/actions/**", ".github/workflows/patient-production-ci.yml", "tools/ci/**"],
+    "app": ["patient-app/**", "packages/**", "tools/design/**", ".github/actions/**", ".github/workflows/patient-production-ci.yml", "tools/ci/**"],
+    "provider": ["provider-app/**", "packages/**", ".github/actions/**", ".github/workflows/patient-production-ci.yml", "tools/ci/**"],
+    "admin": ["admin/**", "packages/**", ".github/actions/**", ".github/workflows/patient-production-ci.yml", "tools/ci/**"],
+    "design": ["patient-web/**", "patient-app/**", "packages/**", "tools/design/**", "docs/design/**", ".github/actions/**", ".github/workflows/patient-production-ci.yml", "tools/ci/**"],
+    "live": ["backend/**", "admin/**", "patient-web/**", "packages/**", "tools/live/**", "tools/a11y/**", ".github/actions/**", ".github/workflows/live-gate.yml", "tools/ci/**"],
+    "acceptance": ["backend/**", ".github/actions/**", ".github/workflows/acceptance.yml", "tools/ci/**"]
+  }
+}

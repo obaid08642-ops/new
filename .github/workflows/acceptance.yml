@@ -13,11 +13,35 @@ permissions:
   contents: read
 
 concurrency:
-  group: acceptance-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # a newer push to the same PR replaces the older run; a run on main is never cancelled
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # Which suites does this pull request need (tools/ci/path_groups.json)? Docs-only and ops-only changes need none; a push, a schedule and a
+  # manual run always run everything. Gated jobs are skipped, and a skipped job reports success, so the required checks still pass.
+  changes:
+    name: changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.p.outputs.backend }}
+      web: ${{ steps.p.outputs.web }}
+      app: ${{ steps.p.outputs.app }}
+      provider: ${{ steps.p.outputs.provider }}
+      admin: ${{ steps.p.outputs.admin }}
+      design: ${{ steps.p.outputs.design }}
+      live: ${{ steps.p.outputs.live }}
+      acceptance: ${{ steps.p.outputs.acceptance }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      - id: p
+        uses: ./.github/actions/changed-paths
+
   acceptance:
+    needs: changes
+    if: needs.changes.outputs.acceptance == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     defaults:

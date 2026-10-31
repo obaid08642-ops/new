@@ -12,16 +12,40 @@ permissions:
   contents: read
 
 concurrency:
-  group: live-gate-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # a newer push to the same PR replaces the older run; a run on main is never cancelled
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # Which suites does this pull request need (tools/ci/path_groups.json)? Docs-only and ops-only changes need none; a push, a schedule and a
+  # manual run always run everything. Gated jobs are skipped, and a skipped job reports success, so the required checks still pass.
+  changes:
+    name: changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.p.outputs.backend }}
+      web: ${{ steps.p.outputs.web }}
+      app: ${{ steps.p.outputs.app }}
+      provider: ${{ steps.p.outputs.provider }}
+      admin: ${{ steps.p.outputs.admin }}
+      design: ${{ steps.p.outputs.design }}
+      live: ${{ steps.p.outputs.live }}
+      acceptance: ${{ steps.p.outputs.acceptance }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      - id: p
+        uses: ./.github/actions/changed-paths
+
   # The journeys are split over GATE_SHARDS jobs, each with its own stack (MongoDB, Redis, backend, admin, patient-web): they take about 78
   # minutes in one job (measured on run 40837646796), and every merge waits for them. tools/live/gate_shard.py gives each journey to exactly
   # one shard (balanced by gate_weights.txt, proved by test_gate_shards.py); the job `live` below is the required check and passes only
   # when every shard passed.
   live-shard:
     name: live gate (shard ${{ matrix.shard }}/5)
+    needs: changes
+    if: needs.changes.outputs.live == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 75
     strategy:
@@ -133,7 +157,7 @@ jobs:
 
   live:
     name: live
-    needs: live-shard
+    needs: [changes, live-shard]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -145,5 +169,6 @@ jobs:
         run: python3 tools/live/test_gate_shards.py
       - name: Every shard passed
         run: |
-          echo "shards: ${{ needs.live-shard.result }}"
-          [ "${{ needs.live-shard.result }}" = success ]
+          echo "shards: ${{ needs.live-shard.result }} (live suite needed: ${{ needs.changes.outputs.live }})"
+          # skipped is a pass only when the paths said this pull request needs no live gate; a failed or cancelled shard (or a failed changes job) is a failure
+          [ "${{ needs.changes.result }}" = success ] && { [ "${{ needs.live-shard.result }}" = success ] || { [ "${{ needs.live-shard.result }}" = skipped ] && [ "${{ needs.changes.outputs.live }}" = false ]; }; }
