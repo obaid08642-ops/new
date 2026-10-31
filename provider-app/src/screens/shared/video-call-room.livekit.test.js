@@ -54,4 +54,10 @@ describe('VideoCallRoom — real LiveKit binding, no placeholder', () => {
     // message, not a room that pretends to be connected.
     expect(source).toContain('LIVEKIT_NATIVE_OK');
   });
+
+  it('a retry or reconnect joins the same call session and never opens a second room', () => {
+    // the session is initiated only while there is none; later connects reuse it
+    expect(source).toMatch(/if \(!sessionId\) \{[\s\S]*?\/calls\/initiate/);
+    expect(source).not.toContain('enableCameraAndMicrophone');
+  });
 });

@@ -5,7 +5,8 @@
  */
 import { suspendAccountForLicense } from '../provider-onboarding/facility-license';
 import { recordAudit } from '../../common/audit-record';
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, Optional } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { UserRole } from '../../common/enums';
@@ -16,7 +17,7 @@ import * as ExcelJS from 'exceljs';
 @Injectable()
 export class LegalEnterpriseService {
   private readonly logger = new Logger('LegalEnterprise');
-  constructor(@InjectConnection() private readonly conn: Connection) {}
+  constructor(@InjectConnection() private readonly conn: Connection, @Optional() private readonly events?: EventEmitter2) {}
 
   private get acceptances() { return this.conn.collection('legal_acceptances'); }
   private get policies() { return this.conn.collection('legal_policies'); }
@@ -272,6 +273,7 @@ export class LegalEnterpriseService {
         await this.notify(p.user_id || p.account_id, 'تعليق الحساب — انتهاء الترخيص',
           'تم تعليق حسابك تلقائياً لانتهاء الترخيص المهني. يرجى تجديد الترخيص ورفعه لإعادة التفعيل.',
           { reason: 'license_expired', profile_id: p.id });
+        this.events?.emit('provider.license_suspended', { account_id: p.account_id || p.user_id, profile_id: p.id });   // the app's bell and a push
         this.logger.warn(`Provider ${p.id} auto-suspended (license expired)`);
       } else if (daysLeft <= thresholds[0]) {
         // The nearest threshold at or above the days left (29 days left = the 30-day warning), so a missed run does not skip a warning.
@@ -284,6 +286,7 @@ export class LegalEnterpriseService {
           await this.notify(p.user_id || p.account_id, `تنبيه: ترخيصك ينتهي خلال ${daysLeft} يوم`,
             `ترخيصك المهني ينتهي في ${new Date(p.license_expiry_date).toLocaleDateString('ar-SA')}. جدّده لتجنب التعليق التلقائي.`,
             { reason: 'license_expiring', days_left: daysLeft, profile_id: p.id });
+          this.events?.emit('provider.license_expiring', { account_id: p.account_id || p.user_id, profile_id: p.id, days_left: daysLeft, bucket, expiry: expiryKey.slice(0, 10) });
           const reset = sameExpiry ? {} : Object.fromEntries(thresholds.map((t) => [`license_warn_${t}d`, false]));
           await this.conn.collection('provider_profiles').updateOne({ _id: p._id }, { $set: { ...reset, [flag]: true, license_warn_expiry: expiryKey } });
         }

@@ -14,6 +14,7 @@ const build = (opts: { profile?: any; equipment?: boolean; orderingItem?: boolea
   svc.svcModel = { db: { collection: (name: string) => ({ findOne: async () => (name === 'provider_ordering_items' && opts.orderingItem ? { catalog_id: 'scan-1' } : null) }) } };
   svc.bkgModel = { findOne: () => ({ lean: async () => null }), create: jest.fn(async (doc: any) => { created.push(doc); return doc; }) };
   svc.events = { emit: jest.fn() };
+  svc.engine = { announceCreated: jest.fn(async () => undefined) };
   return { svc, created };
 };
 const body = (over: any = {}) => ({ service_id: 'scan-1', scheduled_at: when(), location_type: 'facility', payment_method: 'card', ...over });
@@ -23,6 +24,12 @@ describe('radiology booking: the provider of a quote', () => {
     const { svc, created } = build({ profile: { account_id: 'acc-1' }, orderingItem: true });
     await svc.book(PATIENT, body({ provider_id: 'profile-1' }));
     expect(created[0]).toMatchObject({ provider_account_id: 'acc-1', total: 300 });
+  });
+
+  it('the centre is told about the new booking (bell + push), not only the patient', async () => {
+    const { svc, created } = build({ profile: { account_id: 'acc-1' }, orderingItem: true });
+    await svc.book(PATIENT, body({ provider_id: 'profile-1' }));
+    expect(svc.engine.announceCreated).toHaveBeenCalledWith(expect.objectContaining({ kind: 'radiology', entity_id: created[0].id, patient_account_id: 'pat-1' }));
   });
 
   it('a centre that declared the scan in its ordering catalogue may be booked even without the equipment list', async () => {

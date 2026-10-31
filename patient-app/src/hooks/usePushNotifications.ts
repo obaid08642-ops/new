@@ -75,6 +75,10 @@ export function translateBackendRoute(route: string): { pathname: string; params
   if (clean === '/ai/skin-analysis') return { pathname: '/ai' };
   if (clean === '/emergency/sos' || clean === '/emergency/sos-active' || clean === '/emergency/tracking') return { pathname: '/emergency' };
 
+  // The backend's appointment target (notification-target.ts): /consultations/appointments/:id opens that appointment
+  m = clean.match(/^\/consultations\/appointments\/([^/]+)$/);
+  if (m) return { pathname: '/consultations/appointment-detail', params: { appointmentId: m[1] } };
+
   // Routes that already exist verbatim in the app
   if (clean === '/consultations/appointments') return { pathname: clean };
   if (clean === '/diagnostics/results-history') return { pathname: clean };

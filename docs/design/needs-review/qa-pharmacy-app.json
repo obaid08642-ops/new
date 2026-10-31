@@ -1,0 +1,35 @@
+[
+  {
+    "batch": 0,
+    "app": "patient-app",
+    "screen": "/pharmacy/payment",
+    "element": "Pay button",
+    "file": "patient-app/app/pharmacy/payment.tsx",
+    "line": 99,
+    "found": "[client] The payment idempotency key is kept after a request with no answer; if the patient then picks another method the same key goes with a different body and the backend answers idempotency_key_reused_with_different_request. Key should be per method. (backend: backend/src/common/idempotency.interceptor.ts:56)",
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
+  },
+  {
+    "batch": 0,
+    "app": "patient-app",
+    "screen": "/pharmacy/insurance-decision",
+    "element": "Reason line per item",
+    "file": "patient-app/app/pharmacy/insurance-decision.tsx",
+    "line": 265,
+    "found": "[backend] The insurer's rejection reason is free text from the insurer, shown as given; it is not translated and may not be in the reader's language. (backend: backend/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts:158)",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": 0,
+    "app": "patient-app",
+    "screen": "/pharmacy/pharmacist-chat",
+    "element": "Send button",
+    "file": "patient-app/app/pharmacy/pharmacist-chat.tsx",
+    "line": 233,
+    "found": "[backend] PostDto.text has no @MaxLength; the 1000-character limit exists only in the app. (backend: backend/src/modules/pharmacy/pharmacy.controllers.dto.ts:475)",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  }
+]

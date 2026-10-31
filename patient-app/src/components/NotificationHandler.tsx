@@ -10,6 +10,7 @@ import { registerForPushNotificationsAsync, initNotificationListeners } from '..
 import { displayNativeIncomingCall } from '../utils/callkeep';
 import { flushMedicationDoseActions, medicationNotificationAction, recordMedicationDoseAction, snoozeMedicationNotificationResponse } from '../utils/medication-notifications';
 import { HttpClient } from '@/services/HttpClient';
+import { translateBackendRoute } from '../hooks/usePushNotifications';
 
 /** Report engagement to the backend → powers admin open-rate / CTR analytics. */
 function trackEngagement(event: 'received' | 'opened' | 'clicked', data: any): void {
@@ -73,8 +74,11 @@ function resolveLegacyRoute(data: any): { pathname: string; params: Record<strin
       return data.appointmentId || data.bookingId
         ? { pathname: '/consultations/appointment-detail', params: { appointmentId: data.appointmentId || data.bookingId } }
         : { pathname: '/consultations/appointments', params: {} };
-    case 'order':
-      return { pathname: '/pharmacy/order-tracking', params: { orderId: data.orderId } };
+    case 'order': {
+      // an order push without an id opens the orders list, not a tracking screen with no order
+      const orderId = data.orderId || data.order_id;
+      return orderId ? { pathname: '/pharmacy/order-tracking', params: { orderId } } : { pathname: '/orders', params: {} };
+    }
     case 'consultation':
       return data.bookingId
         ? { pathname: '/consultations/appointment-detail', params: { appointmentId: data.bookingId } }
@@ -132,6 +136,14 @@ export default function NotificationHandler() {
       if (typeof data.screen === 'string' && ALLOWED_SCREENS.has(data.screen)) {
         router.push({ pathname: data.screen as any, params: (data.params as any) || {} });
         return;
+      }
+      // A backend route that is not a screen name (/orders/:id/tracking, /consultations/appointments/:id): the closed translation table
+      if (typeof data.screen === 'string') {
+        const translated = translateBackendRoute(data.screen);
+        if (translated) {
+          router.push({ pathname: translated.pathname as any, params: { ...translated.params, ...(data.params && typeof data.params === 'object' ? (data.params as Record<string, string>) : {}) } });
+          return;
+        }
       }
       const legacy = resolveLegacyRoute(data);
       if (legacy) {
