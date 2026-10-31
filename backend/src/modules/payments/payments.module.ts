@@ -2,6 +2,7 @@ import { Module, Injectable, Controller, Post, Get, Body, Param, Logger, BadRequ
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Cron } from '@nestjs/schedule';
 import { Transaction, TransactionSchema } from '../../schemas/transaction.schema';
 import { DiagnosticsIntentDto, IntentMethodDto, RefundPaymentDto } from './payments.dto';
 import { OrderSchema } from '../../schemas/order.schema';
@@ -20,6 +21,7 @@ import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
 import { CircuitBreakerService } from '../../common/circuit-breaker.service';
 import { externalFetch, externalUnavailable, runExternalCall, timedFetch } from '../../common/external-call';
 import * as crypto from 'crypto';
+import { backgroundProviders } from '../../common/process-role';
 import { Request } from 'express';
 import { UserRole } from '../../common/enums';
 import { moyasarBase } from '../../common/moyasar-base';
@@ -795,6 +797,63 @@ export class PaymentsWebhookController {
   }
 }
 
+export function paymentWindowMinutes(env: NodeJS.ProcessEnv = process.env): number {
+  const n = Number(env.PAYMENT_WINDOW_MINUTES);
+  return Number.isFinite(n) && n >= 5 && n <= 1440 ? n : 30;
+}
+
+/**
+ * A consultation paid by card stays PENDING (and keeps its slot) until the payment arrives. When the patient abandons
+ * the checkout, or the card keeps failing, nothing ever freed that slot. This sweeper asks the gateway one last time,
+ * then cancels the unpaid booking and its open payment attempts and announces `payment.abandoned`.
+ */
+@Injectable()
+export class PaymentAbandonService {
+  private readonly logger = new Logger('PaymentAbandon');
+  private running = false;
+
+  constructor(
+    @InjectModel('Transaction') private readonly txns: Model<any>,
+    @InjectModel(Appointment.name) private readonly appts: Model<any>,
+    private readonly payments: PaymentsService,
+    private readonly events: EventEmitter2,
+  ) {}
+
+  @Cron('*/5 * * * *')
+  async sweepScheduled() {
+    if (this.running) return;
+    this.running = true;
+    try { await this.sweep(); } catch (e: any) { this.logger.warn(`abandoned-payment sweep failed: ${String(e?.message || e).slice(0, 200)}`); } finally { this.running = false; }
+  }
+
+  async sweep(now: Date = new Date()): Promise<{ released: string[]; settled: string[] }> {
+    const cutoff = new Date(now.getTime() - paymentWindowMinutes() * 60_000);
+    const stale: any[] = await this.appts.find(
+      { status: 'PENDING', payment_method: 'card', payment_status: { $ne: 'paid' }, createdAt: { $lt: cutoff } },
+      { id: 1, patient_id: 1 },
+    ).limit(100).lean();
+    const released: string[] = [];
+    const settled: string[] = [];
+    for (const appt of stale) {
+      const open: any[] = await this.txns.find({ booking_kind: 'consultation', booking_id: { $eq: appt.id }, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
+      for (const t of open) {
+        // The patient may have paid and the webhook been lost: the gateway answer settles it before anything is cancelled.
+        await this.payments.verifyPayment({ id: t.patient_id, role: 'system' }, t.id).catch(() => null);
+      }
+      const fresh: any = await this.appts.findOne({ id: appt.id }, { status: 1, payment_status: 1 }).lean();
+      if (!fresh || fresh.status !== 'PENDING' || fresh.payment_status === 'paid') { settled.push(appt.id); continue; }
+      await this.txns.updateMany(
+        { booking_kind: 'consultation', booking_id: { $eq: appt.id }, status: { $in: ['initiating', 'pending', 'authorized', 'failed'] } },
+        { $set: { status: 'cancelled', failure_reason: 'payment_abandoned' } },
+      );
+      this.events.emit('payment.abandoned', { booking_kind: 'consultation', booking_id: appt.id, patient_id: appt.patient_id });
+      released.push(appt.id);
+    }
+    if (released.length) this.logger.log(`released ${released.length} unpaid consultation slot(s)`);
+    return { released, settled };
+  }
+}
+
 @Module({
   imports: [
     WorkflowEngineModule, RealtimeModule,
@@ -810,7 +869,7 @@ export class PaymentsWebhookController {
     ]),
   ],
   controllers: [PaymentsController, PaymentsWebhookController],
-  providers: [PaymentsService, IdempotencyInterceptor],
+  providers: [PaymentsService, IdempotencyInterceptor, ...backgroundProviders([PaymentAbandonService])],
   exports: [PaymentsService],
 })
 export class PaymentsModule {}

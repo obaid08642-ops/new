@@ -706,6 +706,7 @@ export class LabsService {
     if (!b) throw new NotFoundException();
     if (b.patient_id !== user.id && user.role !== 'admin') throw new NotFoundException();
     if ([LabBookingState.REPORTED, LabBookingState.CANCELLED].includes(b.state)) return b.toObject();
+    const priorState = b.state;
     return await this.engine.apply({
       kind: 'lab', entity_id: b.id, from_domain: b.state, to_domain: LabBookingState.CANCELLED,
       actor_account_id: user.id, actor_role: user.role, patient_account_id: b.patient_id, reason: 'user_cancelled',
@@ -714,7 +715,7 @@ export class LabsService {
         b.state = LabBookingState.CANCELLED;
         await b.save();
         this.events.emit('lab.booking_state_changed', { booking_id: b.id, patient_id: b.patient_id, state: b.state, tracking_id: b.tracking_id });
-        this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id });
+        this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id, prior_state: priorState });
         return b.toObject();
       },
     });
@@ -730,6 +731,7 @@ export class LabsService {
     const allowed = LAB_BOOKING_TRANSITIONS[b.state] || [];
     if (!allowed.includes(to)) throw new BadRequestException(`invalid transition ${b.state} → ${to}`);
     if (b.state === LabBookingState.NEW_REQUEST && to === LabBookingState.CONFIRMED) this.assertConfirmable(b);
+    const priorState = b.state;
     return await this.engine.apply({
       kind: 'lab', entity_id: b.id, from_domain: b.state, to_domain: to,
       actor_account_id: user.id, actor_role: user.role, patient_account_id: b.patient_id, reason: note,
@@ -738,6 +740,8 @@ export class LabsService {
         b.state = to;
         await b.save();
         this.events.emit('lab.booking_state_changed', { booking_id: b.id, patient_id: b.patient_id, state: to, tracking_id: b.tracking_id });
+        // The lab cancelling a paid booking owes the patient the money back, the same as the patient cancelling.
+        if (to === LabBookingState.CANCELLED) this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id, prior_state: priorState });
         return b.toObject();
       },
     });
