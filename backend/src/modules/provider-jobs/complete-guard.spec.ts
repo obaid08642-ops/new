@@ -17,4 +17,11 @@ describe('lab completion needs a result', () => {
     expect(completionBlocker('pharmacy', ServiceState.COMPLETED, {})).toBeNull();
     expect(completionBlocker('nursing', ServiceState.COMPLETED, {})).toBeNull();
   });
+
+  it('radiology completes only after the second person published the report', () => {
+    expect(completionBlocker('radiology', ServiceState.COMPLETED, {})).toBe('radiology_report_not_published');
+    expect(completionBlocker('radiology', ServiceState.COMPLETED, { report_status: 'under_review' })).toBe('radiology_report_not_published');
+    expect(completionBlocker('radiology', ServiceState.COMPLETED, { report_status: 'ready' })).toBeNull();
+    expect(completionBlocker('radiology', ServiceState.IN_PROGRESS, {})).toBeNull();
+  });
 });
