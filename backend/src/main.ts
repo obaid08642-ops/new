@@ -213,6 +213,14 @@ async function bootstrap() {
       req.rawBody = buf.toString();
     }
   }));
+  // LiveKit posts its webhooks as application/webhook+json: parsed here, with the raw bytes kept for the signature check
+  app.use(require('express').json({
+    type: 'application/webhook+json',
+    limit: '1mb',
+    verify: (req: any, res: any, buf: any) => {
+      req.rawBody = buf.toString();
+    }
+  }));
   app.use(require('express').urlencoded({ limit: '25mb', extended: true }));
   // AC-1: OAuth discovery documents live at the host root (RFC 8414, RFC 9728).
   app.setGlobalPrefix('api', {

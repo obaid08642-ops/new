@@ -21,6 +21,9 @@ export const DEFAULT_DELETE_WINDOW_MIN = 60;
 
 // ─── Service ────────────────────────────────────────────────────────────────
 
+/** Message kinds a client may send. */
+const CLIENT_MESSAGE_TYPES = new Set(['text', 'image', 'voice', 'file']);
+
 /** Booking kinds a chat thread may be opened for; 'doctor' is the legacy spelling of 'consultation'. */
 const BOOKING_KINDS = new Set(['pharmacy', 'lab', 'radiology', 'nursing', 'homecare', 'consultation']);
 
@@ -361,6 +364,8 @@ export class ChatService {
       }
     }
 
+    // 'system' is written by the server only; any other string is not a message kind
+    if (body?.type !== undefined && !CLIENT_MESSAGE_TYPES.has(String(body.type))) throw new BadRequestException('invalid_message_type');
     if (!body?.body?.trim() && mediaIds.length === 0) throw new BadRequestException('empty_message');
     if (body.type === 'voice') {
       // A voice note is its recording: no file, or a length outside 1..VOICE_MAX_SECONDS, is not a voice note.
@@ -430,14 +435,16 @@ export class ChatService {
       thread_id: threadId,
       msg_id: msg.id,
       client_message_id: body.client_message_id,
-      body: (body.body || '').slice(0, 120),
+      body: (body.body || '').trim(),
       type: msg.type,
       media_ids: mediaIds,
       sender_id: senderId,
       participant_ids: thread.participant_ids,
       created_at: new Date(),
     };
-    this.bus.emit({
+    // One emit: the event bus stores it and fans it out to every @OnEvent('chat.message_sent') listener (push, in-app notification,
+    // realtime) once. Only when the bus itself fails is the in-process emit used, so the live room still hears the message.
+    const sent = {
       type: 'chat.message_sent',
       entity_type: 'chat_message',
       entity_id: msg.id,
@@ -445,14 +452,10 @@ export class ChatService {
       actor_role: senderRole,
       patient_id: thread.participant_ids[0],
       meta: chatPayload,
-    } as any).catch(() => null);
-    // Realtime fanout — the realtime gateway listens for 'chat.message_sent'
-    // via EventEmitter2 and pushes the message to the thread room + peers.
-    this.events.emit('chat.message_sent', {
-      ...chatPayload,
-      actor_account_id: senderId,
-      actor_role: senderRole,
-      meta: chatPayload,
+    };
+    this.bus.emit(sent as any).catch((err: any) => {
+      this.logger.warn(`chat.message_sent bus emit failed, falling back to the in-process event: ${err?.message}`);
+      this.events.emit('chat.message_sent', sent);
     });
 
     return msg.toObject();
@@ -525,6 +528,12 @@ export class ChatService {
     if (!msg) throw new NotFoundException('message_not_found');
     if (msg.sender_id !== userId) throw new ForbiddenException('not_sender');
     if (msg.is_deleted) throw new BadRequestException('message_deleted');
+    // an edit is a write to the thread: the participant check and the consultation window apply as for a new message
+    const thread = await this.threads.findOne({ id: { $eq: msg.thread_id } });
+    if (!thread) throw new NotFoundException('thread_not_found');
+    this.assertParticipant(thread, userId);
+    const check = await this.verifyCommunicationAllowed(msg.thread_id, userId);
+    if (!check.allowed) throw new ForbiddenException(check.message);
     msg.body = newBody;
     msg.is_edited = true;
     msg.edited_at = new Date();

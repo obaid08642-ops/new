@@ -35,7 +35,9 @@ const none = (phase: ConsultPhase, online: boolean, extra: Partial<ConsultState>
 
 /** The window end: completion + window, or the doctor's one extension when it is later. */
 export function followUpEnd(appt: any, thread: any, followupHours: number): Date {
-  const completedAt = new Date(appt?.completed_at || appt?.updatedAt || Date.now());
+  // completed_at is written on the transition; an older row without it uses the history entry of that transition, never updatedAt (any later edit moves it)
+  const done = Array.isArray(appt?.state_history) ? [...appt.state_history].reverse().find((h: any) => String(h?.state).toUpperCase() === 'COMPLETED') : null;
+  const completedAt = new Date(appt?.completed_at || done?.at || appt?.updatedAt || Date.now());
   const end = new Date(completedAt.getTime() + followupHours * 3_600_000);
   const extended = thread?.extended_until ? new Date(thread.extended_until) : null;
   return extended && extended > end ? extended : end;

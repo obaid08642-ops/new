@@ -96,6 +96,62 @@ describe('LiveKit follow-up ownership fixes', () => {
     expect(token).not.toHaveBeenCalled();
   });
 
+  it('lets the guardian who booked for a family member get the call token', async () => {
+    const findOne = jest.fn().mockReturnValue({
+      lean: jest.fn().mockResolvedValue({
+        id: 'appt-1', patient_id: 'child-1', booked_by_user_id: 'guardian-1', doctor_user_id: 'doctor-1', service_type: 'video',
+        status: 'CONFIRMED', slot_start: new Date().toISOString(),
+      }),
+    });
+    const service: any = new LiveKitService({ findOne } as any, conn, events as any);
+    service.createBookingToken = jest.fn().mockResolvedValue('g-token');
+    service.assertPatientConsent = jest.fn().mockResolvedValue(undefined);
+    await expect(service.issueBookingCallToken('appt-1', { id: 'guardian-1', name: 'Guardian' })).resolves.toMatchObject({ token: 'g-token' });
+    expect(service.createBookingToken).toHaveBeenCalledWith('booking-appt-1', 'guardian-1', 'Guardian');
+  });
+
+  it('lets a patient rejoin after the first 15 minutes while the slot is still running, and refuses long after it ended', async () => {
+    const mk = (startMinAgo: number, durMin: number) => jest.fn().mockReturnValue({
+      lean: jest.fn().mockResolvedValue({
+        id: 'appt-1', patient_id: 'patient-1', doctor_user_id: 'doctor-1', service_type: 'video', status: 'CONFIRMED',
+        slot_start: new Date(Date.now() - startMinAgo * 60_000).toISOString(), slot_end: new Date(Date.now() + (durMin - startMinAgo) * 60_000).toISOString(),
+      }),
+    });
+    const running: any = new LiveKitService({ findOne: mk(25, 30) } as any, conn, events as any);
+    running.createBookingToken = jest.fn().mockResolvedValue('t');
+    running.assertPatientConsent = jest.fn().mockResolvedValue(undefined);
+    await expect(running.issueBookingCallToken('appt-1', { id: 'patient-1' })).resolves.toMatchObject({ token: 't' });
+    const over: any = new LiveKitService({ findOne: mk(60, 30) } as any, conn, events as any);
+    over.createBookingToken = jest.fn();
+    await expect(over.issueBookingCallToken('appt-1', { id: 'patient-1' })).rejects.toThrow(BadRequestException);
+  });
+
+  it('uses the user id as the LiveKit identity and the display name only as the name', async () => {
+    process.env.LIVEKIT_API_KEY = 'k'; process.env.LIVEKIT_API_SECRET = 's'.repeat(32);
+    const service = new LiveKitService({ findOne: jest.fn() } as any, conn, events as any);
+    for (const jwtFor of [await service.createToken('r', 'user-1', 'Ahmed'), await service.createBookingToken('r', 'user-1', 'Ahmed')]) {
+      const p = JSON.parse(Buffer.from(jwtFor.split('.')[1], 'base64url').toString('utf8'));
+      expect(p.sub).toBe('user-1');
+      expect(p.name).toBe('Ahmed');
+    }
+  });
+
+  it('verifies a webhook with the API key and the raw body', async () => {
+    process.env.LIVEKIT_API_KEY = 'devkey'; process.env.LIVEKIT_API_SECRET = 'x'.repeat(32);
+    const { AccessToken } = await import('livekit-server-sdk');
+    const raw = JSON.stringify({ event: 'room_finished', room: { name: 'room-1' } });
+    const sha = require('crypto').createHash('sha256').update(raw).digest('base64');
+    const at = new AccessToken('devkey', 'x'.repeat(32));
+    (at as any).sha256 = sha;
+    const auth = await at.toJwt();
+    const updateMany = jest.fn().mockResolvedValue({});
+    const conn2: any = { collection: jest.fn().mockReturnValue({ updateMany }) };
+    const service = new LiveKitService({ findOne: jest.fn() } as any, conn2, events as any);
+    await expect(service.handleWebhook(JSON.parse(raw), auth, raw)).resolves.toMatchObject({ verified: true, event: 'room_finished' });
+    expect(updateMany).toHaveBeenCalled();
+    await expect(service.handleWebhook(JSON.parse(raw), auth, raw + ' ')).resolves.toMatchObject({ received: false });
+  });
+
   it('creates a booking-room token with a ten-minute expiry', async () => {
     const originalKey = process.env.LIVEKIT_API_KEY;
     const originalSecret = process.env.LIVEKIT_API_SECRET;
@@ -125,7 +181,7 @@ describe('LiveKit follow-up ownership fixes', () => {
 
     await expect(service.issueBookingCallToken('appt-1', { id: 'patient-1', name: 'Patient' }))
       .resolves.toEqual({ provider: 'livekit', token: 'token-1', room: 'booking-appt-1', ice_servers: [], audio_only: false, audio_only_reason: null });
-    expect(service.createBookingToken).toHaveBeenCalledWith('booking-appt-1', 'Patient');
+    expect(service.createBookingToken).toHaveBeenCalledWith('booking-appt-1', 'patient-1', 'Patient');
   });
 
   it('issues a video booking token to the assigned doctor inside the appointment window', async () => {
@@ -140,7 +196,7 @@ describe('LiveKit follow-up ownership fixes', () => {
 
     await expect(service.issueBookingCallToken('appt-1', { id: 'doctor-1', full_name: 'Doctor' }))
       .resolves.toEqual({ provider: 'livekit', token: 'doctor-token', room: 'booking-appt-1', ice_servers: [], audio_only: false, audio_only_reason: null });
-    expect(service.createBookingToken).toHaveBeenCalledWith('booking-appt-1', 'Doctor');
+    expect(service.createBookingToken).toHaveBeenCalledWith('booking-appt-1', 'doctor-1', 'Doctor');
   });
 
   it('advises sound only in the booking token when the platform is under call pressure (the web room reads it)', async () => {
