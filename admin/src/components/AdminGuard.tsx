@@ -55,7 +55,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: '/admin/finance-suite', label: 'المالية والتسويات', permission: 'finance.read' },
       { href: '/admin/disputes', label: 'النزاعات المالية', permission: 'disputes.resolve' },
-      { href: '/admin/payouts', label: 'اعتمادات السحب' },
+      { href: '/admin/payouts', label: 'دفعات المزودين', permission: 'finance.read' },
       { href: '/admin/returns', label: 'طلبات الإرجاع والاسترداد' },
       { href: '/admin/financial-ledger', label: 'دفتر الأستاذ المالي' },
       { href: '/admin/commissions', label: 'العمولات والأستاذ', permission: 'finance.read' },
@@ -156,7 +156,7 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/financial-ledger': 'finance.read',
   '/admin/commissions': 'finance.read',
   '/admin/refund-policy': 'finance.read',
-  '/admin/payouts': 'finance.payout.approve',
+  '/admin/payouts': 'finance.read', // the page reads with finance.read; its approve / pay / reject buttons need finance.payout.approve
   '/admin/returns': 'finance.payout.approve',
   '/admin/disputes': 'disputes.resolve',
   '/admin/provider-moderation': 'facility.edit',

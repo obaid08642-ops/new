@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
 import { DataTable } from '@/components/DataTable';
-import { useCan } from '@/components/AdminGuard';
+import Link from 'next/link';
 
 interface CommissionRow {
   id: string;
@@ -10,14 +10,6 @@ interface CommissionRow {
   baseBill: number;
 }
 
-interface WithdrawalRow {
-  id: string;
-  providerName: string;
-  amount: number;
-  bankName: string;
-  iban: string;
-  status: 'pending' | 'completed' | 'pending_second_approval';
-}
 
 interface WarehouseOrder {
   id: string;
@@ -34,15 +26,12 @@ interface FinanceSummary {
 }
 
 export default function FinancialLedger() {
-  // Executing a withdrawal needs finance.payout.approve (finance.controller); finance.read alone only reads.
-  const canPayout = useCan('finance.payout.approve');
   const [activeTab, setActiveTab] = useState<'ledger' | 'warehouse'>('ledger');
 
   const [commissions, setCommissions] = useState<CommissionRow[]>([]);
-  const [withdrawals, setWithdrawals] = useState<WithdrawalRow[]>([]);
   const [warehouseOrders, setWarehouseOrders] = useState<WarehouseOrder[]>([]);
   const [summary, setSummary] = useState<FinanceSummary | null>(null);
-  const [payoutQueueTotal, setPayoutQueueTotal] = useState<number | null>(null);
+  const [payoutQueueTotal, setPayoutQueueTotal] = useState<number | null>(null); // the open payout requests (the one payouts queue)
   const [financeUnavailable, setFinanceUnavailable] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
@@ -68,13 +57,12 @@ export default function FinancialLedger() {
           setCommissions(data.data || []);
         }
 
-        // Fetch Withdrawals
-        const withRes = await fetchWithAdminGuard(`/api/admin/admin/finance/withdrawals/pending`);
+        // Open payout requests, from the one payouts queue (the page /admin/payouts handles them)
+        const withRes = await fetchWithAdminGuard(`/api/admin/admin/finance/payouts?page=1&limit=1`);
         if (withRes.ok) {
           const data = await withRes.json();
-          const rows = data.data || [];
-          setWithdrawals(rows);
-          setPayoutQueueTotal(rows.reduce((sum: number, w: WithdrawalRow) => sum + (Number(w.amount) || 0), 0));
+          const open = (data.by_state || []).filter((x: { state: string }) => ['PENDING_ADMIN_APPROVAL', 'AWAITING_SECOND_APPROVAL', 'APPROVED_FOR_PAYOUT'].includes(x.state));
+          setPayoutQueueTotal(open.reduce((sum: number, x: { amount?: number }) => sum + (Number(x.amount) || 0), 0));
         } else {
           setFinanceUnavailable(true);
         }
@@ -108,23 +96,6 @@ export default function FinancialLedger() {
     const vatOnCommission = systemCommission * 0.15; // VAT 15% on platform commission — remitted to tax, NOT paid to provider
     const providerEarning = base - systemCommission;
     return { systemCommission, vatOnCommission, providerEarning };
-  };
-
-  const handleExecutePayout = async (id: string) => {
-    // #933: money leaves the platform on this tap; ask once, with the amount and the provider.
-    const w = withdrawals.find((x) => x.id === id);
-    if (!window.confirm(`تنفيذ تحويل ${w?.amount ?? ''} ر.س إلى ${w?.providerName || 'المزود'}؟ لا يمكن التراجع بعد الإرسال.`)) return;
-    try {
-      const res: any = await fetchWithAdminGuard(`/api/admin/admin/finance/withdrawals/${id}/execute`, { method: 'POST' });
-      if (res?.routed_to_approval) {
-        alert('أُرسل للاعتماد الثاني (maker-checker) — بانتظار مدير آخر.');
-      } else {
-        alert('تم إرسال أمر الدفع إلى شبكة Moyasar وتحويل الحالة إلى completed وإشعار المزود.');
-      }
-      setWithdrawals(prev => prev.map(w => w.id === id ? { ...w, status: res?.routed_to_approval ? 'pending_second_approval' : 'completed' } : w));
-    } catch (e) {
-      alert('خطأ في التنفيذ');
-    }
   };
 
   const handleUpdateWarehousePrice = (orderId: string, itemIndex: number, price: number) => {
@@ -232,28 +203,13 @@ export default function FinancialLedger() {
               </div>
             </div>
 
-            {/* Withdrawal Approval Queue Workflow */}
+            {/* Payout requests: one queue, one page */}
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-              <div className="p-4 bg-purple-900 text-white font-bold">طابور دفع المستحقات (Withdrawal Approval Queue)</div>
-              <div className="p-4 space-y-4">
-                {withdrawals.map(w => (
-                  <div key={w.id} className="border border-gray-200 rounded-lg p-4 flex justify-between items-center bg-gray-50">
-                    <div>
-                      <h4 className="font-bold text-gray-900">{w.providerName}</h4>
-                      <p className="text-sm text-gray-600 font-mono mt-1">{w.bankName} - {w.iban}</p>
-                      <p className="text-lg font-bold text-purple-700 mt-2">{w.amount} SAR</p>
-                    </div>
-                    <div>
-                      {w.status === 'pending' ? (canPayout ? (
-                        <button onClick={() => handleExecutePayout(w.id)} className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded shadow transition">
-                          Execute Payout
-                        </button>
-                      ) : null) : (
-                        <span className="bg-green-100 text-green-800 px-4 py-2 rounded font-bold">Completed (Moyasar API)</span>
-                      )}
-                    </div>
-                  </div>
-                ))}
+              <div className="p-4 bg-purple-900 text-white font-bold">طابور دفع المستحقات (Payout Requests)</div>
+              <div className="p-4 space-y-3">
+                <p className="text-lg font-bold text-purple-700">{money(payoutQueueTotal)}</p>
+                <p className="text-sm text-gray-600">الاعتماد والتحويل والرفض في صفحة واحدة لكل دفعة.</p>
+                <Link href="/admin/payouts" className="inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded shadow transition">فتح دفعات المزودين</Link>
               </div>
             </div>
           </div>

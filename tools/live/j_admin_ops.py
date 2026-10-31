@@ -33,7 +33,7 @@ def bank_setup(admin, doctor):
 
 
 def payouts(admin, doctor):
-    journey('payouts: provider asks, admin executes (payouts.tsx)')
+    journey('payouts: provider asks, admin approves and records the transfer (payouts.tsx)')
     r = doctor.get('/provider/payouts/balance')
     bal = float(r.get('available') or r.get('balance') or 0)
     step('provider balance reflects the completed consultation', r.ok and bal > 0, r)
@@ -42,13 +42,18 @@ def payouts(admin, doctor):
     step('provider requests the payout', r.ok and pid, r)
     r = doctor.post('/provider/payouts/request', {'amount': bal * 10 + 1000, 'iban': 'SA0380000000608010167519', 'idempotency_key': f'payout_{uuid.uuid4()}'})
     step('asking for more than the balance is refused', r.status in (400, 409, 422), r)
-    r = admin.get('/admin/admin/finance/withdrawals/pending')
+    r = admin.get('/admin/admin/finance/payouts?status=PENDING_ADMIN_APPROVAL&page=1&limit=50')
     step('admin payouts page lists it', r.ok and pid and pid in str(r.body), r)
     if pid:
-        r = admin.post(f'/admin/admin/finance/withdrawals/{pid}/execute', {})
-        step('admin executes it', r.ok, r)
+        reason = 'journey check: bank record verified'
+        r = admin.post(f'/admin/admin/finance/payouts/{pid}/execute', {'reason': reason})
+        step('a payout cannot be paid before it is approved', r.status == 400, r)
+        r = admin.post(f'/admin/admin/finance/payouts/{pid}/approve', {'reason': reason})
+        step('admin approves it', r.ok, r)
+        r = admin.post(f'/admin/admin/finance/payouts/{pid}/execute', {'reason': reason})
+        step('admin records the transfer (PAID)', r.ok, r)
         r = doctor.get('/provider/payouts/mine')
-        step('provider sees it paid', r.ok and any(x.get('id') == pid and str(x.get('state') or x.get('status')).lower() in ('paid', 'executed', 'completed') for x in rows(r)), r)
+        step('provider sees it paid', r.ok and any(x.get('id') == pid and str(x.get('state') or x.get('status')).upper() == 'PAID' for x in rows(r)), r)
 
 
 def users(admin, pat, pat_email):
