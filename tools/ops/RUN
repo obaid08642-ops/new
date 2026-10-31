@@ -1,14 +1,12 @@
-# 2026-10-31 lead reviewer: run 76.
-# Run 75 (read-only): NO data loss. The run-74 pre-deploy dump on disk is 355,482,199 bytes (the "3.5 MB" was a truncated log number).
-# Databases: nabd_nestjs 601 MB (app), nabd_staging 259 MB and temp_restore 210 MB also sit on the production mongod (to be reviewed).
-# meili still crash-loops (restarts 2943, limit 640 MB, 89,117 tasks enqueued).
-# 1. Free disk, deploy main@c929c4ef: meilisearch limit 1024m and the trimmed budget (#2226), the merged fixes since 95af576c,
-#    and the new dump guard (the dump must be >= 50% of the largest of the last 3 dumps, else ABORT before any change).
-# 2. 98d-meili-state (READ-ONLY) after the deploy: does meili hold with 1 GB?
-# 3. Purge the API cache.
+# 2026-10-31 lead reviewer: run 77.
+# Run 76: main@c929c4ef live, health ok, dump guard ok (355.9 MB). meili with 1 GB holds the index (21,311 = Mongo 21,311),
+# but 89,117 old tasks are still enqueued. ClamAV was skipped at deploy for low memory (647 MB free).
+# 1. 98d-meili-state with CANCEL=yes APPLY=yes: cancel the enqueued/processing tasks. The index is already complete, so no document is lost and search stays on.
+# 2. 91b-upload-scan-defer as a DRY RUN (APPLY empty): report the upload scan mode, the window cron and /config uploads state.
+# 3. Read-only: memory report, DB counts, disk usage.
 release:c929c4efa59a60ff70b245284fb7f99b3520b0ed
-97-free-old-predeploy
-93-free-unused-images
-60-deploy-main
 98d-meili-state
-cf-purge-api
+91b-upload-scan-defer
+98-memory-report
+99c-db-counts
+99d-disk-usage

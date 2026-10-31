@@ -8,7 +8,7 @@
 #   RESET=yes  APPLY=yes  delete the index nabd_search so the paced boot sync (PR #2261) re-sends it from Mongo. Refused unless search_index in Mongo holds documents (never empty the search
 #                         with nothing to rebuild it from). The index is a mirror of Mongo, so this loses no data; search is incomplete until the worker has re-sent it.
 set -u
-APPLY=${APPLY:-no}; CANCEL=${CANCEL:-no}; RESET=${RESET:-no}
+APPLY=${APPLY:-yes}; CANCEL=${CANCEL:-yes}; RESET=${RESET:-no}
 DK="sudo -n docker"
 IDX=nabd_search
 echo "## meili-state"
