@@ -846,6 +846,12 @@ export class NotificationsService {
     if (!uid) return;
     await this.create({ user_id: uid, title_key: 'notif.appt_cancelled.title', body_key: 'notif.appt_cancelled.body', type: NotificationType.APPOINTMENT, priority: NotificationPriority.HIGH });
   }
+  @OnEvent('doctor_appointment.no_show')
+  async onApptNoShow(p: any) {
+    const uid = p.patient_account_id || p.patient_id;
+    if (!uid) return;
+    await this.create({ user_id: uid, title_key: 'notif.appt_no_show.title', body_key: 'notif.appt_no_show.body', type: NotificationType.APPOINTMENT, priority: NotificationPriority.HIGH, action: { route: `/consultations/appointments` } });
+  }
   @OnEvent('doctor_appointment.completed')
   async onApptCompleted(p: any) {
     const uid = p.patient_account_id || p.patient_id;
