@@ -3129,7 +3129,12 @@
     "outcomeSickLeave": "बीमारी की छुट्टी",
     "outcomeCertificates": "मेडिकल सर्टिफिकेट",
     "outcomeReports": "मेडिकल रिपोर्ट",
-    "outcomeDays": "{n, number} दिन"
+    "outcomeDays": "{n, number} दिन",
+    "callMicDenied": "माइक्रोफ़ोन बंद है, इसलिए वे आपको सुन नहीं सकते। ब्राउज़र सेटिंग में अनुमति दें।",
+    "callCamDenied": "कैमरा बंद है, इसलिए वे आपको देख नहीं सकते। ब्राउज़र सेटिंग में अनुमति दें।",
+    "callConnectFailed": "कॉल कनेक्ट नहीं हो सकी। अपना कनेक्शन जाँचें और फिर कोशिश करें।",
+    "callRetry": "फिर कोशिश करें",
+    "callEnableSound": "आवाज़ चालू करने के लिए टैप करें"
   },
   "ConsultClient": {
     "payHeading": "सुरक्षित गेटवे से भुगतान पूरा करें",
