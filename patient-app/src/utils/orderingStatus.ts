@@ -228,6 +228,11 @@ export async function pressEmergency(id: string): Promise<string> {
 }
 
 /** The route of the status screen for a booking, with its siblings of the same split basket. */
+/** Where one created booking is followed: a lab booking on the ordering status screen, a radiology booking on its order page. */
+export function bookingHref(b: { id: string; kind?: 'lab' | 'radiology' }, group: Array<{ id: string }>): string {
+  return b.kind === 'radiology' ? `/diagnostics/order/${encodeURIComponent(b.id)}` : statusHref(group.map((x) => x.id), b.id);
+}
+
 export function statusHref(groupIds: string[], focus?: string): string {
   const first = focus ?? groupIds[0];
   const rest = groupIds.filter((i) => i !== first);

@@ -323,7 +323,7 @@ async function main() {
 
   // ══ K. ADMIN DASHBOARD SIDE ══
   const adminGets = [
-    ['K1 finance withdrawals queue', '/admin/finance/withdrawals/pending'],
+    ['K1 finance payouts queue', '/admin/finance/payouts?page=1&limit=5'],
     ['K2 support tickets', '/support/admin/requests'],
     ['K3 feature flags', '/admin/feature-flags'],
     ['K4 notification delivery stats', '/notifications/admin/delivery-stats'],

@@ -1991,6 +1991,7 @@
   "diag.checkout.payFailed": "পেমেন্ট শুরু করা যায়নি",
   "diag.checkout.payRetry": "অর্ডারের বিবরণ থেকে আবার চেষ্টা করুন",
   "diag.checkout.failed": "বুকিং তৈরি করা যায়নি",
+  "diag.checkout.onePayment": "কার্ডে পেমেন্ট একবারে একটি বুকিংয়ের জন্য। ল্যাব টেস্ট এবং প্রতিটি স্ক্যান আলাদাভাবে বুক করুন।",
   "diag.checkout.failedBody": "সময় ও পেমেন্ট পদ্ধতি দেখে আবার চেষ্টা করুন",
   "diag.pay.cash": "নগদ পেমেন্ট",
   "diag.pay.card": "কার্ড",
@@ -4009,5 +4010,17 @@
   "gate.maintenanceBody": "অ্যাপটি নির্ধারিত রক্ষণাবেক্ষণে আছে। পরে আবার চেষ্টা করুন।",
   "gate.updateTitle": "আপডেট প্রয়োজন",
   "gate.updateBody": "একটি নতুন বাধ্যতামূলক সংস্করণ পাওয়া যাচ্ছে। চালিয়ে যেতে অ্যাপ আপডেট করুন।",
-  "gate.retry": "আবার চেষ্টা করুন"
+  "gate.retry": "আবার চেষ্টা করুন",
+  "consult.call.reconnecting": "সংযোগ দুর্বল। আপনার কল আবার যুক্ত করা হচ্ছে…",
+  "consult.call.audioOnly": "আপনার সংযোগ দুর্বল, তাই আমরা ভিডিও বন্ধ করে শব্দ চালু রেখেছি।",
+  "consult.call.tryVideo": "আবার ভিডিও চেষ্টা করুন",
+  "consult.call.dropped": "কলটি কেটে গেছে।",
+  "consult.call.continueInChat": "চ্যাটে চালিয়ে যান",
+  "consult.call.qualityYou": "আপনার সংযোগ",
+  "consult.call.qualityOther": "অপর পক্ষের সংযোগ",
+  "consult.call.quality.excellent": "চমৎকার",
+  "consult.call.quality.good": "ভালো",
+  "consult.call.quality.poor": "দুর্বল",
+  "consult.call.quality.lost": "বিচ্ছিন্ন",
+  "consult.call.quality.unknown": "যাচাই হচ্ছে"
 }

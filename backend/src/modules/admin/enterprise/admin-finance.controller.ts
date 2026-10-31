@@ -56,6 +56,12 @@ export class AdminFinanceSuiteController {
     return this.svc.approvePayout(id, me, b?.reason, 'approve');
   }
 
+  @Post('payouts/:id/execute')
+  @RequirePermissions(Permission.FINANCE_PAYOUT_APPROVE)
+  executePayout(@Param('id') id: string, @Body() b: ApprovePayoutDto, @CurrentUser() me: any) {
+    return this.svc.executePayout(id, me, b?.reason);
+  }
+
   @Post('payouts/:id/reject')
   @RequirePermissions(Permission.FINANCE_PAYOUT_APPROVE)
   rejectPayout(@Param('id') id: string, @Body() b: RejectPayoutDto, @CurrentUser() me: any) {

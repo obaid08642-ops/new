@@ -611,10 +611,18 @@ export class RadiologyOpsService {
     const svc: any = await this.getById(serviceId).catch(() => null);
     if (!svc) throw new BadRequestException('service_not_available');
     const isAdmin = ['admin', 'super_admin', 'system'].includes(user?.role);
-    const providerId = typeof body?.provider_account_id === 'string' ? body.provider_account_id : '';
+    let providerId = typeof body?.provider_account_id === 'string' ? body.provider_account_id : '';
+    // an ordering quote names its providers by profile id: resolve it to the account the booking belongs to
+    if (!providerId && typeof body?.provider_id === 'string' && body.provider_id) {
+      const profile: any = await this.profileModel.findOne({ id: { $eq: body.provider_id } }, { _id: 0, account_id: 1 }).lean();
+      providerId = typeof profile?.account_id === 'string' ? profile.account_id : '';
+      if (!providerId) throw new BadRequestException('provider_not_found');
+    }
     if (!providerId && !isAdmin) throw new BadRequestException('provider_account_id_required');
     if (providerId && !isAdmin) {
-      const ok = (await this.compatibleProviders([svc.id])).some((p: any) => p.id === providerId);
+      // a centre may perform the scan by its equipment, or by having declared it in its ordering catalogue (what a quote lists)
+      const ok = (await this.compatibleProviders([svc.id])).some((p: any) => p.id === providerId)
+        || !!(await this.svcModel.db.collection('provider_ordering_items').findOne({ provider_account_id: providerId, service_kind: 'radiology', catalog_id: svc.id, available: { $ne: false } }));
       if (!ok) throw new BadRequestException('provider_cannot_perform_scan');
     }
     const when = new Date(String(body?.scheduled_at || ''));

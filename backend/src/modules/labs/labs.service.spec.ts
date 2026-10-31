@@ -250,6 +250,31 @@ describe('LabsService', () => {
       );
       expect(booking.total).toBe(112);
     });
+    it('charges the lab\'s own home-collection fee when it set one at registration, else the platform fee', async () => {
+      bookMocks();
+      const mod = await withFees({ delivery_fee: 12, service_fee: 3 });
+      const svc: LabsService = mod.get(LabsService);
+      const profiles = mod.get(getModelToken('ProviderProfile')) as any;
+      profiles.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue({ home_collection_fee: 40 }) });
+      const own: any = await svc.book({ id: 'patient-1', role: 'patient' }, { items: [{ service_id: 'svc-1' }], scheduled_at: future(), location_type: 'home', provider_account_id: 'lab-1', payment_method: 'card' });
+      expect(own.total).toBe(140);
+      profiles.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue({}) });
+      const none: any = await svc.book({ id: 'patient-2', role: 'patient' }, { items: [{ service_id: 'svc-1' }], scheduled_at: future(), location_type: 'home', provider_account_id: 'lab-2', payment_method: 'card' });
+      expect(none.total).toBe(112);
+    });
+    it('never lets an object-valued provider_account_id reach the fee lookup as a query operator', async () => {
+      bookMocks();
+      const mod = await withFees({ delivery_fee: 12, service_fee: 3 });
+      const svc: LabsService = mod.get(LabsService);
+      const profiles = mod.get(getModelToken('ProviderProfile')) as any;
+      profiles.findOne.mockClear();
+      profiles.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue({ home_collection_fee: 40 }) });
+      const injected: any = await svc.book({ id: 'patient-9', role: 'patient' }, { items: [{ service_id: 'svc-1' }], scheduled_at: future(), location_type: 'home', provider_account_id: { $ne: null }, payment_method: 'card' });
+      expect(profiles.findOne).not.toHaveBeenCalled();
+      expect(injected.total).toBe(112);
+      await svc.book({ id: 'patient-8', role: 'patient' }, { items: [{ service_id: 'svc-1' }], scheduled_at: future(), location_type: 'home', provider_account_id: 'lab-1', payment_method: 'card' });
+      expect(profiles.findOne.mock.calls[0][0]).toEqual({ account_id: { $eq: 'lab-1' } });
+    });
     it('falls back to the legacy home fee when pricing is unavailable', async () => {
       bookMocks();
       const mod: TestingModule = await Test.createTestingModule({

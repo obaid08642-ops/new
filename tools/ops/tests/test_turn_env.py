@@ -45,7 +45,8 @@ class TurnEnv(unittest.TestCase):
         before = self.env_text()
         p = self.run_task()
         self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
-        self.assertIn("cloudflare credential request: http=200", p.stdout)
+        self.assertIn("cloudflare credential request (10-minute credential): ok", p.stdout)   # ok or fail only: no status code
+        self.assertNotIn("http=", p.stdout)
         self.assertIn("dry run only", p.stdout)
         self.assertEqual(self.env_text(), before)
         self.assertNotIn("force-recreate", self.h.docker_calls())
@@ -53,6 +54,14 @@ class TurnEnv(unittest.TestCase):
         self.assertNotIn(TOKEN, p.stdout + p.stderr + self.h.docker_calls())
         self.assertNotIn(TOKEN, open(self.args_log).read())                      # the token was on curl's stdin, not its arguments
         self.assertIn(f"Bearer {TOKEN}", open(self.stdin_log).read())
+
+    def test_the_provider_defaults_to_cloudflare_in_the_task_file(self):
+        self.write_creds()
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "tasks", "70b-turn-env.sh")) as f:
+            self.assertRegex(f.read(), r'(?m)^PROVIDER="cloudflare"$')
+        p = self.run_task({"APPLY": "yes"})
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("CALLS_TURN_PROVIDER=cloudflare\n", self.env_text())
 
     def test_apply_writes_the_names_and_recreates_only_the_backend(self):
         self.write_creds()
@@ -75,7 +84,9 @@ class TurnEnv(unittest.TestCase):
         before = self.env_text()
         p = self.run_task({"APPLY": "yes"}, FAKE_CF_CODE=401)
         self.assertEqual(p.returncode, 1)
-        self.assertIn("Cloudflare did not accept the key (http=401)", p.stdout)
+        self.assertIn("Cloudflare did not accept the key", p.stdout)
+        self.assertIn("credential request (10-minute credential): fail", p.stdout)
+        self.assertNotIn("401", p.stdout)
         self.assertEqual(self.env_text(), before)
         self.assertNotIn("force-recreate", self.h.docker_calls())
 

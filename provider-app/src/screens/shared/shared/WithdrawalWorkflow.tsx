@@ -111,12 +111,14 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
     }
   };
 
-  // Payout status comes from the server `state` (PENDING_ADMIN_APPROVAL, AWAITING_SECOND_APPROVAL, APPROVED_FOR_PAYOUT, COMPLETED, REJECTED).
+  // Payout status comes from the server `state` (PENDING_ADMIN_APPROVAL, AWAITING_SECOND_APPROVAL, APPROVED_FOR_PAYOUT, PAID, REJECTED;
+  // COMPLETED is the same as PAID on older rows).
   const statusLabel = (st: string) => {
     switch (String(st)) {
       case 'PENDING_ADMIN_APPROVAL': return AR ? 'بانتظار اعتماد الإدارة' : 'Pending admin approval';
       case 'AWAITING_SECOND_APPROVAL': return AR ? 'بانتظار الاعتماد الثاني' : 'Awaiting second approval';
       case 'APPROVED_FOR_PAYOUT': return AR ? 'معتمد وجارٍ التحويل' : 'Approved, transfer in progress';
+      case 'PAID':
       case 'COMPLETED': return AR ? 'تم التحويل' : 'Paid';
       case 'REJECTED': return AR ? 'مرفوض' : 'Rejected';
       default: return st || '—';
@@ -124,6 +126,7 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
   };
   const statusVariant = (st: string) => {
     switch (String(st)) {
+      case 'PAID':
       case 'COMPLETED': return 'success';
       case 'REJECTED': return 'danger';
       case 'APPROVED_FOR_PAYOUT': return 'info';

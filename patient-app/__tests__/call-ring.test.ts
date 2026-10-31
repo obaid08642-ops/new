@@ -11,11 +11,11 @@ describe('call ring task', () => {
 
   it('rings for a call push with the caller name and call type', async () => {
     await handleRingPayload({ type: 'call', session_id: 's1', title: 'Dr Amal', call_type: 'voice' });
-    expect(mockRing).toHaveBeenCalledWith('s1', 'Dr Amal', false);
+    expect(mockRing).toHaveBeenCalledWith('s1', 'Dr Amal', false, '');
   });
 
   it('video is the default call type', () => {
-    expect(ringAction({ type: 'incoming_call', sessionId: 's2', caller_name: 'Dr X' })).toEqual({ kind: 'ring', sessionId: 's2', caller: 'Dr X', video: true });
+    expect(ringAction({ type: 'incoming_call', sessionId: 's2', caller_name: 'Dr X' })).toEqual({ kind: 'ring', sessionId: 's2', caller: 'Dr X', video: true, body: '' });
   });
 
   it('a cancelled or missed call ends the ringing screen', async () => {

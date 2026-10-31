@@ -1,4 +1,5 @@
 #!/bin/bash
+# ops-detach: runs detached on the server (see server-inspect.yml); the workflow polls its log.
 # Catalogue apply (owner-approved 2026-10-25), two runs of the same task, one change per run, every step checked.
 #   Run 1 (EXPECT_PLAN_SHA empty): DRY RUN. Prints the plan (counts per step) and its SHA-256 as `status:` lines; nothing is written.
 #   Run 2 (EXPECT_PLAN_SHA = the hash of run 1, set in this file by the reviewer after the owner has read the counts): APPLY.
@@ -38,8 +39,8 @@
 #                                                    answers in one file). EMPTY product fields only: each write is a compare-and-set on the stored empty value, marked `machine:<model>`,
 #                                                    with the before-image in the backup; a field filled meanwhile is skipped and counted. Needs no other host file. Works with ONE_OFF.
 #   ONE_OFF=yes (set in this file by the reviewer): runs the tool NOT inside $CT but in a one-off `docker run --rm` of $CT's image, on $CT's network, with the same env file
-#                                                    (plus MONGO_URL/DB_NAME built from it in a mode-600 temp file, removed at the end), `--memory 900m --memory-swap 900m
-#                                                    --oom-score-adj 1000` (if the host runs short, this container is the one the kernel kills), NODE_OPTIONS heap 700 MB.
+#                                                    (plus MONGO_URL/DB_NAME built from it in a mode-600 temp file, removed at the end), `--memory 700m --memory-swap 700m
+#                                                    --oom-score-adj 1000` (if the host runs short, this container is the one the kernel kills), NODE_OPTIONS heap 520 MB.
 #                                                    For heavy steps; never in the API container. $B is mounted as /backup (the backup file lands there directly), $IN as /in (read-only).
 set -u
 EXPECT_PLAN_SHA=""
@@ -64,8 +65,8 @@ jval() { sed -n "s/.*\"$1\":\([^,}]*\).*/\1/p" | head -1 | tr -d '"'; }
 # the first output line of the tool that mentions \$1
 tool() {
   if [ -n "$ONE_OFF" ]; then
-    $DK run --rm --user 0:0 --memory 900m --memory-swap 900m --oom-score-adj 1000 --network "$ONE_OFF_NET" --env-file "$ENVF" --env-file "$ONE_OFF_ENV" \
-      -e NODE_OPTIONS=--max-old-space-size=700 -v "$B:/backup" -v "$IN:/in:ro" "$ONE_OFF_IMG" $TOOL "$@" 2>&1
+    $DK run --rm --user 0:0 --memory 700m --memory-swap 700m --oom-score-adj 1000 --network "$ONE_OFF_NET" --env-file "$ENVF" --env-file "$ONE_OFF_ENV" \
+      -e NODE_OPTIONS=--max-old-space-size=520 -v "$B:/backup" -v "$IN:/in:ro" "$ONE_OFF_IMG" $TOOL "$@" 2>&1
   else
     $DK exec "$CT" $TOOL "$@" 2>&1
   fi
@@ -85,7 +86,7 @@ if [ -n "$ONE_OFF" ]; then
   ONE_OFF_ENV=$(sudo -n mktemp) && sudo -n chmod 600 "$ONE_OFF_ENV" \
     && printf 'MONGO_URL=mongodb://%s:%s@mongodb:27017/?authSource=admin\nDB_NAME=%s\n' "$(envval MONGO_ROOT_USER)" "$(envval MONGO_ROOT_PASSWORD)" "$(envval DB_NAME | grep . || echo nabd_nestjs)" | sudo -n tee "$ONE_OFF_ENV" >/dev/null \
     || { say "ABORT cannot write the temp env file"; one_off_cleanup; exit 1; }
-  say "one-off container: image of $CT, network $ONE_OFF_NET, 900m memory, no swap, oom_score_adj 1000 (the tool does not run inside $CT)"
+  say "one-off container: image of $CT, network $ONE_OFF_NET, 700m memory, no swap, oom_score_adj 1000 (the tool does not run inside $CT)"
 fi
 ARGS=""
 MODES=0; [ -n "$COMPLETION" ] && MODES=$((MODES+1)); [ "$PRUNE" = yes ] && MODES=$((MODES+1)); [ "$TRANSLATIONS" = yes ] && MODES=$((MODES+1))
@@ -156,8 +157,10 @@ case "$SHA" in "$EXPECT_PLAN_SHA"*) ;; *) say "ABORT the plan changed (expected 
 BK_IN=/tmp/catalogue-backup-$TS.json.gz
 [ -n "$ONE_OFF" ] && BK_IN=/backup/catalogue-$TS.json.gz   # the one-off container writes straight into $B
 sudo -n mkdir -p "$B"
-OUT=$(tool apply --expect="$SHA" --backup="$BK_IN" $ARGS); RC=$?
-echo "$OUT" | sed 's/^/status: catalogue-apply: /' | cut -c1-700
+# `progress ...` lines (every 2,000 writes) are shown as they come, on stderr; the captured output keeps them out of the summary below. pipefail: RC is the tool's.
+live() { while IFS= read -r l; do case "$l" in progress\ *) echo "status: catalogue-apply: $l" >&2;; esac; printf '%s\n' "$l"; done; }
+OUT=$(set -o pipefail; tool apply --expect="$SHA" --backup="$BK_IN" $ARGS | live); RC=$?
+echo "$OUT" | grep -v '^progress ' | sed 's/^/status: catalogue-apply: /' | cut -c1-700
 FILE_SHA=$(echo "$OUT" | grep '"step":"backup"' | jval file_sha256)
 # a copy of the backup on the host, checked against the hash the tool reported
 if [ -n "$ONE_OFF" ] && sudo -n test -f "$B/catalogue-$TS.json.gz" || $DK cp "$CT:$BK_IN" "/tmp/cat-$TS.gz" >/dev/null 2>&1; then
@@ -174,8 +177,8 @@ fi
 # --- 4. rollback
 if [ $RC -eq 2 ]; then say "plan changed between the checks: nothing was written"; cleanup_inputs; exit 1; fi
 say "FAILED (exit $RC), rolling back from the backup"
-ROLL=$(tool rollback --backup="$BK_IN"); RR=$?
-echo "$ROLL" | sed 's/^/status: catalogue-apply: rollback /' | cut -c1-700
+ROLL=$(set -o pipefail; tool rollback --backup="$BK_IN" | live); RR=$?
+echo "$ROLL" | grep -v '^progress ' | sed 's/^/status: catalogue-apply: rollback /' | cut -c1-700
 if [ $RR -eq 0 ] && [ "$(echo "$ROLL" | jval ok)" = true ]; then say "rollback complete, counts back to the backup's"; else say "ROLLBACK INCOMPLETE - needs attention (backup kept at $B/catalogue-$TS.json.gz)"; fi
 cleanup_inputs
 exit 1

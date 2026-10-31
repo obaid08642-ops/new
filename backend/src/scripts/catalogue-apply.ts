@@ -20,7 +20,7 @@ import * as path from 'path';
 import mongoose from 'mongoose';
 import { mongoDirectConnection } from '../common/database/mongo-uri';
 import {
-  applyChanges, countsOf, decodeBackup, encodeBackup, expectedCounts, planSha, rollbackChanges, sha256, summarize, collectionLines, resolveSelfConflicts, rowIdentities,
+  applyChanges, countsOf, decodeBackup, encodeBackup, expectedCounts, planSha, rollbackChanges, sha256, summarize, collectionLines, resolveSelfConflicts, rowIdentities, withReconnects,
   type Change, type DbLike, type SetChange,
 } from '../modules/catalogs/catalogue-apply.core';
 import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn, planInsuranceShape, planNumberedDistricts, planPlaceholderCities, planProductTranslations, planRadiologyCatalogue, type RadiologyFileExtras } from '../modules/catalogs/catalogue-apply.steps';
@@ -242,6 +242,10 @@ async function connect(): Promise<{ db: DbLike; close: () => Promise<void> }> {
 }
 
 const out = (o: Record<string, unknown>) => console.log(JSON.stringify(o));
+/** A progress line every 20 batches (2,000 writes) and at the end of each collection; counts only. On stderr, so stdout stays one JSON object per line. */
+const progress = (line: string) => console.error(`progress ${line}`);
+/** Fresh connections tried after the retries of one connection are used up (a restarting mongod is back within a few of them). */
+const RECONNECTS = Math.max(0, Number(process.env.CATALOGUE_RECONNECTS ?? 3));
 
 export async function main(argv: string[]): Promise<number> {
   const cmd = argv[0];
@@ -272,7 +276,13 @@ export async function main(argv: string[]): Promise<number> {
       const readBack = decodeBackup(fs.readFileSync(backupFile));
       if (readBack.changes.length !== p.changes.length || readBack.meta.plan_sha !== p.sha) throw new Error('backup could not be read back');
       out({ cmd, step: 'backup', file_sha256: sha256(file), bytes: file.length, changes: p.changes.length });
-      const written = await applyChanges(db, p.changes);
+      // The apply keeps going through a dropped connection: each batch is retried for minutes (withRetry); when one connection stays down, a fresh one
+      // is opened and the plan is computed again, which now holds only what is left (every write is a guarded compare-and-set, a second plan after a
+      // partial apply is the remainder). The backup written above holds the whole original plan, so a rollback still restores everything.
+      const reconnect = async (): Promise<DbLike> => { await close().catch(() => undefined); ({ db, close } = await connect()); return db; };
+      const run = await withReconnects(db, reconnect, async (d, n) => applyChanges(d, n === 0 ? p.changes : (await computePlan(d, argv)).changes, new Date(), progress), RECONNECTS, progress);
+      const written = run.result;
+      db = run.db;
       // The verify runs on a fresh connection: the one that did the writes may be the one that dropped.
       await close().catch(() => undefined);
       ({ db, close } = await connect());
@@ -281,15 +291,19 @@ export async function main(argv: string[]): Promise<number> {
       const again = await computePlan(db, argv);
       const countsOk = TOUCHED.every((c) => after[c] === want[c] || want[c] === undefined);
       // A retried batch may have been written by its first attempt, which makes `applied` short; then the proof is the verify (nothing left to change, counts as expected).
-      const ok = again.changes.length === 0 && countsOk && (written.skipped_changed_since_plan === 0 || written.retried_batches > 0);
-      out({ cmd, step: 'apply', ...written, remaining_changes: again.changes.length, counts_before: before, counts_after: after, counts_ok: countsOk, ok });
+      const ok = again.changes.length === 0 && countsOk && (written.skipped_changed_since_plan === 0 || written.retried_batches > 0 || run.reconnected > 0);
+      out({ cmd, step: 'apply', ...written, reconnected: run.reconnected, remaining_changes: again.changes.length, counts_before: before, counts_after: after, counts_ok: countsOk, ok });
       return ok ? 0 : 3;
     }
     if (cmd === 'rollback') {
       const backupFile = arg(argv, 'backup');
       if (!backupFile) throw new Error('rollback needs --backup=<file>');
       const b = decodeBackup(fs.readFileSync(backupFile));
-      const res = await rollbackChanges(db, b.changes);
+      // Resumable: a rollback only restores a field that still holds what the apply wrote, so after a dropped connection a fresh pass finishes the rest.
+      const reconnect = async (): Promise<DbLike> => { await close().catch(() => undefined); ({ db, close } = await connect()); return db; };
+      const run = await withReconnects(db, reconnect, (d) => rollbackChanges(d, b.changes, progress), RECONNECTS, progress);
+      const res = { ...run.result, reconnected: run.reconnected };
+      db = run.db;
       const counts = await countsOf(db, TOUCHED);
       out({ cmd, ...res, counts_after: counts, counts_expected: b.meta.counts, ok: TOUCHED.every((c) => counts[c] === b.meta.counts[c]) });
       return 0;
