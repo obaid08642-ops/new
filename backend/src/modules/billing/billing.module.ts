@@ -10,8 +10,9 @@
  */
 import {
   BadRequestException, Controller, Get, Post, Module, Param, Query,
-  NotFoundException, Injectable, UseGuards, Res, StreamableFile,
+  NotFoundException, Injectable, UseGuards, Res, StreamableFile, Logger,
 } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 import { InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -60,6 +61,7 @@ export function tlvQr(sellerName: string, vatNumber: string, isoDate: string, to
 // ── Service ────────────────────────────────────────────────────────────────
 @Injectable()
 export class BillingService {
+  private readonly logger = new Logger('Billing');
   constructor(@InjectConnection() private conn: Connection) {}
 
   private get invoices() { return this.conn.model('EInvoice'); }
@@ -86,19 +88,57 @@ export class BillingService {
     }
   }
 
-  /** Issue (or return existing) e-invoice for a paid booking. */
-  async issue(user: any, kind: string, bookingId: string) {
-    const existing = await this.invoices.findOne({ booking_kind: kind, booking_id: bookingId, status: 'ISSUED' }, { _id: 0, __v: 0 }).lean();
-    if (existing) return existing;
+  /** The booking kind as the payments module names it (the transactions are stored under that name). */
+  private transactionKind(kind: string): string {
+    return ({ order: 'pharmacy', appointment: 'consultation', home_care: 'nursing' } as Record<string, string>)[kind] || kind;
+  }
 
-    const booking: any = await this.conn.model(this.bookingModelName(kind)).findOne({ id: bookingId }).lean();
+  private async findBooking(kind: string, bookingId: string): Promise<any> {
+    const found: any = await this.conn.model(this.bookingModelName(kind)).findOne({ id: bookingId }).lean();
+    if (found || this.transactionKind(kind) !== 'pharmacy') return found;
+    // governed pharmacy orders (broadcast, offer, selection) live in pharmacy_orders
+    return this.conn.collection('pharmacy_orders').findOne({ id: bookingId });
+  }
+
+  /** The VAT rate of the finance config (the one the provider settlement uses), 15% when none is set. */
+  private async vatRate(): Promise<number> {
+    const cfg: any = await this.conn.collection('finance_config').findOne({ key: 'commissions' }).catch(() => null);
+    const pct = Number(cfg?.tax?.vat_percent);
+    return Number.isFinite(pct) && pct >= 0 && pct <= 50 ? pct / 100 : VAT_RATE;
+  }
+
+  /** What the patient actually paid: the settled card payments of the booking, else the cash the provider recorded as collected. 0 = nothing paid. */
+  async paidTotal(kind: string, booking: any, bookingId: string): Promise<number> {
+    const rows: any[] = await this.conn.collection('transactions').find(
+      { booking_kind: this.transactionKind(kind), booking_id: bookingId, status: { $in: ['paid', 'partially_refunded', 'refunded'] } },
+      { projection: { amount: 1, _id: 0 } },
+    ).toArray();
+    const card = rows.reduce((sum, r) => sum + Number(r.amount || 0), 0);
+    const cash = Number(booking?.collection_proof?.amount_collected || 0);
+    return Math.round((card > 0 ? card : cash > 0 ? cash : 0) * 100) / 100;
+  }
+
+  /**
+   * Issue (or return the existing) e-invoice of a PAID booking. The invoice total is what was charged (the card payment or the
+   * cash collected, so an insured booking is invoiced at the co-pay, not at its price), VAT is taken out of it at the configured rate.
+   * `user` null = the system, on `payment.completed`.
+   */
+  async issue(user: any | null, kind: string, bookingId: string) {
+    const existing: any = await this.invoices.findOne({ booking_kind: kind, booking_id: bookingId, status: 'ISSUED' }, { _id: 0, __v: 0 }).lean();
+    if (existing) {
+      if (user && existing.patient_id !== user.id && user.role !== 'admin') throw new BadRequestException('not your booking');
+      return existing;
+    }
+
+    const booking: any = await this.findBooking(kind, bookingId);
     if (!booking) throw new NotFoundException('booking not found');
-    const isOwner = booking.patient_id === user.id || booking.user_id === user.id;
-    if (!isOwner && user.role !== 'admin') throw new BadRequestException('not your booking');
+    const owner = booking.patient_id || booking.patient_account_id || booking.user_id;
+    if (user && owner !== user.id && booking.user_id !== user.id && user.role !== 'admin') throw new BadRequestException('not your booking');
 
-    const total = Number(booking.total ?? booking.total_price ?? booking.price ?? 0);
-    if (!(total > 0)) throw new BadRequestException('booking has no payable amount');
-    const vat = Math.round((total - total / (1 + VAT_RATE)) * 100) / 100; // VAT-inclusive extraction
+    const total = await this.paidTotal(kind, booking, bookingId);
+    if (!(total > 0)) throw new BadRequestException('booking_not_paid');
+    const rate = await this.vatRate();
+    const vat = Math.round((total - total / (1 + rate)) * 100) / 100; // VAT-inclusive extraction
     const subtotal = Math.round((total - vat) * 100) / 100;
 
     const sellerName = process.env.ZATCA_SELLER_NAME || 'منصة نَبْض للرعاية الصحية';
@@ -108,15 +148,31 @@ export class BillingService {
     const issuedAt = new Date();
     const qr = tlvQr(sellerName, vatNumber, issuedAt.toISOString(), total, vat);
 
-    const doc = await this.invoices.create({
-      invoice_no: await this.nextInvoiceNo(),
-      booking_kind: kind,
-      booking_id: bookingId,
-      patient_id: booking.patient_id || booking.user_id,
-      subtotal, vat_rate: VAT_RATE, vat_amount: vat, total,
-      qr_base64: qr,
-    });
-    return this.invoices.findOne({ id: doc.id }, { _id: 0, __v: 0 }).lean();
+    try {
+      const doc = await this.invoices.create({
+        invoice_no: await this.nextInvoiceNo(),
+        booking_kind: kind,
+        booking_id: bookingId,
+        patient_id: owner,
+        subtotal, vat_rate: rate, vat_amount: vat, total,
+        qr_base64: qr,
+      });
+      return await this.invoices.findOne({ id: doc.id }, { _id: 0, __v: 0 }).lean();
+    } catch (e: any) {
+      // two writers (the payment event and the patient's request) can race: the one that lost reads the winner's invoice
+      const again = await this.invoices.findOne({ booking_kind: kind, booking_id: bookingId, status: 'ISSUED' }, { _id: 0, __v: 0 }).lean();
+      if (again) return again;
+      throw e;
+    }
+  }
+
+  /** A paid booking gets its invoice at once, so it is there when the patient opens the receipt. Never fails the payment. */
+  @OnEvent('payment.completed')
+  async issueOnPayment(event: { booking_kind?: string; booking_id?: string }) {
+    const kind = String(event?.booking_kind || '');
+    if (!kind || !event?.booking_id) return;
+    try { this.bookingModelName(kind); } catch { return; } // kinds without an invoice (insurance, diagnostics parent) are skipped
+    try { await this.issue(null, kind, event.booking_id); } catch (e: any) { this.logger.warn(`invoice not issued for ${kind} ${event.booking_id}: ${e?.message}`); }
   }
 
   myInvoices(user: any) {
@@ -130,7 +186,7 @@ export class BillingService {
   /** E1 S17: patient invoice PDF with embedded ZATCA QR image. */
   async invoicePdf(user: any, kind: string, bookingId: string): Promise<Buffer> {
     const inv: any = await this.issue(user, kind, bookingId);
-    const booking: any = await this.conn.model(this.bookingModelName(kind)).findOne({ id: bookingId }).lean();
+    const booking: any = await this.findBooking(kind, bookingId);
     const sellerName = process.env.ZATCA_SELLER_NAME || 'Nabd Health Platform';
 
     const qrPng: Buffer | null = await (async () => {
