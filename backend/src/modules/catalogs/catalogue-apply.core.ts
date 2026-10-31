@@ -173,6 +173,8 @@ const beforeGuard = (before: unknown) => (before === null || before === undefine
 
 /** Small batches: a dropped connection loses at most this many updates, and the host (about 1 GB free) is never asked for one long write. */
 export const BATCH = 100;
+/** CATALOGUE_BATCH changes it (a bulk write of 100 is one round trip; measured at 20,000 writes the tool's heap grows by under 70 MB whatever the size). */
+const batchSize = () => Math.max(1, Math.floor(Number(process.env.CATALOGUE_BATCH) || BATCH));
 /**
  * A restarting mongod takes tens of seconds to accept connections again, so the retry runs for minutes, not seconds: 12 attempts, 0.5 s doubling,
  * never waiting more than 30 s between two (about 3 minutes in all). Tunable from the environment (the tests shrink it).
@@ -236,9 +238,10 @@ export async function withRetry<T>(fn: (attempt: number) => Promise<T>, stats?: 
 /** Runs the compare-and-set updates in batches of 100 (one round trip each, retried on a dropped connection); returns how many modified a document. */
 async function runUpdates(db: DbLike, collection: string, ops: Array<{ filter: Record<string, unknown>; update: Record<string, unknown> }>, stats?: RetryStats, progress?: { phase: string; log: ProgressFn }): Promise<{ modified: number; total: number }> {
   let modified = 0;
-  for (let i = 0; i < ops.length; i += BATCH) {
-    if (progress && i > 0 && (i / BATCH) % progressEvery() === 0) progress.log(`${progress.phase} ${collection} ${i}/${ops.length} modified=${modified} retried_batches=${stats?.retried_batches ?? 0}`);
-    const slice = ops.slice(i, i + BATCH);
+  const size = batchSize();
+  for (let i = 0; i < ops.length; i += size) {
+    if (progress && i > 0 && (i / size) % progressEvery() === 0) progress.log(`${progress.phase} ${collection} ${i}/${ops.length} modified=${modified} retried_batches=${stats?.retried_batches ?? 0}`);
+    const slice = ops.slice(i, i + size);
     const res = await withRetry(() => db.collection(collection).bulkWrite(slice.map((o) => ({ updateOne: { filter: o.filter, update: o.update } })), { ordered: false }), stats);
     // After a retry the first attempt may have written before the connection dropped, so this count can be short; the verify step is the proof.
     modified += res.modifiedCount ?? 0;
