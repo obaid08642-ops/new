@@ -24,6 +24,9 @@ const NOTIFICATION_CATEGORY: Record<string, string> = {
   order: 'orders', appointment: 'appointments', prescription: 'health', labs: 'health', medication: 'health', promo: 'marketing',
 };
 
+/** Which provider notices ring. */
+export const PROVIDER_PUSH_PRIORITY: Record<string, 'HIGH' | 'NORMAL'> = { new_request: 'HIGH', request_cancelled: 'HIGH', payout: 'NORMAL' };
+
 @Injectable()
 export class NotificationsService {
   private logger = new Logger('Notifications');
@@ -649,6 +652,9 @@ export class NotificationsService {
         user_id: providerAccountId, type: 'info',
         title: input.title_ar || input.title_en, body: input.body_ar || input.body_en || '',
         action: input.action || (input.related_id ? { route: `/provider/job/${input.related_id}` } : {}),
+        // A new request or a cancellation is time-critical work: HIGH makes the Expo push play its sound on iOS too (sendExpoPush sets
+        // `sound` only for HIGH and CRITICAL; without it a provider's phone was silent for every new order).
+        priority: PROVIDER_PUSH_PRIORITY[input.type] ?? 'NORMAL',
       });
     } catch (e: any) {
       this.logger.debug(`provider push best-effort failed for ${providerAccountId}: ${e?.message}`);
