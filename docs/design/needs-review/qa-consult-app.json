@@ -1,0 +1,24 @@
+[
+  {
+    "batch": 0,
+    "app": "patient-app",
+    "screen": "/consultations/doctor-profile",
+    "element": "Legacy screen",
+    "file": "patient-app/app/consultations/doctor-profile.tsx",
+    "line": 1,
+    "found": "[client] The file still has @ts-nocheck and draws with the legacy useApp colors and AppText; it only redirects, so left as is.",
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
+  },
+  {
+    "batch": 0,
+    "app": "patient-app",
+    "screen": "/consultations/offer/[id]",
+    "element": "Offer page behind the redirect",
+    "file": "patient-app/src/components/loyalty/OffersViews.tsx",
+    "line": 112,
+    "found": "[client] OffersViews puts the offer id from the route into GET /offers/${offerId} and /promotions/offers/${offerId}/providers without encoding it (same class as the pharmacy order id); belongs to the offers screens, not fixed here.",
+    "suspect": "Client-side: later batch.",
+    "review_status": "open"
+  }
+]

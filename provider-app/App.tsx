@@ -16,6 +16,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { RootProvider, useAuth, useTheme } from './src/context';
 import { SplashScreen, WelcomeScreen, LoginScreen, ForgotPasswordScreen } from './src/screens/auth/AuthScreens';
 import { PendingDashboard } from './src/screens/auth/PendingDashboard';
+import { ResubmitDetailsScreen } from './src/screens/auth/ResubmitDetailsScreen';
 import { OfflineScreen } from './src/screens/auth/OfflineScreen';
 import type { BlockedAccountState } from './src/utils/accountStatus';
 import { DoctorRegistration }         from './src/screens/doctor/DoctorRegistration';
@@ -99,7 +100,10 @@ function AppNavigator() {
       <NavigationContainer ref={navigationRef}>
         <Stack.Navigator id={undefined as any} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bg } }}>
           <Stack.Screen name="Pending">
-            {({ navigation }) => <PendingDashboard status={blocked} providerType={pType} onExplore={() => navigation.navigate('GuestJobs' as never)} onOpenDocuments={() => navigation.navigate('Documents' as never)} onLogout={async () => { await logout(); }} />}
+            {({ navigation }) => <PendingDashboard status={blocked} providerType={pType} onExplore={() => navigation.navigate('GuestJobs' as never)} onOpenDocuments={() => navigation.navigate('Documents' as never)} onOpenDetails={() => navigation.navigate('FixDetails' as never)} onLogout={async () => { await logout(); }} />}
+          </Stack.Screen>
+          <Stack.Screen name="FixDetails">
+            {({ navigation }) => <ResubmitDetailsScreen onBack={() => navigation.goBack()} />}
           </Stack.Screen>
           <Stack.Screen name="Documents">
             {({ navigation }) => <CertificatesConfigScreen onBack={() => navigation.goBack()} />}

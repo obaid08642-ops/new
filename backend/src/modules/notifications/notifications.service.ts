@@ -24,6 +24,9 @@ const NOTIFICATION_CATEGORY: Record<string, string> = {
   order: 'orders', appointment: 'appointments', prescription: 'health', labs: 'health', medication: 'health', promo: 'marketing',
 };
 
+/** Which provider notices ring. */
+export const PROVIDER_PUSH_PRIORITY: Record<string, 'HIGH' | 'NORMAL'> = { new_request: 'HIGH', request_cancelled: 'HIGH', payout: 'NORMAL' };
+
 @Injectable()
 export class NotificationsService {
   private logger = new Logger('Notifications');
@@ -560,6 +563,32 @@ export class NotificationsService {
     });
   }
 
+  /** PV-08: the licence ends soon (30/14/7/3/1 days): the provider is told in the app, with a push, before bookings stop. */
+  @OnEvent('provider.license_expiring')
+  async onProviderLicenseExpiring(p: any) {
+    if (!p?.account_id) return;
+    await this.notifyProviderAccount(String(p.account_id), {
+      type: 'kyc_update',
+      title_ar: `ترخيصك ينتهي خلال ${p.days_left} يوم`, title_en: `Your licence ends in ${p.days_left} days`,
+      body_ar: `ينتهي ترخيصك المهني في ${p.expiry}. جدّده وارفعه من الملف الشخصي قبل ذلك التاريخ، وإلا أُوقف حسابك تلقائياً.`,
+      body_en: `Your professional licence ends on ${p.expiry}. Renew it and upload it from your profile before then, or your account is suspended automatically.`,
+      related_id: `${p.profile_id}:${p.bucket}:${p.expiry}`, related_type: 'provider_license_expiring',
+    });
+  }
+
+  /** PV-09: the licence has ended and the account was suspended: the provider is told why and what to do. */
+  @OnEvent('provider.license_suspended')
+  async onProviderLicenseSuspended(p: any) {
+    if (!p?.account_id) return;
+    await this.notifyProviderAccount(String(p.account_id), {
+      type: 'kyc_update',
+      title_ar: 'أُوقف حسابك لانتهاء الترخيص', title_en: 'Your account is suspended: the licence has ended',
+      body_ar: 'جدّد ترخيصك المهني وارفعه ليراجعه فريق نبض بلس ويعيد تفعيل حسابك.',
+      body_en: 'Renew your professional licence and upload it; the Nabd Plus team reviews it and reactivates your account.',
+      related_id: String(p.profile_id), related_type: 'provider_license_suspended',
+    });
+  }
+
   /** 19.11 step 6: the copay is paid, or the insurer covered everything, so the provider is told the service continues. */
   private async tellProviderInsuranceReady(p: any, coveredInFull: boolean) {
     if (!p?.request_id) return;
@@ -649,6 +678,9 @@ export class NotificationsService {
         user_id: providerAccountId, type: 'info',
         title: input.title_ar || input.title_en, body: input.body_ar || input.body_en || '',
         action: input.action || (input.related_id ? { route: `/provider/job/${input.related_id}` } : {}),
+        // A new request or a cancellation is time-critical work: HIGH makes the Expo push play its sound on iOS too (sendExpoPush sets
+        // `sound` only for HIGH and CRITICAL; without it a provider's phone was silent for every new order).
+        priority: PROVIDER_PUSH_PRIORITY[input.type] ?? 'NORMAL',
       });
     } catch (e: any) {
       this.logger.debug(`provider push best-effort failed for ${providerAccountId}: ${e?.message}`);
@@ -666,7 +698,7 @@ export class NotificationsService {
   }
 
   /** LJ-07: notify the provider named on a service booking (assigned/requested/confirmed). */
-  async notifyBookingProvider(p: any, type: 'new_request' | 'booking_update'): Promise<any> {
+  async notifyBookingProvider(p: any, type: 'new_request' | 'booking_update' | 'request_cancelled', relatedSuffix = ''): Promise<any> {
     const entityType = String(p?.entity_type || '');
     const entityId = String(p?.entity_id || '');
     if (!entityType || !entityId) return null;
@@ -686,11 +718,14 @@ export class NotificationsService {
     if (!accountId) return null;
     const titles = type === 'new_request'
       ? { title_ar: 'حجز جديد بانتظارك', title_en: 'New booking assigned to you' }
-      : { title_ar: 'تحديث على حجزك', title_en: 'Update on your booking' };
+      : type === 'request_cancelled'
+        ? { title_ar: 'ألغى المريض الحجز', title_en: 'The patient cancelled the booking' }
+        : { title_ar: 'تحديث على حجزك', title_en: 'Update on your booking' };
     return this.notifyProviderAccount(accountId, {
       type, ...titles,
       body_ar: `رقم الحجز ${entityId.slice(0, 8)}`, body_en: `Booking ${entityId.slice(0, 8)}`,
-      related_id: entityId, related_type: entityType,
+      // the bell de-duplicates on (provider, related_type, related_id); a cancel or a new time is a new notice, so it carries its own suffix
+      related_id: entityId, related_type: entityType + relatedSuffix,
       action: { route: `/tracking/${this.routeKind(p)}/${entityId}` },
     });
   }
@@ -709,6 +744,22 @@ export class NotificationsService {
   @OnEvent('service.cancelled')
   async onServiceCancelled(p: any) {
     if (p.patient_account_id) await this.create({ user_id: p.patient_account_id, title_key: 'notif.service.cancelled.title', body_key: 'notif.service.cancelled.body', type: NotificationType.ORDER });
+    // The provider is told too when the patient is the one who cancelled (they had it in their list, maybe accepted, and may be on the way).
+    if (p.actor_role === 'patient') await this.notifyBookingProvider(p, 'request_cancelled', '_cancelled').catch(() => null);
+  }
+
+  /**
+   * A booking's time changed. Whoever did not change it is told: the patient when the provider moved it, the provider when the patient did.
+   * Emitted by the lab, radiology and unified-booking reschedules with { entity_type, entity_id, actor_role, patient_account_id, meta.new_date }.
+   */
+  @OnEvent('booking.rescheduled')
+  async onBookingRescheduled(p: any) {
+    const when = p?.meta?.new_date ? new Date(p.meta.new_date).toISOString() : '';
+    if (p?.actor_role === 'patient') {
+      await this.notifyBookingProvider({ ...p }, 'booking_update', `_rescheduled_${when}`).catch(() => null);
+    } else if (p?.patient_account_id) {
+      await this.create({ user_id: p.patient_account_id, title_key: 'notif.booking_rescheduled.title', body_key: 'notif.booking_rescheduled.body', params: { date: when.slice(0, 16).replace('T', ' ') }, type: NotificationType.ORDER });
+    }
   }
   @OnEvent('service.rollback')
   async onServiceRollback(p: any) {
@@ -833,6 +884,11 @@ export class NotificationsService {
     if (p.meta?.doctor_id) {
       await this.create({ user_id: p.meta.doctor_id, title_key: 'notif.appt_new_for_doctor.title', body_key: 'notif.appt_new_for_doctor.body', type: NotificationType.APPOINTMENT, priority: NotificationPriority.HIGH });
     }
+  }
+  @OnEvent('rating.replied')
+  async onRatingReplied(p: any) {
+    if (!p?.user_id) return;
+    await this.create({ user_id: p.user_id, title_key: 'notif.review_reply.title', body_key: 'notif.review_reply.body', type: NotificationType.INFO, priority: NotificationPriority.NORMAL });
   }
   @OnEvent('doctor_appointment.confirmed')
   async onApptConfirmed(p: any) {

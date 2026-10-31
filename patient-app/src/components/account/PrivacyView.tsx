@@ -7,6 +7,10 @@ import { Dialog, Gate, Section } from '../consult/ConsultKit';
 import { AuthField } from '../auth/AuthKit';
 import { HealthTabs, Notice, Panel, SheetForm, bodyOf, rowsOf, useRemote, useTab } from '../health/HealthKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
+import { useDispatch } from 'react-redux';
+import { endPatientSession } from '../../auth/session';
+import { clearCart } from '../../store/slices/cartSlice';
+import { logout } from '../../store/slices/authSlice';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { AccountScreen, ToggleRow, useFlags } from './AccountKit';
@@ -135,6 +139,7 @@ function DeleteTab() {
   const [password, setPassword] = useState('');
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const dispatch = useDispatch();
 
   const close = () => {
     setPasswordOpen(false);
@@ -151,8 +156,10 @@ function DeleteTab() {
     try {
       await apiFetch('/users/me', { method: 'DELETE', body: JSON.stringify({ password }) });
       close();
-      // The account is gone: drop the local session and leave the app.
-      await apiFetch('/auth/logout', { method: 'POST' }).catch(() => undefined);
+      // The account is gone: end the device session, drop every stored token, the auth state and the persisted cart, then leave.
+      await endPatientSession();
+      dispatch(logout());
+      dispatch(clearCart());
       router.replace('/(auth)/login' as Href);
     } catch (e) {
       logError('settings:delete-account', e);
