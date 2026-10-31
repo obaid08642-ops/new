@@ -80,7 +80,7 @@ jobs:
           npx ts-node --transpile-only scripts/geo/fetch-osm-districts-region.ts "--region=${REGION}" "--out=/tmp/parts/part-${REGION}.json" "--gap-ms=${GAP_MS:-12000}"
 
       # Uploaded even when the fetch step failed or the job was cancelled: a part is never lost with its region.
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: part-${{ matrix.region }}
@@ -130,7 +130,7 @@ jobs:
           { echo '### Districts per city'; cat /tmp/summary.md 2>/dev/null || echo '(no summary)'; echo; echo '### Fetch report (per region)'; echo '```json'; cat /tmp/districts-raw.json.report.json; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
           exit $rc
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: districts-extract.v1.json
