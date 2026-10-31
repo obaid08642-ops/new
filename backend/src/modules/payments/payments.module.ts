@@ -660,6 +660,8 @@ export class PaymentsService {
     if (t.status === 'refunded') await this.modelFor(t.booking_kind).updateOne({ id: { $eq: t.booking_id } }, { $set: { payment_status: 'refunded' } });
     this.realtime.emitToUser(t.patient_id, 'payment.updated', { transaction_id: t.id, status: t.status });
     const raw: any = (r as any).raw || {};
+    // Every card refund passes here: the tax document (a credit note) follows it, once per refund.
+    this.events.emit('payment.refund.card', { booking_kind: t.booking_kind, booking_id: t.booking_id, amount: value, refund_ref: raw?.id || raw?.refund_id || `${t.id}:${t.refunded_amount}` });
     return { txn: t, gateway_refund_id: raw?.id || raw?.refund_id };
   }
 
