@@ -6,6 +6,7 @@ import { View, Text, TouchableOpacity, ScrollView, StyleSheet,
  RefreshControl, Switch, ActivityIndicator, KeyboardAvoidingView, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useLang, useAuth, useToast } from '../../../context';
+import { LanguagePicker } from '../../../components/LanguagePicker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {
  NBtn, NCard, NInput, NStatCard, NAvatar, NBadge,
@@ -47,7 +48,7 @@ import { PatientFileScreen } from './PatientFileScreen';
 
 export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => void, onNavigate: (s: string) => void }) {
   const { theme, mode, toggle: toggleTheme } = useTheme();
-  const { lang, toggle: toggleLang } = useLang();
+  const { lang, t } = useLang();
   const { show } = useToast();
   const { user } = useAuth();
   const AR = lang === 'ar';
@@ -170,17 +171,12 @@ export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => vo
             <Switch value={mode === 'dark'} onValueChange={toggleTheme} trackColor={{ true: theme.primary }} />
           </View>
           <NDivider />
-          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View style={{ gap: SP.sm }}>
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md }}>
               <I name="globe" size={20} color={theme.primary} />
-              <Text style={{ fontSize: FS.md, color: theme.text }}>
-                {AR ? 'اللغة: العربية' : 'Language: English'}
-              </Text>
+              <Text style={{ fontSize: FS.md, color: theme.text }}>{t('language')}</Text>
             </View>
-            <TouchableOpacity onPress={toggleLang}
-              style={{ paddingHorizontal: SP.lg, paddingVertical: SP.sm, backgroundColor: theme.primaryLight, borderRadius: R.md }}>
-              <Text style={{ color: theme.primary, fontWeight: FW.bold }}>{AR ? 'EN' : 'عربي'}</Text>
-            </TouchableOpacity>
+            <LanguagePicker />
           </View>
         </NCard>
 

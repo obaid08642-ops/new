@@ -11,7 +11,8 @@ import {
  Appearance, AppState, AppStateStatus, Platform
 } from 'react-native';
 import * as LocalAuth from 'expo-local-authentication';
-import { getTheme, TR, type ThemeMode, type Theme, type Lang, type TKey, API_BASE } from '../constants';
+import { getTheme, type ThemeMode, type Theme, API_BASE } from '../constants';
+import { isRtlLang, langFromCode, translate, type Lang, type TKey } from '../i18n';
 import { Vault, Tokens, SessionMgr, RateLimiter, Audit, SK, Validate, Biometric, buildHeaders, DeviceId } from '../security/Security';
 import { mapAccountStatus } from '../utils/accountStatus';
 import { apiReachable, refreshOutcome } from '../utils/session';
@@ -69,41 +70,42 @@ export const useTheme = (): ThemeCtxType => {
 // ═══════════════════════════════════════
 // LANGUAGE
 // ═══════════════════════════════════════
-interface LangCtxType { lang: Lang; isRTL: boolean; toggle: () => void; set: (l: Lang) => void; t: (k: TKey) => string; }
+interface LangCtxType { lang: Lang; isRTL: boolean; toggle: () => void; set: (l: Lang) => void; t: (k: TKey, params?: Record<string, string | number>) => string; }
 const LangCtx = createContext<LangCtxType | null>(null);
 
 export function LangProvider({ children }: { children: ReactNode }) {
  const deviceCode = (() => {
    try { return String(Intl.DateTimeFormat().resolvedOptions().locale || '').split('-')[0].toLowerCase(); } catch { return ''; }
  })();
- const deviceLang: Lang = deviceCode === 'ar' ? 'ar' : 'en';
+ // the device language if the app has it (Filipino is "fil" on the device and "tl" in the files), else English
+ const deviceLang: Lang = langFromCode(deviceCode) ?? 'en';
  const [lang, setLangState] = useState<Lang>(deviceLang);
 
   useEffect(() => {
     Vault.get('APP_LANG').then(saved => {
-      if (saved === 'ar' || saved === 'en') {
-        setLangState(saved);
-        I18nManager.forceRTL(saved === 'ar');
+      const stored = langFromCode(saved);
+      if (stored) {
+        setLangState(stored);
+        I18nManager.forceRTL(isRtlLang(stored));
       } else {
-        I18nManager.forceRTL(deviceLang === 'ar');
+        I18nManager.forceRTL(isRtlLang(deviceLang));
       }
     });
   }, [deviceLang]);
 
   const set = useCallback((l: Lang) => {
     setLangState(l);
-    I18nManager.forceRTL(l === 'ar');
+    I18nManager.forceRTL(isRtlLang(l));
     Vault.set('APP_LANG', l);
   }, []);
 
+ // kept for the old two-language switch; the six-language choice is LanguagePicker (set)
  const toggle = useCallback(() => set(lang === 'ar' ? 'en' : 'ar'), [lang, set]);
 
- const t = useCallback((k: TKey): string => {
- return (TR[lang] as Record<string, string>)[k] ?? (TR.en as Record<string, string>)[k] ?? String(k);
- }, [lang]);
+ const t = useCallback((k: TKey, params?: Record<string, string | number>): string => translate(lang, k, params), [lang]);
 
  return (
- <LangCtx.Provider value={{ lang, isRTL: lang === 'ar', toggle, set, t }}>
+ <LangCtx.Provider value={{ lang, isRTL: isRtlLang(lang), toggle, set, t }}>
  {children}
  </LangCtx.Provider>
  );

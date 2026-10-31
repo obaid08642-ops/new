@@ -12,6 +12,7 @@ import {
 import client from '../../../api/client';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useLang, useAuth, useToast } from '../../../context';
+import { LanguagePicker } from '../../../components/LanguagePicker';
 import {
  NBtn, NCard, NInput, NStatCard, NAvatar, NBadge,
  NHeader, NScroll, NSheet, NSearch, NToggle, NSettingsRow,
@@ -29,7 +30,7 @@ import { tokens, withAlpha } from '../../../theme/tokens';
 
 export function GlobalSystemSettings() {
   const { theme, toggle: toggleTheme, mode } = useTheme();
-  const { lang, toggle: toggleLang } = useLang();
+  const { lang, t } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
   
@@ -60,13 +61,13 @@ export function GlobalSystemSettings() {
 
       <NDivider style={{ marginVertical: SP.xs }} />
 
-      {/* Language Toggle */}
-      <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+      {/* Language: all six */}
+      <View style={{ gap: SP.sm }}>
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm }}>
           <I name="globe" size={20} color={theme.primary} />
-          <Text style={{ color: theme.text, fontSize: FS.md }}>{AR ? 'اللغة الإنجليزية' : 'Arabic Language'}</Text>
+          <Text style={{ color: theme.text, fontSize: FS.md }}>{t('language')}</Text>
         </View>
-        <Switch value={lang === 'en'} onValueChange={toggleLang} trackColor={{ true: theme.primary }} />
+        <LanguagePicker />
       </View>
 
       <NDivider style={{ marginVertical: SP.xs }} />

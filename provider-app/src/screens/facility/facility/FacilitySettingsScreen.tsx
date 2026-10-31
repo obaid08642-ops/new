@@ -7,6 +7,7 @@ import {
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useLang, useAuth, useToast } from '../../../context';
+import { LanguagePicker } from '../../../components/LanguagePicker';
 import {
  NBtn, NCard, NInput, NPhoneInput, NStatCard, NAvatar,
  NBadge, NHeader, NScroll, NSheet, NSearch, NToggle,
@@ -44,7 +45,7 @@ import { tokens } from '../../../theme/tokens';
 export function FacilitySettingsScreen({ onLogout, onNavigate }: { onLogout: () => void; onNavigate: (s: string) => void }) {
  const insets = useSafeAreaInsets();
  const { theme, toggle: toggleTheme, mode } = useTheme();
- const { lang, toggle: toggleLang } = useLang();
+ const { lang, t } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
  const [showLogout, setLogout] = useState(false);
@@ -179,7 +180,7 @@ return (
  <NSecHeader title={AR?'التفضيلات':'Preferences'} />
  <NCard style={{ marginBottom: SP.xl }}>
  <NToggle label={AR?' الوضع الداكن':' Dark Mode'} value={mode==='dark'} onChange={toggleTheme} />
- <NSettingsRow icon="globe" label={AR?'اللغة: العربية':'Language: Arabic'} onPress={toggleLang} />
+ <View style={{ padding: SP.md, gap: SP.sm }}><Text style={{ color: theme.text, fontSize: FS.md, textAlign: AR ? 'right' : 'left' }}>{t('language')}</Text><LanguagePicker /></View>
  <NSettingsRow icon="bell" label={AR?'الإشعارات':'Notifications'} onPress={() => onNavigate('notifications')} />
  <NSettingsRow icon="chart" label={AR?'التقارير التلقائية':'Auto Reports'} onPress={() => onNavigate('auto_reports')} />
  <NSettingsRow icon="briefcase" label={AR?'الوظائف الطبية':'Medical Jobs'} onPress={() => onNavigate('medical_jobs')} />

@@ -30,7 +30,7 @@
       "fil": {
         "missing": 0,
         "empty": 0,
-        "english": 23
+        "english": 22
       }
     },
     "app": {
@@ -63,6 +63,38 @@
         "missing": 0,
         "empty": 0,
         "english": 4
+      }
+    },
+    "provider": {
+      "ar": {
+        "missing": 0,
+        "empty": 0,
+        "english": 0
+      },
+      "en": {
+        "missing": 0,
+        "empty": 0,
+        "english": 0
+      },
+      "ur": {
+        "missing": 0,
+        "empty": 0,
+        "english": 0
+      },
+      "hi": {
+        "missing": 0,
+        "empty": 0,
+        "english": 0
+      },
+      "bn": {
+        "missing": 0,
+        "empty": 0,
+        "english": 0
+      },
+      "tl": {
+        "missing": 0,
+        "empty": 0,
+        "english": 0
       }
     }
   }

@@ -7,6 +7,7 @@
  *
  *   web  patient-web/messages/{ar,en,ur,hi,bn,fil}.json        (next-intl, nested)
  *   app  patient-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json (flat dotted keys)
+ *   provider  provider-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json (flat dotted keys)
  *
  * Three counts per client and locale, compared with `tools/design/locale-parity.baseline.json`:
  *   missing  a key another locale has is absent here
@@ -39,6 +40,7 @@ const opt = (n) => { const i = args.indexOf(`--${n}`); return i > -1 ? args[i + 
 const CLIENTS = {
   web: { dir: 'patient-web/messages', locales: ['ar', 'en', 'ur', 'hi', 'bn', 'fil'] },
   app: { dir: 'patient-app/src/i18n/locales', locales: ['ar', 'en', 'ur', 'hi', 'bn', 'tl'] },
+  provider: { dir: 'provider-app/src/i18n/locales', locales: ['ar', 'en', 'ur', 'hi', 'bn', 'tl'] },
 };
 
 /** Names and abbreviations that are written the same in every language. Lower-case. */
