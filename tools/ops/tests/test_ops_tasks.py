@@ -807,6 +807,23 @@ class CatalogueApplyOnly(unittest.TestCase):
         self.assertRegex(run[0], r"--backup=/backup/catalogue-\d{8}T\d{6}Z\.json\.gz")
         self.assertIn("applied and verified", p.stdout)
 
+    def test_the_task_runs_detached_and_shows_progress_lines_live_without_repeating_them_in_the_summary(self):
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "tasks", "90-catalogue-apply.sh")) as f:
+            self.assertEqual(f.read().splitlines()[1], "# ops-detach: runs detached on the server (see server-inspect.yml); the workflow polls its log.")
+        with open(self.h.apply_out, "w") as f:
+            f.write('{"cmd":"apply","step":"backup","file_sha256":"%s","bytes":10,"changes":12}\n' % ("cd" * 32))
+            f.write("progress apply medicines 2000/19984 modified=2000 retried_batches=0\n")
+            f.write("progress apply medicines 19984/19984 modified=19984 retried_batches=1\n")
+            f.write('{"cmd":"apply","step":"apply","applied":12,"remaining_changes":0,"counts_ok":true,"ok":true}\n')
+        open(os.path.join(self.h.backups, "catalogue-x.json.gz"), "w").close()
+        p = self.run_task({"COMPLETION": "packaged", "ONE_OFF": "yes", "EXPECT_PLAN_SHA": "ab" * 32})
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        live = [l for l in p.stderr.splitlines() if "progress apply" in l]
+        self.assertEqual(len(live), 2, p.stderr)                      # each line once, as it came
+        self.assertTrue(all(l.startswith("status: catalogue-apply: progress apply medicines ") for l in live))
+        self.assertNotIn("progress apply", p.stdout)                  # the summary does not repeat them
+        self.assertIn("applied and verified", p.stdout)
+
     def test_output_is_status_lines_only(self):
         p = self.run_task({"COMPLETION": "packaged", "ONE_OFF": "yes"})
         for line in p.stdout.splitlines():

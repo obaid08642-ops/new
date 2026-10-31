@@ -1,4 +1,5 @@
 #!/bin/bash
+# ops-detach: runs detached on the server (see server-inspect.yml); the workflow polls its log.
 # Catalogue apply (owner-approved 2026-10-25), two runs of the same task, one change per run, every step checked.
 #   Run 1 (EXPECT_PLAN_SHA empty): DRY RUN. Prints the plan (counts per step) and its SHA-256 as `status:` lines; nothing is written.
 #   Run 2 (EXPECT_PLAN_SHA = the hash of run 1, set in this file by the reviewer after the owner has read the counts): APPLY.
@@ -156,8 +157,10 @@ case "$SHA" in "$EXPECT_PLAN_SHA"*) ;; *) say "ABORT the plan changed (expected 
 BK_IN=/tmp/catalogue-backup-$TS.json.gz
 [ -n "$ONE_OFF" ] && BK_IN=/backup/catalogue-$TS.json.gz   # the one-off container writes straight into $B
 sudo -n mkdir -p "$B"
-OUT=$(tool apply --expect="$SHA" --backup="$BK_IN" $ARGS); RC=$?
-echo "$OUT" | sed 's/^/status: catalogue-apply: /' | cut -c1-700
+# `progress ...` lines (every 2,000 writes) are shown as they come, on stderr; the captured output keeps them out of the summary below. pipefail: RC is the tool's.
+live() { while IFS= read -r l; do case "$l" in progress\ *) echo "status: catalogue-apply: $l" >&2;; esac; printf '%s\n' "$l"; done; }
+OUT=$(set -o pipefail; tool apply --expect="$SHA" --backup="$BK_IN" $ARGS | live); RC=$?
+echo "$OUT" | grep -v '^progress ' | sed 's/^/status: catalogue-apply: /' | cut -c1-700
 FILE_SHA=$(echo "$OUT" | grep '"step":"backup"' | jval file_sha256)
 # a copy of the backup on the host, checked against the hash the tool reported
 if [ -n "$ONE_OFF" ] && sudo -n test -f "$B/catalogue-$TS.json.gz" || $DK cp "$CT:$BK_IN" "/tmp/cat-$TS.gz" >/dev/null 2>&1; then
@@ -174,8 +177,8 @@ fi
 # --- 4. rollback
 if [ $RC -eq 2 ]; then say "plan changed between the checks: nothing was written"; cleanup_inputs; exit 1; fi
 say "FAILED (exit $RC), rolling back from the backup"
-ROLL=$(tool rollback --backup="$BK_IN"); RR=$?
-echo "$ROLL" | sed 's/^/status: catalogue-apply: rollback /' | cut -c1-700
+ROLL=$(set -o pipefail; tool rollback --backup="$BK_IN" | live); RR=$?
+echo "$ROLL" | grep -v '^progress ' | sed 's/^/status: catalogue-apply: rollback /' | cut -c1-700
 if [ $RR -eq 0 ] && [ "$(echo "$ROLL" | jval ok)" = true ]; then say "rollback complete, counts back to the backup's"; else say "ROLLBACK INCOMPLETE - needs attention (backup kept at $B/catalogue-$TS.json.gz)"; fi
 cleanup_inputs
 exit 1
