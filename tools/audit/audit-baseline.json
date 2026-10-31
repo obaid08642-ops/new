@@ -10,7 +10,6 @@
       "@expo/cli": "high",
       "axios": "high",
       "brace-expansion": "high",
-      "expo": "high",
       "node-forge": "high",
       "shell-quote": "critical",
       "zod": "high"
@@ -23,7 +22,6 @@
       "@react-native-firebase/app": "high",
       "@react-native-firebase/messaging": "high",
       "axios": "high",
-      "expo": "high",
       "firebase": "high",
       "node-forge": "high",
       "shell-quote": "critical",
