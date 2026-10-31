@@ -32,3 +32,15 @@ export function acceptBlocker(kind: ServiceDomain, target: ServiceState, e: { pa
   }
   return null;
 }
+
+/**
+ * Pharmacy orders, home-care visits and consultations have their own state machines and side effects (ORDER_TRANSITIONS with the delivery
+ * record and delivered event; the visit timers, checklist and no-show rules; the appointment flow and its call). The generic job start,
+ * arrived and complete would jump those states without any of it, and no client uses them, so they refuse these kinds. Accept and reject
+ * (what the apps call) are unchanged. Returns the error code, or null.
+ */
+export function dedicatedFlowBlocker(kind: ServiceDomain, target: ServiceState): string | null {
+  const owned: ServiceDomain[] = ['pharmacy', 'nursing', 'consultation'];
+  const steps: ServiceState[] = [ServiceState.IN_PROGRESS, ServiceState.ARRIVED, ServiceState.COMPLETED];
+  return owned.includes(kind) && steps.includes(target) ? 'use_the_dedicated_endpoint' : null;
+}
