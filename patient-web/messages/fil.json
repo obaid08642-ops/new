@@ -3137,7 +3137,12 @@
     "outcomeSickLeave": "Leave dahil sa sakit",
     "outcomeCertificates": "Mga medical certificate",
     "outcomeReports": "Mga medical report",
-    "outcomeDays": "{n, number} araw"
+    "outcomeDays": "{n, number} araw",
+    "callMicDenied": "Naka-block ang mikropono, kaya hindi ka nila marinig. Payagan ito sa settings ng browser.",
+    "callCamDenied": "Naka-block ang camera, kaya hindi ka nila makita. Payagan ito sa settings ng browser.",
+    "callConnectFailed": "Hindi namin maikonekta ang tawag. Tingnan ang koneksyon mo at subukan muli.",
+    "callRetry": "Subukan muli",
+    "callEnableSound": "I-tap para buksan ang tunog"
   },
   "ConsultClient": {
     "payHeading": "Kumpletuhin ang bayad sa pamamagitan ng ligtas na gateway",

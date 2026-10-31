@@ -3137,7 +3137,12 @@
     "outcomeSickLeave": "بیماری کی چھٹی",
     "outcomeCertificates": "طبی سرٹیفکیٹ",
     "outcomeReports": "طبی رپورٹیں",
-    "outcomeDays": "{n, number} دن"
+    "outcomeDays": "{n, number} دن",
+    "callMicDenied": "مائیکروفون بلاک ہے، اس لیے وہ آپ کو نہیں سن سکتے۔ براؤزر کی سیٹنگز میں اجازت دیں۔",
+    "callCamDenied": "کیمرا بلاک ہے، اس لیے وہ آپ کو نہیں دیکھ سکتے۔ براؤزر کی سیٹنگز میں اجازت دیں۔",
+    "callConnectFailed": "کال سے رابطہ نہیں ہو سکا۔ اپنا کنکشن دیکھیں اور دوبارہ کوشش کریں۔",
+    "callRetry": "دوبارہ کوشش کریں",
+    "callEnableSound": "آواز چلانے کے لیے ٹیپ کریں"
   },
   "ConsultClient": {
     "payHeading": "محفوظ گیٹ وے کے ذریعے ادائیگی مکمل کریں",

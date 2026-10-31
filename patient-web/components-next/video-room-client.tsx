@@ -8,12 +8,14 @@ import { Button } from "@/components-next/ui-generated/components/Button";
 import { Spinner } from "@/components-next/ui-generated/components/Spinner";
 import { CallMediaToggles, type CallMediaPending } from "@/components-next/consult/call-media-toggles";
 import styles from "@/components-next/consult/consult.module.css";
-import { callRoomOptions, pickVideoCodec, poorConnectionTracker, qualityLevel, reconnectClock, setVideo, stateAfterDisconnect, type QualityLevel } from "@/lib/consult/call-resilience";
+import { callRoomOptions, pickVideoCodec, poorLinkClock, qualityLevel, reconnectClock, setVideo, stateAfterDisconnect, type QualityLevel } from "@/lib/consult/call-resilience";
+import { endCallSession } from "@/lib/consult/call-session";
 
 type Labels = {
   connecting: string; live: string; waiting: string; ended: string; leave: string; microphone: string; camera: string; you: string; doctor: string;
   reconnecting: string; audioOnly: string; tryVideo: string; dropped: string; continueInChat: string;
   qualityYou: string; qualityOther: string; quality: Record<QualityLevel, string>;
+  micDenied: string; camDenied: string; connectFailed: string; retry: string; enableSound: string;
 };
 
 
@@ -25,14 +27,18 @@ type Labels = {
  * network switch (Wi-Fi to 4G) shows "reconnecting" while LiveKit resumes the same call; a poor connection drops to audio
  * only (no camera sent, no video received) with a way back to video; a dropped call offers the appointment's chat.
  */
-export function VideoRoomClient({ token, serverUrl, labels, chatHref, ratingHref, startAudioOnly = false, iceServers = [] }: { token: string; serverUrl: string; /** TURN/STUN from the server (short-lived credentials): a relay for networks that allow only HTTPS out. */ iceServers?: IceServer[]; labels: Labels; /** The server's advice (call pressure): start with sound only. */ startAudioOnly?: boolean; chatHref?: string; /** Where hanging up goes: the rating of the consultation (as the app). */ ratingHref?: string }) {
+export function VideoRoomClient({ token, serverUrl, labels, chatHref, ratingHref, endSessionId, startAudioOnly = false, iceServers = [] }: { /** The call session this page joined (room/[id]): ended on the server when the patient leaves. */ endSessionId?: string; token: string; serverUrl: string; /** TURN/STUN from the server (short-lived credentials): a relay for networks that allow only HTTPS out. */ iceServers?: IceServer[]; labels: Labels; /** The server's advice (call pressure): start with sound only. */ startAudioOnly?: boolean; chatHref?: string; /** Where hanging up goes: the rating of the consultation (as the app). */ ratingHref?: string }) {
   const router = useRouter();
   const localTile = useRef<HTMLDivElement>(null);
   const remoteTile = useRef<HTMLDivElement>(null);
   const roomRef = useRef<Room | null>(null);
-  const [state, setState] = useState<"connecting" | "live" | "reconnecting" | "ended" | "dropped">("connecting");
+  const [state, setState] = useState<"connecting" | "live" | "reconnecting" | "ended" | "dropped" | "failed">("connecting");
+  const [attempt, setAttempt] = useState(0);
+  // permissions the browser refused (each on its own: a blocked camera must not take the voice with it) and autoplay that was blocked
+  const [denied, setDenied] = useState<{ microphone: boolean; camera: boolean }>({ microphone: false, camera: false });
+  const [soundBlocked, setSoundBlocked] = useState(false);
   const [audioOnly, setAudioOnly] = useState(false);
-  const poorReports = useRef(poorConnectionTracker());
+  const poorLink = useRef<ReturnType<typeof poorLinkClock> | null>(null);
   const audioOnlyRef = useRef(false);
   const [remoteCount, setRemoteCount] = useState(0);
   const [microphoneOn, setMicrophoneOn] = useState(false);
@@ -75,8 +81,10 @@ export function VideoRoomClient({ token, serverUrl, labels, chatHref, ratingHref
             const local = participant.identity === room.localParticipant.identity;
             setQuality((q) => (local ? { ...q, local: qualityLevel(quality) } : { ...q, remote: qualityLevel(quality) }));
             if (!local) return;
-            if (poorReports.current.report(quality, ConnectionQuality.Poor)) void goAudioOnly(room);
+            // LiveKit reports a quality only when it changes, so "two poor reports in a row" never happens: a link that stays poor does
+            poorLink.current?.report(quality === ConnectionQuality.Poor);
           })
+          .on(RoomEvent.AudioPlaybackStatusChanged, () => { if (!cancelled) setSoundBlocked(!room.canPlaybackAudio); })
           .on(RoomEvent.Disconnected, (reason?: number) => {
             stopReconnectClock();
             if (cancelled) return;
@@ -84,6 +92,8 @@ export function VideoRoomClient({ token, serverUrl, labels, chatHref, ratingHref
           });
         // Losing the connection (Wi-Fi <-> 4G/5G, a lift) shows "reconnecting" while LiveKit restarts ICE and resumes the same call;
         // only after RECONNECT_DEADLINE_MS without it is the call over ("dropped", with the chat as the way on).
+        poorLink.current?.stop();
+        poorLink.current = poorLinkClock(() => { if (!cancelled) void goAudioOnly(room); });
         const clock = reconnectClock(() => { if (cancelled) return; setState("dropped"); void room.disconnect(); });
         clockRef.current = clock;
         function startReconnectClock(_r: Room) { if (cancelled) return; setState("reconnecting"); clock.start(); }
@@ -99,21 +109,28 @@ export function VideoRoomClient({ token, serverUrl, labels, chatHref, ratingHref
           await room.localParticipant.setMicrophoneEnabled(true).catch(() => undefined);
           await goAudioOnly(room);
         } else {
-          await room.localParticipant.enableCameraAndMicrophone().catch(() => undefined);
+          // each on its own: a refused camera keeps the voice, and the patient is told which one is blocked
+          const mic = await room.localParticipant.setMicrophoneEnabled(true).then(() => true, () => false);
+          const cam = await room.localParticipant.setCameraEnabled(true).then(() => true, () => false);
+          if (!cancelled) setDenied({ microphone: !mic, camera: !cam });
         }
+        if (!cancelled) setSoundBlocked(!room.canPlaybackAudio);
         readMedia();
       } catch {
-        if (!cancelled) setState("ended");
+        // the connection itself failed (blocked, offline): say so and offer another try, not a silent "call ended"
+        if (!cancelled) { setState("failed"); void roomRef.current?.disconnect(); }
       }
     })();
     return () => {
       cancelled = true;
       clockRef.current?.stop();
       clockRef.current = null;
+      poorLink.current?.stop();
+      poorLink.current = null;
       void roomRef.current?.disconnect();
       roomRef.current = null;
     };
-  }, [token, serverUrl, startAudioOnly]);
+  }, [token, serverUrl, startAudioOnly, attempt]);
 
   /** Video off both ways, sound kept: the camera stops publishing and the other side's video is unsubscribed. */
   async function goAudioOnly(room: Room) {
@@ -127,7 +144,7 @@ export function VideoRoomClient({ token, serverUrl, labels, chatHref, ratingHref
   async function tryVideoAgain() {
     const room = roomRef.current;
     if (!room) return;
-    poorReports.current.reset();
+    poorLink.current?.stop();
     audioOnlyRef.current = false;
     setAudioOnly(false);
     await setVideo(room, true);
@@ -149,7 +166,14 @@ export function VideoRoomClient({ token, serverUrl, labels, chatHref, ratingHref
       setPending(null);
     }
   }
-  function leave() { void roomRef.current?.disconnect(); setState("ended"); if (ratingHref) router.push(ratingHref); }
+  function leave() {
+    void endCallSession(fetch, endSessionId);
+    void roomRef.current?.disconnect();
+    setState("ended");
+    if (ratingHref) router.push(ratingHref);
+  }
+  function retryConnect() { audioOnlyRef.current = false; setAudioOnly(false); setDenied({ microphone: false, camera: false }); setState("connecting"); setAttempt((n) => n + 1); }
+  function enableSound() { void roomRef.current?.startAudio().then(() => setSoundBlocked(false)).catch(() => undefined); }
 
   return (
     <div className={styles.stack} data-call-state={state}>
@@ -157,6 +181,19 @@ export function VideoRoomClient({ token, serverUrl, labels, chatHref, ratingHref
       {state === "live" ? <p role="status" className={styles.callState}>{remoteCount > 0 ? labels.live : labels.waiting}</p> : null}
       {state === "reconnecting" ? <p role="status" className={styles.callState}><Spinner size={18} />{labels.reconnecting}</p> : null}
       {state === "ended" ? <p role="status" className={styles.callState}>{labels.ended}</p> : null}
+      {state === "failed" ? (
+        <p role="alert" className={styles.callState} data-call-failed>
+          {labels.connectFailed}
+          <Button label={labels.retry} variant="secondary" size="sm" onClick={retryConnect} />
+        </p>
+      ) : null}
+      {(state === "live" || state === "reconnecting") && denied.microphone ? <p role="alert" className={styles.callState} data-call-denied="microphone">{labels.micDenied}</p> : null}
+      {(state === "live" || state === "reconnecting") && denied.camera ? <p role="alert" className={styles.callState} data-call-denied="camera">{labels.camDenied}</p> : null}
+      {soundBlocked && (state === "live" || state === "reconnecting") ? (
+        <p role="status" className={styles.callState} data-call-sound-blocked>
+          <Button label={labels.enableSound} variant="secondary" size="sm" onClick={enableSound} />
+        </p>
+      ) : null}
       {state === "dropped" ? (
         <p role="status" className={styles.callState}>
           {labels.dropped}

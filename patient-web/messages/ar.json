@@ -3137,7 +3137,12 @@
     "outcomeSickLeave": "الإجازة المرضية",
     "outcomeCertificates": "الشهادات الطبية",
     "outcomeReports": "التقارير الطبية",
-    "outcomeDays": "{n, number} أيام"
+    "outcomeDays": "{n, number} أيام",
+    "callMicDenied": "الميكروفون محظور، لذلك لا يسمعك الطرف الآخر. اسمح به من إعدادات المتصفح.",
+    "callCamDenied": "الكاميرا محظورة، لذلك لا يراك الطرف الآخر. اسمح بها من إعدادات المتصفح.",
+    "callConnectFailed": "تعذّر الاتصال بالمكالمة. تحقق من اتصالك وحاول مرة أخرى.",
+    "callRetry": "حاول مرة أخرى",
+    "callEnableSound": "اضغط لتشغيل الصوت"
   },
   "ConsultClient": {
     "payHeading": "أكمل الدفع من خلال بوابة آمنة",
