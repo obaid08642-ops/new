@@ -177,7 +177,7 @@ describe('catalogue-apply --only=product_translations', () => {
     await expect(computePlan(db, ['--only=product_translations'])).rejects.toThrow(/needs --product-translations/);
     const p = await computePlan(db, ['--only=product_translations', `--product-translations=${f}`]);
     expect(new Set(p.changes.map((c) => c.step))).toEqual(new Set(['product_translations']));
-    expect(Object.keys(p.report)).toEqual(['product_translations']);
+    expect(Object.keys(p.report)).toEqual(['product_translations', 'self_conflicts']);
     expect(p.report.product_translations).toMatchObject({ to_write: 1, already_translated: 1 });
     expect(p.changes.every((c) => c.kind === 'set' && c.before === null)).toBe(true);
     await applyChanges(db, p.changes);
