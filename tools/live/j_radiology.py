@@ -108,6 +108,8 @@ def run(pat, center, other_center=None, admin=None):
         step('an unpaid card booking cannot be accepted', r.status == 400, r)
         r = center.req('PATCH', f'/radiology/bookings/{bid2}/state', {'state': 'CANCELLED', 'note': 'rejected_by_center: الجهاز تحت الصيانة'})
         step('center rejects it with a reason', r.ok and r.get('state') == 'CANCELLED', r)
+        r = pat.get(f'/radiology/bookings/{bid2}')
+        step('the patient sees the rejected booking cancelled', r.ok and r.get('state') == 'CANCELLED', r)
     from j_nursing import card_payment
     r = pat.post('/radiology/bookings', {'service_id': scans[-1]['id'], 'scheduled_at': tomorrow_at(13), 'location_type': 'facility', 'payment_method': 'card', 'provider_account_id': center_id})
     bid3 = r.get('id')

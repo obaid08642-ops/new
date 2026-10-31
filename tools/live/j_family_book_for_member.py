@@ -4,9 +4,17 @@
   verify) and the transaction records the payer. Someone outside the family cannot book for the member.
   Stack: backend :8002.
 """
+import json
+import subprocess
 import uuid
 
 from lib import Client, journey, step
+
+
+def appt_row(aid):
+    js = f'JSON.stringify(db.appointments.findOne({{id: "{aid}"}}, {{_id: 0, id: 1, patient_id: 1, booked_by_user_id: 1, status: 1}}))'
+    out = subprocess.run(['docker', 'exec', 'mongo', 'mongosh', '--quiet', 'nabd_live', '--eval', js], capture_output=True, text=True).stdout.strip()
+    return json.loads(out) if out and out != 'null' else None
 
 
 def main():
@@ -56,6 +64,8 @@ def main():
         return
     a = owner.get(f'/care/appointments/{aid}')
     step('the appointment is the member\'s, booked by the owner', a.get('patient_id') == member_id and a.get('booked_by_user_id') not in (None, member_id), a)
+    row = appt_row(aid)
+    step('MongoDB: the appointment is the member\'s and booked by the owner', bool(row) and row.get('patient_id') == member_id and row.get('booked_by_user_id') not in (None, member_id), row)
 
     journey('issue 684: the owner pays for the member\'s visit')
     r = owner.get(f'/payments/consultation/{aid}/capabilities')

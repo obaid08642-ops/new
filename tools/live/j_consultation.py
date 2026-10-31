@@ -43,7 +43,7 @@ def doctor_publishes_hours(doctor, admin, service_types=('clinic',)):
     step('the hours are live on the doctor schedule', r.ok and len(r.items() if not isinstance(r.body, list) else r.body) > 0, r)
 
 
-def book_paid(pat, doctor):
+def book_paid(pat, doctor, index=0):
     """patient finds the doctor, holds a clinic slot tomorrow, books and pays by card; returns the appointment id."""
     doc_id = doctor.get('/provider/me').get('account', 'id')
     journey('consultation: patient finds the doctor and a slot')
@@ -66,7 +66,7 @@ def book_paid(pat, doctor):
     step('the doctor has free clinic slots tomorrow', r.ok and free, r)
     if not free:
         return None
-    s0 = free[0]
+    s0 = free[index]
     slot = s0.get('start') or s0.get('slot_start') or s0.get('time') if isinstance(s0, dict) else s0
 
     journey('consultation: patient books and pays by card')
