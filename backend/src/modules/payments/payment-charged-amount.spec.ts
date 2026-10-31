@@ -15,7 +15,7 @@ const svcFor = (booking: any) => {
   return svc;
 };
 const PATIENT = { id: 'pat-1', role: 'patient' };
-const KEY = 'key-123456789012345';
+const KEY = 'idem-test-1';
 
 describe('payment intent amount', () => {
   it('consultation: charges total_price (115), not price (100), and equals the capabilities amount', async () => {
