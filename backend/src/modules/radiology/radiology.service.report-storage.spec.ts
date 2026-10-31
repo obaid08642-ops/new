@@ -7,8 +7,11 @@ describe('RadiologyOpsService secure report storage', () => {
   let storage: any;
   let bkgModel: any;
   let centerBkgModel: any;
+  let engine: any;
 
   beforeEach(() => {
+    // the real engine validates the move and runs the mutation; the double runs it and records the call
+    engine = { apply: jest.fn(async (a: any) => a.mutate()), announceCreated: jest.fn() };
     booking = { 
       id: 'rad-1', 
       state: 'IN_SCANNING', 
@@ -28,7 +31,7 @@ describe('RadiologyOpsService secure report storage', () => {
       {} as any, 
       storage as any, 
       {} as any, // ProviderProfile
-      {} as any, 
+      engine as any,
       { emit: jest.fn() } as any
     );
   });
@@ -90,6 +93,9 @@ describe('RadiologyOpsService secure report storage', () => {
       booking.state = 'UNDER_REVIEW';
       booking.state_history = [history('tech-1', 'REPORT_DRAFT'), history('tech-1', 'UNDER_REVIEW')];
       await service.approveReport('rad-1', { id: 'reviewer-9', account_id: 'provider-1', role: 'radiology' });
+      // publishing completes the service through the workflow engine, once: service.completed is what credits the centre's earning
+      expect(engine.apply).toHaveBeenCalledTimes(1);
+      expect(engine.apply).toHaveBeenCalledWith(expect.objectContaining({ kind: 'radiology', from_domain: 'UNDER_REVIEW', to_domain: 'REPORT_READY', entity_id: 'rad-1' }));
       expect(booking.state).toBe('REPORT_READY');
       expect(booking.report_approved_by).toBe('reviewer-9');
     });

@@ -281,14 +281,24 @@ export class RadiologyOpsService {
     // Two people: whoever uploaded the files or sent the report for review cannot publish it.
     const handled = (Array.isArray(b.state_history) ? b.state_history : []).some((h: any) => String(h?.by_user_id) === String(user.id) && [RadiologyBookingState.REPORT_DRAFT, RadiologyBookingState.UNDER_REVIEW].includes(h?.to));
     if (handled) throw new ForbiddenException('report_reviewer_must_differ_from_uploader');
-    b.report_status = 'ready';
-    b.report_approved_by = user.id;
-    b.report_approved_at = new Date();
-    (b.state_history = b.state_history || []).push({ from: b.state, to: RadiologyBookingState.REPORT_READY, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'Report approved and published by radiologist' });
-    b.state = RadiologyBookingState.REPORT_READY;
-    if (b.status !== undefined) b.status = RadiologyBookingState.REPORT_READY as any;
-    b.markModified?.('state_history');
-    await b.save();
+    // Through the workflow engine: publishing the report completes the service, and `service.completed` (once) is what credits the
+    // centre's earning. Writing the state directly left the report published but the wallet empty.
+    const fromState = b.state || b.status;
+    await this.engine.apply({
+      kind: 'radiology', entity_id: b.id, from_domain: fromState, to_domain: RadiologyBookingState.REPORT_READY,
+      actor_account_id: user.id, actor_role: user.role, patient_account_id: b.patient_id, reason: 'report_published',
+      mutate: async () => {
+        b.report_status = 'ready';
+        b.report_approved_by = user.id;
+        b.report_approved_at = new Date();
+        (b.state_history = b.state_history || []).push({ from: b.state, to: RadiologyBookingState.REPORT_READY, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'Report approved and published by radiologist' });
+        b.state = RadiologyBookingState.REPORT_READY;
+        if (b.status !== undefined) b.status = RadiologyBookingState.REPORT_READY as any;
+        b.markModified?.('state_history');
+        await b.save();
+        return b;
+      },
+    });
     // MODULE 11: Doctor auto-routing if referral exists
     if (b.referring_doctor_id) {
       this.events.emit('radiology.doctor_notify', { bookingId: id, doctorId: b.referring_doctor_id, patientId: b.patient_id, pdfUrl: b.signed_report_pdf_url, dicomUrl: b.dicom_url });
