@@ -145,6 +145,8 @@ export class RadiologyOpsService {
     await b.save();
     // MODULE 16: Emit notification
     this.events.emit('radiology.state_changed', { bookingId: id, state: targetState, patientId: b.patient_id });
+    // The cancel goes back to the card: the finance listener refunds what was paid (nothing was scanned yet).
+    if (targetState === RadiologyBookingState.CANCELLED) this.events.emit('radiology.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id, prior_state: current });
     return b;
   }
 

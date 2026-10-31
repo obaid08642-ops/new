@@ -8,7 +8,6 @@
  * 5.  GET    /provider/crm/:patientId                CRM persistence حقيقي
  * 6.  POST   /provider/crm/:patientId
  * 7.  GET    /provider/referrals/mine                تتبع الإحالات
- * 8.  CRUD   /hospital/staff-roster/technicians      قائمة الفنيين
  * 9.  CRUD   /facility/shifts                        الشيفتات (PATCH/DELETE يكمل القائم)
  * 10. POST   /claims/:id/{resubmit|approve|reject}   أفعال مطالبات المنشأة
  * 11. GET    /provider/reports/inbound               التقارير الواردة الحقيقية
@@ -18,7 +17,7 @@ import {
   Module, Controller, Get, Post, Patch, Put, Delete, Param, Body, Query, UseGuards,
   ForbiddenException, BadRequestException, NotFoundException, Injectable,
 } from '@nestjs/common';
-import { OrderInsuranceDto, LabCoverageDto, RadCoverageDto, NursingCoverageDto, PostCrmDto, PutCrmDto, CreateReferralDto, CreatePromotionDto, CreateTechDto, UpdateTechDto, ClaimResubmitDto, ClaimApproveDto, ClaimRejectDto, PatchAvailabilityDto } from './provider-production.dto';
+import { OrderInsuranceDto, LabCoverageDto, RadCoverageDto, NursingCoverageDto, PostCrmDto, PutCrmDto, CreateReferralDto, CreatePromotionDto, ClaimResubmitDto, ClaimApproveDto, ClaimRejectDto, PatchAvailabilityDto } from './provider-production.dto';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtAuthGuard, CurrentUser, Roles, getEffectiveRoles, hasEffectiveRole } from '../../common/auth.guard';
@@ -451,61 +450,6 @@ export class ProviderProductionService {
     await this.conn.collection('promotioncampaigns').insertOne(row as any);
     return { ...row, _id: undefined };
   }
-  // ═══ 8. Technician roster CRUD ═══
-  private async technicianCollection() { return this.conn.collection('technician_roster'); }
-
-  async listTechnicians(user: any): Promise<any[]> {
-    assertProviderRole(user);
-    const q: any = { owner_account_id: user.id };
-    if (isAdmin(user)) delete q.owner_account_id;
-    return this.conn.collection('technician_roster').find(q, { projection: { _id: 0 } }).sort({ createdAt: -1 }).toArray();
-  }
-
-  async createTechnician(user: any, body: any) {
-    assertProviderRole(user);
-    if (!body?.full_name?.trim() || !body?.phone?.trim()) throw new BadRequestException('full_name_phone_required');
-    const col = await this.technicianCollection();
-    const dup = await col.findOne({ owner_account_id: user.id, phone: body.phone.trim() });
-    if (dup) throw new BadRequestException('technician_exists');
-    const doc = {
-      id: `tech_${Date.now()}_${Math.floor(Math.random() * 1e4)}`,
-      owner_account_id: user.id,
-      full_name: String(body.full_name).trim().slice(0, 120),
-      phone: String(body.phone).trim(),
-      department: body.department ? String(body.department).slice(0, 80) : undefined,
-      specialty: body.specialty ? String(body.specialty).slice(0, 80) : undefined,
-      suspended: false,
-      createdAt: new Date(),
-    };
-    await col.insertOne(doc as any);
-    const { _id, ...out } = doc as any;
-    return out;
-  }
-
-  async updateTechnician(user: any, techId: string, body: any) {
-    assertProviderRole(user);
-    const col = await this.technicianCollection();
-    const t: any = await col.findOne({ id: techId });
-    if (!t) throw new NotFoundException('technician_not_found');
-    if (!isAdmin(user) && t.owner_account_id !== user.id) throw new ForbiddenException('not_owner');
-    const patch: any = {};
-    for (const k of ['full_name', 'phone', 'department', 'specialty']) if (body?.[k] !== undefined) patch[k] = String(body[k]).slice(0, 120);
-    if (body?.suspended !== undefined) patch.suspended = !!body.suspended;
-    await col.updateOne({ id: techId }, { $set: { ...patch, updatedAt: new Date() } });
-    const updated: any = await col.findOne({ id: techId }, { projection: { _id: 0 } });
-    return updated;
-  }
-
-  async deleteTechnician(user: any, techId: string) {
-    assertProviderRole(user);
-    const col = await this.technicianCollection();
-    const t: any = await col.findOne({ id: techId });
-    if (!t) throw new NotFoundException('technician_not_found');
-    if (!isAdmin(user) && t.owner_account_id !== user.id) throw new ForbiddenException('not_owner');
-    await col.deleteOne({ id: techId });
-    return { ok: true };
-  }
-
   // ═══ 9. Facility shifts — full CRUD handled in facility-ops (PATCH/DELETE added there) ═══
 
   // ═══ 10. Claim actions ═══
@@ -726,16 +670,6 @@ export class ProviderProductionController {
   listPromotions(@CurrentUser() u: any): Promise<any[]> { return this.svc.listPromotions(u); }
   @Post('provider/promotions')
   createPromotion(@CurrentUser() u: any, @Body() b: CreatePromotionDto) { return this.svc.createPromotion(u, b); }
-  // ── 8. technician roster exact path ──
-  @Get('hospital/staff-roster/technicians')
-  listTechs(@CurrentUser() u: any) { return this.svc.listTechnicians(u); }
-  @Post('hospital/staff-roster/technicians')
-  createTech(@CurrentUser() u: any, @Body() b: CreateTechDto) { return this.svc.createTechnician(u, b); }
-  @Patch('hospital/staff-roster/technicians/:id')
-  updateTech(@CurrentUser() u: any, @Param('id') id: string, @Body() b: UpdateTechDto) { return this.svc.updateTechnician(u, id, b); }
-  @Delete('hospital/staff-roster/technicians/:id')
-  deleteTech(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.deleteTechnician(u, id); }
-
   // ── 10. claims actions exact paths ──
   @Post('claims/:id/resubmit')
   claimResubmit(@CurrentUser() u: any, @Param('id') id: string, @Body() b: ClaimResubmitDto) { return this.svc.claimAction(u, id, 'resubmit', b); }
