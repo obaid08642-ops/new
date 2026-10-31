@@ -373,6 +373,7 @@ export default function ChatWithDoctorScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <TextInput
                 accessibilityLabel={k('consult.chat.placeholder')}
+                testID="chat-input"
                 style={{ flex: 1, minHeight: 44, borderRadius: 22, paddingHorizontal: 16, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.hairline, color: c.text.primary, ...scale(t, 'small', 'regular'), textAlign: flow.textAlign, writingDirection: dir }}
                 placeholder={k('consult.chat.placeholder')}
                 placeholderTextColor={c.text.tertiary}

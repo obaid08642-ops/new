@@ -5,7 +5,8 @@ name: Native E2E (Android + iOS, Maestro)
 # fresh install; the Android crawl (optional) opens each screen and taps every control (tools/native/native_crawl.py, adb only).
 # Results and screenshots are uploaded as artifacts; the report job merges them (tools/native/report.py) into the run summary.
 # Owner-approved 2026-10-03 (Android first); brought to main 2026-10-25; iOS simulator and the nightly run added 2026-10-30.
-# Triggers: manual (workflow_dispatch) and a nightly run of both apps on both platforms (sign-in flow, first target).
+# Triggers: manual (workflow_dispatch) and a nightly run of both apps on both platforms (every flow of tools/native/flows: sign-in, and for the
+# patient app the consultation booking, the doctor chat and the pharmacy order journeys; first target).
 # iOS: unsigned simulator build on macos-latest (expo prebuild + xcodebuild, no signing). The screen crawl is Android only.
 # Firebase Test Lab (real Android device smoke) runs only when the owner has added the FIREBASE_TEST_LAB_SA and FIREBASE_PROJECT_ID
 # secrets; without them that job reports "not configured" and passes (see tools/native/README.md).
@@ -25,7 +26,7 @@ on:
         options: [android, ios, both]
         default: android
       flow:
-        description: 'Maestro flows to run: part of a file name in tools/native/flows (login), "all" or "none"'
+        description: 'Maestro flows to run: part of a file name in tools/native/flows (login, consultation_booking, chat, pharmacy_order), "all" or "none". The nightly run uses all'
         type: string
         default: login
       crawl:
@@ -85,7 +86,7 @@ jobs:
           print('runs=' + json.dumps(runs))
           print('android=' + ('true' if platform in ('android', 'both') else 'false'))
           print('ios=' + ('true' if platform in ('ios', 'both') else 'false'))
-          print('flow=' + ('login' if nightly else os.environ['FLOW'] or 'login'))
+          print('flow=' + ('all' if nightly else os.environ['FLOW'] or 'login'))
           PY
 
   build:
