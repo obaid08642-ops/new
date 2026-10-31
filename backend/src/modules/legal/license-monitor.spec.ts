@@ -13,8 +13,10 @@ describe('licence monitor', () => {
     const svc: any = Object.create(LegalEnterpriseService.prototype);
     svc.conn = { collection: (n: string) => (n === 'provider_profiles' ? profiles : n === 'provider_accounts' ? accounts : notifications) };
     svc.logger = { warn: jest.fn(), error: jest.fn() };
+    const emitted: any[] = [];
+    svc.events = { emit: (n: string, p: any) => emitted.push([n, p]) };
     await svc.licenseMonitor();
-    return { updates, notes, accountUpdates };
+    return { updates, notes, accountUpdates, emitted };
   };
   const inDays = (d: number) => new Date(Date.now() + d * DAY - 1000);
 
@@ -50,5 +52,15 @@ describe('licence monitor', () => {
     }
     const already = await run({ _id: 1, id: 'p1', account_id: 'acc-1', license_expiry_date: new Date(Date.now() - DAY) }, { id: 'acc-1', status: 'suspended' });
     expect(already.accountUpdates).toEqual([]);
+  });
+
+  it('PV-08/09: the provider is also told in the app (bell and push) when the warning goes out and when the account is suspended', async () => {
+    const warn = await run({ _id: 1, id: 'p1', account_id: 'acc-1', user_id: 'u1', license_expiry_date: inDays(6) });
+    expect(warn.emitted).toEqual([['provider.license_expiring', expect.objectContaining({ account_id: 'acc-1', profile_id: 'p1', days_left: 6, bucket: 7 })]]);
+    const exp6 = inDays(6);
+    const again = await run({ _id: 1, id: 'p1', account_id: 'acc-1', license_expiry_date: exp6, license_warn_7d: true, license_warn_expiry: exp6.toISOString() });
+    expect(again.emitted).toEqual([]);
+    const gone = await run({ _id: 1, id: 'p1', account_id: 'acc-1', license_expiry_date: inDays(-1) });
+    expect(gone.emitted).toEqual([['provider.license_suspended', { account_id: 'acc-1', profile_id: 'p1' }]]);
   });
 });
