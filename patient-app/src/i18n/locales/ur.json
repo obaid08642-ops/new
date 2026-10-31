@@ -4022,5 +4022,9 @@
   "consult.call.quality.good": "اچھا",
   "consult.call.quality.poor": "کمزور",
   "consult.call.quality.lost": "منقطع",
-  "consult.call.quality.unknown": "جانچ ہو رہی ہے"
+  "consult.call.quality.unknown": "جانچ ہو رہی ہے",
+  "support.status.open": "کھلی",
+  "support.status.inProgress": "زیرِ کارروائی",
+  "support.status.resolved": "حل ہو گئی",
+  "support.status.closed": "بند"
 }

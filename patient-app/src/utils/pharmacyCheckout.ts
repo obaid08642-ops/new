@@ -310,6 +310,25 @@ export interface Intent {
   status: string | null;
 }
 
+/**
+ * The hosted payment page the app may open from a route parameter: https, on a payment gateway the backend uses (Moyasar, Tap, Stripe)
+ * or on Nabd's own domains. A link `nabdplus://payments/result?paymentUrl=https://anything` can carry any address; opening it
+ * from inside the app would hand a phishing page the look of the payment screen, so every other host is dropped.
+ */
+const PAYMENT_HOST_SUFFIXES = ['moyasar.com', 'tap.company', 'stripe.com', 'nabd.plus', 'nabdahplus.com'];
+
+export function trustedPaymentUrl(value: string | null): string | null {
+  try {
+    if (!value) return null;
+    const url = new URL(value);
+    if (url.protocol !== 'https:' || url.username || url.password) return null;
+    const host = url.hostname.toLowerCase();
+    return PAYMENT_HOST_SUFFIXES.some((suffix) => host === suffix || host.endsWith(`.${suffix}`)) ? value : null;
+  } catch {
+    return null;
+  }
+}
+
 function httpsUrl(value: string | null): string | null {
   try {
     return value && new URL(value).protocol === 'https:' ? value : null;
@@ -388,7 +407,7 @@ export function readResultParams(params: Record<string, string | string[] | unde
     bookingKind: first(params.bookingKind),
     bookingId: first(params.bookingId) ?? first(params.orderId),
     visitType: first(params.visitType),
-    paymentUrl: httpsUrl(first(params.paymentUrl)),
+    paymentUrl: trustedPaymentUrl(first(params.paymentUrl)),
   };
 }
 
