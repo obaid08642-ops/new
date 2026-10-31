@@ -1,6 +1,6 @@
 import { startOnboardingAccount, firstMissingDoc, useStepSaver } from '../registration/kit';
 import type { StepProps, Uploader, RequiredDoc } from '../registration/kit';
-import { DocCard, NoticeSection, useDocumentPicker } from '../registration/WizardParts';
+import { DocCard, LicenseExpiryField, NoticeSection, licenseExpiryError, useDocumentPicker } from '../registration/WizardParts';
 import type { NoticeText } from '../registration/WizardParts';
 import { RegistrationWizard } from '../registration/RegistrationWizard';
 import type { RegistrationProps, WizardConfig } from '../registration/RegistrationWizard';
@@ -135,6 +135,7 @@ async function sendNursing(data: NurseRegData, uploads: Uploader): Promise<void>
     moh_license_number: data.mohLicense,
     scfhs_license_number: data.scfhsNumber,
     scfhs_expiry: data.scfhsExpiry || undefined,
+    license_expiry_date: data.scfhsExpiry,
     license_documents: docs,
     profile_photo: data.photoUri ? photoUrl : undefined,
   });
@@ -367,6 +368,7 @@ function NS2({ data, update, submitRef, uploads }: StepProps<NurseRegData>) {
     const e: Record<string, string> = {};
     if (isIndiv && !data.scfhsNumber.trim()) e.scfhs = AR ? 'رقم SCFHS مطلوب' : 'SCFHS required';
     if (!isIndiv && !Validate.cr(data.crNumber)) e.cr = AR ? 'السجل التجاري 10 أرقام' : 'CR 10 digits';
+    const expiryErr = licenseExpiryError(data.scfhsExpiry, AR); if (expiryErr) e.expiry = expiryErr;
     if (!Validate.iban(data.iban)) e.iban = AR ? 'الآيبان غير صحيح' : 'Invalid IBAN';
     setErrs(e); return Object.keys(e).length === 0;
   };
@@ -425,7 +427,6 @@ function NS2({ data, update, submitRef, uploads }: StepProps<NurseRegData>) {
       {isIndiv ? (
         <>
           <NInput label={AR ? 'رقم ترخيص SCFHS' : 'SCFHS License Number'} placeholder="123456" value={data.scfhsNumber} onChange={v => update({ scfhsNumber: v.replace(/\D/g, '') })} required error={errs.scfhs} kbType="numeric" maxLen={8} />
-          <NInput label={AR ? 'تاريخ انتهاء الترخيص' : 'License Expiry'} placeholder="YYYY-MM-DD" value={data.scfhsExpiry} onChange={v => update({ scfhsExpiry: v })} />
           <NInput label={AR ? 'رقم الهوية الوطنية' : 'National ID'} placeholder="1XXXXXXXXX" value={data.nationalId} onChange={v => update({ nationalId: v.replace(/\D/g, '') })} kbType="numeric" maxLen={10} />
         </>
       ) : (
@@ -434,6 +435,8 @@ function NS2({ data, update, submitRef, uploads }: StepProps<NurseRegData>) {
           <NInput label={AR ? 'ترخيص وزارة الصحة MOH' : 'MOH License'} placeholder="MOH-NRS-XXXXX" value={data.mohLicense} onChange={v => update({ mohLicense: v })} required />
         </>
       )}
+
+      <LicenseExpiryField value={data.scfhsExpiry} onChange={v => update({ scfhsExpiry: v })} error={errs.expiry} />
 
       <NInput label={AR ? 'رقم الآيبان IBAN' : 'Bank IBAN'} placeholder="SA0000000000000000000000" value={data.iban} onChange={v => update({ iban: v.toUpperCase().replace(/\s/g, '') })} required error={errs.iban} maxLen={24} />
 
