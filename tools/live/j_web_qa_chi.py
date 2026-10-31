@@ -40,12 +40,14 @@ def main():
         step('the link goes to the same address as the server config', bool(chi) and href.rstrip('/') == chi.rstrip('/'), href)
         step('the link opens in a new tab (target=_blank, noopener)', link.first.get_attribute('target') == '_blank' and 'noopener' in (link.first.get_attribute('rel') or ''), link.first.get_attribute('rel'))
         page.reload(wait_until='load')
+        # readiness after the reload: the add-policy form is rendered (the page never reaches network idle, it keeps polling)
+        page.locator('form[aria-label]').first.wait_for(timeout=60000)
         link.first.wait_for(timeout=60000)
         if link.count() != 1:
-            # diagnostics only (the check below is unchanged): where each matching anchor sits, for the CI log
-            for i in range(link.count()):
-                where = link.nth(i).evaluate("e => 'anchor ' + e.outerHTML.slice(0, 200) + ' | parent ' + (e.parentElement ? e.parentElement.outerHTML.slice(0, 160) : 'none')")
-                print(f'  NOTE CHI {i}: {where}')
+            # diagnostics only (the check below is unchanged): where each matching anchor sits, one call for all of them
+            where = link.evaluate_all("els => els.map(e => { const chain = []; let n = e.parentElement; for (let i = 0; i < 4 && n; i++) { chain.push(n.tagName + (n.getAttribute('aria-label') ? '[aria-label=' + n.getAttribute('aria-label') + ']' : '')); n = n.parentElement; } return e.textContent.slice(0, 30) + ' | ' + e.getAttribute('href') + ' | ' + chain.join(' < '); })")
+            for i, text in enumerate(where):
+                print(f'  NOTE CHI {i}: {text}')
         step('after reload the CHI link is still there', link.count() == 1, link.count())
     finally:
         browser.close()
