@@ -118,6 +118,50 @@ export class HospitalService {
     return inv;
   }
 
+  /** The facility withdraws an invitation nobody has answered yet (an admin may withdraw any). Answered invitations stay as they are. */
+  async cancelInvitation(actorId: string, invitationId: string, actor?: any, asAdmin = false) {
+    this.assertFacilityActor(actor, true);
+    const inv = await this.invitationModel.findOne({ id: invitationId });
+    if (!inv || (!asAdmin && inv.facility_id !== actorId)) throw new NotFoundException('invitation_not_found');
+    if (inv.status !== 'pending') throw new BadRequestException(`invitation_not_pending_${inv.status}`);
+    inv.status = 'cancelled';
+    inv.cancelled_at = new Date();
+    inv.cancelled_by = String(actorId);
+    await inv.save();
+    await recordAudit(this.staffModel.db, { action: 'facility_invitation.cancelled', user_id: String(actorId), role: String(actor?.role ?? 'facility'), resource_kind: 'facility_invitation', resource_id: inv.id, details: { facility_id: inv.facility_id, invitee_id: inv.invitee_id, by_admin: asAdmin } } as never);
+    return inv;
+  }
+
+  /** Admin: every facility invitation, newest first, with both names. Filters: status, facility_id. */
+  async adminListInvitations(q: { status?: string; facility_id?: string; limit?: number }) {
+    const filter: Record<string, unknown> = {};
+    if (q.status) filter.status = { $eq: String(q.status) };
+    if (q.facility_id) filter.facility_id = { $eq: String(q.facility_id) };
+    const rows: any[] = await this.invitationModel.find(filter).sort({ createdAt: -1 }).limit(Math.min(Math.max(Number(q.limit) || 100, 1), 500)).lean();
+    const ids = [...new Set(rows.flatMap((r) => [r.facility_id, r.invitee_id]))];
+    const users: any[] = ids.length ? await this.userModel.find({ id: { $in: ids } }).select({ id: 1, full_name: 1 }).lean() : [];
+    const name = new Map(users.map((u) => [u.id, u.full_name || null]));
+    return rows.map((r) => ({ ...r, facility_name: name.get(r.facility_id) ?? null, invitee_name: name.get(r.invitee_id) ?? null }));
+  }
+
+  /** Admin: the providers linked under a facility (accepted invitations set `parent_provider_account_id`). Filter: facility_id. */
+  async adminListMemberships(q: { facility_id?: string; limit?: number }) {
+    const filter: Record<string, unknown> = { parent_provider_account_id: q.facility_id ? { $eq: String(q.facility_id) } : { $exists: true, $nin: [null, ''] } };
+    const rows: any[] = await this.userModel.find(filter).select({ id: 1, full_name: 1, role: 1, parent_provider_account_id: 1, permissions: 1, suspended: 1, active: 1 }).limit(Math.min(Math.max(Number(q.limit) || 200, 1), 1000)).lean();
+    const fac: any[] = rows.length ? await this.userModel.find({ id: { $in: [...new Set(rows.map((r) => r.parent_provider_account_id))] } }).select({ id: 1, full_name: 1 }).lean() : [];
+    const name = new Map(fac.map((u) => [u.id, u.full_name || null]));
+    return rows.map((r) => ({ user_id: r.id, full_name: r.full_name || null, role: r.role, facility_id: r.parent_provider_account_id, facility_name: name.get(r.parent_provider_account_id) ?? null, permissions: r.permissions || [], suspended: r.active === false || !!r.suspended }));
+  }
+
+  /** Admin: end a provider's link to a facility (the same effect as the provider leaving), audited. */
+  async adminEndMembership(adminId: string, userId: string) {
+    const user: any = await this.userModel.findOne({ id: userId }).lean();
+    const facilityId = user?.parent_provider_account_id;
+    await this.leaveFacility(userId);
+    await recordAudit(this.staffModel.db, { action: 'facility_membership.ended_by_admin', user_id: String(adminId), role: 'admin', resource_kind: 'facility_membership', resource_id: userId, details: { facility_id: facilityId } } as never);
+    return { ok: true };
+  }
+
   /** Provider leaves its linked facility: clears the link and facility-granted permissions. */
   async leaveFacility(userId: string) {
     const user: any = await this.userModel.findOne({ id: userId });

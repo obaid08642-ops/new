@@ -1,6 +1,6 @@
 import { startOnboardingAccount, apiMessage, useStepSaver } from '../registration/kit';
 import type { StepProps } from '../registration/kit';
-import { DocBtn, NoticeSection, useDocumentPicker } from '../registration/WizardParts';
+import { DocBtn, LicenseExpiryField, NoticeSection, licenseExpiryError, useDocumentPicker } from '../registration/WizardParts';
 import type { NoticeText } from '../registration/WizardParts';
 import { RegistrationWizard } from '../registration/RegistrationWizard';
 import type { RegistrationProps, WizardConfig } from '../registration/RegistrationWizard';
@@ -48,7 +48,7 @@ interface FacilityRegData {
   facilityNameAr: string; facilityNameEn: string; facilityType: string;
   managerName: string; managerPhone: string; managerEmail: string; password: string; confirmPass: string;
   languages: string[];
-  crNumber: string; mohLicense: string; crDocUri: string; mohDocUri: string; facilityLogoUri: string; facilityImagesUris: string[];
+  crNumber: string; mohLicense: string; licenseExpiry: string; crDocUri: string; mohDocUri: string; facilityLogoUri: string; facilityImagesUris: string[];
   region: string; city: string; district: string; fullAddress: string;
   location: {lat: number; lng: number};
   // Sub-accounts
@@ -64,7 +64,7 @@ const INIT: FacilityRegData = {
   
   facilityNameAr: '', facilityNameEn: '', facilityType: '',
   managerName: '', managerPhone: '', managerEmail: '', password: '', confirmPass: '',
-  languages: [], crNumber: '', mohLicense: '', crDocUri: '', mohDocUri: '', facilityLogoUri: '', facilityImagesUris: [],
+  languages: [], crNumber: '', mohLicense: '', licenseExpiry: '', crDocUri: '', mohDocUri: '', facilityLogoUri: '', facilityImagesUris: [],
   region: '', city: '', district: '', fullAddress: '', location: {lat: 0, lng: 0}, subProviders: [], cashOnly: false, acceptedInsurance: [], hasInsuranceCoordinator: false, signatureData: '', signerName: '', signerRole: '', termsAgreed: false, loading: false
 };
 
@@ -238,14 +238,20 @@ function Step2Legal({ data, update, submitRef }: StepProps<FacilityRegData>) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   
   const pick = useDocumentPicker<FacilityRegData>(update);
+  const [errs, setErrs] = useState<Record<string, string>>({});
 
-  const handleNext = () => true;
+  const handleNext = () => {
+    const expiryErr = licenseExpiryError(data.licenseExpiry, AR);
+    setErrs(expiryErr ? { expiry: expiryErr } : {});
+    return !expiryErr;
+  };
   useStepSaver(submitRef, handleNext);
 
 return (
     <View>
       <NInput label={AR ? 'رقم السجل التجاري' : 'CR Number'} value={data.crNumber} onChange={v=>update({crNumber:v})} kbType="numeric" required />
       <NInput label={AR ? 'رقم ترخيص وزارة الصحة' : 'MOH License'} value={data.mohLicense} onChange={v=>update({mohLicense:v})} kbType="numeric" required />
+      <LicenseExpiryField value={data.licenseExpiry} onChange={v=>update({licenseExpiry:v})} error={errs.expiry} />
       
       <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.md, marginBottom: SP.sm, textAlign: AR?'right':'left' }}>{AR ? 'المرفقات' : 'Attachments'}</Text>
       <DocBtn label={AR ? 'شهادة السجل التجاري' : 'CR Document'} done={!!data.crDocUri} onPress={() => pick('crDocUri')} />
@@ -332,6 +338,7 @@ function Step3Location({ data, update, submitRef, uploads }: StepProps<FacilityR
         license_number: data.crNumber || data.mohLicense,
         cr_number: data.crNumber || undefined,
         moh_license_number: data.mohLicense || undefined,
+        license_expiry_date: data.licenseExpiry,
         license_documents: docs,
         clinic_images: images,
         logo: logoUrl || undefined,

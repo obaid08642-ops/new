@@ -1,4 +1,5 @@
-import { IsArray, IsBoolean, IsDefined, IsEmail, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsDefined, IsEmail, IsIn, IsInt, IsNumber, IsObject, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateBranchDto {
   @IsDefined() @IsString() name_ar: string;
@@ -105,4 +106,11 @@ export class RespondInvitationDto {
   @IsOptional()
   @IsBoolean()
   accept?: boolean;
+}
+
+/** Admin list filters for facility invitations and memberships. */
+export class AdminFacilityQueryDto {
+  @IsOptional() @IsString() @IsIn(['pending', 'accepted', 'rejected', 'cancelled']) status?: string;
+  @IsOptional() @IsString() @MaxLength(128) facility_id?: string;
+  @IsOptional() @Type(() => Number) @IsInt() @Min(1) @Max(1000) limit?: number;
 }
