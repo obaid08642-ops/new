@@ -3,6 +3,10 @@
   - the website sends the code and moves to the code page (/ar/otp);
   - the code from the mail (lib.mail_code) is typed into the six cells and the website leaves the code page;
   - MongoDB: the users row exists for that e-mail, and the new account signs in through the API with the password.
+  - Precondition (set here, not by another shard): the admin publishes patient_terms and privacy_policy with acceptance
+    required. The website's sign-up refuses with 503 when those texts exist but are not required (patient-web
+    app/api/auth/register/route.ts), and seed_legal.py publishes them as not required, so this journey cannot rely on
+    j_web_signup having run first (it runs in another gate shard).
 Stack: backend :8002, patient-web (NABD_WEB_JOURNEYS_URL, default :3100), mail sink. A missing browser or website is a FAIL, never a PASS."""
 import json
 import os
@@ -22,8 +26,16 @@ def mongo_json(js):
 
 
 def main():
+    import j_admin
     from playwright.sync_api import sync_playwright
     from lib import summary
+
+    admin, _ = j_admin.login()
+    journey('account A-02 (web): the patient texts are required at sign-up (local test database)')
+    for key, ar, en in (('patient_terms', 'شروط استخدام المريض', 'Patient terms'), ('privacy_policy', 'سياسة الخصوصية', 'Privacy policy')):
+        r = admin.put(f'/admin/admin/legal/policy/{key}', {'title_ar': ar, 'title_en': en, 'content_ar': f'{ar} — نص اختبار التسجيل {uuid.uuid4().hex[:6]}',
+                                                           'content_en': f'{en} — sign-up journey text', 'requires_acceptance': True, 'change_note': 'web sign-up journey'})
+        step(f'admin publishes {key} with acceptance required', r.ok, r.status)
 
     tag = uuid.uuid4().hex[:8]
     email = f'web-signup-{tag}@nabd.test'
