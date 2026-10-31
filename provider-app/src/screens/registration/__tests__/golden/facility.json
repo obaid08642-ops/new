@@ -35,6 +35,7 @@
           "license_number": "1010202020",
           "cr_number": "1010202020",
           "moh_license_number": "MOH-H-777",
+          "license_expiry_date": "2099-12-31",
           "license_documents": [
             "https://cdn.test/cr.jpg",
             "https://cdn.test/moh-old.jpg"
@@ -199,9 +200,9 @@
         {
           "signer_name": "Sara Omar",
           "signer_role": "General Manager",
-          "signature_url": "https://cdn.test/signature.png",
           "lat": 24.7136,
           "lng": 46.6753,
+          "signature_url": "https://cdn.test/signature.png",
           "full_data": {
             "facilityNameAr": "مستشفى نبض",
             "facilityNameEn": "Nabd Hospital",
@@ -216,6 +217,7 @@
             ],
             "crNumber": "1010202020",
             "mohLicense": "MOH-H-777",
+            "licenseExpiry": "2099-12-31",
             "mohDocUri": "https://cdn.test/moh-old.jpg",
             "region": "riyadh",
             "city": "riyadh_city",
