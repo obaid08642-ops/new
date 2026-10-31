@@ -102,10 +102,22 @@ describe('nurse booking page', () => {
     await waitFor(() => expect(mockRouter.replace).toHaveBeenCalled());
     const [first, second] = posts();
     expect(first[0]).toBe('/nursing/bookings');
-    expect(JSON.parse(first[1].body)).toMatchObject({ provider_id: 'nurse-1', service_id: 'svc-1', payment_method: 'card', scheduled_at: SLOT });
+    expect(JSON.parse(first[1].body)).toMatchObject({ provider_id: 'nurse-1', service_id: 'svc-1', payment_method: 'card', scheduled_at: SLOT, sessions_count: 1 });
     expect(apiFetch.mock.calls.some(([path]) => String(path).startsWith('/home-care/providers/nurse-1/slots?date='))).toBe(true);
     expect(second[0]).toBe('/payments/intent/nursing/b-1');
     expect(mockRouter.replace.mock.calls[0][0]).toMatchObject({ pathname: '/payments/result', params: { bookingKind: 'nursing', bookingId: 'b-1' } });
+  });
+
+  it('books the number of visits the total shows: sessions_count equals the days chosen', async () => {
+    mockParams.current = { nurseId: 'nurse-1', flow: 'cash', serviceId: 'svc-1' };
+    answer({}, (path) => (path === '/nursing/bookings' ? { id: 'b-3' } : { id: 'txn-3', checkout_url: 'https://pay.example.test/y', amount: 300 }));
+    await render(wrap(<NurseBookingScreen />));
+    await screen.findByText('Test Nurse');
+    await tap(screen.getByLabelText(new RegExp(`^${k('nur.book.frequency')}`)));
+    await tap(await screen.findByText(k('nur.book.consecutive', { n: '3' })));
+    await tap(screen.getByLabelText(new RegExp(`^${k('nur.book.confirmPrice', { amount: '300.00', currency: k('pharmacy.currency') }).slice(0, 20)}`)));
+    await waitFor(() => expect(mockRouter.replace).toHaveBeenCalled());
+    expect(JSON.parse(posts()[0][1].body)).toMatchObject({ provider_id: 'nurse-1', sessions_count: 3 });
   });
 
   it('sends an insurance request to the insurance profile when no policy is saved, and posts nothing', async () => {

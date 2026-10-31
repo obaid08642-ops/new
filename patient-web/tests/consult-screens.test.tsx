@@ -182,14 +182,17 @@ describe("the appointment screens", () => {
   });
 
   it("booking status, cancel and reschedule, clinic confirm and the waiting room read the one appointment and gate on its status", async () => {
-    server.api.mockImplementation(async (path: string) => (path === "/system-config/public" ? json({ cancellation_policy: { full_hours: 24, half_hours: 12, half_refund_percent: 50 } }) : json(row({ slot_start: new Date(Date.now() + 48 * 3600000).toISOString() }))));
+    server.api.mockImplementation(async (path: string) => (path === "/system-config/public" ? json({ cancellation_policy: { full_hours: 24, half_hours: 12, half_refund_percent: 50 } }) : json(row({ slot_start: new Date(Date.now() + 48 * 3600000).toISOString(), cancellation: { refund_now: { percent: 100, amount: 115 } } }))));
     const status = render(await BookingStatusPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }));
     expect(status).toContain("Enter waiting room");
     const cancel = render(await CancelReschedulePage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }));
     expect(cancel).toContain("Cancellation and refund policy");
     expect(cancel).toContain("24 hours or more before: 100% refund");
     expect(cancel).toContain("12 to 24 hours before: 50% refund");
+    // the refund for cancelling now is the server's own figure on the appointment, not one the page computes from the policy
     expect(cancel).toContain("Expected refund: 100%");
+    server.api.mockImplementation(async (path: string) => (path === "/system-config/public" ? json({ cancellation_policy: { full_hours: 24, half_hours: 12, half_refund_percent: 50 } }) : json(row({ slot_start: new Date(Date.now() + 48 * 3600000).toISOString(), cancellation: { refund_now: { percent: 50, amount: 58 } } }))));
+    expect(render(await CancelReschedulePage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }))).toContain("Expected refund: 50%");
     // the numbers are the server's: another policy changes the sentences, and without one nothing is assumed
     server.api.mockImplementation(async (path: string) => (path === "/system-config/public" ? json({ cancellation_policy: { full_hours: 48, half_hours: 6, half_refund_percent: 30 } }) : json(row())));
     expect(render(await CancelReschedulePage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ appointmentId: ID }) }))).toContain("48 hours or more before: 100% refund");
