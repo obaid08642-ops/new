@@ -117,3 +117,8 @@ export function applyState(prev: ChatMsg[], ev: StateEvent, myId?: string): Chat
     return rank[next] > rank[m.tick ?? 'sent'] ? { ...m, tick: next } : m;
   });
 }
+
+/** Oldest first. The server answers newest first (chat.service getMessages), the thread reads top to bottom. */
+export function chronological(list: ChatMsg[]): ChatMsg[] {
+  return [...list].sort((a, b) => a.at - b.at);
+}

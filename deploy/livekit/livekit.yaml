@@ -14,6 +14,12 @@ rtc:
 keys:
   ${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}
 
+# Room events (room_finished ends a stuck call session) go to the backend, which verifies the signature with the same key pair
+webhook:
+  api_key: ${LIVEKIT_API_KEY}
+  urls:
+    - http://backend:8002/api/calls/webhook
+
 # Embedded TURN disabled — our dedicated coturn container handles STUN/TURN
 turn:
   enabled: false

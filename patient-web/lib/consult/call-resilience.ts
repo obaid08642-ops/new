@@ -86,3 +86,25 @@ export function reconnectClock(onExpire: () => void, ms = RECONNECT_DEADLINE_MS)
     running: () => id !== null,
   };
 }
+
+/**
+ * How long a poor connection must last before the call drops to sound only. LiveKit reports a quality change only when it changes
+ * ("poor" is not repeated while it stays poor), so counting consecutive poor reports can never reach two; the time spent poor is what
+ * tells a bad link from a blip.
+ */
+export const POOR_LINK_MS = 8_000;
+
+/** Fires `onPoorLong` once if the link stays poor for `ms`; any better report before that cancels it. */
+export function poorLinkClock(onPoorLong: () => void, ms = POOR_LINK_MS) {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  const stop = () => { if (timer) { clearTimeout(timer); timer = null; } };
+  return {
+    /** A quality report for my side: poor starts the clock (a second poor does not restart it), anything else stops it. */
+    report(isPoor: boolean) {
+      if (!isPoor) { stop(); return; }
+      if (timer) return;
+      timer = setTimeout(() => { timer = null; onPoorLong(); }, ms);
+    },
+    stop,
+  };
+}

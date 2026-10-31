@@ -1,3 +1,4 @@
+import { registerAuditSink } from '../../common/audit-record';
 import { ProviderOpsService } from './provider-ops.module';
 
 describe('ProviderOpsService completion earnings (LJ-09)', () => {
@@ -64,5 +65,39 @@ describe('ProviderOpsService completion earnings (LJ-09)', () => {
     await service.creditCompletedService({ entity_type: 'appointment', entity_id: 'appt-4' });
 
     expect(credit).toHaveBeenCalledWith('doctor-account-1', 'doctor', 240, 'appointment', 'appt-4');
+  });
+
+  describe('a completed service that credits nothing says so (gap 9)', () => {
+    const skips = (events: any[]) => events.filter((e) => e.action === 'provider_earning.skipped').map((e) => e.details.reason);
+    let events: any[];
+    beforeEach(() => { events = []; registerAuditSink(async (e) => { events.push(e); }); });
+    afterAll(() => registerAuditSink(null));
+
+    it('names nothing_collected for a booking with no collected amount', async () => {
+      const { service, credit } = setup({ booking: { id: 'appt-3', doctor_user_id: 'doctor-user-1', payment_status: 'pending', total_price: 300 } });
+      await service.creditCompletedService({ entity_type: 'appointment', entity_id: 'appt-3' });
+      expect(credit).not.toHaveBeenCalled();
+      expect(skips(events)).toEqual(['nothing_collected']);
+      expect(events[0]).toEqual(expect.objectContaining({ resource_kind: 'consultation_booking', resource_id: 'appt-3' }));
+    });
+
+    it('names no_provider_on_booking, booking_not_found and no_provider_account', async () => {
+      const a = setup({ booking: { id: 'appt-4', payment_status: 'paid', total_price: 300 } });
+      await a.service.creditCompletedService({ entity_type: 'appointment', entity_id: 'appt-4' });
+      const b = setup({ booking: null });
+      await b.service.creditCompletedService({ entity_type: 'appointment', entity_id: 'appt-5' });
+      const c = setup({ booking: { id: 'appt-6', doctor_user_id: 'doctor-user-9', payment_status: 'paid', total_price: 300 } });
+      c.accounts.findOne.mockResolvedValue(null);
+      await c.service.creditCompletedService({ entity_type: 'appointment', entity_id: 'appt-6' });
+      expect(skips(events)).toEqual(['no_provider_on_booking', 'booking_not_found', 'no_provider_account']);
+      expect(a.credit).not.toHaveBeenCalled(); expect(b.credit).not.toHaveBeenCalled(); expect(c.credit).not.toHaveBeenCalled();
+    });
+
+    it('a normal credit records no skip', async () => {
+      const { service, credit } = setup({ booking: { id: 'appt-7', doctor_user_id: 'doctor-user-1', payment_status: 'paid', total_price: 300 } });
+      await service.creditCompletedService({ entity_type: 'appointment', entity_id: 'appt-7' });
+      expect(credit).toHaveBeenCalled();
+      expect(skips(events)).toEqual([]);
+    });
   });
 });

@@ -237,7 +237,7 @@ if __name__ == '__main__':
     admin_publishes_nursing(admin)
     # NursingRegistration: nursing_services = ticked catalog services
     catalog = Client(None, 'anon').get('/nursing/catalog')
-    services = [{'key': x['id'], 'name_ar': x.get('name_ar'), 'price': 0} for x in (catalog.body if isinstance(catalog.body, list) else catalog.items())]
+    services = [{'key': x['id'], 'name_ar': x.get('name_ar'), 'price': x.get('price') or 50} for x in (catalog.body if isinstance(catalog.body, list) else catalog.items())]
     p = j_onboarding.register_type('home_care', {'nursing_services': services})
     j_onboarding.admin_review(admin, p)
     j_onboarding.provider_after_approval(p)

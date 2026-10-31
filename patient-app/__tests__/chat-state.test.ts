@@ -8,7 +8,7 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 }));
 
 import { addIncoming, applyState, confirmSent, fromServer, isOwn, tickOf, type ChatMsg } from '../src/chat/chatState';
-import { enqueue, flush, forThread, loadOutbox, remove, type OutboxItem } from '../src/chat/outbox';
+import { MAX_ATTEMPTS, classifyFailure, enqueue, flushAll, flushThread, forThread, isDead, loadOutbox, remove, resetAttempts, type FlushHooks, type OutboxItem } from '../src/chat/outbox';
 
 const stamp = () => '10:00';
 const mine = (over: Partial<ChatMsg> = {}): ChatMsg => ({ id: 'c1', clientId: 'c1', sender: 'me', text: 'hi', time: '10:00', at: 1000, pending: true, ...over });
@@ -86,18 +86,77 @@ describe('offline outbox', () => {
     expect(await forThread('other')).toEqual([]);
   });
 
-  it('flush sends in order, removes what went out, and stops at the first failure', async () => {
+  const hooks = (log: string[] = []): FlushHooks & { log: string[] } => ({
+    log,
+    onSent: (i) => log.push(`sent:${i.clientId}`),
+    onFail: (i, kind, _e, dead) => log.push(`fail:${i.clientId}:${kind}${dead ? ':dead' : ''}`),
+  });
+
+  it('a connection problem stops the flush so nothing overtakes an older message, and costs no attempt', async () => {
     await enqueue(item('a', 1));
     await enqueue(item('b', 2));
     await enqueue(item('c', 3));
+    const h = hooks();
     const seen: string[] = [];
-    const failed: string[] = [];
-    const sent = await flush('t1', async (i) => { seen.push(i.clientId); if (i.clientId === 'b') throw new Error('x'); }, (i) => failed.push(i.clientId));
+    const sent = await flushThread('t1', async (i) => { seen.push(i.clientId); if (i.clientId === 'b') throw new Error('OFFLINE_ERROR'); }, h);
     expect(sent).toBe(1);
     expect(seen).toEqual(['a', 'b']);
-    expect(failed).toEqual(['b']);
-    expect((await forThread('t1')).map((i) => i.clientId)).toEqual(['b', 'c']);
+    expect(h.log).toEqual(['sent:a', 'fail:b:transient']);
+    expect((await forThread('t1')).map((i) => [i.clientId, i.attempts])).toEqual([['b', 0], ['c', 0]]);
     await remove('b');
     expect((await forThread('t1')).map((i) => i.clientId)).toEqual(['c']);
+  });
+
+  it('a message the server will never take stops blocking the ones behind it after MAX_ATTEMPTS tries (attempts are counted)', async () => {
+    await enqueue(item('big', 1));
+    await enqueue(item('ok', 2));
+    const send = async (i: OutboxItem) => { if (i.clientId === 'big') throw new Error('file_too_large'); };
+    const h = hooks();
+    for (let run = 1; run < MAX_ATTEMPTS; run++) {
+      await flushThread('t1', send, h);
+      expect((await forThread('t1'))[0].attempts).toBe(run);
+      expect(h.log.filter((l) => l.startsWith('sent:ok'))).toHaveLength(0); // still blocked while it has tries left
+    }
+    await flushThread('t1', send, h);
+    expect(h.log).toContain('fail:big:permanent:dead');
+    expect(h.log).toContain('sent:ok'); // the dead one no longer blocks
+    const left = await loadOutbox();
+    expect(left.map((i) => i.clientId)).toEqual(['big']);
+    expect(isDead(left[0])).toBe(true);
+    // a later flush skips the dead one; retry gives it its attempts back
+    const again = hooks();
+    await flushThread('t1', send, again);
+    expect(again.log).toEqual([]);
+    await resetAttempts('big');
+    expect(isDead((await loadOutbox())[0])).toBe(false);
+  });
+
+  it('a closed conversation (403) drops the message and does not block the rest', async () => {
+    await enqueue(item('a', 1));
+    const h = hooks();
+    await flushThread('t1', async () => { throw new Error('AUTH_ERROR_403: consultation closed'); }, h);
+    expect(h.log).toEqual(['fail:a:closed:dead']);
+    expect(await loadOutbox()).toEqual([]);
+  });
+
+  it('classifies failures: no connection / timeout / expired session wait, 403 closes, anything else is the server saying no', () => {
+    for (const m of ['OFFLINE_ERROR', 'REQUEST_TIMEOUT', 'REQUEST_ABORTED', 'AUTH_ERROR_401: x']) expect(classifyFailure(new Error(m))).toBe('transient');
+    expect(classifyFailure(new Error('AUTH_ERROR_403: closed'))).toBe('closed');
+    expect(classifyFailure(new Error('voice_too_long'))).toBe('permanent');
+    expect(classifyFailure('weird')).toBe('permanent');
+  });
+
+  it('flushAll sends every thread, the queued items of a screen that is closed too, one flush at a time', async () => {
+    await enqueue({ ...item('t1a', 1) });
+    await enqueue({ ...item('t2a', 2), threadId: 't2' });
+    const order: string[] = [];
+    let active = 0;
+    let overlap = false;
+    const send = async (i: OutboxItem) => { active++; if (active > 1) overlap = true; order.push(i.clientId); await new Promise((r) => setTimeout(r, 5)); active--; };
+    const h = hooks();
+    await Promise.all([flushAll(send, h), flushAll(send, h)]);
+    expect(overlap).toBe(false);
+    expect(order.sort()).toEqual(['t1a', 't2a']); // each sent once, never twice
+    expect(await loadOutbox()).toEqual([]);
   });
 });

@@ -6,40 +6,27 @@ import { apiFetch } from "../../src/utils/api";
 import { LocalizedText } from '../../src/components/LocalizedText';
 import { AuthBody, AuthError, AuthField, AuthFooter, AuthTitle, AuthTopBar, FONT, useAuthUi } from '../../src/components/auth/AuthKit';
 import { serverMessage } from '../../src/utils/serverMessage';
-import { isValidEmail } from '../../src/utils/login-credentials';
+import { PASSWORD_MIN_LENGTH } from '../../src/utils/authSession';
+import { resetPassword } from '../../src/auth/patientAuth';
 
 export default function ResetPasswordScreen() {
   const { theme, c, tr } = useAuthUi();
   const params = useLocalSearchParams();
-  // The email and the code come from the code screen. The backend verifies the code here, once (it consumes it),
-  // so the code arrives pre-filled and stays editable; opened without the email (a link, a restart) the screen asks for it.
-  const emailParam = ((params.email as string) || "").trim();
-  const [emailInput, setEmailInput] = useState("");
-  const email = (emailParam || emailInput).trim().toLowerCase();
+  // The reset e-mail carries a link with a one-time token (…/password-reset?token=…): the same link flow as the web.
+  const token = ((params.token as string) || '').trim();
   const [pw, setPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
-  const [code, setCode] = useState(((params.code as string) || "").trim());
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleReset = async () => {
-    // say what is wrong instead of doing nothing
-    if (!isValidEmail(email)) { setErrorMessage("auth.reset.errEmail"); return; }
-    if (!code.trim()) { setErrorMessage("errors.codeRequired"); return; }
-    if (pw.length < 8) { setErrorMessage("auth.err.passwordShort"); return; }
+    if (pw.length < PASSWORD_MIN_LENGTH) { setErrorMessage("auth.err.passwordShort"); return; }
     if (pw !== confirmPw) { setErrorMessage("auth.err.mismatch"); return; }
     setErrorMessage(null);
     setLoading(true);
     try {
-      await apiFetch("/auth/reset-password", {
-        method: "POST",
-        body: JSON.stringify({
-          identifier: email,
-          password: pw,
-          code: code.trim(),
-        }),
-      });
+      await resetPassword(apiFetch, token, pw);
       setLoading(false);
       setDone(true);
     } catch (err: any) {
@@ -86,6 +73,26 @@ export default function ResetPasswordScreen() {
     );
   }
 
+  if (!token) {
+    return (
+      <Screen
+        theme={theme}
+        footer={
+          <StickyFooter theme={theme}>
+            <AuthFooter>
+              <Button label={tr('auth.reset.requestNew')} variant="primary" size="lg" fullWidth theme={theme} onPress={() => router.replace('/(auth)/forgot-password')} testID="reset-request-new" />
+            </AuthFooter>
+          </StickyFooter>
+        }
+      >
+        <AuthBody>
+          <AuthTopBar onBack={() => router.back()} />
+          <AuthTitle title="auth.reset.invalidTitle" sub="auth.reset.invalidLink" />
+        </AuthBody>
+      </Screen>
+    );
+  }
+
   const mismatch = Boolean(confirmPw) && pw !== confirmPw;
   return (
     <Screen
@@ -113,30 +120,6 @@ export default function ResetPasswordScreen() {
       <AuthTopBar onBack={() => router.back()} />
       <AuthTitle title="auth.reset.title" sub="auth.reset.sub" />
       <View style={{ marginTop: 22, gap: 12 }}>
-        {emailParam ? null : (
-          <AuthField
-            label="auth.email"
-            placeholder="name@example.com"
-            ltr
-            keyboardType="email-address"
-            autoComplete="email"
-            textContentType="emailAddress"
-            value={emailInput}
-            onChangeText={setEmailInput}
-            testID="reset-email"
-          />
-        )}
-        <AuthField
-          label="auth.code"
-          placeholder="auth.reset.codePlaceholder"
-          ltr
-          keyboardType="number-pad"
-          autoComplete="one-time-code"
-          textContentType="oneTimeCode"
-          value={code}
-          onChangeText={setCode}
-          testID="reset-code"
-        />
         <AuthField
           label="auth.reset.newPassword"
           hint="auth.passwordHint"

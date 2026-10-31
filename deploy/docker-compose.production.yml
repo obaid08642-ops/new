@@ -155,8 +155,10 @@ services:
       # with `required` (the production default) an upload is also refused while the scanner cannot answer. `defer` (for a server that
       # cannot keep ClamAV running all day, with CLAMAV_ON_DEMAND=1 for deploy/scripts/clamav-window.sh) accepts an account's upload into
       # quarantine instead: nobody can open it until it has been scanned, and an infected file is deleted.
-      CLAMD_HOST: clamav
-      CLAMD_PORT: "3310"
+      # The scanner is ONE switch in .env.production (docs/ops/REMOTE_CLAMD.md): CLAMD_HOST + CLAMD_PORT + UPLOAD_SCAN=required point the API and the worker
+      # at a clamd on another server. Unset, nothing changes: the local `clamav` container below, port 3310.
+      CLAMD_HOST: ${CLAMD_HOST:-clamav}
+      CLAMD_PORT: ${CLAMD_PORT:-3310}
       UPLOAD_SCAN: ${UPLOAD_SCAN:-required}
     depends_on:
       mongodb: { condition: service_healthy }
@@ -197,6 +199,10 @@ services:
       CLUSTER_MODE: "false"
       PROCESS_ROLE: worker
       LOG_LEVEL: ${LOG_LEVEL:-info}   # 20.3, see the backend service
+      # the worker runs the same pending-scan loop as the API: it must reach the same scanner (see CLAMD_HOST in the backend service)
+      CLAMD_HOST: ${CLAMD_HOST:-clamav}
+      CLAMD_PORT: ${CLAMD_PORT:-3310}
+      UPLOAD_SCAN: ${UPLOAD_SCAN:-required}
       PORT: "8002"
       MONGO_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
       DB_NAME: ${DB_NAME:-nabd_nestjs}

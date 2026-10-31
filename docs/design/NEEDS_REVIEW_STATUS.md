@@ -9,24 +9,24 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 0 | 333 | 97 | 4 | 0 |
-| Other | 412 | 343 | 50 | 3 | 16 | 0 |
+| Other | 414 | 345 | 50 | 3 | 16 | 0 |
 | Admin | 99 | 0 | 65 | 34 | 0 | 0 |
 | Admin journeys | 20 | 0 | 18 | 2 | 0 | 0 |
 | Final pass | 8 | 0 | 2 | 6 | 0 | 0 |
 | Patient journeys | 87 | 0 | 85 | 2 | 0 | 0 |
 | Provider app | 31 | 0 | 27 | 4 | 0 | 0 |
 | Provider journeys | 34 | 0 | 32 | 2 | 0 | 0 |
-| **Total** | **1125** | **343** | **612** | **150** | **20** | **0** |
+| **Total** | **1127** | **345** | **612** | **150** | **20** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 268 | 92 | 135 | 41 | 0 | 0 |
+| client | 269 | 93 | 135 | 41 | 0 | 0 |
 | owner | 166 | 50 | 57 | 42 | 17 | 0 |
-| backend | 452 | 200 | 222 | 30 | 0 | 0 |
+| backend | 453 | 201 | 222 | 30 | 0 | 0 |
 | untagged | 239 | 1 | 198 | 37 | 3 | 0 |
-| **Total** | **1125** | **343** | **612** | **150** | **20** | **0** |
+| **Total** | **1127** | **345** | **612** | **150** | **20** | **0** |
 
 ## By file
 
@@ -146,6 +146,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `rx-rules-app.json` | 6 | 0 | 6 | 0 | 0 | 0 |
 | `rx-rules-web.json` | 7 | 0 | 7 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 0 | 0 | 1 | 0 | 0 |
+| `specialties-illustrated-row.json` | 2 | 2 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 0 | 12 | 1 | 0 | 0 |
 | `uploads-scan-patient-app.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `uploads-scan-patient-web.json` | 4 | 4 | 0 | 0 | 0 | 0 |
@@ -154,7 +155,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `web-insurance-add-policy.json` | 2 | 1 | 0 | 0 | 1 | 0 |
 | `web-public-ink.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `web-voice-notes.json` | 2 | 2 | 0 | 0 | 0 | 0 |
-| **Total** | **1125** | **343** | **612** | **150** | **20** | **0** |
+| **Total** | **1127** | **345** | **612** | **150** | **20** | **0** |
 
 ## Owner decisions (20)
 
@@ -181,7 +182,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 19 | `web-header-requests.json#0` `patient-web/lib/security/csp.ts:74` | / Cloudflare Web Analytics beacon blocked by the CSP | [owner] [owner] The beacon (static.cloudflareinsights.com) is injected by the Cloudflare edge setting Web Analytics, not by the app, which has its own web-vitals beacon. Decide: switch the edge setting off (no code chan… |
 | 20 | `web-insurance-add-policy.json#1` `patient-web/app/[locale]/insurance/add-policy/page.tsx:31` | /insurance/add-policy Insurer list contains test-named insurers (Insure ins2a75… | [owner] Seed/test data in the local catalogue; nothing changed in the client. |
 
-## Open and unverified (343)
+## Open and unverified (345)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
@@ -509,6 +510,8 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `r7-map.json#0` | client | open | /map Centre of the map when the position is not allowed | [client] The owner round 2 asks for the map to centre on the selected city when the location is denied. Neither client has a selected-city state: the app keeps a selected address … |
 | `r7-map.json#1` | backend | open | /map Providers read of the web map | [backend] The public read passes no lat, lng or radius_km (the backend GET /providers/map takes them and returns distance_km), so the web reads every published provider and measur… |
 | `r7-map.json#2` | owner | open | /map Carousel swipe to map pan, and the sheet | [owner] A tap on a marker or a search hit selects the provider, pans the map and scrolls its card in; a swipe that rests on one card pans the map to it. The sheet with directions … |
+| `specialties-illustrated-row.json#0` | backend | open | /consultations Order by most booked | [backend] GET /care/specialties sends only the published-doctor count, no booked-appointments count, so the row is ordered by doctors count (desc); a booked_count per specialty wo… |
+| `specialties-illustrated-row.json#1` | client | open | /consultations Doctors filtered by the Arabic specialty name | [client] The hub (old behaviour kept) matches a doctor's specialty_ar text against the tile's name_ar instead of the slug; a doctor whose stored specialty is the slug or another s… |
 | `uploads-scan-patient-app.json#0` | backend | open | /pharmacy/rx-order Prescription photo save | [backend] Backend gap: same as the web upload, POST /prescriptions/upload has no scan_status in its answer. (backend: backend/src/modules/prescriptions/prescriptions.service.ts:16… |
 | `uploads-scan-patient-app.json#1` | backend | open | /diagnostics/insurance-upload Lab document upload | [backend] Backend gap: POST /labs/bookings/:id/documents returns no scan_status (same as web). |
 | `uploads-scan-patient-app.json#2` | client | open | /support/chat Attachment pending badge | [client] Client-side: the app badge has no probe (the upload answers a URL the app cannot open through apiFetch with a known path); it stays until the screen is left. |

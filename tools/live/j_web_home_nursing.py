@@ -20,7 +20,7 @@ def main():
     j_nursing.admin_publishes_nursing(admin)
     catalog = Client(None, 'anon').get('/nursing/catalog')
     rows = catalog.body if isinstance(catalog.body, list) else catalog.items()
-    services = [{'key': x['id'], 'name_ar': x.get('name_ar'), 'price': 0} for x in rows]
+    services = [{'key': x['id'], 'name_ar': x.get('name_ar'), 'price': x.get('price') or 50} for x in rows]
     p = j_onboarding.register_type('home_care', {'nursing_services': services, 'working_hours': ALL_DAY})
     j_onboarding.admin_review(admin, p)
     j_onboarding.provider_after_approval(p)

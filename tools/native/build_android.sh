@@ -6,7 +6,7 @@
 #    generated AndroidManifest;
 #  - patient-app's app.json points at google-services.json, which is not in the repository (the real file
 #    is provided to store builds); it is dropped here, so FCM push is not part of this run;
-#  - only the emulator ABI (x86_64) is compiled.
+#  - only one ABI is compiled: x86_64 for the emulator (default) or ANDROID_ARCHS=arm64-v8a for real devices (Firebase Test Lab).
 set -euo pipefail
 APP="$1"
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -59,6 +59,7 @@ sed -i '0,/<application /s//<application android:usesCleartextTraffic="true" /' 
 grep -o 'usesCleartextTraffic="true"' "$MAN"
 
 cd android
-./gradlew --no-daemon assembleRelease -PreactNativeArchitectures=x86_64 -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=1g"
-cp app/build/outputs/apk/release/app-release.apk "/tmp/native/$APP.apk"
-ls -la "/tmp/native/$APP.apk"
+./gradlew --no-daemon assembleRelease -PreactNativeArchitectures=${ANDROID_ARCHS:-x86_64} -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=1g"
+OUT_APK="/tmp/native/$APP${APK_SUFFIX:-}.apk"
+cp app/build/outputs/apk/release/app-release.apk "$OUT_APK"
+ls -la "$OUT_APK"

@@ -125,6 +125,19 @@ export class ProviderAdminService {
     return check;
   }
 
+  /** The renewed licence expiry from the admin (a future date), or null when the stored one is still in the future or absent; a stored expiry that has passed with no new date is refused. */
+  private async renewedLicenseExpiry(accountId: string, given?: string): Promise<Date | null> {
+    const profile: any = await this.accounts.model.db.collection('provider_profiles').findOne({ account_id: accountId, user_id: { $exists: true } });
+    if (given !== undefined && given !== null && given !== '') {
+      const d = new Date(given);
+      if (Number.isNaN(d.getTime()) || d.getTime() <= Date.now()) throw new BadRequestException('license_expiry_date_must_be_in_the_future');
+      return d;
+    }
+    const stored = profile?.license_expiry_date ? new Date(profile.license_expiry_date).getTime() : null;
+    if (stored !== null && !Number.isNaN(stored) && stored <= Date.now()) throw new ConflictException('license_expired_renew_first');
+    return null;
+  }
+
   async approve(user: any, id: string, body: any) {
     this.assertAdmin(user);
     const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
@@ -244,6 +257,37 @@ export class ProviderAdminService {
     return { ok: true, account_id: id, approved };
   }
 
+  /** Refuse the provider's payout bank account with a reason (the provider sends a corrected one through POST /provider/bank-account). Only an account still waiting for review can be refused. */
+  async rejectBank(user: any, id: string, body: { reason: string }) {
+    this.assertAdmin(user);
+    const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
+    const reason = String(body?.reason || '').trim();
+    if (!reason) throw new BadRequestException('reason_required');
+    const res: any = await this.banks.updateMany(
+      { account_id: id, review_status: { $in: [BankReviewStatus.PENDING, BankReviewStatus.UNDER_REVIEW] } },
+      { $set: { review_status: BankReviewStatus.REJECTED, reviewer_id: user.id, reviewer_note: reason, reviewed_at: new Date() } },
+    );
+    const rejected = Number(res?.modifiedCount ?? res?.nModified ?? 0);
+    await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_bank_rejected', after: { rejected, reason } });
+    if (!rejected) throw new NotFoundException('no_pending_bank_account');
+    return { ok: true, account_id: id, rejected };
+  }
+
+  /** Providers whose licence has expired or expires within `within_days` (default 60), soonest first: the list the admin works from before the daily monitor suspends them. */
+  async licenseExpiryList(user: any, q: { within_days?: number; type?: string }) {
+    this.assertAdmin(user);
+    const days = Math.min(Math.max(Number(q?.within_days) || 60, 1), 730);
+    const limit = new Date(Date.now() + days * 24 * 3600 * 1000);
+    const filter: Record<string, unknown> = { license_expiry_date: { $ne: null, $lte: limit }, status: { $ne: 'rejected' } };
+    if (q?.type) filter.type = { $eq: String(q.type) };
+    const rows: any[] = await this.accounts.model.db.collection('provider_profiles').find(filter, { projection: { _id: 0, id: 1, account_id: 1, user_id: 1, type: 1, display_name_ar: 1, display_name_en: 1, status: 1, license_status: 1, license_expiry_date: 1, suspended_reason: 1 } }).sort({ license_expiry_date: 1 }).limit(500).toArray();
+    const now = Date.now();
+    return rows.map((r) => {
+      const expiry = new Date(r.license_expiry_date);
+      return { ...r, days_left: Math.ceil((expiry.getTime() - now) / (24 * 3600 * 1000)), expired: expiry.getTime() <= now };
+    });
+  }
+
   /**
    * B-4 (#940): licence review per document. The account-level approve() used
    * to bulk-approve every pending document; reviewers now decide each licence
@@ -356,6 +400,8 @@ export class ProviderAdminService {
     this.assertAdmin(user);
     const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
     const licenseCheck = await this.licenseGate(id, body?.manual_license_check);
+    // An expired licence is brought back only with the renewed expiry date (otherwise the daily monitor suspends the provider again the next morning).
+    const renewed = await this.renewedLicenseExpiry(id, body?.license_expiry_date);
     await this.transition(a, ProviderAccountStatus.APPROVED, user, body?.reason || 'reactivated');
     (a as any).token_version = Number((a as any).token_version || 0) + 1;
     await a.save();
@@ -367,7 +413,7 @@ export class ProviderAdminService {
     }
     await this.accounts.model.db.collection('provider_profiles').updateMany(
       { account_id: id, user_id: { $exists: true } },
-      { $set: { status: 'active', public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved' } },
+      { $set: { status: 'active', public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved', ...(renewed ? { license_expiry_date: renewed, license_status: 'active', license_verified: true } : {}) }, ...(renewed ? { $unset: { suspended_reason: '', suspended_at: '' } } : {}) },
     );
     if (licenseCheck) await this.scfhs.store({ account_id: id, user_id: { $exists: true } }, licenseCheck.decision, licenseCheck.result, user.id, body?.manual_license_check);
     await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_reactivated', after: { reason: body?.reason } });

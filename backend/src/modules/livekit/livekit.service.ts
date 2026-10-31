@@ -28,13 +28,15 @@ export class LiveKitService {
 
   private get callSessions() { return this.conn.collection('callsessions'); }
 
-  async createToken(roomName: string, participantName: string): Promise<string> {
-    this.logger.log(`Creating LiveKit token for ${participantName} in ${roomName}`);
+  /** `identity` is the user id (unique in a room); the display name travels as the participant's name only. */
+  async createToken(roomName: string, identity: string, displayName?: string): Promise<string> {
+    this.logger.log(`Creating LiveKit token for ${identity} in ${roomName}`);
     if (!process.env.LIVEKIT_API_KEY || !process.env.LIVEKIT_API_SECRET) {
       throw new ServiceUnavailableException('LIVEKIT_NOT_CONFIGURED');
     }
     const at = new AccessToken(process.env.LIVEKIT_API_KEY, process.env.LIVEKIT_API_SECRET, {
-      identity: participantName,
+      identity: String(identity),
+      ...(displayName ? { name: String(displayName) } : {}),
       ttl: '2h', // legacy call-session token policy
     });
     at.addGrant({ roomJoin: true, room: roomName });
@@ -42,12 +44,13 @@ export class LiveKitService {
   }
 
   /** Patient-web booking token: narrower than legacy sessions and valid 10 minutes only. */
-  async createBookingToken(roomName: string, participantName: string): Promise<string> {
+  async createBookingToken(roomName: string, identity: string, displayName?: string): Promise<string> {
     if (!process.env.LIVEKIT_API_KEY || !process.env.LIVEKIT_API_SECRET) {
       throw new ServiceUnavailableException('LIVEKIT_NOT_CONFIGURED');
     }
     const at = new AccessToken(process.env.LIVEKIT_API_KEY, process.env.LIVEKIT_API_SECRET, {
-      identity: participantName,
+      identity: String(identity),
+      ...(displayName ? { name: String(displayName) } : {}),
       ttl: '10m',
     });
     at.addGrant({ roomJoin: true, room: roomName });
@@ -71,19 +74,25 @@ export class LiveKitService {
    */
   async issueBookingCallToken(bookingId: string, user: any) {
     const appt: any = await this.appointments.findOne({ id: bookingId }).lean();
-    const isParticipant = appt && [String(appt.patient_id), String(appt.doctor_user_id)].includes(String(user?.id));
+    // the guardian who booked for a family member is a party too (consent and payments treat booked_by_user_id the same way)
+    const isParticipant = appt && [appt.patient_id, appt.doctor_user_id, appt.booked_by_user_id].filter(Boolean).map(String).includes(String(user?.id));
     if (!isParticipant) throw new NotFoundException('booking_not_found');
     if (appt.service_type !== 'video') throw new BadRequestException('call_token_only_available_for_video_booking');
     await this.assertPatientConsent(appt, String(user?.id));
     if ([APPT_STATES.CANCELLED, APPT_STATES.COMPLETED, APPT_STATES.RESCHEDULED].includes(appt.status)) {
       throw new BadRequestException('call_token_not_available_for_booking_state');
     }
+    // From 15 minutes before the slot to 15 minutes after it ends: a call that runs long, or a dropped patient, can come back and get a new
+    // token from this same endpoint (the 10-minute credential is refreshed by asking again).
     const slotStart = new Date(appt.slot_start).getTime();
-    if (!Number.isFinite(slotStart) || Math.abs(Date.now() - slotStart) > 15 * 60_000) {
+    const slotEndRaw = new Date(appt.slot_end).getTime();
+    const slotEnd = Number.isFinite(slotEndRaw) ? slotEndRaw : slotStart + Number(appt.duration_minutes || 30) * 60_000;
+    const now = Date.now();
+    if (!Number.isFinite(slotStart) || now < slotStart - 15 * 60_000 || now > slotEnd + 15 * 60_000) {
       throw new BadRequestException('call_token_outside_appointment_window');
     }
     const room = `booking-${appt.id}`;
-    const token = await this.createBookingToken(room, user?.name || user?.full_name || user?.id);
+    const token = await this.createBookingToken(room, String(user?.id), user?.name || user?.full_name);
     // the same advice as /calls/:id/join: sound only under server pressure (the web room also drops to sound only on a weak link by itself)
     // (best effort: a failing count never keeps the patient out of the call)
     const advice = audioOnlyAdvice({ activeCalls: await this.activeCallCount().catch(() => 0) });
@@ -222,7 +231,7 @@ export class LiveKitService {
     const transport = supportsP2p ? chooseTransport({ participants: 2 }) : 'livekit';
     const roomName = `room-${randomUUID()}`;
     // P2P: no LiveKit token is minted; the room name only names the session. LiveKit is asked for a token only on the fallback.
-    const token = transport === 'livekit' ? await this.createToken(roomName, callerName) : null;
+    const token = transport === 'livekit' ? await this.createToken(roomName, String(callerId), callerName) : null;
     const sessionId = `call_${randomUUID()}`;
     await this.callSessions.insertOne({
       id: sessionId, appointment_id: bookingId, patient_id: patientId, provider_id: providerId,
@@ -279,21 +288,28 @@ export class LiveKitService {
     };
   }
 
+  /**
+   * A session outlives its purpose when the appointment died meanwhile: fail it loudly instead of connecting a dead call
+   * (P0-14), and ask the patient side for the current telehealth consent (D-38). Every path that hands out a LiveKit token
+   * (join and the P2P fallback) goes through here.
+   */
+  private async assertSessionAppointmentLive(session: any, userId: string): Promise<void> {
+    if (!session.appointment_id) return;
+    const appt: any = await this.appointments.findOne({ id: session.appointment_id }).lean().catch(() => null);
+    if (!appt) return;
+    if (['CANCELLED', 'COMPLETED', 'RESCHEDULED', 'NO_SHOW'].includes(String(appt.status))) {
+      await this.callSessions.updateOne(
+        { id: session.id },
+        { $set: { status: 'FAILED', end_reason: 'appointment_not_active', ended_at: new Date(), updatedAt: new Date() } },
+      );
+      throw new BadRequestException('appointment_not_active');
+    }
+    await this.assertPatientConsent(appt, userId);
+  }
+
   async joinCall(sessionId: string, userId: string, userName: string, supportsP2p = false) {
     const session = await this.findOwnedSession(sessionId, userId);
-    // A session outlives its purpose when the appointment died meanwhile —
-    // fail it loudly instead of connecting a dead call (P0-14).
-    if (session.appointment_id) {
-      const appt: any = await this.appointments.findOne({ id: session.appointment_id }).lean().catch(() => null);
-      if (appt && ['CANCELLED', 'COMPLETED', 'RESCHEDULED', 'NO_SHOW'].includes(String(appt.status))) {
-        await this.callSessions.updateOne(
-          { id: session.id },
-          { $set: { status: 'FAILED', end_reason: 'appointment_not_active', ended_at: new Date(), updatedAt: new Date() } },
-        );
-        throw new BadRequestException('appointment_not_active');
-      }
-      if (appt) await this.assertPatientConsent(appt, userId);
-    }
+    await this.assertSessionAppointmentLive(session, userId);
     let transport: 'p2p' | 'livekit' = session.transport === 'p2p' ? 'p2p' : 'livekit';
     if (transport === 'p2p' && !supportsP2p) {
       // The other side cannot do P2P: the whole call moves to LiveKit and the caller is told, so nobody waits for an offer that never comes.
@@ -301,7 +317,7 @@ export class LiveKitService {
       await this.callSessions.updateOne({ id: session.id }, { $set: { transport, fallback_reason: 'unsupported', fallback_at: new Date(), updatedAt: new Date() } });
       this.events.emit('call.transport', { callee_id: session.patient_id === userId ? session.provider_id : session.patient_id, caller_id: userId, session_id: session.id, transport, reason: 'unsupported' });
     }
-    const token = transport === 'livekit' ? await this.createToken(session.room_name, userName) : null;
+    const token = transport === 'livekit' ? await this.createToken(session.room_name, userId, userName) : null;
     await this.callSessions.updateOne(
       { id: session.id, status: 'INITIATED' },
       { $set: { status: 'ACTIVE', started_at: new Date(), updatedAt: new Date() } },
@@ -353,6 +369,7 @@ export class LiveKitService {
   async fallbackToLiveKit(sessionId: string, userId: string, reason: string) {
     const session = await this.findOwnedSession(sessionId, userId);
     if (!['INITIATED', 'ACTIVE'].includes(String(session.status))) throw new BadRequestException('call_not_active');
+    await this.assertSessionAppointmentLive(session, userId);
     const token = await this.createToken(session.room_name, userId);
     await this.callSessions.updateOne(
       { id: session.id },
@@ -398,13 +415,16 @@ export class LiveKitService {
   /** Verified LiveKit server webhook (participant_joined/left, track published,
    * room_finished...). Signature checked with LIVEKIT_API_SECRET; unverified
    * payloads are rejected so call state cannot be faked. */
-  async handleWebhook(body: any, authorization?: string) {
+  async handleWebhook(body: any, authorization?: string, rawBody?: string) {
     try {
       const { WebhookReceiver } = await import('livekit-server-sdk');
+      const apiKey = process.env.LIVEKIT_API_KEY || '';
       const secret = process.env.LIVEKIT_API_SECRET || '';
-      if (!secret) return { received: true, verified: false };
-      const receiver = new WebhookReceiver(secret, secret);
-      const event: any = await receiver.receive(JSON.stringify(body || {}), authorization || '');
+      if (!apiKey || !secret) return { received: true, verified: false };
+      // (apiKey, apiSecret): the token LiveKit signs is checked against the key it names. The signed body hash is over the bytes
+      // received, so the raw body is what is verified; a re-serialised object never matches.
+      const receiver = new WebhookReceiver(apiKey, secret);
+      const event: any = await receiver.receive(rawBody ?? JSON.stringify(body || {}), authorization || '');
       const type = String(event?.event || '');
       const room = String(event?.room?.name || '');
       if (type === 'room_finished' && room) {

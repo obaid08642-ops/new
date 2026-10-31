@@ -227,7 +227,10 @@
     "wrongAppAndroid": "Provider app for Android",
     "wrongAppWeb": "Provider website",
     "wrongAppBack": "Back to sign in",
-    "locked": "Too many failed attempts. Try again in {minutes} minutes."
+    "locked": "Too many failed attempts. Try again in {minutes} minutes.",
+    "codeSignIn": "Sign in with a code",
+    "codeIdentifier": "Enter your email or mobile number first, then ask for a code.",
+    "codeNoChannel": "We can't send a code to this account by text message. Use your email address or sign in with your password."
   },
   "NursingCatalog": {
     "eyebrow": "Verified nursing services",
@@ -1339,7 +1342,8 @@
         "a": "Yes, from My appointments under the policy shown at booking."
       }
     },
-    "faqTitle": "FAQs"
+    "faqTitle": "FAQs",
+    "comingSoon": "Coming soon"
   },
   "HomeCareServices": {
     "eyebrow": "Home care",
@@ -1515,7 +1519,11 @@
     "filtersWithCount": "Filters, {n} active",
     "activeFilters": "Active filters",
     "removeFilter": "Remove filter {filter}",
-    "filterAll": "All"
+    "filterAll": "All",
+    "specialtyAll": "All",
+    "comingSoon": "Coming soon",
+    "comingSoonTitle": "{specialty} is coming soon",
+    "comingSoonBody": "There are no doctors in this specialty yet. Choose another specialty."
   },
   "LabsServices": {
     "eyebrow": "Laboratory care",
@@ -2365,7 +2373,7 @@
     "busy": "Verifying…",
     "invalid": "Enter a 6-digit code.",
     "failed": "The code could not be verified. You are not signed in.",
-    "missing": "Start from sign in or create an account and we will send you a code.",
+    "missing": "Enter your email or mobile number and we will send you a code.",
     "notSent": "Your account was created, but the code could not be sent. Tap “Resend”.",
     "back": "Back",
     "wrong": "That code isn't right. Check it and try again.",
@@ -2375,7 +2383,12 @@
     "resendFailed": "We couldn't send a new code. Try again in a moment.",
     "resendLimited": "You've asked for too many codes. Try again in a few minutes.",
     "resendUnavailable": "We can't send a code right now. Try again in a moment.",
-    "change": "Change email or phone"
+    "change": "Change email or phone",
+    "noChannel": "We can't send a code to this account by text message. Use your email address or sign in with your password.",
+    "identifierLabel": "Email or mobile number",
+    "sendCode": "Send code",
+    "sending": "Sending…",
+    "identifierInvalid": "Enter your email or mobile number."
   },
   "ForgotPassword": {
     "title": "Reset your password",
@@ -2386,13 +2399,13 @@
     "success": "Recovery requested. Check your registered contact method.",
     "failed": "The request could not be sent. Your password was not changed.",
     "back": "Back to sign in",
-    "nextStep": "I have the code: set a new password",
+    "nextStep": "I have the email link: set a new password",
     "limited": "Too many requests. Try again in a few minutes."
   },
   "PasswordReset": {
     "title": "Set a new password",
-    "body": "Enter the code you received and a new password.",
-    "token": "Code",
+    "body": "Open the link in the email we sent you. If the page didn't fill in the reset code, paste the reset code from that link, then choose a new password.",
+    "token": "Reset code from the link",
     "password": "New password",
     "confirm": "Confirm password",
     "submit": "Set password",
@@ -2400,9 +2413,9 @@
     "success": "Password set. You can sign in now.",
     "failed": "Password could not be changed.",
     "back": "Back to sign in",
-    "invalidToken": "That code isn't valid or has expired. Request a new one.",
+    "invalidToken": "That link or code isn't valid or has expired. Request a new link.",
     "mismatch": "The two passwords don't match.",
-    "requestNew": "Request a new code",
+    "requestNew": "Request a new link",
     "successTitle": "Password updated",
     "signIn": "Sign in",
     "showPassword": "Show password",
@@ -3124,7 +3137,12 @@
     "outcomeSickLeave": "Sick leave",
     "outcomeCertificates": "Medical certificates",
     "outcomeReports": "Medical reports",
-    "outcomeDays": "{n, number} days"
+    "outcomeDays": "{n, number} days",
+    "callMicDenied": "The microphone is blocked, so they cannot hear you. Allow it in your browser settings.",
+    "callCamDenied": "The camera is blocked, so they cannot see you. Allow it in your browser settings.",
+    "callConnectFailed": "We could not connect the call. Check your connection and try again.",
+    "callRetry": "Try again",
+    "callEnableSound": "Tap to turn the sound on"
   },
   "ConsultClient": {
     "payHeading": "Complete the payment through a secure gateway",

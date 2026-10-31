@@ -4,15 +4,16 @@ import { useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components-next/ui-generated/components/Button";
 import { Toggle } from "@/components-next/ui-generated/components/Controls";
+import { MIN_PASSWORD_LENGTH } from "@/lib/auth/password-rule";
 import forms from "@/components-next/consult/consult.module.css";
 import styles from "./settings.module.css";
 
-export const MIN_PASSWORD = 8;
+
 
 /** The first problem with the three password fields, or null (the keys are in SettingsWeb). */
 export function passwordProblem(current: string, next: string, repeat: string): "currentRequired" | "passwordTooShort" | "passwordMismatch" | null {
   if (!current) return "currentRequired";
-  if (next.length < MIN_PASSWORD) return "passwordTooShort";
+  if (next.length < MIN_PASSWORD_LENGTH) return "passwordTooShort";
   if (next !== repeat) return "passwordMismatch";
   return null;
 }

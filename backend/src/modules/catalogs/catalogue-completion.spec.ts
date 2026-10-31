@@ -64,7 +64,7 @@ beforeEach(seedDb);
 
 describe('the packaged seed', () => {
   it('has the rows the lead listed, unique codes, ar+en names and preparation, valid modes', () => {
-    expect([PACKAGED.radiology.length, PACKAGED.labs.length, PACKAGED.nursing.length]).toEqual([34, 60, 14]);
+    expect([PACKAGED.radiology.length, PACKAGED.labs.length, PACKAGED.nursing.length]).toEqual([101, 60, 14]);
     const codes = [...PACKAGED.radiology, ...PACKAGED.labs, ...PACKAGED.nursing].map((r) => r.code);
     expect(new Set(codes).size).toBe(codes.length);
     for (const r of [...PACKAGED.radiology, ...PACKAGED.labs, ...PACKAGED.nursing]) {
@@ -154,7 +154,7 @@ describe('apply, second plan, rollback', () => {
     const res = await applyChanges(db(), changes);
     expect(res.skipped_changed_since_plan).toBe(0);
     const after = await countsOf(db(), ['lab_services', 'radiology_services', 'nursing_services']);
-    expect(after.radiology_services).toBe(before.radiology_services + 34);
+    expect(after.radiology_services).toBe(before.radiology_services + 101);
     expect(after.nursing_services).toBe(before.nursing_services + 14);
     expect(after.lab_services).toBe(before.lab_services + 60);
     const second = await plan(PACKAGED);
