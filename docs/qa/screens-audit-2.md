@@ -1,8 +1,8 @@
 # Provider app and admin: screens audit, round 2 (client wiring)
 
-Method: four read-only passes, each reading **both** the client call and the backend controller/DTO/service (endpoint, body fields, response fields read, error shown, mock/no-op), over registration/documents, availability/settings/notifications, the order flow (receive → accept → in progress → complete) for every provider type, and earnings/payouts plus the admin approval queues and money screens. 99 defects were reported by the passes; each fix below was re-read in code before it was changed. **Nothing was run against a live stack or a device.**
+Method: four read-only passes, each reading **both** the client call and the backend controller/DTO/service (endpoint, body fields, response fields read, error shown, mock/no-op), over registration/documents, availability/settings/notifications, the order flow (receive → accept → in progress → complete) for every provider type, and earnings/payouts plus the admin approval queues and money screens. 82 defects were reported by the passes; each fix below was re-read in code before it was changed. **Nothing was run against a live stack or a device.**
 
-Counts: provider app ≈ 70 screens/files and ≈ 220 calls read; admin 14 screens and ≈ 70 calls read. Fixed in this PR: 34 client defects. Backend gaps: 23 (one line each below). Money items: 17, reported only, **FOR F**.
+Counts: provider app ≈ 70 screens/files and ≈ 220 calls read; admin 14 screens and ≈ 70 calls read. Fixed in this PR: 32 rows in the table below (a row can cover several related defects). Backend gaps: 21 (one line each below). Money items are reported only, **FOR F**.
 
 ## Fixed in this PR (client)
 | Area | Defect | Fix | File |
@@ -53,17 +53,15 @@ Counts: provider app ≈ 70 screens/files and ≈ 220 calls read; admin 14 scree
 10. `provider-jobs.module.ts:263-285` the insurance call only stores details and changes no state, so an insured request has no accept path for the doctor.
 11. `radiology.service.ts:365` reschedule allows `PENDING`, `NEW_REQUEST`, `CONFIRMED` only; an aborted scan cannot be rescheduled (and nothing returns it to `CONFIRMED`).
 12. `home-care/nursing-compat.controller.ts:45-49` and `provider-jobs.module.ts:129-146` the queue and `/nursing/jobs/active` return no service name, booking mode, hours, shift or price, so the nursing incoming sheet always shows generic text.
-13. `home-care` has no `POST /home-care/provider/availability` route (the nursing online toggle calls it).
-14. `provider-jobs.module.ts:129-146` the queue has no `is_urgent`, `doctor_name` or `department` (urgent badge and facility schedule columns).
-15. `admin/provider-admin.service.ts:40` the provider list filters `status=pending`: a bank resubmitted after approval is never queued; approve-bank/reject-bank are reachable only from that panel.
-16. `provider-admin.service.ts:401-426` "Reactivate" lives on the pending panel and approves a pending provider without commission or document handling; a suspended provider cannot be selected.
-17. `provider-admin.service.ts:434,545-551` the delta approval reason the admin types is dropped (the reject path stores it).
-18. `provider-profile.service.ts:161-185` the old `/provider/onboarding/submit` requires `provider_documents`, a bank row, `phones`, `display_name_ar`, `address.city`; the wizard writes none of them. The route is now unused by the app and could be removed.
-19. `labs.service.ts:636` `listTechnicians` returns only operators of the lab; a lab owner is not listed (the app falls back to assigning the caller).
-20. `ratings`/`provider-notifications`: the doctor `NotificationsScreen.tsx:49` and shared `NotificationsCenter.tsx:40` parse the old array shape (`{items,total,unread_count}` now); both components are unused and should be deleted.
-21. `provider.controllers.ts:587-588` zones exist (`POST/DELETE /provider/zones`) but no app screen creates them; `LabHomeServiceScreen` is read-only.
-22. `provider.controllers.ts:145` `/provider/operators` (staff) has no app screen.
-23. `provider.controllers.ts:77-84` `GET /provider/auth/sessions` and `/history` exist; the app never shows signed-in devices.
+13. `provider-jobs.module.ts:129-146` the queue has no `is_urgent`, `doctor_name` or `department` (urgent badge and facility schedule columns).
+14. `admin/provider-admin.service.ts:40` the provider list filters `status=pending`: a bank resubmitted after approval is never queued; approve-bank/reject-bank are reachable only from that panel.
+15. `provider-admin.service.ts:401-426` "Reactivate" lives on the pending panel and approves a pending provider without commission or document handling; a suspended provider cannot be selected.
+16. `provider-admin.service.ts:434,545-551` the delta approval reason the admin types is dropped (the reject path stores it).
+17. `provider-profile.service.ts:161-185` the old `/provider/onboarding/submit` requires `provider_documents`, a bank row, `phones`, `display_name_ar`, `address.city`; the wizard writes none of them. The route is now unused by the app and could be removed.
+18. `ratings`/`provider-notifications`: the doctor `NotificationsScreen.tsx:49` and shared `NotificationsCenter.tsx:40` parse the old array shape (`{items,total,unread_count}` now); both components are unused and should be deleted.
+19. `provider.controllers.ts:587-588` zones exist (`POST/DELETE /provider/zones`) but no app screen creates them; `LabHomeServiceScreen` is read-only.
+20. `provider.controllers.ts:145` `/provider/operators` (staff) has no app screen.
+21. `provider.controllers.ts:77-84` `GET /provider/auth/sessions` and `/history` exist; the app never shows signed-in devices.
 
 ## Money items, reported only (FOR F)
 RevenueInsights groups "top services" by a field earnings rows do not carry (`provider-ops.module.ts:699-705`) and shows a balance from a different source than the wallet (`:744-749`); StatisticsScreen labels rolling buckets as calendar days/months (`:511-552`); admin `payouts.tsx:89` shows a raw provider id (`finance-suite.service.ts:312-327`) and `:46-47` drops a reason under 10 characters silently; `commissions.tsx:18-20,129` shows a hard-coded rate table (`commission-defaults.ts:21-27`), `:61-62` swallows load errors, `:154-157` reads fields the ledger rows do not have; `financial-ledger.tsx:86-98` recomputes commission with hard-coded rates, `:110-124` shows success without checking `res.ok`, `:10-20,115,231` types the warehouse order with fields the document lacks (`admin-extended-operations.controller.ts:17-21`); `disputes.tsx:38` sends no `booking_kind`/`booking_id` (`admin-disputes.controller.ts:~188-196`), `:35,66` says the refund goes to a wallet (it goes to the original payment method), `:60` reads `refunded_so_far` from a store the detail says is gone.
