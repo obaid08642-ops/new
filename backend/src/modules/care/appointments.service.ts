@@ -1,4 +1,5 @@
 import { buildFollowUpActions } from './follow-up-actions';
+import { assertPaymentMethod } from '../../common/payment-policy';
 import { MedicalAccessLogService, logMedicalRead } from '../../common/pdpl-compliance.module';
 import { escapeRegex } from '../../common/slug.util';
 import { pickAttribution } from '../../common/attribution';
@@ -143,14 +144,7 @@ export class AppointmentsService {
     // Enforce Nabd payment policy: online → card only; home → card/insurance; clinic → all
     const pm = body.payment_method || (body.service_type === 'clinic' ? 'cash' : 'card');
     const svcCtx = body.service_type === 'video' ? 'online_consultation' : body.service_type === 'home' ? 'home_visit' : 'in_clinic';
-    const allowed: Record<string, string[]> = {
-      online_consultation: ['card'],
-      home_visit: ['card', 'insurance'],
-      in_clinic: ['cash', 'card', 'insurance'],
-    };
-    if (!allowed[svcCtx].includes(pm)) {
-      throw new BadRequestException(`payment_method_${pm}_not_allowed_for_${svcCtx}`);
-    }
+    assertPaymentMethod(pm, svcCtx);
     const doctor = await this.providerModel.findOne({ id: body.doctor_id, type: ProviderType.DOCTOR, status: ProviderStatus.ACTIVE });
     if (!doctor) throw new NotFoundException('doctor_not_found');
     // Owner decision 2026-10-24: bookings stop the moment the SCFHS licence date passes; the daily monitor then suspends the
