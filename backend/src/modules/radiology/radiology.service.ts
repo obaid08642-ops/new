@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Optional, ServiceUnavailableException } from '@nestjs/common';
+import { withholdLegacyBeforeAcceptance } from '../provider-jobs/provider-job-privacy';
 import { assertScanned } from '../storage/pending-scan';
 import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { SearchService } from '../search/search.service';
@@ -758,7 +759,9 @@ export class RadiologyOpsService {
   async listForProvider(user: any, status?: string) {
     const q: any = { provider_account_id: { $eq: user.account_id ?? user.id } };
     if (status) q.state = { $eq: status };
-    return this.bkgModel.find(q).sort({ scheduled_at: 1 }).lean();
+    const rows = await this.bkgModel.find(q).sort({ scheduled_at: 1 }).lean();
+    // R7 (13.R4): a request nobody has accepted shows the area only, not the patient's phone and exact address.
+    return (rows as any[]).map((r) => withholdLegacyBeforeAcceptance(r, [RadiologyBookingState.NEW_REQUEST, RadiologyBookingState.PENDING]));
   }
 
   async assignTechnician(id: string, user: any, body: any) {
