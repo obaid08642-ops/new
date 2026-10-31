@@ -60,6 +60,7 @@ export default function MainTabBar() {
         <BottomTabBar
           theme={isDark ? 'dark' : 'light'}
           label={tr('التنقل الرئيسي')}
+          testID="main-tab-bar"
           value={active ?? ''}
           items={tabs.map(({ id, label, icon, art, raised }) => ({ id, label: tr(label), icon, art, raised }))}
           onChange={(id) => {

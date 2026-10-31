@@ -1,0 +1,56 @@
+# Patient chat with the doctor of a seeded (finished) appointment, through the real screens: Consultations -> appointments -> Past ->
+# the appointment -> chat. Before the flow, tools/native/setup/patient_chat.py makes the doctor post DOCTOR_MSG through the provider API
+# (the thread and the finished visit are the live chat journey's) and prints APPT_ID; the flow asserts that message is on the screen
+# ("receive"), sends APP_MSG from the app and asserts it appears ("send").
+appId: com.patient.nabd
+---
+- runFlow: lib/patient_signin.yaml
+- tapOn:
+    id: "main-tab-bar-consult"
+- extendedWaitUntil:
+    visible:
+      id: "consult-appointments-entry"
+    timeout: 30000
+- tapOn:
+    id: "consult-appointments-entry"
+- extendedWaitUntil:
+    visible:
+      id: "appointments-screen"
+    timeout: 30000
+# a finished visit is on the "past" tab
+- extendedWaitUntil:
+    visible:
+      id: "appointments-tabs-past"
+    timeout: 30000
+- tapOn:
+    id: "appointments-tabs-past"
+- scrollUntilVisible:
+    element:
+      id: "appointment-${APPT_ID}-open"
+    timeout: 60000
+- tapOn:
+    id: "appointment-${APPT_ID}-open"
+- extendedWaitUntil:
+    visible:
+      id: "detail-chat"
+    timeout: 30000
+- tapOn:
+    id: "detail-chat"
+- extendedWaitUntil:
+    visible:
+      id: "chat-screen"
+    timeout: 30000
+# receive: the doctor's message (posted before the flow) is in the conversation
+- extendedWaitUntil:
+    visible: ${DOCTOR_MSG}
+    timeout: 60000
+# send: type in the field, send, the message shows in the conversation
+- tapOn:
+    id: "chat-input"
+- inputText: ${APP_MSG}
+- tapOn:
+    id: "chat-send"
+- extendedWaitUntil:
+    visible: ${APP_MSG}
+    timeout: 30000
+- takeScreenshot: patient_chat
