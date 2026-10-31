@@ -164,3 +164,32 @@ Provider:
 - Whether `payout_approved` is emitted by finance-suite approval.
 - Insurance copay path on the admin side, provider-web (not in repo), and notification i18n keys.
 - Hard-coded string checks were sampled, not exhaustive.
+
+## Delta after the merged fixes (2026-10-31)
+
+Checked against `main` at 8975b933: the commits merged since this walk, and the cited lines re-read on `main`. Nothing was run.
+
+### Fixed on main (per commit message; the code was not re-walked in full)
+
+- Web sign-in with a code (phone OTP): `a0a7eef0` (`patient-web/components-next/login-form.tsx`, P0 on web). The app's sign-in is still open (`patient-app/app/(auth)/login.tsx:137`).
+- Web password minimum, reset copy and OTP identifier re-entry (`a0a7eef0`): the P1 items for the 8-character reset, the "enter the code" wording and the expired identifier cookie.
+- `otp_no_channel` now has a clear message (`a0a7eef0`). Delivery is unchanged: no SMS or WhatsApp channel exists, so `backend/src/modules/auth/auth.service.ts:450` stays open (P1).
+- Admin reject prompt no longer says documents are deleted (`324b9102`, `admin/src/pages/admin/provider-moderation.tsx:216`, P1).
+
+### Still open on main (the cited lines still match)
+
+- Consultation payment amount: `backend/src/modules/payments/payments.module.ts:480` still charges `booking.price` (P0).
+- Cancel after completion still refunds: `backend/src/modules/care/appointments.service.ts:518` (P0).
+- Payout states: `admin/src/pages/admin/finance-suite.tsx:36` approves to `APPROVED_FOR_PAYOUT`, which nothing executes (P0).
+- Radiology through the ordering route: `patient-app/src/utils/orderingBooking.ts:274` still posts radiology quotes to `/ordering/bookings` (P0, app; web at `patient-web/components-next/ordering/confirm-client.tsx:110`).
+- Nursing duration: `patient-app/app/nursing/nurse-profile.tsx:127` still multiplies the estimate by days but books one visit (P0).
+- Every other item in the walk: the files they cite were not changed on `main` since the walk.
+
+### Open PRs that touch these items (not merged)
+
+- #2215 `f/refunds`: validate before refunding, cap at paid, one policy source, refund in the cancel response (covers the cancel and refund P0s, not yet on main).
+- #2214 `fix/auth-app`: app session handling, canonical OTP, register and reset, code sign-in (covers the app auth P0/P1 items, not yet on main).
+
+### Still open on this PR's base
+
+- PR #2015 (`qa/e2e-sweep-account`) is red on `live gate (shard 1/5)`. The only failing step is `j_web_qa_chi`: after a reload it finds two CHI links where it expects one. The code has one source of that link, so the cause is not yet established.
