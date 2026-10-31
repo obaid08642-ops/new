@@ -4022,5 +4022,6 @@
   "consult.call.quality.good": "good",
   "consult.call.quality.poor": "weak",
   "consult.call.quality.lost": "lost",
-  "consult.call.quality.unknown": "checking"
+  "consult.call.quality.unknown": "checking",
+  "payments.result.refundedBody": "The amount was returned to your original payment method. It may take a few days to show in your account."
 }

@@ -4022,5 +4022,6 @@
   "consult.call.quality.good": "اچھا",
   "consult.call.quality.poor": "کمزور",
   "consult.call.quality.lost": "منقطع",
-  "consult.call.quality.unknown": "جانچ ہو رہی ہے"
+  "consult.call.quality.unknown": "جانچ ہو رہی ہے",
+  "payments.result.refundedBody": "رقم آپ کے اصل ادائیگی کے طریقے پر واپس کر دی گئی ہے۔ آپ کے اکاؤنٹ میں ظاہر ہونے میں چند دن لگ سکتے ہیں۔"
 }
