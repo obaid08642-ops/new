@@ -104,6 +104,12 @@ export class UpdateInsDto {
   @IsString()
   approval_ref?: string;
 
+  // Why the insurer refused: the service stores it as the rejection reason (updateInsuranceApproval reads `payload.reason`).
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  reason?: string;
+
 
   @IsOptional()
   @IsNumber()
