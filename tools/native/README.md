@@ -1,4 +1,4 @@
-# Native E2E (Android, Maestro)
+# Native E2E (Android + iOS, Maestro)
 
 `.github/workflows/native-e2e.yml` builds a release APK of patient-app or provider-app, starts the real test stack on the
 runner (backend, MongoDB, Redis, S3/SMTP/payment/Saudi Post/ClamAV doubles, admin BFF), seeds data with the live journeys
@@ -6,8 +6,8 @@ runner (backend, MongoDB, Redis, S3/SMTP/payment/Saudi Post/ClamAV doubles, admi
 (`native_crawl.py`). `report.py` merges the results into `NATIVE_REPORT.md` (the run summary and the artifact `native-report`):
 pass/fail per Maestro flow first, then the crawl.
 
-**Manual only** (`workflow_dispatch`): it is slow and costs runner minutes, so there is no pull_request or push trigger.
-Inputs: `app` (patient | provider), `flow` (part of a flow file name, `all` or `none`; default `login`), `crawl`
+**Triggers:** manual (`workflow_dispatch`) and a **nightly run at 01:23 UTC** of both apps on both platforms (sign-in flow, first target); there is no pull_request or push trigger because it is slow and costs runner minutes.
+Inputs: `app` (patient | provider | both), `platform` (android | ios | both), `flow` (part of a flow file name, `all` or `none`; default `login`), `crawl`
 (true/false, default false) and `target` (patient shard `0/6`..`5/6` or provider type; empty = the first, `all` = every one).
 From a terminal: `gh workflow run native-e2e.yml --ref <branch> -f app=patient -f flow=login`.
 
@@ -18,3 +18,26 @@ provider-app has no testIDs on its sign-in screens, so its flow uses their text.
 
 Test-build-only workarounds in `build_android.sh` are each tied to an open defect (Q58, Q62, Q63, Q67, Q68); they are detected
 from the checkout (a `jcenter()` user, a duplicate WebRTC, a version mismatch), so each switches itself off once its defect is fixed.
+
+## iOS simulator (macos-latest)
+
+`build-ios` makes an unsigned simulator build (`build_ios.sh`: `expo prebuild -p ios`, App Transport Security opened for the local test
+backend, `pod install`, `xcodebuild -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO`); `run-ios` starts the same test stack (`ci_stack.sh`
+takes MongoDB and Redis from Homebrew on macOS, which has no Docker), boots the newest iPhone simulator, sets the app language to Arabic
+and runs the **same Maestro files** (`run_job_ios.sh`). The screen crawl uses adb and stays Android only. Result tags start with
+`ios_`, so the report lists iOS and Android flows side by side.
+
+## Real-device smoke (Firebase Test Lab)
+
+The `ftl` job builds an arm64 release APK and runs a 3-minute Robo test on a physical Pixel 6 (free Spark-plan quota is a few physical-device
+runs per day). Google's devices cannot reach the test stack, so it checks install, launch and onboarding without a crash, not sign-in.
+**The owner must create**: a Firebase project with the Test Lab API enabled, a service account with the role *Firebase Test Lab Admin*
+(plus *Service Usage Consumer* and storage access to the default results bucket), and add its JSON key as the repository secret
+`FIREBASE_TEST_LAB_SA` and the project id as `FIREBASE_PROJECT_ID`. Until then the job passes and says "not configured".
+
+## Not done: two-device caller/callee flow
+
+Maestro drives one device per `maestro test`; two flows can run in parallel on two devices but cannot wait for each other, so a caller
+flow plus a callee flow would need a shared signal (for example both polling the backend session) and two emulators on one runner
+(about 2x the RAM) with a patient and a provider app installed. It is not built; the call itself is covered by the unit tests and the
+manual device matrix in the calls PRs.

@@ -1,27 +1,41 @@
-name: Native E2E (Android, Maestro)
+name: Native E2E (Android + iOS, Maestro)
 
-# Real Android build of patient-app or provider-app on an emulator, against the real test stack (backend, MongoDB, Redis,
-# S3/SMTP/payment test doubles). Maestro flows (tools/native/flows) sign in from a fresh install; the crawl (optional)
-# opens each screen and taps every control (tools/native/native_crawl.py). Results and screenshots are uploaded as
-# artifacts; the report job merges them (tools/native/report.py) into the run summary: pass/fail per flow, then the crawl.
-# Owner-approved 2026-10-03 (Android first); brought to main 2026-10-25.
-# Manual only: it is slow and costs runner minutes, so it has no pull_request or push trigger.
+# Real builds of patient-app or provider-app on an Android emulator and on an iOS simulator, against the real test stack (backend,
+# MongoDB, Redis, S3/SMTP/payment test doubles). Maestro flows (tools/native/flows, the same files on both platforms) sign in from a
+# fresh install; the Android crawl (optional) opens each screen and taps every control (tools/native/native_crawl.py, adb only).
+# Results and screenshots are uploaded as artifacts; the report job merges them (tools/native/report.py) into the run summary.
+# Owner-approved 2026-10-03 (Android first); brought to main 2026-10-25; iOS simulator and the nightly run added 2026-10-30.
+# Triggers: manual (workflow_dispatch) and a nightly run of both apps on both platforms (sign-in flow, first target).
+# iOS: unsigned simulator build on macos-latest (expo prebuild + xcodebuild, no signing). The screen crawl is Android only.
+# Firebase Test Lab (real Android device smoke) runs only when the owner has added the FIREBASE_TEST_LAB_SA and FIREBASE_PROJECT_ID
+# secrets; without them that job reports "not configured" and passes (see tools/native/README.md).
 on:
+  schedule:
+    - cron: '23 1 * * *'
   workflow_dispatch:
     inputs:
       app:
         description: Which app to build and test
         type: choice
-        options: [patient, provider]
+        options: [patient, provider, both]
         default: patient
+      platform:
+        description: Which platform
+        type: choice
+        options: [android, ios, both]
+        default: android
       flow:
         description: 'Maestro flows to run: part of a file name in tools/native/flows (login), "all" or "none"'
         type: string
         default: login
       crawl:
-        description: Also crawl every screen after the flows (slow)
+        description: Also crawl every screen after the flows (Android only, slow)
         type: boolean
         default: false
+      ios_build_run:
+        description: 'iOS only: id of an earlier run whose iOS build artifact to reuse (skips the 30-minute build; only valid when the app code did not change)'
+        type: string
+        default: ''
       target:
         description: 'Account/crawl target: patient shard 0/6..5/6, or provider type (pharmacy, doctor, lab, radiology, home_care, hospital). Empty = first one, "all" = every one'
         type: string
@@ -29,35 +43,60 @@ on:
 
 permissions:
   contents: read
+  actions: read   # ios_build_run: download the iOS build artifact of an earlier run
 
 concurrency:
-  group: native-e2e-${{ github.ref }}
+  group: native-e2e-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      args: ${{ steps.args.outputs.args }}
+      apps: ${{ steps.args.outputs.apps }}
+      runs: ${{ steps.args.outputs.runs }}
+      android: ${{ steps.args.outputs.android }}
+      ios: ${{ steps.args.outputs.ios }}
+      flow: ${{ steps.args.outputs.flow }}
     steps:
       - id: args
         env:
+          EVENT: ${{ github.event_name }}
           APP: ${{ inputs.app }}
+          PLATFORM: ${{ inputs.platform }}
+          FLOW: ${{ inputs.flow }}
           TARGET: ${{ inputs.target }}
         run: |
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
-          app, target = os.environ['APP'], os.environ['TARGET'].strip()
-          everything = [f'{i}/6' for i in range(6)] if app == 'patient' else ['pharmacy', 'doctor', 'lab', 'radiology', 'home_care', 'hospital']
-          args = everything if target == 'all' else [target or everything[0]]
-          if any(a not in everything for a in args):
-              raise SystemExit(f'target {target!r} is not one of {everything}')
-          print('args=' + json.dumps(args))
+          nightly = os.environ['EVENT'] == 'schedule'
+          app = 'both' if nightly else os.environ['APP']
+          platform = 'both' if nightly else os.environ['PLATFORM']
+          target = '' if nightly else os.environ['TARGET'].strip()
+          apps = ['patient', 'provider'] if app == 'both' else [app]
+          runs = []
+          for a in apps:
+              everything = [f'{i}/6' for i in range(6)] if a == 'patient' else ['pharmacy', 'doctor', 'lab', 'radiology', 'home_care', 'hospital']
+              args = everything if target == 'all' else [target or everything[0]]
+              if any(x not in everything for x in args):
+                  raise SystemExit(f'target {target!r} is not one of {everything} for {a}')
+              runs += [{'app': a, 'arg': x} for x in args]
+          print('apps=' + json.dumps(apps))
+          print('runs=' + json.dumps(runs))
+          print('android=' + ('true' if platform in ('android', 'both') else 'false'))
+          print('ios=' + ('true' if platform in ('ios', 'both') else 'false'))
+          print('flow=' + ('login' if nightly else os.environ['FLOW'] or 'login'))
           PY
 
   build:
+    needs: setup
+    if: needs.setup.outputs.android == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ${{ fromJson(needs.setup.outputs.apps) }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Free disk space
@@ -66,30 +105,31 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: ${{ inputs.app }}-app/package-lock.json
+          cache-dependency-path: ${{ matrix.app }}-app/package-lock.json
       - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
         with:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
       - name: Build release APK (x86_64, test backend)
-        run: bash tools/native/build_android.sh ${{ inputs.app }}-app
+        run: bash tools/native/build_android.sh ${{ matrix.app }}-app
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: apk-${{ inputs.app }}-app
+          name: apk-${{ matrix.app }}-app
           path: |
-            /tmp/native/${{ inputs.app }}-app.apk
-            /tmp/native/jcenter_${{ inputs.app }}-app.txt
+            /tmp/native/${{ matrix.app }}-app.apk
+            /tmp/native/jcenter_${{ matrix.app }}-app.txt
           retention-days: 7
 
   run:
     needs: [setup, build]
+    if: needs.setup.outputs.android == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 180
     strategy:
       fail-fast: false
       matrix:
-        arg: ${{ fromJson(needs.setup.outputs.args) }}
+        run: ${{ fromJson(needs.setup.outputs.runs) }}
     services:
       redis:
         image: redis:7
@@ -114,7 +154,7 @@ jobs:
           java-version: 17
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: apk-${{ inputs.app }}-app
+          name: apk-${{ matrix.run.app }}-app
           path: /tmp/native
       - name: Test stack (backend, DB, test doubles, admin BFF)
         run: bash tools/native/ci_stack.sh
@@ -136,8 +176,8 @@ jobs:
       - name: Emulator + Maestro flows + crawl
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
         env:
-          NATIVE_FLOW: ${{ inputs.flow }}
-          NATIVE_CRAWL: ${{ inputs.crawl }}
+          NATIVE_FLOW: ${{ needs.setup.outputs.flow }}
+          NATIVE_CRAWL: ${{ inputs.crawl || false }}
         with:
           api-level: 34
           target: google_apis
@@ -146,7 +186,7 @@ jobs:
           ram-size: 4096M
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
-          script: bash tools/native/run_job.sh ${{ inputs.app }} ${{ matrix.arg }}
+          script: bash tools/native/run_job.sh ${{ matrix.run.app }} ${{ matrix.run.arg }}
       - name: Collect logs
         if: always()
         run: |
@@ -154,7 +194,7 @@ jobs:
           cp /tmp/native/seed.log /tmp/nabd-backend.log /tmp/native/out/ 2>/dev/null || true
       - id: name
         if: always()
-        run: echo "n=run-${{ inputs.app }}-$(echo '${{ matrix.arg }}' | tr '/' 'of')" >> "$GITHUB_OUTPUT"
+        run: echo "n=run-android-${{ matrix.run.app }}-$(echo '${{ matrix.run.arg }}' | tr '/' 'of')" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
@@ -162,8 +202,140 @@ jobs:
           path: /tmp/native/out
           retention-days: 14
 
+  build-ios:
+    needs: setup
+    if: needs.setup.outputs.ios == 'true' && inputs.ios_build_run == ''
+    runs-on: macos-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ${{ fromJson(needs.setup.outputs.apps) }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ${{ matrix.app }}-app/package-lock.json
+      - name: Build unsigned simulator app (expo prebuild + xcodebuild)
+        run: bash tools/native/build_ios.sh ${{ matrix.app }}-app
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ios-${{ matrix.app }}-app
+          path: /tmp/native/${{ matrix.app }}-app.app.zip
+          retention-days: 7
+
+  run-ios:
+    needs: [setup, build-ios]
+    if: ${{ !cancelled() && needs.setup.result == 'success' && needs.setup.outputs.ios == 'true' && (needs.build-ios.result == 'success' || (needs.build-ios.result == 'skipped' && inputs.ios_build_run != '')) }}
+    runs-on: macos-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        run: ${{ fromJson(needs.setup.outputs.runs) }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            admin/package-lock.json
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: ios-${{ matrix.run.app }}-app
+          path: /tmp/native
+          run-id: ${{ inputs.ios_build_run || github.run_id }}
+          github-token: ${{ github.token }}
+      - name: Test stack (backend, DB, test doubles, admin BFF)
+        run: bash tools/native/ci_stack.sh
+      - name: Seed real test data (live journeys) and accounts
+        run: |
+          pip install -q requests
+          python3 tools/native/seed.py /tmp/native/accounts.json > /tmp/native/seed.log 2>&1 || (tail -n 80 /tmp/native/seed.log; exit 1)
+          tail -n 5 /tmp/native/seed.log
+      - name: Maestro
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          "$HOME/.maestro/bin/maestro" --version
+      - name: Simulator + Maestro flows
+        env:
+          NATIVE_FLOW: ${{ needs.setup.outputs.flow }}
+        run: bash tools/native/run_job_ios.sh ${{ matrix.run.app }} ${{ matrix.run.arg }}
+      - name: Collect logs
+        if: always()
+        run: |
+          mkdir -p /tmp/native/out
+          cp /tmp/native/seed.log /tmp/nabd-backend.log /tmp/native/out/ 2>/dev/null || true
+      - id: name
+        if: always()
+        run: echo "n=run-ios-${{ matrix.run.app }}-$(echo '${{ matrix.run.arg }}' | tr '/' 'of')" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: ${{ steps.name.outputs.n }}
+          path: /tmp/native/out
+          retention-days: 14
+
+  # Real-device smoke on Firebase Test Lab (Robo test, arm64 release build): the app installs, starts and survives a minute of
+  # exploration on a physical phone. It cannot sign in (the test stack is not reachable from Google's devices), so it covers launch and
+  # onboarding crashes, not the flows. Needs the owner's Firebase project; without the two secrets it is skipped and says so.
+  ftl:
+    needs: setup
+    if: needs.setup.outputs.android == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      FTL_SA: ${{ secrets.FIREBASE_TEST_LAB_SA }}
+      FTL_PROJECT: ${{ secrets.FIREBASE_PROJECT_ID }}
+    steps:
+      - id: cfg
+        run: |
+          if [ -n "$FTL_SA" ] && [ -n "$FTL_PROJECT" ]; then echo "ok=true" >> "$GITHUB_OUTPUT"; else echo "ok=false" >> "$GITHUB_OUTPUT"; echo "Firebase Test Lab is not configured: add the secrets FIREBASE_TEST_LAB_SA (service account JSON) and FIREBASE_PROJECT_ID." >> "$GITHUB_STEP_SUMMARY"; fi
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        if: steps.cfg.outputs.ok == 'true'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        if: steps.cfg.outputs.ok == 'true'
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: patient-app/package-lock.json
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        if: steps.cfg.outputs.ok == 'true'
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
+        if: steps.cfg.outputs.ok == 'true'
+      - name: Build release APK (arm64-v8a, real devices)
+        if: steps.cfg.outputs.ok == 'true'
+        env:
+          ANDROID_ARCHS: arm64-v8a
+          APK_SUFFIX: -arm64
+        run: bash tools/native/build_android.sh patient-app
+      - name: Robo test on a physical device
+        if: steps.cfg.outputs.ok == 'true'
+        run: |
+          printf '%s' "$FTL_SA" > "$RUNNER_TEMP/ftl.json"
+          gcloud auth activate-service-account --key-file="$RUNNER_TEMP/ftl.json"
+          gcloud firebase test android run --project "$FTL_PROJECT" --type robo --app /tmp/native/patient-app-arm64.apk \
+            --device model=oriole,version=33,locale=ar,orientation=portrait --timeout 3m \
+            --results-dir "native-e2e-${{ github.run_id }}" 2>&1 | tee /tmp/ftl.log
+          grep -E "https://console.firebase.google.com" /tmp/ftl.log >> "$GITHUB_STEP_SUMMARY" || true
+          rm -f "$RUNNER_TEMP/ftl.json"
+
   report:
-    needs: run
+    needs: [run, run-ios, ftl]
     if: always()
     runs-on: ubuntu-latest
     steps:
