@@ -843,6 +843,1746 @@
    "requires_pregnancy_check": true,
    "requires_metal_implant_check": false,
    "requires_contrast_allergy_check": false
+  },
+  {
+   "code": "XR_HIP",
+   "name_ar": "أشعة الورك",
+   "name_en": "Hip X-ray",
+   "modality": "xray",
+   "body_part": "hip",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة المجوهرات والأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove jewellery and metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "تصوير مفصل الورك وأعلى عظم الفخذ.",
+   "description_en": "Imaging of the hip joint and upper femur.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 80,
+   "indicative_price_max": 200
+  },
+  {
+   "code": "XR_FEMUR",
+   "name_ar": "أشعة الفخذ",
+   "name_en": "Thigh (Femur) X-ray",
+   "modality": "xray",
+   "body_part": "femur",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة المجوهرات والأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove jewellery and metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "تصوير عظم الفخذ.",
+   "description_en": "Imaging of the thigh bone.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 80,
+   "indicative_price_max": 200
+  },
+  {
+   "code": "XR_TIBIA_FIBULA",
+   "name_ar": "أشعة الساق",
+   "name_en": "Leg (Tibia & Fibula) X-ray",
+   "modality": "xray",
+   "body_part": "leg",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة المجوهرات والأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove jewellery and metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "تصوير عظمتي أسفل الساق.",
+   "description_en": "Imaging of the two bones of the lower leg.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 80,
+   "indicative_price_max": 200
+  },
+  {
+   "code": "XR_FOREARM",
+   "name_ar": "أشعة الساعد",
+   "name_en": "Forearm X-ray",
+   "modality": "xray",
+   "body_part": "forearm",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة المجوهرات والأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove jewellery and metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "تصوير عظام الساعد.",
+   "description_en": "Imaging of the forearm bones.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 80,
+   "indicative_price_max": 200
+  },
+  {
+   "code": "XR_HUMERUS",
+   "name_ar": "أشعة العضد",
+   "name_en": "Upper Arm (Humerus) X-ray",
+   "modality": "xray",
+   "body_part": "humerus",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة المجوهرات والأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove jewellery and metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "تصوير عظم العضد.",
+   "description_en": "Imaging of the upper arm bone.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 80,
+   "indicative_price_max": 200
+  },
+  {
+   "code": "XR_CLAVICLE",
+   "name_ar": "أشعة الترقوة",
+   "name_en": "Clavicle X-ray",
+   "modality": "xray",
+   "body_part": "clavicle",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة المجوهرات والأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove jewellery and metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "تصوير عظم الترقوة.",
+   "description_en": "Imaging of the collarbone.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 80,
+   "indicative_price_max": 200
+  },
+  {
+   "code": "XR_RIBS",
+   "name_ar": "أشعة الأضلاع",
+   "name_en": "Ribs X-ray",
+   "modality": "xray",
+   "body_part": "ribs",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة المجوهرات والأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove jewellery and metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "تصوير الأضلاع للكشف عن الكسور.",
+   "description_en": "Imaging of the ribs to look for fractures.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 80,
+   "indicative_price_max": 200
+  },
+  {
+   "code": "XR_TSPINE",
+   "name_ar": "أشعة العمود الفقري الصدري",
+   "name_en": "Thoracic Spine X-ray",
+   "modality": "xray",
+   "body_part": "thoracic spine",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة المجوهرات والأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove jewellery and metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "تصوير الفقرات الصدرية.",
+   "description_en": "Imaging of the thoracic spine.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 90,
+   "indicative_price_max": 220
+  },
+  {
+   "code": "XR_LSPINE",
+   "name_ar": "أشعة العمود الفقري القطني",
+   "name_en": "Lumbar Spine X-ray",
+   "modality": "xray",
+   "body_part": "lumbar spine",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة المجوهرات والأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove jewellery and metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "تصوير الفقرات القطنية.",
+   "description_en": "Imaging of the lumbar spine.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 90,
+   "indicative_price_max": 220
+  },
+  {
+   "code": "XR_SCOLIOSIS",
+   "name_ar": "أشعة العمود الفقري الكامل (الجنف)",
+   "name_en": "Full Spine (Scoliosis) X-ray",
+   "modality": "xray",
+   "body_part": "full spine",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة المجوهرات والأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove jewellery and metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "تصوير العمود الفقري كاملًا وقوفًا لقياس انحناء العمود.",
+   "description_en": "Standing full-length spine imaging to measure spinal curvature.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 150,
+   "indicative_price_max": 350
+  },
+  {
+   "code": "XR_BONE_AGE",
+   "name_ar": "أشعة تقدير عمر العظام",
+   "name_en": "Bone Age X-ray",
+   "modality": "xray",
+   "body_part": "hand/wrist",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة المجوهرات والأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove jewellery and metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "تصوير اليد والمعصم لتقدير العمر العظمي عند الأطفال.",
+   "description_en": "Hand and wrist imaging to estimate skeletal age in children.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 80,
+   "indicative_price_max": 200
+  },
+  {
+   "code": "XR_NASAL",
+   "name_ar": "أشعة عظام الأنف",
+   "name_en": "Nasal Bones X-ray",
+   "modality": "xray",
+   "body_part": "nose",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة المجوهرات والأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove jewellery and metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "تصوير عظام الأنف بعد الإصابة.",
+   "description_en": "Imaging of the nasal bones after injury.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 80,
+   "indicative_price_max": 200
+  },
+  {
+   "code": "US_TRANSVAGINAL",
+   "name_ar": "السونار المهبلي",
+   "name_en": "Transvaginal Ultrasound",
+   "modality": "ultrasound",
+   "body_part": "pelvis",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "تفريغ المثانة قبل الفحص"
+   ],
+   "preparation_en": [
+    "Empty your bladder before the scan"
+   ],
+   "description_ar": "عرض قريب للرحم والمبيضين عن طريق المهبل.",
+   "description_en": "Close view of the uterus and ovaries through the vagina.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 200,
+   "indicative_price_max": 450
+  },
+  {
+   "code": "US_EARLY_PREGNANCY",
+   "name_ar": "سونار الحمل المبكر وتحديد العمر",
+   "name_en": "Early Pregnancy (Dating) Ultrasound",
+   "modality": "ultrasound",
+   "body_part": "obstetric",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 25,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "شرب نحو لتر من الماء قبل الفحص بساعة وعدم تفريغ المثانة"
+   ],
+   "preparation_en": [
+    "Drink about 1 litre of water one hour before and do not empty your bladder"
+   ],
+   "description_ar": "يؤكد وجود الحمل وموضعه وموعد الولادة المتوقع.",
+   "description_en": "Confirms the pregnancy, its position and the expected delivery date.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 150,
+   "indicative_price_max": 400
+  },
+  {
+   "code": "US_GROWTH_BPP",
+   "name_ar": "سونار نمو الجنين وصحته",
+   "name_en": "Fetal Growth & Wellbeing Ultrasound",
+   "modality": "ultrasound",
+   "body_part": "obstetric",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "لا يتطلب تحضيرًا خاصًا"
+   ],
+   "preparation_en": [
+    "No special preparation"
+   ],
+   "description_ar": "يقيس نمو الجنين وكمية السائل الأمنيوسي والحركة.",
+   "description_en": "Measures the baby's growth, amniotic fluid and movements.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 150,
+   "indicative_price_max": 400
+  },
+  {
+   "code": "US_OB_DOPPLER",
+   "name_ar": "دوبلر الحمل",
+   "name_en": "Obstetric Doppler Ultrasound",
+   "modality": "ultrasound",
+   "body_part": "obstetric",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "لا يتطلب تحضيرًا خاصًا"
+   ],
+   "preparation_en": [
+    "No special preparation"
+   ],
+   "description_ar": "يفحص تدفق الدم في الحبل السري وشرايين الرحم.",
+   "description_en": "Checks the blood flow of the umbilical cord and uterine arteries.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 250,
+   "indicative_price_max": 550
+  },
+  {
+   "code": "US_CERVICAL_LENGTH",
+   "name_ar": "سونار قياس طول عنق الرحم",
+   "name_en": "Cervical Length Ultrasound",
+   "modality": "ultrasound",
+   "body_part": "pelvis",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "تفريغ المثانة قبل الفحص"
+   ],
+   "preparation_en": [
+    "Empty your bladder before the scan"
+   ],
+   "description_ar": "يقيس طول عنق الرحم أثناء الحمل.",
+   "description_en": "Measures the length of the cervix during pregnancy.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 150,
+   "indicative_price_max": 350
+  },
+  {
+   "code": "US_PROSTATE",
+   "name_ar": "سونار البروستاتا والمثانة",
+   "name_en": "Prostate & Bladder Ultrasound",
+   "modality": "ultrasound",
+   "body_part": "prostate",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 25,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "شرب نحو لتر من الماء قبل الفحص بساعة وعدم تفريغ المثانة"
+   ],
+   "preparation_en": [
+    "Drink about 1 litre of water one hour before and do not empty your bladder"
+   ],
+   "description_ar": "تصوير البروستاتا والمثانة.",
+   "description_en": "Imaging of the prostate and the bladder.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 150,
+   "indicative_price_max": 400
+  },
+  {
+   "code": "US_HIP_INFANT",
+   "name_ar": "سونار مفصل الورك للرضع",
+   "name_en": "Infant Hip Ultrasound",
+   "modality": "ultrasound",
+   "body_part": "hip",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "لا يتطلب تحضيرًا خاصًا"
+   ],
+   "preparation_en": [
+    "No special preparation"
+   ],
+   "description_ar": "فحص مفصل الورك عند الرضع للكشف عن خلل النمو.",
+   "description_en": "Screens a baby's hips for developmental dysplasia.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 150,
+   "indicative_price_max": 350
+  },
+  {
+   "code": "US_CRANIAL_INFANT",
+   "name_ar": "سونار دماغ الرضع",
+   "name_en": "Infant Cranial Ultrasound",
+   "modality": "ultrasound",
+   "body_part": "brain",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "لا يتطلب تحضيرًا خاصًا"
+   ],
+   "preparation_en": [
+    "No special preparation"
+   ],
+   "description_ar": "تصوير دماغ الرضيع عن طريق اليافوخ.",
+   "description_en": "Imaging of a baby's brain through the soft spot of the skull.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 200,
+   "indicative_price_max": 450
+  },
+  {
+   "code": "US_MSK_SHOULDER",
+   "name_ar": "سونار الكتف",
+   "name_en": "Shoulder Ultrasound",
+   "modality": "ultrasound",
+   "body_part": "shoulder",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "لا يتطلب تحضيرًا خاصًا"
+   ],
+   "preparation_en": [
+    "No special preparation"
+   ],
+   "description_ar": "تصوير أوتار مفصل الكتف.",
+   "description_en": "Imaging of the shoulder tendons and joint.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 200,
+   "indicative_price_max": 450
+  },
+  {
+   "code": "US_MSK_KNEE",
+   "name_ar": "سونار الركبة",
+   "name_en": "Knee Ultrasound",
+   "modality": "ultrasound",
+   "body_part": "knee",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "لا يتطلب تحضيرًا خاصًا"
+   ],
+   "preparation_en": [
+    "No special preparation"
+   ],
+   "description_ar": "تصوير مفصل الركبة والسائل والأوتار.",
+   "description_en": "Imaging of the knee joint, fluid and tendons.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 200,
+   "indicative_price_max": 450
+  },
+  {
+   "code": "US_DOPPLER_PORTAL",
+   "name_ar": "دوبلر الوريد البابي",
+   "name_en": "Portal Vein Doppler Ultrasound",
+   "modality": "ultrasound",
+   "body_part": "abdomen",
+   "fasting_hours": 6,
+   "contrast_required": false,
+   "estimated_duration_minutes": 25,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "الصيام 6 ساعات قبل الفحص",
+    "شرب الماء حسب تعليمات المركز"
+   ],
+   "preparation_en": [
+    "Fast for 6 hours before the scan",
+    "Drink water as advised by the centre"
+   ],
+   "description_ar": "يفحص تدفق الدم في الوريد البابي للكبد.",
+   "description_en": "Checks the blood flow of the liver's portal vein.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 250,
+   "indicative_price_max": 550
+  },
+  {
+   "code": "US_DOPPLER_VENOUS_ARM",
+   "name_ar": "دوبلر أوردة الذراع",
+   "name_en": "Arm Veins Doppler Ultrasound",
+   "modality": "ultrasound",
+   "body_part": "arm",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "لا يتطلب تحضيرًا خاصًا"
+   ],
+   "preparation_en": [
+    "No special preparation"
+   ],
+   "description_ar": "يكشف عن الجلطات في أوردة الذراع.",
+   "description_en": "Looks for clots in the veins of the arm.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 250,
+   "indicative_price_max": 550
+  },
+  {
+   "code": "US_SALIVARY",
+   "name_ar": "سونار الغدد اللعابية",
+   "name_en": "Salivary Glands Ultrasound",
+   "modality": "ultrasound",
+   "body_part": "neck",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "لا يتطلب تحضيرًا خاصًا"
+   ],
+   "preparation_en": [
+    "No special preparation"
+   ],
+   "description_ar": "تصوير الغدد اللعابية.",
+   "description_en": "Imaging of the salivary glands.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 150,
+   "indicative_price_max": 350
+  },
+  {
+   "code": "CT_BRAIN_CONTRAST",
+   "name_ar": "الأشعة المقطعية للدماغ بالصبغة",
+   "name_en": "CT Brain with Contrast",
+   "modality": "ct",
+   "body_part": "brain",
+   "fasting_hours": 4,
+   "contrast_required": true,
+   "estimated_duration_minutes": 30,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "الصيام 4 ساعات قبل الفحص",
+    "إحضار آخر نتيجة لوظائف الكلى",
+    "إبلاغ الفني عن أي حساسية من صبغة التباين أو عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Fast for 4 hours before the scan",
+    "Bring your recent kidney function result",
+    "Tell the technician about any allergy to contrast dye or if you may be pregnant"
+   ],
+   "description_ar": "أشعة مقطعية للدماغ باستخدام صبغة التباين.",
+   "description_en": "Brain CT with contrast dye.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": true,
+   "indicative_price_min": 700,
+   "indicative_price_max": 1500
+  },
+  {
+   "code": "CT_CHEST_CONTRAST",
+   "name_ar": "الأشعة المقطعية للصدر بالصبغة",
+   "name_en": "CT Chest with Contrast",
+   "modality": "ct",
+   "body_part": "chest",
+   "fasting_hours": 4,
+   "contrast_required": true,
+   "estimated_duration_minutes": 30,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "الصيام 4 ساعات قبل الفحص",
+    "إحضار آخر نتيجة لوظائف الكلى",
+    "إبلاغ الفني عن أي حساسية من صبغة التباين أو عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Fast for 4 hours before the scan",
+    "Bring your recent kidney function result",
+    "Tell the technician about any allergy to contrast dye or if you may be pregnant"
+   ],
+   "description_ar": "أشعة مقطعية للصدر باستخدام صبغة التباين.",
+   "description_en": "Chest CT with contrast dye.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": true,
+   "indicative_price_min": 800,
+   "indicative_price_max": 1700
+  },
+  {
+   "code": "CT_HRCT_CHEST",
+   "name_ar": "الأشعة المقطعية عالية الدقة للصدر",
+   "name_en": "High-Resolution CT Chest (HRCT)",
+   "modality": "ct",
+   "body_part": "chest",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة الأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "أشعة مقطعية دقيقة للصدر لفحص نسيج الرئة.",
+   "description_en": "Thin-slice chest CT to examine the lung tissue.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 500,
+   "indicative_price_max": 1100
+  },
+  {
+   "code": "CT_CSPINE",
+   "name_ar": "الأشعة المقطعية للفقرات العنقية",
+   "name_en": "CT Cervical Spine",
+   "modality": "ct",
+   "body_part": "cervical spine",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة الأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "أشعة مقطعية لفقرات الرقبة.",
+   "description_en": "CT of the neck vertebrae.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 500,
+   "indicative_price_max": 1100
+  },
+  {
+   "code": "CT_LSPINE",
+   "name_ar": "الأشعة المقطعية للفقرات القطنية",
+   "name_en": "CT Lumbar Spine",
+   "modality": "ct",
+   "body_part": "lumbar spine",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة الأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "أشعة مقطعية لفقرات أسفل الظهر.",
+   "description_en": "CT of the lower back vertebrae.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 500,
+   "indicative_price_max": 1100
+  },
+  {
+   "code": "CT_ABD_PELVIS_PLAIN",
+   "name_ar": "الأشعة المقطعية للبطن والحوض بدون صبغة",
+   "name_en": "CT Abdomen & Pelvis without Contrast",
+   "modality": "ct",
+   "body_part": "abdomen/pelvis",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 25,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة الأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "أشعة مقطعية للبطن والحوض بدون صبغة تباين.",
+   "description_en": "Abdomen and pelvis CT without contrast dye.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 600,
+   "indicative_price_max": 1300
+  },
+  {
+   "code": "CT_ORBITS",
+   "name_ar": "الأشعة المقطعية للمحاجر",
+   "name_en": "CT Orbits",
+   "modality": "ct",
+   "body_part": "orbits",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة الأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "أشعة مقطعية لمحاجر العينين.",
+   "description_en": "CT of the eye sockets.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 500,
+   "indicative_price_max": 1100
+  },
+  {
+   "code": "CT_FACIAL_BONES",
+   "name_ar": "الأشعة المقطعية لعظام الوجه",
+   "name_en": "CT Facial Bones",
+   "modality": "ct",
+   "body_part": "face",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة الأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "أشعة مقطعية لعظام الوجه بعد الإصابة أو للتخطيط للجراحة.",
+   "description_en": "CT of the facial bones after injury or for surgery planning.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 500,
+   "indicative_price_max": 1100
+  },
+  {
+   "code": "CT_TEMPORAL_BONE",
+   "name_ar": "الأشعة المقطعية للعظم الصدغي (الأذن)",
+   "name_en": "CT Temporal Bones (Ear)",
+   "modality": "ct",
+   "body_part": "ear",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة الأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "أشعة مقطعية للعظم الصدغي والأذن الداخلية.",
+   "description_en": "CT of the temporal bones and inner ear.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 500,
+   "indicative_price_max": 1100
+  },
+  {
+   "code": "CT_COLONOGRAPHY",
+   "name_ar": "التنظير المقطعي الافتراضي للقولون",
+   "name_en": "CT Colonography (Virtual Colonoscopy)",
+   "modality": "ct",
+   "body_part": "colon",
+   "fasting_hours": 12,
+   "contrast_required": true,
+   "estimated_duration_minutes": 30,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "الصيام 4 ساعات قبل الفحص",
+    "إحضار آخر نتيجة لوظائف الكلى",
+    "إبلاغ الفني عن أي حساسية من صبغة التباين أو عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Fast for 4 hours before the scan",
+    "Bring your recent kidney function result",
+    "Tell the technician about any allergy to contrast dye or if you may be pregnant"
+   ],
+   "description_ar": "أشعة مقطعية للقولون بعد تحضير الأمعاء.",
+   "description_en": "CT of the colon after bowel preparation.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": true,
+   "indicative_price_min": 900,
+   "indicative_price_max": 1800
+  },
+  {
+   "code": "CT_CALCIUM_SCORE",
+   "name_ar": "الأشعة المقطعية لنسبة كالسيوم الشرايين التاجية",
+   "name_en": "Coronary Calcium Score CT",
+   "modality": "ct",
+   "body_part": "heart",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 15,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "إزالة الأجسام المعدنية من المنطقة",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Remove metal objects from the area",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "يقيس الكالسيوم في شرايين القلب لتقدير خطر أمراض القلب.",
+   "description_en": "Measures calcium in the heart arteries to estimate heart risk.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 350,
+   "indicative_price_max": 800
+  },
+  {
+   "code": "CTA_BRAIN",
+   "name_ar": "الأشعة المقطعية لشرايين الدماغ",
+   "name_en": "CT Angiography of the Brain",
+   "modality": "ct",
+   "body_part": "brain",
+   "fasting_hours": 4,
+   "contrast_required": true,
+   "estimated_duration_minutes": 30,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "الصيام 4 ساعات قبل الفحص",
+    "إحضار آخر نتيجة لوظائف الكلى",
+    "إبلاغ الفني عن أي حساسية من صبغة التباين أو عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Fast for 4 hours before the scan",
+    "Bring your recent kidney function result",
+    "Tell the technician about any allergy to contrast dye or if you may be pregnant"
+   ],
+   "description_ar": "تُظهر شرايين الدماغ باستخدام صبغة التباين.",
+   "description_en": "Shows the arteries of the brain with contrast dye.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": true,
+   "indicative_price_min": 1200,
+   "indicative_price_max": 2500
+  },
+  {
+   "code": "CTA_NECK",
+   "name_ar": "الأشعة المقطعية لشرايين الرقبة",
+   "name_en": "CT Angiography of the Neck",
+   "modality": "ct",
+   "body_part": "neck",
+   "fasting_hours": 4,
+   "contrast_required": true,
+   "estimated_duration_minutes": 30,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "الصيام 4 ساعات قبل الفحص",
+    "إحضار آخر نتيجة لوظائف الكلى",
+    "إبلاغ الفني عن أي حساسية من صبغة التباين أو عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Fast for 4 hours before the scan",
+    "Bring your recent kidney function result",
+    "Tell the technician about any allergy to contrast dye or if you may be pregnant"
+   ],
+   "description_ar": "تُظهر الشرايين السباتية والفقرية باستخدام صبغة التباين.",
+   "description_en": "Shows the carotid and vertebral arteries with contrast dye.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": true,
+   "indicative_price_min": 1200,
+   "indicative_price_max": 2500
+  },
+  {
+   "code": "CTA_AORTA",
+   "name_ar": "الأشعة المقطعية للشريان الأورطي",
+   "name_en": "CT Angiography of the Aorta",
+   "modality": "ct",
+   "body_part": "aorta",
+   "fasting_hours": 4,
+   "contrast_required": true,
+   "estimated_duration_minutes": 30,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "الصيام 4 ساعات قبل الفحص",
+    "إحضار آخر نتيجة لوظائف الكلى",
+    "إبلاغ الفني عن أي حساسية من صبغة التباين أو عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Fast for 4 hours before the scan",
+    "Bring your recent kidney function result",
+    "Tell the technician about any allergy to contrast dye or if you may be pregnant"
+   ],
+   "description_ar": "تُظهر الشريان الأورطي باستخدام صبغة التباين.",
+   "description_en": "Shows the aorta with contrast dye.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": true,
+   "indicative_price_min": 1200,
+   "indicative_price_max": 2500
+  },
+  {
+   "code": "CTA_LEG_RUNOFF",
+   "name_ar": "الأشعة المقطعية لشرايين الساقين",
+   "name_en": "CT Angiography of the Leg Arteries",
+   "modality": "ct",
+   "body_part": "legs",
+   "fasting_hours": 4,
+   "contrast_required": true,
+   "estimated_duration_minutes": 30,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "الصيام 4 ساعات قبل الفحص",
+    "إحضار آخر نتيجة لوظائف الكلى",
+    "إبلاغ الفني عن أي حساسية من صبغة التباين أو عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Fast for 4 hours before the scan",
+    "Bring your recent kidney function result",
+    "Tell the technician about any allergy to contrast dye or if you may be pregnant"
+   ],
+   "description_ar": "تُظهر الشرايين من البطن إلى القدمين باستخدام صبغة التباين.",
+   "description_en": "Shows the arteries from the abdomen to the feet with contrast dye.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": true,
+   "indicative_price_min": 1300,
+   "indicative_price_max": 2700
+  },
+  {
+   "code": "MRI_TSPINE",
+   "name_ar": "الرنين المغناطيسي للفقرات الصدرية",
+   "name_en": "MRI Thoracic Spine",
+   "modality": "mri",
+   "body_part": "thoracic spine",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 40,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "إزالة جميع الأجسام المعدنية والمجوهرات والبطاقات",
+    "إبلاغ الفني بوجود أي زرعة أو منظم قلب أو معدن في الجسم"
+   ],
+   "preparation_en": [
+    "Remove all metal objects, jewellery and cards",
+    "Tell the technician about any implant, pacemaker or metal in the body"
+   ],
+   "description_ar": "رنين مغناطيسي لفقرات منتصف الظهر.",
+   "description_en": "MRI of the mid-back spine.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": true,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 900,
+   "indicative_price_max": 2000
+  },
+  {
+   "code": "MRI_WHOLE_SPINE",
+   "name_ar": "الرنين المغناطيسي للعمود الفقري كاملًا",
+   "name_en": "MRI Whole Spine",
+   "modality": "mri",
+   "body_part": "full spine",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 70,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "إزالة جميع الأجسام المعدنية والمجوهرات والبطاقات",
+    "إبلاغ الفني بوجود أي زرعة أو منظم قلب أو معدن في الجسم"
+   ],
+   "preparation_en": [
+    "Remove all metal objects, jewellery and cards",
+    "Tell the technician about any implant, pacemaker or metal in the body"
+   ],
+   "description_ar": "رنين مغناطيسي للفقرات العنقية والصدرية والقطنية في زيارة واحدة.",
+   "description_en": "MRI of the neck, mid and lower spine in one visit.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": true,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 1800,
+   "indicative_price_max": 3600
+  },
+  {
+   "code": "MRI_HIP",
+   "name_ar": "الرنين المغناطيسي للورك",
+   "name_en": "MRI Hip",
+   "modality": "mri",
+   "body_part": "hip",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 40,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "إزالة جميع الأجسام المعدنية والمجوهرات والبطاقات",
+    "إبلاغ الفني بوجود أي زرعة أو منظم قلب أو معدن في الجسم"
+   ],
+   "preparation_en": [
+    "Remove all metal objects, jewellery and cards",
+    "Tell the technician about any implant, pacemaker or metal in the body"
+   ],
+   "description_ar": "رنين مغناطيسي لمفصل الورك.",
+   "description_en": "MRI of the hip joint.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": true,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 900,
+   "indicative_price_max": 2000
+  },
+  {
+   "code": "MRI_ANKLE_FOOT",
+   "name_ar": "الرنين المغناطيسي للكاحل والقدم",
+   "name_en": "MRI Ankle & Foot",
+   "modality": "mri",
+   "body_part": "ankle/foot",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 40,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "إزالة جميع الأجسام المعدنية والمجوهرات والبطاقات",
+    "إبلاغ الفني بوجود أي زرعة أو منظم قلب أو معدن في الجسم"
+   ],
+   "preparation_en": [
+    "Remove all metal objects, jewellery and cards",
+    "Tell the technician about any implant, pacemaker or metal in the body"
+   ],
+   "description_ar": "رنين مغناطيسي للكاحل والقدم.",
+   "description_en": "MRI of the ankle and foot.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": true,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 900,
+   "indicative_price_max": 2000
+  },
+  {
+   "code": "MRI_WRIST_HAND",
+   "name_ar": "الرنين المغناطيسي للمعصم واليد",
+   "name_en": "MRI Wrist & Hand",
+   "modality": "mri",
+   "body_part": "wrist/hand",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 40,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "إزالة جميع الأجسام المعدنية والمجوهرات والبطاقات",
+    "إبلاغ الفني بوجود أي زرعة أو منظم قلب أو معدن في الجسم"
+   ],
+   "preparation_en": [
+    "Remove all metal objects, jewellery and cards",
+    "Tell the technician about any implant, pacemaker or metal in the body"
+   ],
+   "description_ar": "رنين مغناطيسي للمعصم واليد.",
+   "description_en": "MRI of the wrist and hand.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": true,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 900,
+   "indicative_price_max": 2000
+  },
+  {
+   "code": "MRI_ELBOW",
+   "name_ar": "الرنين المغناطيسي للمرفق",
+   "name_en": "MRI Elbow",
+   "modality": "mri",
+   "body_part": "elbow",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 40,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "إزالة جميع الأجسام المعدنية والمجوهرات والبطاقات",
+    "إبلاغ الفني بوجود أي زرعة أو منظم قلب أو معدن في الجسم"
+   ],
+   "preparation_en": [
+    "Remove all metal objects, jewellery and cards",
+    "Tell the technician about any implant, pacemaker or metal in the body"
+   ],
+   "description_ar": "رنين مغناطيسي لمفصل المرفق.",
+   "description_en": "MRI of the elbow joint.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": true,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 900,
+   "indicative_price_max": 2000
+  },
+  {
+   "code": "MRI_PELVIS",
+   "name_ar": "الرنين المغناطيسي للحوض",
+   "name_en": "MRI Pelvis",
+   "modality": "mri",
+   "body_part": "pelvis",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 40,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "إزالة جميع الأجسام المعدنية والمجوهرات والبطاقات",
+    "إبلاغ الفني بوجود أي زرعة أو منظم قلب أو معدن في الجسم"
+   ],
+   "preparation_en": [
+    "Remove all metal objects, jewellery and cards",
+    "Tell the technician about any implant, pacemaker or metal in the body"
+   ],
+   "description_ar": "رنين مغناطيسي لأعضاء الحوض.",
+   "description_en": "MRI of the pelvic organs.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": true,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 1000,
+   "indicative_price_max": 2200
+  },
+  {
+   "code": "MRI_PROSTATE",
+   "name_ar": "الرنين المغناطيسي للبروستاتا",
+   "name_en": "MRI Prostate (Multiparametric)",
+   "modality": "mri",
+   "body_part": "prostate",
+   "fasting_hours": 4,
+   "contrast_required": true,
+   "estimated_duration_minutes": 45,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "الصيام 4 ساعات قبل الفحص",
+    "إحضار آخر نتيجة لوظائف الكلى",
+    "إزالة الأجسام المعدنية وإبلاغ الفني بأي زرعة أو حساسية من صبغة التباين"
+   ],
+   "preparation_en": [
+    "Fast for 4 hours before the scan",
+    "Bring your recent kidney function result",
+    "Remove all metal objects and tell the technician about any implant or contrast allergy"
+   ],
+   "description_ar": "رنين مغناطيسي تفصيلي للبروستاتا.",
+   "description_en": "Detailed MRI of the prostate.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": true,
+   "requires_contrast_allergy_check": true,
+   "indicative_price_min": 1500,
+   "indicative_price_max": 3000
+  },
+  {
+   "code": "MRI_PITUITARY",
+   "name_ar": "الرنين المغناطيسي للغدة النخامية",
+   "name_en": "MRI Pituitary",
+   "modality": "mri",
+   "body_part": "pituitary",
+   "fasting_hours": 4,
+   "contrast_required": true,
+   "estimated_duration_minutes": 50,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "الصيام 4 ساعات قبل الفحص",
+    "إحضار آخر نتيجة لوظائف الكلى",
+    "إزالة الأجسام المعدنية وإبلاغ الفني بأي زرعة أو حساسية من صبغة التباين"
+   ],
+   "preparation_en": [
+    "Fast for 4 hours before the scan",
+    "Bring your recent kidney function result",
+    "Remove all metal objects and tell the technician about any implant or contrast allergy"
+   ],
+   "description_ar": "رنين مغناطيسي للغدة النخامية باستخدام صبغة التباين.",
+   "description_en": "MRI of the pituitary gland with contrast dye.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": true,
+   "requires_contrast_allergy_check": true,
+   "indicative_price_min": 1300,
+   "indicative_price_max": 2800
+  },
+  {
+   "code": "MRI_ORBITS",
+   "name_ar": "الرنين المغناطيسي للمحاجر",
+   "name_en": "MRI Orbits",
+   "modality": "mri",
+   "body_part": "orbits",
+   "fasting_hours": 4,
+   "contrast_required": true,
+   "estimated_duration_minutes": 50,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "الصيام 4 ساعات قبل الفحص",
+    "إحضار آخر نتيجة لوظائف الكلى",
+    "إزالة الأجسام المعدنية وإبلاغ الفني بأي زرعة أو حساسية من صبغة التباين"
+   ],
+   "preparation_en": [
+    "Fast for 4 hours before the scan",
+    "Bring your recent kidney function result",
+    "Remove all metal objects and tell the technician about any implant or contrast allergy"
+   ],
+   "description_ar": "رنين مغناطيسي لمحاجر العينين والأعصاب البصرية.",
+   "description_en": "MRI of the eye sockets and optic nerves.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": true,
+   "requires_contrast_allergy_check": true,
+   "indicative_price_min": 1300,
+   "indicative_price_max": 2800
+  },
+  {
+   "code": "MRI_ENTEROGRAPHY",
+   "name_ar": "الرنين المغناطيسي للأمعاء الدقيقة",
+   "name_en": "MR Enterography (Small Bowel)",
+   "modality": "mri",
+   "body_part": "abdomen",
+   "fasting_hours": 6,
+   "contrast_required": true,
+   "estimated_duration_minutes": 50,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "الصيام 4 ساعات قبل الفحص",
+    "إحضار آخر نتيجة لوظائف الكلى",
+    "إزالة الأجسام المعدنية وإبلاغ الفني بأي زرعة أو حساسية من صبغة التباين"
+   ],
+   "preparation_en": [
+    "Fast for 4 hours before the scan",
+    "Bring your recent kidney function result",
+    "Remove all metal objects and tell the technician about any implant or contrast allergy"
+   ],
+   "description_ar": "رنين مغناطيسي للأمعاء الدقيقة، غالبًا لمرض كرون.",
+   "description_en": "MRI of the small bowel, often for Crohn's disease.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": true,
+   "requires_contrast_allergy_check": true,
+   "indicative_price_min": 1500,
+   "indicative_price_max": 3000
+  },
+  {
+   "code": "MRA_BRAIN",
+   "name_ar": "الرنين المغناطيسي لشرايين الدماغ",
+   "name_en": "MR Angiography of the Brain",
+   "modality": "mri",
+   "body_part": "brain",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 40,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "إزالة جميع الأجسام المعدنية والمجوهرات والبطاقات",
+    "إبلاغ الفني بوجود أي زرعة أو منظم قلب أو معدن في الجسم"
+   ],
+   "preparation_en": [
+    "Remove all metal objects, jewellery and cards",
+    "Tell the technician about any implant, pacemaker or metal in the body"
+   ],
+   "description_ar": "يُظهر شرايين الدماغ بدون صبغة تباين.",
+   "description_en": "Shows the brain arteries without contrast dye.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": true,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 1000,
+   "indicative_price_max": 2200
+  },
+  {
+   "code": "MRA_NECK",
+   "name_ar": "الرنين المغناطيسي لشرايين الرقبة",
+   "name_en": "MR Angiography of the Neck",
+   "modality": "mri",
+   "body_part": "neck",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 40,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "إزالة جميع الأجسام المعدنية والمجوهرات والبطاقات",
+    "إبلاغ الفني بوجود أي زرعة أو منظم قلب أو معدن في الجسم"
+   ],
+   "preparation_en": [
+    "Remove all metal objects, jewellery and cards",
+    "Tell the technician about any implant, pacemaker or metal in the body"
+   ],
+   "description_ar": "يُظهر شرايين الرقبة بدون صبغة تباين.",
+   "description_en": "Shows the neck arteries without contrast dye.",
+   "requires_pregnancy_check": false,
+   "requires_metal_implant_check": true,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 1000,
+   "indicative_price_max": 2200
+  },
+  {
+   "code": "DEXA_BODY_COMPOSITION",
+   "name_ar": "قياس تركيب الجسم (DEXA)",
+   "name_en": "DEXA Body Composition",
+   "modality": "dexa",
+   "body_part": "whole_body",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 20,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "عدم تناول مكملات الكالسيوم قبل الفحص بـ 24 ساعة",
+    "ارتداء ملابس خالية من المعدن"
+   ],
+   "preparation_en": [
+    "Do not take calcium supplements for 24 hours before the scan",
+    "Wear clothes without metal"
+   ],
+   "description_ar": "يقيس دهون الجسم والعضلات وكتلة العظام.",
+   "description_en": "Measures body fat, muscle and bone mass.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 250,
+   "indicative_price_max": 500
+  },
+  {
+   "code": "FLUORO_BARIUM_MEAL",
+   "name_ar": "الأشعة الظاهرة بالباريوم للمعدة",
+   "name_en": "Barium Meal (Upper GI Series)",
+   "modality": "fluoroscopy",
+   "body_part": "stomach",
+   "fasting_hours": 6,
+   "contrast_required": false,
+   "estimated_duration_minutes": 30,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "الصيام 6 ساعات قبل الفحص أو حسب تعليمات المركز",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Fast for 6 hours before the study, or as the centre instructs",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "دراسة بالأشعة للمريء والمعدة والاثني عشر بعد شرب الباريوم.",
+   "description_en": "X-ray study of the oesophagus, stomach and duodenum after drinking barium.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 250,
+   "indicative_price_max": 700
+  },
+  {
+   "code": "FLUORO_BARIUM_ENEMA",
+   "name_ar": "الحقنة الشرجية بالباريوم",
+   "name_en": "Barium Enema",
+   "modality": "fluoroscopy",
+   "body_part": "colon",
+   "fasting_hours": 12,
+   "contrast_required": false,
+   "estimated_duration_minutes": 30,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "الصيام 6 ساعات قبل الفحص أو حسب تعليمات المركز",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Fast for 6 hours before the study, or as the centre instructs",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "دراسة بالأشعة للأمعاء الغليظة بالباريوم.",
+   "description_en": "X-ray study of the large bowel with barium.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 300,
+   "indicative_price_max": 800
+  },
+  {
+   "code": "FLUORO_BARIUM_FOLLOW",
+   "name_ar": "الأشعة بالباريوم للأمعاء الدقيقة",
+   "name_en": "Barium Follow-Through (Small Bowel)",
+   "modality": "fluoroscopy",
+   "body_part": "small bowel",
+   "fasting_hours": 6,
+   "contrast_required": false,
+   "estimated_duration_minutes": 120,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "الصيام 6 ساعات قبل الفحص أو حسب تعليمات المركز",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Fast for 6 hours before the study, or as the centre instructs",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "دراسة بالأشعة تتابع مرور الباريوم في الأمعاء الدقيقة.",
+   "description_en": "X-ray study that follows barium through the small bowel.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 300,
+   "indicative_price_max": 800
+  },
+  {
+   "code": "FLUORO_MCUG",
+   "name_ar": "تصوير المثانة والإحليل أثناء التبول",
+   "name_en": "Micturating Cystourethrogram (MCUG)",
+   "modality": "fluoroscopy",
+   "body_part": "bladder",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 30,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "الصيام 6 ساعات قبل الفحص أو حسب تعليمات المركز",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Fast for 6 hours before the study, or as the centre instructs",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "دراسة بالأشعة للمثانة والإحليل أثناء التبول.",
+   "description_en": "X-ray study of the bladder and urethra while passing urine.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 350,
+   "indicative_price_max": 900
+  },
+  {
+   "code": "FLUORO_IVU",
+   "name_ar": "تصوير المسالك البولية بالصبغة الوريدية",
+   "name_en": "Intravenous Urogram (IVU)",
+   "modality": "fluoroscopy",
+   "body_part": "kidneys",
+   "fasting_hours": 6,
+   "contrast_required": true,
+   "estimated_duration_minutes": 60,
+   "turnaround_hours": 24,
+   "preparation_ar": [
+    "الصيام 6 ساعات قبل الفحص أو حسب تعليمات المركز",
+    "إبلاغ الفني عند احتمال الحمل"
+   ],
+   "preparation_en": [
+    "Fast for 6 hours before the study, or as the centre instructs",
+    "Tell the technician if you may be pregnant"
+   ],
+   "description_ar": "سلسلة صور بالأشعة للكلى والحالبين والمثانة بعد حقن الصبغة.",
+   "description_en": "X-ray series of the kidneys, ureters and bladder after contrast injection.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": true,
+   "indicative_price_min": 350,
+   "indicative_price_max": 900
+  },
+  {
+   "code": "NM_MYOCARDIAL_PERFUSION",
+   "name_ar": "مسح نفاذية عضلة القلب",
+   "name_en": "Myocardial Perfusion Scan (SPECT)",
+   "modality": "nuclear",
+   "body_part": "heart",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 240,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "يختلف التحضير حسب الفحص ويعطيك المركز التعليمات عند الحجز",
+    "إبلاغ الفني عند الحمل أو الإرضاع"
+   ],
+   "preparation_en": [
+    "The preparation depends on the scan: the centre gives the instructions when you book",
+    "Tell the technician if you are pregnant or breastfeeding"
+   ],
+   "description_ar": "يُظهر تدفق الدم إلى عضلة القلب أثناء الراحة وبعد الجهد.",
+   "description_en": "Shows the blood flow to the heart muscle at rest and after stress.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 1200,
+   "indicative_price_max": 2800
+  },
+  {
+   "code": "NM_RENAL_DMSA",
+   "name_ar": "مسح الكلى (DMSA)",
+   "name_en": "Renal DMSA Scan",
+   "modality": "nuclear",
+   "body_part": "kidneys",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 120,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "يختلف التحضير حسب الفحص ويعطيك المركز التعليمات عند الحجز",
+    "إبلاغ الفني عند الحمل أو الإرضاع"
+   ],
+   "preparation_en": [
+    "The preparation depends on the scan: the centre gives the instructions when you book",
+    "Tell the technician if you are pregnant or breastfeeding"
+   ],
+   "description_ar": "يُظهر وظيفة الكلى والتندبات فيها.",
+   "description_en": "Shows the kidney function and scars.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 800,
+   "indicative_price_max": 1800
+  },
+  {
+   "code": "NM_RENAL_MAG3",
+   "name_ar": "المسح الديناميكي للكلى (MAG3)",
+   "name_en": "Renal Dynamic Scan (MAG3)",
+   "modality": "nuclear",
+   "body_part": "kidneys",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 60,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "يختلف التحضير حسب الفحص ويعطيك المركز التعليمات عند الحجز",
+    "إبلاغ الفني عند الحمل أو الإرضاع"
+   ],
+   "preparation_en": [
+    "The preparation depends on the scan: the centre gives the instructions when you book",
+    "Tell the technician if you are pregnant or breastfeeding"
+   ],
+   "description_ar": "يُظهر كفاءة تصريف كل كلية.",
+   "description_en": "Shows how well each kidney drains.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 800,
+   "indicative_price_max": 1800
+  },
+  {
+   "code": "NM_HIDA",
+   "name_ar": "مسح الكبد والمرارة (HIDA)",
+   "name_en": "Hepatobiliary (HIDA) Scan",
+   "modality": "nuclear",
+   "body_part": "abdomen",
+   "fasting_hours": 6,
+   "contrast_required": false,
+   "estimated_duration_minutes": 120,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "يختلف التحضير حسب الفحص ويعطيك المركز التعليمات عند الحجز",
+    "إبلاغ الفني عند الحمل أو الإرضاع"
+   ],
+   "preparation_en": [
+    "The preparation depends on the scan: the centre gives the instructions when you book",
+    "Tell the technician if you are pregnant or breastfeeding"
+   ],
+   "description_ar": "يُظهر وظيفة الكبد والمرارة.",
+   "description_en": "Shows the function of the liver and gallbladder.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 800,
+   "indicative_price_max": 1800
+  },
+  {
+   "code": "NM_GASTRIC_EMPTYING",
+   "name_ar": "مسح تفريغ المعدة",
+   "name_en": "Gastric Emptying Scan",
+   "modality": "nuclear",
+   "body_part": "stomach",
+   "fasting_hours": 8,
+   "contrast_required": false,
+   "estimated_duration_minutes": 240,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "يختلف التحضير حسب الفحص ويعطيك المركز التعليمات عند الحجز",
+    "إبلاغ الفني عند الحمل أو الإرضاع"
+   ],
+   "preparation_en": [
+    "The preparation depends on the scan: the centre gives the instructions when you book",
+    "Tell the technician if you are pregnant or breastfeeding"
+   ],
+   "description_ar": "يقيس سرعة خروج الطعام من المعدة.",
+   "description_en": "Measures how fast food leaves the stomach.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 800,
+   "indicative_price_max": 1800
+  },
+  {
+   "code": "NM_PARATHYROID",
+   "name_ar": "مسح الغدة الجار درقية",
+   "name_en": "Parathyroid Scan",
+   "modality": "nuclear",
+   "body_part": "neck",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 120,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "يختلف التحضير حسب الفحص ويعطيك المركز التعليمات عند الحجز",
+    "إبلاغ الفني عند الحمل أو الإرضاع"
+   ],
+   "preparation_en": [
+    "The preparation depends on the scan: the centre gives the instructions when you book",
+    "Tell the technician if you are pregnant or breastfeeding"
+   ],
+   "description_ar": "يحدد موضع الغدة الجار درقية النشطة.",
+   "description_en": "Locates an overactive parathyroid gland.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 900,
+   "indicative_price_max": 2000
+  },
+  {
+   "code": "NM_LUNG_VQ",
+   "name_ar": "مسح التهوية والتروية للرئة",
+   "name_en": "Lung Ventilation-Perfusion (V/Q) Scan",
+   "modality": "nuclear",
+   "body_part": "chest",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 60,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "يختلف التحضير حسب الفحص ويعطيك المركز التعليمات عند الحجز",
+    "إبلاغ الفني عند الحمل أو الإرضاع"
+   ],
+   "preparation_en": [
+    "The preparation depends on the scan: the centre gives the instructions when you book",
+    "Tell the technician if you are pregnant or breastfeeding"
+   ],
+   "description_ar": "يكشف عن الجلطات في الرئتين.",
+   "description_en": "Looks for blood clots in the lungs.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 900,
+   "indicative_price_max": 2000
+  },
+  {
+   "code": "PETCT_PSMA",
+   "name_ar": "التصوير المقطعي بالبوزيترون (PSMA)",
+   "name_en": "PSMA PET-CT",
+   "modality": "pet",
+   "body_part": "whole_body",
+   "fasting_hours": 0,
+   "contrast_required": false,
+   "estimated_duration_minutes": 120,
+   "turnaround_hours": 48,
+   "preparation_ar": [
+    "يختلف التحضير حسب الفحص ويعطيك المركز التعليمات عند الحجز",
+    "إبلاغ الفني عند الحمل أو الإرضاع"
+   ],
+   "preparation_en": [
+    "The preparation depends on the scan: the centre gives the instructions when you book",
+    "Tell the technician if you are pregnant or breastfeeding"
+   ],
+   "description_ar": "تصوير مقطعي بالبوزيترون يُستخدم لسرطان البروستاتا.",
+   "description_en": "PET-CT used for prostate cancer.",
+   "requires_pregnancy_check": true,
+   "requires_metal_implant_check": false,
+   "requires_contrast_allergy_check": false,
+   "indicative_price_min": 3500,
+   "indicative_price_max": 7500
   }
  ],
  "labs": [
