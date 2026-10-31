@@ -57,7 +57,7 @@ esac
         self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
         out = p.stdout
         self.assertIn("the volume holds 4 collection(s), 9125 document(s)", out)
-        self.assertIn("newest file modified: unknown; containers that mount it (running or stopped): none", out)
+        self.assertRegex(out, r"newest file modified: unknown; containers that mount it \(running or stopped\): +\n")
         self.assertIn("nabd.only_here: volume=5 newest=2026-02-01 live=? newest=none -> NOT IN THE LIVE DATABASE", out)
         self.assertIn("nabd.users: volume=120 newest=2026-09-01 live=130 newest=2026-10-31 -> same-or-fewer", out)
         self.assertIn("nabd.old_logs: volume=9000 newest=2026-03-02 live=8000 newest=2026-10-30 -> MORE THAN LIVE", out)
