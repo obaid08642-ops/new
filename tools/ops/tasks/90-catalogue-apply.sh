@@ -101,7 +101,7 @@ if [ "$TRANSLATIONS" = yes ]; then
   TRANSLATIONS_ONLY=yes; say "product translations planned on its own (--only=product_translations): empty fields only, from product-translations.json (sha256 $(sudo -n sha256sum "$IN/product-translations.json" | cut -c1-12))"
 fi
 if [ "$COMPLETION" = packaged ]; then
-  ARGS="$ARGS --only=catalogue_completion --catalogue-completion=packaged"; say "catalogue completion (packaged) planned on its own (--only=catalogue_completion)"
+  ARGS="$ARGS --only=catalogue_completion --catalogue-completion=packaged --radiology-approve=packaged"; say "catalogue completion (packaged) planned on its own (--only=catalogue_completion), with the packaged radiology decisions (approve barium_study, dental_panoramic, pet_ct_scan, hysterosalpingography_hsg; merge hsg into hysterosalpingography_hsg)"
 fi
 if [ "$PRUNE" = yes ]; then
   ARGS="$ARGS --only=catalogue_prune"; say "catalogue prune planned on its own (--only=catalogue_prune): delete-only, unreferenced rows"
@@ -122,7 +122,7 @@ fi
 if sudo -n test -f "$IN/product-translations.json"; then
   sudo -n cat "$IN/product-translations.json" | $DK exec -i "$CT" sh -c 'cat > /tmp/cat-product-translations.json' && ARGS="$ARGS --product-translations=/tmp/cat-product-translations.json" && say "input product-translations.json copied in"
 fi
-if sudo -n test -f "$IN/radiology-approve.json"; then
+if [ "$COMPLETION" != packaged ] && sudo -n test -f "$IN/radiology-approve.json"; then
   sudo -n cat "$IN/radiology-approve.json" | $DK exec -i "$CT" sh -c 'cat > /tmp/cat-radiology-approve.json' && ARGS="$ARGS --radiology-approve=/tmp/cat-radiology-approve.json" && say "input radiology-approve.json copied in"
 fi
 if sudo -n test -f "$IN/test-data-remove.json"; then

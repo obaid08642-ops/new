@@ -36,6 +36,8 @@ const TRANSLATIONS_CSV = path.join(__dirname, '../modules/medicines/data/medicin
 export const PACKAGED_DISTRICTS = path.join(__dirname, '../modules/location/data/districts-extract.v1.json');
 /** The reviewed list of test providers the owner approved removing (2026-10-29), shipped in the image; `--test-data-remove=packaged` reads it. */
 export const PACKAGED_TEST_REMOVAL = path.join(__dirname, '../modules/catalogs/seed-data/test-data-remove.2026-10-29.json');
+/** The reviewed radiology decisions (owner 2026-10-31: approve the awaiting scans, merge the duplicate HSG), shipped in the image; `--radiology-approve=packaged` reads it. */
+export const PACKAGED_RADIOLOGY_APPROVE = path.join(__dirname, '../modules/catalogs/seed-data/radiology-approve.2026-10-31.json');
 /** The reviewed catalogue completion (owner approved, 2026-10-29), shipped in the image; `--catalogue-completion=packaged` plans it. */
 export const PACKAGED_COMPLETION = path.join(__dirname, '../modules/catalogs/seed-data/catalogue-completion.2026-10-29.json');
 const TOUCHED = ['medicines', 'locations', 'insurance_companies', 'lab_services', 'radiology_services', 'nursing_services'];
@@ -68,7 +70,7 @@ async function planRadiologyAndCompletion(db: DbLike, argv: string[], inputs: Re
   let approve: string[] = [];
   const radiologyExtras: RadiologyFileExtras = {};
   if (approvePath) {
-    const text = fs.readFileSync(approvePath, 'utf8');
+    const text = fs.readFileSync(approvePath === 'packaged' ? PACKAGED_RADIOLOGY_APPROVE : approvePath, 'utf8');
     inputs.radiology_approve = sha256(text);
     const parsed: unknown = JSON.parse(text);
     const file = parsed as { approve?: unknown; merge?: unknown; delete?: unknown };
