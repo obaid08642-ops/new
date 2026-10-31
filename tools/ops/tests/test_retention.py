@@ -91,7 +91,7 @@ esac
         self.assertEqual(self.left(), before)                                                    # nothing deleted
         calls = open(self.calls).read()
         self.assertNotIn("rmi", calls); self.assertNotIn("builder prune", calls); self.assertNotIn("vacuum", calls)
-        self.assertIn("pre-deploy dumps: files=7 stay=2", out); self.assertIn("delete=5 (of which empty: 1) frees 8388608 bytes = 8 MB", out)   # the young one + the newest finished one
+        self.assertIn("pre-deploy dumps: files=7 stay=2", out); self.assertIn("delete=5 (of which empty: 1; suspect, under 50% of the family's largest, left alone and not counted: 0) frees 8388608 bytes = 8 MB", out)   # the young one + the newest finished one
         self.assertIn("pre-mongo-recreate dumps: files=3 stay=1", out); self.assertIn("delete=2", out)
         self.assertIn("pre-recreate dumps: files=1 stay=1", out)
         self.assertIn("nightly dumps: files=10 stay=2", out); self.assertIn("delete=8", out)
@@ -137,6 +137,17 @@ esac
         self.assertIn("pre-deploy-good1.gz", left)                                                # the last FINISHED dump stays next to the one being written
         self.assertNotIn("pre-deploy-good2.gz", left); self.assertNotIn("pre-deploy-new-empty.gz", left)
         self.assertIn("pre-deploy dumps: files=4 stay=2", p.stdout)
+
+    def test_a_suspect_small_dump_is_never_counted_as_the_copy_that_stays_and_never_deleted(self):
+        day = 24 * 60
+        self.make("nabd_x_1.gz.gpg", 300 * MB, 1 * day); self.make("nabd_x_2.gz.gpg", 290 * MB, 2 * day); self.make("nabd_x_3.gz.gpg", 280 * MB, 3 * day)
+        self.make("nabd_x_4.gz.gpg", 3 * MB, 120)                                                  # 2026-10-31: 3.5 MB next to 354 MB; it must not push a good dump out
+        p = self.run_task(apply=True)
+        left = self.left()
+        self.assertIn("nabd_x_4.gz.gpg", left)                                                     # evidence is kept
+        self.assertIn("nabd_x_1.gz.gpg", left); self.assertIn("nabd_x_2.gz.gpg", left)             # the 2 newest GOOD dumps stay
+        self.assertNotIn("nabd_x_3.gz.gpg", left)
+        self.assertIn("left alone and not counted: 1)", p.stdout)
 
     def test_the_task_never_prints_the_environment_and_names_only_backup_files(self):
         self.fixture()

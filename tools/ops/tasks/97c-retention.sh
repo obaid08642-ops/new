@@ -31,20 +31,23 @@ DEL=$(mktemp); trap 'rm -f "$DEL"' EXIT   # one path per line: what goes
 TOTAL_DEL=0; TOTAL_BYTES=0
 family() {   # family <label> <keep> <glob...>: newest first by modification time
   local label=$1 keep=$2; shift 2
-  local files f size age kept=0 nfiles=0 ndel=0 bytes=0 empty=0 young=0
+  local files f size age kept=0 nfiles=0 ndel=0 bytes=0 empty=0 young=0 max=0 suspect=0
   files=$(sudo -n sh -c "cd '$B' && ls -1t $* 2>/dev/null")
+  while IFS= read -r f; do [ -n "$f" ] || continue; size=$(sudo -n stat -c %s "$B/$f" 2>/dev/null || echo 0); [ "$size" -gt "$max" ] && max=$size; done <<< "$files"
   while IFS= read -r f; do
     [ -n "$f" ] || continue
     nfiles=$((nfiles+1))
     size=$(sudo -n stat -c %s "$B/$f" 2>/dev/null || echo 0)
     age=$(( ( $(date +%s) - $(sudo -n stat -c %Y "$B/$f" 2>/dev/null || date +%s) ) / 60 ))
     if [ "$age" -lt "$YOUNG_MIN" ]; then young=$((young+1)); continue; fi   # being written: untouched, and does NOT count as the copy that stays (it may be incomplete)
+    # a dump under 50% of the largest of its family is SUSPECT (2026-10-31: 3.5 MB next to 354 MB): it is never counted as the copy that stays (it must not push a good dump out) and never deleted (evidence)
+    if [ "$size" -gt 0 ] && [ $((size * 100)) -lt $((max * 50)) ]; then suspect=$((suspect+1)); continue; fi
     if [ "$size" -le 0 ]; then empty=$((empty+1)); ndel=$((ndel+1)); echo "$B/$f" >> "$DEL"; continue; fi
     if [ "$kept" -lt "$keep" ]; then kept=$((kept+1)); continue; fi
     ndel=$((ndel+1)); bytes=$((bytes+size)); echo "$B/$f" >> "$DEL"
   done <<< "$files"
   TOTAL_DEL=$((TOTAL_DEL+ndel)); TOTAL_BYTES=$((TOTAL_BYTES+bytes))
-  say "$label: files=$nfiles stay=$((nfiles-ndel)) (keep $keep newest non-empty; $young changed in the last $YOUNG_MIN min are never touched) delete=$ndel (of which empty: $empty) frees ${bytes} bytes = $(mb $bytes) MB"
+  say "$label: files=$nfiles stay=$((nfiles-ndel)) (keep $keep newest non-empty; $young changed in the last $YOUNG_MIN min are never touched) delete=$ndel (of which empty: $empty; suspect, under 50% of the family's largest, left alone and not counted: $suspect) frees ${bytes} bytes = $(mb $bytes) MB"
 }
 family "pre-deploy dumps" 1 'pre-deploy-*.gz'
 family "pre-mongo-recreate dumps" 1 'pre-mongo-recreate-*.gz'
