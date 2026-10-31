@@ -98,15 +98,16 @@ services:
     image: getmeili/meilisearch:v1.10
     container_name: nabdah-meilisearch
     restart: unless-stopped
-    mem_limit: 448m  # host OOM (run 69): 640m -> 448m, the indexing memory below is halved too
+    mem_limit: 1024m   # run 70: killed 491 times in 3 h at its OWN 640m limit (anon_rss ~643 MB each time, restarts=782): it needs more than 640m while it indexes
     mem_reservation: 100m
-    memswap_limit: 640m   # 448m + 192m swap (rebuildable index)
+    memswap_limit: 1536m   # 1024m + 512m swap: the only container allowed a larger swap share (the index is rebuildable)
     oom_score_adj: 200
     environment:
       MEILI_ENV: production
       MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
       MEILI_NO_ANALYTICS: "true"
       MEILI_MAX_INDEXING_MEMORY: 128Mb
+      MEILI_MAX_INDEXING_THREADS: "1"   # one indexing thread: the peak of a batch is one sorter, not one per core
     volumes:
       - meili_data:/meili_data
     networks: [internal]
@@ -127,13 +128,13 @@ services:
     container_name: nabdah-backend
     stop_grace_period: 40s   # 20.9: SIGTERM drain before SIGKILL (rolling deploys stop the old container with docker stop -t)
     restart: unless-stopped
-    mem_limit: 704m  # host OOM (run 69): 768m -> 704m, heap 512 -> 448
+    mem_limit: 768m
     mem_reservation: 400m
-    memswap_limit: 960m   # 704m + 256m swap
+    memswap_limit: 1024m   # 768m + 256m swap
     oom_score_adj: 0
     env_file: .env.production
     environment:
-      NODE_OPTIONS: --max-old-space-size=448   # of the 704m container limit
+      NODE_OPTIONS: --max-old-space-size=512   # of the 768m container limit
       NODE_ENV: production
       CLUSTER_MODE: "false"   # ops 2026-10-04: cluster mode crashed the deployed build; one process also saves RAM
       PORT: "8002"
@@ -192,13 +193,13 @@ services:
     container_name: nabdah-worker
     stop_grace_period: 60s   # 20.9: SIGTERM drain before SIGKILL (rolling deploys stop the old container with docker stop -t)
     restart: unless-stopped
-    mem_limit: 512m  # host OOM (run 69): 640m -> 512m, heap 448 -> 352
+    mem_limit: 640m
     mem_reservation: 200m
-    memswap_limit: 768m   # 512m + 256m swap
+    memswap_limit: 896m   # 640m + 256m swap
     oom_score_adj: 300
     env_file: .env.production
     environment:
-      NODE_OPTIONS: --max-old-space-size=352   # of the 512m container limit
+      NODE_OPTIONS: --max-old-space-size=448   # of the 640m container limit
       NODE_ENV: production
       CLUSTER_MODE: "false"
       PROCESS_ROLE: worker

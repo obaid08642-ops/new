@@ -11,7 +11,7 @@ DUMP = open(os.path.join(ROOT, "deploy", "scripts", "_mongodump-oneoff.sh")).rea
 
 MEMTOTAL_MB = 3800         # as in deploy/scripts/test_compose_memory.py
 HOST_OWN_MB = 500          # its OS_RESERVE_MB: an assumption, see the doc
-SWAP_FILE_MB = 2048
+SWAP_FILE_MB = 4096   # run 70: the host has 4 GB of swap
 NEVER_SWAP = {"mongodb", "redis"}
 
 
