@@ -1,17 +1,11 @@
-# 2026-10-31 lead reviewer: run 67.
-# Run 66: the pre-deploy dump ended rc=1 (the deploy still had the old one-off dump); the deploy aborted, production unchanged (22610406).
-# The catalogue dry run then failed on the old image ("packaged" radiology file is new); the translations dry run is unchanged (19,984);
-# retention would delete nothing (backups are only ~1 GB), so the 85% disk is used elsewhere.
-# 1. 99d-disk-usage (READ-ONLY): where the disk goes.
-# 2. Free disk, deploy main@cff60584 with the reliable one-off dump (#2186: one collection at a time, cap from MemAvailable, one retry, exit code
-#    and OOMKilled reported). A failed dump still aborts with production unchanged.
-# 3. 90 DRY RUN (catalogue completion + radiology decisions) and 90c DRY RUN (translations) on the new image (one write per field, #2197).
-# 4. Purge the API cache.
-99d-disk-usage
-release:cff60584a88a71db6bf30d5af27176a36b9ea624
-97-free-old-predeploy
-93-free-unused-images
-60-deploy-main
+# 2026-10-31 lead reviewer: run 68.
+# Run 67: deployed main@cff60584 (dump 355 MB, attempt 1 ok, health ok). Disk: 72% before, 87% after the deploy (two releases of 1.2 GB each,
+# 8.2 GB of images). Old checkouts with node_modules in /opt/nabdah (nabdah-backend 1.1 GB, patient-web 1 GB, Napd-admin 0.7 GB) look
+# unused: S checks and writes a guarded cleanup.
+# 1. 90-catalogue-apply APPLY of run 67's plan (179 changes: lab 54 set + 9 hidden duplicates deleted, nursing 9 + 3, radiology: the 4 owner
+#    approvals, hsg merged, 67 market rows inserted, 15 hidden duplicates deleted; 6 self-conflicts dropped by #2197). Backup, verify, rollback.
+# 2. 90c APPLY of the translations (19,984 empty fields from 9,971 checked answers). Backup, verify, rollback.
+# 3. Purge the API cache.
 90-catalogue-apply
 90c-catalogue-translations
 cf-purge-api
