@@ -1,6 +1,6 @@
 # Moving the production server (RAM upgrade, another host, another region)
 
-Status: **plan, nothing here has been run.** Written 2026-10-31 for the owner's decision: upgrade the OVH RAM, or move to another host or region, possibly in the Gulf. It is based on what the repository says about how production runs (files named in each row); numbers marked *estimate* are not measured and the plan says how to measure them.
+Status: **plan, nothing here has been run.** Update 2026-10-31 (owner): OVH has no larger VPS in stock in Europe, so production stays on the 3.8 GB host for now; section 10 is the ready-to-run plan for Hetzner Cloud if OVH stays out of stock. Written 2026-10-31 for the owner's decision: upgrade the OVH RAM, or move to another host or region, possibly in the Gulf. It is based on what the repository says about how production runs (files named in each row); numbers marked *estimate* are not measured and the plan says how to measure them.
 
 ## 1. Which move is it?
 
@@ -85,7 +85,7 @@ The HTTP hosts use Let's Encrypt certificates issued by `issue-certs.sh` (HTTP-0
 ## 8. Changes to the ops tasks and the tests
 
 - **Nothing in the tasks needs to change if the new host uses the same layout** (`/opt/nabdah/...`, `nabdah-*` container names): `setup-server.sh` already builds it, and the tasks read paths from `OPS_*` variables with those defaults. The reason to keep the layout is exactly that.
-- `98c-swapfile.sh` (PR #2226): `setup-server.sh` already creates a 4 GB `/swapfile`. On a new host the swap task is not needed; the task already refuses a file of another size, so it will say so.
+- Swap: the production host already has 4 GB of swap and `setup-server.sh` creates a 4 GB `/swapfile` on a new host, so no swap task is needed (the `98c-swapfile.sh` task was dropped in PR #2226).
 - **Re-budget the memory** if the RAM changes: `docs/ops/MEMORY_BUDGET.md` and the constants in `deploy/scripts/test_compose_memory.py` (`HOST_MB`, `OS_RESERVE_MB`) and `tools/ops/tests/test_memory_budget.py` (`MEMTOTAL_MB`, `HOST_OWN_MB`); then raise the limits in the compose file on purpose. With 8 GB the 40 MB margin of today's budget becomes about 4 GB of room: that is the real argument for A.
 - `93-calls-network.sh` finds the public IPv4 itself (ipify); run its dry run on the new host before applying.
 - `server-inspect.yml`: only the four `DEPLOY_*` secrets change.
@@ -105,3 +105,44 @@ The HTTP hosts use Let's Encrypt certificates issued by `issue-certs.sh` (HTTP-0
 | Option A (RAM in place) | **5 to 15 min** (provider reboot, then containers start and pass health checks) | ask the provider; time a manual `docker compose restart` of the stack for the second half |
 
 I could not measure the data size or the restore time from here (no production access); the drill on the new host produces both, and the plan should not be scheduled before that number is read.
+
+## 10. Plan for Hetzner Cloud (fallback if OVH stays out of stock)
+
+Decision (owner, 2026-10-31): stay on the current 3.8 GB host until a bigger one is available. This section is the ready-to-run plan so that, if OVH does not restock, the move to **Hetzner Cloud (Germany or Finland, 8 to 16 GB)** is a checklist, not a project. It is method B/C of section 1 with the steps of section 4. **Not run, and not checked against Hetzner's live console:** plan names, prices and limits below come from general knowledge of the provider, so confirm each in the console before ordering.
+
+### 10.1 Choices
+
+| Choice | Recommendation | Why / what to check |
+|---|---|---|
+| Location | Falkenstein or Nuremberg (Germany), or Helsinki (Finland) | Both are in the EU. Latency from Saudi Arabia is higher than from OVH Europe or a Gulf host (estimate: 100 to 150 ms; measure with `ping` and `net-probe.py` from a phone network before deciding). Calls use the TURN relay, so check call quality, not only API latency |
+| Size | **8 GB** is the minimum that fixes the budget (section 8: about 4 GB of room instead of 40 MB); **16 GB** if ClamAV is to run again locally (it needs about 1.1 to 1.3 GB, see `MEMORY_BUDGET.md`) | pick a shared-vCPU line with at least 4 vCPU for 8 GB; choose by RAM and disk (the data plus 2 backups plus the old checkouts needs more than 80 GB today: check `df` on the old host) |
+| Image | Ubuntu LTS, the same major version as the old host | `setup-server.sh` is written for it |
+| Network | IPv4 and IPv6 both (LiveKit and the calls task need both, see `93-calls-network.sh`) | a fixed IPv4 is part of the plan, not a floating one |
+| Firewall | a Hetzner **Cloud Firewall** with the rules of section 3 (22, 80, 443, 3478 tcp+udp, 5349/tcp, 7881/tcp, 7882/udp, 40000-49999/udp) | it is separate from `ufw`; calls fail after a move mostly because this was forgotten. Verify with `93b-calls-ports.sh` |
+| Backups | Hetzner server backups are **extra** to the repo's own dump/oplog backups; do not rely on them for the database | MongoDB needs the dump/oplog path of `dr-drill.sh` |
+| Outbound mail | check whether outbound SMTP is open for the new project | OTP is by push and email since the SMS removal: send a test email in step 10.3 |
+
+### 10.2 Before the day (all read-only or on the new host only)
+
+1. Create the Hetzner project, an SSH key, the server and the Cloud Firewall (console or `hcloud server create`, `hcloud firewall create`). Note the new IPv4 and IPv6.
+2. Run `deploy/setup-server.sh` (Docker, Compose, ufw, fail2ban, 4 GB swap, sysctl), then create the layout under `/opt/nabdah` exactly as on the old host (section 8: same layout, no task changes).
+3. Add the four `DEPLOY_*` secrets for the new host to the `production` environment of `server-inspect.yml` (section 8) and run `91c-host-files.sh` there.
+4. On the old host: `99a-move-preflight.sh` is not built yet (section 8); until then read the database size, oplog window and disk with `96-mongodump-check.sh`, `98-memory-report.sh` and `df -h`.
+5. Lower the DNS TTL of every record in section 3 to 60 s, 24 h before the day.
+6. **Rehearsal:** restore the latest dump on the new host with `dr-drill.sh`; its `rto_seconds` replaces the estimates in section 9. Do not schedule the day before this number is read.
+7. Re-budget for the new RAM (section 8): the limits in `deploy/docker-compose.production.yml` and the constants in `deploy/scripts/test_compose_memory.py` and `tools/ops/tests/test_memory_budget.py`, in one PR, before the day.
+
+### 10.3 The day (the order of section 4, with Hetzner specifics)
+
+1. Off-peak hour only (lowest traffic; not 03:00 UTC, the nightly dump, and not 00:30 UTC, the translation resume). Pause the translation cron and any apply.
+2. Write freeze with the maintenance switch, drain the worker, final dump plus oplog slice, copy to the new host (`rsync` over SSH with the new host's key), restore, replay.
+3. Compare per-collection document counts old and new (`99b-move-verify.sh` is not built yet; until then `96-mongodump-check.sh` on both).
+4. Start the stack on the new host with the production env; check health, `/config`, a login by push and by email, a booking read, search (`98d-meili-state.sh`: documents equal to Mongo's `search_index`), and a call between two phones through the relay.
+5. Switch DNS (60 s TTL), run `origin-lockdown.sh` on the new host, issue/renew certificates (section 6).
+6. Watch for one hour with `98-memory-report.sh`; keep the old host untouched (read-only) for the rollback.
+
+### 10.4 Rollback and cost of waiting
+
+- Until DNS has switched and one hour has passed, rollback is: switch DNS back and lift the maintenance switch on the old host; writes made on the new host in between must be replayed, so keep the freeze until the counts match.
+- After the old host is deleted there is no rollback: do that only after a full backup/restore cycle has worked on the new host.
+- While OVH stays out of stock the current 3.8 GB host runs on the rebalanced budget of `MEMORY_BUDGET.md` (meilisearch 1 GB, oversized limits cut); it is tight (steady use about 3.2 GB), so decide a date to move rather than waiting indefinitely.
