@@ -227,7 +227,10 @@
     "wrongAppAndroid": "Provider app para sa Android",
     "wrongAppWeb": "Website ng provider",
     "wrongAppBack": "Bumalik sa pag-sign in",
-    "locked": "Masyadong maraming bigong pagtatangka. Subukan muli pagkalipas ng {minutes} minuto."
+    "locked": "Masyadong maraming bigong pagtatangka. Subukan muli pagkalipas ng {minutes} minuto.",
+    "codeSignIn": "Mag-sign in gamit ang code",
+    "codeIdentifier": "Ilagay muna ang email o mobile number, saka humiling ng code.",
+    "codeNoChannel": "Hindi makapagpadala ng code sa account na ito sa pamamagitan ng text message. Gamitin ang email o mag-sign in gamit ang password."
   },
   "Dashboard": {
     "eyebrow": "Pribadong portal",
@@ -2370,7 +2373,7 @@
     "busy": "Vine-verify…",
     "invalid": "Maglagay ng 6-digit code.",
     "failed": "Hindi ma-verify ang code.",
-    "missing": "Magsimula sa sign in o paggawa ng account at padadalhan ka namin ng code.",
+    "missing": "Ilagay ang email o mobile number at padadalhan ka namin ng code.",
     "notSent": "Nagawa na ang account mo, pero hindi naipadala ang code. Pindutin ang “Ipadala muli”.",
     "back": "Bumalik",
     "wrong": "Mali ang code. Suriin ito at subukan muli.",
@@ -2380,7 +2383,12 @@
     "resendFailed": "Hindi naipadala ang bagong code. Subukan muli sa ilang sandali.",
     "resendLimited": "Masyadong maraming code ang hiniling mo. Subukan muli pagkalipas ng ilang minuto.",
     "resendUnavailable": "Hindi makapagpadala ng code ngayon. Subukan muli sa ilang sandali.",
-    "change": "Baguhin ang email o telepono"
+    "change": "Baguhin ang email o telepono",
+    "noChannel": "Hindi makapagpadala ng code sa account na ito sa pamamagitan ng text message. Gamitin ang email o mag-sign in gamit ang password.",
+    "identifierLabel": "Email o mobile number",
+    "sendCode": "Ipadala ang code",
+    "sending": "Ipinapadala…",
+    "identifierInvalid": "Ilagay ang email o mobile number."
   },
   "ForgotPassword": {
     "title": "I-reset ang password",
@@ -2391,13 +2399,13 @@
     "success": "Na-request ang recovery. Suriin ang registered contact.",
     "failed": "Hindi naipadala ang request. Hindi nabago ang password.",
     "back": "Bumalik sa login",
-    "nextStep": "May code na ako: magtakda ng bagong password",
+    "nextStep": "May link na ako sa email: magtakda ng bagong password",
     "limited": "Masyadong maraming request. Subukan muli pagkalipas ng ilang minuto."
   },
   "PasswordReset": {
     "title": "Magtakda ng bagong password",
-    "body": "Ilagay ang code na natanggap mo at ang bagong password.",
-    "token": "Natanggap na code",
+    "body": "Buksan ang link sa email na ipinadala namin. Kung hindi awtomatikong nalagay ng pahina ang reset code, i-paste ang reset code mula sa link, saka pumili ng bagong password.",
+    "token": "Reset code mula sa link",
     "password": "Bagong password",
     "confirm": "Kumpirmahin ang password",
     "submit": "Itakda ang password",
@@ -2405,9 +2413,9 @@
     "success": "Naitakda ang password. Maaari ka nang mag-sign in.",
     "failed": "Hindi nabago ang password.",
     "back": "Bumalik sa login",
-    "invalidToken": "Hindi valid o nag-expire na ang code. Humiling ng bago.",
+    "invalidToken": "Hindi valid o nag-expire na ang link o code. Humiling ng bagong link.",
     "mismatch": "Hindi magkatugma ang dalawang password.",
-    "requestNew": "Humiling ng bagong code",
+    "requestNew": "Humiling ng bagong link",
     "successTitle": "Na-update ang password",
     "signIn": "Mag-sign in",
     "showPassword": "Ipakita ang password",
