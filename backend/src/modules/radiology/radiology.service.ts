@@ -349,12 +349,16 @@ export class RadiologyOpsService {
   async rescheduleBooking(id: string, user: any, body: { new_date: string; reason: string }) {
     const b = await this.findBooking(id, user);
     if (!b) throw new NotFoundException();
+    if (![RadiologyBookingState.PENDING, RadiologyBookingState.NEW_REQUEST, RadiologyBookingState.CONFIRMED].includes((b.state || b.status) as any)) throw new BadRequestException('cannot_reschedule');
+    const when = new Date(body?.new_date);
+    if (Number.isNaN(when.getTime()) || when.getTime() < Date.now()) throw new BadRequestException('slot_expired');
     const oldDate = b.scheduled_at;
-    b.scheduled_at = new Date(body.new_date);
+    b.scheduled_at = when;
     b.reschedule_reason = body.reason;
     (b.state_history = b.state_history || []).push({ from: b.state, to: b.state, by_user_id: user.id, by_role: user.role, at: new Date(), note: `Rescheduled from ${oldDate} to ${b.scheduled_at}. Reason: ${body.reason}` });
     await b.save();
     this.events.emit('radiology.rescheduled', { bookingId: id, patientId: b.patient_id, newDate: b.scheduled_at });
+    this.events.emit('booking.rescheduled', { entity_type: 'radiology_booking', entity_id: b.id, actor_role: user.role, patient_account_id: b.patient_id, meta: { new_date: b.scheduled_at } });
     return b;
   }
 

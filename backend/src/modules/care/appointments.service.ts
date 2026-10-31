@@ -594,7 +594,12 @@ export class AppointmentsService {
   }
 
   async confirm(id: string, user: any) {
-    // doctor or admin
+    // doctor or admin. An unpaid card booking is not confirmed by hand: the payment confirms it (a doctor confirming it first made the
+    // payment handler skip it, because it only completes PENDING appointments, so the booking never showed as paid).
+    const appt: any = await this.apptModel.findOne({ id });
+    if (appt && appt.status === APPT_STATES.PENDING && appt.payment_method === 'card' && appt.payment_status !== 'paid') {
+      throw new BadRequestException('card_payment_not_completed');
+    }
     return this.transition(id, APPT_STATES.CONFIRMED, user, 'doctor-confirmed');
   }
 

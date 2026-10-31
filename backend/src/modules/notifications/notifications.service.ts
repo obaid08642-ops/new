@@ -666,7 +666,7 @@ export class NotificationsService {
   }
 
   /** LJ-07: notify the provider named on a service booking (assigned/requested/confirmed). */
-  async notifyBookingProvider(p: any, type: 'new_request' | 'booking_update'): Promise<any> {
+  async notifyBookingProvider(p: any, type: 'new_request' | 'booking_update' | 'request_cancelled', relatedSuffix = ''): Promise<any> {
     const entityType = String(p?.entity_type || '');
     const entityId = String(p?.entity_id || '');
     if (!entityType || !entityId) return null;
@@ -686,11 +686,14 @@ export class NotificationsService {
     if (!accountId) return null;
     const titles = type === 'new_request'
       ? { title_ar: 'حجز جديد بانتظارك', title_en: 'New booking assigned to you' }
-      : { title_ar: 'تحديث على حجزك', title_en: 'Update on your booking' };
+      : type === 'request_cancelled'
+        ? { title_ar: 'ألغى المريض الحجز', title_en: 'The patient cancelled the booking' }
+        : { title_ar: 'تحديث على حجزك', title_en: 'Update on your booking' };
     return this.notifyProviderAccount(accountId, {
       type, ...titles,
       body_ar: `رقم الحجز ${entityId.slice(0, 8)}`, body_en: `Booking ${entityId.slice(0, 8)}`,
-      related_id: entityId, related_type: entityType,
+      // the bell de-duplicates on (provider, related_type, related_id); a cancel or a new time is a new notice, so it carries its own suffix
+      related_id: entityId, related_type: entityType + relatedSuffix,
       action: { route: `/tracking/${this.routeKind(p)}/${entityId}` },
     });
   }
@@ -709,6 +712,22 @@ export class NotificationsService {
   @OnEvent('service.cancelled')
   async onServiceCancelled(p: any) {
     if (p.patient_account_id) await this.create({ user_id: p.patient_account_id, title_key: 'notif.service.cancelled.title', body_key: 'notif.service.cancelled.body', type: NotificationType.ORDER });
+    // The provider is told too when the patient is the one who cancelled (they had it in their list, maybe accepted, and may be on the way).
+    if (p.actor_role === 'patient') await this.notifyBookingProvider(p, 'request_cancelled', '_cancelled').catch(() => null);
+  }
+
+  /**
+   * A booking's time changed. Whoever did not change it is told: the patient when the provider moved it, the provider when the patient did.
+   * Emitted by the lab, radiology and unified-booking reschedules with { entity_type, entity_id, actor_role, patient_account_id, meta.new_date }.
+   */
+  @OnEvent('booking.rescheduled')
+  async onBookingRescheduled(p: any) {
+    const when = p?.meta?.new_date ? new Date(p.meta.new_date).toISOString() : '';
+    if (p?.actor_role === 'patient') {
+      await this.notifyBookingProvider({ ...p }, 'booking_update', `_rescheduled_${when}`).catch(() => null);
+    } else if (p?.patient_account_id) {
+      await this.create({ user_id: p.patient_account_id, title_key: 'notif.booking_rescheduled.title', body_key: 'notif.booking_rescheduled.body', params: { date: when.slice(0, 16).replace('T', ' ') }, type: NotificationType.ORDER });
+    }
   }
   @OnEvent('service.rollback')
   async onServiceRollback(p: any) {
