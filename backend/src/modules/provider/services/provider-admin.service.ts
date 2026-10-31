@@ -14,7 +14,7 @@ import { ProviderBankAccountRepository } from "./repositories/providerbankaccoun
 import { ProviderAuditLogRepository } from "./repositories/providerauditlog.repository";
 import { AutoEntitySeoPipelineService } from '../../events/auto-entity-seo-pipeline.service';
 import { CatalogPublicationService } from '../../events/catalog-publication.service';
-import { doctorSessionPriceProjection } from './doctor-session-price';
+import { doctorPricingProjection, doctorSessionPriceProjection } from './doctor-session-price';
 
 @Injectable()
 export class ProviderAdminService {
@@ -451,6 +451,14 @@ export class ProviderAdminService {
         { upsert: true },
       );
       applied = (res.modifiedCount || 0) + ((res.upsertedCount || 0) as number);
+      // the doctor's prices are booked from the profile, not from provider_settings: the same approval writes them there
+      const pricing = (changes as any).settings_key === 'pricing' ? doctorPricingProjection((changes as any).value) : null;
+      if (pricing && accountId) {
+        await db('provider_profiles').updateOne(
+          { $or: [{ account_id: accountId }, { user_id: accountId }, { id: accountId }] } as any,
+          { $set: { ...pricing, updated_at: new Date() } },
+        );
+      }
     } else if (target === 'capability' && (changes as any).catalog && (changes as any).operation) {
       const catalogCollections: Record<string, string> = {
         pharmacy: 'provider_capabilities_pharmacy',

@@ -35,7 +35,7 @@ import { UserRole } from '../../common/enums';
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { moyasarBase } from '../../common/moyasar-base';
 import { timedFetch } from '../../common/external-call';
-import { settlementDelayDefault } from '../../common/commission-defaults';
+import { DEFAULT_COMMISSIONS, settlementDelayDefault } from '../../common/commission-defaults';
 
 export const LEDGER_TYPES = [
   'provider_earning', 'provider_debit', 'payout', 'refund', 'commission',
@@ -200,7 +200,28 @@ export class CommissionResolver {
     const cfg: any = await this.conn.collection('finance_config').findOne({ key: 'commissions' } as any);
     const pct = cfg?.service_types?.[serviceType]?.percent;
     if (Number(pct) >= 0) return { percent: Number(pct), source: 'finance_config' };
+    // no config yet: the one defaults table (common/commission-defaults.ts), then the flat system default
+    const table = (DEFAULT_COMMISSIONS.service_types as Record<string, { percent: number }>)[serviceType]?.percent;
+    if (Number(table) >= 0) return { percent: Number(table), source: 'system_default' };
     return { percent: DEFAULTS.commission_percent, source: 'system_default' };
+  }
+
+  /**
+   * The commission percent one provider's earning is charged, in one order (most specific first): a campaign or provider rule,
+   * then the rate the admin set on the provider (`commission_insurance_pct` for an insured visit, else `commission_cash_pct`),
+   * then the service default, the finance config and the defaults table. The profile's `commission_rate` is not read: it is
+   * the older single rate and cannot tell "set by the admin" from "never set". Used by the ledger credit and the admin list.
+   */
+  async forProvider(serviceType: string, providerAccountId: string, paymentMethod?: string): Promise<{ percent: number; source: string; rule_id?: string }> {
+    const resolved = await this.resolve(serviceType, { providerId: providerAccountId });
+    if (resolved.source === 'campaign_override' || resolved.source === 'provider_override') return resolved;
+    const profile: any = await this.conn.collection('provider_profiles').findOne(
+      { $or: [{ account_id: providerAccountId }, { user_id: providerAccountId }] },
+      { projection: { _id: 0, commission_cash_pct: 1, commission_insurance_pct: 1 } },
+    );
+    const own = String(paymentMethod || '').toLowerCase() === 'insurance' ? profile?.commission_insurance_pct : profile?.commission_cash_pct;
+    if (typeof own === 'number' && Number.isFinite(own) && own >= 0 && own <= 100) return { percent: own, source: 'provider_profile' };
+    return resolved;
   }
 
   /** Create a new rule version; supersedes older versions of the same scope. */

@@ -42,3 +42,19 @@ describe('approveDelta: doctor session prices', () => {
     }
   });
 });
+
+describe('approveDelta: the doctor pricing settings', () => {
+  const settingsDelta = (value: any) => ({ id: 'd2', status: 'pending', target: 'settings', provider_id: 'doc-1', requested_changes: { settings_key: 'pricing', value } });
+  it('writes the approved prices to provider_settings AND to the profile the booking reads (one review)', async () => {
+    const { svc, calls } = build(settingsDelta({ price_clinic: 300, price_online: 180, active_clinic: true, active_online: true }));
+    await svc.approveDelta({ id: 'admin-1', role: 'admin' }, 'd2');
+    expect(calls.find((c) => c.coll === 'provider_settings' && c.op === 'updateOne')).toBeTruthy();
+    const profileWrite = calls.find((c) => c.coll === 'provider_profiles' && c.op === 'updateOne');
+    expect(profileWrite?.args[1].$set).toMatchObject({ price_clinic: 300, price_online: 180 });
+  });
+  it('another settings key does not touch the profile prices', async () => {
+    const { svc, calls } = build({ ...settingsDelta({ x: 1 }), requested_changes: { settings_key: 'hours', value: { price_clinic: 1 } } });
+    await svc.approveDelta({ id: 'admin-1', role: 'admin' }, 'd2');
+    expect(calls.find((c) => c.coll === 'provider_profiles' && c.op === 'updateOne')).toBeUndefined();
+  });
+});

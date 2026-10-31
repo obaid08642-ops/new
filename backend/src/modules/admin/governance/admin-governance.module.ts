@@ -1,6 +1,6 @@
 import { Module, Controller, Get, Post, Put, Param, Query, Body, UseGuards, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { InjectModel, MongooseModule } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectConnection, InjectModel, MongooseModule } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
 import { JwtAuthGuard, Roles } from '../../../common/auth.guard';
 import { UserRole, ServiceState } from '../../../common/enums';
 import { Order, OrderDocument, OrderSchema } from '../../../schemas/order.schema';
@@ -16,6 +16,8 @@ import { B2BRequestSchema } from '../../../schemas/b2b-request.schema';
 import { B2BController } from './b2b.controller';
 import { SystemConfigController, PublicSystemConfigController } from './system-config.controller';
 import { UpdateDto } from './admin-governance.dto';
+import { CommissionResolver } from '../../finance-engine/finance-engine.module';
+import { COMMISSION_SERVICE_BY_PROVIDER_TYPE } from '../../../common/commission-defaults';
 
 /**
  * Admin Governance — ALL queries derive from the universal lifecycle.
@@ -261,6 +263,7 @@ export class CommissionsController {
     @InjectModel('RadiologyBooking') private rads: Model<any>,
     @InjectModel('HomeCareBooking') private home: Model<any>,
     @InjectModel(Appointment.name) private appts: Model<any>,
+    @InjectConnection() private readonly conn: Connection,
   ) {}
 
   @Get()
@@ -269,9 +272,12 @@ export class CommissionsController {
     const since = new Date(Date.now() - 30 * 86400000);
     const out = [];
     for (const p of list) {
-      const fallback = p.commission_rate !== undefined ? p.commission_rate : (p.type === 'pharmacy' ? 5 : p.type === 'lab' ? 8 : p.type === 'radiology' ? 10 : p.type === 'home_care' ? 15 : 10);
-      const cashPct = p.commission_cash_pct !== undefined && p.commission_cash_pct !== null ? Number(p.commission_cash_pct) : fallback;
-      const insPct = p.commission_insurance_pct !== undefined && p.commission_insurance_pct !== null ? Number(p.commission_insurance_pct) : fallback;
+      // the rates the ledger applies to this provider's earnings (CommissionResolver.forProvider): a rule, the provider's own rate, the service default
+      const serviceType = COMMISSION_SERVICE_BY_PROVIDER_TYPE[String(p.type)];
+      const resolver = new CommissionResolver(this.conn);
+      const cashPct = serviceType ? (await resolver.forProvider(serviceType, p.account_id, 'card')).percent : 0;
+      const insPct = serviceType ? (await resolver.forProvider(serviceType, p.account_id, 'insurance')).percent : 0;
+      const fallback = cashPct;
       const split = (rows: any[], amt: (r: any) => number) => {
         let cash = 0, ins = 0;
         for (const r of rows) {

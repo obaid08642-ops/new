@@ -250,7 +250,7 @@ export class HospitalService {
         await db.collection('provider_profiles').insertOne({
           // raw insert: the unique `id` (and other schema defaults) are not applied — without an id the
           // second sub-account collided on the unique index (409)
-          id: randomUUID(), phones: [], enabled_modules: [], commission_rate: 10, has_own_delivery: false,
+          id: randomUUID(), phones: [], enabled_modules: [], has_own_delivery: false,
           use_platform_delivery: true, profile_completeness: 0,
           account_id: accId, provider_type: clinical.ptype,
           display_name_ar: (data as any).name_ar || fullName,

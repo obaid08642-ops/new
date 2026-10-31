@@ -102,8 +102,8 @@ export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => vo
         price_home: homePrice !== '' ? Number(homePrice) : null,
         active_clinic: clinicActive, active_online: onlineActive, active_home: homeActive,
       };
-      await client.post('/provider/settings/delta', { newData: pricing });
-      await client.put('/provider/settings/pricing', { pricing }).catch(() => {});
+      // one request, one admin review: approving it sets the prices shown here and the prices patients are booked at
+      await client.put('/provider/settings/pricing', { pricing });
       show(AR ? 'بانتظار موافقة الإدارة على التعديلات' : 'Pending Admin Approval for Settings Delta', 'info');
     } catch (err) {
       show(AR ? 'فشل إرسال التعديل' : 'Failed to push delta', 'error');

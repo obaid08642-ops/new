@@ -26,6 +26,8 @@ interface DeltaMutation {
   newData: { [key: string]: any };
 }
 
+const SERVICE_OF_PROVIDER: Record<string, string> = { doctor: 'doctor', clinic: 'doctor', hospital: 'doctor', home_care: 'nursing', nurse: 'nursing', pharmacy: 'pharmacy', lab: 'lab', radiology: 'radiology' };
+
 export default function ProviderModeration() {
   const [activeTab, setActiveTab] = useState<'onboarding' | 'deltas'>('onboarding');
   const [pendingProviders, setPendingProviders] = useState<Provider[]>([]);
@@ -51,6 +53,12 @@ export default function ProviderModeration() {
   // Approve form (replaces the three window.prompt dialogs): reason + commissions + summary + confirm.
   const [approveFor, setApproveFor] = useState<Provider | null>(null);
   const [approveReason, setApproveReason] = useState('');
+  const [commissionDefaults, setCommissionDefaults] = useState<Record<string, number>>({});
+  useEffect(() => {
+    fetchWithAdminGuard(`/api/admin/admin/finance/commissions`).then(async (res) => {
+      if (res.ok) setCommissionDefaults((await res.json())?.config_used?.percents ?? {});
+    }).catch(() => undefined);
+  }, []);
   const [approveCash, setApproveCash] = useState('');
   const [approveIns, setApproveIns] = useState('');
   const [approveBusy, setApproveBusy] = useState(false);
@@ -116,11 +124,11 @@ export default function ProviderModeration() {
   }, [geo.region, geo.city, geo.district]);
 
   const openApprove = (provider: Provider) => {
-    const defaults: Record<string, number> = { pharmacy: 5, lab: 8, radiology: 10, home_care: 15 };
-    const def = defaults[provider.type] ?? 10;
+    // the starting value is the server's service default (the finance configuration), never a number typed in this page
+    const def = commissionDefaults[SERVICE_OF_PROVIDER[provider.type] ?? provider.type];
     setApproveReason('');
-    setApproveCash(String(def));
-    setApproveIns(String(def));
+    setApproveCash(def === undefined ? '' : String(def));
+    setApproveIns(def === undefined ? '' : String(def));
     setApproveError('');
     setNeedsLicense(false);
     setLicenseRef('');
