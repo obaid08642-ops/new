@@ -30,7 +30,7 @@ class VolumeInspect(unittest.TestCase):
         wx(os.path.join(b, "sudo"), '#!/bin/bash\n[ "$1" = -n ] && shift\nexec "$@"\n')
         wx(os.path.join(b, "gzip"), '#!/bin/bash\nexit 0\n')
         wx(os.path.join(b, "du"), "#!/bin/bash\nprintf '931840\\t%s\\n' \"$2\"\n")
-        lines = "\\n".join(f"restoring nabd.c{i} from archive" for i in range(listed))
+        lines = "\\n".join(f"found collection nabd.c{i} bson to restore to nabd.c{i}" for i in range(listed))
         wx(os.path.join(b, "docker"), f'''#!/bin/bash
 echo "$*" >> "{self.calls}"
 case "$1" in

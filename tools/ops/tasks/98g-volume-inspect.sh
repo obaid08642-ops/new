@@ -64,7 +64,7 @@ OUT="$B/${VOL}-$(date -u +%Y%m%d-%H%M%S).archive.gz"
 BYTES=$(sudo -n stat -c %s "$OUT" 2>/dev/null || echo 0)
 if [ "$BYTES" -le 0 ]; then say "ABORT the dump is empty: nothing removed"; sudo -n rm -f -- "$OUT"; exit 1; fi
 sudo -n gzip -t "$OUT" 2>/dev/null || { say "ABORT the archive fails gzip -t: nothing removed (kept $OUT for inspection)"; exit 1; }
-LISTED=$(sudo -n cat "$OUT" | $DK exec -i "$NAME" mongorestore --dryRun --gzip --archive --host 127.0.0.1 --port 27017 2>&1 | grep -c 'restoring .*\.')
+LISTED=$(sudo -n cat "$OUT" | $DK exec -i "$NAME" mongorestore --dryRun --verbose --gzip --archive --host 127.0.0.1 --port 27017 2>&1 | grep -c 'found collection .* bson to restore to')
 if [ "$LISTED" -lt "$NS" ]; then say "ABORT the archive lists $LISTED collection(s), $NS were counted: nothing removed (kept $OUT)"; exit 1; fi
 say "dump written: $(basename "$OUT") $(mb "$BYTES") MB, gzip ok, lists $LISTED collection(s) (counted $NS)"
 $DK rm -f "$NAME" >/dev/null 2>&1
