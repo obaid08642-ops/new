@@ -859,6 +859,11 @@ export class NotificationsService {
       await this.create({ user_id: p.meta.doctor_id, title_key: 'notif.appt_new_for_doctor.title', body_key: 'notif.appt_new_for_doctor.body', type: NotificationType.APPOINTMENT, priority: NotificationPriority.HIGH });
     }
   }
+  @OnEvent('rating.replied')
+  async onRatingReplied(p: any) {
+    if (!p?.user_id) return;
+    await this.create({ user_id: p.user_id, title_key: 'notif.review_reply.title', body_key: 'notif.review_reply.body', type: NotificationType.INFO, priority: NotificationPriority.NORMAL });
+  }
   @OnEvent('doctor_appointment.confirmed')
   async onApptConfirmed(p: any) {
     const uid = p.patient_account_id || p.patient_id;

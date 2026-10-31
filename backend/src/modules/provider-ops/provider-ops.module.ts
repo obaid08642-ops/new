@@ -13,10 +13,10 @@ import { recordAudit } from '../../common/audit-record';
  *             completion, GPS track points, emergency escalation.
  *  FINANCE:   invoice PDF per order, wallet ledger transactions for providers.
  */
-import { Module, Injectable, Controller, Get, Post, Put, Delete, Body, Param, Query, Res, UseGuards, BadRequestException, ForbiddenException, NotFoundException, StreamableFile, Logger } from '@nestjs/common';
+import { Module, Injectable, Controller, Get, Post, Put, Delete, Body, Param, Query, Res, UseGuards, BadRequestException, ForbiddenException, NotFoundException, StreamableFile, Logger, Optional } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, Schema } from 'mongoose';
-import { OnEvent } from '@nestjs/event-emitter';
+import { OnEvent, EventEmitter2 } from '@nestjs/event-emitter';
 import { randomUUID } from 'crypto';
 import { JwtAuthGuard, CurrentUser, Roles, hasEffectiveRole } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
@@ -61,7 +61,7 @@ export function providerOwnAmount(kind: string, booking: any): number {
 export class ProviderOpsService {
   private readonly logger = new Logger(ProviderOpsService.name);
 
-  constructor(@InjectConnection() private readonly conn: Connection) {}
+  constructor(@InjectConnection() private readonly conn: Connection, @Optional() private readonly events?: EventEmitter2) {}
 
   /**
    * LJ-09: one place credits earnings — on the governed `service.completed`
@@ -583,25 +583,29 @@ export class ProviderOpsService {
   }
 
   async replyReview(providerId: string, ratingId: string, reply: string) {
-    if (!reply?.trim()) throw new BadRequestException('reply required');
+    const text = String(reply ?? '').trim();
+    if (!text) throw new BadRequestException('reply required');
+    if (text.length > 1000) throw new BadRequestException('reply too long');
     const own = { $or: [{ provider_id: providerId }, { entity_id: providerId }] };
-    let r = await this.conn.collection('ratings').updateOne(
-      { id: ratingId, ...own } as any,
-      { $set: { reply: reply.trim(), reply_at: new Date() } },
-    );
-    if (!r.matchedCount) {
-      // ratings created without an `id` field — match by Mongo _id
+    const col = this.conn.collection('ratings');
+    let byId: Record<string, unknown> = { id: ratingId };
+    let row: any = await col.findOne({ ...byId, ...own } as any);
+    if (!row) {
+      // ratings created without an `id` field: match by Mongo _id
       try {
         const { Types } = require('mongoose');
         if (Types.ObjectId.isValid(ratingId)) {
-          r = await this.conn.collection('ratings').updateOne(
-            { _id: { $eq: new Types.ObjectId(ratingId) }, ...own } as any,
-            { $set: { reply: reply.trim(), reply_at: new Date() } },
-          );
+          byId = { _id: new Types.ObjectId(ratingId) };
+          row = await col.findOne({ ...byId, ...own } as any);
         }
       } catch { /* invalid ObjectId format */ }
     }
-    if (!r.matchedCount) throw new NotFoundException('review not found');
+    if (!row) throw new NotFoundException('review not found');
+    // a review still waiting for moderation, or refused, is not public: nothing to answer yet
+    if (['pending', 'rejected'].includes(String(row.status))) throw new BadRequestException('review_not_published');
+    await col.updateOne({ _id: row._id }, { $set: { reply: text, reply_at: new Date() } });
+    // the patient who wrote the review is told once per reply
+    if (row.user_id) this.events?.emit('rating.replied', { user_id: row.user_id, provider_id: providerId, rating_id: row.id || String(row._id) });
     return { ok: true };
   }
 
