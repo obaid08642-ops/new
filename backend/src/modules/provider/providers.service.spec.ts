@@ -56,13 +56,12 @@ describe('ProvidersService.myProfile', () => {
 });
 
 describe('REVIEW-P3: provider phone lookups pin the value with $eq', () => {
-  it('apply + adminCreate never pass a raw phone value into the query', async () => {
+  it('adminCreate never passes a raw phone value into the query', async () => {
     const filters: any[] = [];
     const userRepository = { findOne: jest.fn(async (f: any) => { filters.push(f); return { id: 'exists' }; }) };
     const service = new ProvidersService(userRepository as any, {} as any, {} as any, {} as any, { refresh: jest.fn() } as any, {} as any, {} as any);
-    await expect(service.apply({ phone: '+966500000000', type: 'doctor' } as any)).rejects.toThrow();
     await expect(service.adminCreate({ phone: '+966500000001', type: 'doctor' }, {})).rejects.toThrow();
-    expect(filters).toEqual([{ phone: { $eq: '+966500000000' } }, { phone: { $eq: '+966500000001' } }]);
+    expect(filters).toEqual([{ phone: { $eq: '+966500000001' } }]);
   });
 });
 

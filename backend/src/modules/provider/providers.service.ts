@@ -13,7 +13,6 @@ import { ProviderProfileRepository } from "./repositories/providerprofile.reposi
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
 import { escapeRegex } from '../../common/slug.util';
-import { ManualLicenseCheck, requiresScfhs } from '../../common/scfhs-license';
 import { ScfhsLicenseService } from './services/scfhs-license.service';
 import { enforcePasswordPolicy } from '../../common/password-security.service';
 
@@ -129,50 +128,6 @@ export class ProvidersService {
     return { success: true, message: staffDto.role === UserRole.DOCTOR ? 'تم إنشاء حساب الطبيب وهو بانتظار اعتماد الترخيص من الإدارة قبل استقبال الحجوزات.' : 'تم إنشاء الحساب الفرعي.', generated_password: generatedPassword };
   }
 
-  // ============ Self Registration ============
-  async apply(data: {
-    full_name: string; phone: string; password: string; email?: string;
-    type: ProviderType; name_ar: string; name_en?: string;
-    license_number?: string; city?: string; district?: string;
-    specialty?: string; years_experience?: number;
-    consultation_modes?: string[]; price_clinic?: number; price_online?: number;
-    pharmacy_chain?: string; has_own_drivers?: boolean;
-  }) {
-    const exists = await this.userModel.findOne({ phone: { $eq: data.phone } });
-    if (exists) throw new ConflictException('Phone already registered');
-    await enforcePasswordPolicy(data.password);
-    const hash = await bcrypt.hash(data.password, 12);
-    const role = this.typeToRole(data.type);
-    const user = await this.userModel.create({
-      full_name: data.full_name,
-      phone: data.phone,
-      email: data.email,
-      password_hash: hash,
-      role,
-      active: false, // disabled until admin approves
-    });
-    const profile = await this.providerModel.create({
-      user_id: user.id,
-      type: data.type,
-      status: ProviderStatus.PENDING,
-      name_ar: data.name_ar,
-      name_en: data.name_en,
-      license_number: data.license_number,
-      city: data.city,
-      district: data.district,
-      specialty: data.specialty,
-      years_experience: data.years_experience,
-      consultation_modes: data.consultation_modes || [],
-      price_clinic: data.price_clinic,
-      price_online: data.price_online,
-      pharmacy_chain: data.pharmacy_chain,
-      has_own_drivers: !!data.has_own_drivers,
-    });
-    this.events.emit(EVENTS.USER_REGISTERED, { user_id: user.id, role });
-    this.events.emit('provider.pending_review', { provider_id: profile.id, type: data.type });
-    return { ok: true, user: this.publicUser(user), profile: profile.toObject() };
-  }
-
   // ============ Admin-Assisted Creation ============
   async adminCreate(data: any, _admin: any) {
     // Admin can create with password OR auto-generate, status defaults to PENDING but admin
@@ -224,29 +179,6 @@ export class ProvidersService {
   }
 
   // ============ Admin Review ============
-  async approve(id: string, admin: any, manualLicenseCheck?: ManualLicenseCheck) {
-    const p = await this.providerModel.findOne({ id });
-    if (!p) throw new NotFoundException();
-    // 19.3: a doctor, pharmacist or individual nurse is approved only on a confirmed SCFHS licence.
-    const licenseCheck = requiresScfhs(p) ? await this.scfhs.decideFor(p, manualLicenseCheck) : null;
-    if (licenseCheck && !licenseCheck.decision.verified) throw new ConflictException(licenseCheck.decision.reason || 'scfhs_license_not_verified');
-    p.status = ProviderStatus.ACTIVE;
-    p.approved_at = new Date();
-    p.approved_by = admin.id;
-    p.license_verified = true;
-    p.public_eligibility = true;
-    p.indexing_eligibility = false;
-    p.medical_review_status = 'approved';
-    p.last_reviewed = p.approved_at;
-    p.provenance = 'admin_provider_review';
-    await p.save();
-    if (licenseCheck) await this.scfhs.store({ id: p.id }, licenseCheck.decision, licenseCheck.result, admin.id, manualLicenseCheck);
-    await this.userModel.updateOne({ id: p.user_id }, { $set: { active: true } });
-    this.events.emit('provider.approved', { provider_id: p.id });
-    await this.refreshPublicProjection(p, admin.id, 'provider_approved');
-    return p.toObject();
-  }
-
   async reject(id: string, admin: any, reason: string) {
     const p = await this.providerModel.findOne({ id });
     if (!p) throw new NotFoundException();
