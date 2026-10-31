@@ -3,7 +3,6 @@
   "files": {
     "patient-app/app/(onboarding)/intro.tsx": 14,
     "patient-app/app/(onboarding)/language.tsx": 2,
-    "patient-app/app/consultations/doctor-profile.tsx": 1,
     "patient-app/app/search/index.tsx": 33,
     "patient-app/src/components/auth/AuthKit.tsx": 4,
     "patient-app/src/components/MapPrimitives.web.tsx": 3,
@@ -97,7 +96,7 @@
     "provider-app/src/screens/facility/FacilityRegistration.tsx": 159,
     "provider-app/src/screens/facility/FacilityResourcesScreen.tsx": 35,
     "provider-app/src/screens/facility/FacilityUnifiedCalendarScreen.tsx": 18,
-    "provider-app/src/screens/lab/LabDashboard.tsx": 370,
+    "provider-app/src/screens/lab/LabDashboard.tsx": 371,
     "provider-app/src/screens/lab/LabQcActions.tsx": 40,
     "provider-app/src/screens/lab/LabRegistration.tsx": 212,
     "provider-app/src/screens/nursing/NursingDashboard.tsx": 260,
@@ -141,7 +140,7 @@
     "provider-app/src/screens/shared/RealScreensExtended.tsx": 116,
     "provider-app/src/screens/shared/RegistrationSuccess.tsx": 22,
     "provider-app/src/screens/shared/shared/CertificatesConfigScreen.tsx": 36,
-    "provider-app/src/screens/shared/shared/ChatSystem.tsx": 23,
+    "provider-app/src/screens/shared/shared/ChatSystem.tsx": 29,
     "provider-app/src/screens/shared/shared/DrugIndexCard.tsx": 7,
     "provider-app/src/screens/shared/shared/DrugIndexDetail.tsx": 87,
     "provider-app/src/screens/shared/shared/DrugIndexHeader.tsx": 2,
@@ -162,6 +161,6 @@
     "provider-app/src/screens/shared/shared/ReviewsSystem.tsx": 21,
     "provider-app/src/screens/shared/shared/SupportCenter.tsx": 20,
     "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx": 52,
-    "provider-app/src/screens/shared/VideoCallRoom.tsx": 24
+    "provider-app/src/screens/shared/VideoCallRoom.tsx": 28
   }
 }

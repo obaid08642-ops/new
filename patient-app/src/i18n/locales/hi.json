@@ -4022,5 +4022,9 @@
   "consult.call.quality.good": "अच्छा",
   "consult.call.quality.poor": "कमज़ोर",
   "consult.call.quality.lost": "टूट गया",
-  "consult.call.quality.unknown": "जाँच हो रही है"
+  "consult.call.quality.unknown": "जाँच हो रही है",
+  "support.status.open": "खुला",
+  "support.status.inProgress": "प्रक्रिया में",
+  "support.status.resolved": "हल हो गया",
+  "support.status.closed": "बंद"
 }

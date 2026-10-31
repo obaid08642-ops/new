@@ -4022,5 +4022,9 @@
   "consult.call.quality.good": "جيد",
   "consult.call.quality.poor": "ضعيف",
   "consult.call.quality.lost": "منقطع",
-  "consult.call.quality.unknown": "جارٍ الفحص"
+  "consult.call.quality.unknown": "جارٍ الفحص",
+  "support.status.open": "مفتوح",
+  "support.status.inProgress": "قيد المعالجة",
+  "support.status.resolved": "تم الحل",
+  "support.status.closed": "مغلق"
 }

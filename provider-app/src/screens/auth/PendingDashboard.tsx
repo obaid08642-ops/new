@@ -24,8 +24,8 @@ function errorText(err: unknown, fallback: string): string {
  *   rejected       rejected (reason from GET /provider-onboarding/progress, resubmit path as above)
  *   suspended      suspended (reason if the server exposes one; no resubmit, the server has no such transition)
  */
-export function PendingDashboard({ onExplore, onLogout, providerType, status = 'pending', onOpenDocuments }: {
-  onExplore: () => void; onLogout: () => void; providerType?: string; status?: BlockedAccountState; onOpenDocuments?: () => void;
+export function PendingDashboard({ onExplore, onLogout, providerType, status = 'pending', onOpenDocuments, onOpenDetails }: {
+  onExplore: () => void; onLogout: () => void; providerType?: string; status?: BlockedAccountState; onOpenDocuments?: () => void; onOpenDetails?: () => void;
 }) {
   const { theme } = useTheme();
   const { lang, t } = useLang();
@@ -198,6 +198,7 @@ export function PendingDashboard({ onExplore, onLogout, providerType, status = '
 
         {canResubmit && (
           <View style={{ marginBottom: SP.xl, gap: SP.md }}>
+            {onOpenDetails ? <NBtn label={t('status.fixDetails')} variant="outline" onPress={onOpenDetails} /> : null}
             {onOpenDocuments ? <NBtn label={t('status.updateDocs')} variant="outline" onPress={onOpenDocuments} /> : null}
             <NBtn label={t('status.resubmit')} loading={resubmitting} onPress={resubmit} />
           </View>
