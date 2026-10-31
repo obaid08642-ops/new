@@ -152,6 +152,16 @@ export class ProviderOpsService {
         provider_type: 'doctor', type: LEAVE_TYPE[doc.type] || 'other', start_date: start, end_date: end, reason: doc.note || undefined,
         status: 'pending', createdAt: new Date(), updatedAt: new Date(),
       });
+    } else {
+      // An independent doctor has nobody to approve it. Slot search reads only `leaverequests`, so the leave is
+      // recorded there as approved: otherwise patients could still book the days the doctor is away.
+      const prof: any = await this.conn.collection('provider_profiles').findOne({ account_id: doctorId }, { projection: { display_name_ar: 1, display_name_en: 1 } });
+      await this.conn.collection('leaverequests').insertOne({
+        id: doc.id, facility_id: doctorId, provider_account_id: doctorId, provider_name: prof?.display_name_ar || prof?.display_name_en || acc?.email,
+        provider_type: 'doctor', type: ({ vacation: 'vacation', emergency_closing: 'emergency' } as Record<string, string>)[doc.type] || 'other',
+        start_date: start, end_date: end, reason: doc.note || undefined,
+        status: 'approved', decided_by: doctorId, decided_at: new Date(), createdAt: new Date(), updatedAt: new Date(),
+      });
     }
     await this.conn.collection('doctor_leaves').insertOne(doc);
     return { ok: true, leave: doc };
@@ -168,6 +178,8 @@ export class ProviderOpsService {
     );
     // withdrawn before the facility decided: drop it from the facility queue
     await this.conn.collection('leaverequests').deleteOne({ id: leaveId, provider_account_id: doctorId, status: 'pending' });
+    // an approved leave (facility-approved or the independent doctor's own) stops blocking the days once cancelled
+    await this.conn.collection('leaverequests').deleteOne({ id: leaveId, provider_account_id: doctorId, status: 'approved' });
     return { ok: true };
   }
 
