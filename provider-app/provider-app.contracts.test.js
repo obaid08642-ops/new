@@ -307,3 +307,11 @@ describe('Provider App release contracts', () => {
     });
   });
 });
+
+describe('Expo build check (CI: expo export + expo prebuild for android and ios)', () => {
+  it('keeps @xmldom/xmldom on 0.8.x: @expo/plist calls parseFromString without a MIME type, which 0.9 rejects and breaks the iOS prebuild', () => {
+    const pkg = require('./package.json');
+    const pinned = (pkg.overrides || {})['@xmldom/xmldom'] || '';
+    expect(pinned).toMatch(/^\^0\.8\./);
+  });
+});
