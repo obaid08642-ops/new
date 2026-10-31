@@ -11,6 +11,7 @@ import { useRoutePrefetch } from "@/components-next/nav/use-route-prefetch";
 import { AppShell } from "@/components-next/ui-generated/shells";
 import { BottomTabBar } from "@/components-next/ui-generated/components/Surfaces";
 import { CartLink } from "./cart-link";
+import { AppointmentsLink } from "./appointments-link";
 import { WishlistLink } from "./wishlist-link";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
@@ -59,6 +60,8 @@ export type CoreShellProps = {
   topBarSearch?: ReactNode;
   /** Labs and radiology: where "My orders and results" goes; draws an icon button in the header and an entry in the phone menu. */
   resultsHref?: string;
+  /** Consultations: where "My appointments" goes; its button (with the badge of unopened results) takes the cart's place in the header. */
+  appointmentsHref?: string;
   /** The page's sticky bottom bar (a <StickyFooter>, canvas/ProductFull); it sits above the tab bar and goes away from 1024. */
   footer?: ReactNode;
   /** Pages with a sticky buy bar and no tab bar on phones (canvas/ProductFull). */
@@ -66,7 +69,7 @@ export type CoreShellProps = {
   children: ReactNode;
 };
 
-export function CoreShell({ locale, title, backHref, search, cancelHref, width = "wide", topBarSearch, footer, hideTabs = false, resultsHref, children }: CoreShellProps) {
+export function CoreShell({ locale, title, backHref, search, cancelHref, width = "wide", topBarSearch, footer, hideTabs = false, resultsHref, appointmentsHref, children }: CoreShellProps) {
   const router = useRouter();
   const pathname = usePathname();
   const shell = useTranslations("CoreShell");
@@ -78,7 +81,10 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
   const disabled = useDisabledModules();
   const rtl = getDirection(locale) === "rtl";
   // issue 1547: the cart's count on its icon (CartLink reads the cart of this browser, so an add shows at once)
-  const cartLink = (extra = "") => <CartLink locale={locale} className={`${styles.iconLink} ${styles.cartLink}${extra ? ` ${extra}` : ""}`} />;
+  // consultations have no cart (owner 2026-10-30): their header carries the My appointments button there instead
+  const cartLink = (extra = "") => appointmentsHref
+    ? <AppointmentsLink locale={locale} href={appointmentsHref} className={extra} />
+    : <CartLink locale={locale} className={`${styles.iconLink} ${styles.cartLink}${extra ? ` ${extra}` : ""}`} />;
 
   const allTabs: Array<BottomTabItem & { href: string }> = [
     { id: "home", art: "home", label: nav("navHome"), icon: "house", href: `/${locale}` },

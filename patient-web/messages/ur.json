@@ -56,7 +56,9 @@
     "menuArticles": "مضامین",
     "menuSettings": "ترتیبات",
     "menuHelp": "مدد",
-    "menuResults": "میرے آرڈرز اور نتائج"
+    "menuResults": "میرے آرڈرز اور نتائج",
+    "appointments": "میری ملاقاتیں",
+    "appointmentsNew": "میری ملاقاتیں، {n, number} نئے نتائج"
   },
   "Home": {
     "eyebrow": "ڈیجیٹل مریض پورٹل",
@@ -504,7 +506,8 @@
       "time": "وقت میرے لیے مناسب نہیں",
       "payment": "ادائیگی میں مسئلہ",
       "other": "کوئی اور وجہ"
-    }
+    },
+    "emptyCurrent": "کوئی جاری ملاقات نہیں"
   },
   "Medicines": {
     "eyebrow": "نجی کیٹلاگ",
@@ -1336,7 +1339,8 @@
         "a": "جی ہاں، میری اپائنٹمنٹس سے پالیسی کے مطابق۔"
       }
     },
-    "faqTitle": "عام سوالات"
+    "faqTitle": "عام سوالات",
+    "comingSoon": "جلد آ رہا ہے"
   },
   "HomeCareServices": {
     "eyebrow": "گھر کی دیکھ بھال",
@@ -1512,7 +1516,11 @@
     "filtersWithCount": "فلٹر، {n} فعال",
     "activeFilters": "فعال فلٹر",
     "removeFilter": "فلٹر {filter} ہٹائیں",
-    "filterAll": "سب"
+    "filterAll": "سب",
+    "specialtyAll": "سب",
+    "comingSoon": "جلد آ رہا ہے",
+    "comingSoonTitle": "{specialty} جلد آ رہا ہے",
+    "comingSoonBody": "اس شعبے میں ابھی کوئی ڈاکٹر نہیں ہے۔ کوئی اور شعبہ منتخب کریں۔"
   },
   "LabsServices": {
     "eyebrow": "لیبارٹری کیئر",
@@ -3115,7 +3123,13 @@
     "ratingOutOf": "5 میں سے {value}",
     "actionOrderPrescription": "نسخہ منگوائیں",
     "actionBookLabs": "لیب ٹیسٹ بک کریں",
-    "actionBookScans": "اسکین بک کریں"
+    "actionBookScans": "اسکین بک کریں",
+    "tabCurrent": "جاری",
+    "outcomeNew": "نیا",
+    "outcomeSickLeave": "بیماری کی چھٹی",
+    "outcomeCertificates": "طبی سرٹیفکیٹ",
+    "outcomeReports": "طبی رپورٹیں",
+    "outcomeDays": "{n, number} دن"
   },
   "ConsultClient": {
     "payHeading": "محفوظ گیٹ وے کے ذریعے ادائیگی مکمل کریں",

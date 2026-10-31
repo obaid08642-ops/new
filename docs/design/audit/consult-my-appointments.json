@@ -1,0 +1,97 @@
+{
+  "slice": "consult-my-appointments",
+  "batch": 2,
+  "app": "patient-app",
+  "screens": [
+    {
+      "route": "/consultations",
+      "elements": [
+        [
+          "Cart button (removed: consultations have no cart)",
+          "none; the header no longer draws ServiceCartButton",
+          "fixed"
+        ],
+        [
+          "My appointments button (calendar icon)",
+          "opens /consultations/appointments; static key consult.appt.title",
+          "ok"
+        ],
+        [
+          "Badge on My appointments",
+          "GET /care/appointments/outcomes/badge: unseen_total (prescriptions, unread reports and certificates, referrals of completed visits); refreshed after PATCH .../outcomes/seen",
+          "ok"
+        ]
+      ],
+      "notes": []
+    },
+    {
+      "route": "/consultations/appointments",
+      "elements": [
+        [
+          "Tabs Upcoming / Current / Past",
+          "GET /care/appointments (ConsultationsContext), bucketed by status in utils/appointmentTabs.ts",
+          "ok"
+        ],
+        [
+          "Cards, actions",
+          "unchanged: status, doctor, time, price, waiting room / directions / track / edit / book again",
+          "ok"
+        ]
+      ],
+      "notes": []
+    },
+    {
+      "route": "/consultations/appointment-detail",
+      "elements": [
+        [
+          "Prescription and Order from the pharmacy",
+          "GET /prescriptions/active (this appointment's row); pharmacy cart / rx-order flow (unchanged)",
+          "ok"
+        ],
+        [
+          "Requested lab tests and scans, Book",
+          "GET /care/appointments/:id/outcomes lab_tests / radiology_scans (resolved: true, id); price by GET /labs|radiology/services/:id, then the labs and radiology cart; unresolved codes are counted and said",
+          "ok"
+        ],
+        [
+          "Sick leave, certificates, medical reports; seen mark",
+          "GET /care/appointments/:id/outcomes sick_leaves_and_certificates, reports (is_new); PATCH /care/appointments/:id/outcomes/seen when they are on screen",
+          "ok"
+        ],
+        [
+          "Doctor's instructions and follow-up",
+          "GET /care/appointments/:id/summary recommendations, follow_up_*; follow_up_actions (unchanged)",
+          "ok"
+        ]
+      ],
+      "notes": []
+    }
+  ],
+  "needsReview": [
+    {
+      "route": "/consultations/appointment-detail",
+      "element": "Referral price",
+      "kind": "backend",
+      "note": "The outcomes endpoint resolves referral codes to catalogue ids but sends no price, so Book still reads GET /labs|radiology/services/:id for it (a price on the resolved item would remove that call). Resolved: free-form codes, no per-appointment endpoint, seen flags only on medical reports (all three now served by GET /care/appointments/:id/outcomes, /outcomes/badge and PATCH /outcomes/seen).",
+      "file": "patient-app/src/components/consult/AppointmentSections.tsx",
+      "line": 432,
+      "backend": "backend/src/modules/care/appointment-outcomes.service.ts:11"
+    },
+    {
+      "route": "/consultations/appointment-detail",
+      "element": "Web: Book requested tests",
+      "kind": "client",
+      "note": "Web does not add the referral codes to the lab basket (needs a client basket write); it keeps the server's follow_up_actions lab/radiology booking buttons.",
+      "file": "patient-web/app/[locale]/appointments/[appointmentId]/page.tsx",
+      "line": 205
+    },
+    {
+      "route": "/consultations",
+      "element": "Web: cart on other consultation pages",
+      "kind": "owner",
+      "note": "The My appointments button replaces the cart on the two consultation hubs (doctors, specialties); booking, call and detail pages still show the shell's cart chooser.",
+      "file": "patient-web/components-next/core/core-shell.tsx",
+      "line": 87
+    }
+  ]
+}

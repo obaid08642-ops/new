@@ -56,7 +56,9 @@
     "menuArticles": "लेख",
     "menuSettings": "सेटिंग्स",
     "menuHelp": "सहायता",
-    "menuResults": "मेरे ऑर्डर और नतीजे"
+    "menuResults": "मेरे ऑर्डर और नतीजे",
+    "appointments": "मेरी अपॉइंटमेंट",
+    "appointmentsNew": "मेरी अपॉइंटमेंट, {n, number} नए नतीजे"
   },
   "Home": {
     "eyebrow": "डिजिटल मरीज़ पोर्टल",
@@ -504,7 +506,8 @@
       "time": "समय मेरे लिए ठीक नहीं है",
       "payment": "भुगतान में समस्या",
       "other": "कोई और कारण"
-    }
+    },
+    "emptyCurrent": "कोई वर्तमान अपॉइंटमेंट नहीं"
   },
   "Medicines": {
     "eyebrow": "निजी कैटलॉग",
@@ -1336,7 +1339,8 @@
         "a": "हां, मेरे अपॉइंटमेंट से नीति के अनुसार।"
       }
     },
-    "faqTitle": "सामान्य प्रश्न"
+    "faqTitle": "सामान्य प्रश्न",
+    "comingSoon": "जल्द आ रहा है"
   },
   "HomeCareServices": {
     "eyebrow": "होम केयर",
@@ -1512,7 +1516,11 @@
     "filtersWithCount": "फ़िल्टर, {n} सक्रिय",
     "activeFilters": "सक्रिय फ़िल्टर",
     "removeFilter": "फ़िल्टर {filter} हटाएँ",
-    "filterAll": "सभी"
+    "filterAll": "सभी",
+    "specialtyAll": "सभी",
+    "comingSoon": "जल्द आ रहा है",
+    "comingSoonTitle": "{specialty} जल्द आ रहा है",
+    "comingSoonBody": "इस विशेषता में अभी कोई डॉक्टर नहीं है। कोई दूसरी विशेषता चुनें।"
   },
   "LabsServices": {
     "eyebrow": "प्रयोगशाला देखभाल",
@@ -3115,7 +3123,13 @@
     "ratingOutOf": "5 में से {value}",
     "actionOrderPrescription": "पर्चा ऑर्डर करें",
     "actionBookLabs": "लैब जांच बुक करें",
-    "actionBookScans": "स्कैन बुक करें"
+    "actionBookScans": "स्कैन बुक करें",
+    "tabCurrent": "वर्तमान",
+    "outcomeNew": "नया",
+    "outcomeSickLeave": "बीमारी की छुट्टी",
+    "outcomeCertificates": "मेडिकल सर्टिफिकेट",
+    "outcomeReports": "मेडिकल रिपोर्ट",
+    "outcomeDays": "{n, number} दिन"
   },
   "ConsultClient": {
     "payHeading": "सुरक्षित गेटवे से भुगतान पूरा करें",
