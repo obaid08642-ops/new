@@ -1,7 +1,14 @@
-# 2026-10-31 lead reviewer: run 75 (READ-ONLY, urgent check).
-# Run 74 deployed main@95af576c (health ok), but its pre-deploy dump was 3.5 MB where runs 59-68 dumped ~354 MB.
-# Also: the meili cancel of run 73 never ran (enqueued still 89,117; restarts 1973 -> 2016).
-# 1. 99c-db-counts (READ-ONLY): databases and sizes, every collection's count and size, the newest dumps with their sizes.
-# 2. 98d-meili-state (READ-ONLY).
-99c-db-counts
+# 2026-10-31 lead reviewer: run 76.
+# Run 75 (read-only): NO data loss. The run-74 pre-deploy dump on disk is 355,482,199 bytes (the "3.5 MB" was a truncated log number).
+# Databases: nabd_nestjs 601 MB (app), nabd_staging 259 MB and temp_restore 210 MB also sit on the production mongod (to be reviewed).
+# meili still crash-loops (restarts 2943, limit 640 MB, 89,117 tasks enqueued).
+# 1. Free disk, deploy main@c929c4ef: meilisearch limit 1024m and the trimmed budget (#2226), the merged fixes since 95af576c,
+#    and the new dump guard (the dump must be >= 50% of the largest of the last 3 dumps, else ABORT before any change).
+# 2. 98d-meili-state (READ-ONLY) after the deploy: does meili hold with 1 GB?
+# 3. Purge the API cache.
+release:c929c4efa59a60ff70b245284fb7f99b3520b0ed
+97-free-old-predeploy
+93-free-unused-images
+60-deploy-main
 98d-meili-state
+cf-purge-api
