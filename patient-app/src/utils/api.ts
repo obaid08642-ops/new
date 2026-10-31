@@ -91,7 +91,7 @@ export async function currentGuestToken(): Promise<string | null> {
  * statement about the stored session, so it must not delete the guest or patient token that is already there.
  */
 export const isPublicAuthEndpoint = (endpoint: string): boolean =>
-  /^\/auth\/(login|register|guest|social-login|send-otp|verify-otp|reset-password|refresh)(\/|\?|$)/.test(endpoint);
+  /^\/auth\/(login|register|guest|social-login|send-otp|verify-otp|reset-password|refresh|otp|session|password)(\/|\?|$)/.test(endpoint);
 
 export function newIdempotencyKey(): string {
   const uuid = (globalThis as any).crypto?.randomUUID?.();

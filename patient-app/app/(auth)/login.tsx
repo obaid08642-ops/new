@@ -5,6 +5,7 @@ import { Button, Screen, StickyFooter } from '../../../packages/ui-native/src';
 // storeAuthSession lives in the shared network client (root utils/api.ts) —
 // src/utils/api.ts is a legacy thin wrapper that does not export it.
 import { useDispatch } from 'react-redux';
+import { requestOtp } from '../../src/auth/patientAuth';
 import { apiFetch } from '../../utils/api';
 import { startSession } from '../../src/utils/authSession';
 import { serverMessage } from '../../src/utils/serverMessage';
@@ -112,6 +113,23 @@ export default function LoginScreen() {
     setLoading(false);
   };
 
+  // Sign in with a code: the canonical OTP request, then the code screen (verify, exchange, session).
+  const handleCodeSignIn = async () => {
+    setErrorMessage(null);
+    social.clearError();
+    if (!isValidIdentifier(phone)) { setErrorMessage('auth.err.identifier'); return; }
+    setLoading(true);
+    try {
+      const { otp_no_channel } = await requestOtp(apiFetch, phone);
+      if (otp_no_channel) { setErrorMessage('auth.otp.noChannel'); return; }
+      router.push({ pathname: '/(auth)/otp', params: { identifier: phone.trim(), mode: 'login' } });
+    } catch (err: any) {
+      setErrorMessage(serverMessage(err, 'auth.forgot.sendFailed'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const providers = availableSocialProviders(useSocialConfig());
 
   return (
@@ -166,6 +184,7 @@ export default function LoginScreen() {
         />
         <View style={{ alignItems: 'flex-start' }}>
           <AuthLink label="auth.forgotLink" onPress={() => router.push('/(auth)/forgot-password')} />
+          <AuthLink label="auth.loginWithCode" onPress={() => void handleCodeSignIn()} />
         </View>
         <AuthError message={errorMessage ?? social.error} />
       </View>
