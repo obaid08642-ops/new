@@ -33,6 +33,7 @@ import { useTheme, useLang } from '../../context';
 import { NBtn } from '../../components/ui';
 import { I } from '../../components/icons';
 import { SP, FS, FW, R } from '../../constants';
+import { tokens, withAlpha } from '../../theme/tokens';
 
 let globalsRegistered = false;
 function ensureGlobals() {
@@ -347,8 +348,8 @@ const st = StyleSheet.create({
   name: { color: '#FFF', fontSize: FS.lg, fontWeight: FW.bold, marginTop: SP.sm },
   avatar: { width: 88, height: 88, borderRadius: 44, alignItems: 'center', justifyContent: 'center' },
   remoteFallback: { alignItems: 'center', justifyContent: 'center' },
-  banner: { position: 'absolute', top: SP.md, start: SP.md, end: SP.md, padding: SP.sm, borderRadius: R.md, backgroundColor: 'rgba(0,0,0,0.65)', alignItems: 'center' },
-  bannerText: { color: '#FFF', fontSize: FS.xs, textAlign: 'center' },
+  banner: { position: 'absolute', top: SP.md, start: SP.md, end: SP.md, padding: SP.sm, borderRadius: R.md, backgroundColor: withAlpha(tokens.navy, 0.65), alignItems: 'center' },
+  bannerText: { color: tokens.primaryFg, fontSize: FS.xs, textAlign: 'center' },
   pip: { position: 'absolute', bottom: 96, right: SP.md, width: 92, height: 128, borderRadius: R.md, overflow: 'hidden', borderWidth: 2, borderColor: '#444', backgroundColor: '#222' },
   pipOff: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   controls: { position: 'absolute', bottom: SP.lg, left: 0, right: 0, flexDirection: 'row', justifyContent: 'center', gap: SP.xl },
