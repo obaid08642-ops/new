@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { applyChanges, resolveSelfConflicts, rollbackChanges } from './catalogue-apply.core';
+import { applyChanges, resolveSelfConflicts, rollbackChanges, rowIdentities } from './catalogue-apply.core';
 import type { Change, DbLike, SetChange } from './catalogue-apply.core';
 
 jest.setTimeout(120_000);
@@ -112,5 +112,63 @@ describe('apply and rollback with a row two steps would have written', () => {
     const rolled = await rollbackChanges(db, changes);
     expect(rolled.skipped_changed_since).toBe(0);
     expect(await snapshot()).toEqual(before);
+  });
+});
+
+describe('one medicine addressed by { id } in one step and { _id } in another (run 65: 25 skipped, self_conflicts dropped=0)', () => {
+  const meds = () => mongoose.connection.db!.collection('medicines');
+  const byId = (step: string, id: string, path: string, before: unknown, after: unknown): SetChange => ({ kind: 'set', step, collection: 'medicines', key: { id }, path, before, after });
+  const byOid = (step: string, _id: unknown, path: string, before: unknown, after: unknown): SetChange => ({ kind: 'set', step, collection: 'medicines', key: { _id }, path, before, after });
+
+  it('without the identity map the two steps look like two rows, so the plan keeps both and the second is skipped at apply; with it one write stands and nothing is skipped', async () => {
+    await meds().deleteMany({});
+    const oid1 = new mongoose.Types.ObjectId(); const oid2 = new mongoose.Types.ObjectId();
+    await meds().insertMany([
+      { _id: oid1 as never, id: 'u1', name_ar: ' باراسيتامول  ', translations: {} },
+      { _id: oid2 as never, id: 'u2', name_ar: 'ايبوبروفين ', translations: {} },
+      { _id: new mongoose.Types.ObjectId() as never, id: 'u3', name_ar: 'سليم', translations: {} },
+    ]);
+    const plan: Change[] = [
+      byId('medicine_name_hygiene', 'u1', 'name_ar', ' باراسيتامول  ', 'باراسيتامول'),
+      byOid('medicine_name_fixes', oid1, 'name_ar', ' باراسيتامول  ', 'باراسيتامول 500 ملغ'),
+      byId('medicine_name_hygiene', 'u2', 'name_ar', 'ايبوبروفين ', 'ايبوبروفين'),
+      byOid('language_moves', oid2, 'name_ar', 'ايبوبروفين ', 'إيبوبروفين'),
+      byId('medicine_translations', 'u3', 'translations.hi.name', null, 'reviewed'),
+      byOid('product_translations', (await meds().findOne({ id: 'u3' }))!._id, 'translations.hi.name', null, 'machine'),
+    ];
+    const db = mongoose.connection.db as unknown as DbLike;
+
+    const blind = resolveSelfConflicts(plan);                    // no identity map: the old behaviour
+    expect(blind.changes).toHaveLength(6);
+    expect(blind.report.dropped).toBe(0);                         // what the dry run of run 67 printed
+    const seen = await meds().find({}).sort({ id: 1 }).toArray();
+    const naive = await applyChanges(db, plan);
+    expect(naive.skipped_changed_since_plan).toBe(3);             // one write of each pair lost its before-image to the other
+    await rollbackChanges(db, plan);
+    await meds().deleteMany({}); await meds().insertMany(seen);
+
+    const identities = await rowIdentities(db, plan);
+    const { changes, report } = resolveSelfConflicts(plan, identities);
+    expect(report.dropped).toBe(3);
+    expect(report.by_pair).toEqual({
+      'medicine_name_fixes>medicine_name_hygiene medicines.name_ar': 1,
+      'language_moves>medicine_name_hygiene medicines.name_ar': 1,
+      'medicine_translations>product_translations medicines.translations.hi.name': 1,
+    });
+    expect(changes).toHaveLength(3);
+    const applied = await applyChanges(db, changes);
+    expect(applied).toMatchObject({ applied: 3, skipped_changed_since_plan: 0 });
+    expect((await meds().findOne({ id: 'u1' }))!.name_ar).toBe('باراسيتامول 500 ملغ');        // the owner-approved fix, not the tidy one
+    expect((await meds().findOne({ id: 'u2' }))!.name_ar).toBe('إيبوبروفين');
+    expect((await meds().findOne({ id: 'u3' }))!.translations.hi.name).toBe('reviewed');      // the reviewed file, not the machine text
+    expect((await rollbackChanges(db, changes)).skipped_changed_since).toBe(0);
+  });
+
+  it('an id that no document has, or a key of another shape, keeps its own identity', async () => {
+    const db = mongoose.connection.db as unknown as DbLike;
+    const plan: Change[] = [byId('medicine_name_hygiene', 'missing', 'name_ar', 'a', 'b'), { kind: 'set', step: 'districts', collection: 'locations', key: { code: 'x', type: 'city' }, path: 'source', before: null, after: 's' }];
+    const ids = await rowIdentities(db, plan);
+    expect(ids.size).toBe(0);
+    expect(resolveSelfConflicts(plan, ids).changes).toEqual(plan);
   });
 });
