@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { registerCallRingTask } from '../calls/ringTask';
+import { startOutboxRunner } from '../chat/outboxRunner';
 import { registerVoipPush } from '../calls/voipPush';
 import { useSelector } from 'react-redux';
 import { router } from 'expo-router';
@@ -107,6 +108,8 @@ export default function NotificationHandler() {
     // it comes from the in-context prompts) and reconcile explicit local medication actions.
     registerForPushNotificationsAsync();
     void registerCallRingTask();
+    // queued chat messages are sent from here too (connection back, app foregrounded), not only while a chat screen is open
+    const stopOutbox = startOutboxRunner();
     void registerVoipPush();
     flushMedicationDoseActions().catch(() => { /* a later app launch will retry */ });
 
@@ -177,6 +180,7 @@ export default function NotificationHandler() {
 
     return () => {
       unsubscribe();
+      stopOutbox();
     };
   }, [isAuthenticated]);
 
