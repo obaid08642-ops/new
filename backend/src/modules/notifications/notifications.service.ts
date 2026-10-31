@@ -560,6 +560,32 @@ export class NotificationsService {
     });
   }
 
+  /** PV-08: the licence ends soon (30/14/7/3/1 days): the provider is told in the app, with a push, before bookings stop. */
+  @OnEvent('provider.license_expiring')
+  async onProviderLicenseExpiring(p: any) {
+    if (!p?.account_id) return;
+    await this.notifyProviderAccount(String(p.account_id), {
+      type: 'kyc_update',
+      title_ar: `ترخيصك ينتهي خلال ${p.days_left} يوم`, title_en: `Your licence ends in ${p.days_left} days`,
+      body_ar: `ينتهي ترخيصك المهني في ${p.expiry}. جدّده وارفعه من الملف الشخصي قبل ذلك التاريخ، وإلا أُوقف حسابك تلقائياً.`,
+      body_en: `Your professional licence ends on ${p.expiry}. Renew it and upload it from your profile before then, or your account is suspended automatically.`,
+      related_id: `${p.profile_id}:${p.bucket}:${p.expiry}`, related_type: 'provider_license_expiring',
+    });
+  }
+
+  /** PV-09: the licence has ended and the account was suspended: the provider is told why and what to do. */
+  @OnEvent('provider.license_suspended')
+  async onProviderLicenseSuspended(p: any) {
+    if (!p?.account_id) return;
+    await this.notifyProviderAccount(String(p.account_id), {
+      type: 'kyc_update',
+      title_ar: 'أُوقف حسابك لانتهاء الترخيص', title_en: 'Your account is suspended: the licence has ended',
+      body_ar: 'جدّد ترخيصك المهني وارفعه ليراجعه فريق نبض بلس ويعيد تفعيل حسابك.',
+      body_en: 'Renew your professional licence and upload it; the Nabd Plus team reviews it and reactivates your account.',
+      related_id: String(p.profile_id), related_type: 'provider_license_suspended',
+    });
+  }
+
   /** 19.11 step 6: the copay is paid, or the insurer covered everything, so the provider is told the service continues. */
   private async tellProviderInsuranceReady(p: any, coveredInFull: boolean) {
     if (!p?.request_id) return;
