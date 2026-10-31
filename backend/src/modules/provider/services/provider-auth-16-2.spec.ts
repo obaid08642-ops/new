@@ -42,6 +42,13 @@ describe('provider sign-in (16.2)', () => {
     expect(await answer(svc.login({ email: 'doc@example.test', password: 'the-right-passphrase', meta: { ip: '3.3.3.3' } }))).toBe('403:account_suspended');
   });
 
+  // G6: a rejected applicant must reach the status screen (reason + "fix and resubmit"); only SUSPENDED is blocked at sign-in.
+  it('a rejected account signs in with the right password and gets a session (the app then shows the reason)', async () => {
+    const { svc } = await build(ProviderAccountStatus.REJECTED);
+    expect(await answer(svc.login({ email: 'doc@example.test', password: 'the-right-passphrase', meta: { ip: '6.6.6.6' } }))).toBe('ok');
+    expect((svc as any).openSession).toHaveBeenCalledWith(expect.objectContaining({ status: ProviderAccountStatus.REJECTED }), undefined);
+  });
+
   it('the right password signs in, and is not blocked by an earlier failure from another address', async () => {
     const { svc } = await build();
     for (let i = 0; i < 5; i += 1) await answer(svc.login({ email: 'doc@example.test', password: `wrong-${i}-passphrase`, meta: { ip: '4.4.4.4' } }));

@@ -72,12 +72,6 @@ export const LANGUAGES = [
   { code: 'en', name: 'English', flag: 'GB', rtl: false },
 ];
 
-export const CANCELLATION_POLICY = [
-  { hoursBeforeMin: 24, hoursBeforeMax: Infinity, refundPercent: 100, label: 'قبل 24 ساعة' },
-  { hoursBeforeMin: 12, hoursBeforeMax: 24, refundPercent: 50, label: 'قبل 12 ساعة' },
-  { hoursBeforeMin: 0, hoursBeforeMax: 12, refundPercent: 0, label: 'قبل 6 ساعات' },
-];
-
 export const BLOOD_TYPES = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 export const FAMILY_RELATIONS = [
