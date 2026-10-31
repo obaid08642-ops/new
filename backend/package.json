@@ -16,7 +16,7 @@
     "openapi:generate": "ts-node -T scripts/generate-openapi.ts"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1075.0",
+    "@aws-sdk/client-s3": "^3.1152.0",
     "@aws-sdk/s3-request-presigner": "^3.1075.0",
     "@fastify/cookie": "^11.1.2",
     "@fastify/multipart": "^10.1.1",
