@@ -56,6 +56,23 @@ for R in "$OUT"/flow_${TAG}__*.txt; do
   echo "flow $N: $(cat "$R")"
   if [ "$(cat "$R")" != ok ]; then
     FAILED=1; echo "----- tail of maestro_${TAG}__${N}.log"; tail -n 60 "$OUT/maestro_${TAG}__${N}.log" 2>/dev/null || true
+    # what the simulator shows now (every text and id on the screen) and what the backend saw: tells an error message or a stuck
+    # button from a request that never arrived
+    echo "----- screen texts at the end of the flow"
+    "$HOME/.maestro/bin/maestro" --device "$DEVICE" hierarchy 2>/dev/null | python3 -c "
+import json,sys
+raw=sys.stdin.read()
+try: tree=json.loads(raw[raw.index('{'):])
+except Exception: print(raw[:1500]); sys.exit()
+seen=[]
+def walk(n):
+    a=n.get('attributes',n)
+    for k in ('text','accessibilityText','hintText','resource-id'):
+        v=a.get(k)
+        if v and v not in seen: seen.append(v)
+    for c in n.get('children',[]): walk(c)
+walk(tree); print(' | '.join(seen)[:2500])" || true
+    echo "----- backend log, auth requests"; grep -i -E "auth|login" /tmp/nabd-backend.log 2>/dev/null | tail -n 25 || true
   fi
 done
 xcrun simctl spawn "$DEVICE" log show --last 10m --predicate 'process == "'"$(basename /tmp/native/app/*.app .app)"'" AND messageType == error' > "$OUT/syslog_errors_$TAG.txt" 2>/dev/null || true
