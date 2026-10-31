@@ -42,7 +42,7 @@
 #                                                    --oom-score-adj 1000` (if the host runs short, this container is the one the kernel kills), NODE_OPTIONS heap 700 MB.
 #                                                    For heavy steps; never in the API container. $B is mounted as /backup (the backup file lands there directly), $IN as /in (read-only).
 set -u
-EXPECT_PLAN_SHA="adfa265c71c7e0c032700fdca950badca680fec1efe5fa601bb63626ff697574"
+EXPECT_PLAN_SHA=""
 COMPLETION=""
 PRUNE=""
 TRANSLATIONS="yes"
@@ -101,7 +101,7 @@ if [ "$TRANSLATIONS" = yes ]; then
   TRANSLATIONS_ONLY=yes; say "product translations planned on its own (--only=product_translations): empty fields only, from product-translations.json (sha256 $(sudo -n sha256sum "$IN/product-translations.json" | cut -c1-12))"
 fi
 if [ "$COMPLETION" = packaged ]; then
-  ARGS="$ARGS --only=catalogue_completion --catalogue-completion=packaged"; say "catalogue completion (packaged) planned on its own (--only=catalogue_completion)"
+  ARGS="$ARGS --only=catalogue_completion --catalogue-completion=packaged --radiology-approve=packaged"; say "catalogue completion (packaged) planned on its own (--only=catalogue_completion), with the packaged radiology decisions (approve barium_study, dental_panoramic, pet_ct_scan, hysterosalpingography_hsg; merge hsg into hysterosalpingography_hsg)"
 fi
 if [ "$PRUNE" = yes ]; then
   ARGS="$ARGS --only=catalogue_prune"; say "catalogue prune planned on its own (--only=catalogue_prune): delete-only, unreferenced rows"
@@ -122,7 +122,7 @@ fi
 if sudo -n test -f "$IN/product-translations.json"; then
   sudo -n cat "$IN/product-translations.json" | $DK exec -i "$CT" sh -c 'cat > /tmp/cat-product-translations.json' && ARGS="$ARGS --product-translations=/tmp/cat-product-translations.json" && say "input product-translations.json copied in"
 fi
-if sudo -n test -f "$IN/radiology-approve.json"; then
+if [ "$COMPLETION" != packaged ] && sudo -n test -f "$IN/radiology-approve.json"; then
   sudo -n cat "$IN/radiology-approve.json" | $DK exec -i "$CT" sh -c 'cat > /tmp/cat-radiology-approve.json' && ARGS="$ARGS --radiology-approve=/tmp/cat-radiology-approve.json" && say "input radiology-approve.json copied in"
 fi
 if sudo -n test -f "$IN/test-data-remove.json"; then
@@ -139,7 +139,8 @@ TOTAL=$(echo "$PLAN" | jval total_changes)
 say "plan sha=$SHA total_changes=$TOTAL"
 # one short line per collection first (the annotation truncates the JSON below): rows, writes, deletions by step
 echo "$PLAN" | sed -n 's/^collection_line /status: catalogue-apply: collection /p' | cut -c1-300
-echo "$PLAN" | grep -v '^collection_line ' | sed -E 's/"inputs":\{[^}]*\},?//' | sed 's/^/status: catalogue-apply: plan /' | cut -c1-900
+echo "$PLAN" | sed -n 's/^conflict_line /status: catalogue-apply: /p' | cut -c1-600
+echo "$PLAN" | grep -v '^collection_line \|^conflict_line ' | sed -E 's/"inputs":\{[^}]*\},?//' | sed 's/^/status: catalogue-apply: plan /' | cut -c1-900
 if [ -z "$EXPECT_PLAN_SHA" ]; then
   say "dry run only: nothing was written. To apply, set EXPECT_PLAN_SHA=$SHA in this task (owner approval first)"
   cleanup_inputs; exit 0
