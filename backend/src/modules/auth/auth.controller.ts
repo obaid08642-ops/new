@@ -147,6 +147,14 @@ export class AuthController {
     return { authenticated: true };
   }
 
+  /** Native clients cannot hold the web cookies: same single-use exchange token, the pair returned as JSON. */
+  @Public()
+  @Post('session/exchange-native')
+  async patientSessionExchangeNative(@Body() dto: PatientSessionExchangeDto, @Req() req: Request) {
+    const tokens = await this.auth.exchangePatientSession(dto.exchange_token, guestMergeToken(req));
+    return { access_token: tokens.access_token, refresh_token: tokens.refresh_token };
+  }
+
   @Public()
   @Throttle({ default: { limit: 3, ttl: 600000 } })
   @Post('password/forgot')

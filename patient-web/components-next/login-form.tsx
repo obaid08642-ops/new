@@ -10,6 +10,7 @@ import { authErrorKind } from "@/lib/auth/auth-errors";
 import { announceSignedIn } from "@/lib/auth/session-identity";
 import { safeNextPath } from "@/lib/auth/safe-next";
 import { afterFailure, minutesLeft, readLock, writeLock } from "@/lib/auth/login-lockout";
+import { codeRequestFailure, usableIdentifier } from "@/lib/auth/otp-flow";
 import type { Locale } from "@/lib/i18n";
 import { WrongAppNotice } from "./auth/wrong-app-notice";
 import { SocialLoginButtons } from "./social-login-buttons";
@@ -74,6 +75,23 @@ export function LoginForm({ locale, guestBlocked = false, social = {} }: { local
     finally { setSubmitting(false); }
   }
 
+  // Sign in with a code: the same /api/auth/otp/request the sign-up uses (it answers the same whether or not the account exists),
+  // then the /otp screen, which reads where the code went from the cookie that route sets.
+  async function signInWithCode() {
+    setMessage(null);
+    const target = usableIdentifier(identifier);
+    if (!target) { setMessage(t("codeIdentifier")); return; }
+    setSubmitting(true);
+    try {
+      const response = await fetch("/api/auth/otp/request", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ identifier: target }) });
+      if (response.ok) { router.push(`/${locale}/otp`); return; }
+      const body = await response.json().catch(() => null);
+      const failure = codeRequestFailure(response.status, body);
+      setMessage(failure === "noChannel" ? t("codeNoChannel") : failure === "rateLimited" ? t("rateLimited") : t("unavailable"));
+    } catch { setMessage(t("unavailable")); }
+    finally { setSubmitting(false); }
+  }
+
   const submitLabel = submitting ? (twoFactor ? t("twoFactorSubmitting") : t("submitting")) : (twoFactor ? t("twoFactorSubmit") : t("submit"));
   const forgot = <button type="button" className={`${styles.link} ${styles.forgotTop}`} onClick={() => router.push(`/${locale}/forgot-password`)} disabled={submitting}>{t("forgotPassword")}</button>;
 
@@ -111,6 +129,7 @@ export function LoginForm({ locale, guestBlocked = false, social = {} }: { local
       {message ? <p id="login-message" className={styles.error} role="alert">{message}</p> : null}
       <div className={styles.actions}>
         <Button type="submit" variant="primary" size="lg" fullWidth label={submitLabel} loading={submitting} />
+        {!twoFactor ? <p className={styles.foot}><button type="button" className={styles.link} onClick={signInWithCode} disabled={submitting}>{t("codeSignIn")}</button></p> : null}
         <SocialLoginButtons locale={locale} social={social} onWrongApp={() => setWrongApp(true)} />
         <p className={styles.legal}>{t.rich("legal", {
           terms: (chunks) => <Link href={`/${locale}/terms`}>{chunks}</Link>,

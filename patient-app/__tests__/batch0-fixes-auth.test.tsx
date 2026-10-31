@@ -8,7 +8,6 @@ import ForgotPasswordScreen from '../app/(auth)/forgot-password';
 import ResetPasswordScreen from '../app/(auth)/reset-password';
 import { apiFetch as rootApiFetch, storeAuthSession } from '../utils/api';
 import { apiFetch } from '../src/utils/api';
-import { createRegistrationTransaction } from '../src/services/auth/RegistrationTransaction';
 import { guestLogin } from '../src/store/slices/authSlice';
 import { makeStore, withStore } from '../src/__tests__/utils/testStore';
 
@@ -155,68 +154,46 @@ describe('Login (fix: skipAuth, identifier validation, session state, translated
   });
 });
 
-describe('Email code (fix: resend purpose, reset flow, refresh token, translated errors)', () => {
+const ar = require('../src/i18n/locales/ar.json') as Record<string, string>;
+
+describe('Email code (canonical verify + exchange, resend, translated errors)', () => {
   const fillCode = async (code: string) => {
     for (let i = 0; i < 6; i += 1) await fireEvent.changeText(screen.getByTestId(`otp-box-${i}`), code[i]);
   };
 
-  it('resend in register mode asks for a code with purpose "register" (a new email has no account yet)', async () => {
+  it('resend asks the canonical otp/request for the identifier', async () => {
     jest.useFakeTimers();
     try {
-      const id = createRegistrationTransaction({ fullName: 'Test User', phone: '+966500000001', email: 'new@mail.com', password: 'secret12' });
-      mockParams = { mode: 'register', transactionId: id };
-      (apiFetch as jest.Mock).mockResolvedValue({ ok: true, channel: 'email' });
-      await render(mount(<OtpScreen />).ui);
-      for (let i = 0; i < 61; i += 1) await act(async () => { jest.advanceTimersByTime(1000); });
-      await fireEvent.press(screen.getByText('إعادة إرسال الرمز'));
-      await waitFor(() => expect(apiFetch).toHaveBeenCalled());
-      expect(apiFetch).toHaveBeenCalledWith('/auth/send-otp', { method: 'POST', body: JSON.stringify({ identifier: 'new@mail.com', purpose: 'register' }) });
-    } finally {
-      jest.useRealTimers();
-    }
-  });
-
-  it('resend in reset mode sends the identifier alone (the account exists)', async () => {
-    jest.useFakeTimers();
-    try {
-      mockParams = { mode: 'reset', email: 'a@b.sa' };
+      mockParams = { mode: 'register', identifier: 'new@mail.com' };
       (apiFetch as jest.Mock).mockResolvedValue({ ok: true });
       await render(mount(<OtpScreen />).ui);
       for (let i = 0; i < 61; i += 1) await act(async () => { jest.advanceTimersByTime(1000); });
       await fireEvent.press(screen.getByText('إعادة إرسال الرمز'));
       await waitFor(() => expect(apiFetch).toHaveBeenCalled());
-      expect(apiFetch).toHaveBeenCalledWith('/auth/send-otp', { method: 'POST', body: JSON.stringify({ identifier: 'a@b.sa' }) });
+      expect(apiFetch).toHaveBeenCalledWith('/auth/otp/request', { method: 'POST', body: JSON.stringify({ identifier: 'new@mail.com' }), skipAuth: true });
     } finally {
       jest.useRealTimers();
     }
   });
 
-  it('reset mode does not verify the code here (the backend consumes it on a valid check): it goes on with the code', async () => {
-    mockParams = { mode: 'reset', email: 'a@b.sa' };
-    await render(mount(<OtpScreen />).ui);
-    await fillCode('123456');
-    await fireEvent.press(screen.getByTestId('otp-submit'));
-    await waitFor(() => expect(mockRouter.replace).toHaveBeenCalled());
-    expect(apiFetch).not.toHaveBeenCalledWith('/auth/verify-otp', expect.anything());
-    expect(mockRouter.replace).toHaveBeenCalledWith({ pathname: '/(auth)/reset-password', params: { email: 'a@b.sa', code: '123456' } });
-  });
-
-  it('register: the refresh token is kept with the access token, and the slice becomes the signed-in patient', async () => {
-    const id = createRegistrationTransaction({ fullName: 'Test User', phone: '+966500000001', email: 'new@mail.com', password: 'secret12' });
-    mockParams = { mode: 'register', transactionId: id };
-    (apiFetch as jest.Mock).mockImplementation(async (path: string) => (path === '/auth/verify-otp' ? { ok: true } : LOGIN_ANSWER));
+  it('the code is verified, exchanged for the pair, and the slice becomes the signed-in patient', async () => {
+    mockParams = { mode: 'login', identifier: 'new@mail.com' };
+    (apiFetch as jest.Mock).mockImplementation(async (path: string) => (path === '/auth/otp/verify'
+      ? { exchange_token: 'ex' }
+      : { access_token: ACCESS, refresh_token: 'refresh-1' }));
     (storeAuthSession as jest.Mock).mockResolvedValue(ACCESS);
     const { store, ui } = mount(<OtpScreen />);
     await render(ui);
     await fillCode('123456');
     await fireEvent.press(screen.getByTestId('otp-submit'));
     await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith('/(tabs)'));
-    expect(storeAuthSession).toHaveBeenCalledWith(LOGIN_ANSWER.token);
+    expect(apiFetch).toHaveBeenCalledWith('/auth/otp/verify', expect.objectContaining({ body: JSON.stringify({ identifier: 'new@mail.com', code: '123456' }) }));
+    expect(storeAuthSession).toHaveBeenCalledWith({ accessToken: ACCESS, refreshToken: 'refresh-1' });
     expect(store.getState().auth).toMatchObject({ isAuthenticated: true, isGuest: false, token: ACCESS, refreshToken: 'refresh-1' });
   });
 
   it('a wrong code is announced in the app language, not as the server\'s English', async () => {
-    mockParams = { mode: 'register', transactionId: createRegistrationTransaction({ fullName: 'T U', phone: '+966500000002', email: 'x@mail.com', password: 'secret12' }) };
+    mockParams = { mode: 'register', identifier: 'x@mail.com' };
     (apiFetch as jest.Mock).mockRejectedValue(new Error('Invalid OTP code'));
     await render(mount(<OtpScreen />).ui);
     await fillCode('000000');
@@ -226,30 +203,30 @@ describe('Email code (fix: resend purpose, reset flow, refresh token, translated
   });
 });
 
-describe('Forgot password (fix: say what is wrong, translated errors)', () => {
-  it('an empty email shows a message instead of doing nothing', async () => {
+describe('Forgot password (link flow, e-mail or phone)', () => {
+  it('an empty identifier shows a message instead of doing nothing', async () => {
     await render(mount(<ForgotPasswordScreen />).ui);
     await fireEvent.press(screen.getByTestId('forgot-submit'));
     expect(await screen.findByText('أدخل بريدك الإلكتروني')).toBeTruthy();
     expect(apiFetch).not.toHaveBeenCalled();
   });
 
-  it('a malformed email shows a message', async () => {
+  it('a malformed identifier shows a message', async () => {
     await render(mount(<ForgotPasswordScreen />).ui);
-    await type('forgot-email', 'not-an-email');
+    await type('forgot-email', 'x');
     await fireEvent.press(screen.getByTestId('forgot-submit'));
-    expect(await screen.findByText('أدخل بريدًا إلكترونيًا صحيحًا')).toBeTruthy();
+    expect(await screen.findByText(ar['auth.err.identifier'])).toBeTruthy();
     expect(apiFetch).not.toHaveBeenCalled();
   });
 
-  it('a valid email asks for the code and opens the code screen in reset mode', async () => {
+  it.each([[' A@B.sa ', 'a@b.sa'], ['0501234567', '+966501234567']])('%s asks for the reset link (password/forgot) and says to check the inbox', async (typed, sent) => {
     (apiFetch as jest.Mock).mockResolvedValue({ ok: true });
     await render(mount(<ForgotPasswordScreen />).ui);
-    await type('forgot-email', ' A@B.sa ');
+    await type('forgot-email', typed);
     await fireEvent.press(screen.getByTestId('forgot-submit'));
-    await waitFor(() => expect(mockRouter.push).toHaveBeenCalled());
-    expect(apiFetch).toHaveBeenCalledWith('/auth/send-otp', { method: 'POST', body: JSON.stringify({ identifier: 'a@b.sa' }) });
-    expect(mockRouter.push).toHaveBeenCalledWith({ pathname: '/(auth)/otp', params: { email: 'a@b.sa', mode: 'reset' } });
+    expect(await screen.findByText(ar['auth.forgot.sentTitle'])).toBeTruthy();
+    expect(apiFetch).toHaveBeenCalledWith('/auth/password/forgot', { method: 'POST', body: JSON.stringify({ identifier: sent }), skipAuth: true });
+    expect(mockRouter.push).not.toHaveBeenCalled();
   });
 
   it('the server\'s rate limit is shown translated', async () => {
@@ -261,20 +238,17 @@ describe('Forgot password (fix: say what is wrong, translated errors)', () => {
   });
 });
 
-describe('Reset password (fix: validation messages, code carried over, missing email)', () => {
-  it('the code from the code screen arrives pre-filled and the email is taken from the route', async () => {
-    mockParams = { email: 'a@b.sa', code: '123456' };
+describe('Reset password (token from the e-mail link)', () => {
+  it('without a token the screen says the link is not valid and offers a new one', async () => {
+    mockParams = {};
     await render(mount(<ResetPasswordScreen />).ui);
-    expect(screen.getByTestId('reset-code').props.value).toBe('123456');
-    expect(screen.queryByTestId('reset-email')).toBeNull();
+    expect(screen.getByTestId('reset-request-new')).toBeTruthy();
+    expect(screen.queryByTestId('reset-code')).toBeNull();
   });
 
-  it('a short password, a mismatch and an empty code each say so', async () => {
-    mockParams = { email: 'a@b.sa', code: '' };
+  it('a short password and a mismatch each say so', async () => {
+    mockParams = { token: 'tok' };
     await render(mount(<ResetPasswordScreen />).ui);
-    await fireEvent.press(screen.getByTestId('reset-submit'));
-    expect(await screen.findByText('أدخل رمز التحقق')).toBeTruthy();
-    await type('reset-code', '123456');
     await type('reset-password', '123');
     await type('reset-confirm', '123');
     await fireEvent.press(screen.getByTestId('reset-submit'));
@@ -286,31 +260,24 @@ describe('Reset password (fix: validation messages, code carried over, missing e
     expect(apiFetch).not.toHaveBeenCalled();
   });
 
-  it('opened without the email the screen asks for it (it used to send an empty identifier)', async () => {
-    mockParams = {};
+  it('sends the token and the new password to password/reset', async () => {
+    mockParams = { token: 'tok' };
+    (apiFetch as jest.Mock).mockResolvedValue({ ok: true });
     await render(mount(<ResetPasswordScreen />).ui);
-    expect(screen.getByTestId('reset-email')).toBeTruthy();
-    await type('reset-code', '123456');
     await type('reset-password', 'secret12');
     await type('reset-confirm', 'secret12');
     await fireEvent.press(screen.getByTestId('reset-submit'));
-    expect(await screen.findByText('أدخل البريد الإلكتروني الذي وصله الرمز')).toBeTruthy();
-    expect(apiFetch).not.toHaveBeenCalled();
-    (apiFetch as jest.Mock).mockResolvedValue({ ok: true });
-    await type('reset-email', 'A@B.sa');
-    await fireEvent.press(screen.getByTestId('reset-submit'));
     await waitFor(() => expect(apiFetch).toHaveBeenCalled());
-    expect(apiFetch).toHaveBeenCalledWith('/auth/reset-password', { method: 'POST', body: JSON.stringify({ identifier: 'a@b.sa', password: 'secret12', code: '123456' }) });
+    expect(apiFetch).toHaveBeenCalledWith('/auth/password/reset', { method: 'POST', body: JSON.stringify({ reset_token: 'tok', new_password: 'secret12' }), skipAuth: true });
   });
 
-  it('a wrong code from the server is shown translated, and the code field stays editable', async () => {
-    mockParams = { email: 'a@b.sa', code: '000000' };
+  it('an expired token from the server is shown translated', async () => {
+    mockParams = { token: 'old' };
     (apiFetch as jest.Mock).mockRejectedValue(new Error('Invalid OTP code'));
     await render(mount(<ResetPasswordScreen />).ui);
     await type('reset-password', 'secret12');
     await type('reset-confirm', 'secret12');
     await fireEvent.press(screen.getByTestId('reset-submit'));
     expect(await screen.findByText('رمز التحقق غير صحيح')).toBeTruthy();
-    expect(screen.getByTestId('reset-code').props.value).toBe('000000');
   });
 });

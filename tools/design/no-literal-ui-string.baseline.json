@@ -5,7 +5,6 @@
     "patient-app/app/(onboarding)/language.tsx": 2,
     "patient-app/app/consultations/doctor-profile.tsx": 1,
     "patient-app/app/search/index.tsx": 33,
-    "patient-app/src/components/AppGate.tsx": 5,
     "patient-app/src/components/auth/AuthKit.tsx": 4,
     "patient-app/src/components/MapPrimitives.web.tsx": 3,
     "patient-app/src/components/navigation/MainTabBar.tsx": 6,

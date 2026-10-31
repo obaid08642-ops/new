@@ -19,7 +19,9 @@ const NAMESPACE = 'b3e1c0a8-6f0d-4c1e-9a57-2f3a8d9c5e11';
 
 export type BookingMode = 'visit' | 'continuous' | 'programme';
 
-interface RadiologySeed { code: string; name_ar: string; name_en: string; modality: string; body_part: string; fasting_hours: number; contrast_required: boolean; estimated_duration_minutes: number; turnaround_hours: number; preparation_ar: string[]; preparation_en: string[]; description_ar: string; description_en: string; requires_pregnancy_check: boolean; requires_metal_implant_check: boolean; requires_contrast_allergy_check: boolean }
+interface RadiologySeed { code: string; name_ar: string; name_en: string; modality: string; body_part: string; fasting_hours: number; contrast_required: boolean; estimated_duration_minutes: number; turnaround_hours: number; preparation_ar: string[]; preparation_en: string[]; description_ar: string; description_en: string; requires_pregnancy_check: boolean; requires_metal_implant_check: boolean; requires_contrast_allergy_check: boolean;
+  /** An indicative market price range in SAR (an estimate for the admin and for providers setting their own price; never shown to patients, never the price). */
+  indicative_price_min?: number; indicative_price_max?: number }
 interface LabSeed { code: string; name_ar: string; name_en: string; category: string; sample_type: string; fasting_hours: number; turnaround_hours: number; home_collection: boolean; description_ar: string; description_en: string; preparation_ar: string[]; preparation_en: string[] }
 interface NursingSeed { code: string; name_ar: string; name_en: string; category: string; duration: string; duration_value: number; booking_mode: BookingMode; description_ar: string; description_en: string; preparation_ar: string[]; preparation_en: string[]; requires_patient_medication: boolean; requires_companion: boolean; icon: string }
 export interface CompletionSeed {
@@ -106,6 +108,7 @@ export async function planCatalogueCompletion(db: DbLike, opts: CompletionOption
     description_ar: s.description_ar, description_en: s.description_en, preparation_ar: s.preparation_ar, preparation_en: s.preparation_en,
     estimated_duration_minutes: s.estimated_duration_minutes, turnaround_hours: s.turnaround_hours, home_visit_supported: false, facility_visit_supported: true,
     requires_pregnancy_check: s.requires_pregnancy_check, requires_metal_implant_check: s.requires_metal_implant_check, requires_contrast_allergy_check: s.requires_contrast_allergy_check,
+    ...(typeof s.indicative_price_min === 'number' && typeof s.indicative_price_max === 'number' ? { indicative_price_min: s.indicative_price_min, indicative_price_max: s.indicative_price_max, indicative_price_basis: 'estimate_2026-10-31_unverified' } : {}),
   }), radReport);
 
   // ---- labs

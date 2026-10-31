@@ -26,6 +26,7 @@ import { CartProvider } from '../src/context/CartContext';
 import { DiagnosticsCartProvider } from '../src/context/DiagnosticsCartContext';
 import { ConsultationsProvider } from '../src/context/ConsultationsContext';
 import NotificationHandler from '../src/components/NotificationHandler';
+import SessionExpiryHandler from '../src/components/SessionExpiryHandler';
 import '../src/calls/ringTask'; // defines the background call-ring task at load
 import OfflineBanner from '../src/components/OfflineBanner';
 import AppGate from '../src/components/AppGate';
@@ -110,6 +111,7 @@ function RootLayout() {
                       <ThemedStatusBar />
                       <UrduFontLoader />
                       <NotificationHandler />
+                      <SessionExpiryHandler />
                       <OfflineBanner />
                       <AppGate>
                       <PaymentResume />
