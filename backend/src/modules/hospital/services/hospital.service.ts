@@ -1,4 +1,5 @@
-import { Injectable, BadRequestException, UnauthorizedException, NotFoundException, ConflictException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Optional, Injectable, BadRequestException, UnauthorizedException, NotFoundException, ConflictException } from '@nestjs/common';
 import { isEmail } from 'class-validator';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -32,6 +33,7 @@ export class HospitalService {
     @InjectModel(DoctorProfileExtended.name) private doctorModel: Model<DoctorProfileExtended>,
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Appointment.name) private appointmentModel: Model<Appointment>,
+    @Optional() private readonly events?: EventEmitter2,
   ) {}
 
   private assertFacilityActor(actor?: any, write = false): void {
@@ -74,13 +76,16 @@ export class HospitalService {
     // One pending invitation per facility+invitee — re-sending returns it.
     const existing = await this.invitationModel.findOne({ facility_id: facilityId, invitee_id: invitee.id, status: 'pending' });
     if (existing) return existing;
-    return this.invitationModel.create({
+    const created = await this.invitationModel.create({
       facility_id: facilityId,
       invitee_id: invitee.id,
       invitee_identifier: identifier,
       role: body?.role || 'doctor',
       permissions,
     });
+    // the invitee is told in the app (bell and push) instead of having to find the inbox
+    this.events?.emit('hospital.invitation_created', { invitation_id: (created as any)?.id, invitee_id: invitee.id, facility_id: facilityId });
+    return created;
   }
 
   async listFacilityInvitations(facilityId: string) {
@@ -115,6 +120,7 @@ export class HospitalService {
       await this.staffModel.db.collection('provider_accounts').updateOne(
         { $or: [{ id: userId }, { user_id: userId }] }, { $set: { facility_id: inv.facility_id, updatedAt: new Date() } });
     }
+    this.events?.emit('hospital.invitation_answered', { invitation_id: inv.id, invitee_id: userId, facility_id: inv.facility_id, accepted: accept });
     return inv;
   }
 
