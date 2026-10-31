@@ -40,8 +40,10 @@ shopt -s nullglob
 for FLOW in tools/native/flows/${TARGET}_*.yaml; do
   NAME=$(basename "$FLOW" .yaml); NAME=${NAME#${TARGET}_}
   case "$FLOW_FILTER" in none) continue ;; all) ;; *) [[ "$NAME" == *"$FLOW_FILTER"* ]] || continue ;; esac
+  EMAIL_LOCAL="${EMAIL%%@*}"; EMAIL_DOMAIN="${EMAIL#*@}"
+  echo "sign-in identifier for $TAG: local part ${EMAIL_LOCAL} / domain ${EMAIL_DOMAIN} (test account)"
   if [ -z "$EMAIL" ]; then echo "no seeded account for $TARGET $ARG" > "$OUT/flow_${TAG}__${NAME}.txt"; continue; fi
-  run_flow() { "$HOME/.maestro/bin/maestro" --device "$DEVICE" test -e EMAIL="$EMAIL" -e PASSWORD="$PASS" --test-output-dir "$OUT/maestro_${TAG}__${NAME}" "$FLOW" > "$OUT/maestro_${TAG}__${NAME}.log" 2>&1; }
+  run_flow() { "$HOME/.maestro/bin/maestro" --device "$DEVICE" test -e EMAIL="$EMAIL" -e EMAIL_LOCAL="$EMAIL_LOCAL" -e EMAIL_DOMAIN="$EMAIL_DOMAIN" -e PASSWORD="$PASS" --test-output-dir "$OUT/maestro_${TAG}__${NAME}" "$FLOW" > "$OUT/maestro_${TAG}__${NAME}.log" 2>&1; }
   # one retry, and only when Maestro's driver itself did not start (before any step ran); a failed step is never retried
   if run_flow || { grep -q "iOS driver not ready in time" "$OUT/maestro_${TAG}__${NAME}.log" && { echo "maestro driver did not start, retrying once"; run_flow; }; }; then
     echo ok > "$OUT/flow_${TAG}__${NAME}.txt"

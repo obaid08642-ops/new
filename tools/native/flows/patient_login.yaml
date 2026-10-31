@@ -37,7 +37,20 @@ appId: com.patient.nabd
     timeout: 30000
 - tapOn:
     id: "login-identifier"
-- inputText: ${EMAIL}
+# On the iOS simulator Maestro's inputText stopped at the "@" (run 99: the field held only the part before it and the app answered
+# "enter a valid email"), so iOS types the three parts separately. Android types the address in one go.
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - inputText: ${EMAIL}
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - inputText: ${EMAIL_LOCAL}
+      - inputText: "@"
+      - inputText: ${EMAIL_DOMAIN}
 - tapOn:
     id: "login-password"
 - inputText: ${PASSWORD}
