@@ -509,6 +509,10 @@ export class AppointmentsService {
     if (!appt) throw new NotFoundException();
     await this.assertAppointmentAccess(appt, user, { booker: true });
 
+    // PV-21: the patient is told why. A doctor or a facility cancelling a booking must give the reason (not a patient or an admin).
+    const byProvider = (hasEffectiveRole(user, UserRole.DOCTOR) || hasEffectiveRole(user, UserRole.HOSPITAL) || user?.id === appt.doctor_user_id) && user?.id !== appt.patient_id;
+    if (byProvider && !hasEffectiveRole(user, UserRole.ADMIN) && String(reason ?? '').trim().length < 3) throw new BadRequestException('cancel_reason_required');
+
     const { refundPercentage, refundDestination, penaltyAmount } = await this.calculateRefund(appt, user, reason, isNoShow);
 
     // The state change comes first: an illegal move (already completed, cancelled, ...) throws here, before any refund

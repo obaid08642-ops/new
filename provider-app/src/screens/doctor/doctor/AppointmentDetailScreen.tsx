@@ -134,8 +134,8 @@ export function AppointmentDetailScreen({ apt, onBack, onNavigate }:
  </View>
  {showCancel && (
  <NCard style={{ marginTop: SP.md }}>
- <NInput placeholder={AR ? 'سبب الإلغاء' : 'Cancellation reason'} value={cancelReason} onChange={setCancelReason} />
- <NBtn label={AR ? 'تأكيد الإلغاء' : 'Confirm cancellation'} variant="danger" loading={acting} onPress={() => doPatch('cancel', cancelReason.trim() ? { reason: cancelReason.trim() } : {})} style={{ marginTop: SP.md }} />
+ <NInput placeholder={AR ? 'سبب الإلغاء (مطلوب، يصل المريض)' : 'Cancellation reason (required, the patient receives it)'} value={cancelReason} onChange={setCancelReason} />
+ <NBtn label={AR ? 'تأكيد الإلغاء' : 'Confirm cancellation'} variant="danger" loading={acting} disabled={acting || cancelReason.trim().length < 3} onPress={() => doPatch('cancel', { reason: cancelReason.trim() })} style={{ marginTop: SP.md }} />
  </NCard>
  )}
  {showResched && (
