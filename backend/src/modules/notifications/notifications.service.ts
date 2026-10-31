@@ -1,4 +1,5 @@
 import { delayCreditText } from '../loyalty/guaranteed-appointment';
+import { pushChannel, NEW_ORDER_SOUND } from '../../common/push-channel';
 import { BadGatewayException, BadRequestException, Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { I18nService } from '../i18n/i18n.service';
 import { Model } from 'mongoose';
@@ -317,6 +318,9 @@ export class NotificationsService {
       type: String(n.type || 'info'),
       action: JSON.stringify(n.action || {}),
     };
+    // the channel the phone shows it on (loud for a new order) and what the tap should open
+    dataPayload.channel = pushChannel(n.type, n.channel);
+    for (const [k, v] of Object.entries(n.data || {})) if (v != null && dataPayload[k] === undefined) dataPayload[k] = String(v);
     if (n.action?.route) dataPayload.screen = String(n.action.route);
     if (n.action?.payload) dataPayload.params = JSON.stringify(n.action.payload);
 
@@ -365,9 +369,14 @@ export class NotificationsService {
         }),
       });
     }
+    // High priority wakes a dozing phone (normal priority is held back until the next maintenance window), and the channel
+    // decides how loud it is: without them every provider notice arrived quietly and late.
+    const loud = dataPayload.channel === 'new_order';
     const payload = {
       notification: { title: n.title || n.title_key, body: n.body || n.body_key },
       data: dataPayload,
+      android: { priority: 'high' as const, notification: { channelId: String(dataPayload.channel || 'default'), ...(loud ? { sound: NEW_ORDER_SOUND } : { sound: 'default' }) } },
+      apns: { headers: { 'apns-priority': '10' }, payload: { aps: { sound: loud ? NEW_ORDER_SOUND : 'default' } } },
     };
     if (tokens && tokens.length > 0) {
       const res = await getMessaging().sendEachForMulticast({ tokens, ...payload });
@@ -387,7 +396,9 @@ export class NotificationsService {
         title: n.title || n.title_key,
         body: n.body || n.body_key,
         data: dataPayload,
-        sound: n.priority === 'HIGH' || n.priority === 'CRITICAL' ? 'default' : undefined,
+        sound: dataPayload.channel === 'new_order' ? NEW_ORDER_SOUND : n.priority === 'HIGH' || n.priority === 'CRITICAL' ? 'default' : undefined,
+        priority: 'high',
+        channelId: String(dataPayload.channel || 'default'),
       }));
       const res = await axios.post('https://exp.host/--/api/v2/push/send', messages, {
         headers: { 'Content-Type': 'application/json' },
@@ -677,6 +688,8 @@ export class NotificationsService {
       await this.sendPush({
         user_id: providerAccountId, type: 'info',
         title: input.title_ar || input.title_en, body: input.body_ar || input.body_en || '',
+        channel: input.type === 'new_request' || input.type === 'request_cancelled' ? 'new_order' : 'default',
+        data: { related_type: input.related_type, related_id: input.related_id },
         action: input.action || (input.related_id ? { route: `/provider/job/${input.related_id}` } : {}),
         // A new request or a cancellation is time-critical work: HIGH makes the Expo push play its sound on iOS too (sendExpoPush sets
         // `sound` only for HIGH and CRITICAL; without it a provider's phone was silent for every new order).
