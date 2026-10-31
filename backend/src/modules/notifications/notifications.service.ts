@@ -560,6 +560,31 @@ export class NotificationsService {
     });
   }
 
+  /** PV-12: a facility invited a clinician: the invitee finds out in the app and answers from the invitations screen. */
+  @OnEvent('hospital.invitation_created')
+  async onFacilityInvitation(p: any) {
+    if (!p?.invitee_id) return;
+    await this.notifyProviderAccount(String(p.invitee_id), {
+      type: 'admin_message',
+      title_ar: 'دعوة للانضمام إلى منشأة', title_en: 'You are invited to join a facility',
+      body_ar: 'وصلتك دعوة للعمل ضمن منشأة. افتح الدعوات لقبولها أو رفضها.', body_en: 'A facility invited you to work with it. Open invitations to accept or decline.',
+      related_id: String(p.invitation_id), related_type: 'facility_invitation',
+    });
+  }
+
+  /** PV-12: the invitee answered: the facility is told. */
+  @OnEvent('hospital.invitation_answered')
+  async onFacilityInvitationAnswered(p: any) {
+    if (!p?.facility_id) return;
+    await this.notifyProviderAccount(String(p.facility_id), {
+      type: 'admin_message',
+      title_ar: p.accepted ? 'قُبلت دعوتك' : 'رُفضت دعوتك', title_en: p.accepted ? 'Your invitation was accepted' : 'Your invitation was declined',
+      body_ar: p.accepted ? 'انضم مقدّم الخدمة إلى منشأتك.' : 'اعتذر مقدّم الخدمة عن الانضمام.',
+      body_en: p.accepted ? 'The provider joined your facility.' : 'The provider declined to join.',
+      related_id: String(p.invitation_id), related_type: 'facility_invitation_answered',
+    });
+  }
+
   /** 19.11 step 6: the copay is paid, or the insurer covered everything, so the provider is told the service continues. */
   private async tellProviderInsuranceReady(p: any, coveredInFull: boolean) {
     if (!p?.request_id) return;
