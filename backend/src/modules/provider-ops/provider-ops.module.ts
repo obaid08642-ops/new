@@ -21,7 +21,7 @@ import { randomUUID } from 'crypto';
 import { JwtAuthGuard, CurrentUser, Roles, hasEffectiveRole } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { AddLeaveDto, SaveTemplateDto, SaveDxDto, BlockDto, PutCrmDto, QcDto, ChecklistDto, SignDto, TrackDto, EscalateDto, PutPricingDto, PutTariffsDto, ReplyReviewDto, PutHoursDto, EndConsultationDto, ScheduleSettingsDto, ToggleInstantDto } from './provider-ops.dto';
-import { LedgerService } from '../finance-engine/finance-engine.module';
+import { CommissionResolver, LedgerService } from '../finance-engine/finance-engine.module';
 import { settlementDelayDefault } from '../../common/commission-defaults';
 
 /** Provider withdrawal requests (consumed by admin-web-core finance controller). */
@@ -40,6 +40,22 @@ export const ProviderWithdrawalSchema = new Schema(
   },
   { timestamps: true, collection: 'providerwithdrawals', strict: false },
 );
+
+/**
+ * What the provider's own price lines of a completed booking come to, from the booking's own fields: the consultation fee
+ * (`price`, not the platform service fee, home-visit and transport fees on top of it), a lab or radiology service total
+ * without the home fee, a nursing total (unit price x sessions). 0 when the booking carries no such figure.
+ */
+export function providerOwnAmount(kind: string, booking: any): number {
+  const n = (v: unknown) => { const x = Number(v); return Number.isFinite(x) && x > 0 ? x : 0; };
+  const round2 = (x: number) => Math.round(x * 100) / 100;
+  if (kind === 'consultation') return round2(n(booking?.price));
+  if (kind === 'lab' || kind === 'radiology') {
+    const gross = n(booking?.total_price) || n(booking?.total);
+    return round2(n(booking?.service_fee) || Math.max(0, gross - n(booking?.home_visit_fee)));
+  }
+  return round2(n(booking?.total) || n(booking?.total_price));
+}
 
 @Injectable()
 export class ProviderOpsService {
@@ -83,6 +99,10 @@ export class ProviderOpsService {
           ? Number(booking.total_price ?? booking.total ?? booking.price ?? 0) || transactionTotal
           : transactionTotal);
       if (!(collected > 0)) return this.earningSkipped('nothing_collected', domain.kind, bookingId, { payment_status: paymentState || null });
+      // The patient also paid the platform's own lines (service fee, home-visit and transport fees): those are not the
+      // provider's, so neither the credit nor the commission is taken on them. A co-pay below the provider's price stays as paid.
+      const own = providerOwnAmount(domain.kind, booking);
+      const gross = own > 0 ? Math.min(collected, own) : collected;
 
       const account: any = await this.conn.collection('provider_accounts').findOne({
         $or: [{ id: String(providerId) }, { user_id: String(providerId) }],
@@ -90,7 +110,7 @@ export class ProviderOpsService {
       const providerAccountId = account?.id || account?.user_id;
       if (!providerAccountId) return this.earningSkipped('no_provider_account', domain.kind, bookingId, { provider_ref: String(providerId) });
 
-      await this.creditEarning(providerAccountId, domain.service, collected, domain.kind === 'nursing' ? 'homecare_booking' : domain.kind === 'consultation' ? 'appointment' : `${domain.kind}_booking`, bookingId);
+      await this.creditEarning(providerAccountId, domain.service, gross, domain.kind === 'nursing' ? 'homecare_booking' : domain.kind === 'consultation' ? 'appointment' : `${domain.kind}_booking`, bookingId, { paymentMethod: booking.payment_method });
     } catch (error: any) {
       this.logger.error(`provider_earning_credit_failed booking=${bookingId}: ${error?.message || error}`);
     }
@@ -646,12 +666,12 @@ export class ProviderOpsService {
   /** Credit provider earnings on service completion: gross − commission − VAT(15% on commission only).
    *  Idempotent per (ref_type, ref_id) — a completed service can never be double-credited.
    *  E1 S8: enters ESCROW (state 'pending') and matures after the settlement delay. */
-  async creditEarning(providerId: string, serviceType: string, gross: number, refType: string, refId: string): Promise<any> {
+  async creditEarning(providerId: string, serviceType: string, gross: number, refType: string, refId: string, opts: { paymentMethod?: string } = {}): Promise<any> {
     if (!providerId || !gross || gross <= 0) return null;
     const dup = await this.conn.collection('platformledgerentries').findOne({ ref_type: refType, ref_id: refId, type: 'provider_earning' });
     if (dup) return dup;
     const cfg: any = await this.conn.collection('finance_config').findOne({ key: 'commissions' });
-    const pct = cfg?.service_types?.[serviceType]?.percent ?? 10;
+    const { percent: pct, source: commissionSource } = await this.commissionFor(serviceType, providerId, opts.paymentMethod);
     const vatPct = cfg?.tax?.vat_percent ?? 15;
     const delayDays = cfg?.settlement?.delay_days?.[serviceType] ?? cfg?.settlement?.delay_days?.default ?? settlementDelayDefault();
     const commission = Math.round(gross * pct) / 100;
@@ -662,11 +682,30 @@ export class ProviderOpsService {
       provider_account_id: providerId,
       type: 'provider_earning', state: 'pending',
       available_at: new Date(Date.now() + delayDays * 24 * 3600 * 1000),
-      amount: net, gross, commission_percent: pct, commission, vat,
+      amount: net, gross, commission_percent: pct, commission_source: commissionSource, commission, vat,
       ref_type: refType, ref_id: refId, createdAt: new Date(),
     };
     await this.conn.collection('platformledgerentries').insertOne(row as any);
     return row;
+  }
+
+  /**
+   * The commission percent of one provider's earning, in one order (most specific first): a campaign or provider rule of the
+   * commission rules, then the rate the admin set on the provider itself (`commission_insurance_pct` for an insured visit,
+   * else `commission_cash_pct`), then the service default, the finance config and the system default (CommissionResolver).
+   * The profile's `commission_rate` is not read: it carries a schema default of 10 for every provider, so it cannot tell
+   * "set by the admin" from "never set".
+   */
+  async commissionFor(serviceType: string, providerAccountId: string, paymentMethod?: string): Promise<{ percent: number; source: string }> {
+    const resolved = await new CommissionResolver(this.conn).resolve(serviceType, { providerId: providerAccountId });
+    if (resolved.source === 'campaign_override' || resolved.source === 'provider_override') return resolved;
+    const profile: any = await this.conn.collection('provider_profiles').findOne(
+      { $or: [{ account_id: providerAccountId }, { user_id: providerAccountId }] },
+      { projection: { _id: 0, commission_cash_pct: 1, commission_insurance_pct: 1 } },
+    );
+    const own = String(paymentMethod || '').toLowerCase() === 'insurance' ? profile?.commission_insurance_pct : profile?.commission_cash_pct;
+    if (typeof own === 'number' && Number.isFinite(own) && own >= 0 && own <= 100) return { percent: own, source: 'provider_profile' };
+    return resolved;
   }
 
   /**
