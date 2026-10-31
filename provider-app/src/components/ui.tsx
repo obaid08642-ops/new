@@ -573,8 +573,8 @@ export function NSuccess({ icon='', title, sub, primaryLabel, onPrimary, secLabe
 }
 
 // ─── OTP Input ────────────────────────────────────────────────────────────────
-export function NOTP({ target, otp, setOtp, onVerify, loading, onResend }:
- { target:string; otp:string[]; setOtp:(v:string[])=>void; onVerify:()=>void; loading?:boolean; onResend?:()=>void }) {
+export function NOTP({ target, otp, setOtp, onVerify, loading, onResend, error }:
+ { target:string; otp:string[]; setOtp:(v:string[])=>void; onVerify:()=>void; loading?:boolean; onResend?:()=>void; error?:string }) {
  const { theme } = useTheme();
  const { isRTL, t } = useLang();
  const refs = useRef<(TextInputInstance|null)[]>([]);
@@ -603,6 +603,7 @@ export function NOTP({ target, otp, setOtp, onVerify, loading, onResend }:
  style={[s.otpBox, { backgroundColor:theme.inputBg, borderColor:d?theme.primary:theme.border, color:theme.text }]} />
  ))}
  </View>
+ {error ? <Text accessibilityLiveRegion="polite" style={{ color:theme.warn, fontSize:FS.sm, textAlign:'center', marginBottom:SP.md }}>{error}</Text> : null}
  <NBtn label={t('otpVerify')} onPress={onVerify} loading={loading} disabled={otp.join('').length<6} />
  <TouchableOpacity onPress={cd<=0?()=>{setCd(60);onResend?.()}:undefined}
  style={{ alignItems:'center', padding:SP.md, marginTop:SP.sm }}>

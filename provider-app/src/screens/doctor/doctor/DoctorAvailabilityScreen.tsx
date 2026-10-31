@@ -47,19 +47,20 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
  useEffect(() => {
    let active = true;
    client.get('/provider/profile/availability').then(async (response) => {
-     if (!active || !response.data) return;
-     setVacationMode(Boolean(response.data.vacation_mode));
-     setWeeklySchedule(Array.isArray(response.data.weekly_schedule) ? response.data.weekly_schedule : []);
-     setExceptions(Array.isArray(response.data.availability_exceptions) ? response.data.availability_exceptions : []);
+     if (!active) return;
+     const av: any = response.data || {}; // null for a provider who never saved availability: the insurance list must still load
+     setVacationMode(Boolean(av.vacation_mode));
+     setWeeklySchedule(Array.isArray(av.weekly_schedule) ? av.weekly_schedule : []);
+     setExceptions(Array.isArray(av.availability_exceptions) ? av.availability_exceptions : []);
      try {
        const catalog = await getInsuranceCatalog();
        if (!active) return;
-       const saved: any[] = Array.isArray((response.data as any).accepted_insurance) ? (response.data as any).accepted_insurance : [];
+       const saved: any[] = Array.isArray((av as any).accepted_insurance) ? (av as any).accepted_insurance : [];
        const byId = new Map(saved.map((s: any) => [String(s.company_id), s]));
        const merged = catalog.map((c: any) => {
          const s: any = byId.get(String(c.id)) || {};
          return {
-           id: String(c.id), ar: c.ar, en: c.en,
+           id: String(c.id), ar: c.ar, en: c.en, plans: Array.isArray((c as any).plans) ? (c as any).plans : [], classes: Array.isArray(s.classes) ? s.classes : [],
            active: s.active === true,
            copay: s.copay_pct ?? '',
            tier: s.tier || '',
@@ -71,7 +72,7 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
        for (const s of saved) {
          if (!merged.some((m: any) => m.id === String(s.company_id))) {
            merged.push({ id: String(s.company_id), ar: String(s.company_id), en: String(s.company_id),
-             active: !!s.active, copay: s.copay_pct ?? '', tier: s.tier || '',
+             active: !!s.active, copay: s.copay_pct ?? '', tier: s.tier || '', plans: [], classes: Array.isArray(s.classes) ? s.classes : [],
              clinic: !!s.services?.clinic, online: !!s.services?.online, home: !!s.services?.home });
          }
        }
@@ -140,6 +141,18 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
    setShowPicker(true);
  };
 
+  // The vacation switch saves at once (it used to change only the screen and say "enabled" while Save was disabled).
+  const saveVacation = async (val: boolean) => {
+    setVacationMode(val);
+    try {
+      await client.patch('/provider/profile/availability', { is_accepting_requests: !val, vacation_mode: val });
+      show(val ? (AR ? 'حُفظت حالتك: في إجازة' : 'Saved: you are away') : (AR ? 'حُفظت حالتك: متاح' : 'Saved: you are available'), val ? 'warning' : 'success');
+    } catch (e: any) {
+      setVacationMode(!val);
+      show(e?.response?.data?.message || (AR ? 'تعذر حفظ حالة الإجازة' : 'Could not save the vacation status'), 'error');
+    }
+  };
+
   const handleSaveSchedule = async () => {
     setSaving(true);
     try {
@@ -152,17 +165,23 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
       show(AR ? 'تم حفظ جدول التوفر الأسبوعي في الخادم' : 'Weekly availability saved to the server', 'success');
       onBack();
     } catch (e) {
-      show(AR ? 'فشل حفظ الجدول' : 'Failed to save schedule', 'error');
+      show((e as any)?.response?.data?.message || (AR ? 'فشل حفظ الجدول' : 'Failed to save schedule'), 'error');
     } finally {
       setSaving(false);
     }
   };
 
   const handleSaveInsurance = async () => {
+    const badCopay = insurances.find((c: any) => c.active && c.copay !== '' && c.copay != null && (!Number.isFinite(Number(c.copay)) || Number(c.copay) < 0 || Number(c.copay) > 100));
+    if (badCopay) { show(AR ? 'نسبة التحمل رقم بين 0 و100' : 'Copay must be a number from 0 to 100', 'error'); return; }
+    const noClasses = insurances.find((c: any) => c.active && !(c.classes?.length || c.plans?.length));
+    if (noClasses) { show(AR ? `حدد فئات التأمين المقبولة لـ ${noClasses.ar} من شاشة التأمين` : `Choose the accepted plans for ${noClasses.en} on the insurance screen first`, 'error'); return; }
     setSavingIns(true);
     try {
       const accepted_insurance = insurances.map((c: any) => ({
         company_id: c.id,
+        // the server needs the plan classes accepted: the ones saved before, else every plan the insurer offers
+        classes: (Array.isArray(c.classes) && c.classes.length ? c.classes : (c.plans || [])).map((x: unknown) => String(x)),
         active: !!c.active,
         ...(c.copay !== '' && c.copay !== null && c.copay !== undefined && Number.isFinite(Number(c.copay))
           ? { copay_pct: Math.min(100, Math.max(0, Number(c.copay))) } : {}),
@@ -178,6 +197,20 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
     }
   };
 
+ // An exception is saved at once; the toast is shown only when the server accepted it (it used to change the screen only).
+ const persistExceptions = async (next: any[], okText: string, done?: () => void) => {
+ const before = exceptions;
+ setExceptions(next);
+ try {
+ await client.patch('/provider/profile/availability', { availability_exceptions: next });
+ done?.();
+ show(okText, 'success');
+ } catch (e: any) {
+ setExceptions(before);
+ show(e?.response?.data?.message || (AR ? 'تعذر حفظ الاستثناء' : 'Could not save the exception'), 'error');
+ }
+ };
+
  const handleAddException = () => {
  const labelAr = exType === 'close_day' 
  ? 'إغلاق اليوم بالكامل' 
@@ -191,6 +224,11 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
  ? `Blocked (${exStart} - ${exEnd})` 
  : `Exceptional (${exStart} - ${exEnd})`;
 
+ if (!/^\d{4}-\d{2}-\d{2}$/.test(exDate) || Number.isNaN(new Date(exDate).getTime())) { show(AR ? 'التاريخ بصيغة YYYY-MM-DD' : 'Date must be YYYY-MM-DD', 'error'); return; }
+ if (exType !== 'close_day') {
+ const ok = /^([01]\d|2[0-3]):[0-5]\d$/;
+ if (!ok.test(exStart) || !ok.test(exEnd) || exStart >= exEnd) { show(AR ? 'الوقت بصيغة HH:MM والبداية قبل النهاية' : 'Times must be HH:MM, start before end', 'error'); return; }
+ }
  const item = {
  id: String(Date.now()),
  date: exDate,
@@ -201,14 +239,11 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
  end: exEnd
  };
 
- setExceptions(prev => [...prev, item]);
- setShowAddException(false);
- show(AR ? 'تمت إضافة الاستثناء بنجاح' : 'Exception added successfully', 'success');
+ persistExceptions([...exceptions, item], AR ? 'تمت إضافة الاستثناء' : 'Exception added', () => setShowAddException(false));
  };
 
  const handleDeleteException = (id: string) => {
- setExceptions(prev => prev.filter(x => x.id !== id));
- show(AR ? 'تم حذف الاستثناء' : 'Exception removed', 'error');
+ persistExceptions(exceptions.filter(x => x.id !== id), AR ? 'تم حذف الاستثناء' : 'Exception removed');
  };
 
 
@@ -228,10 +263,10 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
  ️ {AR ? 'إجازة مؤقتة (وضع عدم الاتصال)' : 'Temporary Vacation (Offline)'}
  </Text>
  <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginTop: SP.xs }}>
- {AR ? 'تفعيل هذا الوضع يعطل حجز المواعيد الجديدة فوراً' : 'Enabling this blocks new bookings immediately'}
+ {AR ? 'يحفظ حالتك كغير متاح. لحجب أيام محددة عن الحجز استخدم «الإجازات» بالتواريخ.' : 'Marks you as away. To block specific days from booking, use Leaves with dates.'}
  </Text>
  </View>
- <Switch value={vacationMode} onValueChange={(val) => { setVacationMode(val); show(val ? (AR ? '️ تم تفعيل وضع الإجازة' : '️ Vacation enabled') : (AR ? '🟢 تم إلغاء وضع الإجازة' : '🟢 Vacation disabled'), val ? 'warning' : 'success'); }} trackColor={{ true: theme.danger }} />
+ <Switch value={vacationMode} onValueChange={saveVacation} trackColor={{ true: theme.danger }} />
  </View>
  </NCard>
 
@@ -324,7 +359,7 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
     )
   )}
 
- <NBtn label={AR ? ' حفظ الجدول الأسبوعي' : ' Save Weekly Calendar'} disabled={vacationMode} loading={saving} onPress={handleSaveSchedule} style={{ marginVertical: SP.lg }} />
+ <NBtn label={AR ? ' حفظ الجدول الأسبوعي' : ' Save Weekly Calendar'} loading={saving} onPress={handleSaveSchedule} style={{ marginVertical: SP.lg }} />
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: SP.xl, marginBottom: SP.lg }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>
  {AR ? ' شركات التأمين المقبولة' : ' Accepted Insurance'}

@@ -64,12 +64,16 @@ export default function ProviderModeration() {
   const [bankRejectOpen, setBankRejectOpen] = useState(false);
   const [bankReason, setBankReason] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  // a failed list load is an error with a retry, not an empty queue (a 403 or 500 used to read as "no pending accounts")
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const [geo, setGeo] = useState<{ region?: string; city?: string; district?: string }>({});
 
   useEffect(() => {
     const fetchModerationData = async () => {
       try {
         setIsLoading(true);
+        setLoadError(false);
             // REAL pending provider accounts (provider_accounts, status=pending) with unified GeoPicker filter
         const geoParams = new URLSearchParams();
         if (geo.region) geoParams.set('region', geo.region);
@@ -88,6 +92,8 @@ export default function ProviderModeration() {
             status: i.status,
             createdAt: i.createdAt,
           })));
+        } else {
+          setLoadError(true);
         }
 
         // REAL pending delta mutations (provider_deltas collection — the same
@@ -104,16 +110,19 @@ export default function ProviderModeration() {
             createdAt: d.createdAt,
             newData: d.requested_changes || d.changes || {},
           })));
+        } else {
+          setLoadError(true);
         }
       } catch (error) {
         console.error('Error fetching moderation data:', error);
+        setLoadError(true);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchModerationData();
-  }, [geo.region, geo.city, geo.district]);
+  }, [geo.region, geo.city, geo.district, reloadKey]);
 
   const openApprove = (provider: Provider) => {
     const defaults: Record<string, number> = { pharmacy: 5, lab: 8, radiology: 10, home_care: 15 };
@@ -331,6 +340,12 @@ export default function ProviderModeration() {
             {activeTab === 'onboarding' ? 'الحسابات المعلقة (بانتظار الاعتماد)' : 'تعديلات بانتظار المراجعة (Pending Deltas)'}
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            {loadError && (
+              <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                تعذر تحميل القائمة. قد لا تظهر كل الحسابات المعلقة.
+                <button type="button" className="mr-2 font-bold underline" onClick={() => setReloadKey((k) => k + 1)}>إعادة المحاولة</button>
+              </div>
+            )}
             {activeTab === 'onboarding' && pendingProviders.map(p => (
               <div key={p.id} onClick={() => setSelectedProvider(p)} className={`p-4 border rounded-lg cursor-pointer transition-all ${selectedProvider?.id === p.id ? 'border-teal-500 bg-teal-50 shadow-md' : 'border-gray-200 hover:border-teal-300'}`}>
                 <h3 className="font-bold text-gray-800">{p.name}</h3>
@@ -469,7 +484,7 @@ export default function ProviderModeration() {
               <div className="flex justify-between gap-3"><dt className="text-slate-500">النوع</dt><dd className="font-bold uppercase">{approveFor.type}</dd></div>
               {approveFor.email && <div className="flex justify-between gap-3"><dt className="text-slate-500">البريد</dt><dd className="font-bold" dir="ltr">{approveFor.email}</dd></div>}
             </dl>
-            <p className="text-xs text-slate-500">عند الاعتماد يصبح الحساب فعالاً ويظهر في دليل المرضى، وتُعتمد الوثائق والحساب البنكي المعلّقة.</p>
+            <p className="text-xs text-slate-500">عند الاعتماد يصبح الحساب فعالاً ويظهر في دليل المرضى، وتُعتمد الوثائق المعلّقة. الحساب البنكي يُراجَع بشكل منفصل ولا يُعتمد هنا.</p>
             <label className="block text-sm font-bold">سبب الاعتماد (يُحفظ في سجل التدقيق — 5 أحرف على الأقل)
               <textarea value={approveReason} onChange={(e) => setApproveReason(e.target.value)} className="mt-1 w-full border border-gray-300 rounded p-2 h-20 font-normal" />
             </label>

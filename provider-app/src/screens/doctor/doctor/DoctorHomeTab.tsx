@@ -130,10 +130,10 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
 	const resIncoming = await client.get('/provider/jobs/queue?status=incoming&kind=consultation');
 	setRequests((resIncoming.data || []).map((x: any) => ({
 	id: x.id, kind: x.kind || 'consultation', patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient'),
-        age: x.age ?? null, type: x.service_type || 'video', price: x.total ?? x.price ?? 0,
+        age: x.patient_age ?? x.age ?? null, type: x.service_type || 'video', price: x.total ?? x.price ?? 0,
         time: x.scheduled_at ? new Date(x.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (AR ? 'غير محدد' : 'Unscheduled'),
         avatar: '', complaint: x.title_ar || '', insurance: x.insurance_provider || 'Cash',
-        paid: x.payment_status === 'PAID', urgent: !!x.is_urgent,
+        paid: String(x.payment_status || '').toLowerCase() === 'paid', urgent: !!x.is_urgent,
          policyClass: x.policy_class || null, nationalId: x.national_id || null, dob: x.dob || null
   })));
 
@@ -144,7 +144,7 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
  id: x.id, patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient'),
      type: x.service_type || 'video', time: x.scheduled_at ? new Date(x.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (AR ? 'غير محدد' : 'Unscheduled'),
      status: x.status || 'confirmed', price: x.total ?? x.price ?? 0, insurance: x.insurance_provider || 'Cash',
-     age: x.age ?? null, avatar: ''
+     age: x.patient_age ?? x.age ?? null, avatar: ''
  })));
 
  const resStats = await client.get('/provider/stats/today');
@@ -187,13 +187,15 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
    }
    try {
      await client.post(`/provider/jobs/consultation/${insuranceModalReq.id}/insurance`, {
+       // the server reads approvalStatus (APPROVED / PARTIAL / REJECTED); without it every submission was stored as PENDING
+       approvalStatus: ({ 'كلية': 'APPROVED', 'جزئية': 'PARTIAL', 'مرفوضة': 'REJECTED' } as Record<string, string>)[approvalStatus] || 'PENDING',
        status: approvalStatus, copay: parseFloat(patientCopay), coverage: parseFloat(insuranceCoverage || '0'), approval_code: approvalCode
      });
      setInsuranceModalReq(null);
      show(AR ? 'تم إرسال الطلب للمريض لدفع نسبة التحمل' : 'Request sent to patient for Co-Pay', 'success');
      fetchQueue();
    } catch (err) {
-     show(AR ? 'حدث خطأ أثناء رفع الاعتماد' : 'Error submitting approval', 'error');
+     show(serverMessage(err, AR ? 'حدث خطأ أثناء رفع الاعتماد' : 'Error submitting approval'), 'error');
    }
  };
 

@@ -43,6 +43,9 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
 
  const [loading, setLoading] = useState(true);
  const [services, setServices] = useState<any[]>([]);
+ // the doctor's own specialty: the server keys a session by type + specialty, so a hard-coded one made duplicates and wrong rows
+ const [mySpecialty, setMySpecialty] = useState('');
+ useEffect(() => { client.get('/provider/profile').then((r: any) => setMySpecialty(String(r?.data?.specialty || r?.data?.profile?.specialty || ''))).catch(() => undefined); }, []);
 
  const [showAddSheet, setShowAddSheet] = useState(false);
  // The server identifies a doctor session by consultation_type (+ specialty), so the add form picks the type
@@ -141,7 +144,7 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  try {
  const payload = {
  consultation_type: newType,
- specialty: 'General Medicine',
+ specialty: mySpecialty || 'General Medicine',
  price: parseFloat(newPrice) || 0,
  duration_minutes: parseInt(newDuration) || 30,
  available: true

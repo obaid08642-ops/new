@@ -1,4 +1,4 @@
-import { startOnboardingAccount, firstMissingDoc, useStepSaver } from '../registration/kit';
+import { startOnboardingAccount, firstMissingDoc, useStepSaver, documentsStepError } from '../registration/kit';
 import type { StepProps, Uploader, RequiredDoc } from '../registration/kit';
 import { DocCard, LicenseExpiryField, NoticeSection, licenseExpiryError, useDocumentPicker } from '../registration/WizardParts';
 import type { NoticeText } from '../registration/WizardParts';
@@ -352,7 +352,7 @@ function PStep2Legal({ data, update, submitRef, uploads }: StepProps<PharmacyReg
       });
       return true;
     } catch (e: any) {
-      show(AR ? 'فشل رفع المستندات' : 'Failed to upload documents', 'error');
+      show(documentsStepError(e, AR), 'error');
       return false;
     } finally {
       setLoading(false);

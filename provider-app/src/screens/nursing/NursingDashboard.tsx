@@ -232,14 +232,18 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
  const insets = useSafeAreaInsets();
  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang==='ar';
  const nursingSvcs = useServicesCatalog('nursing');
- const { user, toggleOnline } = useAuth();
+ const { user, toggleOnline } = useAuth(); const { show } = useToast();
 
  const handleToggleOnline = async () => {
  const nextVal = !user?.isOnline;
  toggleOnline();
  try {
  await client.post('/home-care/provider/availability', { available: nextVal });
- } catch (e) {}
+ } catch (e: any) {
+ // the server refused: put the switch back and say why (it used to stay flipped)
+ toggleOnline();
+ show(e?.response?.data?.message || (AR ? 'تعذر تغيير حالة التوفر' : 'Could not change availability'), 'error');
+ }
  };
 
  const pending = jobs.filter(o=>o.status==='pending').length;
@@ -378,8 +382,11 @@ function NursingOrdersTab({ onNavigate }: any) {
 
   useEffect(load, []);
 
-  const pending = jobs.filter(j => j.status === 'PENDING' || !j.status);
-  const active = jobs.filter(j => j.status !== 'PENDING' && j.status);
+  // the server returns `state`: a visit just assigned waits for the nurse to accept; the others are already confirmed or under way
+  const stateOf = (j: any) => String(j.state ?? j.status ?? '').toUpperCase();
+  const isNew = (j: any) => ['PROVIDER_ASSIGNED', 'ASSIGNED', 'NEW_REQUEST', 'PENDING', ''].includes(stateOf(j));
+  const pending = jobs.filter(isNew);
+  const active = jobs.filter(j => !isNew(j));
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
@@ -1036,13 +1043,27 @@ function NursingScheduleScreen({ onBack }: { onBack: () => void }) {
   const [maxVisits, setMaxVisits] = useState('8');
   const [emergencyReady, setEmergencyReady] = useState(false);
 
+  // start from what the server holds (the last approved settings), not from invented defaults
+  useEffect(() => {
+    client.get('/provider/schedule/settings').then((res: any) => {
+      const d = res?.data;
+      if (!d || typeof d !== 'object') return;
+      if (d.shifts && typeof d.shifts === 'object') setShifts({ morning: !!d.shifts.morning, evening: !!d.shifts.evening, night: !!d.shifts.night });
+      if (Number.isFinite(Number(d.maxVisits))) setMaxVisits(String(d.maxVisits));
+      if (typeof d.emergencyReady === 'boolean') setEmergencyReady(d.emergencyReady);
+    }).catch(() => undefined);
+  }, []);
+
   const handleSave = async () => {
+    const visits = parseInt(maxVisits, 10);
+    if (!Number.isInteger(visits) || visits < 1 || visits > 50) { show(AR ? 'الحد الأقصى للزيارات رقم بين 1 و50' : 'Max daily visits must be a number from 1 to 50', 'error'); return; }
     try {
-      await client.post('/provider/schedule/settings', { shifts, maxVisits: parseInt(maxVisits), emergencyReady });
-      show(AR ? 'تم حفظ إعدادات الجدول' : 'Schedule saved', 'success');
+      await client.post('/provider/schedule/settings', { shifts, maxVisits: visits, emergencyReady });
+      // the server files the change for the review team
+      show(AR ? 'أُرسل تعديل الجدول للمراجعة، ويسري بعد الاعتماد' : 'Your schedule change was sent for review and applies once approved', 'success');
       onBack();
-    } catch (e) {
-      show(AR ? 'حدث خطأ' : 'Error', 'error');
+    } catch (e: any) {
+      show(e?.response?.data?.message || (AR ? 'تعذر حفظ الجدول' : 'Could not save the schedule'), 'error');
     }
   };
 

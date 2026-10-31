@@ -11,6 +11,7 @@ import { sendEmailOtp, verifyEmailOtp } from '../../api/otp';
 import { sanitizeWizardData } from '../../api/provider';
 import { I } from '../../components/icons';
 import { FS, FW, R, SP } from '../../constants';
+import { Validate } from '../../security/Security';
 import { RegistrationSuccess } from '../shared/SharedScreens';
 import { apiMessage, finishApplication } from './kit';
 import type { Uploader } from './kit';
@@ -80,6 +81,8 @@ export function ReviewStep<T extends ReviewData>({ config, data, update, uploads
     if (loading) return;
     const problem = config.precheck?.(data, AR);
     if (problem) { show(problem, 'error'); return; }
+    // the IBAN can be edited on this page after the earlier step checked it: check it again before the application goes out
+    if ((data as { iban?: string }).iban && !Validate.iban((data as { iban?: string }).iban as string)) { show(AR ? 'رقم الآيبان غير صحيح. يبدأ بـ SA ويتكون من 24 خانة.' : 'The IBAN is not valid. It starts with SA and has 24 characters.', 'error'); return; }
     if (config.agree && !agreed) { show(AR ? 'يرجى الموافقة على الشروط' : 'Please agree to terms', 'warning'); return; }
     if (!data.signatureData) { show(AR ? 'الرجاء توقيع العقد أولاً' : 'Please sign the contract first', 'error'); return; }
     // The real e-mail OTP is sent by the backend mailer before the modal opens.

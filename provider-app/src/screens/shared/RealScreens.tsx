@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Switch, Alert, ActivityIndicator } from 'react-native';
 import { useTheme, useLang, useToast } from '../../context';
+import { Validate } from '../../security/Security';
 import { NHeader, NCard, NBtn, NInput, NBadge, NScroll, NEmpty } from '../../components/ui';
 import { SP, FS, FW, R } from '../../constants';
 import client from '../../api/client';
@@ -154,7 +155,8 @@ export function WorkingHoursEditorScreen({ onBack }: { onBack: () => void }) {
     setHours(updated);
   };
 
-  const timeValid = (t: string) => /^([01]?\d|2[0-3]):[0-5]\d$/.test(t);
+  // two digits each, as the server requires (HH:MM): "8:00" would be refused with a generic error
+  const timeValid = (t: string) => /^([01]\d|2[0-3]):[0-5]\d$/.test(t);
 
   const handleSave = async () => {
     const bad = hours.find((h) => !h.closed && (!timeValid(h.open) || !timeValid(h.close)));
@@ -165,7 +167,8 @@ export function WorkingHoursEditorScreen({ onBack }: { onBack: () => void }) {
     setSaving(true);
     try {
       await client.put('/provider/working-hours', { hours });
-      show(AR ? 'تم حفظ أوقات العمل بنجاح' : 'Working hours saved successfully', 'success');
+      // the server files a change for the review team; the saved hours stay as they were until it is approved
+      show(AR ? 'أُرسل تعديل أوقات العمل للمراجعة، ويسري بعد الاعتماد' : 'Your working-hours change was sent for review and applies once approved', 'success');
       onBack();
     } catch (e: any) {
       const msg = e?.response?.data?.message;
@@ -243,18 +246,24 @@ export function SecurityManagementScreen({ onBack }: { onBack: () => void }) {
       show(AR ? 'يرجى إدخال كلمة المرور القديمة والجديدة' : 'Please fill all password fields', 'error');
       return;
     }
+    const strength = Validate.password(newPassword);
+    if (!strength.valid) { show(AR ? strength.msgAr : strength.msgEn, 'error'); return; }
     try {
       await ProviderApi.changePassword(oldPassword, newPassword);
       show(AR ? 'تم تغيير كلمة المرور بنجاح' : 'Password changed successfully', 'success');
       setOldPassword(''); setNewPassword('');
-    } catch (e) {
-      show(AR ? 'حدث خطأ أثناء تغيير كلمة المرور' : 'Error changing password', 'error');
+    } catch (e: any) {
+      const m = e?.response?.data?.message;
+      const text = Array.isArray(m) ? m[0] : m;
+      show(text === 'current_password_incorrect' || e?.response?.status === 401
+        ? (AR ? 'كلمة المرور الحالية غير صحيحة' : 'The current password is incorrect')
+        : (typeof text === 'string' && text ? text : (AR ? 'حدث خطأ أثناء تغيير كلمة المرور' : 'Error changing password')), 'error');
     }
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'الأمان والحماية 2FA' : 'Security & 2FA'} onBack={onBack} />
+      <NHeader title={AR ? 'الأمان وكلمة المرور' : 'Security & Password'} onBack={onBack} />
       <NScroll pad>
         <NCard style={{ marginBottom: SP.md }}>
           <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>
@@ -280,6 +289,7 @@ export function NotificationsCenterScreen({ onBack }: { onBack: () => void }) {
   const [notifs, setNotifs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   const timeAgo = (d: any) => {
     if (!d) return '';
@@ -293,6 +303,7 @@ export function NotificationsCenterScreen({ onBack }: { onBack: () => void }) {
 
   const load = () => {
     setLoading(true);
+    setLoadFailed(false);
     client.get('/provider/notifications')
       .then(res => {
         const data = res.data || {};
@@ -305,8 +316,14 @@ export function NotificationsCenterScreen({ onBack }: { onBack: () => void }) {
         })));
         setUnreadCount(data.unread_count || 0);
       })
-      .catch(() => setNotifs([]))
+      .catch(() => { setNotifs([]); setLoadFailed(true); })
       .finally(() => setLoading(false));
+  };
+
+  const markRead = (id: string) => {
+    setNotifs(prev => prev.map(n => (n.id === id ? { ...n, unread: false } : n)));
+    setUnreadCount(c => Math.max(0, c - 1));
+    client.post(`/provider/notifications/${encodeURIComponent(id)}/read`, {}).catch(() => load());
   };
 
   useEffect(() => { load(); }, []);
@@ -316,13 +333,16 @@ export function NotificationsCenterScreen({ onBack }: { onBack: () => void }) {
       <NHeader title={AR ? `مركز الإشعارات والتنبيهات${unreadCount ? ` (${unreadCount})` : ''}` : 'Notifications Center'} onBack={onBack} />
       <NScroll pad>
         {loading && <Text style={{ textAlign: 'center', color: theme.textSub, marginVertical: SP.xl }}>{AR ? 'جاري التحميل…' : 'Loading…'}</Text>}
-        {!loading && notifs.length === 0 && (
+        {!loading && loadFailed && notifs.length === 0 && (
+          <NEmpty title={AR ? 'تعذر تحميل الإشعارات' : 'Could not load notifications'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={load} icon="bell" />
+        )}
+        {!loading && !loadFailed && notifs.length === 0 && (
           <NCard style={{ alignItems: 'center', paddingVertical: SP.xxl }}>
             <Text style={{ color: theme.textSub }}>{AR ? 'لا توجد إشعارات بعد' : 'No notifications yet'}</Text>
           </NCard>
         )}
         {notifs.map(n => (
-          <NCard key={n.id} style={{ marginBottom: SP.sm, borderLeftWidth: 4, borderLeftColor: n.unread ? theme.primary : theme.border }}>
+          <NCard key={n.id} onPress={n.unread ? () => markRead(n.id) : undefined} style={{ marginBottom: SP.sm, borderLeftWidth: 4, borderLeftColor: n.unread ? theme.primary : theme.border }}>
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{n.title}</Text>
               <Text style={{ fontSize: 10, color: theme.textSub }}>{n.time}</Text>

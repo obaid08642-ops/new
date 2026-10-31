@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { confirmBlocker, confirmBlockerText } from '../../utils/confirmBlocker';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, RefreshControl, ActivityIndicator, Switch } from 'react-native';
 import { useTheme, useLang, useToast } from '../../context';
@@ -106,15 +107,17 @@ interface RadiologyInboxOrder {
 function useRadiologyInbox() {
   const [orders, setOrders] = useState<RadiologyInboxOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
   const reload = useCallback(async () => {
     try {
       setLoading(true);
+      setLoadFailed(false);
       const res = await client.get('/radiology/provider/inbox');
       setOrders(Array.isArray(res.data) ? res.data : []);
-    } catch { setOrders([]); } finally { setLoading(false); }
+    } catch { setOrders([]); setLoadFailed(true); } finally { setLoading(false); }
   }, []);
   useEffect(() => { reload(); }, [reload]);
-  return { orders, loading, reload };
+  return { orders, loading, reload, loadFailed };
 }
 
 function SafetyChip({ label, on }: { label: string; on: boolean }) {
@@ -193,12 +196,12 @@ function RadiologyOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) 
   const { theme } = useTheme(); const { lang } = useLang();
   const AR = lang === 'ar';
   const [tab, setTab] = useState<'new'|'insurance'|'confirmed'|'inScan'>('new');
-  const { orders, loading } = useRadiologyInbox();
+  const { orders, loading, reload, loadFailed } = useRadiologyInbox();
   const filtered = orders.filter(o => {
     if (tab === 'new')       return o.state === 'NEW_REQUEST';
     if (tab === 'insurance') return ['PENDING_INSURANCE', 'WAITING_COPAY'].includes(o.state);
     if (tab === 'confirmed') return o.state === 'CONFIRMED';
-    if (tab === 'inScan')    return ['ARRIVED_CHECKIN', 'IN_SCANNING', 'REPORT_DRAFT', 'UNDER_REVIEW'].includes(o.state);
+    if (tab === 'inScan')    return ['ARRIVED_CHECKIN', 'IN_SCANNING', 'REPORT_DRAFT', 'UNDER_REVIEW', 'SCAN_ABORTED'].includes(o.state);
     return true;
   });
   const subTabs = [{ key: 'new', label: AR ? 'جديد' : 'New' }, { key: 'insurance', label: AR ? 'تأمين' : 'Insurance' }, { key: 'confirmed', label: AR ? 'مجدول' : 'Confirmed' }, { key: 'inScan', label: AR ? 'جاري' : 'In Progress' }];
@@ -209,7 +212,9 @@ function RadiologyOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) 
         {subTabs.map(t => <TouchableOpacity key={t.key} style={{ flex: 1, padding: SP.sm, alignItems: 'center', borderBottomWidth: tab === t.key ? 2 : 0, borderColor: tokens.mintDeep }} onPress={() => setTab(t.key as any)}><Text style={{ fontSize: FS.xs, color: tab === t.key ? tokens.mintDeep : theme.textSub, fontWeight: tab === t.key ? FW.bold : FW.normal }}>{t.label}</Text></TouchableOpacity>)}
       </View>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
-        <RadiologyInboxList orders={filtered} loading={loading} emptyTitle={AR ? 'لا توجد طلبات' : 'No orders'} onOpen={(o) => onNav('order_detail', o)} />
+        {loadFailed && orders.length === 0
+          ? <NEmpty title={AR ? 'تعذر تحميل الطلبات' : 'Could not load the orders'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={reload} icon="document" />
+          : <RadiologyInboxList orders={filtered} loading={loading} emptyTitle={AR ? 'لا توجد طلبات' : 'No orders'} onOpen={(o) => onNav('order_detail', o)} />}
       </ScrollView>
     </View>
   );
@@ -341,7 +346,9 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
             <NBtn label={AR?' تسجيل قرار تغطية داخلي':' Record Internal Coverage Decision'} variant="outline" onPress={() => setShowApproval(true)} />
           ) : (
             // server accepts only cash at the center or a paid card booking (radiology.service assertConfirmable)
-            <NBtn label={AR?' قبول الحجز':' Accept booking'} loading={loading} onPress={acceptBooking} style={{ backgroundColor:tokens.mintDeep }} />
+            confirmBlocker(currentOrder)
+              ? <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{confirmBlockerText(confirmBlocker(currentOrder)!, AR)}</Text>
+              : <NBtn label={AR?' قبول الحجز':' Accept booking'} loading={loading} onPress={acceptBooking} style={{ backgroundColor:tokens.mintDeep }} />
           )}
           <NBtn label={AR?' رفض الحجز':' Reject booking'} variant="danger" onPress={() => setShowReject(true)} />
         </>)}
@@ -357,7 +364,7 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
         </>)}
         {currentOrder.state ==='REPORT_DRAFT' && <NBtn label={AR?' إرسال للمراجعة الطبية':' Submit for Radiologist Review'} loading={loading} onPress={() => doAction('submit-report-for-review')} />}
         {currentOrder.state ==='UNDER_REVIEW' && <NBtn label={AR?' اعتماد وإرسال التقرير':' Approve & Publish Report'} loading={loading} onPress={() => doAction('approve-report')} style={{ backgroundColor:tokens.success }} />}
-        {currentOrder.state ==='SCAN_ABORTED' && (<View style={{ backgroundColor:withAlpha(tokens.error, 0.12), borderRadius: R.md, padding: SP.md }}><Text style={{ color:tokens.error, fontWeight: FW.bold, textAlign:'center', marginBottom: SP.md }}>{AR?` سبب الإلغاء: ${currentOrder.abort_reason}`:` Abort Reason: ${currentOrder.abort_reason}`}</Text><NBtn label={AR?' إعادة الجدولة':' Reschedule'} loading={loading} onPress={() => setShowReschedule(true)} /></View>)}
+        {currentOrder.state ==='SCAN_ABORTED' && (<View style={{ backgroundColor:withAlpha(tokens.error, 0.12), borderRadius: R.md, padding: SP.md }}><Text style={{ color:tokens.error, fontWeight: FW.bold, textAlign:'center', marginBottom: SP.md }}>{AR?` سبب الإلغاء: ${currentOrder.abort_reason}`:` Abort Reason: ${currentOrder.abort_reason}`}</Text><Text style={{ color: theme.textSub, textAlign: 'center' }}>{AR ? 'أُلغي الفحص. يحجز المريض موعداً جديداً من تطبيقه.' : 'The scan was aborted. The patient books a new appointment from their app.'}</Text></View>)}
         {currentOrder.state ==='REPORT_READY' && (<View style={{ backgroundColor:withAlpha(tokens.success, 0.12), borderRadius: R.md, padding: SP.lg, alignItems:'center' }}><Text style={{ color:tokens.success, fontSize: FS.lg, fontWeight: FW.bold }}>{AR?' التقرير أُرسل للمريض':' Report Sent to Patient'}</Text>{currentOrder.doctor_notified && <Text style={{ color:tokens.mintDeep, fontSize: FS.sm, marginTop: SP.sm }}>{AR?' تم إشعار الطبيب المحيل':' Referring doctor notified'}</Text>}</View>)}
       </View>
 

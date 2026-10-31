@@ -78,9 +78,11 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
   const ibanValid = /^SA\d{22}$/.test(cleanIban);
   const amt = parseFloat(amount);
   const hasPending = history.some((h: any) => PENDING_STATES.includes(String(h.state)));
-  const needsBankSetup = !bank;
+  // a bank account the reviewer rejected is entered again (posting it resets it to pending review), like a first-time setup
+  const bankRejected = bank?.review_status === 'rejected';
+  const needsBankSetup = !bank || bankRejected;
   const bankApproved = bank?.review_status === 'approved';
-  const awaitingBankApproval = !!bank && !bankApproved;
+  const awaitingBankApproval = !!bank && !bankApproved && !bankRejected;
   const bankFormValid = !needsBankSetup || (!!bankCode && holderName.trim().length >= 3 && ibanValid);
   const canSubmit = !!balance && !balance.negative && bankApproved && bankFormValid && balance.minimum !== null && !!amt && amt >= balance.minimum && amt <= balance.available && !hasPending && !submitting;
 
@@ -240,9 +242,18 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
           </NCard>
         )}
 
+        {bankRejected && (
+          <NCard style={{ backgroundColor: theme.dangerBg }}>
+            <Text style={{ fontSize: FS.sm, color: theme.danger, textAlign: AR ? 'right' : 'left' }}>
+              {AR ? 'رُفض حسابك البنكي. صحّح البيانات وأعد إرسالها للمراجعة.' : 'Your bank account was rejected. Correct the details and send them for review again.'}
+              {bank?.reviewer_note ? `\n${bank.reviewer_note}` : ''}
+            </Text>
+          </NCard>
+        )}
+
         {needsBankSetup && (
           <View style={{ gap: SP.md }}>
-            <NSecHeader title={AR ? 'إعداد الحساب البنكي (أول مرة)' : 'Bank Account Setup (first time)'} />
+            <NSecHeader title={bankRejected ? (AR ? 'تصحيح الحساب البنكي' : 'Correct the bank account') : (AR ? 'إعداد الحساب البنكي (أول مرة)' : 'Bank Account Setup (first time)')} />
             <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
               {AR ? 'اختر البنك:' : 'Select bank:'}
             </Text>

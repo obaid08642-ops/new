@@ -298,7 +298,7 @@ describe('Provider App release contracts', () => {
       const pending = read('screens/auth/PendingDashboard.tsx');
       expect(pending).toContain("client.get('/provider-onboarding/my-profile')");
       expect(pending).toContain("client.get('/provider-onboarding/progress')");
-      expect(pending).toContain("client.post('/provider/onboarding/submit'");
+      expect(pending).toContain("client.post('/provider-onboarding/submit'");   // the wizard's own submit also resubmits a reviewed account (it re-queues it for moderation); the older /provider/onboarding/submit needs document and bank rows the wizard never creates
     });
 
     it('decision 14 the ambulance provider type, SOS dispatch and GPS router are gone from the app', () => {

@@ -1,6 +1,7 @@
 /**
  * NABDAH PLUS – PHASE 4 · LAB & RADIOLOGY DASHBOARD (18 screens)
  */
+import { confirmBlocker, confirmBlockerText } from '../../utils/confirmBlocker';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
  View, Text, TouchableOpacity, ScrollView, StyleSheet,
@@ -101,12 +102,15 @@ function LabOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const [loadFailed, setLoadFailed] = useState(false);
+  const loadInbox = useCallback(() => {
+    setLoadFailed(false);
     client.get('/labs/provider/inbox')
       .then(res => setOrders((res.data || []).map(toLabOrderView)))
-      .catch(() => setOrders([]))
+      .catch(() => { setOrders([]); setLoadFailed(true); }) // a failed load is an error with a retry, not "no orders"
       .finally(() => setLoading(false));
   }, []);
+  useEffect(() => { loadInbox(); }, [loadInbox]);
 
   // Backend LabBookingState lives in `state` (not `status`): NEW_REQUEST,
   // PENDING_INSURANCE, WAITING_COPAY, CONFIRMED, IN_TRANSIT, IN_LAB,
@@ -144,7 +148,8 @@ function LabOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) {
       </ScrollView>
       
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
-        {filtered.length === 0 && <NEmpty title={AR ? 'لا توجد طلبات هنا' : 'No Orders Here'} icon="document" />}
+        {loadFailed && filtered.length === 0 && <NEmpty title={AR ? 'تعذر تحميل الطلبات' : 'Could not load the orders'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={loadInbox} icon="document" />}
+        {!loadFailed && filtered.length === 0 && <NEmpty title={AR ? 'لا توجد طلبات هنا' : 'No Orders Here'} icon="document" />}
         {filtered.map(order => {
           const st = BOOKING_STATES[order.status] || { ar: order.status, en: order.status, color: tokens.info };
           return (
@@ -394,7 +399,9 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
   const [notes, setNotes] = useState('');
   const [decisionRef, setDecisionRef] = useState('');
   const [copay, setCopay] = useState('');
-  const [techName, setTechName] = useState('');
+  const [techName, setTechName] = useState('');   // the chosen technician's name (for the toast)
+  const [techId, setTechId] = useState('');       // the chosen technician's id (own id when the lab has no team)
+  const [techs, setTechs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [showReschedule, setShowReschedule] = useState(false);
   const [rescheduleDate, setRescheduleDate] = useState('');
@@ -464,11 +471,17 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
     }
   };
 
+  useEffect(() => {
+    if (!showAssign) return;
+    client.get('/labs/team/technicians').then((r: any) => setTechs(Array.isArray(r?.data) ? r.data : [])).catch(() => setTechs([]));
+  }, [showAssign]);
+
   const handleAssignTech = async () => {
     setLoading(true);
     try {
-      await client.post(`/labs/bookings/${order.id}/assign-technician`, { technician_id: techName });
-      show(AR ? `تم تعيين ${techName}` : `Assigned ${techName}`, 'success');
+      // the server accepts a listed technician of this lab or the caller; without a pick it assigns the caller
+      await client.post(`/labs/bookings/${order.id}/assign-technician`, techId ? { technician_id: techId } : {});
+      show(techName ? (AR ? `تم تعيين ${techName}` : `Assigned ${techName}`) : (AR ? 'تم تعيين الفني' : 'Technician assigned'), 'success');
       setShowAssign(false);
       onBack();
     } catch (e: any) {
@@ -574,7 +587,9 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
           {order?.is_insurance ? (
             <NBtn label={AR ? 'طلب موافقة التأمين' : 'Request Insurance Approval'} onPress={() => setShowApproval(true)} />
           ) : (
-            <NBtn label={AR ? 'تأكيد الطلب المباشر (كاش)' : 'Confirm Direct Order (Cash)'} onPress={handleCashConfirm} />
+            confirmBlocker(order)
+              ? <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{confirmBlockerText(confirmBlocker(order)!, AR)}</Text>
+              : <NBtn label={AR ? 'تأكيد الطلب المباشر (كاش)' : 'Confirm Direct Order (Cash)'} onPress={handleCashConfirm} />
           )}
           <NBtn label={AR?'رفض الطلب':'Reject Order'} variant="danger" onPress={() => setShowReject(true)} />
         </View>
@@ -609,6 +624,12 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
       {isTripOrder(order) && (
         <View style={{gap:SP.md}}>
           <NBtn label={AR ? 'بدء التحرك (تتبع GPS)' : 'Start Trip (GPS)'} onPress={() => onNav('home_collection', order)} />
+        </View>
+      )}
+
+      {order?.status === 'IN_LAB' && (
+        <View style={{gap:SP.md}}>
+          <NBtn label={AR ? 'تسجيل العينة' : 'Register Sample'} onPress={() => setShowRegister(true)} />
         </View>
       )}
 
@@ -661,7 +682,14 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
       {/* Tech Assignment Sheet */}
       <NSheet visible={showAssign} onClose={()=>setShowAssign(false)} title={AR ? 'تعيين فني سحب' : 'Assign Technician'} height={400}>
         <View style={{ padding: SP.md }}>
-          <NInput label={AR ? 'ابحث عن فني' : 'Search Technician'} placeholder={AR ? 'مثال: أحمد' : 'e.g. Ahmed'} value={techName} onChange={setTechName} icon="search" />
+          {techs.length === 0 ? (
+            <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{AR ? 'لا يوجد فنيون مسجلون في فريقك: سيُعيَّن الطلب لحسابك.' : 'No technicians on your team: the order is assigned to your account.'}</Text>
+          ) : techs.map((tc: any) => (
+            <TouchableOpacity key={tc.id} accessibilityRole="button" onPress={() => { setTechId(tc.id); setTechName(tc.full_name || tc.email || ''); }}
+              style={{ padding: SP.md, borderRadius: R.md, marginBottom: SP.sm, borderWidth: 1, borderColor: techId === tc.id ? theme.primary : theme.border, backgroundColor: techId === tc.id ? theme.infoBg : theme.surface }}>
+              <Text style={{ color: theme.text, textAlign: AR ? 'right' : 'left' }}>{tc.full_name || tc.email || tc.id}</Text>
+            </TouchableOpacity>
+          ))}
           <NBtn label={AR ? 'تأكيد التعيين' : 'Confirm Assignment'} onPress={handleAssignTech} style={{ marginTop: SP.md }} />
         </View>
       </NSheet>
@@ -1119,20 +1147,26 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
 
         <View style={{ marginTop: SP.xl, gap: SP.md }}>
           <NSecHeader title={AR ? 'إدارة الطوارئ' : 'Emergency Management'} />
-          <NBtn label={AR ? 'المريض لم يحضر' : 'Patient Absent'} variant="outline" onPress={async () => {
-            await client.post(`/labs/bookings/${order?.id}/emergency`, { reason: 'PATIENT_ABSENT' });
-            show(AR ? 'تم تسجيل الحالة' : 'Status logged', 'info');
-            onBack();
-          }} />
-          <NBtn label={AR ? 'موقع خاطئ' : 'Wrong Location'} variant="outline" onPress={async () => {
-            await client.post(`/labs/bookings/${order?.id}/emergency`, { reason: 'WRONG_LOCATION' });
-            show(AR ? 'تم تسجيل الحالة' : 'Status logged', 'info');
-            onBack();
-          }} />
+          {([['PATIENT_ABSENT', AR ? 'المريض لم يحضر' : 'Patient Absent'], ['WRONG_LOCATION', AR ? 'موقع خاطئ' : 'Wrong Location']] as const).map(([reason, label]) => (
+            <NBtn key={reason} label={label} variant="outline" onPress={async () => {
+              try {
+                await client.post(`/labs/bookings/${order?.id}/emergency`, { reason });
+                show(AR ? 'تم تسجيل الحالة' : 'Status logged', 'info');
+                onBack();
+              } catch (err: any) {
+                show(err?.response?.data?.message || err.message, 'error');
+              }
+            }} />
+          ))}
           <NBtn label={AR ? 'إلغاء وتعيين فني آخر' : 'Cancel & Reassign'} variant="danger" onPress={async () => {
-            await client.post(`/labs/bookings/${order?.id}/reassign`);
-            setTracking(false);
-            show(AR ? 'تم الإلغاء وجاري التعيين' : 'Cancelled & Reassigning', 'success');
+            try {
+              await client.post(`/labs/bookings/${order?.id}/reassign`);
+              setTracking(false);
+              show(AR ? 'تم الإلغاء وجاري التعيين' : 'Cancelled & Reassigning', 'success');
+              onBack();
+            } catch (err: any) {
+              show(err?.response?.data?.message || err.message, 'error');
+            }
           }} />
         </View>
 
@@ -1298,8 +1332,8 @@ function LabInsurance({ onBack }:{ onBack:()=>void }) {
  setApprovalRef('');
  setSelectedOrder(null);
  fetchOrders();
- } catch(e) {
- show(AR ? 'خطأ في التحديث' : 'Error updating', 'error');
+ } catch(e: any) {
+ show(e?.response?.data?.message || (AR ? 'خطأ في التحديث' : 'Error updating'), 'error');
  }
  };
 

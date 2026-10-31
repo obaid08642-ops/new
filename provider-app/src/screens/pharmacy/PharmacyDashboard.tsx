@@ -240,6 +240,7 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab, onToggleOnline }: any) {
         approx_area: broadcast.approx_area || null,
         attachments: Array.isArray(broadcast.attachments) ? broadcast.attachments : [],
         items: Array.isArray(broadcast.items) ? broadcast.items : [],
+        my_offer_status: broadcast.my_offer_status || null,
       })).filter((broadcast: any) => !!broadcast.id && !!broadcast.order_id);
     };
     const fetchBroadcasts = async () => {
@@ -392,7 +393,7 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab, onToggleOnline }: any) {
                 </View>
                 <View style={{ flexDirection: 'row', gap: 12 }}>
                   <NBtn label={AR ? 'رفض' : 'Reject'} variant="outline" style={{ flex: 1 }} onPress={() => { setRejectOrderId(b.order_id); setShowRejectModal(true); }} />
-                  <NBtn label={AR ? 'إنشاء عرض' : 'Create offer'} variant="secondary" style={{ flex: 2 }} onPress={() => openOfferComposer(b)} />
+                  <NBtn label={b.my_offer_status === 'submitted' ? (AR ? 'عرضك مُرسل — تعديل' : 'Offer sent — edit') : b.my_offer_status === 'draft' ? (AR ? 'متابعة المسودة' : 'Continue draft') : (AR ? 'إنشاء عرض' : 'Create offer')} variant="secondary" style={{ flex: 2 }} onPress={() => openOfferComposer(b)} />
                 </View>
               </NCard>
             ))
@@ -802,6 +803,13 @@ function DispatchWorkflowScreen({ onBack, onNavigate, initialSection = 'new' }: 
     } catch { /* detail is best-effort; the card stays usable */ }
   };
 
+  // An order at "ready" needs its delivery method and payment to offer the right next step (pickup is handed over, delivery is dispatched,
+  // cash on delivery is collected): load the detail of such orders as soon as they appear.
+  useEffect(() => {
+    allocations.filter((x: any) => String(x.status) === 'ready_for_pickup' && !details[x.id]).forEach((x: any) => { void loadDetail(x.id); });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allocations]);
+
   const doAction = async (id: string, action: string, body?: any) => {
     if (actionId) return;
     setActionId(id);
@@ -858,6 +866,7 @@ function DispatchWorkflowScreen({ onBack, onNavigate, initialSection = 'new' }: 
     const d = details[a.id];
     const isCod = String(d?.order?.payment_method || '').toLowerCase() === 'cod' || d?.order?.status === 'cod_due_on_delivery';
     const expectedTotal = d?.order?.pricing_snapshot?.totals?.total ?? a.totals?.total;
+    const isPickup = d?.order?.delivery?.method === 'pickup';
     return (
       <NCard key={a.id} style={{ marginBottom: 12, padding: 16 }}>
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
@@ -934,9 +943,12 @@ function DispatchWorkflowScreen({ onBack, onNavigate, initialSection = 'new' }: 
             )}
             {String(a.status) === 'ready_for_pickup' && (
               <>
-                <NBtn label={AR ? 'انطلاق التوصيل' : 'Dispatch'} size="sm" onPress={() => { setCourierFor(a.id); if (!details[a.id]) loadDetail(a.id); }} />
-                <NBtn label={AR ? 'تسليم (استلام ذاتي)' : 'Hand over (pickup)'} size="sm" variant="outline" loading={actionId === a.id}
-                  onPress={() => { if (isCod) { setCollectFor(a.id); setCollectAmount(String(expectedTotal ?? '')); } else doAction(a.id, 'delivered'); }} />
+                {/* the server refuses to ship a pickup order and to hand over a cash-on-delivery one without the collection: the detail decides */}
+                {d && isPickup ? null : <NBtn label={AR ? 'انطلاق التوصيل' : 'Dispatch'} size="sm" onPress={() => { setCourierFor(a.id); if (!details[a.id]) loadDetail(a.id); }} />}
+                {d && !isPickup ? null : (
+                  <NBtn label={AR ? 'تسليم (استلام ذاتي)' : 'Hand over (pickup)'} size="sm" variant="outline" loading={actionId === a.id} disabled={!d}
+                    onPress={() => { if (isCod) { setCollectFor(a.id); setCollectAmount(String(expectedTotal ?? '')); } else doAction(a.id, 'delivered'); }} />
+                )}
               </>
             )}
             {String(a.status) === 'out_for_delivery' && (
