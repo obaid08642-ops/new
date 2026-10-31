@@ -1,4 +1,5 @@
 import { flattenResultEntries } from './lab-booking-results';
+import { homeCollectionFee } from '../../common/provider-home-fees';
 import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { SearchService } from '../search/search.service';
 import { LAB_TYPES, byRelevance, matchedIds } from '../search/catalogue-search';
@@ -290,6 +291,15 @@ export class LabsService {
     };
   }
 
+  /** The platform's home-collection fee (the admin pricing's delivery fee), else 25. A booking never fails on the pricing config. */
+  async platformHomeFee(): Promise<number> {
+    try {
+      const fees = await this.pricing?.platformFees();
+      if (fees && Number.isFinite(fees.delivery_fee) && fees.delivery_fee >= 0) return fees.delivery_fee;
+    } catch { /* fall through to the default */ }
+    return 25;
+  }
+
   async book(user: any, data: any) {
     if (!Array.isArray(data.items) || !data.items.length) throw new BadRequestException('items required');
     if (!data.scheduled_at) throw new BadRequestException('scheduled_at required');
@@ -353,12 +363,12 @@ export class LabsService {
     }).lean();
     const dupe = recent.find((b: any) => JSON.stringify((b.items || []).map((i: any) => i.service_id).sort()) === JSON.stringify(svcIds));
     if (dupe) return dupe;
-    // R6-4: home-collection fee comes from the saved platform pricing (admin config-portal).
-    let homeFee = 25;
+    // the lab's own home-collection fee when it set one at registration, else the platform's (R6-4: the saved platform pricing)
+    let labProfile: any = null;
     try {
-      const fees = await this.pricing?.platformFees();
-      if (fees && Number.isFinite(fees.delivery_fee) && fees.delivery_fee >= 0) homeFee = fees.delivery_fee;
-    } catch { /* booking never fails on pricing config */ }
+      if (typeof data.provider_account_id === 'string' && data.provider_account_id) labProfile = await this.providerProfiles.findOne({ account_id: { $eq: data.provider_account_id } }, { home_collection_fee: 1 }).lean();
+    } catch { /* a booking never fails on the fee lookup: the platform fee applies */ }
+    const homeFee = homeCollectionFee(labProfile, await this.platformHomeFee());
     const total = items.reduce((sum, i) => sum + (i.price || 0), 0) + (data.location_type === 'home' ? homeFee : 0);
     const insurance_status = paymentMethod === 'insurance' ? 'pending' : 'none';
     const booking = await this.bkgModel.create({

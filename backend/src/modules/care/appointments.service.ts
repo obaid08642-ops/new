@@ -19,6 +19,7 @@ import { DEFAULT_REFUND_POLICY } from '../refund-policy/refund-policy.defaults';
 import { KillSwitchesService } from '../kill-switches/kill-switches.service';
 import { isOnlineConsultation } from '../chat/consultation-window';
 import { assertTelehealthConsent } from '../legal/telehealth-consent';
+import { consultationFees } from '../../common/provider-home-fees';
 
 /** Platform fee schedule (SAR). Move to DB/config when admin dashboard supports it. */
 const PLATFORM_FEES = {
@@ -222,9 +223,8 @@ export class AppointmentsService {
     }
 
     // Calculate fees & total_price
-    const service_fee = PLATFORM_FEES.service_fee;
-    const home_visit_fee = body.service_type === 'home' ? PLATFORM_FEES.home_visit_fee : 0;
-    const transportation_fee = body.service_type === 'home' ? PLATFORM_FEES.transportation_fee : 0;
+    // the doctor's own home-visit and transport fees when they set them at registration, else the platform's (shown and charged alike)
+    const { service_fee, home_visit_fee, transportation_fee } = consultationFees(doctor, body.service_type, PLATFORM_FEES);
     const total_price = price + service_fee + home_visit_fee + transportation_fee;
 
     // Insert — unique index will throw on double-booking
