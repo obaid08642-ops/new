@@ -101,7 +101,8 @@ const mockScan = [];
 // group everything
 const by = new Map(GROUPS.map(([n]) => [n, []]).concat([['Other', []]]));
 for (const r of routes) by.get(groupOf(r.route)).push(r);
-const esc = (s) => String(s).replace(/\|/g, '\\|').replace(/\n/g, ' ');
+// a Markdown table cell: backslashes first (otherwise a text ending in a backslash would swallow the escape of the next pipe), then pipes, then line breaks
+const esc = (s) => String(s).replace(/\\/g, '\\\\').replace(/\|/g, '\\|').replace(/\r?\n/g, ' ');
 const stat = { routes: routes.length, audited: 0, el: { ok: 0, fixed: 0, hidden: 0, gap: 0 }, calls: 0, callOk: 0, callOther: 0 };
 for (const r of routes) {
   const a = audit.get(r.route); if (a) { stat.audited++; for (const e of a.elements) stat.el[e[2]] = (stat.el[e[2]] || 0) + 1; }
