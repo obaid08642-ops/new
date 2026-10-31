@@ -776,7 +776,7 @@ class CatalogueApplyOnly(unittest.TestCase):
         run = [l for l in self.h.docker_calls().splitlines() if l.startswith("run ")]
         self.assertEqual(len(run), 1)
         self.assertIn("--only=product_translations --product-translations=/in/product-translations.json", run[0])
-        self.assertIn("--memory 900m", run[0])
+        self.assertIn("--memory 700m", run[0])
 
     def test_without_completion_the_full_plan_keeps_its_inputs(self):
         p = self.run_task()
@@ -791,7 +791,7 @@ class CatalogueApplyOnly(unittest.TestCase):
         run = [l for l in calls.splitlines() if l.startswith("run ")]
         self.assertEqual(len(run), 1, calls)
         self.assertIn("--rm", run[0])
-        self.assertIn("--memory 900m --memory-swap 900m --oom-score-adj 1000", run[0])
+        self.assertIn("--memory 700m --memory-swap 700m --oom-score-adj 1000", run[0])
         self.assertIn("--only=catalogue_completion", run[0])
         self.assertNotIn("node dist/scripts/catalogue-apply.js plan", "\n".join(l for l in calls.splitlines() if l.startswith("exec ")))
         self.assertNotIn("mongo-pass-31d9", p.stdout + p.stderr + calls)   # the password is never an argument or output

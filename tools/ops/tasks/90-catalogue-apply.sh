@@ -38,8 +38,8 @@
 #                                                    answers in one file). EMPTY product fields only: each write is a compare-and-set on the stored empty value, marked `machine:<model>`,
 #                                                    with the before-image in the backup; a field filled meanwhile is skipped and counted. Needs no other host file. Works with ONE_OFF.
 #   ONE_OFF=yes (set in this file by the reviewer): runs the tool NOT inside $CT but in a one-off `docker run --rm` of $CT's image, on $CT's network, with the same env file
-#                                                    (plus MONGO_URL/DB_NAME built from it in a mode-600 temp file, removed at the end), `--memory 900m --memory-swap 900m
-#                                                    --oom-score-adj 1000` (if the host runs short, this container is the one the kernel kills), NODE_OPTIONS heap 700 MB.
+#                                                    (plus MONGO_URL/DB_NAME built from it in a mode-600 temp file, removed at the end), `--memory 700m --memory-swap 700m
+#                                                    --oom-score-adj 1000` (if the host runs short, this container is the one the kernel kills), NODE_OPTIONS heap 520 MB.
 #                                                    For heavy steps; never in the API container. $B is mounted as /backup (the backup file lands there directly), $IN as /in (read-only).
 set -u
 EXPECT_PLAN_SHA=""
@@ -64,8 +64,8 @@ jval() { sed -n "s/.*\"$1\":\([^,}]*\).*/\1/p" | head -1 | tr -d '"'; }
 # the first output line of the tool that mentions \$1
 tool() {
   if [ -n "$ONE_OFF" ]; then
-    $DK run --rm --user 0:0 --memory 900m --memory-swap 900m --oom-score-adj 1000 --network "$ONE_OFF_NET" --env-file "$ENVF" --env-file "$ONE_OFF_ENV" \
-      -e NODE_OPTIONS=--max-old-space-size=700 -v "$B:/backup" -v "$IN:/in:ro" "$ONE_OFF_IMG" $TOOL "$@" 2>&1
+    $DK run --rm --user 0:0 --memory 700m --memory-swap 700m --oom-score-adj 1000 --network "$ONE_OFF_NET" --env-file "$ENVF" --env-file "$ONE_OFF_ENV" \
+      -e NODE_OPTIONS=--max-old-space-size=520 -v "$B:/backup" -v "$IN:/in:ro" "$ONE_OFF_IMG" $TOOL "$@" 2>&1
   else
     $DK exec "$CT" $TOOL "$@" 2>&1
   fi
@@ -85,7 +85,7 @@ if [ -n "$ONE_OFF" ]; then
   ONE_OFF_ENV=$(sudo -n mktemp) && sudo -n chmod 600 "$ONE_OFF_ENV" \
     && printf 'MONGO_URL=mongodb://%s:%s@mongodb:27017/?authSource=admin\nDB_NAME=%s\n' "$(envval MONGO_ROOT_USER)" "$(envval MONGO_ROOT_PASSWORD)" "$(envval DB_NAME | grep . || echo nabd_nestjs)" | sudo -n tee "$ONE_OFF_ENV" >/dev/null \
     || { say "ABORT cannot write the temp env file"; one_off_cleanup; exit 1; }
-  say "one-off container: image of $CT, network $ONE_OFF_NET, 900m memory, no swap, oom_score_adj 1000 (the tool does not run inside $CT)"
+  say "one-off container: image of $CT, network $ONE_OFF_NET, 700m memory, no swap, oom_score_adj 1000 (the tool does not run inside $CT)"
 fi
 ARGS=""
 MODES=0; [ -n "$COMPLETION" ] && MODES=$((MODES+1)); [ "$PRUNE" = yes ] && MODES=$((MODES+1)); [ "$TRANSLATIONS" = yes ] && MODES=$((MODES+1))

@@ -82,6 +82,7 @@ services:
     tmpfs: ["/tmp:size=16m"]
     mem_limit: 384m
     mem_reservation: 130m
+    memswap_limit: 384m   # no swap: equal to mem_limit
     oom_score_adj: 300   # rebuildable copies only
     networks: [cache]
     healthcheck:
@@ -97,14 +98,15 @@ services:
     image: getmeili/meilisearch:v1.10
     container_name: nabdah-meilisearch
     restart: unless-stopped
-    mem_limit: 640m
+    mem_limit: 448m  # host OOM (run 69): 640m -> 448m, the indexing memory below is halved too
     mem_reservation: 100m
+    memswap_limit: 640m   # 448m + 192m swap (rebuildable index)
     oom_score_adj: 200
     environment:
       MEILI_ENV: production
       MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
       MEILI_NO_ANALYTICS: "true"
-      MEILI_MAX_INDEXING_MEMORY: 256Mb
+      MEILI_MAX_INDEXING_MEMORY: 128Mb
     volumes:
       - meili_data:/meili_data
     networks: [internal]
@@ -125,12 +127,13 @@ services:
     container_name: nabdah-backend
     stop_grace_period: 40s   # 20.9: SIGTERM drain before SIGKILL (rolling deploys stop the old container with docker stop -t)
     restart: unless-stopped
-    mem_limit: 768m
+    mem_limit: 704m  # host OOM (run 69): 768m -> 704m, heap 512 -> 448
     mem_reservation: 400m
+    memswap_limit: 960m   # 704m + 256m swap
     oom_score_adj: 0
     env_file: .env.production
     environment:
-      NODE_OPTIONS: --max-old-space-size=512   # of the 768m container limit
+      NODE_OPTIONS: --max-old-space-size=448   # of the 704m container limit
       NODE_ENV: production
       CLUSTER_MODE: "false"   # ops 2026-10-04: cluster mode crashed the deployed build; one process also saves RAM
       PORT: "8002"
@@ -189,12 +192,13 @@ services:
     container_name: nabdah-worker
     stop_grace_period: 60s   # 20.9: SIGTERM drain before SIGKILL (rolling deploys stop the old container with docker stop -t)
     restart: unless-stopped
-    mem_limit: 640m
+    mem_limit: 512m  # host OOM (run 69): 640m -> 512m, heap 448 -> 352
     mem_reservation: 200m
+    memswap_limit: 768m   # 512m + 256m swap
     oom_score_adj: 300
     env_file: .env.production
     environment:
-      NODE_OPTIONS: --max-old-space-size=448   # of the 640m container limit
+      NODE_OPTIONS: --max-old-space-size=352   # of the 512m container limit
       NODE_ENV: production
       CLUSTER_MODE: "false"
       PROCESS_ROLE: worker
@@ -238,6 +242,7 @@ services:
     restart: unless-stopped
     mem_limit: 1536m
     mem_reservation: 600m
+    memswap_limit: 1536m   # no swap: equal to mem_limit
     oom_score_adj: 900
     volumes:
       - clamav_db:/var/lib/clamav
@@ -259,6 +264,7 @@ services:
     restart: unless-stopped
     mem_limit: 384m
     mem_reservation: 80m
+    memswap_limit: 512m   # 384m + 128m swap
     oom_score_adj: 300
     env_file: .env.production
     environment:
@@ -291,6 +297,7 @@ services:
     restart: unless-stopped
     mem_limit: 384m
     mem_reservation: 100m
+    memswap_limit: 512m   # 384m + 128m swap
     oom_score_adj: 300
     environment:
       NODE_OPTIONS: --max-old-space-size=256   # of the 384m container limit
@@ -316,6 +323,7 @@ services:
     restart: unless-stopped
     mem_limit: 256m
     mem_reservation: 80m
+    memswap_limit: 256m   # no swap: equal to mem_limit
     oom_score_adj: -100
     command: ["--config", "/etc/livekit.yaml"]
     volumes:
@@ -340,6 +348,7 @@ services:
     restart: unless-stopped
     mem_limit: 128m
     mem_reservation: 30m
+    memswap_limit: 128m   # no swap: equal to mem_limit
     oom_score_adj: -100
     command: ["-c", "/etc/coturn/turnserver.conf"]
     volumes:
@@ -370,6 +379,7 @@ services:
     restart: unless-stopped
     mem_limit: 128m
     mem_reservation: 30m
+    memswap_limit: 128m   # no swap: equal to mem_limit
     oom_score_adj: -500
     ports:
       - "80:80"
@@ -401,6 +411,7 @@ services:
     restart: unless-stopped
     mem_limit: 640m
     mem_reservation: 250m
+    memswap_limit: 896m   # 640m + 256m swap
     oom_score_adj: 300
     environment:
       NODE_OPTIONS: --max-old-space-size=384   # of the 640m container limit
