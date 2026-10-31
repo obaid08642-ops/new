@@ -499,5 +499,8 @@ jobs:
         run: npm ci
       - name: Type check
         run: npx tsc --noEmit
+      - name: Every admin API call reaches a backend route
+        working-directory: .
+        run: python3 tools/audit/admin_calls.py
       - name: Production build
         run: npm run build
