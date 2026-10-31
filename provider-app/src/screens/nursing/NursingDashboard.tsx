@@ -190,7 +190,6 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
       <Stack.Screen name="progress">{({ navigation, route }: any) => <ProgressNotes patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="supplies">{({ navigation }: any) => <MedicalSupplies onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="nursing_services">{({ navigation }: any) => <MyServicesScreen vertical="nursing" onBack={() => navigation.goBack()} />}</Stack.Screen>
-      <Stack.Screen name="nursing_pricing">{({ navigation }: any) => <NursingPricingSettings onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="nursing_coverage">{({ navigation }: any) => <NursingCoverageSettings onBack={() => navigation.goBack()} />}</Stack.Screen>
 
       <Stack.Screen name="promotions">{({ navigation }: any) => <PromotionsDashboard onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
@@ -780,7 +779,6 @@ return (
  <NCard style={{marginBottom:SP.xl}}>
  <NSettingsRow icon="user" label={AR?'معلومات الحساب':'Account Info'} onPress={()=>onNav('profile_edit')} />
  <NSettingsRow icon="stethoscope" label={AR?'الخدمات والأسعار':'Services & Prices'} onPress={()=>onNav('nursing_services')} />
- <NSettingsRow icon="wallet" label={AR?'نموذج التسعير':'Pricing Model'} onPress={()=>onNav('nursing_pricing')} />
  <NSettingsRow icon="scan" label={AR?'نطاق التغطية':'Coverage Area'} onPress={()=>onNav('nursing_coverage')} />
  <NSettingsRow icon="calendar" label={AR?'مواعيد العمل':'Working Hours'} onPress={()=>onNav('working_hours')} />
  <NSettingsRow icon="shield" label={AR?'التأمين الصحي':'Health Insurance'} onPress={()=>onNav('insurance_config')} />
@@ -831,109 +829,6 @@ return (
  <NConfirm visible={showLO} title={AR?'خروج':'Log Out'} msg={AR?'هل تريد الخروج؟':'Log out?'}
  onOk={()=>{setShowLO(false);onLogout();}} onCancel={()=>setShowLO(false)} okLabel={AR?'خروج':'Log Out'} />
  </View>
- );
-}
-
-
-// ══════════════════════════════════════════════════════════════════
-// NURSING PRICING SETTINGS
-// ══════════════════════════════════════════════════════════════════
-function NursingPricingSettings({ onBack }:{ onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
- 
- const [hourlyEnabled, setHourlyEnabled] = useState(true);
- const [hourlyPrice, setHourlyPrice] = useState('45');
- 
- const [dailyEnabled, setDailyEnabled] = useState(true);
- const [dailyPrice, setDailyPrice] = useState('350');
- 
- const [weeklyEnabled, setWeeklyEnabled] = useState(false);
- const [weeklyPrice, setWeeklyPrice] = useState('2000');
- 
- const [monthlyEnabled, setMonthlyEnabled] = useState(false);
- const [monthlyPrice, setMonthlyPrice] = useState('7500');
-
- const [loading, setLoading] = useState(false);
-
- const handleSave = async () => {
- if (!hourlyEnabled && !dailyEnabled && !weeklyEnabled && !monthlyEnabled) {
- show(AR ? 'يجب تفعيل نموذج تسعير واحد على الأقل' : 'Must enable at least one pricing model', 'error');
- return;
- }
- 
- setLoading(true);
- try {
-   await client.post('/provider/settings/delta', { 
-     newData: { 
-       hourlyEnabled, hourlyPrice, dailyEnabled, dailyPrice, 
-       weeklyEnabled, weeklyPrice, monthlyEnabled, monthlyPrice 
-     } 
-   });
-   show(AR ? 'بانتظار موافقة الإدارة على التعديلات' : 'Pending admin approval for changes', 'success');
-   onBack();
- } catch(e) {
-   show(AR ? 'فشل إرسال التعديلات' : 'Failed to submit changes', 'error');
- }
- setLoading(false);
- };
-
- return (
- <NScroll>
- <NHeader title={AR ? 'إعدادات نموذج التسعير للتمريض' : 'Nursing Pricing Models'} onBack={onBack} />
- 
- <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.xl }}>
- <Text style={{ fontSize: FS.xs, color: theme.info, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'حدد باقات ونماذج التسعير المتاحة للتمريض المنزلي. يمكنك تفعيل خدمات الساعة، اليوم، أو الباقات الطويلة.'
- : 'Configure pricing packages for home nursing. You can activate hourly, daily, weekly, or monthly setups.'}
- </Text>
- </NCard>
-
- {/* Hourly Pricing */}
- <NCard style={{ marginBottom: SP.md }}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: hourlyEnabled ? SP.md : 0 }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR ? ' خدمة بالساعة' : ' Hourly Service'}</Text>
- <Switch value={hourlyEnabled} onValueChange={setHourlyEnabled} trackColor={{ true: theme.primary }} />
- </View>
- {hourlyEnabled && (
- <NPriceInput label={AR ? 'سعر الساعة (ريال)' : 'Hourly Fee (SAR)'} value={hourlyPrice} onChange={setHourlyPrice} />
- )}
- </NCard>
-
- {/* Daily Pricing */}
- <NCard style={{ marginBottom: SP.md }}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: dailyEnabled ? SP.md : 0 }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR ? ' خدمة باليوم (إقامة)' : ' Daily Service (Stay)'}</Text>
- <Switch value={dailyEnabled} onValueChange={setDailyEnabled} trackColor={{ true: theme.primary }} />
- </View>
- {dailyEnabled && (
- <NPriceInput label={AR ? 'سعر اليوم (ريال)' : 'Daily Fee (SAR)'} value={dailyPrice} onChange={setDailyPrice} />
- )}
- </NCard>
-
- {/* Weekly Pricing */}
- <NCard style={{ marginBottom: SP.md }}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: weeklyEnabled ? SP.md : 0 }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR?' باقة أسبوعية':' Weekly Package'}</Text>
- <Switch value={weeklyEnabled} onValueChange={setWeeklyEnabled} trackColor={{ true: theme.primary }} />
- </View>
- {weeklyEnabled && (
- <NPriceInput label={AR ? 'سعر الأسبوع (ريال)' : 'Weekly Price (SAR)'} value={weeklyPrice} onChange={setWeeklyPrice} />
- )}
- </NCard>
-
- {/* Monthly Pricing */}
- <NCard style={{ marginBottom: SP.xl }}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: monthlyEnabled ? SP.md : 0 }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR ? ' باقة شهرية متكاملة' : ' Monthly Package'}</Text>
- <Switch value={monthlyEnabled} onValueChange={setMonthlyEnabled} trackColor={{ true: theme.primary }} />
- </View>
- {monthlyEnabled && (
- <NPriceInput label={AR ? 'سعر الشهر (ريال)' : 'Monthly Price (SAR)'} value={monthlyPrice} onChange={setMonthlyPrice} />
- )}
- </NCard>
-
- <NBtn label={AR ? 'حفظ خطط الأسعار' : 'Save Pricing Models'} loading={loading} onPress={handleSave} />
- </NScroll>
  );
 }
 
