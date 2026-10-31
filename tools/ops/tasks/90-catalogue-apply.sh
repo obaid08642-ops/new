@@ -139,7 +139,8 @@ TOTAL=$(echo "$PLAN" | jval total_changes)
 say "plan sha=$SHA total_changes=$TOTAL"
 # one short line per collection first (the annotation truncates the JSON below): rows, writes, deletions by step
 echo "$PLAN" | sed -n 's/^collection_line /status: catalogue-apply: collection /p' | cut -c1-300
-echo "$PLAN" | grep -v '^collection_line ' | sed -E 's/"inputs":\{[^}]*\},?//' | sed 's/^/status: catalogue-apply: plan /' | cut -c1-900
+echo "$PLAN" | sed -n 's/^conflict_line /status: catalogue-apply: /p' | cut -c1-600
+echo "$PLAN" | grep -v '^collection_line \|^conflict_line ' | sed -E 's/"inputs":\{[^}]*\},?//' | sed 's/^/status: catalogue-apply: plan /' | cut -c1-900
 if [ -z "$EXPECT_PLAN_SHA" ]; then
   say "dry run only: nothing was written. To apply, set EXPECT_PLAN_SHA=$SHA in this task (owner approval first)"
   cleanup_inputs; exit 0
