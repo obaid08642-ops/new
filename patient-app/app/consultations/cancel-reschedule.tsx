@@ -12,11 +12,12 @@ import { apiFetch } from '../../src/utils/api';
 import { dateLocaleFor } from '../../src/utils/dates';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
-import { readCancellationPolicy, refundPercent, type CancellationPolicy } from '../../src/utils/refundPolicy';
+import { readCancellationPolicy, type CancellationPolicy } from '../../src/utils/refundPolicy';
+import { consultationMutationHeaders } from '../../src/utils/consultation-payment';
 
 /**
  * Cancel or reschedule — board Consult's form language. The appointment is GET /care/appointments/:id; cancelling is
- * PATCH /care/appointments/:id/cancel with the reason, rescheduling is PATCH /care/appointments/:id/reschedule with the
+ * POST /unified-bookings/consultation/:id/cancel with the reason, rescheduling is PATCH /care/appointments/:id/reschedule with the
  * new slot from GET /care/doctors/:id/slots (the next seven days). The refund figures are the cancellation policy of GET
  * /system-config/public, the one the doctor page reads; while it is not known the page states no figure.
  */
@@ -43,6 +44,8 @@ interface Appointment {
   scheduled_at?: string;
   price?: number;
   amount_total?: number;
+  /** What cancelling right now gives back, as the server computed it (the same rule the cancel applies). */
+  cancellation?: { refund_now?: { percent?: number } };
 }
 interface Slot {
   start?: string;
@@ -124,14 +127,16 @@ export default function CancelRescheduleScreen() {
 
   const price = Number(appointment?.price ?? appointment?.amount_total ?? 0);
   const scheduledAt = appointment?.scheduled_at ? new Date(appointment.scheduled_at) : null;
-  const hoursUntil = scheduledAt ? (scheduledAt.getTime() - Date.now()) / 3600000 : null;
-  const refundPct = refundPercent(hoursUntil, policy);
+  // the refund for cancelling now is the server's own figure on the appointment: the screen applies no rule of its own
+  const serverPct = appointment?.cancellation?.refund_now?.percent;
+  const refundPct = typeof serverPct === 'number' && Number.isFinite(serverPct) ? serverPct : null;
 
   const policyLines = policy
     ? [
         k('consult.cancel.policyFull', { full: num(policy.full_hours) }),
         k('consult.cancel.policyHalf', { half: num(policy.half_hours), full: num(policy.full_hours), pct: num(policy.half_refund_percent) }),
-        k('consult.cancel.policyLess', { half: num(policy.half_hours) }),
+        // the server's policy has no "nothing back" window (the late band runs to the visit): no such line without a half-hours cut-off
+        ...(policy.half_hours > 0 ? [k('consult.cancel.policyLess', { half: num(policy.half_hours) })] : []),
       ]
     : [k('consult.doc.faqCancelGeneric')];
 
@@ -159,8 +164,12 @@ export default function CancelRescheduleScreen() {
     try {
       if (mode === 'cancel') {
         const reason = CANCEL_REASONS.find((r) => r.id === selectedReason)?.stored ?? '';
-        await apiFetch(`/care/appointments/${appointmentId}/cancel`, { method: 'PATCH', body: JSON.stringify({ reason }) });
-        showLocalizedAlert(k('consult.cancel.doneTitle'), refundPct && refundPct > 0 && price > 0 ? k('consult.cancel.doneRefund', { pct: num(refundPct) }) : k('consult.cancel.doneBody'), [{ text: k('consult.ok'), onPress: () => router.replace('/consultations/appointments' as Href) }]);
+        // the one cancel route (the one the web uses): it needs an idempotency key and answers with the refund it computed
+        const cancelled = await apiFetch<{ refund_percentage?: number }>(`/unified-bookings/consultation/${encodeURIComponent(appointmentId)}/cancel`, {
+          method: 'POST', headers: consultationMutationHeaders('cancel', appointmentId), body: JSON.stringify({ reason }),
+        });
+        const refunded = typeof cancelled?.refund_percentage === 'number' ? cancelled.refund_percentage : refundPct;
+        showLocalizedAlert(k('consult.cancel.doneTitle'), refunded && refunded > 0 && price > 0 ? k('consult.cancel.doneRefund', { pct: num(refunded) }) : k('consult.cancel.doneBody'), [{ text: k('consult.ok'), onPress: () => router.replace('/consultations/appointments' as Href) }]);
       } else {
         const start = selectedSlot ? slotStart(selectedSlot) : '';
         if (!start) {

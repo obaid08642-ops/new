@@ -847,7 +847,12 @@ export class AppointmentRefundListener {
   async onRefundCalculated(e: any) {
     try {
       const pct = Number(e?.refund_percentage || 0);
-      const total = Number(e?.total_price || 0);
+      // The percentage applies to what the patient actually paid, never above it (RefundExecutor caps at the paid amount).
+      const paidTxn: any = e?.appointment_id
+        ? await this.conn.collection('transactions').findOne({ booking_kind: 'consultation', booking_id: e.appointment_id, status: 'paid' } as any)
+        : null;
+      const paid = Number(paidTxn?.amount);
+      const total = Number.isFinite(paid) && paid > 0 ? paid : Number(e?.total_price || 0);
       const amount = Math.round(total * (pct / 100) * 100) / 100;
       if (amount > 0 && e?.appointment_id && e?.patient_id) {
         await this.refundExec.execute({
@@ -887,6 +892,19 @@ export class AppointmentRefundListener {
       }
     } catch (err: any) {
       this.logger.error(`appointment refund consumer failed: ${err?.message} (appointment ${e?.appointment_id})`);
+      // A failed refund must reach operations, not only the log: the dead-letter queue is what the admin reliability screen lists.
+      await this.conn.collection('event_dlq').insertOne({
+        original_event_id: `appt-refund-${e?.appointment_id || ''}`,
+        type: 'appointment.refund.calculated',
+        entity_type: 'appointment',
+        entity_id: e?.appointment_id,
+        payload: e,
+        attempts: 0,
+        last_error: String(err?.message || err).slice(0, 500),
+        status: 'pending',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as any).catch((dlqErr: any) => this.logger.error(`appointment refund failure not queued: ${dlqErr?.message}`));
     }
   }
 }

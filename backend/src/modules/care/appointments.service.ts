@@ -511,11 +511,17 @@ export class AppointmentsService {
 
     const { refundPercentage, refundDestination, penaltyAmount } = await this.calculateRefund(appt, user, reason, isNoShow);
 
-    appt.cancellation_reason = reason || '';
-    appt.refund_percentage = refundPercentage;
-    appt.refund_destination = refundDestination;
-    appt.doctor_penalty = penaltyAmount;
-    await appt.save();
+    // The state change comes first: an illegal move (already completed, cancelled, ...) throws here, before any refund
+    // figure is stored and before anything is emitted that moves money.
+    const cancelled = await this.transition(id, APPT_STATES.CANCELLED, user, reason);
+
+    const refundFields = {
+      cancellation_reason: reason || '',
+      refund_percentage: refundPercentage,
+      refund_destination: refundDestination,
+      doctor_penalty: penaltyAmount,
+    };
+    await this.apptModel.updateOne({ id }, { $set: refundFields });
 
     // Emit event for Billing/Refund processors to act upon
     this.events.emit('appointment.refund.calculated', {
@@ -528,7 +534,7 @@ export class AppointmentsService {
       penalty_amount: penaltyAmount
     });
 
-    return this.transition(id, APPT_STATES.CANCELLED, user, reason);
+    return { ...cancelled, ...refundFields };
   }
 
   /**
@@ -572,9 +578,8 @@ export class AppointmentsService {
         refundDestination = 'source';
       } else {
         refundPercentage = consultationPolicy.late_refund_percent ?? 50;
-        // B-11 legacy read model: late patient cancels read 'wallet'; the money
-        // itself always goes back through the gateway (never a wallet credit).
-        refundDestination = 'wallet';
+        // The money goes back to where it came from (the card through the gateway), late or not; it is never a wallet credit.
+        refundDestination = 'source';
       }
     } else if (hasEffectiveRole(user, UserRole.DOCTOR) || user.id === appt.doctor_user_id) {
       refundPercentage = 100;

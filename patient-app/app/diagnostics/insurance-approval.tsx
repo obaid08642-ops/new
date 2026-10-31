@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
@@ -10,6 +10,7 @@ import { Notice } from '../../src/components/pharmacy/OfferKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
+import { paymentIntentHeaders } from '../../src/utils/payment-idempotency';
 import { recordOf } from '../../src/utils/labMappers';
 
 type ApprovalState = 'pending' | 'full' | 'partial' | 'rejected';
@@ -45,15 +46,17 @@ export default function InsuranceApproval() {
 /** The lab's answer to an insurance request: waiting, then what is covered and what the patient pays (board CheckoutV2 totals). Polls every 3 seconds until answered. */
 function ApprovalStatus() {
   const { theme, t, c, k, num, flow, money } = useScreenUi();
-  const params = useLocalSearchParams<{ labName?: string; visitType?: string; orderId?: string }>();
+  const params = useLocalSearchParams<{ labName?: string; orderId?: string }>();
   const labName = params.labName || k('diag.checkout.chosenLab');
-  const visitType = params.visitType || 'clinic';
   const orderId = params.orderId;
   const [status, setStatus] = useState<ApprovalState>('pending');
   const [details, setDetails] = useState<ApprovalDetails | null>(null);
   const [optedInCashItems, setOptedInCashItems] = useState<string[]>([]); // ids of the items the patient chose to pay cash for
   const [insuranceRequestId, setInsuranceRequestId] = useState('');
   const [gate, setGate] = useState<GateStatus>('loading');
+  const [paying, setPaying] = useState(false);
+  const [payProblem, setPayProblem] = useState('');
+  const payKey = useRef<ReturnType<typeof paymentIntentHeaders> | null>(null);
 
   useEffect(() => {
     if (!orderId) return;
@@ -107,6 +110,25 @@ function ApprovalStatus() {
     if (!orderId) setGate('ready');
   }, [orderId]);
 
+  /** Pays the booking that already exists (the server decides the amount: the full price after a rejection, the co-pay after an approval). */
+  const payBooking = async () => {
+    if (paying || !orderId) return;
+    setPaying(true);
+    setPayProblem('');
+    try {
+      const headers = (payKey.current ??= paymentIntentHeaders('lab', orderId));
+      const intent = await apiFetch<{ id?: string; checkout_url?: string; amount?: number; data?: { id?: string; checkout_url?: string; amount?: number } }>(`/payments/intent/lab/${orderId}`, { method: 'POST', headers, body: JSON.stringify({ method: 'card' }) });
+      const txn = intent?.data || intent;
+      if (!txn?.id) throw new Error('payment_intent_missing');
+      router.replace({ pathname: '/payments/result', params: { moyasarId: String(txn.id), paymentUrl: txn.checkout_url || '', bookingId: orderId, bookingKind: 'lab', amount: String(txn.amount ?? '') } } as unknown as Href);
+    } catch (e) {
+      logError('diagnostics:insurance-approval:pay', e);
+      setPayProblem(k('ordering.pay.failTitle'));
+    } finally {
+      setPaying(false);
+    }
+  };
+
   const toggleCashItem = async (item: ApprovalItem) => {
     const identifier = item.id || item.name;
     const newOptIn = !optedInCashItems.includes(identifier);
@@ -125,7 +147,7 @@ function ApprovalStatus() {
   let hybridCashAdditions = 0;
   if (details) {
     for (const item of details.items) {
-      if (!item.covered && optedInCashItems.includes(item.id || item.name)) hybridCashAdditions += item.price;
+      if (insuranceRequestId && !item.covered && optedInCashItems.includes(item.id || item.name)) hybridCashAdditions += item.price;
     }
   }
   const finalTotalToPay = details ? details.copayAmount + hybridCashAdditions : 0; // only server amounts, no invented home fee (needs-review issues 813, 626)
@@ -146,8 +168,9 @@ function ApprovalStatus() {
           theme={theme}
           size="lg"
           fullWidth
+          loading={paying}
           label={k('diag.ins.payOwn')}
-          onPress={() => router.push({ pathname: '/diagnostics/checkout', params: { visitType, isInsurance: 'false', total: details?.totalAmount ?? 0 } } as unknown as Href)}
+          onPress={() => void payBooking()}
         />
         <Button theme={theme} size="lg" fullWidth variant="outline" label={k('diag.ins.consult')} onPress={() => router.push('/consultations' as Href)} />
       </>
@@ -156,14 +179,20 @@ function ApprovalStatus() {
         theme={theme}
         size="lg"
         fullWidth
+        loading={paying}
         label={k('diag.ins.continue')}
         onPress={() => {
-          // pay the server-computed copay through the insurance engine when the request is linked; otherwise the local checkout
+          // pay the server-computed copay through the insurance engine when the request is linked
           if (insuranceRequestId) {
             router.push({ pathname: '/insurance/request', params: { id: insuranceRequestId, booking_kind: 'lab' } } as unknown as Href);
             return;
           }
-          router.push({ pathname: '/diagnostics/checkout', params: { visitType, isInsurance: 'hybrid', copay: finalTotalToPay } } as unknown as Href);
+          // nothing left to pay (fully covered): the booking's own status; otherwise the co-pay is paid on the booking itself
+          if (!(details && details.copayAmount > 0)) {
+            router.replace({ pathname: '/diagnostics/booking-status', params: { id: orderId } } as unknown as Href);
+            return;
+          }
+          void payBooking();
         }}
       />
     );
@@ -171,6 +200,7 @@ function ApprovalStatus() {
   return (
     <ConsultScreen testID="diagnostics-insurance-approval" title={k('diag.ins.title')} onBack={goBackDiag} footer={footer}>
       <Gate status={gate} onRetry={() => setGate('ready')}>
+        {payProblem ? <Notice tone="danger" text={payProblem} /> : null}
         {status === 'pending' ? <ResultHero icon="clipboard-text" tone="info" title={k('diag.ins.sent', { lab: labName })} body={k('diag.ins.reviewing')} /> : null}
         {status !== 'pending' && hero && details ? (
           <>
@@ -186,7 +216,7 @@ function ApprovalStatus() {
                         <Tag label={item.covered ? k('diag.ins.covered') : k('diag.ins.notCovered')} tone={item.covered ? 'mint' : 'neutral'} />
                         <Text style={{ ...scale(t, 'small', 'medium'), color: c.text.secondary }}>{money(item.price)} {k('pharmacy.currency')}</Text>
                       </View>
-                      {!item.covered && status !== 'rejected' ? (
+                      {!item.covered && status !== 'rejected' && insuranceRequestId ? (
                         <View style={{ gap: 8 }}>
                           {item.rejectReason ? <Notice tone="danger" text={k('diag.ins.reason', { reason: item.rejectReason })} /> : null}
                           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>

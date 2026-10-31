@@ -14,6 +14,7 @@ import { ProviderBankAccountRepository } from "./repositories/providerbankaccoun
 import { ProviderAuditLogRepository } from "./repositories/providerauditlog.repository";
 import { AutoEntitySeoPipelineService } from '../../events/auto-entity-seo-pipeline.service';
 import { CatalogPublicationService } from '../../events/catalog-publication.service';
+import { doctorSessionPriceProjection } from './doctor-session-price';
 
 @Injectable()
 export class ProviderAdminService {
@@ -472,6 +473,14 @@ export class ProviderAdminService {
           ...(op === 'create' ? { $setOnInsert: { id: uuidv4(), created_at: new Date() } } : {}),
         }, { upsert: op === 'create' });
         applied = (res.modifiedCount || 0) + ((res.upsertedCount || 0) as number);
+        // the booking and the listings read the profile's prices, so the approved session price goes there too
+        const projection = String((changes as any).catalog) === 'doctor_sessions' ? doctorSessionPriceProjection((changes as any).payload) : null;
+        if (projection && accountId) {
+          await db('provider_profiles').updateOne(
+            { $or: [{ account_id: accountId }, { user_id: accountId }, { id: accountId }] } as any,
+            { $set: { [projection.field]: projection.price, updated_at: new Date() } },
+          );
+        }
       }
     } else if (target === 'insurance_matrix') {
       await db('provider_insurance').updateOne(

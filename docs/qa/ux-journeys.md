@@ -193,3 +193,31 @@ Checked against `main` at 8975b933: the commits merged since this walk, and the 
 ### Still open on this PR's base
 
 - PR #2015 (`qa/e2e-sweep-account`) is red on `live gate (shard 1/5)`. The only failing step is `j_web_qa_chi`: after a reload it finds two CHI links where it expects one. The code has one source of that link, so the cause is not yet established.
+
+## Delta 2 against main (2026-10-31, after #2204 to #2214)
+
+Re-checked against `main` at e33c73aa. The fixes are read from the merged commit messages and the cited lines on `main`; the full journeys were not re-walked and nothing was run.
+
+### Fixed on main
+
+- Consultation card charge now uses the amount the screen shows (`c51da700`, #2212): `payments.module.ts:480` no longer charges `booking.price` (was P0). Insured lab, radiology and nursing charge `insurance_copay` (booking-status pay-share P0 also fixed).
+- Chat and calls security P0s (`ce3ed318`, #2206): fallback token checks (`livekit.service.ts:356`), group-only member management (`chat.service.ts:592`), canonical booking kind (`chat.service.ts:280`), fail-closed window, voice by MIME (`:291`), scanned media only (`:202`), gateway participant checks (`chat.gateway.ts:120`).
+- Chat and calls rest (`43026a43`, #2208): webhook key, raw body and real path (`livekit.service.ts:406`, `infra/livekit.yaml:25`), guardian token (`:74`), rejoin window (`:51`), user-id identity (`:86`), one `chat.message_sent` (`chat.service.ts:418`), full realtime body (`:400`), consultation window by completion time (`consultation-window.ts:38`), upload gate (`media.controller.ts:154`).
+- Calls web (`e7d55b8a`, #2210): `leave()` ends the session (`video-room-client.tsx:152`), time-based poor-link detection (`:78`), camera and microphone requested separately (`:102`), connect failure with retry (`:106`), blocked-autoplay button (`:91`), early and late join says not ready (`video-call/page.tsx:26`).
+- Chat app (`37594d97`, #2209): one outbox runner that flushes every thread (`outbox.ts:67` no longer blocks the queue), in-order sending (`chat-with-doctor.tsx:239`), files being scanned shown as being checked (`:326`).
+- App auth (`a30d9e63`, #2214): canonical OTP, register and reset; code sign-in (`login.tsx:137`); consents on sign-up (`otp.tsx:123`); AppGate copy translated (`AppGate.tsx:59`); localized cancel errors (`cancel-reschedule.tsx:172`).
+- App sign-out and 401 (`88a37add`, #2214): sign-out clears stored tokens and revokes (`AccountView.tsx:69`, `SettingsViews.tsx:37`); a 401 refreshes once and then signs out (`api.ts:184`, `AuthInterceptor.ts:39`).
+- Earlier items from Delta 1 remain fixed (web sign-in with a code, password minimum, reset copy, OTP identifier, admin reject prompt).
+
+### Still open on main (checked)
+
+- Cancel after completion still refunds: `backend/src/modules/care/appointments.service.ts:507-521` saves the refund fields and emits `appointment.refund.calculated` before any transition check (P0).
+- Payout approval: `finance-suite.service.ts:353-374` still sets `APPROVED_FOR_PAYOUT`, and no path found moves it to paid. The provider list includes the state (`provider-payouts.controller.ts:14`). Not re-walked end to end (P0).
+- Radiology through the ordering route: `patient-app/src/utils/orderingBooking.ts` has no kind guard; it still posts radiology quotes to `/ordering/bookings` (P0; web `confirm-client.tsx:110` not re-checked).
+- Nursing duration: `patient-app/app/nursing/nurse-profile.tsx:127` still multiplies the estimate by `daysCount`, and the request payload (`:190-215`) sends no session count (P0).
+- Provider earnings: `backend/src/modules/provider-ops/provider-ops.module.ts:83` still credits `total_price`, and `:654` does not use `CommissionResolver` (P0).
+
+### Still open, not re-checked this round
+
+- All other P1 and P2 items in the walk, including the admin duplicates and the provider wallet items.
+- PR #2015: the shard 1 failure is still the CHI link after reload. A diagnostic commit (`4a356285`) prints where the extra anchors sit, so the next run should show the cause.
