@@ -66,6 +66,16 @@ jobs:
           curl -s -X POST -H "Authorization: Bearer $CF" -H 'Content-Type: application/json' \
             "https://api.cloudflare.com/client/v4/zones/$Z/purge_cache" --data '{"hosts":["api.nabd.plus"]}' \
             | jq -r '"cf-purge: success=\(.success) errors=\(.errors|map(.message)|join("; "))"'
+      - name: External port probe of the calls ports from this runner (only when RUN lists net-probe)
+        if: ${{ !cancelled() }}
+        env:
+          H: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          grep -qE '^\s*net-probe\s*$' tools/ops/RUN || { echo "skipped"; exit 0; }
+          # read-only: one connection or one STUN request per port; prints only ok/fail per port (no address, no payload)
+          python3 tools/ops/net-probe.py "$H" | tee probe.txt || true
+          grep -E '^status:' probe.txt | while IFS= read -r l; do echo "::notice title=net-probe::$l"; done
+          rm -f probe.txt
       - name: Cleanup key
         if: ${{ always() }}
         run: rm -f ~/.ssh/id_deploy
