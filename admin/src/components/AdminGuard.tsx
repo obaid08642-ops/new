@@ -40,6 +40,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: '/admin/provider-moderation', label: 'تدقيق واعتماد المزودين' },
       { href: '/admin/license-expiry', label: 'تراخيص قاربت على الانتهاء' },
+      { href: '/admin/service-offers', label: 'خدمات المزودين وأسعارها' },
       { href: '/admin/provider-audits', label: 'سجلات تدقيق المزودين' },
       { href: '/admin/insurance-queue', label: 'طابور الموافقات التأمينية' },
       { href: '/admin/insurance-companies', label: 'شركات التأمين المعتمدة' },
@@ -160,6 +161,7 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/disputes': 'disputes.resolve',
   '/admin/provider-moderation': 'facility.edit',
   '/admin/license-expiry': 'facility.edit',
+  '/admin/service-offers': 'facility.edit',
   // The page lists and decides provider profile edits (provider-deltas), which need facility.edit.
   '/admin/provider-audits': 'facility.edit',
   '/admin/insurance-queue': 'order.read',

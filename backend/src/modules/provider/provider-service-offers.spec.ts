@@ -122,11 +122,15 @@ describe('ProviderServiceOffersService', () => {
     expect(await col('provider_service_offers').countDocuments({})).toBe(1);
   });
 
-  it('the admin view shows who offers a service and how, ids and options only', async () => {
+  it('the admin view shows who offers a service and how, with the service and provider names and nothing private', async () => {
+    await col('provider_accounts').insertOne({ id: 'lab1', display_name_ar: 'مختبر النخبة', display_name_en: 'Elite Lab', email: 'secret@example.test' });
     await svc.set(labUser, 'lab', 'CBC', { offered: true, where: 'home', insurance: true, price: 40 });
     const v = await svc.adminView('lab', { service_id: 'CBC' });
     expect(v).toMatchObject({ vertical: 'lab', total: 1, offered: 1 });
-    expect(v.items[0]).toMatchObject({ provider_account_id: 'lab1', service_id: 'CBC', where: 'home', insurance: true, price: 40 });
-    expect(Object.keys(v.items[0]).sort()).toEqual(['currency', 'insurance', 'offered', 'price', 'provider_account_id', 'service_id', 'updatedAt', 'where']);
+    expect(v.items[0]).toMatchObject({ provider_account_id: 'lab1', service_id: 'CBC', where: 'home', insurance: true, price: 40, service_name_ar: 'صورة دم', service_name_en: 'CBC', provider_name_ar: 'مختبر النخبة', provider_name_en: 'Elite Lab' });
+    expect(Object.keys(v.items[0]).sort()).toEqual(['currency', 'insurance', 'offered', 'price', 'provider_account_id', 'provider_name_ar', 'provider_name_en', 'service_id', 'service_name_ar', 'service_name_en', 'updatedAt', 'where']);
+    // one provider's own choices
+    expect((await svc.adminView('lab', { provider_account_id: 'lab1' })).total).toBe(1);
+    expect((await svc.adminView('lab', { provider_account_id: 'nobody' })).total).toBe(0);
   });
 });
