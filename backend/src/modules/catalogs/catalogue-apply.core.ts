@@ -74,6 +74,78 @@ export function summarize(changes: Change[]): Record<string, { set: number; inse
   return out;
 }
 
+// ---------------------------------------------------------------------------
+// one write per field
+// ---------------------------------------------------------------------------
+
+/**
+ * Which step's write stands when two steps change the same field of the same row. The marker of a merged-away duplicate (`is_deleted: true`,
+ * `merged_into`) must beat the completion's `is_deleted: false` default; the earlier step in this list wins, a step not listed comes last.
+ */
+export const STEP_PRECEDENCE = ['radiology_catalogue', 'catalogue_duplicates', 'catalogue_hidden_delete', 'catalogue_prune', 'catalogue_completion', 'product_translations'];
+const rank = (step: string): number => { const i = STEP_PRECEDENCE.indexOf(step); return i === -1 ? STEP_PRECEDENCE.length : i; };
+const overlaps = (a: string, b: string): boolean => a === b || a.startsWith(`${b}.`) || b.startsWith(`${a}.`);
+
+export interface SelfConflictReport {
+  /** Writes dropped because another write to the same field (or a parent / child path of it) stands: "winner_step>dropped_step collection.path" -> count. Paths only, never values. */
+  by_pair: Record<string, number>;
+  dropped: number;
+  /** The same step planning the identical write twice (two losers filling one keeper field with the same value). */
+  identical_collapsed: number;
+  /** Writes planned as a chain on one field (the second one's before-image is the first one's result): merged into one write, first before to last after. */
+  chained: number;
+}
+
+/**
+ * The apply runs the sets of a collection in one unordered bulk write, each guarded by the value the plan saw. Two sets on the same field that both
+ * carry the SAME before-image (every step plans from the database as it is) race: whichever lands second finds the field changed and is skipped, the
+ * apply counts it as "changed since the plan" and fails its own verify, and which one stands depends on timing. The plan therefore carries one set
+ * per field:
+ *  - a chain (the second write's before is the first write's after: the districts step plans this on purpose) is merged into one write;
+ *  - otherwise the step that comes first in STEP_PRECEDENCE wins, inside one step the earlier change wins, and the rest are dropped and reported
+ *    by step pair and path. A set on a parent path (`translations`) and one on a child (`translations.hi.name`) count as the same field.
+ */
+export function resolveSelfConflicts(changes: Change[]): { changes: Change[]; report: SelfConflictReport } {
+  const report: SelfConflictReport = { by_pair: {}, dropped: 0, identical_collapsed: 0, chained: 0 };
+  const rowOf = (c: SetChange) => `${c.collection}|${stable(c.key)}`;   // the whole key: some collections are keyed by code + type, not _id
+  // 1. chains, in plan order: same row, same path, before == the previous write's after
+  const out: Change[] = [];
+  const lastOf = new Map<string, number>();   // row|path -> index in out
+  for (const c of changes) {
+    if (c.kind !== 'set') { out.push(c); continue; }
+    const k = `${rowOf(c)}|${c.path}`;
+    const at = lastOf.get(k);
+    const prev = at === undefined ? undefined : (out[at] as SetChange);
+    if (prev && stable(prev.after) === stable(c.before) && stable(prev.before) !== stable(c.before)) {
+      out[at as number] = { ...prev, after: c.after };
+      report.chained += 1;
+      continue;
+    }
+    lastOf.set(k, out.length);
+    out.push(c);
+  }
+  // 2. conflicts: same row, same or overlapping path, same before-image
+  const byRow = new Map<string, Array<{ i: number; c: SetChange }>>();
+  out.forEach((c, i) => { if (c.kind === 'set') { const k = rowOf(c); byRow.set(k, [...(byRow.get(k) ?? []), { i, c }]); } });
+  const drop = new Set<number>();
+  for (const rows of byRow.values()) {
+    if (rows.length < 2) continue;
+    const order = [...rows].sort((a, b) => rank(a.c.step) - rank(b.c.step) || a.i - b.i);
+    const kept: typeof rows = [];
+    for (const r of order) {
+      const winner = kept.find((k) => overlaps(k.c.path, r.c.path));
+      if (!winner) { kept.push(r); continue; }
+      drop.add(r.i);
+      if (winner.c.step === r.c.step && winner.c.path === r.c.path && stable(winner.c.after) === stable(r.c.after) && stable(winner.c.before) === stable(r.c.before)) { report.identical_collapsed += 1; continue; }
+      const pair = `${winner.c.step}>${r.c.step} ${r.c.collection}.${r.c.path === winner.c.path ? r.c.path : `${winner.c.path}~${r.c.path}`}`;
+      report.by_pair[pair] = (report.by_pair[pair] ?? 0) + 1;
+      report.dropped += 1;
+    }
+  }
+  const changed = drop.size > 0 || report.chained > 0;
+  return { changes: changed ? out.filter((_, i) => !drop.has(i)) : changes, report };
+}
+
 /** One short line per collection: rows touched, writes by kind, and the deletions by step (their reason). */
 export function collectionLines(changes: Change[]): string[] {
   const by: Record<string, { set: number; insert: number; delete: number; reasons: Record<string, number> }> = {};
@@ -140,11 +212,12 @@ async function runUpdates(db: DbLike, collection: string, ops: Array<{ filter: R
   return { modified, total: ops.length };
 }
 
-export async function applyChanges(db: DbLike, changes: Change[], now: Date = new Date()): Promise<{ applied: number; skipped_changed_since_plan: number; inserted: number; deleted: number; retried_batches: number }> {
+export async function applyChanges(db: DbLike, changes: Change[], now: Date = new Date()): Promise<{ applied: number; skipped_changed_since_plan: number; inserted: number; deleted: number; retried_batches: number; skipped_by?: Record<string, number> }> {
   const stats: RetryStats = { retried_batches: 0 };
   let applied = 0; let skipped = 0; let inserted = 0; let deleted = 0;
   const removals: DeleteChange[] = [];
-  const sets = new Map<string, Array<{ filter: Record<string, unknown>; update: Record<string, unknown> }>>();
+  const sets = new Map<string, Array<{ filter: Record<string, unknown>; update: Record<string, unknown>; label: string; path: string; after: unknown; key: Record<string, unknown> }>>();
+  const skippedBy: Record<string, number> = {};
   for (const c of changes) {
     if (c.kind === 'insert') {
       // On a retry, a document with this code may be the one the dropped first attempt wrote: that counts as inserted.
@@ -159,20 +232,27 @@ export async function applyChanges(db: DbLike, changes: Change[], now: Date = ne
       removals.push(c);
     } else {
       const list = sets.get(c.collection) ?? [];
-      list.push({ filter: { ...c.key, [c.path]: beforeGuard(c.before) }, update: { $set: { [c.path]: c.after } } });
+      list.push({ filter: { ...c.key, [c.path]: beforeGuard(c.before) }, update: { $set: { [c.path]: c.after } }, label: `${c.step} ${c.collection}.${c.path}`, path: c.path, after: c.after, key: c.key });
       sets.set(c.collection, list);
     }
   }
   for (const [collection, ops] of sets) {
     const r = await runUpdates(db, collection, ops, stats);
     applied += r.modified; skipped += r.total - r.modified;
+    // Name what did not land, by step and field (never values): a write whose field does not hold the planned value now was skipped.
+    if (r.modified < r.total) {
+      for (const o of ops) {
+        const holds = await db.collection(collection).countDocuments({ ...o.key, [o.path]: o.after });
+        if (!holds) skippedBy[o.label] = (skippedBy[o.label] ?? 0) + 1;
+      }
+    }
   }
   // deletes last: the references were re-pointed above. A document that is no longer the one the plan saw (other _id) is left alone.
   for (const c of removals) {
     const res = await withRetry(() => db.collection(c.collection).deleteOne({ ...c.key, _id: c.doc._id }), stats);
     if (res.deletedCount) deleted += 1; else skipped += 1;
   }
-  return { applied, skipped_changed_since_plan: skipped, inserted, deleted, retried_batches: stats.retried_batches };
+  return { applied, skipped_changed_since_plan: skipped, inserted, deleted, retried_batches: stats.retried_batches, ...(Object.keys(skippedBy).length ? { skipped_by: skippedBy } : {}) };
 }
 
 /**

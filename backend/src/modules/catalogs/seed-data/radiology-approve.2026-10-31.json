@@ -1,0 +1,14 @@
+{
+ "reviewed_by": "owner-2026-10-31",
+ "note": "approve the scans that were waiting for a decision and keep ONE hysterosalpingography row (hsg is merged into hysterosalpingography_hsg, which is approved so the merge target is visible)",
+ "approve": [
+  "barium_study",
+  "dental_panoramic",
+  "pet_ct_scan",
+  "hysterosalpingography_hsg"
+ ],
+ "merge": {
+  "hsg": "hysterosalpingography_hsg"
+ },
+ "delete": []
+}

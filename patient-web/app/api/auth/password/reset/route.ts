@@ -3,9 +3,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authCookieNames } from "@/lib/auth/cookies";
 import { boundedUpstreamError } from "@/lib/api/error-response";
+import { MIN_PASSWORD_LENGTH } from "@/lib/auth/password-rule";
 import { callPatientApi } from "@/lib/api/upstream";
 
-const bodySchema = z.object({ reset_token: z.string().trim().min(1).max(1000), new_password: z.string().min(10).max(200) }).strict();
+const bodySchema = z.object({ reset_token: z.string().trim().min(1).max(1000), new_password: z.string().min(MIN_PASSWORD_LENGTH).max(200) }).strict();
 export async function POST(request: Request) {
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ message: "invalid_password_reset_payload" }, { status: 400, headers: { "cache-control": "no-store" } });

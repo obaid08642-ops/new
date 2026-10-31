@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiFetch } from '../utils/api';
+import { i18nManager } from '../i18n/LanguageManager';
 import { isVersionBlocked, pickAppConfig } from '../utils/version';
 import { tokens } from '../../../packages/design-tokens/dist/ts/tokens';
 const T = tokens('light').color;
@@ -18,6 +19,9 @@ const APP_VERSION: string = (() => {
   }
 })();
 
+// the admin writes this message in Arabic only: it is shown to Arabic readers, everyone else gets the translated default
+const adminMessage = (ar?: string) => (i18nManager.currentLanguage === 'ar' ? ar : undefined);
+
 export default function AppGate({ children }: { children: React.ReactNode }) {
   const insets = useSafeAreaInsets();
   const [state, setState] = useState<'checking' | 'ok' | 'maintenance' | 'update'>('checking');
@@ -29,12 +33,12 @@ export default function AppGate({ children }: { children: React.ReactNode }) {
       const config: any = await apiFetch('/config');
       const app = pickAppConfig(config, 'patient');
       if (app.maintenance) {
-        setMessage(app.message_ar || 'التطبيق في صيانة مجدولة. حاول لاحقاً.');
+        setMessage(adminMessage(app.message_ar) || i18nManager.t('gate.maintenanceBody'));
         setState('maintenance');
         return;
       }
       if (isVersionBlocked(APP_VERSION, app.min_version)) {
-        setMessage(app.message_ar || 'يتوفر إصدار جديد إلزامي. حدّث التطبيق للمتابعة.');
+        setMessage(adminMessage(app.message_ar) || i18nManager.t('gate.updateBody'));
         setState('update');
         return;
       }
@@ -56,10 +60,10 @@ export default function AppGate({ children }: { children: React.ReactNode }) {
   }
   return (
     <View style={[styles.center, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-      <Text style={styles.title}>{state === 'maintenance' ? 'صيانة مجدولة' : 'تحديث مطلوب'}</Text>
+      <Text style={styles.title}>{i18nManager.t(state === 'maintenance' ? 'gate.maintenanceTitle' : 'gate.updateTitle')}</Text>
       <Text style={styles.body}>{message}</Text>
       <TouchableOpacity style={styles.retry} onPress={() => void check()}>
-        <Text style={styles.retryText}>إعادة المحاولة</Text>
+        <Text style={styles.retryText}>{i18nManager.t('gate.retry')}</Text>
       </TouchableOpacity>
     </View>
   );

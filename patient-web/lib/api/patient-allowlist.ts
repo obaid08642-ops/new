@@ -122,6 +122,8 @@ const diagnosticsMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp
   { method: "POST", route: new RegExp("^/nutrition/water$", "i") },
   { method: "POST", route: new RegExp("^/mental-health/mood$", "i") },
   { method: "POST", route: new RegExp("^/maternity/(kicks|contractions|infant-growth)$", "i") },
+  // components-next/video-room-client: leaving a call ends its session on the server (backend livekit.controller POST :sessionId/end; the service checks the caller is a party)
+  { method: "POST", route: new RegExp(`^/calls/${orderId}/end$`, "i") },
   { method: "POST", route: new RegExp("^/support/chat$", "i") },
   { method: "POST", route: new RegExp(`^/support/requests/[^/]+/reply$`, "i") },
   { method: "POST", route: new RegExp("^/medical/programs/complete-session$", "i") },
@@ -164,6 +166,9 @@ const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }>
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/messages$`, "i") },
   // issue 806: the doctor thread composer sends one text message (backend chat.module POST /chat/threads/:id/messages)
   { method: "POST", route: new RegExp(`^/chat/threads/${threadId}/messages$`, "i") },
+  // seen and delivered receipts of the doctor thread (backend chat.module POST /chat/threads/:id/read and /delivered)
+  { method: "POST", route: new RegExp(`^/chat/threads/${threadId}/read$`, "i") },
+  { method: "POST", route: new RegExp(`^/chat/threads/${threadId}/delivered$`, "i") },
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/accept-substitute/[A-Za-z0-9_-]{1,128}$`, "i") },
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/reject$`, "i") },
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/remove-item$`, "i") },

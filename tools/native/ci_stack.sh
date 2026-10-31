@@ -2,15 +2,30 @@
 # Start the real test stack on a GitHub runner for the native E2E jobs (same stack as live-gate.yml):
 # MongoDB replica set, test doubles (S3 moto, SMTP sink, fake Moyasar), the built backend on :8002 and
 # the admin panel BFF on :3001 (admin login + provider approval go through it). Redis comes from the job's
-# `services:` block. The Android emulator reaches this backend as http://10.0.2.2:8002.
+# `services:` block (Linux) or Homebrew (macOS). The Android emulator reaches this backend as http://10.0.2.2:8002,
+# the iOS simulator (it shares the host network) as http://127.0.0.1:8002.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
-docker run -d --name mongo -p 27017:27017 mongo:7 --replSet rs0 --bind_ip_all
-for i in $(seq 1 30); do docker exec mongo mongosh --quiet --eval 'db.runCommand({ping:1})' && break; sleep 2; done
-docker exec mongo mongosh --quiet --eval 'rs.initiate({_id:"rs0",members:[{_id:0,host:"127.0.0.1:27017"}]})'
-for i in $(seq 1 30); do docker exec mongo mongosh --quiet --eval 'rs.status().ok' | grep -q 1 && break; sleep 2; done
+if command -v docker >/dev/null 2>&1; then
+  docker run -d --name mongo -p 27017:27017 mongo:7 --replSet rs0 --bind_ip_all
+  MONGOSH() { docker exec mongo mongosh --quiet --eval "$1"; }
+else
+  # macOS runner (iOS simulator job): no Docker, so MongoDB and Redis come from Homebrew
+  brew tap mongodb/brew >/dev/null
+  # newer Homebrew refuses formulae from a tap it has not been told to trust ("Refusing to load formula ... from untrusted tap")
+  brew trust mongodb/brew >/dev/null 2>&1 || true
+  brew install mongodb-community@7.0 mongosh redis >/dev/null
+  mkdir -p /tmp/mongo-data
+  nohup "$(brew --prefix mongodb-community@7.0)/bin/mongod" --dbpath /tmp/mongo-data --replSet rs0 --bind_ip 127.0.0.1 > /tmp/mongod.log 2>&1 &
+  nohup redis-server --port 6379 > /tmp/redis.log 2>&1 &
+  # mongosh is its own formula (not in the mongodb-community keg): it is on PATH from Homebrew's bin
+  MONGOSH() { mongosh --quiet --eval "$1"; }
+fi
+for i in $(seq 1 30); do MONGOSH 'db.runCommand({ping:1})' && break; sleep 2; done
+MONGOSH 'rs.initiate({_id:"rs0",members:[{_id:0,host:"127.0.0.1:27017"}]})'
+for i in $(seq 1 30); do MONGOSH 'rs.status().ok' | grep -q 1 && break; sleep 2; done
 
 pip install -q 'moto[server]==5.*' boto3 aiosmtpd
 nohup moto_server -p 9000 > /tmp/moto.log 2>&1 &

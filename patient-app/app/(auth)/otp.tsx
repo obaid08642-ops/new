@@ -2,30 +2,24 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Text, TextInput, View, type TextInputInstance } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { Button, Screen, StickyFooter } from '../../../packages/ui-native/src';
 import { apiFetch } from '../../src/utils/api';
 import { STORAGE_KEYS } from '../../src/constants';
-import { startSession, type AuthResponse } from '../../src/utils/authSession';
+import { startSession } from '../../src/utils/authSession';
 import { serverMessage } from '../../src/utils/serverMessage';
 import { LocalizedText } from '../../src/components/LocalizedText';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
-import { consumeRegistrationTransaction } from '../../src/services/auth/RegistrationTransaction';
+import { requestOtp, verifyOtp } from '../../src/auth/patientAuth';
 import { AuthAltLine, AuthBody, AuthFooter, AuthLink, AuthTitle, AuthTopBar, FONT, focusRing, useAuthUi } from '../../src/components/auth/AuthKit';
 
 export default function OtpScreen() {
   const { theme, c, tr } = useAuthUi();
   const dispatch = useDispatch();
-  const isGuest = useSelector((state: any) => state.auth.isGuest);
-  const params = useLocalSearchParams();
+    const params = useLocalSearchParams();
 
-  const mode = (params.mode as string) || 'login';
-  const [registrationPayload] = useState(() => mode === 'register'
-    ? consumeRegistrationTransaction(params.transactionId as string | undefined)
-    : null);
-  const phone = registrationPayload?.phone || (params.phone as string) || '';
-
+  const identifier = ((params.identifier as string) || '').trim();
   const [otp, setOtp] = useState(['', '', '', '', '', '']); // 6 digits for our backend
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -50,22 +44,19 @@ export default function OtpScreen() {
     }
   };
 
-  // F75: resend calls the same send-OTP endpoint as the first send.
   const handleResend = async () => {
     if (resending || timer > 0) return;
-    const identifier = registrationPayload?.email || (params.email as string) || phone;
     if (!identifier) {
       showLocalizedAlert('common.errorTitle', 'auth.otp.noAccountToResend');
       return;
     }
     setResending(true);
     try {
-      // A new account has no user record yet: without purpose 'register' the backend answers {ok:true} and sends
-      // nothing (the first send from the register screen passed it).
-      await apiFetch('/auth/send-otp', {
-        method: 'POST',
-        body: JSON.stringify(mode === 'register' ? { identifier, purpose: 'register' } : { identifier }),
-      });
+      const { otp_no_channel } = await requestOtp(apiFetch, identifier);
+      if (otp_no_channel) {
+        showLocalizedAlert('common.errorTitle', 'auth.otp.noChannel');
+        return;
+      }
       setTimer(60);
       setOtp(['', '', '', '', '', '']);
     } catch (e: any) {
@@ -88,66 +79,13 @@ export default function OtpScreen() {
       return;
     }
     
-    const emailParam = registrationPayload?.email || (params.email as string) || '';
-    if (mode === 'reset') {
-      // POST /auth/reset-password verifies the code itself and consumes it. Verifying here as well would use the
-      // code up (the backend deletes it on a valid check), so the next screen would be refused: the code goes along.
-      router.replace({ pathname: '/(auth)/reset-password', params: { email: emailParam, code } });
-      return;
-    }
-
     setLoading(true);
     try {
-      const resOtp = await apiFetch('/auth/verify-otp', {
-        method: 'POST',
-        body: JSON.stringify({
-          email: emailParam,
-          code: code,
-        }),
-      });
-
-      // M1: backend returns { ok: true } from /auth/verify-otp (older mocks used `verified`)
-      const otpVerified = !!(resOtp?.verified || resOtp?.ok);
-      let token = typeof resOtp?.token === 'string' ? resOtp.token : (resOtp?.token?.accessToken || '');
-      let userData = resOtp?.user || null;
-      // the whole token object (access and refresh), kept for the session start below
-      let tokenPayload: AuthResponse['token'] = resOtp?.token;
-
-      if (otpVerified) {
-        if (mode === 'register') {
-          if (!registrationPayload) {
-            showLocalizedAlert('common.errorTitle', 'auth.otp.registrationExpired');
-            setLoading(false);
-            return;
-          }
-          const regRes = await apiFetch('/auth/register', {
-            method: 'POST',
-            body: JSON.stringify({
-              full_name: registrationPayload.fullName,
-              phone: registrationPayload.phone,
-              email: registrationPayload.email,
-              password: registrationPayload.password,
-            }),
-          });
-          token = typeof regRes?.token === 'string' ? regRes.token : (regRes?.token?.accessToken || '');
-          userData = regRes?.user;
-          tokenPayload = regRes?.token;
-        } else if (isGuest && !token) {
-          showLocalizedAlert('common.errorTitle', 'auth.otp.createFirst');
-          setLoading(false);
-          return;
-        }
-      }
-
-      if (!token || !userData) {
-        showLocalizedAlert('common.errorTitle', 'auth.otp.badCodeOrNoAccount');
-        setLoading(false);
-        return;
-      }
-
+      const pair = await verifyOtp(apiFetch, identifier, code);
+      // A wrong, used or expired code never reaches here (the backend refuses it).
       // Secure storage only, both tokens (the access token lasts an hour; without the refresh token the session
       // would end with it), then the auth slice learns of the user.
-      const session = await startSession({ user: userData, token: tokenPayload }, dispatch);
+      const session = await startSession({ token: { accessToken: pair.accessToken, refreshToken: pair.refreshToken } }, dispatch);
       if (!session.ok) {
         showLocalizedAlert('common.errorTitle', 'auth.err.notStored');
         setLoading(false);
@@ -169,7 +107,6 @@ export default function OtpScreen() {
     }
   };
 
-  const identifier = registrationPayload?.email || (params.email as string) || phone;
   const byEmail = identifier.includes('@');
   const countdown = `${Math.floor(timer / 60)}:${String(timer % 60).padStart(2, '0')}`;
 

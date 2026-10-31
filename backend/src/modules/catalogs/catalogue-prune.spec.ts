@@ -79,7 +79,7 @@ describe('catalogue_prune', () => {
 
   it('is reachable as --only=catalogue_prune and prints its report', async () => {
     const p = await computePlan(db(), ['plan', '--only=catalogue_prune']);
-    expect(Object.keys(p.report)).toEqual(['catalogue_prune']);
+    expect(Object.keys(p.report)).toEqual(['catalogue_prune', 'self_conflicts']);
     expect(p.changes).toHaveLength(7);
   });
 

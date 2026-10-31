@@ -22,7 +22,7 @@ describe('catalogue-apply --only=test_data --test-data-remove=packaged', () => {
     await db.collection('users').insertOne({ id: 'u1' });
     const p = await computePlan(db as unknown as DbLike, ['plan', '--only=test_data', '--test-data-remove=packaged']);
     expect(p.changes.map((c) => c.step)).toEqual(['test_data', 'test_data', 'test_data']);
-    expect(Object.keys(p.report)).toEqual(['test_data']);
+    expect(Object.keys(p.report)).toEqual(['test_data', 'self_conflicts']);
     expect(p.report.test_data).toMatchObject({ resolved_ids: { c142700b: 'c142700b-1111-4111-8111-000000000002' }, deletes: { provider_profiles: 1, provider_accounts: 1, users: 1 } });
     await db.collection('provider_profiles').deleteMany({}); await db.collection('provider_accounts').deleteMany({}); await db.collection('users').deleteMany({});
     expect((await computePlan(db as unknown as DbLike, ['plan', '--only=test_data', '--test-data-remove=packaged'])).changes).toEqual([]);

@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, MaxLength, Min, Max, Matches, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsInt, IsNumber, IsObject, IsOptional, IsString, MaxLength, Min, Max, Matches, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { OtpPurpose } from './schemas';
 
@@ -337,6 +337,29 @@ export class RejectDeltaDto {
 
 }
 
+export class RejectBankDto {
+  /** Why the payout account was refused: the provider reads it and sends a corrected one. */
+  @IsString()
+  @MaxLength(500)
+  reason: string;
+
+}
+
+export class LicenseExpiryQueryDto {
+  /** Providers whose licence expires within this many days (already expired ones are always included). Default 60. */
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(730)
+  within_days?: number;
+
+  @IsOptional()
+  @IsString()
+  type?: string;
+
+}
+
 export class RejectDeltaDto2 {
   @IsOptional()
   @IsString()
@@ -431,6 +454,11 @@ export class ReactivateDto {
   @ValidateNested()
   @Type(() => ManualLicenseCheckDto)
   manual_license_check?: ManualLicenseCheckDto;
+
+  /** The renewed licence expiry (ISO date): required to bring back a provider whose licence expired. */
+  @IsOptional()
+  @IsDateString()
+  license_expiry_date?: string;
 
 }
 

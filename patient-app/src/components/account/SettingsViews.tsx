@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { endPatientSession } from '../../auth/session';
 import { Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 import Constants from 'expo-constants';
@@ -35,8 +36,10 @@ export function SettingsHubView() {
   const version = Constants.expoConfig?.version ?? '';
   const go = (route: string) => () => router.push(route as Href);
   const signOut = () => {
-    dispatch(logout());
-    router.replace('/(auth)/welcome' as Href);
+    void endPatientSession().finally(() => {
+      dispatch(logout());
+      router.replace('/(auth)/welcome' as Href);
+    });
   };
   return (
     <AccountScreen title={k('set.title')} fallback={'/profile' as Href} testID="settings-screen">

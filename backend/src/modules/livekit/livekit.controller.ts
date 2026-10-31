@@ -36,7 +36,7 @@ export class LiveKitController {
   @Public()
   @Post('webhook')
   async webhook(@Body() body: Record<string, unknown>, @Req() req: any) {
-    return this.svc.handleWebhook(body, req?.headers?.authorization);
+    return this.svc.handleWebhook(body, req?.headers?.authorization, req?.rawBody);
   }
 
   @SelfService()

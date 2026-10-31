@@ -162,7 +162,7 @@ describe('every listed switch is enforced where its action starts (nothing else 
     const k = off('chat_enabled');
     await expectOff(new ChatService(untouched(), untouched(), untouched(), untouched(), k).sendMessage('t1', 'u1', 'patient', { body: 'hi' }), 'chat_enabled');
     const gw = new ChatGateway(untouched(), k);
-    await expect(gw.handleSendMessage({ id: 's1', to: () => { throw new Error('relayed'); } } as any, { threadId: 't1', content: 'hi', state: 'OPEN' })).resolves.toEqual({ error: 'kill_switch_off:chat_enabled' });
+    await expect(gw.handleSendMessage({ id: 's1', to: () => { throw new Error('relayed'); } } as any, { threadId: 't1', content: 'hi' })).resolves.toEqual({ error: 'kill_switch_off:chat_enabled' });
     await expectOff(new FamilyChatController(untouched(), k).send({ id: 'u1' }, { text: 'hi' } as any), 'chat_enabled');
     await expectOff(new DoctorsService(untouched(), untouched(), untouched(), untouched(), untouched(), untouched(), k).postMessage({ id: 'u1' }, 'a1', 'hi'), 'chat_enabled');
   });

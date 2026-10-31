@@ -78,6 +78,19 @@ describe("patient OTP BFF routes", () => {
     state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ code: "otp_no_channel" }), { status: 503 }));
     expect((await requestOtp(jsonRequest("/api/auth/otp/request", { identifier: "+966509999999" }))).status).toBe(503);
   });
+  it("names otp_no_channel for the page and sets the identifier cookie only when a code was sent", async () => {
+    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ message: "otp_no_channel", code: "otp_no_channel" }), { status: 503 }));
+    const refused = await requestOtp(jsonRequest("/api/auth/otp/request", { identifier: "+966509999999" }));
+    expect(refused.status).toBe(503);
+    expect(await refused.json()).toEqual({ message: "otp_no_channel" });
+    expect(refused.headers.get("set-cookie")).toBeNull();
+    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ otp_sent: true, channel: "email", expires_in: 300 }), { status: 201 }));
+    const sent = await requestOtp(jsonRequest("/api/auth/otp/request", { identifier: "patient@example.com" }));
+    const cookie = sent.headers.get("set-cookie") ?? "";
+    expect(cookie).toContain("nabd_otp_identifier=patient%40example.com");
+    expect(cookie).toContain("HttpOnly");
+    expect(cookie).toContain("Max-Age=900");
+  });
   it("remembers where the code went in a short-lived httpOnly cookie, not in a URL", async () => {
     state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify([]), { status: 200 })); // GET /legal/policies: none configured
     state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ registered: true }), { status: 201 }));
