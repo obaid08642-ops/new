@@ -1,4 +1,4 @@
-import { acceptBlocker, completionBlocker } from './complete-guard';
+import { acceptBlocker, completionBlocker, dedicatedFlowBlocker } from './complete-guard';
 import { ServiceState } from '../../common/enums';
 
 describe('lab completion needs a result', () => {
@@ -47,5 +47,21 @@ describe('lab and radiology accept follow the payment rule', () => {
   it('other kinds and other steps are untouched', () => {
     expect(acceptBlocker('pharmacy', C, { payment_method: 'card' })).toBeNull();
     expect(acceptBlocker('lab', ServiceState.IN_PROGRESS, { payment_method: 'card' })).toBeNull();
+  });
+});
+
+describe('pharmacy, nursing and consultation keep their own flows', () => {
+  it('the generic start, arrived and complete refuse them', () => {
+    for (const kind of ['pharmacy', 'nursing', 'consultation'] as const) {
+      for (const step of [ServiceState.IN_PROGRESS, ServiceState.ARRIVED, ServiceState.COMPLETED]) expect(dedicatedFlowBlocker(kind, step)).toBe('use_the_dedicated_endpoint');
+    }
+  });
+  it('accept and reject (what the apps call) and lab / radiology are untouched', () => {
+    for (const kind of ['pharmacy', 'nursing', 'consultation'] as const) {
+      expect(dedicatedFlowBlocker(kind, ServiceState.CONFIRMED)).toBeNull();
+      expect(dedicatedFlowBlocker(kind, ServiceState.CANCELLED)).toBeNull();
+    }
+    expect(dedicatedFlowBlocker('lab', ServiceState.COMPLETED)).toBeNull();
+    expect(dedicatedFlowBlocker('radiology', ServiceState.IN_PROGRESS)).toBeNull();
   });
 });

@@ -21,7 +21,7 @@ import { ServiceState, ServiceDomain, UserRole } from '../../common/enums';
 import { toUniversal, domainStatesFor, WorkflowEngineService, WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
 import { AcceptDto, RejectDto, StartDto, CompleteDto, InsuranceDto, ArrivedDto } from './provider-jobs.dto';
 import { withholdBeforeAcceptance } from './provider-job-privacy';
-import { acceptBlocker, completionBlocker } from './complete-guard';
+import { acceptBlocker, completionBlocker, dedicatedFlowBlocker } from './complete-guard';
 
 type JobStatus = 'incoming' | 'active' | 'completed';
 
@@ -205,6 +205,9 @@ export class ProviderJobsService {
       if (entity.payment_method === 'insurance' && entity.insurance_status !== 'approved') throw new BadRequestException('insurance_booking_requires_coverage_decision');
       if (entity.payment_method === 'card' && entity.payment_status !== 'paid') throw new BadRequestException('card_payment_not_completed');
     }
+    // Pharmacy, home care and consultations are advanced only by their own endpoints.
+    const owned = dedicatedFlowBlocker(kind, target);
+    if (owned) throw new BadRequestException(owned);
     // Lab and radiology: the same payment rule as their own confirm (card paid, insurance decided, cash at the facility).
     const notAcceptable = acceptBlocker(kind, target, entity);
     if (notAcceptable) throw new BadRequestException(notAcceptable);
