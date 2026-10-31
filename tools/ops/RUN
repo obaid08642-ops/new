@@ -3,12 +3,12 @@
 # The catalogue dry run then failed on the old image ("packaged" radiology file is new); the translations dry run is unchanged (19,984);
 # retention would delete nothing (backups are only ~1 GB), so the 85% disk is used elsewhere.
 # 1. 99d-disk-usage (READ-ONLY): where the disk goes.
-# 2. Free disk, deploy main@8975b933 with the reliable one-off dump (#2186: one collection at a time, cap from MemAvailable, one retry, exit code
+# 2. Free disk, deploy main@cff60584 with the reliable one-off dump (#2186: one collection at a time, cap from MemAvailable, one retry, exit code
 #    and OOMKilled reported). A failed dump still aborts with production unchanged.
 # 3. 90 DRY RUN (catalogue completion + radiology decisions) and 90c DRY RUN (translations) on the new image (one write per field, #2197).
 # 4. Purge the API cache.
 99d-disk-usage
-release:8975b933aa5098cda63a410e97405af68bb5b4d1
+release:cff60584a88a71db6bf30d5af27176a36b9ea624
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
