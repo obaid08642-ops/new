@@ -882,12 +882,29 @@ export class AppointmentsService {
    * When Moyasar (or any PSP) confirms payment, transition the appointment
    * from PENDING → CONFIRMED so the patient sees the booking go live.
    */
+  /** The patient never paid: the unpaid card booking is cancelled so its slot is bookable again. */
+  @OnEvent('payment.abandoned')
+  async onPaymentAbandoned(payload: { booking_kind?: string; booking_id?: string }) {
+    if (payload.booking_kind !== 'consultation' || !payload.booking_id) return;
+    const appt = await this.apptModel.findOne({ id: payload.booking_id });
+    if (!appt || appt.status !== APPT_STATES.PENDING || appt.payment_status === 'paid') return;
+    await this.apptModel.updateOne({ id: appt.id }, { $set: { cancellation_reason: 'payment_abandoned', refund_percentage: 0 } });
+    await this.transition(appt.id, APPT_STATES.CANCELLED, { id: 'system', role: 'system' }, 'payment_abandoned');
+  }
+
   @OnEvent('payment.completed')
   async onPaymentCompleted(payload: { booking_id?: string; booking_kind?: string; amount?: number; transaction_id?: string }) {
     if (payload.booking_kind !== 'consultation' || !payload.booking_id) return;
     const appt = await this.apptModel.findOne({ id: payload.booking_id });
     if (!appt) {
       this.logger.warn(`payment.completed: appointment ${payload.booking_id} not found`);
+      return;
+    }
+    // The money arrived after the unpaid booking was released: the slot may already be someone else's, so it goes back in full.
+    const last = (appt.state_history as any[] | undefined)?.slice(-1)[0];
+    if (appt.status === APPT_STATES.CANCELLED && last?.note === 'payment_abandoned') {
+      this.events.emit('appointment.refund.calculated', { appointment_id: appt.id, patient_id: appt.patient_id, doctor_id: appt.doctor_id, refund_percentage: 100, total_price: Number(payload.amount ?? appt.total_price ?? 0), penalty_amount: 0 });
+      this.logger.warn(`payment.completed after release: appointment ${appt.id} refunded in full (payment ${payload.transaction_id})`);
       return;
     }
     // Only transition if still PENDING (idempotent — ignore if already confirmed)
