@@ -1,0 +1,313 @@
+{
+  "slice": "qa-diagnostics-app",
+  "batch": "qa",
+  "app": "patient-app",
+  "screens": [
+    {
+      "route": "/diagnostics/booking-confirm",
+      "elements": [
+        [
+          "Redirect to /(tabs)/diagnostics (no UI)",
+          "patient-app/app/diagnostics/booking-confirm.tsx:5 navigation; the confirm step is /diagnostics/confirm",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/diagnostics/booking-success",
+      "elements": [
+        [
+          "Redirect to /diagnostics/orders (no UI)",
+          "patient-app/app/diagnostics/booking-success.tsx:5 navigation; success state lives in booking-status",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/diagnostics/results-history",
+      "elements": [
+        [
+          "Redirect to /orders?tab=results (no UI)",
+          "patient-app/app/diagnostics/results-history.tsx:5 navigation; the results tab is read by the orders screen",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/diagnostics/upload-rx",
+      "elements": [
+        [
+          "Redirect to /diagnostics/search keeping the query (no UI)",
+          "patient-app/app/diagnostics/upload-rx.tsx:12 RedirectKeepQuery; no upload happens here",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/diagnostics/when",
+      "elements": [
+        [
+          "Continue button (next uncovered group, else confirm)",
+          "patient-app/app/diagnostics/when.tsx:165 local state / navigation to /diagnostics/confirm; disabled until every group has a time",
+          "ok"
+        ],
+        [
+          "Home / centre segmented switch",
+          "patient-app/app/diagnostics/when.tsx:179 local state (mode)",
+          "ok"
+        ],
+        [
+          "ASAP: search nearby button",
+          "patient-app/app/diagnostics/when.tsx:198 POST /ordering/asap {service_kind, items, lat, lng, payer} (ordering-broadcast.controller.ts:14; AsapDto fields match)",
+          "ok"
+        ],
+        [
+          "ASAP: stop search",
+          "patient-app/app/diagnostics/when.tsx:213 POST /ordering/asap/:param/cancel (controller :20)",
+          "ok"
+        ],
+        [
+          "ASAP: poll + accepted redirect",
+          "patient-app/app/diagnostics/when.tsx:107 GET /ordering/asap/:param (controller :17), then navigation to /diagnostics/booking-status",
+          "ok"
+        ],
+        [
+          "ASAP: take the earliest window",
+          "patient-app/app/diagnostics/when.tsx:224 local state (picks the server fallback window)",
+          "ok"
+        ],
+        [
+          "Home day tiles and window tiles",
+          "patient-app/app/diagnostics/when.tsx:240,250 GET /ordering/windows?provider_id&mode=home (ordering.controller.ts:20; query DTO provider_id, mode, date match); the choice is local state",
+          "ok"
+        ],
+        [
+          "Centre: walk-in chip, day tiles, slot tiles",
+          "patient-app/app/diagnostics/when.tsx:263,271,279 GET /ordering/windows?provider_id&mode=facility&date=; choice is local state (sent later as walk_in / slot_id)",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/diagnostics/confirm",
+      "elements": [
+        [
+          "Empty state when no draft / pick / time",
+          "patient-app/app/diagnostics/confirm.tsx:77 navigation back",
+          "ok"
+        ],
+        [
+          "Edit (per booking card)",
+          "patient-app/app/diagnostics/confirm.tsx:227 navigation to /diagnostics/when",
+          "ok"
+        ],
+        [
+          "Staff gender chips (home only)",
+          "patient-app/app/diagnostics/confirm.tsx:253-255 local state, sent as gender_preference (IsIn female|male, ordering.dto.ts:129)",
+          "ok"
+        ],
+        [
+          "Doctor's order: pick a valid order (radio)",
+          "patient-app/app/diagnostics/confirm.tsx:273 local state; list from GET /medical-orders/mine (medical-orders.controller.ts:23); sent as medical_order_id",
+          "ok"
+        ],
+        [
+          "Doctor's order: Photo / File buttons",
+          "patient-app/app/diagnostics/confirm.tsx:280,281 expo-image-picker, base64 sent as documents[{kind:'doctor_request',url_or_b64}] (max 5, BookingDocumentDto)",
+          "ok"
+        ],
+        [
+          "Insurance requires an order or document before submitting",
+          "patient-app/app/diagnostics/confirm.tsx:209 button disabled while needsEvidence; the server also enforces medical_order_required",
+          "ok"
+        ],
+        [
+          "Payment method radios (card / cash; insurance fixed)",
+          "patient-app/app/diagnostics/confirm.tsx:319 local state, sent as payment_method (IsIn cash|card|insurance); cash is not offered with a home visit, same rule as the server (payment_method_cash_not_allowed_for_home_visit)",
+          "ok"
+        ],
+        [
+          "Continue / Confirm button",
+          "patient-app/app/diagnostics/confirm.tsx:209 POST /ordering/bookings {quote_id, selections, payment_method, gender_preference?, medical_order_id?, documents?} (ordering.controller.ts:23, CreateOrderingBookingDto); single flight lock; no price in the body; error text via bookingErrorKey (translated)",
+          "ok"
+        ],
+        [
+          "Prices, insurance share, copay estimate, totals",
+          "patient-app/app/diagnostics/confirm.tsx:290-310 every amount is a field of the server quote / booking answer; insured share is the server estimate or the plain acceptance line",
+          "ok"
+        ],
+        [
+          "Pay button per created card booking",
+          "patient-app/app/diagnostics/confirm.tsx:188 POST /payments/intent/:param/:param with an Idempotency-Key kept per booking, then navigation to /payments/result; error shown through paymentErrorKey (translated)",
+          "ok"
+        ],
+        [
+          "View order (per created booking)",
+          "patient-app/app/diagnostics/confirm.tsx:190 navigation to booking-status",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/diagnostics/booking-status",
+      "elements": [
+        [
+          "Booking read and refresh",
+          "patient-app/app/diagnostics/booking-status.tsx GET /ordering/bookings/:param (ordering-lifecycle.controller.ts:13) plus /approval, /visit, /reminders, /results (controller lines 14-16, approval controller :14)",
+          "ok"
+        ],
+        [
+          "Partial approval: pick an option, confirm, confirm cancel, keep",
+          "patient-app/app/diagnostics/booking-status.tsx:378-388 POST /ordering/bookings/:param/partial-choice {choice} (approval controller :17)",
+          "ok"
+        ],
+        [
+          "Pay now (patient share)",
+          "patient-app/app/diagnostics/booking-status.tsx:402 POST /payments/intent/lab/:param with Idempotency-Key, then /payments/result; kind is hard-coded 'lab' (see Needs review)",
+          "gap"
+        ],
+        [
+          "Go to other providers",
+          "patient-app/app/diagnostics/booking-status.tsx:334 navigation to /diagnostics/when or service-home",
+          "ok"
+        ],
+        [
+          "Discuss results with a doctor",
+          "patient-app/app/diagnostics/booking-status.tsx:481 navigation to /diagnostics/discuss?booking=",
+          "ok"
+        ],
+        [
+          "All results",
+          "patient-app/app/diagnostics/booking-status.tsx:482 navigation to /orders?tab=results",
+          "ok"
+        ],
+        [
+          "Emergency help (confirm, call)",
+          "patient-app/app/diagnostics/booking-status.tsx:495,499 POST /ordering/bookings/:param/emergency (lifecycle controller :18); number comes from the server, then tel: link",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/diagnostics/discuss",
+      "elements": [
+        [
+          "Specialty radios",
+          "patient-app/app/diagnostics/discuss.tsx:179 GET /care/specialties (care.controller.ts), choice is local state",
+          "ok"
+        ],
+        [
+          "Video / audio segmented",
+          "patient-app/app/diagnostics/discuss.tsx:185 local state, sent as mode",
+          "ok"
+        ],
+        [
+          "Who: me or a family member",
+          "patient-app/app/diagnostics/discuss.tsx:187 local state, sent as family_member_id when set (InstantRequestDto)",
+          "ok"
+        ],
+        [
+          "Start now",
+          "patient-app/app/diagnostics/discuss.tsx:191 POST /ordering/bookings/:param/results/discuss then POST /consultations/instant {specialty, mode, family_member_id?} (instant-consultation.controller.ts:27); disabled until a specialty is chosen",
+          "ok"
+        ],
+        [
+          "Waiting: cancel",
+          "patient-app/app/diagnostics/discuss.tsx:130 POST /consultations/instant/:param/cancel (controller :29); the status is polled with GET /consultations/instant/:param",
+          "ok"
+        ],
+        [
+          "Open room / Book a slot / Try again / Later",
+          "patient-app/app/diagnostics/discuss.tsx:144,160,162,192 navigation or local state",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/diagnostics/lab-result",
+      "elements": [
+        [
+          "Result read",
+          "patient-app/app/diagnostics/lab-result.tsx:40-41 GET /lab-results/:param and GET /lab-results/mine (lab-results.controller.ts:14,16)",
+          "ok"
+        ],
+        [
+          "Open booking",
+          "patient-app/app/diagnostics/lab-result.tsx:108 navigation to /diagnostics/order/[id]",
+          "ok"
+        ],
+        [
+          "Discuss with a doctor",
+          "patient-app/app/diagnostics/lab-result.tsx:113 navigation to /diagnostics/discuss?booking=",
+          "ok"
+        ]
+      ]
+    },
+    {
+      "route": "/diagnostics/service-home",
+      "elements": [
+        [
+          "Search field (300 ms debounce)",
+          "patient-app/app/diagnostics/service-home.tsx:52,109 local state; the catalog list is a server query",
+          "ok"
+        ],
+        [
+          "Catalog list, show more",
+          "patient-app/app/diagnostics/service-home.tsx:158 server catalog (useCatalog); nursing kind: GET /home-care/services (line 61)",
+          "ok"
+        ],
+        [
+          "Packages row and See all",
+          "patient-app/app/diagnostics/service-home.tsx:64,134 GET /labs/packages; navigation to /diagnostics/packages",
+          "ok"
+        ],
+        [
+          "Order mine (doctor request) / Order by photo",
+          "patient-app/app/diagnostics/service-home.tsx:127,128 navigation (medical orders / rx photo flow)",
+          "ok"
+        ],
+        [
+          "Nursing: open / book a service",
+          "patient-app/app/diagnostics/service-home.tsx:148,149 navigation to /nursing/service-info and /nursing/service-details",
+          "ok"
+        ],
+        [
+          "Ranking event (fire and forget)",
+          "patient-app/app/diagnostics/service-home.tsx POST /catalogue/ranking/events (analytics only, no visible result)",
+          "ok"
+        ],
+        [
+          "View basket footer",
+          "patient-app/app/diagnostics/service-home.tsx:104 navigation to the diagnostics cart",
+          "ok"
+        ]
+      ]
+    }
+  ],
+  "needsReview": [
+    {
+      "route": "/diagnostics/booking-status",
+      "element": "Pay now: payment kind",
+      "kind": "client",
+      "note": "The patient-share payment always uses /payments/intent/lab/:id and bookingKind 'lab'; confirm.tsx pays a radiology booking on its own kind, so a radiology booking reached through partial approval would be paid on the wrong kind. Reviewer: use the booking kind and check the backend accepts it.",
+      "file": "patient-app/app/diagnostics/booking-status.tsx",
+      "line": 228
+    },
+    {
+      "route": "/diagnostics/booking-confirm",
+      "element": "Route kept as a bare redirect",
+      "kind": "client",
+      "note": "Redirects to the diagnostics tab and drops any booking id (deep link loses context). Keep the redirect.",
+      "file": "patient-app/app/diagnostics/booking-confirm.tsx",
+      "line": 5
+    },
+    {
+      "route": "/diagnostics/lab-result",
+      "element": "Mine list error swallowed",
+      "kind": "client",
+      "note": "GET /lab-results/mine failure becomes null with no message, so a failed neighbour list looks like an empty one.",
+      "file": "patient-app/app/diagnostics/lab-result.tsx",
+      "line": 41
+    }
+  ]
+}
