@@ -128,9 +128,9 @@ export function DSButton({
             loading={loading}
             icon={icon}
             iconPosition={iconPosition}
-            iconColor="#fff"
+            iconColor={colors.textInverse}
             iconSize={iconSize}
-            textColor="#fff"
+            textColor={colors.textInverse}
             textVariant={TEXT_VARIANT[size]}
             labelStyle={labelStyle}
           />
@@ -217,7 +217,7 @@ function getVariantStyles(
     case 'primary':
       return {
         container: { backgroundColor: colors.primary },
-        textColor: '#fff',
+        textColor: colors.textInverse,
       };
     case 'secondary':
       return {
@@ -241,12 +241,12 @@ function getVariantStyles(
     case 'danger':
       return {
         container: { backgroundColor: colors.error },
-        textColor: '#fff',
+        textColor: colors.textInverse,
       };
     case 'success':
       return {
         container: { backgroundColor: colors.success },
-        textColor: '#fff',
+        textColor: colors.textInverse,
       };
     case 'glass':
       return {
@@ -260,7 +260,7 @@ function getVariantStyles(
     default:
       return {
         container: { backgroundColor: colors.primary },
-        textColor: '#fff',
+        textColor: colors.textInverse,
       };
   }
 }

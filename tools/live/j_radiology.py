@@ -84,8 +84,12 @@ def run(pat, center, other_center=None, admin=None):
     step('report attached (draft)', r.ok and r.get('state') == 'REPORT_DRAFT', r)
     r = center.post(f'/radiology/bookings/{bid}/submit-report-for-review', {})
     step('sent for radiologist review', r.ok and r.get('state') == 'UNDER_REVIEW', r)
-    r = center.post(f'/radiology/bookings/{bid}/approve-report', {})
-    step('approved and published', r.ok and r.get('state') == 'REPORT_READY', r)
+    if admin:
+        # two people: the user who uploaded and sent the report cannot publish it; the admin (a second person) does
+        r = center.post(f'/radiology/bookings/{bid}/approve-report', {})
+        step('the uploader cannot publish the report', r.status == 403 and 'report_reviewer_must_differ_from_uploader' in str(r.body), r)
+    r = (admin or center).post(f'/radiology/bookings/{bid}/approve-report', {})
+    step('approved and published by a second person', r.ok and r.get('state') == 'REPORT_READY', r)
 
     journey('radiology: the patient receives the report')
     r = pat.get('/radiology/reports/mine')

@@ -155,7 +155,7 @@ export function routeFromNotificationData(data: any): void {
       case 'lab':
       case 'lab_booking':
       case 'radiology':
-        router.push('/diagnostics/my-results' as any);
+        router.push({ pathname: '/orders', params: { tab: 'results' } } as any);
         break;
       case 'nursing_transit':
       case 'nursing_arrived':

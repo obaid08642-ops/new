@@ -5,7 +5,7 @@
  */
 import { Types } from 'mongoose';
 import { CATALOG_COLLECTIONS } from './catalog-collections';
-import { storagePath, type TranslationFile } from '../medicines/content-translation';
+import { afterMove, applyMoves, findMoves, movePaths, storagePath, type MoveItem, type TranslationFile } from '../medicines/content-translation';
 import { storedContentText } from '../medicines/med-i18n';
 import { publicMedicineFilter } from '../medicines/public-medicine-filter';
 import { SAUDI_LOCATIONS_SEED } from '../location/seeds/saudi-locations.data';
@@ -270,6 +270,8 @@ export async function planNumberedDistricts(db: DbLike): Promise<{ changes: Chan
 export interface ProductTranslationReport {
   items: number; to_write: number; already_translated: number; skipped_not_published: number; skipped_source_changed: number;
   by_locale: Record<string, number>;
+  /** Texts in the wrong column (an Arabic text in the English column), fixed as part of the same apply. */
+  language_moves?: { items: number; planned: number; skipped_not_published: number; skipped_changed_since_plan: number; by_kind: Record<string, number>; by_field: Record<string, number>; retranslated_in_place: number };
 }
 
 /**
@@ -277,24 +279,74 @@ export interface ProductTranslationReport {
  * reviewed as a file (owner complaint 2026-10-26). Each item becomes a guarded set on an EMPTY field of a published product, and only while
  * the source text is still the one that was translated; a provenance mark (`translation_provenance.<locale>.<field>`) says it is machine
  * translated. Nothing is overwritten, so a second plan is empty.
+ *
+ * Also the texts in the WRONG column (owner 2026-10-27: fixed, not skipped): the file's `moves`. A text whose letters are in the other of Arabic /
+ * English is moved to its own column when that is empty (the wrong column is emptied), or only the wrong column is emptied when the right one already
+ * has its text, or the two trade places. Every path is a compare-and-set on the EXACT old value, the moved text is marked `machine_moved`, and a column
+ * the move emptied that the file also translates (from the corrected product) is written with the translation in the same set, so the order of the
+ * writes cannot matter. A move whose text changed since the dry run is skipped, and a second plan is empty.
  */
 export async function planProductTranslations(db: DbLike, file: TranslationFile): Promise<{ changes: Change[]; report: ProductTranslationReport }> {
   const report: ProductTranslationReport = { items: file.items.length, to_write: 0, already_translated: 0, skipped_not_published: 0, skipped_source_changed: 0, by_locale: {} };
+  const moveReport = { items: (file.moves ?? []).length, planned: 0, skipped_not_published: 0, skipped_changed_since_plan: 0, by_kind: {} as Record<string, number>, by_field: {} as Record<string, number>, retranslated_in_place: 0 };
+  if (file.moves) report.language_moves = moveReport;
   const changes: Change[] = [];
-  const ids = [...new Set(file.items.map((i) => i.id))];
+  const ids = [...new Set([...file.items.map((i) => i.id), ...(file.moves ?? []).map((m) => m.id)])];
   const docs = new Map<string, Record<string, any>>();
   for (let s = 0; s < ids.length; s += 500) {
     for (const d of await db.collection(CATALOG_COLLECTIONS.medicines).find({ ...publicMedicineFilter(), id: { $in: ids.slice(s, s + 500) } }, {}).toArray()) docs.set(String(d.id), d);
   }
+  const collection = CATALOG_COLLECTIONS.medicines;
+  const setAt = new Map<string, SetChange>();          // `${_id}|${path}` → the change, so a translation can fold into a move's empty-out
+  const push = (c: SetChange) => { changes.push(c); setAt.set(`${String(c.key._id)}|${c.path}`, c); };
+
+  // 1. the moves: only while the stored text is still the one the dry run saw
+  const virtual = new Map<string, Record<string, any>>();
+  const moved = new Map<string, MoveItem[]>();
+  for (const m of file.moves ?? []) {
+    const doc = docs.get(m.id);
+    if (!doc) { moveReport.skipped_not_published += 1; continue; }
+    const current = findMoves(doc).find((x) => x.field === m.field && x.wrong === m.wrong && x.kind === m.kind && x.text_sha === m.text_sha);
+    if (!current) { moveReport.skipped_changed_since_plan += 1; continue; }
+    moved.set(m.id, [...(moved.get(m.id) ?? []), current]);
+  }
+  for (const [id, list] of moved) {
+    const doc = docs.get(id) as Record<string, any>;
+    virtual.set(id, applyMoves(doc, list));
+    const key = { _id: doc._id };
+    for (const m of list) {
+      const after = afterMove(doc, m);
+      for (const p of movePaths(doc, m, after)) push({ kind: 'set', step: 'language_moves', collection, key, path: p.path, before: p.before, after: p.after });
+      // the column that received a text is marked as moved by a machine; a swap marks both
+      for (const locale of ['ar', 'en'] as const) {
+        const received = m.kind === 'swap' || locale === m.right;
+        if (received && after[locale] !== null && m.kind !== 'clear') {
+          push({ kind: 'set', step: 'language_moves', collection, key, path: `translation_provenance.${locale}.${m.field}`, before: null, after: 'machine_moved' });
+        }
+      }
+      moveReport.planned += 1;
+      moveReport.by_kind[m.kind] = (moveReport.by_kind[m.kind] ?? 0) + 1;
+      moveReport.by_field[m.field] = (moveReport.by_field[m.field] ?? 0) + 1;
+    }
+  }
+
+  // 2. the translations, planned against the product as it will be after the moves
   for (const item of file.items) {
     const doc = docs.get(item.id);
     if (!doc) { report.skipped_not_published += 1; continue; }
-    if (storedContentText(doc, item.field, item.target) !== null) { report.already_translated += 1; continue; }
-    const source = storedContentText(doc, item.field, item.source);
+    const view = virtual.get(item.id) ?? doc;
+    if (storedContentText(view, item.field, item.target) !== null) { report.already_translated += 1; continue; }
+    const source = storedContentText(view, item.field, item.source);
     if (source === null || sha256(source) !== item.source_sha) { report.skipped_source_changed += 1; continue; }
     const key = { _id: doc._id };
-    changes.push({ kind: 'set', step: 'product_translations', collection: CATALOG_COLLECTIONS.medicines, key, path: storagePath(item.field, item.target), before: null, after: item.text });
-    changes.push({ kind: 'set', step: 'product_translations', collection: CATALOG_COLLECTIONS.medicines, key, path: `translation_provenance.${item.target}.${item.field}`, before: null, after: `machine:${file.model}` });
+    const path = storagePath(item.field, item.target);
+    const folded = setAt.get(`${String(doc._id)}|${path}`);
+    if (folded && folded.after === '') { folded.after = item.text; moveReport.retranslated_in_place += 1; }
+    else push({ kind: 'set', step: 'product_translations', collection, key, path, before: null, after: item.text });
+    const mark = `translation_provenance.${item.target}.${item.field}`;
+    const markedByMove = setAt.get(`${String(doc._id)}|${mark}`);
+    if (markedByMove) markedByMove.after = `machine:${file.model}`;
+    else push({ kind: 'set', step: 'product_translations', collection, key, path: mark, before: null, after: `machine:${file.model}` });
     report.to_write += 1;
     report.by_locale[item.target] = (report.by_locale[item.target] ?? 0) + 1;
   }
@@ -316,5 +368,92 @@ export async function planInsuranceShape(db: DbLike): Promise<{ changes: Change[
     if (plan && !cls) { changes.push({ kind: 'set', step: 'insurance_shape', collection: 'patient_profiles', key: { _id: r._id }, path: 'insurance.class', before: null, after: plan }); report.class_added += 1; }
     else if (cls && !plan) { changes.push({ kind: 'set', step: 'insurance_shape', collection: 'patient_profiles', key: { _id: r._id }, path: 'insurance.plan_class', before: null, after: cls }); report.plan_class_added += 1; }
   }
+  return { changes, report };
+}
+
+/**
+ * Step 10 — the radiology catalogue patients see (owner, 2026-10-28: "radiology must show all scans"). Production holds 49 catalogue rows and the patient list
+ * (`GET /radiology/services`) shows 23, because it shows only rows that are active, public AND medically approved. The other 26 are:
+ *   - 14 LEGACY duplicates of a visible scan under an old short code (CXR = XR_CHEST ...), pending and not public: they stay hidden, and are marked deleted
+ *     (`is_deleted`, `merged_into` the visible code) so they stop being counted as missing. A booking that points at one still resolves.
+ *   - 7 scans that exist only as a pending row (ECHO, MAMMO, DEXA, HSG, PANOREX, BARIUM, PETCT): approving a scan is a medical sign-off, so they become visible
+ *     ONLY when the reviewed file (`--radiology-approve=<file>`, `{"approve":["MAMMO",...]}`) lists their code; the oldest pending row of the code is the one approved.
+ *   - 5 extra rows of those codes with no flags at all (a second insert): marked deleted, the kept row stays.
+ * Every write is a compare-and-set on the exact current value, so a row an admin has touched since the dry run is left alone.
+ */
+export const LEGACY_RADIOLOGY_CODES: Readonly<Record<string, string>> = {
+  CXR: 'XR_CHEST', AXR: 'XR_ABDOMEN', KXR: 'XR_KNEE', SXR: 'XR_SPINE', MRIB: 'MRI_BRAIN', MRIK: 'MRI_KNEE', MRIS: 'MRI_LSPINE',
+  CTB: 'CT_BRAIN', CTC: 'CT_CHEST', CTAP: 'CT_ABDOMEN', USA: 'US_ABDOMEN', USP: 'US_PELVIS_TV', UST: 'US_THYROID', USPR: 'US_PREG',
+};
+
+export interface RadiologyCatalogueReport {
+  rows: number; visible: number; legacy_duplicates_hidden: number; extra_rows_hidden: number;
+  /** codes with only a pending row: they wait for the reviewed file */
+  awaiting_approval: string[]; approved_by_file: string[]; file_codes_not_found: string[];
+  /** the reviewed file's `merge` ({from: to}) and `delete` entries: rows of those codes are marked, then deleted by the hidden-delete pass when nothing names them */
+  merged_by_file: string[]; removed_by_file: string[]; merge_target_not_visible: string[];
+}
+
+export interface RadiologyFileExtras { merge?: Record<string, string>; remove?: string[] }
+
+export async function planRadiologyCatalogue(db: DbLike, approve: string[] = [], extras: RadiologyFileExtras = {}): Promise<{ changes: Change[]; report: RadiologyCatalogueReport }> {
+  const coll = CATALOG_COLLECTIONS.radiology_services;
+  const rows: any[] = await db.collection(coll).find({}, { projection: { _id: 1, short_code: 1, code: 1, active: 1, is_deleted: 1, public_eligibility: 1, medical_review_status: 1, createdAt: 1 } }).toArray();
+  const codeOf = (r: any) => String(r.short_code || r.code || '');
+  const live = (r: any) => r.is_deleted !== true;
+  const visibleRow = (r: any) => live(r) && r.active !== false && r.public_eligibility === true && r.medical_review_status === 'approved';
+  const created = (r: any) => { const t = r.createdAt instanceof Date ? r.createdAt.getTime() : Date.parse(String(r.createdAt ?? '')); return Number.isFinite(t) ? t : (r._id?.getTimestamp?.().getTime?.() ?? 0); };
+  const byCode = new Map<string, any[]>();
+  for (const r of rows) { const c = codeOf(r); if (c) byCode.set(c, [...(byCode.get(c) ?? []), r]); }
+  const changes: Change[] = [];
+  const report: RadiologyCatalogueReport = { rows: rows.length, visible: rows.filter(visibleRow).length, legacy_duplicates_hidden: 0, extra_rows_hidden: 0, awaiting_approval: [], approved_by_file: [], file_codes_not_found: [], merged_by_file: [], removed_by_file: [], merge_target_not_visible: [] };
+  const hide = (r: any, into: string) => {
+    changes.push({ kind: 'set', step: 'radiology_catalogue', collection: coll, key: { _id: r._id }, path: 'is_deleted', before: r.is_deleted === undefined ? null : r.is_deleted, after: true });
+    changes.push({ kind: 'set', step: 'radiology_catalogue', collection: coll, key: { _id: r._id }, path: 'merged_into', before: null, after: into });
+  };
+  const approveSet = new Set(approve.map((c) => c.trim()).filter(Boolean));
+  for (const [code, group] of byCode) {
+    const alive = group.filter(live);
+    const canonical = LEGACY_RADIOLOGY_CODES[code];
+    if (canonical) {
+      // a legacy code is hidden only while its canonical scan is really visible and the legacy row itself is not
+      if (!(byCode.get(canonical) ?? []).some(visibleRow)) continue;
+      for (const r of alive) if (!visibleRow(r)) { hide(r, canonical); report.legacy_duplicates_hidden += 1; }
+      continue;
+    }
+    if (alive.some(visibleRow)) continue;
+    const pending = alive.filter((r) => r.public_eligibility !== true || r.medical_review_status !== 'approved');
+    if (!pending.length) continue;
+    // the kept row: the oldest one that carries the pending review state, else the oldest
+    const flagged = pending.filter((r) => r.medical_review_status === 'pending');
+    const keeper = [...(flagged.length ? flagged : pending)].sort((a, b) => created(a) - created(b) || String(a._id).localeCompare(String(b._id)))[0];
+    for (const r of alive) if (r !== keeper && r.public_eligibility === undefined && r.medical_review_status === undefined) { hide(r, code); report.extra_rows_hidden += 1; }
+    if (approveSet.has(code)) {
+      const set = (path: string, before: unknown, after: unknown) => changes.push({ kind: 'set', step: 'radiology_catalogue', collection: coll, key: { _id: keeper._id }, path, before, after });
+      set('public_eligibility', keeper.public_eligibility === undefined ? null : keeper.public_eligibility, true);
+      set('medical_review_status', keeper.medical_review_status === undefined ? null : keeper.medical_review_status, 'approved');
+      if (keeper.active === false) set('active', false, true);
+      report.approved_by_file.push(code);
+    } else report.awaiting_approval.push(code);
+  }
+  // the reviewed file's merges and deletions (owner decision: no hidden rows; a duplicate is merged into the kept code, a wrong row is removed)
+  const marked = new Set(changes.filter((c) => c.kind === 'set' && c.path === 'is_deleted').map((c) => String((c as SetChange).key._id)));
+  const willBeVisible = (code: string) => (byCode.get(code) ?? []).some(visibleRow) || approveSet.has(code);
+  for (const [from, to] of Object.entries(extras.merge ?? {})) {
+    const rows = (byCode.get(from) ?? []).filter((r) => live(r) && !visibleRow(r) && !marked.has(String(r._id)));
+    if (!byCode.has(from)) { report.file_codes_not_found.push(from); continue; }
+    if (!willBeVisible(to)) { report.merge_target_not_visible.push(`${from}->${to}`); continue; }
+    for (const r of rows) { hide(r, to); marked.add(String(r._id)); }
+    if (rows.length) report.merged_by_file.push(`${from}->${to}`);
+  }
+  for (const code of extras.remove ?? []) {
+    if (!byCode.has(code)) { report.file_codes_not_found.push(code); continue; }
+    const rows = (byCode.get(code) ?? []).filter((r) => live(r) && !visibleRow(r) && !marked.has(String(r._id)));
+    for (const r of rows) { changes.push({ kind: 'set', step: 'radiology_catalogue', collection: coll, key: { _id: r._id }, path: 'is_deleted', before: r.is_deleted === undefined ? null : r.is_deleted, after: true }); marked.add(String(r._id)); }
+    if (rows.length) report.removed_by_file.push(code);
+  }
+  for (const c of approveSet) if (!byCode.has(c)) report.file_codes_not_found.push(c);
+  report.awaiting_approval = report.awaiting_approval.filter((c) => !report.removed_by_file.includes(c) && !report.merged_by_file.some((m) => m.startsWith(`${c}->`)));
+  report.awaiting_approval.sort(); report.approved_by_file.sort(); report.file_codes_not_found.sort(); report.merged_by_file.sort(); report.removed_by_file.sort(); report.merge_target_not_visible.sort();
   return { changes, report };
 }

@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { NavLink } from "@/components-next/nav/nav-link";
 import { useDisabledModules } from "@/components-next/modules/modules-provider";
@@ -11,6 +11,7 @@ import { useRoutePrefetch } from "@/components-next/nav/use-route-prefetch";
 import { AppShell } from "@/components-next/ui-generated/shells";
 import { BottomTabBar } from "@/components-next/ui-generated/components/Surfaces";
 import { CartLink } from "./cart-link";
+import { AppointmentsLink } from "./appointments-link";
 import { WishlistLink } from "./wishlist-link";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import { FIcon } from "@/components-next/ui-generated/components/FIcon";
@@ -59,6 +60,8 @@ export type CoreShellProps = {
   topBarSearch?: ReactNode;
   /** Labs and radiology: where "My orders and results" goes; draws an icon button in the header and an entry in the phone menu. */
   resultsHref?: string;
+  /** Consultations: where "My appointments" goes; its button (with the badge of unopened results) takes the cart's place in the header. */
+  appointmentsHref?: string;
   /** The page's sticky bottom bar (a <StickyFooter>, canvas/ProductFull); it sits above the tab bar and goes away from 1024. */
   footer?: ReactNode;
   /** Pages with a sticky buy bar and no tab bar on phones (canvas/ProductFull). */
@@ -66,8 +69,9 @@ export type CoreShellProps = {
   children: ReactNode;
 };
 
-export function CoreShell({ locale, title, backHref, search, cancelHref, width = "wide", topBarSearch, footer, hideTabs = false, resultsHref, children }: CoreShellProps) {
+export function CoreShell({ locale, title, backHref, search, cancelHref, width = "wide", topBarSearch, footer, hideTabs = false, resultsHref, appointmentsHref, children }: CoreShellProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const shell = useTranslations("CoreShell");
   const shared = useTranslations("Shared");
   const searchT = useTranslations("Search");
@@ -77,17 +81,24 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
   const disabled = useDisabledModules();
   const rtl = getDirection(locale) === "rtl";
   // issue 1547: the cart's count on its icon (CartLink reads the cart of this browser, so an add shows at once)
-  const cartLink = (extra = "") => <CartLink locale={locale} className={`${styles.iconLink} ${styles.cartLink}${extra ? ` ${extra}` : ""}`} />;
+  // consultations have no cart (owner 2026-10-30): their header carries the My appointments button there instead
+  const cartLink = (extra = "") => appointmentsHref
+    ? <AppointmentsLink locale={locale} href={appointmentsHref} className={extra} />
+    : <CartLink locale={locale} className={`${styles.iconLink} ${styles.cartLink}${extra ? ` ${extra}` : ""}`} />;
 
   const allTabs: Array<BottomTabItem & { href: string }> = [
-    { id: "home", label: nav("navHome"), icon: "house", href: `/${locale}` },
-    { id: "pharmacy", label: nav("navPharmacy"), icon: "pill", href: hrefs.pharmacy },
-    { id: "consult", label: nav("navConsult"), icon: "stethoscope", href: hrefs.consult, raised: true },
-    { id: "labs", label: nav("navLabs"), icon: "test-tube", href: hrefs.labs },
-    { id: "nursing", label: nav("navNursing"), icon: "first-aid-kit", href: hrefs.nursing },
+    { id: "home", art: "home", label: nav("navHome"), icon: "house", href: `/${locale}` },
+    { id: "pharmacy", art: "pharmacy", label: nav("navPharmacy"), icon: "pill", href: hrefs.pharmacy },
+    { id: "consult", art: "consult", label: nav("navConsult"), icon: "stethoscope", href: hrefs.consult, raised: true },
+    { id: "labs", art: "labs", label: nav("navLabs"), icon: "test-tube", href: hrefs.labs },
+    { id: "nursing", art: "nursing", label: nav("navNursing"), icon: "first-aid-kit", href: hrefs.nursing },
   ];
 
   const tabs = allTabs.filter((tab) => !isPathHidden(tab.href, disabled));
+  // the tab of the section this page belongs to (the longest matching href; Home only on the home page itself)
+  const activeTab = tabs
+    .filter((tab) => pathname === tab.href || (tab.id !== "home" && pathname?.startsWith(`${tab.href}/`)))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.id ?? "";
 
   const allSections = [
     { id: "home", label: nav("navHome"), href: `/${locale}` },
@@ -105,7 +116,8 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
   useRoutePrefetch(tabs.map((t) => t.href), { signedIn: true });
 
   const topBar = (
-    <div className={styles.bar}>
+    // with the results button the phone header has too little width for the title: the title takes its own line under the buttons
+    <div className={`${styles.bar}${resultsHref ? ` ${styles.barDense}` : ""}`}>
       {!search && backHref ? (
         <Link href={backHref} className={`${styles.iconLink} ${styles.phoneOnly}`} aria-label={shell("back")}>
           <Icon name={rtl ? "caret-right" : "caret-left"} size={22} tone="currentColor" />
@@ -137,7 +149,7 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
       )}
 
       {resultsHref ? (
-        <Link href={resultsHref} className={`${styles.iconLink} ${styles.phoneOnly}`} aria-label={shell("menuResults")} title={shell("menuResults")}>
+        <Link href={resultsHref} className={`${styles.iconLink} ${styles.phoneOnly} ${styles.toolsStart}`} aria-label={shell("menuResults")} title={shell("menuResults")}>
           <FIcon icon="chart-line-up" tone={SERVICE_ICONS.lab.tone} size={24} />
         </Link>
       ) : null}
@@ -149,7 +161,6 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
         <PhoneMenu
           labels={{ open: shell("menuOpen"), close: shell("menuClose") }}
           items={[
-            ...(resultsHref ? [{ label: shell("menuResults"), href: resultsHref }] : []),
             { label: shell("menuProfile"), href: `/${locale}/profile` },
             { label: shell("menuOrders"), href: `/${locale}/orders` },
             { label: shell("menuFamily"), href: `/${locale}/family` },
@@ -184,15 +195,15 @@ export function CoreShell({ locale, title, backHref, search, cancelHref, width =
 
   return (
     <AppShell
-      className={`nabd-core ${styles.root}`}
+      className={`nabd-core ${styles.root}${resultsHref ? ` ${styles.rootDense}` : ""}`}
       topBar={topBar}
       tabBarLabel={shell("mainNav")}
       footer={footer}
       tabBar={hideTabs ? undefined : (
         <BottomTabBar
           label={shell("sections")}
-          items={tabs.map(({ id, label, icon, raised }) => ({ id, label, icon, raised }))}
-          value=""
+          items={tabs.map(({ id, label, icon, art, raised }) => ({ id, label, icon, art, raised }))}
+          value={activeTab}
           onChange={(id) => {
             const target = tabs.find((t) => t.id === id);
             if (target) router.push(target.href);

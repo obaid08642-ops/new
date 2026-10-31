@@ -125,6 +125,19 @@ export class ProviderAdminService {
     return check;
   }
 
+  /** The renewed licence expiry from the admin (a future date), or null when the stored one is still in the future or absent; a stored expiry that has passed with no new date is refused. */
+  private async renewedLicenseExpiry(accountId: string, given?: string): Promise<Date | null> {
+    const profile: any = await this.accounts.model.db.collection('provider_profiles').findOne({ account_id: accountId, user_id: { $exists: true } });
+    if (given !== undefined && given !== null && given !== '') {
+      const d = new Date(given);
+      if (Number.isNaN(d.getTime()) || d.getTime() <= Date.now()) throw new BadRequestException('license_expiry_date_must_be_in_the_future');
+      return d;
+    }
+    const stored = profile?.license_expiry_date ? new Date(profile.license_expiry_date).getTime() : null;
+    if (stored !== null && !Number.isNaN(stored) && stored <= Date.now()) throw new ConflictException('license_expired_renew_first');
+    return null;
+  }
+
   async approve(user: any, id: string, body: any) {
     this.assertAdmin(user);
     const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
@@ -356,6 +369,8 @@ export class ProviderAdminService {
     this.assertAdmin(user);
     const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
     const licenseCheck = await this.licenseGate(id, body?.manual_license_check);
+    // An expired licence is brought back only with the renewed expiry date (otherwise the daily monitor suspends the provider again the next morning).
+    const renewed = await this.renewedLicenseExpiry(id, body?.license_expiry_date);
     await this.transition(a, ProviderAccountStatus.APPROVED, user, body?.reason || 'reactivated');
     (a as any).token_version = Number((a as any).token_version || 0) + 1;
     await a.save();
@@ -367,7 +382,7 @@ export class ProviderAdminService {
     }
     await this.accounts.model.db.collection('provider_profiles').updateMany(
       { account_id: id, user_id: { $exists: true } },
-      { $set: { status: 'active', public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved' } },
+      { $set: { status: 'active', public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved', ...(renewed ? { license_expiry_date: renewed, license_status: 'active', license_verified: true } : {}) }, ...(renewed ? { $unset: { suspended_reason: '', suspended_at: '' } } : {}) },
     );
     if (licenseCheck) await this.scfhs.store({ account_id: id, user_id: { $exists: true } }, licenseCheck.decision, licenseCheck.result, user.id, body?.manual_license_check);
     await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_reactivated', after: { reason: body?.reason } });

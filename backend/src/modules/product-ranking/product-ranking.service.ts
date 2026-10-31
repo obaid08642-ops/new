@@ -59,17 +59,29 @@ export interface CandidateRelevance {
  * score first, then in stock before out of stock, then with an image before without, then the old usage count and the
  * id (stable). Products with no signals have no score and come after the ones with signals.
  */
+const POPULAR_SORT_FIELDS = {
+  // a prescription-only item is never promoted by popularity (owner decisions 10 and 29): it keeps its natural place
+  _rank: { $cond: [{ $eq: ['$requires_prescription', true] }, 0, { $ifNull: ['$rank_score', 0] }] },
+  _in_stock: { $cond: [{ $in: [{ $ifNull: ['$availability_status', 'in_stock'] }, ['out_of_stock', 'discontinued']] }, 0, 1] },
+  _has_image: { $cond: [{ $gt: [{ $strLenCP: { $toString: { $ifNull: ['$image_1', { $ifNull: ['$image', ''] }] } } }, 0] }, 1, 0] },
+};
 export const POPULAR_KEY_STAGES: Record<string, unknown>[] = [
-  {
-    $addFields: {
-      // a prescription-only item is never promoted by popularity (owner decisions 10 and 29): it keeps its natural place
-      _rank: { $cond: [{ $eq: ['$requires_prescription', true] }, 0, { $ifNull: ['$rank_score', 0] }] },
-      _in_stock: { $cond: [{ $in: [{ $ifNull: ['$availability_status', 'in_stock'] }, ['out_of_stock', 'discontinued']] }, 0, 1] },
-      _has_image: { $cond: [{ $gt: [{ $strLenCP: { $toString: { $ifNull: ['$image_1', { $ifNull: ['$image', ''] }] } } }, 0] }, 1, 0] },
-    },
-  },
+  { $addFields: POPULAR_SORT_FIELDS },
   { $sort: { _rank: -1, _in_stock: -1, _has_image: -1, usage_count: -1, _id: 1 } },
 ];
+/**
+ * The order of the pharmacy's "All" (no category chosen): products with signals first, by score, exactly as above; then the rest
+ * interleaved across the top-level categories. `category_pos` (the product's place inside its category by in stock, image, usage
+ * count and id, refreshed by the ranking job: refreshCategoryPositions) is the round-robin: every category's best product comes
+ * before any category's second, so page 1 is a mix of every category. A product the job has not numbered yet comes last.
+ * With a category chosen the plain POPULAR_KEY_STAGES apply (that category only, score then tie-breaks).
+ */
+export const POPULAR_MIX_KEY_STAGES: Record<string, unknown>[] = [
+  { $addFields: { ...POPULAR_SORT_FIELDS, _pos: { $ifNull: ['$category_pos', 1_000_000_000] } } },
+  { $sort: { _rank: -1, _pos: 1, _in_stock: -1, _has_image: -1, usage_count: -1, _id: 1 } },
+];
+export const popularKeyStages = (mix: boolean): Record<string, unknown>[] => (mix ? POPULAR_MIX_KEY_STAGES : POPULAR_KEY_STAGES);
+export const popularOrderStages = (mix: boolean): Record<string, unknown>[] => [...popularKeyStages(mix), { $project: { _rank: 0, _in_stock: 0, _has_image: 0, _pos: 0 } }];
 export const POPULAR_ORDER_STAGES: Record<string, unknown>[] = [
   ...POPULAR_KEY_STAGES,
   { $project: { _rank: 0, _in_stock: 0, _has_image: 0 } },
@@ -77,6 +89,9 @@ export const POPULAR_ORDER_STAGES: Record<string, unknown>[] = [
 
 /** The only fields POPULAR_KEY_STAGES reads. */
 export const POPULAR_SORT_PROJECTION = { rank_score: 1, requires_prescription: 1, availability_status: 1, image_1: 1, image: 1, usage_count: 1 } as const;
+
+/** The same plus the round-robin position, for the "All" list. */
+export const POPULAR_MIX_SORT_PROJECTION = { ...POPULAR_SORT_PROJECTION, category_pos: 1 } as const;
 
 type PageCollection = {
   aggregate(pipeline: Record<string, unknown>[]): { toArray(): Promise<any[]> };
@@ -90,8 +105,8 @@ type PageCollection = {
  * fields it reads (a few hundred bytes a document, a top-k sort of skip+limit), and the full documents are fetched by `_id` for
  * the page alone. Same order as POPULAR_ORDER_STAGES (same stages), same rows, same projection.
  */
-export async function popularPage(col: PageCollection, filter: Record<string, unknown>, skip: number, limit: number, projection: Record<string, unknown>): Promise<any[]> {
-  const picked = await col.aggregate([{ $match: filter }, { $project: POPULAR_SORT_PROJECTION }, ...POPULAR_KEY_STAGES, { $skip: skip }, { $limit: limit }, { $project: { _id: 1 } }]).toArray();
+export async function popularPage(col: PageCollection, filter: Record<string, unknown>, skip: number, limit: number, projection: Record<string, unknown>, mix = false): Promise<any[]> {
+  const picked = await col.aggregate([{ $match: filter }, { $project: mix ? POPULAR_MIX_SORT_PROJECTION : POPULAR_SORT_PROJECTION }, ...popularKeyStages(mix), { $skip: skip }, { $limit: limit }, { $project: { _id: 1 } }]).toArray();
   if (!picked.length) return [];
   const order = picked.map((d) => d._id);
   const docs = await col.find({ _id: { $in: order } }, { projection: { ...projection, _id: 1 } }).toArray();
@@ -102,6 +117,23 @@ export async function popularPage(col: PageCollection, filter: Record<string, un
     const { _id, ...rest } = d;
     return rest;
   });
+}
+
+/**
+ * Numbers every product inside its top-level category (1 = the category's best by in stock, image, usage count, id) so the "All"
+ * list can round-robin across categories with a plain sort. Run by the ranking job; one aggregate, no document loaded by the app.
+ */
+export async function refreshCategoryPositions(col: { aggregate(p: Record<string, unknown>[]): { toArray(): Promise<unknown[]> } }): Promise<void> {
+  await col.aggregate([
+    { $match: { category: { $type: 'string' } } },
+    { $project: { category: 1, ...POPULAR_SORT_PROJECTION } },
+    { $addFields: { _in_stock: POPULAR_SORT_FIELDS._in_stock, _has_image: POPULAR_SORT_FIELDS._has_image, category: '$category' } },
+    { $sort: { _in_stock: -1, _has_image: -1, usage_count: -1, _id: 1 } },
+    { $group: { _id: '$category', ids: { $push: '$_id' } } },
+    { $unwind: { path: '$ids', includeArrayIndex: 'i' } },
+    { $project: { _id: '$ids', category_pos: { $add: ['$i', 1] } } },
+    { $merge: { into: 'medicines', on: '_id', whenMatched: 'merge', whenNotMatched: 'discard' } },
+  ]).toArray();
 }
 
 @Injectable()
@@ -240,6 +272,7 @@ export class ProductRankingService {
         seeded.add(String(m.id));
         updated++;
       }
+      await refreshCategoryPositions(medicines as any).catch((err) => this.logger.warn(`category_pos refresh failed: ${(err as Error).message}`));
       const stale: any[] = await medicines.find({ rank_score: { $gt: 0 } }, { projection: { id: 1 } }).toArray();
       for (const m of stale) {
         if (m?.id && !withMetrics.has(String(m.id)) && !seeded.has(String(m.id))) await this.writeRankScore(String(m.id), 0);

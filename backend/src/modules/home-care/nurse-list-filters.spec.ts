@@ -1,11 +1,31 @@
 import { HomeCareCompatController } from './home-care-compat.module';
-import { distanceKmTo, nearestOrigin, nurseFilterClauses } from './nurse-list-filters';
+import { caseInsensitiveEq, distanceKmTo, nearestOrigin, nurseFilterClauses } from './nurse-list-filters';
 
 describe('nurse list: nationality, available now, nearest with distance_km (#1819)', () => {
   it('builds only validated clauses', () => {
-    expect(nurseFilterClauses({ nationality: ' Saudi ', available: 'true' })).toEqual({ nationality: { $eq: 'Saudi' }, 'availability.accepting': { $ne: false } });
+    expect(nurseFilterClauses({ nationality: ' Saudi ', available: 'true' })).toEqual({ nationality: caseInsensitiveEq('Saudi'), 'availability.accepting': { $ne: false } });
     expect(nurseFilterClauses({ nationality: { $ne: 'x' }, available: 'yes' })).toEqual({});
-    expect(nurseFilterClauses({ nationality: 'a\u0000b' })).toEqual({ nationality: { $eq: 'ab' } });
+    expect(nurseFilterClauses({ nationality: 'a\u0000b' })).toEqual({ nationality: caseInsensitiveEq('ab') });
+  });
+
+  it('nationality and gender match the whole value whatever the case; the text is never a pattern', () => {
+    const { $regex } = nurseFilterClauses({ nationality: 'saudi' }).nationality as { $regex: RegExp };
+    for (const stored of ['Saudi', 'saudi', 'SAUDI']) expect($regex.test(stored)).toBe(true);
+    for (const stored of ['Saudi Arabian', 'not saudi', '']) expect($regex.test(stored)).toBe(false);
+    const wild = caseInsensitiveEq('.*').$regex;
+    expect(wild.test('Saudi')).toBe(false);
+    expect(wild.test('.*')).toBe(true);
+    expect(caseInsensitiveEq('male').$regex.test('female')).toBe(false);
+    expect(caseInsensitiveEq('female').$regex.test('Female')).toBe(true);
+  });
+
+  it('the list applies the gender case-insensitively too', async () => {
+    let filter: any;
+    const profilesModel: any = { find: (f: any) => { filter = f; return { limit: () => ({ lean: async () => [] }) }; } };
+    const ctl: any = new (HomeCareCompatController as any)({}, { findOne: () => ({ lean: async () => null }) }, profilesModel, {});
+    await ctl.providers({ gender: 'Female', nationality: 'filipino' });
+    expect(filter.gender.$regex.test('female')).toBe(true);
+    expect(filter.nationality.$regex.test('Filipino')).toBe(true);
   });
 
   it('the "no filter" values the clients send add no clause (j_nursing regression)', () => {
@@ -56,7 +76,7 @@ describe('nurse list: nationality, available now, nearest with distance_km (#181
     const profilesModel: any = { find: (f: any) => { filter = f; return { limit: () => ({ lean: async () => profiles }) }; } };
     const ctl: any = new (HomeCareCompatController as any)({}, { findOne: () => ({ lean: async () => null }) }, profilesModel, {});
     const out = await ctl.providers({ nationality: 'Saudi', available: 'true', sort: 'nearest', lat: '24.7136', lng: '46.6753' });
-    expect(filter).toMatchObject({ nationality: { $eq: 'Saudi' }, 'availability.accepting': { $ne: false } });
+    expect(filter).toMatchObject({ nationality: caseInsensitiveEq('Saudi'), 'availability.accepting': { $ne: false } });
     expect(out.map((n: any) => n.id)).toEqual(['near', 'far', 'none']);
     expect(out[0].distance_km).toBeLessThan(2);
     expect(out[2].distance_km).toBeNull();

@@ -24,10 +24,12 @@ import { ConsultState } from "@/components-next/consult/consult-state";
 import { Notice } from "@/components-next/consult/consult-parts";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { InsuranceRow, InsuranceTabs, PolicyCard, RowsList, ShortcutGrid, StatusBadge } from "@/components-next/insurance/insurance-kit";
+import { DeletePolicyAction } from "@/components-next/insurance/delete-policy-action";
 import { NetworkList } from "@/components-next/insurance/network-list";
 import forms from "@/components-next/consult/consult.module.css";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/insurance/insurance.module.css";
+import { localizedText } from "@/lib/i18n/localized-field";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string; q?: string; type?: string; company?: string }> };
 
@@ -156,7 +158,7 @@ export default async function InsurancePage({ params, searchParams }: Props) {
   return (
     <ConsultPage locale={locale} title={t("title")}>
       <PolicyCard
-        title={summary.companyName ?? t("noPolicyTitle")}
+        title={localizedText({ locale, ar: summary.companyName, en: summary.companyNameEn }) ?? t("noPolicyTitle")}
         sub={summary.planClass ? t("planLine", { plan: summary.planClass }) : undefined}
         badge={!summary.hasPolicy ? t("none") : summary.verified ? t("policyVerified") : t("policyInReview")}
         tone={!summary.hasPolicy ? "plain" : summary.verified ? "good" : "wait"}
@@ -180,6 +182,7 @@ export default async function InsurancePage({ params, searchParams }: Props) {
           { href: `${base}/coverage-check`, label: t("coverageCheck"), icon: "shield-check", tone: SERVICE_ICONS.insurance.tone },
         ]}
       />
+      {summary.hasPolicy ? <DeletePolicyAction /> : null}
       <InsuranceTabs
         label={t("tabs")}
         base={base}

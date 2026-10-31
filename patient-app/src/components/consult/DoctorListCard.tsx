@@ -46,6 +46,7 @@ export function DoctorListCard({ doctor, onPress, onBook, testID }: { doctor: Do
         bookLabel={k('consult.hub.book')}
         onPress={onPress}
         onBook={onBook}
+        formatCount={num}
         theme={theme}
         testID={testID}
       />

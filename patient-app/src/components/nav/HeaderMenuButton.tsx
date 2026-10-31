@@ -6,6 +6,8 @@ import Svg, { Path } from 'react-native-svg';
 
 import { withAlpha } from '../../../../packages/ui-native/src/shells/shellTokens';
 import { useScreenUi } from '../screen/ScreenKit';
+import { HEADER_ICON, HeaderDot, HeaderRound } from './HeaderRound';
+import { useNewResultsCount } from '../../hooks/useNewResultsCount';
 
 /**
  * The header MENU button (owner decision, reviewer 2026-10-26): the round button that is the LAST item of a header, at the
@@ -27,10 +29,15 @@ export const MENU_ITEMS: { key: string; label: string; href: string }[] = [
 const BARS = 'M4 7h16 M4 12h16 M4 17h16';
 
 export function HeaderMenuButton({ testID = 'header-menu-button' }: { testID?: string }) {
-  const { c, k, flow } = useScreenUi();
+  const { c, k, num, flow } = useScreenUi();
+  const fresh = useNewResultsCount();
   const insets = useSafeAreaInsets();
   const [open, setOpen] = useState(false);
 
+  const openSheet = () => {
+    fresh.refresh();
+    setOpen(true);
+  };
   const pick = (href: string) => {
     setOpen(false);
     router.push(href as Href);
@@ -38,18 +45,11 @@ export function HeaderMenuButton({ testID = 'header-menu-button' }: { testID?: s
 
   return (
     <View>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={k('menu.open')}
-        accessibilityState={{ expanded: open }}
-        testID={testID}
-        onPress={() => setOpen(true)}
-        style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 22, backgroundColor: c.bg.surface, borderWidth: 1, borderColor: c.border.onGlass, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.8 : 1 })}
-      >
-        <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+      <HeaderRound label={k('menu.open')} state={{ expanded: open }} testID={testID} onPress={openSheet} badge={fresh.count > 0 ? <HeaderDot testID={`${testID}-dot`} /> : null}>
+        <Svg width={HEADER_ICON} height={HEADER_ICON} viewBox="0 0 24 24" fill="none">
           <Path d={BARS} stroke={c.text.secondary} strokeWidth={2} strokeLinecap="round" />
         </Svg>
-      </Pressable>
+      </HeaderRound>
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
         <View style={{ flex: 1, justifyContent: 'flex-end' }}>
           <Pressable
@@ -68,12 +68,17 @@ export function HeaderMenuButton({ testID = 'header-menu-button' }: { testID?: s
               <Pressable
                 key={item.key}
                 accessibilityRole="button"
-                accessibilityLabel={k(item.label)}
+                accessibilityLabel={item.key === 'orders' && fresh.count > 0 ? k('menu.ordersNew', { n: num(fresh.count) }) : k(item.label)}
                 testID={`${testID}-${item.key}`}
                 onPress={() => pick(item.href)}
-                style={{ minHeight: 52, borderRadius: 16, paddingHorizontal: 14, justifyContent: 'center' }}
+                style={{ minHeight: 52, borderRadius: 16, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}
               >
-                <Text style={{ fontSize: 16, fontWeight: '500', color: c.text.primary, ...flow }}>{k(item.label)}</Text>
+                <Text style={{ flex: 1, fontSize: 16, fontWeight: '500', color: c.text.primary, ...flow }}>{k(item.label)}</Text>
+                {item.key === 'orders' && fresh.count > 0 ? (
+                  <View testID={`${testID}-orders-badge`} style={{ minWidth: 24, height: 24, borderRadius: 12, paddingHorizontal: 7, alignItems: 'center', justifyContent: 'center', backgroundColor: c.avatar.ring }}>
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: c.text.onBrand }}>{num(fresh.count)}</Text>
+                  </View>
+                ) : null}
               </Pressable>
             ))}
           </View>

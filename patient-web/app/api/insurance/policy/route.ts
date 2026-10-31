@@ -6,7 +6,7 @@ import { callPatientApi } from "@/lib/api/upstream";
 import { boundedUpstreamError } from "@/lib/api/error-response";
 import { insurerOf } from "@/lib/consult/doctor-filters";
 
-const schema = z.object({
+const policySchema = z.object({
   company_id: z.string().min(1).max(128),
   policy_number: z.string().min(3).max(64),
   member_id: z.string().max(64).optional().default(""),
@@ -17,11 +17,14 @@ const schema = z.object({
   copay_cap_sar: z.number().min(0).max(1_000_000).optional(),
   // the insurer's network (the app's network chips); the policy stores it with the company and class
   network: z.string().max(128).optional(),
+  // the class (plan class): the backend writes `class` and `plan_class` from either (common/insurance-policy.ts); without these two the class was stripped here
+  class: z.string().max(128).optional(),
+  plan_class: z.string().max(128).optional(),
 });
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
-  const parsed = schema.safeParse(body);
+  const parsed = policySchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ message: "invalid_policy_payload" }, { status: 400 });
   const store = await cookies();
   const accessToken = store.get(authCookieNames.access)?.value;
@@ -52,4 +55,16 @@ export async function GET() {
   if (!upstream.ok) return boundedUpstreamError(data, "policy_read_failed", upstream.status);
   const insurer = insurerOf(data);
   return insurer ? NextResponse.json(insurer, { headers: noStore }) : NextResponse.json({ message: "no_policy" }, { status: 404, headers: noStore });
+}
+
+/** Removes the saved policy (QA I-03: a card could only be overwritten). Signed in only; the backend clears the caller's own policy. */
+export async function DELETE() {
+  const store = await cookies();
+  const accessToken = store.get(authCookieNames.access)?.value;
+  const noStore = { "cache-control": "no-store" };
+  if (!accessToken) return NextResponse.json({ message: "authentication_required" }, { status: 401, headers: noStore });
+  const upstream = await callPatientApi("/users/me/insurance", { method: "DELETE", cache: "no-store" }, accessToken);
+  const data = await upstream.json().catch(() => null);
+  if (!upstream.ok) return boundedUpstreamError(data, "policy_delete_failed", upstream.status);
+  return NextResponse.json({ success: true, removed: Boolean((data as { removed?: unknown } | null)?.removed) }, { headers: noStore });
 }

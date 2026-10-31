@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, StatusBar, View } from 'react-native';
+import { ActivityIndicator, Linking, Platform, StatusBar, View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
-import { Room, RoomEvent, VideoPresets, type LocalTrack, type RemoteTrack } from 'livekit-client';
+import { LocalVideoTrack, Room, RoomEvent, VideoPresets, type LocalTrack, type RemoteTrack } from 'livekit-client';
 
 import { ErrorState } from '../../../packages/ui-native/src';
-import { CallButton, CallIdentity, useCallUi } from '../../src/components/consult/CallKit';
+import { CallButton, CallIdentity, CallNotice, useCallUi } from '../../src/components/consult/CallKit';
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
 import { TelehealthConsentSheet, isTelehealthConsentRefusal } from '../../src/components/legal/TelehealthConsent';
+import { ensureLiveKitGlobals, startCallAudio, stopCallAudio } from '../../src/calls/livekitNative';
+import { availableRoutes, defaultRoute, nextRoute, selectRoute, type AudioRoute } from '../../src/calls/audioRoute';
+import { onCallHold } from '../../src/calls/callHold';
+
+const OS = Platform.OS === 'ios' ? 'ios' : 'android';
 
 /**
  * Video call — no board (owner decision, 2026-10-04): the layout stays, drawn with the dark tokens, the font and
@@ -27,6 +32,9 @@ try {
   VideoView = null;
 }
 
+// WebRTC globals before the first Room (livekit-client needs them on a native build)
+ensureLiveKitGlobals();
+
 interface Session {
   session_id?: string;
   id?: string;
@@ -41,7 +49,8 @@ interface Join {
 }
 
 export default function VideoCallScreen() {
-  const { appointmentId } = useLocalSearchParams();
+  const { appointmentId, sessionId: ringingSessionId, mode } = useLocalSearchParams<{ appointmentId?: string; sessionId?: string; mode?: string }>();
+  const isVideoCall = mode !== 'voice';
   const { c, k } = useCallUi();
 
   const [loading, setLoading] = useState(true);
@@ -51,7 +60,13 @@ export default function VideoCallScreen() {
   const [consentAsked, setConsentAsked] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const [micOn, setMicOn] = useState(true);
-  const [camOn, setCamOn] = useState(true);
+  const [camOn, setCamOn] = useState(isVideoCall);
+  const [route, setRoute] = useState<AudioRoute>(isVideoCall ? 'speaker' : 'earpiece');
+  const [routes, setRoutes] = useState<AudioRoute[]>([]);
+  const [frontCamera, setFrontCamera] = useState(true);
+  const [remoteMuted, setRemoteMuted] = useState(false);
+  const [denied, setDenied] = useState<'mic' | 'cam' | null>(null);
+  const [held, setHeld] = useState(false);
 
   // LiveKit States
   const [room, setRoom] = useState<Room | null>(null);
@@ -70,11 +85,14 @@ export default function VideoCallScreen() {
 
         // M1-30: real LiveKit contract — POST /calls/initiate then /calls/:sessionId/join
         // (was calling non-existent /care/appointments/:id/video-token and falling back to a fake token)
-        if (appointmentId) {
-          const initRes = await apiFetch<Session & { data?: Session }>(`/calls/initiate`, {
-            method: 'POST',
-            body: JSON.stringify({ appointmentId, call_type: 'video' }),
-          });
+        if (ringingSessionId || appointmentId) {
+          // an answered incoming call joins the session that is ringing; only the caller starts one
+          const initRes: Session & { data?: Session } = ringingSessionId
+            ? { session_id: String(ringingSessionId) }
+            : await apiFetch<Session & { data?: Session }>(`/calls/initiate`, {
+              method: 'POST',
+              body: JSON.stringify({ appointmentId, call_type: 'video' }),
+            });
           const session = initRes?.data || initRes;
           const sessionId = session?.session_id || session?.id;
           if (sessionId) {
@@ -95,12 +113,15 @@ export default function VideoCallScreen() {
         // (adaptiveStream + dynacast), with DTX audio for clean voice on weak links.
         // (the options are built apart so the unchanged `audioBitrate` key stays as it was sent)
         const publishDefaults = {
+          videoCodec: 'vp8' as const, // plays on every browser and phone the doctor may use
           simulcast: true,
           videoSimulcastLayers: [VideoPresets.h180, VideoPresets.h360],
           videoEncoding: { maxBitrate: 1_700_000 },
           audioBitrate: 32_000,
           dtx: true,
         };
+        ensureLiveKitGlobals();
+        await startCallAudio();
         const newRoom = new Room({
           adaptiveStream: true,
           dynacast: true,
@@ -121,6 +142,14 @@ export default function VideoCallScreen() {
           }
         });
 
+        // the other side's mute shows here: LiveKit carries the state, no extra message is needed
+        newRoom.on(RoomEvent.TrackMuted, (pub, participant) => {
+          if (participant !== newRoom.localParticipant && pub.kind === 'audio') setRemoteMuted(true);
+        });
+        newRoom.on(RoomEvent.TrackUnmuted, (pub, participant) => {
+          if (participant !== newRoom.localParticipant && pub.kind === 'audio') setRemoteMuted(false);
+        });
+
         newRoom.on(RoomEvent.Disconnected, () => {
           setIsConnected(false);
           setRemoteTrack(null);
@@ -133,7 +162,26 @@ export default function VideoCallScreen() {
         });
 
         await newRoom.connect(serverUrl, token);
-        await newRoom.localParticipant.enableCameraAndMicrophone();
+        // each permission on its own: a denied camera must not take the voice down with it
+        try {
+          await newRoom.localParticipant.setMicrophoneEnabled(true);
+        } catch {
+          setDenied('mic');
+          setMicOn(false);
+        }
+        if (isVideoCall) {
+          try {
+            await newRoom.localParticipant.setCameraEnabled(true);
+          } catch {
+            setDenied((d) => d ?? 'cam');
+            setCamOn(false);
+          }
+        }
+        const found = await availableRoutes(OS);
+        setRoutes(found);
+        const initial = defaultRoute(isVideoCall, found);
+        setRoute(initial);
+        void selectRoute(initial, OS);
 
         setRoom(newRoom);
         setIsConnected(true);
@@ -157,8 +205,38 @@ export default function VideoCallScreen() {
       if (activeRoom) {
         void activeRoom.disconnect();
       }
+      void stopCallAudio();
     };
-  }, [appointmentId, attempt]);
+  }, [appointmentId, ringingSessionId, attempt]);
+
+  // a phone call takes the line: stop sending while held, send again on resume
+  useEffect(() => {
+    return onCallHold((h) => {
+      setHeld(h);
+      if (room) {
+        void room.localParticipant.setMicrophoneEnabled(!h && micOn);
+        void room.localParticipant.setCameraEnabled(!h && camOn);
+      }
+    });
+  }, [room, micOn, camOn]);
+
+  const cycleRoute = async () => {
+    const next = nextRoute(route, routes);
+    if (await selectRoute(next, OS)) setRoute(next);
+  };
+
+  const flipCamera = async () => {
+    const pub = room?.localParticipant.getTrackPublication('camera' as never);
+    const track = pub?.track;
+    if (!(track instanceof LocalVideoTrack)) return;
+    const facing = frontCamera ? 'environment' : 'user';
+    try {
+      await track.restartTrack({ facingMode: facing });
+      setFrontCamera(!frontCamera);
+    } catch {
+      /* the other camera is not available: the current one keeps running */
+    }
+  };
 
   // Toggle Camera
   useEffect(() => {
@@ -232,14 +310,24 @@ export default function VideoCallScreen() {
 
       {/* Local Video Overlay */}
       <View style={{ position: 'absolute', top: 50, start: 20, width: 90, height: 120, borderRadius: 14, backgroundColor: c.bg.elevated, borderWidth: 2, borderColor: c.border.strong, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-        {camOn && localTrack && VideoView ? <VideoView style={full} videoTrack={localTrack} mirror /> : null}
+        {camOn && localTrack && VideoView ? <VideoView style={full} videoTrack={localTrack} mirror={frontCamera} /> : null}
       </View>
+
+      {remoteMuted || held || denied ? (
+        <View style={{ position: 'absolute', top: 180, start: 16, end: 16, alignItems: 'center', gap: 8 }} testID="call-status">
+          {held ? <CallNotice text={k('consult.call.onHold')} /> : null}
+          {remoteMuted && !held ? <CallNotice text={k('consult.call.remoteMuted')} /> : null}
+          {denied ? <CallNotice text={k(denied === 'mic' ? 'consult.call.micDenied' : 'consult.call.camDenied')} actionLabel={k('consult.call.openSettings')} onAction={() => void Linking.openSettings()} /> : null}
+        </View>
+      ) : null}
 
       {/* Controls Overlay */}
       <View style={{ position: 'absolute', bottom: 40, start: 0, end: 0, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 12, paddingHorizontal: 16 }}>
         <CallButton label={micOn ? k('consult.call.mute') : k('consult.call.unmute')} active={micOn} onPress={() => setMicOn(!micOn)} testID="call-mic" />
         <CallButton label={k('consult.call.end')} tone="danger" onPress={handleEndCall} testID="call-end" />
-        <CallButton label={camOn ? k('consult.call.cameraOff') : k('consult.call.cameraOn')} active={camOn} onPress={() => setCamOn(!camOn)} testID="call-camera" />
+        {routes.length > 1 ? <CallButton label={k(`consult.call.route.${route}`)} active onPress={cycleRoute} testID="call-route" /> : null}
+        {isVideoCall && camOn ? <CallButton label={k('consult.call.flipCamera')} active onPress={flipCamera} testID="call-flip" /> : null}
+        {isVideoCall ? <CallButton label={camOn ? k('consult.call.cameraOff') : k('consult.call.cameraOn')} active={camOn} onPress={() => setCamOn(!camOn)} testID="call-camera" /> : null}
       </View>
     </View>
   );

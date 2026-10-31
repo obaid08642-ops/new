@@ -39,7 +39,7 @@ export default async function LabResultPage({ params }: Props) {
   setRequestLocale(locale);
   const token = await requirePatientAccess(locale);
   const t = await getTranslations("LabResult");
-  const back = `/${locale}/diagnostics/results`;
+  const back = `/${locale}/orders?tab=results`;
   // Ord11: the same test's earlier values come from the patient's own list (GET /lab-results/mine); a failed read only hides the trend.
   const [response, history] = await Promise.all([
     callPatientApi(`/lab-results/${encodeURIComponent(resultId)}`, { cache: "no-store" }, token).catch(() => null),

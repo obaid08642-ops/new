@@ -1,4 +1,5 @@
-import { Body, Controller, Delete, Get, Param, NotFoundException, Post, Put, UseGuards, UseInterceptors, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, NotFoundException, Post, Put, Query, UseGuards, UseInterceptors, BadRequestException } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { Public, JwtAuthGuard, Roles } from '../../common/auth.guard';
@@ -7,6 +8,7 @@ import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
 import { PublicCache } from '../../common/public-cache.decorator';
 import { CATALOG_COLLECTIONS } from './catalog-collections';
 import { toPublicMedicine } from '../medicines/public-medicine';
+import { toPublicCatalogRow } from './public-catalog-row';
 import { IsBoolean, IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
@@ -39,7 +41,7 @@ const DB_COLLECTIONS: Record<string, string> = {
 const CATALOGS = ['insurance', 'labs', 'radiology', 'nursing', 'specialties', 'medicines'] as const;
 
 @Controller('catalogs')
-@UseInterceptors(RedisCacheInterceptor)
+@UseInterceptors(RedisCacheInterceptor, StripInternalReviewFieldsInterceptor)
 export class CatalogsController {
   constructor(@InjectConnection() private readonly conn: Connection) {}
 
@@ -48,11 +50,11 @@ export class CatalogsController {
   @Public()
   @PublicCache(300, ['catalogs'])
   @Get(':type')
-  async getCatalog(@Param('type') type: string) {
+  async getCatalog(@Param('type') type: string, @Query('sort') sort?: string) {
     if (!CATALOGS.includes(type as any)) throw new NotFoundException('catalog_not_found');
     if (type === 'insurance') return this.insuranceCatalog();
     if (type === 'medicines') return this.medicinesCatalog();
-    return this.dbCatalog(type, DB_COLLECTIONS[type]);
+    return this.dbCatalog(type, DB_COLLECTIONS[type], sort);
   }
 
   private async medicinesCatalog() {
@@ -78,22 +80,30 @@ export class CatalogsController {
     }));
   }
 
-  private async dbCatalog(type: string, collection: string) {
+  private async dbCatalog(type: string, collection: string, sort?: string) {
     // P5.1: DB is the single source of truth — no static fallback.
     // Boot seeds (CatalogsSeedService, insert-only) populate fresh envs.
     const rows = await this.conn.collection(collection)
-      .find({ $or: [{ is_active: true }, { active: { $ne: false } }, { is_active: { $exists: false } }] } as any)
+      .find({ $or: [{ is_active: true }, { active: { $ne: false } }, { is_active: { $exists: false } }], is_deleted: { $ne: true } } as any)
       .limit(500).toArray().catch(() => []);
     const live = (rows as any[]).filter((r: any) => r.is_active !== false && r.active !== false);
     if (!live.length) throw new NotFoundException('catalog_unavailable');
-    return live.map(({ _id, ...r }: any) => ({
+    // labs, radiology and nursing: the smart ranking is the default order (rank_score, then the editorial popularity); `?sort=popularity` keeps the old one
+    if (['labs', 'radiology', 'nursing'].includes(type)) {
+      const score = (r: any) => (sort === 'popularity' ? 0 : Number(r.rank_score) || 0);
+      live.sort((a: any, b: any) => score(b) - score(a) || (Number(b.popularity) || 0) - (Number(a.popularity) || 0));
+    }
+    return live.map((r: any) => ({
       code: r.short_code || r.code || r.id,
       // P5.1: canonical per-collection name fields first (labs use test_name_*).
       name_ar: r.test_name_ar || r.name_ar || r.name,
       name_en: r.test_name_en || r.name_en || r.name,
-      image_url: r.image_url || `https://cdn.nabd.plus/${type}/${r.short_code || r.code || r.id}.png`,
       is_active: true,
-      ...r,
+      // public fields only: never the audit, soft-delete or machine-edit fields of the record (toPublicCatalogRow)
+      ...toPublicCatalogRow(r),
+      // The stored picture or none. This used to invent `https://cdn.nabd.plus/<type>/<code>.png`, a file that was never uploaded: on production
+      // all 83 lab, 25 radiology and 15 nursing addresses it made answered 404 (QA 2026-10-26). From `null` the client draws its own icon.
+      image_url: (typeof r.image_url === 'string' && r.image_url.trim()) || null,
     }));
   }
 
@@ -116,7 +126,7 @@ export class CatalogsController {
       name_en: c.name_en,
       image_url: c.logo_url || c.image_url || `https://cdn.nabd.plus/insurance/${c.code}.png`,
       is_active: c.is_active !== false,
-      plans: (byCompany.get(c.id) || []).sort((a: any, b: any) => (a.tier_level || 0) - (b.tier_level || 0)),
+      plans: (byCompany.get(c.id) || []).sort((a: any, b: any) => (a.tier_level || 0) - (b.tier_level || 0)).map(toPublicCatalogRow),
     }));
   }
 

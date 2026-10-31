@@ -98,7 +98,7 @@ export class RedisCacheInterceptor implements NestInterceptor {
     try {
       response?.setHeader?.(
         'Cache-Control',
-        `public, s-maxage=${policy.ttl}, stale-while-revalidate=60, stale-if-error=86400`,
+        policy.cacheControl ?? `public, s-maxage=${policy.ttl}, stale-while-revalidate=60, stale-if-error=86400`,
       );
       if (policy.tags && policy.tags.length) {
         response?.setHeader?.('Cache-Tag', policy.tags.join(', '));

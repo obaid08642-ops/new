@@ -1,5 +1,5 @@
 import { buildPatientPolicy } from '../../common/insurance-policy';
-import { Body, Controller, Get, Post, UseGuards, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, UseGuards, BadRequestException } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -85,5 +85,18 @@ export class UsersInsuranceController {
     await this.users.setPatientInsurance(id, updatedInsurance);
     // Fixed JSON only: never echo the patient's text back (read it with GET /users/me/insurance).
     return { success: true, verified: false };
+  }
+
+  @Delete()
+  @ApiBearerAuth(NABDAH_ACCESS_TOKEN_SECURITY_SCHEME)
+  @ApiOperation({
+    summary: 'Remove the authenticated patient’s saved insurance policy',
+    description: 'Clears the canonical `insurance` object of the caller only (nothing else on the profile). Idempotent: `removed` is false when there was no policy. A card picture held as a media reference is released with it.',
+  })
+  @ApiOkResponse({ description: 'Policy removed.', schema: { type: 'object', properties: { success: { type: 'boolean' }, removed: { type: 'boolean' } } } })
+  @ApiUnauthorizedResponse({ description: 'Missing, malformed, or expired bearer token.' })
+  async removeInsurance(@CurrentUser('id') id: string) {
+    const removed = await this.users.clearPatientInsurance(id);
+    return { success: true, removed };
   }
 }

@@ -1,0 +1,40 @@
+{
+ "slice": "empty-provider-notify-me-app",
+ "batch": "2",
+ "app": "patient-app",
+ "screens": [
+  {
+   "route": "/diagnostics/test-detail",
+   "elements": [
+    [
+     "CatalogueCard / NursingServiceList card: line, From price, Add/Order/Book disabled",
+     "providers_count, price",
+     "ok"
+    ],
+    [
+     "test-detail and service-info: footer buttons disabled, OffersSection with indicative price and Notify me",
+     "offer summary + price; POST /catalogue-interest, GET /catalogue-interest/mine",
+     "ok"
+    ]
+   ],
+   "notes": []
+  },
+  {
+   "route": "/nursing/service-info",
+   "elements": [
+    [
+     "CatalogueCard / NursingServiceList card: line, From price, Add/Order/Book disabled",
+     "providers_count, price",
+     "ok"
+    ],
+    [
+     "test-detail and service-info: footer buttons disabled, OffersSection with indicative price and Notify me",
+     "offer summary + price; POST /catalogue-interest, GET /catalogue-interest/mine",
+     "ok"
+    ]
+   ],
+   "notes": []
+  }
+ ],
+ "needsReview": []
+}

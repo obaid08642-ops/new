@@ -1,3 +1,4 @@
+import { LocalizedField } from "@/components-next/ui/localized-field";
 import { SUGGEST_SCOPES } from "@/lib/search/suggest";
 import { notFound, redirect } from "next/navigation";
 import { pickName } from "@/lib/i18n/localized";
@@ -16,8 +17,9 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { LocalTimeLine } from "@/components-next/consult/local-time-line";
 import { RowCard, Notice } from "@/components-next/consult/consult-parts";
-import { Caret, MetaLine, NURSING, RowList, StatusLine, nursingStatus, serviceIcon } from "@/components-next/nursing/nursing-parts";
-import { PackageCard, Rail, SearchForm, SectionHead, money, pickText } from "@/components-next/diagnostics/diag-parts";
+import { Caret, MetaLine, NURSING, NursingPackageCard, RowList, ServiceChips, StatusLine, nursingStatus, serviceIcon } from "@/components-next/nursing/nursing-parts";
+import { nursingOfferLine } from "@/components-next/nursing/nursing-offers";
+import { Rail, SearchForm, SectionHead, money, pickText } from "@/components-next/diagnostics/diag-parts";
 import { ButtonLink } from "@/components-next/pharmacy/button-link";
 import { callPatientApi } from "@/lib/api/upstream";
 import { servicePayFlow, type PayFlow } from "@/lib/nursing/pay-flow";
@@ -40,6 +42,7 @@ export default async function HomeCarePage({ params, searchParams }: Props) {
   const search = (query.q ?? "").trim();
   const pay: PayFlow = servicePayFlow(query.pay);
   const t = await getTranslations("NursingWeb");
+  const w = await getTranslations("DiagWeb");
   const token = await getOptionalPatientAccessToken();
   if (!token) return <GuestHomeCare locale={locale} />;
   const response = await getPatientHomeCareBookings(token);
@@ -81,15 +84,14 @@ export default async function HomeCarePage({ params, searchParams }: Props) {
           <SectionHead id="home-care-packages" title={t("carePackages")} />
           <Rail label={t("carePackages")}>
             {packages.map((item) => (
-              <PackageCard
+              <NursingPackageCard
                 key={item.id}
                 href={serviceHref(item.id)}
-                title={pickName(locale, item.names) ?? t("serviceUnavailable")}
+                title={pickName(locale, item.names) ? <LocalizedField locale={locale} ar={item.names.ar} en={item.names.en} /> : t("serviceUnavailable")}
                 sub={item.duration}
                 price={item.price !== undefined ? money(locale, item.price) : undefined}
                 cta={t("bookCta")}
                 icon={serviceIcon(item.id, item.category, item.nameAr, item.nameEn)}
-                tone={NURSING.tone}
               />
             ))}
           </Rail>
@@ -100,11 +102,14 @@ export default async function HomeCarePage({ params, searchParams }: Props) {
         <ConsultState kind="empty" icon={NURSING.icon} tone={NURSING.tone} title={search ? t("noMatch") : t("servicesEmpty")} body={search ? undefined : t("servicesEmptyBody")} />
       ) : (
         <RowList label={t("servicesTitle")}>
-          {services.map((item) => (
-            <li key={item.id}>
-              <RowCard href={serviceHref(item.id)} icon={serviceIcon(item.id, item.category, item.nameAr, item.nameEn)} tone={NURSING.tone} title={pickName(locale, item.names) ?? t("serviceUnavailable")} sub={item.price !== undefined ? money(locale, item.price) : undefined} caret={caret} />
-            </li>
-          ))}
+          {services.map((item) => {
+            const offer = nursingOfferLine({ locale, tr: (key, values) => w(key, values), offer: item.offer, price: item.price });
+            return (
+              <li key={item.id}>
+                <RowCard href={serviceHref(item.id)} icon={serviceIcon(item.id, item.category, item.nameAr, item.nameEn)} tone={NURSING.tone} title={pickName(locale, item.names) ? <LocalizedField locale={locale} ar={item.names.ar} en={item.names.en} /> : t("serviceUnavailable")} sub={offer.line} extra={<ServiceChips extras={offer.chips} />} caret={caret} />
+              </li>
+            );
+          })}
         </RowList>
       )}
       <RowList label={t("hubLinks")}>
@@ -117,7 +122,7 @@ export default async function HomeCarePage({ params, searchParams }: Props) {
       ) : (
         <RowList label={t("bookingsTitle")}>
           {bookings.map((booking) => {
-            const name = pickName(locale, booking.serviceNames) ?? t("serviceUnavailable");
+            const name = pickName(locale, booking.serviceNames) ? <LocalizedField locale={locale} ar={booking.serviceNames?.ar} en={booking.serviceNames?.en} /> : t("serviceUnavailable");
             const status = nursingStatus(booking.state);
             return (
               <li key={booking.id}>
@@ -149,12 +154,13 @@ const GUEST_ROWS = 6;
 
 /**
  * Issue 1550: the home care page of a guest. What the service is, the published services with their prices (the public
- * GET /nursing/catalog; each opens its public service page, where booking asks for the sign-in) and the published home care
+ * GET /home-care/services; each opens its public service page, where booking asks for the sign-in) and the published home care
  * providers (the public GET /providers?type=home_care). The patient's own bookings are read only with a session.
  */
 async function GuestHomeCare({ locale }: { locale: Locale }) {
   const t = await getTranslations("NursingWeb");
   const g = await getTranslations("GuestServices");
+  const w = await getTranslations("DiagWeb");
   const [servicesRead, providersRead] = await Promise.all([readPublicHomeCareServices(), readPublicHomeCareProviders()]);
   const services = servicesRead.failed ? [] : extractNursingCatalog(servicesRead.body);
   const providers = providersRead.failed ? [] : parsePublicProviders(providersRead.body);
@@ -166,18 +172,22 @@ async function GuestHomeCare({ locale }: { locale: Locale }) {
       <SectionHead id="home-care-services" title={g("homeCare.servicesTitle")} href={`/${locale}/nursing/catalog`} linkLabel={g("seeAll")} />
       <GuestList failed={servicesRead.failed} count={services.length} error={serviceLabels.error} empty={serviceLabels.empty}>
         <RowList label={g("homeCare.servicesTitle")}>
-          {services.map((item) => (
-            <li key={item.id}>
-              <RowCard
-                href={`/${locale}/home-care/services/${encodeURIComponent(item.id)}`}
-                icon={serviceIcon(item.id, item.category, item.nameAr, item.nameEn)}
-                tone={NURSING.tone}
-                title={pickName(locale, item.names) ?? t("serviceUnavailable")}
-                sub={item.price !== undefined ? money(locale, item.price) : undefined}
-                caret={caret}
-              />
-            </li>
-          ))}
+          {services.map((item) => {
+            const offer = nursingOfferLine({ locale, tr: (key, values) => w(key, values), offer: item.offer, price: item.price });
+            return (
+              <li key={item.id}>
+                <RowCard
+                  href={`/${locale}/home-care/services/${encodeURIComponent(item.id)}`}
+                  icon={serviceIcon(item.id, item.category, item.nameAr, item.nameEn)}
+                  tone={NURSING.tone}
+                  title={pickName(locale, item.names) ? <LocalizedField locale={locale} ar={item.names.ar} en={item.names.en} /> : t("serviceUnavailable")}
+                  sub={offer.line}
+                  extra={<ServiceChips extras={offer.chips} />}
+                  caret={caret}
+                />
+              </li>
+            );
+          })}
         </RowList>
       </GuestList>
       <SectionHead id="home-care-providers" title={g("homeCare.providersTitle")} />
@@ -185,7 +195,7 @@ async function GuestHomeCare({ locale }: { locale: Locale }) {
         <RowList label={g("homeCare.providersTitle")}>
           {providers.slice(0, GUEST_ROWS).map((provider) => (
             <li key={provider.id}>
-              <RowCard icon="user-circle" tone={NURSING.tone} title={pickText(locale, provider.nameAr, provider.nameEn) ?? ""} sub={provider.city} />
+              <RowCard icon="user-circle" tone={NURSING.tone} title={<LocalizedField locale={locale} ar={provider.nameAr} en={provider.nameEn} />} sub={provider.city} />
             </li>
           ))}
         </RowList>

@@ -7,6 +7,7 @@
  * and answers JSON `{ "found": boolean, "status": "active"|"expired"|"suspended"|"revoked", "expiry_date": "YYYY-MM-DD", "holder_name"?: string }`.
  * With no URL configured, or on any error, timeout or unreadable answer, the lookup is `unavailable`, which never verifies a provider.
  */
+import { suspendAccountForLicense } from '../../provider-onboarding/facility-license';
 import { Injectable, Logger, Module } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -118,6 +119,7 @@ export class ScfhsLicenseService {
         scfhs_checked_at: result.checked_at, scfhs_check_outcome: result.outcome,
       },
     });
+    await suspendAccountForLicense(this.conn, profile, `scfhs_license_${result.outcome}`).catch((e: any) => this.logger.error(`licence account suspend failed ${profile.id}: ${e?.message || e}`));   // the login follows the profile
     this.events.emit('provider.license_lapsed', { provider_id: profile.account_id || profile.user_id, profile_id: profile.id, outcome: result.outcome });
     this.logger.warn(`Provider ${profile.id} hidden: SCFHS licence ${result.outcome}`);
   }

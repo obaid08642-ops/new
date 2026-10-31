@@ -8,6 +8,16 @@
 /* ---- top bar ---- */
 .bar { display: flex; align-items: center; gap: var(--nabd-space-xs); inline-size: 100%; min-inline-size: 0; }
 
+.barDense { flex-wrap: wrap; row-gap: var(--nabd-space-2xs); }
+/* phone: back and the buttons on the first line, the title under them across the full width (it had 78 px beside four buttons) */
+@media (max-width: 1023px) {
+  .barDense .phoneTitle { order: 2; flex: 1 1 100%; }
+  .toolsStart { margin-inline-start: auto; }
+  /* the shell's top slot has a fixed height: two lines of the bar need 112 px, not 64 (otherwise the title spills over the page, seen in the render check) */
+  .root.rootDense { --nabd-shell-top-h: calc(112px + env(safe-area-inset-top)); }
+  .barDense { align-content: center; }
+}
+
 .iconLink {
   flex: none; inline-size: 44px; block-size: 44px; box-sizing: border-box; border-radius: var(--nabd-radius-pill);
   display: inline-grid; place-items: center; text-decoration: none;
@@ -22,23 +32,8 @@
   font-size: var(--nabd-font-size-micro); font-weight: 700; line-height: 1;
 }
 .phoneCart { margin-inline-start: auto; }
-/* the cart chooser (Home, and pages of no service): a small list of the carts that are not empty */
+/* the cart chooser's button wrapper; the sheet itself lives in cart-sheet.module.css (loaded on first open) */
 .cartWrap { position: relative; display: inline-flex; }
-.cartMenu {
-  position: absolute; inset-block-start: calc(100% + var(--nabd-space-xs)); inset-inline-end: 0; z-index: 30; margin: 0; padding: var(--nabd-space-xs); list-style: none;
-  min-inline-size: 220px; box-sizing: border-box; background: var(--nabd-color-bg-surface); border: 1px solid var(--nabd-color-border-hairline);
-  border-radius: var(--nabd-radius-xl); box-shadow: var(--nabd-shadow-card);
-}
-.cartMenuItem {
-  display: flex; align-items: center; justify-content: space-between; gap: var(--nabd-space-sm); min-block-size: 44px; padding-inline: var(--nabd-space-sm);
-  border-radius: var(--nabd-radius-lg); color: var(--nabd-color-text-primary); text-decoration: none; font-size: var(--nabd-font-size-row);
-}
-.cartMenuItem:hover, .cartMenuItem:focus-visible { background: var(--nabd-color-bg-sunken); }
-.cartMenuItem:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: -2px; }
-.cartMenuCount {
-  min-inline-size: 24px; block-size: 24px; padding-inline: 6px; box-sizing: border-box; border-radius: var(--nabd-radius-pill); display: inline-grid; place-items: center;
-  background: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg); font-size: var(--nabd-font-size-micro); font-weight: 700;
-}
 .iconLink:focus-visible, .section:focus-visible, .cancel:focus-visible, .brand:focus-visible {
   outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color); outline-offset: 2px;
 }
@@ -46,10 +41,12 @@
 /* the page's phone header: back, title in the middle, a spacer of the back button's width */
 .phoneTitle {
   flex: 1; min-inline-size: 0; margin: 0; text-align: start;
-  font-size: var(--nabd-font-size-h3); line-height: var(--nabd-font-size-h3-lineHeight); font-weight: 700;
+  font-weight: 700;
   /* The tools (results, favourites, cart, menu) sit after the title, so it is no longer centred by a spacer; a word is never cut
      in the middle (a 390px phone gave a title of a few letters per line before): long titles wrap between words. */
   overflow-wrap: normal; word-break: normal; hyphens: none;
+  /* with the results button the title has little width at 390: two lines at most, then an ellipsis (it was three oversized lines clipped above the bar) */
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; font-size: var(--nabd-font-size-h4); line-height: var(--nabd-font-size-h4-lineHeight);
 }
 
 .search { flex: 1; min-inline-size: 0; }
@@ -68,7 +65,7 @@
   display: inline-flex; align-items: center; min-block-size: 44px; padding-inline: 16px; border-radius: var(--nabd-radius-pill);
   font-size: var(--nabd-font-size-segment); font-weight: 600; color: var(--nabd-color-text-primary); text-decoration: none; white-space: nowrap;
 }
-.section:hover { background: var(--nabd-color-bg-sunken); }
+@media (hover: hover) and (pointer: fine) { .section:hover { background: var(--hover-tint); } }
 
 .tools { margin-inline-start: auto; align-items: center; gap: 8px; }
 /* between 1024 and 1439 the bar carries the five sections plus language, theme, bell, favourites, cart, profile and sign-out: tighten
@@ -131,5 +128,5 @@
   display: flex; align-items: center; min-block-size: 44px; padding: .5rem .75rem; border-radius: 8px;
   color: var(--nabd-color-text-primary); font-weight: 600; text-decoration: none;
 }
-.menuLink:hover { background: var(--nabd-color-bg-sunken); }
+@media (hover: hover) and (pointer: fine) { .menuLink:hover { background: var(--hover-tint); } }
 .menuLink:focus-visible { outline: var(--nabd-a11y-focusRing-width) solid var(--nabd-a11y-focusRing-color, currentColor); outline-offset: 2px; }

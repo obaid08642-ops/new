@@ -1,3 +1,4 @@
+import { assertScanned } from '../storage/pending-scan';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { Injectable, NotFoundException, Inject, BadRequestException, Logger, Optional } from '@nestjs/common';
 import { Permission } from '../../common/permissions';
@@ -22,7 +23,7 @@ import { checkReviewedIngredients } from './ingredients';
 import { InteractionHit, pairInteractions } from '../ai/interaction-rules';
 import { publicMedicineFilter } from './public-medicine-filter';
 import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, PUBLIC_CATALOG_LOCALES } from './med-i18n';
-import { normalizeRankingSort, POPULAR_ORDER_STAGES, ProductRankingService } from '../product-ranking/product-ranking.service';
+import { normalizeRankingSort, popularPage, ProductRankingService } from '../product-ranking/product-ranking.service';
 import { ManualBoostsService } from '../product-ranking/manual-boosts.service';
 import { escapeRegex } from '../../common/slug.util';
 
@@ -42,6 +43,7 @@ export function isPublishableTrendingTerm(term: unknown): boolean {
 export class MedicinesService {
   /** Search/list cache TTL — medicine catalog changes are rare, reads are hot. */
   private static readonly LIST_CACHE_TTL = 300; // 5 minutes
+  private static readonly LIST_SWR_SECONDS = 900; // a stale page may be served this long while it is rebuilt
   private static readonly AUTOCOMPLETE_CACHE_TTL = 60; // 1 minute
   private readonly logger = new Logger('MedicinesService');
 
@@ -544,6 +546,17 @@ export class MedicinesService {
    * For large catalogs use paginate() via ?page=&limit= instead.
    */
   /**
+   * Long translated text blocks never sent on cards, for every language (ar and en included: they were 26 KB of a 27 KB card).
+   * Names, slugs and official names stay for localized lists.
+   */
+  private static cardTranslationExclusions(): Record<string, 0> {
+    const heavy = ['more_information', 'indications_uses', 'dosage_instructions', 'side_effects', 'warnings_precautions', 'storage_conditions', 'how_to_use', 'package_content_details', 'description', 'search_aliases'];
+    const out: Record<string, 0> = {};
+    for (const lang of ['ar', 'en', 'ur', 'hi', 'bn', 'tl']) for (const k of heavy) out[`translations.${lang}.${k}`] = 0;
+    return out;
+  }
+
+  /**
    * Card-level projection for LIST responses — the full document (with the
    * 6-language translations map) weighs ~24KB; cards need ~2KB. Details()
    * still returns everything. This is what keeps the catalog fast at 21k docs.
@@ -553,10 +566,7 @@ export class MedicinesService {
     // Keep ONLY the translated display names per language on cards (needed so
     // ur/hi/bn/tl users see localized names in lists); exclude the heavy
     // translated long-text blocks. details() still returns everything.
-    'translations.ur.more_information': 0, 'translations.ur.indications_uses': 0, 'translations.ur.dosage_instructions': 0, 'translations.ur.side_effects': 0, 'translations.ur.warnings_precautions': 0, 'translations.ur.storage_conditions': 0, 'translations.ur.how_to_use': 0, 'translations.ur.package_content_details': 0,
-    'translations.hi.more_information': 0, 'translations.hi.indications_uses': 0, 'translations.hi.dosage_instructions': 0, 'translations.hi.side_effects': 0, 'translations.hi.warnings_precautions': 0, 'translations.hi.storage_conditions': 0, 'translations.hi.how_to_use': 0, 'translations.hi.package_content_details': 0,
-    'translations.bn.more_information': 0, 'translations.bn.indications_uses': 0, 'translations.bn.dosage_instructions': 0, 'translations.bn.side_effects': 0, 'translations.bn.warnings_precautions': 0, 'translations.bn.storage_conditions': 0, 'translations.bn.how_to_use': 0, 'translations.bn.package_content_details': 0,
-    'translations.tl.more_information': 0, 'translations.tl.indications_uses': 0, 'translations.tl.dosage_instructions': 0, 'translations.tl.side_effects': 0, 'translations.tl.warnings_precautions': 0, 'translations.tl.storage_conditions': 0, 'translations.tl.how_to_use': 0, 'translations.tl.package_content_details': 0,
+    ...MedicinesService.cardTranslationExclusions(),
     more_info_ar: 0, more_info_en: 0, description_ar: 0, description_en: 0,
     indications_ar: 0, indications_en: 0, warnings_ar: 0, warnings_en: 0,
     precautions_ar: 0, precautions_en: 0, side_effects_ar: 0, side_effects_en: 0,
@@ -652,7 +662,7 @@ export class MedicinesService {
     if (rows.length < 3 || (!search && normalizeRankingSort(sort) === 'smart_ranking')) {
       const filter = this.buildQuery(search, (category && category !== 'all') ? category : undefined, includeUnverified);
       rows = (!search && normalizeRankingSort(sort) === 'smart_ranking')
-        ? await this.model.aggregate([{ $match: filter }, ...POPULAR_ORDER_STAGES, { $limit: cap }, { $project: MedicinesService.CARD_PROJECTION }] as any)
+        ? await this.rankedCards(filter, 0, cap, !(category && category !== 'all'))
         : await this.model.find(filter, MedicinesService.CARD_PROJECTION).sort({ verified: -1, usage_count: -1, name_ar: 1 }).limit(cap);
     }
 
@@ -710,9 +720,37 @@ export class MedicinesService {
     const safePage = clampPageInt(page, 1);
     if (typeof category === 'string') category = category.replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim().slice(0, 100) || undefined;
     const cacheKey = `med:page:governed-v2:${search || ''}:${category || ''}:${includeUnverified}:${safePage}:${safeLimit}:${sort}:${pharmacyId || 'global'}`;
+    const build = () => this.paginateUncached(search, category, safePage, safeLimit, includeUnverified, sort, pharmacyId);
+    // HotCache: fresh for LIST_CACHE_TTL, then the old page is still served (up to LIST_SWR_SECONDS) while ONE caller rebuilds it, so no reader waits for the database
+    if (this.hotCache) return this.hotCache.get(cacheKey, { ttl: MedicinesService.LIST_CACHE_TTL, swr: MedicinesService.LIST_SWR_SECONDS }, build);
     const cached = await this.redis.getJson<any>(cacheKey);
     if (cached) return cached;
+    const result = await build();
+    await this.redis.setJson(cacheKey, result, MedicinesService.LIST_CACHE_TTL);
+    return result;
+  }
 
+  /**
+   * One page of the popular order, read the cheap way (popularPage: the sort sees only the six fields it reads, answered from the covering index, and the full cards are fetched by
+   * id for the page alone). The old aggregate carried every matching document (translations in six languages, ~20 KB each) through its $addFields and $sort, then threw all but one
+   * page away: that was the ~300 ms of GET /medicines above the floor (SPEED_SWEEP.md).
+   */
+  private rankedCards(filter: Record<string, unknown>, skip: number, limit: number, mix: boolean): Promise<any[]> {
+    return popularPage((this.model as any).db.collection('medicines'), filter, skip, limit, MedicinesService.CARD_PROJECTION, mix);
+  }
+
+  private async paginateUncached(
+    search?: string,
+    category?: string,
+    page = 1,
+    limit = 30,
+    includeUnverified = true,
+    sort = 'smart_ranking',
+    pharmacyId?: string,
+  ) {
+    const safeLimit = clampPageInt(limit, 30, 100);
+    const safePage = clampPageInt(page, 1);
+    if (typeof category === 'string') category = category.replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim().slice(0, 100) || undefined;
     // Continuous Dynamic Ranking Fast-Path when not searching text
     if (!search && this.rankingService && normalizeRankingSort(sort) !== 'smart_ranking') {
       const offset = (safePage - 1) * safeLimit;
@@ -741,7 +779,6 @@ export class MedicinesService {
           limit: safeLimit,
           total_pages: Math.ceil(total / safeLimit),
         };
-        await this.redis.setJson(cacheKey, result, MedicinesService.LIST_CACHE_TTL);
         return result;
       }
     }
@@ -751,7 +788,7 @@ export class MedicinesService {
     const skipN = (safePage - 1) * safeLimit;
     const [data, total] = await Promise.all([
       byRank
-        ? this.model.aggregate([{ $match: q }, ...POPULAR_ORDER_STAGES, { $skip: skipN }, { $limit: safeLimit }, { $project: MedicinesService.CARD_PROJECTION }] as any)
+        ? this.rankedCards(q, skipN, safeLimit, !(category && category !== 'all'))
         : this.model.find(q, MedicinesService.CARD_PROJECTION)
           .sort({ verified: -1, usage_count: -1, name_ar: 1 })
           .skip(skipN).limit(safeLimit),
@@ -761,7 +798,6 @@ export class MedicinesService {
       data: await this.applySponsored((data as any[]).map((m: any) => this.withBadges(m?.toObject ? m.toObject() : m))),
       total, page: safePage, limit: safeLimit, total_pages: Math.ceil(total / safeLimit),
     };
-    await this.redis.setJson(cacheKey, result, MedicinesService.LIST_CACHE_TTL);
     return result;
   }
 
@@ -791,15 +827,16 @@ export class MedicinesService {
       q.price = { $gt: 0 }; // a missing price is not the cheapest
     }
     if (and.length) q.$and = and;
-    const byRank = sort !== 'price_asc' && sort !== 'price_desc' && sort !== 'newest' && !search;
+    const byRank = sort !== 'price_asc' && sort !== 'price_desc' && sort !== 'newest' && sort !== 'most_ordered' && !search;
     const order: any = sort === 'price_asc' ? { price: 1, id: 1 }
       : sort === 'price_desc' ? { price: -1, id: 1 }
       : sort === 'newest' ? { createdAt: -1, id: 1 }
+      : sort === 'most_ordered' ? { orders_count: -1, id: 1 }
       : { verified: -1, usage_count: -1, name_ar: 1 };
     const safeLimit = clampPageInt(limit, 30, 100);
     const safePage = page === undefined ? 1 : clampPageInt(page, 1);
     const find = byRank
-      ? this.model.aggregate([{ $match: q }, ...POPULAR_ORDER_STAGES, { $skip: (safePage - 1) * safeLimit }, { $limit: safeLimit }, { $project: MedicinesService.CARD_PROJECTION }] as any)
+      ? this.rankedCards(q, (safePage - 1) * safeLimit, safeLimit, !(category && category !== 'all'))
       : this.model.find(q, MedicinesService.CARD_PROJECTION).sort(order).skip((safePage - 1) * safeLimit).limit(safeLimit);
     const rows = (await find as any[]).map((m: any) => this.withBadges(m?.toObject ? m.toObject() : m));
     if (page === undefined) return rows;
@@ -1169,7 +1206,7 @@ export class MedicinesService {
       // Needs-review #449: only forms that exist in the public catalogue (no invented fallback list).
       forms: forms.filter(Boolean),
       // #450: the ids GET /medicines accepts as `sort` (the screens translate them); no display text from the server.
-      sortOptions: ['relevant', 'price_asc', 'price_desc', 'newest'],
+      sortOptions: ['relevant', 'most_ordered', 'price_asc', 'price_desc', 'newest'],
     };
   }
 
@@ -1602,6 +1639,7 @@ export class MedicinesService {
     if (body.storage_id) {
       const obj: any = await this.storageObjects.findOne({ id: body.storage_id, deleted: { $ne: true } });
       if (!obj) throw new NotFoundException('Uploaded image not found');
+      assertScanned(obj);
       resolvedUrl = obj.external_url || `/api/v1/storage/${obj.id}`;
     }
 

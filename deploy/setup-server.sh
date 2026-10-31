@@ -58,7 +58,6 @@ ufw allow 5349            comment 'TURNS'
 ufw allow 7881/tcp        comment 'LiveKit RTC TCP'
 ufw allow 7882/udp        comment 'LiveKit RTC UDP'
 ufw allow 40000:49999/udp comment 'coturn relay'
-ufw allow 50000:50100/udp comment 'LiveKit RTC range'
 ufw --force enable
 ufw status verbose
 

@@ -10,6 +10,8 @@ import { FILL_ICON_PATHS, FILL_ICON_VIEWBOX } from "@/components-next/ui-generat
  */
 export type ProductCardStaticProps = {
   name: string;
+  /** Set when the name is not in the page's script (lang/dir on the name only; markup is unchanged otherwise). */
+  nameMark?: { lang: string; dir: "rtl" | "ltr" };
   meta?: string;
   price: string;
   currency?: string;
@@ -26,11 +28,11 @@ export type ProductCardStaticProps = {
   add: ReactNode;
 };
 
-export function ProductCardStatic({ name, meta, price, currency, imageSrc, moreImages, discountLabel, rxLabel, onlineLabel, href, imagePriority = false, add }: ProductCardStaticProps) {
+export function ProductCardStatic({ name, nameMark, meta, price, currency, imageSrc, moreImages, discountLabel, rxLabel, onlineLabel, href, imagePriority = false, add }: ProductCardStaticProps) {
   return (
     <div className="nabd-product-card">
       <a href={href} className="nabd-product-card__link">
-        <div className="nabd-product-card__media">
+        <div className={`nabd-product-card__media${imageSrc ? " nabd-product-card__media--photo" : ""}`}>
           {imageSrc ? (
             <img
               src={imageSrc}
@@ -49,7 +51,7 @@ export function ProductCardStatic({ name, meta, price, currency, imageSrc, moreI
           {imageSrc && moreImages && moreImages.length > 0 ? <CardImageRotator srcs={[imageSrc, ...moreImages]} /> : null}
           {discountLabel ? <span className="nabd-product-card__discount">{discountLabel}</span> : null}
         </div>
-        <span className="nabd-product-card__name">{name}</span>
+        <span className="nabd-product-card__name" {...(nameMark ? { lang: nameMark.lang, dir: nameMark.dir } : {})}>{name}</span>
         {meta ? <span className="nabd-product-card__meta">{meta}</span> : null}
       </a>
       <div className="nabd-product-card__bar">

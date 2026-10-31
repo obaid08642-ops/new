@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { AppointmentStatus } from '../../../types/contracts';
 import {
- View, Text, TouchableOpacity, ScrollView, StyleSheet,
+ View, Text, TouchableOpacity, ScrollView, type ScrollViewInstance, StyleSheet,
  Animated, FlatList, Alert, Dimensions, Switch, TextInput,
  KeyboardAvoidingView, Platform, Linking, ActivityIndicator, Image
 } from 'react-native';
@@ -30,6 +30,9 @@ import { st } from './MedicalDrugIndexScreen';
 import { mapThreads, mapMessages } from '../../../utils/chatMap';
 import { useUploadsEnabled } from '../../../hooks/useUploadsEnabled';
 import { UploadsUnavailable } from '../../../components/UploadsUnavailable';
+import { announceScan } from '../../../components/ScanStatusBadge';
+import { scanStateOfRequestError, scanOfStored } from '../../../utils/scanRegistry';
+import { scanStateOfUpload } from '../../../utils/scanStatus';
 
 export function ChatSystem({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
@@ -123,7 +126,7 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
   const [loading, setLoading] = useState(true);
   const [showAttach, setShowAttach] = useState(false);
   const [callType, setCallType] = useState<'audio'|'video'|null>(null);
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ScrollViewInstance>(null);
 
   const { user } = useAuth();
   const me = String((user as { id?: string } | null)?.id || '');
@@ -205,7 +208,10 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
         client_message_id: `prov-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       });
       await loadMessages(true);
+      // UPLOAD_SCAN=defer: the file is sent; the other side opens it once it has passed its scan
+      announceScan(show, lang, scanStateOfUpload(up?.data));
     } catch (e) {
+      if (scanStateOfRequestError(e) === 'rejected') { announceScan(show, lang, 'rejected'); return; }
       show(sendErrorText(e), 'error');
     }
   };

@@ -3,6 +3,7 @@ import { MedicinesService } from './medicines.service';
 import { toPublicMedicine, toPublicProductCard } from './public-medicine';
 import { PUBLIC_CATALOG_LOCALES } from './med-i18n';
 import { queryInt } from '../../common/safe-query';
+import { PublicCache } from '../../common/public-cache.decorator';
 import { ingredientsVocabulary } from './ingredients';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
@@ -47,7 +48,7 @@ export class MedicinesController {
     const list = (v?: string) => (clean(v) || '').split(',').map((x) => x.trim()).filter(Boolean).slice(0, 20);
     const price = (v?: string) => { const n = Number(clean(v)); return Number.isFinite(n) && n >= 0 ? n : undefined; };
     const filters = { forms: list(forms), brands: list(brands), rx_only: rxOnly === '1' || rxOnly === 'true', min_price: price(minPrice), max_price: price(maxPrice) };
-    const ordered = sort === 'price_asc' || sort === 'price_desc' || sort === 'newest';
+    const ordered = sort === 'price_asc' || sort === 'price_desc' || sort === 'newest' || sort === 'most_ordered';
     if (ordered || filters.forms.length || filters.brands.length || filters.rx_only || filters.min_price !== undefined || filters.max_price !== undefined) {
       return toPublicMedicine(await this.svc.filtered(term, category, filters, ordered ? sort! : 'relevant', page === undefined ? undefined : queryInt(page, 1), queryInt(limit, 30)));
     }
@@ -73,6 +74,7 @@ export class MedicinesController {
   }
 
   @Public()
+  @PublicCache(300, ['medicines'])
   @Get('autocomplete')
   async autocomplete(@Query('q') q: string) {
     return toPublicMedicine(await this.svc.autocomplete(q));
@@ -96,12 +98,14 @@ export class MedicinesController {
   }
 
   @Public()
+  @PublicCache(300, ['medicines', 'public-catalogue'])
   @Get('categories')
   categoriesList() {
     return this.svc.categories();
   }
 
   @Public()
+  @PublicCache(300, ['medicines', 'public-catalogue'])
   @Get('filters')
   filters() {
     return this.svc.filters();
@@ -118,6 +122,7 @@ export class MedicinesController {
 
   /** Smart Cache: Top 50 hot medicines (daily cron, weighted 50/30/20) */
   @Public()
+  @PublicCache(300, ['medicines'])
   @Get('hot')
   async hot() {
     return toPublicMedicine(await this.svc.hot());
@@ -539,5 +544,36 @@ export class PublicCatalogController {
   @Get(':locale/:category.json')
   fragment(@Param('locale') locale: string, @Param('category') category: string) {
     return this.svc.publicCatalogFragment(locale, category);
+  }
+}
+
+/**
+ * The anonymous paged medicine list, for the storefront's server-side reads (speed sweep, lead decision a).
+ * Same answer as `GET /medicines?page=` but its own route: it reads no user, so the edge may cache it
+ * (`@PublicCache`; a request with any auth signal still answers `private, no-store`). Purged by the `medicines` tag
+ * on every catalogue write (MedicinesService.schedulePurge).
+ */
+@Controller('public')
+export class PublicMedicinesController {
+  constructor(private svc: MedicinesService) {}
+
+  @Public()
+  @PublicCache(300, ['catalog', 'medicines'], { cacheControl: 'public, s-maxage=300, stale-while-revalidate=600' })
+  @Get('medicines')
+  list(
+    @Query('search') search?: string,
+    @Query('q') q?: string,
+    @Query('category') category?: string,
+    @Query('sort') sort?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const clean = (v?: string) => (typeof v === 'string' ? v.replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim().slice(0, 200) : undefined);
+    const term = clean(search) || clean(q);
+    return this.paged(term, clean(category), clean(sort), page, limit);
+  }
+
+  private async paged(term: string | undefined, category: string | undefined, sort: string | undefined, page?: string, limit?: string) {
+    return toPublicMedicine(await this.svc.paginate(term, category, queryInt(page, 1), queryInt(limit, 30), false, sort || 'smart_ranking'));
   }
 }

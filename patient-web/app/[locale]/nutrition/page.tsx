@@ -79,6 +79,9 @@ export default async function NutritionPage({ params, searchParams }: Props) {
 
   if (tab === "plan") {
     let planRes: Response;
+    // The plan and the body profile are independent: asked together (the profile read used to wait for the plan, one more round trip before the page could answer).
+    // An unreadable profile reply keeps the button, as before.
+    const profileRead = callPatientApi("/nutrition/profile", {}, token).catch(() => null);
     try {
       planRes = await callPatientApi("/nutrition/plan", {}, token);
     } catch {
@@ -90,7 +93,7 @@ export default async function NutritionPage({ params, searchParams }: Props) {
     const nutritionist = <ButtonLink href={`/${locale}/consultations/doctors?specialty=nutrition`} label={t("planNutritionist")} variant="outline" />;
     // A plan is made from the height and weight in the profile: without them the button would only answer 400, so the way to the
     // target form is shown instead. An unreadable profile reply keeps the button.
-    const profileRes = await callPatientApi("/nutrition/profile", {}, token).catch(() => null);
+    const profileRes = await profileRead;
     const bodyReady = profileRes && profileRes.ok ? hasBodyProfile(await profileRes.json().catch(() => null)) !== false : true;
     if (!plan) {
       return frame(
@@ -164,7 +167,7 @@ export default async function NutritionPage({ params, searchParams }: Props) {
       <ul className={styles.tiles} aria-label={t("todayTitle")}>
         <li><VitalTile label={t("calories")} value={number.format(summary.calories)} unit={t("kcal")} icon="bowl-food" tone={NUTRITION.tone} /></li>
         <li><VitalTile label={t("water")} value={number.format(summary.waterMl)} unit={t("ml")} icon="drop" tone="blue" /></li>
-        {summary.proteinG !== null ? <li><VitalTile label={t("protein")} value={number.format(summary.proteinG)} unit={t("gram")} icon="heart" tone="mint" /></li> : null}
+        {summary.proteinG !== null ? <li><VitalTile label={t("protein")} value={number.format(summary.proteinG)} unit={t("gram")} icon="heart" tone={NUTRITION.tone} /></li> : null}
         {summary.carbsG !== null ? <li><VitalTile label={t("carbs")} value={number.format(summary.carbsG)} unit={t("gram")} icon="bowl-food" tone="amber" /></li> : null}
         {summary.fatG !== null ? <li><VitalTile label={t("fat")} value={number.format(summary.fatG)} unit={t("gram")} icon="drop" tone="violet" /></li> : null}
       </ul>

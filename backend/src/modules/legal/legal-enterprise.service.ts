@@ -3,6 +3,7 @@
  * full admin audit log, license monitoring, insurance matrix, SLA dashboard,
  * consent management, version diff, country-ready targeting.
  */
+import { suspendAccountForLicense } from '../provider-onboarding/facility-license';
 import { recordAudit } from '../../common/audit-record';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -267,6 +268,7 @@ export class LegalEnterpriseService {
           { _id: p._id },
           { $set: { status: 'suspended', suspended_reason: 'license_expired', suspended_at: new Date(), public_eligibility: false, indexing_eligibility: false, license_verified: false, license_status: 'expired' } },
         );
+        await suspendAccountForLicense(this.conn, p, 'license_expired').catch((e: any) => this.logger.error(`license account suspend failed ${p.id}: ${e?.message || e}`));   // the login follows the profile
         await this.notify(p.user_id || p.account_id, 'تعليق الحساب — انتهاء الترخيص',
           'تم تعليق حسابك تلقائياً لانتهاء الترخيص المهني. يرجى تجديد الترخيص ورفعه لإعادة التفعيل.',
           { reason: 'license_expired', profile_id: p.id });

@@ -55,11 +55,11 @@ describe('LiveKitService with the P2P flag', () => {
     delete process.env.CALLS_P2P_ENABLED; delete process.env.COTURN_HOST; delete process.env.COTURN_SECRET; delete process.env.CALLS_MAX_PER_HOST;
   });
 
-  it('flag off: LiveKit token, no ICE servers (unchanged behaviour)', async () => {
+  it('flag off: LiveKit token; the relay servers are returned for Room.connect too', async () => {
     const r: any = await service.initiateCall('patient-1', 'P', '', 'video', 'appt-1');
     expect(r.transport).toBe('livekit');
     expect(typeof r.token).toBe('string');
-    expect(r.ice_servers).toEqual([]);
+    expect(r.ice_servers).toHaveLength(2);
     expect(sessions.insertOne.mock.calls[0][0].transport).toBe('livekit');
   });
 
@@ -73,6 +73,19 @@ describe('LiveKitService with the P2P flag', () => {
     expect(r.ice_servers[1].username).not.toContain('patient-1');
     expect(JSON.stringify(r.ice_servers)).not.toContain('turn-secret');
     expect(sessions.insertOne.mock.calls[0][0].transport).toBe('p2p');
+  });
+
+  it('Cloudflare relay entries come first, our coturn second; a Cloudflare failure leaves coturn alone', async () => {
+    const { cloudflareTurn } = await import('../coturn/cloudflare-turn.service');
+    const cf = { urls: ['turns:turn.cloudflare.com:443?transport=tcp'], username: 'cfu', credential: 'cfc' };
+    const spy = jest.spyOn(cloudflareTurn, 'iceServers').mockResolvedValueOnce([cf]);
+    const r: any = await service.initiateCall('patient-1', 'P', '', 'video', 'appt-1');
+    expect(r.ice_servers[0]).toEqual(cf);
+    expect(r.ice_servers).toHaveLength(3);
+    spy.mockResolvedValueOnce([]);
+    const r2: any = await service.initiateCall('patient-1', 'P', '', 'video', 'appt-1');
+    expect(r2.ice_servers).toHaveLength(2);
+    spy.mockRestore();
   });
 
   it('flag on but the caller does not declare P2P support: LiveKit', async () => {
@@ -123,5 +136,30 @@ describe('LiveKitService with the P2P flag', () => {
     sessions.findOne.mockResolvedValue({ id: 'call_1', patient_id: 'patient-1', provider_id: 'doctor-1', room_name: 'room-1', status: 'ACTIVE' });
     const r: any = await service.saveMetrics('call_1', 'patient-1', [{ packet_loss: 0.01 }, { packet_loss: 0.3, rtt_ms: 900 }]);
     expect(r).toEqual({ success: true, audio_only: true, audio_only_reason: 'weak_link' });
+  });
+
+  it('relayed bytes: each side stores its own count (a repeat replaces), and the month total is logged', async () => {
+    sessions.findOne.mockResolvedValue({ id: 'call_1', patient_id: 'patient-1', provider_id: 'doctor-1', room_name: 'room-1', status: 'ACTIVE' });
+    sessions.aggregate = jest.fn().mockReturnValue({ toArray: jest.fn().mockResolvedValue([{ bytes: 2_500_000_000, calls: ['a', 'b'] }]) });
+    const log = jest.spyOn((service as any).logger, 'log').mockImplementation(() => undefined);
+    await service.reportPath('call_1', 'patient-1', 'relay', 1_200_000.9);
+    expect(sessions.updateOne.mock.calls.at(-1)[1].$set).toMatchObject({ media_path: 'relay', 'relayed_bytes_by.patient-1': 1_200_000 });
+    expect(log).toHaveBeenCalledWith(expect.stringContaining('relayed_bytes=1200000 month_total_gb=2.500 of 1000 free (calls with relay: 2)'));
+    await service.reportPath('call_1', 'patient-1', 'direct', 5);                       // a direct path counts nothing
+    expect(Object.keys(sessions.updateOne.mock.calls.at(-1)[1].$set).some((k) => k.startsWith('relayed_bytes_by'))).toBe(false);
+    await service.reportPath('call_1', 'patient-1', 'relay');                            // no number reported: nothing stored
+    expect(Object.keys(sessions.updateOne.mock.calls.at(-1)[1].$set).some((k) => k.startsWith('relayed_bytes_by'))).toBe(false);
+  });
+
+  it('CALLS_TURN_PROVIDER=coturn drops Cloudflare without a deploy', async () => {
+    const { CloudflareTurnService } = await import('../coturn/cloudflare-turn.service');
+    process.env.CF_TURN_KEY_ID = 'k'; process.env.CF_TURN_API_TOKEN = 't';
+    try {
+      expect(new CloudflareTurnService().isConfigured()).toBe(true);
+      process.env.CALLS_TURN_PROVIDER = 'coturn';
+      expect(new CloudflareTurnService().isConfigured()).toBe(false);
+      process.env.CALLS_TURN_PROVIDER = 'cloudflare';
+      expect(new CloudflareTurnService().isConfigured()).toBe(true);
+    } finally { delete process.env.CF_TURN_KEY_ID; delete process.env.CF_TURN_API_TOKEN; delete process.env.CALLS_TURN_PROVIDER; }
   });
 });

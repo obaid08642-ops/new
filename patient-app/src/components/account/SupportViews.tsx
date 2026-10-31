@@ -13,6 +13,8 @@ import { logError } from '../../utils/logger';
 import { AccountScreen } from './AccountKit';
 import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
 import { UploadsUnavailable } from '../UploadsUnavailable';
+import { ScanStatusBadge } from '../ScanStatusBadge';
+import { scanStateOfError, scanStateOfUpload, type ScanState } from '../../utils/scanStatus';
 
 /**
  * Support (flow screens, merge map section 8): the chat with the support team (GET and POST /support/chat; a photo is uploaded with
@@ -63,9 +65,11 @@ export function SupportChatView() {
   };
 
   const uploadsOn = useUploadsEnabled();
+  const [attachScan, setAttachScan] = useState<ScanState>('ok');
   const attach = async () => {
     setAttaching(true);
     setFailed(null);
+    setAttachScan('ok');
     try {
       const ImagePicker = await import('expo-image-picker');
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -81,8 +85,12 @@ export function SupportChatView() {
       form.append('folder', 'support');
       const upload = (await apiFetch('/media/upload', { method: 'POST', body: form })) as { url?: string; data?: { url?: string } } | null;
       const url = upload?.url || upload?.data?.url;
+      // a file that is still being checked is still sent; the support agent sees it once it has passed
+      setAttachScan(scanStateOfUpload(upload));
       if (url) await send(k('support.chat.attachment', { url }));
     } catch (e) {
+      // the scanner refused the file (400 file_infected): rejected, with a way to attach another
+      if (scanStateOfError(e) === 'rejected') { setAttachScan('rejected'); return; }
       logError('support:chat-attach', e);
       setFailed(k('support.chat.attachFailed'));
     } finally {
@@ -102,7 +110,7 @@ export function SupportChatView() {
       composer={{ value: draft, onChange: setDraft, onSend: () => void send(draft), sending, placeholder: k('support.chat.placeholder'), sendLabel: k('support.chat.send') }}
       quickReplies={QUICK.map((code) => ({ label: k(`support.chat.quick.${code}`), onPress: () => void send(k(`support.chat.quick.${code}`)) }))}
       attach={uploadsOn ? { label: k('support.chat.photo'), onPress: () => void attach(), busy: attaching } : undefined}
-      notice={failed ? <Notice tone="danger" text={failed} /> : !uploadsOn ? <UploadsUnavailable /> : undefined}
+      notice={failed ? <Notice tone="danger" text={failed} /> : !uploadsOn ? <UploadsUnavailable /> : attachScan !== 'ok' ? <ScanStatusBadge state={attachScan} onReupload={() => void attach()} testID="support-attach-scan" /> : undefined}
       testID="support-chat-screen"
     />
   );
@@ -125,7 +133,7 @@ export function SupportTicketsView() {
     >
       <Gate status={list.status} errorTitle={k('support.tickets.loadError')} onRetry={() => void list.reload()}>
         {rows.length === 0 ? (
-          <EmptyState icon="headset" tone="mint" title={k('support.tickets.empty')} body={k('support.tickets.emptyBody')} actionLabel={k('support.tickets.new')} onAction={chat} theme={theme} />
+          <EmptyState icon="headset" tone="ink" title={k('support.tickets.empty')} body={k('support.tickets.emptyBody')} actionLabel={k('support.tickets.new')} onAction={chat} theme={theme} />
         ) : (
           rows.map((row) => (
             <Pressable key={row.id} accessibilityRole="button" accessibilityLabel={[row.subject, row.status, row.date].filter(Boolean).join(', ')} onPress={chat} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })} testID={`ticket-${row.id}`}>

@@ -5,7 +5,7 @@ import { router, type Href } from 'expo-router';
 import { Pressable } from 'react-native';
 import { Button, Card, EmptyState, FIcon } from '../../../packages/ui-native/src';
 import { ConsultScreen } from '../../src/components/consult/ConsultKit';
-import { AmountLine, Block, LAB_TONE, Price, RAD_TONE, Tag, goBackDiag } from '../../src/components/diagnostics/DiagKit';
+import { AmountLine, Block, LAB_TONE, NameArt, Price, RAD_TONE, Tag, goBackDiag } from '../../src/components/diagnostics/DiagKit';
 import { ContextBar } from '../../src/components/ordering/ContextBar';
 import { ContextGate, QuoteFailure, QuoteLoading } from '../../src/components/ordering/OrderingKit';
 import { Notice } from '../../src/components/health/HealthKit';
@@ -66,7 +66,7 @@ export default function DiagnosticsCart() {
     return (
       <View key={`${item.id}-${item.kind}`} style={{ gap: 8, paddingBottom: last ? 0 : 12, borderBottomWidth: last ? 0 : 1, borderBottomColor: c.border.hairline }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <FIcon icon={item.kind === 'radiology' ? 'scan' : 'test-tube'} tone={item.kind === 'radiology' ? RAD_TONE : LAB_TONE} size={44} theme={theme} />
+          <NameArt kind={item.kind} name={item.name} size={44} />
           <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
             <Text style={{ ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{item.name}</Text>
             {cov ? <Tag label={cov.label} tone={cov.tone} /> : null}

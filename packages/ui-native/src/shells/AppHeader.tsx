@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View, type LayoutChangeEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 
@@ -43,12 +43,21 @@ export interface AppHeaderProps {
   testID?: string;
 }
 
+/** The narrowest title slot (pt) that still fits the longest header word of the six languages at 19/700 without cutting it. */
+const TITLE_MIN = 150;
+
 const CHEVRON = { ltr: 'M15 6l-6 6 6 6', rtl: 'M9 6l6 6-6 6' } as const;
 
 export function AppHeader({ title, onBack, backLabel = 'Back', actions = [], trailing, scrolled = false, theme = 'light', direction, testID }: AppHeaderProps) {
   const insets = useSafeAreaInsets();
   const t = shellTokens(theme);
   const dir = resolveDirection(direction);
+
+  const [rowW, setRowW] = React.useState(0);
+  const [endW, setEndW] = React.useState(0);
+  const measureEnd = (e: LayoutChangeEvent) => setEndW(Math.round(e.nativeEvent.layout.width));
+  // room left for the title between the start slot and the end group (gaps of 10); below TITLE_MIN it goes to its own row
+  const stacked = Boolean(title) && rowW > 0 && endW > 0 && rowW - HIT - endW - 20 < TITLE_MIN;
 
   const roundButton = {
     width: HIT,
@@ -60,6 +69,16 @@ export function AppHeader({ title, onBack, backLabel = 'Back', actions = [], tra
     alignItems: 'center' as const,
     justifyContent: 'center' as const,
   };
+
+  const titleNode = (
+    <Text
+      accessibilityRole="header"
+      numberOfLines={2}
+      style={{ flex: stacked ? undefined : 1, minWidth: 0, textAlign: 'center', fontSize: 19, lineHeight: 26, fontFamily: SHELL_FONT.bold, color: t.text }}
+    >
+      {title}
+    </Text>
+  );
 
   return (
     <View
@@ -76,7 +95,10 @@ export function AppHeader({ title, onBack, backLabel = 'Back', actions = [], tra
         zIndex: t.zAppBar,
       }}
     >
-      <View style={{ minHeight: HIT, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+      <View
+        style={{ minHeight: HIT, flexDirection: 'row', alignItems: 'center', gap: 10 }}
+        onLayout={(e) => setRowW(Math.round(e.nativeEvent.layout.width))}
+      >
         {onBack ? (
           <Pressable accessibilityRole="button" accessibilityLabel={backLabel} onPress={onBack} hitSlop={4} style={roundButton}>
             <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
@@ -86,17 +108,11 @@ export function AppHeader({ title, onBack, backLabel = 'Back', actions = [], tra
         ) : (
           <View style={{ width: HIT }} />
         )}
-        <Text
-          accessibilityRole="header"
-          numberOfLines={2}
-          style={{ flex: 1, textAlign: 'center', fontSize: 19, lineHeight: 26, fontFamily: SHELL_FONT.bold, color: t.text }}
-        >
-          {title}
-        </Text>
+        {stacked ? <View style={{ flex: 1 }} /> : titleNode}
         {trailing ? (
-          <View style={{ minWidth: HIT, minHeight: HIT, alignItems: 'center', justifyContent: 'center' }}>{trailing}</View>
+          <View onLayout={measureEnd} style={{ minWidth: HIT, minHeight: HIT, alignItems: 'center', justifyContent: 'center' }}>{trailing}</View>
         ) : actions.length ? (
-          <View style={{ flexDirection: 'row', gap: 8 }}>
+          <View onLayout={measureEnd} style={{ flexDirection: 'row', gap: 8 }}>
             {actions.map((a) => (
               <Pressable key={a.key} accessibilityRole="button" accessibilityLabel={a.label} onPress={a.onPress} hitSlop={4} style={roundButton}>
                 {a.icon}
@@ -107,6 +123,8 @@ export function AppHeader({ title, onBack, backLabel = 'Back', actions = [], tra
           <View style={{ width: HIT }} />
         )}
       </View>
+      {/* Too many buttons for the title to sit between them (360 wide, a cart, four icons): the title takes the full width on its own row, so a word is never cut in the middle. */}
+      {stacked ? <View style={{ paddingTop: 2, paddingBottom: 4 }}>{titleNode}</View> : null}
     </View>
   );
 }

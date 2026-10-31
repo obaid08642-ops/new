@@ -28,6 +28,9 @@ import { SK, Vault } from '../../../security/Security';
 import { tokens, withAlpha } from '../../../theme/tokens';
 import { useUploadsEnabled } from '../../../hooks/useUploadsEnabled';
 import { UploadsUnavailable } from '../../../components/UploadsUnavailable';
+import { announceScan } from '../../../components/ScanStatusBadge';
+import { scanStateOfRequestError, scanOfStored } from '../../../utils/scanRegistry';
+import { scanStateOfUpload } from '../../../utils/scanStatus';
 
 
 export function MedicalJobsApplicant({ ctx }: any) {
@@ -89,7 +92,8 @@ export function MedicalJobsApplicant({ ctx }: any) {
                 setApplyCvUrl(url);
                 setApplyCV(true);
                 show(AR ? 'تم رفع السيرة الذاتية' : 'CV uploaded', 'success');
-              } catch { show(AR ? 'تعذر رفع الملف' : 'Could not upload file', 'error'); }
+                announceScan(show, lang, scanStateOfUpload(up?.data));
+              } catch (e) { if (scanStateOfRequestError(e) === 'rejected') announceScan(show, lang, 'rejected'); else show(AR ? 'تعذر رفع الملف' : 'Could not upload file', 'error'); }
               finally { setUploadingCV(false); }
             }} style={{ backgroundColor: applyCV ? theme.successBg : theme.surface2, padding: SP.xl, borderRadius: R.lg, borderWidth: 2, borderColor: applyCV ? theme.success : theme.border, borderStyle: applyCV ? 'solid' : 'dashed', alignItems: 'center', gap: SP.sm }}>
               <I name={applyCV ? "check" : "upload"} size={28} color={applyCV ? theme.success : theme.textSub} />

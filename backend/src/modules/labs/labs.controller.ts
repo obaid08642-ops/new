@@ -1,4 +1,6 @@
 import { Controller, Get, Post, Patch, Put, Delete, Param, Query, UseGuards, ServiceUnavailableException, BadRequestException, Body, Res } from '@nestjs/common';
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import type { Response } from 'express';
 import { LabsService } from './labs.service';
 import { Public, CurrentUser, Roles, SelfService } from '../../common/auth.guard';
@@ -9,6 +11,7 @@ import { CreateLabCatalogDto, UpdateLabCatalogDto, ApproveCatalogDto, BulkApprov
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { PublicCache } from '../../common/public-cache.decorator';
 @Controller('labs')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 export class LabsController {
   constructor(private readonly svc: LabsService) {}
 
@@ -19,16 +22,25 @@ export class LabsController {
     @Query('search') q?: string,
     @Query('home_only') ho?: string,
     @Query('home_visit') hv?: string,
+    @Query('insurance') ins?: string,
     @Query('highest_rated') hr?: string,
     @Query('nearest') nr?: string,
     @Query('lowest_price') lp?: string,
     @Query('lat') lat?: string,
-    @Query('lng') lng?: string
+    @Query('lng') lng?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('sort') sort?: string,
   ) {
     return this.svc.list({
+      sort,
+      // with `page` the answer is { data, total, page, limit, total_pages }; without it, the array as before
+      page: page !== undefined ? Number(page) : undefined,
+      limit: limit !== undefined ? Number(limit) : undefined,
       category: cat,
       search: q,
       home_only: ho === '1' || hv === 'true' || hv === '1',
+      insurance: ins === '1' || ins === 'true',
       highest_rated: hr === 'true' || hr === '1',
       nearest: nr === 'true' || nr === '1',
       lowest_price: lp === 'true' || lp === '1',
@@ -47,7 +59,7 @@ export class LabsController {
 
   @PublicCache(120, ['catalog', 'labs'])
   @Public() @Get('services/:id')
-  one(@Param('id') id: string) { return this.svc.getById(id); }
+  one(@Param('id') id: string) { return this.svc.getByIdWithOffers(id); }
 
   @SelfService()
   @Post('bookings')
@@ -251,7 +263,7 @@ export class LabsController {
     return this.svc.getById(id);
   }
 
-  @Public() @Get('carousel')
+  @Public() @PublicCache(120, ['labs', 'public-catalogue']) @Get('carousel')
   carousel(@Query('category') category?: string, @Query('limit') limit?: string) {
     return this.svc.getCarousel(category, parseInt(limit || '20', 10));
   }
@@ -263,11 +275,13 @@ export class LabsController {
   }
 
   @Public() @Get('compatible-providers')
-  compatibleProviders(@Query('testIds') testIds?: string) {
+  compatibleProviders(@Query('testIds') testIds?: string, @Query('location') location?: string, @Query('insurance') insurance?: string) {
     const ids = testIds ? testIds.split(',') : [];
-    return this.svc.compatibleProviders(ids);
+    // `location=home` keeps the labs that collect at home for every requested test; `insurance=1` the labs that accept insurance for every one (QA PS gaps 4 and 5)
+    return this.svc.compatibleProviders(ids, { home: location === 'home', insurance: insurance === '1' || insurance === 'true' });
   }
 
+  @PublicCache(20, ['provider-slots'], { cacheControl: 'public, s-maxage=20' })
   @Public() @Get('providers/:providerAccountId/slots')
   providerSlots(
     @Param('providerAccountId') providerAccountId: string,

@@ -129,7 +129,9 @@
   background: var(--nabd-color-bg-surface);
   border: 1px solid var(--nabd-color-border-hairline);
   box-shadow: var(--nabd-shadow-card);
-  padding: 10px;
+  /* R3: the picture runs edge to edge, so the card has no padding of its own; the text and the bar carry the 10px */
+  padding: 0 0 10px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -137,8 +139,11 @@
 }
 .nabd-product-card__link { text-decoration: none; color: var(--nabd-color-text-primary); display: flex; flex-direction: column; gap: 8px; }
 .nabd-product-card__media {
-  height: 132px;
-  border-radius: 18px;
+  inline-size: 100%;
+  aspect-ratio: 1 / 1;
+  /* the card's radius token, top corners only (the card clips the rest) */
+  border-start-start-radius: var(--nabd-radius-2xl);
+  border-start-end-radius: var(--nabd-radius-2xl);
   background: var(--nabd-color-bg-media);
   position: relative;
   display: flex;
@@ -146,7 +151,9 @@
   justify-content: center;
   overflow: hidden;
 }
-.nabd-product-card__img { max-width: 100%; max-height: 100%; object-fit: contain; }
+/* a real picture sits on the white paper token (white in both themes) so a medicine box is never cropped nor lost in dark */
+.nabd-product-card__media--photo { background: var(--nabd-color-iconArt-paper); }
+.nabd-product-card__img { inline-size: 100%; block-size: 100%; object-fit: contain; }
 .nabd-product-card__discount {
   position: absolute;
   inset-block-start: 8px;
@@ -161,14 +168,14 @@
   display: inline-flex;
   align-items: center;
 }
-.nabd-product-card__name { font-size: var(--nabd-font-size-control); font-weight: 600; line-height: 1.4; }
-.nabd-product-card__meta { font-size: var(--nabd-font-size-meta); color: var(--nabd-color-text-secondary); }
-.nabd-product-card__bar { display: flex; justify-content: space-between; align-items: center; }
+.nabd-product-card__name { font-size: var(--nabd-font-size-control); font-weight: 600; line-height: 1.4; padding-inline: 10px; }
+.nabd-product-card__meta { font-size: var(--nabd-font-size-meta); color: var(--nabd-color-text-secondary); padding-inline: 10px; }
+.nabd-product-card__bar { display: flex; justify-content: space-between; align-items: center; padding-inline: 10px; }
 .nabd-product-card__prices { display: flex; flex-direction: column; }
 .nabd-product-card__price { font-size: var(--nabd-font-size-input); font-weight: 700; }
 .nabd-product-card__currency { font-size: var(--nabd-font-size-tag); font-weight: 400; }
 .nabd-product-card__rx { font-size: var(--nabd-font-size-tag); font-weight: 600; color: var(--nabd-color-status-warning-fg); }
-.nabd-product-card__online { font-size: var(--nabd-font-size-tag); font-weight: 600; color: var(--nabd-color-service-mint-fg); }
+.nabd-product-card__online { font-size: var(--nabd-font-size-tag); font-weight: 600; color: var(--nabd-color-service-ink-fg); }
 /* the add button: 40 to look at, 44 to hit */
 .nabd-product-card__add {
   width: 40px;

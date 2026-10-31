@@ -1,4 +1,6 @@
 import { PROVIDER_ROLES } from '../../common/enums';
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
 import { BadRequestException, Body, Controller, Get, Post, Param, Query, Patch, Put, Delete, UseGuards, ServiceUnavailableException } from '@nestjs/common';
 import { RadiologyOpsService } from './radiology.service';
 import { Public, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
@@ -9,6 +11,7 @@ import { CreateRadiologyCatalogDto, UpdateRadiologyCatalogDto, ApproveCatalogDto
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { PublicCache } from '../../common/public-cache.decorator';
 @Controller('radiology')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 export class RadiologyController {
   constructor(private readonly svc: RadiologyOpsService) {}
 
@@ -20,17 +23,28 @@ export class RadiologyController {
     @Query('search') q?: string,
     @Query('home_only') ho?: string,
     @Query('home_visit') hv?: string,
+    @Query('insurance') ins?: string,
     @Query('highest_rated') hr?: string,
     @Query('nearest') nr?: string,
     @Query('lowest_price') lp?: string,
     @Query('lat') lat?: string,
-    @Query('lng') lng?: string
+    @Query('lng') lng?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('category') category?: string,
+    @Query('sort') sort?: string,
   ) {
     return this.svc.list({ 
-      modality: m, 
+      sort,
+      // with `page` the answer is { data, total, page, limit, total_pages }; without it, the array as before
+      page: page !== undefined ? Number(page) : undefined,
+      limit: limit !== undefined ? Number(limit) : undefined,
+      // a scan's category is its modality (the client picks the illustration from it); `modality` wins when both are sent
+      modality: m ?? category, 
       body_part: bp, 
       search: q, 
       home_only: ho === '1' || hv === 'true' || hv === '1',
+      insurance: ins === '1' || ins === 'true',
       highest_rated: hr === 'true' || hr === '1',
       nearest: nr === 'true' || nr === '1',
       lowest_price: lp === 'true' || lp === '1',
@@ -39,7 +53,7 @@ export class RadiologyController {
     });
   }
 
-  @Public() @Get('carousel')
+  @Public() @PublicCache(120, ['radiology', 'public-catalogue']) @Get('carousel')
   carousel(@Query('modality') modality?: string, @Query('limit') limit?: string) {
     return this.svc.getCarousel(modality, parseInt(limit || '20', 10));
   }
@@ -53,6 +67,7 @@ export class RadiologyController {
   @Public() @Get('compatible-providers')
   compatibleProviders(@Query('serviceIds') ids?: string) { return this.svc.compatibleProviders(ids ? ids.split(',') : []); }
 
+  @PublicCache(20, ['provider-slots'], { cacheControl: 'public, s-maxage=20' })
   @Public() @Get('providers/:providerAccountId/slots')
   providerSlots(
     @Param('providerAccountId') providerAccountId: string,
@@ -72,7 +87,7 @@ export class RadiologyController {
 
   @PublicCache(120, ['catalog', 'radiology'])
   @Public() @Get('services/:id')
-  one(@Param('id') id: string) { return this.svc.getById(id); }
+  one(@Param('id') id: string) { return this.svc.getByIdWithOffers(id); }
 
   @SelfService()
   @Post('bookings')

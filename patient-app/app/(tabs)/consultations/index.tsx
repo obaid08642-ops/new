@@ -7,7 +7,8 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { AppHeader, Chip, DoctorCard, EmptyState, ErrorState, FIcon, Icon, OfferCard, Screen, Search, Skeleton, useTabBarHeight } from '../../../../packages/ui-native/src';
 import { COLUMN, step as scale, useScreenUi } from '../../../src/components/screen/ScreenKit';
 import { CONSULT_TONE, MODE_LOOK, Section, Sheet, goBack, visitMode, specialtyLook, type VisitMode } from '../../../src/components/consult/ConsultKit';
-import { GlyphRound } from '../../../src/components/pharmacy/PharmacyKit';
+import { CountBadge, GlyphRound, WishlistButton } from '../../../src/components/pharmacy/PharmacyKit';
+import { useNewOutcomesCount } from '../../../src/hooks/useNewOutcomesCount';
 import { HeaderMenuButton } from '../../../src/components/nav/HeaderMenuButton';
 import { ActiveFilters, type ActiveFilter } from '../../../src/components/pharmacy/ActiveFilters';
 import { apiFetch } from '../../../src/utils/api';
@@ -18,6 +19,8 @@ import { deviceNearbyDeps } from '../../../src/utils/consultNearbyDevice';
 import { pickLocalized } from '../../../src/utils/localize';
 import { dateLocaleFor } from '../../../src/utils/dates';
 import { sortFromParam } from '../../../src/utils/doctorSearch';
+import { SpecialtyRow } from '../../../src/components/consult/SpecialtyTiles';
+import { specialtyNameKey, specialtyTileModels } from '../../../src/utils/consultSpecialties';
 import { GuaranteeLine, useLateGuarantee } from '../../../src/components/consult/Differentiators';
 
 /**
@@ -115,10 +118,13 @@ const priceOf = (d: Doc): number => d.consultation_fee || Number(String(d.p ?? '
 
 export default function Consultations() {
   const { theme, t, c, flow, dir, lang, k, num, money } = useScreenUi();
+  const newOutcomes = useNewOutcomesCount();
   const barHeight = useTabBarHeight();
   const [activePay, setActivePay] = useState<PayF>('all');
   const [activeVt, setActiveVt] = useState<VisitMode>('clinic');
   const [activeSpec, setActiveSpec] = useState('');
+  // a specialty with no doctor yet that was tapped: the "Coming soon" note shows, no filter is applied
+  const [soonSlug, setSoonSlug] = useState('');
   // The rows as the server sent them; the card shape (with the localised name) is derived below so a language change re-derives it.
   const [providerRows, setProviderRows] = useState<ProviderRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -215,6 +221,15 @@ export default function Consultations() {
       live = false;
     };
   }, [doctorsPath, reload]);
+
+  const arabicNames = useMemo(() => Object.fromEntries(specialties.flatMap((row) => (row.slug ? [[row.slug, row.name_ar]] : []))) as Record<string, string | undefined>, [specialties]);
+  const specialtyTiles = useMemo(
+    () => specialtyTileModels(specialties, (slug, nameAr, nameEn) => { const key = specialtyNameKey(slug); return key ? k(key) : pickLocalized(nameAr, nameEn) || ''; }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [specialties, lang],
+  );
+  const activeSlug = activeSpec ? specialtyTiles.find((tile) => arabicNames[tile.slug] === activeSpec)?.slug ?? '' : '';
+  const soonTile = soonSlug ? specialtyTiles.find((tile) => tile.slug === soonSlug) : undefined;
 
   useEffect(() => {
     // Real specialties (names + live doctor counts) and real active offers
@@ -357,7 +372,15 @@ export default function Consultations() {
         backLabel={k('consult.back')}
         trailing={
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <GlyphRound name="calendar-dots" label={k('consult.appt.title')} onPress={() => router.push('/consultations/appointments' as Href)} testID="consult-appointments-entry" />
+            <GlyphRound
+              name="calendar-dots"
+              label={newOutcomes.count > 0 ? k('consult.appt.titleNew', { n: num(newOutcomes.count) }) : k('consult.appt.title')}
+              onPress={() => router.push('/consultations/appointments' as Href)}
+              testID="consult-appointments-entry"
+            >
+              <CountBadge count={newOutcomes.count} />
+            </GlyphRound>
+            <WishlistButton />
             <HeaderMenuButton testID="consult-menu-button" />
           </View>
         }
@@ -393,7 +416,7 @@ export default function Consultations() {
   );
 
   return (
-    <Screen theme={theme} direction={dir} header={header} scroll edges={['top', 'start', 'end']} testID="consultations-hub">
+    <Screen theme={theme} direction={dir} header={header} scroll edges={['start', 'end']} testID="consultations-hub">
       <View style={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: barHeight + 40, gap: 16 }}>
         <View accessibilityRole="radiogroup" accessibilityLabel={k('consult.hub.visitType')} style={{ flexDirection: 'row', gap: 8 }}>
           {VISIT_CARDS.map(({ mode, tone, sub }) => {
@@ -425,27 +448,37 @@ export default function Consultations() {
           <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.nearestCity', { city: place.city })}</Text>
         ) : null}
 
-        {/* Specialties — the real list from /care/specialties with live doctor counts */}
+        {/* Specialties — the real list from /care/specialties: All first, with doctors (most doctors first), Coming soon, then All specialties */}
         {specialties.length > 0 ? (
-          <Section title={k('consult.hub.specialties')} actionLabel={k('consult.hub.viewAll')} onAction={() => router.push('/consultations/specialty-select' as Href)}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
-              {specialties
-                .filter((s) => (s.count || 0) > 0)
-                .slice(0, 10)
-                .map((s, i) => {
-                  const name = pickLocalized(s.name_ar, s.name_en || s.specialty) || '';
-                  const on = activeSpec === s.name_ar;
-                  const look = specialtyLook(s.name_ar || name);
-                  return (
-                    <Pressable key={s.slug || i} accessibilityRole="button" accessibilityState={{ selected: on }} accessibilityLabel={name} onPress={() => setActiveSpec(on ? '' : s.name_ar || '')} style={{ width: 72, minHeight: 44, alignItems: 'center', gap: 6 }}>
-                      <View style={{ borderRadius: 22, borderWidth: on ? 2 : 0, borderColor: c.action.primary.bg, padding: on ? 2 : 0 }}>
-                        <FIcon icon={look.icon} tone={look.tone} size={58} theme={theme} />
-                      </View>
-                      <Text style={{ ...scale(t, 'meta', on ? 'bold' : 'medium'), color: c.text.primary, textAlign: 'center' }}>{name}</Text>
-                    </Pressable>
-                  );
-                })}
-            </ScrollView>
+          <Section title={k('consult.hub.specialties')}>
+            <SpecialtyRow
+              tiles={specialtyTiles}
+              arabicNames={arabicNames}
+              allLabel={k('consult.hub.specAll')}
+              moreLabel={k('consult.hub.specMore')}
+              comingSoonLabel={k('consult.hub.comingSoon')}
+              activeSlug={soonSlug || activeSlug}
+              onAll={() => {
+                setActiveSpec('');
+                setSoonSlug('');
+              }}
+              onSelect={(tile) => {
+                if (tile.comingSoon) {
+                  setActiveSpec('');
+                  setSoonSlug(tile.slug);
+                  return;
+                }
+                setSoonSlug('');
+                setActiveSpec(activeSlug === tile.slug ? '' : arabicNames[tile.slug] || '');
+              }}
+              onMore={() => router.push('/consultations/specialty-select' as Href)}
+            />
+            {soonTile ? (
+              <View testID="specialty-soon-note" accessibilityRole="alert" style={{ borderRadius: 16, backgroundColor: c.bg.sunken, padding: 12, gap: 2 }}>
+                <Text style={{ ...scale(t, 'bodyStrong', 'bold'), color: c.text.primary, ...flow }}>{k('consult.hub.comingSoonTitle', { specialty: soonTile.name })}</Text>
+                <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('consult.hub.comingSoonBody')}</Text>
+              </View>
+            ) : null}
           </Section>
         ) : null}
 
@@ -495,6 +528,7 @@ export default function Consultations() {
                   return mode ? [{ mode, label: k(`consult.mode.${mode}`) }] : [];
                 })}
                 rating={d.r != null && d.r > 0 ? { value: d.r, count: d.rev } : undefined}
+                formatCount={num}
                 nextSlot={slotLabel(d.next_available_at)}
                 price={d.p != null ? money(Number(d.p)) : undefined}
                 currency={d.p != null ? k('consult.currency') : undefined}

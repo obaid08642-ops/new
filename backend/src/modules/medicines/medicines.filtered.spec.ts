@@ -19,6 +19,11 @@ function serviceWith(rows: any[] = []) {
       return Promise.resolve(rows);
     },
     countDocuments: jest.fn().mockResolvedValue(41),
+    db: { collection: () => ({
+      // the ranked page is read through popularPage (product-ranking.service.ts): the keys of the page, then the cards by key; both are answered from the same rows here
+      aggregate: (p: any[]) => ({ toArray: async () => (await (async (p: any[]) => { calls.query = p[0].$match; for (const st of p) { if ('$skip' in st) calls.skip = st.$skip; if ('$limit' in st) calls.limit = st.$limit; } calls.ranked = true; return rows; })(p)).map((r: any, i: number) => ({ _id: `k${i}`, ...r })) }),
+      find: () => ({ toArray: async () => rows.map((r: any, i: number) => ({ _id: `k${i}`, ...r })) }),
+    }) },
   };
   service.withBadges = (m: any) => m;
   service.normalizeSearchText = (s: string) => s.toLowerCase();
@@ -47,6 +52,14 @@ describe('MedicinesService.filtered', () => {
     expect(page).toEqual({ data: [{ id: 'a' }], total: 41, page: 2, limit: 20, total_pages: 3 });
     await service.filtered(undefined, undefined, { forms: [], brands: [], rx_only: false }, 'newest', undefined, 20);
     expect(calls.sort).toEqual({ createdAt: -1, id: 1 });
+  });
+
+  it('"Most ordered" orders by the delivered-order count (id breaks ties) and is not the ranked path', async () => {
+    const { service, calls } = serviceWith([{ id: 'a' }]);
+    await service.filtered(undefined, undefined, { forms: ['Tablet'], brands: [], rx_only: false }, 'most_ordered', undefined, 20);
+    expect(calls.sort).toEqual({ orders_count: -1, id: 1 });
+    expect(calls.ranked).toBeUndefined();
+    expect(calls.query.price).toBeUndefined(); // unlike a price order, it does not drop products without a price
   });
 
   it('escapes the filter text (a regex character is matched literally)', async () => {

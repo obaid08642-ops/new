@@ -10,6 +10,7 @@ import { User, UserDocument } from '../../schemas/user.schema';
 import { Facility, FacilityDocument } from '../../schemas/facility.schema';
 import { ProviderType, ProviderStatus, SPECIALTY_MASTER, INSURANCE_COMPANIES, ACADEMIC_DEGREES_LIST } from '../../common/enums';
 import { SlotService } from './slot.service';
+import { publicDoctorProfile } from "./public-doctor-profile";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
 import { UserRepository } from "./repositories/user.repository";
 import { FacilityRepository } from "./repositories/facility.repository";
@@ -209,8 +210,15 @@ export class CareService {
       const d: any = dRaw.toObject ? dRaw.toObject() : dRaw;
       let nextAvailableAt: string | null = null;
       if (i < 10) {
-        const docFull = dRaw.toObject ? dRaw : await this.providerModel.findOne({ id: d.id });
-        nextAvailableAt = docFull ? await this.slots.nextAvailable(docFull as any) : null;
+        // the next free time is kept for a minute per doctor (the same cache sort=available_today uses): it costs five queries a doctor, and a booking
+        // is checked against the real slots when it is held, so a minute-old "next available" never lets a taken slot be booked
+        const cached = this.nextSlotCache.get(String(d.id));
+        if (cached.hit) nextAvailableAt = cached.value;
+        else {
+          const docFull = dRaw.toObject ? dRaw : await this.providerModel.findOne({ id: d.id });
+          nextAvailableAt = docFull ? await this.slots.nextAvailable(docFull as any) : null;
+          this.nextSlotCache.set(String(d.id), nextAvailableAt);
+        }
       }
       return { ...this.toPublicDoctor(d, nextAvailableAt, d._distance_km), is_online: this.isOnlineDoc(d, online) };
     }));
@@ -625,10 +633,6 @@ export class CareService {
   }
 
   /** Public discovery must return an allowlisted card/detail model, never raw provider records. */
-  /** A doctor's image as a public address: an http(s) URL as it is, a stored file through GET /care/doctors/:id/media/:mediaId. */
-  private publicMediaUrl(doctorId: string, media: string): string {
-    return /^https?:\/\//i.test(String(media)) ? media : `/api/v1/care/doctors/${encodeURIComponent(doctorId)}/media/${encodeURIComponent(media)}`;
-  }
 
   /** The image behind a doctor's public media address, only for a public doctor and only one of that doctor's own images. */
   async doctorMedia(id: string, mediaId: string) {
@@ -677,21 +681,12 @@ export class CareService {
       facility_id: d.facility_id || null,
       city: d.city || null,
       district: d.district || null,
-      rating: d.rating_avg ?? d.rating ?? null,
-      reviews_count: d.rating_count ?? d.reviews_count ?? 0,
-      // Averages of the published sub-ratings (doctor / clinic / waiting time); null until a patient has given one.
-      sub_ratings: { doctor: d.sub_ratings_avg?.doctor ?? null, clinic: d.sub_ratings_avg?.clinic ?? null, waiting: d.sub_ratings_avg?.waiting ?? null },
-      bio: d.bio || null,
-      languages: Array.isArray(d.languages) ? d.languages : [],
+      ...publicDoctorProfile(d),
       accepts_insurance: Boolean(d.accepts_insurance),
       insurance_clinic: Boolean(d.insurance_clinic),
       insurance_online: Boolean(d.insurance_online),
       insurance_home: Boolean(d.insurance_home),
       accepted_insurance: Array.isArray(d.accepted_insurance) ? d.accepted_insurance : [],
-      // 2-web#3 / 2-app#13: the photo and clinic photos as addresses anyone can open (a stored file goes through the public
-      // media route of this doctor; an http(s) address is kept as it is)
-      photo_url: d.profile_photo ? this.publicMediaUrl(d.id, d.profile_photo) : null,
-      clinicPhotos: (Array.isArray(d.clinic_images) ? d.clinic_images : []).map((m: string) => this.publicMediaUrl(d.id, m)),
       // Q-20 / D-17: verified only when the admin approved the doctor AND the licence was verified; plus the SCFHS number.
       verified: d.medical_review_status === 'approved' && d.license_verified === true,
       scfhs_license_no: d.scfhs_license_number || null,
@@ -701,7 +696,6 @@ export class CareService {
       // Owner-approved profile fields (2026-10-24). The clinic's address and point only: the doctor's personal `address`
       // and `location` are never part of this model.
       gender: d.gender === 'male' || d.gender === 'female' ? d.gender : null,
-      education: (Array.isArray(d.education) ? d.education : []).map((e: any) => ({ university: e?.university ?? null, graduation_year: e?.graduation_year ?? null, fellowship_board: e?.fellowship_board ?? null })),
       follow_up: typeof d.follow_up_price === 'number' ? { price: d.follow_up_price, window_days: d.follow_up_window_days ?? null } : null,
       procedures: (Array.isArray(d.procedures) ? d.procedures : []).map((p: any) => ({ name_ar: p?.name_ar ?? null, name_en: p?.name_en ?? null, price: p?.price ?? null })),
       clinic: d.clinic_address || d.clinic_location

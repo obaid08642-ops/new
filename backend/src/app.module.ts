@@ -55,6 +55,7 @@ import { AiModule } from './modules/ai/ai.module';
 import { ScannerModule } from './modules/scanner/scanner.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { PriceAlertsModule } from './modules/price-alerts/price-alerts.module';
+import { CatalogueInterestModule } from './modules/catalogue-interest/catalogue-interest.module';
 import { EventsModule } from './modules/events/events.module';
 import { SeedModule } from './modules/seed/seed.module';
 import { CareModule } from './modules/care/care.module';
@@ -156,6 +157,7 @@ import { WriteGuard } from './common/write-guard';
 import { AdminGateGuard } from './common/admin-gate.guard';
 import { StepUpGuard, StepUpService } from './common/step-up.guard';
 import { ProductRankingModule } from './modules/product-ranking/product-ranking.module';
+import { CatalogueRankingModule } from './modules/catalogue-ranking/catalogue-ranking.module';
 import { CatalogCqrsModule } from './modules/catalog-cqrs/catalog-cqrs.module';
 import { mongoDirectConnection } from './common/database/mongo-uri';
 
@@ -247,6 +249,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     ScannerModule,
     NotificationsModule,
     PriceAlertsModule,
+    CatalogueInterestModule,
     EventsModule,
     RealtimeModule,
     SeedModule,
@@ -270,6 +273,7 @@ import { mongoDirectConnection } from './common/database/mongo-uri';
     ServiceCatalogModule,
     CartModule,
     ProductRankingModule,
+    CatalogueRankingModule,
     ProviderOnboardingModule,
     UnifiedBookingsModule,
     WorkflowEngineModule,

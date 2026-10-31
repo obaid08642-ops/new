@@ -22,7 +22,7 @@
 .back-link:hover { text-decoration: underline; }
 .appointment-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem; margin-top: 1.5rem; }
 .appointment-card { display: grid; gap: .65rem; min-width: 0; padding: 1.15rem; border: 1px solid var(--line); border-radius: 1rem; background: var(--surface); box-shadow: var(--nabd-shadow-card); transition: transform 160ms var(--ease-out, ease), border-color 160ms var(--ease-out, ease); }
-.appointment-card:hover { transform: translateY(-2px); border-color: var(--brand); }
+.appointment-card:hover { transform: translateY(-2px); }
 .appointment-card:focus-visible { outline: 3px solid color-mix(in srgb, var(--nabd-color-text-primary) 35%, transparent); outline-offset: 3px; }
 .appointment-service { color: var(--brand-deep); font-weight: 800; }
 .appointment-card > strong { overflow-wrap: anywhere; }
@@ -32,7 +32,7 @@
 .catalog-search .field { flex: 1; margin-top: 0; }
 .medicine-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem; margin-top: 1.5rem; }
 .medicine-card { display: grid; gap: .6rem; min-width: 0; padding: 1.15rem; border: 1px solid var(--line); border-radius: 1rem; background: var(--surface); box-shadow: var(--nabd-shadow-card); transition: transform 160ms var(--ease-out, ease), border-color 160ms var(--ease-out, ease); }
-.medicine-card:hover { transform: translateY(-2px); border-color: var(--brand); }
+.medicine-card:hover { transform: translateY(-2px); }
 .medicine-card:focus-visible { outline: 3px solid color-mix(in srgb, var(--nabd-color-text-primary) 35%, transparent); outline-offset: 3px; }
 .medicine-card > strong { overflow-wrap: anywhere; }
 .medicine-card > span:not(.medicine-open), .medicine-card > em { color: var(--muted); font-size: .92rem; font-style: normal; line-height: 1.45; overflow-wrap: anywhere; }
@@ -79,21 +79,21 @@
 .route-state-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.25rem; }
 /* A :root palette that used to be here, removed in 12.A0: five of them existed
    and cascade order was choosing the brand. One now, on the tokens, below. */
-body { font-family: var(--font-ui); font-kerning: normal; font-optical-sizing: auto; font-synthesis: none; }.shell { font-family: var(--font-readex-pro), var(--font-noto-sans-arabic), var(--font-noto-sans-devanagari), var(--font-noto-sans-bengali), var(--font-noto-nastaliq-urdu), var(--font-ui); }.shell[lang="ar"] { font-family: var(--font-readex-pro), var(--font-noto-sans-arabic), var(--nabd-font-ar); }.shell[lang="en"] { font-family: var(--font-readex-pro), var(--nabd-font-en); }.shell[lang="fil"] { font-family: var(--font-readex-pro), var(--nabd-font-fil); }.shell[lang="ur"] { font-family: var(--font-noto-nastaliq-urdu), var(--font-readex-pro), var(--nabd-font-ur); }.shell[lang="hi"] { font-family: var(--font-noto-sans-devanagari), var(--font-readex-pro), var(--nabd-font-hi); }.shell[lang="bn"] { font-family: var(--font-noto-sans-bengali), var(--font-readex-pro), var(--nabd-font-bn); }.shell[lang="ur"] :is(h1, h2, h3, h4, h5, h6) { line-height: 1.9; }.shell[lang="ur"] :is(p, li, dd, label) { line-height: 2; }.topbar { background: var(--nabd-color-glass-bgStrong); box-shadow: 0 1px 0 var(--nabd-color-border-hairline); }.brand-mark { background: var(--nabd-color-brand-coral); }
+body { font-family: var(--font-ui); font-kerning: normal; font-optical-sizing: auto; font-synthesis: none; }body { font-family: var(--font-readex-pro), var(--font-noto-sans-arabic), var(--font-noto-sans-devanagari), var(--font-noto-sans-bengali), var(--font-noto-nastaliq-urdu), var(--font-ui); }html[lang="ar"] body { font-family: var(--font-readex-pro), var(--font-noto-sans-arabic), var(--nabd-font-ar); }html[lang="en"] body { font-family: var(--font-readex-pro), var(--nabd-font-en); }html[lang="fil"] body { font-family: var(--font-readex-pro), var(--nabd-font-fil); }html[lang="ur"] body { font-family: var(--font-noto-nastaliq-urdu), var(--font-readex-pro), var(--nabd-font-ur); }html[lang="hi"] body { font-family: var(--font-noto-sans-devanagari), var(--font-readex-pro), var(--nabd-font-hi); }html[lang="bn"] body { font-family: var(--font-noto-sans-bengali), var(--font-readex-pro), var(--nabd-font-bn); }html[lang="ur"] body :is(h1, h2, h3, h4, h5, h6) { line-height: 1.9; }html[lang="ur"] body :is(p, li, dd, label) { line-height: 2; }.topbar { background: var(--nabd-color-glass-bgStrong); box-shadow: 0 1px 0 var(--nabd-color-border-hairline); }.brand-mark { background: var(--nabd-color-brand-coral); }
 html, body, .shell { max-width: 100%; overflow-x: clip; }
 .locale-switcher { position: relative; display: inline-flex; align-items: center; }
 .locale-dropdown { display: none; position: relative; }
 .locale-trigger { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.35rem; padding: .35rem .65rem; border: 1px solid var(--line); border-radius: 999px; background: var(--nabd-color-glass-bgStrong); font-size: .8rem; font-weight: 750; color: var(--ink); cursor: pointer; list-style: none; user-select: none; -webkit-tap-highlight-color: transparent; }
 .locale-trigger::-webkit-details-marker { display: none; }
-.locale-trigger:hover, .locale-trigger:focus-visible { border-color: var(--brand); background: var(--brand-soft); outline: none; }
+.locale-trigger:focus-visible { border-color: var(--brand); background: var(--brand-soft); outline: none; }@media (hover: hover) and (pointer: fine) { .locale-trigger:hover { background: var(--hover-tint); } }
 .locale-menu { position: absolute; top: calc(100% + 6px); inset-inline-end: 0; min-width: 10.5rem; background: var(--nabd-color-glass-bgStrong);
   backdrop-filter: blur(var(--nabd-color-glass-blur)) saturate(165%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--line); border-radius: 1rem; padding: .35rem; box-shadow: 0 16px 40px color-mix(in srgb, var(--nabd-color-text-primary) 14%, transparent); z-index: 100; display: grid; gap: .2rem; }
 .locale-menu-item { display: flex; align-items: center; justify-content: space-between; padding: .55rem .75rem; border-radius: .65rem; font-size: .84rem; font-weight: 700; color: var(--ink); text-decoration: none; }
-.locale-menu-item:hover, .locale-menu-item.active { background: var(--brand-soft); color: var(--brand-deep); }
+.locale-menu-item.active { background: var(--brand-soft); color: var(--brand-deep); }@media (hover: hover) and (pointer: fine) { .locale-menu-item:hover { background: var(--hover-tint); color: var(--brand-deep); } }
 .locale-check { font-weight: 900; color: var(--brand-deep); }
 .session-actions { display: inline-flex; align-items: center; gap: .45rem; }
 .header-account, .header-signout { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; min-height: 2.45rem; padding: .5rem .65rem; border: 1px solid var(--line); border-radius: .75rem; background: var(--surface); color: var(--ink); font: inherit; font-size: .8rem; font-weight: 800; }
-.header-account:hover, .header-account:focus-visible, .header-signout:hover, .header-signout:focus-visible { border-color: var(--brand); outline: none; background: var(--brand-soft); }
+.header-account:focus-visible, .header-signout:focus-visible { border-color: var(--brand); outline: none; background: var(--brand-soft); }@media (hover: hover) and (pointer: fine) { .header-account:hover, .header-signout:hover { background: var(--hover-tint); } }
 .header-signout:disabled { opacity: .6; cursor: wait; }
 /* A :root palette that used to be here, removed in 12.A0: five of them existed
    and cascade order was choosing the brand. One now, on the tokens, below. */
@@ -102,7 +102,7 @@ body { background: var(--nabd-color-bg-canvas); }
 .topbar { position: sticky; top: 0; z-index: 20; border-color: var(--nabd-color-border-subtle); background: var(--nabd-color-glass-bgStrong); backdrop-filter: saturate(165%) blur(var(--nabd-color-glass-blur)); }
 .brand-mark { border: 1px solid color-mix(in srgb, var(--nabd-color-text-primary) 40%, transparent); box-shadow: 0 4px 14px color-mix(in srgb, var(--nabd-color-text-primary) 25%, transparent); background: var(--nabd-color-bg-surface); }
 .brand-mark { overflow: hidden; }.pulse-shield-mark { width: 1.55rem; height: 1.55rem; color: var(--nabd-color-brand-coral); filter: drop-shadow(0 1px 2px color-mix(in srgb, var(--nabd-color-text-primary) 25%, transparent)); }
-.locale-option { border-radius: 999px; border-color: transparent; background: var(--nabd-color-glass-bg); transition: transform var(--nabd-motion-duration-enter) var(--nabd-motion-easing-enter), background var(--nabd-motion-duration-enter) var(--nabd-motion-easing-enter), color var(--nabd-motion-duration-enter) var(--nabd-motion-easing-enter); }.locale-option:hover { transform: translateY(-1px); background: var(--surface); box-shadow: 0 4px 12px color-mix(in srgb, var(--nabd-color-text-primary) 8%, transparent); }.locale-option:focus-visible { outline: 3px solid color-mix(in srgb, var(--nabd-color-text-primary) 40%, transparent); outline-offset: 2px; }.locale-option-active { background: var(--brand-soft); border-color: color-mix(in srgb, var(--nabd-color-text-primary) 50%, transparent); color: var(--nabd-color-text-primary); }
+.locale-option { border-radius: 999px; border-color: transparent; background: var(--nabd-color-glass-bg); transition: transform var(--nabd-motion-duration-enter) var(--nabd-motion-easing-enter), background var(--nabd-motion-duration-enter) var(--nabd-motion-easing-enter), color var(--nabd-motion-duration-enter) var(--nabd-motion-easing-enter); }.locale-option:hover { transform: translateY(-1px); background: var(--hover-tint); box-shadow: 0 4px 12px color-mix(in srgb, var(--nabd-color-text-primary) 8%, transparent); }.locale-option:focus-visible { outline: 3px solid color-mix(in srgb, var(--nabd-color-text-primary) 40%, transparent); outline-offset: 2px; }.locale-option-active { background: var(--brand-soft); border-color: color-mix(in srgb, var(--nabd-color-text-primary) 50%, transparent); color: var(--nabd-color-text-primary); }
 .button { gap: .5rem; min-height: 3rem; border-radius: 1rem; box-shadow: var(--nabd-shadow-glass); transition: transform var(--nabd-motion-duration-enter) var(--nabd-motion-easing-enter), box-shadow var(--nabd-motion-duration-enter) var(--nabd-motion-easing-enter), background var(--nabd-motion-duration-enter) var(--nabd-motion-easing-enter); }.button:hover { transform: translateY(-2px); }.button:active { transform: scale(.97); }.button:focus-visible { outline: 3px solid color-mix(in srgb, var(--nabd-color-text-primary) 40%, transparent); outline-offset: 3px; }
 .button-primary { background: var(--nabd-color-action-primary-bg); color: var(--nabd-color-action-primary-fg) !important; font-weight: 800; border: none; box-shadow: var(--nabd-shadow-button); }
 .button-primary:hover { background: var(--nabd-color-action-primary-gradient-to); color: var(--nabd-color-action-primary-fg) !important; box-shadow: var(--nabd-shadow-button); }
@@ -136,11 +136,13 @@ body { background: var(--nabd-color-bg-canvas); }
   transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
   flex-shrink: 0;
 }
-.theme-toggle-btn:hover,
 .theme-toggle-btn:focus-visible {
   border-color: var(--brand);
   background: var(--brand-soft);
   outline: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .theme-toggle-btn:hover { background: var(--hover-tint); }
 }
 
 @media (max-width: 768px) {
@@ -278,6 +280,9 @@ body { background: var(--nabd-color-bg-canvas); }
   --brand: var(--nabd-color-brand-coral);
   --brand-deep: var(--nabd-color-action-primary-bg);
   --brand-soft: var(--nabd-color-action-primary-bg);
+  /* Web hover tint (owner decision 2: option A): the soft coral surface token, light and dark from the token package. */
+  --hover-tint: var(--nabd-color-service-coral-bg);
+  --hover-arrow: var(--nabd-color-action-primary-bg);
   --mint: var(--nabd-color-service-lab-glyph);
   --mint-deep: var(--nabd-color-service-lab-glyph);
   --navy: var(--nabd-color-brand-ink);
@@ -413,10 +418,12 @@ body { background: var(--nabd-color-bg-canvas); }
 
 @media (hover: hover) and (pointer: fine) {
   :where(.status-card, .appointment-card, .medicine-card, .homecare-card, .family-card, .notification-card, .vital-card, .prescription-card, .chat-card, .reminder-card):hover {
-    border-color: color-mix(in srgb, var(--nabd-color-text-primary) 42%, transparent);
+    background: var(--hover-tint);
     box-shadow: var(--shadow-lg);
     transform: translateY(-2px);
   }
+  /* A row/card chevron or arrow turns the action red on hover; mark it data-hover-arrow. */
+  :where(a, button, li, article, .status-card, .appointment-card, .medicine-card):hover [data-hover-arrow] { color: var(--hover-arrow); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -589,6 +596,10 @@ body { background: var(--nabd-color-bg-canvas); }
    header and footer would draw a second pair. Scoped to that wrapper class only. */
 .shell:has(> .nabd-core) > .topbar,
 .shell:has(> .nabd-core) > .site-footer { display: none; }
+/* The 4.6rem the phone .shell reserves under the page is for the legacy fixed tab bar. AppShell's tab bar is sticky and in flow
+   (packages/ui shells.css), so the reserve only stranded the bar 120px above the screen edge at the end of the page, with the page
+   scrolling past under it. Pages inside <AppShell> keep no reserve: the page ends where the bar starts. */
+.shell:has(> .nabd-core) { padding-bottom: 0; }
 
 /* Route-level error / not-found (components-next/core/route-state.tsx): the board's state card plus the way home. */
 .nabd-route-state { display: grid; gap: 12px; width: 100%; max-width: 440px; margin-inline: auto; }

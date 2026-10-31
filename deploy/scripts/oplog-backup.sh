@@ -10,6 +10,7 @@
 # Filtered to the application database plus transaction commits (admin.$cmd applyOps); no-ops are skipped.
 set -uo pipefail
 source "$(dirname "$0")/_backup-common.sh"
+source "$(dirname "$0")/_oplog-mongo-wait.sh"
 nabd_load_env
 
 STATE="$BACKUP_DIR/oplog.state"
@@ -58,6 +59,7 @@ slice_once() {
     # first slice: the chain starts here, nothing earlier is claimed
     echo "$TO_S $TO_I" > "$STATE"
     echo "[$(date)] oplog chain started at $TO_S.$TO_I"
+    mongo_mark
     report oplog true 0
     exit 0
   fi
@@ -84,8 +86,9 @@ slice_once() {
     fail "GAP: the oplog rolled over before slice $FROM_S.$FROM_I (oldest entry $OLD_S.$OLD_I); a new chain starts at $TO_S.$TO_I, run backup.sh now"
   fi
 
-  docker exec "$MONGO_CONTAINER" mongodump --quiet "${ARGS[@]}" --db=local --collection=oplog.rs --query="$QUERY" --out - \
-    | gzip -c | backup_encrypt_stream > "$TMP/$NAME" || { transient "mongodump of the oplog failed"; return; }
+  MONGODUMP_ALLOW_EMPTY=1 mongodump_oneoff "$TMP/$NAME.raw" --db=local --collection=oplog.rs --query="$QUERY" --out - >/dev/null || { rm -f "$TMP/$NAME.raw"; transient "mongodump of the oplog failed"; return; }
+  gzip -c < "$TMP/$NAME.raw" | backup_encrypt_stream > "$TMP/$NAME" || { rm -f "$TMP/$NAME.raw"; transient "compressing or encrypting the oplog slice failed"; return; }
+  rm -f "$TMP/$NAME.raw"
   [ -s "$TMP/$NAME" ] || { transient "the oplog slice is empty (encryption failed)"; return; }
   SIZE=$(stat -c %s "$TMP/$NAME")
 
@@ -102,10 +105,17 @@ slice_once; rc=$?
 if [ "$rc" -eq 10 ]; then
   deploy_in_progress && quiet_skip "deploy started during the run: $LAST_ERR"
   mongo_just_started && quiet_skip "mongo restarted less than ${OPLOG_RESTART_GRACE:-300}s ago: $LAST_ERR"
-  echo "[$(date)] oplog slice failed ($LAST_ERR); retrying once in ${OPLOG_RETRY_DELAY:-60}s"
-  sleep "${OPLOG_RETRY_DELAY:-60}"
+  # Mongo restarting (OOM kill, health failure) is the usual cause: wait until it is healthy again, then try once more.
+  if ! mongo_healthy; then
+    echo "[$(date)] oplog slice failed ($LAST_ERR) and Mongo is not healthy; waiting up to ${OPLOG_HEALTHY_WAIT:-240}s for it"
+    wait_mongo_healthy "${OPLOG_HEALTHY_WAIT:-240}" || fail "$LAST_ERR; Mongo was not healthy for ${OPLOG_HEALTHY_WAIT:-240}s. $(mongo_restart_note)"
+    deploy_in_progress && quiet_skip "deploy in progress while waiting for Mongo: $LAST_ERR"
+  fi
+  echo "[$(date)] oplog slice failed ($LAST_ERR); retrying once in ${OPLOG_RETRY_DELAY:-20}s"
+  sleep "${OPLOG_RETRY_DELAY:-20}"
   deploy_in_progress && quiet_skip "deploy in progress on retry: $LAST_ERR"
   slice_once; rc=$?
-  [ "$rc" -ne 10 ] || fail "$LAST_ERR (after one retry)"
+  [ "$rc" -ne 10 ] || fail "$LAST_ERR (after one retry). $(mongo_restart_note)"
 fi
+[ "$rc" -eq 0 ] && mongo_mark
 exit "$rc"

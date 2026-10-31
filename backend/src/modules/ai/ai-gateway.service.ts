@@ -722,7 +722,7 @@ export class AiGatewayService {
     try {
       if (key === 'gemini') {
         const genAI = new GoogleGenerativeAI(candidate);
-        const model = genAI.getGenerativeModel({ model: rec.model || 'gemini-2.0-flash' });
+        const model = genAI.getGenerativeModel({ model: rec.model || 'gemini-2.5-flash' });
         await withTimeout(model.generateContent('ping'), 15_000, 'gemini_timeout');
       } else {
         const base = rec.base_url || 'https://api.openai.com/v1';

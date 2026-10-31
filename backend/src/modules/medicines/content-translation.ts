@@ -4,7 +4,10 @@
  * guarded catalogue-apply step (`planProductTranslations`): which texts are missing, the request for the model, and the checks an answer
  * must pass before it can be written. Order of the targets: ar and en first, then ur, hi, bn and fil.
  */
+import { createHash } from 'crypto';
 import { CONTENT_FIELDS, textLanguage, storedContentText, type ContentField, type ContentLocale } from './med-i18n';
+
+const sha = (text: string): string => createHash('sha256').update(text).digest('hex');
 
 export const TARGET_ORDER: readonly ContentLocale[] = ['ar', 'en', 'ur', 'hi', 'bn', 'fil'];
 
@@ -25,6 +28,98 @@ export function storagePath(field: ContentField, locale: ContentLocale): string 
   return column && (locale === 'ar' || locale === 'en') ? `${column}_${locale}` : `translations.${DB[locale]}.${TR_KEY[field]}`;
 }
 
+/**
+ * Every path where `storedContentText` can find one field in one language, in the order it reads them: the `_ar` / `_en` column of a long text,
+ * the Arabic root of a short fact, then `translations.<db>.<key>`. The text of a slot may sit in more than one of them.
+ */
+export function slotPaths(field: ContentField, locale: ContentLocale): string[] {
+  const tr = `translations.${DB[locale]}.${TR_KEY[field]}`;
+  const column = COLUMN[field];
+  if (column) return locale === 'ar' || locale === 'en' ? [`${column}_${locale}`, tr] : [tr];
+  return locale === 'ar' ? [field, tr] : [tr];
+}
+
+const getPath = (raw: Record<string, any>, path: string): unknown => path.split('.').reduce<any>((o, k) => (o && typeof o === 'object' ? o[k] : undefined), raw);
+const textAt = (raw: Record<string, any>, path: string): string | null => { const v = getPath(raw, path); return typeof v === 'string' && v.trim() ? v : null; };
+
+/** A copy of `raw` with one path set (the parents along it are copied, nothing else is touched). */
+function withPath(raw: Record<string, any>, path: string, value: string): Record<string, any> {
+  const [head, ...rest] = path.split('.');
+  if (!rest.length) return { ...raw, [head]: value };
+  const child = raw?.[head] && typeof raw[head] === 'object' ? raw[head] : {};
+  return { ...raw, [head]: withPath(child, rest.join('.'), value) };
+}
+
+// ── texts in the wrong column ─────────────────────────────────────────────────────────────────────────────────────────
+/**
+ * A text whose letters are in the other of Arabic / English than its column says (an Arabic leaflet in the English column) is FIXED, not skipped
+ * (owner 2026-10-27). With `right` = the language the letters are in:
+ *   move   the right column is empty: the text moves there and the wrong column is emptied (it becomes a normal missing text);
+ *   clear  the right column already holds a text in its language: only the wrong column is emptied (it is translated again from the right one);
+ *   swap   each column holds the other's language: they trade places.
+ * Only Arabic and English columns can be judged by their letters (Urdu shares the Arabic script; hi, bn and fil are taken as labelled).
+ */
+export interface MoveItem { id: string; field: ContentField; wrong: 'ar' | 'en'; right: 'ar' | 'en'; kind: 'move' | 'clear' | 'swap'; text: string; text_sha: string }
+const OTHER: Record<'ar' | 'en', 'ar' | 'en'> = { ar: 'en', en: 'ar' };
+
+export function findMoves(raw: Record<string, any>): MoveItem[] {
+  const id = String(raw?.id ?? '');
+  const out: MoveItem[] = [];
+  if (!id) return out;
+  for (const field of CONTENT_FIELDS) {
+    const a = storedContentText(raw, field, 'ar');
+    const e = storedContentText(raw, field, 'en');
+    const langA = a === null ? null : textLanguage(a, 'ar');
+    const langE = e === null ? null : textLanguage(e, 'en');
+    const add = (wrong: 'ar' | 'en', kind: MoveItem['kind'], text: string) => out.push({ id, field, wrong, right: OTHER[wrong], kind, text, text_sha: sha(text) });
+    if (a !== null && langA === 'en') {
+      if (e === null) add('ar', 'move', a);
+      else if (langE === 'en') add('ar', 'clear', a);
+      else add('ar', 'swap', a);                                  // the English column holds Arabic: the pair trades places (one item)
+    } else if (e !== null && langE === 'ar') {
+      if (a === null) add('en', 'move', e);
+      else add('en', 'clear', e);                                 // the Arabic column is in Arabic (the swap case was taken above)
+    }
+  }
+  return out;
+}
+
+/** The text of each of the two columns after a move: null = empty. */
+export function afterMove(raw: Record<string, any>, m: MoveItem): { ar: string | null; en: string | null } {
+  const a = storedContentText(raw, m.field, 'ar');
+  const e = storedContentText(raw, m.field, 'en');
+  if (m.kind === 'swap') return { ar: e, en: a };
+  if (m.kind === 'move') return m.wrong === 'ar' ? { ar: null, en: a } : { ar: e, en: null };
+  return m.wrong === 'ar' ? { ar: null, en: e } : { ar: a, en: null };
+}
+
+/**
+ * The desired value of every path a move touches: the new text on the column's main path, '' on a path that holds a stale copy of the old one.
+ * `before` is what is stored now (null when empty): the apply writes a path only while it still holds that.
+ */
+export function movePaths(raw: Record<string, any>, m: MoveItem, newText: { ar: string | null; en: string | null }): Array<{ locale: 'ar' | 'en'; path: string; before: string | null; after: string }> {
+  const out: Array<{ locale: 'ar' | 'en'; path: string; before: string | null; after: string }> = [];
+  for (const locale of ['ar', 'en'] as const) {
+    const text = newText[locale];
+    const main = storagePath(m.field, locale);
+    for (const path of new Set([main, ...slotPaths(m.field, locale)])) {
+      const before = textAt(raw, path);
+      const after = path === main ? (text ?? '') : '';
+      if ((before ?? '') !== after) out.push({ locale, path, before, after });
+    }
+  }
+  return out;
+}
+
+/** The product as it will be once the moves are applied (used to find what is still to translate, and what the translation is made from). */
+export function applyMoves(raw: Record<string, any>, moves: MoveItem[]): Record<string, any> {
+  let doc = raw;
+  for (const m of moves) {
+    for (const p of movePaths(raw, m, afterMove(raw, m))) doc = withPath(doc, p.path, p.after);
+  }
+  return doc;
+}
+
 export interface Gap { id: string; field: ContentField; source: ContentLocale; target: ContentLocale; text: string }
 
 /** The language to translate FROM: Arabic targets from English, English from Arabic, the others from English, else Arabic. */
@@ -32,16 +127,19 @@ export function sourceOrder(target: ContentLocale): ContentLocale[] {
   return target === 'ar' ? ['en'] : target === 'en' ? ['ar'] : ['en', 'ar'];
 }
 
-export interface GapReport { gaps: Gap[]; mislabelled: number }
+export interface GapReport { gaps: Gap[]; mislabelled: number; moves: MoveItem[] }
 
 /**
- * The missing texts of one product. A source slot whose letters are in another language (an Arabic text in the English column) is NOT
- * translated from: it is counted as `mislabelled` for a person to look at.
+ * The missing texts of one product, and the texts in the wrong column. The wrong-column texts are moved first (see MoveItem), and the gaps
+ * are those of the product AFTER the moves, so a column emptied by a move is a normal missing text, translated from the right-language one.
+ * `mislabelled` counts what is still in the wrong language after that (nothing, unless a column holds a language letters cannot tell).
  */
-export function findGaps(raw: Record<string, any>): GapReport {
+export function findGaps(rawIn: Record<string, any>): GapReport {
   const gaps: Gap[] = []; let mislabelled = 0;
-  const id = String(raw?.id ?? '');
-  if (!id) return { gaps, mislabelled };
+  const id = String(rawIn?.id ?? '');
+  if (!id) return { gaps, mislabelled, moves: [] };
+  const moves = findMoves(rawIn);
+  const raw = moves.length ? applyMoves(rawIn, moves) : rawIn;
   for (const target of TARGET_ORDER) {
     for (const field of CONTENT_FIELDS) {
       if (storedContentText(raw, field, target) !== null) continue;
@@ -54,7 +152,7 @@ export function findGaps(raw: Record<string, any>): GapReport {
       }
     }
   }
-  return { gaps, mislabelled };
+  return { gaps, mislabelled, moves };
 }
 
 // ── requests ─────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -135,10 +233,12 @@ export function checkTranslation(source: string, out: string | null, target: Con
 // ── the reviewed file the catalogue-apply step reads ─────────────────────────────────────────────────────────────────
 /** `source_sha` is the SHA-256 of the source text the translation was made from: the step writes only while that text is still the stored one. */
 export interface TranslationItem { id: string; field: ContentField; target: ContentLocale; source: ContentLocale; text: string; source_sha: string }
-export interface TranslationFile { version: 1; model: string; generated_at: string; items: TranslationItem[] }
+export interface TranslationFile { version: 1; model: string; generated_at: string; items: TranslationItem[]; moves?: MoveItem[] }
 
 export function isTranslationFile(v: unknown): v is TranslationFile {
   const f = v as TranslationFile;
-  return !!f && f.version === 1 && typeof f.model === 'string' && Array.isArray(f.items)
+  const movesOk = f?.moves === undefined || (Array.isArray(f.moves) && f.moves.every((m) => m && typeof m.id === 'string' && (CONTENT_FIELDS as readonly string[]).includes(m.field)
+    && (m.wrong === 'ar' || m.wrong === 'en') && m.right === OTHER[m.wrong] && ['move', 'clear', 'swap'].includes(m.kind) && typeof m.text === 'string' && typeof m.text_sha === 'string'));
+  return !!f && f.version === 1 && typeof f.model === 'string' && Array.isArray(f.items) && movesOk
     && f.items.every((i) => i && typeof i.id === 'string' && (CONTENT_FIELDS as readonly string[]).includes(i.field) && TARGET_ORDER.includes(i.target) && TARGET_ORDER.includes(i.source) && typeof i.text === 'string' && i.text.trim() !== '' && typeof i.source_sha === 'string');
 }

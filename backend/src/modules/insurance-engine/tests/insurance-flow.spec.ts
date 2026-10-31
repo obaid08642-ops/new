@@ -31,7 +31,8 @@ describe('InsuranceFlowService', () => {
     transactions = { findOne: jest.fn() };
     orders = { findOne: jest.fn() };
     providers = { findOne: jest.fn(() => ({ lean: async () => ({ insurance_class_contracts: [{ company_id: 'company-1', classes: ['A'], active: true }] }) })) };
-    service = new InsuranceFlowService(requests, {} as any, {} as any, providers, events, transactions, orders, {} as any, {} as any, {} as any, {} as any);
+    const patients = { findOne: jest.fn(() => ({ lean: async () => null })) };   // no card on file: the decide path reads the card cap
+    service = new InsuranceFlowService(requests, {} as any, patients as any, providers, events, transactions, orders, {} as any, {} as any, {} as any, {} as any);
     jest.clearAllMocks();
   });
 

@@ -23,7 +23,6 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.trigger:hover,
 .trigger:focus-visible {
   border-color: var(--nabd-color-border-strong);
   background: var(--nabd-color-bg-sunken);
@@ -81,9 +80,9 @@
   transition: background 0.12s ease;
 }
 
-.option:hover {
-  background: var(--nabd-color-bg-sunken);
-  color: var(--nabd-color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .option:hover { background: var(--hover-tint); color: var(--nabd-color-text-primary); }
+  .trigger:hover { background: var(--hover-tint); }
 }
 
 .activeOption {
@@ -98,9 +97,10 @@
   font-size: 0.9rem;
 }
 
-/* phones, where the header is tight (home): the trigger is the globe alone, 40px like the other header buttons; the name stays in aria-label */
+/* phones, where the header is tight (home): the trigger is the globe alone, 44 like the other header buttons; the name stays in aria-label */
 @media (max-width: 539px) {
-  .compactOnPhone .trigger { inline-size: 40px; block-size: 40px; padding: 0; justify-content: center; border-radius: 20px; }
+  .compactOnPhone .trigger { inline-size: var(--nabd-a11y-minTouchTarget); block-size: var(--nabd-a11y-minTouchTarget); padding: 0; justify-content: center; border-radius: calc(var(--nabd-a11y-minTouchTarget) / 2); }
+  .compactOnPhone .globeIcon { inline-size: 24px; block-size: 24px; }
   .compactOnPhone .currentLabel,
   .compactOnPhone .chevronIcon { display: none; }
 }

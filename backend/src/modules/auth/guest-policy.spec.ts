@@ -48,6 +48,15 @@ describe('GUEST_ROUTE_RULES (the table)', () => {
     expect(capabilitiesFor(method, url)).toContain(capability);
   });
 
+  it('the public insurer list (companies, their plans and networks) needs no account; the patient\'s own insurance still does', () => {
+    for (const u of ['/api/v1/insurance/companies', '/api/v1/insurance/companies/', '/api/v1/insurance/companies?x=1', '/api/v1/insurance/companies/c1/networks', '/api/v1/insurance/companies/c1/plans']) {
+      expect(capabilitiesFor('GET', u)).toEqual([]);
+    }
+    for (const u of ['/api/v1/insurance/policy', '/api/v1/insurance/active', '/api/v1/insurance/requests', '/api/v1/insurance/save-policy', '/api/v1/insurance/companies-x', '/api/v1/insurance']) {
+      expect(capabilitiesFor('GET', u)).toContain('insurance');
+    }
+  });
+
   it('an unrelated route needs nothing, and a read does not trip a write-only row', () => {
     for (const [m, u] of [['GET', '/api/v1/auth/me'], ['GET', '/api/v1/care/appointments'], ['GET', '/api/v1/labs/bookings/mine'], ['GET', '/api/v1/health/vitals'], ['POST', '/api/v1/auth/guest']] as const) {
       expect(capabilitiesFor(m, u)).toEqual([]);

@@ -53,7 +53,7 @@ export function HeroCard({ locale, t, eyebrow, title, headingId }: { locale: Loc
         <h1 id={headingId} className={styles.title}>{title}</h1>
       </div>
       <PulseLine />
-      <HeroSearch locale={locale} placeholder={t("searchPlaceholder")} label={t("searchLabel")} button={t("searchButton")} />
+      <HeroSearch locale={locale} placeholder={t("searchPlaceholderShort")} label={t("searchLabel")} button={t("searchButton")} />
     </section>
   );
 }
@@ -132,7 +132,7 @@ export function AiCard({ locale, t, disabled = NONE_DISABLED }: { locale: Locale
   const tools: Array<{ icon: FillIconName; tone: ServiceTone; label: string; href: string }> = [
     { icon: "heartbeat", tone: TONE.care, label: t("aiSymptoms"), href: `${base}?mode=symptoms` },
     { icon: "translate", tone: "violet", label: t("aiTranslator"), href: `${base}?mode=prescription` },
-    { icon: "chart-line-up", tone: "mint", label: t("aiReport"), href: `${base}/monthly-report` },
+    { icon: "chart-line-up", tone: TONE.rx, label: t("aiReport"), href: `${base}/monthly-report` },
   ];
   return (
     <section className={styles.ai} aria-labelledby="home-ai-title">
@@ -169,14 +169,14 @@ const MORE: Array<{ key: string; href: string; icon: FillIconName; tone: Service
   { key: "notifications", href: "notifications", icon: "bell", tone: "amber" },
   { key: "search", href: "search", icon: "magnifying-glass", tone: "blue" },
   { key: "offers", href: "offers", icon: "gift", tone: "pink" },
-  { key: "programs", href: "programs", icon: "heart", tone: "mint" },
+  { key: "programs", href: "programs", icon: "heart", tone: TONE.rx },
   { key: "returns", href: "returns", icon: "arrows-left-right", tone: "amber" },
   { key: "reports", href: "reports", icon: "file-text", tone: "blue" },
   { key: "loyalty", href: "loyalty", icon: "star", tone: "amber" },
-  { key: "support", href: "support", icon: "headset", tone: "mint" },
+  { key: "support", href: "support", icon: "headset", tone: "ink" },
   { key: "profile", href: "profile", icon: "user", tone: "blue" },
   { key: "settings", href: "settings", icon: "gear", tone: TONE.care },
-  { key: "articles", href: "articles", icon: "clipboard-text", tone: "mint" },
+  { key: "articles", href: "articles", icon: "clipboard-text", tone: "ink" },
 ];
 
 /** Every other patient page (the ones the service grid and the assistant card above do not already show), as the board's ListItem rows (the signed-in home; `labels` is the Dashboard namespace). */
@@ -266,6 +266,7 @@ export function DoctorsSection({ doctors, locale, t, specialties }: { doctors: D
               specialty={specialtyLabel(specialties, d.specialty) ?? undefined}
               place={d.facility}
               rating={d.rating && d.reviews ? { value: d.rating, count: d.reviews } : undefined}
+              locale={locale}
               nextSlot={formatNextSlot(d.nextSlot, locale) ?? undefined}
               price={d.price ? number.format(d.price) : undefined}
               currency={d.price ? t("currency") : undefined}

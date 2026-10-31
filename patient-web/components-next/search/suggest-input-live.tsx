@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import { SearchSuggest, useSearchSuggest } from "@/components-next/search/search-suggest";
+import { SuggestField } from "@/components-next/search/suggest-field";
 import { SUGGEST_SCOPES, type SuggestScope } from "@/lib/search/suggest";
 
 /**
@@ -9,7 +10,7 @@ import { SUGGEST_SCOPES, type SuggestScope } from "@/lib/search/suggest";
  * The page passes the icon as children and its own class names; Enter still submits the form.
  */
 export function SuggestInputLive({
-  locale, scope = SUGGEST_SCOPES.consultations, id, name, defaultValue, placeholder, label, fieldClassName, inputClassName, wrapClassName, children, focusOnMount,
+  locale, scope = SUGGEST_SCOPES.consultations, id, name, defaultValue, placeholder, label, fieldClassName, inputClassName, wrapClassName, submitLabel, submitClassName, children, focusOnMount,
 }: {
   locale: string;
   scope?: SuggestScope;
@@ -21,6 +22,8 @@ export function SuggestInputLive({
   fieldClassName: string;
   inputClassName: string;
   wrapClassName?: string;
+  submitLabel?: string;
+  submitClassName?: string;
   children?: ReactNode;
   /** The plain field was focused before this code loaded: put the caret back in the same place. */
   focusOnMount?: boolean;
@@ -37,9 +40,7 @@ export function SuggestInputLive({
       controller={controller}
       className={wrapClassName}
       renderField={(combobox) => (
-        <label className={fieldClassName}>
-          {children}
-          <span className="sr-only">{label}</span>
+        <SuggestField id={id} className={fieldClassName} label={label} submitLabel={submitLabel} submitClassName={submitClassName} icon={children}>
           <input
             ref={input}
             id={id}
@@ -49,9 +50,10 @@ export function SuggestInputLive({
             placeholder={placeholder}
             className={inputClassName}
             onChange={(event) => controller.input(event.target.value)}
+            enterKeyHint="search"
             {...combobox}
           />
-        </label>
+        </SuggestField>
       )}
     />
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState, useSyncExternalStore } from "react";
+import { formatNumber } from "@/lib/format-price";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import styles from "./product-detail.module.css";
 
@@ -23,7 +24,7 @@ function useWide() {
  * The medicine details. Every section's text is in the page's HTML whichever way it is drawn (the page is indexed);
  * only the groups with something to say are here, and on a phone the first section starts open (spec A, "Accordion").
  */
-export function ProductSections({ groups, label }: { groups: DetailGroup[]; label: string }) {
+export function ProductSections({ groups, label, locale }: { groups: DetailGroup[]; label: string; locale: string }) {
   const base = useId();
   const wide = useWide();
   const [tab, setTab] = useState(groups[0]?.id);
@@ -88,7 +89,7 @@ export function ProductSections({ groups, label }: { groups: DetailGroup[]; labe
                       onClick={() => toggle(section.id)}
                     >
                       <span className={styles.sectionName}>{section.title}</span>
-                      {section.items.length > 1 ? <span className={styles.sectionCount}>{section.items.length}</span> : null}
+                      {section.items.length > 1 ? <span className={styles.sectionCount}>{formatNumber(locale, section.items.length)}</span> : null}
                       <Icon name={isOpen ? "caret-up" : "caret-down"} size={18} tone="secondary" />
                     </button>
                   </h3>

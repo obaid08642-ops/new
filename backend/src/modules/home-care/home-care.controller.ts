@@ -1,4 +1,7 @@
 import { Controller, Get, Param, Post, Put, Delete, Query, UseGuards, Body, NotFoundException, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
+import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
 import { JwtAuthGuard, Public, CurrentUser, SelfService, Roles } from '../../common/auth.guard';
@@ -16,6 +19,7 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 import { PublicCache } from '../../common/public-cache.decorator';
 @UseGuards(JwtAuthGuard)
 @Controller('nursing')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 export class NursingController {
   constructor(
     @InjectModel('HomeCareBooking') private readonly bkgModel: Model<HomeCareBooking>,
@@ -102,8 +106,8 @@ export class NursingController {
   // 1. SERVICES CATALOG (Pillar 2)
   @PublicCache(120, ['catalog', 'nursing'])
   @Public() @Get('catalog')
-  async getCatalog() {
-    return this.serviceModel.find({ active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }).lean();
+  async getCatalog(@Query('sort') sort?: string) {
+    return this.serviceModel.find({ active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }).sort(catalogueSortSpec(sort)).lean();
   }
 
   // --- Admin Catalog CRUD (nursing/home-care services) ---
@@ -471,6 +475,7 @@ export class NursingController {
 /** Patient-web contract bridge. It deliberately exposes only a bounded booking view. */
 @UseGuards(JwtAuthGuard)
 @Controller('home-care')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 export class HomeCareContractController {
   constructor(@InjectModel('HomeCareBooking') private readonly bookings: Model<HomeCareBooking>) {}
 

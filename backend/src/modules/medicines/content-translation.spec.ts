@@ -25,10 +25,12 @@ describe('findGaps', () => {
     expect(by.get('ar.description')).toBeUndefined(); // already there
     expect(gaps.findIndex((g) => g.target === 'ur')).toBeGreaterThan(gaps.findIndex((g) => g.target === 'en'));
   });
-  it('never translates from a text sitting in the wrong column; counts it instead', () => {
+  it('never translates from a text sitting in the wrong column: it is moved first, and the gaps are those of the corrected product', () => {
     const r = findGaps(product({ description_en: '', usage_instructions_en: 'نص عربي طويل جدا يوضع خطأ في العمود الإنجليزي هنا' }));
-    expect(r.mislabelled).toBeGreaterThan(0);
-    expect(r.gaps.some((g) => g.field === 'how_to_use' && g.source === 'en')).toBe(false);
+    expect(r.mislabelled).toBe(0);
+    expect(r.moves).toEqual([expect.objectContaining({ field: 'how_to_use', wrong: 'en', right: 'ar', kind: 'move' })]);
+    expect(r.gaps.some((g) => g.field === 'how_to_use' && g.source === 'en')).toBe(false);                          // not translated FROM the Arabic in the English column
+    expect(r.gaps.find((g) => g.field === 'how_to_use' && g.target === 'en')).toMatchObject({ source: 'ar', text: 'نص عربي طويل جدا يوضع خطأ في العمود الإنجليزي هنا' }); // the emptied column is a normal gap, from the moved text
   });
   it('invents nothing: a field that exists nowhere is not a gap', () => {
     expect(findGaps(product()).gaps.some((g) => g.field === 'side_effects')).toBe(false);
@@ -150,6 +152,39 @@ describe('planProductTranslations on a database (guarded, resumable, reversible)
     expect(without.report.product_translations).toMatch(/skipped/);
     expect(withFile.inputs.product_translations).toBe(sha256(fs.readFileSync(f, 'utf8')));
     expect(withFile.changes.length).toBeGreaterThan(without.changes.length);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+});
+
+describe('catalogue-apply --only=product_translations', () => {
+  let mongod: MongoMemoryServer; let db: DbLike;
+  beforeAll(async () => { mongod = await MongoMemoryServer.create(); await mongoose.connect(mongod.getUri(), { dbName: 'only_translations_test' }); db = mongoose.connection.db as unknown as DbLike; });
+  afterAll(async () => { await mongoose.disconnect(); await mongod.stop(); });
+
+  it('plans only the translations from the file, needs the file, and never touches a filled field', async () => {
+    const fs = await import('fs'); const os = await import('os'); const path = await import('path');
+    const col = () => mongoose.connection.db!.collection('medicines');
+    await col().deleteMany({}); await col().insertOne(product());
+    await col().updateOne({ id: 'p1' }, { $set: { indications_ar: 'نص موجود' } });
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tr-only-')); const f = path.join(dir, 't.json');
+    fs.writeFileSync(f, JSON.stringify({
+      version: 1, model: 'fake-model', generated_at: 't',
+      items: [
+        { id: 'p1', field: 'indications', target: 'ar', source: 'en', text: 'يجب ألا يُكتب', source_sha: sha256('Pain relief 500 mg\nFever') },
+        { id: 'p1', field: 'warnings', target: 'en', source: 'ar', text: 'Do not use with alcohol', source_sha: sha256('لا يستعمل مع الكحول') },
+      ],
+    }));
+    await expect(computePlan(db, ['--only=product_translations'])).rejects.toThrow(/needs --product-translations/);
+    const p = await computePlan(db, ['--only=product_translations', `--product-translations=${f}`]);
+    expect(new Set(p.changes.map((c) => c.step))).toEqual(new Set(['product_translations']));
+    expect(Object.keys(p.report)).toEqual(['product_translations']);
+    expect(p.report.product_translations).toMatchObject({ to_write: 1, already_translated: 1 });
+    expect(p.changes.every((c) => c.kind === 'set' && c.before === null)).toBe(true);
+    await applyChanges(db, p.changes);
+    const doc = (await col().findOne({ id: 'p1' }))!;
+    expect(doc.indications_ar).toBe('نص موجود');
+    expect(doc.warnings_en).toBe('Do not use with alcohol');
+    expect((await computePlan(db, ['--only=product_translations', `--product-translations=${f}`])).changes).toEqual([]);
     fs.rmSync(dir, { recursive: true, force: true });
   });
 });

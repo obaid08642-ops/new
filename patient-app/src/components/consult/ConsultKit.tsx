@@ -6,7 +6,7 @@ import Svg, { Path } from 'react-native-svg';
 import { AppHeader, Card, EmptyState, ErrorState, FIcon, OfflineState, Screen, SERVICE_ICONS, StickyFooter, type AppHeaderAction, type FillIconName, type ServiceTone } from '../../../../packages/ui-native/src';
 import { COLUMN, step as scale, tint, useScreenUi } from '../screen/ScreenKit';
 import { Glyph } from '../pharmacy/PharmacyKit';
-import { dateLocaleFor } from '../../utils/dates';
+import { dateLocaleFor, numberingFor } from '../../utils/dates';
 import { statusCode } from '../../utils/statusCase';
 
 /**
@@ -62,7 +62,7 @@ export function Chevron({ size = 18, back = false }: { size?: number; back?: boo
 
 /** The glyph and tone of a specialty (board Consult's specialty chips), found from the name the server sent. */
 const SPEC_LOOK: Array<[RegExp, FillIconName, ServiceTone]> = [
-  [/أسنان|dent|tooth/i, 'tooth', 'mint'],
+  [/أسنان|dent|tooth/i, 'tooth', 'blue'],
   [/جلد|derma|skin/i, 'hand-heart', 'pink'],
   [/عيون|عين|eye|ophth/i, 'eye', CARE_TONE],
   [/قلب|cardio|heart/i, 'heart', RX_TONE],
@@ -92,31 +92,31 @@ export function useConsultFormat() {
     if (value === null || value === undefined || value === '') return '';
     const d = value instanceof Date ? value : new Date(value as string | number);
     if (Number.isNaN(d.getTime())) return '';
-    return d.toLocaleDateString(locale, { year: 'numeric', month: long ? 'long' : 'short', day: 'numeric', ...(long ? { weekday: 'long' } : {}), numberingSystem: 'latn' });
+    return d.toLocaleDateString(locale, { year: 'numeric', month: long ? 'long' : 'short', day: 'numeric', ...(long ? { weekday: 'long' } : {}), numberingSystem: numberingFor(lang) });
   };
   const dayMonth = (value: unknown): { day: string; month: string } | null => {
     if (value === null || value === undefined || value === '') return null;
     const d = value instanceof Date ? value : new Date(value as string | number);
     if (Number.isNaN(d.getTime())) return null;
-    return { day: num(d.getDate(), { useGrouping: false }), month: d.toLocaleDateString(locale, { month: 'short', numberingSystem: 'latn' }) };
+    return { day: num(d.getDate(), { useGrouping: false }), month: d.toLocaleDateString(locale, { month: 'short', numberingSystem: numberingFor(lang) }) };
   };
   /** A time of day from "HH:mm" (or "HH:mm:ss"); the text as sent when it is not a time. */
   const time = (value: unknown): string => {
     const m = /^(\d{1,2}):(\d{2})/.exec(String(value ?? ''));
     if (!m) return String(value ?? '');
     const d = new Date(2000, 0, 1, Number(m[1]), Number(m[2]));
-    return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' });
+    return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', numberingSystem: numberingFor(lang) });
   };
   /** A timestamp as date and time. */
   const dateTime = (value: unknown): string => {
     const d = new Date(value as string | number);
     if (value === null || value === undefined || Number.isNaN(d.getTime())) return '';
-    return d.toLocaleString(locale, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' });
+    return d.toLocaleString(locale, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', numberingSystem: numberingFor(lang) });
   };
   /** A time of day from an ISO instant or a timestamp. */
   const clock = (value: unknown): string => {
     const d = new Date(value as string | number);
-    return value === null || value === undefined || Number.isNaN(d.getTime()) ? '' : d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', numberingSystem: 'latn' });
+    return value === null || value === undefined || Number.isNaN(d.getTime()) ? '' : d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', numberingSystem: numberingFor(lang) });
   };
   return { date, dayMonth, time, dateTime, clock, num, money };
 }
@@ -524,7 +524,7 @@ export function ConsultList<T>({
         style={{ flex: 1 }}
         data={status === 'loading' ? [] : data}
         keyExtractor={keyExtractor}
-        ListHeaderComponent={top ? <View style={{ paddingBottom: 16 }}>{top}</View> : null}
+        ListHeaderComponent={top ? <View style={{ paddingBottom: 16 }}>{top}</View> : undefined}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         ListEmptyComponent={
           status === 'loading' ? (
@@ -543,7 +543,7 @@ export function ConsultList<T>({
         windowSize={7}
         onEndReached={onEndReached}
         onEndReachedThreshold={0.3}
-        ListFooterComponent={listFooter}
+        ListFooterComponent={listFooter ?? undefined}
         renderItem={({ item, index }) => renderItem(item, index)}
         testID={testID ? `${testID}-list` : undefined}
       />

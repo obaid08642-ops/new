@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { localizedText } from "@/lib/i18n/localized-field";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -14,6 +15,7 @@ import { CoreShell } from "@/components-next/core/core-shell";
 import { EmptyState } from "@/components-next/ui-generated/components/Feedback";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
 import styles from "@/components-next/pharmacy/pharmacy.module.css";
+import { CORAL } from "@/lib/health/view";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ ids?: string }> };
 
@@ -68,7 +70,7 @@ export default async function MedicineComparePage({ params, searchParams }: Prop
         </div>
         {items.length < 2 ? (
           <div className={styles.state}>
-            <EmptyState icon="arrows-left-right" tone="mint" title={t("title")} body={t("emptyBody")} />
+            <EmptyState icon="arrows-left-right" tone={CORAL} title={t("title")} body={t("emptyBody")} />
             <Link href={back} className={`nabd-button nabd-button--primary nabd-button--lg nabd-button--full ${styles.linkButton}`}>
               <span className="nabd-button__label">{t("browse")}</span>
             </Link>
@@ -81,7 +83,7 @@ export default async function MedicineComparePage({ params, searchParams }: Prop
                 <tr>
                   <th scope="col">{t("attribute")}</th>
                   {items.map((m, i) => {
-                    const name = String((locale === "ar" || locale === "ur" ? m.name_ar ?? m.name_en : m.name_en ?? m.name_ar) ?? `#${i + 1}`);
+                    const name = String(localizedText({ locale, ar: m.name_ar as string | undefined, en: m.name_en as string | undefined }) ?? `#${i + 1}`);
                     const picture = allowedImageUrl(resolveProductGallery(m)[0]);
                     return (
                       <th scope="col" key={i}>
@@ -109,7 +111,7 @@ export default async function MedicineComparePage({ params, searchParams }: Prop
                 <tr>
                   <th scope="row">{cartLabel}</th>
                   {items.map((m, i) => {
-                    const name = String((locale === "ar" || locale === "ur" ? m.name_ar ?? m.name_en : m.name_en ?? m.name_ar) ?? `#${i + 1}`);
+                    const name = String(localizedText({ locale, ar: m.name_ar as string | undefined, en: m.name_en as string | undefined }) ?? `#${i + 1}`);
                     return (
                       <td key={i}>
                         <CompareAddButton id={String(m.id)} name={name} rx={m.requires_prescription === true} onlineOnly={m.online_exclusive === true} image={resolveProductGallery(m)[0] ?? null} slug={typeof m.slug === "string" ? m.slug : null} />

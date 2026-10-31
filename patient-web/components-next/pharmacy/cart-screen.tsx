@@ -155,7 +155,7 @@ export function CartScreen({ locale, signedIn }: { locale: Locale; signedIn: boo
                       )}
                       {pack ? <span className={cs.sub}>{pack}</span> : null}
                       {item.rx ? <StatusChip label={t("needsRx")} tone="amber" /> : null}
-                      {item.onlineOnly ? <StatusChip label={t("onlineOnly")} tone="mint" /> : null}
+                      {item.onlineOnly ? <StatusChip label={t("onlineOnly")} tone="ink" /> : null}
                     </div>
                     <div className={cs.end}>
                       <button type="button" className={cs.removeLine} aria-label={t("remove", { name: item.name })} onClick={() => changeQty(item, 0)}>

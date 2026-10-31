@@ -20,7 +20,8 @@ describe('B-7b labs carousel + price comparison', () => {
   ];
   const make = (caps: any[], seen: any[] = []) => {
     const s: any = Object.create(LabsService.prototype);
-    s.svcModel = svcModel(tests, { provider_capabilities_lab: caps }, seen);
+    // the offers reader (common/service-offers) reads the approved lab profiles and the capability rows by collection
+    s.svcModel = svcModel(tests, { provider_capabilities_lab: caps, provider_profiles: labs.map((l) => ({ ...l, type: 'lab' })) }, seen);
     s.providerProfiles = profiles(labs);
     return s as LabsService;
   };
@@ -35,12 +36,11 @@ describe('B-7b labs carousel + price comparison', () => {
   it('price comparison uses each lab\'s own catalog price, cheapest first, unknown labs dropped', async () => {
     const seen: any[] = [];
     const out: any = await make([
-      { provider_account_id: 'a', price: 120 }, { provider_account_id: 'b', price: 70 },
-      { provider_account_id: 'ghost', price: 10 }, { provider_account_id: 'c', price: 0 },
+      { provider_account_id: 'a', code: 'CBC', price: 120 }, { provider_account_id: 'b', code: 't1', price: 70 },
+      { provider_account_id: 'ghost', code: 'CBC', price: 10 }, { provider_account_id: 'c', code: 'CBC', price: 0 },
     ], seen).priceComparison('t1');
-    expect(out.offers.map((o: any) => [o.provider.id, o.price])).toEqual([['b', 70], ['a', 120]]);
+    expect(out.offers.map((o: any) => [o.provider.id, o.price])).toEqual([['b', 70], ['a', 120]]);   // ghost has no approved profile, c has no price
     expect(out.catalog_price).toBe(90);
-    expect(seen.find((x) => x.name)?.q.$or[0].code.$in).toEqual(['t1', 'CBC']);
   });
 
   it('unknown test is a 404', async () => {
@@ -53,12 +53,15 @@ describe('B-7b radiology price comparison', () => {
     const seen: any[] = [];
     const r: any = Object.create(RadiologyOpsService.prototype);
     r.svcModel = svcModel([{ id: 's1', modality: 'mri', body_part: 'lumbar_spine', price: 1000 }],
-      { provider_capabilities_radiology: [{ provider_account_id: 'x', price: 950 }, { provider_account_id: 'y', price: 800 }] }, seen);
+      {
+        provider_capabilities_radiology: [
+          { provider_account_id: 'x', scan_type: 'MRI', body_part: 'Lumbar_Spine', price: 950 }, { provider_account_id: 'y', scan_type: 'mri', body_part: 'lumbar_spine', price: 800 },
+          { provider_account_id: 'z', scan_type: 'MRIX', body_part: 'lumbar_spine', price: 10 },                                  // another scan type: not this scan
+        ],
+        provider_profiles: ['x', 'y', 'z'].map((id) => ({ account_id: id, type: 'radiology', rating_count: 0 })),
+      }, seen);
     r.profileModel = profiles([{ account_id: 'x', rating_count: 0 }, { account_id: 'y', rating_count: 0 }]);
     const out: any = await (r as RadiologyOpsService).priceComparison('s1');
-    expect(out.offers.map((o: any) => o.provider.id)).toEqual(['y', 'x']);
-    const q = seen.find((x) => x.name).q;
-    expect(q.scan_type.test('MRI')).toBe(true);
-    expect(q.scan_type.test('MRIX')).toBe(false);
+    expect(out.offers.map((o: any) => o.provider.id)).toEqual(['y', 'x']);   // scan_type / body_part match is case-insensitive and exact
   });
 });

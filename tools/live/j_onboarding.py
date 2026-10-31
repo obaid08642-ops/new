@@ -189,7 +189,7 @@ def _value(key, kind):
         return True
     if key == 'nursing_services':
         # NursingRegistration sends one entry per enabled service: {key, name_ar, price}.
-        return [{'key': 'wound_care', 'name_ar': 'العناية بالجروح', 'price': 0}]
+        return [{'key': 'wound_care', 'name_ar': 'العناية بالجروح', 'price': 50}]
     if kind.startswith('array<object>'):
         if 'schedule' in k or 'hours' in k:
             return [{'day': 'sunday', 'open': '09:00', 'close': '17:00', 'closed': False}]

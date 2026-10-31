@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScopedSuggest } from '../../src/components/search/ScopedSuggest';
 import { SUGGEST_SCOPES } from '../../src/utils/searchSuggest';
-import { FlatList, Pressable, RefreshControl, Text, View, useWindowDimensions } from 'react-native';
+import { FlatList, Pressable, RefreshControl, ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
@@ -19,11 +19,12 @@ import {
   useTabBarHeight,
 } from '../../../packages/ui-native/src';
 import { RotatingProductImage } from '../../src/components/pharmacy/RotatingProductImage';
-import { FilterSheet } from '../../src/components/pharmacy/FilterSheet';
+import { FilterSheet, SORT_OPTIONS } from '../../src/components/pharmacy/FilterSheet';
 import { CartButton, WishlistButton, GlyphSquare, MedAddControl, PHARMACY_TONE, useAddMedToCart } from '../../src/components/pharmacy/PharmacyKit';
 import { HeaderMenuButton } from '../../src/components/nav/HeaderMenuButton';
 import { ActiveFilters, type ActiveFilter } from '../../src/components/pharmacy/ActiveFilters';
 import { CategoryTiles } from '../../src/components/pharmacy/CategoryTiles';
+import { nameProps } from '../../src/components/LocalizedField';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
 import { useCart } from '../../src/context/CartContext';
 import { apiFetch } from '../../src/utils/api';
@@ -40,6 +41,7 @@ import {
   medGallery,
   medMeta,
   medName,
+  medNameField,
   medPrice,
   productNote,
   type HubFilters,
@@ -206,7 +208,7 @@ export default function PharmacyHub() {
   };
   const csv = (v?: string) => (v ? v.split(',').filter(Boolean) : []);
   const without = (v: string | undefined, one: string) => csv(v).filter((x) => x !== one).join(',');
-  const SORT_LABELS: Record<string, string> = { price_asc: 'pharmacy.filters.sortPriceAsc', price_desc: 'pharmacy.filters.sortPriceDesc', newest: 'pharmacy.filters.sortNewest' };
+  const SORT_LABELS: Record<string, string> = { relevant: 'pharmacy.filters.sortRelevant', price_asc: 'pharmacy.filters.sortPriceAsc', price_desc: 'pharmacy.filters.sortPriceDesc', newest: 'pharmacy.filters.sortNewest' };
   // the filters that are on, each removable (owner layout addition a)
   const activeItems: ActiveFilter[] = [];
   if (activeCat !== 'all') {
@@ -277,6 +279,13 @@ export default function PharmacyHub() {
         onSelect={setActiveCat}
       />
 
+      {/* sort: no chip selected = the ranking ("Recommended"); the same values the filter sheet sends */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -16 }} contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }} accessibilityLabel={`${k('pharmacy.filters.sort')}: ${filters.sort && SORT_LABELS[filters.sort] ? k(SORT_LABELS[filters.sort]) : k('pharmacy.filters.sortRecommended')}`} testID="pharmacy-sort-row">
+        {SORT_OPTIONS.map((o) => (
+          <Chip key={o.id} label={k(o.label)} selected={filters.sort === o.id} onPress={() => router.setParams({ filter_sort: filters.sort === o.id ? '' : o.id })} theme={theme} />
+        ))}
+      </ScrollView>
+
       {/* filter results, then the filters that are on */}
       <View style={{ flexDirection: 'row' }}>
         <Chip label={k('pharmacy.hub.filter')} startIcon="sliders" count={activeFilterCount > 0 ? activeFilterCount : undefined} selected={activeFilterCount > 0} onPress={() => setFilterOpen(true)} theme={theme} />
@@ -321,7 +330,7 @@ export default function PharmacyHub() {
         numColumns={cols}
         columnWrapperStyle={{ gap: 10, marginBottom: 10 }}
         ListHeaderComponent={<View style={{ marginBottom: 16 }}>{header}</View>}
-        ListEmptyComponent={empty}
+        ListEmptyComponent={empty ?? undefined}
         keyboardShouldPersistTaps="handled"
         // pull down to reload the list (the same reload the retry button asks for)
         refreshControl={<RefreshControl refreshing={loading && medicines.length > 0} onRefresh={() => setReloadKey((n) => n + 1)} tintColor={c.text.primary} />}
@@ -339,6 +348,7 @@ export default function PharmacyHub() {
             <View style={{ flex: 1, minWidth: 0 }}>
               <ProductCard
                 name={medName(item)}
+                {...nameProps(medNameField(item).mark, k)}
                 meta={medMeta(item) || undefined}
                 price={price ? money(price) : ''}
                 currency={price ? k('pharmacy.currency') : undefined}

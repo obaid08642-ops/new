@@ -5,18 +5,19 @@ import { useSelector } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 
-import { Avatar, Icon, IconButton } from '../../../../packages/ui-native/src';
+import { Avatar, Icon } from '../../../../packages/ui-native/src';
 import { withAlpha } from '../../../../packages/ui-native/src/shells/shellTokens';
 import { LANGUAGES, useApp, type LangCode } from '../../context/AppContext';
-import { ServiceCartButton } from '../cart/ServiceCartButton';
+import { ServiceCartButton, useAnyCartItems } from '../cart/ServiceCartButton';
 import { HeaderMenuButton } from '../nav/HeaderMenuButton';
+import { HEADER_ICON, HeaderDot, HeaderRound, HeaderSlot, useHeaderGap } from '../nav/HeaderRound';
 import { WishlistButton } from '../pharmacy/PharmacyKit';
 import { Plain, Txt, useScreenUi } from './homeKit';
 
 /**
- * Top row of Home (canvas/HomeApp.dc.html): the profile avatar with its coral ring, then, at the far end,
- * the language button, the light/dark switch and the notifications bell. Controls are 44 (the board draws 40)
- * so every one is a full touch target.
+ * Top row of Home (canvas/HomeApp.dc.html): the profile avatar with its coral ring, then, at the far end and in this fixed
+ * order, language, light/dark, notifications, favourites, cart, menu. Every button is the shared round header button
+ * (components/nav/HeaderRound.tsx: 44 hit, 24 icon, one gap, one badge corner; the board draws 40).
  */
 
 // the board's glyphs (24 grid, stroked)
@@ -28,8 +29,6 @@ const LANG_SHORT: Record<LangCode, string> = { ar: 'ع', en: 'EN', ur: 'اردو
 /** The language board's order. */
 const LANG_ORDER: LangCode[] = ['ar', 'en', 'ur', 'hi', 'fil', 'bn'];
 
-const HIT = 44;
-
 export function HomeTopRow({ name }: { name: string | null }) {
   const { isDark, lang, toggleTheme } = useApp();
   const { theme, t, c, tr } = useScreenUi();
@@ -37,30 +36,23 @@ export function HomeTopRow({ name }: { name: string | null }) {
   // unread rows of GET /notifications (Home and the notifications screen report the count to the store); the dot
   // shows only when the count is known and above zero
   const unread = useSelector((state: { notifications?: { unreadCount?: number | null } }) => state.notifications?.unreadCount ?? 0);
+  // the cart is the one optional button: it is drawn only while some cart has items
+  const cartShown = useAnyCartItems();
   const first = name ? name.split(/\s+/)[0] : '';
-  const ring = { height: HIT, borderRadius: HIT / 2, borderWidth: 1, borderColor: c.border.onGlass, backgroundColor: c.bg.surface };
+  const gap = useHeaderGap();
 
+  // The fixed order, start to end (it mirrors by the layout direction, never by left/right): profile, then language, theme,
+  // notifications, favourites, cart, menu. The cart is the only optional one; its place is kept while every cart is empty.
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+    <View testID="home-top-row" style={{ flexDirection: 'row', alignItems: 'center', gap }}>
       <Pressable accessibilityRole="button" accessibilityLabel={tr('common.profile')} onPress={() => router.push('/profile')} hitSlop={4}>
         <Avatar name={first} size="md" theme={theme} />
       </Pressable>
       <View style={{ flex: 1 }} />
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={tr('common.language')}
-        onPress={() => setLangOpen(true)}
-        style={{ ...ring, minWidth: HIT, paddingHorizontal: 8, alignItems: 'center', justifyContent: 'center' }}
-      >
+      <HeaderRound label={tr('common.language')} testID="home-language-button" onPress={() => setLangOpen(true)}>
         <Plain weight="medium" size={15} color={c.text.secondary} maxFontSizeMultiplier={1.3}>{LANG_SHORT[lang]}</Plain>
-      </Pressable>
-      <Pressable
-        accessibilityRole="switch"
-        accessibilityState={{ checked: isDark }}
-        accessibilityLabel={tr('common.darkMode')}
-        onPress={toggleTheme}
-        style={{ ...ring, width: 68, padding: 4, flexDirection: 'row', justifyContent: isDark ? 'flex-start' : 'flex-end', alignItems: 'center' }}
-      >
+      </HeaderRound>
+      <HeaderRound label={tr('common.darkMode')} testID="home-theme-button" role="switch" state={{ checked: isDark }} onPress={toggleTheme}>
         <View
           style={{
             width: 34,
@@ -72,25 +64,21 @@ export function HomeTopRow({ name }: { name: string | null }) {
             justifyContent: 'center',
           }}
         >
-          <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+          <Svg width={HEADER_ICON} height={HEADER_ICON} viewBox="0 0 24 24" fill="none">
             <Path d={isDark ? MOON : SUN} stroke={isDark ? c.text.onBrand : c.service.amber.fg} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
           </Svg>
         </View>
-      </Pressable>
+      </HeaderRound>
+      <HeaderRound
+        label={tr('common.notifications')}
+        testID="home-bell-button"
+        onPress={() => router.push('/notifications')}
+        badge={unread > 0 ? <HeaderDot testID="home-bell-dot" /> : null}
+      >
+        <Icon name="bell" size={HEADER_ICON} theme={theme} color={c.text.secondary} />
+      </HeaderRound>
       <WishlistButton testID="home-wishlist-button" />
-      <ServiceCartButton testID="home-cart-button" />
-      <View>
-        <IconButton name="bell" label={tr('common.notifications')} variant="outlined" theme={theme} onPress={() => router.push('/notifications')} />
-        {unread > 0 ? (
-          <View
-            testID="home-bell-dot"
-            pointerEvents="none"
-            accessibilityElementsHidden
-            importantForAccessibility="no-hide-descendants"
-            style={{ position: 'absolute', top: 9, end: 10, width: 10, height: 10, borderRadius: 5, backgroundColor: c.avatar.ring, borderWidth: 2, borderColor: c.bg.surface }}
-          />
-        ) : null}
-      </View>
+      {cartShown ? <ServiceCartButton testID="home-cart-button" /> : <HeaderSlot testID="home-cart-slot" />}
       <HeaderMenuButton testID="home-menu-button" />
       <LanguageSheet visible={langOpen} onClose={() => setLangOpen(false)} />
     </View>

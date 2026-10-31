@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { SearchModule } from '../search/search.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { NursingController, HomeCareContractController } from './home-care.controller';
 import { HomeCareTrackingController } from './controllers/home-care-tracking.controller';
@@ -22,6 +23,7 @@ import { InsuranceEngineModule } from '../insurance-engine/insurance-engine.modu
 @Module({
   imports: [
     WorkflowEngineModule,
+    SearchModule,
     ChatModule,
     InsuranceEngineModule,
     MongooseModule.forFeature([

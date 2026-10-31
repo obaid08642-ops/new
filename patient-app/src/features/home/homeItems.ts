@@ -13,9 +13,8 @@ export const HOME_SERVICES: HomeService[] = [
   { service: 'emergency', label: 'emergency.title', route: '/emergency' },
 ];
 
-/** The AI tools row of the board. */
+/** The AI tools row of the board: one entry to the one assistant (owner decision 7; its modes are inside it) and the monthly report. */
 export const HOME_TOOLS: HomeTool[] = [
-  { label: 'services.cat.symptomCheck', icon: 'heartbeat', tone: SERVICE_ICONS.nursing.tone, route: '/ai?mode=symptoms' },
-  { label: 'services.cat.prescriptionTranslator', icon: 'translate', tone: 'violet', route: '/ai?mode=prescription' },
-  { label: 'services.cat.monthlyReport', icon: 'chart-line-up', tone: 'mint', route: '/ai/monthly-report' },
+  { label: 'ai.title', icon: 'heartbeat', tone: SERVICE_ICONS.nursing.tone, route: '/ai' },
+  { label: 'services.cat.monthlyReport', icon: 'chart-line-up', tone: SERVICE_ICONS.pharmacy.tone, route: '/ai/monthly-report' },
 ];

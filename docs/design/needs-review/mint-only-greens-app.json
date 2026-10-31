@@ -1,0 +1,101 @@
+[
+  {
+    "batch": "design",
+    "app": "patient-app",
+    "screen": "/",
+    "element": "control.switchOn #1F9D6E (toggle ON track)",
+    "file": "packages/design-tokens/tokens.json",
+    "line": 115,
+    "found": "[owner] [owner] green token, used by every Toggle; semantic on/off, not a service tone; value not changed (no value invented): keep green or pick a non-green on-state?",
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision"
+  },
+  {
+    "batch": "design",
+    "app": "patient-app",
+    "screen": "/",
+    "element": "presence.online #1F9D6E (doctor online dot)",
+    "file": "packages/design-tokens/tokens.json",
+    "line": 110,
+    "found": "[owner] [owner] green token for the online presence dot (doctor card); value not changed.",
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision"
+  },
+  {
+    "batch": "design",
+    "app": "patient-app",
+    "screen": "/",
+    "element": "service.lime / nutrition (nutrition tile, protein tile, lime chips)",
+    "file": "packages/design-tokens/tokens.json",
+    "line": 88,
+    "found": "[owner] [owner] lime #4A7A00 / #EDF8D6 is a green service tone; nutrition tile keeps it until the owner picks another tone for nutrition.",
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision"
+  },
+  {
+    "batch": "design",
+    "app": "patient-app",
+    "screen": "/",
+    "element": "accent.lime #D7FF00 and track.filled #D7FF00 (acid lime)",
+    "file": "packages/design-tokens/tokens.json",
+    "line": 68,
+    "found": "[owner] [owner] acid lime accent (Button variant lime on dark, progress fill); the light-canvas upload bar that used it now uses action.primary.bg; the token itself is unchanged.",
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision"
+  },
+  {
+    "batch": "design",
+    "app": "patient-app",
+    "screen": "/",
+    "element": "iconArt.mint #3FBF9A / mintSoft #6FE0B8 / lime #8EDC5E (illustrated icon fills)",
+    "file": "packages/ui/src/Illustrated.tsx",
+    "line": 36,
+    "found": "[owner] [owner] flat artwork fills in the illustrated icon set (e.g. test-tube sample is lab-legit, lime sparkles in 6 scenes); mirrored as hex in packages/ui/src/Illustrated.tsx and ui-generated; value change belongs in the tokens package.",
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision"
+  },
+  {
+    "batch": "design",
+    "app": "patient-app",
+    "screen": "/consultations/appointments",
+    "element": "Consult mode 'home' = house/mint tile (board pairing clinic blue, home mint, online violet)",
+    "file": "packages/ui-native/src/components/Cards.tsx",
+    "line": 50,
+    "found": "[owner] [owner] mint here is the consult home-visit identity, not labs; no non-green tone is free that the boards allow (blue=clinic, violet=online); left on mint until the owner picks one. Same pairing in 4 more places.",
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision"
+  },
+  {
+    "batch": "design",
+    "app": "patient-app",
+    "screen": "/consultations/appointments",
+    "element": "Consult mode 'home' pairing (patient-app ConsultKit)",
+    "file": "patient-app/src/components/consult/ConsultKit.tsx",
+    "line": 30,
+    "found": "[owner] [owner] same decision as above.",
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision"
+  },
+  {
+    "batch": "design",
+    "app": "patient-app",
+    "screen": "/consultations/home-visit-tracking",
+    "element": "House icon + wait-time tile in mint",
+    "file": "patient-app/app/consultations/home-visit-tracking.tsx",
+    "line": 114,
+    "found": "[owner] [owner] same decision as above.",
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision"
+  },
+  {
+    "batch": "design",
+    "app": "patient-app",
+    "screen": "/mental-health",
+    "element": "Mood 'great' = mint, 'good' = lime",
+    "file": "patient-app/src/components/care/MentalHealthViews.tsx",
+    "line": 44,
+    "found": "[owner] [owner] a 5-step mood scale, treated as semantic good/ok scale and kept; the owner may want a non-green scale.",
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision"
+  }
+]

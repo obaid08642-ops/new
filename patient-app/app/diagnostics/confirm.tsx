@@ -5,10 +5,11 @@ import { router, type Href } from 'expo-router';
 
 import { Button, Card, Chip, EmptyState, FIcon, Radio } from '../../../packages/ui-native/src';
 import { ConsultScreen, Section } from '../../src/components/consult/ConsultKit';
-import { AmountLine, Block, LAB_TONE, Price, goBackDiag } from '../../src/components/diagnostics/DiagKit';
+import { AmountLine, Block, LAB_TONE, NameArt, Price, goBackDiag } from '../../src/components/diagnostics/DiagKit';
 import { Notice } from '../../src/components/pharmacy/OfferKit';
 import { useOrderDates } from '../../src/components/ordering/OrderingKit';
 import { step as scale, useScreenUi } from '../../src/components/screen/ScreenKit';
+import { cartIdsToClear } from '../../src/utils/singleOrder';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
 import { logError } from '../../src/utils/logger';
@@ -89,7 +90,7 @@ export default function DiagnosticsConfirm() {
   // The booking's insured line: the server's estimate from the card's copay % and cap, else only the acceptance (owner decision 2026-10-24).
   const share = insuredShare(picks.map((x) => x.p.estimatedShare ?? null));
   const notCovered = picks.some((x) => x.p.items.some((i) => i.coverage === 'not_covered'));
-  const nameOf = (id: string) => cartItems.find((i) => i.id === id)?.name ?? names[id] ?? '';
+  const nameOf = (id: string) => draft.names?.[id] || cartItems.find((i) => i.id === id)?.name || names[id] || '';
   const when = (m: OrderingMode): string => {
     const x = draft.times[m];
     if (!x) return '';
@@ -127,7 +128,8 @@ export default function DiagnosticsConfirm() {
       const result = await createBookings(draft, { paymentMethod: method, genderPreference: hasHome ? gender : null, medicalOrderId: orderId, documents: orderId ? [] : docs });
       setNames(known);
       setCreated(result);
-      for (const id of catalogIds) {
+      // a one-item order ("Order now") never touched the cart, so the cart keeps its lines
+      for (const id of cartIdsToClear(draft, catalogIds)) {
         const line = cartItems.find((i) => i.id === id);
         if (line) await removeItem(id, line.kind);
       }
@@ -229,7 +231,7 @@ export default function DiagnosticsConfirm() {
               const line = p.items.find((l) => l.catalog_id === i.catalog_id);
               return (
                 <View key={i.catalog_id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                  <FIcon icon={g.mode === 'facility' && i.facility_only ? 'scan' : 'test-tube'} tone={g.mode === 'facility' && i.facility_only ? 'violet' : LAB_TONE} size={36} theme={theme} />
+                  <NameArt kind={g.mode === 'facility' && i.facility_only ? 'radiology' : 'lab'} name={nameOf(i.catalog_id)} size={36} />
                   <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{nameOf(i.catalog_id) || k('ordering.pay.item')}</Text>
                   {line ? <Price amount={line.price} size="small" /> : null}
                 </View>

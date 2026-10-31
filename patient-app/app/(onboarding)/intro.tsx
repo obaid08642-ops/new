@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, FlatList, Pressable, View, useWindowDimensions, type ViewToken } from 'react-native';
+import { AccessibilityInfo, FlatList, Pressable, View, useWindowDimensions, type ListViewToken as ViewToken } from 'react-native';
 import { router, type Href } from 'expo-router';
 
 import { Button, FIcon, Screen, SERVICE_ICONS, StickyFooter, type FillIconName, type ServiceTone } from '../../../packages/ui-native/src';

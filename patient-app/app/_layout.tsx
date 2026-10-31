@@ -17,11 +17,16 @@ import { I18nManager } from 'react-native';
 import { store } from '../src/store';
 import { AppProvider, useApp } from '../src/context/AppContext';
 import { useUrduFont } from '../src/theme/useUrduFont';
+import { installAppText } from '../src/theme/urduText';
+
+// Before any render: every Text/TextInput (Modals, sheets, toasts included) gets the app face, never the system font.
+installAppText();
 import { SocketProvider } from '../src/context/SocketContext';
 import { CartProvider } from '../src/context/CartContext';
 import { DiagnosticsCartProvider } from '../src/context/DiagnosticsCartContext';
 import { ConsultationsProvider } from '../src/context/ConsultationsContext';
 import NotificationHandler from '../src/components/NotificationHandler';
+import '../src/calls/ringTask'; // defines the background call-ring task at load
 import OfflineBanner from '../src/components/OfflineBanner';
 import AppGate from '../src/components/AppGate';
 import PaymentResume from '../src/components/PaymentResume';

@@ -3,6 +3,7 @@ import { Model, Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { v4 as uuidv4 } from 'uuid';
+import { assertNursingDelta } from '../../../common/nursing-price';
 import { ProviderAccount, ProviderProfile, ProviderDocument, ProviderBankAccount, ProviderAuditLog, DocumentReviewStatus, BankReviewStatus, SAUDI_BANKS } from '../schemas';
 import { ProviderAccountStatus, ProviderDocumentType, PROVIDER_STATUS_TRANSITIONS, REQUIRED_DOCS_BY_PROVIDER_TYPE, HOSPITAL_SUB_MODULES, ProviderType } from '../provider.enums';
 import { StorageService } from '../../storage/storage.module';
@@ -92,7 +93,7 @@ export class ProviderProfileService {
     if (!body?.file?.data_base64 || !body?.file?.mime) throw new BadRequestException('file required');
     // KYC artifacts are retained only in the private object store selected by
     // server policy; neither client nor this business route chooses a CDN target.
-    const sto = await this.storage.upload({ owner_account_id: user.id, owner_kind: 'provider_account', mime: body.file.mime, data_base64: body.file.data_base64, original_name: body.file.original_name || body.doc_type, target: 'r2' });
+    const sto = await this.storage.upload({ owner_account_id: user.id, owner_kind: 'provider_account', mime: body.file.mime, data_base64: body.file.data_base64, original_name: body.file.original_name || body.doc_type, target: 'r2', defer_ok: true });
     // delete previous PENDING/NEEDS_REPLACEMENT of same type? keep history but mark prior as superseded by leaving them.
     const existing = await this.docs.findOne({ account_id: user.id, doc_type: body.doc_type, review_status: { $in: [DocumentReviewStatus.PENDING, DocumentReviewStatus.NEEDS_REPLACEMENT, DocumentReviewStatus.UNDER_REVIEW] } });
     if (existing) {
@@ -208,6 +209,7 @@ export class ProviderProfileService {
       : (body && typeof body === 'object' && body.newData && typeof body.newData === 'object' && Object.keys(body).length <= 2)
         ? body.newData
         : body;
+    if (['nurse', 'nursing', 'home_care'].includes(String(user?.role || '').toLowerCase())) assertNursingDelta(requested);   // a shape that maps to nursing_services[] (what the patient reads), prices above 0
     const delta = {
       id: uuidv4(),
       provider_id: user.id,

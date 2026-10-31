@@ -22,7 +22,7 @@ import { CORAL_TONE, FamilyScreen, NoFamilyState, isNoFamily, type FamilyMember 
 const TYPES = ['appointment', 'reminder', 'medication', 'lab'] as const;
 const TYPE_LOOK: Record<string, { icon: FillIconName; tone: ServiceTone }> = {
   appointment: { icon: 'stethoscope', tone: CARE_TONE },
-  medication: { icon: 'pill', tone: 'mint' },
+  medication: { icon: 'pill', tone: CORAL_TONE },
   lab: { icon: 'test-tube', tone: 'violet' },
   reminder: { icon: 'bell', tone: 'amber' },
   order: { icon: 'package', tone: 'peach' },

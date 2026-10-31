@@ -233,7 +233,7 @@ describe('checkout', () => {
 
 describe('payment', () => {
   it('draws the server amount and the server rows, and pays once through the hosted page, then asks the server for the result', async () => {
-    const open = jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
+    const open = jest.spyOn(Linking, 'openURL').mockResolvedValue();
     let release: (v: unknown) => void = () => undefined;
     const pending = new Promise((r) => { release = r; });
     answer({ '/patient/pharmacy/orders/ord': accepted, '/payments/pharmacy/ord/capabilities': caps(80) }, () => pending);
@@ -262,7 +262,7 @@ describe('payment', () => {
   });
 
   it('never opens a payment page that is not https; the transaction can still be checked', async () => {
-    const open = jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
+    const open = jest.spyOn(Linking, 'openURL').mockResolvedValue();
     answer({ '/patient/pharmacy/orders/ord': accepted, '/payments/pharmacy/ord/capabilities': caps() }, () => ({ id: 'txn-1', status: 'pending', checkout_url: 'http://insecure.example.test' }));
     await render(wrap(<PaymentScreen />));
     await tap(await screen.findByLabelText(k('pharmacy.pay.pay', { amount: `80.00 ${k('pharmacy.currency')}` })));
@@ -476,7 +476,7 @@ describe('payment result', () => {
   });
 
   it('opens the hosted page a service hands over (https only), once, and then asks the server', async () => {
-    const open = jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
+    const open = jest.spyOn(Linking, 'openURL').mockResolvedValue();
     mockParams.current = { moyasarId: 'txn-9', paymentUrl: 'https://pay.example.test/hosted', bookingKind: 'diagnostics', bookingId: 'd1' };
     apiFetch.mockResolvedValue({ id: 'x', status: 'pending' });
     await render(wrap(<PaymentResultScreen />));

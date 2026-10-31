@@ -1,4 +1,9 @@
-import { Controller, Get, Post, Body, Query, ForbiddenException, BadRequestException, UseGuards, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, ForbiddenException, BadRequestException, Optional, UseGuards, Param } from '@nestjs/common';
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
+import { SearchService } from '../search/search.service';
+import { NURSING_TYPES, byRelevance, matchedIds } from '../search/catalogue-search';
+import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { Public } from '../../common/auth.guard';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -6,30 +11,35 @@ import { CurrentUser, JwtAuthGuard, SelfService } from '../../common/auth.guard'
 import { BookDto } from '../compat/compat.dto';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { HomeCareSvc } from './home-care.service';
+import { PublicCache } from '../../common/public-cache.decorator';
 import { nearestFirst } from '../provider/services/nearest-first';
 
 const uid = (u: any) => u?.id || u?._id || u?.user_id;
 
 @Controller('home-care')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 @SelfService()
 @UseGuards(JwtAuthGuard)
 export class PatientHomeCareController {
   constructor(
     @InjectConnection() private conn: Connection,
     private readonly homeSvc: HomeCareSvc,
+    @Optional() private readonly searchEngine?: SearchService,
   ) {}
 
   @Get('services')
-  async services(@Query('limit') limit = '50') {
+  async services(@Query('limit') limit = '50', @Query('sort') sort?: string) {
     const lim = Math.min(Math.max(parseInt(limit, 10) || 50, 1), 200);
     const docs = await this.conn.db
       .collection(CATALOG_COLLECTIONS.nursing_services)
       .find({ is_active: { $ne: false }, kind: { $ne: 'package' } } as any)
+      .sort(catalogueSortSpec(sort) as any)
       .limit(lim)
       .toArray();
     return { data: docs.map(({ _id, ...d }: any) => d) };
   }
 
+  @PublicCache(20, ['provider-slots'], { cacheControl: 'public, s-maxage=20' })
   @Public() @Get('providers/:providerAccountId/slots')
   providerSlots(
     @Param('providerAccountId') providerAccountId: string,
@@ -69,12 +79,18 @@ export class PatientHomeCareController {
     @Query('lng') lng?: string,
     @Query('limit') limit?: string,
     @Query('page') page?: string,
+    @Query('sort') sort?: string,
   ) {
     const filter: Record<string, any> = { is_active: { $ne: false }, kind: { $ne: 'package' } };
     const text = (q || '').trim().slice(0, 100);
+    // the search box uses the home search's engine (typo tolerance, ar/en synonyms); its own text match is the fallback
+    const matched = text ? await matchedIds(this.searchEngine, text, NURSING_TYPES) : null;
     if (text) {
-      const re = new RegExp(text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
-      filter.$or = [{ name_ar: re }, { name_en: re }];
+      if (matched) filter.id = { $in: matched };
+      else {
+        const re = new RegExp(text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+        filter.$or = [{ name_ar: re }, { name_en: re }];
+      }
     }
     if (category) filter.category = String(category);
     const min = parseFloat(minPrice || '');
@@ -90,12 +106,14 @@ export class PatientHomeCareController {
     const services: any[] = (await this.conn.db
       .collection(CATALOG_COLLECTIONS.nursing_services)
       .find(filter, { projection: { _id: 0 } })
+      .sort(catalogueSortSpec(sort))
       .limit(1000)
       .toArray());
 
     const latNum = parseFloat(lat || '');
     const lngNum = parseFloat(lng || '');
-    let list: any[] = services;
+    // a text search shows the best match first (the engine's relevance); `nearest` below still reorders by distance
+    let list: any[] = matched ? byRelevance(services, matched) : services;
     if (Number.isFinite(latNum) && Number.isFinite(lngNum)) {
       const nurses = await this.conn.db.collection('provider_profiles').find({
         type: { $in: ['home_care', 'nursing', 'nurse'] }, status: 'active', public_eligibility: true,
@@ -128,6 +146,7 @@ export class PatientHomeCareController {
       provider_id: body.provider_id,
       contact: body.contact,
       sessions_count: body.sessions_count,
+      booking_mode: body.booking_mode, recurrence: body.recurrence, hours: body.hours, shift: body.shift, period: body.period,
       ...(body.address ? { address: body.address } : body.address_id ? { address: { address_id: body.address_id } } : {}),
     });
     const { _id, ...out } = booking as any;

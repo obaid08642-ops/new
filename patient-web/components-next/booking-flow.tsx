@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -18,6 +18,7 @@ import { PolicyCard } from "@/components-next/consult/policy-lines";
 import { TelehealthConsentCard, needsTelehealthConsent } from "@/components-next/consult/telehealth-consent-card";
 import type { TelehealthConsentText } from "@/lib/legal/telehealth-consent";
 import { Hero, SectionCard } from "@/components-next/consult/consult-parts";
+import { carriedDayIndex, preselectedSlot } from "@/lib/consult/booking-params";
 import { formatPrice } from "@/lib/format-price";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import styles from "@/components-next/consult/consult.module.css";
@@ -53,7 +54,7 @@ function newIdempotencyKey(): string {
 /** A saved address with a map location, for a home visit (journeys#29). */
 export type HomeAddress = { id: string; label: string; line: string; lat: number; lng: number };
 
-export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddresses = [], consent = null, initialType, bookingFor = null, insurance = { ready: true } }: { doctorId: string; locale: string; doctor: DoctorRow | null; top?: ReactNode; policy?: { title: string; lines: string[] }; homeAddresses?: HomeAddress[]; consent?: TelehealthConsentText | null; /** The visit type the doctor page was on, when the doctor offers it. */ initialType?: string; /** The family member the visit is for (from the member page). */ bookingFor?: { id: string; name: string } | null; /** Whether the saved policy can back an insurance request. */ insurance?: { ready: boolean; memberId?: string; providerId?: string } }) {
+export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddresses = [], consent = null, initialType, initialSlotStart, bookingFor = null, insurance = { ready: true } }: { doctorId: string; locale: string; doctor: DoctorRow | null; top?: ReactNode; policy?: { title: string; lines: string[] }; homeAddresses?: HomeAddress[]; consent?: TelehealthConsentText | null; /** The visit type the doctor page was on, when the doctor offers it. */ initialType?: string; /** The slot the doctor page carried (validated, future); preselected when still available. */ initialSlotStart?: string; /** The family member the visit is for (from the member page). */ bookingFor?: { id: string; name: string } | null; /** Whether the saved policy can back an insurance request. */ insurance?: { ready: boolean; memberId?: string; providerId?: string } }) {
   const t = useTranslations("BookConsultation");
   const names = useTranslations("SpecialtyNames");
   const legal = useTranslations("LegalLinks");
@@ -67,7 +68,9 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
     return modes.length ? modes : [...VISIT_TYPES];
   }, [doctor]);
   const [visitType, setVisitType] = useState<VisitType>(offered.find((type) => type === initialType) ?? offered[0]);
-  const [dayIndex, setDayIndex] = useState(0);
+  const [dayIndex, setDayIndex] = useState(() => Math.max(0, initialSlotStart ? carriedDayIndex(days.map((d) => d.iso), initialSlotStart) : 0));
+  // the carried slot is applied once, to the first load of its day; any later choice of day or type drops it
+  const carriedRef = useRef<string | undefined>(initialSlotStart);
   const [slots, setSlots] = useState<Array<{ start: string; end: string; label: string; available: boolean }>>([]);
   const [slotsReason, setSlotsReason] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -96,6 +99,7 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
     // Server policy (mirrors mobile): cash is clinic-only. Never offer a
     // combination the backend rejects with payment_method_not_allowed.
     if (v !== "clinic" && paymentMethod === "cash") setPaymentMethod("card");
+    carriedRef.current = undefined;
     setSelectedSlot(null);
   }
 
@@ -109,7 +113,9 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
     fetch(`/api/consultations/doctors/${encodeURIComponent(doctorId)}/slots?date=${date}&service_type=${visitType}`, { signal: controller.signal })
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error("slots_unavailable"))))
       .then((data) => {
-        setSlots(Array.isArray(data.slots) ? data.slots.filter((s: { available?: boolean }) => s.available !== false) : []);
+        const list = Array.isArray(data.slots) ? data.slots.filter((s: { available?: boolean }) => s.available !== false) : [];
+        setSlots(list);
+        setSelectedSlot(preselectedSlot(list, carriedRef.current));
         setSlotsReason(typeof data.reason === "string" ? data.reason : null);
       })
       .catch((err) => { if (!controller.signal.aborted) { setSlots([]); setSlotsReason("load_failed"); } })
@@ -231,7 +237,7 @@ export function BookingFlow({ doctorId, locale, doctor, top, policy, homeAddress
       <SectionCard id="book-day" title={t("selectDay")}>
         <div className={styles.days} role="group" aria-label={t("selectDay")}>
           {days.map((day, index) => (
-            <button key={day.iso} type="button" className={`${styles.choice} ${styles.day}`} aria-pressed={index === dayIndex} onClick={() => setDayIndex(index)}>
+            <button key={day.iso} type="button" className={`${styles.choice} ${styles.day}`} aria-pressed={index === dayIndex} onClick={() => { carriedRef.current = undefined; setDayIndex(index); }}>
               <span className={styles.dayMeta}>{index === 0 ? t("today") : day.label}</span>
               <span className={styles.dayNum}>{day.dateNum}</span>
               <span className={styles.dayMeta}>{day.month}</span>

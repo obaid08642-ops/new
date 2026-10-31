@@ -62,8 +62,8 @@ describe("the Home top bar has no map button (owner, 2026-10-26)", () => {
 
 describe("sign-out is reachable from the shells", () => {
   const label = createTranslator("en", "Shared")("signOut");
-  it("is in the signed-in Home bar and not in the signed-out one", async () => {
-    expect(await home(true)).toContain(`aria-label="${label}"`);
+  it("is not a separate button in the Home bar (it is in My account, owner review 2026-10-27)", async () => {
+    expect(await home(true)).not.toContain(`aria-label="${label}"`);
     expect(await home(false)).not.toContain(`aria-label="${label}"`);
   });
 

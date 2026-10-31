@@ -4,7 +4,7 @@
  */
 import React, { useRef, useEffect, useState, ReactNode } from 'react';
 import {
- View, Text, TextInput, TouchableOpacity, ScrollView,
+ View, Text, TextInput, type TextInputInstance, TouchableOpacity, ScrollView,
  StyleSheet, Animated, Modal, ActivityIndicator, Image,
  Switch, Platform, KeyboardAvoidingView, useWindowDimensions,
  TouchableWithoutFeedback, Vibration, Pressable
@@ -577,7 +577,7 @@ export function NOTP({ target, otp, setOtp, onVerify, loading, onResend }:
  { target:string; otp:string[]; setOtp:(v:string[])=>void; onVerify:()=>void; loading?:boolean; onResend?:()=>void }) {
  const { theme } = useTheme();
  const { isRTL, t } = useLang();
- const refs = useRef<(TextInput|null)[]>([]);
+ const refs = useRef<(TextInputInstance|null)[]>([]);
  const [cd, setCd] = useState(60);
  useEffect(() => {
  if (cd<=0) return;

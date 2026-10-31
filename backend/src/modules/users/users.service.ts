@@ -1,3 +1,4 @@
+import { assertScanned } from '../storage/pending-scan';
 import { insuranceCompanyFilter } from '../../common/insurance-policy';
 import { Injectable, Optional, NotFoundException, ForbiddenException, UnauthorizedException, BadRequestException, Inject } from '@nestjs/common';
 import { describeClient, maskIp } from '../../common/request-meta';
@@ -170,6 +171,7 @@ export class UsersService {
       const mediaId = String(body.avatar_media_id).trim();
       const media = await this.conn.db.collection('storage_objects').findOne({ id: mediaId, owner_account_id: userId });
       if (!media?.public_url || !String(media.public_url).startsWith('https://')) throw new BadRequestException('avatar_media_not_owned');
+      assertScanned(media);
       userPatch.avatar = String(media.public_url);
     }
     if (body.gender !== undefined) profilePatch.gender = body.gender;
@@ -215,6 +217,22 @@ export class UsersService {
 
   async setPatientInsurance(user_id: string, insurance: Record<string, unknown>) {
     return this.patientRepository.updateOne({ user_id }, { $set: { insurance } }, { upsert: true, new: true, projection: { _id: 0, __v: 0 } });
+  }
+
+  /**
+   * Removes the saved insurance policy (QA I-03: a card could only be overwritten, never removed). Only the `insurance` field is unset; a card
+   * picture held as `media:<id>` is released with it (best effort), the same way a replaced avatar is. Returns whether a policy was there.
+   */
+  async clearPatientInsurance(user_id: string): Promise<boolean> {
+    const profile: any = await this.patientRepository.findOne({ user_id }, { insurance: 1 });
+    const had = !!(profile?.insurance && Object.keys(profile.insurance).length);
+    if (!had) return false;
+    await this.patientRepository.updateOne({ user_id }, { $unset: { insurance: '' } });
+    const ids = [mediaRefId(profile.insurance.card_image_url), mediaRefId(profile.insurance.pdf_url)].filter((x): x is string => !!x);
+    if (ids.length) {
+      try { this.events?.emit(MEDIA_RELEASE, { ids, owner_id: user_id }); } catch { /* cleanup is best effort */ }
+    }
+    return true;
   }
 
   async updatePatientProfile(user_id: string, data: Partial<PatientProfile> & { chronic_conditions?: string[] }) {

@@ -4,7 +4,7 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Button, Card, FIcon, SERVICE_TONES, type FillIconName, type ServiceTone } from '../../../packages/ui-native/src';
 import { ConsultScreen, Gate, Section, type GateStatus } from '../../src/components/consult/ConsultKit';
-import { AmountLine, Block, LAB_TONE, Tag, Timeline, goBackDiag } from '../../src/components/diagnostics/DiagKit';
+import { AmountLine, Block, LAB_TONE, NameArt, Tag, Timeline, goBackDiag } from '../../src/components/diagnostics/DiagKit';
 import { Notice } from '../../src/components/pharmacy/OfferKit';
 import { providerName } from '../../src/utils/ordering';
 import { useOrderDates } from '../../src/components/ordering/OrderingKit';
@@ -353,7 +353,7 @@ function Panel({ booking, approval, stage, now, nameOf, when, shareLine, onChang
               {approval.items.map((i, n) => (
                 <View key={i.catalog_id} style={{ gap: 6, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: c.border.hairline }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                    <FIcon icon="test-tube" tone={LAB_TONE} size={36} theme={theme} />
+                    <NameArt kind="lab" name={nameOf(i.catalog_id, n)} size={36} />
                     <Text style={{ flex: 1, minWidth: 0, ...scale(t, 'small', 'bold'), color: c.text.primary, ...flow }}>{nameOf(i.catalog_id, n)}</Text>
                     <Tag label={i.decision === 'approved' ? k('ordering.part.dApproved') : i.decision === 'rejected' ? k('ordering.part.dRejected') : k('ordering.part.dPending')} tone={itemTone(i.decision)} />
                   </View>
@@ -479,7 +479,7 @@ function Panel({ booking, approval, stage, now, nameOf, when, shareLine, onChang
               </View>
             ))}
             <Button theme={theme} size="md" label={k('ordering.res.discuss')} onPress={() => router.push({ pathname: '/diagnostics/discuss', params: { booking: booking.id } } as unknown as Href)} testID="booking-discuss" />
-            <Button theme={theme} size="md" variant="outline" label={k('ordering.track.allResults')} onPress={() => router.push('/diagnostics/my-results' as Href)} />
+            <Button theme={theme} size="md" variant="outline" label={k('ordering.track.allResults')} onPress={() => router.push('/orders?tab=results' as Href)} />
           </Block>
         </Section>
       ) : null}

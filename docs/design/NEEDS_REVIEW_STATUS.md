@@ -9,24 +9,24 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | Area | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
 | Patient app and web | 434 | 0 | 333 | 97 | 4 | 0 |
-| Other | 299 | 256 | 40 | 3 | 0 | 0 |
+| Other | 414 | 345 | 50 | 3 | 16 | 0 |
 | Admin | 99 | 0 | 65 | 34 | 0 | 0 |
 | Admin journeys | 20 | 0 | 18 | 2 | 0 | 0 |
 | Final pass | 8 | 0 | 2 | 6 | 0 | 0 |
 | Patient journeys | 87 | 0 | 85 | 2 | 0 | 0 |
 | Provider app | 31 | 0 | 27 | 4 | 0 | 0 |
 | Provider journeys | 34 | 0 | 32 | 2 | 0 | 0 |
-| **Total** | **1012** | **256** | **602** | **150** | **4** | **0** |
+| **Total** | **1127** | **345** | **612** | **150** | **20** | **0** |
 
 ## By tag
 
 | Tag | Lines | open | fixed | not-a-problem | owner-decision | closed-unverified |
 |---|---:|---:|---:|---:|---:|---:|
-| client | 228 | 58 | 129 | 41 | 0 | 0 |
-| owner | 141 | 41 | 57 | 42 | 1 | 0 |
-| backend | 404 | 156 | 218 | 30 | 0 | 0 |
+| client | 269 | 93 | 135 | 41 | 0 | 0 |
+| owner | 166 | 50 | 57 | 42 | 17 | 0 |
+| backend | 453 | 201 | 222 | 30 | 0 | 0 |
 | untagged | 239 | 1 | 198 | 37 | 3 | 0 |
-| **Total** | **1012** | **256** | **602** | **150** | **4** | **0** |
+| **Total** | **1127** | **345** | **612** | **150** | **20** | **0** |
 
 ## By file
 
@@ -73,6 +73,7 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `admin-providers.json` | 8 | 0 | 5 | 3 | 0 | 0 |
 | `admin-public-directories.json` | 14 | 0 | 4 | 10 | 0 | 0 |
 | `admin-system.json` | 13 | 0 | 10 | 3 | 0 | 0 |
+| `app-menu.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `batch-0-app.json` | 13 | 0 | 13 | 0 | 0 | 0 |
 | `batch-0-runtime.json` | 8 | 0 | 6 | 2 | 0 | 0 |
 | `batch-0-web.json` | 19 | 0 | 17 | 1 | 1 | 0 |
@@ -84,6 +85,9 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `batch-1c-web.json` | 13 | 0 | 10 | 3 | 0 | 0 |
 | `batch-1d-app.json` | 20 | 0 | 13 | 7 | 0 | 0 |
 | `batch-1d-web.json` | 10 | 0 | 6 | 3 | 1 | 0 |
+| `catalogue-lists.json` | 5 | 5 | 0 | 0 | 0 | 0 |
+| `consult-my-appointments.json` | 3 | 2 | 0 | 0 | 1 | 0 |
+| `diag-images.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `differentiators-app.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `differentiators-web.json` | 9 | 9 | 0 | 0 | 0 | 0 |
 | `doctor-card-app.json` | 9 | 9 | 0 | 0 | 0 | 0 |
@@ -91,7 +95,12 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `doctor-ops-wire.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `final-pass-2.json` | 4 | 0 | 0 | 4 | 0 | 0 |
 | `final-pass.json` | 4 | 0 | 2 | 2 | 0 | 0 |
+| `hologram-map.json` | 3 | 3 | 0 | 0 | 0 | 0 |
 | `journeys.json` | 87 | 0 | 85 | 2 | 0 | 0 |
+| `labs-hub-sheet-app.json` | 6 | 5 | 0 | 0 | 1 | 0 |
+| `labs-hub-sheet-web.json` | 4 | 4 | 0 | 0 | 0 | 0 |
+| `layout-consult-app.json` | 4 | 4 | 0 | 0 | 0 | 0 |
+| `layout-consult-web.json` | 1 | 1 | 0 | 0 | 0 | 0 |
 | `m6-blocked.json` | 16 | 4 | 12 | 0 | 0 | 0 |
 | `m6-ord01-11-app.json` | 10 | 10 | 0 | 0 | 0 | 0 |
 | `m6-ord02-05-app.json` | 14 | 14 | 0 | 0 | 0 | 0 |
@@ -105,12 +114,23 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `m6-ord30.json` | 14 | 14 | 0 | 0 | 0 | 0 |
 | `m6-visual-app.json` | 16 | 16 | 0 | 0 | 0 | 0 |
 | `m6-visual-web.json` | 10 | 8 | 2 | 0 | 0 | 0 |
+| `mint-only-greens-app.json` | 9 | 0 | 0 | 0 | 9 | 0 |
+| `mint-only-greens-web.json` | 2 | 0 | 0 | 0 | 2 | 0 |
+| `orders-results-app.json` | 5 | 5 | 0 | 0 | 0 | 0 |
+| `orders-results-web.json` | 5 | 4 | 0 | 0 | 1 | 0 |
+| `owner-review-g1.json` | 1 | 1 | 0 | 0 | 0 | 0 |
+| `owner-review-g3.json` | 2 | 2 | 0 | 0 | 0 | 0 |
+| `owner-review-g4.json` | 15 | 11 | 4 | 0 | 0 | 0 |
+| `owner-review-g5.json` | 1 | 1 | 0 | 0 | 0 | 0 |
+| `owner-review-g6.json` | 8 | 2 | 6 | 0 | 0 | 0 |
 | `parity-account.json` | 16 | 16 | 0 | 0 | 0 | 0 |
 | `parity-care.json` | 14 | 14 | 0 | 0 | 0 | 0 |
 | `parity-doctors.json` | 15 | 15 | 0 | 0 | 0 | 0 |
 | `parity-health.json` | 13 | 13 | 0 | 0 | 0 | 0 |
 | `parity-insurance.json` | 4 | 4 | 0 | 0 | 0 | 0 |
 | `parity-owner-decisions-app.json` | 2 | 2 | 0 | 0 | 0 | 0 |
+| `parity-pass-app.json` | 3 | 3 | 0 | 0 | 0 | 0 |
+| `parity-pass-web.json` | 7 | 7 | 0 | 0 | 0 | 0 |
 | `parity-pharmacy.json` | 9 | 9 | 0 | 0 | 0 | 0 |
 | `provider-admin-ish.json` | 3 | 0 | 3 | 0 | 0 | 0 |
 | `provider-doctor.json` | 6 | 0 | 6 | 0 | 0 | 0 |
@@ -121,13 +141,23 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `provider-pharmacy.json` | 2 | 0 | 1 | 1 | 0 | 0 |
 | `provider-radiology.json` | 1 | 0 | 1 | 0 | 0 | 0 |
 | `provider-shared.json` | 6 | 0 | 6 | 0 | 0 | 0 |
+| `providers-map.json` | 3 | 3 | 0 | 0 | 0 | 0 |
+| `r7-map.json` | 3 | 3 | 0 | 0 | 0 | 0 |
 | `rx-rules-app.json` | 6 | 0 | 6 | 0 | 0 | 0 |
 | `rx-rules-web.json` | 7 | 0 | 7 | 0 | 0 | 0 |
 | `seo-feature-pages.json` | 1 | 0 | 0 | 1 | 0 | 0 |
+| `specialties-illustrated-row.json` | 2 | 2 | 0 | 0 | 0 | 0 |
 | `tooling.json` | 13 | 0 | 12 | 1 | 0 | 0 |
-| **Total** | **1012** | **256** | **602** | **150** | **4** | **0** |
+| `uploads-scan-patient-app.json` | 4 | 4 | 0 | 0 | 0 | 0 |
+| `uploads-scan-patient-web.json` | 4 | 4 | 0 | 0 | 0 | 0 |
+| `uploads-scan-provider-app.json` | 4 | 4 | 0 | 0 | 0 | 0 |
+| `web-header-requests.json` | 1 | 0 | 0 | 0 | 1 | 0 |
+| `web-insurance-add-policy.json` | 2 | 1 | 0 | 0 | 1 | 0 |
+| `web-public-ink.json` | 4 | 4 | 0 | 0 | 0 | 0 |
+| `web-voice-notes.json` | 2 | 2 | 0 | 0 | 0 | 0 |
+| **Total** | **1127** | **345** | **612** | **150** | **20** | **0** |
 
-## Owner decisions (4)
+## Owner decisions (20)
 
 | # | Where | Screen / element | Question |
 |---:|---|---|---|
@@ -135,12 +165,37 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | 2 | `batch-0-web.json#7` `patient-web/next.config.ts:35` | /onboarding Whole screen (entry and outcome) | No link in the web points to /onboarding (grep over app, components-next, lib); /welcome is reached only from the login back button and the onboarding screens; finishing onboarding stores nothing (no flag, no API call). |
 | 3 | `batch-1a-app.json#18` `patient-app/src/i18n/locales/en.json:0` | /pharmacy Six-language strings | 177 pharmacy.* keys were added to patient-app/src/i18n/locales/{ar,en,ur,hi,bn,tl}.json. The English, Urdu, Hindi, Bengali and Filipino text was written by the design session (and, for reused phrases, taken from the phr… |
 | 4 | `batch-1d-web.json#1` `backend/src/modules/payments/payments.module.ts:154` | /pharmacy/payment Payment provider not exercised | No gateway key on the local backend (intent answers 503) and no Mongo replica set (selection / insurance acceptance fail). Hosted checkout, return and webhook were checked only against a TEST stand-in outside the repo (… |
+| 5 | `consult-my-appointments.json#2` `patient-web/components-next/core/core-shell.tsx:87` | /consultations Web: cart on other consultation pages | [owner] The My appointments button replaces the cart on the two consultation hubs (doctors, specialties); booking, call and detail pages still show the shell's cart chooser. |
+| 6 | `labs-hub-sheet-app.json#4` `patient-app/app/(tabs)/diagnostics.tsx:285` | /diagnostics Order icon opens the insurance / prescription upload (insurance-ap… | [owner] The earlier row opened that screen; there was no 'medical order' row in the app, confirm the target. |
+| 7 | `mint-only-greens-app.json#0` `packages/design-tokens/tokens.json:115` | / control.switchOn #1F9D6E (toggle ON track) | [owner] [owner] green token, used by every Toggle; semantic on/off, not a service tone; value not changed (no value invented): keep green or pick a non-green on-state? |
+| 8 | `mint-only-greens-app.json#1` `packages/design-tokens/tokens.json:110` | / presence.online #1F9D6E (doctor online dot) | [owner] [owner] green token for the online presence dot (doctor card); value not changed. |
+| 9 | `mint-only-greens-app.json#2` `packages/design-tokens/tokens.json:88` | / service.lime / nutrition (nutrition tile, protein tile, lime chips) | [owner] [owner] lime #4A7A00 / #EDF8D6 is a green service tone; nutrition tile keeps it until the owner picks another tone for nutrition. |
+| 10 | `mint-only-greens-app.json#3` `packages/design-tokens/tokens.json:68` | / accent.lime #D7FF00 and track.filled #D7FF00 (acid lime) | [owner] [owner] acid lime accent (Button variant lime on dark, progress fill); the light-canvas upload bar that used it now uses action.primary.bg; the token itself is unchanged. |
+| 11 | `mint-only-greens-app.json#4` `packages/ui/src/Illustrated.tsx:36` | / iconArt.mint #3FBF9A / mintSoft #6FE0B8 / lime #8EDC5E (illustrated icon fill… | [owner] [owner] flat artwork fills in the illustrated icon set (e.g. test-tube sample is lab-legit, lime sparkles in 6 scenes); mirrored as hex in packages/ui/src/Illustrated.tsx and ui-generated; value change belongs i… |
+| 12 | `mint-only-greens-app.json#5` `packages/ui-native/src/components/Cards.tsx:50` | /consultations/appointments Consult mode 'home' = house/mint tile (board pairin… | [owner] [owner] mint here is the consult home-visit identity, not labs; no non-green tone is free that the boards allow (blue=clinic, violet=online); left on mint until the owner picks one. Same pairing in 4 more places. |
+| 13 | `mint-only-greens-app.json#6` `patient-app/src/components/consult/ConsultKit.tsx:30` | /consultations/appointments Consult mode 'home' pairing (patient-app ConsultKit) | [owner] [owner] same decision as above. |
+| 14 | `mint-only-greens-app.json#7` `patient-app/app/consultations/home-visit-tracking.tsx:114` | /consultations/home-visit-tracking House icon + wait-time tile in mint | [owner] [owner] same decision as above. |
+| 15 | `mint-only-greens-app.json#8` `patient-app/src/components/care/MentalHealthViews.tsx:44` | /mental-health Mood 'great' = mint, 'good' = lime | [owner] [owner] a 5-step mood scale, treated as semantic good/ok scale and kept; the owner may want a non-green scale. |
+| 16 | `mint-only-greens-web.json#0` `patient-web/lib/consult/appointment-view.ts:28` | /appointments Consult mode 'home' pairing (web) | [owner] [owner] same decision as above. |
+| 17 | `mint-only-greens-web.json#1` `patient-web/app/globals.css:285` | / --lime / --color-accent / --brand-lime* aliases | [owner] [owner] unused aliases of accent.lime in the web global stylesheet (no var() reader found); safe to delete in a cleanup. |
+| 18 | `orders-results-web.json#4` `patient-web/components-next/orders/order-list.tsx:84` | /orders Book a consultation with the result as context | [owner] [owner] /consultations/doctors takes no result id; opens the doctor list without context. |
+| 19 | `web-header-requests.json#0` `patient-web/lib/security/csp.ts:74` | / Cloudflare Web Analytics beacon blocked by the CSP | [owner] [owner] The beacon (static.cloudflareinsights.com) is injected by the Cloudflare edge setting Web Analytics, not by the app, which has its own web-vitals beacon. Decide: switch the edge setting off (no code chan… |
+| 20 | `web-insurance-add-policy.json#1` `patient-web/app/[locale]/insurance/add-policy/page.tsx:31` | /insurance/add-policy Insurer list contains test-named insurers (Insure ins2a75… | [owner] Seed/test data in the local catalogue; nothing changed in the client. |
 
-## Open and unverified (256)
+## Open and unverified (345)
 
 | Where | Tag | State | Screen / element | Found |
 |---|---|---|---|---|
 | `ac-1-agent-oauth.json#1` | client | open | Settings > Connected AI apps List and disconnect connected AI assistants | [client] No screen yet. Backend is ready: GET /api/v1/patient/agent-connections (client_id, client_name, logo_uri, scopes, connected_at) and DELETE /api/v1/patient/agent-connectio… |
+| `app-menu.json#0` | owner | open | /(tabs)/diagnostics Menu item 'My orders and results' | [owner] The web phone menu lists 'My orders and results' on the labs pages; the app already has its own header button for it (/diagnostics/orders) beside the new menu, so the menu… |
+| `catalogue-lists.json#0` | backend | open | /nursing/catalog, /home-care nursing list data source | [backend] GET /nursing/catalog (cached, public) does not carry providers_count/from_price/where/insurance; only GET /home-care/services does, so the web lists now read that and fa… |
+| `catalogue-lists.json#1` | client | open | /diagnostics (hub payment filter) insurance filter is applied on the loaded rows | [client] the hub still hides tests by the catalogue flag insurance_availability; the backend now takes insurance=1 and filters by what providers offer. Switching needs a decision … |
+| `catalogue-lists.json#2` | client | open | diagnostics tab (labs) insurance filter on loaded rows | [client] same as web: pays() reads insurance_availability, not the offers' insurance_accepted; the no-provider tests are exempt |
+| `catalogue-lists.json#3` | client | open | /diagnostics/radiology/[id], /labs/[id], /home-care/services/[id] notify-me con… | [client] the button, its confirmation and the signed-out link are unit-tested only as server markup and with a stub; the click, the 401 and the idempotent repeat were not run in a… |
+| `catalogue-lists.json#4` | client | open | diagnostics/test-detail signed-out sign-in state of Notify me | [client] rendered with a session (fixture) in ur light/dark; the signed-out sign-in button is covered by a jest test only, not seen |
+| `consult-my-appointments.json#0` | backend | open | /consultations/appointment-detail Referral price | [backend] The outcomes endpoint resolves referral codes to catalogue ids but sends no price, so Book still reads GET /labs\|radiology/services/:id for it (a price on the resolved … |
+| `consult-my-appointments.json#1` | client | open | /consultations/appointment-detail Web: Book requested tests | [client] Web does not add the referral codes to the lab basket (needs a client basket write); it keeps the server's follow_up_actions lab/radiology booking buttons. |
+| `diag-images.json#0` | backend | open | /diagnostics/radiology, /diagnostics/labs, /labs lab and radiology catalogue pi… | [backend][owner] the seed points at https://cdn.nabd.plus/{labs/hiv,labs/pap,labs/semen,labs/hbe,labs/prog,labs/qft,radiology/hsg,radiology/barium,radiology/panorex,radiology/petc… |
 | `differentiators-app.json#0` | backend | open | /consultations/doctor/[id], doctors hub Late-appointment guarantee line (minute… | [backend] No late-compensation setting exists in GET /system-config/public on main or on any origin/s/* branch (the endpoint returns only cancellation_policy and returns_policy). … |
 | `differentiators-app.json#1` | backend | open | /loyalty (history), /notifications Late-compensation loyalty entry and notifica… | [backend] No late credit (points award, loyalty transaction reason or notification type) exists on main or on any origin/s/* branch. The client expects the loyalty reason and the … |
 | `differentiators-app.json#2` | backend | open | /consultations/appointment-detail Visit summary buttons (order prescription, bo… | [backend] `follow_up_actions` (shape: pharmacy_order / lab_booking / radiology_booking) exists only on origin/s/follow-up-actions, not on main. The client parses that shape, drops… |
@@ -177,6 +232,23 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `doctor-card-web.json#8` | backend | open | /consultations/doctors/:id Written reviews, detail payload | [backend] reviews_data and is_online exist only on branch s/p-doctors (PR #1861); until it merges the section shows its empty state and the online dot is hidden |
 | `doctor-card-web.json#9` | backend | open | /consultations/doctors Price band filter | [backend] price_min / price_max are supported by PR #1861 but the web has no price band control on the board, so none was added |
 | `doctor-ops-wire.json#0` | backend | open | DoctorBlacklistScreen patient name on each blocked row | [backend] GET /provider/ops/doctor/blacklist (provider-ops.module.ts myBlacklist) returns only patient_id, reason, createdAt: no patient_name, so the row shows the raw patient id |
+| `hologram-map.json#0` | client | open | /map hospital sheet link | [client] hospital sheet still opens /consultations/clinic/[id]; /facility/[id] does not exist yet (only app/facility/[slug].tsx, a link resolver); relink when the facility session… |
+| `hologram-map.json#1` | owner | open | /map radiology booking | [owner] radiology pin books through /diagnostics/book-sample (the lab flow) until radiology has its own entry |
+| `hologram-map.json#2` | client | open | /map hologram layers on device | [client] unselected pins are a native symbol layer using per-kind PNGs generated at runtime from the token tones (map-hologram-image.ts) and registered with Images as data: URIs; … |
+| `labs-hub-sheet-app.json#0` | backend | open | /diagnostics Sheet payment option 'cash' (دفع كاش) | [backend] No field apart from cash_availability, which already is 'without insurance'; the option is not drawn. |
+| `labs-hub-sheet-app.json#1` | backend | open | /diagnostics Sort 'nearest' (الأقرب) | [backend] Looked for distance/nearest on the /labs/services and /radiology/services rows: none; not drawn. |
+| `labs-hub-sheet-app.json#2` | backend | open | /diagnostics Toggle 'open now' (مفتوح الآن) | [backend] Looked for open_now / opening hours on the catalogue rows: none; not drawn. |
+| `labs-hub-sheet-app.json#3` | backend | open | /diagnostics Same-day / no-fasting / at-the-lab filters work on the loaded page… | [backend] The server has no fasting_required, turnaround or facility_visit query flag; the count shows the loaded rows. |
+| `labs-hub-sheet-app.json#5` | backend | open | /diagnostics 'No fasting' is drawn when fasting_required is false or missing | [backend] The mapper reads a missing field as false, so a test without the field says 'No fasting'. |
+| `labs-hub-sheet-web.json#0` | backend | open | /diagnostics Payment option 'cash' | [backend] The sheet has no separate cash option: the backend has one cash flag (cash_availability), so cash and 'without insurance' would be the same filter. |
+| `labs-hub-sheet-web.json#1` | backend | open | /diagnostics Sort 'nearest' | [backend] Omitted: GET /labs/services and /radiology/services send no distance or location per service (looked for distance, distance_km, lat/lng). |
+| `labs-hub-sheet-web.json#2` | backend | open | /diagnostics Toggle 'open now' | [backend] Omitted: services carry no opening hours (looked for open_now, opening_hours, working_hours on the service payload). |
+| `labs-hub-sheet-web.json#3` | backend | open | /diagnostics No fasting / same-day filters are row filters | [backend] The catalogue endpoints have no fasting or turnaround query flags, so the two toggles filter the loaded pages (a page can hold fewer rows; the button shows N+ when the s… |
+| `layout-consult-app.json#0` | backend | open | /(tabs)/consultations Next available slot on the doctor card | [backend] The hub's default list (GET /providers?type=doctor, consultNearby.ts DOCTORS_PATH) does not carry next_available_at; only GET /care/doctors does. The card draws the slot… |
+| `layout-consult-app.json#1` | backend | open | /(tabs)/consultations Sort option 'Shortest wait' | [backend] Owner decision 15 lists Shortest wait in the sort section; GET /care/doctors has no waiting-time sort or value (patient-app/src/utils/doctorSearch.ts header), so the opt… |
+| `layout-consult-app.json#2` | client | open | /consultations/doctor-search Sort and gender chip rows on the 'View all doctors… | [client] Not converted in this PR (scope: the consultations hub). The full doctor search still shows its own sort and gender chip rows instead of the one Filters button. |
+| `layout-consult-app.json#3` | owner | open | /(tabs)/consultations Price band filter removed | [owner] The old advanced filter had a price band (under 100 / 100-200 / over 200); decision 15 lists only gender, title, payment and sort, so it is gone. Lowest price stays as a s… |
+| `layout-consult-web.json#0` | client | open | /diagnostics/labs Payment filter option "Self-pay" | [client] The labs payment option still reads "Self-pay" (DiagWeb.paySelf); decision 14 names consultations only, so the labs wording was left for the owner to confirm. |
 | `m6-blocked.json#12` | backend | open | /medical-orders/[orderId] (Ord21) Item names | [backend] GET /medical-orders/:id gives catalog_id only, no test or scan name; items show their group (or sessions) instead of a name. |
 | `m6-blocked.json#13` | client | open | /medical-orders/[orderId] (Ord21, Order button) Order button prefill | [client] The Order button calls POST …/order, which returns the prefill (service_kind, items), then sends the patient to the group hub. The lab, radiology and nursing flows do not… |
 | `m6-blocked.json#14` | client | open | /medical-orders/[id] (Ord21, Order button) Order button prefill | [client] Same as the web: the prefill is not read by the app flows; the patient lands on the generic flow. |
@@ -323,6 +395,32 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `m6-visual-web.json#7` | backend | open | Ord21 order detail Doctor name and specialty, per-item status chips (ordered/bo… | [backend] GET /medical-orders/:id has no doctor object and no booking link per item beyond status. |
 | `m6-visual-web.json#8` | client | open | Ord11 results Results live inside the booking page; the board has a dedicated r… | [client] Values, flag, range bar and trend are now drawn from the endpoint; the rating form and instant-consultation sheet are not (no rating endpoint found). |
 | `m6-visual-web.json#9` | client | open | Ord02/Ord04 (1280) Sticky basket side card still not drawn | [client] Left from pass one (not cheap: needs a two-column hub layout). |
+| `orders-results-app.json#0` | backend | open | /orders Lab results list and new-results badge | [backend] GET /lab-results/mine sits under the class-level @Roles(LAB, HOSPITAL, ADMIN) and the handler adds no PATIENT, so a patient token is likely refused (403) and the lab res… |
+| `orders-results-app.json#1` | client | open | /orders Share with your doctor | [client] There is no share endpoint for a lab result or radiology report; the button opens the medical-reports share screen without pre-selecting this result. |
+| `orders-results-app.json#2` | backend | open | /orders PDF of a lab result with values and of a radiology report | [backend] Not drawn: the list carries no report file id for them and no protected PDF endpoint exists (only /labs/bookings/:id/reports/:reportId for uploaded lab files). (backend:… |
+| `orders-results-app.json#3` | backend | open | /orders New-results badge for radiology reports | [backend] GET /radiology/reports/mine has no viewed/seen field, so a new radiology report is not counted in the badge. (backend: backend/src/modules/radiology/radiology.controller… |
+| `orders-results-app.json#4` | client | open | /orders Book a consultation with the result as context | [client] Only a lab result with its booking opens the instant-consultation flow with the result attached; a radiology report opens the consultations tab (no radiology result conte… |
+| `orders-results-web.json#0` | backend | open | /orders Share result with your doctor | [backend] [backend] No endpoint shares a lab or radiology result with a doctor (only POST /medical-reports/:id/share for medical reports); button left out. |
+| `orders-results-web.json#1` | backend | open | /orders New-result badge (row and top bar) | [backend] [backend] Bookings carry no viewed/seen flag, so 'new' and the count cannot be told truthfully; needs a field (e.g. results_unseen_count on /labs/bookings/mine) or a che… |
+| `orders-results-web.json#2` | backend | open | /orders Radiology PDF | [backend] [backend] The radiology booking payload has no report file reference (only labs have reports[].has_file), so no PDF button for radiology. |
+| `orders-results-web.json#3` | backend | open | /orders Result-ready notification | [backend] [backend] report.ready sends route /reports/:id (a medical report) and radiology writes a provider bell only; a patient notification with route /health/results/:id or /d… |
+| `owner-review-g1.json#0` | client | open | /nursing/service-details Cart button on the nursing screens | [client] Owner review 2026-10-27 G1 lists nursing among the screens with a cart. The app has no nursing cart (a home visit is booked straight away; utils/serviceCarts.ts has pharm… |
+| `owner-review-g3.json#0` | backend | open | /consultations/doctors/[doctorId] Waiting time piece of the summary line | [backend] The waiting time is drawn only when GET /care/doctors/:id sends avg_wait_minutes / average_wait / wait_time; if the field is absent the piece is left out (not confirmed … |
+| `owner-review-g3.json#1` | backend | open | /consultations/doctor/[id] Waiting time piece of the summary line | [backend] `wait_time` is not sent by GET /care/doctors/:id (see doctor-card-app.json), so the waiting-time piece of the summary line is omitted. |
+| `owner-review-g4.json#2` | client | open | /(tabs)/diagnostics My orders and results top-bar button | [client] No screen lists orders and results together: /diagnostics/orders lists bookings with status and amount and the report is opened from the booking, /diagnostics/my-results … |
+| `owner-review-g4.json#3` | client | open | /diagnostics My orders and results top-bar button | [client] The button opens /diagnostics/bookings (requests of labs and radiology, each with its report); /diagnostics/results (reports only) is no longer linked from the hub, labs … |
+| `owner-review-g4.json#5` | client | open | /diagnostics/package-detail Order now on the package page | [client] Added next to Add to cart (owner words: the test and scan detail pages; applied to the package page too for consistency). It now skips the cart like the cards: the packag… |
+| `owner-review-g4.json#7` | backend | open | /diagnostics Category of a test or scan (illustration and chips) | [backend] PARTLY RESOLVED by #2041: every scan now carries `category` (= its modality) and the lab `category` is on every test. The illustration uses that value first (artOfBacken… |
+| `owner-review-g4.json#8` | client | open | /(tabs)/diagnostics Scan-type chips (GET /radiology/modalities) replaced by cat… | [client] The six scan chips (X-ray, CT, MRI, ultrasound, mammography, ECG/echo) now filter on the SERVER: the chip sends category=<key> (a scan's category is its modality). A moda… |
+| `owner-review-g4.json#9` | client | open | /(tabs)/diagnostics Infinite list on the app | [client] FlashList is not installed in this checkout and the hub is a ScrollView of sections, so the end of the list is detected from the scroll position (isNearEnd) instead of on… |
+| `owner-review-g4.json#10` | backend | open | /labs/providers Price of each lab in the lab choice step | [backend] Every lab is listed with its own total for the chosen items (ProviderRow.total of POST /ordering/quote, home fee included for a home visit), best match first. Only the b… |
+| `owner-review-g4.json#11` | client | open | /diagnostics Most requested strip | [client] The strip is the first six rows of the catalogue in the server's own order (popularity, highest first), one small request (limit=6) separate from the list, shown only for… |
+| `owner-review-g4.json#12` | client | open | /diagnostics Place and payment hide rows after the server page | [client] The catalogue endpoints have no 'at the facility' or payment (insurance / self-pay) filter, and packages are rows of GET /labs/services too. The hub hides them on each lo… |
+| `owner-review-g4.json#13` | backend | open | /(tabs)/diagnostics Rating line only with the rating sort | [backend] rating / rating_count are returned on the services only when the list is sorted by rating (highest_rated=true); in the default order they are absent, so the rating line … |
+| `owner-review-g4.json#14` | backend | open | /diagnostics, /labs/[testSlug], diagnostics/test-detail lab and radiology item … | [backend] The item picture is `image_url` (lab_services / radiology_services). The seed builds it as https://cdn.nabd.plus/labs/<code>.png (labs.json:3485 hiv, :3523 pap, :3559 se… |
+| `owner-review-g5.json#0` | client | open | Nursing tab cart summary bar (count / view cart) absent on the nursing tab and … | [client] the nursing tab has no cart bar in the app (service-home passes footer undefined for nursing, line 114); only the web nursing catalog has the bar. Adding one is a feature… |
+| `owner-review-g6.json#6` | owner | open | /diagnostics/radiology Search is not a counted filter | [owner] The applied count counts scan type, body part, home visit and lowest price, not the search text; Reset also clears the search. |
+| `owner-review-g6.json#7` | client | open | /diagnostics, /nursing Filter badge on web search field | [client] The new filterCount badge is drawn by the native Search only; the web renderer of the shared Search contract ignores it (web screens show the count in the sheet summary/c… |
 | `parity-account.json#0` | owner | open | /welcome and /login Social sign-in on the web: Google, Apple, X, Snapchat (prov… | [owner] Owner decision 2026-10-24 (corrected): web sign-in and sign-up offer all providers. Each button renders only when configured: NEXT_PUBLIC_GOOGLE_CLIENT_ID; NEXT_PUBLIC_APP… |
 | `parity-account.json#1` | backend | open | /welcome and /login X and Snapchat tokens are refused by the backend | [backend] POST /auth/social-login throws social_provider_not_supported for provider x and snapchat (auth.service.ts socialLogin); session S is adding the verification. Until then … |
 | `parity-account.json#2` | backend | open | /otp resend countdown 300 s vs 60 s in the app | [backend] POST /auth/otp/request is throttled to 3 per 10 minutes, so the web waits 300 s; the app waits 60 s and would hit 429 after 3 sends. |
@@ -387,6 +485,16 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `parity-insurance.json#3` | owner | open | /maternity pregnancy Board quick actions "حاسبة الولادة" and "مواعيد المتابعة" | [owner] The board shows two shortcut tiles (due-date calculator, follow-up appointments). Neither screen exists in the app or the web, and the app has no such tiles; the web keeps… |
 | `parity-owner-decisions-app.json#0` | owner | open | /(auth)/provider-info Provider app store links and provider web link | [owner] The build env keys EXPO_PUBLIC_PROVIDER_WEB_URL, EXPO_PUBLIC_PROVIDER_APP_IOS_URL and EXPO_PUBLIC_PROVIDER_APP_ANDROID_URL are not set anywhere in the repo (only PROVIDER_… |
 | `parity-owner-decisions-app.json#1` | owner | open | /(auth)/welcome X and Snapchat sign-in buttons | [owner] Decision 3 not applied to the app: X and Snapchat are already hidden (shown only when EXPO_PUBLIC_SOCIAL_X_SNAPCHAT=1, which is unset); Google shows on every platform |
+| `parity-pass-app.json#0` | backend | open | /search?view=doctors sort by waiting time (web sortWait) | [backend] The web offers a wait sort; GET /care/doctors never sends wait_time (the app's doctorSearch.ts says so), so the app cannot sort by it. |
+| `parity-pass-app.json#1` | backend | open | diagnostics hub, radiology body-part search and highest-rated sort | [backend] GET /radiology/services takes body_part and highest_rated, but its list rows carry no rating and no body-part field the app can show; the web filters server-side with a … |
+| `parity-pass-app.json#2` | client | open | /pharmacy/barcode-scanner interaction check scans only one medicine | [client] The scanner checks the one scanned medicine against nothing else (drugs: [one]); the new /pharmacy/interactions screen checks a typed list. The scanner could add the scan… |
+| `parity-pass-web.json#0` | backend | open | /p/[slug] pregnancy and breastfeeding warnings, 'reviewed on' date | [backend] The app's product page draws pregnancy_info, breastfeeding_info and last_reviewed; the public per-locale product DTO (med-i18n.ts) sends none of them. |
+| `parity-pass-web.json#1` | backend | open | /c multi-select dosage forms and makers | [backend] The app's sheet picks several forms and several brands; GET /public/categories/:locale/items takes one form and one brand (a regex), so the web panel offers one of each. |
+| `parity-pass-web.json#2` | client | open | /diagnostics/bookings/[domain]/[bookingId] radiology technician name and report… | [client] Radiology booking reads now carry technician.name and report_files[] (PDF, DICOM, images by storage id) and the patient may open them with GET /storage/:id; neither the a… |
+| `parity-pass-web.json#3` | client | open | /home-care/services/[id]/book nearest-first sort with distance | [client] The backend sorts nearest and returns distance_km when it gets sort=nearest with lat and lng; neither the app nor the web sends the patient's point. |
+| `parity-pass-web.json#4` | backend | open | /health/records scanned-prescription pill with accuracy | [backend] The app shows 'Read by AI, accuracy n%' only with ocrAccuracy; GET /prescriptions/mine sends isOcr but not the accuracy, so the web shows only the Purchased pill. |
+| `parity-pass-web.json#5` | owner | open | /search sort, price range and sale filter | [owner] GET /search now takes sort, price_min, price_max and on_sale and returns old_price and discount_percent, but the app's search screen has none of them; it is a web-board fe… |
+| `parity-pass-web.json#6` | client | open | /nursing hub filters availability and nationality parameters of the app | [client] The app sends availability=now\|any and a lower-case nationality; the backend reads available=true and matches the nationality exactly as stored (seed: 'Saudi'), so the a… |
 | `parity-pharmacy.json#0` | owner | open | /cart/checkout change delivery location | [owner] Owner decision 2026-10-24: saved addresses first, then adding. The web shows the saved list (Change opens it) and add offers current location and the National Address code… |
 | `parity-pharmacy.json#1` | backend | open | /orders/[id]/tracking courier vehicle | [backend] The board's courier row shows the vehicle; the order read (GET /patient/pharmacy/orders/:id, delivery) sends courier_name, courier_phone and eta only, no vehicle field. |
 | `parity-pharmacy.json#2` | backend | open | /p/[slug] cold-chain chip | [backend] The app draws a chip when cold_chain is true; the public product answer (GET /public/product/:locale/:slug, toPublicMedicine) does not carry cold_chain. |
@@ -396,3 +504,30 @@ States: `open` (not fixed yet), `fixed #PR`, `not-a-problem` (with a one-line re
 | `parity-pharmacy.json#6` | backend | open | /c filter sheet (forms, brands, Rx, price range) | [backend] The app's filter sheet filters by form, brand, Rx and min/max price; the public catalogue list (GET /public/categories/:locale/items) accepts only category, sub, q, page… |
 | `parity-pharmacy.json#7` | backend | open | /pharmacy/rx-order?prescriptionId medicine quantity per prescription line | [backend] The app shows dose and quantity on each line; the patient view of a prescription (GET /prescriptions/:id, toPatientWebDto) sends name, dose, frequency and duration only.… |
 | `parity-pharmacy.json#8` | backend | open | /pharmacy/payment arrival time and tax line | [backend] The CheckoutV2 board shows 'arrives in {time}' and a tax line ('included'); the order read and the payment capabilities send neither an arrival estimate nor a tax amount… |
+| `providers-map.json#0` | owner | open | /map Board | [owner] No map board exists in docs/design/canvas (no hologram glow/pulse, no list/map toggle drawn); the pins are token-coloured circles per kind, as in the Batch 12 restyle. |
+| `providers-map.json#1` | client | open | /[locale]/map Map pane | [client] The web draws the list beside one OpenStreetMap iframe for the chosen provider only: no pins for all providers, no bottom sheet, no list/map toggle (the app draws all pin… |
+| `providers-map.json#2` | backend | open | /map Open state and price | [backend] GET /providers/map sends no open state, price or radiology type, so the open dot, price stat and a radiology filter are not drawn. |
+| `r7-map.json#0` | client | open | /map Centre of the map when the position is not allowed | [client] The owner round 2 asks for the map to centre on the selected city when the location is denied. Neither client has a selected-city state: the app keeps a selected address … |
+| `r7-map.json#1` | backend | open | /map Providers read of the web map | [backend] The public read passes no lat, lng or radius_km (the backend GET /providers/map takes them and returns distance_km), so the web reads every published provider and measur… |
+| `r7-map.json#2` | owner | open | /map Carousel swipe to map pan, and the sheet | [owner] A tap on a marker or a search hit selects the provider, pans the map and scrolls its card in; a swipe that rests on one card pans the map to it. The sheet with directions … |
+| `specialties-illustrated-row.json#0` | backend | open | /consultations Order by most booked | [backend] GET /care/specialties sends only the published-doctor count, no booked-appointments count, so the row is ordered by doctors count (desc); a booked_count per specialty wo… |
+| `specialties-illustrated-row.json#1` | client | open | /consultations Doctors filtered by the Arabic specialty name | [client] The hub (old behaviour kept) matches a doctor's specialty_ar text against the tile's name_ar instead of the slug; a doctor whose stored specialty is the slug or another s… |
+| `uploads-scan-patient-app.json#0` | backend | open | /pharmacy/rx-order Prescription photo save | [backend] Backend gap: same as the web upload, POST /prescriptions/upload has no scan_status in its answer. (backend: backend/src/modules/prescriptions/prescriptions.service.ts:16… |
+| `uploads-scan-patient-app.json#1` | backend | open | /diagnostics/insurance-upload Lab document upload | [backend] Backend gap: POST /labs/bookings/:id/documents returns no scan_status (same as web). |
+| `uploads-scan-patient-app.json#2` | client | open | /support/chat Attachment pending badge | [client] Client-side: the app badge has no probe (the upload answers a URL the app cannot open through apiFetch with a known path); it stays until the screen is left. |
+| `uploads-scan-patient-app.json#3` | client | open | /returns/new-request Return photo pending badge | [client] Client-side: the badge has no probe; it stays until the request is sent. |
+| `uploads-scan-patient-web.json#0` | backend | open | /pharmacy/rx-order Prescription photo save | [backend] Backend gap: POST /prescriptions/upload stores the base64 on the prescription row and returns no scan_status, so the patient apps cannot show "being checked" for it and … |
+| `uploads-scan-patient-web.json#1` | backend | open | /diagnostics/insurance-approval Lab document upload | [backend] Backend gap: POST /labs/bookings/:id/documents takes a data URL and returns no scan_status; the page navigates away at once, so no pending or rejected state is shown. |
+| `uploads-scan-patient-web.json#2` | backend | open | /pharmacy/request Box photo pending badge | [backend] Backend gap: the badge cannot clear by itself; patient-web has no GET route for /storage/:id or /media/:id/url (only the voice route), so it stays "being checked" until … |
+| `uploads-scan-patient-web.json#3` | backend | open | /support/chat Attachment pending badge | [backend] Backend gap: no GET route in the web BFF to open the attachment, so the badge cannot retry and clear. |
+| `uploads-scan-provider-app.json#0` | backend | open | CertificatesConfigScreen KYC document upload | [backend] Backend gap: POST /provider/kyc/documents stores with defer_ok but returns the document row without scan_status, so a pending KYC file shows nothing; the client already … |
+| `uploads-scan-provider-app.json#1` | client | open | RadiologyOrdersTab Report file upload | [client] Client-side: the upload is recorded in the scan registry but no pending or rejected state is drawn. |
+| `uploads-scan-provider-app.json#2` | client | open | NurseVisitConsole Visit file upload | [client] Client-side: no pending or rejected state is drawn for visit files. |
+| `uploads-scan-provider-app.json#3` | backend | open | ProviderProfileEditor Profile image upload | [backend] Backend gap: /provider/profile/image/upload goes through the image processor, not the documented upload answer; its scan state is unknown to the client and nothing is dr… |
+| `web-insurance-add-policy.json#0` | backend | open | /insurance Company name: stored Arabic only | [backend] my-policy returns company_name (always name_ar) plus company_name_en only; ur/hi/bn/fil show English via the shared helper; storing company_code/id with both names would… |
+| `web-public-ink.json#0` | owner | open | / (home header) header mark and nav active pill | [owner] two web boards disagree: HomeWeb.dc.html draws the mark with an ink bowl and an ink active nav pill (what the code does), WebHome.dc.html draws a coral bowl and an ink-tex… |
+| `web-public-ink.json#1` | client | open | / (home header, dark) active nav pill and Sign in button | [client] brand-ink pill on the ink dark canvas is nearly invisible in dark mode (the label stays readable); boards show no dark web header, so the dark treatment is not defined |
+| `web-public-ink.json#2` | owner | open | /login X and Snapchat buttons | [owner] AuthWeb.dc.html draws X and Snapchat as white buttons with a hairline; code uses the official brand colours (black X, yellow Snapchat with a black border) under the owner … |
+| `web-public-ink.json#3` | client | open | /pharmacy, /consultations, /labs, /radiology, /nursing, /insurance data-driven … | [client] not seen at runtime: the stand-in API returned empty lists, so doctor, product, lab, radiology and insurer rows were audited from source only (FIcon tones and tokens, no … |
+| `web-voice-notes.json#0` | client | open | /chat/[threadId] voice note recorder and player | [client] recording, WebM/Ogg to WAV conversion and playback are unit-tested (state machine, message build/parse, WAV header, player markup) but were not run in a real browser with… |
+| `web-voice-notes.json#1` | backend | open | /chat/[threadId] voice upload format | [backend] the media store sniffs WAV, MP3 and MP4 audio only (upload-security.service.ts), not WebM/Ogg, so the web converts to 16 kHz mono WAV (5 min cap = 15 MB limit); acceptin… |

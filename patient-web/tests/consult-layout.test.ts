@@ -25,8 +25,8 @@ describe("consultations doctors list layout", () => {
     for (const needle of ['role="dialog"', 'aria-modal="true"', 'event.key === "Escape"', 'event.key !== "Tab"', "aria-labelledby"]) expect(sheet, needle).toContain(needle);
   });
   it("keeps the existing self-pay key and draws the chosen payment next to the Filters button", () => {
-    expect(message("en").payment_self_pay).toBe("Self-pay");
-    expect(message("ar").payment_self_pay).toBe("دفع ذاتي");
+    expect(message("en").payment_self_pay).toBe("Without insurance");
+    expect(message("ar").payment_self_pay).toBe("بدون تأمين");
     const trigger = code("components-next/consult/doctor-filters-sheet.tsx");
     expect(trigger).toContain("panel.filters.payment");
     expect(trigger).toContain("t(`payment_${panel.filters.payment}`)");
@@ -34,5 +34,20 @@ describe("consultations doctors list layout", () => {
       expect(message(l).payment_self_pay.length, l).toBeGreaterThan(0);
       for (const key of ["filters", "filtersApply", "filtersClearAll", "visitSubClinic", "visitSubVideo", "visitSubHome", "removeFilter", "filterAll"]) expect(message(l)[key], `${l}.${key}`).toBeTruthy();
     }
+  });
+  it("the doctors search is one row: the field with its magnifier as the submit button, then Filters; no separate Search button; the label is the Doctors.search key in every language", () => {
+    const view = code("app/[locale]/consultations/doctors/doctors-view.tsx");
+    const row = view.slice(view.indexOf("styles.searchRow"), view.indexOf("</form>"));
+    expect(row).not.toContain("<Button");
+    expect(row).toContain('submitLabel={t("search")}');
+    expect(row.indexOf("<SuggestInput")).toBeLessThan(row.indexOf("<DoctorFiltersSheet"));
+    const field = code("components-next/search/suggest-field.tsx");
+    expect(field).toMatch(/<button type="submit"[^>]*aria-label=\{submitLabel\}/);
+    expect(code("components-next/search/suggest-input.tsx")).toContain('enterKeyHint="search"');
+    expect(code("components-next/search/suggest-input-live.tsx")).toContain('enterKeyHint="search"');
+    expect(code("components-next/search/suggest-input.tsx")).toContain('type="search"');
+    expect(message("ar").search).toBe("بحث");
+    for (const l of ["ar", "en", "ur", "hi", "bn", "fil"]) expect(message(l).search?.length, l).toBeGreaterThan(0);
+    expect(code("components-next/consult/consult.module.css")).toMatch(/\.searchSubmit \{[^}]*inline-size: 44px[^}]*block-size: 44px/);
   });
 });

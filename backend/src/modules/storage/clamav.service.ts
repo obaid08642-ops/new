@@ -15,12 +15,26 @@ export type ScanVerdict = { status: 'clean' } | { status: 'infected'; signature:
 const CHUNK = 64 * 1024;
 const SCAN_TIMEOUT_MS = 30_000;
 
-/** UPLOAD_SCAN=required forces the scan, =optional lifts it; unset means required in production. */
-export function uploadScanRequired(): boolean {
+/**
+ * What happens to an upload while the scanner cannot answer.
+ *   required (the production default): the upload is refused with 503.
+ *   defer: the upload is accepted into quarantine (the object sits under `pending/`, is never served, and a scan worker promotes it
+ *          once a scanner has passed it); an infected file is still refused when the scanner does answer. A small server runs clamd
+ *          only in short windows (deploy/scripts/clamav-window.sh), so the scan is deferred, never skipped.
+ *   optional: a developer machine without ClamAV; the upload goes through with a warning.
+ */
+export type UploadScanMode = 'required' | 'defer' | 'optional';
+
+/** UPLOAD_SCAN=required | defer | optional; unset means required in production and optional elsewhere. */
+export function uploadScanMode(): UploadScanMode {
   const setting = (process.env.UPLOAD_SCAN || '').toLowerCase();
-  if (setting === 'required') return true;
-  if (setting === 'optional') return false;
-  return process.env.NODE_ENV === 'production';
+  if (setting === 'required' || setting === 'defer' || setting === 'optional') return setting;
+  return process.env.NODE_ENV === 'production' ? 'required' : 'optional';
+}
+
+/** True unless the scan is optional: `defer` still scans every file, only later. */
+export function uploadScanRequired(): boolean {
+  return uploadScanMode() !== 'optional';
 }
 
 const AVAILABILITY_TTL_MS = 30_000;
@@ -31,13 +45,25 @@ export class ClamavService {
   private availability?: { at: number; ok: boolean };
 
   /**
-   * The public `uploads_enabled` signal in /config. True when uploads can succeed: the scan is not required, or clamd
-   * answers PING with PONG. Cached for 30 s so /config never waits on the scanner more than twice a minute.
+   * The public `uploads_enabled` signal in /config. True when uploads can succeed: the scan is not required, uploads are
+   * accepted into quarantine (`defer`), or clamd answers PING with PONG. Cached for 30 s so /config never waits on the scanner
+   * more than twice a minute.
    */
   async uploadsAvailable(): Promise<boolean> {
-    if (!uploadScanRequired()) return true;
+    const mode = uploadScanMode();
+    if (mode !== 'required') return true;
+    return this.scannerUp(AVAILABILITY_TTL_MS);
+  }
+
+  /** `features.uploads_pending_scan` in /config: a new upload is accepted but waits for its scan (defer mode, scanner down). */
+  async uploadsPendingScan(): Promise<boolean> {
+    return uploadScanMode() === 'defer' && !(await this.scannerUp(AVAILABILITY_TTL_MS));
+  }
+
+  /** True when clamd is configured and answers PING. Cached for `ttlMs` (the worker asks with a short one). */
+  async scannerUp(ttlMs = 5_000): Promise<boolean> {
     const now = Date.now();
-    if (this.availability && now - this.availability.at < AVAILABILITY_TTL_MS) return this.availability.ok;
+    if (this.availability && now - this.availability.at < ttlMs) return this.availability.ok;
     const ok = this.configured() && (await this.ping());
     this.availability = { at: now, ok };
     return ok;

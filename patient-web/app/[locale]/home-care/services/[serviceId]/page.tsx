@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
-import { pickName, pickTexts } from "@/lib/i18n/localized";
+import { CatalogueViewBeacon } from "@/components-next/diagnostics/catalogue-view-beacon";
+import { pickName, pickTexts, perLocaleOf } from "@/lib/i18n/localized";
+import { LocalizedField, LocalizedList } from "@/components-next/ui/localized-field";
+import { preparationField } from "@/lib/ordering/item";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components-next/json-ld";
 import { DirectAnswer } from "@/components-next/seo/direct-answer";
@@ -7,13 +10,14 @@ import { breadcrumbList, medicalWebPage, nursingService } from "@/lib/seo/struct
 import { localizedUrl } from "@/lib/seo";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractHomeCareService, findHomeCareServiceInCatalog, parseHomeCareServiceId } from "@/lib/api/home-care-services";
-import { getPublicNursingCatalog } from "@/lib/api/nursing-catalog-server";
+import { getPublicNursingCatalog, getPublicNursingService } from "@/lib/api/nursing-catalog-server";
 import { getPatientHomeCareService } from "@/lib/api/home-care-services-server";
 import { getOptionalPatientAccessToken } from "@/lib/auth/session";
 import { isLocale, locales } from "@/lib/i18n";
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { ConsultState } from "@/components-next/consult/consult-state";
 import { BulletList, Facts, Hero, SectionCard, type FactRow } from "@/components-next/consult/consult-parts";
+import { OffersSection } from "@/components-next/diagnostics/offers-section";
 import { NURSING, ServiceChips, serviceIcon } from "@/components-next/nursing/nursing-parts";
 import { money, pickText } from "@/components-next/diagnostics/diag-parts";
 import consult from "@/components-next/consult/consult.module.css";
@@ -58,6 +62,7 @@ export default async function HomeCareServicePage({ params, searchParams }: Prop
   setRequestLocale(locale);
   const t = await getTranslations("NursingWeb");
   const seo = await getTranslations("SeoAnswer");
+  const w = await getTranslations("DiagWeb");
   // issue 650: the service page is public. A signed-in patient reads the service endpoint; everyone else (and a patient whose
   // session has ended) reads the service out of the public catalog. Signing in is asked for at booking, not here.
   if (!parseHomeCareServiceId(serviceId).success) notFound();
@@ -70,6 +75,11 @@ export default async function HomeCareServicePage({ params, searchParams }: Prop
     if (response.ok) service = extractHomeCareService(await response.json().catch(() => null));
     else if (response.status === 403 || response.status === 404) notFound();
     else if (response.status !== 401) reachable = false;
+  }
+  if (!service && reachable) {
+    // the service with what nurses offer for it (GET /home-care/services/:id, public); the older catalogue list is the fallback
+    const one = await getPublicNursingService(serviceId);
+    if (one && one.ok) service = extractHomeCareService(await one.json().catch(() => null));
   }
   if (!service && reachable) {
     const catalog = await getPublicNursingCatalog();
@@ -86,7 +96,7 @@ export default async function HomeCareServicePage({ params, searchParams }: Prop
   if (!service) notFound();
   const name = pickName(locale, service.names) ?? "";
   const description = pickTexts(locale, service.descriptions);
-  const preparation = (locale === "ar" || locale === "ur" ? service.preparationAr ?? service.preparationEn : service.preparationEn ?? service.preparationAr) ?? [];
+  const preparation = preparationField(locale, service);
   const duration = [service.durationValue, service.duration].filter(Boolean).join(" ");
   const rows: FactRow[] = [
     ...(service.price !== undefined ? [{ label: t("priceLabel"), value: money(locale, service.price), icon: "tag" as const, tone: NURSING.tone }] : []),
@@ -94,23 +104,24 @@ export default async function HomeCareServicePage({ params, searchParams }: Prop
   ];
   return (
     <ConsultPage locale={locale} title={name || t("serviceTitle")} backHref={back}>
+      <CatalogueViewBeacon vertical="nursing" serviceId={service.id} />
       <JsonLd data={[
         medicalWebPage({ title: name || t("serviceTitle"), locale, path: `/home-care/services/${serviceId}`, description: description ?? null, speakable: true }),
         nursingService({ name: name || t("serviceTitle"), locale, path: `/home-care/services/${serviceId}`, description: description ?? null }),
         breadcrumbList([{ name: t("serviceTitle"), locale, path: "/nursing/catalog" }, { name: name || t("serviceTitle"), locale, path: `/home-care/services/${serviceId}` }]),
       ]} />
-      <Hero icon={serviceIcon(service.nameAr, service.nameEn)} tone={NURSING.tone} title={name} sub={t("eyebrow")}>
+      <Hero icon={serviceIcon(service.nameAr, service.nameEn)} tone={NURSING.tone} title={<LocalizedField locale={locale} ar={service.names.ar} en={service.names.en} />} sub={t("eyebrow")}>
         <ServiceChips insurance={service.insuranceAvailable ? t("insurance") : undefined} />
       </Hero>
       <DirectAnswer sentences={[seo("homeCareWho", { name: name || t("serviceTitle") })]} />
       {description ? (
         <SectionCard id="service-about" title={t("aboutTitle")}>
-          <p className={consult.body}>{description}</p>
+          <LocalizedField as="p" className={consult.body} locale={locale} ar={service.descriptions.ar} en={service.descriptions.en} perLocale={perLocaleOf(service.descriptions)} />
         </SectionCard>
       ) : null}
-      {preparation.length > 0 ? (
+      {preparation.items.length > 0 ? (
         <SectionCard id="service-prep" title={t("prepTitle")}>
-          <BulletList items={preparation} />
+          <LocalizedList locale={locale} field={preparation}>{(items) => <BulletList items={items} />}</LocalizedList>
         </SectionCard>
       ) : null}
       {rows.length > 0 ? (
@@ -118,8 +129,9 @@ export default async function HomeCareServicePage({ params, searchParams }: Prop
           <Facts rows={rows} label={t("serviceTitle")} />
         </SectionCard>
       ) : null}
+      <OffersSection locale={locale} t={w} kind="nursing" serviceId={service.id} offer={service.offer} offers={service.offers} price={service.price} bookLabel={t("bookCta")} />
       {/* journeys#60 (issue 1069): the service is booked on the website too (the book page asks for sign-in) */}
-      <ButtonLink href={`/${locale}/home-care/services/${encodeURIComponent(serviceId)}/book${pay === "insurance" ? "?pay=insurance" : ""}`} label={t("bookCta")} fullWidth />
+      {service.offer?.providersCount === 0 ? null : <ButtonLink href={`/${locale}/home-care/services/${encodeURIComponent(serviceId)}/book${pay === "insurance" ? "?pay=insurance" : ""}`} label={t("bookCta")} fullWidth />}
     </ConsultPage>
   );
 }

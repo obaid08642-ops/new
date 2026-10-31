@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, MaxLength, Min, Matches, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsDefined, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, MaxLength, Min, Max, Matches, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { OtpPurpose } from './schemas';
 
@@ -432,6 +432,11 @@ export class ReactivateDto {
   @Type(() => ManualLicenseCheckDto)
   manual_license_check?: ManualLicenseCheckDto;
 
+  /** The renewed licence expiry (ISO date): required to bring back a provider whose licence expired. */
+  @IsOptional()
+  @IsDateString()
+  license_expiry_date?: string;
+
 }
 
 export class AcceptDto2 {
@@ -514,47 +519,65 @@ export class UpsertPharmaDto {
 }
 
 export class UpsertLabDto {
-  @IsOptional()
-  @IsString()
-  code?: string;
-
-  @IsOptional()
-  @IsString()
-  name_ar?: string;
-
+  @IsOptional() @IsString() code?: string;
+  @IsOptional() @IsString() name_ar?: string;
+  @IsOptional() @IsString() name_en?: string;
+  @IsOptional() @IsString() sample_type?: string;
+  @IsOptional() @IsNumber() @Min(0) @Max(720) turnaround_hours?: number;
+  @IsOptional() @IsBoolean() home_collection_supported?: boolean;
+  @IsOptional() @IsBoolean() premises_supported?: boolean;
+  @IsOptional() @IsNumber({ maxDecimalPlaces: 2 }) @Min(0) @Max(1000000) price?: number;
+  @IsOptional() @IsString() @MaxLength(8) currency?: string;
+  @IsOptional() @IsBoolean() available?: boolean;
+  @IsOptional() @IsBoolean() insurance_covered?: boolean;
+  @IsOptional() @IsString() @MaxLength(500) coverage_notes?: string;
 }
 
 export class UpsertLabDto2 {
-  @IsOptional()
-  @IsString()
-  code?: string;
-
-  @IsOptional()
-  @IsString()
-  name_ar?: string;
-
+  @IsOptional() @IsString() code?: string;
+  @IsOptional() @IsString() name_ar?: string;
+  @IsOptional() @IsString() name_en?: string;
+  @IsOptional() @IsString() sample_type?: string;
+  @IsOptional() @IsNumber() @Min(0) @Max(720) turnaround_hours?: number;
+  @IsOptional() @IsBoolean() home_collection_supported?: boolean;
+  @IsOptional() @IsBoolean() premises_supported?: boolean;
+  @IsOptional() @IsNumber({ maxDecimalPlaces: 2 }) @Min(0) @Max(1000000) price?: number;
+  @IsOptional() @IsString() @MaxLength(8) currency?: string;
+  @IsOptional() @IsBoolean() available?: boolean;
+  @IsOptional() @IsBoolean() insurance_covered?: boolean;
+  @IsOptional() @IsString() @MaxLength(500) coverage_notes?: string;
 }
 
 export class UpsertRadDto {
-  @IsOptional()
-  @IsString()
-  scan_type?: string;
-
-  @IsOptional()
-  @IsString()
-  body_part?: string;
-
+  @IsOptional() @IsString() scan_type?: string;
+  @IsOptional() @IsString() body_part?: string;
+  @IsOptional() @IsString() service_id?: string;
+  @IsOptional() @IsString() name_ar?: string;
+  @IsOptional() @IsString() name_en?: string;
+  @IsOptional() @IsBoolean() contrast_supported?: boolean;
+  @IsOptional() @IsBoolean() home_supported?: boolean;
+  @IsOptional() @IsBoolean() premises_supported?: boolean;
+  @IsOptional() @IsNumber({ maxDecimalPlaces: 2 }) @Min(0) @Max(1000000) price?: number;
+  @IsOptional() @IsString() @MaxLength(8) currency?: string;
+  @IsOptional() @IsBoolean() available?: boolean;
+  @IsOptional() @IsBoolean() insurance_covered?: boolean;
+  @IsOptional() @IsString() @MaxLength(500) coverage_notes?: string;
 }
 
 export class UpsertRadDto2 {
-  @IsOptional()
-  @IsString()
-  scan_type?: string;
-
-  @IsOptional()
-  @IsString()
-  body_part?: string;
-
+  @IsOptional() @IsString() scan_type?: string;
+  @IsOptional() @IsString() body_part?: string;
+  @IsOptional() @IsString() service_id?: string;
+  @IsOptional() @IsString() name_ar?: string;
+  @IsOptional() @IsString() name_en?: string;
+  @IsOptional() @IsBoolean() contrast_supported?: boolean;
+  @IsOptional() @IsBoolean() home_supported?: boolean;
+  @IsOptional() @IsBoolean() premises_supported?: boolean;
+  @IsOptional() @IsNumber({ maxDecimalPlaces: 2 }) @Min(0) @Max(1000000) price?: number;
+  @IsOptional() @IsString() @MaxLength(8) currency?: string;
+  @IsOptional() @IsBoolean() available?: boolean;
+  @IsOptional() @IsBoolean() insurance_covered?: boolean;
+  @IsOptional() @IsString() @MaxLength(500) coverage_notes?: string;
 }
 
 export class UpsertDocDto {
@@ -595,17 +618,29 @@ export class UpsertDocDto2 {
 }
 
 export class UpsertHcDto {
-  @IsOptional()
-  @IsString()
-  service_type?: string;
-
+  @IsOptional() @IsString() service_type?: string;
+  @IsOptional() @IsString() service_id?: string;
+  @IsOptional() @IsString() name_ar?: string;
+  @IsOptional() @IsArray() @IsString({ each: true }) required_skills?: string[];
+  @IsOptional() @IsNumber() @Min(0) @Max(24) min_hours?: number;
+  @IsOptional() @IsNumber({ maxDecimalPlaces: 2 }) @Min(0) @Max(1000000) hourly_price?: number;
+  @IsOptional() @IsString() @MaxLength(8) currency?: string;
+  @IsOptional() @IsBoolean() available?: boolean;
+  @IsOptional() @IsBoolean() insurance_covered?: boolean;
+  @IsOptional() @IsString() @MaxLength(500) coverage_notes?: string;
 }
 
 export class UpsertHcDto2 {
-  @IsOptional()
-  @IsString()
-  service_type?: string;
-
+  @IsOptional() @IsString() service_type?: string;
+  @IsOptional() @IsString() service_id?: string;
+  @IsOptional() @IsString() name_ar?: string;
+  @IsOptional() @IsArray() @IsString({ each: true }) required_skills?: string[];
+  @IsOptional() @IsNumber() @Min(0) @Max(24) min_hours?: number;
+  @IsOptional() @IsNumber({ maxDecimalPlaces: 2 }) @Min(0) @Max(1000000) hourly_price?: number;
+  @IsOptional() @IsString() @MaxLength(8) currency?: string;
+  @IsOptional() @IsBoolean() available?: boolean;
+  @IsOptional() @IsBoolean() insurance_covered?: boolean;
+  @IsOptional() @IsString() @MaxLength(500) coverage_notes?: string;
 }
 
 export class UpsertDto {

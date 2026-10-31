@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react-nativ
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import DiagnosticsHub from '../../../app/(tabs)/diagnostics';
+import { serveCatalog } from './catalogServer';
 import { message } from '../../components/screen/ScreenKit';
 
 /**
@@ -42,23 +43,26 @@ const TESTS = [
 describe('Diagnostics hub: insurance or self-pay first (decision 30)', () => {
   beforeEach(() => {
     mockApi.mockReset();
-    mockApi.mockImplementation(async (path: string) => (path === '/labs/services' ? TESTS : []));
+    mockApi.mockImplementation(async (path: string) => serveCatalog(path, { labs: TESTS }));
   });
 
   it('self-pay is the first choice and lists only what the patient can pay for', async () => {
     await render(wrap(<DiagnosticsHub />));
-    await waitFor(() => expect(screen.getByText('Test on both')).toBeTruthy(), { timeout: 15000 });
-    expect(screen.getByText(k('diag.pay.selfPay'))).toBeTruthy();
-    expect(screen.getByText('Test self-pay only')).toBeTruthy();
+    await waitFor(() => expect(screen.getAllByText('Test on both').length).toBeGreaterThan(0), { timeout: 15000 });
+    await fireEvent.press(screen.getByLabelText(k('diag.hub.filter')));
+    expect(screen.getByTestId('diag-pay-self_pay')).toBeTruthy();
+    await fireEvent.press(screen.getByTestId('diag-filter-apply'));
+    expect(screen.getAllByText('Test self-pay only').length).toBeGreaterThan(0);
     expect(screen.queryByText('Test insurance only')).toBeNull();
   });
 
   it('insurance lists only the services that take insurance', async () => {
     await render(wrap(<DiagnosticsHub />));
-    await waitFor(() => expect(screen.getByText('Test on both')).toBeTruthy(), { timeout: 15000 });
-    await fireEvent.press(screen.getByText(k('diag.pay.insurance')));
-    await waitFor(() => expect(screen.getByText('Test insurance only')).toBeTruthy());
-    expect(screen.getByText('Test on both')).toBeTruthy();
+    await waitFor(() => expect(screen.getAllByText('Test on both').length).toBeGreaterThan(0), { timeout: 15000 });
+    await fireEvent.press(screen.getByLabelText(k('diag.hub.filter')));
+    await fireEvent.press(screen.getByTestId('diag-pay-insurance'));
+    await waitFor(() => expect(screen.getAllByText('Test insurance only').length).toBeGreaterThan(0));
+    expect(screen.getAllByText('Test on both').length).toBeGreaterThan(0);
     expect(screen.queryByText('Test self-pay only')).toBeNull();
   });
 });

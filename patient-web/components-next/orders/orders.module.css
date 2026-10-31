@@ -105,3 +105,9 @@
 .pickList > li:first-child { border-block-start: 0; }
 
 .kindChips { display: flex; flex-wrap: wrap; gap: var(--nabd-space-sm); }
+
+/* ---- results and reports tab ---- */
+.resultActions {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding-block-start: 10px; border-block-start: 1px solid var(--nabd-color-border-subtle);
+}

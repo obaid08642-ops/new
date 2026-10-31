@@ -1,0 +1,24 @@
+[
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/insurance",
+    "element": "Company name: stored Arabic only",
+    "file": "patient-web/app/[locale]/insurance/page.tsx",
+    "line": 161,
+    "found": "[backend] my-policy returns company_name (always name_ar) plus company_name_en only; ur/hi/bn/fil show English via the shared helper; storing company_code/id with both names would make this independent of the catalogue row. (backend: backend/src/common/insurance-policy.ts:85)",
+    "suspect": "Backend gap: reviewer session.",
+    "review_status": "open"
+  },
+  {
+    "batch": 2,
+    "app": "patient-web",
+    "screen": "/insurance/add-policy",
+    "element": "Insurer list contains test-named insurers (Insure ins2a757 ...)",
+    "file": "patient-web/app/[locale]/insurance/add-policy/page.tsx",
+    "line": 31,
+    "found": "[owner] Seed/test data in the local catalogue; nothing changed in the client.",
+    "suspect": "Owner decision.",
+    "review_status": "owner-decision"
+  }
+]

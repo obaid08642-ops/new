@@ -72,6 +72,13 @@ const requests = { data: [
 beforeEach(() => server.api.mockReset());
 
 describe("the insurance hub", () => {
+  it("names the insurer in the page language: the stored Arabic name on /ar, the catalogue English name on /en", async () => {
+    const stored = { has_policy: true, policy: { company_name: "بوبا العربية", company_name_en: "Bupa Arabia", policy_number: "POL-9", verified: false } };
+    backend({ "/insurance/my-policy": stored, "/insurance/requests/my": requests });
+    const en = render(await InsurancePage(hub()));
+    expect(en).toContain("Bupa Arabia");
+    expect(en).not.toContain("بوبا العربية");
+  });
   it("shows the policy card, the shortcuts, the three tabs and the requests newest first, each linking to its request page", async () => {
     backend({ "/insurance/my-policy": policy, "/insurance/requests/my": requests });
     const html = render(await InsurancePage(hub()));
@@ -174,7 +181,7 @@ describe("the page of one insurance request", () => {
   it("declined: the server's reason and the self-pay acceptance", async () => {
     const html = await open({ state: "REJECTED", rejection_reason: "Not covered by plan" });
     expect(html).toContain("Not covered by plan");
-    expect(html).toContain("Accept self-pay");
+    expect(html).toContain("Continue without insurance");
   });
 
   it("covered in full: no payment, a way to the booking when the server names one", async () => {
@@ -201,7 +208,7 @@ describe("the page of one insurance request", () => {
     expect(html).toContain("16.00");
   });
 
-  it("self-pay due shows the options button; an unknown state or a bad id is not a page", async () => {
+  it("without-insurance payment due shows the options button; an unknown state or a bad id is not a page", async () => {
     expect(await open({ state: "SELF_PAY_PENDING", self_pay_amount: 30 })).toMatch(/Go to secure payment — SAR\s30\.00/);
     expect(await open({ state: "WHATEVER" })).toContain("Unable to load insurance");
     await expect(InsuranceRequestPage(page("nope"))).rejects.toThrow("not-found");

@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { FieldText } from "@/components-next/ui/localized-field";
+import { markByScript, type FieldMark } from "@/lib/i18n/localized-field";
 import { fallbackMark, fallbackNoteKey, type FallbackMark } from "@/lib/content-language";
 import { cdnImage, getPublicEquivalents, getPublicVariants, readPublicProduct, type PublicProduct, type PublicProductCard } from "@/lib/api/public-products-server";
 import { PublicDataUnavailableError } from "@/lib/api/public-unavailable";
@@ -273,6 +275,9 @@ export default async function PublicProductPage({ params }: Props) {
   ] as Array<[string, string | null | undefined, FallbackMark | null]>).filter((row): row is [string, string, FallbackMark | null] => Boolean(row[1]));
 
   // Decision E (issue 1556): ur, hi and bn show the English name under the localized one, so patient and pharmacist read the same product.
+  // The name is one string the API localized: its own lang/dir when the script is not the page's, and the note when the API says it fell back.
+  const nameFallback = fallbackMark(product.fallback_langs, "name", locale);
+  const nameMark: FieldMark | undefined = nameFallback ? { lang: nameFallback.lang, dir: nameFallback.dir, fallbackFrom: nameFallback.lang === "ar" ? "ar" : nameFallback.lang === "en" ? "en" : null } : markByScript(locale, name);
   const englishName = englishNameUnder(locale, name, product.english_name);
   const names = lines(product.official_name !== name && product.official_name !== englishName ? product.official_name : null);
   const ingredient = product.active_ingredient ? b("activeIngredientLine", { value: product.active_ingredient }) : null;
@@ -335,9 +340,9 @@ export default async function PublicProductPage({ params }: Props) {
 
             <div className={styles.info}>
               <div className={styles.chipsRow}>
-                <StatusChip label={product.is_rx ? t("rxRequired") : t("otc")} tone={product.is_rx ? "amber" : "mint"} />
+                <StatusChip label={product.is_rx ? t("rxRequired") : t("otc")} tone={product.is_rx ? "amber" : "ink"} />
                 <StatusChip label={product.available ? t("available") : discontinued ? t("unavailable") : t("limited")} tone={product.available ? "mint" : "amber"} />
-                {product.online_exclusive === true ? <StatusChip label={t("onlineOnly")} tone="mint" /> : null}
+                {product.online_exclusive === true ? <StatusChip label={t("onlineOnly")} tone="ink" /> : null}
                 {product.cold_chain === true ? <StatusChip label={t("coldChain")} tone="blue" /> : null}
                 <ProductShare name={name} url={canonical} />
               </div>
@@ -348,7 +353,7 @@ export default async function PublicProductPage({ params }: Props) {
               ) : null}
 
               <div className={styles.names}>
-                <h1 className={styles.title}>{name}</h1>
+                <h1 className={styles.title}><FieldText text={name} mark={nameMark} /></h1>
                 {englishName ? <p className={styles.englishName} lang="en" dir="ltr" data-testid="english-name">{englishName}</p> : null}
                 <DirectAnswer sentences={[
                   product.active_ingredient ? seo("productIngredient", { name, ingredient: product.active_ingredient }) : null,
@@ -452,7 +457,7 @@ export default async function PublicProductPage({ params }: Props) {
                 <>
                   <h2 className={styles.blockTitle}>{b("detailsTitle")}</h2>
                   <div className={styles.detailsCard}>
-                    <ProductSections groups={groups} label={b("detailsTitle")} />
+                    <ProductSections groups={groups} label={b("detailsTitle")} locale={locale} />
                     <div className={styles.legal}>
                       <p>{t("disclaimer")}</p>
                       <div className={styles.ids}>

@@ -22,5 +22,5 @@ export function diagnosticOrderNextHref(locale: string, order: unknown): string 
   }
   const first = bookings[0];
   if (bookings.length === 1 && first) return `/${locale}/diagnostics/booking-success?bookingId=${encodeURIComponent(first.id)}&domain=${first.domain}`;
-  return `/${locale}/diagnostics/bookings`;
+  return `/${locale}/orders`;
 }

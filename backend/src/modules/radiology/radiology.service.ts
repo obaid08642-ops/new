@@ -1,7 +1,13 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Optional, ServiceUnavailableException } from '@nestjs/common';
+import { assertScanned } from '../storage/pending-scan';
+import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
+import { SearchService } from '../search/search.service';
+import { RADIOLOGY_TYPES, byRelevance, matchedIds } from '../search/catalogue-search';
 import { randomUUID } from 'crypto';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Connection, Model, Types } from 'mongoose';
+import { byRating, paged, parsePage, withProviderRating, type CataloguePage } from '../../common/catalogue-page';
+import { loadOffers, ownPrices, withOfferSummary, withOffers, type OfferSummary } from '../../common/service-offers';
 import { pick } from '../../common/sanitize';
 import { escapeRegex } from '../../common/slug.util';
 import { pickAttribution } from '../../common/attribution';
@@ -70,6 +76,7 @@ export class RadiologyOpsService {
     @Optional() private readonly insurance?: InsuranceFlowService,
     @Optional() private readonly approvals?: ApprovalWorkflowService,
     @Optional() @InjectConnection() private readonly conn?: Connection,
+    @Optional() private readonly searchEngine?: SearchService,
   ) {}
 
   // ──────────────────────────────────────────────
@@ -107,6 +114,7 @@ export class RadiologyOpsService {
   private async privateProviderStorage(id: string, user: any, requirePdf = false): Promise<any> {
     const object: any = await this.storageObjects.findOne({ id, owner_account_id: user.id, visibility: 'private', deleted: false }).lean();
     if (!object) throw new ForbiddenException('private_storage_object_not_owned');
+    assertScanned(object); // a file still in quarantine (423) cannot be attached to a result
     if (requirePdf && object.mime !== 'application/pdf') throw new BadRequestException('report_pdf_storage_object_required');
     return object;
   }
@@ -270,6 +278,9 @@ export class RadiologyOpsService {
     const b = await this.findBooking(id, user);
     if (!b) throw new NotFoundException();
     if ((b.state || b.status) !== RadiologyBookingState.UNDER_REVIEW) throw new BadRequestException('Report must be UNDER_REVIEW to approve');
+    // Two people: whoever uploaded the files or sent the report for review cannot publish it.
+    const handled = (Array.isArray(b.state_history) ? b.state_history : []).some((h: any) => String(h?.by_user_id) === String(user.id) && [RadiologyBookingState.REPORT_DRAFT, RadiologyBookingState.UNDER_REVIEW].includes(h?.to));
+    if (handled) throw new ForbiddenException('report_reviewer_must_differ_from_uploader');
     b.report_status = 'ready';
     b.report_approved_by = user.id;
     b.report_approved_at = new Date();
@@ -447,8 +458,23 @@ export class RadiologyOpsService {
     if (opts.modality) q.modality = { $eq: opts.modality };
     if (opts.body_part) q.body_part = { $eq: opts.body_part };
     // Issue 1833: the name search reads all six name fields (no text index needed for the 34 scans in the catalogue).
-    if (opts.search?.trim()) q.$or = radiologySearchClause(opts.search).$or;
-    if (opts.home_only) q.home_visit_supported = true;
+    // the search box uses the home search's engine (typo tolerance, ar/en synonyms); its own text match is the fallback
+    const matched = opts.search?.trim() ? await matchedIds(this.searchEngine, opts.search, RADIOLOGY_TYPES) : null;
+    if (opts.search?.trim()) { if (matched) q.id = { $in: matched }; else q.$or = radiologySearchClause(opts.search).$or; }
+    const page = parsePage(opts.page, opts.limit);
+    // 2026-10-28: the list is the CATALOGUE; each scan carries what providers offer for it (count, from-price, where, insurance). The home and insurance
+    // filters read those offers, so a scan nobody offers yet is still listed (and found by "all") but never by "at home" or "insurance".
+    const finish = async <T extends { id: string }>(rows: T[]): Promise<Array<T & OfferSummary> | CataloguePage<T & OfferSummary>> => {
+      const enriched = await withOfferSummary(this.svcModel.db as never, 'radiology', rows, { home_only: !!opts.home_only, insurance: !!opts.insurance });
+      return page ? paged(enriched, page) : enriched;
+    };
+    // every scan carries its category (= its modality) so a client can pick the illustration
+    const withCategory = <T extends { modality?: string }>(rows: T[]) => rows.map((r) => ({ ...r, category: r.modality ?? null }));
+    // the centre performs the scan when its equipment_list holds the scan id or its modality (same rule as compatibleProviders)
+    const performs = (svc: any, centre: any) => {
+      const has: unknown[] = Array.isArray(centre.equipment_list) ? centre.equipment_list : [];
+      return has.includes(svc.id) || (!!svc.modality && has.includes(svc.modality));
+    };
 
     // #623: "nearest" orders scans by the closest approved centre that performs them (same rule as
     // compatibleProviders: the centre's equipment_list holds the scan id or its modality).
@@ -459,15 +485,29 @@ export class RadiologyOpsService {
         'geo.lat': { $type: 'number' }, 'geo.lng': { $type: 'number' },
       }, { _id: 0, geo: 1, equipment_list: 1 }).lean();
       const services: any[] = await this.svcModel.find(q).lean();
-      return nearestFirst(services, centres, here, (svc, centre) => {
-        const has: unknown[] = Array.isArray(centre.equipment_list) ? centre.equipment_list : [];
-        return has.includes(svc.id) || (!!svc.modality && has.includes(svc.modality));
-      }).slice(0, 120);
+      return finish(withCategory(nearestFirst(services, centres, here, performs).slice(0, 120)));
     }
 
-    if (!this.redis?.getWithSWR) return this.svcModel.find(q).sort({ popularity: -1 }).lean();
-    const cacheKey = `cache:radiology-services:public:v1:${JSON.stringify(opts)}`;
-    return this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q).sort({ popularity: -1 }).lean());
+    const load = async () => {
+      let services: any[] = await this.svcModel.find(q).sort(catalogueSortSpec(opts.sort)).lean();
+      if (matched) services = byRelevance(services, matched);   // the sorts below (rating, price) still reorder
+      if (opts.highest_rated) {
+        // ratings are on the centres, not on the scans: a scan is ranked by the centres that perform it
+        const centres: any[] = await this.profileModel.find({
+          type: { $in: ['radiology', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
+        }, { _id: 0, equipment_list: 1, rating_avg: 1, rating_count: 1 }).lean();
+        return finish(withCategory(withProviderRating(services, centres, performs).sort(byRating)));
+      }
+      // lowest price first; a scan without a real price (0 or missing) is not the cheapest
+      if (opts.lowest_price) {
+        const cost = (s: any) => (Number(s.price) > 0 ? Number(s.price) : Number.POSITIVE_INFINITY);
+        services.sort((a, b) => cost(a) - cost(b) || (b.popularity ?? 0) - (a.popularity ?? 0));
+      }
+      return finish(withCategory(services));
+    };
+    if (!this.redis?.getWithSWR) return load();
+    const cacheKey = `cache:radiology-services:public:v2:${JSON.stringify(opts)}`;
+    return this.redis.getWithSWR(cacheKey, 900, load);
   }
 
 
@@ -486,11 +526,18 @@ export class RadiologyOpsService {
     return svc;
   }
 
+  /** The scan page: the catalogue row with what providers offer for it (centres, price, where, insurance) and `providers_count`; an unoffered scan still opens. */
+  async getByIdWithOffers(id: string) {
+    const svc: any = await this.getById(id);
+    const plain = typeof svc.toObject === 'function' ? svc.toObject() : svc;
+    return withOffers(this.svcModel.db as never, 'radiology', { ...plain, category: plain.modality ?? null });
+  }
+
   /** Centers able to perform every requested scan (registration stores the scan ids in equipment_list). */
   async compatibleProviders(serviceIds: string[]) {
     const ids = [...new Set((serviceIds || []).filter(Boolean))];
     if (!ids.length) return [];
-    const services = await this.svcModel.find({ id: { $in: ids }, is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, modality: 1 }).lean();
+    const services = await this.svcModel.find({ id: { $in: ids }, is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, modality: 1, body_part: 1, short_code: 1, price: 1 }).lean();
     if (services.length !== ids.length) return [];
     const modalities = [...new Set((services as any[]).map((sv) => sv.modality).filter(Boolean))];
     const profiles = await this.profileModel.find({
@@ -498,11 +545,21 @@ export class RadiologyOpsService {
       account_id: { $exists: true, $ne: null },
       $or: [{ equipment_list: { $all: ids } }, ...(modalities.length ? [{ equipment_list: { $all: modalities } }] : [])],
     }, { _id: 0, account_id: 1, id: 1, name_ar: 1, name_en: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1, logo: 1 }).limit(50).lean();
-    return (profiles as any[]).map((profile) => ({
-      id: profile.account_id, facility_id: profile.id, name: profile.name_ar || profile.name_en,
-      homeVisitAvailable: Boolean(profile.home_visit_supported),
-      rating: profile.rating_count > 0 ? profile.rating_avg : null, logo: profile.logo || null,
-    }));
+    // each centre's own total for the requested scans (its price per scan, a missing one at the catalogue price); null when some scan has no price at all
+    const prices = await ownPrices(this.svcModel.db as never, 'radiology', (profiles as any[]).map((p) => p.account_id), services as any[]);
+    return (profiles as any[]).map((profile) => {
+      const own = prices.get(profile.account_id);
+      const price = (services as any[]).reduce<number | null>((sum, svc: any) => {
+        const one = own?.get(svc.id) ?? (typeof svc.price === 'number' && svc.price > 0 ? svc.price : null);
+        return sum === null || one === null ? null : sum + one;
+      }, 0);
+      return {
+        id: profile.account_id, facility_id: profile.id, name: profile.name_ar || profile.name_en,
+        homeVisitAvailable: Boolean(profile.home_visit_supported),
+        rating: profile.rating_count > 0 ? profile.rating_avg : null, logo: profile.logo || null,
+        price, currency: 'SAR',
+      };
+    });
   }
 
   // #624 carousel: popular approved scans, each with the approved centers equipped for it (the
@@ -525,28 +582,26 @@ export class RadiologyOpsService {
     });
   }
 
-  // #631 price comparison: each approved center's own price for this scan from its capabilities
-  // catalog (provider_capabilities_radiology: scan_type = modality and the same body part,
-  // case-insensitive). Centers with no priced entry are not listed.
+  // #631 price comparison: each approved centre's own price for this scan - its own per-scan choice, else its capability row, else the price it registered with - with whether it
+  // takes insurance and does home visits FOR THIS SCAN. Centres with no price for the scan are not listed.
   async priceComparison(serviceId: string) {
-    const svc: any = await this.svcModel.findOne({ id: { $eq: String(serviceId) }, is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, name_ar: 1, name_en: 1, modality: 1, body_part: 1, price: 1 }).lean();
+    const svc: any = await this.svcModel.findOne({ id: { $eq: String(serviceId) }, is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, name_ar: 1, name_en: 1, modality: 1, body_part: 1, short_code: 1, price: 1 }).lean();
     if (!svc) throw new NotFoundException('service_not_found');
     if (!svc.modality) return { service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null, offers: [] };
-    const exact = (v: string) => new RegExp(`^${String(v).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
-    const items: any[] = await this.svcModel.db.collection('provider_capabilities_radiology').find({
-      available: true, scan_type: exact(svc.modality), ...(svc.body_part ? { body_part: exact(svc.body_part) } : {}),
-    }, { projection: { _id: 0, provider_account_id: 1, price: 1, currency: 1, contrast_supported: 1, insurance_covered: 1 } }).toArray();
-    const priced = items.filter((i) => typeof i.price === 'number' && i.price > 0);
-    const profiles: any[] = priced.length ? await this.profileModel.find({
-      account_id: { $in: [...new Set(priced.map((i) => i.provider_account_id))] }, type: { $in: ['radiology', 'hospital'] },
-      status: 'active', public_eligibility: true, medical_review_status: 'approved',
-    }, { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1 }).lean() : [];
-    const byId = new Map(profiles.map((p) => [p.account_id, p]));
-    const offers = priced.filter((i) => byId.has(i.provider_account_id)).map((i) => ({
-      provider: publicProvider(byId.get(i.provider_account_id)), price: i.price, currency: i.currency || 'SAR',
-      contrast_supported: !!i.contrast_supported, insurance_covered: !!i.insurance_covered,
-    })).sort((a, b) => a.price - b.price);
-    return { service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null, offers };
+    const offers = ((await loadOffers(this.svcModel.db as never, 'radiology', [svc])).get(svc.id) ?? []).filter((o) => o.price !== null);
+    // contrast is a fact of the centre's capability row for this scan (like turnaround_hours in the labs comparison); no row, no claim
+    const lc = (v: unknown) => String(v ?? '').trim().toLowerCase();
+    const caps: any[] = offers.length ? await this.svcModel.db.collection('provider_capabilities_radiology').find({
+      available: true, provider_account_id: { $in: offers.map((o) => o.provider.id) },
+    }, { projection: { _id: 0, provider_account_id: 1, contrast_supported: 1, service_id: 1, scan_type: 1, body_part: 1 } }).toArray() : [];
+    const contrast = new Map<string, boolean>(caps
+      .filter((c) => typeof c.contrast_supported === 'boolean' && (c.service_id ? c.service_id === svc.id : lc(c.scan_type) === lc(svc.modality) && (!svc.body_part || lc(c.body_part) === lc(svc.body_part))))
+      .map((c) => [c.provider_account_id, c.contrast_supported]));
+    return {
+      service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null,
+      offers: offers.map((o) => ({ provider: o.provider, price: o.price as number, currency: o.currency, contrast_supported: contrast.get(o.provider.id) ?? false, insurance_covered: o.insurance, premises: o.premises, home: o.home }))
+        .sort((a, b) => a.price - b.price),
+    };
   }
 
   async book(user: any, body: any) {
@@ -582,7 +637,10 @@ export class RadiologyOpsService {
       state: { $nin: [RadiologyBookingState.CANCELLED, RadiologyBookingState.REPORT_READY] },
     }).lean();
     if (dupe) return dupe;
-    const total = Number(svc.price) || 0;
+    // the chosen centre's own price for this scan (its choice, its capability row, or what it registered with); the catalogue price only when it has none
+    const ownPrice = providerId ? (await ownPrices(this.svcModel.db as never, 'radiology', [providerId], [svc])).get(providerId)?.get(svc.id) : undefined;
+    const total = ownPrice ?? (Number(svc.price) || 0);
+    if (!(total > 0)) throw new BadRequestException('service_price_not_set');
     const booking = await this.bkgModel.create({
       id: require('uuid').v4(),
       patient_id: user.id, patient_name: user.full_name, patient_phone: user.phone,

@@ -373,6 +373,8 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'notif.order_created.body': { ar: 'جاري إرساله للصيدلية', en: 'Sending to pharmacy', ur: 'فارمیسی بھیج رہے ہیں' },
   'notif.price_drop.title': { ar: 'انخفض سعر دواء في قائمتك', en: 'A medicine on your wishlist is cheaper', ur: 'آپ کی فہرست کی ایک دوا سستی ہو گئی ہے' },
   'notif.price_drop.body': { ar: 'انخفض سعره. اطّلع عليه الآن', en: 'The price went down. Take a look now', ur: 'قیمت کم ہوئی ہے۔ ابھی دیکھیں' },
+  'notif.service_available.title': { ar: 'الخدمة التي طلبتها صارت متاحة', en: 'The service you asked about is now available', ur: 'جس سروس کے بارے میں آپ نے پوچھا تھا وہ اب دستیاب ہے' },
+  'notif.service_available.body': { ar: '{name}: يوجد الآن مقدّم يقدّمها. اطّلع على العروض', en: '{name}: a provider now offers it. See the offers', ur: '{name}: اب ایک فراہم کنندہ یہ پیش کرتا ہے۔ پیشکشیں دیکھیں' },
   'notif.new_order.title': { ar: 'طلب جديد', en: 'New Order', ur: 'نیا آرڈر' },
   'pharmacy.new_allocation.title': { ar: 'تم اختيار عرضك', en: 'Your offer was chosen', ur: 'آپ کی پیشکش منتخب ہو گئی' },
   'pharmacy.new_allocation.body': { ar: 'اختار المريض عرضك ({items_count} صنف). جهّز الطلب.', en: 'The patient chose your offer ({items_count} items). Prepare the order.', ur: 'مریض نے آپ کی پیشکش منتخب کی ({items_count} اشیاء)۔ آرڈر تیار کریں۔' },
@@ -439,8 +441,6 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'notif.rad_ready.body': { ar: 'تم نشر تقريرك — اطلع عليه وشاركه مع طبيبك', en: 'Your report is published — view it and share with your doctor', ur: 'رپورٹ دیکھیں' },
   'notif.rad_cancelled.title': { ar: 'أُلغي موعد الأشعة', en: 'Radiology Cancelled', ur: 'منسوخ' },
   'notif.rad_cancelled.body': { ar: 'أُلغي الحجز — يمكنك إعادة الجدولة', en: 'The booking was cancelled — you can reschedule', ur: 'منسوخ' },
-  'notif.emergency.title': { ar: ' طوارئ!', en: ' EMERGENCY!', ur: ' ایمرجنسی' },
-  'notif.emergency.body': { ar: 'مريض يحتاج تدخل فوري', en: 'Patient needs immediate help', ur: 'مریض مدد' },
   'notif.prescription_new.title': { ar: 'وصفة جديدة', en: 'New Prescription', ur: 'نئا نسخہ' },
   'notif.prescription_new.body': { ar: 'اضغط للعرض', en: 'Tap to view', ur: 'تھپکائیں' },
   'notif.medicine_pending.title': { ar: 'دواء جديد للمراجعة', en: 'New Medicine for Review', ur: 'نئی دوا' },
@@ -835,8 +835,6 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   // Notification texts the server already sends as keys (they were missing, so the raw key was shown).
   'notif.call_missed.title': { ar: 'مكالمة فائتة', en: 'Missed call', ur: 'مس کال' },
   'notif.call_missed.body': { ar: 'فاتتك مكالمة من طبيبك، يمكنك فتح الاستشارة للمتابعة.', en: 'You missed a call from your doctor. Open the consultation to follow up.', ur: 'آپ کے ڈاکٹر کی کال رہ گئی۔ مشاورت کھول کر رابطہ کریں۔' },
-  'notif.emergency_resolved.title': { ar: 'تم إغلاق الطلب', en: 'Request closed', ur: 'درخواست بند' },
-  'notif.emergency_resolved.body': { ar: 'تم إغلاق طلبك.', en: 'Your request was closed.', ur: 'آپ کی درخواست بند کر دی گئی۔' },
   'notif.provider_approved.title': { ar: 'تم اعتماد حسابك', en: 'Your account is approved', ur: 'آپ کا اکاؤنٹ منظور ہو گیا' },
   'notif.provider_approved.body': { ar: 'تمت الموافقة على حسابك في نبض. سجّل الدخول من جديد لتبدأ استقبال الطلبات.', en: 'Your Nabd account was approved. Sign in again to start receiving requests.', ur: 'آپ کا نبض اکاؤنٹ منظور ہو گیا۔ درخواستیں وصول کرنے کے لیے دوبارہ لاگ اِن کریں۔' },
   'notif.provider_rejected.title': { ar: 'لم يتم اعتماد حسابك', en: 'Your account was not approved', ur: 'آپ کا اکاؤنٹ منظور نہیں ہوا' },
@@ -884,6 +882,11 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'pharmacy.substitute_proposed.title': { ar: 'اقتراح بديل لصنف في طلبك', en: 'A substitute was proposed for your order', ur: 'آپ کے آرڈر کے لیے متبادل تجویز کیا گیا' },
   'pharmacy.substitute_proposed.body': { ar: 'تقترح الصيدلية {substitute_name} بدلًا من {item_name}. اقبل أو ارفض من الطلب.', en: 'The pharmacy proposes {substitute_name} instead of {item_name}. Accept or reject from the order.', ur: 'فارمیسی {item_name} کی جگہ {substitute_name} تجویز کرتی ہے۔ آرڈر سے قبول یا مسترد کریں۔' },
   'pharmacy.substitute_decided.title': { ar: 'رد المريض على البديل المقترح', en: 'Patient answered the proposed substitute', ur: 'مریض نے تجویز کردہ متبادل کا جواب دیا' },
+  'notif.job_application.title': { ar: 'تحديث على طلب التوظيف', en: 'Update on your job application', ur: 'آپ کی ملازمت کی درخواست پر اپ ڈیٹ' },
+  'notif.job_application.under_review.body': { ar: 'طلبك على وظيفة {job_title} قيد المراجعة.', en: 'Your application for {job_title} is under review.', ur: '{job_title} کے لیے آپ کی درخواست زیرِ جائزہ ہے۔' },
+  'notif.job_application.interviewing.body': { ar: 'طلبك على وظيفة {job_title} انتقل إلى مرحلة المقابلة.', en: 'Your application for {job_title} moved to the interview stage.', ur: '{job_title} کے لیے آپ کی درخواست انٹرویو کے مرحلے میں ہے۔' },
+  'notif.job_application.accepted.body': { ar: 'تم قبول طلبك على وظيفة {job_title}.', en: 'Your application for {job_title} was accepted.', ur: '{job_title} کے لیے آپ کی درخواست قبول ہو گئی ہے۔' },
+  'notif.job_application.rejected.body': { ar: 'لم يتم قبول طلبك على وظيفة {job_title} هذه المرة.', en: 'Your application for {job_title} was not accepted this time.', ur: '{job_title} کے لیے آپ کی درخواست اس بار قبول نہیں ہوئی۔' },
   'pharmacy.substitute_decided.body': { ar: 'قرار المريض بشأن {item_name}: {decision}.', en: 'The patient decision on {item_name}: {decision}.', ur: '{item_name} پر مریض کا فیصلہ: {decision}۔' },
 };
 

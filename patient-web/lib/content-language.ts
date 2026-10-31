@@ -1,7 +1,8 @@
 /**
- * A product section is shown in the page's language; when the API had to use another language for it, it says so in `fallback_langs`
- * (field → the language the text is in). The page marks such a section with `lang` / `dir` and a small note, so a language is never
- * mixed silently (owner rule 2026-10-26: Arabic pages fall back to English; English pages to Arabic; ur, hi, bn, fil to English, then Arabic).
+ * A leaflet section (description, uses, dosage, warnings...) is shown in the page's language or the API leaves it out and the page hides it
+ * (owner rule 2026-10-27: a translated field over a mixed language). Only the short facts (form, strength, pack size, category) can still come
+ * from another language: the API then says so in `fallback_langs` (field → the language the text is in) and the page marks the fact with
+ * `lang` / `dir` and a small note, so a language is never mixed silently.
  */
 export type ContentLang = "ar" | "en" | "ur" | "hi" | "bn" | "fil";
 const CONTENT_LANGS: readonly string[] = ["ar", "en", "ur", "hi", "bn", "fil"];

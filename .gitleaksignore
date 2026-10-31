@@ -55,3 +55,9 @@ b3c1b6fba7d9334c78967bc0dab280ae5a12d63f:backend/test/security/p3-provider-crede
 5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:patient-web/lib/api/appointments-server.test.ts:generic-api-key:17
 5c4ae4ef1279c783f76eb6e05ce66247e814e6fc:patient-web/lib/api/medicines-server.test.ts:generic-api-key:16
 fdaf728472475786d03b5e3da195766579907054:lib/api/appointments-server.test.ts:generic-api-key:16
+f1f7eca54632fca1913601402d9bee2baa621f4b:backend/src/scripts/parallel-runner.spec.ts:generic-api-key:147
+f1f7eca54632fca1913601402d9bee2baa621f4b:tools/ops/tests/test_translate_progress.py:generic-api-key:10
+# - capacity-prod-shape workflow, first version: the local test-only JWT fallback (same value as tools/live/start-backend.sh); the workflow makes a random secret per run since
+965e3dbd13d341d378932ab55c248c4ef1491171:.github/workflows/capacity-prod-shape.yml:generic-api-key:103
+# - Cloudflare TURN ops-task test: fake key/token fixture in the first version of test_turn_env.py (now built at runtime)
+6be49e560e2380c6fa148670869a56f81cc3ac6c:tools/ops/tests/test_turn_env.py:generic-api-key:12

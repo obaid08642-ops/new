@@ -1,7 +1,10 @@
+import { UseInterceptors } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
+import { ownAppointmentId } from './appointment-link';
 import { protectHealthDoc } from '../../common/health-fields';
 import { PROVIDER_ROLES } from '../../common/enums';
 import { isProviderRole } from '../../common/enums';
-import { Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Inject } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Put, Delete, Body, Param, Query, Req, Inject } from '@nestjs/common';
 import { ServiceUnavailableException } from '@nestjs/common';
 import { DisableDto, EndConsultationDto, IssueSickLeaveDto, IssueMedicalReportDto, SetAvailDto, PreviewAdHocDto, DispatchDto, WithdrawAliasDto, UploadProfileImageDto, ReplaceImageDto, AssignStaffDto } from './provider.controllers.dto';
 import { RegisterDto, LoginDto, RefreshDto, LogoutDto, SendOtpDto, VerifyEmailDto, ForgotDto, VerifyResetCodeDto, ResetDto, AddPhoneDto, UploadDocDto, UploadDocDto2, UpsertBankDto, SubmitDeltaDto, SubmitDeltaDto2, InviteDto, AcceptDto, UpdateDto2, RejectDeltaDto, RejectDeltaDto2, ApproveDto, RejectDto, NeedsChangesDto, SuspendDto, ReactivateDto, ReviewDocumentDto, AcceptDto2, RejectDto2, StartDto, CompleteDto, CancelDto, UpsertPharmaDto, UpsertLabDto, UpsertLabDto2, UpsertRadDto, UpsertRadDto2, UpsertDocDto, UpsertDocDto2, UpsertHcDto, UpsertHcDto2, UpsertDto, UpsertDto2 } from './provider.controllers.generated.dto';
@@ -17,6 +20,8 @@ import { ProviderScheduleService } from './services/provider-schedule.service';
 import { ProviderDashboardService } from './services/provider-dashboard.service';
 import { ProviderSeedService } from './services/provider-seed.service';
 import { ServiceCapabilityService } from './services/service-capability.service';
+import { ProviderServiceOffersService } from './services/provider-service-offers.service';
+import { ProviderServiceOfferDto } from './provider-service-offers.dto';
 import { SchedulingEngineService } from './services/scheduling-engine.service';
 import { ProviderScoringService } from './services/provider-scoring.service';
 import { ProviderMatchingService } from './services/provider-matching.service';
@@ -386,7 +391,7 @@ export class ProviderRequestsController {
       doctor_name: u?.full_name || provider?.display_name || null,
       facility_id: provider?._id ? String(provider._id) : null,
       facility_name: provider?.display_name || null,
-      appointment_id: id !== 'new' ? id : (body.appointment_id || null),
+      appointment_id: await ownAppointmentId(this.conn, String(u?.id), String(body.patient_id), [body.appointment_id, id]),
       attachments: [],
       issued_at: new Date(),
       createdAt: new Date(),
@@ -438,7 +443,7 @@ export class ProviderRequestsController {
       doctor_name: u?.full_name || provider?.display_name || null,
       facility_id: provider?._id ? String(provider._id) : null,
       facility_name: provider?.display_name || null,
-      appointment_id: id,
+      appointment_id: await ownAppointmentId(this.conn, String(u?.id), String(patientId), [body.appointment_id, id]),
       attachments: Array.isArray(body.attachments) ? body.attachments : [],
       issued_at: new Date(),
       createdAt: new Date(),
@@ -542,6 +547,33 @@ export class ProviderCapabilitiesController {
   @Get('home-care') listHc(@CurrentUser() u: any) { return this.svc.listHomeCare(u); }
   @Post('home-care') upsertHc(@CurrentUser() u: any, @Body() body: UpsertHcDto) { return this.svc.upsertHomeCare(u, body); }
   @Delete('home-care/:id') delHc(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.deleteHomeCare(u, id); }
+}
+
+/**
+ * The full approved catalogue of a vertical (lab | radiology | nursing) with this provider's own options per service, and the one write that changes them:
+ * offered or not, where (premises / home / both), insurance accepted, price. What the patient lists, filters and detail pages read.
+ */
+@Controller('provider/services')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
+@Roles(UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE, UserRole.NURSING, UserRole.HOME_CARE, UserRole.HOSPITAL)
+export class ProviderServiceOffersController {
+  constructor(private readonly svc: ProviderServiceOffersService) {}
+  @Get(':vertical') list(@CurrentUser() u: any, @Param('vertical') vertical: string, @Query('offered') offered?: string, @Query('search') search?: string) {
+    return this.svc.list(u, vertical, { offered: offered === undefined ? undefined : offered === 'true' || offered === '1', search });
+  }
+  @Put(':vertical/:serviceId') set(@CurrentUser() u: any, @Param('vertical') vertical: string, @Param('serviceId') serviceId: string, @Body() body: ProviderServiceOfferDto) {
+    return this.svc.set(u, vertical, serviceId, body);
+  }
+}
+
+/** Admin view: who offers a service and how (ids and options only), or one provider's choices. */
+@Controller('admin/service-offers')
+@Roles(UserRole.ADMIN)
+export class AdminServiceOffersController {
+  constructor(private readonly svc: ProviderServiceOffersService) {}
+  @Get(':vertical') view(@Param('vertical') vertical: string, @Query('service_id') serviceId?: string, @Query('provider_account_id') providerAccountId?: string) {
+    return this.svc.adminView(vertical, { service_id: serviceId, provider_account_id: providerAccountId });
+  }
 }
 
 @Controller('provider/zones')

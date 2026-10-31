@@ -10,6 +10,15 @@ cache-control: public, max-age=0, s-maxage=<Next's revalidate>, stale-while-reva
 
 and no `Set-Cookie`. This file is the edge side. The build session applies it.
 
+> **Status 2026-10-27 (owner: cache everything public).** The rule below is applied by `tools/ops/cf/46-public-html-cache-{check,apply}.sh`
+> (one named rule, respect origin, anonymous GET only; the apply task proves MISS then HIT with the same bytes and CSP, every inline script of
+> the cached copy matching a CSP hash, no Set-Cookie, no HIT for a session/theme cookie, Authorization, RSC or private page, and puts the old
+> rules back on any failure). Decision: the hash-based copy (this file, "No nonce in the cached copy"), not the Worker of `docs/ops/edge-html.md`:
+> the origin already sends it, nothing runs at the edge, no per-request compute, no shared nonce. The Worker (edge mode) stays available and unused.
+> Shared pages carry `Cache-Tag: html, medicines|doctors|articles` (`htmlCacheTags` in `patient-web/server/nonce-server.mjs`), so the purge bus
+> (`medicines` on catalogue/price/stock edits, `doctors` on availability edits) empties the edge copy as well as the API answers.
+> Images and the wider public read API: `tools/ops/cf/47-public-assets-api-cache-*.sh`. Measure with `tools/perf/edge-cache-timing.sh`.
+
 ## Which pages the origin marks shareable
 
 Only when **all** of these hold (anything else is `private, no-cache` or `no-store`):

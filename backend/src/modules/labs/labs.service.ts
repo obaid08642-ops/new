@@ -1,4 +1,7 @@
 import { flattenResultEntries } from './lab-booking-results';
+import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
+import { SearchService } from '../search/search.service';
+import { LAB_TYPES, byRelevance, matchedIds } from '../search/catalogue-search';
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException, ServiceUnavailableException, Inject, Optional } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -20,8 +23,11 @@ import { pick } from '../../common/sanitize';
 export const PREPARATION_LANGS = ['ar', 'en', 'ur', 'hi', 'bn', 'tl'] as const;
 /** A booking's report as listed to the clients: no file content (the file is served on its own route). */
 export function reportSummary(r: any) {
-  return { id: r?.id, name: r?.name, mime: r?.mime, uploaded_at: r?.uploaded_at, notes: r?.notes, has_file: typeof r?.base64 === 'string' && r.base64.length > 0 };
+  return { id: r?.id, name: r?.name, mime: r?.mime, uploaded_at: r?.uploaded_at, notes: r?.notes, has_file: (typeof r?.base64 === 'string' && r.base64.length > 0) || (typeof r?.storage_object_id === 'string' && r.storage_object_id.length > 0) };
 }
+
+/** The file types a lab report may be (the file itself is stored and scanned by /storage). */
+export const LAB_REPORT_MIMES: ReadonlySet<string> = new Set(['application/pdf', 'image/png', 'image/jpeg', 'image/webp']);
 
 export const LAB_CATALOG_FIELDS = [
   'name_ar', 'name_en', 'short_code', 'description_ar', 'description_en', 'category', 'sample_type', 'price', 'old_price', 'fasting_required', 'fasting_hours', 'home_visit_supported', 'facility_visit_supported', 'turnaround_hours', 'preparation_ar', 'preparation_en', 'preparation_ur', 'preparation_hi', 'preparation_bn', 'preparation_tl', 'is_package', 'included_services', 'popularity', 'active', 'unavailable', 'medical_referral_required',
@@ -30,12 +36,15 @@ import { getEffectiveRoles } from '../../common/auth.guard';
 import { UserRole, isAdminUser } from '../../common/enums';
 import { RedisService } from '../redis/redis.service';
 import { BusinessRulesService } from '../business-rules/business-rules.module';
+import { StorageService } from '../storage/storage.module';
 import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
 import { NAME_PROJECTION, withItemNames } from '../../common/booking-names';
 
 import { nearestFirst } from '../provider/services/nearest-first';
 import { publicLabFilter } from './labs-public';
+import { byRating, paged, parsePage, withProviderRating, type CataloguePage } from '../../common/catalogue-page';
+import { loadOffers, ownPrices, withOfferSummary, withOffers, type OfferSummary } from '../../common/service-offers';
 
 /** Public card for a provider in carousels and price lists: no contact or account details. */
 function publicProvider(p: any) {
@@ -66,20 +75,41 @@ export class LabsService {
     @Optional() private readonly redis?: RedisService,
     @Optional() private readonly pricing?: BusinessRulesService,
     @Optional() private readonly insurance?: InsuranceFlowService,
+    @Optional() private readonly searchEngine?: SearchService,
+    @Optional() private readonly storage?: StorageService,
   ) {}
 
-  async list(opts: { category?: string; search?: string; home_only?: boolean; packages_only?: boolean; highest_rated?: boolean; nearest?: boolean; lowest_price?: boolean; lat?: number; lng?: number }) {
+  async list(opts: { sort?: string; page?: number; limit?: number; category?: string; search?: string; home_only?: boolean; insurance?: boolean; packages_only?: boolean; highest_rated?: boolean; nearest?: boolean; lowest_price?: boolean; lat?: number; lng?: number }) {
     const q: any = { active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
     if (opts.category) q.category = opts.category;
-    if (opts.home_only) q.home_visit_supported = true;
     if (opts.packages_only) q.is_package = true;
     // Explicitly exclude any imaging entries — those belong to the separate Radiology module.
     q.$and = [{ category: { $ne: 'imaging' } }, { sample_type: { $ne: 'imaging' } }];
-    if (opts.search) q.$or = labSearchClause(opts.search);
+    // the search box uses the home search's engine (typo tolerance, ar/en synonyms); its own text match is the fallback
+    const matched = opts.search ? await matchedIds(this.searchEngine, opts.search, LAB_TYPES) : null;
+    if (opts.search) { if (matched) q.id = { $in: matched }; else q.$or = labSearchClause(opts.search); }
     
-    let sortObj: any = { popularity: -1, name_ar: 1 };
-    if (opts.highest_rated) sortObj = { rating: -1, popularity: -1 };
-    else if (opts.lowest_price) sortObj = { price: 1, popularity: -1 };
+    // default: the smart ranking (most visited, searched, added to a cart and ordered first), `sort=popularity` keeps the old editorial order
+    let sortObj: any = catalogueSortSpec(opts.sort);
+    if (opts.lowest_price) sortObj = { price: 1, popularity: -1 };
+    const page = parsePage(opts.page, opts.limit);
+    // 2026-10-28: the list is the CATALOGUE; each test carries what providers offer for it (count, from-price, where, insurance). The home and insurance
+    // filters read those offers, so a test nobody offers yet is still listed but never found by "at home" or "insurance".
+    const finish = async <T extends { id: string }>(rows: T[]): Promise<Array<T & OfferSummary> | CataloguePage<T & OfferSummary>> => {
+      const enriched = await withOfferSummary(this.svcModel.db as never, 'lab', rows, { home_only: !!opts.home_only, insurance: !!opts.insurance });
+      return page ? paged(enriched, page) : enriched;
+    };
+    // Ratings are on the labs, not on the tests: "highest rated" ranks a test by the labs that run it (compatibleProviders' rule).
+    const labsRunning = async () => {
+      const labs: any[] = await this.providerProfiles.find({
+        type: { $in: ['lab', 'hospital'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
+      }, { projection: { _id: 0, test_categories: 1, rating_avg: 1, rating_count: 1 } }).lean();
+      return labs;
+    };
+    const runs = (svc: any, lab: any) => {
+      const tests: unknown[] = Array.isArray(lab.test_categories) ? lab.test_categories : [];
+      return tests.includes(svc.id) || (!!svc.category && tests.includes(svc.category));
+    };
 
     // #623: "nearest" orders tests by the closest approved lab that runs them (same compatibility rule as
     // compatibleProviders: the lab's test_categories hold the test id or its category). Without a valid
@@ -91,15 +121,22 @@ export class LabsService {
         'geo.lat': { $type: 'number' }, 'geo.lng': { $type: 'number' },
       }, { projection: { _id: 0, geo: 1, test_categories: 1 } }).lean();
       const services: any[] = await this.svcModel.find(q, { _id: 0, __v: 0 }).lean();
-      return nearestFirst(services, labs, here, (svc, lab) => {
-        const runs: unknown[] = Array.isArray(lab.test_categories) ? lab.test_categories : [];
-        return runs.includes(svc.id) || (!!svc.category && runs.includes(svc.category));
-      }).slice(0, 120);
+      return finish(nearestFirst(services, labs, here, runs).slice(0, 120));
     }
 
-    if (!this.redis?.getWithSWR) return this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj).limit(120);
-    const cacheKey = `cache:lab-services:public:v1:${JSON.stringify(opts)}`;
-    return this.redis.getWithSWR(cacheKey, 900, async () => this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj).limit(120));
+    const load = async (): Promise<any[] | CataloguePage<any>> => {
+      if (opts.highest_rated) {
+        const services: any[] = await this.svcModel.find(q, { _id: 0, __v: 0 }).lean();
+        return finish(withProviderRating(services, await labsRunning(), runs).sort(byRating));
+      }
+      // the page asks for the true total, so it reads every match; the plain list is capped at 300 rows (the catalogue holds about 150)
+      const query = this.svcModel.find(q, { _id: 0, __v: 0 }).sort(sortObj);
+      const rows: any[] = page ? await query.lean() : await query.limit(300).lean();
+      return finish(matched && !opts.lowest_price ? byRelevance(rows, matched) : rows);
+    };
+    if (!this.redis?.getWithSWR) return load();
+    const cacheKey = `cache:lab-services:public:v2:${JSON.stringify(opts)}`;
+    return this.redis.getWithSWR(cacheKey, 900, load);
   }
 
 
@@ -113,13 +150,19 @@ export class LabsService {
     return agg;
   }
 
+  /** The test page: the catalogue row with what labs offer for it (labs, price, where, insurance) and `providers_count`; an unoffered test still opens. */
+  async getByIdWithOffers(id: string) {
+    const s: any = await this.getById(id);
+    return withOffers(this.svcModel.db as never, 'lab', typeof s.toObject === 'function' ? s.toObject() : s);
+  }
+
   async getById(id: string) {
     const s = await this.svcModel.findOne({ id, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, __v: 0 });
     if (!s) throw new NotFoundException();
     return s;
   }
 
-  async compatibleProviders(testIds: string[]) {
+  async compatibleProviders(testIds: string[], filters: { home?: boolean; insurance?: boolean } = {}) {
     const ids = [...new Set((testIds || []).filter(Boolean))];
     if (!ids.length) return [];
     const services = await this.svcModel.find({ id: { $in: ids }, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, category: 1, short_code: 1, name_ar: 1, price: 1 });
@@ -136,7 +179,13 @@ export class LabsService {
       $or: [{ test_categories: { $all: ids } }, ...(categories.length ? [{ test_categories: { $all: categories } }] : [])],
     }, { _id: 0, account_id: 1, id: 1, name_ar: 1, name_en: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1, logo: 1 }).limit(50).lean();
     const prices = await this.labPrices(profiles.map((p: any) => p.account_id), services as any[]);
-    return profiles.map((profile: any) => {
+    // Filters (QA PS gaps 4 and 5): a lab stays only when it offers EVERY requested test the asked way (home collection, insurance), by what the lab chose or registered per test.
+    let kept = profiles;
+    if (filters.home || filters.insurance) {
+      const offers = await loadOffers(this.svcModel.db as never, 'lab', services as any[]);
+      kept = profiles.filter((profile: any) => (services as any[]).every((svc: any) => (offers.get(svc.id) ?? []).some((o) => o.provider.id === profile.account_id && (!filters.home || o.home) && (!filters.insurance || o.insurance))));
+    }
+    return kept.map((profile: any) => {
       const own = prices.get(profile.account_id);
       // #631: the lab's own total for the requested tests (its capability prices, a missing one at the catalog price);
       // null only when neither the lab nor the catalog has a price for some test.
@@ -161,12 +210,19 @@ export class LabsService {
   /** The public profile of an approved lab by account id (GET /labs/:id); its priced tests from its capabilities. */
   async publicLab(id: string) {
     if (typeof id !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(id)) throw new NotFoundException('lab_not_found');
-    const p: any = await this.providerProfiles.findOne(publicLabFilter(id), { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, description_ar: 1, description_en: 1, address: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1 }).lean();
+    const p: any = await this.providerProfiles.findOne(publicLabFilter(id), { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, description_ar: 1, description_en: 1, address: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1, test_categories: 1 }).lean();
     if (!p) throw new NotFoundException('lab_not_found');
     const items: any[] = await this.svcModel.db.collection('provider_capabilities_lab').find(
       { provider_account_id: { $eq: p.account_id }, available: true, price: { $gt: 0 } },
       { projection: { _id: 0, code: 1, name_ar: 1, name_en: 1, price: 1 } },
     ).limit(100).toArray();
+    // the tests the lab runs and has priced itself (its own choice or the price it registered with), next to its older capability rows
+    const runs: string[] = Array.isArray(p.test_categories) ? p.test_categories.filter((t: unknown) => typeof t === 'string') : [];
+    const catalogue: any[] = runs.length ? await this.svcModel.find({ id: { $in: runs }, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, name_ar: 1, name_en: 1, short_code: 1 }).lean() : [];
+    const mine = (await ownPrices(this.svcModel.db as never, 'lab', [p.account_id], catalogue)).get(p.account_id);
+    const known = new Set(items.map((i) => i.code));
+    const registered = catalogue.filter((c) => mine?.has(c.id) && !known.has(c.id) && !known.has(c.short_code))
+      .map((c) => ({ id: c.id, name_ar: c.name_ar ?? null, name_en: c.name_en ?? null, price: mine!.get(c.id) as number }));
     return {
       data: {
         id: p.account_id,
@@ -179,33 +235,17 @@ export class LabsService {
         home_visit: Boolean(p.home_visit_supported),
         rating: p.rating_count > 0 ? p.rating_avg : null,
         rating_count: p.rating_count || 0,
-        services: items.map((i) => ({ id: i.code, name_ar: i.name_ar ?? null, name_en: i.name_en ?? null, price: i.price })),
+        services: [...items.map((i) => ({ id: i.code, name_ar: i.name_ar ?? null, name_en: i.name_en ?? null, price: i.price })), ...registered],
       },
     };
   }
 
   /**
-   * Each lab's own price per catalog test, from the lab's capabilities (provider_capabilities_lab: code = the test id or
-   * short code, or the same Arabic name; available and priced). Map: lab account id -> test id -> price.
+   * Each lab's own price per catalog test: its own per-test choice (provider_service_offers), else its capability row (provider_capabilities_lab), else the price it typed
+   * at registration (test_prices) - see common/service-offers.ts ownPrices. Map: lab account id -> test id -> price; a test the lab has no price for falls back to the catalogue price.
    */
   private async labPrices(accountIds: string[], services: any[]): Promise<Map<string, Map<string, number>>> {
-    const out = new Map<string, Map<string, number>>();
-    const ids = [...new Set(accountIds.filter((id) => typeof id === 'string' && id))];
-    if (!ids.length || !services.length) return out;
-    const codes = [...new Set(services.flatMap((svc) => [svc.id, svc.short_code]).filter((c) => typeof c === 'string' && c))];
-    const names = [...new Set(services.map((svc) => svc.name_ar).filter((n) => typeof n === 'string' && n))];
-    const items: any[] = await this.svcModel.db.collection('provider_capabilities_lab').find({
-      provider_account_id: { $in: ids }, available: true, price: { $gt: 0 },
-      $or: [{ code: { $in: codes } }, ...(names.length ? [{ name_ar: { $in: names } }] : [])],
-    }, { projection: { _id: 0, provider_account_id: 1, code: 1, name_ar: 1, price: 1 } }).toArray();
-    for (const item of items) {
-      const svc = services.find((s) => item.code === s.id || (s.short_code && item.code === s.short_code) || (s.name_ar && item.name_ar === s.name_ar));
-      if (!svc || typeof item.price !== 'number') continue;
-      const lab = out.get(item.provider_account_id) ?? new Map<string, number>();
-      lab.set(svc.id, item.price);
-      out.set(item.provider_account_id, lab);
-    }
-    return out;
+    return ownPrices(this.svcModel.db as never, 'lab', accountIds, services);
   }
 
   // #624 carousel: popular approved tests, each with the approved labs that run it (the lab's
@@ -229,31 +269,25 @@ export class LabsService {
     });
   }
 
-  // #631 price comparison: each approved lab's own price for this test from its capabilities
-  // catalog (provider_capabilities_lab: code = the test's short code, or the same Arabic name,
-  // the rule ServiceCapabilityService uses). Labs with no priced entry are not listed.
+  // #631 price comparison: each approved lab's own price for this test - its own per-test choice, else its capability row, else the price it registered with - with whether
+  // it collects at home and takes insurance FOR THIS TEST (registration maps or its own choice). Labs with no price for the test are not listed.
   async priceComparison(serviceId: string) {
     const svc: any = await this.svcModel.findOne({ id: { $eq: String(serviceId) }, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, id: 1, name_ar: 1, name_en: 1, short_code: 1, price: 1 }).lean();
     if (!svc) throw new NotFoundException('service_not_found');
+    const db = this.svcModel.db as never;
     const codes = [svc.id, svc.short_code].filter(Boolean);
-    const items: any[] = await this.svcModel.db.collection('provider_capabilities_lab').find({
+    const caps: any[] = await this.svcModel.db.collection('provider_capabilities_lab').find({
       available: true, $or: [{ code: { $in: codes } }, ...(svc.name_ar ? [{ name_ar: svc.name_ar }] : [])],
-    }, { projection: { _id: 0, provider_account_id: 1, price: 1, currency: 1, home_collection_supported: 1, turnaround_hours: 1, insurance_covered: 1 } }).toArray();
-    return { service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null, offers: await this.priceOffers(items, ['lab', 'hospital']) };
-  }
-
-  private async priceOffers(items: any[], types: string[]) {
-    const priced = items.filter((i) => typeof i.price === 'number' && i.price > 0);
-    if (!priced.length) return [];
-    const profiles: any[] = await this.providerProfiles.find({
-      account_id: { $in: [...new Set(priced.map((i) => i.provider_account_id))] }, type: { $in: types },
-      status: 'active', public_eligibility: true, medical_review_status: 'approved',
-    }, { _id: 0, account_id: 1, name_ar: 1, name_en: 1, logo: 1, rating_avg: 1, rating_count: 1 }).lean();
-    const byId = new Map(profiles.map((p) => [p.account_id, p]));
-    return priced.filter((i) => byId.has(i.provider_account_id)).map((i) => ({
-      provider: publicProvider(byId.get(i.provider_account_id)), price: i.price, currency: i.currency || 'SAR',
-      home_collection_supported: !!i.home_collection_supported, turnaround_hours: i.turnaround_hours ?? null, insurance_covered: !!i.insurance_covered,
-    })).sort((a, b) => a.price - b.price);
+    }, { projection: { _id: 0, provider_account_id: 1, turnaround_hours: 1 } }).toArray();
+    const turnaround = new Map<string, number>(caps.filter((c) => typeof c.turnaround_hours === 'number').map((c) => [c.provider_account_id, c.turnaround_hours]));
+    const offers = ((await loadOffers(db, 'lab', [svc])).get(svc.id) ?? []).filter((o) => o.price !== null);
+    return {
+      service_id: svc.id, name_ar: svc.name_ar, name_en: svc.name_en, catalog_price: svc.price ?? null,
+      offers: offers.map((o) => ({
+        provider: o.provider, price: o.price as number, currency: o.currency, home_collection_supported: o.home, turnaround_hours: turnaround.get(o.provider.id) ?? null,
+        insurance_covered: o.insurance, premises: o.premises,
+      })).sort((a, b) => a.price - b.price),
+    };
   }
 
   async book(user: any, data: any) {
@@ -657,6 +691,11 @@ export class LabsService {
     try { this.assertPatientOrAssignedProvider(user, b); } catch { throw new NotFoundException(); }
     const report = (Array.isArray(b.reports) ? b.reports : []).find((r: any) => r?.id === reportId);
     if (!report) throw new NotFoundException('report_not_found');
+    if (typeof report.storage_object_id === 'string' && report.storage_object_id) {
+      if (!this.storage) throw new NotFoundException('report_file_unavailable');
+      const f = await this.storage.fileBytes(report.storage_object_id);
+      return { name: String(report.name || f.name), mime: LAB_REPORT_MIMES.has(f.mime) ? f.mime : 'application/pdf', data: f.data };
+    }
     if (typeof report.base64 !== 'string' || !report.base64) throw new NotFoundException('report_file_unavailable');
     const mime = ['application/pdf', 'image/png', 'image/jpeg', 'image/webp'].includes(report.mime) ? report.mime : 'application/pdf';
     return { name: String(report.name || `report-${reportId}.pdf`), mime, data: Buffer.from(report.base64, 'base64') };
@@ -763,13 +802,21 @@ export class LabsService {
     return b.toObject();
   }
 
-  /** Provider: upload final report (base64 PDF/image) or JSON structured data. Pushes to reports[] and transitions to REPORTED. */
-  async uploadReport(id: string, user: any, body: { name?: string; mime?: string; base64?: string; url?: string; notes?: string; structuredData?: any[] }) {
+  /** Provider: attach the final report (a scanned /storage file) and/or typed result rows (a PDF is generated from them). Pushes to reports[] and transitions to REPORTED. */
+  async uploadReport(id: string, user: any, body: { name?: string; mime?: string; base64?: string; url?: string; report_storage_object_id?: string; notes?: string; structuredData?: any[] }) {
     if (!getEffectiveRoles(user).some(role => ['admin', 'lab', 'hospital'].includes(role))) throw new ForbiddenException();
     const b = await this.bkgModel.findOne({ id });
     if (!b) throw new NotFoundException();
     if (user.role !== 'admin' && b.provider_account_id && b.provider_account_id !== user.id) throw new ForbiddenException();
-    if (!body?.base64 && !body?.url && !body?.structuredData) throw new BadRequestException('report_file_required');
+    // A file reaches a result only through /storage (type check, scan, quarantine); raw base64 or a link would skip all of it.
+    if (body?.base64 || body?.url) throw new BadRequestException('raw_report_file_not_allowed');
+    const storageObjectId = String(body?.report_storage_object_id || '').trim();
+    if (!storageObjectId && !body?.structuredData) throw new BadRequestException('report_file_required');
+    let stored: { id: string; mime: string; original_name?: string } | null = null;
+    if (storageObjectId) {
+      if (!this.storage) throw new BadRequestException('report_storage_unavailable');
+      stored = await this.storage.providerReportObject(storageObjectId, String(user.id), LAB_REPORT_MIMES);
+    }
     // State machine: a report can only be uploaded once the sample is in the lab pipeline —
     // never on a fresh/cancelled booking (resurrecting terminal bookings corrupts the lifecycle).
     const reportable = [LabBookingState.RESULT_UPLOADED, LabBookingState.REPORTED];
@@ -777,10 +824,10 @@ export class LabsService {
       throw new BadRequestException(`invalid_transition_${b.state}_to_REPORTED`);
     }
     
-    let base64Data = body.base64;
-    let mimeType = body.mime || 'application/pdf';
+    let base64Data: string | undefined;
+    let mimeType = stored?.mime || 'application/pdf';
     
-    if (body.structuredData && body.structuredData.length > 0) {
+    if (!stored && body.structuredData && body.structuredData.length > 0) {
       base64Data = await this.pdfService.generateReport(b, body.structuredData);
       base64Data = base64Data.split(',')[1]; // remove data uri prefix
       mimeType = 'application/pdf';
@@ -798,10 +845,10 @@ export class LabsService {
     const report = {
       id: require('uuid').v4(),
       ...(entries.length ? { entries, critical: entries.some((e) => e.flag === 'critical') } : {}),
-      name: body.name || `report_${new Date().toISOString().slice(0,10)}.pdf`,
+      name: body.name || stored?.original_name || `report_${new Date().toISOString().slice(0,10)}.pdf`,
       mime: mimeType,
       base64: base64Data,
-      url: body.url,
+      ...(stored ? { storage_object_id: stored.id } : {}),
       notes: body.notes,
       uploaded_at: new Date(),
       uploaded_by: user.id,

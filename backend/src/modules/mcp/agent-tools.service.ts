@@ -11,6 +11,7 @@ import { CareService } from '../care/care.service';
 import { AppointmentsService } from '../care/appointments.service';
 import { SlotLocksService } from '../slot-locks/slot-locks.module';
 import { LabsService } from '../labs/labs.service';
+import { RadiologyOpsService } from '../radiology/radiology.service';
 import { HomeCareSvc } from '../home-care/home-care.service';
 import { UsersService } from '../users/users.service';
 import { RedisService } from '../redis/redis.service';
@@ -36,6 +37,7 @@ export const AGENT_WRITE_TOOLS = new Set([
   'hold_consultation',
   'hold_lab',
   'hold_nursing',
+  'hold_radiology',
   'cancel_hold',
 ]);
 
@@ -78,6 +80,7 @@ export class AgentToolsService {
     private readonly users: UsersService,
     private readonly redis: RedisService,
     @InjectConnection() private readonly conn: Connection,
+    private readonly radiology: RadiologyOpsService,
   ) {}
 
   // ── entry point (called by McpController after auth; consultation_slots is public) ──
@@ -278,6 +281,8 @@ export class AgentToolsService {
         return (await this.idempotent(tool, args, principal, () => this.holdLab(user, principal, args))).value;
       case 'hold_nursing':
         return (await this.idempotent(tool, args, principal, () => this.holdNursing(user, principal, args))).value;
+      case 'hold_radiology':
+        return (await this.idempotent(tool, args, principal, () => this.holdRadiology(user, principal, args))).value;
       case 'cancel_hold':
         return (await this.idempotent(tool, args, principal, () => this.cancelHold(user, principal, args))).value;
       default: {
@@ -412,6 +417,8 @@ export class AgentToolsService {
       order_id: orderId,
       status: String(submitted?.status ?? created.status ?? ''),
       tracking_url: web(`/pharmacy/broadcast-status?orderId=${encodeURIComponent(orderId)}`),
+      // The patient reviews the pharmacy offers and pays on Nabd Plus; the agent never pays.
+      checkout_url: web(`/pharmacy/broadcast-status?orderId=${encodeURIComponent(orderId)}`),
     };
   }
 
@@ -450,7 +457,7 @@ export class AgentToolsService {
   // ── booking holds ──
 
   private async recordHold(principal: AgentPrincipal, hold: {
-    booking_id: string; kind: 'consultation' | 'lab' | 'nursing'; provider_id?: string; slot_start?: string; lock_id?: string; expires_at?: Date | null;
+    booking_id: string; kind: 'consultation' | 'lab' | 'nursing' | 'radiology'; provider_id?: string; slot_start?: string; lock_id?: string; expires_at?: Date | null;
   }) {
     await this.conn.collection('agent_holds').insertOne({
       ...hold, patient_id: principal.patient_id, client_id: principal.client_id, createdAt: new Date(),
@@ -518,6 +525,7 @@ export class AgentToolsService {
       booking_id: bookingId,
       expires_at: expiresAt,
       payment_url: web(`/consultations/booking-status?appointmentId=${encodeURIComponent(bookingId)}`),
+      checkout_url: web(`/consultations/booking-status?appointmentId=${encodeURIComponent(bookingId)}`),
     };
   }
 
@@ -547,7 +555,32 @@ export class AgentToolsService {
       booking_id: bookingId,
       scheduled_at: iso(booking.scheduled_at) ?? scheduledAt,
       payment_url: web(`/diagnostics/bookings/labs/${encodeURIComponent(bookingId)}`),
+      checkout_url: web(`/diagnostics/bookings/labs/${encodeURIComponent(bookingId)}`),
     };
+  }
+
+  private async holdRadiology(user: { id: string; role: 'patient' }, principal: AgentPrincipal, args: Record<string, unknown>) {
+    const serviceId = typeof args.service_id === 'string' ? args.service_id.trim() : '';
+    const providerId = typeof args.provider_account_id === 'string' ? args.provider_account_id.trim() : '';
+    const scheduledAt = typeof args.scheduled_at === 'string' ? args.scheduled_at : '';
+    if (!serviceId || !providerId || !scheduledAt) {
+      const err = new Error('service_id, provider_account_id and scheduled_at are required') as Error & { errorCode?: string };
+      err.errorCode = 'INVALID_PARAMS';
+      throw err;
+    }
+    // Same pattern through the radiology booking service (approved catalogue, centre/scan
+    // compatibility and slot checks inside book). Card stays unpaid until the patient pays on Nabd Plus.
+    const booking = await this.radiology.book(user, {
+      service_id: serviceId,
+      provider_account_id: providerId,
+      scheduled_at: scheduledAt,
+      location_type: typeof args.location_type === 'string' ? args.location_type : undefined,
+      payment_method: 'card',
+    }) as unknown as Record<string, unknown>;
+    const bookingId = String(booking.id);
+    await this.recordHold(principal, { booking_id: bookingId, kind: 'radiology' });
+    const url = web(`/diagnostics/bookings/radiology/${encodeURIComponent(bookingId)}`);
+    return { booking_id: bookingId, scheduled_at: iso(booking.scheduled_at) ?? scheduledAt, payment_url: url, checkout_url: url };
   }
 
   private async holdNursing(user: { id: string; role: 'patient' }, principal: AgentPrincipal, args: Record<string, unknown>) {
@@ -573,6 +606,7 @@ export class AgentToolsService {
       booking_id: bookingId,
       scheduled_at: iso(booking.scheduled_at) ?? scheduledAt,
       payment_url: web(`/nursing/visits/${encodeURIComponent(bookingId)}`),
+      checkout_url: web(`/nursing/visits/${encodeURIComponent(bookingId)}`),
     };
   }
 
@@ -612,6 +646,18 @@ export class AgentToolsService {
         throw err;
       }
       await this.labs.cancel(bookingId, user);
+      await this.conn.collection('agent_holds').updateOne({ _id: hold._id }, { $set: { cancelled: true, cancelledAt: new Date() } });
+      return { booking_id: bookingId, status: 'CANCELLED' };
+    }
+    if (hold.kind === 'radiology') {
+      const booking = await this.radiology.getBooking(bookingId, user) as unknown as Record<string, unknown>;
+      if (String(booking.payment_status ?? '') === 'paid'
+        || !['NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY'].includes(String(booking.state))) {
+        const err = new Error('cancel_not_allowed') as Error & { errorCode?: string };
+        err.errorCode = 'CANCEL_NOT_ALLOWED';
+        throw err;
+      }
+      await this.radiology.cancel(bookingId, user);
       await this.conn.collection('agent_holds').updateOne({ _id: hold._id }, { $set: { cancelled: true, cancelledAt: new Date() } });
       return { booking_id: bookingId, status: 'CANCELLED' };
     }

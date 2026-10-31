@@ -90,7 +90,9 @@ export default function DiagnosticsPackages() {
         return (
           <PackageCard
             name={p.name}
+            nameMark={p.nameMark}
             desc={p.desc}
+            descMark={p.descMark}
             count={p.testsCount > 0 ? k('diag.pack.count', { n: num(p.testsCount) }) : undefined}
             price={p.price}
             oldPrice={p.oldPrice}

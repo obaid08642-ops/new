@@ -69,9 +69,10 @@ describe("the diagnostics parts (template of the catalogue screens)", () => {
     expect(diagStatus(undefined).key).toBe("unknown");
   });
 
-  it("picks the Arabic text for Arabic and Urdu, the English text for the others, and the other one when one is missing", () => {
+  it("picks the Arabic text for Arabic, the English text for the others (Urdu too), and the other one when one is missing (never hidden)", () => {
     expect(pickText("ar", "عربي", "English")).toBe("عربي");
-    expect(pickText("ur", "عربي", "English")).toBe("عربي");
+    expect(pickText("ur", "عربي", "English")).toBe("English");
+    expect(pickText("ar", undefined, "English")).toBe("English");
     expect(pickText("en", "عربي", "English")).toBe("English");
     expect(pickText("hi", "عربي", undefined)).toBe("عربي");
     expect(pickText("en", undefined, undefined)).toBeUndefined();
@@ -95,12 +96,12 @@ describe("the diagnostics client screens", () => {
   it("the checkout offers card or insurance for a home sample, and cash too at the lab, with a 7 day picker and an address only at home", () => {
     const home = html(<DiagnosticsCheckoutForm locale="en" items={["cbc"]} labId="lab-1" initialLocation="home" />);
     expect(home).toContain("Card");
-    expect(home).toContain("Insurance");
-    expect(home).not.toMatch(/>Cash</);
+    expect(home).toContain("With insurance");
+    expect(home).not.toMatch(/>Cash payment</);
     expect(home).toContain("Address for the home sample");
     expect((home.match(/aria-pressed/g) ?? []).length).toBe(7 + 6 + 2);
     const facility = html(<DiagnosticsCheckoutForm locale="en" items={["cbc"]} labId="lab-1" initialLocation="facility" />);
-    expect(facility).toMatch(/>Cash</);
+    expect(facility).toMatch(/>Cash payment</);
     expect(facility).not.toContain("Address for the home sample");
     expect(facility).not.toContain("style=");
   });

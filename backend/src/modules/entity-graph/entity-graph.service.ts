@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleInit, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, NotFoundException, Optional } from '@nestjs/common';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
 import { Condition, ConditionDocument } from './schemas/condition.schema';
@@ -8,6 +8,8 @@ import { LocationService } from '../location/location.service';
 import { escapeRegex } from '../../common/slug.util';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { NOT_PROMOTABLE_FILTER } from '../medicines/promotion-rules';
+import { publicDoctorProfile } from '../care/public-doctor-profile';
+import { RatingsService } from '../ratings/ratings.module';
 
 export interface RelatedGraphResponse {
   entity_type: string;
@@ -30,6 +32,25 @@ export const PUBLIC_FACILITY = { is_active: true, public_eligibility: true, medi
 export const PUBLIC_TYPED_PROVIDER = { status: 'active', public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
 export const PUBLIC_MEDICINE = { public_eligibility: true, medical_review_status: 'approved', is_deleted: { $ne: true } };
 
+/**
+ * What a facility page may show beyond its name: the address, the logo, the pin and the opening hours, each only when the
+ * record has it (a missing field is absent, never a placeholder). A provider profile keeps its pin in `location`, a seeded
+ * facility likewise; `logo_url` and `logo` are the two spellings of the logo.
+ */
+function facilityPlace(source: any) {
+  const loc = source?.location;
+  const lat = Number(loc?.lat), lng = Number(loc?.lng);
+  const hours = Array.isArray(source?.working_hours) ? source.working_hours.filter((h: any) => h && typeof h.day === 'string') : [];
+  const text = (v: unknown) => (typeof v === 'string' && v.trim() ? v.trim() : null);
+  return {
+    address: text(source?.address),
+    logo: text(source?.logo_url) ?? text(source?.logo),
+    lat: Number.isFinite(lat) && loc?.lat != null ? lat : null,
+    lng: Number.isFinite(lng) && loc?.lng != null ? lng : null,
+    working_hours: hours.map((h: any) => ({ day: h.day, open: h.open ?? null, close: h.close ?? null, open_evening: h.open_evening ?? null, close_evening: h.close_evening ?? null, closed: h.closed === true })),
+  };
+}
+
 @Injectable()
 export class EntityGraphService implements OnModuleInit {
   private readonly logger = new Logger(EntityGraphService.name);
@@ -39,6 +60,7 @@ export class EntityGraphService implements OnModuleInit {
     @InjectModel(EntityRelation.name) private readonly relationModel: Model<EntityRelationDocument>,
     @InjectConnection() private readonly connection: Connection,
     private readonly locationService: LocationService,
+    @Optional() private readonly ratings?: RatingsService,
   ) {}
 
   async onModuleInit() {
@@ -145,6 +167,12 @@ export class EntityGraphService implements OnModuleInit {
     };
   }
 
+  /** First page (5) of a doctor's published reviews: score, comment, date, the reviewer's first name. Empty when the service is not wired. */
+  private async latestReviews(doctorId: string) {
+    if (!this.ratings || !doctorId) return { data: [], total: 0, page: 1, total_pages: 0, avg: 0, count: 0 };
+    return this.ratings.forProvider(String(doctorId), 1, 5);
+  }
+
   private async getRelatedDoctor(identifier: string): Promise<RelatedGraphResponse> {
     const docCol = this.connection.collection('provider_profiles');
     const doctor = await docCol.findOne({
@@ -185,9 +213,16 @@ export class EntityGraphService implements OnModuleInit {
         name_ar: doctor.name_ar || doctor.full_name,
         name_en: doctor.name_en,
         specialty: doctor.specialty,
-        // a real rating or none: never a default (owner rule, nothing invented)
+        // the same photo, clinic photos, bio, languages, education and rating as GET /care/doctors/:id (care/public-doctor-profile.ts)
+        ...publicDoctorProfile(doctor),
+        // a real rating or none: never a default (owner rule, nothing invented); these keep the page's old reading of the two fields
         rating: typeof doctor.rating === 'number' ? doctor.rating : (typeof doctor.rating_avg === 'number' ? doctor.rating_avg : null),
-        reviews_count: typeof doctor.reviews_count === 'number' ? doctor.reviews_count : null,
+        // the count of ratings the doctor really has (the profile keeps it as rating_count); none, not 0, when it has no count
+        reviews_count: typeof doctor.reviews_count === 'number' ? doctor.reviews_count : (typeof doctor.rating_count === 'number' ? doctor.rating_count : null),
+        rating_avg: typeof doctor.rating_avg === 'number' ? doctor.rating_avg : null,
+        rating_count: typeof doctor.rating_count === 'number' ? doctor.rating_count : null,
+        // the first page of the published written reviews; more pages: GET /ratings/provider/:id?page=
+        reviews: await this.latestReviews(doctor.id),
         consultation_modes: Array.isArray(doctor.consultation_modes) ? doctor.consultation_modes : [],
         experience_years: doctor.experience_years,
         city: doctor.city,
@@ -300,6 +335,7 @@ export class EntityGraphService implements OnModuleInit {
           city: profile.city,
           district: profile.district,
           phone: null, // a provider profile publishes no phone number
+          ...facilityPlace(profile),
           accepted_insurance: Array.isArray(profile.accepted_insurance) ? profile.accepted_insurance : [],
         },
         relationships: { doctors, departments: Array.isArray(profile.departments) ? profile.departments : [] },
@@ -326,6 +362,7 @@ export class EntityGraphService implements OnModuleInit {
         city: facility.city,
         district: facility.district,
         phone: facility.phone,
+        ...facilityPlace(facility),
         accepted_insurance: facility.accepted_insurance || [],
       },
       relationships: {

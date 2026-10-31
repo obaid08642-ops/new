@@ -1,4 +1,5 @@
-import { Controller, Post, Get, Body, HttpCode, UseInterceptors, Req, Res, HttpException, HttpStatus } from '@nestjs/common';
+import { StripInternalReviewFieldsInterceptor } from '../../common/strip-internal-fields';
+import { Controller, Post, Get, Header, Body, HttpCode, UseInterceptors, Req, Res, HttpException, HttpStatus } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { Throttle } from '@nestjs/throttler';
 import { McpService, MCP_TOOLS, MCP_LEGACY_PROTOCOL_VERSION, buildMcpServerCard } from './mcp.service';
@@ -7,9 +8,10 @@ import { Public } from '../../common/auth.guard';
 import { RedisCacheInterceptor } from '../../common/redis-cache.interceptor';
 import { HandleRpcDto } from './mcp.dto';
 import { AgentOAuthService } from '../agent-oauth/agent-oauth.service';
-import { AGENT_TOOL_SCOPES, resourceMetadataUrl } from '../agent-oauth/agent-oauth.constants';
+import { AGENT_TOOL_SCOPES, authorizationServerMetadata, protectedResourceMetadata, resourceMetadataUrl } from '../agent-oauth/agent-oauth.constants';
 
 @Controller('mcp')
+@UseInterceptors(StripInternalReviewFieldsInterceptor)
 @UseInterceptors(RedisCacheInterceptor)
 export class McpController {
   constructor(
@@ -91,6 +93,32 @@ export class McpController {
       { jsonrpc: '2.0', id: null, error: { code: -32600, message: 'method_not_allowed', data: { error_code: 'METHOD_NOT_ALLOWED', allow: ['POST'] } } },
       HttpStatus.METHOD_NOT_ALLOWED,
     );
+  }
+
+  /**
+   * The mcp host's nginx sends every non-/.well-known path to /api/v1/mcp/..., and an MCP client
+   * that follows the 401 pointer asks the host for these documents; serving them under the
+   * controller prefix too means they resolve even where the root well-known location is missing.
+   */
+  @Public()
+  @Get('.well-known/oauth-protected-resource')
+  @Header('Access-Control-Allow-Origin', '*')
+  protectedResource() {
+    return protectedResourceMetadata();
+  }
+
+  @Public()
+  @Get('.well-known/oauth-protected-resource/api/v1/mcp')
+  @Header('Access-Control-Allow-Origin', '*')
+  protectedResourceMcp() {
+    return protectedResourceMetadata();
+  }
+
+  @Public()
+  @Get('.well-known/oauth-authorization-server')
+  @Header('Access-Control-Allow-Origin', '*')
+  authorizationServer() {
+    return authorizationServerMetadata();
   }
 
   @Public()
