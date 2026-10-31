@@ -20,7 +20,7 @@ import * as path from 'path';
 import mongoose from 'mongoose';
 import { mongoDirectConnection } from '../common/database/mongo-uri';
 import {
-  applyChanges, countsOf, decodeBackup, encodeBackup, expectedCounts, planSha, rollbackChanges, sha256, summarize, collectionLines,
+  applyChanges, countsOf, decodeBackup, encodeBackup, expectedCounts, planSha, rollbackChanges, sha256, summarize, collectionLines, resolveSelfConflicts,
   type Change, type DbLike, type SetChange,
 } from '../modules/catalogs/catalogue-apply.core';
 import { planDistricts, planMedicineNameHygiene, planMedicineTranslations, planNameFixes, planNamesArEn, planInsuranceShape, planNumberedDistricts, planPlaceholderCities, planProductTranslations, planRadiologyCatalogue, type RadiologyFileExtras } from '../modules/catalogs/catalogue-apply.steps';
@@ -119,7 +119,14 @@ async function planRadiologyAndCompletion(db: DbLike, argv: string[], inputs: Re
   report.hidden_rows_deleted = gone.report;
 }
 
+/** The plan with one write per field (see resolveSelfConflicts): the steps plan independently from the database, so two of them can name the same field. */
 export async function computePlan(db: DbLike, argv: string[]): Promise<Planned> {
+  const raw = await computePlanRaw(db, argv);
+  const resolved = resolveSelfConflicts(raw.changes);
+  return { ...raw, changes: resolved.changes, sha: planSha(resolved.changes, raw.inputs), report: { ...raw.report, self_conflicts: resolved.report } };
+}
+
+async function computePlanRaw(db: DbLike, argv: string[]): Promise<Planned> {
   const inputs: Record<string, string> = {};
   const changes: Change[] = [];
   const report: Record<string, unknown> = {};
@@ -242,6 +249,8 @@ export async function main(argv: string[]): Promise<number> {
       const p = await computePlan(db, argv);
       out({ cmd, plan_sha: p.sha, inputs: p.inputs, steps: summarize(p.changes), total_changes: p.changes.length, ...p.report });
       for (const l of collectionLines(p.changes)) console.log(`collection_line ${l}`);
+      const sc = (p.report as { self_conflicts?: { by_pair: Record<string, number>; dropped: number; identical_collapsed: number } }).self_conflicts;
+      if (sc) console.log(`conflict_line self_conflicts dropped=${sc.dropped} identical_collapsed=${sc.identical_collapsed}${Object.entries(sc.by_pair).map(([k, n]) => ` | ${k} x${n}`).join('')}`);
       return 0;
     }
     if (cmd === 'verify') {
