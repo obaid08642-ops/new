@@ -18,6 +18,10 @@ appId: com.patient.nabd
       id: "appointments-screen"
     timeout: 30000
 # a finished visit is on the "past" tab
+- extendedWaitUntil:
+    visible:
+      id: "appointments-tabs-past"
+    timeout: 30000
 - tapOn:
     id: "appointments-tabs-past"
 - scrollUntilVisible:

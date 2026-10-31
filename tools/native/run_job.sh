@@ -51,19 +51,7 @@ for FLOW in tools/native/flows/${TARGET}_*.yaml; do
     echo ok > "$OUT/flow_${TAG}__${NAME}.txt"; [ "$NAME" = login ] && LOGIN_OK=yes
   else
     echo "maestro flow failed (see maestro_${TAG}__${NAME}.log and its screenshots)" > "$OUT/flow_${TAG}__${NAME}.txt"
-  fi
-  adb shell am force-stop dev.mobile.maestro 2>/dev/null; adb shell am force-stop dev.mobile.maestro.test 2>/dev/null
-done
-
-# say what happened in the job log too, and fail the job when a flow failed (the report job still merges every result)
-FAILED=0
-for R in "$OUT"/flow_${TAG}__*.txt; do
-  N=$(basename "$R" .txt); N=${N#flow_${TAG}__}
-  echo "flow $N: $(cat "$R")"
-  if [ "$(cat "$R")" != ok ]; then
-    FAILED=1; echo "----- tail of maestro_${TAG}__${N}.log"; tail -n 60 "$OUT/maestro_${TAG}__${N}.log" 2>/dev/null || true
-    # every text and id on the screen now: tells an error message or a stuck button from a screen that never opened
-    echo "----- screen texts at the end of the flow"
+    # the screen as it is when this flow stopped (printed in the report below)
     "$HOME/.maestro/bin/maestro" hierarchy 2>/dev/null | python3 -c "
 import json,sys
 raw=sys.stdin.read()
@@ -76,7 +64,21 @@ def walk(n):
         v=a.get(k)
         if v and v not in seen: seen.append(v)
     for c in n.get('children',[]): walk(c)
-walk(tree); print(' | '.join(seen)[:2500])" || true
+walk(tree); print(' | '.join(seen)[:2500])" > "$OUT/screen_${TAG}__${NAME}.txt" || true
+  fi
+  adb shell am force-stop dev.mobile.maestro 2>/dev/null; adb shell am force-stop dev.mobile.maestro.test 2>/dev/null
+done
+
+# say what happened in the job log too, and fail the job when a flow failed (the report job still merges every result)
+FAILED=0
+for R in "$OUT"/flow_${TAG}__*.txt; do
+  N=$(basename "$R" .txt); N=${N#flow_${TAG}__}
+  echo "flow $N: $(cat "$R")"
+  if [ "$(cat "$R")" != ok ]; then
+    FAILED=1; echo "----- tail of maestro_${TAG}__${N}.log"; tail -n 60 "$OUT/maestro_${TAG}__${N}.log" 2>/dev/null || true
+    # every text and id on the screen now: tells an error message or a stuck button from a screen that never opened
+    echo "----- screen texts when the flow stopped"
+    cat "$OUT/screen_${TAG}__${N}.txt" 2>/dev/null || true
     echo "----- backend log, last requests"; tail -n 25 /tmp/nabd-backend.log 2>/dev/null || true
   fi
 done

@@ -12,12 +12,16 @@ appId: com.patient.nabd
       id: "pharmacy-hub"
     timeout: 30000
 # the first medicine of the catalogue that can be added from its card
+# a card whose medicine cannot be added (out of stock, prescription needed) shows a disabled button: only an enabled one is tapped
+# (run 103: the first match was disabled, the tap did nothing and the cart was empty)
 - scrollUntilVisible:
     element:
       id: "med-add-.*"
+      enabled: true
     timeout: 60000
 - tapOn:
     id: "med-add-.*"
+    enabled: true
 - tapOn:
     id: "cart-button"
 - extendedWaitUntil:
