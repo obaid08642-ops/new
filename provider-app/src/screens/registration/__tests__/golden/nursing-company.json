@@ -97,7 +97,8 @@
           "cr_number": "1010303030",
           "moh_license_number": "MOH-N-5",
           "scfhs_license_number": "4455667",
-          "scfhs_expiry": "2027-05-01",
+          "scfhs_expiry": "2099-12-31",
+          "license_expiry_date": "2099-12-31",
           "license_documents": [
             "https://cdn.test/cr.pdf",
             "https://cdn.test/moh.jpg",
@@ -140,7 +141,7 @@
             "managerPhone": "0571234567",
             "managerEmail": "nurse@example.com",
             "scfhsNumber": "4455667",
-            "scfhsExpiry": "2027-05-01",
+            "scfhsExpiry": "2099-12-31",
             "nationalId": "1090000000",
             "crNumber": "1010303030",
             "languages": [

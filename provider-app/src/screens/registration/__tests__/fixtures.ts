@@ -7,7 +7,7 @@ export const pharmacyFixture = {
   nameAr: 'صيدلية نبض', nameEn: 'Nabd Pharmacy', type: 'community', languages: ['ar', 'en'],
   managerName: 'Khalid Omar', managerPhone: '0501234567', managerEmail: 'Pharmacy@Example.com',
   password: 'Passw0rd!x', confirmPass: 'Passw0rd!x', pharmacistName: 'Mohamed Ahmed',
-  crNumber: '1010101010', mohLicense: 'MOH-PHR-12345', sfdaNumber: 'SFDA-998877', iban: IBAN,
+  crNumber: '1010101010', mohLicense: 'MOH-PHR-12345', licenseExpiry: '2099-12-31', sfdaNumber: 'SFDA-998877', iban: IBAN,
   accountHolderName: 'Nabd Pharmacy Co', taxNumber: '300123456700003',
   crUri: 'file:///cache/cr.jpg', mohUri: 'file:///cache/moh.jpg', sfdaUri: 'file:///cache/sfda.jpg', logoUri: 'file:///cache/logo.jpg',
   region: 'riyadh', city: 'riyadh_city', district: 'olaya', address: 'Prince Sultan Road',
@@ -51,7 +51,7 @@ export const doctorUnifiedFixture = {
 export const facilityFixture = {
   facilityNameAr: 'مستشفى نبض', facilityNameEn: 'Nabd Hospital', facilityType: 'hospital',
   managerName: 'Sara Omar', managerPhone: '0561234567', managerEmail: 'hospital@example.com', password: 'Passw0rd!x', confirmPass: 'Passw0rd!x',
-  languages: ['ar', 'en', 'ur'], crNumber: '1010202020', mohLicense: 'MOH-H-777', crDocUri: 'file:///cache/cr.jpg', mohDocUri: 'https://cdn.test/moh-old.jpg',
+  languages: ['ar', 'en', 'ur'], crNumber: '1010202020', mohLicense: 'MOH-H-777', licenseExpiry: '2099-12-31', crDocUri: 'file:///cache/cr.jpg', mohDocUri: 'https://cdn.test/moh-old.jpg',
   facilityLogoUri: 'file:///cache/logo.jpg', facilityImagesUris: ['file:///cache/f0.jpg', 'file:///cache/f1.jpg'],
   region: 'riyadh', city: 'riyadh_city', district: 'olaya', fullAddress: 'Olaya Street 1', location: LOCATION,
   subProviders: [
@@ -72,7 +72,7 @@ export const facilityFixture = {
 const nursingBase = {
   nameAr: 'تمريض نبض', nameEn: 'Nabd Nursing', gender: 'female', languages: ['ar', 'fil'],
   managerName: 'Huda Salem', managerPhone: '0571234567', managerEmail: 'nurse@example.com', password: 'Passw0rd!x', confirmPass: 'Passw0rd!x',
-  scfhsNumber: '4455667', scfhsExpiry: '2027-05-01', nationalId: '1090000000', crNumber: '1010303030', mohLicense: 'MOH-N-5',
+  scfhsNumber: '4455667', scfhsExpiry: '2099-12-31', nationalId: '1090000000', crNumber: '1010303030', mohLicense: 'MOH-N-5',
   iban: IBAN, accountHolderName: 'Huda Salem',
   scfhsUri: 'file:///cache/scfhs.jpg', crUri: 'file:///cache/cr.pdf', mohUri: 'file:///cache/moh.jpg', photoUri: 'file:///cache/photo.jpg',
   enabledServices: ['injection', 'wound_care'], servicePrices: { injection: '40', wound_care: '1,200' }, pricingModels: ['per_visit', 'per_hour'], priceVisit: '120', priceHour: '60', priceDay: '', priceMonth: '',
@@ -88,7 +88,7 @@ export const nursingCompanyFixture = { ...nursingBase, mode: 'company' as const,
 const diagnosticsBase = {
   nameAr: 'مركز نبض', nameEn: 'Nabd Center', managerName: 'Reem Khan', managerPhone: '0581234567', managerEmail: 'center@example.com',
   techOfficerName: 'Tariq Ali', techOfficerScfhs: '778899', password: 'Passw0rd!x', confirmPass: 'Passw0rd!x',
-  crNumber: '1010404040', mohLicense: 'MOH-C-9', iban: IBAN, accountHolderName: 'Nabd Center Co', taxNumber: '300999888700003', languages: ['ar', 'en'],
+  crNumber: '1010404040', mohLicense: 'MOH-C-9', licenseExpiry: '2099-12-31', iban: IBAN, accountHolderName: 'Nabd Center Co', taxNumber: '300999888700003', languages: ['ar', 'en'],
   crUri: 'file:///cache/cr.jpg', mohUri: 'file:///cache/moh.pdf', logoUri: 'file:///cache/logo.jpg',
   region: 'riyadh', city: 'riyadh_city', district: 'olaya', address: 'Olaya 9', location: LOCATION,
   hasHomeSvc: true, homeRadius: 6, homeCollectorCount: '3', homeCollectionFee: '20', targetGenders: 'both', homeCollectorGender: 'female' as const,
