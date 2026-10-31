@@ -41,6 +41,11 @@ def main():
         step('the link opens in a new tab (target=_blank, noopener)', link.first.get_attribute('target') == '_blank' and 'noopener' in (link.first.get_attribute('rel') or ''), link.first.get_attribute('rel'))
         page.reload(wait_until='load')
         link.first.wait_for(timeout=60000)
+        if link.count() != 1:
+            # diagnostics only (the check below is unchanged): where each matching anchor sits, for the CI log
+            for i in range(link.count()):
+                where = link.nth(i).evaluate("e => 'anchor ' + e.outerHTML.slice(0, 200) + ' | parent ' + (e.parentElement ? e.parentElement.outerHTML.slice(0, 160) : 'none')")
+                print(f'  NOTE CHI {i}: {where}')
         step('after reload the CHI link is still there', link.count() == 1, link.count())
     finally:
         browser.close()
