@@ -113,7 +113,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
       - name: Build release APK (x86_64, test backend)
         run: bash tools/native/build_android.sh ${{ matrix.app }}-app
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: apk-${{ matrix.app }}-app
           path: |
@@ -195,7 +195,7 @@ jobs:
       - id: name
         if: always()
         run: echo "n=run-android-${{ matrix.run.app }}-$(echo '${{ matrix.run.arg }}' | tr '/' 'of')" >> "$GITHUB_OUTPUT"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: ${{ steps.name.outputs.n }}
@@ -220,7 +220,7 @@ jobs:
           cache-dependency-path: ${{ matrix.app }}-app/package-lock.json
       - name: Build unsigned simulator app (expo prebuild + xcodebuild)
         run: bash tools/native/build_ios.sh ${{ matrix.app }}-app
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ios-${{ matrix.app }}-app
           path: /tmp/native/${{ matrix.app }}-app.app.zip
@@ -280,7 +280,7 @@ jobs:
       - id: name
         if: always()
         run: echo "n=run-ios-${{ matrix.run.app }}-$(echo '${{ matrix.run.arg }}' | tr '/' 'of')" >> "$GITHUB_OUTPUT"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: ${{ steps.name.outputs.n }}
@@ -349,7 +349,7 @@ jobs:
           mkdir -p /tmp/native/all
           python3 tools/native/report.py /tmp/native/all > /tmp/native/all/NATIVE_REPORT.md
           head -c 900000 /tmp/native/all/NATIVE_REPORT.md >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: native-report
           path: /tmp/native/all
