@@ -1,13 +1,9 @@
-# 2026-10-30 lead reviewer: run 64.
-# Run 63: main@22610406 deployed (dump 354 MB, health ok). Catalogue completion dry run with #2190: 118 changes = duplicates re-pointed (85 set),
-# completion fields (6 set), and 27 hidden duplicate rows DELETED (lab 9, nursing 3, radiology 15); radiology visible 78 of 83 (5 wait for the owner).
-# 1. 90-catalogue-apply APPLY of that plan: re-plans and writes only if the hash still ends with run 63's (the log masked its middle);
-#    backup first, guarded writes, fresh plan must be empty, rollback on failure.
-# 2. 97-translate-content STEP=plan: checks the free providers' answers + the packaged ones and writes the reviewed product-translations.json.
-#    No database write.
-# 3. 90c DRY RUN of the product translations from that file (empty fields only). Nothing written.
-# 4. Purge the API cache.
-90-catalogue-apply
-97-translate-content
+# 2026-10-31 lead reviewer: run 65.
+# Run 64: the catalogue completion apply wrote 78 + deleted 27, then 13 changes were "changed since plan" (the plan touches the same rows twice:
+# duplicates re-point, then completion); verify failed and the task ROLLED BACK cleanly (105 restored, counts = backup). Sent to S to fix.
+# Translations: the free providers' answers checked: 9,971 accepted (ar 2,937, en 7,034), 162 rejected (numbers differ 52, wrong script 110),
+# 17,081 still unanswered (the nightly cron continues). The dry run plans 19,984 writes on medicines (EMPTY fields only, marked machine-translated).
+# 1. 90c APPLY of that plan: re-plans, writes only if the hash matches; backup first, compare-and-set on the empty value, verify, rollback.
+# 2. Purge the API cache.
 90c-catalogue-translations
 cf-purge-api

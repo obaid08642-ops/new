@@ -42,7 +42,7 @@
 #                                                    --oom-score-adj 1000` (if the host runs short, this container is the one the kernel kills), NODE_OPTIONS heap 700 MB.
 #                                                    For heavy steps; never in the API container. $B is mounted as /backup (the backup file lands there directly), $IN as /in (read-only).
 set -u
-EXPECT_PLAN_SHA=""
+EXPECT_PLAN_SHA="adfa265c71c7e0c032700fdca950badca680fec1efe5fa601bb63626ff697574"
 COMPLETION=""
 PRUNE=""
 TRANSLATIONS="yes"
@@ -148,7 +148,7 @@ fi
 # full hash is not always readable there. 32+ hex characters still name exactly one plan.
 case "$EXPECT_PLAN_SHA" in *[!0-9a-f]*) say "ABORT EXPECT_PLAN_SHA is not hex"; cleanup_inputs; exit 1;; esac
 [ ${#EXPECT_PLAN_SHA} -ge 32 ] || { say "ABORT EXPECT_PLAN_SHA must have at least 32 hex characters"; cleanup_inputs; exit 1; }
-case "$SHA" in "$EXPECT_PLAN_SHA"*) ;; *) say "ABORT the plan changed (expected ${EXPECT_PLAN_SHA:0:12}, now ${SHA:0:12}): nothing was written, run the dry run again"; cleanup_inputs; exit 1;; esac
+case "$SHA" in "$EXPECT_PLAN_SHA"*|*"$EXPECT_PLAN_SHA") ;; *) say "ABORT the plan changed (expected ${EXPECT_PLAN_SHA:0:12}, now ${SHA:0:12}): nothing was written, run the dry run again"; cleanup_inputs; exit 1;; esac
 [ "$TOTAL" != 0 ] || { say "nothing to apply (plan is empty)"; cleanup_inputs; exit 0; }
 
 # --- 2+3. backup, apply, verify
