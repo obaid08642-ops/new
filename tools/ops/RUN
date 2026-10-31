@@ -1,10 +1,8 @@
-# 2026-10-31 lead reviewer: run 69 (read-only + dry run).
-# Run 68: the catalogue apply wrote, then 7 duplicate fills were "changed since plan" (two losers filling the same keeper field, within one
-# step); verify failed and the rollback restored everything (counts = backup). Sent to S.
-# The translations apply lost its mongo connection ("connection 1 to :27017 closed") and the task was then killed at the 420 s limit of a
-# non-detached task, during its rollback. Each field is either translated (checked answer, marked machine) or still empty; nothing else is touched.
-# 90 and 90c now run detached.
-# 1. 99m-mongo-state (READ-ONLY): did mongod restart or get OOM-killed during the apply.
-# 2. 90c DRY RUN: what is still empty (a smaller plan if part of run 68's writes stayed).
-99m-mongo-state
-90c-catalogue-translations
+# 2026-10-31 lead reviewer: run 70 (read-only + dry runs; nothing is changed).
+# Run 69 showed the HOST out of memory (kernel OOM-killed mongod 15x and meilisearch 11x in 3 h; MemAvailable 535 MB).
+# 1. 98-memory-report (READ-ONLY, #2226): per container limit/reservation/use/oom_score_adj (configured vs real), host totals, and who the kernel kills and why.
+# 2. 97d-old-checkouts DRY RUN (#2218): evidence per old checkout dir that nothing uses it, and the MB it would free.
+# 3. 98c-swapfile DRY RUN (#2226): whether a 2 GB swap file fits (free space after it must stay >= 1.5 GB).
+98-memory-report
+97d-old-checkouts
+98c-swapfile
