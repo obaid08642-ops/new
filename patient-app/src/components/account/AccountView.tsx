@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { endPatientSession } from '../../auth/session';
 import { Pressable, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -67,8 +68,10 @@ export function AccountView() {
     router.push(route as Href);
   };
   const signOut = () => {
-    dispatch(logout());
-    router.replace('/(auth)/welcome' as Href);
+    void endPatientSession().finally(() => {
+      dispatch(logout());
+      router.replace('/(auth)/welcome' as Href);
+    });
   };
 
   const quick: { icon: FillIconName; tone: ServiceTone; label: string; value?: string; route: string; testID: string }[] = [

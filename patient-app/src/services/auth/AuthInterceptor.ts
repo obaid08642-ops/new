@@ -34,10 +34,9 @@ export const AuthInterceptor: HttpInterceptor = {
 
   onError: async (error: HttpError) => {
     // Basic 401 handling for Phase 1A
-    // Phase 1C: Implement token refresh logic here
     if (error.status === 401) {
       log.warn('Unauthorized access, token might be expired');
-      // e.g. trigger global logout event
+      // refresh/sign-out is handled in utils/api.ts apiFetch (single place)
     }
     throw error;
   }

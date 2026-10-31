@@ -4,6 +4,7 @@ import { STORAGE_KEYS } from '../constants';
 import { config } from '../core/config';
 import { reportModuleRefusal } from './moduleSwitches';
 import { decodeJwt } from './jwt';
+import { clearStoredSession, notifySessionExpired, refreshStoredSession } from '../auth/session';
 import { isOffline } from './isOffline';
 import { MAX_RETRIES, guardedSignal, pause, planRetries, retryAfterTooLong, retryDelayMs, shouldRetryStatus, timeoutFor } from './requestPolicy';
 
@@ -110,7 +111,7 @@ export async function downloadProtected(endpoint: string, filename: string): Pro
 /** `timeoutMs` overrides the default for one call (15 s; 60 s for an upload; 45 s for the AI routes). */
 export type ApiFetchOptions = RequestInit & { timeoutMs?: number };
 
-export async function apiFetch<T = any>(endpoint: string, options: ApiFetchOptions = {}): Promise<T> {
+export async function apiFetch<T = any>(endpoint: string, options: ApiFetchOptions = {}, afterRefresh = false): Promise<T> {
   const { timeoutMs, ...init } = options;
   options = init;
   let token = await getToken();
@@ -180,9 +181,16 @@ export async function apiFetch<T = any>(endpoint: string, options: ApiFetchOptio
       // Only an invalid/expired session (401) ends it. A 403 means "not allowed to do this":
       // signing the user out for it would log them out of the whole app on one forbidden action.
       if (!isPublicAuthEndpoint(endpoint) && (errorMsg.toLowerCase().includes('missing token') || response.status === 401)) {
+        // A signed-in patient whose access token ran out: renew it with the refresh token and repeat this request once.
+        const wasPatient = !!token && !(await currentGuestToken());
+        if (wasPatient && !afterRefresh && (await refreshStoredSession())) {
+          return await apiFetch<T>(endpoint, { ...options, timeoutMs }, true);
+        }
         console.warn(`[apiFetch] Auth error for endpoint: ${endpoint}`);
-        try { await SecureStore.deleteItemAsync(STORAGE_KEYS.AUTH_TOKEN); } catch {}
+        await clearStoredSession();
         await clearLegacyTokenMirror();
+        // The session is over (it cannot be renewed): the app signs out and opens the login screen. A guest token is simply dropped.
+        if (wasPatient) notifySessionExpired();
         throw new Error(`AUTH_ERROR_${response.status}: ${errorMsg}`);
       }
       if (response.status === 403) {
