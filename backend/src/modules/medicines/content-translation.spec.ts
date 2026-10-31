@@ -187,4 +187,26 @@ describe('catalogue-apply --only=product_translations', () => {
     expect((await computePlan(db, ['--only=product_translations', `--product-translations=${f}`])).changes).toEqual([]);
     fs.rmSync(dir, { recursive: true, force: true });
   });
+
+  it('two answers for the same product, field and language (run 65: 25 skipped, verify failed) become one write, are reported by kind, and the apply skips nothing', async () => {
+    const fs = await import('fs'); const os = await import('os'); const path = await import('path');
+    const col = () => mongoose.connection.db!.collection('medicines');
+    await col().deleteMany({}); await col().insertOne(product());
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tr-dup-')); const f = path.join(dir, 't.json');
+    const item = (text: string) => ({ id: 'p1', field: 'warnings', target: 'en', source: 'ar', text, source_sha: sha256('لا يستعمل مع الكحول') });
+    fs.writeFileSync(f, JSON.stringify({ version: 1, model: 'fake-model', generated_at: 't', items: [item('Do not use with alcohol'), item('Avoid alcohol')] }));
+    const p = await computePlan(db, ['--only=product_translations', `--product-translations=${f}`]);
+    expect(p.changes).toHaveLength(2);                                   // one text and one provenance mark, not four
+    const sc = (p.report as { self_conflicts: { by_pair: Record<string, number>; dropped: number; identical_collapsed: number } }).self_conflicts;
+    expect(sc.dropped).toBe(1);                                          // the second text (it differs)
+    expect(sc.identical_collapsed).toBe(0);                              // the step already folds the second provenance mark into the first
+    expect(Object.keys(sc.by_pair)).toEqual(['product_translations>product_translations medicines.warnings_en']);
+    expect(JSON.stringify(sc)).not.toMatch(/alcohol/i);                  // kinds and field names only, never values
+    const applied = await applyChanges(db, p.changes);
+    expect(applied).toMatchObject({ applied: 2, skipped_changed_since_plan: 0 });
+    expect(applied.skipped_by).toBeUndefined();
+    expect((await col().findOne({ id: 'p1' }))!.warnings_en).toBe('Do not use with alcohol');   // the first answer stands
+    expect((await computePlan(db, ['--only=product_translations', `--product-translations=${f}`])).changes).toEqual([]);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
 });

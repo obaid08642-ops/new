@@ -212,11 +212,12 @@ async function runUpdates(db: DbLike, collection: string, ops: Array<{ filter: R
   return { modified, total: ops.length };
 }
 
-export async function applyChanges(db: DbLike, changes: Change[], now: Date = new Date()): Promise<{ applied: number; skipped_changed_since_plan: number; inserted: number; deleted: number; retried_batches: number }> {
+export async function applyChanges(db: DbLike, changes: Change[], now: Date = new Date()): Promise<{ applied: number; skipped_changed_since_plan: number; inserted: number; deleted: number; retried_batches: number; skipped_by?: Record<string, number> }> {
   const stats: RetryStats = { retried_batches: 0 };
   let applied = 0; let skipped = 0; let inserted = 0; let deleted = 0;
   const removals: DeleteChange[] = [];
-  const sets = new Map<string, Array<{ filter: Record<string, unknown>; update: Record<string, unknown> }>>();
+  const sets = new Map<string, Array<{ filter: Record<string, unknown>; update: Record<string, unknown>; label: string; path: string; after: unknown; key: Record<string, unknown> }>>();
+  const skippedBy: Record<string, number> = {};
   for (const c of changes) {
     if (c.kind === 'insert') {
       // On a retry, a document with this code may be the one the dropped first attempt wrote: that counts as inserted.
@@ -231,20 +232,27 @@ export async function applyChanges(db: DbLike, changes: Change[], now: Date = ne
       removals.push(c);
     } else {
       const list = sets.get(c.collection) ?? [];
-      list.push({ filter: { ...c.key, [c.path]: beforeGuard(c.before) }, update: { $set: { [c.path]: c.after } } });
+      list.push({ filter: { ...c.key, [c.path]: beforeGuard(c.before) }, update: { $set: { [c.path]: c.after } }, label: `${c.step} ${c.collection}.${c.path}`, path: c.path, after: c.after, key: c.key });
       sets.set(c.collection, list);
     }
   }
   for (const [collection, ops] of sets) {
     const r = await runUpdates(db, collection, ops, stats);
     applied += r.modified; skipped += r.total - r.modified;
+    // Name what did not land, by step and field (never values): a write whose field does not hold the planned value now was skipped.
+    if (r.modified < r.total) {
+      for (const o of ops) {
+        const holds = await db.collection(collection).countDocuments({ ...o.key, [o.path]: o.after });
+        if (!holds) skippedBy[o.label] = (skippedBy[o.label] ?? 0) + 1;
+      }
+    }
   }
   // deletes last: the references were re-pointed above. A document that is no longer the one the plan saw (other _id) is left alone.
   for (const c of removals) {
     const res = await withRetry(() => db.collection(c.collection).deleteOne({ ...c.key, _id: c.doc._id }), stats);
     if (res.deletedCount) deleted += 1; else skipped += 1;
   }
-  return { applied, skipped_changed_since_plan: skipped, inserted, deleted, retried_batches: stats.retried_batches };
+  return { applied, skipped_changed_since_plan: skipped, inserted, deleted, retried_batches: stats.retried_batches, ...(Object.keys(skippedBy).length ? { skipped_by: skippedBy } : {}) };
 }
 
 /**

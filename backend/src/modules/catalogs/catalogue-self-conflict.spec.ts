@@ -95,6 +95,9 @@ describe('apply and rollback with a row two steps would have written', () => {
 
     const naive = await applyChanges(db, plan);
     expect(naive.skipped_changed_since_plan).toBe(2);                    // the duplicate keeper fill and the completion's is_deleted
+    // the apply names what did not land, by step and field (never values); the identical keeper fill did land, so only the is_deleted race is named
+    expect(Object.keys(naive.skipped_by ?? {}).every((k) => /^catalogue_(completion|duplicates) lab_services\.is_deleted$/.test(k))).toBe(true);
+    expect(Object.values(naive.skipped_by ?? {}).reduce((a, b) => a + b, 0)).toBeGreaterThanOrEqual(1);
     await rollbackChanges(db, plan);
     expect(await snapshot()).toEqual(before);                            // even the failed run rolls back to the backup
 
