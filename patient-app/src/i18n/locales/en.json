@@ -4022,5 +4022,22 @@
   "consult.call.quality.good": "good",
   "consult.call.quality.poor": "weak",
   "consult.call.quality.lost": "lost",
-  "consult.call.quality.unknown": "checking"
+  "consult.call.quality.unknown": "checking",
+  "receipt.button": "Receipt",
+  "receipt.preparing": "Preparing receipt",
+  "receipt.failTitle": "Receipt unavailable",
+  "receipt.failBody": "We couldn't issue the receipt right now. Try again later or contact support.",
+  "receipt.title": "Receipts",
+  "receipt.loadError": "We couldn't load your receipts",
+  "receipt.empty": "No receipts yet",
+  "receipt.emptyBody": "Your tax invoices appear here after you pay for a booking or an order.",
+  "receipt.invoice": "Invoice",
+  "receipt.cancelled": "Cancelled",
+  "receipt.kind.appointment": "Consultation",
+  "receipt.kind.lab": "Lab tests",
+  "receipt.kind.radiology": "Radiology",
+  "receipt.kind.nursing": "Home nursing",
+  "receipt.kind.pharmacy": "Pharmacy order",
+  "set.receipts": "Receipts",
+  "set.receiptsHint": "Your tax invoices as PDF"
 }

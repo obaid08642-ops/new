@@ -4022,5 +4022,22 @@
   "consult.call.quality.good": "جيد",
   "consult.call.quality.poor": "ضعيف",
   "consult.call.quality.lost": "منقطع",
-  "consult.call.quality.unknown": "جارٍ الفحص"
+  "consult.call.quality.unknown": "جارٍ الفحص",
+  "receipt.button": "الإيصال",
+  "receipt.preparing": "جارٍ تجهيز الإيصال",
+  "receipt.failTitle": "تعذّر فتح الإيصال",
+  "receipt.failBody": "لا يمكن إصدار الإيصال الآن. حاول مرة أخرى لاحقًا أو تواصل مع الدعم.",
+  "receipt.title": "الإيصالات",
+  "receipt.loadError": "تعذّر تحميل إيصالاتك",
+  "receipt.empty": "لا توجد إيصالات بعد",
+  "receipt.emptyBody": "تظهر هنا فواتيرك الضريبية بعد دفع حجز أو طلب.",
+  "receipt.invoice": "فاتورة",
+  "receipt.cancelled": "ملغاة",
+  "receipt.kind.appointment": "استشارة",
+  "receipt.kind.lab": "تحاليل",
+  "receipt.kind.radiology": "أشعة",
+  "receipt.kind.nursing": "تمريض منزلي",
+  "receipt.kind.pharmacy": "طلب صيدلية",
+  "set.receipts": "الإيصالات",
+  "set.receiptsHint": "فواتيرك الضريبية بصيغة PDF"
 }
