@@ -8,10 +8,15 @@
 #   CLEAN_TASKS=yes APPLY=yes  delete the FINISHED task history (DELETE /tasks?statuses=succeeded,failed,canceled): after a restart loop the task history (not the documents) is most of the
 #                         database file. The dry run prints how many finished tasks would go. NOTE: Meilisearch (LMDB) reuses the freed pages but never returns them to the disk, so the file
 #                         stays as large (db size does not fall); only a dump-and-import, or an empty data directory re-filled from Mongo (the search index is a mirror), makes it smaller.
+#   WIPE=yes   APPLY=yes  the path that works when Meilisearch cannot stay up long enough to answer (run 75: restarts 1973 -> 2016 with 89,117 tasks enqueued, so a cancel or an index delete
+#                         through the API never runs: they are queued behind the backlog). Stops nabdah-meilisearch, deletes its data directory data.ms (the whole database file AND the
+#                         task queue; the search index is a mirror of Mongo, nothing else lives there), starts it empty and restarts nabdah-worker, whose boot sync (PR #2261: batches of
+#                         500, one at a time) re-sends the Mongo search_index. Refused unless Mongo search_index holds documents. While it refills (about 21,000 documents), search can return
+#                         partial results: run it off-peak. The old 2.7 GB file is gone, so this also frees the disk.
 #   RESET=yes  APPLY=yes  delete the index nabd_search so the paced boot sync (PR #2261) re-sends it from Mongo. Refused unless search_index in Mongo holds documents (never empty the search
 #                         with nothing to rebuild it from). The index is a mirror of Mongo, so this loses no data; search is incomplete until the worker has re-sent it.
 set -u
-APPLY=${APPLY:-no}; CANCEL=${CANCEL:-no}; RESET=${RESET:-no}; CLEAN_TASKS=${CLEAN_TASKS:-no}
+APPLY=${APPLY:-no}; CANCEL=${CANCEL:-no}; RESET=${RESET:-no}; WIPE=${WIPE:-no}; CLEAN_TASKS=${CLEAN_TASKS:-no}
 DK="sudo -n docker"
 IDX=nabd_search
 echo "## meili-state"
@@ -54,6 +59,23 @@ fi
 if [ "$CLEAN_TASKS" = yes ]; then
   if [ "$APPLY" = yes ]; then say "CLEAN_TASKS: $(meili clean); the file on disk does not shrink (see the header): dump-and-import or an empty data directory re-filled from Mongo does"
   else say "dry run: would delete every finished task (succeeded + failed + canceled, counts above); the disk file would not shrink (APPLY=yes to do it)"; fi
+fi
+if [ "$WIPE" = yes ]; then
+  DATA="$VOL/data.ms"
+  if [ "$WANTED" = unreadable ] || [ "$WANTED" = 0 ]; then say "WIPE refused: the Mongo search_index holds $WANTED documents, nothing to rebuild from"
+  elif [ -z "$VOL" ] || [ "$VOL" = / ] || ! sudo -n test -d "$DATA"; then say "WIPE refused: the data directory of nabdah-meilisearch was not found (${DATA:-unknown})"
+  else
+    DSIZE=$(sudo -n du -sm "$DATA" 2>/dev/null | cut -f1)
+    if [ "$APPLY" != yes ]; then say "dry run: would stop nabdah-meilisearch, delete $DATA (${DSIZE:-?} MB: database and task queue), start it empty and restart nabdah-worker so it re-sends $WANTED documents from Mongo (APPLY=yes to do it)"
+    else
+      $DK stop -t 60 nabdah-meilisearch >/dev/null 2>&1 || { say "WIPE ABORT: could not stop nabdah-meilisearch: nothing deleted"; exit 1; }
+      sudo -n rm -rf -- "$DATA" || { say "WIPE: removing $DATA failed"; $DK start nabdah-meilisearch >/dev/null 2>&1; exit 1; }
+      $DK start nabdah-meilisearch >/dev/null 2>&1 || { say "WIPE: nabdah-meilisearch did not start after the wipe"; exit 1; }
+      H=unknown; for i in $(seq 1 30); do H=$($DK inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' nabdah-meilisearch 2>/dev/null); case "$H" in healthy|running) break;; esac; sleep 4; done
+      $DK restart nabdah-worker >/dev/null 2>&1 && W=restarted || W="restart FAILED (restart it by hand)"
+      say "WIPE done: deleted $DATA (${DSIZE:-?} MB); nabdah-meilisearch is $H and empty; nabdah-worker $W; it re-sends $WANTED documents in batches (check with this task, documents= should climb to $WANTED)"
+    fi
+  fi
 fi
 if [ "$RESET" = yes ]; then
   if [ "$WANTED" = unreadable ] || [ "$WANTED" = 0 ]; then say "RESET refused: the Mongo search_index holds $WANTED documents, nothing to rebuild from"

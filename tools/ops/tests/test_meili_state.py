@@ -27,13 +27,13 @@ class Base(unittest.TestCase):
         wx(os.path.join(b, "docker"), f'''#!/bin/bash
 echo "$1 $2 $3 ${{@: -1}}" >> "{calls}"
 case "$1" in
-  inspect) case "$*" in *Config.Env*) printf 'MEILI_MAX_INDEXING_MEMORY=128Mb\\nMEILI_MAX_INDEXING_THREADS=1\\n';; *RestartCount*) echo 782;; *OOMKilled*) echo true;; *HostConfig.Memory}}*) echo 671088640;; *Mounts*) echo "{d}/vol";; *) echo x;; esac;;
+  inspect) case "$*" in *State.Health*) echo healthy;; *Config.Env*) printf 'MEILI_MAX_INDEXING_MEMORY=128Mb\\nMEILI_MAX_INDEXING_THREADS=1\\n';; *RestartCount*) echo 782;; *OOMKilled*) echo true;; *HostConfig.Memory}}*) echo 671088640;; *Mounts*) echo "{d}/vol";; *) echo x;; esac;;
   stats) echo "621MiB / 640MiB";;
   logs) printf 'meilisearch holds 0 of 41000 documents\\nmeilisearch sync done\\n';;
   exec) case "$2" in nabdah-backend) case "${{@: -1}}" in cancel) echo "cancel http=202 task=9";; clean) echo "clean http=202 task=11";; reset) echo "reset http=202 task=10";; *) printf '{STATE}\\n';; esac;; *) echo {wanted};; esac;;
 esac
 ''')
-        os.makedirs(os.path.join(d, "vol"), exist_ok=True)
+        os.makedirs(os.path.join(d, "vol", "data.ms"), exist_ok=True); self.vol = os.path.join(d, "vol")
         e = dict(os.environ, PATH=b + os.pathsep + os.environ["PATH"], OPS_ROOT=os.path.join(d, "root"), **(env or {}))
         p = subprocess.run(["bash", os.path.join(T, name)], env=e, capture_output=True, text=True, timeout=60)
         return p, open(calls).read()
@@ -63,6 +63,21 @@ class MeiliState(Base):
         self.assertNotIn("clean\n", calls)
         p, calls = self.run_task("98d-meili-state.sh", env={"CLEAN_TASKS": "yes", "APPLY": "yes"})
         self.assertIn("CLEAN_TASKS: clean http=202 task=11", p.stdout); self.assertIn("does not shrink", p.stdout)
+
+    def test_wipe_dry_run_changes_nothing_and_apply_stops_deletes_starts_and_restarts_the_worker(self):
+        p, calls = self.run_task("98d-meili-state.sh", env={"WIPE": "yes"})
+        self.assertIn("dry run: would stop nabdah-meilisearch, delete", p.stdout)
+        self.assertNotIn("stop -t 60", calls)
+        p, calls = self.run_task("98d-meili-state.sh", env={"WIPE": "yes", "APPLY": "yes"})
+        self.assertIn("WIPE done: deleted", p.stdout); self.assertIn("nabdah-worker restarted", p.stdout)
+        order = [calls.index(x) for x in ("stop -t 60", "start nabdah-meilisearch", "restart nabdah-worker")]
+        self.assertEqual(order, sorted(order))
+        self.assertFalse(os.path.exists(os.path.join(self.vol, "data.ms")))
+
+    def test_wipe_refused_when_mongo_has_nothing_to_rebuild_from_and_keeps_the_data(self):
+        p, calls = self.run_task("98d-meili-state.sh", env={"WIPE": "yes", "APPLY": "yes"}, wanted="0")
+        self.assertIn("WIPE refused", p.stdout); self.assertNotIn("stop -t 60", calls)
+        self.assertTrue(os.path.exists(os.path.join(self.vol, "data.ms")))
 
     def test_reset_refused_when_mongo_has_nothing_to_rebuild_from(self):
         p, calls = self.run_task("98d-meili-state.sh", env={"RESET": "yes", "APPLY": "yes"}, wanted="0")
