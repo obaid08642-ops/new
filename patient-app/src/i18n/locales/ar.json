@@ -4023,5 +4023,9 @@
   "consult.call.quality.poor": "ضعيف",
   "consult.call.quality.lost": "منقطع",
   "consult.call.quality.unknown": "جارٍ الفحص",
+  "support.status.open": "مفتوح",
+  "support.status.inProgress": "قيد المعالجة",
+  "support.status.resolved": "تم الحل",
+  "support.status.closed": "مغلق",
   "payments.result.refundedBody": "أُعيد المبلغ إلى وسيلة الدفع الأصلية. قد يستغرق ظهوره في حسابك بضعة أيام."
 }

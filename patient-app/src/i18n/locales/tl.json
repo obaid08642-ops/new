@@ -4023,5 +4023,9 @@
   "consult.call.quality.poor": "mahina",
   "consult.call.quality.lost": "naputol",
   "consult.call.quality.unknown": "sinusuri",
+  "support.status.open": "Bukas",
+  "support.status.inProgress": "Isinasagawa",
+  "support.status.resolved": "Nalutas",
+  "support.status.closed": "Sarado",
   "payments.result.refundedBody": "Ibinalik ang halaga sa orihinal mong paraan ng pagbabayad. Maaaring abutin ng ilang araw bago ito lumabas sa iyong account."
 }

@@ -1,5 +1,6 @@
 import { buildPatientPolicy, insuranceCompanyFilter, policyClass, policyCompanyKeys } from '../../common/insurance-policy';
-import { Module, Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Injectable, BadRequestException, NotFoundException, ServiceUnavailableException, Logger, Req } from '@nestjs/common';
+import { copayRefundable, findCopayTransaction } from '../../common/copay-transaction';
+import { Module, Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Injectable, BadRequestException, ConflictException, NotFoundException, ServiceUnavailableException, Logger, Req } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiForbiddenResponse,
@@ -325,8 +326,23 @@ Use null for any field not clearly visible. Do not guess.`;
     const owner = booking ? String(booking.patient_id ?? booking.patient_account_id ?? '') : '';
     if (!booking || owner !== String(patientId)) throw new NotFoundException('owned_booking_not_found');
 
-    const amount = Number(claimData?.amount) || Number(booking.totals?.total || booking.total || booking.total_price || booking.price || 0);
-    if (!amount || amount <= 0) throw new BadRequestException('a valid amount is required (booking price not ready)');
+    // A reimbursement is for what the patient paid, never for an amount the client types: the settled card payments of the
+    // booking (less what was already refunded), else the cash the provider recorded as collected. A claim above that is cut to it.
+    const kindKey = bookingKind === 'order' ? 'pharmacy' : bookingKind === 'appointment' ? 'consultation' : bookingKind;
+    const paidRows: any[] = await this.conn.collection('transactions').find(
+      { booking_kind: kindKey, booking_id: { $eq: bookingId }, status: { $in: ['paid', 'partially_refunded'] } } as any,
+      { projection: { amount: 1, refunded_amount: 1, _id: 0 } },
+    ).toArray();
+    let card = paidRows.reduce((sum, r) => sum + Number(r.amount || 0) - Number(r.refunded_amount || 0), 0);
+    // an insured booking's co-pay is paid on its insurance request, not on the booking
+    if (!(card > 0)) card = copayRefundable(await findCopayTransaction(this.conn as never, booking, bookingId));
+    const paid = Math.round((card > 0 ? card : Number(booking.collection_proof?.amount_collected || 0)) * 100) / 100;
+    if (!(paid > 0)) throw new BadRequestException('booking_not_paid');
+    const asked = Number(claimData?.amount);
+    const amount = asked > 0 ? Math.min(Math.round(asked * 100) / 100, paid) : paid;
+    // one claim per booking: a pending or already reimbursed one blocks a second
+    const open = await this.claimModel.findOne({ booking_kind: bookingKind, booking_id: bookingId, status: { $in: ['pending', 'reimbursed'] } });
+    if (open) throw new ConflictException('claim_already_filed');
 
     const claim = await this.claimModel.create({
       patient_id: patientId,

@@ -1,4 +1,5 @@
 import { flattenResultEntries } from './lab-booking-results';
+import { assertPaymentMethod } from '../../common/payment-policy';
 import { homeCollectionFee } from '../../common/provider-home-fees';
 import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { SearchService } from '../search/search.service';
@@ -311,13 +312,7 @@ export class LabsService {
     if (!['home', 'facility'].includes(data.location_type)) data.location_type = 'home';
     // Enforce Nabd payment policy
     const svcCtx = data.location_type === 'home' ? 'home_visit' : 'in_clinic';
-    const pmAllowed: Record<string, string[]> = {
-      home_visit: ['card', 'insurance'],
-      in_clinic: ['cash', 'card', 'insurance'],
-    };
-    if (!pmAllowed[svcCtx]?.includes(paymentMethod)) {
-      throw new BadRequestException(`payment_method_${paymentMethod}_not_allowed_for_${svcCtx}`);
-    }
+    assertPaymentMethod(paymentMethod, svcCtx);
     // Phase Stabilization: explicit provider selection is mandatory for patient bookings.
     // Admin/system roles may create without provider_account_id (e.g. seeding, manual ops).
     if (!data.provider_account_id && user.role !== 'admin' && user.role !== 'system') {
@@ -716,6 +711,7 @@ export class LabsService {
     if (!b) throw new NotFoundException();
     if (b.patient_id !== user.id && user.role !== 'admin') throw new NotFoundException();
     if ([LabBookingState.REPORTED, LabBookingState.CANCELLED].includes(b.state)) return b.toObject();
+    const priorState = b.state;
     return await this.engine.apply({
       kind: 'lab', entity_id: b.id, from_domain: b.state, to_domain: LabBookingState.CANCELLED,
       actor_account_id: user.id, actor_role: user.role, patient_account_id: b.patient_id, reason: 'user_cancelled',
@@ -724,7 +720,7 @@ export class LabsService {
         b.state = LabBookingState.CANCELLED;
         await b.save();
         this.events.emit('lab.booking_state_changed', { booking_id: b.id, patient_id: b.patient_id, state: b.state, tracking_id: b.tracking_id });
-        this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id });
+        this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id, prior_state: priorState });
         return b.toObject();
       },
     });
@@ -740,6 +736,7 @@ export class LabsService {
     const allowed = LAB_BOOKING_TRANSITIONS[b.state] || [];
     if (!allowed.includes(to)) throw new BadRequestException(`invalid transition ${b.state} → ${to}`);
     if (b.state === LabBookingState.NEW_REQUEST && to === LabBookingState.CONFIRMED) this.assertConfirmable(b);
+    const priorState = b.state;
     return await this.engine.apply({
       kind: 'lab', entity_id: b.id, from_domain: b.state, to_domain: to,
       actor_account_id: user.id, actor_role: user.role, patient_account_id: b.patient_id, reason: note,
@@ -748,6 +745,8 @@ export class LabsService {
         b.state = to;
         await b.save();
         this.events.emit('lab.booking_state_changed', { booking_id: b.id, patient_id: b.patient_id, state: to, tracking_id: b.tracking_id });
+        // The lab cancelling a paid booking owes the patient the money back, the same as the patient cancelling.
+        if (to === LabBookingState.CANCELLED) this.events.emit('lab.booking_cancelled', { booking_id: b.id, patient_id: b.patient_id, prior_state: priorState });
         return b.toObject();
       },
     });
@@ -1075,10 +1074,15 @@ export class LabsService {
     const b = await this.bkgModel.findOne({ id });
     if (!b) throw new NotFoundException('Booking not found');
     this.assertPatientOrAssignedProvider(user, b);
-    b.scheduled_at = new Date(body.new_date);
+    // Only a booking that is still to be done can move (a cancelled, reported or in-progress one could be moved before), to a valid future time.
+    if (![LabBookingState.NEW_REQUEST, LabBookingState.PENDING_INSURANCE, LabBookingState.WAITING_COPAY, LabBookingState.CONFIRMED].includes(b.state)) throw new BadRequestException('cannot_reschedule');
+    const when = new Date(body?.new_date);
+    if (Number.isNaN(when.getTime()) || when.getTime() < Date.now()) throw new BadRequestException('slot_expired');
+    b.scheduled_at = when;
     b.reschedule_reason = body.reason;
     b.state_history.push({ from: b.state, to: b.state, by_user_id: user.id, by_role: user.role, at: new Date(), note: `Rescheduled to ${b.scheduled_at}. Reason: ${body.reason}` });
     await b.save();
+    this.events.emit('booking.rescheduled', { entity_type: 'lab_booking', entity_id: b.id, actor_role: user.role, patient_account_id: b.patient_id, meta: { new_date: b.scheduled_at } });
     return b;
   }
 

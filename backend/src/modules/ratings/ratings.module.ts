@@ -166,7 +166,7 @@ export class RatingsService {
     const [rows, total, agg] = await Promise.all([
       // A public list: score, comment, date and the reviewer's first name only. user_id, the full name and the booked
       // entity id stay private (they identify the patient and the visit).
-      this.ratings.find({ provider_id: providerId, status: 'published' }, { projection: { _id: 0, score: 1, comment: 1, createdAt: 1, user_name: 1, sub_ratings: 1 } }).sort({ createdAt: -1 }).skip(skip).limit(Math.min(limit, 100)).toArray(),
+      this.ratings.find({ provider_id: providerId, status: 'published' }, { projection: { _id: 0, score: 1, comment: 1, createdAt: 1, user_name: 1, sub_ratings: 1, reply: 1, reply_at: 1 } }).sort({ createdAt: -1 }).skip(skip).limit(Math.min(limit, 100)).toArray(),
       this.ratings.countDocuments({ provider_id: providerId, status: 'published' }),
       this.ratings.aggregate([
         { $match: { provider_id: providerId, status: 'published' } },
