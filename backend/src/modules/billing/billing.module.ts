@@ -20,6 +20,7 @@ import { randomUUID } from 'crypto';
 import * as PDFDocument from 'pdfkit';
 import { JwtAuthGuard, Roles, SelfService, CurrentUser } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { findCopayTransaction } from '../../common/copay-transaction';
 import { MailModule, MailService } from '../mail/mail.module';
 
 const VAT_RATE = 0.15;
@@ -134,7 +135,9 @@ export class BillingService {
       { booking_kind: this.transactionKind(kind), booking_id: bookingId, status: { $in: ['paid', 'partially_refunded', 'refunded'] } },
       { projection: { amount: 1, _id: 0 } },
     ).toArray();
-    const card = rows.reduce((sum, r) => sum + Number(r.amount || 0), 0);
+    let card = rows.reduce((sum, r) => sum + Number(r.amount || 0), 0);
+    // an insured booking's co-pay is paid on its insurance request (transactions.booking_kind 'insurance'), never on the booking
+    if (!(card > 0)) card = Number((await findCopayTransaction(this.conn as never, booking, bookingId))?.amount || 0);
     const cash = Number(booking?.collection_proof?.amount_collected || 0);
     return Math.round((card > 0 ? card : cash > 0 ? cash : 0) * 100) / 100;
   }
@@ -150,10 +153,10 @@ export class BillingService {
 
   /** How it was paid: the method and the last 4 digits of the card (the gateway gives a masked number; nothing longer is kept). */
   async paymentInfo(kind: string, booking: any, bookingId: string): Promise<{ method: string; last4: string | null }> {
-    const t: any = await this.conn.collection('transactions').findOne(
+    const t: any = (await this.conn.collection('transactions').findOne(
       { booking_kind: this.transactionKind(kind), booking_id: bookingId, status: { $in: ['paid', 'partially_refunded', 'refunded'] } },
       { projection: { method: 1, webhook_payload: 1, _id: 0 } },
-    );
+    )) || (await findCopayTransaction(this.conn as never, booking, bookingId));
     const raw = t?.webhook_payload || {};
     const masked = String(raw?.source?.number ?? raw?.source?.last4 ?? raw?.payment_method_details?.card?.last4 ?? '');
     const last4 = /(\d{4})\D*$/.exec(masked)?.[1] ?? null;
@@ -247,9 +250,12 @@ export class BillingService {
    */
   @OnEvent('payment.refund.card')
   async issueCreditNote(e: { booking_kind?: string; booking_id?: string; amount?: number; refund_ref?: string }) {
-    const kind = String(e?.booking_kind || '');
     const amount = Math.round(Number(e?.amount) * 100) / 100;
-    if (!kind || !e?.booking_id || !(amount > 0) || !e?.refund_ref) return null;
+    if (!(amount > 0) || !e?.refund_ref) return null;
+    const target = await this.resolveBooking(e?.booking_kind, e?.booking_id);
+    if (!target) return null;
+    const kind = target.kind;
+    e = { ...e, booking_id: target.id };
     try {
       const done: any = await this.invoices.findOne({ refund_ref: e.refund_ref }, { _id: 0, __v: 0 }).lean();
       if (done) return done;
@@ -283,10 +289,24 @@ export class BillingService {
   }
 
   /** A paid booking gets its invoice at once, so it is there when the patient opens the receipt. Never fails the payment. */
+  /** A co-pay is paid on the insurance request: the invoice and the credit note belong to the booking that request is for. */
+  private async resolveBooking(kindRaw: unknown, idRaw: unknown): Promise<{ kind: string; id: string } | null> {
+    const kind = String(kindRaw || '');
+    const id = String(idRaw || '');
+    if (!kind || !id) return null;
+    if (kind !== 'insurance') return { kind, id };
+    try {
+      const req: any = await this.conn.collection('insuranceservicerequests').findOne({ id: { $eq: id } } as any, { projection: { booking_id: 1, booking_kind: 1, _id: 0 } });
+      return req?.booking_id && req?.booking_kind ? { kind: String(req.booking_kind), id: String(req.booking_id) } : null;
+    } catch { return null; }
+  }
+
   @OnEvent('payment.completed')
-  async issueOnPayment(event: { booking_kind?: string; booking_id?: string }) {
-    const kind = String(event?.booking_kind || '');
-    if (!kind || !event?.booking_id) return;
+  async issueOnPayment(raw: { booking_kind?: string; booking_id?: string }) {
+    const target = await this.resolveBooking(raw?.booking_kind, raw?.booking_id);
+    if (!target) return;
+    const event = { booking_kind: target.kind, booking_id: target.id };
+    const kind = target.kind;
     try { this.bookingModelName(kind); } catch { return; } // kinds without an invoice (insurance, diagnostics parent) are skipped
     try { await this.issue(null, kind, event.booking_id); } catch (e: any) { this.logger.warn(`invoice not issued for ${kind} ${event.booking_id}: ${e?.message}`); }
   }
