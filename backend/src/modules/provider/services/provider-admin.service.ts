@@ -168,7 +168,8 @@ export class ProviderAdminService {
       await this.profiles.updateOne({ account_id: id }, { $set: set });
     }
     await this.docs.updateMany({ account_id: id, review_status: { $in: [DocumentReviewStatus.PENDING, DocumentReviewStatus.UNDER_REVIEW] } }, { $set: { review_status: DocumentReviewStatus.APPROVED, reviewer_id: user.id, reviewed_at: new Date() } });
-    await this.banks.updateMany({ account_id: id, review_status: { $in: [BankReviewStatus.PENDING, BankReviewStatus.UNDER_REVIEW] } }, { $set: { review_status: BankReviewStatus.APPROVED, reviewer_id: user.id } });
+    // The payout bank account is NOT approved here: approving the provider says nothing about whose IBAN it is. It is reviewed on its own
+    // (approve-bank / reject-bank), and a withdrawal needs an approved bank (provider-payouts.controller).
     await this.accounts.model.db.collection('provider_profiles').updateMany(
       { account_id: id, user_id: { $exists: true } },
       {
