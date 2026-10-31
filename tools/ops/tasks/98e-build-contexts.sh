@@ -9,12 +9,17 @@ ROOT=${OPS_ROOT:-/opt/nabdah}
 DK="sudo -n docker"
 echo "## build-contexts"
 say() { echo "status: build-contexts: $*"; }
-for ctx in nabdah-backend Napd-admin; do
+# The compose build contexts are ../nabdah-backend (backend, worker) and ../Napd-admin/web-admin (admin). nabdah-backend: deploy/docker/Dockerfile.backend COPIES the prebuilt node_modules into the
+# image, so that directory is a build INPUT: its .dockerignore must NOT exclude it, and this task therefore never removes it (it is rebuilt by the release pipeline before each backend build, so
+# only the owner of that pipeline can say it is safe to delete between releases). Napd-admin/web-admin: Dockerfile.admin-web runs `npm ci` itself, so a host node_modules is never used; its
+# .dockerignore (admin/.dockerignore in the repo) excludes it, and then it is removable.
+for ctx in nabdah-backend Napd-admin/web-admin Napd-admin; do
   nm="$ROOT/$ctx/node_modules"
   if ! sudo -n test -d "$nm"; then say "$ctx: no node_modules directory"; continue; fi
   size=$(sudo -n du -sm "$nm" 2>/dev/null | cut -f1)
   if sudo -n grep -qE '^/?(\*\*/)?node_modules/?$' "$ROOT/$ctx/.dockerignore" 2>/dev/null; then ign=yes; else ign=no; fi
   say "$ctx: node_modules=${size}MB dockerignore_excludes_it=$ign"
+  if [ "$ctx" = nabdah-backend ]; then say "$ctx: kept (Dockerfile.backend COPIES node_modules into the image: it is a build input, never removed here)"; continue; fi
   if [ "$ign" != yes ]; then say "$ctx: kept (no .dockerignore line excluding node_modules, a build may copy it)"; continue; fi
   if [ "$APPLY" = yes ]; then sudo -n rm -rf -- "$nm" && say "$ctx: removed node_modules (${size}MB)"; else say "dry run: would remove $nm (${size}MB) (APPLY=yes to do it)"; fi
 done

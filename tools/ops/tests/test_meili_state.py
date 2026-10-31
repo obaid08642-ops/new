@@ -30,7 +30,7 @@ case "$1" in
   inspect) case "$*" in *Config.Env*) printf 'MEILI_MAX_INDEXING_MEMORY=128Mb\\nMEILI_MAX_INDEXING_THREADS=1\\n';; *RestartCount*) echo 782;; *OOMKilled*) echo true;; *HostConfig.Memory}}*) echo 671088640;; *Mounts*) echo "{d}/vol";; *) echo x;; esac;;
   stats) echo "621MiB / 640MiB";;
   logs) printf 'meilisearch holds 0 of 41000 documents\\nmeilisearch sync done\\n';;
-  exec) case "$2" in nabdah-backend) case "${{@: -1}}" in cancel) echo "cancel http=202 task=9";; reset) echo "reset http=202 task=10";; *) printf '{STATE}\\n';; esac;; *) echo {wanted};; esac;;
+  exec) case "$2" in nabdah-backend) case "${{@: -1}}" in cancel) echo "cancel http=202 task=9";; clean) echo "clean http=202 task=11";; reset) echo "reset http=202 task=10";; *) printf '{STATE}\\n';; esac;; *) echo {wanted};; esac;;
 esac
 ''')
         os.makedirs(os.path.join(d, "vol"), exist_ok=True)
@@ -43,7 +43,7 @@ class MeiliState(Base):
     def test_reports_restarts_documents_and_tasks_without_the_key(self):
         p, calls = self.run_task("98d-meili-state.sh", env={"MEILI_MASTER_KEY": "do-not-print-me"})
         self.assertEqual(p.returncode, 0, p.stderr)
-        for s in ("restarts=782", "MEILI_MAX_INDEXING_MEMORY=128Mb", "oom_killed=true", "documents=41000 isIndexing=true", "tasks enqueued=12", "mongo search_index documents: 41000", "boot syncs logged in the last 24 h: started=2"):
+        for s in ("restarts=782", "MEILI_MAX_INDEXING_MEMORY=128Mb", "oom_killed=true", "documents=41000 isIndexing=true", "tasks enqueued=12", "mongo search_index documents: 41000", "boot sync log lines in the last 24 h: 2"):
             self.assertIn(s, p.stdout)
         self.assertNotIn("do-not-print-me", p.stdout + p.stderr)
         self.assertNotIn("cancel\n", calls); self.assertNotIn("reset\n", calls)
@@ -57,22 +57,34 @@ class MeiliState(Base):
         p, calls = self.run_task("98d-meili-state.sh", env={"CANCEL": "yes", "RESET": "yes", "APPLY": "yes"})
         self.assertIn("CANCEL: cancel http=202", p.stdout); self.assertIn("RESET: reset http=202", p.stdout)
 
+    def test_clean_tasks_is_a_dry_run_without_apply_and_says_the_file_does_not_shrink(self):
+        p, calls = self.run_task("98d-meili-state.sh", env={"CLEAN_TASKS": "yes"})
+        self.assertIn("dry run: would delete every finished task", p.stdout); self.assertIn("would not shrink", p.stdout)
+        self.assertNotIn("clean\n", calls)
+        p, calls = self.run_task("98d-meili-state.sh", env={"CLEAN_TASKS": "yes", "APPLY": "yes"})
+        self.assertIn("CLEAN_TASKS: clean http=202 task=11", p.stdout); self.assertIn("does not shrink", p.stdout)
+
     def test_reset_refused_when_mongo_has_nothing_to_rebuild_from(self):
         p, calls = self.run_task("98d-meili-state.sh", env={"RESET": "yes", "APPLY": "yes"}, wanted="0")
         self.assertIn("RESET refused", p.stdout); self.assertNotIn("reset http", p.stdout)
 
 
 class BuildContexts(Base):
-    FS = {"nabdah-backend/node_modules/x": "x", "nabdah-backend/.dockerignore": "node_modules\n.git\n", "Napd-admin/node_modules/y": "y"}
+    FS = {"nabdah-backend/node_modules/x": "x", "nabdah-backend/.dockerignore": "node_modules\n.git\n", "Napd-admin/web-admin/node_modules/y": "y", "Napd-admin/web-admin/.dockerignore": "node_modules\n.next\n", "Napd-admin/node_modules/z": "z"}
 
-    def test_dry_run_removes_nothing_and_skips_a_context_without_the_ignore_line(self):
+    def test_dry_run_removes_nothing_and_never_offers_the_backend_which_the_dockerfile_copies(self):
         p, _ = self.run_task("98e-build-contexts.sh", fs=self.FS)
-        self.assertIn("nabdah-backend: node_modules=", p.stdout); self.assertIn("dockerignore_excludes_it=yes", p.stdout)
-        self.assertIn("dry run: would remove", p.stdout); self.assertIn("Napd-admin: kept", p.stdout)
+        self.assertIn("nabdah-backend: kept (Dockerfile.backend COPIES node_modules", p.stdout)
+        self.assertIn("Napd-admin/web-admin: node_modules=", p.stdout); self.assertIn("dry run: would remove", p.stdout)
+        self.assertIn("Napd-admin: kept", p.stdout)                                               # no .dockerignore line there
 
-    def test_apply_removes_only_the_excluded_one(self):
+    def test_apply_removes_only_the_admin_context_whose_dockerignore_excludes_it(self):
         p, _ = self.run_task("98e-build-contexts.sh", env={"APPLY": "yes"}, fs=self.FS)
-        self.assertIn("removed node_modules", p.stdout); self.assertIn("Napd-admin: kept", p.stdout)
+        self.assertIn("Napd-admin/web-admin: removed node_modules", p.stdout)
+        root = None
+        for line in p.stdout.splitlines():
+            pass
+        self.assertNotIn("nabdah-backend: removed", p.stdout); self.assertNotIn("Napd-admin: removed", p.stdout)
 
 
 if __name__ == "__main__":
