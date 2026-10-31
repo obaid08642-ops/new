@@ -4010,5 +4010,17 @@
   "gate.maintenanceBody": "ایپ طے شدہ مرمت کے تحت ہے۔ براہِ کرم بعد میں کوشش کریں۔",
   "gate.updateTitle": "اپ ڈیٹ ضروری ہے",
   "gate.updateBody": "ایک نیا لازمی ورژن دستیاب ہے۔ جاری رکھنے کے لیے ایپ اپ ڈیٹ کریں۔",
-  "gate.retry": "دوبارہ کوشش کریں"
+  "gate.retry": "دوبارہ کوشش کریں",
+  "consult.call.reconnecting": "کنکشن کمزور ہے۔ آپ کی کال دوبارہ جوڑ رہے ہیں…",
+  "consult.call.audioOnly": "آپ کا کنکشن کمزور ہے، اس لیے ہم نے ویڈیو بند کر کے آواز جاری رکھی ہے۔",
+  "consult.call.tryVideo": "ویڈیو دوبارہ آزمائیں",
+  "consult.call.dropped": "کال منقطع ہو گئی۔",
+  "consult.call.continueInChat": "چیٹ میں جاری رکھیں",
+  "consult.call.qualityYou": "آپ کا کنکشن",
+  "consult.call.qualityOther": "دوسری طرف کا کنکشن",
+  "consult.call.quality.excellent": "بہترین",
+  "consult.call.quality.good": "اچھا",
+  "consult.call.quality.poor": "کمزور",
+  "consult.call.quality.lost": "منقطع",
+  "consult.call.quality.unknown": "جانچ ہو رہی ہے"
 }

@@ -52,7 +52,7 @@ describe('call screen wiring', () => {
     expect(src).not.toContain('enableCameraAndMicrophone');
   });
   it('a voice call has no camera or flip control and shows the other side muted', () => {
-    expect(src).toContain('isVideoCall ? <CallButton');
+    expect(src).toContain('{isVideoCall ? (');
     expect(src).toContain('RoomEvent.TrackMuted');
   });
 });
