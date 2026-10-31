@@ -10,7 +10,7 @@ import { AppointmentRescheduleForm } from "@/components-next/appointment-resched
 import { ConsultPage } from "@/components-next/consult/consult-page";
 import { Hero } from "@/components-next/consult/consult-parts";
 import { PolicyCard, policyLines } from "@/components-next/consult/policy-lines";
-import { getCancellationPolicy, refundPercent } from "@/lib/consult/cancellation-policy";
+import { getCancellationPolicy } from "@/lib/consult/cancellation-policy";
 import { LocalTimeLine } from "@/components-next/consult/local-time-line";
 import styles from "@/components-next/consult/consult.module.css";
 
@@ -36,10 +36,10 @@ export default async function ConsultationCancelReschedulePage({ params, searchP
   // Only an open appointment can change; a finished or cancelled one opened by its link goes back to its page.
   if (!isOpen(appointment.status)) redirect(`/${locale}/appointments/${encodeURIComponent(appointmentId)}`);
   const slotMs = appointment.slotStart ? Date.parse(appointment.slotStart) : NaN;
-  const hoursUntil = Number.isFinite(slotMs) ? (slotMs - Date.now()) / 3600000 : null;
-  // The rule is the server's (public system configuration); the screen only reads its numbers and never writes one.
+  // One rule, the server's: the policy lines come from the public configuration (built from `refund_policy`) and the refund
+  // for cancelling now is the figure the server computed on the appointment itself; the screen applies no rule of its own.
   const policy = await getCancellationPolicy(token);
-  const refundPct = refundPercent(hoursUntil, policy);
+  const refundPct = appointment.refundNowPercent ?? null;
   const mode = modeOf(appointment.serviceType);
   const visual = mode ? MODE_VISUAL[mode] : undefined;
 

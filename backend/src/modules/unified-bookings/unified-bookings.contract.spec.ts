@@ -113,6 +113,14 @@ describe('UnifiedBookingsService patient-web contract bridge', () => {
     expect(service.apptSvc.cancel).not.toHaveBeenCalled();
   });
 
+  it('the cancel response carries the refund the cancellation computed', async () => {
+    const service = serviceFor();
+    service.apptSvc.cancel.mockResolvedValueOnce({ id: 'booking-1', status: 'CANCELLED', refund_percentage: 50, total_price: 115, payment_status: 'paid' });
+    await expect(service.cancelConsultationContract(USER, 'booking-1', 'plans changed')).resolves.toEqual({
+      booking_id: 'booking-1', status: 'cancelled', refund_percentage: 50, total_price: 115, payment_status: 'paid',
+    });
+  });
+
   it('marks root create, cancel, and reschedule mutations as idempotency-required', () => {
     expect(Reflect.getMetadata(REQUIRE_IDEMPOTENCY, UnifiedBookingsController.prototype.create)).toBe(true);
     expect(Reflect.getMetadata(REQUIRE_IDEMPOTENCY, UnifiedBookingsController.prototype.cancelRoot)).toBe(true);
