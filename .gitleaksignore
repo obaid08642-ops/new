@@ -63,3 +63,5 @@ f1f7eca54632fca1913601402d9bee2baa621f4b:tools/ops/tests/test_translate_progress
 6be49e560e2380c6fa148670869a56f81cc3ac6c:tools/ops/tests/test_turn_env.py:generic-api-key:12
 # - F.1 (#2212): a test idempotency key in a payments unit spec (not a credential; the literal is now 'idem-test-1'). The commit stays in history.
 c51da700ef932546ae288651e54624b5f3899d2e:backend/src/modules/payments/payment-charged-amount.spec.ts:generic-api-key:18
+# - #2244: fake key/token fixture in the first version of this branch's test_turn_env.py (replaced by the runtime-built fixture of main; the commit stays in history)
+55270a0276c511e85dc91908cbaf424b5f8ac0d1:tools/ops/tests/test_turn_env.py:generic-api-key:12
