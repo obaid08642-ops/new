@@ -1,7 +1,7 @@
 /** POST /ordering/bookings answer (backend ordering.service.ts `book`): one group, one booking per mode, one payment amount. */
 import type { Coverage, OrderMode } from "./quote";
 
-export type OrderingBooking = { id: string; mode: OrderMode; status: string; providerId: string; total: number; items: Array<{ catalogId: string; price: number; coverage?: Coverage }> };
+export type OrderingBooking = { id: string; /** which booking service made it; absent means a lab booking */ kind?: "lab" | "radiology"; mode: OrderMode; status: string; providerId: string; total: number; items: Array<{ catalogId: string; price: number; coverage?: Coverage }> };
 export type OrderingBookingResult = { orderGroupId: string; bookings: OrderingBooking[]; payment: { amount: number; status: string } };
 
 type Raw = Record<string, unknown>;
