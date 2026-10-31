@@ -82,7 +82,12 @@ export function summarize(changes: Change[]): Record<string, { set: number; inse
  * Which step's write stands when two steps change the same field of the same row. The marker of a merged-away duplicate (`is_deleted: true`,
  * `merged_into`) must beat the completion's `is_deleted: false` default; the earlier step in this list wins, a step not listed comes last.
  */
-export const STEP_PRECEDENCE = ['radiology_catalogue', 'catalogue_duplicates', 'catalogue_hidden_delete', 'catalogue_prune', 'catalogue_completion', 'product_translations'];
+export const STEP_PRECEDENCE = [
+  'radiology_catalogue', 'catalogue_duplicates', 'catalogue_hidden_delete', 'catalogue_prune', 'catalogue_completion',
+  // the medicine steps address one document under different keys ({ id } or { _id }); when two of them write one field, the owner-approved fix beats the
+  // deliberate language move, which beats the reviewed translation file, which beats whitespace tidying, which beats the machine translation
+  'medicine_name_fixes', 'language_moves', 'medicine_translations', 'medicine_name_hygiene', 'product_translations',
+];
 const rank = (step: string): number => { const i = STEP_PRECEDENCE.indexOf(step); return i === -1 ? STEP_PRECEDENCE.length : i; };
 const overlaps = (a: string, b: string): boolean => a === b || a.startsWith(`${b}.`) || b.startsWith(`${a}.`);
 
@@ -105,9 +110,11 @@ export interface SelfConflictReport {
  *  - otherwise the step that comes first in STEP_PRECEDENCE wins, inside one step the earlier change wins, and the rest are dropped and reported
  *    by step pair and path. A set on a parent path (`translations`) and one on a child (`translations.hi.name`) count as the same field.
  */
-export function resolveSelfConflicts(changes: Change[]): { changes: Change[]; report: SelfConflictReport } {
+export function resolveSelfConflicts(changes: Change[], identities?: Map<string, string>): { changes: Change[]; report: SelfConflictReport } {
   const report: SelfConflictReport = { by_pair: {}, dropped: 0, identical_collapsed: 0, chained: 0 };
-  const rowOf = (c: SetChange) => `${c.collection}|${stable(c.key)}`;   // the whole key: some collections are keyed by code + type, not _id
+  // the whole key: some collections are keyed by code + type, not _id. `identities` (rowIdentities) maps the keys that name one document in
+  // two ways ({ id } and { _id }) to one identity, so two steps addressing the same medicine differently still meet.
+  const rowOf = (c: SetChange) => { const k = `${c.collection}|${stable(c.key)}`; return identities?.get(k) ?? k; };
   // 1. chains, in plan order: same row, same path, before == the previous write's after
   const out: Change[] = [];
   const lastOf = new Map<string, number>();   // row|path -> index in out
@@ -144,6 +151,31 @@ export function resolveSelfConflicts(changes: Change[]): { changes: Change[]; re
   }
   const changed = drop.size > 0 || report.chained > 0;
   return { changes: changed ? out.filter((_, i) => !drop.has(i)) : changes, report };
+}
+
+/**
+ * The identity of the document behind each set's key. A step may address a document by its public `id` and another by its `_id`; the
+ * plan keeps each as written, so the same field of the same document would look like two rows. Looks up `_id` for the `{ id }` keys
+ * (one read per 500 ids) and maps both spellings to `${collection}|_id:${_id}`. A key of any other shape is left as it is.
+ */
+export async function rowIdentities(db: DbLike, changes: Change[]): Promise<Map<string, string>> {
+  const out = new Map<string, string>();
+  const idsOf = new Map<string, Set<string>>();
+  for (const c of changes) {
+    if (c.kind !== 'set') continue;
+    const keys = Object.keys(c.key);
+    if (keys.length !== 1) continue;
+    if (keys[0] === '_id') out.set(`${c.collection}|${stable(c.key)}`, `${c.collection}|_id:${String(c.key._id)}`);
+    else if (keys[0] === 'id' && typeof c.key.id === 'string') idsOf.set(c.collection, (idsOf.get(c.collection) ?? new Set()).add(c.key.id));
+  }
+  for (const [collection, ids] of idsOf) {
+    const all = [...ids];
+    for (let i = 0; i < all.length; i += 500) {
+      const rows = await db.collection(collection).find({ id: { $in: all.slice(i, i + 500) } }, { projection: { _id: 1, id: 1 } }).toArray();
+      for (const r of rows) out.set(`${collection}|${stable({ id: r.id })}`, `${collection}|_id:${String(r._id)}`);
+    }
+  }
+  return out;
 }
 
 /** One short line per collection: rows touched, writes by kind, and the deletions by step (their reason). */
