@@ -17,14 +17,6 @@ export function readCancellationPolicy(config: unknown): CancellationPolicy | nu
   return { fullHours: full_hours, halfHours: half_hours, halfPercent: half_refund_percent };
 }
 
-/** The share that comes back when cancelling `hoursUntil` hours ahead, by the server's numbers; null while either is unknown. */
-export function refundPercent(hoursUntil: number | null, policy: CancellationPolicy | null): number | null {
-  if (hoursUntil === null || !policy) return null;
-  if (hoursUntil >= policy.fullHours) return 100;
-  if (hoursUntil >= policy.halfHours) return policy.halfPercent;
-  return 0;
-}
-
 /** Server-side read of the public configuration; null when the server does not answer or does not state the policy. */
 export async function getCancellationPolicy(accessToken?: string | null): Promise<CancellationPolicy | null> {
   const response = await callPatientApi("/system-config/public", {}, accessToken);

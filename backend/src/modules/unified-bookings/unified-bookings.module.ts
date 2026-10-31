@@ -331,7 +331,14 @@ export class UnifiedBookingsService {
   async cancelConsultationContract(user: any, id: string, reason?: string) {
     await this.getOne(user, 'consultation', id);
     const booking: any = await this.apptSvc.cancel(id, user, reason);
-    return { booking_id: booking.id, status: String(booking.status || '').toLowerCase() };
+    // The refund the cancellation computed, so the patient sees it right away (the web BFF reads exactly these three).
+    return {
+      booking_id: booking.id,
+      status: String(booking.status || '').toLowerCase(),
+      refund_percentage: booking.refund_percentage,
+      total_price: booking.total_price,
+      payment_status: booking.payment_status,
+    };
   }
 
   /** Owner-scoped root reschedule with the same server-side slot resolution. */
