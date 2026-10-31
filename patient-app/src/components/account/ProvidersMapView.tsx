@@ -161,6 +161,7 @@ export function ProvidersMapView() {
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
+  const [noLocation, setNoLocation] = useState(false);
 
   const fetchProviders = useCallback(
     async (lat?: number, lng?: number) => {
@@ -201,6 +202,7 @@ export function ProvidersMapView() {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
+          setNoLocation(true);
           // no position: the selected (else default) saved address centres the map and the area read
           const here = savedPoint(await getSelectedAddress());
           setSaved(here);
@@ -266,7 +268,11 @@ export function ProvidersMapView() {
       let point = position;
       if (!point) {
         const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') return;
+        if (status !== 'granted') {
+          setNoLocation(true);
+          return;
+        }
+        setNoLocation(false);
         const here = await Location.getCurrentPositionAsync({});
         point = { lat: here.coords.latitude, lng: here.coords.longitude };
         setPosition(point);
@@ -355,6 +361,8 @@ export function ProvidersMapView() {
           </View>
         ) : loading ? (
           <Notice tone="info" text={k('common.loading')} />
+        ) : noLocation && !position ? (
+          <Notice tone="warning" text={k('picker.permission')} />
         ) : null}
       </View>
 

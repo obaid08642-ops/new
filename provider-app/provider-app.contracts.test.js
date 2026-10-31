@@ -261,8 +261,12 @@ describe('Provider App release contracts', () => {
 
     it('D2 the doctor keeps the post-visit tools after Finish and prescribes only while IN_PROGRESS', () => {
       const live = read('screens/doctor/doctor/LiveConsultationScreen.tsx');
-      expect(live).toContain("'IN_PROGRESS', 'COMPLETED'");
-      expect(live).toContain("const canPrescribe = status === 'IN_PROGRESS'");
+      // the step rules live in consultationSteps.ts (tested in doctor/__tests__/consultationSteps.test.ts); the screen must use them
+      const steps = read('screens/doctor/doctor/consultationSteps.ts');
+      expect(steps).toContain("'IN_PROGRESS', 'COMPLETED'");
+      expect(steps).toContain("canPrescribe: status === 'IN_PROGRESS'");
+      expect(live).toContain('visitSteps(');
+      expect(live).toContain('const canPrescribe = steps.canPrescribe');
       expect(live).toContain('disabled={!canPrescribe}');
       expect(read('screens/doctor/doctor/EPrescriptionScreen.tsx')).toMatch(/in-progress appointment/);
     });

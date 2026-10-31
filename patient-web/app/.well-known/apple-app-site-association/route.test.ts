@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { GET } from "./route";
 import { APP_LINK_LOCALES, PUBLIC_APP_LINK_PATHS, allAppLinkPatterns } from "@/lib/app-links";
 
@@ -24,6 +24,11 @@ function webPageExists(dir: string, parts: string[]): boolean {
     return false;
   });
 }
+
+// the Team ID comes from the environment only (no default): the file is not served without it (tests/app-links-static.test.ts)
+const savedTeam = process.env.APPLE_TEAM_ID;
+beforeEach(() => { process.env.APPLE_TEAM_ID = "ABCDE12345"; });
+afterEach(() => { if (savedTeam === undefined) delete process.env.APPLE_TEAM_ID; else process.env.APPLE_TEAM_ID = savedTeam; });
 
 describe("apple-app-site-association", () => {
   it("serves JSON with the applinks and webcredentials shape", async () => {

@@ -119,8 +119,9 @@ export class AdminDisputesController {
   async detail(@Param('id') id: string) {
     const t: any = await this.conn.collection('supportrequests').findOne({ id }, { projection: { _id: 0 } });
     if (!t) throw new NotFoundException('dispute_not_found');
-    const refunds = await this.conn.collection('wallet_transactions')
-      .find({ referenceType: 'refund', referenceId: id, type: 'credit' }).project({ _id: 0, amount: 1, description: 1, createdAt: 1 }).toArray();
+    // refunds live in the ledger (RefundExecutor), keyed by the dispute id; the old wallet store is gone
+    const refunds = await this.conn.collection('platformledgerentries')
+      .find({ type: 'refund', ref_type: 'refund', ref_id: `dispute_${id}` }).project({ _id: 0, amount: 1, description: 1, createdAt: 1 }).toArray();
     return { ...t, refunds };
   }
 
@@ -173,12 +174,12 @@ export class AdminDisputesController {
     if (creditedAmount > 0) {
       // A2: the dispute refund executes against a real booking through the
       // original payment method — never a wallet credit.
-      const bookingKind = String((b as any)?.booking_kind || '').trim().toLowerCase();
-      const bookingId = String((b as any)?.booking_id || '').trim();
+      // the booking the patient named on the ticket, unless the admin names another one
+      const bookingKind = String((b as any)?.booking_kind || ticket.booking_kind || '').trim().toLowerCase();
+      const bookingId = String((b as any)?.booking_id || ticket.booking_id || '').trim();
       if (!bookingKind || !bookingId) throw new BadRequestException('booking_kind and booking_id are required for a refund decision');
-      const { v4: uuidv4 } = require('uuid');
       await this.refundExec.execute({
-        refund_id: `dispute_${ticket.id}_${uuidv4()}`,
+        refund_id: `dispute_${ticket.id}`, // one refund per dispute: a double click or a retry is 'already_executed', never a second refund
         booking_kind: bookingKind,
         booking_id: bookingId,
         patient_id: ticket.user_id,

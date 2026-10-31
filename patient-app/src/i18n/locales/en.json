@@ -4022,5 +4022,9 @@
   "consult.call.quality.good": "good",
   "consult.call.quality.poor": "weak",
   "consult.call.quality.lost": "lost",
-  "consult.call.quality.unknown": "checking"
+  "consult.call.quality.unknown": "checking",
+  "support.status.open": "Open",
+  "support.status.inProgress": "In progress",
+  "support.status.resolved": "Resolved",
+  "support.status.closed": "Closed"
 }

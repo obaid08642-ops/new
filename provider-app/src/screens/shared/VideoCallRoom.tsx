@@ -10,7 +10,7 @@
  * honest error with retry — never a fake video feed.
  */
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet, Linking } from 'react-native';
 import { Room, RoomEvent, VideoPresets, AudioPresets, Track, ConnectionQuality, DisconnectReason } from 'livekit-client';
 import { bindCallResilience, callRoomOptions, qualityBars, type AudioOnlyReason, type QualityLevel } from '../../calls/callResilience';
 // @livekit/react-native is a NATIVE module — absent in Expo Go. Guarded require so
@@ -29,10 +29,12 @@ try {
   LIVEKIT_NATIVE_OK = false;
 }
 import client from '../../api/client';
+import { enableLocalMedia, isPermissionError, mediaProblemText, MediaProblem } from './callMedia';
 import { useTheme, useLang } from '../../context';
 import { NBtn } from '../../components/ui';
 import { I } from '../../components/icons';
 import { C, SP, FS, FW, R } from '../../constants';
+import { tokens, withAlpha } from '../../theme/tokens';
 
 let globalsRegistered = false;
 function ensureGlobals() {
@@ -65,6 +67,8 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
   const [micOn, setMicOn] = useState(true);
   const [camOn, setCamOn] = useState(!voiceOnly);
   const [ending, setEnding] = useState(false);
+  // Why the call has no camera or no microphone (shown as a banner, or as the error when the microphone is missing).
+  const [problem, setProblem] = useState<MediaProblem | null>(null);
   // a lost connection is resumed by LiveKit (ICE restart) on the same call; only ~30 s without it re-joins
   const [reconnecting, setReconnecting] = useState(false);
   const [audioOnly, setAudioOnly] = useState<AudioOnlyReason | null>(null);
@@ -77,6 +81,8 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
   const endedRef = useRef(false);
   const reconnectRef = useRef(0);
   const metricsTimer = useRef<any>(null);
+  // What the user chose, read at (re)connect time so a drop does not turn the mic and camera back on.
+  const wantRef = useRef({ mic: true, camera: !voiceOnly });
 
   const stopMetrics = () => {
     if (metricsTimer.current) { clearInterval(metricsTimer.current); metricsTimer.current = null; }
@@ -120,13 +126,19 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
     ensureGlobals();
     setPhase('connecting');
     setErrMsg('');
+    setProblem(null);
     const attempt = ++attemptRef.current;
+    let room: Room | null = null;
     try {
-      const initRes = await client.post('/calls/initiate', { appointmentId, call_type: voiceOnly ? 'voice' : 'video' });
-      const session = initRes.data || {};
-      const sessionId = session.session_id || session.id;
-      if (!sessionId) throw new Error('no_session');
-      sessionRef.current = sessionId;
+      // One call session per screen: a retry or an auto-reconnect joins the same session, it never opens a second room.
+      let sessionId = sessionRef.current;
+      if (!sessionId) {
+        const initRes = await client.post('/calls/initiate', { appointmentId, call_type: voiceOnly ? 'voice' : 'video' });
+        const session = initRes.data || {};
+        sessionId = session.session_id || session.id;
+        if (!sessionId) throw new Error('no_session');
+        sessionRef.current = sessionId;
+      }
 
       const joinRes = await client.post(`/calls/${encodeURIComponent(sessionId)}/join`);
       const token = joinRes.data?.token;
@@ -179,12 +191,15 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
       );
       await room.connect(serverUrl, token, iceServers.length ? { rtcConfig: { iceServers } } : undefined);
       try { await AudioSession.startAudioSession(); } catch { /* best-effort on Android/iOS */ }
-      if (voiceOnly || advice) {
-        await room.localParticipant.setMicrophoneEnabled(true);
-        await resilienceRef.current?.applyStartAdvice();
-      } else {
-        await room.localParticipant.enableCameraAndMicrophone();
+      const media = await enableLocalMedia(room.localParticipant, advice ? { ...wantRef.current, camera: false } : wantRef.current);
+      if (media.problem === 'mic_denied' || media.problem === 'mic_unavailable') {
+        // No microphone means no consultation: leave the room instead of staying connected silently.
+        setProblem(media.problem);
+        throw new Error(media.problem);
       }
+      if (advice) await resilienceRef.current?.applyStartAdvice();
+      setProblem(media.problem || null);
+      if (wantRef.current.camera && !media.camera) { wantRef.current = { ...wantRef.current, camera: false }; setCamOn(false); }
 
       if (attemptRef.current !== attempt) { room.disconnect(); return; }
       roomRef.current = room;
@@ -192,6 +207,8 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
       setPhase('connected');
       startMetrics();
     } catch (e: any) {
+      // A half-open room must not keep the microphone or camera running behind the error screen.
+      if (room && roomRef.current !== room) { try { room.disconnect(); } catch { /* already closed */ } }
       if (attemptRef.current !== attempt) return;
       setErrMsg(e?.response?.data?.message || e?.message || 'connect_failed');
       setPhase('error');
@@ -214,8 +231,19 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appointmentId]);
 
-  useEffect(() => { roomRef.current?.localParticipant.setMicrophoneEnabled(micOn).catch(() => {}); }, [micOn]);
-  useEffect(() => { if (!voiceOnly) roomRef.current?.localParticipant.setCameraEnabled(camOn).catch(() => {}); }, [camOn]);
+  useEffect(() => { wantRef.current = { ...wantRef.current, mic: micOn }; roomRef.current?.localParticipant.setMicrophoneEnabled(micOn).catch(() => {}); }, [micOn]);
+  useEffect(() => {
+    wantRef.current = { ...wantRef.current, camera: camOn };
+    if (voiceOnly) return;
+    // Turning the camera on after it was blocked asks again; if it is still blocked say so and stay off.
+    void (async () => {
+      const p = roomRef.current?.localParticipant;
+      if (!p) return;
+      try { await p.setCameraEnabled(camOn); if (camOn) setProblem(null); } catch (e) {
+        if (camOn) { setProblem(isPermissionError(e) ? 'camera_denied' : 'camera_unavailable'); setCamOn(false); }
+      }
+    })();
+  }, [camOn]);
 
   const handleEnd = async () => {
     if (ending) return;
@@ -248,7 +276,14 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
         <Text style={st.dim}>
           {AR ? 'تعذر الاتصال بالغرفة — تحقق من الشبكة ثم أعد المحاولة' : 'Could not join the room — check your network and retry'}
         </Text>
-        {!!errMsg && <Text style={[st.dim, { fontSize: FS.xs }]}>{String(errMsg)}</Text>}
+        {problem === 'mic_denied' || problem === 'mic_unavailable'
+          ? <Text style={st.dim}>{mediaProblemText(problem, AR)}</Text>
+          : !!errMsg && <Text style={[st.dim, { fontSize: FS.xs }]}>{String(errMsg)}</Text>}
+        {problem === 'mic_denied' && (
+          <TouchableOpacity onPress={() => { void Linking.openSettings(); }} style={{ marginTop: SP.md }}>
+            <Text style={[st.dim, { textDecorationLine: 'underline' }]}>{AR ? 'فتح إعدادات الجهاز' : 'Open device settings'}</Text>
+          </TouchableOpacity>
+        )}
         <View style={{ marginTop: SP.lg, width: 220 }}>
           <NBtn label={AR ? 'إعادة المحاولة' : 'Retry'} onPress={connect} />
         </View>
@@ -285,6 +320,17 @@ export function VideoCallRoom({ appointmentId, peerName, voiceOnly, onEnd }: Vid
         </View>
       )}
 
+      {/* Camera blocked or missing: the call goes on with audio only, and says why */}
+      {problem && (
+        <View style={st.banner}>
+          <Text style={st.bannerText}>{mediaProblemText(problem, AR)}</Text>
+          {problem === 'camera_denied' && (
+            <TouchableOpacity onPress={() => { void Linking.openSettings(); }}>
+              <Text style={[st.bannerText, { textDecorationLine: 'underline' }]}>{AR ? 'فتح الإعدادات' : 'Open settings'}</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
       {/* Status over the call: reconnecting (the same call resumes) and sound only (weak link) */}
       <View style={st.status} pointerEvents="box-none">
         {reconnecting ? <Text accessibilityLiveRegion="polite" style={[st.notice, { backgroundColor: theme.overlay }]}>{AR ? 'الاتصال ضعيف، نعيد الاتصال بالمكالمة…' : 'Weak connection. Reconnecting your call…'}</Text> : null}
@@ -339,6 +385,8 @@ const st = StyleSheet.create({
   name: { color: '#FFF', fontSize: FS.lg, fontWeight: FW.bold, marginTop: SP.sm },
   avatar: { width: 88, height: 88, borderRadius: 44, alignItems: 'center', justifyContent: 'center' },
   remoteFallback: { alignItems: 'center', justifyContent: 'center' },
+  banner: { position: 'absolute', top: SP.md, start: SP.md, end: SP.md, padding: SP.sm, borderRadius: R.md, backgroundColor: withAlpha(tokens.navy, 0.65), alignItems: 'center' },
+  bannerText: { color: tokens.primaryFg, fontSize: FS.xs, textAlign: 'center' },
   pip: { position: 'absolute', bottom: 96, right: SP.md, width: 92, height: 128, borderRadius: R.md, overflow: 'hidden', borderWidth: 2, borderColor: '#444', backgroundColor: '#222' },
   pipOff: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   controls: { position: 'absolute', bottom: SP.lg, left: 0, right: 0, flexDirection: 'row', justifyContent: 'center', gap: SP.xl },

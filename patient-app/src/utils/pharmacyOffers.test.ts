@@ -195,6 +195,11 @@ describe('order state', () => {
     expect(orderIdParam({ orderId: ['c', 'd'] })).toBe('c');
     expect(orderIdParam({ orderId: 'a', requestId: 'b' })).toBe('a');
     expect(orderIdParam({})).toBeUndefined();
+    expect(orderIdParam({ orderId: '65f0c1a2b3c4d5e6f7a8b9c0' })).toBe('65f0c1a2b3c4d5e6f7a8b9c0');
+  });
+
+  it('refuses an id that could change the request path (slash, query, dots only, empty)', () => {
+    for (const bad of ['a/b', '../x', '..', 'a?b=1', 'a#b', 'a b', '']) expect(orderIdParam({ orderId: bad })).toBeUndefined();
     expect(orderIdParam({ orderId: '' })).toBeUndefined();
   });
 });
