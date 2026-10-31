@@ -21,7 +21,7 @@ Nothing needed in client code; the open item was already implemented (`FamilyMem
 - `for_member_id` is accepted only by care appointments (`appointments.dto.ts:64`) and unified bookings (`unified-bookings.dto.ts:51`); health reminders also take it.
 
 ## Client gaps (reported, not built)
-- Diagnostics and pharmacy flows: the member chosen by "Book on their behalf" is only consumed by the consultation confirm form. `setMember` in `useOrderingContext` exists but no screen found sets it from `bookingFor`; the button always opens the consultations tab, so a guardian cannot start a diagnostics or pharmacy order for the member from there.
+- Diagnostics and pharmacy flows: the member picked by "Book on their behalf" is only consumed by the consultation confirm form. The ordering screens have their own for-whom picker (`src/components/ordering/ContextBar.tsx:93-95`, `setMember`), but it is not pre-filled from `bookingFor`, and the button always opens the consultations tab. A guardian must re-pick the member in the ordering context bar.
 
 ## Not verified
 - Live backend behaviour (`tools/live/j_family_book_for_member.py` not run: no backend in this environment).
