@@ -47,9 +47,22 @@ meili() { $DK exec nabdah-backend node -e "$JS" "$1" 2>/dev/null | tr -d '\r'; }
 OUT=$(meili state)
 if [ -z "$OUT" ]; then say "meilisearch unreadable from nabdah-backend (container down, or key/URL not set)"; else echo "$OUT" | while read -r l; do say "$l"; done; fi
 
-MQ="print(db.getSiblingDB(process.env.DB_NAME||'nabd_nestjs').search_index.countDocuments({}))"
-WANTED=$($DK exec nabdah-mongodb sh -c 'mongosh --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --eval "$1"' sh "$MQ" 2>/dev/null | tail -1 | tr -d '\r')
-case "$WANTED" in ''|*[!0-9]*) WANTED=unreadable;; esac
+# The search index in Mongo, counted with the app's own database name (read from nabdah-backend, not guessed). mongosh prints a bare number with print(); the answer is taken from the lines that are
+# only digits (a warning line can follow it), tried 3 times, and when it still fails the (credential-stripped) first words of the answer are shown instead of just "unreadable".
+DBN=$($DK exec nabdah-backend printenv DB_NAME 2>/dev/null | tr -d '\r'); DBN=${DBN:-nabd_nestjs}
+MQ="print(db.getSiblingDB('$DBN').getCollection('search_index').estimatedDocumentCount())"
+WANTED=""; RAW=""
+for i in 1 2 3; do
+  RAW=$($DK exec nabdah-mongodb sh -c 'mongosh --quiet -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --eval "$1"' sh "$MQ" 2>&1 | tr -d '\r')
+  WANTED=$(echo "$RAW" | grep -E '^[0-9]+$' | tail -1)
+  [ -n "$WANTED" ] && break
+  sleep 3
+done
+if [ -z "$WANTED" ]; then
+  WHY=$(echo "$RAW" | grep -v '^[[:space:]]*$' | head -2 | tr '\n' ' ' | sed -E 's#[a-z+]+://[^ ]*@[^ ]*#<uri>#g' | cut -c1-160)
+  say "mongo search_index count unreadable (database $DBN): ${WHY:-no output}"
+  WANTED=unreadable
+fi
 say "mongo search_index documents: $WANTED"
 say "worker: restarts=$($DK inspect -f '{{.RestartCount}}' nabdah-worker 2>/dev/null); boot sync log lines in the last 24 h: $($DK logs --since 24h nabdah-worker 2>&1 | grep -ciE 'meilisearch (sync|already holds|holds)') (the sync lines exist only from PR #2261 on; before it the boot re-send logged nothing, so 0 is expected on the old release)"
 

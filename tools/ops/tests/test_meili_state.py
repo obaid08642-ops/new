@@ -30,7 +30,7 @@ case "$1" in
   inspect) case "$*" in *State.Health*) echo healthy;; *Config.Env*) printf 'MEILI_MAX_INDEXING_MEMORY=128Mb\\nMEILI_MAX_INDEXING_THREADS=1\\n';; *RestartCount*) echo 782;; *OOMKilled*) echo true;; *HostConfig.Memory}}*) echo 671088640;; *Mounts*) echo "{d}/vol";; *) echo x;; esac;;
   stats) echo "621MiB / 640MiB";;
   logs) printf 'meilisearch holds 0 of 41000 documents\\nmeilisearch sync done\\n';;
-  exec) case "$2" in nabdah-backend) case "${{@: -1}}" in cancel) echo "cancel http=202 task=9";; clean) echo "clean http=202 task=11";; reset) echo "reset http=202 task=10";; *) printf '{STATE}\\n';; esac;; *) echo {wanted};; esac;;
+  exec) case "$2" in nabdah-backend) case "$*" in *printenv*) echo nabd_nestjs;; *) case "${{@: -1}}" in cancel) echo "cancel http=202 task=9";; clean) echo "clean http=202 task=11";; reset) echo "reset http=202 task=10";; *) printf '{STATE}\\n';; esac;; esac;; *) printf '%b\\n' '{wanted}';; esac;;
 esac
 ''')
         os.makedirs(os.path.join(d, "vol", "data.ms"), exist_ok=True); self.vol = os.path.join(d, "vol")
@@ -78,6 +78,13 @@ class MeiliState(Base):
         p, calls = self.run_task("98d-meili-state.sh", env={"WIPE": "yes", "APPLY": "yes"}, wanted="0")
         self.assertIn("WIPE refused", p.stdout); self.assertNotIn("stop -t 60", calls)
         self.assertTrue(os.path.exists(os.path.join(self.vol, "data.ms")))
+
+    def test_the_mongo_count_survives_a_warning_line_and_a_failure_shows_a_reason_without_credentials(self):
+        p, _ = self.run_task("98d-meili-state.sh", wanted="41000\\nWarning: something deprecated")
+        self.assertIn("mongo search_index documents: 41000", p.stdout)
+        p, _ = self.run_task("98d-meili-state.sh", wanted="MongoServerError: connect failed mongodb://root:topsecret@mongodb:27017/x")
+        self.assertIn("count unreadable (database nabd_nestjs): MongoServerError", p.stdout)
+        self.assertIn("<uri>", p.stdout); self.assertNotIn("topsecret", p.stdout)
 
     def test_reset_refused_when_mongo_has_nothing_to_rebuild_from(self):
         p, calls = self.run_task("98d-meili-state.sh", env={"RESET": "yes", "APPLY": "yes"}, wanted="0")
