@@ -1308,10 +1308,64 @@ export class AdminFinanceEngineController {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// LabRadiologyRefundListener — consumes lab.booking_cancelled and radiology.booking_cancelled.
+// A lab or radiology booking can be cancelled only before the sample is taken or the patient arrives, so nothing was
+// delivered: what the patient paid by card goes back in full. A lab collector already on the way (IN_TRANSIT) keeps the
+// same trip fee the nursing refund keeps. Before this, a paid card booking cancelled with no refund at all.
+// Idempotent per booking (refund_id); a booking that was never paid by card is a no-op. Never throws.
+// ═══════════════════════════════════════════════════════════════════════════
+@Injectable()
+export class LabRadiologyRefundListener {
+  private readonly logger = new Logger('LabRadiologyRefundListener');
+  constructor(
+    @InjectConnection() private readonly conn: Connection,
+    private readonly refundExec: RefundExecutor,
+  ) {}
+
+  @OnEvent('lab.booking_cancelled')
+  async onLabCancelled(e: any) { await this.refund('lab', e); }
+
+  @OnEvent('radiology.booking_cancelled')
+  async onRadiologyCancelled(e: any) { await this.refund('radiology', e); }
+
+  async refund(kind: 'lab' | 'radiology', e: any): Promise<void> {
+    const bookingId = String(e?.booking_id || '');
+    const patientId = String(e?.patient_id || '');
+    if (!bookingId || !patientId) return;
+    try {
+      const paid: any = await this.conn.collection('transactions').findOne({ booking_kind: kind, booking_id: bookingId, status: 'paid' } as any)
+        || await findCopayTransaction(this.conn as never, await this.conn.collection(kind === 'lab' ? 'labbookings' : 'radiologybookings').findOne({ id: bookingId } as any), bookingId);
+      if (!paid || paid.status !== 'paid') return;
+      const left = Math.max(0, Math.round((Number(paid.amount || 0) - Number(paid.refunded_amount || 0)) * 100) / 100);
+      const policyDoc: any = await this.conn.collection('system_configs').findOne({ key: 'refund_policy' }).catch(() => null);
+      const tripFee = Number(policyDoc?.value?.home_visit?.trip_fee_sar ?? 40);
+      const keepsTripFee = kind === 'lab' && String(e?.prior_state || '').toUpperCase() === 'IN_TRANSIT';
+      const amount = keepsTripFee ? Math.max(0, Math.round((left - tripFee) * 100) / 100) : left;
+      if (!(amount > 0)) return;
+      await this.refundExec.execute({
+        refund_id: `${kind}-cancel-${bookingId}`,
+        booking_kind: kind,
+        booking_id: bookingId,
+        patient_id: patientId,
+        amount,
+        reason: keepsTripFee ? `${kind}_cancel_after_transit` : `${kind}_cancel_before_service`,
+        actor_id: 'system',
+      });
+    } catch (err: any) {
+      this.logger.error(`${kind} refund consumer failed: ${err?.message} (booking ${bookingId})`);
+      await this.conn.collection('event_dlq').insertOne({
+        original_event_id: `${kind}-cancel-${bookingId}`, type: `${kind}.booking_cancelled`, entity_type: `${kind}_booking`, entity_id: bookingId,
+        payload: e, attempts: 0, last_error: String(err?.message || err).slice(0, 500), status: 'pending', createdAt: new Date(), updatedAt: new Date(),
+      } as any).catch((dlqErr: any) => this.logger.error(`${kind} refund failure not queued: ${dlqErr?.message}`));
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 @Global()
 @Module({
   controllers: [FinanceEngineController, AdminFinanceEngineController],
-  providers: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService, AppointmentRefundListener, NursingRefundListener, PharmacyRefundListener],
+  providers: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService, AppointmentRefundListener, NursingRefundListener, PharmacyRefundListener, LabRadiologyRefundListener],
   exports: [LedgerService, CommissionResolver, CouponService, LoyaltyRedeemService, FraudService, RefundExecutor, CancellationPolicy, ReportsService, ApprovalService],
 })
 export class FinanceEngineModule {}
