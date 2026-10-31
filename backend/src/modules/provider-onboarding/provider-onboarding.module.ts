@@ -468,6 +468,8 @@ export class ProviderOnboardingService {
             onboarding_progress: onboardingMeta,
             updatedAt: now,
           },
+          // A resubmitted application no longer carries the old reviewer reason (the status history keeps it).
+          $unset: { rejection_reason: '' },
           $push: { status_history: { from: current, to: 'pending_admin_approval', by_user_id: user.id, by_role: 'provider', at: now, note: 'onboarding resubmitted' } } as any,
         });
       } else {
