@@ -1,16 +1,17 @@
-# 2026-10-31 lead reviewer: run 66.
-# 1. Free disk, deploy main@8975b933: self-conflict fix (#2197: one write per field), radiology owner decisions + 67 market rows (#2199),
-#    chat/calls security P0s (#2206/#2208 if merged), calls/chat client fixes, auth web, provider wiring, remote scanner READY but off (#2201).
-#    Pre-deploy dump in a one-off container; a failed dump aborts with production unchanged.
-# 2. 90 DRY RUN: catalogue completion + radiology decisions (one line per collection, conflicts listed). Nothing written.
-# 3. 90c DRY RUN: product translations from the reviewed file (9,971 answers). Nothing written.
-# 4. 97c-retention DRY RUN (#2202): what old backups and images would go and how many MB. Nothing deleted.
-# 5. Purge the API cache.
+# 2026-10-31 lead reviewer: run 67.
+# Run 66: the pre-deploy dump ended rc=1 (the deploy still had the old one-off dump); the deploy aborted, production unchanged (22610406).
+# The catalogue dry run then failed on the old image ("packaged" radiology file is new); the translations dry run is unchanged (19,984);
+# retention would delete nothing (backups are only ~1 GB), so the 85% disk is used elsewhere.
+# 1. 99d-disk-usage (READ-ONLY): where the disk goes.
+# 2. Free disk, deploy main@8975b933 with the reliable one-off dump (#2186: one collection at a time, cap from MemAvailable, one retry, exit code
+#    and OOMKilled reported). A failed dump still aborts with production unchanged.
+# 3. 90 DRY RUN (catalogue completion + radiology decisions) and 90c DRY RUN (translations) on the new image (one write per field, #2197).
+# 4. Purge the API cache.
+99d-disk-usage
 release:8975b933aa5098cda63a410e97405af68bb5b4d1
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
 90-catalogue-apply
 90c-catalogue-translations
-97c-retention
 cf-purge-api
