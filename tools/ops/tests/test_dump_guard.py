@@ -48,6 +48,15 @@ class DumpGuard(unittest.TestCase):
         rc, _ = self.guard(new); self.assertEqual(rc, 1)                                              # the .suspect file does not count, the 300 MB one does
         rc, out = self.guard(new, {"DUMP_GUARD_FORCE": "1"}); self.assertEqual(rc, 0); self.assertIn("FORCED", out)
 
+    def test_require_baseline_refuses_when_nothing_can_be_read_and_sudo_prefix_is_used(self):
+        new = self.make("nabd_db_1.gz", 3 * MB)
+        rc, out = self.guard(new, {"DUMP_GUARD_REQUIRE_BASELINE": "1"}); self.assertEqual(rc, 1); self.assertIn("no earlier dump could be read", out)
+        self.make("nabd_db_0.gz.gpg", 300 * MB, 100)
+        bindir = os.path.join(self.d, "bin"); os.makedirs(bindir)
+        shim = os.path.join(bindir, "fakesudo"); open(shim, "w").write('#!/bin/bash\necho "$@" >> "%s/sudo.log"\nexec "$@"\n' % self.d); os.chmod(shim, 0o755)
+        rc, out = self.guard(new, {"DUMP_GUARD_SUDO": shim, "DUMP_GUARD_REQUIRE_BASELINE": "1"}); self.assertEqual(rc, 1)
+        self.assertIn("stat", open(os.path.join(self.d, "sudo.log")).read())
+
     def test_backup_sh_checks_before_encrypting_and_keeps_the_suspect_aside(self):
         text = open(os.path.join(ROOT, "deploy", "scripts", "backup.sh")).read()
         self.assertIn('source "$(dirname "$0")/_dump-guard.sh"', text)
