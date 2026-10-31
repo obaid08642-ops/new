@@ -279,21 +279,28 @@ export class LiveKitService {
     };
   }
 
+  /**
+   * A session outlives its purpose when the appointment died meanwhile: fail it loudly instead of connecting a dead call
+   * (P0-14), and ask the patient side for the current telehealth consent (D-38). Every path that hands out a LiveKit token
+   * (join and the P2P fallback) goes through here.
+   */
+  private async assertSessionAppointmentLive(session: any, userId: string): Promise<void> {
+    if (!session.appointment_id) return;
+    const appt: any = await this.appointments.findOne({ id: session.appointment_id }).lean().catch(() => null);
+    if (!appt) return;
+    if (['CANCELLED', 'COMPLETED', 'RESCHEDULED', 'NO_SHOW'].includes(String(appt.status))) {
+      await this.callSessions.updateOne(
+        { id: session.id },
+        { $set: { status: 'FAILED', end_reason: 'appointment_not_active', ended_at: new Date(), updatedAt: new Date() } },
+      );
+      throw new BadRequestException('appointment_not_active');
+    }
+    await this.assertPatientConsent(appt, userId);
+  }
+
   async joinCall(sessionId: string, userId: string, userName: string, supportsP2p = false) {
     const session = await this.findOwnedSession(sessionId, userId);
-    // A session outlives its purpose when the appointment died meanwhile —
-    // fail it loudly instead of connecting a dead call (P0-14).
-    if (session.appointment_id) {
-      const appt: any = await this.appointments.findOne({ id: session.appointment_id }).lean().catch(() => null);
-      if (appt && ['CANCELLED', 'COMPLETED', 'RESCHEDULED', 'NO_SHOW'].includes(String(appt.status))) {
-        await this.callSessions.updateOne(
-          { id: session.id },
-          { $set: { status: 'FAILED', end_reason: 'appointment_not_active', ended_at: new Date(), updatedAt: new Date() } },
-        );
-        throw new BadRequestException('appointment_not_active');
-      }
-      if (appt) await this.assertPatientConsent(appt, userId);
-    }
+    await this.assertSessionAppointmentLive(session, userId);
     let transport: 'p2p' | 'livekit' = session.transport === 'p2p' ? 'p2p' : 'livekit';
     if (transport === 'p2p' && !supportsP2p) {
       // The other side cannot do P2P: the whole call moves to LiveKit and the caller is told, so nobody waits for an offer that never comes.
@@ -353,6 +360,7 @@ export class LiveKitService {
   async fallbackToLiveKit(sessionId: string, userId: string, reason: string) {
     const session = await this.findOwnedSession(sessionId, userId);
     if (!['INITIATED', 'ACTIVE'].includes(String(session.status))) throw new BadRequestException('call_not_active');
+    await this.assertSessionAppointmentLive(session, userId);
     const token = await this.createToken(session.room_name, userId);
     await this.callSessions.updateOne(
       { id: session.id },

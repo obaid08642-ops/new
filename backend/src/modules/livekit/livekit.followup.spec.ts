@@ -69,6 +69,33 @@ describe('LiveKit follow-up ownership fixes', () => {
     );
   });
 
+  it('fails the P2P fallback token when the appointment died after session creation', async () => {
+    const sessions = {
+      findOne: jest.fn().mockResolvedValue({ id: 'call_1', appointment_id: 'appt-1', patient_id: 'patient-1', provider_id: 'doctor-1', room_name: 'room-1', status: 'ACTIVE' }),
+      updateOne: jest.fn().mockResolvedValue({}),
+    };
+    const appointments = { findOne: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue({ id: 'appt-1', status: 'CANCELLED' }) }) };
+    const conn2: any = { collection: jest.fn().mockImplementation((name: string) => name === 'callsessions' ? sessions : { findOne: jest.fn() }) };
+    const service = new LiveKitService(appointments as any, conn2, events as any);
+    const token = jest.spyOn(service, 'createToken');
+    await expect(service.fallbackToLiveKit('call_1', 'patient-1', 'ice_failed')).rejects.toThrow('appointment_not_active');
+    expect(token).not.toHaveBeenCalled();
+    expect(events.emit).not.toHaveBeenCalled();
+  });
+
+  it('fails the P2P fallback token for the patient side without the current telehealth consent', async () => {
+    const sessions = {
+      findOne: jest.fn().mockResolvedValue({ id: 'call_1', appointment_id: 'appt-1', patient_id: 'patient-1', provider_id: 'doctor-1', room_name: 'room-1', status: 'ACTIVE' }),
+      updateOne: jest.fn().mockResolvedValue({}),
+    };
+    const appointments = { findOne: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue({ id: 'appt-1', status: 'CONFIRMED', patient_id: 'patient-1', doctor_user_id: 'doctor-1' }) }) };
+    const conn2: any = { collection: jest.fn().mockImplementation((name: string) => name === 'callsessions' ? sessions : name === 'legal_policies' ? { findOne: jest.fn().mockResolvedValue({ version: '1.0', requires_acceptance: true }) } : { findOne: jest.fn().mockResolvedValue(null) }) };
+    const service = new LiveKitService(appointments as any, conn2, events as any);
+    const token = jest.spyOn(service, 'createToken');
+    await expect(service.fallbackToLiveKit('call_1', 'patient-1', 'ice_failed')).rejects.toThrow('telehealth_consent_required');
+    expect(token).not.toHaveBeenCalled();
+  });
+
   it('creates a booking-room token with a ten-minute expiry', async () => {
     const originalKey = process.env.LIVEKIT_API_KEY;
     const originalSecret = process.env.LIVEKIT_API_SECRET;

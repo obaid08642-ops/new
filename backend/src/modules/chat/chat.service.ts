@@ -9,6 +9,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ChatThread, ChatThreadDocument, ChatMessage, ChatMessageDocument } from './chat.schemas';
 import { CONSULTATION_FOLLOWUP_HOURS_DEFAULT } from './followup-window';
 import { PresenceService } from '../presence/presence.service';
+import { assertScanned } from '../storage/pending-scan';
 import { consultationState, isAppointmentDoctor, isVoiceMessage, ConsultState } from './consultation-window';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const jwt = require('jsonwebtoken');
@@ -19,6 +20,26 @@ export const VOICE_MAX_SECONDS = 600;
 export const DEFAULT_DELETE_WINDOW_MIN = 60;
 
 // ─── Service ────────────────────────────────────────────────────────────────
+
+/** Booking kinds a chat thread may be opened for; 'doctor' is the legacy spelling of 'consultation'. */
+const BOOKING_KINDS = new Set(['pharmacy', 'lab', 'radiology', 'nursing', 'homecare', 'consultation']);
+
+/** The one spelling stored on a booking thread, or null for a kind that does not exist (the client's string is never trusted as is). */
+export function canonicalBookingKind(kind: unknown): string | null {
+  const k = String(kind ?? '').trim().toLowerCase();
+  const canonical = k === 'doctor' ? 'consultation' : k;
+  return BOOKING_KINDS.has(canonical) ? canonical : null;
+}
+
+/** Every spelling a thread of this kind may carry in the database (older rows kept what the client sent). */
+export function bookingKindSpellings(kind: string): string[] {
+  return kind === 'consultation' ? ['consultation', 'doctor', 'Consultation', 'Doctor'] : [kind];
+}
+
+/** A booking thread of a doctor consultation: the Decision 24 window applies to it, whatever alias it was stored with. */
+export function isConsultationThread(thread: any): boolean {
+  return thread?.type === 'booking' && canonicalBookingKind(thread?.booking_kind) === 'consultation';
+}
 
 @Injectable()
 export class ChatService {
@@ -123,14 +144,17 @@ export class ChatService {
   /** Booking conversation between the booking's patient and its provider. Only those two parties may open or
    *  join it: the caller must be one of them, and a client-supplied provider id is ignored (IDOR). */
   async getOrCreateBookingThread(bookingKind: string, bookingId: string, callerId: string, _clientProviderId?: string): Promise<ChatThread> {
-    const parties = await this.resolveBookingParties(bookingKind, bookingId);
+    const kind = canonicalBookingKind(bookingKind);
+    if (!kind) throw new BadRequestException('invalid_booking_kind');
+    const parties = await this.resolveBookingParties(kind, bookingId);
     const members = [...new Set([parties.patientId, parties.providerId].filter(Boolean).map(String))];
     if (!members.includes(String(callerId))) throw new ForbiddenException('not_a_party_to_this_booking');
-    let thread = await this.threads.findOne({ type: 'booking', booking_kind: { $eq: bookingKind }, booking_id: { $eq: bookingId } });
+    // legacy rows may carry an alias ('doctor', mixed case): one thread per booking, whatever the spelling it was stored with
+    let thread = await this.threads.findOne({ type: 'booking', booking_kind: { $in: bookingKindSpellings(kind) }, booking_id: { $eq: bookingId } });
     if (!thread) {
       const counts: Record<string, number> = {};
       members.forEach(id => counts[id] = 0);
-      thread = await this.threads.create({ type: 'booking', booking_kind: bookingKind, booking_id: bookingId, participant_ids: members, created_by: callerId, unread_counts: counts });
+      thread = await this.threads.create({ type: 'booking', booking_kind: kind, booking_id: bookingId, participant_ids: members, created_by: callerId, unread_counts: counts });
     } else {
       // attach a booking party that is not in the thread yet (e.g. provider assigned later)
       const missing = members.filter(id => !thread.participant_ids.includes(id));
@@ -183,14 +207,14 @@ export class ChatService {
     };
   }
 
-  private async validateChatMediaIds(threadId: string, senderId: string, mediaIds?: unknown): Promise<string[]> {
-    if (mediaIds === undefined) return [];
+  private async validateChatMediaIds(threadId: string, senderId: string, mediaIds?: unknown): Promise<{ ids: string[]; mimes: string[] }> {
+    if (mediaIds === undefined) return { ids: [], mimes: [] };
     if (!Array.isArray(mediaIds) || mediaIds.some((id) => typeof id !== 'string' || !id.trim())) {
       throw new BadRequestException('invalid_media_ids');
     }
     const uniqueIds = [...new Set(mediaIds.map((id) => id.trim()))];
     if (uniqueIds.length > 10) throw new BadRequestException('too_many_media_ids');
-    if (!uniqueIds.length) return [];
+    if (!uniqueIds.length) return { ids: [], mimes: [] };
 
     let MediaAssetModel: Model<any>;
     try {
@@ -202,7 +226,12 @@ export class ChatService {
       id: { $in: uniqueIds }, owner_id: { $eq: senderId }, purpose: 'chat', thread_id: { $eq: threadId },
     }).lean();
     if (assets.length !== uniqueIds.length) throw new BadRequestException('media_not_owned_or_not_bound_to_thread');
-    return uniqueIds;
+    // never attach a file that is not scanned yet (423) or was rejected by the scan
+    for (const a of assets) {
+      if (a.scan_status === 'infected') throw new BadRequestException('media_rejected');
+      assertScanned(a);
+    }
+    return { ids: uniqueIds, mimes: assets.map((a: any) => String(a.mime_type || '').toLowerCase()) };
   }
 
   async checkIfFamily(participantIds: string[]): Promise<boolean> {
@@ -238,7 +267,7 @@ export class ChatService {
 
   /** Decision 24 state of a consultation thread (null for any other thread). */
   async consultationThreadState(thread: any): Promise<{ appt: any; state: ConsultState } | null> {
-    if (!thread || thread.type !== 'booking' || thread.booking_kind !== 'consultation') return null;
+    if (!thread || !isConsultationThread(thread)) return null;
     const appt = thread.booking_id ? await this.getModel('Appointment').findOne({ id: { $eq: thread.booking_id } }) : null;
     return { appt, state: consultationState(appt, thread, await this.followupHours()) };
   }
@@ -246,7 +275,7 @@ export class ChatService {
   private async doctorThread(threadId: string, userId: string): Promise<{ thread: any; appt: any }> {
     const thread: any = await this.threads.findOne({ id: { $eq: threadId } });
     if (!thread) throw new NotFoundException('thread_not_found');
-    if (thread.type !== 'booking' || thread.booking_kind !== 'consultation') throw new BadRequestException('not_a_consultation_thread');
+    if (!isConsultationThread(thread)) throw new BadRequestException('not_a_consultation_thread');
     const appt = thread.booking_id ? await this.getModel('Appointment').findOne({ id: { $eq: thread.booking_id } }) : null;
     if (!isAppointmentDoctor(appt, userId)) throw new ForbiddenException('only_the_consultation_doctor');
     return { thread, appt };
@@ -270,14 +299,14 @@ export class ChatService {
     return { ok: true, id: thread.id, extended_until: until };
   }
 
-  async verifyCommunicationAllowed(threadId: string, senderId: string, messageType?: string): Promise<{ allowed: boolean; message?: string }> {
+  async verifyCommunicationAllowed(threadId: string, senderId: string, voice = false): Promise<{ allowed: boolean; message?: string }> {
     const thread = await this.threads.findOne({ id: { $eq: threadId } });
     if (!thread) return { allowed: true };
 
     const isFamily = await this.checkIfFamily(thread.participant_ids);
     if (isFamily) return { allowed: true };
 
-    if (thread.type === 'booking' && thread.booking_kind === 'consultation') {
+    if (isConsultationThread(thread)) {
       if (!thread.booking_id) return { allowed: false, message: 'معرف الحجز غير موجود.' };
       try {
         const cs = await this.consultationThreadState(thread);
@@ -288,9 +317,11 @@ export class ChatService {
           if (state.phase === 'closed') return { allowed: false, message: 'أغلق الطبيب هذه المحادثة.' };
           return { allowed: false, message: 'انتهت فترة المتابعة الخاصة بالاستشارة.' };
         }
-        if (isVoiceMessage(messageType) && !state.can_voice) return { allowed: false, message: 'الرسائل الصوتية غير متاحة بعد زيارة العيادة أو المنزل.' };
+        if (voice && !state.can_voice) return { allowed: false, message: 'الرسائل الصوتية غير متاحة بعد زيارة العيادة أو المنزل.' };
       } catch (err) {
+        // fail closed: a window that cannot be computed must not open the doctor's chat
         this.logger.warn(`Appointment validation failed: ${(err as Error).message}`);
+        return { allowed: false, message: 'تعذّر التحقق من حالة الاستشارة. حاول مرة أخرى بعد قليل.' };
       }
     }
     return { allowed: true };
@@ -309,10 +340,12 @@ export class ChatService {
     if (!thread) throw new NotFoundException('thread_not_found');
     this.assertParticipant(thread, senderId);
 
-    const check = await this.verifyCommunicationAllowed(threadId, senderId, body?.type);
+    const media = await this.validateChatMediaIds(threadId, senderId, body?.media_ids);
+    const mediaIds = media.ids;
+    // a voice note is decided by what is attached (audio), never only by the type the client says
+    const voice = isVoiceMessage(body?.type) || media.mimes.some((m) => m.startsWith('audio/'));
+    const check = await this.verifyCommunicationAllowed(threadId, senderId, voice);
     if (!check.allowed) throw new ForbiddenException(check.message);
-
-    const mediaIds = await this.validateChatMediaIds(threadId, senderId, body?.media_ids);
     if (body?.attachment_url) throw new BadRequestException('attachment_url_not_supported_use_media_ids');
 
     // Deduplication check. The filter is kept for the rapid-tap loser below,
@@ -585,11 +618,18 @@ export class ChatService {
     return thread;
   }
 
+  /** Only a group has members to manage (a direct thread is exactly its two people), and only its creator manages them; anyone may leave. */
+  private assertCanManageMembers(thread: any, actorId: string, removedId?: string): void {
+    if (thread.type !== 'group') throw new ForbiddenException('participant_management_not_allowed');
+    if (removedId !== undefined && String(removedId) === String(actorId)) return;
+    if (String(thread.created_by) !== String(actorId)) throw new ForbiddenException('participant_management_not_allowed');
+  }
+
   async addParticipant(threadId: string, actorId: string, userId: string): Promise<void> {
     const thread = await this.threads.findOne({ id: { $eq: threadId } });
     if (!thread) throw new NotFoundException('thread_not_found');
     this.assertParticipant(thread, actorId);
-    if (thread.type !== 'group' && thread.type !== 'direct') throw new ForbiddenException('participant_management_not_allowed');
+    this.assertCanManageMembers(thread, actorId);
     await this.threads.updateOne({ id: { $eq: threadId } }, {
       $addToSet: { participant_ids: userId },
       $set: { [`unread_counts.${userId}`]: 0 },
@@ -600,7 +640,7 @@ export class ChatService {
     const thread = await this.threads.findOne({ id: { $eq: threadId } });
     if (!thread) throw new NotFoundException('thread_not_found');
     this.assertParticipant(thread, actorId);
-    if (thread.type !== 'group' && thread.type !== 'direct') throw new ForbiddenException('participant_management_not_allowed');
+    this.assertCanManageMembers(thread, actorId, userId);
     await this.threads.updateOne({ id: { $eq: threadId } }, { $pull: { participant_ids: userId } });
   }
 }

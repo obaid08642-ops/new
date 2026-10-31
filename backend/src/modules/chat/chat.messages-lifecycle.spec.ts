@@ -34,7 +34,7 @@ function setup(opts: { online?: string[]; msg?: any; last?: any } = {}) {
   const presence: any = { isOnline: jest.fn(async (id: string) => (opts.online || []).includes(id)) };
   const svc = new ChatService(threads, msgs, { emit: jest.fn().mockResolvedValue(undefined) } as any, events, undefined, presence);
   jest.spyOn(svc as any, 'verifyCommunicationAllowed').mockResolvedValue({ allowed: true });
-  jest.spyOn(svc as any, 'validateChatMediaIds').mockImplementation(async (_t: any, _s: any, ids: any) => ids || []);
+  jest.spyOn(svc as any, 'validateChatMediaIds').mockImplementation(async (_t: any, _s: any, ids: any) => ({ ids: ids || [], mimes: [] }));
   return { svc, created, msgUpdates, threadUpdates, emitted, msgDoc };
 }
 
