@@ -1,4 +1,5 @@
 #!/bin/bash
+# ops-detach: big applies run longer than the 420 s non-detached limit (run 68: the translations apply was killed at 420 s during its rollback).
 # Catalogue apply (owner-approved 2026-10-25), two runs of the same task, one change per run, every step checked.
 #   Run 1 (EXPECT_PLAN_SHA empty): DRY RUN. Prints the plan (counts per step) and its SHA-256 as `status:` lines; nothing is written.
 #   Run 2 (EXPECT_PLAN_SHA = the hash of run 1, set in this file by the reviewer after the owner has read the counts): APPLY.
@@ -42,7 +43,7 @@
 #                                                    --oom-score-adj 1000` (if the host runs short, this container is the one the kernel kills), NODE_OPTIONS heap 700 MB.
 #                                                    For heavy steps; never in the API container. $B is mounted as /backup (the backup file lands there directly), $IN as /in (read-only).
 set -u
-EXPECT_PLAN_SHA="adfa265c71c7e0c032700fdca950badca680fec1efe5fa601bb63626ff697574"
+EXPECT_PLAN_SHA=""
 COMPLETION=""
 PRUNE=""
 TRANSLATIONS="yes"

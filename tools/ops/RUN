@@ -1,11 +1,10 @@
-# 2026-10-31 lead reviewer: run 68.
-# Run 67: deployed main@cff60584 (dump 355 MB, attempt 1 ok, health ok). Disk: 72% before, 87% after the deploy (two releases of 1.2 GB each,
-# 8.2 GB of images). Old checkouts with node_modules in /opt/nabdah (nabdah-backend 1.1 GB, patient-web 1 GB, Napd-admin 0.7 GB) look
-# unused: S checks and writes a guarded cleanup.
-# 1. 90-catalogue-apply APPLY of run 67's plan (179 changes: lab 54 set + 9 hidden duplicates deleted, nursing 9 + 3, radiology: the 4 owner
-#    approvals, hsg merged, 67 market rows inserted, 15 hidden duplicates deleted; 6 self-conflicts dropped by #2197). Backup, verify, rollback.
-# 2. 90c APPLY of the translations (19,984 empty fields from 9,971 checked answers). Backup, verify, rollback.
-# 3. Purge the API cache.
-90-catalogue-apply
+# 2026-10-31 lead reviewer: run 69 (read-only + dry run).
+# Run 68: the catalogue apply wrote, then 7 duplicate fills were "changed since plan" (two losers filling the same keeper field, within one
+# step); verify failed and the rollback restored everything (counts = backup). Sent to S.
+# The translations apply lost its mongo connection ("connection 1 to :27017 closed") and the task was then killed at the 420 s limit of a
+# non-detached task, during its rollback. Each field is either translated (checked answer, marked machine) or still empty; nothing else is touched.
+# 90 and 90c now run detached.
+# 1. 99m-mongo-state (READ-ONLY): did mongod restart or get OOM-killed during the apply.
+# 2. 90c DRY RUN: what is still empty (a smaller plan if part of run 68's writes stayed).
+99m-mongo-state
 90c-catalogue-translations
-cf-purge-api
