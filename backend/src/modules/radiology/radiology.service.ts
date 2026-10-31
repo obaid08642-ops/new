@@ -743,6 +743,11 @@ export class RadiologyOpsService {
   async updateInsuranceStatus(id: string, user: any, status: string, reason?: string) {
     const b = await this.findBooking(id, user);
     if (!b) throw new NotFoundException();
+    // A provider can say "rejected" (with the reason the patient is shown) but can never approve their own booking here: an approval,
+    // full or partial, comes from the insurer through the coverage decision (which records the reference and sets the copay), because
+    // approved insurance lets the generic accept pass without the patient paying their share.
+    if (!['rejected', 'pending', 'none'].includes(String(status))) throw new BadRequestException('insurance_approval_requires_coverage_decision');
+    if (status === 'rejected' && !String(reason || '').trim()) throw new BadRequestException('rejection_reason_required');
     b.insurance_status = status;
     if (reason) b.rejection_reason = reason;
     await b.save();
