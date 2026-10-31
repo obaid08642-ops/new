@@ -4,6 +4,7 @@ import { router, type Href } from 'expo-router';
 
 import { Card, EmptyState } from '../../../../packages/ui-native/src';
 import { Gate, StatusTag, useConsultFormat } from '../consult/ConsultKit';
+import { supportStatus } from '../../utils/supportStatus';
 import { ChatThread, type ChatMessage } from '../family/ChatThread';
 import { Notice, rowsOf, useRemote } from '../health/HealthKit';
 import { Glyph } from '../pharmacy/PharmacyKit';
@@ -136,7 +137,7 @@ export function SupportTicketsView() {
           <EmptyState icon="headset" tone="ink" title={k('support.tickets.empty')} body={k('support.tickets.emptyBody')} actionLabel={k('support.tickets.new')} onAction={chat} theme={theme} />
         ) : (
           rows.map((row) => (
-            <Pressable key={row.id} accessibilityRole="button" accessibilityLabel={[row.subject, row.status, row.date].filter(Boolean).join(', ')} onPress={chat} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })} testID={`ticket-${row.id}`}>
+            <Pressable key={row.id} accessibilityRole="button" accessibilityLabel={[row.subject, supportStatus(row.status) ? k(supportStatus(row.status)!.key) : null, row.date].filter(Boolean).join(', ')} onPress={chat} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })} testID={`ticket-${row.id}`}>
               <Card padding="sm" theme={theme}>
                 <View style={{ gap: 8 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
@@ -144,7 +145,7 @@ export function SupportTicketsView() {
                       <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>{row.subject || `‎#${String(row.id).slice(-6)}‎`}</Text>
                       <Text style={{ ...scale(t, 'tag', 'regular'), color: c.text.tertiary, ...flow }}>{`‎#${String(row.id).slice(-6)}‎`}</Text>
                     </View>
-                    {row.status ? <StatusTag label={row.status} tone="info" /> : null}
+                    {supportStatus(row.status) ? <StatusTag label={k(supportStatus(row.status)!.key)} tone={supportStatus(row.status)!.tone} /> : null}
                   </View>
                   {row.date || row.lastUpdate ? (
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
