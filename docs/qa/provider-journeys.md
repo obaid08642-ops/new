@@ -15,10 +15,10 @@ Cell: ✔ pass · ◐ works with a gap (id) · ✘ fail (id) · – not applicab
 | 1 | New order: push + bell | ✔ | ✔ | ✔ | ✔ *(R1, #2271)* | ◐ R8 | ✔ *(R2, #2271)* | ✔ | ? |
 | 2 | Appears in the list, with sound and badge | ◐ R4 *(R5, #2273; R3, #2271)* | ◐ R4 | ◐ R4 | ◐ R4 | ◐ R4 | ◐ R4 | ◐ R4 | ◐ R4 *(R5, #2273)* |
 | 3 | Unanswered: auto-expiry, what the patient sees | ✘ R6 | ✘ R6 | ✘ R6 | ✔ | ◐ R6 | ✘ R6 | ✘ R6 | ✘ R6 |
-| 4 | Accept | ◐ D3 | ◐ D3 | ◐ D3 | ✔ | ✔ | ✔ | ✔ | ✔ *(R5, #2273)* |
+| 4 | Accept | ✔ *(D3, #2283)* | ✔ *(D3, #2283)* | ✔ *(D3, #2283)* | ✔ | ✔ | ✔ | ✔ | ✔ *(R5, #2273)* |
 | 5 | Reject with a reason | ✘ D1 | ✘ D1 | ✘ D1 | ✔ | ✘ D1 | ✘ D1 | ✘ D1 | ✘ D1 |
-| 6 | Reschedule (provider / patient) | ✘ D2 | ✘ D2 | ✘ D2 | – | ✘ D2 | ✘ D2 | ✘ D2 | ✘ D2 |
-| 7 | Cancel by the patient, before / after acceptance | ◐ D4 | ◐ D4 | ◐ D4 | ✔ | ◐ D1 D4 | ◐ D1 D4 | ◐ D4 D5 | ✔ |
+| 6 | Reschedule (provider / patient) | ✘ D2 | ✘ D2 | ✘ D2 | – | ◐ D2 *(guard + notice, #2283; no slot check)* | ◐ D2 *(#2283)* | ◐ D2 *(patient side + notice, #2283; no provider reschedule)* | ✘ D2 |
+| 7 | Cancel by the patient, before / after acceptance | ✔ *(D4, #2283)* | ✔ *(#2283)* | ✔ *(#2283)* | ✔ | ◐ D1 *(D4, #2283)* | ◐ D1 *(D4, #2283)* | ◐ D5 *(D4, #2283)* | ✔ |
 | 8 | Cancel by the provider | ✔ | ✔ | ✔ | ? | ✘ D1 | ◐ D1 | ✘ D1 | ✔ |
 | 9 | Start / on the way / arrive | – | ✔ | ◐ *(W1, #2277: patient texts W1b open)* | ✔ *(W3, #2277)* | ✔ *(W4, #2277)* | ✔ | ✔ | – |
 | 10 | Complete | ✔ | ✔ | ✔ *(W1, #2277)* | ✔ *(W3, #2277)* | ✔ | ✔ *(W5, #2279)* | ✔ *(W5, #2279)* | – |
@@ -26,7 +26,7 @@ Cell: ✔ pass · ◐ works with a gap (id) · ✘ fail (id) · – not applicab
 | 12 | Patient did not show up | ✘ W2 | ✘ W2 | ✘ W2 | ✘ W2 | ✔ *(W2, #2277)* | ✘ W2 | ◐ W2 | ✘ W2 |
 | 13 | Partial fulfilment, alternative offered | – | – | – | ✔ | – | – | – | – |
 | 14 | Insurance pending / approved / rejected | – | ✘ S3 | ✘ S3 | ✔ | ◐ S3 *(#2274)* | ◐ S3 *(#2274)* | ◐ S3 *(#2274)* | ✘ S3 |
-| 15 | Payment pending / failed / refunded | ✘ D3 S4 | ✘ D3 S4 | ✘ D3 S4 | ✔ | ◐ S4 | ◐ S4 | ◐ S4 | ? |
+| 15 | Payment pending / failed / refunded | ◐ S4 *(D3, #2283)* | ◐ S4 *(D3, #2283)* | ◐ S4 *(D3, #2283)* | ✔ | ◐ S4 | ◐ S4 | ◐ S4 | ? |
 | 16 | Two providers race for one order | – | – | – | ◐ S1 | ◐ S1 S2 | ◐ S1 S2 | ◐ S1 S2 | – |
 | 17 | Flaky network during accept (no double effect) | ✔ *(X1, #2273)* | ✔ *(#2273)* | ✔ *(#2273)* | ✔ | ◐ X7 | ◐ X7 | ✔ *(X1, #2273)* | ✔ *(X1, #2273)* |
 | 18 | Flaky network during complete (no double completion) | ◐ X3 | ◐ X3 | ◐ X3 | ✘ X6 *(FOR F)* | ✘ X2 | ✔ | ◐ X7 | ? |
@@ -50,9 +50,9 @@ Row 21 is "wired, but the provider is never told when the payout changes state" 
 
 **Decisions and changes**
 - **D1** generic reject (`provider-jobs.module.ts:244`) takes no reason (`DoctorHomeTab.tsx:175`, `FacilityOrderDetail.tsx:52`, `NursingDashboard.tsx:164` send none or a fixed string), the reason is kept only in `state_history`, and no refund hook runs for nursing/consultation; lab (`labs.service.ts:723`) and radiology (`radiology.service.ts:123-148`) provider rejects store the reason only in history, emit no cancel event and nothing listens to `lab.booking_cancelled`, so a paid card booking is not refunded. Fix: required reason, a visible `rejection_reason`, the same refund hook the patient cancel uses (FOR F: the hook's logic).
-- **D2** reschedule: `labs.service.ts:1064-1073` and `radiology.service.ts:349-358` have no state guard (a CANCELLED or REPORTED booking can be moved), no slot/capacity check, no notification; `unified-bookings.module.ts:225-251` (patient) has no slot check and emits `service.confirmed` without `patient_account_id`; `appointments.service.ts:779-860` creates the new appointment CONFIRMED at once and drops payment, insurance, booker and complaint fields; nurses have no provider reschedule; facility staff get 403.
-- **D3** `appointments.service.ts:596`: doctor confirm has no payment gate (an unpaid card booking is confirmed and then never marked paid, `:890-895`).
-- **D4** the provider is never told when a patient cancels or reschedules (`notifications.service.ts:709`, no `notifyBookingProvider` on `service.cancelled`).
+- **D2** *(lab/radiology state guard and notices, patient reschedule notice: #2283; slot check, appointment reschedule fields, nurse provider reschedule, facility 403 open)* reschedule: `labs.service.ts:1064-1073` and `radiology.service.ts:349-358` have no state guard (a CANCELLED or REPORTED booking can be moved), no slot/capacity check, no notification; `unified-bookings.module.ts:225-251` (patient) has no slot check and emits `service.confirmed` without `patient_account_id`; `appointments.service.ts:779-860` creates the new appointment CONFIRMED at once and drops payment, insurance, booker and complaint fields; nurses have no provider reschedule; facility staff get 403.
+- **D3** *(fixed #2283)* `appointments.service.ts:596`: doctor confirm has no payment gate (an unpaid card booking is confirmed and then never marked paid, `:890-895`).
+- **D4** *(fixed #2283 for cancel; reschedule notice also #2283)* the provider is never told when a patient cancels or reschedules (`notifications.service.ts:709`, no `notifyBookingProvider` on `service.cancelled`).
 - **D5** `home-care.service.ts:187-190`: a second cancel of a CANCELLED booking re-emits `homecare.booking_cancelled` (refund hook twice; FOR F to check idempotency).
 
 **Doing the work**
@@ -85,7 +85,8 @@ Row 21 is "wired, but the provider is never told when the payout changes state" 
 | 1 Receive | R1 R2 R3 | #2271 |
 | 2 Jobs queue and idempotency | R5 X1 X7(doctor/nursing) | #2273 |
 | 3 Insurance | S3 | #2274 (part) |
-| 4 Cancel, reject, refund, reschedule | D1 D2 D3 D4 D5 S4 | |
+| 4 Cancel, reject, refund, reschedule | D2 D3 D4 | #2283 |
+| 4b Reject with reason and refund hooks | D1 D5 S4 | FOR F (the refund path) + app reason sheet |
 | 5 Doing the work | W1 W3 W4 | #2277 |
 | 5b Completion through the engine | W5 | #2279 |
 | 6 No-show | W2 | |
