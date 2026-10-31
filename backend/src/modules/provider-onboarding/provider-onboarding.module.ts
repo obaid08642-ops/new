@@ -1,4 +1,5 @@
 import { clinicFromRegistration, normalizeGender, normalizeEducation, normalizeProcedures, assertFollowUp, normalizeClinicLocation, normalizeIban, doctorSubmitProblems } from './doctor-profile-fields';
+import { bankRowFromProfile, syncBankRow } from './bank-row';
 import { facilityLicenseProblems } from './facility-license';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { Module, Controller, Post, Get, Body, Query, Param, UseGuards, Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
@@ -474,6 +475,8 @@ export class ProviderOnboardingService {
       }
       profile.account_id = existing.id;
     }
+    // The registration IBAN becomes the bank row the admin reviews (approve-bank / reject-bank act on it).
+    await syncBankRow(this.providerModel.db, profile.account_id as string, bankRowFromProfile(profile.toObject()), () => uuidv4(), now);
     await profile.save();
   }
 

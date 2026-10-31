@@ -20,7 +20,7 @@ describe('AppointmentsService state machine', () => {
   let engine: any;
 
   beforeEach(() => {
-    apptModel = { findOne: jest.fn(), create: jest.fn(), deleteOne: jest.fn().mockResolvedValue({ deletedCount: 1 }) };
+    apptModel = { findOne: jest.fn(), create: jest.fn(), updateOne: jest.fn().mockResolvedValue({ acknowledged: true }), deleteOne: jest.fn().mockResolvedValue({ deletedCount: 1 }) };
     providerModel = { findOne: jest.fn().mockResolvedValue({ id: 'doc-1', user_id: 'doc-user-1', account_id: 'doc-account-1', type: 'doctor' }) };
     events = { emit: jest.fn() };
     engine = { apply: jest.fn(async (opts: any) => opts.mutate()) };
@@ -111,12 +111,32 @@ describe('AppointmentsService state machine', () => {
     });
 
     // D-26 (owner): the full-refund window is 2 h (was 24 h), so "late" is now inside 2 h.
-    it('patient cancels <2h before → 50% refund to wallet', async () => {
+    it('patient cancels <2h before → 50% refund, back to the original payment', async () => {
       const appt = apptIn(APPT_STATES.CONFIRMED, { slot_start: new Date(Date.now() + 1 * 3600000) });
       apptModel.findOne.mockResolvedValue(appt);
       const res = await service.cancel('appt-1', { id: 'pat-1', role: 'patient' });
       expect(res.refund_percentage).toBe(50);
-      expect(res.refund_destination).toBe('wallet');
+      expect(res.refund_destination).toBe('source');
+    });
+
+    it('an illegal cancel (already completed) throws before any refund is stored or emitted', async () => {
+      const appt = apptIn(APPT_STATES.COMPLETED);
+      apptModel.findOne.mockResolvedValue(appt);
+      await expect(service.cancel('appt-1', { id: 'pat-1', role: 'patient' }, 'too late')).rejects.toThrow(BadRequestException);
+      expect(events.emit).not.toHaveBeenCalledWith('appointment.refund.calculated', expect.anything());
+      expect(apptModel.updateOne).not.toHaveBeenCalled();
+      expect(appt.save).not.toHaveBeenCalled();
+    });
+
+    it('a legal cancel stores the refund and emits it only after the state change', async () => {
+      const appt = apptIn(APPT_STATES.CONFIRMED, { slot_start: new Date(Date.now() + 48 * 3600000) });
+      apptModel.findOne.mockResolvedValue(appt);
+      const order: string[] = [];
+      engine.apply.mockImplementation(async (opts: any) => { const r = await opts.mutate(); order.push('transition'); return r; });
+      events.emit.mockImplementation((name: string) => { if (name === 'appointment.refund.calculated') order.push('refund'); });
+      await service.cancel('appt-1', { id: 'pat-1', role: 'patient' });
+      expect(order).toEqual(['transition', 'refund']);
+      expect(apptModel.updateOne).toHaveBeenCalledWith({ id: 'appt-1' }, { $set: expect.objectContaining({ refund_percentage: 100, refund_destination: 'source' }) });
     });
 
     it('patient no-show → 0% refund', async () => {
